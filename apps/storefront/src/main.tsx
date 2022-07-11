@@ -1,7 +1,10 @@
 import ReactDOM from 'react-dom/client'
+import { LangProvider } from '@b3/lang'
+
 import App from './App'
 
 import './main.css'
+import * as locales from './locales'
 
 const CONTAINER_ID = 'bundle-container'
 
@@ -14,4 +17,8 @@ if (!container) {
 
 container.className = 'bundle-namespace'
 
-ReactDOM.createRoot(container).render(<App />)
+ReactDOM.createRoot(container).render(
+  <LangProvider locales={locales}>
+    <App />
+  </LangProvider>,
+)

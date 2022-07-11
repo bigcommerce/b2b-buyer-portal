@@ -1,0 +1,9 @@
+{
+  "name": "@b3/lang",
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "react-intl": "^5.20.3"
+  }
+}
