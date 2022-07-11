@@ -1,0 +1,108 @@
+.bundle-namespace .bundle-app > iframe {
+  width: 0;
+  height: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.bundle-namespace .bundle-app > iframe.active-frame {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  overscroll-behavior: contain;
+  z-index: 2147483647;
+}
+
+.bundle-namespace iframe {
+  font-family: "Helvetica Neue", "Apple Color Emoji", Helvetica, Arial,
+    sans-serif;
+  font-size: 100%;
+  font-style: normal;
+  letter-spacing: normal;
+  font-stretch: normal;
+  font-weight: normal;
+  text-align-last: initial;
+  text-indent: 0px;
+  text-shadow: none;
+  text-transform: none;
+  alignment-baseline: baseline;
+  animation-play-state: running;
+  backface-visibility: visible;
+  background-color: transparent;
+  background-image: none;
+  baseline-shift: baseline;
+  bottom: auto;
+  -webkit-box-decoration-break: slice;
+  box-shadow: none;
+  box-sizing: content-box;
+  caption-side: top;
+  clear: none;
+  clip: auto;
+  color: inherit;
+  column-count: auto;
+  column-fill: balance;
+  column-gap: normal;
+  column-width: auto;
+  content: normal;
+  counter-increment: none;
+  counter-reset: none;
+  cursor: auto;
+  direction: ltr;
+  display: inline;
+  dominant-baseline: auto;
+  empty-cells: show;
+  float: none;
+  height: auto;
+  -webkit-hyphenate-character: auto;
+  hyphens: manual;
+  image-rendering: auto;
+  left: auto;
+  line-height: inherit;
+  max-height: none;
+  max-width: none;
+  min-height: 0px;
+  min-width: 0px;
+  opacity: 1;
+  orphans: 2;
+  outline-offset: 0px;
+  page: auto;
+  perspective: none;
+  perspective-origin: 50% 50%;
+  pointer-events: auto;
+  position: static;
+  quotes: none;
+  resize: none;
+  right: auto;
+  size: auto;
+  table-layout: auto;
+  top: auto;
+  transform: none;
+  transform-origin: 50% 50% 0px;
+  transform-style: flat;
+  unicode-bidi: normal;
+  vertical-align: baseline;
+  white-space: normal;
+  widows: 2;
+  width: auto;
+  word-break: normal;
+  word-spacing: normal;
+  overflow-wrap: normal;
+  z-index: auto;
+  text-align: start;
+  -webkit-font-smoothing: antialiased;
+  font-variant: normal;
+  text-decoration: none;
+  border-width: 0px;
+  border-style: none;
+  border-color: transparent;
+  border-image: initial;
+  border-radius: 0px;
+  list-style: outside none disc;
+  margin: 0px;
+  overflow: visible;
+  padding: 0px;
+  page-break-after: auto;
+  page-break-before: auto;
+  page-break-inside: auto;
+}

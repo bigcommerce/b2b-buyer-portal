@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BundleB2B</title>
+  </head>
+  <body>
+    <div>
+      <h1>Ugly Cornerstone Store Theme with Weird CSS</h1>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
+        porttitor elit ac magna viverra, interdum semper velit luctus. Etiam at
+        dapibus lorem. Cras at imperdiet ligula. Suspendisse eget quam congue,
+        sagittis lacus at, molestie leo. Donec ante massa, scelerisque ut orci
+        ut, fermentum consectetur diam. Donec tincidunt arcu ut dui vestibulum,
+        a ullamcorper nulla interdum. Curabitur nulla turpis, mollis at ipsum
+        ac, lobortis cursus quam. Ut ipsum nisl, tempus sed dignissim non,
+        pulvinar suscipit tellus. Praesent eu ex et sem venenatis ultrices. Cras
+        at imperdiet augue. Nunc in sapien elit.
+      </p>
+    </div>
+    <div id="headless-container">
+      <a @click="register" class="navUser-action" href="javascript:void(0)" aria-label="Register">
+        {{registerText}}
+      </a>
+    </div>
+    <div>
+      <a class="navUser-action" href="/login.php?action=create_account" aria-label="Register" onclick="inlineEvent()">
+        Register Native
+      </a>
+    </div>
+    <div>
+      <a class="navUser-action" href="/login.php?action=create_account" aria-label="Register">
+        Register
+      </a>
+    </div>
+    <style>
+      body {
+        background: #dedede;
+        color: white;
+        font-family: "Courier New", Courier, monospace;
+      }
+
+      h1 {
+        color: #f00;
+      }
+    </style>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+      const inlineEvent = () => {
+        // will log nothing by removed the methods from B3
+        console.log('inline event')
+      }
+      const Headless = {
+        data() {
+          return {
+            registerText: "Headless Register"
+          }
+        },
+        methods: {
+          register() {
+            // will log nothing by removed the methods from B3
+            console.log('headless event')
+          }
+        }
+      }
+
+      Vue.createApp(Headless).mount('#headless-container')
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "name": "b3-fe-turbo",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "eslint-config-b3": "*",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "turbo": "latest"
+  },
+  "engines": {
+    "npm": ">=7.0.0",
+    "node": ">=14.0.0"
+  },
+  "dependencies": {},
+  "packageManager": "yarn@1.22.17",
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint \"**/*.{ts,tsx}\" --fix"
+    ]
+  }
+}

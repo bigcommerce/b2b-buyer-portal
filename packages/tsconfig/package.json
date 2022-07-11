@@ -1,0 +1,10 @@
+{
+  "name": "@b3/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "files": [
+    "base.json",
+    "react-library.json"
+  ]
+}
