@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client'
 import { LangProvider } from '@b3/lang'
 
 import App from './App'
+import B3ThemeProvider from './theme'
 
 import './main.css'
 import * as locales from './locales'
@@ -19,6 +20,8 @@ container.className = 'bundle-namespace'
 
 ReactDOM.createRoot(container).render(
   <LangProvider locales={locales}>
-    <App />
+    <B3ThemeProvider>
+      <App />
+    </B3ThemeProvider>
   </LangProvider>,
 )
