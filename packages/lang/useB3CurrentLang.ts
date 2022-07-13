@@ -8,7 +8,10 @@ export const useB3CurrentLang = () => {
   const { state, dispatch } = useContext(LangContext)
   const setLang = (lang: string) => {
     if (dispatch) {
-      dispatch({ type: 'lang', payload: { lang } })
+      dispatch({
+        type: 'lang',
+        payload: { lang },
+      })
     }
   }
 

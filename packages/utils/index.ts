@@ -1,1 +1,5 @@
-export { default as browserLanguage } from './browserLanguage'
+import getBrowserLanguage from './getBrowserLanguage'
+
+export default {
+  getBrowserLanguage,
+}

@@ -1,30 +1,36 @@
 import {
-  useReducer, createContext, useMemo, Dispatch, ReactNode, Context, Reducer,
+  useReducer,
+  createContext,
+  useMemo,
+  Dispatch,
+  ReactNode,
+  Context,
+  Reducer,
 } from 'react'
 
-import { browserLanguage } from '@b3/utils'
+import B3Utils from '@b3/utils'
 
-interface LangStateInterface {
+interface LangContextState {
   lang: string,
 }
 
-interface LangActionInterface {
+interface LangContextAction {
   type?: string,
   payload?: any
 }
 
-const initState: LangStateInterface = {
-  lang: browserLanguage(),
+const initState: LangContextState = {
+  lang: B3Utils.getBrowserLanguage(),
 }
 
 export const LangContext: Context<{
-  state: LangStateInterface
-  dispatch?: Dispatch<LangActionInterface>
+  state: LangContextState
+  dispatch?: Dispatch<LangContextAction>
 }> = createContext({
   state: initState,
 })
 
-type LangReducer = Reducer<LangStateInterface, LangActionInterface>
+type LangReducer = Reducer<LangContextState, LangContextAction>
 
 const langReducer: LangReducer = (state, action) => {
   switch (action.type) {
@@ -44,7 +50,7 @@ export function LangContextProvider(props: LangContextProviderProps) {
 
   const { children } = props
 
-  const LangValue = useMemo(() => ({ state, dispatch }), [state])
+  const LangValue = useMemo(() => ({ state, dispatch }), [state.lang])
 
   return (
     <LangContext.Provider value={LangValue}>

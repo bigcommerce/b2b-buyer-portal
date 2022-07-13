@@ -9,22 +9,22 @@ type LangProviderProps = {
   locales?: {
     [k: string]: Record<string, string> | Record<string, MessageFormatElement[]>
   },
-  allowLang?: string[]
+  supportLang: string[]
 };
 
-const LangContentProvider = ({ children, locales = defaultLocales, allowLang = ['en'] }: LangProviderProps) => {
+export const LangProvider = ({
+  children,
+  locales = defaultLocales,
+  supportLang,
+}: LangProviderProps) => {
   const { state } = useContext(LangContext)
-  const lang = allowLang.includes(state.lang) ? state.lang : 'en'
+  const lang = supportLang.includes(state.lang) ? state.lang : 'en'
 
   return (
-    <IntlProvider messages={locales[lang] || locales.en} locale={lang} defaultLocale="en">
-      {children}
-    </IntlProvider>
+    <LangContextProvider>
+      <IntlProvider messages={locales[lang]} locale={lang} defaultLocale="en">
+        {children}
+      </IntlProvider>
+    </LangContextProvider>
   )
 }
-
-export const LangProvider = (props: LangProviderProps) => (
-  <LangContextProvider>
-    <LangContentProvider {...props} />
-  </LangContextProvider>
-)
