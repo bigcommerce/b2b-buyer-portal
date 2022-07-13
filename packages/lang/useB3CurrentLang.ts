@@ -1,37 +1,19 @@
 import {
-  useState,
-  useEffect,
-  Dispatch,
-  SetStateAction,
+  useContext,
 } from 'react'
 
-import { BrowserLanguage } from '@b3/utils'
+import { LangContext } from './context/LangContext'
 
-const defaultLang = (() => {
-  const lang = BrowserLanguage()
-  const safeValue = ['en', 'zh', 'fr', 'nl', 'de', 'it', 'es']
+export const useB3CurrentLang = () => {
+  const { state, dispatch } = useContext(LangContext)
+  const setLang = (lang: string) => {
+    if (dispatch) {
+      dispatch({ type: 'lang', payload: { lang } })
+    }
+  }
 
-  return safeValue.indexOf(lang) !== -1 ? lang : 'en'
-})()
-
-const subscriptions: Dispatch<SetStateAction<string>>[] = []
-let lang = defaultLang
-
-const setLang = (newLang: string) => {
-  lang = newLang
-  subscriptions.forEach((subscription) => {
-    subscription(lang)
-  })
-}
-
-type UseB3CurrentLang = {
-  (): [string, (newLang: string) => void]
-}
-
-export const useB3CurrentLang: UseB3CurrentLang = () => {
-  const [_, newSubscription] = useState(defaultLang)
-  useEffect(() => {
-    subscriptions.push(newSubscription)
-  }, [])
-  return [lang, setLang]
+  return [
+    state.lang,
+    setLang,
+  ] as const
 }

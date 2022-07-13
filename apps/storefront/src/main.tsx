@@ -6,6 +6,7 @@ import B3ThemeProvider from './theme'
 
 import './main.css'
 import * as locales from './locales'
+import { ALLOW_LANGUAGE } from './constants'
 
 const CONTAINER_ID = 'bundle-container'
 
@@ -19,7 +20,7 @@ if (!container) {
 container.className = 'bundle-namespace'
 
 ReactDOM.createRoot(container).render(
-  <LangProvider locales={locales}>
+  <LangProvider locales={locales} allowLang={ALLOW_LANGUAGE}>
     <B3ThemeProvider>
       <App />
     </B3ThemeProvider>

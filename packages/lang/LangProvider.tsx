@@ -1,18 +1,20 @@
 import { IntlProvider, MessageFormatElement } from 'react-intl'
-import React from 'react'
+import { ReactNode, useContext } from 'react'
 
-import { useB3CurrentLang } from './useB3CurrentLang'
 import * as defaultLocales from './locales'
+import { LangContext, LangContextProvider } from './context/LangContext'
 
-type Props = {
-  children?: React.ReactNode;
+type LangProviderProps = {
+  children?: ReactNode,
   locales?: {
     [k: string]: Record<string, string> | Record<string, MessageFormatElement[]>
-  };
+  },
+  allowLang?: string[]
 };
 
-export function LangProvider({ children, locales = defaultLocales }: Props) {
-  const [lang] = useB3CurrentLang()
+const LangContentProvider = ({ children, locales = defaultLocales, allowLang = ['en'] }: LangProviderProps) => {
+  const { state } = useContext(LangContext)
+  const lang = allowLang.includes(state.lang) ? state.lang : 'en'
 
   return (
     <IntlProvider messages={locales[lang] || locales.en} locale={lang} defaultLocale="en">
@@ -20,3 +22,9 @@ export function LangProvider({ children, locales = defaultLocales }: Props) {
     </IntlProvider>
   )
 }
+
+export const LangProvider = (props: LangProviderProps) => (
+  <LangContextProvider>
+    <LangContentProvider {...props} />
+  </LangContextProvider>
+)

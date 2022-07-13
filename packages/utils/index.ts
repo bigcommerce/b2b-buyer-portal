@@ -1,1 +1,1 @@
-export { default as BrowserLanguage } from './BrowserLanguage'
+export { default as browserLanguage } from './browserLanguage'
