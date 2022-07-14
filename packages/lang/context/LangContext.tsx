@@ -20,7 +20,7 @@ interface LangContextAction {
 }
 
 const initState: LangContextState = {
-  lang: B3Utils.getBrowserLanguage(),
+  lang: B3Utils.Lang.getBrowserLanguage(),
 }
 
 export const LangContext: Context<{
