@@ -2,7 +2,11 @@
   "exclude": ["node_modules"],
   "extends": "@b3/tsconfig/vite.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "lib": ["es2020"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"]
 }

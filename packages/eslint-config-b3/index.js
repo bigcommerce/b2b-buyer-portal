@@ -37,5 +37,11 @@ module.exports = {
     'import/no-unresolved': [0, { ignore: ['antd-mobile'] }],
     'no-unused-vars': 1,
     'consistent-return': 0,
+    'react/function-component-definition': 0,
+    'react/jsx-no-useless-fragment': 0,
+    // 'react/jsx-no-useless-fragment': [
+    //   // fragment <> 
+    //   { allowExpressions: true },
+    // ],
   },
 }
