@@ -2,7 +2,7 @@
   "name": "@b3/lang",
   "private": true,
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "lint": "eslint \"**/*.{ts,tsx}\" --fix"
   },

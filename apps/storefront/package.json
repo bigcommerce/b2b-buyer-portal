@@ -16,7 +16,8 @@
     "@mui/material": "^5.8.7",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-router-dom": "6"
+    "react-router-dom": "6",
+    "@b3/lang": "*"
   },
   "devDependencies": {
     "@b3/tsconfig": "*",
