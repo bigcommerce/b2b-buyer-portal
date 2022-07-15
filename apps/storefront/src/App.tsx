@@ -28,8 +28,14 @@ export default function App() {
             <Layout close={() => setIsOpen(false)}>
               bundle b2b
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/form" element={<Form />} />
+                <Route
+                  path="/"
+                  element={<Home />}
+                />
+                <Route
+                  path="/form"
+                  element={<Form />}
+                />
               </Routes>
             </Layout>
           ) : null}

@@ -16,8 +16,15 @@ export function Form() {
         event.preventDefault()
       }}
     >
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
+      <Grid
+        container
+        spacing={3}
+      >
+        <Grid
+          item
+          xs={12}
+          sm={6}
+        >
           <TextField
             required
             id="firstName"
@@ -28,7 +35,11 @@ export function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+        >
           <TextField
             required
             id="lastName"
@@ -39,7 +50,10 @@ export function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid
+          item
+          xs={12}
+        >
           <TextField
             required
             id="address1"
@@ -50,7 +64,10 @@ export function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid
+          item
+          xs={12}
+        >
           <TextField
             id="address2"
             name="address2"
@@ -60,7 +77,11 @@ export function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+        >
           <TextField
             required
             id="city"
@@ -71,7 +92,11 @@ export function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+        >
           <TextField
             id="state"
             name="state"
@@ -80,7 +105,11 @@ export function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+        >
           <TextField
             required
             id="zip"
@@ -91,7 +120,11 @@ export function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+        >
           <TextField
             required
             id="country"
@@ -102,17 +135,28 @@ export function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid
+          item
+          xs={12}
+        >
           <FormControlLabel
-            control={
-              <Checkbox color="secondary" name="saveAddress" value="yes" />
-            }
+            control={(
+              <Checkbox
+                color="secondary"
+                name="saveAddress"
+                value="yes"
+              />
+            )}
             label="Use this address for payment details"
           />
         </Grid>
       </Grid>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button type="submit" variant="contained" sx={{ mt: 3, ml: 1 }}>
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{ mt: 3, ml: 1 }}
+        >
           Save
         </Button>
       </Box>

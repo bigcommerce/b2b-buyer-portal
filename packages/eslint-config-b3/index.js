@@ -23,6 +23,12 @@ module.exports = {
     'react/function-component-definition': 0,
     'react/react-in-jsx-scope': 0,
     'react/require-default-props': 0,
+    'react/jsx-max-props-per-line': [
+      1,
+      {
+        maximum: 1,
+      },
+    ],
     'react/destructuring-assignment': 0,
     'react/no-danger': 0,
     'import/extensions': 0,

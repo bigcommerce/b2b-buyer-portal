@@ -20,7 +20,10 @@ if (!container) {
 container.className = 'bundle-namespace'
 
 ReactDOM.createRoot(container).render(
-  <LangProvider locales={locales} supportLang={SUPPORT_LANGUAGE}>
+  <LangProvider
+    locales={locales}
+    supportLang={SUPPORT_LANGUAGE}
+  >
     <B3ThemeProvider>
       <App />
     </B3ThemeProvider>

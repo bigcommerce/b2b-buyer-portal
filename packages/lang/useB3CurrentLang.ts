@@ -1,6 +1,4 @@
-import {
-  useContext,
-} from 'react'
+import { useContext } from 'react'
 
 import { LangContext } from './context/LangContext'
 
@@ -10,7 +8,9 @@ export const useB3CurrentLang = () => {
     if (dispatch) {
       dispatch({
         type: 'lang',
-        payload: { lang },
+        payload: {
+          lang,
+        },
       })
     }
   }

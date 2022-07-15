@@ -20,10 +20,17 @@ export function Home() {
   return (
     <Card sx={{ minWidth: 275 }}>
       <CardContent>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+        <Typography
+          sx={{ fontSize: 14 }}
+          color="text.secondary"
+          gutterBottom
+        >
           Word of the Day
         </Typography>
-        <Typography variant="h5" component="div">
+        <Typography
+          variant="h5"
+          component="div"
+        >
           be
           {bull}
           nev
@@ -32,7 +39,10 @@ export function Home() {
           {bull}
           lent
         </Typography>
-        <Typography sx={{ mb: 1.5 }} color="text.secondary">
+        <Typography
+          sx={{ mb: 1.5 }}
+          color="text.secondary"
+        >
           adjective
         </Typography>
         <Typography variant="body2">

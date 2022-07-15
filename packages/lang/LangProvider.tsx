@@ -22,7 +22,11 @@ export const LangProvider = ({
 
   return (
     <LangContextProvider>
-      <IntlProvider messages={locales[lang]} locale={lang} defaultLocale="en">
+      <IntlProvider
+        messages={locales[lang]}
+        locale={lang}
+        defaultLocale="en"
+      >
         {children}
       </IntlProvider>
     </LangContextProvider>

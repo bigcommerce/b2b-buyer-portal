@@ -8,5 +8,14 @@
   },
   "dependencies": {
     "react-intl": "^5.20.3"
+  },
+  "devDependencies": {
+    "@b3/tsconfig": "*",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "eslint": "^8.2.0",
+    "react": "^18.0.0",
+    "tsup": "^5.10.1",
+    "typescript": "^4.6.3"
   }
 }

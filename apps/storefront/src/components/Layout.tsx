@@ -36,7 +36,11 @@ export function Layout({
         sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
       >
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+          >
             B2B App
           </Typography>
         </Toolbar>
@@ -60,8 +64,14 @@ export function Layout({
             { label: 'Home', to: '/', icon: HomeIcon },
             { label: 'Form', to: '/form', icon: VerifiedUserIcon },
           ].map(({ label, icon: Icon, to }) => (
-            <ListItem disablePadding key={label}>
-              <ListItemButton component={RouterLink} to={to}>
+            <ListItem
+              disablePadding
+              key={label}
+            >
+              <ListItemButton
+                component={RouterLink}
+                to={to}
+              >
                 <ListItemIcon>
                   <Icon />
                 </ListItemIcon>
