@@ -1,7 +1,7 @@
 declare const window: any
 
 const globalB3 = {
-  'dom.registerElement': '.navUser-action',
+  'dom.registerElement': '[href^="/login.php"]',
   ...window.B3,
 }
 
