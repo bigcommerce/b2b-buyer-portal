@@ -6,7 +6,7 @@ import styled from '@emotion/styled'
 
 import { ImageListItem } from '@mui/material'
 import { getBCRegisterCustomFields } from '../../shared/service/bc'
-import { getB2BRegisterCustomFields, getB2BRegisterLogo } from '../../shared/service/b2b'
+import { getB2BRegisterCustomFields, getB2BRegisterLogo, getB2BCountries } from '../../shared/service/b2b'
 
 import RegisteredStep from './RegisteredStep'
 import RegisterContent from './RegisterContent'
@@ -16,7 +16,14 @@ import { RegisteredContext } from './context/RegisteredContext'
 import { B3Sping } from '../../components/spin/B3Sping'
 
 import {
-  conversionDataFormat, bcContactInformationFields, RegisterFileds, contactInformationFields, getRegisterLogo,
+  conversionDataFormat,
+  bcContactInformationFields,
+  RegisterFileds,
+  contactInformationFields,
+  getRegisterLogo,
+  companyInformationFields,
+  companyAttachmentsFields,
+  addressInformationFields,
 } from './config'
 
 const RegisteredContainer = styled('div')({
@@ -37,22 +44,34 @@ export default function Registered() {
 
   const [logo, setLogo] = useState('')
 
-  const [isloadding, setLoadding] = useState(true)
+  const [isLoading, setLoading] = useState(true)
 
   const { dispatch } = useContext(RegisteredContext)
 
   useEffect(() => {
     const getBCAdditionalFields = async () => {
       try {
-        const { customerAccount } = await getBCRegisterCustomFields()
+        const { customerAccount, billingAddress } = await getBCRegisterCustomFields()
         const { companyExtraFields } = await getB2BRegisterCustomFields()
         const { quoteConfig } = await getB2BRegisterLogo()
+        const { countries } = await getB2BCountries()
         const registerLogo = getRegisterLogo(quoteConfig)
+
         const newCustomerAccount = customerAccount.length && customerAccount.filter((field: RegisterFileds) => field.custom)
-        const filterCompanyExtraFields = companyExtraFields.length && companyExtraFields.filter((field: RegisterFileds) => !field?.visibleToEnduser)
         const newAdditionalInformation: Array<RegisterFileds> = conversionDataFormat(newCustomerAccount)
+
+        const filterCompanyExtraFields = companyExtraFields.length && companyExtraFields.filter((field: RegisterFileds) => !field?.visibleToEnduser)
         const newCompanyExtraFields: Array<RegisterFileds> = conversionDataFormat(filterCompanyExtraFields)
-        console.log(newCompanyExtraFields, 'newCompanyExtraFields')
+
+        const customAddress = billingAddress.length && billingAddress.filter((field: RegisterFileds) => field.custom)
+        const addressExtraFields: Array<RegisterFileds> = conversionDataFormat(customAddress)
+
+        addressInformationFields.forEach((addressFileds) => {
+          if (addressFileds.name === 'country') {
+            addressFileds.options = countries
+          }
+        })
+
         if (dispatch) {
           dispatch({
             type: 'all',
@@ -61,11 +80,16 @@ export default function Registered() {
               contactInformation: [...contactInformationFields],
               additionalInformation: [...newAdditionalInformation],
               bcContactInformationFields: [...bcContactInformationFields],
+              companyInformation: [...companyInformationFields, ...newCompanyExtraFields],
+              companyAttachment: [...companyAttachmentsFields],
+              addressBasicFields: [...addressInformationFields],
+              addressExtraFields: [...addressExtraFields],
+              countryList: [...countries],
             },
           })
         }
         setLogo(registerLogo)
-        setLoadding(false)
+        setLoading(false)
       } catch (e) {
         console.log(e)
       }
@@ -91,8 +115,8 @@ export default function Registered() {
   return (
     <RegisteredContainer>
       <B3Sping
-        isSpinning={isloadding}
-        tip="loadding..."
+        isSpinning={isLoading}
+        tip="Loading..."
       >
         {
           logo && (

@@ -15,12 +15,12 @@ interface B3SpingProps {
   tip?: string,
   size?: Number & undefined,
   thickness?: Number & undefined,
-  isCloseLoadding?: Boolean,
+  isCloseLoading?: Boolean,
 }
 
 export const B3Sping = (props: B3SpingProps) => {
   const {
-    isSpinning, children, tip, size, thickness, isCloseLoadding,
+    isSpinning, children, tip, size, thickness, isCloseLoading,
   } = props
 
   return (
@@ -29,7 +29,7 @@ export const B3Sping = (props: B3SpingProps) => {
       isSpinning && (
         <SpinCenter>
           {
-            !isCloseLoadding && (
+            !isCloseLoading && (
             <CircularProgress
               size={size || 40}
               thickness={thickness || 2}

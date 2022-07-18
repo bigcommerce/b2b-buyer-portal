@@ -10,7 +10,10 @@ const RegisteredSigleCheckBox = memo((props: any) => {
   const { isChecked, onChange } = props
   return (
     <FormControl component="fieldset">
-      <FormGroup aria-label="position" row>
+      <FormGroup
+        aria-label="position"
+        row
+      >
         <FormControlLabel
           checked={isChecked}
           onChange={onChange}

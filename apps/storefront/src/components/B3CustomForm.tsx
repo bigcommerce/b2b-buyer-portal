@@ -1,6 +1,11 @@
 import { Grid } from '@mui/material'
 import {
-  B3TextField, B3Checkbox, B3RadioGroup, B3Select, B3Picker,
+  B3TextField,
+  B3Checkbox,
+  B3RadioGroup,
+  B3Select,
+  B3Picker,
+  B3FileUpload,
 } from './form'
 
 import B3UI from './form/ui'
@@ -60,6 +65,15 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
           {
             ['date'].includes(fieldType) && (
               <B3Picker
+                {...field}
+                errors={errors}
+                control={control}
+              />
+            )
+          }
+          {
+            ['file'].includes(fieldType) && (
+              <B3FileUpload
                 {...field}
                 errors={errors}
                 control={control}

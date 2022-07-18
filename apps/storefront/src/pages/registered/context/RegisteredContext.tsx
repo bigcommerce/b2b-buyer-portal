@@ -2,7 +2,7 @@ import React, {
   useReducer, createContext, Dispatch, ReactNode, useMemo,
 } from 'react'
 
-import { RegisterFileds } from '../config'
+import { RegisterFileds, Country, State } from '../config'
 
 interface RegisterState {
   contactInformation?: Array<RegisterFileds> | Array<[]>,
@@ -10,6 +10,12 @@ interface RegisterState {
   additionalInformation?: Array<RegisterFileds> | Array<[]>,
   bcContactInformationFields?: Array<RegisterFileds> | Array<[]>,
   emailMarketingNewsletter?: Boolean,
+  companyInformation?: Array<RegisterFileds> | Array<[]>,
+  companyAttachment?: Array<RegisterFileds> | Array<[]>,
+  addressBasicFields?: Array<RegisterFileds> | Array<[]>,
+  addressExtraFields?: Array<RegisterFileds> | Array<[]>,
+  countryList?: Array<Country>,
+  stateList?: Array<State>,
 }
 interface RegisterAction {
   type: string,
@@ -30,6 +36,12 @@ const initState = {
   additionalInformation: [],
   accountType: '',
   emailMarketingNewsletter: false,
+  companyInformation: [],
+  companyAttachment: [],
+  addressBasicFields: [],
+  addressExtraFields: [],
+  countryList: [],
+  stateList: [],
 }
 
 export const RegisteredContext = createContext<RegisterContext>({ state: initState, dispatch: () => {} })
@@ -44,6 +56,8 @@ const reducer = (state: RegisterState, action: RegisterAction) => {
       return { ...state, accountType: action.payload.accountType }
     case 'emailSletter':
       return { ...state, emailMarketingNewsletter: action.payload.emailMarketingNewsletter }
+    case 'stateList':
+      return { ...state, stateList: action.payload.stateList, addressBasicFields: action.payload.addressBasicFields }
     default:
       return state
   }

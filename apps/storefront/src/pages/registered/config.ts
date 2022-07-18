@@ -51,6 +51,9 @@ const validatorRules = (val: string, validateRuleTypes: string[], options?: Vali
     if (item === 'email' && !re.email.test(val)) {
       str = 'Please enter the correct email address'
     }
+    if (item === 'phone' && !re.phone.test(val)) {
+      str = 'Please enter the correct phone number'
+    }
     if (item === 'max' && options?.max && +options.max < +val) {
       str = `Please do not exceed ${options.max}`
     }
@@ -227,6 +230,126 @@ export const contactInformationFields: ContactInformationItems = [
     xs: 12,
   },
 ]
+
+export const companyInformationFields: ContactInformationItems = [
+  {
+    name: 'companyName',
+    label: 'Company Name',
+    default: '',
+    fieldType: 'text',
+    required: true,
+    maxLength: 255,
+    xs: 12,
+  },
+  {
+    name: 'companyEmail',
+    label: 'Company Email',
+    default: '',
+    fieldType: 'text',
+    required: true,
+    validate: (v: string) => validatorRules(v, ['email']),
+    xs: 12,
+  },
+  {
+    name: 'companyPhoneNumber',
+    label: 'Company Phone Number',
+    default: '',
+    fieldType: 'text',
+    required: true,
+    validate: (v: string) => validatorRules(v, ['phone']),
+    xs: 12,
+  },
+]
+
+export const companyAttachmentsFields: ContactInformationItems = [
+  {
+    name: 'companyAttachments',
+    label: 'Company Attachments',
+    default: [],
+    fieldType: 'file',
+    required: false,
+    xs: 12,
+    filesLimit: 3,
+    maxFileSize: 2097152, // 2M
+  },
+]
+
+export const addressInformationFields: ContactInformationItems = [
+  {
+    name: 'country',
+    label: 'Country',
+    default: '',
+    fieldType: 'dropdown',
+    required: true,
+    maxLength: 255,
+    xs: 12,
+    options: [],
+    replaceOptions: {
+      label: 'countryName',
+      value: 'countryCode',
+    },
+  },
+  {
+    name: 'address1',
+    label: 'Address 1',
+    default: '',
+    fieldType: 'text',
+    maxLength: 255,
+    required: true,
+    xs: 12,
+  },
+  {
+    name: 'address2',
+    label: 'Address 2',
+    default: '',
+    fieldType: 'text',
+    maxLength: 255,
+    required: true,
+    xs: 12,
+  },
+  {
+    name: 'city',
+    label: 'City',
+    default: '',
+    fieldType: 'text',
+    maxLength: 255,
+    required: true,
+    xs: 12,
+  },
+  {
+    name: 'state',
+    label: 'State',
+    default: '',
+    fieldType: 'text',
+    maxLength: 255,
+    required: true,
+    xs: 8,
+    replaceOptions: {
+      label: 'stateName',
+      value: 'stateCode',
+    },
+  },
+  {
+    name: 'zipCode',
+    label: 'Zip Code',
+    default: '',
+    fieldType: 'text',
+    maxLength: 255,
+    required: true,
+    xs: 4,
+  },
+]
+export interface Country {
+  countryCode: string,
+  countryName: string,
+  id?: string,
+  states: []
+}
+export interface State {
+  stateCode: string,
+  stateName: string,
+  id?: string,
+}
 
 export const getRegisterLogo = (quoteConfig:Array<QuoteConfig>): string => {
   const item:Array<QuoteConfig> = quoteConfig.filter((list:QuoteConfig) => list.key === 'quote_logo')
