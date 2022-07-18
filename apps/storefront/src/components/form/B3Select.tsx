@@ -9,9 +9,9 @@ import {
 } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
-import B3UI from './ui'
+import Form from './ui'
 
-export const B3Select = ({ control, errors, ...rest } : B3UI.B3UIProps) => {
+export const B3Select = ({ control, errors, ...rest } : Form.B3UIProps) => {
   const {
     fieldType, name, default: defaultValue, required, label, validate, options,
     muiSelectProps, setValue, onChange, replaceOptions,
@@ -44,7 +44,14 @@ export const B3Select = ({ control, errors, ...rest } : B3UI.B3UIProps) => {
         ['dropdown'].includes(fieldType) && (
         <FormControl style={{ width: '100%' }}>
           {
-            label && <FormLabel error={!!errors[name]} required={required}>{label}</FormLabel>
+            label && (
+            <FormLabel
+              error={!!errors[name]}
+              required={required}
+            >
+              {label}
+            </FormLabel>
+            )
           }
           <Controller
             {...fieldsProps}
@@ -57,7 +64,12 @@ export const B3Select = ({ control, errors, ...rest } : B3UI.B3UIProps) => {
                 {
                   options?.length && (
                     options.map((option: any) => (
-                      <MenuItem key={option[replaceOptions?.label || 'label']} value={option[replaceOptions?.value || 'value']}>{option[replaceOptions?.label || 'label']}</MenuItem>
+                      <MenuItem
+                        key={option[replaceOptions?.label || 'label']}
+                        value={option[replaceOptions?.value || 'value']}
+                      >
+                        {option[replaceOptions?.label || 'label']}
+                      </MenuItem>
                     ))
                   )
                   }

@@ -1,5 +1,5 @@
 import {
-  useContext, ChangeEvent, useCallback, useState, MouseEvent,
+  useContext, ChangeEvent, useCallback, useState, MouseEvent, useRef,
 } from 'react'
 import {
   Box,
@@ -10,11 +10,13 @@ import {
   Alert,
 } from '@mui/material'
 
+import ReCAPTCHA from 'react-google-recaptcha'
+
 import { useForm } from 'react-hook-form'
 
 import styled from '@emotion/styled'
 
-import { B3CustomForm } from '@/components'
+import { B3CustomForm } from '../../components'
 import RegisteredStepButton from './component/RegisteredStepButton'
 import RegisteredSigleCheckBox from './component/RegisteredSigleCheckBox'
 
@@ -22,7 +24,7 @@ import { RegisteredContext } from './context/RegisteredContext'
 
 import { RegisterFileds, CustomFieldItems } from './config'
 
-import { getB2BCompanyUserInfo } from '@/shared/service/b2b'
+import { getB2BCompanyUserInfo } from '../../shared/service/b2b'
 
 const InformationLabels = styled('h3')(() => ({
   marginBottom: '20px',
@@ -49,7 +51,11 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
 
   const { state, dispatch } = useContext(RegisteredContext)
 
-  const [emailStateType, setEmailStateType] = useState<number>(1)
+  const [emailStateType, setEmailStateType] = useState<number>(0)
+
+  const captchaRef = useRef<any>(null)
+
+  console.log(activeStep, 'activeStep')
 
   const {
     contactInformation, accountType, additionalInformation, bcContactInformationFields,
@@ -66,11 +72,27 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     dispatch({ type: 'accountType', payload: { accountType: event.target.value } })
   }
 
-  const handleAccountToDetail = (event: MouseEvent) => {
+  const judgeEmailExist = (userType: Number) => {
+    if (accountType === '1' && userType === 2) {
+      setEmailStateType(1)
+    } else if (accountType === '1' && userType === 3) {
+      setEmailStateType(2)
+    } else if (accountType === '2' && userType === 2) {
+      setEmailStateType(1)
+    }
+  }
+
+  const handleAccountToDetail = async (event: MouseEvent) => {
+    try {
+      const token = await captchaRef.current.executeAsync()
+      console.log(token, 'token')
+    } catch (error) {
+      console.log(error, 'error')
+    }
     handleSubmit((data: CustomFieldItems) => {
       const email = accountType === '1' ? data.email : data.workEmailAddress
       getB2BCompanyUserInfo(email).then(({ companyUserInfo: { userType } }: any) => {
-        if (userType === 1) {
+        if (userType === 1 || (userType === 3 && accountType === '2')) {
           const contactInfo: any = accountType === '1' ? contactInformation : bcContactInformationFields
           const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
           const newContactInfo = contactInfo.map((item: RegisterFileds) => {
@@ -93,7 +115,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           })
           handleNext()
         } else {
-          setEmailStateType(userType)
+          judgeEmailExist(userType)
         }
       })
     })(event)
@@ -127,7 +149,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
               login
             </Box>
             {
-                emailStateType === 1 ? '(link to login) to apply for a business account' : ''
+                emailStateType === 1 ? 'to apply for a business account' : ''
               }
           </TipContent>
         </Alert>
@@ -143,8 +165,16 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           value={accountType}
           onChange={handleChange}
         >
-          <FormControlLabel value="1" control={<Radio />} label="Business Account" />
-          <FormControlLabel value="2" control={<Radio />} label="Personal Account" />
+          <FormControlLabel
+            value="1"
+            control={<Radio />}
+            label="Business Account"
+          />
+          <FormControlLabel
+            value="2"
+            control={<Radio />}
+            label="Personal Account"
+          />
         </RadioGroup>
       </FormControl>
       <Box>
@@ -178,6 +208,17 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           control={control}
           getValues={getValues}
           setValue={setValue}
+        />
+      </Box>
+      <Box
+        sx={{
+          mt: 4,
+        }}
+      >
+        <ReCAPTCHA
+          sitekey={(window as any).b3?.setting?.ReCAPTCHASiteKey || '6LdXPfsgAAAAANGvcY88glhKn1RJCUmvJfrB1AkY'}
+          ref={captchaRef}
+          size="invisible"
         />
       </Box>
       <RegisteredStepButton

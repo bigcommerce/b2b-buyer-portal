@@ -11,7 +11,6 @@ import { steps } from './config'
 export default function RegisteredStep(props: any) {
   const {
     children,
-    // isStepSkipped,
     isStepOptional,
     activeStep,
   } = props
@@ -35,11 +34,11 @@ export default function RegisteredStep(props: any) {
               <Typography variant="caption">Optional</Typography>
             )
           }
-          // if (isStepSkipped(index)) {
-          //   stepProps.completed = false
-          // }
           return (
-            <Step key={label} {...stepProps}>
+            <Step
+              key={label}
+              {...stepProps}
+            >
               <StepLabel {...labelProps}>{label}</StepLabel>
             </Step>
           )

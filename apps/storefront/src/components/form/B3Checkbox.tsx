@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
-import B3UI from './ui'
+import Form from './ui'
 
 interface CheckboxListProps {
   value: string,
@@ -17,7 +17,7 @@ interface CheckboxListProps {
 
 export const B3Checkbox = ({
   control, errors, getValues, ...rest
-} : B3UI.B3UIProps) => {
+} : Form.B3UIProps) => {
   const {
     fieldType, name, default: defaultValue, required, label, validate, options,
   } = rest
@@ -51,7 +51,14 @@ export const B3Checkbox = ({
         ['checkbox'].includes(fieldType) && (
           <FormControl>
             {
-              label && <FormLabel error={!!errors[name]} required={required}>{label}</FormLabel>
+              label && (
+              <FormLabel
+                error={!!errors[name]}
+                required={required}
+              >
+                {label}
+              </FormLabel>
+              )
             }
             <Controller
               {...fieldsProps}

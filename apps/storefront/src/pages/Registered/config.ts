@@ -119,12 +119,6 @@ const classificationType = (item: RegisterFileds) => {
       options: item.options?.items || [],
     }
   }
-  // if (fieldsType.date.includes(item.fieldType)) {
-  //   optionItems = {
-  //     default: item.default || '',
-  //     options: item.options?.items || [],
-  //   }
-  // }
 
   return optionItems
 }
@@ -141,7 +135,6 @@ export const conversionDataFormat = (registerArr: Array<RegisterFileds>) => {
       xs: 12,
     }
 
-    // b2b fieldType ==> type
     if (typeof (item.fieldType) === 'number') {
       item.fieldType = companyExtraFieldsType[item.fieldType]
       requiredItems.fieldType = item.fieldType

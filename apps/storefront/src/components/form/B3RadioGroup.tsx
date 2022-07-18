@@ -8,9 +8,9 @@ import {
 } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
-import B3UI from './ui'
+import Form from './ui'
 
-export const B3RadioGroup = ({ control, errors, ...rest } : B3UI.B3UIProps) => {
+export const B3RadioGroup = ({ control, errors, ...rest } : Form.B3UIProps) => {
   const {
     fieldType, name, default: defaultValue, required, label, validate, options,
   } = rest
@@ -33,7 +33,14 @@ export const B3RadioGroup = ({ control, errors, ...rest } : B3UI.B3UIProps) => {
         ['radio'].includes(fieldType) && (
           <FormControl>
             {
-              label && <FormLabel error={!!errors[name]} required={required}>{label}</FormLabel>
+              label && (
+              <FormLabel
+                error={!!errors[name]}
+                required={required}
+              >
+                {label}
+              </FormLabel>
+              )
             }
             <Controller
               {...fieldsProps}
@@ -43,7 +50,7 @@ export const B3RadioGroup = ({ control, errors, ...rest } : B3UI.B3UIProps) => {
                 >
                   {
                     options?.length && (
-                      options.map((option: B3UI.RadopGroupListProps) => (
+                      options.map((option: Form.RadopGroupListProps) => (
                         <FormControlLabel
                           value={option.value}
                           label={option.label}

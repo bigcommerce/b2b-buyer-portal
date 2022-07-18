@@ -2,9 +2,9 @@ import {
   TextField,
 } from '@mui/material'
 import { Controller } from 'react-hook-form'
-import B3UI from './ui'
+import Form from './ui'
 
-export const B3TextField = ({ control, errors, ...rest } : B3UI.B3UIProps) => {
+export const B3TextField = ({ control, errors, ...rest } : Form.B3UIProps) => {
   const {
     fieldType, name, default: defaultValue, required, label, validate, variant, rows,
     min, max, minLength, maxLength, fullWidth, muiTextFieldProps,

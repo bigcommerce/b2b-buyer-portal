@@ -1,6 +1,6 @@
 import { Control } from 'react-hook-form'
 
-namespace B3UI {
+namespace Form {
 
   export interface B3CustomFormValue {
     name: string,
@@ -26,4 +26,4 @@ namespace B3UI {
   }
 }
 
-export default B3UI
+export default Form

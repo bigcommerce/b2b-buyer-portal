@@ -1,9 +1,9 @@
 import { Grid } from '@mui/material'
 import {
   B3TextField, B3Checkbox, B3RadioGroup, B3Select, B3Picker,
-} from './B3UI'
+} from './form'
 
-import B3UI from './B3UI/ui'
+import B3UI from './form/ui'
 
 export function B3CustomForm(props: B3UI.B3CustomFormProps) {
   const {
@@ -72,7 +72,10 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
   })))
 
   return (
-    <Grid container spacing={2}>
+    <Grid
+      container
+      spacing={2}
+    >
       {
         formFields && renderFormFields(formFields)
       }

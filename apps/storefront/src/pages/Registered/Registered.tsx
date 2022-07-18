@@ -5,15 +5,15 @@ import {
 import styled from '@emotion/styled'
 
 import { ImageListItem } from '@mui/material'
-import { getBCRegisterCustomFields } from '@/shared/service/bc'
-import { getB2BRegisterCustomFields, getB2BRegisterLogo } from '@/shared/service/b2b'
+import { getBCRegisterCustomFields } from '../../shared/service/bc'
+import { getB2BRegisterCustomFields, getB2BRegisterLogo } from '../../shared/service/b2b'
 
 import RegisteredStep from './RegisteredStep'
 import RegisterContent from './RegisterContent'
 
 import { RegisteredContext } from './context/RegisteredContext'
 
-import { B3Sping } from '@/components/B3Sping'
+import { B3Sping } from '../../components/spin/B3Sping'
 
 import {
   conversionDataFormat, bcContactInformationFields, RegisterFileds, contactInformationFields, getRegisterLogo,
@@ -76,7 +76,7 @@ export default function Registered() {
 
   const isStepOptional = (step: number) => step === 1
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setActiveStep((prevActiveStep: number) => prevActiveStep + 1)
   }
 

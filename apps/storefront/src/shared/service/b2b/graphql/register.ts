@@ -1,21 +1,10 @@
-// import {
-//   graphql,
-//   GraphQLSchema,
-//   GraphQLObjectType,
-//   GraphQLString,
-// } from 'graphql'
-
 import { B3Request } from '../../request/b3Fetch'
-
-interface WindowItems extends Window {
-  storeHash?: string;
-}
 
 interface CustomFieldItems {
   [key: string]: any
 }
 
-const storeHash = (window as WindowItems)?.storeHash || 'rtmh8fqr05'
+const storeHash = (window as any).b3?.setting?.storeHash || 'rtmh8fqr05'
 
 const getCompanyExtraFields = () => `{
   companyExtraFields(storeHash: "${storeHash}") {
@@ -50,38 +39,22 @@ const getCompanyUserInfo = <T>(email: T) => `{
   }
 }`
 
+const getCountries = () => `{
+  countries(storeHash:"${storeHash}") {
+    id
+    countryName
+    countryCode
+    states {
+      stateName
+      stateCode
+    }
+  }
+}`
+
 export const getB2BCompanyUserInfo = (email: string): CustomFieldItems => B3Request.graphqlB2B({ query: getCompanyUserInfo(email) })
 
 export const getB2BRegisterLogo = (): CustomFieldItems => B3Request.graphqlB2B({ query: getRegisterLogo() })
 
 export const getB2BRegisterCustomFields = (): CustomFieldItems => B3Request.graphqlB2B({ query: getCompanyExtraFields() })
 
-// TODO: graphql
-// const schema = new GraphQLSchema({
-//   query: new GraphQLObjectType({
-//     name: 'RootQueryType',
-//     fields: {
-//       hello: {
-//         type: GraphQLString,
-//         resolve() {
-//           return `{
-//             quoteConfig(storeHash: ${storeHash}) {
-//               key,
-//               isEnabled
-//             }
-//           }`
-//         },
-//       },
-//     },
-//   }),
-// })
-
-// const source = '{ hello }'
-
-// graphql({ schema, source }).then((result) => {
-//   // Prints
-//   // {
-//   //   data: { hello: "world" }
-//   // }
-//   console.log(result, '1122221212')
-// })
+export const getB2BCountries = (): CustomFieldItems => B3Request.graphqlB2B({ query: getCountries() })
