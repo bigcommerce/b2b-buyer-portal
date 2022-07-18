@@ -16,6 +16,7 @@ interface RegisterState {
   addressExtraFields?: Array<RegisterFileds> | Array<[]>,
   countryList?: Array<Country>,
   stateList?: Array<State>,
+  passwordInformation?: Array<RegisterFileds> | Array<[]>,
 }
 interface RegisterAction {
   type: string,
@@ -34,6 +35,7 @@ const initState = {
   contactInformation: [],
   bcContactInformation: [],
   additionalInformation: [],
+  passwordInformation: [],
   accountType: '',
   emailMarketingNewsletter: false,
   companyInformation: [],

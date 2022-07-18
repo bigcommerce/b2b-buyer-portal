@@ -72,6 +72,8 @@ export default function Registered() {
           }
         })
 
+        const filterPasswordInformation = customerAccount.length && customerAccount.filter((field: RegisterFileds) => !field.custom && field.fieldType === 'password')
+        const newPasswordInformation: Array<RegisterFileds> = conversionDataFormat(filterPasswordInformation)
         if (dispatch) {
           dispatch({
             type: 'all',
@@ -85,6 +87,7 @@ export default function Registered() {
               addressBasicFields: [...addressInformationFields],
               addressExtraFields: [...addressExtraFields],
               countryList: [...countries],
+              passwordInformation: [...newPasswordInformation],
             },
           })
         }

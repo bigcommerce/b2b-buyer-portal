@@ -42,12 +42,16 @@ export default function RegisterContent(props: RegisterContentProps) {
 
       case 2:
         return (
-          <RegisteredFinish />
+          <RegisterComplete
+            activeStep={activeStep}
+            handleBack={handleBack}
+            handleNext={handleNext}
+          />
         )
 
       case 3:
         return (
-          <RegisterComplete />
+          <RegisteredFinish />
         )
 
       default:

@@ -55,8 +55,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
 
   const captchaRef = useRef<any>(null)
 
-  console.log(activeStep, 'activeStep')
-
   const {
     contactInformation, accountType, additionalInformation, bcContactInformationFields,
     emailMarketingNewsletter,
@@ -83,12 +81,8 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   }
 
   const handleAccountToDetail = async (event: MouseEvent) => {
-    try {
-      const token = await captchaRef.current.executeAsync()
-      console.log(token, 'token')
-    } catch (error) {
-      console.log(error, 'error')
-    }
+    // await captchaRef.current.executeAsync()
+
     handleSubmit((data: CustomFieldItems) => {
       const email = accountType === '1' ? data.email : data.workEmailAddress
       getB2BCompanyUserInfo(email).then(({ companyUserInfo: { userType } }: any) => {
@@ -216,7 +210,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         }}
       >
         <ReCAPTCHA
-          sitekey={(window as any).b3?.setting?.ReCAPTCHASiteKey || '6LdXPfsgAAAAANGvcY88glhKn1RJCUmvJfrB1AkY'}
+          sitekey="6Lcct_sgAAAAACfgXLKQxiOvHwBQ0JZOqcX9A6-F"
           ref={captchaRef}
           size="invisible"
         />

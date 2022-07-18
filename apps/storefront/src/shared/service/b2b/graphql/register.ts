@@ -51,6 +51,10 @@ const getCountries = () => `{
   }
 }`
 
+// const createB2BCompanyUser = () => `{
+
+// }`
+
 export const getB2BCompanyUserInfo = (email: string): CustomFieldItems => B3Request.graphqlB2B({ query: getCompanyUserInfo(email) })
 
 export const getB2BRegisterLogo = (): CustomFieldItems => B3Request.graphqlB2B({ query: getRegisterLogo() })

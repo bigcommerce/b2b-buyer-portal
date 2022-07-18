@@ -7,7 +7,7 @@ import Form from './ui'
 export const B3TextField = ({ control, errors, ...rest } : Form.B3UIProps) => {
   const {
     fieldType, name, default: defaultValue, required, label, validate, variant, rows,
-    min, max, minLength, maxLength, fullWidth, muiTextFieldProps,
+    min, max, minLength, maxLength, fullWidth, muiTextFieldProps, disabled,
   } = rest
 
   const fieldsProps = {
@@ -28,6 +28,7 @@ export const B3TextField = ({ control, errors, ...rest } : Form.B3UIProps) => {
     label,
     key: name,
     rows,
+    disabled,
     multiline: fieldType === 'multiline',
     variant: variant || 'filled',
     fullWidth: fullWidth || true,

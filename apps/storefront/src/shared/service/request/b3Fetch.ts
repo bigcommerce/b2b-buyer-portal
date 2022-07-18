@@ -63,7 +63,8 @@ function request<T>(path: string, config?: T) {
     },
     ...config,
   }
-  return b3Fetch(path, init)
+  const url = `https://dev-v2.bundleb2b.net/api${path}`
+  return b3Fetch(url, init)
 }
 
 function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
