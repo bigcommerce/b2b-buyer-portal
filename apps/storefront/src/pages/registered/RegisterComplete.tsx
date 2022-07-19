@@ -12,7 +12,7 @@ import { RegisteredContext } from './context/RegisteredContext'
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { B3CustomForm } from '../../components'
 
-import { createBCCompanyUser, createB2BCompanyUser } from '../../shared/service/b2b'
+import { createBCCompanyUser, createB2BCompanyUser, uploadB2BFile } from '../../shared/service/b2b'
 
 import {
   RegisterFileds, CustomFieldItems, Base64, validatorRules,
@@ -52,7 +52,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const {
     contactInformation, bcContactInformationFields, passwordInformation, accountType,
     additionalInformation, addressBasicFields, addressExtraFields, companyInformation,
-    emailMarketingNewsletter,
+    emailMarketingNewsletter, companyAttachment, companyExtraFields,
   } = state
 
   const emailName = accountType === '1' ? 'workEmailAddress' : 'emailAddress'
@@ -182,16 +182,18 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     b2bFields.customerId = customerId || ''
     b2bFields.storeHash = (window as any).b3?.setting?.storeHash || 'rtmh8fqr05'
     if (companyInformation) {
-      const extraFields:Array<CustomFieldItems> = []
       companyInformation.forEach((item: any) => {
-        if (item.name === 'companyName' || item.name === 'companyEmail' || item.name === 'companyPhoneNumber') {
-          b2bFields[item.name] = item?.default || ''
-        } else {
-          const itemExtraField: CustomFieldItems = {}
-          itemExtraField.fieldName = Base64.decode(item.name)
-          itemExtraField.fieldValue = item?.default || ''
-          extraFields.push(itemExtraField)
-        }
+        b2bFields[item.name] = item?.default || ''
+      })
+    }
+
+    if (companyExtraFields) {
+      const extraFields:Array<CustomFieldItems> = []
+      companyExtraFields.forEach((item: any) => {
+        const itemExtraField: CustomFieldItems = {}
+        itemExtraField.fieldName = Base64.decode(item.name)
+        itemExtraField.fieldValue = item?.default || ''
+        extraFields.push(itemExtraField)
       })
       b2bFields.extraFields = extraFields
     }
@@ -219,6 +221,33 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           b2bFields.zipCode = field.default
         }
       })
+    }
+
+    let attachments: File[] = []
+    if (companyAttachment) {
+      companyAttachment.forEach((field: any) => {
+        if (field.name === 'companyAttachments') {
+          attachments = field.default
+        }
+      })
+    }
+
+    try {
+      const fileResponse = await Promise.all(attachments.map(
+        (file: File) => uploadB2BFile({
+          file,
+          type: 'companyAttachedFile',
+        }),
+      ))
+
+      b2bFields.fileList = fileResponse.reduce((fileList: any, res: any) => {
+        if (res.code === 200) {
+          fileList = [...fileList, res.data]
+        }
+        return fileList
+      }, [])
+    } catch (error) {
+      b2bFields.fileList = []
     }
 
     return createB2BCompanyUser(b2bFields)
@@ -268,6 +297,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         }
         handleNext()
       } catch (error) {
+        dispatch({
+          type: 'loading',
+          payload: {
+            isLoading: false,
+          },
+        })
         console.log(error, 'error')
       } finally {
         dispatch({

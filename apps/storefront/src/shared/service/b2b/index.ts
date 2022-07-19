@@ -13,6 +13,7 @@ import {
 
 import {
   createBCCompanyUser,
+  validateBCCompanyExtraFields,
 } from './api/register'
 
 export {
@@ -24,4 +25,5 @@ export {
   uploadB2BFile,
   createB2BCompanyUser,
   storeB2BBasicInfo,
+  validateBCCompanyExtraFields,
 }

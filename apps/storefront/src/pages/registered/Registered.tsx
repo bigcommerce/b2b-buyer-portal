@@ -89,23 +89,26 @@ export default function Registered() {
 
         const filterPasswordInformation = customerAccount.length && customerAccount.filter((field: RegisterFileds) => !field.custom && field.fieldType === 'password')
         const newPasswordInformation: Array<RegisterFileds> = conversionDataFormat(filterPasswordInformation)
-        dispatch({
-          type: 'all',
-          payload: {
-            accountType: '1',
-            isLoading: false,
-            storeName,
-            contactInformation: [...contactInformationFields],
-            additionalInformation: [...newAdditionalInformation],
-            bcContactInformationFields: [...bcContactInformationFields],
-            companyInformation: [...companyInformationFields, ...newCompanyExtraFields],
-            companyAttachment: [...companyAttachmentsFields],
-            addressBasicFields: [...addressInformationFields],
-            addressExtraFields: [...addressExtraFields],
-            countryList: [...countries],
-            passwordInformation: [...newPasswordInformation],
-          },
-        })
+        if (dispatch) {
+          dispatch({
+            type: 'all',
+            payload: {
+              accountType: '1',
+              isLoading: false,
+              storeName,
+              contactInformation: [...contactInformationFields],
+              additionalInformation: [...newAdditionalInformation],
+              bcContactInformationFields: [...bcContactInformationFields],
+              companyExtraFields: [...newCompanyExtraFields],
+              companyInformation: [...companyInformationFields],
+              companyAttachment: [...companyAttachmentsFields],
+              addressBasicFields: [...addressInformationFields],
+              addressExtraFields: [...addressExtraFields],
+              countryList: [...countries],
+              passwordInformation: [...newPasswordInformation],
+            },
+          })
+        }
         setLogo(registerLogo)
       } catch (e) {
         console.log(e)

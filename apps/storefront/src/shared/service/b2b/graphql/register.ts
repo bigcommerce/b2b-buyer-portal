@@ -65,13 +65,13 @@ const conversionData = (data: CustomFieldItems) => {
   }
   let str = '{'
   Object.keys(data).forEach((item: any, index) => {
-    if (typeof data[item] === 'string' || typeof data[item] === 'number' || typeof data[item] === 'undefined') {
+    if (typeof data[item] === 'string' || typeof data[item] === 'number') {
       if (index === Object.keys(data).length - 1) {
         str += `${item}: `
-        str += `${JSON.stringify(data[item])}`
+        str += `${JSON.stringify(`${data[item]}`)}`
       } else {
         str += `${item}: `
-        str += `${JSON.stringify(data[item])}, `
+        str += `${JSON.stringify(`${data[item]}`)}, `
       }
     }
 
@@ -116,7 +116,9 @@ const createCompanyUser = (data: any) => `mutation{
     city: "${data.city}",
     state: "${data.state}",
     zipCode: "${data.zipCode}",
-    extraFields: ${conversionArr(data.extraFields)}}) {
+    extraFields: ${conversionArr(data.extraFields)}
+    fileList: ${conversionArr(data.fileList)}
+  }) {
     company {
       id,
       companyStatus,

@@ -7,6 +7,7 @@ import {
 
 import {
   Box,
+  Alert,
 } from '@mui/material'
 
 import styled from '@emotion/styled'
@@ -23,7 +24,10 @@ import {
   addressInformationFields,
   Country,
   State,
+  Base64,
 } from './config'
+
+import { validateBCCompanyExtraFields } from '../../shared/service/b2b'
 
 const InformationFourLabels = styled('h4')(() => ({
   marginBottom: '20px',
@@ -36,10 +40,18 @@ const AddressBox = styled(Box)(() => ({
   },
 }))
 
+const TipContent = styled('div')(() => ({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+}))
+
 export default function RegisteredDetail(props: any) {
   const { handleBack, handleNext, activeStep } = props
 
   const { state, dispatch } = useContext(RegisteredContext)
+
+  const [errorMessage, setErrorMessage] = useState('')
 
   const {
     accountType,
@@ -48,6 +60,7 @@ export default function RegisteredDetail(props: any) {
     addressBasicFields = [],
     addressExtraFields = [],
     countryList = [],
+    companyExtraFields = [],
   } = state
 
   const {
@@ -85,7 +98,7 @@ export default function RegisteredDetail(props: any) {
       }
     }
 
-    setValue('state', stateCode && stateList.find((state: State) => state.stateCode === stateCode) ? stateCode : '')
+    setValue('state', stateCode && (stateList.find((state: State) => state.stateCode === stateCode) || stateList.length === 0) ? stateCode : '')
 
     dispatch({
       type: 'stateList',
@@ -112,40 +125,101 @@ export default function RegisteredDetail(props: any) {
     return () => subscription.unsubscribe()
   }, [countryList])
 
-  const setRegisterFiledsValue = (formFields: Array<any>, formData: CustomFieldItems) => formFields.map((fields) => {
-    fields.default = formData[fields.name] || fields.default
-    return fields
+  const showLading = (isShow = false) => {
+    dispatch({
+      type: 'loading',
+      payload: {
+        isLoading: isShow,
+      },
+    })
+  }
+
+  const getErrorMessage = (data: any, errorKey: string) => {
+    if (data[errorKey] && typeof data[errorKey] === 'object') {
+      const errors = data[errorKey]
+
+      let message = ''
+      Object.keys(errors).forEach((error) => {
+        message += `${error}:${errors[error]}`
+      })
+
+      return message
+    }
+
+    return data.errMsg || ''
+  }
+
+  const setRegisterFiledsValue = (formFields: Array<any>, formData: CustomFieldItems) => formFields.map((field) => {
+    field.default = formData[field.name] || field.default
+    return field
   })
 
   const handleAccountToFinish = (event: MouseEvent) => {
-    handleSubmit((data: CustomFieldItems) => {
-      const newCompanyInformation = setRegisterFiledsValue(companyInformation, data)
-      const newCompanyAttachment = setRegisterFiledsValue(companyAttachment, data)
-      const newAddressBasicFields = setRegisterFiledsValue(addressBasicFields, data)
-      const newAddressExtraFields = setRegisterFiledsValue(addressExtraFields, data)
+    handleSubmit(async (data: CustomFieldItems) => {
+      showLading(true)
 
-      dispatch({
-        type: 'all',
-        payload: {
-          companyInformation: [...newCompanyInformation],
-          companyAttachment: [...newCompanyAttachment],
-          addressBasicFields: [...newAddressBasicFields],
-          addressExtraFields: [...newAddressExtraFields],
-        },
-      })
-      handleNext()
+      try {
+        const extraFields = companyExtraFields.map((field: any) => ({
+          fieldName: Base64.decode(field.name),
+          fieldValue: data[field.name] || field.default,
+        }))
+
+        const res = await validateBCCompanyExtraFields({
+          extraFields,
+        })
+
+        if (res.code !== 200) {
+          setErrorMessage(getErrorMessage(res.data, 'extraFields'))
+          showLading(false)
+          return
+        }
+
+        setErrorMessage('')
+
+        const newCompanyInformation = setRegisterFiledsValue(companyInformation, data)
+        const newCompanyExtraFields = setRegisterFiledsValue(companyExtraFields, data)
+        const newCompanyAttachment = setRegisterFiledsValue(companyAttachment, data)
+        const newAddressBasicFields = setRegisterFiledsValue(addressBasicFields, data)
+        const newAddressExtraFields = setRegisterFiledsValue(addressExtraFields, data)
+
+        dispatch({
+          type: 'all',
+          payload: {
+            companyInformation: [...newCompanyInformation],
+            companyExtraFields: [...newCompanyExtraFields],
+            companyAttachment: [...newCompanyAttachment],
+            addressBasicFields: [...newAddressBasicFields],
+            addressExtraFields: [...newAddressExtraFields],
+          },
+        })
+        showLading(false)
+        handleNext()
+      } catch (error) {
+        showLading(false)
+      }
     })(event)
   }
 
   return (
     <div>
       {
+        errorMessage && (
+        <Alert
+          severity="error"
+        >
+          <TipContent>
+            { errorMessage }
+          </TipContent>
+        </Alert>
+        )
+      }
+      {
         accountType === '1' ? (
           <>
             <Box>
               <InformationFourLabels>Business Details</InformationFourLabels>
               <B3CustomForm
-                formFields={companyInformation}
+                formFields={[...companyInformation, ...companyExtraFields]}
                 errors={errors}
                 control={control}
                 getValues={getValues}
