@@ -105,4 +105,12 @@ export const B3Request = {
       ...config,
     })
   },
+  fileUpload: function fileUpload<T, Y>(path: string, formData: T, config?: Y) {
+    return request(`https://dev-v2.bundleb2b.net/api${path}`, {
+      method: 'POST',
+      body: formData,
+      headers: {},
+      ...config,
+    })
+  },
 }
