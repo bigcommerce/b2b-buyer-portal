@@ -1,6 +1,4 @@
-import {
-  useState, useLayoutEffect,
-} from 'react'
+import { useState, useLayoutEffect } from 'react'
 import globalB3 from '@b3/global-b3'
 
 export const useB3AppOpen = (initOpenState: boolean) => {
@@ -15,7 +13,9 @@ export const useB3AppOpen = (initOpenState: boolean) => {
       }
       return false
     }
-    window.addEventListener('click', handleTriggerClick, { capture: true })
+    window.addEventListener('click', handleTriggerClick, {
+      capture: true,
+    })
     return () => {
       window.removeEventListener('click', handleTriggerClick)
     }

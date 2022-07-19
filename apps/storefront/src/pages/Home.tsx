@@ -1,16 +1,18 @@
 import {
   Box,
+  Button,
   Card,
   CardActions,
   CardContent,
-  Button,
   Typography,
 } from '@mui/material'
 
 const bull = (
   <Box
     component="span"
-    sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
+    sx={{
+      display: 'inline-block', mx: '2px', transform: 'scale(0.8)',
+    }}
   >
     •
   </Box>
@@ -18,10 +20,15 @@ const bull = (
 
 export function Home() {
   return (
-    <Card sx={{ minWidth: 275 }}>
+    <Card sx={{
+      minWidth: 275,
+    }}
+    >
       <CardContent>
         <Typography
-          sx={{ fontSize: 14 }}
+          sx={{
+            fontSize: 14,
+          }}
           color="text.secondary"
           gutterBottom
         >
@@ -40,7 +47,9 @@ export function Home() {
           lent
         </Typography>
         <Typography
-          sx={{ mb: 1.5 }}
+          sx={{
+            mb: 1.5,
+          }}
           color="text.secondary"
         >
           adjective

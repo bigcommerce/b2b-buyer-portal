@@ -15,7 +15,12 @@ module.exports = {
         ignoreRegExpLiterals: true,
       },
     ],
-    'react/jsx-filename-extension': [0, { extensions: ['.ts', '.tsx'] }],
+    'react/jsx-filename-extension': [
+      0,
+      {
+        extensions: ['.ts', '.tsx'],
+      },
+    ],
     'react/static-property-placement': 0,
     'react/prefer-stateless-function': 0,
     'react/button-has-type': 0,
@@ -34,14 +39,33 @@ module.exports = {
     'import/extensions': 0,
     'import/no-extraneous-dependencies': 0,
     'import/prefer-default-export': 0,
-    'import/no-unresolved': [0, { ignore: ['antd-mobile'] }],
+    'import/no-unresolved': [
+      0,
+      {
+        ignore: ['antd-mobile'],
+      },
+    ],
     'no-unused-vars': 1,
     'consistent-return': 0,
     'react/function-component-definition': 0,
     'react/jsx-no-useless-fragment': 0,
-    // 'react/jsx-no-useless-fragment': [
-    //   // fragment <> 
-    //   { allowExpressions: true },
-    // ],
+    'implicit-arrow-linebreak': 0,
+    'object-curly-newline': [
+      'error',
+      {
+        ObjectExpression: 'always',
+        ObjectPattern: {
+          multiline: true,
+        },
+        ImportDeclaration: {
+          multiline: true,
+          minProperties: 3,
+        },
+        ExportDeclaration: {
+          multiline: true,
+          minProperties: 3,
+        },
+      },
+    ],
   },
 }

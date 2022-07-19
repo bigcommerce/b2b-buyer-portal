@@ -1,10 +1,10 @@
 import {
   Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
   Grid,
   TextField,
-  FormControlLabel,
-  Checkbox,
-  Button,
 } from '@mui/material'
 
 const Variant = 'filled'
@@ -151,11 +151,16 @@ export function Form() {
           />
         </Grid>
       </Grid>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Box sx={{
+        display: 'flex', justifyContent: 'flex-end',
+      }}
+      >
         <Button
           type="submit"
           variant="contained"
-          sx={{ mt: 3, ml: 1 }}
+          sx={{
+            mt: 3, ml: 1,
+          }}
         >
           Save
         </Button>

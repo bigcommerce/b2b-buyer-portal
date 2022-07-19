@@ -1,14 +1,16 @@
-import { Component, ReactNode, RefObject } from 'react'
-import { CssBaseline } from '@mui/material'
+import {
+  Component,
+  createRef,
+  ReactNode,
+  RefObject,
+} from 'react'
 import { createPortal } from 'react-dom'
+
 import createCache, { EmotionCache } from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
+import { CssBaseline } from '@mui/material'
 
-export function IFrameSetContent(
-  el: HTMLIFrameElement | null,
-  content: string,
-  forceWrite: boolean = false,
-) {
+export function IFrameSetContent(el: HTMLIFrameElement | null, content: string, forceWrite: boolean = false) {
   if (el) {
     if ('srcdoc' in HTMLIFrameElement.prototype && !forceWrite) {
       el.srcdoc = content
@@ -27,28 +29,29 @@ interface ThemeFrameProps {
   bodyRef?: RefObject<HTMLBodyElement> // if the parent needs access to body of iframe. i.e to attach dom event handlers
   fontUrl?: string
   customStyles?: string
+  title?: string
 }
 
 interface ThemeFrameState {
   hasError: boolean
   title: string
-  emotion?: EmotionCache
+  emotionCache?: EmotionCache
 }
 
 const DefaultIframeContent = '<!DOCTYPE html><html><head></head><body></body></html>'
 export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
-  _iframeSetupComplete: boolean
+  _setupComplete: boolean
 
-  node: HTMLIFrameElement | null
+  _iframeRef: RefObject<HTMLIFrameElement>
 
   constructor(props: ThemeFrameProps) {
     super(props)
 
-    this._iframeSetupComplete = false
-    this.node = null
+    this._setupComplete = false
+    this._iframeRef = createRef()
     this.state = {
       hasError: false,
-      title: btoa(Date.now().toString()),
+      title: props.title ?? window.btoa(Date.now().toString()),
     }
   }
 
@@ -81,40 +84,38 @@ export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
 
     if (this.props.customStyles) {
       const customStyleElement = doc.createElement('style')
-      customStyleElement.appendChild(
-        document.createTextNode(this.props.customStyles),
-      )
+      customStyleElement.appendChild(document.createTextNode(this.props.customStyles))
       doc.head.appendChild(customStyleElement)
     }
 
-    const emotion = createCache({
-      container: doc.head,
+    const emotionCache = createCache({
       key: 'css',
+      container: doc.head,
       prepend: true,
     })
 
     this.setState({
-      emotion,
+      emotionCache,
     })
 
     if (doc.readyState === 'complete') {
       this.handleLoad()
     } else {
-      this.node?.addEventListener('load', this.handleLoad)
+      this._iframeRef.current?.addEventListener('load', this.handleLoad)
     }
 
-    this._iframeSetupComplete = true
+    this._setupComplete = true
   }
 
   componentWillUnmount() {
-    this._iframeSetupComplete = false
-    this.node?.removeEventListener('load', this.handleLoad)
+    this._setupComplete = false
+    this._iframeRef.current?.removeEventListener('load', this.handleLoad)
   }
 
-  getIframeDocument = () => (this.node ? this.node.contentDocument : null)
+  getIframeDocument = () => this._iframeRef.current?.contentDocument ?? null
 
   renderFrameContent = () => {
-    if (!this._iframeSetupComplete || this.state.emotion === undefined) {
+    if (!this._setupComplete || this.state.emotionCache === undefined) {
       return null
     }
 
@@ -129,16 +130,12 @@ export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
     }
 
     return createPortal(
-      <CacheProvider value={this.state.emotion}>
+      <CacheProvider value={this.state.emotionCache}>
         <CssBaseline />
         {this.props.children}
       </CacheProvider>,
       doc.body,
     )
-  }
-
-  setNode = (node: HTMLIFrameElement | null) => {
-    this.node = node
   }
 
   handleLoad = () => {
@@ -147,18 +144,14 @@ export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
 
   render() {
     const { hasError, title } = this.state
+    const className = this._setupComplete ? this.props.className : undefined
 
     if (hasError) {
       return null
     }
 
     return (
-      <iframe
-        className={this._iframeSetupComplete ? this.props.className : undefined}
-        allowFullScreen
-        title={title}
-        ref={this.setNode}
-      >
+      <iframe allowFullScreen className={className} title={title} ref={this._iframeRef}>
         {this.renderFrameContent()}
       </iframe>
     )

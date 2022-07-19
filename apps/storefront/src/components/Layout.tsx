@@ -1,23 +1,24 @@
 import { Link as RouterLink } from 'react-router-dom'
+
 import {
-  Box,
-  Drawer,
-  CssBaseline,
+  Home as HomeIcon,
+  Logout as LogoutIcon,
+  VerifiedUser as VerifiedUserIcon,
+} from '@mui/icons-material'
+import {
   AppBar,
-  Toolbar,
-  List,
-  Typography,
+  Box,
+  CssBaseline,
   Divider,
+  Drawer,
+  List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Toolbar,
+  Typography,
 } from '@mui/material'
-import {
-  Home as HomeIcon,
-  VerifiedUser as VerifiedUserIcon,
-  Logout as LogoutIcon,
-} from '@mui/icons-material'
 
 const drawerWidth = 240
 
@@ -25,15 +26,22 @@ export function Layout({
   close,
   children,
 }: {
-  close: () => void
-  children: any
+  close: () => void;
+  children: any;
 }) {
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box
+      sx={{
+        display: 'flex',
+      }}
+    >
       <CssBaseline />
       <AppBar
         position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
+        sx={{
+          width: `calc(100% - ${drawerWidth}px)`,
+          ml: `${drawerWidth}px`,
+        }}
       >
         <Toolbar>
           <Typography
@@ -93,7 +101,11 @@ export function Layout({
       </Drawer>
       <Box
         component="main"
-        sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
+        sx={{
+          flexGrow: 1,
+          bgcolor: 'background.default',
+          p: 3,
+        }}
       >
         <Toolbar />
         {children}

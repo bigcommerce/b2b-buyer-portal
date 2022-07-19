@@ -1,10 +1,11 @@
+import './main.css'
+
 import ReactDOM from 'react-dom/client'
 import { LangProvider } from '@b3/lang'
 
 import App from './App'
 import B3ThemeProvider from './theme'
 
-import './main.css'
 import * as locales from './locales'
 import { SUPPORT_LANGUAGE } from './constants'
 

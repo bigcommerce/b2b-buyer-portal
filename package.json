@@ -10,7 +10,10 @@
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
-    "prepare": "husky install"
+    "test": "turbo run test",
+    "prepare": "husky install",
+    "clean": "yarn run clean:node-modules",
+    "clean:node-modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
