@@ -1,3 +1,5 @@
+import { useContext } from 'react'
+
 import {
   Box,
   Stepper,
@@ -6,6 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 
+import { RegisteredContext } from './context/RegisteredContext'
 import { steps } from './config'
 
 export default function RegisteredStep(props: any) {
@@ -15,6 +18,10 @@ export default function RegisteredStep(props: any) {
     activeStep,
   } = props
 
+  const { state } = useContext(RegisteredContext)
+  const { accountType, submitSuccess } = state
+  const newPageTitle = accountType === '1' ? 'Registration Complete. Thank You!' : 'Your personal account has been created.'
+
   return (
     <Box component="div">
       <Box
@@ -23,27 +30,34 @@ export default function RegisteredStep(props: any) {
           display: 'flex', flexDirection: 'row', justifyContent: 'center', pt: 2,
         }}
       >
-        Account Registration
+        {
+          submitSuccess ? newPageTitle : 'Account Registration'
+        }
       </Box>
-      <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => {
-          const stepProps = {}
-          const labelProps: any = {}
-          if (isStepOptional(index)) {
-            labelProps.optional = (
-              <Typography variant="caption">Optional</Typography>
+      {
+        !submitSuccess && (
+        <Stepper activeStep={activeStep}>
+          {steps.map((label, index) => {
+            const stepProps = {}
+            const labelProps: any = {}
+            if (isStepOptional(index)) {
+              labelProps.optional = (
+                <Typography variant="caption">Optional</Typography>
+              )
+            }
+            return (
+              <Step
+                key={label}
+                {...stepProps}
+              >
+                <StepLabel {...labelProps}>{label}</StepLabel>
+              </Step>
             )
-          }
-          return (
-            <Step
-              key={label}
-              {...stepProps}
-            >
-              <StepLabel {...labelProps}>{label}</StepLabel>
-            </Step>
-          )
-        })}
-      </Stepper>
+          })}
+        </Stepper>
+        )
+      }
+
       {children}
     </Box>
   )

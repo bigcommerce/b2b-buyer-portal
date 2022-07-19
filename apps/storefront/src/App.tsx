@@ -1,9 +1,10 @@
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { useB3AppOpen } from '@b3/hooks'
+import styled from '@emotion/styled'
 
 import { ThemeFrame } from './ThemeFrame'
 import { Home, Form, Registered } from './pages'
-import { Layout } from './components'
+import { Layout, RegisteredCloseButton } from './components'
 import { RegisteredProvider } from './pages/registered/context/RegisteredContext'
 
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
@@ -13,6 +14,11 @@ body {
   font-family: Roboto;
 };
 `
+const HeaderContainer = styled('div')(() => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+}))
 
 export default function App() {
   const [isOpen, setIsOpen] = useB3AppOpen(false)
@@ -28,7 +34,10 @@ export default function App() {
           >
             {isOpen ? (
               <Layout close={() => setIsOpen(false)}>
-                bundle b2b
+                <HeaderContainer>
+                  <p>bundle b2b</p>
+                  <RegisteredCloseButton />
+                </HeaderContainer>
                 <Routes>
                   <Route
                     path="/"

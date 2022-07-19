@@ -18,6 +18,8 @@ interface RegisterState {
   stateList?: Array<State>,
   passwordInformation?: Array<RegisterFileds> | Array<[]>,
   isLoading?: Boolean,
+  submitSuccess?: Boolean,
+  isAutoApproval?: Boolean,
   storeName?: string,
 }
 interface RegisterAction {
@@ -48,6 +50,8 @@ const initState = {
   stateList: [],
   isLoading: false,
   storeName: '',
+  submitSuccess: false,
+  isAutoApproval: true,
 }
 
 export const RegisteredContext = createContext<RegisterContext>({ state: initState, dispatch: () => {} })
@@ -66,6 +70,8 @@ const reducer = (state: RegisterState, action: RegisterAction) => {
       return { ...state, emailMarketingNewsletter: action.payload.emailMarketingNewsletter }
     case 'stateList':
       return { ...state, stateList: action.payload.stateList, addressBasicFields: action.payload.addressBasicFields }
+    case 'finishInfo':
+      return { ...state, ...action.payload }
     default:
       return state
   }

@@ -239,12 +239,17 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             },
           })
         }
+
+        let isAuto = true
         if (accountType === '2') {
           await getBCFieldsValue(completeData)
         } else {
           const res = await getBCFieldsValue(completeData)
           const { data } = res
-          await getB2BFieldsValue(completeData, (data as any)[0].id)
+          const accountInfo = await getB2BFieldsValue(completeData, (data as any)[0].id)
+
+          const { companyCreate: { company: { companyStatus } } } = accountInfo
+          isAuto = +companyStatus === 1
         }
         if (dispatch) {
           dispatch({
@@ -253,9 +258,24 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
               isLoading: false,
             },
           })
+          dispatch({
+            type: 'finishInfo',
+            payload: {
+              submitSuccess: true,
+              isAutoApproval: isAuto,
+            },
+          })
         }
+        handleNext()
       } catch (error) {
         console.log(error, 'error')
+      } finally {
+        dispatch({
+          type: 'loading',
+          payload: {
+            isLoading: false,
+          },
+        })
       }
     })(event)
   }

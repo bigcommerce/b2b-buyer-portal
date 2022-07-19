@@ -38,7 +38,7 @@ const RegisteredImage = styled('div')({
   justifyContent: 'center',
   alignItems: 'center',
   width: '100%',
-  height: '250px',
+  height: '150px',
 })
 
 export default function Registered() {
@@ -56,6 +56,12 @@ export default function Registered() {
             type: 'loading',
             payload: {
               isLoading: true,
+            },
+          })
+          dispatch({
+            type: 'finishInfo',
+            payload: {
+              submitSuccess: false,
             },
           })
         }
@@ -132,7 +138,11 @@ export default function Registered() {
         {
           logo && (
           <RegisteredImage>
-            <ImageListItem>
+            <ImageListItem sx={{
+              maxWidth: '130px',
+              maxHeight: '130px',
+            }}
+            >
               <img
                 src={`${logo}`}
                 alt="register Logo"

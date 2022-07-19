@@ -343,7 +343,7 @@ export const addressInformationFields: ContactInformationItems = [
     xs: 8,
     replaceOptions: {
       label: 'stateName',
-      value: 'stateCode',
+      value: 'stateName',
     },
   },
   {

@@ -32,6 +32,7 @@ export const B3TextField = ({ control, errors, ...rest } : Form.B3UIProps) => {
     multiline: fieldType === 'multiline',
     variant: variant || 'filled',
     fullWidth: fullWidth || true,
+    required,
   }
 
   const inputProps = {
