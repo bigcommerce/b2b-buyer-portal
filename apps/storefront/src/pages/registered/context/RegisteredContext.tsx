@@ -17,6 +17,7 @@ interface RegisterState {
   countryList?: Array<Country>,
   stateList?: Array<State>,
   passwordInformation?: Array<RegisterFileds> | Array<[]>,
+  isLoading?: Boolean,
 }
 interface RegisterAction {
   type: string,
@@ -44,6 +45,7 @@ const initState = {
   addressExtraFields: [],
   countryList: [],
   stateList: [],
+  isLoading: false,
 }
 
 export const RegisteredContext = createContext<RegisterContext>({ state: initState, dispatch: () => {} })
@@ -51,6 +53,8 @@ export const RegisteredContext = createContext<RegisterContext>({ state: initSta
 const reducer = (state: RegisterState, action: RegisterAction) => {
   switch (action.type) {
     case 'all':
+      return { ...state, ...action.payload }
+    case 'loading':
       return { ...state, ...action.payload }
     case 'contactInformation':
       return { ...state, contactInformation: action.payload.contactInformation }

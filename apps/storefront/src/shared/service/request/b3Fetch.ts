@@ -63,8 +63,7 @@ function request<T>(path: string, config?: T) {
     },
     ...config,
   }
-  const url = `https://dev-v2.bundleb2b.net/api${path}`
-  return b3Fetch(url, init)
+  return b3Fetch(path, init)
 }
 
 function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
@@ -99,7 +98,9 @@ export const B3Request = {
     return request(url, { method: 'GET' })
   },
   post: function post<T, Y>(path: string, data: T, config?: Y) {
-    return request(path, {
+    const url = `https://dev-v2.bundleb2b.net/api${path}`
+
+    return request(url, {
       body: JSON.stringify(data),
       method: 'POST',
       ...config,

@@ -123,6 +123,16 @@ const classificationType = (item: RegisterFileds) => {
     }
   }
 
+  console.log(optionItems?.options, '222')
+
+  if (optionItems?.options) {
+    optionItems?.options.forEach((option: any) => {
+      if (option.value) {
+        option.value = option.label
+      }
+    })
+  }
+
   return optionItems
 }
 

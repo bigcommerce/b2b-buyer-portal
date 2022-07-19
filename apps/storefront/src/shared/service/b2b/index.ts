@@ -3,6 +3,7 @@ import {
   getB2BCompanyUserInfo,
   getB2BRegisterLogo,
   getB2BCountries,
+  createB2BCompanyUser,
 } from './graphql/register'
 
 import {
@@ -20,4 +21,5 @@ export {
   getB2BCountries,
   createBCCompanyUser,
   uploadB2BFile,
+  createB2BCompanyUser,
 }

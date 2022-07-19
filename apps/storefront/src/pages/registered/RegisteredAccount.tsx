@@ -75,8 +75,10 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       setEmailStateType(1)
     } else if (accountType === '1' && userType === 3) {
       setEmailStateType(2)
+    } else if (accountType === '2' && userType === 3) {
+      setEmailStateType(2)
     } else if (accountType === '2' && userType === 2) {
-      setEmailStateType(1)
+      setEmailStateType(2)
     }
   }
 
@@ -84,9 +86,9 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     // await captchaRef.current.executeAsync()
 
     handleSubmit((data: CustomFieldItems) => {
-      const email = accountType === '1' ? data.email : data.workEmailAddress
+      const email = accountType === '2' ? data.emailAddress : data.workEmailAddress
       getB2BCompanyUserInfo(email).then(({ companyUserInfo: { userType } }: any) => {
-        if (userType === 1 || (userType === 3 && accountType === '2')) {
+        if (userType === 1) {
           const contactInfo: any = accountType === '1' ? contactInformation : bcContactInformationFields
           const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
           const newContactInfo = contactInfo.map((item: RegisterFileds) => {

@@ -12,9 +12,9 @@ import { RegisteredContext } from './context/RegisteredContext'
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { B3CustomForm } from '../../components'
 
-import { createBCCompanyUser } from '../../shared/service/b2b'
+import { createBCCompanyUser, createB2BCompanyUser } from '../../shared/service/b2b'
 
-import { RegisterFileds, CustomFieldItems } from './config'
+import { RegisterFileds, CustomFieldItems, Base64 } from './config'
 
 const InformationFourLabels = styled('h4')(() => ({
   marginBottom: '20px',
@@ -45,11 +45,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   } = useForm({
     mode: 'all',
   })
-  const { state } = useContext(RegisteredContext)
+  const { state, dispatch } = useContext(RegisteredContext)
 
   const {
     contactInformation, bcContactInformationFields, passwordInformation, accountType,
-    additionalInformation, addressBasicFields, addressExtraFields,
+    additionalInformation, addressBasicFields, addressExtraFields, companyInformation,
+    emailMarketingNewsletter,
   } = state
 
   const emailName = accountType === '1' ? 'workEmailAddress' : 'emailAddress'
@@ -66,6 +67,8 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     emailItem.name = 'email'
     emailItem.disabled = true
     newPasswordInformation.push(emailItem)
+
+    emailItem.accepts_product_review_abandoned_cart_emails = emailMarketingNewsletter
 
     if (passwordInformation?.length) newPasswordInformation.push(passwordInformation[0])
     newPasswordInformation.push({
@@ -112,67 +115,140 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       if (additionalInformation && (additionalInformation as Array<CustomFieldItems>).length) {
         additionalInformation.forEach((field: CustomFieldItems) => {
           bcFields.form_fields.push({
-            name: field.name,
+            name: field.label,
             value: field.default,
           })
         })
       }
     }
 
+    const addresses: any = {}
+
     if (addressBasicFields) {
       bcFields.addresses = {}
       addressBasicFields.forEach((field: any) => {
         if (field.name === 'country') {
-          bcFields.addresses.country_code = field.default
+          addresses.country_code = field.default
         }
         if (field.name === 'address1') {
-          bcFields.addresses.address1 = field.default
+          addresses.address1 = field.default
         }
         if (field.name === 'address2') {
-          bcFields.addresses.address2 = field.default
+          addresses.address2 = field.default
         }
         if (field.name === 'city') {
-          bcFields.addresses.city = field.default
+          addresses.city = field.default
         }
-        if (field.name === 'state_or_province') {
-          bcFields.addresses.state_or_province = field.default
+        if (field.name === 'state') {
+          addresses.state_or_province = field.default
         }
-        if (field.name === 'postal_code') {
-          bcFields.addresses.country_code = field.default
+        if (field.name === 'zipCode') {
+          addresses.postal_code = field.default
         }
       })
     }
-    bcFields.addresses.first_name = bcFields.first_name
-    bcFields.addresses.last_name = bcFields.last_name
+    addresses.first_name = bcFields.first_name
+    addresses.last_name = bcFields.last_name
 
-    bcFields.addresses.form_fields = []
+    addresses.form_fields = []
+    // BC Extra field
     if (addressExtraFields && addressExtraFields.length) {
       addressExtraFields.forEach((field: any) => {
-        bcFields.addresses.form_fields.push({
-          name: field.name,
+        addresses.form_fields.push({
+          name: field.label,
           value: field.default,
         })
       })
     }
 
+    bcFields.addresses = [addresses]
+
     const userItem: any = {
-      storeHash: 'rtmh8fqr05',
+      storeHash: (window as any).b3?.setting?.storeHash || 'rtmh8fqr05',
       method: 'post',
       url: '/v3/customers',
       data: [bcFields],
     }
 
-    createBCCompanyUser(userItem)
+    return createBCCompanyUser(userItem)
   }
 
-  const getB2BFieldsValue = (data: CustomFieldItems) => {}
+  const getB2BFieldsValue = async (data: CustomFieldItems, customerId: Number | String) => {
+    const b2bFields: any = {}
+
+    b2bFields.customerId = customerId || ''
+    b2bFields.storeHash = (window as any).b3?.setting?.storeHash || 'rtmh8fqr05'
+    if (companyInformation) {
+      const extraFields:Array<CustomFieldItems> = []
+      companyInformation.forEach((item: any) => {
+        if (item.name === 'companyName' || item.name === 'companyEmail' || item.name === 'companyPhoneNumber') {
+          b2bFields[item.name] = item?.default || ''
+        } else {
+          const itemExtraField: CustomFieldItems = {}
+          itemExtraField.fieldName = Base64.decode(item.name)
+          itemExtraField.fieldValue = item?.default || ''
+          extraFields.push(itemExtraField)
+        }
+      })
+      b2bFields.extraFields = extraFields
+    }
+
+    b2bFields.companyEmail = data.email
+
+    if (addressBasicFields) {
+      addressBasicFields.forEach((field: any) => {
+        if (field.name === 'country') {
+          b2bFields.country = field.default
+        }
+        if (field.name === 'address1') {
+          b2bFields.addressLine1 = field.default
+        }
+        if (field.name === 'address2') {
+          b2bFields.addressLine2 = field.default
+        }
+        if (field.name === 'city') {
+          b2bFields.city = field.default
+        }
+        if (field.name === 'state') {
+          b2bFields.state = field.default
+        }
+        if (field.name === 'zipCode') {
+          b2bFields.zipCode = field.default
+        }
+      })
+    }
+
+    return createB2BCompanyUser(b2bFields)
+  }
 
   const handleCompleted = (event: MouseEvent) => {
-    handleSubmit((data: CustomFieldItems) => {
-      if (accountType === '2') {
-        getBCFieldsValue(data)
-      } else {
-        getB2BFieldsValue(data)
+    handleSubmit(async (completeData: CustomFieldItems) => {
+      try {
+        if (dispatch) {
+          dispatch({
+            type: 'loading',
+            payload: {
+              isLoading: true,
+            },
+          })
+        }
+        if (accountType === '2') {
+          await getBCFieldsValue(completeData)
+        } else {
+          const res = await getBCFieldsValue(completeData)
+          const { data } = res
+          await getB2BFieldsValue(completeData, (data as any)[0].id)
+        }
+        if (dispatch) {
+          dispatch({
+            type: 'loading',
+            payload: {
+              isLoading: false,
+            },
+          })
+        }
+      } catch (error) {
+        console.log(error, 'error')
       }
     })(event)
   }

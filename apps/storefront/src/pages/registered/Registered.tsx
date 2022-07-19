@@ -44,13 +44,21 @@ export default function Registered() {
 
   const [logo, setLogo] = useState('')
 
-  const [isLoading, setLoading] = useState(true)
+  // const [isLoading, setLoading] = useState(true)
 
-  const { dispatch } = useContext(RegisteredContext)
+  const { state: { isLoading }, dispatch } = useContext(RegisteredContext)
 
   useEffect(() => {
     const getBCAdditionalFields = async () => {
       try {
+        if (dispatch) {
+          dispatch({
+            type: 'loading',
+            payload: {
+              isLoading: true,
+            },
+          })
+        }
         const { customerAccount, billingAddress } = await getBCRegisterCustomFields()
         const { companyExtraFields } = await getB2BRegisterCustomFields()
         const { quoteConfig } = await getB2BRegisterLogo()
@@ -60,7 +68,7 @@ export default function Registered() {
         const newCustomerAccount = customerAccount.length && customerAccount.filter((field: RegisterFileds) => field.custom)
         const newAdditionalInformation: Array<RegisterFileds> = conversionDataFormat(newCustomerAccount)
 
-        const filterCompanyExtraFields = companyExtraFields.length && companyExtraFields.filter((field: RegisterFileds) => !field?.visibleToEnduser)
+        const filterCompanyExtraFields = companyExtraFields.length && companyExtraFields.filter((field: RegisterFileds) => field?.visibleToEnduser)
         const newCompanyExtraFields: Array<RegisterFileds> = conversionDataFormat(filterCompanyExtraFields)
 
         const customAddress = billingAddress.length && billingAddress.filter((field: RegisterFileds) => field.custom)
@@ -79,6 +87,7 @@ export default function Registered() {
             type: 'all',
             payload: {
               accountType: '1',
+              isLoading: false,
               contactInformation: [...contactInformationFields],
               additionalInformation: [...newAdditionalInformation],
               bcContactInformationFields: [...bcContactInformationFields],
@@ -92,7 +101,6 @@ export default function Registered() {
           })
         }
         setLogo(registerLogo)
-        setLoading(false)
       } catch (e) {
         console.log(e)
       }
