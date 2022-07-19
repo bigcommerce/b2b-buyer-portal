@@ -18,6 +18,7 @@ interface RegisterState {
   stateList?: Array<State>,
   passwordInformation?: Array<RegisterFileds> | Array<[]>,
   isLoading?: Boolean,
+  storeName?: string,
 }
 interface RegisterAction {
   type: string,
@@ -46,6 +47,7 @@ const initState = {
   countryList: [],
   stateList: [],
   isLoading: false,
+  storeName: '',
 }
 
 export const RegisteredContext = createContext<RegisterContext>({ state: initState, dispatch: () => {} })

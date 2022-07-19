@@ -10,7 +10,7 @@ import {
 } from './style'
 
 interface B3SpingProps {
-  isSpinning: Boolean,
+  isSpinning: Boolean | undefined,
   children: ReactNode,
   tip?: string,
   size?: Number & undefined,

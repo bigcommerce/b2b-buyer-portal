@@ -32,6 +32,7 @@ export const steps = ['Account', 'Details', 'Finish']
 export const re = {
   phone: /^((\(\+?[0-9]{0,2}\))|(\+?[0-9]{0,2}))?(\s|-)?((\([0-9]{1,5}\))|([0-9]{1,5}))((\s|-)?)([0-9]{2,4}){0,3}((\s|-)?)[0-9]{4}$/,
   email: /^([A-Za-z0-9.!#$%&'*+-/=?^_`{|}~])+@([A-Za-z0-9\-.])+\.([A-Za-z][A-Za-z0-9]{1,64})$/,
+  password: /^(?=.*[0-9].*)(?=.*[A-Za-z].*).{7,}$/,
 }
 
 const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown']
@@ -45,7 +46,7 @@ export const Base64 = {
   },
 }
 
-const validatorRules = (val: string, validateRuleTypes: string[], options?: ValidateOptions): any => {
+export const validatorRules = (val: string, validateRuleTypes: string[], options?: ValidateOptions): any => {
   let str = ''
   validateRuleTypes.forEach((item: string) => {
     if (item === 'email' && !re.email.test(val)) {
@@ -56,6 +57,10 @@ const validatorRules = (val: string, validateRuleTypes: string[], options?: Vali
     }
     if (item === 'max' && options?.max && +options.max < +val) {
       str = `Please do not exceed ${options.max}`
+    }
+
+    if (item === 'password' && !re.password.test(val)) {
+      str = 'Passwords must be at least 7 characters and contain both alphabetic and numeric characters.'
     }
   })
   if (str) return str
@@ -81,6 +86,10 @@ const classificationType = (item: RegisterFileds) => {
     }
     if (optionItems?.max) {
       optionItems.validate = (v: string) => validatorRules(v, ['max'], { max: optionItems?.max })
+    }
+
+    if (item.fieldType === 'password') {
+      optionItems.validate = (v: string) => validatorRules(v, ['password'])
     }
   }
   if (fieldsType.checkbox.includes(item.fieldType)) {
@@ -122,8 +131,6 @@ const classificationType = (item: RegisterFileds) => {
       options: item.options?.items || [],
     }
   }
-
-  console.log(optionItems?.options, '222')
 
   if (optionItems?.options) {
     optionItems?.options.forEach((option: any) => {

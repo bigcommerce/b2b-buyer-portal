@@ -86,6 +86,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     // await captchaRef.current.executeAsync()
 
     handleSubmit((data: CustomFieldItems) => {
+      dispatch({ type: 'loading', payload: { isLoading: true } })
       const email = accountType === '2' ? data.emailAddress : data.workEmailAddress
       getB2BCompanyUserInfo(email).then(({ companyUserInfo: { userType } }: any) => {
         if (userType === 1) {
@@ -113,6 +114,10 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         } else {
           judgeEmailExist(userType)
         }
+        dispatch({ type: 'loading', payload: { isLoading: false } })
+      }).catch((err: any) => {
+        console.log(err)
+        dispatch({ type: 'loading', payload: { isLoading: false } })
       })
     })(event)
   }

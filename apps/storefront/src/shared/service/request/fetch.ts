@@ -1,3 +1,5 @@
+import { RequestType } from './base'
+
 // Defines a collection of functions used to store processing and error result processing for intercepting request and response results
 const interceptorsReq: Array<any> = []
 const interceptorsReqError: Array<any> = []
@@ -13,7 +15,7 @@ function b3Fetch(path: string, init: any, type?: string) {
 
   return new Promise((resolve, reject) => {
     originFetch(path, init).then((res: Response) => res.json()).then((res) => {
-      if (type === 'B2BGraphq') {
+      if (type === RequestType.B2BGraphql) {
         if (res?.errors && res?.errors.length) {
           reject(res.errors[0])
         } else {

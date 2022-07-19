@@ -1,4 +1,5 @@
 import { b3Fetch, interceptors } from './fetch'
+import { B2B_BASIC_URL, RequestType, queryParse } from './base'
 
 /**
  * config User-defined configuration items
@@ -31,15 +32,6 @@ const configDefault: configDefaultProps = {
   timeout: 10000,
 }
 
-function queryParse<T>(query: T): string {
-  let queryText: string = ''
-
-  Object.keys(query).forEach((key: string) => {
-    queryText += `${key}=${(query as any)[key]}&`
-  })
-  return queryText.slice(0, -1)
-}
-
 // request interceptor
 interceptors.request.use((config: ConfigProps) => {
   const configTemp: ConfigProps = {
@@ -56,14 +48,15 @@ interceptors.response.use(async (response: Response) => {
   return Promise.reject(response)
 })
 
-function request<T>(path: string, config?: T) {
+function request<T>(path: string, config?: T, type?: string) {
+  const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}/api${path}` : path
   const init = {
     headers: {
       'content-type': 'application/json',
     },
     ...config,
   }
-  return b3Fetch(path, init)
+  return b3Fetch(url, init, type)
 }
 
 function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
@@ -75,39 +68,35 @@ function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
     ...config,
     body: JSON.stringify(data),
   }
-  const graphqlB2BUrl = 'https://dev-v2.bundleb2b.net/api/graphql'
-  const graphqlBCUrl = ''
+  const graphqlB2BUrl = `${B2B_BASIC_URL}/api/graphql`
 
-  const url = type === 'B2BGraphq' ? graphqlB2BUrl : graphqlBCUrl
+  const url = type === RequestType.B2BGraphql ? graphqlB2BUrl : ''
 
   return b3Fetch(url, init, type)
 }
 
 export const B3Request = {
   graphqlB2B: function post<T>(data: T) {
-    return graphqlRequest('B2BGraphq', data)
+    return graphqlRequest(RequestType.B2BGraphql, data)
   },
   graphqlBC: function post<T>(data: T) {
-    return graphqlRequest('BCGraphq', data)
+    return graphqlRequest(RequestType.BCGraphql, data)
   },
-  get: function get<T>(url: string, data?: T) {
+  get: function get<T>(url: string, type: string, data?: T) {
     if (data) {
       const params = queryParse(data)
       return request(`${url}?${params}`, { method: 'GET' })
     }
-    return request(url, { method: 'GET' })
+    return request(url, { method: 'GET' }, type)
   },
-  post: function post<T, Y>(path: string, data: T, config?: Y) {
-    const url = `https://dev-v2.bundleb2b.net/api${path}`
-
+  post: function post<T>(url: string, type: string, data: T) {
     return request(url, {
       body: JSON.stringify(data),
       method: 'POST',
-      ...config,
-    })
+    }, type)
   },
-  fileUpload: function fileUpload<T, Y>(path: string, formData: T, config?: Y) {
-    return request(`https://dev-v2.bundleb2b.net/api${path}`, {
+  fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y) {
+    return request(`${B2B_BASIC_URL}/api${url}`, {
       method: 'POST',
       body: formData,
       headers: {},

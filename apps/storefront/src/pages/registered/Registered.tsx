@@ -6,7 +6,9 @@ import styled from '@emotion/styled'
 
 import { ImageListItem } from '@mui/material'
 import { getBCRegisterCustomFields } from '../../shared/service/bc'
-import { getB2BRegisterCustomFields, getB2BRegisterLogo, getB2BCountries } from '../../shared/service/b2b'
+import {
+  getB2BRegisterCustomFields, getB2BRegisterLogo, getB2BCountries, storeB2BBasicInfo,
+} from '../../shared/service/b2b'
 
 import RegisteredStep from './RegisteredStep'
 import RegisterContent from './RegisterContent'
@@ -44,8 +46,6 @@ export default function Registered() {
 
   const [logo, setLogo] = useState('')
 
-  // const [isLoading, setLoading] = useState(true)
-
   const { state: { isLoading }, dispatch } = useContext(RegisteredContext)
 
   useEffect(() => {
@@ -63,6 +63,7 @@ export default function Registered() {
         const { companyExtraFields } = await getB2BRegisterCustomFields()
         const { quoteConfig } = await getB2BRegisterLogo()
         const { countries } = await getB2BCountries()
+        const { storeBasicInfo: { storeName } } = await storeB2BBasicInfo()
         const registerLogo = getRegisterLogo(quoteConfig)
 
         const newCustomerAccount = customerAccount.length && customerAccount.filter((field: RegisterFileds) => field.custom)
@@ -82,24 +83,23 @@ export default function Registered() {
 
         const filterPasswordInformation = customerAccount.length && customerAccount.filter((field: RegisterFileds) => !field.custom && field.fieldType === 'password')
         const newPasswordInformation: Array<RegisterFileds> = conversionDataFormat(filterPasswordInformation)
-        if (dispatch) {
-          dispatch({
-            type: 'all',
-            payload: {
-              accountType: '1',
-              isLoading: false,
-              contactInformation: [...contactInformationFields],
-              additionalInformation: [...newAdditionalInformation],
-              bcContactInformationFields: [...bcContactInformationFields],
-              companyInformation: [...companyInformationFields, ...newCompanyExtraFields],
-              companyAttachment: [...companyAttachmentsFields],
-              addressBasicFields: [...addressInformationFields],
-              addressExtraFields: [...addressExtraFields],
-              countryList: [...countries],
-              passwordInformation: [...newPasswordInformation],
-            },
-          })
-        }
+        dispatch({
+          type: 'all',
+          payload: {
+            accountType: '1',
+            isLoading: false,
+            storeName,
+            contactInformation: [...contactInformationFields],
+            additionalInformation: [...newAdditionalInformation],
+            bcContactInformationFields: [...bcContactInformationFields],
+            companyInformation: [...companyInformationFields, ...newCompanyExtraFields],
+            companyAttachment: [...companyAttachmentsFields],
+            addressBasicFields: [...addressInformationFields],
+            addressExtraFields: [...addressExtraFields],
+            countryList: [...countries],
+            passwordInformation: [...newPasswordInformation],
+          },
+        })
         setLogo(registerLogo)
       } catch (e) {
         console.log(e)

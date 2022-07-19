@@ -14,7 +14,9 @@ import { B3CustomForm } from '../../components'
 
 import { createBCCompanyUser, createB2BCompanyUser } from '../../shared/service/b2b'
 
-import { RegisterFileds, CustomFieldItems, Base64 } from './config'
+import {
+  RegisterFileds, CustomFieldItems, Base64, validatorRules,
+} from './config'
 
 const InformationFourLabels = styled('h4')(() => ({
   marginBottom: '20px',
@@ -75,10 +77,11 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       default: '',
       required: true,
       label: 'Confirm Password',
-      name: 'Confirm Password',
+      name: 'ConfirmPassword',
       id: 'Confirm Password',
       fieldType: 'password',
       xs: 12,
+      validate: (v: string) => validatorRules(v, ['password']),
     })
 
     setPersonalInfo(newPasswordInformation)
@@ -223,6 +226,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
   const handleCompleted = (event: MouseEvent) => {
     handleSubmit(async (completeData: CustomFieldItems) => {
+      if (completeData.password !== completeData.ConfirmPassword) {
+        setErrorMessage('The passwords are different')
+        return
+      }
       try {
         if (dispatch) {
           dispatch({

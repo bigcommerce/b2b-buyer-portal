@@ -53,6 +53,12 @@ const getCountries = () => `{
   }
 }`
 
+const storeBasicInfo = () => `{
+  storeBasicInfo(storeHash:"${storeHash}") {
+    storeName
+  }
+}`
+
 const conversionData = (data: CustomFieldItems) => {
   if (typeof data === 'string' || typeof data === 'number') {
     return data
@@ -127,3 +133,5 @@ export const getB2BRegisterCustomFields = (): CustomFieldItems => B3Request.grap
 export const getB2BCountries = (): CustomFieldItems => B3Request.graphqlB2B({ query: getCountries() })
 
 export const createB2BCompanyUser = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({ query: createCompanyUser(data) })
+
+export const storeB2BBasicInfo = (): CustomFieldItems => B3Request.graphqlB2B({ query: storeBasicInfo() })
