@@ -7,7 +7,7 @@ import { steps } from '../config'
 
 function RegisteredStepButton(props: any) {
   const {
-    activeStep, handleReset, handleBack, handleNext,
+    activeStep, handleBack, handleNext, handleFinish,
   } = props
 
   return (
@@ -15,7 +15,7 @@ function RegisteredStepButton(props: any) {
       {activeStep === steps.length ? (
         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
           <Box sx={{ flex: '1 1 auto' }} />
-          <Button onClick={handleReset}>Reset</Button>
+          <Button onClick={() => handleFinish()}>Finish</Button>
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>

@@ -12,11 +12,12 @@ interface RegisterContentProps {
   activeStep: number,
   handleBack:() => void,
   handleNext: () => void,
+  handleFinish: () => void,
 }
 
 export default function RegisterContent(props: RegisterContentProps) {
   const {
-    activeStep, handleBack, handleNext,
+    activeStep, handleBack, handleNext, handleFinish,
   } = props
 
   const renderStep = (step: number): ReactNode => {
@@ -50,7 +51,10 @@ export default function RegisterContent(props: RegisterContentProps) {
 
       case 3:
         return (
-          <RegisteredFinish />
+          <RegisteredFinish
+            activeStep={activeStep}
+            handleFinish={handleFinish}
+          />
         )
 
       default:

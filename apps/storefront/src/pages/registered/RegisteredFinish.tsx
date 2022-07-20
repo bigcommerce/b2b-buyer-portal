@@ -1,18 +1,16 @@
 import { useContext } from 'react'
 
-import {
-  Box,
-  Button,
-} from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { Box } from '@mui/material'
 
 import { RegisteredContext } from './context/RegisteredContext'
+import RegisteredStepButton from './component/RegisteredStepButton'
 
 import { StyleTipContainer } from './styled'
 
-export default function RegisteredFinish() {
-  const { state, dispatch } = useContext(RegisteredContext)
-  const navigate = useNavigate()
+export default function RegisteredFinish(props: { activeStep: any; handleFinish: () => void}) {
+  const { activeStep, handleFinish } = props
+  const { state } = useContext(RegisteredContext)
+
   const {
     accountType,
     submitSuccess,
@@ -44,24 +42,6 @@ export default function RegisteredFinish() {
     }
   }
 
-  const handleFinish = () => {
-    const isHasFrontPage = window?.history?.length > 2
-    if (dispatch) {
-      dispatch({
-        type: 'finishInfo',
-        payload: {
-          submitSuccess: false,
-        },
-      })
-    }
-
-    if (isHasFrontPage) {
-      navigate(-1)
-    } else {
-      navigate('/')
-    }
-  }
-
   return (
     <Box
       sx={{
@@ -74,15 +54,10 @@ export default function RegisteredFinish() {
         submitSuccess && (
           <>
             { renderB2BSuccessPage() }
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                variant="contained"
-                onClick={handleFinish}
-                sx={{ mt: 3, ml: 1 }}
-              >
-                FINISH
-              </Button>
-            </Box>
+            <RegisteredStepButton
+              activeStep={activeStep}
+              handleFinish={handleFinish}
+            />
           </>
         )
       }

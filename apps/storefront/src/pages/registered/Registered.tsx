@@ -1,8 +1,10 @@
 import {
   useEffect, useState, useContext,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { ImageListItem } from '@mui/material'
+
 import { getBCRegisterCustomFields } from '../../shared/service/bc'
 import {
   getB2BRegisterCustomFields, getB2BRegisterLogo, getB2BCountries, storeB2BBasicInfo,
@@ -30,6 +32,7 @@ import { RegisteredContainer, RegisteredImage } from './styled'
 
 export default function Registered() {
   const [activeStep, setActiveStep] = useState(0)
+  const navigate = useNavigate()
 
   const [logo, setLogo] = useState('')
 
@@ -115,8 +118,22 @@ export default function Registered() {
     setActiveStep((prevActiveStep: number) => prevActiveStep - 1)
   }
 
-  const handleReset = () => {
-    setActiveStep(0)
+  const handleFinish = () => {
+    const isHasFrontPage = window?.history?.length > 2
+    if (dispatch) {
+      dispatch({
+        type: 'finishInfo',
+        payload: {
+          submitSuccess: false,
+        },
+      })
+    }
+
+    if (isHasFrontPage) {
+      navigate(-1)
+    } else {
+      navigate('/')
+    }
   }
 
   return (
@@ -148,9 +165,9 @@ export default function Registered() {
         >
           <RegisterContent
             activeStep={activeStep}
-            handleReset={handleReset}
             handleBack={handleBack}
             handleNext={handleNext}
+            handleFinish={handleFinish}
           />
         </RegisteredStep>
       </B3Sping>
