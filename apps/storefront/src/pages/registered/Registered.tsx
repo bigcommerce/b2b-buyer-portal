@@ -76,10 +76,11 @@ export default function Registered() {
         const customAddress = billingAddress.length && billingAddress.filter((field: RegisterFileds) => field.custom)
         const addressExtraFields: Array<RegisterFileds> = conversionDataFormat(customAddress)
 
-        addressInformationFields(b3Lang).forEach((addressFileds) => {
+        const newAddressInformationFields = addressInformationFields(b3Lang).map((addressFileds) => {
           if (addressFileds.name === 'country') {
             addressFileds.options = countries
           }
+          return addressFileds
         })
 
         const filterPasswordInformation = customerAccount.length && customerAccount.filter((field: RegisterFileds) => !field.custom && field.fieldType === 'password')
@@ -97,7 +98,7 @@ export default function Registered() {
               companyExtraFields: [...newCompanyExtraFields],
               companyInformation: [...companyInformationFields(b3Lang)],
               companyAttachment: [...companyAttachmentsFields(b3Lang)],
-              addressBasicFields: [...addressInformationFields(b3Lang)],
+              addressBasicFields: [...newAddressInformationFields],
               addressExtraFields: [...addressExtraFields],
               countryList: [...countries],
               passwordInformation: [...newPasswordInformation],

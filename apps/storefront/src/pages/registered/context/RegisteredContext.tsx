@@ -13,7 +13,7 @@ interface RegisterState {
   companyInformation?: Array<RegisterFileds> | Array<[]>,
   companyExtraFields?: Array<RegisterFileds> | Array<[]>,
   companyAttachment?: Array<RegisterFileds> | Array<[]>,
-  addressBasicFields?: Array<RegisterFileds> | Array<[]>,
+  addressBasicFields?: Array<RegisterFileds>,
   addressExtraFields?: Array<RegisterFileds> | Array<[]>,
   countryList?: Array<Country>,
   stateList?: Array<State>,

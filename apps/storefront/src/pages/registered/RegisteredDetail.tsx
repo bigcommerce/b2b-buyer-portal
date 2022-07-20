@@ -21,7 +21,6 @@ import { RegisteredContext } from './context/RegisteredContext'
 import {
   CustomFieldItems,
   RegisterFileds,
-  addressInformationFields,
   Country,
   State,
   Base64,
@@ -73,7 +72,7 @@ export default function RegisteredDetail(props: any) {
 
   const handleCountryChange = (countryCode: string, stateCode: string = '') => {
     const stateList = countryList.find((country: Country) => country.countryCode === countryCode)?.states || []
-    const stateFields = addressInformationFields(b3Lang).find((formFileds: RegisterFileds) => formFileds.name === 'state')
+    const stateFields = addressBasicFields.find((formFileds: RegisterFileds) => formFileds.name === 'state')
 
     if (stateFields) {
       if (stateList.length > 0) {
@@ -91,7 +90,7 @@ export default function RegisteredDetail(props: any) {
       type: 'stateList',
       payload: {
         stateList,
-        addressBasicFields: [...addressInformationFields(b3Lang)],
+        addressBasicFields: [...addressBasicFields],
       },
     })
   }
