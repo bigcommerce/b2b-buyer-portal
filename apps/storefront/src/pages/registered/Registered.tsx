@@ -55,6 +55,7 @@ export default function Registered() {
             },
           })
         }
+
         const { customerAccount, billingAddress } = await getBCRegisterCustomFields()
         const { companyExtraFields } = await getB2BRegisterCustomFields()
         const { quoteConfig } = await getB2BRegisterLogo()
