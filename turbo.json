@@ -9,6 +9,10 @@
     },
     "dev": {
       "cache": false
+    },
+    "build:staging": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     }
   }
 }
