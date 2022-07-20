@@ -49,7 +49,7 @@ interceptors.response.use(async (response: Response) => {
 })
 
 function request<T>(path: string, config?: T, type?: string) {
-  const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}/api${path}` : path
+  const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
   const init = {
     headers: {
       'content-type': 'application/json',
@@ -68,7 +68,7 @@ function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
     ...config,
     body: JSON.stringify(data),
   }
-  const graphqlB2BUrl = `${B2B_BASIC_URL}/api/graphql`
+  const graphqlB2BUrl = `${B2B_BASIC_URL}/graphql`
 
   const url = type === RequestType.B2BGraphql ? graphqlB2BUrl : ''
 
@@ -96,7 +96,7 @@ export const B3Request = {
     }, type)
   },
   fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y) {
-    return request(`${B2B_BASIC_URL}/api${url}`, {
+    return request(`${B2B_BASIC_URL}${url}`, {
       method: 'POST',
       body: formData,
       headers: {},

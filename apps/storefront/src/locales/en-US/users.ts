@@ -20,6 +20,7 @@ export default {
 
   'intl.user.register.registeredAccount.loginLeft': 'It appears you may already have an account. Please',
   'intl.user.register.registeredAccount.loginFirst': 'first',
+  'intl.user.register.registeredAccount.loginBtn': 'login',
   'intl.user.register.registeredAccount.loginb2b': 'to apply for a business account',
 
   'intl.user.register.registeredAccount.accountType': 'Account Type',

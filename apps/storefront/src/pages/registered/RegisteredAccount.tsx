@@ -91,6 +91,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
               return item
             })
           }
+          setEmailStateType(0)
           dispatch({
             type: 'all',
             payload: {
@@ -143,7 +144,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
               <TipLogin
                 onClick={gotoLigin}
               >
-                login
+                {b3Lang('intl.user.register.registeredAccount.loginBtn')}
               </TipLogin>
             </Box>
             {

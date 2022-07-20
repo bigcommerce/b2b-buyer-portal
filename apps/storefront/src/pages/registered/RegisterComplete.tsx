@@ -74,7 +74,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       id: 'Confirm Password',
       fieldType: 'password',
       xs: 12,
-      validate: (v: string) => validatorRules(v, ['password']),
+      validate: validatorRules(['password']),
     })
 
     setPersonalInfo(newPasswordInformation)
