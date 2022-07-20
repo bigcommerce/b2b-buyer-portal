@@ -67,13 +67,13 @@ export default function Registered() {
         const { storeBasicInfo: { storeName } } = await storeB2BBasicInfo()
         const registerLogo = getRegisterLogo(quoteConfig)
 
-        const newCustomerAccount = customerAccount.length && customerAccount.filter((field: RegisterFileds) => field.custom)
+        const newCustomerAccount = customerAccount.length ? customerAccount.filter((field: RegisterFileds) => field.custom) : []
         const newAdditionalInformation: Array<RegisterFileds> = conversionDataFormat(newCustomerAccount)
 
-        const filterCompanyExtraFields = companyExtraFields.length && companyExtraFields.filter((field: RegisterFileds) => field?.visibleToEnduser)
+        const filterCompanyExtraFields = companyExtraFields.length ? companyExtraFields.filter((field: RegisterFileds) => field?.visibleToEnduser) : []
         const newCompanyExtraFields: Array<RegisterFileds> = conversionDataFormat(filterCompanyExtraFields)
 
-        const customAddress = billingAddress.length && billingAddress.filter((field: RegisterFileds) => field.custom)
+        const customAddress = billingAddress.length ? billingAddress.filter((field: RegisterFileds) => field.custom) : []
         const addressExtraFields: Array<RegisterFileds> = conversionDataFormat(customAddress)
 
         const newAddressInformationFields = addressInformationFields(b3Lang).map((addressFileds) => {
@@ -83,7 +83,7 @@ export default function Registered() {
           return addressFileds
         })
 
-        const filterPasswordInformation = customerAccount.length && customerAccount.filter((field: RegisterFileds) => !field.custom && field.fieldType === 'password')
+        const filterPasswordInformation = customerAccount.length ? customerAccount.filter((field: RegisterFileds) => !field.custom && field.fieldType === 'password') : []
         const newPasswordInformation: Array<RegisterFileds> = conversionDataFormat(filterPasswordInformation)
         if (dispatch) {
           dispatch({

@@ -119,6 +119,8 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     dispatch({ type: 'emailSletter', payload: { emailMarketingNewsletter: event.target.checked } })
   }, [])
 
+  const additionalList: any = accountType === '1' ? contactInformation : bcContactInformationFields
+
   return (
     <Box
       sx={{
@@ -176,10 +178,11 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           />
         </RadioGroup>
       </FormControl>
+
       <Box>
         <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.contactInformation')}</InformationFourLabels>
         <B3CustomForm
-          formFields={accountType === '1' ? contactInformation : bcContactInformationFields}
+          formFields={additionalList}
           errors={errors}
           control={control}
           getValues={getValues}
@@ -187,6 +190,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         />
 
       </Box>
+
       <Box
         sx={{
           mt: 4,
@@ -199,16 +203,21 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         />
       </Box>
       <Box />
-      <Box>
-        <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.additionalInformation')}</InformationFourLabels>
-        <B3CustomForm
-          formFields={additionalInformation}
-          errors={errors}
-          control={control}
-          getValues={getValues}
-          setValue={setValue}
-        />
-      </Box>
+      {
+        (additionalInformation && additionalInformation.length) ? (
+          <Box>
+            <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.additionalInformation')}</InformationFourLabels>
+            <B3CustomForm
+              formFields={additionalInformation}
+              errors={errors}
+              control={control}
+              getValues={getValues}
+              setValue={setValue}
+            />
+          </Box>
+        ) : ''
+      }
+
       <RegisteredStepButton
         activeStep={activeStep}
         handleBack={handleBack}

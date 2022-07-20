@@ -1,6 +1,6 @@
-const storeHash = (window as any).b3?.setting.storeHash || import.meta.env.VITE_B2B_STOREHASH
+const storeHash = (window as any).b3?.setting?.storeHash || import.meta.env.VITE_B2B_STOREHASH
 
-const getCcBaseUrl = () => {
+const getBcBaseUrl = () => {
   let baseUrl = ''
   if (import.meta.env.VITE_NODE_ENV === 'development') {
     baseUrl = '/bigcommerce'
@@ -10,7 +10,7 @@ const getCcBaseUrl = () => {
 
   return baseUrl
 }
-const bcBaseUrl = getCcBaseUrl()
+const bcBaseUrl = getBcBaseUrl()
 
 export {
   storeHash,
