@@ -1,14 +1,12 @@
 import { B3Request } from '../../request/b3Fetch'
 
 import {
-  convertArrayToGraphql,
+  convertArrayToGraphql, storeHash,
 } from '../../../../utils'
 
 interface CustomFieldItems {
   [key: string]: any
 }
-
-const storeHash = (window as any).b3?.setting?.storeHash || 'rtmh8fqr05'
 
 const getCompanyExtraFields = () => `{
   companyExtraFields(storeHash: "${storeHash}") {

@@ -10,14 +10,13 @@ import RegisterComplete from './RegisterComplete'
 
 interface RegisterContentProps {
   activeStep: number,
-  handleReset: () => void,
   handleBack:() => void,
   handleNext: () => void,
 }
 
 export default function RegisterContent(props: RegisterContentProps) {
   const {
-    activeStep, handleReset, handleBack, handleNext,
+    activeStep, handleBack, handleNext,
   } = props
 
   const renderStep = (step: number): ReactNode => {

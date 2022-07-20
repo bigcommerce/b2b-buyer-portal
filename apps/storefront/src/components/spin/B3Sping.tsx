@@ -7,7 +7,7 @@ import {
   SpinCenter,
   SpinTip,
   SpinContext,
-} from './style'
+} from './styled'
 
 interface B3SpingProps {
   isSpinning: Boolean | undefined,

@@ -1,4 +1,4 @@
-const B2B_BASIC_URL = import.meta.env.VITE_B2B_BASIC_URL
+const B2B_BASIC_URL = (window as any).b3?.setting?.B2B_URL || import.meta.env.VITE_B2B_BASIC_URL
 
 enum RequestType {
   B2BGraphql = 'B2BGraphql',

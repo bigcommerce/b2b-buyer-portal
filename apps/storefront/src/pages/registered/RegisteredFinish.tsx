@@ -4,15 +4,11 @@ import {
   Box,
   Button,
 } from '@mui/material'
-import styled from '@emotion/styled'
 import { useNavigate } from 'react-router-dom'
 
 import { RegisteredContext } from './context/RegisteredContext'
 
-const StyleTipContainer = styled('p')(() => ({
-  textAlign: 'center',
-  margin: '2rem auto',
-}))
+import { StyleTipContainer } from './styled'
 
 export default function RegisteredFinish() {
   const { state, dispatch } = useContext(RegisteredContext)

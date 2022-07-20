@@ -5,7 +5,6 @@ import {
   Box,
   Alert,
 } from '@mui/material'
-import styled from '@emotion/styled'
 import { useForm } from 'react-hook-form'
 
 import { RegisteredContext } from './context/RegisteredContext'
@@ -18,9 +17,9 @@ import {
   RegisterFileds, CustomFieldItems, Base64, validatorRules,
 } from './config'
 
-const InformationFourLabels = styled('h4')(() => ({
-  marginBottom: '20px',
-}))
+import { storeHash } from '../../utils'
+
+import { InformationFourLabels, TipContent } from './styled'
 
 interface RegisterCompleteProps {
   handleBack: () => void,
@@ -29,12 +28,6 @@ interface RegisterCompleteProps {
 }
 
 type RegisterCompleteList = Array<any> | undefined
-
-const TipContent = styled('div')(() => ({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-}))
 
 export default function RegisterComplete(props: RegisterCompleteProps) {
   const { handleBack, activeStep, handleNext } = props
@@ -168,7 +161,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     bcFields.addresses = [addresses]
 
     const userItem: any = {
-      storeHash: (window as any).b3?.setting?.storeHash || 'rtmh8fqr05',
+      storeHash,
       method: 'post',
       url: '/v3/customers',
       data: [bcFields],
@@ -181,7 +174,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     const b2bFields: any = {}
 
     b2bFields.customerId = customerId || ''
-    b2bFields.storeHash = (window as any).b3?.setting?.storeHash || 'rtmh8fqr05'
+    b2bFields.storeHash = storeHash
     if (companyInformation) {
       companyInformation.forEach((item: any) => {
         b2bFields[item.name] = item?.default || ''

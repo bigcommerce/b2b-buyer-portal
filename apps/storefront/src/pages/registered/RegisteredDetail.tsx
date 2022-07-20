@@ -10,7 +10,6 @@ import {
   Alert,
 } from '@mui/material'
 
-import styled from '@emotion/styled'
 import { useForm } from 'react-hook-form'
 
 import { B3CustomForm } from '../../components'
@@ -27,24 +26,9 @@ import {
   Base64,
 } from './config'
 
+import { InformationFourLabels, AddressBox, TipContent } from './styled'
+
 import { validateBCCompanyExtraFields } from '../../shared/service/b2b'
-
-const InformationFourLabels = styled('h4')(() => ({
-  marginBottom: '20px',
-}))
-
-const AddressBox = styled(Box)(() => ({
-  '& .MuiGrid-item': {
-    alignItems: 'flex-end',
-    display: 'flex',
-  },
-}))
-
-const TipContent = styled('div')(() => ({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-}))
 
 export default function RegisteredDetail(props: any) {
   const { handleBack, handleNext, activeStep } = props

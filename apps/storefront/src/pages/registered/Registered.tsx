@@ -2,8 +2,6 @@ import {
   useEffect, useState, useContext,
 } from 'react'
 
-import styled from '@emotion/styled'
-
 import { ImageListItem } from '@mui/material'
 import { getBCRegisterCustomFields } from '../../shared/service/bc'
 import {
@@ -28,18 +26,7 @@ import {
   addressInformationFields,
 } from './config'
 
-const RegisteredContainer = styled('div')({
-  padding: '20px 20px',
-})
-
-const RegisteredImage = styled('div')({
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
-  width: '100%',
-  height: '150px',
-})
+import { RegisteredContainer, RegisteredImage } from './styled'
 
 export default function Registered() {
   const [activeStep, setActiveStep] = useState(0)

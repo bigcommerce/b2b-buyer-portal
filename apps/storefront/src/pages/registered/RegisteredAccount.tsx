@@ -12,8 +12,6 @@ import {
 
 import { useForm } from 'react-hook-form'
 
-import styled from '@emotion/styled'
-
 import { B3CustomForm } from '../../components'
 import RegisteredStepButton from './component/RegisteredStepButton'
 import RegisteredSigleCheckBox from './component/RegisteredSigleCheckBox'
@@ -24,25 +22,9 @@ import { RegisterFileds, CustomFieldItems } from './config'
 
 import { getB2BCompanyUserInfo } from '../../shared/service/b2b'
 
-const InformationLabels = styled('h3')(() => ({
-  marginBottom: '20px',
-}))
-
-const InformationFourLabels = styled('h4')(() => ({
-  marginBottom: '20px',
-}))
-
-const TipContent = styled('div')(() => ({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-}))
-
-const TipLogin = styled('div')(() => ({
-  cursor: 'pointer',
-  color: '#1976d2',
-  borderBottom: '1px solid #1976d2',
-}))
+import {
+  InformationLabels, InformationFourLabels, TipContent, TipLogin,
+} from './styled'
 
 interface RegisteredAccountProps {
   handleBack: () => void,
