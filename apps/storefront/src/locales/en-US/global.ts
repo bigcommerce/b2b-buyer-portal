@@ -4,6 +4,7 @@ export default {
   'intl.global.button.back': 'Back',
   'intl.global.button.next': 'Next',
   'intl.global.button.submit': 'Submit',
+  'intl.global.button.finish': 'FINISH',
 
   'intl.global.validate.required': '{label} is required',
 

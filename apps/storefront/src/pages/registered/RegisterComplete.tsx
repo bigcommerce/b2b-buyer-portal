@@ -6,6 +6,7 @@ import {
   Alert,
 } from '@mui/material'
 import { useForm } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
 
 import { RegisteredContext } from './context/RegisteredContext'
 import RegisteredStepButton from './component/RegisteredStepButton'
@@ -30,6 +31,7 @@ interface RegisterCompleteProps {
 type RegisterCompleteList = Array<any> | undefined
 
 export default function RegisterComplete(props: RegisterCompleteProps) {
+  const b3Lang = useB3Lang()
   const { handleBack, activeStep, handleNext } = props
 
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
@@ -57,7 +59,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     if (list && list.length) {
       const emailFileds = list.find((item: RegisterFileds) => item.name === emailName) || {}
       emailItem = { ...emailFileds }
-      emailItem.label = 'email'
+      emailItem.label = `${b3Lang('intl.completePage.email')}`
       emailItem.name = 'email'
       emailItem.disabled = true
       newPasswordInformation.push(emailItem)
@@ -67,7 +69,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     newPasswordInformation.push({
       default: '',
       required: true,
-      label: 'Confirm Password',
+      label: b3Lang('intl.completePage.confirmPassword'),
       name: 'ConfirmPassword',
       id: 'Confirm Password',
       fieldType: 'password',
@@ -250,7 +252,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const handleCompleted = (event: MouseEvent) => {
     handleSubmit(async (completeData: CustomFieldItems) => {
       if (completeData.password !== completeData.ConfirmPassword) {
-        setErrorMessage('The passwords are different')
+        setErrorMessage(b3Lang('intl.completePage.passwordMatchPrompt'))
         return
       }
       try {
@@ -329,7 +331,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         )
       }
       <Box>
-        <InformationFourLabels>Complete Registration</InformationFourLabels>
+        <InformationFourLabels>{b3Lang('intl.completePage.title')}</InformationFourLabels>
         {
           personalInfo && (
           <B3CustomForm

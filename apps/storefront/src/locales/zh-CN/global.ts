@@ -4,6 +4,7 @@ export default {
   'intl.global.button.back': '返回',
   'intl.global.button.next': '下一步',
   'intl.global.button.submit': '提交',
+  'intl.global.button.finish': '完成',
 
   'intl.global.validate.required': '{label}是必填的',
 

@@ -2,6 +2,8 @@ import { useContext } from 'react'
 
 import { Box } from '@mui/material'
 
+import { useB3Lang } from '@b3/lang'
+
 import { RegisteredContext } from './context/RegisteredContext'
 import RegisteredStepButton from './component/RegisteredStepButton'
 
@@ -10,6 +12,7 @@ import { StyleTipContainer } from './styled'
 export default function RegisteredFinish(props: { activeStep: any; handleFinish: () => void}) {
   const { activeStep, handleFinish } = props
   const { state } = useContext(RegisteredContext)
+  const b3Lang = useB3Lang()
 
   const {
     accountType,
@@ -23,11 +26,11 @@ export default function RegisteredFinish(props: { activeStep: any; handleFinish:
       return (
         isAutoApproval ? (
           <StyleTipContainer>
-            {`Thank you for creating your account at ${storeName}. Your company account application has been approved`}
+            {b3Lang('intl.finishPage.autoApproved.tip', { storeName })}
           </StyleTipContainer>
         ) : (
           <StyleTipContainer>
-            Your company account application has been received. Please allow 24 hours for account approval and activation.
+            {b3Lang('intl.finishPage.notAutoApproved.tip')}
           </StyleTipContainer>
         )
       )
@@ -36,7 +39,7 @@ export default function RegisteredFinish(props: { activeStep: any; handleFinish:
     if (accountType === '2') {
       return (
         <StyleTipContainer>
-          {`Thank you for creating your account at ${storeName}.`}
+          {b3Lang('intl.finishPage.bcSuccess.tip', { storeName })}
         </StyleTipContainer>
       )
     }

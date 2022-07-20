@@ -19,7 +19,7 @@ function RegisteredStepButton(props: any) {
       {activeStep === steps.length ? (
         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
           <Box sx={{ flex: '1 1 auto' }} />
-          <Button onClick={() => handleFinish()}>Finish</Button>
+          <Button onClick={() => handleFinish()}>{b3Lang('intl.global.button.finish')}</Button>
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
