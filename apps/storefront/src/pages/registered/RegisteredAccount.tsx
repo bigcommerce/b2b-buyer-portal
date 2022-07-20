@@ -1,5 +1,5 @@
 import {
-  useContext, ChangeEvent, useCallback, useState, MouseEvent, useRef,
+  useContext, ChangeEvent, useCallback, useState, MouseEvent,
 } from 'react'
 import {
   Box,
@@ -9,8 +9,6 @@ import {
   FormControl,
   Alert,
 } from '@mui/material'
-
-import ReCAPTCHA from 'react-google-recaptcha'
 
 import { useForm } from 'react-hook-form'
 
@@ -40,6 +38,12 @@ const TipContent = styled('div')(() => ({
   alignItems: 'center',
 }))
 
+const TipLogin = styled('div')(() => ({
+  cursor: 'pointer',
+  color: '#1976d2',
+  borderBottom: '1px solid #1976d2',
+}))
+
 interface RegisteredAccountProps {
   handleBack: () => void,
   handleNext: () => void,
@@ -52,8 +56,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const { state, dispatch } = useContext(RegisteredContext)
 
   const [emailStateType, setEmailStateType] = useState<number>(0)
-
-  const captchaRef = useRef<any>(null)
 
   const {
     contactInformation, accountType, additionalInformation, bcContactInformationFields,
@@ -122,6 +124,10 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     })(event)
   }
 
+  const gotoLigin = () => {
+    (window as Window).location.href = '/login.php?action=create_account'
+  }
+
   const handleEmailSletterChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     dispatch({ type: 'emailSletter', payload: { emailMarketingNewsletter: event.target.checked } })
   }, [])
@@ -147,7 +153,11 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
                 mr: 1,
               }}
             >
-              login
+              <TipLogin
+                onClick={gotoLigin}
+              >
+                login
+              </TipLogin>
             </Box>
             {
                 emailStateType === 1 ? 'to apply for a business account' : ''
@@ -209,17 +219,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           control={control}
           getValues={getValues}
           setValue={setValue}
-        />
-      </Box>
-      <Box
-        sx={{
-          mt: 4,
-        }}
-      >
-        <ReCAPTCHA
-          sitekey="6Lcct_sgAAAAACfgXLKQxiOvHwBQ0JZOqcX9A6-F"
-          ref={captchaRef}
-          size="invisible"
         />
       </Box>
       <RegisteredStepButton

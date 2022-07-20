@@ -64,13 +64,11 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     if (list && list.length) {
       const emailFileds = list.find((item: RegisterFileds) => item.name === emailName) || {}
       emailItem = { ...emailFileds }
+      emailItem.label = 'email'
+      emailItem.name = 'email'
+      emailItem.disabled = true
+      newPasswordInformation.push(emailItem)
     }
-    emailItem.label = 'email'
-    emailItem.name = 'email'
-    emailItem.disabled = true
-    newPasswordInformation.push(emailItem)
-
-    emailItem.accepts_product_review_abandoned_cart_emails = emailMarketingNewsletter
 
     if (passwordInformation?.length) newPasswordInformation.push(passwordInformation[0])
     newPasswordInformation.push({
@@ -94,6 +92,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       force_password_reset: false,
       new_password: data.password,
     }
+
+    bcFields.accepts_product_review_abandoned_cart_emails = emailMarketingNewsletter
+
     if (list) {
       list.forEach((item: any) => {
         if (item.name === 'lastName') {

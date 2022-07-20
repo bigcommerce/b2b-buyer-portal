@@ -94,11 +94,6 @@ const classificationType = (item: RegisterFileds) => {
   }
   if (fieldsType.checkbox.includes(item.fieldType)) {
     optionItems = {
-      options: item.options?.items || null,
-    }
-  }
-  if (fieldsType.checkbox.includes(item.fieldType)) {
-    optionItems = {
       default: item.default || [],
       options: item.options?.items || null,
     }

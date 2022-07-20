@@ -32,7 +32,7 @@ function RegisteredStepButton(props: any) {
           }
           <Box sx={{ flex: '1 1 auto' }} />
           <Button onClick={handleNext}>
-            {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+            {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
           </Button>
         </Box>
       )}
