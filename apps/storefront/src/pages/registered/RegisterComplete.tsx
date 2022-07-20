@@ -59,7 +59,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     if (list && list.length) {
       const emailFileds = list.find((item: RegisterFileds) => item.name === emailName) || {}
       emailItem = { ...emailFileds }
-      emailItem.label = `${b3Lang('intl.completePage.email')}`
+      emailItem.label = `${b3Lang('intl.user.register.RegisterComplete.email')}`
       emailItem.name = 'email'
       emailItem.disabled = true
       newPasswordInformation.push(emailItem)
@@ -69,7 +69,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     newPasswordInformation.push({
       default: '',
       required: true,
-      label: b3Lang('intl.completePage.confirmPassword'),
+      label: b3Lang('intl.user.register.RegisterComplete.confirmPassword'),
       name: 'ConfirmPassword',
       id: 'Confirm Password',
       fieldType: 'password',
@@ -252,7 +252,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const handleCompleted = (event: MouseEvent) => {
     handleSubmit(async (completeData: CustomFieldItems) => {
       if (completeData.password !== completeData.ConfirmPassword) {
-        setErrorMessage(b3Lang('intl.completePage.passwordMatchPrompt'))
+        setErrorMessage(b3Lang('intl.user.register.RegisterComplete.passwordMatchPrompt'))
         return
       }
       try {
@@ -331,7 +331,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         )
       }
       <Box>
-        <InformationFourLabels>{b3Lang('intl.completePage.title')}</InformationFourLabels>
+        <InformationFourLabels>{b3Lang('intl.user.register.RegisterComplete.title')}</InformationFourLabels>
         {
           personalInfo && (
           <B3CustomForm

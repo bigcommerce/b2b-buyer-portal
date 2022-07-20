@@ -26,11 +26,11 @@ export default function RegisteredFinish(props: { activeStep: any; handleFinish:
       return (
         isAutoApproval ? (
           <StyleTipContainer>
-            {b3Lang('intl.finishPage.autoApproved.tip', { storeName })}
+            {b3Lang('intl.user.register.RegisterFinish.autoApproved.tip', { storeName })}
           </StyleTipContainer>
         ) : (
           <StyleTipContainer>
-            {b3Lang('intl.finishPage.notAutoApproved.tip')}
+            {b3Lang('intl.user.register.RegisterFinish.notAutoApproved.tip')}
           </StyleTipContainer>
         )
       )
@@ -39,7 +39,7 @@ export default function RegisteredFinish(props: { activeStep: any; handleFinish:
     if (accountType === '2') {
       return (
         <StyleTipContainer>
-          {b3Lang('intl.finishPage.bcSuccess.tip', { storeName })}
+          {b3Lang('intl.user.register.RegisterFinish.bcSuccess.tip', { storeName })}
         </StyleTipContainer>
       )
     }

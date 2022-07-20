@@ -24,4 +24,18 @@ export default {
   'intl.user.register.label.zipCode': '邮编',
 
   'intl.user.register.tips.registerLogo': '注册Logo',
+
+  // complete page
+  'intl.user.register.RegisterComplete.title': '完成注册',
+  'intl.user.register.RegisterComplete.passwordMatchPrompt': '您的密码不匹配。',
+  'intl.user.register.RegisterComplete.email': '电子邮件',
+  'intl.user.register.RegisterComplete.confirmPassword': '确认密码',
+
+  // finish page
+  'intl.user.register.RegisterFinish.autoApproved.tip': '感谢您在 {storeName} 创建帐户。 您的公司帐户申请已获批准。',
+  'intl.user.register.RegisterFinish.notAutoApproved.tip': '您的公司账户申请已收到。 请等待 24 小时来批准和激活帐户。',
+  'intl.user.register.RegisterFinish.bcSuccess.tip': '感谢您在 {storeName} 创建帐户。',
+
+  // register components
+  'intl.user.register.RegisteredSingleCheckBox.label': '电子邮件营销通讯',
 }

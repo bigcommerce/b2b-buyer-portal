@@ -24,4 +24,18 @@ export default {
   'intl.user.register.label.zipCode': 'Zip Code',
 
   'intl.user.register.tips.registerLogo': 'register Logo',
+
+  // complete page
+  'intl.user.register.RegisterComplete.title': 'Complete Registration',
+  'intl.user.register.RegisterComplete.passwordMatchPrompt': 'Your passwords do not match.',
+  'intl.user.register.RegisterComplete.email': 'email',
+  'intl.user.register.RegisterComplete.confirmPassword': 'Confirm Password',
+
+  // finish page
+  'intl.user.register.RegisterFinish.autoApproved.tip': 'Thank you for creating your account at {storeName}. Your company account application has been approved.',
+  'intl.user.register.RegisterFinish.notAutoApproved.tip': 'Your company account application has been received. Please allow 24 hours for account approval and activation.',
+  'intl.user.register.RegisterFinish.bcSuccess.tip': 'Thank you for creating your account at {storeName}.',
+
+  // register components
+  'intl.user.register.RegisteredSingleCheckBox.label': 'Email marketing newsletter',
 }
