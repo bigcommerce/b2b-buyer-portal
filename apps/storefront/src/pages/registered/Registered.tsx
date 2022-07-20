@@ -1,5 +1,5 @@
 import {
-  useEffect, useState, useContext,
+  useEffect, useState, useContext, Dispatch, SetStateAction,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -32,7 +32,12 @@ import {
 
 import { RegisteredContainer, RegisteredImage } from './styled'
 
-export default function Registered() {
+interface RegisteredProps {
+  setIsOpen: Dispatch<SetStateAction<boolean>>,
+}
+
+export default function Registered(props: RegisteredProps) {
+  const { setIsOpen } = props
   const [activeStep, setActiveStep] = useState(0)
   const navigate = useNavigate()
 
@@ -135,6 +140,7 @@ export default function Registered() {
       })
     }
 
+    setIsOpen(false)
     if (isHasFrontPage) {
       navigate(-1)
     } else {

@@ -17,7 +17,8 @@ body {
 const HeaderContainer = styled('div')(() => ({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
+  justifyContent: 'flex-end',
+  marginBottom: '1rem',
 }))
 
 export default function App() {
@@ -35,8 +36,7 @@ export default function App() {
             {isOpen ? (
               <Layout close={() => setIsOpen(false)}>
                 <HeaderContainer>
-                  <p>bundle b2b</p>
-                  <RegisteredCloseButton />
+                  <RegisteredCloseButton setIsOpen={setIsOpen} />
                 </HeaderContainer>
                 <Routes>
                   <Route
@@ -49,7 +49,7 @@ export default function App() {
                   />
                   <Route
                     path="/registered"
-                    element={<Registered />}
+                    element={<Registered setIsOpen={setIsOpen} />}
                   />
                 </Routes>
               </Layout>
