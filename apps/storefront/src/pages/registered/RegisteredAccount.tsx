@@ -10,6 +10,8 @@ import {
   Alert,
 } from '@mui/material'
 
+import { useB3Lang } from '@b3/lang'
+
 import { useForm } from 'react-hook-form'
 
 import { B3CustomForm } from '../../components'
@@ -36,6 +38,8 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const { handleBack, handleNext, activeStep } = props
 
   const { state, dispatch } = useContext(RegisteredContext)
+
+  const b3Lang = useB3Lang()
 
   const [emailStateType, setEmailStateType] = useState<number>(0)
 
@@ -128,7 +132,8 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           severity="error"
         >
           <TipContent>
-            It appears you may already have an account. Please first
+            {b3Lang('intl.user.register.registeredAccount.loginLeft')}
+            {emailStateType === 1 ? ` ${b3Lang('intl.user.register.registeredAccount.loginFirst')}` : ''}
             <Box
               sx={{
                 ml: 1,
@@ -142,7 +147,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
               </TipLogin>
             </Box>
             {
-                emailStateType === 1 ? 'to apply for a business account' : ''
+                emailStateType === 1 ? `${b3Lang('intl.user.register.registeredAccount.loginb2b')}` : ''
               }
           </TipContent>
         </Alert>
@@ -150,7 +155,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       }
 
       <FormControl>
-        <InformationLabels>Account Type</InformationLabels>
+        <InformationLabels>{b3Lang('intl.user.register.registeredAccount.accountType')}</InformationLabels>
         <RadioGroup
           row
           aria-labelledby="demo-row-radio-buttons-group-label"
@@ -161,17 +166,17 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           <FormControlLabel
             value="1"
             control={<Radio />}
-            label="Business Account"
+            label={b3Lang('intl.user.register.registeredAccount.businessAccount')}
           />
           <FormControlLabel
             value="2"
             control={<Radio />}
-            label="Personal Account"
+            label={b3Lang('intl.user.register.registeredAccount.personalAccount')}
           />
         </RadioGroup>
       </FormControl>
       <Box>
-        <InformationFourLabels>Contact Information</InformationFourLabels>
+        <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.contactInformation')}</InformationFourLabels>
         <B3CustomForm
           formFields={accountType === '1' ? contactInformation : bcContactInformationFields}
           errors={errors}
@@ -194,7 +199,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       </Box>
       <Box />
       <Box>
-        <InformationFourLabels>Additional Information</InformationFourLabels>
+        <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.additionalInformation')}</InformationFourLabels>
         <B3CustomForm
           formFields={additionalInformation}
           errors={errors}

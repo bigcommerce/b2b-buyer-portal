@@ -11,6 +11,23 @@ export default {
   'intl.user.register.step.details': '详细资料',
   'intl.user.register.step.finish': '完成',
 
+  'intl.user.register.registeredAccount.firstName': '名字',
+  'intl.user.register.registeredAccount.lastName': '姓氏',
+  'intl.user.register.registeredAccount.workEmailAddress': '工作电子邮件地址',
+  'intl.user.register.registeredAccount.phoneNumber': '电话号码',
+  'intl.user.register.registeredAccount.emailAddress': '电子邮件地址',
+  'intl.user.register.registeredAccount.companyName': '公司名称',
+
+  'intl.user.register.registeredAccount.loginLeft': '看来你可能已经有一个帐户了。请',
+  'intl.user.register.registeredAccount.loginFirst': '第一',
+  'intl.user.register.registeredAccount.loginb2b': '申请企业账户',
+
+  'intl.user.register.registeredAccount.accountType': '账户类型',
+  'intl.user.register.registeredAccount.businessAccount': '企业账户',
+  'intl.user.register.registeredAccount.personalAccount': '个人账户',
+  'intl.user.register.registeredAccount.contactInformation': '联系信息',
+  'intl.user.register.registeredAccount.additionalInformation': '附加信息',
+
   'intl.user.register.label.companyName': '公司名称',
   'intl.user.register.label.companyEmail': '公司邮箱',
   'intl.user.register.label.companyPhoneNumber': '公司电话号码',

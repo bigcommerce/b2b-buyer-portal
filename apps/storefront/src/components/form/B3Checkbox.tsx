@@ -7,6 +7,7 @@ import {
 } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
+import { useB3Lang } from '@b3/lang'
 import Form from './ui'
 
 interface CheckboxListProps {
@@ -22,14 +23,16 @@ export const B3Checkbox = ({
     fieldType, name, default: defaultValue, required, label, validate, options,
   } = rest
 
+  const b3Lang = useB3Lang()
+
   const fieldsProps = {
     type: fieldType,
     name,
     key: name,
     defaultValue,
     rules: {
-      required: required && `${label} is required`,
-      validate,
+      required: required && b3Lang('intl.global.validate.required', { label }),
+      validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,
   }

@@ -48,21 +48,21 @@ export const Base64 = {
   },
 }
 
-export const validatorRules = (val: string, validateRuleTypes: string[], options?: ValidateOptions): any => {
+export const validatorRules = (validateRuleTypes: string[], options?: ValidateOptions) => (val: string, b3lang: B3Lang) => {
   let str = ''
   validateRuleTypes.forEach((item: string) => {
     if (item === 'email' && !re.email.test(val)) {
-      str = 'Please enter the correct email address'
+      str = b3lang('intl.user.register.validatorRules.email')
     }
     if (item === 'phone' && !re.phone.test(val)) {
-      str = 'Please enter the correct phone number'
+      str = b3lang('intl.user.register.validatorRules.phoneNumber')
     }
     if (item === 'max' && options?.max && +options.max < +val) {
-      str = `Please do not exceed ${options.max}`
+      str = b3lang('intl.user.register.validatorRules.phoneNumber', { max: options.max })
     }
 
     if (item === 'password' && !re.password.test(val)) {
-      str = 'Passwords must be at least 7 characters and contain both alphabetic and numeric characters.'
+      str = b3lang('intl.user.register.validatorRules.passwords')
     }
   })
   if (str) return str
@@ -87,11 +87,11 @@ const classificationType = (item: RegisterFileds) => {
       rows: item?.options?.rows || item.numberOfRows || null,
     }
     if (optionItems?.max) {
-      optionItems.validate = (v: string) => validatorRules(v, ['max'], { max: optionItems?.max })
+      optionItems.validate = validatorRules(['max'], { max: optionItems?.max })
     }
 
     if (item.fieldType === 'password') {
-      optionItems.validate = (v: string) => validatorRules(v, ['password'])
+      optionItems.validate = validatorRules(['password'])
     }
   }
   if (fieldsType.checkbox.includes(item.fieldType)) {
@@ -165,10 +165,10 @@ export const conversionDataFormat = (registerArr: Array<RegisterFileds>) => {
   return newRegisterArr
 }
 
-export const bcContactInformationFields:ContactInformationItems = [
+export const bcContactInformationFields = (b3lang: B3Lang) : ContactInformationItems => [
   {
     name: 'firstName',
-    label: 'First Name',
+    label: b3lang('intl.user.register.registeredAccount.firstName'),
     default: '',
     fieldType: 'text',
     required: true,
@@ -176,7 +176,7 @@ export const bcContactInformationFields:ContactInformationItems = [
   },
   {
     name: 'lastName',
-    label: 'Last Name',
+    label: b3lang('intl.user.register.registeredAccount.lastName'),
     default: '',
     fieldType: 'text',
     required: true,
@@ -184,16 +184,16 @@ export const bcContactInformationFields:ContactInformationItems = [
   },
   {
     name: 'emailAddress',
-    label: 'Email Address',
+    label: b3lang('intl.user.register.registeredAccount.emailAddress'),
     default: '',
     fieldType: 'text',
     required: true,
-    validate: (v: string) => validatorRules(v, ['email']),
+    validate: validatorRules(['email']),
     xs: 12,
   },
   {
     name: 'companyName',
-    label: 'Company Name',
+    label: b3lang('intl.user.register.registeredAccount.companyName'),
     default: '',
     fieldType: 'text',
     required: false,
@@ -201,7 +201,7 @@ export const bcContactInformationFields:ContactInformationItems = [
   },
   {
     name: 'phoneNumber',
-    label: 'Phone Number',
+    label: b3lang('intl.user.register.registeredAccount.phoneNumber'),
     default: '',
     fieldType: 'text',
     required: false,
@@ -209,10 +209,10 @@ export const bcContactInformationFields:ContactInformationItems = [
   },
 ]
 
-export const contactInformationFields: ContactInformationItems = [
+export const contactInformationFields = (b3lang: B3Lang) : ContactInformationItems => [
   {
     name: 'firstName',
-    label: 'First Name',
+    label: b3lang('intl.user.register.registeredAccount.firstName'),
     default: '',
     fieldType: 'text',
     required: true,
@@ -220,7 +220,7 @@ export const contactInformationFields: ContactInformationItems = [
   },
   {
     name: 'lastName',
-    label: 'Last Name',
+    label: b3lang('intl.user.register.registeredAccount.lastName'),
     default: '',
     fieldType: 'text',
     required: true,
@@ -228,16 +228,16 @@ export const contactInformationFields: ContactInformationItems = [
   },
   {
     name: 'workEmailAddress',
-    label: 'Work Email Address',
+    label: b3lang('intl.user.register.registeredAccount.workEmailAddress'),
     default: '',
     fieldType: 'text',
     required: true,
-    validate: (v: string) => validatorRules(v, ['email']),
+    validate: validatorRules(['email']),
     xs: 12,
   },
   {
     name: 'phoneNumber',
-    label: 'Phone Number',
+    label: b3lang('intl.user.register.registeredAccount.phoneNumber'),
     default: '',
     fieldType: 'text',
     required: false,
@@ -261,7 +261,7 @@ export const companyInformationFields = (b3lang: B3Lang) : ContactInformationIte
     default: '',
     fieldType: 'text',
     required: true,
-    validate: (v: string) => validatorRules(v, ['email'], b3lang),
+    validate: validatorRules(['email']),
     xs: 12,
   },
   {
@@ -270,7 +270,7 @@ export const companyInformationFields = (b3lang: B3Lang) : ContactInformationIte
     default: '',
     fieldType: 'text',
     required: true,
-    validate: (v: string) => validatorRules(v, ['phone']),
+    validate: validatorRules(['phone']),
     xs: 12,
   },
 ]

@@ -11,6 +11,28 @@ export default {
   'intl.user.register.step.details': 'Details',
   'intl.user.register.step.finish': 'Finish',
 
+  'intl.user.register.registeredAccount.firstName': 'First Name',
+  'intl.user.register.registeredAccount.lastName': 'Last Name',
+  'intl.user.register.registeredAccount.workEmailAddress': 'Work Email Address',
+  'intl.user.register.registeredAccount.phoneNumber': 'Phone Number',
+  'intl.user.register.registeredAccount.emailAddress': 'Email Address',
+  'intl.user.register.registeredAccount.companyName': 'Company Name',
+
+  'intl.user.register.registeredAccount.loginLeft': 'It appears you may already have an account. Please',
+  'intl.user.register.registeredAccount.loginFirst': 'first',
+  'intl.user.register.registeredAccount.loginb2b': 'to apply for a business account',
+
+  'intl.user.register.registeredAccount.accountType': 'Account Type',
+  'intl.user.register.registeredAccount.businessAccount': 'Business Account',
+  'intl.user.register.registeredAccount.personalAccount': 'Personal Account',
+  'intl.user.register.registeredAccount.contactInformation': 'Contact Information',
+  'intl.user.register.registeredAccount.additionalInformation': 'Additional Information',
+
+  'intl.user.register.validatorRules.email': 'Please enter the correct email address',
+  'intl.user.register.validatorRules.phoneNumber': 'Please enter the correct phone number',
+  'intl.user.register.validatorRules.max': 'Please do not exceed {max}',
+  'intl.user.register.validatorRules.passwords': 'Passwords must be at least 7 characters and contain both alphabetic and numeric characters.',
+
   'intl.user.register.label.companyName': 'Company Name',
   'intl.user.register.label.companyEmail': 'Company Email',
   'intl.user.register.label.companyPhoneNumber': 'Company Phone Number',

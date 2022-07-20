@@ -89,7 +89,7 @@ export const B3FileUpload = (props: FileUploadProps) => {
     defaultValue,
     rules: {
       required: required && b3Lang('intl.global.validate.required', { label }),
-      validate,
+      validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,
   }
