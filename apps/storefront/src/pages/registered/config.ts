@@ -1,3 +1,5 @@
+import { B3Lang } from '@b3/lang'
+
 import { re } from '../../constants'
 
 export interface CustomFieldItems {
@@ -29,7 +31,11 @@ interface ValidateOptionItems {
 
 export type ContactInformationItems = Array<RegisterFileds>
 
-export const steps = ['Account', 'Details', 'Finish']
+export const steps = [
+  'intl.user.register.step.account',
+  'intl.user.register.step.details',
+  'intl.user.register.step.finish',
+]
 
 const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown']
 
@@ -239,10 +245,10 @@ export const contactInformationFields: ContactInformationItems = [
   },
 ]
 
-export const companyInformationFields: ContactInformationItems = [
+export const companyInformationFields = (b3lang: B3Lang) : ContactInformationItems => [
   {
     name: 'companyName',
-    label: 'Company Name',
+    label: b3lang('intl.user.register.label.companyName'),
     default: '',
     fieldType: 'text',
     required: true,
@@ -251,16 +257,16 @@ export const companyInformationFields: ContactInformationItems = [
   },
   {
     name: 'companyEmail',
-    label: 'Company Email',
+    label: b3lang('intl.user.register.label.companyEmail'),
     default: '',
     fieldType: 'text',
     required: true,
-    validate: (v: string) => validatorRules(v, ['email']),
+    validate: (v: string) => validatorRules(v, ['email'], b3lang),
     xs: 12,
   },
   {
     name: 'companyPhoneNumber',
-    label: 'Company Phone Number',
+    label: b3lang('intl.user.register.label.companyPhoneNumber'),
     default: '',
     fieldType: 'text',
     required: true,
@@ -269,10 +275,10 @@ export const companyInformationFields: ContactInformationItems = [
   },
 ]
 
-export const companyAttachmentsFields: ContactInformationItems = [
+export const companyAttachmentsFields = (b3lang: B3Lang) : ContactInformationItems => [
   {
     name: 'companyAttachments',
-    label: 'Company Attachments',
+    label: b3lang('intl.user.register.label.companyAttachments'),
     default: [],
     fieldType: 'file',
     required: false,
@@ -282,10 +288,10 @@ export const companyAttachmentsFields: ContactInformationItems = [
   },
 ]
 
-export const addressInformationFields: ContactInformationItems = [
+export const addressInformationFields = (b3lang: B3Lang) : ContactInformationItems => [
   {
     name: 'country',
-    label: 'Country',
+    label: b3lang('intl.user.register.label.country'),
     default: '',
     fieldType: 'dropdown',
     required: true,
@@ -299,7 +305,7 @@ export const addressInformationFields: ContactInformationItems = [
   },
   {
     name: 'address1',
-    label: 'Address 1',
+    label: b3lang('intl.user.register.label.address1'),
     default: '',
     fieldType: 'text',
     maxLength: 255,
@@ -308,7 +314,7 @@ export const addressInformationFields: ContactInformationItems = [
   },
   {
     name: 'address2',
-    label: 'Address 2',
+    label: b3lang('intl.user.register.label.address2'),
     default: '',
     fieldType: 'text',
     maxLength: 255,
@@ -317,7 +323,7 @@ export const addressInformationFields: ContactInformationItems = [
   },
   {
     name: 'city',
-    label: 'City',
+    label: b3lang('intl.user.register.label.city'),
     default: '',
     fieldType: 'text',
     maxLength: 255,
@@ -326,7 +332,7 @@ export const addressInformationFields: ContactInformationItems = [
   },
   {
     name: 'state',
-    label: 'State',
+    label: b3lang('intl.user.register.label.state'),
     default: '',
     fieldType: 'text',
     maxLength: 255,
@@ -339,7 +345,7 @@ export const addressInformationFields: ContactInformationItems = [
   },
   {
     name: 'zipCode',
-    label: 'Zip Code',
+    label: b3lang('intl.user.register.label.zipCode'),
     default: '',
     fieldType: 'text',
     maxLength: 255,

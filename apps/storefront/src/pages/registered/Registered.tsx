@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { ImageListItem } from '@mui/material'
 
+import { useB3Lang } from '@b3/lang'
+
 import { getBCRegisterCustomFields } from '../../shared/service/bc'
 import {
   getB2BRegisterCustomFields, getB2BRegisterLogo, getB2BCountries, storeB2BBasicInfo,
@@ -35,6 +37,8 @@ export default function Registered() {
   const navigate = useNavigate()
 
   const [logo, setLogo] = useState('')
+
+  const b3Lang = useB3Lang()
 
   const { state: { isLoading }, dispatch } = useContext(RegisteredContext)
 
@@ -72,7 +76,7 @@ export default function Registered() {
         const customAddress = billingAddress.length && billingAddress.filter((field: RegisterFileds) => field.custom)
         const addressExtraFields: Array<RegisterFileds> = conversionDataFormat(customAddress)
 
-        addressInformationFields.forEach((addressFileds) => {
+        addressInformationFields(b3Lang).forEach((addressFileds) => {
           if (addressFileds.name === 'country') {
             addressFileds.options = countries
           }
@@ -91,9 +95,9 @@ export default function Registered() {
               additionalInformation: [...newAdditionalInformation],
               bcContactInformationFields: [...bcContactInformationFields],
               companyExtraFields: [...newCompanyExtraFields],
-              companyInformation: [...companyInformationFields],
-              companyAttachment: [...companyAttachmentsFields],
-              addressBasicFields: [...addressInformationFields],
+              companyInformation: [...companyInformationFields(b3Lang)],
+              companyAttachment: [...companyAttachmentsFields(b3Lang)],
+              addressBasicFields: [...addressInformationFields(b3Lang)],
               addressExtraFields: [...addressExtraFields],
               countryList: [...countries],
               passwordInformation: [...newPasswordInformation],
@@ -141,7 +145,7 @@ export default function Registered() {
     <RegisteredContainer>
       <B3Sping
         isSpinning={isLoading}
-        tip="Loading..."
+        tip={b3Lang('intl.global.tips.loading')}
       >
         {
           logo && (
@@ -153,7 +157,7 @@ export default function Registered() {
             >
               <img
                 src={`${logo}`}
-                alt="register Logo"
+                alt={b3Lang('intl.user.register.tips.registerLogo')}
                 loading="lazy"
               />
             </ImageListItem>

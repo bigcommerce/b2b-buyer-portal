@@ -3,12 +3,16 @@ import {
   Button,
 } from '@mui/material'
 
+import { useB3Lang } from '@b3/lang'
+
 import { steps } from '../config'
 
 function RegisteredStepButton(props: any) {
   const {
     activeStep, handleBack, handleNext, handleFinish,
   } = props
+
+  const b3Lang = useB3Lang()
 
   return (
     <Box>
@@ -26,13 +30,13 @@ function RegisteredStepButton(props: any) {
               onClick={handleBack}
               sx={{ mr: 1 }}
             >
-              Back
+              {b3Lang('intl.global.button.back')}
             </Button>
             )
           }
           <Box sx={{ flex: '1 1 auto' }} />
           <Button onClick={handleNext}>
-            {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+            {activeStep === steps.length - 1 ? b3Lang('intl.global.button.submit') : b3Lang('intl.global.button.next')}
           </Button>
         </Box>
       )}

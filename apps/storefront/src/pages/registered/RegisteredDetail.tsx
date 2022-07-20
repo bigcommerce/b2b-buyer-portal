@@ -12,8 +12,9 @@ import {
 
 import { useForm } from 'react-hook-form'
 
-import { B3CustomForm } from '../../components'
+import { useB3Lang } from '@b3/lang'
 
+import { B3CustomForm } from '../../components'
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
 
@@ -37,6 +38,8 @@ export default function RegisteredDetail(props: any) {
 
   const [errorMessage, setErrorMessage] = useState('')
 
+  const b3Lang = useB3Lang()
+
   const {
     accountType,
     companyInformation = [],
@@ -55,7 +58,7 @@ export default function RegisteredDetail(props: any) {
     setValue,
     watch,
   } = useForm({
-    mode: 'onSubmit',
+    mode: 'all',
   })
 
   const [addressFields, setAddressFields] = useState<Array<any>>(addressBasicFields)
@@ -70,7 +73,7 @@ export default function RegisteredDetail(props: any) {
 
   const handleCountryChange = (countryCode: string, stateCode: string = '') => {
     const stateList = countryList.find((country: Country) => country.countryCode === countryCode)?.states || []
-    const stateFields = addressInformationFields.find((formFileds: RegisterFileds) => formFileds.name === 'state')
+    const stateFields = addressInformationFields(b3Lang).find((formFileds: RegisterFileds) => formFileds.name === 'state')
 
     if (stateFields) {
       if (stateList.length > 0) {
@@ -88,7 +91,7 @@ export default function RegisteredDetail(props: any) {
       type: 'stateList',
       payload: {
         stateList,
-        addressBasicFields: [...addressInformationFields],
+        addressBasicFields: [...addressInformationFields(b3Lang)],
       },
     })
   }
@@ -201,7 +204,7 @@ export default function RegisteredDetail(props: any) {
         accountType === '1' ? (
           <>
             <Box>
-              <InformationFourLabels>Business Details</InformationFourLabels>
+              <InformationFourLabels>{b3Lang('intl.user.register.title.businessDetails')}</InformationFourLabels>
               <B3CustomForm
                 formFields={[...companyInformation, ...companyExtraFields]}
                 errors={errors}
@@ -211,7 +214,7 @@ export default function RegisteredDetail(props: any) {
               />
             </Box>
             <Box>
-              <InformationFourLabels>Attachments</InformationFourLabels>
+              <InformationFourLabels>{b3Lang('intl.user.register.title.attachments')}</InformationFourLabels>
               <B3CustomForm
                 formFields={companyAttachment}
                 errors={errors}
@@ -225,7 +228,7 @@ export default function RegisteredDetail(props: any) {
       }
 
       <AddressBox>
-        <InformationFourLabels>Address</InformationFourLabels>
+        <InformationFourLabels>{b3Lang('intl.user.register.title.address')}</InformationFourLabels>
 
         <B3CustomForm
           formFields={addressFields}

@@ -8,6 +8,8 @@ import {
   Typography,
 } from '@mui/material'
 
+import { useB3Lang } from '@b3/lang'
+
 import { RegisteredContext } from './context/RegisteredContext'
 import { steps } from './config'
 
@@ -18,9 +20,11 @@ export default function RegisteredStep(props: any) {
     activeStep,
   } = props
 
+  const b3Lang = useB3Lang()
+
   const { state } = useContext(RegisteredContext)
   const { accountType, submitSuccess } = state
-  const newPageTitle = accountType === '1' ? 'Registration Complete. Thank You!' : 'Your personal account has been created.'
+  const newPageTitle = accountType === '1' ? b3Lang('intl.user.register.title.registerComplete') : b3Lang('intl.user.register.title.accountCreated')
 
   return (
     <Box component="div">
@@ -31,7 +35,7 @@ export default function RegisteredStep(props: any) {
         }}
       >
         {
-          submitSuccess ? newPageTitle : 'Account Registration'
+          submitSuccess ? newPageTitle : b3Lang('intl.user.register.title.accountRegister')
         }
       </Box>
       {
@@ -42,7 +46,7 @@ export default function RegisteredStep(props: any) {
             const labelProps: any = {}
             if (isStepOptional(index)) {
               labelProps.optional = (
-                <Typography variant="caption">Optional</Typography>
+                <Typography variant="caption">{b3Lang('intl.user.register.step.optional')}</Typography>
               )
             }
             return (
@@ -50,7 +54,7 @@ export default function RegisteredStep(props: any) {
                 key={label}
                 {...stepProps}
               >
-                <StepLabel {...labelProps}>{label}</StepLabel>
+                <StepLabel {...labelProps}>{b3Lang(label)}</StepLabel>
               </Step>
             )
           })}
