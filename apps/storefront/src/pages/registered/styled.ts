@@ -6,7 +6,9 @@ export const StyleTipContainer = styled('p')(() => ({
 }))
 
 export const InformationLabels = styled('h3')(() => ({
-  marginBottom: '20px',
+  margin: '3rem 0',
+  display: 'flex',
+  justifyContent: 'center',
 }))
 
 export const InformationFourLabels = styled('h4')(() => ({

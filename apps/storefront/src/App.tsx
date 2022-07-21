@@ -3,7 +3,9 @@ import { useB3AppOpen } from '@b3/hooks'
 import styled from '@emotion/styled'
 
 import { ThemeFrame } from './ThemeFrame'
-import { Home, Form, Registered } from './pages'
+import {
+  Home, Form, Registered, RegisteredBCToB2B,
+} from './pages'
 import { Layout, RegisteredCloseButton } from './components'
 import { RegisteredProvider } from './pages/registered/context/RegisteredContext'
 
@@ -50,6 +52,10 @@ export default function App() {
                   <Route
                     path="/registered"
                     element={<Registered setIsOpen={setIsOpen} />}
+                  />
+                  <Route
+                    path="/registeredbctob2b"
+                    element={<RegisteredBCToB2B />}
                   />
                 </Routes>
               </Layout>

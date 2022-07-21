@@ -7,6 +7,7 @@ import {
 } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
+import { format } from 'date-fns'
 
 import { RegisteredContext } from './context/RegisteredContext'
 import RegisteredStepButton from './component/RegisteredStepButton'
@@ -113,10 +114,17 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       if (additionalInformation && (additionalInformation as Array<CustomFieldItems>).length) {
         additionalInformation.forEach((field: CustomFieldItems) => {
-          bcFields.form_fields.push({
-            name: field.label,
-            value: field.default,
-          })
+          if (field.fieldType === 'date' && field.default && typeof field.default !== 'string') {
+            bcFields.form_fields.push({
+              name: field.label,
+              value: format(field.default, 'yyyy-MM-dd'),
+            })
+          } else {
+            bcFields.form_fields.push({
+              name: field.label,
+              value: field.default,
+            })
+          }
         })
       }
     }
@@ -260,15 +268,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         return
       }
       try {
-        if (dispatch) {
-          dispatch({
-            type: 'loading',
-            payload: {
-              isLoading: true,
-            },
-          })
-        }
-
+        dispatch({
+          type: 'loading',
+          payload: {
+            isLoading: true,
+          },
+        })
         let isAuto = true
         if (accountType === '2') {
           await getBCFieldsValue(completeData)
@@ -280,30 +285,16 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           const { companyCreate: { company: { companyStatus } } } = accountInfo
           isAuto = +companyStatus === 1
         }
-        if (dispatch) {
-          dispatch({
-            type: 'loading',
-            payload: {
-              isLoading: false,
-            },
-          })
-          dispatch({
-            type: 'finishInfo',
-            payload: {
-              submitSuccess: true,
-              isAutoApproval: isAuto,
-            },
-          })
-        }
-        handleNext()
-      } catch (error) {
         dispatch({
-          type: 'loading',
+          type: 'finishInfo',
           payload: {
-            isLoading: false,
+            submitSuccess: true,
+            isAutoApproval: isAuto,
           },
         })
-        console.log(error, 'error')
+        handleNext()
+      } catch (err: any) {
+        setErrorMessage(err?.message || err)
       } finally {
         dispatch({
           type: 'loading',

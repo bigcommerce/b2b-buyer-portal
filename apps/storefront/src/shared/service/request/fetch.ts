@@ -15,6 +15,10 @@ function b3Fetch(path: string, init: any, type?: string) {
 
   return new Promise((resolve, reject) => {
     originFetch(path, init).then((res: Response) => res.json()).then((res) => {
+      if (res?.code === 500) {
+        reject(res.message)
+        return
+      }
       if (type === RequestType.B2BGraphql) {
         if (res?.errors && res?.errors.length) {
           reject(res.errors[0])

@@ -207,7 +207,13 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
   }
 
   return (
-    <div>
+    <Box
+      sx={{
+        pl: 10,
+        pr: 10,
+        mt: 2,
+      }}
+    >
       {
         errorMessage && (
         <Alert
@@ -263,6 +269,6 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         handleNext={handleAccountToFinish}
         activeStep={activeStep}
       />
-    </div>
+    </Box>
   )
 }

@@ -64,6 +64,7 @@ export function Layout({
             { label: 'Home', to: '/', icon: HomeIcon },
             { label: 'Form', to: '/form', icon: VerifiedUserIcon },
             { label: 'Registered', to: '/registered', icon: VerifiedUserIcon },
+            { label: 'registeredbctob2b', to: '/registeredbctob2b', icon: VerifiedUserIcon },
           ].map(({ label, icon: Icon, to }) => (
             <ListItem
               disablePadding

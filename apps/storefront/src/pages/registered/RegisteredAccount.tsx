@@ -25,7 +25,7 @@ import { RegisterFields, CustomFieldItems } from './config'
 import { getB2BCompanyUserInfo } from '../../shared/service/b2b'
 
 import {
-  InformationLabels, InformationFourLabels, TipContent, TipLogin,
+  InformationFourLabels, TipContent, TipLogin,
 } from './styled'
 
 interface RegisteredAccountProps {
