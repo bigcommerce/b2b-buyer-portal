@@ -158,7 +158,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       }
 
       <FormControl>
-        <InformationLabels>{b3Lang('intl.user.register.registeredAccount.accountType')}</InformationLabels>
+        <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.accountType')}</InformationFourLabels>
         <RadioGroup
           row
           aria-labelledby="demo-row-radio-buttons-group-label"

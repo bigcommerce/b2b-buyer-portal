@@ -44,7 +44,12 @@ export const B3Picker = ({ control, errors, ...rest } : Form.B3UIProps) => {
                     label={label}
                     inputFormat="MM/dd/yyyy"
                     {...muixPickerProps}
-                    renderInput={(params) => <TextField {...params} />}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        required={required}
+                      />
+                    )}
                     {...rest}
                   />
                 )}

@@ -2,7 +2,7 @@ export default {
   'intl.global.tips.loading': 'Loading...',
 
   'intl.global.button.back': 'Back',
-  'intl.global.button.next': 'Next',
+  'intl.global.button.next': 'Continue',
   'intl.global.button.submit': 'Submit',
   'intl.global.button.finish': 'FINISH',
 

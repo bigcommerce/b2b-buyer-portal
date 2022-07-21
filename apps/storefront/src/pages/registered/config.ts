@@ -58,7 +58,7 @@ export const validatorRules = (validateRuleTypes: string[], options?: ValidateOp
       str = b3lang('intl.user.register.validatorRules.phoneNumber')
     }
     if (item === 'max' && options?.max && +options.max < +val) {
-      str = b3lang('intl.user.register.validatorRules.phoneNumber', { max: options.max })
+      str = b3lang('intl.user.register.validatorRules.max', { max: options.max })
     }
 
     if (item === 'password' && val && !re.password.test(val)) {

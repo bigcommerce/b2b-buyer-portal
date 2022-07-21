@@ -20,6 +20,7 @@ const getCompanyExtraFields = () => `{
     listOfValue,
     visibleToEnduser,
     labelName,
+    numberOfRows,
   }
 }`
 

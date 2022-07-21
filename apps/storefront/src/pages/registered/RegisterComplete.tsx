@@ -121,46 +121,50 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       }
     }
 
-    const addresses: any = {}
+    bcFields.addresses = []
 
-    if (addressBasicFields) {
-      bcFields.addresses = {}
-      addressBasicFields.forEach((field: any) => {
-        if (field.name === 'country') {
-          addresses.country_code = field.default
-        }
-        if (field.name === 'address1') {
-          addresses.address1 = field.default
-        }
-        if (field.name === 'address2') {
-          addresses.address2 = field.default
-        }
-        if (field.name === 'city') {
-          addresses.city = field.default
-        }
-        if (field.name === 'state') {
-          addresses.state_or_province = field.default
-        }
-        if (field.name === 'zipCode') {
-          addresses.postal_code = field.default
-        }
-      })
-    }
-    addresses.first_name = bcFields.first_name
-    addresses.last_name = bcFields.last_name
+    if (accountType === '2') {
+      const addresses: CustomFieldItems = {}
 
-    addresses.form_fields = []
-    // BC Extra field
-    if (addressExtraFields && addressExtraFields.length) {
-      addressExtraFields.forEach((field: any) => {
-        addresses.form_fields.push({
-          name: field.label,
-          value: field.default,
+      if (addressBasicFields) {
+        bcFields.addresses = {}
+        addressBasicFields.forEach((field: any) => {
+          if (field.name === 'country') {
+            addresses.country_code = field.default
+          }
+          if (field.name === 'address1') {
+            addresses.address1 = field.default
+          }
+          if (field.name === 'address2') {
+            addresses.address2 = field.default
+          }
+          if (field.name === 'city') {
+            addresses.city = field.default
+          }
+          if (field.name === 'state') {
+            addresses.state_or_province = field.default
+          }
+          if (field.name === 'zipCode') {
+            addresses.postal_code = field.default
+          }
         })
-      })
-    }
+      }
+      addresses.first_name = bcFields.first_name
+      addresses.last_name = bcFields.last_name
 
-    bcFields.addresses = [addresses]
+      addresses.form_fields = []
+      // BC Extra field
+      if (addressExtraFields && addressExtraFields.length) {
+        addressExtraFields.forEach((field: any) => {
+          addresses.form_fields.push({
+            name: field.label,
+            value: field.default,
+          })
+        })
+      }
+
+      bcFields.addresses = [addresses]
+    }
 
     const userItem: any = {
       storeHash,

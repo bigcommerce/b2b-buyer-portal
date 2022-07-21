@@ -17,16 +17,26 @@ function RegisteredStepButton(props: any) {
   return (
     <Box>
       {activeStep === steps.length ? (
-        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-          <Box sx={{ flex: '1 1 auto' }} />
-          <Button onClick={() => handleFinish()}>{b3Lang('intl.global.button.finish')}</Button>
+        <Box sx={{ display: 'flex', flexDirection: 'row-reverse', pt: 2 }}>
+          <Button
+            variant="contained"
+            onClick={() => handleFinish()}
+          >
+            {b3Lang('intl.global.button.finish')}
+          </Button>
         </Box>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row-reverse', pt: 2 }}>
+          <Button
+            variant="contained"
+            onClick={handleNext}
+          >
+            {activeStep === steps.length - 1 ? b3Lang('intl.global.button.submit') : b3Lang('intl.global.button.next')}
+          </Button>
           {
             activeStep !== 0 && (
             <Button
-              color="inherit"
+              variant="text"
               onClick={handleBack}
               sx={{ mr: 1 }}
             >
@@ -34,10 +44,6 @@ function RegisteredStepButton(props: any) {
             </Button>
             )
           }
-          <Box sx={{ flex: '1 1 auto' }} />
-          <Button onClick={handleNext}>
-            {activeStep === steps.length - 1 ? b3Lang('intl.global.button.submit') : b3Lang('intl.global.button.next')}
-          </Button>
         </Box>
       )}
     </Box>
