@@ -81,11 +81,11 @@ export default function Registered(props: RegisteredProps) {
         const customAddress = billingAddress.length ? billingAddress.filter((field: RegisterFields) => field.custom) : []
         const addressExtraFields: Array<RegisterFields> = conversionDataFormat(customAddress)
 
-        const newAddressInformationFields = addressInformationFields(b3Lang).map((addressFileds) => {
-          if (addressFileds.name === 'country') {
-            addressFileds.options = countries
+        const newAddressInformationFields = addressInformationFields(b3Lang).map((addressFields) => {
+          if (addressFields.name === 'country') {
+            addressFields.options = countries
           }
-          return addressFileds
+          return addressFields
         })
 
         const filterPasswordInformation = customerAccount.length ? customerAccount.filter((field: RegisterFields) => !field.custom && field.fieldType === 'password') : []

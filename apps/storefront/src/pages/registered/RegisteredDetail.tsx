@@ -78,7 +78,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
 
   const handleCountryChange = (countryCode: string, stateCode: string = '') => {
     const stateList = countryList.find((country: Country) => country.countryCode === countryCode)?.states || []
-    const stateFields = addressBasicFields.find((formFileds: RegisterFields) => formFileds.name === 'state')
+    const stateFields = addressBasicFields.find((formFields: RegisterFields) => formFields.name === 'state')
 
     if (stateFields) {
       if (stateList.length > 0) {

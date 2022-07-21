@@ -57,8 +57,8 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     const newPasswordInformation: Array<CustomFieldItems> = []
     let emailItem: CustomFieldItems = {}
     if (list && list.length) {
-      const emailFileds = list.find((item: RegisterFields) => item.name === emailName) || {}
-      emailItem = { ...emailFileds }
+      const emailFields = list.find((item: RegisterFields) => item.name === emailName) || {}
+      emailItem = { ...emailFields }
       emailItem.label = `${b3Lang('intl.user.register.RegisterComplete.email')}`
       emailItem.name = 'email'
       emailItem.disabled = true
