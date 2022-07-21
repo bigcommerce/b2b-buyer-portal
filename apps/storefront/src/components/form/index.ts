@@ -16,3 +16,6 @@ export {
 export {
   B3FileUpload,
 } from './B3FileUpload'
+export {
+  Captcha,
+} from './Captcha'

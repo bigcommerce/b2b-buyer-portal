@@ -1,8 +1,9 @@
 import {
   Component,
-  createRef,
   ReactNode,
   RefObject,
+  createContext,
+  createRef,
 } from 'react'
 import {
   createPortal,
@@ -30,6 +31,8 @@ export function IFrameSetContent(el: HTMLIFrameElement | null, content: string, 
     }
   }
 }
+
+export const ThemeFrameContext = createContext<null|Document>(null)
 
 interface ThemeFrameProps {
   children: ReactNode // children to be rendered within iframe
@@ -138,10 +141,12 @@ export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
     }
 
     return createPortal(
-      <CacheProvider value={this.state.emotionCache}>
-        <CssBaseline />
-        {this.props.children}
-      </CacheProvider>,
+      <ThemeFrameContext.Provider value={doc}>
+        <CacheProvider value={this.state.emotionCache}>
+          <CssBaseline />
+          {this.props.children}
+        </CacheProvider>
+      </ThemeFrameContext.Provider>,
       doc.body,
     )
   }

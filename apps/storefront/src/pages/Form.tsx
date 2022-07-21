@@ -6,14 +6,26 @@ import {
   Grid,
   TextField,
 } from '@mui/material'
+import {
+  useState,
+} from 'react'
+import {
+  Captcha,
+} from '@/components/form'
 
 const Variant = 'filled'
+const TEST_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 
 export function Form() {
+  const [state, setState] = useState<'success'|'error'|'expired'>('error')
+
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault()
+        if (state === 'success') {
+          // proceed
+        }
       }}
     >
       <Grid
@@ -156,7 +168,13 @@ export function Form() {
         justifyContent: 'flex-end',
       }}
       >
+        <Captcha
+          size="normal"
+          siteKey={TEST_SITE_KEY}
+          onSuccess={() => setState('success')}
+        />
         <Button
+          disabled={state !== 'success'}
           type="submit"
           variant="contained"
           sx={{
