@@ -133,9 +133,22 @@ export default function Registered(props: RegisteredProps) {
     const isHasFrontPage = window?.history?.length > 2
     if (dispatch) {
       dispatch({
-        type: 'finishInfo',
+        type: 'all',
         payload: {
+          accountType: '',
+          isLoading: false,
+          storeName: '',
           submitSuccess: false,
+          contactInformation: [],
+          additionalInformation: [],
+          bcContactInformationFields: [],
+          companyExtraFields: [],
+          companyInformation: [],
+          companyAttachment: [],
+          addressBasicFields: [],
+          addressExtraFields: [],
+          countryList: [],
+          passwordInformation: [],
         },
       })
     }
