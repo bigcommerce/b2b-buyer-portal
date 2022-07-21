@@ -1,8 +1,14 @@
-import { useNavigate } from 'react-router-dom'
-import { Close } from '@mui/icons-material'
+import {
+  useNavigate,
+} from 'react-router-dom'
+import {
+  Close,
+} from '@mui/icons-material'
 
 export function RegisteredCloseButton(props: any) {
-  const { setIsOpen } = props
+  const {
+    setIsOpen,
+  } = props
   const navigate = useNavigate()
 
   const handleCloseForm = () => {

@@ -152,14 +152,16 @@ export function Form() {
         </Grid>
       </Grid>
       <Box sx={{
-        display: 'flex', justifyContent: 'flex-end',
+        display: 'flex',
+        justifyContent: 'flex-end',
       }}
       >
         <Button
           type="submit"
           variant="contained"
           sx={{
-            mt: 3, ml: 1,
+            mt: 3,
+            ml: 1,
           }}
         >
           Save

@@ -1,4 +1,6 @@
-import { useContext } from 'react'
+import {
+  useContext,
+} from 'react'
 
 import {
   Box,
@@ -8,10 +10,16 @@ import {
   Typography,
 } from '@mui/material'
 
-import { useB3Lang } from '@b3/lang'
+import {
+  useB3Lang,
+} from '@b3/lang'
 
-import { RegisteredContext } from './context/RegisteredContext'
-import { steps } from './config'
+import {
+  RegisteredContext,
+} from './context/RegisteredContext'
+import {
+  steps,
+} from './config'
 
 export default function RegisteredStep(props: any) {
   const {
@@ -22,8 +30,13 @@ export default function RegisteredStep(props: any) {
 
   const b3Lang = useB3Lang()
 
-  const { state } = useContext(RegisteredContext)
-  const { accountType, submitSuccess } = state
+  const {
+    state,
+  } = useContext(RegisteredContext)
+  const {
+    accountType,
+    submitSuccess,
+  } = state
   const newPageTitle = accountType === '1' ? b3Lang('intl.user.register.title.registerComplete') : b3Lang('intl.user.register.title.accountCreated')
 
   return (
@@ -31,7 +44,10 @@ export default function RegisteredStep(props: any) {
       <Box
         component="h3"
         sx={{
-          display: 'flex', flexDirection: 'row', justifyContent: 'center', pt: 2,
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          pt: 2,
         }}
       >
         {

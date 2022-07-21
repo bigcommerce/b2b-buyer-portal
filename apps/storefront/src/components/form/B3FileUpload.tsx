@@ -4,7 +4,9 @@ import ImageRoundedIcon from '@mui/icons-material/ImageRounded'
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded'
 import DescriptionRounded from '@mui/icons-material/DescriptionRounded'
 
-import { useB3Lang } from '@b3/lang'
+import {
+  useB3Lang,
+} from '@b3/lang'
 
 import {
   DropzoneArea,
@@ -12,14 +14,20 @@ import {
   PreviewIconProps,
 } from 'react-mui-dropzone'
 
-import { FILE_UPLOAD_ACCEPT_TYPE } from '../../constants'
+import {
+  FILE_UPLOAD_ACCEPT_TYPE,
+} from '../../constants'
 
 import B3UI from './ui'
 
-import { DropzoneBox } from './styled'
+import {
+  DropzoneBox,
+} from './styled'
 
 const getPreviewIcon = (fileObject: FileObject, classes: PreviewIconProps) => {
-  const { type } = fileObject.file
+  const {
+    type,
+  } = fileObject.file
   const iconProps = {
     className: classes.classes,
   }
@@ -80,7 +88,11 @@ export const B3FileUpload = (props: FileUploadProps) => {
     acceptedFiles: string[],
     maxFileSize: number,
   ) => {
-    const { name, size, type } = rejectedFile
+    const {
+      name,
+      size,
+      type,
+    } = rejectedFile
 
     let isAcceptFileType = false
     acceptedFiles.forEach((acceptedFileType) => {
@@ -88,17 +100,24 @@ export const B3FileUpload = (props: FileUploadProps) => {
     })
 
     if (!isAcceptFileType) {
-      return b3Lang('intl.global.fileUpload.typeNotSupport', { name })
+      return b3Lang('intl.global.fileUpload.typeNotSupport', {
+        name,
+      })
     }
 
     if (size > maxFileSize) {
-      return b3Lang('intl.global.fileUpload.fileSizeExceedsLimit', { name, maxSize: getMaxFileSizeLabel(maxFileSize) })
+      return b3Lang('intl.global.fileUpload.fileSizeExceedsLimit', {
+        name,
+        maxSize: getMaxFileSizeLabel(maxFileSize),
+      })
     }
 
     return ''
   }
 
-  const getFileLimitExceedMessage = () => b3Lang('intl.global.fileUpload.fileNumberExceedsLimit', { limit: filesLimit })
+  const getFileLimitExceedMessage = () => b3Lang('intl.global.fileUpload.fileNumberExceedsLimit', {
+    limit: filesLimit,
+  })
 
   const handleFilesChange = (files: File[]) => {
     if (setValue) {

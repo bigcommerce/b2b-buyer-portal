@@ -10,13 +10,21 @@ import {
   Alert,
 } from '@mui/material'
 
-import { useForm } from 'react-hook-form'
+import {
+  useForm,
+} from 'react-hook-form'
 
-import { useB3Lang } from '@b3/lang'
+import {
+  useB3Lang,
+} from '@b3/lang'
 
-import { B3CustomForm } from '../../components'
+import {
+  B3CustomForm,
+} from '../../components'
 import RegisteredStepButton from './component/RegisteredStepButton'
-import { RegisteredContext } from './context/RegisteredContext'
+import {
+  RegisteredContext,
+} from './context/RegisteredContext'
 
 import {
   CustomFieldItems,
@@ -27,9 +35,13 @@ import {
   addressFieldsRequired,
 } from './config'
 
-import { InformationFourLabels, TipContent } from './styled'
+import {
+  InformationFourLabels, TipContent,
+} from './styled'
 
-import { validateBCCompanyExtraFields } from '../../shared/service/b2b'
+import {
+  validateBCCompanyExtraFields,
+} from '../../shared/service/b2b'
 
 interface RegisteredDetailProps {
   handleBack: () => void,
@@ -38,9 +50,16 @@ interface RegisteredDetailProps {
 }
 
 export default function RegisteredDetail(props: RegisteredDetailProps) {
-  const { handleBack, handleNext, activeStep } = props
+  const {
+    handleBack,
+    handleNext,
+    activeStep,
+  } = props
 
-  const { state, dispatch } = useContext(RegisteredContext)
+  const {
+    state,
+    dispatch,
+  } = useContext(RegisteredContext)
 
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -60,7 +79,9 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     control,
     handleSubmit,
     getValues,
-    formState: { errors },
+    formState: {
+      errors,
+    },
     setValue,
     watch,
   } = useForm({
@@ -83,7 +104,10 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     if (accountType === '1') {
       setAddressFields([...setAddressFieldsRequire(accountType, addressBasicFields)])
     } else {
-      setAddressFields([...setAddressFieldsRequire(accountType, addressBasicFields), ...addressExtraFields])
+      setAddressFields([...setAddressFieldsRequire(
+        accountType,
+        addressBasicFields,
+      ), ...addressExtraFields])
     }
   }, [accountType])
 
@@ -119,8 +143,14 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
   }, [])
 
   useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      const { country, state } = value
+    const subscription = watch((value, {
+      name,
+      type,
+    }) => {
+      const {
+        country,
+        state,
+      } = value
       if (name === 'country' && type === 'change') {
         handleCountryChange(country, state)
       }
@@ -138,7 +168,10 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
   }
 
   const getErrorMessage = (res: any, errorKey: string) => {
-    const { data, message } = res
+    const {
+      data,
+      message,
+    } = res
     if (data[errorKey] && typeof data[errorKey] === 'object') {
       const errors = data[errorKey]
 

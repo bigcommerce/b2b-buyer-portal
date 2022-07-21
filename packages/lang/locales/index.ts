@@ -1,1 +1,3 @@
-export { en } from './en-US'
+export {
+  en,
+} from './en-US'

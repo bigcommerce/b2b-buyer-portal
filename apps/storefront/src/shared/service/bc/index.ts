@@ -1,4 +1,6 @@
-import { getBCRegisterCustomFields } from './api/register'
+import {
+  getBCRegisterCustomFields,
+} from './api/register'
 
 export {
   getBCRegisterCustomFields,

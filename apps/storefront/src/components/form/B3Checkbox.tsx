@@ -5,9 +5,13 @@ import {
   FormHelperText,
   Checkbox,
 } from '@mui/material'
-import { Controller } from 'react-hook-form'
+import {
+  Controller,
+} from 'react-hook-form'
 
-import { useB3Lang } from '@b3/lang'
+import {
+  useB3Lang,
+} from '@b3/lang'
 import Form from './ui'
 
 interface CheckboxListProps {
@@ -17,10 +21,19 @@ interface CheckboxListProps {
 }
 
 export const B3Checkbox = ({
-  control, errors, getValues, ...rest
+  control,
+  errors,
+  getValues,
+  ...rest
 } : Form.B3UIProps) => {
   const {
-    fieldType, name, default: defaultValue, required, label, validate, options,
+    default: defaultValue,
+    fieldType,
+    name,
+    required,
+    label,
+    validate,
+    options,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -31,7 +44,9 @@ export const B3Checkbox = ({
     key: name,
     defaultValue,
     rules: {
-      required: required && b3Lang('intl.global.validate.required', { label }),
+      required: required && b3Lang('intl.global.validate.required', {
+        label,
+      }),
       validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,
@@ -65,7 +80,11 @@ export const B3Checkbox = ({
             }
             <Controller
               {...fieldsProps}
-              render={({ field: { onChange } }) => options?.map((list: CheckboxListProps) => (
+              render={({
+                field: {
+                  onChange,
+                },
+              }) => options?.map((list: CheckboxListProps) => (
                 <FormControlLabel
                   control={(
                     <Checkbox

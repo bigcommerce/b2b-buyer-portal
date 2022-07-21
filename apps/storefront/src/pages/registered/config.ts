@@ -1,6 +1,10 @@
-import { B3Lang } from '@b3/lang'
+import {
+  B3Lang,
+} from '@b3/lang'
 
-import { re } from '../../constants'
+import {
+  re,
+} from '../../constants'
 
 export interface CustomFieldItems {
   [key: string]: any
@@ -58,7 +62,9 @@ export const validatorRules = (validateRuleTypes: string[], options?: ValidateOp
       str = b3lang('intl.user.register.validatorRules.phoneNumber')
     }
     if (item === 'max' && options?.max && +options.max < +val) {
-      str = b3lang('intl.user.register.validatorRules.max', { max: options.max })
+      str = b3lang('intl.user.register.validatorRules.max', {
+        max: options.max,
+      })
     }
 
     if (item === 'password' && val && !re.password.test(val)) {
@@ -69,7 +75,8 @@ export const validatorRules = (validateRuleTypes: string[], options?: ValidateOp
 }
 
 const fieldsType = {
-  text: ['text', 'number', 'password', 'multiline'],
+  text: ['text', 'number', 'password',
+    'multiline'],
   checkbox: ['checkbox'],
   dropdown: ['dropdown'],
   radio: ['radio'],
@@ -87,7 +94,9 @@ const classificationType = (item: RegisterFields) => {
       rows: item?.options?.rows || item.numberOfRows || null,
     }
     if (optionItems?.max) {
-      optionItems.validate = validatorRules(['max'], { max: optionItems?.max })
+      optionItems.validate = validatorRules(['max'], {
+        max: optionItems?.max,
+      })
     }
 
     if (item.fieldType === 'password') {
@@ -159,7 +168,10 @@ export const conversionDataFormat = (registerArr: Array<RegisterFields>) => {
 
     const optionItems = classificationType(item)
 
-    return { ...requiredItems, ...optionItems }
+    return {
+      ...requiredItems,
+      ...optionItems,
+    }
   })
 
   return newRegisterArr

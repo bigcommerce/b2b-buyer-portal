@@ -1,5 +1,9 @@
 import {
-  useContext, ChangeEvent, useCallback, useState, MouseEvent,
+  useContext,
+  ChangeEvent,
+  useCallback,
+  useState,
+  MouseEvent,
 } from 'react'
 import {
   Box,
@@ -10,22 +14,35 @@ import {
   Alert,
 } from '@mui/material'
 
-import { useB3Lang } from '@b3/lang'
+import {
+  useB3Lang,
+} from '@b3/lang'
 
-import { useForm } from 'react-hook-form'
+import {
+  useForm,
+} from 'react-hook-form'
 
-import { B3CustomForm } from '../../components'
+import {
+  B3CustomForm,
+} from '../../components'
 import RegisteredStepButton from './component/RegisteredStepButton'
 import RegisteredSigleCheckBox from './component/RegisteredSigleCheckBox'
 
-import { RegisteredContext } from './context/RegisteredContext'
-
-import { RegisterFields, CustomFieldItems } from './config'
-
-import { getB2BCompanyUserInfo } from '../../shared/service/b2b'
+import {
+  RegisteredContext,
+} from './context/RegisteredContext'
 
 import {
-  InformationFourLabels, TipContent, TipLogin,
+  RegisterFields, CustomFieldItems,
+} from './config'
+
+import {
+  getB2BCompanyUserInfo,
+} from '../../shared/service/b2b'
+
+import {
+  InformationFourLabels, TipContent,
+  TipLogin,
 } from './styled'
 
 interface RegisteredAccountProps {
@@ -35,27 +52,46 @@ interface RegisteredAccountProps {
 }
 
 export default function RegisteredAccount(props: RegisteredAccountProps) {
-  const { handleBack, handleNext, activeStep } = props
+  const {
+    handleBack,
+    handleNext,
+    activeStep,
+  } = props
 
-  const { state, dispatch } = useContext(RegisteredContext)
+  const {
+    state,
+    dispatch,
+  } = useContext(RegisteredContext)
 
   const b3Lang = useB3Lang()
 
   const [emailStateType, setEmailStateType] = useState<number>(0)
 
   const {
-    contactInformation, accountType, additionalInformation, bcContactInformationFields,
+    contactInformation, accountType, additionalInformation,
+    bcContactInformationFields,
     emailMarketingNewsletter,
   } = state
 
   const {
-    control, handleSubmit, getValues, formState: { errors }, setValue,
+    control,
+    handleSubmit,
+    getValues,
+    formState: {
+      errors,
+    },
+    setValue,
   } = useForm({
     mode: 'onSubmit',
   })
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: 'accountType', payload: { accountType: event.target.value } })
+    dispatch({
+      type: 'accountType',
+      payload: {
+        accountType: event.target.value,
+      },
+    })
   }
 
   const judgeEmailExist = (userType: Number) => {
@@ -74,9 +110,18 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     // await captchaRef.current.executeAsync()
 
     handleSubmit((data: CustomFieldItems) => {
-      dispatch({ type: 'loading', payload: { isLoading: true } })
+      dispatch({
+        type: 'loading',
+        payload: {
+          isLoading: true,
+        },
+      })
       const email = accountType === '2' ? data.emailAddress : data.workEmailAddress
-      getB2BCompanyUserInfo(email).then(({ companyUserInfo: { userType } }: any) => {
+      getB2BCompanyUserInfo(email).then(({
+        companyUserInfo: {
+          userType,
+        },
+      }: any) => {
         if (userType === 1) {
           const contactInfo: any = accountType === '1' ? contactInformation : bcContactInformationFields
           const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
@@ -103,10 +148,20 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         } else {
           judgeEmailExist(userType)
         }
-        dispatch({ type: 'loading', payload: { isLoading: false } })
+        dispatch({
+          type: 'loading',
+          payload: {
+            isLoading: false,
+          },
+        })
       }).catch((err: any) => {
         console.log(err)
-        dispatch({ type: 'loading', payload: { isLoading: false } })
+        dispatch({
+          type: 'loading',
+          payload: {
+            isLoading: false,
+          },
+        })
       })
     })(event)
   }
@@ -116,7 +171,12 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   }
 
   const handleEmailSletterChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: 'emailSletter', payload: { emailMarketingNewsletter: event.target.checked } })
+    dispatch({
+      type: 'emailSletter',
+      payload: {
+        emailMarketingNewsletter: event.target.checked,
+      },
+    })
   }, [])
 
   const additionalList: any = accountType === '1' ? contactInformation : bcContactInformationFields

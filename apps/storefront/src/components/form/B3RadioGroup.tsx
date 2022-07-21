@@ -6,14 +6,28 @@ import {
   FormLabel,
   FormHelperText,
 } from '@mui/material'
-import { Controller } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
+import {
+  Controller,
+} from 'react-hook-form'
+import {
+  useB3Lang,
+} from '@b3/lang'
 
 import Form from './ui'
 
-export const B3RadioGroup = ({ control, errors, ...rest } : Form.B3UIProps) => {
+export const B3RadioGroup = ({
+  control,
+  errors,
+  ...rest
+} : Form.B3UIProps) => {
   const {
-    fieldType, name, default: defaultValue, required, label, validate, options,
+    fieldType,
+    name,
+    default: defaultValue,
+    required,
+    label,
+    validate,
+    options,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -24,7 +38,9 @@ export const B3RadioGroup = ({ control, errors, ...rest } : Form.B3UIProps) => {
     key: name,
     defaultValue,
     rules: {
-      required: required && b3Lang('intl.global.validate.required', { label }),
+      required: required && b3Lang('intl.global.validate.required', {
+        label,
+      }),
       validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,
@@ -47,7 +63,9 @@ export const B3RadioGroup = ({ control, errors, ...rest } : Form.B3UIProps) => {
             }
             <Controller
               {...fieldsProps}
-              render={({ field }) => (
+              render={({
+                field,
+              }) => (
                 <RadioGroup
                   {...field}
                 >

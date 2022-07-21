@@ -1,4 +1,6 @@
-import { Grid } from '@mui/material'
+import {
+  Grid,
+} from '@mui/material'
 import {
   B3TextField,
   B3Checkbox,
@@ -12,7 +14,11 @@ import B3UI from './form/ui'
 
 export function B3CustomForm(props: B3UI.B3CustomFormProps) {
   const {
-    formFields, errors, control, getValues, setValue,
+    formFields,
+    errors,
+    control,
+    getValues,
+    setValue,
   } = props
 
   const renderFormFields = (fields: any) => (fields.map(((field: B3UI.B3CustomFormValue) => {

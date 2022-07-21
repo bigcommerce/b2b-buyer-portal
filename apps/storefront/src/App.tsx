@@ -3,7 +3,9 @@ import {
   Route,
   Routes,
 } from 'react-router-dom'
-import { useB3AppOpen } from '@b3/hooks'
+import {
+  useB3AppOpen,
+} from '@b3/hooks'
 import styled from '@emotion/styled'
 
 import {
@@ -17,7 +19,9 @@ import {
   RegisteredCloseButton,
   ThemeFrame,
 } from '@/components'
-import { RegisteredProvider } from '@/pages/registered/context/RegisteredContext'
+import {
+  RegisteredProvider,
+} from '@/pages/registered/context/RegisteredContext'
 
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 const CUSTOM_STYLES = `

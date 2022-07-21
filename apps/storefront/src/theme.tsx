@@ -1,8 +1,13 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import {
+  createTheme,
+  ThemeProvider,
+} from '@mui/material/styles'
 import * as materialMultiLanguages from '@mui/material/locale'
 import React from 'react'
 
-import { useB3CurrentLang } from '@b3/lang'
+import {
+  useB3CurrentLang,
+} from '@b3/lang'
 
 type LangMapType = {
   [index: string]: string
@@ -26,10 +31,11 @@ type Props = {
   children?: React.ReactNode;
 }
 
-const theme = (lang: string) => createTheme({
-}, (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'])
+const theme = (lang: string) => createTheme({}, (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'])
 
-function B3ThemeProvider({ children }: Props) {
+function B3ThemeProvider({
+  children,
+}: Props) {
   const [lang] = useB3CurrentLang()
 
   return (

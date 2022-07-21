@@ -1,4 +1,6 @@
-import { ChangeEvent } from 'react'
+import {
+  ChangeEvent,
+} from 'react'
 
 import {
   FormControl,
@@ -7,15 +9,32 @@ import {
   MenuItem,
   Select,
 } from '@mui/material'
-import { Controller } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
+import {
+  Controller,
+} from 'react-hook-form'
+import {
+  useB3Lang,
+} from '@b3/lang'
 
 import Form from './ui'
 
-export const B3Select = ({ control, errors, ...rest } : Form.B3UIProps) => {
+export const B3Select = ({
+  control,
+  errors,
+  ...rest
+} : Form.B3UIProps) => {
   const {
-    fieldType, name, default: defaultValue, required, label, validate, options,
-    muiSelectProps, setValue, onChange, replaceOptions,
+    fieldType,
+    name,
+    default: defaultValue,
+    required,
+    label,
+    validate,
+    options,
+    muiSelectProps,
+    setValue,
+    onChange,
+    replaceOptions,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -28,7 +47,9 @@ export const B3Select = ({ control, errors, ...rest } : Form.B3UIProps) => {
     key: name,
     defaultValue,
     rules: {
-      required: required && b3Lang('intl.global.validate.required', { label }),
+      required: required && b3Lang('intl.global.validate.required', {
+        label,
+      }),
       validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,
@@ -39,7 +60,9 @@ export const B3Select = ({ control, errors, ...rest } : Form.B3UIProps) => {
     setValue(name, e.target.value)
   }
 
-  const onChangeProps = onChange ? { onChange: onHandleChange } : {}
+  const onChangeProps = onChange ? {
+    onChange: onHandleChange,
+  } : {}
 
   return (
     <>
@@ -47,7 +70,9 @@ export const B3Select = ({ control, errors, ...rest } : Form.B3UIProps) => {
         ['dropdown'].includes(fieldType) && (
         <FormControl
           variant="filled"
-          style={{ width: '100%' }}
+          style={{
+            width: '100%',
+          }}
         >
           {
             label && (
@@ -61,7 +86,9 @@ export const B3Select = ({ control, errors, ...rest } : Form.B3UIProps) => {
           }
           <Controller
             {...fieldsProps}
-            render={({ field }) => (
+            render={({
+              field,
+            }) => (
               <Select
                 {...field}
                 {...muiAttributeProps}

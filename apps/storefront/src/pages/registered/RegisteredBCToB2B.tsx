@@ -1,5 +1,8 @@
 import {
-  useEffect, useState, useContext, MouseEvent,
+  useEffect,
+  useState,
+  useContext,
+  MouseEvent,
 } from 'react'
 
 import {
@@ -8,23 +11,37 @@ import {
   ImageListItem,
 } from '@mui/material'
 
-import { useB3Lang } from '@b3/lang'
-
-import { useForm } from 'react-hook-form'
 import {
-  InformationFourLabels, InformationLabels,
+  useB3Lang,
+} from '@b3/lang'
+
+import {
+  useForm,
+} from 'react-hook-form'
+import {
+  InformationFourLabels,
+  InformationLabels,
   RegisteredContainer, RegisteredImage,
 } from './styled'
 
 import {
-  getB2BRegisterCustomFields, getB2BRegisterLogo, getB2BCountries, storeB2BBasicInfo,
+  getB2BRegisterCustomFields,
+  getB2BRegisterLogo,
+  getB2BCountries,
+  storeB2BBasicInfo,
 } from '../../shared/service/b2b'
 
-import { B3CustomForm } from '../../components'
+import {
+  B3CustomForm,
+} from '../../components'
 
-import { RegisteredContext } from './context/RegisteredContext'
+import {
+  RegisteredContext,
+} from './context/RegisteredContext'
 
-import { B3Sping } from '../../components/spin/B3Sping'
+import {
+  B3Sping,
+} from '../../components/spin/B3Sping'
 
 import {
   conversionDataFormat,
@@ -46,12 +63,22 @@ export default function RegisteredBCToB2B() {
   const b3Lang = useB3Lang()
 
   const {
-    control, handleSubmit, getValues, formState: { errors }, setValue, watch,
+    control,
+    handleSubmit,
+    getValues,
+    formState: {
+      errors,
+    },
+    setValue,
+    watch,
   } = useForm({
     mode: 'onSubmit',
   })
 
-  const { state, dispatch } = useContext(RegisteredContext)
+  const {
+    state,
+    dispatch,
+  } = useContext(RegisteredContext)
 
   useEffect(() => {
     const getBCAdditionalFields = async () => {
@@ -71,10 +98,20 @@ export default function RegisteredBCToB2B() {
           })
         }
 
-        const { companyExtraFields } = await getB2BRegisterCustomFields()
-        const { quoteConfig } = await getB2BRegisterLogo()
-        const { countries } = await getB2BCountries()
-        const { storeBasicInfo: { storeName } } = await storeB2BBasicInfo()
+        const {
+          companyExtraFields,
+        } = await getB2BRegisterCustomFields()
+        const {
+          quoteConfig,
+        } = await getB2BRegisterLogo()
+        const {
+          countries,
+        } = await getB2BCountries()
+        const {
+          storeBasicInfo: {
+            storeName,
+          },
+        } = await storeB2BBasicInfo()
         const registerLogo = getRegisterLogo(quoteConfig)
 
         const filterCompanyExtraFields = companyExtraFields.length ? companyExtraFields.filter((field: RegisterFields) => field?.visibleToEnduser) : []
@@ -165,8 +202,14 @@ export default function RegisteredBCToB2B() {
   }, [addressBasicFields])
 
   useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      const { country, state } = value
+    const subscription = watch((value, {
+      name,
+      type,
+    }) => {
+      const {
+        country,
+        state,
+      } = value
       if (name === 'country' && type === 'change') {
         handleCountryChange(country, state)
       }
@@ -251,7 +294,12 @@ export default function RegisteredBCToB2B() {
           />
         </Box>
       </B3Sping>
-      <Box sx={{ display: 'flex', flexDirection: 'row-reverse', pt: 2 }}>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        pt: 2,
+      }}
+      >
         <Button
           variant="contained"
           onClick={handleNext}

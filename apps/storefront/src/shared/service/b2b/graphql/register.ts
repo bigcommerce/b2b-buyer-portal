@@ -1,7 +1,10 @@
-import { B3Request } from '../../request/b3Fetch'
+import {
+  B3Request,
+} from '../../request/b3Fetch'
 
 import {
-  convertArrayToGraphql, storeHash,
+  convertArrayToGraphql,
+  storeHash,
 } from '../../../../utils'
 
 interface CustomFieldItems {
@@ -85,14 +88,26 @@ const createCompanyUser = (data: any) => `mutation{
   }
 }`
 
-export const getB2BCompanyUserInfo = (email: string): CustomFieldItems => B3Request.graphqlB2B({ query: getCompanyUserInfo(email) })
+export const getB2BCompanyUserInfo = (email: string): CustomFieldItems => B3Request.graphqlB2B({
+  query: getCompanyUserInfo(email),
+})
 
-export const getB2BRegisterLogo = (): CustomFieldItems => B3Request.graphqlB2B({ query: getRegisterLogo() })
+export const getB2BRegisterLogo = (): CustomFieldItems => B3Request.graphqlB2B({
+  query: getRegisterLogo(),
+})
 
-export const getB2BRegisterCustomFields = (): CustomFieldItems => B3Request.graphqlB2B({ query: getCompanyExtraFields() })
+export const getB2BRegisterCustomFields = (): CustomFieldItems => B3Request.graphqlB2B({
+  query: getCompanyExtraFields(),
+})
 
-export const getB2BCountries = (): CustomFieldItems => B3Request.graphqlB2B({ query: getCountries() })
+export const getB2BCountries = (): CustomFieldItems => B3Request.graphqlB2B({
+  query: getCountries(),
+})
 
-export const createB2BCompanyUser = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({ query: createCompanyUser(data) })
+export const createB2BCompanyUser = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
+  query: createCompanyUser(data),
+})
 
-export const storeB2BBasicInfo = (): CustomFieldItems => B3Request.graphqlB2B({ query: storeBasicInfo() })
+export const storeB2BBasicInfo = (): CustomFieldItems => B3Request.graphqlB2B({
+  query: storeBasicInfo(),
+})

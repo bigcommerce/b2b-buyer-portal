@@ -36,7 +36,8 @@ const langReducer: LangReducer = (state, action) => {
   switch (action.type) {
     case 'lang':
       return {
-        ...state, ...action.payload,
+        ...state,
+        ...action.payload,
       }
     default:
       return state
@@ -50,10 +51,13 @@ interface LangContextProviderProps {
 export function LangContextProvider(props: LangContextProviderProps) {
   const [state, dispatch] = useReducer(langReducer, initState)
 
-  const { children } = props
+  const {
+    children,
+  } = props
 
   const LangValue = useMemo(() => ({
-    state, dispatch,
+    state,
+    dispatch,
   }), [state.lang])
 
   return (

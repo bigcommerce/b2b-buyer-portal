@@ -1,4 +1,6 @@
-import { Link as RouterLink } from 'react-router-dom'
+import {
+  Link as RouterLink,
+} from 'react-router-dom'
 
 import {
   Home as HomeIcon,
@@ -69,11 +71,30 @@ export function Layout({
         <Divider />
         <List>
           {[
-            { label: 'Home', to: '/', icon: HomeIcon },
-            { label: 'Form', to: '/form', icon: VerifiedUserIcon },
-            { label: 'Registered', to: '/registered', icon: VerifiedUserIcon },
-            { label: 'registeredbctob2b', to: '/registeredbctob2b', icon: VerifiedUserIcon },
-          ].map(({ label, icon: Icon, to }) => (
+            {
+              label: 'Home',
+              to: '/',
+              icon: HomeIcon,
+            },
+            {
+              label: 'Form',
+              to: '/form',
+              icon: VerifiedUserIcon,
+            },
+            {
+              label: 'Registered',
+              to: '/registered',
+              icon: VerifiedUserIcon,
+            },
+            {
+              label: 'registeredbctob2b',
+              to: '/registeredbctob2b',
+              icon: VerifiedUserIcon,
+            },
+          ].map(({
+            label, icon: Icon,
+            to,
+          }) => (
             <ListItem
               disablePadding
               key={label}

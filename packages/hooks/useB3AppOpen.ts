@@ -1,4 +1,7 @@
-import { useState, useLayoutEffect } from 'react'
+import {
+  useState,
+  useLayoutEffect,
+} from 'react'
 import globalB3 from '@b3/global-b3'
 
 export const useB3AppOpen = (initOpenState: boolean) => {

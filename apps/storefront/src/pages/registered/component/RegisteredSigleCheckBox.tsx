@@ -1,4 +1,6 @@
-import { memo } from 'react'
+import {
+  memo,
+} from 'react'
 import {
   FormControlLabel,
   FormControl,
@@ -6,11 +8,16 @@ import {
   FormGroup,
 } from '@mui/material'
 
-import { useB3Lang } from '@b3/lang'
+import {
+  useB3Lang,
+} from '@b3/lang'
 
 const RegisteredSigleCheckBox = memo((props: any) => {
   const b3Lang = useB3Lang()
-  const { isChecked, onChange } = props
+  const {
+    isChecked,
+    onChange,
+  } = props
   return (
     <FormControl component="fieldset">
       <FormGroup

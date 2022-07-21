@@ -1,4 +1,6 @@
-import { RequestType } from './base'
+import {
+  RequestType,
+} from './base'
 
 // Defines a collection of functions used to store processing and error result processing for intercepting request and response results
 const interceptorsReq: Array<any> = []
@@ -40,13 +42,15 @@ function b3Fetch(path: string, init: any, type?: string) {
 
 const interceptors = {
   request: {
-    use<T, Y>(callback: T, errorCallback?: Y): void {
+    use<T,
+ Y>(callback: T, errorCallback?: Y): void {
       interceptorsReq.push(callback)
       if (errorCallback) interceptorsReqError.push(errorCallback)
     },
   },
   response: {
-    use<T, Y>(callback: T, errorCallback?: Y): void {
+    use<T,
+ Y>(callback: T, errorCallback?: Y): void {
       interceptorsRes.push(callback)
       if (errorCallback)interceptorsResError.push(errorCallback)
     },

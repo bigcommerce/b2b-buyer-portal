@@ -4,8 +4,12 @@ import {
   it,
 } from 'vitest'
 import Button from '@mui/material/Button'
-import { ThemeFrame } from './ThemeFrame'
-import { render, screen } from '../utils/test-utils'
+import {
+  ThemeFrame,
+} from './ThemeFrame'
+import {
+  render, screen,
+} from '../utils/test-utils'
 
 describe('ThemeFrame', () => {
   it('should render iframe and main document should not contain anything else', () => {

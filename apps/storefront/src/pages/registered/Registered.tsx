@@ -1,23 +1,42 @@
 import {
-  useEffect, useState, useContext, Dispatch, SetStateAction,
+  useEffect,
+  useState,
+  useContext,
+  Dispatch,
+  SetStateAction,
 } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-import { ImageListItem } from '@mui/material'
-
-import { useB3Lang } from '@b3/lang'
-
-import { getBCRegisterCustomFields } from '../../shared/service/bc'
 import {
-  getB2BRegisterCustomFields, getB2BRegisterLogo, getB2BCountries, storeB2BBasicInfo,
+  useNavigate,
+} from 'react-router-dom'
+
+import {
+  ImageListItem,
+} from '@mui/material'
+
+import {
+  useB3Lang,
+} from '@b3/lang'
+
+import {
+  getBCRegisterCustomFields,
+} from '../../shared/service/bc'
+import {
+  getB2BRegisterCustomFields,
+  getB2BRegisterLogo,
+  getB2BCountries,
+  storeB2BBasicInfo,
 } from '../../shared/service/b2b'
 
 import RegisteredStep from './RegisteredStep'
 import RegisterContent from './RegisterContent'
 
-import { RegisteredContext } from './context/RegisteredContext'
+import {
+  RegisteredContext,
+} from './context/RegisteredContext'
 
-import { B3Sping } from '../../components/spin/B3Sping'
+import {
+  B3Sping,
+} from '../../components/spin/B3Sping'
 
 import {
   conversionDataFormat,
@@ -30,14 +49,18 @@ import {
   addressInformationFields,
 } from './config'
 
-import { RegisteredContainer, RegisteredImage } from './styled'
+import {
+  RegisteredContainer, RegisteredImage,
+} from './styled'
 
 interface RegisteredProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>,
 }
 
 export default function Registered(props: RegisteredProps) {
-  const { setIsOpen } = props
+  const {
+    setIsOpen,
+  } = props
   const [activeStep, setActiveStep] = useState(0)
   const navigate = useNavigate()
 
@@ -45,7 +68,12 @@ export default function Registered(props: RegisteredProps) {
 
   const b3Lang = useB3Lang()
 
-  const { state: { isLoading }, dispatch } = useContext(RegisteredContext)
+  const {
+    state: {
+      isLoading,
+    },
+    dispatch,
+  } = useContext(RegisteredContext)
 
   useEffect(() => {
     const getBCAdditionalFields = async () => {
@@ -65,11 +93,24 @@ export default function Registered(props: RegisteredProps) {
           })
         }
 
-        const { customerAccount, billingAddress } = await getBCRegisterCustomFields()
-        const { companyExtraFields } = await getB2BRegisterCustomFields()
-        const { quoteConfig } = await getB2BRegisterLogo()
-        const { countries } = await getB2BCountries()
-        const { storeBasicInfo: { storeName } } = await storeB2BBasicInfo()
+        const {
+          customerAccount,
+          billingAddress,
+        } = await getBCRegisterCustomFields()
+        const {
+          companyExtraFields,
+        } = await getB2BRegisterCustomFields()
+        const {
+          quoteConfig,
+        } = await getB2BRegisterLogo()
+        const {
+          countries,
+        } = await getB2BCountries()
+        const {
+          storeBasicInfo: {
+            storeName,
+          },
+        } = await storeB2BBasicInfo()
         const registerLogo = getRegisterLogo(quoteConfig)
 
         const newCustomerAccount = customerAccount.length ? customerAccount.filter((field: RegisterFields) => field.custom) : []

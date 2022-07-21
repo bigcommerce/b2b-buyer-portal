@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint \"**/*.{ts,tsx,md}\" --fix",
+    "lint": "eslint \"**/*.{ts,tsx}\"",
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest --coverage"

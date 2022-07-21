@@ -3,10 +3,9 @@
   "version": "0.0.0",
   "main": "index.ts",
   "scripts": {
-    "lint": "eslint \"**/*.{ts,tsx}\" --fix"
+    "lint": "eslint \"**/*.{ts,tsx}\""
   },
   "publishConfig": {
     "access": "public"
   }
 }
- 

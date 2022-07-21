@@ -47,24 +47,14 @@ module.exports = {
     ],
     'no-unused-vars': 1,
     'consistent-return': 0,
-    'react/function-component-definition': 0,
     'react/jsx-no-useless-fragment': 0,
     'implicit-arrow-linebreak': 0,
     'object-curly-newline': [
       'error',
       {
-        ObjectExpression: 'always',
-        ObjectPattern: {
-          multiline: true,
-        },
-        ImportDeclaration: {
-          multiline: true,
-          minProperties: 3,
-        },
-        ExportDeclaration: {
-          multiline: true,
-          minProperties: 3,
-        },
+        multiline: true,
+        minProperties: 1,
+        consistent: true,
       },
     ],
   },

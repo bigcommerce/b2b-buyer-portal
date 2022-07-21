@@ -1,4 +1,6 @@
-import { ReactNode } from 'react'
+import {
+  ReactNode,
+} from 'react'
 import {
   CircularProgress,
 } from '@mui/material'
@@ -20,7 +22,12 @@ interface B3SpingProps {
 
 export const B3Sping = (props: B3SpingProps) => {
   const {
-    isSpinning, children, tip, size, thickness, isCloseLoading,
+    isSpinning,
+    children,
+    tip,
+    size,
+    thickness,
+    isCloseLoading,
   } = props
 
   return (

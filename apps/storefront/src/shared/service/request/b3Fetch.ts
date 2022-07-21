@@ -1,5 +1,12 @@
-import { b3Fetch, interceptors } from './fetch'
-import { B2B_BASIC_URL, RequestType, queryParse } from './base'
+import {
+  b3Fetch,
+  interceptors,
+} from './fetch'
+import {
+  B2B_BASIC_URL,
+  RequestType,
+  queryParse,
+} from './base'
 
 /**
  * config User-defined configuration items
@@ -85,9 +92,13 @@ export const B3Request = {
   get: function get<T>(url: string, type: string, data?: T) {
     if (data) {
       const params = queryParse(data)
-      return request(`${url}?${params}`, { method: 'GET' })
+      return request(`${url}?${params}`, {
+        method: 'GET',
+      })
     }
-    return request(url, { method: 'GET' }, type)
+    return request(url, {
+      method: 'GET',
+    }, type)
   },
   post: function post<T>(url: string, type: string, data: T) {
     return request(url, {

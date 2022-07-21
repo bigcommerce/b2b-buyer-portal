@@ -1,4 +1,6 @@
-import { Control } from 'react-hook-form'
+import {
+  Control,
+} from 'react-hook-form'
 
 namespace Form {
 

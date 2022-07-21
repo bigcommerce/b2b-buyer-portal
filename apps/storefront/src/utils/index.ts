@@ -3,7 +3,9 @@ import {
   convertObjectToGraphql,
 } from './graphqlDataConvert'
 
-import { storeHash } from './basicConfig'
+import {
+  storeHash,
+} from './basicConfig'
 
 export {
   convertArrayToGraphql,

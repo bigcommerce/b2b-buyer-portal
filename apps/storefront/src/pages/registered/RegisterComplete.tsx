@@ -1,27 +1,49 @@
 import {
-  useContext, useEffect, MouseEvent, useState,
+  useContext,
+  useEffect,
+  MouseEvent,
+  useState,
 } from 'react'
 import {
   Box,
   Alert,
 } from '@mui/material'
-import { useForm } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import { format } from 'date-fns'
-
-import { RegisteredContext } from './context/RegisteredContext'
-import RegisteredStepButton from './component/RegisteredStepButton'
-import { B3CustomForm } from '../../components'
-
-import { createBCCompanyUser, createB2BCompanyUser, uploadB2BFile } from '../../shared/service/b2b'
+import {
+  useForm,
+} from 'react-hook-form'
+import {
+  useB3Lang,
+} from '@b3/lang'
+import {
+  format,
+} from 'date-fns'
 
 import {
-  RegisterFields, CustomFieldItems, Base64, validatorRules,
+  RegisteredContext,
+} from './context/RegisteredContext'
+import RegisteredStepButton from './component/RegisteredStepButton'
+import {
+  B3CustomForm,
+} from '../../components'
+
+import {
+  createBCCompanyUser,
+  createB2BCompanyUser,
+  uploadB2BFile,
+} from '../../shared/service/b2b'
+
+import {
+  RegisterFields, CustomFieldItems, Base64,
+  validatorRules,
 } from './config'
 
-import { storeHash } from '../../utils'
+import {
+  storeHash,
+} from '../../utils'
 
-import { InformationFourLabels, TipContent } from './styled'
+import {
+  InformationFourLabels, TipContent,
+} from './styled'
 
 interface RegisterCompleteProps {
   handleBack: () => void,
@@ -33,22 +55,41 @@ type RegisterCompleteList = Array<any> | undefined
 
 export default function RegisterComplete(props: RegisterCompleteProps) {
   const b3Lang = useB3Lang()
-  const { handleBack, activeStep, handleNext } = props
+  const {
+    handleBack,
+    activeStep,
+    handleNext,
+  } = props
 
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
   const [errorMessage, setErrorMessage] = useState<String>('')
 
   const {
-    control, handleSubmit, formState: { errors },
+    control,
+    handleSubmit,
+    formState: {
+      errors,
+    },
   } = useForm({
     mode: 'all',
   })
-  const { state, dispatch } = useContext(RegisteredContext)
+  const {
+    state,
+    dispatch,
+  } = useContext(RegisteredContext)
 
   const {
-    contactInformation, bcContactInformationFields, passwordInformation, accountType,
-    additionalInformation, addressBasicFields, addressExtraFields, companyInformation,
-    emailMarketingNewsletter, companyAttachment, companyExtraFields,
+    contactInformation,
+    bcContactInformationFields,
+    passwordInformation,
+    accountType,
+    additionalInformation,
+    addressBasicFields,
+    addressExtraFields,
+    companyInformation,
+    emailMarketingNewsletter,
+    companyAttachment,
+    companyExtraFields,
   } = state
 
   const emailName = accountType === '1' ? 'workEmailAddress' : 'emailAddress'
@@ -59,7 +100,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     let emailItem: CustomFieldItems = {}
     if (list && list.length) {
       const emailFields = list.find((item: RegisterFields) => item.name === emailName) || {}
-      emailItem = { ...emailFields }
+      emailItem = {
+        ...emailFields,
+      }
       emailItem.label = `${b3Lang('intl.user.register.RegisterComplete.email')}`
       emailItem.name = 'email'
       emailItem.disabled = true
@@ -279,10 +322,18 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           await getBCFieldsValue(completeData)
         } else {
           const res = await getBCFieldsValue(completeData)
-          const { data } = res
+          const {
+            data,
+          } = res
           const accountInfo = await getB2BFieldsValue(completeData, (data as any)[0].id)
 
-          const { companyCreate: { company: { companyStatus } } } = accountInfo
+          const {
+            companyCreate: {
+              company: {
+                companyStatus,
+              },
+            },
+          } = accountInfo
           isAuto = +companyStatus === 1
         }
         dispatch({

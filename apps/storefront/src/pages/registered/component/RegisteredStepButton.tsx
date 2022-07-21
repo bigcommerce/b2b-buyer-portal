@@ -3,13 +3,20 @@ import {
   Button,
 } from '@mui/material'
 
-import { useB3Lang } from '@b3/lang'
+import {
+  useB3Lang,
+} from '@b3/lang'
 
-import { steps } from '../config'
+import {
+  steps,
+} from '../config'
 
 function RegisteredStepButton(props: any) {
   const {
-    activeStep, handleBack, handleNext, handleFinish,
+    activeStep,
+    handleBack,
+    handleNext,
+    handleFinish,
   } = props
 
   const b3Lang = useB3Lang()
@@ -17,7 +24,12 @@ function RegisteredStepButton(props: any) {
   return (
     <Box>
       {activeStep === steps.length ? (
-        <Box sx={{ display: 'flex', flexDirection: 'row-reverse', pt: 2 }}>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'row-reverse',
+          pt: 2,
+        }}
+        >
           <Button
             variant="contained"
             onClick={() => handleFinish()}
@@ -26,7 +38,12 @@ function RegisteredStepButton(props: any) {
           </Button>
         </Box>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'row-reverse', pt: 2 }}>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'row-reverse',
+          pt: 2,
+        }}
+        >
           <Button
             variant="contained"
             onClick={handleNext}
@@ -38,7 +55,9 @@ function RegisteredStepButton(props: any) {
             <Button
               variant="text"
               onClick={handleBack}
-              sx={{ mr: 1 }}
+              sx={{
+                mr: 1,
+              }}
             >
               {b3Lang('intl.global.button.back')}
             </Button>

@@ -4,11 +4,19 @@ import {
   ReactNode,
   RefObject,
 } from 'react'
-import { createPortal } from 'react-dom'
+import {
+  createPortal,
+} from 'react-dom'
 
-import createCache, { EmotionCache } from '@emotion/cache'
-import { CacheProvider } from '@emotion/react'
-import { CssBaseline } from '@mui/material'
+import createCache, {
+  EmotionCache,
+} from '@emotion/cache'
+import {
+  CacheProvider,
+} from '@emotion/react'
+import {
+  CssBaseline,
+} from '@mui/material'
 
 export function IFrameSetContent(el: HTMLIFrameElement | null, content: string, forceWrite: boolean = false) {
   if (el) {
@@ -143,7 +151,10 @@ export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
   }
 
   render() {
-    const { hasError, title } = this.state
+    const {
+      hasError,
+      title,
+    } = this.state
     const className = this._setupComplete ? this.props.className : undefined
 
     if (hasError) {
@@ -151,7 +162,12 @@ export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
     }
 
     return (
-      <iframe allowFullScreen className={className} title={title} ref={this._iframeRef}>
+      <iframe
+        allowFullScreen
+        className={className}
+        title={title}
+        ref={this._iframeRef}
+      >
         {this.renderFrameContent()}
       </iframe>
     )

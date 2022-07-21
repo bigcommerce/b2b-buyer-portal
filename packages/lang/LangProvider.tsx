@@ -1,8 +1,17 @@
-import { IntlProvider, MessageFormatElement } from 'react-intl'
-import { ReactNode, useContext } from 'react'
+import {
+  IntlProvider,
+  MessageFormatElement,
+} from 'react-intl'
+import {
+  ReactNode,
+  useContext,
+} from 'react'
 
 import * as defaultLocales from './locales'
-import { LangContext, LangContextProvider } from './context/LangContext'
+import {
+  LangContext,
+  LangContextProvider,
+} from './context/LangContext'
 
 type LangProviderProps = {
   children?: ReactNode,
@@ -17,7 +26,9 @@ export const LangProvider = ({
   locales = defaultLocales,
   supportLang,
 }: LangProviderProps) => {
-  const { state } = useContext(LangContext)
+  const {
+    state,
+  } = useContext(LangContext)
   const lang = supportLang.includes(state.lang) ? state.lang : 'en'
 
   return (

@@ -1,13 +1,17 @@
 import './main.css'
 
 import ReactDOM from 'react-dom/client'
-import { LangProvider } from '@b3/lang'
+import {
+  LangProvider,
+} from '@b3/lang'
 
 import App from './App'
 import B3ThemeProvider from './theme'
 
 import * as locales from './locales'
-import { SUPPORT_LANGUAGE } from './constants'
+import {
+  SUPPORT_LANGUAGE,
+} from './constants'
 
 const CONTAINER_ID = 'bundle-container'
 

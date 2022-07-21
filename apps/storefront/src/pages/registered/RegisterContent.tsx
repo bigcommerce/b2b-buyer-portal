@@ -1,4 +1,6 @@
-import { ReactNode } from 'react'
+import {
+  ReactNode,
+} from 'react'
 import {
   Box,
 } from '@mui/material'
@@ -17,7 +19,10 @@ interface RegisterContentProps {
 
 export default function RegisterContent(props: RegisterContentProps) {
   const {
-    activeStep, handleBack, handleNext, handleFinish,
+    activeStep,
+    handleBack,
+    handleNext,
+    handleFinish,
   } = props
 
   const renderStep = (step: number): ReactNode => {

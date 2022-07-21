@@ -1,17 +1,32 @@
-import { useContext } from 'react'
+import {
+  useContext,
+} from 'react'
 
-import { Box } from '@mui/material'
+import {
+  Box,
+} from '@mui/material'
 
-import { useB3Lang } from '@b3/lang'
+import {
+  useB3Lang,
+} from '@b3/lang'
 
-import { RegisteredContext } from './context/RegisteredContext'
+import {
+  RegisteredContext,
+} from './context/RegisteredContext'
 import RegisteredStepButton from './component/RegisteredStepButton'
 
-import { StyleTipContainer } from './styled'
+import {
+  StyleTipContainer,
+} from './styled'
 
 export default function RegisteredFinish(props: { activeStep: number; handleFinish: () => void}) {
-  const { activeStep, handleFinish } = props
-  const { state } = useContext(RegisteredContext)
+  const {
+    activeStep,
+    handleFinish,
+  } = props
+  const {
+    state,
+  } = useContext(RegisteredContext)
   const b3Lang = useB3Lang()
 
   const {
@@ -26,7 +41,9 @@ export default function RegisteredFinish(props: { activeStep: number; handleFini
       return (
         isAutoApproval ? (
           <StyleTipContainer>
-            {b3Lang('intl.user.register.RegisterFinish.autoApproved.tip', { storeName })}
+            {b3Lang('intl.user.register.RegisterFinish.autoApproved.tip', {
+              storeName,
+            })}
           </StyleTipContainer>
         ) : (
           <StyleTipContainer>
@@ -39,7 +56,9 @@ export default function RegisteredFinish(props: { activeStep: number; handleFini
     if (accountType === '2') {
       return (
         <StyleTipContainer>
-          {b3Lang('intl.user.register.RegisterFinish.bcSuccess.tip', { storeName })}
+          {b3Lang('intl.user.register.RegisterFinish.bcSuccess.tip', {
+            storeName,
+          })}
         </StyleTipContainer>
       )
     }
