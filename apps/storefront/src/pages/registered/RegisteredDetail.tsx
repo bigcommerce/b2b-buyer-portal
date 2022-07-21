@@ -90,7 +90,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       }
     }
 
-    setValue('state', stateCode && (stateList.find((state: State) => state.stateCode === stateCode) || stateList.length === 0) ? stateCode : '')
+    setValue('state', stateCode && countryCode && (stateList.find((state: State) => state.stateCode === stateCode) || stateList.length === 0) ? stateCode : '')
 
     dispatch({
       type: 'stateList',
@@ -104,14 +104,14 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
   useEffect(() => {
     const countryValue = getValues('country')
     const stateValue = getValues('state')
-
     handleCountryChange(countryValue, stateValue)
   }, [])
 
   useEffect(() => {
-    const subscription = watch(({ country }, { name, type }) => {
+    const subscription = watch((value, { name, type }) => {
+      const { country, state } = value
       if (name === 'country' && type === 'change') {
-        handleCountryChange(country)
+        handleCountryChange(country, state)
       }
     })
     return () => subscription.unsubscribe()
