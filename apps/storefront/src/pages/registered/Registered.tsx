@@ -153,6 +153,7 @@ export default function Registered(props: RegisteredProps) {
         }
         setLogo(registerLogo)
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.log(e)
       }
     }

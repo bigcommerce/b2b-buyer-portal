@@ -3,7 +3,7 @@ import {
 } from 'react-intl'
 
 export interface B3Lang {
-  (id: string, options?: {}): string
+  (id: string, options?: Record<string, never>): string
 }
 
 export const useB3Lang = () => {

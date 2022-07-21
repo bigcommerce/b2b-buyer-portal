@@ -8,7 +8,9 @@ import {
   Reducer,
 } from 'react'
 
-import B3Utils from '@b3/utils'
+import {
+  LangUtils,
+} from '@b3/utils'
 
 interface LangContextState {
   lang: string,
@@ -20,7 +22,7 @@ interface LangContextAction {
 }
 
 const initState: LangContextState = {
-  lang: B3Utils.Lang.getBrowserLanguage(),
+  lang: LangUtils.getBrowserLanguage(),
 }
 
 export const LangContext: Context<{

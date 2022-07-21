@@ -1,5 +1,6 @@
 module.exports = {
   extends: ['react', 'airbnb'],
+  plugins: ['@typescript-eslint'],
   parser: '@typescript-eslint/parser',
   rules: {
     'no-shadow': 0,
@@ -45,7 +46,8 @@ module.exports = {
         ignore: ['antd-mobile'],
       },
     ],
-    'no-unused-vars': 1,
+    'no-unused-vars': 0,
+    '@typescript-eslint/no-unused-vars': 1,
     'consistent-return': 0,
     'react/jsx-no-useless-fragment': 0,
     'implicit-arrow-linebreak': 0,

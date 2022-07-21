@@ -155,6 +155,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           },
         })
       }).catch((err: any) => {
+        // eslint-disable-next-line no-console
         console.log(err)
         dispatch({
           type: 'loading',

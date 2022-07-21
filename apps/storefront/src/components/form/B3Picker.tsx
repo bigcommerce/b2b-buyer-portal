@@ -22,6 +22,7 @@ import Form from './ui'
 
 export const B3Picker = ({
   control,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   errors,
   ...rest
 } : Form.B3UIProps) => {
@@ -63,7 +64,9 @@ export const B3Picker = ({
                 {...fieldsProps}
                 render={({
                   field: {
-                    ref, ...rest
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    ref,
+                    ...rest
                   },
                 }) => (
                   <DesktopDatePicker

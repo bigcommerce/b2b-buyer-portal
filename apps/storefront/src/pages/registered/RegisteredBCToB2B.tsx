@@ -141,7 +141,8 @@ export default function RegisteredBCToB2B() {
         }
         setLogo(registerLogo)
       } catch (e) {
-        console.log(e)
+        // eslint-disable-next-line no-console
+        console.error(e)
       }
     }
 
@@ -219,6 +220,7 @@ export default function RegisteredBCToB2B() {
 
   const handleNext = (event: MouseEvent) => {
     handleSubmit(async (data: CustomFieldItems) => {
+      // eslint-disable-next-line no-console
       console.log(data, 'data')
     })(event)
   }
