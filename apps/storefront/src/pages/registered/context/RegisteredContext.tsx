@@ -2,22 +2,22 @@ import React, {
   useReducer, createContext, Dispatch, ReactNode, useMemo,
 } from 'react'
 
-import { RegisterFileds, Country, State } from '../config'
+import { RegisterFields, Country, State } from '../config'
 
 interface RegisterState {
-  contactInformation?: Array<RegisterFileds> | Array<[]>,
+  contactInformation?: Array<RegisterFields>,
   accountType?: string,
-  additionalInformation?: Array<RegisterFileds> | Array<[]>,
-  bcContactInformationFields?: Array<RegisterFileds> | Array<[]>,
+  additionalInformation?: Array<RegisterFields>,
+  bcContactInformationFields?: Array<RegisterFields>,
   emailMarketingNewsletter?: Boolean,
-  companyInformation?: Array<RegisterFileds> | Array<[]>,
-  companyExtraFields?: Array<RegisterFileds> | Array<[]>,
-  companyAttachment?: Array<RegisterFileds> | Array<[]>,
-  addressBasicFields?: Array<RegisterFileds>,
-  addressExtraFields?: Array<RegisterFileds> | Array<[]>,
+  companyInformation?: Array<RegisterFields>,
+  companyExtraFields?: Array<RegisterFields>
+  companyAttachment?: Array<RegisterFields>,
+  addressBasicFields?: Array<RegisterFields>,
+  addressExtraFields?: Array<RegisterFields>,
   countryList?: Array<Country>,
   stateList?: Array<State>,
-  passwordInformation?: Array<RegisterFileds> | Array<[]>,
+  passwordInformation?: Array<RegisterFields>,
   isLoading?: Boolean,
   submitSuccess?: Boolean,
   isAutoApproval?: Boolean,

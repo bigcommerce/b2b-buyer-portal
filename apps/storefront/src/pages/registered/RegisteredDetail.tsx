@@ -20,7 +20,7 @@ import { RegisteredContext } from './context/RegisteredContext'
 
 import {
   CustomFieldItems,
-  RegisterFileds,
+  RegisterFields,
   Country,
   State,
   Base64,
@@ -30,7 +30,13 @@ import { InformationFourLabels, AddressBox, TipContent } from './styled'
 
 import { validateBCCompanyExtraFields } from '../../shared/service/b2b'
 
-export default function RegisteredDetail(props: any) {
+interface RegisteredDetailProps {
+  handleBack: () => void,
+  handleNext: () => void,
+  activeStep: number,
+}
+
+export default function RegisteredDetail(props: RegisteredDetailProps) {
   const { handleBack, handleNext, activeStep } = props
 
   const { state, dispatch } = useContext(RegisteredContext)
@@ -72,7 +78,7 @@ export default function RegisteredDetail(props: any) {
 
   const handleCountryChange = (countryCode: string, stateCode: string = '') => {
     const stateList = countryList.find((country: Country) => country.countryCode === countryCode)?.states || []
-    const stateFields = addressBasicFields.find((formFileds: RegisterFileds) => formFileds.name === 'state')
+    const stateFields = addressBasicFields.find((formFileds: RegisterFields) => formFileds.name === 'state')
 
     if (stateFields) {
       if (stateList.length > 0) {
@@ -135,7 +141,7 @@ export default function RegisteredDetail(props: any) {
     return data.errMsg || ''
   }
 
-  const setRegisterFiledsValue = (formFields: Array<any>, formData: CustomFieldItems) => formFields.map((field) => {
+  const setRegisterFieldsValue = (formFields: Array<RegisterFields>, formData: CustomFieldItems) => formFields.map((field) => {
     field.default = formData[field.name] || field.default
     return field
   })
@@ -145,7 +151,7 @@ export default function RegisteredDetail(props: any) {
       showLading(true)
 
       try {
-        const extraFields = companyExtraFields.map((field: any) => ({
+        const extraFields = companyExtraFields.map((field: RegisterFields) => ({
           fieldName: Base64.decode(field.name),
           fieldValue: data[field.name] || field.default,
         }))
@@ -162,11 +168,11 @@ export default function RegisteredDetail(props: any) {
 
         setErrorMessage('')
 
-        const newCompanyInformation = setRegisterFiledsValue(companyInformation, data)
-        const newCompanyExtraFields = setRegisterFiledsValue(companyExtraFields, data)
-        const newCompanyAttachment = setRegisterFiledsValue(companyAttachment, data)
-        const newAddressBasicFields = setRegisterFiledsValue(addressBasicFields, data)
-        const newAddressExtraFields = setRegisterFiledsValue(addressExtraFields, data)
+        const newCompanyInformation = setRegisterFieldsValue(companyInformation, data)
+        const newCompanyExtraFields = setRegisterFieldsValue(companyExtraFields, data)
+        const newCompanyAttachment = setRegisterFieldsValue(companyAttachment, data)
+        const newAddressBasicFields = setRegisterFieldsValue(addressBasicFields, data)
+        const newAddressExtraFields = setRegisterFieldsValue(addressExtraFields, data)
 
         dispatch({
           type: 'all',

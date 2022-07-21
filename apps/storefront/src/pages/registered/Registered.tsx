@@ -22,7 +22,7 @@ import { B3Sping } from '../../components/spin/B3Sping'
 import {
   conversionDataFormat,
   bcContactInformationFields,
-  RegisterFileds,
+  RegisterFields,
   contactInformationFields,
   getRegisterLogo,
   companyInformationFields,
@@ -72,14 +72,14 @@ export default function Registered(props: RegisteredProps) {
         const { storeBasicInfo: { storeName } } = await storeB2BBasicInfo()
         const registerLogo = getRegisterLogo(quoteConfig)
 
-        const newCustomerAccount = customerAccount.length ? customerAccount.filter((field: RegisterFileds) => field.custom) : []
-        const newAdditionalInformation: Array<RegisterFileds> = conversionDataFormat(newCustomerAccount)
+        const newCustomerAccount = customerAccount.length ? customerAccount.filter((field: RegisterFields) => field.custom) : []
+        const newAdditionalInformation: Array<RegisterFields> = conversionDataFormat(newCustomerAccount)
 
-        const filterCompanyExtraFields = companyExtraFields.length ? companyExtraFields.filter((field: RegisterFileds) => field?.visibleToEnduser) : []
-        const newCompanyExtraFields: Array<RegisterFileds> = conversionDataFormat(filterCompanyExtraFields)
+        const filterCompanyExtraFields = companyExtraFields.length ? companyExtraFields.filter((field: RegisterFields) => field?.visibleToEnduser) : []
+        const newCompanyExtraFields: Array<RegisterFields> = conversionDataFormat(filterCompanyExtraFields)
 
-        const customAddress = billingAddress.length ? billingAddress.filter((field: RegisterFileds) => field.custom) : []
-        const addressExtraFields: Array<RegisterFileds> = conversionDataFormat(customAddress)
+        const customAddress = billingAddress.length ? billingAddress.filter((field: RegisterFields) => field.custom) : []
+        const addressExtraFields: Array<RegisterFields> = conversionDataFormat(customAddress)
 
         const newAddressInformationFields = addressInformationFields(b3Lang).map((addressFileds) => {
           if (addressFileds.name === 'country') {
@@ -88,8 +88,8 @@ export default function Registered(props: RegisteredProps) {
           return addressFileds
         })
 
-        const filterPasswordInformation = customerAccount.length ? customerAccount.filter((field: RegisterFileds) => !field.custom && field.fieldType === 'password') : []
-        const newPasswordInformation: Array<RegisterFileds> = conversionDataFormat(filterPasswordInformation)
+        const filterPasswordInformation = customerAccount.length ? customerAccount.filter((field: RegisterFields) => !field.custom && field.fieldType === 'password') : []
+        const newPasswordInformation: Array<RegisterFields> = conversionDataFormat(filterPasswordInformation)
         if (dispatch) {
           dispatch({
             type: 'all',

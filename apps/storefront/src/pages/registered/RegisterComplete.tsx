@@ -15,7 +15,7 @@ import { B3CustomForm } from '../../components'
 import { createBCCompanyUser, createB2BCompanyUser, uploadB2BFile } from '../../shared/service/b2b'
 
 import {
-  RegisterFileds, CustomFieldItems, Base64, validatorRules,
+  RegisterFields, CustomFieldItems, Base64, validatorRules,
 } from './config'
 
 import { storeHash } from '../../utils'
@@ -57,7 +57,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     const newPasswordInformation: Array<CustomFieldItems> = []
     let emailItem: CustomFieldItems = {}
     if (list && list.length) {
-      const emailFileds = list.find((item: RegisterFileds) => item.name === emailName) || {}
+      const emailFileds = list.find((item: RegisterFields) => item.name === emailName) || {}
       emailItem = { ...emailFileds }
       emailItem.label = `${b3Lang('intl.user.register.RegisterComplete.email')}`
       emailItem.name = 'email'

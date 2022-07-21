@@ -14,7 +14,7 @@ export interface ValidateOptions {
   min?: string | Number,
   [key: string]: any
 }
-export interface RegisterFileds {
+export interface RegisterFields {
   name: string,
   label?: string,
   required: Boolean,
@@ -29,7 +29,7 @@ interface ValidateOptionItems {
   [key: string]: any
 }
 
-export type ContactInformationItems = Array<RegisterFileds>
+export type ContactInformationItems = Array<RegisterFields>
 
 export const steps = [
   'intl.user.register.step.account',
@@ -76,7 +76,7 @@ const fieldsType = {
   date: ['date'],
 }
 
-const classificationType = (item: RegisterFileds) => {
+const classificationType = (item: RegisterFields) => {
   let optionItems: ValidateOptionItems = {}
   if (fieldsType.text.includes(item.fieldType)) {
     optionItems = {
@@ -140,8 +140,8 @@ const classificationType = (item: RegisterFileds) => {
   return optionItems
 }
 
-export const conversionDataFormat = (registerArr: Array<RegisterFileds>) => {
-  const newRegisterArr = registerArr.map((item: RegisterFileds) => {
+export const conversionDataFormat = (registerArr: Array<RegisterFields>) => {
+  const newRegisterArr = registerArr.map((item: RegisterFields) => {
     const requiredItems = {
       id: item.id || item.fieldName,
       name: item.name || Base64.encode(item.fieldName),

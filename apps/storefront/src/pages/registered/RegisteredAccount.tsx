@@ -20,7 +20,7 @@ import RegisteredSigleCheckBox from './component/RegisteredSigleCheckBox'
 
 import { RegisteredContext } from './context/RegisteredContext'
 
-import { RegisterFileds, CustomFieldItems } from './config'
+import { RegisterFields, CustomFieldItems } from './config'
 
 import { getB2BCompanyUserInfo } from '../../shared/service/b2b'
 
@@ -80,13 +80,13 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         if (userType === 1) {
           const contactInfo: any = accountType === '1' ? contactInformation : bcContactInformationFields
           const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
-          const newContactInfo = contactInfo.map((item: RegisterFileds) => {
+          const newContactInfo = contactInfo.map((item: RegisterFields) => {
             item.default = data[item.name] || item.default
             return item
           })
-          let newAdditionalInformation: Array<RegisterFileds> = []
+          let newAdditionalInformation: Array<RegisterFields> = []
           if (additionalInformation) {
-            newAdditionalInformation = (additionalInformation as Array<RegisterFileds>).map((item: RegisterFileds) => {
+            newAdditionalInformation = (additionalInformation as Array<RegisterFields>).map((item: RegisterFields) => {
               item.default = data[item.name] || item.default
               return item
             })

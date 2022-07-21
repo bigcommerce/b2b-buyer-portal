@@ -9,7 +9,7 @@ import RegisteredStepButton from './component/RegisteredStepButton'
 
 import { StyleTipContainer } from './styled'
 
-export default function RegisteredFinish(props: { activeStep: any; handleFinish: () => void}) {
+export default function RegisteredFinish(props: { activeStep: number; handleFinish: () => void}) {
   const { activeStep, handleFinish } = props
   const { state } = useContext(RegisteredContext)
   const b3Lang = useB3Lang()
