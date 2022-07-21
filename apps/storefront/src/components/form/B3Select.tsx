@@ -2,7 +2,7 @@ import { ChangeEvent } from 'react'
 
 import {
   FormControl,
-  FormLabel,
+  InputLabel,
   FormHelperText,
   MenuItem,
   Select,
@@ -45,15 +45,18 @@ export const B3Select = ({ control, errors, ...rest } : Form.B3UIProps) => {
     <>
       {
         ['dropdown'].includes(fieldType) && (
-        <FormControl style={{ width: '100%' }}>
+        <FormControl
+          variant="filled"
+          style={{ width: '100%' }}
+        >
           {
             label && (
-            <FormLabel
+            <InputLabel
               error={!!errors[name]}
               required={required}
             >
               {label}
-            </FormLabel>
+            </InputLabel>
             )
           }
           <Controller
@@ -63,6 +66,7 @@ export const B3Select = ({ control, errors, ...rest } : Form.B3UIProps) => {
                 {...field}
                 {...muiAttributeProps}
                 {...onChangeProps}
+                error={!!errors[name]}
               >
                 {
                   options?.length && (

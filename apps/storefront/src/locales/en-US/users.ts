@@ -60,5 +60,5 @@ export default {
   'intl.user.register.RegisterFinish.bcSuccess.tip': 'Thank you for creating your account at {storeName}.',
 
   // register components
-  'intl.user.register.RegisteredSingleCheckBox.label': 'Email marketing newsletter',
+  'intl.user.register.RegisteredSingleCheckBox.label': 'Email me special promotions and update',
 }

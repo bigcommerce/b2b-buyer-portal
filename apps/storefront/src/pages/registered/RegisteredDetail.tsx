@@ -24,9 +24,10 @@ import {
   Country,
   State,
   Base64,
+  addressFieldsRequired,
 } from './config'
 
-import { InformationFourLabels, AddressBox, TipContent } from './styled'
+import { InformationFourLabels, TipContent } from './styled'
 
 import { validateBCCompanyExtraFields } from '../../shared/service/b2b'
 
@@ -46,7 +47,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
   const b3Lang = useB3Lang()
 
   const {
-    accountType,
+    accountType = '1',
     companyInformation = [],
     companyAttachment = [],
     addressBasicFields = [],
@@ -66,13 +67,23 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     mode: 'all',
   })
 
-  const [addressFields, setAddressFields] = useState<Array<any>>(addressBasicFields)
+  const [addressFields, setAddressFields] = useState<Array<RegisterFields>>(addressBasicFields)
+
+  const setAddressFieldsRequire = (accountType: string, addressBasicFields: Array<RegisterFields>) => {
+    const fieldRequired = addressFieldsRequired[`account_type_${accountType || '1'}`] || {}
+
+    addressBasicFields.forEach((field: RegisterFields) => {
+      field.required = fieldRequired[field.name] || false
+    })
+
+    return addressBasicFields
+  }
 
   useEffect(() => {
     if (accountType === '1') {
-      setAddressFields([...addressBasicFields])
+      setAddressFields([...setAddressFieldsRequire(accountType, addressBasicFields)])
     } else {
-      setAddressFields([...addressBasicFields, ...addressExtraFields])
+      setAddressFields([...setAddressFieldsRequire(accountType, addressBasicFields), ...addressExtraFields])
     }
   }, [accountType])
 
@@ -126,7 +137,8 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     })
   }
 
-  const getErrorMessage = (data: any, errorKey: string) => {
+  const getErrorMessage = (res: any, errorKey: string) => {
+    const { data, message } = res
     if (data[errorKey] && typeof data[errorKey] === 'object') {
       const errors = data[errorKey]
 
@@ -138,7 +150,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       return message
     }
 
-    return data.errMsg || ''
+    return data.errMsg || message
   }
 
   const setRegisterFieldsValue = (formFields: Array<RegisterFields>, formData: CustomFieldItems) => formFields.map((field) => {
@@ -151,22 +163,24 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       showLading(true)
 
       try {
-        const extraFields = companyExtraFields.map((field: RegisterFields) => ({
-          fieldName: Base64.decode(field.name),
-          fieldValue: data[field.name] || field.default,
-        }))
+        if (accountType === '1') {
+          const extraFields = companyExtraFields.map((field: RegisterFields) => ({
+            fieldName: Base64.decode(field.name),
+            fieldValue: data[field.name] || field.default,
+          }))
 
-        const res = await validateBCCompanyExtraFields({
-          extraFields,
-        })
+          const res = await validateBCCompanyExtraFields({
+            extraFields,
+          })
 
-        if (res.code !== 200) {
-          setErrorMessage(getErrorMessage(res.data, 'extraFields'))
-          showLading(false)
-          return
+          if (res.code !== 200) {
+            setErrorMessage(getErrorMessage(res, 'extraFields'))
+            showLading(false)
+            return
+          }
+
+          setErrorMessage('')
         }
-
-        setErrorMessage('')
 
         const newCompanyInformation = setRegisterFieldsValue(companyInformation, data)
         const newCompanyExtraFields = setRegisterFieldsValue(companyExtraFields, data)
@@ -232,7 +246,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         ) : <></>
       }
 
-      <AddressBox>
+      <Box>
         <InformationFourLabels>{b3Lang('intl.user.register.title.address')}</InformationFourLabels>
 
         <B3CustomForm
@@ -242,7 +256,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
           getValues={getValues}
           setValue={setValue}
         />
-      </AddressBox>
+      </Box>
 
       <RegisteredStepButton
         handleBack={handleBack}

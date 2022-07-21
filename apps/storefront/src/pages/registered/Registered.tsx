@@ -119,7 +119,7 @@ export default function Registered(props: RegisteredProps) {
     getBCAdditionalFields()
   }, [])
 
-  const isStepOptional = (step: number) => step === 1
+  const isStepOptional = (step: number) => step === -1
 
   const handleNext = async () => {
     setActiveStep((prevActiveStep: number) => prevActiveStep + 1)

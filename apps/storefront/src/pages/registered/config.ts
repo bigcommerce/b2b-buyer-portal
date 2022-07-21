@@ -51,17 +51,17 @@ export const Base64 = {
 export const validatorRules = (validateRuleTypes: string[], options?: ValidateOptions) => (val: string, b3lang: B3Lang) => {
   let str = ''
   validateRuleTypes.forEach((item: string) => {
-    if (item === 'email' && !re.email.test(val)) {
+    if (item === 'email' && val && !re.email.test(val)) {
       str = b3lang('intl.user.register.validatorRules.email')
     }
-    if (item === 'phone' && !re.phone.test(val)) {
+    if (item === 'phone' && val && !re.phone.test(val)) {
       str = b3lang('intl.user.register.validatorRules.phoneNumber')
     }
     if (item === 'max' && options?.max && +options.max < +val) {
       str = b3lang('intl.user.register.validatorRules.phoneNumber', { max: options.max })
     }
 
-    if (item === 'password' && !re.password.test(val)) {
+    if (item === 'password' && val && !re.password.test(val)) {
       str = b3lang('intl.user.register.validatorRules.passwords')
     }
   })
@@ -260,7 +260,7 @@ export const companyInformationFields = (b3lang: B3Lang) : ContactInformationIte
     label: b3lang('intl.user.register.label.companyEmail'),
     default: '',
     fieldType: 'text',
-    required: true,
+    required: false,
     validate: validatorRules(['email']),
     xs: 12,
   },
@@ -269,7 +269,7 @@ export const companyInformationFields = (b3lang: B3Lang) : ContactInformationIte
     label: b3lang('intl.user.register.label.companyPhoneNumber'),
     default: '',
     fieldType: 'text',
-    required: true,
+    required: false,
     validate: validatorRules(['phone']),
     xs: 12,
   },
@@ -294,7 +294,7 @@ export const addressInformationFields = (b3lang: B3Lang) : ContactInformationIte
     label: b3lang('intl.user.register.label.country'),
     default: '',
     fieldType: 'dropdown',
-    required: true,
+    required: false,
     maxLength: 255,
     xs: 12,
     options: [],
@@ -309,7 +309,7 @@ export const addressInformationFields = (b3lang: B3Lang) : ContactInformationIte
     default: '',
     fieldType: 'text',
     maxLength: 255,
-    required: true,
+    required: false,
     xs: 12,
   },
   {
@@ -318,7 +318,7 @@ export const addressInformationFields = (b3lang: B3Lang) : ContactInformationIte
     default: '',
     fieldType: 'text',
     maxLength: 255,
-    required: true,
+    required: false,
     xs: 12,
   },
   {
@@ -327,7 +327,7 @@ export const addressInformationFields = (b3lang: B3Lang) : ContactInformationIte
     default: '',
     fieldType: 'text',
     maxLength: 255,
-    required: true,
+    required: false,
     xs: 12,
   },
   {
@@ -336,7 +336,7 @@ export const addressInformationFields = (b3lang: B3Lang) : ContactInformationIte
     default: '',
     fieldType: 'text',
     maxLength: 255,
-    required: true,
+    required: false,
     xs: 8,
     replaceOptions: {
       label: 'stateName',
@@ -349,10 +349,36 @@ export const addressInformationFields = (b3lang: B3Lang) : ContactInformationIte
     default: '',
     fieldType: 'text',
     maxLength: 255,
-    required: true,
+    required: false,
     xs: 4,
   },
 ]
+
+type FieldsRequired = {
+  [k: string]: {
+    [v: string]: boolean
+  }
+}
+
+export const addressFieldsRequired: FieldsRequired = {
+  account_type_1: {
+    country: false,
+    address1: false,
+    address2: false,
+    city: false,
+    state: false,
+    zipCode: false,
+  },
+  account_type_2: {
+    country: true,
+    address1: true,
+    address2: false,
+    city: true,
+    state: true,
+    zipCode: true,
+  },
+}
+
 export interface Country {
   countryCode: string,
   countryName: string,

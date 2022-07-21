@@ -13,13 +13,6 @@ export const InformationFourLabels = styled('h4')(() => ({
   marginBottom: '20px',
 }))
 
-export const AddressBox = styled('div')(() => ({
-  '& .MuiGrid-item': {
-    alignItems: 'flex-end',
-    display: 'flex',
-  },
-}))
-
 export const TipContent = styled('div')(() => ({
   display: 'flex',
   flexDirection: 'row',
