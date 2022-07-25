@@ -172,7 +172,6 @@ export default function Registered(props: RegisteredProps) {
   }
 
   const handleFinish = () => {
-    const isHasFrontPage = window?.history?.length > 2
     if (dispatch) {
       dispatch({
         type: 'all',
@@ -196,11 +195,6 @@ export default function Registered(props: RegisteredProps) {
     }
 
     setIsOpen(false)
-    if (isHasFrontPage) {
-      navigate(-1)
-    } else {
-      navigate('/')
-    }
   }
 
   return (

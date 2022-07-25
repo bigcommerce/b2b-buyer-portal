@@ -9,16 +9,9 @@ export function RegisteredCloseButton(props: any) {
   const {
     setIsOpen,
   } = props
-  const navigate = useNavigate()
 
   const handleCloseForm = () => {
-    const isHasFrontPage = window?.history?.length > 2
     setIsOpen(false)
-    if (isHasFrontPage) {
-      navigate(-1)
-    } else {
-      navigate('/')
-    }
   }
 
   return (
