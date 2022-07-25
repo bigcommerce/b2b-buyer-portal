@@ -8,6 +8,9 @@ import {
 import {
   useB3Lang,
 } from '@b3/lang'
+import {
+  format,
+} from 'date-fns'
 
 import {
   LocalizationProvider,
@@ -33,10 +36,15 @@ export const B3Picker = ({
     required,
     label,
     validate,
-    muiTextFieldProps,
+    muiTextFieldProps = {},
+    setValue,
   } = rest
 
   const b3Lang = useB3Lang()
+
+  const {
+    inputFormat = 'yyyy-MM-dd',
+  } = muiTextFieldProps
 
   const fieldsProps = {
     type: fieldType,
@@ -53,6 +61,10 @@ export const B3Picker = ({
   }
 
   const muixPickerProps = muiTextFieldProps || {}
+
+  const handleDatePickerChange = (value: Date) => {
+    setValue(name, format(value, inputFormat))
+  }
 
   return (
     <>
@@ -71,7 +83,7 @@ export const B3Picker = ({
                 }) => (
                   <DesktopDatePicker
                     label={label}
-                    inputFormat="MM/dd/yyyy"
+                    inputFormat={inputFormat}
                     {...muixPickerProps}
                     renderInput={(params) => (
                       <TextField
@@ -80,6 +92,7 @@ export const B3Picker = ({
                       />
                     )}
                     {...rest}
+                    onChange={handleDatePickerChange}
                   />
                 )}
               />

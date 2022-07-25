@@ -164,17 +164,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       if (additionalInformation && (additionalInformation as Array<CustomFieldItems>).length) {
         additionalInformation.forEach((field: CustomFieldItems) => {
-          if (field.fieldType === 'date' && field.default && typeof field.default !== 'string') {
-            bcFields.form_fields.push({
-              name: field.label,
-              value: format(field.default, 'yyyy-MM-dd'),
-            })
-          } else {
-            bcFields.form_fields.push({
-              name: field.label,
-              value: field.default,
-            })
-          }
+          bcFields.form_fields.push({
+            name: field.label,
+            value: field.default,
+          })
         })
       }
     }
