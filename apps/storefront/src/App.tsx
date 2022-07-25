@@ -41,42 +41,48 @@ export default function App() {
   const [isOpen, setIsOpen] = useB3AppOpen(false)
 
   return (
-    <RegisteredProvider>
-      <HashRouter>
-        <div className="bundle-app">
-          <ThemeFrame
-            className={isOpen ? 'active-frame' : undefined}
-            fontUrl={FONT_URL}
-            customStyles={CUSTOM_STYLES}
-          >
-            {isOpen ? (
-              <Layout close={() => setIsOpen(false)}>
-                <HeaderContainer>
-                  <RegisteredCloseButton setIsOpen={setIsOpen} />
-                </HeaderContainer>
-                <Routes>
-                  <Route
-                    path="/"
-                    element={<Home />}
-                  />
-                  <Route
-                    path="/form"
-                    element={<Form />}
-                  />
-                  <Route
-                    path="/registered"
-                    element={<Registered setIsOpen={setIsOpen} />}
-                  />
-                  <Route
-                    path="/registeredbctob2b"
-                    element={<RegisteredBCToB2B />}
-                  />
-                </Routes>
-              </Layout>
-            ) : null}
-          </ThemeFrame>
-        </div>
-      </HashRouter>
-    </RegisteredProvider>
+    <HashRouter>
+      <div className="bundle-app">
+        <ThemeFrame
+          className={isOpen ? 'active-frame' : undefined}
+          fontUrl={FONT_URL}
+          customStyles={CUSTOM_STYLES}
+        >
+          {isOpen ? (
+            <Layout close={() => setIsOpen(false)}>
+              <HeaderContainer>
+                <RegisteredCloseButton setIsOpen={setIsOpen} />
+              </HeaderContainer>
+              <Routes>
+                <Route
+                  path="/"
+                  element={<Home />}
+                />
+                <Route
+                  path="/form"
+                  element={<Form />}
+                />
+                <Route
+                  path="/registered"
+                  element={(
+                    <RegisteredProvider>
+                      <Registered setIsOpen={setIsOpen} />
+                    </RegisteredProvider>
+                  )}
+                />
+                <Route
+                  path="/registeredbctob2b"
+                  element={(
+                    <RegisteredProvider>
+                      <RegisteredBCToB2B />
+                    </RegisteredProvider>
+                  )}
+                />
+              </Routes>
+            </Layout>
+          ) : null}
+        </ThemeFrame>
+      </div>
+    </HashRouter>
   )
 }
