@@ -1,9 +1,6 @@
 import globalB3 from '@b3/global-b3'
 
-// eslint-disable-next-line no-console
-console.log(globalB3, 'globalB3')
-
-const B2B_BASIC_URL = (window as any)?.b3?.setting?.B2B_URL || import.meta.env.VITE_B2B_BASIC_URL
+const B2B_BASIC_URL = globalB3?.setting?.b2b_url
 
 enum RequestType {
   B2BGraphql = 'B2BGraphql',

@@ -5,10 +5,12 @@ import {
 
 import {
   storeHash,
+  captchaSetkey,
 } from './basicConfig'
 
 export {
   convertArrayToGraphql,
   convertObjectToGraphql,
   storeHash,
+  captchaSetkey,
 }

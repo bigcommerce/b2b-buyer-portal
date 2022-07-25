@@ -19,13 +19,13 @@ import {
 
 import {
   getBCRegisterCustomFields,
-} from '../../shared/service/bc'
+} from '@/shared/service/bc'
 import {
   getB2BRegisterCustomFields,
   getB2BRegisterLogo,
   getB2BCountries,
   storeB2BBasicInfo,
-} from '../../shared/service/b2b'
+} from '@/shared/service/b2b'
 
 import RegisteredStep from './RegisteredStep'
 import RegisterContent from './RegisterContent'
@@ -36,7 +36,7 @@ import {
 
 import {
   B3Sping,
-} from '../../components/spin/B3Sping'
+} from '@/components/spin/B3Sping'
 
 import {
   conversionDataFormat,

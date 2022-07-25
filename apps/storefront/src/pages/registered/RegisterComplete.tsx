@@ -3,6 +3,7 @@ import {
   useEffect,
   MouseEvent,
   useState,
+  useMemo,
 } from 'react'
 import {
   Box,
@@ -19,18 +20,22 @@ import {
 } from 'date-fns'
 
 import {
+  Captcha,
+} from '@/components/form'
+
+import {
   RegisteredContext,
 } from './context/RegisteredContext'
 import RegisteredStepButton from './component/RegisteredStepButton'
 import {
   B3CustomForm,
-} from '../../components'
+} from '@/components'
 
 import {
   createBCCompanyUser,
   createB2BCompanyUser,
   uploadB2BFile,
-} from '../../shared/service/b2b'
+} from '@/shared/service/b2b'
 
 import {
   RegisterFields, CustomFieldItems, Base64,
@@ -38,12 +43,13 @@ import {
 } from './config'
 
 import {
-  storeHash,
-} from '../../utils'
-
-import {
   InformationFourLabels, TipContent,
 } from './styled'
+
+import {
+  storeHash,
+  captchaSetkey,
+} from '@/utils'
 
 interface RegisterCompleteProps {
   handleBack: () => void,
@@ -63,6 +69,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
   const [errorMessage, setErrorMessage] = useState<String>('')
+  const [captchaMessage, setCaptchaMessage] = useState<string>('')
 
   const {
     control,
@@ -305,6 +312,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   }
 
   const handleCompleted = (event: MouseEvent) => {
+    if (captchaMessage !== 'success') return
     handleSubmit(async (completeData: CustomFieldItems) => {
       if (completeData.password !== completeData.ConfirmPassword) {
         setErrorMessage(b3Lang('intl.user.register.RegisterComplete.passwordMatchPrompt'))
@@ -357,6 +365,14 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     })(event)
   }
 
+  const captcha = useMemo(() => (
+    <Captcha
+      size="normal"
+      siteKey={captchaSetkey}
+      onSuccess={() => setCaptchaMessage('success')}
+    />
+  ), [])
+
   return (
     <Box
       sx={{
@@ -387,6 +403,14 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           />
           )
         }
+      </Box>
+
+      <Box
+        sx={{
+          mt: 4,
+        }}
+      >
+        {captcha}
       </Box>
 
       <RegisteredStepButton

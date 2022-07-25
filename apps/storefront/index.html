@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BundleB2B</title>
+    <script>
+      window.B3 = {
+        setting: {
+            'store_hash': 'rtmh8fqr05',
+            'b2b_url': 'https://dev-v2.bundleb2b.net/api',
+            'captcha_setkey': '6LeGJw8hAAAAAPL0Tt91gEU8gv3gFwGeadqd-rkG',
+            'is_local_debugging': true,
+        },
+        'dom.checkoutRegisterParentElement': "#b2bParent",
+      }
+    </script>
   </head>
   <body>
     <div>
@@ -36,6 +47,12 @@
         Register
       </a>
     </div>
+    <div id="b2bParent">
+      <a class="navUser-action" href="/login.php?action=create_account" aria-label="Register" onclick="inlineEvent()">
+        checkoutRegister
+      </a>
+    </div>
+    <div id="b2bRemoveOrAdd">onclick(remove/add)</div>
     <style>
       body {
         background: #dedede;
@@ -47,6 +64,20 @@
         color: #f00;
       }
     </style>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"></script>
+    <script>
+      $("#b2bRemoveOrAdd").click(() => {
+        // $('#b2b').text('123456')
+        if ($('#b2bParent .navUser-action').length > 0) {
+          $('#b2bParent .navUser-action').remove()
+        } else {
+          $("#b2bParent").append('<a class="navUser-action" href="/login.php?action=create_account" aria-label="Register" onclick="inlineEvent()">testRegister</a>')
+        }
+      })
+    </script>
     <script src="https://unpkg.com/vue@next"></script>
     <script>
       const inlineEvent = () => {

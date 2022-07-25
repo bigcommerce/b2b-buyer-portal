@@ -20,7 +20,7 @@ import {
 
 import {
   B3CustomForm,
-} from '../../components'
+} from '@/components'
 import RegisteredStepButton from './component/RegisteredStepButton'
 import {
   RegisteredContext,
@@ -41,7 +41,7 @@ import {
 
 import {
   validateBCCompanyExtraFields,
-} from '../../shared/service/b2b'
+} from '@/shared/service/b2b'
 
 interface RegisteredDetailProps {
   handleBack: () => void,

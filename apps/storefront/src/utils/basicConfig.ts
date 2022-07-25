@@ -1,18 +1,15 @@
-const storeHash = (window as any)?.b3?.setting?.storeHash || import.meta.env.VITE_B2B_STOREHASH
+import globalB3 from '@b3/global-b3'
 
-const getBcBaseUrl = () => {
-  let baseUrl = ''
-  if (import.meta.env.VITE_NODE_ENV === 'development') {
-    baseUrl = '/bigcommerce'
-  } else {
-    baseUrl = ''
-  }
+const storeHash = globalB3?.setting?.store_hash
 
-  return baseUrl
-}
-const bcBaseUrl = getBcBaseUrl()
+const captchaSetkey = globalB3?.setting?.captcha_setkey
+
+const isLocalDebugging = globalB3?.setting?.is_local_debugging
+
+const bcBaseUrl = isLocalDebugging ? '/bigcommerce' : ''
 
 export {
   storeHash,
   bcBaseUrl,
+  captchaSetkey,
 }

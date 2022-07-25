@@ -24,7 +24,7 @@ import {
 
 import {
   B3CustomForm,
-} from '../../components'
+} from '@/components'
 import RegisteredStepButton from './component/RegisteredStepButton'
 import RegisteredSigleCheckBox from './component/RegisteredSigleCheckBox'
 
@@ -38,7 +38,7 @@ import {
 
 import {
   getB2BCompanyUserInfo,
-} from '../../shared/service/b2b'
+} from '@/shared/service/b2b'
 
 import {
   InformationFourLabels, TipContent,
@@ -107,8 +107,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   }
 
   const handleAccountToDetail = async (event: MouseEvent) => {
-    // await captchaRef.current.executeAsync()
-
     handleSubmit((data: CustomFieldItems) => {
       dispatch({
         type: 'loading',
