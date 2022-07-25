@@ -37,7 +37,6 @@ export class Captcha extends Component<CaptchaProps> {
   }
 
   onMessage = (event: MessageEvent) => {
-    console.log(event, 'event')
     if (event?.data?.startsWith(`${PREFIX}`)) {
       const message = event.data.slice(PREFIX.length)
       const data = JSON.parse(message)
