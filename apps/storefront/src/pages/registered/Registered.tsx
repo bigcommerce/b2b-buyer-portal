@@ -5,9 +5,6 @@ import {
   Dispatch,
   SetStateAction,
 } from 'react'
-import {
-  useNavigate,
-} from 'react-router-dom'
 
 import {
   ImageListItem,
@@ -62,7 +59,6 @@ export default function Registered(props: RegisteredProps) {
     setIsOpen,
   } = props
   const [activeStep, setActiveStep] = useState(0)
-  const navigate = useNavigate()
 
   const [logo, setLogo] = useState('')
 
