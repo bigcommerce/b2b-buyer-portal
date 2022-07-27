@@ -162,17 +162,23 @@ export function Form() {
             label="Use this address for payment details"
           />
         </Grid>
+        <Grid
+          item
+          xs={12}
+        >
+          <Captcha
+            size="normal"
+            siteKey={TEST_SITE_KEY}
+            onSuccess={() => setState('success')}
+            onError={() => setState('error')}
+          />
+        </Grid>
       </Grid>
       <Box sx={{
         display: 'flex',
         justifyContent: 'flex-end',
       }}
       >
-        <Captcha
-          size="normal"
-          siteKey={TEST_SITE_KEY}
-          onSuccess={() => setState('success')}
-        />
         <Button
           disabled={state !== 'success'}
           type="submit"

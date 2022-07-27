@@ -18,4 +18,4 @@ export {
 } from './B3FileUpload'
 export {
   Captcha,
-} from './Captcha'
+} from '../captcha/Captcha'

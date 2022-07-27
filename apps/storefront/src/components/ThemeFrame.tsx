@@ -130,24 +130,24 @@ export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
       return null
     }
 
-    const doc = this.getIframeDocument()
-    if (doc == null) {
+    const iframeDocument = this.getIframeDocument()
+    if (iframeDocument == null) {
       return null
     }
 
-    if (doc.body && this.props.bodyRef) {
+    if (iframeDocument.body && this.props.bodyRef) {
       // @ts-ignore - we are intentionally setting ref passed from parent
-      this.props.bodyRef.current = doc.body
+      this.props.bodyRef.current = iframeDocument.body
     }
 
     return createPortal(
-      <ThemeFrameContext.Provider value={doc}>
+      <ThemeFrameContext.Provider value={iframeDocument}>
         <CacheProvider value={this.state.emotionCache}>
           <CssBaseline />
           {this.props.children}
         </CacheProvider>
       </ThemeFrameContext.Provider>,
-      doc.body,
+      iframeDocument.body,
     )
   }
 
