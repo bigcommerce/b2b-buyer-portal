@@ -79,7 +79,7 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
             )
           }
           {
-            ['file'].includes(fieldType) && (
+            ['files'].includes(fieldType) && (
               <B3FileUpload
                 {...field}
                 errors={errors}

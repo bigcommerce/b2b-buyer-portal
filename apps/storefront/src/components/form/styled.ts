@@ -10,6 +10,7 @@ export const DropzoneBox = styled('div')(() => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    cursor: 'default',
     '& .MuiTypography-root': {
       fontSize: '1rem',
       color: '#767676',

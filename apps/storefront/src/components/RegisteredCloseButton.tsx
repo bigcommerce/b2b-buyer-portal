@@ -12,6 +12,11 @@ export function RegisteredCloseButton(props: any) {
   }
 
   return (
-    <Close onClick={handleCloseForm} />
+    <Close
+      sx={{
+        cursor: 'pointer',
+      }}
+      onClick={handleCloseForm}
+    />
   )
 }

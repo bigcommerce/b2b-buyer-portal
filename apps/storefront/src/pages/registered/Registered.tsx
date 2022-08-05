@@ -15,13 +15,10 @@ import {
 } from '@b3/lang'
 
 import {
-  getBCRegisterCustomFields,
-} from '@/shared/service/bc'
-import {
-  getB2BRegisterCustomFields,
   getB2BRegisterLogo,
   getB2BCountries,
   storeB2BBasicInfo,
+  getB2BAccountFormFields,
 } from '@/shared/service/b2b'
 
 import RegisteredStep from './RegisteredStep'
@@ -36,19 +33,18 @@ import {
 } from '@/components/spin/B3Sping'
 
 import {
-  conversionDataFormat,
-  bcContactInformationFields,
-  RegisterFields,
-  contactInformationFields,
   getRegisterLogo,
-  companyInformationFields,
   companyAttachmentsFields,
-  addressInformationFields,
+  getAccountFormFields,
+  RegisterFieldsItems,
 } from './config'
 
 import {
   RegisteredContainer, RegisteredImage,
 } from './styled'
+
+// 1 bc 2 b2b
+const formType: Array<number> = [1, 2]
 
 interface RegisteredProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>,
@@ -89,13 +85,13 @@ export default function Registered(props: RegisteredProps) {
           })
         }
 
-        const {
-          customerAccount,
-          billingAddress,
-        } = await getBCRegisterCustomFields()
-        const {
-          companyExtraFields,
-        } = await getB2BRegisterCustomFields()
+        const accountFormAllFields = formType.map((item: number) => getB2BAccountFormFields(item))
+
+        const accountFormFields = await Promise.all(accountFormAllFields)
+
+        const bcAccountFormFields = getAccountFormFields(accountFormFields[0]?.accountFormFields || [])
+        const b2bAccountFormFields = getAccountFormFields(accountFormFields[1]?.accountFormFields || [])
+
         const {
           quoteConfig,
         } = await getB2BRegisterLogo()
@@ -109,24 +105,20 @@ export default function Registered(props: RegisteredProps) {
         } = await storeB2BBasicInfo()
         const registerLogo = getRegisterLogo(quoteConfig)
 
-        const newCustomerAccount = customerAccount.length ? customerAccount.filter((field: RegisterFields) => field.custom) : []
-        const newAdditionalInformation: Array<RegisterFields> = conversionDataFormat(newCustomerAccount)
-
-        const filterCompanyExtraFields = companyExtraFields.length ? companyExtraFields.filter((field: RegisterFields) => field?.visibleToEnduser) : []
-        const newCompanyExtraFields: Array<RegisterFields> = conversionDataFormat(filterCompanyExtraFields)
-
-        const customAddress = billingAddress.length ? billingAddress.filter((field: RegisterFields) => field.custom) : []
-        const addressExtraFields: Array<RegisterFields> = conversionDataFormat(customAddress)
-
-        const newAddressInformationFields = addressInformationFields(b3Lang).map((addressFields) => {
+        const newAddressInformationFields = b2bAccountFormFields.address.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
           if (addressFields.name === 'country') {
             addressFields.options = countries
           }
           return addressFields
         })
 
-        const filterPasswordInformation = customerAccount.length ? customerAccount.filter((field: RegisterFields) => !field.custom && field.fieldType === 'password') : []
-        const newPasswordInformation: Array<RegisterFields> = conversionDataFormat(filterPasswordInformation)
+        const newBCAddressInformationFields = bcAccountFormFields.address.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
+          if (addressFields.name === 'country') {
+            addressFields.options = countries
+          }
+          return addressFields
+        })
+
         if (dispatch) {
           dispatch({
             type: 'all',
@@ -134,16 +126,22 @@ export default function Registered(props: RegisteredProps) {
               accountType: '1',
               isLoading: false,
               storeName,
-              contactInformation: [...contactInformationFields(b3Lang)],
-              additionalInformation: [...newAdditionalInformation],
-              bcContactInformationFields: [...bcContactInformationFields(b3Lang)],
-              companyExtraFields: [...newCompanyExtraFields],
-              companyInformation: [...companyInformationFields(b3Lang)],
+              // account
+              contactInformation: [...b2bAccountFormFields.contactInformation],
+              bcContactInformation: [...bcAccountFormFields.contactInformation],
+              additionalInformation: [...b2bAccountFormFields.additionalInformation],
+              bcAdditionalInformation: [...bcAccountFormFields.additionalInformation],
+              // detail
+              companyExtraFields: [],
+              companyInformation: [...b2bAccountFormFields?.businessDetails || []],
               companyAttachment: [...companyAttachmentsFields(b3Lang)],
               addressBasicFields: [...newAddressInformationFields],
-              addressExtraFields: [...addressExtraFields],
+              bcAddressBasicFields: [...newBCAddressInformationFields],
               countryList: [...countries],
-              passwordInformation: [...newPasswordInformation],
+              // password
+              passwordInformation: [...b2bAccountFormFields.password],
+              bcPasswordInformation: [...bcAccountFormFields.password],
+
             },
           })
         }
@@ -178,7 +176,6 @@ export default function Registered(props: RegisteredProps) {
           submitSuccess: false,
           contactInformation: [],
           additionalInformation: [],
-          bcContactInformationFields: [],
           companyExtraFields: [],
           companyInformation: [],
           companyAttachment: [],

@@ -11,6 +11,27 @@ interface CustomFieldItems {
   [key: string]: any
 }
 
+const getAccountFormFields = (type: number) => `{
+  accountFormFields(storeHash: "${storeHash}", formType: ${type}){
+    id
+    formType
+    fieldFrom
+    fieldId
+    fieldIndex
+    custom
+    groupId
+    groupName
+    isRequired
+    visible
+    labelName
+    fieldName
+    fieldType
+    valueConfigs
+    createdAt
+    updatedAt
+    }
+}`
+
 const getCompanyExtraFields = () => `{
   companyExtraFields(storeHash: "${storeHash}") {
     fieldName,
@@ -67,17 +88,17 @@ const storeBasicInfo = () => `{
 
 const createCompanyUser = (data: any) => `mutation{
   companyCreate(companyData: {
-    customerId: "${data.customerId || 2945}",
+    customerId: "${data.customerId}",
     storeHash: "${data.storeHash}",
     companyName: "${data.companyName}",
     companyEmail: "${data.companyEmail}",
-    companyPhoneNumber: "${data.companyPhoneNumber}",
+    companyPhoneNumber: "${data.companyCompanyPhoneNumber}",
     country: "${data.country}",
     addressLine1: "${data.addressLine1}",
     addressLine2: "${data.addressLine2}",
     city: "${data.city}",
     state: "${data.state}",
-    zipCode: "${data.zipCode}",
+    zipCode: "${data.zip_code}",
     extraFields: ${convertArrayToGraphql(data.extraFields)}
     fileList: ${convertArrayToGraphql(data.fileList)}
   }) {
@@ -87,6 +108,10 @@ const createCompanyUser = (data: any) => `mutation{
     }
   }
 }`
+
+export const getB2BAccountFormFields = (type: number): CustomFieldItems => B3Request.graphqlB2B({
+  query: getAccountFormFields(type),
+})
 
 export const getB2BCompanyUserInfo = (email: string): CustomFieldItems => B3Request.graphqlB2B({
   query: getCompanyUserInfo(email),

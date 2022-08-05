@@ -25,10 +25,10 @@ import {
 } from './styled'
 
 import {
-  getB2BRegisterCustomFields,
   getB2BRegisterLogo,
   getB2BCountries,
   storeB2BBasicInfo,
+  getB2BAccountFormFields,
 } from '../../shared/service/b2b'
 
 import {
@@ -44,17 +44,13 @@ import {
 } from '../../components/spin/B3Sping'
 
 import {
-  conversionDataFormat,
   RegisterFields,
-  contactInformationFields,
   getRegisterLogo,
-  companyInformationFields,
-  companyAttachmentsFields,
-  addressInformationFields,
-  addressFieldsRequired,
   Country,
   State,
   CustomFieldItems,
+  getAccountFormFields,
+  RegisterFieldsItems,
 } from './config'
 
 export default function RegisteredBCToB2B() {
@@ -98,9 +94,9 @@ export default function RegisteredBCToB2B() {
           })
         }
 
-        const {
-          companyExtraFields,
-        } = await getB2BRegisterCustomFields()
+        const accountFormAllFields = await getB2BAccountFormFields(3)
+
+        const bcToB2BAccountFormFields = getAccountFormFields(accountFormAllFields?.accountFormFields || [])
         const {
           quoteConfig,
         } = await getB2BRegisterLogo()
@@ -114,14 +110,17 @@ export default function RegisteredBCToB2B() {
         } = await storeB2BBasicInfo()
         const registerLogo = getRegisterLogo(quoteConfig)
 
-        const filterCompanyExtraFields = companyExtraFields.length ? companyExtraFields.filter((field: RegisterFields) => field?.visibleToEnduser) : []
-        const newCompanyExtraFields: Array<RegisterFields> = conversionDataFormat(filterCompanyExtraFields)
-
-        const newAddressInformationFields = addressInformationFields(b3Lang).map((addressFields) => {
+        const newAddressInformationFields = bcToB2BAccountFormFields.address.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
           if (addressFields.name === 'country') {
             addressFields.options = countries
           }
           return addressFields
+        })
+
+        const newContactInformation = bcToB2BAccountFormFields.contactInformation.map((contactInformationField: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
+          contactInformationField.disabled = true
+
+          return contactInformationField
         })
 
         if (dispatch) {
@@ -130,10 +129,9 @@ export default function RegisteredBCToB2B() {
             payload: {
               isLoading: false,
               storeName,
-              contactInformation: [...contactInformationFields(b3Lang)],
-              companyExtraFields: [...newCompanyExtraFields],
-              companyInformation: [...companyInformationFields(b3Lang)],
-              companyAttachment: [...companyAttachmentsFields(b3Lang)],
+              contactInformation: [...newContactInformation],
+              companyExtraFields: [],
+              companyInformation: [...bcToB2BAccountFormFields.businessDetails],
               addressBasicFields: [...newAddressInformationFields],
               countryList: [...countries],
             },
@@ -149,21 +147,11 @@ export default function RegisteredBCToB2B() {
     getBCAdditionalFields()
   }, [])
 
-  const setAddressFieldsRequire = (accountType: string, addressBasicFields: Array<RegisterFields>) => {
-    const fieldRequired = addressFieldsRequired[`account_type_${accountType || '1'}`] || {}
-
-    addressBasicFields.forEach((field: RegisterFields) => {
-      field.required = fieldRequired[field.name] || false
-    })
-
-    return addressBasicFields
-  }
-
   const {
     contactInformation,
     isLoading,
     companyInformation = [],
-    companyAttachment = [],
+    // companyAttachment = [],
     addressBasicFields = [],
     countryList = [],
     companyExtraFields = [],
@@ -193,14 +181,6 @@ export default function RegisteredBCToB2B() {
       },
     })
   }
-
-  const [addressFields, setAddressFields] = useState<Array<RegisterFields>>(addressBasicFields)
-
-  useEffect(() => {
-    if (addressBasicFields && addressBasicFields.length) {
-      setAddressFields([...setAddressFieldsRequire('1', addressBasicFields)])
-    }
-  }, [addressBasicFields])
 
   useEffect(() => {
     const subscription = watch((value, {
@@ -249,10 +229,10 @@ export default function RegisteredBCToB2B() {
           )
         }
 
-        <InformationLabels>Business Account Application</InformationLabels>
+        <InformationLabels>{b3Lang('intl.user.register.title.bcToB2B.businessAccountApplication')}</InformationLabels>
 
         <Box>
-          <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.contactInformation')}</InformationFourLabels>
+          <InformationFourLabels>{contactInformation?.length ? contactInformation[0]?.groupName : ''}</InformationFourLabels>
           <B3CustomForm
             formFields={contactInformation}
             errors={errors}
@@ -264,7 +244,7 @@ export default function RegisteredBCToB2B() {
         </Box>
 
         <Box>
-          <InformationFourLabels>{b3Lang('intl.user.register.title.businessDetails')}</InformationFourLabels>
+          <InformationFourLabels>{companyInformation?.length ? companyInformation[0]?.groupName : ''}</InformationFourLabels>
           <B3CustomForm
             formFields={[...companyInformation, ...companyExtraFields]}
             errors={errors}
@@ -273,22 +253,12 @@ export default function RegisteredBCToB2B() {
             setValue={setValue}
           />
         </Box>
-        <Box>
-          <InformationFourLabels>{b3Lang('intl.user.register.title.attachments')}</InformationFourLabels>
-          <B3CustomForm
-            formFields={companyAttachment}
-            errors={errors}
-            control={control}
-            getValues={getValues}
-            setValue={setValue}
-          />
-        </Box>
 
         <Box>
-          <InformationFourLabels>{b3Lang('intl.user.register.title.address')}</InformationFourLabels>
+          <InformationFourLabels>{addressBasicFields?.length ? addressBasicFields[0]?.groupName : ''}</InformationFourLabels>
 
           <B3CustomForm
-            formFields={addressFields}
+            formFields={addressBasicFields}
             errors={errors}
             control={control}
             getValues={getValues}

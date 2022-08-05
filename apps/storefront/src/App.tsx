@@ -1,4 +1,7 @@
 import {
+  useEffect,
+} from 'react'
+import {
   HashRouter,
   Route,
   Routes,
@@ -37,8 +40,23 @@ const HeaderContainer = styled('div')(() => ({
   marginBottom: '1rem',
 }))
 
+const {
+  height: defaultHeight,
+  overflow: defaultOverflow,
+} = document.body.style
+
 export default function App() {
   const [isOpen, setIsOpen] = useB3AppOpen(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.height = '100%'
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.height = defaultHeight
+      document.body.style.overflow = defaultOverflow
+    }
+  }, [isOpen])
 
   return (
     <HashRouter>

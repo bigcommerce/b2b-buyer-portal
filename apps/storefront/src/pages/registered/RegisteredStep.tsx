@@ -1,5 +1,6 @@
 import {
   useContext,
+  ReactNode,
 } from 'react'
 
 import {
@@ -21,7 +22,13 @@ import {
   steps,
 } from './config'
 
-export default function RegisteredStep(props: any) {
+interface RegisteredStepProps {
+  children: ReactNode,
+  isStepOptional: (index: number) => Boolean,
+  activeStep: number
+}
+
+export default function RegisteredStep(props: RegisteredStepProps) {
   const {
     children,
     isStepOptional,

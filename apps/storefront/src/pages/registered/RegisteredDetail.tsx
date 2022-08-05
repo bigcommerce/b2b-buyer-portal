@@ -15,10 +15,6 @@ import {
 } from 'react-hook-form'
 
 import {
-  useB3Lang,
-} from '@b3/lang'
-
-import {
   B3CustomForm,
 } from '@/components'
 import RegisteredStepButton from './component/RegisteredStepButton'
@@ -32,7 +28,6 @@ import {
   Country,
   State,
   Base64,
-  addressFieldsRequired,
 } from './config'
 
 import {
@@ -63,16 +58,13 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
 
   const [errorMessage, setErrorMessage] = useState('')
 
-  const b3Lang = useB3Lang()
-
   const {
     accountType = '1',
     companyInformation = [],
     companyAttachment = [],
     addressBasicFields = [],
-    addressExtraFields = [],
+    bcAddressBasicFields = [],
     countryList = [],
-    companyExtraFields = [],
   } = state
 
   const {
@@ -87,33 +79,16 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
   } = useForm({
     mode: 'all',
   })
+  const businessDetailsName = accountType === '1' ? companyInformation[0]?.groupName : ''
 
-  const [addressFields, setAddressFields] = useState<Array<RegisterFields>>(addressBasicFields)
+  const addressBasicName = accountType === '1' ? 'addressBasicFields' : 'bcAddressBasicFields'
+  const addressBasicList = accountType === '1' ? addressBasicFields : bcAddressBasicFields
 
-  const setAddressFieldsRequire = (accountType: string, addressBasicFields: Array<RegisterFields>) => {
-    const fieldRequired = addressFieldsRequired[`account_type_${accountType || '1'}`] || {}
-
-    addressBasicFields.forEach((field: RegisterFields) => {
-      field.required = fieldRequired[field.name] || false
-    })
-
-    return addressBasicFields
-  }
-
-  useEffect(() => {
-    if (accountType === '1') {
-      setAddressFields([...setAddressFieldsRequire(accountType, addressBasicFields)])
-    } else {
-      setAddressFields([...setAddressFieldsRequire(
-        accountType,
-        addressBasicFields,
-      ), ...addressExtraFields])
-    }
-  }, [accountType])
+  const addressName = addressBasicList[0]?.groupName || ''
 
   const handleCountryChange = (countryCode: string, stateCode: string = '') => {
     const stateList = countryList.find((country: Country) => country.countryCode === countryCode)?.states || []
-    const stateFields = addressBasicFields.find((formFields: RegisterFields) => formFields.name === 'state')
+    const stateFields = addressBasicList.find((formFields: RegisterFields) => formFields.name === 'state')
 
     if (stateFields) {
       if (stateList.length > 0) {
@@ -125,13 +100,13 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       }
     }
 
-    setValue('state', stateCode && countryCode && (stateList.find((state: State) => state.stateCode === stateCode) || stateList.length === 0) ? stateCode : '')
+    setValue('state', stateCode && countryCode && (stateList.find((state: State) => state.stateName === stateCode) || stateList.length === 0) ? stateCode : '')
 
     dispatch({
       type: 'stateList',
       payload: {
         stateList,
-        addressBasicFields: [...addressBasicFields],
+        [addressBasicName]: [...addressBasicList],
       },
     })
   }
@@ -151,6 +126,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         country,
         state,
       } = value
+
       if (name === 'country' && type === 'change') {
         handleCountryChange(country, state)
       }
@@ -197,7 +173,8 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
 
       try {
         if (accountType === '1') {
-          const extraFields = companyExtraFields.map((field: RegisterFields) => ({
+          const extraCompanyInformation = companyInformation.filter((item: RegisterFields) => !!item.custom)
+          const extraFields = extraCompanyInformation.map((field: RegisterFields) => ({
             fieldName: Base64.decode(field.name),
             fieldValue: data[field.name] || field.default,
           }))
@@ -216,19 +193,15 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         }
 
         const newCompanyInformation = setRegisterFieldsValue(companyInformation, data)
-        const newCompanyExtraFields = setRegisterFieldsValue(companyExtraFields, data)
         const newCompanyAttachment = setRegisterFieldsValue(companyAttachment, data)
-        const newAddressBasicFields = setRegisterFieldsValue(addressBasicFields, data)
-        const newAddressExtraFields = setRegisterFieldsValue(addressExtraFields, data)
+        const newAddressBasicFields = setRegisterFieldsValue(addressBasicList, data)
 
         dispatch({
           type: 'all',
           payload: {
             companyInformation: [...newCompanyInformation],
-            companyExtraFields: [...newCompanyExtraFields],
             companyAttachment: [...newCompanyAttachment],
-            addressBasicFields: [...newAddressBasicFields],
-            addressExtraFields: [...newAddressExtraFields],
+            [addressBasicName]: [...newAddressBasicFields],
           },
         })
         showLading(false)
@@ -262,19 +235,9 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         accountType === '1' ? (
           <>
             <Box>
-              <InformationFourLabels>{b3Lang('intl.user.register.title.businessDetails')}</InformationFourLabels>
+              <InformationFourLabels>{businessDetailsName}</InformationFourLabels>
               <B3CustomForm
-                formFields={[...companyInformation, ...companyExtraFields]}
-                errors={errors}
-                control={control}
-                getValues={getValues}
-                setValue={setValue}
-              />
-            </Box>
-            <Box>
-              <InformationFourLabels>{b3Lang('intl.user.register.title.attachments')}</InformationFourLabels>
-              <B3CustomForm
-                formFields={companyAttachment}
+                formFields={[...companyInformation]}
                 errors={errors}
                 control={control}
                 getValues={getValues}
@@ -286,10 +249,10 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       }
 
       <Box>
-        <InformationFourLabels>{b3Lang('intl.user.register.title.address')}</InformationFourLabels>
+        <InformationFourLabels>{ addressName }</InformationFourLabels>
 
         <B3CustomForm
-          formFields={addressFields}
+          formFields={addressBasicList}
           errors={errors}
           control={control}
           getValues={getValues}

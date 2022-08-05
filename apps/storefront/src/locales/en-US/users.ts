@@ -3,6 +3,7 @@ export default {
   'intl.user.register.title.accountCreated': 'Your personal account has been created.',
   'intl.user.register.title.accountRegister': 'Account Registration',
   'intl.user.register.title.attachments': 'Attachments',
+  'intl.user.register.title.bcToB2B.businessAccountApplication': 'Business Account Application',
   'intl.user.register.title.address': 'Address',
   'intl.user.register.title.businessDetails': 'Business Details',
 

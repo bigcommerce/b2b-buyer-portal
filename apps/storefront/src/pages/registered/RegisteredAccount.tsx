@@ -1,7 +1,6 @@
 import {
   useContext,
   ChangeEvent,
-  useCallback,
   useState,
   MouseEvent,
 } from 'react'
@@ -26,7 +25,6 @@ import {
   B3CustomForm,
 } from '@/components'
 import RegisteredStepButton from './component/RegisteredStepButton'
-import RegisteredSigleCheckBox from './component/RegisteredSigleCheckBox'
 
 import {
   RegisteredContext,
@@ -69,8 +67,8 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
 
   const {
     contactInformation, accountType, additionalInformation,
-    bcContactInformationFields,
-    emailMarketingNewsletter,
+    bcContactInformation,
+    bcAdditionalInformation,
   } = state
 
   const {
@@ -84,6 +82,16 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   } = useForm({
     mode: 'onSubmit',
   })
+
+  const additionName = accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation'
+  const additionalInfo: any = accountType === '1' ? additionalInformation : bcAdditionalInformation
+
+  const contactInfo: any = accountType === '1' ? contactInformation : bcContactInformation
+  const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
+
+  const contactInformationLabel = contactInfo.length ? contactInfo[0]?.groupName : ''
+
+  const additionalInformationLabel = additionalInfo.length ? additionalInfo[0]?.groupName : ''
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     dispatch({
@@ -114,22 +122,24 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           isLoading: true,
         },
       })
-      const email = accountType === '2' ? data.emailAddress : data.workEmailAddress
+
+      const emailItem: any = contactInformation?.filter((item: any) => item.fieldId === 'field_email')
+      const email = data[emailItem[0]?.name]
+
       getB2BCompanyUserInfo(email).then(({
         companyUserInfo: {
           userType,
         },
       }: any) => {
         if (userType === 1) {
-          const contactInfo: any = accountType === '1' ? contactInformation : bcContactInformationFields
-          const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
           const newContactInfo = contactInfo.map((item: RegisterFields) => {
             item.default = data[item.name] || item.default
             return item
           })
+
           let newAdditionalInformation: Array<RegisterFields> = []
-          if (additionalInformation) {
-            newAdditionalInformation = (additionalInformation as Array<RegisterFields>).map((item: RegisterFields) => {
+          if (additionalInfo) {
+            newAdditionalInformation = (additionalInfo as Array<RegisterFields>).map((item: RegisterFields) => {
               item.default = data[item.name] || item.default
               return item
             })
@@ -138,7 +148,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           dispatch({
             type: 'all',
             payload: {
-              additionalInformation: [...newAdditionalInformation],
+              [additionName]: [...newAdditionalInformation],
               [contactName]: [...newContactInfo],
             },
           })
@@ -152,9 +162,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
             isLoading: false,
           },
         })
-      }).catch((err: any) => {
-        // eslint-disable-next-line no-console
-        console.log(err)
+      }).catch(() => {
         dispatch({
           type: 'loading',
           payload: {
@@ -168,17 +176,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const gotoLigin = () => {
     (window as Window).location.href = '/login.php?action=create_account'
   }
-
-  const handleEmailSletterChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    dispatch({
-      type: 'emailSletter',
-      payload: {
-        emailMarketingNewsletter: event.target.checked,
-      },
-    })
-  }, [])
-
-  const additionalList: any = accountType === '1' ? contactInformation : bcContactInformationFields
 
   return (
     <Box
@@ -239,9 +236,9 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       </FormControl>
 
       <Box>
-        <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.contactInformation')}</InformationFourLabels>
+        <InformationFourLabels>{contactInformationLabel}</InformationFourLabels>
         <B3CustomForm
-          formFields={additionalList}
+          formFields={contactInfo}
           errors={errors}
           control={control}
           getValues={getValues}
@@ -250,24 +247,13 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
 
       </Box>
 
-      <Box
-        sx={{
-          mt: 4,
-          ml: 2,
-        }}
-      >
-        <RegisteredSigleCheckBox
-          isChecked={emailMarketingNewsletter}
-          onChange={handleEmailSletterChange}
-        />
-      </Box>
       <Box />
       {
-        (additionalInformation && additionalInformation.length) ? (
+        (additionalInfo && additionalInfo.length) ? (
           <Box>
-            <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.additionalInformation')}</InformationFourLabels>
+            <InformationFourLabels>{additionalInformationLabel}</InformationFourLabels>
             <B3CustomForm
-              formFields={additionalInformation}
+              formFields={additionalInfo}
               errors={errors}
               control={control}
               getValues={getValues}

@@ -60,12 +60,12 @@ interface FileUploadProps extends B3UI.B3UIProps {
 
 const getMaxFileSizeLabel = (maxSize: number) => {
   if (maxSize / 1048576 > 1) {
-    return `${(maxSize / 1048576).toFixed(1)}M`
+    return `${(maxSize / 1048576).toFixed(1)}MB`
   }
   if (maxSize / 1024 > 1) {
-    return `${(maxSize / 1024).toFixed(1)}kb`
+    return `${(maxSize / 1024).toFixed(1)}KB`
   }
-  return `${maxSize}b`
+  return `${maxSize}B`
 }
 
 export const B3FileUpload = (props: FileUploadProps) => {
@@ -128,7 +128,7 @@ export const B3FileUpload = (props: FileUploadProps) => {
   return (
     <>
       {
-       ['file'].includes(fieldType) && (
+       ['files'].includes(fieldType) && (
        <DropzoneBox>
          <DropzoneArea
            Icon={CloudUploadOutlinedIcon}

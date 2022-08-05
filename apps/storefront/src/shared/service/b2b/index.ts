@@ -5,6 +5,7 @@ import {
   getB2BCountries,
   createB2BCompanyUser,
   storeB2BBasicInfo,
+  getB2BAccountFormFields,
 } from './graphql/register'
 
 import {
@@ -26,4 +27,5 @@ export {
   createB2BCompanyUser,
   storeB2BBasicInfo,
   validateBCCompanyExtraFields,
+  getB2BAccountFormFields,
 }

@@ -35,8 +35,7 @@ import {
 } from '@/shared/service/b2b'
 
 import {
-  RegisterFields, CustomFieldItems, Base64,
-  validatorRules,
+  RegisterFields, CustomFieldItems, deCodeField, toHump,
 } from './config'
 
 import {
@@ -54,7 +53,7 @@ interface RegisterCompleteProps {
   activeStep: number,
 }
 
-type RegisterCompleteList = Array<any> | undefined
+type RegisterCompleteList = Array<RegisterFields> | undefined
 
 export default function RegisterComplete(props: RegisterCompleteProps) {
   const b3Lang = useB3Lang()
@@ -71,6 +70,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const {
     control,
     handleSubmit,
+    setError,
     formState: {
       errors,
     },
@@ -84,26 +84,33 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
   const {
     contactInformation,
-    bcContactInformationFields,
-    passwordInformation,
+    bcContactInformation,
+    passwordInformation = [],
+    bcPasswordInformation = [],
     accountType,
     additionalInformation,
-    addressBasicFields,
-    addressExtraFields,
-    companyInformation,
+    bcAdditionalInformation,
+    addressBasicFields = [],
+    bcAddressBasicFields = [],
+    companyInformation = [],
     emailMarketingNewsletter,
-    companyAttachment,
-    companyExtraFields,
   } = state
 
-  const emailName = accountType === '1' ? 'workEmailAddress' : 'emailAddress'
-  const list:RegisterCompleteList = accountType === '1' ? contactInformation : bcContactInformationFields
+  const list:RegisterCompleteList = accountType === '1' ? contactInformation : bcContactInformation
+  const passwordInfo:RegisterCompleteList = accountType === '1' ? passwordInformation : bcPasswordInformation
+
+  const passwordName = passwordInfo[0]?.groupName || ''
+
+  const additionalInfo:RegisterCompleteList = accountType === '1' ? additionalInformation : bcAdditionalInformation
+
+  const addressBasicList = accountType === '1' ? addressBasicFields : bcAddressBasicFields
+
   useEffect(() => {
     if (!accountType) return
-    const newPasswordInformation: Array<CustomFieldItems> = []
+    let newPasswordInformation: Array<CustomFieldItems> = []
     let emailItem: CustomFieldItems = {}
     if (list && list.length) {
-      const emailFields = list.find((item: RegisterFields) => item.name === emailName) || {}
+      const emailFields = list.find((item: RegisterFields) => item.name === 'email') || {}
       emailItem = {
         ...emailFields,
       }
@@ -113,20 +120,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       newPasswordInformation.push(emailItem)
     }
 
-    if (passwordInformation?.length) newPasswordInformation.push(passwordInformation[0])
-    newPasswordInformation.push({
-      default: '',
-      required: true,
-      label: b3Lang('intl.user.register.RegisterComplete.confirmPassword'),
-      name: 'ConfirmPassword',
-      id: 'Confirm Password',
-      fieldType: 'password',
-      xs: 12,
-      validate: validatorRules(['password']),
-    })
+    newPasswordInformation = [...newPasswordInformation, ...passwordInfo]
 
     setPersonalInfo(newPasswordInformation)
-  }, [contactInformation, bcContactInformationFields, accountType])
+  }, [contactInformation, bcContactInformation, accountType])
 
   const getBCFieldsValue = (data: CustomFieldItems) => {
     const bcFields: CustomFieldItems = {}
@@ -140,29 +137,19 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
     if (list) {
       list.forEach((item: any) => {
-        if (item.name === 'lastName') {
-          bcFields.last_name = item.default
-        }
-        if (item.name === 'firstName') {
-          bcFields.first_name = item.default
-        }
-        if (item.name === 'phoneNumber') {
-          bcFields.phone = item?.default || ''
-        }
-        if (item.name === 'companyName') {
-          bcFields.company = item?.default || ''
-        }
-        if (item.name === emailName) {
-          bcFields.email = item.default
+        const name = deCodeField(item.name)
+        if (name === 'accepts_marketing_emails') {
+          bcFields.accepts_product_review_abandoned_cart_emails = !!item?.default?.length
+        } else {
+          bcFields[name] = item?.default || ''
         }
       })
 
       bcFields.form_fields = []
-
-      if (additionalInformation && (additionalInformation as Array<CustomFieldItems>).length) {
-        additionalInformation.forEach((field: CustomFieldItems) => {
+      if (additionalInfo && (additionalInfo as Array<CustomFieldItems>).length) {
+        additionalInfo.forEach((field: CustomFieldItems) => {
           bcFields.form_fields.push({
-            name: field.label,
+            name: field.bcLabel,
             value: field.default,
           })
         })
@@ -174,38 +161,34 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     if (accountType === '2') {
       const addresses: CustomFieldItems = {}
 
-      if (addressBasicFields) {
+      const getBCAddressField = addressBasicList.filter((field: any) => !field.custom)
+      const getBCExtraAddressField = addressBasicList.filter((field: any) => field.custom)
+
+      if (getBCAddressField) {
         bcFields.addresses = {}
-        addressBasicFields.forEach((field: any) => {
+        getBCAddressField.forEach((field: any) => {
           if (field.name === 'country') {
             addresses.country_code = field.default
-          }
-          if (field.name === 'address1') {
-            addresses.address1 = field.default
-          }
-          if (field.name === 'address2') {
-            addresses.address2 = field.default
-          }
-          if (field.name === 'city') {
-            addresses.city = field.default
-          }
-          if (field.name === 'state') {
+          } else if (field.name === 'state') {
             addresses.state_or_province = field.default
-          }
-          if (field.name === 'zipCode') {
+          } else if (field.name === 'postalCode') {
             addresses.postal_code = field.default
+          } else if (field.name === 'firstName') {
+            addresses.first_name = field.default
+          } else if (field.name === 'lastName') {
+            addresses.last_name = field.default
+          } else {
+            addresses[field.name] = field.default
           }
         })
       }
-      addresses.first_name = bcFields.first_name
-      addresses.last_name = bcFields.last_name
 
       addresses.form_fields = []
       // BC Extra field
-      if (addressExtraFields && addressExtraFields.length) {
-        addressExtraFields.forEach((field: any) => {
+      if (getBCExtraAddressField && getBCExtraAddressField.length) {
+        getBCExtraAddressField.forEach((field: any) => {
           addresses.form_fields.push({
-            name: field.label,
+            name: field.bcLabel,
             value: field.default,
           })
         })
@@ -224,22 +207,26 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     return createBCCompanyUser(userItem)
   }
 
-  const getB2BFieldsValue = async (data: CustomFieldItems, customerId: Number | String) => {
-    const b2bFields: any = {}
+  const getB2BFieldsValue = async (data: CustomFieldItems, customerId: Number | String, fileList: any) => {
+    const b2bFields: CustomFieldItems = {}
 
     b2bFields.customerId = customerId || ''
     b2bFields.storeHash = storeHash
-    if (companyInformation) {
-      companyInformation.forEach((item: any) => {
-        b2bFields[item.name] = item?.default || ''
+    const companyInfo = companyInformation.filter((list) => !list.custom && list.fieldType !== 'files')
+    const companyExtraInfo = companyInformation.filter((list) => !!list.custom)
+    // company field
+    if (companyInfo.length) {
+      companyInfo.forEach((item: any) => {
+        b2bFields[toHump(deCodeField(item.name))] = item?.default || ''
       })
     }
 
-    if (companyExtraFields) {
+    // Company Additional Field
+    if (companyExtraInfo.length) {
       const extraFields:Array<CustomFieldItems> = []
-      companyExtraFields.forEach((item: any) => {
+      companyExtraInfo.forEach((item: CustomFieldItems) => {
         const itemExtraField: CustomFieldItems = {}
-        itemExtraField.fieldName = Base64.decode(item.name)
+        itemExtraField.fieldName = deCodeField(item.name)
         itemExtraField.fieldValue = item?.default || ''
         extraFields.push(itemExtraField)
       })
@@ -248,37 +235,47 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
     b2bFields.companyEmail = data.email
 
-    if (addressBasicFields) {
-      addressBasicFields.forEach((field: any) => {
-        if (field.name === 'country') {
-          b2bFields.country = field.default
-        }
-        if (field.name === 'address1') {
+    // address Field
+    const addressBasicInfo = addressBasicList.filter((list) => !list.custom)
+    const addressExtraBasicInfo = addressBasicList.filter((list) => !!list.custom)
+
+    if (addressBasicInfo.length) {
+      addressBasicInfo.forEach((field: CustomFieldItems) => {
+        const name = deCodeField(field.name)
+        if (name === 'address1') {
           b2bFields.addressLine1 = field.default
         }
-        if (field.name === 'address2') {
+        if (name === 'address2') {
           b2bFields.addressLine2 = field.default
         }
-        if (field.name === 'city') {
-          b2bFields.city = field.default
-        }
-        if (field.name === 'state') {
-          b2bFields.state = field.default
-        }
-        if (field.name === 'zipCode') {
-          b2bFields.zipCode = field.default
-        }
+        b2bFields[name] = field.default
       })
     }
 
-    let attachments: File[] = []
-    if (companyAttachment) {
-      companyAttachment.forEach((field: any) => {
-        if (field.name === 'companyAttachments') {
-          attachments = field.default
-        }
+    // address Additional Field
+    if (addressExtraBasicInfo.length) {
+      const extraFields:Array<CustomFieldItems> = []
+      addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
+        const itemExtraField: CustomFieldItems = {}
+        itemExtraField.fieldName = deCodeField(item.name)
+        itemExtraField.fieldValue = item?.default || ''
+        extraFields.push(itemExtraField)
       })
+      b2bFields.addressExtraFields = extraFields
     }
+    b2bFields.fileList = fileList
+
+    return createB2BCompanyUser(b2bFields)
+  }
+
+  const getFileUrl = async (attachmentsList: RegisterFields[]) => {
+    let attachments: File[] = []
+
+    if (!attachmentsList.length) return
+
+    attachmentsList.forEach((field: any) => {
+      attachments = field.default
+    })
 
     try {
       const fileResponse = await Promise.all(attachments.map(
@@ -288,24 +285,41 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         }),
       ))
 
-      b2bFields.fileList = fileResponse.reduce((fileList: any, res: any) => {
+      const fileList = fileResponse.reduce((fileList: any, res: any) => {
         if (res.code === 200) {
           fileList = [...fileList, res.data]
+        } else {
+          throw res.data.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure')
         }
         return fileList
       }, [])
-    } catch (error) {
-      b2bFields.fileList = []
-    }
 
-    return createB2BCompanyUser(b2bFields)
+      return fileList
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error)
+      throw error
+    }
   }
 
   const handleCompleted = (event: MouseEvent) => {
     if (captchaMessage !== 'success') return
     handleSubmit(async (completeData: CustomFieldItems) => {
-      if (completeData.password !== completeData.ConfirmPassword) {
-        setErrorMessage(b3Lang('intl.user.register.RegisterComplete.passwordMatchPrompt'))
+      if (completeData.password !== completeData.confirmPassword) {
+        setError(
+          'confirmPassword',
+          {
+            type: 'manual',
+            message: b3Lang('intl.user.register.RegisterComplete.passwordMatchPrompt'),
+          },
+        )
+        setError(
+          'password',
+          {
+            type: 'manual',
+            message: b3Lang('intl.user.register.RegisterComplete.passwordMatchPrompt'),
+          },
+        )
         return
       }
       try {
@@ -319,11 +333,13 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         if (accountType === '2') {
           await getBCFieldsValue(completeData)
         } else {
+          const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files')
+          const fileList = await getFileUrl(attachmentsList || [])
           const res = await getBCFieldsValue(completeData)
           const {
             data,
           } = res
-          const accountInfo = await getB2BFieldsValue(completeData, (data as any)[0].id)
+          const accountInfo = await getB2BFieldsValue(completeData, (data as any)[0].id, fileList)
 
           const {
             companyCreate: {
@@ -383,7 +399,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         )
       }
       <Box>
-        <InformationFourLabels>{b3Lang('intl.user.register.RegisterComplete.title')}</InformationFourLabels>
+        <InformationFourLabels>{ passwordName }</InformationFourLabels>
         {
           personalInfo && (
           <B3CustomForm

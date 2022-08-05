@@ -2,6 +2,7 @@ export default {
   'intl.user.register.title.registerComplete': '注册完成。欢迎！',
   'intl.user.register.title.accountCreated': '您的个人帐户已被创建。',
   'intl.user.register.title.accountRegister': '账户注册',
+  'intl.user.register.title.bcToB2B.businessAccountApplication': '商业账户申请',
   'intl.user.register.title.attachments': '附件',
   'intl.user.register.title.address': '地址',
   'intl.user.register.title.businessDetails': '公司信息',
