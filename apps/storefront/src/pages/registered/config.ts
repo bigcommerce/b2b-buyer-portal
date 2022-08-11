@@ -255,6 +255,7 @@ export const conversionSigleItem = (item: CustomFieldItems): Partial<RegisterFie
     visible: item?.visible || false,
     custom: item?.custom || false,
     bcLabel: item.label || '',
+    type: item.type || '',
   }
 
   if (typeof (item.fieldType) === 'number') {
@@ -332,6 +333,9 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
       }]
     }
 
+    if (obj.fieldType === 'text' && obj.type === 'integer') {
+      obj.fieldType = 'number'
+    }
     getFormFields[key].push(obj)
   })
 

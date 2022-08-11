@@ -3,7 +3,7 @@ import {
   useEffect,
   MouseEvent,
   useState,
-  useMemo,
+  // useMemo,
 } from 'react'
 import {
   Box,
@@ -16,9 +16,9 @@ import {
   useB3Lang,
 } from '@b3/lang'
 
-import {
-  Captcha,
-} from '@/components/form'
+// import {
+//   Captcha,
+// } from '@/components/form'
 
 import {
   RegisteredContext,
@@ -44,7 +44,7 @@ import {
 
 import {
   storeHash,
-  captchaSetkey,
+  // captchaSetkey,
 } from '@/utils'
 
 interface RegisterCompleteProps {
@@ -65,7 +65,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
   const [errorMessage, setErrorMessage] = useState<String>('')
-  const [captchaMessage, setCaptchaMessage] = useState<string>('')
+  // const [captchaMessage, setCaptchaMessage] = useState<string>('')
 
   const {
     control,
@@ -303,7 +303,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   }
 
   const handleCompleted = (event: MouseEvent) => {
-    if (captchaMessage !== 'success') return
+    // if (captchaMessage !== 'success') return
     handleSubmit(async (completeData: CustomFieldItems) => {
       if (completeData.password !== completeData.confirmPassword) {
         setError(
@@ -371,13 +371,13 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     })(event)
   }
 
-  const captcha = useMemo(() => (
-    <Captcha
-      size="normal"
-      siteKey={captchaSetkey}
-      onSuccess={() => setCaptchaMessage('success')}
-    />
-  ), [])
+  // const captcha = useMemo(() => (
+  //   <Captcha
+  //     size="normal"
+  //     siteKey={captchaSetkey}
+  //     onSuccess={() => setCaptchaMessage('success')}
+  //   />
+  // ), [])
 
   return (
     <Box
@@ -411,13 +411,13 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         }
       </Box>
 
-      <Box
+      {/* <Box
         sx={{
           mt: 4,
         }}
       >
         {captcha}
-      </Box>
+      </Box> */}
 
       <RegisteredStepButton
         handleBack={handleBack}

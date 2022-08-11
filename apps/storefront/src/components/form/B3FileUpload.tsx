@@ -74,7 +74,7 @@ export const B3FileUpload = (props: FileUploadProps) => {
   const {
     acceptedFiles = FILE_UPLOAD_ACCEPT_TYPE,
     filesLimit = 3,
-    maxFileSize = 2097152, // 2M
+    maxFileSize = 10485760, // 10M
     dropzoneText = b3Lang('intl.global.fileUpload.defaultText'),
     previewText = ' ',
     fieldType,

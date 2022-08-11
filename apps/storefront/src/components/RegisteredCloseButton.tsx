@@ -1,21 +1,33 @@
-import {
-  Close,
-} from '@mui/icons-material'
+import type {
+  OpenPageState,
+} from '@b3/hooks'
 
-export function RegisteredCloseButton(props: any) {
+import {
+  Dispatch,
+  SetStateAction,
+} from 'react'
+
+import {
+  CloseButton,
+} from './styled'
+
+interface CloseButtonProps {
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+}
+
+export function RegisteredCloseButton(props: CloseButtonProps) {
   const {
-    setIsOpen,
+    setOpenPage,
   } = props
 
   const handleCloseForm = () => {
-    setIsOpen(false)
+    setOpenPage({
+      isOpen: false,
+    })
   }
 
   return (
-    <Close
-      sx={{
-        cursor: 'pointer',
-      }}
+    <CloseButton
       onClick={handleCloseForm}
     />
   )

@@ -1,7 +1,9 @@
 import {
   TextField,
-  FormControl,
 } from '@mui/material'
+import {
+  useState,
+} from 'react'
 import {
   Controller,
 } from 'react-hook-form'
@@ -23,6 +25,10 @@ import {
 } from '@mui/x-date-pickers/AdapterDateFns'
 import Form from './ui'
 
+import {
+  PickerFormControl,
+} from './styled'
+
 export const B3Picker = ({
   control,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -38,6 +44,7 @@ export const B3Picker = ({
     validate,
     muiTextFieldProps = {},
     setValue,
+    variant,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -60,17 +67,25 @@ export const B3Picker = ({
     control,
   }
 
+  const [inputValue, setInputValue] = useState(defaultValue)
+
   const muixPickerProps = muiTextFieldProps || {}
 
   const handleDatePickerChange = (value: Date) => {
-    setValue(name, format(value, inputFormat))
+    try {
+      setValue(name, format(value, inputFormat))
+      setInputValue(format(value, inputFormat))
+    } catch (error) {
+      setValue(name, value)
+      setInputValue(value)
+    }
   }
 
   return (
     <>
       {
         ['date'].includes(fieldType) && (
-          <FormControl>
+          <PickerFormControl>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
                 {...fieldsProps}
@@ -88,7 +103,12 @@ export const B3Picker = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        variant={variant || 'filled'}
                         required={required}
+                        inputProps={{
+                          readOnly: true,
+                        }}
+                        value={inputValue}
                       />
                     )}
                     {...rest}
@@ -97,7 +117,7 @@ export const B3Picker = ({
                 )}
               />
             </LocalizationProvider>
-          </FormControl>
+          </PickerFormControl>
         )
       }
     </>

@@ -7,7 +7,14 @@ import {
 import {
   useB3Lang,
 } from '@b3/lang'
+import {
+  KeyboardEvent,
+  WheelEvent,
+} from 'react'
 import Form from './ui'
+import {
+  StyleNumberTextField,
+} from './styled'
 
 export const B3TextField = ({
   control,
@@ -75,6 +82,16 @@ export const B3TextField = ({
     ...inputProps,
   }
 
+  const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (['ArrowUp', 'ArrowDown'].indexOf(event.code) > -1) {
+      event.preventDefault()
+    }
+  }
+
+  const handleNumberInputWheel = (event: WheelEvent<HTMLInputElement>) => {
+    (event.target as HTMLElement).blur()
+  }
+
   return (
     <>
       {
@@ -87,15 +104,31 @@ export const B3TextField = ({
           <Controller
             {...fieldsProps}
             render={({
-              field,
+              field: {
+                ...rest
+              },
             }) => (
-              <TextField
-                {...textField}
-                {...field}
-                inputProps={muiAttributeProps}
-                error={!!errors[name]}
-                helperText={(errors as any)[name] ? (errors as any)[name].message : null}
-              />
+              fieldType === 'number'
+                ? (
+                  <StyleNumberTextField
+                    {...textField}
+                    {...rest}
+                    inputProps={muiAttributeProps}
+                    error={!!errors[name]}
+                    helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+                    onKeyDown={handleNumberInputKeyDown}
+                    onWheel={handleNumberInputWheel}
+                  />
+                )
+                : (
+                  <TextField
+                    {...textField}
+                    {...rest}
+                    inputProps={muiAttributeProps}
+                    error={!!errors[name]}
+                    helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+                  />
+                )
             )}
           />
         )

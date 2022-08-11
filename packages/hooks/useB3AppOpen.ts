@@ -9,14 +9,23 @@ import {
   useMutationObservable,
 } from './useMutationObservable'
 
-export const useB3AppOpen = (initOpenState: boolean) => {
+export interface OpenPageState {
+  isOpen: boolean,
+  openUrl?: string,
+}
+
+export const useB3AppOpen = (initOpenState: OpenPageState) => {
   const [checkoutRegisterNumber, setCheckoutRegisterNumber] = useState<number>(0)
 
   const callback = useCallback(() => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1)
   }, [checkoutRegisterNumber])
 
-  const [isOpen, setIsOpen] = useState(initOpenState)
+  const [openPage, setOpenPage] = useState<OpenPageState>({
+    isOpen: initOpenState.isOpen,
+    openUrl: '',
+  })
+
   useLayoutEffect(() => {
     if (document.querySelectorAll(globalB3['dom.registerElement']).length) {
       const registerArr = Array.from(document.querySelectorAll(globalB3['dom.registerElement']))
@@ -24,7 +33,11 @@ export const useB3AppOpen = (initOpenState: boolean) => {
         if (registerArr.includes(e.target)) {
           e.preventDefault()
           e.stopPropagation()
-          setIsOpen(!isOpen)
+
+          setOpenPage({
+            isOpen: !openPage.isOpen,
+            openUrl: globalB3['dom.registerUrl'],
+          })
         }
         return false
       }
@@ -39,5 +52,5 @@ export const useB3AppOpen = (initOpenState: boolean) => {
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback)
 
-  return [isOpen, setIsOpen] as const
+  return [openPage, setOpenPage] as const
 }

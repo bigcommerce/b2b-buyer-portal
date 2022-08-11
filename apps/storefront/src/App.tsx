@@ -7,6 +7,7 @@ import {
   HashRouter,
   Route,
   Routes,
+  Outlet,
 } from 'react-router-dom'
 import {
   useB3AppOpen,
@@ -36,6 +37,10 @@ const HeaderContainer = styled('div')(() => ({
   marginBottom: '1rem',
 }))
 
+const PageContainer = styled('div')(() => ({
+  padding: '40px',
+}))
+
 const {
   height: defaultHeight,
   overflow: defaultOverflow,
@@ -50,12 +55,20 @@ const Registered = lazy(() => import('./pages/registered/Registered'))
 const RegisteredBCToB2B = lazy(() => import('./pages/registered/RegisteredBCToB2B'))
 
 export default function App() {
-  const [isOpen, setIsOpen] = useB3AppOpen(false)
+  const [{
+    isOpen,
+    openUrl,
+  }, setOpenPage] = useB3AppOpen({
+    isOpen: false,
+  })
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.height = '100%'
       document.body.style.overflow = 'hidden'
+      if (openUrl) {
+        window.location.href = `#${openUrl}`
+      }
     } else {
       document.body.style.height = defaultHeight
       document.body.style.overflow = defaultOverflow
@@ -72,39 +85,59 @@ export default function App() {
         >
 
           {isOpen ? (
-            <Layout close={() => setIsOpen(false)}>
-              <HeaderContainer>
-                <RegisteredCloseButton setIsOpen={setIsOpen} />
-              </HeaderContainer>
-              <Suspense fallback={<div>Loading...</div>}>
-                <Routes>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                <Route
+                  path="/registered"
+                  element={(
+                    <PageContainer>
+                      <HeaderContainer>
+                        <RegisteredCloseButton setOpenPage={setOpenPage} />
+                      </HeaderContainer>
+                      <RegisteredProvider>
+                        <Registered setOpenPage={setOpenPage} />
+                      </RegisteredProvider>
+                    </PageContainer>
+                )}
+                />
+                <Route
+                  path="/registeredbctob2b"
+                  element={(
+                    <PageContainer>
+                      <HeaderContainer>
+                        <RegisteredCloseButton setOpenPage={setOpenPage} />
+                      </HeaderContainer>
+                      <RegisteredProvider>
+                        <RegisteredBCToB2B />
+                      </RegisteredProvider>
+                    </PageContainer>
+                )}
+                />
+                <Route
+                  path="/"
+                  element={(
+                    <Layout close={() => setOpenPage({
+                      isOpen: false,
+                    })}
+                    >
+                      <HeaderContainer>
+                        <RegisteredCloseButton setOpenPage={setOpenPage} />
+                      </HeaderContainer>
+                      <Outlet />
+                    </Layout>
+                )}
+                >
                   <Route
                     path="/"
                     element={<Home />}
                   />
                   <Route
-                    path="/form"
+                    path="form"
                     element={<Form />}
                   />
-                  <Route
-                    path="/registered"
-                    element={(
-                      <RegisteredProvider>
-                        <Registered setIsOpen={setIsOpen} />
-                      </RegisteredProvider>
-                  )}
-                  />
-                  <Route
-                    path="/registeredbctob2b"
-                    element={(
-                      <RegisteredProvider>
-                        <RegisteredBCToB2B />
-                      </RegisteredProvider>
-                  )}
-                  />
-                </Routes>
-              </Suspense>
-            </Layout>
+                </Route>
+              </Routes>
+            </Suspense>
           ) : null}
         </ThemeFrame>
       </div>

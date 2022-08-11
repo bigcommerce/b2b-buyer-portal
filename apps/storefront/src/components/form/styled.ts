@@ -2,7 +2,13 @@ import {
   styled,
 } from '@mui/material/styles'
 
+import {
+  FormControl,
+  TextField,
+} from '@mui/material'
+
 export const DropzoneBox = styled('div')(() => ({
+  cursor: 'pointer',
   '& .MuiDropzoneArea-textContainer': {
     border: '2px dotted #3C64F4',
     borderRadius: '8px',
@@ -10,7 +16,6 @@ export const DropzoneBox = styled('div')(() => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    cursor: 'default',
     '& .MuiTypography-root': {
       fontSize: '1rem',
       color: '#767676',
@@ -70,5 +75,18 @@ export const DropzoneBox = styled('div')(() => ({
       verticalAlign: 'middle',
       marginRight: '4px',
     },
+  },
+}))
+
+export const PickerFormControl = styled(FormControl)(() => ({
+  width: '100%',
+}))
+
+export const StyleNumberTextField = styled(TextField)(() => ({
+  '& input[type="number"]': {
+    MozAppearance: 'textfield',
+  },
+  '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+    WebkitAppearance: 'none',
   },
 }))

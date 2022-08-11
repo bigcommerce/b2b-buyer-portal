@@ -30,8 +30,8 @@ export default {
   'intl.user.register.registeredAccount.contactInformation': 'Contact Information',
   'intl.user.register.registeredAccount.additionalInformation': 'Additional Information',
 
-  'intl.user.register.validatorRules.email': 'Please enter the correct email address',
-  'intl.user.register.validatorRules.phoneNumber': 'Please enter the correct phone number',
+  'intl.user.register.validatorRules.email': 'Please enter a valid email address',
+  'intl.user.register.validatorRules.phoneNumber': 'Please enter a valid phone number',
   'intl.user.register.validatorRules.max': 'Please do not exceed {max}',
   'intl.user.register.validatorRules.passwords': 'Passwords must be at least 7 characters and contain both alphabetic and numeric characters.',
 

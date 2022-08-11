@@ -6,6 +6,10 @@ import {
   SetStateAction,
 } from 'react'
 
+import type {
+  OpenPageState,
+} from '@b3/hooks'
+
 import {
   ImageListItem,
 } from '@mui/material'
@@ -47,12 +51,12 @@ import {
 const formType: Array<number> = [1, 2]
 
 interface RegisteredProps {
-  setIsOpen: Dispatch<SetStateAction<boolean>>,
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
 }
 
 export default function Registered(props: RegisteredProps) {
   const {
-    setIsOpen,
+    setOpenPage,
   } = props
   const [activeStep, setActiveStep] = useState(0)
 
@@ -187,7 +191,9 @@ export default function Registered(props: RegisteredProps) {
       })
     }
 
-    setIsOpen(false)
+    setOpenPage({
+      isOpen: false,
+    })
   }
 
   return (
