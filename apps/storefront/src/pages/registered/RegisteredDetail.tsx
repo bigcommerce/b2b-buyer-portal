@@ -76,6 +76,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     },
     setValue,
     watch,
+    setError,
   } = useForm({
     mode: 'all',
   })
@@ -143,25 +144,6 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     })
   }
 
-  const getErrorMessage = (res: any, errorKey: string) => {
-    const {
-      data,
-      message,
-    } = res
-    if (data[errorKey] && typeof data[errorKey] === 'object') {
-      const errors = data[errorKey]
-
-      let message = ''
-      Object.keys(errors).forEach((error) => {
-        message += `${error}:${errors[error]}`
-      })
-
-      return message
-    }
-
-    return data.errMsg || message
-  }
-
   const setRegisterFieldsValue = (formFields: Array<RegisterFields>, formData: CustomFieldItems) => formFields.map((field) => {
     field.default = formData[field.name] || field.default
     return field
@@ -184,7 +166,26 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
           })
 
           if (res.code !== 200) {
-            setErrorMessage(getErrorMessage(res, 'extraFields'))
+            const message = res.data?.errMsg || res.message || ''
+
+            const messageArr = message.split(':')
+
+            if (messageArr.length >= 2) {
+              const field = extraCompanyInformation.find(((field) => Base64.decode(field.name) === messageArr[0]))
+              if (field) {
+                setError(
+                  field.name,
+                  {
+                    type: 'manual',
+                    message: messageArr[1],
+                  },
+                )
+              } else {
+                setErrorMessage(message)
+              }
+            } else {
+              setErrorMessage(message)
+            }
             showLading(false)
             return
           }

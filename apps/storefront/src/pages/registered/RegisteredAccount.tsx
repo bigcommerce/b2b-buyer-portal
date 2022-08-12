@@ -112,6 +112,11 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     } else if (accountType === '2' && userType === 2) {
       setEmailStateType(2)
     }
+
+    const iframe: HTMLIFrameElement | null = window.document.querySelector('.active-frame')
+    if (iframe) {
+      iframe.contentWindow?.document.body.scrollIntoView(true)
+    }
   }
 
   const handleAccountToDetail = async (event: MouseEvent) => {
