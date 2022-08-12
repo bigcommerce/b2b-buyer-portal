@@ -63,4 +63,19 @@ export default {
 
   // register components
   'intl.user.register.RegisteredSingleCheckBox.label': 'Email me special promotions and updates',
+
+  // login
+  'intl.user.login.loginTipInfo.resetPassword': 'You must reset your password before you may log in again. Please check your email at {email} to reset your password',
+  'intl.user.login.loginTipInfo.receivePassword': 'If the entered email address is associated with this store, you will receive a password reset email. If you don\'t receive this e-mail, please check your junk mail folder or contact us for further assistance.',
+  'intl.user.login.loginTipInfo.accountsuccess': 'You\'ve been logged out of your account successfully.',
+  'intl.user.login.loginTipInfo.accountincorrect': 'Your email address or password is incorrect. Please try again. If you\'ve forgotten your sign in details, just click the \'Forgot your password?\' link below.',
+
+  'intl.user.login.loginText.forgotPasswordText': 'Forgot your password ?',
+  'intl.user.login.loginText.emailAddress': 'Email Address',
+  'intl.user.login.loginText.password': 'Password',
+
+  'intl.user.forgot.forgotText.resetPassword': 'Reset Password',
+  'intl.user.forgot.forgotText.requestEmail': 'Fill in your email below to request a new password. An email will be sent to the address below containing a link to verify your email address.',
+  'intl.user.forgot.forgotText.resetPasswordBtn': 'Reset Password',
+
 }

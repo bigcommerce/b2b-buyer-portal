@@ -8,6 +8,14 @@ import {
   queryParse,
 } from './base'
 
+import {
+  B3SStorage,
+} from '@/utils'
+
+import {
+  bcBaseUrl,
+} from '@/utils/basicConfig'
+
 /**
  * config User-defined configuration items
  * @param withoutCheck Do not use the default interface status verification, directly return response
@@ -71,13 +79,14 @@ function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
+      ...config,
     },
-    ...config,
     body: JSON.stringify(data),
   }
+
   const graphqlB2BUrl = `${B2B_BASIC_URL}/graphql`
 
-  const url = type === RequestType.B2BGraphql ? graphqlB2BUrl : ''
+  const url = type === RequestType.B2BGraphql ? graphqlB2BUrl : `${bcBaseUrl}/graphql`
 
   return b3Fetch(url, init, type)
 }
@@ -87,7 +96,10 @@ export const B3Request = {
     return graphqlRequest(RequestType.B2BGraphql, data)
   },
   graphqlBC: function post<T>(data: T) {
-    return graphqlRequest(RequestType.BCGraphql, data)
+    const config = {
+      Authorization: `Bearer  ${B3SStorage.get('BcToken') || ''}`,
+    }
+    return graphqlRequest(RequestType.BCGraphql, data, config)
   },
   get: function get<T>(url: string, type: string, data?: T) {
     if (data) {

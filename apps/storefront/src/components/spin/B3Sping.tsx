@@ -15,8 +15,8 @@ interface B3SpingProps {
   isSpinning: Boolean | undefined,
   children: ReactNode,
   tip?: string,
-  size?: Number & undefined,
-  thickness?: Number & undefined,
+  size?: number,
+  thickness?: number & undefined,
   isCloseLoading?: Boolean,
 }
 

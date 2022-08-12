@@ -15,6 +15,10 @@ import {
 import styled from '@emotion/styled'
 
 import {
+  Login,
+  ForgotPassword,
+} from '@/pages'
+import {
   Layout,
   RegisteredCloseButton,
   ThemeFrame,
@@ -148,7 +152,15 @@ export default function App() {
                     path="form"
                     element={<Form />}
                   />
+                  <Route
+                    path="login"
+                    element={<Login />}
+                  />
                 </Route>
+                <Route
+                  path="/forgotpassword"
+                  element={<ForgotPassword />}
+                />
               </Routes>
             </Suspense>
           ) : null}

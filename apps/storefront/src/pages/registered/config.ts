@@ -7,8 +7,8 @@ import {
 } from 'date-fns'
 
 import {
-  re,
-} from '../../constants'
+  validatorRules,
+} from '@/utils'
 
 const inputFormat = 'yyyy-MM-dd'
 
@@ -19,24 +19,21 @@ export interface QuoteConfig {
   [key: string]: string
 }
 
-export interface ValidateOptions {
+export interface ValidateOptions extends Record<string, any> {
   max?: string | Number,
   min?: string | Number,
-  [key: string]: any
 }
-export interface RegisterFields {
+export interface RegisterFields extends Record<string, any> {
   name: string,
   label?: string,
   required?: Boolean,
   fieldType?: string,
   default?: string | Array<any> | number,
-  [key: string]: any
 }
 
-interface ValidateOptionItems {
+interface ValidateOptionItems extends Record<string, any> {
   max?: number,
   min?: number,
-  [key: string]: any
 }
 
 export type ContactInformationItems = Array<RegisterFields>
@@ -53,7 +50,6 @@ interface AccountFormFieldsItemsValueConfigs {
   type?: string,
   custom?: boolean
   id: string | number
-  // [key: string]: string
 }
 
 interface AccountFormFieldsItems {
@@ -105,31 +101,6 @@ export const Base64 = {
   decode(str: string) {
     return decodeURIComponent(window.atob(str))
   },
-}
-
-export const validatorRules = (validateRuleTypes: string[], options?: ValidateOptions) => (val: string, b3lang: B3Lang) => {
-  let str = ''
-  validateRuleTypes.forEach((item: string) => {
-    if (item === 'email' && val && !re.email.test(val)) {
-      str = b3lang('intl.user.register.validatorRules.email')
-    }
-    if (item === 'phone' && val && !re.phone.test(val)) {
-      str = b3lang('intl.user.register.validatorRules.phoneNumber')
-    }
-    if (item === 'number' && val && !re.number.test(val)) {
-      str = b3lang('intl.user.register.validatorRules.number')
-    }
-    if (item === 'max' && options?.max && +options.max < +val) {
-      str = b3lang('intl.user.register.validatorRules.max', {
-        max: options.max,
-      })
-    }
-
-    if (item === 'password' && val && !re.password.test(val)) {
-      str = b3lang('intl.user.register.validatorRules.passwords')
-    }
-  })
-  if (str) return str
 }
 
 const fieldsType = {
@@ -303,6 +274,7 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
     obj.visible = item.visible
     obj.label = item.labelName
     obj.custom = obj.custom || item?.custom
+    obj.variant = 'filled'
 
     if (obj.fieldType === 'date' && !obj.default) {
       obj.default = format(new Date(), inputFormat)

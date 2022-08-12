@@ -6,6 +6,8 @@ import {
   createB2BCompanyUser,
   storeB2BBasicInfo,
   getB2BAccountFormFields,
+  getB2BLoginPageConfig,
+  getBCForcePasswordReset,
 } from './graphql/register'
 
 import {
@@ -16,6 +18,10 @@ import {
   createBCCompanyUser,
   validateBCCompanyExtraFields,
 } from './api/register'
+
+import {
+  getBCToken,
+} from './api/login'
 
 export {
   getB2BRegisterCustomFields,
@@ -28,4 +34,7 @@ export {
   storeB2BBasicInfo,
   validateBCCompanyExtraFields,
   getB2BAccountFormFields,
+  getBCToken,
+  getB2BLoginPageConfig,
+  getBCForcePasswordReset,
 }

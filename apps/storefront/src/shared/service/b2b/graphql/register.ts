@@ -109,6 +109,33 @@ const createCompanyUser = (data: any) => `mutation{
   }
 }`
 
+const getLoginPageConfig = () => `{
+  loginPageConfig(storeHash: "${storeHash}") {
+    id
+    value{
+      displayStoreLogo
+      pageTitle
+      signInButtonText
+      createAccountButtonText
+      primaryButtonColor
+      createAccountPanelHtml
+      topHtmlRegionHtml
+      topHtmlRegionEnabled
+      bottomHtmlRegionHtml
+      bottomHtmlRegionEnabled
+    }
+  }
+}`
+
+const getForcePasswordReset = (email: string) => `{
+  companyUserInfo(storeHash: "${storeHash}", email: "${email}"){
+    userType
+    userInfo {
+        forcePasswordReset
+    }
+  }
+}`
+
 export const getB2BAccountFormFields = (type: number): CustomFieldItems => B3Request.graphqlB2B({
   query: getAccountFormFields(type),
 })
@@ -135,4 +162,12 @@ export const createB2BCompanyUser = (data: CustomFieldItems): CustomFieldItems =
 
 export const storeB2BBasicInfo = (): CustomFieldItems => B3Request.graphqlB2B({
   query: storeBasicInfo(),
+})
+
+export const getB2BLoginPageConfig = (): CustomFieldItems => B3Request.graphqlB2B({
+  query: getLoginPageConfig(),
+})
+
+export const getBCForcePasswordReset = (email:string): CustomFieldItems => B3Request.graphqlB2B({
+  query: getForcePasswordReset(email),
 })

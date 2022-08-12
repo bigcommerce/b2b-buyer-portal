@@ -91,6 +91,11 @@ export function Layout({
               to: '/registeredbctob2b',
               icon: VerifiedUserIcon,
             },
+            {
+              label: 'Login',
+              to: '/login',
+              icon: VerifiedUserIcon,
+            },
           ].map(({
             label, icon: Icon,
             to,

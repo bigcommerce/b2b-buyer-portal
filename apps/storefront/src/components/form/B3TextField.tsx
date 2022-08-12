@@ -1,5 +1,6 @@
 import {
   TextField,
+  Box,
 } from '@mui/material'
 import {
   Controller,
@@ -37,6 +38,8 @@ export const B3TextField = ({
     fullWidth,
     muiTextFieldProps,
     disabled,
+    labelName,
+    size,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -48,7 +51,7 @@ export const B3TextField = ({
     defaultValue,
     rules: {
       required: required && b3Lang('intl.global.validate.required', {
-        label,
+        label: labelName || labelName,
       }),
       validate: validate && ((v: string) => validate(v, b3Lang)),
     },
@@ -63,9 +66,10 @@ export const B3TextField = ({
     rows,
     disabled,
     multiline: fieldType === 'multiline',
-    variant: variant || 'filled',
+    variant,
     fullWidth: fullWidth || true,
     required,
+    size,
   }
 
   const inputProps = {
@@ -101,36 +105,49 @@ export const B3TextField = ({
           'password',
           'multiline',
         ].includes(fieldType) && (
-          <Controller
-            {...fieldsProps}
-            render={({
-              field: {
-                ...rest
-              },
-            }) => (
-              fieldType === 'number'
-                ? (
-                  <StyleNumberTextField
-                    {...textField}
-                    {...rest}
-                    inputProps={muiAttributeProps}
-                    error={!!errors[name]}
-                    helperText={(errors as any)[name] ? (errors as any)[name].message : null}
-                    onKeyDown={handleNumberInputKeyDown}
-                    onWheel={handleNumberInputWheel}
-                  />
-                )
-                : (
-                  <TextField
-                    {...textField}
-                    {...rest}
-                    inputProps={muiAttributeProps}
-                    error={!!errors[name]}
-                    helperText={(errors as any)[name] ? (errors as any)[name].message : null}
-                  />
-                )
-            )}
-          />
+          <>
+            {
+              labelName && (
+              <Box sx={{
+                mb: 1,
+              }}
+              >
+                {`${labelName} :`}
+              </Box>
+              )
+
+            }
+            <Controller
+              {...fieldsProps}
+              render={({
+                field: {
+                  ...rest
+                },
+              }) => (
+                fieldType === 'number'
+                  ? (
+                    <StyleNumberTextField
+                      {...textField}
+                      {...rest}
+                      inputProps={muiAttributeProps}
+                      error={!!errors[name]}
+                      helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+                      onKeyDown={handleNumberInputKeyDown}
+                      onWheel={handleNumberInputWheel}
+                    />
+                  )
+                  : (
+                    <TextField
+                      {...textField}
+                      {...rest}
+                      inputProps={muiAttributeProps}
+                      error={!!errors[name]}
+                      helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+                    />
+                  )
+              )}
+            />
+          </>
         )
       }
     </>
