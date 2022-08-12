@@ -1,5 +1,7 @@
 import {
   useEffect,
+  lazy,
+  Suspense,
 } from 'react'
 import {
   HashRouter,
@@ -11,12 +13,6 @@ import {
 } from '@b3/hooks'
 import styled from '@emotion/styled'
 
-import {
-  Home,
-  Form,
-  Registered,
-  RegisteredBCToB2B,
-} from '@/pages'
 import {
   Layout,
   RegisteredCloseButton,
@@ -45,6 +41,14 @@ const {
   overflow: defaultOverflow,
 } = document.body.style
 
+const Home = lazy(() => import('./pages/Home'))
+
+const Form = lazy(() => import('./pages/Form'))
+
+const Registered = lazy(() => import('./pages/registered/Registered'))
+
+const RegisteredBCToB2B = lazy(() => import('./pages/registered/RegisteredBCToB2B'))
+
 export default function App() {
   const [isOpen, setIsOpen] = useB3AppOpen(false)
 
@@ -66,37 +70,40 @@ export default function App() {
           fontUrl={FONT_URL}
           customStyles={CUSTOM_STYLES}
         >
+
           {isOpen ? (
             <Layout close={() => setIsOpen(false)}>
               <HeaderContainer>
                 <RegisteredCloseButton setIsOpen={setIsOpen} />
               </HeaderContainer>
-              <Routes>
-                <Route
-                  path="/"
-                  element={<Home />}
-                />
-                <Route
-                  path="/form"
-                  element={<Form />}
-                />
-                <Route
-                  path="/registered"
-                  element={(
-                    <RegisteredProvider>
-                      <Registered setIsOpen={setIsOpen} />
-                    </RegisteredProvider>
+              <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                  <Route
+                    path="/"
+                    element={<Home />}
+                  />
+                  <Route
+                    path="/form"
+                    element={<Form />}
+                  />
+                  <Route
+                    path="/registered"
+                    element={(
+                      <RegisteredProvider>
+                        <Registered setIsOpen={setIsOpen} />
+                      </RegisteredProvider>
                   )}
-                />
-                <Route
-                  path="/registeredbctob2b"
-                  element={(
-                    <RegisteredProvider>
-                      <RegisteredBCToB2B />
-                    </RegisteredProvider>
+                  />
+                  <Route
+                    path="/registeredbctob2b"
+                    element={(
+                      <RegisteredProvider>
+                        <RegisteredBCToB2B />
+                      </RegisteredProvider>
                   )}
-                />
-              </Routes>
+                  />
+                </Routes>
+              </Suspense>
             </Layout>
           ) : null}
         </ThemeFrame>

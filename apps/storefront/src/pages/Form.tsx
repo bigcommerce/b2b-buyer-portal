@@ -16,7 +16,7 @@ import {
 const Variant = 'filled'
 const TEST_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 
-export function Form() {
+export default function Form() {
   const [state, setState] = useState<'success'|'error'|'expired'>('error')
 
   return (

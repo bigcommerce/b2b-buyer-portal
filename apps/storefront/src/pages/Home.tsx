@@ -20,7 +20,7 @@ const bull = (
   </Box>
 )
 
-export function Home() {
+export default function Home() {
   return (
     <Card sx={{
       minWidth: 275,

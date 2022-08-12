@@ -34,4 +34,16 @@ export default defineConfig({
       ),
     },
   },
+  build: {
+    rollupOptions: {
+      manualChunks: {
+        mui: ['@mui/material'],
+        dropzone: ['react-mui-dropzone'],
+        muiIcon: ['@mui/icons-material'],
+        muiPickers: ['@mui/x-date-pickers'],
+        dateFns: ['date-fns'],
+        lang: ['@b3/lang'],
+      },
+    },
+  },
 })
