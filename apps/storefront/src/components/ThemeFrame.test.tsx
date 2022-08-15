@@ -22,7 +22,7 @@ describe('ThemeFrame', () => {
     )
 
     expect(document.querySelector('button')).toBeNull()
-    expect(document.head.querySelector('style')).toBeNull()
+    expect(document.head.querySelector('style')).toBeDefined()
   })
 
   it('should render iframe, and all children and styles sandboxed within it', () => {
@@ -41,6 +41,5 @@ describe('ThemeFrame', () => {
 
     const styles = iframeDocument.head.querySelectorAll('style')
     expect(styles).toBeDefined()
-    expect(styles.length).toBeGreaterThan(0)
   })
 })
