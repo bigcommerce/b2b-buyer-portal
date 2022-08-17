@@ -77,12 +77,8 @@ export default function App() {
 
   useEffect(() => {
     const {
-      host, pathname,
+      pathname,
     } = window.location
-
-    if (!/mybigcommerce.com$/.test(host)) {
-      return
-    }
 
     if (/login.php/.test(pathname)) {
       setOpenPage({
