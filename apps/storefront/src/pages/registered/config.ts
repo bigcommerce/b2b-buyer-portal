@@ -321,7 +321,7 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
     }
     if (obj.fieldType === 'files') {
       obj.filesLimit = 3
-      obj.maxFileSize = 2097152
+      obj.maxFileSize = 10485760
       obj.default = []
     }
 
@@ -364,7 +364,7 @@ export const companyAttachmentsFields = (b3lang: B3Lang) : ContactInformationIte
     required: false,
     xs: 12,
     filesLimit: 3,
-    maxFileSize: 2097152, // 2M
+    maxFileSize: 10485760, // 10M
   },
 ]
 export interface Country {

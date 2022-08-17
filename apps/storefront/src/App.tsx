@@ -75,6 +75,23 @@ export default function App() {
     }
   }, [isOpen])
 
+  useEffect(() => {
+    const {
+      host, pathname,
+    } = window.location
+
+    if (!/mybigcommerce.com$/.test(host)) {
+      return
+    }
+
+    if (/login.php/.test(pathname)) {
+      setOpenPage({
+        isOpen: true,
+        openUrl: '/login',
+      })
+    }
+  }, [])
+
   return (
     <HashRouter>
       <div className="bundle-app">
