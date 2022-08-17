@@ -67,7 +67,7 @@ export default {
   // login
   'intl.user.login.loginTipInfo.resetPassword': 'You must reset your password before you may log in again. Please check your email at {email} to reset your password',
   'intl.user.login.loginTipInfo.receivePassword': 'If the entered email address is associated with this store, you will receive a password reset email. If you don\'t receive this e-mail, please check your junk mail folder or contact us for further assistance.',
-  'intl.user.login.loginTipInfo.accountsuccess': 'You\'ve been logged out of your account successfully.',
+  'intl.user.login.loginTipInfo.loggedOutLogin': 'You\'ve been logged out of your account successfully.',
   'intl.user.login.loginTipInfo.accountincorrect': 'Your email address or password is incorrect. Please try again. If you\'ve forgotten your sign in details, just click the \'Forgot your password?\' link below.',
 
   'intl.user.login.loginText.forgotPasswordText': 'Forgot your password ?',

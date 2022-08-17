@@ -26,6 +26,18 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
     openUrl: '',
   })
 
+  const getCurrentLoginUrl = (href: string): string => {
+    let url = '/login'
+    if (href.includes('logout')) {
+      url = '/login?loginFlag=3'
+    }
+    if (href.includes('create_account')) {
+      url = '/registered'
+    }
+
+    return url
+  }
+
   useLayoutEffect(() => {
     if (document.querySelectorAll(globalB3['dom.registerElement']).length) {
       const registerArr = Array.from(document.querySelectorAll(globalB3['dom.registerElement']))
@@ -34,9 +46,12 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           e.preventDefault()
           e.stopPropagation()
 
+          const href = (e.target as any)?.href || ''
+          const gotoUrl = getCurrentLoginUrl(href)
+
           setOpenPage({
             isOpen: !openPage.isOpen,
-            openUrl: globalB3['dom.registerUrl'],
+            openUrl: gotoUrl,
           })
         }
         return false

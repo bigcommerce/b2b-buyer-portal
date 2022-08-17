@@ -15,10 +15,6 @@ import {
 import styled from '@emotion/styled'
 
 import {
-  Login,
-  ForgotPassword,
-} from '@/pages'
-import {
   Layout,
   RegisteredCloseButton,
   ThemeFrame,
@@ -57,6 +53,10 @@ const Form = lazy(() => import('./pages/Form'))
 const Registered = lazy(() => import('./pages/registered/Registered'))
 
 const RegisteredBCToB2B = lazy(() => import('./pages/registered/RegisteredBCToB2B'))
+
+const Login = lazy(() => import('./pages/login/Login'))
+
+const ForgotPassword = lazy(() => import('./pages/login/ForgotPassword'))
 
 export default function App() {
   const [{
@@ -131,6 +131,26 @@ export default function App() {
                 )}
                 />
                 <Route
+                  path="login"
+                  element={(
+                    <PageContainer>
+                      <RegisteredProvider>
+                        <Login />
+                      </RegisteredProvider>
+                    </PageContainer>
+                    )}
+                />
+                <Route
+                  path="/forgotpassword"
+                  element={(
+                    <PageContainer>
+                      <RegisteredProvider>
+                        <ForgotPassword />
+                      </RegisteredProvider>
+                    </PageContainer>
+                  )}
+                />
+                <Route
                   path="/"
                   element={(
                     <Layout close={() => setOpenPage({
@@ -152,15 +172,7 @@ export default function App() {
                     path="form"
                     element={<Form />}
                   />
-                  <Route
-                    path="login"
-                    element={<Login />}
-                  />
                 </Route>
-                <Route
-                  path="/forgotpassword"
-                  element={<ForgotPassword />}
-                />
               </Routes>
             </Suspense>
           ) : null}

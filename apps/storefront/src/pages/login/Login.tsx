@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   useEffect,
   useState,
@@ -75,7 +76,9 @@ export default function Login() {
 
   const [logo, setLogo] = useState('')
   const [flag, setLoginFlag] = useState<string>('')
-  const [loginAccount, setLoginAccount] = useState<LoginConfig>({})
+  const [loginAccount, setLoginAccount] = useState<LoginConfig>({
+    emailAddress: '',
+  })
   const location = useLocation()
 
   const [loginInfo, setLoginInfo] = useState<LoginInfoInit>(initialLoginInfo)
@@ -172,7 +175,7 @@ export default function Login() {
           str = b3Lang('intl.user.login.loginTipInfo.receivePassword')
           break
         case '3':
-          str = b3Lang('intl.user.login.loginTipInfo.accountsuccess')
+          str = b3Lang('intl.user.login.loginTipInfo.loggedOutLogin')
           break
         case '4':
           str = b3Lang('intl.user.login.loginTipInfo.accountincorrect')
