@@ -8,10 +8,12 @@ import {
 
 import {
   bcLogin,
+  bcLogoutLogin,
 } from './graphql/login'
 
 export {
   getBCRegisterCustomFields,
   getBCForgotPassword,
   bcLogin,
+  bcLogoutLogin,
 }

@@ -2,6 +2,7 @@
 import {
   B3Lang,
 } from '@b3/lang'
+import globalB3 from '@b3/global-b3'
 import {
   validatorRules,
   storeHash,
@@ -50,6 +51,15 @@ export interface ValidateOptions extends Record<string, any> {
   min?: string | Number,
 }
 
+interface ChannelIdProps {
+  channelId: number,
+  urls: Array<string>,
+}
+
+export interface ChannelstoreSites {
+  storeSites?: Array<ChannelIdProps> | [],
+}
+
 export const getForgotPasswordFields = (lang: B3Lang) => [
   {
     name: 'emailAddress',
@@ -73,6 +83,7 @@ export const getLoginFields = (lang: B3Lang) => [
     default: '',
     fieldType: 'text',
     xs: 12,
+    validate: validatorRules(['email']),
   },
   {
     name: 'password',
@@ -99,7 +110,6 @@ export const loginCheckout = (data: LoginConfig) => {
 
   return fetch(`${bcBaseUrl}/internalapi/v1/checkout/customer`, requestOptions)
     .then((response) => response.text())
-    .then((result) => console.log(result))
     .catch((error) => console.log('error', error))
 }
 
@@ -118,11 +128,11 @@ export const sendEmail = (emailAddress: string) => {
 
   return fetch(`${bcBaseUrl}/login.php?action=send_password_email`, requestOptions)
     .then((response) => response.text())
-    .then((result) => console.log(result))
     .catch((error) => console.log('error', error))
 }
 
-export const getloginTokenInfo = () => {
+export const getloginTokenInfo = (channelId: number) => {
+  console.log(globalB3, 'globalB3')
   const {
     origin,
   } = window.location
@@ -132,7 +142,7 @@ export const getloginTokenInfo = () => {
     url: '/v3/storefront/api-token',
     params: {},
     data: {
-      channel_id: 1,
+      channel_id: channelId || 1,
       expires_at: 1866896353,
       allowed_cors_origins: [
         `${origin}`,
@@ -150,4 +160,24 @@ export const getLoginFlag = (search:string, key:string) => {
   const searchParams = new URLSearchParams(search)
 
   return searchParams.get(key)
+}
+
+export const getBCChannelId = (storeSitesany: Array<ChannelIdProps>) => {
+  if (storeSitesany.length === 1) {
+    return storeSitesany[0].channelId
+  }
+
+  let channelId: number = 1
+
+  const {
+    origin,
+  } = window.location
+
+  storeSitesany.forEach((item: ChannelIdProps) => {
+    if (item.urls.includes(origin)) {
+      channelId = item.channelId
+    }
+  })
+
+  return channelId
 }

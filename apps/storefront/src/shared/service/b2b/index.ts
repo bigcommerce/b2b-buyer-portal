@@ -8,6 +8,7 @@ import {
   getB2BAccountFormFields,
   getB2BLoginPageConfig,
   getBCForcePasswordReset,
+  getBCStoreChannelId,
 } from './graphql/register'
 
 import {
@@ -37,4 +38,5 @@ export {
   getBCToken,
   getB2BLoginPageConfig,
   getBCForcePasswordReset,
+  getBCStoreChannelId,
 }

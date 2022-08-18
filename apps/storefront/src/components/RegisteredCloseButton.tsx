@@ -8,6 +8,13 @@ import {
 } from 'react'
 
 import {
+  Box,
+} from '@mui/material'
+import {
+  B3SStorage,
+} from '@/utils'
+
+import {
   CloseButton,
 } from './styled'
 
@@ -21,14 +28,28 @@ export function RegisteredCloseButton(props: CloseButtonProps) {
   } = props
 
   const handleCloseForm = () => {
-    setOpenPage({
-      isOpen: false,
-    })
+    const isGotoBCHome = B3SStorage.get('isGotoBCHome') || ''
+    if (isGotoBCHome) {
+      window.location.href = '/'
+    } else {
+      setOpenPage({
+        isOpen: false,
+        openUrl: '',
+      })
+    }
   }
 
   return (
-    <CloseButton
-      onClick={handleCloseForm}
-    />
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'row-reverse',
+      pr: 2,
+    }}
+    >
+      <CloseButton
+        onClick={handleCloseForm}
+      />
+    </Box>
+
   )
 }

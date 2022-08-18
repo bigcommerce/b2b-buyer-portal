@@ -2,13 +2,7 @@ import {
   useEffect,
   useState,
   useContext,
-  Dispatch,
-  SetStateAction,
 } from 'react'
-
-import type {
-  OpenPageState,
-} from '@b3/hooks'
 
 import {
   ImageListItem,
@@ -17,6 +11,10 @@ import {
 import {
   useB3Lang,
 } from '@b3/lang'
+
+import {
+  useNavigate,
+} from 'react-router-dom'
 
 import {
   getB2BRegisterLogo,
@@ -54,19 +52,14 @@ import {
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2]
 
-interface RegisteredProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
-}
-
-export default function Registered(props: RegisteredProps) {
-  const {
-    setOpenPage,
-  } = props
+export default function Registered() {
   const [activeStep, setActiveStep] = useState(0)
 
   const [logo, setLogo] = useState('')
 
   const b3Lang = useB3Lang()
+
+  const navigate = useNavigate()
 
   const {
     state: {
@@ -197,9 +190,7 @@ export default function Registered(props: RegisteredProps) {
       })
     }
 
-    setOpenPage({
-      isOpen: false,
-    })
+    navigate('/login')
   }
 
   return (

@@ -78,7 +78,7 @@ const LoginForm = (props: LoginFormProps) => {
 
       <Box sx={{
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start ',
         alignItems: 'center',
         mt: 2,
       }}
@@ -94,6 +94,8 @@ const LoginForm = (props: LoginFormProps) => {
         <Box
           sx={{
             cursor: 'pointer',
+            ml: 2,
+            borderBottom: '1px solid black',
           }}
           onClick={() => gotoForgotPassword()}
         >

@@ -17,7 +17,17 @@ const getbcLogin = () => `mutation Login($email: String!, $pass: String!) {
   }
 }`
 
+const logoutLogin = () => `mutation Logout {
+  logout {
+    result
+  }
+}`
+
 export const bcLogin = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlBC({
   query: getbcLogin(),
   variables: data,
+})
+
+export const bcLogoutLogin = () => B3Request.graphqlBC({
+  query: logoutLogin(),
 })

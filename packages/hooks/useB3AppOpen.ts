@@ -49,8 +49,14 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           const href = (e.target as any)?.href || ''
           const gotoUrl = getCurrentLoginUrl(href)
 
+          const {
+            pathname,
+          } = window.location
+
+          window.sessionStorage.setItem('isCheckout', JSON.stringify(pathname === '/checkout'))
+
           setOpenPage({
-            isOpen: !openPage.isOpen,
+            isOpen: true,
             openUrl: gotoUrl,
           })
         }

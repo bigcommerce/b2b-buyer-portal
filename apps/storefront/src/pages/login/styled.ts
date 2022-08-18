@@ -1,20 +1,12 @@
 import {
-  ComponentType,
-} from 'react'
-
-import {
   styled,
 } from '@mui/material/styles'
 
-import Button, {
-  ButtonProps,
-} from '@mui/material/Button'
+import Button from '@mui/material/Button'
 
 import {
   B3ButtonProps,
 } from './config'
-
-type StyledButtonProps = ButtonProps & B3ButtonProps
 
 export const LoginContainer = styled('div')({
   padding: '20px 20px',
@@ -29,24 +21,17 @@ export const LoginImage = styled('div')({
   height: '130px',
 })
 
-// export const B3Button = styled(Button)(({
-//   btnColor,
-// }: B3ButtonProps) => ({
-//   backgroundColor: btnColor,
-// '&:hover': {
-//   backgroundColor: btnColor,
-// },
-// }))
-
 export const B3Button = styled(Button, {
   shouldForwardProp: (props) =>
     props !== 'btnColor',
-})`
-  backgroundColor: ${(props: StyledButtonProps) => props.btnColor}
+})(({
+  btnColor,
+}: B3ButtonProps) => ({
+  backgroundColor: btnColor,
   '&:hover': {
-    backgroundColor: ${(props: StyledButtonProps) => props.btnColor}
+    backgroundColor: btnColor,
   },
-`as ComponentType<StyledButtonProps>
+}))
 
 export const B3ForgotButton = styled(Button)({
   height: '40px',

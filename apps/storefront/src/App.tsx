@@ -3,6 +3,11 @@ import {
   lazy,
   Suspense,
 } from 'react'
+
+import {
+  Box,
+} from '@mui/material'
+
 import {
   HashRouter,
   Route,
@@ -12,7 +17,6 @@ import {
 import {
   useB3AppOpen,
 } from '@b3/hooks'
-import styled from '@emotion/styled'
 
 import {
   Layout,
@@ -30,16 +34,16 @@ body {
   font-family: Roboto;
 };
 `
-const HeaderContainer = styled('div')(() => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  marginBottom: '1rem',
-}))
+// const HeaderContainer = styled('div')(() => ({
+//   display: 'flex',
+//   alignItems: 'center',
+//   justifyContent: 'flex-end',
+//   marginBottom: '1rem',
+// }))
 
-const PageContainer = styled('div')(() => ({
-  padding: '40px',
-}))
+// const PageContainer = styled('div')(() => ({
+//   padding: '40px',
+// }))
 
 const {
   height: defaultHeight,
@@ -71,7 +75,12 @@ export default function App() {
       document.body.style.height = '100%'
       document.body.style.overflow = 'hidden'
       if (openUrl) {
-        window.location.href = `#${openUrl}`
+        const {
+          origin,
+          pathname,
+          search,
+        } = window.location
+        window.location.href = `${origin}${pathname}${search}#${openUrl}`
       }
     } else {
       document.body.style.height = defaultHeight
@@ -82,9 +91,10 @@ export default function App() {
   useEffect(() => {
     const {
       pathname,
+      hash,
     } = window.location
 
-    if (/login.php/.test(pathname)) {
+    if (/login.php/.test(pathname) || (hash === '#/login' && pathname === '/checkout')) {
       setOpenPage({
         isOpen: true,
         openUrl: '/login',
@@ -102,64 +112,25 @@ export default function App() {
         >
 
           {isOpen ? (
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={(
+              <Box sx={{
+                display: 'flex',
+                width: '100%',
+                height: '100vh',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              >
+                Loading...
+              </Box>
+            )}
+            >
               <Routes>
-                <Route
-                  path="/registered"
-                  element={(
-                    <PageContainer>
-                      <HeaderContainer>
-                        <RegisteredCloseButton setOpenPage={setOpenPage} />
-                      </HeaderContainer>
-                      <RegisteredProvider>
-                        <Registered setOpenPage={setOpenPage} />
-                      </RegisteredProvider>
-                    </PageContainer>
-                )}
-                />
-                <Route
-                  path="/registeredbctob2b"
-                  element={(
-                    <PageContainer>
-                      <HeaderContainer>
-                        <RegisteredCloseButton setOpenPage={setOpenPage} />
-                      </HeaderContainer>
-                      <RegisteredProvider>
-                        <RegisteredBCToB2B />
-                      </RegisteredProvider>
-                    </PageContainer>
-                )}
-                />
-                <Route
-                  path="login"
-                  element={(
-                    <PageContainer>
-                      <RegisteredProvider>
-                        <Login />
-                      </RegisteredProvider>
-                    </PageContainer>
-                    )}
-                />
-                <Route
-                  path="/forgotpassword"
-                  element={(
-                    <PageContainer>
-                      <RegisteredProvider>
-                        <ForgotPassword />
-                      </RegisteredProvider>
-                    </PageContainer>
-                  )}
-                />
                 <Route
                   path="/"
                   element={(
-                    <Layout close={() => setOpenPage({
-                      isOpen: false,
-                    })}
-                    >
-                      <HeaderContainer>
-                        <RegisteredCloseButton setOpenPage={setOpenPage} />
-                      </HeaderContainer>
+                    <Layout>
+                      <RegisteredCloseButton setOpenPage={setOpenPage} />
                       <Outlet />
                     </Layout>
                 )}
@@ -171,6 +142,30 @@ export default function App() {
                   <Route
                     path="form"
                     element={<Form />}
+                  />
+                  <Route
+                    path="login"
+                    element={<Login />}
+                  />
+                  <Route
+                    path="forgotpassword"
+                    element={<ForgotPassword />}
+                  />
+                  <Route
+                    path="registeredbctob2b"
+                    element={(
+                      <RegisteredProvider>
+                        <RegisteredBCToB2B />
+                      </RegisteredProvider>
+                    )}
+                  />
+                  <Route
+                    path="registered"
+                    element={(
+                      <RegisteredProvider>
+                        <Registered />
+                      </RegisteredProvider>
+                    )}
                   />
                 </Route>
               </Routes>

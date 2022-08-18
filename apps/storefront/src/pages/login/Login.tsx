@@ -19,14 +19,18 @@ import {
   useLocation,
 } from 'react-router-dom'
 
+import globalB3 from '@b3/global-b3'
 import {
   getB2BRegisterLogo,
   getBCToken,
   getBCForcePasswordReset,
+  getB2BLoginPageConfig,
+  getBCStoreChannelId,
 } from '@/shared/service/b2b'
 
 import {
   bcLogin,
+  bcLogoutLogin,
 } from '@/shared/service/bc'
 
 import {
@@ -48,6 +52,8 @@ import {
   getloginTokenInfo,
   loginCheckout,
   getLoginFlag,
+  getBCChannelId,
+  ChannelstoreSites,
 } from './config'
 
 import LoginWidget from './component/LoginWidget'
@@ -76,6 +82,7 @@ export default function Login() {
 
   const [logo, setLogo] = useState('')
   const [flag, setLoginFlag] = useState<string>('')
+  const [channelId, setChannelId] = useState<number>(1)
   const [loginAccount, setLoginAccount] = useState<LoginConfig>({
     emailAddress: '',
   })
@@ -94,49 +101,39 @@ export default function Login() {
           quoteConfig,
         } = await getB2BRegisterLogo()
 
-        // const {
-        //   loginPageConfig: {
-        //     value: {
-        //       bottomHtmlRegionEnabled,
-        //       bottomHtmlRegionHtml,
-        //       createAccountPanelHtml,
-        //       displayStoreLogo,
-        //       pageTitle,
-        //       primaryButtonColor,
-        //       signInButtonText,
-        //       createAccountButtonText,
-        //       topHtmlRegionEnabled,
-        //       topHtmlRegionHtml,
-        //     },
-        //   },
-        // } = await getB2BLoginPageConfig()
+        const {
+          loginPageConfig: {
+            value: {
+              bottomHtmlRegionEnabled,
+              bottomHtmlRegionHtml,
+              createAccountPanelHtml,
+              displayStoreLogo,
+              pageTitle,
+              primaryButtonColor,
+              signInButtonText,
+              createAccountButtonText,
+              topHtmlRegionEnabled,
+              topHtmlRegionHtml,
+            },
+          },
+        } = await getB2BLoginPageConfig()
 
-        // const Info = {
-        //   loginTitle: pageTitle,
-        //   loginBtn: signInButtonText,
-        //   CreateAccountButtonText: createAccountButtonText,
-        //   btnColor: primaryButtonColor,
-        //   isShowWidgetHead: topHtmlRegionEnabled,
-        //   widgetHeadText: topHtmlRegionHtml,
-        //   // isShowWidgetBody: true,
-        //   widgetBodyText: createAccountPanelHtml,
-        //   isShowWidgetFooter: bottomHtmlRegionEnabled,
-        //   widgetFooterText: bottomHtmlRegionHtml,
-        //   displayStoreLogo,
-        // }
+        const {
+          storeBasicInfo,
+        }: any = await getBCStoreChannelId()
 
+        const getChannelId = getBCChannelId((storeBasicInfo as ChannelstoreSites)?.storeSites || [])
         const Info = {
-          loginTitle: 'Sign In',
-          loginBtn: 'Sing in',
-          CreateAccountButtonText: 'Create Account',
-          btnColor: 'blue',
-          isShowWidgetHead: true,
-          widgetHeadText: '<div style="color: red">123</div>',
-          isShowWidgetBody: true,
-          widgetBodyText: '<div style="color: red">456</div>',
-          isShowWidgetFooter: true,
-          widgetFooterText: '<div style="color: red">789</div>',
-          displayStoreLogo: true,
+          loginTitle: pageTitle,
+          loginBtn: signInButtonText,
+          CreateAccountButtonText: createAccountButtonText,
+          btnColor: primaryButtonColor,
+          isShowWidgetHead: topHtmlRegionEnabled,
+          widgetHeadText: topHtmlRegionHtml,
+          widgetBodyText: createAccountPanelHtml,
+          isShowWidgetFooter: bottomHtmlRegionEnabled,
+          widgetFooterText: bottomHtmlRegionHtml,
+          displayStoreLogo,
         }
 
         const registerLogo = getLogo(quoteConfig)
@@ -149,6 +146,21 @@ export default function Login() {
 
         if (loginFlag) setLoginFlag(loginFlag)
 
+        if (loginFlag === '3') {
+          const loginTokenInfo = getloginTokenInfo(channelId)
+          const {
+            data: {
+              token,
+            },
+          } = await getBCToken(loginTokenInfo)
+          B3SStorage.set('BcToken', token)
+          await bcLogoutLogin()
+          B3SStorage.set('isGotoBCHome', true)
+        } else {
+          B3SStorage.set('isGotoBCHome', false)
+        }
+
+        setChannelId(getChannelId)
         setLoginInfo(Info)
         setLogo(registerLogo)
         setLoading(false)
@@ -207,10 +219,8 @@ export default function Login() {
     setLoading(true)
     setLoginAccount(data)
 
-    const {
-      search,
-    } = location
-    if (search.includes('isCheckout')) {
+    const isCheckout = B3SStorage.get('isCheckout')
+    if (isCheckout) {
       try {
         await loginCheckout(data)
         window.location.reload()
@@ -219,7 +229,7 @@ export default function Login() {
         getforcePasswordReset(data.emailAddress)
       }
     } else {
-      const loginTokenInfo = getloginTokenInfo()
+      const loginTokenInfo = getloginTokenInfo(channelId)
       const {
         data: {
           token,
@@ -302,7 +312,7 @@ export default function Login() {
               }}
             >
               <Alert severity={(flag === '1' || flag === '4') ? 'error' : 'success'}>
-                {tipInfo(flag, loginAccount?.emailAddress || '')}
+                {tipInfo(flag, loginAccount?.emailAddress || globalB3?.b3Context?.customer?.email || '')}
               </Alert>
             </Box>
 

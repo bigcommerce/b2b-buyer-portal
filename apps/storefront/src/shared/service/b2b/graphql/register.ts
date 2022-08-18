@@ -136,6 +136,20 @@ const getForcePasswordReset = (email: string) => `{
   }
 }`
 
+const getStoreChannelId = () => `{
+  storeBasicInfo(storeHash: "${storeHash}"){
+    storeName
+    storeAddress
+    storeCountry
+    storeLogo
+    storeUrl
+    storeSites{
+        channelId
+        urls
+    }
+  }
+}`
+
 export const getB2BAccountFormFields = (type: number): CustomFieldItems => B3Request.graphqlB2B({
   query: getAccountFormFields(type),
 })
@@ -170,4 +184,8 @@ export const getB2BLoginPageConfig = (): CustomFieldItems => B3Request.graphqlB2
 
 export const getBCForcePasswordReset = (email:string): CustomFieldItems => B3Request.graphqlB2B({
   query: getForcePasswordReset(email),
+})
+
+export const getBCStoreChannelId = () => B3Request.graphqlB2B({
+  query: getStoreChannelId(),
 })
