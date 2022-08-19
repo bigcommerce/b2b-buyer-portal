@@ -116,6 +116,9 @@ export const validatorRules = (validateRuleTypes: string[], options?: ValidateOp
     if (item === 'phone' && val && !re.phone.test(val)) {
       str = b3lang('intl.user.register.validatorRules.phoneNumber')
     }
+    if (item === 'number' && val && !re.number.test(val)) {
+      str = b3lang('intl.user.register.validatorRules.number')
+    }
     if (item === 'max' && options?.max && +options.max < +val) {
       str = b3lang('intl.user.register.validatorRules.max', {
         max: options.max,
@@ -160,6 +163,9 @@ const classificationType = (item: CustomFieldItems) => {
 
     if (item?.fieldName === 'email' || item?.fieldName === 'phone') {
       optionItems.validate = validatorRules([item.fieldName])
+    }
+    if (item.fieldType === 'number' || (item.fieldType === 'text' && item.type === 'integer')) {
+      optionItems.validate = validatorRules(['number'])
     }
   }
   if (fieldsType.checkbox.includes(item.fieldType)) {

@@ -32,6 +32,7 @@ export default {
 
   'intl.user.register.validatorRules.email': '请输入正确的电子邮件地址',
   'intl.user.register.validatorRules.phoneNumber': '请输入正确的电话号码',
+  'intl.user.register.validatorRules.number': '请输入正确的整数',
   'intl.user.register.validatorRules.max': '请不要超过 {max}',
   'intl.user.register.validatorRules.passwords': '密码必须至少为 7 个字符，并且包含字母和数字字符。',
 

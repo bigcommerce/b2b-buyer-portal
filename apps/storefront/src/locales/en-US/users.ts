@@ -32,6 +32,7 @@ export default {
 
   'intl.user.register.validatorRules.email': 'Please enter a valid email address',
   'intl.user.register.validatorRules.phoneNumber': 'Please enter a valid phone number',
+  'intl.user.register.validatorRules.number': 'Please enter a valid integer number',
   'intl.user.register.validatorRules.max': 'Please do not exceed {max}',
   'intl.user.register.validatorRules.passwords': 'Passwords must be at least 7 characters and contain both alphabetic and numeric characters.',
 
