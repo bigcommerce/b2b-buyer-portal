@@ -83,7 +83,7 @@ export const B3TextField = ({
   }
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (['ArrowUp', 'ArrowDown'].indexOf(event.code) > -1) {
+    if (['ArrowUp', 'ArrowDown', 'KeyE', 'Period'].indexOf(event.code) > -1) {
       event.preventDefault()
     }
   }
