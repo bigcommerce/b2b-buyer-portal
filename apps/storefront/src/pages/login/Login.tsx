@@ -302,8 +302,7 @@ export default function Login() {
           logo && loginInfo?.displayStoreLogo && (
           <LoginImage>
             <ImageListItem sx={{
-              maxWidth: '130px',
-              maxHeight: '130px',
+              maxWidth: '250px',
             }}
             >
               <img

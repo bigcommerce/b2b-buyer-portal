@@ -215,8 +215,7 @@ export default function RegisteredBCToB2B() {
           logo && (
           <RegisteredImage>
             <ImageListItem sx={{
-              maxWidth: '130px',
-              maxHeight: '130px',
+              maxWidth: '250px',
             }}
             >
               <img

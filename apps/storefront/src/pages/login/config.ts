@@ -68,6 +68,7 @@ export const getForgotPasswordFields = (lang: B3Lang) => [
     fieldType: 'text',
     xs: 12,
     size: 'small',
+    variant: 'filled',
     validate: validatorRules(['email']),
   },
 ]
@@ -80,6 +81,7 @@ export const getLoginFields = (lang: B3Lang) => [
     default: '',
     fieldType: 'text',
     xs: 12,
+    variant: 'filled',
     validate: validatorRules(['email']),
   },
   {
@@ -89,6 +91,7 @@ export const getLoginFields = (lang: B3Lang) => [
     default: '',
     fieldType: 'password',
     xs: 12,
+    variant: 'filled',
   },
 ]
 

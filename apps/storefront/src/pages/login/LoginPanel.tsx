@@ -51,7 +51,6 @@ const LoginPanel = (props: LoginPanelProps) => {
           onClick={handleSubmit}
           variant="contained"
           sx={{
-            mt: 3,
             ml: 1,
           }}
         >
