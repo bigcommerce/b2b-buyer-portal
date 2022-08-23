@@ -30,7 +30,7 @@ export default {
   'intl.user.register.registeredAccount.contactInformation': 'Contact Information',
   'intl.user.register.registeredAccount.additionalInformation': 'Additional Information',
 
-  'intl.user.register.validatorRules.email': 'Please enter a valid email address',
+  'intl.user.register.validatorRules.email': 'Please use a valid email address, such as user@example.com.',
   'intl.user.register.validatorRules.phoneNumber': 'Please enter a valid phone number',
   'intl.user.register.validatorRules.number': 'Please enter a valid integer number',
   'intl.user.register.validatorRules.max': 'Please do not exceed {max}',

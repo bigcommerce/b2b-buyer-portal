@@ -34,23 +34,15 @@ const LoginPanel = (props: LoginPanelProps) => {
       background: '#F5F5F5',
     }}
     >
-      {/* <Box sx={{
-        marginBottom: '20px',
-      }}
-      >
-        {loginInfo.createAccountPanelTittle}
-      </Box> */}
-
       <LoginWidget
         sx={{
           height: '250px',
-          backgroundColor: '#FFFFFF',
         }}
         isVisible
         html={widgetBodyText}
       />
       <Box sx={{
-        marginTop: '10px',
+        marginTop: '5px',
       }}
       >
         <B3Button

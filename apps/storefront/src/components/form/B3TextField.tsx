@@ -44,15 +44,22 @@ export const B3TextField = ({
 
   const b3Lang = useB3Lang()
 
+  let requiredText = ''
+  if (fieldType === 'password') {
+    requiredText = b3Lang('intl.global.validate.password.required')
+  } else {
+    requiredText = b3Lang('intl.global.validate.required', {
+      label: labelName || label,
+    })
+  }
+
   const fieldsProps = {
     type: fieldType,
     name,
     key: name,
     defaultValue,
     rules: {
-      required: required && b3Lang('intl.global.validate.required', {
-        label: labelName || labelName,
-      }),
+      required: required && requiredText,
       validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,

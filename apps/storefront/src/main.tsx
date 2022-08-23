@@ -5,6 +5,10 @@ import {
   LangProvider,
 } from '@b3/lang'
 
+import {
+  GlobalProvider,
+} from '@/shared/global'
+
 import App from './App'
 import B3ThemeProvider from './theme'
 
@@ -29,8 +33,10 @@ ReactDOM.createRoot(container).render(
     locales={locales}
     supportLang={SUPPORT_LANGUAGE}
   >
-    <B3ThemeProvider>
-      <App />
-    </B3ThemeProvider>
+    <GlobalProvider>
+      <B3ThemeProvider>
+        <App />
+      </B3ThemeProvider>
+    </GlobalProvider>
   </LangProvider>,
 )

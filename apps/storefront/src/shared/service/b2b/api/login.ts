@@ -4,9 +4,6 @@ import {
 import {
   RequestType,
 } from '../../request/base'
-// import {
-//   storeHash,
-// } from '../../../../utils/basicConfig'
 
 interface CustomFieldItems {
   [key: string]: any

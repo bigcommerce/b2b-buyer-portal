@@ -14,12 +14,8 @@
             'is_local_debugging': true,
         },
         'dom.checkoutRegisterParentElement': "#b2bParent",
-        b3Context: {
-          channelId: 1,
-          customer: {
-            email: 'xxxxx.com'
-          }
-        }
+        'dom.openB3Checkout': 'childB2b',
+        'before_login_goto_page': '/'
       }
     </script>
   </head>
@@ -80,7 +76,7 @@
         if ($('#b2bParent .navUser-action').length > 0) {
           $('#b2bParent .navUser-action').remove()
         } else {
-          $("#b2bParent").append('<a class="navUser-action" href="/login.php?action=create_account" aria-label="Register" onclick="inlineEvent()">testRegister</a>')
+          $("#b2bParent").append('<a id="childB2b" class="navUser-action" href="/login.php?action=create_account" aria-label="Register" onclick="inlineEvent()">testRegister</a>')
         }
       })
     </script>

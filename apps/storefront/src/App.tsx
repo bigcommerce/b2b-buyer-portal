@@ -2,6 +2,7 @@ import {
   useEffect,
   lazy,
   Suspense,
+  useContext,
 } from 'react'
 
 import {
@@ -19,6 +20,10 @@ import {
 } from '@b3/hooks'
 
 import {
+  GlobaledContext,
+} from '@/shared/global'
+
+import {
   Layout,
   RegisteredCloseButton,
   ThemeFrame,
@@ -34,16 +39,6 @@ body {
   font-family: Roboto;
 };
 `
-// const HeaderContainer = styled('div')(() => ({
-//   display: 'flex',
-//   alignItems: 'center',
-//   justifyContent: 'flex-end',
-//   marginBottom: '1rem',
-// }))
-
-// const PageContainer = styled('div')(() => ({
-//   padding: '40px',
-// }))
 
 const {
   height: defaultHeight,
@@ -70,6 +65,10 @@ export default function App() {
     isOpen: false,
   })
 
+  const {
+    dispatch,
+  } = useContext(GlobaledContext)
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.height = '100%'
@@ -91,10 +90,23 @@ export default function App() {
   useEffect(() => {
     const {
       pathname,
-      hash,
+      href,
     } = window.location
 
-    if (/login.php/.test(pathname) || (hash === '#/login' && pathname === '/checkout')) {
+    dispatch({
+      type: 'common',
+      payload: {
+        isCheckout: pathname === '/checkout',
+      },
+    })
+
+    if (/login.php/.test(pathname) && !href.includes('change_password')) {
+      dispatch({
+        type: 'common',
+        payload: {
+          isCloseGotoBCHome: true,
+        },
+      })
       setOpenPage({
         isOpen: true,
         openUrl: '/login',

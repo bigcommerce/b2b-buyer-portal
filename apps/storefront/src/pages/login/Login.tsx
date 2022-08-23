@@ -2,6 +2,7 @@
 import {
   useEffect,
   useState,
+  useContext,
 } from 'react'
 
 import {
@@ -40,6 +41,10 @@ import {
 import {
   B3Sping,
 } from '@/components/spin/B3Sping'
+
+import {
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   LoginContainer, LoginImage,
@@ -94,6 +99,14 @@ export default function Login() {
 
   const b3Lang = useB3Lang()
 
+  const {
+    state: {
+      isCheckout,
+      BcToken,
+    },
+    dispatch,
+  } = useContext(GlobaledContext)
+
   useEffect(() => {
     const init = async () => {
       try {
@@ -147,17 +160,29 @@ export default function Login() {
         if (loginFlag) setLoginFlag(loginFlag)
 
         if (loginFlag === '3') {
-          const loginTokenInfo = getloginTokenInfo(channelId)
-          const {
-            data: {
-              token,
-            },
-          } = await getBCToken(loginTokenInfo)
-          B3SStorage.set('BcToken', token)
+          if (!BcToken) {
+            const loginTokenInfo = getloginTokenInfo(channelId)
+            const {
+              data: {
+                token,
+              },
+            } = await getBCToken(loginTokenInfo)
+            B3SStorage.set('BcToken', token)
+            dispatch({
+              type: 'common',
+              payload: {
+                BcToken: token,
+              },
+            })
+          }
           await bcLogoutLogin()
-          B3SStorage.set('isGotoBCHome', true)
-        } else {
-          B3SStorage.set('isGotoBCHome', false)
+
+          dispatch({
+            type: 'common',
+            payload: {
+              isCloseGotoBCHome: true,
+            },
+          })
         }
 
         setChannelId(getChannelId)
@@ -219,7 +244,6 @@ export default function Login() {
     setLoading(true)
     setLoginAccount(data)
 
-    const isCheckout = B3SStorage.get('isCheckout')
     if (isCheckout) {
       try {
         await loginCheckout(data)
@@ -235,6 +259,12 @@ export default function Login() {
           token,
         },
       } = await getBCToken(loginTokenInfo)
+      dispatch({
+        type: 'common',
+        payload: {
+          BcToken: token,
+        },
+      })
       B3SStorage.set('BcToken', token)
 
       const getBCFieldsValue = {
@@ -247,7 +277,7 @@ export default function Login() {
       if (errors?.length || !bcData) {
         getforcePasswordReset(data.emailAddress)
       } else {
-        window.location.href = '/'
+        window.location.href = globalB3.before_login_goto_page
       }
 
       setLoading(false)
@@ -292,10 +322,9 @@ export default function Login() {
             sx={{
               mb: 2,
               mt: 2,
-              fontSize: '30px',
-              fontWeight: 'bold',
               display: 'flex',
               justifyContent: 'center',
+              fontSize: '28px',
             }}
           >
             {loginInfo.loginTitle}
@@ -312,7 +341,7 @@ export default function Login() {
               }}
             >
               <Alert severity={(flag === '1' || flag === '4') ? 'error' : 'success'}>
-                {tipInfo(flag, loginAccount?.emailAddress || globalB3?.b3Context?.customer?.email || '')}
+                {tipInfo(flag, loginAccount?.emailAddress || '')}
               </Alert>
             </Box>
 

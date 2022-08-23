@@ -2,7 +2,6 @@
 import {
   B3Lang,
 } from '@b3/lang'
-import globalB3 from '@b3/global-b3'
 import {
   validatorRules,
   storeHash,
@@ -63,8 +62,7 @@ export interface ChannelstoreSites {
 export const getForgotPasswordFields = (lang: B3Lang) => [
   {
     name: 'emailAddress',
-    label: '',
-    labelName: lang('intl.user.login.loginText.emailAddress'),
+    label: lang('intl.user.login.loginText.emailAddress'),
     required: true,
     default: '',
     fieldType: 'text',
@@ -77,8 +75,7 @@ export const getForgotPasswordFields = (lang: B3Lang) => [
 export const getLoginFields = (lang: B3Lang) => [
   {
     name: 'emailAddress',
-    label: '',
-    labelName: lang('intl.user.login.loginText.emailAddress'),
+    label: lang('intl.user.login.loginText.emailAddress'),
     required: true,
     default: '',
     fieldType: 'text',
@@ -87,8 +84,7 @@ export const getLoginFields = (lang: B3Lang) => [
   },
   {
     name: 'password',
-    label: '',
-    labelName: lang('intl.user.login.loginText.password'),
+    label: lang('intl.user.login.loginText.password'),
     required: true,
     default: '',
     fieldType: 'password',
@@ -132,7 +128,6 @@ export const sendEmail = (emailAddress: string) => {
 }
 
 export const getloginTokenInfo = (channelId: number) => {
-  console.log(globalB3, 'globalB3')
   const {
     origin,
   } = window.location

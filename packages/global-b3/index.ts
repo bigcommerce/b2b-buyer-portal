@@ -4,6 +4,7 @@ const globalB3 = {
   'dom.registerElement': '[href^="/login.php"]',
   'dom.registerUrl': '/registered',
   'dom.checkoutRegisterParentElement': '.checkout-step--customer .checkout-view-content',
+  before_login_goto_page: '/',
   ...window.B3,
 }
 

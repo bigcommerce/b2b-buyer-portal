@@ -7,6 +7,7 @@ export default {
   'intl.global.button.finish': 'FINISH',
 
   'intl.global.validate.required': '{label} is required',
+  'intl.global.validate.password.required': 'You must enter a password.',
 
   'intl.global.fileUpload.defaultText': 'Drag & drop file here or click here browse',
   'intl.global.fileUpload.typeNotSupport': '{name} file type not support',

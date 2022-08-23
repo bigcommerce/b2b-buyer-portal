@@ -5,14 +5,17 @@ import type {
 import {
   Dispatch,
   SetStateAction,
+  useContext,
 } from 'react'
 
 import {
   Box,
 } from '@mui/material'
+
+import globalB3 from '@b3/global-b3'
 import {
-  B3SStorage,
-} from '@/utils'
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   CloseButton,
@@ -27,9 +30,15 @@ export function RegisteredCloseButton(props: CloseButtonProps) {
     setOpenPage,
   } = props
 
+  const {
+    state: {
+      isCheckout,
+      isCloseGotoBCHome,
+    },
+  } = useContext(GlobaledContext)
+
   const handleCloseForm = () => {
-    const isGotoBCHome = B3SStorage.get('isGotoBCHome') || ''
-    if (isGotoBCHome) {
+    if (isCloseGotoBCHome || (isCheckout && document.getElementById(globalB3['dom.openB3Checkout']))) {
       window.location.href = '/'
     } else {
       setOpenPage({

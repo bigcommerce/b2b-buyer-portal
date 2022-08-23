@@ -116,7 +116,6 @@ const ForgotPassword = () => {
           >
             <Box sx={{
               pl: 2,
-              mt: '31px',
             }}
             >
               <B3Sping

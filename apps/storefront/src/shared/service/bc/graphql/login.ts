@@ -2,11 +2,6 @@ import {
   B3Request,
 } from '../../request/b3Fetch'
 
-// import {
-//   convertArrayToGraphql,
-//   storeHash,
-// } from '../../../../utils'
-
 interface CustomFieldItems {
   [key: string]: any
 }

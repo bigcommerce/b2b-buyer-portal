@@ -39,6 +39,12 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
   }
 
   useLayoutEffect(() => {
+    if (globalB3['dom.openB3Checkout'] && document.getElementById(globalB3['dom.openB3Checkout'])) {
+      setOpenPage({
+        isOpen: true,
+        openUrl: '/login',
+      })
+    }
     if (document.querySelectorAll(globalB3['dom.registerElement']).length) {
       const registerArr = Array.from(document.querySelectorAll(globalB3['dom.registerElement']))
       const handleTriggerClick = (e: MouseEvent) => {
@@ -48,12 +54,6 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
 
           const href = (e.target as any)?.href || ''
           const gotoUrl = getCurrentLoginUrl(href)
-
-          const {
-            pathname,
-          } = window.location
-
-          window.sessionStorage.setItem('isCheckout', JSON.stringify(pathname === '/checkout'))
 
           setOpenPage({
             isOpen: true,
