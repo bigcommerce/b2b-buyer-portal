@@ -27,6 +27,7 @@ import {
   getBCForcePasswordReset,
   getB2BLoginPageConfig,
   getBCStoreChannelId,
+  getB2BCompanyUserInfo,
 } from '@/shared/service/b2b'
 
 import {
@@ -274,10 +275,32 @@ export default function Login() {
       const {
         data: bcData, errors,
       } = await bcLogin(getBCFieldsValue)
+
       if (errors?.length || !bcData) {
         getforcePasswordReset(data.emailAddress)
       } else {
-        window.location.href = globalB3.before_login_goto_page
+        const {
+          companyUserInfo: {
+            userType,
+            userInfo: {
+              role,
+            },
+          },
+        } = await getB2BCompanyUserInfo(data.emailAddress)
+        // 2 bc , 3 b2b
+        dispatch({
+          type: 'common',
+          payload: {
+            isB2BUser: userType === 3,
+            role,
+          },
+        })
+
+        if (userType === 3 && role === 3) {
+          navigate('/dashboard')
+        } else {
+          navigate('/order')
+        }
       }
 
       setLoading(false)

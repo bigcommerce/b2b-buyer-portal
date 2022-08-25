@@ -55,6 +55,10 @@ const RegisteredBCToB2B = lazy(() => import('./pages/registered/RegisteredBCToB2
 
 const Login = lazy(() => import('./pages/login/Login'))
 
+const Order = lazy(() => import('./pages/order/Order'))
+
+const Dashboard = lazy(() => import('./pages/dashboard/Dashboard'))
+
 const ForgotPassword = lazy(() => import('./pages/login/ForgotPassword'))
 
 export default function App() {
@@ -178,6 +182,14 @@ export default function App() {
                         <Registered />
                       </RegisteredProvider>
                     )}
+                  />
+                  <Route
+                    path="order"
+                    element={<Order />}
+                  />
+                  <Route
+                    path="dashboard"
+                    element={<Dashboard />}
                   />
                 </Route>
               </Routes>

@@ -11,12 +11,16 @@ export interface GlobalState {
   isCheckout: boolean,
   isCloseGotoBCHome: boolean,
   BcToken: string,
+  isB2BUser: boolean,
+  role: number,
 }
 
 export const initState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
   BcToken: B3SStorage.get('BcToken') || '',
+  isB2BUser: false,
+  role: 0,
 }
 
 export interface GlobalAction {
