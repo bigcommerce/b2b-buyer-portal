@@ -20,6 +20,24 @@ import {
 } from '@b3/hooks'
 
 import {
+  useB3Lang,
+} from '@b3/lang'
+
+import globalB3 from '@b3/global-b3'
+
+import {
+  getCustomerInfo,
+} from '@/shared/service/bc'
+
+import {
+  getB2BCompanyUserInfo,
+} from '@/shared/service/b2b'
+
+import {
+  B3SStorage,
+} from '@/utils'
+
+import {
   GlobaledContext,
 } from '@/shared/global'
 
@@ -69,7 +87,14 @@ export default function App() {
     isOpen: false,
   })
 
+  const b3Lang = useB3Lang()
+
   const {
+    state: {
+      isB2BUser,
+      isLogin,
+      customerId,
+    },
     dispatch,
   } = useContext(GlobaledContext)
 
@@ -91,10 +116,60 @@ export default function App() {
     }
   }, [isOpen])
 
+  const getCurrentCustomerInfo = async () => {
+    try {
+      const {
+        data: {
+          customer: {
+            entityId: customerId,
+            phone: phoneNumber,
+            firstName,
+            lastName,
+            email: emailAddress = '',
+          },
+        },
+      } = await getCustomerInfo()
+
+      const {
+        companyUserInfo: {
+          userType,
+          userInfo: {
+            role,
+          },
+        },
+      } = await getB2BCompanyUserInfo(emailAddress)
+
+      if (customerId) {
+        B3SStorage.set('emailAddress', emailAddress)
+
+        dispatch({
+          type: 'common',
+          payload: {
+            isB2BUser: userType === 3,
+            role,
+            isLogin: true,
+            customerId,
+            customer: {
+              phoneNumber,
+              firstName,
+              lastName,
+              emailAddress,
+            },
+            emailAddress,
+          },
+        })
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     const {
       pathname,
       href,
+      search,
     } = window.location
 
     dispatch({
@@ -111,12 +186,59 @@ export default function App() {
           isCloseGotoBCHome: true,
         },
       })
+
+      let openUrl = '/login'
+      if (/action=create_account/.test(search)) {
+        openUrl = '/registered'
+      }
+      if (/action=reset_password/.test(search)) {
+        openUrl = '/forgotpassword'
+      }
+
       setOpenPage({
         isOpen: true,
-        openUrl: '/login',
+        openUrl,
       })
     }
+
+    getCurrentCustomerInfo()
   }, [])
+
+  const createConvertB2BNavNode = () => {
+    const convertB2BNavNode = document.createElement('li')
+    convertB2BNavNode.className = 'navUser-item navUser-convert-b2b'
+    convertB2BNavNode.innerHTML = `
+      <a class="navUser-action" href="javascript:;" aria-label="Gift Certificates">
+        ${b3Lang('intl.global.nav.registerB2B.linkText')}
+      </a>
+    `
+    return convertB2BNavNode
+  }
+
+  useEffect(() => {
+    if (isLogin && !isB2BUser && customerId) {
+      // already exist
+      if (document.querySelector('.navUser-item.navUser-convert-b2b')) {
+        return
+      }
+
+      const convertB2BNavNode = createConvertB2BNavNode()
+      const accountNode = document.querySelector(globalB3['dom.navUserLoginElement'])
+      accountNode?.parentNode?.insertBefore(convertB2BNavNode, accountNode)
+
+      const linkNode = convertB2BNavNode.querySelector('a')
+      if (linkNode) {
+        linkNode.onclick = () => {
+          setOpenPage({
+            isOpen: true,
+            openUrl: '/registeredbctob2b',
+          })
+        }
+      }
+    } else {
+      document.querySelector('.navUser-item.navUser-convert-b2b')?.remove()
+    }
+  }, [isB2BUser, isLogin, customerId])
 
   return (
     <HashRouter>
@@ -171,7 +293,7 @@ export default function App() {
                     path="registeredbctob2b"
                     element={(
                       <RegisteredProvider>
-                        <RegisteredBCToB2B />
+                        <RegisteredBCToB2B setOpenPage={setOpenPage} />
                       </RegisteredProvider>
                     )}
                   />
@@ -179,7 +301,7 @@ export default function App() {
                     path="registered"
                     element={(
                       <RegisteredProvider>
-                        <Registered />
+                        <Registered setOpenPage={setOpenPage} />
                       </RegisteredProvider>
                     )}
                   />

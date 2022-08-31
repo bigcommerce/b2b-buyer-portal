@@ -20,7 +20,6 @@ import {
   useLocation,
 } from 'react-router-dom'
 
-import globalB3 from '@b3/global-b3'
 import {
   getB2BRegisterLogo,
   getBCToken,
@@ -33,6 +32,7 @@ import {
 import {
   bcLogin,
   bcLogoutLogin,
+  getCustomerInfo,
 } from '@/shared/service/bc'
 
 import {
@@ -254,57 +254,83 @@ export default function Login() {
         getforcePasswordReset(data.emailAddress)
       }
     } else {
-      const loginTokenInfo = getloginTokenInfo(channelId)
-      const {
-        data: {
-          token,
-        },
-      } = await getBCToken(loginTokenInfo)
-      dispatch({
-        type: 'common',
-        payload: {
-          BcToken: token,
-        },
-      })
-      B3SStorage.set('BcToken', token)
-
-      const getBCFieldsValue = {
-        email: data.emailAddress,
-        pass: data.password,
-      }
-      const {
-        data: bcData, errors,
-      } = await bcLogin(getBCFieldsValue)
-
-      if (errors?.length || !bcData) {
-        getforcePasswordReset(data.emailAddress)
-      } else {
+      try {
+        const loginTokenInfo = getloginTokenInfo(channelId)
         const {
-          companyUserInfo: {
-            userType,
-            userInfo: {
-              role,
-            },
+          data: {
+            token,
           },
-        } = await getB2BCompanyUserInfo(data.emailAddress)
-        // 2 bc , 3 b2b
+        } = await getBCToken(loginTokenInfo)
         dispatch({
           type: 'common',
           payload: {
-            isB2BUser: userType === 3,
-            role,
+            BcToken: token,
           },
         })
+        B3SStorage.set('BcToken', token)
+        B3SStorage.set('emailAddress', data.emailAddress)
 
-        if (userType === 3 && role === 3) {
-          navigate('/dashboard')
-        } else {
-          navigate('/order')
+        const getBCFieldsValue = {
+          email: data.emailAddress,
+          pass: data.password,
         }
-      }
+        const {
+          data: bcData, errors,
+        } = await bcLogin(getBCFieldsValue)
 
-      setLoading(false)
+        if (errors?.length || !bcData) {
+          getforcePasswordReset(data.emailAddress)
+        } else {
+          const {
+            companyUserInfo: {
+              userType,
+              userInfo: {
+                role,
+              },
+            },
+          } = await getB2BCompanyUserInfo(data.emailAddress)
+
+          const {
+            data: {
+              customer: {
+                entityId: customerId,
+                phone: phoneNumber,
+                firstName,
+                lastName,
+                email: emailAddress,
+              },
+            },
+          } = await getCustomerInfo()
+
+          // 2 bc , 3 b2b
+          dispatch({
+            type: 'common',
+            payload: {
+              isB2BUser: userType === 3,
+              role,
+              isLogin: true,
+              customerId,
+              customer: {
+                phoneNumber,
+                firstName,
+                lastName,
+                emailAddress,
+              },
+              emailAddress: data.emailAddress,
+            },
+          })
+
+          if (userType === 3 && role === 3) {
+            navigate('/dashboard')
+          } else {
+            navigate('/order')
+          }
+        }
+      } catch (error) {
+        console.log(error)
+      }
     }
+    setLoading(false)
   }
 
   const handleCreateAccountSubmit = () => {

@@ -3,25 +3,39 @@ import {
   useState,
   useContext,
   MouseEvent,
+  Dispatch,
+  SetStateAction,
 } from 'react'
 
 import {
   Box,
   Button,
   ImageListItem,
+  Alert,
 } from '@mui/material'
+
+import {
+  useForm,
+} from 'react-hook-form'
+
+import type {
+  OpenPageState,
+} from '@b3/hooks'
 
 import {
   useB3Lang,
 } from '@b3/lang'
 
 import {
-  useForm,
-} from 'react-hook-form'
+  GlobaledContext,
+} from '@/shared/global'
+
 import {
   InformationFourLabels,
   InformationLabels,
-  RegisteredContainer, RegisteredImage,
+  RegisteredContainer,
+  RegisteredImage,
+  TipContent,
 } from './styled'
 
 import {
@@ -29,6 +43,10 @@ import {
   getB2BCountries,
   storeB2BBasicInfo,
   getB2BAccountFormFields,
+  createB2BCompanyUser,
+  getB2BCompanyUserInfo,
+  uploadB2BFile,
+  validateBCCompanyExtraFields,
 } from '../../shared/service/b2b'
 
 import {
@@ -51,10 +69,29 @@ import {
   CustomFieldItems,
   getAccountFormFields,
   RegisterFieldsItems,
+  deCodeField,
+  toHump,
 } from './config'
 
-export default function RegisteredBCToB2B() {
+import {
+  storeHash,
+} from '@/utils'
+
+interface CustomerInfo {
+  [k: string]: string
+}
+
+interface RegisteredProps {
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+}
+
+export default function RegisteredBCToB2B(props: RegisteredProps) {
   const [logo, setLogo] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const {
+    setOpenPage,
+  } = props
 
   const b3Lang = useB3Lang()
 
@@ -66,26 +103,45 @@ export default function RegisteredBCToB2B() {
       errors,
     },
     setValue,
+    setError,
     watch,
   } = useForm({
     mode: 'onSubmit',
   })
 
   const {
+    state: {
+      customerId,
+      customer: {
+        phoneNumber = '',
+        firstName = '',
+        lastName = '',
+        emailAddress = '',
+      } = {},
+      isCloseGotoBCHome,
+    },
+    dispatch: globalDispatch,
+  } = useContext(GlobaledContext)
+
+  const {
     state,
     dispatch,
   } = useContext(RegisteredContext)
+
+  const showLoading = (isShow = false) => {
+    dispatch({
+      type: 'loading',
+      payload: {
+        isLoading: isShow,
+      },
+    })
+  }
 
   useEffect(() => {
     const getBCAdditionalFields = async () => {
       try {
         if (dispatch) {
-          dispatch({
-            type: 'loading',
-            payload: {
-              isLoading: true,
-            },
-          })
+          showLoading(true)
           dispatch({
             type: 'finishInfo',
             payload: {
@@ -117,8 +173,17 @@ export default function RegisteredBCToB2B() {
           return addressFields
         })
 
+        const customerInfo: CustomerInfo = {
+          phone: phoneNumber,
+          first_name: firstName,
+          last_name: lastName,
+          email: emailAddress,
+        }
+
         const newContactInformation = bcToB2BAccountFormFields.contactInformation.map((contactInformationField: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
           contactInformationField.disabled = true
+
+          contactInformationField.default = customerInfo[deCodeField(contactInformationField.name as string)] || contactInformationField.default
 
           return contactInformationField
         })
@@ -151,7 +216,6 @@ export default function RegisteredBCToB2B() {
     contactInformation,
     isLoading,
     companyInformation = [],
-    // companyAttachment = [],
     addressBasicFields = [],
     countryList = [],
     companyExtraFields = [],
@@ -198,10 +262,193 @@ export default function RegisteredBCToB2B() {
     return () => subscription.unsubscribe()
   }, [countryList])
 
+  const getFileUrl = async (attachmentsList: RegisterFields[], data: CustomFieldItems) => {
+    let attachments: File[] = []
+
+    if (!attachmentsList.length) return
+
+    attachmentsList.forEach((field: any) => {
+      attachments = data[field.name] || []
+    })
+
+    try {
+      const fileResponse = await Promise.all(attachments.map(
+        (file: File) => uploadB2BFile({
+          file,
+          type: 'companyAttachedFile',
+        }),
+      ))
+
+      const fileList = fileResponse.reduce((fileList: any, res: any) => {
+        if (res.code === 200) {
+          fileList = [...fileList, res.data]
+        } else {
+          throw res.data.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure')
+        }
+        return fileList
+      }, [])
+
+      return fileList
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error)
+      throw error
+    }
+  }
+
+  const getB2BFieldsValue = async (data: CustomFieldItems, customerId: Number | String, fileList: any) => {
+    const b2bFields: CustomFieldItems = {}
+
+    b2bFields.customerId = customerId || ''
+    b2bFields.storeHash = storeHash
+    const companyInfo = companyInformation.filter((list) => !list.custom && list.fieldType !== 'files')
+    const companyExtraInfo = companyInformation.filter((list) => !!list.custom)
+    // company field
+    if (companyInfo.length) {
+      companyInfo.forEach((item: any) => {
+        b2bFields[toHump(deCodeField(item.name))] = data[item.name] || ''
+      })
+    }
+
+    // Company Additional Field
+    if (companyExtraInfo.length) {
+      const extraFields:Array<CustomFieldItems> = []
+      companyExtraInfo.forEach((item: CustomFieldItems) => {
+        const itemExtraField: CustomFieldItems = {}
+        itemExtraField.fieldName = deCodeField(item.name)
+        itemExtraField.fieldValue = data[item.name] || ''
+        extraFields.push(itemExtraField)
+      })
+      b2bFields.extraFields = extraFields
+    }
+
+    b2bFields.companyEmail = data.email
+
+    // address Field
+    const addressBasicInfo = addressBasicFields.filter((list) => !list.custom)
+    const addressExtraBasicInfo = addressBasicFields.filter((list) => !!list.custom)
+
+    if (addressBasicInfo.length) {
+      addressBasicInfo.forEach((field: CustomFieldItems) => {
+        const name = deCodeField(field.name)
+        if (name === 'address1') {
+          b2bFields.addressLine1 = data[field.name] || ''
+        }
+        if (name === 'address2') {
+          b2bFields.addressLine2 = data[field.name] || ''
+        }
+        b2bFields[name] = data[field.name] || ''
+      })
+    }
+
+    // address Additional Field
+    if (addressExtraBasicInfo.length) {
+      const extraFields:Array<CustomFieldItems> = []
+      addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
+        const itemExtraField: CustomFieldItems = {}
+        itemExtraField.fieldName = deCodeField(item.name)
+        itemExtraField.fieldValue = data[item.name] || ''
+        extraFields.push(itemExtraField)
+      })
+      b2bFields.addressExtraFields = extraFields
+    }
+    b2bFields.fileList = fileList
+
+    return createB2BCompanyUser(b2bFields)
+  }
+
+  const validateCompanyExtraFieldsUnique = async (data: CustomFieldItems) => {
+    try {
+      const extraCompanyInformation = companyInformation.filter((item: RegisterFields) => !!item.custom)
+      const extraFields = extraCompanyInformation.map((field: RegisterFields) => ({
+        fieldName: deCodeField(field.name),
+        fieldValue: data[field.name] || field.default,
+      }))
+
+      const res = await validateBCCompanyExtraFields({
+        extraFields,
+      })
+
+      if (res.code !== 200) {
+        const message = res.data?.errMsg || res.message || ''
+
+        const messageArr = message.split(':')
+
+        if (messageArr.length >= 2) {
+          const field = extraCompanyInformation.find(((field) => deCodeField(field.name) === messageArr[0]))
+          if (field) {
+            setError(
+              field.name,
+              {
+                type: 'manual',
+                message: messageArr[1],
+              },
+            )
+            showLoading(false)
+            return false
+          }
+        }
+        throw message
+      }
+
+      setErrorMessage('')
+      return true
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error)
+      throw error
+    }
+  }
+
   const handleNext = (event: MouseEvent) => {
     handleSubmit(async (data: CustomFieldItems) => {
-      // eslint-disable-next-line no-console
-      console.log(data)
+      showLoading(true)
+
+      try {
+        const isValidate = await validateCompanyExtraFieldsUnique(data)
+        if (!isValidate) {
+          return
+        }
+
+        const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files')
+        const fileList = await getFileUrl(attachmentsList || [], data)
+        await getB2BFieldsValue(data, customerId, fileList)
+
+        if (emailAddress) {
+          const {
+            companyUserInfo: {
+              userType,
+              userInfo: {
+                role,
+              },
+            },
+          } = await getB2BCompanyUserInfo(emailAddress)
+
+          // 2 bc , 3 b2b
+          globalDispatch({
+            type: 'common',
+            payload: {
+              isB2BUser: userType === 3,
+              role,
+            },
+          })
+
+          if (isCloseGotoBCHome) {
+            window.location.href = '/'
+          } else {
+            setOpenPage({
+              isOpen: false,
+              openUrl: '',
+            })
+          }
+        }
+      } catch (err: any) {
+        // eslint-disable-next-line no-console
+        console.log(err)
+        setErrorMessage(err?.message || err)
+      } finally {
+        showLoading(false)
+      }
     })(event)
   }
 
@@ -229,6 +476,18 @@ export default function RegisteredBCToB2B() {
         }
 
         <InformationLabels>{b3Lang('intl.user.register.title.bcToB2B.businessAccountApplication')}</InformationLabels>
+
+        {
+          errorMessage && (
+          <Alert
+            severity="error"
+          >
+            <TipContent>
+              { errorMessage }
+            </TipContent>
+          </Alert>
+          )
+        }
 
         <Box>
           <InformationFourLabels>{contactInformation?.length ? contactInformation[0]?.groupName : ''}</InformationFourLabels>

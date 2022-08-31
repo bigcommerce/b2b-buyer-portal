@@ -302,6 +302,31 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     }
   }
 
+  const saveRegisterPassword = (data: CustomFieldItems) => {
+    const newPasswordInformation = passwordInformation.map((field: RegisterFields) => {
+      if (accountType === '1') {
+        field.default = data[field.name] || field.default
+      }
+      return field
+    })
+
+    const newBcPasswordInformation = bcPasswordInformation.map((field: RegisterFields) => {
+      if (accountType === '2') {
+        field.default = data[field.name] || field.default
+      }
+
+      return field
+    })
+
+    dispatch({
+      type: 'all',
+      payload: {
+        passwordInformation: newPasswordInformation,
+        bcPasswordInformation: newBcPasswordInformation,
+      },
+    })
+  }
+
   const handleCompleted = (event: MouseEvent) => {
     // if (captchaMessage !== 'success') return
     handleSubmit(async (completeData: CustomFieldItems) => {
@@ -329,6 +354,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             isLoading: true,
           },
         })
+
         let isAuto = true
         if (accountType === '2') {
           await getBCFieldsValue(completeData)
@@ -357,6 +383,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             isAutoApproval: isAuto,
           },
         })
+        saveRegisterPassword(completeData)
         handleNext()
       } catch (err: any) {
         setErrorMessage(err?.message || err)

@@ -13,4 +13,6 @@ export default {
   'intl.global.fileUpload.typeNotSupport': '{name} file type not support',
   'intl.global.fileUpload.fileSizeExceedsLimit': '{name} exceeds upload limit. Maximum file size is {maxSize}',
   'intl.global.fileUpload.fileNumberExceedsLimit': 'The number of files exceeds the limit, with up to {limit} being supported',
+
+  'intl.global.nav.registerB2B.linkText': 'Business Account Application',
 }

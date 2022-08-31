@@ -135,7 +135,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     return () => subscription.unsubscribe()
   }, [countryList])
 
-  const showLading = (isShow = false) => {
+  const showLoading = (isShow = false) => {
     dispatch({
       type: 'loading',
       payload: {
@@ -149,9 +149,38 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     return field
   })
 
+  interface DetailsFormValues {
+    [K: string]: string | number | boolean
+  }
+
+  const saveDetailsData = () => {
+    const data = [
+      ...companyInformation,
+      ...companyAttachment,
+      ...addressBasicList,
+    ].reduce((formValues: DetailsFormValues, field: RegisterFields) => {
+      formValues[field.name] = getValues(field.name) || field.default
+
+      return formValues
+    }, {})
+
+    const newCompanyInformation = setRegisterFieldsValue(companyInformation, data)
+    const newCompanyAttachment = setRegisterFieldsValue(companyAttachment, data)
+    const newAddressBasicFields = setRegisterFieldsValue(addressBasicList, data)
+
+    dispatch({
+      type: 'all',
+      payload: {
+        companyInformation: [...newCompanyInformation],
+        companyAttachment: [...newCompanyAttachment],
+        [addressBasicName]: [...newAddressBasicFields],
+      },
+    })
+  }
+
   const handleAccountToFinish = (event: MouseEvent) => {
     handleSubmit(async (data: CustomFieldItems) => {
-      showLading(true)
+      showLoading(true)
 
       try {
         if (accountType === '1') {
@@ -180,37 +209,32 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
                     message: messageArr[1],
                   },
                 )
-              } else {
-                setErrorMessage(message)
+                showLoading(false)
+                return
               }
-            } else {
-              setErrorMessage(message)
             }
-            showLading(false)
+            setErrorMessage(message)
+            showLoading(false)
             return
           }
 
           setErrorMessage('')
         }
 
-        const newCompanyInformation = setRegisterFieldsValue(companyInformation, data)
-        const newCompanyAttachment = setRegisterFieldsValue(companyAttachment, data)
-        const newAddressBasicFields = setRegisterFieldsValue(addressBasicList, data)
+        saveDetailsData()
 
-        dispatch({
-          type: 'all',
-          payload: {
-            companyInformation: [...newCompanyInformation],
-            companyAttachment: [...newCompanyAttachment],
-            [addressBasicName]: [...newAddressBasicFields],
-          },
-        })
-        showLading(false)
+        showLoading(false)
         handleNext()
       } catch (error) {
-        showLading(false)
+        showLoading(false)
       }
     })(event)
+  }
+
+  const handleBackAccount = () => {
+    saveDetailsData()
+
+    handleBack()
   }
 
   return (
@@ -262,7 +286,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       </Box>
 
       <RegisteredStepButton
-        handleBack={handleBack}
+        handleBack={handleBackAccount}
         handleNext={handleAccountToFinish}
         activeStep={activeStep}
       />

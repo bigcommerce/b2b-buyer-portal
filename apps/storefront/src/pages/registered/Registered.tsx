@@ -2,6 +2,8 @@ import {
   useEffect,
   useState,
   useContext,
+  Dispatch,
+  SetStateAction,
 } from 'react'
 
 import {
@@ -12,19 +14,28 @@ import {
   useB3Lang,
 } from '@b3/lang'
 
-import {
-  useNavigate,
-} from 'react-router-dom'
+import type {
+  OpenPageState,
+} from '@b3/hooks'
 
 import {
   getB2BRegisterLogo,
   getB2BCountries,
   storeB2BBasicInfo,
   getB2BAccountFormFields,
+  getBCToken,
+  getBCStoreChannelId,
+  getB2BCompanyUserInfo,
 } from '@/shared/service/b2b'
 
 import {
+  B3SStorage,
+} from '@/utils'
+
+import {
   getBCRegisterCustomFields,
+  bcLogin,
+  getCustomerInfo,
 } from '@/shared/service/bc'
 
 import RegisteredStep from './RegisteredStep'
@@ -35,6 +46,10 @@ import {
 } from './context/RegisteredContext'
 
 import {
+  GlobaledContext,
+} from '@/shared/global'
+
+import {
   B3Sping,
 } from '@/components/spin/B3Sping'
 
@@ -43,7 +58,16 @@ import {
   companyAttachmentsFields,
   getAccountFormFields,
   RegisterFieldsItems,
+  RegisterFields,
 } from './config'
+
+import {
+  getloginTokenInfo,
+  loginCheckout,
+  getBCChannelId,
+  ChannelstoreSites,
+  LoginConfig,
+} from '../login/config'
 
 import {
   RegisteredContainer, RegisteredImage,
@@ -52,18 +76,29 @@ import {
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2]
 
-export default function Registered() {
+interface RegisteredProps {
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+}
+
+export default function Registered(props: RegisteredProps) {
+  const {
+    setOpenPage,
+  } = props
+
   const [activeStep, setActiveStep] = useState(0)
 
   const [logo, setLogo] = useState('')
 
   const b3Lang = useB3Lang()
 
-  const navigate = useNavigate()
-
   const {
     state: {
       isLoading,
+      accountType,
+      contactInformation = [],
+      passwordInformation = [],
+      bcPasswordInformation = [],
+      bcContactInformation = [],
     },
     dispatch,
   } = useContext(RegisteredContext)
@@ -160,6 +195,20 @@ export default function Registered() {
 
   const isStepOptional = (step: number) => step === -1
 
+  const getLoginData = () => {
+    const emailAddress = (accountType === '1' ? contactInformation : bcContactInformation).find(
+      (field: RegisterFields) => field.name === 'email',
+    )?.default as string || ''
+
+    const password = (accountType === '1' ? passwordInformation : bcPasswordInformation).find(
+      (field: RegisterFields) => field.name === 'password',
+    )?.default as string || ''
+
+    return {
+      emailAddress,
+      password,
+    }
+  }
   const handleNext = async () => {
     setActiveStep((prevActiveStep: number) => prevActiveStep + 1)
   }
@@ -168,7 +217,15 @@ export default function Registered() {
     setActiveStep((prevActiveStep: number) => prevActiveStep - 1)
   }
 
-  const handleFinish = () => {
+  const {
+    state: {
+      isCheckout,
+      isCloseGotoBCHome,
+    },
+    dispatch: globalDispatch,
+  } = useContext(GlobaledContext)
+
+  const clearRegisterInfo = () => {
     if (dispatch) {
       dispatch({
         type: 'all',
@@ -189,8 +246,117 @@ export default function Registered() {
         },
       })
     }
+  }
 
-    navigate('/login')
+  const handleFinish = async () => {
+    dispatch({
+      type: 'loading',
+      payload: {
+        isLoading: true,
+      },
+    })
+
+    const data: LoginConfig = getLoginData()
+
+    if (isCheckout) {
+      try {
+        await loginCheckout(data)
+        window.location.reload()
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error)
+      }
+    } else {
+      try {
+        const {
+          storeBasicInfo,
+        }: any = await getBCStoreChannelId()
+
+        const channelId = getBCChannelId((storeBasicInfo as ChannelstoreSites)?.storeSites || [])
+
+        const loginTokenInfo = getloginTokenInfo(channelId)
+        const {
+          data: {
+            token,
+          },
+        } = await getBCToken(loginTokenInfo)
+
+        globalDispatch({
+          type: 'common',
+          payload: {
+            BcToken: token,
+          },
+        })
+        B3SStorage.set('BcToken', token)
+        B3SStorage.set('emailAddress', data.emailAddress)
+
+        const getBCFieldsValue = {
+          email: data.emailAddress,
+          pass: data.password,
+        }
+
+        await bcLogin(getBCFieldsValue)
+
+        const {
+          companyUserInfo: {
+            userType,
+            userInfo: {
+              role,
+            },
+          },
+        } = await getB2BCompanyUserInfo(data.emailAddress)
+
+        const {
+          data: {
+            customer: {
+              entityId: customerId,
+              phone: phoneNumber,
+              firstName,
+              lastName,
+              email: emailAddress,
+            },
+          },
+        } = await getCustomerInfo()
+
+        // 2 bc , 3 b2b
+        globalDispatch({
+          type: 'common',
+          payload: {
+            isB2BUser: userType === 3,
+            role,
+            isLogin: true,
+            customerId,
+            customer: {
+              phoneNumber,
+              firstName,
+              lastName,
+              emailAddress,
+            },
+            emailAddress: data.emailAddress,
+          },
+        })
+
+        if (isCloseGotoBCHome) {
+          window.location.href = '/'
+        } else {
+          setOpenPage({
+            isOpen: false,
+            openUrl: '',
+          })
+        }
+        clearRegisterInfo()
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error)
+      }
+    }
+
+    dispatch({
+      type: 'loading',
+      payload: {
+        isLoading: false,
+      },
+    })
   }
 
   return (

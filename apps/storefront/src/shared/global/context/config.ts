@@ -7,11 +7,22 @@ import {
   B3SStorage,
 } from '@/utils'
 
+export interface CustomerInfo {
+  phoneNumber: string,
+  firstName: string,
+  lastName: string,
+  emailAddress: string,
+}
+
 export interface GlobalState {
   isCheckout: boolean,
   isCloseGotoBCHome: boolean,
   BcToken: string,
   isB2BUser: boolean,
+  isLogin: boolean,
+  customerId: number | string,
+  customer?: CustomerInfo,
+  emailAddress: string,
   role: number,
 }
 
@@ -20,6 +31,9 @@ export const initState = {
   isCloseGotoBCHome: false,
   BcToken: B3SStorage.get('BcToken') || '',
   isB2BUser: false,
+  isLogin: true,
+  customerId: '',
+  emailAddress: '',
   role: 0,
 }
 

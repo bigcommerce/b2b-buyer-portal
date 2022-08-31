@@ -12,4 +12,6 @@ export default {
   'intl.global.fileUpload.typeNotSupport': '{name}文件类型不支持',
   'intl.global.fileUpload.fileSizeExceedsLimit': '{name}文件的大小超过了限制，最大支持{maxSize}',
   'intl.global.fileUpload.fileNumberExceedsLimit': '文件数量超过限制，最多支持{limit}个',
+
+  'intl.global.nav.registerB2B.linkText': '业务帐户',
 }
