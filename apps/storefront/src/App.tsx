@@ -26,15 +26,10 @@ import {
 import globalB3 from '@b3/global-b3'
 
 import {
-  getCustomerInfo,
-} from '@/shared/service/bc'
-
-import {
-  getB2BCompanyUserInfo,
-} from '@/shared/service/b2b'
-
-import {
-  B3SStorage,
+  // B3SStorage,
+  getChannelId,
+  loginInfo,
+  getCurrentCustomerInfo,
 } from '@/utils'
 
 import {
@@ -92,8 +87,8 @@ export default function App() {
   const {
     state: {
       isB2BUser,
-      isLogin,
       customerId,
+      BcToken,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -115,55 +110,6 @@ export default function App() {
       document.body.style.overflow = defaultOverflow
     }
   }, [isOpen])
-
-  const getCurrentCustomerInfo = async () => {
-    try {
-      const {
-        data: {
-          customer: {
-            entityId: customerId,
-            phone: phoneNumber,
-            firstName,
-            lastName,
-            email: emailAddress = '',
-          },
-        },
-      } = await getCustomerInfo()
-
-      const {
-        companyUserInfo: {
-          userType,
-          userInfo: {
-            role,
-          },
-        },
-      } = await getB2BCompanyUserInfo(emailAddress)
-
-      if (customerId) {
-        B3SStorage.set('emailAddress', emailAddress)
-
-        dispatch({
-          type: 'common',
-          payload: {
-            isB2BUser: userType === 3,
-            role,
-            isLogin: true,
-            customerId,
-            customer: {
-              phoneNumber,
-              firstName,
-              lastName,
-              emailAddress,
-            },
-            emailAddress,
-          },
-        })
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error)
-    }
-  }
 
   useEffect(() => {
     const {
@@ -201,7 +147,18 @@ export default function App() {
       })
     }
 
-    getCurrentCustomerInfo()
+    const init = async () => {
+      // bc token
+      if (!BcToken) {
+        await getChannelId()
+        await loginInfo()
+      }
+      if (!customerId) {
+        getCurrentCustomerInfo(dispatch)
+      }
+    }
+
+    init()
   }, [])
 
   const createConvertB2BNavNode = () => {
@@ -216,7 +173,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (isLogin && !isB2BUser && customerId) {
+    if (!isB2BUser && customerId) {
       // already exist
       if (document.querySelector('.navUser-item.navUser-convert-b2b')) {
         return
@@ -238,7 +195,7 @@ export default function App() {
     } else {
       document.querySelector('.navUser-item.navUser-convert-b2b')?.remove()
     }
-  }, [isB2BUser, isLogin, customerId])
+  }, [isB2BUser, customerId])
 
   return (
     <HashRouter>

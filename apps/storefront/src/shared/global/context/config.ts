@@ -23,27 +23,30 @@ export interface GlobalState {
   customerId: number | string,
   customer?: CustomerInfo,
   emailAddress: string,
-  role: number,
+  role: number | string,
 }
 
 export const initState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
   BcToken: B3SStorage.get('BcToken') || '',
-  isB2BUser: false,
-  isLogin: true,
-  customerId: '',
-  emailAddress: '',
-  role: 0,
+  isB2BUser: B3SStorage.get('isB2BUser') || false,
+  isLogin: false,
+  customerId: B3SStorage.get('B3CustomerId') || '',
+  emailAddress: B3SStorage.get('B3EmailAddress') || '',
+  role: B3SStorage.get('B3Role') || '',
+  customer: B3SStorage.get('B3CustomerInfo') || {},
 }
 
 export interface GlobalAction {
   type: string,
   payload: Partial<GlobalState>
 }
+
+export type DispatchProps = Dispatch<Partial<GlobalAction>>
 export interface GlobalContext {
   state: GlobalState,
-  dispatch: Dispatch<Partial<GlobalAction>>,
+  dispatch: DispatchProps,
 }
 
 export interface GlobaledProviderProps {

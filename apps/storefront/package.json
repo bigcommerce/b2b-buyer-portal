@@ -8,7 +8,8 @@
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "preview": "vite preview",
     "test": "vitest",
-    "coverage": "vitest --coverage"
+    "coverage": "vitest --coverage",
+    "start": "http-server ./dist --cors"
   },
   "dependencies": {
     "@b3/global-b3": "*",
@@ -23,6 +24,7 @@
     "@rollup/plugin-graphql": "^1.1.0",
     "@types/babel__core": "^7.1.19",
     "date-fns": "^2.28.0",
+    "http-server": "^14.1.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-hook-form": "^7.33.1",

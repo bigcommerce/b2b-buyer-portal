@@ -17,6 +17,12 @@ import {
   B3SStorage,
 } from './b3Storage'
 
+import {
+  getChannelId,
+  loginInfo,
+  getCurrentCustomerInfo,
+} from './loginInfo'
+
 export {
   convertArrayToGraphql,
   convertObjectToGraphql,
@@ -25,4 +31,7 @@ export {
   validatorRules,
   B3LStorage,
   B3SStorage,
+  loginInfo,
+  getChannelId,
+  getCurrentCustomerInfo,
 }

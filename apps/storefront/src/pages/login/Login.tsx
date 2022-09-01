@@ -22,21 +22,17 @@ import {
 
 import {
   getB2BRegisterLogo,
-  getBCToken,
   getBCForcePasswordReset,
   getB2BLoginPageConfig,
-  getBCStoreChannelId,
-  getB2BCompanyUserInfo,
 } from '@/shared/service/b2b'
 
 import {
   bcLogin,
   bcLogoutLogin,
-  getCustomerInfo,
 } from '@/shared/service/bc'
 
 import {
-  B3SStorage,
+  getCurrentCustomerInfo,
 } from '@/utils'
 
 import {
@@ -55,11 +51,8 @@ import {
   getLogo,
   LoginInfoInit,
   LoginConfig,
-  getloginTokenInfo,
   loginCheckout,
   getLoginFlag,
-  getBCChannelId,
-  ChannelstoreSites,
 } from './config'
 
 import LoginWidget from './component/LoginWidget'
@@ -88,7 +81,6 @@ export default function Login() {
 
   const [logo, setLogo] = useState('')
   const [flag, setLoginFlag] = useState<string>('')
-  const [channelId, setChannelId] = useState<number>(1)
   const [loginAccount, setLoginAccount] = useState<LoginConfig>({
     emailAddress: '',
   })
@@ -103,7 +95,6 @@ export default function Login() {
   const {
     state: {
       isCheckout,
-      BcToken,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -132,11 +123,6 @@ export default function Login() {
           },
         } = await getB2BLoginPageConfig()
 
-        const {
-          storeBasicInfo,
-        }: any = await getBCStoreChannelId()
-
-        const getChannelId = getBCChannelId((storeBasicInfo as ChannelstoreSites)?.storeSites || [])
         const Info = {
           loginTitle: pageTitle,
           loginBtn: signInButtonText,
@@ -161,21 +147,6 @@ export default function Login() {
         if (loginFlag) setLoginFlag(loginFlag)
 
         if (loginFlag === '3') {
-          if (!BcToken) {
-            const loginTokenInfo = getloginTokenInfo(channelId)
-            const {
-              data: {
-                token,
-              },
-            } = await getBCToken(loginTokenInfo)
-            B3SStorage.set('BcToken', token)
-            dispatch({
-              type: 'common',
-              payload: {
-                BcToken: token,
-              },
-            })
-          }
           await bcLogoutLogin()
 
           dispatch({
@@ -186,7 +157,7 @@ export default function Login() {
           })
         }
 
-        setChannelId(getChannelId)
+        // setChannelId(getChannelId)
         setLoginInfo(Info)
         setLogo(registerLogo)
         setLoading(false)
@@ -255,21 +226,6 @@ export default function Login() {
       }
     } else {
       try {
-        const loginTokenInfo = getloginTokenInfo(channelId)
-        const {
-          data: {
-            token,
-          },
-        } = await getBCToken(loginTokenInfo)
-        dispatch({
-          type: 'common',
-          payload: {
-            BcToken: token,
-          },
-        })
-        B3SStorage.set('BcToken', token)
-        B3SStorage.set('emailAddress', data.emailAddress)
-
         const getBCFieldsValue = {
           email: data.emailAddress,
           pass: data.password,
@@ -281,46 +237,9 @@ export default function Login() {
         if (errors?.length || !bcData) {
           getforcePasswordReset(data.emailAddress)
         } else {
-          const {
-            companyUserInfo: {
-              userType,
-              userInfo: {
-                role,
-              },
-            },
-          } = await getB2BCompanyUserInfo(data.emailAddress)
+          const info = await getCurrentCustomerInfo(dispatch)
 
-          const {
-            data: {
-              customer: {
-                entityId: customerId,
-                phone: phoneNumber,
-                firstName,
-                lastName,
-                email: emailAddress,
-              },
-            },
-          } = await getCustomerInfo()
-
-          // 2 bc , 3 b2b
-          dispatch({
-            type: 'common',
-            payload: {
-              isB2BUser: userType === 3,
-              role,
-              isLogin: true,
-              customerId,
-              customer: {
-                phoneNumber,
-                firstName,
-                lastName,
-                emailAddress,
-              },
-              emailAddress: data.emailAddress,
-            },
-          })
-
-          if (userType === 3 && role === 3) {
+          if (info?.userType === 3 && info?.role === 3) {
             navigate('/dashboard')
           } else {
             navigate('/order')

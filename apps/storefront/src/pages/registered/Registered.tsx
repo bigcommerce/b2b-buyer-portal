@@ -23,20 +23,16 @@ import {
   getB2BCountries,
   storeB2BBasicInfo,
   getB2BAccountFormFields,
-  getBCToken,
-  getBCStoreChannelId,
-  getB2BCompanyUserInfo,
 } from '@/shared/service/b2b'
-
-import {
-  B3SStorage,
-} from '@/utils'
 
 import {
   getBCRegisterCustomFields,
   bcLogin,
-  getCustomerInfo,
 } from '@/shared/service/bc'
+
+import {
+  getCurrentCustomerInfo,
+} from '@/utils'
 
 import RegisteredStep from './RegisteredStep'
 import RegisterContent from './RegisterContent'
@@ -62,10 +58,7 @@ import {
 } from './config'
 
 import {
-  getloginTokenInfo,
   loginCheckout,
-  getBCChannelId,
-  ChannelstoreSites,
   LoginConfig,
 } from '../login/config'
 
@@ -268,28 +261,6 @@ export default function Registered(props: RegisteredProps) {
       }
     } else {
       try {
-        const {
-          storeBasicInfo,
-        }: any = await getBCStoreChannelId()
-
-        const channelId = getBCChannelId((storeBasicInfo as ChannelstoreSites)?.storeSites || [])
-
-        const loginTokenInfo = getloginTokenInfo(channelId)
-        const {
-          data: {
-            token,
-          },
-        } = await getBCToken(loginTokenInfo)
-
-        globalDispatch({
-          type: 'common',
-          payload: {
-            BcToken: token,
-          },
-        })
-        B3SStorage.set('BcToken', token)
-        B3SStorage.set('emailAddress', data.emailAddress)
-
         const getBCFieldsValue = {
           email: data.emailAddress,
           pass: data.password,
@@ -297,44 +268,7 @@ export default function Registered(props: RegisteredProps) {
 
         await bcLogin(getBCFieldsValue)
 
-        const {
-          companyUserInfo: {
-            userType,
-            userInfo: {
-              role,
-            },
-          },
-        } = await getB2BCompanyUserInfo(data.emailAddress)
-
-        const {
-          data: {
-            customer: {
-              entityId: customerId,
-              phone: phoneNumber,
-              firstName,
-              lastName,
-              email: emailAddress,
-            },
-          },
-        } = await getCustomerInfo()
-
-        // 2 bc , 3 b2b
-        globalDispatch({
-          type: 'common',
-          payload: {
-            isB2BUser: userType === 3,
-            role,
-            isLogin: true,
-            customerId,
-            customer: {
-              phoneNumber,
-              firstName,
-              lastName,
-              emailAddress,
-            },
-            emailAddress: data.emailAddress,
-          },
-        })
+        await getCurrentCustomerInfo(globalDispatch)
 
         if (isCloseGotoBCHome) {
           window.location.href = '/'
