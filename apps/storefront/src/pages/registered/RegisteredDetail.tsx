@@ -107,6 +107,8 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       type: 'stateList',
       payload: {
         stateList,
+        addressBasicFields,
+        bcAddressBasicFields,
         [addressBasicName]: [...addressBasicList],
       },
     })

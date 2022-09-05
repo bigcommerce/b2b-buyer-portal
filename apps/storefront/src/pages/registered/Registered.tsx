@@ -277,6 +277,7 @@ export default function Registered(props: RegisteredProps) {
             isOpen: false,
             openUrl: '',
           })
+          window.location.reload()
         }
         clearRegisterInfo()
       } catch (error) {

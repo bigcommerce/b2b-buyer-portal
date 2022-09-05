@@ -7,6 +7,7 @@ export default {
   'intl.global.button.finish': '完成',
 
   'intl.global.validate.required': '{label}是必填的',
+  'intl.global.validate.password.required': '您必须输入密码',
 
   'intl.global.fileUpload.defaultText': '拖放文件或浏览',
   'intl.global.fileUpload.typeNotSupport': '{name}文件类型不支持',

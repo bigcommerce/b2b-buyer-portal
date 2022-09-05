@@ -440,6 +440,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               isOpen: false,
               openUrl: '',
             })
+            window.location.reload()
           }
         }
       } catch (err: any) {

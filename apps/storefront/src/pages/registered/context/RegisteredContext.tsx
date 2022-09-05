@@ -109,6 +109,7 @@ const reducer = (state: RegisterState, action: RegisterAction) => {
         ...state,
         stateList: action.payload.stateList,
         addressBasicFields: action.payload.addressBasicFields,
+        bcAddressBasicFields: action.payload.bcAddressBasicFields,
       }
     case 'finishInfo':
       return {

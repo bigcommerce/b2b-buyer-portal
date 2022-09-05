@@ -63,4 +63,18 @@ export default {
 
   // register components
   'intl.user.register.RegisteredSingleCheckBox.label': '电子邮件营销通讯',
+
+  // login
+  'intl.user.login.loginTipInfo.resetPassword': '您必须重置密码才能再次登录。请在{email}查看您的电子邮件以重置密码',
+  'intl.user.login.loginTipInfo.receivePassword': '如果输入的电子邮件地址与此存储关联，您将收到一封密码重置电子邮件。如果您没有收到此电子邮件，请检查您的垃圾邮件文件夹或与我们联系以获得进一步帮助。',
+  'intl.user.login.loginTipInfo.loggedOutLogin': '您已成功注销帐户。',
+  'intl.user.login.loginTipInfo.accountincorrect': '您的电子邮件地址或密码不正确。请重试。如果您忘记了登录详细信息，只需单击“忘记密码”链接如下:',
+
+  'intl.user.login.loginText.forgotPasswordText': '忘记密码？',
+  'intl.user.login.loginText.emailAddress': '电子邮件地址',
+  'intl.user.login.loginText.password': '密码',
+
+  'intl.user.forgot.forgotText.resetPassword': '重置密码',
+  'intl.user.forgot.forgotText.requestEmail': '填写下面的电子邮件以请求新密码。将向以下地址发送一封电子邮件，其中包含验证您电子邮件地址的链接。',
+  'intl.user.forgot.forgotText.resetPasswordBtn': '重置密码',
 }
