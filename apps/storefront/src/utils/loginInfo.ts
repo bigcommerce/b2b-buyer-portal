@@ -89,6 +89,30 @@ export const loginInfo = async () => {
   B3SStorage.set('BcToken', token)
 }
 
+export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
+  B3SStorage.set('B3CustomerInfo', {})
+  B3SStorage.set('B3CustomerId', '')
+  B3SStorage.set('B3EmailAddress', '')
+  B3SStorage.set('B3Role', 0)
+  B3SStorage.set('isB2BUser', false)
+
+  dispatch({
+    type: 'common',
+    payload: {
+      isB2BUser: false,
+      role: 0,
+      customerId: '',
+      customer: {
+        phoneNumber: '',
+        firstName: '',
+        lastName: '',
+        emailAddress: '',
+      },
+      emailAddress: '',
+    },
+  })
+}
+
 export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   try {
     const {
@@ -154,5 +178,6 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error)
+    clearCurrentCustomerInfo(dispatch)
   }
 }

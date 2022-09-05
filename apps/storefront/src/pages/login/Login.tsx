@@ -33,6 +33,7 @@ import {
 
 import {
   getCurrentCustomerInfo,
+  clearCurrentCustomerInfo,
 } from '@/utils'
 
 import {
@@ -155,6 +156,8 @@ export default function Login() {
               isCloseGotoBCHome: true,
             },
           })
+
+          clearCurrentCustomerInfo(dispatch)
         }
 
         // setChannelId(getChannelId)
@@ -238,6 +241,13 @@ export default function Login() {
           getforcePasswordReset(data.emailAddress)
         } else {
           const info = await getCurrentCustomerInfo(dispatch)
+
+          dispatch({
+            type: 'common',
+            payload: {
+              isLoginStatusChange: true,
+            },
+          })
 
           if (info?.userType === 3 && info?.role === 3) {
             navigate('/dashboard')

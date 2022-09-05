@@ -21,6 +21,7 @@ import {
   getChannelId,
   loginInfo,
   getCurrentCustomerInfo,
+  clearCurrentCustomerInfo,
 } from './loginInfo'
 
 export {
@@ -34,4 +35,5 @@ export {
   loginInfo,
   getChannelId,
   getCurrentCustomerInfo,
+  clearCurrentCustomerInfo,
 }
