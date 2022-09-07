@@ -93,7 +93,7 @@ const createCompanyUser = (data: any) => `mutation{
     storeHash: "${data.storeHash}",
     companyName: "${data.companyName}",
     companyEmail: "${data.companyEmail}",
-    companyPhoneNumber: "${data.companyCompanyPhoneNumber}",
+    companyPhoneNumber: "${data.companyPhoneNumber || ''}",
     country: "${data.country}",
     addressLine1: "${data.addressLine1}",
     addressLine2: "${data.addressLine2}",
