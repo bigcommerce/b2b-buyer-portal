@@ -30,6 +30,7 @@ import {
   getChannelId,
   loginInfo,
   getCurrentCustomerInfo,
+  getLogo,
 } from '@/utils'
 
 import {
@@ -37,13 +38,16 @@ import {
 } from '@/shared/global'
 
 import {
-  Layout,
-  RegisteredCloseButton,
-  ThemeFrame,
-} from '@/components'
+  getB2BRegisterLogo,
+} from '@/shared/service/b2b'
+
 import {
-  RegisteredProvider,
-} from '@/pages/registered/context/RegisteredContext'
+  ThemeFrame,
+  B3RenderRouter,
+} from '@/components'
+// import {
+//   RegisteredProvider,
+// } from '@/pages/registered/context/RegisteredContext'
 
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 const CUSTOM_STYLES = `
@@ -57,22 +61,6 @@ const {
   height: defaultHeight,
   overflow: defaultOverflow,
 } = document.body.style
-
-const Home = lazy(() => import('./pages/Home'))
-
-const Form = lazy(() => import('./pages/Form'))
-
-const Registered = lazy(() => import('./pages/registered/Registered'))
-
-const RegisteredBCToB2B = lazy(() => import('./pages/registered/RegisteredBCToB2B'))
-
-const Login = lazy(() => import('./pages/login/Login'))
-
-const Order = lazy(() => import('./pages/order/Order'))
-
-const Dashboard = lazy(() => import('./pages/dashboard/Dashboard'))
-
-const ForgotPassword = lazy(() => import('./pages/login/ForgotPassword'))
 
 export default function App() {
   const [{
@@ -161,6 +149,24 @@ export default function App() {
     init()
   }, [])
 
+  useEffect(() => {
+    const init = async () => {
+      const {
+        quoteConfig,
+      } = await getB2BRegisterLogo()
+      const logo = getLogo(quoteConfig)
+
+      dispatch({
+        type: 'common',
+        payload: {
+          logo,
+        },
+      })
+    }
+
+    init()
+  }, [])
+
   const createConvertB2BNavNode = () => {
     const convertB2BNavNode = document.createElement('li')
     convertB2BNavNode.className = 'navUser-item navUser-convert-b2b'
@@ -207,72 +213,7 @@ export default function App() {
         >
 
           {isOpen ? (
-            <Suspense fallback={(
-              <Box sx={{
-                display: 'flex',
-                width: '100%',
-                height: '100vh',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-              >
-                Loading...
-              </Box>
-            )}
-            >
-              <Routes>
-                <Route
-                  path="/"
-                  element={(
-                    <Layout>
-                      <RegisteredCloseButton setOpenPage={setOpenPage} />
-                      <Outlet />
-                    </Layout>
-                )}
-                >
-                  <Route
-                    path="/"
-                    element={<Home />}
-                  />
-                  <Route
-                    path="form"
-                    element={<Form />}
-                  />
-                  <Route
-                    path="login"
-                    element={<Login />}
-                  />
-                  <Route
-                    path="forgotpassword"
-                    element={<ForgotPassword />}
-                  />
-                  <Route
-                    path="registeredbctob2b"
-                    element={(
-                      <RegisteredProvider>
-                        <RegisteredBCToB2B setOpenPage={setOpenPage} />
-                      </RegisteredProvider>
-                    )}
-                  />
-                  <Route
-                    path="registered"
-                    element={(
-                      <RegisteredProvider>
-                        <Registered setOpenPage={setOpenPage} />
-                      </RegisteredProvider>
-                    )}
-                  />
-                  <Route
-                    path="order"
-                    element={<Order />}
-                  />
-                  <Route
-                    path="dashboard"
-                    element={<Dashboard />}
-                  />
-                </Route>
-              </Routes>
-            </Suspense>
+            <B3RenderRouter setOpenPage={setOpenPage} />
           ) : null}
         </ThemeFrame>
       </div>

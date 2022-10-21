@@ -3,6 +3,8 @@ import {
   useEffect,
   useState,
   useContext,
+  Dispatch,
+  SetStateAction,
 } from 'react'
 
 import {
@@ -20,11 +22,18 @@ import {
   useLocation,
 } from 'react-router-dom'
 
+import type {
+  OpenPageState,
+} from '@b3/hooks'
 import {
   getB2BRegisterLogo,
   getBCForcePasswordReset,
   getB2BLoginPageConfig,
 } from '@/shared/service/b2b'
+
+import {
+  B3Card,
+} from '@/components'
 
 import {
   bcLogin,
@@ -76,9 +85,16 @@ const initialLoginInfo = {
   widgetFooterText: '',
   displayStoreLogo: false,
 }
+interface RegisteredProps {
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+}
 
-export default function Login() {
+export default function Login(props:RegisteredProps) {
   const [isLoading, setLoading] = useState(true)
+
+  const {
+    setOpenPage,
+  } = props
 
   const [logo, setLogo] = useState('')
   const [flag, setLoginFlag] = useState<string>('')
@@ -252,7 +268,7 @@ export default function Login() {
           if (info?.userType === 3 && info?.role === 3) {
             navigate('/dashboard')
           } else {
-            navigate('/order')
+            navigate('/orders')
           }
         }
       } catch (error) {
@@ -271,12 +287,13 @@ export default function Login() {
   }
 
   return (
-    <LoginContainer>
-      <B3Sping
-        isSpinning={isLoading}
-        tip={b3Lang('intl.global.tips.loading')}
-      >
-        {
+    <B3Card setOpenPage={setOpenPage}>
+      <LoginContainer>
+        <B3Sping
+          isSpinning={isLoading}
+          tip={b3Lang('intl.global.tips.loading')}
+        >
+          {
           logo && loginInfo?.displayStoreLogo && (
           <LoginImage>
             <ImageListItem sx={{
@@ -293,7 +310,7 @@ export default function Login() {
           )
         }
 
-        {
+          {
           loginInfo?.loginTitle && (
           <Box
             sx={{
@@ -309,7 +326,7 @@ export default function Login() {
           )
         }
 
-        {
+          {
           flag && (
             <Box
               sx={{
@@ -324,64 +341,65 @@ export default function Login() {
 
           )
         }
-        <Box
-          sx={{
-            padding: '0 5%',
-          }}
-        >
-
-          <LoginWidget
+          <Box
             sx={{
-              padding: '10px',
+              padding: '0 5%',
             }}
-            isVisible={loginInfo.isShowWidgetHead}
-            html={loginInfo.widgetHeadText}
-          />
-          <Box sx={{
-            margin: '50px 0',
-            display: 'flex',
-          }}
           >
 
+            <LoginWidget
+              sx={{
+                padding: '10px',
+              }}
+              isVisible={loginInfo.isShowWidgetHead}
+              html={loginInfo.widgetHeadText}
+            />
             <Box sx={{
-              width: '50%',
-              paddingRight: '2%',
+              margin: '50px 0',
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
             }}
             >
-              <LoginForm
-                loginInfo={loginInfo}
-                gotoForgotPassword={gotoForgotPassword}
-                handleLoginSubmit={handleLoginSubmit}
-              />
+
+              <Box sx={{
+                width: '50%',
+                paddingRight: '2%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              >
+                <LoginForm
+                  loginInfo={loginInfo}
+                  gotoForgotPassword={gotoForgotPassword}
+                  handleLoginSubmit={handleLoginSubmit}
+                />
+              </Box>
+
+              <Box sx={{
+                flex: '1',
+                paddingLeft: '2%',
+              }}
+              >
+                <LoginPanel
+                  loginInfo={loginInfo}
+                  handleSubmit={handleCreateAccountSubmit}
+                />
+              </Box>
+
             </Box>
 
-            <Box sx={{
-              flex: '1',
-              paddingLeft: '2%',
-            }}
-            >
-              <LoginPanel
-                loginInfo={loginInfo}
-                handleSubmit={handleCreateAccountSubmit}
-              />
-            </Box>
+            <LoginWidget
+              sx={{
+                padding: '20px',
+              }}
+              isVisible={loginInfo.isShowWidgetFooter}
+              html={loginInfo.widgetFooterText}
+            />
 
           </Box>
 
-          <LoginWidget
-            sx={{
-              padding: '20px',
-            }}
-            isVisible={loginInfo.isShowWidgetFooter}
-            html={loginInfo.widgetFooterText}
-          />
-
-        </Box>
-
-      </B3Sping>
-    </LoginContainer>
+        </B3Sping>
+      </LoginContainer>
+    </B3Card>
   )
 }

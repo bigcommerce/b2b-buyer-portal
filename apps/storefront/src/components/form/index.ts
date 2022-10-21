@@ -1,21 +1,26 @@
 export {
-  B3TextField,
-} from './B3TextField'
+  B3ControlTextField,
+} from './B3ControlTextField'
 export {
-  B3Select,
-} from './B3Select'
+  B3ControlSelect,
+} from './B3ControlSelect'
 export {
-  B3RadioGroup,
-} from './B3RadioGroup'
+  B3ControlRadioGroup,
+} from './B3ControlRadioGroup'
 export {
-  B3Checkbox,
-} from './B3Checkbox'
+  B3ControlCheckbox,
+} from './B3ControlCheckbox'
+export {
+  B3ControlPicker,
+} from './B3ControlPicker'
+export {
+  B3ControlFileUpload,
+} from './B3ControlFileUpload'
+
 export {
   B3Picker,
 } from './B3Picker'
-export {
-  B3FileUpload,
-} from './B3FileUpload'
+
 export {
   Captcha,
 } from '../captcha/Captcha'

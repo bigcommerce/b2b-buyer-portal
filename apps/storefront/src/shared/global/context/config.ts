@@ -22,9 +22,10 @@ export interface GlobalState {
   isLogin: boolean,
   isLoginStatusChange: boolean,
   customerId: number | string,
-  customer?: CustomerInfo,
+  customer: CustomerInfo,
   emailAddress: string,
   role: number | string,
+  logo: string,
 }
 
 export const initState = {
@@ -38,6 +39,7 @@ export const initState = {
   emailAddress: B3SStorage.get('B3EmailAddress') || '',
   role: B3SStorage.get('B3Role') || '',
   customer: B3SStorage.get('B3CustomerInfo') || {},
+  logo: '',
 }
 
 export interface GlobalAction {

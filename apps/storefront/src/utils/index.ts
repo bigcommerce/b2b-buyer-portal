@@ -24,6 +24,10 @@ import {
   clearCurrentCustomerInfo,
 } from './loginInfo'
 
+import {
+  getLogo,
+} from './b3Init'
+
 export {
   convertArrayToGraphql,
   convertObjectToGraphql,
@@ -36,4 +40,5 @@ export {
   getChannelId,
   getCurrentCustomerInfo,
   clearCurrentCustomerInfo,
+  getLogo,
 }

@@ -17,7 +17,7 @@ import {
   StyleNumberTextField,
 } from './styled'
 
-export const B3TextField = ({
+export const B3ControlTextField = ({
   control,
   errors,
   ...rest

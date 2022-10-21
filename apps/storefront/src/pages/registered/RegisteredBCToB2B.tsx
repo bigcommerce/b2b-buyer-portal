@@ -51,6 +51,7 @@ import {
 
 import {
   B3CustomForm,
+  B3Card,
 } from '../../components'
 
 import {
@@ -454,12 +455,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   }
 
   return (
-    <RegisteredContainer>
-      <B3Sping
-        isSpinning={isLoading}
-        tip={b3Lang('intl.global.tips.loading')}
-      >
-        {
+    <B3Card setOpenPage={setOpenPage}>
+      <RegisteredContainer>
+        <B3Sping
+          isSpinning={isLoading}
+          tip={b3Lang('intl.global.tips.loading')}
+        >
+          {
           logo && (
           <RegisteredImage>
             <ImageListItem sx={{
@@ -476,9 +478,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           )
         }
 
-        <InformationLabels>{b3Lang('intl.user.register.title.bcToB2B.businessAccountApplication')}</InformationLabels>
+          <InformationLabels>{b3Lang('intl.user.register.title.bcToB2B.businessAccountApplication')}</InformationLabels>
 
-        {
+          {
           errorMessage && (
           <Alert
             severity="error"
@@ -490,55 +492,56 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           )
         }
 
-        <Box>
-          <InformationFourLabels>{contactInformation?.length ? contactInformation[0]?.groupName : ''}</InformationFourLabels>
-          <B3CustomForm
-            formFields={contactInformation}
-            errors={errors}
-            control={control}
-            getValues={getValues}
-            setValue={setValue}
-          />
+          <Box>
+            <InformationFourLabels>{contactInformation?.length ? contactInformation[0]?.groupName : ''}</InformationFourLabels>
+            <B3CustomForm
+              formFields={contactInformation}
+              errors={errors}
+              control={control}
+              getValues={getValues}
+              setValue={setValue}
+            />
 
-        </Box>
+          </Box>
 
-        <Box>
-          <InformationFourLabels>{companyInformation?.length ? companyInformation[0]?.groupName : ''}</InformationFourLabels>
-          <B3CustomForm
-            formFields={[...companyInformation, ...companyExtraFields]}
-            errors={errors}
-            control={control}
-            getValues={getValues}
-            setValue={setValue}
-          />
-        </Box>
+          <Box>
+            <InformationFourLabels>{companyInformation?.length ? companyInformation[0]?.groupName : ''}</InformationFourLabels>
+            <B3CustomForm
+              formFields={[...companyInformation, ...companyExtraFields]}
+              errors={errors}
+              control={control}
+              getValues={getValues}
+              setValue={setValue}
+            />
+          </Box>
 
-        <Box>
-          <InformationFourLabels>{addressBasicFields?.length ? addressBasicFields[0]?.groupName : ''}</InformationFourLabels>
+          <Box>
+            <InformationFourLabels>{addressBasicFields?.length ? addressBasicFields[0]?.groupName : ''}</InformationFourLabels>
 
-          <B3CustomForm
-            formFields={addressBasicFields}
-            errors={errors}
-            control={control}
-            getValues={getValues}
-            setValue={setValue}
-          />
-        </Box>
-      </B3Sping>
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'row-reverse',
-        pt: 2,
-      }}
-      >
-        <Button
-          variant="contained"
-          onClick={handleNext}
+            <B3CustomForm
+              formFields={addressBasicFields}
+              errors={errors}
+              control={control}
+              getValues={getValues}
+              setValue={setValue}
+            />
+          </Box>
+        </B3Sping>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'row-reverse',
+          pt: 2,
+        }}
         >
-          {b3Lang('intl.global.button.submit')}
-        </Button>
-      </Box>
+          <Button
+            variant="contained"
+            onClick={handleNext}
+          >
+            {b3Lang('intl.global.button.submit')}
+          </Button>
+        </Box>
 
-    </RegisteredContainer>
+      </RegisteredContainer>
+    </B3Card>
   )
 }

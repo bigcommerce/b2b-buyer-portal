@@ -68,7 +68,7 @@ const getMaxFileSizeLabel = (maxSize: number) => {
   return `${maxSize}B`
 }
 
-export const B3FileUpload = (props: FileUploadProps) => {
+export const B3ControlFileUpload = (props: FileUploadProps) => {
   const b3Lang = useB3Lang()
 
   const {

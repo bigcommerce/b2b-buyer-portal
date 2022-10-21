@@ -2,12 +2,12 @@ import {
   Grid,
 } from '@mui/material'
 import {
-  B3TextField,
-  B3Checkbox,
-  B3RadioGroup,
-  B3Select,
-  B3Picker,
-  B3FileUpload,
+  B3ControlTextField,
+  B3ControlCheckbox,
+  B3ControlRadioGroup,
+  B3ControlSelect,
+  B3ControlPicker,
+  B3ControlFileUpload,
 } from './form'
 
 import B3UI from './form/ui'
@@ -33,7 +33,7 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
       >
         <>
           {['text', 'number', 'password', 'multiline'].includes(fieldType) && (
-          <B3TextField
+          <B3ControlTextField
             {...field}
             errors={errors}
             control={control}
@@ -41,7 +41,7 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
           )}
           {
             ['checkbox'].includes(fieldType) && (
-              <B3Checkbox
+              <B3ControlCheckbox
                 {...field}
                 errors={errors}
                 control={control}
@@ -51,7 +51,7 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
           }
           {
             ['radio'].includes(fieldType) && (
-              <B3RadioGroup
+              <B3ControlRadioGroup
                 {...field}
                 errors={errors}
                 control={control}
@@ -60,7 +60,7 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
           }
           {
             ['dropdown'].includes(fieldType) && (
-              <B3Select
+              <B3ControlSelect
                 {...field}
                 errors={errors}
                 control={control}
@@ -70,7 +70,7 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
           }
           {
             ['date'].includes(fieldType) && (
-              <B3Picker
+              <B3ControlPicker
                 {...field}
                 errors={errors}
                 control={control}
@@ -80,7 +80,7 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
           }
           {
             ['files'].includes(fieldType) && (
-              <B3FileUpload
+              <B3ControlFileUpload
                 {...field}
                 errors={errors}
                 control={control}

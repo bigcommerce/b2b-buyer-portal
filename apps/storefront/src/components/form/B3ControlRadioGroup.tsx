@@ -1,35 +1,29 @@
 import {
+  Radio,
+  RadioGroup,
   FormControlLabel,
   FormControl,
   FormLabel,
   FormHelperText,
-  Checkbox,
 } from '@mui/material'
 import {
   Controller,
 } from 'react-hook-form'
-
 import {
   useB3Lang,
 } from '@b3/lang'
+
 import Form from './ui'
 
-interface CheckboxListProps {
-  value: string,
-  label: string,
-  [key: string]: string,
-}
-
-export const B3Checkbox = ({
+export const B3ControlRadioGroup = ({
   control,
   errors,
-  getValues,
   ...rest
 } : Form.B3UIProps) => {
   const {
-    default: defaultValue,
     fieldType,
     name,
+    default: defaultValue,
     required,
     label,
     validate,
@@ -52,21 +46,10 @@ export const B3Checkbox = ({
     control,
   }
 
-  const handleCheck = (value: Number | string, name: string) => {
-    const getAllValue = getValues()[name] || []
-    const valueString: string = `${value}`
-
-    const newValue = getAllValue?.includes(valueString)
-      ? getAllValue?.filter((id: string) => id !== value)
-      : [...(getAllValue ?? []), value]
-
-    return newValue
-  }
-
   return (
     <>
       {
-        ['checkbox'].includes(fieldType) && (
+        ['radio'].includes(fieldType) && (
           <FormControl>
             {
               label && (
@@ -81,21 +64,27 @@ export const B3Checkbox = ({
             <Controller
               {...fieldsProps}
               render={({
-                field: {
-                  onChange,
-                },
-              }) => options?.map((list: CheckboxListProps) => (
-                <FormControlLabel
-                  control={(
-                    <Checkbox
-                      onChange={() => onChange(handleCheck(list.value, name))}
-                      defaultChecked={defaultValue.includes(list.value)}
-                    />
-                  )}
-                  key={list.value}
-                  label={list.label}
-                />
-              ))}
+                field,
+              }) => (
+                <RadioGroup
+                  {...field}
+                >
+                  {
+                    options?.length && (
+                      options.map((option: Form.RadopGroupListProps) => (
+                        <FormControlLabel
+                          value={option.value}
+                          label={option.label}
+                          key={option.label}
+                          control={(
+                            <Radio />
+                          )}
+                        />
+                      ))
+                    )
+                  }
+                </RadioGroup>
+              )}
             />
             {
               errors[name] && (<FormHelperText error={!!errors[name]}>{(errors as any)[name] ? (errors as any)[name].message : null}</FormHelperText>)

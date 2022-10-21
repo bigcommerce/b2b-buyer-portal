@@ -9,3 +9,7 @@ import {
 export const CloseButton = styled(Close)(() => ({
   cursor: 'pointer',
 }))
+
+export const CardContainer = styled('div')(() => ({
+  padding: '20px 20px',
+}))

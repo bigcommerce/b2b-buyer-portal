@@ -1,29 +1,35 @@
 import {
-  Radio,
-  RadioGroup,
   FormControlLabel,
   FormControl,
   FormLabel,
   FormHelperText,
+  Checkbox,
 } from '@mui/material'
 import {
   Controller,
 } from 'react-hook-form'
+
 import {
   useB3Lang,
 } from '@b3/lang'
-
 import Form from './ui'
 
-export const B3RadioGroup = ({
+interface CheckboxListProps {
+  value: string,
+  label: string,
+  [key: string]: string,
+}
+
+export const B3ControlCheckbox = ({
   control,
   errors,
+  getValues,
   ...rest
 } : Form.B3UIProps) => {
   const {
+    default: defaultValue,
     fieldType,
     name,
-    default: defaultValue,
     required,
     label,
     validate,
@@ -46,10 +52,21 @@ export const B3RadioGroup = ({
     control,
   }
 
+  const handleCheck = (value: Number | string, name: string) => {
+    const getAllValue = getValues()[name] || []
+    const valueString: string = `${value}`
+
+    const newValue = getAllValue?.includes(valueString)
+      ? getAllValue?.filter((id: string) => id !== value)
+      : [...(getAllValue ?? []), value]
+
+    return newValue
+  }
+
   return (
     <>
       {
-        ['radio'].includes(fieldType) && (
+        ['checkbox'].includes(fieldType) && (
           <FormControl>
             {
               label && (
@@ -64,27 +81,21 @@ export const B3RadioGroup = ({
             <Controller
               {...fieldsProps}
               render={({
-                field,
-              }) => (
-                <RadioGroup
-                  {...field}
-                >
-                  {
-                    options?.length && (
-                      options.map((option: Form.RadopGroupListProps) => (
-                        <FormControlLabel
-                          value={option.value}
-                          label={option.label}
-                          key={option.label}
-                          control={(
-                            <Radio />
-                          )}
-                        />
-                      ))
-                    )
-                  }
-                </RadioGroup>
-              )}
+                field: {
+                  onChange,
+                },
+              }) => options?.map((list: CheckboxListProps) => (
+                <FormControlLabel
+                  control={(
+                    <Checkbox
+                      onChange={() => onChange(handleCheck(list.value, name))}
+                      defaultChecked={defaultValue.includes(list.value)}
+                    />
+                  )}
+                  key={list.value}
+                  label={list.label}
+                />
+              ))}
             />
             {
               errors[name] && (<FormHelperText error={!!errors[name]}>{(errors as any)[name] ? (errors as any)[name].message : null}</FormHelperText>)

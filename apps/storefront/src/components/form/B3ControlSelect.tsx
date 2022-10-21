@@ -18,7 +18,7 @@ import {
 
 import Form from './ui'
 
-export const B3Select = ({
+export const B3ControlSelect = ({
   control,
   errors,
   ...rest

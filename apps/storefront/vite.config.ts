@@ -17,7 +17,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/bigcommerce': {
-        target: 'https://store-rtmh8fqr05.mybigcommerce.com',
+        target: 'https://store-al0cfwwv8r.mybigcommerce.com/',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/bigcommerce/, ''),
       },

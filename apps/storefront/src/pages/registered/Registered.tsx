@@ -50,6 +50,10 @@ import {
 } from '@/components/spin/B3Sping'
 
 import {
+  B3Card,
+} from '@/components'
+
+import {
   getRegisterLogo,
   companyAttachmentsFields,
   getAccountFormFields,
@@ -295,39 +299,41 @@ export default function Registered(props: RegisteredProps) {
   }
 
   return (
-    <RegisteredContainer>
-      <B3Sping
-        isSpinning={isLoading}
-        tip={b3Lang('intl.global.tips.loading')}
-      >
-        {
-          logo && (
-          <RegisteredImage>
-            <ImageListItem sx={{
-              maxWidth: '250px',
-            }}
-            >
-              <img
-                src={`${logo}`}
-                alt={b3Lang('intl.user.register.tips.registerLogo')}
-                loading="lazy"
-              />
-            </ImageListItem>
-          </RegisteredImage>
-          )
-        }
-        <RegisteredStep
-          activeStep={activeStep}
-          isStepOptional={isStepOptional}
+    <B3Card setOpenPage={setOpenPage}>
+      <RegisteredContainer>
+        <B3Sping
+          isSpinning={isLoading}
+          tip={b3Lang('intl.global.tips.loading')}
         >
-          <RegisterContent
+          {
+            logo && (
+            <RegisteredImage>
+              <ImageListItem sx={{
+                maxWidth: '250px',
+              }}
+              >
+                <img
+                  src={`${logo}`}
+                  alt={b3Lang('intl.user.register.tips.registerLogo')}
+                  loading="lazy"
+                />
+              </ImageListItem>
+            </RegisteredImage>
+            )
+          }
+          <RegisteredStep
             activeStep={activeStep}
-            handleBack={handleBack}
-            handleNext={handleNext}
-            handleFinish={handleFinish}
-          />
-        </RegisteredStep>
-      </B3Sping>
-    </RegisteredContainer>
+            isStepOptional={isStepOptional}
+          >
+            <RegisterContent
+              activeStep={activeStep}
+              handleBack={handleBack}
+              handleNext={handleNext}
+              handleFinish={handleFinish}
+            />
+          </RegisteredStep>
+        </B3Sping>
+      </RegisteredContainer>
+    </B3Card>
   )
 }
