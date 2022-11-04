@@ -31,10 +31,10 @@ jobs:
           curl --location --request POST ${api_host}'/api/v3/stores/revisions' \
           --header 'Authorization: Basic '${{secrets.API_CREDENTIAL}} \
           --header 'Content-Type: application/json' \
-          --data-raw '{ \
-            "cssFiles": ["'${s3_host}/${index_css}'"], \
-            "jsFiles": ["'${s3_host}/${poly_js}'", "'${s3_host}/${index_js}'"], \
-            "revisionTitle": "v220323" \
+          --data-raw '{
+            "cssFiles": ["'${s3_host}/${index_css}'"],
+            "jsFiles": ["'${s3_host}/${poly_js}'", "'${s3_host}/${index_js}'"],
+            "revisionTitle": "v220323"
           }'
         shell: bash
 
