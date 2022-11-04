@@ -21,12 +21,13 @@ jobs:
           AWS_REGION: 'us-west-2'   # optional: defaults to us-east-1
           SOURCE_DIR: 'apps/storefront/dist/assets'      # optional: defaults to entire repository
 
-      - run: index_css=$(find apps/storefront/dist/assets -name index.*.css -type f -printf '%f')
-      - run: poly_js=$(find apps/storefront/dist/assets -name polyfills-legacy.*.js -type f -printf '%f')
-      - run: index_js=$(find apps/storefront/dist/assets -name index-legacy.*.js -type f -printf '%f')
-      - run: api_host=https://dde1-2409-8a62-1374-dfd0-9053-8899-2542-18b8.ap.ngrok.io
-      - run: s3_host=https://b3-newsf-testtest.s3.us-west-2.amazonaws.com
+
       - run: |
+          index_css=$(find apps/storefront/dist/assets -name index.*.css -type f -printf '%f')
+          poly_js=$(find apps/storefront/dist/assets -name polyfills-legacy.*.js -type f -printf '%f')
+          index_js=$(find apps/storefront/dist/assets -name index-legacy.*.js -type f -printf '%f')
+          api_host=https://dde1-2409-8a62-1374-dfd0-9053-8899-2542-18b8.ap.ngrok.io
+          s3_host=https://b3-newsf-testtest.s3.us-west-2.amazonaws.com
           curl --location --request GET ${api_host}'/api/v3/stores/new-client-deploy-statuses' \
           --header 'Authorization: Basic '${{secrets.API_CREDENTIAL}} \
           --header 'Content-Type: application/json' \
@@ -35,4 +36,5 @@ jobs:
             "jsFiles": ["'${s3_host}/${poly_js}'", "'${s3_host}/${index_js}'"], \
             "revisionTitle": "v220323" \
           }'
+        shell: bash
 
