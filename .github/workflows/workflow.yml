@@ -22,7 +22,7 @@ jobs:
           AWS_REGION: 'us-west-2'   # optional: defaults to us-east-1
           SOURCE_DIR: 'build'      # optional: defaults to entire repository
 
-      - run: >
+      - run: |
         curl --location --request GET 'localhost:8000/api/v3/stores/new-client-deploy-statuses' \
         --header 'Authorization: Basic MTox' \
         --header 'Content-Type: application/json' \
