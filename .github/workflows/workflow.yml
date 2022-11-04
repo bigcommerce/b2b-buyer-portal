@@ -1,0 +1,16 @@
+name: sf CI
+on:
+  push:
+    branches:
+      - deploy-test
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - uses: actions/checkout@v2
+      - run: yarn
+      - run: yarn build
