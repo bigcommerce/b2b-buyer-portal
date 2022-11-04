@@ -28,7 +28,7 @@ jobs:
           index_js=$(find apps/storefront/dist/assets -name index-legacy.*.js -type f -printf '%f')
           api_host=https://dde1-2409-8a62-1374-dfd0-9053-8899-2542-18b8.ap.ngrok.io
           s3_host=https://b3-newsf-testtest.s3.us-west-2.amazonaws.com
-          curl --location --request GET ${api_host}'/api/v3/stores/new-client-deploy-statuses' \
+          curl --location --request POST ${api_host}'/api/v3/stores/revisions' \
           --header 'Authorization: Basic '${{secrets.API_CREDENTIAL}} \
           --header 'Content-Type: application/json' \
           --data-raw '{ \
