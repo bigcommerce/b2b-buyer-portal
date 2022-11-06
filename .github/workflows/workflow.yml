@@ -31,7 +31,7 @@ jobs:
           curl --location --request POST ${{ secrets.API_HOST1 }}'/api/v3/stores/revisions' \
           --header 'Authorization: Basic '${{ secrets.API_CREDENTIAL }} \
           --header 'Content-Type: application/json' \
-          --data-raw @- << EOF
+          --data-binary @- << EOF
           {
             "cssFiles": ["${{ secrets.S3_HOST }}/${index_css}"],
             "jsFiles": ["${{ secrets.S3_HOST }}/${poly_js}", "${{ secrets.S3_HOST }}/${index_js}"],
@@ -42,10 +42,10 @@ jobs:
       - name: start deploy
         run: |
           api_host=https://dde1-2409-8a62-1374-dfd0-9053-8899-2542-18b8.ap.ngrok.io
-          curl --location --request POST ${{ secrets.API_HOST1 }}'/api/v3/stores/revisions' \
-          --header 'Authorization: Basic '${{secrets.API_CREDENTIAL}} \
+          curl --location --request POST ${{ secrets.API_HOST1 }}'/api/v3/stores/deployments' \
+          --header 'Authorization: Basic '${{ secrets.API_CREDENTIAL }} \
           --header 'Content-Type: application/json' \
-          --data-raw @- << EOF
+          --data-binary @- << EOF
           {
             "store_hashs": [
               "rtmh8fqr05"
