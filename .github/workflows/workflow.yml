@@ -50,7 +50,7 @@ jobs:
             "store_hashs": [
               "rtmh8fqr05"
             ],
-            "revision": "v22"
+            "revision": "${GITHUB_SHA_SHORT}"
           }
           EOF
         shell: bash
