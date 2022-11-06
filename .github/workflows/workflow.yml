@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: yarn
       - run: yarn build
+      - run: echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
       - uses: jakejarvis/s3-sync-action@master
         with:
           args: --acl public-read
@@ -20,21 +21,37 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-west-2'   # optional: defaults to us-east-1
           SOURCE_DIR: 'apps/storefront/dist/assets'      # optional: defaults to entire repository
-
-
-      - run: |
+      - name: create revision
+        run: |
           index_css=$(find apps/storefront/dist/assets -name index.*.css -type f -printf '%f')
           poly_js=$(find apps/storefront/dist/assets -name polyfills-legacy.*.js -type f -printf '%f')
           index_js=$(find apps/storefront/dist/assets -name index-legacy.*.js -type f -printf '%f')
           api_host=https://dde1-2409-8a62-1374-dfd0-9053-8899-2542-18b8.ap.ngrok.io
           s3_host=https://b3-newsf-testtest.s3.us-west-2.amazonaws.com
-          curl --location --request POST ${api_host}'/api/v3/stores/revisions' \
+          curl --location --request POST ${{ secrets.API_HOST1 }}'/api/v3/stores/revisions' \
           --header 'Authorization: Basic '${{secrets.API_CREDENTIAL}} \
           --header 'Content-Type: application/json' \
-          --data-raw '{
-            "cssFiles": ["'${s3_host}/${index_css}'"],
-            "jsFiles": ["'${s3_host}/${poly_js}'", "'${s3_host}/${index_js}'"],
-            "revisionTitle": "v220323"
-          }'
+          --data-raw @- << EOF
+          {
+            "cssFiles": ["${{ secrets.S3_HOST }}/${index_css}"],
+            "jsFiles": ["${{ secrets.S3_HOST }}/${poly_js}", "${{ secrets.S3_HOST }}/${index_js}"],
+            "revisionTitle": "${GITHUB_SHA_SHORT}"
+          }
+          EOF
+        shell: bash
+      - name: start deploy
+        run: |
+          api_host=https://dde1-2409-8a62-1374-dfd0-9053-8899-2542-18b8.ap.ngrok.io
+          curl --location --request POST ${{ secrets.API_HOST1 }}'/api/v3/stores/revisions' \
+          --header 'Authorization: Basic '${{secrets.API_CREDENTIAL}} \
+          --header 'Content-Type: application/json' \
+          --data-raw @- << EOF
+          {
+            "store_hashs": [
+              "rtmh8fqr05"
+            ],
+            "revision": "${GITHUB_SHA_SHORT}"
+          }
+          EOF
         shell: bash
 
