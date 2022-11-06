@@ -29,7 +29,7 @@ jobs:
           api_host=https://dde1-2409-8a62-1374-dfd0-9053-8899-2542-18b8.ap.ngrok.io
           s3_host=https://b3-newsf-testtest.s3.us-west-2.amazonaws.com
           curl --location --request POST ${{ secrets.API_HOST1 }}'/api/v3/stores/revisions' \
-          --header 'Authorization: Basic '${{secrets.API_CREDENTIAL}} \
+          --header 'Authorization: Basic '${{ secrets.API_CREDENTIAL }} \
           --header 'Content-Type: application/json' \
           --data-raw @- << EOF
           {
@@ -50,7 +50,7 @@ jobs:
             "store_hashs": [
               "rtmh8fqr05"
             ],
-            "revision": "${GITHUB_SHA_SHORT}"
+            "revision": "v22"
           }
           EOF
         shell: bash
