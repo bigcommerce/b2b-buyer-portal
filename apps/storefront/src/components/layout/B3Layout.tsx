@@ -96,7 +96,7 @@ export function B3Layout({
                 <B3Logo />
                 <Box
                   sx={{
-                    pt: '32px',
+                    pt: '40px',
                   }}
                 >
                   <B3Nav />

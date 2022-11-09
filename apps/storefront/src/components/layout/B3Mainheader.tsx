@@ -114,6 +114,7 @@ export const B3Mainheader = () => {
           fontSize: '24px',
           display: 'flex',
           alignItems: 'end',
+          mb: '8px',
         }}
       >
         {title}

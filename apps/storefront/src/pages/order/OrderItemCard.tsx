@@ -1,3 +1,7 @@
+import {
+  useContext,
+} from 'react'
+
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Box from '@mui/material/Box'
@@ -16,6 +20,9 @@ import {
 import {
   format,
 } from 'date-fns'
+import {
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   OrderStatus,
@@ -56,9 +63,14 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
 
   const theme = useTheme()
 
-  const navigate = useNavigate()
+  const {
+    state: {
+      customer,
+      isB2BUser,
+    },
+  } = useContext(GlobaledContext)
 
-  console.log(JSON.parse(item.money))
+  const navigate = useNavigate()
 
   const goToDetail = (item: ListItem) => {
     navigate(`/orderDetail/${item.orderId}`, {
@@ -69,6 +81,13 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
         isCompanyOrder,
       },
     })
+  }
+
+  const getName = (item: ListItem) => {
+    if (isB2BUser) {
+      return `by ${item.firstName} ${item.lastName}`
+    }
+    return `by ${customer.firstName} ${customer.lastName}`
   }
 
   return (
@@ -134,7 +153,7 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
               marginRight: theme.spacing(2),
             }}
           >
-            {`by ${item.firstName} ${item.lastName}`}
+            {getName(item)}
           </Typography>
           <Typography>
             {format(+item.createdAt * 1000, 'dd MMM yy')}
