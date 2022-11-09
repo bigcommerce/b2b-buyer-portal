@@ -23,6 +23,11 @@ export interface GlobalState {
   isLoginStatusChange: boolean,
   customerId: number | string,
   customer: CustomerInfo,
+  companyInfo: {
+    id: string | number,
+    companyName: string | number,
+    companyStatus: string | number,
+  },
   emailAddress: string,
   role: number | string,
   logo: string,
@@ -52,6 +57,11 @@ export const initState = {
     lastName: '',
     phoneNumber: '',
     emailAddress: '',
+  },
+  companyInfo: B3SStorage.get('B3CompanyInfo') || {
+    id: '',
+    companyName: '',
+    companyStatus: '',
   },
   logo: '',
   isCompanyAccount: false,

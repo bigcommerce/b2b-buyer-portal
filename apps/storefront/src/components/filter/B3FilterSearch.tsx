@@ -69,7 +69,11 @@ const B3FilterSearch = ({
       </IconButton>
       <InputBase
         sx={{
-          ml: 1, flex: 1,
+          ml: 1,
+          flex: 1,
+          '& .MuiInputBase-input': {
+            pb: 0,
+          },
         }}
         size="small"
         value={search}

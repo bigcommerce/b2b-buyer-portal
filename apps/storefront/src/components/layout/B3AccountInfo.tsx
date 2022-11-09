@@ -16,9 +16,9 @@ import {
   GlobaledContext,
 } from '@/shared/global'
 
-import {
-  B3DropDown,
-} from '../B3DropDown'
+// import {
+//   B3DropDown,
+// } from '../B3DropDown'
 
 interface ListProps {
   [key: string]: string
@@ -88,7 +88,7 @@ export const B3AccountInfo = ({
           >
             Logged in as
             {' '}
-            {firstName}
+            {name}
           </Box>
           {
             list.map((item) => (
@@ -107,14 +107,18 @@ export const B3AccountInfo = ({
       ) : (
         <Box sx={{
           width: '150px',
+          display: 'flex',
+          justifyContent: 'end',
+          mr: '8px',
         }}
         >
-          <B3DropDown
+          { name }
+          {/* <B3DropDown
             title={name}
             width="150px"
             handleItemClick={handleItemClick}
             list={list}
-          />
+          /> */}
 
         </Box>
       )

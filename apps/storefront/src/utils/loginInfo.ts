@@ -4,6 +4,7 @@ import {
   getB2BCompanyUserInfo,
   getB2BToken,
   getAgentInfo,
+  getUserCompany,
 } from '@/shared/service/b2b'
 
 import {
@@ -32,6 +33,13 @@ type B2BToken = {
     }
   }
 }
+
+// B3Role = {
+//   ADMIN: '0',
+//   SENIOR: '1',
+//   JUNIOR: '2',
+//   SALESREP: '3',
+// }
 
 export interface ChannelstoreSites {
   storeSites?: Array<ChannelIdProps> | [],
@@ -158,6 +166,59 @@ const getCurrentJwtAndB2BToken = async (userType: number) => {
   }
 }
 
+const getCompanyInfo = async (id: number, userType: number, role:number) => {
+  let companyInfo = {
+    id: '',
+    companyName: '',
+    companyStatus: '',
+  }
+  if (userType === 3 && role !== 3) {
+    const {
+      userCompany,
+    }: any = await getUserCompany(id)
+
+    if (userCompany) {
+      companyInfo = {
+        ...userCompany,
+      }
+    }
+  }
+
+  return companyInfo
+}
+
+export const getCurrentAgentInfo = async (customerId: number, role: number) => {
+  let isAgenting = false
+  let salesRepCompanyId = ''
+  let salesRepCompanyName = ''
+
+  if (role === 3) {
+    try {
+      const data: any = await getAgentInfo(customerId)
+      if (data?.superAdminMasquerading) {
+        const {
+          id,
+          companyName,
+        } = data.superAdminMasquerading
+        B3SStorage.set('isAgenting', true)
+        B3SStorage.set('salesRepCompanyId', id)
+        B3SStorage.set('salesRepCompanyName', companyName)
+        salesRepCompanyId = id
+        salesRepCompanyName = companyName
+        isAgenting = true
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  return {
+    isAgenting,
+    salesRepCompanyId,
+    salesRepCompanyName,
+  }
+}
+
 export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   try {
     const {
@@ -189,7 +250,10 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
 
     await getCurrentJwtAndB2BToken(userType)
 
+    const companyInfo = await getCompanyInfo(id, userType, role)
+
     if (customerId) {
+      const agentInfo = await getCurrentAgentInfo(customerId, role)
       const customerInfo = {
         phoneNumber,
         firstName,
@@ -197,39 +261,13 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
         emailAddress,
         customerGroupId,
       }
-      // B3SStorage.set('emailAddress', emailAddress)
       B3SStorage.set('B3CustomerInfo', customerInfo)
+      B3SStorage.set('B3CompanyInfo', companyInfo)
       B3SStorage.set('B3CustomerId', customerId)
       B3SStorage.set('B3EmailAddress', emailAddress)
       B3SStorage.set('B3UserId', id)
-
-      // B3Role = {
-      //   ADMIN: '0',
-      //   SENIOR: '1',
-      //   JUNIOR: '2',
-      //   SALESREP: '3',
-      // }
       B3SStorage.set('B3Role', role)
-      // B3SStorage.set('isAgenting', )
       B3SStorage.set('isB2BUser', userType === 3)
-
-      let isAgenting = false
-      let salesRepCompanyId = ''
-      let salesRepCompanyName = ''
-
-      if (role === 3) {
-        try {
-          const data: any = await getAgentInfo(customerId)
-          if (data?.companyId) {
-            B3SStorage.set('isAgenting', true)
-            salesRepCompanyId = data.companyId
-            salesRepCompanyName = data.companyName
-            isAgenting = true
-          }
-        } catch (error) {
-          console.log(error)
-        }
-      }
 
       dispatch({
         type: 'common',
@@ -238,9 +276,10 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
           role,
           customerId,
           B3UserId: id,
-          isAgenting,
-          salesRepCompanyId,
-          salesRepCompanyName,
+          isAgenting: agentInfo.isAgenting,
+          salesRepCompanyId: agentInfo.salesRepCompanyId,
+          salesRepCompanyName: agentInfo.salesRepCompanyName,
+          companyInfo,
           customer: {
             phoneNumber,
             firstName,

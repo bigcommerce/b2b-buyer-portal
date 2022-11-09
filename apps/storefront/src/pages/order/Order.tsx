@@ -83,7 +83,7 @@ interface SortByListProps {
 
 const sortByList: Array<SortByListProps> = [
   {
-    name: 'Create By',
+    name: 'Created on',
     id: 'createdAt',
   },
   {
@@ -115,19 +115,19 @@ interface OrderProps {
   isCompanyOrder?: boolean
 }
 
-interface filterB2BDataProps {
-  allOrders: {
-    edges: Array<any>
-    totalCount: {[key: string]: number}
-  }
-}
+// interface filterB2BDataProps {
+//   allOrders: {
+//     edges: Array<any>
+//     totalCount: {[key: string]: number}
+//   }
+// }
 
-interface filterBCDataProps {
-  customerOrders: {
-    edges: Array<any>
-    totalCount: {[key: string]: number}
-  }
-}
+// interface filterBCDataProps {
+//   customerOrders: {
+//     edges: Array<any>
+//     totalCount: {[key: string]: number}
+//   }
+// }
 
 interface ListItemsProps {
   node: {
@@ -147,6 +147,8 @@ const Order = ({
   const {
     state: {
       isB2BUser,
+      isAgenting,
+      role,
     },
   } = useContext(GlobaledContext)
 
@@ -206,6 +208,7 @@ const Order = ({
         currentIndex: index,
         searchParams: filterData,
         totalCount: pagination.count,
+        isCompanyOrder,
       },
     })
   }
@@ -235,7 +238,8 @@ const Order = ({
     },
     {
       key: 'totalIncTax',
-      title: 'Total',
+      title: 'Grand total',
+      render: (item: ListItem) => (`${item.totalIncTax && '$'}${item.totalIncTax}`),
     },
     {
       key: 'status',
@@ -245,7 +249,7 @@ const Order = ({
     },
     {
       key: 'firstName',
-      title: 'Place by',
+      title: 'Placed by',
       render: (item: ListItem) => (`${item.firstName} ${item.lastName}`),
     },
     {
@@ -266,7 +270,8 @@ const Order = ({
         key,
       } = item
       if (!isB2BUser && (key === 'companyId' || key === 'poNumber' || key === 'firstName')) return false
-      if (isB2BUser && !isCompanyOrder && key === 'companyId') return false
+      // if (key === 'companyId' && ((isB2BUser && !isCompanyOrder) || +role !== 3 || isAgenting)) return false
+      if (key === 'companyId' && !(+role === 3 && !isAgenting)) return false
       return true
     })
 
@@ -366,6 +371,7 @@ const Order = ({
                 index={index}
                 pagination={pagination}
                 filterData={filterData}
+                isCompanyOrder={isCompanyOrder}
               />
             )}
           />

@@ -30,6 +30,7 @@ export interface OrderItemCardProps {
   filterData: any,
   index: number,
   item: ListItem,
+  isCompanyOrder: boolean,
 }
 
 const Flex = styled('div')(() => ({
@@ -46,6 +47,7 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
     pagination,
     filterData,
     index,
+    isCompanyOrder,
   } = props
 
   const theme = useTheme()
@@ -53,12 +55,12 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
   const navigate = useNavigate()
 
   const goToDetail = (item: ListItem) => {
-    navigate(`/orderDetail/${item.orderId}`)
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
         currentIndex: index,
         searchParams: filterData,
         totalCount: pagination.count,
+        isCompanyOrder,
       },
     })
   }

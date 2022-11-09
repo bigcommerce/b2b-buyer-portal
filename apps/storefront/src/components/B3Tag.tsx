@@ -19,4 +19,5 @@ export const B3Tag = styled('span')(({
   backgroundColor: color,
   color: textColor,
   fontSize,
+  whiteSpace: 'nowrap',
 }))

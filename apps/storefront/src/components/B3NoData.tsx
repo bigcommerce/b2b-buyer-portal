@@ -13,6 +13,7 @@ const NoDataContainer = styled('div')(({
   backgroundColor = '#fff',
 }: B3NoDataProps) => ({
   height: '100%',
+  minHeight: '400px',
   backgroundColor,
   display: 'flex',
   justifyContent: 'center',

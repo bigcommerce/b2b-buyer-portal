@@ -1,6 +1,7 @@
 import {
   useState,
   ReactNode,
+  useContext,
 } from 'react'
 import {
   Box,
@@ -11,6 +12,10 @@ import {
   DensityMedium,
   Close,
 } from '@mui/icons-material'
+
+import {
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   B3Logo,
@@ -33,6 +38,14 @@ export const B3MobileLayout = ({
   const openRouteList = () => {
     setOpenMobileSidebar(true)
   }
+
+  const {
+    state: {
+      isCompanyAccount,
+      companyInfo,
+      salesRepCompanyName,
+    },
+  } = useContext(GlobaledContext)
 
   return (
     <Box
@@ -100,7 +113,7 @@ export const B3MobileLayout = ({
                 m: 0,
               }}
             >
-              Renteach building
+              {companyInfo?.companyName || salesRepCompanyName}
             </Box>
             <Close onClick={() => setOpenMobileSidebar(false)} />
           </Box>

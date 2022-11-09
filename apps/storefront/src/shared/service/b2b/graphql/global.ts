@@ -58,6 +58,16 @@ const superAdminEndMasqueradeQl = (companyId: string | number, userId: number) =
   }
 }`
 
+const userCompanyQl = (userId: number) => `{
+  userCompany(
+    userId: ${userId}
+  ) {
+    companyName,
+    companyStatus,
+    id,
+  }
+}`
+
 export const getB2BToken = (bcJwtToken: string) => B3Request.graphqlB2B({
   query: getB2BTokenQl(bcJwtToken),
 })
@@ -76,4 +86,8 @@ export const superAdminBeginMasquerade = (companyId: number, userId: number) => 
 
 export const superAdminEndMasquerade = (companyId: number, userId: number) => B3Request.graphqlB2B({
   query: superAdminEndMasqueradeQl(companyId, userId),
+})
+
+export const getUserCompany = (userId: number) => B3Request.graphqlB2B({
+  query: userCompanyQl(userId),
 })

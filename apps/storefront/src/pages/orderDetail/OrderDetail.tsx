@@ -1,6 +1,6 @@
 import {
   useParams,
-
+  useLocation,
   useNavigate,
 } from 'react-router-dom'
 
@@ -53,6 +53,10 @@ import {
   B3Sping,
 } from '@/components/spin/B3Sping'
 
+interface LocationState {
+  isCompanyOrder: boolean,
+}
+
 const OrderDetail = () => {
   const params = useParams()
 
@@ -63,6 +67,8 @@ const OrderDetail = () => {
       isB2BUser,
     },
   } = useContext(GlobaledContext)
+
+  const localtion = useLocation()
 
   const [isMobile] = useMobile()
   const [orderId, setOrderId] = useState('')
@@ -108,7 +114,7 @@ const OrderDetail = () => {
   }
 
   const goToOrders = () => {
-    navigate('/orders')
+    navigate(`${(localtion.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders'}`)
   }
 
   useEffect(() => {

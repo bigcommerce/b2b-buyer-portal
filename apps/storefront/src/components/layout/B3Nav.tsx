@@ -7,6 +7,7 @@ import {
 
 import {
   useContext,
+  useRef,
 } from 'react'
 import {
   useNavigate,
@@ -42,6 +43,7 @@ export const B3Nav = ({
   const [isMobile] = useMobile()
   const navigate = useNavigate()
   const location = useLocation()
+  const nextPath = useRef<null | string>(null)
 
   const {
     state: {
@@ -61,7 +63,7 @@ export const B3Nav = ({
     const newRoutes = routes.filter((route) => {
       if (route.isMenuItem === false) return false
       if (!isB2BUser && route.path === '/company-orders') return false
-      if (isB2BUser && role === 3 && !isAgenting && route.path === '/orders') return false
+      // if (isB2BUser && role === 3 && !isAgenting && route.path === '/orders') return false
       return true
     })
 
@@ -69,13 +71,19 @@ export const B3Nav = ({
   }
   const newRoutes = menuItems()
   const activePath = (path: string) => {
-    if (location.pathname === path) {
-      return {
-        color: 'white',
-        bgcolor: '#3385d6',
-        borderRadius: '4px',
-      }
+    const activeStyle = {
+      color: 'white',
+      bgcolor: '#3385d6',
+      borderRadius: '4px',
     }
+    if (location.pathname === path) {
+      nextPath.current = path
+      return activeStyle
+    }
+    if (nextPath.current === path && location.pathname.includes('orderDetail')) {
+      return activeStyle
+    }
+
     return {}
   }
   return (

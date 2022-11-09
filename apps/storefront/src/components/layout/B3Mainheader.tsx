@@ -27,26 +27,26 @@ import {
 import {
   B3AccountInfo,
 } from './B3AccountInfo'
-import {
-  B3DropDown,
-} from '../B3DropDown'
+// import {
+//   B3DropDown,
+// } from '../B3DropDown'
 
-interface AcountListProps {
-  [key: string]: string
-}
+// interface AcountListProps {
+//   [key: string]: string
+// }
 
-const acountList: Array<AcountListProps> = [
-  {
-    name: 'My Orders',
-    key: 'myOrder',
-    type: 'button',
-  },
-  {
-    name: 'Company orders',
-    key: 'companyOrder',
-    type: 'button',
-  },
-]
+// const acountList: Array<AcountListProps> = [
+//   {
+//     name: 'My Orders',
+//     key: 'myOrder',
+//     type: 'button',
+//   },
+//   {
+//     name: 'Company orders',
+//     key: 'companyOrder',
+//     type: 'button',
+//   },
+// ]
 
 export const B3Mainheader = () => {
   const location = useLocation()
@@ -56,8 +56,9 @@ export const B3Mainheader = () => {
   const {
     state: {
       isCompanyAccount,
+      companyInfo,
+      salesRepCompanyName,
     },
-    dispatch,
   } = useContext(GlobaledContext)
 
   useEffect(() => {
@@ -69,14 +70,14 @@ export const B3Mainheader = () => {
     }
   }, [location])
 
-  const handleItemClick = (item: AcountListProps) => {
-    dispatch({
-      type: 'common',
-      payload: {
-        isCompanyAccount: item.key === 'companyOrder',
-      },
-    })
-  }
+  // const handleItemClick = (item: AcountListProps) => {
+  //   dispatch({
+  //     type: 'common',
+  //     payload: {
+  //       isCompanyAccount: item.key === 'companyOrder',
+  //     },
+  //   })
+  // }
 
   return (
     <Box>
@@ -92,14 +93,15 @@ export const B3Mainheader = () => {
         <Box
           component="h4"
         >
+          {companyInfo?.companyName || salesRepCompanyName}
 
-          <B3DropDown
+          {/* <B3DropDown
             title="Renteach building"
             width="200px"
             value={isCompanyAccount ? 'companyOrder' : 'myOrder'}
             handleItemClick={handleItemClick}
             list={acountList}
-          />
+          /> */}
 
         </Box>
         <B3AccountInfo />

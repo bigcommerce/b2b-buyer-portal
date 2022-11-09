@@ -62,7 +62,7 @@ export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean) =>
   const filterMoreList = [
     {
       name: 'company',
-      label: 'company',
+      label: 'Company',
       required: false,
       default: '',
       fieldType: 'text',
@@ -72,7 +72,7 @@ export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean) =>
     },
     {
       name: 'orderStatus',
-      label: 'order status',
+      label: 'Order status',
       required: false,
       default: '',
       fieldType: 'dropdown',
@@ -83,7 +83,7 @@ export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean) =>
     },
     {
       name: 'PlacedBy',
-      label: 'placed by',
+      label: 'Placed by',
       required: false,
       default: '',
       fieldType: 'text',

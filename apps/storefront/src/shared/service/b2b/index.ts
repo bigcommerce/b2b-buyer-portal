@@ -37,6 +37,7 @@ import {
   superAdminCompanies,
   superAdminBeginMasquerade,
   superAdminEndMasquerade,
+  getUserCompany,
 } from './graphql/global'
 
 import {
@@ -75,4 +76,5 @@ export {
   superAdminEndMasquerade,
   getB2BShoppingList,
   createB2BShoppingList,
+  getUserCompany,
 }

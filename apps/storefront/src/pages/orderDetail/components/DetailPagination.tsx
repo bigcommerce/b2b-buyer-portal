@@ -157,6 +157,8 @@ const DetailPagination = ({
 
   const index = listIndex + 1
 
+  if (!searchParams) return null
+
   return (
     <Box
       sx={{

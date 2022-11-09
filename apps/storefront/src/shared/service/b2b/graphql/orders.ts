@@ -13,7 +13,7 @@ interface CustomFieldItems {
 
 const allOrders = (data: CustomFieldItems, fn: string) => `{
   ${fn}(
-    q: "${data.q || ''}"
+    search: "${data.q || ''}"
     status: "${data?.statusCode || ''}"
     first: ${data.first}
     offset: ${data.offset}
