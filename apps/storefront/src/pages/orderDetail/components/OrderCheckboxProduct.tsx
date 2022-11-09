@@ -25,7 +25,7 @@ import {
 
 interface OrderCheckboxProductProps {
   products: any[],
-  currency?: string,
+  currencyInfo: any,
   getProductQuantity?: (item: OrderProductItem) => number
   onProductChange?: (products: OrderProductItem[]) => void
 }
@@ -129,7 +129,7 @@ const mobileItemStyle = {
 export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
   const {
     products,
-    currency = '$',
+    currencyInfo,
     getProductQuantity = (item) => item.quantity,
     onProductChange = () => {},
   } = props
@@ -266,7 +266,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
             </FlexItem>
             <FlexItem {...itemStyle.default}>
               {isMobile && <span>Price: </span>}
-              {`${currency} ${getProductPrice(product.base_price)}`}
+              {`${currencyInfo.currency_token} ${getProductPrice(product.base_price)}`}
             </FlexItem>
             <FlexItem {...itemStyle.qty}>
               <TextField
@@ -284,7 +284,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
             </FlexItem>
             <FlexItem {...itemStyle.default}>
               {isMobile && <span>Cost: </span>}
-              {`${currency} ${getProductTotals(getProductQuantity(product), product.base_price)}`}
+              {`${currencyInfo.currency_token} ${getProductTotals(getProductQuantity(product), product.base_price)}`}
             </FlexItem>
           </Flex>
         ))

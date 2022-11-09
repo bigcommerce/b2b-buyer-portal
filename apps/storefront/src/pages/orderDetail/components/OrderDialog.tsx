@@ -40,6 +40,7 @@ interface OrderDialogProps<T> {
   type?: string,
   currentDialogData: any,
   itemKey: string,
+  currencyInfo: any,
 }
 
 export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
@@ -49,6 +50,7 @@ export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
   currentDialogData,
   setOpen,
   itemKey,
+  currencyInfo,
 }) => {
   const container = useRef<HTMLInputElement | null>(null)
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false)

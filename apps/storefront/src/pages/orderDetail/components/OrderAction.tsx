@@ -1,6 +1,10 @@
 import {
   useState,
+  useContext,
 } from 'react'
+import {
+  useNavigate,
+} from 'react-router-dom'
 
 import {
   Card,
@@ -13,6 +17,10 @@ import styled from '@emotion/styled'
 import {
   format,
 } from 'date-fns'
+
+import {
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   OrderDialog,
@@ -76,7 +84,11 @@ const OrderCard = (props: any) => {
     infos,
     products,
     itemKey,
+    orderId,
+    currencyInfo,
   } = props
+
+  const navigate = useNavigate()
 
   const dialogData = [
     {
@@ -121,7 +133,11 @@ const OrderCard = (props: any) => {
     } = e.target
 
     if (name === 'viewInvoice') {
-      // TODO
+      // TODO:
+      navigate('/invoiceDetail/1')
+    } else if (name === 'printInvoice') {
+      // TODO:
+      window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
     } else if (name === 'return') {
       // TODO
     } else {
@@ -185,12 +201,21 @@ const OrderCard = (props: any) => {
       <StyledCardActions>
         {
           buttons && buttons.map((button: any) => (
-            <Button
-              {...button}
-              onClick={(e) => { handleOpenDialog(e) }}
-            >
-              {button.value}
-            </Button>
+            <>
+              {
+                button.isCanShow && (
+                  <Button
+                    value={button.value}
+                    key={button.key}
+                    name={button.name}
+                    variant={button.variant}
+                    onClick={(e) => { handleOpenDialog(e) }}
+                  >
+                    {button.value}
+                  </Button>
+                )
+              }
+            </>
           ))
         }
       </StyledCardActions>
@@ -202,6 +227,7 @@ const OrderCard = (props: any) => {
         type={type}
         setOpen={setOpen}
         itemKey={itemKey}
+        currencyInfo={currencyInfo}
       />
     </Card>
   )
@@ -211,6 +237,11 @@ export const OrderAction = (props: any) => {
   const {
     detailsData,
   } = props
+  const {
+    state: {
+      isB2BUser,
+    },
+  } = useContext(GlobaledContext)
 
   const {
     money,
@@ -226,6 +257,7 @@ export const OrderAction = (props: any) => {
     },
     orderComments,
     products,
+    orderId,
   } = detailsData
 
   const getFullPaymentAddress = (billingAddress: any) => {
@@ -274,18 +306,21 @@ export const OrderAction = (props: any) => {
       key: 'Re-Order',
       name: 'reOrder',
       variant: 'outlined',
+      isCanShow: true,
     },
     {
       value: 'Return',
       key: 'Return',
       name: 'return',
       variant: 'outlined',
+      isCanShow: true,
     },
     {
       value: 'ADD TO SHOPPING LIST',
       key: 'add-to-shipping-list',
       name: 'shippingList',
       variant: 'outlined',
+      isCanShow: isB2BUser,
     },
   ]
 
@@ -306,10 +341,11 @@ export const OrderAction = (props: any) => {
       subtitle: `Paid in full on ${format(Date.parse(createAt), 'dd MMM yy')}.`,
       buttons: [
         {
-          value: 'view invoice',
-          key: 'viewInvoice',
-          name: 'viewInvoice',
+          value: isB2BUser ? 'view invoice' : 'print invoice',
+          key: 'aboutInvoice',
+          name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
+          isCanShow: true,
         },
       ],
       infos: {
@@ -334,6 +370,8 @@ export const OrderAction = (props: any) => {
           <OrderCard
             key={item.key}
             products={products}
+            orderId={orderId}
+            currencyInfo={money}
             {...item}
             itemKey={item.key}
           />

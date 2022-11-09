@@ -145,4 +145,5 @@ export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   payment: getPaymentData(data),
   orderComments: data.customerMessage,
   products: data.products,
+  orderId: +data.id,
 })
