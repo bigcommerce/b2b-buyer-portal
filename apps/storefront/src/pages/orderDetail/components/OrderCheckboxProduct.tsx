@@ -3,7 +3,6 @@ import {
   Typography,
   Checkbox,
   TextField,
-  FormControlLabel,
 } from '@mui/material'
 
 import {
@@ -34,7 +33,8 @@ interface FlexProps {
 
 interface FlexItemProps {
   width?: string,
-  padding?: string
+  padding?: string,
+  flexBasis?: string,
 }
 
 const Flex = styled('div')(({
@@ -73,11 +73,13 @@ const Flex = styled('div')(({
 const FlexItem = styled('div')(({
   width,
   padding = '0',
+  flexBasis,
 }: FlexItemProps) => ({
   display: 'flex',
   flexGrow: width ? 0 : 1,
   flexShrink: width ? 0 : 1,
   alignItems: 'flex-start',
+  flexBasis,
   width,
   padding,
 }))
@@ -112,11 +114,11 @@ const defaultItemStyle = {
 const mobileItemStyle = {
   default: {
     width: '100%',
-    padding: '0 0 0 76px',
+    padding: '0 0 0 128px',
   },
   qty: {
     width: '100%',
-    padding: '0 0 0 76px',
+    padding: '0 0 0 128px',
   },
 }
 
@@ -170,20 +172,6 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
 
   return products.length > 0 ? (
     <Box>
-      <Box sx={{
-        padding: '0 11px',
-      }}
-      >
-        <FormControlLabel
-          control={(
-            <Checkbox
-              checked={list.length === products.length}
-              onChange={handleSelectAllChange}
-            />
-        )}
-          label="Select all products"
-        />
-      </Box>
       {
         !isMobile && (
         <Flex
@@ -194,7 +182,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
             checked={list.length === products.length}
             onChange={handleSelectAllChange}
           />
-          <FlexItem>
+          <FlexItem flexBasis="100px">
             <ProductHead>Product</ProductHead>
           </FlexItem>
           <FlexItem {...itemStyle.default}>
@@ -223,7 +211,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
               checked={isChecked(product.variant_id)}
               onChange={() => handleSelectChange(product.variant_id)}
             />
-            <FlexItem>
+            <FlexItem flexBasis="100px">
               <ProductImage src={product.imageUrl} />
               <Box
                 sx={{
@@ -259,7 +247,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
                 value={getProductQuantity(product)}
                 size="small"
                 sx={{
-                  width: isMobile ? '50%' : '100%',
+                  width: isMobile ? '60%' : '100%',
                 }}
               />
             </FlexItem>
