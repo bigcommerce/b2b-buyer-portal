@@ -3,6 +3,7 @@ import {
   Typography,
   Checkbox,
   TextField,
+  FormControlLabel,
 } from '@mui/material'
 
 import {
@@ -43,12 +44,15 @@ const Flex = styled('div')(({
   const headerStyle = isHeader ? {
     borderBottom: '1px solid #D9DCE9',
     paddingBottom: '8px',
-  } : {}
+    alignItems: 'center',
+  } : {
+    alignItems: 'flex-start',
+  }
 
   const mobileStyle = isMobile ? {
     borderTop: '1px solid #D9DCE9',
     padding: '12px 0 12px',
-    '&:first-child': {
+    '&:first-of-type': {
       marginTop: '12px',
     },
   } : {}
@@ -126,7 +130,6 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
   const [isMobile] = useMobile()
 
   const [list, setList] = useState<any>([])
-  const [sku, setSku] = useState('')
 
   const getProductPrice = (price: string | number) => {
     const priceNumber = parseFloat(price.toString()) || 0
@@ -167,6 +170,20 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
 
   return products.length > 0 ? (
     <Box>
+      <Box sx={{
+        padding: '0 11px',
+      }}
+      >
+        <FormControlLabel
+          control={(
+            <Checkbox
+              checked={list.length === products.length}
+              onChange={handleSelectAllChange}
+            />
+        )}
+          label="Select all products"
+        />
+      </Box>
       {
         !isMobile && (
         <Flex
@@ -184,7 +201,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
             <ProductHead>Price</ProductHead>
           </FlexItem>
           <FlexItem {...itemStyle.qty}>
-            <ProductHead>Q-ty</ProductHead>
+            <ProductHead>Qty</ProductHead>
           </FlexItem>
           <FlexItem {...itemStyle.default}>
             <ProductHead>Cost</ProductHead>
@@ -235,11 +252,15 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
               {`${currency} ${getProductPrice(product.base_price)}`}
             </FlexItem>
             <FlexItem {...itemStyle.qty}>
-              {isMobile && <span>Q-ty:</span>}
               <TextField
                 type="number"
+                variant={isMobile ? 'filled' : 'outlined'}
+                label={isMobile ? 'Qty' : ''}
                 value={getProductQuantity(product)}
                 size="small"
+                sx={{
+                  width: isMobile ? '50%' : '100%',
+                }}
               />
             </FlexItem>
             <FlexItem {...itemStyle.default}>

@@ -14,6 +14,7 @@ import {
   Button,
   MenuItem,
   ListItemText,
+  Divider,
 } from '@mui/material'
 
 import styled from '@emotion/styled'
@@ -132,10 +133,15 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
           <Button
             variant="text"
             onClick={handleCreate}
+            sx={{
+              textTransform: 'none',
+            }}
           >
             + Create new
           </Button>
         </DialogContent>
+
+        <Divider />
 
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

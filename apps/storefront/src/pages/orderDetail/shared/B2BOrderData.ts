@@ -98,15 +98,24 @@ const getOrderSummary = (data: B2BOrderData) => {
     shippingCostIncTax,
   } = data
 
+  const formatPrice = (price: string | number) => {
+    try {
+      const priceNumer = parseFloat(price.toString()) || 0
+      return priceNumer.toFixed(2)
+    } catch (error) {
+      return '0.00'
+    }
+  }
+
   const orderSummary = {
     createAt: dateCreated,
     name: `${firstName} ${lastName}`,
     priceData: {
-      SubTotal: subtotalExTax || subtotalIncTax,
-      Shipping: shippingCostExTax || shippingCostIncTax,
-      HandingFee: handlingCostExTax || handlingCostIncTax,
-      Tax: totalTax,
-      GrandTotal: totalExTax || totalIncTax,
+      SubTotal: formatPrice(subtotalExTax || subtotalIncTax || ''),
+      Shipping: formatPrice(shippingCostExTax || shippingCostIncTax || ''),
+      HandingFee: formatPrice(handlingCostExTax || handlingCostIncTax || ''),
+      Tax: formatPrice(totalTax || ''),
+      'Grand Total': formatPrice(totalExTax || totalIncTax || ''),
     },
   }
 

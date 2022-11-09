@@ -2,12 +2,14 @@ import styled from '@emotion/styled'
 
 interface SpinCenterProps {
   background?: string,
+  isMobile?: boolean,
 }
 
 const SpinCenter = styled('div')(({
   background,
+  isMobile,
 }: SpinCenterProps) => ({
-  position: 'absolute',
+  position: isMobile ? 'fixed' : 'absolute',
   zIndex: 100,
   left: 0,
   right: 0,

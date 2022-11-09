@@ -1,8 +1,6 @@
 import {
   useRef,
   useState,
-  useEffect,
-  useContext,
   ReactElement,
 } from 'react'
 
@@ -14,12 +12,8 @@ import {
   Box,
   Typography,
   Button,
+  Divider,
 } from '@mui/material'
-
-import {
-  TableColumnItem,
-  B3Table,
-} from '@/components/B3Table'
 
 import {
   useMobile,
@@ -34,14 +28,9 @@ import {
 } from './OrderShoppingList'
 import CreateShoppingList from './CreateShoppingList'
 
-interface OrderDialogProps<T> {
-  title?: string,
+interface OrderDialogProps {
   open: boolean,
-  columnItems: TableColumnItem<T>[],
-  listItems: Array<any>,
   confirmText?: string,
-  // handleClose?: () => void,
-  handleConfirm: () => void,
   setOpen: (open: boolean) => void,
   products?: any,
   type?: string,
@@ -49,17 +38,11 @@ interface OrderDialogProps<T> {
   itemKey: string,
 }
 
-export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
-  title,
+export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   open,
-  columnItems,
-  listItems,
-  // confirmText,
   products,
   type,
   currentDialogData,
-  // handleClose,
-  handleConfirm,
   setOpen,
   itemKey,
 }) => {
@@ -69,10 +52,6 @@ export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
   const [openShoppingList, setOpenShoppingList] = useState(false)
 
   const [isMobile] = useMobile()
-
-  //   name: 'reOrder',
-  // name: 'return',
-  // name: 'shippingList',
 
   const handleClose = () => {
     setOpen(false)
@@ -146,15 +125,12 @@ export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
             >
               {currentDialogData.description}
             </Typography>
-            {/* <B3Table
-            columnItems={columnItems}
-            listItems={listItems}
-            showPagination={false}
-          /> */}
             <OrderCheckboxProduct
               products={products}
             />
           </DialogContent>
+
+          <Divider />
 
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>

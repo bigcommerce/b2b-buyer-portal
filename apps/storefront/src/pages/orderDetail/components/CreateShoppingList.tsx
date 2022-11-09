@@ -1,9 +1,5 @@
 import {
   useRef,
-  useState,
-  useEffect,
-  useContext,
-  ReactElement,
 } from 'react'
 
 import {
@@ -12,8 +8,8 @@ import {
   DialogContent,
   DialogTitle,
   Box,
-  Typography,
   Button,
+  Divider,
 } from '@mui/material'
 
 import {
@@ -118,22 +114,25 @@ const CreateShoppingList = ({
         >
           Create new
         </DialogTitle>
-        <DialogContent
-          sx={{
+        <DialogContent>
+          <Box sx={{
             minHeight: '250px',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
+            paddingTop: '20px',
           }}
-        >
-          <B3CustomForm
-            formFields={list}
-            errors={errors}
-            control={control}
-            getValues={getValues}
-            setValue={setValue}
-          />
-
+          >
+            <B3CustomForm
+              formFields={list}
+              errors={errors}
+              control={control}
+              getValues={getValues}
+              setValue={setValue}
+            />
+          </Box>
         </DialogContent>
+
+        <Divider />
 
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

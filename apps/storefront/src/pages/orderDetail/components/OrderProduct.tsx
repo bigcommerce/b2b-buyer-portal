@@ -42,7 +42,7 @@ const Flex = styled('div')(({
   const mobileStyle = isMobile ? {
     borderTop: '1px solid #D9DCE9',
     padding: '12px 0 12px',
-    '&:first-child': {
+    '&:first-of-type': {
       marginTop: '12px',
     },
   } : {}
@@ -148,7 +148,7 @@ export const OrderProduct = (props: OrderProductProps) => {
             <ProductHead>Price</ProductHead>
           </FlexItem>
           <FlexItem {...itemStyle.qty}>
-            <ProductHead>Q-ty</ProductHead>
+            <ProductHead>Qty</ProductHead>
           </FlexItem>
           <FlexItem {...itemStyle.default}>
             <ProductHead>Cost</ProductHead>
@@ -189,7 +189,7 @@ export const OrderProduct = (props: OrderProductProps) => {
               {`${currency} ${getProductPrice(product.base_price)}`}
             </FlexItem>
             <FlexItem {...itemStyle.qty}>
-              {isMobile && <span>Q-ty:</span>}
+              {isMobile && <span>Qty:</span>}
               {getProductQuantity(product)}
             </FlexItem>
             <FlexItem {...itemStyle.default}>

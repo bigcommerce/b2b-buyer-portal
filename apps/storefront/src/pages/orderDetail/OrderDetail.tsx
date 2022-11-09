@@ -152,6 +152,7 @@ const OrderDetail = () => {
           <Box
             sx={{
               color: '#1976d2',
+              cursor: 'pointer',
             }}
             onClick={goToOrders}
           >
@@ -173,7 +174,7 @@ const OrderDetail = () => {
               order: isMobile ? 1 : 0,
             }}
           >
-            <Typography variant="h4">{`Order #${orderId}`}</Typography>
+            <Typography variant="h4">{`#${orderId}`}</Typography>
             {poNumber && <Typography variant="body2">{poNumber}</Typography>}
             <OrderStatus code={status} />
           </Grid>

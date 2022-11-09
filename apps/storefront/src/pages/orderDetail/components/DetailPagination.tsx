@@ -173,10 +173,10 @@ const DetailPagination = ({
             alignItems: 'center',
           }}
         >
-          orders
+          Order
           <Typography
             sx={{
-              m: 2,
+              m: 1,
             }}
           >
             {index}
@@ -184,7 +184,7 @@ const DetailPagination = ({
           of
           <Box
             sx={{
-              ml: 2,
+              ml: 1,
             }}
           >
             {totalCount}

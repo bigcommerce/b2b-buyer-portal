@@ -6,6 +6,10 @@ import {
 } from '@mui/material'
 
 import {
+  useMobile,
+} from '@/hooks'
+
+import {
   SpinCenter,
   SpinTip,
   SpinContext,
@@ -32,11 +36,16 @@ export const B3Sping = (props: B3SpingProps) => {
     background,
   } = props
 
+  const [isMobile] = useMobile()
+
   return (
     <SpinContext>
       {
       isSpinning && (
-        <SpinCenter background={background}>
+        <SpinCenter
+          background={background}
+          isMobile={isMobile}
+        >
           {
             !isCloseLoading && (
             <CircularProgress

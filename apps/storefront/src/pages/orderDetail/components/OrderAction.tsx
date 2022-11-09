@@ -66,8 +66,9 @@ const StyledCardActions = styled('div')(() => ({
 const ItemContainer = styled('div')((props: any) => ({
   display: 'flex',
   justifyContent: 'space-between',
-  fontWeight: props.nameKey === 'GrandTotal' ? 700 : 400,
-
+  fontWeight: props.nameKey === 'Grand Total' ? 700 : 400,
+  marginBottom: props.infoKey === 'paymentMethod' ? '8px' : 0,
+  marginTop: props.infoKey === 'address' ? '8px' : 0,
   '& p': {
     marginTop: 0,
   },
@@ -158,62 +159,6 @@ const OrderCard = (props: any) => {
     }
   }
 
-  const handleConfirm = () => {
-    // TODO
-  }
-
-  const columnItems: TableColumnItem<any>[] = [
-    {
-      key: 'product',
-      title: 'Product',
-      render: (item: any) => <p>产品信息</p>,
-      width: '40%',
-    },
-    {
-      key: 'price',
-      title: 'Price',
-      render: (item: any) => <p>{item.price}</p>,
-    },
-    {
-      key: 'qty',
-      title: 'Q-ty',
-      render: (item: any) => (
-        <Input
-          type="number"
-          value={item.qty}
-        />
-      ),
-    },
-    {
-      key: 'cost',
-      title: 'Cost',
-      render: (item: any) => <p>{item.cost}</p>,
-    },
-  ]
-  const listItems = [
-    {
-      price: 12,
-      const: 11,
-      qty: 5,
-      name: 'test1',
-      sku: 'TD-001',
-    },
-    {
-      price: 13,
-      const: 12,
-      qty: 6,
-      name: 'test2',
-      sku: 'TD-002',
-    },
-    {
-      price: 14,
-      const: 13,
-      qty: 7,
-      name: 'test3',
-      sku: 'TD-003',
-    },
-  ]
-
   return (
     <Card
       sx={{
@@ -249,9 +194,12 @@ const OrderCard = (props: any) => {
                       </ItemContainer>
                     ))
                   ) : (
-                    infoValue && infoValue.map((value: any) => (
-                      <ItemContainer key={value}>
-                        {value}
+                    infoKey && infoKey.map((key: any) => (
+                      <ItemContainer
+                        key={infos.info[key]}
+                        infoKey={key}
+                      >
+                        {infos.info[key]}
                       </ItemContainer>
                     ))
                   )
@@ -275,15 +223,11 @@ const OrderCard = (props: any) => {
       </StyledCardActions>
 
       <OrderDialog
-        title={title}
         open={open}
-        columnItems={columnItems}
-        listItems={listItems}
         products={products}
         currentDialogData={currentDialogData}
         type={type}
         setOpen={setOpen}
-        handleConfirm={handleConfirm}
         itemKey={itemKey}
       />
     </Card>
@@ -297,7 +241,6 @@ export const OrderAction = (props: any) => {
 
   const {
     money,
-    orderSummary,
     orderSummary: {
       createAt,
       name,
@@ -326,7 +269,8 @@ export const OrderAction = (props: any) => {
       paymentMethod: `Payment by ${paymentMethod}`,
       name: `${firstName} ${lastName}`,
       company,
-      address: `${street1}, ${state} ${zip}, ${country}`,
+      address: `${street1}, `,
+      address1: `${state} ${zip}, ${country}`,
     }
 
     return paymentAddress
@@ -335,11 +279,14 @@ export const OrderAction = (props: any) => {
   const handleOrderComments = (value: string) => {
     // const comments = value.replace(/\n/g, '<br/>')
     const commentsArr = value.split(/\n/g)
-    const comments: any = {}
+
+    const comments: any = commentsArr.filter((item) => !!item.trim()).length > 0 ? {
+      mes0: 'Comments:',
+    } : {}
 
     commentsArr.forEach((item, index) => {
       if (item.trim().length > 0) {
-        comments[`mes${index}`] = item
+        comments[`mes${index + 1}`] = item
       }
     })
 

@@ -15,6 +15,10 @@ import {
 } from '@b3/lang'
 
 import {
+  useMobile,
+} from '@/hooks'
+
+import {
   TableColumnItem,
   B3Table,
 } from '@/components/B3Table'
@@ -43,6 +47,7 @@ export const OrderHistory = (props: OrderHistoryProps) => {
   } = props
 
   const [lang] = useB3CurrentLang()
+  const [isMobile] = useMobile()
 
   const getTime = (time: number) => intlFormatDistance(new Date(time * 1000), new Date(), {
     locale: lang,
@@ -52,7 +57,7 @@ export const OrderHistory = (props: OrderHistoryProps) => {
     key: 'time',
     title: 'Date',
     render: (item: OrderHistoryItem) => getTime(item.createdAt),
-    width: '150px',
+    width: isMobile ? ' 100px' : '150px',
   },
   {
     key: 'code',
@@ -64,7 +69,14 @@ export const OrderHistory = (props: OrderHistoryProps) => {
     history.length > 0 ? (
       <Card>
         <CardContent>
-          <Typography variant="h4">History</Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              padding: '0 16px',
+            }}
+          >
+            History
+          </Typography>
           <HistoryListContainer>
             <B3Table
               columnItems={columnItems}
@@ -74,7 +86,6 @@ export const OrderHistory = (props: OrderHistoryProps) => {
           </HistoryListContainer>
         </CardContent>
       </Card>
-    )
-      : <></>
+    ) : <></>
   )
 }

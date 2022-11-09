@@ -73,7 +73,7 @@ export const OrderShipping = (props: OrderShippingProps) => {
       shipping_method: shippingMethod,
     } = shipment
 
-    const time = format(new Date(createdDate), 'LLLL d')
+    const time = format(new Date(createdDate), 'LLLL, d')
 
     return `shipped on ${time}, by ${shippingProvider}, ${shippingMethod}`
   }
