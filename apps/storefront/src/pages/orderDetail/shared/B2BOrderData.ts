@@ -30,10 +30,6 @@ export interface B2BOrderData {
   [k: string]: any
 }
 
-// export interface OrderActionProps {
-//   [k: string]: any
-// }
-
 const getOrderShipping = (data: B2BOrderData) => {
   const {
     shipments,
@@ -111,11 +107,11 @@ const getOrderSummary = (data: B2BOrderData) => {
     createAt: dateCreated,
     name: `${firstName} ${lastName}`,
     priceData: {
-      SubTotal: formatPrice(subtotalExTax || subtotalIncTax || ''),
-      Shipping: formatPrice(shippingCostExTax || shippingCostIncTax || ''),
-      HandingFee: formatPrice(handlingCostExTax || handlingCostIncTax || ''),
-      Tax: formatPrice(totalTax || ''),
-      'Grand Total': formatPrice(totalExTax || totalIncTax || ''),
+      'Sub total': subtotalExTax || subtotalIncTax,
+      Shipping: shippingCostExTax || shippingCostIncTax,
+      'Handing fee': handlingCostExTax || handlingCostIncTax,
+      Tax: totalTax,
+      'Grand total': totalExTax || totalIncTax,
     },
   }
 

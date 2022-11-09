@@ -28,9 +28,8 @@ import {
 } from './OrderShoppingList'
 import CreateShoppingList from './CreateShoppingList'
 
-interface OrderDialogProps {
+interface OrderDialogProps<T> {
   open: boolean,
-  confirmText?: string,
   setOpen: (open: boolean) => void,
   products?: any,
   type?: string,
@@ -38,7 +37,7 @@ interface OrderDialogProps {
   itemKey: string,
 }
 
-export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
+export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
   open,
   products,
   type,

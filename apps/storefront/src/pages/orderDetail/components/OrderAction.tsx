@@ -1,21 +1,12 @@
 import {
   useState,
-  useEffect,
-  useContext,
-  JSXElementConstructor,
-  ReactElement,
-  ReactFragment,
-  ReactPortal,
-  MouseEvent,
 } from 'react'
 
 import {
   Card,
   CardContent,
   Typography,
-  CardActions,
   Button,
-  Input,
 } from '@mui/material'
 import styled from '@emotion/styled'
 
@@ -24,20 +15,10 @@ import {
 } from 'date-fns'
 
 import {
-  TableColumnItem,
-} from '@/components/B3Table'
-
-import {
   OrderDialog,
 } from './OrderDialog'
 
-const OrderActionContainer = styled('div')(() => ({
-
-}))
-const Test = styled('div')(() => ({
-  minWidth: '100%',
-  minHeight: '300px',
-}))
+const OrderActionContainer = styled('div')(() => ({}))
 
 /// orderCard
 const InformationContainer = styled('div')(() => ({
@@ -66,12 +47,18 @@ const StyledCardActions = styled('div')(() => ({
 const ItemContainer = styled('div')((props: any) => ({
   display: 'flex',
   justifyContent: 'space-between',
-  fontWeight: props.nameKey === 'Grand Total' ? 700 : 400,
-  marginBottom: props.infoKey === 'paymentMethod' ? '8px' : 0,
-  marginTop: props.infoKey === 'address' ? '8px' : 0,
+  fontWeight: props.nameKey === 'Grand total' ? 700 : 400,
+
   '& p': {
     marginTop: 0,
   },
+}))
+
+const PaymentItemContainer = styled('div')((props: any) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontWeight: 400,
+  marginBottom: props.isAddMarginButton && '0.8rem',
 }))
 
 const StyledCurrency = styled('div')(() => ({
@@ -79,15 +66,7 @@ const StyledCurrency = styled('div')(() => ({
   alignItems: 'center',
   width: '40%',
   justifyContent: 'space-between',
-
-  // '& p': {
-  //   marginLeft: '1rem',
-  // },
 }))
-
-// const Subtitle = styled('p')(() => ({
-
-// }))
 
 const OrderCard = (props: any) => {
   const {
@@ -122,13 +101,10 @@ const OrderCard = (props: any) => {
 
   const infoType = typeof infos
   const [open, setOpen] = useState<boolean>(false)
-  const [title, setTitle] = useState<string>('')
   const [type, setType] = useState<string>('')
   const [currentDialogData, setCurrentDialogData] = useState<any>({})
 
-  // const [infoKey, setInfoKey] = useState<string[]>([])
-  // const [infoValue, setInfoValue] = useState<string[]>([])
-  let infoKey
+  let infoKey: any
   let infoValue: any
   if (infoType !== 'string') {
     const {
@@ -142,7 +118,6 @@ const OrderCard = (props: any) => {
   const handleOpenDialog = (e: any) => {
     const {
       name,
-      value,
     } = e.target
 
     if (name === 'viewInvoice') {
@@ -151,7 +126,6 @@ const OrderCard = (props: any) => {
       // TODO
     } else {
       setOpen(true)
-      setTitle(value)
       setType(name)
 
       const newDialogData = dialogData.find((data: any) => data.type === name)
@@ -162,7 +136,6 @@ const OrderCard = (props: any) => {
   return (
     <Card
       sx={{
-        // minHeight: '300px',
         marginBottom: '1rem',
       }}
     >
@@ -181,7 +154,7 @@ const OrderCard = (props: any) => {
               <>
                 {
                   infos.money ? (
-                    infoKey && infoKey.map((key, index) => (
+                    infoKey && infoKey.map((key: string, index: number) => (
                       <ItemContainer
                         key={key}
                         nameKey={key}
@@ -194,13 +167,13 @@ const OrderCard = (props: any) => {
                       </ItemContainer>
                     ))
                   ) : (
-                    infoKey && infoKey.map((key: any) => (
-                      <ItemContainer
-                        key={infos.info[key]}
-                        infoKey={key}
+                    infoValue && infoValue.map((value: any, index: number) => (
+                      <PaymentItemContainer
+                        key={value}
+                        isAddMarginButton={(infoKey[index] === 'paymentMethod' || infoKey[index] === 'company')}
                       >
-                        {infos.info[key]}
-                      </ItemContainer>
+                        {value}
+                      </PaymentItemContainer>
                     ))
                   )
                 }
@@ -264,29 +237,31 @@ export const OrderAction = (props: any) => {
       state,
       zip,
       country,
+      city,
     } = billingAddress
     const paymentAddress = {
       paymentMethod: `Payment by ${paymentMethod}`,
       name: `${firstName} ${lastName}`,
       company,
-      address: `${street1}, `,
-      address1: `${state} ${zip}, ${country}`,
+      street: street1,
+      address: `${city}, ${state} ${zip}, ${country}`,
     }
 
     return paymentAddress
   }
 
   const handleOrderComments = (value: string) => {
-    // const comments = value.replace(/\n/g, '<br/>')
     const commentsArr = value.split(/\n/g)
 
-    const comments: any = commentsArr.filter((item) => !!item.trim()).length > 0 ? {
-      mes0: 'Comments:',
-    } : {}
+    const comments: any = {}
 
     commentsArr.forEach((item, index) => {
       if (item.trim().length > 0) {
-        comments[`mes${index + 1}`] = item
+        const isHaveTitle = item.trim().includes(':')
+
+        const message = isHaveTitle ? item : `Comments: ${item}`
+
+        comments[`mes${index}`] = message
       }
     })
 
@@ -299,7 +274,6 @@ export const OrderAction = (props: any) => {
       key: 'Re-Order',
       name: 'reOrder',
       variant: 'outlined',
-      // onClick: () => handleTest(),
     },
     {
       value: 'Return',
@@ -319,7 +293,6 @@ export const OrderAction = (props: any) => {
     {
       header: 'Order summary',
       key: 'order-summary',
-      // subtitle: 'Purchased by John Miles on 13 Oct 22.',
       subtitle: `Purchased by ${name} on ${format(+updatedAt * 1000, 'dd MMM yy')}.`,
       buttons,
       infos: {

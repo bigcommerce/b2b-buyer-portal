@@ -137,7 +137,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
               textTransform: 'none',
             }}
           >
-            + Create new
+            + Create New
           </Button>
         </DialogContent>
 

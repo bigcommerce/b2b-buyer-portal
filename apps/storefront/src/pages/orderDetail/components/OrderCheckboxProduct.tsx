@@ -3,6 +3,7 @@ import {
   Typography,
   Checkbox,
   TextField,
+  FormControlLabel,
 } from '@mui/material'
 
 import {
@@ -56,6 +57,12 @@ const Flex = styled('div')(({
       marginTop: '12px',
     },
   } : {}
+
+  // const mobileItemCheckboxStyle = isMobile ? {
+  //   '& #product-item-checkbox': {
+  //     paddingLeft: 0,
+  //   },
+  // } : {}
 
   const flexWrap = isMobile ? 'wrap' : 'initial'
 
@@ -121,6 +128,18 @@ const mobileItemStyle = {
     padding: '0 0 0 128px',
   },
 }
+
+const StyledProductItemCheckbox = styled(Checkbox)(({
+  isMobile,
+}: any) => {
+  const mobileItemStyle = isMobile ? {
+    paddingLeft: 0,
+  } : {}
+
+  return {
+    ...mobileItemStyle,
+  }
+})
 
 export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
   const {
@@ -197,12 +216,23 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
         </Flex>
         )
       }
-      {/*
+
       {
         isMobile && (
-
+          <FormControlLabel
+            label="Select all products"
+            control={(
+              <Checkbox
+                checked={list.length === products.length}
+                onChange={handleSelectAllChange}
+              />
+            )}
+            sx={{
+              paddingLeft: '0.6rem',
+            }}
+          />
         )
-      } */}
+      }
 
       {
         products.map((product: OrderProductItem) => (
@@ -236,7 +266,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
               </Box>
             </FlexItem>
             <FlexItem {...itemStyle.default}>
-              {isMobile && <span>Price:</span>}
+              {isMobile && <span>Price: </span>}
               {`${currency} ${getProductPrice(product.base_price)}`}
             </FlexItem>
             <FlexItem {...itemStyle.qty}>
@@ -252,7 +282,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
               />
             </FlexItem>
             <FlexItem {...itemStyle.default}>
-              {isMobile && <span>Cost:</span>}
+              {isMobile && <span>Cost: </span>}
               {`${currency} ${getProductTotals(getProductQuantity(product), product.base_price)}`}
             </FlexItem>
           </Flex>
