@@ -21,6 +21,10 @@ import {
   OrderStatus,
 } from './components/OrderStatus'
 
+import {
+  currencySymbol,
+} from './config'
+
 interface ListItem {
   [key: string]: string
 }
@@ -53,6 +57,8 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
   const theme = useTheme()
 
   const navigate = useNavigate()
+
+  console.log(JSON.parse(item.money))
 
   const goToDetail = (item: ListItem) => {
     navigate(`/orderDetail/${item.orderId}`, {
@@ -111,6 +117,7 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
             minHeight: '1.43em',
           }}
         >
+          {currencySymbol(item.money)}
           {item.totalIncTax}
         </Typography>
 
@@ -130,7 +137,7 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
             {`by ${item.firstName} ${item.lastName}`}
           </Typography>
           <Typography>
-            {format(+item.createdAt, 'dd MMM yy')}
+            {format(+item.createdAt * 1000, 'dd MMM yy')}
           </Typography>
         </Box>
       </CardContent>

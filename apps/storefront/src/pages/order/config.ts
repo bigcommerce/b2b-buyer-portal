@@ -107,3 +107,17 @@ export const getInitFilter = (isCompanyOrder: boolean, isB2BUser: boolean): Part
 
   return isB2BUser ? b2bFilterSearch : bcFilterSearch
 }
+
+export const currencySymbol = (currencyItem: string) => {
+  try {
+    if (currencyItem) {
+      const currencyToken = JSON.parse(JSON.parse(currencyItem))?.currency_token || ''
+
+      return currencyToken
+    }
+
+    return ''
+  } catch (e) {
+    return ''
+  }
+}

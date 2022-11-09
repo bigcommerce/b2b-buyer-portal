@@ -42,6 +42,7 @@ import {
   getInitFilter,
   FilterSearchProps,
   getFilterMoreData,
+  currencySymbol,
 } from './config'
 
 import {
@@ -88,11 +89,11 @@ const sortByList: Array<SortByListProps> = [
   },
   {
     name: 'Lowest Price',
-    id: '-totalIncTax',
+    id: 'totalIncTax',
   },
   {
     name: 'Highest Price',
-    id: 'totalIncTax',
+    id: '-totalIncTax',
   },
 ]
 
@@ -106,7 +107,7 @@ const sortByConfigData = {
   sortByList,
   sortByItemName,
   sortByLabel: 'Sort by',
-  defaultValue: '',
+  defaultValue: 'createdAt',
   isFirstSelect: false,
   w: 150,
 }
@@ -234,12 +235,12 @@ const Order = ({
     {
       key: 'poNumber',
       title: 'PO / Reference',
-      render: (item: ListItem, index: number) => (<Box onClick={() => goToDetail(item, index)}>{item.poNumber ? item.poNumber : '-'}</Box>),
+      render: (item: ListItem) => (<Box>{item.poNumber ? item.poNumber : '-'}</Box>),
     },
     {
       key: 'totalIncTax',
       title: 'Grand total',
-      render: (item: ListItem) => (`${item.totalIncTax && '$'}${item.totalIncTax}`),
+      render: (item: ListItem) => (`${currencySymbol(item.money)}${item.totalIncTax}`),
     },
     {
       key: 'status',
@@ -260,7 +261,7 @@ const Order = ({
     {
       key: 'createdAt',
       title: 'Created on',
-      render: (item: ListItem) => format(+item.createdAt, 'dd MMM yy'),
+      render: (item: ListItem) => format(+item.createdAt * 1000, 'dd MMM yy'),
     },
   ]
 
