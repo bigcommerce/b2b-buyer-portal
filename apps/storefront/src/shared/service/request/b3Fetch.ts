@@ -1,6 +1,5 @@
 import {
   b3Fetch,
-  interceptors,
 } from './fetch'
 import {
   B2B_BASIC_URL,
@@ -16,52 +15,36 @@ import {
   bcBaseUrl,
 } from '@/utils/basicConfig'
 
-/**
- * config User-defined configuration items
- * @param withoutCheck Do not use the default interface status verification, directly return response
- * @param returnOrigin Whether to return the entire Response object, false only response.data
- * @param showError Whether to use a unified error reporting method for global errors
- * @param canEmpty Whether the transport parameter can be null
- * @param timeout Interface request timeout duration. The default value is 10 seconds
- */
+// /**
+//  * config User-defined configuration items
+//  * @param withoutCheck Do not use the default interface status verification, directly return response
+//  * @param returnOrigin Whether to return the entire Response object, false only response.data
+//  * @param showError Whether to use a unified error reporting method for global errors
+//  * @param canEmpty Whether the transport parameter can be null
+//  * @param timeout Interface request timeout duration. The default value is 10 seconds
+//  */
 
- interface configDefaultProps {
-  showError: Boolean,
-  canEmpty: Boolean,
-  returnOrigin: Boolean,
-  withoutCheck: Boolean,
-  timeout: Number,
-}
+//  interface configDefaultProps {
+//   showError: Boolean,
+//   canEmpty: Boolean,
+//   returnOrigin: Boolean,
+//   withoutCheck: Boolean,
+//   timeout: Number,
+// }
 
-interface ConfigValProps {
-  [key:string]: any
-}
+// interface ConfigValProps {
+//   [key:string]: any
+// }
 
-type ConfigProps = undefined | ConfigValProps
+// type ConfigProps = undefined | ConfigValProps
 
-const configDefault: configDefaultProps = {
-  showError: true,
-  canEmpty: false,
-  returnOrigin: false,
-  withoutCheck: false,
-  timeout: 10000,
-}
-
-// request interceptor
-interceptors.request.use((config: ConfigProps) => {
-  const configTemp: ConfigProps = {
-    ...configDefault,
-    ...config,
-  }
-  return configTemp
-})
-
-interceptors.response.use(async (response: Response) => {
-  if (response.status >= 200 && response.status < 300) {
-    return response
-  }
-  return Promise.reject(response)
-})
+// const configDefault: configDefaultProps = {
+//   showError: true,
+//   canEmpty: false,
+//   returnOrigin: false,
+//   withoutCheck: false,
+//   timeout: 10000,
+// }
 
 function request<T>(path: string, config?: T, type?: string) {
   const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
@@ -87,13 +70,21 @@ function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
   const graphqlB2BUrl = `${B2B_BASIC_URL}/graphql`
 
   const url = type === RequestType.B2BGraphql ? graphqlB2BUrl : `${bcBaseUrl}/graphql`
-
   return b3Fetch(url, init, type)
 }
 
 export const B3Request = {
   graphqlB2B: function post<T>(data: T) {
-    return graphqlRequest(RequestType.B2BGraphql, data)
+    const config = {
+      Authorization: `Bearer  ${B3SStorage.get('B3B2BToken') || ''}`,
+    }
+    return graphqlRequest(RequestType.B2BGraphql, data, config)
+  },
+  graphqlProxyBC: function post<T>(data: T) {
+    const config = {
+      Authorization: `Bearer  ${B3SStorage.get('bc_jwt_token') || ''}`,
+    }
+    return graphqlRequest(RequestType.B2BGraphql, data, config)
   },
   graphqlBC: function post<T>(data: T) {
     const config = {
@@ -101,11 +92,12 @@ export const B3Request = {
     }
     return graphqlRequest(RequestType.BCGraphql, data, config)
   },
-  get: function get<T>(url: string, type: string, data?: T) {
+  get: function get<T, Y>(url: string, type: string, data?: T, config?: Y) {
     if (data) {
       const params = queryParse(data)
       return request(`${url}?${params}`, {
         method: 'GET',
+        ...config,
       })
     }
     return request(url, {

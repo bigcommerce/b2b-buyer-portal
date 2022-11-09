@@ -1,19 +1,11 @@
 import {
   useEffect,
-  lazy,
-  Suspense,
   useContext,
 } from 'react'
 
 import {
-  Box,
-} from '@mui/material'
-
-import {
   HashRouter,
-  Route,
-  Routes,
-  Outlet,
+  // useNavigate,
 } from 'react-router-dom'
 import {
   useB3AppOpen,
@@ -26,7 +18,6 @@ import {
 import globalB3 from '@b3/global-b3'
 
 import {
-  // B3SStorage,
   getChannelId,
   loginInfo,
   getCurrentCustomerInfo,
@@ -45,9 +36,6 @@ import {
   ThemeFrame,
   B3RenderRouter,
 } from '@/components'
-// import {
-//   RegisteredProvider,
-// } from '@/pages/registered/context/RegisteredContext'
 
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 const CUSTOM_STYLES = `
@@ -80,6 +68,8 @@ export default function App() {
     },
     dispatch,
   } = useContext(GlobaledContext)
+
+  // const navigate = useNavigate()
 
   useEffect(() => {
     if (isOpen) {
@@ -142,7 +132,7 @@ export default function App() {
         await loginInfo()
       }
       if (!customerId) {
-        getCurrentCustomerInfo(dispatch)
+        await getCurrentCustomerInfo(dispatch)
       }
     }
 

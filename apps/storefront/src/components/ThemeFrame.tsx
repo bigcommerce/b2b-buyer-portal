@@ -152,6 +152,24 @@ export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
   }
 
   handleLoad = () => {
+    // resolve iframe use document mousedown no effect
+    if (this._iframeRef.current?.contentDocument?.addEventListener) {
+      this._iframeRef.current?.contentDocument.addEventListener('keydown', () => {
+        document.dispatchEvent(new Event('keydown'))
+      })
+      this._iframeRef.current?.contentDocument.addEventListener('mousedown', () => {
+        document.dispatchEvent(new Event('mousedown'))
+      })
+      this._iframeRef.current?.contentDocument.addEventListener('touchstart', () => {
+        document.dispatchEvent(new Event('touchstart'))
+      })
+      this._iframeRef.current?.contentDocument.addEventListener('touchmove', () => {
+        document.dispatchEvent(new Event('touchmove'))
+      })
+      this._iframeRef.current?.contentDocument.addEventListener('click', () => {
+        document.dispatchEvent(new Event('click'))
+      })
+    }
     this.forceUpdate()
   }
 

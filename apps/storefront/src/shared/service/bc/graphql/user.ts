@@ -12,7 +12,8 @@ const getCustomer = () => `query customer {
     phone,
     firstName,
     lastName,
-    email
+    email,
+    customerGroupId,
   }
 }`
 

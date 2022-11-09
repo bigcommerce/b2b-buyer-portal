@@ -4,6 +4,7 @@ import {
 
 import {
   getBCForgotPassword,
+  getBcCurrentJWT,
 } from './api/login'
 
 import {
@@ -21,4 +22,5 @@ export {
   bcLogin,
   bcLogoutLogin,
   getCustomerInfo,
+  getBcCurrentJWT,
 }

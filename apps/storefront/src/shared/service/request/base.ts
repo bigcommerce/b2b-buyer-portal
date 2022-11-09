@@ -12,7 +12,7 @@ enum RequestType {
 const queryParse = <T>(query: T): string => {
   let queryText: string = ''
 
-  Object.keys(query).forEach((key: string) => {
+  Object.keys(query || {}).forEach((key: string) => {
     queryText += `${key}=${(query as any)[key]}&`
   })
   return queryText.slice(0, -1)

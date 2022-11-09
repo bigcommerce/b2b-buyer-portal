@@ -96,7 +96,7 @@ export function B3Layout({
                 <B3Logo />
                 <Box
                   sx={{
-                    pt: '80px',
+                    pt: '40px',
                   }}
                 >
                   <B3Nav />
@@ -108,6 +108,7 @@ export function B3Layout({
                   flex: 1,
                   display: 'flex',
                   flexDirection: 'column',
+                  p: '0 24px 50px 50px',
                 }}
               >
                 <B3Mainheader />
@@ -116,7 +117,6 @@ export function B3Layout({
                   sx={{
                     flexGrow: 1,
                     bgcolor: '#fef9f5',
-                    p: '0 24px 0 80px',
                   }}
                 >
                   {children}

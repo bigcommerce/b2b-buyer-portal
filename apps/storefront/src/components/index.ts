@@ -20,3 +20,11 @@ export {
 export {
   B3Card,
 } from './B3Card'
+
+export {
+  B3Tag,
+} from './B3Tag'
+
+export {
+  B3Table,
+} from './B3Table'

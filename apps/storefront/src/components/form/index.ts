@@ -18,9 +18,5 @@ export {
 } from './B3ControlFileUpload'
 
 export {
-  B3Picker,
-} from './B3Picker'
-
-export {
   Captcha,
 } from '../captcha/Captcha'

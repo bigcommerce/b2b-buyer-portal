@@ -3,6 +3,7 @@ import {
   Suspense,
   Dispatch,
   SetStateAction,
+  useContext,
 } from 'react'
 
 import {
@@ -33,6 +34,10 @@ import {
   RouteItem,
 } from '@/shared/routes/routes'
 
+import {
+  GlobaledContext,
+} from '@/shared/global'
+
 const Registered = lazy(() => import('../../pages/registered/Registered'))
 
 const RegisteredBCToB2B = lazy(() => import('../../pages/registered/RegisteredBCToB2B'))
@@ -50,6 +55,24 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
   const {
     setOpenPage,
   } = props
+
+  const {
+    state: {
+      isB2BUser,
+      isAgenting,
+      role,
+    },
+  } = useContext(GlobaledContext)
+
+  const newRoutes = () => {
+    let newRoutes = routes
+
+    if (!isB2BUser) newRoutes = routes.filter((item:RouteItem) => item.path !== '/company-orders')
+
+    if (+role === 3 && !isAgenting) newRoutes = routes.filter((item:RouteItem) => item.path !== '/orders')
+
+    return newRoutes
+  }
 
   return (
     <Suspense fallback={(
@@ -75,7 +98,7 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
           )}
         >
           {
-              routes.map((route: RouteItem) => {
+              newRoutes().map((route: RouteItem) => {
                 const {
                   path,
                   component: Component,

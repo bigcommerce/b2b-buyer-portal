@@ -1,25 +1,46 @@
 import {
   RequestType,
 } from './base'
-
-// Defines a collection of functions used to store processing and error result processing for intercepting request and response results
-const interceptorsReq: Array<any> = []
-const interceptorsReqError: Array<any> = []
-const interceptorsRes: Array<any> = []
-const interceptorsResError: Array<any> = []
+import {
+  getCurrentJwt,
+  B3SStorage,
+} from '@/utils'
 
 const originFetch = window.fetch
 
 function b3Fetch(path: string, init: any, type?: string) {
-  interceptorsReq.forEach((item) => {
-    init = item(init)
-  })
-
   return new Promise((resolve, reject) => {
-    originFetch(path, init).then((res: Response) => res.json()).then((res) => {
+    originFetch(path, init).then((res: Response) => {
+      if (path.includes('current.jwt')) {
+        return res.text()
+      }
+      return res.json()
+    }).then(async (res) => {
       if (res?.code === 500) {
         reject(res.message)
         return
+      }
+      if (res?.errors?.length && res.errors[0].message === 'JWT token is expired') {
+        try {
+          await getCurrentJwt()
+          const config = {
+            Authorization: `Bearer  ${B3SStorage.get('bc_jwt_token') || ''}`,
+          }
+          const headers = {
+            'content-type': 'application/json',
+            ...config,
+          }
+
+          const reInit = {
+            headers,
+            method: 'POST',
+            body: init.body,
+          }
+          const newRes = await b3Fetch(path, reInit, type)
+          resolve(newRes)
+        } catch (e) {
+          console.error(e)
+        }
       }
       if (type === RequestType.B2BGraphql) {
         if (res?.errors && res?.errors.length) {
@@ -32,32 +53,10 @@ function b3Fetch(path: string, init: any, type?: string) {
       }
     })
       .catch((err: Error) => {
-        interceptorsResError.forEach((item): void => {
-          err = item(err)
-        })
         reject(err)
       })
   })
 }
-
-const interceptors = {
-  request: {
-    use<T,
- Y>(callback: T, errorCallback?: Y): void {
-      interceptorsReq.push(callback)
-      if (errorCallback) interceptorsReqError.push(errorCallback)
-    },
-  },
-  response: {
-    use<T,
- Y>(callback: T, errorCallback?: Y): void {
-      interceptorsRes.push(callback)
-      if (errorCallback)interceptorsResError.push(errorCallback)
-    },
-  },
-}
-
 export {
   b3Fetch,
-  interceptors,
 }

@@ -45,6 +45,7 @@ export const B3ControlPicker = ({
     muiTextFieldProps = {},
     setValue,
     variant,
+    getValues,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -67,17 +68,13 @@ export const B3ControlPicker = ({
     control,
   }
 
-  const [inputValue, setInputValue] = useState(defaultValue)
-
   const muixPickerProps = muiTextFieldProps || {}
 
   const handleDatePickerChange = (value: Date) => {
     try {
       setValue(name, format(value, inputFormat))
-      setInputValue(format(value, inputFormat))
     } catch (error) {
       setValue(name, value)
-      setInputValue(value)
     }
   }
 
@@ -108,7 +105,9 @@ export const B3ControlPicker = ({
                         inputProps={{
                           readOnly: true,
                         }}
-                        value={inputValue}
+                        value={getValues(name) || defaultValue}
+                        error={!!errors[name]}
+                        helperText={(errors as any)[name] ? (errors as any)[name].message : null}
                       />
                     )}
                     {...rest}

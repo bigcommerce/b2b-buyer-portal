@@ -7,7 +7,7 @@ const useMobile = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false)
 
   const ua = navigator.userAgent.toLowerCase()
-  const agents = ['iphone', 'ipad', 'ipod', 'android', 'linux', 'windows phone'] // All fields that may be mobile devices
+  const agents = ['iphone', 'ipad', 'ipod', 'android', 'windows phone'] // All fields that may be mobile devices
 
   useEffect(() => {
     agents.forEach((item: string) => {

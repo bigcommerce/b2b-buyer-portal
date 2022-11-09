@@ -26,6 +26,7 @@ interface B3DropDownProps<T> {
   config?: configProps,
   title: string,
   handleItemClick: (arg0: T) => void,
+  value?: string,
 }
 
 export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
@@ -33,6 +34,7 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
   list,
   config,
   title,
+  value,
   handleItemClick,
 }) => {
   const [open, setOpen] = useState<null | HTMLElement>(null)
@@ -76,12 +78,14 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
       >
 
         {
-          list.length && list.map((item) => {
-            const name = (item as any)[keyName]
+          list.length && list.map((item: any) => {
+            const name = item[keyName]
+            const color = value === item.key ? '#3385d6' : 'black'
             return (
               <MenuItem
                 sx={{
                   width: width || '200px',
+                  color,
                 }}
                 key={name}
                 onClick={() => {
@@ -89,7 +93,7 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
                   handleItemClick(item)
                 }}
               >
-                <ListItemText primary={name} />
+                {name}
               </MenuItem>
             )
           })

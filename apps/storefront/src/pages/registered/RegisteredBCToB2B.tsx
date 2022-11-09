@@ -461,7 +461,15 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           isSpinning={isLoading}
           tip={b3Lang('intl.global.tips.loading')}
         >
-          {
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+            }}
+          >
+
+            {
           logo && (
           <RegisteredImage>
             <ImageListItem sx={{
@@ -478,9 +486,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           )
         }
 
-          <InformationLabels>{b3Lang('intl.user.register.title.bcToB2B.businessAccountApplication')}</InformationLabels>
+            <InformationLabels>{b3Lang('intl.user.register.title.bcToB2B.businessAccountApplication')}</InformationLabels>
 
-          {
+            {
           errorMessage && (
           <Alert
             severity="error"
@@ -492,39 +500,40 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           )
         }
 
-          <Box>
-            <InformationFourLabels>{contactInformation?.length ? contactInformation[0]?.groupName : ''}</InformationFourLabels>
-            <B3CustomForm
-              formFields={contactInformation}
-              errors={errors}
-              control={control}
-              getValues={getValues}
-              setValue={setValue}
-            />
+            <Box>
+              <InformationFourLabels>{contactInformation?.length ? contactInformation[0]?.groupName : ''}</InformationFourLabels>
+              <B3CustomForm
+                formFields={contactInformation}
+                errors={errors}
+                control={control}
+                getValues={getValues}
+                setValue={setValue}
+              />
 
-          </Box>
+            </Box>
 
-          <Box>
-            <InformationFourLabels>{companyInformation?.length ? companyInformation[0]?.groupName : ''}</InformationFourLabels>
-            <B3CustomForm
-              formFields={[...companyInformation, ...companyExtraFields]}
-              errors={errors}
-              control={control}
-              getValues={getValues}
-              setValue={setValue}
-            />
-          </Box>
+            <Box>
+              <InformationFourLabels>{companyInformation?.length ? companyInformation[0]?.groupName : ''}</InformationFourLabels>
+              <B3CustomForm
+                formFields={[...companyInformation, ...companyExtraFields]}
+                errors={errors}
+                control={control}
+                getValues={getValues}
+                setValue={setValue}
+              />
+            </Box>
 
-          <Box>
-            <InformationFourLabels>{addressBasicFields?.length ? addressBasicFields[0]?.groupName : ''}</InformationFourLabels>
+            <Box>
+              <InformationFourLabels>{addressBasicFields?.length ? addressBasicFields[0]?.groupName : ''}</InformationFourLabels>
 
-            <B3CustomForm
-              formFields={addressBasicFields}
-              errors={errors}
-              control={control}
-              getValues={getValues}
-              setValue={setValue}
-            />
+              <B3CustomForm
+                formFields={addressBasicFields}
+                errors={errors}
+                control={control}
+                getValues={getValues}
+                setValue={setValue}
+              />
+            </Box>
           </Box>
         </B3Sping>
         <Box sx={{

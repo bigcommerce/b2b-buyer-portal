@@ -7,6 +7,7 @@ import {
 } from 'react'
 
 import {
+  Box,
   ImageListItem,
 } from '@mui/material'
 
@@ -305,7 +306,14 @@ export default function Registered(props: RegisteredProps) {
           isSpinning={isLoading}
           tip={b3Lang('intl.global.tips.loading')}
         >
-          {
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+            }}
+          >
+            {
             logo && (
             <RegisteredImage>
               <ImageListItem sx={{
@@ -321,17 +329,18 @@ export default function Registered(props: RegisteredProps) {
             </RegisteredImage>
             )
           }
-          <RegisteredStep
-            activeStep={activeStep}
-            isStepOptional={isStepOptional}
-          >
-            <RegisterContent
+            <RegisteredStep
               activeStep={activeStep}
-              handleBack={handleBack}
-              handleNext={handleNext}
-              handleFinish={handleFinish}
-            />
-          </RegisteredStep>
+              isStepOptional={isStepOptional}
+            >
+              <RegisterContent
+                activeStep={activeStep}
+                handleBack={handleBack}
+                handleNext={handleNext}
+                handleFinish={handleFinish}
+              />
+            </RegisteredStep>
+          </Box>
         </B3Sping>
       </RegisteredContainer>
     </B3Card>

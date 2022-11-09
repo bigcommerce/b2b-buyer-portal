@@ -28,6 +28,7 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-hook-form": "^7.33.1",
+    "react-infinite-scroller": "^1.2.6",
     "react-mui-dropzone": "^4.0.6",
     "react-router-dom": "6"
   },
@@ -37,6 +38,7 @@
     "@testing-library/user-event": "^14.2.5",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@types/react-infinite-scroller": "^1.2.3",
     "@vitejs/plugin-legacy": "^2.0.0",
     "@vitejs/plugin-react": "^2.0.0",
     "c8": "^7.11.3",

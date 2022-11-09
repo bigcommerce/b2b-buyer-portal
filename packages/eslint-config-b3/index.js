@@ -59,5 +59,6 @@ module.exports = {
         consistent: true,
       },
     ],
+    'react/prop-types': 0,
   },
 }

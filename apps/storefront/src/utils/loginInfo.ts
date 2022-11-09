@@ -2,10 +2,13 @@ import {
   getBCStoreChannelId,
   getBCToken,
   getB2BCompanyUserInfo,
+  getB2BToken,
+  getAgentInfo,
 } from '@/shared/service/b2b'
 
 import {
   getCustomerInfo,
+  getBcCurrentJWT,
 } from '@/shared/service/bc'
 
 import {
@@ -20,6 +23,14 @@ import {
 interface ChannelIdProps {
   channelId: number,
   urls: Array<string>,
+}
+
+type B2BToken = {
+  authorization: {
+    result: {
+      token: string
+    }
+  }
 }
 
 export interface ChannelstoreSites {
@@ -93,14 +104,17 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('B3CustomerInfo', {})
   B3SStorage.set('B3CustomerId', '')
   B3SStorage.set('B3EmailAddress', '')
-  B3SStorage.set('B3Role', 0)
+  B3SStorage.set('B3Role', '')
   B3SStorage.set('isB2BUser', false)
+  B3SStorage.set('bc_jwt_token', false)
+  B3SStorage.set('B3B2BToken', false)
+  B3SStorage.set('B3UserId', '')
 
   dispatch({
     type: 'common',
     payload: {
       isB2BUser: false,
-      role: 0,
+      role: '',
       customerId: '',
       customer: {
         phoneNumber: '',
@@ -111,6 +125,37 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       emailAddress: '',
     },
   })
+}
+
+export const getCurrentJwt = async () => {
+  try {
+    const res = await getBcCurrentJWT({
+      app_client_id: 'r2x8j3tn54wduq47b4efct5tqxio5z2',
+    })
+
+    B3SStorage.set('bc_jwt_token', res)
+    return res
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const getCurrentJwtAndB2BToken = async (userType: number) => {
+  try {
+    const res = await getCurrentJwt()
+
+    B3SStorage.set('bc_jwt_token', res)
+
+    if (userType === 3) {
+      const data = await getB2BToken(res)
+      if (data) {
+        const B3B2BToken: string = (data as B2BToken).authorization.result.token
+        B3SStorage.set('B3B2BToken', B3B2BToken)
+      }
+    }
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
@@ -129,16 +174,20 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       firstName,
       lastName,
       email: emailAddress = '',
+      customerGroupId,
     } = customer
 
     const {
       companyUserInfo: {
         userType,
         userInfo: {
-          role,
+          role = '',
+          id,
         },
       },
     } = await getB2BCompanyUserInfo(emailAddress)
+
+    await getCurrentJwtAndB2BToken(userType)
 
     if (customerId) {
       const customerInfo = {
@@ -146,13 +195,41 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
         firstName,
         lastName,
         emailAddress,
+        customerGroupId,
       }
       // B3SStorage.set('emailAddress', emailAddress)
       B3SStorage.set('B3CustomerInfo', customerInfo)
       B3SStorage.set('B3CustomerId', customerId)
       B3SStorage.set('B3EmailAddress', emailAddress)
+      B3SStorage.set('B3UserId', id)
+
+      // B3Role = {
+      //   ADMIN: '0',
+      //   SENIOR: '1',
+      //   JUNIOR: '2',
+      //   SALESREP: '3',
+      // }
       B3SStorage.set('B3Role', role)
+      // B3SStorage.set('isAgenting', )
       B3SStorage.set('isB2BUser', userType === 3)
+
+      let isAgenting = false
+      let salesRepCompanyId = ''
+      let salesRepCompanyName = ''
+
+      if (role === 3) {
+        try {
+          const data: any = await getAgentInfo(customerId)
+          if (data?.companyId) {
+            B3SStorage.set('isAgenting', true)
+            salesRepCompanyId = data.companyId
+            salesRepCompanyName = data.companyName
+            isAgenting = true
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      }
 
       dispatch({
         type: 'common',
@@ -160,6 +237,10 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
           isB2BUser: userType === 3,
           role,
           customerId,
+          B3UserId: id,
+          isAgenting,
+          salesRepCompanyId,
+          salesRepCompanyName,
           customer: {
             phoneNumber,
             firstName,
@@ -176,7 +257,6 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       userType,
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.log(error)
     clearCurrentCustomerInfo(dispatch)
   }

@@ -26,6 +26,11 @@ export interface GlobalState {
   emailAddress: string,
   role: number | string,
   logo: string,
+  isCompanyAccount: boolean,
+  isAgenting: boolean,
+  salesRepCompanyId: string,
+  salesRepCompanyName: string,
+  B3UserId: boolean,
 }
 
 export const initState = {
@@ -36,10 +41,20 @@ export const initState = {
   isLogin: false,
   isLoginStatusChange: false,
   customerId: B3SStorage.get('B3CustomerId') || '',
+  B3UserId: B3SStorage.get('B3UserId') || '',
   emailAddress: B3SStorage.get('B3EmailAddress') || '',
   role: B3SStorage.get('B3Role') || '',
-  customer: B3SStorage.get('B3CustomerInfo') || {},
+  isAgenting: B3SStorage.get('isAgenting') || false,
+  salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
+  salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',
+  customer: B3SStorage.get('B3CustomerInfo') || {
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    emailAddress: '',
+  },
   logo: '',
+  isCompanyAccount: false,
 }
 
 export interface GlobalAction {

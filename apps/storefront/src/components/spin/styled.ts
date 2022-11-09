@@ -1,6 +1,12 @@
 import styled from '@emotion/styled'
 
-const SpinCenter = styled.div({
+interface SpinCenterProps {
+  background?: string,
+}
+
+const SpinCenter = styled('div')(({
+  background,
+}: SpinCenterProps) => ({
   position: 'absolute',
   zIndex: 100,
   left: 0,
@@ -11,8 +17,8 @@ const SpinCenter = styled.div({
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
-  backgroundColor: 'rgba(255, 255, 255, .75)',
-})
+  backgroundColor: background || 'rgba(255, 255, 255, .75)',
+}))
 
 const SpinTip = styled.div({
   color: '#0072E5',
@@ -21,6 +27,9 @@ const SpinTip = styled.div({
 
 const SpinContext = styled.div({
   position: 'relative',
+  height: '100%',
+  width: '100%',
+  display: 'flex',
 })
 
 export {

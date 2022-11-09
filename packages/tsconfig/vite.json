@@ -6,7 +6,7 @@
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
     "types": ["vite/client"],
     "allowJs": false,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "esModuleInterop": false,
     "module": "ESNext",
     "resolveJsonModule": true,

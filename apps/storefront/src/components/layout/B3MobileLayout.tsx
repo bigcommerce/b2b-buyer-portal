@@ -40,6 +40,8 @@ export const B3MobileLayout = ({
         height: '100vh',
         p: '4vw',
         backgroundColor: '#fef9f5',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <Box
@@ -48,6 +50,7 @@ export const B3MobileLayout = ({
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
+          mb: '5vw',
         }}
       >
         <B3Logo />
@@ -60,7 +63,10 @@ export const B3MobileLayout = ({
       </Box>
       <Box
         sx={{
-          p: '5vw 0',
+          flex: 1,
+          display: 'flex',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         {children}

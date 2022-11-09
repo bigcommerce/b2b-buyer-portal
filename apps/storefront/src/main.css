@@ -12,6 +12,7 @@
   position: fixed;
   overscroll-behavior: contain;
   z-index: 2147483647;
+  pointer-events: pointer;
 }
 
 .bundle-namespace iframe {

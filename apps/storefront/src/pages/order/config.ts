@@ -1,0 +1,109 @@
+import {
+  distanceDay,
+} from '@/utils'
+
+import {
+  orderStatusCode,
+} from './shared/getOrderStatus'
+
+export interface FilterSearchProps {
+  [key: string]: string | number
+  offset: number
+  first: number
+  beginDateAt: string
+  endDateAt: string
+  orderBy: string
+  createdBy: string
+  q: string
+  companyName: string
+  isShowMy: number
+  companyId: string
+}
+
+export interface FilterMoreProps {
+  startValue?: string
+  endValue?: string
+  PlacedBy?: string
+  company?: string
+  orderStatus?: string| number
+}
+
+const b2bFilterSearch:FilterSearchProps = {
+  offset: 0,
+  first: 10,
+  q: '',
+  companyId: '',
+  beginDateAt: distanceDay(30),
+  endDateAt: distanceDay(),
+  companyName: '',
+  orderBy: 'createdAt',
+  createdBy: '',
+  orderNumber: '',
+  poNumber: '',
+  isShowMy: 0,
+}
+
+const bcFilterSearch = {
+  offset: 0,
+  first: 10,
+  beginDateAt: distanceDay(30),
+  endDateAt: distanceDay(),
+  orderBy: 'createdAt',
+  createdBy: '',
+  q: '',
+}
+
+export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean) => {
+  const orderStatusOptions = Object.keys(orderStatusCode).map((item) => ({
+    label: orderStatusCode[item],
+    value: orderStatusCode[item],
+  }))
+
+  const filterMoreList = [
+    {
+      name: 'company',
+      label: 'company',
+      required: false,
+      default: '',
+      fieldType: 'text',
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
+    {
+      name: 'orderStatus',
+      label: 'order status',
+      required: false,
+      default: '',
+      fieldType: 'dropdown',
+      options: orderStatusOptions,
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
+    {
+      name: 'PlacedBy',
+      label: 'placed by',
+      required: false,
+      default: '',
+      fieldType: 'text',
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
+  ]
+
+  const filterCurrentMoreList = filterMoreList.filter((item) => {
+    if (!isB2BUser && (item.name === 'company' || item.name === 'PlacedBy')) return false
+    if (isB2BUser && !isCompanyOrder && item.name === 'company') return false
+    return true
+  })
+
+  return filterCurrentMoreList
+}
+
+export const getInitFilter = (isCompanyOrder: boolean, isB2BUser: boolean): Partial<FilterSearchProps> => {
+  if (isB2BUser) b2bFilterSearch.isShowMy = isCompanyOrder ? 0 : 1
+
+  return isB2BUser ? b2bFilterSearch : bcFilterSearch
+}

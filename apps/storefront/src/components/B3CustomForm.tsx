@@ -75,6 +75,7 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
                 errors={errors}
                 control={control}
                 setValue={setValue}
+                getValues={getValues}
               />
             )
           }

@@ -22,11 +22,20 @@ import {
   loginInfo,
   getCurrentCustomerInfo,
   clearCurrentCustomerInfo,
+  getCurrentJwt,
 } from './loginInfo'
 
 import {
   getLogo,
 } from './b3Init'
+
+import {
+  distanceDay,
+} from './b3Picker'
+
+import {
+  getProxyInfo,
+} from './b3Proxy'
 
 export {
   convertArrayToGraphql,
@@ -41,4 +50,7 @@ export {
   getCurrentCustomerInfo,
   clearCurrentCustomerInfo,
   getLogo,
+  distanceDay,
+  getProxyInfo,
+  getCurrentJwt,
 }

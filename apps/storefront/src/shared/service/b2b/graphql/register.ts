@@ -151,6 +151,12 @@ const getStoreChannelId = () => `{
   }
 }`
 
+// const getB2bLogin = () => `mutation Login() {
+//   login(email: $email, password: $pass) {
+//     result
+//   }
+// }`
+
 export const getB2BAccountFormFields = (type: number): CustomFieldItems => B3Request.graphqlB2B({
   query: getAccountFormFields(type),
 })

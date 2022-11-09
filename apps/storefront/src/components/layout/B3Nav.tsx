@@ -4,8 +4,13 @@ import {
   ListItemButton,
   ListItemText,
 } from '@mui/material'
+
+import {
+  useContext,
+} from 'react'
 import {
   useNavigate,
+  useLocation,
 } from 'react-router-dom'
 import {
   routes,
@@ -20,8 +25,12 @@ import {
 } from '@/hooks'
 
 import {
-  NavMessage,
-} from './styled'
+  GlobaledContext,
+} from '@/shared/global'
+
+// import {
+//   NavMessage,
+// } from './styled'
 
 interface B3NavProps {
   closeSidebar?: (x: boolean) => void;
@@ -32,12 +41,42 @@ export const B3Nav = ({
 }: B3NavProps) => {
   const [isMobile] = useMobile()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const {
+    state: {
+      isB2BUser,
+      isAgenting,
+      role,
+    },
+  } = useContext(GlobaledContext)
 
   const handleClick = (item: RouteItem) => {
     navigate(item.path)
     if (isMobile && closeSidebar) {
       closeSidebar(false)
     }
+  }
+  const menuItems = () => {
+    const newRoutes = routes.filter((route) => {
+      if (route.isMenuItem === false) return false
+      if (!isB2BUser && route.path === '/company-orders') return false
+      if (isB2BUser && role === 3 && !isAgenting && route.path === '/orders') return false
+      return true
+    })
+
+    return newRoutes
+  }
+  const newRoutes = menuItems()
+  const activePath = (path: string) => {
+    if (location.pathname === path) {
+      return {
+        color: 'white',
+        bgcolor: '#3385d6',
+        borderRadius: '4px',
+      }
+    }
+    return {}
   }
   return (
     <List
@@ -51,7 +90,7 @@ export const B3Nav = ({
       aria-labelledby="nested-list-subheader"
     >
       {
-        routes.map((item: RouteItem) => (
+        newRoutes.map((item: RouteItem) => (
           <ListItem
             sx={{
               '&:hover': {
@@ -63,6 +102,7 @@ export const B3Nav = ({
                   color: '#3385d6',
                 },
               },
+              ...activePath(item.path),
             }}
             onClick={() => handleClick(item)}
             key={item.path}
@@ -70,7 +110,7 @@ export const B3Nav = ({
           >
             <ListItemButton>
               <ListItemText primary={item.name} />
-              <NavMessage className="navMessage">5</NavMessage>
+              {/* <NavMessage className="navMessage">5</NavMessage> */}
             </ListItemButton>
           </ListItem>
         ))

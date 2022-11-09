@@ -45,15 +45,18 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
         openUrl: '/login',
       })
     }
+    // login register  orther
     if (document.querySelectorAll(globalB3['dom.registerElement']).length) {
       const registerArr = Array.from(document.querySelectorAll(globalB3['dom.registerElement']))
+      const allOtherArr = Array.from(document.querySelectorAll(globalB3['dom.allOtherElement']))
+
       const handleTriggerClick = (e: MouseEvent) => {
-        if (registerArr.includes(e.target)) {
+        if (registerArr.includes(e.target) || allOtherArr.includes(e.target)) {
           e.preventDefault()
           e.stopPropagation()
 
           const href = (e.target as any)?.href || ''
-          const gotoUrl = getCurrentLoginUrl(href)
+          const gotoUrl = registerArr.includes(e.target) ? getCurrentLoginUrl(href) : '/'
 
           setOpenPage({
             isOpen: true,
