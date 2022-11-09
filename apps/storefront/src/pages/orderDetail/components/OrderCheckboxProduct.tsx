@@ -8,6 +8,8 @@ import {
 
 import {
   useState,
+  ChangeEvent,
+  KeyboardEvent,
 } from 'react'
 
 import styled from '@emotion/styled'
@@ -25,6 +27,7 @@ interface OrderCheckboxProductProps {
   products: any[],
   currency?: string,
   getProductQuantity?: (item: OrderProductItem) => number
+  onProductChange?: (products: OrderProductItem[]) => void
 }
 
 interface FlexProps {
@@ -57,12 +60,6 @@ const Flex = styled('div')(({
       marginTop: '12px',
     },
   } : {}
-
-  // const mobileItemCheckboxStyle = isMobile ? {
-  //   '& #product-item-checkbox': {
-  //     paddingLeft: 0,
-  //   },
-  // } : {}
 
   const flexWrap = isMobile ? 'wrap' : 'initial'
 
@@ -129,23 +126,12 @@ const mobileItemStyle = {
   },
 }
 
-const StyledProductItemCheckbox = styled(Checkbox)(({
-  isMobile,
-}: any) => {
-  const mobileItemStyle = isMobile ? {
-    paddingLeft: 0,
-  } : {}
-
-  return {
-    ...mobileItemStyle,
-  }
-})
-
 export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
   const {
     products,
     currency = '$',
     getProductQuantity = (item) => item.quantity,
+    onProductChange = () => {},
   } = props
 
   const [isMobile] = useMobile()
@@ -188,6 +174,19 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
   }
 
   const isChecked = (variantId: any) => list.includes(variantId)
+
+  const handleProductQuantityChange = (product: OrderProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
+    if (parseInt(e.target.value, 10) > 0) {
+      product.quantity = e.target.value
+      onProductChange([...products])
+    }
+  }
+
+  const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (['KeyE', 'Equal'].indexOf(event.code) > -1) {
+      event.preventDefault()
+    }
+  }
 
   return products.length > 0 ? (
     <Box>
@@ -235,7 +234,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
       }
 
       {
-        products.map((product: OrderProductItem) => (
+        products.map((product: OrderProductItem, index: number) => (
           <Flex isMobile={isMobile}>
             <Checkbox
               checked={isChecked(product.variant_id)}
@@ -275,6 +274,8 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
                 variant={isMobile ? 'filled' : 'outlined'}
                 label={isMobile ? 'Qty' : ''}
                 value={getProductQuantity(product)}
+                onChange={handleProductQuantityChange(product)}
+                onKeyDown={handleNumberInputKeyDown}
                 size="small"
                 sx={{
                   width: isMobile ? '60%' : '100%',

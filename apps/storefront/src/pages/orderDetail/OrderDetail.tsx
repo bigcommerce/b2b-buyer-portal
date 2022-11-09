@@ -85,6 +85,7 @@ const OrderDetail = () => {
     status: '',
     statusCode: '',
     currencyCode: '',
+    currency: '',
     orderSummary: {},
   })
 
@@ -131,6 +132,7 @@ const OrderDetail = () => {
     poNumber,
     status,
     orderSummary,
+    currency,
   } = detailsData
 
   return (
@@ -213,7 +215,10 @@ const OrderDetail = () => {
             }}
           >
             <Stack spacing={3}>
-              <OrderShipping shippings={shippings} />
+              <OrderShipping
+                shippings={shippings}
+                currency={currency}
+              />
 
               <OrderHistory history={history} />
             </Stack>

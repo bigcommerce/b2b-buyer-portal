@@ -45,7 +45,7 @@ const getOrderShipping = (data: B2BOrderData) => {
 
     const itemsInfo: OrderProductItem[] = []
     items.forEach((item: OrderShipmentProductItem) => {
-      const product = products.find((product: OrderProductItem) => product.product_id === item.product_id)
+      const product = products.find((product: OrderProductItem) => product.id === item.order_product_id)
       if (product) {
         itemsInfo.push({
           ...product,
@@ -63,7 +63,7 @@ const getOrderShipping = (data: B2BOrderData) => {
   const shippings = shippingAddress.map((address: OrderShippingAddressItem) => {
     const notShipItem: OrderShippedItem = {
       isNotShip: true,
-      itemsInfo: products.filter((product: OrderProductItem) => product.quantity > product.quantity_shipped),
+      itemsInfo: products.filter((product: OrderProductItem) => product.quantity > product.quantity_shipped && address.id === product.order_address_id),
     }
 
     return {
@@ -107,11 +107,11 @@ const getOrderSummary = (data: B2BOrderData) => {
     createAt: dateCreated,
     name: `${firstName} ${lastName}`,
     priceData: {
-      'Sub total': subtotalExTax || subtotalIncTax,
-      Shipping: shippingCostExTax || shippingCostIncTax,
-      'Handing fee': handlingCostExTax || handlingCostIncTax,
-      Tax: totalTax,
-      'Grand total': totalExTax || totalIncTax,
+      'Sub total': formatPrice(subtotalExTax || subtotalIncTax || ''),
+      Shipping: formatPrice(shippingCostExTax || shippingCostIncTax || ''),
+      'Handing fee': formatPrice(handlingCostExTax || handlingCostIncTax || ''),
+      Tax: formatPrice(totalTax || ''),
+      'Grand total': formatPrice(totalExTax || totalIncTax || ''),
     },
   }
 
@@ -139,6 +139,7 @@ export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   status: data.status,
   statusCode: data.statusId,
   currencyCode: data.currencyCode,
+  currency: data.money?.currency_token || '$',
   money: data.money,
   orderSummary: getOrderSummary(data),
   payment: getPaymentData(data),

@@ -28,6 +28,7 @@ interface Shipping extends OrderShippingAddressItem{
 }
 interface OrderShippingProps {
   shippings: Shipping[]
+  currency: string,
 }
 
 const ShipmentTitle = styled('span')(() => ({
@@ -37,6 +38,7 @@ const ShipmentTitle = styled('span')(() => ({
 export const OrderShipping = (props: OrderShippingProps) => {
   const {
     shippings,
+    currency,
   } = props
 
   const getFullName = (shipping: Shipping) => {
@@ -69,13 +71,12 @@ export const OrderShipping = (props: OrderShippingProps) => {
   const getShipmentText = (shipment: OrderShippedItem) => {
     const {
       date_created: createdDate,
-      shipping_provider: shippingProvider,
       shipping_method: shippingMethod,
     } = shipment
 
     const time = format(new Date(createdDate), 'LLLL, d')
 
-    return `shipped on ${time}, by ${shippingProvider}, ${shippingMethod}`
+    return `shipped on ${time}, by ${shippingMethod}`
   }
 
   const getShippingProductQuantity = (item: OrderProductItem) => item.current_quantity_shipped
@@ -103,6 +104,8 @@ export const OrderShipping = (props: OrderShippingProps) => {
                   }}
                 >
                   {getFullName(shipping)}
+                  {' - '}
+                  {shipping.company}
                 </Typography>
                 <Typography
                   variant="h6"
@@ -116,55 +119,58 @@ export const OrderShipping = (props: OrderShippingProps) => {
 
               {
                 (shipping.shipmentItems || []).map((shipment: OrderShippedItem) => (
-                  <>
-                    {
-                      shipment.isNotShip && (
-                        <Box sx={{
-                          margin: '20px 0 2px',
-                        }}
-                        >
-                          <Typography variant="body1">
-                            <ShipmentTitle>Not Shipped yet</ShipmentTitle>
-                          </Typography>
-                        </Box>
-                      )
-                    }
-                    {
-                      !shipment.isNotShip && (
-                        <Box sx={{
-                          margin: '20px 0 2px',
-                        }}
-                        >
-                          <Typography variant="body1">
-                            <>
-                              <ShipmentTitle>{`Shipment ${getShipmentIndex()} - `}</ShipmentTitle>
-                              {getShipmentText(shipment)}
-                            </>
-                          </Typography>
-                          {
-                            shipment.tracking_link
-                              ? (
-                                <Link
-                                  href={shipment.tracking_link}
-                                  target="_blank"
-                                >
-                                  {shipment.tracking_number}
-                                </Link>
-                              )
-                              : (
-                                <Typography variant="body1">
-                                  {shipment.tracking_number}
-                                </Typography>
-                              )
-                          }
-                        </Box>
-                      )
-                    }
-                    <OrderProduct
-                      getProductQuantity={shipment.isNotShip ? getNotShippingProductQuantity : getShippingProductQuantity}
-                      products={shipment.itemsInfo}
-                    />
-                  </>
+                  shipment.itemsInfo.length > 0 ? (
+                    <>
+                      {
+                        shipment.isNotShip && (
+                          <Box sx={{
+                            margin: '20px 0 2px',
+                          }}
+                          >
+                            <Typography variant="body1">
+                              <ShipmentTitle>Not Shipped yet</ShipmentTitle>
+                            </Typography>
+                          </Box>
+                        )
+                      }
+                      {
+                        !shipment.isNotShip && (
+                          <Box sx={{
+                            margin: '20px 0 2px',
+                          }}
+                          >
+                            <Typography variant="body1">
+                              <>
+                                <ShipmentTitle>{`Shipment ${getShipmentIndex()} - `}</ShipmentTitle>
+                                {getShipmentText(shipment)}
+                              </>
+                            </Typography>
+                            {
+                              shipment.tracking_link
+                                ? (
+                                  <Link
+                                    href={shipment.tracking_link}
+                                    target="_blank"
+                                  >
+                                    {shipment.tracking_number}
+                                  </Link>
+                                )
+                                : (
+                                  <Typography variant="body1">
+                                    {shipment.tracking_number}
+                                  </Typography>
+                                )
+                            }
+                          </Box>
+                        )
+                      }
+                      <OrderProduct
+                        getProductQuantity={shipment.isNotShip ? getNotShippingProductQuantity : getShippingProductQuantity}
+                        products={shipment.itemsInfo}
+                        currency={currency}
+                      />
+                    </>
+                  ) : <></>
                 ))
               }
 

@@ -2,6 +2,7 @@ import {
   useRef,
   useState,
   ReactElement,
+  useEffect,
 } from 'react'
 
 import {
@@ -28,6 +29,10 @@ import {
 } from './OrderShoppingList'
 import CreateShoppingList from './CreateShoppingList'
 
+import {
+  OrderProductItem,
+} from '../shared/B2BOrderData'
+
 interface OrderDialogProps<T> {
   open: boolean,
   setOpen: (open: boolean) => void,
@@ -49,6 +54,7 @@ export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false)
 
   const [openShoppingList, setOpenShoppingList] = useState(false)
+  const [editableProducts, setEditableProducts] = useState<OrderProductItem[]>([])
 
   const [isMobile] = useMobile()
 
@@ -84,6 +90,18 @@ export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
   const handleCloseShoppingClick = () => {
     setOpenCreateShopping(false)
     setOpenShoppingList(true)
+  }
+
+  useEffect(() => {
+    if (open) {
+      setEditableProducts(products.map((item: OrderProductItem) => ({
+        ...item,
+      })))
+    }
+  }, [open])
+
+  const handleProductChange = (products: OrderProductItem[]) => {
+    setEditableProducts(products)
   }
 
   return (
@@ -125,7 +143,8 @@ export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
               {currentDialogData.description}
             </Typography>
             <OrderCheckboxProduct
-              products={products}
+              products={editableProducts}
+              onProductChange={handleProductChange}
             />
           </DialogContent>
 

@@ -220,6 +220,7 @@ const Order = ({
       title: 'Order',
       render: (item: ListItem, index: number) => (
         <Box
+          component="span"
           sx={{
             cursor: 'pointer',
             '&:hover': {
