@@ -132,6 +132,31 @@ const getPaymentData = (data: B2BOrderData) => {
   }
 }
 
+const handleProductQuantity = (data: B2BOrderData) => {
+  const {
+    products,
+  } = data
+
+  const newProducts: any[] = []
+
+  products.forEach((product: any) => {
+    const productIndex = newProducts.findIndex((item) => +item.variant_id === +product.variant_id)
+
+    if (productIndex === -1) {
+      newProducts.push(product)
+    } else {
+      const existedProduct = newProducts[productIndex]
+
+      newProducts[productIndex] = {
+        ...existedProduct,
+        quantity: +existedProduct.quantity + +product.quantity,
+      }
+    }
+  })
+
+  return newProducts
+}
+
 export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   shippings: getOrderShipping(data),
   history: data.orderHistoryEvent || [],
@@ -144,6 +169,6 @@ export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   orderSummary: getOrderSummary(data),
   payment: getPaymentData(data),
   orderComments: data.customerMessage,
-  products: data.products,
+  products: handleProductQuantity(data),
   orderId: +data.id,
 })
