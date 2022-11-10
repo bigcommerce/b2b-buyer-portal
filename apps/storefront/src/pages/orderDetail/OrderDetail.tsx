@@ -53,6 +53,11 @@ import {
   B3Sping,
 } from '@/components/spin/B3Sping'
 
+import {
+  OrderDetailsContext,
+  OrderDetailsProvider,
+} from './context/OrderDetailsContext'
+
 interface LocationState {
   isCompanyOrder: boolean,
 }
@@ -68,6 +73,20 @@ const OrderDetail = () => {
     },
   } = useContext(GlobaledContext)
 
+  const {
+    state: {
+      shippings,
+      history,
+      poNumber,
+      status = '',
+      customStatus,
+      orderSummary,
+      currency = '$',
+    },
+    state: detailsData,
+    dispatch,
+  } = useContext(OrderDetailsContext)
+
   const localtion = useLocation()
 
   const [isMobile] = useMobile()
@@ -78,17 +97,6 @@ const OrderDetail = () => {
     setOrderId(params.id || '')
   }, [params])
 
-  const [detailsData, setDetailsData] = useState({
-    shippings: [],
-    history: [],
-    poNumber: '',
-    status: '',
-    statusCode: '',
-    currencyCode: '',
-    currency: '',
-    orderSummary: {},
-  })
-
   const getOrderDetails = async () => {
     const id = parseInt(orderId, 10)
     if (!id) {
@@ -98,17 +106,23 @@ const OrderDetail = () => {
     setIsRequestLoading(true)
 
     try {
+      let data = null
       if (isB2BUser) {
         const {
           order,
         }: any = await getB2BOrderDetails(id)
-        setDetailsData(convertB2BOrderDetails(order))
+        data = convertB2BOrderDetails(order)
       } else {
         const {
           customerOrder,
         }: any = await getBCOrderDetails(id)
-        setDetailsData(convertBCOrderDetails(customerOrder))
+        data = convertBCOrderDetails(customerOrder)
       }
+
+      dispatch({
+        type: 'all',
+        payload: data,
+      })
     } finally {
       setIsRequestLoading(false)
     }
@@ -125,15 +139,6 @@ const OrderDetail = () => {
   const handlePageChange = (orderId: string | number) => {
     setOrderId(orderId.toString())
   }
-
-  const {
-    shippings,
-    history,
-    poNumber,
-    status,
-    orderSummary,
-    currency,
-  } = detailsData
 
   return (
     <B3Sping
@@ -180,7 +185,10 @@ const OrderDetail = () => {
           >
             <Typography variant="h4">{`#${orderId}`}</Typography>
             {poNumber && <Typography variant="body2">{poNumber}</Typography>}
-            <OrderStatus code={status} />
+            <OrderStatus
+              code={status}
+              text={customStatus}
+            />
           </Grid>
           <Grid
             container
@@ -247,4 +255,10 @@ const OrderDetail = () => {
   )
 }
 
-export default OrderDetail
+const OrderDetailsContent = () => (
+  <OrderDetailsProvider>
+    <OrderDetail />
+  </OrderDetailsProvider>
+)
+
+export default OrderDetailsContent

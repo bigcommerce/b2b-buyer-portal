@@ -10,11 +10,13 @@ import getOrderStatus from '../shared/getOrderStatus'
 
 interface OrderStatusProps {
   code: string,
+  text?: string,
 }
 
 export const OrderStatus = (props: OrderStatusProps) => {
   const {
     code,
+    text,
   } = props
 
   const status = getOrderStatus(code)
@@ -25,7 +27,7 @@ export const OrderStatus = (props: OrderStatusProps) => {
         color={status.color}
         textColor={status.textColor}
       >
-        {status.name}
+        {text || status.name}
       </B3Tag>
     ) : <></>
   )

@@ -171,4 +171,5 @@ export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   orderComments: data.customerMessage,
   products: handleProductQuantity(data),
   orderId: +data.id,
+  customStatus: data.customStatus,
 })

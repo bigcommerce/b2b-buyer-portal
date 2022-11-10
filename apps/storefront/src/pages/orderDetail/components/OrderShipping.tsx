@@ -72,11 +72,12 @@ export const OrderShipping = (props: OrderShippingProps) => {
     const {
       date_created: createdDate,
       shipping_method: shippingMethod,
+      shipping_provider: shippingProvider,
     } = shipment
 
     const time = format(new Date(createdDate), 'LLLL, d')
 
-    return `shipped on ${time}, by ${shippingMethod}`
+    return `shipped on ${time}, by ${shippingProvider}, ${shippingMethod}`
   }
 
   const getShippingProductQuantity = (item: OrderProductItem) => item.current_quantity_shipped
