@@ -183,7 +183,7 @@ export const OrderProduct = (props: OrderProductProps) => {
                   {product.sku}
                 </Typography>
                 {(product.product_options || []).map((option: OrderProductOption) => (
-                  <ProductOptionText>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
+                  <ProductOptionText key={`${option.option_id}`}>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
                 ))}
               </Box>
             </FlexItem>
