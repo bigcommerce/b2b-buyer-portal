@@ -258,6 +258,7 @@ export const OrderAction = (props: any) => {
     orderComments,
     products,
     orderId,
+    ipStatus,
   } = detailsData
 
   const getFullPaymentAddress = (billingAddress: any) => {
@@ -345,7 +346,7 @@ export const OrderAction = (props: any) => {
           key: 'aboutInvoice',
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
-          isCanShow: true,
+          isCanShow: !isB2BUser || +ipStatus !== 0,
         },
       ],
       infos: {

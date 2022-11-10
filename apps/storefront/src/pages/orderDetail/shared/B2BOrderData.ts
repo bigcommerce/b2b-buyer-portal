@@ -172,4 +172,6 @@ export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   products: handleProductQuantity(data),
   orderId: +data.id,
   customStatus: data.customStatus,
+  ipStatus: +data.ipStatus || 0, // 0: no invoice, 1,2: have invoice
+  invoiceId: +data.invoiceId,
 })

@@ -180,6 +180,8 @@ const orderDetail = (id: number, fn: string) => `{
     isInvoiceOrder,
     updatedAt,
     externalOrderId,
+    ipStatus,
+    invoiceId,
     orderHistoryEvent {
       id,
       eventType,
