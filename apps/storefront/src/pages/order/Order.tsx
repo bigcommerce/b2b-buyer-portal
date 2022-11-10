@@ -382,6 +382,7 @@ const Order = ({
             isCustomRender={false}
             isInfiniteScroll={isMobile}
             isLoading={isRequestLoading}
+            tableKey="orderId"
             renderItem={(row: ListItem, index: number) => (
               <OrderItemCard
                 key={row.orderId}

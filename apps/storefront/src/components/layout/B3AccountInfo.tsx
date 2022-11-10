@@ -97,6 +97,7 @@ export const B3AccountInfo = ({
                   p: '2vw 4vw',
                   color: '#3385d6',
                 }}
+                key={item.name}
                 onClick={() => handleItemClick(item)}
               >
                 {item.name}

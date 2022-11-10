@@ -91,7 +91,9 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
   }
 
   return (
-    <Card>
+    <Card
+      key={item.orderId}
+    >
       <CardContent
         sx={{
           color: 'rgba(0, 0, 0, 0.6)',

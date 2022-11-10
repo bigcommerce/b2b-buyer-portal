@@ -56,6 +56,7 @@ interface TableProps<T> {
   infiniteScrollLoader?: ReactElement,
   infiniteScrollHeight?: string,
   noDataText?: string,
+  tableKey?: string,
 }
 
 export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
@@ -81,6 +82,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
   itemXs = 4,
   noDataText,
   tableHeaderHide = false,
+  tableKey,
 }) => {
   const {
     offset,
@@ -189,15 +191,15 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                 <TableHead>
                   <TableRow>
                     {
-                  columnItems.map((column) => (
-                    <TableCell
-                      key={column.title}
-                      width={column.width}
-                    >
-                      {column.title}
-                    </TableCell>
-                  ))
-                }
+                      columnItems.map((column) => (
+                        <TableCell
+                          key={column.title}
+                          width={column.width}
+                        >
+                          {column.title}
+                        </TableCell>
+                      ))
+                    }
                   </TableRow>
                 </TableHead>
                 )
@@ -207,14 +209,14 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                 {listItems.map((row, index) => {
                   const node = row.node || row || {}
                   return (
-                    <TableRow key={node.id}>
+                    <TableRow key={node[tableKey || 'id']}>
                       {
-                  columnItems.map((column) => (
-                    <TableCell key={column.title}>
-                      {column.render ? column.render(node, index) : node[column.key]}
-                    </TableCell>
-                  ))
-                }
+                        columnItems.map((column) => (
+                          <TableCell key={column.title}>
+                            {column.render ? column.render(node, index) : node[column.key]}
+                          </TableCell>
+                        ))
+                      }
                     </TableRow>
                   )
                 })}

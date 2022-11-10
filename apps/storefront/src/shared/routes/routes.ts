@@ -32,7 +32,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/company-orders',
-    name: 'Company Order',
+    name: 'Company Orders',
     wsKey: 'router-orders',
     isMenuItem: true,
     component: CompanyOrderList,

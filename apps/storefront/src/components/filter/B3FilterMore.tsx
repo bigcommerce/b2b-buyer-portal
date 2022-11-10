@@ -145,7 +145,11 @@ const B3FilterMore:<T> ({
           Filters
         </DialogTitle>
         <DialogContent>
-          <Box>
+          <Box
+            sx={{
+              width: `${isMobile ? '100%' : '450px'}`,
+            }}
+          >
             <B3CustomForm
               formFields={fiterMoreInfo}
               errors={errors}
