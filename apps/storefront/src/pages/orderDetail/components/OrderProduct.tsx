@@ -159,7 +159,10 @@ export const OrderProduct = (props: OrderProductProps) => {
 
       {
         products.map((product: OrderProductItem) => (
-          <Flex isMobile={isMobile}>
+          <Flex
+            isMobile={isMobile}
+            key={product.sku}
+          >
             <FlexItem>
               <ProductImage src={product.imageUrl} />
               <Box

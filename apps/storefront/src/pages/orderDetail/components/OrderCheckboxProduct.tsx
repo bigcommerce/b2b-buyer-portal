@@ -242,7 +242,10 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
 
       {
         products.map((product: OrderProductItem) => (
-          <Flex isMobile={isMobile}>
+          <Flex
+            isMobile={isMobile}
+            key={product.sku}
+          >
             <Checkbox
               checked={isChecked(product.variant_id)}
               onChange={() => handleSelectChange(product.variant_id)}

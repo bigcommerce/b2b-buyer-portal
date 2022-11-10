@@ -1,5 +1,6 @@
 import {
   useContext,
+  Fragment,
 } from 'react'
 
 import {
@@ -98,7 +99,7 @@ export const OrderShipping = () => {
     <Stack spacing={2}>
       {
         shippings.map((shipping: Shipping) => (
-          <Card>
+          <Card key={`shipping-${shipping.id}`}>
             <CardContent>
               <Box sx={{
                 wordBreak: 'break-word',
@@ -127,12 +128,13 @@ export const OrderShipping = () => {
               {
                 (shipping.shipmentItems || []).map((shipment: OrderShippedItem) => (
                   shipment.itemsInfo.length > 0 ? (
-                    <>
+                    <Fragment key={shipment.isNotShip ? 'shipment-isNotShip' : `shipment-${shipment.id}`}>
                       {
                         shipment.isNotShip && (
-                          <Box sx={{
-                            margin: '20px 0 2px',
-                          }}
+                          <Box
+                            sx={{
+                              margin: '20px 0 2px',
+                            }}
                           >
                             <Typography variant="body1">
                               <ShipmentTitle>Not Shipped yet</ShipmentTitle>
@@ -176,7 +178,7 @@ export const OrderShipping = () => {
                         products={shipment.itemsInfo}
                         currency={currency}
                       />
-                    </>
+                    </Fragment>
                   ) : <></>
                 ))
               }

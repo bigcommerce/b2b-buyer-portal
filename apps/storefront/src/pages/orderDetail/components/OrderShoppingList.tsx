@@ -120,15 +120,16 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
         <DialogContent>
           <MenuList>
             {
-            list.map((item: any) => (
-              <ShoppingListMenuItem
-                className={activeId === item.node.id ? 'active' : ''}
-                onClick={handleListItemClicked(item)}
-              >
-                <ListItemText>{item.node.name}</ListItemText>
-              </ShoppingListMenuItem>
-            ))
-          }
+              list.map((item: any) => (
+                <ShoppingListMenuItem
+                  key={item.node.id}
+                  className={activeId === item.node.id ? 'active' : ''}
+                  onClick={handleListItemClicked(item)}
+                >
+                  <ListItemText>{item.node.name}</ListItemText>
+                </ShoppingListMenuItem>
+              ))
+            }
           </MenuList>
           <Button
             variant="text"

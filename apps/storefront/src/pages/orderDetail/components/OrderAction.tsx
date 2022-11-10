@@ -1,6 +1,7 @@
 import {
   useState,
   useContext,
+  Fragment,
 } from 'react'
 import {
   useNavigate,
@@ -201,7 +202,7 @@ const OrderCard = (props: any) => {
       <StyledCardActions>
         {
           buttons && buttons.map((button: any) => (
-            <>
+            <Fragment key={button.key}>
               {
                 button.isCanShow && (
                   <Button
@@ -215,7 +216,7 @@ const OrderCard = (props: any) => {
                   </Button>
                 )
               }
-            </>
+            </Fragment>
           ))
         }
       </StyledCardActions>

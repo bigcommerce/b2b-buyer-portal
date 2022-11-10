@@ -207,6 +207,7 @@ const OrderDetail = () => {
           </Grid>
           <Grid
             container
+            item
             xs={isMobile ? 12 : 4}
             sx={{
               display: 'flex',
