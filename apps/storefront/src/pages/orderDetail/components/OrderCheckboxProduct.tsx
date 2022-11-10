@@ -176,15 +176,22 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
   const isChecked = (variantId: any) => list.includes(variantId)
 
   const handleProductQuantityChange = (product: OrderProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
-    if (parseInt(e.target.value, 10) > 0) {
+    if (!e.target.value || parseInt(e.target.value, 10) > 0) {
       product.quantity = e.target.value
       onProductChange([...products])
     }
   }
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (['KeyE', 'Equal'].indexOf(event.code) > -1) {
+    if (['KeyE', 'Equal', 'Minus'].indexOf(event.code) > -1) {
       event.preventDefault()
+    }
+  }
+
+  const handleNumberInputBlur = (product: OrderProductItem) => () => {
+    if (!product.quantity) {
+      product.quantity = '1'
+      onProductChange([...products])
     }
   }
 
@@ -234,7 +241,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
       }
 
       {
-        products.map((product: OrderProductItem, index: number) => (
+        products.map((product: OrderProductItem) => (
           <Flex isMobile={isMobile}>
             <Checkbox
               checked={isChecked(product.variant_id)}
@@ -276,6 +283,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
                 value={getProductQuantity(product)}
                 onChange={handleProductQuantityChange(product)}
                 onKeyDown={handleNumberInputKeyDown}
+                onBlur={handleNumberInputBlur(product)}
                 size="small"
                 sx={{
                   width: isMobile ? '60%' : '100%',

@@ -51,6 +51,10 @@ import {
   createB2BShoppingList,
 } from './graphql/shoppingList'
 
+import {
+  getB2BVariantInfoBySkus,
+} from './graphql/product'
+
 export {
   getB2BRegisterCustomFields,
   getB2BRegisterLogo,
@@ -80,5 +84,6 @@ export {
   createB2BShoppingList,
   getUserCompany,
   getOrderStatusType,
+  getB2BVariantInfoBySkus,
   getBcOrderStatusType,
 }

@@ -1,4 +1,8 @@
 import {
+  useContext,
+} from 'react'
+
+import {
   Card,
   CardContent,
   Typography,
@@ -31,9 +35,9 @@ import {
   OrderHistoryItem,
 } from '../shared/B2BOrderData'
 
-interface OrderHistoryProps {
-  history: OrderHistoryItem[]
-}
+import {
+  OrderDetailsContext,
+} from '../context/OrderDetailsContext'
 
 const HistoryListContainer = styled('div')(() => ({
   '& > .MuiPaper-root': {
@@ -41,10 +45,13 @@ const HistoryListContainer = styled('div')(() => ({
   },
 }))
 
-export const OrderHistory = (props: OrderHistoryProps) => {
+export const OrderHistory = () => {
   const {
-    history,
-  } = props
+    state: {
+      history,
+      orderStatus: orderStatusLabel,
+    },
+  } = useContext(OrderDetailsContext)
 
   const [lang] = useB3CurrentLang()
   const [isMobile] = useMobile()
@@ -52,6 +59,8 @@ export const OrderHistory = (props: OrderHistoryProps) => {
   const getTime = (time: number) => intlFormatDistance(new Date(time * 1000), new Date(), {
     locale: lang,
   })
+
+  const getOrderStatusLabel = (status: string) => orderStatusLabel.find((item: any) => item.systemLabel === status)?.customLabel || status
 
   const columnItems: TableColumnItem<OrderHistoryItem>[] = [{
     key: 'time',
@@ -62,7 +71,12 @@ export const OrderHistory = (props: OrderHistoryProps) => {
   {
     key: 'code',
     title: 'Status',
-    render: (item: OrderHistoryItem) => <OrderStatus code={item.status} />,
+    render: (item: OrderHistoryItem) => (
+      <OrderStatus
+        code={item.status}
+        text={getOrderStatusLabel(item.status)}
+      />
+    ),
   }]
 
   return (

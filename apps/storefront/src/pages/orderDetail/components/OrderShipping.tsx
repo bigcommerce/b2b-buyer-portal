@@ -1,4 +1,8 @@
 import {
+  useContext,
+} from 'react'
+
+import {
   Box,
   Card,
   CardContent,
@@ -23,23 +27,25 @@ import {
   OrderProduct,
 } from './OrderProduct'
 
+import {
+  OrderDetailsContext,
+} from '../context/OrderDetailsContext'
+
 interface Shipping extends OrderShippingAddressItem{
   shipmentItems: OrderShippedItem[]
-}
-interface OrderShippingProps {
-  shippings: Shipping[]
-  currency: string,
 }
 
 const ShipmentTitle = styled('span')(() => ({
   fontWeight: 'bold',
 }))
 
-export const OrderShipping = (props: OrderShippingProps) => {
+export const OrderShipping = () => {
   const {
-    shippings,
-    currency,
-  } = props
+    state: {
+      shippings,
+      currency,
+    },
+  } = useContext(OrderDetailsContext)
 
   const getFullName = (shipping: Shipping) => {
     const {

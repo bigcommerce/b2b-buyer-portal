@@ -7,15 +7,21 @@ import {
 } from 'react'
 
 interface OrderDetailsState {
-  shippings: any,
-  history: any,
+  shippings?: any,
+  history?: any,
   poNumber?: string,
   status?: string,
   statusCode?: string,
   currencyCode?: string,
   currency?: string,
-  orderSummary: any,
+  orderSummary?: any,
   customStatus?: string,
+  money?: any,
+  payment?: any,
+  orderComments?: string,
+  products?: any,
+  orderId?: number | string,
+  orderStatus?: any,
 }
 interface OrderDetailsAction {
   type: string,
@@ -40,6 +46,12 @@ const initState = {
   currency: '',
   orderSummary: {},
   customStatus: '',
+  money: {},
+  payment: {},
+  orderComments: '',
+  products: [],
+  orderId: '',
+  orderStatus: [],
 }
 
 export const OrderDetailsContext = createContext<OrderDetailsContextType>({
@@ -53,6 +65,11 @@ const reducer = (state: OrderDetailsState, action: OrderDetailsAction) => {
       return {
         ...state,
         ...action.payload,
+      }
+    case 'statusType':
+      return {
+        ...state,
+        orderStatus: action.payload.orderStatus,
       }
     default:
       return state

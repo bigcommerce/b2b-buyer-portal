@@ -20,6 +20,7 @@ import {
 import {
   getB2BOrderDetails,
   getBCOrderDetails,
+  getOrderStatusType,
 } from '@/shared/service/b2b'
 
 import {
@@ -57,6 +58,7 @@ import {
   OrderDetailsContext,
   OrderDetailsProvider,
 } from './context/OrderDetailsContext'
+import getOrderStatus from '../order/shared/getOrderStatus'
 
 interface LocationState {
   isCompanyOrder: boolean,
@@ -75,13 +77,11 @@ const OrderDetail = () => {
 
   const {
     state: {
-      shippings,
       history,
       poNumber,
       status = '',
       customStatus,
       orderSummary,
-      currency = '$',
     },
     state: detailsData,
     dispatch,
@@ -132,8 +132,22 @@ const OrderDetail = () => {
     navigate(`${(localtion.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders'}`)
   }
 
+  const getOrderStatus = async () => {
+    const {
+      orderStatuses = [],
+    }: any = await getOrderStatusType()
+
+    dispatch({
+      type: 'statusType',
+      payload: {
+        orderStatus: orderStatuses,
+      },
+    })
+  }
+
   useEffect(() => {
     getOrderDetails()
+    getOrderStatus()
   }, [orderId])
 
   const handlePageChange = (orderId: string | number) => {
@@ -225,12 +239,9 @@ const OrderDetail = () => {
             }}
           >
             <Stack spacing={3}>
-              <OrderShipping
-                shippings={shippings}
-                currency={currency}
-              />
+              <OrderShipping />
 
-              <OrderHistory history={history} />
+              <OrderHistory />
             </Stack>
           </Grid>
           <Grid
