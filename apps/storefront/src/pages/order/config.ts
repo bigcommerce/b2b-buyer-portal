@@ -53,12 +53,7 @@ const bcFilterSearch = {
   q: '',
 }
 
-export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean, orderStatuses: {[key: string]: string}) => {
-  const orderStatusOptions = Object.keys(orderStatusCode).map((item) => ({
-    label: orderStatusCode[item],
-    value: orderStatusCode[item],
-  }))
-
+export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean, orderStatuses = []) => {
   const filterMoreList = [
     {
       name: 'company',

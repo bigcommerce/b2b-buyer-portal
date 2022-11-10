@@ -69,13 +69,17 @@ const DetailPagination = ({
 
   let currentIndex = 0
   let totalCount = 0
-  let searchParams = {}
+  let searchParams = {
+    offset: 0,
+  }
 
   if (localtion?.state) {
     const state = localtion.state as LocationState
     currentIndex = state?.currentIndex || 0
     totalCount = state?.totalCount || 0
-    searchParams = state?.searchParams || {}
+    searchParams = state?.searchParams || {
+      offset: 0,
+    }
   }
 
   if (JSON.stringify(searchParams) === '{}') return null

@@ -170,7 +170,7 @@ const Order = ({
     setFilterData(search)
     const initFilter = async () => {
       const {
-        orderStatuses,
+        orderStatuses = [],
       }: any = await getOrderStatusType()
       const filterInfo = getFilterMoreData(isB2BUser, isCompanyOrder, orderStatuses)
 
