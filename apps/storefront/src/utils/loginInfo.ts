@@ -152,8 +152,6 @@ const getCurrentJwtAndB2BToken = async (userType: number) => {
   try {
     const res = await getCurrentJwt()
 
-    B3SStorage.set('bc_jwt_token', res)
-
     if (userType === 3) {
       const data = await getB2BToken(res)
       if (data) {

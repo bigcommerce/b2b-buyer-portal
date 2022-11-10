@@ -158,7 +158,9 @@ const OrderDetail = () => {
             }}
             onClick={goToOrders}
           >
-            Back to orders
+            {
+              localtion.state !== null ? 'Back to orders' : ''
+            }
           </Box>
         </Box>
 

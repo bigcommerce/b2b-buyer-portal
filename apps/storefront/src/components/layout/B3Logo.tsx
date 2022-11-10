@@ -17,19 +17,19 @@ import {
   GlobaledContext,
 } from '@/shared/global'
 
-interface LogoProps {
-  logoUrl: string,
-  isMobile: boolean,
-}
+// interface LogoProps {
+//   logoUrl: string,
+//   isMobile: boolean,
+// }
 
-const Logo = styled('div')((props: LogoProps) => ({
-  width: '100%',
-  height: '100%',
-  backgroundImage: `url(${props?.logoUrl || ''})`,
-  backgroundSize: '100% 100%',
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center',
-}))
+// const Logo = styled('div')((props: LogoProps) => ({
+//   width: '100%',
+//   height: '100%',
+//   backgroundImage: `url(${props?.logoUrl || ''})`,
+//   backgroundSize: '100% 100%',
+//   backgroundRepeat: 'no-repeat',
+//   backgroundPosition: 'center',
+// }))
 
 export const B3Logo = () => {
   const {
@@ -46,11 +46,16 @@ export const B3Logo = () => {
         flexShrink: '0',
         height: `${isMobile ? '15vw' : '70px'}`,
         width: `${isMobile ? '45%' : '100%'}`,
+        '& img': {
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+        },
       }}
     >
-      <Logo
-        logoUrl={logo}
-        isMobile={isMobile}
+      <img
+        src={logo}
+        alt="logo"
       />
     </Box>
 

@@ -9,20 +9,8 @@ import {
 } from '@mui/material'
 
 import {
-  useLocation,
-} from 'react-router-dom'
-
-import {
   GlobaledContext,
 } from '@/shared/global'
-
-import {
-  routes,
-} from '@/shared/routes'
-
-import {
-  RouteItem,
-} from '@/shared/routes/routes'
 
 import {
   B3AccountInfo,
@@ -48,27 +36,17 @@ import {
 //   },
 // ]
 
-export const B3Mainheader = () => {
-  const location = useLocation()
-
-  const [title, setTitle] = useState<string>('')
-
+export const B3Mainheader = ({
+  title,
+}: {
+  title: string
+}) => {
   const {
     state: {
-      isCompanyAccount,
       companyInfo,
       salesRepCompanyName,
     },
   } = useContext(GlobaledContext)
-
-  useEffect(() => {
-    const itemsRoutes = routes.filter((item: RouteItem) => item.path === location.pathname)
-    if (itemsRoutes.length) {
-      setTitle(itemsRoutes[0].name)
-    } else {
-      setTitle('')
-    }
-  }, [location])
 
   // const handleItemClick = (item: AcountListProps) => {
   //   dispatch({

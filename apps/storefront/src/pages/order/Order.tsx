@@ -32,6 +32,7 @@ import {
 import {
   getB2BAllOrders,
   getBCAllOrders,
+  getOrderStatusType,
 } from '@/shared/service/b2b'
 
 import {
@@ -162,9 +163,21 @@ const Order = ({
 
   const [filterData, setFilterData] = useState<Partial<FilterSearchProps> | null>(null)
 
+  const [filterInfo, setFilterInfo] = useState<Array<any>>([])
+
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser)
     setFilterData(search)
+    const initFilter = async () => {
+      const {
+        orderStatuses,
+      }: any = await getOrderStatusType()
+      const filterInfo = getFilterMoreData(isB2BUser, isCompanyOrder, orderStatuses)
+
+      setFilterInfo(filterInfo)
+    }
+
+    initFilter()
   }, [])
 
   const fetchList = async () => {
@@ -246,7 +259,12 @@ const Order = ({
     {
       key: 'status',
       title: 'Order status',
-      render: (item: ListItem) => <OrderStatus code={item.status} />,
+      render: (item: ListItem) => (
+        <OrderStatus
+          text={item.customStatus}
+          code={item.status}
+        />
+      ),
       width: '200px',
     },
     {
@@ -324,8 +342,6 @@ const Order = ({
   }
 
   const columnItems = getColumnItems()
-
-  const filterInfo = getFilterMoreData(isB2BUser, isCompanyOrder)
 
   return (
     (

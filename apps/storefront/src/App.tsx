@@ -5,6 +5,7 @@ import {
 
 import {
   HashRouter,
+  useLocation,
   // useNavigate,
 } from 'react-router-dom'
 import {
@@ -94,6 +95,7 @@ export default function App() {
       pathname,
       href,
       search,
+      hash,
     } = window.location
 
     dispatch({
@@ -133,6 +135,12 @@ export default function App() {
       }
       if (!customerId) {
         await getCurrentCustomerInfo(dispatch)
+      } else if (hash) {
+        const url = hash.split('#')[1]
+        setOpenPage({
+          isOpen: true,
+          openUrl: url,
+        })
       }
     }
 

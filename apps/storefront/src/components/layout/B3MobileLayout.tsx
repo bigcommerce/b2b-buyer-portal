@@ -31,8 +31,10 @@ import {
 
 export const B3MobileLayout = ({
   children,
+  title,
 }: {
   children: ReactNode;
+  title: string,
 }) => {
   const [isOpenMobileSidebar, setOpenMobileSidebar] = useState<boolean>(false)
   const openRouteList = () => {
@@ -41,7 +43,6 @@ export const B3MobileLayout = ({
 
   const {
     state: {
-      isCompanyAccount,
       companyInfo,
       salesRepCompanyName,
     },
@@ -67,12 +68,26 @@ export const B3MobileLayout = ({
         }}
       >
         <B3Logo />
+
         <Badge
-          badgeContent={4}
+          badgeContent={0}
           color="secondary"
         >
           <DensityMedium onClick={openRouteList} />
         </Badge>
+      </Box>
+
+      <Box
+        component="h1"
+        sx={{
+          p: 0,
+          m: 0,
+          mb: '2vw',
+        }}
+      >
+        {
+            title
+          }
       </Box>
       <Box
         sx={{

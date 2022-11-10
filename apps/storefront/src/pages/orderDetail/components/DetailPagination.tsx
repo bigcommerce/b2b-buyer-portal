@@ -40,9 +40,9 @@ interface DetailPageProps {
 }
 
 interface LocationState {
-  currentIndex: number
-  totalCount: number
-  searchParams: searchParamsProps
+  currentIndex?: number
+  totalCount?: number
+  searchParams?: searchParamsProps
 }
 
 interface rightLeftSideProps {
@@ -67,11 +67,18 @@ const DetailPagination = ({
 
   const [isMobile] = useMobile()
 
-  const {
-    currentIndex,
-    totalCount,
-    searchParams,
-  } = localtion.state as LocationState
+  let currentIndex = 0
+  let totalCount = 0
+  let searchParams = {}
+
+  if (localtion?.state) {
+    const state = localtion.state as LocationState
+    currentIndex = state?.currentIndex || 0
+    totalCount = state?.totalCount || 0
+    searchParams = state?.searchParams || {}
+  }
+
+  if (JSON.stringify(searchParams) === '{}') return null
 
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -156,8 +163,6 @@ const DetailPagination = ({
   }
 
   const index = listIndex + 1
-
-  if (!searchParams) return null
 
   return (
     <Box

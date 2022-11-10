@@ -190,6 +190,14 @@ const orderDetail = (id: number, fn: string) => `{
   }
 }`
 
+const getOrderStatusTypeQl = () => `{
+  orderStatuses {
+    systemLabel,
+    customLabel,
+    statusCode,
+  }
+}`
+
 export const getB2BAllOrders = (data: CustomFieldItems) => B3Request.graphqlB2B({
   query: allOrders(data, 'allOrders'),
 })
@@ -204,4 +212,8 @@ export const getB2BOrderDetails = (id: number) => B3Request.graphqlB2B({
 
 export const getBCOrderDetails = (id: number) => B3Request.graphqlProxyBC({
   query: orderDetail(id, 'customerOrder'),
+})
+
+export const getOrderStatusType = () => B3Request.graphqlB2B({
+  query: getOrderStatusTypeQl(),
 })

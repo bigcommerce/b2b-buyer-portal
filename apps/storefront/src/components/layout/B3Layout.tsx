@@ -2,6 +2,7 @@ import {
   useContext,
   useEffect,
   ReactNode,
+  useState,
 } from 'react'
 
 import {
@@ -10,7 +11,9 @@ import {
 
 import {
   useNavigate,
+  useLocation,
 } from 'react-router-dom'
+
 import {
   useMobile,
 } from '@/hooks'
@@ -34,12 +37,24 @@ import {
   B3Mainheader,
 } from './B3Mainheader'
 
+import {
+  routes,
+} from '@/shared/routes'
+
+import {
+  RouteItem,
+} from '@/shared/routes/routes'
+
 export function B3Layout({
   children,
 }: {
   children: ReactNode;
 }) {
   const [isMobile] = useMobile()
+
+  const location = useLocation()
+
+  const [title, setTitle] = useState<string>('')
 
   const {
     state: {
@@ -56,12 +71,21 @@ export function B3Layout({
     }
   }, [emailAddress, customerId])
 
+  useEffect(() => {
+    const itemsRoutes = routes.filter((item: RouteItem) => item.path === location.pathname)
+    if (itemsRoutes.length) {
+      setTitle(itemsRoutes[0].name)
+    } else {
+      setTitle('')
+    }
+  }, [location])
+
   return (
     <Box>
 
       {
         isMobile ? (
-          <B3MobileLayout>
+          <B3MobileLayout title={title}>
             {children}
           </B3MobileLayout>
         )
@@ -88,7 +112,7 @@ export function B3Layout({
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  minWidth: '250px',
+                  width: '250px',
                   pl: '20px',
                   backgroundColor: '#fef9f5',
                 }}
@@ -111,7 +135,7 @@ export function B3Layout({
                   p: '0 24px 50px 50px',
                 }}
               >
-                <B3Mainheader />
+                <B3Mainheader title={title} />
                 <Box
                   component="main"
                   sx={{
