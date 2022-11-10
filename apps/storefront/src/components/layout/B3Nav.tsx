@@ -63,7 +63,6 @@ export const B3Nav = ({
     const newRoutes = routes.filter((route) => {
       if (route.isMenuItem === false) return false
       if (!isB2BUser && route.path === '/company-orders') return false
-      // if (isB2BUser && role === 3 && !isAgenting && route.path === '/orders') return false
       return true
     })
 

@@ -69,8 +69,6 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
 
     if (!isB2BUser) newRoutes = routes.filter((item:RouteItem) => item.path !== '/company-orders')
 
-    if (+role === 3 && !isAgenting) newRoutes = routes.filter((item:RouteItem) => item.path !== '/orders')
-
     return newRoutes
   }
 
