@@ -17,6 +17,7 @@ import {
   getBCOrderDetails,
   getBCAllOrders,
   getOrderStatusType,
+  getBcOrderStatusType,
 } from './graphql/orders'
 
 import {
@@ -79,4 +80,5 @@ export {
   createB2BShoppingList,
   getUserCompany,
   getOrderStatusType,
+  getBcOrderStatusType,
 }

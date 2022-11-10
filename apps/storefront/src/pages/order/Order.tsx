@@ -33,6 +33,7 @@ import {
   getB2BAllOrders,
   getBCAllOrders,
   getOrderStatusType,
+  getBcOrderStatusType,
 } from '@/shared/service/b2b'
 
 import {
@@ -169,9 +170,10 @@ const Order = ({
     const search = getInitFilter(isCompanyOrder, isB2BUser)
     setFilterData(search)
     const initFilter = async () => {
+      const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
       const {
         orderStatuses = [],
-      }: any = await getOrderStatusType()
+      }: any = await fn()
       const filterInfo = getFilterMoreData(isB2BUser, isCompanyOrder, orderStatuses)
 
       setFilterInfo(filterInfo)
