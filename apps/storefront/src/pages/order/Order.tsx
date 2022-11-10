@@ -174,11 +174,10 @@ const Order = ({
     setFilterData(search)
     const initFilter = async () => {
       const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
-      const {
-        orderStatuses = [],
-      }: any = await fn()
-      const filterInfo = getFilterMoreData(isB2BUser, isCompanyOrder, orderStatuses)
-      setOrderStatuses(orderStatuses)
+      const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses'
+      const orderStatuses: any = await fn()
+      const filterInfo = getFilterMoreData(isB2BUser, isCompanyOrder, orderStatuses[orderStatusesName])
+      setOrderStatuses(orderStatuses[orderStatusesName])
       setFilterInfo(filterInfo)
     }
 

@@ -125,13 +125,13 @@ const DetailPagination = ({
 
     if (listIndex === totalCount - 1) {
       flag = 'toRight'
-      leftId = list[list.length - 2].node.orderId
+      leftId = list[list.length - 2]?.node.orderId || 0
     } else if (listIndex === 0) {
       flag = 'toLeft'
-      rightId = list[1].node.orderId
+      rightId = list[1]?.node.orderId || 0
     } else {
-      leftId = list[0].node.orderId
-      rightId = list[2].node.orderId
+      leftId = list[0]?.node.orderId || 0
+      rightId = list[2]?.node.orderId || 0
     }
 
     setRightLeftSide({

@@ -134,14 +134,12 @@ const OrderDetail = () => {
 
   const getOrderStatus = async () => {
     const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
-    const {
-      orderStatuses = [],
-    }: any = await fn()
-
+    const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses'
+    const orderStatuses: any = await fn()
     dispatch({
       type: 'statusType',
       payload: {
-        orderStatus: orderStatuses,
+        orderStatus: orderStatuses[orderStatusesName],
       },
     })
   }
