@@ -45,6 +45,7 @@ import {
   FilterSearchProps,
   getFilterMoreData,
   currencySymbol,
+  getOrderStatusText,
 } from './config'
 
 import {
@@ -166,6 +167,8 @@ const Order = ({
 
   const [filterInfo, setFilterInfo] = useState<Array<any>>([])
 
+  const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([])
+
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser)
     setFilterData(search)
@@ -175,7 +178,7 @@ const Order = ({
         orderStatuses = [],
       }: any = await fn()
       const filterInfo = getFilterMoreData(isB2BUser, isCompanyOrder, orderStatuses)
-
+      setOrderStatuses(orderStatuses)
       setFilterInfo(filterInfo)
     }
 
@@ -263,7 +266,7 @@ const Order = ({
       title: 'Order status',
       render: (item: ListItem) => (
         <OrderStatus
-          text={item.customStatus}
+          text={getOrderStatusText(item.status, getOrderStatuses)}
           code={item.status}
         />
       ),

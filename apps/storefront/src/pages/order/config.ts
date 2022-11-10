@@ -120,3 +120,5 @@ export const currencySymbol = (currencyItem: string) => {
     return ''
   }
 }
+
+export const getOrderStatusText = (status: number | string, getOrderStatuses: any) => getOrderStatuses.find((item: any) => item.systemLabel === status)?.customLabel || ''
