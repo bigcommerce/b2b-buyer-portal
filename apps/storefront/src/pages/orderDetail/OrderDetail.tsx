@@ -21,6 +21,7 @@ import {
   getB2BOrderDetails,
   getBCOrderDetails,
   getOrderStatusType,
+  getBcOrderStatusType,
 } from '@/shared/service/b2b'
 
 import {
@@ -58,7 +59,6 @@ import {
   OrderDetailsContext,
   OrderDetailsProvider,
 } from './context/OrderDetailsContext'
-import getOrderStatus from '../order/shared/getOrderStatus'
 
 interface LocationState {
   isCompanyOrder: boolean,
@@ -133,9 +133,10 @@ const OrderDetail = () => {
   }
 
   const getOrderStatus = async () => {
+    const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
     const {
       orderStatuses = [],
-    }: any = await getOrderStatusType()
+    }: any = await fn()
 
     dispatch({
       type: 'statusType',
