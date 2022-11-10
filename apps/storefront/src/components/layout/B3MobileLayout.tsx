@@ -126,6 +126,7 @@ export const B3MobileLayout = ({
               sx={{
                 p: 0,
                 m: 0,
+                fontSize: '20px',
               }}
             >
               {companyInfo?.companyName || salesRepCompanyName}

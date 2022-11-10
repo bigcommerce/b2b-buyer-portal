@@ -26,7 +26,7 @@ interface ListProps {
 
 const list: Array<ListProps> = [
   {
-    name: 'Account Setting',
+    name: 'Account Settings',
     key: '/account-settings',
     type: 'path',
   },
@@ -80,10 +80,10 @@ export const B3AccountInfo = ({
           }}
         >
           <Box
-            component="h5"
             sx={{
               m: 0,
               p: '2vw 4vw',
+              color: 'black',
             }}
           >
             Logged in as
