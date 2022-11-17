@@ -30,22 +30,24 @@ import {
 import CreateShoppingList from './CreateShoppingList'
 
 import {
+  EditableProductItem,
   OrderProductItem,
-} from '../shared/B2BOrderData'
+  OrderCurrency,
+} from '../../../types'
 
 interface OrderDialogProps<T> {
   open: boolean,
   setOpen: (open: boolean) => void,
-  products?: any,
+  products?: OrderProductItem[],
   type?: string,
   currentDialogData: any,
   itemKey: string,
-  currencyInfo: any,
+  currencyInfo: OrderCurrency,
 }
 
 export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
   open,
-  products,
+  products = [],
   type,
   currentDialogData,
   setOpen,
@@ -56,7 +58,7 @@ export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false)
 
   const [openShoppingList, setOpenShoppingList] = useState(false)
-  const [editableProducts, setEditableProducts] = useState<OrderProductItem[]>([])
+  const [editableProducts, setEditableProducts] = useState<EditableProductItem[]>([])
 
   const [isMobile] = useMobile()
 
@@ -98,11 +100,12 @@ export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
     if (open) {
       setEditableProducts(products.map((item: OrderProductItem) => ({
         ...item,
+        editQuantity: item.quantity,
       })))
     }
   }, [open])
 
-  const handleProductChange = (products: OrderProductItem[]) => {
+  const handleProductChange = (products: EditableProductItem[]) => {
     setEditableProducts(products)
   }
 

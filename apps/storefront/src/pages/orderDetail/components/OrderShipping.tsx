@@ -19,10 +19,10 @@ import {
 } from 'date-fns'
 
 import {
-  OrderShippingAddressItem,
-  OrderShippedItem,
   OrderProductItem,
-} from '../shared/B2BOrderData'
+  OrderShippedItem,
+  OrderShippingsItem,
+} from '../../../types'
 
 import {
   OrderProduct,
@@ -32,10 +32,6 @@ import {
   OrderDetailsContext,
 } from '../context/OrderDetailsContext'
 
-interface Shipping extends OrderShippingAddressItem{
-  shipmentItems: OrderShippedItem[]
-}
-
 const ShipmentTitle = styled('span')(() => ({
   fontWeight: 'bold',
 }))
@@ -43,12 +39,12 @@ const ShipmentTitle = styled('span')(() => ({
 export const OrderShipping = () => {
   const {
     state: {
-      shippings,
+      shippings = [],
       currency,
     },
   } = useContext(OrderDetailsContext)
 
-  const getFullName = (shipping: Shipping) => {
+  const getFullName = (shipping: OrderShippingsItem) => {
     const {
       first_name: firstName,
       last_name: lastName,
@@ -57,7 +53,7 @@ export const OrderShipping = () => {
     return `${firstName} ${lastName}`
   }
 
-  const getFullAddress = (shipping: Shipping) => {
+  const getFullAddress = (shipping: OrderShippingsItem) => {
     const {
       street_1: street1,
       city,
@@ -87,7 +83,7 @@ export const OrderShipping = () => {
     return `shipped on ${time}, by ${shippingProvider}, ${shippingMethod}`
   }
 
-  const getShippingProductQuantity = (item: OrderProductItem) => item.current_quantity_shipped
+  const getShippingProductQuantity = (item: OrderProductItem) => item.current_quantity_shipped || 0
 
   const getNotShippingProductQuantity = (item: OrderProductItem) => {
     const notShipNumber = item.quantity - item.quantity_shipped
@@ -98,7 +94,7 @@ export const OrderShipping = () => {
   return (
     <Stack spacing={2}>
       {
-        shippings.map((shipping: Shipping) => (
+        shippings.map((shipping: OrderShippingsItem) => (
           <Card key={`shipping-${shipping.id}`}>
             <CardContent>
               <Box sx={{
@@ -128,59 +124,64 @@ export const OrderShipping = () => {
               {
                 (shipping.shipmentItems || []).map((shipment: OrderShippedItem) => (
                   shipment.itemsInfo.length > 0 ? (
-                    <Fragment key={shipment.isNotShip ? 'shipment-isNotShip' : `shipment-${shipment.id}`}>
-                      {
-                        shipment.isNotShip && (
-                          <Box
-                            sx={{
-                              margin: '20px 0 2px',
-                            }}
-                          >
-                            <Typography variant="body1">
-                              <ShipmentTitle>Not Shipped yet</ShipmentTitle>
-                            </Typography>
-                          </Box>
-                        )
-                      }
-                      {
-                        !shipment.isNotShip && (
-                          <Box sx={{
-                            margin: '20px 0 2px',
-                          }}
-                          >
-                            <Typography variant="body1">
-                              <>
-                                <ShipmentTitle>{`Shipment ${getShipmentIndex()} - `}</ShipmentTitle>
-                                {getShipmentText(shipment)}
-                              </>
-                            </Typography>
-                            {
-                              shipment.tracking_link
-                                ? (
-                                  <Link
-                                    href={shipment.tracking_link}
-                                    target="_blank"
-                                  >
-                                    {shipment.tracking_number}
-                                  </Link>
-                                )
-                                : (
-                                  <Typography variant="body1">
-                                    {shipment.tracking_number}
-                                  </Typography>
-                                )
-                            }
-                          </Box>
-                        )
-                      }
+                    <Fragment key={`shipment-${shipment.id}`}>
+                      <Box sx={{
+                        margin: '20px 0 2px',
+                      }}
+                      >
+                        <Typography variant="body1">
+                          <>
+                            <ShipmentTitle>{`Shipment ${getShipmentIndex()} - `}</ShipmentTitle>
+                            {getShipmentText(shipment)}
+                          </>
+                        </Typography>
+                        {
+                          shipment.tracking_link
+                            ? (
+                              <Link
+                                href={shipment.tracking_link}
+                                target="_blank"
+                              >
+                                {shipment.tracking_number}
+                              </Link>
+                            )
+                            : (
+                              <Typography variant="body1">
+                                {shipment.tracking_number}
+                              </Typography>
+                            )
+                        }
+                      </Box>
                       <OrderProduct
-                        getProductQuantity={shipment.isNotShip ? getNotShippingProductQuantity : getShippingProductQuantity}
+                        getProductQuantity={getShippingProductQuantity}
                         products={shipment.itemsInfo}
                         currency={currency}
                       />
                     </Fragment>
                   ) : <></>
                 ))
+              }
+
+              {
+                shipping.notShip.itemsInfo.length > 0 ? (
+                  <Fragment key={`shipment-notShip-${shipping.id}`}>
+                    <Box
+                      sx={{
+                        margin: '20px 0 2px',
+                      }}
+                    >
+                      <Typography variant="body1">
+                        <ShipmentTitle>Not Shipped yet</ShipmentTitle>
+                      </Typography>
+                    </Box>
+
+                    <OrderProduct
+                      getProductQuantity={getNotShippingProductQuantity}
+                      products={shipping.notShip.itemsInfo}
+                      currency={currency}
+                    />
+                  </Fragment>
+                ) : <></>
               }
 
             </CardContent>

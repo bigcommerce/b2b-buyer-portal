@@ -1,34 +1,13 @@
-export interface OrderProductOption {
-  [k: string]: any
-}
-export interface OrderProductItem {
-  [k: string]: any
-}
-
-export interface OrderShipmentProductItem {
-  [k: string]: any
-}
-
-export interface OrderShipmentItem {
-  [k: string]: any
-}
-
-export interface OrderShippedItem extends OrderShipmentItem {
-  itemsInfo: OrderProductItem[],
-  [k: string]: any
-}
-
-export interface OrderShippingAddressItem {
-  [k: string]: any
-}
-
-export interface OrderHistoryItem{
-  [k: string]: any
-}
-
-export interface B2BOrderData {
-  [k: string]: any
-}
+import {
+  OrderProductItem,
+  OrderShipmentProductItem,
+  OrderShipmentItem,
+  OrderShippedItem,
+  OrderShippingAddressItem,
+  OrderShippingsItem,
+  B2BOrderData,
+  OrderSummary,
+} from '../../../types'
 
 const getOrderShipping = (data: B2BOrderData) => {
   const {
@@ -60,22 +39,26 @@ const getOrderShipping = (data: B2BOrderData) => {
     }
   })
 
-  const shippings = shippingAddress.map((address: OrderShippingAddressItem) => {
-    const notShipItem: OrderShippedItem = {
-      isNotShip: true,
+  const shippings: OrderShippingsItem[] = shippingAddress.map((address: OrderShippingAddressItem) => ({
+    ...address,
+    shipmentItems: [
+      ...(shippedItems.filter((shippedItem: OrderShippedItem) => shippedItem.order_address_id === address.id)),
+    ],
+    notShip: {
       itemsInfo: products.filter((product: OrderProductItem) => product.quantity > product.quantity_shipped && address.id === product.order_address_id),
-    }
-
-    return {
-      ...address,
-      shipmentItems: [
-        ...(shippedItems.filter((shippedItem: OrderShippedItem) => shippedItem.order_address_id === address.id)),
-        notShipItem,
-      ],
-    }
-  })
+    },
+  }))
 
   return shippings
+}
+
+const formatPrice = (price: string | number) => {
+  try {
+    const priceNumer = parseFloat(price.toString()) || 0
+    return priceNumer.toFixed(2)
+  } catch (error) {
+    return '0.00'
+  }
 }
 
 const getOrderSummary = (data: B2BOrderData) => {
@@ -94,16 +77,7 @@ const getOrderSummary = (data: B2BOrderData) => {
     shippingCostIncTax,
   } = data
 
-  const formatPrice = (price: string | number) => {
-    try {
-      const priceNumer = parseFloat(price.toString()) || 0
-      return priceNumer.toFixed(2)
-    } catch (error) {
-      return '0.00'
-    }
-  }
-
-  const orderSummary = {
+  const orderSummary: OrderSummary = {
     createAt: dateCreated,
     name: `${firstName} ${lastName}`,
     priceData: {
@@ -137,9 +111,9 @@ const handleProductQuantity = (data: B2BOrderData) => {
     products,
   } = data
 
-  const newProducts: any[] = []
+  const newProducts: OrderProductItem[] = []
 
-  products.forEach((product: any) => {
+  products.forEach((product: OrderProductItem) => {
     const productIndex = newProducts.findIndex((item) => +item.variant_id === +product.variant_id)
 
     if (productIndex === -1) {
@@ -173,5 +147,5 @@ export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   orderId: +data.id,
   customStatus: data.customStatus,
   ipStatus: +data.ipStatus || 0, // 0: no invoice, 1,2: have invoice
-  invoiceId: +data.invoiceId,
+  invoiceId: +(data.invoiceId || 0),
 })

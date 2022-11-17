@@ -19,15 +19,16 @@ import {
 } from '@/hooks'
 
 import {
-  OrderProductItem,
   OrderProductOption,
-} from '../shared/B2BOrderData'
+  EditableProductItem,
+  OrderCurrency,
+} from '../../../types'
 
 interface OrderCheckboxProductProps {
-  products: any[],
-  currencyInfo: any,
-  getProductQuantity?: (item: OrderProductItem) => number
-  onProductChange?: (products: OrderProductItem[]) => void
+  products: EditableProductItem[],
+  currencyInfo: OrderCurrency,
+  getProductQuantity?: (item: EditableProductItem) => number
+  onProductChange?: (products: EditableProductItem[]) => void
 }
 
 interface FlexProps {
@@ -136,7 +137,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
 
   const [isMobile] = useMobile()
 
-  const [list, setList] = useState<any>([])
+  const [list, setList] = useState<number[]>([])
 
   const getProductPrice = (price: string | number) => {
     const priceNumber = parseFloat(price.toString()) || 0
@@ -144,10 +145,11 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
     return priceNumber.toFixed(2)
   }
 
-  const getProductTotals = (quantity: number, price: string | number) => {
+  const getProductTotals = (quantity: string | number, price: string | number) => {
     const priceNumber = parseFloat(price.toString()) || 0
+    const quantityNumber = parseInt(quantity.toString(), 10) || 0
 
-    return (quantity * priceNumber).toFixed(2)
+    return (quantityNumber * priceNumber).toFixed(2)
   }
 
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
@@ -162,7 +164,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
     }
   }
 
-  const handleSelectChange = (variantId: any) => {
+  const handleSelectChange = (variantId: number) => {
     const newlist = [...list]
     const index = newlist.findIndex((item) => item === variantId)
     if (index !== -1) {
@@ -173,11 +175,11 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
     setList(newlist)
   }
 
-  const isChecked = (variantId: any) => list.includes(variantId)
+  const isChecked = (variantId: number) => list.includes(variantId)
 
-  const handleProductQuantityChange = (product: OrderProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
+  const handleProductQuantityChange = (product: EditableProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.value || parseInt(e.target.value, 10) > 0) {
-      product.quantity = e.target.value
+      product.editQuantity = e.target.value
       onProductChange([...products])
     }
   }
@@ -188,9 +190,9 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
     }
   }
 
-  const handleNumberInputBlur = (product: OrderProductItem) => () => {
-    if (!product.quantity) {
-      product.quantity = '1'
+  const handleNumberInputBlur = (product: EditableProductItem) => () => {
+    if (!product.editQuantity) {
+      product.editQuantity = '1'
       onProductChange([...products])
     }
   }
@@ -241,7 +243,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
       }
 
       {
-        products.map((product: OrderProductItem) => (
+        products.map((product: EditableProductItem) => (
           <Flex
             isMobile={isMobile}
             key={product.sku}

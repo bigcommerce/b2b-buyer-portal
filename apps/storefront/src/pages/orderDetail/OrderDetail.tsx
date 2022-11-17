@@ -60,6 +60,11 @@ import {
   OrderDetailsProvider,
 } from './context/OrderDetailsContext'
 
+import {
+  OrderStatusResponse,
+  OrderDetailsResponse,
+} from '../../types'
+
 interface LocationState {
   isCompanyOrder: boolean,
 }
@@ -77,7 +82,6 @@ const OrderDetail = () => {
 
   const {
     state: {
-      history,
       poNumber,
       status = '',
       customStatus,
@@ -106,23 +110,18 @@ const OrderDetail = () => {
     setIsRequestLoading(true)
 
     try {
-      let data = null
-      if (isB2BUser) {
-        const {
-          order,
-        }: any = await getB2BOrderDetails(id)
-        data = convertB2BOrderDetails(order)
-      } else {
-        const {
-          customerOrder,
-        }: any = await getBCOrderDetails(id)
-        data = convertBCOrderDetails(customerOrder)
-      }
+      const req = isB2BUser ? getB2BOrderDetails : getBCOrderDetails
+      const res: OrderDetailsResponse = await req(id)
 
-      dispatch({
-        type: 'all',
-        payload: data,
-      })
+      const order = res[isB2BUser ? 'order' : 'customerOrder']
+
+      if (order) {
+        const data = isB2BUser ? convertB2BOrderDetails(order) : convertBCOrderDetails(order)
+        dispatch({
+          type: 'all',
+          payload: data,
+        })
+      }
     } finally {
       setIsRequestLoading(false)
     }
@@ -135,7 +134,7 @@ const OrderDetail = () => {
   const getOrderStatus = async () => {
     const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
     const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses'
-    const orderStatuses: any = await fn()
+    const orderStatuses: OrderStatusResponse = await fn()
     dispatch({
       type: 'statusType',
       payload: {

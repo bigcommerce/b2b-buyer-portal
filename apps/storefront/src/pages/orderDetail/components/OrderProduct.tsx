@@ -10,9 +10,9 @@ import {
 } from '@/hooks'
 
 import {
-  OrderProductItem,
   OrderProductOption,
-} from '../shared/B2BOrderData'
+  OrderProductItem,
+} from '../../../types'
 
 interface OrderProductProps {
   products: OrderProductItem[],

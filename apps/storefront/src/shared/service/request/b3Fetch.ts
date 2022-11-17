@@ -74,25 +74,25 @@ function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
 }
 
 export const B3Request = {
-  graphqlB2B: function post<T>(data: T) {
+  graphqlB2B: function post<T>(data: T): Promise<any> {
     const config = {
       Authorization: `Bearer  ${B3SStorage.get('B3B2BToken') || ''}`,
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config)
   },
-  graphqlProxyBC: function post<T>(data: T) {
+  graphqlProxyBC: function post<T>(data: T): Promise<any> {
     const config = {
       Authorization: `Bearer  ${B3SStorage.get('bc_jwt_token') || ''}`,
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config)
   },
-  graphqlBC: function post<T>(data: T) {
+  graphqlBC: function post<T>(data: T): Promise<any> {
     const config = {
       Authorization: `Bearer  ${B3SStorage.get('BcToken') || ''}`,
     }
     return graphqlRequest(RequestType.BCGraphql, data, config)
   },
-  get: function get<T, Y>(url: string, type: string, data?: T, config?: Y) {
+  get: function get<T, Y>(url: string, type: string, data?: T, config?: Y): Promise<any> {
     if (data) {
       const params = queryParse(data)
       return request(`${url}?${params}`, {
@@ -104,13 +104,13 @@ export const B3Request = {
       method: 'GET',
     }, type)
   },
-  post: function post<T>(url: string, type: string, data: T) {
+  post: function post<T>(url: string, type: string, data: T): Promise<any> {
     return request(url, {
       body: JSON.stringify(data),
       method: 'POST',
     }, type)
   },
-  fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y) {
+  fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y): Promise<any> {
     return request(`${B2B_BASIC_URL}${url}`, {
       method: 'POST',
       body: formData,

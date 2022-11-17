@@ -33,7 +33,8 @@ import {
 
 import {
   OrderHistoryItem,
-} from '../shared/B2BOrderData'
+  OrderStatusItem,
+} from '../../../types'
 
 import {
   OrderDetailsContext,
@@ -48,8 +49,8 @@ const HistoryListContainer = styled('div')(() => ({
 export const OrderHistory = () => {
   const {
     state: {
-      history,
-      orderStatus: orderStatusLabel,
+      history = [],
+      orderStatus: orderStatusLabel = [],
     },
   } = useContext(OrderDetailsContext)
 
@@ -60,7 +61,7 @@ export const OrderHistory = () => {
     locale: lang,
   })
 
-  const getOrderStatusLabel = (status: string) => orderStatusLabel.find((item: any) => item.systemLabel === status)?.customLabel || status
+  const getOrderStatusLabel = (status: string) => orderStatusLabel.find((item: OrderStatusItem) => item.systemLabel === status)?.customLabel || status
 
   const columnItems: TableColumnItem<OrderHistoryItem>[] = [{
     key: 'time',

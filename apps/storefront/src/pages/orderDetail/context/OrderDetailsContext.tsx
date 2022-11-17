@@ -6,22 +6,31 @@ import {
   useMemo,
 } from 'react'
 
+import {
+  OrderStatusItem,
+  OrderShippingsItem,
+  OrderHistoryItem,
+  OrderProductItem,
+  OrderCurrency,
+  OrderSummary,
+} from '../../../types'
+
 interface OrderDetailsState {
-  shippings?: any,
-  history?: any,
+  shippings?: OrderShippingsItem[],
+  history?: OrderHistoryItem[],
   poNumber?: string,
   status?: string,
-  statusCode?: string,
+  statusCode?: string | number,
   currencyCode?: string,
   currency?: string,
-  orderSummary?: any,
+  orderSummary?: OrderSummary,
   customStatus?: string,
-  money?: any,
+  money?: OrderCurrency,
   payment?: any,
   orderComments?: string,
-  products?: any,
+  products?: OrderProductItem[],
   orderId?: number | string,
-  orderStatus?: any,
+  orderStatus?: OrderStatusItem[],
 }
 interface OrderDetailsAction {
   type: string,
@@ -44,7 +53,11 @@ const initState = {
   statusCode: '',
   currencyCode: '',
   currency: '',
-  orderSummary: {},
+  orderSummary: {
+    createAt: '',
+    name: '',
+    priceData: {},
+  },
   customStatus: '',
   money: {},
   payment: {},
