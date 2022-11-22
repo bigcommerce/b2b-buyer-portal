@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {
   B3Lang,
 } from '@b3/lang'

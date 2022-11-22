@@ -6,6 +6,7 @@ module.exports = {
     'no-shadow': 0,
     'no-param-reassign': 0,
     'no-underscore-dangle': 0,
+    'no-console': 'off',
     semi: ['error', 'never'],
     quotes: ['error', 'single'],
     'max-len': [

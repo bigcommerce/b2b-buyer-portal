@@ -79,7 +79,6 @@ const ForgotPassword = (props: ForgotPasswordProps) => {
       setLoading(false)
       navigate('/login?loginFlag=2')
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.log(e)
     }
   }

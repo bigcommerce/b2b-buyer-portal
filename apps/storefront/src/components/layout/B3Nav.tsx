@@ -48,8 +48,8 @@ export const B3Nav = ({
   const {
     state: {
       isB2BUser,
-      isAgenting,
-      role,
+      // isAgenting,
+      // role,
     },
   } = useContext(GlobaledContext)
 

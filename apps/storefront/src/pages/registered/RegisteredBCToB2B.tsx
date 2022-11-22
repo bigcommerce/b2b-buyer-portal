@@ -204,7 +204,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         }
         setLogo(registerLogo)
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error(e)
       }
     }
@@ -290,7 +289,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
       return fileList
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.log(error)
       throw error
     }
@@ -394,7 +392,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       setErrorMessage('')
       return true
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.log(error)
       throw error
     }
@@ -444,7 +441,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           }
         }
       } catch (err: any) {
-        // eslint-disable-next-line no-console
         console.log(err)
         setErrorMessage(err?.message || err)
       } finally {

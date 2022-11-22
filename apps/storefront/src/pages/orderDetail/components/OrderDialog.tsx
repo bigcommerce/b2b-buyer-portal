@@ -35,7 +35,7 @@ import {
   OrderCurrency,
 } from '../../../types'
 
-interface OrderDialogProps<T> {
+interface OrderDialogProps {
   open: boolean,
   setOpen: (open: boolean) => void,
   products?: OrderProductItem[],
@@ -45,7 +45,7 @@ interface OrderDialogProps<T> {
   currencyInfo: OrderCurrency,
 }
 
-export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
+export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   open,
   products = [],
   type,
@@ -150,6 +150,7 @@ export const OrderDialog: <T>(props: OrderDialogProps<T>) => ReactElement = ({
             <OrderCheckboxProduct
               products={editableProducts}
               onProductChange={handleProductChange}
+              currencyInfo={currencyInfo}
             />
           </DialogContent>
 

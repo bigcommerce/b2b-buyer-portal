@@ -9,9 +9,9 @@ import {
   Box,
 } from '@mui/material'
 
-import {
-  useMobile,
-} from '@/hooks'
+// import {
+//   useMobile,
+// } from '@/hooks'
 
 import {
   distanceDay,
@@ -53,7 +53,7 @@ const B3FilterPickers = ({
     pickerKey: endPickerKey = 'end',
   } = endPicker
 
-  const [isMobile] = useMobile()
+  // const [isMobile] = useMobile()
 
   const [startValue, setStartValue] = useState<Date | number | string>(startDateDefaultValue)
   const [endValue, setEndValue] = useState<Date | number | string>(endDateDefaultValue)

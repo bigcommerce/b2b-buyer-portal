@@ -16,14 +16,14 @@ import {
 
 import {
   B3SStorage,
-  storeHash,
+  // storeHash,
 } from '@/utils'
 
 const SeleRep = () => {
   const {
     state: {
-      isB2BUser,
-      isAgenting,
+      // isB2BUser,
+      // isAgenting,
       role,
       customerId,
     },

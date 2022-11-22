@@ -183,7 +183,6 @@ export default function Registered(props: RegisteredProps) {
         }
         setLogo(registerLogo)
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.log(e)
       }
     }
@@ -261,7 +260,6 @@ export default function Registered(props: RegisteredProps) {
         await loginCheckout(data)
         window.location.reload()
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.log(error)
       }
     } else {
@@ -286,7 +284,6 @@ export default function Registered(props: RegisteredProps) {
         }
         clearRegisterInfo()
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.log(error)
       }
     }

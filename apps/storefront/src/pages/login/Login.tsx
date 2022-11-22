@@ -180,7 +180,6 @@ export default function Login(props:RegisteredProps) {
         setLogo(registerLogo)
         setLoading(false)
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.log(e)
       }
     }

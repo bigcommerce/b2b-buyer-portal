@@ -296,7 +296,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       return fileList
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.log(error)
       throw error
     }

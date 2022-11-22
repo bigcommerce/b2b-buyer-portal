@@ -59,8 +59,8 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
   const {
     state: {
       isB2BUser,
-      isAgenting,
-      role,
+      // isAgenting,
+      // role,
     },
   } = useContext(GlobaledContext)
 

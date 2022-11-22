@@ -20,14 +20,14 @@ import {
 
 import {
   B3SStorage,
-  storeHash,
+  // storeHash,
 } from '@/utils'
 
 const Dashboard = () => {
   const {
     state: {
       isB2BUser,
-      isAgenting,
+      // isAgenting,
       role,
       customerId,
       B3UserId,

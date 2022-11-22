@@ -10,4 +10,4 @@ import {
 
 export const getBCForgotPassword = (data: CustomFieldItems): CustomFieldItems => B3Request.post(`${bcBaseUrl}/login.php?action=send_password_email`, RequestType.BCRest, data)
 
-export const getBcCurrentJWT = (data: CustomFieldItems): CustomFieldItems => B3Request.get(`${bcBaseUrl}/customer/current.jwt`, RequestType.BCRest, data)
+export const getBcCurrentJWT = (data: CustomFieldItems) => B3Request.get(`${bcBaseUrl}/customer/current.jwt`, RequestType.BCRest, data)

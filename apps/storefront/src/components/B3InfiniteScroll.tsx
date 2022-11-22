@@ -40,6 +40,7 @@ export const B3InfiniteScroll = (props: InfiniteScrollProps) => {
 
   const handleLoadMore = () => {
     if (!isLoading) {
+      console.log(allCount)
       onPaginationChange({
         offset: offset + first,
         first,
