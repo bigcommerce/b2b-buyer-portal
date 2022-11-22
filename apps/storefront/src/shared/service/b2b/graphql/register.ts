@@ -7,10 +7,6 @@ import {
   storeHash,
 } from '../../../../utils'
 
-interface CustomFieldItems {
-  [key: string]: any
-}
-
 const getAccountFormFields = (type: number) => `{
   accountFormFields(storeHash: "${storeHash}", formType: ${type}){
     id
@@ -193,6 +189,6 @@ export const getBCForcePasswordReset = (email:string): CustomFieldItems => B3Req
   query: getForcePasswordReset(email),
 })
 
-export const getBCStoreChannelId = () => B3Request.graphqlB2B({
+export const getBCStoreChannelId = (): CustomFieldItems => B3Request.graphqlB2B({
   query: getStoreChannelId(),
 })

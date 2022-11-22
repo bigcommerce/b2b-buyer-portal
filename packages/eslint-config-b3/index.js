@@ -61,4 +61,12 @@ module.exports = {
     ],
     'react/prop-types': 0,
   },
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      rules: {
+        'no-undef': 'off',
+      },
+    },
+  ],
 }

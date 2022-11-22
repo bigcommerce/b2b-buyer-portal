@@ -8,18 +8,14 @@ import {
 
 const originFetch = window.fetch
 
-function b3Fetch(path: string, init: any, type?: string) {
+function b3Fetch<T>(path: string, init: any, type?: string) {
   return new Promise((resolve, reject) => {
-    originFetch(path, init).then((res: Response) => {
-      if (path.includes('current.jwt')) {
-        return res.text()
-      }
-      return res.json()
-    }).then(async (res) => {
+    originFetch(path, init).then((res: Response) => (path.includes('current.jwt') ? res.text() : res.json())).then(async (res) => {
       if (res?.code === 500) {
         reject(res.message)
         return
       }
+      // jwt 15 minutes expected
       if (res?.errors?.length && res.errors[0].message === 'JWT token is expired') {
         try {
           await getCurrentJwt()
@@ -43,8 +39,8 @@ function b3Fetch(path: string, init: any, type?: string) {
         }
       }
       if (type === RequestType.B2BGraphql) {
-        if (res?.errors && res?.errors.length) {
-          reject(res.errors[0])
+        if (res?.errors?.length && res.errors[0].message) {
+          reject(res.errors[0].message)
         } else {
           resolve(res.data)
         }

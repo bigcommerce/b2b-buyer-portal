@@ -12,9 +12,9 @@ import {
 
 const inputFormat = 'yyyy-MM-dd'
 
-export interface CustomFieldItems {
-  [key: string]: any
-}
+// export interface CustomFieldItems {
+//   [key: string]: any
+// }
 export interface QuoteConfig {
   [key: string]: string
 }

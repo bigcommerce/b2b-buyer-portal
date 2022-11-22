@@ -67,7 +67,6 @@ import {
   getRegisterLogo,
   Country,
   State,
-  CustomFieldItems,
   getAccountFormFields,
   RegisterFieldsItems,
   deCodeField,

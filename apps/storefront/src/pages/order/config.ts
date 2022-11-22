@@ -36,7 +36,7 @@ const b2bFilterSearch:FilterSearchProps = {
   beginDateAt: distanceDay(30),
   endDateAt: distanceDay(),
   companyName: '',
-  orderBy: 'createdAt',
+  orderBy: '-createdAt',
   createdBy: '',
   orderNumber: '',
   poNumber: '',
@@ -48,7 +48,7 @@ const bcFilterSearch = {
   first: 10,
   beginDateAt: distanceDay(30),
   endDateAt: distanceDay(),
-  orderBy: 'createdAt',
+  orderBy: '-createdAt',
   createdBy: '',
   q: '',
 }

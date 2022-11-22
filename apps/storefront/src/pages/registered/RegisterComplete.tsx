@@ -35,7 +35,7 @@ import {
 } from '@/shared/service/b2b'
 
 import {
-  RegisterFields, CustomFieldItems, deCodeField, toHump,
+  RegisterFields, deCodeField, toHump,
 } from './config'
 
 import {

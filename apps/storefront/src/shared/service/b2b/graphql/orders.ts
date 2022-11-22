@@ -7,10 +7,6 @@ import {
 //   storeHash,
 // } from '../../../../utils'
 
-interface CustomFieldItems {
-  [key: string]: any
-}
-
 const allOrders = (data: CustomFieldItems, fn: string) => `{
   ${fn}(
     search: "${data.q || ''}"
@@ -200,26 +196,26 @@ const getOrderStatusTypeQl = (fn: string) => `{
   }
 }`
 
-export const getB2BAllOrders = (data: CustomFieldItems) => B3Request.graphqlB2B({
+export const getB2BAllOrders = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
   query: allOrders(data, 'allOrders'),
 })
 
-export const getBCAllOrders = (data: CustomFieldItems) => B3Request.graphqlProxyBC({
+export const getBCAllOrders = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
   query: allOrders(data, 'customerOrders'),
 })
 
-export const getB2BOrderDetails = (id: number) => B3Request.graphqlB2B({
+export const getB2BOrderDetails = (id: number): CustomFieldItems => B3Request.graphqlB2B({
   query: orderDetail(id, 'order'),
 })
 
-export const getBCOrderDetails = (id: number) => B3Request.graphqlProxyBC({
+export const getBCOrderDetails = (id: number): CustomFieldItems => B3Request.graphqlProxyBC({
   query: orderDetail(id, 'customerOrder'),
 })
 
-export const getOrderStatusType = () => B3Request.graphqlB2B({
+export const getOrderStatusType = (): CustomFieldItems => B3Request.graphqlB2B({
   query: getOrderStatusTypeQl('orderStatuses'),
 })
 
-export const getBcOrderStatusType = () => B3Request.graphqlProxyBC({
+export const getBcOrderStatusType = (): CustomFieldItems => B3Request.graphqlProxyBC({
   query: getOrderStatusTypeQl('bcOrderStatuses'),
 })

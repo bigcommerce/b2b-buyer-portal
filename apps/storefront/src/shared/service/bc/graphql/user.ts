@@ -2,10 +2,6 @@ import {
   B3Request,
 } from '../../request/b3Fetch'
 
-interface CustomFieldItems {
-  [key: string]: any
-}
-
 const getCustomer = () => `query customer {
   customer{
     entityId,

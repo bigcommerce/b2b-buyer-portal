@@ -1,7 +1,3 @@
-interface CustomFieldItems {
-  [key: string]: any
-}
-
 export const convertObjectToGraphql = (data: CustomFieldItems) => {
   if (typeof data === 'string' || typeof data === 'number') {
     return data

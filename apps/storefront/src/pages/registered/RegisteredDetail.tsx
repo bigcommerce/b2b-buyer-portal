@@ -23,7 +23,6 @@ import {
 } from './context/RegisteredContext'
 
 import {
-  CustomFieldItems,
   RegisterFields,
   Country,
   State,

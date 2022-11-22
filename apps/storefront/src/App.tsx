@@ -5,8 +5,6 @@ import {
 
 import {
   HashRouter,
-  useLocation,
-  // useNavigate,
 } from 'react-router-dom'
 import {
   useB3AppOpen,

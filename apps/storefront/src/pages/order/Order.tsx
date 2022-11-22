@@ -88,7 +88,7 @@ interface SortByListProps {
 const sortByList: Array<SortByListProps> = [
   {
     name: 'Created on',
-    id: 'createdAt',
+    id: '-createdAt',
   },
   {
     name: 'Lowest Price',
@@ -110,7 +110,7 @@ const sortByConfigData = {
   sortByList,
   sortByItemName,
   sortByLabel: 'Sort by',
-  defaultValue: 'createdAt',
+  defaultValue: '-createdAt',
   isFirstSelect: false,
   w: 150,
 }
@@ -175,7 +175,7 @@ const Order = ({
     const initFilter = async () => {
       const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
       const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses'
-      const orderStatuses: any = await fn()
+      const orderStatuses: CustomFieldItems = await fn()
       const filterInfo = getFilterMoreData(isB2BUser, isCompanyOrder, orderStatuses[orderStatusesName])
       setOrderStatuses(orderStatuses[orderStatusesName])
       setFilterInfo(filterInfo)
@@ -196,7 +196,7 @@ const Order = ({
             edges: orderList = [],
             totalCount,
           },
-        }: any = await fn(filterData)
+        }: CustomFieldItems = await fn(filterData)
         const page = {
           ...pagination,
           count: totalCount,
@@ -356,7 +356,6 @@ const Order = ({
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'auto',
             flex: 1,
           }}
         >

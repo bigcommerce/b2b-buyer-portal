@@ -68,26 +68,26 @@ const userCompanyQl = (userId: number) => `{
   }
 }`
 
-export const getB2BToken = (bcJwtToken: string) => B3Request.graphqlB2B({
+export const getB2BToken = (bcJwtToken: string): CustomFieldItems => B3Request.graphqlB2B({
   query: getB2BTokenQl(bcJwtToken),
 })
 
-export const getAgentInfo = (customerId: string | number) => B3Request.graphqlB2B({
+export const getAgentInfo = (customerId: string | number): CustomFieldItems => B3Request.graphqlB2B({
   query: getAgentInfoQl(customerId),
 })
 
-export const superAdminCompanies = (id: number) => B3Request.graphqlB2B({
+export const superAdminCompanies = (id: number): CustomFieldItems => B3Request.graphqlB2B({
   query: superAdminCompaniesQl(id),
 })
 
-export const superAdminBeginMasquerade = (companyId: number, userId: number) => B3Request.graphqlB2B({
+export const superAdminBeginMasquerade = (companyId: number, userId: number): CustomFieldItems => B3Request.graphqlB2B({
   query: superAdminBeginMasqueradeQl(companyId, userId),
 })
 
-export const superAdminEndMasquerade = (companyId: number, userId: number) => B3Request.graphqlB2B({
+export const superAdminEndMasquerade = (companyId: number, userId: number): CustomFieldItems => B3Request.graphqlB2B({
   query: superAdminEndMasqueradeQl(companyId, userId),
 })
 
-export const getUserCompany = (userId: number) => B3Request.graphqlB2B({
+export const getUserCompany = (userId: number): CustomFieldItems => B3Request.graphqlB2B({
   query: userCompanyQl(userId),
 })

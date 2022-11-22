@@ -31,7 +31,7 @@ import {
 } from './context/RegisteredContext'
 
 import {
-  RegisterFields, CustomFieldItems,
+  RegisterFields,
 } from './config'
 
 import {

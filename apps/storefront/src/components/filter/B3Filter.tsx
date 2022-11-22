@@ -111,7 +111,8 @@ const B3Filter:<T> (props: B3FilterProps<T>) => ReactElement = (props) => {
         >
           <Box
             sx={{
-              width: '40%',
+              maxWidth: '24rem',
+              flexBasis: '100%',
               display: 'flex',
               alignItems: 'center',
             }}

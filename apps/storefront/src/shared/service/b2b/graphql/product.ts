@@ -2,13 +2,9 @@ import {
   B3Request,
 } from '../../request/b3Fetch'
 
-interface CustomFieldItems {
-  [key: string]: any
-}
-
 const getVariantInfoBySkus = ({
   skus = [],
-}: CustomFieldItems) => `{
+}) => `{
   variantSku (
     variantSkus: "${skus}"
   ){
@@ -42,10 +38,10 @@ const getVariantSkuByProductId = (productId: string) => `{
   }
 }`
 
-export const getB2BVariantInfoBySkus = (data: CustomFieldItems = {}) => B3Request.graphqlB2B({
+export const getB2BVariantInfoBySkus = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
   query: getVariantInfoBySkus(data),
 })
 
-export const getB2BVariantSkuByProductId = (productId: string) => B3Request.graphqlB2B({
+export const getB2BVariantSkuByProductId = (productId: string): CustomFieldItems => B3Request.graphqlB2B({
   query: getVariantSkuByProductId(productId),
 })
