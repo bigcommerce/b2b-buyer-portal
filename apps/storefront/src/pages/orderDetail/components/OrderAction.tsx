@@ -335,7 +335,7 @@ export const OrderAction = (props: OrderActionProps) => {
       zip,
       country,
       city,
-    } = billingAddress
+    } = billingAddress || {}
     const paymentAddress = {
       paymentMethod: `Payment by ${paymentMethod}`,
       name: `${firstName} ${lastName}`,
@@ -395,7 +395,7 @@ export const OrderAction = (props: OrderActionProps) => {
     {
       header: 'Order summary',
       key: 'order-summary',
-      subtitle: `Purchased by ${name} on ${format(+(updatedAt || 0) * 1000, 'dd MMM yy')}.`,
+      subtitle: (updatedAt && name ? `Purchased by ${name} on ${format(+updatedAt * 1000, 'dd MMM yy')}.` : ''),
       buttons,
       infos: {
         money,
@@ -405,7 +405,7 @@ export const OrderAction = (props: OrderActionProps) => {
     {
       header: 'Payment',
       key: 'payment',
-      subtitle: `Paid in full on ${format(Date.parse(createAt || ''), 'dd MMM yy')}.`,
+      subtitle: (createAt ? `Paid in full on ${format(Date.parse(createAt), 'dd MMM yy')}.` : ''),
       buttons: [
         {
           value: isB2BUser ? 'view invoice' : 'print invoice',

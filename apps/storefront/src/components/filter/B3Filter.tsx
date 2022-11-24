@@ -1,6 +1,7 @@
 import {
   useState,
   ReactElement,
+  ReactNode,
 } from 'react'
 import {
   Box,
@@ -209,11 +210,10 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               fiterMoreInfo={fiterMoreInfo}
               onChange={handleFilterChange}
             />
-          </Box>
-          {
+            {
               customButtomConfig?.isEnabled && (
                 <Button
-                  // size="small"
+                  size="small"
                   variant="contained"
                   fullWidth
                   sx={{
@@ -227,7 +227,23 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
                 </Button>
               )
             }
-
+          </Box>
+          {
+            customButtomConfig?.isEnabled && (
+              <Button
+                // size="small"
+                variant="contained"
+                fullWidth
+                sx={{
+                  marginTop: '20px',
+                  ...customButtomConfig?.customButtomStyle || {},
+                }}
+                onClick={handleCustomBtnClick}
+              >
+                {customButtomConfig?.customLabel || ''}
+              </Button>
+            )
+          }
         </Box>
         )
       }

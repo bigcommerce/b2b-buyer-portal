@@ -61,6 +61,10 @@ import {
   deleteUsers,
 } from './graphql/users'
 
+import {
+  getB2BCustomerAddress,
+} from './graphql/address'
+
 export {
   getB2BRegisterCustomFields,
   getB2BRegisterLogo,
@@ -95,4 +99,5 @@ export {
   getUsers,
   addOrUpdateUsers,
   deleteUsers,
+  getB2BCustomerAddress,
 }

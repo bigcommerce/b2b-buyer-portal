@@ -14,6 +14,8 @@ const InvoiceDetail = lazy(() => import('../../pages/invoiceDetail/InvoiceDetail
 
 const Usermanagement = lazy(() => import('../../pages/usermanagement/Usermanagement'))
 
+const AddressList = lazy(() => import('../../pages/address/Address'))
+
 type OrderItem = typeof OrderList
 
 export interface RouteItem {
@@ -54,11 +56,11 @@ const routes: RouteItem[] = [
     component: InvoiceDetail,
   },
   {
-    path: '/addresss',
-    name: 'Addresss',
-    wsKey: 'router-orders',
+    path: '/addresses',
+    name: 'Addresses',
+    wsKey: 'router-address',
     isMenuItem: true,
-    component: Dashboard,
+    component: AddressList,
   },
   {
     path: '/user-management',

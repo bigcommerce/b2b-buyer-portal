@@ -146,16 +146,20 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
               spacing={itemSpacing}
             >
               {
-                listItems.map((row, index) => (
-                  <Grid
-                    item
-                    xs={itemXs}
-                  >
-                    <>
-                      {row?.node && renderItem(row.node, index)}
-                    </>
-                  </Grid>
-                ))
+                listItems.map((row, index) => {
+                  const node = row.node || row || {}
+                  return (
+                    <Grid
+                      item
+                      xs={itemXs}
+                      key={node[tableKey || 'id']}
+                    >
+                      <>
+                        {row?.node && renderItem(row.node, index)}
+                      </>
+                    </Grid>
+                  )
+                })
               }
             </Grid>
             {
