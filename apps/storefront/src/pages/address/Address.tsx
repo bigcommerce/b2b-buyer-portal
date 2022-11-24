@@ -1,12 +1,17 @@
 import {
-  Box, Button,
+  Box,
+  Button,
+  Typography,
 } from '@mui/material'
+import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
 import {
   useEffect,
   useContext,
   useState,
 } from 'react'
+
+import styled from '@emotion/styled'
 
 import {
   useMobile,
@@ -23,6 +28,9 @@ import {
 import {
   B3Sping,
 } from '@/components/spin/B3Sping'
+import {
+  B3ConfirmDialog,
+} from '@/components/B3ConfirmDialog'
 
 import {
   GlobaledContext,
@@ -41,6 +49,13 @@ import {
 import {
   AddressItemType,
 } from '../../types/address'
+
+const PermissionContent = styled(Box)({
+  padding: '30px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+})
 
 const Address = () => {
   const {
@@ -148,6 +163,7 @@ const Address = () => {
       return false
     }
     if (!editPermission) {
+      console.log(1111)
       setIsOpenPermission(true)
       return false
     }
@@ -225,6 +241,42 @@ const Address = () => {
           )}
         />
       </Box>
+
+      <B3ConfirmDialog
+        showTitle={false}
+        isHiddenDivider
+        isShowAction={false}
+        isOpen={isOpenPermission}
+        fullWidth={false}
+        maxWidth="xs"
+      >
+        <PermissionContent>
+          <HighlightOffIcon
+            sx={{
+              fontSize: '80px',
+              color: '#F67474',
+            }}
+          />
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              marginTop: '2em',
+              marginBottom: '1em',
+            }}
+          >
+            Address add has been disabled by the system administrators
+          </Typography>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={() => setIsOpenPermission(false)}
+          >
+            OK
+          </Button>
+        </PermissionContent>
+      </B3ConfirmDialog>
+
     </B3Sping>
   )
 }
