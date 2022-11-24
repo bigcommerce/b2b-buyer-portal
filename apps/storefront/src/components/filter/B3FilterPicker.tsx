@@ -9,10 +9,6 @@ import {
   Box,
 } from '@mui/material'
 
-// import {
-//   useMobile,
-// } from '@/hooks'
-
 import {
   distanceDay,
 } from '@/utils'
@@ -29,8 +25,8 @@ interface PickerProps {
 }
 
 interface B3FilterPickerProps {
-  startPicker: PickerProps
-  endPicker: PickerProps
+  startPicker?: PickerProps
+  endPicker?: PickerProps
   handleChange?: (key: string, value: Date | string | number) => void
 }
 
@@ -39,34 +35,22 @@ const B3FilterPickers = ({
   endPicker,
   handleChange,
 }: B3FilterPickerProps, ref: Ref<unknown> | undefined) => {
-  const {
-    isEnabled: startDateEnable = true,
-    label: startLabel = 'From',
-    defaultValue: startDateDefaultValue = new Date(),
-    pickerKey: startPickerKey = 'start',
-  } = startPicker
-
-  const {
-    isEnabled: endDateEnable = true,
-    label: endLabel = 'To',
-    defaultValue: endDateDefaultValue = new Date(),
-    pickerKey: endPickerKey = 'end',
-  } = endPicker
-
   // const [isMobile] = useMobile()
-
-  const [startValue, setStartValue] = useState<Date | number | string>(startDateDefaultValue)
-  const [endValue, setEndValue] = useState<Date | number | string>(endDateDefaultValue)
+  const [startValue, setStartValue] = useState<Date | number | string>(startPicker?.defaultValue || new Date())
+  const [endValue, setEndValue] = useState<Date | number | string>(endPicker?.defaultValue || new Date())
 
   const setClearPickerValue = () => {
     setStartValue(distanceDay(30))
     setEndValue(distanceDay())
   }
 
-  const getPickerValue = () => ({
-    startValue,
-    endValue,
-  })
+  const getPickerValue = () => {
+    const data = {
+      startValue,
+      endValue,
+    }
+    return startPicker?.isEnabled ? data : {}
+  }
   useImperativeHandle(ref, () => ({
     setClearPickerValue,
     getPickerValue,
@@ -75,14 +59,14 @@ const B3FilterPickers = ({
   const handleStartDatePickerChange = (value: Date | string | number) => {
     setStartValue(value)
     if (handleChange) {
-      handleChange(startPickerKey, value)
+      handleChange(startPicker?.pickerKey || 'start', value)
     }
   }
 
   const handleEndDatePickerChange = (value: Date | string | number) => {
     setEndValue(value)
     if (handleChange) {
-      handleChange(endPickerKey, value)
+      handleChange(endPicker?.pickerKey || 'end', value)
     }
   }
 
@@ -93,7 +77,7 @@ const B3FilterPickers = ({
       }}
     >
       {
-      startDateEnable && (
+      startPicker?.isEnabled && (
       <Box
         sx={{
           width: '49%',
@@ -108,7 +92,7 @@ const B3FilterPickers = ({
         <B3Picker
           onChange={handleStartDatePickerChange}
           value={startValue}
-          label={startLabel}
+          label={startPicker?.label}
           variant="filled"
         />
       </Box>
@@ -116,7 +100,7 @@ const B3FilterPickers = ({
     }
 
       {
-      endDateEnable && (
+      endPicker?.isEnabled && (
       <Box
         sx={{
           width: '49%',
@@ -131,7 +115,7 @@ const B3FilterPickers = ({
         <B3Picker
           onChange={handleEndDatePickerChange}
           value={endValue}
-          label={endLabel}
+          label={endPicker?.label}
           variant="filled"
         />
       </Box>

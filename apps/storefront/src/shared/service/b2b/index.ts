@@ -55,6 +55,12 @@ import {
   getB2BVariantInfoBySkus,
 } from './graphql/product'
 
+import {
+  getUsers,
+  addOrUpdateUsers,
+  deleteUsers,
+} from './graphql/users'
+
 export {
   getB2BRegisterCustomFields,
   getB2BRegisterLogo,
@@ -86,4 +92,7 @@ export {
   getOrderStatusType,
   getB2BVariantInfoBySkus,
   getBcOrderStatusType,
+  getUsers,
+  addOrUpdateUsers,
+  deleteUsers,
 }

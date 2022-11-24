@@ -4,6 +4,7 @@ import {
 } from 'react'
 import {
   Box,
+  Button,
 } from '@mui/material'
 
 import {
@@ -35,7 +36,7 @@ interface PickerProps {
 
 interface sortByConfigProps {
   isEnabled: boolean;
-  sortByList: any[]
+  sortByList?: any[]
   sortByItemName?: sortByItemNameProps | undefined
   sortByLabel: string
   defaultValue?: string | undefined
@@ -52,39 +53,49 @@ type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 }
 
-interface B3FilterProps<T> {
-  sortByConfig: sortByConfigProps
-  startPicker: PickerProps
-  endPicker: PickerProps
-  fiterMoreInfo: Array<DeepPartial<T>>
-  handleChange: (key: string, value: string) => void
-  handleFilterChange: (value: {[key: string]: string | number | Date}) => void
+interface customButtomProps {
+  isEnabled: boolean;
+  customLabel: string;
+  customButtomStyle?: {[key: string]: string}
 }
 
-const B3Filter:<T> (props: B3FilterProps<T>) => ReactElement = (props) => {
+interface B3FilterProps<T, Y> {
+  sortByConfig?: sortByConfigProps
+  customButtomConfig?: customButtomProps
+  startPicker?: PickerProps
+  endPicker?: PickerProps
+  fiterMoreInfo: Array<DeepPartial<T>>
+  handleChange: (key: string, value: string) => void
+  handleFilterChange: (value: Y) => void
+  handleFilterCustomButtomClick?: () => void
+}
+
+const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => {
   const {
     sortByConfig,
     startPicker,
     endPicker,
     fiterMoreInfo,
+    customButtomConfig,
     handleChange,
     handleFilterChange,
+    handleFilterCustomButtomClick,
   } = props
 
-  const {
-    isEnabled: sortEnabled = false,
-    sortByList = [],
-    sortByItemName,
-    sortByLabel = '',
-    defaultValue: sortByDefaultValue = '',
-    isFirstSelect,
-    firstSelectText,
-    w: sortByWidth = 150,
-  } = sortByConfig
+  // const {
+  //   isEnabled: sortEnabled = false,
+  //   sortByList = [],
+  //   sortByItemName,
+  //   sortByLabel = '',
+  //   // defaultValue: sortByDefaultValue = '',
+  //   isFirstSelect,
+  //   firstSelectText,
+  //   w: sortByWidth = 150,
+  // } = sortByConfig
 
   const [isMobile] = useMobile()
 
-  const [sortByValue, setSortBy] = useState<string>(sortByDefaultValue)
+  const [sortByValue, setSortBy] = useState<string>(sortByConfig?.defaultValue || '')
 
   const handleSortByChange = (value: string) => {
     setSortBy(value)
@@ -95,8 +106,12 @@ const B3Filter:<T> (props: B3FilterProps<T>) => ReactElement = (props) => {
     handleChange('search', value)
   }
 
-  const handleFilterMoreChange = (filterItems: {[key: string]: string | number | Date}) => {
-    handleFilterChange(filterItems)
+  // const handleFilterMoreChange = (filterItems) => {
+  //   handleFilterChange(filterItems)
+  // }
+
+  const handleCustomBtnClick = () => {
+    if (handleFilterCustomButtomClick) handleFilterCustomButtomClick()
   }
 
   return (
@@ -125,7 +140,7 @@ const B3Filter:<T> (props: B3FilterProps<T>) => ReactElement = (props) => {
               startPicker={startPicker}
               endPicker={endPicker}
               fiterMoreInfo={fiterMoreInfo}
-              onChange={handleFilterMoreChange}
+              onChange={handleFilterChange}
             />
           </Box>
 
@@ -135,25 +150,40 @@ const B3Filter:<T> (props: B3FilterProps<T>) => ReactElement = (props) => {
             }}
           >
             {
-            sortEnabled && (
-              <Box
-                sx={{
-                  m: '0 5px',
-                }}
-              >
-                <B3Select
-                  list={sortByList}
-                  value={sortByValue}
-                  handleChange={handleSortByChange}
-                  label={sortByLabel}
-                  config={sortByItemName}
-                  isFirstSelect={isFirstSelect}
-                  firstSelectText={firstSelectText}
-                  w={sortByWidth}
-                />
-              </Box>
-            )
-          }
+              sortByConfig?.isEnabled && (
+                <Box
+                  sx={{
+                    m: '0 5px',
+                  }}
+                >
+                  <B3Select
+                    list={sortByConfig?.sortByList || []}
+                    value={sortByValue}
+                    handleChange={handleSortByChange}
+                    label={sortByConfig?.sortByLabel || ''}
+                    config={sortByConfig?.sortByItemName}
+                    isFirstSelect={sortByConfig?.isFirstSelect}
+                    firstSelectText={sortByConfig?.firstSelectText}
+                    w={sortByConfig?.w || 150}
+                  />
+                </Box>
+              )
+            }
+            {
+              customButtomConfig?.isEnabled && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  sx={{
+                    maxWidth: 150,
+                    ...customButtomConfig?.customButtomStyle || {},
+                  }}
+                  onClick={handleCustomBtnClick}
+                >
+                  {customButtomConfig?.customLabel || ''}
+                </Button>
+              )
+            }
             {/* <B3FilterToggleTable /> */}
           </Box>
 
@@ -186,7 +216,7 @@ const B3Filter:<T> (props: B3FilterProps<T>) => ReactElement = (props) => {
               startPicker={startPicker}
               endPicker={endPicker}
               fiterMoreInfo={fiterMoreInfo}
-              onChange={handleFilterMoreChange}
+              onChange={handleFilterChange}
             />
           </Box>
 

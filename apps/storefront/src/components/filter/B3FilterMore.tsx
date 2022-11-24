@@ -46,11 +46,11 @@ type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 }
 
-interface B3FilterMoreProps<T> {
-  startPicker: PickerProps
-  endPicker: PickerProps
+interface B3FilterMoreProps<T, Y> {
+  startPicker?: PickerProps
+  endPicker?: PickerProps
   fiterMoreInfo: Array<DeepPartial<T>>
-  onChange?: (val: {[key: string]: Date | string | number}) => void
+  onChange?: (val: Y) => void
 }
 
 interface PickerRefProps extends HTMLInputElement {
@@ -58,12 +58,12 @@ interface PickerRefProps extends HTMLInputElement {
   getPickerValue: () => {[key: string]: string}
 }
 
-const B3FilterMore:<T> ({
+const B3FilterMore:<T, Y> ({
   startPicker,
   endPicker,
   fiterMoreInfo,
   onChange,
-}: B3FilterMoreProps<T>) => ReactElement = ({
+}: B3FilterMoreProps<T, Y>) => ReactElement = ({
   startPicker,
   endPicker,
   fiterMoreInfo,
@@ -82,7 +82,6 @@ const B3FilterMore:<T> ({
       errors,
     },
     setValue,
-    reset,
   } = useForm({
     mode: 'onSubmit',
   })
@@ -101,17 +100,19 @@ const B3FilterMore:<T> ({
     handleSubmit((data) => {
       const getPickerValues = pickerRef.current?.getPickerValue()
       if (onChange) {
-        onChange({
+        const submitData: any = {
           ...getPickerValues, ...data,
-        })
+        }
+        onChange(submitData)
       }
       handleClose()
     })(event)
   }
 
   const handleClearFilters = () => {
-    reset()
-    setValue('orderStatus', '')
+    Object.keys(getValues()).forEach((item: string) => {
+      setValue(item, '')
+    })
     pickerRef.current?.setClearPickerValue()
   }
   return (

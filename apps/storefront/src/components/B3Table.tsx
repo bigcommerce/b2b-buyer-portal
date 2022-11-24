@@ -23,7 +23,7 @@ import {
   B3NoData,
 } from './B3NoData'
 
-interface Pagination {
+export interface Pagination {
   offset: number,
   first: number,
   count: number,

@@ -28,3 +28,7 @@ export {
 export {
   B3Table,
 } from './B3Table'
+
+export {
+  B3Dialog,
+} from './B3Dialog'
