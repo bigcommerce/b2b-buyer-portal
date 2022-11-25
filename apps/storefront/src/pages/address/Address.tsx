@@ -1,17 +1,13 @@
 import {
   Box,
-  Button,
   Typography,
 } from '@mui/material'
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
 import {
   useEffect,
   useContext,
   useState,
 } from 'react'
-
-import styled from '@emotion/styled'
 
 import {
   useMobile,
@@ -22,15 +18,22 @@ import {
   AddressItemCard,
 } from './components/AddressItemCard'
 import {
+  SetDefaultDialog,
+} from './components/SetDefaultDialog'
+import {
+  DeleteAddressDialog,
+} from './components/DeleteAddressDialog '
+import {
   Pagination,
   B3Table,
 } from '@/components/B3Table'
 import {
   B3Sping,
 } from '@/components/spin/B3Sping'
+
 import {
-  B3ConfirmDialog,
-} from '@/components/B3ConfirmDialog'
+  B3TipsDialog,
+} from '@/components/B3TipsDialog'
 
 import {
   GlobaledContext,
@@ -42,20 +45,11 @@ import {
 
 import {
   filterFormConfig,
-  filterSortConfig,
-  filterPickerConfig,
 } from './shared/config'
 
 import {
   AddressItemType,
 } from '../../types/address'
-
-const PermissionContent = styled(Box)({
-  padding: '30px',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-})
 
 const Address = () => {
   const {
@@ -74,7 +68,7 @@ const Address = () => {
   const [pagination, setPagination] = useState<Pagination>({
     offset: 0,
     count: 0,
-    first: 1,
+    first: 10,
   })
 
   const [isMobile] = useMobile()
@@ -144,9 +138,20 @@ const Address = () => {
     getAddressList(pagination, searchParams)
   }
 
-  const [editPermission, setEditPermission] = useState(false)
+  const updateAddressList = (isFirst: boolean = true) => {
+    getAddressList({
+      ...pagination,
+      offset: isFirst ? 0 : pagination.offset,
+    }, searchParams)
+  }
+
+  const [editPermission, setEditPermission] = useState(true)
   const [isOpenPermission, setIsOpenPermission] = useState(false)
-  const isAdmin = !role || role === 3
+  const [isOpenSetDefault, setIsOpenSetDefault] = useState(false)
+  const [isOpenDelete, setIsOpenDelete] = useState(false)
+  const [currentAddress, setCurrentAddress] = useState<AddressItemType>()
+
+  const isAdmin = !isB2BUser || !role || role === 3
 
   const getEditPermission = () => {
     if (isAdmin) {
@@ -163,7 +168,6 @@ const Address = () => {
       return false
     }
     if (!editPermission) {
-      console.log(1111)
       setIsOpenPermission(true)
       return false
     }
@@ -186,17 +190,21 @@ const Address = () => {
     console.log('edit')
   }
 
-  const handleDelete = () => {
+  const handleDelete = (address: AddressItemType) => {
     if (!checkPermission()) {
       return
     }
-    // TODO show delete modal
-    console.log('delete')
+    setCurrentAddress({
+      ...address,
+    })
+    setIsOpenDelete(true)
   }
 
-  const handleSetDefault = () => {
-    // TODO show delete modal
-    console.log('setDefault')
+  const handleSetDefault = (address: AddressItemType) => {
+    setCurrentAddress({
+      ...address,
+    })
+    setIsOpenSetDefault(true)
   }
 
   const AddButtonConfig = {
@@ -213,9 +221,6 @@ const Address = () => {
       }}
       >
         <B3Filter
-          startPicker={filterPickerConfig}
-          endPicker={filterPickerConfig}
-          sortByConfig={filterSortConfig}
           fiterMoreInfo={filterFormConfig}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
@@ -230,6 +235,7 @@ const Address = () => {
           isCustomRender
           isInfiniteScroll={isMobile}
           isLoading={isRequestLoading}
+          rowsPerPageOptions={[9, 18, 36]}
           renderItem={(row: AddressItemType) => (
             <AddressItemCard
               key={row.id}
@@ -242,41 +248,36 @@ const Address = () => {
         />
       </Box>
 
-      <B3ConfirmDialog
-        showTitle={false}
-        isHiddenDivider
-        isShowAction={false}
+      <B3TipsDialog
         isOpen={isOpenPermission}
-        fullWidth={false}
-        maxWidth="xs"
+        setIsOpen={setIsOpenPermission}
+        type="error"
       >
-        <PermissionContent>
-          <HighlightOffIcon
-            sx={{
-              fontSize: '80px',
-              color: '#F67474',
-            }}
-          />
-          <Typography
-            variant="body2"
-            align="center"
-            sx={{
-              marginTop: '2em',
-              marginBottom: '1em',
-            }}
-          >
-            Address add has been disabled by the system administrators
-          </Typography>
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={() => setIsOpenPermission(false)}
-          >
-            OK
-          </Button>
-        </PermissionContent>
-      </B3ConfirmDialog>
+        <Typography
+          variant="body2"
+          align="center"
+          sx={{
+            marginTop: '2em',
+            marginBottom: '1em',
+          }}
+        >
+          Address add has been disabled by the system administrators
+        </Typography>
+      </B3TipsDialog>
 
+      <SetDefaultDialog
+        isOpen={isOpenSetDefault}
+        setIsOpen={setIsOpenSetDefault}
+        addressData={currentAddress}
+        updateAddressList={updateAddressList}
+      />
+
+      <DeleteAddressDialog
+        isOpen={isOpenDelete}
+        setIsOpen={setIsOpenDelete}
+        addressData={currentAddress}
+        updateAddressList={updateAddressList}
+      />
     </B3Sping>
   )
 }

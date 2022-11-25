@@ -28,16 +28,15 @@ const Spinner = styled(CircularProgress)({
 })
 
 interface StyleButtonProps {
-  customConfirmColor?: string,
-  customConfirmHoverColor?: string,
+  customconfirmcolor?: string,
+  customconfirmhovercolor?: string,
 }
 
 const StyleButton = styled(Button)((props: StyleButtonProps) => ({
-  textTransform: 'capitalize',
-  backgroundColor: props.customConfirmColor,
+  backgroundColor: props.customconfirmcolor,
 
   '&:hover': {
-    backgroundColor: props.customConfirmHoverColor,
+    backgroundColor: props.customconfirmhovercolor,
   },
 }))
 
@@ -167,8 +166,8 @@ export const B3ConfirmDialog = (props: B3ConfirmDialogProps) => {
                     color={confirmColor}
                     variant="contained"
                     disabled={isConfirmDisabled}
-                    customConfirmColor={customConfirmColor}
-                    customConfirmHoverColor={customConfirmHoverColor}
+                    customconfirmcolor={customConfirmColor}
+                    customconfirmhovercolor={customConfirmHoverColor}
                   >
                     {
                       isSpinning && (

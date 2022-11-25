@@ -30,14 +30,3 @@ export const filterFormConfig = [
     size: 'small',
   },
 ]
-
-export const filterSortConfig = {
-  isEnabled: false,
-  sortByList: [],
-  sortByLabel: '',
-}
-
-export const filterPickerConfig = {
-  isEnabled: false,
-  label: '',
-}

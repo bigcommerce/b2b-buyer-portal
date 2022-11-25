@@ -81,7 +81,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
     },
   } = useContext(GlobaledContext)
 
-  const hasPermission = !role || role === 3
+  const hasPermission = !isB2BUser || !role || role === 3
 
   return (
     <Card

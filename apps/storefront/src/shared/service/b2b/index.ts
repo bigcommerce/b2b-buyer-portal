@@ -62,7 +62,9 @@ import {
 } from './graphql/users'
 
 import {
+  deleteB2BAddress,
   getB2BCustomerAddress,
+  updateB2BAddress,
 } from './graphql/address'
 
 export {
@@ -100,4 +102,6 @@ export {
   addOrUpdateUsers,
   deleteUsers,
   getB2BCustomerAddress,
+  deleteB2BAddress,
+  updateB2BAddress,
 }
