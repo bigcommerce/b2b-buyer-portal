@@ -23,6 +23,10 @@ import {
 } from '@/components'
 
 import {
+  snackbar,
+} from '@/utils'
+
+import {
   GlobaledContext,
 } from '@/shared/global'
 
@@ -97,6 +101,8 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
         ...address,
         companyId,
       })
+
+      snackbar.success('Successfully set')
 
       updateAddressList()
     } catch (e) {

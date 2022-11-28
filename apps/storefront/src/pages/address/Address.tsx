@@ -35,6 +35,10 @@ import {
 } from '@/shared/global'
 
 import {
+  snackbar,
+} from '@/utils'
+
+import {
   getB2BAddress,
   getBCCustomerAddress,
   getB2BAddressConfig,
@@ -230,7 +234,7 @@ const Address = () => {
 
   const handleCreate = () => {
     if (!checkPermission()) {
-      // snackbar.error('You do not have permission to add new address, please contact store owner ')
+      snackbar.error('You do not have permission to add new address, please contact store owner ')
       return
     }
     // TODO show create modal
@@ -239,7 +243,7 @@ const Address = () => {
 
   const handleEdit = () => {
     if (!checkPermission()) {
-      // snackbar.error('You do not have permission to edit address, please contact store owner ')
+      snackbar.error('You do not have permission to edit address, please contact store owner ')
       return
     }
     // TODO show edit modal
@@ -248,7 +252,7 @@ const Address = () => {
 
   const handleDelete = (address: AddressItemType) => {
     if (!checkPermission()) {
-      // snackbar.error('You do not have permission to delete address, please contact store owner ')
+      snackbar.error('You do not have permission to delete address, please contact store owner ')
       return
     }
     setCurrentAddress({

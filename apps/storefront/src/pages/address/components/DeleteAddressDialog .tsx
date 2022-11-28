@@ -21,6 +21,10 @@ import {
 } from '@/shared/global'
 
 import {
+  snackbar,
+} from '@/utils'
+
+import {
   AddressItemType,
 } from '../../../types/address'
 
@@ -81,6 +85,8 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
           bcAddressId,
         })
       }
+
+      snackbar.success('Successfully deleted')
 
       updateAddressList()
     } catch (e) {
