@@ -2,17 +2,19 @@ import {
   Dispatch,
   SetStateAction,
   useContext,
-  useState,
 } from 'react'
 
 import {
   Box,
-  Typography,
 } from '@mui/material'
 
 import {
-  B3ConfirmDialog,
-} from '@/components/B3ConfirmDialog'
+  useMobile,
+} from '@/hooks'
+
+import {
+  B3Dialog,
+} from '@/components'
 
 import {
   GlobaledContext,
@@ -24,11 +26,13 @@ import {
 
 import {
   deleteB2BAddress,
+  deleteBCCustomerAddress,
 } from '@/shared/service/b2b'
 
 interface DeleteAddressDialogProps {
   isOpen: boolean
   setIsOpen: Dispatch<SetStateAction<boolean>>
+  setIsLoading: Dispatch<SetStateAction<boolean>>
   addressData?: AddressItemType
   updateAddressList: (isFirst?: boolean) => void
 }
@@ -39,7 +43,10 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
     setIsOpen,
     addressData,
     updateAddressList,
+    setIsLoading,
   } = props
+
+  const [isMobile] = useMobile()
 
   const {
     state: {
@@ -50,8 +57,6 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
     },
   } = useContext(GlobaledContext)
 
-  const [isLoading, setIsLoading] = useState(false)
-
   const handleDelete = async () => {
     if (!addressData) {
       return
@@ -59,9 +64,11 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
 
     try {
       setIsLoading(true)
+      setIsOpen(false)
 
       const {
         id = '',
+        bcAddressId = '',
       } = addressData
 
       if (isB2BUser) {
@@ -70,47 +77,40 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
           companyId,
         })
       } else {
-        // TODO BC接口
+        await deleteBCCustomerAddress({
+          bcAddressId,
+        })
       }
 
       updateAddressList()
-
-      setIsOpen(false)
-    } finally {
+    } catch (e) {
       setIsLoading(false)
     }
   }
 
   return (
-    <B3ConfirmDialog
-      title="Set as default address"
-      isHiddenDivider
-      confirmText="Delete"
-      confirmColor="error"
-      isShowCloseIcon={false}
-      isConfirmDisabled={isLoading}
+    <B3Dialog
       isOpen={isOpen}
-      fullWidth={false}
-      onClose={() => { setIsOpen(false) }}
-      onConfirm={handleDelete}
-      isSpinning={isLoading}
+      title="Delete address? "
+      leftSizeBtn="cancel"
+      rightSizeBtn="delete"
+      handleLeftClick={() => { setIsOpen(false) }}
+      handRightClick={handleDelete}
+      rightStyleBtn={{
+        color: '#D32F2F',
+      }}
     >
       <Box
         sx={{
-          padding: '10px 24px',
-          minWidth: '420px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: `${isMobile ? 'center%' : 'start'}`,
+          width: `${isMobile ? '100%' : '450px'}`,
+          height: '100%',
         }}
       >
-        <Typography
-          variant="body2"
-          sx={{
-            marginTop: '1em',
-            marginBottom: '1em',
-          }}
-        >
-          Are you sure you want to delete this address?
-        </Typography>
+        Are you sure you want to delete this address?
       </Box>
-    </B3ConfirmDialog>
+    </B3Dialog>
   )
 }

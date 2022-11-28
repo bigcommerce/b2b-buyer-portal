@@ -1,6 +1,5 @@
 import {
   Box,
-  Typography,
 } from '@mui/material'
 
 import {
@@ -32,24 +31,29 @@ import {
 } from '@/components/spin/B3Sping'
 
 import {
-  B3TipsDialog,
-} from '@/components/B3TipsDialog'
-
-import {
   GlobaledContext,
 } from '@/shared/global'
 
 import {
-  getB2BCustomerAddress,
+  getB2BAddress,
+  getBCCustomerAddress,
+  getB2BAddressConfig,
 } from '@/shared/service/b2b'
 
 import {
   filterFormConfig,
+  convertBCToB2BAddress,
 } from './shared/config'
 
 import {
   AddressItemType,
+  BCAddressItemType,
+  AddressConfigItem,
 } from '../../types/address'
+
+type BCAddress = {
+  node: BCAddressItemType
+}
 
 const Address = () => {
   const {
@@ -59,7 +63,9 @@ const Address = () => {
       companyInfo: {
         id: companyId,
       },
+      addressConfig,
     },
+    dispatch,
   } = useContext(GlobaledContext)
 
   const [isRequestLoading, setIsRequestLoading] = useState(false)
@@ -68,7 +74,7 @@ const Address = () => {
   const [pagination, setPagination] = useState<Pagination>({
     offset: 0,
     count: 0,
-    first: 10,
+    first: 9,
   })
 
   const [isMobile] = useMobile()
@@ -77,17 +83,41 @@ const Address = () => {
     setIsRequestLoading(true)
 
     try {
-      const addressKey = isB2BUser ? 'addresses' : 'customerAddresses'
-      const {
-        [addressKey]: {
-          edges: list = [],
-          totalCount,
-        },
-      }: CustomFieldItems = await getB2BCustomerAddress({
-        companyId,
-        ...params,
-        ...pagination,
-      })
+      let list = []
+      let {
+        count,
+      } = pagination
+
+      if (isB2BUser) {
+        const {
+          addresses: {
+            edges: addressList = [],
+            totalCount,
+          },
+        }: CustomFieldItems = await getB2BAddress({
+          companyId,
+          ...params,
+          ...pagination,
+        })
+
+        list = addressList
+        count = totalCount
+      } else {
+        const {
+          customerAddresses: {
+            edges: addressList = [],
+            totalCount,
+          },
+        }: CustomFieldItems = await getBCCustomerAddress({
+          ...params,
+          ...pagination,
+        })
+
+        list = addressList.map((address: BCAddress) => ({
+          node: convertBCToB2BAddress(address.node),
+        }))
+        count = totalCount
+      }
 
       if (isMobile) {
         const newList = pagination.offset > 0 ? [...addressList, ...list] : list
@@ -98,7 +128,7 @@ const Address = () => {
 
       setPagination({
         ...pagination,
-        count: totalCount,
+        count,
       })
     } finally {
       setIsRequestLoading(false)
@@ -145,17 +175,42 @@ const Address = () => {
     }, searchParams)
   }
 
-  const [editPermission, setEditPermission] = useState(true)
-  const [isOpenPermission, setIsOpenPermission] = useState(false)
+  const [editPermission, setEditPermission] = useState(false)
   const [isOpenSetDefault, setIsOpenSetDefault] = useState(false)
   const [isOpenDelete, setIsOpenDelete] = useState(false)
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>()
 
   const isAdmin = !isB2BUser || !role || role === 3
 
-  const getEditPermission = () => {
-    if (isAdmin) {
-      // TODO get config
+  const getEditPermission = async () => {
+    if (!isB2BUser) {
+      setEditPermission(true)
+      return
+    }
+    if (!role || role === 3) {
+      try {
+        let configList = addressConfig
+        if (!configList) {
+          const {
+            addressConfig: newConfig,
+          }: CustomFieldItems = await getB2BAddressConfig()
+          configList = newConfig
+
+          dispatch({
+            type: 'common',
+            payload: {
+              addressConfig: configList,
+            },
+          })
+        }
+
+        const key = !role ? 'address_admin' : 'address_sales_rep'
+
+        const editPermission = (configList || []).find((config: AddressConfigItem) => config.key === key)?.isEnabled === '1'
+        setEditPermission(editPermission)
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
 
@@ -168,7 +223,6 @@ const Address = () => {
       return false
     }
     if (!editPermission) {
-      setIsOpenPermission(true)
       return false
     }
     return true
@@ -176,6 +230,7 @@ const Address = () => {
 
   const handleCreate = () => {
     if (!checkPermission()) {
+      // snackbar.error('You do not have permission to add new address, please contact store owner ')
       return
     }
     // TODO show create modal
@@ -184,6 +239,7 @@ const Address = () => {
 
   const handleEdit = () => {
     if (!checkPermission()) {
+      // snackbar.error('You do not have permission to edit address, please contact store owner ')
       return
     }
     // TODO show edit modal
@@ -192,6 +248,7 @@ const Address = () => {
 
   const handleDelete = (address: AddressItemType) => {
     if (!checkPermission()) {
+      // snackbar.error('You do not have permission to delete address, please contact store owner ')
       return
     }
     setCurrentAddress({
@@ -235,7 +292,7 @@ const Address = () => {
           isCustomRender
           isInfiniteScroll={isMobile}
           isLoading={isRequestLoading}
-          rowsPerPageOptions={[9, 18, 36]}
+          rowsPerPageOptions={[9, 18, 27]}
           renderItem={(row: AddressItemType) => (
             <AddressItemCard
               key={row.id}
@@ -248,36 +305,28 @@ const Address = () => {
         />
       </Box>
 
-      <B3TipsDialog
-        isOpen={isOpenPermission}
-        setIsOpen={setIsOpenPermission}
-        type="error"
-      >
-        <Typography
-          variant="body2"
-          align="center"
-          sx={{
-            marginTop: '2em',
-            marginBottom: '1em',
-          }}
-        >
-          Address add has been disabled by the system administrators
-        </Typography>
-      </B3TipsDialog>
-
-      <SetDefaultDialog
-        isOpen={isOpenSetDefault}
-        setIsOpen={setIsOpenSetDefault}
-        addressData={currentAddress}
-        updateAddressList={updateAddressList}
-      />
-
-      <DeleteAddressDialog
-        isOpen={isOpenDelete}
-        setIsOpen={setIsOpenDelete}
-        addressData={currentAddress}
-        updateAddressList={updateAddressList}
-      />
+      {
+        isAdmin && isB2BUser && (
+        <SetDefaultDialog
+          isOpen={isOpenSetDefault}
+          setIsOpen={setIsOpenSetDefault}
+          setIsLoading={setIsRequestLoading}
+          addressData={currentAddress}
+          updateAddressList={updateAddressList}
+        />
+        )
+      }
+      {
+        isAdmin && (
+          <DeleteAddressDialog
+            isOpen={isOpenDelete}
+            setIsOpen={setIsOpenDelete}
+            setIsLoading={setIsRequestLoading}
+            addressData={currentAddress}
+            updateAddressList={updateAddressList}
+          />
+        )
+      }
     </B3Sping>
   )
 }

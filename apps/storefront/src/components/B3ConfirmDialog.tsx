@@ -164,7 +164,6 @@ export const B3ConfirmDialog = (props: B3ConfirmDialogProps) => {
                   <StyleButton
                     onClick={onConfirm}
                     color={confirmColor}
-                    variant="contained"
                     disabled={isConfirmDisabled}
                     customconfirmcolor={customConfirmColor}
                     customconfirmhovercolor={customConfirmHoverColor}

@@ -15,8 +15,12 @@ import {
 } from '@mui/material'
 
 import {
-  B3ConfirmDialog,
-} from '@/components/B3ConfirmDialog'
+  useMobile,
+} from '@/hooks'
+
+import {
+  B3Dialog,
+} from '@/components'
 
 import {
   GlobaledContext,
@@ -33,6 +37,7 @@ import {
 interface SetDefaultDialogProps {
   isOpen: boolean
   setIsOpen: Dispatch<SetStateAction<boolean>>
+  setIsLoading: Dispatch<SetStateAction<boolean>>
   addressData?: AddressItemType
   updateAddressList: (isFirst?: boolean) => void
 }
@@ -41,20 +46,20 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
   const {
     isOpen,
     setIsOpen,
+    setIsLoading,
     addressData,
     updateAddressList,
   } = props
 
+  const [isMobile] = useMobile()
+
   const {
     state: {
-      isB2BUser,
       companyInfo: {
         id: companyId,
       },
     },
   } = useContext(GlobaledContext)
-
-  const [isLoading, setIsLoading] = useState(false)
 
   const [address, setAddress] = useState<AddressItemType>()
 
@@ -86,43 +91,42 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
   const handleSetDefault = async () => {
     try {
       setIsLoading(true)
+      setIsOpen(false)
 
-      if (isB2BUser) {
-        await updateB2BAddress({
-          ...address,
-          companyId,
-        })
-      } else {
-        // TODO BC接口
-      }
+      await updateB2BAddress({
+        ...address,
+        companyId,
+      })
 
       updateAddressList()
-
-      setIsOpen(false)
-    } finally {
+    } catch (e) {
       setIsLoading(false)
     }
   }
 
   return (
-    <B3ConfirmDialog
-      title="Set as default address"
-      isHiddenDivider
-      confirmText="Set"
-      isShowCloseIcon={false}
-      isConfirmDisabled={isLoading}
+    <B3Dialog
       isOpen={isOpen}
-      fullWidth={false}
-      onClose={() => { setIsOpen(false) }}
-      onConfirm={handleSetDefault}
-      isSpinning={isLoading}
+      title="Set as default address"
+      leftSizeBtn="cancel"
+      rightSizeBtn="set"
+      handleLeftClick={() => { setIsOpen(false) }}
+      handRightClick={handleSetDefault}
     >
-      {
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: `${isMobile ? 'center%' : 'start'}`,
+          width: `${isMobile ? '100%' : '450px'}`,
+          height: '100%',
+        }}
+      >
+        {
         address && (
           <Box
             sx={{
-              padding: '30px',
-              minWidth: '420px',
+              padding: !isMobile ? '10px 0' : '0',
             }}
           >
             <FormGroup>
@@ -148,6 +152,7 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
           </Box>
         )
       }
-    </B3ConfirmDialog>
+      </Box>
+    </B3Dialog>
   )
 }

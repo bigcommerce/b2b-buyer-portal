@@ -22,6 +22,7 @@ import {
   getBCOrderDetails,
   getOrderStatusType,
   getBcOrderStatusType,
+  getB2BAddressConfig,
 } from '@/shared/service/b2b'
 
 import {
@@ -63,6 +64,7 @@ import {
 import {
   OrderStatusResponse,
   OrderDetailsResponse,
+  AddressConfigItem,
 } from '../../types'
 
 interface LocationState {
@@ -77,7 +79,9 @@ const OrderDetail = () => {
   const {
     state: {
       isB2BUser,
+      addressConfig,
     },
+    dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 
   const {
@@ -144,13 +148,48 @@ const OrderDetail = () => {
   }
 
   useEffect(() => {
-    getOrderDetails()
-    getOrderStatus()
+    if (orderId) {
+      getOrderDetails()
+      getOrderStatus()
+    }
   }, [orderId])
 
   const handlePageChange = (orderId: string | number) => {
     setOrderId(orderId.toString())
   }
+
+  const getAddressLabelPermission = async () => {
+    try {
+      let configList = addressConfig
+      if (!configList) {
+        const {
+          addressConfig: newConfig,
+        }: CustomFieldItems = await getB2BAddressConfig()
+        configList = newConfig
+
+        globalDispatch({
+          type: 'common',
+          payload: {
+            addressConfig: configList,
+          },
+        })
+      }
+
+      const permission = (configList || []).find((config: AddressConfigItem) => config.key === 'address_label')?.isEnabled === '1'
+      dispatch({
+        type: 'addressLabel',
+        payload: {
+          addressLabelPermission: permission,
+        },
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getAddressLabelPermission()
+  }, [])
 
   return (
     <B3Sping

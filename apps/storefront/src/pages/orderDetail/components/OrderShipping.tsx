@@ -41,6 +41,7 @@ export const OrderShipping = () => {
     state: {
       shippings = [],
       currency,
+      addressLabelPermission,
     },
   } = useContext(OrderDetailsContext)
 
@@ -91,6 +92,16 @@ export const OrderShipping = () => {
     return notShipNumber > 0 ? notShipNumber : 0
   }
 
+  const getCompanyName = (company: string) => {
+    if (addressLabelPermission) {
+      return company
+    }
+
+    const index = company.indexOf('/')
+
+    return company.substring(index + 1, company.length)
+  }
+
   return (
     <Stack spacing={2}>
       {
@@ -109,7 +120,7 @@ export const OrderShipping = () => {
                 >
                   {getFullName(shipping)}
                   {' - '}
-                  {shipping.company}
+                  {getCompanyName(shipping.company || '')}
                 </Typography>
                 <Typography
                   variant="h6"

@@ -34,6 +34,7 @@ export interface OrderDetailsState {
   orderStatus?: OrderStatusItem[],
   ipStatus?: number,
   invoiceId?: number,
+  addressLabelPermission?: boolean,
 }
 interface OrderDetailsAction {
   type: string,
@@ -70,6 +71,7 @@ const initState = {
   orderStatus: [],
   ipStatus: 0,
   invoiceId: 0,
+  addressLabelPermission: false,
 }
 
 export const OrderDetailsContext = createContext<OrderDetailsContextType>({
@@ -88,6 +90,11 @@ const reducer = (state: OrderDetailsState, action: OrderDetailsAction) => {
       return {
         ...state,
         orderStatus: action.payload.orderStatus,
+      }
+    case 'addressLabel':
+      return {
+        ...state,
+        addressLabelPermission: action.payload.addressLabelPermission,
       }
     default:
       return state

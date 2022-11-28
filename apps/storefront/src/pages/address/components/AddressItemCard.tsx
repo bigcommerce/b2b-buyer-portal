@@ -90,6 +90,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
       <CardContent
         sx={{
           color: '#313440',
+          wordBreak: 'break-word',
         }}
       >
         {addressInfo.label && (
@@ -137,16 +138,25 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
         {
           hasPermission && (
           <Flex>
-            <Button
-              variant="text"
-              sx={{
-                padding: 0,
-              }}
-              onClick={() => { onSetDefault(addressInfo) }}
+            {
+              isB2BUser && (
+                <Button
+                  variant="text"
+                  sx={{
+                    padding: 0,
+                  }}
+                  onClick={() => { onSetDefault(addressInfo) }}
+                >
+                  Set as default
+                </Button>
+              )
+            }
+            <Box sx={{
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'flex-end',
+            }}
             >
-              Set as default
-            </Button>
-            <Box>
               <IconButton
                 aria-label="edit"
                 size="small"

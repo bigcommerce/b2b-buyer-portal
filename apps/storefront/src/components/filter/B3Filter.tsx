@@ -210,32 +210,16 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               fiterMoreInfo={fiterMoreInfo}
               onChange={handleFilterChange}
             />
-            {
-              customButtomConfig?.isEnabled && (
-                <Button
-                  size="small"
-                  variant="contained"
-                  fullWidth
-                  sx={{
-                    marginTop: '20px',
-                    height: '42px',
-                    ...customButtomConfig?.customButtomStyle || {},
-                  }}
-                  onClick={handleCustomBtnClick}
-                >
-                  {customButtomConfig?.customLabel || ''}
-                </Button>
-              )
-            }
           </Box>
           {
             customButtomConfig?.isEnabled && (
               <Button
-                // size="small"
+                size="small"
                 variant="contained"
                 fullWidth
                 sx={{
                   marginTop: '20px',
+                  height: '42px',
                   ...customButtomConfig?.customButtomStyle || {},
                 }}
                 onClick={handleCustomBtnClick}
@@ -248,7 +232,6 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
         )
       }
     </>
-
   )
 }
 

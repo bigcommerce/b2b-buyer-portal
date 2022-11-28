@@ -63,8 +63,11 @@ import {
 
 import {
   deleteB2BAddress,
-  getB2BCustomerAddress,
+  getB2BAddress,
   updateB2BAddress,
+  getBCCustomerAddress,
+  deleteBCCustomerAddress,
+  getB2BAddressConfig,
 } from './graphql/address'
 
 export {
@@ -101,7 +104,10 @@ export {
   getUsers,
   addOrUpdateUsers,
   deleteUsers,
-  getB2BCustomerAddress,
+  getB2BAddress,
   deleteB2BAddress,
   updateB2BAddress,
+  getBCCustomerAddress,
+  deleteBCCustomerAddress,
+  getB2BAddressConfig,
 }

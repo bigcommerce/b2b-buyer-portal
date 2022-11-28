@@ -52,6 +52,10 @@ export interface GlobalState {
   salesRepCompanyName: string,
   B3UserId: boolean,
   tipMessage: TipMessagesProps,
+  addressConfig?: {
+    key: string,
+    isEnabled: string,
+  }[]
 }
 
 export const initState = {
