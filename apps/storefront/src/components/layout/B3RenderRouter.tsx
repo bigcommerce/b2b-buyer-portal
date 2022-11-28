@@ -38,6 +38,8 @@ import {
   GlobaledContext,
 } from '@/shared/global'
 
+import B3LayoutTip from './B3LayoutTip'
+
 const Registered = lazy(() => import('../../pages/registered/Registered'))
 
 const RegisteredBCToB2B = lazy(() => import('../../pages/registered/RegisteredBCToB2B'))
@@ -86,6 +88,7 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
       </Box>
       )}
     >
+      <B3LayoutTip />
       <Routes>
         <Route
           path="/"

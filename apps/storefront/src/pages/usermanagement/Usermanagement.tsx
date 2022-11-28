@@ -31,6 +31,10 @@ import {
 } from '@/components'
 
 import {
+  snackbar,
+} from '@/utils'
+
+import {
   useMobile,
 } from '@/hooks'
 
@@ -60,16 +64,18 @@ const customItem = {
   isEnabled: true,
   customLabel: 'add new users',
 }
+
+const initPagination = {
+  offset: 0,
+  count: 0,
+  first: 15,
+}
 const Usermanagement = () => {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
   const [usersList, setUsersList] = useState<Array<UsersList>>([])
 
-  const [pagination, setPagination] = useState<Pagination>({
-    offset: 0,
-    count: 0,
-    first: 9,
-  })
+  const [pagination, setPagination] = useState<Pagination>(initPagination)
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
 
@@ -95,7 +101,7 @@ const Usermanagement = () => {
   const addEditUserRef = useRef<RefCurrntProps | null>(null)
 
   const initSearch = {
-    first: 9,
+    first: 15,
     offset: 0,
     search: '',
     role: '',
@@ -135,6 +141,17 @@ const Usermanagement = () => {
     }
   }
 
+  const initSearchList = () => {
+    setFilterSearch({
+      ...filterSearch,
+      offset: 0,
+    })
+    setPagination({
+      ...pagination,
+      offset: 0,
+    })
+  }
+
   useEffect(() => {
     fetchList()
   }, [filterSearch])
@@ -144,7 +161,7 @@ const Usermanagement = () => {
   const handleChange = (key:string, value: string) => {
     const search = {
       ...filterSearch,
-      search: value,
+      q: value,
       offset: 0,
     }
     const listPagination = {
@@ -208,6 +225,7 @@ const Usermanagement = () => {
         userId: row.id,
         companyId: companyInfo?.id || '',
       })
+      snackbar.success('delete user successfully')
       fetchList()
     } finally {
       setIsRequestLoading(false)
@@ -236,7 +254,7 @@ const Usermanagement = () => {
           columnItems={[]}
           listItems={usersList}
           pagination={pagination}
-          rowsPerPageOptions={[9, 18, 27]}
+          rowsPerPageOptions={[15, 30, 45]}
           onPaginationChange={handlePaginationChange}
           isCustomRender
           isInfiniteScroll={isMobile}
@@ -252,7 +270,7 @@ const Usermanagement = () => {
         />
         <B3AddEditUser
           companyId={companyInfo?.id || ''}
-          renderList={fetchList}
+          renderList={initSearchList}
           ref={addEditUserRef}
         />
         <B3Dialog

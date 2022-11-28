@@ -4,6 +4,7 @@ import {
 import {
   getCurrentJwt,
   B3SStorage,
+  snackbar,
 } from '@/utils'
 
 const originFetch = window.fetch
@@ -41,6 +42,7 @@ function b3Fetch(path: string, init: any, type?: string) {
       if (type === RequestType.B2BGraphql) {
         if (res?.errors?.length && res.errors[0].message) {
           reject(res.errors[0].message)
+          snackbar.error(res.errors[0].message)
         } else {
           resolve(res.data)
         }

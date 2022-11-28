@@ -82,17 +82,6 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
     handleFilterCustomButtomClick,
   } = props
 
-  // const {
-  //   isEnabled: sortEnabled = false,
-  //   sortByList = [],
-  //   sortByItemName,
-  //   sortByLabel = '',
-  //   // defaultValue: sortByDefaultValue = '',
-  //   isFirstSelect,
-  //   firstSelectText,
-  //   w: sortByWidth = 150,
-  // } = sortByConfig
-
   const [isMobile] = useMobile()
 
   const [sortByValue, setSortBy] = useState<string>(sortByConfig?.defaultValue || '')
@@ -219,6 +208,22 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               onChange={handleFilterChange}
             />
           </Box>
+          {
+              customButtomConfig?.isEnabled && (
+                <Button
+                  // size="small"
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    marginTop: '20px',
+                    ...customButtomConfig?.customButtomStyle || {},
+                  }}
+                  onClick={handleCustomBtnClick}
+                >
+                  {customButtomConfig?.customLabel || ''}
+                </Button>
+              )
+            }
 
         </Box>
         )

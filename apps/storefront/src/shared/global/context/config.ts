@@ -14,6 +14,21 @@ export interface CustomerInfo {
   emailAddress: string,
 }
 
+export type AlertTip = 'error' | 'info' | 'success' | 'warning'
+export interface MsgsProps {
+  title?: string,
+  msg: string,
+  id: string | number,
+  type: AlertTip
+}
+export interface TipMessagesProps{
+  msgs?: Array<MsgsProps> | [],
+  autoHideDuration?: number,
+  vertical?: 'top' | 'bottom'
+  horizontal?: 'left' | 'right' | 'center'
+  isClose?: boolean
+}
+
 export interface GlobalState {
   isCheckout: boolean,
   isCloseGotoBCHome: boolean,
@@ -36,6 +51,7 @@ export interface GlobalState {
   salesRepCompanyId: string,
   salesRepCompanyName: string,
   B3UserId: boolean,
+  tipMessage: TipMessagesProps,
 }
 
 export const initState = {
@@ -65,6 +81,7 @@ export const initState = {
   },
   logo: '',
   isCompanyAccount: false,
+  tipMessage: {},
 }
 
 export interface GlobalAction {

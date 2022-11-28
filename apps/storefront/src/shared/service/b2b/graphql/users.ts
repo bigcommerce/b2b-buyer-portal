@@ -2,11 +2,10 @@ import {
   B3Request,
 } from '../../request/b3Fetch'
 
-// search: "${data.q || ''}"
-
 const getUsersQl = (data: CustomFieldItems) => `{
   users (
     first: ${data.first}
+    search: "${data.q || ''}"
     offset: ${data.offset}
     companyId: ${data.companyId}
     ${data.role === '' ? '' : `role: ${data.role}`}

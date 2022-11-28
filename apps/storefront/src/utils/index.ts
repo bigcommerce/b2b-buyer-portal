@@ -37,6 +37,10 @@ import {
   getProxyInfo,
 } from './b3Proxy'
 
+import {
+  snackbar,
+} from './b3Tip'
+
 export {
   convertArrayToGraphql,
   convertObjectToGraphql,
@@ -53,4 +57,5 @@ export {
   distanceDay,
   getProxyInfo,
   getCurrentJwt,
+  snackbar,
 }

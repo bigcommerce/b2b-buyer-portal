@@ -32,3 +32,7 @@ export {
 export {
   B3Dialog,
 } from './B3Dialog'
+
+export {
+  B3Tip,
+} from './B3Tip'

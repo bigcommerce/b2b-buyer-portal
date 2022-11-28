@@ -19,6 +19,10 @@ import {
 } from '@/components'
 
 import {
+  snackbar,
+} from '@/utils'
+
+import {
   getUsersFiles,
   UsersList,
   UsersFilesProps,
@@ -83,7 +87,8 @@ const AddEditUser = ({
           delete params.email
         }
         await addOrUpdateUsers(params)
-        setOpen(false)
+        handleCancelClick()
+        snackbar.success('add user successfully')
         renderList()
       } finally {
         setAddUpdateLoading(false)
