@@ -35,12 +35,19 @@ import {
   OrderCurrency,
 } from '../../../types'
 
+interface DialogData{
+  dialogTitle: string,
+  type: string,
+  description: string,
+  confirmText: string,
+}
+
 interface OrderDialogProps {
   open: boolean,
   setOpen: (open: boolean) => void,
   products?: OrderProductItem[],
   type?: string,
-  currentDialogData: any,
+  currentDialogData?: DialogData,
   itemKey: string,
   currencyInfo: OrderCurrency,
 }
@@ -49,7 +56,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   open,
   products = [],
   type,
-  currentDialogData,
+  currentDialogData = {},
   setOpen,
   itemKey,
   currencyInfo,

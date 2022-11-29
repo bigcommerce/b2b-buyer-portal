@@ -27,6 +27,16 @@ import {
   OrderDialog,
 } from './OrderDialog'
 
+import {
+  OrderCurrency,
+  OrderProductItem,
+  Address,
+} from '../../../types'
+
+import {
+  OrderDetailsState,
+} from '../context/OrderDetailsContext'
+
 const OrderActionContainer = styled('div')(() => ({}))
 
 /// orderCard
@@ -53,7 +63,11 @@ const StyledCardActions = styled('div')(() => ({
   },
 }))
 
-const ItemContainer = styled('div')((props: any) => ({
+interface ItemContainerProps {
+  nameKey: string
+}
+
+const ItemContainer = styled('div')((props: ItemContainerProps) => ({
   display: 'flex',
   justifyContent: 'space-between',
   fontWeight: props.nameKey === 'Grand total' ? 700 : 400,
@@ -63,11 +77,15 @@ const ItemContainer = styled('div')((props: any) => ({
   },
 }))
 
-const PaymentItemContainer = styled('div')((props: any) => ({
+interface PaymentItemContainerProps {
+  isAddMarginButton: boolean
+}
+
+const PaymentItemContainer = styled('div')((props: PaymentItemContainerProps) => ({
   display: 'flex',
   justifyContent: 'space-between',
   fontWeight: 400,
-  marginBottom: props.isAddMarginButton && '0.8rem',
+  marginBottom: props.isAddMarginButton ? '0.8rem' : '',
 }))
 
 const StyledCurrency = styled('div')(() => ({
@@ -77,7 +95,40 @@ const StyledCurrency = styled('div')(() => ({
   justifyContent: 'space-between',
 }))
 
-const OrderCard = (props: any) => {
+interface Infos {
+  info: {
+    [k: string]: string
+  },
+  money?: OrderCurrency
+}
+
+interface Buttons {
+  value: string,
+  key: string,
+  name: string,
+  variant?: 'text' | 'contained' | 'outlined',
+  isCanShow: boolean,
+}
+
+interface OrderCardProps {
+  header: string,
+  subtitle: string,
+  buttons: Buttons[],
+  infos: Infos | string,
+  products: OrderProductItem[],
+  itemKey: string,
+  orderId: string,
+  currencyInfo: OrderCurrency,
+}
+
+interface DialogData{
+  dialogTitle: string,
+  type: string,
+  description: string,
+  confirmText: string,
+}
+
+const OrderCard = (props: OrderCardProps) => {
   const {
     header,
     subtitle,
@@ -112,14 +163,13 @@ const OrderCard = (props: any) => {
     },
   ]
 
-  const infoType = typeof infos
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
-  const [currentDialogData, setCurrentDialogData] = useState<any>({})
+  const [currentDialogData, setCurrentDialogData] = useState<DialogData>()
 
-  let infoKey: any
-  let infoValue: any
-  if (infoType !== 'string') {
+  let infoKey: string[] = []
+  let infoValue: string[] = []
+  if (typeof infos !== 'string') {
     const {
       info,
     } = infos
@@ -128,16 +178,10 @@ const OrderCard = (props: any) => {
     infoValue = Object.values(info)
   }
 
-  const handleOpenDialog = (e: any) => {
-    const {
-      name,
-    } = e.target
-
+  const handleOpenDialog = (name: string) => {
     if (name === 'viewInvoice') {
-      // TODO:
       navigate('/invoiceDetail/1')
     } else if (name === 'printInvoice') {
-      // TODO:
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
     } else if (name === 'return') {
       // TODO
@@ -145,7 +189,7 @@ const OrderCard = (props: any) => {
       setOpen(true)
       setType(name)
 
-      const newDialogData = dialogData.find((data: any) => data.type === name)
+      const newDialogData = dialogData.find((data: DialogData) => data.type === name)
       setCurrentDialogData(newDialogData)
     }
   }
@@ -165,7 +209,7 @@ const OrderCard = (props: any) => {
         }
         <InformationContainer>
           {
-            infoType === 'string' ? (
+            typeof infos === 'string' ? (
               infos
             ) : (
               <>
@@ -184,7 +228,7 @@ const OrderCard = (props: any) => {
                       </ItemContainer>
                     ))
                   ) : (
-                    infoValue && infoValue.map((value: any, index: number) => (
+                    infoValue && infoValue.map((value: string, index: number) => (
                       <PaymentItemContainer
                         key={value}
                         isAddMarginButton={(infoKey[index] === 'paymentMethod' || infoKey[index] === 'company')}
@@ -201,7 +245,7 @@ const OrderCard = (props: any) => {
       </CardContent>
       <StyledCardActions>
         {
-          buttons && buttons.map((button: any) => (
+          buttons && buttons.map((button: Buttons) => (
             <Fragment key={button.key}>
               {
                 button.isCanShow && (
@@ -210,7 +254,7 @@ const OrderCard = (props: any) => {
                     key={button.key}
                     name={button.name}
                     variant={button.variant}
-                    onClick={(e) => { handleOpenDialog(e) }}
+                    onClick={() => { handleOpenDialog(button.name) }}
                   >
                     {button.value}
                   </Button>
@@ -234,7 +278,19 @@ const OrderCard = (props: any) => {
   )
 }
 
-export const OrderAction = (props: any) => {
+interface OrderActionProps {
+  detailsData: OrderDetailsState,
+}
+
+interface OrderData {
+  header: string,
+  key: string,
+  subtitle: string,
+  buttons: Buttons[],
+  infos: Infos | string,
+}
+
+export const OrderAction = (props: OrderActionProps) => {
   const {
     detailsData,
   } = props
@@ -250,19 +306,26 @@ export const OrderAction = (props: any) => {
       createAt,
       name,
       priceData,
-    },
+    } = {},
     payment: {
       updatedAt,
       billingAddress,
       paymentMethod,
-    },
-    orderComments,
+    } = {},
+    orderComments = '',
     products,
     orderId,
-    ipStatus,
+    ipStatus = 0,
   } = detailsData
 
-  const getFullPaymentAddress = (billingAddress: any) => {
+  if (!orderId) {
+    return <></>
+  }
+
+  const getFullPaymentAddress = (billingAddress?: Address) => {
+    if (!billingAddress) {
+      return {}
+    }
     const {
       first_name: firstName,
       last_name: lastName,
@@ -287,7 +350,9 @@ export const OrderAction = (props: any) => {
   const handleOrderComments = (value: string) => {
     const commentsArr = value.split(/\n/g)
 
-    const comments: any = {}
+    const comments: {
+      [k: string]: string
+    } = {}
 
     commentsArr.forEach((item, index) => {
       if (item.trim().length > 0) {
@@ -302,7 +367,7 @@ export const OrderAction = (props: any) => {
     return comments
   }
 
-  const buttons = [
+  const buttons: Buttons[] = [
     {
       value: 'Re-Order',
       key: 'Re-Order',
@@ -326,21 +391,21 @@ export const OrderAction = (props: any) => {
     },
   ]
 
-  const orderData = [
+  const orderData: OrderData[] = [
     {
       header: 'Order summary',
       key: 'order-summary',
-      subtitle: `Purchased by ${name} on ${format(+updatedAt * 1000, 'dd MMM yy')}.`,
+      subtitle: `Purchased by ${name} on ${format(+(updatedAt || 0) * 1000, 'dd MMM yy')}.`,
       buttons,
       infos: {
         money,
-        info: priceData,
+        info: priceData || {},
       },
     },
     {
       header: 'Payment',
       key: 'payment',
-      subtitle: `Paid in full on ${format(Date.parse(createAt), 'dd MMM yy')}.`,
+      subtitle: `Paid in full on ${format(Date.parse(createAt || ''), 'dd MMM yy')}.`,
       buttons: [
         {
           value: isB2BUser ? 'view invoice' : 'print invoice',
@@ -368,12 +433,11 @@ export const OrderAction = (props: any) => {
   return (
     <OrderActionContainer>
       {
-        orderData && orderData.map((item: any) => (
+        orderData && orderData.map((item: OrderData) => (
           <OrderCard
-            key={item.key}
-            products={products}
-            orderId={orderId}
-            currencyInfo={money}
+            products={products!}
+            orderId={orderId.toString()}
+            currencyInfo={money!}
             {...item}
             itemKey={item.key}
           />

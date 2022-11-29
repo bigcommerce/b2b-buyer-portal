@@ -142,6 +142,12 @@ export interface OrderCurrency {
   thousands_token?: string,
 }
 
+export interface OrderPayment{
+  updatedAt?: string,
+  billingAddress?: Address,
+  paymentMethod?: string,
+}
+
 export interface B2BOrderData {
   baseHandlingCost: string,
   baseShippingCost: string,

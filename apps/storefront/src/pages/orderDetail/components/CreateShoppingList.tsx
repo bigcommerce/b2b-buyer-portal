@@ -51,11 +51,17 @@ const list = [
   },
 ]
 
+interface CreateShoppingListProps {
+  open: boolean,
+  onChange: ()=>void,
+  onClose: ()=>void,
+}
+
 const CreateShoppingList = ({
   open,
   onChange,
   onClose,
-}: any) => {
+}: CreateShoppingListProps) => {
   const [isMobile] = useMobile()
   const container = useRef<HTMLInputElement | null>(null)
 

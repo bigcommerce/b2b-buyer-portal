@@ -13,9 +13,10 @@ import {
   OrderProductItem,
   OrderCurrency,
   OrderSummary,
+  OrderPayment,
 } from '../../../types'
 
-interface OrderDetailsState {
+export interface OrderDetailsState {
   shippings?: OrderShippingsItem[],
   history?: OrderHistoryItem[],
   poNumber?: string,
@@ -26,11 +27,13 @@ interface OrderDetailsState {
   orderSummary?: OrderSummary,
   customStatus?: string,
   money?: OrderCurrency,
-  payment?: any,
+  payment?: OrderPayment,
   orderComments?: string,
   products?: OrderProductItem[],
   orderId?: number | string,
   orderStatus?: OrderStatusItem[],
+  ipStatus?: number,
+  invoiceId?: number,
 }
 interface OrderDetailsAction {
   type: string,
@@ -65,6 +68,8 @@ const initState = {
   products: [],
   orderId: '',
   orderStatus: [],
+  ipStatus: 0,
+  invoiceId: 0,
 }
 
 export const OrderDetailsContext = createContext<OrderDetailsContextType>({

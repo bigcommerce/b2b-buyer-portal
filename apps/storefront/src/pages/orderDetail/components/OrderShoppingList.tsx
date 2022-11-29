@@ -27,6 +27,10 @@ import {
   getB2BShoppingList,
 } from '@/shared/service/b2b'
 
+import {
+  ShoppingListItem,
+} from '../../../types'
+
 const ShoppingListMenuItem = styled(MenuItem)(() => ({
   '&:hover': {
     backgroundColor: 'rgba(25, 118, 210, 0.08)',
@@ -43,6 +47,10 @@ interface orderShoppingListProps {
   onClose?: () => void,
   onCreate?: () => void,
   onConfirm?: (id: string) => void,
+}
+
+interface ListItem {
+  node: ShoppingListItem
 }
 
 const noop = () => {}
@@ -68,7 +76,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
       shoppingLists: {
         edges: list = [],
       },
-    }: any = await getB2BShoppingList()
+    }: CustomFieldItems = await getB2BShoppingList()
 
     setList(list)
   }
@@ -91,7 +99,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
     onCreate()
   }
 
-  const handleListItemClicked = (item: any) => () => {
+  const handleListItemClicked = (item: ListItem) => () => {
     setActiveId(item.node.id)
   }
 
@@ -120,7 +128,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
         <DialogContent>
           <MenuList>
             {
-              list.map((item: any) => (
+              list.map((item: ListItem) => (
                 <ShoppingListMenuItem
                   key={item.node.id}
                   className={activeId === item.node.id ? 'active' : ''}

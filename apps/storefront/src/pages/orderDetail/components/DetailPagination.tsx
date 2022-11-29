@@ -115,7 +115,7 @@ const DetailPagination = ({
         edges: list,
         totalCount,
       },
-    }: any = await fn(searchDetailParams)
+    }: CustomFieldItems = await fn(searchDetailParams)
 
     let flag = ''
 
