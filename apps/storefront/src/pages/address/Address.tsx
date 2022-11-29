@@ -75,8 +75,10 @@ const Address = () => {
     state: {
       role,
       isB2BUser,
+      isAgenting,
+      salesRepCompanyId,
       companyInfo: {
-        id: companyId,
+        id: companyInfoId,
       },
       addressConfig,
     },
@@ -95,6 +97,10 @@ const Address = () => {
     first: 9,
   })
 
+  const companyId = role === 3 && isAgenting ? salesRepCompanyId : companyInfoId
+  const hasAdminPermission = isB2BUser && (!role || (role === 3 && isAgenting))
+  const isBCPermission = !isB2BUser || (role === 3 && !isAgenting)
+
   const [isMobile] = useMobile()
 
   useEffect(() => {
@@ -102,7 +108,7 @@ const Address = () => {
       const handleGetAddressFields = async () => {
         setIsRequestLoading(true)
         try {
-          const addressFields = await getAddressFields(isB2BUser)
+          const addressFields = await getAddressFields(!isBCPermission)
           setAddressFields(addressFields)
         } catch (err) {
           console.log(err)
@@ -124,7 +130,7 @@ const Address = () => {
         count,
       } = pagination
 
-      if (isB2BUser) {
+      if (!isBCPermission) {
         const {
           addresses: {
             edges: addressList = [],
@@ -216,14 +222,12 @@ const Address = () => {
   const [isOpenDelete, setIsOpenDelete] = useState(false)
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>()
 
-  const isAdmin = !isB2BUser || !role || role === 3
-
   const getEditPermission = async () => {
-    if (!isB2BUser) {
+    if (isBCPermission) {
       setEditPermission(true)
       return
     }
-    if (!role || role === 3) {
+    if (hasAdminPermission) {
       try {
         let configList = addressConfig
         if (!configList) {
@@ -240,7 +244,7 @@ const Address = () => {
           })
         }
 
-        const key = !role ? 'address_admin' : 'address_sales_rep'
+        const key = role === 3 ? 'address_sales_rep' : 'address_admin'
 
         const editPermission = (configList || []).find((config: AddressConfigItem) => config.key === key)?.isEnabled === '1'
         setEditPermission(editPermission)
@@ -254,38 +258,24 @@ const Address = () => {
     getEditPermission()
   }, [])
 
-  const checkPermission = () => {
-    if (!isAdmin) {
-      return false
-    }
-    if (!editPermission) {
-      return false
-    }
-    return true
-  }
-
   const handleCreate = () => {
-    if (!checkPermission()) {
+    if (!editPermission) {
       snackbar.error('You do not have permission to add new address, please contact store owner ')
       return
     }
-    // TODO show create modal
-    addEditAddressRef.current?.handleOpenAddEditAddressClick('add', 111)
-    console.log('create')
+    addEditAddressRef.current?.handleOpenAddEditAddressClick('add')
   }
 
   const handleEdit = (row: any) => {
-    if (!checkPermission()) {
+    if (!editPermission) {
       snackbar.error('You do not have permission to edit address, please contact store owner ')
       return
     }
-    // TODO show edit modal
     addEditAddressRef.current?.handleOpenAddEditAddressClick('edit', row)
-    console.log('edit')
   }
 
   const handleDelete = (address: AddressItemType) => {
-    if (!checkPermission()) {
+    if (!editPermission) {
       snackbar.error('You do not have permission to delete address, please contact store owner ')
       return
     }
@@ -303,7 +293,7 @@ const Address = () => {
   }
 
   const AddButtonConfig = {
-    isEnabled: isAdmin,
+    isEnabled: editPermission,
     customLabel: 'Add new address',
   }
 
@@ -338,6 +328,8 @@ const Address = () => {
               onEdit={() => handleEdit(row)}
               onDelete={handleDelete}
               onSetDefault={handleSetDefault}
+              editPermission={editPermission}
+              isBCPermission={isBCPermission}
             />
           )}
         />
@@ -345,28 +337,33 @@ const Address = () => {
           updateAddressList={updateAddressList}
           addressFields={addressFields}
           ref={addEditAddressRef}
+          companyId={companyId}
+          isBCPermission={isBCPermission}
         />
       </Box>
 
       {
-        isAdmin && isB2BUser && (
-        <SetDefaultDialog
-          isOpen={isOpenSetDefault}
-          setIsOpen={setIsOpenSetDefault}
-          setIsLoading={setIsRequestLoading}
-          addressData={currentAddress}
-          updateAddressList={updateAddressList}
-        />
+        editPermission && !isBCPermission && (
+          <SetDefaultDialog
+            isOpen={isOpenSetDefault}
+            setIsOpen={setIsOpenSetDefault}
+            setIsLoading={setIsRequestLoading}
+            addressData={currentAddress}
+            updateAddressList={updateAddressList}
+            companyId={companyId}
+          />
         )
       }
       {
-        isAdmin && (
+        editPermission && (
           <DeleteAddressDialog
             isOpen={isOpenDelete}
             setIsOpen={setIsOpenDelete}
             setIsLoading={setIsRequestLoading}
             addressData={currentAddress}
             updateAddressList={updateAddressList}
+            companyId={companyId}
+            isBCPermission={isBCPermission}
           />
         )
       }

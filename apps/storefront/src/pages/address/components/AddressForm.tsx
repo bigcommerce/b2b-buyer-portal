@@ -31,6 +31,10 @@ import {
 } from '../shared/config'
 
 import {
+  snackbar,
+} from '@/utils'
+
+import {
   GlobaledContext,
 } from '@/shared/global'
 
@@ -77,16 +81,9 @@ const deepClone = (data: any) => {
 const AddressForm = ({
   addressFields,
   updateAddressList,
+  companyId,
+  isBCPermission,
 }: any, ref: Ref<unknown> | undefined) => {
-  const {
-    state: {
-      isB2BUser,
-      companyInfo: {
-        id: companyId,
-      },
-    },
-  } = useContext(GlobaledContext)
-
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
   const [countries, setCountries] = useState<any>([])
@@ -102,6 +99,8 @@ const AddressForm = ({
     isDefaultShipping: false,
     isDefaultBilling: false,
   })
+
+  const isB2BUser = !isBCPermission
 
   const {
     control,
@@ -225,6 +224,7 @@ const AddressForm = ({
 
         if (type === 'add') {
           await createB2BAddress(params)
+          snackbar.success('New address is added')
         } else if (type === 'edit') {
           const {
             id,
@@ -234,6 +234,8 @@ const AddressForm = ({
             ...params,
             id: +id,
           })
+
+          snackbar.success('Edit address success')
         }
         setOpen(false)
 
@@ -298,6 +300,7 @@ const AddressForm = ({
 
         if (type === 'add') {
           await createBcAddress(params)
+          snackbar.success('New address is added')
         } else if (type === 'edit') {
           const {
             bcAddressId,
@@ -307,6 +310,7 @@ const AddressForm = ({
             ...params,
             id: +bcAddressId,
           })
+          snackbar.success('Edit address success')
         }
         setOpen(false)
 
@@ -443,7 +447,7 @@ const AddressForm = ({
 
     setValue('state', '')
 
-    setAllAddressFields(allAddressFields)
+    setAllAddressFields([...allAddressFields])
   }
 
   const handleChangeAddressType = (check: boolean, name: string) => {

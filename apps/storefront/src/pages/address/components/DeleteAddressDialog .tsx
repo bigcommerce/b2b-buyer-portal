@@ -1,7 +1,6 @@
 import {
   Dispatch,
   SetStateAction,
-  useContext,
 } from 'react'
 
 import {
@@ -15,10 +14,6 @@ import {
 import {
   B3Dialog,
 } from '@/components'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
 
 import {
   snackbar,
@@ -39,6 +34,8 @@ interface DeleteAddressDialogProps {
   setIsLoading: Dispatch<SetStateAction<boolean>>
   addressData?: AddressItemType
   updateAddressList: (isFirst?: boolean) => void
+  companyId: string | number,
+  isBCPermission: boolean,
 }
 
 export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
@@ -48,18 +45,11 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
     addressData,
     updateAddressList,
     setIsLoading,
+    companyId,
+    isBCPermission,
   } = props
 
   const [isMobile] = useMobile()
-
-  const {
-    state: {
-      isB2BUser,
-      companyInfo: {
-        id: companyId,
-      },
-    },
-  } = useContext(GlobaledContext)
 
   const handleDelete = async () => {
     if (!addressData) {
@@ -75,7 +65,7 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
         bcAddressId = '',
       } = addressData
 
-      if (isB2BUser) {
+      if (!isBCPermission) {
         await deleteB2BAddress({
           addressId: id,
           companyId,

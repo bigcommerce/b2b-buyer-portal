@@ -1,7 +1,3 @@
-import {
-  useContext,
-} from 'react'
-
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Box from '@mui/material/Box'
@@ -20,10 +16,6 @@ import {
 } from '@mui/material'
 
 import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
   AddressItemType,
 } from '../../../types/address'
 
@@ -36,6 +28,8 @@ export interface OrderItemCardProps {
   onEdit: (data: AddressItemType) => void
   onDelete: (data: AddressItemType) => void
   onSetDefault: (data: AddressItemType) => void
+  editPermission: boolean
+  isBCPermission: boolean
 }
 
 interface TagBoxProps {
@@ -70,18 +64,11 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
     onEdit,
     onDelete,
     onSetDefault,
+    editPermission: hasPermission,
+    isBCPermission,
   } = props
 
   const theme = useTheme()
-
-  const {
-    state: {
-      role,
-      isB2BUser,
-    },
-  } = useContext(GlobaledContext)
-
-  const hasPermission = !isB2BUser || !role || role === 3
 
   return (
     <Card
@@ -139,7 +126,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
           hasPermission && (
           <Flex>
             {
-              isB2BUser && (
+              !isBCPermission && (
                 <Button
                   variant="text"
                   sx={{

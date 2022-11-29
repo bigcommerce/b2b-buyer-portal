@@ -4,7 +4,6 @@ import {
   SetStateAction,
   useEffect,
   useState,
-  useContext,
 } from 'react'
 
 import {
@@ -27,10 +26,6 @@ import {
 } from '@/utils'
 
 import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
   updateB2BAddress,
 } from '@/shared/service/b2b'
 
@@ -44,6 +39,7 @@ interface SetDefaultDialogProps {
   setIsLoading: Dispatch<SetStateAction<boolean>>
   addressData?: AddressItemType
   updateAddressList: (isFirst?: boolean) => void
+  companyId: string | number
 }
 
 export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
@@ -53,17 +49,10 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
     setIsLoading,
     addressData,
     updateAddressList,
+    companyId,
   } = props
 
   const [isMobile] = useMobile()
-
-  const {
-    state: {
-      companyInfo: {
-        id: companyId,
-      },
-    },
-  } = useContext(GlobaledContext)
 
   const [address, setAddress] = useState<AddressItemType>()
 
