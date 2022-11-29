@@ -16,7 +16,6 @@ import {
 } from 'lodash'
 
 import {
-  Alert,
   styled,
   Checkbox,
   FormControlLabel,
@@ -37,6 +36,10 @@ import {
 import {
   GlobaledContext,
 } from '@/shared/global'
+
+import {
+  snackbar,
+} from '@/utils'
 
 import {
   updateB2BAddress,
@@ -65,19 +68,6 @@ const StyledCheckbox = styled('div')(() => ({
   },
 }))
 
-const TipContent = styled('div')(() => ({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-}))
-
-const deepClone = (data: any) => {
-  const obj = JSON.stringify(data)
-  const objClone = JSON.parse(obj)
-
-  return objClone
-}
-
 const AddressForm = ({
   addressFields,
   updateAddressList,
@@ -91,7 +81,6 @@ const AddressForm = ({
   const [allAddressFields, setAllAddressFields] = useState<any>(addressFields)
   const [addressExtraFields, setAddressExtraFields] = useState<any>({})
   const [originAddressFields, setOriginAddressFields] = useState<any>([])
-  const [errorMessage, setErrorMessage] = useState('')
   const [addressData, setAddressData] = useState<any>({})
   const [shippingBilling, setShippingBilling] = useState<any>({
     isShipping: false,
@@ -150,10 +139,9 @@ const AddressForm = ({
         throw message
       }
 
-      setErrorMessage('')
       return true
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      snackbar.error(error)
       throw error
     }
   }
@@ -235,14 +223,13 @@ const AddressForm = ({
             id: +id,
           })
 
-          snackbar.success('Edit address success')
+          snackbar.success('Address updated successfully')
         }
         setOpen(false)
 
         await updateAddressList(true)
       } catch (err: any) {
-        console.log(err)
-        setErrorMessage(err?.message || err)
+        snackbar.error(err)
       } finally {
         setAddUpdateLoading(false)
       }
@@ -287,7 +274,6 @@ const AddressForm = ({
           }
         })
 
-        // To Do:
         const params = {
           ...data,
           formFields: extraFields,
@@ -310,14 +296,13 @@ const AddressForm = ({
             ...params,
             id: +bcAddressId,
           })
-          snackbar.success('Edit address success')
+          snackbar.success('Address updated successfully')
         }
         setOpen(false)
 
         await updateAddressList(true)
       } catch (err: any) {
-        console.log(err)
-        setErrorMessage(err?.message || err)
+        snackbar.error(err)
       } finally {
         setAddUpdateLoading(false)
       }
@@ -346,7 +331,7 @@ const AddressForm = ({
         }
       })
     }
-    setErrorMessage('')
+
     reset()
     setAddressData(data)
     setType(type)
@@ -409,8 +394,6 @@ const AddressForm = ({
       } else if (field.name === 'country') {
         setValue(field.name, countryCode)
       } else if (field.name === 'state') {
-        console.log(stateCode || state)
-
         setValue(field.name, stateCode || state)
         if (currentCountry.length > 0) {
           const {
@@ -473,8 +456,8 @@ const AddressForm = ({
       } = await getB2BCountries()
 
       setCountries(countries)
-    } catch (e) {
-      console.log(e)
+    } catch (e: any) {
+      snackbar.error(e)
     }
   }
 
@@ -542,7 +525,7 @@ const AddressForm = ({
                     } = item
 
                     return (
-                      <div>
+                      <div key={name}>
                         <FormControlLabel
                           control={(
                             <Checkbox
@@ -591,17 +574,6 @@ const AddressForm = ({
           setValue={setValue}
         />
 
-        {
-          errorMessage && (
-            <Alert
-              severity="error"
-            >
-              <TipContent>
-                { errorMessage }
-              </TipContent>
-            </Alert>
-          )
-        }
       </B3Dialog>
     </>
   )
