@@ -73,6 +73,7 @@ const AddressForm = ({
   updateAddressList,
   companyId,
   isBCPermission,
+  companyName,
 }: any, ref: Ref<unknown> | undefined) => {
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
@@ -225,6 +226,12 @@ const AddressForm = ({
 
           snackbar.success('Address updated successfully')
         }
+        setShippingBilling({
+          isShipping: false,
+          isBilling: false,
+          isDefaultShipping: false,
+          isDefaultBilling: false,
+        })
         setOpen(false)
 
         await updateAddressList(true)
@@ -329,6 +336,10 @@ const AddressForm = ({
             field.default = originFields.default || ''
           }
         }
+        if (field.name === 'company' && isB2BUser) {
+          field.default = companyName
+          setValue(field.name, companyName)
+        }
       })
     }
 
@@ -408,6 +419,9 @@ const AddressForm = ({
             field.fieldType = 'text'
           }
         }
+      } else if (field.name === 'company') {
+        field.default = companyName
+        setValue(field.name, companyName)
       } else {
         setValue(field.name, addressData[field.name])
       }

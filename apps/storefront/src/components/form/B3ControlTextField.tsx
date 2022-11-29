@@ -40,6 +40,7 @@ export const B3ControlTextField = ({
     disabled,
     labelName,
     size,
+    readOnly,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -84,6 +85,7 @@ export const B3ControlTextField = ({
     max,
     maxLength,
     minLength,
+    readOnly,
   }
 
   const muiAttributeProps = muiTextFieldProps ? {

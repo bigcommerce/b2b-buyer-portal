@@ -96,6 +96,7 @@ const createAddress = (data: any) => `mutation{
     label: "${data.label}",
     uuid: "${data.uuid || ''}",
     extraFields: ${convertArrayToGraphql(data.extraFields || [])},
+    company: "${data.company}",
   }) {
     address{
       id
@@ -174,6 +175,7 @@ const updateAddress = (data: CustomFieldItems) => `mutation{
     uuid: "${data.uuid}",
     extraFields: ${convertArrayToGraphql(data.extraFields || [])},
     addressId: ${data.id}
+    company: "${data.company}",
   }) {
     address{
       id
