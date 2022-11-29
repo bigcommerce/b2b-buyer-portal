@@ -29,6 +29,7 @@ export interface OrderItemCardProps {
   item: UsersList,
   onEdit: (data: UsersList) => void
   onDelete: (data: UsersList) => void
+  isPermissions: boolean
 }
 
 const Flex = styled('div')(() => ({
@@ -42,6 +43,7 @@ export const UserItemCard = (props: OrderItemCardProps) => {
     item: userInfo,
     onEdit,
     onDelete,
+    isPermissions,
   } = props
 
   const getNewRoleList = () => {
@@ -117,7 +119,11 @@ export const UserItemCard = (props: OrderItemCardProps) => {
         </Typography>
         <Flex>
           {statusRender(userInfo.role)}
-          <Box>
+          <Box
+            sx={{
+              display: `${isPermissions ? 'block' : 'none'}`,
+            }}
+          >
             <IconButton
               aria-label="edit"
               size="small"

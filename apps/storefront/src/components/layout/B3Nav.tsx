@@ -48,8 +48,8 @@ export const B3Nav = ({
   const {
     state: {
       isB2BUser,
-      // isAgenting,
-      // role,
+      isAgenting,
+      role,
     },
   } = useContext(GlobaledContext)
 
@@ -63,6 +63,8 @@ export const B3Nav = ({
     const newRoutes = routes.filter((route) => {
       if (route.isMenuItem === false) return false
       if (!isB2BUser && route.path === '/company-orders') return false
+      if (!isB2BUser && route.path === '/user-management') return false
+      if (((role === 3 && !isAgenting) || role === 2) && route.path === '/user-management') return false
       return true
     })
 

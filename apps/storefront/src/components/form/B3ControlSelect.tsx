@@ -35,6 +35,7 @@ export const B3ControlSelect = ({
     setValue,
     onChange,
     replaceOptions,
+    size = 'small',
   } = rest
 
   const b3Lang = useB3Lang()
@@ -93,6 +94,7 @@ export const B3ControlSelect = ({
                 {...field}
                 {...muiAttributeProps}
                 {...onChangeProps}
+                size={size}
                 error={!!errors[name]}
               >
                 {

@@ -136,6 +136,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
           <Box
             sx={{
               display: 'flex',
+              alignItems: 'center',
             }}
           >
             {
@@ -165,6 +166,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
                   variant="contained"
                   sx={{
                     maxWidth: 150,
+                    height: '42px',
                     ...customButtomConfig?.customButtomStyle || {},
                   }}
                   onClick={handleCustomBtnClick}
@@ -216,6 +218,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
                   fullWidth
                   sx={{
                     marginTop: '20px',
+                    height: '42px',
                     ...customButtomConfig?.customButtomStyle || {},
                   }}
                   onClick={handleCustomBtnClick}

@@ -54,7 +54,7 @@ const getFilterMoreList = () => {
   const filterMoreList = [
     {
       name: 'role',
-      label: 'Role',
+      label: 'User role',
       required: false,
       default: '',
       fieldType: 'dropdown',
@@ -90,7 +90,7 @@ const getUsersFiles = (type: string) => {
       required: true,
       default: '',
       fieldType: 'text',
-      xs: 12,
+      xs: 6,
       variant: 'filled',
       size: 'small',
     },
@@ -99,7 +99,7 @@ const getUsersFiles = (type: string) => {
       label: 'Last Name',
       required: true,
       fieldType: 'text',
-      xs: 12,
+      xs: 6,
       default: '',
       variant: 'filled',
       size: 'small',

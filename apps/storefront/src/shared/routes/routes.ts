@@ -61,8 +61,8 @@ const routes: RouteItem[] = [
     component: Dashboard,
   },
   {
-    path: '/userManagement',
-    name: 'userManagement',
+    path: '/user-management',
+    name: 'User management',
     wsKey: 'router-userManagement',
     isMenuItem: true,
     component: Usermanagement,

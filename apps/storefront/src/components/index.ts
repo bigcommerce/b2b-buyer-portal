@@ -27,7 +27,7 @@ export {
 
 export {
   B3Table,
-} from './B3Table'
+} from './table/B3Table'
 
 export {
   B3Dialog,

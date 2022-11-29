@@ -88,7 +88,7 @@ const AddEditUser = ({
         }
         await addOrUpdateUsers(params)
         handleCancelClick()
-        snackbar.success('add user successfully')
+        snackbar.success(`${type === 'edit' ? 'update user successfully' : 'add user successfully'}`)
         renderList()
       } finally {
         setAddUpdateLoading(false)
@@ -111,12 +111,13 @@ const AddEditUser = ({
   return (
     <B3Dialog
       isOpen={open}
-      title="Add new user"
+      title={`${type === 'edit' ? 'Edit user' : ' Add new user'}`}
       leftSizeBtn="cancel"
       rightSizeBtn="Save user"
       handleLeftClick={handleCancelClick}
       handRightClick={handleAddUserClick}
       loading={addUpdateLoading}
+      isShowBordered
       rightStyleBtn={{
         color: 'red',
       }}

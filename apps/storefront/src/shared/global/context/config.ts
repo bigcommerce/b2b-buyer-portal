@@ -64,7 +64,7 @@ export const initState = {
   customerId: B3SStorage.get('B3CustomerId') || '',
   B3UserId: B3SStorage.get('B3UserId') || '',
   emailAddress: B3SStorage.get('B3EmailAddress') || '',
-  role: B3SStorage.get('B3Role') || '',
+  role: B3SStorage.get('B3Role') || 0,
   isAgenting: B3SStorage.get('isAgenting') || false,
   salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
   salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',

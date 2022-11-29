@@ -15,7 +15,7 @@ import {
 import {
   TableColumnItem,
   B3Table,
-} from '@/components/B3Table'
+} from '@/components/table/B3Table'
 
 import {
   GlobaledContext,

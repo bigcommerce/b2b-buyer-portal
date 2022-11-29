@@ -24,7 +24,7 @@ import {
 import {
   Pagination,
   B3Table,
-} from '@/components/B3Table'
+} from '@/components/table/B3Table'
 
 import {
   B3Dialog,
@@ -59,10 +59,8 @@ interface RefCurrntProps extends HTMLInputElement {
 interface RoleProps {
   role: string
 }
-
-const customItem = {
-  isEnabled: true,
-  customLabel: 'add new users',
+interface UsersListProps {
+  node: UsersList
 }
 
 const initPagination = {
@@ -73,7 +71,7 @@ const initPagination = {
 const Usermanagement = () => {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
-  const [usersList, setUsersList] = useState<Array<UsersList>>([])
+  const [usersList, setUsersList] = useState<Array<UsersListProps>>([])
 
   const [pagination, setPagination] = useState<Pagination>(initPagination)
 
@@ -95,17 +93,27 @@ const Usermanagement = () => {
   const {
     state: {
       companyInfo,
+      role,
+      salesRepCompanyId,
     },
   } = useContext(GlobaledContext)
 
+  const companyId = +role === 3 ? salesRepCompanyId : companyInfo?.id
+  const isEnableBtnPermissions = role === 0 || role === 3
+
   const addEditUserRef = useRef<RefCurrntProps | null>(null)
+
+  const customItem = {
+    isEnabled: isEnableBtnPermissions,
+    customLabel: 'add new user',
+  }
 
   const initSearch = {
     first: 15,
     offset: 0,
     search: '',
     role: '',
-    companyId: companyInfo?.id || '',
+    companyId,
   }
 
   const [filterSearch, setFilterSearch] = useState<Partial<filterProps>>(initSearch)
@@ -202,7 +210,6 @@ const Usermanagement = () => {
   }
 
   const handlePaginationChange = (pagination: Pagination) => {
-    console.log(pagination, 'pagination')
     const search = {
       ...filterSearch,
       first: pagination.first,
@@ -222,8 +229,8 @@ const Usermanagement = () => {
       setIsRequestLoading(true)
       handleCancelClick()
       await deleteUsers({
-        userId: row.id,
-        companyId: companyInfo?.id || '',
+        userId: row.id || '',
+        companyId,
       })
       snackbar.success('delete user successfully')
       fetchList()
@@ -261,15 +268,16 @@ const Usermanagement = () => {
           isLoading={isRequestLoading}
           renderItem={(row: UsersList) => (
             <UserItemCard
-              key={row.id}
+              key={row.id || ''}
               item={row}
+              isPermissions={isEnableBtnPermissions}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
           )}
         />
         <B3AddEditUser
-          companyId={companyInfo?.id || ''}
+          companyId={companyId}
           renderList={initSearchList}
           ref={addEditUserRef}
         />
@@ -281,14 +289,10 @@ const Usermanagement = () => {
           handleLeftClick={handleCancelClick}
           handRightClick={handleDeleteUserClick}
           row={userItem}
-          rightStyleBtn={{
-            color: 'red',
-          }}
         >
           <Box
             sx={{
               display: 'flex',
-              alignItems: 'center',
               justifyContent: `${isMobile ? 'center%' : 'start'}`,
               width: `${isMobile ? '100%' : '450px'}`,
               height: '100%',

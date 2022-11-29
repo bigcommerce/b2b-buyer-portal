@@ -34,6 +34,7 @@ interface B3DialogProps<T> {
   children: ReactNode
   loading?: boolean
   row?: T
+  isShowBordered?: boolean
 }
 
 export const B3Dialog:<T> ({
@@ -47,6 +48,7 @@ export const B3Dialog:<T> ({
   children,
   loading,
   row,
+  isShowBordered,
 }: B3DialogProps<T>) => ReactElement = ({
   customActions,
   isOpen,
@@ -60,6 +62,7 @@ export const B3Dialog:<T> ({
   children,
   loading = false,
   row,
+  isShowBordered = false,
 }) => {
   const container = useRef<HTMLInputElement | null>(null)
 
@@ -97,7 +100,15 @@ export const B3Dialog:<T> ({
       >
         {
           title && (
-          <DialogTitle id="alert-dialog-title">
+          <DialogTitle
+            sx={
+              isShowBordered ? {
+                borderBottom: '1px solid #D9DCE9',
+                mb: 2,
+              } : {}
+            }
+            id="alert-dialog-title"
+          >
             {title}
           </DialogTitle>
           )
@@ -106,7 +117,13 @@ export const B3Dialog:<T> ({
         <DialogContent>
           {children}
         </DialogContent>
-        <DialogActions>
+        <DialogActions
+          sx={
+            isShowBordered ? {
+              borderTop: '1px solid #D9DCE9',
+            } : {}
+          }
+        >
           {
             customActions ? customActions() : (
               <>
