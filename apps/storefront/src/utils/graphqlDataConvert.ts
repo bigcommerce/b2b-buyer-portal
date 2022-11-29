@@ -1,5 +1,8 @@
 export const convertObjectToGraphql = (data: CustomFieldItems) => {
-  if (typeof data === 'string' || typeof data === 'number') {
+  if (typeof data === 'string') {
+    return `"${data}"`
+  }
+  if (typeof data === 'number') {
     return data
   }
   let str = '{'
@@ -21,8 +24,11 @@ export const convertObjectToGraphql = (data: CustomFieldItems) => {
 
     if (Object.prototype.toString.call(data[item]) === '[object Array]') {
       str += `${item}: [`
-      data[item].forEach((list: any) => {
+      data[item].forEach((list: any, index: number) => {
         str += convertObjectToGraphql(list)
+        if (index < data[item].length - 1) {
+          str += ','
+        }
       })
       str += '],'
     }

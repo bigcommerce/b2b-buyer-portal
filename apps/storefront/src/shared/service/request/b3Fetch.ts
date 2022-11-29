@@ -108,6 +108,10 @@ export const B3Request = {
     return request(url, {
       body: JSON.stringify(data),
       method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authToken: `${B3SStorage.get('B3B2BToken') || ''}`,
+      },
     }, type)
   },
   fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y): Promise<any> {

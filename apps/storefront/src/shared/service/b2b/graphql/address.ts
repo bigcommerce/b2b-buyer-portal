@@ -75,6 +75,34 @@ const getAddress = ({
   }
 }`
 
+const createAddress = (data: any) => `mutation{
+  addressCreate(addressData: {
+    companyId: ${data.companyId},
+    firstName: "${data.firstName}",
+    lastName: "${data.lastName}",
+    addressLine1: "${data.addressLine1}",
+    addressLine2: "${data.addressLine2 || ''}",
+    country: "${data.country}",
+    countryCode: "${data.countryCode}",
+    state: "${data.state}",
+    stateCode: "${data.stateCode || ''}",
+    city: "${data.city}",
+    zipCode: "${data.zipCode}",
+    phoneNumber: "${data.phoneNumber}",
+    isShipping: ${data.isShipping},
+    isBilling: ${data.isBilling},
+    isDefaultShipping: ${data.isDefaultShipping},
+    isDefaultBilling: ${data.isDefaultBilling},
+    label: "${data.label}",
+    uuid: "${data.uuid || ''}",
+    extraFields: ${convertArrayToGraphql(data.extraFields || [])},
+  }) {
+    address{
+      id
+    }
+  }
+}`
+
 const getCustomerAddress = ({
   offset = 0,
   first = 50,
@@ -153,6 +181,48 @@ const updateAddress = (data: CustomFieldItems) => `mutation{
   }
 }`
 
+const createCustomerAddress = (data: CustomFieldItems) => `mutation{
+  customerAddressCreate(addressData: {
+    firstName: "${data.firstName}",
+    lastName: "${data.lastName}",
+    company: "${data.company}",
+    address1: "${data.address1}",
+    address2: "${data.address2 || ''}",
+    city: "${data.city}",
+    phone: "${data.phone}",
+    stateOrProvince: "${data.state}",
+    countryCode: "${data.countryCode}",
+    postalCode: "${data.postalCode}"
+    addressType: "${data.addressType || 'residential'}"
+    formFields: ${convertArrayToGraphql(data.formFields || [])}
+  }) {
+    address{
+      id
+    }
+  }
+}`
+const updateCustomerAddress = (data: CustomFieldItems) => `mutation{
+  customerAddressUpdate(addressData: {
+    company: "${data.company}",
+    firstName: "${data.firstName}",
+    lastName: "${data.lastName}",
+    address1: "${data.address1}",
+    address2: "${data.address2 || ''}",
+    city: "${data.city}",
+    phone: "${data.phone}",
+    stateOrProvince: "${data.state}",
+    countryCode: "${data.countryCode}",
+    postalCode: "${data.postalCode}"
+    addressType: "${data.addressType || 'residential'}"
+    formFields: ${convertArrayToGraphql(data.formFields || [])}
+    bcAddressId: ${data.id}
+  }) {
+    address{
+      id
+    }
+  }
+}`
+
 const deleteAddress = (data: CustomFieldItems) => `mutation{
   addressDelete(
     addressId: ${data.addressId},
@@ -161,6 +231,26 @@ const deleteAddress = (data: CustomFieldItems) => `mutation{
     message
   }
 }`
+
+const getAddressExtraFields = () => `{
+  addressExtraFields(storeHash: "${storeHash}") {
+    fieldName,
+    fieldType,
+    isRequired,
+    defaultValue,
+    maximumLength,
+    maximumLength,
+    maximumValue,
+    listOfValue,
+    visibleToEnduser,
+    labelName,
+    numberOfRows,
+  }
+}`
+
+export const getB2BAddressExtraFields = (): CustomFieldItems => B3Request.graphqlB2B({
+  query: getAddressExtraFields(),
+})
 
 const deleteCustomerAddress = (data: CustomFieldItems) => `mutation{
   customerAddressDelete(
@@ -192,4 +282,15 @@ export const deleteBCCustomerAddress = (data: CustomFieldItems = {}): CustomFiel
 
 export const updateB2BAddress = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
   query: updateAddress(data),
+})
+
+export const createB2BAddress = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+  query: createAddress(data),
+})
+
+export const createBcAddress = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: createCustomerAddress(data),
+})
+export const updateBcAddress = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: updateCustomerAddress(data),
 })

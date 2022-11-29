@@ -6,6 +6,7 @@ import {
   useEffect,
   useContext,
   useState,
+  useRef,
 } from 'react'
 
 import {
@@ -50,10 +51,20 @@ import {
 } from './shared/config'
 
 import {
+  getAddressFields,
+} from './shared/getAddressFields'
+
+import {
   AddressItemType,
   BCAddressItemType,
   AddressConfigItem,
 } from '../../types/address'
+
+import B3AddressForm from './components/AddressForm'
+
+interface RefCurrntProps extends HTMLInputElement {
+  handleOpenAddEditAddressClick: (type: string, data?: any) => void
+}
 
 type BCAddress = {
   node: BCAddressItemType
@@ -72,9 +83,12 @@ const Address = () => {
     dispatch,
   } = useContext(GlobaledContext)
 
+  const addEditAddressRef = useRef<RefCurrntProps | null>(null)
+
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [addressList, setAddressList] = useState([])
   const [searchParams, setSearchParams] = useState({})
+  const [addressFields, setAddressFields] = useState<any>([])
   const [pagination, setPagination] = useState<Pagination>({
     offset: 0,
     count: 0,
@@ -82,6 +96,24 @@ const Address = () => {
   })
 
   const [isMobile] = useMobile()
+
+  useEffect(() => {
+    if (addressFields.length === 0) {
+      const handleGetAddressFields = async () => {
+        setIsRequestLoading(true)
+        try {
+          const addressFields = await getAddressFields(isB2BUser)
+          setAddressFields(addressFields)
+        } catch (err) {
+          console.log(err)
+        } finally {
+          setIsRequestLoading(false)
+        }
+      }
+
+      handleGetAddressFields()
+    }
+  }, [])
 
   const getAddressList = async (pagination: Pagination, params = {}) => {
     setIsRequestLoading(true)
@@ -238,15 +270,17 @@ const Address = () => {
       return
     }
     // TODO show create modal
+    addEditAddressRef.current?.handleOpenAddEditAddressClick('add', 111)
     console.log('create')
   }
 
-  const handleEdit = () => {
+  const handleEdit = (row: any) => {
     if (!checkPermission()) {
       snackbar.error('You do not have permission to edit address, please contact store owner ')
       return
     }
     // TODO show edit modal
+    addEditAddressRef.current?.handleOpenAddEditAddressClick('edit', row)
     console.log('edit')
   }
 
@@ -301,11 +335,16 @@ const Address = () => {
             <AddressItemCard
               key={row.id}
               item={row}
-              onEdit={handleEdit}
+              onEdit={() => handleEdit(row)}
               onDelete={handleDelete}
               onSetDefault={handleSetDefault}
             />
           )}
+        />
+        <B3AddressForm
+          updateAddressList={updateAddressList}
+          addressFields={addressFields}
+          ref={addEditAddressRef}
         />
       </Box>
 

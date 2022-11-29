@@ -34,6 +34,10 @@ import {
 } from './api/login'
 
 import {
+  validateAddressExtraFields,
+} from './api/address'
+
+import {
   getB2BToken,
   getAgentInfo,
   superAdminCompanies,
@@ -65,6 +69,10 @@ import {
   deleteB2BAddress,
   getB2BAddress,
   updateB2BAddress,
+  getB2BAddressExtraFields,
+  createB2BAddress,
+  createBcAddress,
+  updateBcAddress,
   getBCCustomerAddress,
   deleteBCCustomerAddress,
   getB2BAddressConfig,
@@ -107,6 +115,11 @@ export {
   getB2BAddress,
   deleteB2BAddress,
   updateB2BAddress,
+  getB2BAddressExtraFields,
+  createB2BAddress,
+  validateAddressExtraFields,
+  createBcAddress,
+  updateBcAddress,
   getBCCustomerAddress,
   deleteBCCustomerAddress,
   getB2BAddressConfig,

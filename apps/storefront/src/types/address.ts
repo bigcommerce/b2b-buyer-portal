@@ -13,6 +13,8 @@ export interface AddressItemType {
   isBilling?: number
   addressLine1: string
   addressLine2: string
+  address1: string
+  address2: string
   address: string
   city: string
   state: string
@@ -21,6 +23,8 @@ export interface AddressItemType {
   countryCode: string
   zipCode: string
   phoneNumber: string
+  postalCode: string
+  phone: string
   isActive: number
   label: string
   uuid?: string
@@ -56,7 +60,7 @@ export interface BCAddressItemType {
   isActive: number
   addressType: string
   uuid: string
-  extraFields: BcAddressExtraFieldType[]
+  formFields: BcAddressExtraFieldType[]
   isDefaultShipping: number
   isDefaultBilling: number
 }
