@@ -132,7 +132,13 @@ export default function App() {
         await loginInfo()
       }
       if (!customerId) {
-        await getCurrentCustomerInfo(dispatch)
+        const data = await getCurrentCustomerInfo(dispatch)
+        if (data && typeof data?.role === 'number') {
+          setOpenPage({
+            isOpen: true,
+            openUrl: '/orders',
+          })
+        }
       } else if (hash) {
         const url = hash.split('#')[1]
         setOpenPage({
