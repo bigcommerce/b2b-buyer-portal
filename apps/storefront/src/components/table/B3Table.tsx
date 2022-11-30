@@ -166,6 +166,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
               showPagination && (
                 <TablePagination
                   rowsPerPageOptions={rowsPerPageOptions}
+                  labelRowsPerPage="Cards per page:"
                   component="div"
                   count={count}
                   rowsPerPage={first}

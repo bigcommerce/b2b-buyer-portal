@@ -54,6 +54,7 @@ const AddEditUser = ({
     formState: {
       errors,
     },
+    clearErrors,
     setValue,
   } = useForm({
     mode: 'onSubmit',
@@ -71,6 +72,7 @@ const AddEditUser = ({
     usersFiles.forEach((item: UsersFilesProps) => {
       setValue(item.name, '')
     })
+    clearErrors()
     setOpen(false)
   }
 
@@ -118,9 +120,6 @@ const AddEditUser = ({
       handRightClick={handleAddUserClick}
       loading={addUpdateLoading}
       isShowBordered
-      rightStyleBtn={{
-        color: 'red',
-      }}
     >
       <B3CustomForm
         formFields={usersFiles}

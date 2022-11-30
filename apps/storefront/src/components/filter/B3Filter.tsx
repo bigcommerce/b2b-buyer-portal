@@ -167,6 +167,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
                   sx={{
                     maxWidth: 150,
                     height: '42px',
+                    p: '0 20px',
                     ...customButtomConfig?.customButtomStyle || {},
                   }}
                   onClick={handleCustomBtnClick}

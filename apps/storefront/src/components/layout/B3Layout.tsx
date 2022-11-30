@@ -104,7 +104,7 @@ export function B3Layout({
                 minHeight: '100vh',
                 width: '100%',
                 flexDirection: 'row',
-                p: '20px',
+                p: '30px 40px',
                 backgroundColor: '#fef9f5',
               }}
             >

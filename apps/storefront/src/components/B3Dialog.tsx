@@ -80,12 +80,7 @@ export const B3Dialog:<T> ({
   }
 
   return (
-    <Box
-      sx={{
-        ml: 3,
-        cursor: 'pointer',
-      }}
-    >
+    <Box>
       <Box
         ref={container}
       />
