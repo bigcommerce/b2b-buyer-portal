@@ -1,7 +1,6 @@
 import {
   useState,
   ReactElement,
-  ReactNode,
 } from 'react'
 import {
   Box,

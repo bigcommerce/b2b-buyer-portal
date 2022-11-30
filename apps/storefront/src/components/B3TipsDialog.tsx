@@ -7,7 +7,6 @@ import React, {
 import {
   Box,
   Button,
-  Typography,
 } from '@mui/material'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'

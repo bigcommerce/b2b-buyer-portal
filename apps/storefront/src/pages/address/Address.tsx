@@ -26,7 +26,7 @@ import {
 import {
   Pagination,
   B3Table,
-} from '@/components/B3Table'
+} from '@/components/table/B3Table'
 import {
   B3Sping,
 } from '@/components/spin/B3Sping'
@@ -331,6 +331,7 @@ const Address = () => {
               onEdit={() => handleEdit(row)}
               onDelete={handleDelete}
               onSetDefault={handleSetDefault}
+              companyName={companyName}
               editPermission={editPermission}
               isBCPermission={isBCPermission}
             />

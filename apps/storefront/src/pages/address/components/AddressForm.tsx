@@ -1,6 +1,5 @@
 import {
   useEffect,
-  useContext,
   useState,
   forwardRef,
   useImperativeHandle,
@@ -28,14 +27,6 @@ import {
 import {
   b2bShippingBilling,
 } from '../shared/config'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
 
 import {
   snackbar,

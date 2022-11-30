@@ -32,7 +32,7 @@ export interface AddressItemType {
   isDefaultShipping?: number
   isDefaultBilling?: number
   bcAddressId?: number
-  company: string
+  company?: string
 }
 
 export interface BcAddressExtraFieldType {
