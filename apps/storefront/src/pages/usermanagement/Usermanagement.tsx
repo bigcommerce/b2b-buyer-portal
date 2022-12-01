@@ -283,7 +283,7 @@ const Usermanagement = () => {
         />
         <B3Dialog
           isOpen={deleteOpen}
-          title="Delete user? "
+          title="Delete user"
           leftSizeBtn="cancel"
           rightSizeBtn="delete"
           handleLeftClick={handleCancelClick}

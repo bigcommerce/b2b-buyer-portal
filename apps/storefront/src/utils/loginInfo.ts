@@ -190,7 +190,7 @@ export const getCurrentAgentInfo = async (customerId: number, role: number) => {
   let salesRepCompanyId = ''
   let salesRepCompanyName = ''
 
-  if (role === 3) {
+  if (+role === 3) {
     try {
       const data: any = await getAgentInfo(customerId)
       if (data?.superAdminMasquerading) {
