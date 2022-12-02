@@ -79,10 +79,8 @@ const Address = () => {
       isB2BUser,
       isAgenting,
       salesRepCompanyId,
-      salesRepCompanyName,
       companyInfo: {
         id: companyInfoId,
-        companyName: companyInfoName,
       },
       addressConfig,
     },
@@ -103,7 +101,6 @@ const Address = () => {
   })
 
   const companyId = role === 3 && isAgenting ? salesRepCompanyId : companyInfoId
-  const companyName = role === 3 && isAgenting ? salesRepCompanyName : companyInfoName
   const hasAdminPermission = isB2BUser && (!role || (role === 3 && isAgenting))
   const isBCPermission = !isB2BUser || (role === 3 && !isAgenting)
 
