@@ -7,6 +7,7 @@ import {
 
 import {
   Box,
+  ImageListItem,
 } from '@mui/material'
 
 import {
@@ -53,10 +54,19 @@ export const B3Logo = () => {
         },
       }}
     >
-      <img
-        src={logo}
-        alt="logo"
-      />
+      <ImageListItem
+        sx={{
+          maxWidth: '250px',
+        }}
+        onClick={() => {
+          window.location.href = '/'
+        }}
+      >
+        <img
+          src={logo}
+          alt="logo"
+        />
+      </ImageListItem>
     </Box>
 
   )

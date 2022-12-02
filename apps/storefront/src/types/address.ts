@@ -33,6 +33,7 @@ export interface AddressItemType {
   isDefaultBilling?: number
   bcAddressId?: number
   company?: string
+  [key: string]: any
 }
 
 export interface BcAddressExtraFieldType {

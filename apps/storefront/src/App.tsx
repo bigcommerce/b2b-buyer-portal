@@ -88,6 +88,20 @@ export default function App() {
     }
   }, [isOpen])
 
+  const setLogo = async () => {
+    const {
+      quoteConfig,
+    } = await getB2BRegisterLogo()
+    const logo = getLogo(quoteConfig)
+
+    dispatch({
+      type: 'common',
+      payload: {
+        logo,
+      },
+    })
+  }
+
   useEffect(() => {
     const {
       pathname,
@@ -125,45 +139,32 @@ export default function App() {
       })
     }
 
+    const gotoPage = (role?: number) => {
+      let url = hash.split('#')[1]
+
+      if (!url && role) {
+        url = role === 3 ? '/' : '/orders'
+      }
+      setOpenPage({
+        isOpen: true,
+        openUrl: url,
+      })
+    }
+
     const init = async () => {
       // bc token
       if (!BcToken) {
         await getChannelId()
         await loginInfo()
       }
+      await setLogo()
       if (!customerId) {
         const data = await getCurrentCustomerInfo(dispatch)
         if (data && typeof data?.role === 'number') {
-          setOpenPage({
-            isOpen: true,
-            openUrl: '/orders',
-          })
+          gotoPage(data.role)
         }
-      } else if (hash) {
-        const url = hash.split('#')[1]
-        setOpenPage({
-          isOpen: true,
-          openUrl: url,
-        })
       }
-    }
-
-    init()
-  }, [])
-
-  useEffect(() => {
-    const init = async () => {
-      const {
-        quoteConfig,
-      } = await getB2BRegisterLogo()
-      const logo = getLogo(quoteConfig)
-
-      dispatch({
-        type: 'common',
-        payload: {
-          logo,
-        },
-      })
+      if (customerId && hash) gotoPage()
     }
 
     init()

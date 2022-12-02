@@ -101,7 +101,6 @@ export const b2bAddressFields = [
     default: '',
     variant: 'filled',
     size: 'small',
-    readOnly: true,
   },
   {
     name: 'country',

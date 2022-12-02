@@ -40,6 +40,7 @@ import {
 } from '@/utils'
 
 import {
+  getB2BCountries,
   getB2BAddress,
   getBCCustomerAddress,
   getB2BAddressConfig,
@@ -51,6 +52,7 @@ import {
 } from './shared/config'
 
 import {
+  CountryProps,
   getAddressFields,
 } from './shared/getAddressFields'
 
@@ -63,7 +65,7 @@ import {
 import B3AddressForm from './components/AddressForm'
 
 interface RefCurrntProps extends HTMLInputElement {
-  handleOpenAddEditAddressClick: (type: string, data?: any) => void
+  handleOpenAddEditAddressClick: (type: string, data?: AddressItemType) => void
 }
 
 type BCAddress = {
@@ -92,7 +94,8 @@ const Address = () => {
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [addressList, setAddressList] = useState([])
   const [searchParams, setSearchParams] = useState({})
-  const [addressFields, setAddressFields] = useState<any>([])
+  const [addressFields, setAddressFields] = useState<CustomFieldItems[]>([])
+  const [countries, setCountries] = useState<CountryProps[]>([])
   const [pagination, setPagination] = useState<Pagination>({
     offset: 0,
     count: 0,
@@ -109,9 +112,15 @@ const Address = () => {
   useEffect(() => {
     if (addressFields.length === 0) {
       const handleGetAddressFields = async () => {
+        const {
+          countries,
+        } = await getB2BCountries()
+
+        setCountries(countries)
+
         setIsRequestLoading(true)
         try {
-          const addressFields = await getAddressFields(!isBCPermission)
+          const addressFields = await getAddressFields(!isBCPermission, countries)
           setAddressFields(addressFields)
         } catch (err) {
           console.log(err)
@@ -269,7 +278,7 @@ const Address = () => {
     addEditAddressRef.current?.handleOpenAddEditAddressClick('add')
   }
 
-  const handleEdit = (row: any) => {
+  const handleEdit = (row: AddressItemType) => {
     if (!editPermission) {
       snackbar.error('You do not have permission to edit address, please contact store owner ')
       return
@@ -342,8 +351,8 @@ const Address = () => {
           addressFields={addressFields}
           ref={addEditAddressRef}
           companyId={companyId}
-          companyName={companyName}
           isBCPermission={isBCPermission}
+          countries={countries}
         />
       </Box>
 

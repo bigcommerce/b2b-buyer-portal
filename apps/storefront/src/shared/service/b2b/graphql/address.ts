@@ -63,6 +63,7 @@ const getAddress = ({
         phoneNumber
         isActive
         label
+        company
         uuid
         extraFields {
           fieldName

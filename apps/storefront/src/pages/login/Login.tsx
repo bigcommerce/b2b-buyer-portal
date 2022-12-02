@@ -302,9 +302,13 @@ export default function Login(props:RegisteredProps) {
             {
           logo && loginInfo?.displayStoreLogo && (
           <LoginImage>
-            <ImageListItem sx={{
-              maxWidth: '250px',
-            }}
+            <ImageListItem
+              sx={{
+                maxWidth: '250px',
+              }}
+              onClick={() => {
+                window.location.href = '/'
+              }}
             >
               <img
                 src={`${logo}`}

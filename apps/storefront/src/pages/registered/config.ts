@@ -52,10 +52,10 @@ interface AccountFormFieldsItemsValueConfigs {
   id: string | number
 }
 
-interface AccountFormFieldsItems {
+export interface AccountFormFieldsItems {
   fieldId?: string,
   fieldName?: string,
-  fieldType?: string,
+  fieldType?: string | number,
   groupId: number | string,
   groupName?: string,
   id?: string,

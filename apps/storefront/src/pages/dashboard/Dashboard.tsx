@@ -53,6 +53,8 @@ const Dashboard = () => {
             companyName,
           } = data.superAdminMasquerading
           B3SStorage.set('isAgenting', true)
+          B3SStorage.set('salesRepCompanyId', id)
+          B3SStorage.set('salesRepCompanyName', companyName)
           salesRepCompanyId = id
           salesRepCompanyName = companyName
           isAgenting = true
@@ -93,6 +95,8 @@ const Dashboard = () => {
   const endActing = async (companyId: number) => {
     await superAdminEndMasquerade(companyId, +B3UserId)
     B3SStorage.delete('isAgenting')
+    B3SStorage.delete('salesRepCompanyId')
+    B3SStorage.delete('salesRepCompanyName')
     dispatch(
       {
         type: 'common',

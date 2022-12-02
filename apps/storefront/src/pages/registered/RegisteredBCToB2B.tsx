@@ -467,9 +467,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             {
           logo && (
           <RegisteredImage>
-            <ImageListItem sx={{
-              maxWidth: '250px',
-            }}
+            <ImageListItem
+              sx={{
+                maxWidth: '250px',
+              }}
+              onClick={() => {
+                window.location.href = '/'
+              }}
             >
               <img
                 src={`${logo}`}

@@ -4,6 +4,7 @@ import {
   forwardRef,
   useImperativeHandle,
   Ref,
+  BaseSyntheticEvent,
 } from 'react'
 
 import {
@@ -35,7 +36,6 @@ import {
 import {
   updateB2BAddress,
   createB2BAddress,
-  getB2BCountries,
   createBcAddress,
   updateBcAddress,
   validateAddressExtraFields,
@@ -44,6 +44,31 @@ import {
 import {
   deCodeField,
 } from '../../registered/config'
+
+import {
+  AddressItemType,
+} from '../../../types/address'
+
+import {
+  CountryProps,
+  StateProps,
+} from '../shared/getAddressFields'
+
+interface AddressFormProps {
+  addressFields: CustomFieldItems[],
+  updateAddressList: (isFirst?: boolean) => void,
+  companyId: string | number,
+  isBCPermission: boolean,
+  countries: CountryProps[],
+}
+
+interface ShippingBillingProps {
+  isShipping: boolean,
+  isBilling: boolean,
+  isDefaultShipping: boolean,
+  isDefaultBilling: boolean,
+  [key: string]: any
+}
 
 const StyledCheckbox = styled('div')(() => ({
   display: 'flex',
@@ -64,17 +89,16 @@ const AddressForm = ({
   updateAddressList,
   companyId,
   isBCPermission,
-  companyName,
-}: any, ref: Ref<unknown> | undefined) => {
+  countries,
+}: AddressFormProps, ref: Ref<unknown> | undefined) => {
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
-  const [countries, setCountries] = useState<any>([])
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false)
-  const [allAddressFields, setAllAddressFields] = useState<any>(addressFields)
-  const [addressExtraFields, setAddressExtraFields] = useState<any>({})
-  const [originAddressFields, setOriginAddressFields] = useState<any>([])
-  const [addressData, setAddressData] = useState<any>({})
-  const [shippingBilling, setShippingBilling] = useState<any>({
+  const [allAddressFields, setAllAddressFields] = useState<CustomFieldItems[]>(addressFields)
+  const [addressExtraFields, setAddressExtraFields] = useState<CustomFieldItems>([])
+  const [originAddressFields, setOriginAddressFields] = useState<CustomFieldItems>([])
+  const [addressData, setAddressData] = useState<AddressItemType | null>(null)
+  const [shippingBilling, setShippingBilling] = useState<ShippingBillingProps>({
     isShipping: false,
     isBilling: false,
     isDefaultShipping: false,
@@ -100,7 +124,7 @@ const AddressForm = ({
 
   const validateCompanyExtraFieldsUnique = async (data: CustomFieldItems) => {
     try {
-      const extraFields = addressExtraFields.map((field: any) => ({
+      const extraFields = addressExtraFields.map((field: CustomFieldItems) => ({
         fieldName: deCodeField(field.name),
         fieldValue: data[field.name] || field.default,
       }))
@@ -115,7 +139,7 @@ const AddressForm = ({
         const messageArr = message.split(':')
 
         if (messageArr.length >= 2) {
-          const field = addressExtraFields.find(((field: any) => deCodeField(field.name) === messageArr[0]))
+          const field = addressExtraFields.find(((field: CustomFieldItems) => deCodeField(field.name) === messageArr[0]))
           if (field) {
             setError(
               field.name,
@@ -140,11 +164,17 @@ const AddressForm = ({
 
   const handleCancelClick = () => {
     reset()
+    setShippingBilling({
+      isShipping: false,
+      isBilling: false,
+      isDefaultShipping: false,
+      isDefaultBilling: false,
+    })
     setOpen(false)
     setType('')
   }
 
-  const handleSaveB2BAddress = (event: any) => {
+  const handleSaveB2BAddress = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
 
@@ -154,7 +184,7 @@ const AddressForm = ({
           return
         }
 
-        const extraFields = addressExtraFields.map((field: any) => ({
+        const extraFields = addressExtraFields.map((field: CustomFieldItems) => ({
           fieldName: deCodeField(field.name),
           fieldValue: data[field.name] || field.default,
         }))
@@ -167,7 +197,7 @@ const AddressForm = ({
         let currentStateName = ''
         let currentStateCode = stateCode
 
-        countries.forEach((country: any) => {
+        countries.forEach((country: CountryProps) => {
           const {
             countryName,
             countryCode,
@@ -177,7 +207,8 @@ const AddressForm = ({
             currentCountryName = countryName
 
             if (states.length > 0) {
-              const state = states.filter((item: any) => item.stateCode === currentStateCode)
+              const state = states.filter((item: StateProps) => item.stateCode === currentStateCode)[0]
+
               currentStateName = state.stateName || currentStateCode
               currentStateCode = state.stateCode || currentStateCode
             } else {
@@ -205,7 +236,7 @@ const AddressForm = ({
         if (type === 'add') {
           await createB2BAddress(params)
           snackbar.success('New address is added')
-        } else if (type === 'edit') {
+        } else if (type === 'edit' && addressData) {
           const {
             id,
           } = addressData
@@ -234,11 +265,11 @@ const AddressForm = ({
     })(event)
   }
 
-  const handleSaveBcAddress = (event: any) => {
+  const handleSaveBcAddress = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
       try {
-        const extraFields = addressExtraFields.map((field: any) => ({
+        const extraFields = addressExtraFields.map((field: CustomFieldItems) => ({
           name: field.bcLabel,
           value: data[field.name] || field.default,
         }))
@@ -252,7 +283,7 @@ const AddressForm = ({
         let currentStateName = ''
         let currentStateCode = stateCode
 
-        countries.forEach((country: any) => {
+        countries.forEach((country: CountryProps) => {
           const {
             countryName,
             countryCode,
@@ -262,7 +293,7 @@ const AddressForm = ({
             currentCountryName = countryName
 
             if (states.length > 0) {
-              const state = states.filter((item: any) => item.stateCode === currentStateCode)
+              const state = states.filter((item: StateProps) => item.stateCode === currentStateCode)[0]
               currentStateName = state.stateName || currentStateCode
               currentStateCode = state.stateCode || currentStateCode
             } else {
@@ -285,15 +316,17 @@ const AddressForm = ({
         if (type === 'add') {
           await createBcAddress(params)
           snackbar.success('New address is added')
-        } else if (type === 'edit') {
+        } else if (type === 'edit' && addressData) {
           const {
             bcAddressId,
           } = addressData
 
-          await updateBcAddress({
-            ...params,
-            id: +bcAddressId,
-          })
+          if (bcAddressId) {
+            await updateBcAddress({
+              ...params,
+              id: +bcAddressId,
+            })
+          }
           snackbar.success('Address updated successfully')
         }
         setOpen(false)
@@ -307,7 +340,7 @@ const AddressForm = ({
     })(event)
   }
 
-  const handleSaveAddress = (event: any) => {
+  const handleSaveAddress = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
     if (isB2BUser) {
       handleSaveB2BAddress(event)
     } else {
@@ -315,21 +348,17 @@ const AddressForm = ({
     }
   }
 
-  const handleOpenAddEditAddressClick = (type: string, data: any) => {
+  const handleOpenAddEditAddressClick = (type: string, data: AddressItemType) => {
     if (type === 'add' && originAddressFields.length > 0) {
-      allAddressFields.forEach((field: any) => {
+      allAddressFields.forEach((field: CustomFieldItems) => {
         if (field.custom) {
           if (isB2BUser) {
-            const originFields = originAddressFields.filter((item: any) => item.name === field.name)[0]
+            const originFields = originAddressFields.filter((item: CustomFieldItems) => item.name === field.name)[0]
             field.default = originFields.default || ''
           } else {
-            const originFields = originAddressFields.filter((item: any) => item.name === field.name || item.bcLabel === field.bcLabel)[0]
+            const originFields = originAddressFields.filter((item: CustomFieldItems) => item.name === field.name || item.bcLabel === field.bcLabel)[0]
             field.default = originFields.default || ''
           }
-        }
-        if (field.name === 'company' && isB2BUser) {
-          field.default = companyName
-          setValue(field.name, companyName)
         }
       })
     }
@@ -345,83 +374,82 @@ const AddressForm = ({
   }))
 
   const handleBackFillData = () => {
-    const {
-      isShipping,
-      isBilling,
-      isDefaultShipping,
-      isDefaultBilling,
-      state,
-      stateCode,
-      countryCode,
-      extraFields,
-    } = addressData
+    if (addressData) {
+      const {
+        isShipping,
+        isBilling,
+        isDefaultShipping,
+        isDefaultBilling,
+        state,
+        stateCode,
+        countryCode,
+        extraFields,
+      } = addressData
 
-    const currentCountry = countries.filter((country: any) => country.countryCode === countryCode)
+      const currentCountry = countries.filter((country: CountryProps) => country.countryCode === countryCode)
 
-    setShippingBilling({
-      isShipping: isShipping === 1,
-      isBilling: isBilling === 1,
-      isDefaultShipping: isDefaultShipping === 1,
-      isDefaultBilling: isDefaultBilling === 1,
-    })
+      setShippingBilling({
+        isShipping: isShipping === 1,
+        isBilling: isBilling === 1,
+        isDefaultShipping: isDefaultShipping === 1,
+        isDefaultBilling: isDefaultBilling === 1,
+      })
 
-    allAddressFields.forEach((field: any) => {
-      if (field.custom && extraFields.length > 0) {
-        if (isB2BUser) {
-          const name = deCodeField(field.name)
-          const currentExtraField = extraFields.filter((item: any) => item.fieldName === name)[0]
-          const originFields = originAddressFields.filter((item: any) => item.name === name)[0]
+      allAddressFields.forEach((field: CustomFieldItems) => {
+        if (field.custom && extraFields.length > 0) {
+          if (isB2BUser) {
+            const name = deCodeField(field.name)
+            const currentExtraField = extraFields.filter((item: CustomFieldItems) => item.fieldName === name)[0]
+            const originFields = originAddressFields.filter((item: CustomFieldItems) => item.name === name)[0]
 
-          if (currentExtraField) {
-            setValue(field.name, currentExtraField.fieldValue || '')
+            if (currentExtraField) {
+              setValue(field.name, currentExtraField.fieldValue || '')
 
-            field.default = currentExtraField.fieldValue || ''
+              field.default = currentExtraField.fieldValue || ''
+            } else {
+              setValue(field.name, '')
+              field.default = originFields.default
+            }
           } else {
-            setValue(field.name, '')
-            field.default = originFields.default
+            const currentExtraField = extraFields.filter((item: CustomFieldItems) => item.fieldName === field.name || item.fieldName === field.bcLabel)[0]
+            const originFields = originAddressFields.filter((item: CustomFieldItems) => item.name === field.name || item.bcLabel === field.bcLabel)[0]
+
+            if (currentExtraField) {
+              setValue(field.name, currentExtraField.fieldValue || '')
+
+              field.default = currentExtraField.fieldValue || originFields.default
+            } else {
+              setValue(field.name, '')
+              field.default = originFields.default
+            }
+          }
+        } else if (field.name === 'country') {
+          setValue(field.name, countryCode)
+        } else if (field.name === 'state') {
+          setValue(field.name, stateCode || state)
+          if (currentCountry.length > 0) {
+            const {
+              states,
+            } = currentCountry[0]
+
+            if (states.length > 0) {
+              field.options = states
+              field.fieldType = 'dropdown'
+            } else {
+              field.options = []
+              field.fieldType = 'text'
+            }
           }
         } else {
-          const currentExtraField = extraFields.filter((item: any) => item.fieldName === field.name || item.fieldName === field.bcLabel)[0]
-          const originFields = originAddressFields.filter((item: any) => item.name === field.name || item.bcLabel === field.bcLabel)[0]
-
-          if (currentExtraField) {
-            setValue(field.name, currentExtraField.fieldValue || '')
-
-            field.default = currentExtraField.fieldValue || originFields.default
-          } else {
-            setValue(field.name, '')
-            field.default = originFields.default
-          }
+          setValue(field.name, addressData[field.name])
         }
-      } else if (field.name === 'country') {
-        setValue(field.name, countryCode)
-      } else if (field.name === 'state') {
-        setValue(field.name, stateCode || state)
-        if (currentCountry.length > 0) {
-          const {
-            states,
-          } = currentCountry[0]
-
-          if (states.length > 0) {
-            field.options = states
-            field.fieldType = 'dropdown'
-          } else {
-            field.options = []
-            field.fieldType = 'text'
-          }
-        }
-      } else if (field.name === 'company') {
-        field.default = companyName
-        setValue(field.name, companyName)
-      } else {
-        setValue(field.name, addressData[field.name])
-      }
-    })
+      })
+    }
   }
 
   const handleCountryChange = (countryCode: string) => {
-    const stateList = countries.find((country: any) => country.countryCode === countryCode)?.states || []
-    const stateFields = allAddressFields.find((formFields: any) => formFields.name === 'state')
+    const stateList = countries.find((country: CountryProps) => country.countryCode === countryCode)?.states || []
+    const stateFields = allAddressFields.find((formFields: CustomFieldItems) => formFields.name === 'state')
 
     if (stateFields) {
       if (stateList.length > 0) {
@@ -454,25 +482,9 @@ const AddressForm = ({
     }
   }
 
-  const getCountries = async () => {
-    try {
-      const {
-        countries,
-      } = await getB2BCountries()
-
-      setCountries(countries)
-    } catch (e: any) {
-      snackbar.error(e)
-    }
-  }
-
-  useEffect(() => {
-    getCountries()
-  }, [])
-
   useEffect(() => {
     setAllAddressFields(addressFields)
-    const extraFields = addressFields.filter((field: any) => field.custom)
+    const extraFields = addressFields.filter((field: CustomFieldItems) => field.custom)
 
     setAddressExtraFields(extraFields)
 
@@ -514,6 +526,7 @@ const AddressForm = ({
         handleLeftClick={handleCancelClick}
         handRightClick={handleSaveAddress}
         loading={addUpdateLoading}
+        isShowBordered
       >
         {
           isB2BUser && (
