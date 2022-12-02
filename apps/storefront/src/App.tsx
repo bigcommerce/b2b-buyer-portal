@@ -143,7 +143,7 @@ export default function App() {
     const gotoPage = (role?: number) => {
       let url = hash.split('#')[1]
 
-      if (!url && role) {
+      if (!url && (role || role === 0)) {
         url = role === 3 ? '/' : '/orders'
       }
       setOpenPage({

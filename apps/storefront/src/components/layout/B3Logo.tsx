@@ -57,6 +57,7 @@ export const B3Logo = () => {
       <ImageListItem
         sx={{
           maxWidth: '250px',
+          cursor: 'pointer',
         }}
         onClick={() => {
           window.location.href = '/'

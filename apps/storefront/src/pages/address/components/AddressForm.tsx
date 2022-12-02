@@ -522,7 +522,7 @@ const AddressForm = ({
     <>
       <B3Dialog
         isOpen={open}
-        title={type === 'create' ? 'Add new address' : 'Edit address'}
+        title={type === 'add' ? 'Add new address' : 'Edit address'}
         leftSizeBtn="Cancel"
         rightSizeBtn="Save Address"
         handleLeftClick={handleCancelClick}
