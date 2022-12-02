@@ -114,11 +114,12 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   } = globalState
 
   return routes.filter((item: RouteItem) => {
-    if (!isB2BUser) {
+    // b2b user
+    if (!isB2BUser || (role === 3 && !isAgenting)) {
       return item.path !== '/company-orders' && item.path !== '/user-management'
     }
 
-    if (((role === 3 && !isAgenting) || role === 2) && item.path === '/user-management') return false
+    if (role === 2 && item.path === '/user-management') return false
 
     if (!storefrontConfig) {
       return false
