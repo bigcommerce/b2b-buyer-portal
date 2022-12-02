@@ -29,6 +29,7 @@ import {
 
 import {
   getB2BRegisterLogo,
+  getStorefrontConfig,
 } from '@/shared/service/b2b'
 
 import {
@@ -39,7 +40,7 @@ import {
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 const CUSTOM_STYLES = `
 body {
-  background: #acacac;
+  background: #fef9f5 !important;
   font-family: Roboto;
 };
 `
@@ -165,6 +166,25 @@ export default function App() {
         }
       }
       if (customerId && hash) gotoPage()
+    }
+
+    init()
+  }, [])
+
+  useEffect(() => {
+    const init = async () => {
+      const {
+        storefrontConfig: {
+          config: storefrontConfig,
+        },
+      } = await getStorefrontConfig()
+
+      dispatch({
+        type: 'common',
+        payload: {
+          storefrontConfig,
+        },
+      })
     }
 
     init()

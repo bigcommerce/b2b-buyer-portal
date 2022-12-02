@@ -53,7 +53,6 @@ export const B3MobileLayout = ({
       sx={{
         height: '100vh',
         p: '4vw',
-        backgroundColor: '#fef9f5',
         display: 'flex',
         flexDirection: 'column',
       }}

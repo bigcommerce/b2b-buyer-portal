@@ -2,6 +2,10 @@ import {
   B3Request,
 } from '../../request/b3Fetch'
 
+import {
+  storeHash,
+} from '../../../../utils'
+
 const getB2BTokenQl = (bcJwtToken: string) => `mutation {
   authorization(authData: {
     bcToken: "${bcJwtToken}"
@@ -68,6 +72,34 @@ const userCompanyQl = (userId: number) => `{
   }
 }`
 
+const storefrontConfig = () => `{
+  storefrontConfig(
+    storeHash: "${storeHash}"
+  ) {
+    config{
+      accountSettings,
+      addressBook,
+      buyAgain,
+      dashboard,
+      invoice{
+        enabledStatus,
+        value,
+      },
+      messages,
+      orders,
+      quickOrderPad,
+      quotes,
+      recentlyViewed,
+      returns,
+      shoppingLists,
+      tradeProfessionalApplication,
+      userManagement,
+      wishLists,
+    }
+    configId,
+  }
+}`
+
 export const getB2BToken = (bcJwtToken: string): CustomFieldItems => B3Request.graphqlB2B({
   query: getB2BTokenQl(bcJwtToken),
 })
@@ -90,4 +122,8 @@ export const superAdminEndMasquerade = (companyId: number, userId: number): Cust
 
 export const getUserCompany = (userId: number): CustomFieldItems => B3Request.graphqlB2B({
   query: userCompanyQl(userId),
+})
+
+export const getStorefrontConfig = (): CustomFieldItems => B3Request.graphqlB2B({
+  query: storefrontConfig(),
 })

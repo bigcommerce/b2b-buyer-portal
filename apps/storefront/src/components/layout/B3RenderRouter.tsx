@@ -19,9 +19,6 @@ import {
 import type {
   OpenPageState,
 } from '@b3/hooks'
-import {
-  routes,
-} from '@/shared/routes'
 
 import {
   B3Layout,
@@ -32,6 +29,7 @@ import {
 
 import {
   RouteItem,
+  getAllowedRoutes,
 } from '@/shared/routes/routes'
 
 import {
@@ -59,20 +57,10 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
   } = props
 
   const {
-    state: {
-      isB2BUser,
-      // isAgenting,
-      // role,
-    },
+    state: globaledState,
   } = useContext(GlobaledContext)
 
-  const newRoutes = () => {
-    let newRoutes = routes
-
-    if (!isB2BUser) newRoutes = routes.filter((item:RouteItem) => item.path !== '/company-orders')
-
-    return newRoutes
-  }
+  const newRoutes = () => (getAllowedRoutes(globaledState))
 
   return (
     <Suspense fallback={(

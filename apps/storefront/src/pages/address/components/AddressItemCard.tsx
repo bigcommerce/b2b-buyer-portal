@@ -30,7 +30,6 @@ export interface OrderItemCardProps {
   onSetDefault: (data: AddressItemType) => void
   editPermission: boolean
   isBCPermission: boolean
-  companyName: string | number
 }
 
 interface TagBoxProps {
@@ -67,7 +66,6 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
     onSetDefault,
     editPermission: hasPermission,
     isBCPermission,
-    companyName,
   } = props
 
   const theme = useTheme()
@@ -86,7 +84,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
           <Typography
             variant="h5"
             sx={{
-              marginBottom: theme.spacing(1),
+              marginBottom: addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1 ? theme.spacing(1) : theme.spacing(3),
               color: 'rgba(0, 0, 0, 0.87)',
             }}
           >
@@ -116,7 +114,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
         <Typography variant="body1">
           {`${addressInfo.firstName} ${addressInfo.lastName}`}
         </Typography>
-        <Typography variant="body1">{(isBCPermission ? addressInfo.company : companyName) || ''}</Typography>
+        <Typography variant="body1">{addressInfo.company || ''}</Typography>
         <Typography variant="body1">{addressInfo.addressLine1}</Typography>
         <Typography variant="body1">{addressInfo.addressLine2}</Typography>
         <Typography variant="body1">

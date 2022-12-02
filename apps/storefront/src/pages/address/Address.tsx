@@ -314,6 +314,8 @@ const Address = () => {
       isSpinning={isRequestLoading}
     >
       <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
         flex: 1,
       }}
       >
@@ -340,7 +342,6 @@ const Address = () => {
               onEdit={() => handleEdit(row)}
               onDelete={handleDelete}
               onSetDefault={handleSetDefault}
-              companyName={companyName}
               editPermission={editPermission}
               isBCPermission={isBCPermission}
             />
@@ -354,9 +355,8 @@ const Address = () => {
           isBCPermission={isBCPermission}
           countries={countries}
         />
-      </Box>
 
-      {
+        {
         editPermission && !isBCPermission && (
           <SetDefaultDialog
             isOpen={isOpenSetDefault}
@@ -368,7 +368,7 @@ const Address = () => {
           />
         )
       }
-      {
+        {
         editPermission && (
           <DeleteAddressDialog
             isOpen={isOpenDelete}
@@ -381,6 +381,8 @@ const Address = () => {
           />
         )
       }
+      </Box>
+
     </B3Sping>
   )
 }

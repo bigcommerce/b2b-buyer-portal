@@ -44,6 +44,7 @@ import {
   superAdminBeginMasquerade,
   superAdminEndMasquerade,
   getUserCompany,
+  getStorefrontConfig,
 } from './graphql/global'
 
 import {
@@ -123,4 +124,5 @@ export {
   getBCCustomerAddress,
   deleteBCCustomerAddress,
   getB2BAddressConfig,
+  getStorefrontConfig,
 }

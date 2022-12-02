@@ -1,5 +1,7 @@
 import {
   useRef,
+  useContext,
+  useEffect,
 } from 'react'
 
 import {
@@ -22,6 +24,10 @@ import {
 import {
   B3CustomForm,
 } from '@/components'
+
+import {
+  ThemeFrameContext,
+} from '@/components/ThemeFrame'
 
 import {
   createB2BShoppingList,
@@ -91,6 +97,15 @@ const CreateShoppingList = ({
       onChange()
     })()
   }
+
+  const IframeDocument = useContext(ThemeFrameContext)
+  useEffect(() => {
+    if (IframeDocument) {
+      IframeDocument.body.style.overflow = open ? 'hidden' : 'initial'
+      IframeDocument.body.style.paddingRight = open ? '16px' : '0'
+    }
+  }, [open, IframeDocument])
+
   return (
     <Box
       sx={{

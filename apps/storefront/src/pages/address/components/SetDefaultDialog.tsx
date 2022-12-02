@@ -111,7 +111,7 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
       <Box
         sx={{
           display: 'flex',
-          alignItems: 'center',
+          alignItems: `${isMobile ? 'start' : 'center'}`,
           justifyContent: `${isMobile ? 'center%' : 'start'}`,
           width: `${isMobile ? '100%' : '450px'}`,
           height: '100%',

@@ -14,7 +14,7 @@ import {
   useLocation,
 } from 'react-router-dom'
 import {
-  routes,
+  getAllowedRoutes,
 } from '@/shared/routes'
 
 import {
@@ -46,11 +46,7 @@ export const B3Nav = ({
   const nextPath = useRef<null | string>(null)
 
   const {
-    state: {
-      isB2BUser,
-      isAgenting,
-      role,
-    },
+    state: globalState,
   } = useContext(GlobaledContext)
 
   const handleClick = (item: RouteItem) => {
@@ -60,13 +56,7 @@ export const B3Nav = ({
     }
   }
   const menuItems = () => {
-    const newRoutes = routes.filter((route) => {
-      if (route.isMenuItem === false) return false
-      if (!isB2BUser && route.path === '/company-orders') return false
-      if (!isB2BUser && route.path === '/user-management') return false
-      if (((role === 3 && !isAgenting) || role === 2) && route.path === '/user-management') return false
-      return true
-    })
+    const newRoutes = getAllowedRoutes(globalState).filter((route: RouteItem) => route.isMenuItem)
 
     return newRoutes
   }

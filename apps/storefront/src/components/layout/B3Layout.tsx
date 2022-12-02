@@ -105,7 +105,6 @@ export function B3Layout({
                 width: '100%',
                 flexDirection: 'row',
                 p: '30px 40px',
-                backgroundColor: '#fef9f5',
               }}
             >
               <Box
@@ -114,7 +113,6 @@ export function B3Layout({
                   flexDirection: 'column',
                   width: '250px',
                   pl: '20px',
-                  backgroundColor: '#fef9f5',
                 }}
               >
                 <B3Logo />
@@ -140,7 +138,6 @@ export function B3Layout({
                   component="main"
                   sx={{
                     // flexGrow: 1,
-                    bgcolor: '#fef9f5',
                   }}
                 >
                   {children}

@@ -196,7 +196,6 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              backgroundColor: '#fef9f5',
             }}
           >
             <B3FilterSearch

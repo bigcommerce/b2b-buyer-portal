@@ -2,6 +2,10 @@ import {
   lazy,
 } from 'react'
 
+import {
+  GlobalState,
+} from '@/shared/global/context/config'
+
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
 
 const CompanyOrderList = lazy(() => import('../../pages/order/CompanyOrder'))
@@ -24,6 +28,7 @@ export interface RouteItem {
   component: OrderItem,
   isMenuItem: boolean,
   wsKey: string,
+  configKey?: string,
 }
 
 const routes: RouteItem[] = [
@@ -61,6 +66,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-address',
     isMenuItem: true,
     component: AddressList,
+    configKey: 'addressBook',
   },
   {
     path: '/user-management',
@@ -99,6 +105,36 @@ const routes: RouteItem[] = [
   },
 ]
 
+const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
+  const {
+    isB2BUser,
+    role,
+    isAgenting,
+    storefrontConfig,
+  } = globalState
+
+  return routes.filter((item: RouteItem) => {
+    if (!isB2BUser) {
+      return item.path !== '/company-orders' && item.path !== '/user-management'
+    }
+
+    if (((role === 3 && !isAgenting) || role === 2) && item.path === '/user-management') return false
+
+    if (!storefrontConfig) {
+      return false
+    }
+
+    const config = storefrontConfig[item.configKey || ''] ?? {
+      enabledStatus: true,
+    }
+    if (typeof config === 'boolean') {
+      return config
+    }
+    return !!config.enabledStatus
+  })
+}
+
 export {
+  getAllowedRoutes,
   routes,
 }

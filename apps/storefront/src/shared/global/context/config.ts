@@ -55,7 +55,13 @@ export interface GlobalState {
   addressConfig?: {
     key: string,
     isEnabled: string,
-  }[]
+  }[],
+  storefrontConfig?: {
+    [k: string]: boolean | {
+      value: boolean,
+      enabledStatus: boolean,
+    },
+  }
 }
 
 export const initState = {

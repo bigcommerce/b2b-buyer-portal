@@ -19,7 +19,12 @@ import {
   useRef,
   BaseSyntheticEvent,
   ReactElement,
+  useContext,
+  useEffect,
 } from 'react'
+import {
+  ThemeFrameContext,
+} from '../ThemeFrame'
 
 import {
   useMobile,
@@ -115,6 +120,15 @@ const B3FilterMore:<T, Y> ({
     })
     pickerRef.current?.setClearPickerValue()
   }
+
+  const IframeDocument = useContext(ThemeFrameContext)
+  useEffect(() => {
+    if (IframeDocument) {
+      IframeDocument.body.style.overflow = open ? 'hidden' : 'initial'
+      IframeDocument.body.style.paddingRight = open ? '16px' : '0'
+    }
+  }, [open, IframeDocument])
+
   return (
     <Box
       sx={{

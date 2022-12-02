@@ -11,6 +11,8 @@ import {
   useRef,
   ReactElement,
   ReactNode,
+  useContext,
+  useEffect,
 } from 'react'
 
 import {
@@ -20,6 +22,10 @@ import {
 import {
   B3Sping,
 } from './spin/B3Sping'
+
+import {
+  ThemeFrameContext,
+} from './ThemeFrame'
 
 interface B3DialogProps<T> {
   customActions?: () => ReactElement
@@ -66,6 +72,8 @@ export const B3Dialog:<T> ({
 }) => {
   const container = useRef<HTMLInputElement | null>(null)
 
+  const IframeDocument = useContext(ThemeFrameContext)
+
   const [isMobile] = useMobile()
 
   const handleSaveClick = () => {
@@ -78,6 +86,13 @@ export const B3Dialog:<T> ({
   const handleCloseClick = () => {
     if (handleLeftClick) handleLeftClick()
   }
+
+  useEffect(() => {
+    if (IframeDocument) {
+      IframeDocument.body.style.overflow = isOpen ? 'hidden' : 'initial'
+      IframeDocument.body.style.paddingRight = isOpen ? '16px' : '0'
+    }
+  }, [isOpen, IframeDocument])
 
   return (
     <Box>

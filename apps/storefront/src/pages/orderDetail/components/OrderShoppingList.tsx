@@ -2,6 +2,7 @@ import {
   useState,
   useRef,
   useEffect,
+  useContext,
 } from 'react'
 
 import {
@@ -26,6 +27,10 @@ import {
 import {
   getB2BShoppingList,
 } from '@/shared/service/b2b'
+
+import {
+  ThemeFrameContext,
+} from '@/components/ThemeFrame'
 
 import {
   ShoppingListItem,
@@ -102,6 +107,14 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
   const handleListItemClicked = (item: ListItem) => () => {
     setActiveId(item.node.id)
   }
+
+  const IframeDocument = useContext(ThemeFrameContext)
+  useEffect(() => {
+    if (IframeDocument) {
+      IframeDocument.body.style.overflow = isOpen ? 'hidden' : 'initial'
+      IframeDocument.body.style.paddingRight = isOpen ? '16px' : '0'
+    }
+  }, [isOpen, IframeDocument])
 
   return (
     <Box>

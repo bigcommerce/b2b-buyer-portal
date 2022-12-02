@@ -87,7 +87,7 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
   return (
     <B3Dialog
       isOpen={isOpen}
-      title="Delete address? "
+      title="Delete address"
       leftSizeBtn="cancel"
       rightSizeBtn="delete"
       handleLeftClick={() => { setIsOpen(false) }}
@@ -99,8 +99,8 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
       <Box
         sx={{
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: `${isMobile ? 'center%' : 'start'}`,
+          alignItems: `${isMobile ? 'start' : 'center'}`,
+          justifyContent: `${isMobile ? 'center' : 'start'}`,
           width: `${isMobile ? '100%' : '450px'}`,
           height: '100%',
         }}
