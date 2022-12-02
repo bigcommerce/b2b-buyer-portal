@@ -207,7 +207,7 @@ const AddressForm = ({
             currentCountryName = countryName
 
             if (states.length > 0) {
-              const state = states.filter((item: StateProps) => item.stateCode === currentStateCode)[0]
+              const state = states.filter((item: StateProps) => item.stateCode === currentStateCode || item.stateName === currentStateCode)[0]
 
               currentStateName = state.stateName || currentStateCode
               currentStateCode = state.stateCode || currentStateCode
@@ -268,6 +268,7 @@ const AddressForm = ({
   const handleSaveBcAddress = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
+
       try {
         const extraFields = addressExtraFields.map((field: CustomFieldItems) => ({
           name: field.bcLabel,
@@ -293,7 +294,8 @@ const AddressForm = ({
             currentCountryName = countryName
 
             if (states.length > 0) {
-              const state = states.filter((item: StateProps) => item.stateCode === currentStateCode)[0]
+              const state = states.filter((item: StateProps) => item.stateCode === currentStateCode || item.stateName === currentStateCode)[0]
+
               currentStateName = state.stateName || currentStateCode
               currentStateCode = state.stateCode || currentStateCode
             } else {
