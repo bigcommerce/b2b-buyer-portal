@@ -4,7 +4,6 @@ import {
   forwardRef,
   useImperativeHandle,
   Ref,
-  BaseSyntheticEvent,
 } from 'react'
 
 import {
@@ -27,6 +26,7 @@ import {
 
 import {
   b2bShippingBilling,
+  b2bShippingBillingProps,
 } from '../shared/config'
 
 import {
@@ -67,7 +67,7 @@ interface ShippingBillingProps {
   isBilling: boolean,
   isDefaultShipping: boolean,
   isDefaultBilling: boolean,
-  [key: string]: any
+  [key: string]: boolean,
 }
 
 const StyledCheckbox = styled('div')(() => ({
@@ -174,7 +174,7 @@ const AddressForm = ({
     setType('')
   }
 
-  const handleSaveB2BAddress = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
+  const handleSaveB2BAddress = () => {
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
 
@@ -262,10 +262,10 @@ const AddressForm = ({
       } finally {
         setAddUpdateLoading(false)
       }
-    })(event)
+    })()
   }
 
-  const handleSaveBcAddress = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
+  const handleSaveBcAddress = () => {
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
 
@@ -339,14 +339,14 @@ const AddressForm = ({
       } finally {
         setAddUpdateLoading(false)
       }
-    })(event)
+    })()
   }
 
-  const handleSaveAddress = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
+  const handleSaveAddress = () => {
     if (isB2BUser) {
-      handleSaveB2BAddress(event)
+      handleSaveB2BAddress()
     } else {
-      handleSaveBcAddress(event)
+      handleSaveBcAddress()
     }
   }
 
@@ -537,7 +537,7 @@ const AddressForm = ({
 
               <StyledCheckbox>
                 {
-                  b2bShippingBilling.map((item: any) => {
+                  b2bShippingBilling.map((item: b2bShippingBillingProps) => {
                     const {
                       child,
                       name,

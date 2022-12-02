@@ -143,9 +143,8 @@ export default function App() {
     const gotoPage = (role?: number) => {
       let url = hash.split('#')[1]
 
-      if (!url && (role || role === 0)) {
-        url = role === 3 ? '/' : '/orders'
-      }
+      if (!url) url = role === 3 ? '/' : '/orders'
+
       setOpenPage({
         isOpen: true,
         openUrl: url,
@@ -161,9 +160,7 @@ export default function App() {
       await setLogo()
       if (!customerId) {
         const data = await getCurrentCustomerInfo(dispatch)
-        if (data && typeof data?.role === 'number') {
-          gotoPage(data.role)
-        }
+        if (data) gotoPage(data.role)
       }
       if (customerId && hash) gotoPage()
     }

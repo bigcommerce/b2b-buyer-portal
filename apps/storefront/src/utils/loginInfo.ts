@@ -173,7 +173,7 @@ const getCompanyInfo = async (id: number, userType: number, role:number) => {
   if (userType === 3 && role !== 3) {
     const {
       userCompany,
-    }: any = await getUserCompany(id)
+    } = await getUserCompany(id)
 
     if (userCompany) {
       companyInfo = {

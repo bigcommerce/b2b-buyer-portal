@@ -76,7 +76,7 @@ interface ExtraFieldsProp extends RegisterFieldsItems{
 //   }
 // }
 
-const convertExtraFields = (extraFields: B2bExtraFieldsProps[]) => {
+const convertExtraFields = (extraFields: B2bExtraFieldsProps[]): []| ExtraFieldsProp[] => {
   if (extraFields.length === 0) return []
   const visibleFields = extraFields.filter((field: B2bExtraFieldsProps) => field.visibleToEnduser)
 
@@ -134,7 +134,7 @@ export const getAddressFields = async (isB2BUser: boolean, countries: CountryPro
 
   try {
     if (isB2BUser) {
-      const addressFields: CustomFieldItems[] = await getB2BAddressFields()
+      const addressFields = await getB2BAddressFields()
 
       if (addressFields) allAddressFields = addressFields
     } else {

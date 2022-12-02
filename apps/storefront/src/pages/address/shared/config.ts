@@ -3,6 +3,19 @@ import {
   BCAddressItemType,
 } from '../../../types/address'
 
+export interface b2bShippingBillingChildProps {
+  name: string;
+  label: string;
+  default: string;
+  parent: string;
+}
+export interface b2bShippingBillingProps {
+  name: string;
+  label: string;
+  default: string;
+  child: b2bShippingBillingChildProps
+}
+
 export const filterFormConfig = [
   {
     name: 'city',
