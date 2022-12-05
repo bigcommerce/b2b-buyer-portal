@@ -289,6 +289,9 @@ const Usermanagement = () => {
           handleLeftClick={handleCancelClick}
           handRightClick={handleDeleteUserClick}
           row={userItem}
+          rightStyleBtn={{
+            color: '#D32F2F',
+          }}
         >
           <Box
             sx={{
