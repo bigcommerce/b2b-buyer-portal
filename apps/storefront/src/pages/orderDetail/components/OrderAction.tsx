@@ -35,6 +35,7 @@ import {
 
 import {
   OrderDetailsState,
+  OrderDetailsContext,
 } from '../context/OrderDetailsContext'
 
 const OrderActionContainer = styled('div')(() => ({}))
@@ -301,6 +302,12 @@ export const OrderAction = (props: OrderActionProps) => {
   } = useContext(GlobaledContext)
 
   const {
+    state: {
+      addressLabelPermission,
+    },
+  } = useContext(OrderDetailsContext)
+
+  const {
     money,
     orderSummary: {
       createAt,
@@ -322,6 +329,16 @@ export const OrderAction = (props: OrderActionProps) => {
     return <></>
   }
 
+  const getCompanyName = (company: string) => {
+    if (addressLabelPermission) {
+      return company
+    }
+
+    const index = company.indexOf('/')
+
+    return company.substring(index + 1, company.length)
+  }
+
   const getFullPaymentAddress = (billingAddress?: Address) => {
     if (!billingAddress) {
       return {}
@@ -339,7 +356,7 @@ export const OrderAction = (props: OrderActionProps) => {
     const paymentAddress = {
       paymentMethod: `Payment by ${paymentMethod}`,
       name: `${firstName} ${lastName}`,
-      company,
+      company: getCompanyName(company),
       street: street1,
       address: `${city}, ${state} ${zip}, ${country}`,
     }
