@@ -5,10 +5,16 @@ import {
 const getShoppingList = ({
   offset = 0,
   first = 50,
+  status = '',
+  createdBy = '',
+  search = '',
 }) => `{
   shoppingLists (
     offset: ${offset}
     first: ${first}
+    ${typeof status !== 'number' ? '' : `status: ${status}`}
+    search: "${search}"
+    createdBy: "${createdBy}"
   ){
     totalCount,
     pageInfo{
@@ -32,16 +38,22 @@ const getShoppingList = ({
         totalDiscount,
         totalTax,
         isShowGrandTotal,
+        products {
+          totalCount,
+        }
       }
     }
   }
 }`
 
-const createShoppingList = (data: CustomFieldItems) => `mutation{
-  shoppingListsCreate(shoppingListsData: {
-    name: "${data.name}",
-    description: "${data.description}",
-    status: ${data.status},
+const createOrUpdateShoppingList = (fn: string, data: CustomFieldItems) => `mutation{
+  ${fn}(
+    ${!data?.id ? '' : `id: ${data.id}`}
+    ${!data?.sampleShoppingListId ? '' : `sampleShoppingListId: ${data.sampleShoppingListId}`}
+    shoppingListData: {
+      name: "${data.name}",
+      description: "${data.description}",
+      ${typeof data?.status === 'number' ? `status: ${data.status}` : ''}
   }) {
     shoppingList {
       id,
@@ -63,10 +75,28 @@ const createShoppingList = (data: CustomFieldItems) => `mutation{
   }
 }`
 
+const deleteShoppingList = (id: number) => `mutation{
+  shoppingListsDelete(id: ${id}) {
+    message
+  }
+}`
+
 export const getB2BShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
   query: getShoppingList(data),
 })
 
 export const createB2BShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
-  query: createShoppingList(data),
+  query: createOrUpdateShoppingList('shoppingListsCreate', data),
+})
+
+export const updateB2BShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+  query: createOrUpdateShoppingList('shoppingListsUpdate', data),
+})
+
+export const duplicateB2BShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+  query: createOrUpdateShoppingList('shoppingListsDuplicate', data),
+})
+
+export const deleteB2BShoppingList = (id: number): CustomFieldItems => B3Request.graphqlB2B({
+  query: deleteShoppingList(id),
 })

@@ -30,6 +30,10 @@ export {
 } from './table/B3Table'
 
 export {
+  B3PaginationTable,
+} from './table/B3PaginationTable'
+
+export {
   B3Dialog,
 } from './B3Dialog'
 

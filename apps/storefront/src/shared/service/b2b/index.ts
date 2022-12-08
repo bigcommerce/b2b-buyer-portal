@@ -54,6 +54,9 @@ import {
 import {
   getB2BShoppingList,
   createB2BShoppingList,
+  updateB2BShoppingList,
+  duplicateB2BShoppingList,
+  deleteB2BShoppingList,
 } from './graphql/shoppingList'
 
 import {
@@ -106,6 +109,8 @@ export {
   superAdminEndMasquerade,
   getB2BShoppingList,
   createB2BShoppingList,
+  updateB2BShoppingList,
+  duplicateB2BShoppingList,
   getUserCompany,
   getOrderStatusType,
   getB2BVariantInfoBySkus,
@@ -125,4 +130,5 @@ export {
   deleteBCCustomerAddress,
   getB2BAddressConfig,
   getStorefrontConfig,
+  deleteB2BShoppingList,
 }

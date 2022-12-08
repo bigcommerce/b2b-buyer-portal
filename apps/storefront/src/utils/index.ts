@@ -41,6 +41,10 @@ import {
   snackbar,
 } from './b3Tip'
 
+import {
+  getCookie,
+} from './b3utils'
+
 export {
   convertArrayToGraphql,
   convertObjectToGraphql,
@@ -58,4 +62,5 @@ export {
   getProxyInfo,
   getCurrentJwt,
   snackbar,
+  getCookie,
 }

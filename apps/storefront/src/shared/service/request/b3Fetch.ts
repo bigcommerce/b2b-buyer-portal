@@ -9,6 +9,7 @@ import {
 
 import {
   B3SStorage,
+  getCookie,
 } from '@/utils'
 
 import {
@@ -105,12 +106,18 @@ export const B3Request = {
     }, type)
   },
   post: function post<T>(url: string, type: string, data: T): Promise<any> {
+    const config = type === RequestType.BCRest ? {
+      'x-xsrf-token': getCookie('XSRF-TOKEN'),
+    } : {
+      authToken: `${B3SStorage.get('B3B2BToken') || ''}`,
+    }
+
     return request(url, {
       body: JSON.stringify(data),
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authToken: `${B3SStorage.get('B3B2BToken') || ''}`,
+        ...config,
       },
     }, type)
   },

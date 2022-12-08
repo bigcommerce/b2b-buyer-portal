@@ -20,6 +20,11 @@ const Usermanagement = lazy(() => import('../../pages/usermanagement/Usermanagem
 
 const AddressList = lazy(() => import('../../pages/address/Address'))
 
+const ShippingLists = lazy(() => import('../../pages/shippingLists/ShippingLists'))
+
+// const AccountSetting = lazy(() => import('../../pages/accountSetting/AccountSetting'))
+const AccountSetting = lazy(() => import('../../pages/dashboard/Dashboard'))
+
 type OrderItem = typeof OrderList
 
 export interface RouteItem {
@@ -75,13 +80,14 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: Usermanagement,
   },
-  // {
-  //   path: '/',
-  //   name: 'seleRep',
-  //   wsKey: 'router-seleRep',
-  //   isMenuItem: true,
-  //   component: SeleRep,
-  // },
+  {
+    path: '/shippingLists',
+    name: 'Shipping Lists',
+    wsKey: 'shippingLists',
+    isMenuItem: true,
+    component: ShippingLists,
+    configKey: 'shoppingLists',
+  },
   {
     path: '/recently-viewed',
     name: 'Recently Viewed',
@@ -94,7 +100,8 @@ const routes: RouteItem[] = [
     name: 'Account Settings',
     wsKey: 'router-orders',
     isMenuItem: true,
-    component: Dashboard,
+    component: AccountSetting,
+    configKey: 'accountSettings',
   },
   {
     path: '/',
@@ -114,7 +121,7 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   } = globalState
 
   return routes.filter((item: RouteItem) => {
-    // b2b user
+    // bc user
     if (!isB2BUser || (role === 3 && !isAgenting)) {
       return item.path !== '/company-orders' && item.path !== '/user-management'
     }

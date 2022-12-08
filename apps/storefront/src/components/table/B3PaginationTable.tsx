@@ -25,11 +25,10 @@ export interface TableColumnItem<T> {
   render?: (item: T, index: number) => ReactNode,
 }
 
-interface B3PaginationTableProps<T, Y, K> {
+interface B3PaginationTableProps<T, Y> {
   tableFixed?: boolean,
   tableHeaderHide?: boolean,
-  columnItems: TableColumnItem<T>[],
-  listItems: Array<any>,
+  columnItems?: TableColumnItem<T>[],
   itemSpacing?: number,
   itemXs?: number,
   pagination?: TablePagination,
@@ -43,12 +42,13 @@ interface B3PaginationTableProps<T, Y, K> {
   infiniteScrollHeight?: string,
   noDataText?: string,
   tableKey?: string,
-  getRequestList: (params: Y) => Promise<any>,
+  getRequestList: (params: Y) => CustomFieldItems,
   searchParams: Y,
-  arr: K
+  requestKey: string,
+  requestLoading?: (bool: boolean) => void,
 }
 
-export const B3PaginationTable:<T, Y, K>(props: B3PaginationTableProps<T, Y, K>) => ReactElement = ({
+export const B3PaginationTable:<T, Y>(props: B3PaginationTableProps<T, Y>) => ReactElement = ({
   columnItems,
   isCustomRender = false,
   tableKey,
@@ -65,6 +65,8 @@ export const B3PaginationTable:<T, Y, K>(props: B3PaginationTableProps<T, Y, K>)
   infiniteScrollHeight,
   getRequestList,
   searchParams,
+  requestKey,
+  requestLoading,
 }) => {
   const initPagination = {
     offset: 0,
@@ -77,22 +79,23 @@ export const B3PaginationTable:<T, Y, K>(props: B3PaginationTableProps<T, Y, K>)
 
   const [count, setAllCount] = useState<number>(0)
 
-  const [list, setList] = useState<any>([])
+  const [list, setList] = useState<any[]>([])
 
   const [isMobile] = useMobile()
 
   const fetchList = async (isInitPagination = false) => {
     try {
       setLoading(true)
+      if (requestLoading) requestLoading(true)
       const params = {
         ...searchParams,
         first: pagination.first,
         offset: isInitPagination ? 0 : pagination.offset,
       }
-
+      const requestList = await getRequestList(params)
       const {
         edges, totalCount,
-      } = await getRequestList(params)
+      } = requestList[requestKey]
 
       if (isMobile) {
         const newList = pagination.offset > 0 ? [...list, ...edges] : [...edges]
@@ -104,6 +107,7 @@ export const B3PaginationTable:<T, Y, K>(props: B3PaginationTableProps<T, Y, K>)
       setAllCount(totalCount)
     } finally {
       setLoading(false)
+      if (requestLoading) requestLoading(false)
     }
   }
 
@@ -126,7 +130,7 @@ export const B3PaginationTable:<T, Y, K>(props: B3PaginationTableProps<T, Y, K>)
 
   return (
     <B3Table
-      columnItems={columnItems}
+      columnItems={columnItems || []}
       listItems={list}
       pagination={tablePagination}
       rowsPerPageOptions={rowsPerPageOptions}

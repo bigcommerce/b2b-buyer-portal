@@ -103,6 +103,21 @@ export default function App() {
     })
   }
 
+  const setStorefrontConfig = async () => {
+    const {
+      storefrontConfig: {
+        config: storefrontConfig,
+      },
+    } = await getStorefrontConfig()
+
+    dispatch({
+      type: 'common',
+      payload: {
+        storefrontConfig,
+      },
+    })
+  }
+
   useEffect(() => {
     const {
       pathname,
@@ -158,30 +173,12 @@ export default function App() {
         await loginInfo()
       }
       await setLogo()
+      await setStorefrontConfig()
       if (!customerId) {
         const data = await getCurrentCustomerInfo(dispatch)
         if (data) gotoPage(data.role)
       }
       if (customerId && hash) gotoPage()
-    }
-
-    init()
-  }, [])
-
-  useEffect(() => {
-    const init = async () => {
-      const {
-        storefrontConfig: {
-          config: storefrontConfig,
-        },
-      } = await getStorefrontConfig()
-
-      dispatch({
-        type: 'common',
-        payload: {
-          storefrontConfig,
-        },
-      })
     }
 
     init()
