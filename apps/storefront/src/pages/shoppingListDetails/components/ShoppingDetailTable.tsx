@@ -144,7 +144,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false)
   const [optionsProduct, setOptionsProduct] = useState<any>(null)
   const [editProductItemId, setEditProductItemId] = useState<number | string | null>(null)
-  const [search, setSearch] = useState<SearchProps | {}>({})
+  const [search, setSearch] = useState<SearchProps>({
+    search: '',
+  })
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
     const listItems = paginationTableRef.current.getList()

@@ -37,6 +37,8 @@ import {
   B3RenderRouter,
 } from '@/components'
 
+import PDP from '@/pages/pdp/PDP'
+
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 const CUSTOM_STYLES = `
 body {
@@ -232,6 +234,7 @@ export default function App() {
           {isOpen ? (
             <B3RenderRouter setOpenPage={setOpenPage} />
           ) : null}
+          {/* <PDP /> */}
         </ThemeFrame>
       </div>
     </HashRouter>

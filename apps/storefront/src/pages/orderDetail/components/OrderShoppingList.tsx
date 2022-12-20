@@ -86,6 +86,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
 
   const getList = async () => {
     setLoading(true)
+    setList([])
     try {
       const {
         shoppingLists: {
@@ -130,10 +131,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
   }, [isOpen, IframeDocument])
 
   return (
-    <B3Sping
-      isSpinning={isLoading}
-      background="rgba(255,255,255,0.2)"
-    >
+    <>
       <Box
         ref={container}
       />
@@ -146,6 +144,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
+
         <DialogTitle
           id="alert-dialog-title"
           sx={{
@@ -155,8 +154,17 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
           {dialogTitle}
         </DialogTitle>
         <DialogContent>
-          <MenuList>
-            {
+          <B3Sping
+            isSpinning={isLoading}
+            background="rgba(255,255,255,0.2)"
+          >
+            <MenuList
+              sx={{
+                minHeight: '200px',
+                width: '100%',
+              }}
+            >
+              {
               list.map((item: ListItem) => (
                 <ShoppingListMenuItem
                   key={item.node.id}
@@ -167,7 +175,9 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
                 </ShoppingListMenuItem>
               ))
             }
-          </MenuList>
+            </MenuList>
+          </B3Sping>
+
           <Button
             variant="text"
             onClick={handleCreate}
@@ -184,13 +194,16 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button
+            disabled={!activeId}
             onClick={handleConfirm}
             autoFocus
           >
             {confirmText}
           </Button>
         </DialogActions>
+
       </Dialog>
-    </B3Sping>
+    </>
+
   )
 }

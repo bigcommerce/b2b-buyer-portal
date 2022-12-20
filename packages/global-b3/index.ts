@@ -6,6 +6,7 @@ const globalB3 = {
   'dom.allOtherElement': '[href^="/account.php"]',
   'dom.checkoutRegisterParentElement': '.checkout-step--customer .checkout-view-content',
   'dom.navUserLoginElement': '.navUser-item.navUser-item--account',
+  'dom.setToShoppingList': '#form-action-addToCart',
   before_login_goto_page: '/',
   setting: {
     b2b_url: 'https://staging-v2.bundleb2b.net',

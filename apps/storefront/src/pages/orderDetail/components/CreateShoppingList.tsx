@@ -2,6 +2,7 @@ import {
   useRef,
   useContext,
   useEffect,
+  useState,
 } from 'react'
 
 import {
@@ -17,6 +18,10 @@ import {
 import {
   useForm,
 } from 'react-hook-form'
+import {
+  B3Sping,
+} from '@/components/spin/B3Sping'
+
 import {
   useMobile,
 } from '@/hooks'
@@ -71,6 +76,8 @@ const CreateShoppingList = ({
   const [isMobile] = useMobile()
   const container = useRef<HTMLInputElement | null>(null)
 
+  const [loading, setLoading] = useState<boolean>(false)
+
   const {
     control,
     handleSubmit,
@@ -89,11 +96,13 @@ const CreateShoppingList = ({
 
   const handleConfirm = () => {
     handleSubmit(async (data) => {
+      setLoading(true)
       const createShoppingData = {
         ...data,
         status: 40,
       }
       await createB2BShoppingList(createShoppingData)
+      setLoading(false)
       onChange()
     })()
   }
@@ -159,9 +168,14 @@ const CreateShoppingList = ({
           <Button onClick={handleClose}>Cancel</Button>
           <Button
             onClick={handleConfirm}
-            autoFocus
           >
-            save
+            <B3Sping
+              isSpinning={loading}
+              tip=""
+              size={16}
+            >
+              save
+            </B3Sping>
           </Button>
         </DialogActions>
       </Dialog>

@@ -28,16 +28,21 @@ const B3FilterSearch = ({
   const [search, setSearch] = useState<string>('')
   const debouncedValue = useDebounce<string>(search, 500)
 
+  const [isInitLoading, setIsInitLoading] = useState<boolean>(true)
+
   const handleSearchClick = () => {
+    setIsInitLoading(false)
     handleChange(search)
   }
 
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setIsInitLoading(false)
     setSearch(e.target.value)
   }
 
   // 防抖
   useEffect(() => {
+    if (isInitLoading) return
     handleChange(search)
   }, [debouncedValue])
 

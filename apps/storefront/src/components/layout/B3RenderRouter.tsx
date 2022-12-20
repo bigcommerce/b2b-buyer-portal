@@ -46,6 +46,8 @@ const Login = lazy(() => import('../../pages/login/Login'))
 
 const ForgotPassword = lazy(() => import('../../pages/login/ForgotPassword'))
 
+const PDP = lazy(() => import('../../pages/pdp/PDP'))
+
 interface B3RenderRouterProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
 
@@ -113,6 +115,10 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
         <Route
           path="login"
           element={<Login setOpenPage={setOpenPage} />}
+        />
+        <Route
+          path="pdp"
+          element={<PDP setOpenPage={setOpenPage} />}
         />
         <Route
           path="forgotpassword"

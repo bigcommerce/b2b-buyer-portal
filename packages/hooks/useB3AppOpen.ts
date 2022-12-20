@@ -9,6 +9,10 @@ import {
   useMutationObservable,
 } from './useMutationObservable'
 
+import {
+  useB3PDPOpen,
+} from './useB3PDPOpen'
+
 export interface OpenPageState {
   isOpen: boolean,
   openUrl?: string,
@@ -25,6 +29,13 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
     isOpen: initOpenState.isOpen,
     openUrl: '',
   })
+
+  const pdpCallBbck = useCallback(() => {
+    setOpenPage({
+      isOpen: true,
+      openUrl: '/pdp',
+    })
+  }, [])
 
   const getCurrentLoginUrl = (href: string): string => {
     let url = '/login'
@@ -75,6 +86,8 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
   }, [checkoutRegisterNumber])
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback)
+
+  useB3PDPOpen(globalB3['dom.setToShoppingList'], pdpCallBbck)
 
   return [openPage, setOpenPage] as const
 }
