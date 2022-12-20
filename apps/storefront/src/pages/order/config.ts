@@ -2,14 +2,8 @@ import {
   distanceDay,
 } from '@/utils'
 
-// import {
-//   orderStatusCode,
-// } from './shared/getOrderStatus'
-
 export interface FilterSearchProps {
   [key: string]: string | number
-  offset: number
-  first: number
   beginDateAt: string
   endDateAt: string
   orderBy: string
@@ -29,8 +23,8 @@ export interface FilterMoreProps {
 }
 
 const b2bFilterSearch:FilterSearchProps = {
-  offset: 0,
-  first: 10,
+  // offset: 0,
+  // first: 10,
   q: '',
   companyId: '',
   beginDateAt: distanceDay(30),
@@ -44,8 +38,8 @@ const b2bFilterSearch:FilterSearchProps = {
 }
 
 const bcFilterSearch = {
-  offset: 0,
-  first: 10,
+  // offset: 0,
+  // first: 10,
   beginDateAt: distanceDay(30),
   endDateAt: distanceDay(),
   orderBy: '-createdAt',

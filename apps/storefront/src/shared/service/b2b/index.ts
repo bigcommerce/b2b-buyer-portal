@@ -45,6 +45,8 @@ import {
   superAdminEndMasquerade,
   getUserCompany,
   getStorefrontConfig,
+  getCurrencies,
+  getBcCurrencies,
 } from './graphql/global'
 
 import {
@@ -57,10 +59,15 @@ import {
   updateB2BShoppingList,
   duplicateB2BShoppingList,
   deleteB2BShoppingList,
+  getB2BShoppingListDetails,
+  addProductToShoppingList,
+  updateB2BShoppingListsItem,
+  deleteB2BShoppingListItem,
 } from './graphql/shoppingList'
 
 import {
   getB2BVariantInfoBySkus,
+  searchB2BProducts,
 } from './graphql/product'
 
 import {
@@ -94,6 +101,8 @@ export {
   validateBCCompanyExtraFields,
   getB2BAccountFormFields,
   getBCToken,
+  getCurrencies,
+  getBcCurrencies,
   getB2BLoginPageConfig,
   getBCForcePasswordReset,
   getBCStoreChannelId,
@@ -130,5 +139,10 @@ export {
   deleteBCCustomerAddress,
   getB2BAddressConfig,
   getStorefrontConfig,
+  searchB2BProducts,
   deleteB2BShoppingList,
+  getB2BShoppingListDetails,
+  addProductToShoppingList,
+  updateB2BShoppingListsItem,
+  deleteB2BShoppingListItem,
 }

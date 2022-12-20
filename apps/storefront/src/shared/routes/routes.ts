@@ -20,10 +20,10 @@ const Usermanagement = lazy(() => import('../../pages/usermanagement/Usermanagem
 
 const AddressList = lazy(() => import('../../pages/address/Address'))
 
-const ShippingLists = lazy(() => import('../../pages/shippingLists/ShippingLists'))
+const ShippingLists = lazy(() => import('../../pages/shoppingLists/ShoppingLists'))
 
 // const AccountSetting = lazy(() => import('../../pages/accountSetting/AccountSetting'))
-const AccountSetting = lazy(() => import('../../pages/dashboard/Dashboard'))
+const ShoppingListDetails = lazy(() => import('../../pages/shoppingListDetails/ShoppingListDetails'))
 
 type OrderItem = typeof OrderList
 
@@ -34,6 +34,7 @@ export interface RouteItem {
   isMenuItem: boolean,
   wsKey: string,
   configKey?: string,
+  permissions: number[], // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 99: bc user
 }
 
 const routes: RouteItem[] = [
@@ -43,6 +44,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: OrderList,
+    permissions: [0, 1, 2, 3, 99],
   },
   {
     path: '/company-orders',
@@ -50,6 +52,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: CompanyOrderList,
+    permissions: [0, 1, 2, 3],
   },
   {
     path: '/orderDetail/:id',
@@ -57,6 +60,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: false,
     component: OrderDetail,
+    permissions: [0, 1, 2, 3, 99],
   },
   {
     path: '/invoiceDetail/:id',
@@ -64,6 +68,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-invoice',
     isMenuItem: false,
     component: InvoiceDetail,
+    permissions: [0, 1, 2, 3, 99],
   },
   {
     path: '/addresses',
@@ -72,6 +77,15 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: AddressList,
     configKey: 'addressBook',
+    permissions: [0, 1, 2, 3, 99],
+  },
+  {
+    path: '/shoppingList/:id',
+    name: 'Shopping List',
+    wsKey: 'router-shopping-list',
+    isMenuItem: false,
+    component: ShoppingListDetails,
+    permissions: [0, 1, 2, 3],
   },
   {
     path: '/user-management',
@@ -79,14 +93,16 @@ const routes: RouteItem[] = [
     wsKey: 'router-userManagement',
     isMenuItem: true,
     component: Usermanagement,
+    permissions: [0, 1, 3],
   },
   {
-    path: '/shippingLists',
-    name: 'Shipping Lists',
-    wsKey: 'shippingLists',
+    path: '/shoppingLists',
+    name: 'Shopping Lists',
+    wsKey: 'shioppingLists',
     isMenuItem: true,
     component: ShippingLists,
     configKey: 'shoppingLists',
+    permissions: [0, 1, 2, 3],
   },
   {
     path: '/recently-viewed',
@@ -94,14 +110,16 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: Dashboard,
+    permissions: [0, 1, 2, 3, 99],
   },
   {
     path: '/account-settings',
     name: 'Account Settings',
     wsKey: 'router-orders',
     isMenuItem: true,
-    component: AccountSetting,
+    component: Dashboard,
     configKey: 'accountSettings',
+    permissions: [0, 1, 2, 3, 99],
   },
   {
     path: '/',
@@ -109,6 +127,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: Dashboard,
+    permissions: [0, 1, 2, 3, 99],
   },
 ]
 
@@ -121,14 +140,16 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   } = globalState
 
   return routes.filter((item: RouteItem) => {
-    // bc user
+    const {
+      permissions = [],
+    } = item
+
+    // b2b user
     if (!isB2BUser || (role === 3 && !isAgenting)) {
-      return item.path !== '/company-orders' && item.path !== '/user-management'
+      return permissions.includes(99)
     }
 
-    if (role === 2 && item.path === '/user-management') return false
-
-    if (!storefrontConfig) {
+    if (!permissions.includes(+role || 0) || !storefrontConfig) {
       return false
     }
 

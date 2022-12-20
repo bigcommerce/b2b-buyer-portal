@@ -9,10 +9,6 @@ import {
   useRef,
 } from 'react'
 
-import {
-  useMobile,
-} from '@/hooks'
-
 import B3Filter from '../../components/filter/B3Filter'
 import {
   AddressItemCard,
@@ -24,9 +20,8 @@ import {
   DeleteAddressDialog,
 } from './components/DeleteAddressDialog '
 import {
-  Pagination,
-  B3Table,
-} from '@/components/table/B3Table'
+  B3PaginationTable,
+} from '@/components/table/B3PaginationTable'
 import {
   B3Sping,
 } from '@/components/spin/B3Sping'
@@ -72,6 +67,13 @@ type BCAddress = {
   node: BCAddressItemType
 }
 
+interface FilterSearchProps{
+  country?: string,
+  state?: string,
+  city?: string,
+  search?: string,
+}
+
 const Address = () => {
   const {
     state: {
@@ -90,21 +92,13 @@ const Address = () => {
   const addEditAddressRef = useRef<RefCurrntProps | null>(null)
 
   const [isRequestLoading, setIsRequestLoading] = useState(false)
-  const [addressList, setAddressList] = useState([])
-  const [searchParams, setSearchParams] = useState({})
   const [addressFields, setAddressFields] = useState<CustomFieldItems[]>([])
   const [countries, setCountries] = useState<CountryProps[]>([])
-  const [pagination, setPagination] = useState<Pagination>({
-    offset: 0,
-    count: 0,
-    first: 9,
-  })
+  const [filterData, setFilterData] = useState<Partial<FilterSearchProps> | null>(null)
 
   const companyId = role === 3 && isAgenting ? salesRepCompanyId : companyInfoId
   const hasAdminPermission = isB2BUser && (!role || (role === 3 && isAgenting))
   const isBCPermission = !isB2BUser || (role === 3 && !isAgenting)
-
-  const [isMobile] = useMobile()
 
   useEffect(() => {
     if (addressFields.length === 0) {
@@ -130,100 +124,66 @@ const Address = () => {
     }
   }, [])
 
-  const getAddressList = async (pagination: Pagination, params = {}) => {
-    setIsRequestLoading(true)
+  const getAddressList = async (params = {}) => {
+    let list = []
+    let count = 0
 
-    try {
-      let list = []
-      let {
-        count,
-      } = pagination
-
-      if (!isBCPermission) {
-        const {
-          addresses: {
-            edges: addressList = [],
-            totalCount,
-          },
-        }: CustomFieldItems = await getB2BAddress({
-          companyId,
-          ...params,
-          ...pagination,
-        })
-
-        list = addressList
-        count = totalCount
-      } else {
-        const {
-          customerAddresses: {
-            edges: addressList = [],
-            totalCount,
-          },
-        }: CustomFieldItems = await getBCCustomerAddress({
-          ...params,
-          ...pagination,
-        })
-
-        list = addressList.map((address: BCAddress) => ({
-          node: convertBCToB2BAddress(address.node),
-        }))
-        count = totalCount
-      }
-
-      if (isMobile) {
-        const newList = pagination.offset > 0 ? [...addressList, ...list] : list
-        setAddressList(newList)
-      } else {
-        setAddressList(list)
-      }
-
-      setPagination({
-        ...pagination,
-        count,
+    if (!isBCPermission) {
+      const {
+        addresses: {
+          edges: addressList = [],
+          totalCount,
+        },
+      }: CustomFieldItems = await getB2BAddress({
+        companyId,
+        ...params,
       })
-    } finally {
-      setIsRequestLoading(false)
+
+      list = addressList
+      count = totalCount
+    } else {
+      const {
+        customerAddresses: {
+          edges: addressList = [],
+          totalCount,
+        },
+      }: CustomFieldItems = await getBCCustomerAddress({
+        ...params,
+      })
+
+      list = addressList.map((address: BCAddress) => ({
+        node: convertBCToB2BAddress(address.node),
+      }))
+      count = totalCount
+    }
+
+    return {
+      edges: list,
+      totalCount: count,
     }
   }
 
   const handleChange = (key: string, value: string) => {
     if (key === 'search') {
-      const params = {
-        ...searchParams,
+      setFilterData({
+        ...filterData,
         search: value,
-      }
-
-      setSearchParams(params)
-      getAddressList({
-        ...pagination,
-        offset: 0,
-      }, params)
+      })
     }
   }
-  const handleFilterChange = (values: {[key: string]: string | number | Date}) => {
-    const params = {
-      ...searchParams,
+  const handleFilterChange = (values: FilterSearchProps) => {
+    setFilterData({
+      ...filterData,
       country: values.country || '',
       state: values.state || '',
       city: values.city || '',
-    }
-    setSearchParams(params)
-    getAddressList({
-      ...pagination,
-      offset: 0,
-    }, params)
+    })
   }
 
-  const handlePaginationChange = (pagination: Pagination) => {
-    setPagination(pagination)
-    getAddressList(pagination, searchParams)
-  }
-
-  const updateAddressList = (isFirst: boolean = true) => {
-    getAddressList({
-      ...pagination,
-      offset: isFirst ? 0 : pagination.offset,
-    }, searchParams)
+  const updateAddressList = () => {
+    setFilterData({
+      ...filterData,
+    })
   }
 
   const [editPermission, setEditPermission] = useState(false)
@@ -323,15 +283,14 @@ const Address = () => {
           customButtomConfig={AddButtonConfig}
           handleFilterCustomButtomClick={handleCreate}
         />
-        <B3Table
+        <B3PaginationTable
           columnItems={[]}
-          listItems={addressList}
-          pagination={pagination}
-          onPaginationChange={handlePaginationChange}
-          isCustomRender
-          isInfiniteScroll={isMobile}
-          isLoading={isRequestLoading}
           rowsPerPageOptions={[9, 18, 27]}
+          getRequestList={getAddressList}
+          searchParams={filterData || {}}
+          isCustomRender
+          requestLoading={setIsRequestLoading}
+          tableKey="id"
           renderItem={(row: AddressItemType) => (
             <AddressItemCard
               key={row.id}

@@ -25,8 +25,8 @@ import {
 } from '@/utils'
 
 import {
-  getCreatedShippingListFiles,
-  ShippingListsItemsProps,
+  getCreatedShoppingListFiles,
+  ShoppingListsItemsProps,
   GetFilterMoreListProps,
 } from './config'
 
@@ -35,14 +35,14 @@ interface AddEditUserProps {
   role: number | string
 }
 
-const AddEditShippingLists = ({
+const AddEditShoppingLists = ({
   renderList,
   role,
 }: AddEditUserProps, ref: Ref<unknown> | undefined) => {
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
 
-  const [editData, setEditData] = useState<ShippingListsItemsProps | null>(null)
+  const [editData, setEditData] = useState<ShoppingListsItemsProps | null>(null)
 
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false)
 
@@ -81,22 +81,22 @@ const AddEditShippingLists = ({
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
       try {
-        const params: Partial<ShippingListsItemsProps> = {
+        const params: Partial<ShoppingListsItemsProps> = {
           ...data,
         }
 
         let fn = createB2BShoppingList
-        let successTip = 'add shippingLists successfully'
+        let successTip = 'add shoppingLists successfully'
 
         if (type === 'edit') {
           fn = updateB2BShoppingList
           params.id = editData?.id || 0
           params.status = editData?.status
-          successTip = 'update shippingLists successfully'
+          successTip = 'update shoppingLists successfully'
         } else if (type === 'dup') {
           fn = duplicateB2BShoppingList
           params.sampleShoppingListId = editData?.id || 0
-          successTip = 'duplicate shippingLists successfully'
+          successTip = 'duplicate shoppingLists successfully'
 
           // params.status = +role === 2 ? 30 : editData?.status
         } else if (type === 'add') {
@@ -113,8 +113,8 @@ const AddEditShippingLists = ({
     })()
   }
 
-  const handleOpenAddEditShippingListsClick = (type: string, data: ShippingListsItemsProps) => {
-    const usersFiles = getCreatedShippingListFiles()
+  const handleOpenAddEditShoppingListsClick = (type: string, data: ShoppingListsItemsProps) => {
+    const usersFiles = getCreatedShoppingListFiles()
     setUsersFiles(usersFiles)
     if (data) setEditData(data)
     setType(type)
@@ -122,7 +122,7 @@ const AddEditShippingLists = ({
   }
 
   useImperativeHandle(ref, () => ({
-    handleOpenAddEditShippingListsClick,
+    handleOpenAddEditShoppingListsClick,
   }))
 
   const getTitle = () => {
@@ -156,6 +156,6 @@ const AddEditShippingLists = ({
   )
 }
 
-const B3AddEditShippingLists = forwardRef(AddEditShippingLists)
+const B3AddEditShoppingLists = forwardRef(AddEditShoppingLists)
 
-export default B3AddEditShippingLists
+export default B3AddEditShoppingLists

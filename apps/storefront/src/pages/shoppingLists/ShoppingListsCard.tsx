@@ -16,19 +16,20 @@ import {
 } from 'react-router-dom'
 
 import {
-  ShippingListsItemsProps,
+  ShoppingListsItemsProps,
 } from './config'
 
 import {
-  ShippingStatus,
-} from './ShippingStatus'
+  ShoppingStatus,
+} from './ShoppingStatus'
 
 export interface OrderItemCardProps {
-  item: ShippingListsItemsProps,
-  onEdit: (data: ShippingListsItemsProps) => void
-  onDelete: (data: ShippingListsItemsProps) => void
-  onCopy: (data: ShippingListsItemsProps) => void
+  item: ShoppingListsItemsProps,
+  onEdit: (data: ShoppingListsItemsProps) => void
+  onDelete: (data: ShoppingListsItemsProps) => void
+  onCopy: (data: ShoppingListsItemsProps) => void
   isPermissions: boolean
+  role: number | string
 }
 
 const Flex = styled('div')(() => ({
@@ -48,22 +49,32 @@ const FlexItem = styled(Box)(() => ({
   justifyContent: 'start',
 }))
 
-const ShippingListsCard = (props: OrderItemCardProps) => {
+const ShoppingListsCard = (props: OrderItemCardProps) => {
   const {
-    item: shippingList,
+    item: shoppingList,
     onEdit,
     onDelete,
     onCopy,
     isPermissions,
+    role,
   } = props
+
+  const getPermissions = (status: number) => {
+    if (role === 2) {
+      if (status === 20 || status === 30) return false
+      return true
+    }
+
+    return false
+  }
 
   const navigate = useNavigate()
 
-  const goToDetail = (shippingList: ShippingListsItemsProps) => navigate(`/shoppingList/${shippingList.id}`)
+  const goToDetail = (shoppingList: ShoppingListsItemsProps) => navigate(`/shoppingList/${shoppingList.id}`)
 
   return (
     <Card
-      key={shippingList.id}
+      key={shoppingList.id}
     >
       <CardContent
         sx={{
@@ -76,7 +87,7 @@ const ShippingListsCard = (props: OrderItemCardProps) => {
             color: 'rgba(0, 0, 0, 0.87)',
           }}
         >
-          {shippingList.name}
+          {shoppingList.name}
         </Typography>
         <Box
           sx={{
@@ -89,11 +100,11 @@ const ShippingListsCard = (props: OrderItemCardProps) => {
               pb: '25px',
             }}
           >
-            <ShippingStatus status={shippingList.status} />
+            <ShoppingStatus status={shoppingList.status} />
           </Box>
           <Typography>
             {
-              shippingList.description
+              shoppingList.description
             }
           </Typography>
 
@@ -101,21 +112,21 @@ const ShippingListsCard = (props: OrderItemCardProps) => {
             <FontBold>
               Created by:
             </FontBold>
-            {shippingList.customerInfo.firstName}
+            {shoppingList.customerInfo.firstName}
             {' '}
-            {shippingList.customerInfo.lastName}
+            {shoppingList.customerInfo.lastName}
           </FlexItem>
           <FlexItem>
             <FontBold>
               Products:
             </FontBold>
-            {shippingList.products.totalCount}
+            {shoppingList.products.totalCount}
           </FlexItem>
           <FlexItem>
             <FontBold>
               Last activity:
             </FontBold>
-            {shippingList.name}
+            {shoppingList.name}
           </FlexItem>
         </Box>
         <Flex>
@@ -126,7 +137,7 @@ const ShippingListsCard = (props: OrderItemCardProps) => {
               minWidth: 0,
             }}
             variant="text"
-            onClick={() => goToDetail(shippingList)}
+            onClick={() => goToDetail(shoppingList)}
           >
             View
           </Button>
@@ -141,7 +152,8 @@ const ShippingListsCard = (props: OrderItemCardProps) => {
               sx={{
                 marginRight: '8px',
               }}
-              onClick={() => { onEdit(shippingList) }}
+              disabled={getPermissions(shoppingList.status)}
+              onClick={() => { onEdit(shoppingList) }}
             >
               <EditIcon fontSize="inherit" />
             </IconButton>
@@ -151,14 +163,15 @@ const ShippingListsCard = (props: OrderItemCardProps) => {
               sx={{
                 marginRight: '8px',
               }}
-              onClick={() => { onCopy(shippingList) }}
+              onClick={() => { onCopy(shoppingList) }}
             >
               <ContentCopyIcon fontSize="inherit" />
             </IconButton>
             <IconButton
               aria-label="delete"
               size="small"
-              onClick={() => { onDelete(shippingList) }}
+              disabled={getPermissions(shoppingList.status)}
+              onClick={() => { onDelete(shoppingList) }}
             >
               <DeleteIcon fontSize="inherit" />
             </IconButton>
@@ -169,4 +182,4 @@ const ShippingListsCard = (props: OrderItemCardProps) => {
   )
 }
 
-export default ShippingListsCard
+export default ShoppingListsCard

@@ -26,6 +26,10 @@ import {
 } from '@/components/ThemeFrame'
 
 import {
+  addProductToShoppingList,
+} from '@/shared/service/b2b'
+
+import {
   OrderCheckboxProduct,
 } from './OrderCheckboxProduct'
 
@@ -71,6 +75,8 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
 
   const [openShoppingList, setOpenShoppingList] = useState(false)
   const [editableProducts, setEditableProducts] = useState<EditableProductItem[]>([])
+  const [isRequestLoading, setIsRequestLoading] = useState(false)
+  const [checkedArr, setCheckedArr] = useState<number[]>([])
 
   const [isMobile] = useMobile()
 
@@ -94,8 +100,45 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
     setOpenShoppingList(false)
   }
 
-  const handleShoppingConfirm = () => {
-    setOpenShoppingList(false)
+  const handleShoppingConfirm = async (id: string) => {
+    setIsRequestLoading(true)
+    try {
+      const items = editableProducts.map((product) => {
+        const {
+          product_id: productId,
+          variant_id: variantId,
+          quantity,
+          optionList,
+        } = product
+
+        return {
+          productId: +productId,
+          variantId,
+          quantity,
+          optionList: optionList.map((option) => {
+            const {
+              optionId,
+              optionValue,
+            } = option
+
+            return {
+              optionId: `attribute[${optionId}]`,
+              optionValue,
+            }
+          }),
+        }
+      })
+      const params = items.filter((item) => checkedArr.includes(+item.variantId))
+
+      await addProductToShoppingList({
+        shoppingListId: +id,
+        items: params,
+      })
+
+      setOpenShoppingList(false)
+    } finally {
+      setIsRequestLoading(false)
+    }
   }
 
   const handleOpenCreateDialog = () => {
@@ -171,6 +214,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
               products={editableProducts}
               onProductChange={handleProductChange}
               currencyInfo={currencyInfo}
+              setCheckedArr={setCheckedArr}
             />
           </DialogContent>
 
@@ -196,6 +240,8 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           onClose={handleShoppingClose}
           onConfirm={handleShoppingConfirm}
           onCreate={handleOpenCreateDialog}
+          isLoading={isRequestLoading}
+          setLoading={setIsRequestLoading}
         />
         )
       }

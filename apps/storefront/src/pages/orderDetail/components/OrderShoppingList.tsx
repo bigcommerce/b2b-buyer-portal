@@ -33,6 +33,10 @@ import {
 } from '@/components/ThemeFrame'
 
 import {
+  B3Sping,
+} from '@/components/spin/B3Sping'
+
+import {
   ShoppingListItem,
 } from '../../../types'
 
@@ -52,6 +56,8 @@ interface orderShoppingListProps {
   onClose?: () => void,
   onCreate?: () => void,
   onConfirm?: (id: string) => void,
+  isLoading?: boolean,
+  setLoading?: (val: boolean) => void,
 }
 
 interface ListItem {
@@ -68,6 +74,8 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
     onClose = noop,
     onConfirm = noop,
     onCreate = noop,
+    isLoading = false,
+    setLoading = noop,
   } = props
 
   const container = useRef<HTMLInputElement | null>(null)
@@ -77,13 +85,18 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
   const [activeId, setActiveId] = useState('')
 
   const getList = async () => {
-    const {
-      shoppingLists: {
-        edges: list = [],
-      },
-    }: CustomFieldItems = await getB2BShoppingList()
+    setLoading(true)
+    try {
+      const {
+        shoppingLists: {
+          edges: list = [],
+        },
+      }: CustomFieldItems = await getB2BShoppingList()
 
-    setList(list)
+      setList(list)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -117,7 +130,10 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
   }, [isOpen, IframeDocument])
 
   return (
-    <Box>
+    <B3Sping
+      isSpinning={isLoading}
+      background="rgba(255,255,255,0.2)"
+    >
       <Box
         ref={container}
       />
@@ -175,6 +191,6 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </B3Sping>
   )
 }

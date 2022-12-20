@@ -100,6 +100,31 @@ const storefrontConfig = () => `{
   }
 }`
 
+const currencies = (channelId: string) => `{
+  currencies(
+    storeHash: "${storeHash}",
+    channelId: "${channelId}",
+  ) {
+    currencies {
+      id,
+      is_default,
+      last_updated,
+      country_iso2,
+      default_for_country_codes,
+      currency_code,
+      currency_exchange_rate,
+      name,
+      token,
+      auto_update,
+      decimal_token,
+      decimal_places,
+      enabled,
+      is_transactional,
+    },
+    channelCurrencies,
+  }
+}`
+
 export const getB2BToken = (bcJwtToken: string): CustomFieldItems => B3Request.graphqlB2B({
   query: getB2BTokenQl(bcJwtToken),
 })
@@ -126,4 +151,11 @@ export const getUserCompany = (userId: number): CustomFieldItems => B3Request.gr
 
 export const getStorefrontConfig = (): CustomFieldItems => B3Request.graphqlB2B({
   query: storefrontConfig(),
+})
+
+export const getCurrencies = (channelId: string): CustomFieldItems => B3Request.graphqlB2B({
+  query: currencies(channelId),
+})
+export const getBcCurrencies = (channelId: string): CustomFieldItems => B3Request.graphqlBC({
+  query: currencies(channelId),
 })

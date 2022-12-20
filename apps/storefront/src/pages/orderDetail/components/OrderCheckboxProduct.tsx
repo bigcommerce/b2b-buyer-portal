@@ -7,6 +7,7 @@ import {
 } from '@mui/material'
 
 import {
+  useEffect,
   useState,
   ChangeEvent,
   KeyboardEvent,
@@ -29,6 +30,7 @@ interface OrderCheckboxProductProps {
   currencyInfo: OrderCurrency,
   getProductQuantity?: (item: EditableProductItem) => number
   onProductChange?: (products: EditableProductItem[]) => void
+  setCheckedArr?: (items: number[]) => void
 }
 
 interface FlexProps {
@@ -133,6 +135,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
     currencyInfo,
     getProductQuantity = (item) => item.quantity,
     onProductChange = () => {},
+    setCheckedArr = () => {},
   } = props
 
   const [isMobile] = useMobile()
@@ -196,6 +199,10 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
       onProductChange([...products])
     }
   }
+
+  useEffect(() => {
+    setCheckedArr(list)
+  }, [list])
 
   return products.length > 0 ? (
     <Box>

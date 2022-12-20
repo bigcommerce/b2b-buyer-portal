@@ -3,17 +3,23 @@ export const convertObjectToGraphql = (data: CustomFieldItems) => {
     return `"${data}"`
   }
   if (typeof data === 'number') {
-    return data
+    return `${data},`
   }
   let str = '{'
+
   Object.keys(data).forEach((item: any, index) => {
-    if (typeof data[item] === 'string' || typeof data[item] === 'number') {
+    const isLast = index === Object.keys(data).length - 1
+    if (typeof data[item] === 'string') {
+      str += `${item}: ${JSON.stringify(`${data[item]}`)}${isLast ? '' : ','} `
+    }
+
+    if (typeof data[item] === 'number') {
       if (index === Object.keys(data).length - 1) {
         str += `${item}: `
-        str += `${JSON.stringify(`${data[item]}`)}`
+        str += `${data[item]}`
       } else {
         str += `${item}: `
-        str += `${JSON.stringify(`${data[item]}`)}, `
+        str += `${data[item]}, `
       }
     }
 

@@ -1,0 +1,186 @@
+import {
+  Box,
+  Grid,
+  styled,
+  Typography,
+  Button,
+} from '@mui/material'
+
+import {
+  ArrowBackIosNew,
+} from '@mui/icons-material'
+
+import {
+  ShoppingStatus,
+} from '../../shoppingLists/ShoppingStatus'
+
+import {
+  useMobile,
+} from '@/hooks'
+
+const StyledCreateName = styled('div')(() => ({
+  display: 'flex',
+  alignItems: 'center',
+  marginTop: '0.5rem',
+}))
+
+interface ShoppingDetailHeaderProps {
+  shoppingListInfo: any,
+  role: string | number,
+  customerInfo: any,
+  goToShoppingLists: () => void,
+  handleUpdateShoppingList: (status: number) => void,
+}
+
+const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
+  const [isMobile] = useMobile()
+
+  const {
+    shoppingListInfo,
+    role,
+    customerInfo,
+    handleUpdateShoppingList,
+    goToShoppingLists,
+  } = props
+
+  const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0
+
+  const gridOptions = (xs: number) => (isMobile ? {} : {
+    xs,
+  })
+  return (
+    <>
+      <Box
+        sx={{
+          marginBottom: '10px',
+        }}
+      >
+        <Box
+          sx={{
+            color: '#1976d2',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+          onClick={goToShoppingLists}
+        >
+          <ArrowBackIosNew
+            fontSize="small"
+            sx={{
+              fontSize: '12px',
+              marginRight: '0.5rem',
+            }}
+          />
+          <p>Back to shopping lists</p>
+        </Box>
+      </Box>
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          flexDirection: `${isMobile ? 'column' : 'row'}`,
+        }}
+      >
+        <Grid
+          item
+          {...gridOptions(8)}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: `${isMobile ? 'start' : 'center'}`,
+              flexDirection: `${isMobile ? 'column' : 'row'}`,
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{
+                marginRight: '0.5rem',
+              }}
+            >
+              {`${shoppingListInfo?.name || ''} #${shoppingListInfo?.id || ''}`}
+            </Typography>
+            <Typography
+              sx={{
+                m: `${isMobile ? '10px 0' : '0'}`,
+              }}
+            >
+              {
+              shoppingListInfo && (
+                <ShoppingStatus status={shoppingListInfo?.status} />
+              )
+            }
+            </Typography>
+          </Box>
+          <Box>
+            <Typography>
+              {shoppingListInfo?.description}
+            </Typography>
+            <StyledCreateName>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  marginRight: '0.5rem',
+                }}
+              >
+                Created by:
+              </Typography>
+              <span>{`${customerInfo?.firstName} ${customerInfo?.lastName}`}</span>
+            </StyledCreateName>
+          </Box>
+        </Grid>
+
+        <Grid
+          item
+          sx={{
+            textAlign: `${isMobile ? 'none' : 'end'}`,
+          }}
+          {...gridOptions(4)}
+        >
+          {
+              (role === 2 && shoppingListInfo?.status === 30) && (
+                <Button
+                  variant="outlined"
+                  disabled={isDisabledBtn}
+                  onClick={() => {
+                    handleUpdateShoppingList(40)
+                  }}
+                >
+                  Submit for Approval
+                </Button>
+              )
+            }
+          {
+              ((role === 0 || role === 1) && shoppingListInfo?.status === 40) && (
+                <Box>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      marginRight: '1rem',
+                    }}
+                    onClick={() => {
+                      handleUpdateShoppingList(20)
+                    }}
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      handleUpdateShoppingList(0)
+                    }}
+                  >
+                    Approve
+                  </Button>
+                </Box>
+              )
+            }
+        </Grid>
+      </Grid>
+    </>
+  )
+}
+
+export default ShoppingDetailHeader

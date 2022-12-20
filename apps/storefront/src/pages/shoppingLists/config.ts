@@ -1,29 +1,29 @@
-export interface ShippingListSearch {
-  search?: String;
-  createdBy?: String;
-  status?: String;
+export interface ShoppingListSearch {
+  search?: string;
+  createdBy?: string;
+  status?: string | number | number[],
   offset?: number;
   first?: number;
 }
 
-interface ShippingListStatusProps {
+interface ShoppingListStatusProps {
   label: string
   value: number
 }
 
-interface ShippingListsItemsCustomerInfoProps {
+interface ShoppingListsItemsCustomerInfoProps {
   firstName: string
   lastName: string
   userId: number
   email: string
 }
 
-export interface ShippingListsItemsProps {
+export interface ShoppingListsItemsProps {
   id?: number
   name: string
   description: string
   status: number
-  customerInfo: ShippingListsItemsCustomerInfoProps
+  customerInfo: ShoppingListsItemsCustomerInfoProps
   products: {
     totalCount: number
   }
@@ -31,7 +31,7 @@ export interface ShippingListsItemsProps {
 }
 
 export interface GetFilterMoreListProps {
-  options?: Array<ShippingListStatusProps>
+  options?: Array<ShoppingListStatusProps>
   rows?: string | number,
   name: string
   label: string
@@ -43,8 +43,8 @@ export interface GetFilterMoreListProps {
   size: string
 }
 
-export const getFilterShippingListStatus = (role?: number | string): Array<ShippingListStatusProps> => {
-  const shippingListStatus: Array<ShippingListStatusProps> = [
+export const getFilterShoppingListStatus = (role?: number | string): Array<ShoppingListStatusProps> => {
+  const shoppingListStatus: Array<ShoppingListStatusProps> = [
     {
       label: 'Approved',
       value: 0,
@@ -59,13 +59,13 @@ export const getFilterShippingListStatus = (role?: number | string): Array<Shipp
     },
     {
       label: 'Rejected',
-      value: 50,
+      value: 20,
     },
   ]
 
-  const getShippingListStatus = role !== 2 ? shippingListStatus.filter((item: ShippingListStatusProps) => (item.value !== 30 && item.value !== 50)) : shippingListStatus
+  const getShoppingListStatus = role !== 2 ? shoppingListStatus.filter((item: ShoppingListStatusProps) => (item.value !== 30 && item.value !== 20)) : shoppingListStatus
 
-  return getShippingListStatus
+  return getShoppingListStatus
 }
 
 export const getFilterMoreList = (role: number | string): GetFilterMoreListProps[] => {
@@ -86,7 +86,7 @@ export const getFilterMoreList = (role: number | string): GetFilterMoreListProps
       required: false,
       default: '',
       fieldType: 'dropdown',
-      options: getFilterShippingListStatus(role),
+      options: getFilterShoppingListStatus(role),
       xs: 12,
       variant: 'filled',
       size: 'small',
@@ -96,7 +96,7 @@ export const getFilterMoreList = (role: number | string): GetFilterMoreListProps
   return filterMoreList
 }
 
-export const getCreatedShippingListFiles = (): GetFilterMoreListProps[] => [
+export const getCreatedShoppingListFiles = (): GetFilterMoreListProps[] => [
   {
     name: 'name',
     label: 'Name',

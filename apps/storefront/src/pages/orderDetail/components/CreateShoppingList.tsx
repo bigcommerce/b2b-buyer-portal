@@ -91,7 +91,7 @@ const CreateShoppingList = ({
     handleSubmit(async (data) => {
       const createShoppingData = {
         ...data,
-        status: 'Approved',
+        status: 40,
       }
       await createB2BShoppingList(createShoppingData)
       onChange()

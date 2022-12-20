@@ -26,6 +26,21 @@ namespace Form {
     label: string,
     [key: string]: string,
   }
+
+  export interface ProductRadioGroupListProps {
+    value: string,
+    label: string,
+    image?: {
+      alt: string,
+      data: string
+    },
+  }
+
+  export interface SwatchRadioGroupListProps {
+    value: string,
+    label: string,
+    colors?: string[],
+  }
 }
 
 export default Form

@@ -1,6 +1,5 @@
 import {
   useState,
-  useEffect,
   useContext,
   useRef,
 } from 'react'
@@ -22,9 +21,8 @@ import {
 } from '@/shared/global'
 
 import {
-  Pagination,
-  B3Table,
-} from '@/components/table/B3Table'
+  B3PaginationTable,
+} from '@/components/table/B3PaginationTable'
 
 import {
   B3Dialog,
@@ -59,21 +57,8 @@ interface RefCurrntProps extends HTMLInputElement {
 interface RoleProps {
   role: string
 }
-interface UsersListProps {
-  node: UsersList
-}
-
-const initPagination = {
-  offset: 0,
-  count: 0,
-  first: 15,
-}
 const Usermanagement = () => {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
-
-  const [usersList, setUsersList] = useState<Array<UsersListProps>>([])
-
-  const [pagination, setPagination] = useState<Pagination>(initPagination)
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
 
@@ -109,8 +94,6 @@ const Usermanagement = () => {
   }
 
   const initSearch = {
-    first: 15,
-    offset: 0,
     search: '',
     role: '',
     companyId,
@@ -118,51 +101,27 @@ const Usermanagement = () => {
 
   const [filterSearch, setFilterSearch] = useState<Partial<filterProps>>(initSearch)
 
-  const fetchList = async () => {
-    try {
-      setIsRequestLoading(true)
-      const data = await getUsers(filterSearch)
+  const fetchList = async (params: Partial<filterProps>) => {
+    const data = await getUsers(params)
 
-      const {
-        users: {
-          edges,
-          totalCount,
-        },
-      } = data
+    const {
+      users: {
+        edges,
+        totalCount,
+      },
+    } = data
 
-      if (isMobile) {
-        const list = pagination.offset > 0 ? [...usersList, ...edges] : [...edges]
-        setUsersList(list)
-      } else {
-        setUsersList(edges)
-      }
-
-      const ListPagination = {
-        ...pagination,
-      }
-
-      ListPagination.count = totalCount
-
-      setPagination(ListPagination)
-    } finally {
-      setIsRequestLoading(false)
+    return {
+      edges,
+      totalCount,
     }
   }
 
   const initSearchList = () => {
     setFilterSearch({
       ...filterSearch,
-      offset: 0,
-    })
-    setPagination({
-      ...pagination,
-      offset: 0,
     })
   }
-
-  useEffect(() => {
-    fetchList()
-  }, [filterSearch])
 
   const fiterMoreInfo = getFilterMoreList()
 
@@ -170,14 +129,7 @@ const Usermanagement = () => {
     const search = {
       ...filterSearch,
       q: value,
-      offset: 0,
     }
-    const listPagination = {
-      ...pagination,
-      offset: 0,
-    }
-
-    setPagination(listPagination)
     setFilterSearch(search)
   }
 
@@ -187,12 +139,6 @@ const Usermanagement = () => {
       role: value.role,
       offset: 0,
     }
-    const listPagination = {
-      ...pagination,
-      offset: 0,
-    }
-
-    setPagination(listPagination)
     setFilterSearch(search)
   }
 
@@ -209,16 +155,6 @@ const Usermanagement = () => {
     setDeleteOpen(true)
   }
 
-  const handlePaginationChange = (pagination: Pagination) => {
-    const search = {
-      ...filterSearch,
-      first: pagination.first,
-      offset: pagination.offset,
-    }
-    setFilterSearch(search)
-    setPagination(pagination)
-  }
-
   const handleCancelClick = () => {
     setDeleteOpen(false)
   }
@@ -233,7 +169,7 @@ const Usermanagement = () => {
         companyId,
       })
       snackbar.success('delete user successfully')
-      fetchList()
+      initSearchList()
     } finally {
       setIsRequestLoading(false)
     }
@@ -257,15 +193,13 @@ const Usermanagement = () => {
           customButtomConfig={customItem}
           handleFilterCustomButtomClick={handleAddUserClick}
         />
-        <B3Table
+        <B3PaginationTable
           columnItems={[]}
-          listItems={usersList}
-          pagination={pagination}
           rowsPerPageOptions={[15, 30, 45]}
-          onPaginationChange={handlePaginationChange}
+          getRequestList={fetchList}
+          searchParams={filterSearch || {}}
           isCustomRender
-          isInfiniteScroll={isMobile}
-          isLoading={isRequestLoading}
+          requestLoading={setIsRequestLoading}
           renderItem={(row: UsersList) => (
             <UserItemCard
               key={row.id || ''}

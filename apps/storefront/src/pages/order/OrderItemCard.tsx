@@ -37,9 +37,9 @@ interface ListItem {
 }
 
 export interface OrderItemCardProps {
-  pagination: any,
+  allTotal: number,
   filterData: any,
-  index: number,
+  index?: number,
   item: ListItem,
   isCompanyOrder: boolean,
 }
@@ -55,9 +55,9 @@ const Flex = styled('div')(() => ({
 export const OrderItemCard = (props: OrderItemCardProps) => {
   const {
     item,
-    pagination,
+    allTotal,
     filterData,
-    index,
+    index = 0,
     isCompanyOrder,
   } = props
 
@@ -75,9 +75,9 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
   const goToDetail = (item: ListItem) => {
     navigate(`/orderDetail/${item.orderId}`, {
       state: {
-        currentIndex: index,
+        currentIndex: index || 0,
         searchParams: filterData,
-        totalCount: pagination.count,
+        totalCount: allTotal,
         isCompanyOrder,
       },
     })

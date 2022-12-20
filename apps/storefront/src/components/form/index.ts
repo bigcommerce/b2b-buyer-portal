@@ -16,6 +16,16 @@ export {
 export {
   B3ControlFileUpload,
 } from './B3ControlFileUpload'
+export {
+  B3ControlRectangle,
+} from './B3ControlRectangle'
+export {
+  B3ControlProductRadio,
+} from './B3ControlProductRadio'
+
+export {
+  B3ControlSwatchRadio,
+} from './B3ControlSwatchRadio'
 
 export {
   Captcha,

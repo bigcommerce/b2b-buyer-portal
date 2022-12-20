@@ -93,7 +93,7 @@ export const B3MobileLayout = ({
           flex: 1,
           display: 'flex',
           position: 'relative',
-          overflow: 'hidden',
+          // overflow: 'hidden',
         }}
       >
         {children}

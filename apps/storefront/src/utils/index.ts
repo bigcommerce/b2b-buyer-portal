@@ -23,6 +23,7 @@ import {
   getCurrentCustomerInfo,
   clearCurrentCustomerInfo,
   getCurrentJwt,
+  getCurrenciesInfo,
 } from './loginInfo'
 
 import {
@@ -63,4 +64,5 @@ export {
   getCurrentJwt,
   snackbar,
   getCookie,
+  getCurrenciesInfo,
 }

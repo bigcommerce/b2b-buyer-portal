@@ -1,3 +1,7 @@
+export interface SimpleObject{
+  [k: string]: string | number | undefined | null
+}
+
 export interface Address {
   city: string,
   company: string

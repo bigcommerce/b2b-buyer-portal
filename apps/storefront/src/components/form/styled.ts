@@ -5,6 +5,7 @@ import {
 import {
   FormControl,
   TextField,
+  FormControlLabel,
 } from '@mui/material'
 
 export const DropzoneBox = styled('div')(() => ({
@@ -88,5 +89,39 @@ export const StyleNumberTextField = styled(TextField)(() => ({
   },
   '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
     WebkitAppearance: 'none',
+  },
+}))
+
+export const StyleRectangleFormControlLabel = styled(FormControlLabel)(() => ({
+  marginLeft: '0',
+  border: '1px solid #767676',
+  padding: '5px 10px',
+  minWidth: '60px',
+  marginRight: '12px',
+  marginTop: '12px',
+  justifyContent: 'center',
+  '& > .MuiRadio-root': {
+    width: '0px',
+    overflow: 'hidden',
+    padding: '0',
+  },
+}))
+
+export const ProductImageContainer = styled('div')(() => ({
+  display: 'flex',
+  alignItems: 'center',
+  '& > img': {
+    width: '40px',
+    height: '40px',
+    margin: '5px 0 6px',
+    borderRadius: '4px',
+  },
+}))
+
+export const ColorContainer = styled('div')(() => ({
+  display: 'flex',
+  '& .swatch-color-item': {
+    width: '22px',
+    height: '22px',
   },
 }))

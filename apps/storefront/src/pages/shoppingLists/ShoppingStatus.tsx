@@ -11,7 +11,7 @@ import {
 } from '@/components/B3Tag'
 
 import {
-  getFilterShippingListStatus,
+  getFilterShoppingListStatus,
 } from './config'
 
 interface NewStatuProps {
@@ -22,7 +22,7 @@ interface NewStatuProps {
 }
 
 export const getStatus = (role: number | string) => {
-  const statusArr = getFilterShippingListStatus(role)
+  const statusArr = getFilterShoppingListStatus(role)
 
   const newStatus: Array<NewStatuProps> = statusArr.map((item) => {
     if (+item.value === 0) {
@@ -33,7 +33,7 @@ export const getStatus = (role: number | string) => {
       }
     }
 
-    if (+item.value === 30) {
+    if (+item.value === 40) {
       return {
         color: '#F4CC46',
         textColor: item.label,
@@ -58,13 +58,13 @@ export const getStatus = (role: number | string) => {
   return newStatus
 }
 
-interface ShippingStatusProps {
-  status: number
+interface ShoppingStatusProps {
+  status: number | string
 }
 
-export const ShippingStatus = ({
+export const ShoppingStatus = ({
   status,
-}: ShippingStatusProps) => {
+}: ShoppingStatusProps) => {
   const {
     state: {
       role,

@@ -1,23 +1,22 @@
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import TablePagination from '@mui/material/TablePagination'
-import Stack from '@mui/material/Stack'
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
+import {
+  Checkbox,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Grid,
+  Card,
+  Box,
+} from '@mui/material'
 import {
   ReactNode,
   ChangeEvent,
   MouseEvent,
   ReactElement,
 } from 'react'
-
-import {
-  B3InfiniteScroll,
-} from './B3InfiniteScroll'
 
 import {
   B3NoData,
@@ -42,12 +41,13 @@ interface TableProps<T> {
   columnItems: TableColumnItem<T>[],
   listItems: Array<any>,
   itemSpacing?: number,
+  itemIsMobileSpacing?: number,
   itemXs?: number,
   onPaginationChange?: (pagination: Pagination)=>void,
   pagination?: Pagination,
   rowsPerPageOptions?: number[],
   showPagination?: boolean,
-  renderItem?: (row: T, index: number) => ReactElement,
+  renderItem?: (row:T, index?: number, checkBox?: () => ReactElement) => ReactElement,
   isCustomRender?: boolean,
   isInfiniteScroll?: boolean,
   isLoading?: boolean,
@@ -57,6 +57,14 @@ interface TableProps<T> {
   infiniteScrollHeight?: string,
   noDataText?: string,
   tableKey?: string,
+  showCheckbox?: boolean,
+  setNeedUpdate?: (boolean: boolean) => void,
+  handleSelectAllItems?: () => void,
+  handleSelectOneItem?: (id: number | string) => void,
+  hover?: boolean,
+  showBorder?: boolean,
+  selectedSymbol?: string,
+  selectCheckbox?: Array<number | string>,
 }
 
 export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
@@ -71,18 +79,24 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
   onPaginationChange = () => {},
   rowsPerPageOptions = [10, 20, 50],
   showPagination = true,
-  renderItem = () => {},
+  renderItem,
   isCustomRender = false,
   isInfiniteScroll = false,
   isLoading = false,
-  infiniteScrollThreshold,
-  infiniteScrollNode,
-  infiniteScrollLoader,
   itemSpacing = 2,
+  itemIsMobileSpacing = 2,
   itemXs = 4,
   noDataText,
   tableHeaderHide = false,
   tableKey,
+  showCheckbox = false,
+  setNeedUpdate = () => {},
+  handleSelectAllItems,
+  handleSelectOneItem,
+  hover = false,
+  showBorder = true,
+  selectedSymbol = 'id',
+  selectCheckbox = [],
 }) => {
   const {
     offset,
@@ -101,6 +115,8 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
       ...pagination,
       offset: (page * first),
     })
+
+    setNeedUpdate(true)
   }
 
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -115,27 +131,68 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
     <>
       {
         isInfiniteScroll && (
-          <B3InfiniteScroll
-            pagination={pagination}
-            allCount={listItems.length}
-            onPaginationChange={handlePaginationChange}
-            isLoading={isLoading}
-            threshold={infiniteScrollThreshold}
-            scrollNode={infiniteScrollNode}
-            loader={infiniteScrollLoader}
-          >
-            <Stack spacing={itemSpacing}>
+          <>
+            {
+              showCheckbox && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Checkbox
+                  checked={selectCheckbox.length === listItems.length}
+                  onChange={handleSelectAllItems}
+                />
+                Select All
+              </Box>
+              )
+            }
+            <Grid
+              container
+              spacing={itemIsMobileSpacing}
+            >
               {
-                listItems.map((row, index) => (
-                  <>
-                    {
-                      renderItem(row.node, index)
-                    }
-                  </>
-                ))
-          }
-            </Stack>
-          </B3InfiniteScroll>
+                listItems.map((row, index) => {
+                  const node = row.node || row || {}
+                  const checkBox = () => (
+                    <Checkbox
+                      checked={selectCheckbox.includes(row.node[selectedSymbol])}
+                      onChange={() => {
+                        if (handleSelectOneItem) handleSelectOneItem(row.node[selectedSymbol])
+                      }}
+                    />
+                  )
+                  return (
+                    <Grid
+                      item
+                      xs={12}
+                      key={node[tableKey || 'id']}
+                    >
+                      <>
+                        {row?.node && renderItem && renderItem(row.node, index, checkBox)}
+                      </>
+                    </Grid>
+                  )
+                })
+              }
+            </Grid>
+
+            {
+              showPagination && (
+                <TablePagination
+                  rowsPerPageOptions={rowsPerPageOptions}
+                  labelRowsPerPage="per page:"
+                  component="div"
+                  count={count}
+                  rowsPerPage={first}
+                  page={first === 0 ? 0 : offset / first}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              )
+            }
+          </>
         )
       }
       {
@@ -155,7 +212,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                       key={node[tableKey || 'id']}
                     >
                       <>
-                        {row?.node && renderItem(row.node, index)}
+                        {row?.node && renderItem && renderItem(row.node, index)}
                       </>
                     </Grid>
                   )
@@ -183,6 +240,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
         <Card
           sx={{
             height: '100%',
+            boxShadow: showBorder ? '0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)' : 'none',
           }}
         >
           <TableContainer>
@@ -195,6 +253,18 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                 !tableHeaderHide && (
                 <TableHead>
                   <TableRow>
+                    {
+                      showCheckbox && (
+                        <TableCell
+                          key="showCheckbox"
+                        >
+                          <Checkbox
+                            checked={selectCheckbox.length === listItems.length}
+                            onChange={handleSelectAllItems}
+                          />
+                        </TableCell>
+                      )
+                    }
                     {
                       columnItems.map((column) => (
                         <TableCell
@@ -214,7 +284,24 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                 {listItems.map((row, index) => {
                   const node = row.node || row || {}
                   return (
-                    <TableRow key={node[tableKey || 'id']}>
+                    <TableRow
+                      key={node[tableKey || 'id']}
+                      hover={hover}
+                    >
+                      {
+                        showCheckbox && (
+                          <TableCell
+                            key={`showItemCheckbox-${node.id}`}
+                          >
+                            <Checkbox
+                              checked={selectCheckbox.includes(node[selectedSymbol])}
+                              onChange={() => {
+                                if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol])
+                              }}
+                            />
+                          </TableCell>
+                        )
+                      }
                       {
                         columnItems.map((column) => (
                           <TableCell key={column.title}>

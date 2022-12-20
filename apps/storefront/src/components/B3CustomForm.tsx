@@ -8,6 +8,9 @@ import {
   B3ControlSelect,
   B3ControlPicker,
   B3ControlFileUpload,
+  B3ControlRectangle,
+  B3ControlProductRadio,
+  B3ControlSwatchRadio,
 } from './form'
 
 import B3UI from './form/ui'
@@ -82,6 +85,36 @@ export function B3CustomForm(props: B3UI.B3CustomFormProps) {
           {
             ['files'].includes(fieldType) && (
               <B3ControlFileUpload
+                {...field}
+                errors={errors}
+                control={control}
+                setValue={setValue}
+              />
+            )
+          }
+          {
+            ['rectangle'].includes(fieldType) && (
+              <B3ControlRectangle
+                {...field}
+                errors={errors}
+                control={control}
+                setValue={setValue}
+              />
+            )
+          }
+          {
+            ['productRadio'].includes(fieldType) && (
+              <B3ControlProductRadio
+                {...field}
+                errors={errors}
+                control={control}
+                setValue={setValue}
+              />
+            )
+          }
+          {
+            ['swatch'].includes(fieldType) && (
+              <B3ControlSwatchRadio
                 {...field}
                 errors={errors}
                 control={control}

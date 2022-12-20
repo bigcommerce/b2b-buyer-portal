@@ -2,6 +2,21 @@ import {
   B3Request,
 } from '../../request/b3Fetch'
 
+import {
+  convertObjectToGraphql,
+  convertArrayToGraphql,
+} from '../../../../utils'
+
+const getStatus = (status: any): string => {
+  if (typeof status === 'number') {
+    return `status: ${status}`
+  }
+  if (typeof status === 'object') {
+    return `status: [${status}]`
+  }
+  return ''
+}
+
 const getShoppingList = ({
   offset = 0,
   first = 50,
@@ -12,9 +27,9 @@ const getShoppingList = ({
   shoppingLists (
     offset: ${offset}
     first: ${first}
-    ${typeof status !== 'number' ? '' : `status: ${status}`}
     search: "${search}"
     createdBy: "${createdBy}"
+    ${getStatus(status)}
   ){
     totalCount,
     pageInfo{
@@ -81,6 +96,125 @@ const deleteShoppingList = (id: number) => `mutation{
   }
 }`
 
+const updateShoppingListsItem = (data: CustomFieldItems) => `mutation {
+  shoppingListsItemsUpdate(
+    itemId: ${data.itemId}
+    shoppingListId: ${data.shoppingListId}
+    itemData: ${convertObjectToGraphql(data.itemData || [])}
+  ) {
+    shoppingListsItem {
+      id,
+      createdAt,
+      updatedAt,
+      productId,
+      variantId,
+      quantity,
+      productName,
+      optionList,
+      itemId,
+      baseSku,
+      variantSku,
+      basePrice,
+      discount,
+      tax,
+      enteredInclusive,
+      productUrl,
+      primaryImage,
+    }
+  }
+}`
+
+const getShoppingListDetails = (data: CustomFieldItems) => `{
+  shoppingList (
+    id: ${data.id}
+  ) {
+    id,
+    createdAt,
+    updatedAt,
+    name,
+    description,
+    status,
+    reason,
+    customerInfo {
+      firstName,
+      lastName,
+      userId,
+      email,
+    },
+    isOwner,
+    grandTotal,
+    totalDiscount,
+    totalTax,
+    isShowGrandTotal,
+    channelId,
+    channelName,
+    products (
+      offset: ${data.offset || 0}
+      first: ${data.first || 100},
+      search: "${data.search || ''}",
+    ) {
+      totalCount,
+      edges {
+        node {
+          id,
+          createdAt,
+          updatedAt,
+          productId,
+          variantId,
+          quantity,
+          productName,
+          optionList,
+          itemId,
+          baseSku,
+          variantSku,
+          basePrice,
+          discount,
+          tax,
+          enteredInclusive,
+          productUrl,
+          primaryImage,
+        }
+      }
+    }
+  }
+}`
+
+const addItemsToShoppingList = (data: CustomFieldItems) => `mutation {
+  shoppingListsItemsCreate(
+    shoppingListId: ${data.shoppingListId},
+    items: ${convertArrayToGraphql(data.items || [])}
+  ) {
+    shoppingListsItems {
+      id,
+      createdAt,
+      updatedAt,
+      productId,
+      variantId,
+      quantity,
+      productName,
+      optionList,
+      itemId,
+      baseSku,
+      variantSku,
+      basePrice,
+      discount,
+      tax,
+      enteredInclusive,
+      productUrl,
+      primaryImage,
+    }
+  }
+}`
+
+const deleteShoppingListItem = (data: CustomFieldItems) => `mutation {
+  shoppingListsItemsDelete(
+    itemId: ${data.itemId},
+    shoppingListId: ${data.shoppingListId},
+  ) {
+    message,
+  }
+}`
+
 export const getB2BShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
   query: getShoppingList(data),
 })
@@ -99,4 +233,20 @@ export const duplicateB2BShoppingList = (data: CustomFieldItems = {}): CustomFie
 
 export const deleteB2BShoppingList = (id: number): CustomFieldItems => B3Request.graphqlB2B({
   query: deleteShoppingList(id),
+})
+
+export const getB2BShoppingListDetails = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+  query: getShoppingListDetails(data),
+})
+
+export const addProductToShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+  query: addItemsToShoppingList(data),
+})
+
+export const updateB2BShoppingListsItem = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+  query: updateShoppingListsItem(data),
+})
+
+export const deleteB2BShoppingListItem = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+  query: deleteShoppingListItem(data),
 })

@@ -14,16 +14,15 @@ import {
 } from 'date-fns'
 import {
   TableColumnItem,
-  B3Table,
 } from '@/components/table/B3Table'
+
+import {
+  B3PaginationTable,
+} from '@/components/table/B3PaginationTable'
 
 import {
   GlobaledContext,
 } from '@/shared/global'
-
-import {
-  useMobile,
-} from '@/hooks'
 
 import {
   distanceDay,
@@ -67,13 +66,6 @@ interface ListCompanyItem {
     companyName: string,
   }
 }
-
-interface OrderPagination {
-  offset: number,
-  first: number,
-  count: number,
-}
-
 interface SearchChangeProps {
   startValue?: string
   endValue?: string
@@ -119,32 +111,6 @@ interface OrderProps {
   isCompanyOrder?: boolean
 }
 
-// interface filterB2BDataProps {
-//   allOrders: {
-//     edges: Array<any>
-//     totalCount: {[key: string]: number}
-//   }
-// }
-
-// interface filterBCDataProps {
-//   customerOrders: {
-//     edges: Array<any>
-//     totalCount: {[key: string]: number}
-//   }
-// }
-
-interface ListItemsProps {
-  node: {
-    [key: string]: string | number | undefined | boolean
-  }
-}
-
-const initPagination = {
-  offset: 0,
-  count: 0,
-  first: 10,
-}
-
 const Order = ({
   isCompanyOrder = false,
 }: OrderProps) => {
@@ -156,12 +122,9 @@ const Order = ({
     },
   } = useContext(GlobaledContext)
 
-  const [pagination, setPagination] = useState(initPagination)
-
-  const [isMobile] = useMobile()
-
-  const [listItems, setListItems] = useState<Array<ListItemsProps>>([])
   const [isRequestLoading, setIsRequestLoading] = useState(false)
+
+  const [allTotal, setAllTotal] = useState(0)
 
   const [filterData, setFilterData] = useState<Partial<FilterSearchProps> | null>(null)
 
@@ -184,39 +147,23 @@ const Order = ({
     initFilter()
   }, [])
 
-  const fetchList = async () => {
-    if (filterData?.first) {
-      const fn = isB2BUser ? getB2BAllOrders : getBCAllOrders
+  const fetchList = async (params: Partial<FilterSearchProps>) => {
+    const fn = isB2BUser ? getB2BAllOrders : getBCAllOrders
+    const orders = isB2BUser ? 'allOrders' : 'customerOrders'
+    const {
+      [orders]: {
+        edges = [],
+        totalCount,
+      },
+    } = await fn(params)
 
-      const orders = isB2BUser ? 'allOrders' : 'customerOrders'
-      try {
-        setIsRequestLoading(true)
-        const {
-          [orders]: {
-            edges: orderList = [],
-            totalCount,
-          },
-        }: CustomFieldItems = await fn(filterData)
-        const page = {
-          ...pagination,
-          count: totalCount,
-        }
-        if (isMobile) {
-          const list = pagination.offset > 0 ? [...listItems, ...orderList] : [...orderList]
-          setListItems(list)
-        } else {
-          setListItems(orderList)
-        }
-        setPagination(page)
-      } finally {
-        setIsRequestLoading(false)
-      }
+    setAllTotal(totalCount)
+
+    return {
+      edges,
+      totalCount,
     }
   }
-
-  useEffect(() => {
-    fetchList()
-  }, [filterData])
 
   const navigate = useNavigate()
 
@@ -225,7 +172,7 @@ const Order = ({
       state: {
         currentIndex: index,
         searchParams: filterData,
-        totalCount: pagination.count,
+        totalCount: allTotal,
         isCompanyOrder,
       },
     })
@@ -302,35 +249,23 @@ const Order = ({
     return getNewColumnItems
   }
 
-  const handlePaginationChange = (pagination: OrderPagination) => {
-    const data: Partial<FilterSearchProps> = {
-      ...filterData,
-    }
-    data.first = pagination.first
-    data.offset = pagination.offset
-    setPagination(pagination)
-    setFilterData(data)
-  }
   const handleChange = (key:string, value: string) => {
     if (key === 'search') {
       setFilterData({
         ...filterData,
         q: value,
-        ...initPagination,
       })
     } else if (key === 'sortBy') {
       setFilterData({
         ...filterData,
         orderBy: value,
-        ...initPagination,
       })
     }
-    setPagination(initPagination)
   }
 
   const handleFirterChange = (value: SearchChangeProps) => {
     const search: Partial<FilterSearchProps> = {
-      beginDateAt: value?.startValue || filterData?.beginDateAt,
+      beginDateAt: value?.startValue || filterData?.beginDateAt || '',
       endDateAt: value?.endValue || filterData?.endDateAt,
       createdBy: value?.PlacedBy || filterData?.createdBy,
       statusCode: value?.orderStatus || '',
@@ -340,9 +275,7 @@ const Order = ({
     setFilterData({
       ...filterData,
       ...search,
-      ...initPagination,
     })
-    setPagination(initPagination)
   }
 
   const columnItems = getColumnItems()
@@ -377,21 +310,20 @@ const Order = ({
             handleChange={handleChange}
             handleFilterChange={handleFirterChange}
           />
-          <B3Table
+          <B3PaginationTable
             columnItems={columnItems}
-            listItems={listItems}
-            pagination={pagination}
-            onPaginationChange={handlePaginationChange}
+            rowsPerPageOptions={[10, 20, 30]}
+            getRequestList={fetchList}
+            searchParams={filterData || {}}
             isCustomRender={false}
-            isInfiniteScroll={isMobile}
-            isLoading={isRequestLoading}
+            requestLoading={setIsRequestLoading}
             tableKey="orderId"
-            renderItem={(row: ListItem, index: number) => (
+            renderItem={(row: ListItem, index?: number) => (
               <OrderItemCard
                 key={row.orderId}
                 item={row}
                 index={index}
-                pagination={pagination}
+                allTotal={allTotal}
                 filterData={filterData}
                 isCompanyOrder={isCompanyOrder}
               />

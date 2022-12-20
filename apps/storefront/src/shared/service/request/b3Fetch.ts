@@ -49,11 +49,17 @@ import {
 
 function request<T>(path: string, config?: T, type?: string) {
   const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
+  const getToken = type === RequestType.BCRest ? {
+    'x-xsrf-token': getCookie('XSRF-TOKEN'),
+  } : {
+    authToken: `${B3SStorage.get('B3B2BToken') || ''}`,
+  }
   const init = {
+    ...config,
     headers: {
       'content-type': 'application/json',
+      ...getToken,
     },
-    ...config,
   }
   return b3Fetch(url, init, type)
 }
@@ -106,18 +112,11 @@ export const B3Request = {
     }, type)
   },
   post: function post<T>(url: string, type: string, data: T): Promise<any> {
-    const config = type === RequestType.BCRest ? {
-      'x-xsrf-token': getCookie('XSRF-TOKEN'),
-    } : {
-      authToken: `${B3SStorage.get('B3B2BToken') || ''}`,
-    }
-
     return request(url, {
       body: JSON.stringify(data),
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        ...config,
       },
     }, type)
   },

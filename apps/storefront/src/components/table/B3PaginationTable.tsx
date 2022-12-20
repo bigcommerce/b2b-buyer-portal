@@ -3,6 +3,9 @@ import {
   ReactElement,
   useState,
   useEffect,
+  forwardRef,
+  useImperativeHandle,
+  Ref,
 } from 'react'
 
 import {
@@ -18,23 +21,22 @@ export interface TablePagination {
   first: number,
 }
 
-export interface TableColumnItem<T> {
+export interface TableColumnItem {
   key: string,
   title: string,
   width?: string,
-  render?: (item: T, index: number) => ReactNode,
+  render?: (item: CustomFieldItems, index: number) => ReactNode,
 }
 
-interface B3PaginationTableProps<T, Y> {
+interface B3PaginationTableProps<Y> {
   tableFixed?: boolean,
   tableHeaderHide?: boolean,
-  columnItems?: TableColumnItem<T>[],
+  columnItems?: TableColumnItem[],
   itemSpacing?: number,
   itemXs?: number,
-  pagination?: TablePagination,
   rowsPerPageOptions?: number[],
   showPagination?: boolean,
-  renderItem?: (row: T, index: number) => ReactElement,
+  renderItem?: (row:any, index?: number, checkBox?: () => ReactElement) => ReactElement,
   isCustomRender?: boolean,
   infiniteScrollThreshold?: number,
   infiniteScrollNode?: HTMLElement,
@@ -42,13 +44,16 @@ interface B3PaginationTableProps<T, Y> {
   infiniteScrollHeight?: string,
   noDataText?: string,
   tableKey?: string,
-  getRequestList: (params: Y) => CustomFieldItems,
+  getRequestList: any,
   searchParams: Y,
-  requestKey: string,
   requestLoading?: (bool: boolean) => void,
+  showCheckbox?: boolean,
+  selectedSymbol?: string,
+  showBorder?: boolean,
+  getSelectCheckbox?: (arr: Array<string | number>) => void,
 }
 
-export const B3PaginationTable:<T, Y>(props: B3PaginationTableProps<T, Y>) => ReactElement = ({
+const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
   columnItems,
   isCustomRender = false,
   tableKey,
@@ -65,9 +70,12 @@ export const B3PaginationTable:<T, Y>(props: B3PaginationTableProps<T, Y>) => Re
   infiniteScrollHeight,
   getRequestList,
   searchParams,
-  requestKey,
   requestLoading,
-}) => {
+  showCheckbox = false,
+  selectedSymbol = 'id',
+  showBorder = true,
+  getSelectCheckbox,
+}, ref?: Ref<unknown>) => {
   const initPagination = {
     offset: 0,
     first: rowsPerPageOptions[0],
@@ -79,29 +87,34 @@ export const B3PaginationTable:<T, Y>(props: B3PaginationTableProps<T, Y>) => Re
 
   const [count, setAllCount] = useState<number>(0)
 
-  const [list, setList] = useState<any[]>([])
+  const [list, setList] = useState<Array<CustomFieldItems>>([])
+
+  const [selectCheckbox, setSelectCheckbox] = useState<Array<string | number>>([])
 
   const [isMobile] = useMobile()
 
-  const fetchList = async (isInitPagination = false) => {
+  const fetchList = async (b3Pagination?: TablePagination) => {
     try {
       setLoading(true)
       if (requestLoading) requestLoading(true)
       const params = {
         ...searchParams,
-        first: pagination.first,
-        offset: isInitPagination ? 0 : pagination.offset,
+        first: b3Pagination?.first || pagination.first,
+        offset: b3Pagination?.offset || 0,
       }
       const requestList = await getRequestList(params)
       const {
         edges, totalCount,
-      } = requestList[requestKey]
+      }: CustomFieldItems = requestList
 
-      if (isMobile) {
-        const newList = pagination.offset > 0 ? [...list, ...edges] : [...edges]
-        setList(newList)
-      } else {
-        setList(edges)
+      setList(edges)
+      setSelectCheckbox([])
+
+      if (!b3Pagination) {
+        setPagination({
+          first: pagination.first,
+          offset: 0,
+        })
       }
 
       setAllCount(totalCount)
@@ -112,20 +125,61 @@ export const B3PaginationTable:<T, Y>(props: B3PaginationTableProps<T, Y>) => Re
   }
 
   useEffect(() => {
-    fetchList(true)
+    if (JSON.stringify(searchParams) !== '{}') {
+      fetchList()
+    }
   }, [searchParams])
 
   useEffect(() => {
-    fetchList()
-  }, [pagination])
+    if (getSelectCheckbox) getSelectCheckbox(selectCheckbox)
+  }, [selectCheckbox])
 
   const handlePaginationChange = (pagination: TablePagination) => {
     setPagination(pagination)
+    fetchList(pagination)
   }
 
   const tablePagination = {
     ...pagination,
     count,
+  }
+
+  const getSelectedValue = () => ({
+    selectCheckbox,
+  })
+
+  const getList = () => list
+
+  useImperativeHandle(ref, () => ({
+    getSelectedValue,
+    setList,
+    getList,
+  }))
+
+  const handleSelectAllItems = () => {
+    if (selectCheckbox.length === list.length) {
+      setSelectCheckbox([])
+    } else {
+      const selects: Array<string | number> = []
+      list.forEach((item: CustomFieldItems) => {
+        const option = item?.node || item
+        if (option) {
+          selects.push(option[selectedSymbol])
+        }
+      })
+      setSelectCheckbox(selects)
+    }
+  }
+
+  const handleSelectOneItem = (id: string | number) => {
+    const selects = [...selectCheckbox]
+    const index = selects.indexOf(id)
+    if (index !== -1) {
+      selects.splice(index, 1)
+    } else {
+      selects.push(id)
+    }
+    setSelectCheckbox(selects)
   }
 
   return (
@@ -149,6 +203,18 @@ export const B3PaginationTable:<T, Y>(props: B3PaginationTableProps<T, Y>) => Re
       infiniteScrollNode={infiniteScrollNode}
       infiniteScrollLoader={infiniteScrollLoader}
       infiniteScrollHeight={infiniteScrollHeight}
+      showCheckbox={showCheckbox}
+      selectedSymbol={selectedSymbol}
+      selectCheckbox={selectCheckbox}
+      handleSelectAllItems={handleSelectAllItems}
+      handleSelectOneItem={handleSelectOneItem}
+      showBorder={showBorder}
     />
   )
+}
+
+const B3PaginationTable = forwardRef(PaginationTable)
+
+export {
+  B3PaginationTable,
 }

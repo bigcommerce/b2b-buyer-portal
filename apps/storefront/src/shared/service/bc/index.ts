@@ -8,6 +8,16 @@ import {
 } from './api/login'
 
 import {
+  createCart,
+  getCartInfo,
+  addProductToCart,
+} from './api/cart'
+
+import {
+  getBCProductVariantId,
+} from './api/product'
+
+import {
   bcLogin,
   bcLogoutLogin,
 } from './graphql/login'
@@ -23,4 +33,8 @@ export {
   bcLogoutLogin,
   getCustomerInfo,
   getBcCurrentJWT,
+  getBCProductVariantId,
+  createCart,
+  getCartInfo,
+  addProductToCart,
 }

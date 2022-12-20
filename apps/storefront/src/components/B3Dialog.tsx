@@ -41,6 +41,8 @@ interface B3DialogProps<T> {
   loading?: boolean
   row?: T
   isShowBordered?: boolean
+  showRightBtn?: boolean
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false
 }
 
 export const B3Dialog:<T> ({
@@ -55,6 +57,8 @@ export const B3Dialog:<T> ({
   loading,
   row,
   isShowBordered,
+  showRightBtn,
+  maxWidth,
 }: B3DialogProps<T>) => ReactElement = ({
   customActions,
   isOpen,
@@ -69,6 +73,8 @@ export const B3Dialog:<T> ({
   loading = false,
   row,
   isShowBordered = false,
+  showRightBtn = true,
+  maxWidth = 'sm',
 }) => {
   const container = useRef<HTMLInputElement | null>(null)
 
@@ -105,6 +111,7 @@ export const B3Dialog:<T> ({
         container={container.current}
         onClose={handleCloseClick}
         fullScreen={isMobile}
+        maxWidth={maxWidth}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -147,21 +154,25 @@ export const B3Dialog:<T> ({
 
                 </Button>
 
-                <Button
-                  sx={{
-                    ...rightStyleBtn,
-                  }}
-                  onClick={handleSaveClick}
-                  autoFocus
-                >
-                  <B3Sping
-                    isSpinning={loading}
-                    tip=""
-                    size={16}
-                  >
-                    {rightSizeBtn || 'save'}
-                  </B3Sping>
-                </Button>
+                {
+                  showRightBtn && (
+                    <Button
+                      sx={{
+                        ...rightStyleBtn,
+                      }}
+                      onClick={handleSaveClick}
+                      autoFocus
+                    >
+                      <B3Sping
+                        isSpinning={loading}
+                        tip=""
+                        size={16}
+                      >
+                        {rightSizeBtn || 'save'}
+                      </B3Sping>
+                    </Button>
+                  )
+                }
               </>
             )
           }

@@ -38,24 +38,24 @@ import {
 
 import {
   getFilterMoreList,
-  ShippingListSearch,
-  ShippingListsItemsProps,
+  ShoppingListSearch,
+  ShoppingListsItemsProps,
 } from './config'
 
-import AddEditShippingLists from './AddEditShippingLists'
-import ShippingListsCard from './ShippingListsCard'
+import AddEditShoppingLists from './AddEditShoppingLists'
+import ShoppingListsCard from './ShoppingListsCard'
 import B3Filter from '../../components/filter/B3Filter'
 
 interface RefCurrntProps extends HTMLInputElement {
-  handleOpenAddEditShippingListsClick: (type: string, data?: ShippingListsItemsProps) => void
+  handleOpenAddEditShoppingListsClick: (type: string, data?: ShoppingListsItemsProps) => void
 }
 
-const shippingLists = () => {
+const shoppingLists = () => {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
 
-  const [deleteItem, setDeleteItem] = useState<null | ShippingListsItemsProps>(null)
+  const [deleteItem, setDeleteItem] = useState<null | ShoppingListsItemsProps>(null)
 
   const [isMobile] = useMobile()
 
@@ -71,16 +71,17 @@ const shippingLists = () => {
     isEnabled: isEnableBtnPermissions,
     customLabel: 'Create new',
   }
+  const statusPermissions = +role !== 2 ? [0, 40] : ''
 
   const initSearch = {
     search: '',
     createdBy: '',
-    Status: '',
+    status: statusPermissions,
   }
 
-  const [filterSearch, setFilterSearch] = useState<ShippingListSearch>(initSearch)
+  const [filterSearch, setFilterSearch] = useState<ShoppingListSearch>(initSearch)
 
-  const addEditShippingListsRef = useRef<RefCurrntProps | null>(null)
+  const addEditShoppingListsRef = useRef<RefCurrntProps | null>(null)
 
   const initSearchList = () => {
     setFilterSearch({
@@ -100,29 +101,41 @@ const shippingLists = () => {
     }
   }
 
-  const handleFirterChange = (data: ShippingListSearch) => {
+  const handleFirterChange = (data: ShoppingListSearch) => {
     const search = {
       ...initSearch,
       createdBy: data.createdBy,
-      status: data.status,
+      status: data.status || statusPermissions,
     }
 
     setFilterSearch(search)
   }
 
-  const handleAddShippingListsClick = () => {
-    addEditShippingListsRef.current?.handleOpenAddEditShippingListsClick('add')
+  const fetchList = async (params: ShoppingListSearch) => {
+    const {
+      shoppingLists: {
+        edges, totalCount,
+      },
+    } = await getB2BShoppingList(params)
+    return {
+      edges,
+      totalCount,
+    }
   }
 
-  const handleEdit = (shippingList: ShippingListsItemsProps) => {
-    addEditShippingListsRef.current?.handleOpenAddEditShippingListsClick('edit', shippingList)
+  const handleAddShoppingListsClick = () => {
+    addEditShoppingListsRef.current?.handleOpenAddEditShoppingListsClick('add')
   }
 
-  const handleCopy = (shippingList: ShippingListsItemsProps) => {
-    addEditShippingListsRef.current?.handleOpenAddEditShippingListsClick('dup', shippingList)
+  const handleEdit = (shoppingList: ShoppingListsItemsProps) => {
+    addEditShoppingListsRef.current?.handleOpenAddEditShoppingListsClick('edit', shoppingList)
   }
 
-  const handleDelete = (row: ShippingListsItemsProps) => {
+  const handleCopy = (shoppingList: ShoppingListsItemsProps) => {
+    addEditShoppingListsRef.current?.handleOpenAddEditShoppingListsClick('dup', shoppingList)
+  }
+
+  const handleDelete = (row: ShoppingListsItemsProps) => {
     setDeleteItem(row)
     setDeleteOpen(true)
   }
@@ -138,7 +151,7 @@ const shippingLists = () => {
       handleCancelClick()
       const id: number = deleteItem?.id || 0
       await deleteB2BShoppingList(id)
-      snackbar.success('delete shippingList successfully')
+      snackbar.success('delete shoppingList successfully')
       initSearchList()
     } finally {
       setIsRequestLoading(false)
@@ -161,20 +174,20 @@ const shippingLists = () => {
           handleChange={handleChange}
           handleFilterChange={handleFirterChange}
           customButtomConfig={customItem}
-          handleFilterCustomButtomClick={handleAddShippingListsClick}
+          handleFilterCustomButtomClick={handleAddShoppingListsClick}
         />
         <B3PaginationTable
           columnItems={[]}
           rowsPerPageOptions={[9, 18, 27]}
-          getRequestList={getB2BShoppingList}
-          requestKey="shoppingLists"
+          getRequestList={fetchList}
           searchParams={filterSearch}
           isCustomRender
           requestLoading={setIsRequestLoading}
-          renderItem={(row: any) => (
-            <ShippingListsCard
+          renderItem={(row: ShoppingListsItemsProps) => (
+            <ShoppingListsCard
               key={row.id || ''}
               item={row}
+              role={role}
               isPermissions={isEnableBtnPermissions}
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -182,10 +195,10 @@ const shippingLists = () => {
             />
           )}
         />
-        <AddEditShippingLists
+        <AddEditShoppingLists
           role={role}
           renderList={initSearchList}
-          ref={addEditShippingListsRef}
+          ref={addEditShoppingListsRef}
         />
         <B3Dialog
           isOpen={deleteOpen}
@@ -215,4 +228,4 @@ const shippingLists = () => {
   )
 }
 
-export default shippingLists
+export default shoppingLists
