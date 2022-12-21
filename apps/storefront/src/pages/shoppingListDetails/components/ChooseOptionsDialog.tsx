@@ -95,6 +95,7 @@ interface ChooseOptionsDialogProps {
   onCancel: () => void,
   onConfirm: (products: ShoppingListAddProductItem[]) => void,
   currency?: string,
+  isEdit?: boolean,
 }
 
 export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
@@ -111,6 +112,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
     onConfirm,
     product,
     currency = '$',
+    isEdit = false,
   } = props
 
   const [quantity, setQuantity] = useState<number | string>(1)
@@ -321,6 +323,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
   return (
     <B3Dialog
       isOpen={isOpen}
+      rightSizeBtn={isEdit ? 'Save Option' : 'Add To List'}
       handleLeftClick={handleCancelClicked}
       handRightClick={handleConfirmClicked}
       title="Choose options"

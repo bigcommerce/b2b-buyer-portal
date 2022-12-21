@@ -83,14 +83,23 @@ export const PickerFormControl = styled(FormControl)(() => ({
   width: '100%',
 }))
 
-export const StyleNumberTextField = styled(TextField)(() => ({
-  '& input[type="number"]': {
-    MozAppearance: 'textfield',
-  },
-  '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
-    WebkitAppearance: 'none',
-  },
-}))
+interface StyleNumberTextFieldProps{
+  allowarrow?: number
+}
+
+export const StyleNumberTextField = styled(TextField)((props: StyleNumberTextFieldProps) => {
+  const {
+    allowarrow = 0,
+  } = props
+  return allowarrow ? {} : {
+    '& input[type="number"]': {
+      MozAppearance: 'textfield',
+    },
+    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+      WebkitAppearance: 'none',
+    },
+  }
+})
 
 export const StyleRectangleFormControlLabel = styled(FormControlLabel)(() => ({
   marginLeft: '0',

@@ -164,7 +164,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
     const passSku: string[] = []
 
     skus.forEach((sku) => {
-      const variantInfo : CustomFieldItems | null = (variantInfoList || []).find((variant: CustomFieldItems) => variant.variantSku === sku)
+      const variantInfo : CustomFieldItems | null = (variantInfoList || []).find((variant: CustomFieldItems) => variant.variantSku.toUpperCase() === sku.toUpperCase())
 
       if (!variantInfo) {
         notFoundSku.push(sku)
@@ -189,7 +189,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
         try {
           const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr
           arr.push({
-            optionId: `${option.option_id}`,
+            optionId: `attribute[${option.option_id}]`,
             optionValue: `${option.id}`,
           })
           return arr
@@ -240,6 +240,20 @@ export const QuickAdd = (props: AddToListContentProps) => {
     })
   }
 
+  const getVariantList = async (skus: string[]) => {
+    try {
+      const {
+        variantSku: variantInfoList,
+      }: CustomFieldItems = await getB2BVariantInfoBySkus({
+        skus,
+      }, true)
+
+      return variantInfoList
+    } catch (error) {
+      return []
+    }
+  }
+
   const handleAddToList = () => {
     handleSubmit(async (value) => {
       try {
@@ -254,11 +268,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
           return
         }
 
-        const {
-          variantSku: variantInfoList,
-        }: CustomFieldItems = await getB2BVariantInfoBySkus({
-          skus,
-        })
+        const variantInfoList = await getVariantList(skus)
 
         const {
           notFoundSku,

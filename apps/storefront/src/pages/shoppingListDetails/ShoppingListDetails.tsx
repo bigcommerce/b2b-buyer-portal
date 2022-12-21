@@ -13,7 +13,6 @@ import {
 import {
   Box,
   Grid,
-  Button,
 } from '@mui/material'
 
 import {
@@ -287,16 +286,6 @@ const ShoppingListDetails = () => {
     }
   }, [checkedArr])
 
-  const [isOpenAddToList, setIsOpenAddToList] = useState(false)
-
-  const handleShowAddToList = () => {
-    setIsOpenAddToList(!isOpenAddToList)
-  }
-
-  const handleAddToListCancel = () => {
-    setIsOpenAddToList(false)
-  }
-
   return (
     <B3Sping
       isSpinning={isRequestLoading}
@@ -316,22 +305,6 @@ const ShoppingListDetails = () => {
           goToShoppingLists={goToShoppingLists}
           handleUpdateShoppingList={handleUpdateShoppingList}
         />
-
-        {
-          !isReadForApprove && isMobile && (
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{
-              marginTop: '20px',
-              marginBottom: '20px',
-            }}
-            onClick={handleShowAddToList}
-          >
-            Add to list
-          </Button>
-          )
-        }
 
         <Grid
           container
@@ -366,24 +339,23 @@ const ShoppingListDetails = () => {
             />
 
           </Grid>
-          {
-            !isReadForApprove && (
-            <Grid
-              item
-              sx={isMobile ? {
-                flexBasis: '100%',
-              } : {
-                flexBasis: '340px',
-              }}
-            >
-              <AddToShoppingList
-                open={isOpenAddToList}
-                updateList={updateList}
-                onAddToListCancel={handleAddToListCancel}
-              />
-            </Grid>
-            )
-          }
+
+          <Grid
+            item
+            sx={isMobile ? {
+              flexBasis: '100%',
+            } : {
+              flexBasis: '340px',
+            }}
+          >
+            {
+              !isReadForApprove && (
+                <AddToShoppingList
+                  updateList={updateList}
+                />
+              )
+            }
+          </Grid>
 
         </Grid>
 

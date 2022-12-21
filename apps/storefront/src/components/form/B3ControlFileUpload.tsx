@@ -9,6 +9,10 @@ import {
 } from '@b3/lang'
 
 import {
+  FormLabel,
+} from '@mui/material'
+
+import {
   DropzoneArea,
   FileObject,
   PreviewIconProps,
@@ -81,6 +85,7 @@ export const B3ControlFileUpload = (props: FileUploadProps) => {
     default: defaultValue = [],
     name,
     setValue,
+    title,
   } = props
 
   const getRejectMessage = (
@@ -129,25 +134,38 @@ export const B3ControlFileUpload = (props: FileUploadProps) => {
     <>
       {
        ['files'].includes(fieldType) && (
-       <DropzoneBox>
-         <DropzoneArea
-           Icon={CloudUploadOutlinedIcon}
-           showPreviews
-           showFileNamesInPreview
-           showPreviewsInDropzone={false}
-           getDropRejectMessage={getRejectMessage}
-           getFileLimitExceedMessage={getFileLimitExceedMessage}
-           getPreviewIcon={getPreviewIcon}
-           showAlerts={['error']}
-           maxFileSize={maxFileSize}
-           initialFiles={defaultValue}
-           acceptedFiles={acceptedFiles}
-           filesLimit={filesLimit}
-           dropzoneText={dropzoneText}
-           previewText={previewText}
-           onChange={handleFilesChange}
-         />
-       </DropzoneBox>
+       <>
+         {
+            title && (
+            <FormLabel sx={{
+              marginBottom: '5px',
+              display: 'block',
+            }}
+            >
+              {title}
+            </FormLabel>
+            )
+          }
+         <DropzoneBox>
+           <DropzoneArea
+             Icon={CloudUploadOutlinedIcon}
+             showPreviews
+             showFileNamesInPreview
+             showPreviewsInDropzone={false}
+             getDropRejectMessage={getRejectMessage}
+             getFileLimitExceedMessage={getFileLimitExceedMessage}
+             getPreviewIcon={getPreviewIcon}
+             showAlerts={['error']}
+             maxFileSize={maxFileSize}
+             initialFiles={defaultValue}
+             acceptedFiles={acceptedFiles}
+             filesLimit={filesLimit}
+             dropzoneText={dropzoneText}
+             previewText={previewText}
+             onChange={handleFilesChange}
+           />
+         </DropzoneBox>
+       </>
        )
      }
     </>

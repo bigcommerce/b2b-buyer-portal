@@ -65,9 +65,9 @@ const searchProducts = (data: CustomFieldItems) => `{
   }
 }`
 
-export const getB2BVariantInfoBySkus = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+export const getB2BVariantInfoBySkus = (data: CustomFieldItems = {}, customMessage = false): CustomFieldItems => B3Request.graphqlB2B({
   query: getVariantInfoBySkus(data),
-})
+}, customMessage)
 
 export const getB2BVariantSkuByProductId = (productId: string): CustomFieldItems => B3Request.graphqlB2B({
   query: getVariantSkuByProductId(productId),

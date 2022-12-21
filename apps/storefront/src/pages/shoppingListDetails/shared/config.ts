@@ -81,6 +81,7 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
     option_values: optionValues,
     id,
     config,
+    display_name: displayName,
   } = option
 
   if (fieldType === 'text') {
@@ -102,6 +103,7 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
     return {
       min: limitInput ? (lowest || undefined) : undefined,
       max: limitInput ? (highest || undefined) : undefined,
+      allowArrow: true,
     }
   }
 
@@ -177,6 +179,7 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
       filesLimit: 1,
       maxFileSize: fileSize,
       default: [],
+      title: displayName,
     }
   }
 }
@@ -346,5 +349,6 @@ export const getQuickAddRowFields = (name: string | number) => [
     size: 'small',
     fieldType: 'number',
     default: '',
+    allowArrow: true,
   },
 ]

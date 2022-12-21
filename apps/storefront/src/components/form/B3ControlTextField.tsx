@@ -41,6 +41,7 @@ export const B3ControlTextField = ({
     labelName,
     size,
     readOnly,
+    allowArrow = false,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -96,7 +97,8 @@ export const B3ControlTextField = ({
   }
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (['ArrowUp', 'ArrowDown', 'KeyE', 'Period'].indexOf(event.code) > -1) {
+    const keys = allowArrow ? ['KeyE', 'Period'] : ['ArrowUp', 'ArrowDown', 'KeyE', 'Period']
+    if (keys.indexOf(event.code) > -1) {
       event.preventDefault()
     }
   }
@@ -138,6 +140,7 @@ export const B3ControlTextField = ({
                     <StyleNumberTextField
                       {...textField}
                       {...rest}
+                      allowarrow={allowArrow ? 1 : 0}
                       inputProps={muiAttributeProps}
                       error={!!errors[name]}
                       helperText={(errors as any)[name] ? (errors as any)[name].message : null}

@@ -1,50 +1,65 @@
 import {
+  Box,
+  Divider,
+  Typography,
+  Button,
   Card,
   CardContent,
 } from '@mui/material'
 
-import {
-  useMobile,
-} from '@/hooks'
+import UploadFileIcon from '@mui/icons-material/UploadFile'
 
 import {
-  B3Dialog,
-} from '@/components'
+  SearchProduct,
+} from './SearchProduct'
 
 import {
-  AddToListContent,
-} from './AddToListContent'
+  QuickAdd,
+} from './QuickAdd'
 
-interface AddToShoppingListProps {
-  open: boolean,
-  updateList: () => void,
-  onAddToListCancel: () => void,
+interface AddToListProps {
+  updateList: () => void
 }
 
-export const AddToShoppingList = (props: AddToShoppingListProps) => {
+export const AddToShoppingList = (props: AddToListProps) => {
   const {
-    open,
     updateList,
-    onAddToListCancel,
   } = props
 
-  const [isMobile] = useMobile()
-
-  return (isMobile ? (
-    <B3Dialog
-      isOpen={open}
-      showRightBtn={false}
-      handleLeftClick={onAddToListCancel}
+  return (
+    <Card sx={{
+      marginBottom: '50px',
+    }}
     >
-      <AddToListContent updateList={updateList} />
-    </B3Dialog>
-  ) : (
-    <Card>
       <CardContent>
-        <AddToListContent updateList={updateList} />
+        <Box>
+          <Typography variant="h5">Add to list</Typography>
+          <SearchProduct
+            updateList={updateList}
+          />
+
+          <Divider />
+
+          <QuickAdd
+            updateList={updateList}
+          />
+
+          <Divider />
+
+          <Box sx={{
+            margin: '20px 0 0',
+          }}
+          >
+            <Button variant="text">
+              <UploadFileIcon sx={{
+                marginRight: '8px',
+              }}
+              />
+              Bulk upload CSV
+            </Button>
+          </Box>
+        </Box>
       </CardContent>
     </Card>
-  )
-
   )
 }

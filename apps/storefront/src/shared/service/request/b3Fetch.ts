@@ -64,7 +64,7 @@ function request<T>(path: string, config?: T, type?: string) {
   return b3Fetch(url, init, type)
 }
 
-function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
+function graphqlRequest<T, Y>(type: string, data: T, config?: Y, customMessage = false) {
   const init = {
     method: 'POST',
     headers: {
@@ -77,15 +77,15 @@ function graphqlRequest<T, Y>(type: string, data: T, config?: Y) {
   const graphqlB2BUrl = `${B2B_BASIC_URL}/graphql`
 
   const url = type === RequestType.B2BGraphql ? graphqlB2BUrl : `${bcBaseUrl}/graphql`
-  return b3Fetch(url, init, type)
+  return b3Fetch(url, init, type, customMessage)
 }
 
 export const B3Request = {
-  graphqlB2B: function post<T>(data: T): Promise<any> {
+  graphqlB2B: function post<T>(data: T, customMessage = false): Promise<any> {
     const config = {
       Authorization: `Bearer  ${B3SStorage.get('B3B2BToken') || ''}`,
     }
-    return graphqlRequest(RequestType.B2BGraphql, data, config)
+    return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
   graphqlProxyBC: function post<T>(data: T): Promise<any> {
     const config = {

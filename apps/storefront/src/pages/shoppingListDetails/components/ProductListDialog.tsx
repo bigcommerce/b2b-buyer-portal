@@ -9,6 +9,7 @@ import {
   InputAdornment,
   Button,
   Box,
+  Typography,
 } from '@mui/material'
 
 import SearchIcon from '@mui/icons-material/Search'
@@ -17,7 +18,6 @@ import {
   B3Dialog,
   B3ProductList,
   B3Sping,
-  B3NoData,
 } from '@/components'
 
 import {
@@ -181,6 +181,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
       >
         <Box sx={{
           minWidth: isMobile ? 'initial' : '850px',
+          flex: 1,
         }}
         >
           <TextField
@@ -191,6 +192,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
             value={searchText}
             onChange={onSearchTextChange}
             onKeyDown={handleSearchKeyDown}
+            error={!productList || productList.length <= 0}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -221,7 +223,11 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
                 )}
                 actionWidth="180px"
               />
-            ) : <B3NoData />
+            ) : (
+              <Typography>
+                No products found
+              </Typography>
+            )
           }
         </Box>
       </B3Sping>

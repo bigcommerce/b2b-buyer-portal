@@ -504,6 +504,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
         currency={currencyToken}
+        isEdit
       />
 
     </StyledShoppingListTableContainer>

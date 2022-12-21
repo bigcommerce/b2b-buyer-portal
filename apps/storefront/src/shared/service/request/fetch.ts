@@ -9,7 +9,7 @@ import {
 
 const originFetch = window.fetch
 
-function b3Fetch(path: string, init: any, type?: string) {
+function b3Fetch(path: string, init: any, type?: string, customMessage = false) {
   return new Promise((resolve, reject) => {
     originFetch(path, init).then((res: Response) => (path.includes('current.jwt') ? res.text() : res.json())).then(async (res) => {
       if (res?.code === 500) {
@@ -42,7 +42,9 @@ function b3Fetch(path: string, init: any, type?: string) {
       if (type === RequestType.B2BGraphql) {
         if (res?.errors?.length && res.errors[0].message) {
           reject(res.errors[0].message)
-          snackbar.error(res.errors[0].message)
+          if (!customMessage) {
+            snackbar.error(res.errors[0].message)
+          }
         } else {
           resolve(res.data)
         }
