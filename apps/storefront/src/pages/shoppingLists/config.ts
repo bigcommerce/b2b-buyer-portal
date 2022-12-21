@@ -8,7 +8,7 @@ export interface ShoppingListSearch {
 
 interface ShoppingListStatusProps {
   label: string
-  value: number
+  value: number | string
 }
 
 interface ShoppingListsItemsCustomerInfoProps {
@@ -27,6 +27,7 @@ export interface ShoppingListsItemsProps {
   products: {
     totalCount: number
   }
+  updatedAt: string | number,
   sampleShoppingListId?: number | string
 }
 
@@ -45,6 +46,10 @@ export interface GetFilterMoreListProps {
 
 export const getFilterShoppingListStatus = (role?: number | string): Array<ShoppingListStatusProps> => {
   const shoppingListStatus: Array<ShoppingListStatusProps> = [
+    {
+      label: 'All',
+      value: 99,
+    },
     {
       label: 'Approved',
       value: 0,
@@ -72,7 +77,7 @@ export const getFilterMoreList = (role: number | string): GetFilterMoreListProps
   const filterMoreList = [
     {
       name: 'createdBy',
-      label: 'CreatedBy',
+      label: 'Createdby',
       required: false,
       default: '',
       fieldType: 'text',

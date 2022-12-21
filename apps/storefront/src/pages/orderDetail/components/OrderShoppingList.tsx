@@ -94,7 +94,9 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
         },
       }: CustomFieldItems = await getB2BShoppingList()
 
-      setList(list)
+      const newList = list.filter((item: CustomFieldItems) => item.node.status === 0)
+
+      setList(newList)
     } finally {
       setLoading(false)
     }

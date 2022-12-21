@@ -99,7 +99,7 @@ const CreateShoppingList = ({
       setLoading(true)
       const createShoppingData = {
         ...data,
-        status: 40,
+        status: 0,
       }
       await createB2BShoppingList(createShoppingData)
       setLoading(false)

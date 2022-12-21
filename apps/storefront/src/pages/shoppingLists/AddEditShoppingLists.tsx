@@ -81,6 +81,12 @@ const AddEditShoppingLists = ({
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
       try {
+        const {
+          description,
+        } = data
+        if (description.indexOf('\n') > -1) {
+          data.description = description.split('\n').join('\\n')
+        }
         const params: Partial<ShoppingListsItemsProps> = {
           ...data,
         }
@@ -143,7 +149,6 @@ const AddEditShoppingLists = ({
       handleLeftClick={handleCancelClick}
       handRightClick={handleAddUserClick}
       loading={addUpdateLoading}
-      isShowBordered
     >
       <B3CustomForm
         formFields={usersFiles}

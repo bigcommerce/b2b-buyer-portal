@@ -16,6 +16,10 @@ import {
 } from 'react-router-dom'
 
 import {
+  format,
+} from 'date-fns'
+
+import {
   ShoppingListsItemsProps,
 } from './config'
 
@@ -126,7 +130,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
             <FontBold>
               Last activity:
             </FontBold>
-            {shoppingList.name}
+            {format(+shoppingList.updatedAt * 1000, 'dd MMM yy')}
           </FlexItem>
         </Box>
         <Flex>
@@ -146,17 +150,21 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
               display: `${isPermissions ? 'block' : 'none'}`,
             }}
           >
-            <IconButton
-              aria-label="edit"
-              size="small"
-              sx={{
-                marginRight: '8px',
-              }}
-              disabled={getPermissions(shoppingList.status)}
-              onClick={() => { onEdit(shoppingList) }}
-            >
-              <EditIcon fontSize="inherit" />
-            </IconButton>
+            {
+              !getPermissions(shoppingList.status) && (
+              <IconButton
+                aria-label="edit"
+                size="small"
+                sx={{
+                  marginRight: '8px',
+                }}
+                onClick={() => { onEdit(shoppingList) }}
+              >
+                <EditIcon fontSize="inherit" />
+              </IconButton>
+              )
+            }
+
             <IconButton
               aria-label="edit"
               size="small"
@@ -167,14 +175,18 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
             >
               <ContentCopyIcon fontSize="inherit" />
             </IconButton>
-            <IconButton
-              aria-label="delete"
-              size="small"
-              disabled={getPermissions(shoppingList.status)}
-              onClick={() => { onDelete(shoppingList) }}
-            >
-              <DeleteIcon fontSize="inherit" />
-            </IconButton>
+            {
+              !getPermissions(shoppingList.status) && (
+              <IconButton
+                aria-label="delete"
+                size="small"
+                onClick={() => { onDelete(shoppingList) }}
+              >
+                <DeleteIcon fontSize="inherit" />
+              </IconButton>
+              )
+            }
+
           </Box>
         </Flex>
       </CardContent>

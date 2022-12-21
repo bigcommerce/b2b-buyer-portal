@@ -11,6 +11,7 @@ import type {
 
 import {
   B3SStorage,
+  snackbar,
 } from '@/utils'
 
 import {
@@ -146,6 +147,7 @@ const PDP = ({
         shoppingListId: +id,
         items: [params],
       })
+      snackbar.success('Products are added to shopping list')
       handleShoppingClose()
     } finally {
       setOpenShoppingList(false)

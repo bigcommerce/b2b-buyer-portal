@@ -102,10 +102,14 @@ const shoppingLists = () => {
   }
 
   const handleFirterChange = (data: ShoppingListSearch) => {
+    const {
+      status,
+    } = data
+    const getNewStatus = (status === '' || status === 99) ? statusPermissions : status
     const search = {
       ...initSearch,
       createdBy: data.createdBy,
-      status: data.status || statusPermissions,
+      status: getNewStatus,
     }
 
     setFilterSearch(search)
@@ -202,7 +206,7 @@ const shoppingLists = () => {
         />
         <B3Dialog
           isOpen={deleteOpen}
-          title="Delete user"
+          title="shopping list"
           leftSizeBtn="cancel"
           rightSizeBtn="delete"
           handleLeftClick={handleCancelClick}
@@ -220,7 +224,7 @@ const shoppingLists = () => {
               height: '100%',
             }}
           >
-            Are you sure you want to delete this user?
+            Are you sure you want to delete this shopping list?
           </Box>
         </B3Dialog>
       </Box>

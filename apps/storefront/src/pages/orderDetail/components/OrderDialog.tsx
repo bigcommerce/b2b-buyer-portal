@@ -30,6 +30,10 @@ import {
 } from '@/shared/service/b2b'
 
 import {
+  snackbar,
+} from '@/utils'
+
+import {
   OrderCheckboxProduct,
 } from './OrderCheckboxProduct'
 
@@ -134,6 +138,8 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         shoppingListId: +id,
         items: params,
       })
+
+      snackbar.success('Products are added to shopping list')
 
       setOpenShoppingList(false)
     } finally {

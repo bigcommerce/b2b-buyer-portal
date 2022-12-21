@@ -48,6 +48,7 @@ const getShoppingList = ({
           userId,
           email,
         },
+        updatedAt,
         isOwner,
         grandTotal,
         totalDiscount,

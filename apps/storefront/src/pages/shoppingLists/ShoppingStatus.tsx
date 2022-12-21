@@ -28,7 +28,7 @@ export const getStatus = (role: number | string) => {
     if (+item.value === 0) {
       return {
         color: '#C4DD6C',
-        textColor: item.label,
+        textColor: 'black',
         ...item,
       }
     }
@@ -36,7 +36,7 @@ export const getStatus = (role: number | string) => {
     if (+item.value === 40) {
       return {
         color: '#F4CC46',
-        textColor: item.label,
+        textColor: 'black',
         ...item,
       }
     }
@@ -44,13 +44,13 @@ export const getStatus = (role: number | string) => {
     if (+item.value === 30) {
       return {
         color: '#899193',
-        textColor: item.label,
+        textColor: '#FFFFFF',
         ...item,
       }
     }
     return {
       color: '#7A6041',
-      textColor: item.label,
+      textColor: '#FFFFFF',
       ...item,
     }
   })

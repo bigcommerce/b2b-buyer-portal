@@ -1,6 +1,7 @@
 import {
   useEffect,
   useContext,
+  useCallback,
 } from 'react'
 
 import {
@@ -8,6 +9,7 @@ import {
 } from 'react-router-dom'
 import {
   useB3AppOpen,
+  useB3PDPOpen,
 } from '@b3/hooks'
 
 import {
@@ -37,8 +39,6 @@ import {
   B3RenderRouter,
 } from '@/components'
 
-import PDP from '@/pages/pdp/PDP'
-
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 const CUSTOM_STYLES = `
 body {
@@ -67,11 +67,19 @@ export default function App() {
       isB2BUser,
       customerId,
       BcToken,
+      role,
     },
     dispatch,
   } = useContext(GlobaledContext)
 
-  // const navigate = useNavigate()
+  const pdpCallBbck = useCallback(() => {
+    setOpenPage({
+      isOpen: true,
+      openUrl: '/pdp',
+    })
+  }, [])
+
+  useB3PDPOpen(globalB3['dom.setToShoppingList'], pdpCallBbck, isB2BUser, role)
 
   useEffect(() => {
     if (isOpen) {
