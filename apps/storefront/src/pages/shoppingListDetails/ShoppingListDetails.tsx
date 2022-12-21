@@ -58,6 +58,7 @@ import {
 import ShoppingDetailHeader from './components/ShoppingDetailHeader'
 import ShoppingDetailFooter from './components/ShoppingDetailFooter'
 import ShoppingDetailTable from './components/ShoppingDetailTable'
+import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems'
 
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
@@ -91,9 +92,11 @@ const ShoppingListDetails = () => {
   const [checkedArr, setCheckedArr] = useState<any>([])
   const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null)
   const [customerInfo, setCustomerInfo] = useState<null | CustomerInfoProps>(null)
-  const [selectedSubTotal, setSelectedSubTotal] = useState(0.00)
+  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.00)
   const [isRequestLoading, setIsRequestLoading] = useState(false)
-  // const [detailList, setDetailList] = useState<ListItemProps[]>([])
+
+  const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
+  const [deleteItemId, setDeleteItemId] = useState<number | string>('')
 
   const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
 
@@ -167,8 +170,6 @@ const ShoppingListDetails = () => {
           node.productsSearch = productInfo || {}
         })
 
-        // setListItems(listProducts)
-
         return listProducts
       } catch (err: any) {
         snackbar.error(err)
@@ -195,11 +196,6 @@ const ShoppingListDetails = () => {
 
     setCustomerInfo(customerInfo)
     setShoppingListInfo(shoppingList)
-    // if (listProducts) {
-    //   setDetailList(listProducts)
-    // } else {
-    //   setDetailList([])
-    // }
     return {
       edges: listProducts,
       totalCount,
@@ -216,6 +212,7 @@ const ShoppingListDetails = () => {
         status,
       })
 
+      snackbar.success('Shipping list status updated successfully')
       tableRef.current.initSearch()
     } finally {
       setIsRequestLoading(false)
@@ -258,6 +255,7 @@ const ShoppingListDetails = () => {
         setCheckedArr([])
       }
 
+      snackbar.success('Product removed from your shopping list')
       tableRef.current.initSearch()
     } finally {
       setIsRequestLoading(false)
@@ -280,16 +278,25 @@ const ShoppingListDetails = () => {
         total += +node.basePrice * +node.quantity
       })
 
-      setSelectedSubTotal(total)
+      setSelectedSubTotal(+((1000 * total) / 1000).toFixed(2))
     } else {
       setSelectedSubTotal(0.00)
     }
   }, [checkedArr])
 
+  const handleCancelClick = () => {
+    setDeleteOpen(false)
+    setDeleteItemId('')
+  }
+
+  const handleDeleteProductClick = async () => {
+    await handleDeleteItems(+deleteItemId)
+    await handleCancelClick()
+  }
+
   return (
     <B3Sping
       isSpinning={isRequestLoading}
-      background="rgba(255,255,255,0.2)"
     >
       <Box
         sx={{
@@ -335,7 +342,8 @@ const ShoppingListDetails = () => {
               setIsRequestLoading={setIsRequestLoading}
               shoppingListId={id}
               getShoppingListDetails={getShoppingListDetails}
-              handleDeleteItems={handleDeleteItems}
+              setDeleteOpen={setDeleteOpen}
+              setDeleteItemId={setDeleteItemId}
             />
 
           </Grid>
@@ -356,7 +364,6 @@ const ShoppingListDetails = () => {
               )
             }
           </Grid>
-
         </Grid>
 
         {
@@ -367,13 +374,19 @@ const ShoppingListDetails = () => {
             checkedArr={checkedArr}
             currencyToken={currencyToken}
             selectedSubTotal={selectedSubTotal}
-            handleDeleteItems={handleDeleteItems}
             setLoading={setIsRequestLoading}
+            setDeleteOpen={setDeleteOpen}
           />
           )
         }
 
       </Box>
+
+      <ShoppingDetailDeleteItems
+        open={deleteOpen}
+        handleCancelClick={handleCancelClick}
+        handleDeleteProductClick={handleDeleteProductClick}
+      />
     </B3Sping>
   )
 }

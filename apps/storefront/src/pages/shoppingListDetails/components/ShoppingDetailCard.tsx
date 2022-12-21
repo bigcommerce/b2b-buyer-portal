@@ -4,7 +4,6 @@ import {
 
 import {
   Box,
-  Card,
   CardContent,
   Typography,
   styled,
@@ -23,6 +22,10 @@ interface ShoppingDetailCardProps {
   handleUpdateProductQty: (id: number | string, value: number | string) => void,
   handleUpdateShoppingListItem: (itemId: number | string) => void,
   checkBox?: () => ReactElement,
+  isReadForApprove: boolean,
+  len: number,
+  itemIndex?: number,
+  setDeleteOpen: (value: boolean) => void
 }
 
 const StyledImage = styled('img')(() => ({
@@ -42,6 +45,10 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
     currencyToken = '$',
     handleUpdateProductQty,
     handleUpdateShoppingListItem,
+    isReadForApprove,
+    len,
+    itemIndex,
+    setDeleteOpen,
   } = props
 
   const {
@@ -69,13 +76,18 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
   }
 
   return (
-    <Card
+    <Box
       key={shoppingDetail.id}
+      sx={{
+        borderTop: '1px solid #D9DCE9',
+        borderBottom: itemIndex === len - 1 ? '1px solid #D9DCE9' : '',
+      }}
     >
       <CardContent
         sx={{
           color: '#313440',
           display: 'flex',
+          pl: 0,
         }}
       >
         <Box>
@@ -119,6 +131,12 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
           <TextField
             size="small"
             type="number"
+            variant="filled"
+            label="qty"
+            disabled={isReadForApprove}
+            inputProps={{
+              inputMode: 'numeric', pattern: '[0-9]*',
+            }}
             value={quantity}
             sx={{
               margin: '1rem 0',
@@ -139,11 +157,12 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
             id="shoppingList-actionList-mobile"
           >
             {
-              optionList.length > 0 && (
+              optionList.length > 0 && !isReadForApprove && (
                 <Edit
                   sx={{
                     marginRight: '0.5rem',
                     cursor: 'pointer',
+                    color: 'rgba(0, 0, 0, 0.54)',
                   }}
                   onClick={() => {
                     onEdit(productsSearch, variantId, itemId)
@@ -151,18 +170,25 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
                 />
               )
             }
-            <Delete
-              sx={{
-                cursor: 'pointer',
-              }}
-              onClick={() => {
-                onDelete(+itemId)
-              }}
-            />
+            {
+              !isReadForApprove && (
+              <Delete
+                sx={{
+                  cursor: 'pointer',
+                  color: 'rgba(0, 0, 0, 0.54)',
+                }}
+                onClick={() => {
+                  setDeleteOpen(true)
+                  onDelete(+itemId)
+                }}
+              />
+              )
+            }
+
           </Box>
         </Box>
       </CardContent>
-    </Card>
+    </Box>
   )
 }
 

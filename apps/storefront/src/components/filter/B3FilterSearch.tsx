@@ -19,11 +19,13 @@ import {
 interface B3FilterSearchProps {
   handleChange: (value: string) => void
   w?: number | undefined |string
+  searchBGColor?: string
 }
 
 const B3FilterSearch = ({
   handleChange,
   w = '100%',
+  searchBGColor = '#efeae7',
 }: B3FilterSearchProps) => {
   const [search, setSearch] = useState<string>('')
   const debouncedValue = useDebounce<string>(search, 500)
@@ -60,7 +62,7 @@ const B3FilterSearch = ({
         borderBottomLeftRadius: '0',
         borderBottomRightRadius: '0',
         borderBottom: '1px solid rgba(0, 0, 0, 0.42)',
-        backgroundColor: '#efeae7',
+        backgroundColor: searchBGColor,
       }}
     >
       <IconButton

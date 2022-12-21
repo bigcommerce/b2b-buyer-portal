@@ -85,9 +85,10 @@ interface ShoppingDetailTableProps {
   setIsRequestLoading: (value: boolean) => void,
   shoppingListId: number | string,
   getShoppingListDetails: any,
-  handleDeleteItems: (itemId: number | string) => void,
   setCheckedArr: (values: any) => void,
   isReadForApprove: boolean,
+  setDeleteItemId: (itemId: number | string) => void,
+  setDeleteOpen: (open: boolean) => void,
 }
 
 interface SearchProps {
@@ -134,9 +135,10 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     setIsRequestLoading,
     shoppingListId,
     getShoppingListDetails,
-    handleDeleteItems,
     setCheckedArr,
     isReadForApprove,
+    setDeleteItemId,
+    setDeleteOpen,
   } = props
 
   const paginationTableRef = useRef<any>(null)
@@ -257,7 +259,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
       }
 
       await updateB2BShoppingListsItem(data)
-
+      snackbar.success('Product quantity updated successfully')
       initSearch()
     } finally {
       setIsRequestLoading(false)
@@ -276,11 +278,8 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           return node.id === item
         })
 
-        console.log(newItems)
-
         return newItems
       })
-      console.log(checkedItems, 'checkedItems')
 
       setCheckedArr([...checkedItems])
     } else {
@@ -362,8 +361,12 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         <TextField
           size="small"
           type="number"
+          variant="filled"
           disabled={isReadForApprove}
           value={row.quantity}
+          inputProps={{
+            inputMode: 'numeric', pattern: '[0-9]*',
+          }}
           onChange={(e) => {
             handleUpdateProductQty(row.id, e.target.value)
           }}
@@ -403,6 +406,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                     sx={{
                       marginRight: '0.5rem',
                       cursor: 'pointer',
+                      color: 'rgba(0, 0, 0, 0.54)',
                     }}
                     onClick={() => {
                       const {
@@ -421,9 +425,11 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                 <Delete
                   sx={{
                     cursor: 'pointer',
+                    color: 'rgba(0, 0, 0, 0.54)',
                   }}
                   onClick={() => {
-                    handleDeleteItems(+itemId)
+                    setDeleteOpen(true)
+                    setDeleteItemId(+itemId)
                   }}
                 />
                 )
@@ -468,6 +474,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         }}
       >
         <B3FilterSearch
+          searchBGColor="rgba(0, 0, 0, 0.06)"
           handleChange={(e) => {
             handleSearchProduct(e)
           }}
@@ -482,18 +489,25 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         searchParams={search}
         isCustomRender={false}
         showCheckbox
+        hover
+        labelRowsPerPage="Items per page:"
         showBorder={false}
         requestLoading={setIsRequestLoading}
         getSelectCheckbox={getSelectCheckbox}
+        itemIsMobileSpacing={0}
         renderItem={(row: any, index?: number, checkBox?: () => ReactElement) => (
           <ShoppingDetailCard
+            len={shoppingListInfo?.products?.edges.length || 0}
             item={row}
+            itemIndex={index}
             onEdit={handleOpenProductEdit}
-            onDelete={handleDeleteItems}
+            onDelete={setDeleteItemId}
             checkBox={checkBox}
+            setDeleteOpen={setDeleteOpen}
             currencyToken={currencyToken}
             handleUpdateProductQty={handleUpdateProductQty}
             handleUpdateShoppingListItem={handleUpdateShoppingListItem}
+            isReadForApprove={isReadForApprove}
           />
         )}
       />

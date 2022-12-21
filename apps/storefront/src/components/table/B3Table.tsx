@@ -65,6 +65,7 @@ interface TableProps<T> {
   showBorder?: boolean,
   selectedSymbol?: string,
   selectCheckbox?: Array<number | string>,
+  labelRowsPerPage?: string,
 }
 
 export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
@@ -97,6 +98,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
   showBorder = true,
   selectedSymbol = 'id',
   selectCheckbox = [],
+  labelRowsPerPage = '',
 }) => {
   const {
     offset,
@@ -144,7 +146,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                   checked={selectCheckbox.length === listItems.length}
                   onChange={handleSelectAllItems}
                 />
-                Select All
+                Select all
               </Box>
               )
             }
@@ -182,7 +184,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
               showPagination && (
                 <TablePagination
                   rowsPerPageOptions={rowsPerPageOptions}
-                  labelRowsPerPage="per page:"
+                  labelRowsPerPage={labelRowsPerPage || 'per page:'}
                   component="div"
                   count={count}
                   rowsPerPage={first}
@@ -223,7 +225,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
               showPagination && (
                 <TablePagination
                   rowsPerPageOptions={rowsPerPageOptions}
-                  labelRowsPerPage="Cards per page:"
+                  labelRowsPerPage={labelRowsPerPage || 'Cards per page:'}
                   component="div"
                   count={count}
                   rowsPerPage={first}
@@ -283,10 +285,15 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
               <TableBody>
                 {listItems.map((row, index) => {
                   const node = row.node || row || {}
+
+                  const lastItemBorderBottom = (index === listItems.length - 1) ? '1px solid rgba(224, 224, 224, 1)' : 'none'
                   return (
                     <TableRow
                       key={node[tableKey || 'id']}
                       hover={hover}
+                      sx={{
+                        borderBottom: showBorder ? '1px solid rgba(224, 224, 224, 1)' : lastItemBorderBottom,
+                      }}
                     >
                       {
                         showCheckbox && (
@@ -319,6 +326,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
             showPagination && (
               <TablePagination
                 rowsPerPageOptions={rowsPerPageOptions}
+                labelRowsPerPage={labelRowsPerPage || 'Rows per page:'}
                 component="div"
                 count={count}
                 rowsPerPage={first}

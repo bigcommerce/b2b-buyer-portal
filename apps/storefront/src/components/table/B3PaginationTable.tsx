@@ -51,6 +51,9 @@ interface B3PaginationTableProps<Y> {
   selectedSymbol?: string,
   showBorder?: boolean,
   getSelectCheckbox?: (arr: Array<string | number>) => void,
+  hover?: boolean,
+  labelRowsPerPage?: string,
+  itemIsMobileSpacing?: number,
 }
 
 const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
@@ -75,6 +78,9 @@ const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
   selectedSymbol = 'id',
   showBorder = true,
   getSelectCheckbox,
+  hover = false,
+  labelRowsPerPage = '',
+  itemIsMobileSpacing = 2,
 }, ref?: Ref<unknown>) => {
   const initPagination = {
     offset: 0,
@@ -184,6 +190,7 @@ const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
 
   return (
     <B3Table
+      hover={hover}
       columnItems={columnItems || []}
       listItems={list}
       pagination={tablePagination}
@@ -199,6 +206,7 @@ const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
       itemXs={itemXs}
       noDataText={noDataText}
       tableKey={tableKey}
+      itemIsMobileSpacing={itemIsMobileSpacing}
       infiniteScrollThreshold={infiniteScrollThreshold}
       infiniteScrollNode={infiniteScrollNode}
       infiniteScrollLoader={infiniteScrollLoader}
@@ -209,6 +217,7 @@ const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
       handleSelectAllItems={handleSelectAllItems}
       handleSelectOneItem={handleSelectOneItem}
       showBorder={showBorder}
+      labelRowsPerPage={labelRowsPerPage}
     />
   )
 }

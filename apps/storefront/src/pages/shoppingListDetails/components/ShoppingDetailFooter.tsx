@@ -17,15 +17,19 @@ import {
   getCartInfo,
   addProductToCart,
 } from '@/shared/service/bc'
+import {
+  snackbar,
+} from '@/utils'
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any,
   role: string | number,
   checkedArr: any,
   currencyToken: string,
-  selectedSubTotal: number | string,
-  handleDeleteItems: () => void,
-  setLoading: (val: boolean) => void
+  selectedSubTotal: number,
+  // handleDeleteItems: () => void,
+  setLoading: (val: boolean) => void,
+  setDeleteOpen: (val: boolean) => void,
 }
 
 const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
@@ -44,15 +48,14 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
     checkedArr,
     currencyToken,
     selectedSubTotal,
-    handleDeleteItems,
+    // handleDeleteItems,
     setLoading,
+    setDeleteOpen,
   } = props
 
   const handleAddProductsToCart = async () => {
     setLoading(true)
     try {
-      console.log(checkedArr, 'checkedArr')
-
       const lineItems = checkedArr.map((item: CustomFieldItems) => {
         const {
           node,
@@ -81,14 +84,21 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
         }
       })
       const cartInfo = await getCartInfo()
+      let res
       if (cartInfo.length > 0) {
-        await addProductToCart({
+        res = await addProductToCart({
           lineItems,
         }, cartInfo[0].id)
       } else {
-        await createCart({
+        res = await createCart({
           lineItems,
         })
+      }
+      console.log(res)
+      if (res.status === 422) {
+        snackbar.error(res.detail)
+      } else {
+        snackbar.success(`${checkedArr.length} products were added to cart`)
       }
     } finally {
       setLoading(false)
@@ -143,7 +153,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
           <Delete
             color="primary"
             onClick={() => {
-              handleDeleteItems()
+              setDeleteOpen(true)
             }}
           />
         </Button>

@@ -53,6 +53,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
       <Box
         sx={{
           marginBottom: '10px',
+          width: 'fit-content',
         }}
       >
         <Box
@@ -97,10 +98,10 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             <Typography
               variant="h4"
               sx={{
-                marginRight: '0.5rem',
+                marginRight: '1rem',
               }}
             >
-              {`${shoppingListInfo?.name || ''} #${shoppingListInfo?.id || ''}`}
+              {`${shoppingListInfo?.name || ''}`}
             </Typography>
             <Typography
               sx={{
@@ -108,14 +109,19 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
               }}
             >
               {
-              shoppingListInfo && (
-                <ShoppingStatus status={shoppingListInfo?.status} />
-              )
-            }
+                shoppingListInfo && (
+                  <ShoppingStatus status={shoppingListInfo?.status} />
+                )
+              }
             </Typography>
           </Box>
           <Box>
-            <Typography>
+            <Typography
+              sx={{
+                width: '100%',
+                wordBreak: 'break-all',
+              }}
+            >
               {shoppingListInfo?.description}
             </Typography>
             <StyledCreateName>
