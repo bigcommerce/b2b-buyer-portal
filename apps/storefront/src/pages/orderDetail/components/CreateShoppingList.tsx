@@ -97,6 +97,12 @@ const CreateShoppingList = ({
   const handleConfirm = () => {
     handleSubmit(async (data) => {
       setLoading(true)
+      const {
+        description,
+      } = data
+      if (description.indexOf('\n') > -1) {
+        data.description = description.split('\n').join('\\n')
+      }
       const createShoppingData = {
         ...data,
         status: 0,

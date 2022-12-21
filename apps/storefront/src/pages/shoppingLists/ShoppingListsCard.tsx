@@ -63,8 +63,17 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
     role,
   } = props
 
-  const getPermissions = (status: number) => {
-    if (role === 2) {
+  const getEditPermissions = (status: number) => {
+    if (+role === 2) {
+      if (status === 30 || status === 0) return false
+      return true
+    }
+
+    return false
+  }
+
+  const getDeletePermissions = (status: number) => {
+    if (+role === 2) {
       if (status === 20 || status === 30) return false
       return true
     }
@@ -106,11 +115,16 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
           >
             <ShoppingStatus status={shoppingList.status} />
           </Box>
-          <Typography>
+          <Box
+            sx={{
+              width: '100%',
+              wordBreak: 'break-all',
+            }}
+          >
             {
               shoppingList.description
             }
-          </Typography>
+          </Box>
 
           <FlexItem>
             <FontBold>
@@ -151,7 +165,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
             }}
           >
             {
-              !getPermissions(shoppingList.status) && (
+              !getEditPermissions(shoppingList.status) && (
               <IconButton
                 aria-label="edit"
                 size="small"
@@ -176,7 +190,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
               <ContentCopyIcon fontSize="inherit" />
             </IconButton>
             {
-              !getPermissions(shoppingList.status) && (
+              !getDeletePermissions(shoppingList.status) && (
               <IconButton
                 aria-label="delete"
                 size="small"
