@@ -48,6 +48,7 @@ const list = [
     xs: 12,
     variant: 'filled',
     size: 'small',
+    maxLength: 200,
   },
   {
     name: 'description',
@@ -59,6 +60,7 @@ const list = [
     variant: 'filled',
     size: 'small',
     rows: 4,
+    maxLength: 200,
   },
 ]
 

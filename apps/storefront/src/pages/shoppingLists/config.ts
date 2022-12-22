@@ -42,6 +42,7 @@ export interface GetFilterMoreListProps {
   xs: number
   variant: string
   size: string
+  maxLength?: number
 }
 
 export const getFilterShoppingListStatus = (role?: number | string): Array<ShoppingListStatusProps> => {
@@ -77,7 +78,7 @@ export const getFilterMoreList = (role: number | string): GetFilterMoreListProps
   const filterMoreList = [
     {
       name: 'createdBy',
-      label: 'Createdby',
+      label: 'Created by',
       required: false,
       default: '',
       fieldType: 'text',
@@ -111,6 +112,7 @@ export const getCreatedShoppingListFiles = (): GetFilterMoreListProps[] => [
     xs: 12,
     variant: 'filled',
     size: 'small',
+    maxLength: 200,
   },
   {
     name: 'description',
@@ -122,5 +124,6 @@ export const getCreatedShoppingListFiles = (): GetFilterMoreListProps[] => [
     variant: 'filled',
     size: 'small',
     rows: 4,
+    maxLength: 200,
   },
 ]

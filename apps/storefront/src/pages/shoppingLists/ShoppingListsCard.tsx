@@ -69,6 +69,8 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
       return true
     }
 
+    if (status === 40) return true
+
     return false
   }
 
@@ -98,6 +100,8 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
           variant="h5"
           sx={{
             color: 'rgba(0, 0, 0, 0.87)',
+            width: '100%',
+            wordBreak: 'break-all',
           }}
         >
           {shoppingList.name}

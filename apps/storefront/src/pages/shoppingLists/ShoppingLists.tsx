@@ -206,7 +206,7 @@ const shoppingLists = () => {
         />
         <B3Dialog
           isOpen={deleteOpen}
-          title="shopping list"
+          title="Delete shopping list"
           leftSizeBtn="cancel"
           rightSizeBtn="delete"
           handleLeftClick={handleCancelClick}
