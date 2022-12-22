@@ -15,6 +15,11 @@ import styled from '@emotion/styled'
 import {
   noop,
 } from 'lodash'
+
+import {
+  PRODUCT_DEFAULT_IMAGE,
+} from '@/constants'
+
 import {
   useMobile,
 } from '@/hooks'
@@ -215,7 +220,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
             key={product.id}
           >
             <FlexItem>
-              <ProductImage src={product.imageUrl} />
+              <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
               <Box
                 sx={{
                   marginLeft: '16px',

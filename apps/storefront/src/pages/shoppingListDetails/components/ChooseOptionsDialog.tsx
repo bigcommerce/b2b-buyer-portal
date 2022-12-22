@@ -26,6 +26,10 @@ import {
 } from '@/components'
 
 import {
+  PRODUCT_DEFAULT_IMAGE,
+} from '@/constants'
+
+import {
   ShoppingListProductItem,
   ShoppingListAddProductItem,
   ShoppingListProductItemVariants,
@@ -336,7 +340,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
         <Box>
           <Flex>
             <FlexItem padding="0">
-              <ProductImage src={product.imageUrl} />
+              <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
               <Box
                 sx={{
                   marginLeft: '16px',

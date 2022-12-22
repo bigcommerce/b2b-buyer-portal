@@ -1,3 +1,7 @@
+import {
+  PRODUCT_DEFAULT_IMAGE,
+} from '@/constants'
+
 import Form from './ui'
 
 import {
@@ -25,7 +29,7 @@ export const B3ControlProductRadio = (props : Form.B3UIProps) => {
     label: (
       <ProductImageContainer>
         <img
-          src={getProductImageUrl(option.image?.data)}
+          src={getProductImageUrl(option.image?.data) || PRODUCT_DEFAULT_IMAGE}
           alt={option.image?.alt}
         />
         {option.label}
