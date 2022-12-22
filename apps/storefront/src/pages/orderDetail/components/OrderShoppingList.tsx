@@ -167,16 +167,16 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
               }}
             >
               {
-              list.map((item: ListItem) => (
-                <ShoppingListMenuItem
-                  key={item.node.id}
-                  className={activeId === item.node.id ? 'active' : ''}
-                  onClick={handleListItemClicked(item)}
-                >
-                  <ListItemText>{item.node.name}</ListItemText>
-                </ShoppingListMenuItem>
-              ))
-            }
+                list.map((item: ListItem) => (
+                  <ShoppingListMenuItem
+                    key={item.node.id}
+                    className={activeId === item.node.id ? 'active' : ''}
+                    onClick={handleListItemClicked(item)}
+                  >
+                    <ListItemText>{item.node.name}</ListItemText>
+                  </ShoppingListMenuItem>
+                ))
+              }
             </MenuList>
           </B3Sping>
 

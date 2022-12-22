@@ -27,7 +27,6 @@ interface ShoppingDetailFooterProps {
   checkedArr: any,
   currencyToken: string,
   selectedSubTotal: number,
-  // handleDeleteItems: () => void,
   setLoading: (val: boolean) => void,
   setDeleteOpen: (val: boolean) => void,
 }
@@ -48,7 +47,6 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
     checkedArr,
     currencyToken,
     selectedSubTotal,
-    // handleDeleteItems,
     setLoading,
     setDeleteOpen,
   } = props
@@ -131,7 +129,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
       <Typography
         variant="h6"
       >
-        {`Subtotal: ${currencyToken}${selectedSubTotal}`}
+        {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
       </Typography>
       <Box
         sx={{

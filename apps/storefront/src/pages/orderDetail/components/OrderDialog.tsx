@@ -111,14 +111,14 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         const {
           product_id: productId,
           variant_id: variantId,
-          quantity,
+          editQuantity,
           optionList,
         } = product
 
         return {
           productId: +productId,
           variantId,
-          quantity,
+          quantity: +editQuantity,
           optionList: optionList.map((option) => {
             const {
               optionId,
@@ -139,7 +139,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         items: params,
       })
 
-      snackbar.success('Products are added to shopping list')
+      snackbar.success('Products were added to your shopping list')
 
       setOpenShoppingList(false)
     } finally {

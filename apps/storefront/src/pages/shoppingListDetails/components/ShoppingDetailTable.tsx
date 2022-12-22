@@ -124,6 +124,13 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }))
 
+const StyledTextField = styled(TextField)(() => ({
+  '& input': {
+    paddingTop: '12px',
+    paddingRight: '6px',
+  },
+}))
+
 const defaultProductImage = 'https://cdn11.bigcommerce.com/s-1i6zpxpe3g/stencil/cd9e3830-4c73-0139-8a51-0242ac11000a/e/4fe76590-73f1-0139-3767-32e4ea84ca1d/img/ProductDefault.gif'
 
 const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
@@ -349,7 +356,13 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         const price = +row.basePrice
 
         return (
-          <Box>{`${currencyToken}${price.toFixed(2)}`}</Box>
+          <Typography
+            sx={{
+              padding: '12px 0',
+            }}
+          >
+            {`${currencyToken}${price.toFixed(2)}`}
+          </Typography>
         )
       },
       width: '15%',
@@ -358,7 +371,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
       key: 'Qty',
       title: 'Qty',
       render: (row) => (
-        <TextField
+        <StyledTextField
           size="small"
           type="number"
           variant="filled"
@@ -391,7 +404,13 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
         return (
           <Box>
-            <Typography>{`${currencyToken}${total.toFixed(2)}`}</Typography>
+            <Typography
+              sx={{
+                padding: '12px 0',
+              }}
+            >
+              {`${currencyToken}${total.toFixed(2)}`}
+            </Typography>
             <Box
               sx={{
                 marginTop: '1rem',
@@ -495,6 +514,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         requestLoading={setIsRequestLoading}
         getSelectCheckbox={getSelectCheckbox}
         itemIsMobileSpacing={0}
+        noDataText="No products found"
         renderItem={(row: any, index?: number, checkBox?: () => ReactElement) => (
           <ShoppingDetailCard
             len={shoppingListInfo?.products?.edges.length || 0}

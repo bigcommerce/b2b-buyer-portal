@@ -278,7 +278,7 @@ const ShoppingListDetails = () => {
         total += +node.basePrice * +node.quantity
       })
 
-      setSelectedSubTotal(+((1000 * total) / 1000).toFixed(2))
+      setSelectedSubTotal((1000 * total) / 1000)
     } else {
       setSelectedSubTotal(0.00)
     }
@@ -295,9 +295,7 @@ const ShoppingListDetails = () => {
   }
 
   return (
-    <B3Sping
-      isSpinning={isRequestLoading}
-    >
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -324,29 +322,44 @@ const ShoppingListDetails = () => {
             marginBottom: isMobile ? '6rem' : 0,
           }}
         >
-          <Grid
-            item
+          <Box
             sx={isMobile ? {
               flexBasis: '100%',
+              pl: '16px',
             } : {
               flexBasis: '690px',
               flexGrow: 1,
+              ml: '16px',
+              pt: '16px',
             }}
           >
-            <ShoppingDetailTable
-              ref={tableRef}
-              isReadForApprove={isReadForApprove}
-              setCheckedArr={setCheckedArr}
-              shoppingListInfo={shoppingListInfo}
-              currencyToken={currencyToken}
-              setIsRequestLoading={setIsRequestLoading}
-              shoppingListId={id}
-              getShoppingListDetails={getShoppingListDetails}
-              setDeleteOpen={setDeleteOpen}
-              setDeleteItemId={setDeleteItemId}
-            />
-
-          </Grid>
+            <B3Sping
+              isSpinning={isRequestLoading}
+            >
+              <Grid
+                item
+                sx={isMobile ? {
+                  flexBasis: '100%',
+                } : {
+                  flexBasis: '690px',
+                  flexGrow: 1,
+                }}
+              >
+                <ShoppingDetailTable
+                  ref={tableRef}
+                  isReadForApprove={isReadForApprove}
+                  setCheckedArr={setCheckedArr}
+                  shoppingListInfo={shoppingListInfo}
+                  currencyToken={currencyToken}
+                  setIsRequestLoading={setIsRequestLoading}
+                  shoppingListId={id}
+                  getShoppingListDetails={getShoppingListDetails}
+                  setDeleteOpen={setDeleteOpen}
+                  setDeleteItemId={setDeleteItemId}
+                />
+              </Grid>
+            </B3Sping>
+          </Box>
 
           <Grid
             item
@@ -387,7 +400,7 @@ const ShoppingListDetails = () => {
         handleCancelClick={handleCancelClick}
         handleDeleteProductClick={handleDeleteProductClick}
       />
-    </B3Sping>
+    </>
   )
 }
 

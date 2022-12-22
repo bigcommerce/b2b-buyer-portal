@@ -291,14 +291,14 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                     <TableRow
                       key={node[tableKey || 'id']}
                       hover={hover}
-                      sx={{
-                        borderBottom: showBorder ? '1px solid rgba(224, 224, 224, 1)' : lastItemBorderBottom,
-                      }}
                     >
                       {
                         showCheckbox && (
                           <TableCell
                             key={`showItemCheckbox-${node.id}`}
+                            sx={{
+                              borderBottom: showBorder ? '1px solid rgba(224, 224, 224, 1)' : lastItemBorderBottom,
+                            }}
                           >
                             <Checkbox
                               checked={selectCheckbox.includes(node[selectedSymbol])}
@@ -311,7 +311,12 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                       }
                       {
                         columnItems.map((column) => (
-                          <TableCell key={column.title}>
+                          <TableCell
+                            key={column.title}
+                            sx={{
+                              borderBottom: showBorder ? '1px solid rgba(224, 224, 224, 1)' : lastItemBorderBottom,
+                            }}
+                          >
                             {column.render ? column.render(node, index) : node[column.key]}
                           </TableCell>
                         ))

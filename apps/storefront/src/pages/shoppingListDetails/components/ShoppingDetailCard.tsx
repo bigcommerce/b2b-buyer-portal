@@ -140,6 +140,8 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
             value={quantity}
             sx={{
               margin: '1rem 0',
+              width: '60%',
+              maxWidth: '100px',
             }}
             onChange={(e) => {
               handleUpdateProductQty(shoppingDetail.id, e.target.value)

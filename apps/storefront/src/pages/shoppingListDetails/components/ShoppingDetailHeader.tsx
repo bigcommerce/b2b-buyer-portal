@@ -82,6 +82,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
           display: 'flex',
           justifyContent: 'space-between',
           flexDirection: `${isMobile ? 'column' : 'row'}`,
+          mb: `${isMobile ? '16px' : ''}`,
         }}
       >
         <Grid

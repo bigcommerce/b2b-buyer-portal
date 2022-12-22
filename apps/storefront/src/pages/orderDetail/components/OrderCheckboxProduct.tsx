@@ -133,7 +133,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
   const {
     products,
     currencyInfo,
-    getProductQuantity = (item) => item.quantity,
+    getProductQuantity = (item) => item.editQuantity,
     onProductChange = () => {},
     setCheckedArr = () => {},
   } = props
@@ -279,7 +279,11 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
                   {product.sku}
                 </Typography>
                 {(product.product_options || []).map((option: OrderProductOption) => (
-                  <ProductOptionText>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
+                  <ProductOptionText
+                    key={option.display_name}
+                  >
+                    {`${option.display_name}: ${option.display_value}`}
+                  </ProductOptionText>
                 ))}
               </Box>
             </FlexItem>
