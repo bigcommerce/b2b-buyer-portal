@@ -39,6 +39,7 @@ export const B3Tip = ({
             <Alert
               sx={{
                 width: '100%',
+                alignItems: 'center',
                 '& button[title="Close"]': {
                   display: `${handleItemClose ? 'block' : 'none'}`,
                 },
@@ -48,7 +49,9 @@ export const B3Tip = ({
               onClose={() => handleItemClose && handleItemClose(msg.id)}
             >
               {msg?.title && <AlertTitle>{msg.title}</AlertTitle>}
-              {msg.msg}
+              {
+                msg.jsx ? msg.jsx() : msg.msg
+              }
             </Alert>
           ))
         }

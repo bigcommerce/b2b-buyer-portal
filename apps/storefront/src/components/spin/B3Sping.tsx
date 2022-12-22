@@ -23,6 +23,7 @@ interface B3SpingProps {
   thickness?: number & undefined,
   isCloseLoading?: Boolean,
   background?: string,
+  spinningHeight?: number,
 }
 
 export const B3Sping = (props: B3SpingProps) => {
@@ -34,12 +35,15 @@ export const B3Sping = (props: B3SpingProps) => {
     thickness,
     isCloseLoading,
     background,
+    spinningHeight,
   } = props
 
   const [isMobile] = useMobile()
 
   return (
-    <SpinContext>
+    <SpinContext
+      height={spinningHeight}
+    >
       {
       isSpinning && (
         <SpinCenter

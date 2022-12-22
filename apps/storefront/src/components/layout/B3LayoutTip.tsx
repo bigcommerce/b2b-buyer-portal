@@ -53,7 +53,7 @@ const B3LayoutTip = () => {
 
   const {
     msgs = [],
-    autoHideDuration = 13000,
+    autoHideDuration = 3000,
     vertical = `${isMobile ? 'top' : 'top'}`,
     horizontal = 'right',
     isClose = false,

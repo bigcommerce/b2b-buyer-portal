@@ -173,7 +173,9 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
                     className={activeId === item.node.id ? 'active' : ''}
                     onClick={handleListItemClicked(item)}
                   >
-                    <ListItemText>{item.node.name}</ListItemText>
+                    <ListItemText>
+                      {item.node.name}
+                    </ListItemText>
                   </ShoppingListMenuItem>
                 ))
               }

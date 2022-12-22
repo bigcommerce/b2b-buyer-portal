@@ -1,5 +1,6 @@
 import {
   Dispatch,
+  ReactElement,
   ReactNode,
 } from 'react'
 
@@ -17,7 +18,8 @@ export interface CustomerInfo {
 export type AlertTip = 'error' | 'info' | 'success' | 'warning'
 export interface MsgsProps {
   title?: string,
-  msg: string,
+  msg?: string,
+  jsx?: () => ReactElement,
   id: string | number,
   type: AlertTip
 }

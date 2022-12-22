@@ -27,12 +27,25 @@ const SpinTip = styled.div({
   marginTop: '12px',
 })
 
-const SpinContext = styled.div({
+styled('div')(() => ({
   position: 'relative',
   height: '100%',
   width: '100%',
   display: 'flex',
-})
+}))
+
+interface SpinContextProps {
+  height?: number,
+}
+
+const SpinContext = styled('div')(({
+  height,
+}: SpinContextProps) => ({
+  position: 'relative',
+  height: height || '100%',
+  width: '100%',
+  display: 'flex',
+}))
 
 export {
   SpinCenter,

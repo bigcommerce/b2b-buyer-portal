@@ -96,6 +96,14 @@ export default function App() {
     } else {
       document.body.style.height = defaultHeight
       document.body.style.overflow = defaultOverflow
+      dispatch({
+        type: 'common',
+        payload: {
+          tipMessage: {
+            msgs: [],
+          },
+        },
+      })
     }
   }, [isOpen])
 
@@ -242,7 +250,6 @@ export default function App() {
           {isOpen ? (
             <B3RenderRouter setOpenPage={setOpenPage} />
           ) : null}
-          {/* <PDP /> */}
         </ThemeFrame>
       </div>
     </HashRouter>

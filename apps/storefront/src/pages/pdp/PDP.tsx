@@ -3,12 +3,21 @@ import {
   useState,
   Dispatch,
   SetStateAction,
+  useRef,
 } from 'react'
+
+import {
+  Button,
+  Box,
+} from '@mui/material'
 
 import type {
   OpenPageState,
 } from '@b3/hooks'
 
+import {
+  useNavigate,
+} from 'react-router-dom'
 import {
   B3SStorage,
   snackbar,
@@ -27,6 +36,10 @@ import CreateShoppingList from '../orderDetail/components/CreateShoppingList'
 
 interface PDPProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+}
+
+interface PDPRefProps {
+  timer: null | number,
 }
 
 const serialize = (form: any) => {
@@ -81,29 +94,77 @@ const PDP = ({
 }: PDPProps) => {
   const isPromission = true
 
+  const pdpRef = useRef<PDPRefProps>({
+    timer: null,
+  })
+
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
   const [isOpenCreateShopping, setIsOpenCreateShopping] = useState<boolean>(false)
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     setOpenShoppingList(true)
   }, [])
 
-  const handleShoppingClose = () => {
-    setOpenShoppingList(false)
-    setIsOpenCreateShopping(false)
-    setOpenPage({
-      isOpen: false,
-    })
+  const handleShoppingClose = (isTrue?: boolean) => {
+    if (isTrue) {
+      setOpenShoppingList(false)
+      setIsOpenCreateShopping(false)
+      pdpRef.current.timer = window.setTimeout(() => {
+        setOpenPage({
+          isOpen: false,
+        })
+      }, 4000)
+    } else {
+      setOpenShoppingList(false)
+      setIsOpenCreateShopping(false)
+      setOpenPage({
+        isOpen: false,
+      })
+    }
   }
+
+  const gotoShoppingDetail = (id: string | number) => {
+    if (pdpRef.current?.timer) clearTimeout(pdpRef.current.timer)
+    navigate(`/shoppingList/${id}`)
+  }
+
+  const tip = (id: string | number) => (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      <Box
+        sx={{
+          mr: '15px',
+        }}
+      >
+        Products are added to shopping list
+
+      </Box>
+      <Button
+        onClick={() => gotoShoppingDetail(id)}
+        variant="text"
+      >
+        view shoppping list
+      </Button>
+    </Box>
+  )
+
   const handleShoppingConfirm = async (id: string | number) => {
     try {
       setIsRequestLoading(true)
       const productId = (document.querySelector('input[name=product_id]') as any)?.value
       const qty = (document.querySelector('[name="qty[]"]') as any)?.value ?? 1
       const sku = (document.querySelector('[data-product-sku]')?.innerHTML ?? '').trim()
-
+      // const productId = '97'
+      // const qty = '1'
+      // const sku = 'TWB'
       const form = document.querySelector('form[data-cart-item-add]')
 
       const getDefaultCurrencyInfo = () => {
@@ -147,8 +208,11 @@ const PDP = ({
         shoppingListId: +id,
         items: [params],
       })
-      snackbar.success('Products are added to shopping list')
-      handleShoppingClose()
+      snackbar.success('Products are added to shopping list', {
+        jsx: () => tip(id),
+        isClose: true,
+      })
+      handleShoppingClose(true)
     } finally {
       setOpenShoppingList(false)
     }
