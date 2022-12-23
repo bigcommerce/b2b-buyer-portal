@@ -80,7 +80,7 @@ interface ListItemProps {
 }
 
 interface ShoppingDetailTableProps {
-  shoppingListInfo: CustomFieldItems,
+  shoppingListInfo: any,
   currencyToken: string,
   setIsRequestLoading: (value: boolean) => void,
   shoppingListId: number | string,
