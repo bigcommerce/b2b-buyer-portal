@@ -156,31 +156,37 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
           {dialogTitle}
         </DialogTitle>
         <DialogContent>
-          <B3Sping
-            isSpinning={isLoading}
-            background="rgba(255,255,255,0.2)"
+          <Box
+            sx={{
+              height: isLoading ? '100%' : 'auto',
+            }}
           >
-            <MenuList
-              sx={{
-                minHeight: '200px',
-                width: '100%',
-              }}
+            <B3Sping
+              isSpinning={isLoading}
+              background="rgba(255,255,255,0.2)"
             >
-              {
-                list.map((item: ListItem) => (
-                  <ShoppingListMenuItem
-                    key={item.node.id}
-                    className={activeId === item.node.id ? 'active' : ''}
-                    onClick={handleListItemClicked(item)}
-                  >
-                    <ListItemText>
-                      {item.node.name}
-                    </ListItemText>
-                  </ShoppingListMenuItem>
-                ))
-              }
-            </MenuList>
-          </B3Sping>
+              <MenuList
+                sx={{
+                  minHeight: '200px',
+                  width: '100%',
+                }}
+              >
+                {
+                  list.map((item: ListItem) => (
+                    <ShoppingListMenuItem
+                      key={item.node.id}
+                      className={activeId === item.node.id ? 'active' : ''}
+                      onClick={handleListItemClicked(item)}
+                    >
+                      <ListItemText>
+                        {item.node.name}
+                      </ListItemText>
+                    </ShoppingListMenuItem>
+                  ))
+                }
+              </MenuList>
+            </B3Sping>
+          </Box>
 
           <Button
             variant="text"

@@ -80,12 +80,12 @@ interface ListItemProps {
 }
 
 interface ShoppingDetailTableProps {
-  shoppingListInfo: any,
+  shoppingListInfo: CustomFieldItems,
   currencyToken: string,
   setIsRequestLoading: (value: boolean) => void,
   shoppingListId: number | string,
-  getShoppingListDetails: any,
-  setCheckedArr: (values: any) => void,
+  getShoppingListDetails: CustomFieldItems,
+  setCheckedArr: (values: CustomFieldItems) => void,
   isReadForApprove: boolean,
   setDeleteItemId: (itemId: number | string) => void,
   setDeleteOpen: (open: boolean) => void,
@@ -95,6 +95,12 @@ interface SearchProps {
   search: string,
   first?: number,
   offset?: number,
+}
+
+interface PaginationTableRefProps extends HTMLInputElement {
+  getList: () => void,
+  setList: (items?: ListItemProps[]) => void,
+  getSelectedValue: () => void,
 }
 
 const StyledShoppingListTableContainer = styled('div')(() => ({
@@ -148,7 +154,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     setDeleteOpen,
   } = props
 
-  const paginationTableRef = useRef<any>(null)
+  const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false)
   const [optionsProduct, setOptionsProduct] = useState<any>(null)
@@ -158,7 +164,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
   })
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
-    const listItems = paginationTableRef.current.getList()
+    const listItems = paginationTableRef.current?.getList() || []
     const newListItems = listItems?.map((item: ListItemProps) => {
       const {
         node,
@@ -170,7 +176,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
       return item
     })
 
-    paginationTableRef.current.setList([...newListItems])
+    paginationTableRef.current?.setList([...newListItems])
   }
 
   const initSearch = () => {
@@ -181,9 +187,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   useImperativeHandle(ref, () => ({
     initSearch,
-    getList: () => paginationTableRef.current.getList(),
-    setList: () => paginationTableRef.current.setList(),
-    getSelectedValue: () => paginationTableRef.current.getSelectedValue(),
+    getList: () => paginationTableRef.current?.getList(),
+    setList: () => paginationTableRef.current?.setList(),
+    getSelectedValue: () => paginationTableRef.current?.getSelectedValue(),
   }))
 
   const handleSearchProduct = async (q: string) => {
@@ -228,8 +234,8 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const handleUpdateShoppingListItem = async (itemId: number | string) => {
     setIsRequestLoading(true)
-    const listItems = paginationTableRef.current.getList()
-    const currentItem = listItems.find((item: any) => {
+    const listItems: ListItemProps[] = paginationTableRef.current?.getList() || []
+    const currentItem = listItems.find((item: ListItemProps) => {
       const {
         node,
       } = item
@@ -275,9 +281,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const getSelectCheckbox = (selectCheckbox: Array<string | number>) => {
     if (selectCheckbox.length > 0) {
-      const productList = paginationTableRef.current.getList()
+      const productList = paginationTableRef.current?.getList() || []
       const checkedItems = selectCheckbox.map((item: number | string) => {
-        const newItems = productList.find((product: any) => {
+        const newItems = productList.find((product: ListItemProps) => {
           const {
             node,
           } = product
@@ -515,7 +521,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         getSelectCheckbox={getSelectCheckbox}
         itemIsMobileSpacing={0}
         noDataText="No products found"
-        renderItem={(row: any, index?: number, checkBox?: () => ReactElement) => (
+        renderItem={(row: ProductInfoProps, index?: number, checkBox?: () => ReactElement) => (
           <ShoppingDetailCard
             len={shoppingListInfo?.products?.edges.length || 0}
             item={row}

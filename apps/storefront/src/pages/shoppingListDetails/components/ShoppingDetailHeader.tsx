@@ -134,7 +134,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
               >
                 Created by:
               </Typography>
-              <span>{`${customerInfo?.firstName} ${customerInfo?.lastName}`}</span>
+              <span>{`${customerInfo?.firstName || ''} ${customerInfo?.lastName || ''}`}</span>
             </StyledCreateName>
           </Box>
         </Grid>
@@ -147,18 +147,18 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
           {...gridOptions(4)}
         >
           {
-              (role === 2 && shoppingListInfo?.status === 30) && (
-                <Button
-                  variant="outlined"
-                  disabled={isDisabledBtn}
-                  onClick={() => {
-                    handleUpdateShoppingList(40)
-                  }}
-                >
-                  Submit for Approval
-                </Button>
-              )
-            }
+            (role === 2 && shoppingListInfo?.status === 30) && (
+              <Button
+                variant="outlined"
+                disabled={isDisabledBtn}
+                onClick={() => {
+                  handleUpdateShoppingList(40)
+                }}
+              >
+                Submit for Approval
+              </Button>
+            )
+          }
           {
               ((role === 0 || role === 1) && shoppingListInfo?.status === 40) && (
                 <Box>
