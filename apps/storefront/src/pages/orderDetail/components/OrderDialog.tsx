@@ -48,7 +48,7 @@ import {
   OrderCurrency,
 } from '../../../types'
 
-interface DialogData{
+interface DialogData {
   dialogTitle: string,
   type: string,
   description: string,
@@ -197,6 +197,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           container={container.current}
           onClose={handleClose}
           fullScreen={isMobile}
+          maxWidth="lg"
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
