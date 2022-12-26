@@ -19,7 +19,6 @@ interface InfiniteScrollProps {
   scrollNode?: HTMLElement,
   loader?: ReactElement,
   isLoading: boolean,
-  allCount: number,
 }
 
 export const B3InfiniteScroll = (props: InfiniteScrollProps) => {
@@ -35,12 +34,10 @@ export const B3InfiniteScroll = (props: InfiniteScrollProps) => {
     scrollNode,
     loader,
     isLoading,
-    allCount = 0,
   } = props
 
   const handleLoadMore = () => {
     if (!isLoading) {
-      console.log(allCount)
       onPaginationChange({
         offset: offset + first,
         first,

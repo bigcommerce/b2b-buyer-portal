@@ -64,6 +64,33 @@ export interface SearchProps {
   first?: number,
   offset?: number,
 }
+interface NodeProps {
+  basePrice: number | string,
+  baseSku: string,
+  createdAt: number,
+  discount: number | string,
+  enteredInclusive: boolean,
+  id: number | string,
+  itemId: number,
+  optionList: string,
+  primaryImage: string,
+  productId: number,
+  productName: string,
+  productUrl: string,
+  quantity: number | string,
+  tax: number | string,
+  updatedAt: number,
+  variantId: number,
+  variantSku: string,
+  productsSearch: CustomFieldItems,
+}
+
+export interface ProductsProps {
+  maxQuantity?: number,
+  minQuantity?: number,
+  stock?: number,
+  node: NodeProps
+}
 
 const fieldTypes: CustomFieldItems = {
   text: 'text',

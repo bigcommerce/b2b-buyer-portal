@@ -1,7 +1,6 @@
 import {
   useEffect,
   useContext,
-  useCallback,
 } from 'react'
 
 import {
@@ -9,14 +8,13 @@ import {
 } from 'react-router-dom'
 import {
   useB3AppOpen,
-  useB3PDPOpen,
 } from '@b3/hooks'
 
 import {
-  useB3Lang,
-} from '@b3/lang'
-
-import globalB3 from '@b3/global-b3'
+  useOpenPDP,
+  useRefresh,
+  useRegisteredbctob2b,
+} from '@/shared/hook'
 
 import {
   getChannelId,
@@ -46,12 +44,6 @@ body {
   font-family: Roboto;
 };
 `
-
-const {
-  height: defaultHeight,
-  overflow: defaultOverflow,
-} = document.body.style
-
 export default function App() {
   const [{
     isOpen,
@@ -59,8 +51,6 @@ export default function App() {
   }, setOpenPage] = useB3AppOpen({
     isOpen: false,
   })
-
-  const b3Lang = useB3Lang()
 
   const {
     state: {
@@ -72,40 +62,13 @@ export default function App() {
     dispatch,
   } = useContext(GlobaledContext)
 
-  const pdpCallBbck = useCallback(() => {
-    setOpenPage({
-      isOpen: true,
-      openUrl: '/pdp',
-    })
-  }, [])
+  useOpenPDP({
+    setOpenPage,
+    isB2BUser,
+    role,
+  })
 
-  useB3PDPOpen(globalB3['dom.setToShoppingList'], pdpCallBbck, isB2BUser, role)
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.height = '100%'
-      document.body.style.overflow = 'hidden'
-      if (openUrl) {
-        const {
-          origin,
-          pathname,
-          search,
-        } = window.location
-        window.location.href = `${origin}${pathname}${search}#${openUrl}`
-      }
-    } else {
-      document.body.style.height = defaultHeight
-      document.body.style.overflow = defaultOverflow
-      dispatch({
-        type: 'common',
-        payload: {
-          tipMessage: {
-            msgs: [],
-          },
-        },
-      })
-    }
-  }, [isOpen])
+  useRefresh(isOpen, openUrl)
 
   const setLogo = async () => {
     const {
@@ -136,12 +99,11 @@ export default function App() {
     })
   }
 
-  useEffect(() => {
+  const loginAndRegister = () => {
     const {
       pathname,
       href,
       search,
-      hash,
     } = window.location
 
     dispatch({
@@ -172,6 +134,13 @@ export default function App() {
         openUrl,
       })
     }
+  }
+
+  useEffect(() => {
+    const {
+      hash,
+    } = window.location
+    loginAndRegister()
 
     const gotoPage = (role?: number) => {
       let url = hash.split('#')[1]
@@ -202,41 +171,7 @@ export default function App() {
     init()
   }, [])
 
-  const createConvertB2BNavNode = () => {
-    const convertB2BNavNode = document.createElement('li')
-    convertB2BNavNode.className = 'navUser-item navUser-convert-b2b'
-    convertB2BNavNode.innerHTML = `
-      <a class="navUser-action" href="javascript:;" aria-label="Gift Certificates">
-        ${b3Lang('intl.global.nav.registerB2B.linkText')}
-      </a>
-    `
-    return convertB2BNavNode
-  }
-
-  useEffect(() => {
-    if (!isB2BUser && customerId) {
-      // already exist
-      if (document.querySelector('.navUser-item.navUser-convert-b2b')) {
-        return
-      }
-
-      const convertB2BNavNode = createConvertB2BNavNode()
-      const accountNode = document.querySelector(globalB3['dom.navUserLoginElement'])
-      accountNode?.parentNode?.insertBefore(convertB2BNavNode, accountNode)
-
-      const linkNode = convertB2BNavNode.querySelector('a')
-      if (linkNode) {
-        linkNode.onclick = () => {
-          setOpenPage({
-            isOpen: true,
-            openUrl: '/registeredbctob2b',
-          })
-        }
-      }
-    } else {
-      document.querySelector('.navUser-item.navUser-convert-b2b')?.remove()
-    }
-  }, [isB2BUser, customerId])
+  useRegisteredbctob2b(setOpenPage, isB2BUser, customerId)
 
   return (
     <HashRouter>

@@ -238,8 +238,6 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     handleBack()
   }
 
-  console.log(addressBasicList)
-
   return (
     <Box
       sx={{

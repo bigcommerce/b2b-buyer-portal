@@ -36,15 +36,17 @@ styled('div')(() => ({
 
 interface SpinContextProps {
   height?: number,
+  isFlex?: boolean,
 }
 
 const SpinContext = styled('div')(({
   height,
+  isFlex = true,
 }: SpinContextProps) => ({
   position: 'relative',
   height: height || '100%',
   width: '100%',
-  display: 'flex',
+  display: isFlex ? 'flex' : 'block',
 }))
 
 export {

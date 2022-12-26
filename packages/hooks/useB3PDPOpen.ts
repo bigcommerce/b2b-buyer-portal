@@ -9,12 +9,11 @@ const removeElement = (_element: CustomFieldItems) => {
   }
 }
 
-export const useB3PDPOpen = (el: string, cd: () => void, isB2BUser: boolean, role: string | number) => {
+export const useB3PDPOpen = (el: string, cd: () => void, isB2BUser: boolean, role: string | number, openQuickViewNum: number) => {
   useEffect(() => {
     const addToCartAll = document.querySelectorAll(el)
     const wishlistSdd = document.querySelector('form[data-wishlist-add]')
     let shoppingBtnDom: CustomFieldItems | null = null
-    console.log(addToCartAll.length, document.querySelectorAll('#shoppingListBtn').length)
     if (!addToCartAll.length) return
     if (document.querySelectorAll('#shoppingListBtn').length) return
     if (isB2BUser && (+role === 0 || +role === 1)) {
@@ -41,5 +40,5 @@ export const useB3PDPOpen = (el: string, cd: () => void, isB2BUser: boolean, rol
         shoppingBtnDom.removeEventListener('click', cd)
       }
     }
-  }, [isB2BUser, role])
+  }, [isB2BUser, role, openQuickViewNum])
 }

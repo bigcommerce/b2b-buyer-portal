@@ -21,6 +21,14 @@ import {
   snackbar,
 } from '@/utils'
 
+import {
+  getB2BVariantInfoBySkus,
+} from '@/shared/service/b2b/graphql/product'
+
+import {
+  ProductsProps,
+} from '../shared/config'
+
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any,
   role: string | number,
@@ -29,6 +37,8 @@ interface ShoppingDetailFooterProps {
   selectedSubTotal: number,
   setLoading: (val: boolean) => void,
   setDeleteOpen: (val: boolean) => void,
+  setValidateFailureProducts: (arr: ProductsProps[]) => void,
+  setValidateSuccessProducts: (arr: ProductsProps[]) => void,
 }
 
 const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
@@ -49,55 +59,107 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
     selectedSubTotal,
     setLoading,
     setDeleteOpen,
+    setValidateFailureProducts,
+    setValidateSuccessProducts,
   } = props
 
+  const verifyInventory = (inventoryInfos: ProductsProps[]) => {
+    const validateFailureArr: ProductsProps[] = []
+    const validateSuccessArr: ProductsProps[] = []
+    checkedArr.forEach((item: ProductsProps) => {
+      const {
+        node,
+      } = item
+
+      inventoryInfos.forEach((option: CustomFieldItems) => {
+        if (node.variantSku === option.variantSku) {
+          const isPassVerify = +node.quantity <= option.stock && +node.quantity >= option.minQuantity && +node.quantity <= option.maxQuantity
+          if (isPassVerify) {
+            validateSuccessArr.push({
+              node,
+            })
+          } else {
+            validateFailureArr.push({
+              node,
+              stock: option.stock,
+              maxQuantity: option.maxQuantity,
+              minQuantity: option.minQuantity,
+            })
+          }
+        }
+      })
+    })
+
+    return {
+      validateFailureArr,
+      validateSuccessArr,
+    }
+  }
   const handleAddProductsToCart = async () => {
     setLoading(true)
     try {
-      const lineItems = checkedArr.map((item: CustomFieldItems) => {
+      const skus: string[] = []
+
+      checkedArr.forEach((item: ProductsProps) => {
         const {
           node,
         } = item
 
-        const optionList = JSON.parse(node.optionList || '[]')
-
-        const getOptionId = (id: number | string) => {
-          if (typeof id === 'number') return id
-          if (id.includes('attribute')) return +id.split('[')[1].split(']')[0]
-          return +id
-        }
-
-        const optionValue = optionList.map((option: {
-          option_id: number | string,
-          option_value: number| string,
-        }) => ({
-          optionId: getOptionId(option.option_id),
-          optionValue: option.option_value,
-        }))
-
-        return {
-          quantity: node.quantity,
-          productId: node.productId,
-          optionSelections: optionValue,
-        }
+        skus.push(node.variantSku)
       })
-      const cartInfo = await getCartInfo()
-      let res
-      if (cartInfo.length > 0) {
-        res = await addProductToCart({
+
+      const getInventoryInfos = await getB2BVariantInfoBySkus({
+        skus,
+      })
+
+      const {
+        validateFailureArr,
+        validateSuccessArr,
+      } = verifyInventory(getInventoryInfos?.variantSku || [])
+
+      if (validateSuccessArr.length !== 0) {
+        const lineItems = validateSuccessArr.map((item: ProductsProps) => {
+          const {
+            node,
+          } = item
+
+          const optionList = JSON.parse(node.optionList || '[]')
+
+          const getOptionId = (id: number | string) => {
+            if (typeof id === 'number') return id
+            if (id.includes('attribute')) return +id.split('[')[1].split(']')[0]
+            return +id
+          }
+
+          const optionValue = optionList.map((option: {
+            option_id: number | string,
+            option_value: number| string,
+          }) => ({
+            optionId: getOptionId(option.option_id),
+            optionValue: option.option_value,
+          }))
+
+          return {
+            quantity: node.quantity,
+            productId: node.productId,
+            optionSelections: optionValue,
+          }
+        })
+
+        const cartInfo = await getCartInfo()
+        const res = cartInfo.length ? await addProductToCart({
           lineItems,
-        }, cartInfo[0].id)
-      } else {
-        res = await createCart({
+        }, cartInfo[0].id) : await createCart({
           lineItems,
         })
+        if (res.status === 422) {
+          snackbar.error(res.detail)
+        } else {
+          snackbar.success(`${validateSuccessArr.length} products were added to cart`)
+        }
       }
-      console.log(res)
-      if (res.status === 422) {
-        snackbar.error(res.detail)
-      } else {
-        snackbar.success(`${checkedArr.length} products were added to cart`)
-      }
+      setValidateFailureProducts(validateFailureArr)
+      setValidateSuccessProducts(validateSuccessArr)
     } finally {
       setLoading(false)
     }

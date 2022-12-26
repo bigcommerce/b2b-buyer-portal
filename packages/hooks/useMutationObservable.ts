@@ -8,8 +8,8 @@ const DEFAULT_OPTIONS = {
   },
 }
 
-export const useMutationObservable = (parentEl: string, cb: () => void, options = DEFAULT_OPTIONS) => {
-  const element = document.querySelector(parentEl)
+export const useMutationObservable = (parentEl: string | Element, cb: () => void, options = DEFAULT_OPTIONS) => {
+  const element = typeof parentEl === 'string' ? document.querySelector(parentEl) : parentEl
   useEffect(() => {
     if (element) {
       const observer = new MutationObserver(cb)

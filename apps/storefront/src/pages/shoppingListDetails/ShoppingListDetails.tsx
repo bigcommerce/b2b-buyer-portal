@@ -46,6 +46,7 @@ import {
   ListItemProps,
   CurrencyProps,
   SearchProps,
+  ProductsProps,
 } from './shared/config'
 
 import {
@@ -56,6 +57,10 @@ import {
 import {
   AddToShoppingList,
 } from './components/AddToShoppingList'
+
+import {
+  ReAddToCart,
+} from './components/ReAddToCart'
 
 import ShoppingDetailHeader from './components/ShoppingDetailHeader'
 import ShoppingDetailFooter from './components/ShoppingDetailFooter'
@@ -97,6 +102,9 @@ const ShoppingListDetails = () => {
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
   const [deleteItemId, setDeleteItemId] = useState<number | string>('')
+
+  const [validateSuccessProducts, setValidateSuccessProducts] = useState<ProductsProps[]>([])
+  const [validateFailureProducts, setValidateFailureProducts] = useState<ProductsProps[]>([])
 
   const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
 
@@ -389,11 +397,21 @@ const ShoppingListDetails = () => {
             selectedSubTotal={selectedSubTotal}
             setLoading={setIsRequestLoading}
             setDeleteOpen={setDeleteOpen}
+            setValidateFailureProducts={setValidateFailureProducts}
+            setValidateSuccessProducts={setValidateSuccessProducts}
           />
           )
         }
 
       </Box>
+
+      <ReAddToCart
+        products={validateFailureProducts}
+        successProducts={validateSuccessProducts.length}
+        currencyToken={currencyToken}
+        setValidateFailureProducts={setValidateFailureProducts}
+        setValidateSuccessProducts={setValidateSuccessProducts}
+      />
 
       <ShoppingDetailDeleteItems
         open={deleteOpen}
