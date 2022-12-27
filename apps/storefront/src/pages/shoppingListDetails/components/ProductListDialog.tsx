@@ -174,7 +174,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
       title="Add to list"
       showRightBtn={false}
       loading={isLoading}
-      maxWidth="xl"
+      maxWidth="lg"
     >
       <B3Sping
         isSpinning={isLoading}
