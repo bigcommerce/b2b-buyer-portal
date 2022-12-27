@@ -169,6 +169,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
 
   return (
     <B3Dialog
+      fullWidth
       isOpen={isOpen}
       handleLeftClick={handleCancelClicked}
       title="Add to list"

@@ -44,6 +44,8 @@ import {
   ShoppingListInfoProps,
   CustomerInfoProps,
   ListItemProps,
+  CurrencyProps,
+  SearchProps,
 } from './shared/config'
 
 import {
@@ -60,14 +62,12 @@ import ShoppingDetailFooter from './components/ShoppingDetailFooter'
 import ShoppingDetailTable from './components/ShoppingDetailTable'
 import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems'
 
+interface TableRefProps extends HTMLInputElement {
+  initSearch: () => void,
+}
+
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
-// const shoppingListStatus = {
-//   0: 'Approved',
-//   20: 'Rejected',
-//   30: 'Draft',
-//   40: 'Ready for approval',
-// }
 
 const ShoppingListDetails = () => {
   const {
@@ -87,9 +87,9 @@ const ShoppingListDetails = () => {
     dispatch,
   } = useContext(ShoppingListDetailsContext)
 
-  const tableRef = useRef<any>(null)
+  const tableRef = useRef<TableRefProps | null>(null)
 
-  const [checkedArr, setCheckedArr] = useState<any>([])
+  const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
   const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null)
   const [customerInfo, setCustomerInfo] = useState<null | CustomerInfoProps>(null)
   const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.00)
@@ -107,7 +107,7 @@ const ShoppingListDetails = () => {
         currencies: currencyArr,
       } = currencies
 
-      const defaultCurrency = currencyArr.find((currency: any) => currency.is_default)
+      const defaultCurrency = currencyArr.find((currency: CurrencyProps) => currency.is_default)
 
       return defaultCurrency
     }
@@ -177,7 +177,7 @@ const ShoppingListDetails = () => {
     }
   }
 
-  const getShoppingListDetails = async (params: any) => {
+  const getShoppingListDetails = async (params: SearchProps) => {
     const {
       shoppingList,
       shoppingList: {
@@ -213,7 +213,7 @@ const ShoppingListDetails = () => {
       })
 
       snackbar.success('Shipping list status updated successfully')
-      tableRef.current.initSearch()
+      tableRef.current?.initSearch()
     } finally {
       setIsRequestLoading(false)
     }
@@ -256,14 +256,14 @@ const ShoppingListDetails = () => {
       }
 
       snackbar.success('Product removed from your shopping list')
-      tableRef.current.initSearch()
+      tableRef.current?.initSearch()
     } finally {
       setIsRequestLoading(false)
     }
   }
 
   const updateList = () => {
-    tableRef.current.initSearch()
+    tableRef.current?.initSearch()
   }
 
   useEffect(() => {

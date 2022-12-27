@@ -53,6 +53,18 @@ export interface ListItemProps {
   node: ProductInfoProps,
 }
 
+export interface CurrencyProps {
+  is_default: boolean,
+  currency_code: string,
+  token: string,
+}
+
+export interface SearchProps {
+  search: string,
+  first?: number,
+  offset?: number,
+}
+
 const fieldTypes: CustomFieldItems = {
   text: 'text',
   numbers_only_text: 'number',

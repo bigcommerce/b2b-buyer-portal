@@ -43,6 +43,7 @@ interface B3DialogProps<T> {
   isShowBordered?: boolean
   showRightBtn?: boolean
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false
+  fullWidth?: boolean
 }
 
 export const B3Dialog:<T> ({
@@ -59,6 +60,7 @@ export const B3Dialog:<T> ({
   isShowBordered,
   showRightBtn,
   maxWidth,
+  fullWidth,
 }: B3DialogProps<T>) => ReactElement = ({
   customActions,
   isOpen,
@@ -75,6 +77,7 @@ export const B3Dialog:<T> ({
   isShowBordered = false,
   showRightBtn = true,
   maxWidth = 'sm',
+  fullWidth = false,
 }) => {
   const container = useRef<HTMLInputElement | null>(null)
 
@@ -107,6 +110,7 @@ export const B3Dialog:<T> ({
       />
 
       <Dialog
+        fullWidth={fullWidth}
         open={isOpen}
         container={container.current}
         onClose={handleCloseClick}
