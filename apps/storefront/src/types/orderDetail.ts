@@ -65,6 +65,7 @@ export interface OrderProductItem {
   wrapping_message: string,
   wrapping_name: string,
   current_quantity_shipped?: number,
+  not_shipping_number?: number,
 }
 
 export interface EditableProductItem extends OrderProductItem{

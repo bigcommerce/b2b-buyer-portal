@@ -29,6 +29,7 @@ const getOrderShipping = (data: B2BOrderData) => {
         itemsInfo.push({
           ...product,
           current_quantity_shipped: item.quantity,
+          not_shipping_number: product.quantity - product.quantity_shipped,
         })
       }
     })
@@ -45,7 +46,10 @@ const getOrderShipping = (data: B2BOrderData) => {
       ...(shippedItems.filter((shippedItem: OrderShippedItem) => shippedItem.order_address_id === address.id)),
     ],
     notShip: {
-      itemsInfo: products.filter((product: OrderProductItem) => product.quantity > product.quantity_shipped && address.id === product.order_address_id),
+      itemsInfo: products.filter((product: OrderProductItem) => {
+        product.not_shipping_number = product.quantity - product.quantity_shipped
+        return product.quantity > product.quantity_shipped && address.id === product.order_address_id
+      }),
     },
   }))
 
@@ -148,4 +152,5 @@ export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   customStatus: data.customStatus,
   ipStatus: +data.ipStatus || 0, // 0: no invoice, 1,2: have invoice
   invoiceId: +(data.invoiceId || 0),
+  canReturn: data.canReturn,
 })

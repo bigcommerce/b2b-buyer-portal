@@ -19,14 +19,14 @@ import {
 } from 'date-fns'
 
 import {
+  B3ProductList,
+} from '@/components'
+
+import {
   OrderProductItem,
   OrderShippedItem,
   OrderShippingsItem,
 } from '../../../types'
-
-import {
-  OrderProduct,
-} from './OrderProduct'
 
 import {
   OrderDetailsContext,
@@ -83,8 +83,6 @@ export const OrderShipping = () => {
 
     return `shipped on ${time}, by ${shippingProvider}, ${shippingMethod}`
   }
-
-  const getShippingProductQuantity = (item: OrderProductItem) => item.current_quantity_shipped || 0
 
   const getNotShippingProductQuantity = (item: OrderProductItem) => {
     const notShipNumber = item.quantity - item.quantity_shipped
@@ -163,8 +161,8 @@ export const OrderShipping = () => {
                             )
                         }
                       </Box>
-                      <OrderProduct
-                        getProductQuantity={getShippingProductQuantity}
+                      <B3ProductList
+                        quantityKey="current_quantity_shipped"
                         products={shipment.itemsInfo}
                         currency={currency}
                       />
@@ -186,8 +184,8 @@ export const OrderShipping = () => {
                       </Typography>
                     </Box>
 
-                    <OrderProduct
-                      getProductQuantity={getNotShippingProductQuantity}
+                    <B3ProductList
+                      quantityKey="not_shipping_number"
                       products={shipping.notShip.itemsInfo}
                       currency={currency}
                     />

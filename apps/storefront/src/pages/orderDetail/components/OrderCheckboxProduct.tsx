@@ -42,6 +42,7 @@ interface FlexItemProps {
   width?: string,
   padding?: string,
   flexBasis?: string,
+  minHeight?: string,
 }
 
 const Flex = styled('div')(({
@@ -287,14 +288,18 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
                 ))}
               </Box>
             </FlexItem>
-            <FlexItem {...itemStyle.default}>
+            <FlexItem
+              padding="10px 0 0"
+              {...itemStyle.default}
+            >
               {isMobile && <span>Price: </span>}
               {`${currencyInfo.currency_token} ${getProductPrice(product.base_price)}`}
             </FlexItem>
             <FlexItem {...itemStyle.qty}>
               <TextField
                 type="number"
-                variant={isMobile ? 'filled' : 'outlined'}
+                variant="filled"
+                hiddenLabel={!isMobile}
                 label={isMobile ? 'Qty' : ''}
                 value={getProductQuantity(product)}
                 onChange={handleProductQuantityChange(product)}
@@ -306,7 +311,10 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
                 }}
               />
             </FlexItem>
-            <FlexItem {...itemStyle.default}>
+            <FlexItem
+              padding="10px 0 0"
+              {...itemStyle.default}
+            >
               {isMobile && <span>Cost: </span>}
               {`${currencyInfo.currency_token} ${getProductTotals(getProductQuantity(product), product.base_price)}`}
             </FlexItem>

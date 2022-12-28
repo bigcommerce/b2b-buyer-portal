@@ -2,12 +2,16 @@ import {
   ReactElement,
   ChangeEvent,
   KeyboardEvent,
+  useState,
+  useEffect,
 } from 'react'
 
 import {
   Box,
   Typography,
   TextField,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material'
 
 import styled from '@emotion/styled'
@@ -36,9 +40,6 @@ interface FlexProps {
 interface FlexItemProps {
   width?: string,
   padding?: string,
-  sx?: {
-    [k: string]: string
-  }
 }
 
 const Flex = styled('div')(({
@@ -75,7 +76,6 @@ const Flex = styled('div')(({
 const FlexItem = styled('div')(({
   width,
   padding = '0',
-  sx = {},
 }: FlexItemProps) => ({
   display: 'flex',
   flexGrow: width ? 0 : 1,
@@ -83,7 +83,6 @@ const FlexItem = styled('div')(({
   alignItems: 'center',
   width,
   padding,
-  ...sx,
 }))
 
 const ProductHead = styled('div')(() => ({
@@ -131,7 +130,10 @@ interface ProductProps <T> {
   actionWidth?: string,
   quantityKey?: string,
   quantityEditable?: boolean,
-  onProductQuantityChange?: (id: number, newQuantity: number) => void
+  onProductQuantityChange?: (id: number, newQuantity: number) => void,
+  showCheckbox?: boolean,
+  setCheckedArr?: (items: Array<T & ProductItem>) => void
+  selectAllText?: string,
 }
 
 export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props) => {
@@ -143,7 +145,12 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     actionWidth = '100px',
     quantityEditable = false,
     onProductQuantityChange = noop,
+    showCheckbox = false,
+    setCheckedArr = noop,
+    selectAllText = 'Select all products',
   } = props
+
+  const [list, setList] = useState<ProductItem[]>([])
 
   const [isMobile] = useMobile()
 
@@ -153,7 +160,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     return priceNumber.toFixed(2)
   }
 
-  const getQuantity = (product: any) => parseInt(product[quantityKey].toString(), 10) || ''
+  const getQuantity = (product: any) => parseInt(product[quantityKey]?.toString() || '', 10) || ''
 
   const getProductTotals = (quantity: number, price: string | number) => {
     const priceNumber = parseFloat(price.toString()) || 0
@@ -179,6 +186,36 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     }
   }
 
+  const handleSelectAllChange = () => {
+    const newList = [...list]
+    if (newList.length === products.length) {
+      setList([])
+    } else {
+      setList([...products])
+    }
+  }
+
+  const handleSelectChange = (product: ProductItem) => {
+    const newList = [...list]
+    const index = newList.findIndex((item) => item.id === product.id)
+    if (index !== -1) {
+      newList.splice(index, 1)
+    } else {
+      newList.push(product)
+    }
+    setList(newList)
+  }
+
+  const isChecked = (product: ProductItem) => list.findIndex((item) => item.id === product.id) !== -1
+
+  useEffect(() => {
+    setCheckedArr(list)
+  }, [list])
+
+  useEffect(() => {
+    setList([])
+  }, [products])
+
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
 
   return products.length > 0 ? (
@@ -189,6 +226,14 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
           isHeader
           isMobile={isMobile}
         >
+          {
+            showCheckbox && (
+            <Checkbox
+              checked={list.length === products.length}
+              onChange={handleSelectAllChange}
+            />
+            )
+          }
           <FlexItem>
             <ProductHead>Product</ProductHead>
           </FlexItem>
@@ -214,11 +259,36 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
       }
 
       {
+        isMobile && showCheckbox && (
+          <FormControlLabel
+            label={selectAllText}
+            control={(
+              <Checkbox
+                checked={list.length === products.length}
+                onChange={handleSelectAllChange}
+              />
+            )}
+            sx={{
+              paddingLeft: '0.6rem',
+            }}
+          />
+        )
+      }
+
+      {
         products.map((product) => (
           <Flex
             isMobile={isMobile}
             key={product.id}
           >
+            {
+              showCheckbox && (
+                <Checkbox
+                  checked={isChecked(product)}
+                  onChange={() => handleSelectChange(product)}
+                />
+              )
+            }
             <FlexItem>
               <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
               <Box
@@ -245,10 +315,8 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
             </FlexItem>
 
             <FlexItem
+              padding={quantityEditable ? '10px 0 0' : ''}
               {...itemStyle.default}
-              sx={{
-                minHeight: '40px',
-              }}
             >
               {isMobile && <span>Price:</span>}
               {`${currency} ${getProductPrice(product.base_price)}`}
@@ -283,10 +351,8 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
             </FlexItem>
 
             <FlexItem
+              padding={quantityEditable ? '10px 0 0' : ''}
               {...itemStyle.default}
-              sx={{
-                minHeight: '40px',
-              }}
             >
               {isMobile && <span>Total:</span>}
               {`${currency} ${getProductTotals(getQuantity(product) || 0, product.base_price)}`}

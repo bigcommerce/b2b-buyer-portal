@@ -18,6 +18,10 @@ import {
 } from '@mui/material'
 
 import {
+  useForm,
+} from 'react-hook-form'
+
+import {
   useMobile,
 } from '@/hooks'
 
@@ -27,7 +31,12 @@ import {
 
 import {
   addProductToShoppingList,
+  getB2BVariantInfoBySkus,
 } from '@/shared/service/b2b'
+
+import {
+  B3CustomForm,
+} from '@/components'
 
 import {
   snackbar,
@@ -41,6 +50,10 @@ import {
   OrderShoppingList,
 } from './OrderShoppingList'
 import CreateShoppingList from './CreateShoppingList'
+
+import {
+  getReturnFormFields,
+} from '../shared/config'
 
 import {
   EditableProductItem,
@@ -69,7 +82,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   open,
   products = [],
   type,
-  currentDialogData = {},
+  currentDialogData = null,
   setOpen,
   itemKey,
   currencyInfo,
@@ -84,14 +97,127 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
 
   const [isMobile] = useMobile()
 
+  const [returnFormFields] = useState(getReturnFormFields())
+
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    formState: {
+      errors,
+    },
+    setValue,
+  } = useForm({
+    mode: 'all',
+  })
+
   const handleClose = () => {
     setOpen(false)
   }
 
+  const handleReturn = () => {
+    handleSubmit((data) => {
+      console.log(11111, data)
+    })()
+  }
+
+  const validateProductNumber = (variantInfoList: CustomFieldItems, skus: string[]) => {
+    const notStockSku: string[] = []
+    const notPurchaseSku: string[] = []
+
+    skus.forEach((sku) => {
+      const variantInfo : CustomFieldItems | null = (variantInfoList || []).find((variant: CustomFieldItems) => variant.variantSku.toUpperCase() === sku.toUpperCase())
+
+      if (!variantInfo) {
+        return
+      }
+
+      const {
+        purchasingDisabled = '1',
+        maxQuantity,
+        minQuantity,
+        stock,
+      } = variantInfo
+
+      const quantity = editableProducts.find((product) => product.sku === sku)?.editQuantity || 1
+
+      if (purchasingDisabled === '1') {
+        notPurchaseSku.push(sku)
+        return
+      }
+
+      if (quantity > stock || (minQuantity !== 0 && stock < minQuantity) || (maxQuantity !== 0 && quantity > maxQuantity)) {
+        notStockSku.push(sku)
+      }
+    })
+
+    if (notStockSku.length > 0) {
+      snackbar.error(`SKU ${notPurchaseSku} not enough inventory`)
+      return false
+    }
+
+    if (notPurchaseSku.length > 0) {
+      snackbar.error(`SKU ${notPurchaseSku} no longer for sale`)
+      return false
+    }
+
+    return true
+  }
+
+  const handleReorder = async () => {
+    setIsRequestLoading(true)
+
+    try {
+      const items: CustomFieldItems[] = []
+      const skus: string[] = []
+      editableProducts.forEach((product) => {
+        if (checkedArr.includes(product.variant_id)) {
+          items.push({
+            quantity: parseInt(`${product.editQuantity}`, 10) || 1,
+            productId: product.product_id,
+            variantId: product.variant_id,
+            optionSelections: (product.optionList || []).map((option) => ({
+              optionId: option.optionId,
+              optionValue: option.optionValue,
+            })),
+          })
+
+          skus.push(product.sku)
+        }
+      })
+
+      if (skus.length <= 0) {
+        return
+      }
+
+      const {
+        variantSku: variantInfoList,
+      }: CustomFieldItems = await getB2BVariantInfoBySkus({
+        skus,
+      })
+
+      if (!validateProductNumber(variantInfoList, skus)) {
+        return
+      }
+
+      console.log(33333, items, skus)
+    } finally {
+      setIsRequestLoading(false)
+    }
+  }
+
   const handleSaveClick = () => {
-    if (type === 'shippingList') {
+    if (type === 'shoppingList') {
       handleClose()
       setOpenShoppingList(true)
+    }
+
+    if (type === 'reOrder') {
+      handleReorder()
+    }
+
+    if (type === 'return') {
+      handleReturn()
     }
   }
 
@@ -207,7 +333,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
               borderBottom: '1px solid #D9DCE9',
             }}
           >
-            {currentDialogData.dialogTitle}
+            {currentDialogData?.dialogTitle || ''}
           </DialogTitle>
           <DialogContent>
             <Typography
@@ -215,7 +341,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
                 margin: '1rem 0',
               }}
             >
-              {currentDialogData.description}
+              {currentDialogData?.description || ''}
             </Typography>
             <OrderCheckboxProduct
               products={editableProducts}
@@ -223,6 +349,28 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
               currencyInfo={currencyInfo}
               setCheckedArr={setCheckedArr}
             />
+
+            {
+              type === 'return' && (
+                <>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      margin: '20px 0',
+                    }}
+                  >
+                    Additional Information
+                  </Typography>
+                  <B3CustomForm
+                    formFields={returnFormFields}
+                    errors={errors}
+                    control={control}
+                    getValues={getValues}
+                    setValue={setValue}
+                  />
+                </>
+              )
+            }
           </DialogContent>
 
           <Divider />
@@ -233,7 +381,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
               onClick={handleSaveClick}
               autoFocus
             >
-              {currentDialogData.confirmText}
+              {currentDialogData?.confirmText || 'Save'}
             </Button>
           </DialogActions>
         </Dialog>

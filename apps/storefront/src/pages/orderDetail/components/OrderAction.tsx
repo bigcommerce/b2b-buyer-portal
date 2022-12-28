@@ -157,8 +157,8 @@ const OrderCard = (props: OrderCardProps) => {
       confirmText: 'Submit return request',
     },
     {
-      dialogTitle: 'Add to shipping list',
-      type: 'shippingList',
+      dialogTitle: 'Add to shopping list',
+      type: 'shoppingList',
       description: 'Select products and quantity to add to shopping list',
       confirmText: 'Add to shopping list',
     },
@@ -184,8 +184,6 @@ const OrderCard = (props: OrderCardProps) => {
       navigate('/invoiceDetail/1')
     } else if (name === 'printInvoice') {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
-    } else if (name === 'return') {
-      // TODO
     } else {
       setOpen(true)
       setType(name)
@@ -323,6 +321,7 @@ export const OrderAction = (props: OrderActionProps) => {
     products,
     orderId,
     ipStatus = 0,
+    canReturn = false,
   } = detailsData
 
   if (!orderId) {
@@ -397,12 +396,12 @@ export const OrderAction = (props: OrderActionProps) => {
       key: 'Return',
       name: 'return',
       variant: 'outlined',
-      isCanShow: true,
+      isCanShow: canReturn,
     },
     {
       value: 'ADD TO SHOPPING LIST',
-      key: 'add-to-shipping-list',
-      name: 'shippingList',
+      key: 'add-to-shopping-list',
+      name: 'shoppingList',
       variant: 'outlined',
       isCanShow: isB2BUser,
     },
