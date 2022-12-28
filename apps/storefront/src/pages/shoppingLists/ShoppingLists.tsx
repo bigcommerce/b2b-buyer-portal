@@ -34,6 +34,7 @@ import {
 
 import {
   useMobile,
+  useCardListColumn,
 } from '@/hooks'
 
 import {
@@ -64,6 +65,8 @@ const shoppingLists = () => {
       role,
     },
   } = useContext(GlobaledContext)
+
+  const isExtraLarge = useCardListColumn()
 
   const isEnableBtnPermissions = true
 
@@ -186,6 +189,7 @@ const shoppingLists = () => {
           getRequestList={fetchList}
           searchParams={filterSearch}
           isCustomRender
+          itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
           renderItem={(row: ShoppingListsItemsProps) => (
             <ShoppingListsCard

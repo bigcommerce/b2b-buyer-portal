@@ -7,6 +7,7 @@ import {
 import {
   Box,
 } from '@mui/material'
+
 import {
   B3Sping,
 } from '@/components/spin/B3Sping'
@@ -34,6 +35,7 @@ import {
 
 import {
   useMobile,
+  useCardListColumn,
 } from '@/hooks'
 
 import {
@@ -74,6 +76,8 @@ const Usermanagement = () => {
   })
 
   const [isMobile] = useMobile()
+
+  const isExtraLarge = useCardListColumn()
 
   const {
     state: {
@@ -199,6 +203,7 @@ const Usermanagement = () => {
           getRequestList={fetchList}
           searchParams={filterSearch || {}}
           isCustomRender
+          itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
           renderItem={(row: UsersList) => (
             <UserItemCard

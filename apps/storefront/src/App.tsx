@@ -14,7 +14,7 @@ import {
   useOpenPDP,
   useRefresh,
   useRegisteredbctob2b,
-} from '@/shared/hook'
+} from '@/hooks'
 
 import {
   getChannelId,

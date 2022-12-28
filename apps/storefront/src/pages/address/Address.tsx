@@ -42,6 +42,10 @@ import {
 } from '@/shared/service/b2b'
 
 import {
+  useCardListColumn,
+} from '@/hooks'
+
+import {
   filterFormConfig,
   convertBCToB2BAddress,
 } from './shared/config'
@@ -88,6 +92,8 @@ const Address = () => {
     },
     dispatch,
   } = useContext(GlobaledContext)
+
+  const isExtraLarge = useCardListColumn()
 
   const addEditAddressRef = useRef<RefCurrntProps | null>(null)
 
@@ -289,6 +295,7 @@ const Address = () => {
           getRequestList={getAddressList}
           searchParams={filterData || {}}
           isCustomRender
+          itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
           tableKey="id"
           renderItem={(row: AddressItemType) => (
