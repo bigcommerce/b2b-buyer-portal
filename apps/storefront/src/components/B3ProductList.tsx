@@ -62,6 +62,7 @@ const Flex = styled('div')(({
   const flexWrap = isMobile ? 'wrap' : 'initial'
 
   return {
+    color: '#212121',
     display: 'flex',
     wordBreak: 'break-word',
     padding: '8px 0 0',
@@ -134,6 +135,7 @@ interface ProductProps <T> {
   showCheckbox?: boolean,
   setCheckedArr?: (items: Array<T & ProductItem>) => void
   selectAllText?: string,
+  totalText?: string,
 }
 
 export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props) => {
@@ -148,6 +150,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     showCheckbox = false,
     setCheckedArr = noop,
     selectAllText = 'Select all products',
+    totalText = 'Total',
   } = props
 
   const [list, setList] = useState<ProductItem[]>([])
@@ -244,7 +247,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
             <ProductHead>Qty</ProductHead>
           </FlexItem>
           <FlexItem {...itemStyle.default}>
-            <ProductHead>Total</ProductHead>
+            <ProductHead>{totalText}</ProductHead>
           </FlexItem>
           {
             renderAction && (
@@ -356,7 +359,12 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
               padding={quantityEditable ? '10px 0 0' : ''}
               {...itemStyle.default}
             >
-              {isMobile && <span>Total:</span>}
+              {isMobile && (
+              <span>
+                {totalText}
+                :
+              </span>
+              )}
               {`${currency} ${getProductTotals(getQuantity(product) || 0, product.base_price)}`}
             </FlexItem>
 

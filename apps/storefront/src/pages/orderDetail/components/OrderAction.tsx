@@ -92,7 +92,7 @@ const PaymentItemContainer = styled('div')((props: PaymentItemContainerProps) =>
 const StyledCurrency = styled('div')(() => ({
   display: 'flex',
   alignItems: 'center',
-  width: '40%',
+  width: '37%',
   justifyContent: 'space-between',
 }))
 

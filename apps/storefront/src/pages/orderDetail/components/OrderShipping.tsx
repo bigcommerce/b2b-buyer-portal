@@ -33,6 +33,7 @@ import {
 
 const ShipmentTitle = styled('span')(() => ({
   fontWeight: 'bold',
+  color: '#313440',
 }))
 
 export const OrderShipping = () => {
@@ -101,6 +102,7 @@ export const OrderShipping = () => {
             <CardContent>
               <Box sx={{
                 wordBreak: 'break-word',
+                color: '#313440',
               }}
               >
                 <Typography
@@ -158,6 +160,7 @@ export const OrderShipping = () => {
                         quantityKey="current_quantity_shipped"
                         products={shipment.itemsInfo}
                         currency={currency}
+                        totalText="Cost"
                       />
                     </Fragment>
                   ) : <></>
@@ -181,6 +184,7 @@ export const OrderShipping = () => {
                       quantityKey="not_shipping_number"
                       products={shipping.notShip.itemsInfo}
                       currency={currency}
+                      totalText="Cost"
                     />
                   </Fragment>
                 ) : <></>

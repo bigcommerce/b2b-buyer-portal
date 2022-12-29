@@ -83,7 +83,10 @@ export const OrderHistory = () => {
   return (
     history.length > 0 ? (
       <Card>
-        <CardContent>
+        <CardContent sx={{
+          paddingBottom: '50px',
+        }}
+        >
           <Typography
             variant="h5"
             sx={{
