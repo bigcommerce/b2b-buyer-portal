@@ -100,7 +100,9 @@ const Address = () => {
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [addressFields, setAddressFields] = useState<CustomFieldItems[]>([])
   const [countries, setCountries] = useState<CountryProps[]>([])
-  const [filterData, setFilterData] = useState<Partial<FilterSearchProps> | null>(null)
+  const [filterData, setFilterData] = useState<Partial<FilterSearchProps>>({
+    search: '',
+  })
 
   const companyId = role === 3 && isAgenting ? salesRepCompanyId : companyInfoId
   const hasAdminPermission = isB2BUser && (!role || (role === 3 && isAgenting))
@@ -293,7 +295,7 @@ const Address = () => {
           columnItems={[]}
           rowsPerPageOptions={[9, 18, 27]}
           getRequestList={getAddressList}
-          searchParams={filterData || {}}
+          searchParams={filterData}
           isCustomRender
           itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
