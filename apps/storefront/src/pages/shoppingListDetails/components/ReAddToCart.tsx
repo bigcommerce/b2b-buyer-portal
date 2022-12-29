@@ -204,9 +204,9 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
 
     if (quantity > stock) return `${stock} In Stock`
 
-    if (quantity < minQuantity) return `minQuantity is ${minQuantity}`
+    if (minQuantity !== 0 && quantity < minQuantity) return `minQuantity is ${minQuantity}`
 
-    if (quantity > maxQuantity) return `minQuantity is ${maxQuantity}`
+    if (maxQuantity !== 0 && quantity > maxQuantity) return `maxQuantity is ${maxQuantity}`
 
     return ''
   }
@@ -284,6 +284,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
       handleLeftClick={handleCancelClicked}
       handRightClick={handRightClick}
       title="Add to list"
+      rightSizeBtn="Add to cart"
       maxWidth="xl"
     >
       <Grid>

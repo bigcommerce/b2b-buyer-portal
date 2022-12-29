@@ -23,7 +23,6 @@ import {
 } from '@/components'
 
 import {
-  OrderProductItem,
   OrderShippedItem,
   OrderShippingsItem,
 } from '../../../types'
@@ -82,12 +81,6 @@ export const OrderShipping = () => {
     const time = format(new Date(createdDate), 'LLLL, d')
 
     return `shipped on ${time}, by ${shippingProvider}, ${shippingMethod}`
-  }
-
-  const getNotShippingProductQuantity = (item: OrderProductItem) => {
-    const notShipNumber = item.quantity - item.quantity_shipped
-
-    return notShipNumber > 0 ? notShipNumber : 0
   }
 
   const getCompanyName = (company: string) => {

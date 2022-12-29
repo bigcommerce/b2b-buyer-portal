@@ -339,6 +339,8 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
                       sx={{
                         width: isMobile ? '60%' : '100%',
                       }}
+                      error={!!product.helperText}
+                      helperText={product.helperText}
                     />
                   </>
                 ) : (

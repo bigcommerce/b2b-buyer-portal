@@ -166,6 +166,7 @@ export const B3Dialog:<T> ({
                       }}
                       onClick={handleSaveClick}
                       autoFocus
+                      disabled={loading}
                     >
                       <B3Sping
                         isSpinning={loading}

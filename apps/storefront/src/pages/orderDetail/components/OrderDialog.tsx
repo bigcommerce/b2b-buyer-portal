@@ -1,5 +1,4 @@
 import {
-  useRef,
   useState,
   ReactElement,
   useEffect,
@@ -7,23 +6,14 @@ import {
 } from 'react'
 
 import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Box,
   Typography,
-  Button,
-  Divider,
+
 } from '@mui/material'
 
 import {
   useForm,
 } from 'react-hook-form'
-
-import {
-  useMobile,
-} from '@/hooks'
 
 import {
   ThemeFrameContext,
@@ -35,7 +25,14 @@ import {
 } from '@/shared/service/b2b'
 
 import {
+  createCart,
+  getCartInfo,
+  addProductToCart,
+} from '@/shared/service/bc'
+
+import {
   B3CustomForm,
+  B3Dialog,
 } from '@/components'
 
 import {
@@ -87,15 +84,13 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   itemKey,
   currencyInfo,
 }) => {
-  const container = useRef<HTMLInputElement | null>(null)
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false)
 
   const [openShoppingList, setOpenShoppingList] = useState(false)
   const [editableProducts, setEditableProducts] = useState<EditableProductItem[]>([])
+  const [variantInfoList, setVariantInfoList] = useState<CustomFieldItems[]>([])
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [checkedArr, setCheckedArr] = useState<number[]>([])
-
-  const [isMobile] = useMobile()
 
   const [returnFormFields] = useState(getReturnFormFields())
 
@@ -121,47 +116,56 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
     })()
   }
 
+  const getVariantInfoByList = async () => {
+    const skus = products.map((product) => product.sku)
+    const {
+      variantSku: variantInfoList = [],
+    }: CustomFieldItems = await getB2BVariantInfoBySkus({
+      skus,
+    })
+
+    setVariantInfoList(variantInfoList)
+  }
+
   const validateProductNumber = (variantInfoList: CustomFieldItems, skus: string[]) => {
-    const notStockSku: string[] = []
-    const notPurchaseSku: string[] = []
+    let isValid = true
 
     skus.forEach((sku) => {
       const variantInfo : CustomFieldItems | null = (variantInfoList || []).find((variant: CustomFieldItems) => variant.variantSku.toUpperCase() === sku.toUpperCase())
-
-      if (!variantInfo) {
+      const product = editableProducts.find((product) => product.sku === sku)
+      if (!variantInfo || !product) {
         return
       }
 
       const {
-        purchasingDisabled = '1',
-        maxQuantity,
-        minQuantity,
-        stock,
+        maxQuantity = 0,
+        minQuantity = 0,
+        stock = 0,
       } = variantInfo
 
-      const quantity = editableProducts.find((product) => product.sku === sku)?.editQuantity || 1
+      const quantity = product?.editQuantity || 1
 
-      if (purchasingDisabled === '1') {
-        notPurchaseSku.push(sku)
-        return
-      }
-
-      if (quantity > stock || (minQuantity !== 0 && stock < minQuantity) || (maxQuantity !== 0 && quantity > maxQuantity)) {
-        notStockSku.push(sku)
+      if (quantity > stock) {
+        product.helperText = `${stock} In Stock`
+        isValid = false
+      } else if (minQuantity !== 0 && quantity < minQuantity) {
+        product.helperText = `minQuantity is ${minQuantity}`
+        isValid = false
+      } else if (maxQuantity !== 0 && quantity > maxQuantity) {
+        product.helperText = `maxQuantity is ${maxQuantity}`
+        isValid = false
+      } else {
+        product.helperText = ''
       }
     })
 
-    if (notStockSku.length > 0) {
-      snackbar.error(`SKU ${notPurchaseSku} not enough inventory`)
-      return false
+    if (!isValid) {
+      setEditableProducts([...editableProducts])
     }
 
-    if (notPurchaseSku.length > 0) {
-      snackbar.error(`SKU ${notPurchaseSku} no longer for sale`)
-      return false
-    }
+    console.log(editableProducts)
 
-    return true
+    return isValid
   }
 
   const handleReorder = async () => {
@@ -190,17 +194,28 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         return
       }
 
-      const {
-        variantSku: variantInfoList,
-      }: CustomFieldItems = await getB2BVariantInfoBySkus({
-        skus,
-      })
-
       if (!validateProductNumber(variantInfoList, skus)) {
+        snackbar.error('Please fill in the correct quantity')
         return
       }
 
-      console.log(33333, items, skus)
+      const cartInfo = await getCartInfo()
+      let res
+      if (cartInfo.length > 0) {
+        res = await addProductToCart({
+          lineItems: items,
+        }, cartInfo[0].id)
+      } else {
+        res = await createCart({
+          lineItems: items,
+        })
+      }
+      if (res.status === 422) {
+        snackbar.error(res.detail)
+      } else {
+        setOpen(false)
+        snackbar.success(`${items.length} products were added to cart`)
+      }
     } finally {
       setIsRequestLoading(false)
     }
@@ -289,6 +304,8 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         ...item,
         editQuantity: item.quantity,
       })))
+
+      getVariantInfoByList()
     }
   }, [open])
 
@@ -313,79 +330,52 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           width: '50%',
         }}
       >
-        <Box
-          ref={container}
-        />
 
-        <Dialog
-          open={open}
-          fullWidth
-          container={container.current}
-          onClose={handleClose}
-          fullScreen={isMobile}
+        <B3Dialog
+          isOpen={open}
+          handleLeftClick={handleClose}
+          handRightClick={handleSaveClick}
+          title={currentDialogData?.dialogTitle || ''}
+          rightSizeBtn={currentDialogData?.confirmText || 'Save'}
           maxWidth="lg"
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
+          loading={isRequestLoading}
         >
-          <DialogTitle
-            id="alert-dialog-title"
+          <Typography
             sx={{
-              borderBottom: '1px solid #D9DCE9',
+              margin: '1rem 0',
             }}
           >
-            {currentDialogData?.dialogTitle || ''}
-          </DialogTitle>
-          <DialogContent>
-            <Typography
-              sx={{
-                margin: '1rem 0',
-              }}
-            >
-              {currentDialogData?.description || ''}
-            </Typography>
-            <OrderCheckboxProduct
-              products={editableProducts}
-              onProductChange={handleProductChange}
-              currencyInfo={currencyInfo}
-              setCheckedArr={setCheckedArr}
-            />
+            {currentDialogData?.description || ''}
+          </Typography>
+          <OrderCheckboxProduct
+            products={editableProducts}
+            onProductChange={handleProductChange}
+            currencyInfo={currencyInfo}
+            setCheckedArr={setCheckedArr}
+          />
 
-            {
-              type === 'return' && (
-                <>
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      margin: '20px 0',
-                    }}
-                  >
-                    Additional Information
-                  </Typography>
-                  <B3CustomForm
-                    formFields={returnFormFields}
-                    errors={errors}
-                    control={control}
-                    getValues={getValues}
-                    setValue={setValue}
-                  />
-                </>
-              )
-            }
-          </DialogContent>
-
-          <Divider />
-
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button
-              onClick={handleSaveClick}
-              autoFocus
-            >
-              {currentDialogData?.confirmText || 'Save'}
-            </Button>
-          </DialogActions>
-        </Dialog>
-
+          {
+            type === 'return' && (
+              <>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    margin: '20px 0',
+                  }}
+                >
+                  Additional Information
+                </Typography>
+                <B3CustomForm
+                  formFields={returnFormFields}
+                  errors={errors}
+                  control={control}
+                  getValues={getValues}
+                  setValue={setValue}
+                />
+              </>
+            )
+          }
+        </B3Dialog>
       </Box>
       {
         itemKey === 'order-summary' && (

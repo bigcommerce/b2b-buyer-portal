@@ -11,7 +11,8 @@ export interface ProductItem {
   imageUrl: string,
   name: string,
   base_price: string,
-  product_options?: ProductOptionsItem[]
+  product_options?: ProductOptionsItem[],
+  helperText?: string,
 }
 
 export interface ProductVariantSkuInfo{

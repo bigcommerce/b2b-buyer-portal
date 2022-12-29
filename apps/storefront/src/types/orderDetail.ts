@@ -70,6 +70,7 @@ export interface OrderProductItem {
 
 export interface EditableProductItem extends OrderProductItem{
   editQuantity: number | string
+  helperText?: string,
 }
 
 export interface OrderShipmentProductItem {
