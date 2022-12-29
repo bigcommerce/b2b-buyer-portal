@@ -8,6 +8,7 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
+import Divider from '@mui/material/Divider'
 
 import {
   // DeepPartial,
@@ -159,6 +160,7 @@ const B3FilterMore:<T, Y> ({
         <DialogTitle id="alert-dialog-title">
           Filters
         </DialogTitle>
+        <Divider />
         <DialogContent>
           <Box
             sx={{
@@ -189,6 +191,7 @@ const B3FilterMore:<T, Y> ({
 
           </Button>
         </DialogContent>
+        <Divider />
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button

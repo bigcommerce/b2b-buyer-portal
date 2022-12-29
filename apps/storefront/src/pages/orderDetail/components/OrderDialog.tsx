@@ -222,6 +222,10 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   }
 
   const handleSaveClick = () => {
+    if (checkedArr.length === 0) {
+      return
+    }
+
     if (type === 'shoppingList') {
       handleClose()
       setOpenShoppingList(true)

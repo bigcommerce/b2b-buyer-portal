@@ -146,12 +146,10 @@ const CreateShoppingList = ({
       >
         <DialogTitle
           id="alert-dialog-title"
-          sx={{
-            borderBottom: '1px solid #D9DCE9',
-          }}
         >
           Create new
         </DialogTitle>
+        <Divider />
         <DialogContent>
           <Box sx={{
             minHeight: '250px',

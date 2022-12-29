@@ -149,12 +149,10 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
 
         <DialogTitle
           id="alert-dialog-title"
-          sx={{
-            borderBottom: '1px solid #D9DCE9',
-          }}
         >
           {dialogTitle}
         </DialogTitle>
+        <Divider />
         <DialogContent>
           <Box
             sx={{
