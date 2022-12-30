@@ -306,18 +306,53 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
       title: 'Product',
       render: (row: CustomFieldItems) => {
         const optionList = JSON.parse(row.optionList)
-        let optionsValue
+        const optionsValue: { id: any; label: string; optionDisplayName: any; optionId: string }[] = []
+
         if (optionList.length > 0) {
           const {
             productsSearch: {
-              variants,
+              allOptions,
             },
           } = row
 
-          const variant = variants.find((item: any) => +item.variant_id
-          === +row.variantId || +item.id === +row.variantId)
+          allOptions.forEach((option: any) => {
+            const {
+              id,
+              type,
+              display_name: displayName,
+              option_values: allOriginOptionValues,
+            } = option
 
-          optionsValue = variant?.option_values || []
+            let optionId = ''
+            let label = ''
+
+            const splicedId = `attribute[${id}]`
+            const currentSelectedOption = optionList.find((option: any) => splicedId === option.option_id)
+            if (allOriginOptionValues.length > 0) {
+              if (type === 'checkbox') {
+                const isChecked = currentSelectedOption.option_value.includes(',')
+                const currentOriginOption = allOriginOptionValues.find((value: any) => value.label === (isChecked ? 'Yes' : 'No'))
+
+                optionId = currentOriginOption.id
+                label = currentOriginOption.label
+              } else {
+                const currentOriginOption = allOriginOptionValues.find((value: any) => +currentSelectedOption.option_value === +value.id)
+
+                optionId = currentOriginOption.id
+                label = currentOriginOption.label
+              }
+            } else {
+              optionId = id
+              label = currentSelectedOption.option_value
+            }
+
+            optionsValue.push({
+              id,
+              label,
+              optionDisplayName: displayName,
+              optionId,
+            })
+          })
         }
 
         return (
@@ -340,8 +375,8 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                   <Box>
                     {
                       optionsValue.map((option: any) => (
-                        <Typography key={option.option_display_name}>
-                          {`${option.option_display_name
+                        <Typography key={option.optionDisplayName}>
+                          {`${option.optionDisplayName
                           }: ${option.label}`}
                         </Typography>
                       ))

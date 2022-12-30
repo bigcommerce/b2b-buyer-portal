@@ -21,6 +21,7 @@ import {
 import {
   B3SStorage,
   snackbar,
+  isAllRequiredOptionFilled,
 } from '@/utils'
 
 import {
@@ -33,6 +34,10 @@ import {
 } from '../orderDetail/components/OrderShoppingList'
 
 import CreateShoppingList from '../orderDetail/components/CreateShoppingList'
+
+import {
+  conversionProductsList,
+} from '../shoppingListDetails/shared/config'
 
 interface PDPProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
@@ -144,8 +149,7 @@ const PDP = ({
           mr: '15px',
         }}
       >
-        Products are added to shopping list
-
+        Products were added to your shopping list
       </Box>
       <Button
         onClick={() => gotoShoppingDetail(id)}
@@ -162,9 +166,9 @@ const PDP = ({
       const productId = (document.querySelector('input[name=product_id]') as any)?.value
       const qty = (document.querySelector('[name="qty[]"]') as any)?.value ?? 1
       const sku = (document.querySelector('[data-product-sku]')?.innerHTML ?? '').trim()
-      // const productId = '97'
+      // const productId = '115'
       // const qty = '1'
-      // const sku = 'TWB'
+      // const sku = 'TP-001-RE-SM-SE'
       const form = document.querySelector('form[data-cart-item-add]')
 
       const getDefaultCurrencyInfo = () => {
@@ -192,14 +196,24 @@ const PDP = ({
         companyId,
       })
 
-      const variantItem = productsSearch[0].variants.find((item: any) => item.sku === sku)
+      const newProductInfo: any = conversionProductsList(productsSearch)
+      const {
+        allOptions,
+        variants,
+      } = newProductInfo[0]
+
+      const variantItem = variants.find((item: any) => item.sku === sku)
 
       const optionMap = serialize(form)
 
       const optionList = getProductOptionList(optionMap)
+
+      const canAddToSl = isAllRequiredOptionFilled(allOptions, optionList)
+      if (!canAddToSl) return
+
       const params = {
         productId: +productId,
-        variantId: variantItem.variant_id,
+        variantId: variantItem?.variant_id,
         quantity: +qty,
         optionList,
       }
@@ -208,13 +222,13 @@ const PDP = ({
         shoppingListId: +id,
         items: [params],
       })
-      snackbar.success('Products are added to shopping list', {
+      snackbar.success('Products were added to your shopping list', {
         jsx: () => tip(id),
         isClose: true,
       })
       handleShoppingClose(true)
     } finally {
-      setOpenShoppingList(false)
+      setIsRequestLoading(false)
     }
   }
   const handleOpenCreateDialog = () => {

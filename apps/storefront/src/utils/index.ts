@@ -46,6 +46,15 @@ import {
   getCookie,
 } from './b3utils'
 
+import {
+  handleGetCurrentProductInfo,
+  isModifierTextValid,
+  isModifierNumberTextValid,
+  isAllRequiredOptionFilled,
+  serialize,
+  getProductOptionList,
+} from './b3AddToShoppingList'
+
 export {
   convertArrayToGraphql,
   convertObjectToGraphql,
@@ -65,4 +74,10 @@ export {
   snackbar,
   getCookie,
   getCurrenciesInfo,
+  handleGetCurrentProductInfo,
+  isModifierTextValid,
+  isModifierNumberTextValid,
+  isAllRequiredOptionFilled,
+  serialize,
+  getProductOptionList,
 }

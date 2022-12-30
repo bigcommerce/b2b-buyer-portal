@@ -163,8 +163,6 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
       setEditableProducts([...editableProducts])
     }
 
-    console.log(editableProducts)
-
     return isValid
   }
 
