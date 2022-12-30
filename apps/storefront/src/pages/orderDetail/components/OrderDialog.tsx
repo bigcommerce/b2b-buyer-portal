@@ -335,6 +335,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
 
         <B3Dialog
           isOpen={open}
+          fullWidth
           handleLeftClick={handleClose}
           handRightClick={handleSaveClick}
           title={currentDialogData?.dialogTitle || ''}
