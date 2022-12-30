@@ -5,7 +5,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
 } from '@mui/material'
 
 import {
@@ -75,7 +74,7 @@ export const B3Dialog:<T> ({
   children,
   loading = false,
   row,
-  isShowBordered = false,
+  isShowBordered = true,
   showRightBtn = true,
   maxWidth = 'sm',
   fullWidth = false,
@@ -135,11 +134,9 @@ export const B3Dialog:<T> ({
           </DialogTitle>
           )
         }
-        <Divider />
         <DialogContent>
           {children}
         </DialogContent>
-        <Divider />
         <DialogActions
           sx={
             isShowBordered ? {

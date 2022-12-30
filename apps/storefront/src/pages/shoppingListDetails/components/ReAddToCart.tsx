@@ -441,6 +441,10 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                             size="small"
                             sx={{
                               width: isMobile ? '60%' : '100%',
+                              '& .MuiFormHelperText-root': {
+                                marginLeft: '0',
+                                marginRight: '0',
+                              },
                             }}
                           />
                         </FlexItem>

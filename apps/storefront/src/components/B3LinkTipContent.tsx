@@ -1,38 +1,57 @@
 import {
-  Link,
   Box,
 } from '@mui/material'
+
+import {
+  useNavigate,
+} from 'react-router-dom'
 
 interface B3SuccessTipContentProps{
   message: string,
   link?: string,
   linkText?: string,
+  isOutLink?: boolean,
 }
 
 export const B3LinkTipContent = ({
   message,
-  link,
+  link = '',
   linkText = 'View',
-}: B3SuccessTipContentProps) => (
-  <Box>
-    <Box
-      sx={{
-        display: 'inline',
-        marginRight: link ? '20px' : '0',
-      }}
-    >
-      {message}
-    </Box>
-    {link && (
-      <Link
-        href={link}
+  isOutLink = false,
+}: B3SuccessTipContentProps) => {
+  const navigate = useNavigate()
+
+  const handleLink = () => {
+    if (isOutLink) {
+      window.location.href = link
+    } else {
+      navigate(link)
+    }
+  }
+
+  return (
+    <Box>
+      <Box
         sx={{
-          color: 'inherit',
-          textDecoration: 'none',
+          display: 'inline',
+          marginRight: link ? '20px' : '0',
         }}
       >
-        {linkText}
-      </Link>
-    )}
-  </Box>
-)
+        {message}
+      </Box>
+      {link && (
+        <Box
+          onClick={handleLink}
+          sx={{
+            color: 'inherit',
+            display: 'inline',
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          {linkText}
+        </Box>
+      )}
+    </Box>
+  )
+}

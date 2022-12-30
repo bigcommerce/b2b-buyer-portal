@@ -341,6 +341,10 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
                       size="small"
                       sx={{
                         width: isMobile ? '60%' : '100%',
+                        '& .MuiFormHelperText-root': {
+                          marginLeft: '0',
+                          marginRight: '0',
+                        },
                       }}
                       error={!!product.helperText}
                       helperText={product.helperText}

@@ -45,7 +45,7 @@ export const getReturnFormFields = () => [
   }, {
     name: 'return_comments',
     label: 'Comment',
-    required: true,
+    required: false,
     xs: 12,
     rows: 5,
     variant: 'filled',

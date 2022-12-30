@@ -36,6 +36,10 @@ import {
 } from '@/components'
 
 import {
+  useMobile,
+} from '@/hooks'
+
+import {
   snackbar,
 } from '@/utils'
 
@@ -75,6 +79,22 @@ interface OrderDialogProps {
   currencyInfo: OrderCurrency,
 }
 
+interface successTipOptions{
+  message: string,
+  link?: string,
+  linkText?: string,
+  isOutLink?: boolean,
+}
+
+const successTip = (options: successTipOptions) => () => (
+  <B3LinkTipContent
+    message={options.message}
+    link={options.link}
+    linkText={options.linkText}
+    isOutLink={options.isOutLink}
+  />
+)
+
 export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   open,
   products = [],
@@ -93,6 +113,8 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   const [checkedArr, setCheckedArr] = useState<number[]>([])
 
   const [returnFormFields] = useState(getReturnFormFields())
+
+  const [isMobile] = useMobile()
 
   const {
     control,
@@ -167,14 +189,6 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
     return isValid
   }
 
-  const successTip = () => (
-    <B3LinkTipContent
-      message="Products are added to cart"
-      link="/cart.php"
-      linkText="VIEW CART"
-    />
-  )
-
   const handleReorder = async () => {
     setIsRequestLoading(true)
 
@@ -222,7 +236,12 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
       } else {
         setOpen(false)
         snackbar.success('', {
-          jsx: successTip,
+          jsx: successTip({
+            message: 'Products are added to cart',
+            link: '/cart.php',
+            linkText: 'VIEW CART',
+            isOutLink: true,
+          }),
         })
       }
     } finally {
@@ -231,11 +250,10 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   }
 
   const handleSaveClick = () => {
-    if (checkedArr.length === 0) {
-      return
-    }
-
     if (type === 'shoppingList') {
+      if (checkedArr.length === 0) {
+        return
+      }
       handleClose()
       setOpenShoppingList(true)
     }
@@ -293,7 +311,13 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         items: params,
       })
 
-      snackbar.success('Products were added to your shopping list')
+      snackbar.success('', {
+        jsx: successTip({
+          message: 'Products were added to your shopping list',
+          link: '/shoppingLists',
+          linkText: 'VIEW SHOPPING LIST',
+        }),
+      })
 
       setOpenShoppingList(false)
     } finally {
@@ -356,7 +380,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         >
           <Typography
             sx={{
-              margin: '1rem 0',
+              margin: isMobile ? '0 0 1rem' : '1rem 0',
             }}
           >
             {currentDialogData?.description || ''}
