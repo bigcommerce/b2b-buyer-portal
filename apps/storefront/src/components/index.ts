@@ -48,3 +48,7 @@ export {
 export {
   B3ProductList,
 } from './B3ProductList'
+
+export {
+  B3LinkTipContent,
+} from './B3LinkTipContent'

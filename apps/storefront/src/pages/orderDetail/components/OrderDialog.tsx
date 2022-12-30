@@ -8,7 +8,6 @@ import {
 import {
   Box,
   Typography,
-
 } from '@mui/material'
 
 import {
@@ -33,6 +32,7 @@ import {
 import {
   B3CustomForm,
   B3Dialog,
+  B3LinkTipContent,
 } from '@/components'
 
 import {
@@ -141,11 +141,12 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         maxQuantity = 0,
         minQuantity = 0,
         stock = 0,
+        isStock = '0',
       } = variantInfo
 
       const quantity = product?.editQuantity || 1
 
-      if (quantity > stock) {
+      if (isStock === '1' && quantity > stock) {
         product.helperText = `${stock} In Stock`
         isValid = false
       } else if (minQuantity !== 0 && quantity < minQuantity) {
@@ -165,6 +166,14 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
 
     return isValid
   }
+
+  const successTip = () => (
+    <B3LinkTipContent
+      message="Products are added to cart"
+      link="/cart.php"
+      linkText="VIEW CART"
+    />
+  )
 
   const handleReorder = async () => {
     setIsRequestLoading(true)
@@ -212,7 +221,9 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         snackbar.error(res.detail)
       } else {
         setOpen(false)
-        snackbar.success(`${items.length} products were added to cart`)
+        snackbar.success('', {
+          jsx: successTip,
+        })
       }
     } finally {
       setIsRequestLoading(false)

@@ -197,12 +197,13 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
       minQuantity = 0,
       stock = 0,
       node,
+      isStock = '0',
     } = product
     const {
       quantity,
     } = node
 
-    if (quantity > stock) return `${stock} In Stock`
+    if (isStock === '1' && quantity > stock) return `${stock} In Stock`
 
     if (minQuantity !== 0 && quantity < minQuantity) return `minQuantity is ${minQuantity}`
 

@@ -89,6 +89,7 @@ export interface ProductsProps {
   maxQuantity?: number,
   minQuantity?: number,
   stock?: number,
+  isStock?: string,
   node: NodeProps
 }
 
