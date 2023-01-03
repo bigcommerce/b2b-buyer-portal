@@ -33,11 +33,28 @@ import {
 import {
   B3Dialog,
   B3Sping,
+  B3LinkTipContent,
 } from '@/components'
 
 import {
   ProductsProps,
 } from '../shared/config'
+
+interface successTipOptions{
+  message: string,
+  link?: string,
+  linkText?: string,
+  isOutLink?: boolean,
+}
+
+const successTip = (options: successTipOptions) => () => (
+  <B3LinkTipContent
+    message={options.message}
+    link={options.link}
+    linkText={options.linkText}
+    isOutLink={options.isOutLink}
+  />
+)
 
 interface ShoppingProductsProps {
   products: ProductsProps[],
@@ -267,7 +284,15 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
         snackbar.error(res.detail)
       } else {
         handleCancelClicked()
-        snackbar.success(`${products.length} products were added to cart`)
+        snackbar.success('', {
+          jsx: successTip({
+            message: `${products.length} products were added to cart`,
+            link: '/cart.php',
+            linkText: 'VIEW CART',
+            isOutLink: true,
+          }),
+          isClose: true,
+        })
       }
     } finally {
       setLoading(false)
@@ -284,7 +309,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
       isOpen={isOpen}
       handleLeftClick={handleCancelClicked}
       handRightClick={handRightClick}
-      title="Add to list"
+      title="Add to cart"
       rightSizeBtn="Add to cart"
       maxWidth="xl"
     >
@@ -294,7 +319,12 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
             m: '0 0 1rem 0',
           }}
         >
-          <Alert severity="success">{`${successProducts} products were added to cart`}</Alert>
+          <Alert
+            variant="filled"
+            severity="success"
+          >
+            {`${successProducts} products were added to cart`}
+          </Alert>
         </Box>
 
         <Box
@@ -302,7 +332,12 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
             m: '1rem 0',
           }}
         >
-          <Alert severity="error">{`${products.length} products were not added to cart, since they do not have enogh stock, please change quantity. `}</Alert>
+          <Alert
+            variant="filled"
+            severity="error"
+          >
+            {`${products.length} products were not added to cart, since they do not have enough stock, please change quantity. `}
+          </Alert>
         </Box>
         <B3Sping
           isSpinning={loading}

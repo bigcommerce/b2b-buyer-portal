@@ -44,6 +44,7 @@ export const B3Tip = ({
                   display: `${handleItemClose ? 'block' : 'none'}`,
                 },
               }}
+              variant="filled"
               key={msg.id}
               severity={msg.type}
               onClose={() => handleItemClose && handleItemClose(msg.id)}

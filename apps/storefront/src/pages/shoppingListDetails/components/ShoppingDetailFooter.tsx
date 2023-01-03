@@ -28,6 +28,25 @@ import {
 import {
   ProductsProps,
 } from '../shared/config'
+import {
+  B3LinkTipContent,
+} from '@/components'
+
+interface successTipOptions{
+  message: string,
+  link?: string,
+  linkText?: string,
+  isOutLink?: boolean,
+}
+
+const successTip = (options: successTipOptions) => () => (
+  <B3LinkTipContent
+    message={options.message}
+    link={options.link}
+    linkText={options.linkText}
+    isOutLink={options.isOutLink}
+  />
+)
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any,
@@ -105,6 +124,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
       validateSuccessArr,
     }
   }
+
   const handleAddProductsToCart = async () => {
     setLoading(true)
     try {
@@ -164,8 +184,16 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
         })
         if (res.status === 422) {
           snackbar.error(res.detail)
-        } else {
-          snackbar.success(`${validateSuccessArr.length} products were added to cart`)
+        } else if (validateFailureArr.length === 0) {
+          snackbar.success('', {
+            jsx: successTip({
+              message: `${validateSuccessArr.length} products were added to cart`,
+              link: '/cart.php',
+              linkText: 'VIEW CART',
+              isOutLink: true,
+            }),
+            isClose: true,
+          })
         }
       }
       setValidateFailureProducts(validateFailureArr)

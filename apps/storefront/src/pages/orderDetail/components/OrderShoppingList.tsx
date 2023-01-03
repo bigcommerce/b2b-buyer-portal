@@ -153,20 +153,22 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
           {dialogTitle}
         </DialogTitle>
         <Divider />
-        <DialogContent>
-          <Box
-            sx={{
-              height: isLoading ? '100%' : 'auto',
-            }}
-          >
-            <B3Sping
-              isSpinning={isLoading}
-              background="rgba(255,255,255,0.2)"
+        <B3Sping
+          isSpinning={isLoading}
+          isFlex={false}
+        >
+          <DialogContent>
+            <Box
+              sx={{
+                height: '430px',
+              }}
             >
+
               <MenuList
                 sx={{
-                  minHeight: '200px',
+                  maxHeight: '400px',
                   width: '100%',
+                  overflowY: 'auto',
                 }}
               >
                 {
@@ -183,19 +185,19 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
                   ))
                 }
               </MenuList>
-            </B3Sping>
-          </Box>
+            </Box>
 
-          <Button
-            variant="text"
-            onClick={handleCreate}
-            sx={{
-              textTransform: 'none',
-            }}
-          >
-            + Create New
-          </Button>
-        </DialogContent>
+            <Button
+              variant="text"
+              onClick={handleCreate}
+              sx={{
+                textTransform: 'none',
+              }}
+            >
+              + Create New
+            </Button>
+          </DialogContent>
+        </B3Sping>
 
         <Divider />
 
