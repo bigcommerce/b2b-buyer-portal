@@ -205,6 +205,7 @@ const OrderDetail = () => {
         <Box
           sx={{
             marginBottom: '10px',
+            width: 'fit-content',
           }}
         >
           <Box
