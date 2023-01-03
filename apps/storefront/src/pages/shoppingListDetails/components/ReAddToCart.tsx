@@ -275,7 +275,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
   }
 
   const handleClearNoStock = () => {
-    const newProduct = products.filter((item: ProductsProps) => item.stock !== 0)
+    const newProduct = products.filter((item: ProductsProps) => item.isStock === '0' || item.stock !== 0)
     setValidateFailureProducts(newProduct)
   }
 

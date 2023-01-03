@@ -66,6 +66,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
   const verifyInventory = (inventoryInfos: ProductsProps[]) => {
     const validateFailureArr: ProductsProps[] = []
     const validateSuccessArr: ProductsProps[] = []
+
     checkedArr.forEach((item: ProductsProps) => {
       const {
         node,
@@ -73,15 +74,24 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
 
       inventoryInfos.forEach((option: CustomFieldItems) => {
         if (node.variantSku === option.variantSku) {
-          const isPassVerify = +node.quantity <= option.stock && +node.quantity >= option.minQuantity && +node.quantity <= option.maxQuantity
+          let isPassVerify = true
+          if (option.isStock === '1' && +node.quantity > option.stock) isPassVerify = false
+
+          if (option.minQuantity !== 0 && +node.quantity < option.minQuantity) isPassVerify = false
+
+          if (option.maxQuantity !== 0 && +node.quantity > option.maxQuantity) isPassVerify = false
+
           if (isPassVerify) {
             validateSuccessArr.push({
               node,
             })
           } else {
             validateFailureArr.push({
-              node,
+              node: {
+                ...node,
+              },
               stock: option.stock,
+              isStock: option.isStock,
               maxQuantity: option.maxQuantity,
               minQuantity: option.minQuantity,
             })
