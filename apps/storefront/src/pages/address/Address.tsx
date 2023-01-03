@@ -293,7 +293,7 @@ const Address = () => {
         />
         <B3PaginationTable
           columnItems={[]}
-          rowsPerPageOptions={[9, 18, 27]}
+          rowsPerPageOptions={[12, 24, 36]}
           getRequestList={getAddressList}
           searchParams={filterData}
           isCustomRender

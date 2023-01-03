@@ -199,7 +199,7 @@ const Usermanagement = () => {
         />
         <B3PaginationTable
           columnItems={[]}
-          rowsPerPageOptions={[15, 30, 45]}
+          rowsPerPageOptions={[12, 24, 36]}
           getRequestList={fetchList}
           searchParams={filterSearch || {}}
           isCustomRender

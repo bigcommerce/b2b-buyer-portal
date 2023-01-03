@@ -185,7 +185,7 @@ const shoppingLists = () => {
         />
         <B3PaginationTable
           columnItems={[]}
-          rowsPerPageOptions={[9, 18, 27]}
+          rowsPerPageOptions={[12, 24, 36]}
           getRequestList={fetchList}
           searchParams={filterSearch}
           isCustomRender
