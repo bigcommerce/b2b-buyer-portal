@@ -161,17 +161,58 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
             return +id
           }
 
-          const optionValue = optionList.map((option: {
-            option_id: number | string,
-            option_value: number| string,
-          }) => ({
-            optionId: getOptionId(option.option_id),
-            optionValue: option.option_value,
-          }))
+          const {
+            productsSearch: {
+              allOptions,
+            },
+          } = node
+
+          const optionValue: any = []
+
+          allOptions.forEach((item: any) => {
+            const splicedId = `attribute[${item.id}]`
+
+            if (item.type === 'date') {
+              let month = ''
+              let day = ''
+              let year = ''
+              optionList.forEach((list: any) => {
+                if (list.option_id === `${splicedId}[month]`) {
+                  month = list.option_value
+                }
+                if (list.option_id === `${splicedId}[day]`) {
+                  day = list.option_value
+                }
+                if (list.option_id === `${splicedId}[year]`) {
+                  year = list.option_value
+                }
+              })
+
+              if (month && day && year) {
+                optionValue.push({
+                  optionId: getOptionId(item.id),
+                  optionValue: {
+                    day,
+                    month,
+                    year,
+                  },
+                })
+              }
+            } else {
+              const listItem = optionList.find((list: any) => list.option_id === splicedId)
+              if (listItem && listItem?.option_value) {
+                optionValue.push({
+                  optionId: getOptionId(listItem.option_id),
+                  optionValue: listItem.option_value,
+                })
+              }
+            }
+          })
 
           return {
             quantity: node.quantity,
             productId: node.productId,
+            variantId: node.variantId,
             optionSelections: optionValue,
           }
         })
@@ -187,7 +228,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
         } else if (validateFailureArr.length === 0) {
           snackbar.success('', {
             jsx: successTip({
-              message: `${validateSuccessArr.length} products were added to cart`,
+              message: 'Products were added to cart',
               link: '/cart.php',
               linkText: 'VIEW CART',
               isOutLink: true,

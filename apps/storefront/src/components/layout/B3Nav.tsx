@@ -75,6 +75,10 @@ export const B3Nav = ({
       return activeStyle
     }
 
+    if (nextPath.current === path && location.pathname.includes('shoppingList')) {
+      return activeStyle
+    }
+
     return {}
   }
   return (

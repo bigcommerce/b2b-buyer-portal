@@ -201,12 +201,7 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
       optionId,
     }: any) => `attribute[${id}]` === optionId) ?? {}
 
-    if (type === 'checkbox') {
-      if (!optionValue.includes(',')) {
-        return false
-      }
-      return true
-    }
+    if (type === 'checkbox') return !!optionValue
 
     return optionValue && +optionValue !== +noValue
   })

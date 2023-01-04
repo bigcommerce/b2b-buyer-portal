@@ -56,18 +56,20 @@ const serialize = (form: any) => {
       case 'button':
       case 'file':
       case 'reset':
+      case 'hidden':
+        break
       case 'submit':
         break
       case 'checkbox':
+        if (file.checked) {
+          arr[file.name] = file.value
+        }
+        break
       case 'radio':
         if (!file.checked) {
           break
         } else {
-          if (arr[file.name]) {
-            arr[file.name] = `${arr[file.name]},${file.value}`
-          } else {
-            arr[file.name] = file.value
-          }
+          arr[file.name] = file.value
           break
         }
       default:

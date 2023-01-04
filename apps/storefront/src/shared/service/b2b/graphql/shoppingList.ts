@@ -50,10 +50,6 @@ const getShoppingList = ({
         },
         updatedAt,
         isOwner,
-        grandTotal,
-        totalDiscount,
-        totalTax,
-        isShowGrandTotal,
         products {
           totalCount,
         }

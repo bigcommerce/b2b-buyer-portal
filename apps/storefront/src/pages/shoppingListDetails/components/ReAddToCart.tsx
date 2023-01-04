@@ -220,11 +220,11 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
       quantity,
     } = node
 
-    if (isStock === '1' && quantity > stock) return `${stock} In Stock`
+    if (isStock === '1' && quantity > stock) return 'Out of stock'
 
-    if (minQuantity !== 0 && quantity < minQuantity) return `minQuantity is ${minQuantity}`
+    if (minQuantity !== 0 && quantity < minQuantity) return `Min Quantity ${minQuantity}`
 
-    if (maxQuantity !== 0 && quantity > maxQuantity) return `maxQuantity is ${maxQuantity}`
+    if (maxQuantity !== 0 && quantity > maxQuantity) return `Max Quantity ${maxQuantity}`
 
     return ''
   }
@@ -286,7 +286,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
         handleCancelClicked()
         snackbar.success('', {
           jsx: successTip({
-            message: `${products.length} products were added to cart`,
+            message: 'Products were added to cart',
             link: '/cart.php',
             linkText: 'VIEW CART',
             isOutLink: true,
@@ -323,7 +323,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
             variant="filled"
             severity="success"
           >
-            {`${successProducts} products were added to cart`}
+            {`${successProducts} product(s) were added to cart`}
           </Alert>
         </Box>
 
@@ -336,7 +336,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
             variant="filled"
             severity="error"
           >
-            {`${products.length} products were not added to cart, since they do not have enough stock, please change quantity. `}
+            {`${products.length} product(s) were not added to cart, please change the quantity`}
           </Alert>
         </Box>
         <B3Sping

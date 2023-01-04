@@ -169,13 +169,13 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
       const quantity = product?.editQuantity || 1
 
       if (isStock === '1' && quantity > stock) {
-        product.helperText = `${stock} In Stock`
+        product.helperText = 'Out of stock'
         isValid = false
       } else if (minQuantity !== 0 && quantity < minQuantity) {
-        product.helperText = `minQuantity is ${minQuantity}`
+        product.helperText = `Min Quantity ${minQuantity}`
         isValid = false
       } else if (maxQuantity !== 0 && quantity > maxQuantity) {
-        product.helperText = `maxQuantity is ${maxQuantity}`
+        product.helperText = `Max Quantity ${maxQuantity}`
         isValid = false
       } else {
         product.helperText = ''
