@@ -118,8 +118,7 @@ export const Base64 = {
 
 const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModifiers, productImages: SimpleObject) => {
   const {
-    option_values: optionValues,
-    id,
+    option_values: optionValues = [],
     config,
     display_name: displayName,
   } = option
@@ -172,13 +171,16 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
       checkbox_label: label,
       checked_by_default: checked,
     } = config || {}
+
+    const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '')
+
     return {
       label: '',
       options: [{
-        value: id,
+        value: checkedId,
         label,
       }],
-      default: checked ? [id] : [],
+      default: checked ? [checkedId] : [],
     }
   }
 
@@ -224,6 +226,24 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
   }
 }
 
+const getValueText = (fieldType: string, value: string | number | (string | number)[], option: ShoppingListProductItemModifiers) => {
+  const {
+    option_values: optionValues = [],
+  } = option
+  if (['radio', 'productRadio', 'rectangle', 'swatch', 'dropdown'].includes(fieldType)) {
+    return optionValues.find((option) => `${option.id}` === `${value}`)?.label || ''
+  }
+
+  if (fieldType === 'checkbox') {
+    return `${value}` !== '' ? 'Yes' : ''
+  }
+
+  if (fieldType === 'files') {
+    return ''
+  }
+  return value
+}
+
 export const getProductOptionsFields = (product: ShoppingListProductItem, productImages: SimpleObject) => {
   const {
     allOptions = [],
@@ -240,6 +260,7 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
         default_value: defaultValue,
       } = {},
       isVariantOption,
+      option_values: optionValues = [],
     } = option
 
     const fieldType = fieldTypes[type] || ''
@@ -252,13 +273,19 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
 
     try {
       const selectOptions = JSON.parse(product.selectOptions || '')
-      if (fieldType !== 'date') {
+      if (fieldType === 'checkbox') {
+        const optionValue = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}]`)?.option_value || ''
+        const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '')
+        value = (optionValue === '1' || optionValue.includes(checkedId)) ? [checkedId] : []
+      } else if (fieldType !== 'date') {
         value = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}]`)?.option_value || ''
       } else {
         const year = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}][year]`)?.option_value || ''
         const month = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}][month]`)?.option_value || ''
         const day = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}][day]`)?.option_value || ''
-        value = year && month && day ? `${year}-${month}-${day}` : value
+        const date = year && month && day ? `${year}-${month}-${day}` : ''
+
+        value = date ? (format(new Date(date), 'yyyy-MM-dd') || value) : value
       }
     } catch (err) {
       console.error(err)
@@ -279,6 +306,8 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
       isVariantOption,
       ...fieldOption,
       default: value,
+      valueLabel: displayName,
+      valueText: getValueText(fieldType, value, option),
     })
   })
 
@@ -344,6 +373,7 @@ export const getOptionRequestData = (formFields: CustomFieldItems[], requestData
     }
 
     if (fieldType === 'checkbox') {
+      console.log(4444, fieldValue, fieldValue?.length > 0 ? fieldValue[0] : '')
       requestData[decodeName] = fieldValue?.length > 0 ? fieldValue[0] : ''
       return
     }

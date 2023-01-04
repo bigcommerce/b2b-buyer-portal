@@ -56,7 +56,7 @@ export const B3ControlCheckbox = ({
     const getAllValue = getValues()[name] || []
     const valueString: string = `${value}`
 
-    const newValue = getAllValue?.includes(valueString)
+    const newValue = getAllValue?.find((id: Number | string) => `${id}` === valueString)
       ? getAllValue?.filter((id: string) => id !== value)
       : [...(getAllValue ?? []), value]
 
@@ -83,15 +83,16 @@ export const B3ControlCheckbox = ({
               render={({
                 field: {
                   onChange,
+                  value,
                 },
               }) => options?.map((list: CheckboxListProps) => (
                 <FormControlLabel
                   control={(
                     <Checkbox
                       onChange={() => onChange(handleCheck(list.value, name))}
-                      defaultChecked={defaultValue.includes(list.value)}
+                      checked={(value as any).includes(list.value)}
                     />
-                  )}
+                    )}
                   key={list.value}
                   label={list.label}
                 />

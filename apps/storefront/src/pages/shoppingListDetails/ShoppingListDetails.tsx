@@ -160,7 +160,7 @@ const ShoppingListDetails = () => {
           companyId: companyInfoId,
         })
 
-        const newProductsSearch = conversionProductsList(productsSearch, listProducts)
+        const newProductsSearch = conversionProductsList(productsSearch)
 
         listProducts.forEach((item) => {
           const {

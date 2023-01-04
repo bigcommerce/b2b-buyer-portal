@@ -270,6 +270,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
     if (formFields.length > 0) {
       const defaultValues: SimpleObject = formFields.reduce((value: SimpleObject, fields) => {
         value[fields.name] = fields.default
+        setValue(fields.name, fields.default)
         return value
       }, {})
       getProductVariantId(defaultValues, formFields[0].name)

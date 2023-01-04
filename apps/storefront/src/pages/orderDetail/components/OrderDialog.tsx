@@ -314,7 +314,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
       snackbar.success('', {
         jsx: successTip({
           message: 'Products were added to your shopping list',
-          link: '/shoppingLists',
+          link: `/shoppingList/${id}`,
           linkText: 'VIEW SHOPPING LIST',
         }),
       })
