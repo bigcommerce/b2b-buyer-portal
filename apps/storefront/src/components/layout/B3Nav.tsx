@@ -7,7 +7,6 @@ import {
 
 import {
   useContext,
-  useRef,
 } from 'react'
 import {
   useNavigate,
@@ -29,6 +28,10 @@ import {
   GlobaledContext,
 } from '@/shared/global'
 
+import {
+  B3SStorage,
+} from '@/utils'
+
 // import {
 //   NavMessage,
 // } from './styled'
@@ -43,7 +46,6 @@ export const B3Nav = ({
   const [isMobile] = useMobile()
   const navigate = useNavigate()
   const location = useLocation()
-  const nextPath = useRef<null | string>(null)
 
   const {
     state: globalState,
@@ -68,14 +70,16 @@ export const B3Nav = ({
       borderRadius: '4px',
     }
     if (location.pathname === path) {
-      nextPath.current = path
-      return activeStyle
-    }
-    if (nextPath.current === path && location.pathname.includes('orderDetail')) {
+      B3SStorage.set('nextPath', path)
       return activeStyle
     }
 
-    if (nextPath.current === path && location.pathname.includes('shoppingList')) {
+    if (location.pathname.includes('orderDetail')) {
+      const gotoOrderPath = B3SStorage.get('nextPath') === '/company-orders' ? '/company-orders' : '/orders'
+      if (path === gotoOrderPath) return activeStyle
+    }
+
+    if (location.pathname.includes('shoppingList') && path === '/shoppingLists') {
       return activeStyle
     }
 

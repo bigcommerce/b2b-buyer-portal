@@ -315,15 +315,18 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
         quantity: parseInt(quantity.toString(), 10) || 1,
         variantId: parseInt(variantId.toString(), 10) || 1,
       }])
-
-      reset()
     })()
   }
 
   const handleCancelClicked = () => {
-    reset()
     onCancel()
   }
+
+  useEffect(() => {
+    if (!isOpen) {
+      reset()
+    }
+  }, [isOpen])
 
   return (
     <B3Dialog
