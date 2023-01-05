@@ -175,7 +175,6 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
     const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '')
 
     return {
-      label: '',
       options: [{
         value: checkedId,
         label,
@@ -373,7 +372,6 @@ export const getOptionRequestData = (formFields: CustomFieldItems[], requestData
     }
 
     if (fieldType === 'checkbox') {
-      console.log(4444, fieldValue, fieldValue?.length > 0 ? fieldValue[0] : '')
       requestData[decodeName] = fieldValue?.length > 0 ? fieldValue[0] : ''
       return
     }
@@ -422,3 +420,97 @@ export const getQuickAddRowFields = (name: string | number) => [
     allowArrow: true,
   },
 ]
+
+interface OptionListProps {
+  option_id: string,
+  option_value: string,
+}
+
+interface DateProps {
+  day: string,
+  month: string,
+  year: string,
+}
+
+interface OptionValueProps {
+  optionId: string | number,
+  optionValue: string | DateProps,
+}
+
+interface AllOptionsProps {
+  id: string | number,
+  type: string,
+}
+
+export const addlineItems = (products: ProductsProps[]) => {
+  const lineItems = products.map((item: ProductsProps) => {
+    const {
+      node,
+    } = item
+
+    const optionList: OptionListProps[] = JSON.parse(node.optionList || '[]')
+
+    const getOptionId = (id: number | string) => {
+      if (typeof id === 'number') return id
+      if (id.includes('attribute')) return +id.split('[')[1].split(']')[0]
+      return +id
+    }
+
+    const {
+      productsSearch: {
+        allOptions,
+      },
+    } = node
+
+    const optionValue: OptionValueProps[] = []
+
+    allOptions.forEach((item: AllOptionsProps) => {
+      const splicedId = `attribute[${item.id}]`
+
+      if (item.type === 'date') {
+        let month: string = ''
+        let day: string = ''
+        let year: string = ''
+        optionList.forEach((list: OptionListProps) => {
+          if (list.option_id === `${splicedId}[month]`) {
+            month = list.option_value
+          }
+          if (list.option_id === `${splicedId}[day]`) {
+            day = list.option_value
+          }
+          if (list.option_id === `${splicedId}[year]`) {
+            year = list.option_value
+          }
+        })
+
+        if (month && day && year) {
+          optionValue.push({
+            optionId: getOptionId(item.id),
+            optionValue: {
+              day,
+              month,
+              year,
+            },
+          })
+        }
+      } else {
+        const listItem = optionList.find((list: OptionListProps) => list.option_id === splicedId)
+        if (listItem && listItem?.option_value) {
+          optionValue.push({
+            optionId: getOptionId(listItem.option_id),
+            optionValue: listItem.option_value,
+          })
+        }
+      }
+    })
+
+    return {
+      quantity: node.quantity,
+      productId: node.productId,
+      variantId: node.variantId,
+      optionSelections: optionValue,
+    }
+  })
+
+  return lineItems
+}

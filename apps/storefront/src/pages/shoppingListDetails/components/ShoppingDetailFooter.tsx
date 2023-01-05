@@ -27,6 +27,7 @@ import {
 
 import {
   ProductsProps,
+  addlineItems,
 } from '../shared/config'
 import {
   B3LinkTipContent,
@@ -148,75 +149,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
       } = verifyInventory(getInventoryInfos?.variantSku || [])
 
       if (validateSuccessArr.length !== 0) {
-        const lineItems = validateSuccessArr.map((item: ProductsProps) => {
-          const {
-            node,
-          } = item
-
-          const optionList = JSON.parse(node.optionList || '[]')
-
-          const getOptionId = (id: number | string) => {
-            if (typeof id === 'number') return id
-            if (id.includes('attribute')) return +id.split('[')[1].split(']')[0]
-            return +id
-          }
-
-          const {
-            productsSearch: {
-              allOptions,
-            },
-          } = node
-
-          const optionValue: any = []
-
-          allOptions.forEach((item: any) => {
-            const splicedId = `attribute[${item.id}]`
-
-            if (item.type === 'date') {
-              let month = ''
-              let day = ''
-              let year = ''
-              optionList.forEach((list: any) => {
-                if (list.option_id === `${splicedId}[month]`) {
-                  month = list.option_value
-                }
-                if (list.option_id === `${splicedId}[day]`) {
-                  day = list.option_value
-                }
-                if (list.option_id === `${splicedId}[year]`) {
-                  year = list.option_value
-                }
-              })
-
-              if (month && day && year) {
-                optionValue.push({
-                  optionId: getOptionId(item.id),
-                  optionValue: {
-                    day,
-                    month,
-                    year,
-                  },
-                })
-              }
-            } else {
-              const listItem = optionList.find((list: any) => list.option_id === splicedId)
-              if (listItem && listItem?.option_value) {
-                optionValue.push({
-                  optionId: getOptionId(listItem.option_id),
-                  optionValue: listItem.option_value,
-                })
-              }
-            }
-          })
-
-          return {
-            quantity: node.quantity,
-            productId: node.productId,
-            variantId: node.variantId,
-            optionSelections: optionValue,
-          }
-        })
-
+        const lineItems = addlineItems(validateSuccessArr)
         const cartInfo = await getCartInfo()
         const res = cartInfo.length ? await addProductToCart({
           lineItems,

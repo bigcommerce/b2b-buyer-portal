@@ -38,6 +38,7 @@ import {
 
 import {
   ProductsProps,
+  addlineItems,
 } from '../shared/config'
 
 interface successTipOptions{
@@ -241,34 +242,8 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
     }
     try {
       setLoading(true)
-      const lineItems = products.map((item: ProductsProps) => {
-        const {
-          node,
-        } = item
 
-        const optionList = JSON.parse(node.optionList || '[]')
-
-        const getOptionId = (id: number | string) => {
-          if (typeof id === 'number') return id
-          if (id.includes('attribute')) return +id.split('[')[1].split(']')[0]
-          return +id
-        }
-
-        const optionValue = optionList.map((option: {
-          option_id: number | string,
-          option_value: number| string,
-        }) => ({
-          optionId: getOptionId(option.option_id),
-          optionValue: option.option_value,
-        }))
-
-        return {
-          quantity: node.quantity,
-          productId: node.productId,
-          optionSelections: optionValue,
-        }
-      })
-
+      const lineItems = addlineItems(products)
       const cartInfo = await getCartInfo()
       let res
       if (cartInfo.length > 0) {
