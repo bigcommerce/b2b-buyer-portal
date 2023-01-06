@@ -111,8 +111,18 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
             flex: 1,
           }}
         >
-          <Typography>{productName}</Typography>
-          <Typography>{variantSku}</Typography>
+          <Typography
+            variant="body1"
+            color="#212121"
+          >
+            {productName}
+          </Typography>
+          <Typography
+            variant="body1"
+            color="#616161"
+          >
+            {variantSku}
+          </Typography>
           <Box
             sx={{
               margin: '1rem 0',
@@ -123,7 +133,14 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
                 <Box>
                   {
                     optionsValue.map((option: any) => (
-                      <Typography key={option.valueLabel}>
+                      <Typography
+                        sx={{
+                          fontSize: '0.75rem',
+                          lineHeight: '1.5',
+                          color: '#455A64',
+                        }}
+                        key={option.valueLabel}
+                      >
                         {`${option.valueLabel
                         }: ${option.valueText}`}
                       </Typography>

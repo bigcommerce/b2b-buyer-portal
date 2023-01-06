@@ -433,8 +433,11 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                             {
                               newOptionList.length > 0 && optionsValue.length > 0 && optionsValue.map((option: CustomFieldItems) => (
                                 <Typography
-                                  variant="body1"
-                                  color="#616161"
+                                  sx={{
+                                    fontSize: '0.75rem',
+                                    lineHeight: '1.5',
+                                    color: '#455A64',
+                                  }}
                                   key={option.valueLabel}
                                 >
                                   {`${option.valueLabel

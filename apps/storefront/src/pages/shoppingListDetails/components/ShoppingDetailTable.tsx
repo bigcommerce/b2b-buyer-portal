@@ -331,14 +331,31 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
               loading="lazy"
             />
             <Box>
-              <Typography>{row.productName}</Typography>
-              <Typography>{row.variantSku}</Typography>
+              <Typography
+                variant="body1"
+                color="#212121"
+              >
+                {row.productName}
+              </Typography>
+              <Typography
+                variant="body1"
+                color="#616161"
+              >
+                {row.variantSku}
+              </Typography>
               {
                 (optionList.length > 0 && optionsValue.length > 0) && (
                   <Box>
                     {
                       optionsValue.map((option: any) => (
-                        <Typography key={option.valueLabel}>
+                        <Typography
+                          sx={{
+                            fontSize: '0.75rem',
+                            lineHeight: '1.5',
+                            color: '#455A64',
+                          }}
+                          key={option.valueLabel}
+                        >
                           {`${option.valueLabel
                           }: ${option.valueText}`}
                         </Typography>

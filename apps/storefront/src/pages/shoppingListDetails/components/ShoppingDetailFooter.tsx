@@ -139,6 +139,11 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
         skus.push(node.variantSku)
       })
 
+      if (skus.length === 0) {
+        snackbar.error('Please select at least one item to add to cart')
+        return
+      }
+
       const getInventoryInfos = await getB2BVariantInfoBySkus({
         skus,
       })
