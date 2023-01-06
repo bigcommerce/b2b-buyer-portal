@@ -39,6 +39,7 @@ import {
 import {
   ProductsProps,
   addlineItems,
+  getProductOptionsFields,
 } from '../shared/config'
 
 interface successTipOptions{
@@ -76,6 +77,7 @@ interface FlexItemProps {
   width?: string,
   padding?: string,
   flexBasis?: string,
+  flexDirection?: 'column' | 'inherit' | '-moz-initial' | 'initial' | 'revert' | 'unset' | 'column-reverse' | 'row' | 'row-reverse',
 }
 
 const Flex = styled('div')(({
@@ -115,8 +117,10 @@ const FlexItem = styled('div')(({
   width,
   padding = '0',
   flexBasis,
+  flexDirection = 'row',
 }: FlexItemProps) => ({
   display: 'flex',
+  flexDirection,
   flexGrow: width ? 0 : 1,
   flexShrink: width ? 0 : 1,
   alignItems: 'flex-start',
@@ -161,6 +165,8 @@ const mobileItemStyle = {
   delete: {
     width: '100%',
     padding: '0 0 0 76px',
+    display: 'flex',
+    flexDirection: 'row-reverse',
   },
 }
 
@@ -372,22 +378,33 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                       productName,
                       variantSku,
                       optionList,
-                      productsSearch: {
-                        variants,
-                      },
-                      variantId,
+                      productsSearch,
+                      // productsSearch: {
+                      //   variants,
+                      // },
+                      // variantId,
                     } = product.node
                     const total = +basePrice * +quantity
                     const price = +basePrice
 
-                    const newOptionList = JSON.parse(optionList)
-                    let optionsValue = []
-                    if (newOptionList.length > 0) {
-                      const newVariant = variants.find((item:CustomFieldItems) => +item.variant_id
-                      === +variantId || +item.id === +variantId)
+                    // const newOptionList = JSON.parse(optionList)
+                    // let optionsValue = []
+                    // if (newOptionList.length > 0) {
+                    //   const newVariant = variants.find((item:CustomFieldItems) => +item.variant_id
+                    //   === +variantId || +item.id === +variantId)
 
-                      optionsValue = newVariant?.option_values || []
+                    //   optionsValue = newVariant?.option_values || []
+                    // }
+
+                    const newProduct: any = {
+                      ...productsSearch,
+                      selectOptions: optionList,
                     }
+
+                    const productFields = (getProductOptionsFields(newProduct, {}))
+
+                    const newOptionList = JSON.parse(optionList)
+                    const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
 
                     return (
                       <Flex
@@ -418,10 +435,10 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                                 <Typography
                                   variant="body1"
                                   color="#616161"
-                                  key={option.option_display_name}
+                                  key={option.valueLabel}
                                 >
-                                  {`${option.option_display_name
-                                  }: ${option.label}`}
+                                  {`${option.valueLabel
+                                  }: ${option.valueText}`}
                                 </Typography>
                               ))
                             }

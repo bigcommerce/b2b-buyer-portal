@@ -14,6 +14,10 @@ import {
   Edit,
 } from '@mui/icons-material'
 
+import {
+  getProductOptionsFields,
+} from '../shared/config'
+
 interface ShoppingDetailCardProps {
   item: any,
   onEdit: (item: any, variantId: number | string, itemId: number | string) => void,
@@ -57,9 +61,6 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
     itemId,
     variantId,
     primaryImage,
-    productsSearch: {
-      variants,
-    },
     productName,
     variantSku,
     productsSearch,
@@ -67,13 +68,16 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
 
   const total = +basePrice * +quantity
   const price = +basePrice
-  const optionList = JSON.parse(shoppingDetail.optionList)
-  let optionsValue
-  if (optionList.length > 0) {
-    const variant = variants.find((item: any) => item.id === variantId)
 
-    optionsValue = variant?.option_values || []
+  const product: any = {
+    ...shoppingDetail.productsSearch,
+    selectOptions: shoppingDetail.optionList,
   }
+
+  const productFields = (getProductOptionsFields(product, {}))
+
+  const optionList = JSON.parse(shoppingDetail.optionList)
+  const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
 
   return (
     <Box
@@ -102,7 +106,11 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
             loading="lazy"
           />
         </Box>
-        <Box>
+        <Box
+          sx={{
+            flex: 1,
+          }}
+        >
           <Typography>{productName}</Typography>
           <Typography>{variantSku}</Typography>
           <Box
@@ -115,9 +123,9 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
                 <Box>
                   {
                     optionsValue.map((option: any) => (
-                      <Typography key={option.option_display_name}>
-                        {`${option.option_display_name
-                        }: ${option.label}`}
+                      <Typography key={option.valueLabel}>
+                        {`${option.valueLabel
+                        }: ${option.valueText}`}
                       </Typography>
                     ))
                   }
