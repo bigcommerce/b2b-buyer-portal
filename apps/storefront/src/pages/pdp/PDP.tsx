@@ -156,8 +156,11 @@ const PDP = ({
       <Button
         onClick={() => gotoShoppingDetail(id)}
         variant="text"
+        sx={{
+          color: '#ffffff',
+        }}
       >
-        view shoppping list
+        view shopping list
       </Button>
     </Box>
   )

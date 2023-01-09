@@ -204,13 +204,13 @@ const DetailPagination = ({
 
       <IconButton
         onClick={handleBeforePage}
-        disabled={arrived === 'toLeft' || loading}
+        disabled={totalCount <= 1 || arrived === 'toLeft' || loading}
       >
         <NavigateBeforeIcon />
       </IconButton>
       <IconButton
         onClick={handleNextPage}
-        disabled={arrived === 'toRight' || loading}
+        disabled={totalCount <= 1 || arrived === 'toRight' || loading}
       >
         <NavigateNextIcon />
       </IconButton>
