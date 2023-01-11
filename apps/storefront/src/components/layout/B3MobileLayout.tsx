@@ -104,12 +104,13 @@ export const B3MobileLayout = ({
           sx={{
             height: '100vh',
             position: 'fixed',
-            width: '95vw',
+            width: '92vw',
             zIndex: 10,
             right: 0,
             top: 0,
             p: '4vw',
             backgroundColor: 'white',
+            boxShadow: '0px 7px 8px -4px #00000033, 0px 12px 17px 2px #00000024, 0px 5px 22px 4px #0000001f',
           }}
         >
           <Box
