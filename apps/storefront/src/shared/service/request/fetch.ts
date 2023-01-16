@@ -40,10 +40,19 @@ function b3Fetch(path: string, init: any, type?: string, customMessage = false) 
         }
       }
       if (type === RequestType.B2BGraphql) {
-        if (res?.errors?.length && res.errors[0].message) {
-          reject(res.errors[0].message)
+        const errors = res?.errors?.length ? res.errors[0] : {}
+        const {
+          message = '',
+          extensions = {},
+        } = errors
+
+        if (extensions.code === 40101) {
+          window.location.href = '#/login?loginFlag=3&showTip=false'
+          snackbar.error(message)
+        } else if (message) {
+          reject(message)
           if (!customMessage) {
-            snackbar.error(res.errors[0].message)
+            snackbar.error(message)
           }
         } else {
           resolve(res.data)

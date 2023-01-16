@@ -141,19 +141,19 @@ export default function Registered(props: RegisteredProps) {
         } = await storeB2BBasicInfo()
         const registerLogo = getRegisterLogo(quoteConfig)
 
-        const newAddressInformationFields = b2bAccountFormFields.address.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
+        const newAddressInformationFields = b2bAccountFormFields.address?.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
           if (addressFields.name === 'country') {
             addressFields.options = countries
           }
           return addressFields
-        })
+        }) || []
 
-        const newBCAddressInformationFields = bcAccountFormFields.address.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
+        const newBCAddressInformationFields = bcAccountFormFields.address?.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
           if (addressFields.name === 'country') {
             addressFields.options = countries
           }
           return addressFields
-        })
+        }) || []
 
         if (dispatch) {
           dispatch({
@@ -163,20 +163,20 @@ export default function Registered(props: RegisteredProps) {
               isLoading: false,
               storeName,
               // account
-              contactInformation: [...b2bAccountFormFields.contactInformation],
-              bcContactInformation: [...bcAccountFormFields.contactInformation],
-              additionalInformation: [...b2bAccountFormFields.additionalInformation],
-              bcAdditionalInformation: [...bcAccountFormFields.additionalInformation],
+              contactInformation: [...(b2bAccountFormFields.contactInformation || [])],
+              bcContactInformation: [...(bcAccountFormFields.contactInformation || [])],
+              additionalInformation: [...(b2bAccountFormFields.additionalInformation || [])],
+              bcAdditionalInformation: [...(bcAccountFormFields.additionalInformation || [])],
               // detail
               companyExtraFields: [],
-              companyInformation: [...b2bAccountFormFields?.businessDetails || []],
+              companyInformation: [...(b2bAccountFormFields?.businessDetails || [])],
               companyAttachment: [...companyAttachmentsFields(b3Lang)],
               addressBasicFields: [...newAddressInformationFields],
               bcAddressBasicFields: [...newBCAddressInformationFields],
               countryList: [...countries],
               // password
-              passwordInformation: [...b2bAccountFormFields.password],
-              bcPasswordInformation: [...bcAccountFormFields.password],
+              passwordInformation: [...(b2bAccountFormFields.password || [])],
+              bcPasswordInformation: [...(bcAccountFormFields.password || [])],
 
             },
           })

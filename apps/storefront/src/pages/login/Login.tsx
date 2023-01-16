@@ -96,6 +96,7 @@ export default function Login(props:RegisteredProps) {
   } = props
 
   const [logo, setLogo] = useState('')
+  const [showTipInfo, setShowTipInfo] = useState<boolean>(true)
   const [flag, setLoginFlag] = useState<string>('')
   const [loginAccount, setLoginAccount] = useState<LoginConfig>({
     emailAddress: '',
@@ -159,6 +160,9 @@ export default function Login(props:RegisteredProps) {
         } = location
 
         const loginFlag = getLoginFlag(search, 'loginFlag')
+        const showTipInfo = getLoginFlag(search, 'showTip') !== 'false'
+
+        setShowTipInfo(showTipInfo)
 
         if (loginFlag) setLoginFlag(loginFlag)
 
@@ -337,7 +341,7 @@ export default function Login(props:RegisteredProps) {
         }
 
             {
-          flag && (
+          flag && showTipInfo && (
             <Box
               sx={{
                 padding: '0 5%',
