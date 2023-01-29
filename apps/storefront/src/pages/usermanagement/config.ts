@@ -16,7 +16,8 @@ interface filterProps {
   search: string,
   role: number | string,
   companyId: number | string,
-  [key: string]: string | null | number
+  addChannel: boolean,
+  [key: string]: string | null | number | boolean
 }
 
 type UsersList = UsersListItems
@@ -119,10 +120,22 @@ const getUsersFiles = (type: string) => {
   return usersFiles
 }
 
+type EmailError = {
+  [k: number]: string
+}
+
+const emailError: EmailError = {
+  3: 'intl.user.addUser.emailValidate.multipleCustomer',
+  4: 'intl.user.addUser.emailValidate.companyUsed',
+  5: 'intl.user.addUser.emailValidate.alreadyExits',
+  6: 'intl.user.addUser.emailValidate.usedSuperAdmin',
+}
+
 export {
   getFilterMoreList,
   getUsersFiles,
   getUserRole,
+  emailError,
 }
 
 export type {

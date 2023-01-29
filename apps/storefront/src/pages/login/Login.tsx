@@ -30,7 +30,6 @@ import {
 } from '@/shared/service/bc'
 
 import {
-  getB2BRegisterLogo,
   getBCForcePasswordReset,
   getB2BLoginPageConfig,
 } from '@/shared/service/b2b'
@@ -57,7 +56,6 @@ import {
 } from './styled'
 
 import {
-  getLogo,
   LoginInfoInit,
   LoginConfig,
   loginCheckout,
@@ -95,7 +93,6 @@ export default function Login(props:RegisteredProps) {
     setOpenPage,
   } = props
 
-  const [logo, setLogo] = useState('')
   const [showTipInfo, setShowTipInfo] = useState<boolean>(true)
   const [flag, setLoginFlag] = useState<string>('')
   const [loginAccount, setLoginAccount] = useState<LoginConfig>({
@@ -112,6 +109,7 @@ export default function Login(props:RegisteredProps) {
   const {
     state: {
       isCheckout,
+      logo,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -119,10 +117,6 @@ export default function Login(props:RegisteredProps) {
   useEffect(() => {
     const init = async () => {
       try {
-        const {
-          quoteConfig,
-        } = await getB2BRegisterLogo()
-
         const {
           loginPageConfig: {
             value: {
@@ -153,8 +147,6 @@ export default function Login(props:RegisteredProps) {
           displayStoreLogo,
         }
 
-        const registerLogo = getLogo(quoteConfig)
-
         const {
           search,
         } = location
@@ -181,7 +173,7 @@ export default function Login(props:RegisteredProps) {
 
         // setChannelId(getChannelId)
         setLoginInfo(Info)
-        setLogo(registerLogo)
+
         setLoading(false)
       } catch (e) {
         console.log(e)

@@ -24,23 +24,28 @@ import {
 import {
   B3CustomForm,
 } from '@/components'
+
 import RegisteredStepButton from './component/RegisteredStepButton'
+
+import {
+  checkUserEmail,
+} from '@/shared/service/b2b'
 
 import {
   RegisteredContext,
 } from './context/RegisteredContext'
 
 import {
+  GlobaledContext,
+} from '@/shared/global'
+
+import {
   RegisterFields,
+  emailError,
 } from './config'
 
 import {
-  getB2BCompanyUserInfo,
-} from '@/shared/service/b2b'
-
-import {
   InformationFourLabels, TipContent,
-  TipLogin,
 } from './styled'
 
 interface RegisteredAccountProps {
@@ -57,13 +62,19 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   } = props
 
   const {
+    state: {
+      currentChannelId,
+    },
+  } = useContext(GlobaledContext)
+
+  const {
     state,
     dispatch,
   } = useContext(RegisteredContext)
 
   const b3Lang = useB3Lang()
 
-  const [emailStateType, setEmailStateType] = useState<number>(0)
+  const [errorTips, setErrorTips] = useState<string>('')
 
   const {
     contactInformation, accountType, additionalInformation,
@@ -78,6 +89,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     formState: {
       errors,
     },
+    setError,
     setValue,
   } = useForm({
     mode: 'onSubmit',
@@ -102,84 +114,72 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     })
   }
 
-  const judgeEmailExist = (userType: Number) => {
-    if (accountType === '1' && userType === 2) {
-      setEmailStateType(1)
-    } else if (accountType === '1' && userType === 3) {
-      setEmailStateType(2)
-    } else if (accountType === '2' && userType === 3) {
-      setEmailStateType(2)
-    } else if (accountType === '2' && userType === 2) {
-      setEmailStateType(2)
+  const emailName = contactInformation?.find((item: CustomFieldItems) => item.fieldId === 'field_email')?.name || 'email'
+
+  const validateEmailValue = async (emailValue: string) => {
+    const {
+      userEmailCheck: {
+        userType,
+        userInfo: {
+          companyName,
+        },
+      },
+    }: CustomFieldItems = await checkUserEmail({
+      email: emailValue,
+      channelId: currentChannelId,
+    })
+
+    const isValid = [1].includes(userType)
+
+    if (!isValid) {
+      setErrorTips(b3Lang(emailError[userType], {
+        companyName: companyName || '',
+        email: emailValue,
+      }))
+      setError(emailName, {
+        type: 'custom',
+        message: '',
+      })
+
+      const iframe: HTMLIFrameElement | null = window.document.querySelector('.active-frame')
+      if (iframe) {
+        iframe.contentWindow?.document.body.scrollIntoView(true)
+      }
+    } else {
+      setErrorTips('')
     }
 
-    const iframe: HTMLIFrameElement | null = window.document.querySelector('.active-frame')
-    if (iframe) {
-      iframe.contentWindow?.document.body.scrollIntoView(true)
-    }
+    return isValid
   }
 
   const handleAccountToDetail = async (event: MouseEvent) => {
-    handleSubmit((data: CustomFieldItems) => {
+    handleSubmit(async (data: CustomFieldItems) => {
+      if (!await validateEmailValue(data[emailName])) {
+        return
+      }
+
+      const newContactInfo = contactInfo.map((item: RegisterFields) => {
+        item.default = data[item.name] || item.default
+        return item
+      })
+
+      let newAdditionalInformation: Array<RegisterFields> = []
+      if (additionalInfo) {
+        newAdditionalInformation = (additionalInfo as Array<RegisterFields>).map((item: RegisterFields) => {
+          item.default = data[item.name] || item.default
+          return item
+        })
+      }
+
       dispatch({
-        type: 'loading',
+        type: 'all',
         payload: {
-          isLoading: true,
+          [additionName]: [...newAdditionalInformation],
+          [contactName]: [...newContactInfo],
         },
       })
-
-      const emailItem: any = contactInformation?.filter((item: any) => item.fieldId === 'field_email')
-      const email = data[emailItem[0]?.name]
-
-      getB2BCompanyUserInfo(email).then(({
-        companyUserInfo: {
-          userType,
-        },
-      }: any) => {
-        if (userType === 1) {
-          const newContactInfo = contactInfo.map((item: RegisterFields) => {
-            item.default = data[item.name] || item.default
-            return item
-          })
-
-          let newAdditionalInformation: Array<RegisterFields> = []
-          if (additionalInfo) {
-            newAdditionalInformation = (additionalInfo as Array<RegisterFields>).map((item: RegisterFields) => {
-              item.default = data[item.name] || item.default
-              return item
-            })
-          }
-          setEmailStateType(0)
-          dispatch({
-            type: 'all',
-            payload: {
-              [additionName]: [...newAdditionalInformation],
-              [contactName]: [...newContactInfo],
-            },
-          })
-          handleNext()
-        } else {
-          judgeEmailExist(userType)
-        }
-        dispatch({
-          type: 'loading',
-          payload: {
-            isLoading: false,
-          },
-        })
-      }).catch(() => {
-        dispatch({
-          type: 'loading',
-          payload: {
-            isLoading: false,
-          },
-        })
-      })
+      handleNext()
     })(event)
-  }
-
-  const gotoLigin = () => {
-    (window as Window).location.href = '/login.php?action=create_account'
   }
 
   return (
@@ -191,28 +191,12 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       }}
     >
       {
-        emailStateType !== 0 && (
+        errorTips && (
         <Alert
           severity="error"
         >
           <TipContent>
-            {b3Lang('intl.user.register.registeredAccount.loginLeft')}
-            {emailStateType === 1 ? ` ${b3Lang('intl.user.register.registeredAccount.loginFirst')}` : ''}
-            <Box
-              sx={{
-                ml: 1,
-                mr: 1,
-              }}
-            >
-              <TipLogin
-                onClick={gotoLigin}
-              >
-                {b3Lang('intl.user.register.registeredAccount.loginBtn')}
-              </TipLogin>
-            </Box>
-            {
-                emailStateType === 1 ? `${b3Lang('intl.user.register.registeredAccount.loginb2b')}` : ''
-              }
+            {errorTips}
           </TipContent>
         </Alert>
         )

@@ -25,6 +25,8 @@ import {
 interface ChannelIdProps {
   channelId: number,
   urls: Array<string>,
+  b2bEnabled: boolean,
+  channelLogo: string,
 }
 
 type B2BToken = {
@@ -42,36 +44,43 @@ type B2BToken = {
 //   SALESREP: '3',
 // }
 
-export interface ChannelstoreSites {
+export interface ChannelStoreSites {
   storeSites?: Array<ChannelIdProps> | [],
 }
 
-export const getBCChannelId = (storeSitesany: Array<ChannelIdProps>) => {
-  if (storeSitesany.length === 1) {
-    return storeSitesany[0].channelId
+export const getCurrentStoreInfo = (storeSites: Array<ChannelIdProps>) => {
+  if (storeSites.length === 1) {
+    return storeSites[0]
   }
 
-  let channelId: number = 1
+  let store: ChannelIdProps = {
+    channelId: 1,
+    urls: [],
+    b2bEnabled: true,
+    channelLogo: '',
+  }
 
   const {
     origin,
   } = window.location
 
-  storeSitesany.forEach((item: ChannelIdProps) => {
+  storeSites.forEach((item: ChannelIdProps) => {
     if (item.urls.includes(origin)) {
-      channelId = item.channelId
+      store = item
     }
   })
 
-  return channelId
+  return store
 }
 
 export const getChannelId = async () => {
   const {
     storeBasicInfo,
-  }: any = await getBCStoreChannelId()
+  }: CustomFieldItems = await getBCStoreChannelId()
 
-  const channelId = getBCChannelId((storeBasicInfo as ChannelstoreSites)?.storeSites || [])
+  const {
+    channelId,
+  } = getCurrentStoreInfo((storeBasicInfo as ChannelStoreSites)?.storeSites || [])
 
   B3SStorage.set('B3channelId', channelId)
 }
@@ -163,8 +172,10 @@ const getCurrentJwtAndB2BToken = async (userType: number) => {
   try {
     const res = await getCurrentJwt()
 
+    const channelId = B3SStorage.get('B3channelId') || 1
+
     if (userType === 3) {
-      const data = await getB2BToken(res)
+      const data = await getB2BToken(res, channelId)
       if (data) {
         const B3B2BToken = (data as B2BToken).authorization.result.token
         B3SStorage.set('B3B2BToken', B3B2BToken)

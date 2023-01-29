@@ -17,7 +17,6 @@ import {
 } from '@/hooks'
 
 import {
-  getChannelId,
   loginInfo,
   getCurrentCustomerInfo,
   getLogo,
@@ -58,6 +57,7 @@ export default function App() {
       customerId,
       BcToken,
       role,
+      logo,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -156,11 +156,13 @@ export default function App() {
     const init = async () => {
       // bc token
       if (!BcToken) {
-        await getChannelId()
         await loginInfo()
       }
-      await setLogo()
-      await setStorefrontConfig()
+
+      if (!logo) {
+        setLogo()
+      }
+      setStorefrontConfig()
       if (!customerId) {
         const data = await getCurrentCustomerInfo(dispatch)
         if (data) gotoPage(data.role)
@@ -187,6 +189,7 @@ export default function App() {
           ) : null}
         </ThemeFrame>
       </div>
+
     </HashRouter>
   )
 }

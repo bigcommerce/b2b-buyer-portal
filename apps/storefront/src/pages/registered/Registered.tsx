@@ -20,9 +20,7 @@ import type {
 } from '@b3/hooks'
 
 import {
-  getB2BRegisterLogo,
   getB2BCountries,
-  storeB2BBasicInfo,
   getB2BAccountFormFields,
 } from '@/shared/service/b2b'
 
@@ -55,7 +53,6 @@ import {
 } from '@/components'
 
 import {
-  getRegisterLogo,
   companyAttachmentsFields,
   getAccountFormFields,
   RegisterFieldsItems,
@@ -85,9 +82,17 @@ export default function Registered(props: RegisteredProps) {
 
   const [activeStep, setActiveStep] = useState(0)
 
-  const [logo, setLogo] = useState('')
-
   const b3Lang = useB3Lang()
+
+  const {
+    state: {
+      isCheckout,
+      isCloseGotoBCHome,
+      logo,
+      storeName,
+    },
+    dispatch: globalDispatch,
+  } = useContext(GlobaledContext)
 
   const {
     state: {
@@ -129,17 +134,8 @@ export default function Registered(props: RegisteredProps) {
         const b2bAccountFormFields = getAccountFormFields(accountFormFields[1]?.accountFormFields || [])
 
         const {
-          quoteConfig,
-        } = await getB2BRegisterLogo()
-        const {
           countries,
         } = await getB2BCountries()
-        const {
-          storeBasicInfo: {
-            storeName,
-          },
-        } = await storeB2BBasicInfo()
-        const registerLogo = getRegisterLogo(quoteConfig)
 
         const newAddressInformationFields = b2bAccountFormFields.address?.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
           if (addressFields.name === 'country') {
@@ -181,7 +177,6 @@ export default function Registered(props: RegisteredProps) {
             },
           })
         }
-        setLogo(registerLogo)
       } catch (e) {
         console.log(e)
       }
@@ -213,14 +208,6 @@ export default function Registered(props: RegisteredProps) {
   const handleBack = () => {
     setActiveStep((prevActiveStep: number) => prevActiveStep - 1)
   }
-
-  const {
-    state: {
-      isCheckout,
-      isCloseGotoBCHome,
-    },
-    dispatch: globalDispatch,
-  } = useContext(GlobaledContext)
 
   const clearRegisterInfo = () => {
     if (dispatch) {

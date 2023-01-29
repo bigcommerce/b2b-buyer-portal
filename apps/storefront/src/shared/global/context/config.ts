@@ -63,7 +63,10 @@ export interface GlobalState {
       value: boolean,
       enabledStatus: boolean,
     },
-  }
+  },
+  storeEnabled: boolean,
+  storeName: string,
+  currentChannelId: number,
 }
 
 export const initState = {
@@ -94,6 +97,9 @@ export const initState = {
   logo: '',
   isCompanyAccount: false,
   tipMessage: {},
+  storeEnabled: false,
+  storeName: '',
+  currentChannelId: 1,
 }
 
 export interface GlobalAction {

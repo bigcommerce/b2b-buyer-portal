@@ -4,6 +4,7 @@ import {
   useImperativeHandle,
   Ref,
   useEffect,
+  useContext,
 } from 'react'
 
 import {
@@ -11,7 +12,12 @@ import {
 } from 'react-hook-form'
 
 import {
+  useB3Lang,
+} from '@b3/lang'
+
+import {
   addOrUpdateUsers,
+  checkUserEmail,
 } from '@/shared/service/b2b'
 import {
   B3CustomForm,
@@ -23,10 +29,15 @@ import {
 } from '@/utils'
 
 import {
+  GlobaledContext,
+} from '@/shared/global'
+
+import {
   getUsersFiles,
   UsersList,
   UsersFilesProps,
   filterProps,
+  emailError,
 } from './config'
 
 interface AddEditUserProps {
@@ -38,6 +49,12 @@ const AddEditUser = ({
   companyId,
   renderList,
 }: AddEditUserProps, ref: Ref<unknown> | undefined) => {
+  const {
+    state: {
+      currentChannelId,
+    },
+  } = useContext(GlobaledContext)
+
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
 
@@ -46,6 +63,8 @@ const AddEditUser = ({
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false)
 
   const [usersFiles, setUsersFiles] = useState<Array<UsersFilesProps>>([])
+
+  const b3Lang = useB3Lang()
 
   const {
     control,
@@ -56,6 +75,7 @@ const AddEditUser = ({
     },
     clearErrors,
     setValue,
+    setError,
   } = useForm({
     mode: 'onSubmit',
   })
@@ -76,14 +96,64 @@ const AddEditUser = ({
     setOpen(false)
   }
 
+  const validateEmailValue = async (emailValue: string) => {
+    const {
+      userEmailCheck: {
+        userType,
+        userInfo: {
+          companyName,
+        },
+      },
+    }: CustomFieldItems = await checkUserEmail({
+      email: emailValue,
+      companyId,
+      channelId: currentChannelId,
+    })
+
+    const isValid = [1, 2, 7].includes(userType)
+
+    if (!isValid) {
+      setError('email', {
+        type: 'custom',
+        message: b3Lang(emailError[userType], {
+          companyName,
+          email: emailValue,
+        }),
+      })
+    }
+
+    return {
+      isValid,
+      userType,
+    }
+  }
+
   const handleAddUserClick = () => {
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
+
       try {
         const params: Partial<filterProps> = {
           companyId,
           ...data,
         }
+
+        if (type !== 'edit') {
+          const {
+            isValid,
+            userType,
+          } = await validateEmailValue(data.email)
+
+          if (!isValid) {
+            setAddUpdateLoading(false)
+            return
+          }
+
+          if (userType === 7) {
+            params.addChannel = true
+          }
+        }
+
         if (type === 'edit') {
           params.userId = editData?.id || ''
           delete params.email

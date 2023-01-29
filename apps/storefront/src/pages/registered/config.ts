@@ -362,3 +362,15 @@ export const getRegisterLogo = (quoteConfig:Array<QuoteConfig>): string => {
 
   return item[0].isEnabled
 }
+
+type EmailError = {
+  [k: number]: string
+}
+
+export const emailError: EmailError = {
+  2: 'intl.user.addUser.emailValidate.alreadyExitsBC',
+  3: 'intl.user.addUser.emailValidate.multipleCustomer',
+  4: 'intl.user.addUser.emailValidate.companyUsed',
+  5: 'intl.user.addUser.emailValidate.alreadyExits',
+  6: 'intl.user.addUser.emailValidate.usedSuperAdmin',
+}

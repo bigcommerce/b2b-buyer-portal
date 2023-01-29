@@ -10,6 +10,9 @@ import {
 } from '@/shared/global'
 
 import App from './App'
+import {
+  B3StoreContainer,
+} from './components/B3StoreContainer'
 import B3ThemeProvider from './theme'
 
 import * as locales from './locales'
@@ -29,14 +32,17 @@ if (!container) {
 container.className = 'bundle-namespace'
 
 ReactDOM.createRoot(container).render(
-  <LangProvider
-    locales={locales}
-    supportLang={SUPPORT_LANGUAGE}
-  >
-    <GlobalProvider>
-      <B3ThemeProvider>
-        <App />
-      </B3ThemeProvider>
-    </GlobalProvider>
-  </LangProvider>,
+  <GlobalProvider>
+    <B3StoreContainer>
+      <LangProvider
+        locales={locales}
+        supportLang={SUPPORT_LANGUAGE}
+      >
+        <B3ThemeProvider>
+          <App />
+        </B3ThemeProvider>
+      </LangProvider>
+    </B3StoreContainer>
+  </GlobalProvider>
+  ,
 )

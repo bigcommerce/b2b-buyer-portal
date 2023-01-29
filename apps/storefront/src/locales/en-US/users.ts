@@ -78,4 +78,9 @@ export default {
   'intl.user.forgot.forgotText.requestEmail': 'Fill in your email below to request a new password. An email will be sent to the address below containing a link to verify your email address.',
   'intl.user.forgot.forgotText.resetPasswordBtn': 'Reset Password',
 
+  'intl.user.addUser.emailValidate.alreadyExitsBC': 'The email address {email} is already in use. Please enter a different one.',
+  'intl.user.addUser.emailValidate.multipleCustomer': 'This email is used by multiple customers in your store. Please use another email.',
+  'intl.user.addUser.emailValidate.companyUsed': 'This email is used by a customer within another company ({companyName}).',
+  'intl.user.addUser.emailValidate.alreadyExits': 'This user already exists in this company.',
+  'intl.user.addUser.emailValidate.usedSuperAdmin': 'This email is used by a super admin.',
 }

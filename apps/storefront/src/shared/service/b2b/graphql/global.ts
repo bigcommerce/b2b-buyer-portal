@@ -6,9 +6,10 @@ import {
   storeHash,
 } from '../../../../utils'
 
-const getB2BTokenQl = (bcJwtToken: string) => `mutation {
+const getB2BTokenQl = (bcJwtToken: string, channelId: number) => `mutation {
   authorization(authData: {
     bcToken: "${bcJwtToken}"
+    channelId: ${channelId}
   }) {
     result {
       token
@@ -125,8 +126,8 @@ const currencies = (channelId: string) => `{
   }
 }`
 
-export const getB2BToken = (bcJwtToken: string): CustomFieldItems => B3Request.graphqlB2B({
-  query: getB2BTokenQl(bcJwtToken),
+export const getB2BToken = (bcJwtToken: string, channelId: number = 1): CustomFieldItems => B3Request.graphqlB2B({
+  query: getB2BTokenQl(bcJwtToken, channelId),
 })
 
 export const getAgentInfo = (customerId: string | number): CustomFieldItems => B3Request.graphqlB2B({

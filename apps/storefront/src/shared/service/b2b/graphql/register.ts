@@ -141,8 +141,13 @@ const getStoreChannelId = () => `{
     storeLogo
     storeUrl
     storeSites{
-        channelId
-        urls
+      channelId
+      urls
+      iconUrl
+      channelLogo
+      isEnabled
+      b2bEnabled
+      b3ChannelId
     }
   }
 }`

@@ -77,4 +77,10 @@ export default {
   'intl.user.forgot.forgotText.resetPassword': '重置密码',
   'intl.user.forgot.forgotText.requestEmail': '填写下面的电子邮件以请求新密码。将向以下地址发送一封电子邮件，其中包含验证您电子邮件地址的链接。',
   'intl.user.forgot.forgotText.resetPasswordBtn': '重置密码',
+
+  'intl.user.addUser.emailValidate.alreadyExitsBC': '电子邮件地址｛email｝已在使用中。请输入另一个。',
+  'intl.user.addUser.emailValidate.multipleCustomer': '此电子邮件由您商店中的多个客户使用。 请使用其他电子邮件。',
+  'intl.user.addUser.emailValidate.companyUsed': '此电子邮件由另一家公司({companyName})内的客户使用。',
+  'intl.user.addUser.emailValidate.alreadyExits': '该用户已存在于此公司。',
+  'intl.user.addUser.emailValidate.usedSuperAdmin': '此电子邮件由超级管理员使用。',
 }

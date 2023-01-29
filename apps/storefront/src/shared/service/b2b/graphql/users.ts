@@ -2,6 +2,10 @@ import {
   B3Request,
 } from '../../request/b3Fetch'
 
+import {
+  storeHash,
+} from '../../../../utils'
+
 const getUsersQl = (data: CustomFieldItems) => `{
   users (
     first: ${data.first}
@@ -42,6 +46,7 @@ const addOrUpdateUsersQl = (data: CustomFieldItems) => `mutation{
       phone: "${data.phone || ''}"
       role: ${data.role}
       ${data?.userId ? `userId: ${data.userId}` : ''}
+      ${data?.addChannel ? `addChannel: ${data.addChannel}` : ''}
     }
   ){
     user{
@@ -59,6 +64,29 @@ const deleteUsersQl = (data: CustomFieldItems) => `mutation{
     message
   }
 }`
+
+const checkUserBCEmail = (data: CustomFieldItems) => `{
+  userEmailCheck (
+    email: "${data.email}"
+    companyId: ${data.companyId || null}
+    storeHash: "${storeHash}"
+    channelId: ${data.channelId || null}
+  ){
+    userType,
+    userInfo{
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      role
+      companyName
+      originChannelId
+      forcePasswordReset
+    }
+  }
+}`
+
 export const getUsers = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
   query: getUsersQl(data),
 })
@@ -69,4 +97,8 @@ export const addOrUpdateUsers = (data: CustomFieldItems): CustomFieldItems => B3
 
 export const deleteUsers = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
   query: deleteUsersQl(data),
+})
+
+export const checkUserEmail = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
+  query: checkUserBCEmail(data),
 })

@@ -39,9 +39,7 @@ import {
 } from './styled'
 
 import {
-  getB2BRegisterLogo,
   getB2BCountries,
-  storeB2BBasicInfo,
   getB2BAccountFormFields,
   createB2BCompanyUser,
   getB2BCompanyUserInfo,
@@ -64,7 +62,6 @@ import {
 
 import {
   RegisterFields,
-  getRegisterLogo,
   Country,
   State,
   getAccountFormFields,
@@ -86,7 +83,6 @@ interface RegisteredProps {
 }
 
 export default function RegisteredBCToB2B(props: RegisteredProps) {
-  const [logo, setLogo] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 
   const {
@@ -119,6 +115,8 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         emailAddress = '',
       } = {},
       isCloseGotoBCHome,
+      storeName,
+      logo,
     },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
@@ -154,17 +152,8 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
         const bcToB2BAccountFormFields = getAccountFormFields(accountFormAllFields?.accountFormFields || [])
         const {
-          quoteConfig,
-        } = await getB2BRegisterLogo()
-        const {
           countries,
         } = await getB2BCountries()
-        const {
-          storeBasicInfo: {
-            storeName,
-          },
-        } = await storeB2BBasicInfo()
-        const registerLogo = getRegisterLogo(quoteConfig)
 
         const newAddressInformationFields = bcToB2BAccountFormFields.address.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
           if (addressFields.name === 'country') {
@@ -202,7 +191,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             },
           })
         }
-        setLogo(registerLogo)
       } catch (e) {
         console.error(e)
       }
