@@ -66,6 +66,7 @@ interface TableProps<T> {
   selectedSymbol?: string,
   selectCheckbox?: Array<number | string>,
   labelRowsPerPage?: string,
+  disableCheckbox?: boolean,
 }
 
 export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
@@ -99,6 +100,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
   selectedSymbol = 'id',
   selectCheckbox = [],
   labelRowsPerPage = '',
+  disableCheckbox = false,
 }) => {
   const {
     offset,
@@ -145,6 +147,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                 <Checkbox
                   checked={selectCheckbox.length === listItems.length}
                   onChange={handleSelectAllItems}
+                  disabled={disableCheckbox}
                 />
                 Select all
               </Box>
@@ -163,6 +166,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                       onChange={() => {
                         if (handleSelectOneItem) handleSelectOneItem(row.node[selectedSymbol])
                       }}
+                      disabled={disableCheckbox}
                     />
                   )
                   return (
@@ -263,6 +267,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                           <Checkbox
                             checked={selectCheckbox.length === listItems.length}
                             onChange={handleSelectAllItems}
+                            disabled={disableCheckbox}
                           />
                         </TableCell>
                       )
@@ -305,6 +310,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                               onChange={() => {
                                 if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol])
                               }}
+                              disabled={disableCheckbox}
                             />
                           </TableCell>
                         )

@@ -54,6 +54,7 @@ interface B3PaginationTableProps<Y> {
   hover?: boolean,
   labelRowsPerPage?: string,
   itemIsMobileSpacing?: number,
+  disableCheckbox?: boolean,
 }
 
 const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
@@ -81,6 +82,7 @@ const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
   hover = false,
   labelRowsPerPage = '',
   itemIsMobileSpacing = 2,
+  disableCheckbox = false,
 }, ref?: Ref<unknown>) => {
   const initPagination = {
     offset: 0,
@@ -212,6 +214,7 @@ const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
       infiniteScrollLoader={infiniteScrollLoader}
       infiniteScrollHeight={infiniteScrollHeight}
       showCheckbox={showCheckbox}
+      disableCheckbox={disableCheckbox}
       selectedSymbol={selectedSymbol}
       selectCheckbox={selectCheckbox}
       handleSelectAllItems={handleSelectAllItems}

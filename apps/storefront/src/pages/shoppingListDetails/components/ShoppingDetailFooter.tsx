@@ -193,7 +193,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
         padding: '1rem',
         height: isMobile ? '8rem' : 'auto',
         display: 'flex',
-        zIndex: '10',
+        zIndex: '999',
         ...containerStyle,
       }}
     >

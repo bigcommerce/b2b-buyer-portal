@@ -12,6 +12,7 @@ import {
   styled,
   Typography,
   TextField,
+  Grid,
 } from '@mui/material'
 
 import {
@@ -166,6 +167,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const [search, setSearch] = useState<SearchProps>({
     search: '',
   })
+  const [qtyNotChangeFlag, setQtyNotChangeFlag] = useState<boolean>(true)
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
     const listItems = paginationTableRef.current?.getList() || []
@@ -174,6 +176,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         node,
       } = item
       if (node?.id === id) {
+        setQtyNotChangeFlag(node.quantity === +value)
         node.quantity = +value || ''
       }
 
@@ -237,6 +240,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
   }
 
   const handleUpdateShoppingListItem = async (itemId: number | string) => {
+    if (qtyNotChangeFlag) return
     setIsRequestLoading(true)
     const listItems: ListItemProps[] = paginationTableRef.current?.getList() || []
     const currentItem = listItems.find((item: ListItemProps) => {
@@ -277,6 +281,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
       await updateB2BShoppingListsItem(data)
       snackbar.success('Product quantity updated successfully')
+      setQtyNotChangeFlag(true)
       initSearch()
     } finally {
       setIsRequestLoading(false)
@@ -437,48 +442,57 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                 marginTop: '1rem',
                 opacity: 0,
                 textAlign: isMobile ? 'end' : 'start',
+                display: 'flex',
               }}
               id="shoppingList-actionList"
             >
-              {
-                optionList.length > 0 && !isReadForApprove && (
-                  <Edit
+              <Grid
+                item
+                sx={{
+                  marginRight: '0.5rem',
+                  minWidth: '32px',
+                }}
+              >
+                {
+                  optionList.length > 0 && !isReadForApprove && (
+                    <Edit
+                      sx={{
+                        cursor: 'pointer',
+                        color: 'rgba(0, 0, 0, 0.54)',
+                      }}
+                      onClick={() => {
+                        const {
+                          productsSearch,
+                          variantId,
+                          itemId,
+                          optionList,
+                        } = row
+
+                        handleOpenProductEdit({
+                          ...productsSearch,
+                          selectOptions: optionList,
+                        }, variantId, itemId)
+                      }}
+                    />
+                  )
+                }
+              </Grid>
+              <Grid item>
+                {
+                  !isReadForApprove && (
+                  <Delete
                     sx={{
-                      marginRight: '0.5rem',
                       cursor: 'pointer',
                       color: 'rgba(0, 0, 0, 0.54)',
                     }}
                     onClick={() => {
-                      const {
-                        productsSearch,
-                        variantId,
-                        itemId,
-                        optionList,
-                      } = row
-
-                      handleOpenProductEdit({
-                        ...productsSearch,
-                        selectOptions: optionList,
-                      }, variantId, itemId)
+                      setDeleteOpen(true)
+                      setDeleteItemId(+itemId)
                     }}
                   />
-                )
-              }
-              {
-                !isReadForApprove && (
-                <Delete
-                  sx={{
-                    cursor: 'pointer',
-                    color: 'rgba(0, 0, 0, 0.54)',
-                  }}
-                  onClick={() => {
-                    setDeleteOpen(true)
-                    setDeleteItemId(+itemId)
-                  }}
-                />
-                )
-              }
-
+                  )
+                }
+              </Grid>
             </Box>
           </Box>
         )
@@ -533,6 +547,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         searchParams={search}
         isCustomRender={false}
         showCheckbox
+        disableCheckbox={isReadForApprove}
         hover
         labelRowsPerPage="Items per page:"
         showBorder={false}

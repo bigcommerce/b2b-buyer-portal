@@ -100,6 +100,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
               variant="h4"
               sx={{
                 marginRight: '1rem',
+                wordBreak: 'break-all',
               }}
             >
               {`${shoppingListInfo?.name || ''}`}
