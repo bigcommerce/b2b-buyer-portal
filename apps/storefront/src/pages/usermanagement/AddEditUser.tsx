@@ -132,6 +132,8 @@ const AddEditUser = ({
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
 
+      let message = 'add user successfully'
+
       try {
         const params: Partial<filterProps> = {
           companyId,
@@ -152,15 +154,22 @@ const AddEditUser = ({
           if (userType === 7) {
             params.addChannel = true
           }
+
+          if (userType === 7) {
+            message = `user detected in your company, we will allow current storefront access for email: ${data.email}`
+          }
         }
 
         if (type === 'edit') {
           params.userId = editData?.id || ''
+          message = 'update user successfully'
           delete params.email
         }
         await addOrUpdateUsers(params)
         handleCancelClick()
-        snackbar.success(`${type === 'edit' ? 'update user successfully' : 'add user successfully'}`)
+
+        snackbar.success(message)
+
         renderList()
       } finally {
         setAddUpdateLoading(false)
