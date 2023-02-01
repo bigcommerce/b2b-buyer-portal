@@ -113,6 +113,8 @@ const QuoteAddress = ({
 
   useGetCountry({
     control,
+    setValue,
+    getValues,
     setAddress: setQuoteAddress,
     addresses: quoteAddress,
   })
@@ -159,7 +161,7 @@ const QuoteAddress = ({
         setValue(item, info[item])
       })
     }
-  }, [info, quoteAddress])
+  }, [info])
 
   return (
     <Box

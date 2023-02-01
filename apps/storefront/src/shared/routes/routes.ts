@@ -3,6 +3,10 @@ import {
 } from 'react'
 
 import {
+  matchPath,
+} from 'react-router'
+
+import {
   GlobalState,
 } from '@/shared/global/context/config'
 
@@ -39,6 +43,7 @@ export interface RouteItem {
   wsKey: string,
   configKey?: string,
   permissions: number[], // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 99: bc user
+  isTokenLogin: boolean,
 }
 
 const routes: RouteItem[] = [
@@ -49,6 +54,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: OrderList,
     permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: true,
   },
   {
     path: '/company-orders',
@@ -57,6 +63,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: CompanyOrderList,
     permissions: [0, 1, 2, 3],
+    isTokenLogin: true,
   },
   {
     path: '/orderDetail/:id',
@@ -65,6 +72,7 @@ const routes: RouteItem[] = [
     isMenuItem: false,
     component: OrderDetail,
     permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: true,
   },
   {
     path: '/invoiceDetail/:id',
@@ -73,6 +81,7 @@ const routes: RouteItem[] = [
     isMenuItem: false,
     component: InvoiceDetail,
     permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: true,
   },
   {
     path: '/addresses',
@@ -82,6 +91,7 @@ const routes: RouteItem[] = [
     component: AddressList,
     configKey: 'addressBook',
     permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: true,
   },
   {
     path: '/shoppingList/:id',
@@ -90,6 +100,7 @@ const routes: RouteItem[] = [
     isMenuItem: false,
     component: ShoppingListDetails,
     permissions: [0, 1, 2, 3],
+    isTokenLogin: true,
   },
   {
     path: '/user-management',
@@ -98,6 +109,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: Usermanagement,
     permissions: [0, 1, 3],
+    isTokenLogin: true,
   },
   {
     path: '/shoppingLists',
@@ -107,6 +119,7 @@ const routes: RouteItem[] = [
     component: ShippingLists,
     configKey: 'shoppingLists',
     permissions: [0, 1, 2, 3],
+    isTokenLogin: true,
   },
   {
     path: '/quoteDraft',
@@ -116,6 +129,7 @@ const routes: RouteItem[] = [
     component: QuoteDraft,
     configKey: 'quoteDraft',
     permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: false,
   },
   {
     path: '/quotes',
@@ -125,6 +139,7 @@ const routes: RouteItem[] = [
     component: Quotes,
     configKey: 'quotes',
     permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: true,
   },
   {
     path: '/quoteDetail/:id',
@@ -133,7 +148,8 @@ const routes: RouteItem[] = [
     isMenuItem: false,
     component: QuoteDetail,
     configKey: 'quoteDetail',
-    permissions: [0, 1, 2, 3, 99],
+    permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: false,
   },
   {
     path: '/recently-viewed',
@@ -142,6 +158,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: Dashboard,
     permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: true,
   },
   {
     path: '/account-settings',
@@ -151,6 +168,7 @@ const routes: RouteItem[] = [
     component: Dashboard,
     configKey: 'accountSettings',
     permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: true,
   },
   {
     path: '/',
@@ -159,6 +177,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: Dashboard,
     permissions: [0, 1, 2, 3, 99, 100],
+    isTokenLogin: true,
   },
 ]
 
@@ -201,7 +220,25 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   })
 }
 
+const gotoAllowedAppPage = (role: number, gotoPage: (url: string) => void) => {
+  const {
+    hash,
+  } = window.location
+  let url = hash.split('#')[1]
+  if (!hash) return
+  if (!url && role !== 100) url = role === 3 ? '/' : '/orders'
+  const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && item.permissions.includes(role))
+  if (flag) gotoPage(url)
+}
+
+const getIsTokenGotoPage = (url: string): boolean => {
+  const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && !item.isTokenLogin)
+  return flag
+}
+
 export {
+  gotoAllowedAppPage,
   getAllowedRoutes,
   routes,
+  getIsTokenGotoPage,
 }

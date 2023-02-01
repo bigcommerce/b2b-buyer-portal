@@ -1,6 +1,6 @@
 import {
-  useRefresh,
-} from './useRefresh'
+  useSetOpen,
+} from './useSetOpen'
 
 import {
   useOpenPDP,
@@ -36,7 +36,7 @@ export {
 } from './useDebounce'
 
 export {
-  useRefresh,
+  useSetOpen,
   useOpenPDP,
   useMyQuote,
   useRegisteredbctob2b,

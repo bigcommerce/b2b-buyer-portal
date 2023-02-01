@@ -1,14 +1,6 @@
 import {
-  B3SStorage,
   B3LStorage,
 } from '@/utils'
-
-interface optionListItem {
-  optionId: string,
-  optionValue: string,
-  option_id: string,
-  value_id: number,
-}
 
 interface QuoteListitemProps {
   node: {

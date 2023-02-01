@@ -35,6 +35,7 @@ import {
   B3SStorage,
   storeHash,
   addQuoteDraftProduce,
+  snackbar,
 } from '@/utils'
 
 import {
@@ -362,12 +363,19 @@ const QuoteDraft = () => {
     setLoading(true)
     try {
       const info = B3LStorage.get('MyQuoteInfo')
+      const contactInfo = info?.contactInfo || {}
+
+      const isComplete = Object.keys(contactInfo).every((key: string) => !!contactInfo[key])
+
+      if (JSON.stringify(contactInfo) === '{}' || !isComplete) {
+        snackbar.error('Please fill in the Contact information')
+        return
+      }
 
       const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
 
       const emailAddress = B3SStorage.get('B3EmailAddress')
 
-      const contactInfo = info?.contactInfo || {}
       const note = info?.note || ''
 
       const perfectAddress = (address: CustomFieldStringItems) => {

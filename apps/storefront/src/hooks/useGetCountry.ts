@@ -6,6 +6,9 @@ import {
 import {
   useWatch,
   Control,
+  FieldValues,
+  UseFormGetValues,
+  UseFormSetValue,
 } from 'react-hook-form'
 import {
   getB2BCountries,
@@ -61,12 +64,16 @@ interface FormFieldsProps extends Record<string, any> {
 
 interface GetCountryProps {
   setAddress: (arr: FormFieldsProps[]) => void,
+  setValue: UseFormSetValue<FieldValues>,
+  getValues: UseFormGetValues<FieldValues>,
   addresses: FormFieldsProps[],
   control: Control,
 }
 
 const useGetCountry = ({
   setAddress,
+  setValue,
+  getValues,
   control,
   addresses,
 }: GetCountryProps) => {
@@ -94,6 +101,10 @@ const useGetCountry = ({
           stateFields.options = []
         }
       }
+
+      const stateVal = getValues('state')
+
+      setValue('state', stateVal && countryCode && (stateList.find((state: State) => state.stateName === stateVal) || stateList.length === 0) ? stateVal : '')
 
       setAddress([...addresses])
     }

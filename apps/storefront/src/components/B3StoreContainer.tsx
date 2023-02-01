@@ -45,33 +45,32 @@ export const B3StoreContainer = (props: B3StoreContainerProps) => {
     dispatch,
   } = useContext(GlobaledContext)
 
-  const getStoreBasicInfo = async () => {
-    const {
-      storeBasicInfo,
-    }: CustomFieldItems = await getBCStoreChannelId()
-
-    const {
-      channelId,
-      channelLogo: logo,
-      b3ChannelId: bcChannelId,
-      b2bEnabled: storeEnabled,
-    } = getCurrentStoreInfo((storeBasicInfo as StoreBasicInfo)?.storeSites || [])
-
-    dispatch({
-      type: 'common',
-      payload: {
-        logo,
-        storeEnabled,
-        currentChannelId: channelId,
-        bcChannelId,
-        storeName: storeBasicInfo.storeName,
-      },
-    })
-
-    B3SStorage.set('B3channelId', channelId)
-  }
-
   useEffect(() => {
+    const getStoreBasicInfo = async () => {
+      const {
+        storeBasicInfo,
+      }: CustomFieldItems = await getBCStoreChannelId()
+
+      const {
+        channelId,
+        channelLogo: logo,
+        b3ChannelId: bcChannelId,
+        b2bEnabled: storeEnabled,
+      } = getCurrentStoreInfo((storeBasicInfo as StoreBasicInfo)?.storeSites || [])
+
+      dispatch({
+        type: 'common',
+        payload: {
+          logo,
+          storeEnabled,
+          currentChannelId: channelId,
+          bcChannelId,
+          storeName: storeBasicInfo.storeName,
+        },
+      })
+
+      B3SStorage.set('B3channelId', channelId)
+    }
     getStoreBasicInfo()
   }, [])
 

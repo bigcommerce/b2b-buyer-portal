@@ -1,6 +1,8 @@
 import {
   useEffect,
   useContext,
+  useState,
+  useCallback,
 } from 'react'
 
 import {
@@ -12,7 +14,7 @@ import {
 
 import {
   useOpenPDP,
-  useRefresh,
+  useSetOpen,
   useMyQuote,
   useRegisteredbctob2b,
 } from '@/hooks'
@@ -38,6 +40,10 @@ import {
   ThemeFrame,
   B3RenderRouter,
 } from '@/components'
+
+import {
+  gotoAllowedAppPage,
+} from '@/shared/routes'
 
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 const CUSTOM_STYLES = `
@@ -71,6 +77,8 @@ export default function App() {
     dispatch,
   } = useContext(GlobaledContext)
 
+  const [openApp, setOpenApp] = useState<boolean>(false)
+
   useOpenPDP({
     setOpenPage,
     isB2BUser,
@@ -82,10 +90,10 @@ export default function App() {
     productQuoteEnabled,
     cartQuoteEnabled,
   })
+  // Button to open storefront
+  useSetOpen(isOpen, openUrl)
 
-  useRefresh(isOpen, openUrl)
-
-  const getQuoteConfig = async () => {
+  const getQuoteConfig = useCallback(async () => {
     const {
       quoteConfig,
     } = await getB2BRegisterLogo()
@@ -98,9 +106,9 @@ export default function App() {
         quoteConfig,
       },
     })
-  }
+  }, [])
 
-  const setStorefrontConfig = async () => {
+  const setStorefrontConfig = useCallback(async () => {
     const {
       storefrontConfig: {
         config: storefrontConfig,
@@ -113,9 +121,9 @@ export default function App() {
         storefrontConfig,
       },
     })
-  }
+  }, [])
 
-  const loginAndRegister = () => {
+  const loginAndRegister = useCallback(() => {
     const {
       pathname,
       href,
@@ -150,57 +158,36 @@ export default function App() {
         openUrl,
       })
     }
-  }
+  }, [])
+
+  const gotoPage = useCallback((url: string) => {
+    setOpenPage({
+      isOpen: true,
+      openUrl: url,
+    })
+  }, [])
 
   useEffect(() => {
-    const {
-      hash,
-    } = window.location
     loginAndRegister()
-
-    const gotoPage = (role?: number) => {
-      let url = hash.split('#')[1]
-
-      if (!url) url = role === 3 ? '/' : '/orders'
-
-      setOpenPage({
-        isOpen: true,
-        openUrl: url,
-      })
-    }
-
-    const guestGotoPage = () => {
-      const url = hash.split('#')[1] || ''
-      if (url === '/login' || url === '/quoteDraft' || url.includes('/quoteDetail')) {
-        setOpenPage({
-          isOpen: true,
-          openUrl: url,
-        })
-      }
-    }
-
     const init = async () => {
       // bc token
       if (!BcToken) {
         await loginInfo()
       }
-      getQuoteConfig()
-      setStorefrontConfig()
+
       setChannelStoreType(bcChannelId)
-      // refresh
-      if (!customerId) {
-        const data = await getCurrentCustomerInfo(dispatch)
-        if (data) {
-          gotoPage(data.role)
-        } else {
-          guestGotoPage()
-        }
-      }
-      if (customerId && hash) gotoPage()
+      await Promise.all([getQuoteConfig(), setStorefrontConfig()])
+
+      if (!customerId) await getCurrentCustomerInfo(dispatch)
+      setOpenApp(true)
     }
 
     init()
   }, [])
+
+  useEffect(() => {
+    if (openApp) gotoAllowedAppPage(+role, gotoPage)
+  }, [openApp])
 
   useEffect(() => {
     if (quoteConfig.switchStatus.length > 0 && storefrontConfig) {

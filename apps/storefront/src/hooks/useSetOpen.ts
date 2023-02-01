@@ -12,14 +12,16 @@ const {
   overflow: defaultOverflow,
 } = document.body.style
 
-const useRefresh = (isOpen: boolean, openUrl?: string) => {
+const useSetOpen = (isOpen: boolean, openUrl?: string) => {
   const {
     dispatch,
   } = useContext(GlobaledContext)
   useEffect(() => {
     if (isOpen) {
+      // The iframe screen is removed
       document.body.style.height = '100%'
       document.body.style.overflow = 'hidden'
+      // The iframe button opens and assigns the url
       if (openUrl) {
         const {
           origin,
@@ -31,6 +33,8 @@ const useRefresh = (isOpen: boolean, openUrl?: string) => {
     } else {
       document.body.style.height = defaultHeight
       document.body.style.overflow = defaultOverflow
+
+      // close all tips
       dispatch({
         type: 'common',
         payload: {
@@ -44,5 +48,5 @@ const useRefresh = (isOpen: boolean, openUrl?: string) => {
 }
 
 export {
-  useRefresh,
+  useSetOpen,
 }

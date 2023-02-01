@@ -53,7 +53,6 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
           navigate('/checkout')
           localStorage.setItem('quoteCheckoutId', quoteId)
           localStorage.setItem('quoteDate', quoteDate)
-          console.log('proceed to checkout')
         }}
         sx={{
           width: isMobile ? '100%' : 'auto',

@@ -121,6 +121,10 @@ export const B3Nav = ({
       return activeStyle
     }
 
+    if (location.pathname.includes('/quoteDetail') || location.pathname.includes('/quoteDraft')) {
+      if (path === '/quotes') return activeStyle
+    }
+
     return {}
   }
   return (

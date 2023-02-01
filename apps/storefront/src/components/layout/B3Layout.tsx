@@ -47,6 +47,7 @@ import {
 
 import {
   RouteItem,
+  getIsTokenGotoPage,
 } from '@/shared/routes/routes'
 
 export function B3Layout({
@@ -72,10 +73,10 @@ export function B3Layout({
   const navigate = useNavigate()
 
   useEffect(() => {
-    if ((!emailAddress || !customerId) && location.pathname !== '/quoteDraft' && !location.pathname.includes('/quoteDetail')) {
+    if ((!emailAddress || !customerId) && !getIsTokenGotoPage(location.pathname)) {
       navigate('/login')
     }
-  }, [emailAddress, customerId])
+  }, [emailAddress, customerId, location])
 
   useEffect(() => {
     const itemsRoutes = routes.filter((item: RouteItem) => item.path === location.pathname)

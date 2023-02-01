@@ -70,8 +70,8 @@ const orderStatusText: OrderStatusConfig = {
   'Awaiting Shipment': 'Awaiting Shipment',
   'Awaiting Fulfillment': 'Awaiting Fulfillment',
   'Awaiting Payment': 'Awaiting Payment',
-  Pending: 'Pending',
-  Incomplete: 'Incomplete',
+  // Pending: 'Pending',
+  // Incomplete: 'Incomplete',
 }
 
 export const getOrderStatusOptions = () => Object.keys(orderStatusText).map((code) => ({
