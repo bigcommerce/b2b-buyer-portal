@@ -2,7 +2,6 @@ import {
   ChangeEvent,
   KeyboardEvent,
   useState,
-  useContext,
 } from 'react'
 
 import {
@@ -14,10 +13,6 @@ import {
 } from '@mui/material'
 
 import SearchIcon from '@mui/icons-material/Search'
-
-import {
-  snackbar,
-} from '@/utils'
 
 import {
   B3Sping,
@@ -32,16 +27,10 @@ import {
 } from './ChooseOptionsDialog'
 
 import {
-  ShoppingListDetailsContext,
-} from '../context/ShoppingListDetailsContext'
-
-import {
   ShoppingListProductItem,
-  ShoppingListAddProductItem,
 } from '../../../types'
 
 import {
-  addProductToShoppingList,
   searchB2BProducts,
 } from '@/shared/service/b2b'
 
@@ -50,19 +39,19 @@ import {
 } from '../shared/config'
 
 interface SearchProductProps {
-  updateList: () => void
+  updateList: () => void,
+  addToList: (products: CustomFieldItems[]) => CustomFieldItems,
+  searchDialogTitle?: string,
+  addButtonText?: string,
 }
 
 export const SearchProduct = ({
   updateList,
+  addToList,
+  searchDialogTitle,
+  addButtonText,
 }: SearchProductProps) => {
-  const {
-    state: {
-      id,
-      isLoading = false,
-    },
-    dispatch,
-  } = useContext(ShoppingListDetailsContext)
+  const [isLoading, setIsLoading] = useState(false)
 
   const [productListOpen, setProductListOpen] = useState(false)
   const [isAdded, setIsAdded] = useState(false)
@@ -73,15 +62,6 @@ export const SearchProduct = ({
 
   const handleSearchTextChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value)
-  }
-
-  const setIsLoading = (isLoading: boolean) => {
-    dispatch({
-      type: 'loading',
-      payload: {
-        isLoading,
-      },
-    })
   }
 
   const searchProduct = async () => {
@@ -141,26 +121,19 @@ export const SearchProduct = ({
     setProductList([...productList])
   }
 
-  const handleAddToListClick = async (products: ShoppingListAddProductItem[]) => {
+  const handleAddToListClick = async (products: CustomFieldItems[]) => {
     try {
       setIsLoading(true)
-      await addProductToShoppingList({
-        shoppingListId: id,
-        items: products,
-      })
+      await addToList(products)
 
       setIsAdded(true)
-
-      snackbar.success('Product were added to your shopping list')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleProductListAddToList = (products: ShoppingListAddProductItem[]) => {
+  const handleProductListAddToList = (products: CustomFieldItems[]) => {
     handleAddToListClick(products)
-    // setChooseOptionsOpen(false)
-    // setProductListOpen(false)
   }
 
   const handleChangeOptionsClick = (productId: number) => {
@@ -179,7 +152,7 @@ export const SearchProduct = ({
     setProductListOpen(true)
   }
 
-  const handleChooseOptionsDialogConfirm = (products: ShoppingListAddProductItem[]) => {
+  const handleChooseOptionsDialogConfirm = (products: CustomFieldItems[]) => {
     handleAddToListClick(products)
     setChooseOptionsOpen(false)
     setProductListOpen(true)
@@ -238,6 +211,7 @@ export const SearchProduct = ({
 
       <ProductListDialog
         isOpen={productListOpen}
+        isLoading={isLoading}
         productList={productList}
         searchText={searchText}
         onSearchTextChange={handleSearchTextChange}
@@ -246,13 +220,18 @@ export const SearchProduct = ({
         onProductQuantityChange={handleProductQuantityChange}
         onChooseOptionsClick={handleChangeOptionsClick}
         onAddToListClick={handleProductListAddToList}
+        searchDialogTitle={searchDialogTitle}
+        addButtonText={addButtonText}
       />
 
       <ChooseOptionsDialog
         isOpen={chooseOptionsOpen}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
         product={optionsProduct}
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
+        addButtonText={addButtonText}
       />
 
     </Box>

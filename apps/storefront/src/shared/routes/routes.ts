@@ -22,6 +22,10 @@ const AddressList = lazy(() => import('../../pages/address/Address'))
 
 const ShippingLists = lazy(() => import('../../pages/shoppingLists/ShoppingLists'))
 
+const QuoteDraft = lazy(() => import('../../pages/quote/QuoteDraft'))
+const Quotes = lazy(() => import('../../pages/quote/QuotesList'))
+const QuoteDetail = lazy(() => import('../../pages/quote/QuoteDetail'))
+
 // const AccountSetting = lazy(() => import('../../pages/accountSetting/AccountSetting'))
 const ShoppingListDetails = lazy(() => import('../../pages/shoppingListDetails/ShoppingListDetails'))
 
@@ -44,7 +48,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: OrderList,
-    permissions: [0, 1, 2, 3, 99],
+    permissions: [0, 1, 2, 3, 99, 100],
   },
   {
     path: '/company-orders',
@@ -60,7 +64,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: false,
     component: OrderDetail,
-    permissions: [0, 1, 2, 3, 99],
+    permissions: [0, 1, 2, 3, 99, 100],
   },
   {
     path: '/invoiceDetail/:id',
@@ -68,7 +72,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-invoice',
     isMenuItem: false,
     component: InvoiceDetail,
-    permissions: [0, 1, 2, 3, 99],
+    permissions: [0, 1, 2, 3, 99, 100],
   },
   {
     path: '/addresses',
@@ -77,7 +81,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: AddressList,
     configKey: 'addressBook',
-    permissions: [0, 1, 2, 3, 99],
+    permissions: [0, 1, 2, 3, 99, 100],
   },
   {
     path: '/shoppingList/:id',
@@ -105,12 +109,39 @@ const routes: RouteItem[] = [
     permissions: [0, 1, 2, 3],
   },
   {
+    path: '/quoteDraft',
+    name: 'QuoteDraft',
+    wsKey: 'quoteDraft',
+    isMenuItem: false,
+    component: QuoteDraft,
+    configKey: 'quoteDraft',
+    permissions: [0, 1, 2, 3, 99, 100],
+  },
+  {
+    path: '/quotes',
+    name: 'Quotes',
+    wsKey: 'quotes',
+    isMenuItem: true,
+    component: Quotes,
+    configKey: 'quotes',
+    permissions: [0, 1, 2, 3, 99, 100],
+  },
+  {
+    path: '/quoteDetail/:id',
+    name: 'QuoteDetail',
+    wsKey: 'quoteDetail',
+    isMenuItem: false,
+    component: QuoteDetail,
+    configKey: 'quoteDetail',
+    permissions: [0, 1, 2, 3, 99],
+  },
+  {
     path: '/recently-viewed',
     name: 'Recently Viewed',
     wsKey: 'router-orders',
     isMenuItem: true,
     component: Dashboard,
-    permissions: [0, 1, 2, 3, 99],
+    permissions: [0, 1, 2, 3, 99, 100],
   },
   {
     path: '/account-settings',
@@ -119,7 +150,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: Dashboard,
     configKey: 'accountSettings',
-    permissions: [0, 1, 2, 3, 99],
+    permissions: [0, 1, 2, 3, 99, 100],
   },
   {
     path: '/',
@@ -127,7 +158,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: Dashboard,
-    permissions: [0, 1, 2, 3, 99],
+    permissions: [0, 1, 2, 3, 99, 100],
   },
 ]
 
@@ -137,11 +168,14 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
     role,
     isAgenting,
     storefrontConfig,
+    productQuoteEnabled,
+    cartQuoteEnabled,
   } = globalState
 
   return routes.filter((item: RouteItem) => {
     const {
       permissions = [],
+      configKey,
     } = item
 
     // b2b user
@@ -150,6 +184,10 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
     }
 
     if (!permissions.includes(+role || 0) || !storefrontConfig) {
+      return false
+    }
+
+    if ((configKey === 'quotes' || configKey === 'quoteDraft') && !productQuoteEnabled && !cartQuoteEnabled) {
       return false
     }
 

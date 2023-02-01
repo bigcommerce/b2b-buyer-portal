@@ -5,6 +5,8 @@ import {
   forwardRef,
   useImperativeHandle,
   Ref,
+  Dispatch,
+  SetStateAction,
 } from 'react'
 
 import {
@@ -87,7 +89,8 @@ interface ListItemProps {
 interface ShoppingDetailTableProps {
   shoppingListInfo: any,
   currencyToken: string,
-  setIsRequestLoading: (value: boolean) => void,
+  isRequestLoading: boolean,
+  setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
   shoppingListId: number | string,
   getShoppingListDetails: CustomFieldItems,
   setCheckedArr: (values: CustomFieldItems) => void,
@@ -150,6 +153,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const {
     shoppingListInfo,
     currencyToken,
+    isRequestLoading,
     setIsRequestLoading,
     shoppingListId,
     getShoppingListDetails,
@@ -216,7 +220,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     setSelectedOptionsOpen(true)
   }
 
-  const handleChooseOptionsDialogConfirm = async (products: ShoppingListAddProductItem[]) => {
+  const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
     setIsRequestLoading(true)
     try {
       const data = {
@@ -574,6 +578,8 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
       <ChooseOptionsDialog
         isOpen={chooseOptionsOpen}
+        isLoading={isRequestLoading}
+        setIsLoading={setIsRequestLoading}
         product={optionsProduct}
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}

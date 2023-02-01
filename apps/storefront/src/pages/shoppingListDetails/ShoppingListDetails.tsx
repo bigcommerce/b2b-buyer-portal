@@ -359,6 +359,7 @@ const ShoppingListDetails = () => {
                   setCheckedArr={setCheckedArr}
                   shoppingListInfo={shoppingListInfo}
                   currencyToken={currencyToken}
+                  isRequestLoading={isRequestLoading}
                   setIsRequestLoading={setIsRequestLoading}
                   shoppingListId={id}
                   getShoppingListDetails={getShoppingListDetails}

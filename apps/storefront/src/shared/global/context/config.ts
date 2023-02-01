@@ -30,6 +30,17 @@ export interface TipMessagesProps{
   horizontal?: 'left' | 'right' | 'center'
   isClose?: boolean
 }
+export interface State {
+  stateCode?: string,
+  stateName?: string,
+  id?: string,
+}
+export interface Country {
+  countryCode: string,
+  countryName: string,
+  id?: string,
+  states: State[]
+}
 
 export interface GlobalState {
   isCheckout: boolean,
@@ -68,7 +79,29 @@ export interface GlobalState {
   storeName: string,
   currentChannelId: number,
   bcChannelId: number,
+  countriesList?: Country[],
+  productQuoteEnabled: boolean,
+  cartQuoteEnabled: boolean,
+  quoteConfig: {
+    switchStatus: {
+      [key: string]: string
+    }[],
+    otherConfigs: {
+      [key: string]: string
+    }[],
+  },
+  globalMessageDialog: {
+    open: boolean,
+    title: string,
+    message: string,
+    cancelText?: string,
+    cancelFn?: () => void,
+    saveText?: string,
+    saveFn?: () => void,
+  },
 }
+
+const role = B3SStorage.get('B3Role')
 
 export const initState = {
   isCheckout: false,
@@ -80,7 +113,10 @@ export const initState = {
   customerId: B3SStorage.get('B3CustomerId') || '',
   B3UserId: B3SStorage.get('B3UserId') || '',
   emailAddress: B3SStorage.get('B3EmailAddress') || '',
-  role: B3SStorage.get('B3Role') || 0,
+  /* role:
+   * 0: admin, 1: senior 2: buyer, 3: super admin, 99: bc user, 100: guest
+  */
+  role: (role || role === 0) ? role : 100,
   isAgenting: B3SStorage.get('isAgenting') || false,
   salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
   salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',
@@ -102,6 +138,19 @@ export const initState = {
   storeName: '',
   currentChannelId: 1,
   bcChannelId: 1,
+  countriesList: [],
+  productQuoteEnabled: true,
+  cartQuoteEnabled: true,
+  quoteConfig: {
+    switchStatus: [],
+    otherConfigs: [],
+  },
+  globalMessageDialog: {
+    open: false,
+    title: '',
+    message: '',
+    cancelText: 'Cancel',
+  },
 }
 
 export interface GlobalAction {

@@ -47,7 +47,7 @@ interface PDPRefProps {
   timer: null | number,
 }
 
-const serialize = (form: any) => {
+export const serialize = (form: any) => {
   const arr: any = {}
   for (let i = 0; i < form.elements.length; i += 1) {
     const file: any = form.elements[i]
@@ -83,8 +83,8 @@ const serialize = (form: any) => {
   return arr
 }
 
-const getProductOptionList = (optionMap: any) => {
-  const optionList: any = []
+export const getProductOptionList = (optionMap: CustomFieldItems) => {
+  const optionList: CustomFieldItems[] = []
   Object.keys(optionMap).forEach((item) => {
     if (item.includes('attribute') && item.match(/\[([0-9]+)\]/g)) {
       optionList.push({
@@ -171,9 +171,6 @@ const PDP = ({
       const productId = (document.querySelector('input[name=product_id]') as any)?.value
       const qty = (document.querySelector('[name="qty[]"]') as any)?.value ?? 1
       const sku = (document.querySelector('[data-product-sku]')?.innerHTML ?? '').trim()
-      // const productId = '115'
-      // const qty = '1'
-      // const sku = 'TP-001-RE-SM-SE'
       const form = document.querySelector('form[data-cart-item-add]')
 
       const getDefaultCurrencyInfo = () => {
@@ -213,8 +210,14 @@ const PDP = ({
 
       const optionList = getProductOptionList(optionMap)
 
-      const canAddToSl = isAllRequiredOptionFilled(allOptions, optionList)
-      if (!canAddToSl) return
+      const {
+        isValid,
+        message,
+      } = isAllRequiredOptionFilled(allOptions, optionList)
+      if (!isValid) {
+        snackbar.error(message)
+        return
+      }
 
       const params = {
         productId: +productId,

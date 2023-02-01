@@ -17,3 +17,7 @@ export type {
 export {
   useB3PDPOpen,
 } from './useB3PDPOpen'
+
+export {
+  useB3Quote,
+} from './useB3Quote'

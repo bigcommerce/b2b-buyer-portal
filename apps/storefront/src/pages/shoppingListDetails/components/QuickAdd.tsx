@@ -1,6 +1,5 @@
 import {
   useState,
-  useContext,
   useEffect,
   KeyboardEventHandler,
 } from 'react'
@@ -34,10 +33,6 @@ import {
 } from '../shared/config'
 
 import {
-  ShoppingListDetailsContext,
-} from '../context/ShoppingListDetailsContext'
-
-import {
   SimpleObject,
   ShoppingListAddProductItem,
   ShoppingListAddProductOption,
@@ -45,27 +40,26 @@ import {
 
 import {
   getB2BVariantInfoBySkus,
-  addProductToShoppingList,
 } from '../../../shared/service/b2b'
 
 interface AddToListContentProps {
-  updateList: () => void
+  updateList: () => void,
+  quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems,
+  level?: number,
+  buttonText?: string,
 }
 
 export const QuickAdd = (props: AddToListContentProps) => {
   const {
     updateList,
+    quickAddToList,
+    level = 3,
+    buttonText = 'Add product to list',
   } = props
-
-  const {
-    state: {
-      id: shoppingListId,
-    },
-  } = useContext(ShoppingListDetailsContext)
 
   const b3Lang = useB3Lang()
 
-  const [rows, setRows] = useState(3)
+  const [rows, setRows] = useState(level)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
@@ -82,7 +76,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
   }, [rows])
 
   const handleAddRowsClick = () => {
-    setRows(rows + 3)
+    setRows(rows + level)
   }
 
   const {
@@ -160,7 +154,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
   const getProductItems = (variantInfoList: CustomFieldItems, skuValue: SimpleObject, skus: string[]) => {
     const notFoundSku: string[] = []
     const notPurchaseSku: string[] = []
-    const productItems: ShoppingListAddProductItem[] = []
+    const productItems: CustomFieldItems[] = []
     const passSku: string[] = []
 
     skus.forEach((sku) => {
@@ -201,7 +195,8 @@ export const QuickAdd = (props: AddToListContentProps) => {
       passSku.push(sku)
 
       productItems.push({
-        optionList,
+        ...variantInfo,
+        newSelectOptionList: optionList,
         productId: parseInt(productId, 10) || 0,
         quantity,
         variantId: parseInt(variantId, 10) || 0,
@@ -288,14 +283,8 @@ export const QuickAdd = (props: AddToListContentProps) => {
         }
 
         if (productItems.length > 0) {
-          await addProductToShoppingList({
-            shoppingListId,
-            items: productItems,
-          })
-
+          await quickAddToList(productItems)
           clearInputValue(value, passSku)
-
-          snackbar.success('Products were added to your shopping list')
 
           updateList()
         }
@@ -314,6 +303,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
   return (
     <B3Sping
       isSpinning={isLoading}
+      spinningHeight="auto"
     >
       <Box>
         <Grid
@@ -385,7 +375,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
                 textAlign: 'center',
               }}
             >
-              Add product to list
+              {buttonText}
             </Box>
           </B3Sping>
         </Button>

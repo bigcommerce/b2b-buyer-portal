@@ -82,19 +82,24 @@ export const B3Mainheader = ({
         </Box>
         <B3AccountInfo />
       </Box>
-      <Box
-        component="h3"
-        sx={{
-          height: '40px',
-          m: '0',
-          fontSize: '24px',
-          display: 'flex',
-          alignItems: 'end',
-          mb: '8px',
-        }}
-      >
-        {title}
-      </Box>
+      {
+        title && (
+        <Box
+          component="h3"
+          sx={{
+            height: '40px',
+            m: '0',
+            fontSize: '24px',
+            display: 'flex',
+            alignItems: 'end',
+            mb: '8px',
+          }}
+        >
+          {title}
+        </Box>
+        )
+      }
+
     </Box>
 
   )

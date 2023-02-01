@@ -2,8 +2,8 @@ interface OrderStatusConfig {
   [k: string]: string
 }
 export const orderStatusCode: OrderStatusConfig = {
-  0: 'Incomplete',
-  1: 'Pending',
+  // 0: 'Incomplete',
+  // 1: 'Pending',
   2: 'Shipped',
   3: 'Partially Shipped',
   4: 'Refunded',
@@ -33,8 +33,8 @@ const orderStatusColor: OrderStatusConfig = {
   'Awaiting Shipment': '#BD3E1E',
   'Awaiting Fulfillment': '#87CBF6',
   'Awaiting Payment': '#F19536',
-  Pending: '#899193',
-  Incomplete: '#000000',
+  // Pending: '#899193',
+  // Incomplete: '#000000',
 }
 
 const orderStatusTextColor: OrderStatusConfig = {
@@ -51,8 +51,8 @@ const orderStatusTextColor: OrderStatusConfig = {
   'Awaiting Shipment': '#FFFFFF',
   'Awaiting Fulfillment': 'rgba(0, 0, 0, 0.87)',
   'Awaiting Payment': '#FFFFFF',
-  Pending: '#FFFFFF',
-  Incomplete: '#FFFFFF',
+  // Pending: '#FFFFFF',
+  // Incomplete: '#FFFFFF',
 }
 
 // i18n

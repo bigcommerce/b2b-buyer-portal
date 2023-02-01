@@ -49,9 +49,47 @@ export const B3Nav = ({
 
   const {
     state: globalState,
+    dispatch,
   } = useContext(GlobaledContext)
 
+  const jumpRegister = () => {
+    navigate('/registered')
+    dispatch({
+      type: 'common',
+      payload: {
+        globalMessageDialog: {
+          open: false,
+          title: '',
+          message: '',
+          cancelText: 'Cancel',
+        },
+      },
+    })
+  }
+
   const handleClick = (item: RouteItem) => {
+    const {
+      role,
+    } = globalState
+
+    if (role === 100) {
+      dispatch({
+        type: 'common',
+        payload: {
+          globalMessageDialog: {
+            open: true,
+            title: 'Registration',
+            message: 'To receive full access to buyer portal, please register. It will take 2 minutes. ',
+            cancelText: 'Cancel',
+            saveText: 'Register',
+            saveFn: jumpRegister,
+          },
+        },
+      })
+
+      return
+    }
+
     navigate(item.path)
     if (isMobile && closeSidebar) {
       closeSidebar(false)

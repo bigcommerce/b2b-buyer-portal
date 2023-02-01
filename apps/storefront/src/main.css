@@ -115,8 +115,9 @@ input[type=number]::-webkit-outer-spin-button
   margin: 0;
 }
 
-#shoppingListBtn {
+#shoppingListBtn, #b3MyQuote {
   padding: 9px 15px;
+  position: relative;
   display: inline-block;
   cursor: pointer;
   background-color: transparent;
@@ -127,7 +128,153 @@ input[type=number]::-webkit-outer-spin-button
   border: 1px solid #a18568;
 }
 
+.b2b-btn-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border: 1px solid #000;
+  border-top-color: transparent;
+  border-radius: 100%;
+  animation: circle infinite 0.75s linear;
+}
+
+#b2b-div-loading {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(165, 158, 158, 0.2);
+}
+
+@keyframes circle {
+  0% {
+    transform: rotate(0);
+
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 #add-to-cart-wrapper .form-action {
   display: flex;
   align-items: self-start;
+}
+
+
+
+#globalTip {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 10000;
+  min-width: 300px;
+}
+
+.b2b-quote-global-success {
+  background-color: rgb(46, 125, 50);
+}
+
+.b2b-quote-global-error {
+  background-color: rgb(211, 47, 47);
+}
+
+.b2b-quote-global-alert {
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  border-radius: 4px;
+  box-shadow: none;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.43;
+  letter-spacing: 0.01071em;
+  display: flex;
+  padding: 6px 16px;
+  color: white;
+}
+
+.b2b-quote-global-alert .MuiAlert-icon {
+  color: white;
+}
+
+.b2b-quote-global-icon {
+  margin-right: 12px;
+  padding: 7px 0px;
+  display: flex;
+  font-size: 22px;
+  opacity: 0.9;
+}
+
+.b2b-quote-global-svg {
+  user-select: none;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  fill: currentcolor;
+  flex-shrink: 0;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  font-size: inherit;
+}
+
+.b2b-quote-global-message {
+  padding: 8px 0px;
+  min-width: 0px;
+  overflow: auto;
+}
+
+.b2b-quote-global-action {
+  display: flex;
+  align-items: flex-start;
+  padding: 4px 0px 0px 16px;
+  margin-left: auto;
+  margin-right: -8px;
+}
+
+.b2b-quote-global-btn {
+  display: inline-flex;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  background-color: transparent;
+  outline: 0px;
+  border: 0px;
+  margin: 0px;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  text-decoration: none;
+  text-align: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  overflow: visible;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  color: inherit;
+  padding: 5px;
+  font-size: 1rem;
+}
+
+.b2b-quote-global-btn-svg {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  fill: currentColor;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  -webkit-transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  font-size: 1.25rem;
 }

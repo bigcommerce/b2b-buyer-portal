@@ -35,7 +35,7 @@ styled('div')(() => ({
 }))
 
 interface SpinContextProps {
-  height?: number,
+  height?: number | string,
   isFlex?: boolean,
 }
 

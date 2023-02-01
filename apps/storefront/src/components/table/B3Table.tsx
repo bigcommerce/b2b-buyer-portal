@@ -162,9 +162,9 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                   const node = row.node || row || {}
                   const checkBox = () => (
                     <Checkbox
-                      checked={selectCheckbox.includes(row.node[selectedSymbol])}
+                      checked={selectCheckbox.includes(node[selectedSymbol])}
                       onChange={() => {
-                        if (handleSelectOneItem) handleSelectOneItem(row.node[selectedSymbol])
+                        if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol])
                       }}
                       disabled={disableCheckbox}
                     />
@@ -176,7 +176,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                       key={node[tableKey || 'id']}
                     >
                       <>
-                        {row?.node && renderItem && renderItem(row.node, index, checkBox)}
+                        {node && renderItem && renderItem(node, index, checkBox)}
                       </>
                     </Grid>
                   )
@@ -218,7 +218,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                       key={node[tableKey || 'id']}
                     >
                       <>
-                        {row?.node && renderItem && renderItem(row.node, index)}
+                        {node && renderItem && renderItem(node, index)}
                       </>
                     </Grid>
                   )

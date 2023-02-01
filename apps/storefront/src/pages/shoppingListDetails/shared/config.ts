@@ -272,16 +272,32 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
 
     try {
       const selectOptions = JSON.parse(product.selectOptions || '')
+
+      let optionIdKey: 'option_id' | 'optionId' = 'option_id'
+      let optionValueKey: 'option_value' | 'optionValue' = 'option_value'
+      if (selectOptions.length > 0 && !selectOptions[0][optionIdKey]) {
+        optionIdKey = 'optionId'
+        optionValueKey = 'optionValue'
+      }
+
+      const selectOptionsJSON: {
+        [key: string]: ShoppingListSelectProductOption
+      } = {}
+      selectOptions.forEach((item: ShoppingListSelectProductOption) => {
+        selectOptionsJSON[item[optionIdKey]] = item
+      })
+
       if (fieldType === 'checkbox') {
-        const optionValue = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}]`)?.option_value || ''
+        const optionValue = (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || ''
+
         const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '')
-        value = (optionValue === '1' || optionValue.includes(checkedId)) ? [checkedId] : []
+        value = (optionValue === '1' || optionValue.includes(`${checkedId}`)) ? [checkedId] : []
       } else if (fieldType !== 'date') {
-        value = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}]`)?.option_value || ''
+        value = (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || ''
       } else {
-        const year = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}][year]`)?.option_value || ''
-        const month = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}][month]`)?.option_value || ''
-        const day = selectOptions.find((item: ShoppingListSelectProductOption) => item.option_id === `attribute[${id}][day]`)?.option_value || ''
+        const year = (selectOptionsJSON[`attribute[${id}][year]`] || {})[optionValueKey] || ''
+        const month = (selectOptionsJSON[`attribute[${id}][month]`] || {})[optionValueKey] || ''
+        const day = (selectOptionsJSON[`attribute[${id}][day]`] || {})[optionValueKey] || ''
         const date = year && month && day ? `${year}-${month}-${day}` : ''
 
         value = date ? (format(new Date(date), 'yyyy-MM-dd') || value) : value
@@ -307,6 +323,8 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
       default: value,
       valueLabel: displayName,
       valueText: getValueText(fieldType, value, option),
+      optionId: id,
+      optionValue: value ? value.toString() : '',
     })
   })
 

@@ -23,7 +23,7 @@ interface B3SpingProps {
   thickness?: number & undefined,
   isCloseLoading?: Boolean,
   background?: string,
-  spinningHeight?: number,
+  spinningHeight?: number | string,
   isFlex?: boolean,
 }
 

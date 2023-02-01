@@ -3,6 +3,12 @@ import {
 } from '../../request/b3Fetch'
 
 import {
+  B3SStorage,
+
+  storeHash,
+} from '@/utils'
+
+import {
   convertArrayToGraphql,
 } from '../../../../utils'
 
@@ -45,6 +51,8 @@ const searchProducts = (data: CustomFieldItems) => `{
     productIds: [${data.productIds || []}]
     currencyCode: "${data.currencyCode || ''}"
     companyId: "${data.companyId || ''}"
+    storeHash: "${storeHash}"
+    channelId: ${B3SStorage.get('B3channelId') || 1}
   ){
     id,
     name,

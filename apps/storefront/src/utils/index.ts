@@ -24,10 +24,12 @@ import {
   clearCurrentCustomerInfo,
   getCurrentJwt,
   getCurrenciesInfo,
+  getSearchVal,
 } from './loginInfo'
 
 import {
   getLogo,
+  getQuoteEnabled,
 } from './b3Init'
 
 import {
@@ -46,6 +48,8 @@ import {
   getCookie,
 } from './b3utils'
 
+import QuoteGlobalTip from './b3QuoteGlobalTip'
+
 import {
   handleGetCurrentProductInfo,
   isModifierTextValid,
@@ -54,6 +58,10 @@ import {
   serialize,
   getProductOptionList,
 } from './b3AddToShoppingList'
+
+export {
+  addQuoteDraftProduce,
+} from './b3Product'
 
 export {
   convertArrayToGraphql,
@@ -80,4 +88,7 @@ export {
   isAllRequiredOptionFilled,
   serialize,
   getProductOptionList,
+  QuoteGlobalTip,
+  getQuoteEnabled,
+  getSearchVal,
 }

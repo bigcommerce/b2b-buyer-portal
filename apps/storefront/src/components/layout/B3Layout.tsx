@@ -38,6 +38,10 @@ import {
 } from './B3Mainheader'
 
 import {
+  B3Dialog,
+} from '../B3Dialog'
+
+import {
   routes,
 } from '@/shared/routes'
 
@@ -60,25 +64,49 @@ export function B3Layout({
     state: {
       emailAddress,
       customerId,
+      globalMessageDialog,
     },
+    dispatch,
   } = useContext(GlobaledContext)
 
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!emailAddress || !customerId) {
+    if ((!emailAddress || !customerId) && location.pathname !== '/quoteDraft' && !location.pathname.includes('/quoteDetail')) {
       navigate('/login')
     }
   }, [emailAddress, customerId])
 
   useEffect(() => {
     const itemsRoutes = routes.filter((item: RouteItem) => item.path === location.pathname)
-    if (itemsRoutes.length) {
+    if (itemsRoutes.length && location.pathname !== '/quoteDraft') {
       setTitle(itemsRoutes[0].name)
     } else {
       setTitle('')
     }
+    dispatch({
+      type: 'common',
+      payload: {
+        tipMessage: {
+          msgs: [],
+        },
+      },
+    })
   }, [location])
+
+  const messageDialogClose = () => {
+    dispatch({
+      type: 'common',
+      payload: {
+        globalMessageDialog: {
+          open: false,
+          title: '',
+          message: '',
+          cancelText: 'Cancel',
+        },
+      },
+    })
+  }
 
   return (
     <Box>
@@ -113,6 +141,7 @@ export function B3Layout({
                   flexDirection: 'column',
                   width: '250px',
                   pl: '20px',
+                  displayPrint: 'none',
                 }}
               >
                 <B3Logo />
@@ -149,6 +178,27 @@ export function B3Layout({
         // </Box>
           )
       }
+
+      <B3Dialog
+        isOpen={globalMessageDialog.open}
+        title={globalMessageDialog.title}
+        leftSizeBtn={globalMessageDialog.cancelText}
+        rightSizeBtn={globalMessageDialog.saveText}
+        handleLeftClick={globalMessageDialog.cancelFn || messageDialogClose}
+        handRightClick={globalMessageDialog.saveFn}
+        showRightBtn={!!globalMessageDialog.saveText}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: `${isMobile ? 'center' : 'start'}`,
+            width: `${isMobile ? '100%' : '450px'}`,
+            height: '100%',
+          }}
+        >
+          {globalMessageDialog.message}
+        </Box>
+      </B3Dialog>
     </Box>
 
   )

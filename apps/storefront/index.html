@@ -67,41 +67,46 @@
         This is the product added for local testing (with options)
         Commented out below are products without options.
       -->
+
+    <div>
+      <div class="productView-info-value" data-product-sku="">TP-001-RE-SM-SE</div>
       <form class="form" method="post" action="https://storefront-staging.mybigcommerce.com/cart.php" enctype="multipart/form-data" data-cart-item-add="">
         <input type="hidden" name="action" value="add">
         <input type="hidden" name="product_id" value="115">
-
         <div data-product-option-change="" style="">
-          <div class="form-field" data-product-attribute="set-rectangle" role="radiogroup" aria-labelledby="rectangle-group-label">
+
+        <div class="form-field" data-product-attribute="set-rectangle" role="radiogroup" aria-labelledby="rectangle-group-label">
             <label class="form-label form-label--alternate form-label--inlineSmall" id="rectangle-group-label">
             Color:
-            <span data-option-value=""></span>
+            <span data-option-value="">None</span>
 
             <small>
             (Required)
             </small>
             </label>
-            <div class="form-option-wrapper">
-              <input class="form-radio" type="radio" id="attribute_rectangle__130_136" name="attribute[130]" value="136" required="" data-state="false">
-              <label class="form-option" for="attribute_rectangle__130_136" data-product-attribute-value="136">
-                  <span class="form-option-variant">Red</span>
-              </label>
-            </div>
-            <div class="form-option-wrapper">
-              <input class="form-radio" type="radio" id="attribute_rectangle__130_137" name="attribute[130]" value="137" required="" data-state="false">
-              <label class="form-option" for="attribute_rectangle__130_137" data-product-attribute-value="137">
-                  <span class="form-option-variant">Green</span>
-              </label>
-            </div>
-            <div class="form-option-wrapper">
-              <input class="form-radio" type="radio" id="attribute_rectangle__130_138" name="attribute[130]" value="138" required="" data-state="false">
-              <label class="form-option" for="attribute_rectangle__130_138" data-product-attribute-value="138">
-                  <span class="form-option-variant">Blue</span>
-              </label>
-            </div>
-          </div>
 
-          <div class="form-field" data-product-attribute="set-select">
+
+            <div class="form-option-wrapper">
+            <input class="form-radio" type="radio" id="attribute_rectangle__130_136" name="attribute[130]" value="136" required="" data-state="false">
+            <label class="form-option" for="attribute_rectangle__130_136" data-product-attribute-value="136">
+                <span class="form-option-variant">Red</span>
+            </label>
+            </div>
+            <div class="form-option-wrapper">
+            <input class="form-radio" type="radio" id="attribute_rectangle__130_137" name="attribute[130]" value="137" required="" data-state="false">
+            <label class="form-option" for="attribute_rectangle__130_137" data-product-attribute-value="137">
+                <span class="form-option-variant">Green</span>
+            </label>
+            </div>
+            <div class="form-option-wrapper">
+            <input class="form-radio" type="radio" id="attribute_rectangle__130_138" name="attribute[130]" value="138" required="" data-state="false">
+            <label class="form-option" for="attribute_rectangle__130_138" data-product-attribute-value="138">
+                <span class="form-option-variant">Blue</span>
+            </label>
+            </div>
+            </div>
+
+                            <div class="form-field" data-product-attribute="set-select">
             <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_select_131">
             Size:
 
@@ -116,24 +121,25 @@
                 <option data-product-attribute-value="140" value="140">Medium</option>
                 <option data-product-attribute-value="141" value="141">Large</option>
             </select>
-          </div>
+            </div>
 
-          <div class="form-field" data-product-attribute="set-radio" role="radiogroup" aria-labelledby="radio-group-label-135">
+                            <div class="form-field" data-product-attribute="set-radio" role="radiogroup" aria-labelledby="radio-group-label-135">
             <label class="form-label form-label--alternate form-label--inlineSmall" id="radio-group-label-135">
-                check11:
+            check11:
 
-                <small>
-                  (Required)
-                </small>
+            <small>
+            (Required)
+            </small>
             </label>
+
 
             <input class="form-radio" type="radio" id="attribute_radio_135_142" name="attribute[135]" value="142" required="" data-state="false">
             <label data-product-attribute-value="142" class="form-label" for="attribute_radio_135_142">selection 1</label>
             <input class="form-radio" type="radio" id="attribute_radio_135_143" name="attribute[135]" value="143" required="" data-state="false">
             <label data-product-attribute-value="143" class="form-label" for="attribute_radio_135_143">selection 2</label>
-          </div>
+            </div>
 
-          <div class="form-field" data-product-attribute="input-text">
+                            <div class="form-field" data-product-attribute="input-text">
             <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_132">
             inputText:
 
@@ -143,9 +149,9 @@
             </label>
 
             <input class="form-input form-input--small" type="text" id="attribute_text_132" name="attribute[132]" value="" required="" maxlength="100">
-          </div>
+            </div>
 
-          <div class="form-field" data-product-attribute="input-number">
+                            <div class="form-field" data-product-attribute="input-number">
             <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_number_133">
             input-number:
 
@@ -155,9 +161,9 @@
             </label>
 
             <input class="form-input" type="number" id="attribute_number_133" name="attribute[133]" value="2" required="">
-          </div>
+            </div>
 
-          <div class="form-field" data-product-attribute="textarea">
+                            <div class="form-field" data-product-attribute="textarea">
             <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_textarea_134">
             textarea:
 
@@ -166,120 +172,371 @@
             </small>
             </label>
 
-            <textarea class="form-input" id="attribute_textarea_134" name="attribute[134]" required="" maxlength="255" style="width: 100%; height: 118px;"></textarea>
-          </div>
-
-          <div class="form-field" data-product-attribute="input-checkbox">
-            <label class="form-label form-label--alternate form-label--inlineSmall">
-                check22:
-
-              <small>
-                (Required)
-              </small>
-            </label>
-            <input type="hidden" name="attribute[136]" value="145">
-            <div class="form-option-wrapper">
-              <input class="form-checkbox" type="checkbox" name="attribute[136]" id="attribute-check-136" value="144" required="">
-
-              <label class="form-label " for="attribute-check-136">CK11</label>
+            <textarea class="form-input" id="attribute_textarea_134" name="attribute[134]" required="" maxlength="255"></textarea>
             </div>
-          </div>
-        </div>
 
-        <div class="form-field form-field--stock u-hiddenVisually">
-            <label class="form-label form-label--alternate">
-                Current Stock:
-                <span data-product-stock=""></span>
+                            <div class="form-field" data-product-attribute="input-checkbox">
+            <label class="form-label form-label--alternate form-label--inlineSmall">
+            check22:
+
+            <small>
+            Optional
+            </small>
             </label>
-        </div>
+            <input type="hidden" name="attribute[137]" value="147">
+            <div class="form-option-wrapper">
+            <input class="form-checkbox" type="checkbox" name="attribute[137]" id="attribute-check-137" value="146" checked="" data-default="">
 
-        <div id="add-to-cart-wrapper" class="add-to-cart-wrapper">
-          <div class="form-field form-field--increments">
-            <label class="form-label form-label--alternate" for="qty[]">Quantity:</label>
-              <div class="form-increment form-field--success" data-quantity-change="">
-                <button class="button button--icon" data-action="dec">
-                  <span class="is-srOnly">Decrease Quantity of test-001</span>
-                  <i class="icon" aria-hidden="true">
-                    <svg>
-                      <use xlink:href="#icon-keyboard-arrow-down"></use>
-                    </svg>
-                  </i>
-                </button>
-                <input class="form-input form-input--incrementTotal" id="qty[]" name="qty[]" type="tel" value="1" data-quantity-min="0" data-quantity-max="0" min="1" pattern="[0-9]*" aria-live="polite">
-                <button class="button button--icon" data-action="inc">
-                  <span class="is-srOnly">Increase Quantity of test-001</span>
-                  <i class="icon" aria-hidden="true">
-                      <svg>
-                          <use xlink:href="#icon-keyboard-arrow-up"></use>
-                      </svg>
-                  </i>
-                </button>
-                <span class="nod-success-message" style="display: none;"></span>
-              </div>
-          </div>
+            <label class="form-label " for="attribute-check-137">test-check</label>
+            </div>
+            </div>
 
-          <div class="alertBox productAttributes-message" style="display:none">
+                            <div class="form-field" data-product-attribute="set-rectangle" role="radiogroup" aria-labelledby="rectangle-group-label">
+            <label class="form-label form-label--alternate form-label--inlineSmall" id="rectangle-group-label">
+            1:
+            <span data-option-value="">None</span>
+
+            <small>
+            Optional
+            </small>
+            </label>
+
+            <input class="form-radio" type="radio" id="attribute_rectangle__138_none" name="attribute[138]" value="" checked="" data-state="true">
+            <label class="form-option" for="attribute_rectangle__138_none">
+                <span class="form-option-variant">None</span>
+            </label>
+
+            <div class="form-option-wrapper">
+            <input class="form-radio" type="radio" id="attribute_rectangle__138_148" name="attribute[138]" value="148" data-state="false">
+            <label class="form-option" for="attribute_rectangle__138_148" data-product-attribute-value="148">
+                <span class="form-option-variant">1100</span>
+            </label>
+            </div>
+            <div class="form-option-wrapper">
+            <input class="form-radio" type="radio" id="attribute_rectangle__138_149" name="attribute[138]" value="149" data-state="false">
+            <label class="form-option" for="attribute_rectangle__138_149" data-product-attribute-value="149">
+                <span class="form-option-variant">2200</span>
+            </label>
+            </div>
+            <div class="form-option-wrapper">
+            <input class="form-radio" type="radio" id="attribute_rectangle__138_150" name="attribute[138]" value="150" data-state="false">
+            <label class="form-option" for="attribute_rectangle__138_150" data-product-attribute-value="150">
+                <span class="form-option-variant">3300</span>
+            </label>
+            </div>
+            </div>
+
+                            <div class="form-field" data-product-attribute="product-list" role="radiogroup" aria-labelledby="product-list-label">
+            <label class="form-label form-label--alternate form-label--inlineSmall" id="product-list-label">
+            picklist:
+            <span data-option-value="">None</span>
+
+            <small>
+            Optional
+            </small>
+            </label>
+
+            <ul class="productOptions-list">
+                    <li class="productOptions-list-item">
+                        <input class="form-radio" type="radio" name="attribute[139]" value="" id="attribute_productlist_139_none" checked="" data-state="true">
+                        <label class="form-label" for="attribute_productlist_139_none">None</label>
+                    </li>
+                    <li class="productOptions-list-item" data-product-attribute-value="151">
+                            <figure class="productOptions-list-item-figure">
+                                <img src="https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/160w/products/88/292/3cupchemex5.1658299630.jpg?c=1" alt="" title="" data-sizes="auto" srcset="https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/80w/products/88/292/3cupchemex5.1658299630.jpg?c=1 80w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/160w/products/88/292/3cupchemex5.1658299630.jpg?c=1 160w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/320w/products/88/292/3cupchemex5.1658299630.jpg?c=1 320w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/640w/products/88/292/3cupchemex5.1658299630.jpg?c=1 640w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/960w/products/88/292/3cupchemex5.1658299630.jpg?c=1 960w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/1280w/products/88/292/3cupchemex5.1658299630.jpg?c=1 1280w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/1920w/products/88/292/3cupchemex5.1658299630.jpg?c=1 1920w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/2560w/products/88/292/3cupchemex5.1658299630.jpg?c=1 2560w" data-srcset="https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/80w/products/88/292/3cupchemex5.1658299630.jpg?c=1 80w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/160w/products/88/292/3cupchemex5.1658299630.jpg?c=1 160w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/320w/products/88/292/3cupchemex5.1658299630.jpg?c=1 320w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/640w/products/88/292/3cupchemex5.1658299630.jpg?c=1 640w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/960w/products/88/292/3cupchemex5.1658299630.jpg?c=1 960w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/1280w/products/88/292/3cupchemex5.1658299630.jpg?c=1 1280w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/1920w/products/88/292/3cupchemex5.1658299630.jpg?c=1 1920w, https://cdn11.bigcommerce.com/s-al0cfwwv8r/images/stencil/2560w/products/88/292/3cupchemex5.1658299630.jpg?c=1 2560w" class="productOptions-list-item-image lazyautosizes ls-is-cached lazyloaded" sizes="42px">
+                            </figure>
+                        <div class="productOptions-list-item-content">
+                            <input class="form-radio" type="radio" name="attribute[139]" value="151" id="attribute_productlist_139_151" data-state="false">
+                            <label data-product-attribute-value="151" class="form-label" for="attribute_productlist_139_151">[Sample] Chemex Coffeemaker 3 Cup</label>
+                        </div>
+                    </li>
+            </ul>
+            </div>
+
+                            <div class="form-field" data-product-attribute="date">
+            <label class="form-label form-label--alternate form-label--inlineSmall">
+            date field:
+
+            <small>
+            Optional
+            </small>
+            </label>
+            <select class="form-select form-select--date" name="attribute[140][month]">
+            <option value="">Month</option>
+                <option value="1" selected="selected">
+                    Jan
+                </option>
+                <option value="2">
+                    Feb
+                </option>
+                <option value="3">
+                    Mar
+                </option>
+                <option value="4">
+                    Apr
+                </option>
+                <option value="5">
+                    May
+                </option>
+                <option value="6">
+                    Jun
+                </option>
+                <option value="7">
+                    Jul
+                </option>
+                <option value="8">
+                    Aug
+                </option>
+                <option value="9">
+                    Sep
+                </option>
+                <option value="10">
+                    Oct
+                </option>
+                <option value="11">
+                    Nov
+                </option>
+                <option value="12">
+                    Dec
+                </option>
+            </select>
+            <select class="form-select form-select--date" name="attribute[140][day]">
+            <option value="">Day</option>
+                <option value="1">
+                    1
+                </option>
+                <option value="2">
+                    2
+                </option>
+                <option value="3">
+                    3
+                </option>
+                <option value="4">
+                    4
+                </option>
+                <option value="5">
+                    5
+                </option>
+                <option value="6" selected="selected">
+                    6
+                </option>
+                <option value="7">
+                    7
+                </option>
+                <option value="8">
+                    8
+                </option>
+                <option value="9">
+                    9
+                </option>
+                <option value="10">
+                    10
+                </option>
+                <option value="11">
+                    11
+                </option>
+                <option value="12">
+                    12
+                </option>
+                <option value="13">
+                    13
+                </option>
+                <option value="14">
+                    14
+                </option>
+                <option value="15">
+                    15
+                </option>
+                <option value="16">
+                    16
+                </option>
+                <option value="17">
+                    17
+                </option>
+                <option value="18">
+                    18
+                </option>
+                <option value="19">
+                    19
+                </option>
+                <option value="20">
+                    20
+                </option>
+                <option value="21">
+                    21
+                </option>
+                <option value="22">
+                    22
+                </option>
+                <option value="23">
+                    23
+                </option>
+                <option value="24">
+                    24
+                </option>
+                <option value="25">
+                    25
+                </option>
+                <option value="26">
+                    26
+                </option>
+                <option value="27">
+                    27
+                </option>
+                <option value="28">
+                    28
+                </option>
+                <option value="29">
+                    29
+                </option>
+                <option value="30">
+                    30
+                </option>
+                <option value="31">
+                    31
+                </option>
+            </select>
+            <select class="form-select form-select--date" name="attribute[140][year]">
+            <option value="">Year</option>
+                <option value="2023" selected="selected">
+                    2023
+                </option>
+                <option value="2024">
+                    2024
+                </option>
+                <option value="2025">
+                    2025
+                </option>
+                <option value="2026">
+                    2026
+                </option>
+                <option value="2027">
+                    2027
+                </option>
+                <option value="2028">
+                    2028
+                </option>
+                <option value="2029">
+                    2029
+                </option>
+                <option value="2030">
+                    2030
+                </option>
+                <option value="2031">
+                    2031
+                </option>
+                <option value="2032">
+                    2032
+                </option>
+                <option value="2033">
+                    2033
+                </option>
+            </select>
+            </div>
+
+                            <div class="form-field" data-product-attribute="input-file">
+            <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_file_141">
+            file upload:
+
+            <small>
+            Optional
+            </small>
+            </label>
+
+            <input class="form-file" type="file" id="attribute_file_141" name="attribute[141]">
+            <p class="form-fileDescription">
+                Maximum file size is
+                <strong>524288KB</strong>,
+                file types are <strong>bmp, gif, jpg, jpeg, jpe, jif, jfif, jfi, png, wbmp, xbm, tiff</strong>
+            </p>
+
+            </div>
+
+                            <div class="form-field" data-product-attribute="swatch" role="radiogroup" aria-labelledby="swatchGroup_142">
+            <label class="form-label form-label--alternate form-label--inlineSmall" id="swatchGroup_142">
+            swatch:
+            <span data-option-value="">None</span>
+
+            <small>
+            Optional
+            </small>
+            </label>
+            <span class="swatch-option-message aria-description--hidden">
+            Selected swatch is
+            </span>
+
+            <input class="form-radio" type="radio" name="attribute[142]" value="" id="attribute_swatch_142_none" checked="" aria-label="None" data-state="true">
+            <label class="form-option form-option-swatch" for="attribute_swatch_142_none">
+                <span class="form-option-variant form-option-variant--none" title="None">None</span>
+            </label>
+
+            <div class="form-option-wrapper">
+            <input class="form-radio" type="radio" name="attribute[142]" value="152" id="attribute_swatch_142_152" aria-label="yellow" data-state="false">
+            <label class="form-option form-option-swatch" for="attribute_swatch_142_152" data-product-attribute-value="152">
+                            <span class="form-option-variant form-option-variant--color" title="yellow" style="background-color: #FFDE00"></span>
+            </label>
+            </div>
+            <div class="form-option-wrapper">
+            <input class="form-radio" type="radio" name="attribute[142]" value="153" id="attribute_swatch_142_153" aria-label="red" data-state="false">
+            <label class="form-option form-option-swatch" for="attribute_swatch_142_153" data-product-attribute-value="153">
+                            <span class="form-option-variant form-option-variant--color" title="red" style="background-color: #C02D2D"></span>
+            </label>
+            </div>
+            <div class="form-option-wrapper">
+            <input class="form-radio" type="radio" name="attribute[142]" value="154" id="attribute_swatch_142_154" aria-label="blue" data-state="false">
+            <label class="form-option form-option-swatch" for="attribute_swatch_142_154" data-product-attribute-value="154">
+                            <span class="form-option-variant form-option-variant--color" title="blue" style="background-color: #2E52E4"></span>
+            </label>
+            </div>
+            </div>
+
+                    </div>
+                    <div class="form-field form-field--stock u-hiddenVisually">
+                        <label class="form-label form-label--alternate">
+                            Current Stock:
+                            <span data-product-stock=""></span>
+                        </label>
+                    </div>
+                    <div id="add-to-cart-wrapper" class="add-to-cart-wrapper">
+
+            <div class="form-field form-field--increments">
+                <label class="form-label form-label--alternate" for="qty[]">Quantity:</label>
+                    <div class="form-increment" data-quantity-change="">
+                        <button class="button button--icon" data-action="dec">
+                            <span class="is-srOnly">Decrease Quantity of test-001</span>
+                            <i class="icon" aria-hidden="true">
+                                <svg>
+                                    <use xlink:href="#icon-keyboard-arrow-down"></use>
+                                </svg>
+                            </i>
+                        </button>
+                        <input class="form-input form-input--incrementTotal" id="qty[]" name="qty[]" type="tel" value="5" data-quantity-min="5" data-quantity-max="10" min="1" pattern="[0-9]*" aria-live="polite">
+                        <button class="button button--icon" data-action="inc">
+                            <span class="is-srOnly">Increase Quantity of test-001</span>
+                            <i class="icon" aria-hidden="true">
+                                <svg>
+                                    <use xlink:href="#icon-keyboard-arrow-up"></use>
+                                </svg>
+                            </i>
+                        </button>
+                    <span style="display: none;"></span></div>
+            </div>
+
+            <div class="alertBox productAttributes-message" style="display:none">
             <div class="alertBox-column alertBox-icon">
                 <icon glyph="ic-success" class="icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg></icon>
             </div>
             <p class="alertBox-column alertBox-message"></p>
-          </div>
-          <div class="form-action">
-            <input id="form-action-addToCart" data-wait-message="Adding to cart…" class="button button--primary" type="submit" value="Add to Cart">
-            <span class="product-status-message aria-description--hidden" role="status" aria-live="polite">Adding to cart… The item has been added</span>
-          </div>
-        </div>
-
-        <input type="hidden" name="authenticity_token" value="22caddb401abd68c0fc9993d973a7eb833b2d0ebba58eed442444b6029751323">
+            </div>
+            <div class="form-action">
+                <input id="form-action-addToCart" data-wait-message="Adding to cart…" class="button button--primary" type="submit" value="Add to Cart">
+                <span class="product-status-message aria-description--hidden">Adding to cart… The item has been added</span>
+            </div>
+            </div>
       </form>
-      <!-- <form class="form" method="post" action="https://storefront-staging.mybigcommerce.com/cart.php" enctype="multipart/form-data" data-cart-item-add="">
-        <input type="hidden" name="action" value="add">
-        <input type="hidden" name="product_id" value="97">
-        <div data-product-option-change="" style="">
 
-        </div>
-        <div class="form-field form-field--stock u-hiddenVisually">
-            <label class="form-label form-label--alternate">
-                Current Stock:
-                <span data-product-stock=""></span>
-            </label>
-        </div>
-        <div id="add-to-cart-wrapper" class="add-to-cart-wrapper">
-          <div class="form-field form-field--increments">
-            <label class="form-label form-label--alternate" for="qty[]">Quantity:</label>
-                <div class="form-increment" data-quantity-change="">
-                    <button class="button button--icon" data-action="dec">
-                        <span class="is-srOnly">Decrease Quantity of [Sample] Tiered Wire Basket</span>
-                        <i class="icon" aria-hidden="true">
-                            <svg>
-                                <use xlink:href="#icon-keyboard-arrow-down"></use>
-                            </svg>
-                        </i>
-                    </button>
-                    <input class="form-input form-input--incrementTotal" id="qty[]" name="qty[]" type="tel" value="1" data-quantity-min="0" data-quantity-max="0" min="1" pattern="[0-9]*" aria-live="polite">
-                    <button class="button button--icon" data-action="inc">
-                        <span class="is-srOnly">Increase Quantity of [Sample] Tiered Wire Basket</span>
-                        <i class="icon" aria-hidden="true">
-                            <svg>
-                                <use xlink:href="#icon-keyboard-arrow-up"></use>
-                            </svg>
-                        </i>
-                    </button>
-                <span style="display: none;"></span></div>
-        </div>
+    </div>
 
-        <div class="alertBox productAttributes-message" style="display:none">
-        <div class="alertBox-column alertBox-icon">
-            <icon glyph="ic-success" class="icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg></icon>
-        </div>
-        <p class="alertBox-column alertBox-message"></p>
-        </div>
-        <div class="form-action">
-            <input id="form-action-addToCart" data-wait-message="Adding to cart…" class="button button--primary" type="submit" value="Add to Cart">
-            <span class="product-status-message aria-description--hidden">Adding to cart… The item has been added</span>
-        </div>
-        </div>
-      </form> -->
     </div>
     <style>
       body {

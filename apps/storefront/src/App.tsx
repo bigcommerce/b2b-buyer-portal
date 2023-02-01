@@ -13,6 +13,7 @@ import {
 import {
   useOpenPDP,
   useRefresh,
+  useMyQuote,
   useRegisteredbctob2b,
 } from '@/hooks'
 
@@ -20,6 +21,7 @@ import {
   loginInfo,
   getCurrentCustomerInfo,
   getLogo,
+  getQuoteEnabled,
 } from '@/utils'
 
 import {
@@ -60,6 +62,11 @@ export default function App() {
       role,
       logo,
       bcChannelId,
+      isAgenting,
+      quoteConfig,
+      storefrontConfig,
+      productQuoteEnabled,
+      cartQuoteEnabled,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -70,18 +77,25 @@ export default function App() {
     role,
   })
 
+  useMyQuote({
+    setOpenPage,
+    productQuoteEnabled,
+    cartQuoteEnabled,
+  })
+
   useRefresh(isOpen, openUrl)
 
-  const setLogo = async () => {
+  const getQuoteConfig = async () => {
     const {
       quoteConfig,
     } = await getB2BRegisterLogo()
-    const logo = getLogo(quoteConfig)
+    const quoteLogo = getLogo(quoteConfig)
 
     dispatch({
       type: 'common',
       payload: {
-        logo,
+        logo: logo || quoteLogo,
+        quoteConfig,
       },
     })
   }
@@ -155,26 +169,55 @@ export default function App() {
       })
     }
 
+    const guestGotoPage = () => {
+      const url = hash.split('#')[1] || ''
+      if (url === '/login' || url === '/quoteDraft' || url.includes('/quoteDetail')) {
+        setOpenPage({
+          isOpen: true,
+          openUrl: url,
+        })
+      }
+    }
+
     const init = async () => {
       // bc token
       if (!BcToken) {
         await loginInfo()
       }
-
-      if (!logo) {
-        setLogo()
-      }
+      getQuoteConfig()
       setStorefrontConfig()
       setChannelStoreType(bcChannelId)
+      // refresh
       if (!customerId) {
         const data = await getCurrentCustomerInfo(dispatch)
-        if (data) gotoPage(data.role)
+        if (data) {
+          gotoPage(data.role)
+        } else {
+          guestGotoPage()
+        }
       }
       if (customerId && hash) gotoPage()
     }
 
     init()
   }, [])
+
+  useEffect(() => {
+    if (quoteConfig.switchStatus.length > 0 && storefrontConfig) {
+      const {
+        productQuoteEnabled,
+        cartQuoteEnabled,
+      } = getQuoteEnabled(quoteConfig, storefrontConfig, role, isB2BUser, isAgenting)
+
+      dispatch({
+        type: 'common',
+        payload: {
+          productQuoteEnabled,
+          cartQuoteEnabled,
+        },
+      })
+    }
+  }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
 
   useRegisteredbctob2b(setOpenPage, isB2BUser, customerId)
 

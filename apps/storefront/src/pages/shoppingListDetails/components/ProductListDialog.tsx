@@ -34,13 +34,13 @@ import {
 
 import {
   ShoppingListProductItem,
-  ShoppingListAddProductItem,
 } from '../../../types'
 
 interface ProductTableActionProps {
   product: ShoppingListProductItem,
   onAddToListClick: (id: number) => void,
   onChooseOptionsClick: (id: number) => void,
+  addButtonText: string,
 }
 
 const ProductTableAction = (props: ProductTableActionProps) => {
@@ -51,6 +51,7 @@ const ProductTableAction = (props: ProductTableActionProps) => {
     },
     onAddToListClick,
     onChooseOptionsClick,
+    addButtonText,
   } = props
 
   const {
@@ -84,8 +85,7 @@ const ProductTableAction = (props: ProductTableActionProps) => {
           disabled={isLoading}
           fullWidth={isMobile}
         >
-          Add to list
-
+          {addButtonText}
         </Button>
 
       )
@@ -100,8 +100,11 @@ interface ProductListDialogProps {
   onSearchTextChange: (e: ChangeEvent<HTMLInputElement>) => void,
   onSearch: () => void,
   onProductQuantityChange: (id: number, newQuantity: number) => void,
-  onAddToListClick: (products: ShoppingListAddProductItem[]) => void,
+  onAddToListClick: (products: CustomFieldItems[]) => void,
   onChooseOptionsClick: (id: number) => void,
+  isLoading: boolean,
+  searchDialogTitle?: string,
+  addButtonText?: string,
 }
 
 const ProductTable = B3ProductList<ShoppingListProductItem>
@@ -117,13 +120,10 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
     onProductQuantityChange,
     onAddToListClick,
     onChooseOptionsClick,
+    isLoading,
+    searchDialogTitle = 'Add to list',
+    addButtonText = 'Add to list',
   } = props
-
-  const {
-    state: {
-      isLoading = false,
-    },
-  } = useContext(ShoppingListDetailsContext)
 
   const [isMobile] = useMobile()
 
@@ -159,8 +159,8 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
 
     if (product && validateQuantityNumber(product || {})) {
       onAddToListClick([{
-        optionList: [],
-        productId: id,
+        ...product,
+        newSelectOptionList: [],
         quantity: parseInt(product.quantity.toString(), 10) || 1,
         variantId: id,
       }])
@@ -172,7 +172,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
       fullWidth
       isOpen={isOpen}
       handleLeftClick={handleCancelClicked}
-      title="Add to list"
+      title={searchDialogTitle}
       showRightBtn={false}
       loading={isLoading}
       maxWidth="lg"
@@ -220,6 +220,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
                     product={product}
                     onAddToListClick={handleAddToList}
                     onChooseOptionsClick={onChooseOptionsClick}
+                    addButtonText={addButtonText}
                   />
                 )}
                 actionWidth="180px"

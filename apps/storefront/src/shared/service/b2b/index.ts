@@ -39,6 +39,18 @@ import {
 } from './api/address'
 
 import {
+  getB2BCustomerAddresses,
+  getBCCustomerAddresses,
+  getB2BQuotesList,
+  getBCQuotesList,
+  createQuote,
+  createBCQuote,
+  getB2BQuoteDetail,
+  exportB2BQuotePdf,
+  getBcQuoteDetail,
+} from './graphql/quote'
+
+import {
   getB2BToken,
   getAgentInfo,
   superAdminCompanies,
@@ -151,4 +163,13 @@ export {
   checkUserEmail,
   checkUserBCEmail,
   setChannelStoreType,
+  getB2BCustomerAddresses,
+  getBCCustomerAddresses,
+  getB2BQuotesList,
+  getBCQuotesList,
+  createQuote,
+  getB2BQuoteDetail,
+  exportB2BQuotePdf,
+  createBCQuote,
+  getBcQuoteDetail,
 }

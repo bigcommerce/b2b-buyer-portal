@@ -243,6 +243,8 @@ export const getCurrentAgentInfo = async (customerId: number, role: number) => {
 
 export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   try {
+    await getCurrenciesInfo()
+
     const {
       data: {
         customer,
@@ -272,10 +274,6 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
 
     await getCurrentJwtAndB2BToken(userType)
 
-    if (userType === 3) {
-      await getCurrenciesInfo()
-    }
-
     const companyInfo = await getCompanyInfo(id, userType, role)
 
     if (customerId) {
@@ -292,14 +290,14 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       B3SStorage.set('B3CustomerId', customerId)
       B3SStorage.set('B3EmailAddress', emailAddress)
       B3SStorage.set('B3UserId', id)
-      B3SStorage.set('B3Role', role)
+      B3SStorage.set('B3Role', userType === 3 ? role : 99)
       B3SStorage.set('isB2BUser', userType === 3)
 
       dispatch({
         type: 'common',
         payload: {
           isB2BUser: userType === 3,
-          role,
+          role: userType === 3 ? role : 99,
           customerId,
           B3UserId: id,
           isAgenting: agentInfo.isAgenting,
@@ -325,4 +323,13 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     console.log(error)
     clearCurrentCustomerInfo(dispatch)
   }
+}
+
+export const getSearchVal = (search:string, key:string) => {
+  if (!search) {
+    return ''
+  }
+  const searchParams = new URLSearchParams(search)
+
+  return searchParams.get(key)
 }

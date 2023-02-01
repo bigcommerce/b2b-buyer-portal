@@ -1,5 +1,4 @@
 import {
-  snackbar,
   B3SStorage,
 } from '@/utils'
 
@@ -184,8 +183,13 @@ export const isModifierNumberTextValid = (option: any, optionVal: any) => {
   }
 }
 
-export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: any) => {
-  if (bcOriginalOptions.length === 0) return true
+export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: any): any => {
+  if (bcOriginalOptions.length === 0) {
+    return {
+      isValid: true,
+      message: '',
+    }
+  }
   const requiredOptions = bcOriginalOptions.filter(({
     required,
   }: any) => !!required)
@@ -208,9 +212,10 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
 
   if (!isRequiredValid) {
     const errorMessage = 'Please fill out product options first.'
-    snackbar.error(errorMessage)
-
-    return false
+    return {
+      isValid: false,
+      message: errorMessage,
+    }
   }
 
   const VALIDATION_MAP: {
@@ -251,14 +256,18 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
         isOptionValid, errMsg,
       }: any = validationFuc(option, optionValue)
       if (!isOptionValid) {
-        snackbar.error(errMsg)
-
-        return false
+        return {
+          isValid: false,
+          message: errMsg,
+        }
       }
     }
   }
 
-  return true
+  return {
+    isValid: true,
+    message: '',
+  }
 }
 
 export const serialize = (form: any) => {

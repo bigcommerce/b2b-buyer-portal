@@ -173,7 +173,6 @@ export default function Login(props:RegisteredProps) {
 
         // setChannelId(getChannelId)
         setLoginInfo(Info)
-
         setLoading(false)
       } catch (e) {
         console.log(e)

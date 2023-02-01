@@ -14,6 +14,7 @@ import {
 
 import {
   B3Table,
+  TableColumnItem,
 } from './B3Table'
 
 export interface TablePagination {
@@ -21,22 +22,22 @@ export interface TablePagination {
   first: number,
 }
 
-export interface TableColumnItem {
-  key: string,
-  title: string,
-  width?: string,
-  render?: (item: CustomFieldItems, index: number) => ReactNode,
-}
+// export interface TableColumnItem {
+//   key: string,
+//   title: string,
+//   width?: string,
+//   render?: (item: CustomFieldItems, index: number) => ReactNode,
+// }
 
-interface B3PaginationTableProps<Y> {
+interface B3PaginationTableProps<T> {
   tableFixed?: boolean,
   tableHeaderHide?: boolean,
-  columnItems?: TableColumnItem[],
+  columnItems?: TableColumnItem<any>[],
   itemSpacing?: number,
   itemXs?: number,
   rowsPerPageOptions?: number[],
   showPagination?: boolean,
-  renderItem?: (row:any, index?: number, checkBox?: () => ReactElement) => ReactElement,
+  renderItem?: (row: any, index?: number, checkBox?: () => ReactElement) => ReactElement,
   isCustomRender?: boolean,
   infiniteScrollThreshold?: number,
   infiniteScrollNode?: HTMLElement,
@@ -45,7 +46,7 @@ interface B3PaginationTableProps<Y> {
   noDataText?: string,
   tableKey?: string,
   getRequestList: any,
-  searchParams: Y,
+  searchParams: T,
   requestLoading?: (bool: boolean) => void,
   showCheckbox?: boolean,
   selectedSymbol?: string,
@@ -57,7 +58,7 @@ interface B3PaginationTableProps<Y> {
   disableCheckbox?: boolean,
 }
 
-const PaginationTable:<Y>(props: B3PaginationTableProps<Y>) => ReactElement = ({
+const PaginationTable:<T>(props: B3PaginationTableProps<T>) => ReactElement = ({
   columnItems,
   isCustomRender = false,
   tableKey,

@@ -63,7 +63,7 @@ export interface ShoppingListProductItemModifiers {
     file_types_supported?: string[],
   },
   display_name: string,
-  id: number,
+  id: number | string,
   option_values: ShoppingListProductItemModifiersOption[],
   required: boolean,
   type: string,
@@ -71,7 +71,7 @@ export interface ShoppingListProductItemModifiers {
 }
 
 export interface ShoppingListProductItemVariantsOption {
-  id: number,
+  id?: number,
   label: string,
   option_display_name: string,
   option_id: number,
@@ -108,6 +108,8 @@ export interface ShoppingListAddProductOption{
 export interface ShoppingListSelectProductOption{
   option_id: string,
   option_value: string,
+  optionId: string,
+  optionValue: string,
 }
 export interface ShoppingListAddProductItem{
   optionList: ShoppingListAddProductOption[],

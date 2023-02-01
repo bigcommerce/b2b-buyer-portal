@@ -121,6 +121,8 @@ const currencies = (channelId: string) => `{
       decimal_places,
       enabled,
       is_transactional,
+      token_location,
+      thousands_token,
     },
     channelCurrencies,
   }
@@ -157,6 +159,6 @@ export const getStorefrontConfig = (): CustomFieldItems => B3Request.graphqlB2B(
 export const getCurrencies = (channelId: string): CustomFieldItems => B3Request.graphqlB2B({
   query: currencies(channelId),
 })
-export const getBcCurrencies = (channelId: string): CustomFieldItems => B3Request.graphqlBC({
+export const getBcCurrencies = (channelId: string): CustomFieldItems => B3Request.graphqlProxyBC({
   query: currencies(channelId),
 })

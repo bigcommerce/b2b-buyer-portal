@@ -46,8 +46,14 @@ const getCompanyExtraFields = () => `{
 
 const getRegisterLogo = () => `{
   quoteConfig(storeHash: "${storeHash}") {
-    key,
-    isEnabled
+    switchStatus{
+      key
+      isEnabled
+    }
+    otherConfigs{
+      key
+      value
+    }
   }
 }`
 

@@ -5,7 +5,8 @@ import {
   KeyboardEvent,
   useState,
   useEffect,
-  useContext,
+  Dispatch,
+  SetStateAction,
 } from 'react'
 
 import {
@@ -31,7 +32,6 @@ import {
 
 import {
   ShoppingListProductItem,
-  ShoppingListAddProductItem,
   ShoppingListProductItemVariants,
   SimpleObject,
 } from '../../../types'
@@ -41,10 +41,6 @@ import {
   Base64,
   getOptionRequestData,
 } from '../shared/config'
-
-import {
-  ShoppingListDetailsContext,
-} from '../context/ShoppingListDetailsContext'
 
 import {
   searchB2BProducts,
@@ -97,19 +93,15 @@ interface ChooseOptionsDialogProps {
   isOpen: boolean,
   product?: ShoppingListProductItem,
   onCancel: () => void,
-  onConfirm: (products: ShoppingListAddProductItem[]) => void,
+  onConfirm: (products: CustomFieldItems[]) => void,
   currency?: string,
   isEdit?: boolean,
+  isLoading: boolean,
+  setIsLoading: Dispatch<SetStateAction<boolean>>,
+  addButtonText?: string,
 }
 
 export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
-  const {
-    state: {
-      isLoading = false,
-    },
-    dispatch,
-  } = useContext(ShoppingListDetailsContext)
-
   const {
     isOpen,
     onCancel,
@@ -117,21 +109,15 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
     product,
     currency = '$',
     isEdit = false,
+    isLoading,
+    setIsLoading,
+    addButtonText = 'Add To List',
   } = props
 
   const [quantity, setQuantity] = useState<number | string>(1)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [variantInfo, setVariantInfo] = useState<ShoppingListProductItemVariants | null>(null)
   const [variantSku, setVariantSku] = useState('')
-
-  const setIsLoading = (isLoading: boolean) => {
-    dispatch({
-      type: 'loading',
-      payload: {
-        isLoading,
-      },
-    })
-  }
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
@@ -167,6 +153,9 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
       }
 
       setQuantity(product.quantity)
+      if (product.variants?.length === 1) {
+        setVariantInfo(product.variants[0])
+      }
 
       const productOptionsFields = getProductOptionsFields(product, productImages)
       setFormFields([...productOptionsFields])
@@ -247,7 +236,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
       } = variant
 
       const isSelectVariant = optionValues.reduce((isSelect, option) => {
-        if (value[Base64.encode(`attribute[${option.option_id}]`)].toString() !== option.id.toString()) {
+        if (value[Base64.encode(`attribute[${option.option_id}]`)].toString() !== (option.id || '').toString()) {
           return false
         }
         return isSelect
@@ -310,7 +299,8 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
       }
 
       onConfirm([{
-        optionList,
+        ...product,
+        newSelectOptionList: optionList,
         productId: product?.id,
         quantity: parseInt(quantity.toString(), 10) || 1,
         variantId: parseInt(variantId.toString(), 10) || 1,
@@ -331,7 +321,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
   return (
     <B3Dialog
       isOpen={isOpen}
-      rightSizeBtn={isEdit ? 'Save Option' : 'Add To List'}
+      rightSizeBtn={isEdit ? 'Save Option' : addButtonText}
       handleLeftClick={handleCancelClicked}
       handRightClick={handleConfirmClicked}
       title="Choose options"

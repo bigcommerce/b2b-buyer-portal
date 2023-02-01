@@ -52,3 +52,7 @@ export {
 export {
   B3LinkTipContent,
 } from './B3LinkTipContent'
+
+export {
+  B3CollapseContainer,
+} from './B3CollapseContainer'
