@@ -75,7 +75,7 @@ interface RegisteredProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
 }
 
-export default function Registered(props: RegisteredProps) {
+function Registered(props: RegisteredProps) {
   const {
     setOpenPage,
   } = props
@@ -334,3 +334,5 @@ export default function Registered(props: RegisteredProps) {
     </B3Card>
   )
 }
+
+export default Registered

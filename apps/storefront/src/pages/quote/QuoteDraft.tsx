@@ -196,7 +196,7 @@ const QuoteDraft = () => {
 
           const shippingDefautAddress = addressB2BList.find((item: B2BAddress) => (item?.node?.isDefaultShipping === 1))
           const billingDefautAddress = addressB2BList.find((item: B2BAddress) => (item?.node?.isDefaultBilling === 1))
-          if (shippingDefautAddress && !quoteInfo?.shippingAddress) {
+          if (shippingDefautAddress && (!quoteInfo?.shippingAddress || JSON.stringify(quoteInfo.shippingAddress) === '{}')) {
             const addressItem = {
               label: shippingDefautAddress?.node?.label || '',
               firstName: shippingDefautAddress?.node?.firstName || '',
@@ -213,7 +213,7 @@ const QuoteDraft = () => {
 
             quoteInfo.shippingAddress = addressItem
           }
-          if (billingDefautAddress && !quoteInfo?.billingAddress) {
+          if (billingDefautAddress && (!quoteInfo?.billingAddress || JSON.stringify(quoteInfo.billingAddress) === '{}')) {
             const addressItem = {
               label: billingDefautAddress?.node?.label || '',
               firstName: billingDefautAddress?.node?.firstName || '',
@@ -245,7 +245,10 @@ const QuoteDraft = () => {
           setAddressList(list)
         }
 
-        if (quoteInfo && !quoteInfo?.contactInfo && role !== 100) {
+        console.log(!!quoteInfo, 'quoteInfo')
+        console.log(!quoteInfo?.contactInfo || JSON.stringify(quoteInfo.contactInfo) === '{}')
+
+        if (quoteInfo && (!quoteInfo?.contactInfo || JSON.stringify(quoteInfo.contactInfo) === '{}') && +role !== 100) {
           setCustomInfo(quoteInfo)
         } else if (quoteInfo) {
           setInfo(quoteInfo)

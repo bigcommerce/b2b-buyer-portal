@@ -35,15 +35,35 @@ const ShoppingListDetails = lazy(() => import('../../pages/shoppingListDetails/S
 
 type OrderItem = typeof OrderList
 
-export interface RouteItem {
+const Registered = lazy(() => import('../../pages/registered/Registered'))
+
+const RegisteredBCToB2B = lazy(() => import('../../pages/registered/RegisteredBCToB2B'))
+
+const Login = lazy(() => import('../../pages/login/Login'))
+
+const ForgotPassword = lazy(() => import('../../pages/login/ForgotPassword'))
+
+const PDP = lazy(() => import('../../pages/pdp/PDP'))
+
+type RegisteredItem = typeof Registered
+
+interface RouteItemBasic {
   path: string,
   name: string,
+  permissions: number[], // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 99: bc user
+}
+
+export interface RouteItem extends RouteItemBasic {
   component: OrderItem,
   isMenuItem: boolean,
   wsKey: string,
   configKey?: string,
-  permissions: number[], // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 99: bc user
   isTokenLogin: boolean,
+}
+
+export interface RouteFirstLevelItem extends RouteItemBasic{
+  isProvider: boolean,
+  component: RegisteredItem
 }
 
 const routes: RouteItem[] = [
@@ -181,6 +201,43 @@ const routes: RouteItem[] = [
   },
 ]
 
+const firstLevelRouting: RouteFirstLevelItem[] = [
+  {
+    path: '/registered',
+    name: 'registered',
+    component: Registered,
+    permissions: [0, 1, 2, 3, 99, 100],
+    isProvider: true,
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login,
+    permissions: [0, 1, 2, 3, 99, 100],
+    isProvider: false,
+  },
+  {
+    path: '/pdp',
+    name: 'pdp',
+    component: PDP,
+    permissions: [0, 1, 2, 3, 99, 100],
+    isProvider: false,
+  },
+  {
+    path: '/forgotpassword',
+    name: 'forgotpassword',
+    component: ForgotPassword,
+    permissions: [0, 1, 2, 3, 99, 100],
+    isProvider: false,
+  },
+  {
+    path: '/registeredbctob2b',
+    name: 'registeredbctob2b',
+    component: RegisteredBCToB2B,
+    permissions: [0, 1, 2, 3, 99, 100],
+    isProvider: true,
+  },
+]
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   const {
     isB2BUser,
@@ -228,7 +285,9 @@ const gotoAllowedAppPage = (role: number, gotoPage: (url: string) => void) => {
   if (!hash) return
   if (!url && role !== 100) url = role === 3 ? '/' : '/orders'
   const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && item.permissions.includes(role))
-  if (flag) gotoPage(url)
+
+  const isFirstLevelFlag = firstLevelRouting.some((item: RouteFirstLevelItem) => matchPath(item.path, url))
+  if (flag || isFirstLevelFlag) gotoPage(url)
 }
 
 const getIsTokenGotoPage = (url: string): boolean => {
@@ -241,4 +300,5 @@ export {
   getAllowedRoutes,
   routes,
   getIsTokenGotoPage,
+  firstLevelRouting,
 }

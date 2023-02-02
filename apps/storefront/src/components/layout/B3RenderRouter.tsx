@@ -30,6 +30,8 @@ import {
 import {
   RouteItem,
   getAllowedRoutes,
+  firstLevelRouting,
+  RouteFirstLevelItem,
 } from '@/shared/routes/routes'
 
 import {
@@ -104,34 +106,37 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
               })
             }
         </Route>
-        <Route
-          path="registered"
-          element={(
-            <RegisteredProvider>
-              <Registered setOpenPage={setOpenPage} />
-            </RegisteredProvider>
-              )}
-        />
-        <Route
-          path="login"
-          element={<Login setOpenPage={setOpenPage} />}
-        />
-        <Route
-          path="pdp"
-          element={<PDP setOpenPage={setOpenPage} />}
-        />
-        <Route
-          path="forgotpassword"
-          element={<ForgotPassword setOpenPage={setOpenPage} />}
-        />
-        <Route
-          path="registeredbctob2b"
-          element={(
-            <RegisteredProvider>
-              <RegisteredBCToB2B setOpenPage={setOpenPage} />
-            </RegisteredProvider>
-              )}
-        />
+        {
+          firstLevelRouting.map((route: RouteFirstLevelItem) => {
+            const {
+              isProvider,
+              path,
+              component: Component,
+            } = route
+            if (isProvider) {
+              return (
+                <Route
+                  key={path}
+                  path={path}
+                  element={(
+                    <RegisteredProvider>
+                      <Component setOpenPage={setOpenPage} />
+                    </RegisteredProvider>
+                )}
+                />
+              )
+            }
+            return (
+              <Route
+                key={path}
+                path={route.name}
+                element={(
+                  <Component setOpenPage={setOpenPage} />
+                  )}
+              />
+            )
+          })
+        }
       </Routes>
     </Suspense>
   )
