@@ -229,7 +229,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         itemData: {
           variantId: products[0].variantId,
           quantity: products[0].quantity,
-          optionList: products[0].optionList || [],
+          optionList: products[0].newSelectOptionList || [],
         },
       }
 

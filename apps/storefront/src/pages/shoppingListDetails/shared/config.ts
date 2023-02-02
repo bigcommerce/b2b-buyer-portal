@@ -380,12 +380,12 @@ export const getOptionRequestData = (formFields: CustomFieldItems[], requestData
     }
 
     if (fieldType === 'number') {
-      requestData[decodeName] = parseFloat(fieldValue)
+      requestData[decodeName] = parseFloat(fieldValue) || ''
       return
     }
 
     if (['radio', 'dropdown', 'rectangle', 'swatch', 'productRadio'].includes(fieldType)) {
-      requestData[decodeName] = parseInt(fieldValue, 10)
+      requestData[decodeName] = parseInt(fieldValue, 10) || ''
       return
     }
 
