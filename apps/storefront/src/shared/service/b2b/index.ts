@@ -47,7 +47,10 @@ import {
   createBCQuote,
   getB2BQuoteDetail,
   exportB2BQuotePdf,
+  exportBcQuotePdf,
   getBcQuoteDetail,
+  b2bQuoteCheckout,
+  bcQuoteCheckout,
 } from './graphql/quote'
 
 import {
@@ -172,4 +175,7 @@ export {
   exportB2BQuotePdf,
   createBCQuote,
   getBcQuoteDetail,
+  b2bQuoteCheckout,
+  exportBcQuotePdf,
+  bcQuoteCheckout,
 }

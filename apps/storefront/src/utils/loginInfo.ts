@@ -108,12 +108,19 @@ export const loginInfo = async () => {
   B3SStorage.set('BcToken', token)
 }
 
-export const getCurrenciesInfo = async () => {
+export const getCurrenciesInfo = async (dispatch: DispatchProps) => {
   const channelId = B3SStorage.get('B3channelId')
 
   const {
     currencies,
   } = await getCurrencies(channelId)
+
+  dispatch({
+    type: 'common',
+    payload: {
+      currencies,
+    },
+  })
 
   B3SStorage.set('currencies', currencies)
 }
@@ -231,7 +238,7 @@ export const getCurrentAgentInfo = async (customerId: number, role: number) => {
 
 export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   try {
-    await getCurrenciesInfo()
+    await getCurrenciesInfo(dispatch)
 
     const {
       data: {

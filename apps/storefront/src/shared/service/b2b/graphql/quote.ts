@@ -282,6 +282,21 @@ const exportQuotePdf = (data: {
   }
 }`
 
+const quoteCheckout = (data: {
+  id: number,
+}) => `mutation{
+  quoteCheckout(
+    id: ${data.id},
+    storeHash: "${storeHash}",
+  ) {
+    quoteCheckout {
+      checkoutUrl,
+      cartId,
+      cartUrl,
+    }
+  }
+}`
+
 export const getBCCustomerAddresses = (): CustomFieldItems => B3Request.graphqlProxyBC({
   query: getCustomerAddresses(),
 })
@@ -316,4 +331,16 @@ export const getBcQuoteDetail = (data: { id: number, date: string }): CustomFiel
 
 export const exportB2BQuotePdf = (data: { quoteId: number, currency: object }): CustomFieldItems => B3Request.graphqlB2B({
   query: exportQuotePdf(data),
+})
+
+export const exportBcQuotePdf = (data: { quoteId: number, currency: object }): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: exportQuotePdf(data),
+})
+
+export const b2bQuoteCheckout = (data: { id: number }): CustomFieldItems => B3Request.graphqlB2B({
+  query: quoteCheckout(data),
+})
+
+export const bcQuoteCheckout = (data: { id: number }): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: quoteCheckout(data),
 })

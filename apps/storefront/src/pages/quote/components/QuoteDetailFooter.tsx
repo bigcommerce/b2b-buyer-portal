@@ -1,7 +1,4 @@
 import {
-  useNavigate,
-} from 'react-router-dom'
-import {
   Box,
   Button,
 } from '@mui/material'
@@ -10,24 +7,58 @@ import {
   useMobile,
 } from '@/hooks'
 
+import {
+  b2bQuoteCheckout,
+  bcQuoteCheckout,
+} from '@/shared/service/b2b'
+
+import {
+  snackbar,
+} from '@/utils'
+
 interface QuoteDetailFooterProps {
   quoteId: string,
   quoteDate: string,
+  role: string | number,
 }
 
 const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
   const {
     quoteId,
     quoteDate,
+    role,
   } = props
   const [isMobile] = useMobile()
-  const navigate = useNavigate()
 
   const containerStyle = isMobile ? {
     alignItems: 'flex-end',
     flexDirection: 'column',
   } : {
     alignItems: 'center',
+  }
+
+  const handleQuoteCheckout = async () => {
+    try {
+      const fn = +role === 99 ? bcQuoteCheckout : b2bQuoteCheckout
+
+      const res = await fn({
+        id: +quoteId,
+      })
+
+      const {
+        quoteCheckout: {
+          quoteCheckout: {
+            checkoutUrl,
+          },
+        },
+      } = res
+      localStorage.setItem('quoteCheckoutId', quoteId)
+      localStorage.setItem('quoteDate', quoteDate)
+
+      window.location.href = checkoutUrl
+    } catch (err: any) {
+      snackbar.error(err)
+    }
   }
 
   return (
@@ -41,7 +72,7 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
         padding: '0.8rem 1rem',
         height: 'auto',
         display: 'flex',
-        zIndex: '10',
+        zIndex: '999',
         justifyContent: isMobile ? 'center' : 'flex-end',
         displayPrint: 'none',
         ...containerStyle,
@@ -50,9 +81,7 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
       <Button
         variant="contained"
         onClick={() => {
-          navigate('/checkout')
-          localStorage.setItem('quoteCheckoutId', quoteId)
-          localStorage.setItem('quoteDate', quoteDate)
+          handleQuoteCheckout()
         }}
         sx={{
           width: isMobile ? '100%' : 'auto',

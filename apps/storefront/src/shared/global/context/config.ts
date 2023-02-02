@@ -42,6 +42,31 @@ export interface Country {
   states: State[]
 }
 
+export interface channelCurrenciesProps {
+  channel_id: number,
+  default_currency: string,
+  enabled_currencies: Array<string>,
+}
+
+export interface currencyProps {
+  auto_update: boolean,
+  country_iso2: string,
+  currency_code: string,
+  currency_exchange_rate: string,
+  decimal_places: number,
+  decimal_token: string,
+  default_for_country_codes: Array<string>,
+  enabled: boolean,
+  id: string,
+  is_default: boolean,
+  is_transactional: boolean,
+  last_updated: string,
+  name: string,
+  thousands_token: string,
+  token: string,
+  token_location: string,
+}
+
 export interface GlobalState {
   isCheckout: boolean,
   isCloseGotoBCHome: boolean,
@@ -99,6 +124,10 @@ export interface GlobalState {
     saveText?: string,
     saveFn?: () => void,
   },
+  currencies: {
+    channelCurrencies: channelCurrenciesProps,
+    currencies: currencyProps,
+  },
 }
 
 const role = B3SStorage.get('B3Role')
@@ -151,6 +180,7 @@ export const initState = {
     message: '',
     cancelText: 'Cancel',
   },
+  currencies: B3SStorage.get('currencies') || {},
 }
 
 export interface GlobalAction {

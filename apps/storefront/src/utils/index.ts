@@ -58,6 +58,10 @@ import {
   getProductOptionList,
 } from './b3AddToShoppingList'
 
+import {
+  getDefaultCurrencyInfo,
+} from './currencyUtils'
+
 export {
   addQuoteDraftProduce,
 } from './b3Product'
@@ -89,4 +93,5 @@ export {
   QuoteGlobalTip,
   getQuoteEnabled,
   getSearchVal,
+  getDefaultCurrencyInfo,
 }

@@ -25,6 +25,7 @@ import {
   getB2BQuoteDetail,
   getBcQuoteDetail,
   exportB2BQuotePdf,
+  exportBcQuotePdf,
 } from '@/shared/service/b2b'
 
 import {
@@ -139,8 +140,9 @@ const QuoteDetail = () => {
         },
       }
 
-      const quotePdf = await exportB2BQuotePdf(data)
+      const fn = +role === 99 ? exportBcQuotePdf : exportB2BQuotePdf
 
+      const quotePdf = await fn(data)
       if (quotePdf) {
         window.open(`${quotePdf.quotePdfExport.url}`, '_blank')
       }
@@ -346,6 +348,7 @@ const QuoteDetail = () => {
             <QuoteDetailFooter
               quoteId={quoteDetail.id}
               quoteDate={quoteDetail?.createdAt?.toString()}
+              role={role}
             />
           )
         }

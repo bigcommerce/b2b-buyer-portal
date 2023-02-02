@@ -185,16 +185,40 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
       key: 'Price',
       title: 'Price',
       render: (row) => {
-        const price = +row.basePrice
+        const {
+          basePrice,
+          discount,
+        } = row
+
+        const price = +basePrice
+        const isDiscount = +discount > 0
+        const offeredPrice = +basePrice - +discount
 
         return (
-          <Typography
-            sx={{
-              padding: '12px 0',
-            }}
-          >
-            {`${currencyToken}${price.toFixed(2)}`}
-          </Typography>
+          <>
+            {
+              isDiscount && (
+                <Typography
+                  sx={{
+                    padding: '12px 0',
+                    textDecoration: 'line-through',
+                  }}
+                >
+                  {`${currencyToken}${price.toFixed(2)}`}
+                </Typography>
+              )
+            }
+
+            <Typography
+              sx={{
+                padding: '12px 0',
+                color: isDiscount ? '#2E7D32' : '#212121',
+              }}
+            >
+              {`${currencyToken}${offeredPrice.toFixed(2)}`}
+            </Typography>
+
+          </>
         )
       },
       width: '15%',
@@ -220,17 +244,35 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
         const {
           basePrice,
           quantity,
+          discount,
         } = row
         const total = +basePrice * +quantity
+        const offeredPrice = +basePrice - +discount
+
+        const isDiscount = +discount > 0
+        const totalWithDiscount = +offeredPrice * +quantity
 
         return (
           <Box>
+            {
+              isDiscount && (
+                <Typography
+                  sx={{
+                    padding: '12px 0',
+                    textDecoration: 'line-through',
+                  }}
+                >
+                  {`${currencyToken}${total.toFixed(2)}`}
+                </Typography>
+              )
+            }
             <Typography
               sx={{
                 padding: '12px 0',
+                color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyToken}${total.toFixed(2)}`}
+              {`${currencyToken}${totalWithDiscount.toFixed(2)}`}
             </Typography>
           </Box>
         )

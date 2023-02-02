@@ -22,6 +22,7 @@ import {
   B3SStorage,
   snackbar,
   isAllRequiredOptionFilled,
+  getDefaultCurrencyInfo,
 } from '@/utils'
 
 import {
@@ -172,17 +173,6 @@ const PDP = ({
       const qty = (document.querySelector('[name="qty[]"]') as any)?.value ?? 1
       const sku = (document.querySelector('[data-product-sku]')?.innerHTML ?? '').trim()
       const form = document.querySelector('form[data-cart-item-add]')
-
-      const getDefaultCurrencyInfo = () => {
-        const currencies = B3SStorage.get('currencies')
-        if (currencies) {
-          const {
-            currencies: currencyArr,
-          } = currencies
-          const defaultCurrency = currencyArr.find((currency: any) => currency.is_default)
-          return defaultCurrency
-        }
-      }
 
       const {
         currency_code: currencyCode,

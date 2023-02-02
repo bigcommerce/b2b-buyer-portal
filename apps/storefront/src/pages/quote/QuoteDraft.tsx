@@ -42,6 +42,7 @@ import {
   storeHash,
   addQuoteDraftProduce,
   snackbar,
+  getDefaultCurrencyInfo,
 } from '@/utils'
 
 import {
@@ -305,19 +306,6 @@ const QuoteDraft = ({
     setEdit(true)
   }
 
-  const getDefaultCurrencyInfo = () => {
-    const currencies = B3SStorage.get('currencies')
-    if (currencies) {
-      const {
-        currencies: currencyArr,
-      } = currencies
-
-      const defaultCurrency = currencyArr.find((currency: CustomFieldItems) => currency.is_default)
-
-      return defaultCurrency
-    }
-  }
-
   const {
     token: currencyToken,
   } = getDefaultCurrencyInfo()
@@ -466,17 +454,6 @@ const QuoteDraft = ({
 
         return items
       })
-
-      const getDefaultCurrencyInfo = () => {
-        const currencies = B3SStorage.get('currencies')
-        if (currencies) {
-          const {
-            currencies: currencyArr,
-          } = currencies
-          const defaultCurrency = currencyArr.find((currency: any) => currency.is_default)
-          return defaultCurrency
-        }
-      }
 
       const currency = getDefaultCurrencyInfo()
 

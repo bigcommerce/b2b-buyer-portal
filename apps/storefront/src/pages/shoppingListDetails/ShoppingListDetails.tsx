@@ -36,7 +36,7 @@ import {
 
 import {
   snackbar,
-  B3SStorage,
+  getDefaultCurrencyInfo,
 } from '@/utils'
 
 import {
@@ -44,7 +44,6 @@ import {
   ShoppingListInfoProps,
   CustomerInfoProps,
   ListItemProps,
-  CurrencyProps,
   SearchProps,
   ProductsProps,
 } from './shared/config'
@@ -107,19 +106,6 @@ const ShoppingListDetails = () => {
   const [validateFailureProducts, setValidateFailureProducts] = useState<ProductsProps[]>([])
 
   const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
-
-  const getDefaultCurrencyInfo = () => {
-    const currencies = B3SStorage.get('currencies')
-    if (currencies) {
-      const {
-        currencies: currencyArr,
-      } = currencies
-
-      const defaultCurrency = currencyArr.find((currency: CurrencyProps) => currency.is_default)
-
-      return defaultCurrency
-    }
-  }
 
   const {
     currency_code: currencyCode,
