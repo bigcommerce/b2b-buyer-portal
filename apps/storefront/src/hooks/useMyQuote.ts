@@ -176,7 +176,7 @@ const useMyQuote = ({
     if (document.querySelectorAll(globalB3['dom.setToShoppingList']).length) {
       setOpenQuickViewNum(openQuickViewNum + 1)
     }
-  }, [])
+  }, [openQuickViewNum])
 
   useMutationObservable(document.documentElement, cd)
 

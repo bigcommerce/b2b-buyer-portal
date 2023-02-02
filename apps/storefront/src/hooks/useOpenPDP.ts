@@ -34,14 +34,14 @@ const useOpenPDP = ({
   }, [])
 
   const cd = useCallback(() => {
-    if (document.querySelectorAll(globalB3['dom.setToShoppingList']).length) {
+    if (document.querySelectorAll(globalB3['dom.setToShoppingListParentEl']).length) {
       setOpenQuickViewNum(openQuickViewNum + 1)
     }
-  }, [])
+  }, [openQuickViewNum])
 
   useMutationObservable(document.documentElement, cd)
 
-  useB3PDPOpen(globalB3['dom.setToShoppingList'], pdpCallBbck, isB2BUser, role, openQuickViewNum)
+  useB3PDPOpen(globalB3['dom.setToShoppingListParentEl'], pdpCallBbck, isB2BUser, role, openQuickViewNum)
 }
 
 export {

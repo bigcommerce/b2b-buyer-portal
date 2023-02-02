@@ -115,8 +115,12 @@ input[type=number]::-webkit-outer-spin-button
   margin: 0;
 }
 
+.add-to-cart-wrapper > .form-action{
+  width: 100%;
+}
+
 #shoppingListBtn, #b3MyQuote {
-  padding: 9px 15px;
+  padding: 0.85714rem 15px;
   position: relative;
   display: inline-block;
   cursor: pointer;
@@ -126,6 +130,22 @@ input[type=number]::-webkit-outer-spin-button
   font-size: 1rem;
   border-radius: 4px;
   border: 1px solid #a18568;
+  font-family: Montserrat,Arial,Helvetica,sans-serif;
+  line-height: 1rem;
+  margin-right: 11px;
+}
+
+#b3MyQuote {
+  margin-bottom: 14px;
+  padding: 0.85714rem 2.28571rem;
+  order: 1;
+  background-color: #444;
+  border-color: #444;
+  color: #fff;
+}
+
+#shoppingListBtn {
+  order: 2;
 }
 
 .b2b-btn-loading {

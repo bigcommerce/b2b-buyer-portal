@@ -34,5 +34,5 @@ export const useB3Quote = (el: string, cd: () => void, openQuickViewNum: number,
         shoppingBtnDom.removeEventListener('click', cd)
       }
     }
-  }, [openQuickViewNum])
+  }, [openQuickViewNum, isEnabled])
 }
