@@ -171,7 +171,6 @@ export default function Login(props:RegisteredProps) {
           clearCurrentCustomerInfo(dispatch)
         }
 
-        // setChannelId(getChannelId)
         setLoginInfo(Info)
         setLoading(false)
       } catch (e) {

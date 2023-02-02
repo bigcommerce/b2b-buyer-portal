@@ -75,18 +75,6 @@ export const getCurrentStoreInfo = (storeSites: Array<ChannelIdProps>) => {
   return store
 }
 
-export const getChannelId = async () => {
-  const {
-    storeBasicInfo,
-  }: CustomFieldItems = await getBCStoreChannelId()
-
-  const {
-    channelId,
-  } = getCurrentStoreInfo((storeBasicInfo as ChannelStoreSites)?.storeSites || [])
-
-  B3SStorage.set('B3channelId', channelId)
-}
-
 export const getloginTokenInfo = (channelId: number) => {
   const {
     origin,

@@ -48,6 +48,7 @@ const bcFilterSearch = {
 }
 
 export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean, orderStatuses = []) => {
+  const newOrderStatuses = orderStatuses.filter((item: CustomFieldStringItems) => item.statusCode !== '0' && item.statusCode !== '1')
   const filterMoreList = [
     {
       name: 'company',
@@ -65,7 +66,7 @@ export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean, or
       required: false,
       default: '',
       fieldType: 'dropdown',
-      options: orderStatuses,
+      options: newOrderStatuses,
       replaceOptions: {
         label: 'customLabel',
         value: 'customLabel',

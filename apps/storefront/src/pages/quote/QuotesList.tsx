@@ -32,6 +32,10 @@ import {
   B3Sping,
 } from '@/components/spin/B3Sping'
 
+import {
+  displayFormat,
+} from '@/utils/b3DateFormat'
+
 import B3Filter from '../../components/filter/B3Filter'
 
 import {
@@ -41,6 +45,10 @@ import {
 import {
   QuoteItemCard,
 } from './components/QuoteItemCard'
+
+import {
+  distanceDay,
+} from '@/utils'
 
 interface SortByListProps {
   [key: string]: number | string
@@ -64,6 +72,9 @@ interface FilterSearchProps {
   status: string | number,
   salesRep: string,
   dateCreatedBeginAt: string,
+  dateCreatedEndAt: string,
+  startValue: string,
+  endValue: string
 }
 
 const sortByList: Array<SortByListProps> = [
@@ -132,7 +143,7 @@ const filterMoreList = [
   },
   {
     name: 'createdBy',
-    label: 'Created By',
+    label: 'Created by',
     required: false,
     default: '',
     fieldType: 'text',
@@ -142,7 +153,7 @@ const filterMoreList = [
   },
   {
     name: 'salesRep',
-    label: 'Sales Rep',
+    label: 'Sales rep',
     required: false,
     default: '',
     fieldType: 'text',
@@ -150,16 +161,16 @@ const filterMoreList = [
     variant: 'filled',
     size: 'small',
   },
-  {
-    name: 'dateCreatedBeginAt',
-    label: 'Date Created',
-    required: false,
-    default: '',
-    fieldType: 'date',
-    xs: 12,
-    variant: 'filled',
-    size: 'small',
-  },
+  // {
+  //   name: 'dateCreatedBeginAt',
+  //   label: 'Date created',
+  //   required: false,
+  //   default: '',
+  //   fieldType: 'date',
+  //   xs: 12,
+  //   variant: 'filled',
+  //   size: 'small',
+  // },
 ]
 
 const QuotesList = () => {
@@ -169,7 +180,8 @@ const QuotesList = () => {
     createdBy: '',
     salesRep: '',
     status: '',
-    dateCreatedBeginAt: '',
+    dateCreatedBeginAt: distanceDay(30),
+    dateCreatedEndAt: distanceDay(),
   }
   const [filterData, setFilterData] = useState<Partial<FilterSearchProps>>(initSearch)
 
@@ -247,7 +259,7 @@ const QuotesList = () => {
     {
       key: 'expiredAt',
       title: 'Expiration date',
-      render: (item: ListItem) => format(+item.expiredAt * 1000, 'dd MMM yy'),
+      render: (item: ListItem) => format(displayFormat(item.expiredAt, false), 'dd MMM yy'),
     },
     {
       key: 'subtotal',
@@ -260,7 +272,7 @@ const QuotesList = () => {
           subtotal,
         } = item
 
-        return (`${token}${subtotal}`)
+        return (`${token}${(+subtotal).toFixed(2)}`)
       },
     },
     {
@@ -288,7 +300,8 @@ const QuotesList = () => {
       createdBy: value?.createdBy || '',
       status: value?.status || '',
       salesRep: value?.salesRep || '',
-      dateCreatedBeginAt: value?.dateCreatedBeginAt || '',
+      dateCreatedBeginAt: value?.startValue || '',
+      dateCreatedEndAt: value?.endValue || '',
     }
 
     setFilterData({
@@ -312,6 +325,18 @@ const QuotesList = () => {
           <B3Filter
             sortByConfig={sortByConfigData}
             fiterMoreInfo={filterMoreList}
+            startPicker={{
+              isEnabled: true,
+              label: 'From',
+              defaultValue: distanceDay(30),
+              pickerKey: 'start',
+            }}
+            endPicker={{
+              isEnabled: true,
+              label: 'To',
+              defaultValue: distanceDay(),
+              pickerKey: 'end',
+            }}
             handleChange={handleChange}
             handleFilterChange={handleFirterChange}
           />

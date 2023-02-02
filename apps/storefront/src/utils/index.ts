@@ -18,7 +18,6 @@ import {
 } from './b3Storage'
 
 import {
-  getChannelId,
   loginInfo,
   getCurrentCustomerInfo,
   clearCurrentCustomerInfo,
@@ -72,7 +71,6 @@ export {
   B3LStorage,
   B3SStorage,
   loginInfo,
-  getChannelId,
   getCurrentCustomerInfo,
   clearCurrentCustomerInfo,
   getLogo,

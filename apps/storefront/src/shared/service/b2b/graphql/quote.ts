@@ -21,6 +21,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `{
     salesRep: "${data?.salesRep || ''}"
     ${data?.status ? `salesRep: "${data.status}"` : ''}
     ${data?.dateCreatedBeginAt ? `dateCreatedBeginAt: "${data.dateCreatedBeginAt}"` : ''}
+    ${data?.dateCreatedEndAt ? `dateCreatedEndAt: "${data.dateCreatedEndAt}"` : ''}
   ) {
     totalCount,
     edges {

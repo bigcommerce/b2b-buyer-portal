@@ -245,9 +245,6 @@ const QuoteDraft = () => {
           setAddressList(list)
         }
 
-        console.log(!!quoteInfo, 'quoteInfo')
-        console.log(!quoteInfo?.contactInfo || JSON.stringify(quoteInfo.contactInfo) === '{}')
-
         if (quoteInfo && (!quoteInfo?.contactInfo || JSON.stringify(quoteInfo.contactInfo) === '{}') && +role !== 100) {
           setCustomInfo(quoteInfo)
         } else if (quoteInfo) {
