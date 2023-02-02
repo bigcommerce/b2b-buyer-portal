@@ -35,10 +35,15 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
     productName,
     options,
     sku,
+    notes,
+    discount,
   } = quoteTableItem
 
   const total = +basePrice * +quantity
   const price = +basePrice
+  const isDiscount = +discount > 0
+  const offeredPrice = +basePrice - +discount
+  const totalWithDiscount = +offeredPrice * +quantity
 
   return (
     <Box
@@ -108,8 +113,34 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
               )
             }
           </Box>
+          <Typography
+            variant="body1"
+            color="#616161"
+          >
+            {notes}
+          </Typography>
 
-          <Typography>{`Price: ${currencyToken}${price.toFixed(2)}`}</Typography>
+          <Typography>
+            Price:
+            {
+              isDiscount && (
+                <span style={{
+                  marginLeft: '5px',
+                  textDecoration: 'line-through',
+                }}
+                >
+                  {`${currencyToken}${price.toFixed(2)}`}
+                </span>
+              )
+            }
+            <span style={{
+              marginLeft: '5px',
+              color: isDiscount ? '#2E7D32' : '#212121',
+            }}
+            >
+              {`${currencyToken}${offeredPrice.toFixed(2)}`}
+            </span>
+          </Typography>
 
           <Typography
             sx={{
@@ -118,7 +149,28 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
           >
             {`Qty: ${quantity}`}
           </Typography>
-          <Typography>{`Total: ${currencyToken}${total.toFixed(2)}`}</Typography>
+
+          <Typography>
+            Total:
+            {
+              isDiscount && (
+                <span style={{
+                  marginLeft: '5px',
+                  textDecoration: 'line-through',
+                }}
+                >
+                  {`${currencyToken}${total.toFixed(2)}`}
+                </span>
+              )
+            }
+            <span style={{
+              marginLeft: '5px',
+              color: isDiscount ? '#2E7D32' : '#212121',
+            }}
+            >
+              {`${currencyToken}${totalWithDiscount.toFixed(2)}`}
+            </span>
+          </Typography>
         </Box>
       </CardContent>
     </Box>

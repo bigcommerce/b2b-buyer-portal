@@ -108,7 +108,7 @@ const QuoteDetail = () => {
         discount: quote.discount,
         tax: quote.taxTotal,
         shipping: quote.shippingTotal,
-        grandTotal: quote.grandTotal,
+        grandTotal: quote.totalAmount,
       })
       setCurrency(quote.currency)
       setProductList(quote.productsList)
@@ -344,7 +344,7 @@ const QuoteDetail = () => {
         </Grid>
 
         {
-          +role !== 100 && (
+          (+role !== 100 && +quoteDetail.status !== 4) && (
             <QuoteDetailFooter
               quoteId={quoteDetail.id}
               quoteDate={quoteDetail?.createdAt?.toString()}

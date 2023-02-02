@@ -175,6 +175,12 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                   </Box>
                 )
               }
+              <Typography
+                variant="body1"
+                color="#616161"
+              >
+                {row.notes}
+              </Typography>
             </Box>
           </Box>
         )
@@ -200,7 +206,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
               isDiscount && (
                 <Typography
                   sx={{
-                    padding: '12px 0',
+                    padding: '12px 0 0 0',
                     textDecoration: 'line-through',
                   }}
                 >
@@ -211,7 +217,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
 
             <Typography
               sx={{
-                padding: '12px 0',
+                padding: 0,
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
