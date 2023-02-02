@@ -20,12 +20,14 @@ interface B3FilterSearchProps {
   handleChange: (value: string) => void
   w?: number | undefined |string
   searchBGColor?: string
+  placeholder?: string
 }
 
 const B3FilterSearch = ({
   handleChange,
   w = '100%',
   searchBGColor = '#efeae7',
+  placeholder = 'Search',
 }: B3FilterSearchProps) => {
   const [search, setSearch] = useState<string>('')
   const debouncedValue = useDebounce<string>(search, 500)
@@ -84,7 +86,7 @@ const B3FilterSearch = ({
         }}
         size="small"
         value={search}
-        placeholder="Search"
+        placeholder={placeholder}
         onChange={handleOnChange}
       />
     </Paper>

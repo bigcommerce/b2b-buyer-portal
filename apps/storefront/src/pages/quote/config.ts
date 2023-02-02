@@ -67,7 +67,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'apartment',
-      label: 'Address line 2',
+      label: 'Address line 2(optional)',
       required: false,
       default: '',
       fieldType: 'text',

@@ -33,8 +33,6 @@ const QuoteDetail = lazy(() => import('../../pages/quote/QuoteDetail'))
 // const AccountSetting = lazy(() => import('../../pages/accountSetting/AccountSetting'))
 const ShoppingListDetails = lazy(() => import('../../pages/shoppingListDetails/ShoppingListDetails'))
 
-type OrderItem = typeof OrderList
-
 const Registered = lazy(() => import('../../pages/registered/Registered'))
 
 const RegisteredBCToB2B = lazy(() => import('../../pages/registered/RegisteredBCToB2B'))
@@ -54,7 +52,7 @@ interface RouteItemBasic {
 }
 
 export interface RouteItem extends RouteItemBasic {
-  component: OrderItem,
+  component: RegisteredItem,
   isMenuItem: boolean,
   wsKey: string,
   configKey?: string,

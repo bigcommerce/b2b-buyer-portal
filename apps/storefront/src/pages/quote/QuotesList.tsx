@@ -127,7 +127,7 @@ const quotesStatuses = [
 ]
 const filterMoreList = [
   {
-    name: 'orderStatus',
+    name: 'status',
     label: 'Order status',
     required: false,
     default: '',
@@ -239,7 +239,7 @@ const QuotesList = () => {
       title: 'Title',
     },
     {
-      key: 'salesRep',
+      key: 'salesRepEmail',
       title: 'Sales rep',
     },
     {

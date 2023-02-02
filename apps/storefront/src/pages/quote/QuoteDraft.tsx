@@ -3,6 +3,8 @@ import {
   useState,
   useRef,
   useContext,
+  Dispatch,
+  SetStateAction,
 } from 'react'
 
 import {
@@ -11,6 +13,10 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
+
+import {
+  ArrowBackIosNew,
+} from '@mui/icons-material'
 
 import {
   useNavigate,
@@ -120,9 +126,21 @@ interface InfoProps {
 
 interface QuoteTableRef extends HTMLInputElement {
   refreshList: () => void
+
 }
 
-const QuoteDraft = () => {
+interface OpenPageState {
+  isOpen: boolean,
+  openUrl?: string,
+}
+
+interface QuoteDraftProps {
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+}
+
+const QuoteDraft = ({
+  setOpenPage,
+}: QuoteDraftProps) => {
   const {
     state: {
       role,
@@ -263,7 +281,9 @@ const QuoteDraft = () => {
       ...info,
     }
     if (contactInfoRef?.current) {
-      saveInfo.contactInfo = await contactInfoRef.current.getContactInfoValue()
+      const contactInfo = await contactInfoRef.current.getContactInfoValue()
+      if (!contactInfo) return
+      saveInfo.contactInfo = contactInfo
     }
     if (billingRef?.current) {
       saveInfo.billingAddress = billingRef.current.getContactInfoValue()
@@ -368,11 +388,16 @@ const QuoteDraft = () => {
       const isComplete = Object.keys(contactInfo).every((key: string) => !!contactInfo[key])
 
       if (JSON.stringify(contactInfo) === '{}' || !isComplete) {
-        snackbar.error('Please fill in the Contact information')
+        snackbar.error('Please add quote info before submitting ')
         return
       }
 
       const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
+
+      if (!b2bQuoteDraftList || b2bQuoteDraftList.length === 0) {
+        snackbar.error('Please add quote products before submitting ')
+        return
+      }
 
       const emailAddress = B3SStorage.get('B3EmailAddress')
 
@@ -516,6 +541,36 @@ const QuoteDraft = () => {
       >
         <Box
           sx={{
+            marginBottom: '10px',
+            width: 'fit-content',
+            displayPrint: 'none',
+          }}
+        >
+          <Box
+            sx={{
+              color: '#1976d2',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            onClick={() => {
+              setOpenPage({
+                isOpen: false,
+              })
+            }}
+          >
+            <ArrowBackIosNew
+              fontSize="small"
+              sx={{
+                fontSize: '12px',
+                marginRight: '0.5rem',
+              }}
+            />
+            <p>Back to product</p>
+          </Box>
+        </Box>
+        <Box
+          sx={{
             display: 'flex',
             justifyContent: 'space-between',
           }}
@@ -524,7 +579,7 @@ const QuoteDraft = () => {
             sx={{
               display: 'flex',
               alignItems: 'center',
-              mb: '8px',
+              mb: '24px',
             }}
           >
             <Typography
@@ -542,7 +597,9 @@ const QuoteDraft = () => {
             variant="contained"
             size="small"
             sx={{
-              height: '35px',
+              padding: '8px 22px',
+              alignSelf: 'center',
+              marginBottom: '24px',
             }}
             onClick={handleSubmit}
           >

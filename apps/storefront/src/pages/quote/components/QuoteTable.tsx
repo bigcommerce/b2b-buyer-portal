@@ -95,7 +95,7 @@ interface PaginationTableRefProps extends HTMLInputElement {
 
 const StyledQuoteTableContainer = styled('div')(() => ({
   backgroundColor: '#FFFFFF',
-  padding: '0.5rem',
+  padding: '0',
   width: '100%',
 
   '& tbody': {
@@ -443,7 +443,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          margin: '0.5rem 0 1rem 0',
+          margin: '0.5rem 16px 1rem',
         }}
       >
         <Typography

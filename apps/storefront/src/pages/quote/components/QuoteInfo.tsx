@@ -27,7 +27,7 @@ type Keys = string | string[]
 
 const contactInfoKeys: string[] = ['name', 'email', 'phoneNumber']
 
-const addressKeys: Keys[] = ['label', ['firstName', 'lastName'], 'company', 'addressLine1', 'addressLine2', ['city', 'state', 'zipCode', 'country'], 'phoneNumber']
+const addressKeys: Keys[] = ['label', ['firstName', 'lastName'], 'company', 'address', 'apartment', ['city', 'state', 'zipCode', 'country'], 'phoneNumber']
 
 interface QuoteInfoItemProps {
   flag?: string,
@@ -41,8 +41,13 @@ const QuoteInfoItem = ({
   info,
 }: QuoteInfoItemProps) => {
   const keyTable = flag === 'info' ? contactInfoKeys : addressKeys
+
   return (
-    <Box>
+    <Box sx={{
+      width: '33.3%',
+      paddingRight: '10px',
+    }}
+    >
       <Typography
         sx={{
           fontWeight: 400,
@@ -81,7 +86,7 @@ const QuoteInfoItem = ({
                         return info[item] || ''
                       }
                       if (item === 'firstName') return `${info[item] || ''} `
-                      return `${info[item] || ''}, `
+                      return info[item] ? `${info[item] || ''}, ` : ''
                     })
                   }
                 </Typography>

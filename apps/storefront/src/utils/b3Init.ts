@@ -61,9 +61,9 @@ export const getQuoteEnabled = (
   }
 
   // BCUser
-  if (!isB2BUser || (`${role}` === '9' && !isAgenting)) {
+  if (!isB2BUser || (`${role}` === '3' && !isAgenting)) {
     productQuoteEnabled = productQuoteEnabled && bcUserEnabled === '1'
-    cartQuoteEnabled = cartQuoteEnabled && guestEnabled === '1'
+    cartQuoteEnabled = cartQuoteEnabled && bcUserEnabled === '1'
   }
 
   return {

@@ -92,6 +92,7 @@ const ChooseAddress = ({
       <Box>
         <B3FilterSearch
           searchBGColor="rgba(0, 0, 0, 0.06)"
+          placeholder="Search address"
           handleChange={(e) => {
             handleSearchProduct(e)
           }}

@@ -35,6 +35,7 @@ export const useQuoteGlobalTip = ({
         isOpen: true,
         openUrl: '/quoteDraft',
       })
+      initTip()
     }
 
     const quoteCloseBtnClick = () => {

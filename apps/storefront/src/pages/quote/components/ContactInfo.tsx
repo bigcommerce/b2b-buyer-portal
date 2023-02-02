@@ -17,9 +17,15 @@ import {
   useMobile,
 } from '@/hooks'
 
+import {
+  validatorRules,
+} from '@/utils'
+
 // import {
 //   CustomerInfo,
 // } from '@/shared/global/context/config'
+
+const emailValidate = validatorRules(['email'])
 
 const getContactInfo = (isMobile: boolean) => {
   const contactInfo = [
@@ -42,6 +48,7 @@ const getContactInfo = (isMobile: boolean) => {
       xs: isMobile ? 12 : 6,
       variant: 'filled',
       size: 'small',
+      validate: emailValidate,
     },
     {
       name: 'phoneNumber',
@@ -93,9 +100,13 @@ const ContactInfo = ({
     }
   }, [info])
 
-  const getContactInfoValue = () => {
-    handleSubmit(async (data) => data)()
-    return getValues()
+  const getContactInfoValue = async () => {
+    let isValid = true
+    await handleSubmit(() => {}, () => {
+      isValid = false
+    })()
+
+    return isValid ? getValues() : isValid
   }
 
   useImperativeHandle(ref, () => ({

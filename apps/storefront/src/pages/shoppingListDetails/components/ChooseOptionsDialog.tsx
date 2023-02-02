@@ -55,7 +55,6 @@ const Flex = styled('div')(() => ({
   wordBreak: 'break-word',
   gap: '8px',
   flexWrap: 'wrap',
-  borderTop: '1px solid #D9DCE9',
   padding: '12px 0 12px',
   '&:first-of-type': {
     marginTop: '12px',

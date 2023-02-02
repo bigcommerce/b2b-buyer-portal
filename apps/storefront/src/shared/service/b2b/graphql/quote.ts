@@ -19,7 +19,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `{
     orderBy: "${data?.orderBy || ''}"
     createdBy: "${data?.createdBy || ''}"
     salesRep: "${data?.salesRep || ''}"
-    ${data?.status ? `salesRep: "${data.status}"` : ''}
+    ${data?.status ? `status: "${data.status}"` : ''}
     ${data?.dateCreatedBeginAt ? `dateCreatedBeginAt: "${data.dateCreatedBeginAt}"` : ''}
     ${data?.dateCreatedEndAt ? `dateCreatedEndAt: "${data.dateCreatedEndAt}"` : ''}
   ) {
@@ -40,6 +40,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `{
         currency,
         status,
         salesRep,
+        salesRepEmail,
         orderId,
         subtotal,
       }

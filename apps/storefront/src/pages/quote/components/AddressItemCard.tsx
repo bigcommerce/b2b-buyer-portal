@@ -118,7 +118,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
             }}
             onClick={() => { onSetAddress(addressInfo) }}
           >
-            Set as default
+            Choose address
           </Button>
         </Flex>
       </CardContent>

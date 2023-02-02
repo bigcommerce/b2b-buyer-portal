@@ -197,6 +197,7 @@ const QuoteAddress = ({
               display: 'flex',
               alignItems: 'flex-end',
               cursor: 'pointer',
+              textTransform: 'uppercase',
             }}
           >
             Choose from saved

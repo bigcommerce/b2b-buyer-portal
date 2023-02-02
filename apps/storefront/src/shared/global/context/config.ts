@@ -139,8 +139,8 @@ export const initState = {
   currentChannelId: 1,
   bcChannelId: 1,
   countriesList: [],
-  productQuoteEnabled: true,
-  cartQuoteEnabled: true,
+  productQuoteEnabled: false,
+  cartQuoteEnabled: false,
   quoteConfig: {
     switchStatus: [],
     otherConfigs: [],

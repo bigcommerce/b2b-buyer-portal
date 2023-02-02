@@ -1,5 +1,4 @@
 import {
-  lazy,
   Suspense,
   Dispatch,
   SetStateAction,
@@ -39,16 +38,6 @@ import {
 } from '@/shared/global'
 
 import B3LayoutTip from './B3LayoutTip'
-
-const Registered = lazy(() => import('../../pages/registered/Registered'))
-
-const RegisteredBCToB2B = lazy(() => import('../../pages/registered/RegisteredBCToB2B'))
-
-const Login = lazy(() => import('../../pages/login/Login'))
-
-const ForgotPassword = lazy(() => import('../../pages/login/ForgotPassword'))
-
-const PDP = lazy(() => import('../../pages/pdp/PDP'))
 
 interface B3RenderRouterProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
@@ -100,7 +89,7 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
                   <Route
                     key={path}
                     path={path}
-                    element={<Component />}
+                    element={(<Component setOpenPage={setOpenPage} />)}
                   />
                 )
               })
@@ -132,7 +121,7 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
                 path={route.name}
                 element={(
                   <Component setOpenPage={setOpenPage} />
-                  )}
+                )}
               />
             )
           })
