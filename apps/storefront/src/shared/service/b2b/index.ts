@@ -75,6 +75,7 @@ import {
   addOrUpdateUsers,
   deleteUsers,
   checkUserEmail,
+  checkUserBCEmail,
 } from './graphql/users'
 
 import {
@@ -147,4 +148,5 @@ export {
   updateB2BShoppingListsItem,
   deleteB2BShoppingListItem,
   checkUserEmail,
+  checkUserBCEmail,
 }

@@ -13,7 +13,9 @@ function b3Fetch(path: string, init: any, type?: string, customMessage = false) 
   return new Promise((resolve, reject) => {
     originFetch(path, init).then((res: Response) => (path.includes('current.jwt') ? res.text() : res.json())).then(async (res) => {
       if (res?.code === 500) {
-        reject(res.message)
+        const data = res?.data || {}
+        const message = data.errMsg || res.message || ''
+        reject(message)
         return
       }
       // jwt 15 minutes expected

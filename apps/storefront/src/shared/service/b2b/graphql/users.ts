@@ -65,7 +65,7 @@ const deleteUsersQl = (data: CustomFieldItems) => `mutation{
   }
 }`
 
-const checkUserBCEmail = (data: CustomFieldItems) => `{
+const checkUserB2BEmail = (data: CustomFieldItems) => `{
   userEmailCheck (
     email: "${data.email}"
     companyId: ${data.companyId || null}
@@ -87,6 +87,16 @@ const checkUserBCEmail = (data: CustomFieldItems) => `{
   }
 }`
 
+const checkCustomerBCEmail = (data: CustomFieldItems) => `{
+  customerEmailCheck (
+    email: "${data.email}"
+    storeHash: "${storeHash}"
+    channelId: ${data.channelId || null}
+  ){
+    userType,
+  }
+}`
+
 export const getUsers = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
   query: getUsersQl(data),
 })
@@ -100,5 +110,8 @@ export const deleteUsers = (data: CustomFieldItems): CustomFieldItems => B3Reque
 })
 
 export const checkUserEmail = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: checkUserBCEmail(data),
+  query: checkUserB2BEmail(data),
+})
+export const checkUserBCEmail = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
+  query: checkCustomerBCEmail(data),
 })

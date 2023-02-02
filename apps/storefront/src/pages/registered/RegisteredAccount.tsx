@@ -29,6 +29,7 @@ import RegisteredStepButton from './component/RegisteredStepButton'
 
 import {
   checkUserEmail,
+  checkUserBCEmail,
 } from '@/shared/service/b2b'
 
 import {
@@ -117,19 +118,23 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const emailName = contactInformation?.find((item: CustomFieldItems) => item.fieldId === 'field_email')?.name || 'email'
 
   const validateEmailValue = async (emailValue: string) => {
+    const isB2BUser = accountType === '1'
+    const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
+    const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
+
     const {
-      userEmailCheck: {
+      [key]: {
         userType,
         userInfo: {
-          companyName,
-        },
+          companyName = '',
+        } = {},
       },
-    }: CustomFieldItems = await checkUserEmail({
+    }: CustomFieldItems = await fn({
       email: emailValue,
       channelId: currentChannelId,
     })
 
-    const isValid = [1].includes(userType)
+    const isValid = isB2BUser ? [1].includes(userType) : ![2].includes(userType)
 
     if (!isValid) {
       setErrorTips(b3Lang(emailError[userType], {
