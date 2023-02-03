@@ -204,12 +204,12 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
       render: (row) => {
         const {
           basePrice,
-          discount,
+          offeredPrice,
         } = row
 
         const price = +basePrice
-        const isDiscount = +discount > 0
-        const offeredPrice = +basePrice - +discount
+        const discountPrice = +offeredPrice
+        const isDiscount = price - discountPrice > 0
 
         return (
           <>
@@ -228,11 +228,11 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
 
             <Typography
               sx={{
-                padding: 0,
+                padding: isDiscount ? '0' : '12px 0 0 0',
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyToken}${offeredPrice.toFixed(2)}`}
+              {`${currencyToken}${discountPrice.toFixed(2)}`}
             </Typography>
 
           </>
@@ -261,13 +261,14 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
         const {
           basePrice,
           quantity,
-          discount,
+          offeredPrice,
         } = row
-        const total = +basePrice * +quantity
-        const offeredPrice = +basePrice - +discount
+        const price = +basePrice
+        const discountPrice = +offeredPrice
+        const isDiscount = price - discountPrice > 0
 
-        const isDiscount = +discount > 0
-        const totalWithDiscount = +offeredPrice * +quantity
+        const total = price * +quantity
+        const totalWithDiscount = discountPrice * +quantity
 
         return (
           <Box>
@@ -285,7 +286,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
             }
             <Typography
               sx={{
-                padding: '0',
+                padding: isDiscount ? '0' : '12px 0 0 0',
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >

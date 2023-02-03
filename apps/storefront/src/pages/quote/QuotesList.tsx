@@ -262,17 +262,17 @@ const QuotesList = () => {
       render: (item: ListItem) => format(displayFormat(item.expiredAt, false), 'dd MMM yy'),
     },
     {
-      key: 'subtotal',
+      key: 'grandTotal',
       title: 'Subtotal',
       render: (item: ListItem) => {
         const {
           currency: {
             token,
           },
-          subtotal,
+          grandTotal,
         } = item
 
-        return (`${token}${(+subtotal).toFixed(2)}`)
+        return (`${token}${(+grandTotal).toFixed(2)}`)
       },
     },
     {

@@ -345,7 +345,7 @@ const QuoteDetail = () => {
         </Grid>
 
         {
-          (+role !== 100 && +quoteDetail.status !== 4) && (
+          (+role !== 2 && +quoteDetail.status !== 4) && (
             <QuoteDetailFooter
               quoteId={quoteDetail.id}
               quoteDate={quoteDetail?.createdAt?.toString()}

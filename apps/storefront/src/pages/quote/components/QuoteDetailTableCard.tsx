@@ -36,14 +36,15 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
     options,
     sku,
     notes,
-    discount,
+    offeredPrice,
   } = quoteTableItem
 
-  const total = +basePrice * +quantity
   const price = +basePrice
-  const isDiscount = +discount > 0
-  const offeredPrice = +basePrice - +discount
-  const totalWithDiscount = +offeredPrice * +quantity
+  const discountPrice = +offeredPrice
+  const isDiscount = price - discountPrice > 0
+
+  const total = price * +quantity
+  const totalWithDiscount = discountPrice * +quantity
 
   return (
     <Box
