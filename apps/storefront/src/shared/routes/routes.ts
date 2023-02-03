@@ -252,16 +252,17 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
       configKey,
     } = item
 
+    // quotes is enabled
+    if ((configKey === 'quotes' || configKey === 'quoteDraft') && !productQuoteEnabled && !cartQuoteEnabled) {
+      return false
+    }
+
     // b2b user
     if (!isB2BUser || (role === 3 && !isAgenting)) {
       return permissions.includes(99)
     }
 
     if (!permissions.includes(+role || 0) || !storefrontConfig) {
-      return false
-    }
-
-    if ((configKey === 'quotes' || configKey === 'quoteDraft') && !productQuoteEnabled && !cartQuoteEnabled) {
       return false
     }
 
@@ -274,29 +275,6 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
     return !!config.enabledStatus
   })
 }
-
-const backgroundEnter = [
-  {
-    role: [0, 1, 2, 3, 99],
-    url: '/orders',
-  },
-  {
-    role: [100],
-    url: '/orders',
-  },
-  {
-    role: 0,
-    url: '/orders',
-  },
-  {
-    role: 0,
-    url: '/orders',
-  },
-  {
-    role: 0,
-    url: '/orders',
-  },
-]
 
 const gotoAllowedAppPage = (role: number, gotoPage: (url: string) => void) => {
   const {

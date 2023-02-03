@@ -63,7 +63,7 @@ interface OpenTipStateProps {
 const useMyQuote = ({
   setOpenPage,
   productQuoteEnabled,
-  cartQuoteEnabled,
+  // cartQuoteEnabled,
 }: MutationObserverProps) => {
   const [openQuickViewNum, setOpenQuickViewNum] = useState<number>(0)
 

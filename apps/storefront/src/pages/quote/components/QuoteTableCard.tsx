@@ -1,8 +1,4 @@
 import {
-  ReactElement,
-} from 'react'
-
-import {
   Box,
   CardContent,
   Typography,

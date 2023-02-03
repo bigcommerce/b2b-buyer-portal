@@ -34,7 +34,6 @@ import {
 
 import {
   SimpleObject,
-  ShoppingListAddProductItem,
   ShoppingListAddProductOption,
 } from '../../../types'
 

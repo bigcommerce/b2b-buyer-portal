@@ -1,5 +1,4 @@
 import {
-  getBCStoreChannelId,
   getBCToken,
   getB2BCompanyUserInfo,
   getB2BToken,

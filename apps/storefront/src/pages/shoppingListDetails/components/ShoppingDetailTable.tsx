@@ -49,9 +49,6 @@ import {
 } from './ChooseOptionsDialog'
 
 import ShoppingDetailCard from './ShoppingDetailCard'
-import {
-  ShoppingListAddProductItem,
-} from '../../../types'
 
 import {
   getProductOptionsFields,

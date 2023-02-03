@@ -228,6 +228,7 @@ const QuoteDetail = () => {
           duration: 30000,
         })
       }, 10)
+      location.state = null
     }
   }, [])
 

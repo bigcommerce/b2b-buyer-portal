@@ -79,8 +79,6 @@ export default function App() {
 
   const [openApp, setOpenApp] = useState<boolean>(false)
 
-  const [isBackground, setIsBackground] = useState<boolean>(false)
-
   useOpenPDP({
     setOpenPage,
     isB2BUser,

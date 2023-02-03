@@ -54,16 +54,13 @@ export const getQuoteEnabled = (
   let productQuoteEnabled = quoteEnabled && customerEnabled === '1' && productEnabled === '1'
   let cartQuoteEnabled = quoteEnabled && customerEnabled === '1' && cartEnabled === '1'
 
-  // guest
-  if (`${role}` === '100') {
-    productQuoteEnabled = productQuoteEnabled && guestEnabled === '1'
-    cartQuoteEnabled = cartQuoteEnabled && guestEnabled === '1'
-  }
-
   // BCUser
   if (!isB2BUser || (`${role}` === '3' && !isAgenting)) {
     productQuoteEnabled = productQuoteEnabled && bcUserEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && bcUserEnabled === '1'
+  } else if (`${role}` === '100') { // guest
+    productQuoteEnabled = productQuoteEnabled && guestEnabled === '1'
+    cartQuoteEnabled = cartQuoteEnabled && guestEnabled === '1'
   }
 
   return {
