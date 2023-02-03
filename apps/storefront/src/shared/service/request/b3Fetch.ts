@@ -120,6 +120,15 @@ export const B3Request = {
       },
     }, type)
   },
+  put: function put<T>(url: string, type: string, data: T): Promise<any> {
+    return request(url, {
+      body: JSON.stringify(data),
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+      },
+    }, type)
+  },
   fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y): Promise<any> {
     return request(`${B2B_BASIC_URL}${url}`, {
       method: 'POST',

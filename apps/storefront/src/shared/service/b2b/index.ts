@@ -22,6 +22,7 @@ import {
 
 import {
   uploadB2BFile,
+  setChannelStoreType,
 } from './api/global'
 
 import {
@@ -149,4 +150,5 @@ export {
   deleteB2BShoppingListItem,
   checkUserEmail,
   checkUserBCEmail,
+  setChannelStoreType,
 }

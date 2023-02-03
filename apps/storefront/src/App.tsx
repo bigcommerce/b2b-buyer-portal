@@ -29,6 +29,7 @@ import {
 import {
   getB2BRegisterLogo,
   getStorefrontConfig,
+  setChannelStoreType,
 } from '@/shared/service/b2b'
 
 import {
@@ -58,6 +59,7 @@ export default function App() {
       BcToken,
       role,
       logo,
+      bcChannelId,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -163,6 +165,7 @@ export default function App() {
         setLogo()
       }
       setStorefrontConfig()
+      setChannelStoreType(bcChannelId)
       if (!customerId) {
         const data = await getCurrentCustomerInfo(dispatch)
         if (data) gotoPage(data.role)

@@ -67,6 +67,7 @@ export interface GlobalState {
   storeEnabled: boolean,
   storeName: string,
   currentChannelId: number,
+  bcChannelId: number,
 }
 
 export const initState = {
@@ -100,6 +101,7 @@ export const initState = {
   storeEnabled: false,
   storeName: '',
   currentChannelId: 1,
+  bcChannelId: 1,
 }
 
 export interface GlobalAction {

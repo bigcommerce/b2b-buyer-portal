@@ -2,6 +2,13 @@ import {
   B3Request,
 } from '../../request/b3Fetch'
 
+import {
+  RequestType,
+} from '../../request/base'
+import {
+  storeHash,
+} from '../../../../utils/basicConfig'
+
 interface UploadFileData {
   file: File,
   type: string
@@ -19,3 +26,9 @@ export const uploadB2BFile = (data: UploadFileData) => {
 
   return B3Request.fileUpload('/api/v2/media/upload', formData)
 }
+
+export const setChannelStoreType = (bcChannelId: number): CustomFieldItems => B3Request.put('/api/v2/store-configs/channel-storefront-type', RequestType.B2BRest, {
+  bcChannelId,
+  storefrontType: 1,
+  storeHash,
+})

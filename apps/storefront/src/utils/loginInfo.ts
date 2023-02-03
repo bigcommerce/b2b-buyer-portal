@@ -27,6 +27,7 @@ interface ChannelIdProps {
   urls: Array<string>,
   b2bEnabled: boolean,
   channelLogo: string,
+  b3ChannelId?: number,
 }
 
 type B2BToken = {
@@ -58,6 +59,7 @@ export const getCurrentStoreInfo = (storeSites: Array<ChannelIdProps>) => {
     urls: [],
     b2bEnabled: true,
     channelLogo: '',
+    b3ChannelId: 16,
   }
 
   const {
