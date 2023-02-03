@@ -222,7 +222,7 @@ const QuoteDraft = ({
               label: shippingDefautAddress?.node?.label || '',
               firstName: shippingDefautAddress?.node?.firstName || '',
               lastName: shippingDefautAddress?.node?.lastName || '',
-              company: shippingDefautAddress?.node?.company || '',
+              companyName: shippingDefautAddress?.node?.company || '',
               country: shippingDefautAddress?.node?.countryCode || '',
               address: shippingDefautAddress?.node?.addressLine1 || '',
               apartment: shippingDefautAddress?.node?.addressLine2 || '',
@@ -239,7 +239,7 @@ const QuoteDraft = ({
               label: billingDefautAddress?.node?.label || '',
               firstName: billingDefautAddress?.node?.firstName || '',
               lastName: billingDefautAddress?.node?.lastName || '',
-              company: billingDefautAddress?.node?.company || '',
+              companyName: billingDefautAddress?.node?.company || '',
               country: billingDefautAddress?.node?.countryCode || '',
               address: billingDefautAddress?.node?.addressLine1 || '',
               apartment: billingDefautAddress?.node?.addressLine2 || '',
@@ -523,6 +523,7 @@ const QuoteDraft = ({
     >
       <Box
         sx={{
+          mb: '60px',
           width: '100%',
         }}
       >
@@ -565,8 +566,9 @@ const QuoteDraft = ({
           <Box
             sx={{
               display: 'flex',
-              alignItems: 'center',
               mb: '24px',
+              flexDirection: `${isMobile ? 'column' : 'row'}`,
+              alignItems: `${isMobile ? 'flex-start' : 'center'}`,
             }}
           >
             <Typography
@@ -574,24 +576,56 @@ const QuoteDraft = ({
               sx={{
                 fontSize: '24px',
                 mr: '1rem',
+                mb: `${isMobile ? '1rem' : '0'}`,
               }}
             >
               Quote
             </Typography>
             <QuoteStatus code="0" />
           </Box>
-          <Button
-            variant="contained"
-            size="small"
-            sx={{
-              padding: '8px 22px',
-              alignSelf: 'center',
-              marginBottom: '24px',
-            }}
-            onClick={handleSubmit}
-          >
-            submit
-          </Button>
+          {
+            !isMobile ? (
+              <Button
+                variant="contained"
+                size="small"
+                sx={{
+                  padding: '8px 22px',
+                  alignSelf: 'center',
+                  marginBottom: '24px',
+                }}
+                onClick={handleSubmit}
+              >
+                submit
+              </Button>
+            )
+              : (
+                <Box
+                  sx={{
+                    position: 'fixed',
+                    left: 0,
+                    bottom: 0,
+                    background: '#FFF',
+                    width: '100%',
+                    display: 'flex',
+                    p: '8px 0',
+                    zIndex: 100,
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      height: '38px',
+                      width: '90%',
+                    }}
+                    onClick={handleSubmit}
+                  >
+                    submit
+                  </Button>
+                </Box>
+              )
+          }
         </Box>
 
         <Box>

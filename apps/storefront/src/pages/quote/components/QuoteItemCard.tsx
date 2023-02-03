@@ -130,11 +130,16 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
                 sx={{
                   fontWeight: 'bold',
                   color: 'rgba(0, 0, 0, 0.87)',
+                  mr: '5px',
                 }}
               >
                 {`${list.title}:`}
               </Typography>
-              <Typography>
+              <Typography
+                sx={{
+                  color: 'black',
+                }}
+              >
                 {list?.render ? list.render() : item[list.key]}
               </Typography>
             </Box>

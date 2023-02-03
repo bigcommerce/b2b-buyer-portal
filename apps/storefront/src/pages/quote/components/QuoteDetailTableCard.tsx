@@ -139,7 +139,7 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
               color: isDiscount ? '#2E7D32' : '#212121',
             }}
             >
-              {`${currencyToken}${offeredPrice.toFixed(2)}`}
+              {`${currencyToken}${discountPrice.toFixed(2)}`}
             </span>
           </Typography>
 

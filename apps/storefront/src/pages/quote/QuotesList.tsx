@@ -24,6 +24,10 @@ import {
 } from '@/shared/global'
 
 import {
+  useMobile,
+} from '@/hooks'
+
+import {
   getB2BQuotesList,
   getBCQuotesList,
 } from '@/shared/service/b2b'
@@ -189,6 +193,8 @@ const QuotesList = () => {
 
   const navigate = useNavigate()
 
+  const [isMobile] = useMobile()
+
   const {
     state: {
       isB2BUser,
@@ -348,6 +354,7 @@ const QuotesList = () => {
             isCustomRender={false}
             requestLoading={setIsRequestLoading}
             tableKey="quoteNumber"
+            labelRowsPerPage={`${isMobile ? 'Cards per page' : 'Orders per page'}`}
             renderItem={(row: ListItem) => (
               <QuoteItemCard
                 item={row}

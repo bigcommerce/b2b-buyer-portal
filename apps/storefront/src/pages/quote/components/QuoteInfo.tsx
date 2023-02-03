@@ -49,7 +49,7 @@ const QuoteInfoItem = ({
 
   const noAddresssText = status === 'Draft' ? `Please add ${flag === 'Billing' ? 'billing' : 'shipping'} address ` : `No ${flag === 'Billing' ? 'billing' : 'shipping'} address`
 
-  const isComplete = flag !== 'info' ? addressVerifyKeys.every((item: string) => !!info[item]) : false
+  const isComplete = flag !== 'info' ? addressVerifyKeys.some((item: string) => !!info[item]) : false
 
   return (
     <Box sx={{
