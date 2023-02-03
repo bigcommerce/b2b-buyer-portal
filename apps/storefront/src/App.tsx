@@ -67,7 +67,7 @@ export default function App() {
       BcToken,
       role,
       logo,
-      bcChannelId,
+      currentChannelId,
       isAgenting,
       quoteConfig,
       storefrontConfig,
@@ -175,7 +175,7 @@ export default function App() {
         await loginInfo()
       }
 
-      setChannelStoreType(bcChannelId)
+      setChannelStoreType(currentChannelId)
       await Promise.all([getQuoteConfig(), setStorefrontConfig()])
 
       if (!customerId) await getCurrentCustomerInfo(dispatch)
