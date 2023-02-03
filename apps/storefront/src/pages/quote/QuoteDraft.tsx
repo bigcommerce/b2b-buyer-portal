@@ -146,6 +146,7 @@ const QuoteDraft = ({
     state: {
       role,
       isB2BUser,
+      currentChannelId,
       salesRepCompanyId,
       companyInfo: {
         id: companyB2BId,
@@ -293,7 +294,12 @@ const QuoteDraft = ({
       saveInfo.shippingAddress = shippingRef.current.getContactInfoValue()
     }
 
-    const isComplete = Object.keys(saveInfo.contactInfo).every((key: string) => !!saveInfo.contactInfo[key])
+    const isComplete = Object.keys(saveInfo.contactInfo).every((key: string) => {
+      if (key === 'phoneNumber') {
+        return true
+      }
+      return !!saveInfo.contactInfo[key]
+    })
 
     if (isComplete) {
       B3LStorage.set('MyQuoteInfo', saveInfo)
@@ -373,7 +379,12 @@ const QuoteDraft = ({
       const info = B3LStorage.get('MyQuoteInfo')
       const contactInfo = info?.contactInfo || {}
 
-      const isComplete = Object.keys(contactInfo).every((key: string) => !!contactInfo[key])
+      const isComplete = Object.keys(contactInfo).every((key: string) => {
+        if (key === 'phoneNumber') {
+          return true
+        }
+        return !!contactInfo[key]
+      })
 
       if (JSON.stringify(contactInfo) === '{}' || !isComplete) {
         snackbar.error('Please add quote info before submitting ')
@@ -588,6 +599,7 @@ const QuoteDraft = ({
           {
           !isEdit && (
           <QuoteInfo
+            status="Draft"
             contactInfo={info?.contactInfo || {}}
             shippingAddress={info?.shippingAddress || {}}
             billingAddress={info?.billingAddress || {}}
@@ -601,6 +613,8 @@ const QuoteDraft = ({
             flexDirection="column"
           >
             <ContactInfo
+              isB2BUser={isB2BUser}
+              currentChannelId={currentChannelId}
               info={info.contactInfo}
               ref={contactInfoRef}
             />

@@ -21,11 +21,14 @@ interface InfoProps {
   shippingAddress: GetValue,
   billingAddress: GetValue,
   handleEditInfoClick?: () => void,
+  status?: string,
 }
 
 type Keys = string | string[]
 
 const contactInfoKeys: string[] = ['name', 'email', 'phoneNumber']
+
+const addressVerifyKeys: string[] = ['label', 'firstName', 'lastName', 'company', 'address', 'apartment', 'city', 'state', 'zipCode', 'country', 'phoneNumber']
 
 const addressKeys: Keys[] = ['label', ['firstName', 'lastName'], 'company', 'address', 'apartment', ['city', 'state', 'zipCode', 'country'], 'phoneNumber']
 
@@ -33,14 +36,20 @@ interface QuoteInfoItemProps {
   flag?: string,
   title: string,
   info: GetValue,
+  status?: string,
 }
 
 const QuoteInfoItem = ({
   flag,
   title,
   info,
+  status,
 }: QuoteInfoItemProps) => {
   const keyTable = flag === 'info' ? contactInfoKeys : addressKeys
+
+  const noAddresssText = status === 'Draft' ? `Please add ${flag === 'billing' ? 'billing' : 'shipping'} address ` : `No ${flag === 'billing' ? 'billing' : 'shipping'} address`
+
+  const isComplete = flag !== 'info' ? addressVerifyKeys.every((item: string) => !!info[item]) : false
 
   return (
     <Box sx={{
@@ -63,7 +72,7 @@ const QuoteInfoItem = ({
         }}
       >
         {
-            JSON.stringify(info) !== '{}' && keyTable.map((list: Keys) => {
+            (isComplete || flag === 'info') && JSON.stringify(info) !== '{}' && keyTable.map((list: Keys) => {
               if (typeof list === 'string') {
                 return (
                   <Typography
@@ -93,6 +102,14 @@ const QuoteInfoItem = ({
               )
             })
           }
+
+        {
+          (!isComplete && flag !== 'info') && (
+          <Box>
+            {noAddresssText}
+          </Box>
+          )
+        }
       </Box>
     </Box>
   )
@@ -103,6 +120,7 @@ const QuoteInfo = ({
   shippingAddress = {},
   billingAddress = {},
   handleEditInfoClick,
+  status,
 }: InfoProps) => {
   const [isMobile] = useMobile()
   return (
@@ -125,11 +143,15 @@ const QuoteInfo = ({
 
         <QuoteInfoItem
           title="Billing"
+          flag="Billing"
+          status={status}
           info={billingAddress}
         />
 
         <QuoteInfoItem
           title="Shipping"
+          flag="Shipping"
+          status={status}
           info={shippingAddress}
         />
       </Box>

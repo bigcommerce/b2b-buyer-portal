@@ -79,6 +79,8 @@ export default function App() {
 
   const [openApp, setOpenApp] = useState<boolean>(false)
 
+  const [isBackground, setIsBackground] = useState<boolean>(false)
+
   useOpenPDP({
     setOpenPage,
     isB2BUser,
@@ -179,7 +181,9 @@ export default function App() {
       await Promise.all([getQuoteConfig(), setStorefrontConfig()])
 
       if (!customerId) await getCurrentCustomerInfo(dispatch)
-      setOpenApp(true)
+
+      // background login enter judgment
+      setOpenApp(!(customerId && !window.location.hash))
     }
 
     init()

@@ -275,12 +275,34 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   })
 }
 
+const backgroundEnter = [
+  {
+    role: [0, 1, 2, 3, 99],
+    url: '/orders',
+  },
+  {
+    role: [100],
+    url: '/orders',
+  },
+  {
+    role: 0,
+    url: '/orders',
+  },
+  {
+    role: 0,
+    url: '/orders',
+  },
+  {
+    role: 0,
+    url: '/orders',
+  },
+]
+
 const gotoAllowedAppPage = (role: number, gotoPage: (url: string) => void) => {
   const {
     hash,
   } = window.location
-  let url = hash.split('#')[1]
-  if (!hash) return
+  let url = hash.split('#')[1] || ''
   if (!url && role !== 100) url = role === 3 ? '/' : '/orders'
   const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && item.permissions.includes(role))
 

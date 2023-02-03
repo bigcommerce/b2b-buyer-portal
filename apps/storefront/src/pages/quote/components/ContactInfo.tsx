@@ -14,6 +14,11 @@ import {
 } from '@/components'
 
 import {
+  checkUserEmail,
+  checkUserBCEmail,
+} from '@/shared/service/b2b'
+
+import {
   useMobile,
 } from '@/hooks'
 
@@ -53,7 +58,7 @@ const getContactInfo = (isMobile: boolean) => {
     {
       name: 'phoneNumber',
       label: 'Phone',
-      required: true,
+      required: false,
       default: '',
       fieldType: 'text',
       xs: isMobile ? 12 : 6,
@@ -69,18 +74,19 @@ interface ContactInfoProps {
   info: {
     [key: string]: string,
   },
-  // role: string | number,
-  // customerInfo: CustomerInfo
+  isB2BUser: boolean,
+  currentChannelId: string | number,
 }
 
 const ContactInfo = ({
   info = {},
-  // role,
-  // customerInfo,
+  isB2BUser,
+  currentChannelId,
 }: ContactInfoProps, ref: any) => {
   const {
     control,
     getValues,
+    setError,
     formState: {
       errors,
     },
@@ -100,9 +106,36 @@ const ContactInfo = ({
     }
   }, [info])
 
+  const validateEmailValue = async (emailValue: string) => {
+    const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
+    const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
+
+    const {
+      [key]: {
+        userType,
+      },
+    }: CustomFieldItems = await fn({
+      email: emailValue,
+      channelId: currentChannelId,
+    })
+
+    const isValid = isB2BUser ? [1].includes(userType) : ![2].includes(userType)
+
+    if (!isValid) {
+      setError('email', {
+        type: 'custom',
+        message: 'Email already exists',
+      })
+    }
+
+    return isValid
+  }
+
   const getContactInfoValue = async () => {
     let isValid = true
-    await handleSubmit(() => {}, () => {
+    await handleSubmit(async (data) => {
+      isValid = await validateEmailValue(data.email)
+    }, () => {
       isValid = false
     })()
 
