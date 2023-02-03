@@ -153,6 +153,7 @@ const QuoteDraft = ({
       },
       countriesList,
       customer,
+      emailAddress,
       currentChannelId: channelId,
     },
   } = useContext(GlobaledContext)
@@ -416,8 +417,6 @@ const QuoteDraft = ({
         newAddress.addressLine1 = address?.address || ''
         newAddress.addressLine2 = address?.apartment || ''
 
-        delete newAddress.company
-
         return newAddress
       }
 
@@ -614,6 +613,7 @@ const QuoteDraft = ({
           >
             <ContactInfo
               isB2BUser={isB2BUser}
+              emailAddress={emailAddress}
               currentChannelId={currentChannelId}
               info={info.contactInfo}
               ref={contactInfoRef}

@@ -72,17 +72,17 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
       render: () => format(+item.expiredAt * 1000, 'dd MMM yy'),
     },
     {
-      key: 'grandTotal',
+      key: 'totalAmount',
       title: 'Subtotal',
       render: () => {
         const {
           currency: {
             token,
           },
-          grandTotal,
+          totalAmount,
         } = item
 
-        return (`${token}${(+grandTotal).toFixed(2)}`)
+        return (`${token}${(+totalAmount).toFixed(2)}`)
       },
     },
   ]

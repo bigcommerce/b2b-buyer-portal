@@ -47,7 +47,7 @@ const QuoteInfoItem = ({
 }: QuoteInfoItemProps) => {
   const keyTable = flag === 'info' ? contactInfoKeys : addressKeys
 
-  const noAddresssText = status === 'Draft' ? `Please add ${flag === 'billing' ? 'billing' : 'shipping'} address ` : `No ${flag === 'billing' ? 'billing' : 'shipping'} address`
+  const noAddresssText = status === 'Draft' ? `Please add ${flag === 'Billing' ? 'billing' : 'shipping'} address ` : `No ${flag === 'Billing' ? 'billing' : 'shipping'} address`
 
   const isComplete = flag !== 'info' ? addressVerifyKeys.every((item: string) => !!info[item]) : false
 

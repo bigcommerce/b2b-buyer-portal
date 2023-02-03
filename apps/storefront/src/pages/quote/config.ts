@@ -31,7 +31,7 @@ const getAccountFormFields = (isMobile: boolean) => {
       size: 'small',
     },
     {
-      name: 'company',
+      name: 'companyName',
       label: 'Company',
       required: false,
       default: '',

@@ -10,6 +10,9 @@ import {
   Box,
 } from '@mui/material'
 import {
+  trim,
+} from 'lodash'
+import {
   B3CustomForm,
 } from '@/components'
 
@@ -76,12 +79,14 @@ interface ContactInfoProps {
   },
   isB2BUser: boolean,
   currentChannelId: string | number,
+  emailAddress?: string,
 }
 
 const ContactInfo = ({
   info = {},
   isB2BUser,
   currentChannelId,
+  emailAddress,
 }: ContactInfoProps, ref: any) => {
   const {
     control,
@@ -107,6 +112,7 @@ const ContactInfo = ({
   }, [info])
 
   const validateEmailValue = async (emailValue: string) => {
+    if (emailAddress === trim(emailValue)) return true
     const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
     const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
 

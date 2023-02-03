@@ -43,6 +43,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `{
         salesRepEmail,
         orderId,
         subtotal,
+        totalAmount,
       }
     }
   }
