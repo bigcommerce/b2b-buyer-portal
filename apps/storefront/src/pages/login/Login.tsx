@@ -100,7 +100,7 @@ export default function Login(props:RegisteredProps) {
   })
   const location = useLocation()
 
-  const [loginInfo, setLoginInfo] = useState<LoginInfoInit>(initialLoginInfo)
+  const [loginInfo, setLoginInfo] = useState<LoginInfoInit | null>(null)
 
   const navigate = useNavigate()
 
@@ -174,7 +174,7 @@ export default function Login(props:RegisteredProps) {
         setLoginInfo(Info)
         setLoading(false)
       } catch (e) {
-        console.log(e)
+        setLoginInfo(initialLoginInfo)
       }
     }
 
@@ -284,125 +284,131 @@ export default function Login(props:RegisteredProps) {
         <B3Sping
           isSpinning={isLoading}
           tip={b3Lang('intl.global.tips.loading')}
+          background="transparent"
         >
           <Box
             sx={{
               display: 'flex',
               flexDirection: 'column',
               width: '100%',
+              minHeight: '400px',
             }}
           >
-
             {
-          logo && loginInfo?.displayStoreLogo && (
-          <LoginImage>
-            <ImageListItem
-              sx={{
-                maxWidth: '250px',
-              }}
-              onClick={() => {
-                window.location.href = '/'
-              }}
-            >
-              <img
-                src={`${logo}`}
-                alt={b3Lang('intl.user.register.tips.registerLogo')}
-                loading="lazy"
-              />
-            </ImageListItem>
-          </LoginImage>
-          )
-        }
+            loginInfo && (
+            <>
+              {
+                logo && loginInfo?.displayStoreLogo && (
+                <LoginImage>
+                  <ImageListItem
+                    sx={{
+                      maxWidth: '250px',
+                    }}
+                    onClick={() => {
+                      window.location.href = '/'
+                    }}
+                  >
+                    <img
+                      src={`${logo}`}
+                      alt={b3Lang('intl.user.register.tips.registerLogo')}
+                      loading="lazy"
+                    />
+                  </ImageListItem>
+                </LoginImage>
+                )
+              }
 
-            {
-          loginInfo?.loginTitle && (
-          <Box
-            sx={{
-              mb: 2,
-              mt: 2,
-              display: 'flex',
-              justifyContent: 'center',
-              fontSize: '28px',
-            }}
-          >
-            {loginInfo.loginTitle}
-          </Box>
-          )
-        }
+              {
+                loginInfo?.loginTitle && (
+                <Box
+                  sx={{
+                    mb: 2,
+                    mt: 2,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    fontSize: '28px',
+                  }}
+                >
+                  {loginInfo.loginTitle}
+                </Box>
+                )
+              }
 
-            {
-          flag && showTipInfo && (
-            <Box
-              sx={{
-                padding: '0 5%',
-                margin: '30px 0',
-              }}
-            >
-              <Alert severity={(flag === '1' || flag === '4') ? 'error' : 'success'}>
-                {tipInfo(flag, loginAccount?.emailAddress || '')}
-              </Alert>
-            </Box>
+              {
+                flag && showTipInfo && (
+                  <Box
+                    sx={{
+                      padding: '0 5%',
+                      margin: '30px 0',
+                    }}
+                  >
+                    <Alert severity={(flag === '1' || flag === '4') ? 'error' : 'success'}>
+                      {tipInfo(flag, loginAccount?.emailAddress || '')}
+                    </Alert>
+                  </Box>
 
-          )
-        }
-            <Box
-              sx={{
-                padding: '0 5%',
-              }}
-            >
-
-              <LoginWidget
+                )
+              }
+              <Box
                 sx={{
-                  padding: '10px',
+                  padding: '0 5%',
                 }}
-                isVisible={loginInfo.isShowWidgetHead}
-                html={loginInfo.widgetHeadText}
-              />
-              <Box sx={{
-                margin: '50px 0',
-                display: 'flex',
-              }}
               >
 
+                <LoginWidget
+                  sx={{
+                    padding: '10px',
+                  }}
+                  isVisible={loginInfo.isShowWidgetHead}
+                  html={loginInfo.widgetHeadText}
+                />
                 <Box sx={{
-                  width: '50%',
-                  paddingRight: '2%',
+                  margin: '50px 0',
                   display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
                 }}
                 >
-                  <LoginForm
-                    loginInfo={loginInfo}
-                    gotoForgotPassword={gotoForgotPassword}
-                    handleLoginSubmit={handleLoginSubmit}
-                  />
+
+                  <Box sx={{
+                    width: '50%',
+                    paddingRight: '2%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  >
+                    <LoginForm
+                      loginInfo={loginInfo}
+                      gotoForgotPassword={gotoForgotPassword}
+                      handleLoginSubmit={handleLoginSubmit}
+                    />
+                  </Box>
+
+                  <Box sx={{
+                    flex: '1',
+                    paddingLeft: '2%',
+                  }}
+                  >
+                    <LoginPanel
+                      loginInfo={loginInfo}
+                      handleSubmit={handleCreateAccountSubmit}
+                    />
+                  </Box>
+
                 </Box>
 
-                <Box sx={{
-                  flex: '1',
-                  paddingLeft: '2%',
-                }}
-                >
-                  <LoginPanel
-                    loginInfo={loginInfo}
-                    handleSubmit={handleCreateAccountSubmit}
-                  />
-                </Box>
+                <LoginWidget
+                  sx={{
+                    padding: '20px',
+                  }}
+                  isVisible={loginInfo.isShowWidgetFooter}
+                  html={loginInfo.widgetFooterText}
+                />
 
               </Box>
-
-              <LoginWidget
-                sx={{
-                  padding: '20px',
-                }}
-                isVisible={loginInfo.isShowWidgetFooter}
-                html={loginInfo.widgetFooterText}
-              />
-
-            </Box>
+            </>
+            )
+          }
           </Box>
-
         </B3Sping>
       </LoginContainer>
     </B3Card>

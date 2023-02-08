@@ -1,7 +1,6 @@
 import {
   Box,
   Typography,
-  TextField,
   Grid,
   Button,
   Alert,
@@ -34,6 +33,7 @@ import {
   B3Dialog,
   B3Sping,
   B3LinkTipContent,
+  B3QuantityTextField,
 } from '@/components'
 
 import {
@@ -197,9 +197,10 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
 
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
 
-  const handleUpdateProductQty = (index: number, value: number | string) => {
+  const handleUpdateProductQty = (index: number, value: number | string, isValid: boolean) => {
     const newProduct: ProductsProps[] = [...products]
     newProduct[index].node.quantity = value
+    newProduct[index].isValid = isValid
     setValidateFailureProducts(newProduct)
   }
 
@@ -215,32 +216,8 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
     setValidateFailureProducts(newProduct)
   }
 
-  const validateRule = (product: ProductsProps) => {
-    const {
-      maxQuantity = 0,
-      minQuantity = 0,
-      stock = 0,
-      node,
-      isStock = '0',
-    } = product
-    const {
-      quantity,
-    } = node
-
-    if (isStock === '1' && quantity > stock) return 'Out of stock'
-
-    if (minQuantity !== 0 && quantity < minQuantity) return `Min Quantity ${minQuantity}`
-
-    if (maxQuantity !== 0 && quantity > maxQuantity) return `Max Quantity ${maxQuantity}`
-
-    return ''
-  }
-
   const handRightClick = async () => {
-    const isValidate = products.every((item: ProductsProps) => {
-      if (validateRule(item)) return false
-      return true
-    })
+    const isValidate = products.every((item: ProductsProps) => item.isValid)
 
     if (!isValidate) {
       snackbar.error('Please fill in the correct quantity')
@@ -372,6 +349,13 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                 {
                   products.map((product: ProductsProps, index: number) => {
                     const {
+                      isStock,
+                      maxQuantity,
+                      minQuantity,
+                      stock,
+                    } = product
+
+                    const {
                       basePrice,
                       quantity,
                       primaryImage,
@@ -454,27 +438,14 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                           {`${currencyToken}${price.toFixed(2)}`}
                         </FlexItem>
                         <FlexItem {...itemStyle.qty}>
-                          <TextField
-                            type="number"
-                            hiddenLabel={!isMobile}
-                            variant="filled"
-                            label={isMobile ? 'Qty' : ''}
+                          <B3QuantityTextField
+                            isStock={isStock}
+                            maxQuantity={maxQuantity}
+                            minQuantity={minQuantity}
+                            stock={stock}
                             value={quantity}
-                            inputProps={{
-                              inputMode: 'numeric', pattern: '[0-9]*',
-                            }}
-                            onChange={(e) => {
-                              handleUpdateProductQty(index, e.target.value)
-                            }}
-                            error={!!validateRule(product)}
-                            helperText={validateRule(product)}
-                            size="small"
-                            sx={{
-                              width: isMobile ? '60%' : '100%',
-                              '& .MuiFormHelperText-root': {
-                                marginLeft: '0',
-                                marginRight: '0',
-                              },
+                            onChange={(value, isValid) => {
+                              handleUpdateProductQty(index, value, isValid)
                             }}
                           />
                         </FlexItem>

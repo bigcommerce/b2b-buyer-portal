@@ -268,10 +268,12 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
 
     await getCurrentJwtAndB2BToken(userType)
 
-    const companyInfo = await getCompanyInfo(id, userType, role)
-
     if (customerId) {
-      const agentInfo = await getCurrentAgentInfo(customerId, role)
+      const [companyInfo, agentInfo] = await Promise.all([
+        getCompanyInfo(id, userType, role),
+        getCurrentAgentInfo(customerId, role),
+      ])
+
       const customerInfo = {
         phoneNumber,
         firstName,

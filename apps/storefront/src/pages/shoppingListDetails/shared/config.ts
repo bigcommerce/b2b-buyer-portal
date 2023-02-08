@@ -91,6 +91,7 @@ export interface ProductsProps {
   stock?: number,
   isStock?: string,
   node: NodeProps
+  isValid?: boolean,
 }
 
 const fieldTypes: CustomFieldItems = {

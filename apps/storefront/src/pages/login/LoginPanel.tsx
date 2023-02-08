@@ -36,7 +36,7 @@ const LoginPanel = (props: LoginPanelProps) => {
     >
       <LoginWidget
         sx={{
-          height: '250px',
+          minHeight: '250px',
         }}
         isVisible
         html={widgetBodyText}

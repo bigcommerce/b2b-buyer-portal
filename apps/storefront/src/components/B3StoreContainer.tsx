@@ -17,6 +17,7 @@ import {
 
 import {
   B3SStorage,
+  showPageMask,
 } from '@/utils'
 
 interface B3StoreContainerProps {
@@ -47,29 +48,41 @@ export const B3StoreContainer = (props: B3StoreContainerProps) => {
 
   useEffect(() => {
     const getStoreBasicInfo = async () => {
-      const {
-        storeBasicInfo,
-      }: CustomFieldItems = await getBCStoreChannelId()
+      if (window.location.pathname.includes('account.php')) {
+        showPageMask(true)
+      }
 
-      const {
-        channelId,
-        channelLogo: logo,
-        b3ChannelId: b2bChannelId,
-        b2bEnabled: storeEnabled,
-      } = getCurrentStoreInfo((storeBasicInfo as StoreBasicInfo)?.storeSites || [])
+      try {
+        const {
+          storeBasicInfo,
+        }: CustomFieldItems = await getBCStoreChannelId()
 
-      dispatch({
-        type: 'common',
-        payload: {
-          logo,
-          storeEnabled,
-          currentChannelId: channelId,
-          b2bChannelId,
-          storeName: storeBasicInfo.storeName,
-        },
-      })
+        const {
+          channelId,
+          channelLogo: logo,
+          b3ChannelId: b2bChannelId,
+          b2bEnabled: storeEnabled,
+        } = getCurrentStoreInfo((storeBasicInfo as StoreBasicInfo)?.storeSites || [])
 
-      B3SStorage.set('B3channelId', channelId)
+        dispatch({
+          type: 'common',
+          payload: {
+            logo,
+            storeEnabled,
+            currentChannelId: channelId,
+            b2bChannelId,
+            storeName: storeBasicInfo.storeName,
+          },
+        })
+
+        if (!storeEnabled) {
+          showPageMask(false)
+        }
+
+        B3SStorage.set('B3channelId', channelId)
+      } catch (error) {
+        showPageMask(false)
+      }
     }
     getStoreBasicInfo()
   }, [])

@@ -62,6 +62,10 @@ import {
   getDefaultCurrencyInfo,
 } from './currencyUtils'
 
+import {
+  showPageMask,
+} from './b3PageMask'
+
 export {
   addQuoteDraftProduce,
 } from './b3Product'
@@ -94,4 +98,5 @@ export {
   getQuoteEnabled,
   getSearchVal,
   getDefaultCurrencyInfo,
+  showPageMask,
 }

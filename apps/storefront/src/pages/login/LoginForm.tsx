@@ -95,7 +95,8 @@ const LoginForm = (props: LoginFormProps) => {
           sx={{
             cursor: 'pointer',
             ml: 2,
-            borderBottom: '1px solid black',
+            textDecoration: 'underline',
+            textUnderlineOffset: '4px',
           }}
           onClick={() => gotoForgotPassword()}
         >

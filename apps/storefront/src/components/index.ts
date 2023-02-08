@@ -56,3 +56,7 @@ export {
 export {
   B3CollapseContainer,
 } from './B3CollapseContainer'
+
+export {
+  B3QuantityTextField,
+} from './B3QuantityTextField'

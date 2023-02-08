@@ -22,8 +22,8 @@ import {
 import {
   loginInfo,
   getCurrentCustomerInfo,
-  getLogo,
   getQuoteEnabled,
+  showPageMask,
 } from '@/utils'
 
 import {
@@ -66,7 +66,6 @@ export default function App() {
       customerId,
       BcToken,
       role,
-      logo,
       currentChannelId,
       isAgenting,
       quoteConfig,
@@ -97,12 +96,10 @@ export default function App() {
     const {
       quoteConfig,
     } = await getB2BRegisterLogo()
-    const quoteLogo = getLogo(quoteConfig)
 
     dispatch({
       type: 'common',
       payload: {
-        logo: logo || quoteLogo,
         quoteConfig,
       },
     })
@@ -209,6 +206,12 @@ export default function App() {
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
 
   useRegisteredbctob2b(setOpenPage, isB2BUser, customerId)
+
+  useEffect(() => {
+    if (isOpen) {
+      showPageMask(false)
+    }
+  }, [isOpen])
 
   return (
     <HashRouter>
