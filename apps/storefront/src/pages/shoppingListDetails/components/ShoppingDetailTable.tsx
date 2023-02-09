@@ -7,7 +7,12 @@ import {
   Ref,
   Dispatch,
   SetStateAction,
+  useEffect,
 } from 'react'
+
+import {
+  cloneDeep,
+} from 'lodash'
 
 import {
   Box,
@@ -169,15 +174,26 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     search: '',
   })
   const [qtyNotChangeFlag, setQtyNotChangeFlag] = useState<boolean>(true)
+  const [originProducts, setOriginProducts] = useState<ListItemProps[]>([])
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
-    const listItems = paginationTableRef.current?.getList() || []
+    const currentItem = originProducts.find((item: ListItemProps) => {
+      const {
+        node,
+      } = item
+
+      return node.id === id
+    })
+
+    const currentQty = currentItem?.node?.quantity || ''
+    setQtyNotChangeFlag(+currentQty === +value)
+
+    const listItems: ListItemProps[] = paginationTableRef.current?.getList() || []
     const newListItems = listItems?.map((item: ListItemProps) => {
       const {
         node,
       } = item
       if (node?.id === id) {
-        setQtyNotChangeFlag(node.quantity === +value)
         node.quantity = +value || ''
       }
 
@@ -309,6 +325,18 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
       setCheckedArr([])
     }
   }
+
+  useEffect(() => {
+    if (shoppingListInfo) {
+      const {
+        products: {
+          edges,
+        },
+      } = shoppingListInfo
+
+      setOriginProducts(cloneDeep(edges))
+    }
+  }, [shoppingListInfo])
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
