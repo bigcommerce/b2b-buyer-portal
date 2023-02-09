@@ -10,3 +10,5 @@ declare interface CustomFieldStringItems {
 declare interface Window {
   tipDispatch: DispatchProps
 }
+
+// declare module '@mui-treasury/components/chatMsg/ChatMsg'

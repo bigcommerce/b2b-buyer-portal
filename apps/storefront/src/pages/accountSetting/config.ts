@@ -16,41 +16,32 @@ export interface GetFilterMoreListProps {
   size: string
 }
 
-export const getAccountSettingFiles = (xs: number, isB2BUser?: boolean): GetFilterMoreListProps[] => {
-  const accountFormFields = [
-    {
-      name: 'firstName',
-      label: 'First Name',
-      required: true,
-      default: '',
-      fieldType: 'text',
-      xs,
-      variant: 'filled',
-      size: 'small',
-    },
-    {
-      name: 'lastName',
-      label: 'Last Name',
-      required: true,
-      default: '',
-      fieldType: 'text',
-      xs,
-      variant: 'filled',
-      size: 'small',
-    },
+interface getAccountSettingFilesReturnProps {
+  accountB2BFormFields: GetFilterMoreListProps[],
+  passwordModified: GetFilterMoreListProps[],
+}
+
+interface PasswordKeysProps {
+  name: string,
+  label: string,
+}
+
+export const getPasswordKeys = (): PasswordKeysProps[] => [{
+  name: 'currentPassword',
+  label: 'Current Password',
+}, {
+  name: 'password',
+  label: 'Password',
+}, {
+  name: 'confirmPassword',
+  label: 'Confirm Password',
+}]
+
+export const getAccountSettingFiles = (xs: number): getAccountSettingFilesReturnProps => {
+  const accountB2BFormFields = [
     {
       name: 'company',
       label: 'Company',
-      required: false,
-      default: '',
-      fieldType: 'text',
-      xs,
-      variant: 'filled',
-      size: 'small',
-    },
-    {
-      name: 'phoneNumber',
-      label: 'Phone Number',
       required: false,
       default: '',
       fieldType: 'text',
@@ -86,50 +77,21 @@ export const getAccountSettingFiles = (xs: number, isB2BUser?: boolean): GetFilt
       variant: 'filled',
       size: 'small',
     },
-    {
-      name: 'email',
-      label: 'Email Address',
-      required: true,
-      default: '',
-      fieldType: 'text',
-      xs,
-      variant: 'filled',
-      size: 'small',
-    },
-    {
-      name: 'currentPassword',
-      label: 'Current Password',
-      required: false,
-      default: '',
-      fieldType: 'password',
-      xs,
-      variant: 'filled',
-      size: 'small',
-    },
-    {
-      name: 'password',
-      label: 'Password',
-      required: false,
-      default: '',
-      fieldType: 'password',
-      xs,
-      variant: 'filled',
-      size: 'small',
-    },
-    {
-      name: 'confirmPassword',
-      label: 'Confirm Password',
-      required: false,
-      default: '',
-      fieldType: 'password',
-      xs,
-      variant: 'filled',
-      size: 'small',
-    },
   ]
 
-  if (!isB2BUser) {
-    return accountFormFields.filter((item:GetFilterMoreListProps) => item.name !== 'role')
+  const passwordModified = getPasswordKeys().map((item: PasswordKeysProps) => ({
+    name: item.name,
+    label: item.label,
+    required: false,
+    default: '',
+    fieldType: 'password',
+    xs,
+    variant: 'filled',
+    size: 'small',
+  }))
+
+  return {
+    accountB2BFormFields,
+    passwordModified,
   }
-  return accountFormFields
 }

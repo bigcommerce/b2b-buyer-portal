@@ -141,6 +141,17 @@ const quoteCreate = (data: CustomFieldItems) => `mutation{
   }
 }`
 
+const quoteUpdate = (data: CustomFieldItems) => `mutation{
+  quoteUpdate(
+    id: ${data.id},
+    quoteData: ${convertObjectToGraphql(data.quoteData)}
+  ) {
+    quote{
+      trackingHistory,
+    }
+  }
+}`
+
 const getQuoteInfo = (data: {
   id: number,
   date: string,
@@ -321,6 +332,14 @@ export const createQuote = (data: CustomFieldItems): CustomFieldItems => B3Reque
 
 export const createBCQuote = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
   query: quoteCreate(data),
+})
+
+export const updateB2BQuote = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
+  query: quoteUpdate(data),
+})
+
+export const updateBCQuote = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: quoteUpdate(data),
 })
 
 export const getB2BQuoteDetail = (data: { id: number, date: string }): CustomFieldItems => B3Request.graphqlB2B({

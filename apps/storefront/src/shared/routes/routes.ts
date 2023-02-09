@@ -30,7 +30,7 @@ const QuoteDraft = lazy(() => import('../../pages/quote/QuoteDraft'))
 const Quotes = lazy(() => import('../../pages/quote/QuotesList'))
 const QuoteDetail = lazy(() => import('../../pages/quote/QuoteDetail'))
 
-// const AccountSetting = lazy(() => import('../../pages/accountSetting/AccountSetting'))
+const AccountSetting = lazy(() => import('../../pages/accountSetting/AccountSetting'))
 const ShoppingListDetails = lazy(() => import('../../pages/shoppingListDetails/ShoppingListDetails'))
 
 const Registered = lazy(() => import('../../pages/registered/Registered'))
@@ -42,6 +42,8 @@ const Login = lazy(() => import('../../pages/login/Login'))
 const ForgotPassword = lazy(() => import('../../pages/login/ForgotPassword'))
 
 const PDP = lazy(() => import('../../pages/pdp/PDP'))
+
+const Quickorder = lazy(() => import('../../pages/quickorder/Quickorder'))
 
 type RegisteredItem = typeof Registered
 
@@ -160,6 +162,26 @@ const routes: RouteItem[] = [
     isTokenLogin: true,
   },
   {
+    path: '/accountSetting',
+    name: 'AccountSetting',
+    wsKey: 'accountSetting',
+    isMenuItem: true,
+    component: AccountSetting,
+    configKey: 'accountSetting',
+    permissions: [0, 1, 2, 3, 99],
+    isTokenLogin: true,
+  },
+  {
+    path: '/purchased-products',
+    name: 'Purchased products',
+    wsKey: 'quickorder',
+    isMenuItem: true,
+    component: Quickorder,
+    configKey: 'quickorder',
+    permissions: [0, 1, 2, 3, 99],
+    isTokenLogin: true,
+  },
+  {
     path: '/quoteDetail/:id',
     name: 'QuoteDetail',
     wsKey: 'quoteDetail',
@@ -175,16 +197,6 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: Dashboard,
-    permissions: [0, 1, 2, 3, 99, 100],
-    isTokenLogin: true,
-  },
-  {
-    path: '/account-settings',
-    name: 'Account Settings',
-    wsKey: 'router-orders',
-    isMenuItem: true,
-    component: Dashboard,
-    configKey: 'accountSettings',
     permissions: [0, 1, 2, 3, 99, 100],
     isTokenLogin: true,
   },

@@ -21,11 +21,13 @@ interface B3FilterSearchProps {
   w?: number | undefined |string
   searchBGColor?: string
   placeholder?: string
+  h?: number | string
 }
 
 const B3FilterSearch = ({
   handleChange,
   w = '100%',
+  h,
   searchBGColor = '#efeae7',
   placeholder = 'Search',
 }: B3FilterSearchProps) => {
@@ -61,6 +63,7 @@ const B3FilterSearch = ({
         maxWidth: w,
         border: 'none',
         boxShadow: 'none',
+        height: h || '50px',
         borderBottomLeftRadius: '0',
         borderBottomRightRadius: '0',
         borderBottom: '1px solid rgba(0, 0, 0, 0.42)',

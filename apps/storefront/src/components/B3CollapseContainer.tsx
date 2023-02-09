@@ -7,16 +7,19 @@ import {
 import {
   useState,
   ReactNode,
+  ReactElement,
+  useEffect,
 } from 'react'
 
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 
 interface CollapseContainerProps{
-  title?: string,
+  title?: string | ReactElement,
   header?: ReactNode,
   defaultOpen?: boolean,
   children: ReactNode,
+  handleOnChange?: (open: boolean) => void
 }
 
 export const B3CollapseContainer = (props: CollapseContainerProps) => {
@@ -25,6 +28,7 @@ export const B3CollapseContainer = (props: CollapseContainerProps) => {
     title = '',
     header,
     defaultOpen = false,
+    handleOnChange,
   } = props
 
   const [open, setOpen] = useState(defaultOpen)
@@ -32,6 +36,9 @@ export const B3CollapseContainer = (props: CollapseContainerProps) => {
   const handleClick = () => {
     setOpen(!open)
   }
+  useEffect(() => {
+    if (handleOnChange) handleOnChange(open)
+  }, [open])
 
   return (
     <Box>

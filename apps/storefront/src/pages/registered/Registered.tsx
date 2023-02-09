@@ -25,7 +25,7 @@ import {
 } from '@/shared/service/b2b'
 
 import {
-  getBCRegisterCustomFields,
+  // getBCRegisterCustomFields,
   bcLogin,
 } from '@/shared/service/bc'
 
@@ -124,7 +124,7 @@ function Registered(props: RegisteredProps) {
           })
         }
 
-        await getBCRegisterCustomFields()
+        // await getBCRegisterCustomFields()
 
         const accountFormAllFields = formType.map((item: number) => getB2BAccountFormFields(item))
 

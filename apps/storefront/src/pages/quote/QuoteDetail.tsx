@@ -55,6 +55,8 @@ import {
   QuoteNote,
 } from './components/QuoteNote'
 
+import Message from './components/Message'
+
 const QuoteDetail = () => {
   const {
     id = '',
@@ -64,6 +66,8 @@ const QuoteDetail = () => {
   const {
     state: {
       role,
+      customer,
+      isB2BUser,
     },
   } = useContext(GlobaledContext)
   const [isMobile] = useMobile()
@@ -352,6 +356,20 @@ const QuoteDetail = () => {
               <QuoteDetailSummary
                 quoteSummary={quoteSummary}
                 currency={quoteDetail.currency}
+              />
+            </Box>
+
+            <Box
+              sx={{
+                marginBottom: '1rem',
+                displayPrint: 'none',
+              }}
+            >
+              <Message
+                id={id}
+                isB2BUser={isB2BUser}
+                email={customer?.emailAddress || ''}
+                msgs={quoteDetail?.trackingHistory || []}
               />
             </Box>
 

@@ -27,6 +27,7 @@ interface PickerProps {
 interface B3FilterPickerProps {
   startPicker?: PickerProps
   endPicker?: PickerProps
+  xs?: {[key: string]: number | string}
   handleChange?: (key: string, value: Date | string | number) => void
 }
 
@@ -34,6 +35,7 @@ const B3FilterPickers = ({
   startPicker,
   endPicker,
   handleChange,
+  xs = {},
 }: B3FilterPickerProps, ref: Ref<unknown> | undefined) => {
   // const [isMobile] = useMobile()
   const [startValue, setStartValue] = useState<Date | number | string>(startPicker?.defaultValue || new Date())
@@ -87,6 +89,7 @@ const B3FilterPickers = ({
           '& > .MuiFormControl-root': {
             width: '100%',
           },
+          ...xs,
         }}
       >
         <B3Picker
@@ -110,6 +113,7 @@ const B3FilterPickers = ({
             width: '100%',
           },
           cursor: 'pointer',
+          ...xs,
         }}
       >
         <B3Picker

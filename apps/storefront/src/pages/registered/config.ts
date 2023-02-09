@@ -252,6 +252,7 @@ export const toHump = (name:string) => name.replace(/_(\w)/g, (all, letter) => l
 
 export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
   const getFormFields: any = {}
+
   FormFields.forEach((item: CustomFieldItems) => {
     const key: string = (groupItems as CustomFieldItems)[item.groupId]
 
@@ -259,7 +260,7 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
       getFormFields[key] = []
     }
 
-    let obj:any = {}
+    let obj:CustomFieldItems = {}
     if (item.valueConfigs?.id) {
       obj = conversionSigleItem(item.valueConfigs)
     } else {

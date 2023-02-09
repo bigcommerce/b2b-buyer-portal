@@ -51,6 +51,8 @@ import {
   getBcQuoteDetail,
   b2bQuoteCheckout,
   bcQuoteCheckout,
+  updateB2BQuote,
+  updateBCQuote,
 } from './graphql/quote'
 
 import {
@@ -106,6 +108,17 @@ import {
   deleteBCCustomerAddress,
   getB2BAddressConfig,
 } from './graphql/address'
+
+export {
+  updateB2BAccountSettings,
+  getB2BAccountSettings,
+  updateBCAccountSettings,
+  getBCAccountSettings,
+} from './graphql/accountSetting'
+
+export {
+  getOrderedProducts,
+} from './graphql/quickorder'
 
 export {
   getB2BRegisterCustomFields,
@@ -178,4 +191,6 @@ export {
   b2bQuoteCheckout,
   exportBcQuotePdf,
   bcQuoteCheckout,
+  updateB2BQuote,
+  updateBCQuote,
 }
