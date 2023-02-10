@@ -1,4 +1,7 @@
 import {
+  keyBy,
+} from 'lodash'
+import {
   b3Fetch,
 } from './fetch'
 import {
@@ -47,17 +50,30 @@ import {
 //   timeout: 10000,
 // }
 
-function request<T>(path: string, config?: T, type?: string) {
+interface Config{
+  headers?: {
+    [key: string]: string
+  }
+}
+
+function request<T>(path: string, config?: T & Config, type?: string) {
   const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
   const getToken = type === RequestType.BCRest ? {
     'x-xsrf-token': getCookie('XSRF-TOKEN'),
   } : {
     authToken: `${B3SStorage.get('B3B2BToken') || ''}`,
   }
+
+  const {
+    headers = {
+      'content-type': 'application/json',
+    },
+  } = config || {}
+
   const init = {
     ...config,
     headers: {
-      'content-type': 'application/json',
+      ...headers,
       ...getToken,
     },
   }

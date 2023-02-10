@@ -71,6 +71,8 @@ const QuoteDetail = () => {
   const [quoteDetail, setQuoteDetail] = useState<any>({})
   const [productList, setProductList] = useState<any>([])
   const [currency, setCurrency] = useState<any>({})
+  const [fileList, setFileList] = useState<any>([])
+
   const [quoteSummary, setQuoteSummary] = useState<any>({
     originalSubtotal: 0,
     discount: 0,
@@ -112,6 +114,34 @@ const QuoteDetail = () => {
       })
       setCurrency(quote.currency)
       setProductList(quote.productsList)
+
+      const {
+        backendAttachFiles = [],
+        storefrontAttachFiles = [],
+      } = quote
+
+      const newFileList: CustomFieldItems[] = []
+      storefrontAttachFiles.forEach((file: CustomFieldItems) => {
+        newFileList.push({
+          fileName: file.fileName,
+          fileType: file.fileType,
+          fileUrl: file.fileUrl,
+          id: file.fileUrl,
+          title: 'Uploaded by customer: xxxx', // TODO
+        })
+      })
+
+      backendAttachFiles.forEach((file: CustomFieldItems) => {
+        newFileList.push({
+          fileName: file.fileName,
+          fileType: file.fileType,
+          fileUrl: file.fileUrl,
+          id: file.fileUrl,
+          title: 'Uploaded by sales rep: xxxx', // TODO
+        })
+      })
+
+      setFileList(newFileList)
 
       return quote
     } catch (err: any) {
@@ -339,7 +369,14 @@ const QuoteDetail = () => {
                 displayPrint: 'none',
               }}
             >
-              <QuoteAttachment />
+              {
+                fileList.length > 0 && (
+                <QuoteAttachment
+                  allowUpload={false}
+                  defaultFileList={fileList}
+                />
+                )
+              }
             </Box>
           </Grid>
         </Grid>

@@ -7,6 +7,7 @@ import {
 import {
   useState,
   useEffect,
+  useContext,
 } from 'react'
 
 import {
@@ -17,37 +18,89 @@ import {
   B3LStorage,
 } from '@/utils'
 
-export const QuoteAttachment = () => {
-  const [fileInfo, setFileInfo] = useState('')
+import {
+  GlobaledContext,
+} from '@/shared/global'
+
+import {
+  FileObjects,
+  FileUpload,
+} from './FileUpload'
+
+interface QuoteAttachmentProps{
+  allowUpload?: boolean,
+  defaultFileList?: FileObjects[]
+}
+
+export const QuoteAttachment = (props: QuoteAttachmentProps) => {
+  const {
+    allowUpload = true,
+    defaultFileList = [],
+  } = props
+
+  const {
+    state: {
+      customer: {
+        firstName = '',
+        lastName = '',
+      },
+    },
+  } = useContext(GlobaledContext)
+
+  const [fileList, setFileList] = useState<FileObjects[]>(defaultFileList)
 
   useEffect(() => {
-    // const {
-    //   fileInfo = '',
-    // } = B3LStorage.get('MyQuoteInfo') || {}
+    if (defaultFileList.length <= 0) {
+      const {
+        fileInfo = [],
+      }: CustomFieldItems = B3LStorage.get('MyQuoteInfo') || {}
 
-    setFileInfo('file')
+      setFileList(typeof fileInfo !== 'object' ? [] : fileInfo)
+    }
   }, [])
 
-  useEffect(() => {
-    const quoteInfo = B3LStorage.get('MyQuoteInfo')
+  const saveQuoteInfo = (newFileInfo: FileObjects[]) => {
+    const quoteInfo = B3LStorage.get('MyQuoteInfo') || {}
 
     if (quoteInfo) {
       B3LStorage.set('MyQuoteInfo', {
         ...quoteInfo,
-        fileInfo,
+        fileInfo: newFileInfo,
       })
     }
-  }, [fileInfo])
+  }
+
+  const handleChange = (file: FileObjects) => {
+    const newFileList = [...fileList, {
+      ...file,
+      title: `Uploaded by customer: ${firstName} ${lastName}`,
+      hasDelete: true,
+    }]
+
+    saveQuoteInfo(newFileList)
+
+    setFileList(newFileList)
+  }
+
+  const handleDelete = (id: string) => {
+    const newFileList = fileList.filter((file) => file.id !== id)
+
+    saveQuoteInfo(newFileList)
+
+    setFileList(newFileList)
+  }
 
   return (
     <Card>
       <CardContent>
         <B3CollapseContainer title="Attachment">
-          <Box sx={{
-            padding: '16px 0',
-          }}
-          >
-            {fileInfo}
+          <Box>
+            <FileUpload
+              fileList={fileList}
+              onchange={handleChange}
+              onDelete={handleDelete}
+              allowUpload={allowUpload}
+            />
           </Box>
         </B3CollapseContainer>
       </CardContent>

@@ -131,7 +131,8 @@ const quoteCreate = (data: CustomFieldItems) => `mutation{
     shippingAddress: ${convertObjectToGraphql(data.shippingAddress)}
     billingAddress: ${convertObjectToGraphql(data.billingAddress)}
     contactInfo: ${convertObjectToGraphql(data.contactInfo)}
-    productList: ${convertArrayToGraphql(data.productList || [])}
+    productList: ${convertArrayToGraphql(data.productList || [])},
+    fileList: ${convertArrayToGraphql(data.fileList || [])}
   }) {
     quote{
       id,

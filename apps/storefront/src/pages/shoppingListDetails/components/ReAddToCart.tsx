@@ -259,6 +259,23 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
 
   const handleClearNoStock = () => {
     const newProduct = products.filter((item: ProductsProps) => item.isStock === '0' || item.stock !== 0)
+    newProduct.forEach((product) => {
+      const {
+        node: {
+          quantity,
+        },
+        minQuantity = 0,
+        maxQuantity = 0,
+      } = product
+
+      const quantityNumber = parseInt(`${quantity}`, 10) || 0
+      if (minQuantity !== 0 && quantityNumber < minQuantity) {
+        product.node.quantity = minQuantity
+      } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
+        product.node.quantity = maxQuantity
+      }
+    })
+
     setValidateFailureProducts(newProduct)
   }
 

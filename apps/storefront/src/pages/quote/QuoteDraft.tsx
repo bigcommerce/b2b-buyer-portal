@@ -374,6 +374,19 @@ const QuoteDraft = ({
     quoteTableRef.current?.refreshList()
   }
 
+  const getFileList = (files: CustomFieldItems[]) => {
+    if (role === 100) {
+      return []
+    }
+
+    return files.map((file) => ({
+      fileUrl: file.fileUrl,
+      fileName: file.fileName,
+      fileType: file.fileType,
+      fileSize: `${file.fileSize}`,
+    }))
+  }
+
   const handleSubmit = async () => {
     setLoading(true)
     try {
@@ -467,6 +480,8 @@ const QuoteDraft = ({
 
       const currency = getDefaultCurrencyInfo()
 
+      const fileList = getFileList(info.fileInfo || [])
+
       const data = {
         notes: note,
         legalTerms: '',
@@ -482,6 +497,7 @@ const QuoteDraft = ({
         billingAddress,
         contactInfo,
         productList,
+        fileList,
         currency: {
           currencyExchangeRate: currency.currency_exchange_rate,
           token: currency.token,
@@ -745,7 +761,9 @@ const QuoteDraft = ({
 
               <QuoteNote />
 
-              <QuoteAttachment />
+              {
+                role !== 100 && <QuoteAttachment />
+              }
             </Stack>
           </Container>
         </Box>

@@ -57,6 +57,10 @@ export const B3QuantityTextField = (props: B3NumberTextFieldProps) => {
       validMessage = ('Out of stock')
     } else if (isStock === '1' && quantity > stock) {
       validMessage = (`${stock} in stock`)
+    } else if (minQuantity !== 0 && quantity < minQuantity) {
+      validMessage = (`Min is ${minQuantity}`)
+    } else if (maxQuantity !== 0 && quantity > maxQuantity) {
+      validMessage = (`Max is ${maxQuantity}`)
     }
 
     setValidMessage(validMessage)
@@ -69,13 +73,7 @@ export const B3QuantityTextField = (props: B3NumberTextFieldProps) => {
   }
 
   const handleBlur = () => {
-    let quantity = parseInt(`${value}`, 10) || 0
-
-    if (minQuantity !== 0 && quantity < minQuantity) {
-      quantity = minQuantity
-    } else if (maxQuantity !== 0 && quantity > maxQuantity) {
-      quantity = maxQuantity
-    }
+    const quantity = parseInt(`${value}`, 10) || 0
 
     onChange(quantity, !validateQuantity(quantity))
   }
