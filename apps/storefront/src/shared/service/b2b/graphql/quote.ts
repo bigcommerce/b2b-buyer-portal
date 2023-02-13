@@ -246,12 +246,14 @@ const getQuoteInfo = (data: {
       fileName,
       fileType,
       fileUrl,
+      createdBy,
     },
     backendAttachFiles {
       id,
       fileName,
       fileType,
       fileUrl,
+      createdBy,
     },
     storeInfo {
       storeName,
@@ -310,6 +312,28 @@ const quoteCheckout = (data: {
   }
 }`
 
+const quoteAttachFileCreate = (data: CustomFieldItems) => `mutation{
+  quoteAttachFileCreate(
+    quoteId: ${data.quoteId},
+    fileList: ${convertArrayToGraphql(data.fileList || [])}
+  ) {
+    attachFiles {
+      id,
+      createdBy,
+      fileUrl,
+    }
+  }
+}`
+
+const quoteAttachFileDelete = (data: CustomFieldItems) => `mutation{
+  quoteAttachFileDelete(
+    quoteId: ${data.quoteId},
+    fileId: ${data.fileId}
+  ) {
+    message
+  }
+}`
+
 export const getBCCustomerAddresses = (): CustomFieldItems => B3Request.graphqlProxyBC({
   query: getCustomerAddresses(),
 })
@@ -364,4 +388,12 @@ export const b2bQuoteCheckout = (data: { id: number }): CustomFieldItems => B3Re
 
 export const bcQuoteCheckout = (data: { id: number }): CustomFieldItems => B3Request.graphqlProxyBC({
   query: quoteCheckout(data),
+})
+
+export const quoteDetailAttachFileCreate = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: quoteAttachFileCreate(data),
+})
+
+export const quoteDetailAttachFileDelete = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: quoteAttachFileDelete(data),
 })

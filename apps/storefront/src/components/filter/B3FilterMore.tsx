@@ -57,6 +57,7 @@ interface B3FilterMoreProps<T, Y> {
   endPicker?: PickerProps
   fiterMoreInfo: Array<DeepPartial<T>>
   onChange?: (val: Y) => void
+  isShowMore?: boolean
 }
 
 interface PickerRefProps extends HTMLInputElement {
@@ -69,11 +70,13 @@ const B3FilterMore:<T, Y> ({
   endPicker,
   fiterMoreInfo,
   onChange,
+  isShowMore,
 }: B3FilterMoreProps<T, Y>) => ReactElement = ({
   startPicker,
   endPicker,
   fiterMoreInfo,
   onChange,
+  isShowMore = false,
 }) => {
   const container = useRef<HTMLInputElement | null>(null)
   const [open, setOpen] = useState<boolean>(false)
@@ -142,7 +145,7 @@ const B3FilterMore:<T, Y> ({
       />
 
       {
-        fiterMoreInfo && fiterMoreInfo.length && (
+        ((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
         <Box onClick={handleDialogClick}>
           <FilterListIcon />
         </Box>

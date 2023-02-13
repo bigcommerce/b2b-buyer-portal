@@ -8,6 +8,7 @@ import {
   useState,
   useEffect,
   useContext,
+  useRef,
 } from 'react'
 
 import {
@@ -23,19 +24,31 @@ import {
 } from '@/shared/global'
 
 import {
+  quoteDetailAttachFileCreate,
+  quoteDetailAttachFileDelete,
+} from '@/shared/service/b2b'
+
+import FileUpload, {
   FileObjects,
-  FileUpload,
 } from './FileUpload'
+
+interface UpLoaddingProps extends HTMLInputElement {
+  setUploadLoadding: (flag: boolean) => void
+}
 
 interface QuoteAttachmentProps{
   allowUpload?: boolean,
   defaultFileList?: FileObjects[]
+  status?: number
+  quoteId?: number
 }
 
 export const QuoteAttachment = (props: QuoteAttachmentProps) => {
   const {
     allowUpload = true,
     defaultFileList = [],
+    status,
+    quoteId,
   } = props
 
   const {
@@ -47,7 +60,13 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
     },
   } = useContext(GlobaledContext)
 
-  const [fileList, setFileList] = useState<FileObjects[]>(defaultFileList)
+  const [fileList, setFileList] = useState<FileObjects[]>([])
+
+  useEffect(() => {
+    setFileList(defaultFileList)
+  }, [defaultFileList])
+
+  const uploadRef = useRef<UpLoaddingProps | null>(null)
 
   useEffect(() => {
     if (defaultFileList.length <= 0) {
@@ -70,24 +89,64 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
     }
   }
 
-  const handleChange = (file: FileObjects) => {
-    const newFileList = [...fileList, {
-      ...file,
-      title: `Uploaded by customer: ${firstName} ${lastName}`,
-      hasDelete: true,
-    }]
+  const handleChange = async (file: FileObjects) => {
+    try {
+      let newFileList: FileObjects[] = []
+      if (status !== 0) {
+        const createFile: FileObjects = {
+          fileName: file.fileName,
+          fileType: file.fileType,
+          fileUrl: file.fileUrl,
+          fileSize: file.fileSize,
+        }
+        const {
+          quoteAttachFileCreate: {
+            attachFiles,
+          },
+        } = await quoteDetailAttachFileCreate({
+          fileList: [{
+            ...createFile,
+          }],
+          quoteId,
+        })
 
-    saveQuoteInfo(newFileList)
-
-    setFileList(newFileList)
+        createFile.id = attachFiles[0].id
+        newFileList = [...fileList, {
+          ...createFile,
+          title: `Uploaded by customer: ${attachFiles[0].createdBy}`,
+          hasDelete: true,
+        }]
+      } else {
+        newFileList = [...fileList, {
+          ...file,
+          title: `Uploaded by customer: ${firstName} ${lastName}`,
+          hasDelete: true,
+        }]
+        saveQuoteInfo(newFileList)
+      }
+      setFileList(newFileList)
+    } finally {
+      uploadRef.current?.setUploadLoadding(false)
+    }
   }
 
-  const handleDelete = (id: string) => {
-    const newFileList = fileList.filter((file) => file.id !== id)
-
-    saveQuoteInfo(newFileList)
-
-    setFileList(newFileList)
+  const handleDelete = async (id: string) => {
+    try {
+      uploadRef.current?.setUploadLoadding(true)
+      const deleteFile = fileList.find((file) => file.id === id)
+      const newFileList = fileList.filter((file) => file.id !== id)
+      if (status !== 0 && deleteFile) {
+        await quoteDetailAttachFileDelete({
+          fileId: deleteFile?.id || '',
+          quoteId,
+        })
+      } else {
+        saveQuoteInfo(newFileList)
+      }
+      setFileList(newFileList)
+    } finally {
+      uploadRef.current?.setUploadLoadding(false)
+    }
   }
 
   return (
@@ -96,6 +155,8 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
         <B3CollapseContainer title="Attachment">
           <Box>
             <FileUpload
+              ref={uploadRef}
+              isEndLoadding
               fileList={fileList}
               onchange={handleChange}
               onDelete={handleDelete}

@@ -40,6 +40,7 @@ interface MessageProps {
   role?: string,
   isCustomer?: boolean
   key?: number | string
+  read?: number
 }
 
 interface MsgsProps {
@@ -175,9 +176,9 @@ const Message = ({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const changeReadRef = useRef(0)
 
-  const title = useMemo(() => <Box>Message</Box>, [])
-
   const [messages, setMessages] = useState<MessageProps[]>([])
+
+  const [read, setRead] = useState<number>(0)
 
   const [message, setMessage] = useState<string>('')
 
@@ -186,6 +187,7 @@ const Message = ({
   const convertedMsgs = (msgs: MessageProps[]) => {
     let nextMsg: MessageProps = {}
     const getNewMsgs: MessageProps[] = []
+    let readNum = 0
     msgs.forEach((msg: MessageProps, index: number) => {
       if (index === 0) {
         getNewMsgs.push({
@@ -227,10 +229,49 @@ const Message = ({
         nextMsg = msg
         nextMsg.isCustomer = !msg.role?.includes('Sales rep:')
       }
+
+      if (msg.role?.includes('Sales rep:') && !msg.read) {
+        readNum += 1
+      }
     })
+
+    setRead(readNum)
 
     setMessages(getNewMsgs)
   }
+
+  const title = useMemo(() => (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      Message
+      {' '}
+      {
+        read !== 0 && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '25px',
+            height: '25px',
+            borderRadius: '50%',
+            background: '#1976D2',
+            color: '#fff',
+            fontSize: '15px',
+            ml: '8px',
+          }}
+        >
+          {read}
+        </Box>
+        )
+      }
+    </Box>
+  ), [read])
 
   useEffect(() => {
     convertedMsgs(msgs)
@@ -262,6 +303,7 @@ const Message = ({
         },
       })
       setMessage('')
+      setRead(0)
       convertedMsgs(trackingHistory)
     } finally {
       setLoadding(false)
@@ -276,15 +318,18 @@ const Message = ({
 
   const handleOnChange = useCallback((open: boolean) => {
     if (open) {
+      const fn = isB2BUser ? updateB2BQuote : updateBCQuote
       if (changeReadRef.current === 0 && msgs.length) {
-        updateQuote({
+        fn({
           id: +id,
           quoteData: {
-            timestamp: msgs[msgs.length - 1]?.date,
+            lastMessage: msgs[msgs.length - 1]?.date,
             userEmail: email || '',
+            storeHash,
           },
         })
       }
+      setRead(0)
       if (messagesEndRef.current) {
         messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight
       }

@@ -130,8 +130,9 @@ const QuoteDetail = () => {
           fileName: file.fileName,
           fileType: file.fileType,
           fileUrl: file.fileUrl,
-          id: file.fileUrl,
-          title: 'Uploaded by customer: xxxx', // TODO
+          id: file.id,
+          hasDelete: true,
+          title: `Uploaded by customer: ${file.createdBy}`,
         })
       })
 
@@ -140,8 +141,8 @@ const QuoteDetail = () => {
           fileName: file.fileName,
           fileType: file.fileType,
           fileUrl: file.fileUrl,
-          id: file.fileUrl,
-          title: 'Uploaded by sales rep: xxxx', // TODO
+          id: file.id,
+          title: `Uploaded by sales rep: ${file.createdBy}`,
         })
       })
 
@@ -390,7 +391,9 @@ const QuoteDetail = () => {
               {
                 fileList.length > 0 && (
                 <QuoteAttachment
-                  allowUpload={false}
+                  // allowUpload={false}
+                  quoteId={quoteDetail.id}
+                  status={quoteDetail.status}
                   defaultFileList={fileList}
                 />
                 )

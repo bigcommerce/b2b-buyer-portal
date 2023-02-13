@@ -12,6 +12,9 @@ import styled from '@emotion/styled'
 
 import {
   useState,
+  Ref,
+  forwardRef,
+  useImperativeHandle,
 } from 'react'
 
 import {
@@ -60,9 +63,9 @@ const FileUploadContainer = styled(Box)(() => ({
   },
 }))
 
-const FileListItem = styled(Box)(() => ({
+const FileListItem = styled(Box)((props: CustomFieldItems) => ({
   display: 'flex',
-  background: 'rgba(25, 118, 210, 0.3)',
+  background: props.hasDelete ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)',
   borderRadius: '18px',
   padding: '6px 8px',
   alignItems: 'center',
@@ -96,13 +99,14 @@ const FileUserTitle = styled(Typography)(() => ({
 }))
 
 export interface FileObjects {
-  id: string,
+  id?: string,
   fileName: string,
   fileType: string,
   fileUrl: string,
   fileSize?: number,
   title?: string,
   hasDelete?: boolean,
+  isCustomer?: boolean,
 }
 
 interface FileUploadProps {
@@ -115,9 +119,10 @@ interface FileUploadProps {
   fileList: FileObjects[],
   allowUpload?: boolean,
   onDelete?: (id: string) => void,
+  isEndLoadding?: boolean,
 }
 
-export const FileUpload = (props: FileUploadProps) => {
+const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
   const {
     title = 'Add Attachment',
     tips = 'You can add up to 3 files,not bigger that 2MB each.',
@@ -128,9 +133,14 @@ export const FileUpload = (props: FileUploadProps) => {
     fileList = [],
     allowUpload = true,
     onDelete = noop,
+    isEndLoadding = false,
   } = props
 
   const [loading, setLoading] = useState<boolean>(false)
+
+  useImperativeHandle(ref, () => ({
+    setUploadLoadding: (flag: boolean) => setLoading(flag),
+  }))
 
   const getMaxFileSizeLabel = (maxSize: number) => {
     if (maxSize / 1048576 > 1) {
@@ -205,10 +215,10 @@ export const FileUpload = (props: FileUploadProps) => {
         } else {
           snackbar.error(message)
         }
-
-        setLoading(false)
-      } catch (error) {
-        setLoading(false)
+      } finally {
+        if (!isEndLoadding) {
+          setLoading(false)
+        }
       }
     }
   }
@@ -236,7 +246,7 @@ export const FileUpload = (props: FileUploadProps) => {
           {
             fileList.map((file, index) => (
               <Box key={file.id || index}>
-                <FileListItem>
+                <FileListItem hasDelete={file.hasDelete}>
                   <Box className="fileList-name-area">
                     <AttachFileIcon />
                     <Typography
@@ -252,7 +262,7 @@ export const FileUpload = (props: FileUploadProps) => {
                       sx={{
                         cursor: 'pointer',
                       }}
-                      onClick={() => { handleDelete(file.id) }}
+                      onClick={() => { handleDelete(file?.id || '') }}
                     />
                     )
                   }
@@ -306,3 +316,5 @@ export const FileUpload = (props: FileUploadProps) => {
     </B3Sping>
   )
 }
+
+export default forwardRef(FileUpload)

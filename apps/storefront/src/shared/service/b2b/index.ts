@@ -53,6 +53,8 @@ import {
   bcQuoteCheckout,
   updateB2BQuote,
   updateBCQuote,
+  quoteDetailAttachFileCreate,
+  quoteDetailAttachFileDelete,
 } from './graphql/quote'
 
 import {
@@ -193,4 +195,6 @@ export {
   bcQuoteCheckout,
   updateB2BQuote,
   updateBCQuote,
+  quoteDetailAttachFileCreate,
+  quoteDetailAttachFileDelete,
 }

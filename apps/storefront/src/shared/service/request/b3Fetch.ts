@@ -1,7 +1,4 @@
 import {
-  keyBy,
-} from 'lodash'
-import {
   b3Fetch,
 } from './fetch'
 import {

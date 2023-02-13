@@ -762,7 +762,7 @@ const QuoteDraft = ({
               <QuoteNote />
 
               {
-                role !== 100 && <QuoteAttachment />
+                role !== 100 && <QuoteAttachment status={0} />
               }
             </Stack>
           </Container>

@@ -4,31 +4,22 @@ import {
   useRef,
   forwardRef,
   Ref,
-  // Dispatch,
-  // SetStateAction,
+  ReactElement,
+  Dispatch,
+  SetStateAction,
+  useImperativeHandle,
 } from 'react'
 
 import {
   Box,
   styled,
   Typography,
-  TextField,
-  // Grid,
 } from '@mui/material'
-
-// import {
-//   Delete,
-//   Edit,
-// } from '@mui/icons-material'
 
 import {
   // getOrderedProducts,
   searchB2BProducts,
 } from '@/shared/service/b2b'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
 
 import {
   snackbar,
@@ -44,9 +35,9 @@ import {
   B3PaginationTable,
 } from '@/components/table/B3PaginationTable'
 
-// import {
-//   useMobile,
-// } from '@/hooks'
+import {
+  useMobile,
+} from '@/hooks'
 
 import {
   GlobaledContext,
@@ -54,15 +45,16 @@ import {
 
 import {
   conversionProductsList,
+  getProductOptionsFields,
 } from '../../shoppingListDetails/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
 
 import B3FilterPicker from '../../../components/filter/B3FilterPicker'
 
-// import {
-//   ChooseOptionsDialog,
-// } from './ChooseOptionsDialog'
+import B3FilterMore from '../../../components/filter/B3FilterMore'
+
+import QuickOrderCard from './QuickOrderCard'
 
 interface ListItem {
   [key: string]: string
@@ -106,11 +98,13 @@ interface ListItemProps {
 //   setDeleteOpen: (open: boolean) => void,
 // }
 
-// interface SearchProps {
-//   search: string,
-//   first?: number,
-//   offset?: number,
-// }
+interface SearchProps {
+  q: string,
+  first?: number,
+  offset?: number,
+  beginDateAt?: Date | string | number,
+  endDateAt?: Date | string | number,
+}
 
 interface PaginationTableRefProps extends HTMLInputElement {
   getList: () => void,
@@ -124,51 +118,41 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }))
 
-const StyledTextField = styled(TextField)(() => ({
-  '& input': {
-    paddingTop: '12px',
-    paddingRight: '6px',
-  },
-}))
-
 const defaultProductImage = 'https://cdn11.bigcommerce.com/s-1i6zpxpe3g/stencil/cd9e3830-4c73-0139-8a51-0242ac11000a/e/4fe76590-73f1-0139-3767-32e4ea84ca1d/img/ProductDefault.gif'
 
 interface QuickorderTableProps {
-  isEdit: boolean,
+  setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
 }
 
 const QuickorderTable = ({
-  isEdit,
+  setIsRequestLoading,
 }: QuickorderTableProps, ref: Ref<unknown>) => {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
-  const [search, setSearch] = useState<any>({
+  const [search, setSearch] = useState<SearchProps>({
     q: '',
-    beginDateAt: '',
-    endDateAt: '',
+    beginDateAt: distanceDay(30),
+    endDateAt: distanceDay(),
   })
-
-  const pickerRef = useRef<any>(null)
 
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
 
-  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
-
-  // const [isMobile] = useMobile()
+  const [isMobile] = useMobile()
 
   const {
     state: {
       role,
-      // isB2BUser,
       isAgenting,
-      // customer,
-      // currentChannelId,
       salesRepCompanyId,
       companyInfo: {
         id: companyInfoId,
       },
     },
   } = useContext(GlobaledContext)
+
+  useImperativeHandle(ref, () => ({
+    getCheckedList: () => checkedArr,
+  }))
 
   const {
     currency_code: currencyCode,
@@ -222,11 +206,14 @@ const QuickorderTable = ({
     }
   }
 
-  const getList = async () => {
+  const getList = async (params: SearchProps) => {
     // const {
     //   edges,
     //   totalCount,
-    // } = await getOrderedProducts(search)
+    // } = await getOrderedProducts(params)
+
+    // TODO
+    console.log(params)
 
     const edges: any = [
       {
@@ -379,7 +366,6 @@ const QuickorderTable = ({
     ]
 
     const totalCount = 7
-
     const listProducts = await handleGetProductsById(edges)
 
     return {
@@ -415,20 +401,44 @@ const QuickorderTable = ({
     }
   }
 
+  const handlePickerChange = (key: string, value: Date | string | number) => {
+    const params = {
+      ...search,
+    }
+    if (key === 'start') {
+      params.beginDateAt = value
+    } else {
+      params.endDateAt = value
+    }
+
+    setSearch(params)
+  }
+
+  const handleFilterChange = (data: any) => {
+    const params = {
+      ...search,
+    }
+
+    params.beginDateAt = data.startValue
+
+    params.endDateAt = data.endValue
+
+    setSearch(params)
+  }
+
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'Product',
       title: 'Product',
       render: (row: CustomFieldItems) => {
-        console.log(row)
-        // const product: any = {
-        //   ...row.productsSearch,
-        //   selectOptions: row.optionList,
-        // }
-        // const productFields = (getProductOptionsFields(product, {}))
+        const product: any = {
+          ...row.productsSearch,
+          selectOptions: row.optionList,
+        }
+        const productFields = (getProductOptionsFields(product, {}))
 
-        // const optionList = JSON.parse(row.optionList)
-        // const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
+        const optionList = JSON.parse(row.optionList)
+        const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
 
         return (
           <Box
@@ -438,7 +448,7 @@ const QuickorderTable = ({
             }}
           >
             <StyledImage
-              src={row.imageUrl || defaultProductImage}
+              src={row.primaryImage || defaultProductImage}
               alt="Product-img"
               loading="lazy"
             />
@@ -455,7 +465,7 @@ const QuickorderTable = ({
               >
                 {row.variantSku}
               </Typography>
-              {/* {
+              {
                 (optionList.length > 0 && optionsValue.length > 0) && (
                   <Box>
                     {
@@ -475,7 +485,7 @@ const QuickorderTable = ({
                     }
                   </Box>
                 )
-              } */}
+              }
             </Box>
           </Box>
         )
@@ -504,21 +514,13 @@ const QuickorderTable = ({
       key: 'Qty',
       title: 'Qty',
       render: (row) => (
-        <StyledTextField
-          size="small"
-          type="number"
-          variant="filled"
-          value={row.quantity}
-          inputProps={{
-            inputMode: 'numeric', pattern: '[0-9]*',
+        <Typography
+          sx={{
+            padding: '12px 0',
           }}
-          // onChange={(e) => {
-          //   handleUpdateProductQty(row.id, e.target.value)
-          // }}
-          // onBlur={() => {
-          //   handleUpdateShoppingListItem(row.itemId)
-          // }}
-        />
+        >
+          {row.quantity}
+        </Typography>
       ),
       width: '15%',
     },
@@ -529,10 +531,8 @@ const QuickorderTable = ({
         const {
           basePrice,
           quantity,
-          // itemId,
         } = row
         const total = +basePrice * +quantity
-        // const optionList = JSON.parse(row.optionList)
 
         return (
           <Box>
@@ -551,78 +551,118 @@ const QuickorderTable = ({
   ]
 
   return (
-    <B3Sping isSpinning={isRequestLoading}>
 
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Box
         sx={{
+          marginBottom: '5px',
           display: 'flex',
-          flexDirection: 'column',
         }}
       >
         <Box
           sx={{
-            marginBottom: '5px',
+            width: isMobile ? '100%' : '40%',
+            mr: '20px',
             display: 'flex',
+            justifyContent: isMobile ? 'space-between' : 'flex-start',
           }}
         >
-          <Box
-            sx={{
-              width: '40%',
-              mr: '20px',
-            }}
-          >
-            <B3FilterSearch
-              h="48px"
-              searchBGColor="rgba(0, 0, 0, 0.06)"
-              handleChange={(e) => {
-                handleSearchProduct(e)
-              }}
-            />
-          </Box>
-          <B3FilterPicker
-            ref={pickerRef}
-            xs={{
-              mt: 0,
-              height: '50px',
-            }}
-            startPicker={{
-              isEnabled: true,
-              label: 'From',
-              defaultValue: distanceDay(30),
-              pickerKey: 'start',
-            }}
-            endPicker={{
-              isEnabled: true,
-              label: 'To',
-              defaultValue: distanceDay(),
-              pickerKey: 'end',
+          <B3FilterSearch
+            h="48px"
+            searchBGColor="rgba(0, 0, 0, 0.06)"
+            handleChange={(e) => {
+              handleSearchProduct(e)
             }}
           />
+
+          {
+              isMobile && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <B3FilterMore
+                  fiterMoreInfo={[]}
+                  startPicker={{
+                    isEnabled: true,
+                    label: 'From',
+                    defaultValue: distanceDay(30),
+                    pickerKey: 'start',
+                  }}
+                  endPicker={{
+                    isEnabled: true,
+                    label: 'To',
+                    defaultValue: distanceDay(),
+                    pickerKey: 'end',
+                  }}
+                  isShowMore
+                  onChange={handleFilterChange}
+                />
+              </Box>
+              )
+            }
+
         </Box>
 
-        <B3PaginationTable
-          ref={paginationTableRef}
-          columnItems={columnItems}
-          rowsPerPageOptions={[10, 20, 50]}
-          getRequestList={getList}
-          searchParams={search}
-          isCustomRender={false}
-          showCheckbox
-          // disableCheckbox={isReadForApprove}
-          hover
-          labelRowsPerPage="Items per page:"
-          showBorder={false}
-          requestLoading={setIsRequestLoading}
-          getSelectCheckbox={getSelectCheckbox}
-          itemIsMobileSpacing={0}
-          noDataText="No products found"
-          renderItem={(row: ProductInfoProps) => (
-            <Box>123123</Box>
-          )}
-        />
+        {
+            !isMobile && (
+            <B3FilterPicker
+              handleChange={handlePickerChange}
+              xs={{
+                mt: 0,
+                height: '50px',
+              }}
+              startPicker={{
+                isEnabled: true,
+                label: 'From',
+                defaultValue: distanceDay(30),
+                pickerKey: 'start',
+              }}
+              endPicker={{
+                isEnabled: true,
+                label: 'To',
+                defaultValue: distanceDay(),
+                pickerKey: 'end',
+              }}
+            />
+            )
+          }
 
       </Box>
-    </B3Sping>
+
+      <B3PaginationTable
+        ref={paginationTableRef}
+        columnItems={columnItems}
+        rowsPerPageOptions={[10, 20, 50]}
+        getRequestList={getList}
+        searchParams={search}
+        isCustomRender={false}
+        showCheckbox
+        disableCheckbox={false}
+        hover
+        labelRowsPerPage="Items per page:"
+        showBorder={false}
+        requestLoading={setIsRequestLoading}
+        getSelectCheckbox={getSelectCheckbox}
+        itemIsMobileSpacing={0}
+        noDataText="No products found"
+        renderItem={(row: ProductInfoProps, index?: number, checkBox?: () => ReactElement) => (
+          <QuickOrderCard
+            item={row}
+            checkBox={checkBox}
+            currencyToken={currencyToken}
+          />
+        )}
+      />
+
+    </Box>
 
   )
 }
