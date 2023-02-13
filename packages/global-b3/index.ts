@@ -8,6 +8,7 @@ const globalB3 = {
   'dom.navUserLoginElement': '.navUser-item.navUser-item--account',
   'dom.setToShoppingList': '#form-action-addToCart',
   'dom.setToShoppingListParentEl': '#add-to-cart-wrapper',
+  'dom.cartActions.container': '.cart-actions',
   before_login_goto_page: '/',
   setting: {
     b2b_url: 'https://staging-v2.bundleb2b.net',

@@ -11,6 +11,7 @@ import {
   createCart,
   getCartInfo,
   addProductToCart,
+  getCartInfoWithOptions,
 } from './api/cart'
 
 import {
@@ -37,4 +38,5 @@ export {
   createCart,
   getCartInfo,
   addProductToCart,
+  getCartInfoWithOptions,
 }

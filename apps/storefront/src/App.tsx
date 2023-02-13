@@ -17,6 +17,7 @@ import {
   useSetOpen,
   useMyQuote,
   useRegisteredbctob2b,
+  useCartToQuote,
 } from '@/hooks'
 
 import {
@@ -87,6 +88,10 @@ export default function App() {
   useMyQuote({
     setOpenPage,
     productQuoteEnabled,
+    cartQuoteEnabled,
+  })
+  useCartToQuote({
+    setOpenPage,
     cartQuoteEnabled,
   })
   // Button to open storefront

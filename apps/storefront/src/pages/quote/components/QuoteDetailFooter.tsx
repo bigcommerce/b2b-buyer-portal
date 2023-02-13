@@ -18,14 +18,12 @@ import {
 
 interface QuoteDetailFooterProps {
   quoteId: string,
-  quoteDate: string,
   role: string | number,
 }
 
 const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
   const {
     quoteId,
-    quoteDate,
     role,
   } = props
   const [isMobile] = useMobile()
@@ -52,8 +50,6 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
           },
         },
       } = res
-      localStorage.setItem('quoteCheckoutId', quoteId)
-      localStorage.setItem('quoteDate', quoteDate)
 
       window.location.href = checkoutUrl
     } catch (err: any) {

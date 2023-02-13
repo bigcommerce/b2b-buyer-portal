@@ -9,6 +9,9 @@ import {
 import {
   useMyQuote,
 } from './useMyQuote'
+import {
+  useCartToQuote,
+} from './useCartToQuote'
 
 import {
   useQuoteGlobalTip,
@@ -44,4 +47,5 @@ export {
   useQuoteGlobalTip,
   useSetCountry,
   useGetCountry,
+  useCartToQuote,
 }

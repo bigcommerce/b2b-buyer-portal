@@ -406,7 +406,6 @@ const QuoteDetail = () => {
           (+role !== 2 && +quoteDetail.status !== 4) && (
             <QuoteDetailFooter
               quoteId={quoteDetail.id}
-              quoteDate={quoteDetail?.createdAt?.toString()}
               role={role}
             />
           )

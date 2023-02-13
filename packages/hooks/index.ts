@@ -21,3 +21,7 @@ export {
 export {
   useB3Quote,
 } from './useB3Quote'
+
+export {
+  useB3CartToQuote,
+} from './useB3CartToQuote'
