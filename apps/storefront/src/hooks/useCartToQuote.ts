@@ -100,11 +100,13 @@ interface ProductItemProps {
 }
 
 interface LineItemsProps {
-  customItems: Array<{}>,
-  digitalItems: Array<{}>,
-  giftCertificates: Array<{}>,
+  customItems: Array<CustomFieldItems>,
+  digitalItems: Array<CustomFieldItems>,
+  giftCertificates: Array<CustomFieldItems>,
   physicalItems: ProductItemProps[],
 }
+
+type Cart = 'customItems' | 'digitalItems' | 'giftCertificates' | 'physicalItems'
 
 interface CartInfoProps {
   baseAmount: number,
@@ -128,7 +130,7 @@ interface CartInfoProps {
   updatedTime: string,
 }
 
-const productTypes: Array<string> = ['customItems', 'digitalItems', 'giftCertificates', 'physicalItems']
+const productTypes: Array<Cart> = ['customItems', 'digitalItems', 'giftCertificates', 'physicalItems']
 
 const useCartToQuote = ({
   setOpenPage,
@@ -163,11 +165,11 @@ const useCartToQuote = ({
   }
 
   const getCartProducts = (lineItems: LineItemsProps) => {
-    const cartProductsList: ProductItemProps[] = []
+    const cartProductsList: CustomFieldItems[] = []
 
-    productTypes.forEach((type: string) => {
+    productTypes.forEach((type: Cart) => {
       if (lineItems[type].length > 0) {
-        lineItems[type].forEach((product: ProductItemProps) => {
+        lineItems[type].forEach((product: ProductItemProps | CustomFieldItems) => {
           if (!product.parentId) {
             cartProductsList.push(product)
           }
@@ -223,7 +225,7 @@ const useCartToQuote = ({
       }) => sku !== '' && sku !== null && sku !== undefined)
 
       const productIds: number[] = []
-      productsWithSKU.forEach((product: ProductItemProps) => {
+      productsWithSKU.forEach((product: CustomFieldItems) => {
         if (!productIds.includes(+product.productId)) {
           productIds.push(+product.productId)
         }
