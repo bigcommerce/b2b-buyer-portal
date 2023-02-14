@@ -50,9 +50,9 @@ import {
   QuoteItemCard,
 } from './components/QuoteItemCard'
 
-import {
-  distanceDay,
-} from '@/utils'
+// import {
+//   distanceDay,
+// } from '@/utils'
 
 interface SortByListProps {
   [key: string]: number | string
@@ -184,8 +184,8 @@ const QuotesList = () => {
     createdBy: '',
     salesRep: '',
     status: '',
-    dateCreatedBeginAt: distanceDay(30),
-    dateCreatedEndAt: distanceDay(),
+    dateCreatedBeginAt: '',
+    dateCreatedEndAt: '',
   }
   const [filterData, setFilterData] = useState<Partial<FilterSearchProps>>(initSearch)
 
@@ -334,13 +334,13 @@ const QuotesList = () => {
             startPicker={{
               isEnabled: true,
               label: 'From',
-              defaultValue: distanceDay(30),
+              defaultValue: filterData?.dateCreatedBeginAt || '',
               pickerKey: 'start',
             }}
             endPicker={{
               isEnabled: true,
               label: 'To',
-              defaultValue: distanceDay(),
+              defaultValue: filterData?.dateCreatedEndAt || '',
               pickerKey: 'end',
             }}
             handleChange={handleChange}

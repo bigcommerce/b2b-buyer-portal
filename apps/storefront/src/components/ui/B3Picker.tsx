@@ -65,7 +65,7 @@ export const B3Picker = ({
           onClose={() => {
             setOpen(false)
           }}
-          value={value}
+          value={value || null}
           open={open}
           inputRef={pickerRef}
           disableOpenPicker={disableOpenPicker}

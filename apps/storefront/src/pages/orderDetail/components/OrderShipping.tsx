@@ -1,6 +1,12 @@
 import {
+  getTracking,
+} from 'ts-tracking-number'
+
+import {
   useContext,
   Fragment,
+  useEffect,
+  useState,
 } from 'react'
 
 import {
@@ -44,6 +50,31 @@ export const OrderShipping = () => {
       addressLabelPermission,
     },
   } = useContext(OrderDetailsContext)
+
+  const [shippingsDetail, setShippingsDetail] = useState<OrderShippingsItem[]>([])
+
+  useEffect(() => {
+    if (shippings.length) {
+      shippings.forEach((list: OrderShippingsItem) => {
+        if (list.shipmentItems.length) {
+          const {
+            shipmentItems,
+          } = list
+          shipmentItems.forEach((item: OrderShippedItem) => {
+            const trackingNumber = item.tracking_number
+            const tracking = getTracking(trackingNumber)
+            if (tracking) {
+              const {
+                trackingUrl = '',
+              } = tracking
+              if (trackingUrl) item.tracking_link = trackingUrl
+            }
+          })
+        }
+      })
+      setShippingsDetail(shippings)
+    }
+  }, [shippings])
 
   const getFullName = (shipping: OrderShippingsItem) => {
     const {
@@ -97,7 +128,7 @@ export const OrderShipping = () => {
   return (
     <Stack spacing={2}>
       {
-        shippings.map((shipping: OrderShippingsItem) => (
+        shippingsDetail.map((shipping: OrderShippingsItem) => (
           <Card key={`shipping-${shipping.id}`}>
             <CardContent>
               <Box sx={{

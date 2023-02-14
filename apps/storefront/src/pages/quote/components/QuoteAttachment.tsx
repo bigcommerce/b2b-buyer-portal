@@ -111,17 +111,17 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
         })
 
         createFile.id = attachFiles[0].id
-        newFileList = [...fileList, {
+        newFileList = [{
           ...createFile,
           title: `Uploaded by customer: ${attachFiles[0].createdBy}`,
           hasDelete: true,
-        }]
+        }, ...fileList]
       } else {
-        newFileList = [...fileList, {
+        newFileList = [{
           ...file,
           title: `Uploaded by customer: ${firstName} ${lastName}`,
           hasDelete: true,
-        }]
+        }, ...fileList]
         saveQuoteInfo(newFileList)
       }
       setFileList(newFileList)

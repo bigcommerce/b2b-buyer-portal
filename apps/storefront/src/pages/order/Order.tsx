@@ -297,13 +297,13 @@ const Order = ({
             startPicker={{
               isEnabled: true,
               label: 'From',
-              defaultValue: distanceDay(30),
+              defaultValue: filterData?.beginDateAt || distanceDay(30),
               pickerKey: 'start',
             }}
             endPicker={{
               isEnabled: true,
               label: 'To',
-              defaultValue: distanceDay(),
+              defaultValue: filterData?.endDateAt || distanceDay(),
               pickerKey: 'end',
             }}
             fiterMoreInfo={filterInfo}

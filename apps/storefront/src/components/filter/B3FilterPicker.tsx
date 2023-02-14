@@ -3,6 +3,7 @@ import {
   forwardRef,
   useImperativeHandle,
   Ref,
+  useEffect,
 } from 'react'
 
 import {
@@ -28,6 +29,7 @@ interface B3FilterPickerProps {
   startPicker?: PickerProps
   endPicker?: PickerProps
   xs?: {[key: string]: number | string}
+  isMonthlySpacing?: boolean,
   handleChange?: (key: string, value: Date | string | number) => void
 }
 
@@ -35,16 +37,25 @@ const B3FilterPickers = ({
   startPicker,
   endPicker,
   handleChange,
+  isMonthlySpacing = false,
   xs = {},
 }: B3FilterPickerProps, ref: Ref<unknown> | undefined) => {
   // const [isMobile] = useMobile()
-  const [startValue, setStartValue] = useState<Date | number | string>(startPicker?.defaultValue || new Date())
-  const [endValue, setEndValue] = useState<Date | number | string>(endPicker?.defaultValue || new Date())
+  const [startValue, setStartValue] = useState<Date | number | string>()
+  const [endValue, setEndValue] = useState<Date | number | string>()
 
   const setClearPickerValue = () => {
-    setStartValue(distanceDay(30))
-    setEndValue(distanceDay())
+    setStartValue(isMonthlySpacing ? distanceDay(30) : '')
+    setEndValue(isMonthlySpacing ? distanceDay() : '')
   }
+
+  useEffect(() => {
+    setStartValue(startPicker?.defaultValue || '')
+  }, [startPicker?.defaultValue])
+
+  useEffect(() => {
+    setEndValue(endPicker?.defaultValue || '')
+  }, [endPicker?.defaultValue])
 
   const getPickerValue = () => {
     const data = {

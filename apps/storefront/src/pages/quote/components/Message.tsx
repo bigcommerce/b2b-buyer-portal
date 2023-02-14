@@ -12,6 +12,7 @@ import {
   Card,
   CardContent,
   TextField,
+  Tooltip,
 } from '@mui/material'
 
 import {
@@ -41,6 +42,7 @@ interface MessageProps {
   isCustomer?: boolean
   key?: number | string
   read?: number
+  sendTime?: number
 }
 
 interface MsgsProps {
@@ -48,6 +50,7 @@ interface MsgsProps {
   id: string | number
   email: string
   isB2BUser: boolean
+  status: number
 }
 
 interface CustomerMessageProps {
@@ -94,8 +97,15 @@ const CustomerMessage = ({
           m: '1px',
         }}
       >
-        {msg.message}
-
+        <Tooltip
+          title={format((msg.sendTime || 0) * 1000, 'K:m aa')}
+          placement="top"
+          arrow
+        >
+          <Box>
+            {msg.message}
+          </Box>
+        </Tooltip>
       </Box>
       )
     }
@@ -143,8 +153,15 @@ const SalesRepMessage = ({
           m: '1px',
         }}
       >
-        {msg.message}
-
+        <Tooltip
+          title={format((msg.sendTime || 0) * 1000, 'K:m aa')}
+          placement="top"
+          arrow
+        >
+          <Box>
+            {msg.message}
+          </Box>
+        </Tooltip>
       </Box>
       )
     }
@@ -172,6 +189,7 @@ const Message = ({
   id,
   isB2BUser,
   email,
+  status,
 }: MsgsProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const changeReadRef = useRef(0)
@@ -198,6 +216,7 @@ const Message = ({
         getNewMsgs.push({
           isCustomer: !msg.role?.includes('Sales rep:'),
           message: msg.message,
+          sendTime: msg.date,
           role: msg.role,
           key: msg?.date,
         })
@@ -216,6 +235,7 @@ const Message = ({
           getNewMsgs.push({
             isCustomer: !msg.role?.includes('Sales rep:'),
             message: msg.message,
+            sendTime: msg.date,
             key: msg?.date,
           })
         } else {
@@ -223,6 +243,7 @@ const Message = ({
             isCustomer: !msg.role?.includes('Sales rep:'),
             message: msg.message,
             role: msg.role,
+            sendTime: msg.date,
             key: msg?.date,
           })
         }
@@ -257,12 +278,12 @@ const Message = ({
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            width: '25px',
-            height: '25px',
+            width: '20px',
+            height: '20px',
             borderRadius: '50%',
             background: '#1976D2',
             color: '#fff',
-            fontSize: '15px',
+            fontSize: '12px',
             ml: '8px',
           }}
         >
@@ -394,31 +415,40 @@ const Message = ({
             </Box>
 
           </Box>
-          <B3Sping
-            isSpinning={loadding}
-            spinningHeight={50}
-            size={10}
-            isCloseLoading
-            tip="waiting.."
-          >
-            <Box
-              sx={{
-                width: '100%',
-              }}
-            >
-              <TextField
-                onKeyDown={updateMessage}
-                sx={{
-                  width: '100%',
-                }}
-                value={message}
-                onChange={(event) => { setMessage(event.target.value) }}
-                size="small"
-                label="Type a message.."
-                variant="filled"
-              />
-            </Box>
-          </B3Sping>
+
+          {
+              status !== 4 && (
+                <B3Sping
+                  isSpinning={loadding}
+                  spinningHeight={50}
+                  size={10}
+                  isCloseLoading
+                  tip="waiting.."
+                >
+                  <Box
+                    sx={{
+                      width: '100%',
+                    }}
+                  >
+                    <TextField
+                      onKeyDown={updateMessage}
+                      sx={{
+                        width: '100%',
+                        '& .MuiFormLabel-root': {
+                          color: 'rgba(0, 0, 0, 0.38)',
+                        },
+                      }}
+                      value={message}
+                      onChange={(event) => { setMessage(event.target.value) }}
+                      size="small"
+                      label="Type a message..."
+                      variant="filled"
+                    />
+                  </Box>
+                </B3Sping>
+
+              )
+            }
 
         </B3CollapseContainer>
       </CardContent>

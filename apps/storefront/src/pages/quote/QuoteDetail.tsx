@@ -51,9 +51,9 @@ import {
 import {
   QuoteAttachment,
 } from './components/QuoteAttachment'
-import {
-  QuoteNote,
-} from './components/QuoteNote'
+// import {
+//   QuoteNote,
+// } from './components/QuoteNote'
 
 import Message from './components/Message'
 
@@ -131,7 +131,7 @@ const QuoteDetail = () => {
           fileType: file.fileType,
           fileUrl: file.fileUrl,
           id: file.id,
-          hasDelete: true,
+          hasDelete: quoteDetail.status !== 4,
           title: `Uploaded by customer: ${file.createdBy}`,
         })
       })
@@ -368,36 +368,33 @@ const QuoteDetail = () => {
             >
               <Message
                 id={id}
+                status={quoteDetail.status}
                 isB2BUser={isB2BUser}
                 email={customer?.emailAddress || ''}
                 msgs={quoteDetail?.trackingHistory || []}
               />
             </Box>
 
-            <Box
+            {/* <Box
               sx={{
                 marginBottom: '1rem',
                 displayPrint: 'none',
               }}
             >
               <QuoteNote />
-            </Box>
+            </Box> */}
 
             <Box
               sx={{
                 displayPrint: 'none',
               }}
             >
-              {
-                fileList.length > 0 && (
-                <QuoteAttachment
-                  // allowUpload={false}
-                  quoteId={quoteDetail.id}
-                  status={quoteDetail.status}
-                  defaultFileList={fileList}
-                />
-                )
-              }
+              <QuoteAttachment
+                allowUpload={+quoteDetail.status !== 4}
+                quoteId={quoteDetail.id}
+                status={quoteDetail.status}
+                defaultFileList={fileList}
+              />
             </Box>
           </Grid>
         </Grid>

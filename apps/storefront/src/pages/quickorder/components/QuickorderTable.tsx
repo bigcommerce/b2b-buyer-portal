@@ -17,7 +17,7 @@ import {
 } from '@mui/material'
 
 import {
-  // getOrderedProducts,
+  getOrderedProducts,
   searchB2BProducts,
 } from '@/shared/service/b2b'
 
@@ -210,12 +210,12 @@ const QuickorderTable = ({
 
   const getList = async (params: SearchProps) => {
     // const {
-    //   edges,
-    //   totalCount,
+    //   edges: edges1,
+    //   totalCount: totalCount1,
     // } = await getOrderedProducts(params)
 
-    // TODO
-    console.log(params)
+    // // TODO
+    // console.log(params, edges1, totalCount1)
 
     const edges: any = [
       {

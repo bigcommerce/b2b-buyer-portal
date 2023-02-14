@@ -65,7 +65,7 @@ const FileUploadContainer = styled(Box)(() => ({
 
 const FileListItem = styled(Box)((props: CustomFieldItems) => ({
   display: 'flex',
-  background: props.hasDelete ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+  background: props.hasdelete ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)',
   borderRadius: '18px',
   padding: '6px 8px',
   alignItems: 'center',
@@ -246,7 +246,7 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
           {
             fileList.map((file, index) => (
               <Box key={file.id || index}>
-                <FileListItem hasDelete={file.hasDelete}>
+                <FileListItem hasdelete={file.hasDelete}>
                   <Box className="fileList-name-area">
                     <AttachFileIcon />
                     <Typography

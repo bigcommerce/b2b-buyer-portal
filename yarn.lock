@@ -4066,6 +4066,11 @@ quick-lru@^4.0.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-4.0.1.tgz#5b8878f113a58217848c6482026c73e1ba57727f"
   integrity sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==
 
+ramda@^0.27.0:
+  version "0.27.2"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.27.2.tgz#84463226f7f36dc33592f6f4ed6374c48306c3f1"
+  integrity sha512-SbiLPU40JuJniHexQSAgad32hfwd+DRUdwF2PlVuI5RZD0/vahUco7R8vD86J/tcEKKF9vZrUVwgtmGCqlCKyA==
+
 react-dom@^18.0.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.2.0.tgz#22aaf38708db2674ed9ada224ca4aa708d821e3d"
@@ -4803,6 +4808,13 @@ ts-node@^10.8.1:
     make-error "^1.1.1"
     v8-compile-cache-lib "^3.0.1"
     yn "3.1.1"
+
+ts-tracking-number@^1.0.16:
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/ts-tracking-number/-/ts-tracking-number-1.0.16.tgz#fd8974de4b7ef61f14d492f5623d41b401282f0c"
+  integrity sha512-8IBGX42zCTKGldFiCTydEbzVoZfLavHoT73wSsPzsn5Px1G6kljteBHXg3K22OiY+5LGmxBU+EWrLN7btJcYjg==
+  dependencies:
+    ramda "^0.27.0"
 
 tsconfig-paths@^3.14.1:
   version "3.14.1"

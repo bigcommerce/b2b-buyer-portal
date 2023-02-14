@@ -75,9 +75,9 @@ import {
 import {
   QuoteSummary,
 } from './components/QuoteSummary'
-import {
-  QuoteNote,
-} from './components/QuoteNote'
+// import {
+//   QuoteNote,
+// } from './components/QuoteNote'
 import {
   QuoteAttachment,
 } from './components/QuoteAttachment'
@@ -759,7 +759,7 @@ const QuoteDraft = ({
                 addToQuote={addToQuote}
               />
 
-              <QuoteNote />
+              {/* <QuoteNote /> */}
 
               {
                 role !== 100 && <QuoteAttachment status={0} />
