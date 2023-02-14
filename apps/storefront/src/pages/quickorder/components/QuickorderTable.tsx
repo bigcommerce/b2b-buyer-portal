@@ -137,6 +137,8 @@ const QuickorderTable = ({
 
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
 
+  const [total, setTotalCount] = useState<number>(0)
+
   const [isMobile] = useMobile()
 
   const {
@@ -368,6 +370,8 @@ const QuickorderTable = ({
     const totalCount = 7
     const listProducts = await handleGetProductsById(edges)
 
+    setTotalCount(totalCount)
+
     return {
       edges: listProducts,
       totalCount,
@@ -558,6 +562,14 @@ const QuickorderTable = ({
         flexDirection: 'column',
       }}
     >
+      <Typography
+        sx={{
+          fontSize: '24px',
+          height: '50px',
+        }}
+      >
+        {`${total} products`}
+      </Typography>
       <Box
         sx={{
           marginBottom: '5px',
