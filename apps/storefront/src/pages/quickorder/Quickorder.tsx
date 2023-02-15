@@ -1,6 +1,5 @@
 import {
   useState,
-  useRef,
   useEffect,
 } from 'react'
 
@@ -18,10 +17,10 @@ import {
 } from '@/components/spin/B3Sping'
 
 import QuickorderTable from './components/QuickorderTable'
-
-interface TableRefProps extends HTMLInputElement {
-  getCheckedList: () => CustomFieldItems,
-}
+import QuickOrderFooter from './components/QuickOrderFooter'
+import {
+  QuickOrderPad,
+} from './components/QuickOrderPad'
 
 const Quickorder = () => {
   useEffect(() => {
@@ -30,14 +29,7 @@ const Quickorder = () => {
   const [isMobile] = useMobile()
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
-
-  const tableRef = useRef<TableRefProps>(null)
-
-  const getCheckedList = () => {
-    const checkedValue = tableRef.current?.getCheckedList()
-
-    console.log(checkedValue)
-  }
+  const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
 
   return (
     <B3Sping
@@ -63,15 +55,21 @@ const Quickorder = () => {
             spacing={2}
           >
 
-            <Grid xs={isMobile ? 12 : 8}>
+            <Grid
+              item
+              xs={isMobile ? 12 : 8}
+            >
               <QuickorderTable
+                setCheckedArr={setCheckedArr}
                 setIsRequestLoading={setIsRequestLoading}
-                ref={tableRef}
               />
             </Grid>
 
-            <Grid xs={isMobile ? 12 : 4}>
-              sidebar
+            <Grid
+              item
+              xs={isMobile ? 12 : 4}
+            >
+              <QuickOrderPad />
             </Grid>
           </Grid>
         </Box>
@@ -82,9 +80,11 @@ const Quickorder = () => {
             left: 0,
             width: '100%',
           }}
-          onClick={getCheckedList}
         >
-          button
+          <QuickOrderFooter
+            checkedArr={checkedArr}
+            setIsRequestLoading={setIsRequestLoading}
+          />
         </Box>
       </Box>
     </B3Sping>

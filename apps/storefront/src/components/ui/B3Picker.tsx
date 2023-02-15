@@ -24,7 +24,7 @@ import {
 interface B3PickerProps {
   onChange: (date: Date | string | number) => void;
   variant?: 'filled' | 'outlined' | 'standard';
-  value: Date | string | number;
+  value: Date | string | number | undefined;
   label: string;
   disableOpenPicker?: boolean;
   formatInput?: string

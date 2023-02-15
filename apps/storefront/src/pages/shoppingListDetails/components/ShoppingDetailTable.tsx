@@ -97,6 +97,7 @@ interface ShoppingDetailTableProps {
   getShoppingListDetails: CustomFieldItems,
   setCheckedArr: (values: CustomFieldItems) => void,
   isReadForApprove: boolean,
+  isJuniorApprove: boolean,
   setDeleteItemId: (itemId: number | string) => void,
   setDeleteOpen: (open: boolean) => void,
 }
@@ -163,6 +164,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     isReadForApprove,
     setDeleteItemId,
     setDeleteOpen,
+    isJuniorApprove,
   } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -430,7 +432,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           size="small"
           type="number"
           variant="filled"
-          disabled={isReadForApprove}
+          disabled={isReadForApprove || isJuniorApprove}
           value={row.quantity}
           inputProps={{
             inputMode: 'numeric', pattern: '[0-9]*',
@@ -483,7 +485,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                 }}
               >
                 {
-                  optionList.length > 0 && !isReadForApprove && (
+                  optionList.length > 0 && !isReadForApprove && !isJuniorApprove && (
                     <Edit
                       sx={{
                         cursor: 'pointer',
@@ -508,7 +510,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
               </Grid>
               <Grid item>
                 {
-                  !isReadForApprove && (
+                  !isReadForApprove && !isJuniorApprove && (
                   <Delete
                     sx={{
                       cursor: 'pointer',
@@ -576,7 +578,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         searchParams={search}
         isCustomRender={false}
         showCheckbox
-        disableCheckbox={isReadForApprove}
+        disableCheckbox={isReadForApprove || isJuniorApprove}
         hover
         labelRowsPerPage="Items per page:"
         showBorder={false}
@@ -596,7 +598,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
             currencyToken={currencyToken}
             handleUpdateProductQty={handleUpdateProductQty}
             handleUpdateShoppingListItem={handleUpdateShoppingListItem}
-            isReadForApprove={isReadForApprove}
+            isReadForApprove={isReadForApprove || isJuniorApprove}
           />
         )}
       />

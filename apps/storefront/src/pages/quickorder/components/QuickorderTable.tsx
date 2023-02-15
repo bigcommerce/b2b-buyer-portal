@@ -1,12 +1,9 @@
 import {
   useState,
   useRef,
-  forwardRef,
-  Ref,
   ReactElement,
   Dispatch,
   SetStateAction,
-  useImperativeHandle,
 } from 'react'
 
 import {
@@ -20,7 +17,6 @@ import {
 } from '@/shared/service/b2b'
 
 import {
-  // snackbar,
   getDefaultCurrencyInfo,
   distanceDay,
 } from '@/utils'
@@ -36,15 +32,6 @@ import {
 import {
   useMobile,
 } from '@/hooks'
-
-// import {
-//   GlobaledContext,
-// } from '@/shared/global'
-
-// import {
-//   conversionProductsList,
-//   getProductOptionsFields,
-// } from '../../shoppingListDetails/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
 
@@ -107,11 +94,13 @@ const defaultProductImage = 'https://cdn11.bigcommerce.com/s-1i6zpxpe3g/stencil/
 
 interface QuickorderTableProps {
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
+  setCheckedArr: (values: CustomFieldItems) => void,
 }
 
 const QuickorderTable = ({
   setIsRequestLoading,
-}: QuickorderTableProps, ref: Ref<unknown>) => {
+  setCheckedArr,
+}: QuickorderTableProps) => {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
   const [search, setSearch] = useState<SearchProps>({
@@ -120,26 +109,9 @@ const QuickorderTable = ({
     endDateAt: distanceDay(0),
   })
 
-  const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
-
   const [total, setTotalCount] = useState<number>(0)
 
   const [isMobile] = useMobile()
-
-  // const {
-  //   state: {
-  //     role,
-  //     isAgenting,
-  //     salesRepCompanyId,
-  //     companyInfo: {
-  //       id: companyInfoId,
-  //     },
-  //   },
-  // } = useContext(GlobaledContext)
-
-  useImperativeHandle(ref, () => ({
-    getCheckedList: () => checkedArr,
-  }))
 
   const {
     token: currencyToken,
@@ -388,59 +360,59 @@ const QuickorderTable = ({
           />
 
           {
-              isMobile && (
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
+            isMobile && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <B3FilterMore
+                fiterMoreInfo={[]}
+                startPicker={{
+                  isEnabled: true,
+                  label: 'From',
+                  defaultValue: search?.beginDateAt || '',
+                  pickerKey: 'start',
                 }}
-              >
-                <B3FilterMore
-                  fiterMoreInfo={[]}
-                  startPicker={{
-                    isEnabled: true,
-                    label: 'From',
-                    defaultValue: search?.beginDateAt || '',
-                    pickerKey: 'start',
-                  }}
-                  endPicker={{
-                    isEnabled: true,
-                    label: 'To',
-                    defaultValue: search?.endDateAt || '',
-                    pickerKey: 'end',
-                  }}
-                  isShowMore
-                  onChange={handleFilterChange}
-                />
-              </Box>
-              )
-            }
+                endPicker={{
+                  isEnabled: true,
+                  label: 'To',
+                  defaultValue: search?.endDateAt || '',
+                  pickerKey: 'end',
+                }}
+                isShowMore
+                onChange={handleFilterChange}
+              />
+            </Box>
+            )
+          }
 
         </Box>
 
         {
-            !isMobile && (
-            <B3FilterPicker
-              handleChange={handlePickerChange}
-              xs={{
-                mt: 0,
-                height: '50px',
-              }}
-              startPicker={{
-                isEnabled: true,
-                label: 'From',
-                defaultValue: distanceDay(30),
-                pickerKey: 'start',
-              }}
-              endPicker={{
-                isEnabled: true,
-                label: 'To',
-                defaultValue: distanceDay(),
-                pickerKey: 'end',
-              }}
-            />
-            )
-          }
+          !isMobile && (
+          <B3FilterPicker
+            handleChange={handlePickerChange}
+            xs={{
+              mt: 0,
+              height: '50px',
+            }}
+            startPicker={{
+              isEnabled: true,
+              label: 'From',
+              defaultValue: distanceDay(30),
+              pickerKey: 'start',
+            }}
+            endPicker={{
+              isEnabled: true,
+              label: 'To',
+              defaultValue: distanceDay(),
+              pickerKey: 'end',
+            }}
+          />
+          )
+        }
 
       </Box>
 
@@ -474,4 +446,4 @@ const QuickorderTable = ({
   )
 }
 
-export default forwardRef(QuickorderTable)
+export default QuickorderTable

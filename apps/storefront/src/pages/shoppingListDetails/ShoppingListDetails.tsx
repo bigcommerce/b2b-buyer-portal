@@ -105,6 +105,7 @@ const ShoppingListDetails = () => {
   const [validateSuccessProducts, setValidateSuccessProducts] = useState<ProductsProps[]>([])
   const [validateFailureProducts, setValidateFailureProducts] = useState<ProductsProps[]>([])
 
+  const isJuniorApprove = shoppingListInfo?.status === 0 && role === 2
   const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
 
   const {
@@ -342,6 +343,7 @@ const ShoppingListDetails = () => {
                 <ShoppingDetailTable
                   ref={tableRef}
                   isReadForApprove={isReadForApprove}
+                  isJuniorApprove={isJuniorApprove}
                   setCheckedArr={setCheckedArr}
                   shoppingListInfo={shoppingListInfo}
                   currencyToken={currencyToken}
@@ -365,7 +367,7 @@ const ShoppingListDetails = () => {
             }}
           >
             {
-              !isReadForApprove && (
+              (!isReadForApprove && !isJuniorApprove) && (
                 <AddToShoppingList
                   updateList={updateList}
                 />
@@ -375,7 +377,7 @@ const ShoppingListDetails = () => {
         </Grid>
 
         {
-          !isReadForApprove && (
+          (!isReadForApprove && !isJuniorApprove) && (
           <ShoppingDetailFooter
             shoppingListInfo={shoppingListInfo}
             role={role}
