@@ -1,6 +1,5 @@
 import {
   useState,
-  useContext,
   useRef,
   forwardRef,
   Ref,
@@ -18,11 +17,10 @@ import {
 
 import {
   getOrderedProducts,
-  searchB2BProducts,
 } from '@/shared/service/b2b'
 
 import {
-  snackbar,
+  // snackbar,
   getDefaultCurrencyInfo,
   distanceDay,
 } from '@/utils'
@@ -39,14 +37,14 @@ import {
   useMobile,
 } from '@/hooks'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
+// import {
+//   GlobaledContext,
+// } from '@/shared/global'
 
-import {
-  conversionProductsList,
-  getProductOptionsFields,
-} from '../../shoppingListDetails/shared/config'
+// import {
+//   conversionProductsList,
+//   getProductOptionsFields,
+// } from '../../shoppingListDetails/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
 
@@ -85,19 +83,6 @@ interface ListItemProps {
   node: ProductInfoProps,
 }
 
-// interface ShoppingDetailTableProps {
-//   shoppingListInfo: any,
-//   currencyToken: string,
-//   isRequestLoading: boolean,
-//   setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
-//   shoppingListId: number | string,
-//   getShoppingListDetails: CustomFieldItems,
-//   setCheckedArr: (values: CustomFieldItems) => void,
-//   isReadForApprove: boolean,
-//   setDeleteItemId: (itemId: number | string) => void,
-//   setDeleteOpen: (open: boolean) => void,
-// }
-
 interface SearchProps {
   q: string,
   first?: number,
@@ -132,7 +117,7 @@ const QuickorderTable = ({
   const [search, setSearch] = useState<SearchProps>({
     q: '',
     beginDateAt: distanceDay(30),
-    endDateAt: distanceDay(),
+    endDateAt: distanceDay(0),
   })
 
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
@@ -141,23 +126,22 @@ const QuickorderTable = ({
 
   const [isMobile] = useMobile()
 
-  const {
-    state: {
-      role,
-      isAgenting,
-      salesRepCompanyId,
-      companyInfo: {
-        id: companyInfoId,
-      },
-    },
-  } = useContext(GlobaledContext)
+  // const {
+  //   state: {
+  //     role,
+  //     isAgenting,
+  //     salesRepCompanyId,
+  //     companyInfo: {
+  //       id: companyInfoId,
+  //     },
+  //   },
+  // } = useContext(GlobaledContext)
 
   useImperativeHandle(ref, () => ({
     getCheckedList: () => checkedArr,
   }))
 
   const {
-    currency_code: currencyCode,
     token: currencyToken,
   } = getDefaultCurrencyInfo()
 
@@ -168,206 +152,23 @@ const QuickorderTable = ({
         const {
           node,
         } = item
+        node.quantity = 1
         if (!productIds.includes(node.productId)) {
           productIds.push(node.productId)
         }
       })
-
-      try {
-        const companyId = role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId
-        const {
-          productsSearch,
-        } = await searchB2BProducts({
-          productIds,
-          currencyCode,
-          companyId,
-        })
-
-        const newProductsSearch = conversionProductsList(productsSearch)
-
-        listProducts.forEach((item) => {
-          const {
-            node,
-          } = item
-
-          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
-            const {
-              id: productId,
-            } = search
-
-            return node.productId === productId
-          })
-
-          node.productsSearch = productInfo || {}
-        })
-
-        return listProducts
-      } catch (err: any) {
-        snackbar.error(err)
-      }
+      return listProducts
     }
   }
 
   const getList = async (params: SearchProps) => {
-    // const {
-    //   edges: edges1,
-    //   totalCount: totalCount1,
-    // } = await getOrderedProducts(params)
+    const {
+      orderedProducts: {
+        edges,
+        totalCount,
+      },
+    } = await getOrderedProducts(params)
 
-    // // TODO
-    // console.log(params, edges1, totalCount1)
-
-    const edges: any = [
-      {
-        node: {
-          id: '35746',
-          createdAt: 1675928313,
-          updatedAt: 1675928328,
-          productId: 115,
-          variantId: 143,
-          quantity: 5,
-          productName: 'test-001',
-          optionList: '[{"option_id": "attribute[130]", "option_value": "136"}, {"option_id": "attribute[131]", "option_value": "140"}, {"option_id": "attribute[135]", "option_value": "142"}, {"option_id": "attribute[132]", "option_value": "qwe"}, {"option_id": "attribute[133]", "option_value": "123123"}, {"option_id": "attribute[134]", "option_value": "12321322"}, {"option_id": "attribute[137]", "option_value": "146"}, {"option_id": "attribute[138]", "option_value": "148"}, {"option_id": "attribute[139]", "option_value": ""}, {"option_id": "attribute[140][year]", "option_value": "2023"}, {"option_id": "attribute[140][month]", "option_value": "1"}, {"option_id": "attribute[140][day]", "option_value": "6"}, {"option_id": "attribute[142]", "option_value": "153"}]',
-          itemId: 35746,
-          baseSku: 'TP-001',
-          variantSku: 'TP-001-RE-ME-SE',
-          basePrice: '20.00',
-          discount: '0.00',
-          tax: '10.00',
-          enteredInclusive: false,
-          productUrl: '/test-001/',
-          primaryImage: 'https://cdn11.bigcommerce.com/s-al0cfwwv8r/products/115/images/377/2021108165919.bmp-2021-10-08-17-05-09-167__55866.1672280600.220.290.jpg?c=1',
-        },
-      },
-      {
-        node: {
-          id: '35739',
-          createdAt: 1675823731,
-          updatedAt: 1675928223,
-          productId: 77,
-          variantId: 12,
-          quantity: 5,
-          productName: '[Sample] Fog Linen Chambray Towel - Beige Stripe',
-          optionList: '[{"option_id": "attribute[108]", "option_value": "69"}, {"option_id": "attribute[109]", "option_value": "9"}]',
-          itemId: 35739,
-          baseSku: 'SLCTBS',
-          variantSku: 'SLCTBS-5819AF19',
-          basePrice: '49.00',
-          discount: '0.00',
-          tax: '24.50',
-          enteredInclusive: false,
-          productUrl: '/fog-linen-chambray-towel-beige-stripe/',
-          primaryImage: 'https://cdn11.bigcommerce.com/s-al0cfwwv8r/products/77/images/266/foglinenbeigestripetowel1b.1658299629.220.290.jpg?c=1',
-        },
-      },
-      {
-        node: {
-          id: '35644',
-          createdAt: 1671761199,
-          updatedAt: 1675670525,
-          productId: 98,
-          variantId: 70,
-          quantity: 2,
-          productName: '[Sample] Laundry Detergent',
-          optionList: '[]',
-          itemId: 35644,
-          baseSku: 'CGLD',
-          variantSku: 'CGLD',
-          basePrice: '29.95',
-          discount: '0.00',
-          tax: '6.00',
-          enteredInclusive: false,
-          productUrl: '/laundry-detergent/',
-          primaryImage: 'https://cdn11.bigcommerce.com/s-al0cfwwv8r/products/98/images/327/CommonGoodLaundrySoap.1658299630.220.290.jpg?c=1',
-        },
-      },
-      {
-        node: {
-          id: '35643',
-          createdAt: 1671761198,
-          updatedAt: 1671761198,
-          productId: 104,
-          variantId: 72,
-          quantity: 1,
-          productName: '[Sample] Utility Caddy',
-          optionList: '[]',
-          itemId: 35643,
-          baseSku: 'OFSUC',
-          variantSku: 'OFSUC',
-          basePrice: '45.95',
-          discount: '0.00',
-          tax: '4.60',
-          enteredInclusive: false,
-          productUrl: '/-sample-utility-caddy/',
-          primaryImage: 'https://cdn11.bigcommerce.com/s-al0cfwwv8r/products/104/images/336/utilitybucket1.1658299630.220.290.jpg?c=1',
-        },
-      },
-      {
-        node: {
-          id: '35642',
-          createdAt: 1671761198,
-          updatedAt: 1675927951,
-          productId: 97,
-          variantId: 69,
-          quantity: 5,
-          productName: '[Sample] Tiered Wire Basket',
-          optionList: '[]',
-          itemId: 35642,
-          baseSku: 'TWB',
-          variantSku: 'TWB',
-          basePrice: '119.95',
-          discount: '0.00',
-          tax: '60.00',
-          enteredInclusive: false,
-          productUrl: '/tiered-wire-basket/',
-          primaryImage: 'https://cdn11.bigcommerce.com/s-al0cfwwv8r/products/97/images/325/tieredbasket.1658299630.220.290.jpg?c=1',
-        },
-      },
-      {
-        node: {
-          id: '35641',
-          createdAt: 1671761198,
-          updatedAt: 1671761198,
-          productId: 107,
-          variantId: 73,
-          quantity: 1,
-          productName: '[Sample] Dustpan & Brush',
-          optionList: '[]',
-          itemId: 35641,
-          baseSku: 'DPB',
-          variantSku: 'DPB',
-          basePrice: '34.95',
-          discount: '0.00',
-          tax: '3.50',
-          enteredInclusive: false,
-          productUrl: '/-sample-dustpan-brush/',
-          primaryImage: 'https://cdn11.bigcommerce.com/s-al0cfwwv8r/products/107/images/351/dustpan1.1658299630.220.290.jpg?c=1',
-        },
-      },
-      {
-        node: {
-          id: '35640',
-          createdAt: 1671761197,
-          updatedAt: 1671761197,
-          productId: 88,
-          variantId: 67,
-          quantity: 1,
-          productName: '[Sample] Chemex Coffeemaker 3 Cup',
-          optionList: '[]',
-          itemId: 35640,
-          baseSku: 'CC3C',
-          variantSku: 'CC3C',
-          basePrice: '49.50',
-          discount: '0.00',
-          tax: '4.95',
-          enteredInclusive: false,
-          productUrl: '/chemex-coffeemaker-3-cup/',
-          primaryImage: 'https://cdn11.bigcommerce.com/s-al0cfwwv8r/products/88/images/292/3cupchemex5.1658299630.220.290.jpg?c=1',
-        },
-      },
-    ]
-
-    const totalCount = 7
     const listProducts = await handleGetProductsById(edges)
 
     setTotalCount(totalCount)
@@ -410,9 +211,9 @@ const QuickorderTable = ({
       ...search,
     }
     if (key === 'start') {
-      params.beginDateAt = value
+      params.beginDateAt = value || distanceDay(30)
     } else {
-      params.endDateAt = value
+      params.endDateAt = value || distanceDay(0)
     }
 
     setSearch(params)
@@ -435,15 +236,9 @@ const QuickorderTable = ({
       key: 'Product',
       title: 'Product',
       render: (row: CustomFieldItems) => {
-        const product: any = {
-          ...row.productsSearch,
-          selectOptions: row.optionList,
-        }
-        const productFields = (getProductOptionsFields(product, {}))
-
-        const optionList = JSON.parse(row.optionList)
-        const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
-
+        const {
+          optionList,
+        } = row
         return (
           <Box
             sx={{
@@ -452,7 +247,7 @@ const QuickorderTable = ({
             }}
           >
             <StyledImage
-              src={row.primaryImage || defaultProductImage}
+              src={row.imageUrl || defaultProductImage}
               alt="Product-img"
               loading="lazy"
             />
@@ -470,20 +265,20 @@ const QuickorderTable = ({
                 {row.variantSku}
               </Typography>
               {
-                (optionList.length > 0 && optionsValue.length > 0) && (
+                (optionList.length > 0) && (
                   <Box>
                     {
-                      optionsValue.map((option: any) => (
+                      optionList.map((option: any) => (
                         <Typography
                           sx={{
                             fontSize: '0.75rem',
                             lineHeight: '1.5',
                             color: '#455A64',
                           }}
-                          key={option.valueLabel}
+                          key={option.id}
                         >
-                          {`${option.valueLabel
-                          }: ${option.valueText}`}
+                          {`${option.display_name
+                          }: ${option.display_value}`}
                         </Typography>
                       ))
                     }
@@ -534,7 +329,7 @@ const QuickorderTable = ({
       render: (row: CustomFieldItems) => {
         const {
           basePrice,
-          quantity,
+          quantity = 0,
         } = row
         const total = +basePrice * +quantity
 
@@ -605,13 +400,13 @@ const QuickorderTable = ({
                   startPicker={{
                     isEnabled: true,
                     label: 'From',
-                    defaultValue: distanceDay(30),
+                    defaultValue: search?.beginDateAt || '',
                     pickerKey: 'start',
                   }}
                   endPicker={{
                     isEnabled: true,
                     label: 'To',
-                    defaultValue: distanceDay(),
+                    defaultValue: search?.endDateAt || '',
                     pickerKey: 'end',
                   }}
                   isShowMore

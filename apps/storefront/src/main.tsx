@@ -20,7 +20,13 @@ import {
   SUPPORT_LANGUAGE,
 } from './constants'
 
+import {
+  createFrameLoading,
+} from './utils/b3PageMask'
+
 const CONTAINER_ID = 'bundle-container'
+
+createFrameLoading()
 
 let container = document.getElementById(CONTAINER_ID)
 if (!container) {

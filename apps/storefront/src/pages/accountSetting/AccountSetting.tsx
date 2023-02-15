@@ -39,6 +39,7 @@ import {
 import {
   validatorRules,
   snackbar,
+  B3SStorage,
 } from '@/utils'
 
 import {
@@ -151,6 +152,8 @@ const AccountSetting = () => {
 
   const [isloadding, setLoadding] = useState<boolean>(false)
 
+  const [accountSettings, setAccountSettings] = useState<any>({})
+
   const companyId = role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId
 
   useEffect(() => {
@@ -158,7 +161,6 @@ const AccountSetting = () => {
       try {
         setLoadding(true)
         const accountFormAllFields = await getB2BAccountFormFields(isB2BUser ? 2 : 1)
-        console.log(accountFormAllFields, 'accountFormAllFields')
 
         const fn = isB2BUser ? getB2BAccountSettings : getBCAccountSettings
 
@@ -171,8 +173,6 @@ const AccountSetting = () => {
         const {
           [key]: accountSettings,
         } = await fn(params)
-
-        console.log(accountSettings, 'accountSettings')
 
         const accountFormFields = getAccountFormFields(accountFormAllFields.accountFormFields || [])
         const {
@@ -216,7 +216,7 @@ const AccountSetting = () => {
           })
 
           additionalInformation.forEach((item: Partial<Fields>) => {
-            const formFields = accountSettings.formFields.find((field: Partial<Fields>) => field.name === item.bcLabel)
+            const formFields = (accountSettings?.formFields || []).find((field: Partial<Fields>) => field.name === item.bcLabel)
             if (formFields)item.default = formFields.value
           })
 
@@ -229,7 +229,6 @@ const AccountSetting = () => {
 
           setAccountInfoFormFields(all)
         } else {
-          console.log(accountSettings, 'accountSettings')
           contactInformation.forEach((item: Partial<Fields>) => {
             if (deCodeField(item?.name || '') === 'first_name') {
               item.default = accountSettings.firstName
@@ -250,7 +249,7 @@ const AccountSetting = () => {
           })
 
           additionalInformation.forEach((item: Partial<Fields>) => {
-            const formFields = accountSettings.formFields.find((field: Partial<Fields>) => field.name === item.bcLabel)
+            const formFields = (accountSettings?.formFields || []).find((field: Partial<Fields>) => field.name === item.bcLabel)
             if (formFields)item.default = formFields.value
           })
 
@@ -263,10 +262,16 @@ const AccountSetting = () => {
           setAccountInfoFormFields(all)
         }
 
+        setAccountSettings(accountSettings)
+
         setDecryptionFields(contactInformation)
 
         setExtraFields(additionalInformation)
       } finally {
+        if (B3SStorage.get('isFinshUpdate') === '1') {
+          snackbar.success('Your account details have been updated.')
+          B3SStorage.delete('isFinshUpdate')
+        }
         setLoadding(false)
       }
     }
@@ -323,7 +328,7 @@ const AccountSetting = () => {
   }
 
   const emailValidation = (data: Partial<ParamProps>) => {
-    if ((data.email !== customer.emailAddress) && (!data.password || !data.confirmPassword || !data.currentPassword)) {
+    if ((data.email !== customer.emailAddress) && !data.currentPassword) {
       snackbar.error('Please type in your current password to update your email address.')
       return false
     }
@@ -341,6 +346,8 @@ const AccountSetting = () => {
 
         const passwordFlag = passwordValidation(data)
 
+        let isEdit = true
+
         if (isValid && emailFlag && passwordFlag) {
           const param: Partial<ParamProps> = {}
           param.formFields = []
@@ -351,15 +358,19 @@ const AccountSetting = () => {
                 if (key === item.name) {
                   flag = false
                   if (deCodeField(item.name) === 'first_name') {
+                    if (accountSettings.firstName !== data[item.name]) isEdit = false
                     param.firstName = data[item.name]
                   }
                   if (deCodeField(item.name) === 'last_name') {
+                    if (accountSettings.lastName !== data[item.name]) isEdit = false
                     param.lastName = data[item.name]
                   }
                   if (deCodeField(item.name) === 'phone') {
+                    if (accountSettings.phoneNumber !== data[item.name]) isEdit = false
                     param.phoneNumber = data[item.name]
                   }
                   if (deCodeField(item.name) === 'email') {
+                    if (accountSettings.email !== data[item.name]) isEdit = false
                     param.email = data[item.name]
                   }
                 }
@@ -373,12 +384,15 @@ const AccountSetting = () => {
                       value: data[key],
                     })
                     flag = false
+                    const account = (accountSettings?.formFields || []).find((formField: Partial<Fields>) => formField.name === field.bcLabel)
+                    if (account && JSON.stringify(account.value) !== JSON.stringify(data[key])) isEdit = false
                   }
                 })
               }
               if (flag) {
                 if (key === 'password') {
                   param.newPassword = data[key]
+                  if (data[key]) isEdit = false
                 } else {
                   param[key] = data[key]
                 }
@@ -391,28 +405,35 @@ const AccountSetting = () => {
             delete param.role
 
             param.companyId = companyId
-
-            console.log(param, 'param')
-
-            await updateB2BAccountSettings(param)
+            if (!isEdit) {
+              await updateB2BAccountSettings(param)
+            } else {
+              snackbar.success('You haven’t made any edits')
+              return
+            }
           } else {
             Object.keys(data).forEach((key: string) => {
               decryptionFields.forEach((item: Partial<Fields>) => {
                 if (key === item.name) {
                   flag = false
                   if (deCodeField(item.name) === 'first_name') {
+                    if (accountSettings.firstName !== data[item.name]) isEdit = false
                     param.firstName = data[item.name]
                   }
                   if (deCodeField(item.name) === 'last_name') {
+                    if (accountSettings.lastName !== data[item.name]) isEdit = false
                     param.lastName = data[item.name]
                   }
                   if (deCodeField(item.name) === 'phone') {
+                    if (accountSettings.phoneNumber !== data[item.name]) isEdit = false
                     param.phoneNumber = data[item.name]
                   }
                   if (deCodeField(item.name) === 'email') {
+                    if (accountSettings.email !== data[item.name]) isEdit = false
                     param.email = data[item.name]
                   }
                   if (deCodeField(item.name) === 'company') {
+                    if (accountSettings.company !== data[item.name]) isEdit = false
                     param.company = data[item.name]
                   }
                 }
@@ -426,6 +447,8 @@ const AccountSetting = () => {
                       value: data[key],
                     })
                     flag = false
+                    const account = (accountSettings?.formFields || []).find((formField: Partial<Fields>) => formField.name === field.bcLabel)
+                    if (account && JSON.stringify(account.value) !== JSON.stringify(data[key])) isEdit = false
                   }
                 })
               }
@@ -433,6 +456,7 @@ const AccountSetting = () => {
               if (flag) {
                 if (key === 'password') {
                   param.newPassword = data[key]
+                  if (data[key]) isEdit = false
                 } else {
                   param[key] = data[key]
                 }
@@ -440,11 +464,20 @@ const AccountSetting = () => {
               flag = true
             })
 
-            await updateBCAccountSettings(param)
+            if (!isEdit) {
+              await updateBCAccountSettings(param)
+            } else {
+              snackbar.success('You haven’t made any edits')
+              return
+            }
           }
-
-          snackbar.success('Your account details have been updated.')
-          navigate('/login?loginFlag=3')
+          if (data.password && data.currentPassword) {
+            navigate('/login?loginFlag=3')
+          } else {
+            B3SStorage.clear()
+            B3SStorage.set('isFinshUpdate', '1')
+            window.location.reload()
+          }
         }
       } finally {
         setLoadding(false)

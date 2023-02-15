@@ -1,6 +1,6 @@
 import {
   ReactNode,
-  useEffect,
+  useLayoutEffect,
   useContext,
 } from 'react'
 
@@ -46,9 +46,10 @@ export const B3StoreContainer = (props: B3StoreContainerProps) => {
     dispatch,
   } = useContext(GlobaledContext)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const getStoreBasicInfo = async () => {
-      if (window.location.pathname.includes('account.php')) {
+      console.log(window.location.hash, '2323')
+      if (window.location.pathname.includes('account.php') || window.location.hash) {
         showPageMask(true)
       }
 

@@ -350,5 +350,10 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
         </Card>
       )}
     </>
-  ) : <B3NoData text={noDataText} />
+  ) : (
+    <B3NoData
+      isLoading={isLoading}
+      text={noDataText}
+    />
+  )
 }

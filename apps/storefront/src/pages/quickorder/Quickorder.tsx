@@ -43,7 +43,11 @@ const Quickorder = () => {
     <B3Sping
       isSpinning={isRequestLoading}
     >
-      <Box>
+      <Box
+        sx={{
+          width: '100%',
+        }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -53,6 +57,7 @@ const Quickorder = () => {
           <Grid
             sx={{
               m: 0,
+              width: '100%',
             }}
             container
             spacing={2}

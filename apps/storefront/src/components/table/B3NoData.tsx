@@ -8,6 +8,7 @@ interface B3NoDataProps {
   text?: string
   backgroundColor?: string
   minHeight?: string
+  isLoading?: boolean
 }
 
 const NoDataContainer = styled('div')(({
@@ -32,12 +33,15 @@ export const B3NoData = ({
   text,
   backgroundColor,
   minHeight,
+  isLoading = false,
 }: B3NoDataProps) => (
   <NoDataContainer
     backgroundColor={backgroundColor}
     minHeight={minHeight}
   >
-    <DataUsageRounded fontSize="large" />
-    <NoDataText>{text || 'No Data'}</NoDataText>
+    {
+      !isLoading && <DataUsageRounded fontSize="large" />
+    }
+    <NoDataText>{isLoading ? '' : (text || 'No Data')}</NoDataText>
   </NoDataContainer>
 )

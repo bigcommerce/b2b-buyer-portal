@@ -73,11 +73,15 @@ export const B3ControlSelect = ({
           variant="filled"
           style={{
             width: '100%',
+            color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
           }}
         >
           {
             label && (
             <InputLabel
+              sx={{
+                color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
+              }}
               error={!!errors[name]}
               required={required}
             >

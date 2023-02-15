@@ -140,6 +140,9 @@ export const B3ControlTextField = ({
                     <StyleNumberTextField
                       {...textField}
                       {...rest}
+                      sx={{
+                        color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
+                      }}
                       allowarrow={allowArrow ? 1 : 0}
                       inputProps={muiAttributeProps}
                       error={!!errors[name]}
@@ -152,6 +155,9 @@ export const B3ControlTextField = ({
                     <TextField
                       {...textField}
                       {...rest}
+                      sx={{
+                        color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
+                      }}
                       inputProps={muiAttributeProps}
                       error={!!errors[name]}
                       helperText={(errors as any)[name] ? (errors as any)[name].message : null}

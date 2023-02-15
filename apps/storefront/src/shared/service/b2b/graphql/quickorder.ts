@@ -35,15 +35,15 @@ const orderedProducts = (data: CustomFieldItems) => `{
         firstOrderedAt,
         lastOrderedAt,
         lastOrderedItems,
-        companyId,
-        ordersInfo,
-        orderProductId,
         sku,
         lastOrdered,
-        optionSelections,
         imageUrl,
-        channelId,
-        channelName,
+        baseSku,
+        basePrice,
+        discount,
+        tax,
+        enteredInclusive,
+        productUrl
       }
     }
   }
