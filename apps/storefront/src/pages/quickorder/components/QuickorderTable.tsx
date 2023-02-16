@@ -4,22 +4,32 @@ import {
   ReactElement,
   Dispatch,
   SetStateAction,
+  useContext,
 } from 'react'
 
 import {
   Box,
   styled,
+  TextField,
   Typography,
 } from '@mui/material'
 
 import {
+  format,
+} from 'date-fns'
+import {
   getOrderedProducts,
+  getBcOrderedProducts,
 } from '@/shared/service/b2b'
 
 import {
   getDefaultCurrencyInfo,
   distanceDay,
 } from '@/utils'
+
+import {
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   TableColumnItem,
@@ -97,11 +107,24 @@ interface QuickorderTableProps {
   setCheckedArr: (values: CustomFieldItems) => void,
 }
 
+const StyledTextField = styled(TextField)(() => ({
+  '& input': {
+    paddingTop: '12px',
+    paddingRight: '6px',
+  },
+}))
+
 const QuickorderTable = ({
   setIsRequestLoading,
   setCheckedArr,
 }: QuickorderTableProps) => {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
+
+  const {
+    state: {
+      isB2BUser,
+    },
+  } = useContext(GlobaledContext)
 
   const [search, setSearch] = useState<SearchProps>({
     q: '',
@@ -134,12 +157,14 @@ const QuickorderTable = ({
   }
 
   const getList = async (params: SearchProps) => {
+    const fn = isB2BUser ? getOrderedProducts : getBcOrderedProducts
+
     const {
       orderedProducts: {
         edges,
         totalCount,
       },
-    } = await getOrderedProducts(params)
+    } = await fn(params)
 
     const listProducts = await handleGetProductsById(edges)
 
@@ -201,6 +226,21 @@ const QuickorderTable = ({
     params.endDateAt = data.endValue
 
     setSearch(params)
+  }
+
+  const handleUpdateProductQty = (id: number | string, value: number | string) => {
+    const listItems = paginationTableRef.current?.getList() || []
+    const newListItems = listItems?.map((item: ListItemProps) => {
+      const {
+        node,
+      } = item
+      if (node?.id === id) {
+        node.quantity = +value || ''
+      }
+
+      return item
+    })
+    paginationTableRef.current?.setList([...newListItems])
   }
 
   const columnItems: TableColumnItem<ListItem>[] = [
@@ -267,7 +307,7 @@ const QuickorderTable = ({
       key: 'Price',
       title: 'Price',
       render: (row) => {
-        const price = +row.basePrice
+        const price = +row.basePrice * (+row.quantity)
 
         return (
           <Typography
@@ -275,7 +315,7 @@ const QuickorderTable = ({
               padding: '12px 0',
             }}
           >
-            {`${currencyToken}${price.toFixed(2)}`}
+            {`${currencyToken}${(price).toFixed(2)}`}
           </Typography>
         )
       },
@@ -285,38 +325,35 @@ const QuickorderTable = ({
       key: 'Qty',
       title: 'Qty',
       render: (row) => (
-        <Typography
-          sx={{
-            padding: '12px 0',
+        <StyledTextField
+          size="small"
+          type="number"
+          variant="filled"
+          value={row.quantity}
+          inputProps={{
+            inputMode: 'numeric', pattern: '[0-9]*',
           }}
-        >
-          {row.quantity}
-        </Typography>
+          onChange={(e) => {
+            handleUpdateProductQty(row.id, e.target.value)
+          }}
+        />
       ),
       width: '15%',
     },
     {
-      key: 'Total',
-      title: 'Total',
-      render: (row: CustomFieldItems) => {
-        const {
-          basePrice,
-          quantity = 0,
-        } = row
-        const total = +basePrice * +quantity
-
-        return (
-          <Box>
-            <Typography
-              sx={{
-                padding: '12px 0',
-              }}
-            >
-              {`${currencyToken}${total.toFixed(2)}`}
-            </Typography>
-          </Box>
-        )
-      },
+      key: 'lastOrderedAt',
+      title: 'Last ordered',
+      render: (row: CustomFieldItems) => (
+        <Box>
+          <Typography
+            sx={{
+              padding: '12px 0',
+            }}
+          >
+            {format(+row.lastOrderedAt * 1000, 'dd MMM yy')}
+          </Typography>
+        </Box>
+      ),
       width: '20%',
     },
   ]
@@ -437,6 +474,7 @@ const QuickorderTable = ({
             item={row}
             checkBox={checkBox}
             currencyToken={currencyToken}
+            handleUpdateProductQty={handleUpdateProductQty}
           />
         )}
       />

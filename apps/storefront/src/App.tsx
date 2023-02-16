@@ -125,13 +125,13 @@ export default function App() {
     })
   }, [])
 
-  const loginAndRegister = useCallback(() => {
-    const {
-      pathname,
-      href,
-      search,
-    } = window.location
+  const {
+    pathname,
+    href,
+    search,
+  } = window.location
 
+  const loginAndRegister = useCallback(() => {
     dispatch({
       type: 'common',
       payload: {
@@ -183,7 +183,9 @@ export default function App() {
       if (!customerId) await getCurrentCustomerInfo(dispatch)
 
       // background login enter judgment
-      setOpenApp(!(customerId && !window.location.hash))
+      if (!href.includes('checkout')) {
+        setOpenApp(!(customerId && !window.location.hash))
+      }
     }
 
     init()

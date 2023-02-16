@@ -62,21 +62,24 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
 
   const [fileList, setFileList] = useState<FileObjects[]>([])
 
-  useEffect(() => {
-    setFileList(defaultFileList)
-  }, [defaultFileList])
+  // useEffect(() => {
+  //   setFileList(defaultFileList)
+  // }, [defaultFileList])
 
   const uploadRef = useRef<UpLoaddingProps | null>(null)
 
   useEffect(() => {
-    if (defaultFileList.length <= 0) {
+    console.log(defaultFileList)
+    if (status === 0) {
       const {
         fileInfo = [],
       }: CustomFieldItems = B3LStorage.get('MyQuoteInfo') || {}
 
       setFileList(typeof fileInfo !== 'object' ? [] : fileInfo)
+    } else if (defaultFileList.length) {
+      setFileList(defaultFileList)
     }
-  }, [])
+  }, [status])
 
   const saveQuoteInfo = (newFileInfo: FileObjects[]) => {
     const quoteInfo = B3LStorage.get('MyQuoteInfo') || {}
@@ -122,6 +125,7 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
           title: `Uploaded by customer: ${firstName} ${lastName}`,
           hasDelete: true,
         }, ...fileList]
+
         saveQuoteInfo(newFileList)
       }
       setFileList(newFileList)

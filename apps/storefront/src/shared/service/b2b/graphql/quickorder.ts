@@ -52,3 +52,7 @@ const orderedProducts = (data: CustomFieldItems) => `{
 export const getOrderedProducts = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
   query: orderedProducts(data),
 })
+
+export const getBcOrderedProducts = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: orderedProducts(data),
+})

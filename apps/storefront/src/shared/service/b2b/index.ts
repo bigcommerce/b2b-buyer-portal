@@ -120,6 +120,7 @@ export {
 
 export {
   getOrderedProducts,
+  getBcOrderedProducts,
 } from './graphql/quickorder'
 
 export {

@@ -65,7 +65,7 @@ const FileUploadContainer = styled(Box)(() => ({
 
 const FileListItem = styled(Box)((props: CustomFieldItems) => ({
   display: 'flex',
-  background: props.hasdelete ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+  background: props.hasdelete === 'true' ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)',
   borderRadius: '18px',
   padding: '6px 8px',
   alignItems: 'center',
@@ -121,6 +121,11 @@ interface FileUploadProps {
   onDelete?: (id: string) => void,
   isEndLoadding?: boolean,
 }
+
+const AttachFile = styled(AttachFileIcon)(() => ({
+  transform: 'rotate(45deg)',
+  marginRight: '5px',
+}))
 
 const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
   const {
@@ -246,9 +251,9 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
           {
             fileList.map((file, index) => (
               <Box key={file.id || index}>
-                <FileListItem hasdelete={file.hasDelete}>
+                <FileListItem hasdelete={(file?.hasDelete || '').toString()}>
                   <Box className="fileList-name-area">
-                    <AttachFileIcon />
+                    <AttachFile />
                     <Typography
                       className="fileList-name"
                       onClick={() => { downloadFile(file.fileUrl) }}
@@ -286,7 +291,7 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
             <FileUploadContainer>
               <DropzoneArea
                 dropzoneClass="file-upload-area"
-                Icon={AttachFileIcon}
+                Icon={AttachFile}
                 filesLimit={1}
                 onChange={handleChange}
                 showPreviews={false}

@@ -7,16 +7,18 @@ import {
   CardContent,
   Typography,
   styled,
+  TextField,
 } from '@mui/material'
 
 import {
-  getProductOptionsFields,
-} from '../../shoppingListDetails/shared/config'
+  format,
+} from 'date-fns'
 
 interface QuickOrderCardProps {
   item: any,
   currencyToken: string,
   checkBox?: () => ReactElement,
+  handleUpdateProductQty: (id: number, val: string) => void
 }
 
 const StyledImage = styled('img')(() => ({
@@ -31,30 +33,21 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
   const {
     item: shoppingDetail,
     checkBox,
+    handleUpdateProductQty,
     currencyToken = '$',
   } = props
 
   const {
-    basePrice,
     quantity,
-    primaryImage,
+    imageUrl,
     productName,
     variantSku,
+    optionList,
+    basePrice,
+    lastOrderedAt,
   } = shoppingDetail
 
-  const total = +basePrice * +quantity
-  const price = +basePrice
-
-  const product: any = {
-    ...shoppingDetail.productsSearch,
-    selectOptions: shoppingDetail.optionList,
-  }
-
-  const productFields = (getProductOptionsFields(product, {}))
-
-  const optionList = JSON.parse(shoppingDetail.optionList)
-  const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
-
+  const price = +basePrice * +quantity
   return (
     <Box
       key={shoppingDetail.id}
@@ -76,7 +69,7 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
         </Box>
         <Box>
           <StyledImage
-            src={primaryImage || defaultProductImage}
+            src={imageUrl || defaultProductImage}
             alt="Product-img"
             loading="lazy"
           />
@@ -104,10 +97,10 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
             }}
           >
             {
-              (optionList.length > 0 && optionsValue.length > 0) && (
+              (optionList.length > 0) && (
                 <Box>
                   {
-                    optionsValue.map((option: any) => (
+                    optionList.map((option: any) => (
                       <Typography
                         sx={{
                           fontSize: '0.75rem',
@@ -116,8 +109,8 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
                         }}
                         key={option.valueLabel}
                       >
-                        {`${option.valueLabel
-                        }: ${option.valueText}`}
+                        {`${option.display_name
+                        }: ${option.display_value}`}
                       </Typography>
                     ))
                   }
@@ -128,9 +121,30 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
 
           <Typography>{`Price: ${currencyToken}${price.toFixed(2)}`}</Typography>
 
-          <Typography>{`qty: ${quantity}`}</Typography>
+          <Typography>
 
-          <Typography>{`Total: ${currencyToken}${total.toFixed(2)}`}</Typography>
+            <TextField
+              size="small"
+              type="number"
+              variant="filled"
+              label="Qty"
+              inputProps={{
+                inputMode: 'numeric', pattern: '[0-9]*',
+              }}
+              value={quantity}
+              sx={{
+                margin: '1rem 0',
+                width: '60%',
+                maxWidth: '100px',
+              }}
+              onChange={(e) => {
+                handleUpdateProductQty(shoppingDetail.id, e.target.value)
+              }}
+            />
+
+          </Typography>
+
+          <Typography>{`Last ordered: ${format(lastOrderedAt * 1000, 'dd MMM yy')}`}</Typography>
         </Box>
       </CardContent>
     </Box>
