@@ -46,11 +46,20 @@ export const QuoteNote = () => {
   return (
     <Card>
       <CardContent>
-        <B3CollapseContainer title="Note">
+        <B3CollapseContainer title="Message">
           <Box sx={{
             padding: '16px 0',
           }}
           >
+            <Box
+              sx={{
+                fontSize: '16px',
+                color: 'rgba(0, 0, 0, 0.38)',
+                mb: '16px',
+              }}
+            >
+              Your message will be sent after submitting a quote
+            </Box>
             <TextField
               multiline
               fullWidth

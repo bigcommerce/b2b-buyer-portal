@@ -22,6 +22,9 @@ export interface MsgsProps {
   jsx?: () => ReactElement,
   id: string | number,
   type: AlertTip
+  isClose?: boolean,
+  vertical?: 'top' | 'bottom'
+  horizontal?: 'left' | 'right' | 'center'
 }
 export interface TipMessagesProps{
   msgs?: Array<MsgsProps> | [],

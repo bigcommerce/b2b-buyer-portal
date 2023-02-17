@@ -16,7 +16,7 @@ export const useB3PDPOpen = (el: string, cd: () => void, isB2BUser: boolean, rol
     let shoppingBtnDom: CustomFieldItems | null = null
     if (!addToCartAll.length) return
     if (document.querySelectorAll('#shoppingListBtn').length) return
-    if (isB2BUser && (+role === 0 || +role === 1)) {
+    if (isB2BUser && (+role === 0 || +role === 1 || +role === 2)) {
       addToCartAll.forEach((node: CustomFieldItems) => {
         shoppingBtnDom = document.createElement('div')
         shoppingBtnDom.setAttribute('id', 'shoppingListBtn')

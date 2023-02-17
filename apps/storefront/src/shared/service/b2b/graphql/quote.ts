@@ -117,7 +117,7 @@ const getAddresses = (companyId: number) => `{
 
 const quoteCreate = (data: CustomFieldItems) => `mutation{
   quoteCreate(quoteData: {
-    notes: "${data.notes}",
+    message: "${data.message}",
     legalTerms: "${data.legalTerms}",
     totalAmount: "${data.totalAmount}",
     grandTotal: "${data.grandTotal}",

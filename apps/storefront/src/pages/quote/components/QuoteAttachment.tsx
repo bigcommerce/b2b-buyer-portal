@@ -17,6 +17,7 @@ import {
 
 import {
   B3LStorage,
+  snackbar,
 } from '@/utils'
 
 import {
@@ -69,7 +70,6 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
   const uploadRef = useRef<UpLoaddingProps | null>(null)
 
   useEffect(() => {
-    console.log(defaultFileList)
     if (status === 0) {
       const {
         fileInfo = [],
@@ -153,6 +153,15 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
     }
   }
 
+  const limitUploadFn = () => {
+    const customerFiles = fileList.filter((file: FileObjects) => file?.title && file.title.includes('by customer'))
+    if (customerFiles.length >= 3) {
+      snackbar.error('You can add up to 3 files')
+      return true
+    }
+    return false
+  }
+
   return (
     <Card>
       <CardContent>
@@ -162,6 +171,7 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
               ref={uploadRef}
               isEndLoadding
               fileList={fileList}
+              limitUploadFn={limitUploadFn}
               onchange={handleChange}
               onDelete={handleDelete}
               allowUpload={allowUpload}

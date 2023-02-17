@@ -75,9 +75,9 @@ import {
 import {
   QuoteSummary,
 } from './components/QuoteSummary'
-// import {
-//   QuoteNote,
-// } from './components/QuoteNote'
+import {
+  QuoteNote,
+} from './components/QuoteNote'
 import {
   QuoteAttachment,
 } from './components/QuoteAttachment'
@@ -383,7 +383,7 @@ const QuoteDraft = ({
       fileUrl: file.fileUrl,
       fileName: file.fileName,
       fileType: file.fileType,
-      fileSize: `${file.fileSize}`,
+      fileSize: file.fileSize,
     }))
   }
 
@@ -483,7 +483,8 @@ const QuoteDraft = ({
       const fileList = getFileList(info.fileInfo || [])
 
       const data = {
-        notes: note,
+        // notes: note,
+        message: note,
         legalTerms: '',
         totalAmount: allPrice.toFixed(2),
         grandTotal: allPrice.toFixed(2),
@@ -759,7 +760,7 @@ const QuoteDraft = ({
                 addToQuote={addToQuote}
               />
 
-              {/* <QuoteNote /> */}
+              <QuoteNote />
 
               {
                 role !== 100 && <QuoteAttachment status={0} />

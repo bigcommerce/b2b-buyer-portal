@@ -17,7 +17,9 @@ import {
 
 import {
   format,
+  formatDistanceStrict,
 } from 'date-fns'
+
 import {
   updateB2BQuote,
   updateBCQuote,
@@ -54,17 +56,21 @@ interface MsgsProps {
 }
 
 interface CustomerMessageProps {
-  msg: MessageProps
+  msg: MessageProps,
+  isEndMessage?: boolean,
+  isCustomer?: boolean,
 }
 
-const CustomerMessage = ({
+const ChatMessage = ({
   msg,
+  isEndMessage,
+  isCustomer,
 }: CustomerMessageProps) => (
   <Box
     sx={{
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'flex-end',
+      alignItems: `${isCustomer ? 'flex-end' : 'flex-start'}`,
     }}
   >
     {
@@ -92,7 +98,7 @@ const CustomerMessage = ({
           height: '34px',
           lineHeight: '34px',
           padding: '0 10px',
-          background: 'rgba(25, 118, 210, 0.3)',
+          background: `${isCustomer ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)'}`,
           borderRadius: '18px',
           m: '1px',
         }}
@@ -106,6 +112,25 @@ const CustomerMessage = ({
             {msg.message}
           </Box>
         </Tooltip>
+        {
+         isEndMessage && (
+         <Box
+           sx={{
+             height: '14px',
+             fontWeight: 400,
+             lineHeight: '14px',
+             fontSize: '10px',
+             letterSpacing: '0.17px',
+             color: 'rgba(0, 0, 0, 0.38)',
+           }}
+         >
+           {`Sent ${formatDistanceStrict(new Date((msg.sendTime || 0) * 1000), new Date(), {
+             addSuffix: true,
+           })}`}
+
+         </Box>
+         )
+        }
       </Box>
       )
     }
@@ -113,65 +138,13 @@ const CustomerMessage = ({
   </Box>
 )
 
-const SalesRepMessage = ({
-  msg,
-}: CustomerMessageProps) => (
-  <Box
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'flex-start',
-    }}
-  >
-    {
-      msg?.role && (
-      <Box
-        sx={{
-          height: '14px',
-          fontWeight: 400,
-          lineHeight: '14px',
-          fontSize: '10px',
-          letterSpacing: '0.17px',
-          color: 'rgba(0, 0, 0, 0.38)',
-        }}
-      >
-        {msg.role}
-      </Box>
-      )
-    }
-
-    {
-      msg?.message && (
-      <Box
-        sx={{
-          display: 'inline-block',
-          height: '34px',
-          lineHeight: '34px',
-          padding: '0 10px',
-          background: 'rgba(0, 0, 0, 0.12)',
-          borderRadius: '18px',
-          m: '1px',
-        }}
-      >
-        <Tooltip
-          title={format((msg.sendTime || 0) * 1000, 'K:m aa')}
-          placement="top"
-          arrow
-        >
-          <Box>
-            {msg.message}
-          </Box>
-        </Tooltip>
-      </Box>
-      )
-    }
-
-  </Box>
-)
+interface DateMessageProps {
+  msg: MessageProps,
+}
 
 const DateMessage = ({
   msg,
-}: CustomerMessageProps) => (
+}: DateMessageProps) => (
   <Box
     sx={{
       color: 'rgba(0, 0, 0, 0.6)',
@@ -398,14 +371,13 @@ const Message = ({
               }}
             >
               {
-              messages.map((item: MessageProps) => (
+              messages.map((item: MessageProps, index: number) => (
                 <Box key={item.key}>
-                  {
-                    item.isCustomer && <CustomerMessage msg={item} />
-                  }
-                  {
-                    !item.isCustomer && <SalesRepMessage msg={item} />
-                  }
+                  <ChatMessage
+                    msg={item}
+                    isEndMessage={index === messages.length - 1}
+                    isCustomer={!!item.isCustomer}
+                  />
                   {
                     item.date && <DateMessage msg={item} />
                   }

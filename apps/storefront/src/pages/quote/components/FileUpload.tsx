@@ -119,6 +119,7 @@ interface FileUploadProps {
   fileList: FileObjects[],
   allowUpload?: boolean,
   onDelete?: (id: string) => void,
+  limitUploadFn?: () => boolean,
   isEndLoadding?: boolean,
 }
 
@@ -133,6 +134,7 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
     tips = 'You can add up to 3 files,not bigger that 2MB each.',
     maxFileSize = 2097152, // 2MB
     fileNumber = 3,
+    limitUploadFn,
     acceptedFiles = FILE_UPLOAD_ACCEPT_TYPE,
     onchange = noop,
     fileList = [],
@@ -196,7 +198,11 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
   const handleChange = async (files: File[]) => {
     const file = files.length > 0 ? files[0] : null
 
-    if (file && fileList.length >= fileNumber) {
+    if (file && limitUploadFn && limitUploadFn()) {
+      return
+    }
+
+    if (!limitUploadFn && file && fileList.length >= fileNumber) {
       snackbar.error(`You can add up to ${fileNumber} files`)
       return
     }

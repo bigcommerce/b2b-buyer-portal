@@ -266,6 +266,8 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
         },
         minQuantity = 0,
         maxQuantity = 0,
+        isStock,
+        stock,
       } = product
 
       const quantityNumber = parseInt(`${quantity}`, 10) || 0
@@ -273,6 +275,9 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
         product.node.quantity = minQuantity
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
         product.node.quantity = maxQuantity
+      }
+      if (isStock !== '0' && stock && quantity > stock) {
+        product.node.quantity = stock
       }
     })
 

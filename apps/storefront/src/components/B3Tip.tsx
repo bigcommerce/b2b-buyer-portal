@@ -11,7 +11,7 @@ import {
 } from '@/shared/global/context/config'
 
 interface B3TipProps extends TipMessagesProps {
-  handleItemClose?: (id: number | string) => void,
+  handleItemClose: (id: number | string) => void,
   handleAllClose: () => void,
 }
 
@@ -41,13 +41,13 @@ export const B3Tip = ({
                 width: '100%',
                 alignItems: 'center',
                 '& button[title="Close"]': {
-                  display: `${handleItemClose ? 'block' : 'none'}`,
+                  display: `${msg.isClose ? 'block' : 'none'}`,
                 },
               }}
               variant="filled"
               key={msg.id}
               severity={msg.type}
-              onClose={() => handleItemClose && handleItemClose(msg.id)}
+              onClose={() => msg.isClose && handleItemClose(msg.id)}
             >
               {msg?.title && <AlertTitle>{msg.title}</AlertTitle>}
               {

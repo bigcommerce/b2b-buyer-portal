@@ -33,6 +33,10 @@ const B3LayoutTip = () => {
     window.tipDispatch = dispatch
   }, [])
 
+  // useEffect(() => {
+  //   window.b3Tipmessage = tipMessage?.msgs || []
+  // }, [tipMessage])
+
   const setMsgs = (msgs: [] | Array<MsgsProps> = []) => {
     dispatch({
       type: 'common',
@@ -56,7 +60,6 @@ const B3LayoutTip = () => {
     autoHideDuration = 3000,
     vertical = `${isMobile ? 'top' : 'top'}`,
     horizontal = 'right',
-    isClose = false,
   } = tipMessage
 
   return (
@@ -65,7 +68,8 @@ const B3LayoutTip = () => {
         msgs={msgs}
         handleAllClose={setMsgs}
         autoHideDuration={autoHideDuration}
-        handleItemClose={isClose ? handleClose : undefined}
+        handleItemClose={handleClose}
+        // handleItemClose={isClose ? handleClose : undefined}
         vertical={vertical}
         horizontal={horizontal}
       />

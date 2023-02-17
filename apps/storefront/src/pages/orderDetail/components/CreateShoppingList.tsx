@@ -35,6 +35,10 @@ import {
 } from '@/components/ThemeFrame'
 
 import {
+  GlobaledContext,
+} from '@/shared/global'
+
+import {
   createB2BShoppingList,
 } from '@/shared/service/b2b'
 
@@ -81,6 +85,12 @@ const CreateShoppingList = ({
   const [loading, setLoading] = useState<boolean>(false)
 
   const {
+    state: {
+      role,
+    },
+  } = useContext(GlobaledContext)
+
+  const {
     control,
     handleSubmit,
     getValues,
@@ -107,7 +117,7 @@ const CreateShoppingList = ({
       }
       const createShoppingData = {
         ...data,
-        status: 0,
+        status: +role === 2 ? 30 : 0,
       }
       await createB2BShoppingList(createShoppingData)
       setLoading(false)

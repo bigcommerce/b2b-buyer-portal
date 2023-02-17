@@ -39,17 +39,16 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
   }
 
   useLayoutEffect(() => {
-    if (globalB3['dom.openB3Checkout'] && document.getElementById(globalB3['dom.openB3Checkout'])) {
-      setOpenPage({
-        isOpen: true,
-        openUrl: '/login',
-      })
-    }
+    // if (globalB3['dom.openB3Checkout'] && document.getElementById(globalB3['dom.openB3Checkout'])) {
+    //   setOpenPage({
+    //     isOpen: true,
+    //     openUrl: '/login',
+    //   })
+    // }
     // login register  orther
     if (document.querySelectorAll(globalB3['dom.registerElement']).length) {
       const registerArr = Array.from(document.querySelectorAll(globalB3['dom.registerElement']))
       const allOtherArr = Array.from(document.querySelectorAll(globalB3['dom.allOtherElement']))
-
       const handleTriggerClick = (e: MouseEvent) => {
         if (registerArr.includes(e.target) || allOtherArr.includes(e.target)) {
           e.preventDefault()

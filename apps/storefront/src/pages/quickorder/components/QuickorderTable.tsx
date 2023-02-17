@@ -178,6 +178,7 @@ const QuickorderTable = ({
 
   const handleSearchProduct = async (q: string) => {
     setSearch({
+      ...search,
       q,
     })
   }
@@ -456,7 +457,7 @@ const QuickorderTable = ({
       <B3PaginationTable
         ref={paginationTableRef}
         columnItems={columnItems}
-        rowsPerPageOptions={[10, 20, 50]}
+        rowsPerPageOptions={[12, 24, 36]}
         getRequestList={getList}
         searchParams={search}
         isCustomRender={false}

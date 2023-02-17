@@ -58,6 +58,9 @@ const Quickorder = () => {
             <Grid
               item
               xs={isMobile ? 12 : 8}
+              sx={{
+                backgroundColor: '#ffffff',
+              }}
             >
               <QuickorderTable
                 setCheckedArr={setCheckedArr}
@@ -68,6 +71,10 @@ const Quickorder = () => {
             <Grid
               item
               xs={isMobile ? 12 : 4}
+              sx={{
+                pt: !isMobile ? '0px !important' : '16px',
+                pl: isMobile ? '0px !important' : '16px',
+              }}
             >
               <QuickOrderPad />
             </Grid>

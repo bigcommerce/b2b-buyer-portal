@@ -57,7 +57,6 @@ const addQuoteDraftProduce = async (quoteListitem: CustomFieldItems, qty: number
   const index = b2bQuoteDraftList.findIndex((item: QuoteListitemProps) => item?.node?.variantSku === quoteListitem.node.variantSku)
 
   if (index !== -1) {
-    console.log(b2bQuoteDraftList[index].node.optionList, b2bQuoteDraftList[index])
     // TODO optionList compare
     const oldOptionList = JSON.parse(b2bQuoteDraftList[index].node.optionList)
 

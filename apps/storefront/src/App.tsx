@@ -185,6 +185,8 @@ export default function App() {
       // background login enter judgment
       if (!href.includes('checkout')) {
         setOpenApp(!(customerId && !window.location.hash))
+      } else {
+        showPageMask(false)
       }
     }
 
