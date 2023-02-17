@@ -68,6 +68,11 @@ export const B3Mainheader = ({
       >
         <Box
           component="h4"
+          sx={{
+            fontSize: '20px',
+            fontWeight: '500',
+            color: '#333333',
+          }}
         >
           {companyInfo?.companyName || salesRepCompanyName}
 

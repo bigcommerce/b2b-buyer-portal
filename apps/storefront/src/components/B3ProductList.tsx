@@ -109,7 +109,7 @@ const defaultItemStyle = {
     width: '100px',
   },
   qty: {
-    width: '80px',
+    width: '15%',
   },
 }
 
@@ -136,6 +136,7 @@ interface ProductProps <T> {
   setCheckedArr?: (items: Array<T & ProductItem>) => void
   selectAllText?: string,
   totalText?: string,
+  canToProduct?: boolean,
 }
 
 export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props) => {
@@ -151,6 +152,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     setCheckedArr = noop,
     selectAllText = 'Select all products',
     totalText = 'Total',
+    canToProduct = false,
   } = props
 
   const [list, setList] = useState<ProductItem[]>([])
@@ -302,6 +304,17 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
                 <Typography
                   variant="body1"
                   color="#212121"
+                  onClick={() => {
+                    if (canToProduct) {
+                      const {
+                        location: {
+                          origin,
+                        },
+                      } = window
+
+                      window.location.href = `${origin}${product?.productUrl}`
+                    }
+                  }}
                 >
                   {product.name}
                 </Typography>
@@ -340,7 +353,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
                       onBlur={handleNumberInputBlur(product)}
                       size="small"
                       sx={{
-                        width: isMobile ? '60%' : '100%',
+                        width: '60%',
                         '& .MuiFormHelperText-root': {
                           marginLeft: '0',
                           marginRight: '0',

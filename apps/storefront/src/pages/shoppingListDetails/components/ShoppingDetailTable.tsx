@@ -116,7 +116,9 @@ interface PaginationTableRefProps extends HTMLInputElement {
 
 const StyledShoppingListTableContainer = styled('div')(() => ({
   backgroundColor: '#FFFFFF',
-  padding: '0.5rem',
+  padding: '0.5rem 1rem',
+  borderRadius: '4px',
+  boxShadow: '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
 
   '& tbody': {
     '& tr': {
@@ -370,6 +372,15 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
               <Typography
                 variant="body1"
                 color="#212121"
+                onClick={() => {
+                  const {
+                    location: {
+                      origin,
+                    },
+                  } = window
+
+                  window.location.href = `${origin}${row.productUrl}`
+                }}
               >
                 {row.productName}
               </Typography>

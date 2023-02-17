@@ -9,7 +9,7 @@ import {
 } from '@mui/material'
 
 import {
-  DensityMedium,
+  Dehaze,
   Close,
 } from '@mui/icons-material'
 
@@ -63,7 +63,7 @@ export const B3MobileLayout = ({
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: '5vw',
+          mb: '4.5vw',
         }}
       >
         <B3Logo />
@@ -72,7 +72,7 @@ export const B3MobileLayout = ({
           badgeContent={0}
           color="secondary"
         >
-          <DensityMedium onClick={openRouteList} />
+          <Dehaze onClick={openRouteList} />
         </Badge>
       </Box>
 
@@ -82,11 +82,14 @@ export const B3MobileLayout = ({
           p: 0,
           m: 0,
           mb: '2vw',
+          fontSize: '34px',
+          fontWeight: '400',
+          color: '#263238',
         }}
       >
         {
-            title
-          }
+          title
+        }
       </Box>
       <Box
         sx={{

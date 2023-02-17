@@ -127,6 +127,7 @@ export const SearchProduct = ({
       await addToList(products)
 
       setIsAdded(true)
+      setProductListOpen(false)
     } finally {
       setIsLoading(false)
     }
@@ -155,7 +156,6 @@ export const SearchProduct = ({
   const handleChooseOptionsDialogConfirm = (products: CustomFieldItems[]) => {
     handleAddToListClick(products)
     setChooseOptionsOpen(false)
-    setProductListOpen(true)
   }
 
   return (

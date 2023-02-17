@@ -69,7 +69,7 @@ export interface RouteFirstLevelItem extends RouteItemBasic{
 const routes: RouteItem[] = [
   {
     path: '/orders',
-    name: 'My Orders',
+    name: 'My orders',
     wsKey: 'router-orders',
     isMenuItem: true,
     component: OrderList,
@@ -78,7 +78,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/company-orders',
-    name: 'Company Orders',
+    name: 'Company orders',
     wsKey: 'router-orders',
     isMenuItem: true,
     component: CompanyOrderList,
@@ -87,7 +87,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/orderDetail/:id',
-    name: 'Order Details',
+    name: 'Order details',
     wsKey: 'router-orders',
     isMenuItem: false,
     component: OrderDetail,
@@ -96,7 +96,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/invoiceDetail/:id',
-    name: 'Invoice Details',
+    name: 'Invoice details',
     wsKey: 'router-invoice',
     isMenuItem: false,
     component: InvoiceDetail,
@@ -115,7 +115,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/shoppingList/:id',
-    name: 'Shopping List',
+    name: 'Shopping list',
     wsKey: 'router-shopping-list',
     isMenuItem: false,
     component: ShoppingListDetails,
@@ -133,7 +133,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/shoppingLists',
-    name: 'Shopping Lists',
+    name: 'Shopping lists',
     wsKey: 'shioppingLists',
     isMenuItem: true,
     component: ShippingLists,
@@ -143,7 +143,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/quoteDraft',
-    name: 'QuoteDraft',
+    name: 'Quote draft',
     wsKey: 'quoteDraft',
     isMenuItem: false,
     component: QuoteDraft,
@@ -163,7 +163,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/accountSettings',
-    name: 'Account Settings',
+    name: 'Account settings',
     wsKey: 'accountSetting',
     isMenuItem: true,
     component: AccountSetting,
@@ -183,7 +183,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/quoteDetail/:id',
-    name: 'QuoteDetail',
+    name: 'Quote detail',
     wsKey: 'quoteDetail',
     isMenuItem: false,
     component: QuoteDetail,
@@ -193,7 +193,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/recently-viewed',
-    name: 'Recently Viewed',
+    name: 'Recently viewed',
     wsKey: 'router-orders',
     isMenuItem: true,
     component: Dashboard,

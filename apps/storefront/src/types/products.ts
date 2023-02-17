@@ -13,6 +13,7 @@ export interface ProductItem {
   base_price: string,
   product_options?: ProductOptionsItem[],
   helperText?: string,
+  productUrl?: string,
 }
 
 export interface ProductVariantSkuInfo{

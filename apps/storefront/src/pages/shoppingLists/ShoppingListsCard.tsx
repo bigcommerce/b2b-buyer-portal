@@ -157,6 +157,9 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
               p: 0,
               m: 0,
               minWidth: 0,
+              '&:hover': {
+                backgroundColor: '#fff',
+              },
             }}
             variant="text"
             onClick={() => goToDetail(shoppingList)}
@@ -197,7 +200,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
               !getDeletePermissions(shoppingList.status) && (
               <IconButton
                 aria-label="delete"
-                size="small"
+                size="medium"
                 onClick={() => { onDelete(shoppingList) }}
               >
                 <DeleteIcon fontSize="inherit" />

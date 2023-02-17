@@ -52,7 +52,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
     <>
       <Box
         sx={{
-          marginBottom: '10px',
+          marginBottom: '16px',
           width: 'fit-content',
         }}
       >
@@ -72,7 +72,12 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
               marginRight: '0.5rem',
             }}
           />
-          <p>Back to shopping lists</p>
+          <p style={{
+            margin: 0,
+          }}
+          >
+            Back to shopping lists
+          </p>
         </Box>
       </Box>
       <Grid
@@ -101,6 +106,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
               sx={{
                 marginRight: '1rem',
                 wordBreak: 'break-all',
+                color: '#263238',
               }}
             >
               {`${shoppingListInfo?.name || ''}`}

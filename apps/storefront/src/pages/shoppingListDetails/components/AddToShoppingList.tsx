@@ -61,7 +61,9 @@ export const AddToShoppingList = (props: AddToListProps) => {
       items,
     })
 
-    snackbar.success('Product were added to your shopping list')
+    snackbar.success('Products were added to your shopping list', {
+      duration: 5000,
+    })
 
     return res
   }
@@ -79,7 +81,9 @@ export const AddToShoppingList = (props: AddToListProps) => {
       items,
     })
 
-    snackbar.success('Products were added to your shopping list')
+    snackbar.success('Products were added to your shopping list', {
+      duration: 5000,
+    })
 
     return res
   }

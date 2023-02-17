@@ -100,14 +100,14 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
               (optionList.length > 0) && (
                 <Box>
                   {
-                    optionList.map((option: any) => (
+                    optionList.map((option: CustomFieldItems) => (
                       <Typography
                         sx={{
                           fontSize: '0.75rem',
                           lineHeight: '1.5',
                           color: '#455A64',
                         }}
-                        key={option.valueLabel}
+                        key={option.display_name}
                       >
                         {`${option.display_name
                         }: ${option.display_value}`}
@@ -121,8 +121,13 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
 
           <Typography>{`Price: ${currencyToken}${price.toFixed(2)}`}</Typography>
 
-          <Typography>
-
+          <Box
+            sx={{
+              '& label': {
+                zIndex: 0,
+              },
+            }}
+          >
             <TextField
               size="small"
               type="number"
@@ -141,8 +146,7 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
                 handleUpdateProductQty(shoppingDetail.id, e.target.value)
               }}
             />
-
-          </Typography>
+          </Box>
 
           <Typography>{`Last ordered: ${format(lastOrderedAt * 1000, 'dd MMM yy')}`}</Typography>
         </Box>

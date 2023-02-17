@@ -371,6 +371,11 @@ export const QuickAdd = (props: AddToListContentProps) => {
 
         <Box
           onKeyDown={handleKeyDown}
+          sx={{
+            '& label': {
+              zIndex: 0,
+            },
+          }}
         >
           <B3CustomForm
             formFields={formFields}

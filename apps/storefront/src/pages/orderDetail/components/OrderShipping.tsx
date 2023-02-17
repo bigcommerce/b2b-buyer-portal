@@ -192,6 +192,7 @@ export const OrderShipping = () => {
                         products={shipment.itemsInfo}
                         currency={currency}
                         totalText="Cost"
+                        canToProduct
                       />
                     </Fragment>
                   ) : <></>
@@ -216,6 +217,7 @@ export const OrderShipping = () => {
                       products={shipping.notShip.itemsInfo}
                       currency={currency}
                       totalText="Cost"
+                      canToProduct
                     />
                   </Fragment>
                 ) : <></>

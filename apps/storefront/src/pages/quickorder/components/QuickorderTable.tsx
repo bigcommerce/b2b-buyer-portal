@@ -379,6 +379,9 @@ const QuickorderTable = ({
         sx={{
           marginBottom: '5px',
           display: 'flex',
+          '& label': {
+            zIndex: 0,
+          },
         }}
       >
         <Box

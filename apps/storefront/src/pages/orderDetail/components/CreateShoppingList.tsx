@@ -161,12 +161,12 @@ const CreateShoppingList = ({
         </DialogTitle>
         <Divider />
         <DialogContent>
-          <Box sx={{
-            minHeight: '250px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            paddingTop: '20px',
-          }}
+          <Box
+            sx={{
+              minHeight: 'auto',
+              display: 'flex',
+              alignItems: 'flex-start',
+            }}
           >
             <B3CustomForm
               formFields={list}

@@ -2,6 +2,7 @@ import {
   Box,
   Typography,
   Button,
+  Grid,
 } from '@mui/material'
 
 import {
@@ -183,76 +184,111 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
   }
 
   return (
-    <Box
+    <Grid
       sx={{
         position: 'fixed',
         bottom: 0,
         left: 0,
         backgroundColor: '#fff',
         width: '100%',
-        padding: '1rem',
+        padding: isMobile ? '0 0 1rem 0' : '0 40px 1rem 40px',
         height: isMobile ? '8rem' : 'auto',
+        marginLeft: 0,
         display: 'flex',
-        zIndex: '999',
-        ...containerStyle,
+        flexWrap: 'nowrap',
       }}
+      container
+      spacing={2}
     >
-      <Typography
+      <Grid
+        item
         sx={{
-          marginLeft: isMobile ? '0' : '23%',
-          marginRight: '7%',
+          display: isMobile ? 'none' : 'block',
+          width: '290px',
+          paddingLeft: '20px',
+        }}
+      />
+      <Grid
+        item
+        sx={isMobile ? {
+          flexBasis: '100%',
+        } : {
+          flexBasis: '690px',
+          flexGrow: 1,
         }}
       >
-        {`${checkedArr.length} products  selected`}
-      </Typography>
-      <Typography
-        variant="h6"
-      >
-        {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
-      </Typography>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          marginTop: isMobile ? '0.5rem' : 0,
-          width: isMobile ? '100%' : 'auto',
-        }}
-      >
-        <Button
+        <Box
           sx={{
-            padding: '5px',
-            border: '1px solid #1976d2',
-            margin: isMobile ? '0 1rem 0 0' : '0 1rem',
-            minWidth: 'auto',
+            width: '100%',
+            pr: '20px',
+            display: 'flex',
+            zIndex: '999',
+            justifyContent: 'space-between',
+            ...containerStyle,
           }}
-          disabled={shoppingListInfo?.status === 40}
         >
-          <Delete
-            color="primary"
-            onClick={() => {
-              setDeleteOpen(true)
+          <Typography>
+            {`${checkedArr.length} products  selected`}
+          </Typography>
+          <Typography
+            variant="h6"
+          >
+            {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              marginTop: isMobile ? '0.5rem' : 0,
+              width: isMobile ? '100%' : 'auto',
             }}
-          />
-        </Button>
-        {
-          (role !== 2 || shoppingListInfo?.status === 0) && (
+          >
             <Button
-              variant="contained"
-              onClick={() => {
-                handleAddProductsToCart()
-              }}
               sx={{
-                marginLeft: '0.5rem',
-                width: isMobile ? '80%' : 'auto',
+                padding: '5px',
+                border: '1px solid #1976d2',
+                margin: isMobile ? '0 1rem 0 0' : '0 1rem',
+                minWidth: 'auto',
               }}
+              disabled={shoppingListInfo?.status === 40}
             >
-              Add selected to cart
+              <Delete
+                color="primary"
+                onClick={() => {
+                  setDeleteOpen(true)
+                }}
+              />
             </Button>
-          )
-        }
-      </Box>
-    </Box>
-
+            {
+              (role !== 2 || shoppingListInfo?.status === 0) && (
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleAddProductsToCart()
+                  }}
+                  sx={{
+                    marginLeft: '0.5rem',
+                    width: isMobile ? '80%' : 'auto',
+                  }}
+                >
+                  Add selected to cart
+                </Button>
+              )
+            }
+          </Box>
+        </Box>
+      </Grid>
+      <Grid
+        item
+        sx={isMobile ? {
+          flexBasis: '100%',
+          display: isMobile ? 'none' : 'block',
+        } : {
+          flexBasis: '340px',
+          display: isMobile ? 'none' : 'block',
+        }}
+      />
+    </Grid>
   )
 }
 

@@ -1,5 +1,6 @@
 import {
   useState,
+  useContext,
   useEffect,
 } from 'react'
 
@@ -7,6 +8,10 @@ import {
   Box,
   Grid,
 } from '@mui/material'
+
+import {
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   useMobile,
@@ -25,6 +30,11 @@ import {
 const Quickorder = () => {
   useEffect(() => {
   }, [])
+  const {
+    state: {
+      role,
+    },
+  } = useContext(GlobaledContext)
 
   const [isMobile] = useMobile()
 
@@ -76,7 +86,11 @@ const Quickorder = () => {
                 pl: isMobile ? '0px !important' : '16px',
               }}
             >
-              <QuickOrderPad />
+              {
+                role !== 2 && (
+                  <QuickOrderPad />
+                )
+              }
             </Grid>
           </Grid>
         </Box>
@@ -89,6 +103,7 @@ const Quickorder = () => {
           }}
         >
           <QuickOrderFooter
+            role={role}
             checkedArr={checkedArr}
             setIsRequestLoading={setIsRequestLoading}
           />

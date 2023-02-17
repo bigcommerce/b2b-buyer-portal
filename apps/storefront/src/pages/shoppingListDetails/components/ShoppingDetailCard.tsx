@@ -64,6 +64,7 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
     productName,
     variantSku,
     productsSearch,
+    productUrl,
   } = shoppingDetail
 
   const total = +basePrice * +quantity
@@ -114,6 +115,15 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
           <Typography
             variant="body1"
             color="#212121"
+            onClick={() => {
+              const {
+                location: {
+                  origin,
+                },
+              } = window
+
+              window.location.href = `${origin}${productUrl}`
+            }}
           >
             {productName}
           </Typography>
@@ -125,7 +135,7 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
           </Typography>
           <Box
             sx={{
-              margin: '1rem 0',
+              margin: '0 0 0.5rem 0',
             }}
           >
             {
@@ -151,7 +161,13 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
             }
           </Box>
 
-          <Typography>{`Price: ${currencyToken}${price.toFixed(2)}`}</Typography>
+          <Typography
+            sx={{
+              color: '#212121',
+            }}
+          >
+            {`Price: ${currencyToken}${price.toFixed(2)}`}
+          </Typography>
 
           <TextField
             size="small"
@@ -164,9 +180,12 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
             }}
             value={quantity}
             sx={{
-              margin: '1rem 0',
+              margin: '0.5rem 0',
               width: '60%',
               maxWidth: '100px',
+              '& label': {
+                zIndex: 0,
+              },
             }}
             onChange={(e) => {
               handleUpdateProductQty(shoppingDetail.id, e.target.value)
@@ -175,10 +194,16 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
               handleUpdateShoppingListItem(itemId)
             }}
           />
-          <Typography>{`Total: ${currencyToken}${total.toFixed(2)}`}</Typography>
+          <Typography
+            sx={{
+              color: '#212121',
+            }}
+          >
+            {`Total: ${currencyToken}${total.toFixed(2)}`}
+          </Typography>
           <Box
             sx={{
-              marginTop: '1rem',
+              marginTop: '11px',
               textAlign: 'end',
             }}
             id="shoppingList-actionList-mobile"

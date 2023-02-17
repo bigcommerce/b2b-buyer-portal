@@ -20,6 +20,7 @@ import {
   Button,
   Menu,
   MenuItem,
+  Grid,
 } from '@mui/material'
 
 import {
@@ -141,12 +142,14 @@ const successTip = (options: successTipOptions) => () => (
 )
 
 interface QuickOrderFooterProps {
+  role: number | string,
   checkedArr: CustomFieldItems,
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
 }
 
 const QuickOrderFooter = (props: QuickOrderFooterProps) => {
   const {
+    role,
     checkedArr,
     setIsRequestLoading,
   } = props
@@ -355,7 +358,15 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
 
         addQuoteDraftProduce(quoteListitem, +quantity, optionsList || [])
 
-        snackbar.success('Products were added to your quote.')
+        snackbar.success('', {
+          jsx: successTip({
+            message: 'Products were added to your quote.',
+            link: '/quoteDraft',
+            linkText: 'VIEW QUOTE',
+            isOutLink: false,
+          }),
+          isClose: true,
+        })
       })
     } catch (e) {
       console.log(e)
@@ -478,6 +489,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
     name: 'Add selected to cart',
     key: 'add-selected-to-cart',
     handleClick: handleAddSelectedToCart,
+    isDisabled: role === 2,
   }, {
     name: 'Add selected to quote',
     key: 'add-selected-to-quote',
@@ -508,7 +520,127 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
 
   return (
     <>
-      <Box
+      <Grid
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          backgroundColor: '#fff',
+          width: '100%',
+          padding: isMobile ? '0 0 1rem 0' : '0 40px 1rem 40px',
+          height: isMobile ? '8rem' : 'auto',
+          marginLeft: 0,
+          display: 'flex',
+          flexWrap: 'nowrap',
+        }}
+        container
+        spacing={2}
+      >
+        <Grid
+          item
+          sx={{
+            display: isMobile ? 'none' : 'block',
+            width: '290px',
+            paddingLeft: '20px',
+          }}
+        />
+        <Grid
+          item
+          sx={isMobile ? {
+            flexBasis: '100%',
+          } : {
+            flexBasis: '690px',
+            flexGrow: 1,
+          }}
+        >
+          <Box
+            sx={{
+              width: '100%',
+              pr: '25px',
+              display: 'flex',
+              zIndex: '999',
+              justifyContent: 'space-between',
+              ...containerStyle,
+            }}
+          >
+            <Typography>
+              {`${checkedArr.length} products selected`}
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                fontSize: '16px',
+                fontWeight: '700',
+              }}
+            >
+              {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                marginTop: isMobile ? '0.5rem' : 0,
+                width: isMobile ? '100%' : 'auto',
+              }}
+            >
+              <Button
+                variant="contained"
+                onClick={handleOpenBtnList}
+                sx={{
+                  marginLeft: isMobile ? 0 : '1rem',
+                  width: isMobile ? '80%' : 'auto',
+                }}
+                endIcon={<ArrowDropDown />}
+              >
+                Add selected to
+              </Button>
+
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+              >
+                {
+              buttonList.length > 0 && (
+                buttonList.map((button) => {
+                  if (button.isDisabled) return
+
+                  return (
+                    (
+                      <MenuItem
+                        key={button.key}
+                        onClick={() => {
+                          button.handleClick()
+                        }}
+                      >
+                        {button.name}
+                      </MenuItem>
+                    )
+                  )
+                })
+              )
+            }
+
+              </Menu>
+            </Box>
+          </Box>
+        </Grid>
+        <Grid
+          item
+          sx={isMobile ? {
+            flexBasis: '100%',
+            display: isMobile ? 'none' : 'block',
+          } : {
+            flexBasis: '340px',
+            display: isMobile ? 'none' : 'block',
+          }}
+        />
+      </Grid>
+      {/* <Box
         sx={{
           position: 'fixed',
           bottom: 0,
@@ -522,70 +654,8 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
           ...containerStyle,
         }}
       >
-        <Typography
-          sx={{
-            marginLeft: isMobile ? '0' : '23%',
-            marginRight: '7%',
-          }}
-        >
-          {`${checkedArr.length} products selected`}
-        </Typography>
-        <Typography
-          variant="h6"
-          sx={{
-            fontSize: '16px',
-            fontWeight: '700',
-          }}
-        >
-          {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
-        </Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            marginTop: isMobile ? '0.5rem' : 0,
-            width: isMobile ? '100%' : 'auto',
-          }}
-        >
-          <Button
-            variant="contained"
-            onClick={handleOpenBtnList}
-            sx={{
-              marginLeft: isMobile ? 0 : '1rem',
-              width: isMobile ? '80%' : 'auto',
-            }}
-            endIcon={<ArrowDropDown />}
-          >
-            Add selected to
-          </Button>
 
-          <Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            MenuListProps={{
-              'aria-labelledby': 'basic-button',
-            }}
-          >
-            {
-              buttonList.length > 0 && (
-                buttonList.map((button) => (
-                  <MenuItem
-                    key={button.key}
-                    onClick={() => {
-                      button.handleClick()
-                    }}
-                  >
-                    {button.name}
-                  </MenuItem>
-                ))
-              )
-            }
-
-          </Menu>
-        </Box>
-      </Box>
+      </Box> */}
 
       <OrderShoppingList
         isOpen={openShoppingList}

@@ -73,6 +73,11 @@ const shoppingLists = () => {
   const customItem = {
     isEnabled: isEnableBtnPermissions,
     customLabel: 'Create new',
+    customButtomStyle: {
+      fontSize: '15px',
+      fontWeight: '500',
+      color: '#FFFFFF',
+    },
   }
   const statusPermissions = +role !== 2 ? [0, 40] : ''
 
@@ -219,6 +224,7 @@ const shoppingLists = () => {
           rightStyleBtn={{
             color: '#D32F2F',
           }}
+          isShowBordered={false}
         >
           <Box
             sx={{

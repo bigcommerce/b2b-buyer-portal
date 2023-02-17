@@ -73,57 +73,59 @@ export const B3AccountInfo = ({
   return (
     <>
       {
-      isMobile ? (
-        <Box
-          sx={{
-            pb: '5vw',
-          }}
-        >
+        isMobile ? (
           <Box
             sx={{
-              m: 0,
-              p: '2vw 4vw',
-              color: 'black',
+              pb: '5vw',
             }}
           >
-            Logged in as
-            {' '}
-            {name}
+            <Box
+              sx={{
+                m: 0,
+                p: '2vw 4vw',
+                color: 'black',
+              }}
+            >
+              Logged in as
+              {' '}
+              {name}
+            </Box>
+            {
+              list.map((item) => (
+                <Box
+                  sx={{
+                    p: '2vw 4vw',
+                    color: '#3385d6',
+                  }}
+                  key={item.name}
+                  onClick={() => handleItemClick(item)}
+                >
+                  {item.name}
+                </Box>
+              ))
+            }
           </Box>
-          {
-            list.map((item) => (
-              <Box
-                sx={{
-                  p: '2vw 4vw',
-                  color: '#3385d6',
-                }}
-                key={item.name}
-                onClick={() => handleItemClick(item)}
-              >
-                {item.name}
-              </Box>
-            ))
-          }
-        </Box>
-      ) : (
-        <Box sx={{
-          width: '150px',
-          display: 'flex',
-          justifyContent: 'end',
-          mr: '8px',
-        }}
-        >
-          { name }
-          {/* <B3DropDown
-            title={name}
-            width="150px"
-            handleItemClick={handleItemClick}
-            list={list}
-          /> */}
+        ) : (
+          <Box sx={{
+            width: '150px',
+            display: 'flex',
+            justifyContent: 'end',
+            mr: '8px',
+            fontSize: '16px',
+            color: '#333333',
+          }}
+          >
+            { name }
+            {/* <B3DropDown
+              title={name}
+              width="150px"
+              handleItemClick={handleItemClick}
+              list={list}
+            /> */}
 
-        </Box>
-      )
-    }
+          </Box>
+        )
+      }
 
     </>
 
