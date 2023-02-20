@@ -66,6 +66,12 @@ export const QuoteNote = () => {
               rows={5}
               value={noteText}
               onChange={handleNoteTextChange}
+              label="Type a message..."
+              sx={{
+                '& .MuiFormLabel-root': {
+                  color: 'rgba(0, 0, 0, 0.38)',
+                },
+              }}
             />
           </Box>
         </B3CollapseContainer>
