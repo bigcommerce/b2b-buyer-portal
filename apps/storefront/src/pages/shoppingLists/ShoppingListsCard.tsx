@@ -175,7 +175,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
               !getEditPermissions(shoppingList.status) && (
               <IconButton
                 aria-label="edit"
-                size="small"
+                size="medium"
                 sx={{
                   marginRight: '8px',
                 }}
@@ -188,7 +188,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
 
             <IconButton
               aria-label="edit"
-              size="small"
+              size="medium"
               sx={{
                 marginRight: '8px',
               }}
