@@ -42,7 +42,7 @@ const B3FilterSearch = ({
   }
 
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setIsInitLoading(false)
+    setIsInitLoading(true)
     setSearch(e.target.value)
   }
 
@@ -50,7 +50,7 @@ const B3FilterSearch = ({
   useEffect(() => {
     if (isInitLoading) return
     handleChange(search)
-  }, [debouncedValue])
+  }, [debouncedValue, isInitLoading])
 
   return (
     <Paper
@@ -91,6 +91,9 @@ const B3FilterSearch = ({
         value={search}
         placeholder={placeholder}
         onChange={handleOnChange}
+        onBlur={() => {
+          setIsInitLoading(false)
+        }}
       />
     </Paper>
   )

@@ -28,6 +28,10 @@ import {
 } from '@/utils'
 
 import {
+  removeCartPermissions,
+} from '@/utils/b3RolePermissions'
+
+import {
   GlobaledContext,
 } from '@/shared/global'
 
@@ -212,6 +216,8 @@ export default function App() {
         },
       })
     }
+
+    removeCartPermissions(role)
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
 
   useRegisteredbctob2b(setOpenPage, isB2BUser, customerId)

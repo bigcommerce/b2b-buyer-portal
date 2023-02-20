@@ -230,6 +230,7 @@ const QuickorderTable = ({
   }
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
+    if (value !== '' && value <= 0) return
     const listItems = paginationTableRef.current?.getList() || []
     const newListItems = listItems?.map((item: ListItemProps) => {
       const {
@@ -351,7 +352,7 @@ const QuickorderTable = ({
               padding: '12px 0',
             }}
           >
-            {format(+row.lastOrderedAt * 1000, 'dd MMM yy')}
+            {format(+row.lastOrderedAt * 1000, 'dd MMM yyyy')}
           </Typography>
         </Box>
       ),

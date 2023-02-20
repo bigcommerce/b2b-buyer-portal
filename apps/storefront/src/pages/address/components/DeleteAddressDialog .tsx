@@ -95,6 +95,7 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
       rightStyleBtn={{
         color: '#D32F2F',
       }}
+      isShowBordered={false}
     >
       <Box
         sx={{

@@ -231,6 +231,7 @@ const Usermanagement = () => {
           rightStyleBtn={{
             color: '#D32F2F',
           }}
+          isShowBordered={false}
         >
           <Box
             sx={{
