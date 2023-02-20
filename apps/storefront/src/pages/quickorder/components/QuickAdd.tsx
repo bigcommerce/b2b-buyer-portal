@@ -344,6 +344,9 @@ export const QuickAdd = (props: AddToListContentProps) => {
             const type = min === 0 ? 'Max' : 'Min'
             const limit = min === 0 ? max : min
             showErrors(value, [sku], 'qty', `${type} is ${limit}`)
+
+            const typeText = min === 0 ? 'maximum' : 'minimum'
+            snackbar.error(`You need to purchase a ${typeText} of ${limit} of the ${sku} per order.`)
           })
         }
 
