@@ -159,6 +159,11 @@ export const QuickAdd = (props: AddToListContentProps) => {
       sku: string,
       stock: number,
     }[] = []
+    const orderLimitSku: {
+      sku: string,
+      min: number,
+      max: number,
+    }[] = []
 
     skus.forEach((sku) => {
       const variantInfo : CustomFieldItems | null = (variantInfoList || []).find((variant: CustomFieldItems) => variant.variantSku.toUpperCase() === sku.toUpperCase())
@@ -175,6 +180,8 @@ export const QuickAdd = (props: AddToListContentProps) => {
         purchasingDisabled = '1',
         stock,
         isStock,
+        maxQuantity,
+        minQuantity,
       } = variantInfo
 
       const quantity = (skuValue[sku] as number) || 0
@@ -188,6 +195,16 @@ export const QuickAdd = (props: AddToListContentProps) => {
         notStockSku.push({
           sku,
           stock: +stock,
+        })
+
+        return
+      }
+
+      if (quantity > 0 && (quantity > maxQuantity || quantity < minQuantity)) {
+        orderLimitSku.push({
+          sku,
+          min: quantity < minQuantity ? minQuantity : 0,
+          max: quantity > maxQuantity ? maxQuantity : 0,
         })
 
         return
@@ -223,6 +240,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
       notStockSku,
       productItems,
       passSku,
+      orderLimitSku,
     }
   }
 
@@ -286,6 +304,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
           productItems,
           passSku,
           notStockSku,
+          orderLimitSku,
         } = getProductItems(variantInfoList, skuValue, skus)
 
         if (notFoundSku.length > 0) {
@@ -302,10 +321,30 @@ export const QuickAdd = (props: AddToListContentProps) => {
           const stockSku = notStockSku.map((item) => item.sku)
 
           notStockSku.forEach((item) => {
-            showErrors(value, stockSku, 'qty', `${item.stock} in stock`)
+            const {
+              sku,
+              stock,
+            } = item
+
+            showErrors(value, [sku], 'qty', `${stock} in stock`)
           })
 
           snackbar.error(`SKU ${stockSku} do not have enough stock, please change quantity.`)
+        }
+
+        if (orderLimitSku.length > 0) {
+          // const stockSku = orderLimitSku.map((item) => item.sku)
+          orderLimitSku.forEach((item) => {
+            const {
+              min,
+              max,
+              sku,
+            } = item
+
+            const type = min === 0 ? 'Max' : 'Min'
+            const limit = min === 0 ? max : min
+            showErrors(value, [sku], 'qty', `${type} is ${limit}`)
+          })
         }
 
         if (productItems.length > 0) {
