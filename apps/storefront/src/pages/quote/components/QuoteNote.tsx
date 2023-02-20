@@ -67,6 +67,8 @@ export const QuoteNote = () => {
               value={noteText}
               onChange={handleNoteTextChange}
               label="Type a message..."
+              size="small"
+              variant="filled"
               sx={{
                 '& .MuiFormLabel-root': {
                   color: 'rgba(0, 0, 0, 0.38)',
