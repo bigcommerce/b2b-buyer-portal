@@ -148,7 +148,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
             <FontBold>
               Last activity:
             </FontBold>
-            {format(+shoppingList.updatedAt * 1000, 'dd MMM yy')}
+            {format(+shoppingList.updatedAt * 1000, 'dd MMM yyyy')}
           </FlexItem>
         </Box>
         <Flex>

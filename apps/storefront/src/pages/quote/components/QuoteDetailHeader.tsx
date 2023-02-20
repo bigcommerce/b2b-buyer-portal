@@ -144,7 +144,7 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
               >
                 Issued on:
               </Typography>
-              <span>{`${issuedAt ? format(+issuedAt * 1000, 'dd MMM yy') : ''}`}</span>
+              <span>{`${issuedAt ? format(+issuedAt * 1000, 'dd MMM yyyy') : ''}`}</span>
             </StyledCreateName>
             <StyledCreateName>
               <Typography
@@ -156,7 +156,7 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
               >
                 Expiration date:
               </Typography>
-              <span>{`${expirationDate ? format(+expirationDate * 1000, 'dd MMM yy') : ''}`}</span>
+              <span>{`${expirationDate ? format(+expirationDate * 1000, 'dd MMM yyyy') : ''}`}</span>
             </StyledCreateName>
           </Box>
         </Grid>

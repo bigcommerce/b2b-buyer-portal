@@ -59,17 +59,17 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
     {
       key: 'createdAt',
       title: 'Date created',
-      render: () => format(+item.createdAt * 1000, 'dd MMM yy'),
+      render: () => format(+item.createdAt * 1000, 'dd MMM yyyy'),
     },
     {
       key: 'updatedAt',
       title: 'Last update',
-      render: () => format(+item.updatedAt * 1000, 'dd MMM yy'),
+      render: () => format(+item.updatedAt * 1000, 'dd MMM yyyy'),
     },
     {
       key: 'expiredAt',
       title: 'Expiration date',
-      render: () => format(+item.expiredAt * 1000, 'dd MMM yy'),
+      render: () => format(+item.expiredAt * 1000, 'dd MMM yyyy'),
     },
     {
       key: 'totalAmount',

@@ -471,7 +471,7 @@ const AccountSetting = () => {
               return
             }
           }
-          if (data.password && data.currentPassword) {
+          if ((data.password && data.currentPassword) || (customer.emailAddress !== trim(data.email))) {
             navigate('/login?loginFlag=3')
           } else {
             B3SStorage.clear()

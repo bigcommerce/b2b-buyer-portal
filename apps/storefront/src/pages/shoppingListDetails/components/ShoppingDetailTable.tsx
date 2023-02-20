@@ -382,6 +382,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
                   window.location.href = `${origin}${row.productUrl}`
                 }}
+                sx={{
+                  cursor: 'pointer',
+                }}
               >
                 {row.productName}
               </Typography>

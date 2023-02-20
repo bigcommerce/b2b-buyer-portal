@@ -158,7 +158,7 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
             {getName(item)}
           </Typography>
           <Typography>
-            {format(+item.createdAt * 1000, 'dd MMM yy')}
+            {format(+item.createdAt * 1000, 'dd MMM yyyy')}
           </Typography>
         </Box>
       </CardContent>

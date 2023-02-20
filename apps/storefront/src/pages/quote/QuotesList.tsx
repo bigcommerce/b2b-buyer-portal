@@ -255,17 +255,17 @@ const QuotesList = () => {
     {
       key: 'createdAt',
       title: 'Date created',
-      render: (item: ListItem) => format(+item.createdAt * 1000, 'dd MMM yy'),
+      render: (item: ListItem) => format(+item.createdAt * 1000, 'dd MMM yyyy'),
     },
     {
       key: 'updatedAt',
       title: 'Last update',
-      render: (item: ListItem) => format(+item.updatedAt * 1000, 'dd MMM yy'),
+      render: (item: ListItem) => format(+item.updatedAt * 1000, 'dd MMM yyyy'),
     },
     {
       key: 'expiredAt',
       title: 'Expiration date',
-      render: (item: ListItem) => format(displayFormat(item.expiredAt, false), 'dd MMM yy'),
+      render: (item: ListItem) => format(displayFormat(item.expiredAt, false), 'dd MMM yyyy'),
     },
     {
       key: 'totalAmount',

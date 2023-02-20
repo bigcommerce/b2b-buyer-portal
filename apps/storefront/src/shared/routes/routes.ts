@@ -278,6 +278,9 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
       return false
     }
 
+    if (item.configKey === 'quickOrderPad') {
+      return storefrontConfig.quickOrderPad && storefrontConfig.buyAgain
+    }
     const config = storefrontConfig[item.configKey || ''] ?? {
       enabledStatus: true,
     }

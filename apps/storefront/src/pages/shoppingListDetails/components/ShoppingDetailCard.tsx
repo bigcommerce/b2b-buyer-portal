@@ -124,6 +124,9 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
 
               window.location.href = `${origin}${productUrl}`
             }}
+            sx={{
+              cursor: 'pointer',
+            }}
           >
             {productName}
           </Typography>

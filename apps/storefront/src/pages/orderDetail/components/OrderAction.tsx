@@ -411,7 +411,7 @@ export const OrderAction = (props: OrderActionProps) => {
     {
       header: 'Order summary',
       key: 'order-summary',
-      subtitle: (updatedAt && name ? `Purchased by ${name} on ${format(+updatedAt * 1000, 'dd MMM yy')}.` : ''),
+      subtitle: (updatedAt && name ? `Purchased by ${name} on ${format(+updatedAt * 1000, 'dd MMM yyyy')}.` : ''),
       buttons,
       infos: {
         money,
@@ -421,7 +421,7 @@ export const OrderAction = (props: OrderActionProps) => {
     {
       header: 'Payment',
       key: 'payment',
-      subtitle: (createAt ? `Paid in full on ${format(Date.parse(createAt), 'dd MMM yy')}.` : ''),
+      subtitle: (createAt ? `Paid in full on ${format(Date.parse(createAt), 'dd MMM yyyy')}.` : ''),
       buttons: [
         {
           value: isB2BUser ? 'view invoice' : 'print invoice',

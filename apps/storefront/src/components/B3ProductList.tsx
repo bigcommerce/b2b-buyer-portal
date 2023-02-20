@@ -312,8 +312,11 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
                         },
                       } = window
 
-                      window.location.href = `${origin}${product?.productUrl}`
+                      if (product?.productUrl) window.location.href = `${origin}${product?.productUrl}`
                     }
+                  }}
+                  sx={{
+                    cursor: 'pointer',
                   }}
                 >
                   {product.name}

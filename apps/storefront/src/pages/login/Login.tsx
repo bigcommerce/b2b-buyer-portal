@@ -26,7 +26,7 @@ import type {
 } from '@b3/hooks'
 import {
   bcLogin,
-  bcLogoutLogin,
+  // bcLogoutLogin,
 } from '@/shared/service/bc'
 
 import {
@@ -159,7 +159,7 @@ export default function Login(props:RegisteredProps) {
         if (loginFlag) setLoginFlag(loginFlag)
 
         if (loginFlag === '3') {
-          await bcLogoutLogin()
+          // await bcLogoutLogin()
 
           dispatch({
             type: 'common',
@@ -169,6 +169,7 @@ export default function Login(props:RegisteredProps) {
           })
 
           clearCurrentCustomerInfo(dispatch)
+          await fetch('/login.php?action=logout')
         }
 
         setLoginInfo(Info)

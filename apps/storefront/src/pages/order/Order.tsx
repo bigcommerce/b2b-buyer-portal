@@ -231,7 +231,7 @@ const Order = ({
     {
       key: 'createdAt',
       title: 'Created on',
-      render: (item: ListItem) => format(+item.createdAt * 1000, 'dd MMM yy'),
+      render: (item: ListItem) => format(+item.createdAt * 1000, 'dd MMM yyyy'),
     },
   ]
 

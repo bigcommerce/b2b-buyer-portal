@@ -148,7 +148,7 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
             />
           </Box>
 
-          <Typography>{`Last ordered: ${format(lastOrderedAt * 1000, 'dd MMM yy')}`}</Typography>
+          <Typography>{`Last ordered: ${format(lastOrderedAt * 1000, 'dd MMM yyyy')}`}</Typography>
         </Box>
       </CardContent>
     </Box>
