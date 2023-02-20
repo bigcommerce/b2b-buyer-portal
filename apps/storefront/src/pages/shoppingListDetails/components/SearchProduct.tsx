@@ -126,7 +126,7 @@ export const SearchProduct = ({
       setIsLoading(true)
       await addToList(products)
 
-      setIsAdded(true)
+      updateList()
       setProductListOpen(false)
     } finally {
       setIsLoading(false)

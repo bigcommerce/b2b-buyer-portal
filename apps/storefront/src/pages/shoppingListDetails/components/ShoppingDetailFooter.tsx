@@ -196,6 +196,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
         marginLeft: 0,
         display: 'flex',
         flexWrap: 'nowrap',
+        zIndex: '999',
       }}
       container
       spacing={2}
