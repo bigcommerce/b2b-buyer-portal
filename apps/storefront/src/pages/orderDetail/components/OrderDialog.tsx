@@ -2,7 +2,6 @@ import {
   useState,
   ReactElement,
   useEffect,
-  useContext,
 } from 'react'
 
 import {
@@ -13,10 +12,6 @@ import {
 import {
   useForm,
 } from 'react-hook-form'
-
-import {
-  ThemeFrameContext,
-} from '@/components/ThemeFrame'
 
 import {
   addProductToShoppingList,
@@ -349,14 +344,6 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   const handleProductChange = (products: EditableProductItem[]) => {
     setEditableProducts(products)
   }
-
-  const IframeDocument = useContext(ThemeFrameContext)
-  useEffect(() => {
-    if (IframeDocument) {
-      IframeDocument.body.style.overflow = open ? 'hidden' : 'initial'
-      IframeDocument.body.style.paddingRight = open ? '16px' : '0'
-    }
-  }, [open, IframeDocument])
 
   return (
     <>

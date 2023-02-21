@@ -39,6 +39,10 @@ export {
 } from './useDebounce'
 
 export {
+  useScrollBar,
+} from './useScrollBar'
+
+export {
   useSetOpen,
   useOpenPDP,
   useMyQuote,

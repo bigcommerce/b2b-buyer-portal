@@ -1,38 +1,21 @@
 import {
   useRef,
   useContext,
-  useEffect,
   useState,
 } from 'react'
 
 import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Box,
-  Button,
-  Divider,
 } from '@mui/material'
 
 import {
   useForm,
 } from 'react-hook-form'
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  useMobile,
-} from '@/hooks'
 
 import {
   B3CustomForm,
+  B3Dialog,
 } from '@/components'
-
-import {
-  ThemeFrameContext,
-} from '@/components/ThemeFrame'
 
 import {
   GlobaledContext,
@@ -79,7 +62,6 @@ const CreateShoppingList = ({
   onChange,
   onClose,
 }: CreateShoppingListProps) => {
-  const [isMobile] = useMobile()
   const container = useRef<HTMLInputElement | null>(null)
 
   const [loading, setLoading] = useState<boolean>(false)
@@ -125,14 +107,6 @@ const CreateShoppingList = ({
     })()
   }
 
-  const IframeDocument = useContext(ThemeFrameContext)
-  useEffect(() => {
-    if (IframeDocument) {
-      IframeDocument.body.style.overflow = open ? 'hidden' : 'initial'
-      IframeDocument.body.style.paddingRight = open ? '16px' : '0'
-    }
-  }, [open, IframeDocument])
-
   return (
     <Box
       sx={{
@@ -145,56 +119,30 @@ const CreateShoppingList = ({
         ref={container}
       />
 
-      <Dialog
-        open={open}
+      <B3Dialog
+        isOpen={open}
         fullWidth
-        container={container.current}
-        onClose={handleClose}
-        fullScreen={isMobile}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        title="Create new"
+        loading={loading}
+        handleLeftClick={handleClose}
+        handRightClick={handleConfirm}
       >
-        <DialogTitle
-          id="alert-dialog-title"
+        <Box
+          sx={{
+            minHeight: 'auto',
+            display: 'flex',
+            alignItems: 'flex-start',
+          }}
         >
-          Create new
-        </DialogTitle>
-        <Divider />
-        <DialogContent>
-          <Box
-            sx={{
-              minHeight: 'auto',
-              display: 'flex',
-              alignItems: 'flex-start',
-            }}
-          >
-            <B3CustomForm
-              formFields={list}
-              errors={errors}
-              control={control}
-              getValues={getValues}
-              setValue={setValue}
-            />
-          </Box>
-        </DialogContent>
-
-        <Divider />
-
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            onClick={handleConfirm}
-          >
-            <B3Sping
-              isSpinning={loading}
-              tip=""
-              size={16}
-            >
-              save
-            </B3Sping>
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <B3CustomForm
+            formFields={list}
+            errors={errors}
+            control={control}
+            getValues={getValues}
+            setValue={setValue}
+          />
+        </Box>
+      </B3Dialog>
     </Box>
   )
 }

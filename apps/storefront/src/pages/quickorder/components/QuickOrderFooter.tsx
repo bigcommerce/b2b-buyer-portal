@@ -4,7 +4,6 @@ import {
   useEffect,
   Dispatch,
   SetStateAction,
-  useContext,
 } from 'react'
 
 import {
@@ -60,9 +59,6 @@ import {
 import {
   B3LinkTipContent,
 } from '@/components'
-import {
-  ThemeFrameContext,
-} from '@/components/ThemeFrame'
 
 import {
   conversionProductsList,
@@ -167,7 +163,6 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
   const [isShoppingListLoading, setIisShoppingListLoading] = useState<boolean>(false)
 
   const navigate = useNavigate()
-  const IframeDocument = useContext(ThemeFrameContext)
 
   const containerStyle = isMobile ? {
     alignItems: 'flex-start',
@@ -523,13 +518,6 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
     }
   }, [checkedArr])
 
-  useEffect(() => {
-    if (IframeDocument) {
-      IframeDocument.body.style.overflow = 'initial'
-      IframeDocument.body.style.paddingRight = '0'
-    }
-  }, [open, IframeDocument])
-
   return (
     <>
       <Grid
@@ -539,7 +527,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
           left: 0,
           backgroundColor: '#fff',
           width: '100%',
-          padding: isMobile ? '0 0 1rem 0' : '0 40px 1rem 40px',
+          padding: isMobile ? '0 0 1rem 0' : `0 ${open ? '57px' : '40px'} 1rem 40px`,
           height: isMobile ? '8rem' : 'auto',
           marginLeft: 0,
           display: 'flex',

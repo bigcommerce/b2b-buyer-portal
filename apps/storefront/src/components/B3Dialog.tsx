@@ -11,21 +11,16 @@ import {
   useRef,
   ReactElement,
   ReactNode,
-  useContext,
-  useEffect,
 } from 'react'
 
 import {
   useMobile,
+  useScrollBar,
 } from '@/hooks'
 
 import {
   B3Sping,
 } from './spin/B3Sping'
-
-import {
-  ThemeFrameContext,
-} from './ThemeFrame'
 
 interface B3DialogProps<T> {
   customActions?: () => ReactElement
@@ -44,6 +39,7 @@ interface B3DialogProps<T> {
   showRightBtn?: boolean
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false
   fullWidth?: boolean
+  disabledSaveBtn?: boolean,
 }
 
 export const B3Dialog:<T> ({
@@ -61,6 +57,7 @@ export const B3Dialog:<T> ({
   showRightBtn,
   maxWidth,
   fullWidth,
+  disabledSaveBtn,
 }: B3DialogProps<T>) => ReactElement = ({
   customActions,
   isOpen,
@@ -78,10 +75,9 @@ export const B3Dialog:<T> ({
   showRightBtn = true,
   maxWidth = 'sm',
   fullWidth = false,
+  disabledSaveBtn = false,
 }) => {
   const container = useRef<HTMLInputElement | null>(null)
-
-  const IframeDocument = useContext(ThemeFrameContext)
 
   const [isMobile] = useMobile()
 
@@ -96,12 +92,7 @@ export const B3Dialog:<T> ({
     if (handleLeftClick) handleLeftClick()
   }
 
-  useEffect(() => {
-    if (IframeDocument) {
-      IframeDocument.body.style.overflow = isOpen ? 'hidden' : 'initial'
-      IframeDocument.body.style.paddingRight = isOpen ? '16px' : '0'
-    }
-  }, [isOpen, IframeDocument])
+  useScrollBar(isOpen)
 
   return (
     <Box>
@@ -165,7 +156,7 @@ export const B3Dialog:<T> ({
                       }}
                       onClick={handleSaveClick}
                       autoFocus
-                      disabled={loading}
+                      disabled={disabledSaveBtn || loading}
                     >
                       <B3Sping
                         isSpinning={loading}

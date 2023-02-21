@@ -4,11 +4,6 @@ import {
 } from '@mui/material'
 
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import Divider from '@mui/material/Divider'
 
 import {
   // DeepPartial,
@@ -20,12 +15,7 @@ import {
   useRef,
   BaseSyntheticEvent,
   ReactElement,
-  useContext,
-  useEffect,
 } from 'react'
-import {
-  ThemeFrameContext,
-} from '../ThemeFrame'
 
 import {
   useMobile,
@@ -33,6 +23,7 @@ import {
 
 import {
   B3CustomForm,
+  B3Dialog,
 } from '@/components'
 
 import B3FilterPicker from './B3FilterPicker'
@@ -78,7 +69,6 @@ const B3FilterMore:<T, Y> ({
   onChange,
   isShowMore = false,
 }) => {
-  const container = useRef<HTMLInputElement | null>(null)
   const [open, setOpen] = useState<boolean>(false)
 
   const pickerRef = useRef<PickerRefProps | null>(null)
@@ -125,14 +115,6 @@ const B3FilterMore:<T, Y> ({
     pickerRef.current?.setClearPickerValue()
   }
 
-  const IframeDocument = useContext(ThemeFrameContext)
-  useEffect(() => {
-    if (IframeDocument) {
-      IframeDocument.body.style.overflow = open ? 'hidden' : 'initial'
-      IframeDocument.body.style.paddingRight = open ? '16px' : '0'
-    }
-  }, [open, IframeDocument])
-
   return (
     <Box
       sx={{
@@ -140,9 +122,6 @@ const B3FilterMore:<T, Y> ({
         cursor: 'pointer',
       }}
     >
-      <Box
-        ref={container}
-      />
 
       {
         ((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
@@ -152,59 +131,43 @@ const B3FilterMore:<T, Y> ({
         )
       }
 
-      <Dialog
-        open={open}
-        container={container.current}
-        onClose={handleClose}
-        fullScreen={isMobile}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+      <B3Dialog
+        isOpen={open}
+        leftSizeBtn="Cancel"
+        rightSizeBtn="Apply"
+        title="Filters"
+        handleLeftClick={handleClose}
+        handRightClick={handleSaveFilters}
       >
-        <DialogTitle id="alert-dialog-title">
-          Filters
-        </DialogTitle>
-        <Divider />
-        <DialogContent>
-          <Box
-            sx={{
-              width: `${isMobile ? '100%' : '450px'}`,
-            }}
-          >
-            <B3CustomForm
-              formFields={fiterMoreInfo}
-              errors={errors}
-              control={control}
-              getValues={getValues}
-              setValue={setValue}
-            />
-            <B3FilterPicker
-              ref={pickerRef}
-              startPicker={startPicker}
-              endPicker={endPicker}
-            />
-          </Box>
-          <Button
-            sx={{
-              mt: 1,
-            }}
-            onClick={handleClearFilters}
-            size="small"
-          >
-            clear filters
+        <Box
+          sx={{
+            width: `${isMobile ? '100%' : '450px'}`,
+          }}
+        >
+          <B3CustomForm
+            formFields={fiterMoreInfo}
+            errors={errors}
+            control={control}
+            getValues={getValues}
+            setValue={setValue}
+          />
+          <B3FilterPicker
+            ref={pickerRef}
+            startPicker={startPicker}
+            endPicker={endPicker}
+          />
+        </Box>
+        <Button
+          sx={{
+            mt: 1,
+          }}
+          onClick={handleClearFilters}
+          size="small"
+        >
+          clear filters
 
-          </Button>
-        </DialogContent>
-        <Divider />
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            onClick={handleSaveFilters}
-            autoFocus
-          >
-            Apply
-          </Button>
-        </DialogActions>
-      </Dialog>
+        </Button>
+      </B3Dialog>
     </Box>
 
   )

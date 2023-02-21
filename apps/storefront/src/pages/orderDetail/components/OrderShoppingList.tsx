@@ -1,36 +1,25 @@
 import {
   useState,
-  useRef,
   useEffect,
-  useContext,
 } from 'react'
 
 import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Box,
   MenuList,
   Button,
   MenuItem,
   ListItemText,
-  Divider,
 } from '@mui/material'
 
 import styled from '@emotion/styled'
-
-import {
-  useMobile,
-} from '@/hooks'
 
 import {
   getB2BShoppingList,
 } from '@/shared/service/b2b'
 
 import {
-  ThemeFrameContext,
-} from '@/components/ThemeFrame'
+  B3Dialog,
+} from '@/components'
 
 import {
   B3Sping,
@@ -78,9 +67,6 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
     setLoading = noop,
   } = props
 
-  const container = useRef<HTMLInputElement | null>(null)
-  const [isMobile] = useMobile()
-
   const [list, setList] = useState([])
   const [activeId, setActiveId] = useState('')
 
@@ -124,54 +110,33 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
     setActiveId(item.node.id)
   }
 
-  const IframeDocument = useContext(ThemeFrameContext)
-  useEffect(() => {
-    if (IframeDocument) {
-      IframeDocument.body.style.overflow = isOpen ? 'hidden' : 'initial'
-      IframeDocument.body.style.paddingRight = isOpen ? '16px' : '0'
-    }
-  }, [isOpen, IframeDocument])
-
   return (
-    <>
-      <Box
-        ref={container}
-      />
-      <Dialog
-        open={isOpen}
-        fullWidth
-        container={container.current}
-        onClose={handleClose}
-        fullScreen={isMobile}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+    <B3Dialog
+      fullWidth
+      isOpen={isOpen}
+      title={dialogTitle}
+      disabledSaveBtn={!activeId}
+      handleLeftClick={handleClose}
+      handRightClick={handleConfirm}
+      rightSizeBtn={confirmText}
+    >
+      <B3Sping
+        isSpinning={isLoading}
+        isFlex={false}
       >
-
-        <DialogTitle
-          id="alert-dialog-title"
+        <Box
+          sx={{
+            height: '430px',
+          }}
         >
-          {dialogTitle}
-        </DialogTitle>
-        <Divider />
-        <B3Sping
-          isSpinning={isLoading}
-          isFlex={false}
-        >
-          <DialogContent>
-            <Box
-              sx={{
-                height: '430px',
-              }}
-            >
-
-              <MenuList
-                sx={{
-                  maxHeight: '400px',
-                  width: '100%',
-                  overflowY: 'auto',
-                }}
-              >
-                {
+          <MenuList
+            sx={{
+              maxHeight: '400px',
+              width: '100%',
+              overflowY: 'auto',
+            }}
+          >
+            {
                   list.map((item: ListItem) => (
                     <ShoppingListMenuItem
                       key={item.node.id}
@@ -184,36 +149,19 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
                     </ShoppingListMenuItem>
                   ))
                 }
-              </MenuList>
-            </Box>
+          </MenuList>
+        </Box>
 
-            <Button
-              variant="text"
-              onClick={handleCreate}
-              sx={{
-                textTransform: 'none',
-              }}
-            >
-              + Create New
-            </Button>
-          </DialogContent>
-        </B3Sping>
-
-        <Divider />
-
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            disabled={!activeId}
-            onClick={handleConfirm}
-            autoFocus
-          >
-            {confirmText}
-          </Button>
-        </DialogActions>
-
-      </Dialog>
-    </>
-
+        <Button
+          variant="text"
+          onClick={handleCreate}
+          sx={{
+            textTransform: 'none',
+          }}
+        >
+          + Create New
+        </Button>
+      </B3Sping>
+    </B3Dialog>
   )
 }

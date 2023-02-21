@@ -128,6 +128,7 @@ export function B3Layout({
         //   }}
         // >
             <Box
+              id="app-mainPage-layout"
               sx={{
                 display: 'flex',
                 minHeight: '100vh',

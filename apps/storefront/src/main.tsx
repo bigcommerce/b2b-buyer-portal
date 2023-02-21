@@ -8,6 +8,9 @@ import {
 import {
   GlobalProvider,
 } from '@/shared/global'
+import {
+  DynamicallyVariableProvider,
+} from '@/shared/dynamicallyVariable'
 
 import App from './App'
 import {
@@ -40,14 +43,16 @@ container.className = 'bundle-namespace'
 ReactDOM.createRoot(container).render(
   <GlobalProvider>
     <B3StoreContainer>
-      <LangProvider
-        locales={locales}
-        supportLang={SUPPORT_LANGUAGE}
-      >
-        <B3ThemeProvider>
-          <App />
-        </B3ThemeProvider>
-      </LangProvider>
+      <DynamicallyVariableProvider>
+        <LangProvider
+          locales={locales}
+          supportLang={SUPPORT_LANGUAGE}
+        >
+          <B3ThemeProvider>
+            <App />
+          </B3ThemeProvider>
+        </LangProvider>
+      </DynamicallyVariableProvider>
     </B3StoreContainer>
   </GlobalProvider>
   ,
