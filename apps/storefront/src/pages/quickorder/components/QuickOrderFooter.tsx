@@ -4,6 +4,7 @@ import {
   useEffect,
   Dispatch,
   SetStateAction,
+  useContext,
 } from 'react'
 
 import {
@@ -59,6 +60,9 @@ import {
 import {
   B3LinkTipContent,
 } from '@/components'
+import {
+  ThemeFrameContext,
+} from '@/components/ThemeFrame'
 
 import {
   conversionProductsList,
@@ -163,6 +167,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
   const [isShoppingListLoading, setIisShoppingListLoading] = useState<boolean>(false)
 
   const navigate = useNavigate()
+  const IframeDocument = useContext(ThemeFrameContext)
 
   const containerStyle = isMobile ? {
     alignItems: 'flex-start',
@@ -518,6 +523,13 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
     }
   }, [checkedArr])
 
+  useEffect(() => {
+    if (IframeDocument) {
+      IframeDocument.body.style.overflow = 'initial'
+      IframeDocument.body.style.paddingRight = '0'
+    }
+  }, [open, IframeDocument])
+
   return (
     <>
       <Grid
@@ -532,6 +544,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
           marginLeft: 0,
           display: 'flex',
           flexWrap: 'nowrap',
+          zIndex: '1000',
         }}
         container
         spacing={2}
@@ -540,8 +553,9 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
           item
           sx={{
             display: isMobile ? 'none' : 'block',
-            width: '290px',
+            width: '305px',
             paddingLeft: '20px',
+            marginRight: '30px',
           }}
         />
         <Grid
@@ -549,21 +563,27 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
           sx={isMobile ? {
             flexBasis: '100%',
           } : {
-            flexBasis: '690px',
+            flexBasis: '66.6667%',
             flexGrow: 1,
+            maxWidth: '66.6667%',
           }}
         >
           <Box
             sx={{
               width: '100%',
-              pr: '25px',
               display: 'flex',
               zIndex: '999',
               justifyContent: 'space-between',
               ...containerStyle,
             }}
           >
-            <Typography>
+            <Typography
+              sx={{
+                color: '#000000',
+                fontSize: '16px',
+                fontWeight: '400',
+              }}
+            >
               {`${checkedArr.length} products selected`}
             </Typography>
             <Typography
@@ -571,6 +591,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
               sx={{
                 fontSize: '16px',
                 fontWeight: '700',
+                color: '#000000',
               }}
             >
               {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
@@ -587,8 +608,8 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
                 variant="contained"
                 onClick={handleOpenBtnList}
                 sx={{
-                  marginLeft: isMobile ? 0 : '1rem',
-                  width: isMobile ? '80%' : 'auto',
+                  marginRight: isMobile ? '1rem' : 0,
+                  width: isMobile ? '100%' : 'auto',
                 }}
                 endIcon={<ArrowDropDown />}
               >
@@ -605,26 +626,25 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
                 }}
               >
                 {
-              buttonList.length > 0 && (
-                buttonList.map((button) => {
-                  if (button.isDisabled) return
+                  buttonList.length > 0 && (
+                    buttonList.map((button) => {
+                      if (button.isDisabled) return
 
-                  return (
-                    (
-                      <MenuItem
-                        key={button.key}
-                        onClick={() => {
-                          button.handleClick()
-                        }}
-                      >
-                        {button.name}
-                      </MenuItem>
-                    )
+                      return (
+                        (
+                          <MenuItem
+                            key={button.key}
+                            onClick={() => {
+                              button.handleClick()
+                            }}
+                          >
+                            {button.name}
+                          </MenuItem>
+                        )
+                      )
+                    })
                   )
-                })
-              )
-            }
-
+                }
               </Menu>
             </Box>
           </Box>
@@ -635,8 +655,10 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
             flexBasis: '100%',
             display: isMobile ? 'none' : 'block',
           } : {
-            flexBasis: '340px',
+            flexBasis: '33.3333%',
             display: isMobile ? 'none' : 'block',
+            maxWidth: '33.3333%',
+            marginRight: '16px',
           }}
         />
       </Grid>

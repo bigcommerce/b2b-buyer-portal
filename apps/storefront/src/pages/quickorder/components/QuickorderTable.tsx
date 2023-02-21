@@ -230,7 +230,7 @@ const QuickorderTable = ({
   }
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
-    if (value !== '' && value <= 0) return
+    if (value !== '' && +value <= 0) return
     const listItems = paginationTableRef.current?.getList() || []
     const newListItems = listItems?.map((item: ListItemProps) => {
       const {

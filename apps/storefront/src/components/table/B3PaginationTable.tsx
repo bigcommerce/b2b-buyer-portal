@@ -140,7 +140,7 @@ const PaginationTable:<T>(props: B3PaginationTableProps<T>) => ReactElement = ({
 
   useEffect(() => {
     if (getSelectCheckbox) getSelectCheckbox(selectCheckbox)
-  }, [selectCheckbox])
+  }, [selectCheckbox, list])
 
   const handlePaginationChange = (pagination: TablePagination) => {
     setPagination(pagination)

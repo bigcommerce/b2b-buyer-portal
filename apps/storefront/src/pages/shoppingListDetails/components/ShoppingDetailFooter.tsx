@@ -228,11 +228,22 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
             ...containerStyle,
           }}
         >
-          <Typography>
+          <Typography
+            sx={{
+              color: '#000000',
+              fontSize: '16px',
+              fontWeight: '400',
+            }}
+          >
             {`${checkedArr.length} products  selected`}
           </Typography>
           <Typography
             variant="h6"
+            sx={{
+              fontSize: '16px',
+              fontWeight: '700',
+              color: '#000000',
+            }}
           >
             {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
           </Typography>

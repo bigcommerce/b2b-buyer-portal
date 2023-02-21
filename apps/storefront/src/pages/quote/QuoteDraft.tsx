@@ -160,6 +160,8 @@ const QuoteDraft = ({
 
   const navigate = useNavigate()
 
+  const nextPath = B3SStorage.get('nextPath')
+
   const [isMobile] = useMobile()
 
   const [loading, setLoading] = useState<boolean>(false)
@@ -559,9 +561,13 @@ const QuoteDraft = ({
               alignItems: 'center',
             }}
             onClick={() => {
-              setOpenPage({
-                isOpen: false,
-              })
+              if (nextPath === '/') {
+                setOpenPage({
+                  isOpen: false,
+                })
+              } else {
+                navigate('/quotes')
+              }
             }}
           >
             <ArrowBackIosNew
@@ -571,7 +577,11 @@ const QuoteDraft = ({
                 marginRight: '0.5rem',
               }}
             />
-            <p>Back to product</p>
+            <p>
+              {
+                nextPath === '/' ? 'Back to product' : 'Back to quote lists'
+              }
+            </p>
           </Box>
         </Box>
         <Box
