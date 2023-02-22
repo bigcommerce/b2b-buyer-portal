@@ -12,9 +12,8 @@ const useScrollBar = (open: boolean) => {
 
   useEffect(() => {
     if (IframeDocument) {
-      const mainPage = IframeDocument.querySelector('#app-mainPage-layout') as HTMLElement
-      mainPage.style.paddingRight = open ? '57px' : '40px'
       IframeDocument.body.style.overflow = open ? 'hidden' : 'initial'
+      // IframeDocument.body.style.paddingRight = open ? '16px' : '0'
     }
   }, [open])
 }
