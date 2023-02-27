@@ -3,6 +3,7 @@ import {
   Dispatch,
   SetStateAction,
   useContext,
+  useEffect,
 } from 'react'
 
 import {
@@ -13,6 +14,8 @@ import {
   Route,
   Routes,
   Outlet,
+  useLocation,
+  useNavigate,
 } from 'react-router-dom'
 
 import type {
@@ -41,12 +44,15 @@ import B3LayoutTip from './B3LayoutTip'
 
 interface B3RenderRouterProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
-
+  openUrl?: string,
+  isOpen?: boolean,
 }
 
 export const B3RenderRouter = (props: B3RenderRouterProps) => {
   const {
     setOpenPage,
+    openUrl,
+    isOpen,
   } = props
 
   const {
@@ -54,6 +60,30 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
   } = useContext(GlobaledContext)
 
   const newRoutes = () => (getAllowedRoutes(globaledState))
+
+  const location = useLocation()
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (location && isOpen) {
+      setOpenPage({
+        isOpen: true,
+        openUrl: location.pathname,
+      })
+      if (location.state) location.state = null
+    }
+  }, [location])
+
+  useEffect(() => {
+    if (openUrl && openUrl === '/?closeMasqurade=1') {
+      navigate('/', {
+        state: {
+          closeMasqurade: '1',
+        },
+      })
+    }
+  }, [openUrl])
 
   return (
     <Suspense fallback={(

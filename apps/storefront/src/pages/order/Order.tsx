@@ -139,7 +139,9 @@ const Order = ({
       const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
       const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses'
       const orderStatuses: CustomFieldItems = await fn()
-      const filterInfo = getFilterMoreData(isB2BUser, isCompanyOrder, orderStatuses[orderStatusesName])
+
+      const filterCondition = isB2BUser && !(role === 3 && !isAgenting)
+      const filterInfo = getFilterMoreData(filterCondition, isCompanyOrder, orderStatuses[orderStatusesName])
       setOrderStatuses(orderStatuses[orderStatusesName])
       setFilterInfo(filterInfo)
     }
@@ -219,7 +221,7 @@ const Order = ({
       width: '200px',
     },
     {
-      key: 'firstName',
+      key: 'placedby',
       title: 'Placed by',
       render: (item: ListItem) => (`${item.firstName} ${item.lastName}`),
     },
@@ -240,9 +242,9 @@ const Order = ({
       const {
         key,
       } = item
-      if (!isB2BUser && (key === 'companyId' || key === 'poNumber' || key === 'firstName')) return false
+      if ((!isB2BUser || (role === 3 && !isAgenting)) && (key === 'companyId' || key === 'poNumber' || key === 'placedby')) return false
       // if (key === 'companyId' && ((isB2BUser && !isCompanyOrder) || +role !== 3 || isAgenting)) return false
-      if (key === 'companyId' && !(+role === 3 && !isAgenting)) return false
+      if ((key === 'companyId') && !(+role === 3 && !isAgenting)) return false
       return true
     })
 

@@ -45,16 +45,18 @@ export const B3MobileLayout = ({
     state: {
       companyInfo,
       salesRepCompanyName,
+      isAgenting,
     },
   } = useContext(GlobaledContext)
 
   return (
     <Box
       sx={{
-        height: '100vh',
+        height: '70vh',
         p: '4vw',
         display: 'flex',
         flexDirection: 'column',
+        // marginBottom: isAgenting ? '52px' : '0',
       }}
     >
       <Box
@@ -95,7 +97,9 @@ export const B3MobileLayout = ({
         sx={{
           flex: 1,
           display: 'flex',
-          position: 'relative',
+          paddingBottom: isAgenting ? '52px' : '0',
+          // marginBottom: isAgenting ? '-52px' : '0',
+          // position: 'relative',
           // overflow: 'hidden',
         }}
       >
@@ -108,7 +112,7 @@ export const B3MobileLayout = ({
             height: '100vh',
             position: 'fixed',
             width: '92vw',
-            zIndex: 10,
+            zIndex: 1000,
             right: 0,
             top: 0,
             p: '4vw',

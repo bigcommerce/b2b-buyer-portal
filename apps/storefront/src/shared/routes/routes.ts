@@ -73,7 +73,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: OrderList,
-    permissions: [0, 1, 2, 3, 99, 100],
+    permissions: [0, 1, 2, 3, 4, 99, 100],
     isTokenLogin: true,
   },
   {
@@ -168,7 +168,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: AccountSetting,
     configKey: 'accountSettings',
-    permissions: [0, 1, 2, 3, 99],
+    permissions: [0, 1, 2, 3, 4, 99],
     isTokenLogin: true,
   },
   {
@@ -192,7 +192,7 @@ const routes: RouteItem[] = [
     isTokenLogin: false,
   },
   {
-    path: '/recently-viewed',
+    path: '/xxxxx',
     name: 'Recently viewed',
     wsKey: 'router-orders',
     isMenuItem: true,
@@ -206,7 +206,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: Dashboard,
-    permissions: [0, 1, 2, 3, 99, 100],
+    permissions: [3, 4],
     isTokenLogin: true,
   },
 ]
@@ -216,35 +216,35 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
     path: '/registered',
     name: 'registered',
     component: Registered,
-    permissions: [0, 1, 2, 3, 99, 100],
+    permissions: [0, 1, 2, 3, 4, 99, 100],
     isProvider: true,
   },
   {
     path: '/login',
     name: 'Login',
     component: Login,
-    permissions: [0, 1, 2, 3, 99, 100],
+    permissions: [0, 1, 2, 3, 4, 99, 100],
     isProvider: false,
   },
   {
     path: '/pdp',
     name: 'pdp',
     component: PDP,
-    permissions: [0, 1, 2, 3, 99, 100],
+    permissions: [0, 1, 2, 3, 4, 99, 100],
     isProvider: false,
   },
   {
     path: '/forgotpassword',
     name: 'forgotpassword',
     component: ForgotPassword,
-    permissions: [0, 1, 2, 3, 99, 100],
+    permissions: [0, 1, 2, 3, 4, 99, 100],
     isProvider: false,
   },
   {
     path: '/registeredbctob2b',
     name: 'registeredbctob2b',
     component: RegisteredBCToB2B,
-    permissions: [0, 1, 2, 3, 99, 100],
+    permissions: [0, 1, 2, 3, 4, 99, 100],
     isProvider: true,
   },
 ]
@@ -269,8 +269,12 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
       return false
     }
 
+    if ((role === 3 && !isAgenting)) {
+      return permissions.includes(4)
+    }
+
     // b2b user
-    if (!isB2BUser || (role === 3 && !isAgenting)) {
+    if (!isB2BUser) {
       return permissions.includes(99)
     }
 
@@ -291,12 +295,12 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   })
 }
 
-const gotoAllowedAppPage = (role: number, gotoPage: (url: string) => void) => {
+const gotoAllowedAppPage = (role: number, isAgenting:boolean, gotoPage: (url: string) => void) => {
   const {
     hash,
   } = window.location
   let url = hash.split('#')[1] || ''
-  if (!url && role !== 100) url = role === 3 ? '/' : '/orders'
+  if (!url && role !== 100) url = (role === 3 && !isAgenting) ? '/' : '/orders'
   const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && item.permissions.includes(role))
 
   const isFirstLevelFlag = firstLevelRouting.some((item: RouteFirstLevelItem) => matchPath(item.path, url))

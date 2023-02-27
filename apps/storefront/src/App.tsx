@@ -44,6 +44,9 @@ import {
 import {
   ThemeFrame,
   B3RenderRouter,
+  B3MasquradeGobalTip,
+  B3HoverButton,
+  CheckoutTip,
 } from '@/components'
 
 import {
@@ -81,7 +84,7 @@ export default function App() {
     dispatch,
   } = useContext(GlobaledContext)
 
-  const [openApp, setOpenApp] = useState<boolean>(false)
+  // const [openApp, setOpenApp] = useState<boolean>(false)
 
   useOpenPDP({
     setOpenPage,
@@ -98,6 +101,7 @@ export default function App() {
     setOpenPage,
     cartQuoteEnabled,
   })
+
   // Button to open storefront
   useSetOpen(isOpen, openUrl)
 
@@ -184,22 +188,32 @@ export default function App() {
       setChannelStoreType(currentChannelId)
       await Promise.all([getQuoteConfig(), setStorefrontConfig()])
 
-      if (!customerId) await getCurrentCustomerInfo(dispatch)
-
-      // background login enter judgment
-      if (!href.includes('checkout')) {
-        setOpenApp(!(customerId && !window.location.hash))
-      } else {
-        showPageMask(false)
+      const userInfo = {
+        role: +role,
+        isAgenting,
       }
+
+      if (!customerId) {
+        const info = await getCurrentCustomerInfo(dispatch)
+        userInfo.role = info?.role
+        userInfo.isAgenting = info?.isAgenting || false
+      }
+      // background login enter judgment and refresh
+      if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
+        gotoAllowedAppPage(+userInfo.role, userInfo.isAgenting, gotoPage)
+      }
+      showPageMask(false)
     }
 
     init()
   }, [])
 
-  useEffect(() => {
-    if (openApp) gotoAllowedAppPage(+role, gotoPage)
-  }, [openApp])
+  // useEffect(() => {
+  //   if (openApp) {
+  //     gotoAllowedAppPage(+role, gotoPage)
+  //     showPageMask(false)
+  //   }
+  // }, [openApp])
 
   useEffect(() => {
     if (quoteConfig.switchStatus.length > 0 && storefrontConfig) {
@@ -229,20 +243,38 @@ export default function App() {
   }, [isOpen])
 
   return (
-    <HashRouter>
-      <div className="bundle-app">
-        <ThemeFrame
-          className={isOpen ? 'active-frame' : undefined}
-          fontUrl={FONT_URL}
-          customStyles={CUSTOM_STYLES}
-        >
+    <>
+      <HashRouter>
+        <div className="bundle-app">
+          <ThemeFrame
+            className={isOpen ? 'active-frame' : undefined}
+            fontUrl={FONT_URL}
+            customStyles={CUSTOM_STYLES}
+          >
 
-          {isOpen ? (
-            <B3RenderRouter setOpenPage={setOpenPage} />
-          ) : null}
-        </ThemeFrame>
-      </div>
+            {isOpen ? (
+              <B3RenderRouter
+                openUrl={openUrl}
+                isOpen={isOpen}
+                setOpenPage={setOpenPage}
+              />
+            ) : null}
+          </ThemeFrame>
+        </div>
 
-    </HashRouter>
+      </HashRouter>
+      <B3MasquradeGobalTip
+        setOpenPage={setOpenPage}
+        isOpen={isOpen}
+      />
+      <B3HoverButton
+        isOpen={isOpen}
+        setOpenPage={setOpenPage}
+      />
+      <CheckoutTip
+        setOpenPage={setOpenPage}
+      />
+    </>
+
   )
 }

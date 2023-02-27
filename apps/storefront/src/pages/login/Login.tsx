@@ -258,7 +258,7 @@ export default function Login(props:RegisteredProps) {
             },
           })
 
-          if (info?.userType === 3 && info?.role === 3) {
+          if (info?.userType === 3 && info?.role === 3 && !info.isAgenting) {
             navigate('/')
           } else {
             navigate('/orders')

@@ -55,7 +55,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           e.stopPropagation()
 
           const href = (e.target as any)?.href || ''
-          const gotoUrl = registerArr.includes(e.target) ? getCurrentLoginUrl(href) : '/'
+          const gotoUrl = registerArr.includes(e.target) ? getCurrentLoginUrl(href) : '/login'
 
           setOpenPage({
             isOpen: true,
