@@ -160,15 +160,17 @@ const AccountSetting = () => {
     const init = async () => {
       try {
         setLoadding(true)
-        const accountFormAllFields = await getB2BAccountFormFields(isB2BUser ? 2 : 1)
 
-        const fn = isB2BUser ? getB2BAccountSettings : getBCAccountSettings
+        const isBCUser = !isB2BUser || (role === 3 && !isAgenting)
+        const accountFormAllFields = await getB2BAccountFormFields(isBCUser ? 1 : 2)
 
-        const params = isB2BUser ? {
+        const fn = !isBCUser ? getB2BAccountSettings : getBCAccountSettings
+
+        const params = !isBCUser ? {
           companyId,
         } : {}
 
-        const key = isB2BUser ? 'accountSettings' : 'customerAccountSettings'
+        const key = !isBCUser ? 'accountSettings' : 'customerAccountSettings'
 
         const {
           [key]: accountSettings,
