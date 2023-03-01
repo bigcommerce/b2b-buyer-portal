@@ -33,6 +33,7 @@ const Quickorder = () => {
   const {
     state: {
       role,
+      isAgenting,
     },
   } = useContext(GlobaledContext)
 
@@ -106,6 +107,7 @@ const Quickorder = () => {
           <QuickOrderFooter
             role={role}
             checkedArr={checkedArr}
+            isAgenting={isAgenting}
             setIsRequestLoading={setIsRequestLoading}
           />
         </Box>

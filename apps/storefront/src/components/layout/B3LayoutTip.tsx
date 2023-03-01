@@ -4,8 +4,8 @@ import {
 } from 'react'
 
 import {
-  GlobaledContext,
-} from '@/shared/global'
+  DynamicallyVariableedContext,
+} from '@/shared/dynamicallyVariable'
 
 import {
   B3Tip,
@@ -25,7 +25,7 @@ const B3LayoutTip = () => {
       tipMessage,
     },
     dispatch,
-  } = useContext(GlobaledContext)
+  } = useContext(DynamicallyVariableedContext)
 
   const [isMobile] = useMobile()
 
@@ -66,7 +66,7 @@ const B3LayoutTip = () => {
     <>
       <B3Tip
         msgs={msgs}
-        handleAllClose={setMsgs}
+        handleAllClose={() => setMsgs([])}
         autoHideDuration={autoHideDuration}
         handleItemClose={handleClose}
         // handleItemClose={isClose ? handleClose : undefined}

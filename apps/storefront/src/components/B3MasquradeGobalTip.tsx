@@ -7,7 +7,6 @@ import {
 
 import {
   Box,
-  IconButton,
 } from '@mui/material'
 
 import type {
@@ -50,7 +49,6 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
   } = props
   const {
     state: {
-      role,
       isAgenting,
       salesRepCompanyName,
       salesRepCompanyId,
@@ -92,6 +90,10 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
           },
         },
       )
+      setOpenPage({
+        isOpen: true,
+        openUrl: '/',
+      })
     }
   }
 
@@ -117,7 +119,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
     // }
     <Snackbar
       sx={{
-        zIndex: '100000000000',
+        zIndex: '110000',
         backgroundColor: '#ED6C02',
         borderRadius: '4px',
         height: '52px',
@@ -166,7 +168,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
                   m: '0 15px 0 10px',
                 }}
               >
-                Mitsubishi
+                {salesRepCompanyName}
               </Box>
               {
                 isExpansion && (

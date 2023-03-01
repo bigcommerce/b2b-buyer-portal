@@ -146,6 +146,7 @@ const QuoteDraft = ({
     state: {
       role,
       isB2BUser,
+      B3UserId,
       currentChannelId,
       salesRepCompanyId,
       companyInfo: {
@@ -206,9 +207,23 @@ const QuoteDraft = ({
       setLoading(true)
       try {
         const MyQuoteInfo = B3LStorage.get('MyQuoteInfo') || {}
-        const quoteInfo = {
-          ...info, ...MyQuoteInfo,
+
+        const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
+
+        let quoteInfo = {
+          contactInfo: {},
+          shippingAddress: {},
+          billingAddress: {},
         }
+
+        if (+B3UserId === +quoteDraftUserId) {
+          quoteInfo = {
+            ...info, ...MyQuoteInfo,
+          }
+        } else {
+          B3LStorage.set('MyQuoteInfo', {})
+        }
+
         if (isB2BUser) {
           const companyId = companyB2BId || salesRepCompanyId
           const {
@@ -274,6 +289,7 @@ const QuoteDraft = ({
           setInfo(quoteInfo)
         }
       } finally {
+        B3LStorage.set('quoteDraftUserId', B3UserId || 0)
         setLoading(false)
       }
     }

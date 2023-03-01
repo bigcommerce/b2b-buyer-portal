@@ -43,6 +43,7 @@ export const B3Tip = ({
                 '& button[title="Close"]': {
                   display: `${msg.isClose ? 'block' : 'none'}`,
                 },
+                mb: '5px',
               }}
               variant="filled"
               key={msg.id}

@@ -36,9 +36,9 @@ import {
   B3Sping,
 } from '@/components/spin/B3Sping'
 
-import {
-  displayFormat,
-} from '@/utils/b3DateFormat'
+// import {
+//   displayFormat,
+// } from '@/utils/b3DateFormat'
 
 import B3Filter from '../../components/filter/B3Filter'
 
@@ -50,9 +50,10 @@ import {
   QuoteItemCard,
 } from './components/QuoteItemCard'
 
-// import {
-//   distanceDay,
-// } from '@/utils'
+import {
+  getDefaultCurrencyInfo,
+  B3LStorage,
+} from '@/utils'
 
 interface SortByListProps {
   [key: string]: number | string
@@ -198,12 +199,21 @@ const QuotesList = () => {
   const {
     state: {
       isB2BUser,
+      customer,
     },
   } = useContext(GlobaledContext)
 
-  const goToDetail = (item: ListItem) => {
-    navigate(`/quoteDetail/${item.id}?date=${item.createdAt}`)
+  const goToDetail = (item: ListItem, status: number) => {
+    if (+status === 0) {
+      navigate('/quoteDraft')
+    } else {
+      navigate(`/quoteDetail/${item.id}?date=${item.createdAt}`)
+    }
   }
+
+  const {
+    token: currencyToken,
+  } = getDefaultCurrencyInfo()
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
     const fn = isB2BUser ? getB2BQuotesList : getBCQuotesList
@@ -214,6 +224,28 @@ const QuotesList = () => {
         totalCount,
       },
     } = await fn(params)
+
+    if (params.offset === 0) {
+      const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
+      const price = quoteDraftAllList.reduce((pre: number, cur: CustomFieldItems) => pre + (cur.node.basePrice * cur.node.quantity), 0)
+      const quoteDraft = {
+        node: {
+          quoteNumber: '—',
+          quoteTitle: '—',
+          createdAt: '—',
+          salesRepEmail: '—',
+          createdBy: `${customer.firstName} ${customer.lastName}`,
+          updatedAt: '—',
+          expiredAt: '—',
+          currency: {
+            token: currencyToken,
+          },
+          totalAmount: price,
+          status: 0,
+        },
+      }
+      edges.unshift(quoteDraft)
+    }
 
     return {
       edges,
@@ -234,7 +266,7 @@ const QuotesList = () => {
               textDecoration: 'underline',
             },
           }}
-          onClick={() => goToDetail(item)}
+          onClick={() => goToDetail(item, +item.status)}
         >
           {item.quoteNumber}
         </Box>
@@ -255,17 +287,17 @@ const QuotesList = () => {
     {
       key: 'createdAt',
       title: 'Date created',
-      render: (item: ListItem) => format(+item.createdAt * 1000, 'dd MMM yyyy'),
+      render: (item: ListItem) => (`${+item.status !== 0 ? format(+item.createdAt * 1000, 'dd MMM yyyy') : item.createdAt}`),
     },
     {
       key: 'updatedAt',
       title: 'Last update',
-      render: (item: ListItem) => format(+item.updatedAt * 1000, 'dd MMM yyyy'),
+      render: (item: ListItem) => (`${+item.status !== 0 ? format(+item.updatedAt * 1000, 'dd MMM yyyy') : item.updatedAt}`),
     },
     {
       key: 'expiredAt',
       title: 'Expiration date',
-      render: (item: ListItem) => format(displayFormat(item.expiredAt, false), 'dd MMM yyyy'),
+      render: (item: ListItem) => (`${+item.status !== 0 ? format(+item.expiredAt * 1000, 'dd MMM yyyy') : item.expiredAt}`),
     },
     {
       key: 'totalAmount',

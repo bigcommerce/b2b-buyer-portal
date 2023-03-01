@@ -23,6 +23,10 @@ import {
 } from '@/shared/global'
 
 import {
+  DynamicallyVariableedContext,
+} from '@/shared/dynamicallyVariable'
+
+import {
   B3Logo,
 } from './B3Logo'
 import {
@@ -65,10 +69,17 @@ export function B3Layout({
     state: {
       emailAddress,
       customerId,
+      // globalMessageDialog,
+    },
+    // dispatch,
+  } = useContext(GlobaledContext)
+
+  const {
+    state: {
       globalMessageDialog,
     },
     dispatch,
-  } = useContext(GlobaledContext)
+  } = useContext(DynamicallyVariableedContext)
 
   const navigate = useNavigate()
 

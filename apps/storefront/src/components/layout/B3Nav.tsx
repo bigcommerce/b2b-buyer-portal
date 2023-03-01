@@ -29,6 +29,10 @@ import {
 } from '@/shared/global'
 
 import {
+  DynamicallyVariableedContext,
+} from '@/shared/dynamicallyVariable'
+
+import {
   B3SStorage,
 } from '@/utils'
 
@@ -48,8 +52,11 @@ export const B3Nav = ({
   const location = useLocation()
 
   const {
-    state: globalState,
     dispatch,
+  } = useContext(DynamicallyVariableedContext)
+
+  const {
+    state: globalState,
   } = useContext(GlobaledContext)
 
   const jumpRegister = () => {

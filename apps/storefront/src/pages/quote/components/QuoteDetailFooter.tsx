@@ -19,12 +19,14 @@ import {
 interface QuoteDetailFooterProps {
   quoteId: string,
   role: string | number,
+  isAgenting: boolean,
 }
 
 const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
   const {
     quoteId,
     role,
+    isAgenting,
   } = props
   const [isMobile] = useMobile()
 
@@ -61,7 +63,7 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
     <Box
       sx={{
         position: 'fixed',
-        bottom: 0,
+        bottom: isMobile && isAgenting ? '52px' : 0,
         left: 0,
         backgroundColor: '#fff',
         width: '100%',

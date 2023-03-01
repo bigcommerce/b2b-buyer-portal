@@ -102,7 +102,7 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
       <B3LayoutTip />
       <Routes>
         <Route
-          path="/"
+          // path="/"
           element={(
             <B3Layout>
               <Outlet />

@@ -1,4 +1,8 @@
 import {
+  useContext,
+} from 'react'
+
+import {
   Box,
   Typography,
   Button,
@@ -34,6 +38,10 @@ import {
   B3LinkTipContent,
 } from '@/components'
 
+import {
+  GlobaledContext,
+} from '@/shared/global'
+
 interface successTipOptions{
   message: string,
   link?: string,
@@ -64,6 +72,12 @@ interface ShoppingDetailFooterProps {
 
 const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
   const [isMobile] = useMobile()
+
+  const {
+    state: {
+      isAgenting,
+    },
+  } = useContext(GlobaledContext)
 
   const containerStyle = isMobile ? {
     alignItems: 'flex-start',
@@ -187,7 +201,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
     <Grid
       sx={{
         position: 'fixed',
-        bottom: 0,
+        bottom: isMobile && isAgenting ? '52px' : 0,
         left: 0,
         backgroundColor: '#fff',
         width: '100%',

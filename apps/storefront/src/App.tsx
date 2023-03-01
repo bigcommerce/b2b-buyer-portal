@@ -1,7 +1,6 @@
 import {
   useEffect,
   useContext,
-  useState,
   useCallback,
 } from 'react'
 
@@ -195,10 +194,13 @@ export default function App() {
 
       if (!customerId) {
         const info = await getCurrentCustomerInfo(dispatch)
-        userInfo.role = info?.role
-        userInfo.isAgenting = info?.isAgenting || false
+        if (info) {
+          userInfo.role = info?.role
+          userInfo.isAgenting = info?.isAgenting || false
+        }
       }
       // background login enter judgment and refresh
+      console.log(!(customerId && !window.location.hash))
       if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
         gotoAllowedAppPage(+userInfo.role, userInfo.isAgenting, gotoPage)
       }
@@ -269,6 +271,7 @@ export default function App() {
       />
       <B3HoverButton
         isOpen={isOpen}
+        productQuoteEnabled={productQuoteEnabled}
         setOpenPage={setOpenPage}
       />
       <CheckoutTip

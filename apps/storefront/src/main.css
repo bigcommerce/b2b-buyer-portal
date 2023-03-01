@@ -11,7 +11,7 @@
   height: 100%;
   position: fixed;
   overscroll-behavior: contain;
-  z-index: 2147483647;
+  z-index: 100000;
   pointer-events: pointer;
 }
 
@@ -312,7 +312,7 @@ input[type=number]::-webkit-outer-spin-button
   top: 0;
   left: 0;
   background-color: #fef9f5;
-  z-index: 99999;
+  z-index: 120000;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -54,7 +54,7 @@ const CheckoutTip = (props: CheckoutTipProps) => {
         role === 3 && !isAgenting && (
         <Dialog
           sx={{
-            zIndex: 100000000000,
+            zIndex: 110000,
             padding: '40px 40px 20px 40px',
           }}
           open={open}

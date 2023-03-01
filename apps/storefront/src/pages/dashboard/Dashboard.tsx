@@ -43,6 +43,7 @@ import {
 
 import {
   B3SStorage,
+  showPageMask,
   // storeHash,
 } from '@/utils'
 
@@ -144,25 +145,30 @@ const Dashboard = () => {
   }
 
   const endActing = async () => {
-    await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
-    B3SStorage.delete('isAgenting')
-    B3SStorage.set('isB2BUser', false)
-    B3SStorage.delete('salesRepCompanyId')
-    B3SStorage.delete('salesRepCompanyName')
-    dispatch(
-      {
-        type: 'common',
-        payload: {
-          salesRepCompanyId: '',
-          salesRepCompanyName: '',
-          isAgenting: false,
-          isB2BUser: false,
+    try {
+      showPageMask(true)
+      await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
+      B3SStorage.delete('isAgenting')
+      B3SStorage.set('isB2BUser', false)
+      B3SStorage.delete('salesRepCompanyId')
+      B3SStorage.delete('salesRepCompanyName')
+      dispatch(
+        {
+          type: 'common',
+          payload: {
+            salesRepCompanyId: '',
+            salesRepCompanyName: '',
+            isAgenting: false,
+            isB2BUser: false,
+          },
         },
-      },
-    )
-    setFilterData({
-      ...filterData,
-    })
+      )
+      setFilterData({
+        ...filterData,
+      })
+    } finally {
+      showPageMask(false)
+    }
   }
 
   useEffect(() => {
@@ -227,7 +233,6 @@ const Dashboard = () => {
         const {
           companyId,
         } = row
-        console.log(companyId, companyId)
         return (
           <>
             <IconButton

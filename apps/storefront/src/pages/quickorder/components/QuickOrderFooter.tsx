@@ -144,6 +144,7 @@ const successTip = (options: successTipOptions) => () => (
 interface QuickOrderFooterProps {
   role: number | string,
   checkedArr: CustomFieldItems,
+  isAgenting: boolean,
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
 }
 
@@ -151,6 +152,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
   const {
     role,
     checkedArr,
+    isAgenting,
     setIsRequestLoading,
   } = props
 
@@ -523,7 +525,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
       <Grid
         sx={{
           position: 'fixed',
-          bottom: 0,
+          bottom: isMobile && isAgenting ? '52px' : 0,
           left: 0,
           backgroundColor: '#fff',
           width: '100%',

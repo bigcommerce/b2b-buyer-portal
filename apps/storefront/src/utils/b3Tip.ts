@@ -36,7 +36,7 @@ variants.forEach((variant) => {
     ]
 
     window.tipDispatch({
-      type: 'common',
+      type: 'tip',
       payload: {
         tipMessage: {
           autoHideDuration: options?.duration || 3000,

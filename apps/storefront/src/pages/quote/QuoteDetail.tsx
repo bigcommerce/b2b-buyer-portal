@@ -68,6 +68,7 @@ const QuoteDetail = () => {
       role,
       customer,
       isB2BUser,
+      isAgenting,
     },
   } = useContext(GlobaledContext)
   const [isMobile] = useMobile()
@@ -404,6 +405,7 @@ const QuoteDetail = () => {
             <QuoteDetailFooter
               quoteId={quoteDetail.id}
               role={role}
+              isAgenting={isAgenting}
             />
           )
         }

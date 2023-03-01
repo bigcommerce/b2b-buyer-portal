@@ -1,13 +1,11 @@
 import {
   useContext,
-  useState,
   Dispatch,
   SetStateAction,
 } from 'react'
 
 import {
   Box,
-  IconButton,
   Button,
   Snackbar,
 } from '@mui/material'
@@ -18,6 +16,9 @@ import type {
   OpenPageState,
 } from '@b3/hooks'
 import {
+  B3SStorage,
+} from '@/utils'
+import {
   useMobile,
 } from '@/hooks'
 
@@ -27,6 +28,7 @@ import {
 
 interface B3HoverButtonProps {
   isOpen: boolean,
+  productQuoteEnabled: boolean,
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
 }
 
@@ -34,17 +36,13 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
   const {
     isOpen,
     setOpenPage,
+    productQuoteEnabled,
   } = props
 
   const {
     state: {
-      role,
       isAgenting,
-      salesRepCompanyName,
-      salesRepCompanyId,
-      B3UserId,
     },
-    dispatch,
   } = useContext(GlobaledContext)
 
   const [isMobile] = useMobile()
@@ -52,7 +50,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
   return (
     <Snackbar
       sx={{
-        zIndex: '100000000000',
+        zIndex: '110000',
         right: '20px',
         bottom: '20px',
         left: 'auto',
@@ -74,13 +72,14 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
       >
 
         {
-          !isOpen && (
+          !isOpen && productQuoteEnabled && (
           <Button
             sx={{
               backgroundColor: '#ED6C02',
               height: '42px',
             }}
             onClick={() => {
+              B3SStorage.set('nextPath', '/')
               setOpenPage({
                 isOpen: true,
                 openUrl: '/quoteDraft',

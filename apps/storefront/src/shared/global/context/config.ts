@@ -133,8 +133,6 @@ export interface GlobalState {
   },
 }
 
-const role = B3SStorage.get('B3Role')
-
 export const initState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
@@ -148,7 +146,7 @@ export const initState = {
   /* role:
    * 0: admin, 1: senior 2: buyer, 3: super admin, 99: bc user, 100: guest
   */
-  role: (role || role === 0) ? role : 100,
+  role: B3SStorage.get('B3Role') || 100,
   isAgenting: B3SStorage.get('isAgenting') || false,
   salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
   salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',

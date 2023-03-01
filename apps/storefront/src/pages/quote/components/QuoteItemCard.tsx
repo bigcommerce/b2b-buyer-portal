@@ -26,8 +26,8 @@ interface ListItem {
 }
 
 export interface QuoteItemCardProps {
-  goToDetail: (val: ListItem) => void,
-  item: any,
+  goToDetail: (val: ListItem, status: number) => void,
+  item: ListItem,
 }
 
 const Flex = styled('div')(() => ({
@@ -59,17 +59,17 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
     {
       key: 'createdAt',
       title: 'Date created',
-      render: () => format(+item.createdAt * 1000, 'dd MMM yyyy'),
+      render: () => (`${+item.status !== 0 ? format(+item.createdAt * 1000, 'dd MMM yyyy') : item.createdAt}`),
     },
     {
       key: 'updatedAt',
       title: 'Last update',
-      render: () => format(+item.updatedAt * 1000, 'dd MMM yyyy'),
+      render: () => (`${+item.status !== 0 ? format(+item.updatedAt * 1000, 'dd MMM yyyy') : item.updatedAt}`),
     },
     {
       key: 'expiredAt',
       title: 'Expiration date',
-      render: () => format(+item.expiredAt * 1000, 'dd MMM yyyy'),
+      render: () => (`${+item.status !== 0 ? format(+item.expiredAt * 1000, 'dd MMM yyyy') : item.expiredAt}`),
     },
     {
       key: 'totalAmount',
@@ -148,7 +148,7 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
         }
 
         <Box
-          onClick={() => goToDetail(item)}
+          onClick={() => goToDetail(item, +item.status)}
           sx={{
             mt: '1rem',
             pl: 0,
