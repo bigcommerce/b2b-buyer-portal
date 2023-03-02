@@ -222,6 +222,7 @@ const QuoteDraft = ({
           }
         } else {
           B3LStorage.set('MyQuoteInfo', {})
+          B3LStorage.set('b2bQuoteDraftList', [])
         }
 
         if (isB2BUser) {
@@ -336,7 +337,8 @@ const QuoteDraft = ({
   } = getDefaultCurrencyInfo()
 
   const getQuoteTableDetails = async (params: CustomFieldItems) => {
-    const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
+    const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
+    const quoteDraftAllList = +B3UserId === +quoteDraftUserId ? B3LStorage.get('b2bQuoteDraftList') : []
 
     const startIndex = +params.offset
     const endIndex = +params.first + startIndex

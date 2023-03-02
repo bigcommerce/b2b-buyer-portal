@@ -258,6 +258,8 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
     cartQuoteEnabled,
   } = globalState
 
+  console.log(isB2BUser, role, isAgenting, storefrontConfig, productQuoteEnabled, cartQuoteEnabled)
+
   return routes.filter((item: RouteItem) => {
     const {
       permissions = [],

@@ -88,9 +88,7 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
   ]
 
   return (
-    <Card
-      key={item.orderId}
-    >
+    <Card>
       <CardContent
         sx={{
           color: 'rgba(0, 0, 0, 0.6)',

@@ -72,3 +72,7 @@ export {
 export {
   CheckoutTip,
 } from './extraTip/CheckoutTip'
+
+export {
+  B3Upload,
+} from './upload/B3Upload'

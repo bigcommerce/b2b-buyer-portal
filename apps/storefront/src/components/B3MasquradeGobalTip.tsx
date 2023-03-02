@@ -123,6 +123,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
         backgroundColor: '#ED6C02',
         borderRadius: '4px',
         height: '52px',
+        color: '#FFFFFF',
         ...sx,
       }}
       anchorOrigin={{

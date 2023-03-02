@@ -200,7 +200,6 @@ export default function App() {
         }
       }
       // background login enter judgment and refresh
-      console.log(!(customerId && !window.location.hash))
       if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
         gotoAllowedAppPage(+userInfo.role, userInfo.isAgenting, gotoPage)
       }
