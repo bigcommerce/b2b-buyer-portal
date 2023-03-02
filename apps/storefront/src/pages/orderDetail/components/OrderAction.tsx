@@ -38,6 +38,10 @@ import {
   OrderDetailsContext,
 } from '../context/OrderDetailsContext'
 
+import {
+  snackbar,
+} from '@/utils'
+
 const OrderActionContainer = styled('div')(() => ({}))
 
 /// orderCard
@@ -141,6 +145,12 @@ const OrderCard = (props: OrderCardProps) => {
     currencyInfo,
   } = props
 
+  const {
+    state: {
+      isAgenting,
+    },
+  } = useContext(GlobaledContext)
+
   const navigate = useNavigate()
 
   const dialogData = [
@@ -185,6 +195,10 @@ const OrderCard = (props: OrderCardProps) => {
     } else if (name === 'printInvoice') {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
     } else {
+      if (!isAgenting) {
+        snackbar.error('To re-order, return or add product to shopping list, please masquerade')
+        return
+      }
       setOpen(true)
       setType(name)
 
