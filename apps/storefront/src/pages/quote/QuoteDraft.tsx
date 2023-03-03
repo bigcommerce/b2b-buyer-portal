@@ -760,6 +760,7 @@ const QuoteDraft = ({
               total={total}
               currencyToken={currencyToken}
               getQuoteTableDetails={getQuoteTableDetails}
+              isB2BUser={isB2BUser}
             />
 
           </Container>

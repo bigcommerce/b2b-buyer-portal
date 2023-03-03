@@ -80,6 +80,7 @@ interface ShoppingDetailTableProps {
   currencyToken?: string,
   getQuoteTableDetails: any,
   idEdit?: boolean,
+  isB2BUser: boolean,
 }
 
 interface SearchProps {
@@ -138,6 +139,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
     currencyToken,
     getQuoteTableDetails,
     idEdit = true,
+    isB2BUser,
   } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -490,6 +492,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
         onConfirm={handleChooseOptionsDialogConfirm}
         currency={currencyToken}
         isEdit
+        isB2BUser={isB2BUser}
       />
 
     </StyledQuoteTableContainer>
