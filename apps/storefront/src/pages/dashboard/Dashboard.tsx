@@ -159,7 +159,6 @@ const Dashboard = () => {
             salesRepCompanyId: '',
             salesRepCompanyName: '',
             isAgenting: false,
-            isB2BUser: false,
           },
         },
       )

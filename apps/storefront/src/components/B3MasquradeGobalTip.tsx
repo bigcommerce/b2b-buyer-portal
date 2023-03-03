@@ -89,7 +89,6 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
             salesRepCompanyId: '',
             salesRepCompanyName: '',
             isAgenting: false,
-            isB2BUser: false,
           },
         },
       )
