@@ -74,7 +74,7 @@ export const B3Mainheader = ({
             color: '#333333',
           }}
         >
-          {companyInfo?.companyName || salesRepCompanyName}
+          {companyInfo?.companyName || salesRepCompanyName || 'Super admin'}
 
           {/* <B3DropDown
             title="Renteach building"

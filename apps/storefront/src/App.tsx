@@ -45,7 +45,7 @@ import {
   B3RenderRouter,
   B3MasquradeGobalTip,
   B3HoverButton,
-  CheckoutTip,
+  // CheckoutTip,
 } from '@/components'
 
 import {
@@ -273,9 +273,9 @@ export default function App() {
         productQuoteEnabled={productQuoteEnabled}
         setOpenPage={setOpenPage}
       />
-      <CheckoutTip
+      {/* <CheckoutTip
         setOpenPage={setOpenPage}
-      />
+      /> */}
     </>
 
   )

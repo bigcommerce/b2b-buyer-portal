@@ -79,7 +79,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
               height: '42px',
             }}
             onClick={() => {
-              // B3SStorage.set('nextPath', '/')
+              B3SStorage.set('nextPath', '/')
               setOpenPage({
                 isOpen: true,
                 openUrl: '/quoteDraft',

@@ -156,12 +156,13 @@ const AccountSetting = () => {
 
   const companyId = role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId
 
+  const isBCUser = !isB2BUser || (role === 3 && !isAgenting)
+
   useEffect(() => {
     const init = async () => {
       try {
         setLoadding(true)
 
-        const isBCUser = !isB2BUser || (role === 3 && !isAgenting)
         const accountFormAllFields = await getB2BAccountFormFields(isBCUser ? 1 : 2)
 
         const fn = !isBCUser ? getB2BAccountSettings : getBCAccountSettings
@@ -188,7 +189,7 @@ const AccountSetting = () => {
           additionalInformation,
         } = accountFormFields
 
-        if (isB2BUser) {
+        if (!isBCUser) {
           contactInformation.forEach((item: Partial<Fields>) => {
             if (deCodeField(item?.name || '') === 'first_name') {
               item.default = accountSettings.firstName
@@ -283,8 +284,8 @@ const AccountSetting = () => {
 
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true
-    const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
-    const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
+    const fn = !isBCUser ? checkUserEmail : checkUserBCEmail
+    const key = !isBCUser ? 'userEmailCheck' : 'customerEmailCheck'
 
     const {
       [key]: {
@@ -295,7 +296,7 @@ const AccountSetting = () => {
       channelId: currentChannelId,
     })
 
-    const isValid = isB2BUser ? [1].includes(userType) : ![2].includes(userType)
+    const isValid = !isBCUser ? [1].includes(userType) : ![2].includes(userType)
 
     if (!isValid) {
       setError('email', {
@@ -342,7 +343,7 @@ const AccountSetting = () => {
       setLoadding(true)
 
       try {
-        const isValid = isB2BUser ? await validateEmailValue(data.email) : true
+        const isValid = !isBCUser ? await validateEmailValue(data.email) : true
 
         const emailFlag = emailValidation(data)
 
@@ -354,7 +355,7 @@ const AccountSetting = () => {
           const param: Partial<ParamProps> = {}
           param.formFields = []
           let flag = true
-          if (isB2BUser) {
+          if (!isBCUser) {
             Object.keys(data).forEach((key: string) => {
               decryptionFields.forEach((item: Partial<Fields>) => {
                 if (key === item.name) {

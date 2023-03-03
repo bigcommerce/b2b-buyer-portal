@@ -68,6 +68,15 @@ export interface RouteFirstLevelItem extends RouteItemBasic{
 
 const routes: RouteItem[] = [
   {
+    path: '/',
+    name: 'Dashboard',
+    wsKey: 'router-orders',
+    isMenuItem: true,
+    component: Dashboard,
+    permissions: [3, 4],
+    isTokenLogin: true,
+  },
+  {
     path: '/orders',
     name: 'My orders',
     wsKey: 'router-orders',
@@ -200,15 +209,6 @@ const routes: RouteItem[] = [
     permissions: [0, 1, 2, 3, 99, 100],
     isTokenLogin: true,
   },
-  {
-    path: '/',
-    name: 'Dashboard',
-    wsKey: 'router-orders',
-    isMenuItem: true,
-    component: Dashboard,
-    permissions: [3, 4],
-    isTokenLogin: true,
-  },
 ]
 
 const firstLevelRouting: RouteFirstLevelItem[] = [
@@ -258,8 +258,6 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
     cartQuoteEnabled,
   } = globalState
 
-  console.log(isB2BUser, role, isAgenting, storefrontConfig, productQuoteEnabled, cartQuoteEnabled)
-
   return routes.filter((item: RouteItem) => {
     const {
       permissions = [],
@@ -302,7 +300,7 @@ const gotoAllowedAppPage = (role: number, isAgenting:boolean, gotoPage: (url: st
     hash,
   } = window.location
   let url = hash.split('#')[1] || ''
-  if (!url && role !== 100) url = (role === 3 && !isAgenting) ? '/' : '/orders'
+  if (!url && role !== 100) url = role === 3 ? '/' : '/orders'
   const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && item.permissions.includes(role))
 
   const isFirstLevelFlag = firstLevelRouting.some((item: RouteFirstLevelItem) => matchPath(item.path, url))
