@@ -124,6 +124,7 @@ interface OrderCardProps {
   itemKey: string,
   orderId: string,
   currencyInfo: OrderCurrency,
+  role: number | string,
 }
 
 interface DialogData{
@@ -143,6 +144,7 @@ const OrderCard = (props: OrderCardProps) => {
     itemKey,
     orderId,
     currencyInfo,
+    role,
   } = props
 
   const {
@@ -195,7 +197,7 @@ const OrderCard = (props: OrderCardProps) => {
     } else if (name === 'printInvoice') {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
     } else {
-      if (!isAgenting) {
+      if (!isAgenting && +role === 3) {
         snackbar.error('To re-order, return or add product to shopping list, please masquerade')
         return
       }
@@ -310,6 +312,7 @@ export const OrderAction = (props: OrderActionProps) => {
   const {
     state: {
       isB2BUser,
+      role,
     },
   } = useContext(GlobaledContext)
 
@@ -417,7 +420,7 @@ export const OrderAction = (props: OrderActionProps) => {
       key: 'add-to-shopping-list',
       name: 'shoppingList',
       variant: 'outlined',
-      isCanShow: isB2BUser,
+      isCanShow: true,
     },
   ]
 
@@ -470,6 +473,7 @@ export const OrderAction = (props: OrderActionProps) => {
             currencyInfo={money!}
             {...item}
             itemKey={item.key}
+            role={role}
           />
         ))
       }

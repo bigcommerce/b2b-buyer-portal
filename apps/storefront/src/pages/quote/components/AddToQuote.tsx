@@ -31,12 +31,14 @@ import {
 interface AddToListProps {
   updateList: () => void
   addToQuote: (products: CustomFieldItems[]) => void,
+  isB2BUser: boolean,
 }
 
 export const AddToQuote = (props: AddToListProps) => {
   const {
     updateList,
     addToQuote,
+    isB2BUser,
   } = props
 
   const getNewQuoteProduct = (products: CustomFieldItems[]) => products.map((product) => {
@@ -136,6 +138,7 @@ export const AddToQuote = (props: AddToListProps) => {
             addToList={addToList}
             searchDialogTitle="Add to quote"
             addButtonText="Add to Quote"
+            isB2BUser={isB2BUser}
           />
 
           <Divider />

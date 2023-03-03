@@ -2,6 +2,7 @@ import {
   useState,
   ReactElement,
   useEffect,
+  useContext,
 } from 'react'
 
 import {
@@ -15,7 +16,9 @@ import {
 
 import {
   addProductToShoppingList,
+  addProductToBcShoppingList,
   getB2BVariantInfoBySkus,
+  getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
 
 import {
@@ -23,6 +26,10 @@ import {
   getCartInfo,
   addProductToCart,
 } from '@/shared/service/bc'
+
+import {
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   B3CustomForm,
@@ -99,6 +106,12 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
   itemKey,
   currencyInfo,
 }) => {
+  const {
+    state: {
+      isB2BUser,
+    },
+  } = useContext(GlobaledContext)
+
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false)
 
   const [openShoppingList, setOpenShoppingList] = useState(false)
@@ -135,9 +148,11 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
 
   const getVariantInfoByList = async () => {
     const skus = products.map((product) => product.sku)
+    const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus
+
     const {
       variantSku: variantInfoList = [],
-    }: CustomFieldItems = await getB2BVariantInfoBySkus({
+    }: CustomFieldItems = await getVariantInfoBySku({
       skus,
     })
 
@@ -301,7 +316,9 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
       })
       const params = items.filter((item) => checkedArr.includes(+item.variantId))
 
-      await addProductToShoppingList({
+      const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList
+
+      await addToShoppingList({
         shoppingListId: +id,
         items: params,
       })

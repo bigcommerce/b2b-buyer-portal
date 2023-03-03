@@ -28,6 +28,7 @@ import {
 
 import {
   getB2BVariantInfoBySkus,
+  getBcVariantInfoBySkus,
 } from '@/shared/service/b2b/graphql/product'
 
 import {
@@ -68,6 +69,7 @@ interface ShoppingDetailFooterProps {
   setDeleteOpen: (val: boolean) => void,
   setValidateFailureProducts: (arr: ProductsProps[]) => void,
   setValidateSuccessProducts: (arr: ProductsProps[]) => void,
+  isB2BUser: boolean,
 }
 
 const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
@@ -96,6 +98,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
     setDeleteOpen,
     setValidateFailureProducts,
     setValidateSuccessProducts,
+    isB2BUser,
   } = props
 
   const verifyInventory = (inventoryInfos: ProductsProps[]) => {
@@ -159,7 +162,9 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
         return
       }
 
-      const getInventoryInfos = await getB2BVariantInfoBySkus({
+      const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus
+
+      const getInventoryInfos = await getVariantInfoBySku({
         skus,
       })
 

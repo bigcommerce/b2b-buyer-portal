@@ -29,6 +29,7 @@ import {
 
 import {
   updateB2BShoppingListsItem,
+  updateBcShoppingListsItem,
 } from '@/shared/service/b2b'
 
 import {
@@ -100,6 +101,7 @@ interface ShoppingDetailTableProps {
   isJuniorApprove: boolean,
   setDeleteItemId: (itemId: number | string) => void,
   setDeleteOpen: (open: boolean) => void,
+  isB2BUser: boolean,
 }
 
 interface SearchProps {
@@ -167,6 +169,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     setDeleteItemId,
     setDeleteOpen,
     isJuniorApprove,
+    isB2BUser,
   } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -240,6 +243,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
     setIsRequestLoading(true)
+    const updateShoppingListItem = isB2BUser ? updateB2BShoppingListsItem : updateBcShoppingListsItem
     try {
       const data = {
         itemId: editProductItemId,
@@ -251,7 +255,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         },
       }
 
-      await updateB2BShoppingListsItem(data)
+      await updateShoppingListItem(data)
       setSelectedOptionsOpen(false)
       setEditProductItemId('')
       snackbar.success('Product updated successfully')
@@ -301,7 +305,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         itemData,
       }
 
-      await updateB2BShoppingListsItem(data)
+      const updateShoppingListItem = isB2BUser ? updateB2BShoppingListsItem : updateBcShoppingListsItem
+
+      await updateShoppingListItem(data)
       snackbar.success('Product quantity updated successfully')
       setQtyNotChangeFlag(true)
       initSearch()
@@ -627,6 +633,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         onConfirm={handleChooseOptionsDialogConfirm}
         currency={currencyToken}
         isEdit
+        isB2BUser={isB2BUser}
       />
 
     </StyledShoppingListTableContainer>

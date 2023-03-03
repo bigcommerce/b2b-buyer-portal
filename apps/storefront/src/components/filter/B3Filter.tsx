@@ -68,6 +68,7 @@ interface B3FilterProps<T, Y> {
   handleChange: (key: string, value: string) => void
   handleFilterChange: (value: Y) => void
   handleFilterCustomButtomClick?: () => void
+  showB3FilterMoreIcon?: boolean,
 }
 
 const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => {
@@ -80,6 +81,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
     handleChange,
     handleFilterChange,
     handleFilterCustomButtomClick,
+    showB3FilterMoreIcon = true,
   } = props
 
   const [isMobile] = useMobile()
@@ -125,12 +127,16 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               handleChange={handleSearchChange}
               w="70%"
             />
-            <B3FilterMore
-              startPicker={startPicker}
-              endPicker={endPicker}
-              fiterMoreInfo={fiterMoreInfo}
-              onChange={handleFilterChange}
-            />
+            {
+              showB3FilterMoreIcon && (
+                <B3FilterMore
+                  startPicker={startPicker}
+                  endPicker={endPicker}
+                  fiterMoreInfo={fiterMoreInfo}
+                  onChange={handleFilterChange}
+                />
+              )
+            }
           </Box>
 
           <Box

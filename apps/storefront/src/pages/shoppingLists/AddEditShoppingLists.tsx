@@ -12,8 +12,11 @@ import {
 
 import {
   updateB2BShoppingList,
+  updateBcShoppingList,
   createB2BShoppingList,
+  createBcShoppingList,
   duplicateB2BShoppingList,
+  duplicateBcShoppingList,
 } from '@/shared/service/b2b'
 import {
   B3CustomForm,
@@ -33,11 +36,15 @@ import {
 interface AddEditUserProps {
   renderList: () => void
   role: number | string
+  isB2BUser: boolean
+  channelId: number
 }
 
 const AddEditShoppingLists = ({
   renderList,
   role,
+  isB2BUser,
+  channelId,
 }: AddEditUserProps, ref: Ref<unknown> | undefined) => {
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
@@ -91,22 +98,32 @@ const AddEditShoppingLists = ({
           ...data,
         }
 
-        let fn = createB2BShoppingList
+        let fn = isB2BUser ? createB2BShoppingList : createBcShoppingList
         let successTip = 'add shoppingLists successfully'
 
         if (type === 'edit') {
-          fn = updateB2BShoppingList
+          if (isB2BUser) {
+            fn = updateB2BShoppingList
+            params.status = editData?.status
+          } else {
+            fn = updateBcShoppingList
+            params.channelId = channelId
+          }
+
           params.id = editData?.id || 0
-          params.status = editData?.status
           successTip = 'update shoppingLists successfully'
         } else if (type === 'dup') {
-          fn = duplicateB2BShoppingList
+          fn = isB2BUser ? duplicateB2BShoppingList : duplicateBcShoppingList
           params.sampleShoppingListId = editData?.id || 0
           successTip = 'duplicate shoppingLists successfully'
 
           // params.status = +role === 2 ? 30 : editData?.status
         } else if (type === 'add') {
-          params.status = +role === 2 ? 30 : 0
+          if (isB2BUser) {
+            params.status = +role === 2 ? 30 : 0
+          } else {
+            params.channelId = channelId
+          }
         }
 
         await fn(params)

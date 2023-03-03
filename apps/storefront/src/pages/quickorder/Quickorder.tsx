@@ -34,6 +34,7 @@ const Quickorder = () => {
     state: {
       role,
       isAgenting,
+      isB2BUser,
     },
   } = useContext(GlobaledContext)
 
@@ -109,6 +110,7 @@ const Quickorder = () => {
             checkedArr={checkedArr}
             isAgenting={isAgenting}
             setIsRequestLoading={setIsRequestLoading}
+            isB2BUser={isB2BUser}
           />
         </Box>
       </Box>

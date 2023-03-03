@@ -4,6 +4,7 @@ import {
   Dispatch,
   SetStateAction,
   useRef,
+  useContext,
 } from 'react'
 
 import {
@@ -27,8 +28,14 @@ import {
 
 import {
   searchB2BProducts,
+  searchBcProducts,
   addProductToShoppingList,
+  addProductToBcShoppingList,
 } from '@/shared/service/b2b'
+
+import {
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   OrderShoppingList,
@@ -101,6 +108,11 @@ const PDP = ({
   setOpenPage,
 }: PDPProps) => {
   const isPromission = true
+  const {
+    state: {
+      isB2BUser,
+    },
+  } = useContext(GlobaledContext)
 
   const pdpRef = useRef<PDPRefProps>({
     timer: null,
@@ -179,10 +191,11 @@ const PDP = ({
       } = getDefaultCurrencyInfo()
 
       const companyId = B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
       const {
         productsSearch,
-      } = await searchB2BProducts({
+      } = await getProducts({
         productIds: [+productId],
         currencyCode,
         companyId,
@@ -216,7 +229,9 @@ const PDP = ({
         optionList,
       }
 
-      await addProductToShoppingList({
+      const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList
+
+      await addToShoppingList({
         shoppingListId: +id,
         items: [params],
       })

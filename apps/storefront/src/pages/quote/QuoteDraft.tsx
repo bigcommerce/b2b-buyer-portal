@@ -786,6 +786,7 @@ const QuoteDraft = ({
               <AddToQuote
                 updateList={updateList}
                 addToQuote={addToQuote}
+                isB2BUser={isB2BUser}
               />
 
               <QuoteNote />

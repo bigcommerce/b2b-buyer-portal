@@ -21,9 +21,13 @@ import {
 
 import {
   searchB2BProducts,
+  searchBcProducts,
   getB2BShoppingListDetails,
+  getBcShoppingListDetails,
   deleteB2BShoppingListItem,
+  deleteBcShoppingListItem,
   updateB2BShoppingList,
+  updateBcShoppingList,
 } from '@/shared/service/b2b'
 
 import {
@@ -70,6 +74,14 @@ interface TableRefProps extends HTMLInputElement {
   initSearch: () => void,
 }
 
+interface UpdateShoppingListParamsProps {
+  id: number,
+  name: string,
+  description: string,
+  status?: number,
+  channelId?: number,
+}
+
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
 
@@ -83,6 +95,8 @@ const ShoppingListDetails = () => {
       companyInfo: {
         id: companyInfoId,
       },
+      isB2BUser,
+      currentChannelId,
     },
   } = useContext(GlobaledContext)
   const navigate = useNavigate()
@@ -137,11 +151,12 @@ const ShoppingListDetails = () => {
           productIds.push(node.productId)
         }
       })
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
       try {
         const {
           productsSearch,
-        } = await searchB2BProducts({
+        } = await getProducts({
           productIds,
           currencyCode,
           companyId: companyInfoId,
@@ -173,24 +188,27 @@ const ShoppingListDetails = () => {
   }
 
   const getShoppingListDetails = async (params: SearchProps) => {
-    const {
-      shoppingList,
-      shoppingList: {
-        customerInfo,
-        products: {
-          edges,
-          totalCount,
-        },
-      },
-    } = await getB2BShoppingListDetails({
+    const getSLDetail = isB2BUser ? getB2BShoppingListDetails : getBcShoppingListDetails
+    const infoKey = isB2BUser ? 'shoppingList' : 'customerShoppingList'
+
+    const shoppingListInfos = await getSLDetail({
       id,
       ...params,
     })
 
+    const shoppingListDetailInfo = shoppingListInfos[infoKey]
+
+    const {
+      products: {
+        edges,
+        totalCount,
+      },
+    } = shoppingListDetailInfo
+
     const listProducts = await handleGetProductsById(edges)
 
-    setCustomerInfo(customerInfo)
-    setShoppingListInfo(shoppingList)
+    if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo)
+    setShoppingListInfo(shoppingListDetailInfo)
     return {
       edges: listProducts,
       totalCount,
@@ -200,12 +218,20 @@ const ShoppingListDetails = () => {
   const handleUpdateShoppingList = async (status: number) => {
     setIsRequestLoading(true)
     try {
-      await updateB2BShoppingList({
-        id,
+      const updateShoppingList = isB2BUser ? updateB2BShoppingList : updateBcShoppingList
+      const params: UpdateShoppingListParamsProps = {
+        id: +id,
         name: shoppingListInfo?.name || '',
         description: shoppingListInfo?.description || '',
-        status,
-      })
+      }
+
+      if (isB2BUser) {
+        params.status = status
+      } else {
+        params.channelId = currentChannelId
+      }
+
+      await updateShoppingList(params)
 
       snackbar.success('Shipping list status updated successfully')
       tableRef.current?.initSearch()
@@ -216,9 +242,11 @@ const ShoppingListDetails = () => {
 
   const handleDeleteItems = async (itemId: number | string = '') => {
     setIsRequestLoading(true)
+    const deleteShoppingListItem = isB2BUser ? deleteB2BShoppingListItem : deleteBcShoppingListItem
+
     try {
       if (itemId) {
-        await deleteB2BShoppingListItem({
+        await deleteShoppingListItem({
           itemId,
           shoppingListId: id,
         })
@@ -241,7 +269,7 @@ const ShoppingListDetails = () => {
             node,
           } = item
 
-          await deleteB2BShoppingListItem({
+          await deleteShoppingListItem({
             itemId: node.itemId,
             shoppingListId: id,
           })
@@ -299,6 +327,7 @@ const ShoppingListDetails = () => {
         }}
       >
         <ShoppingDetailHeader
+          isB2BUser={isB2BUser}
           shoppingListInfo={shoppingListInfo}
           customerInfo={customerInfo}
           role={role}
@@ -353,6 +382,7 @@ const ShoppingListDetails = () => {
                   getShoppingListDetails={getShoppingListDetails}
                   setDeleteOpen={setDeleteOpen}
                   setDeleteItemId={setDeleteItemId}
+                  isB2BUser={isB2BUser}
                 />
               </Grid>
             </B3Sping>
@@ -370,6 +400,7 @@ const ShoppingListDetails = () => {
               (!isReadForApprove && !isJuniorApprove) && (
                 <AddToShoppingList
                   updateList={updateList}
+                  isB2BUser={isB2BUser}
                 />
               )
             }
@@ -388,6 +419,7 @@ const ShoppingListDetails = () => {
             setDeleteOpen={setDeleteOpen}
             setValidateFailureProducts={setValidateFailureProducts}
             setValidateSuccessProducts={setValidateSuccessProducts}
+            isB2BUser={isB2BUser}
           />
           )
         }

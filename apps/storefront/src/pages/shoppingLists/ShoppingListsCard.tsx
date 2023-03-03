@@ -34,6 +34,7 @@ export interface OrderItemCardProps {
   onCopy: (data: ShoppingListsItemsProps) => void
   isPermissions: boolean
   role: number | string
+  isB2BUser: boolean
 }
 
 const Flex = styled('div')(() => ({
@@ -61,7 +62,10 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
     onCopy,
     isPermissions,
     role,
+    isB2BUser,
   } = props
+
+  const currentSLCreateRole = shoppingList?.customerInfo?.role
 
   const getEditPermissions = (status: number) => {
     if (+role === 2) {
@@ -112,13 +116,17 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
             pb: '20px',
           }}
         >
-          <Box
-            sx={{
-              pb: '25px',
-            }}
-          >
-            <ShoppingStatus status={shoppingList.status} />
-          </Box>
+          {
+            isB2BUser && +currentSLCreateRole === 2 && (
+              <Box
+                sx={{
+                  pb: '25px',
+                }}
+              >
+                <ShoppingStatus status={shoppingList.status} />
+              </Box>
+            )
+          }
           <Box
             sx={{
               width: '100%',
@@ -130,14 +138,18 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
             }
           </Box>
 
-          <FlexItem>
-            <FontBold>
-              Created by:
-            </FontBold>
-            {shoppingList.customerInfo.firstName}
-            {' '}
-            {shoppingList.customerInfo.lastName}
-          </FlexItem>
+          {
+            isB2BUser && (
+              <FlexItem>
+                <FontBold>
+                  Created by:
+                </FontBold>
+                {shoppingList.customerInfo.firstName}
+                {' '}
+                {shoppingList.customerInfo.lastName}
+              </FlexItem>
+            )
+          }
           <FlexItem>
             <FontBold>
               Products:

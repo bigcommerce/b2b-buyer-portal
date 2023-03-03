@@ -128,7 +128,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-shopping-list',
     isMenuItem: false,
     component: ShoppingListDetails,
-    permissions: [0, 1, 2, 3],
+    permissions: [0, 1, 2, 3, 99],
     isTokenLogin: true,
   },
   {
@@ -147,7 +147,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: ShippingLists,
     configKey: 'shoppingLists',
-    permissions: [0, 1, 2, 3],
+    permissions: [0, 1, 2, 3, 99],
     isTokenLogin: true,
   },
   {

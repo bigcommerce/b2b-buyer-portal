@@ -44,6 +44,7 @@ import {
 
 import {
   searchB2BProducts,
+  searchBcProducts,
 } from '@/shared/service/b2b'
 
 import {
@@ -98,6 +99,7 @@ interface ChooseOptionsDialogProps {
   isLoading: boolean,
   setIsLoading: Dispatch<SetStateAction<boolean>>,
   addButtonText?: string,
+  isB2BUser: boolean,
 }
 
 export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
@@ -111,6 +113,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
     isLoading,
     setIsLoading,
     addButtonText = 'Add To List',
+    isB2BUser,
   } = props
 
   const [quantity, setQuantity] = useState<number | string>(1)
@@ -139,9 +142,11 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
         }, [])
 
         if (productIds.length > 0) {
+          const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+
           const {
             productsSearch,
-          } : CustomFieldItems = await searchB2BProducts({
+          } : CustomFieldItems = await getProducts({
             productIds,
           })
 

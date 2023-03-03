@@ -13,7 +13,9 @@ import {
 
 import {
   getB2BShoppingList,
+  getBcShoppingList,
   deleteB2BShoppingList,
+  deleteBcShoppingList,
 } from '@/shared/service/b2b'
 
 import {
@@ -63,6 +65,8 @@ const shoppingLists = () => {
   const {
     state: {
       role,
+      isB2BUser,
+      currentChannelId,
     },
   } = useContext(GlobaledContext)
 
@@ -85,6 +89,7 @@ const shoppingLists = () => {
     search: '',
     createdBy: '',
     status: statusPermissions,
+    isDefault: true,
   }
 
   const [filterSearch, setFilterSearch] = useState<ShoppingListSearch>(initSearch)
@@ -105,6 +110,7 @@ const shoppingLists = () => {
         ...initSearch,
         search: value,
       }
+
       setFilterSearch(search)
     }
   }
@@ -113,22 +119,33 @@ const shoppingLists = () => {
     const {
       status,
     } = data
+
     const getNewStatus = (status === '' || status === 99) ? statusPermissions : status
     const search = {
       ...initSearch,
       createdBy: data.createdBy,
       status: getNewStatus,
+      isDefault: status === '',
     }
 
     setFilterSearch(search)
   }
 
   const fetchList = async (params: ShoppingListSearch) => {
+    const newParams = isB2BUser ? params : {
+      offset: params.offset,
+      first: params.first,
+      search: params.search,
+      channelId: currentChannelId,
+    }
+    const getShoppingLists = isB2BUser ? getB2BShoppingList : getBcShoppingList
+    const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
+
     const {
-      shoppingLists: {
+      [infoKey]: {
         edges, totalCount,
       },
-    } = await getB2BShoppingList(params)
+    } = await getShoppingLists(newParams)
     return {
       edges,
       totalCount,
@@ -162,7 +179,9 @@ const shoppingLists = () => {
       setIsRequestLoading(true)
       handleCancelClick()
       const id: number = deleteItem?.id || 0
-      await deleteB2BShoppingList(id)
+
+      const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteBcShoppingList
+      await deleteShoppingList(id)
       snackbar.success('delete shoppingList successfully')
       initSearchList()
     } finally {
@@ -182,6 +201,7 @@ const shoppingLists = () => {
         }}
       >
         <B3Filter
+          showB3FilterMoreIcon={isB2BUser}
           fiterMoreInfo={fiterMoreInfo}
           handleChange={handleChange}
           handleFilterChange={handleFirterChange}
@@ -205,6 +225,7 @@ const shoppingLists = () => {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onCopy={handleCopy}
+              isB2BUser={isB2BUser}
             />
           )}
         />
@@ -212,6 +233,8 @@ const shoppingLists = () => {
           role={role}
           renderList={initSearchList}
           ref={addEditShoppingListsRef}
+          isB2BUser={isB2BUser}
+          channelId={currentChannelId}
         />
         <B3Dialog
           isOpen={deleteOpen}

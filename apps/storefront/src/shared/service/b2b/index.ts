@@ -83,11 +83,22 @@ import {
   addProductToShoppingList,
   updateB2BShoppingListsItem,
   deleteB2BShoppingListItem,
+  getBcShoppingList,
+  createBcShoppingList,
+  updateBcShoppingList,
+  duplicateBcShoppingList,
+  deleteBcShoppingList,
+  getBcShoppingListDetails,
+  addProductToBcShoppingList,
+  updateBcShoppingListsItem,
+  deleteBcShoppingListItem,
 } from './graphql/shoppingList'
 
 import {
   getB2BVariantInfoBySkus,
+  getBcVariantInfoBySkus,
   searchB2BProducts,
+  searchBcProducts,
 } from './graphql/product'
 
 import {
@@ -198,4 +209,15 @@ export {
   updateBCQuote,
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
+  getBcShoppingList,
+  createBcShoppingList,
+  updateBcShoppingList,
+  duplicateBcShoppingList,
+  deleteBcShoppingList,
+  getBcShoppingListDetails,
+  addProductToBcShoppingList,
+  updateBcShoppingListsItem,
+  deleteBcShoppingListItem,
+  searchBcProducts,
+  getBcVariantInfoBySkus,
 }

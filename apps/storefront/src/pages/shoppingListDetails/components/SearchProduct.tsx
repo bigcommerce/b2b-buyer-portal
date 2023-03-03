@@ -32,6 +32,7 @@ import {
 
 import {
   searchB2BProducts,
+  searchBcProducts,
 } from '@/shared/service/b2b'
 
 import {
@@ -43,6 +44,7 @@ interface SearchProductProps {
   addToList: (products: CustomFieldItems[]) => CustomFieldItems,
   searchDialogTitle?: string,
   addButtonText?: string,
+  isB2BUser: boolean,
 }
 
 export const SearchProduct = ({
@@ -50,6 +52,7 @@ export const SearchProduct = ({
   addToList,
   searchDialogTitle,
   addButtonText,
+  isB2BUser,
 }: SearchProductProps) => {
   const [isLoading, setIsLoading] = useState(false)
 
@@ -68,12 +71,13 @@ export const SearchProduct = ({
     if (!searchText || isLoading) {
       return
     }
+    const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
     setIsLoading(true)
     try {
       const {
         productsSearch,
-      } : CustomFieldItems = await searchB2BProducts({
+      } : CustomFieldItems = await getProducts({
         search: searchText,
       })
 
@@ -232,6 +236,7 @@ export const SearchProduct = ({
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
         addButtonText={addButtonText}
+        isB2BUser={isB2BUser}
       />
 
     </Box>

@@ -23,6 +23,7 @@ const getShoppingList = ({
   status = '',
   createdBy = '',
   search = '',
+  isDefault = true,
 }) => `{
   shoppingLists (
     offset: ${offset}
@@ -30,6 +31,7 @@ const getShoppingList = ({
     search: "${search}"
     createdBy: "${createdBy}"
     ${getStatus(status)}
+    isDefault: ${isDefault}
   ){
     totalCount,
     pageInfo{
@@ -47,6 +49,7 @@ const getShoppingList = ({
           lastName,
           userId,
           email,
+          role,
         },
         updatedAt,
         isOwner,
@@ -137,6 +140,7 @@ const getShoppingListDetails = (data: CustomFieldItems) => `{
       lastName,
       userId,
       email,
+      role,
     },
     isOwner,
     grandTotal,
@@ -212,6 +216,175 @@ const deleteShoppingListItem = (data: CustomFieldItems) => `mutation {
   }
 }`
 
+const getCustomerShoppingLists = ({
+  offset = 0,
+  first = 50,
+  search = '',
+  channelId = 1,
+}) => `{
+  customerShoppingLists (
+    offset: ${offset}
+    first: ${first}
+    search: "${search}"
+    channelId: ${channelId}
+  ){
+    totalCount,
+    pageInfo{
+      hasNextPage,
+      hasPreviousPage,
+    },
+    edges{
+      node{
+        id,
+        name,
+        description,
+        updatedAt,
+        products {
+          totalCount,
+        }
+      }
+    }
+  }
+}`
+
+const createOrUpdateCustomerShoppingList = (fn: string, data: CustomFieldItems) => `mutation {
+  ${fn}(
+    ${!data?.id ? '' : `id: ${data.id}`}
+    ${!data?.sampleShoppingListId ? '' : `sampleShoppingListId: ${data.sampleShoppingListId}`}
+    shoppingListData: {
+      name: "${data.name}",
+      description: "${data.description}",
+      ${!data?.channelId ? '' : `channelId: ${data.channelId}`}
+  }) {
+    shoppingList {
+      id,
+      name,
+      description,
+      grandTotal,
+      totalDiscount,
+      totalTax,
+      isShowGrandTotal,
+    }
+  }
+}`
+
+const deleteCustomerShoppingList = (id: number) => `mutation{
+  customerShoppingListsDelete (id: ${id}) {
+    message
+  }
+}`
+
+const getCustomerShoppingListDetails = (data: CustomFieldItems) => `{
+  customerShoppingList (
+    id: ${data.id}
+  ) {
+    id,
+    createdAt,
+    updatedAt,
+    name,
+    description,
+    reason,
+    grandTotal,
+    totalDiscount,
+    totalTax,
+    isShowGrandTotal,
+    channelId,
+    channelName,
+    products (
+      offset: ${data.offset || 0}
+      first: ${data.first || 100},
+      search: "${data.search || ''}",
+    ) {
+      totalCount,
+      edges {
+        node {
+          id,
+          createdAt,
+          updatedAt,
+          productId,
+          variantId,
+          quantity,
+          productName,
+          optionList,
+          itemId,
+          baseSku,
+          variantSku,
+          basePrice,
+          discount,
+          tax,
+          enteredInclusive,
+          productUrl,
+          primaryImage,
+        }
+      }
+    }
+  }
+}`
+
+const addItemsToBcShoppingList = (data: CustomFieldItems) => `mutation {
+  customerShoppingListsItemsCreate (
+    shoppingListId: ${data.shoppingListId},
+    items: ${convertArrayToGraphql(data.items || [])}
+  ) {
+    shoppingListsItems {
+      id,
+      createdAt,
+      updatedAt,
+      productId,
+      variantId,
+      quantity,
+      productName,
+      optionList,
+      itemId,
+      baseSku,
+      variantSku,
+      basePrice,
+      discount,
+      tax,
+      enteredInclusive,
+      productUrl,
+      primaryImage,
+    }
+  }
+}`
+
+const updateCustomerShoppingListsItem = (data: CustomFieldItems) => `mutation {
+  customerShoppingListsItemsUpdate (
+    itemId: ${data.itemId}
+    shoppingListId: ${data.shoppingListId}
+    itemData: ${convertObjectToGraphql(data.itemData || [])}
+  ) {
+    shoppingListsItem {
+      id,
+      createdAt,
+      updatedAt,
+      productId,
+      variantId,
+      quantity,
+      productName,
+      optionList,
+      itemId,
+      baseSku,
+      variantSku,
+      basePrice,
+      discount,
+      tax,
+      enteredInclusive,
+      productUrl,
+      primaryImage,
+    }
+  }
+}`
+
+const deleteCustomerShoppingListItem = (data: CustomFieldItems) => `mutation {
+  customerShoppingListsItemsDelete (
+    itemId: ${data.itemId},
+    shoppingListId: ${data.shoppingListId},
+  ) {
+    message,
+  }
+}`
+
 export const getB2BShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
   query: getShoppingList(data),
 })
@@ -246,4 +419,40 @@ export const updateB2BShoppingListsItem = (data: CustomFieldItems = {}): CustomF
 
 export const deleteB2BShoppingListItem = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
   query: deleteShoppingListItem(data),
+})
+
+export const getBcShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: getCustomerShoppingLists(data),
+})
+
+export const createBcShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: createOrUpdateCustomerShoppingList('customerShoppingListsCreate', data),
+})
+
+export const updateBcShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: createOrUpdateCustomerShoppingList('customerShoppingListsUpdate', data),
+})
+
+export const duplicateBcShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: createOrUpdateCustomerShoppingList('customerShoppingListsDuplicate', data),
+})
+
+export const deleteBcShoppingList = (id: number): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: deleteCustomerShoppingList(id),
+})
+
+export const getBcShoppingListDetails = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: getCustomerShoppingListDetails(data),
+})
+
+export const addProductToBcShoppingList = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: addItemsToBcShoppingList(data),
+})
+
+export const updateBcShoppingListsItem = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: updateCustomerShoppingListsItem(data),
+})
+
+export const deleteBcShoppingListItem = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: deleteCustomerShoppingListItem(data),
 })

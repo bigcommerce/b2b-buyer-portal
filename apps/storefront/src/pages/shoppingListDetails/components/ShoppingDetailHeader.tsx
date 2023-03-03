@@ -30,6 +30,7 @@ interface ShoppingDetailHeaderProps {
   customerInfo: any,
   goToShoppingLists: () => void,
   handleUpdateShoppingList: (status: number) => void,
+  isB2BUser: boolean,
 }
 
 const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
@@ -41,9 +42,12 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
     customerInfo,
     handleUpdateShoppingList,
     goToShoppingLists,
+    isB2BUser,
   } = props
 
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0
+
+  const currentSLCreateRole = shoppingListInfo?.customerInfo?.role
 
   const gridOptions = (xs: number) => (isMobile ? {} : {
     xs,
@@ -111,17 +115,21 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             >
               {`${shoppingListInfo?.name || ''}`}
             </Typography>
-            <Typography
-              sx={{
-                m: `${isMobile ? '10px 0' : '0'}`,
-              }}
-            >
-              {
-                shoppingListInfo && (
-                  <ShoppingStatus status={shoppingListInfo?.status} />
-                )
-              }
-            </Typography>
+            {
+              isB2BUser && +currentSLCreateRole === 2 && (
+                <Typography
+                  sx={{
+                    m: `${isMobile ? '10px 0' : '0'}`,
+                  }}
+                >
+                  {
+                    shoppingListInfo && (
+                      <ShoppingStatus status={shoppingListInfo?.status} />
+                    )
+                  }
+                </Typography>
+              )
+            }
           </Box>
           <Box>
             <Typography
@@ -132,17 +140,21 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             >
               {shoppingListInfo?.description}
             </Typography>
-            <StyledCreateName>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  marginRight: '0.5rem',
-                }}
-              >
-                Created by:
-              </Typography>
-              <span>{`${customerInfo?.firstName || ''} ${customerInfo?.lastName || ''}`}</span>
-            </StyledCreateName>
+            {
+              isB2BUser && (
+                <StyledCreateName>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      marginRight: '0.5rem',
+                    }}
+                  >
+                    Created by:
+                  </Typography>
+                  <span>{`${customerInfo?.firstName || ''} ${customerInfo?.lastName || ''}`}</span>
+                </StyledCreateName>
+              )
+            }
           </Box>
         </Grid>
 

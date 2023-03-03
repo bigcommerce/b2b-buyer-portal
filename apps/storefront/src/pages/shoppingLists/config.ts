@@ -16,6 +16,7 @@ interface ShoppingListsItemsCustomerInfoProps {
   lastName: string
   userId: number
   email: string
+  role: string
 }
 
 export interface ShoppingListsItemsProps {
@@ -29,6 +30,7 @@ export interface ShoppingListsItemsProps {
   }
   updatedAt: string | number,
   sampleShoppingListId?: number | string
+  channelId: number
 }
 
 export interface GetFilterMoreListProps {

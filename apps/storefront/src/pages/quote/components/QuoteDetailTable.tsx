@@ -164,7 +164,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                             lineHeight: '1.5',
                             color: '#455A64',
                           }}
-                          key={`${option.optionName}_keyName`}
+                          key={`${option.optionName}_${option.optionLabel}`}
                         >
                           {`${option.optionName
                           }: ${option.optionLabel

@@ -23,6 +23,7 @@ import {
 
 import {
   createB2BShoppingList,
+  createBcShoppingList,
 } from '@/shared/service/b2b'
 
 const list = [
@@ -69,6 +70,8 @@ const CreateShoppingList = ({
   const {
     state: {
       role,
+      isB2BUser,
+      currentChannelId,
     },
   } = useContext(GlobaledContext)
 
@@ -97,11 +100,16 @@ const CreateShoppingList = ({
       if (description.indexOf('\n') > -1) {
         data.description = description.split('\n').join('\\n')
       }
-      const createShoppingData = {
-        ...data,
-        status: +role === 2 ? 30 : 0,
+      const createSL = isB2BUser ? createB2BShoppingList : createBcShoppingList
+
+      const createShoppingData = data
+      if (isB2BUser) {
+        createShoppingData.status = +role === 2 ? 30 : 0
+      } else {
+        createShoppingData.channelId = currentChannelId
       }
-      await createB2BShoppingList(createShoppingData)
+
+      await createSL(createShoppingData)
       setLoading(false)
       onChange()
     })()

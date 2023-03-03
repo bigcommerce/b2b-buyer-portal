@@ -2,6 +2,7 @@ import {
   useState,
   useEffect,
   KeyboardEventHandler,
+  useContext,
 } from 'react'
 
 import {
@@ -29,6 +30,10 @@ import {
 } from '@/utils'
 
 import {
+  GlobaledContext,
+} from '@/shared/global'
+
+import {
   getQuickAddRowFields,
 } from '../../shoppingListDetails/shared/config'
 
@@ -39,6 +44,7 @@ import {
 
 import {
   getB2BVariantInfoBySkus,
+  getBcVariantInfoBySkus,
 } from '../../../shared/service/b2b'
 
 interface AddToListContentProps {
@@ -55,6 +61,12 @@ export const QuickAdd = (props: AddToListContentProps) => {
     level = 3,
     buttonText = 'Add product to list',
   } = props
+
+  const {
+    state: {
+      isB2BUser,
+    },
+  } = useContext(GlobaledContext)
 
   const b3Lang = useB3Lang()
 
@@ -269,10 +281,11 @@ export const QuickAdd = (props: AddToListContentProps) => {
   }
 
   const getVariantList = async (skus: string[]) => {
+    const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus
     try {
       const {
         variantSku: variantInfoList,
-      }: CustomFieldItems = await getB2BVariantInfoBySkus({
+      }: CustomFieldItems = await getVariantInfoBySku({
         skus,
       }, true)
 

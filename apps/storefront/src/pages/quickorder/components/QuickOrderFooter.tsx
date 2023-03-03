@@ -33,7 +33,9 @@ import {
 
 import {
   searchB2BProducts,
+  searchBcProducts,
   addProductToShoppingList,
+  addProductToBcShoppingList,
 } from '@/shared/service/b2b'
 
 import {
@@ -54,6 +56,7 @@ import {
 
 import {
   getB2BVariantInfoBySkus,
+  getBcVariantInfoBySkus,
 } from '@/shared/service/b2b/graphql/product'
 
 import {
@@ -146,6 +149,7 @@ interface QuickOrderFooterProps {
   checkedArr: CustomFieldItems,
   isAgenting: boolean,
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
+  isB2BUser: boolean,
 }
 
 const QuickOrderFooter = (props: QuickOrderFooterProps) => {
@@ -154,6 +158,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
     checkedArr,
     isAgenting,
     setIsRequestLoading,
+    isB2BUser,
   } = props
 
   const [isMobile] = useMobile()
@@ -239,12 +244,14 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
         skus.push(node.variantSku)
       })
 
+      const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus
+
       if (skus.length === 0) {
         snackbar.error('Please select at least one item to add to cart')
         return
       }
 
-      const getInventoryInfos = await getB2BVariantInfoBySkus({
+      const getInventoryInfos = await getVariantInfoBySku({
         skus,
       })
 
@@ -317,9 +324,11 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
         }
       })
 
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+
       const {
         productsSearch,
-      } = await searchB2BProducts({
+      } = await getProducts({
         productIds,
       })
 
@@ -470,7 +479,9 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
         })
       })
 
-      await addProductToShoppingList({
+      const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList
+
+      await addToShoppingList({
         shoppingListId: +shoppingListId,
         items,
       })

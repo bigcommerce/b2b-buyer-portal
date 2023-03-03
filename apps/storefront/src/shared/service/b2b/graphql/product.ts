@@ -84,3 +84,11 @@ export const getB2BVariantSkuByProductId = (productId: string): CustomFieldItems
 export const searchB2BProducts = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
   query: searchProducts(data),
 })
+
+export const searchBcProducts = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: searchProducts(data),
+})
+
+export const getBcVariantInfoBySkus = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
+  query: getVariantInfoBySkus(data),
+})

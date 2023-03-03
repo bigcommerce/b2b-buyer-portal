@@ -27,6 +27,7 @@ import {
 
 import {
   addProductToShoppingList,
+  addProductToBcShoppingList,
 } from '@/shared/service/b2b'
 
 import {
@@ -35,6 +36,7 @@ import {
 
 interface AddToListProps {
   updateList: () => void
+  isB2BUser: boolean
 }
 
 export const AddToShoppingList = (props: AddToListProps) => {
@@ -46,7 +48,10 @@ export const AddToShoppingList = (props: AddToListProps) => {
 
   const {
     updateList,
+    isB2BUser,
   } = props
+
+  const addItemsToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList
 
   const addToList = async (products: CustomFieldItems[]) => {
     const items = products.map((product) => ({
@@ -56,7 +61,7 @@ export const AddToShoppingList = (props: AddToListProps) => {
       variantId: product.variantId,
     }))
 
-    const res: CustomFieldItems = await addProductToShoppingList({
+    const res: CustomFieldItems = await addItemsToShoppingList({
       shoppingListId: id,
       items,
     })
@@ -76,7 +81,7 @@ export const AddToShoppingList = (props: AddToListProps) => {
       variantId: parseInt(product.variantId, 10) || 0,
     }))
 
-    const res: CustomFieldItems = await addProductToShoppingList({
+    const res: CustomFieldItems = await addItemsToShoppingList({
       shoppingListId: id,
       items,
     })
@@ -99,6 +104,7 @@ export const AddToShoppingList = (props: AddToListProps) => {
           <SearchProduct
             updateList={updateList}
             addToList={addToList}
+            isB2BUser={isB2BUser}
           />
 
           <Divider />
