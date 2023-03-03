@@ -79,7 +79,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
     } else {
       await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
       B3SStorage.delete('isAgenting')
-      B3SStorage.set('isB2BUser', false)
+      // B3SStorage.set('isB2BUser', false)
       B3SStorage.delete('salesRepCompanyId')
       B3SStorage.delete('salesRepCompanyName')
       dispatch(
@@ -241,7 +241,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
                     m: '0 15px 0 10px',
                   }}
                 >
-                  Mitsubishi
+                  {salesRepCompanyName}
                 </Box>
               </Box>
 

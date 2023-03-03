@@ -87,7 +87,7 @@ const Dashboard = () => {
         B3SStorage.set('isAgenting', true)
         B3SStorage.set('salesRepCompanyId', id)
         B3SStorage.set('salesRepCompanyName', companyName)
-        B3SStorage.set('isB2BUser', true)
+        // B3SStorage.set('isB2BUser', true)
 
         dispatch(
           {
@@ -149,7 +149,7 @@ const Dashboard = () => {
       showPageMask(true)
       await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
       B3SStorage.delete('isAgenting')
-      B3SStorage.set('isB2BUser', false)
+      // B3SStorage.set('isB2BUser', false)
       B3SStorage.delete('salesRepCompanyId')
       B3SStorage.delete('salesRepCompanyName')
       dispatch(

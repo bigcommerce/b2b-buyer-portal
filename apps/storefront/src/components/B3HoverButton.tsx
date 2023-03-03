@@ -42,6 +42,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
   const {
     state: {
       isAgenting,
+      salesRepCompanyName,
     },
   } = useContext(GlobaledContext)
 
@@ -78,14 +79,14 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
       >
 
         {
-          !isOpen && productQuoteEnabled && (
+          !isOpen && productQuoteEnabled && !href.includes('/cart') && (
           <Button
             sx={{
               backgroundColor: '#ED6C02',
               height: '42px',
             }}
             onClick={() => {
-              B3SStorage.set('nextPath', '/')
+              // B3SStorage.set('nextPath', '/')
               setOpenPage({
                 isOpen: true,
                 openUrl: '/quoteDraft',
@@ -115,7 +116,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
             variant="contained"
             startIcon={<GroupIcon />}
           >
-            Mitsubishi
+            {salesRepCompanyName}
           </Button>
           )
         }

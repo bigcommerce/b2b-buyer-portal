@@ -291,7 +291,7 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       B3SStorage.set('B3EmailAddress', emailAddress)
       B3SStorage.set('B3UserId', id)
       B3SStorage.set('B3Role', userType === 3 ? role : 99)
-      B3SStorage.set('isB2BUser', role === 0 || role === 1 || role === 2 || (role === 3 && agentInfo.isAgenting))
+      B3SStorage.set('isB2BUser', userType === 3)
 
       dispatch({
         type: 'common',

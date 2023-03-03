@@ -11,12 +11,17 @@ import {
   useRef,
   ReactElement,
   ReactNode,
+  useContext,
 } from 'react'
 
 import {
   useMobile,
   useScrollBar,
 } from '@/hooks'
+
+import {
+  GlobaledContext,
+} from '@/shared/global'
 
 import {
   B3Sping,
@@ -81,6 +86,12 @@ export const B3Dialog:<T> ({
 
   const [isMobile] = useMobile()
 
+  const {
+    state: {
+      isAgenting,
+    },
+  } = useContext(GlobaledContext)
+
   const handleSaveClick = () => {
     if (handRightClick) {
       if (row) handRightClick(row)
@@ -132,7 +143,10 @@ export const B3Dialog:<T> ({
           sx={
             isShowBordered ? {
               borderTop: '1px solid #D9DCE9',
-            } : {}
+              marginBottom: isAgenting ? '52px' : '0',
+            } : {
+              marginBottom: isAgenting ? '52px' : '0',
+            }
           }
         >
           {

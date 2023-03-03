@@ -178,7 +178,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const isRelogin = sessionStorage.getItem('isreLogin')
+    const isRelogin = sessionStorage.getItem('isReLogin') === 'true'
     loginAndRegister()
     const init = async () => {
       // bc token
@@ -206,7 +206,7 @@ export default function App() {
         gotoAllowedAppPage(+userInfo.role, userInfo.isAgenting, gotoPage)
       }
 
-      sessionStorage.removeItem('isreLogin')
+      sessionStorage.removeItem('isReLogin')
       showPageMask(false)
     }
 
