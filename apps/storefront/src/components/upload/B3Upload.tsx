@@ -79,7 +79,7 @@ export const B3Upload = () => {
   }
 
   const openFile = () => {
-    if (uploadRef.current) uploadRef.current.children[1].click()
+    if (uploadRef.current) (uploadRef.current.children[1] as any).click()
   }
 
   const content = (

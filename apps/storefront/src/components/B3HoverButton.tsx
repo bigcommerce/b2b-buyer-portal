@@ -47,6 +47,12 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
 
   const [isMobile] = useMobile()
 
+  const {
+    href,
+  } = window.location
+
+  if (href.includes('/checkout')) return <></>
+
   return (
     <Snackbar
       sx={{

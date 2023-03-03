@@ -100,7 +100,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: false,
     component: OrderDetail,
-    permissions: [0, 1, 2, 3, 99, 100],
+    permissions: [0, 1, 2, 3, 4, 99, 100],
     isTokenLogin: true,
   },
   {
@@ -200,15 +200,15 @@ const routes: RouteItem[] = [
     permissions: [0, 1, 2, 3, 99, 100],
     isTokenLogin: false,
   },
-  {
-    path: '/xxxxx',
-    name: 'Recently viewed',
-    wsKey: 'router-orders',
-    isMenuItem: true,
-    component: Dashboard,
-    permissions: [0, 1, 2, 3, 99, 100],
-    isTokenLogin: true,
-  },
+  // {
+  //   path: '/xxxxx',
+  //   name: 'Recently viewed',
+  //   wsKey: 'router-orders',
+  //   isMenuItem: true,
+  //   component: Dashboard,
+  //   permissions: [0, 1, 2, 3, 99, 100],
+  //   isTokenLogin: true,
+  // },
 ]
 
 const firstLevelRouting: RouteFirstLevelItem[] = [

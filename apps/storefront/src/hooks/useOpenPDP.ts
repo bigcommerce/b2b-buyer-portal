@@ -18,11 +18,11 @@ import type {
 interface MutationObserverProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
   isB2BUser: boolean,
-  role: string | number,
+  shoppingListEnabled: boolean,
 }
 
 const useOpenPDP = ({
-  setOpenPage, isB2BUser, role,
+  setOpenPage, isB2BUser, shoppingListEnabled,
 }: MutationObserverProps) => {
   const [openQuickViewNum, setOpenQuickViewNum] = useState<number>(0)
 
@@ -41,7 +41,7 @@ const useOpenPDP = ({
 
   useMutationObservable(document.documentElement, cd)
 
-  useB3PDPOpen(globalB3['dom.setToShoppingListParentEl'], pdpCallBbck, isB2BUser, role, openQuickViewNum)
+  useB3PDPOpen(globalB3['dom.setToShoppingListParentEl'], pdpCallBbck, isB2BUser, shoppingListEnabled, openQuickViewNum)
 }
 
 export {

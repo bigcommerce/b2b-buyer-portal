@@ -20,6 +20,7 @@ export const getQuoteEnabled = (
       value: boolean,
       enabledStatus: boolean,
     },
+    shoppingLists: boolean,
   },
   role: number | string,
   isB2BUser: boolean,
@@ -32,6 +33,8 @@ export const getQuoteEnabled = (
   let cartEnabled = '1'
 
   const quoteEnabled = storefrontConfig.quotes || false
+
+  let shoppingListEnabled = storefrontConfig.shoppingLists || false
 
   quoteConfig.switchStatus.forEach((config) => {
     if (config.key === 'quote_customer') {
@@ -57,7 +60,12 @@ export const getQuoteEnabled = (
   if (`${role}` === '100') { // guest
     productQuoteEnabled = productQuoteEnabled && guestEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && guestEnabled === '1'
-  } else if (!isB2BUser || (`${role}` === '3' && !isAgenting)) { // BCUser
+    shoppingListEnabled = false
+  } else if (`${role}` === '3' && !isAgenting) {
+    productQuoteEnabled = false
+    cartQuoteEnabled = false
+    shoppingListEnabled = false
+  } else if (!isB2BUser) { // BCUser
     productQuoteEnabled = productQuoteEnabled && bcUserEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && bcUserEnabled === '1'
   }
@@ -65,5 +73,6 @@ export const getQuoteEnabled = (
   return {
     productQuoteEnabled,
     cartQuoteEnabled,
+    shoppingListEnabled,
   }
 }

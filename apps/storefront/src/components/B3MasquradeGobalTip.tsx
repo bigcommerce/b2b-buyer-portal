@@ -59,7 +59,10 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
 
   const {
     hash,
+    href,
   } = window.location
+
+  if (href.includes('/checkout')) return <></>
 
   const isAddBottom = bottomHeightPage.some((item: string) => hash.includes(item))
 

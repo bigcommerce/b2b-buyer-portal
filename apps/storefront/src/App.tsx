@@ -79,6 +79,7 @@ export default function App() {
       storefrontConfig,
       productQuoteEnabled,
       cartQuoteEnabled,
+      shoppingListEnabled,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -88,7 +89,7 @@ export default function App() {
   useOpenPDP({
     setOpenPage,
     isB2BUser,
-    role,
+    shoppingListEnabled,
   })
 
   useMyQuote({
@@ -177,10 +178,11 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const isRelogin = sessionStorage.getItem('isreLogin')
     loginAndRegister()
     const init = async () => {
       // bc token
-      if (!BcToken) {
+      if (!BcToken || isRelogin) {
         await loginInfo()
       }
 
@@ -192,7 +194,7 @@ export default function App() {
         isAgenting,
       }
 
-      if (!customerId) {
+      if (!customerId || isRelogin) {
         const info = await getCurrentCustomerInfo(dispatch)
         if (info) {
           userInfo.role = info?.role
@@ -203,6 +205,8 @@ export default function App() {
       if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
         gotoAllowedAppPage(+userInfo.role, userInfo.isAgenting, gotoPage)
       }
+
+      sessionStorage.removeItem('isreLogin')
       showPageMask(false)
     }
 
@@ -221,6 +225,7 @@ export default function App() {
       const {
         productQuoteEnabled,
         cartQuoteEnabled,
+        shoppingListEnabled,
       } = getQuoteEnabled(quoteConfig, storefrontConfig, role, isB2BUser, isAgenting)
 
       dispatch({
@@ -228,6 +233,7 @@ export default function App() {
         payload: {
           productQuoteEnabled,
           cartQuoteEnabled,
+          shoppingListEnabled,
         },
       })
     }

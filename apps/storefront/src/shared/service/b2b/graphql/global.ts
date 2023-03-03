@@ -26,12 +26,12 @@ const getAgentInfoQl = (customerId: string | number) => `{
   }
 }`
 
-const superAdminCompaniesQl = (id: number, q: string) => `{
+const superAdminCompaniesQl = (id: number, params: CustomFieldItems) => `{
   superAdminCompanies(
     superAdminId: ${id}
-    offset: 0
-    first: 10
-    search: "${q || ''}"
+    first: ${params.first}
+    offset: ${params.offset}
+    search: "${params.q || ''}"
   ) {
     edges{
       node{
@@ -140,8 +140,8 @@ export const getAgentInfo = (customerId: string | number): CustomFieldItems => B
   query: getAgentInfoQl(customerId),
 })
 
-export const superAdminCompanies = (id: number, q: string): CustomFieldItems => B3Request.graphqlB2B({
-  query: superAdminCompaniesQl(id, q),
+export const superAdminCompanies = (id: number, params: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
+  query: superAdminCompaniesQl(id, params),
 })
 
 export const superAdminBeginMasquerade = (companyId: number, userId: number): CustomFieldItems => B3Request.graphqlB2B({

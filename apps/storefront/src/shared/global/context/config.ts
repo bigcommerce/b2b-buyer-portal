@@ -102,6 +102,7 @@ export interface GlobalState {
       value: boolean,
       enabledStatus: boolean,
     },
+    shoppingLists: boolean,
   },
   storeEnabled: boolean,
   storeName: string,
@@ -110,6 +111,7 @@ export interface GlobalState {
   countriesList?: Country[],
   productQuoteEnabled: boolean,
   cartQuoteEnabled: boolean,
+  shoppingListEnabled: boolean,
   quoteConfig: {
     switchStatus: {
       [key: string]: string
@@ -171,6 +173,7 @@ export const initState = {
   countriesList: [],
   productQuoteEnabled: false,
   cartQuoteEnabled: false,
+  shoppingListEnabled: false,
   quoteConfig: {
     switchStatus: [],
     otherConfigs: [],

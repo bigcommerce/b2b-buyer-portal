@@ -113,7 +113,7 @@ const Dashboard = () => {
         edges = [],
         totalCount,
       },
-    }: any = await superAdminCompanies(+B3UserId, params.q)
+    }: any = await superAdminCompanies(+B3UserId, params)
 
     return {
       edges,
