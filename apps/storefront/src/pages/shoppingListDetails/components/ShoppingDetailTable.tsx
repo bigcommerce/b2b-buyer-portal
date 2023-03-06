@@ -99,6 +99,7 @@ interface ShoppingDetailTableProps {
   setCheckedArr: (values: CustomFieldItems) => void,
   isReadForApprove: boolean,
   isJuniorApprove: boolean,
+  allowJuniorPlaceOrder: boolean,
   setDeleteItemId: (itemId: number | string) => void,
   setDeleteOpen: (open: boolean) => void,
   isB2BUser: boolean,
@@ -170,6 +171,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     setDeleteOpen,
     isJuniorApprove,
     isB2BUser,
+    allowJuniorPlaceOrder,
   } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -599,7 +601,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         searchParams={search}
         isCustomRender={false}
         showCheckbox
-        disableCheckbox={isReadForApprove || isJuniorApprove}
+        disableCheckbox={allowJuniorPlaceOrder ? !allowJuniorPlaceOrder : isReadForApprove || isJuniorApprove}
         hover
         labelRowsPerPage="Items per page:"
         showBorder={false}

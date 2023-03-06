@@ -21,6 +21,7 @@ import {
   createCart,
   getCartInfo,
   addProductToCart,
+  deleteCart,
 } from '@/shared/service/bc'
 import {
   snackbar,
@@ -62,6 +63,7 @@ const successTip = (options: successTipOptions) => () => (
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any,
   role: string | number,
+  allowJuniorPlaceOrder: boolean,
   checkedArr: any,
   currencyToken: string,
   selectedSubTotal: number,
@@ -91,6 +93,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
   const {
     shoppingListInfo,
     role,
+    allowJuniorPlaceOrder,
     checkedArr,
     currencyToken,
     selectedSubTotal,
@@ -158,7 +161,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
       })
 
       if (skus.length === 0) {
-        snackbar.error('Please select at least one item to add to cart')
+        snackbar.error(allowJuniorPlaceOrder ? 'Please select at least one item to checkout' : 'Please select at least one item to add to cart')
         return
       }
 
@@ -176,23 +179,35 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
       if (validateSuccessArr.length !== 0) {
         const lineItems = addlineItems(validateSuccessArr)
         const cartInfo = await getCartInfo()
-        const res = cartInfo.length ? await addProductToCart({
-          lineItems,
-        }, cartInfo[0].id) : await createCart({
-          lineItems,
-        })
+        let res = null
+        if (allowJuniorPlaceOrder && cartInfo.length) {
+          await deleteCart(cartInfo[0].id)
+          res = await createCart({
+            lineItems,
+          })
+        } else {
+          res = cartInfo.length ? await addProductToCart({
+            lineItems,
+          }, cartInfo[0].id) : await createCart({
+            lineItems,
+          })
+        }
         if (res.status === 422) {
           snackbar.error(res.detail)
         } else if (validateFailureArr.length === 0) {
-          snackbar.success('', {
-            jsx: successTip({
-              message: 'Products were added to cart',
-              link: '/cart.php',
-              linkText: 'VIEW CART',
-              isOutLink: true,
-            }),
-            isClose: true,
-          })
+          if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
+            window.location.href = '/checkout'
+          } else {
+            snackbar.success('', {
+              jsx: successTip({
+                message: 'Products were added to cart',
+                link: '/cart.php',
+                linkText: 'VIEW CART',
+                isOutLink: true,
+              }),
+              isClose: true,
+            })
+          }
         }
       }
       setValidateFailureProducts(validateFailureArr)
@@ -274,24 +289,28 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
               width: isMobile ? '100%' : 'auto',
             }}
           >
-            <Button
-              sx={{
-                padding: '5px',
-                border: '1px solid #1976d2',
-                margin: isMobile ? '0 1rem 0 0' : '0 1rem',
-                minWidth: 'auto',
-              }}
-              disabled={shoppingListInfo?.status === 40}
-            >
-              <Delete
-                color="primary"
-                onClick={() => {
-                  setDeleteOpen(true)
-                }}
-              />
-            </Button>
             {
-              (role !== 2 || shoppingListInfo?.status === 0) && (
+              (!allowJuniorPlaceOrder) && (
+                <Button
+                  sx={{
+                    padding: '5px',
+                    border: '1px solid #1976d2',
+                    margin: isMobile ? '0 1rem 0 0' : '0 1rem',
+                    minWidth: 'auto',
+                  }}
+                  disabled={shoppingListInfo?.status === 40}
+                >
+                  <Delete
+                    color="primary"
+                    onClick={() => {
+                      setDeleteOpen(true)
+                    }}
+                  />
+                </Button>
+              )
+            }
+            {
+              (allowJuniorPlaceOrder || (role !== 2 && shoppingListInfo?.status === 0) || !isB2BUser) && (
                 <Button
                   variant="contained"
                   onClick={() => {
@@ -302,7 +321,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
                     width: isMobile ? '80%' : 'auto',
                   }}
                 >
-                  Add selected to cart
+                  {allowJuniorPlaceOrder ? 'Proceed to checkout' : 'Add selected to cart'}
                 </Button>
               )
             }

@@ -92,6 +92,7 @@ import {
   addProductToBcShoppingList,
   updateBcShoppingListsItem,
   deleteBcShoppingListItem,
+  getB2BJuniorPlaceOrder,
 } from './graphql/shoppingList'
 
 import {
@@ -190,6 +191,7 @@ export {
   addProductToShoppingList,
   updateB2BShoppingListsItem,
   deleteB2BShoppingListItem,
+  getB2BJuniorPlaceOrder,
   checkUserEmail,
   checkUserBCEmail,
   setChannelStoreType,

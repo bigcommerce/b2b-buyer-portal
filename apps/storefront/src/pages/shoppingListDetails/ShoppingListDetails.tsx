@@ -28,6 +28,7 @@ import {
   deleteBcShoppingListItem,
   updateB2BShoppingList,
   updateBcShoppingList,
+  getB2BJuniorPlaceOrder,
 } from '@/shared/service/b2b'
 
 import {
@@ -118,6 +119,8 @@ const ShoppingListDetails = () => {
 
   const [validateSuccessProducts, setValidateSuccessProducts] = useState<ProductsProps[]>([])
   const [validateFailureProducts, setValidateFailureProducts] = useState<ProductsProps[]>([])
+
+  const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false)
 
   const isJuniorApprove = shoppingListInfo?.status === 0 && role === 2
   const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
@@ -317,6 +320,20 @@ const ShoppingListDetails = () => {
     await handleCancelClick()
   }
 
+  const getJuniorPlaceOrder = async () => {
+    const {
+      storeConfigSwitchStatus: {
+        isEnabled,
+      },
+    } = await getB2BJuniorPlaceOrder()
+
+    setAllowJuniorPlaceOrder(isEnabled === '1')
+  }
+
+  useEffect(() => {
+    if (isJuniorApprove) getJuniorPlaceOrder()
+  }, [isJuniorApprove])
+
   return (
     <>
       <Box
@@ -373,6 +390,7 @@ const ShoppingListDetails = () => {
                   ref={tableRef}
                   isReadForApprove={isReadForApprove}
                   isJuniorApprove={isJuniorApprove}
+                  allowJuniorPlaceOrder={allowJuniorPlaceOrder}
                   setCheckedArr={setCheckedArr}
                   shoppingListInfo={shoppingListInfo}
                   currencyToken={currencyToken}
@@ -408,10 +426,11 @@ const ShoppingListDetails = () => {
         </Grid>
 
         {
-          (!isReadForApprove && !isJuniorApprove) && (
+          (!isReadForApprove && (allowJuniorPlaceOrder || !isJuniorApprove)) && (
           <ShoppingDetailFooter
             shoppingListInfo={shoppingListInfo}
             role={role}
+            allowJuniorPlaceOrder={allowJuniorPlaceOrder}
             checkedArr={checkedArr}
             currencyToken={currencyToken}
             selectedSubTotal={selectedSubTotal}
@@ -427,8 +446,11 @@ const ShoppingListDetails = () => {
       </Box>
 
       <ReAddToCart
+        shoppingListInfo={shoppingListInfo}
+        role={role}
         products={validateFailureProducts}
         successProducts={validateSuccessProducts.length}
+        allowJuniorPlaceOrder={allowJuniorPlaceOrder}
         currencyToken={currencyToken}
         setValidateFailureProducts={setValidateFailureProducts}
         setValidateSuccessProducts={setValidateSuccessProducts}

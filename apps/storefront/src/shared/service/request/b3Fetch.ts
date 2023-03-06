@@ -142,6 +142,11 @@ export const B3Request = {
       },
     }, type)
   },
+  delete: function deleteFn<T, Y>(url: string, type: string): Promise<any> {
+    return request(url, {
+      method: 'DELETE',
+    }, type)
+  },
   fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y): Promise<any> {
     return request(`${B2B_BASIC_URL}${url}`, {
       method: 'POST',

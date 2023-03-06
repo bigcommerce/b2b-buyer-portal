@@ -59,9 +59,12 @@ const successTip = (options: successTipOptions) => () => (
 )
 
 interface ShoppingProductsProps {
+  shoppingListInfo: any,
+  role: string | number,
   products: ProductsProps[],
   currencyToken: string,
   successProducts: number,
+  allowJuniorPlaceOrder: boolean,
   getProductQuantity?: (item: ProductsProps) => number
   onProductChange?: (products: ProductsProps[]) => void
   setValidateFailureProducts: (arr: ProductsProps[]) => void,
@@ -174,9 +177,12 @@ const defaultProductImage = 'https://cdn11.bigcommerce.com/s-1i6zpxpe3g/stencil/
 
 export const ReAddToCart = (props: ShoppingProductsProps) => {
   const {
+    shoppingListInfo,
+    role,
     products,
     currencyToken,
     successProducts,
+    allowJuniorPlaceOrder,
     setValidateFailureProducts,
     setValidateSuccessProducts,
   } = props
@@ -242,15 +248,19 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
         snackbar.error(res.detail)
       } else {
         handleCancelClicked()
-        snackbar.success('', {
-          jsx: successTip({
-            message: 'Products were added to cart',
-            link: '/cart.php',
-            linkText: 'VIEW CART',
-            isOutLink: true,
-          }),
-          isClose: true,
-        })
+        if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
+          window.location.href = '/checkout'
+        } else {
+          snackbar.success('', {
+            jsx: successTip({
+              message: 'Products were added to cart',
+              link: '/cart.php',
+              linkText: 'VIEW CART',
+              isOutLink: true,
+            }),
+            isClose: true,
+          })
+        }
       }
     } finally {
       setLoading(false)
@@ -289,8 +299,8 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
       isOpen={isOpen}
       handleLeftClick={handleCancelClicked}
       handRightClick={handRightClick}
-      title="Add to cart"
-      rightSizeBtn="Add to cart"
+      title={allowJuniorPlaceOrder ? 'Proceed to checkout' : 'Add to cart'}
+      rightSizeBtn={allowJuniorPlaceOrder ? 'Proceed to checkout' : 'Add to cart'}
       maxWidth="xl"
     >
       <Grid>
@@ -303,7 +313,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
             variant="filled"
             severity="success"
           >
-            {`${successProducts} product(s) were added to cart`}
+            {allowJuniorPlaceOrder ? `${successProducts} product(s) can checkout` : `${successProducts} product(s) were added to cart`}
           </Alert>
         </Box>
 
@@ -316,7 +326,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
             variant="filled"
             severity="error"
           >
-            {`${products.length} product(s) were not added to cart, please change the quantity`}
+            {allowJuniorPlaceOrder ? `${successProducts} product(s) can\n't checkout, please change the quantity` : `${products.length} product(s) were not added to cart, please change the quantity`}
           </Alert>
         </Box>
         <B3Sping
