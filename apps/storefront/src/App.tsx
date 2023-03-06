@@ -200,12 +200,11 @@ export default function App() {
         const info = await getCurrentCustomerInfo(dispatch)
         if (info) {
           userInfo.role = info?.role
-          userInfo.isAgenting = info?.isAgenting || false
         }
       }
       // background login enter judgment and refresh
       if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
-        gotoAllowedAppPage(+userInfo.role, userInfo.isAgenting, gotoPage)
+        gotoAllowedAppPage(+userInfo.role, gotoPage)
       }
 
       sessionStorage.removeItem('isReLogin')
@@ -264,7 +263,7 @@ export default function App() {
             {isOpen ? (
               <B3RenderRouter
                 openUrl={openUrl}
-                // isOpen={isOpen}
+                isOpen={isOpen}
                 setOpenPage={setOpenPage}
               />
             ) : null}

@@ -22,13 +22,21 @@ const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems
       document.body.style.height = '100%'
       document.body.style.overflow = 'hidden'
       // The iframe button opens and assigns the url
+      dispatch({
+        type: 'common',
+        payload: {
+          openAPPParams: {
+            quoteBtn: params?.quoteBtn || '',
+          },
+        },
+      })
       // if (openUrl) {
-      //   // const {
-      //   //   origin,
-      //   //   pathname,
-      //   //   search,
-      //   // } = window.location
-      //   // window.location.href = `${origin}${pathname}${search}#${openUrl}`
+      //   const {
+      //     origin,
+      //     pathname,
+      //     search,
+      //   } = window.location
+      //   window.location.href = `${origin}${pathname}${search}#${openUrl}`
       // }
     } else {
       document.body.style.height = defaultHeight
@@ -45,17 +53,6 @@ const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems
       })
     }
   }, [isOpen])
-
-  useEffect(() => {
-    dispatch({
-      type: 'common',
-      payload: {
-        openAPPParams: {
-          quoteBtn: params?.quoteBtn || '',
-        },
-      },
-    })
-  }, [params])
 }
 
 export {

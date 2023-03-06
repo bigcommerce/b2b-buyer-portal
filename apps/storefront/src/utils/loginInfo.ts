@@ -5,6 +5,7 @@ import {
   getAgentInfo,
   getUserCompany,
   getCurrencies,
+  superAdminEndMasquerade,
 } from '@/shared/service/b2b'
 
 import {
@@ -130,7 +131,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('B3EmailAddress', '')
   B3SStorage.set('B3Role', '')
   B3SStorage.set('isB2BUser', false)
-  B3SStorage.set('bc_jwt_token', false)
+  B3SStorage.set('bc_jwt_token', '')
   B3SStorage.set('B3B2BToken', false)
   B3SStorage.set('B3UserId', '')
 
@@ -203,10 +204,8 @@ const getCompanyInfo = async (id: number, userType: number, role:number) => {
   return companyInfo
 }
 
-export const getCurrentAgentInfo = async (customerId: number, role: number) => {
-  let isAgenting = false
-  let salesRepCompanyId = ''
-  let salesRepCompanyName = ''
+export const agentInfo = async (customerId: number, role: number, b3UserId: number | string, dispatch: any) => {
+  const isRelogin = sessionStorage.getItem('isReLogin') === 'true'
 
   if (+role === 3) {
     try {
@@ -216,23 +215,44 @@ export const getCurrentAgentInfo = async (customerId: number, role: number) => {
           id,
           companyName,
         } = data.superAdminMasquerading
-        B3SStorage.set('isAgenting', true)
-        B3SStorage.set('salesRepCompanyId', id)
-        B3SStorage.set('salesRepCompanyName', companyName)
-        salesRepCompanyId = id
-        salesRepCompanyName = companyName
-        isAgenting = true
+
+        if (isRelogin) {
+          B3SStorage.set('isAgenting', true)
+          B3SStorage.set('salesRepCompanyId', id)
+          B3SStorage.set('salesRepCompanyName', companyName)
+          dispatch({
+            type: 'common',
+            payload: {
+              isAgenting: true,
+              salesRepCompanyId: id,
+              salesRepCompanyName: companyName,
+            },
+          })
+        } else if (id || companyName) {
+          // end
+          // await superAdminEndMasquerade(+id, +b3UserId)
+          // B3SStorage.delete('isAgenting')
+          // B3SStorage.delete('salesRepCompanyId')
+          // B3SStorage.delete('salesRepCompanyName')
+          // dispatch({
+          //   type: 'common',
+          //   payload: {
+          //     isAgenting: false,
+          //     salesRepCompanyId: '',
+          //     salesRepCompanyName: '',
+          //   },
+          // })
+        }
       }
     } catch (error) {
       console.log(error)
     }
   }
-
-  return {
-    isAgenting,
-    salesRepCompanyId,
-    salesRepCompanyName,
-  }
+//   return {
+//     isAgenting,
+//     salesRepCompanyId,
+//     salesRepCompanyName,
+//   }
 }
 
 export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
@@ -268,15 +288,11 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
 
     await getCurrentJwtAndB2BToken(userType)
 
-    let isAgenting = false
-
     if (customerId) {
-      const [companyInfo, agentInfo] = await Promise.all([
+      const [companyInfo] = await Promise.all([
         getCompanyInfo(id, userType, role),
-        getCurrentAgentInfo(customerId, role),
+        agentInfo(customerId, role, id, dispatch),
       ])
-
-      isAgenting = agentInfo?.isAgenting
 
       const customerInfo = {
         phoneNumber,
@@ -300,9 +316,9 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
           role: userType === 3 ? role : 99,
           customerId,
           B3UserId: id,
-          isAgenting: agentInfo.isAgenting,
-          salesRepCompanyId: agentInfo.salesRepCompanyId,
-          salesRepCompanyName: agentInfo.salesRepCompanyName,
+          // isAgenting: agentInfo.isAgenting,
+          // salesRepCompanyId: agentInfo.salesRepCompanyId,
+          // salesRepCompanyName: agentInfo.salesRepCompanyName,
           companyInfo,
           customer: {
             phoneNumber,
@@ -318,7 +334,6 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     return {
       role,
       userType,
-      isAgenting,
     }
   } catch (error) {
     console.log(error)

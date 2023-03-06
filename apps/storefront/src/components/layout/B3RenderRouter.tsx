@@ -45,14 +45,14 @@ import B3LayoutTip from './B3LayoutTip'
 interface B3RenderRouterProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
   openUrl?: string,
-  // isOpen?: boolean,
+  isOpen?: boolean,
 }
 
 export const B3RenderRouter = (props: B3RenderRouterProps) => {
   const {
     setOpenPage,
     openUrl,
-    // isOpen,
+    isOpen,
   } = props
 
   const {
@@ -61,7 +61,7 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
 
   const newRoutes = () => (getAllowedRoutes(globaledState))
 
-  // const location = useLocation()
+  const location = useLocation()
 
   const navigate = useNavigate()
 
@@ -78,13 +78,14 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
   // }, [location])
 
   useEffect(() => {
+    console.log(location.pathname, openUrl, 'openUrl')
     if (openUrl && openUrl === '/?closeMasqurade=1') {
       navigate('/', {
         state: {
           closeMasqurade: '1',
         },
       })
-    } else if (openUrl) {
+    } else if (openUrl && location.pathname !== openUrl) {
       navigate(openUrl)
     }
   }, [openUrl])

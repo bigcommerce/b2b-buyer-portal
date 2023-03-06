@@ -295,7 +295,7 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   })
 }
 
-const gotoAllowedAppPage = (role: number, isAgenting:boolean, gotoPage: (url: string) => void) => {
+const gotoAllowedAppPage = (role: number, gotoPage: (url: string) => void) => {
   const {
     hash,
   } = window.location

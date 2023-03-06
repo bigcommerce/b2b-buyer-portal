@@ -43,6 +43,7 @@ export const B3Mainheader = ({
     state: {
       companyInfo,
       salesRepCompanyName,
+      role,
     },
   } = useContext(GlobaledContext)
 
@@ -74,7 +75,7 @@ export const B3Mainheader = ({
             color: '#333333',
           }}
         >
-          {companyInfo?.companyName || salesRepCompanyName || 'Super admin'}
+          {+role === 3 && (companyInfo?.companyName || salesRepCompanyName || 'Super admin')}
 
           {/* <B3DropDown
             title="Renteach building"
