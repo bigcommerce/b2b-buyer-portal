@@ -283,11 +283,14 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
       const quantityNumber = parseInt(`${quantity}`, 10) || 0
       if (minQuantity !== 0 && quantityNumber < minQuantity) {
         product.node.quantity = minQuantity
+        product.isValid = true
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
         product.node.quantity = maxQuantity
+        product.isValid = true
       }
       if (isStock !== '0' && stock && quantity > stock) {
         product.node.quantity = stock
+        product.isValid = true
       }
     })
 
@@ -326,7 +329,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
             variant="filled"
             severity="error"
           >
-            {allowJuniorPlaceOrder ? `${successProducts} product(s) can\n't checkout, please change the quantity` : `${products.length} product(s) were not added to cart, please change the quantity`}
+            {allowJuniorPlaceOrder ? `${products.length} product(s) can\n't checkout, please change the quantity` : `${products.length} product(s) were not added to cart, please change the quantity`}
           </Alert>
         </Box>
         <B3Sping

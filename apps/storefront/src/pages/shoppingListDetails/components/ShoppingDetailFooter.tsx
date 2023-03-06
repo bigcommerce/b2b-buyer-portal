@@ -152,13 +152,24 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
     try {
       const skus: string[] = []
 
+      let cantPurchase: string = ''
+
       checkedArr.forEach((item: ProductsProps) => {
         const {
           node,
         } = item
 
+        if (node.productsSearch.availability === 'disabled') {
+          cantPurchase += `${node.variantSku},`
+        }
+
         skus.push(node.variantSku)
       })
+
+      if (cantPurchase) {
+        snackbar.error(`Sku(s): ${cantPurchase.slice(0, -1)} unavailable for purchasing, please uncheck.`)
+        return
+      }
 
       if (skus.length === 0) {
         snackbar.error(allowJuniorPlaceOrder ? 'Please select at least one item to checkout' : 'Please select at least one item to add to cart')

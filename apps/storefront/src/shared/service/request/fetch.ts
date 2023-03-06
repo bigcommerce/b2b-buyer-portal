@@ -9,9 +9,18 @@ import {
 
 const originFetch = window.fetch
 
+const responseResult = (path: string, res: any, resolve: any, init: any) => {
+  if (path.includes('current.jwt')) return res.text()
+  console.log(init)
+  if (init.method === 'DELETE') {
+    resolve()
+  }
+  return res.json()
+}
+
 function b3Fetch(path: string, init: any, type?: string, customMessage = false) {
   return new Promise((resolve, reject) => {
-    originFetch(path, init).then((res: Response) => (path.includes('current.jwt') ? res.text() : res.json())).then(async (res) => {
+    originFetch(path, init).then((res: Response) => responseResult(path, res, resolve, init)).then(async (res) => {
       if (res?.code === 500) {
         const data = res?.data || {}
         const message = data.errMsg || res.message || ''
