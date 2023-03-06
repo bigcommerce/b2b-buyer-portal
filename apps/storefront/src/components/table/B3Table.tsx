@@ -67,6 +67,7 @@ interface TableProps<T> {
   selectCheckbox?: Array<number | string>,
   labelRowsPerPage?: string,
   disableCheckbox?: boolean,
+  showRowsPerPageOptions?: boolean,
 }
 
 export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
@@ -101,6 +102,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
   selectCheckbox = [],
   labelRowsPerPage = '',
   disableCheckbox = false,
+  showRowsPerPageOptions = true,
 }) => {
   const {
     offset,
@@ -187,7 +189,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
             {
               showPagination && (
                 <TablePagination
-                  rowsPerPageOptions={rowsPerPageOptions}
+                  rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
                   labelRowsPerPage={labelRowsPerPage || 'per page:'}
                   component="div"
                   count={count}
@@ -228,7 +230,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
             {
               showPagination && (
                 <TablePagination
-                  rowsPerPageOptions={rowsPerPageOptions}
+                  rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
                   labelRowsPerPage={labelRowsPerPage || 'Cards per page:'}
                   component="div"
                   count={count}
@@ -336,7 +338,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
           {
             showPagination && (
               <TablePagination
-                rowsPerPageOptions={rowsPerPageOptions}
+                rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
                 labelRowsPerPage={labelRowsPerPage || 'Rows per page:'}
                 component="div"
                 count={count}

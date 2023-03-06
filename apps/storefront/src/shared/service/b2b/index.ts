@@ -100,6 +100,8 @@ import {
   getBcVariantInfoBySkus,
   searchB2BProducts,
   searchBcProducts,
+  B2BProductsBulkUploadCSV,
+  BcProductsBulkUploadCSV,
 } from './graphql/product'
 
 import {
@@ -222,4 +224,6 @@ export {
   deleteBcShoppingListItem,
   searchBcProducts,
   getBcVariantInfoBySkus,
+  B2BProductsBulkUploadCSV,
+  BcProductsBulkUploadCSV,
 }

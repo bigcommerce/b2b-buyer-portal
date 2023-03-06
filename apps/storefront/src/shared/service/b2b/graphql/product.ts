@@ -73,6 +73,24 @@ const searchProducts = (data: CustomFieldItems) => `{
   }
 }`
 
+const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation {
+  productUpload (
+    productListData: {
+      currencyCode: "${data.currencyCode || ''}"
+      productList: ${convertArrayToGraphql(data.productList || [])}
+      ${!data?.channelId ? '' : `id: ${data.channelId}`}
+    }
+  ) {
+    result {
+      errorFile,
+      errorProduct,
+      validProduct,
+      stockErrorFile,
+      stockErrorSkus,
+    }
+  }
+}`
+
 export const getB2BVariantInfoBySkus = (data: CustomFieldItems = {}, customMessage = false): CustomFieldItems => B3Request.graphqlB2B({
   query: getVariantInfoBySkus(data),
 }, customMessage)
@@ -91,4 +109,12 @@ export const searchBcProducts = (data: CustomFieldItems = {}): CustomFieldItems 
 
 export const getBcVariantInfoBySkus = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
   query: getVariantInfoBySkus(data),
+})
+
+export const B2BProductsBulkUploadCSV = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+  query: productsBulkUploadCSV(data),
+})
+
+export const BcProductsBulkUploadCSV = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+  query: productsBulkUploadCSV(data),
 })
