@@ -11,7 +11,7 @@ const originFetch = window.fetch
 
 const responseResult = (path: string, res: any, resolve: any, init: any) => {
   if (path.includes('current.jwt')) return res.text()
-  console.log(init)
+
   if (init.method === 'DELETE') {
     resolve()
   }

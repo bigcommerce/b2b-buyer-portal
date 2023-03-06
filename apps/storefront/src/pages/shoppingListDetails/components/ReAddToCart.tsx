@@ -283,15 +283,14 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
       const quantityNumber = parseInt(`${quantity}`, 10) || 0
       if (minQuantity !== 0 && quantityNumber < minQuantity) {
         product.node.quantity = minQuantity
-        product.isValid = true
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
         product.node.quantity = maxQuantity
-        product.isValid = true
       }
       if (isStock !== '0' && stock && quantity > stock) {
         product.node.quantity = stock
-        product.isValid = true
       }
+
+      product.isValid = true
     })
 
     setValidateFailureProducts(newProduct)
