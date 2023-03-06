@@ -9,6 +9,7 @@ export interface QuoteListitemProps {
     basePrice: number,
     productsSearch: CustomFieldItems
     quantity: number,
+    tax: number,
   }
 }
 

@@ -53,6 +53,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
       salesRepCompanyName,
       salesRepCompanyId,
       B3UserId,
+      customerId,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -62,7 +63,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
     href,
   } = window.location
 
-  if (href.includes('/checkout')) return <></>
+  if (href.includes('/checkout') || !customerId) return <></>
 
   const isAddBottom = bottomHeightPage.some((item: string) => hash.includes(item))
 

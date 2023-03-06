@@ -3,6 +3,7 @@ import {
   SetStateAction,
   Dispatch,
   useState,
+  useEffect,
 } from 'react'
 
 import {
@@ -24,6 +25,7 @@ import {
 } from '@/shared/service/b2b'
 
 import {
+  B3LStorage,
   addQuoteDraftProduce,
   isAllRequiredOptionFilled,
 } from '@/utils'
@@ -44,7 +46,7 @@ import {
 interface MutationObserverProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
   productQuoteEnabled: boolean,
-  cartQuoteEnabled: boolean,
+  B3UserId: number | string,
 }
 
 const removeElement = (_element: CustomFieldItems) => {
@@ -63,7 +65,7 @@ interface OpenTipStateProps {
 const useMyQuote = ({
   setOpenPage,
   productQuoteEnabled,
-  // cartQuoteEnabled,
+  B3UserId,
 }: MutationObserverProps) => {
   const [openQuickViewNum, setOpenQuickViewNum] = useState<number>(0)
 
@@ -72,6 +74,14 @@ const useMyQuote = ({
     message: '',
     variant: '',
   })
+
+  useEffect(() => {
+    const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
+    if (+B3UserId !== +quoteDraftUserId) {
+      B3LStorage.set('MyQuoteInfo', {})
+      B3LStorage.set('b2bQuoteDraftList', [])
+    }
+  }, [B3UserId])
 
   const addLoadding = (b3MyQuote: any) => {
     const loadingDiv = document.createElement('div')

@@ -156,12 +156,13 @@ const QuoteDraft = ({
       customer,
       emailAddress,
       currentChannelId: channelId,
+      openAPPParams,
     },
   } = useContext(GlobaledContext)
 
   const navigate = useNavigate()
 
-  const nextPath = B3SStorage.get('nextPath')
+  // const nextPath = B3SStorage.get('nextPath')
 
   const [isMobile] = useMobile()
 
@@ -208,21 +209,11 @@ const QuoteDraft = ({
       try {
         const MyQuoteInfo = B3LStorage.get('MyQuoteInfo') || {}
 
-        const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
-
-        let quoteInfo = {
+        const quoteInfo = {
           contactInfo: {},
           shippingAddress: {},
           billingAddress: {},
-        }
-
-        if (+B3UserId === +quoteDraftUserId) {
-          quoteInfo = {
-            ...info, ...MyQuoteInfo,
-          }
-        } else {
-          B3LStorage.set('MyQuoteInfo', {})
-          B3LStorage.set('b2bQuoteDraftList', [])
+          ...MyQuoteInfo,
         }
 
         if (isB2BUser) {
@@ -337,8 +328,7 @@ const QuoteDraft = ({
   } = getDefaultCurrencyInfo()
 
   const getQuoteTableDetails = async (params: CustomFieldItems) => {
-    const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
-    const quoteDraftAllList = +B3UserId === +quoteDraftUserId ? B3LStorage.get('b2bQuoteDraftList') : []
+    const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
 
     const startIndex = +params.offset
     const endIndex = +params.first + startIndex
@@ -458,6 +448,7 @@ const QuoteDraft = ({
       const billingAddress = info?.billingAddress ? perfectAddress(info.billingAddress) : {}
 
       let allPrice = 0
+      let allTaxPrice = 0
 
       const productList = b2bQuoteDraftList.map((item: QuoteListitemProps) => {
         const {
@@ -481,6 +472,8 @@ const QuoteDraft = ({
         const varantsItem = varants.find((item: CustomFieldItems) => item.sku === node.variantSku)
 
         allPrice += node.basePrice * node.quantity
+
+        allTaxPrice += node.tax * node.quantity
 
         const items = {
           productId: node.productsSearch.id,
@@ -519,6 +512,7 @@ const QuoteDraft = ({
         contactInfo,
         productList,
         fileList,
+        taxTotal: allTaxPrice.toFixed(2),
         currency: {
           currencyExchangeRate: currency.currency_exchange_rate,
           token: currency.token,
@@ -554,6 +548,17 @@ const QuoteDraft = ({
     }
   }
 
+  const backText = () => {
+    let text = 'Back to quote lists'
+    if (openAPPParams?.quoteBtn === 'open') {
+      text = 'Back'
+    } else if (openAPPParams?.quoteBtn === 'add') {
+      text = 'Back to product'
+    }
+
+    return text
+  }
+
   return (
     <B3Sping
       isSpinning={loading}
@@ -579,7 +584,7 @@ const QuoteDraft = ({
               alignItems: 'center',
             }}
             onClick={() => {
-              if (nextPath === '/') {
+              if (openAPPParams?.quoteBtn) {
                 setOpenPage({
                   isOpen: false,
                 })
@@ -597,7 +602,7 @@ const QuoteDraft = ({
             />
             <p>
               {
-                nextPath === '/' ? 'Back to product' : 'Back to quote lists'
+                backText()
               }
             </p>
           </Box>

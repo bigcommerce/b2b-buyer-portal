@@ -34,6 +34,9 @@ export const useQuoteGlobalTip = ({
       setOpenPage({
         isOpen: true,
         openUrl: '/quoteDraft',
+        params: {
+          quoteBtn: 'add',
+        },
       })
       initTip()
     }

@@ -122,6 +122,7 @@ const quoteCreate = (data: CustomFieldItems) => `mutation{
     totalAmount: "${data.totalAmount}",
     grandTotal: "${data.grandTotal}",
     subtotal: "${data.subtotal || ''}",
+    taxTotal: "${data.taxTotal || ''}"
     ${data?.companyId ? `companyId: ${data.companyId}` : ''}
     storeHash: "${data.storeHash}",
     discount: "${data.discount}",

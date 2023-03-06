@@ -70,6 +70,10 @@ export interface currencyProps {
   token_location: string,
 }
 
+export interface OpenAPPParamsProps {
+  quoteBtn: string,
+}
+
 export interface GlobalState {
   isCheckout: boolean,
   isCloseGotoBCHome: boolean,
@@ -91,7 +95,7 @@ export interface GlobalState {
   isAgenting: boolean,
   salesRepCompanyId: string,
   salesRepCompanyName: string,
-  B3UserId: boolean,
+  B3UserId: number | string,
   tipMessage: TipMessagesProps,
   addressConfig?: {
     key: string,
@@ -133,6 +137,7 @@ export interface GlobalState {
     channelCurrencies: channelCurrenciesProps,
     currencies: currencyProps,
   },
+  openAPPParams: OpenAPPParamsProps,
 }
 
 export const initState = {
@@ -185,6 +190,9 @@ export const initState = {
     cancelText: 'Cancel',
   },
   currencies: B3SStorage.get('currencies') || {},
+  openAPPParams: {
+    quoteBtn: '',
+  },
 }
 
 export interface GlobalAction {

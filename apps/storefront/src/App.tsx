@@ -63,6 +63,7 @@ export default function App() {
   const [{
     isOpen,
     openUrl,
+    params,
   }, setOpenPage] = useB3AppOpen({
     isOpen: false,
   })
@@ -80,6 +81,7 @@ export default function App() {
       productQuoteEnabled,
       cartQuoteEnabled,
       shoppingListEnabled,
+      B3UserId,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -95,7 +97,7 @@ export default function App() {
   useMyQuote({
     setOpenPage,
     productQuoteEnabled,
-    cartQuoteEnabled,
+    B3UserId,
   })
   useCartToQuote({
     setOpenPage,
@@ -103,7 +105,7 @@ export default function App() {
   })
 
   // Button to open storefront
-  useSetOpen(isOpen, openUrl)
+  useSetOpen(isOpen, openUrl, params)
 
   const getQuoteConfig = useCallback(async () => {
     const {
@@ -262,7 +264,7 @@ export default function App() {
             {isOpen ? (
               <B3RenderRouter
                 openUrl={openUrl}
-                isOpen={isOpen}
+                // isOpen={isOpen}
                 setOpenPage={setOpenPage}
               />
             ) : null}

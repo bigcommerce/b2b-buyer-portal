@@ -90,6 +90,9 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
               setOpenPage({
                 isOpen: true,
                 openUrl: '/quoteDraft',
+                params: {
+                  quoteBtn: 'open',
+                },
               })
             }}
             variant="contained"

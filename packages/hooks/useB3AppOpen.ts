@@ -12,6 +12,7 @@ import {
 export interface OpenPageState {
   isOpen: boolean,
   openUrl?: string,
+  params?: {} | CustomFieldItems
 }
 
 export const useB3AppOpen = (initOpenState: OpenPageState) => {
@@ -24,6 +25,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
   const [openPage, setOpenPage] = useState<OpenPageState>({
     isOpen: initOpenState.isOpen,
     openUrl: '',
+    params: {},
   })
 
   const getCurrentLoginUrl = (href: string): string => {
@@ -56,7 +58,6 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
 
           const href = (e.target as any)?.href || ''
           const gotoUrl = registerArr.includes(e.target) ? getCurrentLoginUrl(href) : '/orders'
-
           setOpenPage({
             isOpen: true,
             openUrl: gotoUrl,

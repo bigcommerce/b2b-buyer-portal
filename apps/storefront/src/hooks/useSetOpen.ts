@@ -12,7 +12,7 @@ const {
   overflow: defaultOverflow,
 } = document.body.style
 
-const useSetOpen = (isOpen: boolean, openUrl?: string) => {
+const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems) => {
   const {
     dispatch,
   } = useContext(GlobaledContext)
@@ -22,14 +22,14 @@ const useSetOpen = (isOpen: boolean, openUrl?: string) => {
       document.body.style.height = '100%'
       document.body.style.overflow = 'hidden'
       // The iframe button opens and assigns the url
-      if (openUrl) {
-        const {
-          origin,
-          pathname,
-          search,
-        } = window.location
-        window.location.href = `${origin}${pathname}${search}#${openUrl}`
-      }
+      // if (openUrl) {
+      //   // const {
+      //   //   origin,
+      //   //   pathname,
+      //   //   search,
+      //   // } = window.location
+      //   // window.location.href = `${origin}${pathname}${search}#${openUrl}`
+      // }
     } else {
       document.body.style.height = defaultHeight
       document.body.style.overflow = defaultOverflow
@@ -45,6 +45,17 @@ const useSetOpen = (isOpen: boolean, openUrl?: string) => {
       })
     }
   }, [isOpen])
+
+  useEffect(() => {
+    dispatch({
+      type: 'common',
+      payload: {
+        openAPPParams: {
+          quoteBtn: params?.quoteBtn || '',
+        },
+      },
+    })
+  }, [params])
 }
 
 export {
