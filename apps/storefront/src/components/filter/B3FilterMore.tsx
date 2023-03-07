@@ -1,6 +1,7 @@
 import FilterListIcon from '@mui/icons-material/FilterList'
 import {
   Box,
+  Grid,
 } from '@mui/material'
 
 import Button from '@mui/material/Button'
@@ -15,6 +16,7 @@ import {
   useRef,
   BaseSyntheticEvent,
   ReactElement,
+  useEffect,
 } from 'react'
 
 import {
@@ -73,6 +75,8 @@ const B3FilterMore:<T, Y> ({
   isShowMore = false,
 }) => {
   const [open, setOpen] = useState<boolean>(false)
+  const [isFiltering, setIsFiltering] = useState<boolean>(false)
+  const [filterCounter, setFilterCounter] = useState<number>(0)
 
   const pickerRef = useRef<PickerRefProps | null>(null)
 
@@ -98,6 +102,31 @@ const B3FilterMore:<T, Y> ({
     setOpen(false)
   }
 
+  const handleFilterStatus = (submitData?: any) => {
+    const startTime = startPicker?.defaultValue
+    const endTime = endPicker?.defaultValue
+
+    if (submitData) {
+      const filterCountArr = []
+      const isNotFiltering = Object.keys(submitData).every((item) => submitData[item] === '')
+      Object.keys(submitData).forEach((item) => {
+        if (submitData[item] !== '') {
+          filterCountArr.push(item)
+        }
+      })
+
+      setIsFiltering(!isNotFiltering)
+      setFilterCounter(startTime && endTime ? filterCountArr.length - 1 : filterCountArr.length)
+    } else {
+      setIsFiltering(false)
+      setFilterCounter(0)
+    }
+  }
+
+  // useEffect(() => {
+  //   handleFilterStatus()
+  // }, [startPicker, endPicker])
+
   const handleSaveFilters = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
     handleSubmit((data) => {
       const getPickerValues = pickerRef.current?.getPickerValue()
@@ -105,6 +134,8 @@ const B3FilterMore:<T, Y> ({
         const submitData: any = {
           ...getPickerValues, ...data,
         }
+
+        handleFilterStatus(submitData)
         onChange(submitData)
       }
       handleClose()
@@ -116,6 +147,8 @@ const B3FilterMore:<T, Y> ({
       setValue(item, '')
     })
     pickerRef.current?.setClearPickerValue()
+
+    handleFilterStatus()
 
     if (handleChange) {
       handleChange()
@@ -133,7 +166,34 @@ const B3FilterMore:<T, Y> ({
       {
         ((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
         <Box onClick={handleDialogClick}>
-          <FilterListIcon />
+          {
+            !isFiltering && <FilterListIcon />
+          }
+          {
+            isFiltering && (
+              <>
+                <FilterListIcon />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexFlow: 'row wrap',
+                    backgroundColor: '#ff8a65',
+                    borderRadius: '50px',
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    alignItems: 'center',
+                    position: 'absolute',
+                    top: '7px',
+                    padding: '0 7px',
+                    transform: 'scale(1) translate(50%, -50%)',
+                    transformOrigin: '100% 0%',
+                  }}
+                >
+                  {filterCounter}
+                </Box>
+              </>
+            )
+          }
         </Box>
         )
       }

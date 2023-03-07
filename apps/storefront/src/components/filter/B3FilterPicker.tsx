@@ -47,8 +47,6 @@ const B3FilterPickers = ({
   const setClearPickerValue = () => {
     setStartValue(isMonthlySpacing ? distanceDay(30) : '')
     setEndValue(isMonthlySpacing ? distanceDay() : '')
-    console.log(startPicker?.defaultValue, 'startPicker?.defaultValue')
-    console.log(endPicker?.defaultValue, 'endPicker?.defaultValue')
   }
 
   useEffect(() => {

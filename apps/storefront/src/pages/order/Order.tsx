@@ -267,18 +267,7 @@ const Order = ({
         orderBy: value,
       })
     } else if (key === 'clear') {
-      // const search: Partial<FilterSearchProps> = {
-      //   beginDateAt: null,
-      //   endDateAt: null,
-      //   createdBy: '',
-      //   statusCode: '',
-      //   companyName: '',
-      // }
-      // setFilterData({
-      //   ...filterData,
-      // })
       setIsClearFilter(true)
-      console.log(isClearFilter)
     }
   }
 
@@ -315,13 +304,13 @@ const Order = ({
             startPicker={{
               isEnabled: true,
               label: 'From',
-              defaultValue: isClearFilter ? null : (filterData?.beginDateAt || null),
+              defaultValue: filterData?.beginDateAt || null,
               pickerKey: 'start',
             }}
             endPicker={{
               isEnabled: true,
               label: 'To',
-              defaultValue: isClearFilter ? null : (filterData?.beginDateAt || null),
+              defaultValue: filterData?.beginDateAt || null,
               pickerKey: 'end',
             }}
             fiterMoreInfo={filterInfo}
