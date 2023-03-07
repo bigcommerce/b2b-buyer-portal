@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Link,
+  Alert,
 } from '@mui/material'
 
 import Grid from '@mui/material/Unstable_Grid2'
@@ -12,6 +13,7 @@ import {
   Dispatch,
   SetStateAction,
   useContext,
+  useEffect,
 } from 'react'
 
 import {
@@ -23,7 +25,6 @@ import styled from '@emotion/styled'
 import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
 
 import {
-  snackbar,
   getDefaultCurrencyInfo,
 } from '@/utils'
 
@@ -111,6 +112,7 @@ export const B3Upload = (props: B3UploadProps) => {
   const [step, setStep] = useState<string>('init')
   const [fileDatas, setFileDatas] = useState<CustomFieldItems>({})
   const [fileName, setFileName] = useState('')
+  const [fileErrorText, setFileErrorText] = useState('')
 
   const {
     currency_code: currencyCode,
@@ -182,7 +184,6 @@ export const B3Upload = (props: B3UploadProps) => {
             const signleRow = EmptyData[i].split(',')
             if (signleRow.length > columns) {
               error = 'redundant data;'
-              return
             }
           }
         }
@@ -207,12 +208,15 @@ export const B3Upload = (props: B3UploadProps) => {
       try {
         const parseData = await parseFile(file)
         if (parseData.length) {
+          setFileErrorText('')
           setStep('loadding')
           setFileName(file.name)
           await handleBulkUploadCSV(parseData)
         }
       } catch (error) {
-        console.log((error as Error).message)
+        if ((error as Error)?.message) {
+          setFileErrorText((error as Error)?.message)
+        }
       }
     }
   }
@@ -221,104 +225,24 @@ export const B3Upload = (props: B3UploadProps) => {
     if (uploadRef.current) (uploadRef.current.children[1] as HTMLElement).click()
   }
 
-  const getValidProducts = (products: CustomFieldItems) => {
-    const notPurchaseSku: string[] = []
-    const productItems: CustomFieldItems[] = []
-    const limitProduct: CustomFieldItems[] = []
-    const minLimitQuantity: CustomFieldItems[] = []
-    const maxLimitQuantity: CustomFieldItems[] = []
-    const outOfStock: CustomFieldItems[] = []
-
-    products.forEach((item: CustomFieldItems) => {
-      const {
-        products: currentProduct,
-        qty,
-      } = item
-      const {
-        option,
-        isStock,
-        stock,
-        purchasingDisabled,
-        maxQuantity,
-        minQuantity,
-        variantSku,
-        variantId,
-        productId,
-      } = currentProduct
-
-      if (purchasingDisabled === '1') {
-        notPurchaseSku.push(variantSku)
-        return
-      }
-
-      if (isStock === '1' && stock === 0) {
-        outOfStock.push(variantSku)
-        return
-      }
-
-      if ((isStock === '1' && stock > 0) && stock < +qty) {
-        limitProduct.push({
-          variantSku,
-          AvailableAmount: stock,
-        })
-        return
-      }
-
-      if (+minQuantity > 0 && +qty < +minQuantity) {
-        minLimitQuantity.push({
-          variantSku,
-          minQuantity,
-        })
-
-        return
-      }
-
-      if (+maxQuantity > 0 && +qty > +maxQuantity) {
-        maxLimitQuantity.push({
-          variantSku,
-          maxQuantity,
-        })
-
-        return
-      }
-
-      const optionsList = option.map((item: CustomFieldItems) => ({
-        optionId: item.option_id,
-        optionValue: item.id,
-      }))
-
-      productItems.push({
-        productId: parseInt(productId, 10) || 0,
-        variantId: parseInt(variantId, 10) || 0,
-        quantity: +qty,
-        optionList: optionsList,
-      })
-    })
-
-    return {
-      notPurchaseSku,
-      productItems,
-      limitProduct,
-      minLimitQuantity,
-      maxLimitQuantity,
-      outOfStock,
-    }
-  }
-
-  const handleConfirmToList = () => {
+  const handleConfirmToList = async () => {
     const validProduct = fileDatas?.validProduct || []
     const stockErrorFile = fileDatas?.stockErrorFile || ''
     const stockErrorSkus = fileDatas?.stockErrorSkus || []
     if (validProduct?.length === 0) return
 
     if (validProduct) {
-      const productsData: CustomFieldItems = getValidProducts(validProduct)
+      const productsData: CustomFieldItems = {
+        validProduct,
+      }
 
       if (stockErrorSkus.length > 0) {
         productsData.stockErrorFile = stockErrorFile
       }
 
-      handleAddToList(productsData)
+      await handleAddToList(productsData)
+
+      setStep('init')
     }
   }
 
@@ -388,7 +312,10 @@ export const B3Upload = (props: B3UploadProps) => {
               marginLeft: '0.5rem',
             }}
           >
-            <Link href="https://silk-demo-store45.mybigcommerce.com/content/sample_template.csv">
+            <Link
+              href="https://silk-demo-store45.mybigcommerce.com/content/sample_template.csv"
+              underline="none"
+            >
               Download sample
             </Link>
           </Box>
@@ -411,20 +338,45 @@ export const B3Upload = (props: B3UploadProps) => {
     </Box>
   )
 
+  useEffect(() => {
+    setFileErrorText('')
+    setStep('init')
+  }, [isOpen])
+
   return (
     <B3Dialog
       isOpen={isOpen}
       title={bulkUploadTitle}
       maxWidth="lg"
-      leftSizeBtn={step === 'end' ? addBtnText : 'cancel'}
-      handleLeftClick={step === 'end' ? () => {
-        handleConfirmToList()
-      } : () => {
+      rightSizeBtn={addBtnText}
+      leftSizeBtn="cancel"
+      handleLeftClick={() => {
+        setStep('init')
         setIsOpen(false)
       }}
-      showRightBtn={false}
+      handRightClick={() => {
+        handleConfirmToList()
+      }}
+      showRightBtn={step === 'end'}
       isShowBordered={false}
     >
+      {
+        fileErrorText.length > 0 && (
+          <Box
+            sx={{
+              m: '0 0 1rem 0',
+              p: '0 1rem',
+            }}
+          >
+            <Alert
+              variant="filled"
+              severity="error"
+            >
+              {fileErrorText}
+            </Alert>
+          </Box>
+        )
+      }
       <Box
         sx={{
           maxHeight: isMobile ? '200px' : 'calc(100% - 64px)',
@@ -432,7 +384,6 @@ export const B3Upload = (props: B3UploadProps) => {
           margin: isMobile ? '' : '1rem',
         }}
       >
-
         {
           step === 'init' && (
           <FileUploadContainer ref={uploadRef}>

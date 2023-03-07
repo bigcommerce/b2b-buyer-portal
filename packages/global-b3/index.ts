@@ -8,7 +8,7 @@ const globalB3 = {
   'dom.allOtherElement': '[href^="/account.php"]',
   'dom.checkoutRegisterParentElement': '.checkout-step--customer .checkout-view-content',
   'dom.navUserLoginElement': '.navUser-item.navUser-item--account',
-  'dom.setToShoppingList': '#form-action-addToCart',
+  'dom.setToQuote': '#form-action-addToCart',
   'dom.setToShoppingListParentEl': '#add-to-cart-wrapper',
   'dom.cartActions.container': '.cart-actions',
   before_login_goto_page: '/',

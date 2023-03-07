@@ -37,7 +37,7 @@ const useOpenPDP = ({
     if (document.querySelectorAll(globalB3['dom.setToShoppingListParentEl']).length) {
       setOpenQuickViewNum(openQuickViewNum + 1)
     }
-  }, [openQuickViewNum])
+  }, [])
 
   useMutationObservable(document.documentElement, cd)
 

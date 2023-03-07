@@ -212,7 +212,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
         return
       }
 
-      if (quantity > 0 && (quantity > maxQuantity || quantity < minQuantity)) {
+      if (maxQuantity !== 0 && minQuantity !== 0 && quantity > 0 && (quantity > maxQuantity || quantity < minQuantity)) {
         orderLimitSku.push({
           sku,
           min: quantity < minQuantity ? minQuantity : 0,

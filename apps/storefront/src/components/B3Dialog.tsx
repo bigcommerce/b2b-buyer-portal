@@ -99,7 +99,8 @@ export const B3Dialog:<T> ({
     }
   }
 
-  const handleCloseClick = () => {
+  const handleCloseClick = (reason?: string) => {
+    if (reason === 'backdropClick') return
     if (handleLeftClick) handleLeftClick()
   }
 
@@ -115,7 +116,7 @@ export const B3Dialog:<T> ({
         fullWidth={fullWidth}
         open={isOpen}
         container={container.current}
-        onClose={handleCloseClick}
+        onClose={(event: object, reason: string) => handleCloseClick(reason)}
         fullScreen={isMobile}
         maxWidth={maxWidth}
         aria-labelledby="alert-dialog-title"
@@ -143,9 +144,9 @@ export const B3Dialog:<T> ({
           sx={
             isShowBordered ? {
               borderTop: '1px solid #D9DCE9',
-              marginBottom: isAgenting ? '52px' : '0',
+              marginBottom: (isAgenting && isMobile) ? '52px' : '0',
             } : {
-              marginBottom: isAgenting ? '52px' : '0',
+              marginBottom: (isAgenting && isMobile) ? '52px' : '0',
             }
           }
         >
@@ -156,7 +157,7 @@ export const B3Dialog:<T> ({
                   sx={{
                     ...leftStyleBtn,
                   }}
-                  onClick={handleCloseClick}
+                  onClick={() => handleCloseClick('')}
                 >
                   {leftSizeBtn || 'cancel'}
 

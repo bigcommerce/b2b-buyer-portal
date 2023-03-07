@@ -89,7 +89,11 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
 
   const navigate = useNavigate()
 
-  const goToDetail = (shoppingList: ShoppingListsItemsProps) => navigate(`/shoppingList/${shoppingList.id}`)
+  const goToDetail = (shoppingList: ShoppingListsItemsProps) => navigate(`/shoppingList/${shoppingList.id}`, {
+    state: {
+      from: 'shoppingList',
+    },
+  })
 
   return (
     <Card

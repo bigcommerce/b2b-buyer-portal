@@ -53,13 +53,10 @@ const StyledTableContainer = styled(Box)(() => {
   }
 
   const mobileStyle = {
-    boxShadow: '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
-    borderRadius: '4px',
-    padding: '16px',
-    marginTop: '1rem',
+    marginTop: '0.5rem',
   }
   return ({
-    '& .CSVProducts-info': isMobile ? mobileStyle : style,
+    '& div': isMobile ? mobileStyle : style,
   })
 })
 
@@ -76,25 +73,53 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
       key: 'sku',
       title: 'SKU',
       width: '25%',
-      render: (row) => <Typography>{row.sku}</Typography>,
+      render: (row) => (
+        <Typography sx={{
+          fontSize: '14px',
+        }}
+        >
+          {row.sku}
+        </Typography>
+      ),
     },
     {
       key: 'qty',
       title: 'Qty',
       width: '20%',
-      render: (row) => <Typography>{row.qty}</Typography>,
+      render: (row) => (
+        <Typography sx={{
+          fontSize: '14px',
+        }}
+        >
+          {row.qty}
+        </Typography>
+      ),
     },
     {
       key: 'row',
       title: 'Row',
       width: '20%',
-      render: (row) => <Typography>{row.row}</Typography>,
+      render: (row) => (
+        <Typography sx={{
+          fontSize: '14px',
+        }}
+        >
+          {row.row + 1}
+        </Typography>
+      ),
     },
     {
       key: 'error',
       title: 'Error',
       width: '35%',
-      render: (row) => <Typography>{row.error}</Typography>,
+      render: (row) => (
+        <Typography sx={{
+          fontSize: '14px',
+        }}
+        >
+          {row.error}
+        </Typography>
+      ),
     },
   ]
 
@@ -103,13 +128,27 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
       key: 'sku',
       title: 'SKU',
       width: '50%',
-      render: (row) => <Typography>{row.sku}</Typography>,
+      render: (row) => (
+        <Typography sx={{
+          fontSize: '14px',
+        }}
+        >
+          {row.sku}
+        </Typography>
+      ),
     },
     {
       key: 'qty',
       title: 'Qty',
       width: '50%',
-      render: (row) => <Typography>{row.qty}</Typography>,
+      render: (row) => (
+        <Typography sx={{
+          fontSize: '14px',
+        }}
+        >
+          {row.qty}
+        </Typography>
+      ),
     },
   ]
 
@@ -194,6 +233,7 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
           <Typography
             sx={{
               marginLeft: '1rem',
+              fontSize: '14px',
             }}
           >
             {fileName}
@@ -222,6 +262,7 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
             }}
             sx={{
               color: '#D32F2F',
+              fontSize: '14px',
             }}
           >
             Remove
@@ -234,6 +275,7 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
           marginTop: '20px',
           boxShadow: isMobile ? 'none' : '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
           borderRadius: '4px',
+          position: 'relative',
         }}
       >
         <Box>
@@ -274,7 +316,6 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
             searchParams={{
               activeTab,
             }}
-            showPagination={activeTab === 'valid'}
             renderItem={(row: CustomFieldItems) => (
               <BulkUploadTableCard
                 products={row}
@@ -289,9 +330,16 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
             <Box
               sx={{
                 padding: isMobile ? '18px 0' : '18px 16px',
+                position: 'absolute',
+                bottom: '-5px',
               }}
             >
-              <Link href={fileDatas?.errorFile}>Download errors</Link>
+              <Link
+                href={fileDatas?.errorFile}
+                underline="none"
+              >
+                Download errors
+              </Link>
             </Box>
           )
         }

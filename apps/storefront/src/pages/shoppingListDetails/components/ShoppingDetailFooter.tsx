@@ -282,60 +282,68 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
           >
             {`${checkedArr.length} products  selected`}
           </Typography>
-          <Typography
-            variant="h6"
-            sx={{
-              fontSize: '16px',
-              fontWeight: '700',
-              color: '#000000',
-            }}
-          >
-            {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
-          </Typography>
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
-              marginTop: isMobile ? '0.5rem' : 0,
-              width: isMobile ? '100%' : 'auto',
+              flexWrap: isMobile ? 'wrap' : 'nowrap',
             }}
           >
-            {
-              (!allowJuniorPlaceOrder) && (
-                <Button
-                  sx={{
-                    padding: '5px',
-                    border: '1px solid #1976d2',
-                    margin: isMobile ? '0 1rem 0 0' : '0 1rem',
-                    minWidth: 'auto',
-                  }}
-                  disabled={shoppingListInfo?.status === 40}
-                >
-                  <Delete
-                    color="primary"
-                    onClick={() => {
-                      setDeleteOpen(true)
+            <Typography
+              variant="h6"
+              sx={{
+                fontSize: '16px',
+                fontWeight: '700',
+                color: '#000000',
+              }}
+            >
+              {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                marginTop: isMobile ? '0.5rem' : 0,
+                width: isMobile ? '100%' : 'auto',
+              }}
+            >
+              {
+                (!allowJuniorPlaceOrder) && (
+                  <Button
+                    sx={{
+                      padding: '5px',
+                      border: '1px solid #1976d2',
+                      margin: isMobile ? '0 1rem 0 0' : '0 1rem',
+                      minWidth: 'auto',
                     }}
-                  />
-                </Button>
-              )
-            }
-            {
-              (allowJuniorPlaceOrder || (role !== 2 && shoppingListInfo?.status === 0) || !isB2BUser) && (
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    handleAddProductsToCart()
-                  }}
-                  sx={{
-                    marginLeft: '0.5rem',
-                    width: isMobile ? '80%' : 'auto',
-                  }}
-                >
-                  {allowJuniorPlaceOrder ? 'Proceed to checkout' : 'Add selected to cart'}
-                </Button>
-              )
-            }
+                    disabled={shoppingListInfo?.status === 40}
+                  >
+                    <Delete
+                      color="primary"
+                      onClick={() => {
+                        setDeleteOpen(true)
+                      }}
+                    />
+                  </Button>
+                )
+              }
+              {
+                (allowJuniorPlaceOrder || (role !== 2 && shoppingListInfo?.status === 0) || !isB2BUser) && (
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      handleAddProductsToCart()
+                    }}
+                    sx={{
+                      marginLeft: '0.5rem',
+                      width: isMobile ? '80%' : 'auto',
+                    }}
+                  >
+                    {allowJuniorPlaceOrder ? 'Proceed to checkout' : 'Add selected to cart'}
+                  </Button>
+                )
+              }
+            </Box>
           </Box>
         </Box>
       </Grid>

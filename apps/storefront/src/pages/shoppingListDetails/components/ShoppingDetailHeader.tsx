@@ -1,10 +1,19 @@
 import {
+  Dispatch,
+  SetStateAction,
+} from 'react'
+
+import {
   Box,
   Grid,
   styled,
   Typography,
   Button,
 } from '@mui/material'
+
+import {
+  useLocation,
+} from 'react-router-dom'
 
 import {
   ArrowBackIosNew,
@@ -24,6 +33,10 @@ const StyledCreateName = styled('div')(() => ({
   marginTop: '0.5rem',
 }))
 
+interface OpenPageState {
+  isOpen: boolean,
+  openUrl?: string,
+}
 interface ShoppingDetailHeaderProps {
   shoppingListInfo: any,
   role: string | number,
@@ -31,6 +44,7 @@ interface ShoppingDetailHeaderProps {
   goToShoppingLists: () => void,
   handleUpdateShoppingList: (status: number) => void,
   isB2BUser: boolean,
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
 }
 
 const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
@@ -43,7 +57,10 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
     handleUpdateShoppingList,
     goToShoppingLists,
     isB2BUser,
+    setOpenPage,
   } = props
+
+  const location = useLocation()
 
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0
 
@@ -67,7 +84,15 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             display: 'flex',
             alignItems: 'center',
           }}
-          onClick={goToShoppingLists}
+          onClick={() => {
+            if (location.state) {
+              goToShoppingLists()
+            } else {
+              setOpenPage({
+                isOpen: false,
+              })
+            }
+          }}
         >
           <ArrowBackIosNew
             fontSize="small"
@@ -80,7 +105,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             margin: 0,
           }}
           >
-            Back to shopping lists
+            {location.state ? 'Back to shopping lists' : 'Back to product'}
           </p>
         </Box>
       </Box>

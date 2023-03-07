@@ -587,66 +587,75 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
             >
               {`${checkedArr.length} products selected`}
             </Typography>
-            <Typography
-              variant="h6"
-              sx={{
-                fontSize: '16px',
-                fontWeight: '700',
-                color: '#000000',
-              }}
-            >
-              {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
-            </Typography>
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                marginTop: isMobile ? '0.5rem' : 0,
-                width: isMobile ? '100%' : 'auto',
+                flexWrap: isMobile ? 'wrap' : 'nowrap',
               }}
             >
-              <Button
-                variant="contained"
-                onClick={handleOpenBtnList}
+              <Typography
+                variant="h6"
                 sx={{
-                  marginRight: isMobile ? '1rem' : 0,
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: '#000000',
+                }}
+              >
+                {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginTop: isMobile ? '0.5rem' : 0,
+                  marginLeft: isMobile ? 0 : '20px',
                   width: isMobile ? '100%' : 'auto',
                 }}
-                endIcon={<ArrowDropDown />}
               >
-                Add selected to
-              </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleOpenBtnList}
+                  sx={{
+                    marginRight: isMobile ? '1rem' : 0,
+                    width: isMobile ? '100%' : 'auto',
+                  }}
+                  endIcon={<ArrowDropDown />}
+                >
+                  Add selected to
+                </Button>
 
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
-                }}
-              >
-                {
-                  buttonList.length > 0 && (
-                    buttonList.map((button) => {
-                      if (button.isDisabled) return
+                <Menu
+                  id="basic-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                  MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                  }}
+                >
+                  {
+                    buttonList.length > 0 && (
+                      buttonList.map((button) => {
+                        if (button.isDisabled) return
 
-                      return (
-                        (
-                          <MenuItem
-                            key={button.key}
-                            onClick={() => {
-                              button.handleClick()
-                            }}
-                          >
-                            {button.name}
-                          </MenuItem>
+                        return (
+                          (
+                            <MenuItem
+                              key={button.key}
+                              onClick={() => {
+                                button.handleClick()
+                              }}
+                            >
+                              {button.name}
+                            </MenuItem>
+                          )
                         )
-                      )
-                    })
-                  )
-                }
-              </Menu>
+                      })
+                    )
+                  }
+                </Menu>
+              </Box>
             </Box>
           </Box>
         </Grid>

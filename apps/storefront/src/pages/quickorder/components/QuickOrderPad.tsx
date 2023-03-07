@@ -152,9 +152,98 @@ export const QuickOrderPad = () => {
     </>
   )
 
-  const handleAddToCart = async (validProduct: CustomFieldItems) => {
+  const getValidProducts = (products: CustomFieldItems) => {
+    const notPurchaseSku: string[] = []
+    const productItems: CustomFieldItems[] = []
+    const limitProduct: CustomFieldItems[] = []
+    const minLimitQuantity: CustomFieldItems[] = []
+    const maxLimitQuantity: CustomFieldItems[] = []
+    const outOfStock: CustomFieldItems[] = []
+
+    products.forEach((item: CustomFieldItems) => {
+      const {
+        products: currentProduct,
+        qty,
+      } = item
+      const {
+        option,
+        isStock,
+        stock,
+        purchasingDisabled,
+        maxQuantity,
+        minQuantity,
+        variantSku,
+        variantId,
+        productId,
+      } = currentProduct
+
+      if (purchasingDisabled === '1') {
+        notPurchaseSku.push(variantSku)
+        return
+      }
+
+      if (isStock === '1' && stock === 0) {
+        outOfStock.push(variantSku)
+        return
+      }
+
+      if ((isStock === '1' && stock > 0) && stock < +qty) {
+        limitProduct.push({
+          variantSku,
+          AvailableAmount: stock,
+        })
+        return
+      }
+
+      if (+minQuantity > 0 && +qty < +minQuantity) {
+        minLimitQuantity.push({
+          variantSku,
+          minQuantity,
+        })
+
+        return
+      }
+
+      if (+maxQuantity > 0 && +qty > +maxQuantity) {
+        maxLimitQuantity.push({
+          variantSku,
+          maxQuantity,
+        })
+
+        return
+      }
+
+      const optionsList = option.map((item: CustomFieldItems) => ({
+        optionId: item.option_id,
+        optionValue: item.id,
+      }))
+
+      productItems.push({
+        productId: parseInt(productId, 10) || 0,
+        variantId: parseInt(variantId, 10) || 0,
+        quantity: +qty,
+        optionList: optionsList,
+      })
+    })
+
+    return {
+      notPurchaseSku,
+      productItems,
+      limitProduct,
+      minLimitQuantity,
+      maxLimitQuantity,
+      outOfStock,
+    }
+  }
+
+  const handleAddToCart = async (productsData: CustomFieldItems) => {
     setIsLoading(true)
     try {
+      const {
+        stockErrorFile,
+        validProduct,
+      } = productsData
+
       const {
         notPurchaseSku,
         productItems,
@@ -162,8 +251,7 @@ export const QuickOrderPad = () => {
         minLimitQuantity,
         maxLimitQuantity,
         outOfStock,
-        stockErrorFile,
-      } = validProduct
+      } = getValidProducts(validProduct)
 
       if (productItems.length > 0) {
         const cartInfo = await getCartInfo()

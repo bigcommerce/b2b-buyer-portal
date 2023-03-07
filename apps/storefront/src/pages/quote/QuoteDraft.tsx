@@ -127,7 +127,6 @@ interface InfoProps {
 
 interface QuoteTableRef extends HTMLInputElement {
   refreshList: () => void
-
 }
 
 interface OpenPageState {
@@ -500,7 +499,7 @@ const QuoteDraft = ({
         message: note,
         legalTerms: '',
         totalAmount: allPrice.toFixed(2),
-        grandTotal: allPrice.toFixed(2),
+        grandTotal: (allPrice + allTaxPrice).toFixed(2),
         subtotal: allPrice.toFixed(2),
         companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
         storeHash,

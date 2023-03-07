@@ -76,7 +76,6 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
   }, [location])
 
   useEffect(() => {
-    console.log(location.pathname, openUrl, 'openUrl')
     if (openUrl && openUrl === '/?closeMasqurade=1') {
       navigate('/', {
         state: {

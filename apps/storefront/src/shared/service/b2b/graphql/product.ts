@@ -78,7 +78,7 @@ const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation {
     productListData: {
       currencyCode: "${data.currencyCode || ''}"
       productList: ${convertArrayToGraphql(data.productList || [])}
-      ${!data?.channelId ? '' : `id: ${data.channelId}`}
+      ${!data?.channelId ? '' : `channelId: ${data.channelId}`}
     }
   ) {
     result {

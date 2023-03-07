@@ -31,6 +31,10 @@ import {
 } from '@/utils'
 
 import {
+  removeCartPermissions,
+} from '@/utils/b3RolePermissions'
+
+import {
   serialize,
   getProductOptionList,
 } from '../pages/pdp/PDP'
@@ -47,6 +51,8 @@ interface MutationObserverProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
   productQuoteEnabled: boolean,
   B3UserId: number | string,
+  role: number | string,
+
 }
 
 const removeElement = (_element: CustomFieldItems) => {
@@ -66,6 +72,7 @@ const useMyQuote = ({
   setOpenPage,
   productQuoteEnabled,
   B3UserId,
+  role,
 }: MutationObserverProps) => {
   const [openQuickViewNum, setOpenQuickViewNum] = useState<number>(0)
 
@@ -183,14 +190,15 @@ const useMyQuote = ({
   }, [])
 
   const cd = useCallback(() => {
-    if (document.querySelectorAll(globalB3['dom.setToShoppingList']).length) {
+    if (document.querySelectorAll(globalB3['dom.setToQuote']).length) {
       setOpenQuickViewNum(openQuickViewNum + 1)
+      removeCartPermissions(role)
     }
-  }, [openQuickViewNum])
+  }, [role])
 
   useMutationObservable(document.documentElement, cd)
 
-  useB3Quote(globalB3['dom.setToShoppingList'], quoteCallBbck, openQuickViewNum, productQuoteEnabled)
+  useB3Quote(globalB3['dom.setToQuote'], quoteCallBbck, openQuickViewNum, productQuoteEnabled)
 
   useQuoteGlobalTip(openTipState, setOpenPage, initTip)
 }

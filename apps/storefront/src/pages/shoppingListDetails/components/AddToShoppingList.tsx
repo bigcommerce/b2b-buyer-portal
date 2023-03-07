@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Link,
 } from '@mui/material'
 
 import UploadFileIcon from '@mui/icons-material/UploadFile'
@@ -102,54 +101,58 @@ export const AddToShoppingList = (props: AddToListProps) => {
     return res
   }
 
-  const limitProductTips = (data: any) => (
-    <>
-      <p style={{
-        margin: 0,
-      }}
-      >
-        {`SKU ${data.variantSku} is not enough stock`}
-      </p>
-      <p style={{
-        margin: 0,
-      }}
-      >
-        {`Available amount - ${data.AvailableAmount}.`}
-      </p>
-    </>
-  )
+  const getValidProducts = (products: CustomFieldItems) => {
+    const notPurchaseSku: string[] = []
+    const productItems: CustomFieldItems[] = []
 
-  const outOfStockProductTips = (outOfStock: CustomFieldItems, fileErrorsCSV: string) => (
-    <>
-      <p style={{
-        margin: 0,
-      }}
-      >
-        {`SKU ${outOfStock} are out of stock.`}
-      </p>
-      <Link
-        href={fileErrorsCSV}
-        sx={{
-          color: '#FFFFFF',
-        }}
-      >
-        Download errors csv
-      </Link>
-    </>
-  )
+    products.forEach((item: CustomFieldItems) => {
+      const {
+        products: currentProduct,
+        qty,
+      } = item
+      const {
+        option,
+        purchasingDisabled,
+        variantSku,
+        variantId,
+        productId,
+      } = currentProduct
 
-  const handleCSVAddToList = async (validProduct: CustomFieldItems) => {
+      if (purchasingDisabled) {
+        notPurchaseSku.push(variantSku)
+        return
+      }
+
+      const optionsList = option.map((item: CustomFieldItems) => ({
+        optionId: item.option_id,
+        optionValue: item.id,
+      }))
+
+      productItems.push({
+        productId: parseInt(productId, 10) || 0,
+        variantId: parseInt(variantId, 10) || 0,
+        quantity: +qty,
+        optionList: optionsList,
+      })
+    })
+
+    return {
+      notPurchaseSku,
+      productItems,
+    }
+  }
+
+  const handleCSVAddToList = async (productsData: CustomFieldItems) => {
     setIsLoading(true)
     try {
       const {
+        validProduct,
+      } = productsData
+
+      const {
         notPurchaseSku,
         productItems,
-        limitProduct,
-        minLimitQuantity,
-        maxLimitQuantity,
-        outOfStock,
-        stockErrorFile,
-      } = validProduct
+      } = getValidProducts(validProduct)
 
       if (productItems.length > 0) {
         await quickAddToList(productItems)
@@ -157,34 +160,8 @@ export const AddToShoppingList = (props: AddToListProps) => {
         updateList()
       }
 
-      if (limitProduct.length > 0) {
-        limitProduct.forEach((item: CustomFieldItems) => {
-          snackbar.warning('', {
-            jsx: () => limitProductTips(item),
-          })
-        })
-      }
-
       if (notPurchaseSku.length > 0) {
         snackbar.error(`SKU ${notPurchaseSku} cannot be purchased in online store.`)
-      }
-
-      if (outOfStock.length > 0 && stockErrorFile) {
-        snackbar.error('', {
-          jsx: () => outOfStockProductTips(outOfStock, stockErrorFile),
-        })
-      }
-
-      if (minLimitQuantity.length > 0) {
-        minLimitQuantity.forEach((data: CustomFieldItems) => {
-          snackbar.error(`You need to purchase a minimum of ${data.minQuantity} of the ${data.variantSku} per order.`)
-        })
-      }
-
-      if (maxLimitQuantity.length > 0) {
-        maxLimitQuantity.forEach((data: CustomFieldItems) => {
-          snackbar.error(`You need to purchase a maximum of ${data.maxQuantity} of the ${data.variantSku} per order.`)
-        })
       }
 
       setIsOpenBulkLoadCSV(false)

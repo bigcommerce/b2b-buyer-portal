@@ -56,8 +56,11 @@ interface ListItem {
   [key: string]: string
 }
 
-const StyledMenuItem = styled(MenuItem)(() => ({
-  boxShadow: '0px 2px 5px -1px rgb(0 0 0, 0.2), 0px 3px 13px 0px rgb(0, 0, 0, 0.14), 0px 1px 4px 0px rgb(0, 0, 0, 0.12)',
+const StyledMenu = styled(Menu)(() => ({
+  '& .MuiPaper-elevation': {
+    boxShadow: '0px 2px 5px -1px rgba(0, 0, 0, 0.2), 0px 3px 13px rgba(0, 0, 0, 0.14), 0px 1px 4px rgba(0, 0, 0, 0.12)',
+    color: 'red',
+  },
 }))
 
 const Dashboard = () => {
@@ -245,7 +248,7 @@ const Dashboard = () => {
             >
               <MoreHorizIcon />
             </IconButton>
-            <Menu
+            <StyledMenu
               id="basic-menu"
               anchorEl={anchorEl}
               open={open}
@@ -254,15 +257,15 @@ const Dashboard = () => {
                 'aria-labelledby': 'basic-button',
               }}
             >
-              <StyledMenuItem
+              <MenuItem
                 sx={{
                   color: '#1976D2',
                 }}
                 onClick={() => startActing()}
               >
                 Masquerade
-              </StyledMenuItem>
-            </Menu>
+              </MenuItem>
+            </StyledMenu>
           </>
         )
       },

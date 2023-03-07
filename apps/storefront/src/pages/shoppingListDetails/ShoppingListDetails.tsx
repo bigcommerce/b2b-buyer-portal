@@ -3,6 +3,8 @@ import {
   useContext,
   useEffect,
   useRef,
+  Dispatch,
+  SetStateAction,
 } from 'react'
 
 import {
@@ -75,6 +77,11 @@ interface TableRefProps extends HTMLInputElement {
   initSearch: () => void,
 }
 
+interface OpenPageState {
+  isOpen: boolean,
+  openUrl?: string,
+}
+
 interface UpdateShoppingListParamsProps {
   id: number,
   name: string,
@@ -83,10 +90,19 @@ interface UpdateShoppingListParamsProps {
   channelId?: number,
 }
 
+interface ShoppingListDetailsProps {
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+}
+interface ShoppingListDetailsContentProps {
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+}
+
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
 
-const ShoppingListDetails = () => {
+const ShoppingListDetails = ({
+  setOpenPage,
+}: ShoppingListDetailsProps) => {
   const {
     id = '',
   } = useParams()
@@ -350,6 +366,7 @@ const ShoppingListDetails = () => {
           role={role}
           goToShoppingLists={goToShoppingLists}
           handleUpdateShoppingList={handleUpdateShoppingList}
+          setOpenPage={setOpenPage}
         />
 
         <Grid
@@ -465,9 +482,11 @@ const ShoppingListDetails = () => {
   )
 }
 
-const ShoppingListDetailsContent = () => (
+const ShoppingListDetailsContent = ({
+  setOpenPage,
+}: ShoppingListDetailsContentProps) => (
   <ShoppingListDetailsProvider>
-    <ShoppingListDetails />
+    <ShoppingListDetails setOpenPage={setOpenPage} />
   </ShoppingListDetailsProvider>
 )
 

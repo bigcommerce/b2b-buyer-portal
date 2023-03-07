@@ -14,7 +14,6 @@ const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
     activeTab,
   } = props
 
-  console.log(products, 'BulkUploadTableCard')
   const lineItemStyle = {
     display: 'flex',
   }
@@ -35,6 +34,7 @@ const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
         <Typography
           sx={{
             color: '#313440',
+            fontWeight: 700,
             fontSize: '16px',
             paddingRight: '0.5rem',
           }}
@@ -50,6 +50,7 @@ const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
         <Typography
           sx={{
             color: '#313440',
+            fontWeight: 700,
             fontSize: '16px',
             paddingRight: '0.5rem',
           }}
@@ -69,6 +70,7 @@ const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
               <Typography
                 sx={{
                   color: '#313440',
+                  fontWeight: 700,
                   fontSize: '16px',
                   paddingRight: '0.5rem',
                 }}
@@ -76,7 +78,7 @@ const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
                 Row:
                 {' '}
               </Typography>
-              <span>{products.row + 2}</span>
+              <span>{products.row + 1}</span>
             </Box>
             <Box
               sx={lineItemStyle}
@@ -84,6 +86,7 @@ const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
               <Typography
                 sx={{
                   color: '#313440',
+                  fontWeight: 700,
                   fontSize: '16px',
                   paddingRight: '0.5rem',
                 }}
