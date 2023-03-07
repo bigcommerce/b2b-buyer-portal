@@ -406,6 +406,7 @@ const QuoteDetail = () => {
               quoteId={quoteDetail.id}
               role={role}
               isAgenting={isAgenting}
+              status={quoteDetail.status}
             />
           )
         }

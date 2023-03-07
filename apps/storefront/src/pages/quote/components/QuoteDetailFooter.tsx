@@ -20,6 +20,7 @@ interface QuoteDetailFooterProps {
   quoteId: string,
   role: string | number,
   isAgenting: boolean,
+  status: number,
 }
 
 const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
@@ -27,6 +28,7 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
     quoteId,
     role,
     isAgenting,
+    status,
   } = props
   const [isMobile] = useMobile()
 
@@ -60,35 +62,40 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
   }
 
   return (
-    <Box
-      sx={{
-        position: 'fixed',
-        bottom: isMobile && isAgenting ? '52px' : 0,
-        left: 0,
-        backgroundColor: '#fff',
-        width: '100%',
-        padding: '0.8rem 1rem',
-        height: 'auto',
-        display: 'flex',
-        zIndex: '999',
-        justifyContent: isMobile ? 'center' : 'flex-end',
-        displayPrint: 'none',
-        ...containerStyle,
-      }}
-    >
-      <Button
-        variant="contained"
-        onClick={() => {
-          handleQuoteCheckout()
-        }}
-        sx={{
-          width: isMobile ? '100%' : 'auto',
-        }}
-      >
-        Proceed to checkout
-      </Button>
-    </Box>
-
+    <>
+      {
+        (status !== 5) && (
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: isMobile && isAgenting ? '52px' : 0,
+              left: 0,
+              backgroundColor: '#fff',
+              width: '100%',
+              padding: '0.8rem 1rem',
+              height: 'auto',
+              display: 'flex',
+              zIndex: '999',
+              justifyContent: isMobile ? 'center' : 'flex-end',
+              displayPrint: 'none',
+              ...containerStyle,
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleQuoteCheckout()
+              }}
+              sx={{
+                width: isMobile ? '100%' : 'auto',
+              }}
+            >
+              Proceed to checkout
+            </Button>
+          </Box>
+        )
+      }
+    </>
   )
 }
 
