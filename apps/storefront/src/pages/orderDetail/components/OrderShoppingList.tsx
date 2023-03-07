@@ -77,6 +77,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
     state: {
       isB2BUser,
       currentChannelId,
+      role,
     },
   } = useContext(GlobaledContext)
 
@@ -100,9 +101,16 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
         },
       }: CustomFieldItems = await getShoppingList(params)
 
-      const newList = list.filter((item: CustomFieldItems) => (isB2BUser ? item.node.status === 0 : true))
+      let newList = null
+      if (+role === 2) {
+        newList = list.filter((item: CustomFieldItems) => (item.node.status === 30))
 
-      setList(newList)
+        setList(newList)
+      } else {
+        newList = list.filter((item: CustomFieldItems) => (isB2BUser ? item.node.status === 0 : true))
+
+        setList(newList)
+      }
     } finally {
       setLoading(false)
     }

@@ -406,7 +406,7 @@ export const OrderAction = (props: OrderActionProps) => {
       key: 'Re-Order',
       name: 'reOrder',
       variant: 'outlined',
-      isCanShow: true,
+      isCanShow: +role !== 2,
     },
     {
       value: 'Return',
