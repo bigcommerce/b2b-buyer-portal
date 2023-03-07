@@ -64,6 +64,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
         }
         return false
       }
+      window.b2bStorefrontApp.__isInit = true
       window.addEventListener('click', handleTriggerClick, {
         capture: true,
       })
