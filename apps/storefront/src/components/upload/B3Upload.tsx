@@ -56,6 +56,7 @@ import BulkUploadTable from './BulkUploadTable'
 import {
   removeEmptyRow,
   parseEmptyData,
+  ParseEmptyDataProps,
 } from './utils'
 
 interface B3UploadProps {
@@ -115,21 +116,18 @@ export const B3Upload = (props: B3UploadProps) => {
     currency_code: currencyCode,
   } = getDefaultCurrencyInfo()
 
-  const handleVerificationFile = (size: number, type: string) => {
+  const handleVerificationFile = (size: number, type: string): string => {
     if (type !== 'text/csv') {
-      snackbar.error('Table structure is wrong. Please download sample and follow it\'s structure.')
-      return false
+      return 'Table structure is wrong. Please download sample and follow it\'s structure.'
     }
 
     if (size > 1024 * 1024 * 50) {
-      snackbar.error('Maximum file size 50MB')
-      return false
+      return 'Maximum file size 50MB'
     }
-
-    return true
+    return ''
   }
 
-  const handleBulkUploadCSV = async (parseData: CustomFieldItems) => {
+  const handleBulkUploadCSV = async (parseData: ParseEmptyDataProps[]) => {
     try {
       const params: BulkUploadCSVProps = {
         currencyCode,
@@ -159,36 +157,63 @@ export const B3Upload = (props: B3UploadProps) => {
     }
   }
 
+  const parseFile: (file: File) => Promise<ParseEmptyDataProps[]> = (file) => new Promise((resolve, reject) => {
+    const errorText = handleVerificationFile(file?.size, file?.type)
+
+    if (errorText) {
+      reject(new Error(errorText))
+      return
+    }
+    const reader = new FileReader()
+
+    reader.addEventListener('load', async (b: any) => {
+      const csvdata = b.target.result
+
+      if (csvdata) {
+        const content = csvdata.split('\n')
+        const headerRow = content.slice(0, 1)[0]
+        const columns = headerRow.split(',').length
+        const EmptyData = removeEmptyRow(content)
+
+        let error = ''
+
+        if (EmptyData.length > 1) {
+          for (let i = 1; i < EmptyData.length; i += 1) {
+            const signleRow = EmptyData[i].split(',')
+            if (signleRow.length > columns) {
+              error = 'redundant data;'
+              return
+            }
+          }
+        }
+
+        if (error) {
+          reject(new Error(error))
+          return
+        }
+        const parseData: ParseEmptyDataProps[] = parseEmptyData(EmptyData)
+        resolve(parseData)
+      }
+    })
+
+    reader.readAsBinaryString(file)
+  })
+
   const handleChange = async (files: File[]) => {
     // init loadding end
     const file = files.length > 0 ? files[0] : null
 
     if (file) {
-      setFileName(file.name)
-      const isPass = handleVerificationFile(file?.size, file?.type)
-
-      if (!isPass) return
-      const reader = new FileReader()
-
-      reader.addEventListener('load', async (b: any) => {
-        const csvdata = b.target.result
-
-        if (csvdata) {
+      try {
+        const parseData = await parseFile(file)
+        if (parseData.length) {
           setStep('loadding')
-          const content = csvdata.split('\n')
-          const EmptyData = removeEmptyRow(content)
-          const parseData = parseEmptyData(EmptyData)
-
-          // DOTO:
-          await new Promise(() => {
-            setTimeout(() => {
-              handleBulkUploadCSV(parseData)
-            }, 1000)
-          })
+          setFileName(file.name)
+          await handleBulkUploadCSV(parseData)
         }
-      })
-
-      reader.readAsBinaryString(file)
+      } catch (error) {
+        console.log((error as Error).message)
+      }
     }
   }
 

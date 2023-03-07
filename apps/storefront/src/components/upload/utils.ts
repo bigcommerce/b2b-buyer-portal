@@ -8,7 +8,12 @@ export const removeEmptyRow = (arr: string[]) => {
   return tmpArr
 }
 
-export const parseEmptyData = (arr: string[]) => {
+export interface ParseEmptyDataProps {
+  sku: string,
+  qty: string,
+}
+
+export const parseEmptyData = (arr: string[]): ParseEmptyDataProps[] => {
   if (arr.length) {
     const tmpArr = arr.map((item: string) => {
       const products = item.split(',')

@@ -30,14 +30,15 @@ const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems
           },
         },
       })
-      // if (openUrl) {
-      //   const {
-      //     origin,
-      //     pathname,
-      //     search,
-      //   } = window.location
-      //   window.location.href = `${origin}${pathname}${search}#${openUrl}`
-      // }
+      // hot refresh and browser refresh
+      if (openUrl) {
+        const {
+          origin,
+          pathname,
+          search,
+        } = window.location
+        window.location.href = `${origin}${pathname}${search}#${openUrl}`
+      }
     } else {
       document.body.style.height = defaultHeight
       document.body.style.overflow = defaultOverflow

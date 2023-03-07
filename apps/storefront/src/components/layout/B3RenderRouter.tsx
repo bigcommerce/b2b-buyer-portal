@@ -65,17 +65,15 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
 
   const navigate = useNavigate()
 
-  // useEffect(() => {
-  //   if (location && isOpen) {
-  //     console.log(location)
-  //     // navigate(location.pathname)
-  //     setOpenPage({
-  //       isOpen: true,
-  //       openUrl: location.pathname,
-  //     })
-  //     if (location.state) location.state = null
-  //   }
-  // }, [location])
+  useEffect(() => {
+    if (location && isOpen) {
+      setOpenPage({
+        isOpen: true,
+        openUrl: location.pathname,
+      })
+      if (location.state) location.state = null
+    }
+  }, [location])
 
   useEffect(() => {
     console.log(location.pathname, openUrl, 'openUrl')
@@ -85,8 +83,6 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
           closeMasqurade: '1',
         },
       })
-    } else if (openUrl && location.pathname !== openUrl) {
-      navigate(openUrl)
     }
   }, [openUrl])
 
