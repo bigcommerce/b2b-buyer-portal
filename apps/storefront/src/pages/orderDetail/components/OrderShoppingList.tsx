@@ -101,14 +101,10 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
         },
       }: CustomFieldItems = await getShoppingList(params)
 
-      let newList = null
-      if (+role === 2) {
-        newList = list.filter((item: CustomFieldItems) => (item.node.status === 30))
-
-        setList(newList)
+      if (!isB2BUser) {
+        setList(list)
       } else {
-        newList = list.filter((item: CustomFieldItems) => (isB2BUser ? item.node.status === 0 : true))
-
+        const newList = list.filter((item: CustomFieldItems) => (item.node.status === +(role === 2 ? 30 : 0)))
         setList(newList)
       }
     } finally {
