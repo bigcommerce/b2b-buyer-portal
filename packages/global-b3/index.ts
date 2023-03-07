@@ -1,4 +1,6 @@
-declare const window: any
+declare global {
+  interface Window { B3: any; }
+}
 
 const globalB3 = {
   'dom.registerElement': '[href^="/login.php"]',

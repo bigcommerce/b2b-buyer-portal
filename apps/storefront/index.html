@@ -5,20 +5,24 @@
     <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BundleB2B</title>
-    <script>
-      window.B3 = {
-        setting: {
-            'store_hash': 'al0cfwwv8r',
-            'b2b_url': 'https://staging-v2.bundleb2b.net',
-            'b2b_socket_url': 'https://staging-v2.bundleb2b.net',
-            'captcha_setkey': '6LeGJw8hAAAAAPL0Tt91gEU8gv3gFwGeadqd-rkG',
-            'is_local_debugging': true,
-        },
-        'dom.checkoutRegisterParentElement': "#b2bParent",
-        'dom.openB3Checkout': 'childB2b',
-        'dom.navUserLoginElement': '#headless-container',
-        'before_login_goto_page': '/'
-      }
+    <script type="module">
+        const {
+            VITE_B2B_URL, VITE_B2B_SOCKET_URL, VITE_STORE_HASH, VITE_CATPCHA_SETKEY,
+        } = import.meta.env
+
+        window.B3 = {
+            setting: {
+                store_hash: VITE_STORE_HASH,
+                b2b_url: VITE_B2B_URL,
+                b2b_socket_url: VITE_B2B_SOCKET_URL,
+                captcha_setkey: VITE_CATPCHA_SETKEY,
+                is_local_debugging: true,
+            },
+            'dom.checkoutRegisterParentElement': '#b2bParent',
+            'dom.openB3Checkout': 'childB2b',
+            'dom.navUserLoginElement': '#headless-container',
+            before_login_goto_page: '/',
+        }
     </script>
   </head>
   <body>

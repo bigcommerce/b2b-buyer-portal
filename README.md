@@ -10,7 +10,7 @@ This turborepo uses [Yarn](https://classic.yarnpkg.com/lang/en/) as a package 
 
 - `/packages/eslint-config-b3`: the shared eslint config.
 
-- `/packages/tsconfig`: sthe shared tsconfig.
+- `/packages/tsconfig`: the shared tsconfig.
 
 - `/packages/ui`: to put all the UI which created by B3.
 
@@ -26,27 +26,10 @@ This turborepo has the tools and packages already setup:
 - [React Router 6](https://reactrouter.com/) as the frontend router.
 
 ## Setup
-
-This repository is used in the `npx create-turbo` command and `yarn` as a package manager.
+1. Run `yarn install`
+2. Copy `apps/storefront/.env-example` and paste it as `.env`
+3. Update the `VITE_STORE_HASH` value on `.env` file
+4. Update the `VITE_CATPCHA_SETKEY` value on `.env` file
+5. Run `yarn dev`
 
 > Note: please run `yarn prepare` first if the linters are not working.
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```shell
-yarn build
-```
-
-### Develop
-
-```shell
-yarn dev
-```
-
-### Lint
-
-```shell
-yarn lint
-```
