@@ -132,8 +132,6 @@ const Order = ({
 
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([])
 
-  const [isClearFilter, setIsClearFilter] = useState<boolean>(false)
-
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser)
     setFilterData(search)
@@ -266,18 +264,16 @@ const Order = ({
         ...filterData,
         orderBy: value,
       })
-    } else if (key === 'clear') {
-      setIsClearFilter(true)
     }
   }
 
   const handleFirterChange = (value: SearchChangeProps) => {
     const search: Partial<FilterSearchProps> = {
-      beginDateAt: value?.startValue || filterData?.beginDateAt || '',
-      endDateAt: value?.endValue || filterData?.endDateAt || '',
-      createdBy: value?.PlacedBy || filterData?.createdBy,
+      beginDateAt: value?.startValue || null,
+      endDateAt: value?.endValue || null,
+      createdBy: value?.PlacedBy || '',
       statusCode: value?.orderStatus || '',
-      companyName: value?.company || filterData?.companyName || '',
+      companyName: value?.company || '',
     }
     setFilterData({
       ...filterData,

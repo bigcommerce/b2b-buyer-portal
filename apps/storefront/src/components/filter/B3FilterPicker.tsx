@@ -41,8 +41,8 @@ const B3FilterPickers = ({
   xs = {},
 }: B3FilterPickerProps, ref: Ref<unknown> | undefined) => {
   // const [isMobile] = useMobile()
-  const [startValue, setStartValue] = useState<Date | number | string>()
-  const [endValue, setEndValue] = useState<Date | number | string>()
+  const [startValue, setStartValue] = useState<Date | number | string>(startPicker?.defaultValue || '')
+  const [endValue, setEndValue] = useState<Date | number | string>(endPicker?.defaultValue || '')
 
   const setClearPickerValue = () => {
     setStartValue(isMonthlySpacing ? distanceDay(30) : '')
