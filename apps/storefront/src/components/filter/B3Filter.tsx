@@ -213,7 +213,6 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               endPicker={endPicker}
               fiterMoreInfo={fiterMoreInfo}
               onChange={handleFilterChange}
-              handleChange={handleClearFilterChange}
             />
           </Box>
           {
