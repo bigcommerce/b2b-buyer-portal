@@ -317,9 +317,7 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
           activeTab === 'error' && (
             <Box
               sx={{
-                padding: isMobile ? '18px 0' : '18px 16px',
-                position: 'absolute',
-                bottom: '-5px',
+                padding: isMobile ? '18px 0' : '0 16px 18px 16px',
               }}
             >
               <Link

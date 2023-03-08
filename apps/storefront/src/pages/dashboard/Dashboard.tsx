@@ -58,8 +58,7 @@ interface ListItem {
 
 const StyledMenu = styled(Menu)(() => ({
   '& .MuiPaper-elevation': {
-    boxShadow: '0px 2px 5px -1px rgba(0, 0, 0, 0.2), 0px 3px 13px rgba(0, 0, 0, 0.14), 0px 1px 4px rgba(0, 0, 0, 0.12)',
-    color: 'red',
+    boxShadow: '0px 1px 0px -1px rgba(0, 0, 0, 0.1), 0px 1px 6px rgba(0, 0, 0, 0.07), 0px 1px 4px rgba(0, 0, 0, 0.06)',
   },
 }))
 
