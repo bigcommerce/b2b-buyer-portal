@@ -239,7 +239,6 @@ const getCustomerShoppingLists = ({
         name,
         description,
         updatedAt,
-        isOwner,
         products {
           totalCount,
         }
