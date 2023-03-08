@@ -30,6 +30,10 @@ import {
 } from '@/utils'
 
 import {
+  useMobile,
+} from '@/hooks'
+
+import {
   B3LinkTipContent,
   B3Upload,
 } from '@/components'
@@ -51,6 +55,8 @@ const successTip = (options: successTipOptions) => () => (
 )
 
 export const QuickOrderPad = () => {
+  const [isMobile] = useMobile()
+
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
   const [productData, setProductData] = useState<CustomFieldItems>([])
   const [addBtnText, setAddBtnText] = useState<string>('Add to cart')
@@ -301,7 +307,7 @@ export const QuickOrderPad = () => {
 
       if (maxLimitQuantity.length > 0) {
         maxLimitQuantity.forEach((data: CustomFieldItems) => {
-          snackbar.error(`You need to purchase a minimum of ${data.maxQuantity} of the ${data.variantSku} per order.`)
+          snackbar.error(`You need to purchase a maximum of ${data.maxQuantity} of the ${data.variantSku} per order.`)
         })
       }
 
@@ -319,7 +325,7 @@ export const QuickOrderPad = () => {
 
   return (
     <Card sx={{
-      marginBottom: '50px',
+      marginBottom: isMobile ? '8.5rem' : '50px',
     }}
     >
       <CardContent>
@@ -369,6 +375,7 @@ export const QuickOrderPad = () => {
         setProductData={setProductData}
         addBtnText={addBtnText}
         isLoading={isLoading}
+        isToCart
       />
     </Card>
   )

@@ -351,7 +351,7 @@ const QuoteDraft = ({
   useEffect(() => {
     if (isRefresh) {
       // TODO list refresh function
-
+      quoteTableRef.current?.refreshList()
       setIsRefresh(false)
     }
   }, [isRefresh])

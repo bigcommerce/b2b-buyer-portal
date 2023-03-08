@@ -333,7 +333,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
       })
 
       const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch)
-
+      let isSuccess = false
       productsWithSku.forEach((product: ListItemProps) => {
         const {
           node: {
@@ -368,7 +368,10 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
         }
 
         addQuoteDraftProduce(quoteListitem, +quantity, optionsList || [])
+        isSuccess = true
+      })
 
+      if (isSuccess) {
         snackbar.success('', {
           jsx: successTip({
             message: 'Products were added to your quote.',
@@ -378,7 +381,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
           }),
           isClose: true,
         })
-      })
+      }
     } catch (e) {
       console.log(e)
     } finally {

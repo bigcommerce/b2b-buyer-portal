@@ -45,6 +45,7 @@ interface ShoppingDetailHeaderProps {
   handleUpdateShoppingList: (status: number) => void,
   isB2BUser: boolean,
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+  isAgenting: boolean,
 }
 
 const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
@@ -58,6 +59,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
     goToShoppingLists,
     isB2BUser,
     setOpenPage,
+    isAgenting,
   } = props
 
   const location = useLocation()
@@ -204,30 +206,30 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             )
           }
           {
-              ((role === 0 || role === 1) && shoppingListInfo?.status === 40) && (
-                <Box>
-                  <Button
-                    variant="outlined"
-                    sx={{
-                      marginRight: '1rem',
-                    }}
-                    onClick={() => {
-                      handleUpdateShoppingList(20)
-                    }}
-                  >
-                    Reject
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      handleUpdateShoppingList(0)
-                    }}
-                  >
-                    Approve
-                  </Button>
-                </Box>
-              )
-            }
+            (((role === 0 || role === 1) || (role === 3 && isAgenting)) && shoppingListInfo?.status === 40) && (
+              <Box>
+                <Button
+                  variant="outlined"
+                  sx={{
+                    marginRight: '1rem',
+                  }}
+                  onClick={() => {
+                    handleUpdateShoppingList(20)
+                  }}
+                >
+                  Reject
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    handleUpdateShoppingList(0)
+                  }}
+                >
+                  Approve
+                </Button>
+              </Box>
+            )
+          }
         </Grid>
       </Grid>
     </>

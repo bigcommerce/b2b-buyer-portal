@@ -178,32 +178,20 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
   }
 
   const getProductInfo = (params: CustomFieldItems) => {
-    if (activeTab === 'error') {
-      return {
-        edges: errorProduct,
-        totalCount: errorProduct.length || 0,
-      }
-    }
+    const products = activeTab === 'error' ? errorProduct : validProduct
 
-    if (activeTab === 'valid') {
-      const {
-        first,
-        offset,
-      } = params
+    const {
+      first,
+      offset,
+    } = params
 
-      const start = offset
-      const limit = first + start
-      const currentPageProduct = validProduct.slice(start, limit)
-
-      return {
-        edges: currentPageProduct,
-        totalCount: validProduct.length || 0,
-      }
-    }
+    const start = offset
+    const limit = first + start
+    const currentPageProduct = products.slice(start, limit)
 
     return {
-      edges: [],
-      totalCount: 0,
+      edges: currentPageProduct,
+      totalCount: products.length || 0,
     }
   }
 
@@ -307,12 +295,12 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
           <B3PaginationTable
             columnItems={activeTab === 'error' ? columnErrorsItems : columnValidItems}
             rowsPerPageOptions={[10, 20, 50]}
-            showRowsPerPageOptions={false}
             showBorder={!isMobile}
             getRequestList={getProductInfo}
-            labelRowsPerPage=""
+            labelRowsPerPage="Products per page:"
             itemIsMobileSpacing={0}
             noDataText="No product"
+            tableKey="row"
             searchParams={{
               activeTab,
             }}

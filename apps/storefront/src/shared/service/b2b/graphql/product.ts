@@ -79,6 +79,7 @@ const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation {
       currencyCode: "${data.currencyCode || ''}"
       productList: ${convertArrayToGraphql(data.productList || [])}
       ${!data?.channelId ? '' : `channelId: ${data.channelId}`}
+      isToCart: ${data.isToCart || false}
     }
   ) {
     result {
@@ -115,6 +116,6 @@ export const B2BProductsBulkUploadCSV = (data: CustomFieldItems = {}): CustomFie
   query: productsBulkUploadCSV(data),
 })
 
-export const BcProductsBulkUploadCSV = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlB2B({
+export const BcProductsBulkUploadCSV = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
   query: productsBulkUploadCSV(data),
 })

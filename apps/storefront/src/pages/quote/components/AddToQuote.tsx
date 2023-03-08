@@ -1,24 +1,43 @@
 import {
+  useState,
+} from 'react'
+
+import {
   Divider,
   Card,
   CardContent,
+  Box,
+  Button,
 } from '@mui/material'
+
+import UploadFileIcon from '@mui/icons-material/UploadFile'
 
 import {
   v1 as uuid,
 } from 'uuid'
 
 import {
+  B3Upload,
   B3CollapseContainer,
 } from '@/components'
 
 import {
   snackbar,
+  addQuoteDraftProduce,
 } from '@/utils'
 
 import {
+  PRODUCT_DEFAULT_IMAGE,
+} from '@/constants'
+
+import {
   searchB2BProducts,
+  searchBcProducts,
 } from '@/shared/service/b2b'
+
+import {
+  conversionProductsList,
+} from '../../shoppingListDetails/shared/config'
 
 import {
   SearchProduct,
@@ -40,6 +59,9 @@ export const AddToQuote = (props: AddToListProps) => {
     addToQuote,
     isB2BUser,
   } = props
+
+  const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const getNewQuoteProduct = (products: CustomFieldItems[]) => products.map((product) => {
     const {
@@ -129,6 +151,103 @@ export const AddToQuote = (props: AddToListProps) => {
     return variantProducts
   }
 
+  const getOptionsList = (options: CustomFieldItems) => {
+    if (options?.length === 0) return []
+
+    const option = options.map(({
+      option_id: optionId,
+      id,
+    }: {
+      option_id: number | string,
+      id: string | number,
+    }) => ({
+      optionId: `attribute[${optionId}]`,
+      optionValue: id,
+    }))
+
+    return option
+  }
+
+  const handleCSVAddToList = async (productsData: CustomFieldItems) => {
+    setIsLoading(true)
+    try {
+      const {
+        validProduct,
+      } = productsData
+
+      const productIds: number[] = []
+      validProduct.forEach((product: CustomFieldItems) => {
+        const {
+          products,
+        } = product
+
+        if (!productIds.includes(+products.productId)) {
+          productIds.push(+products.productId)
+        }
+      })
+
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+
+      const {
+        productsSearch,
+      } = await getProducts({
+        productIds,
+      })
+
+      const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch)
+
+      let isSuccess = false
+      validProduct.forEach((product: CustomFieldItems) => {
+        const {
+          products: {
+            option,
+            variantSku,
+            productId,
+            productName,
+            variantId,
+          },
+          qty,
+        } = product
+
+        const optionsList = getOptionsList(option)
+
+        const currentProductSearch = newProductInfo.find((product: CustomFieldItems) => +product.id === +productId)
+
+        const variantItem = currentProductSearch.variants.find((item: CustomFieldItems) => item.sku === variantSku)
+
+        const quoteListitem = {
+          node: {
+            id: uuid(),
+            variantSku: variantItem.sku,
+            variantId,
+            productsSearch: currentProductSearch,
+            primaryImage: variantItem.image_url || PRODUCT_DEFAULT_IMAGE,
+            productName,
+            quantity: +qty || 1,
+            optionList: JSON.stringify(optionsList),
+            productId,
+            basePrice: variantItem.bc_calculated_price.as_entered,
+            tax: variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive,
+          },
+        }
+
+        addQuoteDraftProduce(quoteListitem, +qty, optionsList || [])
+
+        isSuccess = true
+      })
+
+      if (isSuccess) {
+        snackbar.success('Products were added to your quote.')
+        updateList()
+        setIsOpenBulkLoadCSV(false)
+      }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <Card>
       <CardContent>
@@ -148,6 +267,33 @@ export const AddToQuote = (props: AddToListProps) => {
             quickAddToList={quickAddToList}
             level={1}
             buttonText="Add products to Quote"
+          />
+
+          <Divider />
+
+          <Box sx={{
+            margin: '20px 0 0',
+          }}
+          >
+            <Button
+              variant="text"
+              onClick={() => {
+                setIsOpenBulkLoadCSV(true)
+              }}
+            >
+              <UploadFileIcon sx={{
+                marginRight: '8px',
+              }}
+              />
+              Bulk upload CSV
+            </Button>
+          </Box>
+
+          <B3Upload
+            isOpen={isOpenBulkLoadCSV}
+            setIsOpen={setIsOpenBulkLoadCSV}
+            handleAddToList={handleCSVAddToList}
+            isLoading={isLoading}
           />
         </B3CollapseContainer>
       </CardContent>

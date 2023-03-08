@@ -68,12 +68,14 @@ interface B3UploadProps {
   handleAddToList: (validProduct: CustomFieldItems) => void,
   setProductData?: (product: CustomFieldItems) => void,
   isLoading?: boolean,
+  isToCart?: boolean,
 }
 
 interface BulkUploadCSVProps {
   currencyCode: string,
   productList: CustomFieldItems,
   channelId?: number,
+  isToCart: boolean,
 }
 
 const FileUploadContainer = styled(Box)(() => ({
@@ -98,6 +100,7 @@ export const B3Upload = (props: B3UploadProps) => {
     handleAddToList = () => {},
     setProductData = () => {},
     isLoading = false,
+    isToCart = false,
   } = props
 
   const [isMobile] = useMobile()
@@ -134,6 +137,7 @@ export const B3Upload = (props: B3UploadProps) => {
       const params: BulkUploadCSVProps = {
         currencyCode,
         productList: parseData,
+        isToCart,
       }
 
       if (!isB2BUser) params.channelId = currentChannelId
@@ -183,7 +187,7 @@ export const B3Upload = (props: B3UploadProps) => {
           for (let i = 1; i < EmptyData.length; i += 1) {
             const signleRow = EmptyData[i].split(',')
             if (signleRow.length > columns) {
-              error = 'redundant data;'
+              error = 'Please use the template file provided.'
             }
           }
         }
