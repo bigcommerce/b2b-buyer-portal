@@ -13,8 +13,8 @@ const allOrders = (data: CustomFieldItems, fn: string) => `{
     status: "${data?.statusCode || ''}"
     first: ${data.first}
     offset: ${data.offset}
-    beginDateAt: "${data.beginDateAt}"
-    endDateAt: "${data.endDateAt}"
+    beginDateAt: ${data?.beginDateAt ? JSON.stringify(data.beginDateAt) : null}
+    endDateAt: ${data?.endDateAt ? JSON.stringify(data.endDateAt) : null}
     companyName: "${data?.companyName || ''}"
     createdBy: "${data?.createdBy || ''}"
     isShowMy: "${data?.isShowMy || 0}"

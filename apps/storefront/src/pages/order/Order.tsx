@@ -132,6 +132,8 @@ const Order = ({
 
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([])
 
+  const [isClearFilter, setIsClearFilter] = useState<boolean>(false)
+
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser)
     setFilterData(search)
@@ -176,6 +178,8 @@ const Order = ({
         searchParams: filterData,
         totalCount: allTotal,
         isCompanyOrder,
+        beginDateAt: filterData?.beginDateAt,
+        endDateAt: filterData?.endDateAt,
       },
     })
   }
@@ -262,18 +266,30 @@ const Order = ({
         ...filterData,
         orderBy: value,
       })
+    } else if (key === 'clear') {
+      // const search: Partial<FilterSearchProps> = {
+      //   beginDateAt: null,
+      //   endDateAt: null,
+      //   createdBy: '',
+      //   statusCode: '',
+      //   companyName: '',
+      // }
+      // setFilterData({
+      //   ...filterData,
+      // })
+      setIsClearFilter(true)
+      console.log(isClearFilter)
     }
   }
 
   const handleFirterChange = (value: SearchChangeProps) => {
     const search: Partial<FilterSearchProps> = {
       beginDateAt: value?.startValue || filterData?.beginDateAt || '',
-      endDateAt: value?.endValue || filterData?.endDateAt,
+      endDateAt: value?.endValue || filterData?.endDateAt || '',
       createdBy: value?.PlacedBy || filterData?.createdBy,
       statusCode: value?.orderStatus || '',
       companyName: value?.company || filterData?.companyName || '',
     }
-
     setFilterData({
       ...filterData,
       ...search,
@@ -299,13 +315,13 @@ const Order = ({
             startPicker={{
               isEnabled: true,
               label: 'From',
-              defaultValue: filterData?.beginDateAt || distanceDay(30),
+              defaultValue: isClearFilter ? null : (filterData?.beginDateAt || null),
               pickerKey: 'start',
             }}
             endPicker={{
               isEnabled: true,
               label: 'To',
-              defaultValue: filterData?.endDateAt || distanceDay(),
+              defaultValue: isClearFilter ? null : (filterData?.beginDateAt || null),
               pickerKey: 'end',
             }}
             fiterMoreInfo={filterInfo}

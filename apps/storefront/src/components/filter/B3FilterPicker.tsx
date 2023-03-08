@@ -20,7 +20,7 @@ import {
 
 interface PickerProps {
   isEnabled: boolean;
-  defaultValue?: Date | number | string
+  defaultValue?: Date | number | string | null
   label: string
   pickerKey?: string,
 }
@@ -47,6 +47,8 @@ const B3FilterPickers = ({
   const setClearPickerValue = () => {
     setStartValue(isMonthlySpacing ? distanceDay(30) : '')
     setEndValue(isMonthlySpacing ? distanceDay() : '')
+    console.log(startPicker?.defaultValue, 'startPicker?.defaultValue')
+    console.log(endPicker?.defaultValue, 'endPicker?.defaultValue')
   }
 
   useEffect(() => {

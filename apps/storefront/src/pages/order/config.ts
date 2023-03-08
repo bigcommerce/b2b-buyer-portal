@@ -3,9 +3,9 @@ import {
 } from '@/utils'
 
 export interface FilterSearchProps {
-  [key: string]: string | number
-  beginDateAt: string
-  endDateAt: string
+  [key: string]: string | number | null
+  beginDateAt: string | null
+  endDateAt: string | null
   orderBy: string
   createdBy: string
   q: string
@@ -27,8 +27,8 @@ const b2bFilterSearch:FilterSearchProps = {
   // first: 10,
   q: '',
   companyId: '',
-  beginDateAt: distanceDay(30),
-  endDateAt: distanceDay(),
+  beginDateAt: null,
+  endDateAt: null,
   companyName: '',
   orderBy: '-createdAt',
   createdBy: '',
@@ -40,8 +40,8 @@ const b2bFilterSearch:FilterSearchProps = {
 const bcFilterSearch = {
   // offset: 0,
   // first: 10,
-  beginDateAt: distanceDay(30),
-  endDateAt: distanceDay(),
+  beginDateAt: null,
+  endDateAt: null,
   orderBy: '-createdAt',
   createdBy: '',
   q: '',

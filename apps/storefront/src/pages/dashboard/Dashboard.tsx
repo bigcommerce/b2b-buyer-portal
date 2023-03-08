@@ -157,6 +157,7 @@ const Dashboard = () => {
     try {
       showPageMask(true)
       await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
+      location.state = null
       B3SStorage.delete('isAgenting')
       B3SStorage.delete('salesRepCompanyId')
       B3SStorage.delete('salesRepCompanyName')
@@ -179,9 +180,11 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    if (location.state) {
+    const params = {
+      ...location,
+    }
+    if (params?.state) {
       endActing()
-      location.state = null
     }
   }, [location])
 

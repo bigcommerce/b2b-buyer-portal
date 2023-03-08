@@ -30,7 +30,7 @@ import B3FilterPicker from './B3FilterPicker'
 
 interface PickerProps {
   isEnabled: boolean;
-  defaultValue?: Date | number | string
+  defaultValue?: Date | number | string | null
   label: string
   pickerKey?: string,
 }
@@ -48,6 +48,7 @@ interface B3FilterMoreProps<T, Y> {
   endPicker?: PickerProps
   fiterMoreInfo: Array<DeepPartial<T>>
   onChange?: (val: Y) => void
+  handleChange?:() => void
   isShowMore?: boolean
 }
 
@@ -61,12 +62,14 @@ const B3FilterMore:<T, Y> ({
   endPicker,
   fiterMoreInfo,
   onChange,
+  handleChange,
   isShowMore,
 }: B3FilterMoreProps<T, Y>) => ReactElement = ({
   startPicker,
   endPicker,
   fiterMoreInfo,
   onChange,
+  handleChange,
   isShowMore = false,
 }) => {
   const [open, setOpen] = useState<boolean>(false)
@@ -113,6 +116,10 @@ const B3FilterMore:<T, Y> ({
       setValue(item, '')
     })
     pickerRef.current?.setClearPickerValue()
+
+    if (handleChange) {
+      handleChange()
+    }
   }
 
   return (

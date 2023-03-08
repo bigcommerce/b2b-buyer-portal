@@ -40,6 +40,8 @@ interface DetailPageProps {
 }
 
 interface LocationState {
+  beginDateAt?: string | null
+  endDateAt?: string | null
   currentIndex?: number
   totalCount?: number
   searchParams?: searchParamsProps
@@ -69,6 +71,8 @@ const DetailPagination = ({
 
   let currentIndex = 0
   let totalCount = 0
+  let beginDateAt: string | null = null
+  let endDateAt: string | null = null
   let searchParams = {
     offset: 0,
   }
@@ -77,6 +81,8 @@ const DetailPagination = ({
     const state = localtion.state as LocationState
     currentIndex = state?.currentIndex || 0
     totalCount = state?.totalCount || 0
+    beginDateAt = state?.beginDateAt || null
+    endDateAt = state?.endDateAt || null
     searchParams = state?.searchParams || {
       offset: 0,
     }
@@ -104,6 +110,9 @@ const DetailPagination = ({
       ...searchParams,
       first: 3,
       offset: index(),
+      beginDateAt: beginDateAt || null,
+      endDateAt: endDateAt || null,
+      orderBy: '-createdAt',
     }
 
     const fn = isB2BUser ? getB2BAllOrders : getBCAllOrders

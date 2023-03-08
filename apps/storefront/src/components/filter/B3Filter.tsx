@@ -28,7 +28,7 @@ interface sortByItemNameProps {
 
 interface PickerProps {
   isEnabled: boolean;
-  defaultValue?: Date | number | string
+  defaultValue?: Date | number | string | null
   label: string
   w?: number
   pickerKey?: string,
@@ -97,6 +97,10 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
     handleChange('search', value)
   }
 
+  const handleClearFilterChange = () => {
+    handleChange('clear', '')
+  }
+
   // const handleFilterMoreChange = (filterItems) => {
   //   handleFilterChange(filterItems)
   // }
@@ -134,6 +138,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
                   endPicker={endPicker}
                   fiterMoreInfo={fiterMoreInfo}
                   onChange={handleFilterChange}
+                  handleChange={handleClearFilterChange}
                 />
               )
             }
@@ -213,6 +218,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               endPicker={endPicker}
               fiterMoreInfo={fiterMoreInfo}
               onChange={handleFilterChange}
+              handleChange={handleClearFilterChange}
             />
           </Box>
           {
