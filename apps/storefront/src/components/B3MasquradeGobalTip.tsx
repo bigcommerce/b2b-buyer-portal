@@ -73,7 +73,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
     if (isOpen) {
       setOpenPage({
         isOpen: true,
-        openUrl: '/?closeMasqurade=1',
+        openUrl: '/dashboard?closeMasqurade=1',
       })
     } else {
       await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
@@ -92,7 +92,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
       )
       setOpenPage({
         isOpen: true,
-        openUrl: '/',
+        openUrl: '/dashboard',
       })
     }
   }

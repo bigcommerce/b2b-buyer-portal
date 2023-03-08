@@ -120,14 +120,15 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [variantInfo, setVariantInfo] = useState<ShoppingListProductItemVariants | null>(null)
   const [variantSku, setVariantSku] = useState('')
+  const [additionalProducts, setAdditionalProducts] = useState<CustomFieldItems>({})
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
       setIsLoading(true)
 
       const modifiers = product?.modifiers?.filter((modifier) => modifier.type === 'product_list_with_images') || []
-
       const productImages: SimpleObject = {}
+      const additionalProductsParams: CustomFieldItems = {}
       if (modifiers.length > 0) {
         const productIds = modifiers.reduce((arr: number[], modifier) => {
           const {
@@ -152,9 +153,12 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
 
           productsSearch.forEach((product: CustomFieldItems) => {
             productImages[product.id] = product.imageUrl
+            additionalProductsParams[product.id] = product
           })
         }
       }
+
+      setAdditionalProducts(additionalProductsParams)
 
       setQuantity(product.quantity)
       if (product.variants?.length === 1) {
@@ -288,7 +292,6 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
   const handleConfirmClicked = () => {
     handleSubmit((value) => {
       const optionsData = getOptionRequestData(formFields, {}, value)
-
       const optionList = Object.keys(optionsData).map((optionId) => ({
         optionId,
         optionValue: optionsData[optionId].toString(),
@@ -308,6 +311,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
         productId: product?.id,
         quantity: parseInt(quantity.toString(), 10) || 1,
         variantId: parseInt(variantId.toString(), 10) || 1,
+        additionalProducts,
       }])
     })()
   }

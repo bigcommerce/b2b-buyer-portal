@@ -17,29 +17,6 @@ interface QuoteListitemProps {
   }
 }
 
-// const getProductPrice = async (optionList: Partial<optionListItem>[], quoteListitem: CustomFieldItems) => {
-//   const currencies = B3SStorage.get('currencies')
-//   const channelId = B3SStorage.get('B3channelId')
-//   const customerInfo = B3SStorage.get('B3CustomerInfo') || {}
-
-//   if (!customerInfo?.customerGroupId) customerInfo.customerGroupId = 0
-
-//   const newOptionList: Partial<optionListItem>[] = []
-//   optionList.forEach((item: Partial<optionListItem>) => {
-//     const val = Number(item.optionValue)
-//     if (!Number.isNaN(val)) {
-//       newOptionList.push({
-//         option_id: item.optionId,
-//         value_id: Number(item.optionValue),
-//       })
-//     }
-//   })
-//   console.log(currencies, channelId, newOptionList, quoteListitem)
-//   // TODO: get product price
-//   // await
-//   return quoteListitem
-// }
-
 const addQuoteDraftProduce = async (quoteListitem: CustomFieldItems, qty: number, optionList: CustomFieldItems[]) => {
   const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
 

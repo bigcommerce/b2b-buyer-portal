@@ -22,6 +22,7 @@ import {
 } from 'uuid'
 import {
   searchB2BProducts,
+  searchBcProducts,
 } from '@/shared/service/b2b'
 
 import {
@@ -119,9 +120,11 @@ const useMyQuote = ({
       const sku = (document.querySelector('[data-product-sku]')?.innerHTML ?? '').trim()
       const form = document.querySelector('form[data-cart-item-add]')
 
+      const fn = +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
+
       const {
         productsSearch,
-      } = await searchB2BProducts({
+      } = await fn({
         productIds: [+productId],
       })
 
@@ -136,6 +139,46 @@ const useMyQuote = ({
       const optionMap = serialize(form)
 
       const optionList = getProductOptionList(optionMap)
+
+      // const modifiers = productsSearch[0]?.modifiers?.filter((modifier: CustomFieldItems) => modifier.type === 'product_list_with_images') || []
+      // const additionalCalculatedPrices: any = []
+
+      // const productIds = []
+
+      // if (modifiers.length > 0) {
+      //   modifiers.forEach((modifier: CustomFieldItems) => {
+      //     const optionValues = modifier.option_values
+      //     const productListWithImagesVlaue = optionList.find((item: CustomFieldItems) => item.optionId.includes(modifier.id))?.optionValue || ''
+      //     if (productListWithImagesVlaue) {
+      //       const additionalProductsParams = optionValues.find((item: CustomFieldItems) => +item.id === +productListWithImagesVlaue)
+      //       if (additionalProductsParams?.value_data?.product_id) productIds.push(additionalProductsParams.value_data.product_id)
+      //     }
+      //   })
+      // }
+
+      // if (productIds.length) {
+      //   const fn = +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
+
+      //   const {
+      //     productsSearch: additionalProductsSearch,
+      //   } = await fn({
+      //     productIds: productIds,
+      //   })
+
+      //   additionalProductsSearch.forEach((item: CustomFieldItems) => {
+      //     const additionalSku = item.sku
+      //     const additionalVariants = item.variants
+      //     const additionalCalculatedItem = additionalVariants.find((item: CustomFieldItems) => item.sku === additionalSku)
+      //     if (additionalCalculatedItem) {
+      //       additionalCalculatedPrices.push({
+      //         additionalCalculatedPrice: additionalCalculatedItem.bc_calculated_price.tax_exclusive,
+      //         additionalCalculatedPriceTax: additionalCalculatedItem.bc_calculated_price.tax_inclusive - additionalCalculatedItem.bc_calculated_price.tax_exclusive
+      //       })
+      //     }
+      //   })
+      // }
+
+      // console.log(additionalCalculatedPrices, additionalCalculatedPrices)
 
       const {
         isValid,

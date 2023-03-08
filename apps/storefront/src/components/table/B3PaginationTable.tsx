@@ -5,6 +5,7 @@ import {
   forwardRef,
   useImperativeHandle,
   Ref,
+  memo,
 } from 'react'
 
 import {
@@ -230,7 +231,7 @@ const PaginationTable:<T>(props: B3PaginationTableProps<T>) => ReactElement = ({
   )
 }
 
-const B3PaginationTable = forwardRef(PaginationTable)
+const B3PaginationTable = memo(forwardRef(PaginationTable))
 
 export {
   B3PaginationTable,

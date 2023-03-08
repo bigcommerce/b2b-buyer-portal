@@ -45,6 +45,8 @@ const PDP = lazy(() => import('../../pages/pdp/PDP'))
 
 const Quickorder = lazy(() => import('../../pages/quickorder/Quickorder'))
 
+const HomePage = lazy(() => import('../../pages/homePage/HomePage'))
+
 type RegisteredItem = typeof Registered
 
 interface RouteItemBasic {
@@ -69,6 +71,15 @@ export interface RouteFirstLevelItem extends RouteItemBasic{
 const routes: RouteItem[] = [
   {
     path: '/',
+    name: '',
+    wsKey: 'router-orders',
+    isMenuItem: false,
+    component: HomePage,
+    permissions: [0, 1, 2, 3, 4, 99, 100],
+    isTokenLogin: true,
+  },
+  {
+    path: '/dashboard',
     name: 'Dashboard',
     wsKey: 'router-orders',
     isMenuItem: true,
@@ -300,7 +311,7 @@ const gotoAllowedAppPage = (role: number, gotoPage: (url: string) => void) => {
     hash,
   } = window.location
   let url = hash.split('#')[1] || ''
-  if (!url && role !== 100) url = role === 3 ? '/' : '/orders'
+  if (!url && role !== 100) url = role === 3 ? '/dashboard' : '/orders'
   const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && item.permissions.includes(role))
 
   const isFirstLevelFlag = firstLevelRouting.some((item: RouteFirstLevelItem) => matchPath(item.path, url))

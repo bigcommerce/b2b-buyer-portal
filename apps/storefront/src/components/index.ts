@@ -76,3 +76,7 @@ export {
 export {
   B3Upload,
 } from './upload/B3Upload'
+
+export {
+  HomePageLoadding,
+} from './loadding/B3HomePageLoadding'

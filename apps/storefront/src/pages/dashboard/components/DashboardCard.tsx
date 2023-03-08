@@ -18,28 +18,26 @@ const DashboardCard = ({
   startActing,
   endActing,
   salesRepCompanyId = 0,
-}: DashboardCardProps) => {
-  console.log(row)
-  return (
-    <Card>
+}: DashboardCardProps) => (
+  <Card>
 
-      <CardContent
+    <CardContent
+      sx={{
+        color: '#313440',
+      }}
+    >
+
+      <Typography
         sx={{
-          color: '#313440',
+          fontWeight: 400,
+          fontSize: '24px',
+          color: 'rgba(0, 0, 0, 0.87)',
         }}
       >
+        {row.companyName}
+      </Typography>
 
-        <Typography
-          sx={{
-            fontWeight: 400,
-            fontSize: '24px',
-            color: 'rgba(0, 0, 0, 0.87)',
-          }}
-        >
-          {row.companyName}
-        </Typography>
-
-        {
+      {
         row.companyId === +salesRepCompanyId && (
         <Box
           sx={{
@@ -57,46 +55,46 @@ const DashboardCard = ({
         )
       }
 
-        <Box
+      <Box
+        sx={{
+          display: 'flex',
+          fontSize: '16px',
+          mt: '15px',
+        }}
+      >
+        <Typography
           sx={{
-            display: 'flex',
-            fontSize: '16px',
-            mt: '15px',
+            fontWeight: 500,
           }}
         >
-          <Typography
-            sx={{
-              fontWeight: 500,
-            }}
-          >
-            Admin:
-          </Typography>
-          <Typography variant="body1">
-            {row.companyAdminName}
-          </Typography>
-        </Box>
+          Admin:
+        </Typography>
+        <Typography variant="body1">
+          {row.companyAdminName}
+        </Typography>
+      </Box>
 
-        <Box
+      <Box
+        sx={{
+          display: 'flex',
+          fontSize: '16px',
+          mt: '15px',
+        }}
+      >
+        <Typography
           sx={{
-            display: 'flex',
-            fontSize: '16px',
-            mt: '15px',
+            fontWeight: 500,
           }}
         >
-          <Typography
-            sx={{
-              fontWeight: 500,
-            }}
-          >
-            Email:
-          </Typography>
-          <Typography variant="body1">
-            {row.companyEmail}
-          </Typography>
-        </Box>
-      </CardContent>
+          Email:
+        </Typography>
+        <Typography variant="body1">
+          {row.companyEmail}
+        </Typography>
+      </Box>
+    </CardContent>
 
-      {
+    {
         row.companyId === +salesRepCompanyId ? (
           <Button
             sx={{
@@ -122,8 +120,7 @@ const DashboardCard = ({
         )
       }
 
-    </Card>
-  )
-}
+  </Card>
+)
 
 export default DashboardCard

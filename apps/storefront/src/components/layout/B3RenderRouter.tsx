@@ -71,13 +71,13 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
         isOpen: true,
         openUrl: location.pathname,
       })
-      if (location.state && location.pathname === '/') location.state = null
+      if (location.state && location.pathname.includes('dashboard')) location.state = null
     }
   }, [location])
 
   useEffect(() => {
-    if (openUrl && openUrl === '/?closeMasqurade=1') {
-      navigate('/', {
+    if (openUrl && openUrl === '/dashboard?closeMasqurade=1') {
+      navigate('/dashboard', {
         state: {
           closeMasqurade: '1',
         },

@@ -259,7 +259,7 @@ export default function Login(props:RegisteredProps) {
           })
 
           if (info?.userType === 3 && info?.role === 3) {
-            navigate('/')
+            navigate('/dashboard')
           } else {
             navigate('/orders')
           }

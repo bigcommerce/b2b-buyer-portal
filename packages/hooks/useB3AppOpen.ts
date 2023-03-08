@@ -2,6 +2,7 @@ import {
   useState,
   useLayoutEffect,
   useCallback,
+  // useEffect,
 } from 'react'
 import globalB3 from '@b3/global-b3'
 

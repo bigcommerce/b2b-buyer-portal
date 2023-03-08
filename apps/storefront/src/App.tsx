@@ -199,6 +199,7 @@ export default function App() {
           userInfo.role = info?.role
         }
       }
+
       // background login enter judgment and refresh
       if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
         gotoAllowedAppPage(+userInfo.role, gotoPage)

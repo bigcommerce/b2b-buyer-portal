@@ -71,7 +71,32 @@ export const AddToQuote = (props: AddToListProps) => {
       name: productName,
       quantity,
       variants = [],
+      allOptions,
+      additionalProducts,
     } = product
+
+    const productListWithImages = allOptions.find((item: CustomFieldItems) => item.type === 'product_list_with_images')
+
+    let additionalCalculatedPrice = 0
+    let additionalCalculatedPriceTax = 0
+
+    if (productListWithImages) {
+      const optionId = productListWithImages.id
+      const optionValues = productListWithImages?.option_values || []
+      const productListWithImagesValue = newSelectOptionList.find((item: CustomFieldItems) => item.optionId.includes(optionId))?.optionValue || ''
+      if (productListWithImagesValue) {
+        const productId = optionValues.find((item: CustomFieldItems) => item.id.toString() === productListWithImagesValue)?.value_data?.product_id || ''
+        if (additionalProducts[productId]) {
+          const additionalSku = additionalProducts[productId].sku
+          const additionalVariants = additionalProducts[productId].variants
+          const additionalCalculatedItem = additionalVariants.find((item: CustomFieldItems) => item.sku === additionalSku)
+          if (additionalCalculatedItem) {
+            additionalCalculatedPrice = additionalCalculatedItem.calculated_price
+            additionalCalculatedPriceTax = additionalCalculatedItem.bc_calculated_price.tax_inclusive - additionalCalculatedItem.bc_calculated_price.tax_exclusive
+          }
+        }
+      }
+    }
 
     const variantInfo = variants.length === 1 ? variants[0] : variants.find((item: CustomFieldItems) => item.variant_id === variantId)
 
@@ -90,7 +115,9 @@ export const AddToQuote = (props: AddToListProps) => {
 
     return {
       node: {
-        basePrice,
+        basePrice: (additionalCalculatedPrice + basePrice).toFixed(2),
+        additionalCalculatedPrice,
+        additionalCalculatedPriceTax,
         optionList: selectOptions,
         id: uuid(),
         primaryImage,

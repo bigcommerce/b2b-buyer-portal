@@ -369,10 +369,11 @@ const QuoteDraft = ({
         productsSearch: {
           variants,
         },
+        basePrice,
       } = product.node
       const variantItem = variants.find((item: CustomFieldItems) => item.sku === variantSku)
 
-      product.node.basePrice = variantItem.bc_calculated_price.as_entered
+      product.node.basePrice = basePrice
       product.node.tax = variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive
 
       const newOptionList = JSON.parse(optionList) || []
@@ -470,16 +471,18 @@ const QuoteDraft = ({
         const varants = node.productsSearch.variants
         const varantsItem = varants.find((item: CustomFieldItems) => item.sku === node.variantSku)
 
-        allPrice += node.basePrice * node.quantity
+        allPrice += +node.basePrice * node.quantity
 
-        allTaxPrice += node.tax * node.quantity
+        const additionalCalculatedPriceTax = node?.additionalCalculatedPriceTax || 0
+
+        allTaxPrice += (+node.tax + +additionalCalculatedPriceTax) * node.quantity
 
         const items = {
           productId: node.productsSearch.id,
           sku: node.variantSku,
-          basePrice: node.basePrice.toFixed(2),
+          basePrice: (+node.basePrice).toFixed(2),
           discount: '0.00',
-          offeredPrice: node.basePrice.toFixed(2),
+          offeredPrice: (+node.basePrice).toFixed(2),
           quantity: node.quantity,
           variantId: varantsItem.variant_id,
           imageUrl: node.primaryImage,
@@ -584,8 +587,10 @@ const QuoteDraft = ({
             }}
             onClick={() => {
               if (openAPPParams?.quoteBtn) {
+                navigate('/')
                 setOpenPage({
                   isOpen: false,
+                  openUrl: '',
                 })
               } else {
                 navigate('/quotes')

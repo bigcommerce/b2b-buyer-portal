@@ -16,9 +16,6 @@ import type {
   OpenPageState,
 } from '@b3/hooks'
 import {
-  B3SStorage,
-} from '@/utils'
-import {
   useMobile,
 } from '@/hooks'
 

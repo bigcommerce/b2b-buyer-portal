@@ -142,7 +142,7 @@ export const B3Request = {
       },
     }, type)
   },
-  delete: function deleteFn<T, Y>(url: string, type: string): Promise<any> {
+  delete: function deleteFn(url: string, type: string): Promise<any> {
     return request(url, {
       method: 'DELETE',
     }, type)
