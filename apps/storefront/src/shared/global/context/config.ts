@@ -138,6 +138,7 @@ export interface GlobalState {
     currencies: currencyProps,
   },
   openAPPParams: OpenAPPParamsProps,
+  showPageMask: boolean,
 }
 
 export const initState = {
@@ -193,6 +194,7 @@ export const initState = {
   openAPPParams: {
     quoteBtn: '',
   },
+  showPageMask: false,
 }
 
 export interface GlobalAction {

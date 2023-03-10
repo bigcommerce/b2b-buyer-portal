@@ -23,7 +23,6 @@ import {
   loginInfo,
   getCurrentCustomerInfo,
   getQuoteEnabled,
-  showPageMask,
 } from '@/utils'
 
 import {
@@ -41,7 +40,7 @@ import {
   B3RenderRouter,
   B3MasquradeGobalTip,
   B3HoverButton,
-  // CheckoutTip,
+  showPageMask,
 } from '@/components'
 
 import {
@@ -206,7 +205,7 @@ export default function App() {
       }
 
       sessionStorage.removeItem('isReLogin')
-      showPageMask(false)
+      showPageMask(dispatch, false)
     }
 
     init()
@@ -242,7 +241,7 @@ export default function App() {
 
   useEffect(() => {
     if (isOpen) {
-      showPageMask(false)
+      showPageMask(dispatch, false)
     }
   }, [isOpen])
 

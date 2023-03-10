@@ -80,3 +80,8 @@ export {
 export {
   HomePageLoadding,
 } from './loadding/B3HomePageLoadding'
+
+export {
+  B3PageMask,
+  showPageMask,
+} from './pageMask/B3PageMask'

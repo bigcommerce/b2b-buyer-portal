@@ -46,9 +46,11 @@ import {
 
 import {
   B3SStorage,
-  showPageMask,
-  // storeHash,
 } from '@/utils'
+
+import {
+  showPageMask,
+} from '@/components'
 
 import DashboardCard from './components/DashboardCard'
 
@@ -155,7 +157,7 @@ const Dashboard = () => {
 
   const endActing = async () => {
     try {
-      showPageMask(true)
+      showPageMask(dispatch, true)
       await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
       location.state = null
       B3SStorage.delete('isAgenting')
@@ -175,7 +177,7 @@ const Dashboard = () => {
         ...filterData,
       })
     } finally {
-      showPageMask(false)
+      showPageMask(dispatch, false)
     }
   }
 

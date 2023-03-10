@@ -17,8 +17,12 @@ import {
 
 import {
   B3SStorage,
-  showPageMask,
 } from '@/utils'
+
+import {
+  B3PageMask,
+  showPageMask,
+} from '@/components'
 
 interface B3StoreContainerProps {
   children: ReactNode
@@ -49,7 +53,7 @@ export const B3StoreContainer = (props: B3StoreContainerProps) => {
   useLayoutEffect(() => {
     const getStoreBasicInfo = async () => {
       if (window.location.pathname.includes('account.php') || window.location.hash) {
-        showPageMask(true)
+        showPageMask(dispatch, true)
       }
 
       try {
@@ -76,12 +80,12 @@ export const B3StoreContainer = (props: B3StoreContainerProps) => {
         })
 
         if (!storeEnabled) {
-          showPageMask(false)
+          showPageMask(dispatch, false)
         }
 
         B3SStorage.set('B3channelId', channelId)
       } catch (error) {
-        showPageMask(false)
+        showPageMask(dispatch, false)
       }
     }
     getStoreBasicInfo()
@@ -94,6 +98,7 @@ export const B3StoreContainer = (props: B3StoreContainerProps) => {
   return (
     <>
       {storeEnabled ? children : null}
+      <B3PageMask />
     </>
   )
 }
