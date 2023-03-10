@@ -25,10 +25,6 @@ import {
 } from '@/shared/global'
 
 import {
-  distanceDay,
-} from '@/utils'
-
-import {
   getB2BAllOrders,
   getBCAllOrders,
   getOrderStatusType,

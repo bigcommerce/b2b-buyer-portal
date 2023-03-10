@@ -1,7 +1,6 @@
 import FilterListIcon from '@mui/icons-material/FilterList'
 import {
   Box,
-  Grid,
 } from '@mui/material'
 
 import Button from '@mui/material/Button'
@@ -16,7 +15,6 @@ import {
   useRef,
   BaseSyntheticEvent,
   ReactElement,
-  useEffect,
 } from 'react'
 
 import {
