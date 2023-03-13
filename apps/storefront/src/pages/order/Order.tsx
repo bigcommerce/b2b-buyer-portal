@@ -302,7 +302,7 @@ const Order = ({
             endPicker={{
               isEnabled: true,
               label: 'To',
-              defaultValue: filterData?.beginDateAt || null,
+              defaultValue: filterData?.endDateAt || null,
               pickerKey: 'end',
             }}
             fiterMoreInfo={filterInfo}
