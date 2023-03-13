@@ -222,7 +222,7 @@ const useCartToQuote = ({
 
       const productsWithSKU = cartProductsList.filter(({
         sku,
-      }) => sku !== '' && sku !== null && sku !== undefined)
+      }) => !!sku)
 
       const productIds: number[] = []
       productsWithSKU.forEach((product: CustomFieldItems) => {
@@ -246,26 +246,27 @@ const useCartToQuote = ({
           name,
           quantity,
           variantId,
+          originalPrice,
+          salePrice,
+          imageUrl,
         } = product
 
         const optionsList = getOptionsList(options)
         const currentProductSearch = newProductInfo.find((product: any) => +product.id === +productId)
 
-        const variantItem = currentProductSearch.variants.find((item: CustomFieldItems) => item.sku === sku)
-
         const quoteListitem = {
           node: {
             id: uuid(),
-            variantSku: variantItem.sku,
+            variantSku: sku,
             variantId,
             productsSearch: currentProductSearch,
-            primaryImage: variantItem.image_url || PRODUCT_DEFAULT_IMAGE,
+            primaryImage: imageUrl || PRODUCT_DEFAULT_IMAGE,
             productName: name,
             quantity: +quantity || 1,
             optionList: JSON.stringify(optionsList),
             productId,
-            basePrice: variantItem.bc_calculated_price.as_entered,
-            tax: variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive,
+            basePrice: originalPrice,
+            tax: salePrice - originalPrice,
           },
         }
 

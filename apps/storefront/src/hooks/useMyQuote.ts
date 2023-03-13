@@ -29,6 +29,8 @@ import {
   B3LStorage,
   addQuoteDraftProduce,
   isAllRequiredOptionFilled,
+  getModifiersPrice,
+  getProductExtraPrice,
 } from '@/utils'
 
 import {
@@ -140,46 +142,11 @@ const useMyQuote = ({
 
       const optionList = getProductOptionList(optionMap)
 
-      // const modifiers = productsSearch[0]?.modifiers?.filter((modifier: CustomFieldItems) => modifier.type === 'product_list_with_images') || []
-      // const additionalCalculatedPrices: any = []
+      const modifiersPrice = getModifiersPrice(productsSearch[0]?.modifiers || [], optionList)
 
-      // const productIds = []
+      const productExtraPrice = await getProductExtraPrice(productsSearch[0]?.modifiers || [], optionList, +role)
 
-      // if (modifiers.length > 0) {
-      //   modifiers.forEach((modifier: CustomFieldItems) => {
-      //     const optionValues = modifier.option_values
-      //     const productListWithImagesVlaue = optionList.find((item: CustomFieldItems) => item.optionId.includes(modifier.id))?.optionValue || ''
-      //     if (productListWithImagesVlaue) {
-      //       const additionalProductsParams = optionValues.find((item: CustomFieldItems) => +item.id === +productListWithImagesVlaue)
-      //       if (additionalProductsParams?.value_data?.product_id) productIds.push(additionalProductsParams.value_data.product_id)
-      //     }
-      //   })
-      // }
-
-      // if (productIds.length) {
-      //   const fn = +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
-
-      //   const {
-      //     productsSearch: additionalProductsSearch,
-      //   } = await fn({
-      //     productIds: productIds,
-      //   })
-
-      //   additionalProductsSearch.forEach((item: CustomFieldItems) => {
-      //     const additionalSku = item.sku
-      //     const additionalVariants = item.variants
-      //     const additionalCalculatedItem = additionalVariants.find((item: CustomFieldItems) => item.sku === additionalSku)
-      //     if (additionalCalculatedItem) {
-      //       additionalCalculatedPrices.push({
-      //         additionalCalculatedPrice: additionalCalculatedItem.bc_calculated_price.tax_exclusive,
-      //         additionalCalculatedPriceTax: additionalCalculatedItem.bc_calculated_price.tax_inclusive - additionalCalculatedItem.bc_calculated_price.tax_exclusive
-      //       })
-      //     }
-      //   })
-      // }
-
-      // console.log(additionalCalculatedPrices, additionalCalculatedPrices)
-
+      const additionalCalculatedPrices = [...modifiersPrice, ...productExtraPrice]
       const {
         isValid,
         message,
@@ -204,6 +171,7 @@ const useMyQuote = ({
           quantity: +qty,
           optionList: JSON.stringify(optionList),
           productId,
+          additionalCalculatedPrices,
           basePrice: variantItem.bc_calculated_price.as_entered,
           tax: variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive,
         },

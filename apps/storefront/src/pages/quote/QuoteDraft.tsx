@@ -341,6 +341,21 @@ const QuoteDraft = ({
     }
     const list = quoteDraftAllList.slice(startIndex, endIndex)
 
+    list.forEach((item: any) => {
+      let additionalCalculatedPriceTax = 0
+      let additionalCalculatedPrice = 0
+
+      if (item.node.additionalCalculatedPrices.length) {
+        item.node.additionalCalculatedPrices.forEach((item: any) => {
+          additionalCalculatedPriceTax += item.additionalCalculatedPriceTax
+          additionalCalculatedPrice += item.additionalCalculatedPrice
+        })
+      }
+
+      item.node.basePrice = (+item.node.basePrice) + additionalCalculatedPrice
+      item.node.tax = (+item.node.tax) + additionalCalculatedPriceTax
+    })
+
     return {
       edges: list,
       totalCount: quoteDraftAllList.length,
@@ -471,18 +486,22 @@ const QuoteDraft = ({
         const varants = node.productsSearch.variants
         const varantsItem = varants.find((item: CustomFieldItems) => item.sku === node.variantSku)
 
-        allPrice += +node.basePrice * node.quantity
+        let prices = 0
+        let tax = 0
+        node.additionalCalculatedPrices.forEach((item: CustomFieldItems) => {
+          prices += item.additionalCalculatedPrice
+          tax += item.additionalCalculatedPriceTax
+        })
+        allPrice += (+node.basePrice + prices) * node.quantity
 
-        const additionalCalculatedPriceTax = node?.additionalCalculatedPriceTax || 0
-
-        allTaxPrice += (+node.tax + +additionalCalculatedPriceTax) * node.quantity
+        allTaxPrice += (+node.tax + tax) * node.quantity
 
         const items = {
           productId: node.productsSearch.id,
           sku: node.variantSku,
-          basePrice: (+node.basePrice).toFixed(2),
+          basePrice: (+node.basePrice + prices).toFixed(2),
           discount: '0.00',
-          offeredPrice: (+node.basePrice).toFixed(2),
+          offeredPrice: (+node.basePrice + prices).toFixed(2),
           quantity: node.quantity,
           variantId: varantsItem.variant_id,
           imageUrl: node.primaryImage,

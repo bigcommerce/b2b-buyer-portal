@@ -37,6 +37,10 @@ import {
 } from '@/components'
 
 import {
+  PRODUCT_DEFAULT_IMAGE,
+} from '@/constants'
+
+import {
   ProductsProps,
   addlineItems,
   getProductOptionsFields,
@@ -172,8 +176,6 @@ const mobileItemStyle = {
     flexDirection: 'row-reverse',
   },
 }
-
-const defaultProductImage = 'https://cdn11.bigcommerce.com/s-1i6zpxpe3g/stencil/cd9e3830-4c73-0139-8a51-0242ac11000a/e/4fe76590-73f1-0139-3767-32e4ea84ca1d/img/ProductDefault.gif'
 
 export const ReAddToCart = (props: ShoppingProductsProps) => {
   const {
@@ -430,7 +432,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                         key={variantSku}
                       >
                         <FlexItem flexBasis="100px">
-                          <ProductImage src={primaryImage || defaultProductImage} />
+                          <ProductImage src={primaryImage || PRODUCT_DEFAULT_IMAGE} />
                           <Box
                             sx={{
                               marginLeft: '16px',

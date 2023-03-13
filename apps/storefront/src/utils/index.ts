@@ -68,6 +68,9 @@ import {
 
 export {
   addQuoteDraftProduce,
+  getModifiersPrice,
+  getProductExtraPrice,
+  getQuickAddProductExtraPrice,
 } from './b3Product'
 
 export {

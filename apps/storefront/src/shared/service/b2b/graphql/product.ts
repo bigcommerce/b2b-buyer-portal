@@ -16,7 +16,8 @@ const getVariantInfoBySkus = ({
   skus = [],
 }) => `{
   variantSku (
-    variantSkus: ${convertArrayToGraphql(skus)}
+    variantSkus: ${convertArrayToGraphql(skus)},
+    storeHash: "${storeHash}"
   ){
     isStock,
     stock,

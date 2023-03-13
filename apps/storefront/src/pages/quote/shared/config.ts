@@ -1,3 +1,8 @@
+interface AdditionalCalculatedPricesProps {
+  additionalCalculatedPrice: number
+  additionalCalculatedPriceTax: number
+}
+
 export interface QuoteListitemProps {
   node: {
     variantSku: number | string,
@@ -10,8 +15,9 @@ export interface QuoteListitemProps {
     productsSearch: CustomFieldItems
     quantity: number,
     tax: number,
-    additionalCalculatedPrice?: number
-    additionalCalculatedPriceTax?: number
+    additionalCalculatedPrices: AdditionalCalculatedPricesProps[],
+    // additionalCalculatedPrice?: number
+    // additionalCalculatedPriceTax?: number
   }
 }
 

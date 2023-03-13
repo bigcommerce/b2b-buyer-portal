@@ -45,6 +45,10 @@ import {
 } from '@/components/table/B3PaginationTable'
 
 import {
+  PRODUCT_DEFAULT_IMAGE,
+} from '@/constants'
+
+import {
   useMobile,
 } from '@/hooks'
 
@@ -152,8 +156,6 @@ const StyledTextField = styled(TextField)(() => ({
     paddingRight: '6px',
   },
 }))
-
-const defaultProductImage = 'https://cdn11.bigcommerce.com/s-1i6zpxpe3g/stencil/cd9e3830-4c73-0139-8a51-0242ac11000a/e/4fe76590-73f1-0139-3767-32e4ea84ca1d/img/ProductDefault.gif'
 
 const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
   const [isMobile] = useMobile()
@@ -373,7 +375,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
             }}
           >
             <StyledImage
-              src={row.primaryImage || defaultProductImage}
+              src={row.primaryImage || PRODUCT_DEFAULT_IMAGE}
               alt="Product-img"
               loading="lazy"
             />

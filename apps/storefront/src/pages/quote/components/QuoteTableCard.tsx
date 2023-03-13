@@ -11,6 +11,10 @@ import {
 } from '@mui/icons-material'
 
 import {
+  PRODUCT_DEFAULT_IMAGE,
+} from '@/constants'
+
+import {
   getProductOptionsFields,
 } from '../../shoppingListDetails/shared/config'
 
@@ -30,8 +34,6 @@ const StyledImage = styled('img')(() => ({
   height: 'auto',
   marginRight: '0.5rem',
 }))
-
-const defaultProductImage = 'https://cdn11.bigcommerce.com/s-1i6zpxpe3g/stencil/cd9e3830-4c73-0139-8a51-0242ac11000a/e/4fe76590-73f1-0139-3767-32e4ea84ca1d/img/ProductDefault.gif'
 
 const QuoteTableCard = (props: QuoteTableCardProps) => {
   const {
@@ -86,7 +88,7 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
       >
         <Box>
           <StyledImage
-            src={primaryImage || defaultProductImage}
+            src={primaryImage || PRODUCT_DEFAULT_IMAGE}
             alt="Product-img"
             loading="lazy"
           />

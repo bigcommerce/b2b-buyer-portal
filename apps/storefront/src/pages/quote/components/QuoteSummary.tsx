@@ -54,7 +54,7 @@ export const QuoteSummary = (props: QuoteSummaryProps) => {
         basePrice,
         tax: productTax,
         quantity,
-        additionalCalculatedPriceTax = 0,
+        additionalCalculatedPrices = [],
       } = product.node
 
       let {
@@ -67,8 +67,17 @@ export const QuoteSummary = (props: QuoteSummaryProps) => {
         shipping,
       } = summary
 
-      subtotal += priceCalc(basePrice * quantity)
-      tax += priceCalc((productTax + additionalCalculatedPriceTax) * quantity)
+      let additionalCalculatedPriceTax = 0
+
+      let additionalCalculatedPrice = 0
+
+      additionalCalculatedPrices.forEach((item: CustomFieldItems) => {
+        additionalCalculatedPriceTax += item.additionalCalculatedPriceTax
+        additionalCalculatedPrice += item.additionalCalculatedPrice
+      })
+
+      subtotal += priceCalc((+basePrice + additionalCalculatedPrice) * quantity)
+      tax += priceCalc((+productTax + additionalCalculatedPriceTax) * quantity)
 
       grandTotal = subtotal + shipping
 
