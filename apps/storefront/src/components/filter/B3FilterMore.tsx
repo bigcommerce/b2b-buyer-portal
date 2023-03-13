@@ -98,9 +98,6 @@ const B3FilterMore:<T, Y> ({
   }
 
   const handleFilterStatus = (submitData?: any) => {
-    const startTime = startPicker?.defaultValue
-    const endTime = endPicker?.defaultValue
-
     if (submitData) {
       const filterCountArr = []
       const isNotFiltering = Object.keys(submitData).every((item) => submitData[item] === '')
@@ -111,10 +108,7 @@ const B3FilterMore:<T, Y> ({
       })
 
       setIsFiltering(!isNotFiltering)
-      setFilterCounter(startTime && endTime ? filterCountArr.length - 1 : filterCountArr.length)
-    } else {
-      setIsFiltering(false)
-      setFilterCounter(0)
+      setFilterCounter(filterCountArr.length)
     }
   }
 
@@ -134,12 +128,25 @@ const B3FilterMore:<T, Y> ({
   }
 
   const handleClearFilters = () => {
+    const restFilterData: { [x: string]: string } = {}
     Object.keys(getValues()).forEach((item: string) => {
       setValue(item, '')
+      restFilterData[item] = ''
     })
     pickerRef.current?.setClearPickerValue()
 
-    handleFilterStatus()
+    if (startPicker && endPicker) {
+      startPicker.defaultValue = ''
+      endPicker.defaultValue = ''
+    }
+
+    const submitData: any = {
+      startValue: startPicker?.defaultValue || '',
+      endValue: endPicker?.defaultValue || '',
+      ...restFilterData,
+    }
+
+    handleFilterStatus(submitData)
   }
 
   return (
