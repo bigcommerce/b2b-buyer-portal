@@ -196,16 +196,19 @@ const Order = ({
           {item.orderId}
         </Box>
       ),
+      width: '10%',
     },
     {
       key: 'poNumber',
       title: 'PO / Reference',
       render: (item: ListItem) => (<Box>{item.poNumber ? item.poNumber : '-'}</Box>),
+      width: '10%',
     },
     {
       key: 'totalIncTax',
       title: 'Grand total',
       render: (item: ListItem) => (`${currencySymbol(item.money)}${item.totalIncTax}`),
+      width: '10%',
     },
     {
       key: 'status',
@@ -216,22 +219,25 @@ const Order = ({
           code={item.status}
         />
       ),
-      width: '200px',
+      width: '10%',
     },
     {
       key: 'placedby',
       title: 'Placed by',
       render: (item: ListItem) => (`${item.firstName} ${item.lastName}`),
-    },
-    {
-      key: 'companyId',
-      title: 'Company',
-      render: (item) => (`${((item as ListCompanyItem)?.companyId)?.companyName || ''}`),
+      width: '10%',
     },
     {
       key: 'createdAt',
       title: 'Created on',
       render: (item: ListItem) => format(+item.createdAt * 1000, 'dd MMM yyyy'),
+      width: '10%',
+    },
+    {
+      key: 'companyId',
+      title: 'Company',
+      render: (item) => (`${((item as ListCompanyItem)?.companyId)?.companyName || ''}`),
+      width: '10%',
     },
   ]
 
@@ -241,7 +247,7 @@ const Order = ({
         key,
       } = item
       if ((!isB2BUser || (+role === 3 && !isAgenting)) && (key === 'placedby')) return false
-      if (key === 'companyId' && ((isB2BUser && !isCompanyOrder) || +role !== 3 || isAgenting)) return false
+      if (key === 'companyId' && (isB2BUser && (+role !== 3 || isAgenting))) return false
       if ((key === 'companyId' || key === 'placedby') && !(+role === 3 && !isAgenting) && !isCompanyOrder) return false
       return true
     })
