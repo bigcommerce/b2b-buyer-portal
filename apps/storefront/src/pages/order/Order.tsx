@@ -241,8 +241,8 @@ const Order = ({
         key,
       } = item
       if ((!isB2BUser || (+role === 3 && !isAgenting)) && (key === 'placedby')) return false
-      // if (key === 'companyId' && ((isB2BUser && !isCompanyOrder) || +role !== 3 || isAgenting)) return false
-      if ((key === 'companyId' || key === 'placedby') && !(+role === 3 && !isAgenting)) return false
+      if (key === 'companyId' && ((isB2BUser && !isCompanyOrder) || +role !== 3 || isAgenting)) return false
+      if ((key === 'companyId' || key === 'placedby') && !(+role === 3 && !isAgenting) && !isCompanyOrder) return false
       return true
     })
 

@@ -75,11 +75,21 @@ export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean, or
       variant: 'filled',
       size: 'small',
     },
+    {
+      name: 'PlacedBy',
+      label: 'Placed by',
+      required: false,
+      default: '',
+      fieldType: 'text',
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
   ]
 
   const filterCurrentMoreList = filterMoreList.filter((item) => {
     if (!isB2BUser && (item.name === 'company' || item.name === 'PlacedBy')) return false
-    if (isB2BUser && !isCompanyOrder && item.name === 'company') return false
+    if (isB2BUser && !isCompanyOrder && (item.name === 'company' || item.name === 'PlacedBy')) return false
     return true
   })
 
