@@ -240,9 +240,9 @@ const Order = ({
       const {
         key,
       } = item
-      if ((!isB2BUser || (role === 3 && !isAgenting)) && (key === 'companyId' || key === 'poNumber' || key === 'placedby')) return false
+      if ((!isB2BUser || (+role === 3 && !isAgenting)) && (key === 'placedby')) return false
       // if (key === 'companyId' && ((isB2BUser && !isCompanyOrder) || +role !== 3 || isAgenting)) return false
-      if ((key === 'companyId') && !(+role === 3 && !isAgenting)) return false
+      if ((key === 'companyId' || key === 'placedby') && !(+role === 3 && !isAgenting)) return false
       return true
     })
 
