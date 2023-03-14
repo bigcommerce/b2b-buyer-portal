@@ -154,6 +154,8 @@ const AccountSetting = () => {
 
   const [accountSettings, setAccountSettings] = useState<any>({})
 
+  const [isVisible, setIsVisible] = useState<boolean>(false)
+
   const companyId = role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId
 
   const isBCUser = !isB2BUser || (role === 3 && !isAgenting)
@@ -276,6 +278,7 @@ const AccountSetting = () => {
           B3SStorage.delete('isFinshUpdate')
         }
         setLoadding(false)
+        setIsVisible(true)
       }
     }
 
@@ -491,11 +494,12 @@ const AccountSetting = () => {
   return (
     <B3Sping
       isSpinning={isloadding}
+      background="rgb(254, 249, 245)"
     >
       <Box
         sx={{
           width: `${isMobile ? '100%' : '35%'}`,
-          minHeight: '300px',
+          minHeight: `${isMobile ? '800px' : '300px'}`,
         }}
       >
         <B3CustomForm
@@ -511,6 +515,7 @@ const AccountSetting = () => {
             mt: '28px',
             mb: `${isMobile ? '20px' : '0'}`,
             width: '100%',
+            visibility: `${isVisible ? 'visible' : 'hidden'}`,
           }}
           onClick={handleAddUserClick}
           variant="contained"

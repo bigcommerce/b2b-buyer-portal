@@ -55,6 +55,10 @@ import B3FilterMore from '../../../components/filter/B3FilterMore'
 
 import QuickOrderCard from './QuickOrderCard'
 
+import {
+  B3Sping,
+} from '@/components'
+
 interface ListItem {
   [key: string]: string
 }
@@ -107,6 +111,7 @@ const StyledImage = styled('img')(() => ({
 interface QuickorderTableProps {
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
   setCheckedArr: (values: CustomFieldItems) => void,
+  isRequestLoading: boolean,
 }
 
 const StyledTextField = styled(TextField)(() => ({
@@ -119,6 +124,7 @@ const StyledTextField = styled(TextField)(() => ({
 const QuickorderTable = ({
   setIsRequestLoading,
   setCheckedArr,
+  isRequestLoading,
 }: QuickorderTableProps) => {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
@@ -363,131 +369,133 @@ const QuickorderTable = ({
   ]
 
   return (
-
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+    <B3Sping
+      isSpinning={isRequestLoading}
     >
-      <Typography
-        sx={{
-          fontSize: '24px',
-          height: '50px',
-        }}
-      >
-        {`${total} products`}
-      </Typography>
       <Box
         sx={{
-          marginBottom: '5px',
           display: 'flex',
-          '& label': {
-            zIndex: 0,
-          },
+          flexDirection: 'column',
         }}
       >
-        <Box
+        <Typography
           sx={{
-            width: isMobile ? '100%' : '40%',
-            mr: '20px',
-            display: 'flex',
-            justifyContent: isMobile ? 'space-between' : 'flex-start',
+            fontSize: '24px',
+            height: '50px',
           }}
         >
-          <B3FilterSearch
-            h="48px"
-            searchBGColor="rgba(0, 0, 0, 0.06)"
-            handleChange={(e) => {
-              handleSearchProduct(e)
+          {`${total} products`}
+        </Typography>
+        <Box
+          sx={{
+            marginBottom: '5px',
+            display: 'flex',
+            '& label': {
+              zIndex: 0,
+            },
+          }}
+        >
+          <Box
+            sx={{
+              width: isMobile ? '100%' : '40%',
+              mr: '20px',
+              display: 'flex',
+              justifyContent: isMobile ? 'space-between' : 'flex-start',
             }}
-          />
+          >
+            <B3FilterSearch
+              h="48px"
+              searchBGColor="rgba(0, 0, 0, 0.06)"
+              handleChange={(e) => {
+                handleSearchProduct(e)
+              }}
+            />
+
+            {
+              isMobile && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <B3FilterMore
+                  fiterMoreInfo={[]}
+                  startPicker={{
+                    isEnabled: true,
+                    label: 'From',
+                    defaultValue: search?.beginDateAt || '',
+                    pickerKey: 'start',
+                  }}
+                  endPicker={{
+                    isEnabled: true,
+                    label: 'To',
+                    defaultValue: search?.endDateAt || '',
+                    pickerKey: 'end',
+                  }}
+                  isShowMore
+                  onChange={handleFilterChange}
+                />
+              </Box>
+              )
+            }
+
+          </Box>
 
           {
-            isMobile && (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
+            !isMobile && (
+            <B3FilterPicker
+              handleChange={handlePickerChange}
+              xs={{
+                mt: 0,
+                height: '50px',
               }}
-            >
-              <B3FilterMore
-                fiterMoreInfo={[]}
-                startPicker={{
-                  isEnabled: true,
-                  label: 'From',
-                  defaultValue: search?.beginDateAt || '',
-                  pickerKey: 'start',
-                }}
-                endPicker={{
-                  isEnabled: true,
-                  label: 'To',
-                  defaultValue: search?.endDateAt || '',
-                  pickerKey: 'end',
-                }}
-                isShowMore
-                onChange={handleFilterChange}
-              />
-            </Box>
+              startPicker={{
+                isEnabled: true,
+                label: 'From',
+                defaultValue: distanceDay(30),
+                pickerKey: 'start',
+              }}
+              endPicker={{
+                isEnabled: true,
+                label: 'To',
+                defaultValue: distanceDay(),
+                pickerKey: 'end',
+              }}
+            />
             )
           }
 
         </Box>
 
-        {
-          !isMobile && (
-          <B3FilterPicker
-            handleChange={handlePickerChange}
-            xs={{
-              mt: 0,
-              height: '50px',
-            }}
-            startPicker={{
-              isEnabled: true,
-              label: 'From',
-              defaultValue: distanceDay(30),
-              pickerKey: 'start',
-            }}
-            endPicker={{
-              isEnabled: true,
-              label: 'To',
-              defaultValue: distanceDay(),
-              pickerKey: 'end',
-            }}
-          />
-          )
-        }
+        <B3PaginationTable
+          ref={paginationTableRef}
+          columnItems={columnItems}
+          rowsPerPageOptions={[12, 24, 36]}
+          getRequestList={getList}
+          searchParams={search}
+          isCustomRender={false}
+          showCheckbox
+          disableCheckbox={false}
+          hover
+          labelRowsPerPage="Items per page:"
+          showBorder={false}
+          requestLoading={setIsRequestLoading}
+          getSelectCheckbox={getSelectCheckbox}
+          itemIsMobileSpacing={0}
+          noDataText="No products found"
+          renderItem={(row: ProductInfoProps, index?: number, checkBox?: () => ReactElement) => (
+            <QuickOrderCard
+              item={row}
+              checkBox={checkBox}
+              currencyToken={currencyToken}
+              handleUpdateProductQty={handleUpdateProductQty}
+            />
+          )}
+        />
 
       </Box>
-
-      <B3PaginationTable
-        ref={paginationTableRef}
-        columnItems={columnItems}
-        rowsPerPageOptions={[12, 24, 36]}
-        getRequestList={getList}
-        searchParams={search}
-        isCustomRender={false}
-        showCheckbox
-        disableCheckbox={false}
-        hover
-        labelRowsPerPage="Items per page:"
-        showBorder={false}
-        requestLoading={setIsRequestLoading}
-        getSelectCheckbox={getSelectCheckbox}
-        itemIsMobileSpacing={0}
-        noDataText="No products found"
-        renderItem={(row: ProductInfoProps, index?: number, checkBox?: () => ReactElement) => (
-          <QuickOrderCard
-            item={row}
-            checkBox={checkBox}
-            currencyToken={currencyToken}
-            handleUpdateProductQty={handleUpdateProductQty}
-          />
-        )}
-      />
-
-    </Box>
-
+    </B3Sping>
   )
 }
 

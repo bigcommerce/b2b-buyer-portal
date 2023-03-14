@@ -17,10 +17,6 @@ import {
   useMobile,
 } from '@/hooks'
 
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
 import QuickorderTable from './components/QuickorderTable'
 import QuickOrderFooter from './components/QuickOrderFooter'
 import {
@@ -44,77 +40,72 @@ const Quickorder = () => {
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
 
   return (
-    <B3Sping
-      isSpinning={isRequestLoading}
+    <Box
+      sx={{
+        width: '100%',
+      }}
     >
       <Box
         sx={{
-          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
         }}
       >
-        <Box
+        <Grid
           sx={{
-            display: 'flex',
-            justifyContent: 'center',
+            m: 0,
+            width: '100%',
           }}
+          container
+          spacing={2}
         >
           <Grid
+            item
+            xs={isMobile ? 12 : 8}
             sx={{
-              m: 0,
-              width: '100%',
+              backgroundColor: '#ffffff',
             }}
-            container
-            spacing={2}
           >
-
-            <Grid
-              item
-              xs={isMobile ? 12 : 8}
-              sx={{
-                backgroundColor: '#ffffff',
-              }}
-            >
-              <QuickorderTable
-                setCheckedArr={setCheckedArr}
-                setIsRequestLoading={setIsRequestLoading}
-              />
-            </Grid>
-
-            <Grid
-              item
-              xs={isMobile ? 12 : 4}
-              sx={{
-                pt: !isMobile ? '0px !important' : '16px',
-                pl: isMobile ? '0px !important' : '16px',
-              }}
-            >
-              {
-                role !== 2 && (
-                  <QuickOrderPad />
-                )
-              }
-            </Grid>
+            <QuickorderTable
+              setCheckedArr={setCheckedArr}
+              setIsRequestLoading={setIsRequestLoading}
+              isRequestLoading={isRequestLoading}
+            />
           </Grid>
-        </Box>
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            zIndex: '999',
-          }}
-        >
-          <QuickOrderFooter
-            role={role}
-            checkedArr={checkedArr}
-            isAgenting={isAgenting}
-            setIsRequestLoading={setIsRequestLoading}
-            isB2BUser={isB2BUser}
-          />
-        </Box>
+          <Grid
+            item
+            xs={isMobile ? 12 : 4}
+            sx={{
+              pt: !isMobile ? '0px !important' : '16px',
+              pl: isMobile ? '0px !important' : '16px',
+            }}
+          >
+            {
+              role !== 2 && (
+                <QuickOrderPad />
+              )
+            }
+          </Grid>
+        </Grid>
       </Box>
-    </B3Sping>
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          zIndex: '999',
+        }}
+      >
+        <QuickOrderFooter
+          role={role}
+          checkedArr={checkedArr}
+          isAgenting={isAgenting}
+          setIsRequestLoading={setIsRequestLoading}
+          isB2BUser={isB2BUser}
+        />
+      </Box>
+    </Box>
   )
 }
 
