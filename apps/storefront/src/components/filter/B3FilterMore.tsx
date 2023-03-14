@@ -15,6 +15,7 @@ import {
   useRef,
   BaseSyntheticEvent,
   ReactElement,
+  useEffect,
 } from 'react'
 
 import {
@@ -73,6 +74,8 @@ const B3FilterMore:<T, Y> ({
   const [isFiltering, setIsFiltering] = useState<boolean>(false)
   const [filterCounter, setFilterCounter] = useState<number>(0)
 
+  const [cacheData, setCacheData] = useState<CustomFieldItems | null>(null)
+
   const pickerRef = useRef<PickerRefProps | null>(null)
 
   const {
@@ -88,6 +91,14 @@ const B3FilterMore:<T, Y> ({
   })
 
   const [isMobile] = useMobile()
+
+  useEffect(() => {
+    if (cacheData) {
+      Object.keys(cacheData).forEach((item: string) => {
+        setValue(item, cacheData[item])
+      })
+    }
+  }, [open])
 
   const handleDialogClick = () => {
     setOpen(true)
@@ -122,31 +133,20 @@ const B3FilterMore:<T, Y> ({
 
         handleFilterStatus(submitData)
         onChange(submitData)
+
+        setCacheData({
+          ...data,
+        })
       }
       handleClose()
     })(event)
   }
 
   const handleClearFilters = () => {
-    const restFilterData: { [x: string]: string } = {}
     Object.keys(getValues()).forEach((item: string) => {
       setValue(item, '')
-      restFilterData[item] = ''
     })
     pickerRef.current?.setClearPickerValue()
-
-    if (startPicker && endPicker) {
-      startPicker.defaultValue = ''
-      endPicker.defaultValue = ''
-    }
-
-    const submitData: any = {
-      startValue: startPicker?.defaultValue || '',
-      endValue: endPicker?.defaultValue || '',
-      ...restFilterData,
-    }
-
-    handleFilterStatus(submitData)
   }
 
   return (
