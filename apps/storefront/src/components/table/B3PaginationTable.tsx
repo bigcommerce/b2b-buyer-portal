@@ -56,6 +56,7 @@ interface B3PaginationTableProps<T> {
   labelRowsPerPage?: string,
   itemIsMobileSpacing?: number,
   disableCheckbox?: boolean,
+  onClickRow?: (item: any, index?: number) => void,
   showRowsPerPageOptions?: boolean,
 }
 
@@ -85,6 +86,7 @@ const PaginationTable:<T>(props: B3PaginationTableProps<T>) => ReactElement = ({
   labelRowsPerPage = '',
   itemIsMobileSpacing = 2,
   disableCheckbox = false,
+  onClickRow,
   showPagination = true,
   showRowsPerPageOptions = true,
 }, ref?: Ref<unknown>) => {
@@ -225,6 +227,7 @@ const PaginationTable:<T>(props: B3PaginationTableProps<T>) => ReactElement = ({
       handleSelectOneItem={handleSelectOneItem}
       showBorder={showBorder}
       labelRowsPerPage={labelRowsPerPage}
+      onClickRow={onClickRow}
       showPagination={showPagination}
       showRowsPerPageOptions={showRowsPerPageOptions}
     />

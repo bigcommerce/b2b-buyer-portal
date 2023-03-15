@@ -182,21 +182,6 @@ const Order = ({
     {
       key: 'orderId',
       title: 'Order',
-      render: (item: ListItem, index: number) => (
-        <Box
-          component="span"
-          sx={{
-            cursor: 'pointer',
-            '&:hover': {
-              textDecoration: 'underline',
-            },
-          }}
-          onClick={() => goToDetail(item, index)}
-        >
-          {item.orderId}
-        </Box>
-      ),
-      width: '10%',
     },
     {
       key: 'poNumber',
@@ -333,6 +318,12 @@ const Order = ({
                 isCompanyOrder={isCompanyOrder}
               />
             )}
+            onClickRow={(item: ListItem, index?: number) => {
+              if (index !== undefined) {
+                goToDetail(item, index)
+              }
+            }}
+            hover
           />
         </Box>
       </B3Sping>

@@ -257,20 +257,6 @@ const QuotesList = () => {
     {
       key: 'quoteNumber',
       title: 'Quote #',
-      render: (item: ListItem) => (
-        <Box
-          component="span"
-          sx={{
-            cursor: 'pointer',
-            '&:hover': {
-              textDecoration: 'underline',
-            },
-          }}
-          onClick={() => goToDetail(item, +item.status)}
-        >
-          {item.quoteNumber}
-        </Box>
-      ),
     },
     {
       key: 'quoteTitle',
@@ -393,6 +379,10 @@ const QuotesList = () => {
                 goToDetail={goToDetail}
               />
             )}
+            onClickRow={(row: ListItem) => {
+              goToDetail(row, +row.status)
+            }}
+            hover
           />
         </Box>
       </B3Sping>

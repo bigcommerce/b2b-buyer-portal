@@ -67,7 +67,12 @@ interface TableProps<T> {
   selectCheckbox?: Array<number | string>,
   labelRowsPerPage?: string,
   disableCheckbox?: boolean,
+  onClickRow?: (item: any, index?: number) => void,
   showRowsPerPageOptions?: boolean,
+}
+
+const MOUSE_POINTER_STYLE = {
+  cursor: 'pointer',
 }
 
 export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
@@ -102,6 +107,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
   selectCheckbox = [],
   labelRowsPerPage = '',
   disableCheckbox = false,
+  onClickRow,
   showRowsPerPageOptions = true,
 }) => {
   const {
@@ -109,6 +115,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
     count,
     first,
   } = pagination
+  const clickableRowStyles = typeof onClickRow === 'function' ? MOUSE_POINTER_STYLE : undefined
 
   const handlePaginationChange = (pagination: Pagination) => {
     if (!isLoading) {
@@ -298,6 +305,8 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                     <TableRow
                       key={node[tableKey || 'id']}
                       hover={hover}
+                      onClick={() => onClickRow?.(node, index)}
+                      sx={clickableRowStyles}
                     >
                       {
                         showCheckbox && (
