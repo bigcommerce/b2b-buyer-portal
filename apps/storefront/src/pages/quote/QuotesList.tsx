@@ -225,8 +225,8 @@ const QuotesList = () => {
       },
     } = await fn(params)
 
-    if (params.offset === 0) {
-      const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
+    const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
+    if (params.offset === 0 && quoteDraftAllList.length) {
       const price = quoteDraftAllList.reduce((pre: number, cur: CustomFieldItems) => pre + (cur.node.basePrice * cur.node.quantity), 0)
       const quoteDraft = {
         node: {

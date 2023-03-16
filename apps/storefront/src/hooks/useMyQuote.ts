@@ -91,6 +91,10 @@ const useMyQuote = ({
       B3LStorage.set('MyQuoteInfo', {})
       B3LStorage.set('b2bQuoteDraftList', [])
     }
+
+    if (+B3UserId !== 0) {
+      B3LStorage.set('quoteDraftUserId', B3UserId)
+    } else B3LStorage.set('quoteDraftUserId', 0)
   }, [B3UserId])
 
   const addLoadding = (b3MyQuote: any) => {
