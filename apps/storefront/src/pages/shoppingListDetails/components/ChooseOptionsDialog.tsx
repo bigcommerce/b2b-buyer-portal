@@ -317,6 +317,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
   }
 
   const handleCancelClicked = () => {
+    setQuantity(1)
     onCancel()
   }
 

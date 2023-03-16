@@ -182,6 +182,7 @@ const Order = ({
     {
       key: 'orderId',
       title: 'Order',
+      width: '10%',
     },
     {
       key: 'poNumber',

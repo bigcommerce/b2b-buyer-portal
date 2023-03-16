@@ -529,11 +529,13 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                           variantId,
                           itemId,
                           optionList,
+                          quantity,
                         } = row
 
                         handleOpenProductEdit({
                           ...productsSearch,
                           selectOptions: optionList,
+                          quantity,
                         }, variantId, itemId)
                       }}
                     />
