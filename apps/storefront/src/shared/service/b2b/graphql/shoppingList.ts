@@ -384,6 +384,7 @@ const deleteCustomerShoppingListItem = (data: CustomFieldItems) => `mutation {
     message,
   }
 }`
+
 const getJuniorPlaceOrder = () => `{
   storeConfigSwitchStatus(
     key: "junior_place_order",
@@ -391,6 +392,15 @@ const getJuniorPlaceOrder = () => `{
     id,
     key,
     isEnabled,
+  }
+}`
+
+const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
+  ${fn}(
+    companyId: ${companyId},
+    module: ${module},
+  ){
+    results,
   }
 }`
 
@@ -465,6 +475,11 @@ export const updateBcShoppingListsItem = (data: CustomFieldItems = {}): CustomFi
 export const deleteBcShoppingListItem = (data: CustomFieldItems = {}): CustomFieldItems => B3Request.graphqlProxyBC({
   query: deleteCustomerShoppingListItem(data),
 })
+
 export const getB2BJuniorPlaceOrder = () => B3Request.graphqlB2B({
   query: getJuniorPlaceOrder(),
+})
+
+export const getShoppingListsCreatedByUser = (companyId: number, module: number) => B3Request.graphqlB2B({
+  query: getCreatedByUser(companyId, module, 'createdByUser'),
 })

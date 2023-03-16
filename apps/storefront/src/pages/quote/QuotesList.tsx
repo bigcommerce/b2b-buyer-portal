@@ -1,5 +1,6 @@
 import {
   useContext,
+  useEffect,
   useState,
 } from 'react'
 import {
@@ -30,6 +31,7 @@ import {
 import {
   getB2BQuotesList,
   getBCQuotesList,
+  getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
 
 import {
@@ -130,53 +132,63 @@ const quotesStatuses = [
     statusCode: 5,
   },
 ]
-const filterMoreList = [
-  {
-    name: 'status',
-    label: 'Order status',
-    required: false,
-    default: '',
-    fieldType: 'dropdown',
-    options: quotesStatuses,
-    replaceOptions: {
-      label: 'customLabel',
-      value: 'statusCode',
+
+const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any, createdBySalesReps: any) => {
+  const filterMoreList = [
+    {
+      name: 'status',
+      label: 'Quote status',
+      required: false,
+      default: '',
+      fieldType: 'dropdown',
+      options: quotesStatuses,
+      replaceOptions: {
+        label: 'customLabel',
+        value: 'statusCode',
+      },
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
     },
-    xs: 12,
-    variant: 'filled',
-    size: 'small',
-  },
-  {
-    name: 'createdBy',
-    label: 'Created by',
-    required: false,
-    default: '',
-    fieldType: 'text',
-    xs: 12,
-    variant: 'filled',
-    size: 'small',
-  },
-  {
-    name: 'salesRep',
-    label: 'Sales rep',
-    required: false,
-    default: '',
-    fieldType: 'text',
-    xs: 12,
-    variant: 'filled',
-    size: 'small',
-  },
-  // {
-  //   name: 'dateCreatedBeginAt',
-  //   label: 'Date created',
-  //   required: false,
-  //   default: '',
-  //   fieldType: 'date',
-  //   xs: 12,
-  //   variant: 'filled',
-  //   size: 'small',
-  // },
-]
+    {
+      name: 'createdBy',
+      label: 'Created by',
+      required: false,
+      default: '',
+      fieldType: 'dropdown',
+      options: createdByUsers,
+      replaceOptions: {
+        label: 'createdBy',
+        value: 'createdBy',
+      },
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
+    {
+      name: 'salesRep',
+      label: 'Sales rep',
+      required: false,
+      default: '',
+      fieldType: 'dropdown',
+      options: createdBySalesReps,
+      replaceOptions: {
+        label: 'salesRep',
+        value: 'salesRep',
+      },
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
+  ]
+
+  const filterCurrentMoreList = filterMoreList.filter((item) => {
+    if (!isB2BUser && (item.name === 'createdBy' || item.name === 'salesRep')) return false
+    return true
+  })
+
+  return filterCurrentMoreList
+}
 
 const QuotesList = () => {
   const initSearch = {
@@ -192,6 +204,8 @@ const QuotesList = () => {
 
   const [isRequestLoading, setIsRequestLoading] = useState(false)
 
+  const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([])
+
   const navigate = useNavigate()
 
   const [isMobile] = useMobile()
@@ -200,8 +214,32 @@ const QuotesList = () => {
     state: {
       isB2BUser,
       customer,
+      companyInfo: {
+        id: companyB2BId,
+      },
+      salesRepCompanyId,
     },
   } = useContext(GlobaledContext)
+
+  useEffect(() => {
+    const initFilter = async () => {
+      const companyId = companyB2BId || salesRepCompanyId
+      let createdByUsers: CustomFieldItems = {}
+      if (isB2BUser) createdByUsers = await getShoppingListsCreatedByUser(+companyId, 2)
+
+      const newCreatedByUsers = createdByUsers?.createdByUser?.results?.createdBy.map((item: any) => ({
+        createdBy: `${item}`,
+      })) || {}
+      const newCreatedBySalesReps = createdByUsers?.createdByUser?.results?.salesRep.map((item: any) => ({
+        salesRep: `${item.salesRep || item.salesRepEmail}`,
+      })) || {}
+
+      const filterInfos = getFilterMoreList(isB2BUser, newCreatedByUsers, newCreatedBySalesReps)
+      setFilterMoreInfo(filterInfos)
+    }
+
+    initFilter()
+  }, [])
 
   const goToDetail = (item: ListItem, status: number) => {
     if (+status === 0) {
@@ -308,6 +346,7 @@ const QuotesList = () => {
       render: (item: ListItem) => (<QuoteStatus code={item.status} />),
     },
   ]
+
   const handleChange = (key:string, value: string) => {
     if (key === 'search') {
       setFilterData({
@@ -351,7 +390,7 @@ const QuotesList = () => {
         >
           <B3Filter
             sortByConfig={sortByConfigData}
-            fiterMoreInfo={filterMoreList}
+            fiterMoreInfo={filterMoreInfo}
             startPicker={{
               isEnabled: true,
               label: 'From',

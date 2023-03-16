@@ -335,6 +335,15 @@ const quoteAttachFileDelete = (data: CustomFieldItems) => `mutation{
   }
 }`
 
+const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
+  ${fn}(
+    companyId: ${companyId},
+    module: ${module},
+  ){
+    results,
+  }
+}`
+
 export const getBCCustomerAddresses = (): CustomFieldItems => B3Request.graphqlProxyBC({
   query: getCustomerAddresses(),
 })
@@ -397,4 +406,8 @@ export const quoteDetailAttachFileCreate = (data: CustomFieldItems): CustomField
 
 export const quoteDetailAttachFileDelete = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
   query: quoteAttachFileDelete(data),
+})
+
+export const getQuoteCreatedByUsers = (companyId: number, module: number) => B3Request.graphqlB2B({
+  query: getCreatedByUser(companyId, module, 'createdByUser'),
 })

@@ -29,6 +29,7 @@ import {
   getBCAllOrders,
   getOrderStatusType,
   getBcOrderStatusType,
+  getOrdersCreatedByUser,
 } from '@/shared/service/b2b'
 
 import {
@@ -115,6 +116,10 @@ const Order = ({
       isB2BUser,
       isAgenting,
       role,
+      companyInfo: {
+        id: companyB2BId,
+      },
+      salesRepCompanyId,
     },
   } = useContext(GlobaledContext)
 
@@ -132,11 +137,15 @@ const Order = ({
     const search = getInitFilter(isCompanyOrder, isB2BUser)
     setFilterData(search)
     const initFilter = async () => {
+      const companyId = companyB2BId || salesRepCompanyId
+      let createdByUsers: CustomFieldItems = {}
+      if (isB2BUser && isCompanyOrder) createdByUsers = await getOrdersCreatedByUser(+companyId, 0)
+
       const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
       const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses'
       const orderStatuses: CustomFieldItems = await fn()
 
-      const filterInfo = getFilterMoreData(isB2BUser, role, isCompanyOrder, isAgenting, orderStatuses[orderStatusesName])
+      const filterInfo = getFilterMoreData(isB2BUser, role, isCompanyOrder, isAgenting, createdByUsers, orderStatuses[orderStatusesName])
       setOrderStatuses(orderStatuses[orderStatusesName])
       setFilterInfo(filterInfo)
     }

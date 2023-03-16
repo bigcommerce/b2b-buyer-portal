@@ -2,6 +2,7 @@ import {
   useState,
   useContext,
   useRef,
+  useEffect,
 } from 'react'
 
 import {
@@ -16,6 +17,7 @@ import {
   getBcShoppingList,
   deleteB2BShoppingList,
   deleteBcShoppingList,
+  getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
 
 import {
@@ -60,6 +62,8 @@ const shoppingLists = () => {
 
   const [deleteItem, setDeleteItem] = useState<null | ShoppingListsItemsProps>(null)
 
+  const [fiterMoreInfo, setFiterMoreinfo] = useState<Array<any>>([])
+
   const [isMobile] = useMobile()
 
   const {
@@ -67,8 +71,25 @@ const shoppingLists = () => {
       role,
       isB2BUser,
       currentChannelId,
+      companyInfo: {
+        id: companyB2BId,
+      },
+      salesRepCompanyId,
     },
   } = useContext(GlobaledContext)
+
+  useEffect(() => {
+    const initFilter = async () => {
+      const companyId = companyB2BId || salesRepCompanyId
+      let createdByUsers: CustomFieldItems = {}
+      if (isB2BUser) createdByUsers = await getShoppingListsCreatedByUser(+companyId, 1)
+
+      const filterInfo = getFilterMoreList(createdByUsers, role)
+      setFiterMoreinfo(filterInfo)
+    }
+
+    initFilter()
+  }, [])
 
   const isExtraLarge = useCardListColumn()
 
@@ -101,8 +122,6 @@ const shoppingLists = () => {
       ...initSearch,
     })
   }
-
-  const fiterMoreInfo = getFilterMoreList(role)
 
   const handleChange = (key:string, value: string) => {
     if (key === 'search') {

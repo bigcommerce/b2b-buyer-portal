@@ -18,6 +18,7 @@ import {
   getBCAllOrders,
   getOrderStatusType,
   getBcOrderStatusType,
+  getOrdersCreatedByUser,
 } from './graphql/orders'
 
 import {
@@ -55,6 +56,7 @@ import {
   updateBCQuote,
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
+  getQuoteCreatedByUsers,
 } from './graphql/quote'
 
 import {
@@ -93,6 +95,7 @@ import {
   updateBcShoppingListsItem,
   deleteBcShoppingListItem,
   getB2BJuniorPlaceOrder,
+  getShoppingListsCreatedByUser,
 } from './graphql/shoppingList'
 
 import {
@@ -155,6 +158,7 @@ export {
   getBCForcePasswordReset,
   getBCStoreChannelId,
   getB2BAllOrders,
+  getOrdersCreatedByUser,
   getB2BToken,
   getBCOrders,
   getAgentInfo,
@@ -194,6 +198,7 @@ export {
   updateB2BShoppingListsItem,
   deleteB2BShoppingListItem,
   getB2BJuniorPlaceOrder,
+  getShoppingListsCreatedByUser,
   checkUserEmail,
   checkUserBCEmail,
   setChannelStoreType,
@@ -213,6 +218,7 @@ export {
   updateBCQuote,
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
+  getQuoteCreatedByUsers,
   getBcShoppingList,
   createBcShoppingList,
   updateBcShoppingList,

@@ -47,8 +47,11 @@ const bcFilterSearch = {
   q: '',
 }
 
-export const getFilterMoreData = (isB2BUser:boolean, role: string | number, isCompanyOrder: boolean, isAgenting: boolean, orderStatuses = []) => {
+export const getFilterMoreData = (isB2BUser:boolean, role: string | number, isCompanyOrder: boolean, isAgenting: boolean, createdByUsers: any, orderStatuses = []) => {
   const newOrderStatuses = orderStatuses.filter((item: CustomFieldStringItems) => item.statusCode !== '0' && item.statusCode !== '1')
+  const newCreatedByUsers = createdByUsers?.createdByUser?.results.map((item: any) => ({
+    createdBy: `${item.firstName} ${item.lastName}`,
+  })) || {}
   const filterMoreList = [
     {
       name: 'company',
@@ -80,7 +83,12 @@ export const getFilterMoreData = (isB2BUser:boolean, role: string | number, isCo
       label: 'Placed by',
       required: false,
       default: '',
-      fieldType: 'text',
+      fieldType: 'dropdown',
+      options: newCreatedByUsers,
+      replaceOptions: {
+        label: 'createdBy',
+        value: 'createdBy',
+      },
       xs: 12,
       variant: 'filled',
       size: 'small',
