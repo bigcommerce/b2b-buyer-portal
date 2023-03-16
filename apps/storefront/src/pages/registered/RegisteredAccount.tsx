@@ -28,6 +28,10 @@ import {
 import RegisteredStepButton from './component/RegisteredStepButton'
 
 import {
+  ThemeFrameContext,
+} from '@/components/ThemeFrame'
+
+import {
   checkUserEmail,
   checkUserBCEmail,
 } from '@/shared/service/b2b'
@@ -72,6 +76,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     state,
     dispatch,
   } = useContext(RegisteredContext)
+  const IframeDocument = useContext(ThemeFrameContext)
 
   const b3Lang = useB3Lang()
 
@@ -146,10 +151,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         message: '',
       })
 
-      const iframe: HTMLIFrameElement | null = window.document.querySelector('.active-frame')
-      if (iframe) {
-        iframe.contentWindow?.document.body.scrollIntoView(true)
-      }
+      IframeDocument?.body.scrollIntoView(true)
     } else {
       setErrorTips('')
     }

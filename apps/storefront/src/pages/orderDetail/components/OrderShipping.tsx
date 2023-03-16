@@ -29,6 +29,10 @@ import {
 } from '@/components'
 
 import {
+  useMobile,
+} from '@/hooks'
+
+import {
   OrderShippedItem,
   OrderShippingsItem,
 } from '../../../types'
@@ -50,6 +54,8 @@ export const OrderShipping = () => {
       addressLabelPermission,
     },
   } = useContext(OrderDetailsContext)
+
+  const [isMobile] = useMobile()
 
   const [shippingsDetail, setShippingsDetail] = useState<OrderShippingsItem[]>([])
 
@@ -218,6 +224,7 @@ export const OrderShipping = () => {
                       currency={currency}
                       totalText="Cost"
                       canToProduct
+                      textAlign={isMobile ? 'left' : 'right'}
                     />
                   </Fragment>
                 ) : <></>

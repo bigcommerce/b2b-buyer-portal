@@ -56,6 +56,10 @@ import {
 } from '@/components'
 
 import {
+  ThemeFrameContext,
+} from '@/components/ThemeFrame'
+
+import {
   companyAttachmentsFields,
   getAccountFormFields,
   RegisterFieldsItems,
@@ -88,6 +92,8 @@ function Registered(props: RegisteredProps) {
   const b3Lang = useB3Lang()
 
   const navigate = useNavigate()
+
+  const IframeDocument = useContext(ThemeFrameContext)
 
   const {
     state: {
@@ -283,6 +289,10 @@ function Registered(props: RegisteredProps) {
       },
     })
   }
+
+  useEffect(() => {
+    IframeDocument?.body.scrollIntoView(true)
+  }, [activeStep])
 
   return (
     <B3Card setOpenPage={setOpenPage}>

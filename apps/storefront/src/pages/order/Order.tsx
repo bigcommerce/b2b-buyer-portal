@@ -193,7 +193,10 @@ const Order = ({
       key: 'totalIncTax',
       title: 'Grand total',
       render: (item: ListItem) => (`${currencySymbol(item.money)}${item.totalIncTax}`),
-      width: '10%',
+      width: '8%',
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'status',

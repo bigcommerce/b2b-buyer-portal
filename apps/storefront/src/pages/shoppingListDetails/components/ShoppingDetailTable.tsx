@@ -448,6 +448,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         )
       },
       width: '15%',
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'Qty',
@@ -471,6 +474,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         />
       ),
       width: '15%',
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'Total',
@@ -499,6 +505,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                 opacity: 0,
                 textAlign: isMobile ? 'end' : 'start',
                 display: 'flex',
+                justifyContent: 'flex-end',
               }}
               id="shoppingList-actionList"
             >
@@ -554,6 +561,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         )
       },
       width: '20%',
+      style: {
+        textAlign: 'right',
+      },
     },
   ]
 

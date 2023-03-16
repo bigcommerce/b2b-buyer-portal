@@ -120,6 +120,7 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
         {
           columnAllItems.map((list: any) => (
             <Box
+              key={list.key}
               sx={{
                 display: 'flex',
               }}

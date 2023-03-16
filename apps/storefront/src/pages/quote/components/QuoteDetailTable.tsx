@@ -241,6 +241,9 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
         )
       },
       width: '15%',
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'Qty',
@@ -255,6 +258,9 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
         </Typography>
       ),
       width: '15%',
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'Total',
@@ -298,6 +304,9 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
         )
       },
       width: '20%',
+      style: {
+        textAlign: 'right',
+      },
     },
   ]
 

@@ -95,7 +95,9 @@ export const B3Mainheader = ({
           sx={{
             height: '40px',
             m: '0',
-            fontSize: '24px',
+            fontSize: '32px',
+            fontWeight: 400,
+            lineHeight: '42px',
             display: 'flex',
             alignItems: 'end',
             mb: '8px',

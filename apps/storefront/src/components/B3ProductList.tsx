@@ -40,6 +40,7 @@ interface FlexProps {
 interface FlexItemProps {
   width?: string,
   padding?: string,
+  textAlignLocation?: string,
 }
 
 const Flex = styled('div')(({
@@ -76,9 +77,11 @@ const Flex = styled('div')(({
 
 const FlexItem = styled('div')(({
   width,
+  textAlignLocation,
   padding = '0',
 }: FlexItemProps) => ({
   display: 'flex',
+  justifyContent: textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
   flexGrow: width ? 0 : 1,
   flexShrink: width ? 0 : 1,
   alignItems: 'center',
@@ -137,6 +140,7 @@ interface ProductProps <T> {
   selectAllText?: string,
   totalText?: string,
   canToProduct?: boolean,
+  textAlign?: string,
 }
 
 export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props) => {
@@ -153,6 +157,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     selectAllText = 'Select all products',
     totalText = 'Total',
     canToProduct = false,
+    textAlign = 'left',
   } = props
 
   const [list, setList] = useState<ProductItem[]>([])
@@ -242,13 +247,22 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
           <FlexItem>
             <ProductHead>Product</ProductHead>
           </FlexItem>
-          <FlexItem {...itemStyle.default}>
+          <FlexItem
+            textAlignLocation={textAlign}
+            {...itemStyle.default}
+          >
             <ProductHead>Price</ProductHead>
           </FlexItem>
-          <FlexItem {...itemStyle.qty}>
+          <FlexItem
+            textAlignLocation={textAlign}
+            {...itemStyle.qty}
+          >
             <ProductHead>Qty</ProductHead>
           </FlexItem>
-          <FlexItem {...itemStyle.default}>
+          <FlexItem
+            textAlignLocation={textAlign}
+            {...itemStyle.default}
+          >
             <ProductHead>{totalText}</ProductHead>
           </FlexItem>
           {
@@ -334,6 +348,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
             </FlexItem>
 
             <FlexItem
+              textAlignLocation={textAlign}
               padding={quantityEditable ? '10px 0 0' : ''}
               {...itemStyle.default}
             >
@@ -341,7 +356,10 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
               {`${currency} ${getProductPrice(product.base_price)}`}
             </FlexItem>
 
-            <FlexItem {...itemStyle.qty}>
+            <FlexItem
+              textAlignLocation={textAlign}
+              {...itemStyle.qty}
+            >
               {
                 quantityEditable ? (
                   <>
@@ -376,6 +394,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
             </FlexItem>
 
             <FlexItem
+              textAlignLocation={textAlign}
               padding={quantityEditable ? '10px 0 0' : ''}
               {...itemStyle.default}
             >

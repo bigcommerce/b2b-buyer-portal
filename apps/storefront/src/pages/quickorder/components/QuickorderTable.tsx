@@ -330,6 +330,9 @@ const QuickorderTable = ({
         )
       },
       width: '15%',
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'Qty',

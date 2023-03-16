@@ -298,6 +298,9 @@ const QuotesList = () => {
 
         return (`${token}${(+totalAmount).toFixed(2)}`)
       },
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'status',

@@ -349,7 +349,7 @@ const QuoteDraft = ({
       let additionalCalculatedPriceTax = 0
       let additionalCalculatedPrice = 0
 
-      if (item.node.additionalCalculatedPrices.length) {
+      if (item.node.additionalCalculatedPrices?.length) {
         item.node.additionalCalculatedPrices.forEach((item: any) => {
           additionalCalculatedPriceTax += item.additionalCalculatedPriceTax
           additionalCalculatedPrice += item.additionalCalculatedPrice
@@ -649,7 +649,7 @@ const QuoteDraft = ({
             <Typography
               component="h3"
               sx={{
-                fontSize: '24px',
+                fontSize: '32px',
                 mr: '1rem',
                 mb: `${isMobile ? '1rem' : '0'}`,
               }}

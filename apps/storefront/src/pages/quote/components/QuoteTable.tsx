@@ -346,6 +346,9 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
         )
       },
       width: '15%',
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'Qty',
@@ -366,6 +369,9 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
         />
       ),
       width: '15%',
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'Total',
@@ -391,7 +397,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
               sx={{
                 marginTop: '1rem',
                 opacity: 0,
-                textAlign: isMobile ? 'end' : 'start',
+                textAlign: 'end',
               }}
               id="shoppingList-actionList"
             >
@@ -442,6 +448,9 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
         )
       },
       width: '20%',
+      style: {
+        textAlign: 'right',
+      },
     },
   ]
 

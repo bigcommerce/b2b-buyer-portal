@@ -33,6 +33,7 @@ export interface TableColumnItem<T> {
   title: string,
   width?: string,
   render?: (item: T, index: number) => ReactNode,
+  style?: { [key: string]: string },
 }
 
 interface TableProps<T> {
@@ -286,6 +287,11 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                         <TableCell
                           key={column.title}
                           width={column.width}
+                          sx={
+                            column?.style ? {
+                              ...column.style,
+                            } : {}
+                          }
                         >
                           {column.title}
                         </TableCell>
@@ -331,6 +337,7 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                           <TableCell
                             key={column.title}
                             sx={{
+                              ...column?.style,
                               borderBottom: showBorder ? '1px solid rgba(224, 224, 224, 1)' : lastItemBorderBottom,
                             }}
                           >

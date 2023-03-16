@@ -193,7 +193,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/purchased-products',
-    name: 'Purchased products',
+    name: 'Quick Order',
     wsKey: 'quickorder',
     isMenuItem: true,
     component: Quickorder,
