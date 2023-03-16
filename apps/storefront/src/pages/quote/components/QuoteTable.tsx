@@ -32,10 +32,6 @@ import {
   B3PaginationTable,
 } from '@/components/table/B3PaginationTable'
 
-import {
-  useMobile,
-} from '@/hooks'
-
 import QuoteTableCard from './QuoteTableCard'
 
 import {
@@ -135,8 +131,6 @@ const StyledTextField = styled(TextField)(() => ({
 }))
 
 const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
-  const [isMobile] = useMobile()
-
   const {
     total,
     currencyToken,
