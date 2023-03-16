@@ -27,6 +27,9 @@ import {
 } from '@b3/lang'
 
 import {
+  useNavigate,
+} from 'react-router-dom'
+import {
   GlobaledContext,
 } from '@/shared/global'
 
@@ -120,6 +123,8 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
+
+  const navigate = useNavigate()
 
   const {
     state,
@@ -421,10 +426,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           if (isCloseGotoBCHome) {
             window.location.href = '/'
           } else {
-            setOpenPage({
-              isOpen: false,
-              openUrl: '',
-            })
+            navigate('/orders')
             window.location.reload()
           }
         }

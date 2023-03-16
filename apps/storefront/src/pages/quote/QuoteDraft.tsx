@@ -129,6 +129,10 @@ interface QuoteTableRef extends HTMLInputElement {
   refreshList: () => void
 }
 
+interface QuoteSummaryRef extends HTMLInputElement {
+  refreshSummary: () => void
+}
+
 interface OpenPageState {
   isOpen: boolean,
   openUrl?: string,
@@ -173,8 +177,6 @@ const QuoteDraft = ({
 
   const [total, setTotal] = useState<number>(0)
 
-  const [isRefresh, setIsRefresh] = useState<boolean>(false)
-
   const [info, setInfo] = useState<InfoProps>({
     contactInfo: {},
     shippingAddress: {},
@@ -182,6 +184,8 @@ const QuoteDraft = ({
   })
 
   const quoteTableRef = useRef<QuoteTableRef | null>(null)
+
+  const quoteSummaryRef = useRef<QuoteSummaryRef | null>(null)
 
   useSetCountry()
 
@@ -363,16 +367,14 @@ const QuoteDraft = ({
   }
 
   const accountFormFields = getAccountFormFields(isMobile)
-  useEffect(() => {
-    if (isRefresh) {
-      // TODO list refresh function
-      quoteTableRef.current?.refreshList()
-      setIsRefresh(false)
-    }
-  }, [isRefresh])
+
+  const updateSummary = () => {
+    quoteSummaryRef.current?.refreshSummary()
+  }
 
   const updateList = () => {
-    setIsRefresh(true)
+    quoteTableRef.current?.refreshList()
+    updateSummary()
   }
 
   const addToQuote = (products: CustomFieldItems[]) => {
@@ -785,6 +787,7 @@ const QuoteDraft = ({
           >
             <QuoteTable
               ref={quoteTableRef}
+              updateSummary={updateSummary}
               total={total}
               currencyToken={currencyToken}
               getQuoteTableDetails={getQuoteTableDetails}
@@ -809,8 +812,8 @@ const QuoteDraft = ({
               }}
             >
               <QuoteSummary
+                ref={quoteSummaryRef}
                 currencyToken={currencyToken}
-                isRefresh={isRefresh}
               />
               <AddToQuote
                 updateList={updateList}

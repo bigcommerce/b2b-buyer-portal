@@ -85,6 +85,7 @@ interface ShoppingDetailTableProps {
   getQuoteTableDetails: any,
   idEdit?: boolean,
   isB2BUser: boolean,
+  updateSummary: () => void,
 }
 
 interface SearchProps {
@@ -142,6 +143,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
     getQuoteTableDetails,
     idEdit = true,
     isB2BUser,
+    updateSummary,
   } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -177,6 +179,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
     B3LStorage.set('b2bQuoteDraftList', quoteDraftAllList)
 
     paginationTableRef.current?.setList([...newListItems])
+    updateSummary()
   }
 
   const handleDeleteClick = (id: number | string) => {
@@ -191,6 +194,8 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
     setSearch({
       offset: 0,
     })
+
+    updateSummary()
   }
 
   useImperativeHandle(ref, () => ({

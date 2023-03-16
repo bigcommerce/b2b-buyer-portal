@@ -9,6 +9,9 @@ import {
 import {
   useState,
   useEffect,
+  Ref,
+  useImperativeHandle,
+  forwardRef,
 } from 'react'
 
 import {
@@ -16,7 +19,6 @@ import {
 } from '@/utils'
 
 interface QuoteSummaryProps {
-  isRefresh: boolean,
   currencyToken?: string,
 }
 
@@ -34,9 +36,8 @@ const defaultSummary: Summary = {
   grandTotal: 0,
 }
 
-export const QuoteSummary = (props: QuoteSummaryProps) => {
+export const QuoteSummary = forwardRef((props: QuoteSummaryProps, ref: Ref<unknown>) => {
   const {
-    isRefresh,
     currencyToken = '$',
   } = props
 
@@ -98,11 +99,9 @@ export const QuoteSummary = (props: QuoteSummaryProps) => {
     getSummary()
   }, [])
 
-  useEffect(() => {
-    if (isRefresh) {
-      getSummary()
-    }
-  }, [isRefresh])
+  useImperativeHandle(ref, () => ({
+    refreshSummary: () => getSummary(),
+  }))
 
   const priceFormat = (price: number) => `${currencyToken} ${price.toFixed(2)}`
 
@@ -174,4 +173,4 @@ export const QuoteSummary = (props: QuoteSummaryProps) => {
       </CardContent>
     </Card>
   )
-}
+})

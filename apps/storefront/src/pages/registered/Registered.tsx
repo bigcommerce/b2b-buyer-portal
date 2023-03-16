@@ -20,6 +20,9 @@ import type {
 } from '@b3/hooks'
 
 import {
+  useNavigate,
+} from 'react-router-dom'
+import {
   getB2BCountries,
   getB2BAccountFormFields,
 } from '@/shared/service/b2b'
@@ -83,6 +86,8 @@ function Registered(props: RegisteredProps) {
   const [activeStep, setActiveStep] = useState(0)
 
   const b3Lang = useB3Lang()
+
+  const navigate = useNavigate()
 
   const {
     state: {
@@ -263,11 +268,7 @@ function Registered(props: RegisteredProps) {
         if (isCloseGotoBCHome) {
           window.location.href = '/'
         } else {
-          setOpenPage({
-            isOpen: false,
-            openUrl: '',
-          })
-          window.location.reload()
+          navigate('/orders')
         }
         clearRegisterInfo()
       } catch (error) {
