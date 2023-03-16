@@ -47,7 +47,7 @@ const bcFilterSearch = {
   q: '',
 }
 
-export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean, orderStatuses = []) => {
+export const getFilterMoreData = (isB2BUser:boolean, role: string | number, isCompanyOrder: boolean, isAgenting: boolean, orderStatuses = []) => {
   const newOrderStatuses = orderStatuses.filter((item: CustomFieldStringItems) => item.statusCode !== '0' && item.statusCode !== '1')
   const filterMoreList = [
     {
@@ -87,9 +87,11 @@ export const getFilterMoreData = (isB2BUser:boolean, isCompanyOrder: boolean, or
     },
   ]
 
+  const filterCondition = isB2BUser && !(+role === 3 && !isAgenting)
   const filterCurrentMoreList = filterMoreList.filter((item) => {
-    if (!isB2BUser && (item.name === 'company' || item.name === 'PlacedBy')) return false
-    if (isB2BUser && !isCompanyOrder && (item.name === 'company' || item.name === 'PlacedBy')) return false
+    if ((!isB2BUser || filterCondition) && !isCompanyOrder && (item.name === 'company' || item.name === 'PlacedBy')) return false
+    if ((+role === 3 && !isAgenting) && item.name === 'PlacedBy') return false
+    if ((isB2BUser || (+role === 3 && isAgenting)) && isCompanyOrder && item.name === 'company') return false
     return true
   })
 

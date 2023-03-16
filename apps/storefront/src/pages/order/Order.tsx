@@ -79,11 +79,11 @@ const sortByList: Array<SortByListProps> = [
     id: '-createdAt',
   },
   {
-    name: 'Lowest Price',
+    name: 'Lowest Total',
     id: 'totalIncTax',
   },
   {
-    name: 'Highest Price',
+    name: 'Highest Total',
     id: '-totalIncTax',
   },
 ]
@@ -136,8 +136,7 @@ const Order = ({
       const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses'
       const orderStatuses: CustomFieldItems = await fn()
 
-      const filterCondition = isB2BUser && !(role === 3 && !isAgenting)
-      const filterInfo = getFilterMoreData(filterCondition, isCompanyOrder, orderStatuses[orderStatusesName])
+      const filterInfo = getFilterMoreData(isB2BUser, role, isCompanyOrder, isAgenting, orderStatuses[orderStatusesName])
       setOrderStatuses(orderStatuses[orderStatusesName])
       setFilterInfo(filterInfo)
     }
