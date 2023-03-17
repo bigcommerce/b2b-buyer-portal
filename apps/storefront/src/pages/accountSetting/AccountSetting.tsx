@@ -188,7 +188,7 @@ const AccountSetting = () => {
         const contactInformation = accountFormFields.contactInformation.filter((item: Partial<Fields>) => item.fieldId !== 'field_email_marketing_newsletter')
 
         const {
-          additionalInformation,
+          additionalInformation = [],
         } = accountFormFields
 
         if (!isBCUser) {

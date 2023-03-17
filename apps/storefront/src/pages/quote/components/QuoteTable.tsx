@@ -20,7 +20,8 @@ import {
 
 import {
   B3LStorage,
-
+  getModifiersPrice,
+  getQuickAddProductExtraPrice,
   snackbar,
 } from '@/utils'
 
@@ -211,44 +212,89 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
     setSelectedOptionsOpen(true)
   }
 
+  const getNewQuoteProduct = (products: CustomFieldItems[]) => products.map((product) => {
+    const {
+      variantId,
+      newSelectOptionList,
+      id: productId,
+      name: productName,
+      quantity,
+      variants = [],
+      allOptions,
+      additionalProducts,
+    } = product
+
+    const modifiersPrice = getModifiersPrice(allOptions || [], newSelectOptionList)
+
+    const productExtraPrice = getQuickAddProductExtraPrice(allOptions || [], newSelectOptionList, additionalProducts)
+
+    const additionalCalculatedPrices = [...modifiersPrice, ...productExtraPrice]
+
+    const variantInfo = variants.length === 1 ? variants[0] : variants.find((item: CustomFieldItems) => item.variant_id === variantId)
+
+    const {
+      image_url: primaryImage = '',
+      calculated_price: basePrice,
+      sku: variantSku,
+    } = variantInfo
+
+    let selectOptions
+    try {
+      selectOptions = JSON.stringify(newSelectOptionList)
+    } catch (error) {
+      selectOptions = '[]'
+    }
+
+    return {
+      node: {
+        basePrice: basePrice.toFixed(2),
+        additionalCalculatedPrices,
+        optionList: selectOptions,
+        primaryImage,
+        productId,
+        productName,
+        productsSearch: {
+          ...product,
+          selectOptions,
+        },
+        quantity,
+        variantSku,
+      },
+    }
+  })
+
   const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
+    const productsss = getNewQuoteProduct(products)
+
+    productsss.forEach((product: CustomFieldItems) => {
+      const {
+        variantSku,
+        productsSearch: {
+          variants,
+        },
+        basePrice,
+      } = product.node
+      const variantItem = variants.find((item: CustomFieldItems) => item.sku === variantSku)
+
+      product.node.id = optionsProductId
+
+      product.node.basePrice = basePrice
+      product.node.tax = variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive
+    })
+
     setSelectedOptionsOpen(false)
 
     const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
 
-    const chooseOptionsProduct = b2bQuoteDraftList.find((item: CustomFieldItems) => item.node.id === optionsProductId)?.node || {}
-
-    products.forEach((product) => {
-      const {
-        newSelectOptionList,
-        quantity,
-        variantId,
-        variants,
-        imageUrl,
-      } = product
-      let selectOptions
-      try {
-        selectOptions = JSON.stringify(newSelectOptionList)
-      } catch (error) {
-        selectOptions = chooseOptionsProduct.optionList
+    b2bQuoteDraftList.forEach((item: CustomFieldItems) => {
+      if (item.node.id === optionsProductId) {
+        item.node = productsss[0]?.node || {}
       }
-
-      const variantInfo = variants.length === 1 ? variants[0] : variants.find((item: CustomFieldItems) => item.variant_id === variantId)
-
-      const {
-        image_url: primaryImage = '',
-        calculated_price: basePrice,
-        sku: variantSku,
-      } = variantInfo
-
-      chooseOptionsProduct.optionList = selectOptions
-      chooseOptionsProduct.quantity = quantity
-      chooseOptionsProduct.primaryImage = primaryImage || imageUrl
-      chooseOptionsProduct.basePrice = basePrice
-      chooseOptionsProduct.variantSku = variantSku
     })
 
     B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
+
+    updateSummary()
 
     setSearch({
       offset: 0,
