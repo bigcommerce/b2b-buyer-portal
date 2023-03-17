@@ -246,12 +246,13 @@ const useCartToQuote = ({
           name,
           quantity,
           variantId,
-          originalPrice,
           salePrice,
           imageUrl,
+          listPrice,
         } = product
 
         const optionsList = getOptionsList(options)
+
         const currentProductSearch = newProductInfo.find((product: any) => +product.id === +productId)
 
         const quoteListitem = {
@@ -265,8 +266,8 @@ const useCartToQuote = ({
             quantity: +quantity || 1,
             optionList: JSON.stringify(optionsList),
             productId,
-            basePrice: originalPrice,
-            tax: salePrice - originalPrice,
+            basePrice: listPrice,
+            tax: salePrice - listPrice,
           },
         }
 

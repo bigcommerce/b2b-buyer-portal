@@ -490,7 +490,7 @@ const QuoteDraft = ({
 
         let prices = 0
         let tax = 0
-        node.additionalCalculatedPrices.forEach((item: CustomFieldItems) => {
+        node.additionalCalculatedPrices?.forEach((item: CustomFieldItems) => {
           prices += item.additionalCalculatedPrice
           tax += item.additionalCalculatedPriceTax
         })

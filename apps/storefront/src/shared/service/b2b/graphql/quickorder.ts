@@ -43,7 +43,8 @@ const orderedProducts = (data: CustomFieldItems) => `{
         discount,
         tax,
         enteredInclusive,
-        productUrl
+        productUrl,
+        optionSelections,
       }
     }
   }

@@ -117,6 +117,7 @@ interface NodeProps {
   variantId: number,
   variantSku: string,
   productsSearch: CustomFieldItems,
+  optionSelections: CustomFieldItems,
 }
 
 interface ProductsProps {
@@ -208,17 +209,12 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
       inventoryInfos.forEach((inventory: CustomFieldItems) => {
         if (node.variantSku === inventory.variantSku) {
           const {
-            optionList,
+            optionSelections,
             quantity,
           } = node
 
-          const options = optionList.map((option: CustomFieldItems) => ({
-            optionId: option.product_option_id,
-            optionValue: option.value,
-          }))
-
           lineItems.push({
-            optionList: options,
+            optionSelections,
             productId: parseInt(inventory.productId, 10) || 0,
             quantity,
             variantId: parseInt(inventory.variantId, 10) || 0,
@@ -347,6 +343,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
         } = product
 
         const optionsList = getOptionsList(optionList)
+
         const currentProductSearch = newProductInfo.find((product: CustomFieldItems) => +product.id === +productId)
 
         const variantItem = currentProductSearch.variants.find((item: CustomFieldItems) => item.sku === variantSku)
