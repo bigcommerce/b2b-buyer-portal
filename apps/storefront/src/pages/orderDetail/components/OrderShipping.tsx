@@ -199,6 +199,7 @@ export const OrderShipping = () => {
                         currency={currency}
                         totalText="Cost"
                         canToProduct
+                        textAlign="right"
                       />
                     </Fragment>
                   ) : <></>

@@ -1,7 +1,7 @@
 import {
-  useEffect,
   SetStateAction,
   Dispatch,
+  useCallback,
 } from 'react'
 
 import {
@@ -13,6 +13,10 @@ import type {
 } from '@b3/hooks'
 
 import globalB3 from '@b3/global-b3'
+
+import {
+  useMutationObservable,
+} from '@b3/hooks'
 
 const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState>>, isB2BUser: boolean, customerId:number | string) => {
   const b3Lang = useB3Lang()
@@ -28,8 +32,8 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
     return convertB2BNavNode
   }
 
-  useEffect(() => {
-    if (!isB2BUser && customerId) {
+  const cd = useCallback(() => {
+    if (!isB2BUser && customerId && document.querySelector(globalB3['dom.navUserLoginElement'])) {
       // already exist
       if (document.querySelector('.navUser-item.navUser-convert-b2b')) {
         return
@@ -52,6 +56,8 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
       document.querySelector('.navUser-item.navUser-convert-b2b')?.remove()
     }
   }, [isB2BUser, customerId])
+
+  useMutationObservable(document.documentElement, cd)
 }
 
 export {

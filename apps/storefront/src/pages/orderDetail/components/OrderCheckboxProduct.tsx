@@ -31,6 +31,7 @@ interface OrderCheckboxProductProps {
   getProductQuantity?: (item: EditableProductItem) => number
   onProductChange?: (products: EditableProductItem[]) => void
   setCheckedArr?: (items: number[]) => void
+  textAlign?: string,
 }
 
 interface FlexProps {
@@ -43,6 +44,7 @@ interface FlexItemProps {
   padding?: string,
   flexBasis?: string,
   minHeight?: string,
+  textAlignLocation?: string,
 }
 
 const Flex = styled('div')(({
@@ -82,11 +84,13 @@ const FlexItem = styled('div')(({
   width,
   padding = '0',
   flexBasis,
+  textAlignLocation,
 }: FlexItemProps) => ({
   display: 'flex',
   flexGrow: width ? 0 : 1,
   flexShrink: width ? 0 : 1,
   alignItems: 'flex-start',
+  justifyContent: textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
   flexBasis,
   width,
   padding,
@@ -137,6 +141,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
     getProductQuantity = (item) => item.editQuantity,
     onProductChange = () => {},
     setCheckedArr = () => {},
+    textAlign = 'right',
   } = props
 
   const [isMobile] = useMobile()
@@ -220,13 +225,22 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
           <FlexItem flexBasis="100px">
             <ProductHead>Product</ProductHead>
           </FlexItem>
-          <FlexItem {...itemStyle.default}>
+          <FlexItem
+            textAlignLocation={textAlign}
+            {...itemStyle.default}
+          >
             <ProductHead>Price</ProductHead>
           </FlexItem>
-          <FlexItem {...itemStyle.qty}>
+          <FlexItem
+            textAlignLocation={textAlign}
+            {...itemStyle.qty}
+          >
             <ProductHead>Qty</ProductHead>
           </FlexItem>
-          <FlexItem {...itemStyle.default}>
+          <FlexItem
+            textAlignLocation={textAlign}
+            {...itemStyle.default}
+          >
             <ProductHead>Cost</ProductHead>
           </FlexItem>
         </Flex>
@@ -289,13 +303,17 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
               </Box>
             </FlexItem>
             <FlexItem
+              textAlignLocation={textAlign}
               padding="10px 0 0"
               {...itemStyle.default}
             >
               {isMobile && <span>Price: </span>}
               {`${currencyInfo.currency_token} ${getProductPrice(product.base_price)}`}
             </FlexItem>
-            <FlexItem {...itemStyle.qty}>
+            <FlexItem
+              textAlignLocation={textAlign}
+              {...itemStyle.qty}
+            >
               <TextField
                 type="number"
                 variant="filled"
@@ -318,6 +336,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
               />
             </FlexItem>
             <FlexItem
+              textAlignLocation={textAlign}
               padding="10px 0 0"
               {...itemStyle.default}
             >

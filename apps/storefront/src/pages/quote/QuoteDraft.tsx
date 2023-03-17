@@ -649,7 +649,7 @@ const QuoteDraft = ({
             <Typography
               component="h3"
               sx={{
-                fontSize: '32px',
+                fontSize: '34px',
                 mr: '1rem',
                 mb: `${isMobile ? '1rem' : '0'}`,
               }}
