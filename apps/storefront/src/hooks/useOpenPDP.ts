@@ -2,6 +2,7 @@ import {
   useCallback, useState,
   SetStateAction,
   Dispatch,
+  useEffect,
 } from 'react'
 
 import {
@@ -24,7 +25,24 @@ interface MutationObserverProps {
 const useOpenPDP = ({
   setOpenPage, isB2BUser, shoppingListEnabled,
 }: MutationObserverProps) => {
-  const [openQuickViewNum, setOpenQuickViewNum] = useState<number>(0)
+  const [openQuickView, setOpenQuickView] = useState<boolean>(false)
+
+  const changeQuickview = () => {
+    setOpenQuickView((openQuickView) => !openQuickView)
+  }
+
+  useEffect(() => {
+    const quickview = document.querySelectorAll('.quickview')
+    quickview.forEach((dom: any) => {
+      dom.addEventListener('click', () => changeQuickview())
+    })
+
+    return () => {
+      quickview.forEach((dom: any) => {
+        dom.removeEventListener('click', () => changeQuickview())
+      })
+    }
+  }, [])
 
   const pdpCallBbck = useCallback(() => {
     setOpenPage({
@@ -35,13 +53,13 @@ const useOpenPDP = ({
 
   const cd = useCallback(() => {
     if (document.querySelectorAll(globalB3['dom.setToShoppingListParentEl']).length) {
-      setOpenQuickViewNum(openQuickViewNum + 1)
+      setOpenQuickView((openQuickView) => !openQuickView)
     }
   }, [])
 
   useMutationObservable(document.documentElement, cd)
 
-  useB3PDPOpen(globalB3['dom.setToShoppingListParentEl'], pdpCallBbck, isB2BUser, shoppingListEnabled, openQuickViewNum)
+  useB3PDPOpen(globalB3['dom.setToShoppingListParentEl'], pdpCallBbck, isB2BUser, shoppingListEnabled, openQuickView)
 }
 
 export {

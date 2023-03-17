@@ -77,7 +77,7 @@ const useMyQuote = ({
   B3UserId,
   role,
 }: MutationObserverProps) => {
-  const [openQuickViewNum, setOpenQuickViewNum] = useState<number>(0)
+  const [openQuickView, setOpenQuickView] = useState<boolean>(true)
 
   const [openTipState, setOpenTipState] = useState<OpenTipStateProps>({
     isOpen: false,
@@ -195,6 +195,23 @@ const useMyQuote = ({
     }
   }
 
+  const changeQuickview = () => {
+    setOpenQuickView((openQuickView) => !openQuickView)
+  }
+
+  useEffect(() => {
+    const quickview = document.querySelectorAll('.quickview')
+    quickview.forEach((dom: any) => {
+      dom.addEventListener('click', () => changeQuickview())
+    })
+
+    return () => {
+      quickview.forEach((dom: any) => {
+        dom.removeEventListener('click', () => changeQuickview())
+      })
+    }
+  }, [])
+
   const quoteCallBbck = useCallback(() => {
     const b3MyQuote = document.querySelector('#b3MyQuote')
     const b2bLoading = document.querySelector('#b2b-div-loading')
@@ -204,16 +221,23 @@ const useMyQuote = ({
     }
   }, [])
 
+  // const cd = () => {
+  //   if (document.querySelectorAll(globalB3['dom.setToQuote']).length) {
+  //     setOpenQuickViewNum(openQuickViewNum + 1)
+  //     removeCartPermissions(role)
+  //   }
+  // }
+
   const cd = useCallback(() => {
+    removeCartPermissions(role)
     if (document.querySelectorAll(globalB3['dom.setToQuote']).length) {
-      setOpenQuickViewNum(openQuickViewNum + 1)
-      removeCartPermissions(role)
+      setOpenQuickView((openQuickView) => !openQuickView)
     }
   }, [role])
 
   useMutationObservable(document.documentElement, cd)
 
-  useB3Quote(globalB3['dom.setToQuote'], quoteCallBbck, openQuickViewNum, productQuoteEnabled)
+  useB3Quote(globalB3['dom.setToQuote'], quoteCallBbck, openQuickView, productQuoteEnabled)
 
   useQuoteGlobalTip(openTipState, setOpenPage, initTip)
 }

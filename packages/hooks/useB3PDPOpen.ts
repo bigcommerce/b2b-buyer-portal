@@ -9,7 +9,7 @@ const removeElement = (_element: CustomFieldItems) => {
   }
 }
 
-export const useB3PDPOpen = (el: string, cd: () => void, isB2BUser: boolean, shoppingListEnabled: boolean, openQuickViewNum: number) => {
+export const useB3PDPOpen = (el: string, cd: () => void, isB2BUser: boolean, shoppingListEnabled: boolean, openQuickView: boolean) => {
   useEffect(() => {
     const addToCartAll = document.querySelectorAll(el)
     const wishlistSdd = document.querySelector('form[data-wishlist-add]')
@@ -40,5 +40,5 @@ export const useB3PDPOpen = (el: string, cd: () => void, isB2BUser: boolean, sho
         shoppingBtnDom.removeEventListener('click', cd)
       }
     }
-  }, [isB2BUser, shoppingListEnabled, openQuickViewNum])
+  }, [isB2BUser, shoppingListEnabled, openQuickView])
 }

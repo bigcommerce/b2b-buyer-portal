@@ -2,7 +2,7 @@ import {
   useEffect,
 } from 'react'
 
-export const useB3Quote = (el: string, cd: () => void, openQuickViewNum: number, isEnabled: boolean) => {
+export const useB3Quote = (el: string, cd: () => void, openQuickView: boolean, isEnabled: boolean) => {
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(el)
 
@@ -34,5 +34,5 @@ export const useB3Quote = (el: string, cd: () => void, openQuickViewNum: number,
         shoppingBtnDom.removeEventListener('click', cd)
       }
     }
-  }, [openQuickViewNum, isEnabled])
+  }, [openQuickView, isEnabled])
 }
