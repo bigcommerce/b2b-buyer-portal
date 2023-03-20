@@ -45,7 +45,6 @@ import {
   getB2BCountries,
   getB2BAccountFormFields,
   createB2BCompanyUser,
-  getB2BCompanyUserInfo,
   uploadB2BFile,
   validateBCCompanyExtraFields,
 } from '../../shared/service/b2b'
@@ -75,6 +74,7 @@ import {
 
 import {
   storeHash,
+  getCurrentCustomerInfo,
 } from '@/utils'
 
 interface CustomerInfo {
@@ -117,7 +117,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         lastName = '',
         emailAddress = '',
       } = {},
-      isCloseGotoBCHome,
       storeName,
       logo,
     },
@@ -403,32 +402,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files')
         const fileList = await getFileUrl(attachmentsList || [], data)
         await getB2BFieldsValue(data, customerId, fileList)
-
         if (emailAddress) {
-          const {
-            companyUserInfo: {
-              userType,
-              userInfo: {
-                role,
-              },
-            },
-          } = await getB2BCompanyUserInfo(emailAddress)
-
-          // 2 bc , 3 b2b
-          globalDispatch({
-            type: 'common',
-            payload: {
-              isB2BUser: userType === 3,
-              role,
-            },
-          })
-
-          if (isCloseGotoBCHome) {
-            window.location.href = '/'
-          } else {
-            navigate('/orders')
-            window.location.reload()
-          }
+          await getCurrentCustomerInfo(globalDispatch)
+          navigate('/orders')
         }
       } catch (err: any) {
         console.log(err)

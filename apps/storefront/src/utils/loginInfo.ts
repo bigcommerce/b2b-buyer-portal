@@ -135,11 +135,16 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('B3B2BToken', false)
   B3SStorage.set('B3UserId', '')
 
+  B3SStorage.set('salesRepCompanyName', '')
+  B3SStorage.set('nextPath', '')
+  B3SStorage.set('salesRepCompanyId', '')
+  B3SStorage.set('isAgenting', '')
+
   dispatch({
     type: 'common',
     payload: {
       isB2BUser: false,
-      role: '',
+      role: 100,
       customerId: '',
       customer: {
         phoneNumber: '',
@@ -148,6 +153,9 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
         emailAddress: '',
       },
       emailAddress: '',
+      salesRepCompanyId: '',
+      salesRepCompanyName: '',
+      isAgenting: false,
     },
   })
 }
