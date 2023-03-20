@@ -301,8 +301,9 @@ const QuotesList = () => {
       title: 'Title',
     },
     {
-      key: 'salesRepEmail',
+      key: 'salesRep',
       title: 'Sales rep',
+      render: (item: ListItem) => (`${item.salesRep || item.salesRepEmail}`),
     },
     {
       key: 'createdBy',
@@ -414,7 +415,7 @@ const QuotesList = () => {
             isCustomRender={false}
             requestLoading={setIsRequestLoading}
             tableKey="quoteNumber"
-            labelRowsPerPage={`${isMobile ? 'Cards per page' : 'Orders per page'}`}
+            labelRowsPerPage={`${isMobile ? 'Cards per page' : 'Quotes per page'}`}
             renderItem={(row: ListItem) => (
               <QuoteItemCard
                 item={row}
