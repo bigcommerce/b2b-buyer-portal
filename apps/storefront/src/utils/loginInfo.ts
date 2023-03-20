@@ -195,7 +195,7 @@ const getCompanyInfo = async (id: number, userType: number, role:number) => {
   let companyInfo = {
     id: '',
     companyName: '',
-    companyStatus: '',
+    companyStatus: 0,
   }
   if (userType === 3 && role !== 3) {
     const {
@@ -315,13 +315,13 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       B3SStorage.set('B3EmailAddress', emailAddress)
       B3SStorage.set('B3UserId', id)
       B3SStorage.set('B3Role', userType === 3 ? role : 99)
-      B3SStorage.set('isB2BUser', userType === 3)
+      B3SStorage.set('isB2BUser', (userType === 3 && companyInfo?.companyStatus === 1))
 
       dispatch({
         type: 'common',
         payload: {
-          isB2BUser: userType === 3,
-          role: userType === 3 ? role : 99,
+          isB2BUser: (userType === 3 && companyInfo?.companyStatus === 1),
+          role: (userType === 3 && companyInfo?.companyStatus === 1) ? role : 99,
           customerId,
           B3UserId: id,
           // isAgenting: agentInfo.isAgenting,
