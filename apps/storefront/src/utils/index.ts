@@ -66,6 +66,10 @@ import {
   showPageMask,
 } from './b3PageMask'
 
+import {
+  b2bPrintInvoice,
+} from './b3PrintInvoice'
+
 export {
   addQuoteDraftProduce,
   getModifiersPrice,
@@ -102,4 +106,5 @@ export {
   getSearchVal,
   getDefaultCurrencyInfo,
   showPageMask,
+  b2bPrintInvoice,
 }

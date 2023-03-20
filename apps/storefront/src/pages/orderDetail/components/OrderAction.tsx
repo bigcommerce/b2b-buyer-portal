@@ -3,9 +3,10 @@ import {
   useContext,
   Fragment,
 } from 'react'
+
 import {
-  useNavigate,
-} from 'react-router-dom'
+  throttle,
+} from 'lodash'
 
 import {
   Card,
@@ -40,6 +41,7 @@ import {
 
 import {
   snackbar,
+  b2bPrintInvoice,
 } from '@/utils'
 
 const OrderActionContainer = styled('div')(() => ({}))
@@ -153,8 +155,6 @@ const OrderCard = (props: OrderCardProps) => {
     },
   } = useContext(GlobaledContext)
 
-  const navigate = useNavigate()
-
   const dialogData = [
     {
       dialogTitle: 'Re-order',
@@ -193,7 +193,7 @@ const OrderCard = (props: OrderCardProps) => {
 
   const handleOpenDialog = (name: string) => {
     if (name === 'viewInvoice') {
-      navigate('/invoiceDetail/1')
+      b2bPrintInvoice(orderId, 'b2b_print_invoice')
     } else if (name === 'printInvoice') {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
     } else {
@@ -269,7 +269,7 @@ const OrderCard = (props: OrderCardProps) => {
                     key={button.key}
                     name={button.name}
                     variant={button.variant}
-                    onClick={() => { handleOpenDialog(button.name) }}
+                    onClick={throttle(() => { handleOpenDialog(button.name) }, 2000)}
                   >
                     {button.value}
                   </Button>
