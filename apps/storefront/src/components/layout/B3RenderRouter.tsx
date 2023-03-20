@@ -7,10 +7,6 @@ import {
 } from 'react'
 
 import {
-  Box,
-} from '@mui/material'
-
-import {
   Route,
   Routes,
   Outlet,
@@ -24,6 +20,7 @@ import type {
 
 import {
   B3Layout,
+  Loading,
 } from '@/components'
 import {
   RegisteredProvider,
@@ -86,17 +83,9 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
   }, [openUrl])
 
   return (
-    <Suspense fallback={(
-      <Box sx={{
-        display: 'flex',
-        width: '100%',
-        height: '100vh',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-      >
-        Loading...
-      </Box>
+    <Suspense
+      fallback={(
+        <Loading />
       )}
     >
       <B3LayoutTip />

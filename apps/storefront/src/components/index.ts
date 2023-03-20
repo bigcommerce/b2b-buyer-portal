@@ -84,4 +84,5 @@ export {
 export {
   B3PageMask,
   showPageMask,
-} from './pageMask/B3PageMask'
+  Loading,
+} from './loadding'
