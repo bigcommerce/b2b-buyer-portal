@@ -333,12 +333,14 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
       productsWithSku.forEach((product: ListItemProps) => {
         const {
           node: {
+            basePrice,
             optionList,
             variantSku,
             productId,
             productName,
             quantity,
             variantId,
+            tax,
           },
         } = product
 
@@ -359,8 +361,8 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
             quantity: +quantity || 1,
             optionList: JSON.stringify(optionsList),
             productId,
-            basePrice: variantItem.bc_calculated_price.as_entered,
-            tax: variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive,
+            basePrice,
+            tax,
           },
         }
 
