@@ -92,7 +92,7 @@ export function B3Layout({
   useEffect(() => {
     const itemsRoutes = routes.filter((item: RouteItem) => item.path === location.pathname)
     if (itemsRoutes.length && location.pathname !== '/quoteDraft') {
-      setTitle(itemsRoutes[0].name)
+      setTitle(itemsRoutes[0].pageTitle || itemsRoutes[0].name)
     } else {
       setTitle('')
     }

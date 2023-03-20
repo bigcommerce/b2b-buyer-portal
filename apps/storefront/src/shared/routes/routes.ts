@@ -61,6 +61,7 @@ export interface RouteItem extends RouteItemBasic {
   wsKey: string,
   configKey?: string,
   isTokenLogin: boolean,
+  pageTitle?: string,
 }
 
 export interface RouteFirstLevelItem extends RouteItemBasic{
@@ -194,6 +195,7 @@ const routes: RouteItem[] = [
   {
     path: '/purchased-products',
     name: 'Quick Order',
+    pageTitle: 'Purchase products',
     wsKey: 'quickorder',
     isMenuItem: true,
     component: Quickorder,
