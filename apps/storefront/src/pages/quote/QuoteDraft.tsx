@@ -149,6 +149,7 @@ const QuoteDraft = ({
     state: {
       role,
       isB2BUser,
+      customerId,
       B3UserId,
       currentChannelId,
       salesRepCompanyId,
@@ -284,7 +285,7 @@ const QuoteDraft = ({
           setInfo(quoteInfo)
         }
       } finally {
-        B3LStorage.set('quoteDraftUserId', B3UserId || 0)
+        B3LStorage.set('quoteDraftUserId', B3UserId || customerId || 0)
         setLoading(false)
       }
     }

@@ -55,7 +55,7 @@ interface MutationObserverProps {
   productQuoteEnabled: boolean,
   B3UserId: number | string,
   role: number | string,
-
+  customerId: number | string,
 }
 
 const removeElement = (_element: CustomFieldItems) => {
@@ -76,6 +76,7 @@ const useMyQuote = ({
   productQuoteEnabled,
   B3UserId,
   role,
+  customerId,
 }: MutationObserverProps) => {
   const [openQuickView, setOpenQuickView] = useState<boolean>(true)
 
@@ -87,14 +88,11 @@ const useMyQuote = ({
 
   useEffect(() => {
     const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
-    if (+B3UserId !== +quoteDraftUserId) {
+    if (!B3UserId && +quoteDraftUserId !== +customerId) {
       B3LStorage.set('MyQuoteInfo', {})
       B3LStorage.set('b2bQuoteDraftList', [])
+      B3LStorage.set('quoteDraftUserId', B3UserId || customerId || 0)
     }
-
-    if (+B3UserId !== 0) {
-      B3LStorage.set('quoteDraftUserId', B3UserId)
-    } else B3LStorage.set('quoteDraftUserId', 0)
   }, [B3UserId])
 
   const addLoadding = (b3MyQuote: any) => {

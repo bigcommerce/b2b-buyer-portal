@@ -13,6 +13,7 @@ import {
 } from '@/shared/service/bc'
 
 import {
+  B3LStorage,
   B3SStorage,
   storeHash,
 } from '@/utils'
@@ -309,6 +310,10 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       B3SStorage.set('B3UserId', id)
       B3SStorage.set('B3Role', isB2BUser ? role : 99)
       B3SStorage.set('isB2BUser', isB2BUser)
+
+      B3LStorage.set('MyQuoteInfo', {})
+      B3LStorage.set('b2bQuoteDraftList', [])
+      B3LStorage.set('quoteDraftUserId', id || customerId || 0)
 
       dispatch({
         type: 'common',

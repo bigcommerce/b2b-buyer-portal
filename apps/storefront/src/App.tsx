@@ -94,6 +94,7 @@ export default function App() {
     productQuoteEnabled,
     B3UserId,
     role,
+    customerId,
   })
   useCartToQuote({
     setOpenPage,
