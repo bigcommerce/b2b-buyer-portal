@@ -18,6 +18,10 @@ import {
   useMutationObservable,
 } from '@b3/hooks'
 
+import {
+  B3SStorage,
+} from '@/utils'
+
 const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState>>, isB2BUser: boolean, customerId:number | string) => {
   const b3Lang = useB3Lang()
 
@@ -33,7 +37,8 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
   }
 
   const cd = useCallback(() => {
-    if (!isB2BUser && customerId && document.querySelector(globalB3['dom.navUserLoginElement'])) {
+    const companyStatus = B3SStorage.get('companyStatus')
+    if (!isB2BUser && companyStatus === 99 && customerId && document.querySelector(globalB3['dom.navUserLoginElement'])) {
       // already exist
       if (document.querySelector('.navUser-item.navUser-convert-b2b')) {
         return

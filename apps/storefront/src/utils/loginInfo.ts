@@ -5,7 +5,6 @@ import {
   getAgentInfo,
   getUserCompany,
   getCurrencies,
-  // superAdminEndMasquerade,
 } from '@/shared/service/b2b'
 
 import {
@@ -191,11 +190,19 @@ const getCurrentJwtAndB2BToken = async (userType: number) => {
   }
 }
 
+// companyStatus
+// 99: default, Distinguish between bc and b2b
+// 0: pending
+// 1: approved
+// 2: rejected
+// 3: inactive
+// 4: deleted
+
 const getCompanyInfo = async (id: number, userType: number, role:number) => {
   let companyInfo = {
     id: '',
     companyName: '',
-    companyStatus: 0,
+    companyStatus: 99,
   }
   if (userType === 3 && role !== 3) {
     const {
@@ -208,6 +215,8 @@ const getCompanyInfo = async (id: number, userType: number, role:number) => {
       }
     }
   }
+
+  B3SStorage.set('companyStatus', companyInfo.companyStatus)
 
   return companyInfo
 }
@@ -236,31 +245,12 @@ export const agentInfo = async (customerId: number, role: number, b3UserId: numb
               salesRepCompanyName: companyName,
             },
           })
-        } else if (id || companyName) {
-          // end
-          // await superAdminEndMasquerade(+id, +b3UserId)
-          // B3SStorage.delete('isAgenting')
-          // B3SStorage.delete('salesRepCompanyId')
-          // B3SStorage.delete('salesRepCompanyName')
-          // dispatch({
-          //   type: 'common',
-          //   payload: {
-          //     isAgenting: false,
-          //     salesRepCompanyId: '',
-          //     salesRepCompanyName: '',
-          //   },
-          // })
         }
       }
     } catch (error) {
       console.log(error)
     }
   }
-//   return {
-//     isAgenting,
-//     salesRepCompanyId,
-//     salesRepCompanyName,
-//   }
 }
 
 export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
@@ -292,7 +282,7 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
           id,
         },
       },
-    } = await getB2BCompanyUserInfo(emailAddress)
+    } = await getB2BCompanyUserInfo(emailAddress, customerId)
 
     await getCurrentJwtAndB2BToken(userType)
 
@@ -309,24 +299,24 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
         emailAddress,
         customerGroupId,
       }
+
+      const isB2BUser = (userType === 3 && companyInfo?.companyStatus === 1) || +role === 3
+
       B3SStorage.set('B3CustomerInfo', customerInfo)
       B3SStorage.set('B3CompanyInfo', companyInfo)
       B3SStorage.set('B3CustomerId', customerId)
       B3SStorage.set('B3EmailAddress', emailAddress)
       B3SStorage.set('B3UserId', id)
-      B3SStorage.set('B3Role', userType === 3 ? role : 99)
-      B3SStorage.set('isB2BUser', (userType === 3 && companyInfo?.companyStatus === 1))
+      B3SStorage.set('B3Role', isB2BUser ? role : 99)
+      B3SStorage.set('isB2BUser', isB2BUser)
 
       dispatch({
         type: 'common',
         payload: {
-          isB2BUser: (userType === 3 && companyInfo?.companyStatus === 1),
-          role: (userType === 3 && companyInfo?.companyStatus === 1) ? role : 99,
+          isB2BUser,
+          role: isB2BUser ? role : 99,
           customerId,
           B3UserId: id,
-          // isAgenting: agentInfo.isAgenting,
-          // salesRepCompanyId: agentInfo.salesRepCompanyId,
-          // salesRepCompanyName: agentInfo.salesRepCompanyName,
           companyInfo,
           customer: {
             phoneNumber,

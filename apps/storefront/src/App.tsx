@@ -211,13 +211,6 @@ export default function App() {
     init()
   }, [])
 
-  // useEffect(() => {
-  //   if (openApp) {
-  //     gotoAllowedAppPage(+role, gotoPage)
-  //     showPageMask(false)
-  //   }
-  // }, [openApp])
-
   useEffect(() => {
     if (quoteConfig.switchStatus.length > 0 && storefrontConfig) {
       const {
@@ -275,9 +268,6 @@ export default function App() {
         productQuoteEnabled={productQuoteEnabled}
         setOpenPage={setOpenPage}
       />
-      {/* <CheckoutTip
-        setOpenPage={setOpenPage}
-      /> */}
     </>
 
   )
