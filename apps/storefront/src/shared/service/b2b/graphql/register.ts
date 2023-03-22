@@ -102,7 +102,7 @@ const createCompanyUser = (data: any) => `mutation{
     city: "${data.city}",
     state: "${data.state}",
     zipCode: "${data.zip_code}",
-    extraFields: ${convertArrayToGraphql(data.extraFields)}
+    ${data?.extraFields ? `extraFields: ${convertArrayToGraphql(data.extraFields)}` : ''}
     fileList: ${convertArrayToGraphql(data.fileList)}
   }) {
     company {

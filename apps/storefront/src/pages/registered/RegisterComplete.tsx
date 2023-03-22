@@ -208,64 +208,67 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   }
 
   const getB2BFieldsValue = async (data: CustomFieldItems, customerId: Number | String, fileList: any) => {
-    const b2bFields: CustomFieldItems = {}
+    try {
+      const b2bFields: CustomFieldItems = {}
+      b2bFields.customerId = customerId || ''
+      b2bFields.storeHash = storeHash
+      const companyInfo = companyInformation.filter((list) => !list.custom && list.fieldType !== 'files')
+      const companyExtraInfo = companyInformation.filter((list) => !!list.custom)
+      // company field
+      if (companyInfo.length) {
+        companyInfo.forEach((item: any) => {
+          b2bFields[toHump(deCodeField(item.name))] = item?.default || ''
+        })
+      }
 
-    b2bFields.customerId = customerId || ''
-    b2bFields.storeHash = storeHash
-    const companyInfo = companyInformation.filter((list) => !list.custom && list.fieldType !== 'files')
-    const companyExtraInfo = companyInformation.filter((list) => !!list.custom)
-    // company field
-    if (companyInfo.length) {
-      companyInfo.forEach((item: any) => {
-        b2bFields[toHump(deCodeField(item.name))] = item?.default || ''
-      })
+      // Company Additional Field
+      if (companyExtraInfo.length) {
+        const extraFields:Array<CustomFieldItems> = []
+        companyExtraInfo.forEach((item: CustomFieldItems) => {
+          const itemExtraField: CustomFieldItems = {}
+          itemExtraField.fieldName = deCodeField(item.name)
+          itemExtraField.fieldValue = item?.default || ''
+          extraFields.push(itemExtraField)
+        })
+        b2bFields.extraFields = extraFields
+      }
+
+      b2bFields.companyEmail = data.email
+
+      // address Field
+      const addressBasicInfo = addressBasicList.filter((list) => !list.custom) || []
+      const addressExtraBasicInfo = addressBasicList.filter((list) => !!list.custom) || []
+
+      if (addressBasicInfo.length) {
+        addressBasicInfo.forEach((field: CustomFieldItems) => {
+          const name = deCodeField(field.name)
+          if (name === 'address1') {
+            b2bFields.addressLine1 = field.default
+          }
+          if (name === 'address2') {
+            b2bFields.addressLine2 = field.default
+          }
+          b2bFields[name] = field.default
+        })
+      }
+
+      // address Additional Field
+      if (addressExtraBasicInfo.length) {
+        const extraFields:Array<CustomFieldItems> = []
+        addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
+          const itemExtraField: CustomFieldItems = {}
+          itemExtraField.fieldName = deCodeField(item.name)
+          itemExtraField.fieldValue = item?.default || ''
+          extraFields.push(itemExtraField)
+        })
+        b2bFields.addressExtraFields = extraFields
+      }
+      b2bFields.fileList = fileList
+
+      return createB2BCompanyUser(b2bFields)
+    } catch (error) {
+      console.log(error)
     }
-
-    // Company Additional Field
-    if (companyExtraInfo.length) {
-      const extraFields:Array<CustomFieldItems> = []
-      companyExtraInfo.forEach((item: CustomFieldItems) => {
-        const itemExtraField: CustomFieldItems = {}
-        itemExtraField.fieldName = deCodeField(item.name)
-        itemExtraField.fieldValue = item?.default || ''
-        extraFields.push(itemExtraField)
-      })
-      b2bFields.extraFields = extraFields
-    }
-
-    b2bFields.companyEmail = data.email
-
-    // address Field
-    const addressBasicInfo = addressBasicList.filter((list) => !list.custom)
-    const addressExtraBasicInfo = addressBasicList.filter((list) => !!list.custom)
-
-    if (addressBasicInfo.length) {
-      addressBasicInfo.forEach((field: CustomFieldItems) => {
-        const name = deCodeField(field.name)
-        if (name === 'address1') {
-          b2bFields.addressLine1 = field.default
-        }
-        if (name === 'address2') {
-          b2bFields.addressLine2 = field.default
-        }
-        b2bFields[name] = field.default
-      })
-    }
-
-    // address Additional Field
-    if (addressExtraBasicInfo.length) {
-      const extraFields:Array<CustomFieldItems> = []
-      addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
-        const itemExtraField: CustomFieldItems = {}
-        itemExtraField.fieldName = deCodeField(item.name)
-        itemExtraField.fieldValue = item?.default || ''
-        extraFields.push(itemExtraField)
-      })
-      b2bFields.addressExtraFields = extraFields
-    }
-    b2bFields.fileList = fileList
-
-    return createB2BCompanyUser(b2bFields)
   }
 
   const getFileUrl = async (attachmentsList: RegisterFields[]) => {
@@ -287,7 +290,11 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
         if (res.code === 200) {
-          fileList = [...fileList, res.data]
+          const newData = {
+            ...res.data,
+          }
+          newData.fileSize = newData.fileSize ? `${newData.fileSize}` : ''
+          fileList = [...fileList, newData]
         } else {
           throw res.data.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure')
         }
@@ -366,13 +373,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           } = res
           const accountInfo = await getB2BFieldsValue(completeData, (data as any)[0].id, fileList)
 
-          const {
-            companyCreate: {
-              company: {
-                companyStatus,
-              },
-            },
-          } = accountInfo
+          const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || ''
           isAuto = +companyStatus === 1
         }
         dispatch({
