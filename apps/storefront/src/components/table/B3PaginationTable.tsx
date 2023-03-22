@@ -29,7 +29,7 @@ export interface TablePagination {
 //   render?: (item: CustomFieldItems, index: number) => ReactNode,
 // }
 
-interface B3PaginationTableProps<T> {
+interface B3PaginationTableProps {
   tableFixed?: boolean,
   tableHeaderHide?: boolean,
   columnItems?: TableColumnItem<any>[],
@@ -46,7 +46,7 @@ interface B3PaginationTableProps<T> {
   noDataText?: string,
   tableKey?: string,
   getRequestList: any,
-  searchParams?: T,
+  searchParams?: any,
   requestLoading?: (bool: boolean) => void,
   showCheckbox?: boolean,
   selectedSymbol?: string,
@@ -60,7 +60,7 @@ interface B3PaginationTableProps<T> {
   showRowsPerPageOptions?: boolean,
 }
 
-const PaginationTable:<T>(props: B3PaginationTableProps<T>) => ReactElement = ({
+const PaginationTable:(props: B3PaginationTableProps) => ReactElement = ({
   columnItems,
   isCustomRender = false,
   tableKey,
@@ -111,8 +111,22 @@ const PaginationTable:<T>(props: B3PaginationTableProps<T>) => ReactElement = ({
     try {
       setLoading(true)
       if (requestLoading) requestLoading(true)
-      const params = {
+      const {
+        createdBy,
+      } = searchParams
+
+      const getEmailReg: RegExp = /\((.+)\)/g
+      const getCreatedByReg: RegExp = /^[^(]+/
+      const emailRegArr = getEmailReg.exec(createdBy)
+      const createdByUserRegArr = getCreatedByReg.exec(createdBy)
+      const createdByUser = createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : ''
+      const newSearchParams = {
         ...searchParams,
+        createdBy: emailRegArr?.length ? '' : createdByUser,
+        email: emailRegArr?.length ? emailRegArr[1] : '',
+      }
+      const params = {
+        ...newSearchParams,
         first: b3Pagination?.first || pagination.first,
         offset: b3Pagination?.offset || 0,
       }

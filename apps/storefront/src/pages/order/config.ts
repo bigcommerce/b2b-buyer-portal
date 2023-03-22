@@ -50,8 +50,8 @@ const bcFilterSearch = {
 export const getFilterMoreData = (isB2BUser:boolean, role: string | number, isCompanyOrder: boolean, isAgenting: boolean, createdByUsers: any, orderStatuses = []) => {
   const newOrderStatuses = orderStatuses.filter((item: CustomFieldStringItems) => item.statusCode !== '0' && item.statusCode !== '1')
   const newCreatedByUsers = createdByUsers?.createdByUser?.results.map((item: any) => ({
-    createdBy: `${item.firstName} ${item.lastName}`,
-  })) || {}
+    createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
+  })) || []
   const filterMoreList = [
     {
       name: 'company',

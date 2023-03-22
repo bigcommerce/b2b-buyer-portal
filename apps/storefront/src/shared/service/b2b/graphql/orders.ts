@@ -19,6 +19,7 @@ const allOrders = (data: CustomFieldItems, fn: string) => `{
     createdBy: "${data?.createdBy || ''}"
     isShowMy: "${data?.isShowMy || 0}"
     orderBy: "${data.orderBy}"
+    email: "${data?.email || ''}"
   ){
     totalCount,
     pageInfo{

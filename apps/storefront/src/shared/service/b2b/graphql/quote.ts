@@ -18,6 +18,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `{
     search: "${data.q || ''}"
     orderBy: "${data?.orderBy || ''}"
     createdBy: "${data?.createdBy || ''}"
+    email: "${data?.email || ''}"
     salesRep: "${data?.salesRep || ''}"
     ${data?.status ? `status: "${data.status}"` : ''}
     ${data?.dateCreatedBeginAt ? `dateCreatedBeginAt: "${data.dateCreatedBeginAt}"` : ''}

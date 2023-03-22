@@ -133,7 +133,13 @@ const quotesStatuses = [
   },
 ]
 
-const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any, createdBySalesReps: any) => {
+const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any) => {
+  const newCreatedByUsers = createdByUsers?.createdByUser?.results?.createdBy.map((item: any) => ({
+    createdBy: item.email ? `${item.name} (${item.email})` : `${item.name}`,
+  })) || []
+  const newCreatedBySalesReps = createdByUsers?.createdByUser?.results?.salesRep.map((item: any) => ({
+    salesRep: `${item.salesRep || item.salesRepEmail}`,
+  })) || []
   const filterMoreList = [
     {
       name: 'status',
@@ -156,7 +162,7 @@ const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any, createdBySal
       required: false,
       default: '',
       fieldType: 'dropdown',
-      options: createdByUsers,
+      options: newCreatedByUsers,
       replaceOptions: {
         label: 'createdBy',
         value: 'createdBy',
@@ -171,7 +177,7 @@ const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any, createdBySal
       required: false,
       default: '',
       fieldType: 'dropdown',
-      options: createdBySalesReps,
+      options: newCreatedBySalesReps,
       replaceOptions: {
         label: 'salesRep',
         value: 'salesRep',
@@ -227,14 +233,7 @@ const QuotesList = () => {
       let createdByUsers: CustomFieldItems = {}
       if (isB2BUser) createdByUsers = await getShoppingListsCreatedByUser(+companyId, 2)
 
-      const newCreatedByUsers = createdByUsers?.createdByUser?.results?.createdBy.map((item: any) => ({
-        createdBy: `${item}`,
-      })) || {}
-      const newCreatedBySalesReps = createdByUsers?.createdByUser?.results?.salesRep.map((item: any) => ({
-        salesRep: `${item.salesRep || item.salesRepEmail}`,
-      })) || {}
-
-      const filterInfos = getFilterMoreList(isB2BUser, newCreatedByUsers, newCreatedBySalesReps)
+      const filterInfos = getFilterMoreList(isB2BUser, createdByUsers)
       setFilterMoreInfo(filterInfos)
     }
 

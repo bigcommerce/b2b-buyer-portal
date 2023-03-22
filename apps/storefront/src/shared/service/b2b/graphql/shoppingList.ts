@@ -22,6 +22,7 @@ const getShoppingList = ({
   first = 50,
   status = '',
   createdBy = '',
+  email = '',
   search = '',
   isDefault = true,
 }) => `{
@@ -30,6 +31,7 @@ const getShoppingList = ({
     first: ${first}
     search: "${search}"
     createdBy: "${createdBy}"
+    email: "${email}"
     ${getStatus(status)}
     isDefault: ${isDefault}
   ){

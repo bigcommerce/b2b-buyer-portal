@@ -78,8 +78,8 @@ export const getFilterShoppingListStatus = (role?: number | string): Array<Shopp
 
 export const getFilterMoreList = (createdByUsers: any, role: number | string): GetFilterMoreListProps[] => {
   const newCreatedByUsers = createdByUsers?.createdByUser?.results.map((item: any) => ({
-    createdBy: `${item.firstName} ${item.lastName}`,
-  })) || {}
+    createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
+  })) || []
   const filterMoreList = [
     {
       name: 'createdBy',
