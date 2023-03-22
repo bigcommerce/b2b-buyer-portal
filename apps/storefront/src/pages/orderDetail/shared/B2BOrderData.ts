@@ -153,4 +153,5 @@ export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   ipStatus: +data.ipStatus || 0, // 0: no invoice, 1,2: have invoice
   invoiceId: +(data.invoiceId || 0),
   canReturn: data.canReturn,
+  createdEmail: data.createdEmail,
 })

@@ -36,6 +36,7 @@ export interface OrderDetailsState {
   invoiceId?: number,
   addressLabelPermission?: boolean,
   canReturn?: boolean,
+  createdEmail?: string,
 }
 interface OrderDetailsAction {
   type: string,
@@ -74,6 +75,7 @@ const initState = {
   invoiceId: 0,
   addressLabelPermission: false,
   canReturn: false,
+  createdEmail: '',
 }
 
 export const OrderDetailsContext = createContext<OrderDetailsContextType>({

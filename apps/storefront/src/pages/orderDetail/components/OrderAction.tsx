@@ -313,12 +313,14 @@ export const OrderAction = (props: OrderActionProps) => {
     state: {
       isB2BUser,
       role,
+      emailAddress,
     },
   } = useContext(GlobaledContext)
 
   const {
     state: {
       addressLabelPermission,
+      createdEmail,
     },
   } = useContext(OrderDetailsContext)
 
@@ -445,7 +447,7 @@ export const OrderAction = (props: OrderActionProps) => {
           key: 'aboutInvoice',
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
-          isCanShow: !isB2BUser || +ipStatus !== 0,
+          isCanShow: (!isB2BUser || +ipStatus !== 0) && (createdEmail === emailAddress),
         },
       ],
       infos: {

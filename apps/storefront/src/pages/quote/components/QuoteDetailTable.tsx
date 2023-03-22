@@ -66,6 +66,13 @@ interface SearchProps {
   offset?: number,
 }
 
+interface OptionProps {
+  optionId: number,
+  optionLabel: string,
+  optionName: string,
+  optionValue: string | number,
+}
+
 interface PaginationTableRefProps extends HTMLInputElement {
   getList: () => void,
   setList: (items?: ListItemProps[]) => void,
@@ -159,7 +166,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                 optionsValue.length > 0 && (
                   <Box>
                     {
-                      optionsValue.map((option: any) => (option.optionLabel ? (
+                      optionsValue.map((option: OptionProps) => (option.optionLabel && (
                         <Typography
                           sx={{
                             fontSize: '0.75rem',
@@ -172,7 +179,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                           }: ${option.optionLabel
                           }`}
                         </Typography>
-                      ) : <></>))
+                      )))
                     }
                   </Box>
                 )
