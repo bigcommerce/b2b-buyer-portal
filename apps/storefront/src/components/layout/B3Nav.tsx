@@ -109,30 +109,25 @@ export const B3Nav = ({
   }
   const newRoutes = menuItems()
   const activePath = (path: string) => {
-    const activeStyle = {
-      color: 'white',
-      bgcolor: '#3385d6',
-      borderRadius: '4px',
-    }
     if (location.pathname === path) {
       B3SStorage.set('nextPath', path)
-      return activeStyle
+      return true
     }
 
     if (location.pathname.includes('orderDetail')) {
       const gotoOrderPath = B3SStorage.get('nextPath') === '/company-orders' ? '/company-orders' : '/orders'
-      if (path === gotoOrderPath) return activeStyle
+      if (path === gotoOrderPath) return true
     }
 
     if (location.pathname.includes('shoppingList') && path === '/shoppingLists') {
-      return activeStyle
+      return true
     }
 
     if (location.pathname.includes('/quoteDetail') || location.pathname.includes('/quoteDraft')) {
-      if (path === '/quotes') return activeStyle
+      if (path === '/quotes') return true
     }
 
-    return {}
+    return false
   }
   return (
     <List
@@ -141,6 +136,10 @@ export const B3Nav = ({
         maxWidth: 360,
         bgcolor: `${isMobile ? 'white' : '#fef9f5'}`,
         color: '#3385d6',
+        '& .Mui-selected': {
+          color: 'white',
+          bgcolor: '#1976D2!important',
+        },
       }}
       component="nav"
       aria-labelledby="nested-list-subheader"
@@ -148,23 +147,16 @@ export const B3Nav = ({
       {
         newRoutes.map((item: RouteItem) => (
           <ListItem
-            sx={{
-              '&:hover': {
-                color: 'white',
-                bgcolor: '#3385d6',
-                borderRadius: '4px',
-                '& .navMessage': {
-                  bgcolor: 'white',
-                  color: '#3385d6',
-                },
-              },
-              ...activePath(item.path),
-            }}
-            onClick={() => handleClick(item)}
             key={item.path}
             disablePadding
           >
-            <ListItemButton>
+            <ListItemButton
+              onClick={() => handleClick(item)}
+              sx={{
+                borderRadius: '4px',
+              }}
+              selected={activePath(item.path)}
+            >
               <ListItemText primary={item.name} />
               {/* <NavMessage className="navMessage">5</NavMessage> */}
             </ListItemButton>
