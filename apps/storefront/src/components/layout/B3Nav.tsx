@@ -36,10 +36,6 @@ import {
   B3SStorage,
 } from '@/utils'
 
-// import {
-//   NavMessage,
-// } from './styled'
-
 interface B3NavProps {
   closeSidebar?: (x: boolean) => void;
 }
@@ -134,11 +130,11 @@ export const B3Nav = ({
       sx={{
         width: '100%',
         maxWidth: 360,
-        bgcolor: `${isMobile ? 'white' : '#fef9f5'}`,
-        color: '#3385d6',
-        '& .Mui-selected': {
-          color: 'white',
-          bgcolor: '#1976D2!important',
+        bgcolor: `${isMobile ? 'background.paper' : 'background.default'}`,
+        color: 'info.main',
+        '& .MuiButtonBase-root.Mui-selected, & .MuiButtonBase-root.Mui-selected:hover': {
+          color: 'background.paper',
+          bgcolor: 'primary.main',
         },
       }}
       component="nav"
@@ -152,13 +148,9 @@ export const B3Nav = ({
           >
             <ListItemButton
               onClick={() => handleClick(item)}
-              sx={{
-                borderRadius: '4px',
-              }}
               selected={activePath(item.path)}
             >
               <ListItemText primary={item.name} />
-              {/* <NavMessage className="navMessage">5</NavMessage> */}
             </ListItemButton>
           </ListItem>
         ))

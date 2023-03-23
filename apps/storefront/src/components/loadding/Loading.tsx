@@ -11,7 +11,7 @@ const Loading = () => (
       position: 'fixed',
       top: 0,
       left: 0,
-      backgroundColor: '#fef9f5',
+      backgroundColor: 'background.default',
       zIndex: 120000,
       display: 'flex',
       justifyContent: 'center',

@@ -31,7 +31,13 @@ type Props = {
   children?: React.ReactNode;
 }
 
-const theme = (lang: string) => createTheme({}, (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'])
+const theme = (lang: string) => createTheme({
+  palette: {
+    background: {
+      default: '#fef9f5',
+    },
+  },
+}, (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'])
 
 function B3ThemeProvider({
   children,
