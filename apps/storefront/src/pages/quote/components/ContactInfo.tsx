@@ -59,6 +59,16 @@ const getContactInfo = (isMobile: boolean) => {
       validate: emailValidate,
     },
     {
+      name: 'companyName',
+      label: 'Company Name',
+      required: false,
+      default: '',
+      fieldType: 'text',
+      xs: isMobile ? 12 : 6,
+      variant: 'filled',
+      size: 'small',
+    },
+    {
       name: 'phoneNumber',
       label: 'Phone',
       required: false,

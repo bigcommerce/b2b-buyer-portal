@@ -155,6 +155,7 @@ const QuoteDraft = ({
       salesRepCompanyId,
       companyInfo: {
         id: companyB2BId,
+        companyName,
       },
       countriesList,
       customer,
@@ -201,6 +202,7 @@ const QuoteDraft = ({
     newInfo.contactInfo = {
       name: `${customer.firstName} ${customer.lastName}`,
       email: customer.emailAddress,
+      companyName,
       phoneNumber: customer.phoneNumber,
     }
     setInfo(newInfo)
