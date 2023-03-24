@@ -122,7 +122,7 @@ const PaginationTable:(props: B3PaginationTableProps) => ReactElement = ({
       const createdByUser = createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : ''
       const newSearchParams = {
         ...searchParams,
-        createdBy: emailRegArr?.length ? '' : createdByUser,
+        createdBy: createdByUser,
         email: emailRegArr?.length ? emailRegArr[1] : '',
       }
       const params = {
