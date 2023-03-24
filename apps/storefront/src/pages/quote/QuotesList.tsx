@@ -120,15 +120,15 @@ const sortByConfigData = {
 
 const quotesStatuses = [
   {
-    customLabel: 'open',
+    customLabel: 'Open',
     statusCode: 1,
   },
   {
-    customLabel: 'ordered',
+    customLabel: 'Ordered',
     statusCode: 4,
   },
   {
-    customLabel: 'expired',
+    customLabel: 'Expired',
     statusCode: 5,
   },
 ]
