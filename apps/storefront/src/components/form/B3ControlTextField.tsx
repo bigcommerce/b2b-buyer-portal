@@ -161,6 +161,7 @@ export const B3ControlTextField = ({
                       inputProps={muiAttributeProps}
                       error={!!errors[name]}
                       helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+                      autoComplete={fieldType === 'password' ? 'new-password' : 'off'}
                     />
                   )
               )}
