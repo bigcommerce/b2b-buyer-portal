@@ -31,7 +31,7 @@ const list: Array<ListProps> = [
   //   type: 'path',
   // },
   {
-    name: 'Logout',
+    name: 'Log out',
     key: 'logout',
     type: 'button',
   },
@@ -117,6 +117,7 @@ export const B3AccountInfo = ({
           >
             <B3DropDown
               title={name}
+              width="180px"
               handleItemClick={handleItemClick}
               list={list}
             />
