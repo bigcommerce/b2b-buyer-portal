@@ -1,7 +1,7 @@
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
-import ExpandLess from '@mui/icons-material/ExpandLess'
-import ExpandMore from '@mui/icons-material/ExpandMore'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 
@@ -59,7 +59,7 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
         onClick={handleClick}
       >
         <ListItemText primary={title} />
-        {open ? <ExpandLess /> : <ExpandMore />}
+        {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
       </ListItemButton>
       <Menu
         anchorEl={open}

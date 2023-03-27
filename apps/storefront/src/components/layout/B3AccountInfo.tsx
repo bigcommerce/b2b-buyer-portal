@@ -16,22 +16,22 @@ import {
   GlobaledContext,
 } from '@/shared/global'
 
-// import {
-//   B3DropDown,
-// } from '../B3DropDown'
+import {
+  B3DropDown,
+} from '../B3DropDown'
 
 interface ListProps {
   [key: string]: string
 }
 
 const list: Array<ListProps> = [
+  // {
+  //   name: 'Account Settings',
+  //   key: '/account-settings',
+  //   type: 'path',
+  // },
   {
-    name: 'Account Settings',
-    key: '/account-settings',
-    type: 'path',
-  },
-  {
-    name: 'Log out',
+    name: 'Logout',
     key: 'logout',
     type: 'button',
   },
@@ -107,7 +107,7 @@ export const B3AccountInfo = ({
           </Box>
         ) : (
           <Box sx={{
-            width: '150px',
+            minWidth: '150px',
             display: 'flex',
             justifyContent: 'end',
             mr: '8px',
@@ -115,14 +115,11 @@ export const B3AccountInfo = ({
             color: '#333333',
           }}
           >
-            { name }
-            {/* <B3DropDown
+            <B3DropDown
               title={name}
-              width="150px"
               handleItemClick={handleItemClick}
               list={list}
-            /> */}
-
+            />
           </Box>
         )
       }
