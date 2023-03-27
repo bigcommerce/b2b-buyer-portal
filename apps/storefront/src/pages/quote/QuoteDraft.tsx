@@ -153,6 +153,7 @@ const QuoteDraft = ({
       B3UserId,
       currentChannelId,
       salesRepCompanyId,
+      salesRepCompanyName,
       companyInfo: {
         id: companyB2BId,
         companyName,
@@ -202,7 +203,7 @@ const QuoteDraft = ({
     newInfo.contactInfo = {
       name: `${customer.firstName} ${customer.lastName}`,
       email: customer.emailAddress,
-      companyName,
+      companyName: companyName || salesRepCompanyName || '',
       phoneNumber: customer.phoneNumber,
     }
     setInfo(newInfo)
@@ -424,7 +425,7 @@ const QuoteDraft = ({
       const contactInfo = info?.contactInfo || {}
 
       const isComplete = Object.keys(contactInfo).every((key: string) => {
-        if (key === 'phoneNumber') {
+        if (key === 'phoneNumber' || key === 'companyName') {
           return true
         }
         return !!contactInfo[key]

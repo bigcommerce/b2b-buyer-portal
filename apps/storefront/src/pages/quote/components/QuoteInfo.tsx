@@ -26,7 +26,7 @@ interface InfoProps {
 
 type Keys = string | string[]
 
-const contactInfoKeys: string[] = ['name', 'email', 'phoneNumber']
+const contactInfoKeys: string[] = ['name', 'email', 'companyName', 'phoneNumber']
 
 const addressVerifyKeys: string[] = ['label', 'firstName', 'lastName', 'company', 'address', 'apartment', 'city', 'state', 'zipCode', 'country', 'phoneNumber']
 
