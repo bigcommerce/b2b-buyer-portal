@@ -158,7 +158,7 @@ const QuoteDetail = () => {
     }
   }
 
-  const exportPdf = async () => {
+  const fetchPdfUrl = async () => {
     setIsRequestLoading(true)
     const {
       id,
@@ -179,13 +179,56 @@ const QuoteDetail = () => {
       const fn = +role === 99 ? exportBcQuotePdf : exportB2BQuotePdf
 
       const quotePdf = await fn(data)
+
       if (quotePdf) {
-        window.open(`${quotePdf.quotePdfExport.url}`, '_blank')
+        return quotePdf.quotePdfExport.url
+      }
+    } catch (err: any) {
+      snackbar.error(err)
+    }
+  }
+
+  const exportPdf = async () => {
+    try {
+      const quotePdfUrl = await fetchPdfUrl()
+      if (quotePdfUrl) {
+        window.open(`${quotePdfUrl}`, '_blank')
       }
     } catch (err: any) {
       snackbar.error(err)
     } finally {
       setIsRequestLoading(false)
+    }
+  }
+
+  const printQuote = async () => {
+    try {
+      const quotePdfUrl = await fetchPdfUrl()
+
+      if (quotePdfUrl) {
+        const xhr = new XMLHttpRequest()
+        xhr.open('GET', quotePdfUrl, true)
+        xhr.responseType = 'arraybuffer'
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            const pdfData = new Uint8Array(xhr.response)
+            const pdfBlob = new Blob([pdfData], {
+              type: 'application/pdf',
+            })
+            const pdfUrl = URL.createObjectURL(pdfBlob)
+            const iframe = document.createElement('iframe')
+            iframe.setAttribute('src', pdfUrl)
+            iframe.setAttribute('style', 'display:none;')
+            document.getElementById('bundle-container')?.appendChild(iframe)
+            setIsRequestLoading(false)
+            iframe?.contentWindow?.print()
+          }
+        }
+
+        xhr.send()
+      }
+    } catch (err: any) {
+      snackbar.error(err)
     }
   }
 
@@ -285,6 +328,7 @@ const QuoteDetail = () => {
           issuedAt={quoteDetail.createdAt}
           expirationDate={quoteDetail.expiredAt}
           exportPdf={exportPdf}
+          printQuote={printQuote}
           role={role}
         />
 

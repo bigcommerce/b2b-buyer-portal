@@ -37,6 +37,7 @@ interface QuoteDetailHeaderProps {
   issuedAt: number,
   expirationDate: number,
   exportPdf: () => void,
+  printQuote: () => void,
   role: number | string,
 }
 
@@ -49,6 +50,7 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
     issuedAt,
     expirationDate,
     exportPdf,
+    printQuote,
     role,
   } = props
 
@@ -56,14 +58,6 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
   const gridOptions = (xs: number) => (isMobile ? {} : {
     xs,
   })
-
-  const printQuote = () => {
-    const iframe = document.querySelector('iframe')
-
-    if (iframe) {
-      iframe?.contentWindow?.print()
-    }
-  }
 
   return (
     <>
