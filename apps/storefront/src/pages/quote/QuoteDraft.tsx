@@ -663,47 +663,49 @@ const QuoteDraft = ({
             <QuoteStatus code="0" />
           </Box>
           {
-            !isMobile ? (
-              <Button
-                variant="contained"
-                size="small"
-                sx={{
-                  padding: '8px 22px',
-                  alignSelf: 'center',
-                  marginBottom: '24px',
-                }}
-                onClick={handleSubmit}
-              >
-                submit
-              </Button>
-            )
-              : (
-                <Box
+            (total !== 0) && (
+              !isMobile ? (
+                <Button
+                  variant="contained"
+                  size="small"
                   sx={{
-                    position: 'fixed',
-                    left: 0,
-                    bottom: 0,
-                    background: '#FFF',
-                    width: '100%',
-                    display: 'flex',
-                    p: '8px 0',
-                    zIndex: 100,
-                    justifyContent: 'center',
+                    padding: '8px 22px',
+                    alignSelf: 'center',
+                    marginBottom: '24px',
                   }}
+                  onClick={handleSubmit}
                 >
-                  <Button
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      height: '38px',
-                      width: '90%',
-                    }}
-                    onClick={handleSubmit}
-                  >
-                    submit
-                  </Button>
-                </Box>
+                  submit
+                </Button>
               )
+                : (
+                  <Box
+                    sx={{
+                      position: 'fixed',
+                      left: 0,
+                      bottom: 0,
+                      background: '#FFF',
+                      width: '100%',
+                      display: 'flex',
+                      p: '8px 0',
+                      zIndex: 100,
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      size="small"
+                      sx={{
+                        height: '38px',
+                        width: '90%',
+                      }}
+                      onClick={handleSubmit}
+                    >
+                      submit
+                    </Button>
+                  </Box>
+                )
+            )
           }
         </Box>
 
