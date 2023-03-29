@@ -281,7 +281,25 @@ const QuotesList = () => {
           status: 0,
         },
       }
-      edges.unshift(quoteDraft)
+
+      const {
+        status,
+        createdBy,
+        salesRep,
+        dateCreatedBeginAt,
+        dateCreatedEndAt,
+      } = filterData
+
+      const showDraft = !status && !salesRep && !dateCreatedBeginAt && !dateCreatedEndAt
+
+      if (createdBy && showDraft) {
+        const getCreatedByReg: RegExp = /^[^(]+/
+        const createdByUserRegArr = getCreatedByReg.exec(createdBy)
+        const createdByUser = createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : ''
+        if (createdByUser === quoteDraft.node.createdBy) edges.unshift(quoteDraft)
+      } else if (showDraft) {
+        edges.unshift(quoteDraft)
+      }
     }
 
     return {
