@@ -17,10 +17,13 @@ export const useB3PDPOpen = (el: string, cd: () => void, isB2BUser: boolean, sho
     if (!addToCartAll.length) return
     if (document.querySelectorAll('#shoppingListBtn').length) return
     if (shoppingListEnabled) {
+      // const style = 'background-color:red;color: white;font-size:18px;'
       addToCartAll.forEach((node: CustomFieldItems) => {
         shoppingBtnDom = document.createElement('div')
         shoppingBtnDom.setAttribute('id', 'shoppingListBtn')
         shoppingBtnDom.innerHTML = 'Add to Shopping List'
+        // shoppingBtnDom.setAttribute('style', style)
+        // shoppingBtnDom.setAttribute('class', 'xxxx aaa')
         node.parentNode.appendChild(shoppingBtnDom)
         shoppingBtnDom.addEventListener('click', cd, {
           capture: true,

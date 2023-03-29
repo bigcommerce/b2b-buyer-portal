@@ -19,6 +19,10 @@ import B3FilterSearch from './B3FilterSearch'
 
 import B3FilterMore from './B3FilterMore'
 
+import {
+  CustomButton,
+} from '../button/CustomButton'
+
 // import B3FilterToggleTable from './B3FilterToggleTable'
 
 interface sortByItemNameProps {
@@ -167,7 +171,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
             }
             {
               customButtomConfig?.isEnabled && (
-                <Button
+                <CustomButton
                   size="small"
                   variant="contained"
                   sx={{
@@ -178,7 +182,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
                   onClick={handleCustomBtnClick}
                 >
                   {customButtomConfig?.customLabel || ''}
-                </Button>
+                </CustomButton>
               )
             }
             {/* <B3FilterToggleTable /> */}

@@ -94,3 +94,7 @@ export {
 export {
   B3AddToQuoteTip,
 } from './B3AddToQuoteTip'
+
+export {
+  CustomButton,
+} from './button/CustomButton'

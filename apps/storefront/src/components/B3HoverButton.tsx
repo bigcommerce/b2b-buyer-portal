@@ -67,7 +67,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
   } = window.location
 
   if (href.includes('/checkout')) return <></>
-
+  const style = 'backgroundColor:"#ED6C02";fontSize:18px;'
   return (
     <Snackbar
       sx={{
