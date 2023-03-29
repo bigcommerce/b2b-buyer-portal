@@ -20,6 +20,7 @@ import type {
 import {
   v1 as uuid,
 } from 'uuid'
+
 import {
   searchB2BProducts,
   searchBcProducts,
@@ -31,6 +32,7 @@ import {
   isAllRequiredOptionFilled,
   getModifiersPrice,
   getProductExtraPrice,
+  globalSnackbar,
 } from '@/utils'
 
 import {
@@ -43,12 +45,12 @@ import {
 } from '../pages/pdp/PDP'
 
 import {
-  useQuoteGlobalTip,
-} from './useQuoteGlobalTip'
-
-import {
   conversionProductsList,
 } from '../pages/shoppingListDetails/shared/config'
+
+import {
+  B3AddToQuoteTip,
+} from '@/components'
 
 interface MutationObserverProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
@@ -65,12 +67,6 @@ const removeElement = (_element: CustomFieldItems) => {
   }
 }
 
-interface OpenTipStateProps {
-  isOpen: boolean,
-  message: string,
-  variant: string,
-}
-
 const useMyQuote = ({
   setOpenPage,
   productQuoteEnabled,
@@ -79,12 +75,6 @@ const useMyQuote = ({
   customerId,
 }: MutationObserverProps) => {
   const [openQuickView, setOpenQuickView] = useState<boolean>(true)
-
-  const [openTipState, setOpenTipState] = useState<OpenTipStateProps>({
-    isOpen: false,
-    message: '',
-    variant: '',
-  })
 
   useEffect(() => {
     const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
@@ -109,11 +99,13 @@ const useMyQuote = ({
     if (b2bLoading) removeElement(b2bLoading)
   }
 
-  const initTip = () => {
-    setOpenTipState({
-      isOpen: false,
-      message: '',
-      variant: '',
+  const gotoQuoteDraft = () => {
+    setOpenPage({
+      isOpen: true,
+      openUrl: '/quoteDraft',
+      params: {
+        quoteBtn: 'open',
+      },
     })
   }
 
@@ -154,10 +146,8 @@ const useMyQuote = ({
         message,
       } = isAllRequiredOptionFilled(allOptions, optionList)
       if (!isValid) {
-        setOpenTipState({
-          isOpen: true,
-          message,
-          variant: 'error',
+        globalSnackbar.error(message, {
+          isClose: false,
         })
         return
       }
@@ -181,10 +171,11 @@ const useMyQuote = ({
 
       addQuoteDraftProduce(quoteListitem, qty, optionList || [])
 
-      setOpenTipState({
-        isOpen: true,
-        message: 'Product was added to your quote.',
-        variant: 'success',
+      globalSnackbar.success('Product was added to your quote.', {
+        jsx: () => B3AddToQuoteTip({
+          gotoQuoteDraft,
+        }),
+        isClose: true,
       })
     } catch (e) {
       console.log(e)
@@ -219,13 +210,6 @@ const useMyQuote = ({
     }
   }, [])
 
-  // const cd = () => {
-  //   if (document.querySelectorAll(globalB3['dom.setToQuote']).length) {
-  //     setOpenQuickViewNum(openQuickViewNum + 1)
-  //     removeCartPermissions(role)
-  //   }
-  // }
-
   const cd = useCallback(() => {
     removeCartPermissions(role)
     if (document.querySelectorAll(globalB3['dom.setToQuote']).length) {
@@ -236,8 +220,6 @@ const useMyQuote = ({
   useMutationObservable(document.documentElement, cd)
 
   useB3Quote(globalB3['dom.setToQuote'], quoteCallBbck, openQuickView, productQuoteEnabled)
-
-  useQuoteGlobalTip(openTipState, setOpenPage, initTip)
 }
 
 export {

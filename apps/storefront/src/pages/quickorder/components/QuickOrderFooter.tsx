@@ -209,12 +209,17 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
       inventoryInfos.forEach((inventory: CustomFieldItems) => {
         if (node.variantSku === inventory.variantSku) {
           const {
-            optionSelections,
+            optionList,
             quantity,
           } = node
 
+          const options = optionList.map((option: CustomFieldItems) => ({
+            optionId: option.product_option_id,
+            optionValue: option.value,
+          }))
+
           lineItems.push({
-            optionSelections,
+            optionSelections: options,
             productId: parseInt(inventory.productId, 10) || 0,
             quantity,
             variantId: parseInt(inventory.variantId, 10) || 0,

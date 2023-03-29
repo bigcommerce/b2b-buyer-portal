@@ -86,3 +86,11 @@ export {
   showPageMask,
   Loading,
 } from './loadding'
+
+export {
+  B3GlobalTip,
+} from './B3GlobalTip'
+
+export {
+  B3AddToQuoteTip,
+} from './B3AddToQuoteTip'

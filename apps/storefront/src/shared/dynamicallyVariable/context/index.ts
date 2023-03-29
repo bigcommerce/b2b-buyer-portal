@@ -30,6 +30,20 @@ export const reducer = (state: DynamicallyVariableState, action: Partial<Dynamic
       return action.payload
     }
 
+    if (action.type === 'globalTip' && action.payload?.globalTipMessage) {
+      const msgs = state?.globalTipMessage?.msgs || []
+
+      const {
+        globalTipMessage: {
+          msgs: newMsgs = [],
+        },
+      } = action.payload
+
+      action.payload.globalTipMessage.msgs = [...msgs, ...newMsgs]
+
+      return action.payload
+    }
+
     return {}
   }
 
@@ -42,6 +56,11 @@ export const reducer = (state: DynamicallyVariableState, action: Partial<Dynamic
         ...action.payload,
       }
     case 'tip':
+      return {
+        ...state,
+        ...mulTip,
+      }
+    case 'globalTip':
       return {
         ...state,
         ...mulTip,

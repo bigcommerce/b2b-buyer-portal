@@ -41,6 +41,7 @@ import {
 
 import {
   snackbar,
+  globalSnackbar,
 } from './b3Tip'
 
 import {
@@ -93,6 +94,7 @@ export {
   getProxyInfo,
   getCurrentJwt,
   snackbar,
+  globalSnackbar,
   getCookie,
   getCurrenciesInfo,
   handleGetCurrentProductInfo,

@@ -25,6 +25,7 @@ export interface TipMessagesProps{
 
 export interface DynamicallyVariableState {
   tipMessage: TipMessagesProps,
+  globalTipMessage: TipMessagesProps,
   globalMessageDialog: {
     open: boolean,
     title: string,
@@ -39,6 +40,7 @@ export interface DynamicallyVariableState {
 
 export const initState = {
   tipMessage: {},
+  globalTipMessage: {},
   globalMessageDialog: {
     open: false,
     title: '',

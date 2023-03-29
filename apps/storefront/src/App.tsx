@@ -41,6 +41,7 @@ import {
   B3MasquradeGobalTip,
   B3HoverButton,
   showPageMask,
+  B3GlobalTip,
 } from '@/components'
 
 import {
@@ -269,6 +270,7 @@ export default function App() {
         productQuoteEnabled={productQuoteEnabled}
         setOpenPage={setOpenPage}
       />
+      <B3GlobalTip />
     </>
 
   )

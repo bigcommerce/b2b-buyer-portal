@@ -2,7 +2,6 @@ import {
   useCallback,
   SetStateAction,
   Dispatch,
-  useState,
 } from 'react'
 
 import {
@@ -28,6 +27,7 @@ import {
 
 import {
   addQuoteDraftProduce,
+  globalSnackbar,
 } from '@/utils'
 
 import {
@@ -35,12 +35,12 @@ import {
 } from '@/constants'
 
 import {
-  useQuoteGlobalTip,
-} from './useQuoteGlobalTip'
-
-import {
   conversionProductsList,
 } from '../pages/shoppingListDetails/shared/config'
+
+import {
+  B3AddToQuoteTip,
+} from '@/components'
 
 interface MutationObserverProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
@@ -52,12 +52,6 @@ const removeElement = (_element: CustomFieldItems) => {
   if (_parentElement) {
     _parentElement.removeChild(_element)
   }
-}
-
-interface OpenTipStateProps {
-  isOpen: boolean,
-  message: string,
-  variant: string,
 }
 
 interface DiscountsProps {
@@ -136,12 +130,6 @@ const useCartToQuote = ({
   setOpenPage,
   cartQuoteEnabled,
 }: MutationObserverProps) => {
-  const [openTipState, setOpenTipState] = useState<OpenTipStateProps>({
-    isOpen: false,
-    message: '',
-    variant: '',
-  })
-
   const addLoadding = (b3CartToQuote: any) => {
     const loadingDiv = document.createElement('div')
     loadingDiv.setAttribute('id', 'b2b-div-loading')
@@ -156,11 +144,13 @@ const useCartToQuote = ({
     if (b2bLoading) removeElement(b2bLoading)
   }
 
-  const initTip = () => {
-    setOpenTipState({
-      isOpen: false,
-      message: '',
-      variant: '',
+  const gotoQuoteDraft = () => {
+    setOpenPage({
+      isOpen: true,
+      openUrl: '/quoteDraft',
+      params: {
+        quoteBtn: 'open',
+      },
     })
   }
 
@@ -206,6 +196,13 @@ const useCartToQuote = ({
     try {
       const cartInfoWithOptions: CartInfoProps | any = await getCartInfoWithOptions()
 
+      if (!cartInfoWithOptions[0]) {
+        globalSnackbar.error('No products in Cart.', {
+          isClose: false,
+        })
+        return
+      }
+
       const {
         lineItems,
       } = cartInfoWithOptions[0]
@@ -213,10 +210,8 @@ const useCartToQuote = ({
       const cartProductsList = getCartProducts(lineItems)
 
       if (cartProductsList.length === 0) {
-        setOpenTipState({
-          isOpen: true,
-          message: 'No products being added.',
-          variant: 'error',
+        globalSnackbar.error('No products being added.', {
+          isClose: false,
         })
       }
 
@@ -274,10 +269,11 @@ const useCartToQuote = ({
         addQuoteDraftProduce(quoteListitem, quantity, optionsList || [])
       })
 
-      setOpenTipState({
-        isOpen: true,
-        message: 'Products were added to your quote.',
-        variant: 'success',
+      globalSnackbar.success('Product was added to your quote.', {
+        jsx: () => B3AddToQuoteTip({
+          gotoQuoteDraft,
+        }),
+        isClose: true,
       })
     } catch (e) {
       console.log(e)
@@ -297,8 +293,6 @@ const useCartToQuote = ({
   }, [])
 
   useB3CartToQuote(globalB3['dom.cartActions.container'], quoteCallBbck, cartQuoteEnabled)
-
-  useQuoteGlobalTip(openTipState, setOpenPage, initTip)
 }
 
 export {

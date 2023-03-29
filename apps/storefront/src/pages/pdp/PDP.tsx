@@ -3,7 +3,6 @@ import {
   useState,
   Dispatch,
   SetStateAction,
-  useRef,
   useContext,
 } from 'react'
 
@@ -17,11 +16,9 @@ import type {
 } from '@b3/hooks'
 
 import {
-  useNavigate,
-} from 'react-router-dom'
-import {
   B3SStorage,
   snackbar,
+  globalSnackbar,
   isAllRequiredOptionFilled,
   getDefaultCurrencyInfo,
 } from '@/utils'
@@ -49,10 +46,6 @@ import {
 
 interface PDPProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
-}
-
-interface PDPRefProps {
-  timer: null | number,
 }
 
 export const serialize = (form: any) => {
@@ -114,42 +107,28 @@ const PDP = ({
     },
   } = useContext(GlobaledContext)
 
-  const pdpRef = useRef<PDPRefProps>({
-    timer: null,
-  })
-
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
   const [isOpenCreateShopping, setIsOpenCreateShopping] = useState<boolean>(false)
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
-  const navigate = useNavigate()
-
   useEffect(() => {
     setOpenShoppingList(true)
   }, [])
 
-  const handleShoppingClose = (isTrue?: boolean) => {
-    if (isTrue) {
-      setOpenShoppingList(false)
-      setIsOpenCreateShopping(false)
-      pdpRef.current.timer = window.setTimeout(() => {
-        setOpenPage({
-          isOpen: false,
-        })
-      }, 4000)
-    } else {
-      setOpenShoppingList(false)
-      setIsOpenCreateShopping(false)
-      setOpenPage({
-        isOpen: false,
-      })
-    }
+  const handleShoppingClose = () => {
+    setOpenShoppingList(false)
+    setIsOpenCreateShopping(false)
+    setOpenPage({
+      isOpen: false,
+    })
   }
 
   const gotoShoppingDetail = (id: string | number) => {
-    if (pdpRef.current?.timer) clearTimeout(pdpRef.current.timer)
-    navigate(`/shoppingList/${id}`)
+    setOpenPage({
+      isOpen: true,
+      openUrl: `/shoppingList/${id}`,
+    })
   }
 
   const tip = (id: string | number) => (
@@ -235,11 +214,11 @@ const PDP = ({
         shoppingListId: +id,
         items: [params],
       })
-      snackbar.success('Products were added to your shopping list', {
+      globalSnackbar.success('Products were added to your shopping list', {
         jsx: () => tip(id),
         isClose: true,
       })
-      handleShoppingClose(true)
+      handleShoppingClose()
     } finally {
       setIsRequestLoading(false)
     }

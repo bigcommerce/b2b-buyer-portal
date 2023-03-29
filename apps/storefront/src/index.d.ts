@@ -11,4 +11,5 @@ declare interface Window {
   tipDispatch: DispatchProps
   b3Tipmessage: any
   b2bStorefrontApp: any
+  globalTipDispatch: any
 }

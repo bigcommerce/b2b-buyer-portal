@@ -21,6 +21,8 @@ interface SnackbarProps {
 }
 
 const snackbar: SnackbarProps = {}
+const globalSnackbar: SnackbarProps = {}
+
 const variants = ['error', 'success', 'info', 'warning']
 
 variants.forEach((variant) => {
@@ -45,8 +47,31 @@ variants.forEach((variant) => {
       },
     })
   }
+
+  globalSnackbar[variant] = (message, options) => {
+    const msgs = [
+      {
+        isClose: options?.isClose || false,
+        id: uuid(),
+        type: variant,
+        msg: message || `${variant} without any info.`,
+        jsx: options?.jsx,
+      },
+    ]
+
+    window.globalTipDispatch({
+      type: 'globalTip',
+      payload: {
+        globalTipMessage: {
+          autoHideDuration: options?.duration || 3000,
+          msgs,
+        },
+      },
+    })
+  }
 })
 
 export {
   snackbar,
+  globalSnackbar,
 }
