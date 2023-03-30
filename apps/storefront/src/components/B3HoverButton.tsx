@@ -57,7 +57,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
   const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
 
   useEffect(() => {
-    if (b2bQuoteDraftList.length) {
+    if (b2bQuoteDraftList?.length) {
       setShowFinishQuote(true)
     } else setShowFinishQuote(false)
   }, [isOpen, b2bQuoteDraftList])
