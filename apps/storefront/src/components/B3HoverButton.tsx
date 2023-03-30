@@ -2,6 +2,8 @@ import {
   useContext,
   Dispatch,
   SetStateAction,
+  useState,
+  useEffect,
 } from 'react'
 
 import {
@@ -15,6 +17,7 @@ import GroupIcon from '@mui/icons-material/Group'
 import type {
   OpenPageState,
 } from '@b3/hooks'
+
 import {
   useMobile,
 } from '@/hooks'
@@ -22,6 +25,10 @@ import {
 import {
   GlobaledContext,
 } from '@/shared/global'
+
+import {
+  B3LStorage,
+} from '@/utils'
 
 interface B3HoverButtonProps {
   isOpen: boolean,
@@ -44,6 +51,16 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
   } = useContext(GlobaledContext)
 
   const [isMobile] = useMobile()
+
+  const [showFinishQuote, setShowFinishQuote] = useState<boolean>(false)
+
+  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
+
+  useEffect(() => {
+    if (b2bQuoteDraftList.length) {
+      setShowFinishQuote(true)
+    } else setShowFinishQuote(false)
+  }, [isOpen, b2bQuoteDraftList])
 
   const {
     href,
@@ -76,7 +93,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
       >
 
         {
-          !isOpen && productQuoteEnabled && !href.includes('/cart') && (
+          showFinishQuote && !isOpen && productQuoteEnabled && !href.includes('/cart') && (
           <Button
             sx={{
               backgroundColor: '#ED6C02',
