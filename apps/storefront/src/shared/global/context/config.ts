@@ -72,6 +72,7 @@ export interface currencyProps {
 
 export interface OpenAPPParamsProps {
   quoteBtn: string,
+  shoppingListBtn: string,
 }
 
 export interface GlobalState {
@@ -193,6 +194,7 @@ export const initState = {
   currencies: B3SStorage.get('currencies') || {},
   openAPPParams: {
     quoteBtn: '',
+    shoppingListBtn: '',
   },
   showPageMask: false,
 }

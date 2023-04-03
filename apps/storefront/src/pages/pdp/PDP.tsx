@@ -128,6 +128,9 @@ const PDP = ({
     setOpenPage({
       isOpen: true,
       openUrl: `/shoppingList/${id}`,
+      params: {
+        shoppingListBtn: 'add',
+      },
     })
   }
 

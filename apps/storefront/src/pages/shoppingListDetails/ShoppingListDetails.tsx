@@ -115,6 +115,7 @@ const ShoppingListDetails = ({
       isB2BUser,
       currentChannelId,
       isAgenting,
+      openAPPParams,
     },
   } = useContext(GlobaledContext)
   const navigate = useNavigate()
@@ -369,6 +370,7 @@ const ShoppingListDetails = ({
           handleUpdateShoppingList={handleUpdateShoppingList}
           setOpenPage={setOpenPage}
           isAgenting={isAgenting}
+          openAPPParams={openAPPParams}
         />
 
         <Grid

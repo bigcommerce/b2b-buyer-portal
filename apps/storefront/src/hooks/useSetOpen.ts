@@ -27,6 +27,7 @@ const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems
         payload: {
           openAPPParams: {
             quoteBtn: params?.quoteBtn || '',
+            shoppingListBtn: params?.shoppingListBtn || '',
           },
         },
       })

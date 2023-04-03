@@ -12,10 +12,6 @@ import {
 } from '@mui/material'
 
 import {
-  useLocation,
-} from 'react-router-dom'
-
-import {
   ArrowBackIosNew,
 } from '@mui/icons-material'
 
@@ -46,6 +42,9 @@ interface ShoppingDetailHeaderProps {
   isB2BUser: boolean,
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
   isAgenting: boolean,
+  openAPPParams: {
+    shoppingListBtn: string,
+  },
 }
 
 const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
@@ -60,9 +59,8 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
     isB2BUser,
     setOpenPage,
     isAgenting,
+    openAPPParams,
   } = props
-
-  const location = useLocation()
 
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0
 
@@ -87,7 +85,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             alignItems: 'center',
           }}
           onClick={() => {
-            if (location.state) {
+            if (openAPPParams.shoppingListBtn !== 'add') {
               goToShoppingLists()
             } else {
               setOpenPage({
@@ -107,7 +105,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             margin: 0,
           }}
           >
-            {location.state ? 'Back to shopping lists' : 'Back to product'}
+            {openAPPParams.shoppingListBtn !== 'add' ? 'Back to shopping lists' : 'Back to product'}
           </p>
         </Box>
       </Box>
