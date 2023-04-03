@@ -98,6 +98,7 @@ const OrderDetail = () => {
   const localtion = useLocation()
 
   const [isMobile] = useMobile()
+  const [preOrderId, setPreOrderId] = useState('')
   const [orderId, setOrderId] = useState('')
   const [isRequestLoading, setIsRequestLoading] = useState(false)
 
@@ -125,6 +126,13 @@ const OrderDetail = () => {
           type: 'all',
           payload: data,
         })
+        setPreOrderId(orderId)
+      }
+    } catch (err) {
+      if (err === 'order does not exist') {
+        setTimeout(() => {
+          window.location.hash = `/orderDetail/${preOrderId}`
+        }, 1000)
       }
     } finally {
       setIsRequestLoading(false)
