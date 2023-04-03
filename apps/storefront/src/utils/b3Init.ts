@@ -29,6 +29,7 @@ export const getQuoteEnabled = (
   let customerEnabled = '1'
   let guestEnabled = '1'
   let bcUserEnabled = '1'
+  let b2bUserEnabled = '1'
   let productEnabled = '1'
   let cartEnabled = '1'
 
@@ -46,6 +47,10 @@ export const getQuoteEnabled = (
     if (config.key === 'quote_for_individual_customer') {
       bcUserEnabled = config.isEnabled
     }
+    // TODO: check
+    if (config.key === 'quote_for_b2b') {
+      b2bUserEnabled = config.isEnabled
+    }
     if (config.key === 'quote_on_product_page') {
       productEnabled = config.isEnabled
     }
@@ -61,10 +66,14 @@ export const getQuoteEnabled = (
     productQuoteEnabled = productQuoteEnabled && guestEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && guestEnabled === '1'
     shoppingListEnabled = false
-  } else if (`${role}` === '3' && !isAgenting) {
-    productQuoteEnabled = false
-    cartQuoteEnabled = false
-    shoppingListEnabled = false
+  } else if (isB2BUser) {
+    productQuoteEnabled = b2bUserEnabled === '1'
+    cartQuoteEnabled = b2bUserEnabled === '1'
+    if (`${role}` === '3' && !isAgenting) {
+      productQuoteEnabled = false
+      cartQuoteEnabled = false
+      shoppingListEnabled = false
+    }
   } else if (!isB2BUser) { // BCUser
     productQuoteEnabled = productQuoteEnabled && bcUserEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && bcUserEnabled === '1'

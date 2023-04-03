@@ -69,6 +69,7 @@ import {
   getStorefrontConfig,
   getCurrencies,
   getBcCurrencies,
+  getStorefrontConfigs,
 } from './graphql/global'
 
 import {
@@ -232,4 +233,5 @@ export {
   getBcVariantInfoBySkus,
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
+  getStorefrontConfigs,
 }

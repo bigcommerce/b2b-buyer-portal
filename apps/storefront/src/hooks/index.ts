@@ -4,14 +4,14 @@ import {
 
 import {
   useOpenPDP,
-} from './useOpenPDP'
+} from './dom/useOpenPDP'
 
 import {
   useMyQuote,
-} from './useMyQuote'
+} from './dom/useMyQuote'
 import {
   useCartToQuote,
-} from './useCartToQuote'
+} from './dom/useCartToQuote'
 
 import {
   useQuoteGlobalTip,

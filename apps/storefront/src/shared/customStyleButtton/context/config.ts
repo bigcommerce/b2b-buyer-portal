@@ -14,16 +14,25 @@ interface BtnStyle {
   verticalPadding: string,
   classSelector: string,
   locationSelector: string,
+  bgColor: string,
+  enabled: boolean,
+  b2b: boolean,
+  b2c: boolean,
 }
 
 export interface CustomStyleButtonState extends Record<BtnKeys, Partial<BtnStyle>>{
   globalColor: string,
   golbalBackgroundColor: string,
+  // shoppingListBtn: Partial<BtnStyle>,
 }
 
 export const initState = {
   globalColor: '#3385D6',
   golbalBackgroundColor: '#FEF9F5',
+  portalStyle: {
+    color: '#3385D6',
+    bgColor: '#FEF9F5',
+  },
   masqueradeButton: {
     color: '#ED6C03',
     buttonText: '',
@@ -38,6 +47,7 @@ export const initState = {
     customCss: '',
     classSelector: '',
     locationSelector: '',
+    enabled: true,
   },
   floatingAction: {
     color: '#ed6c02',
@@ -46,6 +56,7 @@ export const initState = {
     customCss: '',
     horizontalPadding: '',
     verticalPadding: '',
+    enabled: false,
   },
   addToAllQuoteBtn: {
     color: '#444444',
@@ -53,6 +64,7 @@ export const initState = {
     customCss: '',
     classSelector: '',
     locationSelector: '',
+    enabled: true,
   },
   shoppingListBtn: {
     color: '#444444',
@@ -60,6 +72,7 @@ export const initState = {
     customCss: '',
     classSelector: '',
     locationSelector: '',
+    enabled: true,
   },
 }
 

@@ -1,14 +1,7 @@
 import {
-  useCallback,
   SetStateAction,
   Dispatch,
 } from 'react'
-
-import {
-  useB3CartToQuote,
-} from '@b3/hooks'
-
-import globalB3 from '@b3/global-b3'
 
 import type {
   OpenPageState,
@@ -19,6 +12,7 @@ import {
 } from 'uuid'
 import {
   searchB2BProducts,
+  searchBcProducts,
 } from '@/shared/service/b2b'
 
 import {
@@ -27,6 +21,9 @@ import {
 
 import {
   addQuoteDraftProduce,
+  isAllRequiredOptionFilled,
+  getModifiersPrice,
+  getProductExtraPrice,
   globalSnackbar,
 } from '@/utils'
 
@@ -36,23 +33,18 @@ import {
 
 import {
   conversionProductsList,
-} from '../pages/shoppingListDetails/shared/config'
+} from '../../pages/shoppingListDetails/shared/config'
 
 import {
   B3AddToQuoteTip,
 } from '@/components'
 
-interface MutationObserverProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
-  cartQuoteEnabled: boolean,
-}
+import {
+  serialize,
+  getProductOptionList,
+} from '../../pages/pdp/PDP'
 
-const removeElement = (_element: CustomFieldItems) => {
-  const _parentElement = _element.parentNode
-  if (_parentElement) {
-    _parentElement.removeChild(_element)
-  }
-}
+type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 
 interface DiscountsProps {
   discountedAmount: number,
@@ -126,34 +118,38 @@ interface CartInfoProps {
 
 const productTypes: Array<Cart> = ['customItems', 'digitalItems', 'giftCertificates', 'physicalItems']
 
-const useCartToQuote = ({
-  setOpenPage,
-  cartQuoteEnabled,
-}: MutationObserverProps) => {
-  const addLoadding = (b3CartToQuote: any) => {
-    const loadingDiv = document.createElement('div')
-    loadingDiv.setAttribute('id', 'b2b-div-loading')
-    const loadingBtn = document.createElement('div')
-    loadingBtn.setAttribute('class', 'b2b-btn-loading')
-    loadingDiv.appendChild(loadingBtn)
-    b3CartToQuote.appendChild(loadingDiv)
-  }
+const addLoadding = (b3CartToQuote: any) => {
+  const loadingDiv = document.createElement('div')
+  loadingDiv.setAttribute('id', 'b2b-div-loading')
+  const loadingBtn = document.createElement('div')
+  loadingBtn.setAttribute('class', 'b2b-btn-loading')
+  loadingDiv.appendChild(loadingBtn)
+  b3CartToQuote.appendChild(loadingDiv)
+}
 
-  const removeLoadding = () => {
-    const b2bLoading = document.querySelector('#b2b-div-loading')
-    if (b2bLoading) removeElement(b2bLoading)
+const removeElement = (_element: CustomFieldItems) => {
+  const _parentElement = _element.parentNode
+  if (_parentElement) {
+    _parentElement.removeChild(_element)
   }
+}
 
-  const gotoQuoteDraft = () => {
-    setOpenPage({
-      isOpen: true,
-      openUrl: '/quoteDraft',
-      params: {
-        quoteBtn: 'open',
-      },
-    })
-  }
+const removeLoadding = () => {
+  const b2bLoading = document.querySelector('#b2b-div-loading')
+  if (b2bLoading) removeElement(b2bLoading)
+}
 
+const gotoQuoteDraft = (setOpenPage: DispatchProps) => {
+  setOpenPage({
+    isOpen: true,
+    openUrl: '/quoteDraft',
+    params: {
+      quoteBtn: 'open',
+    },
+  })
+}
+
+const addQuoteToCart = (setOpenPage: DispatchProps) => {
   const getCartProducts = (lineItems: LineItemsProps) => {
     const cartProductsList: CustomFieldItems[] = []
 
@@ -271,7 +267,7 @@ const useCartToQuote = ({
 
       globalSnackbar.success('Product was added to your quote.', {
         jsx: () => B3AddToQuoteTip({
-          gotoQuoteDraft,
+          gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
         }),
         isClose: true,
       })
@@ -282,19 +278,97 @@ const useCartToQuote = ({
     }
   }
 
-  const quoteCallBbck = useCallback(() => {
-    const b3CartToQuote = document.querySelector('#b3CartToQuote')
+  return {
+    addToQuote,
+    addLoadding,
+  }
+}
 
-    const b2bLoading = document.querySelector('#b2b-div-loading')
-    if (b3CartToQuote && !b2bLoading) {
-      addLoadding(b3CartToQuote)
-      addToQuote()
+const addQuoteToProduct = (setOpenPage: DispatchProps) => {
+  const addToQuote = async (role: string | number) => {
+    try {
+      const productId = (document.querySelector('input[name=product_id]') as CustomFieldItems)?.value
+      const qty = (document.querySelector('[name="qty[]"]') as CustomFieldItems)?.value ?? 1
+      const sku = (document.querySelector('[data-product-sku]')?.innerHTML ?? '').trim()
+      const form = document.querySelector('form[data-cart-item-add]')
+
+      const fn = +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
+
+      const {
+        productsSearch,
+      } = await fn({
+        productIds: [+productId],
+      })
+
+      const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch)
+      const {
+        allOptions,
+        variants,
+      } = newProductInfo[0]
+
+      const variantItem = variants.find((item: CustomFieldItems) => item.sku === sku)
+
+      const optionMap = serialize(form)
+
+      const optionList = getProductOptionList(optionMap)
+
+      const modifiersPrice = getModifiersPrice(productsSearch[0]?.modifiers || [], optionList)
+
+      const productExtraPrice = await getProductExtraPrice(productsSearch[0]?.modifiers || [], optionList, +role)
+
+      const additionalCalculatedPrices = [...modifiersPrice, ...productExtraPrice]
+      const {
+        isValid,
+        message,
+      } = isAllRequiredOptionFilled(allOptions, optionList)
+      if (!isValid) {
+        globalSnackbar.error(message, {
+          isClose: false,
+        })
+        return
+      }
+
+      const quoteListitem = {
+        node: {
+          id: uuid(),
+          variantSku: variantItem.sku,
+          variantId: variantItem.variantId,
+          productsSearch: newProductInfo[0],
+          primaryImage: variantItem.image_url,
+          productName: newProductInfo[0].name,
+          quantity: +qty,
+          optionList: JSON.stringify(optionList),
+          productId,
+          additionalCalculatedPrices,
+          basePrice: variantItem.bc_calculated_price.as_entered,
+          tax: variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive,
+        },
+      }
+
+      addQuoteDraftProduce(quoteListitem, qty, optionList || [])
+
+      globalSnackbar.success('Product was added to your quote.', {
+        jsx: () => B3AddToQuoteTip({
+          gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
+        }),
+        isClose: true,
+      })
+    } catch (e) {
+      console.log(e)
+    } finally {
+      removeLoadding()
     }
-  }, [])
+  }
 
-  useB3CartToQuote(globalB3['dom.cartActions.container'], quoteCallBbck, cartQuoteEnabled)
+  return {
+    addToQuote,
+    addLoadding,
+  }
 }
 
 export {
-  useCartToQuote,
+  addQuoteToProduct,
+  addQuoteToCart,
+  addLoadding,
+  removeElement,
 }

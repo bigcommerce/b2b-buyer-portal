@@ -12,6 +12,9 @@ import {
 } from '@b3/hooks'
 
 import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+import {
   useOpenPDP,
   useSetOpen,
   useMyQuote,
@@ -23,6 +26,9 @@ import {
   loginInfo,
   getCurrentCustomerInfo,
   getQuoteEnabled,
+  getTemPlateConfig,
+  getQuoteConfig,
+  setStorefrontConfig,
 } from '@/utils'
 
 import {
@@ -30,8 +36,6 @@ import {
 } from '@/shared/global'
 
 import {
-  getB2BRegisterLogo,
-  getStorefrontConfig,
   setChannelStoreType,
 } from '@/shared/service/b2b'
 
@@ -82,6 +86,10 @@ export default function App() {
     dispatch,
   } = useContext(GlobaledContext)
 
+  const {
+    dispatch: styleDispatch,
+  } = useContext(CustomStyleContext)
+
   // const [openApp, setOpenApp] = useState<boolean>(false)
 
   useOpenPDP({
@@ -104,34 +112,6 @@ export default function App() {
 
   // Button to open storefront
   useSetOpen(isOpen, openUrl, params)
-
-  const getQuoteConfig = useCallback(async () => {
-    const {
-      quoteConfig,
-    } = await getB2BRegisterLogo()
-
-    dispatch({
-      type: 'common',
-      payload: {
-        quoteConfig,
-      },
-    })
-  }, [])
-
-  const setStorefrontConfig = useCallback(async () => {
-    const {
-      storefrontConfig: {
-        config: storefrontConfig,
-      },
-    } = await getStorefrontConfig()
-
-    dispatch({
-      type: 'common',
-      payload: {
-        storefrontConfig,
-      },
-    })
-  }, [])
 
   const {
     pathname,
@@ -185,10 +165,8 @@ export default function App() {
       if (!BcToken || isRelogin) {
         await loginInfo()
       }
-
       setChannelStoreType(currentChannelId)
-      await Promise.all([getQuoteConfig(), setStorefrontConfig()])
-
+      await Promise.all([getQuoteConfig(dispatch), setStorefrontConfig(dispatch), getTemPlateConfig(currentChannelId, styleDispatch)])
       const userInfo = {
         role: +role,
         isAgenting,

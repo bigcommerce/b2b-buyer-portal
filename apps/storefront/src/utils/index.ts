@@ -79,6 +79,12 @@ export {
 } from './b3Product'
 
 export {
+  getTemPlateConfig,
+  getQuoteConfig,
+  setStorefrontConfig,
+} from './storefrontConfig'
+
+export {
   convertArrayToGraphql,
   convertObjectToGraphql,
   storeHash,
