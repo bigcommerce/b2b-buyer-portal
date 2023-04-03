@@ -240,6 +240,28 @@ export default function App() {
     }
   }, [isOpen])
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const {
+        hash,
+      } = window.location
+      if (!isOpen && hash) {
+        const url = hash.split('#')[1]
+        if (url !== '/') {
+          setOpenPage({
+            isOpen: true,
+            openUrl: url,
+          })
+        }
+      }
+    }
+    window.addEventListener('hashchange', handleHashChange)
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange)
+    }
+  }, [])
+
   return (
     <>
       <HashRouter>

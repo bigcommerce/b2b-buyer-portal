@@ -8,7 +8,6 @@ import {
 import Grid from '@mui/material/Unstable_Grid2'
 
 import {
-  useRef,
   useState,
   Dispatch,
   SetStateAction,
@@ -111,7 +110,6 @@ export const B3Upload = (props: B3UploadProps) => {
       currentChannelId,
     },
   } = useContext(GlobaledContext)
-  const uploadRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<string>('init')
   const [fileDatas, setFileDatas] = useState<CustomFieldItems>({})
   const [fileName, setFileName] = useState('')
@@ -225,10 +223,6 @@ export const B3Upload = (props: B3UploadProps) => {
     }
   }
 
-  const openFile = () => {
-    if (uploadRef.current) (uploadRef.current.children[1] as HTMLElement).click()
-  }
-
   const handleConfirmToList = async () => {
     const validProduct = fileDatas?.validProduct || []
     const stockErrorFile = fileDatas?.stockErrorFile || ''
@@ -257,6 +251,7 @@ export const B3Upload = (props: B3UploadProps) => {
       transform: 'translate(-50%, -50%)',
       top: '50%',
       left: '50%',
+      pointerEvents: 'none',
     }}
     >
       <Grid
@@ -331,7 +326,6 @@ export const B3Upload = (props: B3UploadProps) => {
           xs={12}
         >
           <Button
-            onClick={openFile}
             variant="outlined"
           >
             Upload file
@@ -390,7 +384,7 @@ export const B3Upload = (props: B3UploadProps) => {
       >
         {
           step === 'init' && (
-          <FileUploadContainer ref={uploadRef}>
+          <FileUploadContainer>
             {content}
             <DropzoneArea
               dropzoneClass="file-upload-area"
