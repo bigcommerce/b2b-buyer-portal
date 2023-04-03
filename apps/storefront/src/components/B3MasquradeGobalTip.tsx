@@ -180,7 +180,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
                   }}
                   onClick={() => endActing()}
                 >
-                  END MASQURADE
+                  END MASQUERADE
                 </Box>
                 )
             }
@@ -249,7 +249,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
                 }}
                 onClick={() => endActing()}
               >
-                END MASQURADE
+                END MASQUERADE
               </Box>
 
             </Box>
