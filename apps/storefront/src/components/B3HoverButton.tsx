@@ -1,5 +1,4 @@
 import {
-  useContext,
   Dispatch,
   SetStateAction,
   useState,
@@ -12,19 +11,9 @@ import {
   Snackbar,
 } from '@mui/material'
 
-import GroupIcon from '@mui/icons-material/Group'
-
 import type {
   OpenPageState,
 } from '@b3/hooks'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
 
 import {
   B3LStorage,
@@ -43,15 +32,6 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
     productQuoteEnabled,
   } = props
 
-  const {
-    state: {
-      isAgenting,
-      salesRepCompanyName,
-    },
-  } = useContext(GlobaledContext)
-
-  const [isMobile] = useMobile()
-
   const [showFinishQuote, setShowFinishQuote] = useState<boolean>(false)
 
   const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
@@ -67,7 +47,6 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
   } = window.location
 
   if (href.includes('/checkout')) return <></>
-  const style = 'backgroundColor:"#ED6C02";fontSize:18px;'
   return (
     <Snackbar
       sx={{
@@ -100,7 +79,6 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
               height: '42px',
             }}
             onClick={() => {
-              // B3SStorage.set('nextPath', '/')
               setOpenPage({
                 isOpen: true,
                 openUrl: '/quoteDraft',
@@ -112,28 +90,6 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
             variant="contained"
           >
             Finish quote
-          </Button>
-          )
-        }
-
-        {
-          isAgenting && !isOpen && isMobile && (
-          <Button
-            sx={{
-              backgroundColor: '#ED6C02',
-              height: '42px',
-              marginTop: '10px',
-            }}
-            onClick={() => {
-              setOpenPage({
-                isOpen: true,
-                openUrl: '/',
-              })
-            }}
-            variant="contained"
-            startIcon={<GroupIcon />}
-          >
-            {salesRepCompanyName}
           </Button>
           )
         }

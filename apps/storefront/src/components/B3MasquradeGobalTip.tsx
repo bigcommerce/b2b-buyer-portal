@@ -7,6 +7,7 @@ import {
 
 import {
   Box,
+  Button,
 } from '@mui/material'
 
 import type {
@@ -99,7 +100,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
 
   if (href.includes('/checkout') || !customerId) return <></>
 
-  if (!isAgenting || (!isOpen && isMobile)) return <></>
+  if (!isAgenting) return <></>
 
   let sx = {}
 
@@ -116,28 +117,70 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
     }
   }
   return (
-    <Snackbar
-      sx={{
-        zIndex: '110000',
-        backgroundColor: '#ED6C02',
-        borderRadius: '4px',
-        height: '52px',
-        color: '#FFFFFF',
-        ...sx,
-      }}
-      anchorOrigin={{
-        vertical: 'bottom', horizontal: 'left',
-      }}
-      open
-      key="123"
-    >
-      <Box
-        sx={{
-          padding: '5px 15px',
-          width: '100%',
-        }}
-      >
-        {
+    <>
+      {
+        !isOpen && isMobile && (
+        <Snackbar
+          sx={{
+            zIndex: '110000',
+            left: '20px',
+            bottom: '20px',
+            right: 'auto',
+          }}
+          anchorOrigin={{
+            vertical: 'bottom', horizontal: 'left',
+          }}
+          open
+          key="123"
+        >
+
+          <Button
+            sx={{
+              backgroundColor: '#ED6C02',
+              height: '42px',
+              marginTop: '10px',
+            }}
+            onClick={() => {
+              setOpenPage({
+                isOpen: true,
+                openUrl: '/',
+              })
+            }}
+            variant="contained"
+            startIcon={<GroupIcon />}
+          >
+            {salesRepCompanyName}
+          </Button>
+
+        </Snackbar>
+        )
+      }
+
+      {
+
+        ((isOpen && isMobile) || !isMobile) && (
+        <Snackbar
+          sx={{
+            zIndex: '110000',
+            backgroundColor: '#ED6C02',
+            borderRadius: '4px',
+            height: '52px',
+            color: '#FFFFFF',
+            ...sx,
+          }}
+          anchorOrigin={{
+            vertical: 'bottom', horizontal: 'left',
+          }}
+          open
+          key="123"
+        >
+          <Box
+            sx={{
+              padding: '5px 15px',
+              width: '100%',
+            }}
+          >
+            {
           !isMobile && (
             <Box
               sx={{
@@ -208,7 +251,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
           )
         }
 
-        {
+            {
           isMobile && (
             <Box
               sx={{
@@ -256,8 +299,13 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
           )
         }
 
-      </Box>
+          </Box>
 
-    </Snackbar>
+        </Snackbar>
+        )
+      }
+
+    </>
+
   )
 }
