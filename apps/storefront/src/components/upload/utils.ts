@@ -19,7 +19,7 @@ export const parseEmptyData = (arr: string[]): ParseEmptyDataProps[] => {
       const products = item.split(',')
       return {
         sku: products[0],
-        qty: products[1].replace(/[\r\n]/g, ''),
+        qty: products[1]?.replace(/[\r\n]/g, ''),
       }
     })
     return tmpArr
