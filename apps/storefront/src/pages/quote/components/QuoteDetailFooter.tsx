@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
 } from '@mui/material'
 
 import {
@@ -15,6 +14,10 @@ import {
 import {
   snackbar,
 } from '@/utils'
+
+import {
+  CustomButton,
+} from '@/components'
 
 interface QuoteDetailFooterProps {
   quoteId: string,
@@ -81,7 +84,7 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
               ...containerStyle,
             }}
           >
-            <Button
+            <CustomButton
               variant="contained"
               onClick={() => {
                 handleQuoteCheckout()
@@ -91,7 +94,7 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
               }}
             >
               Proceed to checkout
-            </Button>
+            </CustomButton>
           </Box>
         )
       }

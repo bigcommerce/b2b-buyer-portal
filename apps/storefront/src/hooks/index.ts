@@ -14,10 +14,6 @@ import {
 } from './dom/useCartToQuote'
 
 import {
-  useQuoteGlobalTip,
-} from './useQuoteGlobalTip'
-
-import {
   useRegisteredbctob2b,
 } from './useRegisteredbctob2b'
 
@@ -48,7 +44,6 @@ export {
   useMyQuote,
   useRegisteredbctob2b,
   useCardListColumn,
-  useQuoteGlobalTip,
   useSetCountry,
   useGetCountry,
   useCartToQuote,

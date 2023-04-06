@@ -38,6 +38,7 @@ import {
 } from '../shared/config'
 import {
   B3LinkTipContent,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -329,7 +330,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
               }
               {
                 (allowJuniorPlaceOrder || (role !== 2 && shoppingListInfo?.status === 0) || !isB2BUser) && (
-                  <Button
+                  <CustomButton
                     variant="contained"
                     onClick={() => {
                       handleAddProductsToCart()
@@ -340,7 +341,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
                     }}
                   >
                     {allowJuniorPlaceOrder ? 'Proceed to checkout' : 'Add selected to cart'}
-                  </Button>
+                  </CustomButton>
                 )
               }
             </Box>

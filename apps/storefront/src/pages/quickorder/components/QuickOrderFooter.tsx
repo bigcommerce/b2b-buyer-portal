@@ -61,6 +61,7 @@ import {
 
 import {
   B3LinkTipContent,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -620,7 +621,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
                   width: isMobile ? '100%' : 'auto',
                 }}
               >
-                <Button
+                <CustomButton
                   variant="contained"
                   onClick={handleOpenBtnList}
                   sx={{
@@ -630,7 +631,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
                   endIcon={<ArrowDropDown />}
                 >
                   Add selected to
-                </Button>
+                </CustomButton>
 
                 <Menu
                   id="basic-menu"

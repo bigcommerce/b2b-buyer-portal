@@ -31,7 +31,6 @@ import {
 
 import {
   getBCForcePasswordReset,
-  getB2BLoginPageConfig,
 } from '@/shared/service/b2b'
 
 import {

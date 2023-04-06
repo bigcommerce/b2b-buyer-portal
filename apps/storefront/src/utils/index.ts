@@ -48,8 +48,6 @@ import {
   getCookie,
 } from './b3utils'
 
-import QuoteGlobalTip from './b3QuoteGlobalTip'
-
 import {
   handleGetCurrentProductInfo,
   isModifierTextValid,
@@ -109,7 +107,6 @@ export {
   isAllRequiredOptionFilled,
   serialize,
   getProductOptionList,
-  QuoteGlobalTip,
   getQuoteEnabled,
   getSearchVal,
   getDefaultCurrencyInfo,

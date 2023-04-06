@@ -102,7 +102,7 @@ const useMyQuote = ({
 
     const {
       color = '',
-      buttonText = '',
+      text = '',
       customCss = '',
       classSelector = '',
       locationSelector = '',
@@ -114,7 +114,7 @@ const useMyQuote = ({
         myQuote = document.createElement('div')
 
         myQuote.setAttribute('id', `${locationSelector}`)
-        myQuote.innerHTML = buttonText || 'Add to Quote'
+        myQuote.innerHTML = text
         myQuote.setAttribute('style', customCss)
         myQuote.style.color = color
         myQuote.setAttribute('class', `b3-product-to-quote ${classSelector}`)

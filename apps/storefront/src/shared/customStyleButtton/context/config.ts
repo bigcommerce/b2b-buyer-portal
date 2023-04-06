@@ -3,10 +3,11 @@ import {
   ReactNode,
 } from 'react'
 
-type BtnKeys = 'masqueradeButton' | 'addQuoteBtn' | 'floatingAction' | 'addToAllQuoteBtn' | 'shoppingListBtn' | 'loginPageButton' | 'loginPageDisplay' | 'loginPageHtml' | 'accountLoginRegistration'
+type BtnKeys = 'masqueradeButton' | 'addQuoteBtn' | 'floatingAction' | 'addToAllQuoteBtn' | 'shoppingListBtn' | 'portalStyle' | 'loginPageButton' | 'loginPageDisplay' | 'loginPageHtml' | 'accountLoginRegistration'
 
 interface BtnStyle {
   color: string,
+  text: string,
   buttonText: string,
   location: string,
   customCss: string,
@@ -14,7 +15,8 @@ interface BtnStyle {
   verticalPadding: string,
   classSelector: string,
   locationSelector: string,
-  bgColor: string,
+  backgroundColor: string,
+  primaryColor: string,
   enabled: boolean,
   b2b: boolean,
   b2c: boolean,
@@ -32,28 +34,28 @@ interface BtnStyle {
 
 export interface CustomStyleButtonState extends Record<BtnKeys, Partial<BtnStyle>>{
   globalColor: string,
-  golbalBackgroundColor: string,
+  globalBackgroundColor: string,
   // shoppingListBtn: Partial<BtnStyle>,
 }
 
 export const initState = {
   globalColor: '#3385D6',
-  golbalBackgroundColor: '#FEF9F5',
+  globalBackgroundColor: '#FEF9F5',
   portalStyle: {
-    color: '#3385D6',
-    bgColor: '#FEF9F5',
+    primaryColor: '#3385D6',
+    backgroundColor: '#FEF9F5',
   },
   masqueradeButton: {
     color: '#ED6C03',
-    buttonText: '',
+    text: 'END MASQUERADE',
     location: '',
     customCss: '',
     horizontalPadding: '',
     verticalPadding: '',
   },
   addQuoteBtn: {
-    color: '#444444',
-    buttonText: '',
+    color: '#fff',
+    text: 'Add to Quote',
     customCss: '',
     classSelector: '',
     locationSelector: '',
@@ -61,7 +63,8 @@ export const initState = {
   },
   floatingAction: {
     color: '#ed6c02',
-    buttonText: '',
+    text: 'Finish quote',
+    buttonText: 'Finish quote',
     location: '',
     customCss: '',
     horizontalPadding: '',
@@ -69,16 +72,16 @@ export const initState = {
     enabled: false,
   },
   addToAllQuoteBtn: {
-    color: '#444444',
-    buttonText: '',
+    color: '#fff',
+    text: 'Add All to Quote',
     customCss: '',
     classSelector: '',
     locationSelector: '',
     enabled: true,
   },
   shoppingListBtn: {
-    color: '#444444',
-    buttonText: '',
+    color: '#74685c',
+    text: 'Add to Shopping List',
     customCss: '',
     classSelector: '',
     locationSelector: '',

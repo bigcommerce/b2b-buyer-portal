@@ -55,7 +55,7 @@ const useOpenPDP = ({
     if (document.querySelectorAll('.b2b-shopping-list-btn').length) return
     const {
       color = '',
-      buttonText = '',
+      text = '',
       customCss = '',
       classSelector = '',
       locationSelector = '',
@@ -65,7 +65,7 @@ const useOpenPDP = ({
       addToCartAll.forEach((node: CustomFieldItems) => {
         shoppingBtnDom = document.createElement('div')
         shoppingBtnDom.setAttribute('id', `${locationSelector}`)
-        shoppingBtnDom.innerHTML = buttonText || 'Add to Shopping List'
+        shoppingBtnDom.innerHTML = text
         shoppingBtnDom.setAttribute('style', customCss)
         shoppingBtnDom.style.color = color
         shoppingBtnDom.setAttribute('class', `b2b-shopping-list-btn ${classSelector}`)

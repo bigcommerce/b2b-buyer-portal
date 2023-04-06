@@ -5,6 +5,7 @@ import {
 
 import {
   useContext,
+  MouseEvent,
 } from 'react'
 
 import {
@@ -12,10 +13,10 @@ import {
 } from '@/shared/customStyleButtton'
 
 interface CustomButtonProps extends ButtonProps {
-  onClick?: () => void;
-  sx?: any;
-  customLabel?: string;
-  children: React.ReactNode
+  onClick?: (e?: MouseEvent<HTMLButtonElement> | any) => void,
+  sx?: any,
+  customLabel?: string,
+  children: React.ReactNode,
 }
 
 const CustomButton = ({
@@ -27,19 +28,26 @@ const CustomButton = ({
   const {
     state: {
       globalColor,
-      golbalBackgroundColor,
+      globalBackgroundColor,
+      portalStyle,
     },
   } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+    backgroundColor = '',
+  } = portalStyle
+
   return (
     <Button
       {...rest}
       sx={{
         ...sx || {},
-        color: globalColor,
-        backgroundColor: golbalBackgroundColor,
+        color: primaryColor || globalColor,
+        backgroundColor: backgroundColor || globalBackgroundColor,
         '&:hover': {
-          color: globalColor,
-          backgroundColor: golbalBackgroundColor,
+          color: primaryColor || globalColor,
+          backgroundColor: backgroundColor || globalBackgroundColor,
         },
       }}
       onClick={onClick}

@@ -63,11 +63,11 @@ export {
 
 export {
   B3MasquradeGobalTip,
-} from './B3MasquradeGobalTip'
+} from './outSideComponents/B3MasquradeGobalTip'
 
 export {
   B3HoverButton,
-} from './B3HoverButton'
+} from './outSideComponents/B3HoverButton'
 
 export {
   CheckoutTip,

@@ -3,12 +3,15 @@ import {
   SetStateAction,
   useState,
   useEffect,
+  useContext,
 } from 'react'
 
 import {
   Box,
   Button,
   Snackbar,
+  SnackbarOrigin,
+  SxProps,
 } from '@mui/material'
 
 import type {
@@ -18,6 +21,15 @@ import type {
 import {
   B3LStorage,
 } from '@/utils'
+
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
+import {
+  getLocation,
+  getStyles,
+} from './utils/b3CustomStyles'
 
 interface B3HoverButtonProps {
   isOpen: boolean,
@@ -46,6 +58,33 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
     href,
   } = window.location
 
+  const {
+    state: {
+      floatingAction,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    text = '',
+    buttonText = '',
+    color = '',
+    customCss = '',
+    location = '',
+    horizontalPadding = '',
+    verticalPadding = '',
+    enabled = false,
+  } = floatingAction
+
+  const defaultLocation: SnackbarOrigin = {
+    vertical: 'bottom', horizontal: 'right',
+  }
+
+  const defaultSx: SxProps = {
+    color: `${color}`,
+    padding: `${verticalPadding}px ${horizontalPadding}px`,
+    ...getStyles(customCss),
+  }
+
   if (href.includes('/checkout')) return <></>
   return (
     <Snackbar
@@ -55,11 +94,8 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
         bottom: '20px',
         left: 'auto',
       }}
-      anchorOrigin={{
-        vertical: 'bottom', horizontal: 'right',
-      }}
+      anchorOrigin={getLocation(location) || defaultLocation}
       open
-      key="123"
     >
 
       <Box
@@ -72,11 +108,12 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
       >
 
         {
-          showFinishQuote && !isOpen && productQuoteEnabled && !href.includes('/cart') && (
+          enabled && showFinishQuote && !isOpen && productQuoteEnabled && !href.includes('/cart') && (
           <Button
             sx={{
               backgroundColor: '#ED6C02',
               height: '42px',
+              ...defaultSx,
             }}
             onClick={() => {
               setOpenPage({
@@ -89,7 +126,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
             }}
             variant="contained"
           >
-            Finish quote
+            {buttonText || text}
           </Button>
           )
         }

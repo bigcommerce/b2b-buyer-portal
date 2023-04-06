@@ -68,7 +68,7 @@ const useCartToQuote = ({
 
     const {
       color = '',
-      buttonText = '',
+      text = '',
       customCss = '',
       classSelector = '',
       locationSelector = '',
@@ -79,7 +79,7 @@ const useCartToQuote = ({
       addToQuoteAll.forEach((node: CustomFieldItems) => {
         cartQuoteBtnDom = document.createElement('div')
         cartQuoteBtnDom.setAttribute('id', `${locationSelector}`)
-        cartQuoteBtnDom.innerHTML = buttonText || 'Add All to Quote'
+        cartQuoteBtnDom.innerHTML = text
         cartQuoteBtnDom.setAttribute('style', customCss)
         cartQuoteBtnDom.style.color = color
         cartQuoteBtnDom.setAttribute('class', `b3-cart-to-cart ${classSelector}`)

@@ -8,6 +8,8 @@ import {
 import {
   Box,
   Button,
+  SnackbarOrigin,
+  SxProps,
 } from '@mui/material'
 
 import type {
@@ -36,6 +38,15 @@ import {
   GlobaledContext,
 } from '@/shared/global'
 
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
+import {
+  getLocation,
+  getStyles,
+} from './utils/b3CustomStyles'
+
 interface B3MasquradeGobalTipProps {
   isOpen: boolean,
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
@@ -63,6 +74,12 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
     hash,
     href,
   } = window.location
+
+  const {
+    state: {
+      masqueradeButton,
+    },
+  } = useContext(CustomStyleContext)
 
   const isAddBottom = bottomHeightPage.some((item: string) => hash.includes(item))
 
@@ -102,7 +119,20 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
 
   if (!isAgenting) return <></>
 
-  let sx = {}
+  const {
+    text = '',
+    color = '',
+    customCss = '',
+    location = '',
+    horizontalPadding = '',
+    verticalPadding = '',
+  } = masqueradeButton
+
+  const defaultLocation: SnackbarOrigin = {
+    vertical: 'bottom', horizontal: 'left',
+  }
+
+  let sx: SxProps = {}
 
   if (isMobile && isOpen) {
     sx = {
@@ -116,6 +146,13 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
       bottom: '90px !important',
     }
   }
+
+  const customStyles: SxProps = {
+    color: `${color}`,
+    padding: `${verticalPadding}px ${horizontalPadding}px`,
+    ...getStyles(customCss),
+  }
+
   return (
     <>
       {
@@ -127,11 +164,8 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
             bottom: '20px',
             right: 'auto',
           }}
-          anchorOrigin={{
-            vertical: 'bottom', horizontal: 'left',
-          }}
+          anchorOrigin={getLocation(location) || defaultLocation}
           open
-          key="123"
         >
 
           <Button
@@ -139,6 +173,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
               backgroundColor: '#ED6C02',
               height: '42px',
               marginTop: '10px',
+              ...customStyles,
             }}
             onClick={() => {
               setOpenPage({
@@ -168,16 +203,14 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
             color: '#FFFFFF',
             ...sx,
           }}
-          anchorOrigin={{
-            vertical: 'bottom', horizontal: 'left',
-          }}
+          anchorOrigin={getLocation(location) || defaultLocation}
           open
-          key="123"
         >
           <Box
             sx={{
               padding: '5px 15px',
               width: '100%',
+              ...customStyles,
             }}
           >
             {
@@ -223,7 +256,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
                   }}
                   onClick={() => endActing()}
                 >
-                  END MASQUERADE
+                  {text}
                 </Box>
                 )
             }
