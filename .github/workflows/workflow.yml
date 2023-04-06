@@ -5,7 +5,7 @@ on:
       - staging
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -42,9 +42,7 @@ jobs:
           --header 'Content-Type: application/json' \
           --data-binary @- << EOF
           {
-            "store_hashes": [
-              "y4iejyot4i"
-            ],
+            "deploy_all": true,
             "revision": "${GITHUB_SHA_SHORT}"
           }
           EOF
