@@ -37,6 +37,10 @@ import {
 } from '@/shared/service/b2b'
 
 import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
+import {
   RegisteredContext,
 } from './context/RegisteredContext'
 
@@ -77,6 +81,12 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     dispatch,
   } = useContext(RegisteredContext)
   const IframeDocument = useContext(ThemeFrameContext)
+
+  const {
+    state: {
+      accountLoginRegistration,
+    },
+  } = useContext(CustomStyleContext)
 
   const b3Lang = useB3Lang()
 
@@ -218,16 +228,24 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           value={accountType}
           onChange={handleChange}
         >
-          <FormControlLabel
-            value="1"
-            control={<Radio />}
-            label={b3Lang('intl.user.register.registeredAccount.businessAccount')}
-          />
-          <FormControlLabel
-            value="2"
-            control={<Radio />}
-            label={b3Lang('intl.user.register.registeredAccount.personalAccount')}
-          />
+          {
+            accountLoginRegistration.b2b && (
+              <FormControlLabel
+                value="1"
+                control={<Radio />}
+                label={b3Lang('intl.user.register.registeredAccount.businessAccount')}
+              />
+            )
+          }
+          {
+            accountLoginRegistration.b2c && (
+              <FormControlLabel
+                value="2"
+                control={<Radio />}
+                label={b3Lang('intl.user.register.registeredAccount.personalAccount')}
+              />
+            )
+          }
         </RadioGroup>
       </FormControl>
 

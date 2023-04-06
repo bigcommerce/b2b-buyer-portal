@@ -65,6 +65,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
     key: 'shopping_list_on_product_page',
     name: 'shoppingListBtn',
   },
+  {
+    key: 'account_login_registration',
+    name: 'accountLoginRegistration',
+  },
 ]
 
 const getTemPlateConfig = async (channelId: number, dispatch: any) => {
@@ -72,7 +76,6 @@ const getTemPlateConfig = async (channelId: number, dispatch: any) => {
   const {
     storefrontConfigs,
   } = await getStorefrontConfigs(channelId, keys)
-  console.log(storefrontConfigs, 'storefrontConfigs')
 
   const obj: Partial<CustomStyleButtonState> | {} = {}
   storefrontConfigs.forEach((item: any) => {
@@ -86,7 +89,7 @@ const getTemPlateConfig = async (channelId: number, dispatch: any) => {
   })
 
   dispatch({
-    type: 'common',
+    type: 'merge',
     payload: {
       ...obj,
     },

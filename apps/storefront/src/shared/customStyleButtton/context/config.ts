@@ -3,7 +3,7 @@ import {
   ReactNode,
 } from 'react'
 
-type BtnKeys = 'masqueradeButton' | 'addQuoteBtn' | 'floatingAction' | 'addToAllQuoteBtn' | 'shoppingListBtn'
+type BtnKeys = 'masqueradeButton' | 'addQuoteBtn' | 'floatingAction' | 'addToAllQuoteBtn' | 'shoppingListBtn' | 'loginPageButton' | 'loginPageDisplay' | 'loginPageHtml' | 'accountLoginRegistration'
 
 interface BtnStyle {
   color: string,
@@ -18,6 +18,16 @@ interface BtnStyle {
   enabled: boolean,
   b2b: boolean,
   b2c: boolean,
+  createAccountButtonText?: string,
+  primaryButtonColor?: string,
+  signInButtonText?: string,
+  displayStoreLogo?: boolean,
+  pageTitle?: string,
+  bottomHtmlRegionEnabled?: boolean,
+  bottomHtmlRegionHtml?: string,
+  createAccountPanelHtml?: string,
+  topHtmlRegionEnabled?: boolean,
+  topHtmlRegionHtml?: string,
 }
 
 export interface CustomStyleButtonState extends Record<BtnKeys, Partial<BtnStyle>>{
@@ -73,6 +83,29 @@ export const initState = {
     classSelector: '',
     locationSelector: '',
     enabled: true,
+  },
+  loginPageButton: {
+    createAccountButtonText: 'CREATE ACCOUNT',
+    enabled: true,
+    primaryButtonColor: '#292a25',
+    signInButtonText: 'SIGN IN',
+  },
+  loginPageDisplay: {
+    displayStoreLogo: true,
+    enabled: true,
+    pageTitle: 'Sign In (test can delete)',
+  },
+  loginPageHtml: {
+    bottomHtmlRegionEnabled: false,
+    bottomHtmlRegionHtml: '',
+    createAccountPanelHtml: '',
+    enabled: true,
+    topHtmlRegionEnabled: false,
+    topHtmlRegionHtml: '',
+  },
+  accountLoginRegistration: {
+    b2b: true,
+    b2c: true,
   },
 }
 

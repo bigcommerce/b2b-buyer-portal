@@ -44,6 +44,10 @@ import {
 } from './context/RegisteredContext'
 
 import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
+import {
   GlobaledContext,
 } from '@/shared/global'
 
@@ -117,6 +121,12 @@ function Registered(props: RegisteredProps) {
     dispatch,
   } = useContext(RegisteredContext)
 
+  const {
+    state: {
+      accountLoginRegistration,
+    },
+  } = useContext(CustomStyleContext)
+
   useEffect(() => {
     const getBCAdditionalFields = async () => {
       try {
@@ -161,12 +171,17 @@ function Registered(props: RegisteredProps) {
           }
           return addressFields
         }) || []
-
+        // accountLoginRegistration
+        const {
+          b2b,
+          b2c,
+        } = accountLoginRegistration
+        const accountB2cEnabledInfo = b2c && !b2b
         if (dispatch) {
           dispatch({
             type: 'all',
             payload: {
-              accountType: '1',
+              accountType: accountB2cEnabledInfo ? '2' : '1',
               isLoading: false,
               storeName,
               // account

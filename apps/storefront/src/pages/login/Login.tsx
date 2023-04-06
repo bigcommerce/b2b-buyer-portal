@@ -50,6 +50,9 @@ import {
 import {
   GlobaledContext,
 } from '@/shared/global'
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
 
 import {
   LoginContainer, LoginImage,
@@ -114,37 +117,46 @@ export default function Login(props:RegisteredProps) {
     dispatch,
   } = useContext(GlobaledContext)
 
+  const {
+    state: {
+      loginPageButton,
+      loginPageDisplay,
+      loginPageHtml,
+    },
+  } = useContext(CustomStyleContext)
+
   useEffect(() => {
     const init = async () => {
       try {
         const {
-          loginPageConfig: {
-            value: {
-              bottomHtmlRegionEnabled,
-              bottomHtmlRegionHtml,
-              createAccountPanelHtml,
-              displayStoreLogo,
-              pageTitle,
-              primaryButtonColor,
-              signInButtonText,
-              createAccountButtonText,
-              topHtmlRegionEnabled,
-              topHtmlRegionHtml,
-            },
-          },
-        } = await getB2BLoginPageConfig()
+          createAccountButtonText,
+          primaryButtonColor,
+          signInButtonText,
+        } = loginPageButton
+        const {
+          displayStoreLogo,
+          pageTitle,
+        } = loginPageDisplay
+
+        const {
+          bottomHtmlRegionEnabled,
+          bottomHtmlRegionHtml,
+          createAccountPanelHtml,
+          topHtmlRegionEnabled,
+          topHtmlRegionHtml,
+        } = loginPageHtml
 
         const Info = {
-          loginTitle: pageTitle,
-          loginBtn: signInButtonText,
-          CreateAccountButtonText: createAccountButtonText,
-          btnColor: primaryButtonColor,
-          isShowWidgetHead: topHtmlRegionEnabled,
-          widgetHeadText: topHtmlRegionHtml,
-          widgetBodyText: createAccountPanelHtml,
-          isShowWidgetFooter: bottomHtmlRegionEnabled,
-          widgetFooterText: bottomHtmlRegionHtml,
-          displayStoreLogo,
+          loginTitle: pageTitle || 'Sign In',
+          loginBtn: signInButtonText || 'SIGN IN',
+          CreateAccountButtonText: createAccountButtonText || 'CREATE ACCOUNT',
+          btnColor: primaryButtonColor || '',
+          isShowWidgetHead: topHtmlRegionEnabled || false,
+          widgetHeadText: topHtmlRegionHtml || '',
+          widgetBodyText: createAccountPanelHtml || '',
+          isShowWidgetFooter: bottomHtmlRegionEnabled || false,
+          widgetFooterText: bottomHtmlRegionHtml || '',
+          displayStoreLogo: displayStoreLogo || true,
         }
 
         const {
