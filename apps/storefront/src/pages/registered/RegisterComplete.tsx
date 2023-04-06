@@ -16,6 +16,9 @@ import {
   useB3Lang,
 } from '@b3/lang'
 
+import {
+  GlobaledContext,
+} from '@/shared/global'
 // import {
 //   Captcha,
 // } from '@/components/form'
@@ -81,6 +84,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     state,
     dispatch,
   } = useContext(RegisteredContext)
+
+  const {
+    state: {
+      currentChannelId,
+    },
+  } = useContext(GlobaledContext)
 
   const {
     contactInformation,
@@ -157,6 +166,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     }
 
     bcFields.addresses = []
+    bcFields.origin_channel_id = currentChannelId
 
     if (accountType === '2') {
       const addresses: CustomFieldItems = {}
