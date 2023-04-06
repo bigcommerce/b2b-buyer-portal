@@ -51,6 +51,15 @@ const useCartToQuote = ({
     }
   }, [])
 
+  const {
+    color = '',
+    text = '',
+    customCss = '',
+    classSelector = '',
+    locationSelector = '',
+    enabled = false,
+  } = addToAllQuoteBtn
+
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(globalB3['dom.cartActions.container'])
 
@@ -63,23 +72,22 @@ const useCartToQuote = ({
     }
 
     if (document.querySelectorAll('.b3-cart-to-cart')?.length) {
+      const cartToQuoteBtn = document.querySelectorAll('.b3-cart-to-cart')
+      cartToQuoteBtn.forEach((cartToQuoteBtn: CustomFieldItems) => {
+        cartToQuoteBtn.setAttribute('id', `${locationSelector}`)
+        cartToQuoteBtn.innerHTML = text || 'Add All to Quote'
+        cartToQuoteBtn.setAttribute('style', customCss)
+        cartToQuoteBtn.style.color = color
+        cartToQuoteBtn.setAttribute('class', `b3-cart-to-cart ${classSelector}`)
+      })
       return
     }
-
-    const {
-      color = '',
-      text = '',
-      customCss = '',
-      classSelector = '',
-      locationSelector = '',
-      enabled = false,
-    } = addToAllQuoteBtn
 
     if (enabled) {
       addToQuoteAll.forEach((node: CustomFieldItems) => {
         cartQuoteBtnDom = document.createElement('div')
         cartQuoteBtnDom.setAttribute('id', `${locationSelector}`)
-        cartQuoteBtnDom.innerHTML = text
+        cartQuoteBtnDom.innerHTML = text || 'Add All to Quote'
         cartQuoteBtnDom.setAttribute('style', customCss)
         cartQuoteBtnDom.style.color = color
         cartQuoteBtnDom.setAttribute('class', `b3-cart-to-cart ${classSelector}`)
@@ -95,7 +103,7 @@ const useCartToQuote = ({
         cartQuoteBtnDom.removeEventListener('click', quoteCallBbck)
       }
     }
-  }, [cartQuoteEnabled])
+  }, [cartQuoteEnabled, addToAllQuoteBtn])
 }
 
 export {

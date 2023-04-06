@@ -4,6 +4,7 @@ import {
   Dispatch,
   useEffect,
   useContext,
+  useRef,
 } from 'react'
 
 import globalB3 from '@b3/global-b3'
@@ -11,6 +12,11 @@ import globalB3 from '@b3/global-b3'
 import type {
   OpenPageState,
 } from '@b3/hooks'
+
+import {
+  cloneDeep,
+} from 'lodash'
+
 import {
   CustomStyleContext,
 } from '@/shared/customStyleButtton'
@@ -58,6 +64,8 @@ const useMyQuote = ({
     }
   }, [B3UserId])
 
+  const cache = useRef({})
+
   const {
     state: {
       addQuoteBtn,
@@ -85,6 +93,15 @@ const useMyQuote = ({
 
   const [openQuickView] = useDomVariation(globalB3['dom.setToQuote'], cd)
 
+  const {
+    color = '',
+    text = '',
+    customCss = '',
+    classSelector = '',
+    locationSelector = '',
+    enabled = false,
+  } = addQuoteBtn
+
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(globalB3['dom.setToQuote'])
 
@@ -97,24 +114,28 @@ const useMyQuote = ({
     }
 
     if (document.querySelectorAll('.b3-product-to-quote')?.length) {
+      const cacheQuoteDom = cache.current
+      const isAddStyle = Object.keys(cacheQuoteDom).every((key: string) => (cacheQuoteDom as CustomFieldItems)[key] === (addQuoteBtn as CustomFieldItems)[key])
+      if (!isAddStyle) {
+        const myQuoteBtn = document.querySelectorAll('.b3-product-to-quote')
+        myQuoteBtn.forEach((myQuote: CustomFieldItems) => {
+          myQuote.setAttribute('id', `${locationSelector}`)
+          myQuote.innerHTML = text || 'Add to Quote'
+          myQuote.setAttribute('style', customCss)
+          myQuote.style.color = color
+          myQuote.setAttribute('class', `b3-product-to-quote ${classSelector}`)
+        })
+        cache.current = cloneDeep(addQuoteBtn)
+      }
       return
     }
-
-    const {
-      color = '',
-      text = '',
-      customCss = '',
-      classSelector = '',
-      locationSelector = '',
-      enabled = false,
-    } = addQuoteBtn
 
     if (enabled) {
       addToQuoteAll.forEach((node: CustomFieldItems) => {
         myQuote = document.createElement('div')
 
         myQuote.setAttribute('id', `${locationSelector}`)
-        myQuote.innerHTML = text
+        myQuote.innerHTML = text || 'Add to Quote'
         myQuote.setAttribute('style', customCss)
         myQuote.style.color = color
         myQuote.setAttribute('class', `b3-product-to-quote ${classSelector}`)
@@ -123,9 +144,10 @@ const useMyQuote = ({
           capture: true,
         })
       })
+      cache.current = cloneDeep(addQuoteBtn)
     } else {
       const myQuoteBtn = document.querySelectorAll('.b3-product-to-quote')
-      myQuoteBtn.forEach((item: any) => {
+      myQuoteBtn.forEach((item: CustomFieldItems) => {
         removeElement(item)
       })
     }

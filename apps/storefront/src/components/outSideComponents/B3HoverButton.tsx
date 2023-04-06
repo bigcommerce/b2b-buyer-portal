@@ -126,7 +126,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
             }}
             variant="contained"
           >
-            {buttonText || text}
+            {buttonText || text || 'Finish quote'}
           </Button>
           )
         }

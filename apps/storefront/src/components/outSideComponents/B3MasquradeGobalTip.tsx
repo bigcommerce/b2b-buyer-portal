@@ -164,7 +164,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
             bottom: '20px',
             right: 'auto',
           }}
-          anchorOrigin={getLocation(location) || defaultLocation}
+          anchorOrigin={defaultLocation}
           open
         >
 
@@ -173,7 +173,6 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
               backgroundColor: '#ED6C02',
               height: '42px',
               marginTop: '10px',
-              ...customStyles,
             }}
             onClick={() => {
               setOpenPage({
@@ -202,6 +201,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
             height: '52px',
             color: '#FFFFFF',
             ...sx,
+            ...customStyles,
           }}
           anchorOrigin={getLocation(location) || defaultLocation}
           open
@@ -210,7 +210,6 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
             sx={{
               padding: '5px 15px',
               width: '100%',
-              ...customStyles,
             }}
           >
             {
