@@ -9,7 +9,6 @@ import {
 
 import {
   Box,
-  Button,
   ImageListItem,
   Alert,
 } from '@mui/material'
@@ -52,6 +51,7 @@ import {
 import {
   B3CustomForm,
   B3Card,
+  CustomButton,
 } from '../../components'
 
 import {
@@ -507,12 +507,12 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           pt: 2,
         }}
         >
-          <Button
+          <CustomButton
             variant="contained"
             onClick={handleNext}
           >
             {b3Lang('intl.global.button.submit')}
-          </Button>
+          </CustomButton>
         </Box>
 
       </RegisteredContainer>

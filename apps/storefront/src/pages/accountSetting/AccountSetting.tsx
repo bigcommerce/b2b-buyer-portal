@@ -6,7 +6,6 @@ import {
 
 import {
   Box,
-  Button,
 } from '@mui/material'
 
 import {
@@ -24,8 +23,10 @@ import {
 import {
   useNavigate,
 } from 'react-router-dom'
+
 import {
   B3CustomForm,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -510,7 +511,7 @@ const AccountSetting = () => {
           setValue={setValue}
         />
 
-        <Button
+        <CustomButton
           sx={{
             mt: '28px',
             mb: `${isMobile ? '20px' : '0'}`,
@@ -521,7 +522,7 @@ const AccountSetting = () => {
           variant="contained"
         >
           save updates
-        </Button>
+        </CustomButton>
       </Box>
 
     </B3Sping>

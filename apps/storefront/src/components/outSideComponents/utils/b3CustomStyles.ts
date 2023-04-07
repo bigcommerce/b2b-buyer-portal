@@ -1,5 +1,6 @@
 import {
-  SnackbarOrigin, SxProps,
+  SnackbarOrigin,
+  SxProps,
 } from '@mui/material'
 
 import {
@@ -24,7 +25,19 @@ const getStyles = (customCss: string): SxProps => {
   return sx
 }
 
+const getContrastColor = (color: string) => {
+  const hex = color.replace('#', '')
+  const r = parseInt(hex.slice(0, 2), 16)
+  const g = parseInt(hex.slice(2, 4), 16)
+  const b = parseInt(hex.slice(4, 6), 16)
+
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000
+
+  return brightness >= 128 ? '#000' : '#fff'
+}
+
 export {
   getLocation,
   getStyles,
+  getContrastColor,
 }

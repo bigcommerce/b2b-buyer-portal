@@ -25,8 +25,10 @@ import {
 import {
   QuoteStatus,
 } from './components/QuoteStatus'
+
 import {
   B3Sping,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -664,7 +666,7 @@ const QuoteDraft = ({
           </Box>
           {
             !isMobile ? (
-              <Button
+              <CustomButton
                 variant="contained"
                 size="small"
                 sx={{
@@ -675,7 +677,7 @@ const QuoteDraft = ({
                 onClick={handleSubmit}
               >
                 submit
-              </Button>
+              </CustomButton>
             ) : (
               <Box
                 sx={{
@@ -690,7 +692,7 @@ const QuoteDraft = ({
                   justifyContent: 'center',
                 }}
               >
-                <Button
+                <CustomButton
                   variant="contained"
                   size="small"
                   sx={{
@@ -700,7 +702,7 @@ const QuoteDraft = ({
                   onClick={handleSubmit}
                 >
                   submit
-                </Button>
+                </CustomButton>
               </Box>
             )
           }

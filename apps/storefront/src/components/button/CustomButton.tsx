@@ -1,6 +1,7 @@
 import {
   Button,
   ButtonProps,
+  SxProps,
 } from '@mui/material'
 
 import {
@@ -12,9 +13,13 @@ import {
   CustomStyleContext,
 } from '@/shared/customStyleButtton'
 
+import {
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
+
 interface CustomButtonProps extends ButtonProps {
   onClick?: (e?: MouseEvent<HTMLButtonElement> | any) => void,
-  sx?: any,
+  sx?: SxProps,
   customLabel?: string,
   children: React.ReactNode,
 }
@@ -27,15 +32,13 @@ const CustomButton = ({
 }: CustomButtonProps) => {
   const {
     state: {
-      globalColor,
-      globalBackgroundColor,
+      globalButtonBackgroundColor,
       portalStyle,
     },
   } = useContext(CustomStyleContext)
 
   const {
     primaryColor = '',
-    backgroundColor = '',
   } = portalStyle
 
   return (
@@ -43,11 +46,11 @@ const CustomButton = ({
       {...rest}
       sx={{
         ...sx || {},
-        color: primaryColor || globalColor,
-        backgroundColor: backgroundColor || globalBackgroundColor,
+        backgroundColor: primaryColor || globalButtonBackgroundColor,
+        color: getContrastColor(primaryColor) || getContrastColor(globalButtonBackgroundColor),
         '&:hover': {
-          color: primaryColor || globalColor,
-          backgroundColor: backgroundColor || globalBackgroundColor,
+          backgroundColor: primaryColor || globalButtonBackgroundColor,
+          color: getContrastColor(primaryColor) || getContrastColor(globalButtonBackgroundColor),
         },
       }}
       onClick={onClick}

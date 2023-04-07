@@ -36,11 +36,8 @@ import {
   B3CustomForm,
   B3Sping,
   B3Card,
+  CustomButton,
 } from '@/components'
-
-import {
-  B3ForgotButton,
-} from './styled'
 
 interface ForgotPasswordProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
@@ -137,14 +134,14 @@ const ForgotPassword = (props: ForgotPasswordProps) => {
                   isSpinning={isLoading}
                   size={20}
                 >
-                  <B3ForgotButton
+                  <CustomButton
                     type="submit"
                     size="medium"
                     onClick={handleSubmit(handleLoginClick)}
                     variant="contained"
                   >
                     {b3Lang('intl.user.forgot.forgotText.resetPasswordBtn')}
-                  </B3ForgotButton>
+                  </CustomButton>
                 </B3Sping>
 
               </Box>

@@ -4,7 +4,6 @@ import {
 } from 'react'
 import {
   Box,
-  Button,
 } from '@mui/material'
 
 import {
@@ -221,7 +220,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
           </Box>
           {
             customButtomConfig?.isEnabled && (
-              <Button
+              <CustomButton
                 size="small"
                 variant="contained"
                 fullWidth
@@ -233,7 +232,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
                 onClick={handleCustomBtnClick}
               >
                 {customButtomConfig?.customLabel || ''}
-              </Button>
+              </CustomButton>
             )
           }
         </Box>

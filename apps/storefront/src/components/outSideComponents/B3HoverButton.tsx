@@ -27,6 +27,7 @@ import {
 } from '@/shared/customStyleButtton'
 
 import {
+  getContrastColor,
   getLocation,
   getStyles,
 } from './utils/b3CustomStyles'
@@ -66,7 +67,6 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
 
   const {
     text = '',
-    buttonText = '',
     color = '',
     customCss = '',
     location = '',
@@ -80,10 +80,13 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
   }
 
   const defaultSx: SxProps = {
-    color: `${color}`,
+    backgroundColor: `${color}`,
+    color: getContrastColor(color),
     padding: `${verticalPadding}px ${horizontalPadding}px`,
     ...getStyles(customCss),
   }
+
+  console.log(floatingAction, 'floatingAction')
 
   if (href.includes('/checkout')) return <></>
   return (
@@ -126,7 +129,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
             }}
             variant="contained"
           >
-            {buttonText || text || 'Finish quote'}
+            {text || 'Finish quote'}
           </Button>
           )
         }

@@ -43,6 +43,7 @@ import {
 } from '@/shared/customStyleButtton'
 
 import {
+  getContrastColor,
   getLocation,
   getStyles,
 } from './utils/b3CustomStyles'
@@ -148,7 +149,8 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
   }
 
   const customStyles: SxProps = {
-    color: `${color}`,
+    backgroundColor: `${color}`,
+    color: getContrastColor(color),
     padding: `${verticalPadding}px ${horizontalPadding}px`,
     ...getStyles(customCss),
   }

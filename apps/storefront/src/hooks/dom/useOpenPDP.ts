@@ -29,6 +29,10 @@ import {
   useDomVariation,
 } from './useDomVariation'
 
+import {
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
+
 interface MutationObserverProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
   isB2BUser: boolean,
@@ -78,7 +82,8 @@ const useOpenPDP = ({
           myShoppingListBtn.setAttribute('id', `${locationSelector}`)
           myShoppingListBtn.innerHTML = text || 'Add to Shopping List'
           myShoppingListBtn.setAttribute('style', customCss)
-          myShoppingListBtn.style.color = color
+          myShoppingListBtn.style.backgroundColor = color
+          myShoppingListBtn.style.color = getContrastColor(color)
           myShoppingListBtn.setAttribute('class', `b2b-shopping-list-btn ${classSelector}`)
         })
         cache.current = cloneDeep(shoppingListBtn)
@@ -92,7 +97,8 @@ const useOpenPDP = ({
         shoppingBtnDom.setAttribute('id', `${locationSelector}`)
         shoppingBtnDom.innerHTML = text || 'Add to Shopping List'
         shoppingBtnDom.setAttribute('style', customCss)
-        shoppingBtnDom.style.color = color
+        shoppingBtnDom.style.backgroundColor = color
+        shoppingBtnDom.style.color = getContrastColor(color)
         shoppingBtnDom.setAttribute('class', `b2b-shopping-list-btn ${classSelector}`)
         node.parentNode.appendChild(shoppingBtnDom)
         shoppingBtnDom.addEventListener('click', pdpCallBbck, {

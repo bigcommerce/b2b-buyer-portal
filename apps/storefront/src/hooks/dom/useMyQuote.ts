@@ -38,6 +38,10 @@ import {
   useDomVariation,
 } from './useDomVariation'
 
+import {
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
+
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 
 interface MutationObserverProps {
@@ -122,7 +126,8 @@ const useMyQuote = ({
           myQuote.setAttribute('id', `${locationSelector}`)
           myQuote.innerHTML = text || 'Add to Quote'
           myQuote.setAttribute('style', customCss)
-          myQuote.style.color = color
+          myQuote.style.backgroundColor = color
+          myQuote.style.color = getContrastColor(color)
           myQuote.setAttribute('class', `b3-product-to-quote ${classSelector}`)
         })
         cache.current = cloneDeep(addQuoteBtn)
@@ -137,7 +142,8 @@ const useMyQuote = ({
         myQuote.setAttribute('id', `${locationSelector}`)
         myQuote.innerHTML = text || 'Add to Quote'
         myQuote.setAttribute('style', customCss)
-        myQuote.style.color = color
+        myQuote.style.backgroundColor = color
+        myQuote.style.color = getContrastColor(color)
         myQuote.setAttribute('class', `b3-product-to-quote ${classSelector}`)
         node.parentNode.appendChild(myQuote)
         myQuote.addEventListener('click', quoteCallBbck, {

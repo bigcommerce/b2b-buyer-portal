@@ -11,6 +11,10 @@ import {
   steps,
 } from '../config'
 
+import {
+  CustomButton,
+} from '@/components'
+
 function RegisteredStepButton(props: any) {
   const {
     activeStep,
@@ -30,12 +34,12 @@ function RegisteredStepButton(props: any) {
           pt: 2,
         }}
         >
-          <Button
+          <CustomButton
             variant="contained"
             onClick={() => handleFinish()}
           >
             {b3Lang('intl.global.button.finish')}
-          </Button>
+          </CustomButton>
         </Box>
       ) : (
         <Box sx={{
@@ -44,12 +48,12 @@ function RegisteredStepButton(props: any) {
           pt: 2,
         }}
         >
-          <Button
+          <CustomButton
             variant="contained"
             onClick={handleNext}
           >
             {activeStep === steps.length - 1 ? b3Lang('intl.global.button.submit') : b3Lang('intl.global.button.next')}
-          </Button>
+          </CustomButton>
           {
             activeStep !== 0 && (
             <Button

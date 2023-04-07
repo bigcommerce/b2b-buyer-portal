@@ -6,7 +6,6 @@ import {
 } from 'react'
 
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -22,6 +21,10 @@ import {
 import {
   GlobaledContext,
 } from '@/shared/global'
+
+import {
+  CustomButton,
+} from '..'
 
 interface CheckoutTipProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
@@ -70,7 +73,7 @@ const CheckoutTip = (props: CheckoutTipProps) => {
               justifyContent: 'center',
             }}
           >
-            <Button
+            <CustomButton
               onClick={() => {
                 setOpen(false)
                 setOpenPage({
@@ -82,7 +85,7 @@ const CheckoutTip = (props: CheckoutTipProps) => {
             >
               ok
 
-            </Button>
+            </CustomButton>
           </DialogActions>
         </Dialog>
         )

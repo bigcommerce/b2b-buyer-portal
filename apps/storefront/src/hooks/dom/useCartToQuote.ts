@@ -20,6 +20,10 @@ import {
   addQuoteToCart,
 } from './utils'
 
+import {
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
+
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 interface MutationObserverProps {
   setOpenPage: DispatchProps,
@@ -77,7 +81,8 @@ const useCartToQuote = ({
         cartToQuoteBtn.setAttribute('id', `${locationSelector}`)
         cartToQuoteBtn.innerHTML = text || 'Add All to Quote'
         cartToQuoteBtn.setAttribute('style', customCss)
-        cartToQuoteBtn.style.color = color
+        cartToQuoteBtn.style.backgroundColor = color
+        cartToQuoteBtn.style.color = getContrastColor(color)
         cartToQuoteBtn.setAttribute('class', `b3-cart-to-cart ${classSelector}`)
       })
       return
@@ -89,7 +94,8 @@ const useCartToQuote = ({
         cartQuoteBtnDom.setAttribute('id', `${locationSelector}`)
         cartQuoteBtnDom.innerHTML = text || 'Add All to Quote'
         cartQuoteBtnDom.setAttribute('style', customCss)
-        cartQuoteBtnDom.style.color = color
+        cartQuoteBtnDom.style.backgroundColor = color
+        cartQuoteBtnDom.style.color = getContrastColor(color)
         cartQuoteBtnDom.setAttribute('class', `b3-cart-to-cart ${classSelector}`)
         node.appendChild(cartQuoteBtnDom)
         cartQuoteBtnDom.addEventListener('click', quoteCallBbck, {

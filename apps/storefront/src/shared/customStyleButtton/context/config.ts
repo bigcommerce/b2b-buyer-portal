@@ -33,13 +33,13 @@ interface BtnStyle {
 }
 
 export interface CustomStyleButtonState extends Record<BtnKeys, Partial<BtnStyle>>{
-  globalColor: string,
+  globalButtonBackgroundColor: string,
   globalBackgroundColor: string,
   // shoppingListBtn: Partial<BtnStyle>,
 }
 
 export const initState = {
-  globalColor: '#3385D6',
+  globalButtonBackgroundColor: '#3385D6',
   globalBackgroundColor: '#FEF9F5',
   portalStyle: {
     primaryColor: '#3385D6',
