@@ -105,7 +105,9 @@ const useOpenPDP = ({
       return
     }
 
-    if (shoppingListEnabled && enabled) {
+    const isCurrentUserEnabled = roleText ? (shoppingListBtn as CustomFieldItems)[roleText] : ''
+
+    if (shoppingListEnabled && enabled && isCurrentUserEnabled) {
       addToCartAll.forEach((node: CustomFieldItems) => {
         shoppingBtnDom = document.createElement('div')
         shoppingBtnDom.setAttribute('id', `${locationSelector}`)

@@ -111,8 +111,6 @@ const getTemPlateConfig = async (channelId: number, dispatch: any, dispatchGloba
     }
   })
 
-  console.log(storefrontConfigs, logo, 'storefrontConfigs')
-
   dispatchGlobal({
     type: 'common',
     payload: {

@@ -162,11 +162,9 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
         <Snackbar
           sx={{
             zIndex: '110000',
-            left: '20px',
-            bottom: '20px',
-            right: 'auto',
+            // right: 'auto',
           }}
-          anchorOrigin={defaultLocation}
+          anchorOrigin={getLocation(location) || defaultLocation}
           open
         >
 
@@ -175,6 +173,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
               backgroundColor: '#ED6C02',
               height: '42px',
               marginTop: '10px',
+              ...customStyles,
             }}
             onClick={() => {
               setOpenPage({
@@ -300,7 +299,6 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
             height: '52px',
             color: '#FFFFFF',
             ...sx,
-            ...customStyles,
           }}
           anchorOrigin={getLocation(location) || defaultLocation}
           open

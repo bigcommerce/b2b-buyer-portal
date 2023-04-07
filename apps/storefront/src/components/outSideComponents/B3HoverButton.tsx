@@ -91,9 +91,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
     <Snackbar
       sx={{
         zIndex: '110000',
-        right: '20px',
-        bottom: '20px',
-        left: 'auto',
+        width: 'auto',
       }}
       anchorOrigin={getLocation(location) || defaultLocation}
       open
@@ -103,8 +101,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          width: '100%',
-          alignItems: 'flex-end',
+          width: 'auto',
         }}
       >
 
