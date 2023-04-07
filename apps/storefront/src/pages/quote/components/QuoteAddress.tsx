@@ -149,6 +149,7 @@ const QuoteAddress = ({
     }
 
     Object.keys(addressItem).forEach((item: string) => {
+      if (item === 'company') return
       setValue(item, addressItem[item])
     })
 
