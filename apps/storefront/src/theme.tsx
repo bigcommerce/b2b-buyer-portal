@@ -4,10 +4,12 @@ import {
 } from '@mui/material/styles'
 import * as materialMultiLanguages from '@mui/material/locale'
 import React from 'react'
-
 import {
-  useB3CurrentLang,
-} from '@b3/lang'
+  useSelector,
+} from 'react-redux'
+import {
+  RootState,
+} from './store'
 
 type LangMapType = {
   [index: string]: string
@@ -42,7 +44,9 @@ const theme = (lang: string) => createTheme({
 function B3ThemeProvider({
   children,
 }: Props) {
-  const [lang] = useB3CurrentLang()
+  const lang = useSelector(({
+    lang,
+  }: RootState) => lang)
 
   return (
     <ThemeProvider theme={theme(lang)}>

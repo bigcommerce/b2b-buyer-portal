@@ -6,16 +6,16 @@ import {
 import Button from '@mui/material/Button'
 import {
   ThemeFrame,
-} from './ThemeFrame'
+} from '../../src/components'
 import {
-  render, screen,
-} from '../utils/test-utils'
+  renderWithProviders, screen,
+} from '../test-utils'
 
 describe('ThemeFrame', () => {
   it('should render iframe and main document should not contain anything else', () => {
     expect(document.head.querySelector('style')).toBeNull()
 
-    render(
+    renderWithProviders(
       <ThemeFrame title="test-frame">
         <Button id="test-button">Test Button</Button>
       </ThemeFrame>,
@@ -24,9 +24,8 @@ describe('ThemeFrame', () => {
     expect(document.querySelector('button')).toBeNull()
     expect(document.head.querySelector('style')).toBeDefined()
   })
-
   it('should render iframe, and all children and styles sandboxed within it', () => {
-    render(
+    renderWithProviders(
       <ThemeFrame title="test-frame">
         <Button id="test-button">Test Button</Button>
       </ThemeFrame>,

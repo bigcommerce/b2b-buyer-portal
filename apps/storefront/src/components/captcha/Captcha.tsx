@@ -1,10 +1,12 @@
 import {
-  Component,
-  ContextType,
+  useEffect, useRef,
 } from 'react'
 import {
-  ThemeFrameContext,
-} from '@/components/ThemeFrame'
+  useSelector,
+} from 'react-redux'
+import {
+  themeFrameSelector,
+} from '@/store'
 import FRAME_HANDLER_CODE from './frameCaptchaCode.js?raw'
 
 const CAPTCHA_URL = 'https://www.google.com/recaptcha/api.js?render=explicit'
@@ -54,48 +56,29 @@ export function loadCaptchaWidgetHandlers(iframeDocument: Document, widgetId: st
 export function generateWidgetId() {
   return `widget_${Date.now()}`
 }
+export function Captcha(props: CaptchaProps) {
+  const {
+    siteKey, theme, size, onSuccess, onError, onExpired,
+  } = props
+  const iframeDocument = useSelector(themeFrameSelector)
+  const _widgetId = generateWidgetId()
+  const _initialized = useRef(false)
 
-export class Captcha extends Component<CaptchaProps> {
-  static contextType = ThemeFrameContext
-
-  declare context: ContextType<typeof ThemeFrameContext>
-
-  _initialized: boolean
-
-  _widgetId: string
-
-  constructor(props: CaptchaProps) {
-    super(props)
-
-    this._widgetId = generateWidgetId()
-    this._initialized = false
-  }
-
-  componentDidMount() {
-    this.initializeCaptchaInFrame()
-  }
-
-  componentWillUnmount() {
-    if (this._initialized) {
-      window.removeEventListener('message', this.onMessage)
-    }
-  }
-
-  onMessage = (event: MessageEvent) => {
-    if (event?.data?.startsWith(this._widgetId)) {
-      const message = event.data.slice(this._widgetId.length)
+  const onMessage = (event: MessageEvent) => {
+    if (event?.data?.startsWith(_widgetId)) {
+      const message = event.data.slice(_widgetId.length)
       const data = JSON.parse(message)
       switch (data.type) {
         case CAPTCHA_VARIABLES.CAPTCHA_SUCCESS:
-          this.props.onSuccess?.()
+          onSuccess?.()
           break
 
         case CAPTCHA_VARIABLES.CAPTCHA_ERROR:
-          this.props.onError?.()
+          onError?.()
           break
 
         case CAPTCHA_VARIABLES.CAPTCHA_EXPIRED:
-          this.props.onExpired?.()
+          onExpired?.()
           break
 
         default:
@@ -104,27 +87,30 @@ export class Captcha extends Component<CaptchaProps> {
     }
   }
 
-  initializeCaptchaInFrame() {
-    const iframeDocument = this.context
-    if (iframeDocument === null || this._initialized) {
+  useEffect(() => {
+    if (iframeDocument === undefined || _initialized.current) {
       return
     }
 
     loadCaptchaScript(iframeDocument)
-    loadCaptchaWidgetHandlers(iframeDocument, this._widgetId)
-    window.addEventListener('message', this.onMessage, false)
+    loadCaptchaWidgetHandlers(iframeDocument, _widgetId)
+    window.addEventListener('message', onMessage, false)
 
-    this._initialized = true
-  }
+    _initialized.current = true
 
-  render() {
-    return (
-      <div
-        id={this._widgetId}
-        data-sitekey={this.props.siteKey}
-        data-theme={this.props.theme}
-        data-size={this.props.size}
-      />
-    )
-  }
+    return () => {
+      if (_initialized.current) {
+        window.removeEventListener('message', onMessage)
+      }
+    }
+  }, [iframeDocument])
+
+  return (
+    <div
+      id={_widgetId}
+      data-sitekey={siteKey}
+      data-theme={theme}
+      data-size={size}
+    />
+  )
 }

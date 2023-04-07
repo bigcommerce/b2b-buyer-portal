@@ -14,6 +14,7 @@
   "dependencies": {
     "@b3/global-b3": "*",
     "@b3/lang": "*",
+    "@b3/store": "*",
     "@emotion/cache": "^11.9.3",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
@@ -21,6 +22,7 @@
     "@mui/material": "^5.8.7",
     "@mui/styles": "^5.8.7",
     "@mui/x-date-pickers": "^5.0.0-beta.0",
+    "@reduxjs/toolkit": "^1.9.3",
     "@rollup/plugin-graphql": "^1.1.0",
     "@types/babel__core": "^7.1.19",
     "copy-to-clipboard": "^3.3.3",
@@ -32,6 +34,7 @@
     "react-hook-form": "^7.33.1",
     "react-infinite-scroller": "^1.2.6",
     "react-mui-dropzone": "^4.0.6",
+    "react-redux": "^8.0.5",
     "react-router-dom": "6",
     "ts-tracking-number": "^1.0.16",
     "uuid": "^9.0.0"

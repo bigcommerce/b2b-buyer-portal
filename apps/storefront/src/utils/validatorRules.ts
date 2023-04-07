@@ -7,8 +7,8 @@ import {
 } from '../constants'
 
 export interface ValidateOptions extends Record<string, any> {
-  max?: string | Number,
-  min?: string | Number,
+  max?: string | number,
+  min?: string | number,
 }
 
 export const validatorRules = (validateRuleTypes: string[], options?: ValidateOptions) => (val: string, b3lang: B3Lang) => {

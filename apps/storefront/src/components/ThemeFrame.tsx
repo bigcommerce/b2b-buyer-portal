@@ -1,14 +1,16 @@
 import {
-  Component,
   ReactNode,
   RefObject,
-  createContext,
-  createRef,
+  useEffect,
+  useRef,
+  useState,
 } from 'react'
 import {
   createPortal,
 } from 'react-dom'
-
+import {
+  useDispatch,
+} from 'react-redux'
 import createCache, {
   EmotionCache,
 } from '@emotion/cache'
@@ -18,6 +20,9 @@ import {
 import {
   CssBaseline,
 } from '@mui/material'
+import {
+  clearThemeFrame, setThemeFrame,
+} from '@/store'
 
 export function IFrameSetContent(el: HTMLIFrameElement | null, content: string, forceWrite: boolean = false) {
   if (el) {
@@ -31,8 +36,26 @@ export function IFrameSetContent(el: HTMLIFrameElement | null, content: string, 
     }
   }
 }
-
-export const ThemeFrameContext = createContext<null|Document>(null)
+const handleLoad = (_iframeRef: RefObject<HTMLIFrameElement>) => {
+  // resolve iframe use document mousedown no effect
+  if (_iframeRef.current?.contentDocument?.addEventListener) {
+    _iframeRef.current.contentDocument.addEventListener('keydown', () => {
+      document.dispatchEvent(new Event('keydown'))
+    })
+    _iframeRef.current.contentDocument.addEventListener('mousedown', () => {
+      document.dispatchEvent(new Event('mousedown'))
+    })
+    _iframeRef.current.contentDocument.addEventListener('touchstart', () => {
+      document.dispatchEvent(new Event('touchstart'))
+    })
+    _iframeRef.current.contentDocument.addEventListener('touchmove', () => {
+      document.dispatchEvent(new Event('touchmove'))
+    })
+    _iframeRef.current.contentDocument.addEventListener('click', () => {
+      document.dispatchEvent(new Event('click'))
+    })
+  }
+}
 
 interface ThemeFrameProps {
   children: ReactNode // children to be rendered within iframe
@@ -42,157 +65,119 @@ interface ThemeFrameProps {
   customStyles?: string
   title?: string
 }
-
-interface ThemeFrameState {
-  hasError: boolean
-  title: string
+interface ThemeFramePortalProps {
+  children: ReactNode
+  isSetupComplete: boolean
   emotionCache?: EmotionCache
+  iframeDocument?: Document | null
+  bodyRef?: RefObject<HTMLBodyElement>
 }
 
 const DefaultIframeContent = '<!DOCTYPE html><html><head></head><body></body></html>'
-export class ThemeFrame extends Component<ThemeFrameProps, ThemeFrameState> {
-  _setupComplete: boolean
 
-  _iframeRef: RefObject<HTMLIFrameElement>
+function ThemeFramePortal(props:ThemeFramePortalProps) {
+  const dispatch = useDispatch()
+  const {
+    isSetupComplete, emotionCache, iframeDocument, bodyRef, children,
+  } = props
 
-  constructor(props: ThemeFrameProps) {
-    super(props)
-
-    this._setupComplete = false
-    this._iframeRef = createRef()
-    this.state = {
-      hasError: false,
-      title: props.title ?? window.btoa(Date.now().toString()),
+  useEffect(() => {
+    if (iframeDocument) {
+      dispatch(setThemeFrame(iframeDocument))
     }
+    return () => {
+      if (iframeDocument) {
+        dispatch(clearThemeFrame())
+      }
+    }
+  }, [iframeDocument])
+
+  if (!isSetupComplete || !emotionCache || !iframeDocument) {
+    return null
   }
 
-  static getDerivedStateFromError() {
-    return {
-      hasError: true,
-    }
+  if (bodyRef?.current !== undefined) {
+    // @ts-ignore - we are intentionally setting ref passed from parent
+    bodyRef.current = iframeDocument.body
   }
 
-  componentDidMount() {
-    const doc = this.getIframeDocument()
-    if (doc === null) {
+  return createPortal(
+    <CacheProvider value={emotionCache}>
+      <CssBaseline />
+      {children}
+    </CacheProvider>,
+    iframeDocument.body,
+  )
+}
+
+export function ThemeFrame(props: ThemeFrameProps) {
+  const {
+    title, className, fontUrl, customStyles, children, bodyRef,
+  } = props
+  const _iframeRef = useRef<HTMLIFrameElement>(null)
+  const [isSetupComplete, setIsSetupComplete] = useState(false)
+  const [emotionCache, setEmotionCache] = useState<EmotionCache|undefined>(undefined)
+
+  useEffect(() => {
+    const iframe = _iframeRef.current
+    if (!iframe) {
       return
     }
 
-    IFrameSetContent(
-      {
-        contentDocument: doc,
-      } as HTMLIFrameElement,
-      DefaultIframeContent,
-      true,
-    )
-
-    if (this.props.fontUrl) {
-      const font = doc.createElement('link')
-      font.rel = 'stylesheet'
-      font.href = this.props.fontUrl
-      doc.head.appendChild(font)
+    IFrameSetContent(iframe, DefaultIframeContent, true)
+    const doc = _iframeRef.current?.contentDocument
+    if (!doc) {
+      return
     }
 
-    if (this.props.customStyles) {
+    if (fontUrl) {
+      const font = doc.createElement('link')
+      font.rel = 'stylesheet'
+      font.href = fontUrl
+      doc.head.appendChild(font)
+    }
+    if (customStyles) {
       const customStyleElement = doc.createElement('style')
-      customStyleElement.appendChild(document.createTextNode(this.props.customStyles))
+      customStyleElement.appendChild(document.createTextNode(customStyles))
       doc.head.appendChild(customStyleElement)
     }
 
-    const emotionCache = createCache({
+    const emotionCacheObj = createCache({
       key: 'css',
       container: doc.head,
       prepend: true,
     })
 
-    this.setState({
-      emotionCache,
-    })
+    setEmotionCache(emotionCacheObj)
 
     if (doc.readyState === 'complete') {
-      this.handleLoad()
+      handleLoad(_iframeRef)
     } else {
-      this._iframeRef.current?.addEventListener('load', this.handleLoad)
+      _iframeRef.current?.addEventListener('load', () => handleLoad(_iframeRef))
     }
 
-    this._setupComplete = true
-  }
-
-  componentWillUnmount() {
-    this._setupComplete = false
-    this._iframeRef.current?.removeEventListener('load', this.handleLoad)
-  }
-
-  getIframeDocument = () => this._iframeRef.current?.contentDocument ?? null
-
-  renderFrameContent = () => {
-    if (!this._setupComplete || this.state.emotionCache === undefined) {
-      return null
+    setIsSetupComplete(true)
+    return () => {
+      setIsSetupComplete(false)
+      _iframeRef.current?.removeEventListener('load', () => handleLoad(_iframeRef))
     }
+  }, [])
 
-    const iframeDocument = this.getIframeDocument()
-    if (iframeDocument == null) {
-      return null
-    }
-
-    if (iframeDocument.body && this.props.bodyRef) {
-      // @ts-ignore - we are intentionally setting ref passed from parent
-      this.props.bodyRef.current = iframeDocument.body
-    }
-
-    return createPortal(
-      <ThemeFrameContext.Provider value={iframeDocument}>
-        <CacheProvider value={this.state.emotionCache}>
-          <CssBaseline />
-          {this.props.children}
-        </CacheProvider>
-      </ThemeFrameContext.Provider>,
-      iframeDocument.body,
-    )
-  }
-
-  handleLoad = () => {
-    // resolve iframe use document mousedown no effect
-    if (this._iframeRef.current?.contentDocument?.addEventListener) {
-      this._iframeRef.current?.contentDocument.addEventListener('keydown', () => {
-        document.dispatchEvent(new Event('keydown'))
-      })
-      this._iframeRef.current?.contentDocument.addEventListener('mousedown', () => {
-        document.dispatchEvent(new Event('mousedown'))
-      })
-      this._iframeRef.current?.contentDocument.addEventListener('touchstart', () => {
-        document.dispatchEvent(new Event('touchstart'))
-      })
-      this._iframeRef.current?.contentDocument.addEventListener('touchmove', () => {
-        document.dispatchEvent(new Event('touchmove'))
-      })
-      this._iframeRef.current?.contentDocument.addEventListener('click', () => {
-        document.dispatchEvent(new Event('click'))
-      })
-    }
-    this.forceUpdate()
-  }
-
-  render() {
-    const {
-      hasError,
-      title,
-    } = this.state
-    const className = this._setupComplete ? this.props.className : undefined
-
-    if (hasError) {
-      return null
-    }
-
-    return (
-      <iframe
-        allowFullScreen
-        className={className}
-        title={title}
-        ref={this._iframeRef}
+  return (
+    <iframe
+      allowFullScreen
+      className={isSetupComplete ? className : undefined}
+      title={title}
+      ref={_iframeRef}
+    >
+      <ThemeFramePortal
+        isSetupComplete={isSetupComplete}
+        emotionCache={emotionCache}
+        iframeDocument={_iframeRef.current?.contentDocument}
+        bodyRef={bodyRef}
       >
-        {this.renderFrameContent()}
-      </iframe>
-    )
-  }
+        {children}
+      </ThemeFramePortal>
+    </iframe>
+  )
 }

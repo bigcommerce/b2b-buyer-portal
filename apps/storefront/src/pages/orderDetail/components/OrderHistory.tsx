@@ -1,27 +1,22 @@
 import {
   useContext,
 } from 'react'
-
 import {
   Card,
   CardContent,
   Typography,
 } from '@mui/material'
-
 import styled from '@emotion/styled'
-
 import {
   intlFormatDistance,
 } from 'date-fns'
-
 import {
-  useB3CurrentLang,
-} from '@b3/lang'
+  useSelector,
+} from 'react-redux'
 
 import {
   useMobile,
 } from '@/hooks'
-
 import {
   TableColumnItem,
   B3Table,
@@ -30,15 +25,16 @@ import {
 import {
   OrderStatus,
 } from '../../order/components'
-
 import {
   OrderHistoryItem,
   OrderStatusItem,
 } from '../../../types'
-
 import {
   OrderDetailsContext,
 } from '../context/OrderDetailsContext'
+import {
+  RootState,
+} from '@/store'
 
 const HistoryListContainer = styled('div')(() => ({
   '& > .MuiPaper-root': {
@@ -54,7 +50,9 @@ export const OrderHistory = () => {
     },
   } = useContext(OrderDetailsContext)
 
-  const [lang] = useB3CurrentLang()
+  const lang = useSelector(({
+    lang,
+  }: RootState) => lang)
   const [isMobile] = useMobile()
 
   const getTime = (time: number) => intlFormatDistance(new Date(time * 1000), new Date(), {

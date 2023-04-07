@@ -1,10 +1,4 @@
 import {
-  useContext,
-  ChangeEvent,
-  useState,
-  MouseEvent,
-} from 'react'
-import {
   Box,
   Radio,
   RadioGroup,
@@ -12,47 +6,47 @@ import {
   FormControl,
   Alert,
 } from '@mui/material'
-
 import {
-  useB3Lang,
-} from '@b3/lang'
-
+  useContext,
+  ChangeEvent,
+  useState,
+  MouseEvent,
+} from 'react'
+import {
+  useSelector,
+} from 'react-redux'
 import {
   useForm,
 } from 'react-hook-form'
 
 import {
+  useB3Lang,
+} from '@b3/lang'
+import {
   B3CustomForm,
 } from '@/components'
-
-import RegisteredStepButton from './component/RegisteredStepButton'
-
 import {
-  ThemeFrameContext,
-} from '@/components/ThemeFrame'
-
+  GlobaledContext,
+} from '@/shared/global'
 import {
   checkUserEmail,
   checkUserBCEmail,
 } from '@/shared/service/b2b'
-
 import {
   CustomStyleContext,
 } from '@/shared/customStyleButtton'
-
 import {
-  RegisteredContext,
-} from './context/RegisteredContext'
+  themeFrameSelector,
+} from '@/store'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
+import RegisteredStepButton from './component/RegisteredStepButton'
 import {
   RegisterFields,
   emailError,
 } from './config'
-
+import {
+  RegisteredContext,
+} from './context/RegisteredContext'
 import {
   InformationFourLabels, TipContent,
 } from './styled'
@@ -80,7 +74,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     state,
     dispatch,
   } = useContext(RegisteredContext)
-  const IframeDocument = useContext(ThemeFrameContext)
+  const IframeDocument = useSelector(themeFrameSelector)
 
   const {
     state: {

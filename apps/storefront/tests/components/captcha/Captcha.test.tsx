@@ -7,20 +7,23 @@ import {
   vi,
 } from 'vitest'
 import {
-  ThemeFrame,
-} from '../ThemeFrame'
+  store,
+} from '@/store'
 import {
-  render, screen,
-} from '../../utils/test-utils'
+  ThemeFrame,
+} from '../../../src/components'
+import {
+  renderWithProviders, screen,
+} from '../../test-utils'
 import {
   Captcha, loadCaptchaScript, loadCaptchaWidgetHandlers,
-} from './Captcha'
+} from '../../../src/components/captcha/Captcha'
 
-declare global {
-    interface Window {
-        INITIALIZE_CAPTCHA_testid?: Function
-    }
-}
+  declare global {
+      interface Window {
+          INITIALIZE_CAPTCHA_testid?: Function
+      }
+  }
 
 const TEST_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 const CAPTCHA_URL = 'https://www.google.com/recaptcha/api.js?render=explicit'
@@ -63,7 +66,7 @@ describe('loadCaptchaWidgetHandlers', () => {
 describe('Captcha', () => {
   it('should render the captcha wrapper', () => {
     vi.useFakeTimers()
-    render(
+    renderWithProviders(
       <ThemeFrame title="test-frame">
         <Captcha
           siteKey={TEST_SITE_KEY}
@@ -71,6 +74,9 @@ describe('Captcha', () => {
           size="normal"
         />
       </ThemeFrame>,
+      {
+        store,
+      },
     )
     vi.advanceTimersToNextTimer()
     const iframe: HTMLIFrameElement = screen.getByTitle('test-frame')

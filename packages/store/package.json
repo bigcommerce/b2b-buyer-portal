@@ -1,0 +1,12 @@
+{
+  "name": "@b3/store",
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "lint": "eslint \"**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.9.3"
+  }
+}

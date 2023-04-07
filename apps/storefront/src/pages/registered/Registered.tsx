@@ -1,44 +1,55 @@
 import {
+  Box,
+  ImageListItem,
+} from '@mui/material'
+import {
   useEffect,
   useState,
   useContext,
   Dispatch,
   SetStateAction,
 } from 'react'
-
-import {
-  Box,
-  ImageListItem,
-} from '@mui/material'
-
-import {
-  useB3Lang,
-} from '@b3/lang'
-
-import type {
-  OpenPageState,
-} from '@b3/hooks'
-
 import {
   useNavigate,
 } from 'react-router-dom'
 import {
+  useSelector,
+} from 'react-redux'
+
+import {
+  useB3Lang,
+} from '@b3/lang'
+import type {
+  OpenPageState,
+} from '@b3/hooks'
+import {
+  B3Sping,
+} from '@/components/spin/B3Sping'
+import {
+  B3Card,
+} from '@/components'
+import {
+  GlobaledContext,
+} from '@/shared/global'
+import {
   getB2BCountries,
   getB2BAccountFormFields,
 } from '@/shared/service/b2b'
-
 import {
   // getBCRegisterCustomFields,
   bcLogin,
 } from '@/shared/service/bc'
-
 import {
   getCurrentCustomerInfo,
 } from '@/utils'
+import {
+  themeFrameSelector,
+} from '@/store'
 
-import RegisteredStep from './RegisteredStep'
-import RegisterContent from './RegisterContent'
-
+import {
+  loginCheckout,
+  LoginConfig,
+} from '../login/config'
 import {
   RegisteredContext,
 } from './context/RegisteredContext'
@@ -47,34 +58,14 @@ import {
   CustomStyleContext,
 } from '@/shared/customStyleButtton'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  B3Card,
-} from '@/components'
-
-import {
-  ThemeFrameContext,
-} from '@/components/ThemeFrame'
-
+import RegisteredStep from './RegisteredStep'
+import RegisterContent from './RegisterContent'
 import {
   companyAttachmentsFields,
   getAccountFormFields,
   RegisterFieldsItems,
   RegisterFields,
 } from './config'
-
-import {
-  loginCheckout,
-  LoginConfig,
-} from '../login/config'
-
 import {
   RegisteredContainer, RegisteredImage,
 } from './styled'
@@ -97,7 +88,7 @@ function Registered(props: RegisteredProps) {
 
   const navigate = useNavigate()
 
-  const IframeDocument = useContext(ThemeFrameContext)
+  const IframeDocument = useSelector(themeFrameSelector)
 
   const {
     state: {

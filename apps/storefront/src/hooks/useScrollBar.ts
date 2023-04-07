@@ -1,14 +1,15 @@
 import {
   useEffect,
-  useContext,
 } from 'react'
-
 import {
-  ThemeFrameContext,
-} from '@/components/ThemeFrame'
+  useSelector,
+} from 'react-redux'
+import {
+  themeFrameSelector,
+} from '@/store'
 
 const useScrollBar = (open: boolean) => {
-  const IframeDocument = useContext(ThemeFrameContext)
+  const IframeDocument = useSelector(themeFrameSelector)
 
   useEffect(() => {
     if (IframeDocument) {
