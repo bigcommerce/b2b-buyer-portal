@@ -39,6 +39,10 @@ export {
 } from './useScrollBar'
 
 export {
+  useRole,
+} from './useRole'
+
+export {
   useSetOpen,
   useOpenPDP,
   useMyQuote,

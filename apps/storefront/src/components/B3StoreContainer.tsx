@@ -63,7 +63,6 @@ export const B3StoreContainer = (props: B3StoreContainerProps) => {
 
         const {
           channelId,
-          channelLogo: logo,
           b3ChannelId: b2bChannelId,
           b2bEnabled: storeEnabled,
         } = getCurrentStoreInfo((storeBasicInfo as StoreBasicInfo)?.storeSites || [])
@@ -71,7 +70,6 @@ export const B3StoreContainer = (props: B3StoreContainerProps) => {
         dispatch({
           type: 'common',
           payload: {
-            logo,
             storeEnabled,
             currentChannelId: channelId,
             b2bChannelId,

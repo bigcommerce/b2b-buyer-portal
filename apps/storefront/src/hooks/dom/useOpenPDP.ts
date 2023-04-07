@@ -33,14 +33,20 @@ import {
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 
+import {
+  GlobaledContext,
+} from '@/shared/global'
+
+import {
+  useRole,
+} from '../useRole'
+
 interface MutationObserverProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
-  isB2BUser: boolean,
-  shoppingListEnabled: boolean,
 }
 
 const useOpenPDP = ({
-  setOpenPage, isB2BUser, shoppingListEnabled,
+  setOpenPage,
 }: MutationObserverProps) => {
   const {
     state: {
@@ -49,6 +55,14 @@ const useOpenPDP = ({
   } = useContext(CustomStyleContext)
 
   const cache = useRef({})
+  const {
+    state: {
+      isB2BUser,
+      shoppingListEnabled,
+    },
+  } = useContext(GlobaledContext)
+
+  const [roleText] = useRole()
 
   const pdpCallBbck = useCallback(() => {
     setOpenPage({
@@ -120,7 +134,7 @@ const useOpenPDP = ({
         shoppingBtnDom.removeEventListener('click', pdpCallBbck)
       }
     }
-  }, [isB2BUser, shoppingListEnabled, openQuickView, shoppingListBtn])
+  }, [isB2BUser, shoppingListEnabled, openQuickView, shoppingListBtn, roleText])
 }
 
 export {

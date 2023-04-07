@@ -67,7 +67,6 @@ const useMyQuote = ({
       B3LStorage.set('quoteDraftUserId', B3UserId || customerId || 0)
     }
   }, [B3UserId])
-
   const cache = useRef({})
 
   const {
@@ -138,7 +137,6 @@ const useMyQuote = ({
     if (enabled) {
       addToQuoteAll.forEach((node: CustomFieldItems) => {
         myQuote = document.createElement('div')
-
         myQuote.setAttribute('id', `${locationSelector}`)
         myQuote.innerHTML = text || 'Add to Quote'
         myQuote.setAttribute('style', customCss)

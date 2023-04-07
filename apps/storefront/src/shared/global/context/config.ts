@@ -117,14 +117,7 @@ export interface GlobalState {
   productQuoteEnabled: boolean,
   cartQuoteEnabled: boolean,
   shoppingListEnabled: boolean,
-  quoteConfig: {
-    switchStatus: {
-      [key: string]: string
-    }[],
-    otherConfigs: {
-      [key: string]: string
-    }[],
-  },
+  quoteConfig: CustomFieldItems[],
   globalMessageDialog: {
     open: boolean,
     title: string,
@@ -181,10 +174,7 @@ export const initState = {
   productQuoteEnabled: false,
   cartQuoteEnabled: false,
   shoppingListEnabled: false,
-  quoteConfig: {
-    switchStatus: [],
-    otherConfigs: [],
-  },
+  quoteConfig: [],
   globalMessageDialog: {
     open: false,
     title: '',

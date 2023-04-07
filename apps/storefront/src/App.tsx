@@ -27,7 +27,6 @@ import {
   getCurrentCustomerInfo,
   getQuoteEnabled,
   getTemPlateConfig,
-  getQuoteConfig,
   setStorefrontConfig,
 } from '@/utils'
 
@@ -80,7 +79,6 @@ export default function App() {
       storefrontConfig,
       productQuoteEnabled,
       cartQuoteEnabled,
-      shoppingListEnabled,
       B3UserId,
     },
     dispatch,
@@ -94,8 +92,6 @@ export default function App() {
 
   useOpenPDP({
     setOpenPage,
-    isB2BUser,
-    shoppingListEnabled,
   })
 
   useMyQuote({
@@ -166,7 +162,7 @@ export default function App() {
         await loginInfo()
       }
       setChannelStoreType(currentChannelId)
-      await Promise.all([getQuoteConfig(dispatch), setStorefrontConfig(dispatch), getTemPlateConfig(currentChannelId, styleDispatch)])
+      await Promise.all([setStorefrontConfig(dispatch), getTemPlateConfig(currentChannelId, styleDispatch, dispatch)])
       const userInfo = {
         role: +role,
         isAgenting,
@@ -192,7 +188,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (quoteConfig.switchStatus.length > 0 && storefrontConfig) {
+    if (quoteConfig.length > 0 && storefrontConfig) {
       const {
         productQuoteEnabled,
         cartQuoteEnabled,

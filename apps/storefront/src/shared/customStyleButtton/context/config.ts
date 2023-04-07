@@ -46,7 +46,7 @@ export const initState = {
     backgroundColor: '#FEF9F5',
   },
   masqueradeButton: {
-    color: '#ED6C03',
+    color: '#FFFFFF',
     text: 'END MASQUERADE',
     location: '',
     customCss: '',

@@ -69,23 +69,56 @@ const storeforntKeys: StoreforntKeysProps[] = [
     key: 'account_login_registration',
     name: 'accountLoginRegistration',
   },
+  {
+    key: 'quote_customer',
+    name: 'quote_customer',
+  },
+  {
+    key: 'quote_for_guest',
+    name: 'quote_for_guest',
+  },
+  {
+    key: 'quote_for_individual_customer',
+    name: 'quote_for_individual_customer',
+  }, {
+    key: 'quote_for_b2b',
+    name: 'quote_for_b2b',
+  }, {
+    key: 'quote_logo',
+    name: 'quote_logo',
+  },
 ]
 
-const getTemPlateConfig = async (channelId: number, dispatch: any) => {
+const getTemPlateConfig = async (channelId: number, dispatch: any, dispatchGlobal: any) => {
   const keys = storeforntKeys.map((item: StoreforntKeysProps) => item.key)
   const {
     storefrontConfigs,
   } = await getStorefrontConfigs(channelId, keys)
 
+  let logo = ''
+
   const obj: Partial<CustomStyleButtonState> | {} = {}
   storefrontConfigs.forEach((item: any) => {
-    const storeforntKey: StoreforntKeysProps | {} = storeforntKeys.find((option) => option.key === item.key) || {}
+    const storeforntKey: StoreforntKeysProps | undefined = storeforntKeys.find((option) => option.key === item.key)
     if (!isEmpty(storeforntKey)) {
+      if (storeforntKey.key === 'quote_logo') {
+        logo = item.value
+      }
       (obj as CustomFieldItems)[(storeforntKey as StoreforntKeysProps).name] = {
         ...item.extraFields,
         enabled: item.value === '1',
       }
     }
+  })
+
+  console.log(storefrontConfigs, logo, 'storefrontConfigs')
+
+  dispatchGlobal({
+    type: 'common',
+    payload: {
+      logo,
+      quoteConfig: storefrontConfigs,
+    },
   })
 
   dispatch({

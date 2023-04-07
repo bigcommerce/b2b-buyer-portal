@@ -2,19 +2,14 @@ export interface QuoteConfigItem {
   [key: string]: string
 }
 
-export interface QuoteConfig {
-  switchStatus: QuoteConfigItem[],
-  otherConfigs: QuoteConfigItem[],
-}
-
-export const getLogo = (quoteConfig:QuoteConfig): string => {
-  const logoItem = quoteConfig.switchStatus.find((list:QuoteConfigItem) => list.key === 'quote_logo') || {}
+export const getLogo = (quoteConfig: CustomFieldItems[]): string => {
+  const logoItem = quoteConfig.find((list:QuoteConfigItem) => list.key === 'quote_logo') || {}
 
   return logoItem.isEnabled || ''
 }
 
 export const getQuoteEnabled = (
-  quoteConfig: QuoteConfig,
+  quoteConfig: CustomFieldItems[],
   storefrontConfig: {
     [k: string]: boolean | {
       value: boolean,
@@ -37,25 +32,25 @@ export const getQuoteEnabled = (
 
   let shoppingListEnabled = storefrontConfig.shoppingLists || false
 
-  quoteConfig.switchStatus.forEach((config) => {
+  quoteConfig.forEach((config) => {
     if (config.key === 'quote_customer') {
-      customerEnabled = config.isEnabled
+      customerEnabled = config.value
     }
     if (config.key === 'quote_for_guest') {
-      guestEnabled = config.isEnabled
+      guestEnabled = config.value
     }
     if (config.key === 'quote_for_individual_customer') {
-      bcUserEnabled = config.isEnabled
+      bcUserEnabled = config.value
     }
     // TODO: check
     if (config.key === 'quote_for_b2b') {
-      b2bUserEnabled = config.isEnabled
+      b2bUserEnabled = config.value
     }
     if (config.key === 'quote_on_product_page') {
-      productEnabled = config.isEnabled
+      productEnabled = config.value
     }
     if (config.key === 'quote_on_cart_page') {
-      cartEnabled = config.isEnabled
+      cartEnabled = config.value
     }
   })
 
