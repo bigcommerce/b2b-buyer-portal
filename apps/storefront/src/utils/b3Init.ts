@@ -60,8 +60,8 @@ export const getQuoteEnabled = (
     productQuoteEnabled = productQuoteEnabled && guestEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && guestEnabled === '1'
   } else if (isB2BUser) {
-    productQuoteEnabled = b2bUserEnabled === '1'
-    cartQuoteEnabled = b2bUserEnabled === '1'
+    productQuoteEnabled = productQuoteEnabled && b2bUserEnabled === '1'
+    cartQuoteEnabled = cartQuoteEnabled && b2bUserEnabled === '1'
     if (`${role}` === '3' && !isAgenting) {
       productQuoteEnabled = false
       cartQuoteEnabled = false
