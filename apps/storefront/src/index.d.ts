@@ -12,4 +12,5 @@ declare interface Window {
   b3Tipmessage: any
   b2bStorefrontApp: any
   globalTipDispatch: any
+  B3Local: any,
 }

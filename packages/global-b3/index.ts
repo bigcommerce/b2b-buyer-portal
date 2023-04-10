@@ -2,6 +2,14 @@ declare global {
   interface Window { B3: any; }
 }
 
+const localConfig = () => {
+  if (window?.B3) {
+    return window.B3
+  }
+
+  return window.B3Local
+}
+
 const globalB3 = {
   'dom.registerElement': '[href^="/login.php"]',
   'dom.registerUrl': '/registered',
@@ -16,7 +24,7 @@ const globalB3 = {
     b2b_url: 'https://staging-v2.bundleb2b.net',
     b2b_socket_url: 'https://staging-v2.bundleb2b.net',
   },
-  ...window.B3,
+  ...localConfig(),
 }
 
 export default globalB3
