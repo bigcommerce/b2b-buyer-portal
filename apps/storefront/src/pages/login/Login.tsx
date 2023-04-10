@@ -155,7 +155,7 @@ export default function Login(props:RegisteredProps) {
           widgetBodyText: createAccountPanelHtml || '',
           isShowWidgetFooter: bottomHtmlRegionEnabled || false,
           widgetFooterText: bottomHtmlRegionHtml || '',
-          displayStoreLogo: displayStoreLogo || true,
+          displayStoreLogo: displayStoreLogo || false,
         }
 
         const {
