@@ -30,7 +30,10 @@ jobs:
           --header 'Content-Type: application/json' \
           --data-binary @- << EOF
           {
-            "jsFiles": ["${{ secrets.S3_HOST }}/${poly_js}", "${{ secrets.S3_HOST }}/${index_js}"],
+            "jsFiles": [
+              "https://cdn.bundleb2b.net/b2b/staging/storefront/${poly_js}",
+              "https://cdn.bundleb2b.net/b2b/staging/storefront/${index_js}"
+            ],
             "revisionTitle": "${GITHUB_SHA_SHORT}"
           }
           EOF
