@@ -93,7 +93,7 @@ export const initState = {
   loginPageDisplay: {
     displayStoreLogo: true,
     enabled: true,
-    pageTitle: 'Sign In (test can delete)',
+    pageTitle: 'Sign In',
   },
   loginPageHtml: {
     bottomHtmlRegionEnabled: false,
