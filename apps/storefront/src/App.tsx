@@ -81,7 +81,6 @@ export default function App() {
 
   const {
     state: {
-      globalBackgroundColor,
       portalStyle: {
         backgroundColor,
       },
@@ -91,7 +90,7 @@ export default function App() {
 
   const CUSTOM_STYLES = `
   body {
-    background: ${backgroundColor || globalBackgroundColor} !important;
+    background: ${backgroundColor};
     font-family: Roboto;
   };`
   // const [openApp, setOpenApp] = useState<boolean>(false)

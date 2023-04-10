@@ -41,8 +41,6 @@ const CustomButton = ({
     variant,
   } = rest
 
-  console.log(rest)
-
   const {
     primaryColor = '',
   } = portalStyle

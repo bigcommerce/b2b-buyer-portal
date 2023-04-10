@@ -48,17 +48,18 @@ function B3ThemeProvider({
 
   const {
     state: {
-      globalBackgroundColor,
-      portalStyle: {
-        backgroundColor,
-      },
+      portalStyle,
     },
   } = useContext(CustomStyleContext)
+
+  const {
+    backgroundColor = '',
+  } = portalStyle
 
   const theme = (lang: string) => createTheme({
     palette: {
       background: {
-        default: `${backgroundColor || globalBackgroundColor}`,
+        default: backgroundColor,
       },
     },
   }, (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'])
