@@ -302,7 +302,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
             ...sx,
             ...customStyles,
           }}
-          anchorOrigin={defaultLocation}
+          anchorOrigin={getLocation(location) || defaultLocation}
           open
         >
           <Box

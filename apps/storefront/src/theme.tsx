@@ -3,13 +3,19 @@ import {
   ThemeProvider,
 } from '@mui/material/styles'
 import * as materialMultiLanguages from '@mui/material/locale'
-import React from 'react'
+import React, {
+  useContext,
+} from 'react'
 import {
   useSelector,
 } from 'react-redux'
 import {
   RootState,
 } from './store'
+
+import {
+  CustomStyleContext,
+} from './shared/customStyleButtton'
 
 type LangMapType = {
   [index: string]: string
@@ -33,20 +39,29 @@ type Props = {
   children?: React.ReactNode;
 }
 
-const theme = (lang: string) => createTheme({
-  palette: {
-    background: {
-      default: '#fef9f5',
-    },
-  },
-}, (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'])
-
 function B3ThemeProvider({
   children,
 }: Props) {
   const lang = useSelector(({
     lang,
   }: RootState) => lang)
+
+  const {
+    state: {
+      globalBackgroundColor,
+      portalStyle: {
+        backgroundColor,
+      },
+    },
+  } = useContext(CustomStyleContext)
+
+  const theme = (lang: string) => createTheme({
+    palette: {
+      background: {
+        default: `${backgroundColor || globalBackgroundColor}`,
+      },
+    },
+  }, (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'])
 
   return (
     <ThemeProvider theme={theme(lang)}>

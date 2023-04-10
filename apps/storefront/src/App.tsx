@@ -52,12 +52,7 @@ import {
 } from '@/shared/routes'
 
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
-const CUSTOM_STYLES = `
-body {
-  background: #fef9f5 !important;
-  font-family: Roboto;
-};
-`
+
 export default function App() {
   const [{
     isOpen,
@@ -85,9 +80,20 @@ export default function App() {
   } = useContext(GlobaledContext)
 
   const {
+    state: {
+      globalBackgroundColor,
+      portalStyle: {
+        backgroundColor,
+      },
+    },
     dispatch: styleDispatch,
   } = useContext(CustomStyleContext)
 
+  const CUSTOM_STYLES = `
+  body {
+    background: ${backgroundColor || globalBackgroundColor} !important;
+    font-family: Roboto;
+  };`
   // const [openApp, setOpenApp] = useState<boolean>(false)
 
   useOpenPDP({

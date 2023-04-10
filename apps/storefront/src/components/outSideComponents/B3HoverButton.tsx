@@ -86,8 +86,6 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
     ...getStyles(customCss),
   }
 
-  console.log(floatingAction, 'floatingAction')
-
   if (href.includes('/checkout')) return <></>
   return (
     <Snackbar
