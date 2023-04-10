@@ -2,7 +2,6 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -22,6 +21,10 @@ import {
 import {
   B3Tag,
 } from '@/components/B3Tag'
+
+import {
+  CustomButton,
+} from '@/components'
 
 export interface OrderItemCardProps {
   item: AddressItemType,
@@ -127,7 +130,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
           <Flex>
             {
               !isBCPermission && (
-                <Button
+                <CustomButton
                   variant="text"
                   sx={{
                     padding: 0,
@@ -135,7 +138,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
                   onClick={() => { onSetDefault(addressInfo) }}
                 >
                   Set as default
-                </Button>
+                </CustomButton>
               )
             }
             <Box sx={{

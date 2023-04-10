@@ -73,6 +73,10 @@ import ShoppingDetailFooter from './components/ShoppingDetailFooter'
 import ShoppingDetailTable from './components/ShoppingDetailTable'
 import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems'
 
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
 interface TableRefProps extends HTMLInputElement {
   initSearch: () => void,
 }
@@ -123,6 +127,16 @@ const ShoppingListDetails = ({
   const {
     dispatch,
   } = useContext(ShoppingListDetailsContext)
+
+  const {
+    state: {
+      portalStyle,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+  } = portalStyle
 
   const tableRef = useRef<TableRefProps | null>(null)
 
@@ -371,6 +385,7 @@ const ShoppingListDetails = ({
           setOpenPage={setOpenPage}
           isAgenting={isAgenting}
           openAPPParams={openAPPParams}
+          customColor={primaryColor}
         />
 
         <Grid
@@ -460,6 +475,7 @@ const ShoppingListDetails = ({
             setValidateFailureProducts={setValidateFailureProducts}
             setValidateSuccessProducts={setValidateSuccessProducts}
             isB2BUser={isB2BUser}
+            customColor={primaryColor}
           />
           )
         }

@@ -15,6 +15,7 @@ import {
   Ref,
   forwardRef,
   useImperativeHandle,
+  useContext,
 } from 'react'
 
 import {
@@ -44,6 +45,10 @@ import {
 import {
   snackbar,
 } from '@/utils'
+
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
 
 const FileUploadContainer = styled(Box)(() => ({
   '& .file-upload-area': {
@@ -142,6 +147,16 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
     onDelete = noop,
     isEndLoadding = false,
   } = props
+
+  const {
+    state: {
+      portalStyle,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+  } = portalStyle
 
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -259,9 +274,15 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
               <Box key={file.id || index}>
                 <FileListItem hasdelete={(file?.hasDelete || '').toString()}>
                   <Box className="fileList-name-area">
-                    <AttachFile />
+                    <AttachFile sx={{
+                      color: primaryColor,
+                    }}
+                    />
                     <Typography
                       className="fileList-name"
+                      sx={{
+                        color: primaryColor,
+                      }}
                       onClick={() => { downloadFile(file.fileUrl) }}
                     >
                       {file.fileName}
@@ -294,7 +315,10 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
               marginTop: '10px',
             }}
           >
-            <FileUploadContainer>
+            <FileUploadContainer sx={{
+              color: primaryColor,
+            }}
+            >
               <DropzoneArea
                 dropzoneClass="file-upload-area"
                 Icon={AttachFile}

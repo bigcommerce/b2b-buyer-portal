@@ -7,7 +7,6 @@ import {
 import {
   TextField,
   InputAdornment,
-  Button,
   Box,
   Typography,
 } from '@mui/material'
@@ -18,6 +17,7 @@ import {
   B3Dialog,
   B3ProductList,
   B3Sping,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -65,7 +65,7 @@ const ProductTableAction = (props: ProductTableActionProps) => {
   return (
     productOptions && productOptions.length > 0
       ? (
-        <Button
+        <CustomButton
           variant="outlined"
           onClick={() => {
             onChooseOptionsClick(id)
@@ -74,10 +74,10 @@ const ProductTableAction = (props: ProductTableActionProps) => {
           fullWidth={isMobile}
         >
           Choose options
-        </Button>
+        </CustomButton>
       )
       : (
-        <Button
+        <CustomButton
           variant="outlined"
           onClick={() => {
             onAddToListClick(id)
@@ -86,7 +86,7 @@ const ProductTableAction = (props: ProductTableActionProps) => {
           fullWidth={isMobile}
         >
           {addButtonText}
-        </Button>
+        </CustomButton>
 
       )
   )

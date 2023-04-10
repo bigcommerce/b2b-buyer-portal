@@ -67,6 +67,10 @@ import {
   AddressConfigItem,
 } from '../../types'
 
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
 interface LocationState {
   isCompanyOrder: boolean,
 }
@@ -94,6 +98,16 @@ const OrderDetail = () => {
     state: detailsData,
     dispatch,
   } = useContext(OrderDetailsContext)
+
+  const {
+    state: {
+      portalStyle,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+  } = portalStyle
 
   const localtion = useLocation()
 
@@ -218,7 +232,7 @@ const OrderDetail = () => {
         >
           <Box
             sx={{
-              color: '#1976d2',
+              color: primaryColor || '#1976d2',
               cursor: 'pointer',
             }}
             onClick={goToOrders}

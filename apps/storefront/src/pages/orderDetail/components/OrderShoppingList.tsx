@@ -7,7 +7,6 @@ import {
 import {
   Box,
   MenuList,
-  Button,
   MenuItem,
   ListItemText,
 } from '@mui/material'
@@ -25,6 +24,7 @@ import {
 
 import {
   B3Dialog,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -176,7 +176,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
           </MenuList>
         </Box>
 
-        <Button
+        <CustomButton
           variant="text"
           onClick={handleCreate}
           sx={{
@@ -184,7 +184,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
           }}
         >
           + Create New
-        </Button>
+        </CustomButton>
       </B3Sping>
     </B3Dialog>
   )

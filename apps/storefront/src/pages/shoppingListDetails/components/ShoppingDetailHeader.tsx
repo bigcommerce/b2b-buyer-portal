@@ -8,7 +8,6 @@ import {
   Grid,
   styled,
   Typography,
-  Button,
 } from '@mui/material'
 
 import {
@@ -22,6 +21,10 @@ import {
 import {
   useMobile,
 } from '@/hooks'
+
+import {
+  CustomButton,
+} from '@/components'
 
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
@@ -45,6 +48,7 @@ interface ShoppingDetailHeaderProps {
   openAPPParams: {
     shoppingListBtn: string,
   },
+  customColor: string,
 }
 
 const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
@@ -60,6 +64,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
     setOpenPage,
     isAgenting,
     openAPPParams,
+    customColor,
   } = props
 
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0
@@ -99,10 +104,12 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             sx={{
               fontSize: '12px',
               marginRight: '0.5rem',
+              color: customColor,
             }}
           />
           <p style={{
             margin: 0,
+            color: customColor,
           }}
           >
             {openAPPParams.shoppingListBtn !== 'add' ? 'Back to shopping lists' : 'Back to product'}
@@ -192,7 +199,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
         >
           {
             (role === 2 && shoppingListInfo?.status === 30) && (
-              <Button
+              <CustomButton
                 variant="outlined"
                 disabled={isDisabledBtn}
                 onClick={() => {
@@ -200,13 +207,13 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
                 }}
               >
                 Submit for Approval
-              </Button>
+              </CustomButton>
             )
           }
           {
             (((role === 0 || role === 1) || (role === 3 && isAgenting)) && shoppingListInfo?.status === 40) && (
               <Box>
-                <Button
+                <CustomButton
                   variant="outlined"
                   sx={{
                     marginRight: '1rem',
@@ -216,15 +223,15 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
                   }}
                 >
                   Reject
-                </Button>
-                <Button
+                </CustomButton>
+                <CustomButton
                   variant="outlined"
                   onClick={() => {
                     handleUpdateShoppingList(0)
                   }}
                 >
                   Approve
-                </Button>
+                </CustomButton>
               </Box>
             )
           }

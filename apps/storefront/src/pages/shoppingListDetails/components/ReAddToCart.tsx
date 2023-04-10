@@ -2,7 +2,6 @@ import {
   Box,
   Typography,
   Grid,
-  Button,
   Alert,
 } from '@mui/material'
 
@@ -34,6 +33,7 @@ import {
   B3Sping,
   B3LinkTipContent,
   B3QuantityTextField,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -352,7 +352,11 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
             >
               {`${products.length} products`}
             </Box>
-            <Button onClick={() => handleClearNoStock()}> Adjust quantity</Button>
+            <CustomButton
+              onClick={() => handleClearNoStock()}
+            >
+              Adjust quantity
+            </CustomButton>
           </Box>
 
           {

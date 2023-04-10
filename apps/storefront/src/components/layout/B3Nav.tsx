@@ -8,10 +8,12 @@ import {
 import {
   useContext,
 } from 'react'
+
 import {
   useNavigate,
   useLocation,
 } from 'react-router-dom'
+
 import {
   getAllowedRoutes,
 } from '@/shared/routes'
@@ -36,6 +38,14 @@ import {
   B3SStorage,
 } from '@/utils'
 
+import {
+  getContrastColor,
+} from '../outSideComponents/utils/b3CustomStyles'
+
+import {
+  CustomStyleContext,
+} from '../../shared/customStyleButtton/context'
+
 interface B3NavProps {
   closeSidebar?: (x: boolean) => void;
 }
@@ -54,6 +64,16 @@ export const B3Nav = ({
   const {
     state: globalState,
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+  } = portalStyle
 
   const jumpRegister = () => {
     navigate('/registered')
@@ -131,10 +151,10 @@ export const B3Nav = ({
         width: '100%',
         maxWidth: 360,
         bgcolor: `${isMobile ? 'background.paper' : 'background.default'}`,
-        color: 'info.main',
+        color: primaryColor || 'info.main',
         '& .MuiButtonBase-root.Mui-selected, & .MuiButtonBase-root.Mui-selected:hover': {
-          color: 'background.paper',
-          bgcolor: 'primary.main',
+          color: getContrastColor(primaryColor) || '#fff',
+          bgcolor: primaryColor || 'primary.main',
         },
       }}
       component="nav"

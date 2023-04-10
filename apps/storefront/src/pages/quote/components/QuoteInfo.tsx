@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Typography,
 } from '@mui/material'
 
@@ -11,6 +10,10 @@ import {
 import {
   Container,
 } from '../style'
+
+import {
+  CustomButton,
+} from '@/components'
 
 interface GetValue {
   [key: string]: string,
@@ -157,7 +160,7 @@ const QuoteInfo = ({
       </Box>
       {
         handleEditInfoClick && (
-          <Button
+          <CustomButton
             sx={{
               mt: '10px',
               mb: '15px',
@@ -166,7 +169,7 @@ const QuoteInfo = ({
             variant="outlined"
           >
             Edit info
-          </Button>
+          </CustomButton>
         )
       }
     </Container>

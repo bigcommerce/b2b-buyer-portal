@@ -12,7 +12,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Button,
 } from '@mui/material'
 import styled from '@emotion/styled'
 
@@ -43,6 +42,10 @@ import {
   snackbar,
   b2bPrintInvoice,
 } from '@/utils'
+
+import {
+  CustomButton,
+} from '@/components'
 
 const OrderActionContainer = styled('div')(() => ({}))
 
@@ -264,7 +267,7 @@ const OrderCard = (props: OrderCardProps) => {
             <Fragment key={button.key}>
               {
                 button.isCanShow && (
-                  <Button
+                  <CustomButton
                     value={button.value}
                     key={button.key}
                     name={button.name}
@@ -272,7 +275,7 @@ const OrderCard = (props: OrderCardProps) => {
                     onClick={throttle(() => { handleOpenDialog(button.name) }, 2000)}
                   >
                     {button.value}
-                  </Button>
+                  </CustomButton>
                 )
               }
             </Fragment>

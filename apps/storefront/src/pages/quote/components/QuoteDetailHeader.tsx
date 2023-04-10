@@ -10,12 +10,15 @@ import {
   Grid,
   styled,
   Typography,
-  Button,
 } from '@mui/material'
 
 import {
   ArrowBackIosNew,
 } from '@mui/icons-material'
+
+import {
+  useContext,
+} from 'react'
 
 import {
   QuoteStatus,
@@ -24,6 +27,14 @@ import {
 import {
   useMobile,
 } from '@/hooks'
+
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
+import {
+  CustomButton,
+} from '@/components'
 
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
@@ -53,6 +64,16 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
     printQuote,
     role,
   } = props
+
+  const {
+    state: {
+      portalStyle,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+  } = portalStyle
 
   const navigate = useNavigate()
   const gridOptions = (xs: number) => (isMobile ? {} : {
@@ -86,9 +107,16 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
                 sx={{
                   fontSize: '12px',
                   marginRight: '0.5rem',
+                  color: primaryColor,
                 }}
               />
-              <p>Back to quote lists</p>
+              <p style={{
+                color: primaryColor,
+              }}
+              >
+                Back to quote lists
+
+              </p>
             </Box>
           </Box>
         )
@@ -165,7 +193,7 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
               {...gridOptions(4)}
             >
               <Box>
-                <Button
+                <CustomButton
                   variant="outlined"
                   sx={{
                     marginRight: '1rem',
@@ -174,13 +202,13 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
                   onClick={printQuote}
                 >
                   Print
-                </Button>
-                <Button
+                </CustomButton>
+                <CustomButton
                   variant="outlined"
                   onClick={exportPdf}
                 >
                   DownLoad pdf
-                </Button>
+                </CustomButton>
               </Box>
             </Grid>
           )

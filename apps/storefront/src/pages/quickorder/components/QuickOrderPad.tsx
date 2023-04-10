@@ -1,4 +1,5 @@
 import {
+  useContext,
   useEffect,
   useState,
 } from 'react'
@@ -7,7 +8,6 @@ import {
   Box,
   Divider,
   Typography,
-  Button,
   Card,
   CardContent,
   Link,
@@ -36,7 +36,12 @@ import {
 import {
   B3LinkTipContent,
   B3Upload,
+  CustomButton,
 } from '@/components'
+
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
 
 interface successTipOptions{
   message: string,
@@ -55,6 +60,16 @@ const successTip = (options: successTipOptions) => () => (
 )
 
 export const QuickOrderPad = () => {
+  const {
+    state: {
+      portalStyle,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+  } = portalStyle
+
   const [isMobile] = useMobile()
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
@@ -352,7 +367,7 @@ export const QuickOrderPad = () => {
             margin: '20px 0 0',
           }}
           >
-            <Button
+            <CustomButton
               variant="text"
               onClick={() => {
                 setIsOpenBulkLoadCSV(true)
@@ -360,10 +375,11 @@ export const QuickOrderPad = () => {
             >
               <UploadFileIcon sx={{
                 marginRight: '8px',
+                color: primaryColor,
               }}
               />
               Bulk upload CSV
-            </Button>
+            </CustomButton>
           </Box>
         </Box>
       </CardContent>

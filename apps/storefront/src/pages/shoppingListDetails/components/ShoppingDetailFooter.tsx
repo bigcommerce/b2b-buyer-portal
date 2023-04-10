@@ -5,7 +5,6 @@ import {
 import {
   Box,
   Typography,
-  Button,
   Grid,
 } from '@mui/material'
 
@@ -73,6 +72,7 @@ interface ShoppingDetailFooterProps {
   setValidateFailureProducts: (arr: ProductsProps[]) => void,
   setValidateSuccessProducts: (arr: ProductsProps[]) => void,
   isB2BUser: boolean,
+  customColor: string,
 }
 
 const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
@@ -103,6 +103,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
     setValidateFailureProducts,
     setValidateSuccessProducts,
     isB2BUser,
+    customColor,
   } = props
 
   const verifyInventory = (inventoryInfos: ProductsProps[]) => {
@@ -310,7 +311,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
             >
               {
                 (!allowJuniorPlaceOrder) && (
-                  <Button
+                  <CustomButton
                     sx={{
                       padding: '5px',
                       border: '1px solid #1976d2',
@@ -321,11 +322,14 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
                   >
                     <Delete
                       color="primary"
+                      sx={{
+                        color: customColor,
+                      }}
                       onClick={() => {
                         setDeleteOpen(true)
                       }}
                     />
-                  </Button>
+                  </CustomButton>
                 )
               }
               {

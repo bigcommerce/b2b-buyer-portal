@@ -1,7 +1,6 @@
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 
 import styled from '@emotion/styled'
 
@@ -17,6 +16,10 @@ import {
 import {
   B3Tag,
 } from '@/components/B3Tag'
+
+import {
+  CustomButton,
+} from '@/components'
 
 export interface OrderItemCardProps {
   item: AddressItemType,
@@ -110,7 +113,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
         <Typography variant="body1">{addressInfo.phoneNumber}</Typography>
 
         <Flex>
-          <Button
+          <CustomButton
             variant="text"
             sx={{
               padding: 0,
@@ -118,7 +121,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
             onClick={() => { onSetAddress(addressInfo) }}
           >
             Choose address
-          </Button>
+          </CustomButton>
         </Flex>
       </CardContent>
     </Card>

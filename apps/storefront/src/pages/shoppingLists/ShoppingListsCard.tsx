@@ -9,7 +9,6 @@ import EditIcon from '@mui/icons-material/Edit'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
 import styled from '@emotion/styled'
-import Button from '@mui/material/Button'
 
 import {
   useNavigate,
@@ -26,6 +25,10 @@ import {
 import {
   ShoppingStatus,
 } from './ShoppingStatus'
+
+import {
+  CustomButton,
+} from '@/components'
 
 export interface OrderItemCardProps {
   item: ShoppingListsItemsProps,
@@ -168,7 +171,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
           </FlexItem>
         </Box>
         <Flex>
-          <Button
+          <CustomButton
             sx={{
               p: 0,
               m: 0,
@@ -181,7 +184,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
             onClick={() => goToDetail(shoppingList)}
           >
             View
-          </Button>
+          </CustomButton>
           <Box
             sx={{
               display: `${isPermissions ? 'block' : 'none'}`,

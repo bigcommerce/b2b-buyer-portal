@@ -9,7 +9,6 @@ import {
 
 import {
   Box,
-  Button,
   Stack,
   Typography,
 } from '@mui/material'
@@ -104,6 +103,10 @@ import {
   Container,
 } from './style'
 
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
 type BCAddress = {
   node: BCAddressItemType
 }
@@ -171,6 +174,16 @@ const QuoteDraft = ({
       openAPPParams,
     },
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+  } = portalStyle
 
   const navigate = useNavigate()
 
@@ -662,7 +675,7 @@ const QuoteDraft = ({
         >
           <Box
             sx={{
-              color: '#1976d2',
+              color: primaryColor || '#1976d2',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -813,7 +826,7 @@ const QuoteDraft = ({
                 accountFormFields={accountFormFields}
               />
             </Box>
-            <Button
+            <CustomButton
               sx={{
                 mt: '20px',
                 mb: '15px',
@@ -823,7 +836,7 @@ const QuoteDraft = ({
             >
               Save info
 
-            </Button>
+            </CustomButton>
           </Container>
           )
         }

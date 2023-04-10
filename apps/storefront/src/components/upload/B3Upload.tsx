@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Link,
   Alert,
 } from '@mui/material'
@@ -38,6 +37,7 @@ import {
 
 import {
   B3Sping,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -58,6 +58,10 @@ import {
   parseEmptyData,
   ParseEmptyDataProps,
 } from './utils'
+
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
 
 interface B3UploadProps {
   isOpen: boolean,
@@ -110,6 +114,17 @@ export const B3Upload = (props: B3UploadProps) => {
       currentChannelId,
     },
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+  } = portalStyle
+
   const [step, setStep] = useState<string>('init')
   const [fileDatas, setFileDatas] = useState<CustomFieldItems>({})
   const [fileName, setFileName] = useState('')
@@ -266,7 +281,10 @@ export const B3Upload = (props: B3UploadProps) => {
           justifyContent="center"
           xs={12}
         >
-          <InsertDriveFile color="primary" />
+          <InsertDriveFile sx={{
+            color: primaryColor || '#1976D2',
+          }}
+          />
         </Grid>
 
         <Grid
@@ -314,6 +332,9 @@ export const B3Upload = (props: B3UploadProps) => {
             <Link
               href="https://silk-demo-store45.mybigcommerce.com/content/sample_template.csv"
               underline="none"
+              sx={{
+                color: primaryColor,
+              }}
             >
               Download sample
             </Link>
@@ -325,11 +346,11 @@ export const B3Upload = (props: B3UploadProps) => {
           justifyContent="center"
           xs={12}
         >
-          <Button
+          <CustomButton
             variant="outlined"
           >
             Upload file
-          </Button>
+          </CustomButton>
         </Grid>
 
       </Grid>

@@ -2,7 +2,6 @@ import {
   Box,
   Divider,
   Typography,
-  Button,
   Card,
   CardContent,
 } from '@mui/material'
@@ -37,6 +36,7 @@ import {
 
 import {
   B3Upload,
+  CustomButton,
 } from '@/components'
 
 interface AddToListProps {
@@ -197,7 +197,7 @@ export const AddToShoppingList = (props: AddToListProps) => {
             margin: '20px 0 0',
           }}
           >
-            <Button
+            <CustomButton
               variant="text"
               onClick={() => {
                 setIsOpenBulkLoadCSV(true)
@@ -208,7 +208,7 @@ export const AddToShoppingList = (props: AddToListProps) => {
               }}
               />
               Bulk upload CSV
-            </Button>
+            </CustomButton>
           </Box>
 
           <B3Upload

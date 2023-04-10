@@ -3,10 +3,7 @@ import {
   Box,
 } from '@mui/material'
 
-import Button from '@mui/material/Button'
-
 import {
-  // DeepPartial,
   useForm,
 } from 'react-hook-form'
 
@@ -25,6 +22,7 @@ import {
 import {
   B3CustomForm,
   B3Dialog,
+  CustomButton,
 } from '@/components'
 
 import B3FilterPicker from './B3FilterPicker'
@@ -222,7 +220,7 @@ const B3FilterMore:<T, Y> ({
             endPicker={endPicker}
           />
         </Box>
-        <Button
+        <CustomButton
           sx={{
             mt: 1,
           }}
@@ -231,7 +229,7 @@ const B3FilterMore:<T, Y> ({
         >
           clear filters
 
-        </Button>
+        </CustomButton>
       </B3Dialog>
     </Box>
 

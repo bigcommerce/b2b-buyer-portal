@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -26,6 +25,10 @@ import {
 import {
   B3Sping,
 } from './spin/B3Sping'
+
+import {
+  CustomButton,
+} from './button/CustomButton'
 
 interface B3DialogProps<T> {
   customActions?: () => ReactElement
@@ -153,7 +156,7 @@ export const B3Dialog:<T> ({
           {
             customActions ? customActions() : (
               <>
-                <Button
+                <CustomButton
                   sx={{
                     ...leftStyleBtn,
                   }}
@@ -161,11 +164,11 @@ export const B3Dialog:<T> ({
                 >
                   {leftSizeBtn || 'cancel'}
 
-                </Button>
+                </CustomButton>
 
                 {
                   showRightBtn && (
-                    <Button
+                    <CustomButton
                       sx={{
                         ...rightStyleBtn,
                       }}
@@ -180,7 +183,7 @@ export const B3Dialog:<T> ({
                       >
                         {rightSizeBtn || 'save'}
                       </B3Sping>
-                    </Button>
+                    </CustomButton>
                   )
                 }
               </>

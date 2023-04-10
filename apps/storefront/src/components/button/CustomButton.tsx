@@ -38,25 +38,56 @@ const CustomButton = ({
   } = useContext(CustomStyleContext)
 
   const {
+    variant,
+  } = rest
+
+  console.log(rest)
+
+  const {
     primaryColor = '',
   } = portalStyle
 
   return (
-    <Button
-      {...rest}
-      sx={{
-        ...sx || {},
-        backgroundColor: primaryColor || globalButtonBackgroundColor,
-        color: getContrastColor(primaryColor) || getContrastColor(globalButtonBackgroundColor),
-        '&:hover': {
-          backgroundColor: primaryColor || globalButtonBackgroundColor,
-          color: getContrastColor(primaryColor) || getContrastColor(globalButtonBackgroundColor),
-        },
-      }}
-      onClick={onClick}
-    >
-      {children}
-    </Button>
+    <>
+      {
+        (variant === 'contained') ? (
+          <Button
+            {...rest}
+            sx={{
+              ...sx || {},
+              backgroundColor: primaryColor || globalButtonBackgroundColor,
+              color: getContrastColor(primaryColor) || getContrastColor(globalButtonBackgroundColor),
+              '&:hover': {
+                backgroundColor: primaryColor || globalButtonBackgroundColor,
+                color: getContrastColor(primaryColor) || getContrastColor(globalButtonBackgroundColor),
+              },
+            }}
+            onClick={onClick}
+          >
+            {children}
+          </Button>
+        ) : (
+          <Button
+            {...rest}
+            sx={{
+              ...sx || {},
+              color: primaryColor || globalButtonBackgroundColor,
+              borderColor: primaryColor,
+              '&:hover': {
+                color: primaryColor || globalButtonBackgroundColor,
+                borderColor: primaryColor,
+              },
+            }}
+            onClick={onClick}
+          >
+            {children}
+          </Button>
+        )
+      }
+      {
+
+      }
+    </>
   )
 }
 

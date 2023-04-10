@@ -8,7 +8,6 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
   InputAdornment,
 } from '@mui/material'
 
@@ -16,6 +15,7 @@ import SearchIcon from '@mui/icons-material/Search'
 
 import {
   B3Sping,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -191,7 +191,7 @@ export const SearchProduct = ({
           },
         }}
       />
-      <Button
+      <CustomButton
         variant="outlined"
         fullWidth
         disabled={isLoading}
@@ -211,7 +211,7 @@ export const SearchProduct = ({
             Search product
           </Box>
         </B3Sping>
-      </Button>
+      </CustomButton>
 
       <ProductListDialog
         isOpen={productListOpen}

@@ -13,7 +13,6 @@ import {
   Box,
   Typography,
   Grid,
-  Button,
 } from '@mui/material'
 
 import {
@@ -23,6 +22,7 @@ import {
 import {
   B3CustomForm,
   B3Sping,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -343,7 +343,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
             </Typography>
           </Grid>
           <Grid item>
-            <Button
+            <CustomButton
               variant="text"
               sx={{
                 textTransform: 'initial',
@@ -352,7 +352,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
               onClick={handleAddRowsClick}
             >
               Show more rows
-            </Button>
+            </CustomButton>
           </Grid>
         </Grid>
 
@@ -373,7 +373,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
           />
         </Box>
 
-        <Button
+        <CustomButton
           variant="outlined"
           fullWidth
           disabled={isLoading}
@@ -396,7 +396,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
               {buttonText}
             </Box>
           </B3Sping>
-        </Button>
+        </CustomButton>
 
       </Box>
     </B3Sping>

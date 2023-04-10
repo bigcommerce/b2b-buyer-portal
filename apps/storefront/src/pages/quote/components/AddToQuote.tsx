@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   Box,
-  Button,
 } from '@mui/material'
 
 import UploadFileIcon from '@mui/icons-material/UploadFile'
@@ -19,6 +18,7 @@ import {
 import {
   B3Upload,
   B3CollapseContainer,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -286,7 +286,7 @@ export const AddToQuote = (props: AddToListProps) => {
             margin: '20px 0 0',
           }}
           >
-            <Button
+            <CustomButton
               variant="text"
               onClick={() => {
                 setIsOpenBulkLoadCSV(true)
@@ -297,7 +297,7 @@ export const AddToQuote = (props: AddToListProps) => {
               }}
               />
               Bulk upload CSV
-            </Button>
+            </CustomButton>
           </Box>
 
           <B3Upload

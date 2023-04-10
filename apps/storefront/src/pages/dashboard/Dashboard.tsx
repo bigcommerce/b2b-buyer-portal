@@ -54,6 +54,10 @@ import {
 
 import DashboardCard from './components/DashboardCard'
 
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
 interface ListItem {
   [key: string]: string
 }
@@ -73,6 +77,16 @@ const Dashboard = () => {
     },
     dispatch,
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle,
+    },
+  } = useContext(CustomStyleContext)
+
+  const {
+    primaryColor = '',
+  } = portalStyle
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
@@ -263,7 +277,7 @@ const Dashboard = () => {
             >
               <MenuItem
                 sx={{
-                  color: '#1976D2',
+                  color: primaryColor || '#1976D2',
                 }}
                 onClick={() => startActing()}
               >
