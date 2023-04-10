@@ -36,6 +36,8 @@ import {
   getB2BCustomerAddresses,
   createQuote,
   createBCQuote,
+  searchB2BProducts,
+  searchBcProducts,
 } from '@/shared/service/b2b'
 
 import {
@@ -90,6 +92,8 @@ import {
 
 import {
   getProductOptionsFields,
+  conversionProductsList,
+  ListItemProps,
 } from '../shoppingListDetails/shared/config'
 
 import {
@@ -334,7 +338,56 @@ const QuoteDraft = ({
 
   const {
     token: currencyToken,
+    currency_code: currencyCode,
   } = getDefaultCurrencyInfo()
+
+  const handleGetProductsById = async (listProducts: ListItemProps[]) => {
+    if (listProducts.length > 0) {
+      const productIds: number[] = []
+      listProducts.forEach((item) => {
+        const {
+          node,
+        } = item
+        if (!productIds.includes(node.productId)) {
+          productIds.push(node.productId)
+        }
+      })
+
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+
+      try {
+        const {
+          productsSearch,
+        } = await getProducts({
+          productIds,
+          currencyCode,
+          companyId: companyB2BId,
+        })
+
+        const newProductsSearch = conversionProductsList(productsSearch)
+
+        listProducts.forEach((item) => {
+          const {
+            node,
+          } = item
+
+          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
+            const {
+              id: productId,
+            } = search
+
+            return +node.productId === +productId
+          })
+
+          node.productsSearch = productInfo || {}
+        })
+
+        return listProducts
+      } catch (err: any) {
+        snackbar.error(err)
+      }
+    }
+  }
 
   const getQuoteTableDetails = async (params: CustomFieldItems) => {
     const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
@@ -350,6 +403,8 @@ const QuoteDraft = ({
       }
     }
     const list = quoteDraftAllList.slice(startIndex, endIndex)
+
+    await handleGetProductsById(list)
 
     list.forEach((item: any) => {
       let additionalCalculatedPriceTax = 0

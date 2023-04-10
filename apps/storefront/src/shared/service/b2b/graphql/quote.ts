@@ -45,6 +45,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `{
         orderId,
         subtotal,
         totalAmount,
+        taxTotal,
       }
     }
   }

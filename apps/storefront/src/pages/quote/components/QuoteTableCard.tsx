@@ -48,17 +48,26 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
   } = props
 
   const {
-    basePrice,
+    // basePrice,
     quantity,
     id,
     primaryImage,
     productName,
     variantSku,
     productsSearch,
+    productsSearch: {
+      variants,
+    },
+    variantId,
   } = quoteTableItem
 
-  const total = +basePrice * +quantity
-  const price = +basePrice
+  const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId || variantSku === item.sku) || {}
+  const bcCalculatedPrice: {
+    tax_inclusive: number | string,
+  } = currentVariantInfo.bc_calculated_price
+  const withTaxPrice = +bcCalculatedPrice.tax_inclusive
+  const total = +withTaxPrice * +quantity
+  const price = +withTaxPrice
 
   const product: any = {
     ...quoteTableItem.productsSearch,

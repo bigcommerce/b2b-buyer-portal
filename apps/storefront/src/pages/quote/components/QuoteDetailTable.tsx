@@ -49,6 +49,7 @@ interface ProductInfoProps {
   variantId: number,
   variantSku: string,
   productsSearch: CustomFieldItems,
+  offeredPrice: number | string,
 }
 
 interface ListItemProps {
@@ -210,13 +211,22 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
     {
       key: 'Price',
       title: 'Price',
-      render: (row) => {
+      render: (row: CustomFieldItems) => {
         const {
           basePrice,
           offeredPrice,
+          productsSearch: {
+            variants,
+          },
+          variantId,
         } = row
+        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
+        const bcCalculatedPrice: {
+          tax_inclusive: number | string,
+        } = currentVariantInfo.bc_calculated_price
 
         const price = +basePrice
+        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
         const discountPrice = +offeredPrice
         const isDiscount = price - discountPrice > 0
 
@@ -230,7 +240,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                     textDecoration: 'line-through',
                   }}
                 >
-                  {`${currencyToken}${price.toFixed(2)}`}
+                  {`${currencyToken}${withTaxPrice.toFixed(2)}`}
                 </Typography>
               )
             }
@@ -241,7 +251,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyToken}${discountPrice.toFixed(2)}`}
+              {`${currencyToken}${(+withTaxPrice - +isDiscount).toFixed(2)}`}
             </Typography>
 
           </>
@@ -277,13 +287,22 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
           basePrice,
           quantity,
           offeredPrice,
+          productsSearch: {
+            variants,
+          },
+          variantId,
         } = row
+        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
+        const bcCalculatedPrice: {
+          tax_inclusive: number | string,
+        } = currentVariantInfo.bc_calculated_price
         const price = +basePrice
+        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
         const discountPrice = +offeredPrice
         const isDiscount = price - discountPrice > 0
 
-        const total = price * +quantity
-        const totalWithDiscount = discountPrice * +quantity
+        const total = withTaxPrice * +quantity
+        const totalWithDiscount = (+withTaxPrice - +isDiscount) * +quantity
 
         return (
           <Box>

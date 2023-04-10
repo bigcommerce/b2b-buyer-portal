@@ -57,6 +57,10 @@ import {
   B3LStorage,
 } from '@/utils'
 
+import {
+  addPrice,
+} from './shared/config'
+
 interface SortByListProps {
   [key: string]: number | string
 }
@@ -264,7 +268,9 @@ const QuotesList = () => {
 
     const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
     if (params.offset === 0 && quoteDraftAllList.length) {
-      const price = quoteDraftAllList.reduce((pre: number, cur: CustomFieldItems) => pre + (cur.node.basePrice * cur.node.quantity), 0)
+      const summaryPrice = addPrice()
+
+      // const price = quoteDraftAllList.reduce((pre: number, cur: CustomFieldItems) => pre + (cur.node.basePrice * cur.node.quantity), 0)
       const quoteDraft = {
         node: {
           quoteNumber: '—',
@@ -277,8 +283,9 @@ const QuotesList = () => {
           currency: {
             token: currencyToken,
           },
-          totalAmount: price,
+          totalAmount: summaryPrice?.subtotal,
           status: 0,
+          taxTotal: summaryPrice?.tax,
         },
       }
 
@@ -350,9 +357,10 @@ const QuotesList = () => {
             token,
           },
           totalAmount,
+          taxTotal,
         } = item
 
-        return (`${token}${(+totalAmount).toFixed(2)}`)
+        return (`${token}${(+totalAmount + +taxTotal).toFixed(2)}`)
       },
       style: {
         textAlign: 'right',

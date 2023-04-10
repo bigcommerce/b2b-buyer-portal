@@ -58,7 +58,7 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
   } = props
 
   const {
-    basePrice,
+    // basePrice,
     quantity,
     itemId,
     variantId,
@@ -67,10 +67,18 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
     variantSku,
     productsSearch,
     productUrl,
+    productsSearch: {
+      variants,
+    },
   } = shoppingDetail
+  const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
+  const bcCalculatedPrice: {
+    tax_inclusive: number | string,
+  } = currentVariantInfo.bc_calculated_price
+  const withTaxPrice = +bcCalculatedPrice.tax_inclusive
 
-  const total = +basePrice * +quantity
-  const price = +basePrice
+  const total = +withTaxPrice * +quantity
+  const price = +withTaxPrice
 
   const product: any = {
     ...shoppingDetail.productsSearch,

@@ -186,6 +186,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
   })
   const [qtyNotChangeFlag, setQtyNotChangeFlag] = useState<boolean>(true)
   const [originProducts, setOriginProducts] = useState<ListItemProps[]>([])
+  const [shoppingListTotalPrice, setShoppingListTotalPrice] = useState<number>(0.00)
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
     if (value !== '' && value <= 0) return
@@ -347,9 +348,14 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         products: {
           edges,
         },
+        grandTotal,
+        totalDiscount,
       } = shoppingListInfo
 
+      const NewShoppingListTotalPrice = +grandTotal + +totalDiscount || 0.00
+
       setOriginProducts(cloneDeep(edges))
+      setShoppingListTotalPrice(NewShoppingListTotalPrice)
     }
   }, [shoppingListInfo])
 
@@ -434,8 +440,19 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     {
       key: 'Price',
       title: 'Price',
-      render: (row) => {
-        const price = +row.basePrice
+      render: (row: CustomFieldItems) => {
+        const {
+          productsSearch: {
+            variants,
+          },
+          variantId,
+        } = row
+        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
+        const bcCalculatedPrice: {
+          tax_inclusive: number | string,
+        } = currentVariantInfo.bc_calculated_price
+        // const price = +row.basePrice
+        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
 
         return (
           <Typography
@@ -443,7 +460,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
               padding: '12px 0',
             }}
           >
-            {`${currencyToken}${price.toFixed(2)}`}
+            {`${currencyToken}${withTaxPrice.toFixed(2)}`}
           </Typography>
         )
       },
@@ -483,11 +500,20 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
       title: 'Total',
       render: (row: CustomFieldItems) => {
         const {
-          basePrice,
+          // basePrice,
           quantity,
           itemId,
+          productsSearch: {
+            variants,
+          },
+          variantId,
         } = row
-        const total = +basePrice * +quantity
+        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
+        const bcCalculatedPrice: {
+          tax_inclusive: number | string,
+        } = currentVariantInfo.bc_calculated_price
+        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
+        const total = +withTaxPrice * +quantity
         const optionList = JSON.parse(row.optionList)
 
         return (
@@ -591,7 +617,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
             fontSize: '24px',
           }}
         >
-          {`${currencyToken}${shoppingListInfo?.grandTotal || 0.00}`}
+          {`${currencyToken}${shoppingListTotalPrice || 0.00}`}
         </Typography>
       </Box>
       <Box

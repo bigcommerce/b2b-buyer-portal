@@ -372,8 +372,21 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
     {
       key: 'Price',
       title: 'Price',
-      render: (row) => {
-        const price = +row.basePrice
+      render: (row: CustomFieldItems) => {
+        const {
+          productsSearch: {
+            variants,
+          },
+          variantId,
+          variantSku,
+        } = row
+
+        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId || variantSku === item.sku) || {}
+        const bcCalculatedPrice: {
+          tax_inclusive: number | string,
+        } = currentVariantInfo.bc_calculated_price
+        // const price = +row.basePrice
+        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
 
         return (
           <Typography
@@ -381,7 +394,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
               padding: '12px 0',
             }}
           >
-            {`${currencyToken}${price.toFixed(2)}`}
+            {`${currencyToken}${withTaxPrice.toFixed(2)}`}
           </Typography>
         )
       },
@@ -418,10 +431,21 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
       title: 'Total',
       render: (row: CustomFieldItems) => {
         const {
-          basePrice,
+          // basePrice,
           quantity,
+          productsSearch: {
+            variants,
+          },
+          variantId,
+          variantSku,
         } = row
-        const total = +basePrice * +quantity
+        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId || variantSku === item.sku) || {}
+        const bcCalculatedPrice: {
+          tax_inclusive: number | string,
+        } = currentVariantInfo.bc_calculated_price
+
+        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
+        const total = +withTaxPrice * +quantity
         const optionList = JSON.parse(row.optionList)
 
         return (

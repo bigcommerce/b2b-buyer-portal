@@ -56,7 +56,7 @@ export const QuoteDetailSummary = (props: QuoteDetailSummaryProps) => {
               }}
             >
               <Typography>Original subtotal</Typography>
-              <Typography>{priceFormat(+originalSubtotal)}</Typography>
+              <Typography>{priceFormat(+originalSubtotal + +tax)}</Typography>
             </Grid>
             <Grid
               container
@@ -89,7 +89,7 @@ export const QuoteDetailSummary = (props: QuoteDetailSummaryProps) => {
                   color: '#212121',
                 }}
               >
-                {priceFormat(+quotedSubtotal)}
+                {priceFormat(+quotedSubtotal + +tax)}
               </Typography>
             </Grid>
 
@@ -134,7 +134,7 @@ export const QuoteDetailSummary = (props: QuoteDetailSummaryProps) => {
                 color: '#212121',
               }}
               >
-                {priceFormat(+grandTotal)}
+                {priceFormat(+grandTotal + +tax)}
               </Typography>
             </Grid>
           </Box>

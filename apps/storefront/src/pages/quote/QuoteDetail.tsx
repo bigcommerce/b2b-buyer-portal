@@ -26,6 +26,8 @@ import {
   getBcQuoteDetail,
   exportB2BQuotePdf,
   exportBcQuotePdf,
+  searchB2BProducts,
+  searchBcProducts,
 } from '@/shared/service/b2b'
 
 import {
@@ -39,6 +41,7 @@ import {
 import {
   snackbar,
   getSearchVal,
+  getDefaultCurrencyInfo,
 } from '@/utils'
 
 import QuoteDetailHeader from './components/QuoteDetailHeader'
@@ -57,6 +60,13 @@ import {
 
 import Message from './components/Message'
 
+import {
+  ProductInfoProps,
+} from './shared/config'
+import {
+  conversionProductsList,
+} from '../shoppingListDetails/shared/config'
+
 const QuoteDetail = () => {
   const {
     id = '',
@@ -65,6 +75,9 @@ const QuoteDetail = () => {
 
   const {
     state: {
+      companyInfo: {
+        id: companyInfoId,
+      },
       role,
       customer,
       isB2BUser,
@@ -86,8 +99,52 @@ const QuoteDetail = () => {
     grandTotal: 0,
   })
   const [isRequestLoading, setIsRequestLoading] = useState(false)
+  const {
+    currency_code: currencyCode,
+  } = getDefaultCurrencyInfo()
 
   const location = useLocation()
+
+  const handleGetProductsById = async (listProducts: ProductInfoProps[]) => {
+    if (listProducts.length > 0) {
+      const productIds: number[] = []
+
+      listProducts.forEach((item) => {
+        if (!productIds.includes(item.productId)) {
+          productIds.push(item.productId)
+        }
+      })
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+
+      try {
+        const {
+          productsSearch,
+        } = await getProducts({
+          productIds,
+          currencyCode,
+          companyId: companyInfoId,
+        })
+
+        const newProductsSearch = conversionProductsList(productsSearch)
+
+        listProducts.forEach((item) => {
+          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
+            const {
+              id: productId,
+            } = search
+
+            return +item.productId === +productId
+          })
+
+          item.productsSearch = productInfo || {}
+        })
+
+        return listProducts
+      } catch (err: any) {
+        snackbar.error(err)
+      }
+    }
+  }
 
   const getQuoteDetail = async () => {
     setIsRequestLoading(true)
@@ -108,6 +165,7 @@ const QuoteDetail = () => {
       const {
         quote,
       } = await fn(data)
+      const productsWithMoreInfo = await handleGetProductsById(quote.productsList)
 
       setQuoteDetail(quote)
       setQuoteSummary({
@@ -118,7 +176,7 @@ const QuoteDetail = () => {
         grandTotal: quote.totalAmount,
       })
       setCurrency(quote.currency)
-      setProductList(quote.productsList)
+      setProductList(productsWithMoreInfo)
 
       const {
         backendAttachFiles = [],

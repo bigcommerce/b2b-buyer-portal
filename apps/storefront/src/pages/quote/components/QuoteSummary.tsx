@@ -123,7 +123,7 @@ export const QuoteSummary = forwardRef((props: QuoteSummaryProps, ref: Ref<unkno
               }}
             >
               <Typography>Sub total</Typography>
-              <Typography>{priceFormat(quoteSummary.subtotal)}</Typography>
+              <Typography>{priceFormat(quoteSummary.subtotal + +quoteSummary.tax)}</Typography>
             </Grid>
 
             <Grid
@@ -165,7 +165,7 @@ export const QuoteSummary = forwardRef((props: QuoteSummaryProps, ref: Ref<unkno
                 fontWeight: 'bold',
               }}
               >
-                {priceFormat(quoteSummary.grandTotal)}
+                {priceFormat(quoteSummary.grandTotal + +quoteSummary.tax)}
               </Typography>
             </Grid>
           </Box>

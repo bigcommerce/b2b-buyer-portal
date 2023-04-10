@@ -39,14 +39,23 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
     sku,
     notes,
     offeredPrice,
+    productsSearch: {
+      variants,
+    },
+    variantId,
   } = quoteTableItem
+  const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
+  const bcCalculatedPrice: {
+    tax_inclusive: number | string,
+  } = currentVariantInfo.bc_calculated_price
 
   const price = +basePrice
+  const withTaxPrice = +bcCalculatedPrice.tax_inclusive
   const discountPrice = +offeredPrice
   const isDiscount = price - discountPrice > 0
 
-  const total = price * +quantity
-  const totalWithDiscount = discountPrice * +quantity
+  const total = withTaxPrice * +quantity
+  const totalWithDiscount = (+withTaxPrice - +isDiscount) * +quantity
 
   return (
     <Box
@@ -132,7 +141,7 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
                   textDecoration: 'line-through',
                 }}
                 >
-                  {`${currencyToken}${price.toFixed(2)}`}
+                  {`${currencyToken}${withTaxPrice.toFixed(2)}`}
                 </span>
               )
             }
@@ -141,7 +150,7 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
               color: isDiscount ? '#2E7D32' : '#212121',
             }}
             >
-              {`${currencyToken}${discountPrice.toFixed(2)}`}
+              {`${currencyToken}${(+withTaxPrice - +isDiscount).toFixed(2)}`}
             </span>
           </Typography>
 
