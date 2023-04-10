@@ -155,6 +155,11 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
     ...getStyles(customCss),
   }
 
+  const isMobileCustomStyles: SxProps = {
+    backgroundColor: `${color || '#FFFFFF'}`,
+    color: getContrastColor(color || '#FFFFFF'),
+  }
+
   return (
     <>
       {
@@ -175,12 +180,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
               marginTop: '10px',
               ...customStyles,
             }}
-            onClick={() => {
-              setOpenPage({
-                isOpen: true,
-                openUrl: '/',
-              })
-            }}
+            onClick={() => endActing()}
             variant="contained"
             startIcon={<GroupIcon />}
           >
@@ -290,7 +290,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
 
       {
 
-        isOpen && (
+      isOpen && !isMobile && (
         <Snackbar
           sx={{
             zIndex: '110000',
@@ -299,6 +299,7 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
             height: '52px',
             color: '#FFFFFF',
             ...sx,
+            ...customStyles,
           }}
           anchorOrigin={getLocation(location) || defaultLocation}
           open
@@ -309,8 +310,6 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
               width: '100%',
             }}
           >
-            {
-          !isMobile && (
             <Box
               sx={{
                 display: 'flex',
@@ -324,16 +323,16 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
                 }}
               />
               {
-              isExpansion && (
-              <Box
-                sx={{
-                  fontWeight: 400,
-                }}
-              >
-                You are masqueraded as
-              </Box>
-              )
-              }
+                  isExpansion && (
+                  <Box
+                    sx={{
+                      fontWeight: 400,
+                    }}
+                  >
+                    You are masqueraded as
+                  </Box>
+                  )
+                  }
               <Box
                 sx={{
                   fontWeight: '600',
@@ -343,45 +342,68 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
                 {salesRepCompanyName}
               </Box>
               {
-                isExpansion && (
-                <Box
-                  sx={{
-                    fontWeight: 500,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => endActing()}
-                >
-                  {text}
-                </Box>
-                )
-            }
+                    isExpansion && (
+                    <Box
+                      sx={{
+                        fontWeight: 500,
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => endActing()}
+                    >
+                      {text}
+                    </Box>
+                    )
+                }
 
               {
-              isExpansion ? (
-                <KeyboardArrowLeftIcon
-                  onClick={() => setExpansion(false)}
-                  sx={{
-                    ml: '10px',
-                  }}
-                />
-              )
-                : (
-                  <KeyboardArrowRightIcon
-                    onClick={() => setExpansion(true)}
-                    sx={{
-                      ml: '10px',
-                    }}
-                  />
-                )
-            }
+                  isExpansion ? (
+                    <KeyboardArrowLeftIcon
+                      onClick={() => setExpansion(false)}
+                      sx={{
+                        ml: '10px',
+                      }}
+                    />
+                  )
+                    : (
+                      <KeyboardArrowRightIcon
+                        onClick={() => setExpansion(true)}
+                        sx={{
+                          ml: '10px',
+                        }}
+                      />
+                    )
+                }
 
             </Box>
-          )
-        }
+          </Box>
 
-            {
-          isMobile && (
+        </Snackbar>
+      )
+      }
+
+      {
+
+        isOpen && isMobile && (
+        <Snackbar
+          sx={{
+            zIndex: '110000',
+            backgroundColor: '#ED6C02',
+            borderRadius: '4px',
+            height: '52px',
+            color: '#FFFFFF',
+            ...sx,
+            ...isMobileCustomStyles,
+          }}
+          anchorOrigin={defaultLocation}
+          open
+        >
+          <Box
+            sx={{
+              padding: '5px 15px',
+              width: '100%',
+            }}
+          >
             <Box
               sx={{
                 display: 'flex',
@@ -425,9 +447,6 @@ export const B3MasquradeGobalTip = (props: B3MasquradeGobalTipProps) => {
               </Box>
 
             </Box>
-          )
-        }
-
           </Box>
 
         </Snackbar>
