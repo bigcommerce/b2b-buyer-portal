@@ -15,7 +15,7 @@ import {
 
 import {
   useRegisteredbctob2b,
-} from './useRegisteredbctob2b'
+} from './dom/useRegisteredbctob2b'
 
 import {
   useCardListColumn,

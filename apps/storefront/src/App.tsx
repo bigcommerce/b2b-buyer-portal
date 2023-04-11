@@ -211,7 +211,7 @@ export default function App() {
     }
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
 
-  useRegisteredbctob2b(setOpenPage, isB2BUser, customerId)
+  useRegisteredbctob2b(setOpenPage)
 
   useEffect(() => {
     if (isOpen) {
