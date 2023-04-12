@@ -117,13 +117,11 @@ export const B3Upload = (props: B3UploadProps) => {
 
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const [step, setStep] = useState<string>('init')
   const [fileDatas, setFileDatas] = useState<CustomFieldItems>({})

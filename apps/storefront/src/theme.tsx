@@ -48,13 +48,11 @@ function B3ThemeProvider({
 
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        backgroundColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    backgroundColor = '',
-  } = portalStyle
 
   const theme = (lang: string) => createTheme({
     palette: {

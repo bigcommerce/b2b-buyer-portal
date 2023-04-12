@@ -101,13 +101,11 @@ const OrderDetail = () => {
 
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const localtion = useLocation()
 

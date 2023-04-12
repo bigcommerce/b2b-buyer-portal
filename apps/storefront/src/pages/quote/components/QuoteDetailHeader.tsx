@@ -67,13 +67,11 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
 
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const navigate = useNavigate()
   const gridOptions = (xs: number) => (isMobile ? {} : {

@@ -177,13 +177,11 @@ const QuoteDraft = ({
 
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const navigate = useNavigate()
 
@@ -865,6 +863,7 @@ const QuoteDraft = ({
               currencyToken={currencyToken}
               getQuoteTableDetails={getQuoteTableDetails}
               isB2BUser={isB2BUser}
+              customColor={primaryColor}
             />
 
           </Container>

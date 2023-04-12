@@ -80,13 +80,11 @@ const Dashboard = () => {
 
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 

@@ -14,11 +14,19 @@ import {
   useB3Lang,
 } from '@b3/lang'
 
+import {
+  useContext,
+} from 'react'
+
 import Form from './ui'
 
 import {
   StyleRectangleFormControlLabel,
 } from './styled'
+
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
 
 export const B3ControlRectangle = ({
   control,
@@ -35,6 +43,14 @@ export const B3ControlRectangle = ({
     options,
     labelStyle = {},
   } = rest
+
+  const {
+    state: {
+      portalStyle: {
+        primaryColor: customColor = '',
+      },
+    },
+  } = useContext(CustomStyleContext)
 
   const b3Lang = useB3Lang()
   const theme = useTheme()
@@ -59,7 +75,13 @@ export const B3ControlRectangle = ({
     <>
       {
         ['rectangle'].includes(fieldType) && (
-          <FormControl>
+          <FormControl
+            sx={{
+              '& .MuiFormLabel-root.Mui-focused': {
+                color: customColor,
+              },
+            }}
+          >
             {
               label && (
               <FormLabel
@@ -93,9 +115,12 @@ export const B3ControlRectangle = ({
                             label={option.label}
                             key={option.value}
                             sx={{
-                              border: isActive ? `1px solid ${primaryColor}` : '1px solid #767676',
-                              boxShadow: isActive ? `0 0 0 1px ${primaryColor}` : 'none',
+                              border: isActive ? `1px solid ${customColor || primaryColor}` : '1px solid #767676',
+                              boxShadow: isActive ? `0 0 0 1px ${customColor || primaryColor}` : 'none',
                               ...labelStyle,
+                              '& .MuiRadio-root.Mui-checked': {
+                                color: customColor || primaryColor,
+                              },
                             }}
                             control={(
                               <Radio />

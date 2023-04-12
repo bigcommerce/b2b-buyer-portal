@@ -62,13 +62,11 @@ const successTip = (options: successTipOptions) => () => (
 export const QuickOrderPad = () => {
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const [isMobile] = useMobile()
 

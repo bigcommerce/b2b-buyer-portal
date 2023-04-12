@@ -107,6 +107,7 @@ interface ShoppingDetailTableProps {
   setDeleteItemId: (itemId: number | string) => void,
   setDeleteOpen: (open: boolean) => void,
   isB2BUser: boolean,
+  customColor: string,
 }
 
 interface SearchProps {
@@ -174,6 +175,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     isJuniorApprove,
     isB2BUser,
     allowJuniorPlaceOrder,
+    customColor,
   } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -189,7 +191,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const [shoppingListTotalPrice, setShoppingListTotalPrice] = useState<number>(0.00)
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
-    if (value !== '' && value <= 0) return
+    if (value !== '' && +value <= 0) return
     const currentItem = originProducts.find((item: ListItemProps) => {
       const {
         node,
@@ -481,6 +483,11 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           value={row.quantity}
           inputProps={{
             inputMode: 'numeric', pattern: '[0-9]*',
+          }}
+          sx={{
+            '& .MuiFilledInput-root:after': {
+              borderBottom: `2px solid ${customColor || '#1976d2'}`,
+            },
           }}
           onChange={(e) => {
             handleUpdateProductQty(row.id, e.target.value)

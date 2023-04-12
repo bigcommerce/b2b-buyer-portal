@@ -33,17 +33,15 @@ const CustomButton = ({
   const {
     state: {
       globalButtonBackgroundColor,
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
 
   const {
     variant,
   } = rest
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   return (
     <>
@@ -55,10 +53,6 @@ const CustomButton = ({
               ...sx || {},
               backgroundColor: primaryColor || globalButtonBackgroundColor,
               color: getContrastColor(primaryColor) || getContrastColor(globalButtonBackgroundColor),
-              '&:hover': {
-                backgroundColor: primaryColor || globalButtonBackgroundColor,
-                color: getContrastColor(primaryColor) || getContrastColor(globalButtonBackgroundColor),
-              },
             }}
             onClick={onClick}
           >
@@ -71,10 +65,6 @@ const CustomButton = ({
               ...sx || {},
               color: primaryColor || globalButtonBackgroundColor,
               borderColor: primaryColor,
-              '&:hover': {
-                color: primaryColor || globalButtonBackgroundColor,
-                borderColor: primaryColor,
-              },
             }}
             onClick={onClick}
           >

@@ -130,13 +130,11 @@ const ShoppingListDetails = ({
 
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const tableRef = useRef<TableRefProps | null>(null)
 
@@ -437,6 +435,7 @@ const ShoppingListDetails = ({
                   setDeleteOpen={setDeleteOpen}
                   setDeleteItemId={setDeleteItemId}
                   isB2BUser={isB2BUser}
+                  customColor={primaryColor}
                 />
               </Grid>
             </B3Sping>

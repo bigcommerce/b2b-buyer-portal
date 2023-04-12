@@ -67,13 +67,11 @@ export const B3Nav = ({
 
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const jumpRegister = () => {
     navigate('/registered')

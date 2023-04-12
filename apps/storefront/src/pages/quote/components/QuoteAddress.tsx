@@ -102,13 +102,11 @@ const QuoteAddress = ({
 }: AddressProps, ref: any) => {
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const {
     control,

@@ -59,6 +59,10 @@ import {
   B3Sping,
 } from '@/components'
 
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
 interface ListItem {
   [key: string]: string
 }
@@ -133,6 +137,14 @@ const QuickorderTable = ({
       isB2BUser,
     },
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle: {
+        primaryColor = '',
+      },
+    },
+  } = useContext(CustomStyleContext)
 
   const [search, setSearch] = useState<SearchProps>({
     q: '',
@@ -345,6 +357,11 @@ const QuickorderTable = ({
           value={row.quantity}
           inputProps={{
             inputMode: 'numeric', pattern: '[0-9]*',
+          }}
+          sx={{
+            '& .MuiFilledInput-root:after': {
+              borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
+            },
           }}
           onChange={(e) => {
             handleUpdateProductQty(row.id, e.target.value)

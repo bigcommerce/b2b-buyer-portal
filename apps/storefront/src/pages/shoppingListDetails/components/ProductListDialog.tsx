@@ -36,6 +36,10 @@ import {
   ShoppingListProductItem,
 } from '../../../types'
 
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
 interface ProductTableActionProps {
   product: ShoppingListProductItem,
   onAddToListClick: (id: number) => void,
@@ -125,6 +129,14 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
     addButtonText = 'Add to list',
   } = props
 
+  const {
+    state: {
+      portalStyle: {
+        primaryColor = '',
+      },
+    },
+  } = useContext(CustomStyleContext)
+
   const [isMobile] = useMobile()
 
   const handleCancelClicked = () => {
@@ -207,6 +219,9 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
               '& input': {
                 padding: '12px 12px 12px 0',
               },
+              '& .MuiFilledInput-root:after': {
+                borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
+              },
             }}
           />
 
@@ -226,6 +241,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
                   />
                 )}
                 actionWidth="180px"
+                customColor={primaryColor}
               />
             ) : (
               <Typography>

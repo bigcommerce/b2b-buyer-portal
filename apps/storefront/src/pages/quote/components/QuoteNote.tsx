@@ -9,6 +9,7 @@ import {
   useState,
   ChangeEvent,
   useEffect,
+  useContext,
 } from 'react'
 
 import {
@@ -19,7 +20,19 @@ import {
   B3LStorage,
 } from '@/utils'
 
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
 export const QuoteNote = () => {
+  const {
+    state: {
+      portalStyle: {
+        primaryColor = '',
+      },
+    },
+  } = useContext(CustomStyleContext)
+
   const [noteText, setNoteText] = useState('')
 
   const handleNoteTextChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +85,9 @@ export const QuoteNote = () => {
               sx={{
                 '& .MuiFormLabel-root': {
                   color: 'rgba(0, 0, 0, 0.38)',
+                },
+                '& .MuiFilledInput-root:after': {
+                  borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
                 },
               }}
             />

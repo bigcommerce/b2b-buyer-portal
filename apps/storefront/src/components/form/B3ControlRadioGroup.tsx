@@ -13,7 +13,15 @@ import {
   useB3Lang,
 } from '@b3/lang'
 
+import {
+  useContext,
+} from 'react'
+
 import Form from './ui'
+
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
 
 export const B3ControlRadioGroup = ({
   control,
@@ -29,6 +37,14 @@ export const B3ControlRadioGroup = ({
     validate,
     options,
   } = rest
+
+  const {
+    state: {
+      portalStyle: {
+        primaryColor = '',
+      },
+    },
+  } = useContext(CustomStyleContext)
 
   const b3Lang = useB3Lang()
 
@@ -50,7 +66,13 @@ export const B3ControlRadioGroup = ({
     <>
       {
         ['radio'].includes(fieldType) && (
-          <FormControl>
+          <FormControl
+            sx={{
+              '& .MuiFormLabel-root.Mui-focused': {
+                color: primaryColor,
+              },
+            }}
+          >
             {
               label && (
               <FormLabel
@@ -79,6 +101,11 @@ export const B3ControlRadioGroup = ({
                           control={(
                             <Radio />
                           )}
+                          sx={{
+                            '& .MuiRadio-root.Mui-checked': {
+                              color: primaryColor,
+                            },
+                          }}
                         />
                       ))
                     )

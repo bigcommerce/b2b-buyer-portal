@@ -7,6 +7,7 @@ import {
   useEffect,
   Dispatch,
   SetStateAction,
+  useContext,
 } from 'react'
 
 import {
@@ -50,6 +51,10 @@ import {
 import {
   snackbar,
 } from '@/utils'
+
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
 
 const Flex = styled('div')(() => ({
   display: 'flex',
@@ -115,6 +120,14 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
     addButtonText = 'Add To List',
     isB2BUser,
   } = props
+
+  const {
+    state: {
+      portalStyle: {
+        primaryColor = '',
+      },
+    },
+  } = useContext(CustomStyleContext)
 
   const [quantity, setQuantity] = useState<number | string>(1)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
@@ -385,6 +398,12 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
                 sx={{
                   width: '60%',
                   maxWidth: '100px',
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: primaryColor,
+                  },
+                  '& .MuiFilledInput-root:after': {
+                    borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
+                  },
                 }}
               />
             </FlexItem>

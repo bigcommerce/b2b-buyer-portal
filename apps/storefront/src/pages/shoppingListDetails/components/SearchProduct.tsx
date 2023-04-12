@@ -1,6 +1,7 @@
 import {
   ChangeEvent,
   KeyboardEvent,
+  useContext,
   useState,
 } from 'react'
 
@@ -39,6 +40,10 @@ import {
   conversionProductsList,
 } from '../shared/config'
 
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
+
 interface SearchProductProps {
   updateList: () => void,
   addToList: (products: CustomFieldItems[]) => CustomFieldItems,
@@ -54,6 +59,14 @@ export const SearchProduct = ({
   addButtonText,
   isB2BUser,
 }: SearchProductProps) => {
+  const {
+    state: {
+      portalStyle: {
+        primaryColor = '',
+      },
+    },
+  } = useContext(CustomStyleContext)
+
   const [isLoading, setIsLoading] = useState(false)
 
   const [productListOpen, setProductListOpen] = useState(false)
@@ -188,6 +201,9 @@ export const SearchProduct = ({
           margin: '12px 0',
           '& input': {
             padding: '12px 12px 12px 0',
+          },
+          '& .MuiFilledInput-root:after': {
+            borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
           },
         }}
       />

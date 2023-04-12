@@ -50,13 +50,15 @@ import {
   CustomStyleContext,
 } from '@/shared/customStyleButtton'
 
-const FileUploadContainer = styled(Box)(() => ({
+const FileUploadContainer = styled(Box)(({
+  style,
+}) => ({
   '& .file-upload-area': {
     cursor: 'pointer',
     '& .MuiDropzoneArea-textContainer': {
       display: 'flex',
       alignItems: 'center',
-      color: '#1976D2',
+      color: style?.color || '#1976D2',
     },
     '& .MuiDropzoneArea-text': {
       order: 1,
@@ -150,13 +152,11 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
 
   const {
     state: {
-      portalStyle,
+      portalStyle: {
+        primaryColor = '',
+      },
     },
   } = useContext(CustomStyleContext)
-
-  const {
-    primaryColor = '',
-  } = portalStyle
 
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -259,6 +259,10 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
     }
   }
 
+  const customStyles = {
+    color: primaryColor,
+  }
+
   return (
     <B3Sping
       isSpinning={loading}
@@ -274,15 +278,9 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
               <Box key={file.id || index}>
                 <FileListItem hasdelete={(file?.hasDelete || '').toString()}>
                   <Box className="fileList-name-area">
-                    <AttachFile sx={{
-                      color: primaryColor,
-                    }}
-                    />
+                    <AttachFile />
                     <Typography
                       className="fileList-name"
-                      sx={{
-                        color: primaryColor,
-                      }}
                       onClick={() => { downloadFile(file.fileUrl) }}
                     >
                       {file.fileName}
@@ -315,10 +313,7 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
               marginTop: '10px',
             }}
           >
-            <FileUploadContainer sx={{
-              color: primaryColor,
-            }}
-            >
+            <FileUploadContainer style={customStyles}>
               <DropzoneArea
                 dropzoneClass="file-upload-area"
                 Icon={AttachFile}
