@@ -16,6 +16,9 @@ import {
   Typography,
   Stack,
 } from '@mui/material'
+import {
+  ArrowBackIosNew,
+} from '@mui/icons-material'
 
 import {
   getB2BOrderDetails,
@@ -232,11 +235,24 @@ const OrderDetail = () => {
             sx={{
               color: primaryColor || '#1976d2',
               cursor: 'pointer',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
             }}
             onClick={goToOrders}
           >
             {
-              localtion.state !== null ? 'Back to orders' : ''
+              localtion.state !== null ? (
+                <>
+                  <ArrowBackIosNew
+                    sx={{
+                      fontSize: '13px',
+                      margin: '0 8px',
+                    }}
+                  />
+                  <span>Back to orders</span>
+                </>
+              ) : ''
             }
           </Box>
         </Box>
@@ -255,7 +271,7 @@ const OrderDetail = () => {
               order: isMobile ? 1 : 0,
             }}
           >
-            <Typography variant="h4">{`#${orderId}`}</Typography>
+            <Typography variant="h4">{`Order #${orderId}`}</Typography>
             {poNumber && <Typography variant="body2">{poNumber}</Typography>}
             <OrderStatus
               code={status}

@@ -139,13 +139,14 @@ export const OrderShipping = () => {
             <CardContent>
               <Box sx={{
                 wordBreak: 'break-word',
-                color: '#313440',
+                color: 'rgba(0, 0, 0, 0.87)',
               }}
               >
                 <Typography
                   variant="h6"
                   sx={{
-                    fontSize: '1.125rem',
+                    fontSize: '24px',
+                    fontWeight: '400',
                   }}
                 >
                   {getFullName(shipping)}
@@ -155,7 +156,8 @@ export const OrderShipping = () => {
                 <Typography
                   variant="h6"
                   sx={{
-                    fontSize: '1.125rem',
+                    fontSize: '24px',
+                    fontWeight: '400',
                   }}
                 >
                   {getFullAddress(shipping)}
@@ -197,7 +199,7 @@ export const OrderShipping = () => {
                         quantityKey="current_quantity_shipped"
                         products={shipment.itemsInfo}
                         currency={currency}
-                        totalText="Cost"
+                        totalText="Total"
                         canToProduct
                         textAlign="right"
                       />

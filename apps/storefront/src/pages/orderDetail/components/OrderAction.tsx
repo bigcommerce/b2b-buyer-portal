@@ -431,7 +431,7 @@ export const OrderAction = (props: OrderActionProps) => {
 
   const orderData: OrderData[] = [
     {
-      header: 'Order summary',
+      header: 'Summary',
       key: 'order-summary',
       subtitle: (updatedAt && name ? `Purchased by ${name} on ${format(+updatedAt * 1000, 'dd MMM yyyy')}.` : ''),
       buttons,
