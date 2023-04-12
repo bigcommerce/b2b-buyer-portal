@@ -54,9 +54,10 @@ import {
 import {
   QuoteAttachment,
 } from './components/QuoteAttachment'
-// import {
-//   QuoteNote,
-// } from './components/QuoteNote'
+
+import {
+  QuoteNote,
+} from './components/QuoteNote'
 
 import Message from './components/Message'
 
@@ -66,6 +67,9 @@ import {
 import {
   conversionProductsList,
 } from '../shoppingListDetails/shared/config'
+import {
+  QuoteTermsAndConditions,
+} from './components/QuoteTermsAndConditions'
 
 const QuoteDetail = () => {
   const {
@@ -388,6 +392,8 @@ const QuoteDetail = () => {
           exportPdf={exportPdf}
           printQuote={printQuote}
           role={role}
+          quoteTitle={quoteDetail.quoteTitle}
+          salesRepInfo={quoteDetail.salesRepInfo}
         />
 
         <Box
@@ -463,6 +469,21 @@ const QuoteDetail = () => {
               />
             </Box>
 
+            {
+              quoteDetail.notes && (
+              <Box
+                sx={{
+                  marginBottom: '1rem',
+                  displayPrint: 'none',
+                }}
+              >
+                <QuoteNote
+                  quoteNotes={quoteDetail.notes}
+                />
+              </Box>
+              )
+            }
+
             <Box
               sx={{
                 marginBottom: '1rem',
@@ -478,17 +499,9 @@ const QuoteDetail = () => {
               />
             </Box>
 
-            {/* <Box
-              sx={{
-                marginBottom: '1rem',
-                displayPrint: 'none',
-              }}
-            >
-              <QuoteNote />
-            </Box> */}
-
             <Box
               sx={{
+                marginBottom: '1rem',
                 displayPrint: 'none',
               }}
             >
@@ -499,6 +512,21 @@ const QuoteDetail = () => {
                 defaultFileList={fileList}
               />
             </Box>
+
+            {
+              quoteDetail.legalTerms && (
+              <Box
+                sx={{
+                  displayPrint: 'none',
+                }}
+              >
+                <QuoteTermsAndConditions
+                  quoteLegalTerms={quoteDetail.legalTerms}
+                />
+              </Box>
+              )
+            }
+
           </Grid>
         </Grid>
 

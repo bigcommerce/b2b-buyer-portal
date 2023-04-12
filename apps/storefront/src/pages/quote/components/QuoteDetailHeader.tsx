@@ -48,8 +48,10 @@ interface QuoteDetailHeaderProps {
   issuedAt: number,
   expirationDate: number,
   exportPdf: () => void,
-  printQuote: () => void,
-  role: number | string,
+  printQuote: () => Promise<void>,
+  role: string | number,
+  quoteTitle: string,
+  salesRepInfo: {[key: string]: string},
 }
 
 const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
@@ -63,6 +65,8 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
     exportPdf,
     printQuote,
     role,
+    quoteTitle,
+    salesRepInfo,
   } = props
 
   const {
@@ -154,6 +158,36 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
             <QuoteStatus code={status} />
           </Box>
           <Box>
+            { quoteTitle
+              && (
+              <StyledCreateName>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    marginRight: '0.5rem',
+                    fontSize: '16px',
+                  }}
+                >
+                  Title:
+                </Typography>
+                <span>{quoteTitle}</span>
+              </StyledCreateName>
+              )}
+            { (salesRepInfo?.salesRepName || salesRepInfo?.salesRepEmail)
+              && (
+              <StyledCreateName>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    marginRight: '0.5rem',
+                    fontSize: '16px',
+                  }}
+                >
+                  Sales rep:
+                </Typography>
+                <span>{salesRepInfo?.salesRepEmail !== '' ? `${salesRepInfo?.salesRepName}(${salesRepInfo?.salesRepEmail})` : salesRepInfo?.salesRepName}</span>
+              </StyledCreateName>
+              )}
             <StyledCreateName>
               <Typography
                 variant="subtitle2"

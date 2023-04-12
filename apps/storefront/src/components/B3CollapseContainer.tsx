@@ -40,6 +40,12 @@ export const B3CollapseContainer = (props: CollapseContainerProps) => {
     if (handleOnChange) handleOnChange(open)
   }, [open])
 
+  useEffect(() => {
+    if (defaultOpen) {
+      setOpen(defaultOpen)
+    }
+  }, [defaultOpen])
+
   return (
     <Box>
       <Box

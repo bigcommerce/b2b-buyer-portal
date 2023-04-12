@@ -893,7 +893,9 @@ const QuoteDraft = ({
                 isB2BUser={isB2BUser}
               />
 
-              <QuoteNote />
+              <QuoteNote
+                quoteStatus="Draft"
+              />
 
               {
                 role !== 100 && <QuoteAttachment status={0} />

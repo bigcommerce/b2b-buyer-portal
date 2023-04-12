@@ -245,6 +245,11 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
                 value="2"
                 control={<Radio />}
                 label={b3Lang('intl.user.register.registeredAccount.personalAccount')}
+                sx={{
+                  '& .MuiRadio-root.Mui-checked': {
+                    color: primaryColor,
+                  },
+                }}
               />
             )
           }
