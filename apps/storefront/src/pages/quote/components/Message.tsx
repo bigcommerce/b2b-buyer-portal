@@ -5,6 +5,7 @@ import {
   useState,
   useEffect,
   KeyboardEvent,
+  useContext,
 } from 'react'
 
 import {
@@ -36,6 +37,10 @@ import {
 import {
   storeHash,
 } from '@/utils'
+
+import {
+  CustomStyleContext,
+} from '@/shared/customStyleButtton'
 
 interface MessageProps {
   date?: number,
@@ -164,6 +169,14 @@ const Message = ({
   email,
   status,
 }: MsgsProps) => {
+  const {
+    state: {
+      portalStyle: {
+        primaryColor = '',
+      },
+    },
+  } = useContext(CustomStyleContext)
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const changeReadRef = useRef(0)
 
@@ -408,6 +421,12 @@ const Message = ({
                         width: '100%',
                         '& .MuiFormLabel-root': {
                           color: 'rgba(0, 0, 0, 0.38)',
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: primaryColor,
+                        },
+                        '& .MuiFilledInput-root:after': {
+                          borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
                         },
                       }}
                       value={message}

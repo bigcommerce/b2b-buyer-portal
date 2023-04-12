@@ -86,6 +86,9 @@ export const QuoteNote = () => {
                 '& .MuiFormLabel-root': {
                   color: 'rgba(0, 0, 0, 0.38)',
                 },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: primaryColor,
+                },
                 '& .MuiFilledInput-root:after': {
                   borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
                 },
