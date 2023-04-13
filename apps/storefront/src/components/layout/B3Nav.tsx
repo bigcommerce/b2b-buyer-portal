@@ -40,6 +40,7 @@ import {
 
 import {
   getContrastColor,
+  b3HexToRgb,
 } from '../outSideComponents/utils/b3CustomStyles'
 
 import {
@@ -143,6 +144,7 @@ export const B3Nav = ({
 
     return false
   }
+
   return (
     <List
       sx={{
@@ -150,9 +152,16 @@ export const B3Nav = ({
         maxWidth: 360,
         bgcolor: `${isMobile ? 'background.paper' : 'background.default'}`,
         color: primaryColor || 'info.main',
-        '& .MuiButtonBase-root.Mui-selected, & .MuiButtonBase-root.Mui-selected:hover': {
-          color: getContrastColor(primaryColor) || '#fff',
-          bgcolor: 'primary.main',
+        '& .MuiListItem-root': {
+          '& .MuiButtonBase-root.Mui-selected': {
+            color: getContrastColor(primaryColor) || '#fff',
+            bgcolor: 'primary.main',
+            borderRadius: '4px',
+          },
+          '& .MuiButtonBase-root:hover:not(.Mui-selected)': {
+            bgcolor: b3HexToRgb(primaryColor, 0.12),
+            borderRadius: '4px',
+          },
         },
       }}
       component="nav"

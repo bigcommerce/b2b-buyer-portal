@@ -25,11 +25,6 @@ interface ListProps {
 }
 
 const list: Array<ListProps> = [
-  // {
-  //   name: 'Account Settings',
-  //   key: '/account-settings',
-  //   type: 'path',
-  // },
   {
     name: 'Log out',
     key: 'logout',

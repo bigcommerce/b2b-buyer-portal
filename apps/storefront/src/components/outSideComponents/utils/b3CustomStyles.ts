@@ -36,8 +36,18 @@ const getContrastColor = (color: string) => {
   return brightness >= 128 ? '#000' : '#fff'
 }
 
+const b3HexToRgb = (color: string, transparency?: number) => {
+  const hex = color.replace('#', '')
+  const r = parseInt(hex.slice(0, 2), 16)
+  const g = parseInt(hex.slice(2, 4), 16)
+  const b = parseInt(hex.slice(4, 6), 16)
+
+  return transparency ? `rgb(${r}, ${g}, ${b}, ${transparency})` : `rgb(${r}, ${g}, ${b})`
+}
+
 export {
   getLocation,
   getStyles,
   getContrastColor,
+  b3HexToRgb,
 }

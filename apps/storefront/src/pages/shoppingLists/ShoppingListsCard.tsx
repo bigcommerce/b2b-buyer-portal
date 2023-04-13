@@ -180,9 +180,6 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
             sx={{
               m: '0 0 0 -8px',
               minWidth: 0,
-              '&:hover': {
-                backgroundColor: '#fff',
-              },
             }}
             variant="text"
             onClick={() => goToDetail(shoppingList)}

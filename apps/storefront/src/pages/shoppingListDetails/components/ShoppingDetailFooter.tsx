@@ -341,7 +341,10 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
                     }}
                     sx={{
                       marginLeft: '0.5rem',
-                      width: isMobile ? '80%' : 'auto',
+                      marginRight: '0.25rem',
+                      width: isMobile ? '80%' : '210px',
+                      height: isMobile ? '80%' : '40px',
+                      padding: '8px 22px',
                     }}
                   >
                     {allowJuniorPlaceOrder ? 'Proceed to checkout' : 'Add selected to cart'}

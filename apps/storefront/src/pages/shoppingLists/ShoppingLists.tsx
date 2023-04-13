@@ -101,7 +101,8 @@ const shoppingLists = () => {
     customButtomStyle: {
       fontSize: '15px',
       fontWeight: '500',
-      color: '#FFFFFF',
+      width: '140px',
+      padding: '0',
     },
   }
   const statusPermissions = +role !== 2 ? [0, 40] : ''
