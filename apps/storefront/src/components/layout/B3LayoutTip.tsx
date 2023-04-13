@@ -17,7 +17,7 @@ import {
 
 import {
   MsgsProps,
-} from '@/shared/global/context/config'
+} from '@/shared/dynamicallyVariable/context/config'
 
 const B3LayoutTip = () => {
   const {

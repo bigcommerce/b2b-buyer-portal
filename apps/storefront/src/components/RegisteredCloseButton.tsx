@@ -34,9 +34,7 @@ export function RegisteredCloseButton(props: CloseButtonProps) {
     state: {
       isCheckout,
       isCloseGotoBCHome,
-      isLoginStatusChange,
     },
-    dispatch,
   } = useContext(GlobaledContext)
 
   const handleCloseForm = () => {
@@ -47,16 +45,6 @@ export function RegisteredCloseButton(props: CloseButtonProps) {
         isOpen: false,
         openUrl: '',
       })
-
-      if (isLoginStatusChange) {
-        window.location.reload()
-        dispatch({
-          type: 'common',
-          payload: {
-            isLoginStatusChange: false,
-          },
-        })
-      }
     }
   }
 

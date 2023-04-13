@@ -8,7 +8,7 @@ import {
 import {
   TipMessagesProps,
   MsgsProps,
-} from '@/shared/global/context/config'
+} from '@/shared/dynamicallyVariable/context/config'
 
 interface B3TipProps extends TipMessagesProps {
   handleItemClose: (id: number | string) => void,

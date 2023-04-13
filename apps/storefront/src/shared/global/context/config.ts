@@ -1,6 +1,5 @@
 import {
   Dispatch,
-  ReactElement,
   ReactNode,
 } from 'react'
 
@@ -16,23 +15,6 @@ export interface CustomerInfo {
 }
 
 export type AlertTip = 'error' | 'info' | 'success' | 'warning'
-export interface MsgsProps {
-  title?: string,
-  msg?: string,
-  jsx?: () => ReactElement,
-  id: string | number,
-  type: AlertTip
-  isClose?: boolean,
-  vertical?: 'top' | 'bottom'
-  horizontal?: 'left' | 'right' | 'center'
-}
-export interface TipMessagesProps{
-  msgs?: Array<MsgsProps> | [],
-  autoHideDuration?: number,
-  vertical?: 'top' | 'bottom'
-  horizontal?: 'left' | 'right' | 'center'
-  isClose?: boolean
-}
 export interface State {
   stateCode?: string,
   stateName?: string,
@@ -80,8 +62,6 @@ export interface GlobalState {
   isCloseGotoBCHome: boolean,
   BcToken: string,
   isB2BUser: boolean,
-  isLogin: boolean,
-  isLoginStatusChange: boolean,
   customerId: number | string,
   customer: CustomerInfo,
   companyInfo: {
@@ -97,7 +77,7 @@ export interface GlobalState {
   salesRepCompanyId: string,
   salesRepCompanyName: string,
   B3UserId: number | string,
-  tipMessage: TipMessagesProps,
+  // tipMessage: TipMessagesProps,
   addressConfig?: {
     key: string,
     isEnabled: string,
@@ -118,15 +98,6 @@ export interface GlobalState {
   cartQuoteEnabled: boolean,
   shoppingListEnabled: boolean,
   quoteConfig: CustomFieldItems[],
-  globalMessageDialog: {
-    open: boolean,
-    title: string,
-    message: string,
-    cancelText?: string,
-    cancelFn?: () => void,
-    saveText?: string,
-    saveFn?: () => void,
-  },
   currencies: {
     channelCurrencies: channelCurrenciesProps,
     currencies: currencyProps,
@@ -140,8 +111,6 @@ export const initState = {
   isCloseGotoBCHome: false,
   BcToken: B3SStorage.get('BcToken') || '',
   isB2BUser: B3SStorage.get('isB2BUser') || false,
-  isLogin: false,
-  isLoginStatusChange: false,
   customerId: B3SStorage.get('B3CustomerId') || '',
   B3UserId: B3SStorage.get('B3UserId') || '',
   emailAddress: B3SStorage.get('B3EmailAddress') || '',
@@ -165,7 +134,6 @@ export const initState = {
   },
   logo: '',
   isCompanyAccount: false,
-  tipMessage: {},
   storeEnabled: false,
   storeName: '',
   currentChannelId: 1,
@@ -175,12 +143,6 @@ export const initState = {
   cartQuoteEnabled: false,
   shoppingListEnabled: false,
   quoteConfig: [],
-  globalMessageDialog: {
-    open: false,
-    title: '',
-    message: '',
-    cancelText: 'Cancel',
-  },
   currencies: B3SStorage.get('currencies') || {},
   openAPPParams: {
     quoteBtn: '',

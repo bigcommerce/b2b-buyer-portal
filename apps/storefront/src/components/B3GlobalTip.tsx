@@ -5,7 +5,7 @@ import {
 
 import {
   MsgsProps,
-} from '@/shared/global/context/config'
+} from '@/shared/dynamicallyVariable/context/config'
 
 import {
   B3Tip,

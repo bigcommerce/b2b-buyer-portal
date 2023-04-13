@@ -262,13 +262,6 @@ export default function Login(props:RegisteredProps) {
         } else {
           const info = await getCurrentCustomerInfo(dispatch)
 
-          dispatch({
-            type: 'common',
-            payload: {
-              isLoginStatusChange: true,
-            },
-          })
-
           if (info?.userType === 3 && info?.role === 3) {
             navigate('/dashboard')
           } else {

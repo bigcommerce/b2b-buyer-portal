@@ -7,6 +7,10 @@ import {
   GlobaledContext,
 } from '@/shared/global'
 
+import {
+  DynamicallyVariableedContext,
+} from '@/shared/dynamicallyVariable'
+
 const {
   height: defaultHeight,
   overflow: defaultOverflow,
@@ -16,6 +20,10 @@ const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems
   const {
     dispatch,
   } = useContext(GlobaledContext)
+
+  const {
+    dispatch: dispatchMsg,
+  } = useContext(DynamicallyVariableedContext)
   useEffect(() => {
     if (isOpen) {
       // The iframe screen is removed
@@ -45,7 +53,7 @@ const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems
       document.body.style.overflow = defaultOverflow
 
       // close all tips
-      dispatch({
+      dispatchMsg({
         type: 'common',
         payload: {
           tipMessage: {

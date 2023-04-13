@@ -35,7 +35,6 @@ export interface DynamicallyVariableState {
     saveText?: string,
     saveFn?: () => void,
   },
-  isCloseScrollBar: boolean,
 }
 
 export const initState = {
@@ -47,7 +46,6 @@ export const initState = {
     message: '',
     cancelText: 'Cancel',
   },
-  isCloseScrollBar: false,
 }
 
 export interface DynamicallyVariableAction {
