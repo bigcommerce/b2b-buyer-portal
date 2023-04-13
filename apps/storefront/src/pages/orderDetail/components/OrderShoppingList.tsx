@@ -11,6 +11,12 @@ import {
   ListItemText,
 } from '@mui/material'
 
+import AddIcon from '@mui/icons-material/Add'
+
+import {
+  grey,
+} from '@mui/material/colors'
+
 import styled from '@emotion/styled'
 
 import {
@@ -158,6 +164,9 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
               maxHeight: '400px',
               width: '100%',
               overflowY: 'auto',
+              '.MuiButtonBase-root.MuiMenuItem-gutters:hover': {
+                backgroundColor: grey[100],
+              },
             }}
           >
             {
@@ -183,7 +192,12 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
             textTransform: 'none',
           }}
         >
-          + Create New
+          <AddIcon sx={{
+            fontSize: '17px',
+          }}
+          />
+          {' '}
+          Create new
         </CustomButton>
       </B3Sping>
     </B3Dialog>

@@ -281,6 +281,7 @@ export const B3Upload = (props: B3UploadProps) => {
         >
           <InsertDriveFile sx={{
             color: primaryColor || '#1976D2',
+            fontSize: '40px',
           }}
           />
         </Grid>
@@ -398,7 +399,6 @@ export const B3Upload = (props: B3UploadProps) => {
         sx={{
           maxHeight: isMobile ? '200px' : 'calc(100% - 64px)',
           minWidth: isMobile ? '100%' : '600px',
-          margin: isMobile ? '' : '1rem',
         }}
       >
         {

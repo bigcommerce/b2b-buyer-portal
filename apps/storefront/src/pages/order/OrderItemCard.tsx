@@ -107,7 +107,7 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
             }}
           >
             <Typography
-              variant="h6"
+              variant="h5"
               sx={{
                 color: 'rgba(0, 0, 0, 0.87)',
               }}

@@ -79,12 +79,14 @@ const FlexItem = styled('div')(({
   flexShrink: 1,
   alignItems: 'flex-start',
   width: '100%',
-  padding: padding || '0 0 0 76px',
+  padding: padding || '0 0 0 16px',
 }))
 
 const ProductImage = styled('img')(() => ({
   width: '60px',
+  height: '60px',
   borderRadius: '4px',
+  marginTop: '12px',
   flexShrink: 0,
 }))
 
@@ -354,60 +356,66 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
       >
         {product && (
         <Box>
-          <Flex>
-            <FlexItem padding="0">
-              <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
-              <Box
-                sx={{
-                  marginLeft: '16px',
-                }}
-              >
-                <Typography
-                  variant="body1"
-                  color="#212121"
+          <Box
+            sx={{
+              display: 'flex',
+            }}
+          >
+            <Box><ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} /></Box>
+            <Flex>
+              <FlexItem padding="0">
+                <Box
+                  sx={{
+                    marginLeft: '16px',
+                  }}
                 >
-                  {product.name}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  color="#616161"
-                >
-                  {variantSku || product.sku}
-                </Typography>
-                {(product.product_options || []).map((option) => (
-                  <ProductOptionText key={`${option.option_id}`}>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
-                ))}
-              </Box>
-            </FlexItem>
+                  <Typography
+                    variant="body1"
+                    color="#212121"
+                  >
+                    {product.name}
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    color="#616161"
+                  >
+                    {variantSku || product.sku}
+                  </Typography>
+                  {(product.product_options || []).map((option) => (
+                    <ProductOptionText key={`${option.option_id}`}>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
+                  ))}
+                </Box>
+              </FlexItem>
 
-            <FlexItem>
-              <span>Price:</span>
-              {getProductPrice(product)}
-            </FlexItem>
+              <FlexItem>
+                <span>Price:</span>
+                {getProductPrice(product)}
+              </FlexItem>
 
-            <FlexItem>
-              <TextField
-                type="number"
-                variant="filled"
-                label="Qty"
-                value={quantity}
-                onChange={handleProductQuantityChange}
-                onKeyDown={handleNumberInputKeyDown}
-                onBlur={handleNumberInputBlur}
-                size="small"
-                sx={{
-                  width: '60%',
-                  maxWidth: '100px',
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: primaryColor,
-                  },
-                  '& .MuiFilledInput-root:after': {
-                    borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
-                  },
-                }}
-              />
-            </FlexItem>
-          </Flex>
+              <FlexItem>
+                <TextField
+                  type="number"
+                  variant="filled"
+                  label="Qty"
+                  value={quantity}
+                  onChange={handleProductQuantityChange}
+                  onKeyDown={handleNumberInputKeyDown}
+                  onBlur={handleNumberInputBlur}
+                  size="small"
+                  sx={{
+                    width: '60%',
+                    maxWidth: '100px',
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: primaryColor,
+                    },
+                    '& .MuiFilledInput-root:after': {
+                      borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
+                    },
+                  }}
+                />
+              </FlexItem>
+            </Flex>
+          </Box>
 
           <Divider sx={{
             margin: '16px 0 24px',

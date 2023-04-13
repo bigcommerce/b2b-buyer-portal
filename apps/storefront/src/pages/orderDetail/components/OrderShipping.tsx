@@ -225,7 +225,7 @@ export const OrderShipping = () => {
                       quantityKey="not_shipping_number"
                       products={shipping.notShip.itemsInfo}
                       currency={currency}
-                      totalText="Cost"
+                      totalText="Total"
                       canToProduct
                       textAlign={isMobile ? 'left' : 'right'}
                     />

@@ -116,7 +116,7 @@ const ProductOptionText = styled('div')(() => ({
 
 const defaultItemStyle = {
   default: {
-    width: '100px',
+    width: '15%',
   },
   qty: {
     width: '80px',
@@ -141,7 +141,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
     getProductQuantity = (item) => item.editQuantity,
     onProductChange = () => {},
     setCheckedArr = () => {},
-    textAlign = 'right',
+    textAlign = 'left',
   } = props
 
   const [isMobile] = useMobile()
@@ -222,7 +222,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
             checked={list.length === products.length}
             onChange={handleSelectAllChange}
           />
-          <FlexItem flexBasis="100px">
+          <FlexItem>
             <ProductHead>Product</ProductHead>
           </FlexItem>
           <FlexItem
@@ -233,7 +233,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
           </FlexItem>
           <FlexItem
             textAlignLocation={textAlign}
-            {...itemStyle.qty}
+            {...itemStyle.default}
           >
             <ProductHead>Qty</ProductHead>
           </FlexItem>
@@ -241,7 +241,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
             textAlignLocation={textAlign}
             {...itemStyle.default}
           >
-            <ProductHead>Cost</ProductHead>
+            <ProductHead>Total</ProductHead>
           </FlexItem>
         </Flex>
         )
@@ -274,7 +274,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
               checked={isChecked(product.variant_id)}
               onChange={() => handleSelectChange(product.variant_id)}
             />
-            <FlexItem flexBasis="100px">
+            <FlexItem>
               <ProductImage src={product.imageUrl} />
               <Box
                 sx={{
@@ -312,7 +312,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
             </FlexItem>
             <FlexItem
               textAlignLocation={textAlign}
-              {...itemStyle.qty}
+              {...itemStyle.default}
             >
               <TextField
                 type="number"
@@ -325,7 +325,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
                 onBlur={handleNumberInputBlur(product)}
                 size="small"
                 sx={{
-                  width: isMobile ? '60%' : '100%',
+                  width: isMobile ? '60%' : '80px',
                   '& .MuiFormHelperText-root': {
                     marginLeft: '0',
                     marginRight: '0',
@@ -340,7 +340,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
               padding="10px 0 0"
               {...itemStyle.default}
             >
-              {isMobile && <span>Cost: </span>}
+              {isMobile && <span>Total: </span>}
               {`${currencyInfo.currency_token} ${getProductTotals(getProductQuantity(product), product.base_price)}`}
             </FlexItem>
           </Flex>

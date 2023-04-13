@@ -151,7 +151,7 @@ export const OrderProduct = (props: OrderProductProps) => {
             <ProductHead>Qty</ProductHead>
           </FlexItem>
           <FlexItem {...itemStyle.default}>
-            <ProductHead>Cost</ProductHead>
+            <ProductHead>Total</ProductHead>
           </FlexItem>
         </Flex>
         )
@@ -196,7 +196,7 @@ export const OrderProduct = (props: OrderProductProps) => {
               {getProductQuantity(product)}
             </FlexItem>
             <FlexItem {...itemStyle.default}>
-              {isMobile && <span>Cost:</span>}
+              {isMobile && <span>Total:</span>}
               {`${currency} ${getProductTotals(getProductQuantity(product), product.base_price)}`}
             </FlexItem>
           </Flex>

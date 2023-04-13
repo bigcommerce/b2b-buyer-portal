@@ -379,7 +379,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           handRightClick={handleSaveClick}
           title={currentDialogData?.dialogTitle || ''}
           rightSizeBtn={currentDialogData?.confirmText || 'Save'}
-          maxWidth="lg"
+          maxWidth="md"
           loading={isRequestLoading}
         >
           <Typography

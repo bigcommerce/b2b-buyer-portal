@@ -1,7 +1,12 @@
 import FilterListIcon from '@mui/icons-material/FilterList'
 import {
   Box,
+  IconButton,
 } from '@mui/material'
+
+import {
+  grey,
+} from '@mui/material/colors'
 
 import {
   useForm,
@@ -159,12 +164,34 @@ const B3FilterMore:<T, Y> ({
         ((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
         <Box onClick={handleDialogClick}>
           {
-            !isFiltering && <FilterListIcon />
+            !isFiltering && (
+            <IconButton
+              aria-label="edit"
+              size="medium"
+              sx={{
+                ':hover': {
+                  backgroundColor: grey[100],
+                },
+              }}
+            >
+              <FilterListIcon />
+            </IconButton>
+            )
           }
           {
             isFiltering && (
               <>
-                <FilterListIcon />
+                <IconButton
+                  aria-label="edit"
+                  size="medium"
+                  sx={{
+                    ':hover': {
+                      backgroundColor: grey[100],
+                    },
+                  }}
+                >
+                  <FilterListIcon />
+                </IconButton>
                 <Box
                   sx={{
                     display: 'flex',

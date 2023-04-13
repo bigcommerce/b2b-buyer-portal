@@ -194,7 +194,7 @@ const routes: RouteItem[] = [
   },
   {
     path: '/purchased-products',
-    name: 'Quick Order',
+    name: 'Quick order',
     pageTitle: 'Purchase products',
     wsKey: 'quickorder',
     isMenuItem: true,

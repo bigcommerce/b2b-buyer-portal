@@ -115,9 +115,9 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
         <Flex>
           <CustomButton
             variant="text"
-            sx={{
-              padding: 0,
-            }}
+            // sx={{
+            //   padding: 0,
+            // }}
             onClick={() => { onSetAddress(addressInfo) }}
           >
             Choose address

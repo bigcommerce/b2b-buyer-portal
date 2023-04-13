@@ -347,7 +347,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
               variant="text"
               sx={{
                 textTransform: 'initial',
-                padding: 0,
+                ml: '-8px',
               }}
               onClick={handleAddRowsClick}
             >

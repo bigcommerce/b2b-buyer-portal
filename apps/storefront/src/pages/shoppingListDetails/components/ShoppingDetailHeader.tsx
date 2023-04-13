@@ -29,7 +29,7 @@ import {
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
   alignItems: 'center',
-  marginTop: '0.5rem',
+  // marginTop: '0.5rem',
 }))
 
 interface OpenPageState {
@@ -107,13 +107,14 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
               color: customColor,
             }}
           />
-          <p style={{
-            margin: 0,
-            color: customColor,
-          }}
+          <Box
+            sx={{
+              margin: 0,
+              color: customColor,
+            }}
           >
             {openAPPParams.shoppingListBtn !== 'add' ? 'Back to shopping lists' : 'Back to product'}
-          </p>
+          </Box>
         </Box>
       </Box>
       <Grid

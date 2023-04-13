@@ -150,7 +150,7 @@ const ProductImage = styled('img')(() => ({
 
 const defaultItemStyle = {
   default: {
-    width: '80px',
+    width: '15%',
   },
   qty: {
     width: '80px',
@@ -368,13 +368,13 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                     isHeader
                     isMobile={isMobile}
                   >
-                    <FlexItem flexBasis="100px">
+                    <FlexItem>
                       <ProductHead>Product</ProductHead>
                     </FlexItem>
                     <FlexItem {...itemStyle.default}>
                       <ProductHead>Price</ProductHead>
                     </FlexItem>
-                    <FlexItem {...itemStyle.qty}>
+                    <FlexItem {...itemStyle.default}>
                       <ProductHead>Qty</ProductHead>
                     </FlexItem>
                     <FlexItem {...itemStyle.default}>
@@ -435,7 +435,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                         isMobile={isMobile}
                         key={variantSku}
                       >
-                        <FlexItem flexBasis="100px">
+                        <FlexItem>
                           <ProductImage src={primaryImage || PRODUCT_DEFAULT_IMAGE} />
                           <Box
                             sx={{
@@ -477,7 +477,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                           {isMobile && <span>Price: </span>}
                           {`${currencyToken}${price.toFixed(2)}`}
                         </FlexItem>
-                        <FlexItem {...itemStyle.qty}>
+                        <FlexItem {...itemStyle.default}>
                           <B3QuantityTextField
                             isStock={isStock}
                             maxQuantity={maxQuantity}

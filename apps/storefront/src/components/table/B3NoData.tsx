@@ -42,6 +42,6 @@ export const B3NoData = ({
     {
       !isLoading && <DataUsageRounded fontSize="large" />
     }
-    <NoDataText>{isLoading ? '' : (text || 'No Data')}</NoDataText>
+    <NoDataText>{isLoading ? '' : (text || 'No data')}</NoDataText>
   </NoDataContainer>
 )

@@ -133,7 +133,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
                 <CustomButton
                   variant="text"
                   sx={{
-                    padding: 0,
+                    ml: '-8px',
                   }}
                   onClick={() => { onSetDefault(addressInfo) }}
                 >

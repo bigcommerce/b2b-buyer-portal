@@ -437,7 +437,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           </Box>
         )
       },
-      width: '40%',
+      width: '45%',
     },
     {
       key: 'Price',
@@ -479,15 +479,16 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           size="small"
           type="number"
           variant="filled"
+          sx={{
+            width: '72px',
+            '& .MuiFilledInput-root:after': {
+              borderBottom: `2px solid ${customColor || '#1976d2'}`,
+            },
+          }}
           disabled={isReadForApprove || isJuniorApprove}
           value={row.quantity}
           inputProps={{
             inputMode: 'numeric', pattern: '[0-9]*',
-          }}
-          sx={{
-            '& .MuiFilledInput-root:after': {
-              borderBottom: `2px solid ${customColor || '#1976d2'}`,
-            },
           }}
           onChange={(e) => {
             handleUpdateProductQty(row.id, e.target.value)
@@ -595,7 +596,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           </Box>
         )
       },
-      width: '20%',
+      width: '15%',
       style: {
         textAlign: 'right',
       },

@@ -101,6 +101,11 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
   return (
     <Card
       key={shoppingList.id}
+      sx={{
+        '.MuiCardContent-root': {
+          pb: '18px',
+        },
+      }}
     >
       <CardContent
         sx={{
@@ -173,8 +178,7 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
         <Flex>
           <CustomButton
             sx={{
-              p: 0,
-              m: 0,
+              m: '0 0 0 -8px',
               minWidth: 0,
               '&:hover': {
                 backgroundColor: '#fff',

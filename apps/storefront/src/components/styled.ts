@@ -24,3 +24,8 @@ export const StyledNumberTextField = styled(TextField)(() => ({
     paddingRight: '6px',
   },
 }))
+export const StyledNumberNoTopTextField = styled(TextField)(() => ({
+  '& input': {
+    paddingRight: '6px',
+  },
+}))

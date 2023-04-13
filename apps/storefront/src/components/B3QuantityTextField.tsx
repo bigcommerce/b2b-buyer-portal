@@ -8,7 +8,7 @@ import {
 } from '@/hooks'
 
 import {
-  StyledNumberTextField,
+  StyledNumberNoTopTextField,
 } from './styled'
 
 interface B3NumberTextFieldProps{
@@ -38,7 +38,7 @@ export const B3QuantityTextField = (props: B3NumberTextFieldProps) => {
     hiddenLabel = !isMobile,
     onChange = () => {},
     sx = {
-      width: isMobile ? '60%' : '100%',
+      width: isMobile ? '110px' : '72px',
       '& .MuiFormHelperText-root': {
         marginLeft: '0',
         marginRight: '0',
@@ -83,7 +83,7 @@ export const B3QuantityTextField = (props: B3NumberTextFieldProps) => {
   }, [value])
 
   return (
-    <StyledNumberTextField
+    <StyledNumberNoTopTextField
       size="small"
       type="number"
       variant="filled"

@@ -226,6 +226,12 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                   rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
                   labelRowsPerPage={labelRowsPerPage || 'per page:'}
                   component="div"
+                  sx={{
+                    marginTop: '1.5rem',
+                    '::-webkit-scrollbar': {
+                      display: 'none',
+                    },
+                  }}
                   count={count}
                   rowsPerPage={first}
                   page={first === 0 ? 0 : offset / first}
@@ -267,6 +273,12 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                   rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
                   labelRowsPerPage={labelRowsPerPage || 'Cards per page:'}
                   component="div"
+                  sx={{
+                    marginTop: '1.5rem',
+                    '::-webkit-scrollbar': {
+                      display: 'none',
+                    },
+                  }}
                   count={count}
                   rowsPerPage={first}
                   page={first === 0 ? 0 : offset / first}
@@ -391,6 +403,12 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                 rowsPerPageOptions={showRowsPerPageOptions ? rowsPerPageOptions : []}
                 labelRowsPerPage={labelRowsPerPage || 'Rows per page:'}
                 component="div"
+                sx={{
+                  marginTop: '1.5rem',
+                  '::-webkit-scrollbar': {
+                    display: 'none',
+                  },
+                }}
                 count={count}
                 rowsPerPage={first}
                 page={first === 0 ? 0 : offset / first}

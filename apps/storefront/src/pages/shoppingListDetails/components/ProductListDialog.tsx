@@ -71,6 +71,9 @@ const ProductTableAction = (props: ProductTableActionProps) => {
       ? (
         <CustomButton
           variant="outlined"
+          // sx={{
+          //   marginLeft: '9%',
+          // }}
           onClick={() => {
             onChooseOptionsClick(id)
           }}
@@ -83,6 +86,9 @@ const ProductTableAction = (props: ProductTableActionProps) => {
       : (
         <CustomButton
           variant="outlined"
+          // sx={{
+          //   marginLeft: '9%',
+          // }}
           onClick={() => {
             onAddToListClick(id)
           }}
@@ -187,14 +193,14 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
       title={searchDialogTitle}
       showRightBtn={false}
       loading={isLoading}
-      maxWidth="lg"
+      maxWidth="md"
       leftSizeBtn="close"
     >
       <B3Sping
         isSpinning={isLoading}
       >
         <Box sx={{
-          minWidth: isMobile ? 'initial' : '850px',
+          minWidth: isMobile ? 'initial' : '100%',
           flex: 1,
         }}
         >
@@ -230,7 +236,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
               <ProductTable
                 products={productList}
                 quantityEditable
-                textAlign="right"
+                textAlign="left"
                 onProductQuantityChange={onProductQuantityChange}
                 renderAction={(product) => (
                   <ProductTableAction
@@ -240,7 +246,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
                     addButtonText={addButtonText}
                   />
                 )}
-                actionWidth="180px"
+                actionWidth="158px"
                 customColor={primaryColor}
               />
             ) : (

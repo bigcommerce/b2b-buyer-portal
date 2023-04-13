@@ -109,10 +109,10 @@ const ProductOptionText = styled('div')(() => ({
 
 const defaultItemStyle = {
   default: {
-    width: '100px',
+    width: '10%',
   },
   qty: {
-    width: '15%',
+    width: '12%',
   },
 }
 
@@ -123,7 +123,7 @@ const mobileItemStyle = {
   },
   qty: {
     width: '100%',
-    padding: '0 0 0 76px',
+    padding: '0 0 0 72px',
   },
 }
 
@@ -246,7 +246,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
             />
             )
           }
-          <FlexItem>
+          <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
             <ProductHead>Product</ProductHead>
           </FlexItem>
           <FlexItem
@@ -310,7 +310,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
                 />
               )
             }
-            <FlexItem>
+            <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
               <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
               <Box
                 sx={{
@@ -376,7 +376,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
                       onBlur={handleNumberInputBlur(product)}
                       size="small"
                       sx={{
-                        width: '60%',
+                        width: `${isMobile ? '110px' : '72px'}`,
                         '& .MuiFormHelperText-root': {
                           marginLeft: '0',
                           marginRight: '0',
