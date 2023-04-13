@@ -32,6 +32,9 @@ export const QuoteTermsAndConditions = (props: QuoteTermsAndConditionsProps) => 
               variant="body1"
               style={{
                 whiteSpace: 'pre-line',
+                maxWidth: '338px',
+                maxHeight: '400px',
+                overflow: 'auto',
               }}
             >
               {quoteLegalTerms}
