@@ -86,6 +86,9 @@ const storeforntKeys: StoreforntKeysProps[] = [
   }, {
     key: 'quote_logo',
     name: 'quote_logo',
+  }, {
+    key: 'company_auto_approval',
+    name: 'companyAutoApproval',
   },
 ]
 

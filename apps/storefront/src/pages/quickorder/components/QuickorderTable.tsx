@@ -136,7 +136,7 @@ const QuickorderTable = ({
 
   const [search, setSearch] = useState<SearchProps>({
     q: '',
-    beginDateAt: distanceDay(30),
+    beginDateAt: distanceDay(90),
     endDateAt: distanceDay(0),
   })
 
@@ -217,7 +217,7 @@ const QuickorderTable = ({
       ...search,
     }
     if (key === 'start') {
-      params.beginDateAt = value || distanceDay(30)
+      params.beginDateAt = value || distanceDay(90)
     } else {
       params.endDateAt = value || distanceDay(0)
     }
@@ -456,7 +456,7 @@ const QuickorderTable = ({
               startPicker={{
                 isEnabled: true,
                 label: 'From',
-                defaultValue: distanceDay(30),
+                defaultValue: distanceDay(90),
                 pickerKey: 'start',
               }}
               endPicker={{

@@ -260,8 +260,15 @@ const OrderDetail = () => {
               order: isMobile ? 1 : 0,
             }}
           >
-            <Typography variant="h4">{`Order #${orderId}`}</Typography>
-            {poNumber && <Typography variant="body2">{poNumber}</Typography>}
+            <Typography
+              variant="h4"
+              sx={{
+                color: '#263238',
+              }}
+            >
+              {`Order #${orderId}`}
+              {poNumber && `, ${poNumber}`}
+            </Typography>
             <OrderStatus
               code={status}
               text={customStatus}

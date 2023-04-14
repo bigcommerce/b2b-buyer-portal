@@ -3,7 +3,7 @@ import {
   ReactNode,
 } from 'react'
 
-type BtnKeys = 'masqueradeButton' | 'addQuoteBtn' | 'floatingAction' | 'addToAllQuoteBtn' | 'shoppingListBtn' | 'portalStyle' | 'loginPageButton' | 'loginPageDisplay' | 'loginPageHtml' | 'accountLoginRegistration'
+type BtnKeys = 'masqueradeButton' | 'addQuoteBtn' | 'floatingAction' | 'addToAllQuoteBtn' | 'shoppingListBtn' | 'portalStyle' | 'loginPageButton' | 'loginPageDisplay' | 'loginPageHtml' | 'accountLoginRegistration' | 'companyAutoApproval'
 
 interface BtnStyle {
   color: string,
@@ -106,6 +106,9 @@ export const initState = {
   accountLoginRegistration: {
     b2b: true,
     b2c: true,
+  },
+  companyAutoApproval: {
+    enabled: true,
   },
 }
 

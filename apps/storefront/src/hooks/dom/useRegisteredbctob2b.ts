@@ -62,14 +62,13 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
   useEffect(() => {
     if (b2b && !isB2BUser && +companyInfo.companyStatus === 99 && customerId && document.querySelector(globalB3['dom.navUserLoginElement'])) {
       // already exist
-      console.log(document.querySelector('.navUser-item.navUser-convert-b2b'))
       if (document.querySelector('.navUser-item.navUser-convert-b2b')) {
         return
       }
 
       const convertB2BNavNode = createConvertB2BNavNode()
       const accountNode = document.querySelector(globalB3['dom.navUserLoginElement'])
-      console.log(accountNode, 'accountNode')
+
       accountNode?.parentNode?.insertBefore(convertB2BNavNode, accountNode)
 
       const linkNode = convertB2BNavNode.querySelector('a')

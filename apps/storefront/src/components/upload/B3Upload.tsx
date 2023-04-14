@@ -333,6 +333,7 @@ export const B3Upload = (props: B3UploadProps) => {
               underline="none"
               sx={{
                 color: primaryColor,
+                pointerEvents: 'auto',
               }}
             >
               Download sample
