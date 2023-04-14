@@ -6,7 +6,6 @@ import {
   forwardRef,
   useImperativeHandle,
   useEffect,
-  useContext,
 } from 'react'
 import {
   Box, Typography,
@@ -30,10 +29,6 @@ import {
 import {
   ChooseAddress,
 } from './ChooseAddress'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 type AddressItemProps = {
   node: AddressItemType
@@ -100,14 +95,6 @@ const QuoteAddress = ({
   role,
   accountFormFields = [],
 }: AddressProps, ref: any) => {
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
-
   const {
     control,
     getValues,
@@ -207,7 +194,7 @@ const QuoteAddress = ({
             sx={{
               fontWeight: 500,
               fontSize: '14px',
-              color: primaryColor || '#1976D2',
+              color: 'primary.main',
               display: 'flex',
               alignItems: 'flex-end',
               cursor: 'pointer',

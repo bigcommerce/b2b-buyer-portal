@@ -16,16 +16,11 @@ import {
   ChangeEvent,
   MouseEvent,
   ReactElement,
-  useContext,
 } from 'react'
 
 import {
   B3NoData,
 } from './B3NoData'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 export interface Pagination {
   offset: number,
@@ -123,14 +118,6 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
   } = pagination
   const clickableRowStyles = typeof onClickRow === 'function' ? MOUSE_POINTER_STYLE : undefined
 
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
-
   const handlePaginationChange = (pagination: Pagination) => {
     if (!isLoading) {
       onPaginationChange(pagination)
@@ -165,9 +152,6 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  '& .MuiCheckbox-root.Mui-checked': {
-                    color: primaryColor,
-                  },
                 }}
               >
                 <Checkbox
@@ -182,11 +166,6 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
             <Grid
               container
               spacing={itemIsMobileSpacing}
-              sx={{
-                '& .MuiCheckbox-root.Mui-checked': {
-                  color: primaryColor,
-                },
-              }}
             >
               {
                 listItems.map((row, index) => {
@@ -198,11 +177,6 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                         if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol])
                       }}
                       disabled={disableCheckbox}
-                      sx={{
-                        '& .MuiCheckbox-root.Mui-checked': {
-                          color: primaryColor,
-                        },
-                      }}
                     />
                   )
                   return (
@@ -311,11 +285,6 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                       showCheckbox && (
                         <TableCell
                           key="showCheckbox"
-                          sx={{
-                            '& .MuiCheckbox-root.Mui-checked': {
-                              color: primaryColor,
-                            },
-                          }}
                         >
                           <Checkbox
                             checked={selectCheckbox.length === listItems.length}
@@ -363,9 +332,6 @@ export const B3Table:<T>(props: TableProps<T>) => ReactElement = ({
                             key={`showItemCheckbox-${node.id}`}
                             sx={{
                               borderBottom: showBorder ? '1px solid rgba(224, 224, 224, 1)' : lastItemBorderBottom,
-                              '& .MuiCheckbox-root.Mui-checked': {
-                                color: primaryColor,
-                              },
                             }}
                           >
                             <Checkbox

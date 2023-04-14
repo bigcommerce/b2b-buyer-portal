@@ -152,7 +152,7 @@ export const B3Nav = ({
         color: primaryColor || 'info.main',
         '& .MuiButtonBase-root.Mui-selected, & .MuiButtonBase-root.Mui-selected:hover': {
           color: getContrastColor(primaryColor) || '#fff',
-          bgcolor: primaryColor || 'primary.main',
+          bgcolor: 'primary.main',
         },
       }}
       component="nav"

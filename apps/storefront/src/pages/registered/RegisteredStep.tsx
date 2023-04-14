@@ -23,10 +23,6 @@ import {
   steps,
 } from './config'
 
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-
 interface RegisteredStepProps {
   children: ReactNode,
   isStepOptional: (index: number) => Boolean,
@@ -50,14 +46,6 @@ export default function RegisteredStep(props: RegisteredStepProps) {
     submitSuccess,
   } = state
   const newPageTitle = accountType === '1' ? b3Lang('intl.user.register.title.registerComplete') : b3Lang('intl.user.register.title.accountCreated')
-
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
 
   return (
     <Box component="div">
@@ -89,11 +77,6 @@ export default function RegisteredStep(props: RegisteredStepProps) {
               <Step
                 key={label}
                 {...stepProps}
-                sx={{
-                  '& .MuiStepIcon-root.Mui-active': {
-                    color: primaryColor,
-                  },
-                }}
               >
                 <StepLabel {...labelProps}>{b3Lang(label)}</StepLabel>
               </Step>

@@ -79,9 +79,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const {
     state: {
       accountLoginRegistration,
-      portalStyle: {
-        primaryColor = '',
-      },
     },
   } = useContext(CustomStyleContext)
 
@@ -231,11 +228,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
                 value="1"
                 control={<Radio />}
                 label={b3Lang('intl.user.register.registeredAccount.businessAccount')}
-                sx={{
-                  '& .MuiRadio-root.Mui-checked': {
-                    color: primaryColor,
-                  },
-                }}
               />
             )
           }
@@ -245,11 +237,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
                 value="2"
                 control={<Radio />}
                 label={b3Lang('intl.user.register.registeredAccount.personalAccount')}
-                sx={{
-                  '& .MuiRadio-root.Mui-checked': {
-                    color: primaryColor,
-                  },
-                }}
               />
             )
           }

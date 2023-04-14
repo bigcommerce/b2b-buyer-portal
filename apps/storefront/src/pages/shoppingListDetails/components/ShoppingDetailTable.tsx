@@ -107,7 +107,6 @@ interface ShoppingDetailTableProps {
   setDeleteItemId: (itemId: number | string) => void,
   setDeleteOpen: (open: boolean) => void,
   isB2BUser: boolean,
-  customColor: string,
 }
 
 interface SearchProps {
@@ -175,7 +174,6 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     isJuniorApprove,
     isB2BUser,
     allowJuniorPlaceOrder,
-    customColor,
   } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -481,9 +479,6 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           variant="filled"
           sx={{
             width: '72px',
-            '& .MuiFilledInput-root:after': {
-              borderBottom: `2px solid ${customColor || '#1976d2'}`,
-            },
           }}
           disabled={isReadForApprove || isJuniorApprove}
           value={row.quantity}

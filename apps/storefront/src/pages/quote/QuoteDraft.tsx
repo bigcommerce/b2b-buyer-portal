@@ -103,10 +103,6 @@ import {
   Container,
 } from './style'
 
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-
 type BCAddress = {
   node: BCAddressItemType
 }
@@ -174,14 +170,6 @@ const QuoteDraft = ({
       openAPPParams,
     },
   } = useContext(GlobaledContext)
-
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
 
   const navigate = useNavigate()
 
@@ -673,7 +661,7 @@ const QuoteDraft = ({
         >
           <Box
             sx={{
-              color: primaryColor || '#1976d2',
+              color: 'primary.main',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -863,7 +851,6 @@ const QuoteDraft = ({
               currencyToken={currencyToken}
               getQuoteTableDetails={getQuoteTableDetails}
               isB2BUser={isB2BUser}
-              customColor={primaryColor}
             />
 
           </Container>

@@ -141,7 +141,6 @@ interface ProductProps <T> {
   totalText?: string,
   canToProduct?: boolean,
   textAlign?: string,
-  customColor?: string,
 }
 
 export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props) => {
@@ -159,7 +158,6 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     totalText = 'Total',
     canToProduct = false,
     textAlign = 'left',
-    customColor = '',
   } = props
 
   const [list, setList] = useState<ProductItem[]>([])
@@ -380,9 +378,6 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
                         '& .MuiFormHelperText-root': {
                           marginLeft: '0',
                           marginRight: '0',
-                        },
-                        '& .MuiFilledInput-root:after': {
-                          borderBottom: `2px solid ${customColor || '#1976d2'}`,
                         },
                       }}
                       error={!!product.helperText}

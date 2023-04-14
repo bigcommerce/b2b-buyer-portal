@@ -2,7 +2,6 @@ import {
   ChangeEvent,
   Dispatch,
   SetStateAction,
-  useContext,
   useEffect,
   useState,
 } from 'react'
@@ -34,10 +33,6 @@ import {
   AddressItemType,
 } from '../../../types/address'
 
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-
 interface SetDefaultDialogProps {
   isOpen: boolean
   setIsOpen: Dispatch<SetStateAction<boolean>>
@@ -56,13 +51,6 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
     updateAddressList,
     companyId,
   } = props
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
 
   const [isMobile] = useMobile()
 
@@ -145,11 +133,6 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
                   />
             )}
                 label="Set as default shipping address "
-                sx={{
-                  '& .MuiCheckbox-root.Mui-checked': {
-                    color: primaryColor,
-                  },
-                }}
               />
               <FormControlLabel
                 control={(
@@ -159,11 +142,6 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
                   />
             )}
                 label="Set as default billing address "
-                sx={{
-                  '& .MuiCheckbox-root.Mui-checked': {
-                    color: primaryColor,
-                  },
-                }}
               />
             </FormGroup>
           </Box>

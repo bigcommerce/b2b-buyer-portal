@@ -10,7 +10,6 @@ import {
   useState,
   ChangeEvent,
   useEffect,
-  useContext,
 } from 'react'
 
 import {
@@ -20,10 +19,6 @@ import {
 import {
   B3LStorage,
 } from '@/utils'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 interface QuoteNoteProps{
   quoteStatus?: string | number,
@@ -35,14 +30,6 @@ export const QuoteNote = (props: QuoteNoteProps) => {
     quoteStatus,
     quoteNotes = '',
   } = props
-
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
 
   const [noteText, setNoteText] = useState('')
   const [defaultOpen, setDefaultOpen] = useState(false)
@@ -120,12 +107,6 @@ export const QuoteNote = (props: QuoteNoteProps) => {
                     sx={{
                       '& .MuiFormLabel-root': {
                         color: 'rgba(0, 0, 0, 0.38)',
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: primaryColor,
-                      },
-                      '& .MuiFilledInput-root:after': {
-                        borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
                       },
                     }}
                   />

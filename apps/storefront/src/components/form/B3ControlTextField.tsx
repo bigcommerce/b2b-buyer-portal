@@ -11,15 +11,11 @@ import {
 import {
   KeyboardEvent,
   WheelEvent,
-  useContext,
 } from 'react'
 import Form from './ui'
 import {
   StyleNumberTextField,
 } from './styled'
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 export const B3ControlTextField = ({
   control,
@@ -47,14 +43,6 @@ export const B3ControlTextField = ({
     readOnly,
     allowArrow = false,
   } = rest
-
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
 
   const b3Lang = useB3Lang()
 
@@ -154,12 +142,6 @@ export const B3ControlTextField = ({
                       {...rest}
                       sx={{
                         color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
-                        '& label.Mui-focused': {
-                          color: primaryColor,
-                        },
-                        '& .MuiFilledInput-root:after': {
-                          borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
-                        },
                       }}
                       allowarrow={allowArrow ? 1 : 0}
                       inputProps={muiAttributeProps}
@@ -175,12 +157,6 @@ export const B3ControlTextField = ({
                       {...rest}
                       sx={{
                         color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
-                        '& label.Mui-focused': {
-                          color: primaryColor,
-                        },
-                        '& .MuiFilledInput-root:after': {
-                          borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
-                        },
                       }}
                       inputProps={muiAttributeProps}
                       error={!!errors[name]}

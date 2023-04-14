@@ -314,7 +314,7 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
                   <CustomButton
                     sx={{
                       padding: '5px',
-                      border: '1px solid #1976d2',
+                      border: `1px solid ${customColor || '#1976d2'}`,
                       margin: isMobile ? '0 1rem 0 0' : '0 1rem',
                       minWidth: 'auto',
                     }}

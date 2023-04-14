@@ -83,7 +83,6 @@ interface ShoppingDetailTableProps {
   idEdit?: boolean,
   isB2BUser: boolean,
   updateSummary: () => void,
-  customColor: string,
 }
 
 interface SearchProps {
@@ -140,7 +139,6 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
     idEdit = true,
     isB2BUser,
     updateSummary,
-    customColor,
   } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -417,11 +415,6 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
           value={row.quantity}
           inputProps={{
             inputMode: 'numeric', pattern: '[0-9]*',
-          }}
-          sx={{
-            '& .MuiFilledInput-root:after': {
-              borderBottom: `2px solid ${customColor || '#1976d2'}`,
-            },
           }}
           onChange={(e) => {
             handleUpdateProductQty(row.id, e.target.value)

@@ -259,10 +259,6 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
     }
   }
 
-  const customStyles = {
-    color: primaryColor,
-  }
-
   return (
     <B3Sping
       isSpinning={loading}
@@ -313,7 +309,11 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
               marginTop: '10px',
             }}
           >
-            <FileUploadContainer style={customStyles}>
+            <FileUploadContainer
+              style={{
+                color: primaryColor,
+              }}
+            >
               <DropzoneArea
                 dropzoneClass="file-upload-area"
                 Icon={AttachFile}

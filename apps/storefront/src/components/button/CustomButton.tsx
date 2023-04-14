@@ -5,17 +5,8 @@ import {
 } from '@mui/material'
 
 import {
-  useContext,
   MouseEvent,
 } from 'react'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-
-import {
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
 
 interface CustomButtonProps extends ButtonProps {
   onClick?: (e?: MouseEvent<HTMLButtonElement> | any) => void,
@@ -31,15 +22,6 @@ const CustomButton = ({
   ...rest
 }: CustomButtonProps) => {
   const {
-    state: {
-      globalButtonBackgroundColor,
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
-
-  const {
     variant,
   } = rest
 
@@ -51,8 +33,6 @@ const CustomButton = ({
             {...rest}
             sx={{
               ...sx || {},
-              backgroundColor: primaryColor || globalButtonBackgroundColor,
-              color: getContrastColor(primaryColor) || getContrastColor(globalButtonBackgroundColor),
             }}
             onClick={onClick}
           >
@@ -63,8 +43,6 @@ const CustomButton = ({
             {...rest}
             sx={{
               ...sx || {},
-              color: primaryColor || globalButtonBackgroundColor,
-              borderColor: primaryColor,
             }}
             onClick={onClick}
           >

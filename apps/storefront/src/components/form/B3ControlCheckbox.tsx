@@ -13,15 +13,7 @@ import {
   useB3Lang,
 } from '@b3/lang'
 
-import {
-  useContext,
-} from 'react'
-
 import Form from './ui'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 interface CheckboxListProps {
   value: string,
@@ -44,14 +36,6 @@ export const B3ControlCheckbox = ({
     validate,
     options,
   } = rest
-
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
 
   const b3Lang = useB3Lang()
 
@@ -84,13 +68,7 @@ export const B3ControlCheckbox = ({
     <>
       {
         ['checkbox'].includes(fieldType) && (
-          <FormControl
-            sx={{
-              '& .MuiFormLabel-root.Mui-focused': {
-                color: primaryColor,
-              },
-            }}
-          >
+          <FormControl>
             {
               label && (
               <FormLabel
@@ -118,11 +96,6 @@ export const B3ControlCheckbox = ({
                     )}
                   key={list.value}
                   label={list.label}
-                  sx={{
-                    '& .MuiCheckbox-root.Mui-checked': {
-                      color: primaryColor,
-                    },
-                  }}
                 />
               ))}
             />

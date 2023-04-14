@@ -50,6 +50,7 @@ function B3ThemeProvider({
     state: {
       portalStyle: {
         backgroundColor = '',
+        primaryColor = '',
       },
     },
   } = useContext(CustomStyleContext)
@@ -58,6 +59,9 @@ function B3ThemeProvider({
     palette: {
       background: {
         default: backgroundColor,
+      },
+      primary: {
+        main: primaryColor || '#1976d2',
       },
     },
   }, (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'])

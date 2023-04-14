@@ -435,7 +435,6 @@ const ShoppingListDetails = ({
                   setDeleteOpen={setDeleteOpen}
                   setDeleteItemId={setDeleteItemId}
                   isB2BUser={isB2BUser}
-                  customColor={primaryColor}
                 />
               </Grid>
             </B3Sping>

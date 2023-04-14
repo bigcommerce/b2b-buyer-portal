@@ -4,7 +4,6 @@ import {
   forwardRef,
   useImperativeHandle,
   Ref,
-  useContext,
 } from 'react'
 
 import {
@@ -54,10 +53,6 @@ import {
   CountryProps,
   StateProps,
 } from '../shared/getAddressFields'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 interface AddressFormProps {
   addressFields: CustomFieldItems[],
@@ -109,14 +104,6 @@ const AddressForm = ({
     isDefaultShipping: false,
     isDefaultBilling: false,
   })
-
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
 
   const isB2BUser = !isBCPermission
 
@@ -569,11 +556,6 @@ const AddressForm = ({
                             />
                           )}
                           label={label}
-                          sx={{
-                            '& .MuiCheckbox-root.Mui-checked': {
-                              color: primaryColor,
-                            },
-                          }}
                         />
                         {
                           child && (
@@ -592,9 +574,6 @@ const AddressForm = ({
                               label={child.label}
                               sx={{
                                 display: shippingBilling[name] ? '' : 'none',
-                                '& .MuiCheckbox-root.Mui-checked': {
-                                  color: primaryColor,
-                                },
                               }}
                             />
                           )

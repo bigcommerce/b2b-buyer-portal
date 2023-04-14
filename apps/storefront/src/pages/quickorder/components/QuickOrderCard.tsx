@@ -1,5 +1,5 @@
 import {
-  ReactElement, useContext,
+  ReactElement,
 } from 'react'
 
 import {
@@ -17,10 +17,6 @@ import {
 import {
   PRODUCT_DEFAULT_IMAGE,
 } from '@/constants'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 interface QuickOrderCardProps {
   item: any,
@@ -42,14 +38,6 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
     handleUpdateProductQty,
     currencyToken = '$',
   } = props
-
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
 
   const {
     quantity,
@@ -155,9 +143,6 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
                 margin: '1rem 0',
                 width: '60%',
                 maxWidth: '100px',
-                '& .MuiFilledInput-input:after': {
-                  borderBottom: `2px solid ${primaryColor || '#1976d2'} !important`,
-                },
               }}
               onChange={(e) => {
                 handleUpdateProductQty(shoppingDetail.id, e.target.value)

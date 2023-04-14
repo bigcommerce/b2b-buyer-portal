@@ -1,5 +1,5 @@
 import {
-  ChangeEvent, useContext,
+  ChangeEvent,
 } from 'react'
 
 import {
@@ -17,10 +17,6 @@ import {
 } from '@b3/lang'
 
 import Form from './ui'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 export const B3ControlSelect = ({
   control,
@@ -41,14 +37,6 @@ export const B3ControlSelect = ({
     replaceOptions,
     size = 'small',
   } = rest
-
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
 
   const b3Lang = useB3Lang()
 
@@ -86,14 +74,6 @@ export const B3ControlSelect = ({
           style={{
             width: '100%',
             color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
-          }}
-          sx={{
-            '& .MuiInputLabel-root.Mui-focused': {
-              color: primaryColor,
-            },
-            '& .MuiFilledInput-root:after': {
-              borderBottom: `2px solid ${primaryColor || '#1976d2'}`,
-            },
           }}
         >
           {
