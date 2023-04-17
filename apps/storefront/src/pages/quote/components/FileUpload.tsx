@@ -2,6 +2,7 @@ import {
   Box,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material'
 
 import AttachFileIcon from '@mui/icons-material/AttachFile'
@@ -15,7 +16,6 @@ import {
   Ref,
   forwardRef,
   useImperativeHandle,
-  useContext,
 } from 'react'
 
 import {
@@ -45,10 +45,6 @@ import {
 import {
   snackbar,
 } from '@/utils'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 const FileUploadContainer = styled(Box)(({
   style,
@@ -150,13 +146,9 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
     isEndLoadding = false,
   } = props
 
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
+  const theme = useTheme()
+
+  const primaryColor = theme.palette.primary.main
 
   const [loading, setLoading] = useState<boolean>(false)
 

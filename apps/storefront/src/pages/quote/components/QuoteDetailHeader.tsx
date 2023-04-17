@@ -10,15 +10,12 @@ import {
   Grid,
   styled,
   Typography,
+  useTheme,
 } from '@mui/material'
 
 import {
   ArrowBackIosNew,
 } from '@mui/icons-material'
-
-import {
-  useContext,
-} from 'react'
 
 import {
   QuoteStatus,
@@ -27,10 +24,6 @@ import {
 import {
   useMobile,
 } from '@/hooks'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 import {
   CustomButton,
@@ -69,13 +62,9 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
     salesRepInfo,
   } = props
 
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
+  const theme = useTheme()
+
+  const primaryColor = theme.palette.primary.main
 
   const navigate = useNavigate()
   const gridOptions = (xs: number) => (isMobile ? {} : {

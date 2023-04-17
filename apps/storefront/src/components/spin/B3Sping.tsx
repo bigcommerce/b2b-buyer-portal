@@ -1,9 +1,10 @@
 import {
   ReactNode,
-  useContext,
 } from 'react'
+
 import {
   CircularProgress,
+  useTheme,
 } from '@mui/material'
 
 import {
@@ -15,10 +16,6 @@ import {
   SpinTip,
   SpinContext,
 } from './styled'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
 
 interface B3SpingProps {
   isSpinning: Boolean | undefined,
@@ -45,13 +42,9 @@ export const B3Sping = (props: B3SpingProps) => {
     isFlex,
   } = props
 
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
+  const theme = useTheme()
+
+  const primaryColor = theme.palette.primary.main
 
   const [isMobile] = useMobile()
 

@@ -15,6 +15,7 @@ import {
 import {
   Box,
   Grid,
+  useTheme,
 } from '@mui/material'
 
 import {
@@ -73,10 +74,6 @@ import ShoppingDetailFooter from './components/ShoppingDetailFooter'
 import ShoppingDetailTable from './components/ShoppingDetailTable'
 import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems'
 
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-
 interface TableRefProps extends HTMLInputElement {
   initSearch: () => void,
 }
@@ -128,13 +125,9 @@ const ShoppingListDetails = ({
     dispatch,
   } = useContext(ShoppingListDetailsContext)
 
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
+  const theme = useTheme()
+
+  const primaryColor = theme.palette.primary.main
 
   const tableRef = useRef<TableRefProps | null>(null)
 

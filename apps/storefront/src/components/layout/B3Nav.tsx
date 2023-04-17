@@ -3,6 +3,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  useTheme,
 } from '@mui/material'
 
 import {
@@ -43,10 +44,6 @@ import {
   b3HexToRgb,
 } from '../outSideComponents/utils/b3CustomStyles'
 
-import {
-  CustomStyleContext,
-} from '../../shared/customStyleButtton/context'
-
 interface B3NavProps {
   closeSidebar?: (x: boolean) => void;
 }
@@ -66,13 +63,9 @@ export const B3Nav = ({
     state: globalState,
   } = useContext(GlobaledContext)
 
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
+  const theme = useTheme()
+
+  const primaryColor = theme.palette.primary.main
 
   const jumpRegister = () => {
     navigate('/registered')

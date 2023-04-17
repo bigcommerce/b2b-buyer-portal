@@ -2,6 +2,7 @@ import {
   Box,
   Link,
   Alert,
+  useTheme,
 } from '@mui/material'
 
 import Grid from '@mui/material/Unstable_Grid2'
@@ -59,10 +60,6 @@ import {
   ParseEmptyDataProps,
 } from './utils'
 
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-
 interface B3UploadProps {
   isOpen: boolean,
   setIsOpen: Dispatch<SetStateAction<boolean>>,
@@ -115,13 +112,9 @@ export const B3Upload = (props: B3UploadProps) => {
     },
   } = useContext(GlobaledContext)
 
-  const {
-    state: {
-      portalStyle: {
-        primaryColor = '',
-      },
-    },
-  } = useContext(CustomStyleContext)
+  const theme = useTheme()
+
+  const primaryColor = theme.palette.primary.main
 
   const [step, setStep] = useState<string>('init')
   const [fileDatas, setFileDatas] = useState<CustomFieldItems>({})
