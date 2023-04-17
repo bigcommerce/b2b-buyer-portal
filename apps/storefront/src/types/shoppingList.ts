@@ -1,5 +1,6 @@
 import {
   ProductItem,
+  BcCalculatedPrice,
 } from './products'
 
 export interface ShoppingListItem {
@@ -75,12 +76,6 @@ export interface ShoppingListProductItemVariantsOption {
   label: string,
   option_display_name: string,
   option_id: number,
-}
-export interface BcCalculatedPrice {
-  as_entered: number,
-  entered_inclusive: boolean,
-  tax_exclusive: number,
-  tax_inclusive: number,
 }
 
 export interface ShoppingListProductItemVariants {
