@@ -15,6 +15,10 @@ import {
 } from '@/constants'
 
 import {
+  getProductPriceIncTax,
+} from '@/utils'
+
+import {
   getProductOptionsFields,
 } from '../../shoppingListDetails/shared/config'
 
@@ -48,7 +52,7 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
   } = props
 
   const {
-    // basePrice,
+    basePrice,
     quantity,
     id,
     primaryImage,
@@ -61,13 +65,14 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
     variantId,
   } = quoteTableItem
 
-  const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId || variantSku === item.sku) || {}
-  const bcCalculatedPrice: {
-    tax_inclusive: number | string,
-  } = currentVariantInfo.bc_calculated_price
-  const withTaxPrice = +bcCalculatedPrice.tax_inclusive
-  const total = +withTaxPrice * +quantity
-  const price = +withTaxPrice
+  let priceIncTax = +basePrice
+  if (variants) {
+    priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
+  }
+
+  const withTaxPrice = priceIncTax || +basePrice
+  const total = withTaxPrice * +quantity
+  const price = withTaxPrice
 
   const product: any = {
     ...quoteTableItem.productsSearch,

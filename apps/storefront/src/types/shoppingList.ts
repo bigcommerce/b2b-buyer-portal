@@ -76,6 +76,13 @@ export interface ShoppingListProductItemVariantsOption {
   option_display_name: string,
   option_id: number,
 }
+export interface BcCalculatedPrice {
+  as_entered: number,
+  entered_inclusive: boolean,
+  tax_exclusive: number,
+  tax_inclusive: number,
+}
+
 export interface ShoppingListProductItemVariants {
   product_id: number,
   sku: string,
@@ -86,6 +93,7 @@ export interface ShoppingListProductItemVariants {
   image_url: string,
   calculated_price: number,
   price: number,
+  bc_calculated_price: BcCalculatedPrice,
 }
 
 export interface ShoppingListProductItem extends ProductItem{

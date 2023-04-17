@@ -69,6 +69,10 @@ import {
   b2bPrintInvoice,
 } from './b3PrintInvoice'
 
+import {
+  getProductPriceIncTax,
+} from './b3Price'
+
 export {
   addQuoteDraftProduce,
   getModifiersPrice,
@@ -112,4 +116,5 @@ export {
   getDefaultCurrencyInfo,
   showPageMask,
   b2bPrintInvoice,
+  getProductPriceIncTax,
 }

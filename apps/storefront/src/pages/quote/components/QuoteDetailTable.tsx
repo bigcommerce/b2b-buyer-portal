@@ -25,6 +25,9 @@ import QuoteDetailTableCard from './QuoteDetailTableCard'
 import {
   PRODUCT_DEFAULT_IMAGE,
 } from '@/constants'
+import {
+  getProductPriceIncTax,
+} from '@/utils'
 
 interface ListItem {
   [key: string]: string
@@ -220,13 +223,13 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
           },
           variantId,
         } = row
-        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
-        const bcCalculatedPrice: {
-          tax_inclusive: number | string,
-        } = currentVariantInfo.bc_calculated_price
+        let priceIncTax = +basePrice
+        if (variants) {
+          priceIncTax = getProductPriceIncTax(variants, +variantId)
+        }
 
         const price = +basePrice
-        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
+        const withTaxPrice = priceIncTax || +basePrice
         const discountPrice = +offeredPrice
         const isDiscount = price - discountPrice > 0
 
@@ -292,17 +295,19 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
           },
           variantId,
         } = row
-        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
-        const bcCalculatedPrice: {
-          tax_inclusive: number | string,
-        } = currentVariantInfo.bc_calculated_price
+
+        let priceIncTax = +basePrice
+        if (variants) {
+          priceIncTax = getProductPriceIncTax(variants, +variantId)
+        }
+
         const price = +basePrice
-        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
+        const withTaxPrice = priceIncTax || +basePrice
         const discountPrice = +offeredPrice
         const isDiscount = price - discountPrice > 0
 
         const total = withTaxPrice * +quantity
-        const totalWithDiscount = (+withTaxPrice - +isDiscount) * +quantity
+        const totalWithDiscount = (withTaxPrice - +isDiscount) * +quantity
 
         return (
           <Box>

@@ -83,7 +83,7 @@ export const AddToShoppingList = (props: AddToListProps) => {
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
     const items = products.map((product) => ({
-      optionList: product.newSelectOptionList,
+      optionList: product.newSelectOptionList || product.optionList,
       productId: parseInt(product.productId, 10) || 0,
       quantity: product.quantity,
       variantId: parseInt(product.variantId, 10) || 0,
@@ -124,8 +124,8 @@ export const AddToShoppingList = (props: AddToListProps) => {
       }
 
       const optionsList = option.map((item: CustomFieldItems) => ({
-        optionId: item.option_id,
-        optionValue: item.id,
+        optionId: `attribute[${item.option_id}]`,
+        optionValue: item.id.toString(),
       }))
 
       productItems.push({

@@ -9,6 +9,10 @@ import {
   PRODUCT_DEFAULT_IMAGE,
 } from '@/constants'
 
+import {
+  getProductPriceIncTax,
+} from '@/utils'
+
 interface QuoteTableCardProps {
   item: any,
   currencyToken?: string,
@@ -44,17 +48,18 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
     },
     variantId,
   } = quoteTableItem
-  const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
-  const bcCalculatedPrice: {
-    tax_inclusive: number | string,
-  } = currentVariantInfo.bc_calculated_price
+
+  let priceIncTax = +basePrice
+  if (variants) {
+    priceIncTax = getProductPriceIncTax(variants, +variantId)
+  }
 
   const price = +basePrice
-  const withTaxPrice = +bcCalculatedPrice.tax_inclusive
+  const withTaxPrice = priceIncTax || +basePrice
   const discountPrice = +offeredPrice
   const isDiscount = price - discountPrice > 0
 
-  const total = withTaxPrice * +quantity
+  const total = +withTaxPrice * +quantity
   const totalWithDiscount = (+withTaxPrice - +isDiscount) * +quantity
 
   return (

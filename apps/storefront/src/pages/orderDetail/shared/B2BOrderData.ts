@@ -85,11 +85,11 @@ const getOrderSummary = (data: B2BOrderData) => {
     createAt: dateCreated,
     name: `${firstName} ${lastName}`,
     priceData: {
-      'Sub total': formatPrice(subtotalExTax || subtotalIncTax || ''),
-      Shipping: formatPrice(shippingCostExTax || shippingCostIncTax || ''),
-      'Handing fee': formatPrice(handlingCostExTax || handlingCostIncTax || ''),
+      'Sub total': formatPrice(subtotalIncTax || subtotalExTax || ''),
+      Shipping: formatPrice(shippingCostIncTax || shippingCostExTax || ''),
+      'Handing fee': formatPrice(handlingCostIncTax || handlingCostExTax || ''),
       Tax: formatPrice(totalTax || ''),
-      'Grand total': formatPrice(totalExTax || totalIncTax || ''),
+      'Grand total': formatPrice(totalIncTax || totalExTax || ''),
     },
   }
 

@@ -403,13 +403,15 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                       variantSku,
                       optionList,
                       productsSearch,
+                      tax,
+                      discount,
                       // productsSearch: {
                       //   variants,
                       // },
                       // variantId,
                     } = product.node
-                    const total = +basePrice * +quantity
-                    const price = +basePrice
+                    const price = +basePrice + +tax + +discount
+                    const total = +price * +quantity
 
                     // const newOptionList = JSON.parse(optionList)
                     // let optionsValue = []

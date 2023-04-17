@@ -321,10 +321,36 @@ const ShoppingListDetails = ({
 
       checkedArr.forEach((item: ListItemProps) => {
         const {
-          node,
+          node: {
+            variantId,
+            productsSearch,
+            quantity,
+            basePrice,
+          },
         } = item
 
-        total += +node.basePrice * +node.quantity
+        if (productsSearch) {
+          const {
+            variants,
+          } = productsSearch
+
+          if (variants) {
+            const currentVariants = variants.find((variant: CustomFieldItems) => +variant.variant_id
+          === +variantId)
+
+            if (currentVariants) {
+              const {
+                bc_calculated_price: bcCalculatedPrice,
+              } = currentVariants
+
+              const price = +bcCalculatedPrice.tax_inclusive || +basePrice
+
+              total += price * +quantity
+            }
+          } else {
+            total += +basePrice * +quantity
+          }
+        }
       })
 
       setSelectedSubTotal((1000 * total) / 1000)

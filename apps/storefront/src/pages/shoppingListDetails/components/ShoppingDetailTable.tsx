@@ -34,6 +34,7 @@ import {
 
 import {
   snackbar,
+  getProductPriceIncTax,
 } from '@/utils'
 
 import {
@@ -447,12 +448,12 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           },
           variantId,
         } = row
-        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
-        const bcCalculatedPrice: {
-          tax_inclusive: number | string,
-        } = currentVariantInfo.bc_calculated_price
-        // const price = +row.basePrice
-        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
+        let priceIncTax
+        if (variants) {
+          priceIncTax = getProductPriceIncTax(variants, +variantId)
+        }
+        const price = +row.basePrice
+        const withTaxPrice = priceIncTax || price
 
         return (
           <Typography
@@ -503,21 +504,24 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
       title: 'Total',
       render: (row: CustomFieldItems) => {
         const {
-          // basePrice,
+          basePrice,
           quantity,
           itemId,
           productsSearch: {
             variants,
+            options,
           },
           variantId,
         } = row
-        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId) || {}
-        const bcCalculatedPrice: {
-          tax_inclusive: number | string,
-        } = currentVariantInfo.bc_calculated_price
-        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
+
+        let priceIncTax
+        if (variants) {
+          priceIncTax = getProductPriceIncTax(variants, +variantId)
+        }
+
+        const withTaxPrice = priceIncTax || basePrice
         const total = +withTaxPrice * +quantity
-        const optionList = JSON.parse(row.optionList)
+        const optionList = options || JSON.parse(row.optionList)
 
         return (
           <Box>
@@ -620,7 +624,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
             fontSize: '24px',
           }}
         >
-          {`${currencyToken}${shoppingListTotalPrice || 0.00}`}
+          {`${currencyToken}${shoppingListTotalPrice.toFixed(2) || 0.00}`}
         </Typography>
       </Box>
       <Box

@@ -23,6 +23,7 @@ import {
   getModifiersPrice,
   getQuickAddProductExtraPrice,
   snackbar,
+  getProductPriceIncTax,
 } from '@/utils'
 
 import {
@@ -379,14 +380,15 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
           },
           variantId,
           variantSku,
+          basePrice,
         } = row
 
-        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId || variantSku === item.sku) || {}
-        const bcCalculatedPrice: {
-          tax_inclusive: number | string,
-        } = currentVariantInfo.bc_calculated_price
-        // const price = +row.basePrice
-        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
+        let priceIncTax = +basePrice
+        if (variants) {
+          priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
+        }
+
+        const withTaxPrice = priceIncTax || +basePrice
 
         return (
           <Typography
@@ -431,7 +433,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
       title: 'Total',
       render: (row: CustomFieldItems) => {
         const {
-          // basePrice,
+          basePrice,
           quantity,
           productsSearch: {
             variants,
@@ -439,13 +441,13 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
           variantId,
           variantSku,
         } = row
-        const currentVariantInfo = variants.find((item: CustomFieldItems) => +item.variant_id === +variantId || variantSku === item.sku) || {}
-        const bcCalculatedPrice: {
-          tax_inclusive: number | string,
-        } = currentVariantInfo.bc_calculated_price
+        let priceIncTax = +basePrice
+        if (variants) {
+          priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
+        }
 
-        const withTaxPrice = +bcCalculatedPrice.tax_inclusive
-        const total = +withTaxPrice * +quantity
+        const withTaxPrice = priceIncTax || +basePrice
+        const total = withTaxPrice * +quantity
         const optionList = JSON.parse(row.optionList)
 
         return (

@@ -20,11 +20,15 @@ import {
 import {
   getOrderedProducts,
   getBcOrderedProducts,
+  searchB2BProducts,
+  searchBcProducts,
 } from '@/shared/service/b2b'
 
 import {
   getDefaultCurrencyInfo,
   distanceDay,
+  snackbar,
+  getProductPriceIncTax,
 } from '@/utils'
 
 import {
@@ -54,6 +58,10 @@ import B3FilterPicker from '../../../components/filter/B3FilterPicker'
 import B3FilterMore from '../../../components/filter/B3FilterMore'
 
 import QuickOrderCard from './QuickOrderCard'
+
+import {
+  conversionProductsList,
+} from '../../shoppingListDetails/shared/config'
 
 import {
   B3Sping,
@@ -131,6 +139,9 @@ const QuickorderTable = ({
   const {
     state: {
       isB2BUser,
+      companyInfo: {
+        id: companyInfoId,
+      },
     },
   } = useContext(GlobaledContext)
 
@@ -145,6 +156,7 @@ const QuickorderTable = ({
   const [isMobile] = useMobile()
 
   const {
+    currency_code: currencyCode,
     token: currencyToken,
   } = getDefaultCurrencyInfo()
 
@@ -160,7 +172,40 @@ const QuickorderTable = ({
           productIds.push(node.productId)
         }
       })
-      return listProducts
+
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+
+      try {
+        const {
+          productsSearch,
+        } = await getProducts({
+          productIds,
+          currencyCode,
+          companyId: companyInfoId,
+        })
+
+        const newProductsSearch = conversionProductsList(productsSearch)
+
+        listProducts.forEach((item) => {
+          const {
+            node,
+          } = item
+
+          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
+            const {
+              id: productId,
+            } = search
+
+            return +node.productId === +productId
+          })
+
+          node.productsSearch = productInfo || {}
+        })
+
+        return listProducts
+      } catch (err: any) {
+        snackbar.error(err)
+      }
     }
   }
 
@@ -316,8 +361,22 @@ const QuickorderTable = ({
     {
       key: 'Price',
       title: 'Price',
-      render: (row) => {
-        const price = +row.basePrice * (+row.quantity)
+      render: (row: CustomFieldItems) => {
+        const {
+          productsSearch: {
+            variants,
+          },
+          variantId,
+          basePrice,
+          quantity,
+        } = row
+        let priceIncTax = +basePrice
+        if (variants) {
+          priceIncTax = getProductPriceIncTax(variants, +variantId)
+        }
+
+        const withTaxPrice = priceIncTax || +basePrice
+        const price = withTaxPrice * +quantity
 
         return (
           <Typography

@@ -48,6 +48,7 @@ import {
   snackbar,
   getDefaultCurrencyInfo,
   addQuoteDraftProduce,
+  getProductPriceIncTax,
 } from '@/utils'
 
 import {
@@ -527,10 +528,22 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
 
       checkedArr.forEach((item: ListItemProps) => {
         const {
-          node,
+          node: {
+            variantId,
+            productsSearch: {
+              variants,
+            },
+            quantity,
+            basePrice,
+          },
         } = item
 
-        total += +node.basePrice * +node.quantity
+        if (variants) {
+          const priceIncTax = getProductPriceIncTax(variants, +variantId) || +basePrice
+          total += priceIncTax * +quantity
+        } else {
+          total += +basePrice * +quantity
+        }
       })
 
       setSelectedSubTotal((1000 * total) / 1000)

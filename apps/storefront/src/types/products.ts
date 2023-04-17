@@ -4,6 +4,20 @@ export interface ProductOptionsItem {
   display_value: string,
 }
 
+export interface BcCalculatedPrice {
+  as_entered: number,
+  entered_inclusive: boolean,
+  tax_exclusive: number,
+  tax_inclusive: number,
+}
+
+export interface VariantsProps {
+  bc_calculated_price: BcCalculatedPrice,
+  sku: string,
+  product_id: number | string,
+  variant_id: number | string,
+}
+
 export interface ProductItem {
   id: number,
   sku: string,
@@ -14,6 +28,9 @@ export interface ProductItem {
   product_options?: ProductOptionsItem[],
   helperText?: string,
   productUrl?: string,
+  variants?: VariantsProps[],
+  price_inc_tax?: string | number,
+  price_ex_tax?: string | number,
 }
 
 export interface ProductVariantSkuInfo{

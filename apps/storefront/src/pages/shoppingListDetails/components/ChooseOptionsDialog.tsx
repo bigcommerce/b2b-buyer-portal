@@ -189,11 +189,11 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
     } = product
 
     if (variantSku) {
-      const priceNumber = variants.find((variant) => variant.sku === variantSku)?.calculated_price || 0
+      const priceNumber = variants.find((variant) => variant.sku === variantSku)?.bc_calculated_price?.tax_inclusive || 0
       return `${currency} ${priceNumber.toFixed(2)}`
     }
 
-    const priceNumber = parseFloat(product.base_price) || 0
+    const priceNumber = parseFloat(variants[0]?.bc_calculated_price?.tax_inclusive?.toString()) || 0
     return `${currency} ${priceNumber.toFixed(2)}`
   }
 
@@ -342,75 +342,82 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
         isSpinning={isLoading}
       >
         {product && (
-        <Box>
-          <Box
-            sx={{
-              display: 'flex',
-            }}
-          >
-            <Box><ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} /></Box>
-            <Flex>
-              <FlexItem padding="0">
-                <Box
-                  sx={{
-                    marginLeft: '16px',
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    color="#212121"
-                  >
-                    {product.name}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="#616161"
-                  >
-                    {variantSku || product.sku}
-                  </Typography>
-                  {(product.product_options || []).map((option) => (
-                    <ProductOptionText key={`${option.option_id}`}>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
-                  ))}
-                </Box>
-              </FlexItem>
+          <Box>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                }}
+              >
+                <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
+                <Flex>
+                  <FlexItem padding="0">
+                    <Box
+                      sx={{
+                        marginLeft: '16px',
+                      }}
+                    >
+                      <Typography
+                        variant="body1"
+                        color="#212121"
+                      >
+                        {product.name}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        color="#616161"
+                      >
+                        {variantSku || product.sku}
+                      </Typography>
+                      {(product.product_options || []).map((option) => (
+                        <ProductOptionText key={`${option.option_id}`}>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
+                      ))}
+                    </Box>
+                  </FlexItem>
 
-              <FlexItem>
-                <span>Price:</span>
-                {getProductPrice(product)}
-              </FlexItem>
+                  <FlexItem>
+                    <span>Price:</span>
+                    {getProductPrice(product)}
+                  </FlexItem>
 
-              <FlexItem>
-                <TextField
-                  type="number"
-                  variant="filled"
-                  label="Qty"
-                  value={quantity}
-                  onChange={handleProductQuantityChange}
-                  onKeyDown={handleNumberInputKeyDown}
-                  onBlur={handleNumberInputBlur}
-                  size="small"
-                  sx={{
-                    width: '60%',
-                    maxWidth: '100px',
-                  }}
-                />
-              </FlexItem>
-            </Flex>
+                  <FlexItem>
+                    <TextField
+                      type="number"
+                      variant="filled"
+                      label="Qty"
+                      value={quantity}
+                      onChange={handleProductQuantityChange}
+                      onKeyDown={handleNumberInputKeyDown}
+                      onBlur={handleNumberInputBlur}
+                      size="small"
+                      sx={{
+                        width: '60%',
+                        maxWidth: '100px',
+                      }}
+                    />
+                  </FlexItem>
+                </Flex>
+              </Box>
 
-            <Divider sx={{
-              margin: '16px 0 24px',
-            }}
-            />
+              <Divider sx={{
+                margin: '16px 0 24px',
+              }}
+              />
 
-            <B3CustomForm
-              formFields={formFields}
-              errors={errors}
-              control={control}
-              getValues={getValues}
-              setValue={setValue}
-            />
+              <B3CustomForm
+                formFields={formFields}
+                errors={errors}
+                control={control}
+                getValues={getValues}
+                setValue={setValue}
+              />
+            </Box>
           </Box>
-        </Box>
         )}
       </B3Sping>
     </B3Dialog>

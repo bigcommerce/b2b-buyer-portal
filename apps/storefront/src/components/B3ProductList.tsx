@@ -295,130 +295,150 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
       }
 
       {
-        products.map((product) => (
-          <Flex
-            isMobile={isMobile}
-            key={product.id}
-          >
-            {
-              showCheckbox && (
-                <Checkbox
-                  checked={isChecked(product)}
-                  onChange={() => handleSelectChange(product)}
-                />
-              )
-            }
-            <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
-              <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
-              <Box
-                sx={{
-                  marginLeft: '16px',
-                }}
-              >
-                <Typography
-                  variant="body1"
-                  color="#212121"
-                  onClick={() => {
-                    if (canToProduct) {
-                      const {
-                        location: {
-                          origin,
-                        },
-                      } = window
+        products.map((product) => {
+          const {
+            variants = [],
+          } = product
+          const currentVariant = variants[0]
+          let productPrice = +product.base_price
+          if (currentVariant) {
+            const bcCalculatedPrice = currentVariant.bc_calculated_price
 
-                      if (product?.productUrl) window.location.href = `${origin}${product?.productUrl}`
-                    }
-                  }}
-                  sx={{
-                    cursor: 'pointer',
-                  }}
-                >
-                  {product.name}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  color="#616161"
-                >
-                  {product.sku}
-                </Typography>
-                {(product.product_options || []).map((option) => (
-                  <ProductOptionText key={`${option.option_id}`}>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
-                ))}
-              </Box>
-            </FlexItem>
+            productPrice = +bcCalculatedPrice.tax_inclusive
+          }
 
-            <FlexItem
-              textAlignLocation={textAlign}
-              padding={quantityEditable ? '10px 0 0' : ''}
-              {...itemStyle.default}
-            >
-              {isMobile && <span>Price:</span>}
-              {`${currency} ${getProductPrice(product.base_price)}`}
-            </FlexItem>
+          if (!currentVariant) {
+            const priceIncTax = product?.price_inc_tax || product.base_price
+            const priceExTax = product?.price_ex_tax || product.base_price
 
-            <FlexItem
-              textAlignLocation={textAlign}
-              {...itemStyle.qty}
+            productPrice = +priceIncTax || +priceExTax
+          }
+
+          return (
+            <Flex
+              isMobile={isMobile}
+              key={product.id}
             >
               {
-                quantityEditable ? (
-                  <>
-                    <TextField
-                      type="number"
-                      variant="filled"
-                      hiddenLabel={!isMobile}
-                      label={isMobile ? 'Qty' : ''}
-                      value={getQuantity(product)}
-                      onChange={handleProductQuantityChange(product.id)}
-                      onKeyDown={handleNumberInputKeyDown}
-                      onBlur={handleNumberInputBlur(product)}
-                      size="small"
-                      sx={{
-                        width: `${isMobile ? '110px' : '72px'}`,
-                        '& .MuiFormHelperText-root': {
-                          marginLeft: '0',
-                          marginRight: '0',
-                        },
-                      }}
-                      error={!!product.helperText}
-                      helperText={product.helperText}
-                    />
-                  </>
-                ) : (
-                  <>
-                    {isMobile && <span>Qty:</span>}
-                    {getQuantity(product)}
-                  </>
+                showCheckbox && (
+                  <Checkbox
+                    checked={isChecked(product)}
+                    onChange={() => handleSelectChange(product)}
+                  />
                 )
               }
-            </FlexItem>
+              <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
+                <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
+                <Box
+                  sx={{
+                    marginLeft: '16px',
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    color="#212121"
+                    onClick={() => {
+                      if (canToProduct) {
+                        const {
+                          location: {
+                            origin,
+                          },
+                        } = window
 
-            <FlexItem
-              textAlignLocation={textAlign}
-              padding={quantityEditable ? '10px 0 0' : ''}
-              {...itemStyle.default}
-            >
-              {isMobile && (
-              <span>
-                {totalText}
-                :
-              </span>
-              )}
-              {`${currency} ${getProductTotals(getQuantity(product) || 0, product.base_price)}`}
-            </FlexItem>
-
-            { renderAction && (
-              <FlexItem
-                {...itemStyle.default}
-                width={isMobile ? '100%' : actionWidth}
-              >
-                <>
-                  { renderAction(product) }
-                </>
+                        if (product?.productUrl) window.location.href = `${origin}${product?.productUrl}`
+                      }
+                    }}
+                    sx={{
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {product.name}
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    color="#616161"
+                  >
+                    {product.sku}
+                  </Typography>
+                  {(product.product_options || []).map((option) => (
+                    <ProductOptionText key={`${option.option_id}`}>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
+                  ))}
+                </Box>
               </FlexItem>
-            )}
-          </Flex>
-        ))
+
+              <FlexItem
+                textAlignLocation={textAlign}
+                padding={quantityEditable ? '10px 0 0' : ''}
+                {...itemStyle.default}
+              >
+                {isMobile && <span>Price:</span>}
+                {`${currency} ${getProductPrice(productPrice)}`}
+              </FlexItem>
+
+              <FlexItem
+                textAlignLocation={textAlign}
+                {...itemStyle.qty}
+              >
+                {
+                  quantityEditable ? (
+                    <>
+                      <TextField
+                        type="number"
+                        variant="filled"
+                        hiddenLabel={!isMobile}
+                        label={isMobile ? 'Qty' : ''}
+                        value={getQuantity(product)}
+                        onChange={handleProductQuantityChange(product.id)}
+                        onKeyDown={handleNumberInputKeyDown}
+                        onBlur={handleNumberInputBlur(product)}
+                        size="small"
+                        sx={{
+                          width: `${isMobile ? '110px' : '72px'}`,
+                          '& .MuiFormHelperText-root': {
+                            marginLeft: '0',
+                            marginRight: '0',
+                          },
+                        }}
+                        error={!!product.helperText}
+                        helperText={product.helperText}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {isMobile && <span>Qty:</span>}
+                      {getQuantity(product)}
+                    </>
+                  )
+                }
+              </FlexItem>
+
+              <FlexItem
+                textAlignLocation={textAlign}
+                padding={quantityEditable ? '10px 0 0' : ''}
+                {...itemStyle.default}
+              >
+                {isMobile && (
+                <span>
+                  {totalText}
+                  :
+                </span>
+                )}
+                {`${currency} ${getProductTotals(getQuantity(product) || 0, productPrice)}`}
+              </FlexItem>
+
+              { renderAction && (
+                <FlexItem
+                  {...itemStyle.default}
+                  width={isMobile ? '100%' : actionWidth}
+                >
+                  <>
+                    { renderAction(product) }
+                  </>
+                </FlexItem>
+              )}
+            </Flex>
+          )
+        })
       }
     </Box>
   ) : <></>
