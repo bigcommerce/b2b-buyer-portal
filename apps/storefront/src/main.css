@@ -119,7 +119,7 @@ input[type=number]::-webkit-outer-spin-button
   width: 100%;
 }
 
-.b2b-shopping-list-btn, .b3-product-to-quote, .b3-cart-to-cart {
+.b2b-add-to-list, .b2b-add-to-quote, .b2b-cart-to-quote {
   padding: 0.85714rem 15px;
   position: relative;
   display: inline-block;
@@ -135,7 +135,7 @@ input[type=number]::-webkit-outer-spin-button
   margin-right: 11px;
 }
 
-.b3-product-to-quote, .b3-cart-to-cart {
+.b2b-add-to-quote, .b2b-cart-to-quote {
   margin-bottom: 14px;
   padding: 0.85714rem 2.28571rem;
   order: 1;
@@ -144,13 +144,13 @@ input[type=number]::-webkit-outer-spin-button
   color: #fff;
 }
 
-.b3-cart-to-cart {
+.b2b-cart-to-quote {
   float: right;
   align-items: center;
   flex-direction: column;
 }
 
-.b2b-shopping-list-btn {
+.b2b-add-to-list {
   order: 2;
 }
 

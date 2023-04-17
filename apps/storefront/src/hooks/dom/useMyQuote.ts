@@ -82,7 +82,7 @@ const useMyQuote = ({
   } = addQuoteToProduct(setOpenPage)
 
   const quoteCallBbck = useCallback(() => {
-    const b3MyQuote = document.querySelector('.b3-product-to-quote')
+    const b3MyQuote = document.querySelector('.b2b-add-to-quote')
     const b2bLoading = document.querySelector('#b2b-div-loading')
     if (b3MyQuote && !b2bLoading) {
       addLoadding(b3MyQuote)
@@ -107,27 +107,27 @@ const useMyQuote = ({
 
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(globalB3['dom.setToQuote'])
+    const CustomAddToQuoteAll = locationSelector ? document.querySelectorAll(locationSelector) : []
 
     let myQuote: CustomFieldItems | null = null
-    if (!addToQuoteAll.length) return
+    if (!addToQuoteAll.length && !CustomAddToQuoteAll.length) return
 
     if (!productQuoteEnabled) {
-      document.querySelector('.b3-product-to-quote')?.remove()
+      document.querySelector('.b2b-add-to-quote')?.remove()
       return
     }
 
-    if (document.querySelectorAll('.b3-product-to-quote')?.length) {
+    if (document.querySelectorAll('.b2b-add-to-quote')?.length) {
       const cacheQuoteDom = cache.current
       const isAddStyle = Object.keys(cacheQuoteDom).every((key: string) => (cacheQuoteDom as CustomFieldItems)[key] === (addQuoteBtn as CustomFieldItems)[key])
       if (!isAddStyle) {
-        const myQuoteBtn = document.querySelectorAll('.b3-product-to-quote')
+        const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote')
         myQuoteBtn.forEach((myQuote: CustomFieldItems) => {
-          myQuote.setAttribute('id', `${locationSelector}`)
           myQuote.innerHTML = text || 'Add to Quote'
           myQuote.setAttribute('style', customCss)
           myQuote.style.backgroundColor = color
           myQuote.style.color = getContrastColor(color)
-          myQuote.setAttribute('class', `b3-product-to-quote ${classSelector}`)
+          myQuote.setAttribute('class', `b2b-add-to-quote ${classSelector}`)
         })
         cache.current = cloneDeep(addQuoteBtn)
       }
@@ -135,22 +135,25 @@ const useMyQuote = ({
     }
 
     if (enabled) {
-      addToQuoteAll.forEach((node: CustomFieldItems) => {
+      (CustomAddToQuoteAll.length ? CustomAddToQuoteAll : addToQuoteAll).forEach((node: CustomFieldItems) => {
         myQuote = document.createElement('div')
-        myQuote.setAttribute('id', `${locationSelector}`)
         myQuote.innerHTML = text || 'Add to Quote'
         myQuote.setAttribute('style', customCss)
         myQuote.style.backgroundColor = color
         myQuote.style.color = getContrastColor(color)
-        myQuote.setAttribute('class', `b3-product-to-quote ${classSelector}`)
-        node.parentNode.appendChild(myQuote)
+        myQuote.setAttribute('class', `b2b-add-to-quote ${classSelector}`)
+        if (CustomAddToQuoteAll.length) {
+          node.appendChild(myQuote)
+        } else {
+          node.parentNode.appendChild(myQuote)
+        }
         myQuote.addEventListener('click', quoteCallBbck, {
           capture: true,
         })
       })
       cache.current = cloneDeep(addQuoteBtn)
     } else {
-      const myQuoteBtn = document.querySelectorAll('.b3-product-to-quote')
+      const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote')
       myQuoteBtn.forEach((item: CustomFieldItems) => {
         removeElement(item)
       })

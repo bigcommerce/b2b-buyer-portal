@@ -46,7 +46,7 @@ const useCartToQuote = ({
   } = useContext(CustomStyleContext)
 
   const quoteCallBbck = useCallback(() => {
-    const b3CartToQuote = document.querySelector('.b3-cart-to-cart')
+    const b3CartToQuote = document.querySelector('.b2b-cart-to-quote')
 
     const b2bLoading = document.querySelector('#b2b-div-loading')
     if (b3CartToQuote && !b2bLoading) {
@@ -66,37 +66,36 @@ const useCartToQuote = ({
 
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(globalB3['dom.cartActions.container'])
+    const CustomAddToQuoteAll = locationSelector ? document.querySelectorAll(locationSelector) : []
 
     let cartQuoteBtnDom: CustomFieldItems | null = null
-    if (!addToQuoteAll.length) return
+    if (!addToQuoteAll.length && !CustomAddToQuoteAll.length) return
 
     if (!cartQuoteEnabled) {
-      document.querySelector('.b3-cart-to-cart')?.remove()
+      document.querySelector('.b2b-cart-to-quote')?.remove()
       return
     }
 
-    if (document.querySelectorAll('.b3-cart-to-cart')?.length) {
-      const cartToQuoteBtn = document.querySelectorAll('.b3-cart-to-cart')
+    if (document.querySelectorAll('.b2b-cart-to-quote')?.length) {
+      const cartToQuoteBtn = document.querySelectorAll('.b2b-cart-to-quote')
       cartToQuoteBtn.forEach((cartToQuoteBtn: CustomFieldItems) => {
-        cartToQuoteBtn.setAttribute('id', `${locationSelector}`)
         cartToQuoteBtn.innerHTML = text || 'Add All to Quote'
         cartToQuoteBtn.setAttribute('style', customCss)
         cartToQuoteBtn.style.backgroundColor = color
         cartToQuoteBtn.style.color = getContrastColor(color)
-        cartToQuoteBtn.setAttribute('class', `b3-cart-to-cart ${classSelector}`)
+        cartToQuoteBtn.setAttribute('class', `b2b-cart-to-quote ${classSelector}`)
       })
       return
     }
 
     if (enabled) {
-      addToQuoteAll.forEach((node: CustomFieldItems) => {
+      (CustomAddToQuoteAll.length ? CustomAddToQuoteAll : addToQuoteAll).forEach((node: CustomFieldItems) => {
         cartQuoteBtnDom = document.createElement('div')
-        cartQuoteBtnDom.setAttribute('id', `${locationSelector}`)
         cartQuoteBtnDom.innerHTML = text || 'Add All to Quote'
         cartQuoteBtnDom.setAttribute('style', customCss)
         cartQuoteBtnDom.style.backgroundColor = color
         cartQuoteBtnDom.style.color = getContrastColor(color)
-        cartQuoteBtnDom.setAttribute('class', `b3-cart-to-cart ${classSelector}`)
+        cartQuoteBtnDom.setAttribute('class', `b2b-cart-to-quote ${classSelector}`)
         node.appendChild(cartQuoteBtnDom)
         cartQuoteBtnDom.addEventListener('click', quoteCallBbck, {
           capture: true,
