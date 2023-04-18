@@ -26,8 +26,8 @@ jobs:
         run: |
           poly_js=$(find apps/storefront/dist/assets -name polyfills-legacy.*.js -type f -printf '%f')
           index_js=$(find apps/storefront/dist/assets -name index-legacy.*.js -type f -printf '%f')
-          curl --location --request POST '${{ secrets.API_HOST }}/api/v3/stores/revisions' \
-          --header 'Authorization: Basic ${{ secrets.API_CREDENTIAL }}' \
+          curl --location --request POST '${{ secrets.API_HOST_PRODUCTION }}/api/v3/stores/revisions' \
+          --header 'Authorization: Basic ${{ secrets.API_CREDENTIAL_PRODUCTION }}' \
           --header 'Content-Type: application/json' \
           --data-binary @- << EOF
           {
