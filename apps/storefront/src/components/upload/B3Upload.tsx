@@ -13,6 +13,8 @@ import {
   SetStateAction,
   useContext,
   useEffect,
+  useRef,
+  DragEvent,
 } from 'react'
 
 import {
@@ -104,6 +106,8 @@ export const B3Upload = (props: B3UploadProps) => {
   } = props
 
   const [isMobile] = useMobile()
+
+  const uploadRef = useRef<HTMLInputElement>(null)
 
   const {
     state: {
@@ -250,14 +254,32 @@ export const B3Upload = (props: B3UploadProps) => {
     }
   }
 
+  const openFile = () => {
+    if (uploadRef.current) {
+      (uploadRef.current.children[1] as HTMLElement).click()
+    }
+  }
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const files = [...e.dataTransfer.files]
+    handleChange(files)
+  }
+
   const content = (
     <Box sx={{
-      width: 'auto',
+      width: '100%',
+      height: '100%',
       position: 'absolute',
       transform: 'translate(-50%, -50%)',
       top: '50%',
       left: '50%',
-      pointerEvents: 'none',
     }}
     >
       <Grid
@@ -266,33 +288,40 @@ export const B3Upload = (props: B3UploadProps) => {
         display="flex"
         direction="column"
         justifyContent="center"
+        sx={{
+          marginTop: '12px',
+        }}
       >
-        <Grid
-          display="flex"
-          justifyContent="center"
-          xs={12}
+        <div
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         >
-          <InsertDriveFile sx={{
-            color: primaryColor || '#1976D2',
-            fontSize: '40px',
-          }}
-          />
-        </Grid>
-
-        <Grid
-          display="flex"
-          justifyContent="center"
-          xs={12}
-        >
-          <Box sx={{
-            fontSize: '16px',
-            fontWeight: '400',
-            color: '#5E637A',
-          }}
+          <Grid
+            display="flex"
+            justifyContent="center"
+            xs={12}
           >
-            Drag & drop file here
-          </Box>
-        </Grid>
+            <InsertDriveFile sx={{
+              color: primaryColor || '#1976D2',
+              fontSize: '40px',
+            }}
+            />
+          </Grid>
+          <Grid
+            display="flex"
+            justifyContent="center"
+            xs={12}
+          >
+            <Box sx={{
+              fontSize: '16px',
+              fontWeight: '400',
+              color: '#5E637A',
+            }}
+            >
+              Drag & drop file here
+            </Box>
+          </Grid>
+        </div>
 
         <Grid
           display="flex"
@@ -326,7 +355,6 @@ export const B3Upload = (props: B3UploadProps) => {
               underline="none"
               sx={{
                 color: primaryColor,
-                pointerEvents: 'auto',
               }}
             >
               Download sample
@@ -341,6 +369,8 @@ export const B3Upload = (props: B3UploadProps) => {
         >
           <CustomButton
             variant="outlined"
+            onClick={openFile}
+            className="test-buttomn"
           >
             Upload file
           </CustomButton>
@@ -397,18 +427,18 @@ export const B3Upload = (props: B3UploadProps) => {
       >
         {
           step === 'init' && (
-          <FileUploadContainer>
-            {content}
-            <DropzoneArea
-              dropzoneClass="file-upload-area"
-              filesLimit={1}
-              onChange={handleChange}
-              showPreviews={false}
-              showPreviewsInDropzone={false}
-              showAlerts={false}
-              dropzoneText=""
-            />
-          </FileUploadContainer>
+            <FileUploadContainer ref={uploadRef}>
+              {content}
+              <DropzoneArea
+                dropzoneClass="file-upload-area"
+                filesLimit={1}
+                onChange={handleChange}
+                showPreviews={false}
+                showPreviewsInDropzone={false}
+                showAlerts={false}
+                dropzoneText=""
+              />
+            </FileUploadContainer>
           )
         }
 

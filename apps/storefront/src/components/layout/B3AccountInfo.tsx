@@ -112,7 +112,6 @@ export const B3AccountInfo = ({
           >
             <B3DropDown
               title={name}
-              width="180px"
               handleItemClick={handleItemClick}
               list={list}
             />

@@ -52,7 +52,7 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
   return (
     <Box
       sx={{
-        width: width || '200px',
+        width: width || 'auto',
       }}
     >
       <ListItemButton
@@ -66,11 +66,11 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
         open={Boolean(open)}
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'center',
+          horizontal: 'right',
         }}
         transformOrigin={{
           vertical: 'top',
-          horizontal: 'center',
+          horizontal: 'right',
         }}
         id="customized-menu"
         keepMounted
@@ -84,7 +84,7 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
             return (
               <MenuItem
                 sx={{
-                  width: width || '200px',
+                  width: width || '155px',
                   color,
                 }}
                 key={name}

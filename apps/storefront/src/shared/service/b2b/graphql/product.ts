@@ -71,6 +71,7 @@ const searchProducts = (data: CustomFieldItems) => `{
     options,
     optionsV3,
     channelId,
+    productUrl,
   }
 }`
 

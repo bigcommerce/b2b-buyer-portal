@@ -222,6 +222,7 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
                 products={productList}
                 quantityEditable
                 textAlign="left"
+                canToProduct
                 onProductQuantityChange={onProductQuantityChange}
                 renderAction={(product) => (
                   <ProductTableAction

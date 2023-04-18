@@ -98,6 +98,7 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
         sx={{
           color: 'rgba(0, 0, 0, 0.6)',
         }}
+        onClick={() => goToDetail(item)}
       >
         <Flex className="between-flex">
           <Box
@@ -111,7 +112,6 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
               sx={{
                 color: 'rgba(0, 0, 0, 0.87)',
               }}
-              onClick={() => goToDetail(item)}
             >
               {`# ${item.orderId}`}
             </Typography>
@@ -121,7 +121,7 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
               }}
               variant="body2"
             >
-              {item.poNumber ? item.poNumber : '-'}
+              {item.poNumber ? item.poNumber : '–'}
             </Typography>
           </Box>
           <Box>

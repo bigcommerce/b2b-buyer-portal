@@ -291,7 +291,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
           quantity,
           offeredPrice,
           productsSearch: {
-            variants,
+            variants = [],
           },
           variantId,
         } = row

@@ -44,7 +44,7 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
     notes,
     offeredPrice,
     productsSearch: {
-      variants,
+      variants = [],
     },
     variantId,
   } = quoteTableItem

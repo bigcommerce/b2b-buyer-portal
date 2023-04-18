@@ -72,7 +72,7 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
     productsSearch,
     productUrl,
     productsSearch: {
-      variants,
+      variants = [],
     },
   } = shoppingDetail
 

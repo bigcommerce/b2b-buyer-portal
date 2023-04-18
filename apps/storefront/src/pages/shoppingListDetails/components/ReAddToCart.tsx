@@ -84,6 +84,7 @@ interface FlexItemProps {
   width?: string,
   padding?: string,
   flexBasis?: string,
+  alignItems?: string,
   flexDirection?: 'column' | 'inherit' | '-moz-initial' | 'initial' | 'revert' | 'unset' | 'column-reverse' | 'row' | 'row-reverse',
 }
 
@@ -120,17 +121,18 @@ const Flex = styled('div')(({
   }
 })
 
-const FlexItem = styled('div')(({
+const FlexItem = styled(Box)(({
   width,
   padding = '0',
   flexBasis,
   flexDirection = 'row',
+  alignItems,
 }: FlexItemProps) => ({
   display: 'flex',
   flexDirection,
   flexGrow: width ? 0 : 1,
   flexShrink: width ? 0 : 1,
-  alignItems: 'flex-start',
+  alignItems: alignItems || 'flex-start',
   flexBasis,
   width,
   padding,
@@ -288,7 +290,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
         product.node.quantity = maxQuantity
       }
-      if (isStock !== '0' && stock && quantity > stock) {
+      if (isStock !== '0' && stock && +quantity > stock) {
         product.node.quantity = stock
       }
 
@@ -374,7 +376,12 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                     <FlexItem {...itemStyle.default}>
                       <ProductHead>Price</ProductHead>
                     </FlexItem>
-                    <FlexItem {...itemStyle.default}>
+                    <FlexItem
+                      sx={{
+                        justifyContent: 'center',
+                      }}
+                      {...itemStyle.default}
+                    >
                       <ProductHead>Qty</ProductHead>
                     </FlexItem>
                     <FlexItem {...itemStyle.default}>

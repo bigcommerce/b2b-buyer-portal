@@ -150,7 +150,7 @@ export const OrderShipping = () => {
                   }}
                 >
                   {getFullName(shipping)}
-                  {' - '}
+                  {' – '}
                   {getCompanyName(shipping.company || '')}
                 </Typography>
                 <Typography
@@ -174,7 +174,7 @@ export const OrderShipping = () => {
                       >
                         <Typography variant="body1">
                           <>
-                            <ShipmentTitle>{`Shipment ${getShipmentIndex()} - `}</ShipmentTitle>
+                            <ShipmentTitle>{`Shipment ${getShipmentIndex()} – `}</ShipmentTitle>
                             {getShipmentText(shipment)}
                           </>
                         </Typography>

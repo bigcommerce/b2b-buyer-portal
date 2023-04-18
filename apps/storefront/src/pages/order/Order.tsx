@@ -195,20 +195,9 @@ const Order = ({
     {
       key: 'poNumber',
       title: 'PO / Reference',
-      render: (item: ListItem) => (<Box>{item.poNumber ? item.poNumber : '-'}</Box>),
+      render: (item: ListItem) => (<Box>{item.poNumber ? item.poNumber : '–'}</Box>),
       width: '10%',
     },
-    // item.poNumber ? (
-    //   <Box>
-    //     {item.poNumber}
-    //   </Box>
-    // ) : (
-    //   <Box sx={{
-    //     borderStyle: 'dashed',
-    //     width: '10px',
-    //   }}
-    //   />
-    // )
     {
       key: 'totalIncTax',
       title: 'Grand total',

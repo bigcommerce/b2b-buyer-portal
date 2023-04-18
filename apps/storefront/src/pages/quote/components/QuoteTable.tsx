@@ -376,7 +376,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
       render: (row: CustomFieldItems) => {
         const {
           productsSearch: {
-            variants,
+            variants = [],
           },
           variantId,
           variantSku,
@@ -436,7 +436,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
           basePrice,
           quantity,
           productsSearch: {
-            variants,
+            variants = [],
           },
           variantId,
           variantSku,

@@ -6,7 +6,6 @@ import {
 
 import {
   InputBase,
-  IconButton,
   Paper,
 } from '@mui/material'
 
@@ -34,23 +33,14 @@ const B3FilterSearch = ({
   const [search, setSearch] = useState<string>('')
   const debouncedValue = useDebounce<string>(search, 500)
 
-  const [isInitLoading, setIsInitLoading] = useState<boolean>(true)
-
-  const handleSearchClick = () => {
-    setIsInitLoading(false)
-    handleChange(search)
-  }
-
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setIsInitLoading(true)
     setSearch(e.target.value)
   }
 
-  // 防抖
+  // debounce
   useEffect(() => {
-    if (isInitLoading) return
     handleChange(search)
-  }, [debouncedValue, isInitLoading])
+  }, [debouncedValue])
 
   return (
     <Paper
@@ -70,15 +60,13 @@ const B3FilterSearch = ({
         backgroundColor: searchBGColor,
       }}
     >
-      <IconButton
-        onClick={handleSearchClick}
+      <SearchIcon
         sx={{
           p: '10px',
+          color: 'rgba(0, 0, 0, 0.54)',
+          fontSize: '2.7rem',
         }}
-        aria-label="search"
-      >
-        <SearchIcon />
-      </IconButton>
+      />
       <InputBase
         sx={{
           ml: 1,
@@ -91,9 +79,6 @@ const B3FilterSearch = ({
         value={search}
         placeholder={placeholder}
         onChange={handleOnChange}
-        onBlur={() => {
-          setIsInitLoading(false)
-        }}
       />
     </Paper>
   )

@@ -367,7 +367,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
       <Box
         sx={{
           ml: 3,
-          cursor: 'pointer',
+          // cursor: 'pointer',
           width: '50%',
         }}
       >
