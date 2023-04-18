@@ -192,7 +192,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                 row.notes && (
                 <Typography
                   variant="body1"
-                  color="#616161"
+                  color="#ED6C02"
                   sx={{
                     fontSize: '0.9rem',
                     whiteSpace: 'pre-wrap',

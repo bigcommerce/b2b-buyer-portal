@@ -26,16 +26,14 @@ export const QuoteTermsAndConditions = (props: QuoteTermsAndConditionsProps) => 
         >
           <Box sx={{
             padding: '16px 0',
+            width: '288px',
+            height: '545px',
+            whiteSpace: 'pre-line',
+            overflow: 'auto',
           }}
           >
             <Typography
               variant="body1"
-              style={{
-                whiteSpace: 'pre-line',
-                maxWidth: '338px',
-                maxHeight: '400px',
-                overflow: 'auto',
-              }}
             >
               {quoteLegalTerms}
             </Typography>
