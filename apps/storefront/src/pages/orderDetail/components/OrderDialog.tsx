@@ -211,9 +211,9 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
             quantity: parseInt(`${product.editQuantity}`, 10) || 1,
             productId: product.product_id,
             variantId: product.variant_id,
-            optionSelections: (product.optionList || []).map((option) => ({
-              optionId: option.optionId,
-              optionValue: option.optionValue,
+            optionSelections: (product.product_options || []).map((option) => ({
+              optionId: option.product_option_id,
+              optionValue: option.value,
             })),
           })
 
@@ -294,17 +294,17 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           product_id: productId,
           variant_id: variantId,
           editQuantity,
-          optionList,
+          product_options: productOptions,
         } = product
 
         return {
           productId: +productId,
           variantId,
           quantity: +editQuantity,
-          optionList: optionList.map((option) => {
+          optionList: productOptions.map((option) => {
             const {
-              optionId,
-              optionValue,
+              product_option_id: optionId,
+              value: optionValue,
             } = option
 
             return {

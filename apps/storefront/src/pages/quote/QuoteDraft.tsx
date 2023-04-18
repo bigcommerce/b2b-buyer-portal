@@ -318,7 +318,7 @@ const QuoteDraft = ({
     }
 
     const isComplete = Object.keys(saveInfo.contactInfo).every((key: string) => {
-      if (key === 'phoneNumber') {
+      if (key === 'phoneNumber' || key === 'companyName') {
         return true
       }
       return !!saveInfo.contactInfo[key]
