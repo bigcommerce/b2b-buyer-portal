@@ -9,15 +9,10 @@ import {
   MenuList,
   MenuItem,
   ListItemText,
+  useTheme,
 } from '@mui/material'
 
 import AddIcon from '@mui/icons-material/Add'
-
-import {
-  grey,
-} from '@mui/material/colors'
-
-import styled from '@emotion/styled'
 
 import {
   getB2BShoppingList,
@@ -41,14 +36,9 @@ import {
   ShoppingListItem,
 } from '../../../types'
 
-const ShoppingListMenuItem = styled(MenuItem)(() => ({
-  '&:hover': {
-    backgroundColor: 'rgba(25, 118, 210, 0.08)',
-  },
-  '&.active': {
-    backgroundColor: 'rgba(25, 118, 210, 0.08)',
-  },
-}))
+import {
+  b3HexToRgb,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 
 interface orderShoppingListProps {
   isOpen: boolean,
@@ -86,6 +76,9 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
       role,
     },
   } = useContext(GlobaledContext)
+
+  const theme = useTheme()
+  const primaryColor = theme.palette.primary.main
 
   const [list, setList] = useState([])
   const [activeId, setActiveId] = useState('')
@@ -164,22 +157,27 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
               maxHeight: '400px',
               width: '100%',
               overflowY: 'auto',
-              '.MuiButtonBase-root.MuiMenuItem-gutters:hover': {
-                backgroundColor: grey[100],
-              },
             }}
           >
             {
               list.map((item: ListItem) => (
-                <ShoppingListMenuItem
+                <MenuItem
                   key={item.node.id}
                   className={activeId === item.node.id ? 'active' : ''}
                   onClick={handleListItemClicked(item)}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: b3HexToRgb(primaryColor, 0.12),
+                    },
+                    '&.active': {
+                      backgroundColor: b3HexToRgb(primaryColor, 0.12),
+                    },
+                  }}
                 >
                   <ListItemText>
                     {item.node.name}
                   </ListItemText>
-                </ShoppingListMenuItem>
+                </MenuItem>
               ))
             }
           </MenuList>
