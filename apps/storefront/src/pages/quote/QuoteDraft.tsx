@@ -293,7 +293,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     setEdit(true)
   }
 
-  const { token: currencyToken, currency_code: currencyCode } =
+  const { currency_code: currencyCode } =
     getDefaultCurrencyInfo()
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
@@ -792,7 +792,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
               ref={quoteTableRef}
               updateSummary={updateSummary}
               total={total}
-              currencyToken={currencyToken}
               getQuoteTableDetails={getQuoteTableDetails}
               isB2BUser={isB2BUser}
             />
@@ -816,7 +815,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             >
               <QuoteSummary
                 ref={quoteSummaryRef}
-                currencyToken={currencyToken}
               />
               <AddToQuote
                 updateList={updateList}

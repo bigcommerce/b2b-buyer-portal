@@ -44,12 +44,19 @@ export interface CurrencyProps {
   name: string
   thousands_token: string
   token: string
-  token_location: string
+  token_location: 'left' | 'right'
 }
 
 export interface OpenAPPParamsProps {
   quoteBtn: string
   shoppingListBtn: string
+}
+
+export interface TimeFormatProps {
+  display: string
+  export: string
+  extendedDisplay: string
+  offset: number
 }
 
 export interface GlobalState {
@@ -101,6 +108,7 @@ export interface GlobalState {
   }
   openAPPParams: OpenAPPParamsProps
   showPageMask: boolean
+  timeFormat: TimeFormatProps
 }
 
 export const initState = {
@@ -149,6 +157,7 @@ export const initState = {
     shoppingListBtn: '',
   },
   showPageMask: false,
+  timeFormat: B3SStorage.get('timeFormat') || {},
 }
 
 export interface GlobalAction {

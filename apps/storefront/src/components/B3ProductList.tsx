@@ -17,6 +17,7 @@ import { noop } from 'lodash'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
+import { currencyFormat } from '@/utils'
 
 import { ProductItem } from '../types'
 
@@ -133,7 +134,6 @@ interface ProductProps<T> {
 export default function B3ProductList<T>(props: ProductProps<T>) {
   const {
     products,
-    currency = '$',
     renderAction,
     quantityKey = 'quantity',
     actionWidth = '100px',
@@ -151,19 +151,13 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
   const [isMobile] = useMobile()
 
-  const getProductPrice = (price: string | number) => {
-    const priceNumber = parseFloat(price.toString()) || 0
-
-    return priceNumber.toFixed(2)
-  }
-
   const getQuantity = (product: any) =>
     parseInt(product[quantityKey]?.toString() || '', 10) || ''
 
   const getProductTotals = (quantity: number, price: string | number) => {
     const priceNumber = parseFloat(price.toString()) || 0
 
-    return (quantity * priceNumber).toFixed(2)
+    return quantity * priceNumber
   }
 
   const handleProductQuantityChange =
@@ -333,7 +327,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               {...itemStyle.default}
             >
               {isMobile && <span>Price:</span>}
-              {`${currency} ${getProductPrice(productPrice)}`}
+              {`${currencyFormat(productPrice)}`}
             </FlexItem>
 
             <FlexItem textAlignLocation={textAlign} {...itemStyle.qty}>
@@ -372,9 +366,8 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               textAlignLocation={textAlign}
             >
               {isMobile && <span>{totalText}:</span>}
-              {`${currency} ${getProductTotals(
-                getQuantity(product) || 0,
-                productPrice
+              {`${currencyFormat(
+                getProductTotals(getQuantity(product) || 0, productPrice)
               )}`}
             </FlexItem>
 

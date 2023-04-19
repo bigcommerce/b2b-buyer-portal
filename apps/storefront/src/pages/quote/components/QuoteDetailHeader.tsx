@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, styled, Typography, useTheme } from '@mui/material'
-import { format } from 'date-fns'
 
 import { CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
+import { displayFormat } from '@/utils'
 
 import QuoteStatus from './QuoteStatus'
 
@@ -130,9 +130,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
               >
                 Issued on:
               </Typography>
-              <span>{`${
-                issuedAt ? format(+issuedAt * 1000, 'dd MMM yyyy') : ''
-              }`}</span>
+              <span>{`${issuedAt ? displayFormat(+issuedAt) : ''}`}</span>
             </StyledCreateName>
             <StyledCreateName>
               <Typography
@@ -145,9 +143,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
                 Expiration date:
               </Typography>
               <span>{`${
-                expirationDate
-                  ? format(+expirationDate * 1000, 'dd MMM yyyy')
-                  : ''
+                expirationDate ? displayFormat(+expirationDate) : ''
               }`}</span>
             </StyledCreateName>
           </Box>

@@ -16,7 +16,7 @@ interface CurrencyProps {
   name: string
   thousands_token: string
   token: string
-  token_location: string
+  token_location: 'left' | 'right'
 }
 
 const getDefaultCurrencyInfo = () => {

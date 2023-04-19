@@ -13,7 +13,7 @@ import {
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
-import { snackbar } from '@/utils'
+import { currencyFormat, snackbar } from '@/utils'
 import {
   addlineItems,
   getProductOptionsFields,
@@ -24,7 +24,6 @@ interface ShoppingProductsProps {
   shoppingListInfo: any
   role: string | number
   products: ProductsProps[]
-  currencyToken: string
   successProducts: number
   allowJuniorPlaceOrder: boolean
   getProductQuantity?: (item: ProductsProps) => number
@@ -158,7 +157,6 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     shoppingListInfo,
     role,
     products,
-    currencyToken,
     successProducts,
     allowJuniorPlaceOrder,
     setValidateFailureProducts,
@@ -443,7 +441,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                       textAlignLocation={textAlign}
                     >
                       {isMobile && <span>Price: </span>}
-                      {`${currencyToken}${price.toFixed(2)}`}
+                      {`${currencyFormat(price)}`}
                     </FlexItem>
                     <FlexItem
                       {...itemStyle.default}
@@ -465,7 +463,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                       textAlignLocation={textAlign}
                     >
                       {isMobile && <div>Total: </div>}
-                      {`${currencyToken}${total}`}
+                      {`${currencyFormat(total)}`}
                     </FlexItem>
 
                     <FlexItem {...itemStyle.delete}>

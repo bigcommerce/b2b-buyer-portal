@@ -15,7 +15,7 @@ import {
   deleteCart,
   getCartInfo,
 } from '@/shared/service/bc'
-import { snackbar } from '@/utils'
+import { currencyFormat, snackbar } from '@/utils'
 import { addlineItems, ProductsProps } from '@/utils/b3Product/shared/config'
 
 interface ShoppingDetailFooterProps {
@@ -23,7 +23,6 @@ interface ShoppingDetailFooterProps {
   role: string | number
   allowJuniorPlaceOrder: boolean
   checkedArr: any
-  currencyToken: string
   selectedSubTotal: number
   setLoading: (val: boolean) => void
   setDeleteOpen: (val: boolean) => void
@@ -54,7 +53,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     role,
     allowJuniorPlaceOrder,
     checkedArr,
-    currencyToken,
     selectedSubTotal,
     setLoading,
     setDeleteOpen,
@@ -296,7 +294,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                 color: '#000000',
               }}
             >
-              {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
+              {`Subtotal: ${currencyFormat(selectedSubTotal)}`}
             </Typography>
             <Box
               sx={{

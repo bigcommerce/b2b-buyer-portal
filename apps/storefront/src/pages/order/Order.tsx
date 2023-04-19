@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
-import { format } from 'date-fns'
 
 import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
@@ -14,12 +13,12 @@ import {
   getOrdersCreatedByUser,
   getOrderStatusType,
 } from '@/shared/service/b2b'
+import { currencyFormat, displayFormat } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 
 import OrderStatus from './components/OrderStatus'
 import {
-  currencySymbol,
   FilterSearchProps,
   getFilterMoreData,
   getInitFilter,
@@ -178,8 +177,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'totalIncTax',
       title: 'Grand total',
-      render: (item: ListItem) =>
-        `${currencySymbol(item.money)}${item.totalIncTax}`,
+      render: (item: ListItem) => `${currencyFormat(item.totalIncTax)}`,
       width: '8%',
       style: {
         textAlign: 'right',
@@ -205,7 +203,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'createdAt',
       title: 'Created on',
-      render: (item: ListItem) => format(+item.createdAt * 1000, 'dd MMM yyyy'),
+      render: (item: ListItem) => `${displayFormat(+item.createdAt)}`,
       width: '10%',
     },
     {

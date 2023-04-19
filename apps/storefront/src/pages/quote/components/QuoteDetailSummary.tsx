@@ -1,5 +1,7 @@
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
+import { currencyFormat } from '@/utils'
+
 interface Summary {
   originalSubtotal: string | number
   discount: string | number
@@ -8,23 +10,17 @@ interface Summary {
   grandTotal: string | number
 }
 
-interface Currency {
-  token: string
-}
-
 interface QuoteDetailSummaryProps {
   quoteSummary: Summary
-  currency: Currency
 }
 
 export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
   const {
     quoteSummary: { originalSubtotal, discount, tax, shipping, grandTotal },
-    currency,
   } = props
 
   const priceFormat = (price: number) =>
-    `${currency?.token || '$'} ${price.toFixed(2)}`
+    `${currencyFormat(price)}`
   const quotedSubtotal = +originalSubtotal - +discount
 
   return (

@@ -89,7 +89,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
     text = '',
     color = '',
     customCss = '',
-    location = '',
+    location = 'bottomLeft',
     horizontalPadding = '',
     verticalPadding = '',
   } = masqueradeButton

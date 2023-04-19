@@ -4,7 +4,7 @@ import { Box, styled, Typography } from '@mui/material'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { getProductPriceIncTax } from '@/utils'
+import { currencyFormat, getProductPriceIncTax } from '@/utils'
 
 import QuoteDetailTableCard from './QuoteDetailTableCard'
 
@@ -40,7 +40,6 @@ interface ListItemProps {
 
 interface ShoppingDetailTableProps {
   total: number
-  currencyToken?: string
   getQuoteTableDetails: any
 }
 
@@ -91,7 +90,7 @@ const StyledImage = styled('img')(() => ({
 }))
 
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
-  const { total, currencyToken, getQuoteTableDetails } = props
+  const { total, getQuoteTableDetails } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
@@ -203,7 +202,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyToken}${withTaxPrice.toFixed(2)}`}
+                {`${currencyFormat(withTaxPrice)}`}
               </Typography>
             )}
 
@@ -213,7 +212,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyToken}${(+withTaxPrice - +isDiscount).toFixed(2)}`}
+              {`${currencyFormat((+withTaxPrice - +isDiscount))}`}
             </Typography>
           </>
         )
@@ -274,7 +273,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyToken}${total.toFixed(2)}`}
+                {`${currencyFormat(total)}`}
               </Typography>
             )}
             <Typography
@@ -283,7 +282,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyToken}${totalWithDiscount.toFixed(2)}`}
+              {`${currencyFormat(totalWithDiscount)}`}
             </Typography>
           </Box>
         )
@@ -332,7 +331,6 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             len={total || 0}
             item={row}
             itemIndex={index}
-            currencyToken={currencyToken || '$'}
           />
         )}
       />

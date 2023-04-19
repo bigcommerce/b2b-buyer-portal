@@ -13,7 +13,7 @@ import { Box, Divider, TextField, Typography } from '@mui/material'
 import { B3CustomForm, B3Dialog, B3Sping } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
+import { currencyFormat, snackbar } from '@/utils'
 
 import { ShoppingListProductItem, SimpleObject, Variant } from '../../../types'
 import {
@@ -72,7 +72,6 @@ interface ChooseOptionsDialogProps {
   product?: ShoppingListProductItem
   onCancel: () => void
   onConfirm: (products: CustomFieldItems[]) => void
-  currency?: string
   isEdit?: boolean
   isLoading: boolean
   setIsLoading: Dispatch<SetStateAction<boolean>>
@@ -86,7 +85,6 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     onCancel,
     onConfirm,
     product,
-    currency = '$',
     isEdit = false,
     isLoading,
     setIsLoading,
@@ -169,13 +167,13 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       const priceNumber =
         variants.find((variant) => variant.sku === variantSku)
           ?.bc_calculated_price?.tax_inclusive || 0
-      return `${currency} ${priceNumber.toFixed(2)}`
+      return `${currencyFormat(priceNumber)}`
     }
 
     const priceNumber =
       parseFloat(variants[0]?.bc_calculated_price?.tax_inclusive?.toString()) ||
       0
-    return `${currency} ${priceNumber.toFixed(2)}`
+    return `${currencyFormat(priceNumber)}`
   }
 
   const handleProductQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {

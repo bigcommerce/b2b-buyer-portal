@@ -1,11 +1,10 @@
 import { Box, CardContent, styled, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { getProductPriceIncTax } from '@/utils'
+import { currencyFormat, getProductPriceIncTax } from '@/utils'
 
 interface QuoteTableCardProps {
   item: any
-  currencyToken?: string
   len: number
   itemIndex?: number
 }
@@ -17,7 +16,7 @@ const StyledImage = styled('img')(() => ({
 }))
 
 function QuoteDetailTableCard(props: QuoteTableCardProps) {
-  const { item: quoteTableItem, currencyToken = '$', len, itemIndex } = props
+  const { item: quoteTableItem, len, itemIndex } = props
 
   const {
     basePrice,
@@ -114,7 +113,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyToken}${withTaxPrice.toFixed(2)}`}
+                {`${currencyFormat(withTaxPrice)}`}
               </span>
             )}
             <span
@@ -123,7 +122,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyToken}${(+withTaxPrice - +isDiscount).toFixed(2)}`}
+              {`${currencyFormat((+withTaxPrice - +isDiscount))}`}
             </span>
           </Typography>
 
@@ -144,7 +143,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyToken}${total.toFixed(2)}`}
+                {`${currencyFormat(total)}`}
               </span>
             )}
             <span
@@ -153,7 +152,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyToken}${totalWithDiscount.toFixed(2)}`}
+              {`${currencyFormat(totalWithDiscount)}`}
             </span>
           </Typography>
         </Box>

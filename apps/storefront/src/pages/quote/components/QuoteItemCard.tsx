@@ -3,9 +3,9 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
-import { format } from 'date-fns'
 
 import { TableColumnItem } from '@/components/table/B3Table'
+import { currencyFormat, displayFormat } from '@/utils'
 
 import QuoteStatus from './QuoteStatus'
 
@@ -13,9 +13,6 @@ interface ListItem {
   [key: string]: string | Object
   status: string
   quoteNumber: string
-  currency: {
-    token: string
-  }
 }
 
 export interface QuoteItemCardProps {
@@ -51,9 +48,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
       title: 'Date created',
       render: () =>
         `${
-          +item.status !== 0
-            ? format(+item.createdAt * 1000, 'dd MMM yyyy')
-            : item.createdAt
+          +item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt
         }`,
     },
     {
@@ -61,9 +56,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
       title: 'Last update',
       render: () =>
         `${
-          +item.status !== 0
-            ? format(+item.updatedAt * 1000, 'dd MMM yyyy')
-            : item.updatedAt
+          +item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt
         }`,
     },
     {
@@ -71,21 +64,16 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
       title: 'Expiration date',
       render: () =>
         `${
-          +item.status !== 0
-            ? format(+item.expiredAt * 1000, 'dd MMM yyyy')
-            : item.expiredAt
+          +item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt
         }`,
     },
     {
       key: 'totalAmount',
       title: 'Subtotal',
       render: () => {
-        const {
-          currency: { token },
-          totalAmount,
-        } = item
+        const { totalAmount } = item
 
-        return `${token}${(+totalAmount).toFixed(2)}`
+        return `${currencyFormat(+totalAmount)}`
       },
     },
   ]

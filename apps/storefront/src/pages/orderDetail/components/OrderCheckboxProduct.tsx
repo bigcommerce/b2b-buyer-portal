@@ -10,16 +10,12 @@ import {
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
+import { currencyFormat } from '@/utils'
 
-import {
-  EditableProductItem,
-  OrderCurrency,
-  OrderProductOption,
-} from '../../../types'
+import { EditableProductItem, OrderProductOption } from '../../../types'
 
 interface OrderCheckboxProductProps {
   products: EditableProductItem[]
-  currencyInfo: OrderCurrency
   getProductQuantity?: (item: EditableProductItem) => number
   onProductChange?: (products: EditableProductItem[]) => void
   setCheckedArr?: (items: number[]) => void
@@ -127,7 +123,6 @@ const mobileItemStyle = {
 export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   const {
     products,
-    currencyInfo,
     getProductQuantity = (item) => item.editQuantity,
     onProductChange = () => {},
     setCheckedArr = () => {},
@@ -138,12 +133,6 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
 
   const [list, setList] = useState<number[]>([])
 
-  const getProductPrice = (price: string | number) => {
-    const priceNumber = parseFloat(price.toString()) || 0
-
-    return priceNumber.toFixed(2)
-  }
-
   const getProductTotals = (
     quantity: string | number,
     price: string | number
@@ -151,7 +140,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     const priceNumber = parseFloat(price.toString()) || 0
     const quantityNumber = parseInt(quantity.toString(), 10) || 0
 
-    return (quantityNumber * priceNumber).toFixed(2)
+    return quantityNumber * priceNumber
   }
 
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
@@ -276,9 +265,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             {...itemStyle.default}
           >
             {isMobile && <span>Price: </span>}
-            {`${currencyInfo.currency_token} ${getProductPrice(
-              product.base_price
-            )}`}
+            {`${currencyFormat(product.base_price)}`}
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
             <TextField
@@ -308,9 +295,8 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             {...itemStyle.default}
           >
             {isMobile && <span>Total: </span>}
-            {`${currencyInfo.currency_token} ${getProductTotals(
-              getProductQuantity(product),
-              product.base_price
+            {`${currencyFormat(
+              getProductTotals(getProductQuantity(product), product.base_price)
             )}`}
           </FlexItem>
         </Flex>

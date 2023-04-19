@@ -6,12 +6,11 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
-import { format } from 'date-fns'
 
 import { GlobaledContext } from '@/shared/global'
+import { currencyFormat, displayFormat } from '@/utils'
 
 import OrderStatus from './components/OrderStatus'
-import { currencySymbol } from './config'
 
 interface ListItem {
   [key: string]: string
@@ -107,8 +106,7 @@ export function OrderItemCard(props: OrderItemCardProps) {
             minHeight: '1.43em',
           }}
         >
-          {currencySymbol(item.money)}
-          {item.totalIncTax}
+          {currencyFormat(item.totalIncTax)}
         </Typography>
 
         <Box
@@ -126,9 +124,7 @@ export function OrderItemCard(props: OrderItemCardProps) {
           >
             {getName(item)}
           </Typography>
-          <Typography>
-            {format(+item.createdAt * 1000, 'dd MMM yyyy')}
-          </Typography>
+          <Typography>{`${displayFormat(item.createdAt)}`}</Typography>
         </Box>
       </CardContent>
     </Card>

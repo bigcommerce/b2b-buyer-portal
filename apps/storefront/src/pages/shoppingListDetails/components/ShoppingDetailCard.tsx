@@ -3,7 +3,7 @@ import { Delete, Edit } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { getProductPriceIncTax } from '@/utils'
+import { currencyFormat, getProductPriceIncTax } from '@/utils'
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
 
@@ -15,7 +15,6 @@ interface ShoppingDetailCardProps {
     itemId: number | string
   ) => void
   onDelete: (itemId: number) => void
-  currencyToken: string
   handleUpdateProductQty: (id: number | string, value: number | string) => void
   handleUpdateShoppingListItem: (itemId: number | string) => void
   checkBox?: () => ReactElement
@@ -37,7 +36,6 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     onEdit,
     onDelete,
     checkBox,
-    currencyToken = '$',
     handleUpdateProductQty,
     handleUpdateShoppingListItem,
     isReadForApprove,
@@ -156,7 +154,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               color: '#212121',
             }}
           >
-            {`Price: ${currencyToken}${price.toFixed(2)}`}
+            {`Price: ${currencyFormat(price)}`}
           </Typography>
 
           <TextField
@@ -190,7 +188,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               color: '#212121',
             }}
           >
-            {`Total: ${currencyToken}${total.toFixed(2)}`}
+            {`Total: ${currencyFormat(total)}`}
           </Typography>
           <Box
             sx={{

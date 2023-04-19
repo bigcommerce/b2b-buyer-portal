@@ -46,7 +46,7 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
     text = '',
     color = '',
     customCss = '',
-    location = '',
+    location = 'bottomRight',
     horizontalPadding = '',
     verticalPadding = '',
     enabled = false,

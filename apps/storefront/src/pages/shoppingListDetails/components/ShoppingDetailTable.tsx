@@ -21,7 +21,7 @@ import {
   updateB2BShoppingListsItem,
   updateBcShoppingListsItem,
 } from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
+import { currencyFormat, getProductPriceIncTax, snackbar } from '@/utils'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
@@ -60,7 +60,6 @@ interface ListItemProps {
 
 interface ShoppingDetailTableProps {
   shoppingListInfo: any
-  currencyToken: string
   isRequestLoading: boolean
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>
   shoppingListId: number | string
@@ -132,7 +131,6 @@ function ShoppingDetailTable(
 
   const {
     shoppingListInfo,
-    currencyToken,
     isRequestLoading,
     setIsRequestLoading,
     shoppingListId,
@@ -415,9 +413,9 @@ function ShoppingDetailTable(
               padding: '12px 0',
             }}
           >
-            {`${currencyToken}${
+            {currencyFormat(
               +baseAllPrice !== 0 ? baseAllPrice : basePrice
-            }`}
+            )}
           </Typography>
         )
       },
@@ -477,9 +475,9 @@ function ShoppingDetailTable(
                 padding: '12px 0',
               }}
             >
-              {`${currencyToken}${(
+              {currencyFormat(
                 +(+baseAllPrice !== 0 ? baseAllPrice : basePrice) * +quantity
-              ).toFixed(2)}`}
+              )}
             </Typography>
             <Box
               sx={{
@@ -575,7 +573,7 @@ function ShoppingDetailTable(
             fontSize: '24px',
           }}
         >
-          {`${currencyToken}${shoppingListTotalPrice.toFixed(2) || 0.0}`}
+          {`${currencyFormat(shoppingListTotalPrice || 0.00)}`}
         </Typography>
       </Box>
       <Box
@@ -624,7 +622,6 @@ function ShoppingDetailTable(
             onDelete={setDeleteItemId}
             checkBox={checkBox}
             setDeleteOpen={setDeleteOpen}
-            currencyToken={currencyToken}
             handleUpdateProductQty={handleUpdateProductQty}
             handleUpdateShoppingListItem={handleUpdateShoppingListItem}
             isReadForApprove={isReadForApprove || isJuniorApprove}
@@ -639,7 +636,6 @@ function ShoppingDetailTable(
         product={optionsProduct}
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
-        currency={currencyToken}
         isEdit
         isB2BUser={isB2BUser}
       />

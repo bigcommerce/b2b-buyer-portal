@@ -1,12 +1,11 @@
 import { Fragment, ReactNode, useContext, useState } from 'react'
 import styled from '@emotion/styled'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
-import { format } from 'date-fns'
 import { throttle } from 'lodash'
 
 import { CustomButton } from '@/components'
 import { GlobaledContext } from '@/shared/global'
-import { b2bPrintInvoice, snackbar } from '@/utils'
+import { b2bPrintInvoice, displayFormat, snackbar } from '@/utils'
 
 import { Address, OrderCurrency, OrderProductItem } from '../../../types'
 import {
@@ -78,7 +77,6 @@ interface OrderCardProps {
   products: OrderProductItem[]
   itemKey: string
   orderId: string
-  currencyInfo: OrderCurrency
   role: number | string
 }
 
@@ -90,17 +88,8 @@ interface DialogData {
 }
 
 function OrderCard(props: OrderCardProps) {
-  const {
-    header,
-    subtitle,
-    buttons,
-    infos,
-    products,
-    itemKey,
-    orderId,
-    currencyInfo,
-    role,
-  } = props
+  const { header, subtitle, buttons, infos, products, itemKey, orderId, role } =
+    props
 
   const {
     state: { isAgenting },
@@ -236,7 +225,6 @@ function OrderCard(props: OrderCardProps) {
         type={type}
         setOpen={setOpen}
         itemKey={itemKey}
-        currencyInfo={currencyInfo}
       />
     </Card>
   )
@@ -364,10 +352,7 @@ export default function OrderAction(props: OrderActionProps) {
       key: 'order-summary',
       subtitle:
         updatedAt && name
-          ? `Purchased by ${name} on ${format(
-              +updatedAt * 1000,
-              'dd MMM yyyy'
-            )}.`
+          ? `Purchased by ${name} on ${displayFormat(+updatedAt)}.`
           : '',
       buttons,
       infos: {
@@ -379,7 +364,7 @@ export default function OrderAction(props: OrderActionProps) {
       header: 'Payment',
       key: 'payment',
       subtitle: createAt
-        ? `Paid in full on ${format(Date.parse(createAt), 'dd MMM yyyy')}.`
+        ? `Paid in full on ${displayFormat(createAt, true)}.`
         : '',
       buttons: [
         {
@@ -413,7 +398,6 @@ export default function OrderAction(props: OrderActionProps) {
           <OrderCard
             products={products!}
             orderId={orderId.toString()}
-            currencyInfo={money!}
             {...item}
             itemKey={item.key}
             role={role}

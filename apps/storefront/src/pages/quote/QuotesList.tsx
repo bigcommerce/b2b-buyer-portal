@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
-import { format } from 'date-fns'
 
 import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
@@ -13,7 +12,7 @@ import {
   getBCQuotesList,
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
-import { B3LStorage, getDefaultCurrencyInfo } from '@/utils'
+import { B3LStorage, currencyFormat, displayFormat } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 
@@ -215,8 +214,6 @@ function QuotesList() {
     }
   }
 
-  const { token: currencyToken } = getDefaultCurrencyInfo()
-
   const fetchList = async (params: Partial<FilterSearchProps>) => {
     const fn = isB2BUser ? getB2BQuotesList : getBCQuotesList
     const key = isB2BUser ? 'quotes' : 'customerQuotes'
@@ -237,9 +234,6 @@ function QuotesList() {
           createdBy: `${customer.firstName} ${customer.lastName}`,
           updatedAt: '—',
           expiredAt: '—',
-          currency: {
-            token: currencyToken,
-          },
           totalAmount: summaryPrice?.subtotal,
           status: 0,
           taxTotal: summaryPrice?.tax,
@@ -299,9 +293,7 @@ function QuotesList() {
       title: 'Date created',
       render: (item: ListItem) =>
         `${
-          +item.status !== 0
-            ? format(+item.createdAt * 1000, 'dd MMM yyyy')
-            : item.createdAt
+          +item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt
         }`,
     },
     {
@@ -309,9 +301,7 @@ function QuotesList() {
       title: 'Last update',
       render: (item: ListItem) =>
         `${
-          +item.status !== 0
-            ? format(+item.updatedAt * 1000, 'dd MMM yyyy')
-            : item.updatedAt
+          +item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt
         }`,
     },
     {
@@ -319,22 +309,16 @@ function QuotesList() {
       title: 'Expiration date',
       render: (item: ListItem) =>
         `${
-          +item.status !== 0
-            ? format(+item.expiredAt * 1000, 'dd MMM yyyy')
-            : item.expiredAt
+          +item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt
         }`,
     },
     {
       key: 'totalAmount',
       title: 'Subtotal',
       render: (item: ListItem) => {
-        const {
-          currency: { token },
-          totalAmount,
-          taxTotal,
-        } = item
+        const { totalAmount, taxTotal } = item
 
-        return `${token}${(+totalAmount + +taxTotal).toFixed(2)}`
+        return `${currencyFormat(+totalAmount + +taxTotal)}`
       },
       style: {
         textAlign: 'right',

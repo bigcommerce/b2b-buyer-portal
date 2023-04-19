@@ -7,11 +7,7 @@ import {
 } from 'react'
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
-import { B3LStorage } from '@/utils'
-
-interface QuoteSummaryProps {
-  currencyToken?: string
-}
+import { B3LStorage, currencyFormat } from '@/utils'
 
 interface Summary {
   subtotal: number
@@ -27,149 +23,144 @@ const defaultSummary: Summary = {
   grandTotal: 0,
 }
 
-const QuoteSummary = forwardRef(
-  (props: QuoteSummaryProps, ref: Ref<unknown>) => {
-    const { currencyToken = '$' } = props
+const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
+  const [quoteSummary, setQuoteSummary] = useState<Summary>({
+    ...defaultSummary,
+  })
 
-    const [quoteSummary, setQuoteSummary] = useState<Summary>({
-      ...defaultSummary,
-    })
+  const priceCalc = (price: number) => parseFloat(price.toFixed(2))
 
-    const priceCalc = (price: number) => parseFloat(price.toFixed(2))
+  const getSummary = () => {
+    const productList = B3LStorage.get('b2bQuoteDraftList') || []
 
-    const getSummary = () => {
-      const productList = B3LStorage.get('b2bQuoteDraftList') || []
+    const newQuoteSummary = productList.reduce(
+      (summary: Summary, product: CustomFieldItems) => {
+        const {
+          basePrice,
+          tax: productTax,
+          quantity,
+          additionalCalculatedPrices = [],
+        } = product.node
 
-      const newQuoteSummary = productList.reduce(
-        (summary: Summary, product: CustomFieldItems) => {
-          const {
-            basePrice,
-            tax: productTax,
-            quantity,
-            additionalCalculatedPrices = [],
-          } = product.node
+        let { subtotal, grandTotal, tax } = summary
 
-          let { subtotal, grandTotal, tax } = summary
+        const { shipping } = summary
 
-          const { shipping } = summary
+        let additionalCalculatedPriceTax = 0
 
-          let additionalCalculatedPriceTax = 0
+        let additionalCalculatedPrice = 0
 
-          let additionalCalculatedPrice = 0
+        additionalCalculatedPrices.forEach((item: CustomFieldItems) => {
+          additionalCalculatedPriceTax += item.additionalCalculatedPriceTax
+          additionalCalculatedPrice += item.additionalCalculatedPrice
+        })
 
-          additionalCalculatedPrices.forEach((item: CustomFieldItems) => {
-            additionalCalculatedPriceTax += item.additionalCalculatedPriceTax
-            additionalCalculatedPrice += item.additionalCalculatedPrice
-          })
+        subtotal += priceCalc(
+          (+basePrice + additionalCalculatedPrice) * quantity
+        )
+        tax += priceCalc(
+          (+productTax + additionalCalculatedPriceTax) * quantity
+        )
 
-          subtotal += priceCalc(
-            (+basePrice + additionalCalculatedPrice) * quantity
-          )
-          tax += priceCalc(
-            (+productTax + additionalCalculatedPriceTax) * quantity
-          )
+        grandTotal = subtotal + shipping
 
-          grandTotal = subtotal + shipping
-
-          return {
-            grandTotal,
-            shipping,
-            tax,
-            subtotal,
-          }
-        },
-        {
-          ...defaultSummary,
+        return {
+          grandTotal,
+          shipping,
+          tax,
+          subtotal,
         }
-      )
+      },
+      {
+        ...defaultSummary,
+      }
+    )
 
-      setQuoteSummary(newQuoteSummary)
-    }
+    setQuoteSummary(newQuoteSummary)
+  }
 
-    useEffect(() => {
-      getSummary()
-    }, [])
+  useEffect(() => {
+    getSummary()
+  }, [])
 
-    useImperativeHandle(ref, () => ({
-      refreshSummary: () => getSummary(),
-    }))
+  useImperativeHandle(ref, () => ({
+    refreshSummary: () => getSummary(),
+  }))
 
-    const priceFormat = (price: number) =>
-      `${currencyToken} ${price.toFixed(2)}`
+  const priceFormat = (price: number) => `${currencyFormat(price)}`
 
-    return (
-      <Card>
-        <CardContent>
-          <Box>
-            <Typography variant="h5">Quote summary</Typography>
-            <Box
+  return (
+    <Card>
+      <CardContent>
+        <Box>
+          <Typography variant="h5">Quote summary</Typography>
+          <Box
+            sx={{
+              marginTop: '20px',
+              color: '#212121',
+            }}
+          >
+            <Grid
+              container
+              justifyContent="space-between"
               sx={{
-                marginTop: '20px',
-                color: '#212121',
+                margin: '4px 0',
               }}
             >
-              <Grid
-                container
-                justifyContent="space-between"
-                sx={{
-                  margin: '4px 0',
-                }}
-              >
-                <Typography>Sub total</Typography>
-                <Typography>
-                  {priceFormat(quoteSummary.subtotal + +quoteSummary.tax)}
-                </Typography>
-              </Grid>
+              <Typography>Sub total</Typography>
+              <Typography>
+                {priceFormat(quoteSummary.subtotal + +quoteSummary.tax)}
+              </Typography>
+            </Grid>
 
-              <Grid
-                container
-                justifyContent="space-between"
-                sx={{
-                  margin: '4px 0',
-                }}
-              >
-                <Typography>Shipping</Typography>
-                <Typography>{priceFormat(quoteSummary.shipping)}</Typography>
-              </Grid>
+            <Grid
+              container
+              justifyContent="space-between"
+              sx={{
+                margin: '4px 0',
+              }}
+            >
+              <Typography>Shipping</Typography>
+              <Typography>{priceFormat(quoteSummary.shipping)}</Typography>
+            </Grid>
 
-              <Grid
-                container
-                justifyContent="space-between"
-                sx={{
-                  margin: '4px 0',
-                }}
-              >
-                <Typography>Tax</Typography>
-                <Typography>{priceFormat(quoteSummary.tax)}</Typography>
-              </Grid>
+            <Grid
+              container
+              justifyContent="space-between"
+              sx={{
+                margin: '4px 0',
+              }}
+            >
+              <Typography>Tax</Typography>
+              <Typography>{priceFormat(quoteSummary.tax)}</Typography>
+            </Grid>
 
-              <Grid
-                container
-                justifyContent="space-between"
+            <Grid
+              container
+              justifyContent="space-between"
+              sx={{
+                margin: '24px 0 0',
+              }}
+            >
+              <Typography
                 sx={{
-                  margin: '24px 0 0',
+                  fontWeight: 'bold',
                 }}
               >
-                <Typography
-                  sx={{
-                    fontWeight: 'bold',
-                  }}
-                >
-                  Grand total
-                </Typography>
-                <Typography
-                  sx={{
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {priceFormat(quoteSummary.grandTotal + +quoteSummary.tax)}
-                </Typography>
-              </Grid>
-            </Box>
+                Grand total
+              </Typography>
+              <Typography
+                sx={{
+                  fontWeight: 'bold',
+                }}
+              >
+                {priceFormat(quoteSummary.grandTotal + +quoteSummary.tax)}
+              </Typography>
+            </Grid>
           </Box>
-        </CardContent>
-      </Card>
-    )
-  }
-)
+        </Box>
+      </CardContent>
+    </Card>
+  )
+})
 export default QuoteSummary

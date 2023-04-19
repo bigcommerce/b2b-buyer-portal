@@ -8,9 +8,9 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import { format } from 'date-fns'
 
 import { CustomButton } from '@/components'
+import { displayFormat } from '@/utils'
 
 import { ShoppingListsItemsProps } from './config'
 import { ShoppingStatus } from './ShoppingStatus'
@@ -146,7 +146,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
           </FlexItem>
           <FlexItem>
             <FontBold>Last activity:</FontBold>
-            {format(+shoppingList.updatedAt * 1000, 'dd MMM yyyy')}
+            {displayFormat(shoppingList.updatedAt)}
           </FlexItem>
         </Box>
         <Flex>

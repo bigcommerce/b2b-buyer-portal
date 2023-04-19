@@ -1,12 +1,11 @@
 import { ReactElement } from 'react'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
-import { format } from 'date-fns'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { currencyFormat, displayFormat } from '@/utils'
 
 interface QuickOrderCardProps {
   item: any
-  currencyToken: string
   checkBox?: () => ReactElement
   handleUpdateProductQty: (id: number, val: string) => void
 }
@@ -18,12 +17,7 @@ const StyledImage = styled('img')(() => ({
 }))
 
 function QuickOrderCard(props: QuickOrderCardProps) {
-  const {
-    item: shoppingDetail,
-    checkBox,
-    handleUpdateProductQty,
-    currencyToken = '$',
-  } = props
+  const { item: shoppingDetail, checkBox, handleUpdateProductQty } = props
 
   const {
     quantity,
@@ -92,10 +86,7 @@ function QuickOrderCard(props: QuickOrderCardProps) {
             )}
           </Box>
 
-          <Typography>{`Price: ${currencyToken}${price.toFixed(
-            2
-          )}`}</Typography>
-
+          <Typography>{`Price: ${currencyFormat(price)}`}</Typography>
           <Box
             sx={{
               '& label': {
@@ -124,9 +115,8 @@ function QuickOrderCard(props: QuickOrderCardProps) {
             />
           </Box>
 
-          <Typography>{`Last ordered: ${format(
-            lastOrderedAt * 1000,
-            'dd MMM yyyy'
+          <Typography>{`Last ordered: ${displayFormat(
+            lastOrderedAt
           )}`}</Typography>
         </Box>
       </CardContent>

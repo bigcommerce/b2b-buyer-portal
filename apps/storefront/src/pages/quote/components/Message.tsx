@@ -11,7 +11,7 @@ import { format, formatDistanceStrict } from 'date-fns'
 
 import { B3CollapseContainer, B3Sping } from '@/components'
 import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b'
-import { storeHash } from '@/utils'
+import { displayExtendedFormat, storeHash } from '@/utils'
 
 interface MessageProps {
   date?: number
@@ -121,7 +121,7 @@ function DateMessage({ msg }: DateMessageProps) {
         mb: '5px',
       }}
     >
-      {format((msg?.date || 0) * 1000, 'MMMM dd uuuu, K:m aa')}
+      {`${displayExtendedFormat(msg?.date || 0)}`}
     </Box>
   )
 }

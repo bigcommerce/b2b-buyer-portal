@@ -7,7 +7,6 @@ import {
   useState,
 } from 'react'
 import { Box, styled, TextField, Typography } from '@mui/material'
-import { format } from 'date-fns'
 
 import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
@@ -22,6 +21,8 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b'
 import {
+  currencyFormat,
+  displayFormat,
   distanceDay,
   getDefaultCurrencyInfo,
   getProductPriceIncTax,
@@ -137,8 +138,7 @@ function QuickorderTable({
 
   const [isMobile] = useMobile()
 
-  const { currency_code: currencyCode, token: currencyToken } =
-    getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
@@ -191,7 +191,7 @@ function QuickorderTable({
       orderedProducts: { edges, totalCount },
     } = await fn(params)
 
-    const listProducts = handleGetProductsById(edges)
+    const listProducts = await handleGetProductsById(edges)
 
     setTotalCount(totalCount)
 
@@ -340,7 +340,7 @@ function QuickorderTable({
               padding: '12px 0',
             }}
           >
-            {`${currencyToken}${price.toFixed(2)}`}
+            {`${currencyFormat(price)}`}
           </Typography>
         )
       },
@@ -382,7 +382,7 @@ function QuickorderTable({
               padding: '12px 0',
             }}
           >
-            {format(+row.lastOrderedAt * 1000, 'dd MMM yyyy')}
+            {`${displayFormat(+row.lastOrderedAt)}`}
           </Typography>
         </Box>
       ),
@@ -501,7 +501,6 @@ function QuickorderTable({
             <QuickOrderCard
               item={row}
               checkBox={checkBox}
-              currencyToken={currencyToken}
               handleUpdateProductQty={handleUpdateProductQty}
             />
           )}

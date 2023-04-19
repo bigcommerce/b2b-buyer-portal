@@ -7,6 +7,7 @@ import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import {
   B3LStorage,
+  currencyFormat,
   getModifiersPrice,
   getProductPriceIncTax,
   getQuickAddProductExtraPrice,
@@ -49,7 +50,6 @@ interface ListItemProps {
 
 interface ShoppingDetailTableProps {
   total: number
-  currencyToken?: string
   getQuoteTableDetails: any
   idEdit?: boolean
   isB2BUser: boolean
@@ -105,7 +105,6 @@ const StyledTextField = styled(TextField)(() => ({
 function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const {
     total,
-    currencyToken,
     getQuoteTableDetails,
     idEdit = true,
     isB2BUser,
@@ -380,7 +379,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
               padding: '12px 0',
             }}
           >
-            {`${currencyToken}${withTaxPrice.toFixed(2)}`}
+            {`${currencyFormat(withTaxPrice)}`}
           </Typography>
         )
       },
@@ -440,7 +439,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 padding: '12px 0',
               }}
             >
-              {`${currencyToken}${total.toFixed(2)}`}
+              {`${currencyFormat(total)}`}
             </Typography>
             <Box
               sx={{
@@ -532,7 +531,6 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             itemIndex={index}
             onEdit={handleOpenProductEdit}
             onDelete={handleDeleteClick}
-            currencyToken={currencyToken || '$'}
             handleUpdateProductQty={handleUpdateProductQty}
             idEdit={idEdit}
           />
@@ -546,7 +544,6 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         product={optionsProduct}
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
-        currency={currencyToken}
         isEdit
         isB2BUser={isB2BUser}
       />

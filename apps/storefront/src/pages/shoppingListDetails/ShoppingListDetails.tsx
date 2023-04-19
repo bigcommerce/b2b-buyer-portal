@@ -21,7 +21,7 @@ import {
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b'
-import { getDefaultCurrencyInfo, getNewProductsList, snackbar } from '@/utils'
+import { getNewProductsList, snackbar } from '@/utils'
 import {
   CustomerInfoProps,
   ListItemProps,
@@ -108,8 +108,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const isJuniorApprove = shoppingListInfo?.status === 0 && role === 2
   const isReadForApprove =
     shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
-
-  const { token: currencyToken } = getDefaultCurrencyInfo()
 
   const goToShoppingLists = () => {
     navigate('/shoppingLists')
@@ -360,7 +358,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
                   allowJuniorPlaceOrder={allowJuniorPlaceOrder}
                   setCheckedArr={setCheckedArr}
                   shoppingListInfo={shoppingListInfo}
-                  currencyToken={currencyToken}
                   isRequestLoading={isRequestLoading}
                   setIsRequestLoading={setIsRequestLoading}
                   shoppingListId={id}
@@ -400,7 +397,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
             role={role}
             allowJuniorPlaceOrder={allowJuniorPlaceOrder}
             checkedArr={checkedArr}
-            currencyToken={currencyToken}
             selectedSubTotal={selectedSubTotal}
             setLoading={setIsRequestLoading}
             setDeleteOpen={setDeleteOpen}
@@ -418,7 +414,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
         products={validateFailureProducts}
         successProducts={validateSuccessProducts.length}
         allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-        currencyToken={currencyToken}
         setValidateFailureProducts={setValidateFailureProducts}
         setValidateSuccessProducts={setValidateSuccessProducts}
         textAlign={isMobile ? 'left' : 'right'}

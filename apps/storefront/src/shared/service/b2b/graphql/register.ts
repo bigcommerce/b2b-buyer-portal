@@ -155,6 +155,12 @@ const getStoreChannelId = () => `{
       b2bEnabled
       b3ChannelId
     }
+    timeFormat{
+      display
+      export
+      extendedDisplay
+      offset
+    }
   }
 }`
 

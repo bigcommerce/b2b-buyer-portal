@@ -42,6 +42,7 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
       try {
         const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
 
+        B3SStorage.set('timeFormat', storeBasicInfo.timeFormat)
         const {
           channelId,
           b3ChannelId: b2bChannelId,
@@ -57,6 +58,7 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
             currentChannelId: channelId,
             b2bChannelId,
             storeName: storeBasicInfo.storeName,
+            timeFormat: storeBasicInfo.timeFormat,
           },
         })
 

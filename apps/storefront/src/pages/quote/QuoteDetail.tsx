@@ -45,7 +45,6 @@ function QuoteDetail() {
 
   const [quoteDetail, setQuoteDetail] = useState<any>({})
   const [productList, setProductList] = useState<any>([])
-  const [currency, setCurrency] = useState<any>({})
   const [fileList, setFileList] = useState<any>([])
 
   const [quoteSummary, setQuoteSummary] = useState<any>({
@@ -127,7 +126,6 @@ function QuoteDetail() {
         shipping: quote.shippingTotal,
         grandTotal: quote.totalAmount,
       })
-      setCurrency(quote.currency)
       setProductList(productsWithMoreInfo)
 
       const { backendAttachFiles = [], storefrontAttachFiles = [] } = quote
@@ -383,7 +381,6 @@ function QuoteDetail() {
               }
             >
               <QuoteDetailTable
-                currencyToken={currency?.token}
                 total={productList.length}
                 getQuoteTableDetails={getQuoteTableDetails}
               />
@@ -411,7 +408,6 @@ function QuoteDetail() {
             >
               <QuoteDetailSummary
                 quoteSummary={quoteSummary}
-                currency={quoteDetail.currency}
               />
             </Box>
 

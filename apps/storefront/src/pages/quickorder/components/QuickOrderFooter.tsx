@@ -26,7 +26,7 @@ import {
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import {
   addQuoteDraftProduce,
-  getDefaultCurrencyInfo,
+  currencyFormat,
   getProductPriceIncTax,
   snackbar,
 } from '@/utils'
@@ -136,8 +136,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     setAnchorEl(null)
     setOpen(false)
   }
-
-  const { token: currencyToken } = getDefaultCurrencyInfo()
 
   // Add selected to cart
   const handleSetCartLineItems = (inventoryInfos: ProductsProps[]) => {
@@ -579,7 +577,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                   color: '#000000',
                 }}
               >
-                {`Subtotal: ${currencyToken}${selectedSubTotal.toFixed(2)}`}
+                {`Subtotal: ${currencyFormat(selectedSubTotal)}`}
               </Typography>
               <Box
                 sx={{

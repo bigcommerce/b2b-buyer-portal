@@ -1,6 +1,9 @@
 {
   "root": true,
   "extends": ["b2b"],
+  "ignorePatterns": [
+    "/apps/storefront/src/utils/b3DateFormat/php-date-format.ts"
+  ],
   "settings": {
     "import/resolver": {
       "typescript": {

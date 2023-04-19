@@ -16,7 +16,6 @@ import { snackbar } from '@/utils'
 
 import {
   EditableProductItem,
-  OrderCurrency,
   OrderProductItem,
 } from '../../../types'
 import getReturnFormFields from '../shared/config'
@@ -39,7 +38,6 @@ interface OrderDialogProps {
   type?: string
   currentDialogData?: DialogData
   itemKey: string
-  currencyInfo: OrderCurrency
 }
 
 export default function OrderDialog({
@@ -49,7 +47,6 @@ export default function OrderDialog({
   currentDialogData = undefined,
   setOpen,
   itemKey,
-  currencyInfo,
 }: OrderDialogProps) {
   const {
     state: { isB2BUser },
@@ -351,7 +348,6 @@ export default function OrderDialog({
           <OrderCheckboxProduct
             products={editableProducts}
             onProductChange={handleProductChange}
-            currencyInfo={currencyInfo}
             setCheckedArr={setCheckedArr}
             textAlign={isMobile ? 'left' : 'right'}
           />

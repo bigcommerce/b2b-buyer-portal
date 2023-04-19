@@ -2,7 +2,7 @@ import { Delete, Edit } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { getProductPriceIncTax } from '@/utils'
+import { currencyFormat, getProductPriceIncTax } from '@/utils'
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
 
@@ -10,7 +10,6 @@ interface QuoteTableCardProps {
   item: any
   onEdit: (item: any, itemId: number | string) => void
   onDelete: (id: string) => void
-  currencyToken?: string
   handleUpdateProductQty: (id: number | string, value: number | string) => void
   idEdit: boolean
   len: number
@@ -28,7 +27,6 @@ function QuoteTableCard(props: QuoteTableCardProps) {
     item: quoteTableItem,
     onEdit,
     onDelete,
-    currencyToken = '$',
     handleUpdateProductQty,
     idEdit,
     len,
@@ -125,9 +123,7 @@ function QuoteTableCard(props: QuoteTableCardProps) {
             )}
           </Box>
 
-          <Typography>{`Price: ${currencyToken}${price.toFixed(
-            2
-          )}`}</Typography>
+          <Typography>{`Price: ${currencyFormat(price)}`}</Typography>
 
           <TextField
             size="small"
@@ -149,9 +145,7 @@ function QuoteTableCard(props: QuoteTableCardProps) {
               handleUpdateProductQty(id, e.target.value)
             }}
           />
-          <Typography>{`Total: ${currencyToken}${total.toFixed(
-            2
-          )}`}</Typography>
+          <Typography>{`Total: ${currencyFormat(total)}`}</Typography>
           <Box
             sx={{
               marginTop: '1rem',
