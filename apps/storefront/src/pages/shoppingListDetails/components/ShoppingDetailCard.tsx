@@ -24,7 +24,7 @@ import {
 
 import {
   getProductOptionsFields,
-} from '../shared/config'
+} from '../../../utils/b3Product/shared/config'
 
 interface ShoppingDetailCardProps {
   item: any,

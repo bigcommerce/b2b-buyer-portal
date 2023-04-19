@@ -33,7 +33,7 @@ import {
 
 import {
   conversionProductsList,
-} from '../../pages/shoppingListDetails/shared/config'
+} from '../../utils/b3Product/shared/config'
 
 import {
   B3AddToQuoteTip,

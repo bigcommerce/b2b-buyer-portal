@@ -61,7 +61,7 @@ import QuickOrderCard from './QuickOrderCard'
 
 import {
   conversionProductsList,
-} from '../../shoppingListDetails/shared/config'
+} from '../../../utils/b3Product/shared/config'
 
 import {
   B3Sping,

@@ -42,7 +42,7 @@ import CreateShoppingList from '../orderDetail/components/CreateShoppingList'
 
 import {
   conversionProductsList,
-} from '../shoppingListDetails/shared/config'
+} from '../../utils/b3Product/shared/config'
 
 interface PDPProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>,

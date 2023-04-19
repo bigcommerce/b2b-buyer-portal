@@ -28,6 +28,18 @@ export interface CustomerInfoProps {
   userId: number | string;
 }
 
+interface ProductPrices {
+  as_entered: number,
+  entered_inclusive: number,
+  tax_exclusive: number,
+  tax_inclusive: number,
+}
+
+interface ModifierPrices {
+  adjuster: string,
+  adjuster_value: number
+}
+
 export interface ProductInfoProps {
   basePrice: number | string,
   baseSku: string,
@@ -47,6 +59,11 @@ export interface ProductInfoProps {
   variantId: number,
   variantSku: string,
   productsSearch: CustomFieldItems,
+  picklistIds?: number[]
+  modifierPrices?: ModifierPrices[],
+  currentProductPrices?: ProductPrices,
+  extraProductPrices?: ProductPrices[],
+  [key: string]: any,
 }
 
 export interface ListItemProps {
@@ -64,6 +81,7 @@ export interface SearchProps {
   first?: number,
   offset?: number,
 }
+
 interface NodeProps {
   basePrice: number | string,
   baseSku: string,

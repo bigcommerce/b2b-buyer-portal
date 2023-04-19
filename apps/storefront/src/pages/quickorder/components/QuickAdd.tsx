@@ -35,7 +35,7 @@ import {
 
 import {
   getQuickAddRowFields,
-} from '../../shoppingListDetails/shared/config'
+} from '../../../utils/b3Product/shared/config'
 
 import {
   SimpleObject,

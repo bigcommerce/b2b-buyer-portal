@@ -40,7 +40,7 @@ import {
   getProductOptionsFields,
   Base64,
   getOptionRequestData,
-} from '../shared/config'
+} from '../../../utils/b3Product/shared/config'
 
 import {
   searchB2BProducts,

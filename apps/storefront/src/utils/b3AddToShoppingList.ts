@@ -8,7 +8,7 @@ import {
 
 import {
   conversionProductsList,
-} from '../pages/shoppingListDetails/shared/config'
+} from './b3Product/shared/config'
 
 export const handleGetCurrentProductInfo = async (productId: number | string) => {
   const currencies = B3SStorage.get('currencies')

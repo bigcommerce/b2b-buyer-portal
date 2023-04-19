@@ -45,16 +45,16 @@ import {
 import {
   snackbar,
   getDefaultCurrencyInfo,
+  getNewProductsList,
 } from '@/utils'
 
 import {
-  conversionProductsList,
   ShoppingListInfoProps,
   CustomerInfoProps,
   ListItemProps,
   SearchProps,
   ProductsProps,
-} from './shared/config'
+} from '../../utils/b3Product/shared/config'
 
 import {
   ShoppingListDetailsContext,
@@ -149,7 +149,6 @@ const ShoppingListDetails = ({
   const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
 
   const {
-    currency_code: currencyCode,
     token: currencyToken,
   } = getDefaultCurrencyInfo()
 
@@ -165,53 +164,6 @@ const ShoppingListDetails = ({
       },
     })
   }, [id])
-
-  const handleGetProductsById = async (listProducts: ListItemProps[]) => {
-    if (listProducts.length > 0) {
-      const productIds: number[] = []
-      listProducts.forEach((item) => {
-        const {
-          node,
-        } = item
-        if (!productIds.includes(node.productId)) {
-          productIds.push(node.productId)
-        }
-      })
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
-
-      try {
-        const {
-          productsSearch,
-        } = await getProducts({
-          productIds,
-          currencyCode,
-          companyId: companyInfoId,
-        })
-
-        const newProductsSearch = conversionProductsList(productsSearch)
-
-        listProducts.forEach((item) => {
-          const {
-            node,
-          } = item
-
-          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
-            const {
-              id: productId,
-            } = search
-
-            return node.productId === productId
-          })
-
-          node.productsSearch = productInfo || {}
-        })
-
-        return listProducts
-      } catch (err: any) {
-        snackbar.error(err)
-      }
-    }
-  }
 
   const getShoppingListDetails = async (params: SearchProps) => {
     const getSLDetail = isB2BUser ? getB2BShoppingListDetails : getBcShoppingListDetails
@@ -231,7 +183,9 @@ const ShoppingListDetails = ({
       },
     } = shoppingListDetailInfo
 
-    const listProducts = await handleGetProductsById(edges)
+    const listProducts = await getNewProductsList(edges, isB2BUser, companyInfoId)
+
+    console.log(listProducts, 'listProducts')
 
     if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo)
     setShoppingListInfo(shoppingListDetailInfo)

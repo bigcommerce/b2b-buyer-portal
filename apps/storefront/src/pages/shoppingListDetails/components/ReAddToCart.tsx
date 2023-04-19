@@ -44,7 +44,7 @@ import {
   ProductsProps,
   addlineItems,
   getProductOptionsFields,
-} from '../shared/config'
+} from '../../../utils/b3Product/shared/config'
 
 interface successTipOptions{
   message: string,

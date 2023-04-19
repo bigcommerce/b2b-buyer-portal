@@ -93,7 +93,7 @@ import {
   getProductOptionsFields,
   conversionProductsList,
   ListItemProps,
-} from '../shoppingListDetails/shared/config'
+} from '../../utils/b3Product/shared/config'
 
 import {
   getAccountFormFields,

@@ -78,7 +78,8 @@ export {
   getModifiersPrice,
   getProductExtraPrice,
   getQuickAddProductExtraPrice,
-} from './b3Product'
+  getNewProductsList,
+} from './b3Product/b3Product'
 
 export {
   getTemPlateConfig,

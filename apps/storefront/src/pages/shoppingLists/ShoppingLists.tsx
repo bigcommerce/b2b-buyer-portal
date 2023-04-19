@@ -166,6 +166,7 @@ const shoppingLists = () => {
         edges, totalCount,
       },
     } = await getShoppingLists(newParams)
+
     return {
       edges,
       totalCount,

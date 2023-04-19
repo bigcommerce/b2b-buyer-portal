@@ -66,7 +66,7 @@ import {
 } from './shared/config'
 import {
   conversionProductsList,
-} from '../shoppingListDetails/shared/config'
+} from '../../utils/b3Product/shared/config'
 import {
   QuoteTermsAndConditions,
 } from './components/QuoteTermsAndConditions'

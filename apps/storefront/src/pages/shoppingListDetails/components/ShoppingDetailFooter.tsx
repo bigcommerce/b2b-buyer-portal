@@ -34,7 +34,7 @@ import {
 import {
   ProductsProps,
   addlineItems,
-} from '../shared/config'
+} from '../../../utils/b3Product/shared/config'
 import {
   B3LinkTipContent,
   CustomButton,

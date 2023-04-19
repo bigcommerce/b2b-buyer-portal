@@ -46,7 +46,7 @@ import {
 
 import {
   getProductOptionsFields,
-} from '../../shoppingListDetails/shared/config'
+} from '../../../utils/b3Product/shared/config'
 
 interface ListItem {
   [key: string]: string

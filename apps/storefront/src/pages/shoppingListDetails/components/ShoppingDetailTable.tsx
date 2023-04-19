@@ -63,7 +63,7 @@ import ShoppingDetailCard from './ShoppingDetailCard'
 
 import {
   getProductOptionsFields,
-} from '../shared/config'
+} from '../../../utils/b3Product/shared/config'
 
 interface ListItem {
   [key: string]: string

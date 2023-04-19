@@ -20,7 +20,7 @@ import {
 
 import {
   getProductOptionsFields,
-} from '../../shoppingListDetails/shared/config'
+} from '../../../utils/b3Product/shared/config'
 
 interface QuoteTableCardProps {
   item: any,

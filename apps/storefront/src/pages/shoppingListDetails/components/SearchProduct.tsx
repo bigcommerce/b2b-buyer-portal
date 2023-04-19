@@ -37,7 +37,7 @@ import {
 
 import {
   conversionProductsList,
-} from '../shared/config'
+} from '../../../utils/b3Product/shared/config'
 
 interface SearchProductProps {
   updateList: () => void,
