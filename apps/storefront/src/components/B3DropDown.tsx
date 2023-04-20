@@ -57,6 +57,9 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
     >
       <ListItemButton
         onClick={handleClick}
+        sx={{
+          pr: 0,
+        }}
       >
         <ListItemText primary={title} />
         {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}

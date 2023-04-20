@@ -20,6 +20,10 @@ import {
 } from '@/hooks'
 
 import {
+  PRODUCT_DEFAULT_IMAGE,
+} from '@/constants'
+
+import {
   OrderProductOption,
   EditableProductItem,
   OrderCurrency,
@@ -275,7 +279,7 @@ export const OrderCheckboxProduct = (props: OrderCheckboxProductProps) => {
               onChange={() => handleSelectChange(product.variant_id)}
             />
             <FlexItem>
-              <ProductImage src={product.imageUrl} />
+              <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
               <Box
                 sx={{
                   marginLeft: '16px',

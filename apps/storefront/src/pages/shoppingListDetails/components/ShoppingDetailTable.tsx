@@ -134,7 +134,7 @@ const StyledShoppingListTableContainer = styled('div')(() => ({
         verticalAlign: 'top',
       },
       '& td: first-of-type': {
-        verticalAlign: 'inherit',
+        paddingTop: '25px',
       },
     },
     '& tr: hover': {

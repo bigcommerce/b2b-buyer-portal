@@ -162,7 +162,12 @@ const B3FilterMore:<T, Y> ({
 
       {
         ((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
-        <Box onClick={handleDialogClick}>
+        <Box
+          onClick={handleDialogClick}
+          sx={{
+            mr: '-10px',
+          }}
+        >
           {
             !isFiltering && (
             <IconButton

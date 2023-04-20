@@ -73,6 +73,7 @@ interface ShoppingProductsProps {
   onProductChange?: (products: ProductsProps[]) => void
   setValidateFailureProducts: (arr: ProductsProps[]) => void,
   setValidateSuccessProducts: (arr: ProductsProps[]) => void,
+  textAlign?: string,
 }
 
 interface FlexProps {
@@ -86,6 +87,7 @@ interface FlexItemProps {
   flexBasis?: string,
   alignItems?: string,
   flexDirection?: 'column' | 'inherit' | '-moz-initial' | 'initial' | 'revert' | 'unset' | 'column-reverse' | 'row' | 'row-reverse',
+  textAlignLocation?: string,
 }
 
 const Flex = styled('div')(({
@@ -127,8 +129,10 @@ const FlexItem = styled(Box)(({
   flexBasis,
   flexDirection = 'row',
   alignItems,
+  textAlignLocation,
 }: FlexItemProps) => ({
   display: 'flex',
+  justifyContent: textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
   flexDirection,
   flexGrow: width ? 0 : 1,
   flexShrink: width ? 0 : 1,
@@ -189,6 +193,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
     allowJuniorPlaceOrder,
     setValidateFailureProducts,
     setValidateSuccessProducts,
+    textAlign = 'left',
   } = props
 
   const [isOpen, setOpen] = useState<boolean>(false)
@@ -375,7 +380,10 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                     <FlexItem>
                       <ProductHead>Product</ProductHead>
                     </FlexItem>
-                    <FlexItem {...itemStyle.default}>
+                    <FlexItem
+                      {...itemStyle.default}
+                      textAlignLocation={textAlign}
+                    >
                       <ProductHead>Price</ProductHead>
                     </FlexItem>
                     <FlexItem
@@ -383,10 +391,14 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                         justifyContent: 'center',
                       }}
                       {...itemStyle.default}
+                      textAlignLocation={textAlign}
                     >
                       <ProductHead>Qty</ProductHead>
                     </FlexItem>
-                    <FlexItem {...itemStyle.default}>
+                    <FlexItem
+                      {...itemStyle.default}
+                      textAlignLocation={textAlign}
+                    >
                       <ProductHead>Total</ProductHead>
                     </FlexItem>
                     <FlexItem {...itemStyle.delete}>
@@ -484,11 +496,15 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                         </FlexItem>
                         <FlexItem
                           {...itemStyle.default}
+                          textAlignLocation={textAlign}
                         >
                           {isMobile && <span>Price: </span>}
                           {`${currencyToken}${price.toFixed(2)}`}
                         </FlexItem>
-                        <FlexItem {...itemStyle.default}>
+                        <FlexItem
+                          {...itemStyle.default}
+                          textAlignLocation={textAlign}
+                        >
                           <B3QuantityTextField
                             isStock={isStock}
                             maxQuantity={maxQuantity}
@@ -502,6 +518,7 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
                         </FlexItem>
                         <FlexItem
                           {...itemStyle.default}
+                          textAlignLocation={textAlign}
                         >
                           {isMobile && <div>Total: </div>}
                           {`${currencyToken}${total.toFixed(2)}`}

@@ -398,6 +398,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
             onProductChange={handleProductChange}
             currencyInfo={currencyInfo}
             setCheckedArr={setCheckedArr}
+            textAlign={isMobile ? 'left' : 'right'}
           />
 
           {

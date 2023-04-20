@@ -105,7 +105,7 @@ export const B3AccountInfo = ({
             minWidth: '150px',
             display: 'flex',
             justifyContent: 'end',
-            mr: '8px',
+            mr: '-2px',
             fontSize: '16px',
             color: '#333333',
           }}

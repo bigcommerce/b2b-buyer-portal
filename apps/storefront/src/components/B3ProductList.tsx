@@ -123,7 +123,7 @@ const mobileItemStyle = {
   },
   qty: {
     width: '100%',
-    padding: '0 0 0 72px',
+    padding: '0 0 0 76px',
   },
 }
 
@@ -262,6 +262,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
           <FlexItem
             textAlignLocation={textAlign}
             {...itemStyle.default}
+            width={isMobile ? '100%' : actionWidth}
           >
             <ProductHead>{totalText}</ProductHead>
           </FlexItem>
@@ -416,7 +417,7 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
                 padding={quantityEditable ? '10px 0 0' : ''}
                 {...itemStyle.default}
                 width={isMobile ? '100%' : actionWidth}
-                textAlignLocation="right"
+                textAlignLocation={textAlign}
               >
                 {isMobile && (
                 <span>

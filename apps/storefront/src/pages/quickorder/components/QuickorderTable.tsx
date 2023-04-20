@@ -116,6 +116,22 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }))
 
+const StyleQuickOrderTable = styled(Box)(() => ({
+  display: 'flex',
+  flexDirection: 'column',
+
+  '& tbody': {
+    '& tr': {
+      '& td': {
+        verticalAlign: 'top',
+      },
+      '& td: first-of-type': {
+        paddingTop: '25px',
+      },
+    },
+  },
+}))
+
 interface QuickorderTableProps {
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
   setCheckedArr: (values: CustomFieldItems) => void,
@@ -411,6 +427,9 @@ const QuickorderTable = ({
         />
       ),
       width: '15%',
+      style: {
+        textAlign: 'right',
+      },
     },
     {
       key: 'lastOrderedAt',
@@ -434,12 +453,7 @@ const QuickorderTable = ({
     <B3Sping
       isSpinning={isRequestLoading}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <StyleQuickOrderTable>
         <Typography
           sx={{
             fontSize: '24px',
@@ -555,8 +569,7 @@ const QuickorderTable = ({
             />
           )}
         />
-
-      </Box>
+      </StyleQuickOrderTable>
     </B3Sping>
   )
 }

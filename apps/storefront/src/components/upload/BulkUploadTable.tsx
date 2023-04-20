@@ -236,7 +236,11 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
             handleOpenBtnList(e)
           }}
         >
-          <MoreHoriz />
+          <MoreHoriz
+            sx={{
+              color: '#5E637A',
+            }}
+          />
         </Button>
 
         <Menu

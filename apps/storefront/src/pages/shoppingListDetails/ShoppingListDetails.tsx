@@ -508,6 +508,7 @@ const ShoppingListDetails = ({
         currencyToken={currencyToken}
         setValidateFailureProducts={setValidateFailureProducts}
         setValidateSuccessProducts={setValidateSuccessProducts}
+        textAlign={isMobile ? 'left' : 'right'}
       />
 
       <ShoppingDetailDeleteItems

@@ -91,6 +91,13 @@ const ProductOptionText = styled('div')(() => ({
   color: '#455A64',
 }))
 
+const StyleTextField = styled(TextField)(() => ({
+  '& input::-webkit-outer-spin-button, input::-webkit-inner-spin-button': {
+    marginTop: '-8px',
+    marginBottom: '8px',
+  },
+}))
+
 interface ChooseOptionsDialogProps {
   isOpen: boolean,
   product?: ShoppingListProductItem,
@@ -386,7 +393,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
                   </FlexItem>
 
                   <FlexItem>
-                    <TextField
+                    <StyleTextField
                       type="number"
                       variant="filled"
                       label="Qty"
