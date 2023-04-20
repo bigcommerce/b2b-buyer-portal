@@ -242,7 +242,9 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
         })
       }
       if (res.status === 422) {
-        snackbar.error(res.detail)
+        snackbar.error(res.detail, {
+          isClose: true,
+        })
       } else {
         setOpen(false)
         snackbar.success('', {
@@ -252,6 +254,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
             linkText: 'VIEW CART',
             isOutLink: true,
           }),
+          isClose: true,
         })
       }
     } finally {
@@ -329,6 +332,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           link: `/shoppingList/${id}`,
           linkText: 'VIEW SHOPPING LIST',
         }),
+        isClose: true,
       })
 
       setOpenShoppingList(false)

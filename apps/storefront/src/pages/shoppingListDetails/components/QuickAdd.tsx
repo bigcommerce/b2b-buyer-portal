@@ -287,12 +287,16 @@ export const QuickAdd = (props: AddToListContentProps) => {
 
         if (notFoundSku.length > 0) {
           showErrors(value, notFoundSku, 'sku', '')
-          snackbar.error(`SKU ${notFoundSku} were not found, please check entered values`)
+          snackbar.error(`SKU ${notFoundSku} were not found, please check entered values`, {
+            isClose: true,
+          })
         }
 
         if (notPurchaseSku.length > 0) {
           showErrors(value, notPurchaseSku, 'sku', '')
-          snackbar.error(`SKU ${notPurchaseSku} no longer for sale`)
+          snackbar.error(`SKU ${notPurchaseSku} no longer for sale`, {
+            isClose: true,
+          })
         }
 
         if (productItems.length > 0) {

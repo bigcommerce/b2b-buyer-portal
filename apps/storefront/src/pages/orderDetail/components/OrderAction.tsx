@@ -98,13 +98,6 @@ const PaymentItemContainer = styled('div')((props: PaymentItemContainerProps) =>
   marginBottom: props.isAddMarginButton ? '0.8rem' : '',
 }))
 
-const StyledCurrency = styled('div')(() => ({
-  display: 'flex',
-  alignItems: 'center',
-  width: '37%',
-  justifyContent: 'space-between',
-}))
-
 interface Infos {
   info: {
     [k: string]: string
@@ -239,10 +232,7 @@ const OrderCard = (props: OrderCardProps) => {
                         nameKey={key}
                       >
                         <p>{key}</p>
-                        <StyledCurrency>
-                          <p>{infos.money?.currency_token}</p>
-                          <p>{infoValue[index]}</p>
-                        </StyledCurrency>
+                        <p>{`${infos.money?.currency_token}${infoValue[index]}`}</p>
                       </ItemContainer>
                     ))
                   ) : (

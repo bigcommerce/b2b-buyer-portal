@@ -169,12 +169,16 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
       })
 
       if (cantPurchase) {
-        snackbar.error(`Sku(s): ${cantPurchase.slice(0, -1)} unavailable for purchasing, please uncheck.`)
+        snackbar.error(`Sku(s): ${cantPurchase.slice(0, -1)} unavailable for purchasing, please uncheck.`, {
+          isClose: true,
+        })
         return
       }
 
       if (skus.length === 0) {
-        snackbar.error(allowJuniorPlaceOrder ? 'Please select at least one item to checkout' : 'Please select at least one item to add to cart')
+        snackbar.error(allowJuniorPlaceOrder ? 'Please select at least one item to checkout' : 'Please select at least one item to add to cart', {
+          isClose: true,
+        })
         return
       }
 
@@ -206,7 +210,9 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
           })
         }
         if (res.status === 422) {
-          snackbar.error(res.detail)
+          snackbar.error(res.detail, {
+            isClose: true,
+          })
         } else if (validateFailureArr.length === 0) {
           if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
             window.location.href = '/checkout'

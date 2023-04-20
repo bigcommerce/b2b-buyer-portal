@@ -1,6 +1,7 @@
 import {
   useContext,
   useEffect,
+  useRef,
 } from 'react'
 
 import {
@@ -27,6 +28,8 @@ export const B3GlobalTip = () => {
     window.globalTipDispatch = dispatch
   }, [])
 
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const setMsgs = (msgs: [] | Array<MsgsProps> = []) => {
     dispatch({
       type: 'common',
@@ -45,11 +48,37 @@ export const B3GlobalTip = () => {
     setMsgs(newMsgs)
   }
 
+  const closeMsgs = () => {
+    const {
+      msgs = [],
+    } = globalTipMessage
+
+    if (timer.current) {
+      clearTimeout(timer.current)
+    }
+
+    if (msgs.length) {
+      timer.current = setTimeout(() => {
+        const newMsgs = msgs.filter((item: MsgsProps) => item.isClose)
+        dispatch({
+          type: 'common',
+          payload: {
+            tipMessage: {
+              ...globalTipMessage,
+              msgs: newMsgs,
+            },
+          },
+        })
+      }, globalTipMessage?.autoHideDuration)
+    }
+  }
+
   return (
     <>
       <B3Tip
+        autoHideDuration={globalTipMessage?.autoHideDuration}
         msgs={globalTipMessage?.msgs}
-        handleAllClose={() => setMsgs([])}
+        handleAllClose={() => closeMsgs()}
         handleItemClose={handleClose}
         vertical="top"
         horizontal="right"

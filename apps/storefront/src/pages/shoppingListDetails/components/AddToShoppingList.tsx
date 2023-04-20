@@ -75,7 +75,7 @@ export const AddToShoppingList = (props: AddToListProps) => {
     })
 
     snackbar.success('Products were added to your shopping list', {
-      duration: 5000,
+      isClose: true,
     })
 
     return res
@@ -95,7 +95,7 @@ export const AddToShoppingList = (props: AddToListProps) => {
     })
 
     snackbar.success('Products were added to your shopping list', {
-      duration: 5000,
+      isClose: true,
     })
 
     return res
@@ -161,7 +161,9 @@ export const AddToShoppingList = (props: AddToListProps) => {
       }
 
       if (notPurchaseSku.length > 0) {
-        snackbar.error(`SKU ${notPurchaseSku} cannot be purchased in online store.`)
+        snackbar.error(`SKU ${notPurchaseSku} cannot be purchased in online store.`, {
+          isClose: true,
+        })
       }
 
       setIsOpenBulkLoadCSV(false)

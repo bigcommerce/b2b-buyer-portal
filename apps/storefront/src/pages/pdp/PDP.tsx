@@ -200,7 +200,9 @@ const PDP = ({
         message,
       } = isAllRequiredOptionFilled(allOptions, optionList)
       if (!isValid) {
-        snackbar.error(message)
+        snackbar.error(message, {
+          isClose: true,
+        })
         return
       }
 

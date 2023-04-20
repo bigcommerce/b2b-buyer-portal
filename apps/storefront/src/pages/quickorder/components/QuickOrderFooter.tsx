@@ -266,8 +266,11 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
       }, cartInfo[0].id) : await createCart({
         lineItems,
       })
+
       if (res.status) {
-        snackbar.error(res.detail)
+        snackbar.error(res.detail, {
+          isClose: true,
+        })
       } else if (!res.status) {
         snackbar.success('', {
           jsx: successTip({

@@ -106,7 +106,9 @@ export const QuickOrderPad = () => {
     })
 
     if (res.status) {
-      snackbar.error(res.detail)
+      snackbar.error(res.detail, {
+        isClose: true,
+      })
     } else if (!res.status) {
       snackbar.success('', {
         jsx: successTip({
@@ -267,7 +269,9 @@ export const QuickOrderPad = () => {
           lineItems: productItems,
         })
         if (res.status) {
-          snackbar.error(res.detail)
+          snackbar.error(res.detail, {
+            isClose: true,
+          })
         } else if (!res.status) {
           snackbar.success('', {
             jsx: successTip({
@@ -290,24 +294,31 @@ export const QuickOrderPad = () => {
       }
 
       if (notPurchaseSku.length > 0) {
-        snackbar.error(`SKU ${notPurchaseSku} cannot be purchased in online store.`)
+        snackbar.error(`SKU ${notPurchaseSku} cannot be purchased in online store.`, {
+          isClose: true,
+        })
       }
 
       if (outOfStock.length > 0 && stockErrorFile) {
         snackbar.error('', {
           jsx: () => outOfStockProductTips(outOfStock, stockErrorFile),
+          isClose: true,
         })
       }
 
       if (minLimitQuantity.length > 0) {
         minLimitQuantity.forEach((data: CustomFieldItems) => {
-          snackbar.error(`You need to purchase a minimum of ${data.minQuantity} of the ${data.variantSku} per order.`)
+          snackbar.error(`You need to purchase a minimum of ${data.minQuantity} of the ${data.variantSku} per order.`, {
+            isClose: true,
+          })
         })
       }
 
       if (maxLimitQuantity.length > 0) {
         maxLimitQuantity.forEach((data: CustomFieldItems) => {
-          snackbar.error(`You need to purchase a maximum of ${data.maxQuantity} of the ${data.variantSku} per order.`)
+          snackbar.error(`You need to purchase a maximum of ${data.maxQuantity} of the ${data.variantSku} per order.`, {
+            isClose: true,
+          })
         })
       }
 

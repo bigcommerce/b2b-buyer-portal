@@ -48,6 +48,19 @@ const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems
         } = window.location
         window.location.href = `${origin}${pathname}${search}#${openUrl}`
       }
+
+      // close all global tips
+      dispatchMsg({
+        type: 'common',
+        payload: {
+          globalTipMessage: {
+            msgs: [],
+          },
+          tipMessage: {
+            msgs: [],
+          },
+        },
+      })
     } else {
       document.body.style.height = defaultHeight
       document.body.style.overflow = defaultOverflow

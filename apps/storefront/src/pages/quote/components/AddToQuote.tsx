@@ -122,7 +122,9 @@ export const AddToQuote = (props: AddToListProps) => {
 
     addToQuote(newProducts)
 
-    snackbar.success('Product were added to your quote.')
+    snackbar.success('Product were added to your quote.', {
+      isClose: true,
+    })
 
     return products
   }
@@ -157,7 +159,9 @@ export const AddToQuote = (props: AddToListProps) => {
 
     addToQuote(newProducts)
 
-    snackbar.success('Products were added to your quote.')
+    snackbar.success('Products were added to your quote.', {
+      isClose: true,
+    })
 
     return variantProducts
   }
@@ -248,7 +252,9 @@ export const AddToQuote = (props: AddToListProps) => {
       })
 
       if (isSuccess) {
-        snackbar.success('Products were added to your quote.')
+        snackbar.success('Products were added to your quote.', {
+          isClose: true,
+        })
         updateList()
         setIsOpenBulkLoadCSV(false)
       }

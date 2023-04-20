@@ -194,7 +194,7 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
 
       if (!cartInfoWithOptions[0]) {
         globalSnackbar.error('No products in Cart.', {
-          isClose: false,
+          isClose: true,
         })
         return
       }
@@ -207,7 +207,7 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
 
       if (cartProductsList.length === 0) {
         globalSnackbar.error('No products being added.', {
-          isClose: false,
+          isClose: true,
         })
       }
 
@@ -323,7 +323,7 @@ const addQuoteToProduct = (setOpenPage: DispatchProps) => {
       } = isAllRequiredOptionFilled(allOptions, optionList)
       if (!isValid) {
         globalSnackbar.error(message, {
-          isClose: false,
+          isClose: true,
         })
         return
       }

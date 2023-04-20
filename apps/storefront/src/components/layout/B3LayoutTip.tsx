@@ -1,6 +1,7 @@
 import {
   useContext,
   useEffect,
+  useRef,
 } from 'react'
 
 import {
@@ -28,6 +29,8 @@ const B3LayoutTip = () => {
   } = useContext(DynamicallyVariableedContext)
 
   const [isMobile] = useMobile()
+
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     window.tipDispatch = dispatch
@@ -62,11 +65,36 @@ const B3LayoutTip = () => {
     horizontal = 'right',
   } = tipMessage
 
+  const closeMsgs = () => {
+    const {
+      msgs = [],
+    } = tipMessage
+
+    if (timer.current) {
+      clearTimeout(timer.current)
+    }
+
+    if (msgs.length) {
+      timer.current = setTimeout(() => {
+        const newMsgs = msgs.filter((item: MsgsProps) => item.isClose)
+        dispatch({
+          type: 'common',
+          payload: {
+            tipMessage: {
+              ...tipMessage,
+              msgs: newMsgs,
+            },
+          },
+        })
+      }, autoHideDuration)
+    }
+  }
+
   return (
     <>
       <B3Tip
         msgs={msgs}
-        handleAllClose={() => setMsgs([])}
+        handleAllClose={closeMsgs}
         autoHideDuration={autoHideDuration}
         handleItemClose={handleClose}
         // handleItemClose={isClose ? handleClose : undefined}

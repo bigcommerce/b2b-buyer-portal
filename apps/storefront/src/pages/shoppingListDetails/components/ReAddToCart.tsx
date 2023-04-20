@@ -249,7 +249,9 @@ export const ReAddToCart = (props: ShoppingProductsProps) => {
         })
       }
       if (res.status === 422) {
-        snackbar.error(res.detail)
+        snackbar.error(res.detail, {
+          isClose: true,
+        })
       } else {
         handleCancelClicked()
         if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
