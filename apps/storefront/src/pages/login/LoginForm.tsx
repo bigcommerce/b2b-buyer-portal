@@ -9,10 +9,12 @@ import {
 
 import {
   Box,
+  useTheme,
 } from '@mui/material'
 
 import {
   B3CustomForm,
+  CustomButton,
 } from '@/components'
 
 import {
@@ -22,8 +24,8 @@ import {
 } from './config'
 
 import {
-  B3Button,
-} from './styled'
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 
 interface LoginFormProps {
   loginInfo: Partial<LoginInfoInit>;
@@ -39,12 +41,12 @@ const LoginForm = (props: LoginFormProps) => {
   } = props
 
   const b3Lang = useB3Lang()
+  const theme = useTheme()
 
   const loginFields = getLoginFields(b3Lang)
 
   const {
     loginBtn,
-    btnColor,
   } = loginInfo
 
   const {
@@ -83,14 +85,17 @@ const LoginForm = (props: LoginFormProps) => {
         mt: 2,
       }}
       >
-        <B3Button
-          btnColor={btnColor}
+        <CustomButton
           type="submit"
           onClick={handleSubmit(handleLoginClick)}
           variant="contained"
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            color: getContrastColor(theme.palette.primary.main),
+          }}
         >
           { loginBtn }
-        </B3Button>
+        </CustomButton>
         <Box
           sx={{
             cursor: 'pointer',

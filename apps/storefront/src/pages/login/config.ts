@@ -40,10 +40,6 @@ export const getLogo = (quoteConfig:Array<QuoteConfig>): string => {
   return item[0].isEnabled
 }
 
-export interface B3ButtonProps {
-  btnColor?: string
-}
-
 export interface ValidateOptions extends Record<string, any> {
   max?: string | Number,
   min?: string | Number,

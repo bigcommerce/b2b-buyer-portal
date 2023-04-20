@@ -1,6 +1,8 @@
 import {
   Box,
+  useTheme,
 } from '@mui/material'
+
 import LoginWidget from './component/LoginWidget'
 
 import {
@@ -8,8 +10,12 @@ import {
 } from './config'
 
 import {
-  B3Button,
-} from './styled'
+  CustomButton,
+} from '@/components'
+
+import {
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 
 interface LoginPanelProps {
   loginInfo: Partial<LoginInfoInit>;
@@ -22,10 +28,11 @@ const LoginPanel = (props: LoginPanelProps) => {
     handleSubmit,
   } = props
 
+  const theme = useTheme()
+
   const {
     widgetBodyText = '',
     CreateAccountButtonText,
-    btnColor,
   } = loginInfo
 
   return (
@@ -45,17 +52,18 @@ const LoginPanel = (props: LoginPanelProps) => {
         marginTop: '5px',
       }}
       >
-        <B3Button
-          btnColor={btnColor}
+        <CustomButton
           type="submit"
           onClick={handleSubmit}
           variant="contained"
           sx={{
             ml: 1,
+            backgroundColor: theme.palette.primary.main,
+            color: getContrastColor(theme.palette.primary.main),
           }}
         >
           {CreateAccountButtonText}
-        </B3Button>
+        </CustomButton>
       </Box>
     </Box>
   )
