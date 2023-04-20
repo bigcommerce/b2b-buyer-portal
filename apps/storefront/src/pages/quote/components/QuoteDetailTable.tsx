@@ -199,7 +199,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                     wordBreak: 'break-word',
                   }}
                 >
-                  <div>Notes:</div>
+                  <span>Notes: </span>
                   {row.notes}
                 </Typography>
                 )
