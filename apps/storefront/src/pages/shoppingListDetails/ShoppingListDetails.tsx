@@ -429,6 +429,7 @@ const ShoppingListDetails = ({
           >
             <B3Sping
               isSpinning={isRequestLoading}
+              spinningHeight="auto"
             >
               <Grid
                 item
@@ -480,20 +481,20 @@ const ShoppingListDetails = ({
 
         {
           (!isReadForApprove && (allowJuniorPlaceOrder || !isJuniorApprove)) && (
-          <ShoppingDetailFooter
-            shoppingListInfo={shoppingListInfo}
-            role={role}
-            allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-            checkedArr={checkedArr}
-            currencyToken={currencyToken}
-            selectedSubTotal={selectedSubTotal}
-            setLoading={setIsRequestLoading}
-            setDeleteOpen={setDeleteOpen}
-            setValidateFailureProducts={setValidateFailureProducts}
-            setValidateSuccessProducts={setValidateSuccessProducts}
-            isB2BUser={isB2BUser}
-            customColor={primaryColor}
-          />
+            <ShoppingDetailFooter
+              shoppingListInfo={shoppingListInfo}
+              role={role}
+              allowJuniorPlaceOrder={allowJuniorPlaceOrder}
+              checkedArr={checkedArr}
+              currencyToken={currencyToken}
+              selectedSubTotal={selectedSubTotal}
+              setLoading={setIsRequestLoading}
+              setDeleteOpen={setDeleteOpen}
+              setValidateFailureProducts={setValidateFailureProducts}
+              setValidateSuccessProducts={setValidateSuccessProducts}
+              isB2BUser={isB2BUser}
+              customColor={primaryColor}
+            />
           )
         }
 
