@@ -3,11 +3,15 @@ import {
 } from 'date-fns'
 
 import {
+  AllOptionProps,
+  ALlOptionValue,
+} from '@/types/products'
+
+import {
   ShoppingListProductItem,
-  ShoppingListProductItemModifiers,
-  ShoppingListProductItemModifiersOption,
   SimpleObject,
   ShoppingListSelectProductOption,
+  BcCalculatedPrice,
 } from '../../../types'
 
 export interface ShoppingListInfoProps {
@@ -26,13 +30,6 @@ export interface CustomerInfoProps {
   firstName: string;
   lastName: string;
   userId: number | string;
-}
-
-interface ProductPrices {
-  as_entered: number,
-  entered_inclusive: number,
-  tax_exclusive: number,
-  tax_inclusive: number,
 }
 
 interface ModifierPrices {
@@ -61,8 +58,8 @@ export interface ProductInfoProps {
   productsSearch: CustomFieldItems,
   picklistIds?: number[]
   modifierPrices?: ModifierPrices[],
-  currentProductPrices?: ProductPrices,
-  extraProductPrices?: ProductPrices[],
+  currentProductPrices?: BcCalculatedPrice,
+  extraProductPrices?: BcCalculatedPrice[],
   [key: string]: any,
 }
 
@@ -135,7 +132,7 @@ export const Base64 = {
   },
 }
 
-const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModifiers, productImages: SimpleObject) => {
+const getFieldOptions = (fieldType: string, option: Partial<AllOptionProps>, productImages: SimpleObject) => {
   const {
     option_values: optionValues = [],
     config,
@@ -191,7 +188,7 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
       checked_by_default: checked,
     } = config || {}
 
-    const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '')
+    const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '') || ''
 
     return {
       options: [{
@@ -203,7 +200,7 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
   }
 
   if (['radio', 'productRadio', 'rectangle', 'swatch'].includes(fieldType)) {
-    const options = (optionValues || []).map((item: ShoppingListProductItemModifiersOption) => ({
+    const options = (optionValues || []).map((item: Partial<ALlOptionValue>) => ({
       value: item.id,
       label: item.label,
       image: {
@@ -212,7 +209,7 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
       },
       colors: item.value_data?.colors || [],
     }))
-    const value = (optionValues || []).find((item: ShoppingListProductItemModifiersOption) => item.is_default)?.id || ''
+    const value = (optionValues || []).find((item: Partial<ALlOptionValue>) => item.is_default)?.id || ''
 
     return {
       options,
@@ -244,7 +241,7 @@ const getFieldOptions = (fieldType: string, option: ShoppingListProductItemModif
   }
 }
 
-const getValueText = (fieldType: string, value: string | number | (string | number)[], option: ShoppingListProductItemModifiers) => {
+const getValueText = (fieldType: string, value: string | number | (string | number)[], option: Partial<AllOptionProps>) => {
   const {
     option_values: optionValues = [],
   } = option
@@ -268,7 +265,7 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
   } = product || {}
 
   const list: CustomFieldItems[] = []
-  allOptions.forEach((option: ShoppingListProductItemModifiers) => {
+  allOptions.forEach((option: Partial<AllOptionProps>) => {
     const {
       type,
       id,
@@ -281,7 +278,7 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
       option_values: optionValues = [],
     } = option
 
-    const fieldType = fieldTypes[type] || ''
+    const fieldType = type ? fieldTypes[type] : ''
 
     if (!fieldType) return
 
@@ -309,7 +306,7 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
       if (fieldType === 'checkbox') {
         const optionValue = (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || ''
 
-        const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '')
+        const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '') || ''
         value = (optionValue === '1' || optionValue.includes(`${checkedId}`)) ? [checkedId] : []
       } else if (fieldType !== 'date') {
         value = (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || ''

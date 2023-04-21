@@ -150,6 +150,24 @@ const storefrontConfigs = (channelId: number, keys: string[]) => `{
   }
 }`
 
+const taxZoneRates = () => `{
+  taxZoneRates(storeHash: "${storeHash}") {
+    rates {
+      id,
+      name,
+      enabled,
+      priority,
+      classRates {
+        rate,
+        taxClassId,
+      }
+    },
+    enabled,
+    id,
+    name,
+  }
+}`
+
 export const getB2BToken = (bcJwtToken: string, channelId: number = 1): CustomFieldItems => B3Request.graphqlB2B({
   query: getB2BTokenQl(bcJwtToken, channelId),
 })
@@ -187,4 +205,8 @@ export const getBcCurrencies = (channelId: string): CustomFieldItems => B3Reques
 
 export const getStorefrontConfigs = (channelId: number, keys: string[]): CustomFieldItems => B3Request.graphqlB2B({
   query: storefrontConfigs(channelId, keys),
+})
+
+export const getTaxZoneRates = (): CustomFieldItems => B3Request.graphqlB2B({
+  query: taxZoneRates(),
 })

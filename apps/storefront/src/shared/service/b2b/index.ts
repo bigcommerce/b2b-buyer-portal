@@ -70,6 +70,7 @@ import {
   getCurrencies,
   getBcCurrencies,
   getStorefrontConfigs,
+  getTaxZoneRates,
 } from './graphql/global'
 
 import {
@@ -234,4 +235,5 @@ export {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
   getStorefrontConfigs,
+  getTaxZoneRates,
 }

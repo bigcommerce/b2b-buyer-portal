@@ -1,6 +1,7 @@
 import {
   ProductItem,
-  BcCalculatedPrice,
+  Variant,
+  AllOptionProps,
 } from './products'
 
 export interface ShoppingListItem {
@@ -64,7 +65,7 @@ export interface ShoppingListProductItemModifiers {
     file_types_supported?: string[],
   },
   display_name: string,
-  id: number | string,
+  id?: number | string,
   option_values: ShoppingListProductItemModifiersOption[],
   required: boolean,
   type: string,
@@ -78,26 +79,13 @@ export interface ShoppingListProductItemVariantsOption {
   option_id: number,
 }
 
-export interface ShoppingListProductItemVariants {
-  product_id: number,
-  sku: string,
-  variant_id: number,
-  purchasing_disabled: boolean,
-  option_values: ShoppingListProductItemVariantsOption[],
-  cost_price: number,
-  image_url: string,
-  calculated_price: number,
-  price: number,
-  bc_calculated_price: BcCalculatedPrice,
-}
-
 export interface ShoppingListProductItem extends ProductItem{
   options?: ShoppingListProductItemOption[],
   optionsV3?: ShoppingListProductItemModifiers[],
   modifiers?: ShoppingListProductItemModifiers[],
   costPrice?: string,
-  variants?: ShoppingListProductItemVariants[],
-  allOptions?: ShoppingListProductItemModifiers[],
+  variants?: Variant[],
+  allOptions?: Partial<AllOptionProps>[],
   selectOptions?: string,
   orderQuantityMaximum?: number,
   orderQuantityMinimum?: number,

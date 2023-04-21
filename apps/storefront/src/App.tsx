@@ -28,6 +28,7 @@ import {
   getQuoteEnabled,
   getTemPlateConfig,
   setStorefrontConfig,
+  getStoreTaxZoneRates,
 } from '@/utils'
 
 import {
@@ -167,7 +168,8 @@ export default function App() {
         await loginInfo()
       }
       setChannelStoreType(currentChannelId)
-      await Promise.all([setStorefrontConfig(dispatch), getTemPlateConfig(currentChannelId, styleDispatch, dispatch)])
+      // await getTaxZoneRates()
+      await Promise.all([getStoreTaxZoneRates(), setStorefrontConfig(dispatch), getTemPlateConfig(currentChannelId, styleDispatch, dispatch)])
       const userInfo = {
         role: +role,
         isAgenting,

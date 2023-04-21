@@ -5,6 +5,7 @@ import {
   getStorefrontConfigs,
   getB2BRegisterLogo,
   getStorefrontConfig,
+  getTaxZoneRates,
 } from '@/shared/service/b2b'
 
 import {
@@ -15,9 +16,32 @@ import {
   CustomStyleButtonState,
 } from '@/shared/customStyleButtton/context/config'
 
+import {
+  setTaxZoneRates,
+} from '@/store'
+
+import {
+  store,
+} from '@/store/reducer'
+
 // import {
 //   storeHash,
 // } from '@/utils'
+
+// interface Rates {
+//   enabled: boolean,
+//   id: number,
+//   name: string,
+//   priority: number,
+//   classRates: TaxZoneRates[],
+// }
+
+// interface TaxZoneRatesProps {
+//   enabled: boolean,
+//   id: number,
+//   name: string,
+//   rates: Rates[]
+// }
 
 interface StoreforntKeysProps {
   key: string,
@@ -158,8 +182,17 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
   })
 }
 
+const getStoreTaxZoneRates = async () => {
+  const {
+    taxZoneRates = [],
+  } = await getTaxZoneRates()
+
+  store.dispatch(setTaxZoneRates(taxZoneRates))
+}
+
 export {
   getTemPlateConfig,
   getQuoteConfig,
   setStorefrontConfig,
+  getStoreTaxZoneRates,
 }

@@ -6,4 +6,5 @@ import {
 } from './reducer'
 
 const themeSelector = (state: RootState) => state.theme
+
 export const themeFrameSelector = createSelector(themeSelector, (theme) => theme.themeFrame)

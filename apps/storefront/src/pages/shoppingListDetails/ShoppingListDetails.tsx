@@ -23,8 +23,6 @@ import {
 } from '@/shared/global'
 
 import {
-  searchB2BProducts,
-  searchBcProducts,
   getB2BShoppingListDetails,
   getBcShoppingListDetails,
   deleteB2BShoppingListItem,

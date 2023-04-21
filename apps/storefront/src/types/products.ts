@@ -1,3 +1,8 @@
+import {
+  ShoppingListProductItemModifiers,
+  ShoppingListProductItemOption,
+} from '@/types/shoppingList'
+
 export interface ProductOptionsItem {
   option_id: number,
   display_name: string,
@@ -51,60 +56,35 @@ export interface ProductVariantSkuInfo{
   variantSku: string,
 }
 
-interface OptionValue {
-  id: number;
-  label: string;
-  option_id: number;
-  option_display_name: string;
+export interface OptionValue {
+  id: number,
+  label: string,
+  option_display_name: string,
+  option_id: number,
 }
 
-interface Variant {
+export interface Variant {
   variant_id: number;
   product_id: number;
   sku: string;
+  price: number,
   option_values: OptionValue[];
   calculated_price: number;
   image_url: string;
   has_price_list: boolean;
-  bulk_prices: any[]; // not sure about the type
+  bulk_prices?: any[]; // not sure about the type
   purchasing_disabled: boolean;
-  cost_price: number;
+  cost_price?: number;
   inventory_level: number;
-  bc_calculated_price: {
-    as_entered: number;
-    tax_inclusive: number;
-    tax_exclusive: number;
-    entered_inclusive: boolean;
-  };
+  bc_calculated_price: BcCalculatedPrice;
 }
 
-interface Modifier {
-  id: number;
-  display_name: string;
-  type: string;
-  required: boolean;
-  config: any; // not sure about the type
-  option_values: any[]; // not sure about the type
+export interface AdjustersPrice {
+  adjuster: string;
+  adjuster_value: number;
 }
 
-interface Option {
-  option_id: number;
-  display_name: string;
-  sort_order: number;
-  is_required: boolean;
-}
-
-interface OptionV3 {
-  id: number;
-  product_id: number;
-  name: string;
-  display_name: string;
-  type: string;
-  sort_order: number;
-  option_values: OptionValue[];
-}
-
-interface ALlOptionValue {
+export interface ALlOptionValue {
   id: number;
   label: string;
   sort_order: number;
@@ -129,27 +109,40 @@ interface ALlOptionValue {
       message: string;
     };
   } | null;
+  product_id?: number,
 }
 
 export interface AllOptionProps {
-  id: number;
+  id: number | string;
   product_id?: number;
   name: string;
   display_name: string;
   type: string;
   sort_order: number;
-  option_values: ALlOptionValue[];
-  config: {
-    product_list_adjusts_inventory?: boolean;
-    product_list_adjusts_pricing?: boolean;
-    product_list_shipping_calc?: string;
-    default_value?: string;
-    text_characters_limited?: boolean;
-    text_min_length?: number;
-    text_max_length?: number;
-    checkbox_label?: string;
-    checked_by_default?: boolean;
-  } | null;
+  option_values: Partial<ALlOptionValue>[];
+  config?: {
+    default_value?: string,
+    text_characters_limited?: boolean,
+    text_max_length?: number,
+    text_min_length?: number,
+    text_lines_limited?: boolean,
+    text_max_lines?: number,
+    date_earliest_value?: string,
+    date_latest_value?: string,
+    date_limit_mode?: string,
+    date_limited?: boolean,
+    number_highest_value?: number,
+    number_integers_only?: boolean,
+    number_limit_mode?: string,
+    number_limited?: boolean,
+    number_lowest_value?: number,
+    checkbox_label?: string,
+    checked_by_default?: boolean,
+    file_max_size?: number,
+    file_types_mode?: string,
+    file_types_other?: string[],
+    file_types_supported?: string[],
+  };
   required: boolean;
   isVariantOption?: boolean;
 }
@@ -158,20 +151,22 @@ export interface Product {
   id: number;
   name: string;
   sku: string;
+  base_price: string,
   costPrice: string;
   channelId: number[],
+  selectOptions: string,
   inventoryLevel: number;
   inventoryTracking: string;
   availability: string;
   orderQuantityMinimum: number;
   orderQuantityMaximum: number;
-  variants: Variant[];
+  variants?: Partial<Variant>[];
   currencyCode: string;
   imageUrl: string;
-  modifiers: Modifier[];
-  options: Option[];
-  optionsV3: OptionV3[];
-  allOptions: AllOptionProps
+  modifiers: ShoppingListProductItemModifiers[];
+  options?: ShoppingListProductItemOption[];
+  optionsV3?: ShoppingListProductItemModifiers[];
+  allOptions?: Partial<AllOptionProps>[]
   productUrl: string;
   quantity: number;
   [key:string]: any;

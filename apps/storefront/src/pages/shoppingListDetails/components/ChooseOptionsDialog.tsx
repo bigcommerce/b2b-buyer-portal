@@ -32,7 +32,7 @@ import {
 
 import {
   ShoppingListProductItem,
-  ShoppingListProductItemVariants,
+  Variant,
   SimpleObject,
 } from '../../../types'
 
@@ -127,7 +127,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
 
   const [quantity, setQuantity] = useState<number | string>(1)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
-  const [variantInfo, setVariantInfo] = useState<ShoppingListProductItemVariants | null>(null)
+  const [variantInfo, setVariantInfo] = useState<Partial<Variant> | null>(null)
   const [variantSku, setVariantSku] = useState('')
   const [additionalProducts, setAdditionalProducts] = useState<CustomFieldItems>({})
 

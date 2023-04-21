@@ -11,7 +11,7 @@ import lang from './slices/lang'
 
 type Reducers<Type> = Record<string, Reducer<Type>>
 interface SetupStoreParams<Type> {
-  reducers: Reducers<Type>
+  reducers: any,
   preloadedState?: { [x: string]: (Type extends object ? PreloadedState<Type> : Type) | undefined; } | undefined
   middlewareOptions?: Record<string, any>
 }

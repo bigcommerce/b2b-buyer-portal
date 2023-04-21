@@ -85,6 +85,7 @@ export {
   getTemPlateConfig,
   getQuoteConfig,
   setStorefrontConfig,
+  getStoreTaxZoneRates,
 } from './storefrontConfig'
 
 export {

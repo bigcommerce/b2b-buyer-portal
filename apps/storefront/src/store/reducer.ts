@@ -2,6 +2,7 @@ import {
   setupStore,
 } from '@b3/store'
 import theme from './slices/theme'
+import glabol from './slices/glabol'
 
 export const middlewareOptions = {
   serializableCheck: {
@@ -12,6 +13,7 @@ export const middlewareOptions = {
 
 export const store = setupStore({
   reducers: {
+    glabol,
     theme,
   },
   middlewareOptions,

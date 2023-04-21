@@ -1,5 +1,11 @@
 import {
   Product,
+  AllOptionProps,
+  OptionValue,
+  AdjustersPrice,
+  ALlOptionValue,
+  Variant,
+  BcCalculatedPrice,
 } from '@/types/products'
 import {
   B3LStorage,
@@ -14,7 +20,16 @@ import {
 import {
   ListItemProps,
   conversionProductsList,
+  ProductInfoProps,
 } from './shared/config'
+
+import {
+  getTaxRate,
+} from './b3TaxRate'
+
+// import {
+//   ShoppingListProductItemModifiers,
+// } from '@/types/shoppingList'
 
 interface QuoteListitemProps {
   node: {
@@ -162,15 +177,14 @@ const getQuickAddProductExtraPrice = (allOptions: CustomFieldItems[], newSelectO
   return additionalCalculatedPrices
 }
 
-const getListModifierPrice = (allOptions, node) => {
+const getListModifierPrice = (allOptions: Partial<AllOptionProps>[], node: ProductInfoProps) => {
   const optionList = JSON.parse(node?.optionList || '[]')
-  console.log(optionList, 'optionList')
-  const modifierPrices: any = []
+  const modifierPrices: AdjustersPrice[] = []
   if (optionList.length) {
-    optionList.forEach((option: any) => {
-      const itemOption = allOptions.find((item: any) => option.option_id.includes(item.id))
+    optionList.forEach((option: CustomFieldItems) => {
+      const itemOption = allOptions.find((item: Partial<AllOptionProps>) => option.option_id.includes(item.id))
       if (itemOption && itemOption?.option_values && itemOption.option_values.length) {
-        const optionValues = itemOption.option_values.find((optionValue: any) => +optionValue.id === +option.option_value)
+        const optionValues = itemOption.option_values.find((optionValue: Partial<OptionValue>) => (optionValue?.id ? +optionValue.id : 0) === +option.option_value)
         if (optionValues && optionValues?.adjusters && optionValues?.adjusters?.price) {
           const {
             price,
@@ -184,6 +198,128 @@ const getListModifierPrice = (allOptions, node) => {
   }
 
   return modifierPrices
+}
+
+const setItemProductPrice = (newListProducts: ListItemProps[]) => {
+  newListProducts.forEach((item: ListItemProps) => {
+    const {
+      node: {
+        modifierPrices = [],
+        currentProductPrices,
+        extraProductPrices = [],
+        taxClassId,
+      },
+    } = item
+
+    const rate = getTaxRate(taxClassId)
+
+    let singleCurrentPrice = currentProductPrices?.tax_exclusive || 0
+    let singleAllTax = 0
+    let singleextraProductPrice = 0
+
+    if (modifierPrices.length) {
+      modifierPrices.forEach((modifierPrice) => {
+        switch (modifierPrice?.adjuster) {
+          case 'relative': singleCurrentPrice += modifierPrice.adjuster_value
+            break
+          default: singleCurrentPrice += (modifierPrice.adjuster_value * singleCurrentPrice) / 100
+            break
+        }
+      })
+    }
+
+    if (extraProductPrices.length) {
+      extraProductPrices.forEach((extraProductPrice) => {
+        singleextraProductPrice += extraProductPrice.tax_exclusive * ((100 + rate) / 100)
+        singleAllTax += extraProductPrice.tax_exclusive * (rate / 100)
+      })
+    }
+    const productPrice = singleCurrentPrice * ((100 + rate) / 100) + singleextraProductPrice
+    const productTax = singleCurrentPrice * ((rate) / 100) + singleAllTax
+
+    item.node.basePrice = productPrice.toFixed(2)
+    item.node.basePricetax = productTax.toFixed(2)
+  })
+}
+
+const getExtraProductPricesProducts = async (isB2BUser: boolean, listProducts: ListItemProps[], picklistIds: number[]) => {
+  const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+  const {
+    currency_code: currencyCode,
+  } = getDefaultCurrencyInfo()
+  const {
+    productsSearch: picklistProductsSearch,
+  } = await getProducts({
+    productIds: picklistIds,
+    currencyCode,
+  })
+  const newpicklistProducts: Partial<Product>[] = conversionProductsList(picklistProductsSearch)
+
+  listProducts.forEach((item) => {
+    const {
+      node,
+    } = item
+
+    const extraProductPrices: BcCalculatedPrice[] = []
+    if (node?.picklistIds?.length) {
+      node?.picklistIds.forEach((picklistId: number) => {
+        const picklistItem = newpicklistProducts.find((product: Partial<Product>) => product?.id && +product.id === +picklistId)
+        if (picklistItem && picklistItem?.variants?.length && picklistItem.variants[0]?.bc_calculated_price) {
+          extraProductPrices.push(picklistItem.variants[0]?.bc_calculated_price)
+        }
+      })
+    }
+    node.extraProductPrices = extraProductPrices
+  })
+
+  return listProducts
+}
+
+const addTaxProductPrices = (listProducts: ListItemProps[], newProductsSearch:Partial<Product>[], picklistIds: number[]) => {
+  listProducts.forEach((item) => {
+    const {
+      node,
+    } = item
+
+    const productInfo: Partial<Product> = newProductsSearch.find((search: Partial<Product>) => {
+      const {
+        id: productId,
+      } = search
+
+      return node.productId === productId
+    }) || {}
+
+    // gets the associated product id
+    const currentPicklistIds: number[] = []
+    if (productInfo?.allOptions && productInfo?.allOptions.length) {
+      const picklist = productInfo.allOptions.find((item: Partial<AllOptionProps>) => item.type === 'product_list_with_images')
+      if (picklist && picklist?.option_values?.length) {
+        picklist.option_values.forEach(((list: Partial<ALlOptionValue>) => {
+          const picklistProductId: number = list?.value_data?.product_id || 0
+          if (picklistProductId) currentPicklistIds.push(picklistProductId)
+          if (!picklistIds.includes(picklistProductId)) {
+            picklistIds.push(picklistProductId)
+          }
+        }))
+      }
+    }
+    // get modifier price
+    if (productInfo?.variants?.length && productInfo?.allOptions?.length) {
+      const modifierPrices = getListModifierPrice(productInfo.allOptions, node)
+      node.modifierPrices = modifierPrices
+    }
+
+    // get current  price and tax price
+    const variantItem = productInfo?.variants?.find((item: Partial<Variant>) => item.sku === node.variantSku)
+    if (variantItem) {
+      node.currentProductPrices = variantItem.bc_calculated_price
+    }
+    node.taxClassId = productInfo.taxClassId
+
+    node.picklistIds = currentPicklistIds
+
+    node.productsSearch = productInfo || {}
+  })
 }
 
 const getNewProductsList = async (listProducts: ListItemProps[], isB2BUser: boolean, companyId: number | string) => {
@@ -212,83 +348,21 @@ const getNewProductsList = async (listProducts: ListItemProps[], isB2BUser: bool
 
     const newProductsSearch: Partial<Product>[] = conversionProductsList(productsSearch)
 
-    console.log(newProductsSearch, 'newProductsSearch')
-
     const picklistIds: number[] = []
 
-    listProducts.forEach((item) => {
-      const {
-        node,
-      } = item
+    // add modifier price,  current  price and tax price, get the associated product id
+    addTaxProductPrices(listProducts, newProductsSearch, picklistIds)
 
-      const productInfo = newProductsSearch.find((search: Product) => {
-        const {
-          id: productId,
-        } = search
+    let newListProducts: ListItemProps[] = listProducts
 
-        return node.productId === productId
-      })
-
-      // 获取相关的产品的id
-      const currentPicklistIds: number[] = []
-      if (productInfo?.allOptions && productInfo?.allOptions.length) {
-        const picklist = productInfo.allOptions.find((item: any) => item.type === 'product_list_with_images')
-        if (picklist && picklist?.option_values?.length) {
-          picklist.option_values.forEach(((list: any) => {
-            const picklistProductId = list?.value_data?.product_id
-            if (picklistProductId) currentPicklistIds.push(picklistProductId)
-            if (!picklistIds.includes(list.productId) && picklistProductId) {
-              picklistIds.push(picklistProductId)
-            }
-          }))
-        }
-      }
-      // get modifier price
-      if (productInfo?.variants.length) {
-        const modifierPrices = getListModifierPrice(productInfo.allOptions, node)
-        node.modifierPrices = modifierPrices
-      }
-
-      // get current  price and tax price
-      const variantItem = productInfo?.variants.find((item: any) => item.sku === node.variantSku)
-      if (variantItem) {
-        node.currentProductPrices = variantItem.bc_calculated_price
-      }
-
-      node.picklistIds = currentPicklistIds
-
-      node.productsSearch = productInfo || {}
-    })
-
-    // 获取相关产品的集合
+    // Get a collection of related products
     if (picklistIds.length) {
-      const {
-        productsSearch: picklistProductsSearch,
-      } = await getProducts({
-        productIds: picklistIds
-        currencyCode,
-      })
-      const newpicklistProducts = conversionProductsList(picklistProductsSearch)
-
-      listProducts.forEach((item) => {
-        const {
-          node,
-        } = item
-·
-        const extraProductPrices: any = []
-        if (node?.picklistIds?.length) {
-          node?.picklistIds.forEach((picklistId: number) => {
-            const picklistItem = newpicklistProducts.find((product: any) => +product.id === +picklistId)
-            if (picklistItem && picklistItem?.variants?.length) {
-              extraProductPrices.push(picklistItem.variants[0].bc_calculated_price)
-            }
-          })
-        }
-        node.extraProductPrices = extraProductPrices
-      })
+      newListProducts = await getExtraProductPricesProducts(isB2BUser, listProducts, picklistIds)
     }
 
-    return listProducts
+    setItemProductPrice(newListProducts)
+
+    return newListProducts
   }
 }
 
