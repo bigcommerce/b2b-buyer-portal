@@ -26,7 +26,7 @@ export const QuoteTermsAndConditions = (props: QuoteTermsAndConditionsProps) => 
     quoteLegalTerms = '',
   } = props
 
-  const isMobile = useMobile()
+  const [isMobile] = useMobile()
   const [isOpen, setIsOpen] = useState(false)
 
   const handleOnChange = (open: boolean) => {

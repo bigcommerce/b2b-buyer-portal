@@ -191,7 +191,7 @@ export default function Login(props:RegisteredProps) {
     }
 
     init()
-  }, [])
+  }, [loginPageButton, loginPageDisplay, loginPageHtml])
 
   const tipInfo = (loginFlag: string, email = '') => {
     if (!loginFlag) return

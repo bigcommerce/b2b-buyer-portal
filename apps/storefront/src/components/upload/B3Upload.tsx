@@ -129,6 +129,42 @@ export const B3Upload = (props: B3UploadProps) => {
     currency_code: currencyCode,
   } = getDefaultCurrencyInfo()
 
+  const getRejectMessage = (
+    rejectedFile: File,
+    acceptedFiles: string[],
+    maxFileSize: number,
+  ) => {
+    const {
+      size,
+      type,
+    } = rejectedFile
+
+    let isAcceptFileType = false
+    acceptedFiles.forEach((acceptedFileType: string) => {
+      isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType
+    })
+
+    let message = ''
+    if (!isAcceptFileType) {
+      message = 'Table structure is wrong. Please download sample and follow it\'s structure.'
+      setFileErrorText(message)
+      return message
+    }
+
+    if (size > maxFileSize) {
+      message = 'Maximum file size 50MB'
+      setFileErrorText(message)
+      return message
+    }
+
+    return message
+  }
+
+  const getFileLimitExceedMessage = () => {
+    setFileErrorText('Maximum file size 50MB')
+    return ''
+  }
+
   const handleVerificationFile = (size: number, type: string): string => {
     if (type !== 'text/csv') {
       return 'Table structure is wrong. Please download sample and follow it\'s structure.'
@@ -407,7 +443,6 @@ export const B3Upload = (props: B3UploadProps) => {
           <Box
             sx={{
               m: '0 0 1rem 0',
-              p: '0 1rem',
             }}
           >
             <Alert
@@ -437,6 +472,10 @@ export const B3Upload = (props: B3UploadProps) => {
                 showPreviewsInDropzone={false}
                 showAlerts={false}
                 dropzoneText=""
+                maxFileSize={50 * 1024 * 1024}
+                acceptedFiles={['text/csv']}
+                getDropRejectMessage={getRejectMessage}
+                getFileLimitExceedMessage={getFileLimitExceedMessage}
               />
             </FileUploadContainer>
           )
