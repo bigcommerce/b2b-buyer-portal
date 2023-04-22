@@ -1,0 +1,9 @@
+{
+  "extends": ["b2b"],
+  "overrides": [
+    {
+      "files": ["**/slices/*.ts"],
+      "rules": { "no-param-reassign": 0 }
+    }
+  ]
+}

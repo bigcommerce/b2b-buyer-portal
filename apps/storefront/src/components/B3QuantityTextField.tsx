@@ -1,30 +1,23 @@
-import {
-  useState,
-  useEffect,
-} from 'react'
+import { useEffect, useState } from 'react'
 
-import {
-  useMobile,
-} from '@/hooks'
+import { useMobile } from '@/hooks'
 
-import {
-  StyledNumberNoTopTextField,
-} from './styled'
+import { StyledNumberNoTopTextField } from './styled'
 
-interface B3NumberTextFieldProps{
-  disabled?: boolean,
-  label?: string,
-  value?: number | string,
-  maxQuantity?: number,
-  minQuantity?: number,
-  isStock?: string,
-  stock?: number,
-  hiddenLabel?: boolean,
-  onChange?: (value: number | string, isValid: boolean) => void,
-  sx?: CustomFieldItems,
+interface B3NumberTextFieldProps {
+  disabled?: boolean
+  label?: string
+  value?: number | string
+  maxQuantity?: number
+  minQuantity?: number
+  isStock?: string
+  stock?: number
+  hiddenLabel?: boolean
+  onChange?: (value: number | string, isValid: boolean) => void
+  sx?: CustomFieldItems
 }
 
-export const B3QuantityTextField = (props: B3NumberTextFieldProps) => {
+export default function B3QuantityTextField(props: B3NumberTextFieldProps) {
   const [isMobile] = useMobile()
 
   const {
@@ -54,13 +47,13 @@ export const B3QuantityTextField = (props: B3NumberTextFieldProps) => {
     let validMessage = ''
 
     if (isStock === '1' && stock === 0) {
-      validMessage = ('Out of stock')
+      validMessage = 'Out of stock'
     } else if (isStock === '1' && quantity > stock) {
-      validMessage = (`${stock} in stock`)
+      validMessage = `${stock} in stock`
     } else if (minQuantity !== 0 && quantity < minQuantity) {
-      validMessage = (`Min is ${minQuantity}`)
+      validMessage = `Min is ${minQuantity}`
     } else if (maxQuantity !== 0 && quantity > maxQuantity) {
-      validMessage = (`Max is ${maxQuantity}`)
+      validMessage = `Max is ${maxQuantity}`
     }
 
     setValidMessage(validMessage)
@@ -94,7 +87,8 @@ export const B3QuantityTextField = (props: B3NumberTextFieldProps) => {
       error={!!validMessage}
       helperText={validMessage}
       inputProps={{
-        inputMode: 'numeric', pattern: '[0-9]*',
+        inputMode: 'numeric',
+        pattern: '[0-9]*',
       }}
       onChange={(e) => {
         handleChange(e.target.value)

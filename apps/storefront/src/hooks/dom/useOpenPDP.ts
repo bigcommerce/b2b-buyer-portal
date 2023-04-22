@@ -1,65 +1,36 @@
 import {
-  useCallback,
-  SetStateAction,
   Dispatch,
-  useEffect,
+  SetStateAction,
+  useCallback,
   useContext,
+  useEffect,
   useRef,
 } from 'react'
-
 import globalB3 from '@b3/global-b3'
+import type { OpenPageState } from '@b3/hooks'
+import { cloneDeep } from 'lodash'
 
-import type {
-  OpenPageState,
-} from '@b3/hooks'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { GlobaledContext } from '@/shared/global'
 
-import {
-  cloneDeep,
-} from 'lodash'
+import useRole from '../useRole'
 
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-
-import {
-  removeElement,
-} from './utils'
-
-import {
-  useDomVariation,
-} from './useDomVariation'
-
-import {
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  useRole,
-} from '../useRole'
+import useDomVariation from './useDomVariation'
+import { removeElement } from './utils'
 
 interface MutationObserverProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
-const useOpenPDP = ({
-  setOpenPage,
-}: MutationObserverProps) => {
+const useOpenPDP = ({ setOpenPage }: MutationObserverProps) => {
   const {
-    state: {
-      shoppingListBtn,
-    },
+    state: { shoppingListBtn },
   } = useContext(CustomStyleContext)
 
   const cache = useRef({})
   const {
-    state: {
-      isB2BUser,
-      shoppingListEnabled,
-    },
+    state: { isB2BUser, shoppingListEnabled },
   } = useContext(GlobaledContext)
 
   const [roleText] = useRole()
@@ -71,7 +42,9 @@ const useOpenPDP = ({
     })
   }, [])
 
-  const [openQuickView] = useDomVariation(globalB3['dom.setToShoppingListParentEl'])
+  const [openQuickView] = useDomVariation(
+    globalB3['dom.setToShoppingListParentEl']
+  )
 
   const {
     color = '',
@@ -83,15 +56,24 @@ const useOpenPDP = ({
   } = shoppingListBtn
 
   useEffect(() => {
-    const addToShoppingListAll = document.querySelectorAll(globalB3['dom.setToShoppingListParentEl'])
-    const CustomAddToShoppingListAll = locationSelector ? document.querySelectorAll(locationSelector) : []
+    const addToShoppingListAll = document.querySelectorAll(
+      globalB3['dom.setToShoppingListParentEl']
+    )
+    const CustomAddToShoppingListAll = locationSelector
+      ? document.querySelectorAll(locationSelector)
+      : []
 
     const wishlistSdd = document.querySelector('form[data-wishlist-add]')
     let shoppingBtnDom: CustomFieldItems | null = null
-    if (!addToShoppingListAll.length && !CustomAddToShoppingListAll.length) return
+    if (!addToShoppingListAll.length && !CustomAddToShoppingListAll.length)
+      return
     if (document.querySelectorAll('.b2b-add-to-list').length) {
       const cacheShoppingListDom = cache.current
-      const isAddStyle = Object.keys(cacheShoppingListDom).every((key: string) => (cacheShoppingListDom as CustomFieldItems)[key] === (shoppingListBtn as CustomFieldItems)[key])
+      const isAddStyle = Object.keys(cacheShoppingListDom).every(
+        (key: string) =>
+          (cacheShoppingListDom as CustomFieldItems)[key] ===
+          (shoppingListBtn as CustomFieldItems)[key]
+      )
       if (!isAddStyle) {
         const myShoppingListBtn = document.querySelectorAll('.b2b-add-to-list')
         myShoppingListBtn.forEach((myShoppingListBtn: CustomFieldItems) => {
@@ -99,17 +81,25 @@ const useOpenPDP = ({
           myShoppingListBtn.setAttribute('style', customCss)
           myShoppingListBtn.style.backgroundColor = color
           myShoppingListBtn.style.color = getContrastColor(color)
-          myShoppingListBtn.setAttribute('class', `b2b-add-to-list ${classSelector}`)
+          myShoppingListBtn.setAttribute(
+            'class',
+            `b2b-add-to-list ${classSelector}`
+          )
         })
         cache.current = cloneDeep(shoppingListBtn)
       }
       return
     }
 
-    const isCurrentUserEnabled = roleText ? (shoppingListBtn as CustomFieldItems)[roleText] : ''
+    const isCurrentUserEnabled = roleText
+      ? (shoppingListBtn as CustomFieldItems)[roleText]
+      : ''
 
     if (shoppingListEnabled && enabled && isCurrentUserEnabled) {
-      (CustomAddToShoppingListAll.length ? CustomAddToShoppingListAll : addToShoppingListAll).forEach((node: CustomFieldItems) => {
+      ;(CustomAddToShoppingListAll.length
+        ? CustomAddToShoppingListAll
+        : addToShoppingListAll
+      ).forEach((node: CustomFieldItems) => {
         shoppingBtnDom = document.createElement('div')
         shoppingBtnDom.innerHTML = text || 'Add to Shopping List'
         shoppingBtnDom.setAttribute('style', customCss)
@@ -135,6 +125,7 @@ const useOpenPDP = ({
       if (wishlistSdd) (wishlistSdd as CustomFieldItems).style.display = 'block'
     }
 
+    // eslint-disable-next-line
     return () => {
       if (shoppingBtnDom) {
         shoppingBtnDom.removeEventListener('click', pdpCallBbck)
@@ -143,6 +134,4 @@ const useOpenPDP = ({
   }, [isB2BUser, shoppingListEnabled, openQuickView, shoppingListBtn, roleText])
 }
 
-export {
-  useOpenPDP,
-}
+export default useOpenPDP

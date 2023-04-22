@@ -1,55 +1,26 @@
-import styled from '@emotion/styled'
-
 import {
   ChangeEvent,
-  KeyboardEvent,
-  useState,
-  useEffect,
   Dispatch,
+  KeyboardEvent,
   SetStateAction,
+  useEffect,
+  useState,
 } from 'react'
+import { useForm } from 'react-hook-form'
+import styled from '@emotion/styled'
+import { Box, Divider, TextField, Typography } from '@mui/material'
 
-import {
-  Box,
-  Typography,
-  TextField,
-  Divider,
-} from '@mui/material'
+import { B3CustomForm, B3Dialog, B3Sping } from '@/components'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
+import { ShoppingListProductItem, SimpleObject, Variant } from '../../../types'
 import {
-  useForm,
-} from 'react-hook-form'
-
-import {
-  B3CustomForm,
-  B3Dialog,
-  B3Sping,
-} from '@/components'
-
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
-import {
-  ShoppingListProductItem,
-  Variant,
-  SimpleObject,
-} from '../../../types'
-
-import {
-  getProductOptionsFields,
   Base64,
   getOptionRequestData,
+  getProductOptionsFields,
 } from '../../../utils/b3Product/shared/config'
-
-import {
-  searchB2BProducts,
-  searchBcProducts,
-} from '@/shared/service/b2b'
-
-import {
-  snackbar,
-} from '@/utils'
 
 const Flex = styled('div')(() => ({
   display: 'flex',
@@ -66,9 +37,7 @@ interface FlexItemProps {
   padding?: string
 }
 
-const FlexItem = styled('div')(({
-  padding,
-}: FlexItemProps) => ({
+const FlexItem = styled('div')(({ padding }: FlexItemProps) => ({
   display: 'flex',
   flexGrow: 1,
   flexShrink: 1,
@@ -99,19 +68,19 @@ const StyleTextField = styled(TextField)(() => ({
 }))
 
 interface ChooseOptionsDialogProps {
-  isOpen: boolean,
-  product?: ShoppingListProductItem,
-  onCancel: () => void,
-  onConfirm: (products: CustomFieldItems[]) => void,
-  currency?: string,
-  isEdit?: boolean,
-  isLoading: boolean,
-  setIsLoading: Dispatch<SetStateAction<boolean>>,
-  addButtonText?: string,
-  isB2BUser: boolean,
+  isOpen: boolean
+  product?: ShoppingListProductItem
+  onCancel: () => void
+  onConfirm: (products: CustomFieldItems[]) => void
+  currency?: string
+  isEdit?: boolean
+  isLoading: boolean
+  setIsLoading: Dispatch<SetStateAction<boolean>>
+  addButtonText?: string
+  isB2BUser: boolean
 }
 
-export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
+export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const {
     isOpen,
     onCancel,
@@ -129,20 +98,22 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [variantInfo, setVariantInfo] = useState<Partial<Variant> | null>(null)
   const [variantSku, setVariantSku] = useState('')
-  const [additionalProducts, setAdditionalProducts] = useState<CustomFieldItems>({})
+  const [additionalProducts, setAdditionalProducts] =
+    useState<CustomFieldItems>({})
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
       setIsLoading(true)
 
-      const modifiers = product?.modifiers?.filter((modifier) => modifier.type === 'product_list_with_images') || []
+      const modifiers =
+        product?.modifiers?.filter(
+          (modifier) => modifier.type === 'product_list_with_images'
+        ) || []
       const productImages: SimpleObject = {}
       const additionalProductsParams: CustomFieldItems = {}
       if (modifiers.length > 0) {
         const productIds = modifiers.reduce((arr: number[], modifier) => {
-          const {
-            option_values: optionValues,
-          } = modifier
+          const { option_values: optionValues } = modifier
           optionValues.forEach((option) => {
             if (option?.value_data?.product_id) {
               arr.push(option.value_data.product_id)
@@ -154,9 +125,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
         if (productIds.length > 0) {
           const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
-          const {
-            productsSearch,
-          } : CustomFieldItems = await getProducts({
+          const { productsSearch }: CustomFieldItems = await getProducts({
             productIds,
           })
 
@@ -174,7 +143,10 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
         setVariantInfo(product.variants[0])
       }
 
-      const productOptionsFields = getProductOptionsFields(product, productImages)
+      const productOptionsFields = getProductOptionsFields(
+        product,
+        productImages
+      )
       setFormFields([...productOptionsFields])
     } finally {
       setIsLoading(false)
@@ -191,16 +163,18 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
   }, [product])
 
   const getProductPrice = (product: ShoppingListProductItem) => {
-    const {
-      variants = [],
-    } = product
+    const { variants = [] } = product
 
     if (variantSku) {
-      const priceNumber = variants.find((variant) => variant.sku === variantSku)?.bc_calculated_price?.tax_inclusive || 0
+      const priceNumber =
+        variants.find((variant) => variant.sku === variantSku)
+          ?.bc_calculated_price?.tax_inclusive || 0
       return `${currency} ${priceNumber.toFixed(2)}`
     }
 
-    const priceNumber = parseFloat(variants[0]?.bc_calculated_price?.tax_inclusive?.toString()) || 0
+    const priceNumber =
+      parseFloat(variants[0]?.bc_calculated_price?.tax_inclusive?.toString()) ||
+      0
     return `${currency} ${priceNumber.toFixed(2)}`
   }
 
@@ -226,9 +200,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     watch,
     setValue,
     reset,
@@ -236,49 +208,56 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
     mode: 'all',
   })
 
-  const getProductVariantId = async (value: CustomFieldItems, changeName: string = '') => {
-    const isVariantOptionChange = formFields.find((item: CustomFieldItems) => item.name === changeName)?.isVariantOption || false
+  const getProductVariantId = async (
+    value: CustomFieldItems,
+    changeName = ''
+  ) => {
+    const isVariantOptionChange =
+      formFields.find((item: CustomFieldItems) => item.name === changeName)
+        ?.isVariantOption || false
 
     if (!isVariantOptionChange || !product || !changeName) {
       return
     }
 
-    const {
-      variants = [],
-    } = product || {}
+    const { variants = [] } = product || {}
 
-    const variantInfo = variants.find((variant) => {
-      const {
-        option_values: optionValues = [],
-      } = variant
+    const variantInfo =
+      variants.find((variant) => {
+        const { option_values: optionValues = [] } = variant
 
-      const isSelectVariant = optionValues.reduce((isSelect, option) => {
-        if (value[Base64.encode(`attribute[${option.option_id}]`)].toString() !== (option.id || '').toString()) {
-          return false
-        }
-        return isSelect
-      }, true)
+        const isSelectVariant = optionValues.reduce((isSelect, option) => {
+          if (
+            value[
+              Base64.encode(`attribute[${option.option_id}]`)
+            ].toString() !== (option.id || '').toString()
+          ) {
+            return false
+          }
+          return isSelect
+        }, true)
 
-      return isSelectVariant
-    }) || null
+        return isSelectVariant
+      }) || null
 
     setVariantSku(variantInfo ? variantInfo.sku : '')
     setVariantInfo(variantInfo)
   }
 
   useEffect(() => {
-    const subscription = watch((value, {
-      name,
-    }) => {
+    const subscription = watch((value, { name }) => {
       getProductVariantId(value, name)
     })
 
     if (formFields.length > 0) {
-      const defaultValues: SimpleObject = formFields.reduce((value: SimpleObject, fields) => {
-        value[fields.name] = fields.default
-        setValue(fields.name, fields.default)
-        return value
-      }, {})
+      const defaultValues: SimpleObject = formFields.reduce(
+        (value: SimpleObject, fields) => {
+          value[fields.name] = fields.default
+          setValue(fields.name, fields.default)
+          return value
+        },
+        {}
+      )
       getProductVariantId(defaultValues, formFields[0].name)
     }
 
@@ -286,9 +265,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
   }, [formFields])
 
   const validateQuantityNumber = () => {
-    const {
-      purchasing_disabled: purchasingDisabled = true,
-    } = variantInfo || {}
+    const { purchasing_disabled: purchasingDisabled = true } = variantInfo || {}
 
     if (purchasingDisabled === true) {
       snackbar.error('This product is no longer for sale')
@@ -306,22 +283,22 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
         optionValue: optionsData[optionId].toString(),
       }))
 
-      const {
-        variant_id: variantId = '',
-      } = variantInfo || {}
+      const { variant_id: variantId = '' } = variantInfo || {}
 
       if (!product || !product.id || !variantId || !validateQuantityNumber()) {
         return
       }
 
-      onConfirm([{
-        ...product,
-        newSelectOptionList: optionList,
-        productId: product?.id,
-        quantity: parseInt(quantity.toString(), 10) || 1,
-        variantId: parseInt(variantId.toString(), 10) || 1,
-        additionalProducts,
-      }])
+      onConfirm([
+        {
+          ...product,
+          newSelectOptionList: optionList,
+          productId: product?.id,
+          quantity: parseInt(quantity.toString(), 10) || 1,
+          variantId: parseInt(variantId.toString(), 10) || 1,
+          additionalProducts,
+        },
+      ])
     })()
   }
 
@@ -345,9 +322,7 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
       title="Choose options"
       loading={isLoading}
     >
-      <B3Sping
-        isSpinning={isLoading}
-      >
+      <B3Sping isSpinning={isLoading}>
         {product && (
           <Box>
             <Box
@@ -369,20 +344,16 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
                         marginLeft: '16px',
                       }}
                     >
-                      <Typography
-                        variant="body1"
-                        color="#212121"
-                      >
+                      <Typography variant="body1" color="#212121">
                         {product.name}
                       </Typography>
-                      <Typography
-                        variant="body1"
-                        color="#616161"
-                      >
+                      <Typography variant="body1" color="#616161">
                         {variantSku || product.sku}
                       </Typography>
                       {(product.product_options || []).map((option) => (
-                        <ProductOptionText key={`${option.option_id}`}>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
+                        <ProductOptionText
+                          key={`${option.option_id}`}
+                        >{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
                       ))}
                     </Box>
                   </FlexItem>
@@ -411,9 +382,10 @@ export const ChooseOptionsDialog = (props: ChooseOptionsDialogProps) => {
                 </Flex>
               </Box>
 
-              <Divider sx={{
-                margin: '16px 0 24px',
-              }}
+              <Divider
+                sx={{
+                  margin: '16px 0 24px',
+                }}
               />
 
               <B3CustomForm

@@ -1,6 +1,2 @@
-export {
-  en,
-} from './en-US'
-export {
-  zh,
-} from './zh-CN'
+export { default as en } from './en-US'
+export { default as zh } from './zh-CN'

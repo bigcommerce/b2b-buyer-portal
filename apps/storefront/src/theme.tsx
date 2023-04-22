@@ -1,21 +1,10 @@
-import {
-  createTheme,
-  ThemeProvider,
-} from '@mui/material/styles'
+import { ReactNode, useContext } from 'react'
+import { useSelector } from 'react-redux'
 import * as materialMultiLanguages from '@mui/material/locale'
-import React, {
-  useContext,
-} from 'react'
-import {
-  useSelector,
-} from 'react-redux'
-import {
-  RootState,
-} from './store'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 
-import {
-  CustomStyleContext,
-} from './shared/customStyleButtton'
+import { CustomStyleContext } from './shared/customStyleButtton'
+import { RootState } from './store'
 
 type LangMapType = {
   [index: string]: string
@@ -36,41 +25,36 @@ type MaterialMultiLanguagesType = {
 }
 
 type Props = {
-  children?: React.ReactNode;
+  children?: ReactNode
 }
 
-function B3ThemeProvider({
-  children,
-}: Props) {
-  const lang = useSelector(({
-    lang,
-  }: RootState) => lang)
+function B3ThemeProvider({ children }: Props) {
+  const lang = useSelector(({ lang }: RootState) => lang)
 
   const {
     state: {
-      portalStyle: {
-        backgroundColor = '',
-        primaryColor = '',
-      },
+      portalStyle: { backgroundColor = '', primaryColor = '' },
     },
   } = useContext(CustomStyleContext)
 
-  const theme = (lang: string) => createTheme({
-    palette: {
-      background: {
-        default: backgroundColor,
+  const theme = (lang: string) =>
+    createTheme(
+      {
+        palette: {
+          background: {
+            default: backgroundColor,
+          },
+          primary: {
+            main: primaryColor || '#1976d2',
+          },
+        },
       },
-      primary: {
-        main: primaryColor || '#1976d2',
-      },
-    },
-  }, (materialMultiLanguages as MaterialMultiLanguagesType)[MUI_LANG_MAP[lang] || 'enUS'])
+      (materialMultiLanguages as MaterialMultiLanguagesType)[
+        MUI_LANG_MAP[lang] || 'enUS'
+      ]
+    )
 
-  return (
-    <ThemeProvider theme={theme(lang)}>
-      { children }
-    </ThemeProvider>
-  )
+  return <ThemeProvider theme={theme(lang)}>{children}</ThemeProvider>
 }
 
 export default B3ThemeProvider

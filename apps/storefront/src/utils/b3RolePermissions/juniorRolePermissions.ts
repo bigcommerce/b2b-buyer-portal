@@ -1,8 +1,10 @@
-export const removeCartPermissions = (role: number | string) => {
+const removeCartPermissions = (role: number | string) => {
   if (+role !== 2) return
   const carts = document.querySelectorAll('[href="/cart.php"]')
   const cartBtn = document.querySelectorAll('#form-action-addToCart')
-  const quickViewCartBtn = document.querySelectorAll('[data-button-type="add-cart"]')
+  const quickViewCartBtn = document.querySelectorAll(
+    '[data-button-type="add-cart"]'
+  )
 
   // remove cart Entrance
   if (carts.length > 0) {
@@ -25,3 +27,5 @@ export const removeCartPermissions = (role: number | string) => {
     })
   }
 }
+
+export default removeCartPermissions

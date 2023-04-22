@@ -1,60 +1,22 @@
-import {
-  useEffect,
-  useState,
-} from 'react'
-
+import { useEffect, useState } from 'react'
+import UploadFileIcon from '@mui/icons-material/UploadFile'
 import {
   Box,
-  Divider,
-  Typography,
   Card,
   CardContent,
+  Divider,
   Link,
+  Typography,
 } from '@mui/material'
 
-import UploadFileIcon from '@mui/icons-material/UploadFile'
+import { B3Upload, CustomButton, successTip } from '@/components'
+import { useMobile } from '@/hooks'
+import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
+import { snackbar } from '@/utils'
 
-import {
-  QuickAdd,
-} from './QuickAdd'
+import QuickAdd from './QuickAdd'
 
-import {
-  createCart,
-  getCartInfo,
-  addProductToCart,
-} from '@/shared/service/bc'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  B3LinkTipContent,
-  B3Upload,
-  CustomButton,
-} from '@/components'
-
-interface successTipOptions{
-  message: string,
-  link?: string,
-  linkText?: string,
-  isOutLink?: boolean,
-}
-
-const successTip = (options: successTipOptions) => () => (
-  <B3LinkTipContent
-    message={options.message}
-    link={options.link}
-    linkText={options.linkText}
-    isOutLink={options.isOutLink}
-  />
-)
-
-export const QuickOrderPad = () => {
+export default function QuickOrderPad() {
   const [isMobile] = useMobile()
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
@@ -73,37 +35,41 @@ export const QuickOrderPad = () => {
     if (typeof id === 'number') {
       return id
     }
+
+    return undefined
   }
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
     const lineItems = products.map((product) => {
-      const {
-        newSelectOptionList,
-        quantity,
-      } = product
+      const { newSelectOptionList, quantity } = product
       const optionList = newSelectOptionList.map((option: any) => {
         const splitOptionId = handleSplitOptionId(option.optionId)
 
-        return ({
+        return {
           optionId: splitOptionId,
           optionValue: option.optionValue,
-        })
+        }
       })
 
-      return ({
+      return {
         optionList,
         productId: parseInt(product.productId, 10) || 0,
         quantity,
         variantId: parseInt(product.variantId, 10) || 0,
-      })
+      }
     })
 
     const cartInfo = await getCartInfo()
-    const res = cartInfo.length ? await addProductToCart({
-      lineItems,
-    }, cartInfo[0].id) : await createCart({
-      lineItems,
-    })
+    const res = cartInfo.length
+      ? await addProductToCart(
+          {
+            lineItems,
+          },
+          cartInfo[0].id
+        )
+      : await createCart({
+          lineItems,
+        })
 
     if (res.status) {
       snackbar.error(res.detail, {
@@ -126,26 +92,32 @@ export const QuickOrderPad = () => {
 
   const limitProductTips = (data: CustomFieldItems) => (
     <>
-      <p style={{
-        margin: 0,
-      }}
+      <p
+        style={{
+          margin: 0,
+        }}
       >
         {`SKU ${data.variantSku} is not enough stock`}
       </p>
-      <p style={{
-        margin: 0,
-      }}
+      <p
+        style={{
+          margin: 0,
+        }}
       >
         {`Available amount - ${data.AvailableAmount}.`}
       </p>
     </>
   )
 
-  const outOfStockProductTips = (outOfStock: CustomFieldItems, fileErrorsCSV: string) => (
+  const outOfStockProductTips = (
+    outOfStock: CustomFieldItems,
+    fileErrorsCSV: string
+  ) => (
     <>
-      <p style={{
-        margin: 0,
-      }}
+      <p
+        style={{
+          margin: 0,
+        }}
       >
         {`SKU ${outOfStock} are out of stock.`}
       </p>
@@ -169,10 +141,7 @@ export const QuickOrderPad = () => {
     const outOfStock: CustomFieldItems[] = []
 
     products.forEach((item: CustomFieldItems) => {
-      const {
-        products: currentProduct,
-        qty,
-      } = item
+      const { products: currentProduct, qty } = item
       const {
         option,
         isStock,
@@ -195,7 +164,7 @@ export const QuickOrderPad = () => {
         return
       }
 
-      if ((isStock === '1' && stock > 0) && stock < +qty) {
+      if (isStock === '1' && stock > 0 && stock < +qty) {
         limitProduct.push({
           variantSku,
           AvailableAmount: stock,
@@ -247,10 +216,7 @@ export const QuickOrderPad = () => {
   const handleAddToCart = async (productsData: CustomFieldItems) => {
     setIsLoading(true)
     try {
-      const {
-        stockErrorFile,
-        validProduct,
-      } = productsData
+      const { stockErrorFile, validProduct } = productsData
 
       const {
         notPurchaseSku,
@@ -263,11 +229,16 @@ export const QuickOrderPad = () => {
 
       if (productItems.length > 0) {
         const cartInfo = await getCartInfo()
-        const res = cartInfo.length ? await addProductToCart({
-          lineItems: productItems,
-        }, cartInfo[0].id) : await createCart({
-          lineItems: productItems,
-        })
+        const res = cartInfo.length
+          ? await addProductToCart(
+              {
+                lineItems: productItems,
+              },
+              cartInfo[0].id
+            )
+          : await createCart({
+              lineItems: productItems,
+            })
         if (res.status) {
           snackbar.error(res.detail, {
             isClose: true,
@@ -294,9 +265,12 @@ export const QuickOrderPad = () => {
       }
 
       if (notPurchaseSku.length > 0) {
-        snackbar.error(`SKU ${notPurchaseSku} cannot be purchased in online store.`, {
-          isClose: true,
-        })
+        snackbar.error(
+          `SKU ${notPurchaseSku} cannot be purchased in online store.`,
+          {
+            isClose: true,
+          }
+        )
       }
 
       if (outOfStock.length > 0 && stockErrorFile) {
@@ -308,17 +282,23 @@ export const QuickOrderPad = () => {
 
       if (minLimitQuantity.length > 0) {
         minLimitQuantity.forEach((data: CustomFieldItems) => {
-          snackbar.error(`You need to purchase a minimum of ${data.minQuantity} of the ${data.variantSku} per order.`, {
-            isClose: true,
-          })
+          snackbar.error(
+            `You need to purchase a minimum of ${data.minQuantity} of the ${data.variantSku} per order.`,
+            {
+              isClose: true,
+            }
+          )
         })
       }
 
       if (maxLimitQuantity.length > 0) {
         maxLimitQuantity.forEach((data: CustomFieldItems) => {
-          snackbar.error(`You need to purchase a maximum of ${data.maxQuantity} of the ${data.variantSku} per order.`, {
-            isClose: true,
-          })
+          snackbar.error(
+            `You need to purchase a maximum of ${data.maxQuantity} of the ${data.variantSku} per order.`,
+            {
+              isClose: true,
+            }
+          )
         })
       }
 
@@ -335,9 +315,10 @@ export const QuickOrderPad = () => {
   }, [productData])
 
   return (
-    <Card sx={{
-      marginBottom: isMobile ? '8.5rem' : '50px',
-    }}
+    <Card
+      sx={{
+        marginBottom: isMobile ? '8.5rem' : '50px',
+      }}
     >
       <CardContent>
         <Box>
@@ -359,9 +340,10 @@ export const QuickOrderPad = () => {
 
           <Divider />
 
-          <Box sx={{
-            margin: '20px 0 0',
-          }}
+          <Box
+            sx={{
+              margin: '20px 0 0',
+            }}
           >
             <CustomButton
               variant="text"
@@ -369,9 +351,10 @@ export const QuickOrderPad = () => {
                 setIsOpenBulkLoadCSV(true)
               }}
             >
-              <UploadFileIcon sx={{
-                marginRight: '8px',
-              }}
+              <UploadFileIcon
+                sx={{
+                  marginRight: '8px',
+                }}
               />
               Bulk upload CSV
             </CustomButton>

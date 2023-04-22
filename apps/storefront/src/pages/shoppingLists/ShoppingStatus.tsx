@@ -1,24 +1,15 @@
-import {
-  useContext,
-} from 'react'
+import { useContext } from 'react'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import { B3Tag } from '@/components'
+import { GlobaledContext } from '@/shared/global'
 
-import {
-  B3Tag,
-} from '@/components/B3Tag'
-
-import {
-  getFilterShoppingListStatus,
-} from './config'
+import { getFilterShoppingListStatus } from './config'
 
 interface NewStatuProps {
-  label: string,
-  value: string | number,
-  color: string,
-  textColor: string,
+  label: string
+  value: string | number
+  color: string
+  textColor: string
 }
 
 export const getStatus = (role: number | string) => {
@@ -62,23 +53,18 @@ interface ShoppingStatusProps {
   status: number | string
 }
 
-export const ShoppingStatus = ({
-  status,
-}: ShoppingStatusProps) => {
+export function ShoppingStatus({ status }: ShoppingStatusProps) {
   const {
-    state: {
-      role,
-    },
+    state: { role },
   } = useContext(GlobaledContext)
   const statusList = getStatus(role)
-  const statusItem = statusList.find((item: NewStatuProps) => +item.value === +status)
+  const statusItem = statusList.find(
+    (item: NewStatuProps) => +item.value === +status
+  )
 
   if (statusItem) {
     return (
-      <B3Tag
-        color={statusItem.color}
-        textColor={statusItem.textColor}
-      >
+      <B3Tag color={statusItem.color} textColor={statusItem.textColor}>
         {statusItem.label}
       </B3Tag>
     )

@@ -1,11 +1,8 @@
-import {
-  B3Request,
-} from '../../request/b3Fetch'
-import {
-  RequestType,
-} from '../../request/base'
-import {
-  bcBaseUrl,
-} from '../../../../utils/basicConfig'
+import { bcBaseUrl } from '../../../../utils/basicConfig'
+import B3Request from '../../request/b3Fetch'
+import { RequestType } from '../../request/base'
 
-export const getBCRegisterCustomFields = (): CustomFieldItems => B3Request.get(`${bcBaseUrl}/api/storefront/form-fields`, RequestType.BCRest)
+const getBCRegisterCustomFields = (): CustomFieldItems =>
+  B3Request.get(`${bcBaseUrl}/api/storefront/form-fields`, RequestType.BCRest)
+
+export default getBCRegisterCustomFields

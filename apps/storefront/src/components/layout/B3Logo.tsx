@@ -1,22 +1,11 @@
-import {
-  useContext,
-} from 'react'
+import { useContext } from 'react'
 // import {
 //   styled,
 // } from '@mui/material/styles'
+import { Box, ImageListItem } from '@mui/material'
 
-import {
-  Box,
-  ImageListItem,
-} from '@mui/material'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 
 // interface LogoProps {
 //   logoUrl: string,
@@ -32,11 +21,9 @@ import {
 //   backgroundPosition: 'center',
 // }))
 
-export const B3Logo = () => {
+export default function B3Logo() {
   const {
-    state: {
-      logo,
-    },
+    state: { logo },
   } = useContext(GlobaledContext)
 
   const [isMobile] = useMobile()
@@ -63,12 +50,8 @@ export const B3Logo = () => {
           window.location.href = '/'
         }}
       >
-        <img
-          src={logo}
-          alt="logo"
-        />
+        <img src={logo} alt="logo" />
       </ImageListItem>
     </Box>
-
   )
 }

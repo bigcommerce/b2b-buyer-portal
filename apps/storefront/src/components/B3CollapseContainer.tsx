@@ -1,28 +1,17 @@
-import {
-  Box,
-  Collapse,
-  Typography,
-} from '@mui/material'
-
-import {
-  useState,
-  ReactNode,
-  ReactElement,
-  useEffect,
-} from 'react'
-
+import { ReactElement, ReactNode, useEffect, useState } from 'react'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
+import { Box, Collapse, Typography } from '@mui/material'
 
-interface CollapseContainerProps{
-  title?: string | ReactElement,
-  header?: ReactNode,
-  defaultOpen?: boolean,
-  children: ReactNode,
+interface CollapseContainerProps {
+  title?: string | ReactElement
+  header?: ReactNode
+  defaultOpen?: boolean
+  children: ReactNode
   handleOnChange?: (open: boolean) => void
 }
 
-export const B3CollapseContainer = (props: CollapseContainerProps) => {
+export default function B3CollapseContainer(props: CollapseContainerProps) {
   const {
     children,
     title = '',
@@ -59,11 +48,7 @@ export const B3CollapseContainer = (props: CollapseContainerProps) => {
         {header || <Typography variant="h5">{title}</Typography>}
         {open ? <ExpandLess /> : <ExpandMore />}
       </Box>
-      <Collapse
-        in={open}
-        timeout="auto"
-        unmountOnExit
-      >
+      <Collapse in={open} timeout="auto" unmountOnExit>
         {children}
       </Collapse>
     </Box>

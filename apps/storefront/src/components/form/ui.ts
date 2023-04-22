@@ -1,14 +1,11 @@
-import {
-  Control,
-} from 'react-hook-form'
+import { Control } from 'react-hook-form'
 
 namespace Form {
-
   export interface B3CustomFormValue {
-    name: string,
-    fieldType: string,
-    xs: number & undefined,
-    [key: string]: string | Number | Array<Number | string>
+    name: string
+    fieldType: string
+    xs: number & undefined
+    [key: string]: string | number | Array<number | string>
   }
 
   export interface B3CustomFormProps {
@@ -22,24 +19,24 @@ namespace Form {
   }
 
   export interface RadopGroupListProps {
-    value: string,
-    label: string,
-    [key: string]: string,
+    value: string
+    label: string
+    [key: string]: string
   }
 
   export interface ProductRadioGroupListProps {
-    value: string,
-    label: string,
+    value: string
+    label: string
     image?: {
-      alt: string,
+      alt: string
       data: string
-    },
+    }
   }
 
   export interface SwatchRadioGroupListProps {
-    value: string,
-    label: string,
-    colors?: string[],
+    value: string
+    label: string
+    colors?: string[]
   }
 }
 

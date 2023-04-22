@@ -1,0 +1,6 @@
+{
+  "extends": ["b2b"],
+  "parserOptions": {
+    "project": true
+  }
+}

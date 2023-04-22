@@ -1,28 +1,29 @@
 import {
-  FormControl, InputLabel, Select, MenuItem, SelectChangeEvent,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
 } from '@mui/material'
-import {
-  ReactElement,
-} from 'react'
 
-interface configProps {
-  labelName: string,
-  valueName: string,
+interface ConfigProps {
+  labelName: string
+  valueName: string
 }
 
 interface B3SelectProps<T> {
-  value: T,
-  handleChange: (value: string) => void,
-  label: string,
-  config?: configProps | undefined,
+  value: T
+  handleChange: (value: string) => void
+  label: string
+  config?: ConfigProps | undefined
   list: Array<any>
-  isFirstSelect?: boolean,
-  firstSelectText?: string,
-  w?: number,
-  size?: 'small' | 'medium' | undefined,
+  isFirstSelect?: boolean
+  firstSelectText?: string
+  w?: number
+  size?: 'small' | 'medium' | undefined
 }
 
-export const B3Select: <T extends string | undefined>(props: B3SelectProps<T>) => ReactElement | null = ({
+export default function B3Select<T extends string | undefined>({
   value,
   handleChange,
   label,
@@ -35,7 +36,7 @@ export const B3Select: <T extends string | undefined>(props: B3SelectProps<T>) =
   firstSelectText,
   size = 'small',
   w,
-}) => {
+}: B3SelectProps<T>) {
   const handleSelectChange = (event: SelectChangeEvent) => {
     handleChange(event.target.value)
   }
@@ -60,24 +61,17 @@ export const B3Select: <T extends string | undefined>(props: B3SelectProps<T>) =
         size={size}
         onChange={handleSelectChange}
       >
-        {
-          isFirstSelect && (
+        {isFirstSelect && (
           <MenuItem value="">
             <em>{firstSelectText || 'None'}</em>
           </MenuItem>
-          )
-        }
+        )}
 
-        {
-          list.map((item) => (
-            <MenuItem
-              key={item[valueName]}
-              value={item[valueName]}
-            >
-              {item[labelName]}
-            </MenuItem>
-          ))
-        }
+        {list.map((item) => (
+          <MenuItem key={item[valueName]} value={item[valueName]}>
+            {item[labelName]}
+          </MenuItem>
+        ))}
       </Select>
     </FormControl>
   )

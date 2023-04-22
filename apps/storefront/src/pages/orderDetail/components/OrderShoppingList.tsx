@@ -1,54 +1,23 @@
-import {
-  useState,
-  useEffect,
-  useContext,
-} from 'react'
-
-import {
-  Box,
-  MenuList,
-  MenuItem,
-  ListItemText,
-  useTheme,
-} from '@mui/material'
-
+import { useContext, useEffect, useState } from 'react'
 import AddIcon from '@mui/icons-material/Add'
+import { Box, ListItemText, MenuItem, MenuList, useTheme } from '@mui/material'
 
-import {
-  getB2BShoppingList,
-  getBcShoppingList,
-} from '@/shared/service/b2b'
+import { B3Dialog, B3Sping, CustomButton } from '@/components'
+import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { GlobaledContext } from '@/shared/global'
+import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import { ShoppingListItem } from '../../../types'
 
-import {
-  B3Dialog,
-  CustomButton,
-} from '@/components'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  ShoppingListItem,
-} from '../../../types'
-
-import {
-  b3HexToRgb,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
-
-interface orderShoppingListProps {
-  isOpen: boolean,
-  dialogTitle?: string,
-  confirmText?: string,
-  onClose?: () => void,
-  onCreate?: () => void,
-  onConfirm?: (id: string) => void,
-  isLoading?: boolean,
-  setLoading?: (val: boolean) => void,
+interface OrderShoppingListProps {
+  isOpen: boolean
+  dialogTitle?: string
+  confirmText?: string
+  onClose?: () => void
+  onCreate?: () => void
+  onConfirm?: (id: string) => void
+  isLoading?: boolean
+  setLoading?: (val: boolean) => void
 }
 
 interface ListItem {
@@ -57,7 +26,7 @@ interface ListItem {
 
 const noop = () => {}
 
-export const OrderShoppingList = (props: orderShoppingListProps) => {
+export default function OrderShoppingList(props: OrderShoppingListProps) {
   const {
     isOpen,
     dialogTitle = 'Confirm',
@@ -70,11 +39,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
   } = props
 
   const {
-    state: {
-      isB2BUser,
-      currentChannelId,
-      role,
-    },
+    state: { isB2BUser, currentChannelId, role },
   } = useContext(GlobaledContext)
 
   const theme = useTheme()
@@ -89,21 +54,24 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
 
     const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList
     const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
-    const params = isB2BUser ? {} : {
-      channelId: currentChannelId,
-    }
+    const params = isB2BUser
+      ? {}
+      : {
+          channelId: currentChannelId,
+        }
 
     try {
       const {
-        [infoKey]: {
-          edges: list = [],
-        },
+        [infoKey]: { edges: list = [] },
       }: CustomFieldItems = await getShoppingList(params)
 
       if (!isB2BUser) {
         setList(list)
       } else {
-        const newList = list.filter((item: CustomFieldItems) => (item.node.status === +(role === 2 ? 30 : 0)))
+        const newList = list.filter(
+          (item: CustomFieldItems) =>
+            item.node.status === +(role === 2 ? 30 : 0)
+        )
         setList(newList)
       }
     } finally {
@@ -143,10 +111,7 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
       handRightClick={handleConfirm}
       rightSizeBtn={confirmText}
     >
-      <B3Sping
-        isSpinning={isLoading}
-        isFlex={false}
-      >
+      <B3Sping isSpinning={isLoading} isFlex={false}>
         <Box
           sx={{
             height: '430px',
@@ -159,27 +124,23 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
               overflowY: 'auto',
             }}
           >
-            {
-              list.map((item: ListItem) => (
-                <MenuItem
-                  key={item.node.id}
-                  className={activeId === item.node.id ? 'active' : ''}
-                  onClick={handleListItemClicked(item)}
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: b3HexToRgb(primaryColor, 0.12),
-                    },
-                    '&.active': {
-                      backgroundColor: b3HexToRgb(primaryColor, 0.12),
-                    },
-                  }}
-                >
-                  <ListItemText>
-                    {item.node.name}
-                  </ListItemText>
-                </MenuItem>
-              ))
-            }
+            {list.map((item: ListItem) => (
+              <MenuItem
+                key={item.node.id}
+                className={activeId === item.node.id ? 'active' : ''}
+                onClick={handleListItemClicked(item)}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: b3HexToRgb(primaryColor, 0.12),
+                  },
+                  '&.active': {
+                    backgroundColor: b3HexToRgb(primaryColor, 0.12),
+                  },
+                }}
+              >
+                <ListItemText>{item.node.name}</ListItemText>
+              </MenuItem>
+            ))}
           </MenuList>
         </Box>
 
@@ -190,11 +151,11 @@ export const OrderShoppingList = (props: orderShoppingListProps) => {
             textTransform: 'none',
           }}
         >
-          <AddIcon sx={{
-            fontSize: '17px',
-          }}
-          />
-          {' '}
+          <AddIcon
+            sx={{
+              fontSize: '17px',
+            }}
+          />{' '}
           Create new
         </CustomButton>
       </B3Sping>

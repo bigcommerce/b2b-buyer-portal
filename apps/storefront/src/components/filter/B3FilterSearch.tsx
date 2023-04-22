@@ -1,35 +1,24 @@
-import {
-  ChangeEvent,
-  useEffect,
-  useState,
-} from 'react'
-
-import {
-  InputBase,
-  Paper,
-} from '@mui/material'
-
+import { ChangeEvent, useEffect, useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
+import { InputBase, Paper } from '@mui/material'
 
-import {
-  useDebounce,
-} from '@/hooks'
+import { useDebounce } from '@/hooks'
 
 interface B3FilterSearchProps {
   handleChange: (value: string) => void
-  w?: number | undefined |string
+  w?: number | undefined | string
   searchBGColor?: string
   placeholder?: string
   h?: number | string
 }
 
-const B3FilterSearch = ({
+function B3FilterSearch({
   handleChange,
   w = '100%',
   h,
   searchBGColor = '#efeae7',
   placeholder = 'Search',
-}: B3FilterSearchProps) => {
+}: B3FilterSearchProps) {
   const [search, setSearch] = useState<string>('')
   const debouncedValue = useDebounce<string>(search, 500)
 

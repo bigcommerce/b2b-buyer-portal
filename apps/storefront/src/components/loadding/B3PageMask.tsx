@@ -1,33 +1,16 @@
-import {
-  useContext,
-} from 'react'
+import { useContext } from 'react'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  DispatchProps,
-} from '@/shared/global/context/config'
+import { GlobaledContext } from '@/shared/global'
+import { DispatchProps } from '@/shared/global/context/config'
 
 import Loading from './Loading'
 
-export const B3PageMask = () => {
+export function B3PageMask() {
   const {
-    state: {
-      showPageMask,
-    },
+    state: { showPageMask },
   } = useContext(GlobaledContext)
 
-  return (
-    <>
-      {
-        showPageMask && (
-          <Loading />
-        )
-      }
-    </>
-  )
+  return showPageMask ? <Loading /> : null
 }
 
 export const showPageMask = (dispatch: DispatchProps, isShow: boolean) => {

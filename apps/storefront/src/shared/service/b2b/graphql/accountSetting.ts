@@ -1,10 +1,5 @@
-import {
-  B3Request,
-} from '../../request/b3Fetch'
-
-import {
-  convertObjectToGraphql,
-} from '../../../../utils'
+import { convertObjectToGraphql } from '../../../../utils'
+import B3Request from '../../request/b3Fetch'
 
 const updateAccountSettings = (data: CustomFieldItems) => `mutation{
   updateAccountSettings (
@@ -57,18 +52,28 @@ const customerAccountSettings = () => `{
   }
 }`
 
-export const updateB2BAccountSettings = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: updateAccountSettings(data),
-})
+export const updateB2BAccountSettings = (
+  data: CustomFieldItems
+): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: updateAccountSettings(data),
+  })
 
-export const updateBCAccountSettings = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: updateCustomerAccountSettings(data),
-})
+export const updateBCAccountSettings = (
+  data: CustomFieldItems
+): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: updateCustomerAccountSettings(data),
+  })
 
-export const getB2BAccountSettings = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: getAccountSettings(data),
-})
+export const getB2BAccountSettings = (
+  data: CustomFieldItems
+): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getAccountSettings(data),
+  })
 
-export const getBCAccountSettings = (): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: customerAccountSettings(),
-})
+export const getBCAccountSettings = (): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: customerAccountSettings(),
+  })

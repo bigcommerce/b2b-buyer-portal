@@ -1,36 +1,27 @@
 import {
-  useState,
   forwardRef,
-  useImperativeHandle,
   Ref,
   useEffect,
+  useImperativeHandle,
+  useState,
 } from 'react'
+import { useForm } from 'react-hook-form'
 
+import { B3CustomForm, B3Dialog } from '@/components'
 import {
-  useForm,
-} from 'react-hook-form'
-
-import {
-  updateB2BShoppingList,
-  updateBcShoppingList,
   createB2BShoppingList,
   createBcShoppingList,
   duplicateB2BShoppingList,
   duplicateBcShoppingList,
+  updateB2BShoppingList,
+  updateBcShoppingList,
 } from '@/shared/service/b2b'
-import {
-  B3CustomForm,
-  B3Dialog,
-} from '@/components'
-
-import {
-  snackbar,
-} from '@/utils'
+import { snackbar } from '@/utils'
 
 import {
   getCreatedShoppingListFiles,
-  ShoppingListsItemsProps,
   GetFilterMoreListProps,
+  ShoppingListsItemsProps,
 } from './config'
 
 interface AddEditUserProps {
@@ -40,12 +31,10 @@ interface AddEditUserProps {
   channelId: number
 }
 
-const AddEditShoppingLists = ({
-  renderList,
-  role,
-  isB2BUser,
-  channelId,
-}: AddEditUserProps, ref: Ref<unknown> | undefined) => {
+function AddEditShoppingLists(
+  { renderList, role, isB2BUser, channelId }: AddEditUserProps,
+  ref: Ref<unknown> | undefined
+) {
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
 
@@ -53,15 +42,15 @@ const AddEditShoppingLists = ({
 
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false)
 
-  const [usersFiles, setUsersFiles] = useState<Array<GetFilterMoreListProps>>([])
+  const [usersFiles, setUsersFiles] = useState<Array<GetFilterMoreListProps>>(
+    []
+  )
 
   const {
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     clearErrors,
     setValue,
   } = useForm({
@@ -88,9 +77,7 @@ const AddEditShoppingLists = ({
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
       try {
-        const {
-          description,
-        } = data
+        const { description } = data
         if (description.indexOf('\n') > -1) {
           data.description = description.split('\n').join('\\n')
         }
@@ -136,7 +123,10 @@ const AddEditShoppingLists = ({
     })()
   }
 
-  const handleOpenAddEditShoppingListsClick = (type: string, data: ShoppingListsItemsProps) => {
+  const handleOpenAddEditShoppingListsClick = (
+    type: string,
+    data: ShoppingListsItemsProps
+  ) => {
     const usersFiles = getCreatedShoppingListFiles()
     setUsersFiles(usersFiles)
     if (data) setEditData(data)
@@ -151,7 +141,8 @@ const AddEditShoppingLists = ({
   const getTitle = () => {
     if (type === 'edit') {
       return 'Edit shopping list'
-    } if (type === 'add') {
+    }
+    if (type === 'add') {
       return 'Create new shopping list'
     }
     return 'Duplicate shopping list'

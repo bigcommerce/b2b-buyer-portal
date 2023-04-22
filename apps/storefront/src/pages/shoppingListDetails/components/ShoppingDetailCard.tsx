@@ -1,42 +1,27 @@
-import {
-  ReactElement,
-} from 'react'
+import { ReactElement } from 'react'
+import { Delete, Edit } from '@mui/icons-material'
+import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
-import {
-  Box,
-  CardContent,
-  Typography,
-  styled,
-  TextField,
-} from '@mui/material'
-import {
-  Delete,
-  Edit,
-} from '@mui/icons-material'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { getProductPriceIncTax } from '@/utils'
 
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
-import {
-  getProductPriceIncTax,
-} from '@/utils'
-
-import {
-  getProductOptionsFields,
-} from '../../../utils/b3Product/shared/config'
+import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
 
 interface ShoppingDetailCardProps {
-  item: any,
-  onEdit: (item: any, variantId: number | string, itemId: number | string) => void,
-  onDelete: (itemId: number) => void,
-  currencyToken: string,
-  handleUpdateProductQty: (id: number | string, value: number | string) => void,
-  handleUpdateShoppingListItem: (itemId: number | string) => void,
-  checkBox?: () => ReactElement,
-  isReadForApprove: boolean,
-  len: number,
-  itemIndex?: number,
+  item: any
+  onEdit: (
+    item: any,
+    variantId: number | string,
+    itemId: number | string
+  ) => void
+  onDelete: (itemId: number) => void
+  currencyToken: string
+  handleUpdateProductQty: (id: number | string, value: number | string) => void
+  handleUpdateShoppingListItem: (itemId: number | string) => void
+  checkBox?: () => ReactElement
+  isReadForApprove: boolean
+  len: number
+  itemIndex?: number
   setDeleteOpen: (value: boolean) => void
 }
 
@@ -46,7 +31,7 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }))
 
-const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
+function ShoppingDetailCard(props: ShoppingDetailCardProps) {
   const {
     item: shoppingDetail,
     onEdit,
@@ -71,9 +56,7 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
     variantSku,
     productsSearch,
     productUrl,
-    productsSearch: {
-      variants = [],
-    },
+    productsSearch: { variants = [] },
   } = shoppingDetail
 
   let priceIncTax = +basePrice
@@ -91,10 +74,12 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
     selectOptions: shoppingDetail.optionList,
   }
 
-  const productFields = (getProductOptionsFields(product, {}))
+  const productFields = getProductOptionsFields(product, {})
 
   const optionList = JSON.parse(shoppingDetail.optionList)
-  const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
+  const optionsValue: CustomFieldItems[] = productFields.filter(
+    (item) => item.valueText
+  )
 
   return (
     <Box
@@ -111,11 +96,7 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
           pl: 0,
         }}
       >
-        <Box>
-          {
-            checkBox && checkBox()
-          }
-        </Box>
+        <Box>{checkBox && checkBox()}</Box>
         <Box>
           <StyledImage
             src={primaryImage || PRODUCT_DEFAULT_IMAGE}
@@ -133,9 +114,7 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
             color="#212121"
             onClick={() => {
               const {
-                location: {
-                  origin,
-                },
+                location: { origin },
               } = window
 
               window.location.href = `${origin}${productUrl}`
@@ -146,10 +125,7 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
           >
             {productName}
           </Typography>
-          <Typography
-            variant="body1"
-            color="#616161"
-          >
+          <Typography variant="body1" color="#616161">
             {variantSku}
           </Typography>
           <Box
@@ -157,27 +133,22 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
               margin: '0 0 0.5rem 0',
             }}
           >
-            {
-              (optionList.length > 0 && optionsValue.length > 0) && (
-                <Box>
-                  {
-                    optionsValue.map((option: any) => (
-                      <Typography
-                        sx={{
-                          fontSize: '0.75rem',
-                          lineHeight: '1.5',
-                          color: '#455A64',
-                        }}
-                        key={option.valueLabel}
-                      >
-                        {`${option.valueLabel
-                        }: ${option.valueText}`}
-                      </Typography>
-                    ))
-                  }
-                </Box>
-              )
-            }
+            {optionList.length > 0 && optionsValue.length > 0 && (
+              <Box>
+                {optionsValue.map((option: any) => (
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      lineHeight: '1.5',
+                      color: '#455A64',
+                    }}
+                    key={option.valueLabel}
+                  >
+                    {`${option.valueLabel}: ${option.valueText}`}
+                  </Typography>
+                ))}
+              </Box>
+            )}
           </Box>
 
           <Typography
@@ -195,7 +166,8 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
             label="qty"
             disabled={isReadForApprove}
             inputProps={{
-              inputMode: 'numeric', pattern: '[0-9]*',
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
             }}
             value={quantity}
             sx={{
@@ -227,22 +199,19 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
             }}
             id="shoppingList-actionList-mobile"
           >
-            {
-              optionList.length > 0 && !isReadForApprove && (
-                <Edit
-                  sx={{
-                    marginRight: '0.5rem',
-                    cursor: 'pointer',
-                    color: 'rgba(0, 0, 0, 0.54)',
-                  }}
-                  onClick={() => {
-                    onEdit(productsSearch, variantId, itemId)
-                  }}
-                />
-              )
-            }
-            {
-              !isReadForApprove && (
+            {optionList.length > 0 && !isReadForApprove && (
+              <Edit
+                sx={{
+                  marginRight: '0.5rem',
+                  cursor: 'pointer',
+                  color: 'rgba(0, 0, 0, 0.54)',
+                }}
+                onClick={() => {
+                  onEdit(productsSearch, variantId, itemId)
+                }}
+              />
+            )}
+            {!isReadForApprove && (
               <Delete
                 sx={{
                   cursor: 'pointer',
@@ -253,9 +222,7 @@ const ShoppingDetailCard = (props: ShoppingDetailCardProps) => {
                   onDelete(+itemId)
                 }}
               />
-              )
-            }
-
+            )}
           </Box>
         </Box>
       </CardContent>

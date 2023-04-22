@@ -1,30 +1,11 @@
-import {
-  Dispatch,
-  SetStateAction,
-} from 'react'
+import { Dispatch, SetStateAction } from 'react'
+import { ArrowBackIosNew } from '@mui/icons-material'
+import { Box, Grid, styled, Typography } from '@mui/material'
 
-import {
-  Box,
-  Grid,
-  styled,
-  Typography,
-} from '@mui/material'
+import { CustomButton } from '@/components'
+import { useMobile } from '@/hooks'
 
-import {
-  ArrowBackIosNew,
-} from '@mui/icons-material'
-
-import {
-  ShoppingStatus,
-} from '../../shoppingLists/ShoppingStatus'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  CustomButton,
-} from '@/components'
+import { ShoppingStatus } from '../../shoppingLists/ShoppingStatus'
 
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
@@ -33,25 +14,25 @@ const StyledCreateName = styled('div')(() => ({
 }))
 
 interface OpenPageState {
-  isOpen: boolean,
-  openUrl?: string,
+  isOpen: boolean
+  openUrl?: string
 }
 interface ShoppingDetailHeaderProps {
-  shoppingListInfo: any,
-  role: string | number,
-  customerInfo: any,
-  goToShoppingLists: () => void,
-  handleUpdateShoppingList: (status: number) => void,
-  isB2BUser: boolean,
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
-  isAgenting: boolean,
+  shoppingListInfo: any
+  role: string | number
+  customerInfo: any
+  goToShoppingLists: () => void
+  handleUpdateShoppingList: (status: number) => void
+  isB2BUser: boolean
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+  isAgenting: boolean
   openAPPParams: {
-    shoppingListBtn: string,
-  },
-  customColor: string,
+    shoppingListBtn: string
+  }
+  customColor: string
 }
 
-const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
+function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
   const [isMobile] = useMobile()
 
   const {
@@ -71,9 +52,12 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
 
   const currentSLCreateRole = shoppingListInfo?.customerInfo?.role
 
-  const gridOptions = (xs: number) => (isMobile ? {} : {
-    xs,
-  })
+  const gridOptions = (xs: number) =>
+    isMobile
+      ? {}
+      : {
+          xs,
+        }
   return (
     <>
       <Box
@@ -113,7 +97,9 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
               color: customColor,
             }}
           >
-            {openAPPParams.shoppingListBtn !== 'add' ? 'Back to shopping lists' : 'Back to product'}
+            {openAPPParams.shoppingListBtn !== 'add'
+              ? 'Back to shopping lists'
+              : 'Back to product'}
           </Box>
         </Box>
       </Box>
@@ -127,10 +113,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
           mb: `${isMobile ? '16px' : ''}`,
         }}
       >
-        <Grid
-          item
-          {...gridOptions(8)}
-        >
+        <Grid item {...gridOptions(8)}>
           <Box
             sx={{
               display: 'flex',
@@ -148,21 +131,17 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             >
               {`${shoppingListInfo?.name || ''}`}
             </Typography>
-            {
-              isB2BUser && +currentSLCreateRole === 2 && (
-                <Typography
-                  sx={{
-                    m: `${isMobile ? '10px 0' : '0'}`,
-                  }}
-                >
-                  {
-                    shoppingListInfo && (
-                      <ShoppingStatus status={shoppingListInfo?.status} />
-                    )
-                  }
-                </Typography>
-              )
-            }
+            {isB2BUser && +currentSLCreateRole === 2 && (
+              <Typography
+                sx={{
+                  m: `${isMobile ? '10px 0' : '0'}`,
+                }}
+              >
+                {shoppingListInfo && (
+                  <ShoppingStatus status={shoppingListInfo?.status} />
+                )}
+              </Typography>
+            )}
           </Box>
           <Box>
             <Typography
@@ -173,21 +152,21 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
             >
               {shoppingListInfo?.description}
             </Typography>
-            {
-              isB2BUser && (
-                <StyledCreateName>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      marginRight: '0.5rem',
-                    }}
-                  >
-                    Created by:
-                  </Typography>
-                  <span>{`${customerInfo?.firstName || ''} ${customerInfo?.lastName || ''}`}</span>
-                </StyledCreateName>
-              )
-            }
+            {isB2BUser && (
+              <StyledCreateName>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    marginRight: '0.5rem',
+                  }}
+                >
+                  Created by:
+                </Typography>
+                <span>{`${customerInfo?.firstName || ''} ${
+                  customerInfo?.lastName || ''
+                }`}</span>
+              </StyledCreateName>
+            )}
           </Box>
         </Grid>
 
@@ -198,21 +177,19 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
           }}
           {...gridOptions(4)}
         >
-          {
-            (role === 2 && shoppingListInfo?.status === 30) && (
-              <CustomButton
-                variant="outlined"
-                disabled={isDisabledBtn}
-                onClick={() => {
-                  handleUpdateShoppingList(40)
-                }}
-              >
-                Submit for Approval
-              </CustomButton>
-            )
-          }
-          {
-            (((role === 0 || role === 1) || (role === 3 && isAgenting)) && shoppingListInfo?.status === 40) && (
+          {role === 2 && shoppingListInfo?.status === 30 && (
+            <CustomButton
+              variant="outlined"
+              disabled={isDisabledBtn}
+              onClick={() => {
+                handleUpdateShoppingList(40)
+              }}
+            >
+              Submit for Approval
+            </CustomButton>
+          )}
+          {(role === 0 || role === 1 || (role === 3 && isAgenting)) &&
+            shoppingListInfo?.status === 40 && (
               <Box>
                 <CustomButton
                   variant="outlined"
@@ -234,8 +211,7 @@ const ShoppingDetailHeader = (props: ShoppingDetailHeaderProps) => {
                   Approve
                 </CustomButton>
               </Box>
-            )
-          }
+            )}
         </Grid>
       </Grid>
     </>

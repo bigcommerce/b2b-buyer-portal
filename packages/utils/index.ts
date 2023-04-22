@@ -1,3 +1,2 @@
-export {
-  Lang as LangUtils,
-} from './Lang'
+// eslint-disable-next-line
+export { default as LangUtils } from './Lang'

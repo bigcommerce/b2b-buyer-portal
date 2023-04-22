@@ -1,28 +1,14 @@
+import { isEmpty } from 'lodash'
+
+import { CustomStyleButtonState } from '@/shared/customStyleButtton/context/config'
+import { DispatchProps } from '@/shared/global/context/config'
 import {
-  isEmpty,
-} from 'lodash'
-import {
-  getStorefrontConfigs,
   getB2BRegisterLogo,
   getStorefrontConfig,
+  getStorefrontConfigs,
   getTaxZoneRates,
 } from '@/shared/service/b2b'
-
-import {
-  DispatchProps,
-} from '@/shared/global/context/config'
-
-import {
-  CustomStyleButtonState,
-} from '@/shared/customStyleButtton/context/config'
-
-import {
-  setTaxZoneRates,
-} from '@/store'
-
-import {
-  store,
-} from '@/store/reducer'
+import { setTaxZoneRates, store } from '@/store'
 
 // import {
 //   storeHash,
@@ -44,8 +30,8 @@ import {
 // }
 
 interface StoreforntKeysProps {
-  key: string,
-  name: string,
+  key: string
+  name: string
 }
 
 const storeforntKeys: StoreforntKeysProps[] = [
@@ -104,37 +90,45 @@ const storeforntKeys: StoreforntKeysProps[] = [
   {
     key: 'quote_for_individual_customer',
     name: 'quote_for_individual_customer',
-  }, {
+  },
+  {
     key: 'quote_for_b2b',
     name: 'quote_for_b2b',
-  }, {
+  },
+  {
     key: 'quote_logo',
     name: 'quote_logo',
-  }, {
+  },
+  {
     key: 'company_auto_approval',
     name: 'companyAutoApproval',
   },
 ]
 
-const getTemPlateConfig = async (channelId: number, dispatch: any, dispatchGlobal: any) => {
+const getTemPlateConfig = async (
+  channelId: number,
+  dispatch: any,
+  dispatchGlobal: any
+) => {
   const keys = storeforntKeys.map((item: StoreforntKeysProps) => item.key)
-  const {
-    storefrontConfigs,
-  } = await getStorefrontConfigs(channelId, keys)
+  const { storefrontConfigs } = await getStorefrontConfigs(channelId, keys)
 
   let logo = ''
 
   const obj: Partial<CustomStyleButtonState> | {} = {}
   storefrontConfigs.forEach((item: any) => {
-    const storeforntKey: StoreforntKeysProps | undefined = storeforntKeys.find((option) => option.key === item.key)
+    const storeforntKey: StoreforntKeysProps | undefined = storeforntKeys.find(
+      (option) => option.key === item.key
+    )
     if (!isEmpty(storeforntKey)) {
       if (storeforntKey.key === 'quote_logo') {
         logo = item.value
       }
-      (obj as CustomFieldItems)[(storeforntKey as StoreforntKeysProps).name] = {
-        ...item.extraFields,
-        enabled: item.value === '1',
-      }
+      ;(obj as CustomFieldItems)[(storeforntKey as StoreforntKeysProps).name] =
+        {
+          ...item.extraFields,
+          enabled: item.value === '1',
+        }
     }
   })
 
@@ -155,9 +149,7 @@ const getTemPlateConfig = async (channelId: number, dispatch: any, dispatchGloba
 }
 
 const getQuoteConfig = async (dispatch: DispatchProps) => {
-  const {
-    quoteConfig,
-  } = await getB2BRegisterLogo()
+  const { quoteConfig } = await getB2BRegisterLogo()
 
   dispatch({
     type: 'common',
@@ -169,9 +161,7 @@ const getQuoteConfig = async (dispatch: DispatchProps) => {
 
 const setStorefrontConfig = async (dispatch: DispatchProps) => {
   const {
-    storefrontConfig: {
-      config: storefrontConfig,
-    },
+    storefrontConfig: { config: storefrontConfig },
   } = await getStorefrontConfig()
 
   dispatch({
@@ -183,16 +173,14 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
 }
 
 const getStoreTaxZoneRates = async () => {
-  const {
-    taxZoneRates = [],
-  } = await getTaxZoneRates()
+  const { taxZoneRates = [] } = await getTaxZoneRates()
 
   store.dispatch(setTaxZoneRates(taxZoneRates))
 }
 
 export {
-  getTemPlateConfig,
   getQuoteConfig,
-  setStorefrontConfig,
   getStoreTaxZoneRates,
+  getTemPlateConfig,
+  setStorefrontConfig,
 }

@@ -1,3 +1,5 @@
+import { useContext } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   List,
   ListItem,
@@ -6,62 +8,30 @@ import {
   useTheme,
 } from '@mui/material'
 
-import {
-  useContext,
-} from 'react'
+import { useMobile } from '@/hooks'
+import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
+import { GlobaledContext } from '@/shared/global'
+import { getAllowedRoutes } from '@/shared/routes'
+import { RouteItem } from '@/shared/routes/routes'
+import { B3SStorage } from '@/utils'
 
 import {
-  useNavigate,
-  useLocation,
-} from 'react-router-dom'
-
-import {
-  getAllowedRoutes,
-} from '@/shared/routes'
-
-import {
-  RouteItem,
-} from '@/shared/routes/routes'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  DynamicallyVariableedContext,
-} from '@/shared/dynamicallyVariable'
-
-import {
-  B3SStorage,
-} from '@/utils'
-
-import {
-  getContrastColor,
   b3HexToRgb,
+  getContrastColor,
 } from '../outSideComponents/utils/b3CustomStyles'
 
 interface B3NavProps {
-  closeSidebar?: (x: boolean) => void;
+  closeSidebar?: (x: boolean) => void
 }
 
-export const B3Nav = ({
-  closeSidebar,
-}: B3NavProps) => {
+export default function B3Nav({ closeSidebar }: B3NavProps) {
   const [isMobile] = useMobile()
   const navigate = useNavigate()
   const location = useLocation()
 
-  const {
-    dispatch,
-  } = useContext(DynamicallyVariableedContext)
+  const { dispatch } = useContext(DynamicallyVariableedContext)
 
-  const {
-    state: globalState,
-  } = useContext(GlobaledContext)
+  const { state: globalState } = useContext(GlobaledContext)
 
   const theme = useTheme()
 
@@ -83,9 +53,7 @@ export const B3Nav = ({
   }
 
   const handleClick = (item: RouteItem) => {
-    const {
-      role,
-    } = globalState
+    const { role } = globalState
 
     if (role === 100) {
       dispatch({
@@ -94,7 +62,8 @@ export const B3Nav = ({
           globalMessageDialog: {
             open: true,
             title: 'Registration',
-            message: 'To receive full access to buyer portal, please register. It will take 2 minutes. ',
+            message:
+              'To receive full access to buyer portal, please register. It will take 2 minutes. ',
             cancelText: 'Cancel',
             saveText: 'Register',
             saveFn: jumpRegister,
@@ -111,7 +80,9 @@ export const B3Nav = ({
     }
   }
   const menuItems = () => {
-    const newRoutes = getAllowedRoutes(globalState).filter((route: RouteItem) => route.isMenuItem)
+    const newRoutes = getAllowedRoutes(globalState).filter(
+      (route: RouteItem) => route.isMenuItem
+    )
 
     return newRoutes
   }
@@ -123,15 +94,24 @@ export const B3Nav = ({
     }
 
     if (location.pathname.includes('orderDetail')) {
-      const gotoOrderPath = B3SStorage.get('nextPath') === '/company-orders' ? '/company-orders' : '/orders'
+      const gotoOrderPath =
+        B3SStorage.get('nextPath') === '/company-orders'
+          ? '/company-orders'
+          : '/orders'
       if (path === gotoOrderPath) return true
     }
 
-    if (location.pathname.includes('shoppingList') && path === '/shoppingLists') {
+    if (
+      location.pathname.includes('shoppingList') &&
+      path === '/shoppingLists'
+    ) {
       return true
     }
 
-    if (location.pathname.includes('/quoteDetail') || location.pathname.includes('/quoteDraft')) {
+    if (
+      location.pathname.includes('/quoteDetail') ||
+      location.pathname.includes('/quoteDraft')
+    ) {
       if (path === '/quotes') return true
     }
 
@@ -160,21 +140,16 @@ export const B3Nav = ({
       component="nav"
       aria-labelledby="nested-list-subheader"
     >
-      {
-        newRoutes.map((item: RouteItem) => (
-          <ListItem
-            key={item.path}
-            disablePadding
+      {newRoutes.map((item: RouteItem) => (
+        <ListItem key={item.path} disablePadding>
+          <ListItemButton
+            onClick={() => handleClick(item)}
+            selected={activePath(item.path)}
           >
-            <ListItemButton
-              onClick={() => handleClick(item)}
-              selected={activePath(item.path)}
-            >
-              <ListItemText primary={item.name} />
-            </ListItemButton>
-          </ListItem>
-        ))
-      }
+            <ListItemText primary={item.name} />
+          </ListItemButton>
+        </ListItem>
+      ))}
     </List>
   )
 }

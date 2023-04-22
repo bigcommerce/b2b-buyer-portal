@@ -1,14 +1,11 @@
-import {
-  useEffect,
-} from 'react'
-
+import { useEffect } from 'react'
 import globalB3 from '@b3/global-b3'
 
 type WsProps = WebSocket | null
 
 const B3Socket = () => {
   useEffect(() => {
-    let ws:WsProps = null
+    let ws: WsProps = null
     const socketInit = async () => {
       // 1. 获取socket Id
       // const {
@@ -22,8 +19,8 @@ const B3Socket = () => {
         ws = new window.WebSocket(url)
 
         if (ws) {
-          ws.onopen = () => { }
-          ws.onerror = () => { }
+          ws.onopen = () => {}
+          ws.onerror = () => {}
           ws.onmessage = (evt: MessageEvent) => {
             console.log(evt)
           }

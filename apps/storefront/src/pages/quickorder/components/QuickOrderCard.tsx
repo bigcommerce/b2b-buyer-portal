@@ -1,27 +1,13 @@
-import {
-  ReactElement,
-} from 'react'
+import { ReactElement } from 'react'
+import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
+import { format } from 'date-fns'
 
-import {
-  Box,
-  CardContent,
-  Typography,
-  styled,
-  TextField,
-} from '@mui/material'
-
-import {
-  format,
-} from 'date-fns'
-
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 
 interface QuickOrderCardProps {
-  item: any,
-  currencyToken: string,
-  checkBox?: () => ReactElement,
+  item: any
+  currencyToken: string
+  checkBox?: () => ReactElement
   handleUpdateProductQty: (id: number, val: string) => void
 }
 
@@ -31,7 +17,7 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }))
 
-const QuickOrderCard = (props: QuickOrderCardProps) => {
+function QuickOrderCard(props: QuickOrderCardProps) {
   const {
     item: shoppingDetail,
     checkBox,
@@ -64,11 +50,7 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
           pl: 0,
         }}
       >
-        <Box>
-          {
-            checkBox && checkBox()
-          }
-        </Box>
+        <Box>{checkBox && checkBox()}</Box>
         <Box>
           <StyledImage
             src={imageUrl || PRODUCT_DEFAULT_IMAGE}
@@ -81,16 +63,10 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
             flex: 1,
           }}
         >
-          <Typography
-            variant="body1"
-            color="#212121"
-          >
+          <Typography variant="body1" color="#212121">
             {productName}
           </Typography>
-          <Typography
-            variant="body1"
-            color="#616161"
-          >
+          <Typography variant="body1" color="#616161">
             {variantSku}
           </Typography>
           <Box
@@ -98,30 +74,27 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
               margin: '1rem 0',
             }}
           >
-            {
-              (optionList.length > 0) && (
-                <Box>
-                  {
-                    optionList.map((option: CustomFieldItems) => (
-                      <Typography
-                        sx={{
-                          fontSize: '0.75rem',
-                          lineHeight: '1.5',
-                          color: '#455A64',
-                        }}
-                        key={option.display_name}
-                      >
-                        {`${option.display_name
-                        }: ${option.display_value}`}
-                      </Typography>
-                    ))
-                  }
-                </Box>
-              )
-            }
+            {optionList.length > 0 && (
+              <Box>
+                {optionList.map((option: CustomFieldItems) => (
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      lineHeight: '1.5',
+                      color: '#455A64',
+                    }}
+                    key={option.display_name}
+                  >
+                    {`${option.display_name}: ${option.display_value}`}
+                  </Typography>
+                ))}
+              </Box>
+            )}
           </Box>
 
-          <Typography>{`Price: ${currencyToken}${price.toFixed(2)}`}</Typography>
+          <Typography>{`Price: ${currencyToken}${price.toFixed(
+            2
+          )}`}</Typography>
 
           <Box
             sx={{
@@ -136,7 +109,8 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
               variant="filled"
               label="Qty"
               inputProps={{
-                inputMode: 'numeric', pattern: '[0-9]*',
+                inputMode: 'numeric',
+                pattern: '[0-9]*',
               }}
               value={quantity}
               sx={{
@@ -150,7 +124,10 @@ const QuickOrderCard = (props: QuickOrderCardProps) => {
             />
           </Box>
 
-          <Typography>{`Last ordered: ${format(lastOrderedAt * 1000, 'dd MMM yyyy')}`}</Typography>
+          <Typography>{`Last ordered: ${format(
+            lastOrderedAt * 1000,
+            'dd MMM yyyy'
+          )}`}</Typography>
         </Box>
       </CardContent>
     </Box>

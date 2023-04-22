@@ -2,7 +2,7 @@ interface UsersListItems {
   createdAt: number
   email: string
   firstName: string
-  id : string
+  id: string
   lastName: string
   phone: string
   role: number
@@ -10,13 +10,13 @@ interface UsersListItems {
   [key: string]: string | null | number
 }
 
-interface filterProps {
-  first: number,
-  offset: number,
-  search: string,
-  role: number | string,
-  companyId: number | string,
-  addChannel: boolean,
+interface FilterProps {
+  first: number
+  offset: number
+  search: string
+  role: number | string
+  companyId: number | string
+  addChannel: boolean
   [key: string]: string | null | number | boolean
 }
 
@@ -131,16 +131,6 @@ const emailError: EmailError = {
   6: 'intl.user.addUser.emailValidate.usedSuperAdmin',
 }
 
-export {
-  getFilterMoreList,
-  getUsersFiles,
-  getUserRole,
-  emailError,
-}
+export { emailError, getFilterMoreList, getUserRole, getUsersFiles }
 
-export type {
-  UsersList,
-  UsersFilesProps,
-  filterProps,
-  UserRoleProps,
-}
+export type { FilterProps, UserRoleProps, UsersFilesProps, UsersList }

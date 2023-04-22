@@ -1,39 +1,48 @@
-import {
-  Dispatch,
-  ReactNode,
-} from 'react'
+import { Dispatch, ReactNode } from 'react'
 
-type BtnKeys = 'masqueradeButton' | 'addQuoteBtn' | 'floatingAction' | 'addToAllQuoteBtn' | 'shoppingListBtn' | 'portalStyle' | 'loginPageButton' | 'loginPageDisplay' | 'loginPageHtml' | 'accountLoginRegistration' | 'companyAutoApproval'
+type BtnKeys =
+  | 'masqueradeButton'
+  | 'addQuoteBtn'
+  | 'floatingAction'
+  | 'addToAllQuoteBtn'
+  | 'shoppingListBtn'
+  | 'portalStyle'
+  | 'loginPageButton'
+  | 'loginPageDisplay'
+  | 'loginPageHtml'
+  | 'accountLoginRegistration'
+  | 'companyAutoApproval'
 
 interface BtnStyle {
-  color: string,
-  text: string,
-  buttonText: string,
-  location: string,
-  customCss: string,
-  horizontalPadding: string,
-  verticalPadding: string,
-  classSelector: string,
-  locationSelector: string,
-  backgroundColor: string,
-  primaryColor: string,
-  enabled: boolean,
-  b2b: boolean,
-  b2c: boolean,
-  createAccountButtonText?: string,
-  primaryButtonColor?: string,
-  signInButtonText?: string,
-  displayStoreLogo?: boolean,
-  pageTitle?: string,
-  bottomHtmlRegionEnabled?: boolean,
-  bottomHtmlRegionHtml?: string,
-  createAccountPanelHtml?: string,
-  topHtmlRegionEnabled?: boolean,
-  topHtmlRegionHtml?: string,
+  color: string
+  text: string
+  buttonText: string
+  location: string
+  customCss: string
+  horizontalPadding: string
+  verticalPadding: string
+  classSelector: string
+  locationSelector: string
+  backgroundColor: string
+  primaryColor: string
+  enabled: boolean
+  b2b: boolean
+  b2c: boolean
+  createAccountButtonText?: string
+  primaryButtonColor?: string
+  signInButtonText?: string
+  displayStoreLogo?: boolean
+  pageTitle?: string
+  bottomHtmlRegionEnabled?: boolean
+  bottomHtmlRegionHtml?: string
+  createAccountPanelHtml?: string
+  topHtmlRegionEnabled?: boolean
+  topHtmlRegionHtml?: string
 }
 
-export interface CustomStyleButtonState extends Record<BtnKeys, Partial<BtnStyle>>{
-  globalButtonBackgroundColor: string,
+export interface CustomStyleButtonState
+  extends Record<BtnKeys, Partial<BtnStyle>> {
+  globalButtonBackgroundColor: string
 }
 
 export const initState = {
@@ -113,14 +122,14 @@ export const initState = {
 }
 
 export interface CustomStyleButtonAction {
-  type: string,
+  type: string
   payload: Partial<CustomStyleButtonState>
 }
 
 export type DispatchProps = Dispatch<Partial<CustomStyleButtonAction>>
 export interface CustomStyleButtonContext {
-  state: CustomStyleButtonState,
-  dispatch: DispatchProps,
+  state: CustomStyleButtonState
+  dispatch: DispatchProps
 }
 
 export interface CustomStyleButtonProviderProps {

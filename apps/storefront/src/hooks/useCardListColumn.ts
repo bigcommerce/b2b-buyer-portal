@@ -1,15 +1,8 @@
-import {
-  useWindowSize,
-} from '@b3/hooks'
-import {
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
+import { useWindowSize } from '@b3/hooks'
 
-export const useCardListColumn = () => {
-  const {
-    width,
-  } = useWindowSize()
+const useCardListColumn = () => {
+  const { width } = useWindowSize()
 
   const [isExtraLarge, setExtraLarge] = useState<boolean>(false)
 
@@ -23,3 +16,5 @@ export const useCardListColumn = () => {
 
   return isExtraLarge
 }
+
+export default useCardListColumn

@@ -1,15 +1,9 @@
 import {
-  B3Request,
-} from '../../request/b3Fetch'
-
-import {
-  storeHash,
-} from '../../../../utils/basicConfig'
-
-import {
   convertArrayToGraphql,
   convertObjectToGraphql,
 } from '../../../../utils'
+import { storeHash } from '../../../../utils/basicConfig'
+import B3Request from '../../request/b3Fetch'
 
 const getQuotesList = (data: CustomFieldItems, type: string) => `{
   ${type === 'b2b' ? 'quotes' : 'customerQuotes'}(
@@ -21,8 +15,16 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `{
     email: "${data?.email || ''}"
     salesRep: "${data?.salesRep || ''}"
     ${data?.status ? `status: "${data.status}"` : ''}
-    ${data?.dateCreatedBeginAt ? `dateCreatedBeginAt: "${data.dateCreatedBeginAt}"` : ''}
-    ${data?.dateCreatedEndAt ? `dateCreatedEndAt: "${data.dateCreatedEndAt}"` : ''}
+    ${
+      data?.dateCreatedBeginAt
+        ? `dateCreatedBeginAt: "${data.dateCreatedBeginAt}"`
+        : ''
+    }
+    ${
+      data?.dateCreatedEndAt
+        ? `dateCreatedEndAt: "${data.dateCreatedEndAt}"`
+        : ''
+    }
   ) {
     totalCount,
     edges {
@@ -155,10 +157,7 @@ const quoteUpdate = (data: CustomFieldItems) => `mutation{
   }
 }`
 
-const getQuoteInfo = (data: {
-  id: number,
-  date: string,
-}) => `{
+const getQuoteInfo = (data: { id: number; date: string }) => `{
   quote(
     id: ${data.id},
     storeHash: "${storeHash}",
@@ -288,8 +287,8 @@ const getQuoteInfo = (data: {
 }`
 
 const exportQuotePdf = (data: {
-  quoteId: number,
-  currency: object,
+  quoteId: number
+  currency: object
 }) => `mutation{
   quotePdfExport(
     quoteId: ${data.quoteId},
@@ -300,9 +299,7 @@ const exportQuotePdf = (data: {
   }
 }`
 
-const quoteCheckout = (data: {
-  id: number,
-}) => `mutation{
+const quoteCheckout = (data: { id: number }) => `mutation{
   quoteCheckout(
     id: ${data.id},
     storeHash: "${storeHash}",
@@ -346,70 +343,103 @@ const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
   }
 }`
 
-export const getBCCustomerAddresses = (): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: getCustomerAddresses(),
-})
+export const getBCCustomerAddresses = (): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: getCustomerAddresses(),
+  })
 
-export const getB2BCustomerAddresses = (companyId: number): CustomFieldItems => B3Request.graphqlB2B({
-  query: getAddresses(companyId),
-})
+export const getB2BCustomerAddresses = (companyId: number): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getAddresses(companyId),
+  })
 
-export const getB2BQuotesList = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: getQuotesList(data, 'b2b'),
-})
+export const getB2BQuotesList = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getQuotesList(data, 'b2b'),
+  })
 
-export const getBCQuotesList = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: getQuotesList(data, 'bc'),
-})
+export const getBCQuotesList = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: getQuotesList(data, 'bc'),
+  })
 
-export const createQuote = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: quoteCreate(data),
-})
+export const createQuote = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: quoteCreate(data),
+  })
 
-export const createBCQuote = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: quoteCreate(data),
-})
+export const createBCQuote = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: quoteCreate(data),
+  })
 
-export const updateB2BQuote = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: quoteUpdate(data),
-})
+export const updateB2BQuote = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: quoteUpdate(data),
+  })
 
-export const updateBCQuote = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: quoteUpdate(data),
-})
+export const updateBCQuote = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: quoteUpdate(data),
+  })
 
-export const getB2BQuoteDetail = (data: { id: number, date: string }): CustomFieldItems => B3Request.graphqlB2B({
-  query: getQuoteInfo(data),
-})
+export const getB2BQuoteDetail = (data: {
+  id: number
+  date: string
+}): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getQuoteInfo(data),
+  })
 
-export const getBcQuoteDetail = (data: { id: number, date: string }): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: getQuoteInfo(data),
-})
+export const getBcQuoteDetail = (data: {
+  id: number
+  date: string
+}): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: getQuoteInfo(data),
+  })
 
-export const exportB2BQuotePdf = (data: { quoteId: number, currency: object }): CustomFieldItems => B3Request.graphqlB2B({
-  query: exportQuotePdf(data),
-})
+export const exportB2BQuotePdf = (data: {
+  quoteId: number
+  currency: object
+}): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: exportQuotePdf(data),
+  })
 
-export const exportBcQuotePdf = (data: { quoteId: number, currency: object }): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: exportQuotePdf(data),
-})
+export const exportBcQuotePdf = (data: {
+  quoteId: number
+  currency: object
+}): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: exportQuotePdf(data),
+  })
 
-export const b2bQuoteCheckout = (data: { id: number }): CustomFieldItems => B3Request.graphqlB2B({
-  query: quoteCheckout(data),
-})
+export const b2bQuoteCheckout = (data: { id: number }): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: quoteCheckout(data),
+  })
 
-export const bcQuoteCheckout = (data: { id: number }): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: quoteCheckout(data),
-})
+export const bcQuoteCheckout = (data: { id: number }): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: quoteCheckout(data),
+  })
 
-export const quoteDetailAttachFileCreate = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: quoteAttachFileCreate(data),
-})
+export const quoteDetailAttachFileCreate = (
+  data: CustomFieldItems
+): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: quoteAttachFileCreate(data),
+  })
 
-export const quoteDetailAttachFileDelete = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: quoteAttachFileDelete(data),
-})
+export const quoteDetailAttachFileDelete = (
+  data: CustomFieldItems
+): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: quoteAttachFileDelete(data),
+  })
 
-export const getQuoteCreatedByUsers = (companyId: number, module: number) => B3Request.graphqlB2B({
-  query: getCreatedByUser(companyId, module, 'createdByUser'),
-})
+export const getQuoteCreatedByUsers = (companyId: number, module: number) =>
+  B3Request.graphqlB2B({
+    query: getCreatedByUser(companyId, module, 'createdByUser'),
+  })

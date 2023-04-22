@@ -1,64 +1,53 @@
 import {
-  ReactElement,
   ChangeEvent,
   KeyboardEvent,
-  useState,
+  ReactElement,
   useEffect,
+  useState,
 } from 'react'
-
+import styled from '@emotion/styled'
 import {
   Box,
-  Typography,
-  TextField,
   Checkbox,
   FormControlLabel,
+  TextField,
+  Typography,
 } from '@mui/material'
+import { noop } from 'lodash'
 
-import styled from '@emotion/styled'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { useMobile } from '@/hooks'
 
-import {
-  noop,
-} from 'lodash'
-
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  ProductItem,
-} from '../types'
+import { ProductItem } from '../types'
 
 interface FlexProps {
-  isHeader?: boolean,
-  isMobile?: boolean,
+  isHeader?: boolean
+  isMobile?: boolean
 }
 
 interface FlexItemProps {
-  width?: string,
-  padding?: string,
-  textAlignLocation?: string,
+  width?: string
+  padding?: string
+  textAlignLocation?: string
 }
 
-const Flex = styled('div')(({
-  isHeader,
-  isMobile,
-}: FlexProps) => {
-  const headerStyle = isHeader ? {
-    borderBottom: '1px solid #D9DCE9',
-    paddingBottom: '8px',
-  } : {}
+const Flex = styled('div')(({ isHeader, isMobile }: FlexProps) => {
+  const headerStyle = isHeader
+    ? {
+        borderBottom: '1px solid #D9DCE9',
+        paddingBottom: '8px',
+      }
+    : {}
 
-  const mobileStyle = isMobile ? {
-    borderTop: '1px solid #D9DCE9',
-    padding: '12px 0 12px',
-    '&:first-of-type': {
-      marginTop: '12px',
-    },
-  } : {}
+  const mobileStyle = isMobile
+    ? {
+        borderTop: '1px solid #D9DCE9',
+        padding: '12px 0 12px',
+        '&:first-of-type': {
+          marginTop: '12px',
+        },
+      }
+    : {}
 
   const flexWrap = isMobile ? 'wrap' : 'initial'
 
@@ -75,19 +64,17 @@ const Flex = styled('div')(({
   }
 })
 
-const FlexItem = styled('div')(({
-  width,
-  textAlignLocation,
-  padding = '0',
-}: FlexItemProps) => ({
-  display: 'flex',
-  justifyContent: textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
-  flexGrow: width ? 0 : 1,
-  flexShrink: width ? 0 : 1,
-  alignItems: 'center',
-  width,
-  padding,
-}))
+const FlexItem = styled('div')(
+  ({ width, textAlignLocation, padding = '0' }: FlexItemProps) => ({
+    display: 'flex',
+    justifyContent: textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
+    flexGrow: width ? 0 : 1,
+    flexShrink: width ? 0 : 1,
+    alignItems: 'center',
+    width,
+    padding,
+  })
+)
 
 const ProductHead = styled('div')(() => ({
   fontSize: '0.875rem',
@@ -127,23 +114,23 @@ const mobileItemStyle = {
   },
 }
 
-interface ProductProps <T> {
-  products: Array<T & ProductItem>,
-  currency?: string,
-  renderAction?: (item: T & ProductItem) => ReactElement,
-  actionWidth?: string,
-  quantityKey?: string,
-  quantityEditable?: boolean,
-  onProductQuantityChange?: (id: number, newQuantity: number) => void,
-  showCheckbox?: boolean,
+interface ProductProps<T> {
+  products: Array<T & ProductItem>
+  currency?: string
+  renderAction?: (item: T & ProductItem) => ReactElement
+  actionWidth?: string
+  quantityKey?: string
+  quantityEditable?: boolean
+  onProductQuantityChange?: (id: number, newQuantity: number) => void
+  showCheckbox?: boolean
   setCheckedArr?: (items: Array<T & ProductItem>) => void
-  selectAllText?: string,
-  totalText?: string,
-  canToProduct?: boolean,
-  textAlign?: string,
+  selectAllText?: string
+  totalText?: string
+  canToProduct?: boolean
+  textAlign?: string
 }
 
-export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props) => {
+export default function B3ProductList<T>(props: ProductProps<T>) {
   const {
     products,
     currency = '$',
@@ -170,7 +157,8 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     return priceNumber.toFixed(2)
   }
 
-  const getQuantity = (product: any) => parseInt(product[quantityKey]?.toString() || '', 10) || ''
+  const getQuantity = (product: any) =>
+    parseInt(product[quantityKey]?.toString() || '', 10) || ''
 
   const getProductTotals = (quantity: number, price: string | number) => {
     const priceNumber = parseFloat(price.toString()) || 0
@@ -178,11 +166,12 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     return (quantity * priceNumber).toFixed(2)
   }
 
-  const handleProductQuantityChange = (id: number) => (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.value || parseInt(e.target.value, 10) > 0) {
-      onProductQuantityChange(id, e.target.value)
+  const handleProductQuantityChange =
+    (id: number) => (e: ChangeEvent<HTMLInputElement>) => {
+      if (!e.target.value || parseInt(e.target.value, 10) > 0) {
+        onProductQuantityChange(id, e.target.value)
+      }
     }
-  }
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (['KeyE', 'Equal', 'Minus'].indexOf(event.code) > -1) {
@@ -216,7 +205,8 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
     setList(newList)
   }
 
-  const isChecked = (product: ProductItem) => list.findIndex((item) => item.id === product.id) !== -1
+  const isChecked = (product: ProductItem) =>
+    list.findIndex((item) => item.id === product.id) !== -1
 
   useEffect(() => {
     setCheckedArr(list)
@@ -230,33 +220,21 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
 
   return products.length > 0 ? (
     <Box>
-      {
-        !isMobile && (
-        <Flex
-          isHeader
-          isMobile={isMobile}
-        >
-          {
-            showCheckbox && (
+      {!isMobile && (
+        <Flex isHeader isMobile={isMobile}>
+          {showCheckbox && (
             <Checkbox
               checked={list.length === products.length}
               onChange={handleSelectAllChange}
             />
-            )
-          }
+          )}
           <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
             <ProductHead>Product</ProductHead>
           </FlexItem>
-          <FlexItem
-            textAlignLocation={textAlign}
-            {...itemStyle.default}
-          >
+          <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
             <ProductHead>Price</ProductHead>
           </FlexItem>
-          <FlexItem
-            textAlignLocation={textAlign}
-            {...itemStyle.qty}
-          >
+          <FlexItem textAlignLocation={textAlign} {...itemStyle.qty}>
             <ProductHead>Qty</ProductHead>
           </FlexItem>
           <FlexItem
@@ -266,182 +244,155 @@ export const B3ProductList: <T>(props: ProductProps<T>) => ReactElement = (props
           >
             <ProductHead>{totalText}</ProductHead>
           </FlexItem>
-          {
-            renderAction && (
+          {renderAction && (
             <FlexItem
               {...itemStyle.default}
               width={isMobile ? '100%' : actionWidth}
             />
-            )
-          }
+          )}
         </Flex>
-        )
-      }
+      )}
 
-      {
-        isMobile && showCheckbox && (
-          <FormControlLabel
-            label={selectAllText}
-            control={(
+      {isMobile && showCheckbox && (
+        <FormControlLabel
+          label={selectAllText}
+          control={
+            <Checkbox
+              checked={list.length === products.length}
+              onChange={handleSelectAllChange}
+            />
+          }
+          sx={{
+            paddingLeft: '0.6rem',
+          }}
+        />
+      )}
+
+      {products.map((product) => {
+        const { variants = [] } = product
+        const currentVariant = variants[0]
+        let productPrice = +product.base_price
+        if (currentVariant) {
+          const bcCalculatedPrice = currentVariant.bc_calculated_price
+
+          productPrice = +bcCalculatedPrice.tax_inclusive
+        }
+
+        if (!currentVariant) {
+          const priceIncTax = product?.price_inc_tax || product.base_price
+          const priceExTax = product?.price_ex_tax || product.base_price
+
+          productPrice = +priceIncTax || +priceExTax
+        }
+
+        return (
+          <Flex isMobile={isMobile} key={product.id}>
+            {showCheckbox && (
               <Checkbox
-                checked={list.length === products.length}
-                onChange={handleSelectAllChange}
+                checked={isChecked(product)}
+                onChange={() => handleSelectChange(product)}
               />
             )}
-            sx={{
-              paddingLeft: '0.6rem',
-            }}
-          />
-        )
-      }
+            <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
+              <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
+              <Box
+                sx={{
+                  marginLeft: '16px',
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  color="#212121"
+                  onClick={() => {
+                    if (canToProduct) {
+                      const {
+                        location: { origin },
+                      } = window
 
-      {
-        products.map((product) => {
-          const {
-            variants = [],
-          } = product
-          const currentVariant = variants[0]
-          let productPrice = +product.base_price
-          if (currentVariant) {
-            const bcCalculatedPrice = currentVariant.bc_calculated_price
-
-            productPrice = +bcCalculatedPrice.tax_inclusive
-          }
-
-          if (!currentVariant) {
-            const priceIncTax = product?.price_inc_tax || product.base_price
-            const priceExTax = product?.price_ex_tax || product.base_price
-
-            productPrice = +priceIncTax || +priceExTax
-          }
-
-          return (
-            <Flex
-              isMobile={isMobile}
-              key={product.id}
-            >
-              {
-                showCheckbox && (
-                  <Checkbox
-                    checked={isChecked(product)}
-                    onChange={() => handleSelectChange(product)}
-                  />
-                )
-              }
-              <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
-                <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
-                <Box
+                      if (product?.productUrl)
+                        window.location.href = `${origin}${product?.productUrl}`
+                    }
+                  }}
                   sx={{
-                    marginLeft: '16px',
+                    cursor: 'pointer',
                   }}
                 >
-                  <Typography
-                    variant="body1"
-                    color="#212121"
-                    onClick={() => {
-                      if (canToProduct) {
-                        const {
-                          location: {
-                            origin,
-                          },
-                        } = window
+                  {product.name}
+                </Typography>
+                <Typography variant="body1" color="#616161">
+                  {product.sku}
+                </Typography>
+                {(product.product_options || []).map((option) => (
+                  <ProductOptionText
+                    key={`${option.option_id}`}
+                  >{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
+                ))}
+              </Box>
+            </FlexItem>
 
-                        if (product?.productUrl) window.location.href = `${origin}${product?.productUrl}`
-                      }
-                    }}
-                    sx={{
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {product.name}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="#616161"
-                  >
-                    {product.sku}
-                  </Typography>
-                  {(product.product_options || []).map((option) => (
-                    <ProductOptionText key={`${option.option_id}`}>{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
-                  ))}
-                </Box>
-              </FlexItem>
+            <FlexItem
+              textAlignLocation={textAlign}
+              padding={quantityEditable ? '10px 0 0' : ''}
+              {...itemStyle.default}
+            >
+              {isMobile && <span>Price:</span>}
+              {`${currency} ${getProductPrice(productPrice)}`}
+            </FlexItem>
 
+            <FlexItem textAlignLocation={textAlign} {...itemStyle.qty}>
+              {quantityEditable ? (
+                <TextField
+                  type="number"
+                  variant="filled"
+                  hiddenLabel={!isMobile}
+                  label={isMobile ? 'Qty' : ''}
+                  value={getQuantity(product)}
+                  onChange={handleProductQuantityChange(product.id)}
+                  onKeyDown={handleNumberInputKeyDown}
+                  onBlur={handleNumberInputBlur(product)}
+                  size="small"
+                  sx={{
+                    width: `${isMobile ? '110px' : '72px'}`,
+                    '& .MuiFormHelperText-root': {
+                      marginLeft: '0',
+                      marginRight: '0',
+                    },
+                  }}
+                  error={!!product.helperText}
+                  helperText={product.helperText}
+                />
+              ) : (
+                <>
+                  {isMobile && <span>Qty:</span>}
+                  {getQuantity(product)}
+                </>
+              )}
+            </FlexItem>
+
+            <FlexItem
+              padding={quantityEditable ? '10px 0 0' : ''}
+              {...itemStyle.default}
+              width={isMobile ? '100%' : actionWidth}
+              textAlignLocation={textAlign}
+            >
+              {isMobile && <span>{totalText}:</span>}
+              {`${currency} ${getProductTotals(
+                getQuantity(product) || 0,
+                productPrice
+              )}`}
+            </FlexItem>
+
+            {renderAction && (
               <FlexItem
-                textAlignLocation={textAlign}
-                padding={quantityEditable ? '10px 0 0' : ''}
-                {...itemStyle.default}
-              >
-                {isMobile && <span>Price:</span>}
-                {`${currency} ${getProductPrice(productPrice)}`}
-              </FlexItem>
-
-              <FlexItem
-                textAlignLocation={textAlign}
-                {...itemStyle.qty}
-              >
-                {
-                  quantityEditable ? (
-                    <>
-                      <TextField
-                        type="number"
-                        variant="filled"
-                        hiddenLabel={!isMobile}
-                        label={isMobile ? 'Qty' : ''}
-                        value={getQuantity(product)}
-                        onChange={handleProductQuantityChange(product.id)}
-                        onKeyDown={handleNumberInputKeyDown}
-                        onBlur={handleNumberInputBlur(product)}
-                        size="small"
-                        sx={{
-                          width: `${isMobile ? '110px' : '72px'}`,
-                          '& .MuiFormHelperText-root': {
-                            marginLeft: '0',
-                            marginRight: '0',
-                          },
-                        }}
-                        error={!!product.helperText}
-                        helperText={product.helperText}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      {isMobile && <span>Qty:</span>}
-                      {getQuantity(product)}
-                    </>
-                  )
-                }
-              </FlexItem>
-
-              <FlexItem
-                padding={quantityEditable ? '10px 0 0' : ''}
                 {...itemStyle.default}
                 width={isMobile ? '100%' : actionWidth}
-                textAlignLocation={textAlign}
               >
-                {isMobile && (
-                <span>
-                  {totalText}
-                  :
-                </span>
-                )}
-                {`${currency} ${getProductTotals(getQuantity(product) || 0, productPrice)}`}
+                <>{renderAction(product)}</>
               </FlexItem>
-
-              { renderAction && (
-                <FlexItem
-                  {...itemStyle.default}
-                  width={isMobile ? '100%' : actionWidth}
-                >
-                  <>
-                    { renderAction(product) }
-                  </>
-                </FlexItem>
-              )}
-            </Flex>
-          )
-        })
-      }
+            )}
+          </Flex>
+        )
+      })}
     </Box>
-  ) : <></>
+  ) : null
 }

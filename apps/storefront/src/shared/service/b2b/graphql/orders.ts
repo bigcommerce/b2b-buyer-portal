@@ -1,6 +1,4 @@
-import {
-  B3Request,
-} from '../../request/b3Fetch'
+import B3Request from '../../request/b3Fetch'
 
 // import {
 //   convertArrayToGraphql,
@@ -194,30 +192,37 @@ const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
   }
 }`
 
-export const getB2BAllOrders = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: allOrders(data, 'allOrders'),
-})
+export const getB2BAllOrders = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: allOrders(data, 'allOrders'),
+  })
 
-export const getBCAllOrders = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: allOrders(data, 'customerOrders'),
-})
+export const getBCAllOrders = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: allOrders(data, 'customerOrders'),
+  })
 
-export const getB2BOrderDetails = (id: number): CustomFieldItems => B3Request.graphqlB2B({
-  query: orderDetail(id, 'order'),
-})
+export const getB2BOrderDetails = (id: number): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: orderDetail(id, 'order'),
+  })
 
-export const getBCOrderDetails = (id: number): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: orderDetail(id, 'customerOrder'),
-})
+export const getBCOrderDetails = (id: number): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: orderDetail(id, 'customerOrder'),
+  })
 
-export const getOrderStatusType = (): CustomFieldItems => B3Request.graphqlB2B({
-  query: getOrderStatusTypeQl('orderStatuses'),
-})
+export const getOrderStatusType = (): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getOrderStatusTypeQl('orderStatuses'),
+  })
 
-export const getBcOrderStatusType = (): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: getOrderStatusTypeQl('bcOrderStatuses'),
-})
+export const getBcOrderStatusType = (): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: getOrderStatusTypeQl('bcOrderStatuses'),
+  })
 
-export const getOrdersCreatedByUser = (companyId: number, module: number) => B3Request.graphqlB2B({
-  query: getCreatedByUser(companyId, module, 'createdByUser'),
-})
+export const getOrdersCreatedByUser = (companyId: number, module: number) =>
+  B3Request.graphqlB2B({
+    query: getCreatedByUser(companyId, module, 'createdByUser'),
+  })

@@ -1,63 +1,33 @@
-import {
-  Card,
-  CardContent,
-  Box,
-} from '@mui/material'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { Box, Card, CardContent } from '@mui/material'
 
-import {
-  useState,
-  useEffect,
-  useContext,
-  useRef,
-} from 'react'
-
-import {
-  B3CollapseContainer,
-} from '@/components'
-
-import {
-  B3LStorage,
-  snackbar,
-} from '@/utils'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
+import { B3CollapseContainer } from '@/components'
+import { GlobaledContext } from '@/shared/global'
 import {
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
 } from '@/shared/service/b2b'
+import { B3LStorage, snackbar } from '@/utils'
 
-import FileUpload, {
-  FileObjects,
-} from './FileUpload'
+import FileUpload, { FileObjects } from './FileUpload'
 
 interface UpLoaddingProps extends HTMLInputElement {
   setUploadLoadding: (flag: boolean) => void
 }
 
-interface QuoteAttachmentProps{
-  allowUpload?: boolean,
+interface QuoteAttachmentProps {
+  allowUpload?: boolean
   defaultFileList?: FileObjects[]
   status?: number
   quoteId?: number
 }
 
-export const QuoteAttachment = (props: QuoteAttachmentProps) => {
-  const {
-    allowUpload = true,
-    defaultFileList = [],
-    status,
-    quoteId,
-  } = props
+export default function QuoteAttachment(props: QuoteAttachmentProps) {
+  const { allowUpload = true, defaultFileList = [], status, quoteId } = props
 
   const {
     state: {
-      customer: {
-        firstName = '',
-        lastName = '',
-      },
+      customer: { firstName = '', lastName = '' },
     },
   } = useContext(GlobaledContext)
 
@@ -71,9 +41,8 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
 
   useEffect(() => {
     if (status === 0) {
-      const {
-        fileInfo = [],
-      }: CustomFieldItems = B3LStorage.get('MyQuoteInfo') || {}
+      const { fileInfo = [] }: CustomFieldItems =
+        B3LStorage.get('MyQuoteInfo') || {}
 
       setFileList(typeof fileInfo !== 'object' ? [] : fileInfo)
     } else if (defaultFileList.length) {
@@ -103,28 +72,34 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
           fileSize: file.fileSize,
         }
         const {
-          quoteAttachFileCreate: {
-            attachFiles,
-          },
+          quoteAttachFileCreate: { attachFiles },
         } = await quoteDetailAttachFileCreate({
-          fileList: [{
-            ...createFile,
-          }],
+          fileList: [
+            {
+              ...createFile,
+            },
+          ],
           quoteId,
         })
 
         createFile.id = attachFiles[0].id
-        newFileList = [{
-          ...createFile,
-          title: `Uploaded by customer: ${attachFiles[0].createdBy}`,
-          hasDelete: true,
-        }, ...fileList]
+        newFileList = [
+          {
+            ...createFile,
+            title: `Uploaded by customer: ${attachFiles[0].createdBy}`,
+            hasDelete: true,
+          },
+          ...fileList,
+        ]
       } else {
-        newFileList = [{
-          ...file,
-          title: `Uploaded by customer: ${firstName} ${lastName}`,
-          hasDelete: true,
-        }, ...fileList]
+        newFileList = [
+          {
+            ...file,
+            title: `Uploaded by customer: ${firstName} ${lastName}`,
+            hasDelete: true,
+          },
+          ...fileList,
+        ]
 
         saveQuoteInfo(newFileList)
       }
@@ -154,7 +129,9 @@ export const QuoteAttachment = (props: QuoteAttachmentProps) => {
   }
 
   const limitUploadFn = () => {
-    const customerFiles = fileList.filter((file: FileObjects) => file?.title && file.title.includes('by customer'))
+    const customerFiles = fileList.filter(
+      (file: FileObjects) => file?.title && file.title.includes('by customer')
+    )
     if (customerFiles.length >= 3) {
       snackbar.error('You can add up to 3 files')
       return true

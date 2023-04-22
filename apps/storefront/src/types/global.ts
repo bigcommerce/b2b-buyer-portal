@@ -1,9 +1,9 @@
-export interface SimpleObject{
+export interface SimpleObject {
   [k: string]: string | number | undefined | null
 }
 
 export interface Address {
-  city: string,
+  city: string
   company: string
   country: string
   country_iso2: string

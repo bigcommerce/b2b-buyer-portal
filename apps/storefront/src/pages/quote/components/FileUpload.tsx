@@ -1,54 +1,20 @@
-import {
-  Box,
-  Tooltip,
-  Typography,
-  useTheme,
-} from '@mui/material'
-
-import AttachFileIcon from '@mui/icons-material/AttachFile'
-import HelpIcon from '@mui/icons-material/Help'
-import DeleteIcon from '@mui/icons-material/Delete'
-
+import { forwardRef, Ref, useImperativeHandle, useState } from 'react'
+import { DropzoneArea } from 'react-mui-dropzone'
 import styled from '@emotion/styled'
+import AttachFileIcon from '@mui/icons-material/AttachFile'
+import DeleteIcon from '@mui/icons-material/Delete'
+import HelpIcon from '@mui/icons-material/Help'
+import { Box, Tooltip, Typography, useTheme } from '@mui/material'
+import { noop } from 'lodash'
+import { v1 as uuid } from 'uuid'
 
-import {
-  useState,
-  Ref,
-  forwardRef,
-  useImperativeHandle,
-} from 'react'
+import { B3Sping } from '@/components'
+import { uploadB2BFile } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
-import {
-  DropzoneArea,
-} from 'react-mui-dropzone'
+import { FILE_UPLOAD_ACCEPT_TYPE } from '../../../constants'
 
-import {
-  noop,
-} from 'lodash'
-
-import {
-  v1 as uuid,
-} from 'uuid'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  FILE_UPLOAD_ACCEPT_TYPE,
-} from '../../../constants'
-
-import {
-  uploadB2BFile,
-} from '@/shared/service/b2b'
-
-import {
-  snackbar,
-} from '@/utils'
-
-const FileUploadContainer = styled(Box)(({
-  style,
-}) => ({
+const FileUploadContainer = styled(Box)(({ style }) => ({
   '& .file-upload-area': {
     cursor: 'pointer',
     '& .MuiDropzoneArea-textContainer': {
@@ -68,7 +34,10 @@ const FileUploadContainer = styled(Box)(({
 
 const FileListItem = styled(Box)((props: CustomFieldItems) => ({
   display: 'flex',
-  background: props.hasdelete === 'true' ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+  background:
+    props.hasdelete === 'true'
+      ? 'rgba(25, 118, 210, 0.3)'
+      : 'rgba(0, 0, 0, 0.12)',
   borderRadius: '18px',
   padding: '6px 8px',
   alignItems: 'center',
@@ -102,28 +71,28 @@ const FileUserTitle = styled(Typography)(() => ({
 }))
 
 export interface FileObjects {
-  id?: string,
-  fileName: string,
-  fileType: string,
-  fileUrl: string,
-  fileSize?: number,
-  title?: string,
-  hasDelete?: boolean,
-  isCustomer?: boolean,
+  id?: string
+  fileName: string
+  fileType: string
+  fileUrl: string
+  fileSize?: number
+  title?: string
+  hasDelete?: boolean
+  isCustomer?: boolean
 }
 
 interface FileUploadProps {
-  title?: string,
-  tips?: string,
-  maxFileSize?: number,
-  fileNumber?: number,
-  acceptedFiles?: string[],
-  onchange?: (file: FileObjects) => void,
-  fileList: FileObjects[],
-  allowUpload?: boolean,
-  onDelete?: (id: string) => void,
-  limitUploadFn?: () => boolean,
-  isEndLoadding?: boolean,
+  title?: string
+  tips?: string
+  maxFileSize?: number
+  fileNumber?: number
+  acceptedFiles?: string[]
+  onchange?: (file: FileObjects) => void
+  fileList: FileObjects[]
+  allowUpload?: boolean
+  onDelete?: (id: string) => void
+  limitUploadFn?: () => boolean
+  isEndLoadding?: boolean
 }
 
 const AttachFile = styled(AttachFileIcon)(() => ({
@@ -131,7 +100,7 @@ const AttachFile = styled(AttachFileIcon)(() => ({
   marginRight: '5px',
 }))
 
-const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
+function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
   const {
     title = 'Add Attachment',
     tips = 'You can add up to 3 files,not bigger that 2MB each.',
@@ -169,16 +138,14 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
   const getRejectMessage = (
     rejectedFile: File,
     acceptedFiles: string[],
-    maxFileSize: number,
+    maxFileSize: number
   ) => {
-    const {
-      size,
-      type,
-    } = rejectedFile
+    const { size, type } = rejectedFile
 
     let isAcceptFileType = false
     acceptedFiles.forEach((acceptedFileType: string) => {
-      isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType
+      isAcceptFileType =
+        new RegExp(acceptedFileType).test(type) || isAcceptFileType
     })
 
     let message = ''
@@ -187,7 +154,9 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
     }
 
     if (size > maxFileSize) {
-      message = `file exceeds upload limit. Maximum file size is ${getMaxFileSizeLabel(maxFileSize)}`
+      message = `file exceeds upload limit. Maximum file size is ${getMaxFileSizeLabel(
+        maxFileSize
+      )}`
     }
 
     if (message) {
@@ -198,7 +167,11 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
   }
 
   const getFileLimitExceedMessage = () => {
-    snackbar.error(`file exceeds upload limit. Maximum file size is ${getMaxFileSizeLabel(maxFileSize)}`)
+    snackbar.error(
+      `file exceeds upload limit. Maximum file size is ${getMaxFileSizeLabel(
+        maxFileSize
+      )}`
+    )
     return ''
   }
 
@@ -252,48 +225,44 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
   }
 
   return (
-    <B3Sping
-      isSpinning={loading}
-    >
-      <Box sx={{
-        padding: '12px 0 0',
-        width: '100%',
-      }}
+    <B3Sping isSpinning={loading}>
+      <Box
+        sx={{
+          padding: '12px 0 0',
+          width: '100%',
+        }}
       >
         <Box>
-          {
-            fileList.map((file, index) => (
-              <Box key={file.id || index}>
-                <FileListItem hasdelete={(file?.hasDelete || '').toString()}>
-                  <Box className="fileList-name-area">
-                    <AttachFile />
-                    <Typography
-                      className="fileList-name"
-                      onClick={() => { downloadFile(file.fileUrl) }}
-                    >
-                      {file.fileName}
-                    </Typography>
-                  </Box>
-                  {
-                    file.hasDelete && (
-                    <DeleteIcon
-                      sx={{
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => { handleDelete(file?.id || '') }}
-                    />
-                    )
-                  }
-                </FileListItem>
-                <FileUserTitle>
-                  {file.title || ''}
-                </FileUserTitle>
-              </Box>
-            ))
-          }
+          {fileList.map((file, index) => (
+            <Box key={file.id || index}>
+              <FileListItem hasdelete={(file?.hasDelete || '').toString()}>
+                <Box className="fileList-name-area">
+                  <AttachFile />
+                  <Typography
+                    className="fileList-name"
+                    onClick={() => {
+                      downloadFile(file.fileUrl)
+                    }}
+                  >
+                    {file.fileName}
+                  </Typography>
+                </Box>
+                {file.hasDelete && (
+                  <DeleteIcon
+                    sx={{
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => {
+                      handleDelete(file?.id || '')
+                    }}
+                  />
+                )}
+              </FileListItem>
+              <FileUserTitle>{file.title || ''}</FileUserTitle>
+            </Box>
+          ))}
         </Box>
-        {
-          allowUpload && (
+        {allowUpload && (
           <Box
             sx={{
               display: 'flex',
@@ -332,8 +301,7 @@ const FileUpload = (props: FileUploadProps, ref: Ref<unknown>) => {
               <HelpIcon />
             </Tooltip>
           </Box>
-          )
-        }
+        )}
       </Box>
     </B3Sping>
   )

@@ -5,7 +5,7 @@ interface ShippingListStatusProps {
 
 export interface GetFilterMoreListProps {
   options?: Array<ShippingListStatusProps>
-  rows?: string | number,
+  rows?: string | number
   name: string
   label: string
   required: boolean
@@ -16,28 +16,34 @@ export interface GetFilterMoreListProps {
   size: string
 }
 
-interface getAccountSettingFilesReturnProps {
-  accountB2BFormFields: GetFilterMoreListProps[],
-  passwordModified: GetFilterMoreListProps[],
+interface GetAccountSettingFilesReturnProps {
+  accountB2BFormFields: GetFilterMoreListProps[]
+  passwordModified: GetFilterMoreListProps[]
 }
 
 interface PasswordKeysProps {
-  name: string,
-  label: string,
+  name: string
+  label: string
 }
 
-export const getPasswordKeys = (): PasswordKeysProps[] => [{
-  name: 'currentPassword',
-  label: 'Current Password',
-}, {
-  name: 'password',
-  label: 'Password',
-}, {
-  name: 'confirmPassword',
-  label: 'Confirm Password',
-}]
+export const getPasswordKeys = (): PasswordKeysProps[] => [
+  {
+    name: 'currentPassword',
+    label: 'Current Password',
+  },
+  {
+    name: 'password',
+    label: 'Password',
+  },
+  {
+    name: 'confirmPassword',
+    label: 'Confirm Password',
+  },
+]
 
-export const getAccountSettingFiles = (xs: number): getAccountSettingFilesReturnProps => {
+export const getAccountSettingFiles = (
+  xs: number
+): GetAccountSettingFilesReturnProps => {
   const accountB2BFormFields = [
     {
       name: 'company',

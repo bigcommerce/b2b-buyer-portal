@@ -1,14 +1,7 @@
-import {
-  B3Lang,
-} from '@b3/lang'
+import { B3Lang } from '@b3/lang'
+import { format } from 'date-fns'
 
-import {
-  format,
-} from 'date-fns'
-
-import {
-  validatorRules,
-} from '@/utils'
+import { validatorRules } from '@/utils'
 
 const inputFormat = 'yyyy-MM-dd'
 
@@ -20,48 +13,48 @@ export interface QuoteConfig {
 }
 
 export interface ValidateOptions extends Record<string, any> {
-  max?: string | Number,
-  min?: string | Number,
+  max?: string | number
+  min?: string | number
 }
 export interface RegisterFields extends Record<string, any> {
-  name: string,
-  label?: string,
-  required?: Boolean,
-  fieldType?: string,
-  default?: string | Array<any> | number,
+  name: string
+  label?: string
+  required?: boolean
+  fieldType?: string
+  default?: string | Array<any> | number
 }
 
 interface ValidateOptionItems extends Record<string, any> {
-  max?: number,
-  min?: number,
+  max?: number
+  min?: number
 }
 
 export type ContactInformationItems = Array<RegisterFields>
 
 interface AccountFormFieldsItemsValueConfigs {
-  defaultValue?: string,
-  fieldName?: string,
-  isRequired?: boolean,
-  labelName?: string,
-  maximumLength?: string,
-  maxLength?: string,
-  name?: string,
+  defaultValue?: string
+  fieldName?: string
+  isRequired?: boolean
+  labelName?: string
+  maximumLength?: string
+  maxLength?: string
+  name?: string
   required?: string
-  type?: string,
+  type?: string
   custom?: boolean
   id: string | number
 }
 
 export interface AccountFormFieldsItems {
-  fieldId?: string,
-  fieldName?: string,
-  fieldType?: string | number,
-  groupId: number | string,
-  groupName?: string,
-  id?: string,
-  isRequired?: boolean,
-  labelName?: string,
-  visible?: boolean,
+  fieldId?: string
+  fieldName?: string
+  fieldType?: string | number
+  groupId: number | string
+  groupName?: string
+  id?: string
+  isRequired?: boolean
+  labelName?: string
+  visible?: boolean
   custom?: boolean
   valueConfigs?: AccountFormFieldsItemsValueConfigs
 }
@@ -69,21 +62,21 @@ export interface AccountFormFieldsItems {
 type AccountFormFieldsList = Array<[]> | Array<AccountFormFieldsItems>
 
 export interface RegisterFieldsItems {
-  id?: string | number,
-  name: string,
+  id?: string | number
+  name: string
   label: string
-  required: boolean,
-  default: string | number | Array<string>,
-  fieldType: string | number,
-  xs: number,
-  visible: boolean,
-  custom: boolean,
-  bcLabel?: string,
-  fieldId: string,
-  groupId: string | number,
+  required: boolean
+  default: string | number | Array<string>
+  fieldType: string | number
+  xs: number
+  visible: boolean
+  custom: boolean
+  bcLabel?: string
+  fieldId: string
+  groupId: string | number
   groupName: string
-  options?: any,
-  disabled: boolean,
+  options?: any
+  disabled: boolean
 }
 
 export const steps = [
@@ -104,8 +97,7 @@ export const Base64 = {
 }
 
 const fieldsType = {
-  text: ['text', 'number', 'password',
-    'multiline'],
+  text: ['text', 'number', 'password', 'multiline'],
   checkbox: ['checkbox'],
   dropdown: ['dropdown'],
   radio: ['radio'],
@@ -135,7 +127,10 @@ const classificationType = (item: CustomFieldItems) => {
     if (item?.fieldName === 'email' || item?.fieldName === 'phone') {
       optionItems.validate = validatorRules([item.fieldName])
     }
-    if (item.fieldType === 'number' || (item.fieldType === 'text' && item.type === 'integer')) {
+    if (
+      item.fieldType === 'number' ||
+      (item.fieldType === 'text' && item.type === 'integer')
+    ) {
       optionItems.validate = validatorRules(['number'])
     }
   }
@@ -153,13 +148,15 @@ const classificationType = (item: CustomFieldItems) => {
         value: '',
       })
     }
-    const options = [...items, ...item.options?.items || []]
+    const options = [...items, ...(item.options?.items || [])]
 
     if (item.listOfValue) {
-      item.listOfValue.forEach((value: any) => options.push({
-        label: value,
-        value,
-      }))
+      item.listOfValue.forEach((value: any) =>
+        options.push({
+          label: value,
+          value,
+        })
+      )
     }
 
     optionItems = {
@@ -220,7 +217,9 @@ const bcFieldName = (fieldName: string) => {
   return fieldName
 }
 
-export const conversionSigleItem = (item: CustomFieldItems): Partial<RegisterFieldsItems> => {
+export const conversionSigleItem = (
+  item: CustomFieldItems
+): Partial<RegisterFieldsItems> => {
   const requiredItems = {
     id: item.id || item.fieldName,
     name: bcFieldName(item.name) || enCodeFieldName(item.fieldName),
@@ -235,7 +234,7 @@ export const conversionSigleItem = (item: CustomFieldItems): Partial<RegisterFie
     type: item.type || '',
   }
 
-  if (typeof (item.fieldType) === 'number') {
+  if (typeof item.fieldType === 'number') {
     item.fieldType = companyExtraFieldsType[item.fieldType]
     requiredItems.fieldType = item.fieldType
   }
@@ -248,7 +247,8 @@ export const conversionSigleItem = (item: CustomFieldItems): Partial<RegisterFie
   }
 }
 
-export const toHump = (name:string) => name.replace(/_(\w)/g, (all, letter) => letter.toUpperCase())
+export const toHump = (name: string) =>
+  name.replace(/_(\w)/g, (all, letter) => letter.toUpperCase())
 
 export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
   const getFormFields: any = {}
@@ -260,7 +260,7 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
       getFormFields[key] = []
     }
 
-    let obj:CustomFieldItems = {}
+    let obj: CustomFieldItems = {}
     if (item.valueConfigs?.id) {
       obj = conversionSigleItem(item.valueConfigs)
     } else {
@@ -306,10 +306,12 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
 
     if (obj.fieldType === 'checkbox' && !obj.options) {
       obj.label = ''
-      obj.options = [{
-        label: item.labelName,
-        value: item.labelName,
-      }]
+      obj.options = [
+        {
+          label: item.labelName,
+          value: item.labelName,
+        },
+      ]
     }
 
     if (obj.fieldType === 'text' && obj.type === 'integer') {
@@ -321,11 +323,20 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
   return getFormFields
 }
 
-export const getAccountFormFields = (accountFormFields: AccountFormFieldsList) => {
+export const getAccountFormFields = (
+  accountFormFields: AccountFormFieldsList
+) => {
   if (accountFormFields?.length) {
-    const filterVisibleAccountFormFields: AccountFormFieldsList = accountFormFields ? (accountFormFields as any).filter((item: Partial<AccountFormFieldsItems>) => !!item.visible) : []
+    const filterVisibleAccountFormFields: AccountFormFieldsList =
+      accountFormFields
+        ? (accountFormFields as any).filter(
+            (item: Partial<AccountFormFieldsItems>) => !!item.visible
+          )
+        : []
 
-    const getAccountFormItems = filterVisibleAccountFormFields ? conversionItemFormat(filterVisibleAccountFormFields) : {}
+    const getAccountFormItems = filterVisibleAccountFormFields
+      ? conversionItemFormat(filterVisibleAccountFormFields)
+      : {}
 
     return getAccountFormItems
   }
@@ -334,7 +345,9 @@ export const getAccountFormFields = (accountFormFields: AccountFormFieldsList) =
 
 // todo
 
-export const companyAttachmentsFields = (b3lang: B3Lang) : ContactInformationItems => [
+export const companyAttachmentsFields = (
+  b3lang: B3Lang
+): ContactInformationItems => [
   {
     name: 'companyAttachments',
     label: b3lang('intl.user.register.label.companyAttachments'),
@@ -347,19 +360,21 @@ export const companyAttachmentsFields = (b3lang: B3Lang) : ContactInformationIte
   },
 ]
 export interface Country {
-  countryCode: string,
-  countryName: string,
-  id?: string,
+  countryCode: string
+  countryName: string
+  id?: string
   states: []
 }
 export interface State {
-  stateCode?: string,
-  stateName?: string,
-  id?: string,
+  stateCode?: string
+  stateName?: string
+  id?: string
 }
 
-export const getRegisterLogo = (quoteConfig:Array<QuoteConfig>): string => {
-  const item:Array<QuoteConfig> = quoteConfig.filter((list:QuoteConfig) => list.key === 'quote_logo')
+export const getRegisterLogo = (quoteConfig: Array<QuoteConfig>): string => {
+  const item: Array<QuoteConfig> = quoteConfig.filter(
+    (list: QuoteConfig) => list.key === 'quote_logo'
+  )
 
   return item[0].isEnabled
 }

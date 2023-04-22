@@ -1,10 +1,5 @@
-import {
-  B3Request,
-} from '../../request/b3Fetch'
-
-import {
-  storeHash,
-} from '../../../../utils'
+import { storeHash } from '../../../../utils'
+import B3Request from '../../request/b3Fetch'
 
 const getUsersQl = (data: CustomFieldItems) => `{
   users (
@@ -97,21 +92,26 @@ const checkCustomerBCEmail = (data: CustomFieldItems) => `{
   }
 }`
 
-export const getUsers = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: getUsersQl(data),
-})
+export const getUsers = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getUsersQl(data),
+  })
 
-export const addOrUpdateUsers = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: addOrUpdateUsersQl(data),
-})
+export const addOrUpdateUsers = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: addOrUpdateUsersQl(data),
+  })
 
-export const deleteUsers = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: deleteUsersQl(data),
-})
+export const deleteUsers = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: deleteUsersQl(data),
+  })
 
-export const checkUserEmail = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: checkUserB2BEmail(data),
-})
-export const checkUserBCEmail = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: checkCustomerBCEmail(data),
-})
+export const checkUserEmail = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: checkUserB2BEmail(data),
+  })
+export const checkUserBCEmail = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: checkCustomerBCEmail(data),
+  })

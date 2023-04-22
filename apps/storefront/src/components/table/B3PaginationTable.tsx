@@ -1,25 +1,20 @@
 import {
-  ReactElement,
-  useState,
-  useEffect,
   forwardRef,
-  useImperativeHandle,
-  Ref,
   memo,
+  ReactElement,
+  Ref,
+  useEffect,
+  useImperativeHandle,
+  useState,
 } from 'react'
 
-import {
-  useMobile,
-} from '@/hooks'
+import { useMobile } from '@/hooks'
 
-import {
-  B3Table,
-  TableColumnItem,
-} from './B3Table'
+import { B3Table, TableColumnItem } from './B3Table'
 
 export interface TablePagination {
-  offset: number,
-  first: number,
+  offset: number
+  first: number
 }
 
 // export interface TableColumnItem {
@@ -30,66 +25,65 @@ export interface TablePagination {
 // }
 
 interface B3PaginationTableProps {
-  tableFixed?: boolean,
-  tableHeaderHide?: boolean,
-  columnItems?: TableColumnItem<any>[],
-  itemSpacing?: number,
-  itemXs?: number,
-  rowsPerPageOptions?: number[],
-  showPagination?: boolean,
-  renderItem?: (row: any, index?: number, checkBox?: () => ReactElement) => ReactElement,
-  isCustomRender?: boolean,
-  infiniteScrollThreshold?: number,
-  infiniteScrollNode?: HTMLElement,
-  infiniteScrollLoader?: ReactElement,
-  infiniteScrollHeight?: string,
-  noDataText?: string,
-  tableKey?: string,
-  getRequestList: any,
-  searchParams?: any,
-  requestLoading?: (bool: boolean) => void,
-  showCheckbox?: boolean,
-  selectedSymbol?: string,
-  showBorder?: boolean,
-  getSelectCheckbox?: (arr: Array<string | number>) => void,
-  hover?: boolean,
-  labelRowsPerPage?: string,
-  itemIsMobileSpacing?: number,
-  disableCheckbox?: boolean,
-  onClickRow?: (item: any, index?: number) => void,
-  showRowsPerPageOptions?: boolean,
+  tableFixed?: boolean
+  tableHeaderHide?: boolean
+  columnItems?: TableColumnItem<any>[]
+  itemSpacing?: number
+  itemXs?: number
+  rowsPerPageOptions?: number[]
+  showPagination?: boolean
+  renderItem?: (
+    row: any,
+    index?: number,
+    checkBox?: () => ReactElement
+  ) => ReactElement
+  isCustomRender?: boolean
+  noDataText?: string
+  tableKey?: string
+  getRequestList: any
+  searchParams?: any
+  requestLoading?: (bool: boolean) => void
+  showCheckbox?: boolean
+  selectedSymbol?: string
+  showBorder?: boolean
+  getSelectCheckbox?: (arr: Array<string | number>) => void
+  hover?: boolean
+  labelRowsPerPage?: string
+  itemIsMobileSpacing?: number
+  disableCheckbox?: boolean
+  onClickRow?: (item: any, index?: number) => void
+  showRowsPerPageOptions?: boolean
 }
 
-const PaginationTable:(props: B3PaginationTableProps) => ReactElement = ({
-  columnItems,
-  isCustomRender = false,
-  tableKey,
-  renderItem,
-  noDataText = '',
-  tableFixed = false,
-  tableHeaderHide = false,
-  rowsPerPageOptions = [10, 20, 30],
-  itemSpacing = 2,
-  itemXs = 4,
-  infiniteScrollThreshold,
-  infiniteScrollNode,
-  infiniteScrollLoader,
-  infiniteScrollHeight,
-  getRequestList,
-  searchParams,
-  requestLoading,
-  showCheckbox = false,
-  selectedSymbol = 'id',
-  showBorder = true,
-  getSelectCheckbox,
-  hover = false,
-  labelRowsPerPage = '',
-  itemIsMobileSpacing = 2,
-  disableCheckbox = false,
-  onClickRow,
-  showPagination = true,
-  showRowsPerPageOptions = true,
-}, ref?: Ref<unknown>) => {
+function PaginationTable(
+  {
+    columnItems,
+    isCustomRender = false,
+    tableKey,
+    renderItem,
+    noDataText = '',
+    tableFixed = false,
+    tableHeaderHide = false,
+    rowsPerPageOptions = [10, 20, 30],
+    itemSpacing = 2,
+    itemXs = 4,
+    getRequestList,
+    searchParams,
+    requestLoading,
+    showCheckbox = false,
+    selectedSymbol = 'id',
+    showBorder = true,
+    getSelectCheckbox,
+    hover = false,
+    labelRowsPerPage = '',
+    itemIsMobileSpacing = 2,
+    disableCheckbox = false,
+    onClickRow,
+    showPagination = true,
+    showRowsPerPageOptions = true,
+  }: B3PaginationTableProps,
+  ref?: Ref<unknown>
+) {
   const initPagination = {
     offset: 0,
     first: rowsPerPageOptions[0],
@@ -103,7 +97,9 @@ const PaginationTable:(props: B3PaginationTableProps) => ReactElement = ({
 
   const [list, setList] = useState<Array<CustomFieldItems>>([])
 
-  const [selectCheckbox, setSelectCheckbox] = useState<Array<string | number>>([])
+  const [selectCheckbox, setSelectCheckbox] = useState<Array<string | number>>(
+    []
+  )
 
   const [isMobile] = useMobile()
 
@@ -111,15 +107,15 @@ const PaginationTable:(props: B3PaginationTableProps) => ReactElement = ({
     try {
       setLoading(true)
       if (requestLoading) requestLoading(true)
-      const {
-        createdBy,
-      } = searchParams
+      const { createdBy } = searchParams
 
-      const getEmailReg: RegExp = /\((.+)\)/g
-      const getCreatedByReg: RegExp = /^[^(]+/
+      const getEmailReg = /\((.+)\)/g
+      const getCreatedByReg = /^[^(]+/
       const emailRegArr = getEmailReg.exec(createdBy)
       const createdByUserRegArr = getCreatedByReg.exec(createdBy)
-      const createdByUser = createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : ''
+      const createdByUser = createdByUserRegArr?.length
+        ? createdByUserRegArr[0].trim()
+        : ''
       const newSearchParams = {
         ...searchParams,
         createdBy: createdByUser,
@@ -131,9 +127,7 @@ const PaginationTable:(props: B3PaginationTableProps) => ReactElement = ({
         offset: b3Pagination?.offset || 0,
       }
       const requestList = await getRequestList(params)
-      const {
-        edges, totalCount,
-      }: CustomFieldItems = requestList
+      const { edges, totalCount }: CustomFieldItems = requestList
 
       setList(edges)
       setSelectCheckbox([])
@@ -229,10 +223,6 @@ const PaginationTable:(props: B3PaginationTableProps) => ReactElement = ({
       noDataText={noDataText}
       tableKey={tableKey}
       itemIsMobileSpacing={itemIsMobileSpacing}
-      infiniteScrollThreshold={infiniteScrollThreshold}
-      infiniteScrollNode={infiniteScrollNode}
-      infiniteScrollLoader={infiniteScrollLoader}
-      infiniteScrollHeight={infiniteScrollHeight}
       showCheckbox={showCheckbox}
       disableCheckbox={disableCheckbox}
       selectedSymbol={selectedSymbol}
@@ -250,6 +240,4 @@ const PaginationTable:(props: B3PaginationTableProps) => ReactElement = ({
 
 const B3PaginationTable = memo(forwardRef(PaginationTable))
 
-export {
-  B3PaginationTable,
-}
+export { B3PaginationTable }

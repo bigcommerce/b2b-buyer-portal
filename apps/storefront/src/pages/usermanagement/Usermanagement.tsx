@@ -1,56 +1,18 @@
-import {
-  useState,
-  useContext,
-  useRef,
-} from 'react'
+import { useContext, useRef, useState } from 'react'
+import { Box } from '@mui/material'
 
-import {
-  Box,
-} from '@mui/material'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  getUsers,
-  deleteUsers,
-} from '@/shared/service/b2b'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
-
-import {
-  B3Dialog,
-} from '@/components'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  useMobile,
-  useCardListColumn,
-} from '@/hooks'
-
-import {
-  getFilterMoreList,
-  UsersList,
-  filterProps,
-} from './config'
-
-import B3AddEditUser from './AddEditUser'
+import { B3Dialog, B3Sping } from '@/components'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { useCardListColumn, useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
+import { deleteUsers, getUsers } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 
-import {
-  UserItemCard,
-} from './UserItemCard'
+import B3AddEditUser from './AddEditUser'
+import { FilterProps, getFilterMoreList, UsersList } from './config'
+import { UserItemCard } from './UserItemCard'
 
 interface RefCurrntProps extends HTMLInputElement {
   handleOpenAddEditUserClick: (type: string, data?: UsersList) => void
@@ -59,7 +21,7 @@ interface RefCurrntProps extends HTMLInputElement {
 interface RoleProps {
   role: string
 }
-const Usermanagement = () => {
+function Usermanagement() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
@@ -80,11 +42,7 @@ const Usermanagement = () => {
   const isExtraLarge = useCardListColumn()
 
   const {
-    state: {
-      companyInfo,
-      role,
-      salesRepCompanyId,
-    },
+    state: { companyInfo, role, salesRepCompanyId },
   } = useContext(GlobaledContext)
 
   const companyId = +role === 3 ? salesRepCompanyId : companyInfo?.id
@@ -103,16 +61,14 @@ const Usermanagement = () => {
     companyId,
   }
 
-  const [filterSearch, setFilterSearch] = useState<Partial<filterProps>>(initSearch)
+  const [filterSearch, setFilterSearch] =
+    useState<Partial<FilterProps>>(initSearch)
 
-  const fetchList = async (params: Partial<filterProps>) => {
+  const fetchList = async (params: Partial<FilterProps>) => {
     const data = await getUsers(params)
 
     const {
-      users: {
-        edges,
-        totalCount,
-      },
+      users: { edges, totalCount },
     } = data
 
     return {
@@ -129,7 +85,7 @@ const Usermanagement = () => {
 
   const fiterMoreInfo = getFilterMoreList()
 
-  const handleChange = (key:string, value: string) => {
+  const handleChange = (key: string, value: string) => {
     const search = {
       ...filterSearch,
       q: value,
@@ -180,9 +136,7 @@ const Usermanagement = () => {
   }
 
   return (
-    <B3Sping
-      isSpinning={isRequestLoading}
-    >
+    <B3Sping isSpinning={isRequestLoading}>
       <Box
         sx={{
           display: 'flex',

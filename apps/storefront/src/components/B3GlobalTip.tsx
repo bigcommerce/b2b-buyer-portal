@@ -1,26 +1,13 @@
-import {
-  useContext,
-  useEffect,
-  useRef,
-} from 'react'
+import { useContext, useEffect, useRef } from 'react'
 
-import {
-  MsgsProps,
-} from '@/shared/dynamicallyVariable/context/config'
+import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
+import { MsgsProps } from '@/shared/dynamicallyVariable/context/config'
 
-import {
-  B3Tip,
-} from './B3Tip'
+import B3Tip from './B3Tip'
 
-import {
-  DynamicallyVariableedContext,
-} from '@/shared/dynamicallyVariable'
-
-export const B3GlobalTip = () => {
+export default function B3GlobalTip() {
   const {
-    state: {
-      globalTipMessage,
-    },
+    state: { globalTipMessage },
     dispatch,
   } = useContext(DynamicallyVariableedContext)
 
@@ -49,9 +36,7 @@ export const B3GlobalTip = () => {
   }
 
   const closeMsgs = () => {
-    const {
-      msgs = [],
-    } = globalTipMessage
+    const { msgs = [] } = globalTipMessage
 
     if (timer.current) {
       clearTimeout(timer.current)
@@ -74,15 +59,13 @@ export const B3GlobalTip = () => {
   }
 
   return (
-    <>
-      <B3Tip
-        autoHideDuration={globalTipMessage?.autoHideDuration}
-        msgs={globalTipMessage?.msgs}
-        handleAllClose={() => closeMsgs()}
-        handleItemClose={handleClose}
-        vertical="top"
-        horizontal="right"
-      />
-    </>
+    <B3Tip
+      autoHideDuration={globalTipMessage?.autoHideDuration}
+      msgs={globalTipMessage?.msgs}
+      handleAllClose={() => closeMsgs()}
+      handleItemClose={handleClose}
+      vertical="top"
+      horizontal="right"
+    />
   )
 }

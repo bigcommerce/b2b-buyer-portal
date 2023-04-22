@@ -1,121 +1,84 @@
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  useContext,
-} from 'react'
-
-import {
-  TextField,
-  InputAdornment,
-  Box,
-  Typography,
-} from '@mui/material'
-
+import { ChangeEvent, KeyboardEvent, useContext } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
+import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
-import {
-  B3Dialog,
-  B3ProductList,
-  B3Sping,
-  CustomButton,
-} from '@/components'
+import { B3Dialog, B3ProductList, B3Sping, CustomButton } from '@/components'
+import { useMobile } from '@/hooks'
+import { snackbar } from '@/utils'
 
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  ShoppingListDetailsContext,
-} from '../context/ShoppingListDetailsContext'
-
-import {
-  ShoppingListProductItem,
-} from '../../../types'
+import { ShoppingListProductItem } from '../../../types'
+import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'
 
 interface ProductTableActionProps {
-  product: ShoppingListProductItem,
-  onAddToListClick: (id: number) => void,
-  onChooseOptionsClick: (id: number) => void,
-  addButtonText: string,
+  product: ShoppingListProductItem
+  onAddToListClick: (id: number) => void
+  onChooseOptionsClick: (id: number) => void
+  addButtonText: string
 }
 
-const ProductTableAction = (props: ProductTableActionProps) => {
+function ProductTableAction(props: ProductTableActionProps) {
   const {
-    product: {
-      id,
-      allOptions: productOptions,
-    },
+    product: { id, allOptions: productOptions },
     onAddToListClick,
     onChooseOptionsClick,
     addButtonText,
   } = props
 
   const {
-    state: {
-      isLoading = false,
-    },
+    state: { isLoading = false },
   } = useContext(ShoppingListDetailsContext)
 
   const [isMobile] = useMobile()
 
-  return (
-    productOptions && productOptions.length > 0
-      ? (
-        <CustomButton
-          variant="outlined"
-          // sx={{
-          //   marginLeft: '9%',
-          // }}
-          onClick={() => {
-            onChooseOptionsClick(id)
-          }}
-          disabled={isLoading}
-          fullWidth={isMobile}
-        >
-          Choose options
-        </CustomButton>
-      )
-      : (
-        <CustomButton
-          variant="outlined"
-          // sx={{
-          //   marginLeft: '9%',
-          // }}
-          onClick={() => {
-            onAddToListClick(id)
-          }}
-          disabled={isLoading}
-          fullWidth={isMobile}
-        >
-          {addButtonText}
-        </CustomButton>
-
-      )
+  return productOptions && productOptions.length > 0 ? (
+    <CustomButton
+      variant="outlined"
+      // sx={{
+      //   marginLeft: '9%',
+      // }}
+      onClick={() => {
+        onChooseOptionsClick(id)
+      }}
+      disabled={isLoading}
+      fullWidth={isMobile}
+    >
+      Choose options
+    </CustomButton>
+  ) : (
+    <CustomButton
+      variant="outlined"
+      // sx={{
+      //   marginLeft: '9%',
+      // }}
+      onClick={() => {
+        onAddToListClick(id)
+      }}
+      disabled={isLoading}
+      fullWidth={isMobile}
+    >
+      {addButtonText}
+    </CustomButton>
   )
 }
 
 interface ProductListDialogProps {
-  isOpen: boolean,
-  searchText: string,
-  productList: ShoppingListProductItem[],
-  onCancel: () => void,
-  onSearchTextChange: (e: ChangeEvent<HTMLInputElement>) => void,
-  onSearch: () => void,
-  onProductQuantityChange: (id: number, newQuantity: number) => void,
-  onAddToListClick: (products: CustomFieldItems[]) => void,
-  onChooseOptionsClick: (id: number) => void,
-  isLoading: boolean,
-  searchDialogTitle?: string,
-  addButtonText?: string,
+  isOpen: boolean
+  searchText: string
+  productList: ShoppingListProductItem[]
+  onCancel: () => void
+  onSearchTextChange: (e: ChangeEvent<HTMLInputElement>) => void
+  onSearch: () => void
+  onProductQuantityChange: (id: number, newQuantity: number) => void
+  onAddToListClick: (products: CustomFieldItems[]) => void
+  onChooseOptionsClick: (id: number) => void
+  isLoading: boolean
+  searchDialogTitle?: string
+  addButtonText?: string
 }
 
 const ProductTable = B3ProductList<ShoppingListProductItem>
 
-export const ProductListDialog = (props: ProductListDialogProps) => {
+export default function ProductListDialog(props: ProductListDialogProps) {
   const {
     isOpen,
     onCancel,
@@ -144,13 +107,9 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
   }
 
   const validateQuantityNumber = (product: ShoppingListProductItem) => {
-    const {
-      variants = [],
-    } = product || {}
+    const { variants = [] } = product || {}
 
-    const {
-      purchasing_disabled: purchasingDisabled = true,
-    } = variants[0] || {}
+    const { purchasing_disabled: purchasingDisabled = true } = variants[0] || {}
 
     if (purchasingDisabled === true) {
       snackbar.error('This product is no longer for sale')
@@ -164,12 +123,14 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
     const product = productList.find((product) => product.id === id)
 
     if (product && validateQuantityNumber(product || {})) {
-      onAddToListClick([{
-        ...product,
-        newSelectOptionList: [],
-        quantity: parseInt(product.quantity.toString(), 10) || 1,
-        variantId: id,
-      }])
+      onAddToListClick([
+        {
+          ...product,
+          newSelectOptionList: [],
+          quantity: parseInt(product.quantity.toString(), 10) || 1,
+          variantId: id,
+        },
+      ])
     }
   }
 
@@ -184,13 +145,12 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
       maxWidth="md"
       leftSizeBtn="close"
     >
-      <B3Sping
-        isSpinning={isLoading}
-      >
-        <Box sx={{
-          minWidth: isMobile ? 'initial' : '100%',
-          flex: 1,
-        }}
+      <B3Sping isSpinning={isLoading}>
+        <Box
+          sx={{
+            minWidth: isMobile ? 'initial' : '100%',
+            flex: 1,
+          }}
         >
           <TextField
             hiddenLabel
@@ -216,30 +176,26 @@ export const ProductListDialog = (props: ProductListDialogProps) => {
             }}
           />
 
-          {
-            productList && productList.length > 0 ? (
-              <ProductTable
-                products={productList}
-                quantityEditable
-                textAlign={isMobile ? 'left' : 'right'}
-                canToProduct
-                onProductQuantityChange={onProductQuantityChange}
-                renderAction={(product) => (
-                  <ProductTableAction
-                    product={product}
-                    onAddToListClick={handleAddToList}
-                    onChooseOptionsClick={onChooseOptionsClick}
-                    addButtonText={addButtonText}
-                  />
-                )}
-                actionWidth="180px"
-              />
-            ) : (
-              <Typography>
-                No products found
-              </Typography>
-            )
-          }
+          {productList && productList.length > 0 ? (
+            <ProductTable
+              products={productList}
+              quantityEditable
+              textAlign={isMobile ? 'left' : 'right'}
+              canToProduct
+              onProductQuantityChange={onProductQuantityChange}
+              renderAction={(product) => (
+                <ProductTableAction
+                  product={product}
+                  onAddToListClick={handleAddToList}
+                  onChooseOptionsClick={onChooseOptionsClick}
+                  addButtonText={addButtonText}
+                />
+              )}
+              actionWidth="180px"
+            />
+          ) : (
+            <Typography>No products found</Typography>
+          )}
         </Box>
       </B3Sping>
     </B3Dialog>

@@ -1,26 +1,9 @@
-import {
-  useRef,
-  useContext,
-  useState,
-} from 'react'
+import { useContext, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Box } from '@mui/material'
 
-import {
-  Box,
-} from '@mui/material'
-
-import {
-  useForm,
-} from 'react-hook-form'
-
-import {
-  B3CustomForm,
-  B3Dialog,
-} from '@/components'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
+import { B3CustomForm, B3Dialog } from '@/components'
+import { GlobaledContext } from '@/shared/global'
 import {
   createB2BShoppingList,
   createBcShoppingList,
@@ -53,35 +36,29 @@ const list = [
 ]
 
 interface CreateShoppingListProps {
-  open: boolean,
-  onChange: ()=>void,
-  onClose: ()=>void,
+  open: boolean
+  onChange: () => void
+  onClose: () => void
 }
 
-const CreateShoppingList = ({
+function CreateShoppingList({
   open,
   onChange,
   onClose,
-}: CreateShoppingListProps) => {
+}: CreateShoppingListProps) {
   const container = useRef<HTMLInputElement | null>(null)
 
   const [loading, setLoading] = useState<boolean>(false)
 
   const {
-    state: {
-      role,
-      isB2BUser,
-      currentChannelId,
-    },
+    state: { role, isB2BUser, currentChannelId },
   } = useContext(GlobaledContext)
 
   const {
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
   } = useForm({
     mode: 'onSubmit',
@@ -94,9 +71,7 @@ const CreateShoppingList = ({
   const handleConfirm = () => {
     handleSubmit(async (data) => {
       setLoading(true)
-      const {
-        description,
-      } = data
+      const { description } = data
       if (description.indexOf('\n') > -1) {
         data.description = description.split('\n').join('\\n')
       }
@@ -123,9 +98,7 @@ const CreateShoppingList = ({
         width: '50%',
       }}
     >
-      <Box
-        ref={container}
-      />
+      <Box ref={container} />
 
       <B3Dialog
         isOpen={open}

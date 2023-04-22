@@ -1,20 +1,8 @@
-import {
-  b3Fetch,
-} from './fetch'
-import {
-  B2B_BASIC_URL,
-  RequestType,
-  queryParse,
-} from './base'
+import { B3SStorage, getCookie } from '@/utils'
+import { bcBaseUrl } from '@/utils/basicConfig'
 
-import {
-  B3SStorage,
-  getCookie,
-} from '@/utils'
-
-import {
-  bcBaseUrl,
-} from '@/utils/basicConfig'
+import { B2B_BASIC_URL, queryParse, RequestType } from './base'
+import b3Fetch from './fetch'
 
 // /**
 //  * config User-defined configuration items
@@ -47,7 +35,7 @@ import {
 //   timeout: 10000,
 // }
 
-interface Config{
+interface Config {
   headers?: {
     [key: string]: string
   }
@@ -55,11 +43,14 @@ interface Config{
 
 function request<T>(path: string, config?: T & Config, type?: string) {
   const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
-  const getToken = type === RequestType.BCRest ? {
-    'x-xsrf-token': getCookie('XSRF-TOKEN'),
-  } : {
-    authToken: `${B3SStorage.get('B3B2BToken') || ''}`,
-  }
+  const getToken =
+    type === RequestType.BCRest
+      ? {
+          'x-xsrf-token': getCookie('XSRF-TOKEN'),
+        }
+      : {
+          authToken: `${B3SStorage.get('B3B2BToken') || ''}`,
+        }
 
   const {
     headers = {
@@ -77,7 +68,12 @@ function request<T>(path: string, config?: T & Config, type?: string) {
   return b3Fetch(url, init, type)
 }
 
-function graphqlRequest<T, Y>(type: string, data: T, config?: Y, customMessage = false) {
+function graphqlRequest<T, Y>(
+  type: string,
+  data: T,
+  config?: Y,
+  customMessage = false
+) {
   const init = {
     method: 'POST',
     headers: {
@@ -89,11 +85,12 @@ function graphqlRequest<T, Y>(type: string, data: T, config?: Y, customMessage =
 
   const graphqlB2BUrl = `${B2B_BASIC_URL}/graphql`
 
-  const url = type === RequestType.B2BGraphql ? graphqlB2BUrl : `${bcBaseUrl}/graphql`
+  const url =
+    type === RequestType.B2BGraphql ? graphqlB2BUrl : `${bcBaseUrl}/graphql`
   return b3Fetch(url, init, type, customMessage)
 }
 
-export const B3Request = {
+const B3Request = {
   graphqlB2B: function post<T>(data: T, customMessage = false): Promise<any> {
     const config = {
       Authorization: `Bearer  ${B3SStorage.get('B3B2BToken') || ''}`,
@@ -112,7 +109,12 @@ export const B3Request = {
     }
     return graphqlRequest(RequestType.BCGraphql, data, config)
   },
-  get: function get<T, Y>(url: string, type: string, data?: T, config?: Y): Promise<any> {
+  get: function get<T, Y>(
+    url: string,
+    type: string,
+    data?: T,
+    config?: Y
+  ): Promise<any> {
     if (data) {
       const params = queryParse(data)
       return request(`${url}?${params}`, {
@@ -120,34 +122,54 @@ export const B3Request = {
         ...config,
       })
     }
-    return request(url, {
-      method: 'GET',
-    }, type)
+    return request(
+      url,
+      {
+        method: 'GET',
+      },
+      type
+    )
   },
   post: function post<T>(url: string, type: string, data: T): Promise<any> {
-    return request(url, {
-      body: JSON.stringify(data),
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
+    return request(
+      url,
+      {
+        body: JSON.stringify(data),
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
       },
-    }, type)
+      type
+    )
   },
   put: function put<T>(url: string, type: string, data: T): Promise<any> {
-    return request(url, {
-      body: JSON.stringify(data),
-      method: 'PUT',
-      headers: {
-        'content-type': 'application/json',
+    return request(
+      url,
+      {
+        body: JSON.stringify(data),
+        method: 'PUT',
+        headers: {
+          'content-type': 'application/json',
+        },
       },
-    }, type)
+      type
+    )
   },
   delete: function deleteFn(url: string, type: string): Promise<any> {
-    return request(url, {
-      method: 'DELETE',
-    }, type)
+    return request(
+      url,
+      {
+        method: 'DELETE',
+      },
+      type
+    )
   },
-  fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y): Promise<any> {
+  fileUpload: function fileUpload<T, Y>(
+    url: string,
+    formData: T,
+    config?: Y
+  ): Promise<any> {
     return request(`${B2B_BASIC_URL}${url}`, {
       method: 'POST',
       body: formData,
@@ -156,3 +178,5 @@ export const B3Request = {
     })
   },
 }
+
+export default B3Request

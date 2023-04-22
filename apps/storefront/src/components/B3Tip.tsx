@@ -1,28 +1,23 @@
-import {
-  AlertTitle,
-  Alert,
-  Snackbar,
-  Box,
-} from '@mui/material'
+import { Alert, AlertTitle, Box, Snackbar } from '@mui/material'
 
 import {
-  TipMessagesProps,
   MsgsProps,
+  TipMessagesProps,
 } from '@/shared/dynamicallyVariable/context/config'
 
 interface B3TipProps extends TipMessagesProps {
-  handleItemClose: (id: number | string) => void,
-  handleAllClose: () => void,
+  handleItemClose: (id: number | string) => void
+  handleAllClose: () => void
 }
 
-export const B3Tip = ({
+export default function B3Tip({
   autoHideDuration = 3000,
   handleItemClose,
   vertical = 'bottom',
   horizontal = 'right',
   msgs = [],
   handleAllClose,
-}: B3TipProps) => {
+}: B3TipProps) {
   if (!msgs || !msgs.length) return null
   return (
     <Snackbar
@@ -30,12 +25,13 @@ export const B3Tip = ({
       autoHideDuration={autoHideDuration}
       onClose={handleAllClose}
       anchorOrigin={{
-        vertical, horizontal,
+        vertical,
+        horizontal,
       }}
     >
       <Box>
-        {
-          msgs.length && msgs.map((msg: MsgsProps) => (
+        {msgs.length &&
+          msgs.map((msg: MsgsProps) => (
             <Alert
               sx={{
                 width: '100%',
@@ -51,12 +47,9 @@ export const B3Tip = ({
               onClose={() => msg.isClose && handleItemClose(msg.id)}
             >
               {msg?.title && <AlertTitle>{msg.title}</AlertTitle>}
-              {
-                msg.jsx ? msg.jsx() : msg.msg
-              }
+              {msg.jsx ? msg.jsx() : msg.msg}
             </Alert>
-          ))
-        }
+          ))}
       </Box>
     </Snackbar>
   )

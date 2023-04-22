@@ -1,62 +1,43 @@
 import {
-  Suspense,
   Dispatch,
   SetStateAction,
+  Suspense,
   useContext,
   useEffect,
 } from 'react'
-
 import {
+  Outlet,
   Route,
   Routes,
-  Outlet,
   useLocation,
   useNavigate,
 } from 'react-router-dom'
+import type { OpenPageState } from '@b3/hooks'
 
-import type {
-  OpenPageState,
-} from '@b3/hooks'
-
+import { B3Layout, Loading } from '@/components'
+import { RegisteredProvider } from '@/pages/registered/context/RegisteredContext'
+import { GlobaledContext } from '@/shared/global'
 import {
-  B3Layout,
-  Loading,
-} from '@/components'
-import {
-  RegisteredProvider,
-} from '@/pages/registered/context/RegisteredContext'
-
-import {
-  RouteItem,
-  getAllowedRoutes,
   firstLevelRouting,
+  getAllowedRoutes,
   RouteFirstLevelItem,
+  RouteItem,
 } from '@/shared/routes/routes'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
 
 import B3LayoutTip from './B3LayoutTip'
 
 interface B3RenderRouterProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
-  openUrl?: string,
-  isOpen?: boolean,
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+  openUrl?: string
+  isOpen?: boolean
 }
 
-export const B3RenderRouter = (props: B3RenderRouterProps) => {
-  const {
-    setOpenPage,
-    openUrl,
-    isOpen,
-  } = props
+export default function B3RenderRouter(props: B3RenderRouterProps) {
+  const { setOpenPage, openUrl, isOpen } = props
 
-  const {
-    state: globaledState,
-  } = useContext(GlobaledContext)
+  const { state: globaledState } = useContext(GlobaledContext)
 
-  const newRoutes = () => (getAllowedRoutes(globaledState))
+  const newRoutes = () => getAllowedRoutes(globaledState)
 
   const location = useLocation()
 
@@ -68,7 +49,8 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
         isOpen: true,
         openUrl: location.pathname,
       })
-      if (location.state && location.pathname.includes('dashboard')) location.state = null
+      if (location.state && location.pathname.includes('dashboard'))
+        location.state = null
     }
   }, [location])
 
@@ -83,68 +65,51 @@ export const B3RenderRouter = (props: B3RenderRouterProps) => {
   }, [openUrl])
 
   return (
-    <Suspense
-      fallback={(
-        <Loading />
-      )}
-    >
+    <Suspense fallback={<Loading />}>
       <B3LayoutTip />
       <Routes>
         <Route
           // path="/"
-          element={(
+          element={
             <B3Layout>
               <Outlet />
             </B3Layout>
-          )}
+          }
         >
-          {
-              newRoutes().map((route: RouteItem) => {
-                const {
-                  path,
-                  component: Component,
-                } = route
-                return (
-                  <Route
-                    key={path}
-                    path={path}
-                    element={(<Component setOpenPage={setOpenPage} />)}
-                  />
-                )
-              })
-            }
-        </Route>
-        {
-          firstLevelRouting.map((route: RouteFirstLevelItem) => {
-            const {
-              isProvider,
-              path,
-              component: Component,
-            } = route
-            if (isProvider) {
-              return (
-                <Route
-                  key={path}
-                  path={path}
-                  element={(
-                    <RegisteredProvider>
-                      <Component setOpenPage={setOpenPage} />
-                    </RegisteredProvider>
-                )}
-                />
-              )
-            }
+          {newRoutes().map((route: RouteItem) => {
+            const { path, component: Component } = route
             return (
               <Route
                 key={path}
-                path={route.name}
-                element={(
-                  <Component setOpenPage={setOpenPage} />
-                )}
+                path={path}
+                element={<Component setOpenPage={setOpenPage} />}
               />
             )
-          })
-        }
+          })}
+        </Route>
+        {firstLevelRouting.map((route: RouteFirstLevelItem) => {
+          const { isProvider, path, component: Component } = route
+          if (isProvider) {
+            return (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <RegisteredProvider>
+                    <Component setOpenPage={setOpenPage} />
+                  </RegisteredProvider>
+                }
+              />
+            )
+          }
+          return (
+            <Route
+              key={path}
+              path={route.name}
+              element={<Component setOpenPage={setOpenPage} />}
+            />
+          )
+        })}
       </Routes>
     </Suspense>
   )

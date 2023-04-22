@@ -1,30 +1,26 @@
 import {
+  B2BOrderData,
   OrderProductItem,
-  OrderShipmentProductItem,
   OrderShipmentItem,
+  OrderShipmentProductItem,
   OrderShippedItem,
   OrderShippingAddressItem,
   OrderShippingsItem,
-  B2BOrderData,
   OrderSummary,
 } from '../../../types'
 
 const getOrderShipping = (data: B2BOrderData) => {
-  const {
-    shipments,
-    shippingAddress = [],
-    products = [],
-  } = data
+  const { shipments, shippingAddress = [], products = [] } = data
 
   const shipmentsInfo = shipments || []
   const shippedItems = shipmentsInfo.map((shipment: OrderShipmentItem) => {
-    const {
-      items,
-    } = shipment
+    const { items } = shipment
 
     const itemsInfo: OrderProductItem[] = []
     items.forEach((item: OrderShipmentProductItem) => {
-      const product = products.find((product: OrderProductItem) => product.id === item.order_product_id)
+      const product = products.find(
+        (product: OrderProductItem) => product.id === item.order_product_id
+      )
       if (product) {
         itemsInfo.push({
           ...product,
@@ -40,18 +36,27 @@ const getOrderShipping = (data: B2BOrderData) => {
     }
   })
 
-  const shippings: OrderShippingsItem[] = shippingAddress.map((address: OrderShippingAddressItem) => ({
-    ...address,
-    shipmentItems: [
-      ...(shippedItems.filter((shippedItem: OrderShippedItem) => shippedItem.order_address_id === address.id)),
-    ],
-    notShip: {
-      itemsInfo: products.filter((product: OrderProductItem) => {
-        product.not_shipping_number = product.quantity - product.quantity_shipped
-        return product.quantity > product.quantity_shipped && address.id === product.order_address_id
-      }),
-    },
-  }))
+  const shippings: OrderShippingsItem[] = shippingAddress.map(
+    (address: OrderShippingAddressItem) => ({
+      ...address,
+      shipmentItems: [
+        ...shippedItems.filter(
+          (shippedItem: OrderShippedItem) =>
+            shippedItem.order_address_id === address.id
+        ),
+      ],
+      notShip: {
+        itemsInfo: products.filter((product: OrderProductItem) => {
+          product.not_shipping_number =
+            product.quantity - product.quantity_shipped
+          return (
+            product.quantity > product.quantity_shipped &&
+            address.id === product.order_address_id
+          )
+        }),
+      },
+    })
+  )
 
   return shippings
 }
@@ -97,11 +102,7 @@ const getOrderSummary = (data: B2BOrderData) => {
 }
 
 const getPaymentData = (data: B2BOrderData) => {
-  const {
-    updatedAt,
-    billingAddress,
-    paymentMethod,
-  } = data
+  const { updatedAt, billingAddress, paymentMethod } = data
 
   return {
     updatedAt,
@@ -111,14 +112,14 @@ const getPaymentData = (data: B2BOrderData) => {
 }
 
 const handleProductQuantity = (data: B2BOrderData) => {
-  const {
-    products,
-  } = data
+  const { products } = data
 
   const newProducts: OrderProductItem[] = []
 
   products.forEach((product: OrderProductItem) => {
-    const productIndex = newProducts.findIndex((item) => +item.variant_id === +product.variant_id)
+    const productIndex = newProducts.findIndex(
+      (item) => +item.variant_id === +product.variant_id
+    )
 
     if (productIndex === -1) {
       newProducts.push(product)
@@ -135,7 +136,7 @@ const handleProductQuantity = (data: B2BOrderData) => {
   return newProducts
 }
 
-export const convertB2BOrderDetails = (data: B2BOrderData) => ({
+const convertB2BOrderDetails = (data: B2BOrderData) => ({
   shippings: getOrderShipping(data),
   history: data.orderHistoryEvent || [],
   poNumber: data.poNumber || '',
@@ -155,3 +156,5 @@ export const convertB2BOrderDetails = (data: B2BOrderData) => ({
   canReturn: data.canReturn,
   createdEmail: data.createdEmail,
 })
+
+export default convertB2BOrderDetails

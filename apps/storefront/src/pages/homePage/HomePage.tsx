@@ -1,5 +1,5 @@
-const HomePage = () => (
-  <></>
-)
+function HomePage() {
+  return null
+}
 
 export default HomePage

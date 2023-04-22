@@ -1,13 +1,6 @@
-import {
-  createContext,
-} from 'react'
+import { createContext } from 'react'
 
-import {
-  GlobalContext,
-  initState,
-  GlobalState,
-  GlobalAction,
-} from './config'
+import { GlobalAction, GlobalContext, GlobalState, initState } from './config'
 
 export const GlobaledContext = createContext<GlobalContext>({
   state: initState,

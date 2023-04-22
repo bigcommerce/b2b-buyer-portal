@@ -1,73 +1,43 @@
 import {
-  useEffect,
-  useState,
   forwardRef,
-  useImperativeHandle,
   Ref,
+  useEffect,
+  useImperativeHandle,
+  useState,
 } from 'react'
+import { useForm } from 'react-hook-form'
+import { Checkbox, FormControlLabel, styled } from '@mui/material'
+import { cloneDeep } from 'lodash'
 
+import { B3CustomForm, B3Dialog } from '@/components'
 import {
-  useForm,
-} from 'react-hook-form'
-
-import {
-  cloneDeep,
-} from 'lodash'
-
-import {
-  styled,
-  Checkbox,
-  FormControlLabel,
-} from '@mui/material'
-import {
-  B3CustomForm,
-  B3Dialog,
-} from '@/components'
-
-import {
-  b2bShippingBilling,
-  b2bShippingBillingProps,
-} from '../shared/config'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  updateB2BAddress,
   createB2BAddress,
   createBcAddress,
+  updateB2BAddress,
   updateBcAddress,
   validateAddressExtraFields,
 } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
-import {
-  deCodeField,
-} from '../../registered/config'
-
-import {
-  AddressItemType,
-} from '../../../types/address'
-
-import {
-  CountryProps,
-  StateProps,
-} from '../shared/getAddressFields'
+import { AddressItemType } from '../../../types/address'
+import { deCodeField } from '../../registered/config'
+import { b2bShippingBilling, B2bShippingBillingProps } from '../shared/config'
+import { CountryProps, StateProps } from '../shared/getAddressFields'
 
 interface AddressFormProps {
-  addressFields: CustomFieldItems[],
-  updateAddressList: (isFirst?: boolean) => void,
-  companyId: string | number,
-  isBCPermission: boolean,
-  countries: CountryProps[],
+  addressFields: CustomFieldItems[]
+  updateAddressList: (isFirst?: boolean) => void
+  companyId: string | number
+  isBCPermission: boolean
+  countries: CountryProps[]
 }
 
 interface ShippingBillingProps {
-  isShipping: boolean,
-  isBilling: boolean,
-  isDefaultShipping: boolean,
-  isDefaultBilling: boolean,
-  [key: string]: boolean,
+  isShipping: boolean
+  isBilling: boolean
+  isDefaultShipping: boolean
+  isDefaultBilling: boolean
+  [key: string]: boolean
 }
 
 const StyledCheckbox = styled('div')(() => ({
@@ -84,19 +54,25 @@ const StyledCheckbox = styled('div')(() => ({
   },
 }))
 
-const AddressForm = ({
-  addressFields,
-  updateAddressList,
-  companyId,
-  isBCPermission,
-  countries,
-}: AddressFormProps, ref: Ref<unknown> | undefined) => {
+function AddressForm(
+  {
+    addressFields,
+    updateAddressList,
+    companyId,
+    isBCPermission,
+    countries,
+  }: AddressFormProps,
+  ref: Ref<unknown> | undefined
+) {
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false)
-  const [allAddressFields, setAllAddressFields] = useState<CustomFieldItems[]>(addressFields)
-  const [addressExtraFields, setAddressExtraFields] = useState<CustomFieldItems>([])
-  const [originAddressFields, setOriginAddressFields] = useState<CustomFieldItems>([])
+  const [allAddressFields, setAllAddressFields] =
+    useState<CustomFieldItems[]>(addressFields)
+  const [addressExtraFields, setAddressExtraFields] =
+    useState<CustomFieldItems>([])
+  const [originAddressFields, setOriginAddressFields] =
+    useState<CustomFieldItems>([])
   const [addressData, setAddressData] = useState<AddressItemType | null>(null)
   const [shippingBilling, setShippingBilling] = useState<ShippingBillingProps>({
     isShipping: false,
@@ -111,9 +87,7 @@ const AddressForm = ({
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     watch,
     setError,
     setValue,
@@ -139,15 +113,15 @@ const AddressForm = ({
         const messageArr = message.split(':')
 
         if (messageArr.length >= 2) {
-          const field = addressExtraFields.find(((field: CustomFieldItems) => deCodeField(field.name) === messageArr[0]))
+          const field = addressExtraFields.find(
+            (field: CustomFieldItems) =>
+              deCodeField(field.name) === messageArr[0]
+          )
           if (field) {
-            setError(
-              field.name,
-              {
-                type: 'manual',
-                message: messageArr[1],
-              },
-            )
+            setError(field.name, {
+              type: 'manual',
+              message: messageArr[1],
+            })
             setAddUpdateLoading(false)
             return false
           }
@@ -184,30 +158,29 @@ const AddressForm = ({
           return
         }
 
-        const extraFields = addressExtraFields.map((field: CustomFieldItems) => ({
-          fieldName: deCodeField(field.name),
-          fieldValue: data[field.name] || field.default,
-        }))
-        const {
-          country: currentCountryCode,
-          state: stateCode,
-        } = data
+        const extraFields = addressExtraFields.map(
+          (field: CustomFieldItems) => ({
+            fieldName: deCodeField(field.name),
+            fieldValue: data[field.name] || field.default,
+          })
+        )
+        const { country: currentCountryCode, state: stateCode } = data
 
         let currentCountryName = ''
         let currentStateName = ''
         let currentStateCode = stateCode
 
         countries.forEach((country: CountryProps) => {
-          const {
-            countryName,
-            countryCode,
-            states,
-          } = country
+          const { countryName, countryCode, states } = country
           if (countryCode === currentCountryCode) {
             currentCountryName = countryName
 
             if (states.length > 0) {
-              const state = states.filter((item: StateProps) => item.stateCode === currentStateCode || item.stateName === currentStateCode)[0]
+              const state = states.filter(
+                (item: StateProps) =>
+                  item.stateCode === currentStateCode ||
+                  item.stateName === currentStateCode
+              )[0]
 
               currentStateName = state.stateName || currentStateCode
               currentStateCode = state.stateCode || currentStateCode
@@ -237,9 +210,7 @@ const AddressForm = ({
           await createB2BAddress(params)
           snackbar.success('New address is added')
         } else if (type === 'edit' && addressData) {
-          const {
-            id,
-          } = addressData
+          const { id } = addressData
 
           await updateB2BAddress({
             ...params,
@@ -270,31 +241,30 @@ const AddressForm = ({
       setAddUpdateLoading(true)
 
       try {
-        const extraFields = addressExtraFields.map((field: CustomFieldItems) => ({
-          name: field.bcLabel,
-          value: data[field.name] || field.default,
-        }))
+        const extraFields = addressExtraFields.map(
+          (field: CustomFieldItems) => ({
+            name: field.bcLabel,
+            value: data[field.name] || field.default,
+          })
+        )
 
-        const {
-          country: currentCountryCode,
-          state: stateCode,
-        } = data
+        const { country: currentCountryCode, state: stateCode } = data
 
         let currentCountryName = ''
         let currentStateName = ''
         let currentStateCode = stateCode
 
         countries.forEach((country: CountryProps) => {
-          const {
-            countryName,
-            countryCode,
-            states,
-          } = country
+          const { countryName, countryCode, states } = country
           if (countryCode === currentCountryCode) {
             currentCountryName = countryName
 
             if (states.length > 0) {
-              const state = states.filter((item: StateProps) => item.stateCode === currentStateCode || item.stateName === currentStateCode)[0]
+              const state = states.filter(
+                (item: StateProps) =>
+                  item.stateCode === currentStateCode ||
+                  item.stateName === currentStateCode
+              )[0]
 
               currentStateName = state.stateName || currentStateCode
               currentStateCode = state.stateCode || currentStateCode
@@ -319,9 +289,7 @@ const AddressForm = ({
           await createBcAddress(params)
           snackbar.success('New address is added')
         } else if (type === 'edit' && addressData) {
-          const {
-            bcAddressId,
-          } = addressData
+          const { bcAddressId } = addressData
 
           if (bcAddressId) {
             await updateBcAddress({
@@ -350,15 +318,23 @@ const AddressForm = ({
     }
   }
 
-  const handleOpenAddEditAddressClick = (type: string, data: AddressItemType) => {
+  const handleOpenAddEditAddressClick = (
+    type: string,
+    data: AddressItemType
+  ) => {
     if (type === 'add' && originAddressFields.length > 0) {
       allAddressFields.forEach((field: CustomFieldItems) => {
         if (field.custom) {
           if (isB2BUser) {
-            const originFields = originAddressFields.filter((item: CustomFieldItems) => item.name === field.name)[0]
+            const originFields = originAddressFields.filter(
+              (item: CustomFieldItems) => item.name === field.name
+            )[0]
             field.default = originFields.default || ''
           } else {
-            const originFields = originAddressFields.filter((item: CustomFieldItems) => item.name === field.name || item.bcLabel === field.bcLabel)[0]
+            const originFields = originAddressFields.filter(
+              (item: CustomFieldItems) =>
+                item.name === field.name || item.bcLabel === field.bcLabel
+            )[0]
             field.default = originFields.default || ''
           }
         }
@@ -388,7 +364,9 @@ const AddressForm = ({
         extraFields,
       } = addressData
 
-      const currentCountry = countries.filter((country: CountryProps) => country.countryCode === countryCode)
+      const currentCountry = countries.filter(
+        (country: CountryProps) => country.countryCode === countryCode
+      )
 
       setShippingBilling({
         isShipping: isShipping === 1,
@@ -401,8 +379,12 @@ const AddressForm = ({
         if (field.custom && extraFields.length > 0) {
           if (isB2BUser) {
             const name = deCodeField(field.name)
-            const currentExtraField = extraFields.filter((item: CustomFieldItems) => item.fieldName === name)[0]
-            const originFields = originAddressFields.filter((item: CustomFieldItems) => item.name === name)[0]
+            const currentExtraField = extraFields.filter(
+              (item: CustomFieldItems) => item.fieldName === name
+            )[0]
+            const originFields = originAddressFields.filter(
+              (item: CustomFieldItems) => item.name === name
+            )[0]
 
             if (currentExtraField) {
               setValue(field.name, currentExtraField.fieldValue || '')
@@ -413,13 +395,21 @@ const AddressForm = ({
               field.default = originFields.default
             }
           } else {
-            const currentExtraField = extraFields.filter((item: CustomFieldItems) => item.fieldName === field.name || item.fieldName === field.bcLabel)[0]
-            const originFields = originAddressFields.filter((item: CustomFieldItems) => item.name === field.name || item.bcLabel === field.bcLabel)[0]
+            const currentExtraField = extraFields.filter(
+              (item: CustomFieldItems) =>
+                item.fieldName === field.name ||
+                item.fieldName === field.bcLabel
+            )[0]
+            const originFields = originAddressFields.filter(
+              (item: CustomFieldItems) =>
+                item.name === field.name || item.bcLabel === field.bcLabel
+            )[0]
 
             if (currentExtraField) {
               setValue(field.name, currentExtraField.fieldValue || '')
 
-              field.default = currentExtraField.fieldValue || originFields.default
+              field.default =
+                currentExtraField.fieldValue || originFields.default
             } else {
               setValue(field.name, '')
               field.default = originFields.default
@@ -430,9 +420,7 @@ const AddressForm = ({
         } else if (field.name === 'state') {
           setValue(field.name, stateCode || state)
           if (currentCountry.length > 0) {
-            const {
-              states,
-            } = currentCountry[0]
+            const { states } = currentCountry[0]
 
             if (states.length > 0) {
               field.options = states
@@ -450,8 +438,13 @@ const AddressForm = ({
   }
 
   const handleCountryChange = (countryCode: string) => {
-    const stateList = countries.find((country: CountryProps) => country.countryCode === countryCode)?.states || []
-    const stateFields = allAddressFields.find((formFields: CustomFieldItems) => formFields.name === 'state')
+    const stateList =
+      countries.find(
+        (country: CountryProps) => country.countryCode === countryCode
+      )?.states || []
+    const stateFields = allAddressFields.find(
+      (formFields: CustomFieldItems) => formFields.name === 'state'
+    )
 
     if (stateFields) {
       if (stateList.length > 0) {
@@ -486,7 +479,9 @@ const AddressForm = ({
 
   useEffect(() => {
     setAllAddressFields(addressFields)
-    const extraFields = addressFields.filter((field: CustomFieldItems) => field.custom)
+    const extraFields = addressFields.filter(
+      (field: CustomFieldItems) => field.custom
+    )
 
     setAddressExtraFields(extraFields)
 
@@ -503,13 +498,8 @@ const AddressForm = ({
   }, [open, type])
 
   useEffect(() => {
-    const subscription = watch((value, {
-      name,
-      type,
-    }) => {
-      const {
-        country,
-      } = value
+    const subscription = watch((value, { name, type }) => {
+      const { country } = value
 
       if (name === 'country' && type === 'change') {
         handleCountryChange(country)
@@ -519,83 +509,70 @@ const AddressForm = ({
   }, [allAddressFields])
 
   return (
-    <>
-      <B3Dialog
-        isOpen={open}
-        title={type === 'add' ? 'Add new address' : 'Edit address'}
-        leftSizeBtn="Cancel"
-        rightSizeBtn="Save Address"
-        handleLeftClick={handleCancelClick}
-        handRightClick={handleSaveAddress}
-        loading={addUpdateLoading}
-        isShowBordered
-      >
-        {
-          isB2BUser && (
-            <>
-              <p>Select address type</p>
+    <B3Dialog
+      isOpen={open}
+      title={type === 'add' ? 'Add new address' : 'Edit address'}
+      leftSizeBtn="Cancel"
+      rightSizeBtn="Save Address"
+      handleLeftClick={handleCancelClick}
+      handRightClick={handleSaveAddress}
+      loading={addUpdateLoading}
+      isShowBordered
+    >
+      {isB2BUser && (
+        <>
+          <p>Select address type</p>
 
-              <StyledCheckbox>
-                {
-                  b2bShippingBilling.map((item: b2bShippingBillingProps) => {
-                    const {
-                      child,
-                      name,
-                      label,
-                    } = item
+          <StyledCheckbox>
+            {b2bShippingBilling.map((item: B2bShippingBillingProps) => {
+              const { child, name, label } = item
 
-                    return (
-                      <div key={name}>
-                        <FormControlLabel
-                          control={(
-                            <Checkbox
-                              checked={shippingBilling[name]}
-                              onChange={(e) => {
-                                handleChangeAddressType(e.target.checked, name)
-                              }}
-                            />
-                          )}
-                          label={label}
+              return (
+                <div key={name}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={shippingBilling[name]}
+                        onChange={(e) => {
+                          handleChangeAddressType(e.target.checked, name)
+                        }}
+                      />
+                    }
+                    label={label}
+                  />
+                  {child && (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={shippingBilling[child.name]}
+                          onChange={() => {
+                            setShippingBilling({
+                              ...shippingBilling,
+                              [child.name]: !shippingBilling[child.name],
+                            })
+                          }}
                         />
-                        {
-                          child && (
-                            <FormControlLabel
-                              control={(
-                                <Checkbox
-                                  checked={shippingBilling[child.name]}
-                                  onChange={() => {
-                                    setShippingBilling({
-                                      ...shippingBilling,
-                                      [child.name]: !shippingBilling[child.name],
-                                    })
-                                  }}
-                                />
-                              )}
-                              label={child.label}
-                              sx={{
-                                display: shippingBilling[name] ? '' : 'none',
-                              }}
-                            />
-                          )
-                        }
-                      </div>
-                    )
-                  })
-                }
-              </StyledCheckbox>
-            </>
-          )
-        }
-        <B3CustomForm
-          formFields={allAddressFields}
-          errors={errors}
-          control={control}
-          getValues={getValues}
-          setValue={setValue}
-        />
-
-      </B3Dialog>
-    </>
+                      }
+                      label={child.label}
+                      sx={{
+                        display: shippingBilling[name] ? '' : 'none',
+                      }}
+                    />
+                  )}
+                </div>
+              )
+            })}
+          </StyledCheckbox>
+        </>
+      )}
+      <B3CustomForm
+        formFields={allAddressFields}
+        errors={errors}
+        control={control}
+        getValues={getValues}
+        setValue={setValue}
+      />
+    </B3Dialog>
   )
 }
 

@@ -1,46 +1,22 @@
 import {
+  KeyboardEvent,
+  useCallback,
+  useEffect,
   useMemo,
   useRef,
-  useCallback,
   useState,
-  useEffect,
-  KeyboardEvent,
 } from 'react'
+import { Box, Card, CardContent, TextField, Tooltip } from '@mui/material'
+import { format, formatDistanceStrict } from 'date-fns'
 
-import {
-  Box,
-  Card,
-  CardContent,
-  TextField,
-  Tooltip,
-} from '@mui/material'
-
-import {
-  format,
-  formatDistanceStrict,
-} from 'date-fns'
-
-import {
-  updateB2BQuote,
-  updateBCQuote,
-} from '@/shared/service/b2b'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  B3CollapseContainer,
-} from '@/components'
-
-import {
-  storeHash,
-} from '@/utils'
+import { B3CollapseContainer, B3Sping } from '@/components'
+import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b'
+import { storeHash } from '@/utils'
 
 interface MessageProps {
-  date?: number,
-  message?: string,
-  role?: string,
+  date?: number
+  message?: string
+  role?: string
   isCustomer?: boolean
   key?: number | string
   read?: number
@@ -56,114 +32,101 @@ interface MsgsProps {
 }
 
 interface CustomerMessageProps {
-  msg: MessageProps,
-  isEndMessage?: boolean,
-  isCustomer?: boolean,
+  msg: MessageProps
+  isEndMessage?: boolean
+  isCustomer?: boolean
 }
 
-const ChatMessage = ({
-  msg,
-  isEndMessage,
-  isCustomer,
-}: CustomerMessageProps) => (
-  <Box
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: `${isCustomer ? 'flex-end' : 'flex-start'}`,
-    }}
-  >
-    {
-      msg?.role && (
-      <Box
-        sx={{
-          height: '14px',
-          fontWeight: 400,
-          lineHeight: '14px',
-          fontSize: '10px',
-          letterSpacing: '0.17px',
-          color: 'rgba(0, 0, 0, 0.38)',
-        }}
-      >
-        {msg.role}
-
-      </Box>
-      )
-    }
-    {
-      msg?.message && (
-      <Box
-        sx={{
-          display: 'inline-block',
-          height: '34px',
-          lineHeight: '34px',
-          padding: '0 10px',
-          background: `${isCustomer ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)'}`,
-          borderRadius: '18px',
-          m: '1px',
-        }}
-      >
-        <Tooltip
-          title={format((msg.sendTime || 0) * 1000, 'K:m aa')}
-          placement="top"
-          arrow
+function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: `${isCustomer ? 'flex-end' : 'flex-start'}`,
+      }}
+    >
+      {msg?.role && (
+        <Box
+          sx={{
+            height: '14px',
+            fontWeight: 400,
+            lineHeight: '14px',
+            fontSize: '10px',
+            letterSpacing: '0.17px',
+            color: 'rgba(0, 0, 0, 0.38)',
+          }}
         >
-          <Box>
-            {msg.message}
-          </Box>
-        </Tooltip>
-        {
-         isEndMessage && (
-         <Box
-           sx={{
-             height: '14px',
-             fontWeight: 400,
-             lineHeight: '14px',
-             fontSize: '10px',
-             letterSpacing: '0.17px',
-             color: 'rgba(0, 0, 0, 0.38)',
-           }}
-         >
-           {`Sent ${formatDistanceStrict(new Date((msg.sendTime || 0) * 1000), new Date(), {
-             addSuffix: true,
-           })}`}
-
-         </Box>
-         )
-        }
-      </Box>
-      )
-    }
-
-  </Box>
-)
+          {msg.role}
+        </Box>
+      )}
+      {msg?.message && (
+        <Box
+          sx={{
+            display: 'inline-block',
+            height: '34px',
+            lineHeight: '34px',
+            padding: '0 10px',
+            background: `${
+              isCustomer ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)'
+            }`,
+            borderRadius: '18px',
+            m: '1px',
+          }}
+        >
+          <Tooltip
+            title={format((msg.sendTime || 0) * 1000, 'K:m aa')}
+            placement="top"
+            arrow
+          >
+            <Box>{msg.message}</Box>
+          </Tooltip>
+          {isEndMessage && (
+            <Box
+              sx={{
+                height: '14px',
+                fontWeight: 400,
+                lineHeight: '14px',
+                fontSize: '10px',
+                letterSpacing: '0.17px',
+                color: 'rgba(0, 0, 0, 0.38)',
+              }}
+            >
+              {`Sent ${formatDistanceStrict(
+                new Date((msg.sendTime || 0) * 1000),
+                new Date(),
+                {
+                  addSuffix: true,
+                }
+              )}`}
+            </Box>
+          )}
+        </Box>
+      )}
+    </Box>
+  )
+}
 
 interface DateMessageProps {
-  msg: MessageProps,
+  msg: MessageProps
 }
 
-const DateMessage = ({
-  msg,
-}: DateMessageProps) => (
-  <Box
-    sx={{
-      color: 'rgba(0, 0, 0, 0.6)',
-      textAlign: 'center',
-      height: '21px',
-      mb: '5px',
-    }}
-  >
-    {format((msg?.date || 0) * 1000, 'MMMM dd uuuu, K:m aa')}
-  </Box>
-)
+function DateMessage({ msg }: DateMessageProps) {
+  return (
+    <Box
+      sx={{
+        color: 'rgba(0, 0, 0, 0.6)',
+        textAlign: 'center',
+        height: '21px',
+        mb: '5px',
+      }}
+    >
+      {format((msg?.date || 0) * 1000, 'MMMM dd uuuu, K:m aa')}
+    </Box>
+  )
+}
 
-const Message = ({
-  msgs,
-  id,
-  isB2BUser,
-  email,
-  status,
-}: MsgsProps) => {
+function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const changeReadRef = useRef(0)
 
@@ -196,7 +159,7 @@ const Message = ({
         nextMsg = msg
         nextMsg.isCustomer = !msg.role?.includes('Sales rep:')
       } else {
-        if (((msg?.date || 0) - (nextMsg?.date || 0)) > 60 * 60) {
+        if ((msg?.date || 0) - (nextMsg?.date || 0) > 60 * 60) {
           getNewMsgs.push({
             isCustomer: !msg.role?.includes('Sales rep:'),
             date: msg?.date,
@@ -234,38 +197,38 @@ const Message = ({
     setMessages(getNewMsgs)
   }
 
-  const title = useMemo(() => (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      Message
-      {' '}
-      {
-        read !== 0 && (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            background: '#1976D2',
-            color: '#fff',
-            fontSize: '12px',
-            ml: '8px',
-          }}
-        >
-          {read}
-        </Box>
-        )
-      }
-    </Box>
-  ), [read])
+  const title = useMemo(
+    () => (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        Message{' '}
+        {read !== 0 && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              background: '#1976D2',
+              color: '#fff',
+              fontSize: '12px',
+              ml: '8px',
+            }}
+          >
+            {read}
+          </Box>
+        )}
+      </Box>
+    ),
+    [read]
+  )
 
   useEffect(() => {
     convertedMsgs(msgs)
@@ -283,9 +246,7 @@ const Message = ({
       setLoadding(true)
       const {
         quoteUpdate: {
-          quote: {
-            trackingHistory,
-          },
+          quote: { trackingHistory },
         },
       } = await fn({
         id: +id,
@@ -310,36 +271,37 @@ const Message = ({
     }
   }
 
-  const handleOnChange = useCallback((open: boolean) => {
-    if (open) {
-      const fn = isB2BUser ? updateB2BQuote : updateBCQuote
-      if (changeReadRef.current === 0 && msgs.length) {
-        fn({
-          id: +id,
-          quoteData: {
-            lastMessage: msgs[msgs.length - 1]?.date,
-            userEmail: email || '',
-            storeHash,
-          },
-        })
+  const handleOnChange = useCallback(
+    (open: boolean) => {
+      if (open) {
+        const fn = isB2BUser ? updateB2BQuote : updateBCQuote
+        if (changeReadRef.current === 0 && msgs.length) {
+          fn({
+            id: +id,
+            quoteData: {
+              lastMessage: msgs[msgs.length - 1]?.date,
+              userEmail: email || '',
+              storeHash,
+            },
+          })
+        }
+        setRead(0)
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight
+        }
+        changeReadRef.current += 1
       }
-      setRead(0)
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight
-      }
-      changeReadRef.current += 1
-    }
-  }, [msgs])
+    },
+    [msgs]
+  )
   return (
     <Card>
       <CardContent>
-        <B3CollapseContainer
-          handleOnChange={handleOnChange}
-          title={title}
-        >
-          <Box sx={{
-            padding: '16px 0',
-          }}
+        <B3CollapseContainer handleOnChange={handleOnChange} title={title}>
+          <Box
+            sx={{
+              padding: '16px 0',
+            }}
           >
             <Box
               sx={{
@@ -352,7 +314,6 @@ const Message = ({
               }}
             >
               Merchant typically answers within 1 day
-
             </Box>
             <Box
               ref={messagesEndRef}
@@ -365,58 +326,51 @@ const Message = ({
                 },
               }}
             >
-              {
-              messages.map((item: MessageProps, index: number) => (
+              {messages.map((item: MessageProps, index: number) => (
                 <Box key={item.key}>
                   <ChatMessage
                     msg={item}
                     isEndMessage={index === messages.length - 1}
                     isCustomer={!!item.isCustomer}
                   />
-                  {
-                    item.date && <DateMessage msg={item} />
-                  }
+                  {item.date && <DateMessage msg={item} />}
                 </Box>
-              ))
-            }
+              ))}
             </Box>
-
           </Box>
 
-          {
-              status !== 4 && (
-                <B3Sping
-                  isSpinning={loadding}
-                  spinningHeight={50}
-                  size={10}
-                  isCloseLoading
-                  tip="waiting.."
-                >
-                  <Box
-                    sx={{
-                      width: '100%',
-                    }}
-                  >
-                    <TextField
-                      onKeyDown={updateMessage}
-                      sx={{
-                        width: '100%',
-                        '& .MuiFormLabel-root': {
-                          color: 'rgba(0, 0, 0, 0.38)',
-                        },
-                      }}
-                      value={message}
-                      onChange={(event) => { setMessage(event.target.value) }}
-                      size="small"
-                      label="Type a message..."
-                      variant="filled"
-                    />
-                  </Box>
-                </B3Sping>
-
-              )
-            }
-
+          {status !== 4 && (
+            <B3Sping
+              isSpinning={loadding}
+              spinningHeight={50}
+              size={10}
+              isCloseLoading
+              tip="waiting.."
+            >
+              <Box
+                sx={{
+                  width: '100%',
+                }}
+              >
+                <TextField
+                  onKeyDown={updateMessage}
+                  sx={{
+                    width: '100%',
+                    '& .MuiFormLabel-root': {
+                      color: 'rgba(0, 0, 0, 0.38)',
+                    },
+                  }}
+                  value={message}
+                  onChange={(event) => {
+                    setMessage(event.target.value)
+                  }}
+                  size="small"
+                  label="Type a message..."
+                  variant="filled"
+                />
+              </Box>
+            </B3Sping>
+          )}
         </B3CollapseContainer>
       </CardContent>
     </Card>

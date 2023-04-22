@@ -1,6 +1,6 @@
 enum StorageType {
   l = 'localStorage',
-  s = 'sessionStorage'
+  s = 'sessionStorage',
 }
 
 class MyStorage {
@@ -9,14 +9,12 @@ class MyStorage {
   prefix: string
 
   constructor(type: StorageType) {
-    this.storage = type === StorageType.l ? window.localStorage : window.sessionStorage
+    this.storage =
+      type === StorageType.l ? window.localStorage : window.sessionStorage
     this.prefix = 'sf-'
   }
 
-  set(
-    key: string,
-    value: any,
-  ) {
+  set(key: string, value: any) {
     const data = JSON.stringify(value)
     this.storage.setItem(this.prefix + key, data)
   }
@@ -26,6 +24,7 @@ class MyStorage {
     if (value) {
       return JSON.parse(value)
     }
+    return undefined
   }
 
   delete(key: string) {
@@ -40,6 +39,4 @@ class MyStorage {
 const B3LStorage = new MyStorage(StorageType.l)
 const B3SStorage = new MyStorage(StorageType.s)
 
-export {
-  B3SStorage, B3LStorage,
-}
+export { B3LStorage, B3SStorage }

@@ -1,23 +1,13 @@
-import {
-  Box,
-  CardContent,
-  Typography,
-  styled,
-} from '@mui/material'
+import { Box, CardContent, styled, Typography } from '@mui/material'
 
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
-import {
-  getProductPriceIncTax,
-} from '@/utils'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { getProductPriceIncTax } from '@/utils'
 
 interface QuoteTableCardProps {
-  item: any,
-  currencyToken?: string,
-  len: number,
-  itemIndex?: number,
+  item: any
+  currencyToken?: string
+  len: number
+  itemIndex?: number
 }
 
 const StyledImage = styled('img')(() => ({
@@ -26,13 +16,8 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }))
 
-const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
-  const {
-    item: quoteTableItem,
-    currencyToken = '$',
-    len,
-    itemIndex,
-  } = props
+function QuoteDetailTableCard(props: QuoteTableCardProps) {
+  const { item: quoteTableItem, currencyToken = '$', len, itemIndex } = props
 
   const {
     basePrice,
@@ -43,9 +28,7 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
     sku,
     notes,
     offeredPrice,
-    productsSearch: {
-      variants = [],
-    },
+    productsSearch: { variants = [] },
     variantId,
   } = quoteTableItem
 
@@ -90,16 +73,10 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
             flex: 1,
           }}
         >
-          <Typography
-            variant="body1"
-            color="#212121"
-          >
+          <Typography variant="body1" color="#212121">
             {productName}
           </Typography>
-          <Typography
-            variant="body1"
-            color="#616161"
-          >
+          <Typography variant="body1" color="#616161">
             {sku}
           </Typography>
           <Box
@@ -107,53 +84,44 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
               margin: '1rem 0',
             }}
           >
-            {
-              (options.length > 0) && (
-                <Box>
-                  {
-                    options.map((option: any) => (
-                      <Typography
-                        sx={{
-                          fontSize: '0.75rem',
-                          lineHeight: '1.5',
-                          color: '#455A64',
-                        }}
-                        key={option.optionName}
-                      >
-                        {`${option.optionName
-                        }: ${option.optionLabel
-                        }`}
-                      </Typography>
-                    ))
-                  }
-                </Box>
-              )
-            }
+            {options.length > 0 && (
+              <Box>
+                {options.map((option: any) => (
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      lineHeight: '1.5',
+                      color: '#455A64',
+                    }}
+                    key={option.optionName}
+                  >
+                    {`${option.optionName}: ${option.optionLabel}`}
+                  </Typography>
+                ))}
+              </Box>
+            )}
           </Box>
-          <Typography
-            variant="body1"
-            color="#616161"
-          >
+          <Typography variant="body1" color="#616161">
             {notes}
           </Typography>
 
           <Typography>
             Price:
-            {
-              isDiscount && (
-                <span style={{
+            {isDiscount && (
+              <span
+                style={{
                   marginLeft: '5px',
                   textDecoration: 'line-through',
                 }}
-                >
-                  {`${currencyToken}${withTaxPrice.toFixed(2)}`}
-                </span>
-              )
-            }
-            <span style={{
-              marginLeft: '5px',
-              color: isDiscount ? '#2E7D32' : '#212121',
-            }}
+              >
+                {`${currencyToken}${withTaxPrice.toFixed(2)}`}
+              </span>
+            )}
+            <span
+              style={{
+                marginLeft: '5px',
+                color: isDiscount ? '#2E7D32' : '#212121',
+              }}
             >
               {`${currencyToken}${(+withTaxPrice - +isDiscount).toFixed(2)}`}
             </span>
@@ -169,21 +137,21 @@ const QuoteDetailTableCard = (props: QuoteTableCardProps) => {
 
           <Typography>
             Total:
-            {
-              isDiscount && (
-                <span style={{
+            {isDiscount && (
+              <span
+                style={{
                   marginLeft: '5px',
                   textDecoration: 'line-through',
                 }}
-                >
-                  {`${currencyToken}${total.toFixed(2)}`}
-                </span>
-              )
-            }
-            <span style={{
-              marginLeft: '5px',
-              color: isDiscount ? '#2E7D32' : '#212121',
-            }}
+              >
+                {`${currencyToken}${total.toFixed(2)}`}
+              </span>
+            )}
+            <span
+              style={{
+                marginLeft: '5px',
+                color: isDiscount ? '#2E7D32' : '#212121',
+              }}
             >
               {`${currencyToken}${totalWithDiscount.toFixed(2)}`}
             </span>

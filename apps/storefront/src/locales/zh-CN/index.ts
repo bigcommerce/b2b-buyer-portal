@@ -1,7 +1,9 @@
-import users from './users'
 import global from './global'
+import users from './users'
 
-export const zh = {
+const zh = {
   ...global,
   ...users,
 }
+
+export default zh

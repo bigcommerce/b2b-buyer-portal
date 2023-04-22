@@ -1,43 +1,25 @@
 import {
-  useState,
   forwardRef,
-  useImperativeHandle,
   Ref,
-  useEffect,
   useContext,
+  useEffect,
+  useImperativeHandle,
+  useState,
 } from 'react'
+import { useForm } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
+
+import { B3CustomForm, B3Dialog } from '@/components'
+import { GlobaledContext } from '@/shared/global'
+import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
 import {
-  useForm,
-} from 'react-hook-form'
-
-import {
-  useB3Lang,
-} from '@b3/lang'
-
-import {
-  addOrUpdateUsers,
-  checkUserEmail,
-} from '@/shared/service/b2b'
-import {
-  B3CustomForm,
-  B3Dialog,
-} from '@/components'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  getUsersFiles,
-  UsersList,
-  UsersFilesProps,
-  filterProps,
   emailError,
+  FilterProps,
+  getUsersFiles,
+  UsersFilesProps,
+  UsersList,
 } from './config'
 
 interface AddEditUserProps {
@@ -45,14 +27,12 @@ interface AddEditUserProps {
   renderList: () => void
 }
 
-const AddEditUser = ({
-  companyId,
-  renderList,
-}: AddEditUserProps, ref: Ref<unknown> | undefined) => {
+function AddEditUser(
+  { companyId, renderList }: AddEditUserProps,
+  ref: Ref<unknown> | undefined
+) {
   const {
-    state: {
-      currentChannelId,
-    },
+    state: { currentChannelId },
   } = useContext(GlobaledContext)
 
   const [open, setOpen] = useState<boolean>(false)
@@ -70,9 +50,7 @@ const AddEditUser = ({
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     clearErrors,
     setValue,
     setError,
@@ -100,9 +78,7 @@ const AddEditUser = ({
     const {
       userEmailCheck: {
         userType,
-        userInfo: {
-          companyName,
-        },
+        userInfo: { companyName },
       },
     }: CustomFieldItems = await checkUserEmail({
       email: emailValue,
@@ -135,16 +111,13 @@ const AddEditUser = ({
       let message = 'add user successfully'
 
       try {
-        const params: Partial<filterProps> = {
+        const params: Partial<FilterProps> = {
           companyId,
           ...data,
         }
 
         if (type !== 'edit') {
-          const {
-            isValid,
-            userType,
-          } = await validateEmailValue(data.email)
+          const { isValid, userType } = await validateEmailValue(data.email)
 
           if (!isValid) {
             setAddUpdateLoading(false)

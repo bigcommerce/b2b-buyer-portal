@@ -1,18 +1,12 @@
-import {
-  Box,
-  Typography,
-} from '@mui/material'
+import { Box, Typography } from '@mui/material'
 
 interface BulkUploadTableCardProps {
-  products: CustomFieldItems,
-  activeTab: string,
+  products: CustomFieldItems
+  activeTab: string
 }
 
-const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
-  const {
-    products,
-    activeTab,
-  } = props
+function BulkUploadTableCard(props: BulkUploadTableCardProps) {
+  const { products, activeTab } = props
 
   const lineItemStyle = {
     display: 'flex',
@@ -23,14 +17,13 @@ const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
       className="CSVProducts-info"
       key={products.sku}
       sx={{
-        boxShadow: '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
+        boxShadow:
+          '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
         borderRadius: '4px',
         padding: '16px',
       }}
     >
-      <Box
-        sx={lineItemStyle}
-      >
+      <Box sx={lineItemStyle}>
         <Typography
           sx={{
             color: '#313440',
@@ -39,14 +32,11 @@ const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
             paddingRight: '0.5rem',
           }}
         >
-          SKU:
-          {' '}
+          SKU:{' '}
         </Typography>
         <span>{products.sku}</span>
       </Box>
-      <Box
-        sx={lineItemStyle}
-      >
+      <Box sx={lineItemStyle}>
         <Typography
           sx={{
             color: '#313440',
@@ -55,50 +45,41 @@ const BulkUploadTableCard = (props: BulkUploadTableCardProps) => {
             paddingRight: '0.5rem',
           }}
         >
-          Qty:
-          {' '}
+          Qty:{' '}
         </Typography>
         <span>{products.qty}</span>
       </Box>
 
-      {
-        activeTab === 'error' && (
-          <>
-            <Box
-              sx={lineItemStyle}
+      {activeTab === 'error' && (
+        <>
+          <Box sx={lineItemStyle}>
+            <Typography
+              sx={{
+                color: '#313440',
+                fontWeight: 700,
+                fontSize: '16px',
+                paddingRight: '0.5rem',
+              }}
             >
-              <Typography
-                sx={{
-                  color: '#313440',
-                  fontWeight: 700,
-                  fontSize: '16px',
-                  paddingRight: '0.5rem',
-                }}
-              >
-                Row:
-                {' '}
-              </Typography>
-              <span>{products.row + 1}</span>
-            </Box>
-            <Box
-              sx={lineItemStyle}
+              Row:{' '}
+            </Typography>
+            <span>{products.row + 1}</span>
+          </Box>
+          <Box sx={lineItemStyle}>
+            <Typography
+              sx={{
+                color: '#313440',
+                fontWeight: 700,
+                fontSize: '16px',
+                paddingRight: '0.5rem',
+              }}
             >
-              <Typography
-                sx={{
-                  color: '#313440',
-                  fontWeight: 700,
-                  fontSize: '16px',
-                  paddingRight: '0.5rem',
-                }}
-              >
-                Error:
-                {' '}
-              </Typography>
-              <span>{products.error}</span>
-            </Box>
-          </>
-        )
-      }
+              Error:{' '}
+            </Typography>
+            <span>{products.error}</span>
+          </Box>
+        </>
+      )}
     </Box>
   )
 }

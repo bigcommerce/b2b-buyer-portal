@@ -6,7 +6,7 @@ This turborepo uses [Yarn](https://classic.yarnpkg.com/lang/en/) as a package 
 
 ## Apps and Packages
 
-- `/apps/storefront`: the new BundleB2B storefront aplication,  [React 18](https://reactjs.org/) app using [vite](http://vitejs.dev/) as the building tool.
+- `/apps/storefront`: the new BundleB2B storefront aplication, [React 18](https://reactjs.org/) app using [vite](http://vitejs.dev/) as the building tool.
 
 - `/packages/eslint-config-b3`: the shared eslint config.
 
@@ -26,6 +26,7 @@ This turborepo has the tools and packages already setup:
 - [React Router 6](https://reactrouter.com/) as the frontend router.
 
 ## Setup
+
 1. Run `yarn install`
 2. Copy `apps/storefront/.env-example` and paste it as `.env`
 3. Update the `VITE_STORE_HASH` value on `.env` file

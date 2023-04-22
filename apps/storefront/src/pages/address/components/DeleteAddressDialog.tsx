@@ -1,32 +1,12 @@
-import {
-  Dispatch,
-  SetStateAction,
-} from 'react'
+import { Dispatch, SetStateAction } from 'react'
+import { Box } from '@mui/material'
 
-import {
-  Box,
-} from '@mui/material'
+import { B3Dialog } from '@/components'
+import { useMobile } from '@/hooks'
+import { deleteB2BAddress, deleteBCCustomerAddress } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  B3Dialog,
-} from '@/components'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  AddressItemType,
-} from '../../../types/address'
-
-import {
-  deleteB2BAddress,
-  deleteBCCustomerAddress,
-} from '@/shared/service/b2b'
+import { AddressItemType } from '../../../types/address'
 
 interface DeleteAddressDialogProps {
   isOpen: boolean
@@ -34,11 +14,11 @@ interface DeleteAddressDialogProps {
   setIsLoading: Dispatch<SetStateAction<boolean>>
   addressData?: AddressItemType
   updateAddressList: (isFirst?: boolean) => void
-  companyId: string | number,
-  isBCPermission: boolean,
+  companyId: string | number
+  isBCPermission: boolean
 }
 
-export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
+export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
   const {
     isOpen,
     setIsOpen,
@@ -60,10 +40,7 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
       setIsLoading(true)
       setIsOpen(false)
 
-      const {
-        id = '',
-        bcAddressId = '',
-      } = addressData
+      const { id = '', bcAddressId = '' } = addressData
 
       if (!isBCPermission) {
         await deleteB2BAddress({
@@ -90,7 +67,9 @@ export const DeleteAddressDialog = (props: DeleteAddressDialogProps) => {
       title="Delete address"
       leftSizeBtn="cancel"
       rightSizeBtn="delete"
-      handleLeftClick={() => { setIsOpen(false) }}
+      handleLeftClick={() => {
+        setIsOpen(false)
+      }}
       handRightClick={handleDelete}
       rightStyleBtn={{
         color: '#D32F2F',

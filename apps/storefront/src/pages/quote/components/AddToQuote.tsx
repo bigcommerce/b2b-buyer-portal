@@ -1,121 +1,101 @@
-import {
-  useState,
-} from 'react'
-
-import {
-  Divider,
-  Card,
-  CardContent,
-  Box,
-} from '@mui/material'
-
+import { useState } from 'react'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
+import { Box, Card, CardContent, Divider } from '@mui/material'
+import { v1 as uuid } from 'uuid'
 
+import { B3CollapseContainer, B3Upload, CustomButton } from '@/components'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import {
-  v1 as uuid,
-} from 'uuid'
-
-import {
-  B3Upload,
-  B3CollapseContainer,
-  CustomButton,
-} from '@/components'
-
-import {
-  snackbar,
   addQuoteDraftProduce,
   getModifiersPrice,
   getQuickAddProductExtraPrice,
+  snackbar,
 } from '@/utils'
+import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
-import {
-  searchB2BProducts,
-  searchBcProducts,
-} from '@/shared/service/b2b'
-
-import {
-  conversionProductsList,
-} from '../../../utils/b3Product/shared/config'
-
-import {
-  SearchProduct,
-} from '../../shoppingListDetails/components/SearchProduct'
-
-import {
-  QuickAdd,
-} from '../../shoppingListDetails/components/QuickAdd'
+import QuickAdd from '../../shoppingListDetails/components/QuickAdd'
+import SearchProduct from '../../shoppingListDetails/components/SearchProduct'
 
 interface AddToListProps {
   updateList: () => void
-  addToQuote: (products: CustomFieldItems[]) => void,
-  isB2BUser: boolean,
+  addToQuote: (products: CustomFieldItems[]) => void
+  isB2BUser: boolean
 }
 
-export const AddToQuote = (props: AddToListProps) => {
-  const {
-    updateList,
-    addToQuote,
-    isB2BUser,
-  } = props
+export default function AddToQuote(props: AddToListProps) {
+  const { updateList, addToQuote, isB2BUser } = props
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const getNewQuoteProduct = (products: CustomFieldItems[]) => products.map((product) => {
-    const {
-      variantId,
-      newSelectOptionList,
-      id: productId,
-      name: productName,
-      quantity,
-      variants = [],
-      allOptions,
-      additionalProducts,
-    } = product
-
-    const modifiersPrice = getModifiersPrice(allOptions || [], newSelectOptionList)
-
-    const productExtraPrice = getQuickAddProductExtraPrice(allOptions || [], newSelectOptionList, additionalProducts)
-
-    const additionalCalculatedPrices = [...modifiersPrice, ...productExtraPrice]
-
-    const variantInfo = variants.length === 1 ? variants[0] : variants.find((item: CustomFieldItems) => item.variant_id === variantId)
-
-    const {
-      image_url: primaryImage = '',
-      calculated_price: basePrice,
-      sku: variantSku,
-    } = variantInfo
-
-    let selectOptions
-    try {
-      selectOptions = JSON.stringify(newSelectOptionList)
-    } catch (error) {
-      selectOptions = '[]'
-    }
-
-    return {
-      node: {
-        basePrice: basePrice.toFixed(2),
-        additionalCalculatedPrices,
-        optionList: selectOptions,
-        id: uuid(),
-        primaryImage,
-        productId,
-        productName,
-        productsSearch: {
-          ...product,
-          selectOptions,
-        },
+  const getNewQuoteProduct = (products: CustomFieldItems[]) =>
+    products.map((product) => {
+      const {
+        variantId,
+        newSelectOptionList,
+        id: productId,
+        name: productName,
         quantity,
-        variantSku,
-      },
-    }
-  })
+        variants = [],
+        allOptions,
+        additionalProducts,
+      } = product
+
+      const modifiersPrice = getModifiersPrice(
+        allOptions || [],
+        newSelectOptionList
+      )
+
+      const productExtraPrice = getQuickAddProductExtraPrice(
+        allOptions || [],
+        newSelectOptionList,
+        additionalProducts
+      )
+
+      const additionalCalculatedPrices = [
+        ...modifiersPrice,
+        ...productExtraPrice,
+      ]
+
+      const variantInfo =
+        variants.length === 1
+          ? variants[0]
+          : variants.find(
+              (item: CustomFieldItems) => item.variant_id === variantId
+            )
+
+      const {
+        image_url: primaryImage = '',
+        calculated_price: basePrice,
+        sku: variantSku,
+      } = variantInfo
+
+      let selectOptions
+      try {
+        selectOptions = JSON.stringify(newSelectOptionList)
+      } catch (error) {
+        selectOptions = '[]'
+      }
+
+      return {
+        node: {
+          basePrice: basePrice.toFixed(2),
+          additionalCalculatedPrices,
+          optionList: selectOptions,
+          id: uuid(),
+          primaryImage,
+          productId,
+          productName,
+          productsSearch: {
+            ...product,
+            selectOptions,
+          },
+          quantity,
+          variantSku,
+        },
+      }
+    })
 
   const addToList = async (products: CustomFieldItems[]) => {
     const newProducts = getNewQuoteProduct(products)
@@ -132,20 +112,18 @@ export const AddToQuote = (props: AddToListProps) => {
   const quickAddToList = async (variantProducts: CustomFieldItems[]) => {
     const productIds = variantProducts.map((item) => item.productId)
 
-    const {
-      productsSearch,
-    } : CustomFieldItems = await searchB2BProducts({
+    const { productsSearch }: CustomFieldItems = await searchB2BProducts({
       productIds,
     })
 
     const productList = productsSearch.map((product: CustomFieldItems) => {
-      const variantProduct = variantProducts.find((variantProduct: CustomFieldItems) => variantProduct.productId === product.id) || {}
+      const variantProduct =
+        variantProducts.find(
+          (variantProduct: CustomFieldItems) =>
+            variantProduct.productId === product.id
+        ) || {}
 
-      const {
-        variantId,
-        newSelectOptionList,
-        quantity,
-      } = variantProduct
+      const { variantId, newSelectOptionList, quantity } = variantProduct
 
       return {
         ...product,
@@ -169,16 +147,18 @@ export const AddToQuote = (props: AddToListProps) => {
   const getOptionsList = (options: CustomFieldItems) => {
     if (options?.length === 0) return []
 
-    const option = options.map(({
-      option_id: optionId,
-      id,
-    }: {
-      option_id: number | string,
-      id: string | number,
-    }) => ({
-      optionId: `attribute[${optionId}]`,
-      optionValue: id,
-    }))
+    const option = options.map(
+      ({
+        option_id: optionId,
+        id,
+      }: {
+        option_id: number | string
+        id: string | number
+      }) => ({
+        optionId: `attribute[${optionId}]`,
+        optionValue: id,
+      })
+    )
 
     return option
   }
@@ -186,15 +166,11 @@ export const AddToQuote = (props: AddToListProps) => {
   const handleCSVAddToList = async (productsData: CustomFieldItems) => {
     setIsLoading(true)
     try {
-      const {
-        validProduct,
-      } = productsData
+      const { validProduct } = productsData
 
       const productIds: number[] = []
       validProduct.forEach((product: CustomFieldItems) => {
-        const {
-          products,
-        } = product
+        const { products } = product
 
         if (!productIds.includes(+products.productId)) {
           productIds.push(+products.productId)
@@ -203,32 +179,29 @@ export const AddToQuote = (props: AddToListProps) => {
 
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
-      const {
-        productsSearch,
-      } = await getProducts({
+      const { productsSearch } = await getProducts({
         productIds,
       })
 
-      const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch)
+      const newProductInfo: CustomFieldItems =
+        conversionProductsList(productsSearch)
 
       let isSuccess = false
       validProduct.forEach((product: CustomFieldItems) => {
         const {
-          products: {
-            option,
-            variantSku,
-            productId,
-            productName,
-            variantId,
-          },
+          products: { option, variantSku, productId, productName, variantId },
           qty,
         } = product
 
         const optionsList = getOptionsList(option)
 
-        const currentProductSearch = newProductInfo.find((product: CustomFieldItems) => +product.id === +productId)
+        const currentProductSearch = newProductInfo.find(
+          (product: CustomFieldItems) => +product.id === +productId
+        )
 
-        const variantItem = currentProductSearch.variants.find((item: CustomFieldItems) => item.sku === variantSku)
+        const variantItem = currentProductSearch.variants.find(
+          (item: CustomFieldItems) => item.sku === variantSku
+        )
 
         const quoteListitem = {
           node: {
@@ -242,7 +215,9 @@ export const AddToQuote = (props: AddToListProps) => {
             optionList: JSON.stringify(optionsList),
             productId,
             basePrice: variantItem.bc_calculated_price.as_entered,
-            tax: variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive,
+            tax:
+              variantItem.bc_calculated_price.tax_inclusive -
+              variantItem.bc_calculated_price.tax_exclusive,
           },
         }
 
@@ -288,9 +263,10 @@ export const AddToQuote = (props: AddToListProps) => {
 
           <Divider />
 
-          <Box sx={{
-            margin: '20px 0 0',
-          }}
+          <Box
+            sx={{
+              margin: '20px 0 0',
+            }}
           >
             <CustomButton
               variant="text"
@@ -298,9 +274,10 @@ export const AddToQuote = (props: AddToListProps) => {
                 setIsOpenBulkLoadCSV(true)
               }}
             >
-              <UploadFileIcon sx={{
-                marginRight: '8px',
-              }}
+              <UploadFileIcon
+                sx={{
+                  marginRight: '8px',
+                }}
               />
               Bulk upload CSV
             </CustomButton>

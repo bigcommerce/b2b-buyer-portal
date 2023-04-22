@@ -1,7 +1,2 @@
-import {
-  removeCartPermissions,
-} from './juniorRolePermissions'
-
-export {
-  removeCartPermissions,
-}
+// eslint-disable-next-line
+export { default as removeCartPermissions } from './juniorRolePermissions'

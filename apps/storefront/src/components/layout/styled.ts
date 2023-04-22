@@ -1,12 +1,7 @@
-import {
-  styled,
-} from '@mui/material/styles'
+import { Box } from '@mui/material'
+import { styled } from '@mui/material/styles'
 
-import {
-  Box,
-} from '@mui/material'
-
-export const NavMessage = styled(Box)(() => ({
+const NavMessage = styled(Box)(() => ({
   borderRadius: '50%',
   display: 'flex',
   height: '25px',
@@ -16,3 +11,5 @@ export const NavMessage = styled(Box)(() => ({
   backgroundColor: '#3385d6',
   color: 'white',
 }))
+
+export default NavMessage

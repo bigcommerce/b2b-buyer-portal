@@ -1,83 +1,49 @@
 import {
-  Box,
-  Link,
-  Alert,
-  useTheme,
-} from '@mui/material'
-
-import Grid from '@mui/material/Unstable_Grid2'
-
-import {
-  useState,
   Dispatch,
+  DragEvent,
   SetStateAction,
   useContext,
   useEffect,
   useRef,
-  DragEvent,
+  useState,
 } from 'react'
-
-import {
-  DropzoneArea,
-} from 'react-mui-dropzone'
-
+import { DropzoneArea } from 'react-mui-dropzone'
 import styled from '@emotion/styled'
-
 import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
+import { Alert, Box, Link, useTheme } from '@mui/material'
+import Grid from '@mui/material/Unstable_Grid2'
 
-import {
-  getDefaultCurrencyInfo,
-} from '@/utils'
-
+import { B3Sping, CustomButton } from '@/components'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
 } from '@/shared/service/b2b'
+import { getDefaultCurrencyInfo } from '@/utils'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import B3Dialog from '../B3Dialog'
 
-import {
-  B3Sping,
-  CustomButton,
-} from '@/components'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  B3Dialog,
-} from '../B3Dialog'
-
-import {
-  B3UploadLoadding,
-} from './B3UploadLoadding'
+import B3UploadLoadding from './B3UploadLoadding'
 import BulkUploadTable from './BulkUploadTable'
-
-import {
-  removeEmptyRow,
-  parseEmptyData,
-  ParseEmptyDataProps,
-} from './utils'
+import { parseEmptyData, ParseEmptyDataProps, removeEmptyRow } from './utils'
 
 interface B3UploadProps {
-  isOpen: boolean,
-  setIsOpen: Dispatch<SetStateAction<boolean>>,
-  bulkUploadTitle?: string,
-  addBtnText?: string,
-  handleAddToList: (validProduct: CustomFieldItems) => void,
-  setProductData?: (product: CustomFieldItems) => void,
-  isLoading?: boolean,
-  isToCart?: boolean,
+  isOpen: boolean
+  setIsOpen: Dispatch<SetStateAction<boolean>>
+  bulkUploadTitle?: string
+  addBtnText?: string
+  handleAddToList: (validProduct: CustomFieldItems) => void
+  setProductData?: (product: CustomFieldItems) => void
+  isLoading?: boolean
+  isToCart?: boolean
 }
 
 interface BulkUploadCSVProps {
-  currencyCode: string,
-  productList: CustomFieldItems,
-  channelId?: number,
-  isToCart: boolean,
+  currencyCode: string
+  productList: CustomFieldItems
+  channelId?: number
+  isToCart: boolean
 }
 
 const FileUploadContainer = styled(Box)(() => ({
@@ -93,7 +59,7 @@ const FileUploadContainer = styled(Box)(() => ({
   },
 }))
 
-export const B3Upload = (props: B3UploadProps) => {
+export default function B3Upload(props: B3UploadProps) {
   const {
     isOpen,
     setIsOpen,
@@ -110,10 +76,7 @@ export const B3Upload = (props: B3UploadProps) => {
   const uploadRef = useRef<HTMLInputElement>(null)
 
   const {
-    state: {
-      isB2BUser,
-      currentChannelId,
-    },
+    state: { isB2BUser, currentChannelId },
   } = useContext(GlobaledContext)
 
   const theme = useTheme()
@@ -125,28 +88,25 @@ export const B3Upload = (props: B3UploadProps) => {
   const [fileName, setFileName] = useState('')
   const [fileErrorText, setFileErrorText] = useState('')
 
-  const {
-    currency_code: currencyCode,
-  } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
   const getRejectMessage = (
     rejectedFile: File,
     acceptedFiles: string[],
-    maxFileSize: number,
+    maxFileSize: number
   ) => {
-    const {
-      size,
-      type,
-    } = rejectedFile
+    const { size, type } = rejectedFile
 
     let isAcceptFileType = false
     acceptedFiles.forEach((acceptedFileType: string) => {
-      isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType
+      isAcceptFileType =
+        new RegExp(acceptedFileType).test(type) || isAcceptFileType
     })
 
     let message = ''
     if (!isAcceptFileType) {
-      message = 'Table structure is wrong. Please download sample and follow it\'s structure.'
+      message =
+        "Table structure is wrong. Please download sample and follow it's structure."
       setFileErrorText(message)
       return message
     }
@@ -167,7 +127,7 @@ export const B3Upload = (props: B3UploadProps) => {
 
   const handleVerificationFile = (size: number, type: string): string => {
     if (type !== 'text/csv') {
-      return 'Table structure is wrong. Please download sample and follow it\'s structure.'
+      return "Table structure is wrong. Please download sample and follow it's structure."
     }
 
     if (size > 1024 * 1024 * 50) {
@@ -185,16 +145,14 @@ export const B3Upload = (props: B3UploadProps) => {
       }
 
       if (!isB2BUser) params.channelId = currentChannelId
-      const BulkUploadCSV = isB2BUser ? B2BProductsBulkUploadCSV : BcProductsBulkUploadCSV
+      const BulkUploadCSV = isB2BUser
+        ? B2BProductsBulkUploadCSV
+        : BcProductsBulkUploadCSV
 
-      const {
-        productUpload,
-      } = await BulkUploadCSV(params)
+      const { productUpload } = await BulkUploadCSV(params)
 
       if (productUpload) {
-        const {
-          result,
-        } = productUpload
+        const { result } = productUpload
         const validProduct = result?.validProduct || []
 
         setProductData(validProduct)
@@ -207,46 +165,47 @@ export const B3Upload = (props: B3UploadProps) => {
     }
   }
 
-  const parseFile: (file: File) => Promise<ParseEmptyDataProps[]> = (file) => new Promise((resolve, reject) => {
-    const errorText = handleVerificationFile(file?.size, file?.type)
+  const parseFile: (file: File) => Promise<ParseEmptyDataProps[]> = (file) =>
+    new Promise((resolve, reject) => {
+      const errorText = handleVerificationFile(file?.size, file?.type)
 
-    if (errorText) {
-      reject(new Error(errorText))
-      return
-    }
-    const reader = new FileReader()
+      if (errorText) {
+        reject(new Error(errorText))
+        return
+      }
+      const reader = new FileReader()
 
-    reader.addEventListener('load', async (b: any) => {
-      const csvdata = b.target.result
+      reader.addEventListener('load', async (b: any) => {
+        const csvdata = b.target.result
 
-      if (csvdata) {
-        const content = csvdata.split('\n')
-        const headerRow = content.slice(0, 1)[0]
-        const columns = headerRow.split(',').length
-        const EmptyData = removeEmptyRow(content)
+        if (csvdata) {
+          const content = csvdata.split('\n')
+          const headerRow = content.slice(0, 1)[0]
+          const columns = headerRow.split(',').length
+          const EmptyData = removeEmptyRow(content)
 
-        let error = ''
+          let error = ''
 
-        if (EmptyData.length > 1) {
-          for (let i = 1; i < EmptyData.length; i += 1) {
-            const signleRow = EmptyData[i].split(',')
-            if (signleRow.length > columns) {
-              error = 'Please use the template file provided.'
+          if (EmptyData.length > 1) {
+            for (let i = 1; i < EmptyData.length; i += 1) {
+              const signleRow = EmptyData[i].split(',')
+              if (signleRow.length > columns) {
+                error = 'Please use the template file provided.'
+              }
             }
           }
-        }
 
-        if (error) {
-          reject(new Error(error))
-          return
+          if (error) {
+            reject(new Error(error))
+            return
+          }
+          const parseData: ParseEmptyDataProps[] = parseEmptyData(EmptyData)
+          resolve(parseData)
         }
-        const parseData: ParseEmptyDataProps[] = parseEmptyData(EmptyData)
-        resolve(parseData)
-      }
+      })
+
+      reader.readAsBinaryString(file)
     })
-
-    reader.readAsBinaryString(file)
-  })
 
   const handleChange = async (files: File[]) => {
     // init loadding end
@@ -292,7 +251,7 @@ export const B3Upload = (props: B3UploadProps) => {
 
   const openFile = () => {
     if (uploadRef.current) {
-      (uploadRef.current.children[1] as HTMLElement).click()
+      ;(uploadRef.current.children[1] as HTMLElement).click()
     }
   }
 
@@ -309,14 +268,15 @@ export const B3Upload = (props: B3UploadProps) => {
   }
 
   const content = (
-    <Box sx={{
-      width: '100%',
-      height: '100%',
-      position: 'absolute',
-      transform: 'translate(-50%, -50%)',
-      top: '50%',
-      left: '50%',
-    }}
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        transform: 'translate(-50%, -50%)',
+        top: '50%',
+        left: '50%',
+      }}
     >
       <Grid
         container
@@ -328,31 +288,22 @@ export const B3Upload = (props: B3UploadProps) => {
           marginTop: '12px',
         }}
       >
-        <div
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
-          <Grid
-            display="flex"
-            justifyContent="center"
-            xs={12}
-          >
-            <InsertDriveFile sx={{
-              color: primaryColor || '#1976D2',
-              fontSize: '40px',
-            }}
+        <div onDragOver={handleDragOver} onDrop={handleDrop}>
+          <Grid display="flex" justifyContent="center" xs={12}>
+            <InsertDriveFile
+              sx={{
+                color: primaryColor || '#1976D2',
+                fontSize: '40px',
+              }}
             />
           </Grid>
-          <Grid
-            display="flex"
-            justifyContent="center"
-            xs={12}
-          >
-            <Box sx={{
-              fontSize: '16px',
-              fontWeight: '400',
-              color: '#5E637A',
-            }}
+          <Grid display="flex" justifyContent="center" xs={12}>
+            <Box
+              sx={{
+                fontSize: '16px',
+                fontWeight: '400',
+                color: '#5E637A',
+              }}
             >
               Drag & drop file here
             </Box>
@@ -391,6 +342,7 @@ export const B3Upload = (props: B3UploadProps) => {
               underline="none"
               sx={{
                 color: primaryColor,
+                pointerEvents: 'auto',
               }}
             >
               Download sample
@@ -398,11 +350,7 @@ export const B3Upload = (props: B3UploadProps) => {
           </Box>
         </Grid>
 
-        <Grid
-          display="flex"
-          justifyContent="center"
-          xs={12}
-        >
+        <Grid display="flex" justifyContent="center" xs={12}>
           <CustomButton
             variant="outlined"
             onClick={openFile}
@@ -411,7 +359,6 @@ export const B3Upload = (props: B3UploadProps) => {
             Upload file
           </CustomButton>
         </Grid>
-
       </Grid>
     </Box>
   )
@@ -438,66 +385,51 @@ export const B3Upload = (props: B3UploadProps) => {
       showRightBtn={step === 'end'}
       isShowBordered={false}
     >
-      {
-        fileErrorText.length > 0 && (
-          <Box
-            sx={{
-              m: '0 0 1rem 0',
-            }}
-          >
-            <Alert
-              variant="filled"
-              severity="error"
-            >
-              {fileErrorText}
-            </Alert>
-          </Box>
-        )
-      }
+      {fileErrorText.length > 0 && (
+        <Box
+          sx={{
+            m: '0 0 1rem 0',
+          }}
+        >
+          <Alert variant="filled" severity="error">
+            {fileErrorText}
+          </Alert>
+        </Box>
+      )}
       <Box
         sx={{
           maxHeight: isMobile ? '200px' : 'calc(100% - 64px)',
           minWidth: isMobile ? '100%' : '600px',
         }}
       >
-        {
-          step === 'init' && (
-            <FileUploadContainer ref={uploadRef}>
-              {content}
-              <DropzoneArea
-                dropzoneClass="file-upload-area"
-                filesLimit={1}
-                onChange={handleChange}
-                showPreviews={false}
-                showPreviewsInDropzone={false}
-                showAlerts={false}
-                dropzoneText=""
-                maxFileSize={50 * 1024 * 1024}
-                acceptedFiles={['text/csv']}
-                getDropRejectMessage={getRejectMessage}
-                getFileLimitExceedMessage={getFileLimitExceedMessage}
-              />
-            </FileUploadContainer>
-          )
-        }
+        {step === 'init' && (
+          <FileUploadContainer ref={uploadRef}>
+            {content}
+            <DropzoneArea
+              dropzoneClass="file-upload-area"
+              filesLimit={1}
+              onChange={handleChange}
+              showPreviews={false}
+              showPreviewsInDropzone={false}
+              showAlerts={false}
+              dropzoneText=""
+              maxFileSize={50 * 1024 * 1024}
+              acceptedFiles={['text/csv']}
+              getDropRejectMessage={getRejectMessage}
+              getFileLimitExceedMessage={getFileLimitExceedMessage}
+            />
+          </FileUploadContainer>
+        )}
 
-        {
-          step === 'loadding' && <B3UploadLoadding step={step} />
-        }
-        <B3Sping
-          isSpinning={isLoading}
-          spinningHeight="auto"
-        >
-          {
-            step === 'end' && (
+        {step === 'loadding' && <B3UploadLoadding step={step} />}
+        <B3Sping isSpinning={isLoading} spinningHeight="auto">
+          {step === 'end' && (
             <BulkUploadTable
               setStep={setStep}
               fileDatas={fileDatas}
               fileName={fileName}
             />
-            )
-          }
-
+          )}
         </B3Sping>
       </Box>
     </B3Dialog>

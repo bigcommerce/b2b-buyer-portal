@@ -8,8 +8,4 @@ const isLocalDebugging = globalB3?.setting?.is_local_debugging
 
 const bcBaseUrl = isLocalDebugging ? '/bigcommerce' : ''
 
-export {
-  storeHash,
-  bcBaseUrl,
-  captchaSetkey,
-}
+export { bcBaseUrl, captchaSetkey, storeHash }

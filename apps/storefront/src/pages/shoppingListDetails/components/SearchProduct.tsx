@@ -1,59 +1,31 @@
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  useState,
-} from 'react'
-
-import {
-  Box,
-  Typography,
-  TextField,
-  InputAdornment,
-} from '@mui/material'
-
+import { ChangeEvent, KeyboardEvent, useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
+import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
-import {
-  B3Sping,
-  CustomButton,
-} from '@/components'
+import { B3Sping, CustomButton } from '@/components'
+import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
+import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
-import {
-  ProductListDialog,
-} from './ProductListDialog'
+import { ShoppingListProductItem } from '../../../types'
 
-import {
-  ChooseOptionsDialog,
-} from './ChooseOptionsDialog'
-
-import {
-  ShoppingListProductItem,
-} from '../../../types'
-
-import {
-  searchB2BProducts,
-  searchBcProducts,
-} from '@/shared/service/b2b'
-
-import {
-  conversionProductsList,
-} from '../../../utils/b3Product/shared/config'
+import ChooseOptionsDialog from './ChooseOptionsDialog'
+import ProductListDialog from './ProductListDialog'
 
 interface SearchProductProps {
-  updateList: () => void,
-  addToList: (products: CustomFieldItems[]) => CustomFieldItems,
-  searchDialogTitle?: string,
-  addButtonText?: string,
-  isB2BUser: boolean,
+  updateList: () => void
+  addToList: (products: CustomFieldItems[]) => CustomFieldItems
+  searchDialogTitle?: string
+  addButtonText?: string
+  isB2BUser: boolean
 }
 
-export const SearchProduct = ({
+export default function SearchProduct({
   updateList,
   addToList,
   searchDialogTitle,
   addButtonText,
   isB2BUser,
-}: SearchProductProps) => {
+}: SearchProductProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   const [productListOpen, setProductListOpen] = useState(false)
@@ -61,7 +33,8 @@ export const SearchProduct = ({
   const [searchText, setSearchText] = useState('')
   const [productList, setProductList] = useState<ShoppingListProductItem[]>([])
   const [chooseOptionsOpen, setChooseOptionsOpen] = useState(false)
-  const [optionsProduct, setOptionsProduct] = useState<ShoppingListProductItem>()
+  const [optionsProduct, setOptionsProduct] =
+    useState<ShoppingListProductItem>()
 
   const handleSearchTextChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value)
@@ -75,9 +48,7 @@ export const SearchProduct = ({
 
     setIsLoading(true)
     try {
-      const {
-        productsSearch,
-      } : CustomFieldItems = await getProducts({
+      const { productsSearch }: CustomFieldItems = await getProducts({
         search: searchText,
       })
 
@@ -163,9 +134,10 @@ export const SearchProduct = ({
   }
 
   return (
-    <Box sx={{
-      margin: '24px 0',
-    }}
+    <Box
+      sx={{
+        margin: '24px 0',
+      }}
     >
       <Typography>Search by SKU or product name</Typography>
       <TextField
@@ -197,11 +169,7 @@ export const SearchProduct = ({
         disabled={isLoading}
         onClick={handleSearchButtonClicked}
       >
-        <B3Sping
-          isSpinning={isLoading}
-          tip=""
-          size={16}
-        >
+        <B3Sping isSpinning={isLoading} tip="" size={16}>
           <Box
             sx={{
               flex: 1,
@@ -238,7 +206,6 @@ export const SearchProduct = ({
         addButtonText={addButtonText}
         isB2BUser={isB2BUser}
       />
-
     </Box>
   )
 }

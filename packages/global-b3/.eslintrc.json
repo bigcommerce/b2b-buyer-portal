@@ -1,0 +1,7 @@
+{
+  "extends": ["b2b"],
+  "rules": {
+    // TODO: make a soft update removing one by one
+    "@typescript-eslint/no-explicit-any": 0
+  }
+}

@@ -1,55 +1,31 @@
 import {
-  useCallback,
-  SetStateAction,
   Dispatch,
-  useEffect,
+  SetStateAction,
+  useCallback,
   useContext,
+  useEffect,
   useRef,
 } from 'react'
-
 import globalB3 from '@b3/global-b3'
+import type { OpenPageState } from '@b3/hooks'
+import { cloneDeep } from 'lodash'
 
-import type {
-  OpenPageState,
-} from '@b3/hooks'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { B3LStorage } from '@/utils'
+import { removeCartPermissions } from '@/utils/b3RolePermissions'
 
-import {
-  cloneDeep,
-} from 'lodash'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-
-import {
-  B3LStorage,
-} from '@/utils'
-
-import {
-  removeCartPermissions,
-} from '@/utils/b3RolePermissions'
-
-import {
-  addQuoteToProduct,
-  removeElement,
-} from './utils'
-
-import {
-  useDomVariation,
-} from './useDomVariation'
-
-import {
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
+import useDomVariation from './useDomVariation'
+import { addQuoteToProduct, removeElement } from './utils'
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 
 interface MutationObserverProps {
-  setOpenPage: DispatchProps,
-  productQuoteEnabled: boolean,
-  B3UserId: number | string,
-  role: number | string,
-  customerId: number | string,
+  setOpenPage: DispatchProps
+  productQuoteEnabled: boolean
+  B3UserId: number | string
+  role: number | string
+  customerId: number | string
 }
 
 const useMyQuote = ({
@@ -70,16 +46,11 @@ const useMyQuote = ({
   const cache = useRef({})
 
   const {
-    state: {
-      addQuoteBtn,
-    },
+    state: { addQuoteBtn },
   } = useContext(CustomStyleContext)
 
   // quote method and goto draft
-  const {
-    addToQuote,
-    addLoadding,
-  } = addQuoteToProduct(setOpenPage)
+  const { addToQuote, addLoadding } = addQuoteToProduct(setOpenPage)
 
   const quoteCallBbck = useCallback(() => {
     const b3MyQuote = document.querySelector('.b2b-add-to-quote')
@@ -107,7 +78,9 @@ const useMyQuote = ({
 
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(globalB3['dom.setToQuote'])
-    const CustomAddToQuoteAll = locationSelector ? document.querySelectorAll(locationSelector) : []
+    const CustomAddToQuoteAll = locationSelector
+      ? document.querySelectorAll(locationSelector)
+      : []
 
     let myQuote: CustomFieldItems | null = null
     if (!addToQuoteAll.length && !CustomAddToQuoteAll.length) return
@@ -119,7 +92,11 @@ const useMyQuote = ({
 
     if (document.querySelectorAll('.b2b-add-to-quote')?.length) {
       const cacheQuoteDom = cache.current
-      const isAddStyle = Object.keys(cacheQuoteDom).every((key: string) => (cacheQuoteDom as CustomFieldItems)[key] === (addQuoteBtn as CustomFieldItems)[key])
+      const isAddStyle = Object.keys(cacheQuoteDom).every(
+        (key: string) =>
+          (cacheQuoteDom as CustomFieldItems)[key] ===
+          (addQuoteBtn as CustomFieldItems)[key]
+      )
       if (!isAddStyle) {
         const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote')
         myQuoteBtn.forEach((myQuote: CustomFieldItems) => {
@@ -135,7 +112,10 @@ const useMyQuote = ({
     }
 
     if (enabled) {
-      (CustomAddToQuoteAll.length ? CustomAddToQuoteAll : addToQuoteAll).forEach((node: CustomFieldItems) => {
+      ;(CustomAddToQuoteAll.length
+        ? CustomAddToQuoteAll
+        : addToQuoteAll
+      ).forEach((node: CustomFieldItems) => {
         myQuote = document.createElement('div')
         myQuote.innerHTML = text || 'Add to Quote'
         myQuote.setAttribute('style', customCss)
@@ -158,6 +138,8 @@ const useMyQuote = ({
         removeElement(item)
       })
     }
+
+    // eslint-disable-next-line
     return () => {
       if (myQuote) {
         myQuote.removeEventListener('click', quoteCallBbck)
@@ -166,6 +148,4 @@ const useMyQuote = ({
   }, [openQuickView, productQuoteEnabled, addQuoteBtn])
 }
 
-export {
-  useMyQuote,
-}
+export default useMyQuote

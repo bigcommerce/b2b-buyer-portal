@@ -1,13 +1,8 @@
 import {
-  routes,
   getAllowedRoutes,
-  gotoAllowedAppPage,
   getIsTokenGotoPage,
+  gotoAllowedAppPage,
+  routes,
 } from './routes'
 
-export {
-  routes,
-  gotoAllowedAppPage,
-  getAllowedRoutes,
-  getIsTokenGotoPage,
-}
+export { getAllowedRoutes, getIsTokenGotoPage, gotoAllowedAppPage, routes }

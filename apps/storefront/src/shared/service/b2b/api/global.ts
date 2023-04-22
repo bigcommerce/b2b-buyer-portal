@@ -1,24 +1,14 @@
-import {
-  B3Request,
-} from '../../request/b3Fetch'
-
-import {
-  RequestType,
-} from '../../request/base'
-import {
-  storeHash,
-} from '../../../../utils/basicConfig'
+import { storeHash } from '../../../../utils/basicConfig'
+import B3Request from '../../request/b3Fetch'
+import { RequestType } from '../../request/base'
 
 interface UploadFileData {
-  file: File,
+  file: File
   type: string
 }
 
 export const uploadB2BFile = (data: UploadFileData) => {
-  const {
-    file,
-    type,
-  } = data
+  const { file, type } = data
 
   const formData = new FormData()
   formData.append('mediaFile', file)
@@ -27,8 +17,13 @@ export const uploadB2BFile = (data: UploadFileData) => {
   return B3Request.fileUpload('/api/v2/media/upload', formData)
 }
 
-export const setChannelStoreType = (channelId: number): CustomFieldItems => B3Request.put('/api/v2/store-configs/channel-storefront-type', RequestType.B2BRest, {
-  bcChannelId: channelId,
-  storefrontType: 1,
-  storeHash,
-})
+export const setChannelStoreType = (channelId: number): CustomFieldItems =>
+  B3Request.put(
+    '/api/v2/store-configs/channel-storefront-type',
+    RequestType.B2BRest,
+    {
+      bcChannelId: channelId,
+      storefrontType: 1,
+      storeHash,
+    }
+  )

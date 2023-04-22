@@ -1,49 +1,28 @@
-import {
-  useForm,
-} from 'react-hook-form'
-import {
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  useEffect,
-} from 'react'
-import {
-  Box, Typography,
-} from '@mui/material'
-import {
-  cloneDeep,
-} from 'lodash'
-import {
-  B3CustomForm,
-} from '@/components'
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Box, Typography } from '@mui/material'
+import { cloneDeep } from 'lodash'
 
-import {
-  useGetCountry,
-  useMobile,
-} from '@/hooks'
+import { B3CustomForm } from '@/components'
+import { useGetCountry, useMobile } from '@/hooks'
+import { AddressItemType } from '@/types/address'
 
-import {
-  AddressItemType,
-} from '@/types/address'
-
-import {
-  ChooseAddress,
-} from './ChooseAddress'
+import ChooseAddress from './ChooseAddress'
 
 type AddressItemProps = {
   node: AddressItemType
 }
 
 interface AccountFormFieldsProps extends Record<string, any> {
-  name: string,
-  label?: string,
-  required?: Boolean,
-  fieldType?: string,
-  default?: string | Array<any> | number,
-  xs: number,
-  variant: string,
-  size: string,
-  options?: any[],
+  name: string
+  label?: string
+  required?: boolean
+  fieldType?: string
+  default?: string | Array<any> | number
+  xs: number
+  variant: string
+  size: string
+  options?: any[]
 }
 
 interface AddressProps {
@@ -52,55 +31,56 @@ interface AddressProps {
   pl?: string | number
   addressList?: AddressItemProps[]
   info: {
-    [key: string]: string,
+    [key: string]: string
   }
-  role: string | number,
+  role: string | number
   accountFormFields: AccountFormFieldsProps[]
 }
 
 export interface FormFieldsProps extends Record<string, any> {
-  name: string,
-  label?: string,
-  required?: Boolean,
-  fieldType?: string,
-  default?: string | Array<any> | number,
-  xs: number,
-  variant: string,
-  size: string,
-  options?: any[],
+  name: string
+  label?: string
+  required?: boolean
+  fieldType?: string
+  default?: string | Array<any> | number
+  xs: number
+  variant: string
+  size: string
+  options?: any[]
   replaceOptions?: {
-    label: string,
-    value: string,
+    label: string
+    value: string
   }
 }
 
 export interface Country {
-  countryCode: string,
-  countryName: string,
-  id?: string,
+  countryCode: string
+  countryName: string
+  id?: string
   states: []
 }
 export interface State {
-  stateCode?: string,
-  stateName?: string,
-  id?: string,
+  stateCode?: string
+  stateName?: string
+  id?: string
 }
 
-const QuoteAddress = ({
-  title,
-  addressList = [],
-  pr = 0,
-  pl = 0,
-  info = {},
-  role,
-  accountFormFields = [],
-}: AddressProps, ref: any) => {
+function QuoteAddress(
+  {
+    title,
+    addressList = [],
+    pr = 0,
+    pl = 0,
+    info = {},
+    role,
+    accountFormFields = [],
+  }: AddressProps,
+  ref: any
+) {
   const {
     control,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
   } = useForm({
     mode: 'onSubmit',
@@ -109,7 +89,9 @@ const QuoteAddress = ({
   const [isMobile] = useMobile()
 
   const [isOpen, setOpen] = useState<boolean>(false)
-  const [quoteAddress, setQuoteAddress] = useState<AccountFormFieldsProps[]>(cloneDeep(accountFormFields))
+  const [quoteAddress, setQuoteAddress] = useState<AccountFormFieldsProps[]>(
+    cloneDeep(accountFormFields)
+  )
 
   useGetCountry({
     control,
@@ -187,8 +169,7 @@ const QuoteAddress = ({
         >
           {title}
         </Typography>
-        {
-          +role !== 100 && (
+        {+role !== 100 && (
           <Typography
             onClick={handleAddressChoose}
             sx={{
@@ -203,9 +184,7 @@ const QuoteAddress = ({
           >
             Choose from saved
           </Typography>
-          )
-        }
-
+        )}
       </Box>
 
       <B3CustomForm
@@ -222,9 +201,7 @@ const QuoteAddress = ({
         closeModal={handleCloseAddressChoose}
         addressList={addressList}
       />
-
     </Box>
-
   )
 }
 

@@ -1,7 +1,5 @@
-const InvoiceDetail = () => (
-  <div>
-    InvoiceDetail
-  </div>
-)
+function InvoiceDetail() {
+  return <div>InvoiceDetail</div>
+}
 
 export default InvoiceDetail

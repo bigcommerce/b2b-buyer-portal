@@ -1,8 +1,7 @@
-import {
-  setupStore,
-} from '@b3/store'
-import theme from './slices/theme'
+import { setupStore } from '@b3/store'
+
 import glabol from './slices/glabol'
+import theme from './slices/theme'
 
 export const middlewareOptions = {
   serializableCheck: {

@@ -1,24 +1,11 @@
-import {
-  useContext,
-} from 'react'
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Box } from '@mui/material'
 
-import {
-  Box,
-} from '@mui/material'
-import {
-  useNavigate,
-} from 'react-router-dom'
-import {
-  useMobile,
-} from '@/hooks'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  B3DropDown,
-} from '../B3DropDown'
+import B3DropDown from '../B3DropDown'
 
 interface ListProps {
   [key: string]: string
@@ -33,20 +20,15 @@ const list: Array<ListProps> = [
 ]
 
 interface B3AccountInfoProps {
-  closeSidebar?: (x: boolean) => void;
+  closeSidebar?: (x: boolean) => void
 }
 
-export const B3AccountInfo = ({
-  closeSidebar,
-}: B3AccountInfoProps) => {
+export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
   const [isMobile] = useMobile()
 
   const {
     state: {
-      customer: {
-        firstName = '',
-        lastName = '',
-      },
+      customer: { firstName = '', lastName = '' },
     },
   } = useContext(GlobaledContext)
 
@@ -65,61 +47,46 @@ export const B3AccountInfo = ({
 
   const name = `${firstName}  ${lastName}`
 
-  return (
-    <>
-      {
-        isMobile ? (
-          <Box
-            sx={{
-              pb: '5vw',
-            }}
-          >
-            <Box
-              sx={{
-                m: 0,
-                p: '2vw 4vw',
-                color: 'black',
-              }}
-            >
-              Logged in as
-              {' '}
-              {name}
-            </Box>
-            {
-              list.map((item) => (
-                <Box
-                  sx={{
-                    p: '2vw 4vw',
-                    color: '#3385d6',
-                  }}
-                  key={item.name}
-                  onClick={() => handleItemClick(item)}
-                >
-                  {item.name}
-                </Box>
-              ))
-            }
-          </Box>
-        ) : (
-          <Box sx={{
-            minWidth: '150px',
-            display: 'flex',
-            justifyContent: 'end',
-            mr: '-2px',
-            fontSize: '16px',
-            color: '#333333',
+  return isMobile ? (
+    <Box
+      sx={{
+        pb: '5vw',
+      }}
+    >
+      <Box
+        sx={{
+          m: 0,
+          p: '2vw 4vw',
+          color: 'black',
+        }}
+      >
+        Logged in as {name}
+      </Box>
+      {list.map((item) => (
+        <Box
+          sx={{
+            p: '2vw 4vw',
+            color: '#3385d6',
           }}
-          >
-            <B3DropDown
-              title={name}
-              handleItemClick={handleItemClick}
-              list={list}
-            />
-          </Box>
-        )
-      }
-
-    </>
-
+          key={item.name}
+          onClick={() => handleItemClick(item)}
+        >
+          {item.name}
+        </Box>
+      ))}
+    </Box>
+  ) : (
+    <Box
+      sx={{
+        minWidth: '150px',
+        display: 'flex',
+        justifyContent: 'end',
+        mr: '-2px',
+        fontSize: '16px',
+        color: '#333333',
+      }}
+    >
+      <B3DropDown title={name} handleItemClick={handleItemClick} list={list} />
+    </Box>
   )
 }

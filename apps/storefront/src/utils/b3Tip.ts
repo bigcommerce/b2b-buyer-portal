@@ -1,23 +1,21 @@
-import {
-  ReactElement,
-} from 'react'
-
-import {
-  v1 as uuid,
-} from 'uuid'
+import { ReactElement } from 'react'
+import { v1 as uuid } from 'uuid'
 
 interface SnackbarItemProps {
-  duration?: number,
-  jsx?: () => ReactElement,
-  isClose?: boolean,
+  duration?: number
+  jsx?: () => ReactElement
+  isClose?: boolean
 }
 
 interface SnackbarMessageProps extends SnackbarItemProps {
-  message: string,
+  message: string
 }
 
 interface SnackbarProps {
-  [key: string]: (message: string | SnackbarMessageProps[], options?: SnackbarItemProps) => void
+  [key: string]: (
+    message: string | SnackbarMessageProps[],
+    options?: SnackbarItemProps
+  ) => void
 }
 
 const snackbar: SnackbarProps = {}
@@ -71,7 +69,4 @@ variants.forEach((variant) => {
   }
 })
 
-export {
-  snackbar,
-  globalSnackbar,
-}
+export { globalSnackbar, snackbar }

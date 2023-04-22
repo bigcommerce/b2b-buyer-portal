@@ -1,7 +1,7 @@
 import Order from './Order'
 
-const MyOrder = () => (
-  <Order />
-)
+function MyOrder() {
+  return <Order />
+}
 
 export default MyOrder

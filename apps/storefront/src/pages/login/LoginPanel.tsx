@@ -1,45 +1,29 @@
-import {
-  Box,
-  useTheme,
-} from '@mui/material'
+import { Box, useTheme } from '@mui/material'
+
+import { CustomButton } from '@/components'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 
 import LoginWidget from './component/LoginWidget'
-
-import {
-  LoginInfoInit,
-} from './config'
-
-import {
-  CustomButton,
-} from '@/components'
-
-import {
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
+import { LoginInfoInit } from './config'
 
 interface LoginPanelProps {
-  loginInfo: Partial<LoginInfoInit>;
-  handleSubmit?: () => void;
+  loginInfo: Partial<LoginInfoInit>
+  handleSubmit?: () => void
 }
 
-const LoginPanel = (props: LoginPanelProps) => {
-  const {
-    loginInfo,
-    handleSubmit,
-  } = props
+function LoginPanel(props: LoginPanelProps) {
+  const { loginInfo, handleSubmit } = props
 
   const theme = useTheme()
 
-  const {
-    widgetBodyText = '',
-    CreateAccountButtonText,
-  } = loginInfo
+  const { widgetBodyText = '', CreateAccountButtonText } = loginInfo
 
   return (
-    <Box sx={{
-      padding: '20px',
-      background: '#F5F5F5',
-    }}
+    <Box
+      sx={{
+        padding: '20px',
+        background: '#F5F5F5',
+      }}
     >
       <LoginWidget
         sx={{
@@ -48,9 +32,10 @@ const LoginPanel = (props: LoginPanelProps) => {
         isVisible
         html={widgetBodyText}
       />
-      <Box sx={{
-        marginTop: '5px',
-      }}
+      <Box
+        sx={{
+          marginTop: '5px',
+        }}
       >
         <CustomButton
           type="submit"

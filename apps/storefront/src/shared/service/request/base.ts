@@ -10,7 +10,7 @@ enum RequestType {
 }
 
 const queryParse = <T>(query: T): string => {
-  let queryText: string = ''
+  let queryText = ''
 
   Object.keys(query || {}).forEach((key: string) => {
     queryText += `${key}=${(query as any)[key]}&`
@@ -18,8 +18,4 @@ const queryParse = <T>(query: T): string => {
   return queryText.slice(0, -1)
 }
 
-export {
-  B2B_BASIC_URL,
-  RequestType,
-  queryParse,
-}
+export { B2B_BASIC_URL, queryParse, RequestType }

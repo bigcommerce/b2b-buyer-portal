@@ -1,3 +1,4 @@
+import { ReactElement, ReactNode, useContext, useRef } from 'react'
 import {
   Box,
   Dialog,
@@ -6,35 +7,17 @@ import {
   DialogTitle,
 } from '@mui/material'
 
-import {
-  useRef,
-  ReactElement,
-  ReactNode,
-  useContext,
-} from 'react'
+import { useMobile, useScrollBar } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 
-import {
-  useMobile,
-  useScrollBar,
-} from '@/hooks'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  B3Sping,
-} from './spin/B3Sping'
-
-import {
-  CustomButton,
-} from './button/CustomButton'
+import CustomButton from './button/CustomButton'
+import B3Sping from './spin/B3Sping'
 
 interface B3DialogProps<T> {
   customActions?: () => ReactElement
-  isOpen: boolean,
-  leftStyleBtn?: {[key: string]: string}
-  rightStyleBtn?: {[key: string]: string}
+  isOpen: boolean
+  leftStyleBtn?: { [key: string]: string }
+  rightStyleBtn?: { [key: string]: string }
   leftSizeBtn?: string
   rightSizeBtn?: string
   title?: string
@@ -47,26 +30,10 @@ interface B3DialogProps<T> {
   showRightBtn?: boolean
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false
   fullWidth?: boolean
-  disabledSaveBtn?: boolean,
+  disabledSaveBtn?: boolean
 }
 
-export const B3Dialog:<T> ({
-  customActions,
-  isOpen,
-  leftStyleBtn,
-  rightStyleBtn,
-  title,
-  handleLeftClick,
-  handRightClick,
-  children,
-  loading,
-  row,
-  isShowBordered,
-  showRightBtn,
-  maxWidth,
-  fullWidth,
-  disabledSaveBtn,
-}: B3DialogProps<T>) => ReactElement = ({
+export default function B3Dialog<T>({
   customActions,
   isOpen,
   leftStyleBtn = {},
@@ -84,15 +51,13 @@ export const B3Dialog:<T> ({
   maxWidth = 'sm',
   fullWidth = false,
   disabledSaveBtn = false,
-}) => {
+}: B3DialogProps<T>) {
   const container = useRef<HTMLInputElement | null>(null)
 
   const [isMobile] = useMobile()
 
   const {
-    state: {
-      isAgenting,
-    },
+    state: { isAgenting },
   } = useContext(GlobaledContext)
 
   const handleSaveClick = () => {
@@ -111,9 +76,7 @@ export const B3Dialog:<T> ({
 
   return (
     <Box>
-      <Box
-        ref={container}
-      />
+      <Box ref={container} />
 
       <Dialog
         fullWidth={fullWidth}
@@ -125,73 +88,65 @@ export const B3Dialog:<T> ({
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        {
-          title && (
+        {title && (
           <DialogTitle
             sx={
-              isShowBordered ? {
-                borderBottom: '1px solid #D9DCE9',
-                mb: 2,
-              } : {}
+              isShowBordered
+                ? {
+                    borderBottom: '1px solid #D9DCE9',
+                    mb: 2,
+                  }
+                : {}
             }
             id="alert-dialog-title"
           >
             {title}
           </DialogTitle>
-          )
-        }
-        <DialogContent>
-          {children}
-        </DialogContent>
+        )}
+        <DialogContent>{children}</DialogContent>
         <DialogActions
           sx={
-            isShowBordered ? {
-              borderTop: '1px solid #D9DCE9',
-              marginBottom: (isAgenting && isMobile) ? '52px' : '0',
-            } : {
-              marginBottom: (isAgenting && isMobile) ? '52px' : '0',
-            }
+            isShowBordered
+              ? {
+                  borderTop: '1px solid #D9DCE9',
+                  marginBottom: isAgenting && isMobile ? '52px' : '0',
+                }
+              : {
+                  marginBottom: isAgenting && isMobile ? '52px' : '0',
+                }
           }
         >
-          {
-            customActions ? customActions() : (
-              <>
+          {customActions ? (
+            customActions()
+          ) : (
+            <>
+              <CustomButton
+                sx={{
+                  ...leftStyleBtn,
+                }}
+                onClick={() => handleCloseClick('')}
+              >
+                {leftSizeBtn || 'cancel'}
+              </CustomButton>
+
+              {showRightBtn && (
                 <CustomButton
                   sx={{
-                    ...leftStyleBtn,
+                    ...rightStyleBtn,
                   }}
-                  onClick={() => handleCloseClick('')}
+                  onClick={handleSaveClick}
+                  autoFocus
+                  disabled={disabledSaveBtn || loading}
                 >
-                  {leftSizeBtn || 'cancel'}
-
+                  <B3Sping isSpinning={loading} tip="" size={16}>
+                    {rightSizeBtn || 'save'}
+                  </B3Sping>
                 </CustomButton>
-
-                {
-                  showRightBtn && (
-                    <CustomButton
-                      sx={{
-                        ...rightStyleBtn,
-                      }}
-                      onClick={handleSaveClick}
-                      autoFocus
-                      disabled={disabledSaveBtn || loading}
-                    >
-                      <B3Sping
-                        isSpinning={loading}
-                        tip=""
-                        size={16}
-                      >
-                        {rightSizeBtn || 'save'}
-                      </B3Sping>
-                    </CustomButton>
-                  )
-                }
-              </>
-            )
-          }
+              )}
+            </>
+          )}
         </DialogActions>
       </Dialog>
     </Box>
-
   )
 }

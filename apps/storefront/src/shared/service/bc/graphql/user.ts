@@ -1,6 +1,4 @@
-import {
-  B3Request,
-} from '../../request/b3Fetch'
+import B3Request from '../../request/b3Fetch'
 
 const getCustomer = () => `query customer {
   customer{
@@ -13,6 +11,9 @@ const getCustomer = () => `query customer {
   }
 }`
 
-export const getCustomerInfo = (): CustomFieldItems => B3Request.graphqlBC({
-  query: getCustomer(),
-})
+const getCustomerInfo = (): CustomFieldItems =>
+  B3Request.graphqlBC({
+    query: getCustomer(),
+  })
+
+export default getCustomerInfo

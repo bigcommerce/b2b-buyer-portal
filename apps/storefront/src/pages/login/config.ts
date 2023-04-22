@@ -1,57 +1,52 @@
-import {
-  B3Lang,
-} from '@b3/lang'
-import {
-  validatorRules,
-  storeHash,
-} from '@/utils'
+import { B3Lang } from '@b3/lang'
 
-import {
-  bcBaseUrl,
-} from '@/utils/basicConfig'
+import { storeHash, validatorRules } from '@/utils'
+import { bcBaseUrl } from '@/utils/basicConfig'
 
 export interface QuoteConfig {
   [key: string]: string
 }
 
 export type LoginConfig = {
-  emailAddress: string,
-  password?: string,
+  emailAddress: string
+  password?: string
 }
 
 export interface LoginInfoInit {
-  isShowWidgetHead: boolean,
-  isShowWidgetBody?: boolean,
-  isShowWidgetFooter: boolean,
-  loginTitle: string,
-  loginBtn?: string,
-  createAccountPanelTittle?: string,
-  CreateAccountButtonText: string,
-  btnColor: string,
-  widgetHeadText: string,
-  widgetBodyText: string,
-  widgetFooterText: string,
-  displayStoreLogo: boolean,
+  isShowWidgetHead: boolean
+  isShowWidgetBody?: boolean
+  isShowWidgetFooter: boolean
+  loginTitle: string
+  loginBtn?: string
+  createAccountPanelTittle?: string
+  CreateAccountButtonText: string
+  btnColor: string
+  widgetHeadText: string
+  widgetBodyText: string
+  widgetFooterText: string
+  displayStoreLogo: boolean
 }
 
-export const getLogo = (quoteConfig:Array<QuoteConfig>): string => {
-  const item:Array<QuoteConfig> = quoteConfig.filter((list:QuoteConfig) => list.key === 'quote_logo')
+export const getLogo = (quoteConfig: Array<QuoteConfig>): string => {
+  const item: Array<QuoteConfig> = quoteConfig.filter(
+    (list: QuoteConfig) => list.key === 'quote_logo'
+  )
 
   return item[0].isEnabled
 }
 
 export interface ValidateOptions extends Record<string, any> {
-  max?: string | Number,
-  min?: string | Number,
+  max?: string | number
+  min?: string | number
 }
 
 interface ChannelIdProps {
-  channelId: number,
-  urls: Array<string>,
+  channelId: number
+  urls: Array<string>
 }
 
 export interface ChannelstoreSites {
-  storeSites?: Array<ChannelIdProps> | [],
+  storeSites?: Array<ChannelIdProps> | []
 }
 
 export const getForgotPasswordFields = (lang: B3Lang) => [
@@ -120,15 +115,16 @@ export const sendEmail = (emailAddress: string) => {
     redirect: 'follow',
   }
 
-  return fetch(`${bcBaseUrl}/login.php?action=send_password_email`, requestOptions)
+  return fetch(
+    `${bcBaseUrl}/login.php?action=send_password_email`,
+    requestOptions
+  )
     .then((response) => response.text())
     .catch((error) => console.log('error', error))
 }
 
 export const getloginTokenInfo = (channelId: number) => {
-  const {
-    origin,
-  } = window.location
+  const { origin } = window.location
   const data = {
     storeHash,
     method: 'post',
@@ -137,16 +133,14 @@ export const getloginTokenInfo = (channelId: number) => {
     data: {
       channel_id: channelId || 1,
       expires_at: 1866896353,
-      allowed_cors_origins: [
-        `${origin}`,
-      ],
+      allowed_cors_origins: [`${origin}`],
     },
   }
 
   return data
 }
 
-export const getLoginFlag = (search:string, key:string) => {
+export const getLoginFlag = (search: string, key: string) => {
   if (!search) {
     return ''
   }
@@ -160,11 +154,9 @@ export const getBCChannelId = (storeSitesany: Array<ChannelIdProps>) => {
     return storeSitesany[0].channelId
   }
 
-  let channelId: number = 1
+  let channelId = 1
 
-  const {
-    origin,
-  } = window.location
+  const { origin } = window.location
 
   storeSitesany.forEach((item: ChannelIdProps) => {
     if (item.urls.includes(origin)) {

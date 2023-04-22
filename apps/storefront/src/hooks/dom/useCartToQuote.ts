@@ -1,48 +1,32 @@
 import {
-  useCallback,
-  SetStateAction,
   Dispatch,
-  useEffect,
+  SetStateAction,
+  useCallback,
   useContext,
+  useEffect,
 } from 'react'
-
 import globalB3 from '@b3/global-b3'
+import type { OpenPageState } from '@b3/hooks'
 
-import type {
-  OpenPageState,
-} from '@b3/hooks'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-
-import {
-  addQuoteToCart,
-} from './utils'
-
-import {
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
+import { addQuoteToCart } from './utils'
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 interface MutationObserverProps {
-  setOpenPage: DispatchProps,
-  cartQuoteEnabled: boolean,
+  setOpenPage: DispatchProps
+  cartQuoteEnabled: boolean
 }
 
 const useCartToQuote = ({
   setOpenPage,
   cartQuoteEnabled,
 }: MutationObserverProps) => {
-  const {
-    addToQuote,
-    addLoadding,
-  } = addQuoteToCart(setOpenPage)
+  const { addToQuote, addLoadding } = addQuoteToCart(setOpenPage)
 
   const {
-    state: {
-      addToAllQuoteBtn,
-    },
+    state: { addToAllQuoteBtn },
   } = useContext(CustomStyleContext)
 
   const quoteCallBbck = useCallback(() => {
@@ -65,8 +49,12 @@ const useCartToQuote = ({
   } = addToAllQuoteBtn
 
   useEffect(() => {
-    const addToQuoteAll = document.querySelectorAll(globalB3['dom.cartActions.container'])
-    const CustomAddToQuoteAll = locationSelector ? document.querySelectorAll(locationSelector) : []
+    const addToQuoteAll = document.querySelectorAll(
+      globalB3['dom.cartActions.container']
+    )
+    const CustomAddToQuoteAll = locationSelector
+      ? document.querySelectorAll(locationSelector)
+      : []
 
     let cartQuoteBtnDom: CustomFieldItems | null = null
     if (!addToQuoteAll.length && !CustomAddToQuoteAll.length) return
@@ -83,19 +71,28 @@ const useCartToQuote = ({
         cartToQuoteBtn.setAttribute('style', customCss)
         cartToQuoteBtn.style.backgroundColor = color
         cartToQuoteBtn.style.color = getContrastColor(color)
-        cartToQuoteBtn.setAttribute('class', `b2b-cart-to-quote ${classSelector}`)
+        cartToQuoteBtn.setAttribute(
+          'class',
+          `b2b-cart-to-quote ${classSelector}`
+        )
       })
       return
     }
 
     if (enabled) {
-      (CustomAddToQuoteAll.length ? CustomAddToQuoteAll : addToQuoteAll).forEach((node: CustomFieldItems) => {
+      ;(CustomAddToQuoteAll.length
+        ? CustomAddToQuoteAll
+        : addToQuoteAll
+      ).forEach((node: CustomFieldItems) => {
         cartQuoteBtnDom = document.createElement('div')
         cartQuoteBtnDom.innerHTML = text || 'Add All to Quote'
         cartQuoteBtnDom.setAttribute('style', customCss)
         cartQuoteBtnDom.style.backgroundColor = color
         cartQuoteBtnDom.style.color = getContrastColor(color)
-        cartQuoteBtnDom.setAttribute('class', `b2b-cart-to-quote ${classSelector}`)
+        cartQuoteBtnDom.setAttribute(
+          'class',
+          `b2b-cart-to-quote ${classSelector}`
+        )
         node.appendChild(cartQuoteBtnDom)
         cartQuoteBtnDom.addEventListener('click', quoteCallBbck, {
           capture: true,
@@ -103,6 +100,7 @@ const useCartToQuote = ({
       })
     }
 
+    // eslint-disable-next-line
     return () => {
       if (cartQuoteBtnDom) {
         cartQuoteBtnDom.removeEventListener('click', quoteCallBbck)
@@ -111,6 +109,4 @@ const useCartToQuote = ({
   }, [cartQuoteEnabled, addToAllQuoteBtn])
 }
 
-export {
-  useCartToQuote,
-}
+export default useCartToQuote

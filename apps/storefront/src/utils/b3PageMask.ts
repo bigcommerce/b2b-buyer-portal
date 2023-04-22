@@ -28,7 +28,4 @@ const createFrameLoading = () => {
   }
 }
 
-export {
-  showPageMask,
-  createFrameLoading,
-}
+export { createFrameLoading, showPageMask }

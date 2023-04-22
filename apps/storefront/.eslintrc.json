@@ -1,0 +1,17 @@
+{
+  "extends": ["b2b"],
+  "rules": {
+    // TODO: make a soft update removing one by one
+    "import/no-cycle": 0,
+    "react-hooks/exhaustive-deps": 0,
+    "react/jsx-props-no-spreading": 0,
+    "@typescript-eslint/no-shadow": 0,
+    "no-param-reassign": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "no-console": 0,
+    "@typescript-eslint/ban-types": 0,
+    "@typescript-eslint/no-namespace": 0,
+    "react/destructuring-assignment": 0,
+    "@typescript-eslint/no-non-null-assertion": 0
+  }
+}

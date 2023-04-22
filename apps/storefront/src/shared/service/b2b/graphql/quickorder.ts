@@ -1,6 +1,4 @@
-import {
-  B3Request,
-} from '../../request/b3Fetch'
+import B3Request from '../../request/b3Fetch'
 
 // import {
 //   convertArrayToGraphql,
@@ -50,10 +48,14 @@ const orderedProducts = (data: CustomFieldItems) => `{
   }
 }`
 
-export const getOrderedProducts = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlB2B({
-  query: orderedProducts(data),
-})
+export const getOrderedProducts = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: orderedProducts(data),
+  })
 
-export const getBcOrderedProducts = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlProxyBC({
-  query: orderedProducts(data),
-})
+export const getBcOrderedProducts = (
+  data: CustomFieldItems
+): CustomFieldItems =>
+  B3Request.graphqlProxyBC({
+    query: orderedProducts(data),
+  })

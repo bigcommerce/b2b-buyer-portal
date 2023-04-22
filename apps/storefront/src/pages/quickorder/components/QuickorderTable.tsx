@@ -1,113 +1,81 @@
 import {
-  useState,
-  useRef,
-  ReactElement,
   Dispatch,
+  ReactElement,
   SetStateAction,
   useContext,
+  useRef,
+  useState,
 } from 'react'
+import { Box, styled, TextField, Typography } from '@mui/material'
+import { format } from 'date-fns'
 
+import { B3Sping } from '@/components'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { TableColumnItem } from '@/components/table/B3Table'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
-  Box,
-  styled,
-  TextField,
-  Typography,
-} from '@mui/material'
-
-import {
-  format,
-} from 'date-fns'
-import {
-  getOrderedProducts,
   getBcOrderedProducts,
+  getOrderedProducts,
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-
 import {
-  getDefaultCurrencyInfo,
   distanceDay,
-  snackbar,
+  getDefaultCurrencyInfo,
   getProductPriceIncTax,
+  snackbar,
 } from '@/utils'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  TableColumnItem,
-} from '@/components/table/B3Table'
-
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
-import B3FilterSearch from '../../../components/filter/B3FilterSearch'
-
-import B3FilterPicker from '../../../components/filter/B3FilterPicker'
+import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import B3FilterMore from '../../../components/filter/B3FilterMore'
+import B3FilterPicker from '../../../components/filter/B3FilterPicker'
+import B3FilterSearch from '../../../components/filter/B3FilterSearch'
 
 import QuickOrderCard from './QuickOrderCard'
-
-import {
-  conversionProductsList,
-} from '../../../utils/b3Product/shared/config'
-
-import {
-  B3Sping,
-} from '@/components'
 
 interface ListItem {
   [key: string]: string
 }
 
 interface ProductInfoProps {
-  basePrice: number | string,
-  baseSku: string,
-  createdAt: number,
-  discount: number | string,
-  enteredInclusive: boolean,
-  id: number | string,
-  itemId: number,
-  optionList: string,
-  primaryImage: string,
-  productId: number,
-  productName: string,
-  productUrl: string,
-  quantity: number | string,
-  tax: number | string,
-  updatedAt: number,
-  variantId: number,
-  variantSku: string,
-  productsSearch: CustomFieldItems,
+  basePrice: number | string
+  baseSku: string
+  createdAt: number
+  discount: number | string
+  enteredInclusive: boolean
+  id: number | string
+  itemId: number
+  optionList: string
+  primaryImage: string
+  productId: number
+  productName: string
+  productUrl: string
+  quantity: number | string
+  tax: number | string
+  updatedAt: number
+  variantId: number
+  variantSku: string
+  productsSearch: CustomFieldItems
 }
 
 interface ListItemProps {
-  node: ProductInfoProps,
+  node: ProductInfoProps
 }
 
 interface SearchProps {
-  q: string,
-  first?: number,
-  offset?: number,
-  beginDateAt?: Date | string | number,
-  endDateAt?: Date | string | number,
+  q: string
+  first?: number
+  offset?: number
+  beginDateAt?: Date | string | number
+  endDateAt?: Date | string | number
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
-  getList: () => void,
-  setList: (items?: ListItemProps[]) => void,
-  getSelectedValue: () => void,
+  getList: () => void
+  setList: (items?: ListItemProps[]) => void
+  getSelectedValue: () => void
 }
 
 const StyledImage = styled('img')(() => ({
@@ -133,9 +101,9 @@ const StyleQuickOrderTable = styled(Box)(() => ({
 }))
 
 interface QuickorderTableProps {
-  setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
-  setCheckedArr: (values: CustomFieldItems) => void,
-  isRequestLoading: boolean,
+  setIsRequestLoading: Dispatch<SetStateAction<boolean>>
+  setCheckedArr: (values: CustomFieldItems) => void
+  isRequestLoading: boolean
 }
 
 const StyledTextField = styled(TextField)(() => ({
@@ -145,19 +113,17 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }))
 
-const QuickorderTable = ({
+function QuickorderTable({
   setIsRequestLoading,
   setCheckedArr,
   isRequestLoading,
-}: QuickorderTableProps) => {
+}: QuickorderTableProps) {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
   const {
     state: {
       isB2BUser,
-      companyInfo: {
-        id: companyInfoId,
-      },
+      companyInfo: { id: companyInfoId },
     },
   } = useContext(GlobaledContext)
 
@@ -171,18 +137,14 @@ const QuickorderTable = ({
 
   const [isMobile] = useMobile()
 
-  const {
-    currency_code: currencyCode,
-    token: currencyToken,
-  } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode, token: currencyToken } =
+    getDefaultCurrencyInfo()
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
       const productIds: number[] = []
       listProducts.forEach((item) => {
-        const {
-          node,
-        } = item
+        const { node } = item
         node.quantity = 1
         if (!productIds.includes(node.productId)) {
           productIds.push(node.productId)
@@ -192,9 +154,7 @@ const QuickorderTable = ({
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
       try {
-        const {
-          productsSearch,
-        } = await getProducts({
+        const { productsSearch } = await getProducts({
           productIds,
           currencyCode,
           companyId: companyInfoId,
@@ -203,17 +163,15 @@ const QuickorderTable = ({
         const newProductsSearch = conversionProductsList(productsSearch)
 
         listProducts.forEach((item) => {
-          const {
-            node,
-          } = item
+          const { node } = item
 
-          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
-            const {
-              id: productId,
-            } = search
+          const productInfo = newProductsSearch.find(
+            (search: CustomFieldItems) => {
+              const { id: productId } = search
 
-            return +node.productId === +productId
-          })
+              return +node.productId === +productId
+            }
+          )
 
           node.productsSearch = productInfo || {}
         })
@@ -223,19 +181,17 @@ const QuickorderTable = ({
         snackbar.error(err)
       }
     }
+    return []
   }
 
   const getList = async (params: SearchProps) => {
     const fn = isB2BUser ? getOrderedProducts : getBcOrderedProducts
 
     const {
-      orderedProducts: {
-        edges,
-        totalCount,
-      },
+      orderedProducts: { edges, totalCount },
     } = await fn(params)
 
-    const listProducts = await handleGetProductsById(edges)
+    const listProducts = handleGetProductsById(edges)
 
     setTotalCount(totalCount)
 
@@ -257,9 +213,7 @@ const QuickorderTable = ({
       const productList = paginationTableRef.current?.getList() || []
       const checkedItems = selectCheckbox.map((item: number | string) => {
         const newItems = productList.find((product: ListItemProps) => {
-          const {
-            node,
-          } = product
+          const { node } = product
 
           return node.id === item
         })
@@ -298,13 +252,14 @@ const QuickorderTable = ({
     setSearch(params)
   }
 
-  const handleUpdateProductQty = (id: number | string, value: number | string) => {
+  const handleUpdateProductQty = (
+    id: number | string,
+    value: number | string
+  ) => {
     if (value !== '' && +value <= 0) return
     const listItems = paginationTableRef.current?.getList() || []
     const newListItems = listItems?.map((item: ListItemProps) => {
-      const {
-        node,
-      } = item
+      const { node } = item
       if (node?.id === id) {
         node.quantity = +value || ''
       }
@@ -319,9 +274,7 @@ const QuickorderTable = ({
       key: 'Product',
       title: 'Product',
       render: (row: CustomFieldItems) => {
-        const {
-          optionList,
-        } = row
+        const { optionList } = row
         return (
           <Box
             sx={{
@@ -335,39 +288,28 @@ const QuickorderTable = ({
               loading="lazy"
             />
             <Box>
-              <Typography
-                variant="body1"
-                color="#212121"
-              >
+              <Typography variant="body1" color="#212121">
                 {row.productName}
               </Typography>
-              <Typography
-                variant="body1"
-                color="#616161"
-              >
+              <Typography variant="body1" color="#616161">
                 {row.variantSku}
               </Typography>
-              {
-                (optionList.length > 0) && (
-                  <Box>
-                    {
-                      optionList.map((option: any) => (
-                        <Typography
-                          sx={{
-                            fontSize: '0.75rem',
-                            lineHeight: '1.5',
-                            color: '#455A64',
-                          }}
-                          key={option.id}
-                        >
-                          {`${option.display_name
-                          }: ${option.display_value}`}
-                        </Typography>
-                      ))
-                    }
-                  </Box>
-                )
-              }
+              {optionList.length > 0 && (
+                <Box>
+                  {optionList.map((option: any) => (
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        lineHeight: '1.5',
+                        color: '#455A64',
+                      }}
+                      key={option.id}
+                    >
+                      {`${option.display_name}: ${option.display_value}`}
+                    </Typography>
+                  ))}
+                </Box>
+              )}
             </Box>
           </Box>
         )
@@ -379,9 +321,7 @@ const QuickorderTable = ({
       title: 'Price',
       render: (row: CustomFieldItems) => {
         const {
-          productsSearch: {
-            variants,
-          },
+          productsSearch: { variants },
           variantId,
           basePrice,
           quantity,
@@ -400,7 +340,7 @@ const QuickorderTable = ({
               padding: '12px 0',
             }}
           >
-            {`${currencyToken}${(price).toFixed(2)}`}
+            {`${currencyToken}${price.toFixed(2)}`}
           </Typography>
         )
       },
@@ -419,7 +359,8 @@ const QuickorderTable = ({
           variant="filled"
           value={row.quantity}
           inputProps={{
-            inputMode: 'numeric', pattern: '[0-9]*',
+            inputMode: 'numeric',
+            pattern: '[0-9]*',
           }}
           onChange={(e) => {
             handleUpdateProductQty(row.id, e.target.value)
@@ -450,9 +391,7 @@ const QuickorderTable = ({
   ]
 
   return (
-    <B3Sping
-      isSpinning={isRequestLoading}
-    >
+    <B3Sping isSpinning={isRequestLoading}>
       <StyleQuickOrderTable>
         <Typography
           sx={{
@@ -487,8 +426,7 @@ const QuickorderTable = ({
               }}
             />
 
-            {
-              isMobile && (
+            {isMobile && (
               <Box
                 sx={{
                   display: 'flex',
@@ -513,13 +451,10 @@ const QuickorderTable = ({
                   onChange={handleFilterChange}
                 />
               </Box>
-              )
-            }
-
+            )}
           </Box>
 
-          {
-            !isMobile && (
+          {!isMobile && (
             <B3FilterPicker
               handleChange={handlePickerChange}
               xs={{
@@ -539,9 +474,7 @@ const QuickorderTable = ({
                 pickerKey: 'end',
               }}
             />
-            )
-          }
-
+          )}
         </Box>
 
         <B3PaginationTable
@@ -560,7 +493,11 @@ const QuickorderTable = ({
           getSelectCheckbox={getSelectCheckbox}
           itemIsMobileSpacing={0}
           noDataText="No products found"
-          renderItem={(row: ProductInfoProps, index?: number, checkBox?: () => ReactElement) => (
+          renderItem={(
+            row: ProductInfoProps,
+            index?: number,
+            checkBox?: () => ReactElement
+          ) => (
             <QuickOrderCard
               item={row}
               checkBox={checkBox}

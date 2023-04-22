@@ -1,37 +1,17 @@
-import {
-  useState,
-  useContext,
-  useEffect,
-} from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { Box, Grid } from '@mui/material'
 
-import {
-  Box,
-  Grid,
-} from '@mui/material'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import QuickorderTable from './components/QuickorderTable'
 import QuickOrderFooter from './components/QuickOrderFooter'
-import {
-  QuickOrderPad,
-} from './components/QuickOrderPad'
+import QuickOrderPad from './components/QuickOrderPad'
+import QuickorderTable from './components/QuickorderTable'
 
-const Quickorder = () => {
-  useEffect(() => {
-  }, [])
+function Quickorder() {
+  useEffect(() => {}, [])
   const {
-    state: {
-      role,
-      isAgenting,
-      isB2BUser,
-    },
+    state: { role, isAgenting, isB2BUser },
   } = useContext(GlobaledContext)
 
   const [isMobile] = useMobile()
@@ -80,11 +60,7 @@ const Quickorder = () => {
               pl: isMobile ? '0px !important' : '16px',
             }}
           >
-            {
-              role !== 2 && (
-                <QuickOrderPad />
-              )
-            }
+            {role !== 2 && <QuickOrderPad />}
           </Grid>
         </Grid>
       </Box>

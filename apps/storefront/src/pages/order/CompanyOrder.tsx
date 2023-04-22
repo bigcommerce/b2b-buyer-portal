@@ -1,9 +1,7 @@
 import Order from './Order'
 
-const CompanyOrder = () => (
-  <Order
-    isCompanyOrder
-  />
-)
+function CompanyOrder() {
+  return <Order isCompanyOrder />
+}
 
 export default CompanyOrder

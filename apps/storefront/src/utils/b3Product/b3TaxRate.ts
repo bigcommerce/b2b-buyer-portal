@@ -1,17 +1,9 @@
-import {
-  store,
-} from '@/store/reducer'
-
-import {
-  TaxZoneRates,
-  TaxZoneRatesProps,
-} from '@/store/slices/glabol'
+import { store } from '@/store/reducer'
+import { TaxZoneRates, TaxZoneRatesProps } from '@/store/slices/glabol'
 
 const getTaxRate = (taxClassId: number) => {
   const {
-    glabol: {
-      taxZoneRates,
-    },
+    glabol: { taxZoneRates },
   } = store.getState()
 
   let taxRates: TaxZoneRates[] = []
@@ -24,11 +16,10 @@ const getTaxRate = (taxClassId: number) => {
     })
   }
 
-  const rate = taxRates.find((item) => item.taxClassId === taxClassId)?.rate || 0
+  const rate =
+    taxRates.find((item) => item.taxClassId === taxClassId)?.rate || 0
 
   return rate
 }
 
-export {
-  getTaxRate,
-}
+export default getTaxRate

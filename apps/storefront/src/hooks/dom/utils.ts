@@ -1,122 +1,104 @@
-import {
-  SetStateAction,
-  Dispatch,
-} from 'react'
+import { Dispatch, SetStateAction } from 'react'
+import type { OpenPageState } from '@b3/hooks'
+import { v1 as uuid } from 'uuid'
 
-import type {
-  OpenPageState,
-} from '@b3/hooks'
-
-import {
-  v1 as uuid,
-} from 'uuid'
-import {
-  searchB2BProducts,
-  searchBcProducts,
-} from '@/shared/service/b2b'
-
-import {
-  getCartInfoWithOptions,
-} from '@/shared/service/bc'
-
+import { B3AddToQuoteTip } from '@/components'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
+import { getCartInfoWithOptions } from '@/shared/service/bc'
 import {
   addQuoteDraftProduce,
-  isAllRequiredOptionFilled,
   getModifiersPrice,
   getProductExtraPrice,
   globalSnackbar,
+  isAllRequiredOptionFilled,
 } from '@/utils'
 
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
-import {
-  conversionProductsList,
-} from '../../utils/b3Product/shared/config'
-
-import {
-  B3AddToQuoteTip,
-} from '@/components'
-
-import {
-  serialize,
-  getProductOptionList,
-} from '../../pages/pdp/PDP'
+import { getProductOptionList, serialize } from '../../pages/pdp/PDP'
+import { conversionProductsList } from '../../utils/b3Product/shared/config'
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 
 interface DiscountsProps {
-  discountedAmount: number,
-  id: string,
+  discountedAmount: number
+  id: string
 }
 
 interface ProductOptionsProps {
-  name: string,
-  nameId: number | string,
-  value: number | string,
-  valueId: number | string,
+  name: string
+  nameId: number | string
+  value: number | string
+  valueId: number | string
 }
 
 interface ProductItemProps {
-  brand: string | number,
-  couponAmount: number,
-  discountAmount: number,
-  discounts: Array<any>,
-  extendedListPrice: number,
-  extendedSalePrice: number,
-  giftWrapping: any,
-  id: string,
-  imageUrl: string,
-  isMutable: boolean,
-  isShippingRequired: boolean,
-  isTaxable: boolean,
-  listPrice: number,
-  name: string,
-  options: ProductOptionsProps[],
-  originalPrice: number,
-  parentId: string | number | null,
-  productId: number,
-  quantity: number,
-  salePrice: number,
-  sku: string,
-  type: string,
-  url: string,
-  variantId: number,
+  brand: string | number
+  couponAmount: number
+  discountAmount: number
+  discounts: Array<any>
+  extendedListPrice: number
+  extendedSalePrice: number
+  giftWrapping: any
+  id: string
+  imageUrl: string
+  isMutable: boolean
+  isShippingRequired: boolean
+  isTaxable: boolean
+  listPrice: number
+  name: string
+  options: ProductOptionsProps[]
+  originalPrice: number
+  parentId: string | number | null
+  productId: number
+  quantity: number
+  salePrice: number
+  sku: string
+  type: string
+  url: string
+  variantId: number
 }
 
 interface LineItemsProps {
-  customItems: Array<CustomFieldItems>,
-  digitalItems: Array<CustomFieldItems>,
-  giftCertificates: Array<CustomFieldItems>,
-  physicalItems: ProductItemProps[],
+  customItems: Array<CustomFieldItems>
+  digitalItems: Array<CustomFieldItems>
+  giftCertificates: Array<CustomFieldItems>
+  physicalItems: ProductItemProps[]
 }
 
-type Cart = 'customItems' | 'digitalItems' | 'giftCertificates' | 'physicalItems'
+type Cart =
+  | 'customItems'
+  | 'digitalItems'
+  | 'giftCertificates'
+  | 'physicalItems'
 
 interface CartInfoProps {
-  baseAmount: number,
-  cartAmount: number,
-  coupons: any,
-  createdTime: string,
+  baseAmount: number
+  cartAmount: number
+  coupons: any
+  createdTime: string
   currency: {
-    code: string,
-    decimalPlaces: number,
-    name: string,
-    symbol: string,
-  },
-  customerId: number,
-  discountAmount: number,
-  discounts: DiscountsProps[],
-  email: string,
-  id: string,
-  isTaxIncluded: boolean,
-  lineItems: LineItemsProps,
-  locale: string,
-  updatedTime: string,
+    code: string
+    decimalPlaces: number
+    name: string
+    symbol: string
+  }
+  customerId: number
+  discountAmount: number
+  discounts: DiscountsProps[]
+  email: string
+  id: string
+  isTaxIncluded: boolean
+  lineItems: LineItemsProps
+  locale: string
+  updatedTime: string
 }
 
-const productTypes: Array<Cart> = ['customItems', 'digitalItems', 'giftCertificates', 'physicalItems']
+const productTypes: Array<Cart> = [
+  'customItems',
+  'digitalItems',
+  'giftCertificates',
+  'physicalItems',
+]
 
 const addLoadding = (b3CartToQuote: any) => {
   const loadingDiv = document.createElement('div')
@@ -128,9 +110,9 @@ const addLoadding = (b3CartToQuote: any) => {
 }
 
 const removeElement = (_element: CustomFieldItems) => {
-  const _parentElement = _element.parentNode
-  if (_parentElement) {
-    _parentElement.removeChild(_element)
+  const parentElement = _element.parentNode
+  if (parentElement) {
+    parentElement.removeChild(_element)
   }
 }
 
@@ -155,11 +137,13 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
 
     productTypes.forEach((type: Cart) => {
       if (lineItems[type].length > 0) {
-        lineItems[type].forEach((product: ProductItemProps | CustomFieldItems) => {
-          if (!product.parentId) {
-            cartProductsList.push(product)
+        lineItems[type].forEach(
+          (product: ProductItemProps | CustomFieldItems) => {
+            if (!product.parentId) {
+              cartProductsList.push(product)
+            }
           }
-        })
+        )
       }
     })
 
@@ -169,20 +153,16 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
   const getOptionsList = (options: ProductOptionsProps[] | []) => {
     if (options?.length === 0) return []
 
-    const option = options.map(({
-      nameId,
-      valueId,
-      value,
-    }) => {
+    const option = options.map(({ nameId, valueId, value }) => {
       let optionValue: number | string = valueId.toString()
       if (typeof valueId === 'number' && valueId.toString().length === 10) {
         optionValue = value
       }
 
-      return ({
+      return {
         optionId: `attribute[${nameId}]`,
         optionValue,
-      })
+      }
     })
 
     return option
@@ -190,7 +170,8 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
 
   const addToQuote = async () => {
     try {
-      const cartInfoWithOptions: CartInfoProps | any = await getCartInfoWithOptions()
+      const cartInfoWithOptions: CartInfoProps | any =
+        await getCartInfoWithOptions()
 
       if (!cartInfoWithOptions[0]) {
         globalSnackbar.error('No products in Cart.', {
@@ -199,9 +180,7 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
         return
       }
 
-      const {
-        lineItems,
-      } = cartInfoWithOptions[0]
+      const { lineItems } = cartInfoWithOptions[0]
 
       const cartProductsList = getCartProducts(lineItems)
 
@@ -211,9 +190,7 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
         })
       }
 
-      const productsWithSKU = cartProductsList.filter(({
-        sku,
-      }) => !!sku)
+      const productsWithSKU = cartProductsList.filter(({ sku }) => !!sku)
 
       const productIds: number[] = []
       productsWithSKU.forEach((product: CustomFieldItems) => {
@@ -222,13 +199,12 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
         }
       })
 
-      const {
-        productsSearch,
-      } = await searchB2BProducts({
+      const { productsSearch } = await searchB2BProducts({
         productIds,
       })
 
-      const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch)
+      const newProductInfo: CustomFieldItems =
+        conversionProductsList(productsSearch)
       productsWithSKU.forEach((product) => {
         const {
           options,
@@ -244,7 +220,9 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
 
         const optionsList = getOptionsList(options)
 
-        const currentProductSearch = newProductInfo.find((product: any) => +product.id === +productId)
+        const currentProductSearch = newProductInfo.find(
+          (product: any) => +product.id === +productId
+        )
 
         const quoteListitem = {
           node: {
@@ -266,9 +244,10 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
       })
 
       globalSnackbar.success('Product was added to your quote.', {
-        jsx: () => B3AddToQuoteTip({
-          gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
-        }),
+        jsx: () =>
+          B3AddToQuoteTip({
+            gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
+          }),
         isClose: true,
       })
     } catch (e) {
@@ -287,40 +266,55 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
 const addQuoteToProduct = (setOpenPage: DispatchProps) => {
   const addToQuote = async (role: string | number) => {
     try {
-      const productId = (document.querySelector('input[name=product_id]') as CustomFieldItems)?.value
-      const qty = (document.querySelector('[name="qty[]"]') as CustomFieldItems)?.value ?? 1
-      const sku = (document.querySelector('[data-product-sku]')?.innerHTML ?? '').trim()
+      const productId = (
+        document.querySelector('input[name=product_id]') as CustomFieldItems
+      )?.value
+      const qty =
+        (document.querySelector('[name="qty[]"]') as CustomFieldItems)?.value ??
+        1
+      const sku = (
+        document.querySelector('[data-product-sku]')?.innerHTML ?? ''
+      ).trim()
       const form = document.querySelector('form[data-cart-item-add]')
 
-      const fn = +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
+      const fn =
+        +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
 
-      const {
-        productsSearch,
-      } = await fn({
+      const { productsSearch } = await fn({
         productIds: [+productId],
       })
 
-      const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch)
-      const {
-        allOptions,
-        variants,
-      } = newProductInfo[0]
+      const newProductInfo: CustomFieldItems =
+        conversionProductsList(productsSearch)
+      const { allOptions, variants } = newProductInfo[0]
 
-      const variantItem = variants.find((item: CustomFieldItems) => item.sku === sku)
+      const variantItem = variants.find(
+        (item: CustomFieldItems) => item.sku === sku
+      )
 
       const optionMap = serialize(form)
 
       const optionList = getProductOptionList(optionMap)
 
-      const modifiersPrice = getModifiersPrice(productsSearch[0]?.modifiers || [], optionList)
+      const modifiersPrice = getModifiersPrice(
+        productsSearch[0]?.modifiers || [],
+        optionList
+      )
 
-      const productExtraPrice = await getProductExtraPrice(productsSearch[0]?.modifiers || [], optionList, +role)
+      const productExtraPrice = await getProductExtraPrice(
+        productsSearch[0]?.modifiers || [],
+        optionList,
+        +role
+      )
 
-      const additionalCalculatedPrices = [...modifiersPrice, ...productExtraPrice]
-      const {
-        isValid,
-        message,
-      } = isAllRequiredOptionFilled(allOptions, optionList)
+      const additionalCalculatedPrices = [
+        ...modifiersPrice,
+        ...productExtraPrice,
+      ]
+      const { isValid, message } = isAllRequiredOptionFilled(
+        allOptions,
+        optionList
+      )
       if (!isValid) {
         globalSnackbar.error(message, {
           isClose: true,
@@ -341,16 +335,19 @@ const addQuoteToProduct = (setOpenPage: DispatchProps) => {
           productId,
           additionalCalculatedPrices,
           basePrice: variantItem.bc_calculated_price.as_entered,
-          tax: variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive,
+          tax:
+            variantItem.bc_calculated_price.tax_inclusive -
+            variantItem.bc_calculated_price.tax_exclusive,
         },
       }
 
       addQuoteDraftProduce(quoteListitem, qty, optionList || [])
 
       globalSnackbar.success('Product was added to your quote.', {
-        jsx: () => B3AddToQuoteTip({
-          gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
-        }),
+        jsx: () =>
+          B3AddToQuoteTip({
+            gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
+          }),
         isClose: true,
       })
     } catch (e) {
@@ -366,9 +363,4 @@ const addQuoteToProduct = (setOpenPage: DispatchProps) => {
   }
 }
 
-export {
-  addQuoteToProduct,
-  addQuoteToCart,
-  addLoadding,
-  removeElement,
-}
+export { addLoadding, addQuoteToCart, addQuoteToProduct, removeElement }

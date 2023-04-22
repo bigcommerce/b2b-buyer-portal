@@ -1,16 +1,11 @@
-import {
-  Draft,
-  createSlice,
-} from '@reduxjs/toolkit'
-import type {
-  PayloadAction,
-} from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, Draft } from '@reduxjs/toolkit'
 
-export interface themeState {
+export interface ThemeState {
   themeFrame?: Document
 }
 
-const initialState: themeState = {
+const initialState: ThemeState = {
   themeFrame: undefined,
 }
 
@@ -19,17 +14,12 @@ export const themeSlice = createSlice({
   initialState,
   reducers: {
     clearThemeFrame: () => initialState,
-    setThemeFrame: (state, {
-      payload,
-    }: PayloadAction<Document>) => {
+    setThemeFrame: (state, { payload }: PayloadAction<Document>) => {
       state.themeFrame = payload as Draft<Document>
     },
   },
 })
 
-export const {
-  clearThemeFrame,
-  setThemeFrame,
-} = themeSlice.actions
+export const { clearThemeFrame, setThemeFrame } = themeSlice.actions
 
 export default themeSlice.reducer

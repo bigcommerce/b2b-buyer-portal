@@ -1,6 +1,7 @@
 {
   "extends": "./react-library.json",
   "Display": "Vite",
+  "moduleResolution": "node",
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ES2020"],

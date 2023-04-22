@@ -1,74 +1,31 @@
-import {
-  useEffect,
-  useContext,
-  useState,
-} from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { B3Lang, useB3Lang } from '@b3/lang'
+import { Box } from '@mui/material'
+import { trim } from 'lodash'
 
+import { B3CustomForm, B3Sping, CustomButton } from '@/components'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
-  Box,
-} from '@mui/material'
-
-import {
-  useForm,
-} from 'react-hook-form'
-
-import {
-  trim,
-} from 'lodash'
-import {
-  useB3Lang,
-  B3Lang,
-} from '@b3/lang'
-
-import {
-  useNavigate,
-} from 'react-router-dom'
-
-import {
-  B3CustomForm,
-  CustomButton,
-} from '@/components'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  validatorRules,
-  snackbar,
-  B3SStorage,
-} from '@/utils'
-
-import {
-  getB2BAccountFormFields,
-  checkUserEmail,
   checkUserBCEmail,
-  updateB2BAccountSettings,
-  updateBCAccountSettings,
+  checkUserEmail,
+  getB2BAccountFormFields,
   getB2BAccountSettings,
   getBCAccountSettings,
+  updateB2BAccountSettings,
+  updateBCAccountSettings,
 } from '@/shared/service/b2b'
+import { B3SStorage, snackbar, validatorRules } from '@/utils'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import { deCodeField, getAccountFormFields } from '../registered/config'
 
-import {
-  getAccountFormFields,
-  deCodeField,
-} from '../../pages/registered/config'
-
-import {
-  getAccountSettingFiles,
-} from './config'
+import { getAccountSettingFiles } from './config'
 
 interface Fields {
-  bcLabel: string,
-  custom: boolean,
+  bcLabel: string
+  custom: boolean
   default: string | number | CustomFieldItems[]
   fieldId: string
   fieldType: string
@@ -81,20 +38,20 @@ interface Fields {
   min: string | number
   minlength: string | number
   name: string
-  required: boolean,
+  required: boolean
   rows: string | number
   type: string
-  validate: (val: string, b3lang: B3Lang) => void | string,
+  validate: (val: string, b3lang: B3Lang) => void | string
   variant: string
-  visible: boolean,
-  xs: number,
+  visible: boolean
+  xs: number
   muiSelectProps: CustomFieldItems
   disabled: boolean
 }
 
 interface BcFormFieldsProps {
-  name: string,
-  value: any,
+  name: string
+  value: any
 }
 
 interface ParamProps {
@@ -105,20 +62,18 @@ interface ParamProps {
   lastName: string
   emailAddress: string
   email: string
-  companyId: string | number,
-  formFields: BcFormFieldsProps[],
+  companyId: string | number
+  formFields: BcFormFieldsProps[]
   [key: string]: string | CustomFieldItems[] | BcFormFieldsProps | number
 }
 const emailValidate = validatorRules(['email'])
 
-const AccountSetting = () => {
+function AccountSetting() {
   const {
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
     setError,
   } = useForm({
@@ -133,9 +88,7 @@ const AccountSetting = () => {
       customer,
       currentChannelId,
       salesRepCompanyId,
-      companyInfo: {
-        id: companyInfoId,
-      },
+      companyInfo: { id: companyInfoId },
     },
   } = useContext(GlobaledContext)
 
@@ -145,9 +98,13 @@ const AccountSetting = () => {
 
   const navigate = useNavigate()
 
-  const [accountInfoFormFields, setAccountInfoFormFields] = useState<Partial<Fields>[]>([])
+  const [accountInfoFormFields, setAccountInfoFormFields] = useState<
+    Partial<Fields>[]
+  >([])
 
-  const [decryptionFields, setDecryptionFields] = useState<Partial<Fields>[]>([])
+  const [decryptionFields, setDecryptionFields] = useState<Partial<Fields>[]>(
+    []
+  )
 
   const [extraFields, setExtraFields] = useState<Partial<Fields>[]>([])
 
@@ -157,7 +114,8 @@ const AccountSetting = () => {
 
   const [isVisible, setIsVisible] = useState<boolean>(false)
 
-  const companyId = role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId
+  const companyId =
+    role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId
 
   const isBCUser = !isB2BUser || (role === 3 && !isAgenting)
 
@@ -166,31 +124,34 @@ const AccountSetting = () => {
       try {
         setLoadding(true)
 
-        const accountFormAllFields = await getB2BAccountFormFields(isBCUser ? 1 : 2)
+        const accountFormAllFields = await getB2BAccountFormFields(
+          isBCUser ? 1 : 2
+        )
 
         const fn = !isBCUser ? getB2BAccountSettings : getBCAccountSettings
 
-        const params = !isBCUser ? {
-          companyId,
-        } : {}
+        const params = !isBCUser
+          ? {
+              companyId,
+            }
+          : {}
 
         const key = !isBCUser ? 'accountSettings' : 'customerAccountSettings'
 
-        const {
-          [key]: accountSettings,
-        } = await fn(params)
+        const { [key]: accountSettings } = await fn(params)
 
-        const accountFormFields = getAccountFormFields(accountFormAllFields.accountFormFields || [])
-        const {
-          accountB2BFormFields,
-          passwordModified,
-        } = getAccountSettingFiles(12)
+        const accountFormFields = getAccountFormFields(
+          accountFormAllFields.accountFormFields || []
+        )
+        const { accountB2BFormFields, passwordModified } =
+          getAccountSettingFiles(12)
 
-        const contactInformation = accountFormFields.contactInformation.filter((item: Partial<Fields>) => item.fieldId !== 'field_email_marketing_newsletter')
+        const contactInformation = accountFormFields.contactInformation.filter(
+          (item: Partial<Fields>) =>
+            item.fieldId !== 'field_email_marketing_newsletter'
+        )
 
-        const {
-          additionalInformation = [],
-        } = accountFormFields
+        const { additionalInformation = [] } = accountFormFields
 
         if (!isBCUser) {
           contactInformation.forEach((item: Partial<Fields>) => {
@@ -222,8 +183,10 @@ const AccountSetting = () => {
           })
 
           additionalInformation.forEach((item: Partial<Fields>) => {
-            const formFields = (accountSettings?.formFields || []).find((field: Partial<Fields>) => field.name === item.bcLabel)
-            if (formFields)item.default = formFields.value
+            const formFields = (accountSettings?.formFields || []).find(
+              (field: Partial<Fields>) => field.name === item.bcLabel
+            )
+            if (formFields) item.default = formFields.value
           })
 
           const all = [
@@ -255,8 +218,10 @@ const AccountSetting = () => {
           })
 
           additionalInformation.forEach((item: Partial<Fields>) => {
-            const formFields = (accountSettings?.formFields || []).find((field: Partial<Fields>) => field.name === item.bcLabel)
-            if (formFields)item.default = formFields.value
+            const formFields = (accountSettings?.formFields || []).find(
+              (field: Partial<Fields>) => field.name === item.bcLabel
+            )
+            if (formFields) item.default = formFields.value
           })
 
           const all = [
@@ -292,9 +257,7 @@ const AccountSetting = () => {
     const key = !isBCUser ? 'userEmailCheck' : 'customerEmailCheck'
 
     const {
-      [key]: {
-        userType,
-      },
+      [key]: { userType },
     }: CustomFieldItems = await fn({
       email: emailValue,
       channelId: currentChannelId,
@@ -314,20 +277,18 @@ const AccountSetting = () => {
 
   const passwordValidation = (data: Partial<ParamProps>) => {
     if (data.password !== data.confirmPassword) {
-      setError(
-        'confirmPassword',
-        {
-          type: 'manual',
-          message: b3Lang('intl.user.register.RegisterComplete.passwordMatchPrompt'),
-        },
-      )
-      setError(
-        'password',
-        {
-          type: 'manual',
-          message: b3Lang('intl.user.register.RegisterComplete.passwordMatchPrompt'),
-        },
-      )
+      setError('confirmPassword', {
+        type: 'manual',
+        message: b3Lang(
+          'intl.user.register.RegisterComplete.passwordMatchPrompt'
+        ),
+      })
+      setError('password', {
+        type: 'manual',
+        message: b3Lang(
+          'intl.user.register.RegisterComplete.passwordMatchPrompt'
+        ),
+      })
       return false
     }
 
@@ -335,8 +296,10 @@ const AccountSetting = () => {
   }
 
   const emailValidation = (data: Partial<ParamProps>) => {
-    if ((data.email !== customer.emailAddress) && !data.currentPassword) {
-      snackbar.error('Please type in your current password to update your email address.')
+    if (data.email !== customer.emailAddress && !data.currentPassword) {
+      snackbar.error(
+        'Please type in your current password to update your email address.'
+      )
       return false
     }
     return true
@@ -365,19 +328,23 @@ const AccountSetting = () => {
                 if (key === item.name) {
                   flag = false
                   if (deCodeField(item.name) === 'first_name') {
-                    if (accountSettings.firstName !== data[item.name]) isEdit = false
+                    if (accountSettings.firstName !== data[item.name])
+                      isEdit = false
                     param.firstName = data[item.name]
                   }
                   if (deCodeField(item.name) === 'last_name') {
-                    if (accountSettings.lastName !== data[item.name]) isEdit = false
+                    if (accountSettings.lastName !== data[item.name])
+                      isEdit = false
                     param.lastName = data[item.name]
                   }
                   if (deCodeField(item.name) === 'phone') {
-                    if (accountSettings.phoneNumber !== data[item.name]) isEdit = false
+                    if (accountSettings.phoneNumber !== data[item.name])
+                      isEdit = false
                     param.phoneNumber = data[item.name]
                   }
                   if (deCodeField(item.name) === 'email') {
-                    if (accountSettings.email !== data[item.name]) isEdit = false
+                    if (accountSettings.email !== data[item.name])
+                      isEdit = false
                     param.email = data[item.name]
                   }
                 }
@@ -391,8 +358,16 @@ const AccountSetting = () => {
                       value: data[key],
                     })
                     flag = false
-                    const account = (accountSettings?.formFields || []).find((formField: Partial<Fields>) => formField.name === field.bcLabel)
-                    if (account && JSON.stringify(account.value) !== JSON.stringify(data[key])) isEdit = false
+                    const account = (accountSettings?.formFields || []).find(
+                      (formField: Partial<Fields>) =>
+                        formField.name === field.bcLabel
+                    )
+                    if (
+                      account &&
+                      JSON.stringify(account.value) !==
+                        JSON.stringify(data[key])
+                    )
+                      isEdit = false
                   }
                 })
               }
@@ -424,23 +399,28 @@ const AccountSetting = () => {
                 if (key === item.name) {
                   flag = false
                   if (deCodeField(item.name) === 'first_name') {
-                    if (accountSettings.firstName !== data[item.name]) isEdit = false
+                    if (accountSettings.firstName !== data[item.name])
+                      isEdit = false
                     param.firstName = data[item.name]
                   }
                   if (deCodeField(item.name) === 'last_name') {
-                    if (accountSettings.lastName !== data[item.name]) isEdit = false
+                    if (accountSettings.lastName !== data[item.name])
+                      isEdit = false
                     param.lastName = data[item.name]
                   }
                   if (deCodeField(item.name) === 'phone') {
-                    if (accountSettings.phoneNumber !== data[item.name]) isEdit = false
+                    if (accountSettings.phoneNumber !== data[item.name])
+                      isEdit = false
                     param.phoneNumber = data[item.name]
                   }
                   if (deCodeField(item.name) === 'email') {
-                    if (accountSettings.email !== data[item.name]) isEdit = false
+                    if (accountSettings.email !== data[item.name])
+                      isEdit = false
                     param.email = data[item.name]
                   }
                   if (deCodeField(item.name) === 'company') {
-                    if (accountSettings.company !== data[item.name]) isEdit = false
+                    if (accountSettings.company !== data[item.name])
+                      isEdit = false
                     param.company = data[item.name]
                   }
                 }
@@ -454,8 +434,16 @@ const AccountSetting = () => {
                       value: data[key],
                     })
                     flag = false
-                    const account = (accountSettings?.formFields || []).find((formField: Partial<Fields>) => formField.name === field.bcLabel)
-                    if (account && JSON.stringify(account.value) !== JSON.stringify(data[key])) isEdit = false
+                    const account = (accountSettings?.formFields || []).find(
+                      (formField: Partial<Fields>) =>
+                        formField.name === field.bcLabel
+                    )
+                    if (
+                      account &&
+                      JSON.stringify(account.value) !==
+                        JSON.stringify(data[key])
+                    )
+                      isEdit = false
                   }
                 })
               }
@@ -478,7 +466,10 @@ const AccountSetting = () => {
               return
             }
           }
-          if ((data.password && data.currentPassword) || (customer.emailAddress !== trim(data.email))) {
+          if (
+            (data.password && data.currentPassword) ||
+            customer.emailAddress !== trim(data.email)
+          ) {
             navigate('/login?loginFlag=3')
           } else {
             B3SStorage.clear()
@@ -493,10 +484,7 @@ const AccountSetting = () => {
   }
 
   return (
-    <B3Sping
-      isSpinning={isloadding}
-      background="rgb(254, 249, 245)"
-    >
+    <B3Sping isSpinning={isloadding} background="rgb(254, 249, 245)">
       <Box
         sx={{
           width: `${isMobile ? '100%' : '35%'}`,
@@ -524,9 +512,7 @@ const AccountSetting = () => {
           save updates
         </CustomButton>
       </Box>
-
     </B3Sping>
-
   )
 }
 

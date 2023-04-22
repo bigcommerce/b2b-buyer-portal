@@ -1,85 +1,45 @@
+import { ChangeEvent, MouseEvent, useContext, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useSelector } from 'react-redux'
+import { useB3Lang } from '@b3/lang'
 import {
+  Alert,
   Box,
+  FormControl,
+  FormControlLabel,
   Radio,
   RadioGroup,
-  FormControlLabel,
-  FormControl,
-  Alert,
 } from '@mui/material'
-import {
-  useContext,
-  ChangeEvent,
-  useState,
-  MouseEvent,
-} from 'react'
-import {
-  useSelector,
-} from 'react-redux'
-import {
-  useForm,
-} from 'react-hook-form'
 
-import {
-  useB3Lang,
-} from '@b3/lang'
-import {
-  B3CustomForm,
-} from '@/components'
-import {
-  GlobaledContext,
-} from '@/shared/global'
-import {
-  checkUserEmail,
-  checkUserBCEmail,
-} from '@/shared/service/b2b'
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-import {
-  themeFrameSelector,
-} from '@/store'
+import { B3CustomForm } from '@/components'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { GlobaledContext } from '@/shared/global'
+import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
+import { themeFrameSelector } from '@/store'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
-import {
-  RegisterFields,
-  emailError,
-} from './config'
-import {
-  RegisteredContext,
-} from './context/RegisteredContext'
-import {
-  InformationFourLabels, TipContent,
-} from './styled'
+import { RegisteredContext } from './context/RegisteredContext'
+import { emailError, RegisterFields } from './config'
+import { InformationFourLabels, TipContent } from './styled'
 
 interface RegisteredAccountProps {
-  handleBack: () => void,
-  handleNext: () => void,
-  activeStep: number,
+  handleBack: () => void
+  handleNext: () => void
+  activeStep: number
 }
 
 export default function RegisteredAccount(props: RegisteredAccountProps) {
-  const {
-    handleBack,
-    handleNext,
-    activeStep,
-  } = props
+  const { handleBack, handleNext, activeStep } = props
 
   const {
-    state: {
-      currentChannelId,
-    },
+    state: { currentChannelId },
   } = useContext(GlobaledContext)
 
-  const {
-    state,
-    dispatch,
-  } = useContext(RegisteredContext)
+  const { state, dispatch } = useContext(RegisteredContext)
   const IframeDocument = useSelector(themeFrameSelector)
 
   const {
-    state: {
-      accountLoginRegistration,
-    },
+    state: { accountLoginRegistration },
   } = useContext(CustomStyleContext)
 
   const b3Lang = useB3Lang()
@@ -87,7 +47,9 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const [errorTips, setErrorTips] = useState<string>('')
 
   const {
-    contactInformation, accountType, additionalInformation,
+    contactInformation,
+    accountType,
+    additionalInformation,
     bcContactInformation,
     bcAdditionalInformation,
   } = state
@@ -96,24 +58,30 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setError,
     setValue,
   } = useForm({
     mode: 'onSubmit',
   })
 
-  const additionName = accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation'
-  const additionalInfo: any = accountType === '1' ? additionalInformation : bcAdditionalInformation
+  const additionName =
+    accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation'
+  const additionalInfo: any =
+    accountType === '1' ? additionalInformation : bcAdditionalInformation
 
-  const contactInfo: any = accountType === '1' ? contactInformation : bcContactInformation
-  const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
+  const contactInfo: any =
+    accountType === '1' ? contactInformation : bcContactInformation
+  const contactName =
+    accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
 
-  const contactInformationLabel = contactInfo.length ? contactInfo[0]?.groupName : ''
+  const contactInformationLabel = contactInfo.length
+    ? contactInfo[0]?.groupName
+    : ''
 
-  const additionalInformationLabel = additionalInfo.length ? additionalInfo[0]?.groupName : ''
+  const additionalInformationLabel = additionalInfo.length
+    ? additionalInfo[0]?.groupName
+    : ''
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     dispatch({
@@ -124,7 +92,10 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     })
   }
 
-  const emailName = contactInformation?.find((item: CustomFieldItems) => item.fieldId === 'field_email')?.name || 'email'
+  const emailName =
+    contactInformation?.find(
+      (item: CustomFieldItems) => item.fieldId === 'field_email'
+    )?.name || 'email'
 
   const validateEmailValue = async (emailValue: string) => {
     const isB2BUser = accountType === '1'
@@ -132,12 +103,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
 
     const {
-      [key]: {
-        userType,
-        userInfo: {
-          companyName = '',
-        } = {},
-      },
+      [key]: { userType, userInfo: { companyName = '' } = {} },
     }: CustomFieldItems = await fn({
       email: emailValue,
       channelId: currentChannelId,
@@ -146,10 +112,12 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     const isValid = isB2BUser ? [1].includes(userType) : ![2].includes(userType)
 
     if (!isValid) {
-      setErrorTips(b3Lang(emailError[userType], {
-        companyName: companyName || '',
-        email: emailValue,
-      }))
+      setErrorTips(
+        b3Lang(emailError[userType], {
+          companyName: companyName || '',
+          email: emailValue,
+        })
+      )
       setError(emailName, {
         type: 'custom',
         message: '',
@@ -165,7 +133,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
 
   const handleAccountToDetail = async (event: MouseEvent) => {
     handleSubmit(async (data: CustomFieldItems) => {
-      if (!await validateEmailValue(data[emailName])) {
+      if (!(await validateEmailValue(data[emailName]))) {
         return
       }
 
@@ -176,7 +144,9 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
 
       let newAdditionalInformation: Array<RegisterFields> = []
       if (additionalInfo) {
-        newAdditionalInformation = (additionalInfo as Array<RegisterFields>).map((item: RegisterFields) => {
+        newAdditionalInformation = (
+          additionalInfo as Array<RegisterFields>
+        ).map((item: RegisterFields) => {
           item.default = data[item.name] || item.default
           return item
         })
@@ -201,20 +171,16 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         mt: 2,
       }}
     >
-      {
-        errorTips && (
-        <Alert
-          severity="error"
-        >
-          <TipContent>
-            {errorTips}
-          </TipContent>
+      {errorTips && (
+        <Alert severity="error">
+          <TipContent>{errorTips}</TipContent>
         </Alert>
-        )
-      }
+      )}
 
       <FormControl>
-        <InformationFourLabels>{b3Lang('intl.user.register.registeredAccount.accountType')}</InformationFourLabels>
+        <InformationFourLabels>
+          {b3Lang('intl.user.register.registeredAccount.accountType')}
+        </InformationFourLabels>
         <RadioGroup
           row
           aria-labelledby="demo-row-radio-buttons-group-label"
@@ -222,24 +188,24 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           value={accountType}
           onChange={handleChange}
         >
-          {
-            accountLoginRegistration.b2b && (
-              <FormControlLabel
-                value="1"
-                control={<Radio />}
-                label={b3Lang('intl.user.register.registeredAccount.businessAccount')}
-              />
-            )
-          }
-          {
-            accountLoginRegistration.b2c && (
-              <FormControlLabel
-                value="2"
-                control={<Radio />}
-                label={b3Lang('intl.user.register.registeredAccount.personalAccount')}
-              />
-            )
-          }
+          {accountLoginRegistration.b2b && (
+            <FormControlLabel
+              value="1"
+              control={<Radio />}
+              label={b3Lang(
+                'intl.user.register.registeredAccount.businessAccount'
+              )}
+            />
+          )}
+          {accountLoginRegistration.b2c && (
+            <FormControlLabel
+              value="2"
+              control={<Radio />}
+              label={b3Lang(
+                'intl.user.register.registeredAccount.personalAccount'
+              )}
+            />
+          )}
         </RadioGroup>
       </FormControl>
 
@@ -252,24 +218,25 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           getValues={getValues}
           setValue={setValue}
         />
-
       </Box>
 
       <Box />
-      {
-        (additionalInfo && additionalInfo.length) ? (
-          <Box>
-            <InformationFourLabels>{additionalInformationLabel}</InformationFourLabels>
-            <B3CustomForm
-              formFields={additionalInfo}
-              errors={errors}
-              control={control}
-              getValues={getValues}
-              setValue={setValue}
-            />
-          </Box>
-        ) : ''
-      }
+      {additionalInfo && additionalInfo.length ? (
+        <Box>
+          <InformationFourLabels>
+            {additionalInformationLabel}
+          </InformationFourLabels>
+          <B3CustomForm
+            formFields={additionalInfo}
+            errors={errors}
+            control={control}
+            getValues={getValues}
+            setValue={setValue}
+          />
+        </Box>
+      ) : (
+        ''
+      )}
 
       <RegisteredStepButton
         activeStep={activeStep}

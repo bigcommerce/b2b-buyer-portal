@@ -1,37 +1,42 @@
 import {
+  Dispatch,
+  MouseEvent,
+  SetStateAction,
+  useContext,
   useEffect,
   useState,
-  useContext,
-  MouseEvent,
-  Dispatch,
-  SetStateAction,
 } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import type { OpenPageState } from '@b3/hooks'
+import { useB3Lang } from '@b3/lang'
+import { Alert, Box, ImageListItem } from '@mui/material'
+
+import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { GlobaledContext } from '@/shared/global'
+import { getCurrentCustomerInfo, storeHash } from '@/utils'
 
 import {
-  Box,
-  ImageListItem,
-  Alert,
-} from '@mui/material'
+  createB2BCompanyUser,
+  getB2BAccountFormFields,
+  getB2BCountries,
+  uploadB2BFile,
+  validateBCCompanyExtraFields,
+} from '../../shared/service/b2b'
 
+import { RegisteredContext } from './context/RegisteredContext'
 import {
-  useForm,
-} from 'react-hook-form'
-
-import type {
-  OpenPageState,
-} from '@b3/hooks'
-
-import {
-  useB3Lang,
-} from '@b3/lang'
-
-import {
-  useNavigate,
-} from 'react-router-dom'
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
+  Country,
+  deCodeField,
+  getAccountFormFields,
+  RegisterFields,
+  RegisterFieldsItems,
+  State,
+  steps,
+  toHump,
+} from './config'
+import RegisteredFinish from './RegisteredFinish'
 import {
   InformationFourLabels,
   InformationLabels,
@@ -40,63 +45,19 @@ import {
   TipContent,
 } from './styled'
 
-import {
-  getB2BCountries,
-  getB2BAccountFormFields,
-  createB2BCompanyUser,
-  uploadB2BFile,
-  validateBCCompanyExtraFields,
-} from '../../shared/service/b2b'
-
-import {
-  B3CustomForm,
-  B3Card,
-  CustomButton,
-} from '../../components'
-
-import {
-  RegisteredContext,
-} from './context/RegisteredContext'
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-import RegisteredFinish from './RegisteredFinish'
-
-import {
-  B3Sping,
-} from '../../components/spin/B3Sping'
-
-import {
-  RegisterFields,
-  Country,
-  State,
-  getAccountFormFields,
-  RegisterFieldsItems,
-  deCodeField,
-  toHump,
-  steps,
-} from './config'
-
-import {
-  storeHash,
-  getCurrentCustomerInfo,
-} from '@/utils'
-
 interface CustomerInfo {
   [k: string]: string
 }
 
 interface RegisteredProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
 export default function RegisteredBCToB2B(props: RegisteredProps) {
   const [errorMessage, setErrorMessage] = useState('')
   const [showFinishPage, setShowFinishPage] = useState<boolean>(false)
 
-  const {
-    setOpenPage,
-  } = props
+  const { setOpenPage } = props
 
   const b3Lang = useB3Lang()
 
@@ -104,9 +65,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
     setError,
     watch,
@@ -131,15 +90,10 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
   const navigate = useNavigate()
 
-  const {
-    state,
-    dispatch,
-  } = useContext(RegisteredContext)
+  const { state, dispatch } = useContext(RegisteredContext)
 
   const {
-    state: {
-      companyAutoApproval,
-    },
+    state: { companyAutoApproval },
   } = useContext(CustomStyleContext)
 
   const showLoading = (isShow = false) => {
@@ -166,17 +120,22 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
         const accountFormAllFields = await getB2BAccountFormFields(3)
 
-        const bcToB2BAccountFormFields = getAccountFormFields(accountFormAllFields?.accountFormFields || [])
-        const {
-          countries,
-        } = await getB2BCountries()
+        const bcToB2BAccountFormFields = getAccountFormFields(
+          accountFormAllFields?.accountFormFields || []
+        )
+        const { countries } = await getB2BCountries()
 
-        const newAddressInformationFields = bcToB2BAccountFormFields.address.map((addressFields: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
-          if (addressFields.name === 'country') {
-            addressFields.options = countries
-          }
-          return addressFields
-        })
+        const newAddressInformationFields =
+          bcToB2BAccountFormFields.address.map(
+            (
+              addressFields: Partial<RegisterFieldsItems>
+            ): Partial<RegisterFieldsItems> => {
+              if (addressFields.name === 'country') {
+                addressFields.options = countries
+              }
+              return addressFields
+            }
+          )
 
         const customerInfo: CustomerInfo = {
           phone: phoneNumber,
@@ -185,13 +144,21 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           email: emailAddress,
         }
 
-        const newContactInformation = bcToB2BAccountFormFields.contactInformation.map((contactInformationField: Partial<RegisterFieldsItems>):Partial<RegisterFieldsItems> => {
-          contactInformationField.disabled = true
+        const newContactInformation =
+          bcToB2BAccountFormFields.contactInformation.map(
+            (
+              contactInformationField: Partial<RegisterFieldsItems>
+            ): Partial<RegisterFieldsItems> => {
+              contactInformationField.disabled = true
 
-          contactInformationField.default = customerInfo[deCodeField(contactInformationField.name as string)] || contactInformationField.default
+              contactInformationField.default =
+                customerInfo[
+                  deCodeField(contactInformationField.name as string)
+                ] || contactInformationField.default
 
-          return contactInformationField
-        })
+              return contactInformationField
+            }
+          )
 
         if (dispatch) {
           dispatch({
@@ -224,9 +191,14 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     companyExtraFields = [],
   } = state
 
-  const handleCountryChange = (countryCode: string, stateCode: string = '') => {
-    const stateList = countryList.find((country: Country) => country.countryCode === countryCode)?.states || []
-    const stateFields = addressBasicFields.find((formFields: RegisterFields) => formFields.name === 'state')
+  const handleCountryChange = (countryCode: string, stateCode = '') => {
+    const stateList =
+      countryList.find(
+        (country: Country) => country.countryCode === countryCode
+      )?.states || []
+    const stateFields = addressBasicFields.find(
+      (formFields: RegisterFields) => formFields.name === 'state'
+    )
 
     if (stateFields) {
       if (stateList.length > 0) {
@@ -238,7 +210,15 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       }
     }
 
-    setValue('state', stateCode && countryCode && (stateList.find((state: State) => state.stateCode === stateCode) || stateList.length === 0) ? stateCode : '')
+    setValue(
+      'state',
+      stateCode &&
+        countryCode &&
+        (stateList.find((state: State) => state.stateCode === stateCode) ||
+          stateList.length === 0)
+        ? stateCode
+        : ''
+    )
 
     dispatch({
       type: 'stateList',
@@ -250,14 +230,8 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   }
 
   useEffect(() => {
-    const subscription = watch((value, {
-      name,
-      type,
-    }) => {
-      const {
-        country,
-        state,
-      } = value
+    const subscription = watch((value, { name, type }) => {
+      const { country, state } = value
       if (name === 'country' && type === 'change') {
         handleCountryChange(country, state)
       }
@@ -265,28 +239,37 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     return () => subscription.unsubscribe()
   }, [countryList])
 
-  const getFileUrl = async (attachmentsList: RegisterFields[], data: CustomFieldItems) => {
+  const getFileUrl = async (
+    attachmentsList: RegisterFields[],
+    data: CustomFieldItems
+  ) => {
     let attachments: File[] = []
 
-    if (!attachmentsList.length) return
+    if (!attachmentsList.length) return undefined
 
     attachmentsList.forEach((field: any) => {
       attachments = data[field.name] || []
     })
 
     try {
-      const fileResponse = await Promise.all(attachments.map(
-        (file: File) => uploadB2BFile({
-          file,
-          type: 'companyAttachedFile',
-        }),
-      ))
+      const fileResponse = await Promise.all(
+        attachments.map((file: File) =>
+          uploadB2BFile({
+            file,
+            type: 'companyAttachedFile',
+          })
+        )
+      )
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
         if (res.code === 200) {
           fileList = [...fileList, res.data]
         } else {
-          throw res.data.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure')
+          throw (
+            res.data.errMsg ||
+            res.message ||
+            b3Lang('intl.global.fileUpload.fileUploadFailure')
+          )
         }
         return fileList
       }, [])
@@ -298,12 +281,18 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     }
   }
 
-  const getB2BFieldsValue = async (data: CustomFieldItems, customerId: Number | String, fileList: any) => {
+  const getB2BFieldsValue = async (
+    data: CustomFieldItems,
+    customerId: number | string,
+    fileList: any
+  ) => {
     const b2bFields: CustomFieldItems = {}
 
     b2bFields.customerId = customerId || ''
     b2bFields.storeHash = storeHash
-    const companyInfo = companyInformation.filter((list) => !list.custom && list.fieldType !== 'files')
+    const companyInfo = companyInformation.filter(
+      (list) => !list.custom && list.fieldType !== 'files'
+    )
     const companyExtraInfo = companyInformation.filter((list) => !!list.custom)
     // company field
     if (companyInfo.length) {
@@ -314,7 +303,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
     // Company Additional Field
     if (companyExtraInfo.length) {
-      const extraFields:Array<CustomFieldItems> = []
+      const extraFields: Array<CustomFieldItems> = []
       companyExtraInfo.forEach((item: CustomFieldItems) => {
         const itemExtraField: CustomFieldItems = {}
         itemExtraField.fieldName = deCodeField(item.name)
@@ -328,7 +317,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
     // address Field
     const addressBasicInfo = addressBasicFields.filter((list) => !list.custom)
-    const addressExtraBasicInfo = addressBasicFields.filter((list) => !!list.custom)
+    const addressExtraBasicInfo = addressBasicFields.filter(
+      (list) => !!list.custom
+    )
 
     if (addressBasicInfo.length) {
       addressBasicInfo.forEach((field: CustomFieldItems) => {
@@ -345,7 +336,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
     // address Additional Field
     if (addressExtraBasicInfo.length) {
-      const extraFields:Array<CustomFieldItems> = []
+      const extraFields: Array<CustomFieldItems> = []
       addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
         const itemExtraField: CustomFieldItems = {}
         itemExtraField.fieldName = deCodeField(item.name)
@@ -361,11 +352,15 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
   const validateCompanyExtraFieldsUnique = async (data: CustomFieldItems) => {
     try {
-      const extraCompanyInformation = companyInformation.filter((item: RegisterFields) => !!item.custom)
-      const extraFields = extraCompanyInformation.map((field: RegisterFields) => ({
-        fieldName: deCodeField(field.name),
-        fieldValue: data[field.name] || field.default,
-      }))
+      const extraCompanyInformation = companyInformation.filter(
+        (item: RegisterFields) => !!item.custom
+      )
+      const extraFields = extraCompanyInformation.map(
+        (field: RegisterFields) => ({
+          fieldName: deCodeField(field.name),
+          fieldValue: data[field.name] || field.default,
+        })
+      )
 
       const res = await validateBCCompanyExtraFields({
         extraFields,
@@ -377,15 +372,14 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         const messageArr = message.split(':')
 
         if (messageArr.length >= 2) {
-          const field = extraCompanyInformation.find(((field) => deCodeField(field.name) === messageArr[0]))
+          const field = extraCompanyInformation.find(
+            (field) => deCodeField(field.name) === messageArr[0]
+          )
           if (field) {
-            setError(
-              field.name,
-              {
-                type: 'manual',
-                message: messageArr[1],
-              },
-            )
+            setError(field.name, {
+              type: 'manual',
+              message: messageArr[1],
+            })
             showLoading(false)
             return false
           }
@@ -411,7 +405,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           return
         }
 
-        const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files')
+        const attachmentsList = companyInformation.filter(
+          (list) => list.fieldType === 'files'
+        )
         const fileList = await getFileUrl(attachmentsList || [], data)
 
         await getB2BFieldsValue(data, customerId, fileList)
@@ -465,9 +461,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               width: '100%',
             }}
           >
-
-            {
-              logo && (
+            {logo && (
               <RegisteredImage>
                 <ImageListItem
                   sx={{
@@ -484,90 +478,90 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                   />
                 </ImageListItem>
               </RegisteredImage>
-              )
-            }
+            )}
 
-            {
-              showFinishPage ? (
-                <RegisteredFinish
-                  activeStep={steps.length}
-                  handleFinish={handleFinish}
-                />
-              ) : (
-                <>
+            {showFinishPage ? (
+              <RegisteredFinish
+                activeStep={steps.length}
+                handleFinish={handleFinish}
+              />
+            ) : (
+              <>
+                <InformationLabels>
+                  {b3Lang(
+                    'intl.user.register.title.bcToB2B.businessAccountApplication'
+                  )}
+                </InformationLabels>
 
-                  <InformationLabels>{b3Lang('intl.user.register.title.bcToB2B.businessAccountApplication')}</InformationLabels>
+                {errorMessage && (
+                  <Alert severity="error">
+                    <TipContent>{errorMessage}</TipContent>
+                  </Alert>
+                )}
 
-                  {
-                    errorMessage && (
-                    <Alert
-                      severity="error"
-                    >
-                      <TipContent>
-                        { errorMessage }
-                      </TipContent>
-                    </Alert>
-                    )
-                  }
+                <Box>
+                  <InformationFourLabels>
+                    {contactInformation?.length
+                      ? contactInformation[0]?.groupName
+                      : ''}
+                  </InformationFourLabels>
+                  <B3CustomForm
+                    formFields={contactInformation}
+                    errors={errors}
+                    control={control}
+                    getValues={getValues}
+                    setValue={setValue}
+                  />
+                </Box>
 
-                  <Box>
-                    <InformationFourLabels>{contactInformation?.length ? contactInformation[0]?.groupName : ''}</InformationFourLabels>
-                    <B3CustomForm
-                      formFields={contactInformation}
-                      errors={errors}
-                      control={control}
-                      getValues={getValues}
-                      setValue={setValue}
-                    />
+                <Box>
+                  <InformationFourLabels>
+                    {companyInformation?.length
+                      ? companyInformation[0]?.groupName
+                      : ''}
+                  </InformationFourLabels>
+                  <B3CustomForm
+                    formFields={[...companyInformation, ...companyExtraFields]}
+                    errors={errors}
+                    control={control}
+                    getValues={getValues}
+                    setValue={setValue}
+                  />
+                </Box>
 
-                  </Box>
+                <Box>
+                  <InformationFourLabels>
+                    {addressBasicFields?.length
+                      ? addressBasicFields[0]?.groupName
+                      : ''}
+                  </InformationFourLabels>
 
-                  <Box>
-                    <InformationFourLabels>{companyInformation?.length ? companyInformation[0]?.groupName : ''}</InformationFourLabels>
-                    <B3CustomForm
-                      formFields={[...companyInformation, ...companyExtraFields]}
-                      errors={errors}
-                      control={control}
-                      getValues={getValues}
-                      setValue={setValue}
-                    />
-                  </Box>
-
-                  <Box>
-                    <InformationFourLabels>{addressBasicFields?.length ? addressBasicFields[0]?.groupName : ''}</InformationFourLabels>
-
-                    <B3CustomForm
-                      formFields={addressBasicFields}
-                      errors={errors}
-                      control={control}
-                      getValues={getValues}
-                      setValue={setValue}
-                    />
-                  </Box>
-                </>
-              )
-            }
+                  <B3CustomForm
+                    formFields={addressBasicFields}
+                    errors={errors}
+                    control={control}
+                    getValues={getValues}
+                    setValue={setValue}
+                  />
+                </Box>
+              </>
+            )}
           </Box>
         </B3Sping>
 
-        {
-          !showFinishPage && (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row-reverse',
-                pt: 2,
-              }}
-            >
-              <CustomButton
-                variant="contained"
-                onClick={handleNext}
-              >
-                {b3Lang('intl.global.button.submit')}
-              </CustomButton>
-            </Box>
-          )
-        }
+        {!showFinishPage && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row-reverse',
+              pt: 2,
+            }}
+          >
+            <CustomButton variant="contained" onClick={handleNext}>
+              {b3Lang('intl.global.button.submit')}
+            </CustomButton>
+          </Box>
+        )}
       </RegisteredContainer>
     </B3Card>
   )

@@ -1,36 +1,15 @@
-import {
-  Box, Typography,
-} from '@mui/material'
-
-import NavigateNextIcon from '@mui/icons-material/NavigateNext'
-
+import { useContext, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
-
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
+import { Box, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 
-import {
-  useLocation,
-} from 'react-router-dom'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
+import { getB2BAllOrders, getBCAllOrders } from '@/shared/service/b2b'
 
-import {
-  useEffect,
-  useState,
-  useContext,
-} from 'react'
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  getB2BAllOrders,
-  getBCAllOrders,
-} from '@/shared/service/b2b'
-
-interface searchParamsProps {
+interface SearchParamsProps {
   [key: string]: number | string | undefined
   offset: number
   first: number
@@ -44,29 +23,29 @@ interface LocationState {
   endDateAt?: string | null
   currentIndex?: number
   totalCount?: number
-  searchParams?: searchParamsProps
+  searchParams?: SearchParamsProps
 }
 
-interface rightLeftSideProps {
+interface RightLeftSideProps {
   rightId: number | string
   leftId: number | string
 }
 
 const initListIndex = 100000000
 
-const DetailPagination = ({
-  onChange,
-}: DetailPageProps) => {
+function DetailPagination({ onChange }: DetailPageProps) {
   const [listIndex, setListIndex] = useState<number>(initListIndex)
   const [arrived, setArrived] = useState<string>('')
-
-  const [rightLeftSide, setRightLeftSide] = useState<rightLeftSideProps>({
+  const [loading, setLoading] = useState<boolean>(false)
+  const [rightLeftSide, setRightLeftSide] = useState<RightLeftSideProps>({
     rightId: '',
     leftId: '',
   })
+  const {
+    state: { isB2BUser },
+  } = useContext(GlobaledContext)
 
   const localtion = useLocation()
-
   const [isMobile] = useMobile()
 
   let currentIndex = 0
@@ -87,16 +66,6 @@ const DetailPagination = ({
       offset: 0,
     }
   }
-
-  if (JSON.stringify(searchParams) === '{}') return null
-
-  const [loading, setLoading] = useState<boolean>(false)
-
-  const {
-    state: {
-      isB2BUser,
-    },
-  } = useContext(GlobaledContext)
 
   const fetchList = async () => {
     setLoading(true)
@@ -120,10 +89,7 @@ const DetailPagination = ({
     const orders = isB2BUser ? 'allOrders' : 'customerOrders'
 
     const {
-      [orders]: {
-        edges: list,
-        totalCount,
-      },
+      [orders]: { edges: list, totalCount },
     }: CustomFieldItems = await fn(searchDetailParams)
 
     let flag = ''
@@ -165,6 +131,8 @@ const DetailPagination = ({
     fetchList()
   }, [listIndex])
 
+  if (JSON.stringify(searchParams) === '{}') return null
+
   const handleBeforePage = () => {
     setListIndex(listIndex - 1)
     onChange(rightLeftSide.leftId)
@@ -183,8 +151,7 @@ const DetailPagination = ({
         display: 'flex',
       }}
     >
-      {
-        !isMobile && (
+      {!isMobile && (
         <Box
           sx={{
             display: 'flex',
@@ -208,8 +175,7 @@ const DetailPagination = ({
             {totalCount}
           </Box>
         </Box>
-        )
-      }
+      )}
 
       <IconButton
         onClick={handleBeforePage}
@@ -223,11 +189,8 @@ const DetailPagination = ({
       >
         <NavigateNextIcon />
       </IconButton>
-
     </Box>
   )
 }
 
-export {
-  DetailPagination,
-}
+export default DetailPagination

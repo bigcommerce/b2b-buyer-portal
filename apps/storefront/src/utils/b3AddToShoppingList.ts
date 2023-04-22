@@ -1,37 +1,29 @@
-import {
-  B3SStorage,
-} from '@/utils'
+import { searchB2BProducts } from '@/shared/service/b2b'
+import { B3SStorage } from '@/utils'
 
-import {
-  searchB2BProducts,
-} from '@/shared/service/b2b'
+import { conversionProductsList } from './b3Product/shared/config'
 
-import {
-  conversionProductsList,
-} from './b3Product/shared/config'
-
-export const handleGetCurrentProductInfo = async (productId: number | string) => {
+export const handleGetCurrentProductInfo = async (
+  productId: number | string
+) => {
   const currencies = B3SStorage.get('currencies')
-  const companyId = B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+  const companyId =
+    B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
 
   let currencyCode = '$'
   if (currencies) {
-    const {
-      currencies: currencyArr,
-    } = currencies
+    const { currencies: currencyArr } = currencies
 
-    const defaultCurrency = currencyArr.find((currency: any) => currency.is_default)
+    const defaultCurrency = currencyArr.find(
+      (currency: any) => currency.is_default
+    )
 
-    const {
-      currency_code: Code,
-    } = defaultCurrency
+    const { currency_code: Code } = defaultCurrency
 
     currencyCode = Code
   }
 
-  const {
-    productsSearch,
-  } = await searchB2BProducts({
+  const { productsSearch } = await searchB2BProducts({
     productIds: [+productId],
     currencyCode,
     companyId,
@@ -55,7 +47,9 @@ export const isModifierMultiLineTextValid = (option: any, optionVal: any) => {
       text_min_length: minLength,
     },
   } = option
-  const valueArrOrigin = optionVal.includes('\n') ? optionVal.split('\n') : [optionVal]
+  const valueArrOrigin = optionVal.includes('\n')
+    ? optionVal.split('\n')
+    : [optionVal]
   const mulValue: any = []
 
   valueArrOrigin.forEach((value: string, index: number) => {
@@ -104,10 +98,7 @@ export const isModifierTextValid = (option: any, optionVal: any) => {
   let errMsg = ''
 
   const {
-    config: {
-      text_max_length: maxLength,
-      text_min_length: minLength,
-    },
+    config: { text_max_length: maxLength, text_min_length: minLength },
     display_name: displayName,
   } = option
 
@@ -183,32 +174,32 @@ export const isModifierNumberTextValid = (option: any, optionVal: any) => {
   }
 }
 
-export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: any): any => {
+export const isAllRequiredOptionFilled = (
+  bcOriginalOptions: any,
+  optionList: any
+): any => {
   if (bcOriginalOptions.length === 0) {
     return {
       isValid: true,
       message: '',
     }
   }
-  const requiredOptions = bcOriginalOptions.filter(({
-    required,
-  }: any) => !!required)
+  const requiredOptions = bcOriginalOptions.filter(
+    ({ required }: any) => !!required
+  )
 
-  const isRequiredValid = requiredOptions.every(({
-    id,
-    noValue,
-    type,
-  }: any) => {
-    const {
-      optionValue,
-    } = optionList.find(({
-      optionId,
-    }: any) => `attribute[${id}]` === optionId) ?? {}
+  const isRequiredValid = requiredOptions.every(
+    ({ id, noValue, type }: any) => {
+      const { optionValue } =
+        optionList.find(
+          ({ optionId }: any) => `attribute[${id}]` === optionId
+        ) ?? {}
 
-    if (type === 'checkbox') return !!optionValue
+      if (type === 'checkbox') return !!optionValue
 
-    return optionValue && +optionValue !== +noValue
-  })
+      return optionValue && +optionValue !== +noValue
+    }
+  )
 
   if (!isRequiredValid) {
     const errorMessage = 'Please fill out product options first.'
@@ -219,9 +210,18 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
   }
 
   const VALIDATION_MAP: {
-     textarea: (option: any, optionValue: any) => { isOptionValid: boolean, errMsg: string },
-     inputText: (option: any, optionValue: any) => { isOptionValid: boolean, errMsg: string },
-     inputNumbers: (option: any, optionValue: any) => { isOptionValid: boolean, errMsg?: string },
+    textarea: (
+      option: any,
+      optionValue: any
+    ) => { isOptionValid: boolean; errMsg: string }
+    inputText: (
+      option: any,
+      optionValue: any
+    ) => { isOptionValid: boolean; errMsg: string }
+    inputNumbers: (
+      option: any,
+      optionValue: any
+    ) => { isOptionValid: boolean; errMsg?: string }
   } = {
     textarea: isModifierMultiLineTextValid,
     inputText: isModifierTextValid,
@@ -235,26 +235,24 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
       type,
       id,
     }: {
-      partial: string,
-      type: string,
-      id: string | number,
+      partial: string
+      type: string
+      id: string | number
     } = option
 
     if (['multi_line_text', 'numbers_only_text', 'text'].includes(type)) {
       let validationFuc: any = VALIDATION_MAP.textarea
       if (type !== 'multi_line_text') {
-        validationFuc = partial === 'numbers_only_text' ? VALIDATION_MAP.inputNumbers : VALIDATION_MAP.inputText
+        validationFuc =
+          partial === 'numbers_only_text'
+            ? VALIDATION_MAP.inputNumbers
+            : VALIDATION_MAP.inputText
       }
 
-      const {
-        optionValue,
-      } = optionList.find(({
-        optionId,
-      }: any) => optionId.includes(id)) ?? {}
+      const { optionValue } =
+        optionList.find(({ optionId }: any) => optionId.includes(id)) ?? {}
 
-      const {
-        isOptionValid, errMsg,
-      }: any = validationFuc(option, optionValue)
+      const { isOptionValid, errMsg }: any = validationFuc(option, optionValue)
       if (!isOptionValid) {
         return {
           isValid: false,

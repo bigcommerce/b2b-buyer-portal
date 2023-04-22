@@ -16,7 +16,7 @@ const bindDom = (html: string, domId: string) => {
   iframeDom.style.display = 'block'
 }
 
-export const b2bPrintInvoice = async (orderId: string, domId: string) => {
+const b2bPrintInvoice = async (orderId: string, domId: string) => {
   await fetch(`/account.php?action=print_invoice&order_id=${orderId}`)
     .then((response: Response) => {
       if (response.ok) {
@@ -31,3 +31,4 @@ export const b2bPrintInvoice = async (orderId: string, domId: string) => {
       console.error('Error Invoice:', error)
     })
 }
+export default b2bPrintInvoice

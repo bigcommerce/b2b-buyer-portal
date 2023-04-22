@@ -1,112 +1,107 @@
-import {
-  format,
-} from 'date-fns'
+import { format } from 'date-fns'
+
+import { AllOptionProps, ALlOptionValue } from '@/types/products'
 
 import {
-  AllOptionProps,
-  ALlOptionValue,
-} from '@/types/products'
-
-import {
-  ShoppingListProductItem,
-  SimpleObject,
-  ShoppingListSelectProductOption,
   BcCalculatedPrice,
+  ShoppingListProductItem,
+  ShoppingListSelectProductOption,
+  SimpleObject,
 } from '../../../types'
 
 export interface ShoppingListInfoProps {
-  name: string;
-  id: number | string;
-  description: string;
-  grandTotal: number | string;
-  status: number | string;
+  name: string
+  id: number | string
+  description: string
+  grandTotal: number | string
+  status: number | string
   products: {
-    totalCount: number | string;
+    totalCount: number | string
   }
 }
 
 export interface CustomerInfoProps {
-  email: string;
-  firstName: string;
-  lastName: string;
-  userId: number | string;
+  email: string
+  firstName: string
+  lastName: string
+  userId: number | string
 }
 
 interface ModifierPrices {
-  adjuster: string,
+  adjuster: string
   adjuster_value: number
 }
 
 export interface ProductInfoProps {
-  basePrice: number | string,
-  baseSku: string,
-  createdAt: number,
-  discount: number | string,
-  enteredInclusive: boolean,
-  id: number | string,
-  itemId: number,
-  optionList: string,
-  primaryImage: string,
-  productId: number,
-  productName: string,
-  productUrl: string,
-  quantity: number | string,
-  tax: number | string,
-  updatedAt: number,
-  variantId: number,
-  variantSku: string,
-  productsSearch: CustomFieldItems,
+  basePrice: number | string
+  baseSku: string
+  createdAt: number
+  discount: number | string
+  enteredInclusive: boolean
+  id: number | string
+  itemId: number
+  optionList: string
+  primaryImage: string
+  productId: number
+  productName: string
+  productUrl: string
+  quantity: number | string
+  tax: number | string
+  updatedAt: number
+  variantId: number
+  variantSku: string
+  productsSearch: CustomFieldItems
   picklistIds?: number[]
-  modifierPrices?: ModifierPrices[],
-  currentProductPrices?: BcCalculatedPrice,
-  extraProductPrices?: BcCalculatedPrice[],
-  [key: string]: any,
+  modifierPrices?: ModifierPrices[]
+  currentProductPrices?: BcCalculatedPrice
+  extraProductPrices?: BcCalculatedPrice[]
+  [key: string]: any
 }
 
 export interface ListItemProps {
-  node: ProductInfoProps,
+  node: ProductInfoProps
 }
 
 export interface CurrencyProps {
-  is_default: boolean,
-  currency_code: string,
-  token: string,
+  is_default: boolean
+  currency_code: string
+  token: string
 }
 
 export interface SearchProps {
-  search: string,
-  first?: number,
-  offset?: number,
+  search: string
+  first?: number
+  offset?: number
 }
 
 interface NodeProps {
-  basePrice: number | string,
-  baseSku: string,
-  createdAt: number,
-  discount: number | string,
-  enteredInclusive: boolean,
-  id: number | string,
-  itemId: number,
-  optionList: string,
-  primaryImage: string,
-  productId: number,
-  productName: string,
-  productUrl: string,
-  quantity: number | string,
-  tax: number | string,
-  updatedAt: number,
-  variantId: number,
-  variantSku: string,
-  productsSearch: CustomFieldItems,
+  basePrice: number | string
+  baseSku: string
+  createdAt: number
+  discount: number | string
+  enteredInclusive: boolean
+  id: number | string
+  itemId: number
+  optionList: string
+  primaryImage: string
+  productId: number
+  productName: string
+  productUrl: string
+  quantity: number | string
+  tax: number | string
+  updatedAt: number
+  variantId: number
+  variantSku: string
+  productsSearch: CustomFieldItems
 }
 
 export interface ProductsProps {
-  maxQuantity?: number,
-  minQuantity?: number,
-  stock?: number,
-  isStock?: string,
+  maxQuantity?: number
+  minQuantity?: number
+  stock?: number
+  isStock?: string
   node: NodeProps
-  isValid?: boolean,
+  isValid?: boolean
 }
 
 const fieldTypes: CustomFieldItems = {
@@ -132,7 +127,11 @@ export const Base64 = {
   },
 }
 
-const getFieldOptions = (fieldType: string, option: Partial<AllOptionProps>, productImages: SimpleObject) => {
+const getFieldOptions = (
+  fieldType: string,
+  option: Partial<AllOptionProps>,
+  productImages: SimpleObject
+) => {
   const {
     option_values: optionValues = [],
     config,
@@ -140,9 +139,7 @@ const getFieldOptions = (fieldType: string, option: Partial<AllOptionProps>, pro
   } = option
 
   if (fieldType === 'text') {
-    const {
-      text_max_length: maxLength,
-    } = config || {}
+    const { text_max_length: maxLength } = config || {}
 
     return {
       maxLength: maxLength || undefined,
@@ -156,16 +153,14 @@ const getFieldOptions = (fieldType: string, option: Partial<AllOptionProps>, pro
       number_highest_value: highest,
     } = config || {}
     return {
-      min: limitInput ? (lowest || undefined) : undefined,
-      max: limitInput ? (highest || undefined) : undefined,
+      min: limitInput ? lowest || undefined : undefined,
+      max: limitInput ? highest || undefined : undefined,
       allowArrow: true,
     }
   }
 
   if (fieldType === 'multiline') {
-    const {
-      text_max_length: maxLength,
-    } = config || {}
+    const { text_max_length: maxLength } = config || {}
     return {
       rows: 3,
       maxLength: maxLength || undefined,
@@ -173,9 +168,7 @@ const getFieldOptions = (fieldType: string, option: Partial<AllOptionProps>, pro
   }
 
   if (fieldType === 'date') {
-    const {
-      default_value: defaultValue,
-    } = config || {}
+    const { default_value: defaultValue } = config || {}
 
     return {
       default: defaultValue ? format(new Date(defaultValue), 'yyyy-MM-dd') : '',
@@ -183,33 +176,40 @@ const getFieldOptions = (fieldType: string, option: Partial<AllOptionProps>, pro
   }
 
   if (fieldType === 'checkbox') {
-    const {
-      checkbox_label: label,
-      checked_by_default: checked,
-    } = config || {}
+    const { checkbox_label: label, checked_by_default: checked } = config || {}
 
-    const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '') || ''
+    const checkedId: number | string =
+      optionValues.find((values) => values.label === 'Yes')?.id ||
+      (optionValues.length > 0 ? optionValues[0].id : '') ||
+      ''
 
     return {
-      options: [{
-        value: checkedId,
-        label,
-      }],
+      options: [
+        {
+          value: checkedId,
+          label,
+        },
+      ],
       default: checked ? [checkedId] : [],
     }
   }
 
   if (['radio', 'productRadio', 'rectangle', 'swatch'].includes(fieldType)) {
-    const options = (optionValues || []).map((item: Partial<ALlOptionValue>) => ({
-      value: item.id,
-      label: item.label,
-      image: {
-        data: productImages[item.value_data?.product_id || ''] || '',
-        alt: '',
-      },
-      colors: item.value_data?.colors || [],
-    }))
-    const value = (optionValues || []).find((item: Partial<ALlOptionValue>) => item.is_default)?.id || ''
+    const options = (optionValues || []).map(
+      (item: Partial<ALlOptionValue>) => ({
+        value: item.id,
+        label: item.label,
+        image: {
+          data: productImages[item.value_data?.product_id || ''] || '',
+          alt: '',
+        },
+        colors: item.value_data?.colors || [],
+      })
+    )
+    const value =
+      (optionValues || []).find(
+        (item: Partial<ALlOptionValue>) => item.is_default
+      )?.id || ''
 
     return {
       options,
@@ -228,9 +228,7 @@ const getFieldOptions = (fieldType: string, option: Partial<AllOptionProps>, pro
   }
 
   if (fieldType === 'files') {
-    const {
-      file_max_size: fileSize,
-    } = config || {}
+    const { file_max_size: fileSize } = config || {}
 
     return {
       filesLimit: 1,
@@ -239,14 +237,24 @@ const getFieldOptions = (fieldType: string, option: Partial<AllOptionProps>, pro
       title: displayName,
     }
   }
+
+  return undefined
 }
 
-const getValueText = (fieldType: string, value: string | number | (string | number)[], option: Partial<AllOptionProps>) => {
-  const {
-    option_values: optionValues = [],
-  } = option
-  if (['radio', 'productRadio', 'rectangle', 'swatch', 'dropdown'].includes(fieldType)) {
-    return optionValues.find((option) => `${option.id}` === `${value}`)?.label || ''
+const getValueText = (
+  fieldType: string,
+  value: string | number | (string | number)[],
+  option: Partial<AllOptionProps>
+) => {
+  const { option_values: optionValues = [] } = option
+  if (
+    ['radio', 'productRadio', 'rectangle', 'swatch', 'dropdown'].includes(
+      fieldType
+    )
+  ) {
+    return (
+      optionValues.find((option) => `${option.id}` === `${value}`)?.label || ''
+    )
   }
 
   if (fieldType === 'checkbox') {
@@ -259,10 +267,11 @@ const getValueText = (fieldType: string, value: string | number | (string | numb
   return value
 }
 
-export const getProductOptionsFields = (product: ShoppingListProductItem, productImages: SimpleObject) => {
-  const {
-    allOptions = [],
-  } = product || {}
+export const getProductOptionsFields = (
+  product: ShoppingListProductItem,
+  productImages: SimpleObject
+) => {
+  const { allOptions = [] } = product || {}
 
   const list: CustomFieldItems[] = []
   allOptions.forEach((option: Partial<AllOptionProps>) => {
@@ -271,9 +280,7 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
       id,
       display_name: displayName,
       required,
-      config: {
-        default_value: defaultValue,
-      } = {},
+      config: { default_value: defaultValue } = {},
       isVariantOption,
       option_values: optionValues = [],
     } = option
@@ -304,19 +311,34 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
       })
 
       if (fieldType === 'checkbox') {
-        const optionValue = (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || ''
+        const optionValue =
+          (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || ''
 
-        const checkedId: number | string = optionValues.find((values) => values.label === 'Yes')?.id || (optionValues.length > 0 ? optionValues[0].id : '') || ''
-        value = (optionValue === '1' || optionValue.includes(`${checkedId}`)) ? [checkedId] : []
+        const checkedId: number | string =
+          optionValues.find((values) => values.label === 'Yes')?.id ||
+          (optionValues.length > 0 ? optionValues[0].id : '') ||
+          ''
+        value =
+          optionValue === '1' || optionValue.includes(`${checkedId}`)
+            ? [checkedId]
+            : []
       } else if (fieldType !== 'date') {
-        value = (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || ''
+        value =
+          (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || ''
       } else {
-        const year = (selectOptionsJSON[`attribute[${id}][year]`] || {})[optionValueKey] || ''
-        const month = (selectOptionsJSON[`attribute[${id}][month]`] || {})[optionValueKey] || ''
-        const day = (selectOptionsJSON[`attribute[${id}][day]`] || {})[optionValueKey] || ''
+        const year =
+          (selectOptionsJSON[`attribute[${id}][year]`] || {})[optionValueKey] ||
+          ''
+        const month =
+          (selectOptionsJSON[`attribute[${id}][month]`] || {})[
+            optionValueKey
+          ] || ''
+        const day =
+          (selectOptionsJSON[`attribute[${id}][day]`] || {})[optionValueKey] ||
+          ''
         const date = year && month && day ? `${year}-${month}-${day}` : ''
 
-        value = date ? (format(new Date(date), 'yyyy-MM-dd') || value) : value
+        value = date ? format(new Date(date), 'yyyy-MM-dd') || value : value
       }
     } catch (err) {
       console.error(err)
@@ -347,46 +369,50 @@ export const getProductOptionsFields = (product: ShoppingListProductItem, produc
   return list
 }
 
-export const conversionProductsList = (products: ShoppingListProductItem[], listProduct: ListItemProps[] = []) => products.map((product) => {
-  const optionsV3 = product.optionsV3 || []
-  const modifiers = product.modifiers || []
-  const variants = product.variants || []
+export const conversionProductsList = (
+  products: ShoppingListProductItem[],
+  listProduct: ListItemProps[] = []
+) =>
+  products.map((product) => {
+    const optionsV3 = product.optionsV3 || []
+    const modifiers = product.modifiers || []
+    const variants = product.variants || []
 
-  const variantOptions = optionsV3.map((option) => ({
-    ...option,
-    required: true,
-    isVariantOption: true,
-  }))
+    const variantOptions = optionsV3.map((option) => ({
+      ...option,
+      required: true,
+      isVariantOption: true,
+    }))
 
-  let price = variants[0]?.calculated_price || 0
-  variants.forEach((variant) => {
-    price = Math.min(variant.calculated_price || 0, price)
+    let price = variants[0]?.calculated_price || 0
+    variants.forEach((variant) => {
+      price = Math.min(variant.calculated_price || 0, price)
+    })
+
+    const selectOptions =
+      listProduct.find((item) => item.node.productId === product.id)?.node
+        .optionList || '[]'
+
+    return {
+      ...product,
+      quantity: 1,
+      base_price: `${price}`,
+      optionsV3,
+      options: product.options || [],
+      variants,
+      modifiers,
+      selectOptions,
+      allOptions: [...variantOptions, ...modifiers],
+    }
   })
 
-  const selectOptions = listProduct.find((item) => item.node.productId === product.id)?.node.optionList || '[]'
-
-  return {
-    ...product,
-    quantity: 1,
-    base_price: `${price}`,
-    optionsV3,
-    options: product.options || [],
-    variants,
-    modifiers,
-    selectOptions,
-    allOptions: [
-      ...variantOptions,
-      ...modifiers,
-    ],
-  }
-})
-
-export const getOptionRequestData = (formFields: CustomFieldItems[], requestData: CustomFieldItems, value: CustomFieldItems) => {
+export const getOptionRequestData = (
+  formFields: CustomFieldItems[],
+  requestData: CustomFieldItems,
+  value: CustomFieldItems
+) => {
   formFields.forEach((item: CustomFieldItems) => {
-    const {
-      fieldType,
-      name,
-    } = item
+    const { fieldType, name } = item
 
     const decodeName = Base64.decode(name)
     const fieldValue = value[name]
@@ -400,7 +426,11 @@ export const getOptionRequestData = (formFields: CustomFieldItems[], requestData
       return
     }
 
-    if (['radio', 'dropdown', 'rectangle', 'swatch', 'productRadio'].includes(fieldType)) {
+    if (
+      ['radio', 'dropdown', 'rectangle', 'swatch', 'productRadio'].includes(
+        fieldType
+      )
+    ) {
       requestData[decodeName] = parseInt(fieldValue, 10) || ''
       return
     }
@@ -442,7 +472,8 @@ export const getQuickAddRowFields = (name: string | number) => [
     size: 'small',
     fieldType: 'text',
     default: '',
-  }, {
+  },
+  {
     name: `qty-${name}`,
     label: 'Qty',
     required: false,
@@ -456,31 +487,29 @@ export const getQuickAddRowFields = (name: string | number) => [
 ]
 
 interface OptionListProps {
-  option_id: string,
-  option_value: string,
+  option_id: string
+  option_value: string
 }
 
 interface DateProps {
-  day: string,
-  month: string,
-  year: string,
+  day: string
+  month: string
+  year: string
 }
 
 interface OptionValueProps {
-  optionId: string | number,
-  optionValue: string | DateProps,
+  optionId: string | number
+  optionValue: string | DateProps
 }
 
 interface AllOptionsProps {
-  id: string | number,
-  type: string,
+  id: string | number
+  type: string
 }
 
 export const addlineItems = (products: ProductsProps[]) => {
   const lineItems = products.map((item: ProductsProps) => {
-    const {
-      node,
-    } = item
+    const { node } = item
 
     const optionList: OptionListProps[] = JSON.parse(node.optionList || '[]')
 
@@ -491,9 +520,7 @@ export const addlineItems = (products: ProductsProps[]) => {
     }
 
     const {
-      productsSearch: {
-        allOptions,
-      },
+      productsSearch: { allOptions },
     } = node
 
     const optionValue: OptionValueProps[] = []
@@ -502,9 +529,9 @@ export const addlineItems = (products: ProductsProps[]) => {
       const splicedId = `attribute[${item.id}]`
 
       if (item.type === 'date') {
-        let month: string = ''
-        let day: string = ''
-        let year: string = ''
+        let month = ''
+        let day = ''
+        let year = ''
         optionList.forEach((list: OptionListProps) => {
           if (list.option_id === `${splicedId}[month]`) {
             month = list.option_value
@@ -528,7 +555,9 @@ export const addlineItems = (products: ProductsProps[]) => {
           })
         }
       } else {
-        const listItem = optionList.find((list: OptionListProps) => list.option_id === splicedId)
+        const listItem = optionList.find(
+          (list: OptionListProps) => list.option_id === splicedId
+        )
         if (listItem && listItem?.option_value) {
           optionValue.push({
             optionId: getOptionId(listItem.option_id),

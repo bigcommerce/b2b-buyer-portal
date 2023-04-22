@@ -1,37 +1,19 @@
+import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone'
+import { useB3Lang } from '@b3/lang'
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined'
-import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded'
+import DescriptionRounded from '@mui/icons-material/DescriptionRounded'
 import ImageRoundedIcon from '@mui/icons-material/ImageRounded'
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded'
-import DescriptionRounded from '@mui/icons-material/DescriptionRounded'
+import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded'
+import { FormLabel } from '@mui/material'
 
-import {
-  useB3Lang,
-} from '@b3/lang'
+import { FILE_UPLOAD_ACCEPT_TYPE } from '../../constants'
 
-import {
-  FormLabel,
-} from '@mui/material'
-
-import {
-  DropzoneArea,
-  FileObject,
-  PreviewIconProps,
-} from 'react-mui-dropzone'
-
-import {
-  FILE_UPLOAD_ACCEPT_TYPE,
-} from '../../constants'
-
+import { DropzoneBox } from './styled'
 import B3UI from './ui'
 
-import {
-  DropzoneBox,
-} from './styled'
-
 const getPreviewIcon = (fileObject: FileObject, classes: PreviewIconProps) => {
-  const {
-    type,
-  } = fileObject.file
+  const { type } = fileObject.file
   const iconProps = {
     className: classes.classes,
   }
@@ -54,12 +36,12 @@ const getPreviewIcon = (fileObject: FileObject, classes: PreviewIconProps) => {
 }
 
 interface FileUploadProps extends B3UI.B3UIProps {
-  acceptedFiles?: string[],
-  filesLimit?: number,
+  acceptedFiles?: string[]
+  filesLimit?: number
   maxFileSize?: number
-  dropzoneText?: string,
-  previewText?: string,
-  default?: File[],
+  dropzoneText?: string
+  previewText?: string
+  default?: File[]
 }
 
 const getMaxFileSizeLabel = (maxSize: number) => {
@@ -72,7 +54,7 @@ const getMaxFileSizeLabel = (maxSize: number) => {
   return `${maxSize}B`
 }
 
-export const B3ControlFileUpload = (props: FileUploadProps) => {
+export default function B3ControlFileUpload(props: FileUploadProps) {
   const b3Lang = useB3Lang()
 
   const {
@@ -91,17 +73,14 @@ export const B3ControlFileUpload = (props: FileUploadProps) => {
   const getRejectMessage = (
     rejectedFile: File,
     acceptedFiles: string[],
-    maxFileSize: number,
+    maxFileSize: number
   ) => {
-    const {
-      name,
-      size,
-      type,
-    } = rejectedFile
+    const { name, size, type } = rejectedFile
 
     let isAcceptFileType = false
     acceptedFiles.forEach((acceptedFileType) => {
-      isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType
+      isAcceptFileType =
+        new RegExp(acceptedFileType).test(type) || isAcceptFileType
     })
 
     if (!isAcceptFileType) {
@@ -120,9 +99,10 @@ export const B3ControlFileUpload = (props: FileUploadProps) => {
     return ''
   }
 
-  const getFileLimitExceedMessage = () => b3Lang('intl.global.fileUpload.fileNumberExceedsLimit', {
-    limit: filesLimit,
-  })
+  const getFileLimitExceedMessage = () =>
+    b3Lang('intl.global.fileUpload.fileNumberExceedsLimit', {
+      limit: filesLimit,
+    })
 
   const handleFilesChange = (files: File[]) => {
     if (setValue) {
@@ -130,44 +110,37 @@ export const B3ControlFileUpload = (props: FileUploadProps) => {
     }
   }
 
-  return (
+  return ['files'].includes(fieldType) ? (
     <>
-      {
-       ['files'].includes(fieldType) && (
-       <>
-         {
-            title && (
-            <FormLabel sx={{
-              marginBottom: '5px',
-              display: 'block',
-            }}
-            >
-              {title}
-            </FormLabel>
-            )
-          }
-         <DropzoneBox>
-           <DropzoneArea
-             Icon={CloudUploadOutlinedIcon}
-             showPreviews
-             showFileNamesInPreview
-             showPreviewsInDropzone={false}
-             getDropRejectMessage={getRejectMessage}
-             getFileLimitExceedMessage={getFileLimitExceedMessage}
-             getPreviewIcon={getPreviewIcon}
-             showAlerts={['error']}
-             maxFileSize={maxFileSize}
-             initialFiles={defaultValue}
-             acceptedFiles={acceptedFiles}
-             filesLimit={filesLimit}
-             dropzoneText={dropzoneText}
-             previewText={previewText}
-             onChange={handleFilesChange}
-           />
-         </DropzoneBox>
-       </>
-       )
-     }
+      {title && (
+        <FormLabel
+          sx={{
+            marginBottom: '5px',
+            display: 'block',
+          }}
+        >
+          {title}
+        </FormLabel>
+      )}
+      <DropzoneBox>
+        <DropzoneArea
+          Icon={CloudUploadOutlinedIcon}
+          showPreviews
+          showFileNamesInPreview
+          showPreviewsInDropzone={false}
+          getDropRejectMessage={getRejectMessage}
+          getFileLimitExceedMessage={getFileLimitExceedMessage}
+          getPreviewIcon={getPreviewIcon}
+          showAlerts={['error']}
+          maxFileSize={maxFileSize}
+          initialFiles={defaultValue}
+          acceptedFiles={acceptedFiles}
+          filesLimit={filesLimit}
+          dropzoneText={dropzoneText}
+          previewText={previewText}
+          onChange={handleFilesChange}
+        />
+      </DropzoneBox>
     </>
-  )
+  ) : null
 }

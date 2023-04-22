@@ -1,51 +1,27 @@
-import {
-  useContext,
-  ReactNode,
-} from 'react'
+import { ReactNode, useContext } from 'react'
+import { useB3Lang } from '@b3/lang'
+import { Box, Step, StepLabel, Stepper, Typography } from '@mui/material'
 
-import {
-  Box,
-  Stepper,
-  Step,
-  StepLabel,
-  Typography,
-} from '@mui/material'
-
-import {
-  useB3Lang,
-} from '@b3/lang'
-
-import {
-  RegisteredContext,
-} from './context/RegisteredContext'
-
-import {
-  steps,
-} from './config'
+import { RegisteredContext } from './context/RegisteredContext'
+import { steps } from './config'
 
 interface RegisteredStepProps {
-  children: ReactNode,
-  isStepOptional: (index: number) => Boolean,
+  children: ReactNode
+  isStepOptional: (index: number) => boolean
   activeStep: number
 }
 
 export default function RegisteredStep(props: RegisteredStepProps) {
-  const {
-    children,
-    isStepOptional,
-    activeStep,
-  } = props
+  const { children, isStepOptional, activeStep } = props
 
   const b3Lang = useB3Lang()
 
-  const {
-    state,
-  } = useContext(RegisteredContext)
-  const {
-    accountType,
-    submitSuccess,
-  } = state
-  const newPageTitle = accountType === '1' ? b3Lang('intl.user.register.title.registerComplete') : b3Lang('intl.user.register.title.accountCreated')
+  const { state } = useContext(RegisteredContext)
+  const { accountType, submitSuccess } = state
+  const newPageTitle =
+    accountType === '1'
+      ? b3Lang('intl.user.register.title.registerComplete')
+      : b3Lang('intl.user.register.title.accountCreated')
 
   return (
     <Box component="div">
@@ -58,33 +34,30 @@ export default function RegisteredStep(props: RegisteredStepProps) {
           pt: 2,
         }}
       >
-        {
-          submitSuccess ? newPageTitle : b3Lang('intl.user.register.title.accountRegister')
-        }
+        {submitSuccess
+          ? newPageTitle
+          : b3Lang('intl.user.register.title.accountRegister')}
       </Box>
-      {
-        !submitSuccess && (
+      {!submitSuccess && (
         <Stepper activeStep={activeStep}>
           {steps.map((label, index) => {
             const stepProps = {}
             const labelProps: any = {}
             if (isStepOptional(index)) {
               labelProps.optional = (
-                <Typography variant="caption">{b3Lang('intl.user.register.step.optional')}</Typography>
+                <Typography variant="caption">
+                  {b3Lang('intl.user.register.step.optional')}
+                </Typography>
               )
             }
             return (
-              <Step
-                key={label}
-                {...stepProps}
-              >
+              <Step key={label} {...stepProps}>
                 <StepLabel {...labelProps}>{b3Lang(label)}</StepLabel>
               </Step>
             )
           })}
         </Stepper>
-        )
-      }
+      )}
 
       {children}
     </Box>

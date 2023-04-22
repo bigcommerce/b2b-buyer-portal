@@ -1,9 +1,9 @@
 export interface ShoppingListSearch {
-  search?: string;
-  createdBy?: string;
-  status?: string | number | number[],
-  offset?: number;
-  first?: number;
+  search?: string
+  createdBy?: string
+  status?: string | number | number[]
+  offset?: number
+  first?: number
 }
 
 interface ShoppingListStatusProps {
@@ -28,14 +28,14 @@ export interface ShoppingListsItemsProps {
   products: {
     totalCount: number
   }
-  updatedAt: string | number,
+  updatedAt: string | number
   sampleShoppingListId?: number | string
   channelId: number
 }
 
 export interface GetFilterMoreListProps {
   options?: Array<ShoppingListStatusProps>
-  rows?: string | number,
+  rows?: string | number
   name: string
   label: string
   required: boolean
@@ -47,7 +47,9 @@ export interface GetFilterMoreListProps {
   maxLength?: number
 }
 
-export const getFilterShoppingListStatus = (role?: number | string): Array<ShoppingListStatusProps> => {
+export const getFilterShoppingListStatus = (
+  role?: number | string
+): Array<ShoppingListStatusProps> => {
   const shoppingListStatus: Array<ShoppingListStatusProps> = [
     {
       label: 'All',
@@ -71,15 +73,25 @@ export const getFilterShoppingListStatus = (role?: number | string): Array<Shopp
     },
   ]
 
-  const getShoppingListStatus = role !== 2 ? shoppingListStatus.filter((item: ShoppingListStatusProps) => (item.value !== 30 && item.value !== 20)) : shoppingListStatus
+  const getShoppingListStatus =
+    role !== 2
+      ? shoppingListStatus.filter(
+          (item: ShoppingListStatusProps) =>
+            item.value !== 30 && item.value !== 20
+        )
+      : shoppingListStatus
 
   return getShoppingListStatus
 }
 
-export const getFilterMoreList = (createdByUsers: any, role: number | string): GetFilterMoreListProps[] => {
-  const newCreatedByUsers = createdByUsers?.createdByUser?.results.map((item: any) => ({
-    createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
-  })) || []
+export const getFilterMoreList = (
+  createdByUsers: any,
+  role: number | string
+): GetFilterMoreListProps[] => {
+  const newCreatedByUsers =
+    createdByUsers?.createdByUser?.results.map((item: any) => ({
+      createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
+    })) || []
   const filterMoreList = [
     {
       name: 'createdBy',

@@ -1,28 +1,21 @@
-import {
-  useState,
-  useEffect,
-} from 'react'
-
+import { useEffect, useState } from 'react'
+import { Box } from '@mui/material'
 import CircularProgress, {
   CircularProgressProps,
 } from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
-import {
-  Box,
-} from '@mui/material'
 
 function CircularProgressWithLabel(
-  props: CircularProgressProps & { value: number },
+  props: CircularProgressProps & { value: number }
 ) {
   return (
-    <Box sx={{
-      position: 'relative', display: 'inline-flex',
-    }}
+    <Box
+      sx={{
+        position: 'relative',
+        display: 'inline-flex',
+      }}
     >
-      <CircularProgress
-        variant="determinate"
-        {...props}
-      />
+      <CircularProgress variant="determinate" {...props} />
       <Box
         sx={{
           top: 0,
@@ -35,13 +28,8 @@ function CircularProgressWithLabel(
           justifyContent: 'center',
         }}
       >
-        <Typography
-          variant="caption"
-          component="div"
-          color="text.secondary"
-        >
+        <Typography variant="caption" component="div" color="text.secondary">
           {`${Math.round(props.value)}%`}
-
         </Typography>
       </Box>
     </Box>
@@ -49,18 +37,18 @@ function CircularProgressWithLabel(
 }
 
 interface B3UploadLoaddingProps {
-  step: string,
+  step: string
 }
 
-const B3UploadLoadding = (props: B3UploadLoaddingProps) => {
-  const {
-    step,
-  } = props
+export default function B3UploadLoadding(props: B3UploadLoaddingProps) {
+  const { step } = props
   const [progress, setProgress] = useState<number>(0)
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setProgress((prevProgress) => (prevProgress === 95 ? 95 : prevProgress + 1))
+      setProgress((prevProgress) =>
+        prevProgress === 95 ? 95 : prevProgress + 1
+      )
       if (step === 'end') {
         setProgress(100)
         clearInterval(timer)
@@ -91,12 +79,7 @@ const B3UploadLoadding = (props: B3UploadLoaddingProps) => {
         }}
       >
         Uploading file...
-
       </Box>
     </Box>
   )
-}
-
-export {
-  B3UploadLoadding,
 }

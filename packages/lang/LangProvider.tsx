@@ -1,37 +1,30 @@
-import {
-  ReactNode,
-} from 'react'
-import {
-  IntlProvider,
-  MessageFormatElement,
-} from 'react-intl'
-import {
-  useSelector,
-} from 'react-redux'
+import { ReactNode } from 'react'
+import { IntlProvider, MessageFormatElement } from 'react-intl'
+import { useSelector } from 'react-redux'
 
 import * as defaultLocales from './locales'
 
 type LangProviderProps = {
-  children?: ReactNode,
+  children?: ReactNode
   locales?: {
     [k: string]: Record<string, string> | Record<string, MessageFormatElement[]>
-  },
+  }
   supportLang: string[]
-};
+}
 
-export const LangProvider = ({
+export default function LangProvider({
   children,
   locales = defaultLocales,
   supportLang,
-}: LangProviderProps) => {
-  const lang = useSelector(({
-    lang,
-  }: {lang: string}) => (supportLang.includes(lang) ? lang : 'en'))
+}: LangProviderProps) {
+  const selectedLang = useSelector(({ lang }: { lang: string }) =>
+    supportLang.includes(lang) ? lang : 'en'
+  )
 
   return (
     <IntlProvider
-      messages={locales[lang]}
-      locale={lang}
+      messages={locales[selectedLang]}
+      locale={selectedLang}
       defaultLocale="en"
     >
       {children}

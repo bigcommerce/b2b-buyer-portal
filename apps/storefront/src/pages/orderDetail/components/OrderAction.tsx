@@ -1,51 +1,20 @@
-import {
-  useState,
-  useContext,
-  Fragment,
-} from 'react'
-
-import {
-  throttle,
-} from 'lodash'
-
-import {
-  Card,
-  CardContent,
-  Typography,
-} from '@mui/material'
+import { Fragment, ReactNode, useContext, useState } from 'react'
 import styled from '@emotion/styled'
+import { Card, CardContent, Typography } from '@mui/material'
+import { format } from 'date-fns'
+import { throttle } from 'lodash'
 
-import {
-  format,
-} from 'date-fns'
+import { CustomButton } from '@/components'
+import { GlobaledContext } from '@/shared/global'
+import { b2bPrintInvoice, snackbar } from '@/utils'
 
+import { Address, OrderCurrency, OrderProductItem } from '../../../types'
 import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  OrderDialog,
-} from './OrderDialog'
-
-import {
-  OrderCurrency,
-  OrderProductItem,
-  Address,
-} from '../../../types'
-
-import {
-  OrderDetailsState,
   OrderDetailsContext,
+  OrderDetailsState,
 } from '../context/OrderDetailsContext'
 
-import {
-  snackbar,
-  b2bPrintInvoice,
-} from '@/utils'
-
-import {
-  CustomButton,
-} from '@/components'
+import OrderDialog from './OrderDialog'
 
 const OrderActionContainer = styled('div')(() => ({}))
 
@@ -91,48 +60,50 @@ interface PaymentItemContainerProps {
   isAddMarginButton: boolean
 }
 
-const PaymentItemContainer = styled('div')((props: PaymentItemContainerProps) => ({
-  display: 'flex',
-  justifyContent: 'space-between',
-  fontWeight: 400,
-  marginBottom: props.isAddMarginButton ? '0.8rem' : '',
-}))
+const PaymentItemContainer = styled('div')(
+  (props: PaymentItemContainerProps) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontWeight: 400,
+    marginBottom: props.isAddMarginButton ? '0.8rem' : '',
+  })
+)
 
 interface Infos {
   info: {
     [k: string]: string
-  },
+  }
   money?: OrderCurrency
 }
 
 interface Buttons {
-  value: string,
-  key: string,
-  name: string,
-  variant?: 'text' | 'contained' | 'outlined',
-  isCanShow: boolean,
+  value: string
+  key: string
+  name: string
+  variant?: 'text' | 'contained' | 'outlined'
+  isCanShow: boolean
 }
 
 interface OrderCardProps {
-  header: string,
-  subtitle: string,
-  buttons: Buttons[],
-  infos: Infos | string,
-  products: OrderProductItem[],
-  itemKey: string,
-  orderId: string,
-  currencyInfo: OrderCurrency,
-  role: number | string,
+  header: string
+  subtitle: string
+  buttons: Buttons[]
+  infos: Infos | string
+  products: OrderProductItem[]
+  itemKey: string
+  orderId: string
+  currencyInfo: OrderCurrency
+  role: number | string
 }
 
-interface DialogData{
-  dialogTitle: string,
-  type: string,
-  description: string,
-  confirmText: string,
+interface DialogData {
+  dialogTitle: string
+  type: string
+  description: string
+  confirmText: string
 }
 
-const OrderCard = (props: OrderCardProps) => {
+function OrderCard(props: OrderCardProps) {
   const {
     header,
     subtitle,
@@ -146,9 +117,7 @@ const OrderCard = (props: OrderCardProps) => {
   } = props
 
   const {
-    state: {
-      isAgenting,
-    },
+    state: { isAgenting },
   } = useContext(GlobaledContext)
 
   const dialogData = [
@@ -179,9 +148,7 @@ const OrderCard = (props: OrderCardProps) => {
   let infoKey: string[] = []
   let infoValue: string[] = []
   if (typeof infos !== 'string') {
-    const {
-      info,
-    } = infos
+    const { info } = infos
 
     infoKey = Object.keys(info)
     infoValue = Object.values(info)
@@ -194,15 +161,43 @@ const OrderCard = (props: OrderCardProps) => {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
     } else {
       if (!isAgenting && +role === 3) {
-        snackbar.error('To re-order, return or add product to shopping list, please masquerade')
+        snackbar.error(
+          'To re-order, return or add product to shopping list, please masquerade'
+        )
         return
       }
       setOpen(true)
       setType(name)
 
-      const newDialogData = dialogData.find((data: DialogData) => data.type === name)
+      const newDialogData = dialogData.find(
+        (data: DialogData) => data.type === name
+      )
       setCurrentDialogData(newDialogData)
     }
+  }
+
+  let showedInformation: ReactNode[] | string = infoValue?.map(
+    (value: string, index: number) => (
+      <PaymentItemContainer
+        key={value}
+        isAddMarginButton={
+          infoKey[index] === 'paymentMethod' || infoKey[index] === 'company'
+        }
+      >
+        {value}
+      </PaymentItemContainer>
+    )
+  )
+
+  if (typeof infos === 'string') {
+    showedInformation = infos
+  } else if (infos.money) {
+    showedInformation = infoKey?.map((key: string, index: number) => (
+      <ItemContainer key={key} nameKey={key}>
+        <p>{key}</p>
+        <p>{`${infos.money?.currency_token}${infoValue[index]}`}</p>
+      </ItemContainer>
+    ))
   }
 
   return (
@@ -211,66 +206,30 @@ const OrderCard = (props: OrderCardProps) => {
         marginBottom: '1rem',
       }}
     >
-      <OrderCardHeader variant="h5">
-        {header}
-      </OrderCardHeader>
+      <OrderCardHeader variant="h5">{header}</OrderCardHeader>
       <CardContent>
-        {
-          subtitle && <div>{subtitle}</div>
-        }
-        <InformationContainer>
-          {
-            typeof infos === 'string' ? (
-              infos
-            ) : (
-              <>
-                {
-                  infos.money ? (
-                    infoKey && infoKey.map((key: string, index: number) => (
-                      <ItemContainer
-                        key={key}
-                        nameKey={key}
-                      >
-                        <p>{key}</p>
-                        <p>{`${infos.money?.currency_token}${infoValue[index]}`}</p>
-                      </ItemContainer>
-                    ))
-                  ) : (
-                    infoValue && infoValue.map((value: string, index: number) => (
-                      <PaymentItemContainer
-                        key={value}
-                        isAddMarginButton={(infoKey[index] === 'paymentMethod' || infoKey[index] === 'company')}
-                      >
-                        {value}
-                      </PaymentItemContainer>
-                    ))
-                  )
-                }
-              </>
-            )
-          }
-        </InformationContainer>
+        {subtitle && <div>{subtitle}</div>}
+        <InformationContainer>{showedInformation}</InformationContainer>
       </CardContent>
       <StyledCardActions>
-        {
-          buttons && buttons.map((button: Buttons) => (
+        {buttons &&
+          buttons.map((button: Buttons) => (
             <Fragment key={button.key}>
-              {
-                button.isCanShow && (
-                  <CustomButton
-                    value={button.value}
-                    key={button.key}
-                    name={button.name}
-                    variant={button.variant}
-                    onClick={throttle(() => { handleOpenDialog(button.name) }, 2000)}
-                  >
-                    {button.value}
-                  </CustomButton>
-                )
-              }
+              {button.isCanShow && (
+                <CustomButton
+                  value={button.value}
+                  key={button.key}
+                  name={button.name}
+                  variant={button.variant}
+                  onClick={throttle(() => {
+                    handleOpenDialog(button.name)
+                  }, 2000)}
+                >
+                  {button.value}
+                </CustomButton>
+              )}
             </Fragment>
-          ))
-        }
+          ))}
       </StyledCardActions>
 
       <OrderDialog
@@ -287,48 +246,31 @@ const OrderCard = (props: OrderCardProps) => {
 }
 
 interface OrderActionProps {
-  detailsData: OrderDetailsState,
+  detailsData: OrderDetailsState
 }
 
 interface OrderData {
-  header: string,
-  key: string,
-  subtitle: string,
-  buttons: Buttons[],
-  infos: Infos | string,
+  header: string
+  key: string
+  subtitle: string
+  buttons: Buttons[]
+  infos: Infos | string
 }
 
-export const OrderAction = (props: OrderActionProps) => {
+export default function OrderAction(props: OrderActionProps) {
+  const { detailsData } = props
   const {
-    detailsData,
-  } = props
-  const {
-    state: {
-      isB2BUser,
-      role,
-      emailAddress,
-    },
+    state: { isB2BUser, role, emailAddress },
   } = useContext(GlobaledContext)
 
   const {
-    state: {
-      addressLabelPermission,
-      createdEmail,
-    },
+    state: { addressLabelPermission, createdEmail },
   } = useContext(OrderDetailsContext)
 
   const {
     money,
-    orderSummary: {
-      createAt,
-      name,
-      priceData,
-    } = {},
-    payment: {
-      updatedAt,
-      billingAddress,
-      paymentMethod,
-    } = {},
+    orderSummary: { createAt, name, priceData } = {},
+    payment: { updatedAt, billingAddress, paymentMethod } = {},
     orderComments = '',
     products,
     orderId,
@@ -337,7 +279,7 @@ export const OrderAction = (props: OrderActionProps) => {
   } = detailsData
 
   if (!orderId) {
-    return <></>
+    return null
   }
 
   const getCompanyName = (company: string) => {
@@ -423,7 +365,13 @@ export const OrderAction = (props: OrderActionProps) => {
     {
       header: 'Summary',
       key: 'order-summary',
-      subtitle: (updatedAt && name ? `Purchased by ${name} on ${format(+updatedAt * 1000, 'dd MMM yyyy')}.` : ''),
+      subtitle:
+        updatedAt && name
+          ? `Purchased by ${name} on ${format(
+              +updatedAt * 1000,
+              'dd MMM yyyy'
+            )}.`
+          : '',
       buttons,
       infos: {
         money,
@@ -433,14 +381,17 @@ export const OrderAction = (props: OrderActionProps) => {
     {
       header: 'Payment',
       key: 'payment',
-      subtitle: (createAt ? `Paid in full on ${format(Date.parse(createAt), 'dd MMM yyyy')}.` : ''),
+      subtitle: createAt
+        ? `Paid in full on ${format(Date.parse(createAt), 'dd MMM yyyy')}.`
+        : '',
       buttons: [
         {
           value: isB2BUser ? 'view invoice' : 'print invoice',
           key: 'aboutInvoice',
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
-          isCanShow: (!isB2BUser || +ipStatus !== 0) && (createdEmail === emailAddress),
+          isCanShow:
+            (!isB2BUser || +ipStatus !== 0) && createdEmail === emailAddress,
         },
       ],
       infos: {
@@ -460,8 +411,8 @@ export const OrderAction = (props: OrderActionProps) => {
 
   return (
     <OrderActionContainer>
-      {
-        orderData && orderData.map((item: OrderData) => (
+      {orderData &&
+        orderData.map((item: OrderData) => (
           <OrderCard
             products={products!}
             orderId={orderId.toString()}
@@ -470,8 +421,7 @@ export const OrderAction = (props: OrderActionProps) => {
             itemKey={item.key}
             role={role}
           />
-        ))
-      }
+        ))}
     </OrderActionContainer>
   )
 }

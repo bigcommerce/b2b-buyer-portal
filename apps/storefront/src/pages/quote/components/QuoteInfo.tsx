@@ -1,64 +1,81 @@
-import {
-  Box,
-  Typography,
-} from '@mui/material'
+import { Box, Typography } from '@mui/material'
 
-import {
-  useMobile,
-} from '@/hooks'
+import { CustomButton } from '@/components'
+import { useMobile } from '@/hooks'
 
-import {
-  Container,
-} from '../style'
-
-import {
-  CustomButton,
-} from '@/components'
+import Container from '../style'
 
 interface GetValue {
-  [key: string]: string,
+  [key: string]: string
 }
 
 interface InfoProps {
-  contactInfo: GetValue,
-  shippingAddress: GetValue,
-  billingAddress: GetValue,
-  handleEditInfoClick?: () => void,
-  status?: string,
+  contactInfo: GetValue
+  shippingAddress: GetValue
+  billingAddress: GetValue
+  handleEditInfoClick?: () => void
+  status?: string
 }
 
 type Keys = string | string[]
 
-const contactInfoKeys: string[] = ['name', 'email', 'companyName', 'phoneNumber']
+const contactInfoKeys: string[] = [
+  'name',
+  'email',
+  'companyName',
+  'phoneNumber',
+]
 
-const addressVerifyKeys: string[] = ['label', 'firstName', 'lastName', 'company', 'address', 'apartment', 'city', 'state', 'zipCode', 'country', 'phoneNumber']
+const addressVerifyKeys: string[] = [
+  'label',
+  'firstName',
+  'lastName',
+  'company',
+  'address',
+  'apartment',
+  'city',
+  'state',
+  'zipCode',
+  'country',
+  'phoneNumber',
+]
 
-const addressKeys: Keys[] = ['label', ['firstName', 'lastName'], 'company', 'address', 'apartment', ['city', 'state', 'zipCode', 'country'], 'phoneNumber']
+const addressKeys: Keys[] = [
+  'label',
+  ['firstName', 'lastName'],
+  'company',
+  'address',
+  'apartment',
+  ['city', 'state', 'zipCode', 'country'],
+  'phoneNumber',
+]
 
 interface QuoteInfoItemProps {
-  flag?: string,
-  title: string,
-  info: GetValue,
-  status?: string,
+  flag?: string
+  title: string
+  info: GetValue
+  status?: string
 }
 
-const QuoteInfoItem = ({
-  flag,
-  title,
-  info,
-  status,
-}: QuoteInfoItemProps) => {
+function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
   const keyTable = flag === 'info' ? contactInfoKeys : addressKeys
 
-  const noAddresssText = status === 'Draft' ? `Please add ${flag === 'Billing' ? 'billing' : 'shipping'} address ` : `No ${flag === 'Billing' ? 'billing' : 'shipping'} address`
+  const noAddresssText =
+    status === 'Draft'
+      ? `Please add ${flag === 'Billing' ? 'billing' : 'shipping'} address `
+      : `No ${flag === 'Billing' ? 'billing' : 'shipping'} address`
 
-  const isComplete = flag !== 'info' ? addressVerifyKeys.some((item: string) => !!info[item]) : false
+  const isComplete =
+    flag !== 'info'
+      ? addressVerifyKeys.some((item: string) => !!info[item])
+      : false
 
   return (
-    <Box sx={{
-      width: '33.3%',
-      paddingRight: '10px',
-    }}
+    <Box
+      sx={{
+        width: '33.3%',
+        paddingRight: '10px',
+      }}
     >
       <Typography
         sx={{
@@ -74,62 +91,46 @@ const QuoteInfoItem = ({
           p: '15px 0',
         }}
       >
-        {
-            (isComplete || flag === 'info') && JSON.stringify(info) !== '{}' && keyTable.map((list: Keys) => {
-              if (typeof list === 'string') {
-                return (
-                  <Typography
-                    key={list}
-                    variant="body1"
-                  >
-                    {info[list] || ''}
-                  </Typography>
-                )
-              }
-
+        {(isComplete || flag === 'info') &&
+          JSON.stringify(info) !== '{}' &&
+          keyTable.map((list: Keys) => {
+            if (typeof list === 'string') {
               return (
-                <Typography
-                  key={`${list}`}
-                  variant="body1"
-                >
-                  {
-                    list.map((item: string, index: number) => {
-                      if (index === list.length - 1) {
-                        return info[item] || ''
-                      }
-                      if (item === 'firstName') return `${info[item] || ''} `
-                      return info[item] ? `${info[item] || ''}, ` : ''
-                    })
-                  }
+                <Typography key={list} variant="body1">
+                  {info[list] || ''}
                 </Typography>
               )
-            })
-          }
+            }
 
-        {
-          (!isComplete && flag !== 'info') && (
-          <Box>
-            {noAddresssText}
-          </Box>
-          )
-        }
+            return (
+              <Typography key={`${list}`} variant="body1">
+                {list.map((item: string, index: number) => {
+                  if (index === list.length - 1) {
+                    return info[item] || ''
+                  }
+                  if (item === 'firstName') return `${info[item] || ''} `
+                  return info[item] ? `${info[item] || ''}, ` : ''
+                })}
+              </Typography>
+            )
+          })}
+
+        {!isComplete && flag !== 'info' && <Box>{noAddresssText}</Box>}
       </Box>
     </Box>
   )
 }
 
-const QuoteInfo = ({
+function QuoteInfo({
   contactInfo = {},
   shippingAddress = {},
   billingAddress = {},
   handleEditInfoClick,
   status,
-}: InfoProps) => {
+}: InfoProps) {
   const [isMobile] = useMobile()
   return (
-    <Container
-      flexDirection="column"
-    >
+    <Container flexDirection="column">
       <Box
         sx={{
           width: '100%',
@@ -138,11 +139,7 @@ const QuoteInfo = ({
           flexDirection: isMobile ? 'column' : 'row',
         }}
       >
-        <QuoteInfoItem
-          title="Contact"
-          flag="info"
-          info={contactInfo}
-        />
+        <QuoteInfoItem title="Contact" flag="info" info={contactInfo} />
 
         <QuoteInfoItem
           title="Billing"
@@ -158,20 +155,18 @@ const QuoteInfo = ({
           info={shippingAddress}
         />
       </Box>
-      {
-        handleEditInfoClick && (
-          <CustomButton
-            sx={{
-              mt: '10px',
-              mb: '15px',
-            }}
-            onClick={handleEditInfoClick}
-            variant="outlined"
-          >
-            Edit info
-          </CustomButton>
-        )
-      }
+      {handleEditInfoClick && (
+        <CustomButton
+          sx={{
+            mt: '10px',
+            mb: '15px',
+          }}
+          onClick={handleEditInfoClick}
+          variant="outlined"
+        >
+          Edit info
+        </CustomButton>
+      )}
     </Container>
   )
 }

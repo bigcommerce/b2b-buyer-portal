@@ -1,34 +1,26 @@
-import {
-  beforeAll,
-  afterEach,
-  describe,
-  it,
-  expect,
-  vi,
-} from 'vitest'
-import {
-  store,
-} from '@/store'
-import {
-  ThemeFrame,
-} from '../../../src/components'
-import {
-  renderWithProviders, screen,
-} from '../../test-utils'
-import {
-  Captcha, loadCaptchaScript, loadCaptchaWidgetHandlers,
-} from '../../../src/components/captcha/Captcha'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-  declare global {
-      interface Window {
-          INITIALIZE_CAPTCHA_testid?: Function
-      }
+import { store } from '@/store'
+
+import { ThemeFrame } from '../../../src/components'
+import {
+  Captcha,
+  loadCaptchaScript,
+  loadCaptchaWidgetHandlers,
+} from '../../../src/components/captcha/Captcha'
+import { renderWithProviders, screen } from '../../test-utils'
+
+declare global {
+  interface Window {
+    INITIALIZE_CAPTCHA_testid?: Function
   }
+}
 
 const TEST_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 const CAPTCHA_URL = 'https://www.google.com/recaptcha/api.js?render=explicit'
-const INIT_BROWSER:{head:string, body:string} = {
-  head: '', body: '',
+const INIT_BROWSER: { head: string; body: string } = {
+  head: '',
+  body: '',
 }
 
 beforeAll(() => {
@@ -68,15 +60,11 @@ describe('Captcha', () => {
     vi.useFakeTimers()
     renderWithProviders(
       <ThemeFrame title="test-frame">
-        <Captcha
-          siteKey={TEST_SITE_KEY}
-          theme="dark"
-          size="normal"
-        />
+        <Captcha siteKey={TEST_SITE_KEY} theme="dark" size="normal" />
       </ThemeFrame>,
       {
         store,
-      },
+      }
     )
     vi.advanceTimersToNextTimer()
     const iframe: HTMLIFrameElement = screen.getByTitle('test-frame')

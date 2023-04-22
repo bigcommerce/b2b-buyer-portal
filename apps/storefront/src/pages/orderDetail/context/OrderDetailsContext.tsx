@@ -1,50 +1,44 @@
-import {
-  useReducer,
-  createContext,
-  Dispatch,
-  ReactNode,
-  useMemo,
-} from 'react'
+import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react'
 
 import {
-  OrderStatusItem,
-  OrderShippingsItem,
-  OrderHistoryItem,
-  OrderProductItem,
   OrderCurrency,
-  OrderSummary,
+  OrderHistoryItem,
   OrderPayment,
+  OrderProductItem,
+  OrderShippingsItem,
+  OrderStatusItem,
+  OrderSummary,
 } from '../../../types'
 
 export interface OrderDetailsState {
-  shippings?: OrderShippingsItem[],
-  history?: OrderHistoryItem[],
-  poNumber?: string,
-  status?: string,
-  statusCode?: string | number,
-  currencyCode?: string,
-  currency?: string,
-  orderSummary?: OrderSummary,
-  customStatus?: string,
-  money?: OrderCurrency,
-  payment?: OrderPayment,
-  orderComments?: string,
-  products?: OrderProductItem[],
-  orderId?: number | string,
-  orderStatus?: OrderStatusItem[],
-  ipStatus?: number,
-  invoiceId?: number,
-  addressLabelPermission?: boolean,
-  canReturn?: boolean,
-  createdEmail?: string,
+  shippings?: OrderShippingsItem[]
+  history?: OrderHistoryItem[]
+  poNumber?: string
+  status?: string
+  statusCode?: string | number
+  currencyCode?: string
+  currency?: string
+  orderSummary?: OrderSummary
+  customStatus?: string
+  money?: OrderCurrency
+  payment?: OrderPayment
+  orderComments?: string
+  products?: OrderProductItem[]
+  orderId?: number | string
+  orderStatus?: OrderStatusItem[]
+  ipStatus?: number
+  invoiceId?: number
+  addressLabelPermission?: boolean
+  canReturn?: boolean
+  createdEmail?: string
 }
 interface OrderDetailsAction {
-  type: string,
+  type: string
   payload: OrderDetailsState
 }
 export interface OrderDetailsContextType {
-  state: OrderDetailsState,
-  dispatch: Dispatch<OrderDetailsAction>,
+  state: OrderDetailsState
+  dispatch: Dispatch<OrderDetailsAction>
 }
 
 interface OrderDetailsProviderProps {
@@ -108,14 +102,15 @@ const reducer = (state: OrderDetailsState, action: OrderDetailsAction) => {
 export function OrderDetailsProvider(props: OrderDetailsProviderProps) {
   const [state, dispatch] = useReducer(reducer, initState)
 
-  const {
-    children,
-  } = props
+  const { children } = props
 
-  const OrderDetailsValue = useMemo(() => ({
-    state,
-    dispatch,
-  }), [state])
+  const OrderDetailsValue = useMemo(
+    () => ({
+      state,
+      dispatch,
+    }),
+    [state]
+  )
 
   return (
     <OrderDetailsContext.Provider value={OrderDetailsValue}>

@@ -1,9 +1,7 @@
-import {
-  B3Tag,
-} from '@/components/B3Tag'
+import { B3Tag } from '@/components'
 
 interface OrderStatusProps {
-  code: string,
+  code: string
 }
 
 interface QuoteStatussProps {
@@ -12,10 +10,8 @@ interface QuoteStatussProps {
   }
 }
 
-export const QuoteStatus = (props: OrderStatusProps) => {
-  const {
-    code,
-  } = props
+export default function QuoteStatus(props: OrderStatusProps) {
+  const { code } = props
 
   const getOrderStatus = (code: string) => {
     const quoteStatus: QuoteStatussProps = {
@@ -48,14 +44,9 @@ export const QuoteStatus = (props: OrderStatusProps) => {
 
   const status = getOrderStatus(code)
 
-  return (
-    status.name ? (
-      <B3Tag
-        color={status.color}
-        textColor={status.textColor}
-      >
-        {status.name}
-      </B3Tag>
-    ) : <></>
-  )
+  return status.name ? (
+    <B3Tag color={status.color} textColor={status.textColor}>
+      {status.name}
+    </B3Tag>
+  ) : null
 }

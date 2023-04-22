@@ -9,8 +9,8 @@ export const removeEmptyRow = (arr: string[]) => {
 }
 
 export interface ParseEmptyDataProps {
-  sku: string,
-  qty: string,
+  sku: string
+  qty: string
 }
 
 export const parseEmptyData = (arr: string[]): ParseEmptyDataProps[] => {

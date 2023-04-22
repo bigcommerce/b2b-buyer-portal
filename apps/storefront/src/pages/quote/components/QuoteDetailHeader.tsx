@@ -1,33 +1,12 @@
-import {
-  useNavigate,
-} from 'react-router-dom'
-import {
-  format,
-} from 'date-fns'
+import { useNavigate } from 'react-router-dom'
+import { ArrowBackIosNew } from '@mui/icons-material'
+import { Box, Grid, styled, Typography, useTheme } from '@mui/material'
+import { format } from 'date-fns'
 
-import {
-  Box,
-  Grid,
-  styled,
-  Typography,
-  useTheme,
-} from '@mui/material'
+import { CustomButton } from '@/components'
+import { useMobile } from '@/hooks'
 
-import {
-  ArrowBackIosNew,
-} from '@mui/icons-material'
-
-import {
-  QuoteStatus,
-} from './QuoteStatus'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  CustomButton,
-} from '@/components'
+import QuoteStatus from './QuoteStatus'
 
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
@@ -36,18 +15,16 @@ const StyledCreateName = styled('div')(() => ({
 }))
 
 interface QuoteDetailHeaderProps {
-  status: string,
-  quoteNumber: string,
-  issuedAt: number,
-  expirationDate: number,
-  exportPdf: () => void,
-  printQuote: () => Promise<void>,
-  role: string | number,
-  quoteTitle: string,
-  salesRepInfo: {[key: string]: string},
+  status: string
+  quoteNumber: string
+  issuedAt: number
+  expirationDate: number
+  exportPdf: () => void
+  printQuote: () => Promise<void>
+  role: string | number
 }
 
-const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
+function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
   const [isMobile] = useMobile()
 
   const {
@@ -58,8 +35,6 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
     exportPdf,
     printQuote,
     role,
-    quoteTitle,
-    salesRepInfo,
   } = props
 
   const theme = useTheme()
@@ -67,51 +42,52 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
   const primaryColor = theme.palette.primary.main
 
   const navigate = useNavigate()
-  const gridOptions = (xs: number) => (isMobile ? {} : {
-    xs,
-  })
+  const gridOptions = (xs: number) =>
+    isMobile
+      ? {}
+      : {
+          xs,
+        }
 
   return (
     <>
-      {
-        +role !== 100 && (
+      {+role !== 100 && (
+        <Box
+          sx={{
+            marginBottom: '10px',
+            width: 'fit-content',
+            displayPrint: 'none',
+          }}
+        >
           <Box
             sx={{
-              marginBottom: '10px',
-              width: 'fit-content',
-              displayPrint: 'none',
+              color: '#1976d2',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            onClick={() => {
+              navigate('/quotes')
             }}
           >
-            <Box
+            <ArrowBackIosNew
+              fontSize="small"
               sx={{
-                color: '#1976d2',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-              onClick={() => {
-                navigate('/quotes')
-              }}
-            >
-              <ArrowBackIosNew
-                fontSize="small"
-                sx={{
-                  fontSize: '12px',
-                  marginRight: '0.5rem',
-                  color: primaryColor,
-                }}
-              />
-              <p style={{
+                fontSize: '12px',
+                marginRight: '0.5rem',
                 color: primaryColor,
               }}
-              >
-                Back to quote lists
-
-              </p>
-            </Box>
+            />
+            <p
+              style={{
+                color: primaryColor,
+              }}
+            >
+              Back to quote lists
+            </p>
           </Box>
-        )
-      }
+        </Box>
+      )}
 
       <Grid
         container
@@ -123,10 +99,7 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
           mb: `${isMobile ? '16px' : ''}`,
         }}
       >
-        <Grid
-          item
-          {...gridOptions(8)}
-        >
+        <Grid item {...gridOptions(8)}>
           <Box
             sx={{
               display: 'flex',
@@ -147,36 +120,6 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
             <QuoteStatus code={status} />
           </Box>
           <Box>
-            { quoteTitle
-              && (
-              <StyledCreateName>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    marginRight: '0.5rem',
-                    fontSize: '16px',
-                  }}
-                >
-                  Title:
-                </Typography>
-                <span>{quoteTitle}</span>
-              </StyledCreateName>
-              )}
-            { (salesRepInfo?.salesRepName || salesRepInfo?.salesRepEmail)
-              && (
-              <StyledCreateName>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    marginRight: '0.5rem',
-                    fontSize: '16px',
-                  }}
-                >
-                  Sales rep:
-                </Typography>
-                <span>{salesRepInfo?.salesRepEmail !== '' ? `${salesRepInfo?.salesRepName}(${salesRepInfo?.salesRepEmail})` : salesRepInfo?.salesRepName}</span>
-              </StyledCreateName>
-              )}
             <StyledCreateName>
               <Typography
                 variant="subtitle2"
@@ -187,7 +130,9 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
               >
                 Issued on:
               </Typography>
-              <span>{`${issuedAt ? format(+issuedAt * 1000, 'dd MMM yyyy') : ''}`}</span>
+              <span>{`${
+                issuedAt ? format(+issuedAt * 1000, 'dd MMM yyyy') : ''
+              }`}</span>
             </StyledCreateName>
             <StyledCreateName>
               <Typography
@@ -199,42 +144,40 @@ const QuoteDetailHeader = (props: QuoteDetailHeaderProps) => {
               >
                 Expiration date:
               </Typography>
-              <span>{`${expirationDate ? format(+expirationDate * 1000, 'dd MMM yyyy') : ''}`}</span>
+              <span>{`${
+                expirationDate
+                  ? format(+expirationDate * 1000, 'dd MMM yyyy')
+                  : ''
+              }`}</span>
             </StyledCreateName>
           </Box>
         </Grid>
-        {
-          +role !== 100 && (
-            <Grid
-              item
-              sx={{
-                textAlign: `${isMobile ? 'none' : 'end'}`,
-                displayPrint: 'none',
-              }}
-              {...gridOptions(4)}
-            >
-              <Box>
-                <CustomButton
-                  variant="outlined"
-                  sx={{
-                    marginRight: '1rem',
-                    displayPrint: 'none',
-                  }}
-                  onClick={printQuote}
-                >
-                  Print
-                </CustomButton>
-                <CustomButton
-                  variant="outlined"
-                  onClick={exportPdf}
-                >
-                  DownLoad pdf
-                </CustomButton>
-              </Box>
-            </Grid>
-          )
-        }
-
+        {+role !== 100 && (
+          <Grid
+            item
+            sx={{
+              textAlign: `${isMobile ? 'none' : 'end'}`,
+              displayPrint: 'none',
+            }}
+            {...gridOptions(4)}
+          >
+            <Box>
+              <CustomButton
+                variant="outlined"
+                sx={{
+                  marginRight: '1rem',
+                  displayPrint: 'none',
+                }}
+                onClick={printQuote}
+              >
+                Print
+              </CustomButton>
+              <CustomButton variant="outlined" onClick={exportPdf}>
+                DownLoad pdf
+              </CustomButton>
+            </Box>
+          </Grid>
+        )}
       </Grid>
     </>
   )

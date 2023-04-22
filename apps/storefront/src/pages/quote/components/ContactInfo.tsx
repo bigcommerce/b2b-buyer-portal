@@ -1,33 +1,12 @@
-import {
-  useForm,
-} from 'react-hook-form'
-import {
-  useEffect,
-  forwardRef,
-  useImperativeHandle,
-} from 'react'
-import {
-  Box,
-} from '@mui/material'
-import {
-  trim,
-} from 'lodash'
-import {
-  B3CustomForm,
-} from '@/components'
+import { forwardRef, useEffect, useImperativeHandle } from 'react'
+import { useForm } from 'react-hook-form'
+import { Box } from '@mui/material'
+import { trim } from 'lodash'
 
-import {
-  checkUserEmail,
-  checkUserBCEmail,
-} from '@/shared/service/b2b'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  validatorRules,
-} from '@/utils'
+import { B3CustomForm } from '@/components'
+import { useMobile } from '@/hooks'
+import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
+import { validatorRules } from '@/utils'
 
 // import {
 //   CustomerInfo,
@@ -85,26 +64,22 @@ const getContactInfo = (isMobile: boolean) => {
 
 interface ContactInfoProps {
   info: {
-    [key: string]: string,
-  },
-  isB2BUser: boolean,
-  currentChannelId: string | number,
-  emailAddress?: string,
+    [key: string]: string
+  }
+  isB2BUser: boolean
+  currentChannelId: string | number
+  emailAddress?: string
 }
 
-const ContactInfo = ({
-  info = {},
-  isB2BUser,
-  currentChannelId,
-  emailAddress,
-}: ContactInfoProps, ref: any) => {
+function ContactInfo(
+  { info = {}, isB2BUser, currentChannelId, emailAddress }: ContactInfoProps,
+  ref: any
+) {
   const {
     control,
     getValues,
     setError,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
     handleSubmit,
   } = useForm({
@@ -127,9 +102,7 @@ const ContactInfo = ({
     const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
 
     const {
-      [key]: {
-        userType,
-      },
+      [key]: { userType },
     }: CustomFieldItems = await fn({
       email: emailValue,
       channelId: currentChannelId,
@@ -149,11 +122,14 @@ const ContactInfo = ({
 
   const getContactInfoValue = async () => {
     let isValid = true
-    await handleSubmit(async (data) => {
-      isValid = await validateEmailValue(data.email)
-    }, () => {
-      isValid = false
-    })()
+    await handleSubmit(
+      async (data) => {
+        isValid = await validateEmailValue(data.email)
+      },
+      () => {
+        isValid = false
+      }
+    )()
 
     return isValid ? getValues() : isValid
   }
@@ -165,9 +141,7 @@ const ContactInfo = ({
   const contactInfo = getContactInfo(isMobile)
 
   return (
-    <Box
-      width="100%"
-    >
+    <Box width="100%">
       <Box
         sx={{
           fontWeight: 400,
@@ -177,7 +151,6 @@ const ContactInfo = ({
         }}
       >
         Contact
-
       </Box>
 
       <B3CustomForm
@@ -187,9 +160,7 @@ const ContactInfo = ({
         getValues={getValues}
         setValue={setValue}
       />
-
     </Box>
-
   )
 }
 

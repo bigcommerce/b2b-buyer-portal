@@ -1,100 +1,56 @@
-import {
-  useParams,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
+import { useContext, useEffect, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { ArrowBackIosNew } from '@mui/icons-material'
+import { Box, Grid, Stack, Typography } from '@mui/material'
 
+import { B3Sping } from '@/components'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
-  useEffect,
-  useState,
-  useContext,
-} from 'react'
-
-import {
-  Box,
-  Grid,
-  Typography,
-  Stack,
-} from '@mui/material'
-
-import {
-  ArrowBackIosNew,
-} from '@mui/icons-material'
-
-import {
+  getB2BAddressConfig,
   getB2BOrderDetails,
   getBCOrderDetails,
-  getOrderStatusType,
   getBcOrderStatusType,
-  getB2BAddressConfig,
+  getOrderStatusType,
 } from '@/shared/service/b2b'
 
 import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  OrderStatus,
-} from '../order/components'
-
-import {
-  OrderShipping,
-  OrderHistory,
-  DetailPagination,
-  OrderAction,
-} from './components'
-
-import {
-  convertB2BOrderDetails,
-} from './shared/B2BOrderData'
-
-import {
-  convertBCOrderDetails,
-} from './shared/BCOrderData'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
+  AddressConfigItem,
+  OrderDetailsResponse,
+  OrderStatusResponse,
+} from '../../types'
+import OrderStatus from '../order/components/OrderStatus'
 
 import {
   OrderDetailsContext,
   OrderDetailsProvider,
 } from './context/OrderDetailsContext'
-
+import convertB2BOrderDetails from './shared/B2BOrderData'
 import {
-  OrderStatusResponse,
-  OrderDetailsResponse,
-  AddressConfigItem,
-} from '../../types'
+  DetailPagination,
+  OrderAction,
+  OrderHistory,
+  OrderShipping,
+} from './components'
+
+const convertBCOrderDetails = convertB2BOrderDetails
 
 interface LocationState {
-  isCompanyOrder: boolean,
+  isCompanyOrder: boolean
 }
 
-const OrderDetail = () => {
+function OrderDetail() {
   const params = useParams()
 
   const navigate = useNavigate()
 
   const {
-    state: {
-      isB2BUser,
-      addressConfig,
-    },
+    state: { isB2BUser, addressConfig },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 
   const {
-    state: {
-      poNumber,
-      status = '',
-      customStatus,
-      orderSummary,
-    },
+    state: { poNumber, status = '', customStatus, orderSummary },
     state: detailsData,
     dispatch,
   } = useContext(OrderDetailsContext)
@@ -125,7 +81,9 @@ const OrderDetail = () => {
       const order = res[isB2BUser ? 'order' : 'customerOrder']
 
       if (order) {
-        const data = isB2BUser ? convertB2BOrderDetails(order) : convertBCOrderDetails(order)
+        const data = isB2BUser
+          ? convertB2BOrderDetails(order)
+          : convertBCOrderDetails(order)
         dispatch({
           type: 'all',
           payload: data,
@@ -144,7 +102,13 @@ const OrderDetail = () => {
   }
 
   const goToOrders = () => {
-    navigate(`${(localtion.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders'}`)
+    navigate(
+      `${
+        (localtion.state as LocationState).isCompanyOrder
+          ? '/company-orders'
+          : '/orders'
+      }`
+    )
   }
 
   const getOrderStatus = async () => {
@@ -174,9 +138,8 @@ const OrderDetail = () => {
     try {
       let configList = addressConfig
       if (!configList) {
-        const {
-          addressConfig: newConfig,
-        }: CustomFieldItems = await getB2BAddressConfig()
+        const { addressConfig: newConfig }: CustomFieldItems =
+          await getB2BAddressConfig()
         configList = newConfig
 
         globalDispatch({
@@ -187,7 +150,10 @@ const OrderDetail = () => {
         })
       }
 
-      const permission = (configList || []).find((config: AddressConfigItem) => config.key === 'address_label')?.isEnabled === '1'
+      const permission =
+        (configList || []).find(
+          (config: AddressConfigItem) => config.key === 'address_label'
+        )?.isEnabled === '1'
       dispatch({
         type: 'addressLabel',
         payload: {
@@ -204,10 +170,7 @@ const OrderDetail = () => {
   }, [])
 
   return (
-    <B3Sping
-      isSpinning={isRequestLoading}
-      background="rgba(255,255,255,0.2)"
-    >
+    <B3Sping isSpinning={isRequestLoading} background="rgba(255,255,255,0.2)">
       <Box
         sx={{
           overflow: 'auto',
@@ -230,26 +193,23 @@ const OrderDetail = () => {
             }}
             onClick={goToOrders}
           >
-            {
-              localtion.state !== null ? (
-                <>
-                  <ArrowBackIosNew
-                    sx={{
-                      fontSize: '13px',
-                      margin: '0 8px',
-                    }}
-                  />
-                  <span>Back to orders</span>
-                </>
-              ) : ''
-            }
+            {localtion.state !== null ? (
+              <>
+                <ArrowBackIosNew
+                  sx={{
+                    fontSize: '13px',
+                    margin: '0 8px',
+                  }}
+                />
+                <span>Back to orders</span>
+              </>
+            ) : (
+              ''
+            )}
           </Box>
         </Box>
 
-        <Grid
-          container
-          spacing={2}
-        >
+        <Grid container spacing={2}>
           <Grid
             item
             xs={isMobile ? 12 : 8}
@@ -269,10 +229,7 @@ const OrderDetail = () => {
               {`Order #${orderId}`}
               {poNumber && `, ${poNumber}`}
             </Typography>
-            <OrderStatus
-              code={status}
-              text={customStatus}
-            />
+            <OrderStatus code={status} text={customStatus} />
           </Grid>
           <Grid
             container
@@ -302,12 +259,16 @@ const OrderDetail = () => {
         >
           <Grid
             item
-            sx={isMobile ? {
-              flexBasis: '100%',
-            } : {
-              flexBasis: '690px',
-              flexGrow: 1,
-            }}
+            sx={
+              isMobile
+                ? {
+                    flexBasis: '100%',
+                  }
+                : {
+                    flexBasis: '690px',
+                    flexGrow: 1,
+                  }
+            }
           >
             <Stack spacing={3}>
               <OrderShipping />
@@ -317,19 +278,19 @@ const OrderDetail = () => {
           </Grid>
           <Grid
             item
-            sx={isMobile ? {
-              flexBasis: '100%',
-            } : {
-              flexBasis: '340px',
-            }}
-          >
-            {
-              JSON.stringify(orderSummary) === '{}' ? (<></>) : (
-                <OrderAction
-                  detailsData={detailsData}
-                />
-              )
+            sx={
+              isMobile
+                ? {
+                    flexBasis: '100%',
+                  }
+                : {
+                    flexBasis: '340px',
+                  }
             }
+          >
+            {JSON.stringify(orderSummary) === '{}' ? null : (
+              <OrderAction detailsData={detailsData} />
+            )}
           </Grid>
         </Grid>
       </Box>
@@ -337,10 +298,12 @@ const OrderDetail = () => {
   )
 }
 
-const OrderDetailsContent = () => (
-  <OrderDetailsProvider>
-    <OrderDetail />
-  </OrderDetailsProvider>
-)
+function OrderDetailsContent() {
+  return (
+    <OrderDetailsProvider>
+      <OrderDetail />
+    </OrderDetailsProvider>
+  )
+}
 
 export default OrderDetailsContent

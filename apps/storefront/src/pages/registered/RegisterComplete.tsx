@@ -1,94 +1,62 @@
 import {
+  MouseEvent,
   useContext,
   useEffect,
-  MouseEvent,
   useState,
   // useMemo,
 } from 'react'
-import {
-  Box,
-  Alert,
-} from '@mui/material'
-import {
-  useForm,
-} from 'react-hook-form'
-import {
-  useB3Lang,
-} from '@b3/lang'
+import { useForm } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
+import { Alert, Box } from '@mui/material'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
 // import {
 //   Captcha,
 // } from '@/components/form'
-
+import { B3CustomForm } from '@/components'
+import { GlobaledContext } from '@/shared/global'
 import {
-  RegisteredContext,
-} from './context/RegisteredContext'
-import RegisteredStepButton from './component/RegisteredStepButton'
-import {
-  B3CustomForm,
-} from '@/components'
-
-import {
-  createBCCompanyUser,
   createB2BCompanyUser,
+  createBCCompanyUser,
   uploadB2BFile,
 } from '@/shared/service/b2b'
-
-import {
-  RegisterFields, deCodeField, toHump,
-} from './config'
-
-import {
-  InformationFourLabels, TipContent,
-} from './styled'
-
 import {
   storeHash,
   // captchaSetkey,
 } from '@/utils'
 
+import RegisteredStepButton from './component/RegisteredStepButton'
+import { RegisteredContext } from './context/RegisteredContext'
+import { deCodeField, RegisterFields, toHump } from './config'
+import { InformationFourLabels, TipContent } from './styled'
+
 interface RegisterCompleteProps {
-  handleBack: () => void,
-  handleNext: () => void,
-  activeStep: number,
+  handleBack: () => void
+  handleNext: () => void
+  activeStep: number
 }
 
 type RegisterCompleteList = Array<RegisterFields> | undefined
 
 export default function RegisterComplete(props: RegisterCompleteProps) {
   const b3Lang = useB3Lang()
-  const {
-    handleBack,
-    activeStep,
-    handleNext,
-  } = props
+  const { handleBack, activeStep, handleNext } = props
 
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
-  const [errorMessage, setErrorMessage] = useState<String>('')
+  const [errorMessage, setErrorMessage] = useState<string>('')
   // const [captchaMessage, setCaptchaMessage] = useState<string>('')
 
   const {
     control,
     handleSubmit,
     setError,
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     mode: 'all',
   })
-  const {
-    state,
-    dispatch,
-  } = useContext(RegisteredContext)
+  const { state, dispatch } = useContext(RegisteredContext)
 
   const {
-    state: {
-      currentChannelId,
-    },
+    state: { currentChannelId },
   } = useContext(GlobaledContext)
 
   const {
@@ -105,21 +73,26 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     emailMarketingNewsletter,
   } = state
 
-  const list:RegisterCompleteList = accountType === '1' ? contactInformation : bcContactInformation
-  const passwordInfo:RegisterCompleteList = accountType === '1' ? passwordInformation : bcPasswordInformation
+  const list: RegisterCompleteList =
+    accountType === '1' ? contactInformation : bcContactInformation
+  const passwordInfo: RegisterCompleteList =
+    accountType === '1' ? passwordInformation : bcPasswordInformation
 
   const passwordName = passwordInfo[0]?.groupName || ''
 
-  const additionalInfo:RegisterCompleteList = accountType === '1' ? additionalInformation : bcAdditionalInformation
+  const additionalInfo: RegisterCompleteList =
+    accountType === '1' ? additionalInformation : bcAdditionalInformation
 
-  const addressBasicList = accountType === '1' ? addressBasicFields : bcAddressBasicFields
+  const addressBasicList =
+    accountType === '1' ? addressBasicFields : bcAddressBasicFields
 
   useEffect(() => {
     if (!accountType) return
     let newPasswordInformation: Array<CustomFieldItems> = []
     let emailItem: CustomFieldItems = {}
     if (list && list.length) {
-      const emailFields = list.find((item: RegisterFields) => item.name === 'email') || {}
+      const emailFields =
+        list.find((item: RegisterFields) => item.name === 'email') || {}
       emailItem = {
         ...emailFields,
       }
@@ -142,20 +115,25 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       new_password: data.password,
     }
 
-    bcFields.accepts_product_review_abandoned_cart_emails = emailMarketingNewsletter
+    bcFields.accepts_product_review_abandoned_cart_emails =
+      emailMarketingNewsletter
 
     if (list) {
       list.forEach((item: any) => {
         const name = deCodeField(item.name)
         if (name === 'accepts_marketing_emails') {
-          bcFields.accepts_product_review_abandoned_cart_emails = !!item?.default?.length
+          bcFields.accepts_product_review_abandoned_cart_emails =
+            !!item?.default?.length
         } else {
           bcFields[name] = item?.default || ''
         }
       })
 
       bcFields.form_fields = []
-      if (additionalInfo && (additionalInfo as Array<CustomFieldItems>).length) {
+      if (
+        additionalInfo &&
+        (additionalInfo as Array<CustomFieldItems>).length
+      ) {
         additionalInfo.forEach((field: CustomFieldItems) => {
           bcFields.form_fields.push({
             name: field.bcLabel,
@@ -171,8 +149,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     if (accountType === '2') {
       const addresses: CustomFieldItems = {}
 
-      const getBCAddressField = addressBasicList.filter((field: any) => !field.custom)
-      const getBCExtraAddressField = addressBasicList.filter((field: any) => field.custom)
+      const getBCAddressField = addressBasicList.filter(
+        (field: any) => !field.custom
+      )
+      const getBCExtraAddressField = addressBasicList.filter(
+        (field: any) => field.custom
+      )
 
       if (getBCAddressField) {
         bcFields.addresses = {}
@@ -217,13 +199,21 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     return createBCCompanyUser(userItem)
   }
 
-  const getB2BFieldsValue = async (data: CustomFieldItems, customerId: Number | String, fileList: any) => {
+  const getB2BFieldsValue = async (
+    data: CustomFieldItems,
+    customerId: number | string,
+    fileList: any
+  ) => {
     try {
       const b2bFields: CustomFieldItems = {}
       b2bFields.customerId = customerId || ''
       b2bFields.storeHash = storeHash
-      const companyInfo = companyInformation.filter((list) => !list.custom && list.fieldType !== 'files')
-      const companyExtraInfo = companyInformation.filter((list) => !!list.custom)
+      const companyInfo = companyInformation.filter(
+        (list) => !list.custom && list.fieldType !== 'files'
+      )
+      const companyExtraInfo = companyInformation.filter(
+        (list) => !!list.custom
+      )
       // company field
       if (companyInfo.length) {
         companyInfo.forEach((item: any) => {
@@ -233,7 +223,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       // Company Additional Field
       if (companyExtraInfo.length) {
-        const extraFields:Array<CustomFieldItems> = []
+        const extraFields: Array<CustomFieldItems> = []
         companyExtraInfo.forEach((item: CustomFieldItems) => {
           const itemExtraField: CustomFieldItems = {}
           itemExtraField.fieldName = deCodeField(item.name)
@@ -246,8 +236,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       b2bFields.companyEmail = data.email
 
       // address Field
-      const addressBasicInfo = addressBasicList.filter((list) => !list.custom) || []
-      const addressExtraBasicInfo = addressBasicList.filter((list) => !!list.custom) || []
+      const addressBasicInfo =
+        addressBasicList.filter((list) => !list.custom) || []
+      const addressExtraBasicInfo =
+        addressBasicList.filter((list) => !!list.custom) || []
 
       if (addressBasicInfo.length) {
         addressBasicInfo.forEach((field: CustomFieldItems) => {
@@ -264,7 +256,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       // address Additional Field
       if (addressExtraBasicInfo.length) {
-        const extraFields:Array<CustomFieldItems> = []
+        const extraFields: Array<CustomFieldItems> = []
         addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
           const itemExtraField: CustomFieldItems = {}
           itemExtraField.fieldName = deCodeField(item.name)
@@ -279,24 +271,27 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     } catch (error) {
       console.log(error)
     }
+    return undefined
   }
 
   const getFileUrl = async (attachmentsList: RegisterFields[]) => {
     let attachments: File[] = []
 
-    if (!attachmentsList.length) return
+    if (!attachmentsList.length) return undefined
 
     attachmentsList.forEach((field: any) => {
       attachments = field.default
     })
 
     try {
-      const fileResponse = await Promise.all(attachments.map(
-        (file: File) => uploadB2BFile({
-          file,
-          type: 'companyAttachedFile',
-        }),
-      ))
+      const fileResponse = await Promise.all(
+        attachments.map((file: File) =>
+          uploadB2BFile({
+            file,
+            type: 'companyAttachedFile',
+          })
+        )
+      )
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
         if (res.code === 200) {
@@ -306,7 +301,11 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           newData.fileSize = newData.fileSize ? `${newData.fileSize}` : ''
           fileList = [...fileList, newData]
         } else {
-          throw res.data.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure')
+          throw (
+            res.data.errMsg ||
+            res.message ||
+            b3Lang('intl.global.fileUpload.fileUploadFailure')
+          )
         }
         return fileList
       }, [])
@@ -319,20 +318,24 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   }
 
   const saveRegisterPassword = (data: CustomFieldItems) => {
-    const newPasswordInformation = passwordInformation.map((field: RegisterFields) => {
-      if (accountType === '1') {
-        field.default = data[field.name] || field.default
+    const newPasswordInformation = passwordInformation.map(
+      (field: RegisterFields) => {
+        if (accountType === '1') {
+          field.default = data[field.name] || field.default
+        }
+        return field
       }
-      return field
-    })
+    )
 
-    const newBcPasswordInformation = bcPasswordInformation.map((field: RegisterFields) => {
-      if (accountType === '2') {
-        field.default = data[field.name] || field.default
+    const newBcPasswordInformation = bcPasswordInformation.map(
+      (field: RegisterFields) => {
+        if (accountType === '2') {
+          field.default = data[field.name] || field.default
+        }
+
+        return field
       }
-
-      return field
-    })
+    )
 
     dispatch({
       type: 'all',
@@ -347,20 +350,18 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     // if (captchaMessage !== 'success') return
     handleSubmit(async (completeData: CustomFieldItems) => {
       if (completeData.password !== completeData.confirmPassword) {
-        setError(
-          'confirmPassword',
-          {
-            type: 'manual',
-            message: b3Lang('intl.user.register.RegisterComplete.passwordMatchPrompt'),
-          },
-        )
-        setError(
-          'password',
-          {
-            type: 'manual',
-            message: b3Lang('intl.user.register.RegisterComplete.passwordMatchPrompt'),
-          },
-        )
+        setError('confirmPassword', {
+          type: 'manual',
+          message: b3Lang(
+            'intl.user.register.RegisterComplete.passwordMatchPrompt'
+          ),
+        })
+        setError('password', {
+          type: 'manual',
+          message: b3Lang(
+            'intl.user.register.RegisterComplete.passwordMatchPrompt'
+          ),
+        })
         return
       }
       try {
@@ -375,15 +376,20 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         if (accountType === '2') {
           await getBCFieldsValue(completeData)
         } else {
-          const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files')
+          const attachmentsList = companyInformation.filter(
+            (list) => list.fieldType === 'files'
+          )
           const fileList = await getFileUrl(attachmentsList || [])
           const res = await getBCFieldsValue(completeData)
-          const {
-            data,
-          } = res
-          const accountInfo = await getB2BFieldsValue(completeData, (data as any)[0].id, fileList)
+          const { data } = res
+          const accountInfo = await getB2BFieldsValue(
+            completeData,
+            (data as any)[0].id,
+            fileList
+          )
 
-          const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || ''
+          const companyStatus =
+            accountInfo?.companyCreate?.company?.companyStatus || ''
           isAuto = +companyStatus === 1
         }
         dispatch({
@@ -424,28 +430,20 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         mt: 2,
       }}
     >
-      {
-        errorMessage && (
-        <Alert
-          severity="error"
-        >
-          <TipContent>
-            {errorMessage}
-          </TipContent>
+      {errorMessage && (
+        <Alert severity="error">
+          <TipContent>{errorMessage}</TipContent>
         </Alert>
-        )
-      }
+      )}
       <Box>
-        <InformationFourLabels>{ passwordName }</InformationFourLabels>
-        {
-          personalInfo && (
+        <InformationFourLabels>{passwordName}</InformationFourLabels>
+        {personalInfo && (
           <B3CustomForm
             formFields={personalInfo}
             errors={errors}
             control={control}
           />
-          )
-        }
+        )}
       </Box>
 
       {/* <Box

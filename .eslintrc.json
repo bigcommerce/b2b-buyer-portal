@@ -1,0 +1,14 @@
+{
+  "root": true,
+  "extends": ["b2b"],
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "project": ["packages/*/tsconfig.json", "apps/*/tsconfig.json"]
+      }
+    }
+  },
+  "parserOptions": {
+    "project": ["packages/*/tsconfig.json", "apps/*/tsconfig.json"]
+  }
+}

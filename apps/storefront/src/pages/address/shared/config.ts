@@ -1,19 +1,16 @@
-import {
-  AddressItemType,
-  BCAddressItemType,
-} from '../../../types/address'
+import { AddressItemType, BCAddressItemType } from '../../../types/address'
 
-export interface b2bShippingBillingChildProps {
-  name: string;
-  label: string;
-  default: string;
-  parent: string;
+export interface B2bShippingBillingChildProps {
+  name: string
+  label: string
+  default: string
+  parent: string
 }
-export interface b2bShippingBillingProps {
-  name: string;
-  label: string;
-  default: string;
-  child: b2bShippingBillingChildProps
+export interface B2bShippingBillingProps {
+  name: string
+  label: string
+  default: string
+  child: B2bShippingBillingChildProps
 }
 
 export const filterFormConfig = [
@@ -196,7 +193,9 @@ export const b2bAddressFields = [
   },
 ]
 
-export const convertBCToB2BAddress : (data: BCAddressItemType) => AddressItemType = (data) => {
+export const convertBCToB2BAddress: (
+  data: BCAddressItemType
+) => AddressItemType = (data) => {
   const extraFields = (data.formFields || []).map((item) => ({
     fieldName: item.name,
     fieldValue: item.value,

@@ -1,1 +1,2 @@
-export const en = {}
+const en = {}
+export default en

@@ -1,12 +1,9 @@
-import {
-  useEffect, useRef,
-} from 'react'
-import {
-  useSelector,
-} from 'react-redux'
-import {
-  themeFrameSelector,
-} from '@/store'
+import { useEffect, useRef } from 'react'
+import { useSelector } from 'react-redux'
+
+import { themeFrameSelector } from '@/store'
+
+// eslint-disable-next-line
 import FRAME_HANDLER_CODE from './frameCaptchaCode.js?raw'
 
 const CAPTCHA_URL = 'https://www.google.com/recaptcha/api.js?render=explicit'
@@ -19,23 +16,28 @@ const CAPTCHA_VARIABLES: Record<string, string> = {
 }
 
 export interface CaptchaProps {
-  siteKey: string;
-  size?: 'compact' | 'normal';
-  theme?: 'dark' | 'light';
-  onSuccess?: () => void;
-  onError?: () => void;
-  onExpired?: () => void;
+  siteKey: string
+  size?: 'compact' | 'normal'
+  theme?: 'dark' | 'light'
+  onSuccess?: () => void
+  onError?: () => void
+  onExpired?: () => void
 }
 
 export function loadCaptchaScript(iframeDocument: Document) {
-  if (iframeDocument.head.querySelector(`script[src="${CAPTCHA_URL}"]`) === null) {
+  if (
+    iframeDocument.head.querySelector(`script[src="${CAPTCHA_URL}"]`) === null
+  ) {
     const captchaScript = iframeDocument.createElement('script')
     captchaScript.src = CAPTCHA_URL
     iframeDocument.head.appendChild(captchaScript)
   }
 }
 
-export function loadCaptchaWidgetHandlers(iframeDocument: Document, widgetId: string) {
+export function loadCaptchaWidgetHandlers(
+  iframeDocument: Document,
+  widgetId: string
+) {
   let code = FRAME_HANDLER_CODE
 
   CAPTCHA_VARIABLES.PREFIX = widgetId
@@ -44,7 +46,7 @@ export function loadCaptchaWidgetHandlers(iframeDocument: Document, widgetId: st
     const variableName = variableNames[i]
     code = code.replace(
       RegExp(variableName, 'g'),
-      CAPTCHA_VARIABLES[variableName],
+      CAPTCHA_VARIABLES[variableName]
     )
   }
 
@@ -57,16 +59,14 @@ export function generateWidgetId() {
   return `widget_${Date.now()}`
 }
 export function Captcha(props: CaptchaProps) {
-  const {
-    siteKey, theme, size, onSuccess, onError, onExpired,
-  } = props
+  const { siteKey, theme, size, onSuccess, onError, onExpired } = props
   const iframeDocument = useSelector(themeFrameSelector)
-  const _widgetId = generateWidgetId()
-  const _initialized = useRef(false)
+  const widgetId = generateWidgetId()
+  const initialized = useRef(false)
 
   const onMessage = (event: MessageEvent) => {
-    if (event?.data?.startsWith(_widgetId)) {
-      const message = event.data.slice(_widgetId.length)
+    if (event?.data?.startsWith(widgetId)) {
+      const message = event.data.slice(widgetId.length)
       const data = JSON.parse(message)
       switch (data.type) {
         case CAPTCHA_VARIABLES.CAPTCHA_SUCCESS:
@@ -88,18 +88,19 @@ export function Captcha(props: CaptchaProps) {
   }
 
   useEffect(() => {
-    if (iframeDocument === undefined || _initialized.current) {
+    if (iframeDocument === undefined || initialized.current) {
       return
     }
 
     loadCaptchaScript(iframeDocument)
-    loadCaptchaWidgetHandlers(iframeDocument, _widgetId)
+    loadCaptchaWidgetHandlers(iframeDocument, widgetId)
     window.addEventListener('message', onMessage, false)
 
-    _initialized.current = true
+    initialized.current = true
 
+    // eslint-disable-next-line
     return () => {
-      if (_initialized.current) {
+      if (initialized.current) {
         window.removeEventListener('message', onMessage)
       }
     }
@@ -107,7 +108,7 @@ export function Captcha(props: CaptchaProps) {
 
   return (
     <div
-      id={_widgetId}
+      id={widgetId}
       data-sitekey={siteKey}
       data-theme={theme}
       data-size={size}

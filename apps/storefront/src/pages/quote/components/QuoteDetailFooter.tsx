@@ -1,46 +1,29 @@
-import {
-  Box,
-} from '@mui/material'
+import { Box } from '@mui/material'
 
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  b2bQuoteCheckout,
-  bcQuoteCheckout,
-} from '@/shared/service/b2b'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  CustomButton,
-} from '@/components'
+import { CustomButton } from '@/components'
+import { useMobile } from '@/hooks'
+import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
 interface QuoteDetailFooterProps {
-  quoteId: string,
-  role: string | number,
-  isAgenting: boolean,
-  status: number,
+  quoteId: string
+  role: string | number
+  isAgenting: boolean
+  status: number
 }
 
-const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
-  const {
-    quoteId,
-    role,
-    isAgenting,
-    status,
-  } = props
+function QuoteDetailFooter(props: QuoteDetailFooterProps) {
+  const { quoteId, role, isAgenting, status } = props
   const [isMobile] = useMobile()
 
-  const containerStyle = isMobile ? {
-    alignItems: 'flex-end',
-    flexDirection: 'column',
-  } : {
-    alignItems: 'center',
-  }
+  const containerStyle = isMobile
+    ? {
+        alignItems: 'flex-end',
+        flexDirection: 'column',
+      }
+    : {
+        alignItems: 'center',
+      }
 
   const handleQuoteCheckout = async () => {
     try {
@@ -52,9 +35,7 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
 
       const {
         quoteCheckout: {
-          quoteCheckout: {
-            checkoutUrl,
-          },
+          quoteCheckout: { checkoutUrl },
         },
       } = res
 
@@ -64,42 +45,36 @@ const QuoteDetailFooter = (props: QuoteDetailFooterProps) => {
     }
   }
 
-  return (
-    <>
-      {
-        (status !== 5) && (
-          <Box
-            sx={{
-              position: 'fixed',
-              bottom: isMobile && isAgenting ? '52px' : 0,
-              left: 0,
-              backgroundColor: '#fff',
-              width: '100%',
-              padding: '0.8rem 1rem',
-              height: 'auto',
-              display: 'flex',
-              zIndex: '999',
-              justifyContent: isMobile ? 'center' : 'flex-end',
-              displayPrint: 'none',
-              ...containerStyle,
-            }}
-          >
-            <CustomButton
-              variant="contained"
-              onClick={() => {
-                handleQuoteCheckout()
-              }}
-              sx={{
-                width: isMobile ? '100%' : 'auto',
-              }}
-            >
-              Proceed to checkout
-            </CustomButton>
-          </Box>
-        )
-      }
-    </>
-  )
+  return status !== 5 ? (
+    <Box
+      sx={{
+        position: 'fixed',
+        bottom: isMobile && isAgenting ? '52px' : 0,
+        left: 0,
+        backgroundColor: '#fff',
+        width: '100%',
+        padding: '0.8rem 1rem',
+        height: 'auto',
+        display: 'flex',
+        zIndex: '999',
+        justifyContent: isMobile ? 'center' : 'flex-end',
+        displayPrint: 'none',
+        ...containerStyle,
+      }}
+    >
+      <CustomButton
+        variant="contained"
+        onClick={() => {
+          handleQuoteCheckout()
+        }}
+        sx={{
+          width: isMobile ? '100%' : 'auto',
+        }}
+      >
+        Proceed to checkout
+      </CustomButton>
+    </Box>
+  ) : null
 }
 
 export default QuoteDetailFooter

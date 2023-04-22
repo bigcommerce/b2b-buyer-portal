@@ -5,9 +5,7 @@
       "outputs": ["dist/**"]
     },
     "lint": {
-      "cache": false,
-      "parallel": true,
-      "continue": false
+      "parallel": true
     },
     "dev": {
       "cache": false

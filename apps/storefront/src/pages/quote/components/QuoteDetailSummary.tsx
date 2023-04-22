@@ -1,41 +1,30 @@
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-} from '@mui/material'
+import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
 interface Summary {
-  originalSubtotal: string | number,
-  discount: string | number,
-  tax: string | number,
-  shipping: string | number,
-  grandTotal: string | number,
+  originalSubtotal: string | number
+  discount: string | number
+  tax: string | number
+  shipping: string | number
+  grandTotal: string | number
 }
 
 interface Currency {
-  token: string,
+  token: string
 }
 
 interface QuoteDetailSummaryProps {
-  quoteSummary: Summary,
+  quoteSummary: Summary
   currency: Currency
 }
 
-export const QuoteDetailSummary = (props: QuoteDetailSummaryProps) => {
+export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
   const {
-    quoteSummary: {
-      originalSubtotal,
-      discount,
-      tax,
-      shipping,
-      grandTotal,
-    },
+    quoteSummary: { originalSubtotal, discount, tax, shipping, grandTotal },
     currency,
   } = props
 
-  const priceFormat = (price: number) => `${currency?.token || '$'} ${price.toFixed(2)}`
+  const priceFormat = (price: number) =>
+    `${currency?.token || '$'} ${price.toFixed(2)}`
   const quotedSubtotal = +originalSubtotal - +discount
 
   return (
@@ -43,10 +32,11 @@ export const QuoteDetailSummary = (props: QuoteDetailSummaryProps) => {
       <CardContent>
         <Box>
           <Typography variant="h5">Quote summary</Typography>
-          <Box sx={{
-            marginTop: '20px',
-            color: '#212121',
-          }}
+          <Box
+            sx={{
+              marginTop: '20px',
+              color: '#212121',
+            }}
           >
             <Grid
               container
@@ -122,17 +112,19 @@ export const QuoteDetailSummary = (props: QuoteDetailSummaryProps) => {
                 margin: '24px 0 0',
               }}
             >
-              <Typography sx={{
-                fontWeight: 'bold',
-                color: '#212121',
-              }}
+              <Typography
+                sx={{
+                  fontWeight: 'bold',
+                  color: '#212121',
+                }}
               >
                 Grand total
               </Typography>
-              <Typography sx={{
-                fontWeight: 'bold',
-                color: '#212121',
-              }}
+              <Typography
+                sx={{
+                  fontWeight: 'bold',
+                  color: '#212121',
+                }}
               >
                 {priceFormat(+grandTotal + +tax)}
               </Typography>

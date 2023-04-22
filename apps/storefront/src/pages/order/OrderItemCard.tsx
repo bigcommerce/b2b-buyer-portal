@@ -1,47 +1,28 @@
-import {
-  useContext,
-} from 'react'
-
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import styled from '@emotion/styled'
+import { useTheme } from '@mui/material'
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import { format } from 'date-fns'
 
-import styled from '@emotion/styled'
+import { GlobaledContext } from '@/shared/global'
 
-import {
-  useTheme,
-} from '@mui/material'
-
-import {
-  useNavigate,
-} from 'react-router-dom'
-
-import {
-  format,
-} from 'date-fns'
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  OrderStatus,
-} from './components/OrderStatus'
-
-import {
-  currencySymbol,
-} from './config'
+import OrderStatus from './components/OrderStatus'
+import { currencySymbol } from './config'
 
 interface ListItem {
   [key: string]: string
 }
 
 export interface OrderItemCardProps {
-  allTotal: number,
-  filterData: any,
-  index?: number,
-  item: ListItem,
-  isCompanyOrder: boolean,
+  allTotal: number
+  filterData: any
+  index?: number
+  item: ListItem
+  isCompanyOrder: boolean
 }
 
 const Flex = styled('div')(() => ({
@@ -52,22 +33,13 @@ const Flex = styled('div')(() => ({
   },
 }))
 
-export const OrderItemCard = (props: OrderItemCardProps) => {
-  const {
-    item,
-    allTotal,
-    filterData,
-    index = 0,
-    isCompanyOrder,
-  } = props
+export function OrderItemCard(props: OrderItemCardProps) {
+  const { item, allTotal, filterData, index = 0, isCompanyOrder } = props
 
   const theme = useTheme()
 
   const {
-    state: {
-      customer,
-      isB2BUser,
-    },
+    state: { customer, isB2BUser },
   } = useContext(GlobaledContext)
 
   const navigate = useNavigate()
@@ -91,9 +63,7 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
   }
 
   return (
-    <Card
-      key={item.orderId}
-    >
+    <Card key={item.orderId}>
       <CardContent
         sx={{
           color: 'rgba(0, 0, 0, 0.6)',
@@ -127,7 +97,6 @@ export const OrderItemCard = (props: OrderItemCardProps) => {
           <Box>
             <OrderStatus code={item.status} />
           </Box>
-
         </Flex>
 
         <Typography

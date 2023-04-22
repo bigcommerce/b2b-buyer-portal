@@ -1,42 +1,26 @@
+import { useContext, useEffect } from 'react'
 import {
-  useEffect,
-  useContext,
-} from 'react'
-
-import {
-  useWatch,
   Control,
   FieldValues,
   UseFormGetValues,
   UseFormSetValue,
+  useWatch,
 } from 'react-hook-form'
-import {
-  getB2BCountries,
-} from '@/shared/service/b2b'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  State,
-  Country,
-} from '@/shared/global/context/config'
+import { GlobaledContext } from '@/shared/global'
+import { Country, State } from '@/shared/global/context/config'
+import { getB2BCountries } from '@/shared/service/b2b'
 
 const useSetCountry = () => {
   const {
-    state: {
-      countriesList,
-    },
+    state: { countriesList },
     dispatch,
   } = useContext(GlobaledContext)
 
   useEffect(() => {
     const init = async () => {
       if (countriesList && !countriesList.length) {
-        const {
-          countries,
-        } = await getB2BCountries()
+        const { countries } = await getB2BCountries()
 
         dispatch({
           type: 'common',
@@ -51,23 +35,23 @@ const useSetCountry = () => {
 }
 
 interface FormFieldsProps extends Record<string, any> {
-  name: string,
-  label?: string,
-  required?: Boolean,
-  fieldType?: string,
-  default?: string | Array<any> | number,
-  xs: number,
-  variant: string,
-  size: string,
-  options?: any[],
+  name: string
+  label?: string
+  required?: boolean
+  fieldType?: string
+  default?: string | Array<any> | number
+  xs: number
+  variant: string
+  size: string
+  options?: any[]
 }
 
 interface GetCountryProps {
-  setAddress: (arr: FormFieldsProps[]) => void,
-  setValue: UseFormSetValue<FieldValues>,
-  getValues: UseFormGetValues<FieldValues>,
-  addresses: FormFieldsProps[],
-  control: Control,
+  setAddress: (arr: FormFieldsProps[]) => void
+  setValue: UseFormSetValue<FieldValues>
+  getValues: UseFormGetValues<FieldValues>
+  addresses: FormFieldsProps[]
+  control: Control
 }
 
 const useGetCountry = ({
@@ -78,9 +62,7 @@ const useGetCountry = ({
   addresses,
 }: GetCountryProps) => {
   const {
-    state: {
-      countriesList,
-    },
+    state: { countriesList },
   } = useContext(GlobaledContext)
 
   const country = useWatch({
@@ -90,8 +72,13 @@ const useGetCountry = ({
 
   const handleCountryChange = (countryCode: string) => {
     if (countriesList && countriesList.length && countryCode) {
-      const stateList = countriesList.find((country: Country) => country.countryCode === countryCode)?.states || []
-      const stateFields = addresses.find((formFields: FormFieldsProps) => formFields.name === 'state')
+      const stateList =
+        countriesList.find(
+          (country: Country) => country.countryCode === countryCode
+        )?.states || []
+      const stateFields = addresses.find(
+        (formFields: FormFieldsProps) => formFields.name === 'state'
+      )
       if (stateFields) {
         if (stateList.length > 0) {
           stateFields.fieldType = 'dropdown'
@@ -104,15 +91,29 @@ const useGetCountry = ({
 
       const stateVal = getValues('state')
 
-      setValue('state', stateVal && countryCode && (stateList.find((state: State) => state.stateName === stateVal) || stateList.length === 0) ? stateVal : '')
+      setValue(
+        'state',
+        stateVal &&
+          countryCode &&
+          (stateList.find((state: State) => state.stateName === stateVal) ||
+            stateList.length === 0)
+          ? stateVal
+          : ''
+      )
 
       setAddress([...addresses])
     }
   }
 
   useEffect(() => {
-    const countryFields = addresses.find((formFields: FormFieldsProps) => formFields.name === 'country')
-    if (countriesList?.length && countryFields && !countryFields?.options?.length) {
+    const countryFields = addresses.find(
+      (formFields: FormFieldsProps) => formFields.name === 'country'
+    )
+    if (
+      countriesList?.length &&
+      countryFields &&
+      !countryFields?.options?.length
+    ) {
       countryFields.options = countriesList
       setAddress([...addresses])
     }
@@ -125,7 +126,4 @@ const useGetCountry = ({
   }, [country])
 }
 
-export {
-  useSetCountry,
-  useGetCountry,
-}
+export { useGetCountry, useSetCountry }

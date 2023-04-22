@@ -4,14 +4,12 @@ import {
 } from '@/shared/service/b2b'
 
 import {
-  getAccountFormFields,
   AccountFormFieldsItems,
+  getAccountFormFields,
   RegisterFieldsItems,
 } from '../../registered/config'
 
-import {
-  b2bAddressFields,
-} from './config'
+import { b2bAddressFields } from './config'
 
 // const addressExtraFieldsType = ['text', 'multiline', 'number', 'dropdown']
 
@@ -27,10 +25,10 @@ export interface CountryProps {
   states: StateProps[]
 }
 interface B2bExtraFieldsProps {
-  defaultValue: string,
-  fieldName: string,
-  fieldType: string | number,
-  isRequired: boolean,
+  defaultValue: string
+  fieldName: string
+  fieldType: string | number
+  isRequired: boolean
   labelName: string
   listOfValue: null | Array<string>
   maximumLength: string | number | null
@@ -39,11 +37,11 @@ interface B2bExtraFieldsProps {
   visibleToEnduser: boolean
 }
 
-interface ExtraFieldsProp extends RegisterFieldsItems{
-  type: string,
-  variant: string,
-  visible: boolean,
-  xs: number,
+interface ExtraFieldsProp extends RegisterFieldsItems {
+  type: string
+  variant: string
+  visible: boolean
+  xs: number
 }
 
 // interface B2bExtraFields {
@@ -76,9 +74,13 @@ interface ExtraFieldsProp extends RegisterFieldsItems{
 //   }
 // }
 
-const convertExtraFields = (extraFields: B2bExtraFieldsProps[]): []| ExtraFieldsProp[] => {
+const convertExtraFields = (
+  extraFields: B2bExtraFieldsProps[]
+): [] | ExtraFieldsProp[] => {
   if (extraFields.length === 0) return []
-  const visibleFields = extraFields.filter((field: B2bExtraFieldsProps) => field.visibleToEnduser)
+  const visibleFields = extraFields.filter(
+    (field: B2bExtraFieldsProps) => field.visibleToEnduser
+  )
 
   const b2bExtraFields = visibleFields.map((field: B2bExtraFieldsProps) => {
     const fields = {
@@ -103,11 +105,11 @@ const convertExtraFields = (extraFields: B2bExtraFieldsProps[]): []| ExtraFields
 
 const getBcAddressFields = async () => {
   try {
-    const {
-      accountFormFields,
-    } = await getB2BAccountFormFields(1)
+    const { accountFormFields } = await getB2BAccountFormFields(1)
 
-    const addressFields = accountFormFields.filter((field: AccountFormFieldsItems) => field.groupName === 'Address')
+    const addressFields = accountFormFields.filter(
+      (field: AccountFormFieldsItems) => field.groupName === 'Address'
+    )
 
     const bcAddressFields = getAccountFormFields(addressFields).address
 
@@ -115,6 +117,7 @@ const getBcAddressFields = async () => {
   } catch (e) {
     console.log(e)
   }
+  return undefined
 }
 
 const getB2BAddressFields = async () => {
@@ -129,7 +132,10 @@ const getB2BAddressFields = async () => {
   return []
 }
 
-export const getAddressFields = async (isB2BUser: boolean, countries: CountryProps) => {
+export const getAddressFields = async (
+  isB2BUser: boolean,
+  countries: CountryProps
+) => {
   let allAddressFields: CustomFieldItems[] = []
 
   try {

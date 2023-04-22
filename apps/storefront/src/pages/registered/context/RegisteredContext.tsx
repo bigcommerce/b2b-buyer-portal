@@ -1,47 +1,37 @@
-import {
-  useReducer,
-  createContext,
-  Dispatch,
-  ReactNode,
-  useMemo,
-} from 'react'
+import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react'
 
-import {
-  RegisterFields,
-  Country,
-  State,
-} from '../config'
+import { Country, RegisterFields, State } from '../config'
 
 interface RegisterState {
-  contactInformation?: Array<RegisterFields>,
-  accountType?: string,
-  additionalInformation?: Array<RegisterFields>,
-  bcAdditionalInformation?: Array<RegisterFields>,
-  bcContactInformation?: Array<RegisterFields>,
-  emailMarketingNewsletter?: Boolean,
-  companyInformation?: Array<RegisterFields>,
-  bcCompanyInformation?: Array<RegisterFields>,
+  contactInformation?: Array<RegisterFields>
+  accountType?: string
+  additionalInformation?: Array<RegisterFields>
+  bcAdditionalInformation?: Array<RegisterFields>
+  bcContactInformation?: Array<RegisterFields>
+  emailMarketingNewsletter?: boolean
+  companyInformation?: Array<RegisterFields>
+  bcCompanyInformation?: Array<RegisterFields>
   companyExtraFields?: Array<RegisterFields>
-  companyAttachment?: Array<RegisterFields>,
-  addressBasicFields?: Array<RegisterFields>,
-  bcAddressBasicFields?: Array<RegisterFields>,
-  addressExtraFields?: Array<RegisterFields>,
-  countryList?: Array<Country>,
-  stateList?: Array<State>,
-  passwordInformation?: Array<RegisterFields>,
-  bcPasswordInformation?: Array<RegisterFields>,
-  isLoading?: Boolean,
-  submitSuccess?: Boolean,
-  isAutoApproval?: Boolean,
-  storeName?: string,
+  companyAttachment?: Array<RegisterFields>
+  addressBasicFields?: Array<RegisterFields>
+  bcAddressBasicFields?: Array<RegisterFields>
+  addressExtraFields?: Array<RegisterFields>
+  countryList?: Array<Country>
+  stateList?: Array<State>
+  passwordInformation?: Array<RegisterFields>
+  bcPasswordInformation?: Array<RegisterFields>
+  isLoading?: boolean
+  submitSuccess?: boolean
+  isAutoApproval?: boolean
+  storeName?: string
 }
 interface RegisterAction {
-  type: string,
+  type: string
   payload: RegisterState
 }
 export interface RegisterContext {
-  state: RegisterState,
-  dispatch: Dispatch<RegisterAction>,
+  state: RegisterState
+  dispatch: Dispatch<RegisterAction>
 }
 
 interface RegisteredProviderProps {
@@ -122,17 +112,17 @@ const reducer = (state: RegisterState, action: RegisterAction) => {
 }
 
 export function RegisteredProvider(props: RegisteredProviderProps) {
-  const [state,
-    dispatch] = useReducer(reducer, initState)
+  const [state, dispatch] = useReducer(reducer, initState)
 
-  const {
-    children,
-  } = props
+  const { children } = props
 
-  const registerValue = useMemo(() => ({
-    state,
-    dispatch,
-  }), [state])
+  const registerValue = useMemo(
+    () => ({
+      state,
+      dispatch,
+    }),
+    [state]
+  )
 
   return (
     <RegisteredContext.Provider value={registerValue}>

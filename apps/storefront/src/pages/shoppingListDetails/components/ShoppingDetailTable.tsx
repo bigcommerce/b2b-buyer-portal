@@ -1,132 +1,97 @@
 import {
-  useState,
-  ReactElement,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-  Ref,
   Dispatch,
+  forwardRef,
+  ReactElement,
+  Ref,
   SetStateAction,
   useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
 } from 'react'
+import { Delete, Edit } from '@mui/icons-material'
+import { Box, Grid, styled, TextField, Typography } from '@mui/material'
+import { cloneDeep } from 'lodash'
 
-import {
-  cloneDeep,
-} from 'lodash'
-
-import {
-  Box,
-  styled,
-  Typography,
-  TextField,
-  Grid,
-} from '@mui/material'
-
-import {
-  Delete,
-  Edit,
-} from '@mui/icons-material'
-
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { TableColumnItem } from '@/components/table/B3Table'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { useMobile } from '@/hooks'
 import {
   updateB2BShoppingListsItem,
   updateBcShoppingListsItem,
 } from '@/shared/service/b2b'
-
-import {
-  snackbar,
-  getProductPriceIncTax,
-} from '@/utils'
-
-import {
-  TableColumnItem,
-} from '@/components/table/B3Table'
-
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
-
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
-import {
-  useMobile,
-} from '@/hooks'
+import { getProductPriceIncTax, snackbar } from '@/utils'
+import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
 
-import {
-  ChooseOptionsDialog,
-} from './ChooseOptionsDialog'
-
+import ChooseOptionsDialog from './ChooseOptionsDialog'
 import ShoppingDetailCard from './ShoppingDetailCard'
-
-import {
-  getProductOptionsFields,
-} from '../../../utils/b3Product/shared/config'
 
 interface ListItem {
   [key: string]: string
 }
 
 interface ProductInfoProps {
-  basePrice: number | string,
-  baseSku: string,
-  createdAt: number,
-  discount: number | string,
-  enteredInclusive: boolean,
-  id: number | string,
-  itemId: number,
-  optionList: string,
-  primaryImage: string,
-  productId: number,
-  productName: string,
-  productUrl: string,
-  quantity: number | string,
-  tax: number | string,
-  updatedAt: number,
-  variantId: number,
-  variantSku: string,
-  productsSearch: CustomFieldItems,
+  basePrice: number | string
+  baseSku: string
+  createdAt: number
+  discount: number | string
+  enteredInclusive: boolean
+  id: number | string
+  itemId: number
+  optionList: string
+  primaryImage: string
+  productId: number
+  productName: string
+  productUrl: string
+  quantity: number | string
+  tax: number | string
+  updatedAt: number
+  variantId: number
+  variantSku: string
+  productsSearch: CustomFieldItems
 }
 
 interface ListItemProps {
-  node: ProductInfoProps,
+  node: ProductInfoProps
 }
 
 interface ShoppingDetailTableProps {
-  shoppingListInfo: any,
-  currencyToken: string,
-  isRequestLoading: boolean,
-  setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
-  shoppingListId: number | string,
-  getShoppingListDetails: CustomFieldItems,
-  setCheckedArr: (values: CustomFieldItems) => void,
-  isReadForApprove: boolean,
-  isJuniorApprove: boolean,
-  allowJuniorPlaceOrder: boolean,
-  setDeleteItemId: (itemId: number | string) => void,
-  setDeleteOpen: (open: boolean) => void,
-  isB2BUser: boolean,
+  shoppingListInfo: any
+  currencyToken: string
+  isRequestLoading: boolean
+  setIsRequestLoading: Dispatch<SetStateAction<boolean>>
+  shoppingListId: number | string
+  getShoppingListDetails: CustomFieldItems
+  setCheckedArr: (values: CustomFieldItems) => void
+  isReadForApprove: boolean
+  isJuniorApprove: boolean
+  allowJuniorPlaceOrder: boolean
+  setDeleteItemId: (itemId: number | string) => void
+  setDeleteOpen: (open: boolean) => void
+  isB2BUser: boolean
 }
 
 interface SearchProps {
-  search: string,
-  first?: number,
-  offset?: number,
+  search: string
+  first?: number
+  offset?: number
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
-  getList: () => void,
-  setList: (items?: ListItemProps[]) => void,
-  getSelectedValue: () => void,
+  getList: () => void
+  setList: (items?: ListItemProps[]) => void
+  getSelectedValue: () => void
 }
 
 const StyledShoppingListTableContainer = styled('div')(() => ({
   backgroundColor: '#FFFFFF',
   padding: '0.5rem 1rem',
   borderRadius: '4px',
-  boxShadow: '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
+  boxShadow:
+    '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
 
   '& tbody': {
     '& tr': {
@@ -158,7 +123,10 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }))
 
-const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
+function ShoppingDetailTable(
+  props: ShoppingDetailTableProps,
+  ref: Ref<unknown>
+) {
   const [isMobile] = useMobile()
 
   const {
@@ -181,20 +149,24 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false)
   const [optionsProduct, setOptionsProduct] = useState<any>(null)
-  const [editProductItemId, setEditProductItemId] = useState<number | string | null>(null)
+  const [editProductItemId, setEditProductItemId] = useState<
+    number | string | null
+  >(null)
   const [search, setSearch] = useState<SearchProps>({
     search: '',
   })
   const [qtyNotChangeFlag, setQtyNotChangeFlag] = useState<boolean>(true)
   const [originProducts, setOriginProducts] = useState<ListItemProps[]>([])
-  const [shoppingListTotalPrice, setShoppingListTotalPrice] = useState<number>(0.00)
+  const [shoppingListTotalPrice, setShoppingListTotalPrice] =
+    useState<number>(0.0)
 
-  const handleUpdateProductQty = (id: number | string, value: number | string) => {
+  const handleUpdateProductQty = (
+    id: number | string,
+    value: number | string
+  ) => {
     if (value !== '' && +value <= 0) return
     const currentItem = originProducts.find((item: ListItemProps) => {
-      const {
-        node,
-      } = item
+      const { node } = item
 
       return node.id === id
     })
@@ -202,11 +174,10 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     const currentQty = currentItem?.node?.quantity || ''
     setQtyNotChangeFlag(+currentQty === +value)
 
-    const listItems: ListItemProps[] = paginationTableRef.current?.getList() || []
+    const listItems: ListItemProps[] =
+      paginationTableRef.current?.getList() || []
     const newListItems = listItems?.map((item: ListItemProps) => {
-      const {
-        node,
-      } = item
+      const { node } = item
       if (node?.id === id) {
         node.quantity = +value || ''
       }
@@ -241,15 +212,23 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
     setSelectedOptionsOpen(false)
   }
 
-  const handleOpenProductEdit = (product: any, variantId: number | string, itemId: number | string) => {
+  const handleOpenProductEdit = (
+    product: any,
+    variantId: number | string,
+    itemId: number | string
+  ) => {
     setEditProductItemId(itemId)
     setOptionsProduct(product)
     setSelectedOptionsOpen(true)
   }
 
-  const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
+  const handleChooseOptionsDialogConfirm = async (
+    products: CustomFieldItems[]
+  ) => {
     setIsRequestLoading(true)
-    const updateShoppingListItem = isB2BUser ? updateB2BShoppingListsItem : updateBcShoppingListsItem
+    const updateShoppingListItem = isB2BUser
+      ? updateB2BShoppingListsItem
+      : updateBcShoppingListsItem
     try {
       const data = {
         itemId: editProductItemId,
@@ -274,11 +253,10 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const handleUpdateShoppingListItem = async (itemId: number | string) => {
     if (qtyNotChangeFlag) return
     setIsRequestLoading(true)
-    const listItems: ListItemProps[] = paginationTableRef.current?.getList() || []
+    const listItems: ListItemProps[] =
+      paginationTableRef.current?.getList() || []
     const currentItem = listItems.find((item: ListItemProps) => {
-      const {
-        node,
-      } = item
+      const { node } = item
 
       return node.itemId === itemId
     })
@@ -290,13 +268,15 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
     const options = JSON.parse(currentNode?.optionList || '[]')
 
-    const optionsList = options.map((option: {
-      option_id: number | string,
-      option_value: number| string,
-    }) => ({
-      optionId: option.option_id,
-      optionValue: option.option_value,
-    }))
+    const optionsList = options.map(
+      (option: {
+        option_id: number | string
+        option_value: number | string
+      }) => ({
+        optionId: option.option_id,
+        optionValue: option.option_value,
+      })
+    )
 
     const itemData = {
       variantId: currentNode?.variantId,
@@ -311,7 +291,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         itemData,
       }
 
-      const updateShoppingListItem = isB2BUser ? updateB2BShoppingListsItem : updateBcShoppingListsItem
+      const updateShoppingListItem = isB2BUser
+        ? updateB2BShoppingListsItem
+        : updateBcShoppingListsItem
 
       await updateShoppingListItem(data)
       snackbar.success('Product quantity updated successfully')
@@ -327,9 +309,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
       const productList = paginationTableRef.current?.getList() || []
       const checkedItems = selectCheckbox.map((item: number | string) => {
         const newItems = productList.find((product: ListItemProps) => {
-          const {
-            node,
-          } = product
+          const { node } = product
 
           return node.id === item
         })
@@ -346,14 +326,12 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
   useEffect(() => {
     if (shoppingListInfo) {
       const {
-        products: {
-          edges,
-        },
+        products: { edges },
         grandTotal,
         totalDiscount,
       } = shoppingListInfo
 
-      const NewShoppingListTotalPrice = +grandTotal + +totalDiscount || 0.00
+      const NewShoppingListTotalPrice = +grandTotal + +totalDiscount || 0.0
 
       setOriginProducts(cloneDeep(edges))
       setShoppingListTotalPrice(NewShoppingListTotalPrice)
@@ -369,10 +347,12 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           ...row.productsSearch,
           selectOptions: row.optionList,
         }
-        const productFields = (getProductOptionsFields(product, {}))
+        const productFields = getProductOptionsFields(product, {})
 
         const optionList = JSON.parse(row.optionList)
-        const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
+        const optionsValue: CustomFieldItems[] = productFields.filter(
+          (item) => item.valueText
+        )
 
         return (
           <Box
@@ -392,9 +372,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                 color="#212121"
                 onClick={() => {
                   const {
-                    location: {
-                      origin,
-                    },
+                    location: { origin },
                   } = window
 
                   window.location.href = `${origin}${row.productUrl}`
@@ -405,33 +383,25 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
               >
                 {row.productName}
               </Typography>
-              <Typography
-                variant="body1"
-                color="#616161"
-              >
+              <Typography variant="body1" color="#616161">
                 {row.variantSku}
               </Typography>
-              {
-                (optionList.length > 0 && optionsValue.length > 0) && (
-                  <Box>
-                    {
-                      optionsValue.map((option: any) => (
-                        <Typography
-                          sx={{
-                            fontSize: '0.75rem',
-                            lineHeight: '1.5',
-                            color: '#455A64',
-                          }}
-                          key={option.valueLabel}
-                        >
-                          {`${option.valueLabel
-                          }: ${option.valueText}`}
-                        </Typography>
-                      ))
-                    }
-                  </Box>
-                )
-              }
+              {optionList.length > 0 && optionsValue.length > 0 && (
+                <Box>
+                  {optionsValue.map((option: any) => (
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        lineHeight: '1.5',
+                        color: '#455A64',
+                      }}
+                      key={option.valueLabel}
+                    >
+                      {`${option.valueLabel}: ${option.valueText}`}
+                    </Typography>
+                  ))}
+                </Box>
+              )}
             </Box>
           </Box>
         )
@@ -443,9 +413,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
       title: 'Price',
       render: (row: CustomFieldItems) => {
         const {
-          productsSearch: {
-            variants = [],
-          },
+          productsSearch: { variants = [] },
           variantId,
         } = row
         let priceIncTax
@@ -484,7 +452,8 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           disabled={isReadForApprove || isJuniorApprove}
           value={row.quantity}
           inputProps={{
-            inputMode: 'numeric', pattern: '[0-9]*',
+            inputMode: 'numeric',
+            pattern: '[0-9]*',
           }}
           onChange={(e) => {
             handleUpdateProductQty(row.id, e.target.value)
@@ -507,10 +476,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
           basePrice,
           quantity,
           itemId,
-          productsSearch: {
-            variants = [],
-            options,
-          },
+          productsSearch: { variants = [], options },
           variantId,
         } = row
 
@@ -549,8 +515,9 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                   minWidth: '32px',
                 }}
               >
-                {
-                  optionList.length > 0 && !isReadForApprove && !isJuniorApprove && (
+                {optionList.length > 0 &&
+                  !isReadForApprove &&
+                  !isJuniorApprove && (
                     <Edit
                       sx={{
                         cursor: 'pointer',
@@ -565,19 +532,21 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                           quantity,
                         } = row
 
-                        handleOpenProductEdit({
-                          ...productsSearch,
-                          selectOptions: optionList,
-                          quantity,
-                        }, variantId, itemId)
+                        handleOpenProductEdit(
+                          {
+                            ...productsSearch,
+                            selectOptions: optionList,
+                            quantity,
+                          },
+                          variantId,
+                          itemId
+                        )
                       }}
                     />
-                  )
-                }
+                  )}
               </Grid>
               <Grid item>
-                {
-                  !isReadForApprove && !isJuniorApprove && (
+                {!isReadForApprove && !isJuniorApprove && (
                   <Delete
                     sx={{
                       cursor: 'pointer',
@@ -588,8 +557,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
                       setDeleteItemId(+itemId)
                     }}
                   />
-                  )
-                }
+                )}
               </Grid>
             </Box>
           </Box>
@@ -624,7 +592,7 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
             fontSize: '24px',
           }}
         >
-          {`${currencyToken}${shoppingListTotalPrice.toFixed(2) || 0.00}`}
+          {`${currencyToken}${shoppingListTotalPrice.toFixed(2) || 0.0}`}
         </Typography>
       </Box>
       <Box
@@ -648,7 +616,11 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         searchParams={search}
         isCustomRender={false}
         showCheckbox
-        disableCheckbox={allowJuniorPlaceOrder ? !allowJuniorPlaceOrder : isReadForApprove || isJuniorApprove}
+        disableCheckbox={
+          allowJuniorPlaceOrder
+            ? !allowJuniorPlaceOrder
+            : isReadForApprove || isJuniorApprove
+        }
         hover
         labelRowsPerPage="Items per page:"
         showBorder={false}
@@ -656,7 +628,11 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         getSelectCheckbox={getSelectCheckbox}
         itemIsMobileSpacing={0}
         noDataText="No products found"
-        renderItem={(row: ProductInfoProps, index?: number, checkBox?: () => ReactElement) => (
+        renderItem={(
+          row: ProductInfoProps,
+          index?: number,
+          checkBox?: () => ReactElement
+        ) => (
           <ShoppingDetailCard
             len={shoppingListInfo?.products?.edges.length || 0}
             item={row}
@@ -684,7 +660,6 @@ const ShoppingDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>)
         isEdit
         isB2BUser={isB2BUser}
       />
-
     </StyledShoppingListTableContainer>
   )
 }

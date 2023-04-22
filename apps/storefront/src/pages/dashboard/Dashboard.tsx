@@ -1,56 +1,22 @@
-import {
-  useEffect,
-  useContext,
-  useState,
-  MouseEvent,
-} from 'react'
-
-import {
-  Box,
-  Menu,
-  MenuItem,
-  IconButton,
-} from '@mui/material'
-import {
-  styled,
-} from '@mui/material/styles'
-
+import { MouseEvent, useContext, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-import {
-  useLocation,
-} from 'react-router-dom'
+import { Box, IconButton, Menu, MenuItem } from '@mui/material'
+import { styled } from '@mui/material/styles'
+
+import { B3Sping, showPageMask } from '@/components'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { TableColumnItem } from '@/components/table/B3Table'
+import { GlobaledContext } from '@/shared/global'
 import {
   getAgentInfo,
-  superAdminCompanies,
   superAdminBeginMasquerade,
+  superAdminCompanies,
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
+import { B3SStorage } from '@/utils'
 
 import B3FilterSearch from '../../components/filter/B3FilterSearch'
-
-import {
-  TableColumnItem,
-} from '@/components/table/B3Table'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  B3SStorage,
-} from '@/utils'
-
-import {
-  showPageMask,
-} from '@/components'
 
 import DashboardCard from './components/DashboardCard'
 
@@ -60,23 +26,21 @@ interface ListItem {
 
 const StyledMenu = styled(Menu)(() => ({
   '& .MuiPaper-elevation': {
-    boxShadow: '0px 1px 0px -1px rgba(0, 0, 0, 0.1), 0px 1px 6px rgba(0, 0, 0, 0.07), 0px 1px 4px rgba(0, 0, 0, 0.06)',
+    boxShadow:
+      '0px 1px 0px -1px rgba(0, 0, 0, 0.1), 0px 1px 6px rgba(0, 0, 0, 0.07), 0px 1px 4px rgba(0, 0, 0, 0.06)',
   },
 }))
 
-const Dashboard = () => {
+function Dashboard() {
   const {
-    state: {
-      customerId,
-      B3UserId,
-      salesRepCompanyId = 0,
-    },
+    state: { customerId, B3UserId, salesRepCompanyId = 0 },
     dispatch,
   } = useContext(GlobaledContext)
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
-  const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] = useState<number>(+salesRepCompanyId)
+  const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] =
+    useState<number>(+salesRepCompanyId)
 
   const [isRequestLoading, setIsRequestLoading] = useState(false)
 
@@ -91,26 +55,21 @@ const Dashboard = () => {
       setIsRequestLoading(true)
       const data: any = await getAgentInfo(customerId)
       if (data?.superAdminMasquerading) {
-        const {
-          id,
-          companyName,
-        } = data.superAdminMasquerading
+        const { id, companyName } = data.superAdminMasquerading
         B3SStorage.set('isAgenting', true)
         B3SStorage.set('salesRepCompanyId', id)
         B3SStorage.set('salesRepCompanyName', companyName)
         // B3SStorage.set('isB2BUser', true)
 
-        dispatch(
-          {
-            type: 'common',
-            payload: {
-              salesRepCompanyId: id,
-              salesRepCompanyName: companyName,
-              isAgenting: true,
-              isB2BUser: true,
-            },
+        dispatch({
+          type: 'common',
+          payload: {
+            salesRepCompanyId: id,
+            salesRepCompanyName: companyName,
+            isAgenting: true,
+            isB2BUser: true,
           },
-        )
+        })
       }
     } finally {
       setIsRequestLoading(false)
@@ -120,10 +79,7 @@ const Dashboard = () => {
 
   const getSuperAdminCompaniesList = async (params: ListItem) => {
     const {
-      superAdminCompanies: {
-        edges = [],
-        totalCount,
-      },
+      superAdminCompanies: { edges = [], totalCount },
     }: any = await superAdminCompanies(+B3UserId, params)
 
     return {
@@ -132,7 +88,10 @@ const Dashboard = () => {
     }
   }
 
-  const handleMoreActionsClick = (event: MouseEvent<HTMLButtonElement>, companyId: number) => {
+  const handleMoreActionsClick = (
+    event: MouseEvent<HTMLButtonElement>,
+    companyId: number
+  ) => {
     setCurrentSalesRepCompanyId(companyId)
     setAnchorEl(event.currentTarget)
   }
@@ -163,16 +122,14 @@ const Dashboard = () => {
       B3SStorage.delete('isAgenting')
       B3SStorage.delete('salesRepCompanyId')
       B3SStorage.delete('salesRepCompanyName')
-      dispatch(
-        {
-          type: 'common',
-          payload: {
-            salesRepCompanyId: '',
-            salesRepCompanyName: '',
-            isAgenting: false,
-          },
+      dispatch({
+        type: 'common',
+        payload: {
+          salesRepCompanyId: '',
+          salesRepCompanyName: '',
+          isAgenting: false,
         },
-      )
+      })
       setFilterData({
         ...filterData,
       })
@@ -210,8 +167,7 @@ const Dashboard = () => {
           }}
         >
           {row.companyName}
-          {
-            row.companyId === +salesRepCompanyId && (
+          {row.companyId === +salesRepCompanyId && (
             <Box
               sx={{
                 fontWeight: 400,
@@ -225,8 +181,7 @@ const Dashboard = () => {
             >
               Selected
             </Box>
-            )
-          }
+          )}
         </Box>
       ),
     },
@@ -242,14 +197,10 @@ const Dashboard = () => {
       key: 'companyName',
       title: 'Action',
       render: (row: CustomFieldItems) => {
-        const {
-          companyId,
-        } = row
+        const { companyId } = row
         return (
           <>
-            <IconButton
-              onClick={(e) => handleMoreActionsClick(e, companyId)}
-            >
+            <IconButton onClick={(e) => handleMoreActionsClick(e, companyId)}>
               <MoreHorizIcon />
             </IconButton>
             <StyledMenu
@@ -277,9 +228,7 @@ const Dashboard = () => {
   ]
 
   return (
-    <B3Sping
-      isSpinning={isRequestLoading}
-    >
+    <B3Sping isSpinning={isRequestLoading}>
       <Box
         sx={{
           display: 'flex',
@@ -287,15 +236,12 @@ const Dashboard = () => {
           flex: 1,
         }}
       >
-
         <Box
           sx={{
             mb: '24px',
           }}
         >
-          <B3FilterSearch
-            handleChange={handleChange}
-          />
+          <B3FilterSearch handleChange={handleChange} />
         </Box>
         <B3PaginationTable
           columnItems={columnItems}

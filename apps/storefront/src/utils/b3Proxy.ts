@@ -1,9 +1,6 @@
-import {
-  B3SStorage,
-  storeHash,
-} from '@/utils'
+import { B3SStorage, storeHash } from '@/utils'
 
-export const getProxyInfo = (url: string, data = {}) => {
+const getProxyInfo = (url: string, data = {}) => {
   const params = {
     storeHash,
     method: 'get',
@@ -17,3 +14,4 @@ export const getProxyInfo = (url: string, data = {}) => {
 
   return params
 }
+export default getProxyInfo

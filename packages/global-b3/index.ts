@@ -1,5 +1,7 @@
 declare global {
-  interface Window { B3: any; }
+  interface Window {
+    B3: any
+  }
 }
 
 const localConfig = () => {

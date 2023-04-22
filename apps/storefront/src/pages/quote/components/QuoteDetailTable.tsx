@@ -1,86 +1,65 @@
-import {
-  useState,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-  Ref,
-} from 'react'
+import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
+import { Box, styled, Typography } from '@mui/material'
 
-import {
-  Box,
-  styled,
-  Typography,
-} from '@mui/material'
-
-import {
-  TableColumnItem,
-} from '@/components/table/B3Table'
-
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { TableColumnItem } from '@/components/table/B3Table'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { getProductPriceIncTax } from '@/utils'
 
 import QuoteDetailTableCard from './QuoteDetailTableCard'
-
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-import {
-  getProductPriceIncTax,
-} from '@/utils'
 
 interface ListItem {
   [key: string]: string
 }
 
 interface ProductInfoProps {
-  basePrice: number | string,
-  baseSku: string,
-  createdAt: number,
-  discount: number | string,
-  enteredInclusive: boolean,
-  id: number | string,
-  itemId: number,
-  optionList: string,
-  primaryImage: string,
-  productId: number,
-  productName: string,
-  productUrl: string,
-  quantity: number | string,
-  tax: number | string,
-  updatedAt: number,
-  variantId: number,
-  variantSku: string,
-  productsSearch: CustomFieldItems,
-  offeredPrice: number | string,
+  basePrice: number | string
+  baseSku: string
+  createdAt: number
+  discount: number | string
+  enteredInclusive: boolean
+  id: number | string
+  itemId: number
+  optionList: string
+  primaryImage: string
+  productId: number
+  productName: string
+  productUrl: string
+  quantity: number | string
+  tax: number | string
+  updatedAt: number
+  variantId: number
+  variantSku: string
+  productsSearch: CustomFieldItems
+  offeredPrice: number | string
 }
 
 interface ListItemProps {
-  node: ProductInfoProps,
+  node: ProductInfoProps
 }
 
 interface ShoppingDetailTableProps {
-  total: number,
-  currencyToken?: string,
-  getQuoteTableDetails: any,
+  total: number
+  currencyToken?: string
+  getQuoteTableDetails: any
 }
 
 interface SearchProps {
-  first?: number,
-  offset?: number,
+  first?: number
+  offset?: number
 }
 
 interface OptionProps {
-  optionId: number,
-  optionLabel: string,
-  optionName: string,
-  optionValue: string | number,
+  optionId: number
+  optionLabel: string
+  optionName: string
+  optionValue: string | number
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
-  getList: () => void,
-  setList: (items?: ListItemProps[]) => void,
-  getSelectedValue: () => void,
+  getList: () => void
+  setList: (items?: ListItemProps[]) => void
+  getSelectedValue: () => void
 }
 
 const StyledQuoteTableContainer = styled('div')(() => ({
@@ -111,12 +90,8 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }))
 
-const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
-  const {
-    total,
-    currencyToken,
-    getQuoteTableDetails,
-  } = props
+function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
+  const { total, currencyToken, getQuoteTableDetails } = props
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
@@ -154,23 +129,17 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
               loading="lazy"
             />
             <Box>
-              <Typography
-                variant="body1"
-                color="#212121"
-              >
+              <Typography variant="body1" color="#212121">
                 {row.productName}
               </Typography>
-              <Typography
-                variant="body1"
-                color="#616161"
-              >
+              <Typography variant="body1" color="#616161">
                 {row.sku}
               </Typography>
-              {
-                optionsValue.length > 0 && (
-                  <Box>
-                    {
-                      optionsValue.map((option: OptionProps) => (option.optionLabel && (
+              {optionsValue.length > 0 && (
+                <Box>
+                  {optionsValue.map(
+                    (option: OptionProps) =>
+                      option.optionLabel && (
                         <Typography
                           sx={{
                             fontSize: '0.75rem',
@@ -179,17 +148,13 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                           }}
                           key={`${option.optionName}_${option.optionLabel}`}
                         >
-                          {`${option.optionName
-                          }: ${option.optionLabel
-                          }`}
+                          {`${option.optionName}: ${option.optionLabel}`}
                         </Typography>
-                      )))
-                    }
-                  </Box>
-                )
-              }
-              {
-                row.notes && (
+                      )
+                  )}
+                </Box>
+              )}
+              {row.notes && (
                 <Typography
                   variant="body1"
                   color="#ED6C02"
@@ -202,9 +167,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
                   <span>Notes: </span>
                   {row.notes}
                 </Typography>
-                )
-              }
-
+              )}
             </Box>
           </Box>
         )
@@ -218,9 +181,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
         const {
           basePrice,
           offeredPrice,
-          productsSearch: {
-            variants,
-          },
+          productsSearch: { variants },
           variantId,
         } = row
         let priceIncTax = +basePrice
@@ -235,18 +196,16 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
 
         return (
           <>
-            {
-              isDiscount && (
-                <Typography
-                  sx={{
-                    padding: '12px 0 0 0',
-                    textDecoration: 'line-through',
-                  }}
-                >
-                  {`${currencyToken}${withTaxPrice.toFixed(2)}`}
-                </Typography>
-              )
-            }
+            {isDiscount && (
+              <Typography
+                sx={{
+                  padding: '12px 0 0 0',
+                  textDecoration: 'line-through',
+                }}
+              >
+                {`${currencyToken}${withTaxPrice.toFixed(2)}`}
+              </Typography>
+            )}
 
             <Typography
               sx={{
@@ -256,7 +215,6 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
             >
               {`${currencyToken}${(+withTaxPrice - +isDiscount).toFixed(2)}`}
             </Typography>
-
           </>
         )
       },
@@ -290,9 +248,7 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
           basePrice,
           quantity,
           offeredPrice,
-          productsSearch: {
-            variants = [],
-          },
+          productsSearch: { variants = [] },
           variantId,
         } = row
 
@@ -311,18 +267,16 @@ const QuoteDetailTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) =>
 
         return (
           <Box>
-            {
-              isDiscount && (
-                <Typography
-                  sx={{
-                    padding: '12px 0 0 0',
-                    textDecoration: 'line-through',
-                  }}
-                >
-                  {`${currencyToken}${total.toFixed(2)}`}
-                </Typography>
-              )
-            }
+            {isDiscount && (
+              <Typography
+                sx={{
+                  padding: '12px 0 0 0',
+                  textDecoration: 'line-through',
+                }}
+              >
+                {`${currencyToken}${total.toFixed(2)}`}
+              </Typography>
+            )}
             <Typography
               sx={{
                 padding: isDiscount ? '0' : '12px 0 0 0',

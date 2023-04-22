@@ -1,7 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
 
 const useMobile = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false)
@@ -31,6 +28,4 @@ const useMobile = () => {
   return [isMobile]
 }
 
-export {
-  useMobile,
-}
+export default useMobile

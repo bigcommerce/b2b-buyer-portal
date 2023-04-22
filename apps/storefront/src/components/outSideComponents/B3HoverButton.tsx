@@ -1,30 +1,15 @@
 import {
   Dispatch,
   SetStateAction,
-  useState,
-  useEffect,
   useContext,
+  useEffect,
+  useState,
 } from 'react'
+import type { OpenPageState } from '@b3/hooks'
+import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material'
 
-import {
-  Box,
-  Button,
-  Snackbar,
-  SnackbarOrigin,
-  SxProps,
-} from '@mui/material'
-
-import type {
-  OpenPageState,
-} from '@b3/hooks'
-
-import {
-  B3LStorage,
-} from '@/utils'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { B3LStorage } from '@/utils'
 
 import {
   getContrastColor,
@@ -33,17 +18,13 @@ import {
 } from './utils/b3CustomStyles'
 
 interface B3HoverButtonProps {
-  isOpen: boolean,
-  productQuoteEnabled: boolean,
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+  isOpen: boolean
+  productQuoteEnabled: boolean
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
-export const B3HoverButton = (props: B3HoverButtonProps) => {
-  const {
-    isOpen,
-    setOpenPage,
-    productQuoteEnabled,
-  } = props
+export default function B3HoverButton(props: B3HoverButtonProps) {
+  const { isOpen, setOpenPage, productQuoteEnabled } = props
 
   const [showFinishQuote, setShowFinishQuote] = useState<boolean>(false)
 
@@ -55,14 +36,10 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
     } else setShowFinishQuote(false)
   }, [isOpen, b2bQuoteDraftList])
 
-  const {
-    href,
-  } = window.location
+  const { href } = window.location
 
   const {
-    state: {
-      floatingAction,
-    },
+    state: { floatingAction },
   } = useContext(CustomStyleContext)
 
   const {
@@ -76,7 +53,8 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
   } = floatingAction
 
   const defaultLocation: SnackbarOrigin = {
-    vertical: 'bottom', horizontal: 'right',
+    vertical: 'bottom',
+    horizontal: 'right',
   }
 
   const defaultSx: SxProps = {
@@ -86,7 +64,7 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
     ...getStyles(customCss),
   }
 
-  if (href.includes('/checkout')) return <></>
+  if (href.includes('/checkout')) return null
   return (
     <Snackbar
       sx={{
@@ -96,7 +74,6 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
       anchorOrigin={getLocation(location) || defaultLocation}
       open
     >
-
       <Box
         sx={{
           display: 'flex',
@@ -104,33 +81,32 @@ export const B3HoverButton = (props: B3HoverButtonProps) => {
           width: 'auto',
         }}
       >
-
-        {
-          enabled && showFinishQuote && !isOpen && productQuoteEnabled && !href.includes('/cart') && (
-          <Button
-            sx={{
-              backgroundColor: '#ED6C02',
-              height: '42px',
-              ...defaultSx,
-            }}
-            onClick={() => {
-              setOpenPage({
-                isOpen: true,
-                openUrl: '/quoteDraft',
-                params: {
-                  quoteBtn: 'open',
-                },
-              })
-            }}
-            variant="contained"
-          >
-            {text || 'Finish quote'}
-          </Button>
-          )
-        }
-
+        {enabled &&
+          showFinishQuote &&
+          !isOpen &&
+          productQuoteEnabled &&
+          !href.includes('/cart') && (
+            <Button
+              sx={{
+                backgroundColor: '#ED6C02',
+                height: '42px',
+                ...defaultSx,
+              }}
+              onClick={() => {
+                setOpenPage({
+                  isOpen: true,
+                  openUrl: '/quoteDraft',
+                  params: {
+                    quoteBtn: 'open',
+                  },
+                })
+              }}
+              variant="contained"
+            >
+              {text || 'Finish quote'}
+            </Button>
+          )}
       </Box>
-
     </Snackbar>
   )
 }

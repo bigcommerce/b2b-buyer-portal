@@ -1,55 +1,33 @@
-import {
-  useContext,
-} from 'react'
+import { useContext } from 'react'
+import { useB3Lang } from '@b3/lang'
+import { Box } from '@mui/material'
 
-import {
-  Box,
-} from '@mui/material'
-
-import {
-  useB3Lang,
-} from '@b3/lang'
-
-import {
-  RegisteredContext,
-} from './context/RegisteredContext'
 import RegisteredStepButton from './component/RegisteredStepButton'
+import { RegisteredContext } from './context/RegisteredContext'
+import { StyleTipContainer } from './styled'
 
-import {
-  StyleTipContainer,
-} from './styled'
-
-export default function RegisteredFinish(props: { activeStep: number; handleFinish: () => void}) {
-  const {
-    activeStep,
-    handleFinish,
-  } = props
-  const {
-    state,
-  } = useContext(RegisteredContext)
+export default function RegisteredFinish(props: {
+  activeStep: number
+  handleFinish: () => void
+}) {
+  const { activeStep, handleFinish } = props
+  const { state } = useContext(RegisteredContext)
   const b3Lang = useB3Lang()
 
-  const {
-    accountType,
-    submitSuccess,
-    isAutoApproval,
-    storeName,
-  } = state
+  const { accountType, submitSuccess, isAutoApproval, storeName } = state
 
   const renderB2BSuccessPage = () => {
     if (accountType === '1') {
-      return (
-        isAutoApproval ? (
-          <StyleTipContainer>
-            {b3Lang('intl.user.register.RegisterFinish.autoApproved.tip', {
-              storeName,
-            })}
-          </StyleTipContainer>
-        ) : (
-          <StyleTipContainer>
-            {b3Lang('intl.user.register.RegisterFinish.notAutoApproved.tip')}
-          </StyleTipContainer>
-        )
+      return isAutoApproval ? (
+        <StyleTipContainer>
+          {b3Lang('intl.user.register.RegisterFinish.autoApproved.tip', {
+            storeName,
+          })}
+        </StyleTipContainer>
+      ) : (
+        <StyleTipContainer>
+          {b3Lang('intl.user.register.RegisterFinish.notAutoApproved.tip')}
+        </StyleTipContainer>
       )
     }
 
@@ -62,6 +40,7 @@ export default function RegisteredFinish(props: { activeStep: number; handleFini
         </StyleTipContainer>
       )
     }
+    return undefined
   }
 
   return (
@@ -72,17 +51,15 @@ export default function RegisteredFinish(props: { activeStep: number; handleFini
         mt: 2,
       }}
     >
-      {
-        submitSuccess && (
-          <>
-            { renderB2BSuccessPage() }
-            <RegisteredStepButton
-              activeStep={activeStep}
-              handleFinish={handleFinish}
-            />
-          </>
-        )
-      }
+      {submitSuccess && (
+        <>
+          {renderB2BSuccessPage()}
+          <RegisteredStepButton
+            activeStep={activeStep}
+            handleFinish={handleFinish}
+          />
+        </>
+      )}
     </Box>
   )
 }

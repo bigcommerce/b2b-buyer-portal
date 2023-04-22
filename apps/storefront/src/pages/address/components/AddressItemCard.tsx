@@ -1,33 +1,19 @@
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-
+import styled from '@emotion/styled'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import { Theme, useTheme } from '@mui/material'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 
-import styled from '@emotion/styled'
+import { B3Tag, CustomButton } from '@/components'
 
-import {
-  useTheme,
-  Theme,
-} from '@mui/material'
-
-import {
-  AddressItemType,
-} from '../../../types/address'
-
-import {
-  B3Tag,
-} from '@/components/B3Tag'
-
-import {
-  CustomButton,
-} from '@/components'
+import { AddressItemType } from '../../../types/address'
 
 export interface OrderItemCardProps {
-  item: AddressItemType,
+  item: AddressItemType
   onEdit: (data: AddressItemType) => void
   onDelete: (data: AddressItemType) => void
   onSetDefault: (data: AddressItemType) => void
@@ -39,9 +25,7 @@ interface TagBoxProps {
   marginBottom: number | string
 }
 
-const TagBox = styled('div')(({
-  marginBottom,
-}: TagBoxProps) => ({
+const TagBox = styled('div')(({ marginBottom }: TagBoxProps) => ({
   marginBottom,
   '& > span:not(:last-child)': {
     marginRight: '4px',
@@ -52,16 +36,14 @@ interface FlexProps {
   theme?: Theme
 }
 
-const Flex = styled('div')(({
-  theme,
-}: FlexProps) => ({
+const Flex = styled('div')(({ theme }: FlexProps) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   marginTop: theme!.spacing(3),
 }))
 
-export const AddressItemCard = (props: OrderItemCardProps) => {
+export function AddressItemCard(props: OrderItemCardProps) {
   const {
     item: addressInfo,
     onEdit,
@@ -74,9 +56,7 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
   const theme = useTheme()
 
   return (
-    <Card
-      key={addressInfo.id}
-    >
+    <Card key={addressInfo.id}>
       <CardContent
         sx={{
           color: '#313440',
@@ -87,7 +67,11 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
           <Typography
             variant="h5"
             sx={{
-              marginBottom: addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1 ? theme.spacing(1) : theme.spacing(3),
+              marginBottom:
+                addressInfo.isDefaultShipping === 1 ||
+                addressInfo.isDefaultBilling === 1
+                  ? theme.spacing(1)
+                  : theme.spacing(3),
               color: 'rgba(0, 0, 0, 0.87)',
             }}
           >
@@ -95,57 +79,54 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
           </Typography>
         )}
 
-        <TagBox marginBottom={addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1 ? theme.spacing(3) : 0}>
-          { addressInfo.isDefaultShipping === 1 && (
-            <B3Tag
-              color="#C4DD6C"
-              textColor="rgba(0, 0, 0, 0.87)"
-            >
+        <TagBox
+          marginBottom={
+            addressInfo.isDefaultShipping === 1 ||
+            addressInfo.isDefaultBilling === 1
+              ? theme.spacing(3)
+              : 0
+          }
+        >
+          {addressInfo.isDefaultShipping === 1 && (
+            <B3Tag color="#C4DD6C" textColor="rgba(0, 0, 0, 0.87)">
               Default shipping
             </B3Tag>
           )}
-          { addressInfo.isDefaultBilling === 1 && (
-            <B3Tag
-              color="#C4DD6C"
-              textColor="rgba(0, 0, 0, 0.87)"
-            >
+          {addressInfo.isDefaultBilling === 1 && (
+            <B3Tag color="#C4DD6C" textColor="rgba(0, 0, 0, 0.87)">
               Default billing
             </B3Tag>
           )}
         </TagBox>
 
-        <Typography variant="body1">
-          {`${addressInfo.firstName} ${addressInfo.lastName}`}
-        </Typography>
+        <Typography variant="body1">{`${addressInfo.firstName} ${addressInfo.lastName}`}</Typography>
         <Typography variant="body1">{addressInfo.company || ''}</Typography>
         <Typography variant="body1">{addressInfo.addressLine1}</Typography>
         <Typography variant="body1">{addressInfo.addressLine2}</Typography>
-        <Typography variant="body1">
-          {`${addressInfo.city}, ${addressInfo.state} ${addressInfo.zipCode}, ${addressInfo.country}`}
-        </Typography>
+        <Typography variant="body1">{`${addressInfo.city}, ${addressInfo.state} ${addressInfo.zipCode}, ${addressInfo.country}`}</Typography>
         <Typography variant="body1">{addressInfo.phoneNumber}</Typography>
 
-        {
-          hasPermission && (
+        {hasPermission && (
           <Flex>
-            {
-              !isBCPermission && (
-                <CustomButton
-                  variant="text"
-                  sx={{
-                    ml: '-8px',
-                  }}
-                  onClick={() => { onSetDefault(addressInfo) }}
-                >
-                  Set as default
-                </CustomButton>
-              )
-            }
-            <Box sx={{
-              flex: 1,
-              display: 'flex',
-              justifyContent: 'flex-end',
-            }}
+            {!isBCPermission && (
+              <CustomButton
+                variant="text"
+                sx={{
+                  ml: '-8px',
+                }}
+                onClick={() => {
+                  onSetDefault(addressInfo)
+                }}
+              >
+                Set as default
+              </CustomButton>
+            )}
+            <Box
+              sx={{
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
             >
               <IconButton
                 aria-label="edit"
@@ -153,21 +134,24 @@ export const AddressItemCard = (props: OrderItemCardProps) => {
                 sx={{
                   marginRight: '8px',
                 }}
-                onClick={() => { onEdit(addressInfo) }}
+                onClick={() => {
+                  onEdit(addressInfo)
+                }}
               >
                 <EditIcon fontSize="inherit" />
               </IconButton>
               <IconButton
                 aria-label="delete"
                 size="small"
-                onClick={() => { onDelete(addressInfo) }}
+                onClick={() => {
+                  onDelete(addressInfo)
+                }}
               >
                 <DeleteIcon fontSize="inherit" />
               </IconButton>
             </Box>
           </Flex>
-          )
-        }
+        )}
       </CardContent>
     </Card>
   )

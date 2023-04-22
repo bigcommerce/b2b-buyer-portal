@@ -1,37 +1,22 @@
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-
+import { useNavigate } from 'react-router-dom'
+import styled from '@emotion/styled'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import { format } from 'date-fns'
 
-import styled from '@emotion/styled'
+import { CustomButton } from '@/components'
 
-import {
-  useNavigate,
-} from 'react-router-dom'
-
-import {
-  format,
-} from 'date-fns'
-
-import {
-  ShoppingListsItemsProps,
-} from './config'
-
-import {
-  ShoppingStatus,
-} from './ShoppingStatus'
-
-import {
-  CustomButton,
-} from '@/components'
+import { ShoppingListsItemsProps } from './config'
+import { ShoppingStatus } from './ShoppingStatus'
 
 export interface OrderItemCardProps {
-  item: ShoppingListsItemsProps,
+  item: ShoppingListsItemsProps
   onEdit: (data: ShoppingListsItemsProps) => void
   onDelete: (data: ShoppingListsItemsProps) => void
   onCopy: (data: ShoppingListsItemsProps) => void
@@ -57,7 +42,7 @@ const FlexItem = styled(Box)(() => ({
   justifyContent: 'start',
 }))
 
-const ShoppingListsCard = (props: OrderItemCardProps) => {
+function ShoppingListsCard(props: OrderItemCardProps) {
   const {
     item: shoppingList,
     onEdit,
@@ -92,11 +77,12 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
 
   const navigate = useNavigate()
 
-  const goToDetail = (shoppingList: ShoppingListsItemsProps) => navigate(`/shoppingList/${shoppingList.id}`, {
-    state: {
-      from: 'shoppingList',
-    },
-  })
+  const goToDetail = (shoppingList: ShoppingListsItemsProps) =>
+    navigate(`/shoppingList/${shoppingList.id}`, {
+      state: {
+        from: 'shoppingList',
+      },
+    })
 
   return (
     <Card
@@ -128,50 +114,37 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
             pb: '20px',
           }}
         >
-          {
-            isB2BUser && +currentSLCreateRole === 2 && (
-              <Box
-                sx={{
-                  pb: '25px',
-                }}
-              >
-                <ShoppingStatus status={shoppingList.status} />
-              </Box>
-            )
-          }
+          {isB2BUser && +currentSLCreateRole === 2 && (
+            <Box
+              sx={{
+                pb: '25px',
+              }}
+            >
+              <ShoppingStatus status={shoppingList.status} />
+            </Box>
+          )}
           <Box
             sx={{
               width: '100%',
               wordBreak: 'break-all',
             }}
           >
-            {
-              shoppingList.description
-            }
+            {shoppingList.description}
           </Box>
 
-          {
-            isB2BUser && (
-              <FlexItem>
-                <FontBold>
-                  Created by:
-                </FontBold>
-                {shoppingList.customerInfo.firstName}
-                {' '}
-                {shoppingList.customerInfo.lastName}
-              </FlexItem>
-            )
-          }
+          {isB2BUser && (
+            <FlexItem>
+              <FontBold>Created by:</FontBold>
+              {shoppingList.customerInfo.firstName}{' '}
+              {shoppingList.customerInfo.lastName}
+            </FlexItem>
+          )}
           <FlexItem>
-            <FontBold>
-              Products:
-            </FontBold>
+            <FontBold>Products:</FontBold>
             {shoppingList.products.totalCount}
           </FlexItem>
           <FlexItem>
-            <FontBold>
-              Last activity:
-            </FontBold>
+            <FontBold>Last activity:</FontBold>
             {format(+shoppingList.updatedAt * 1000, 'dd MMM yyyy')}
           </FlexItem>
         </Box>
@@ -191,20 +164,20 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
               display: `${isPermissions ? 'block' : 'none'}`,
             }}
           >
-            {
-              !getEditPermissions(shoppingList.status) && (
+            {!getEditPermissions(shoppingList.status) && (
               <IconButton
                 aria-label="edit"
                 size="medium"
                 sx={{
                   marginRight: '8px',
                 }}
-                onClick={() => { onEdit(shoppingList) }}
+                onClick={() => {
+                  onEdit(shoppingList)
+                }}
               >
                 <EditIcon fontSize="inherit" />
               </IconButton>
-              )
-            }
+            )}
 
             <IconButton
               aria-label="edit"
@@ -212,22 +185,23 @@ const ShoppingListsCard = (props: OrderItemCardProps) => {
               sx={{
                 marginRight: '8px',
               }}
-              onClick={() => { onCopy(shoppingList) }}
+              onClick={() => {
+                onCopy(shoppingList)
+              }}
             >
               <ContentCopyIcon fontSize="inherit" />
             </IconButton>
-            {
-              !getDeletePermissions(shoppingList.status) && (
+            {!getDeletePermissions(shoppingList.status) && (
               <IconButton
                 aria-label="delete"
                 size="medium"
-                onClick={() => { onDelete(shoppingList) }}
+                onClick={() => {
+                  onDelete(shoppingList)
+                }}
               >
                 <DeleteIcon fontSize="inherit" />
               </IconButton>
-              )
-            }
-
+            )}
           </Box>
         </Flex>
       </CardContent>

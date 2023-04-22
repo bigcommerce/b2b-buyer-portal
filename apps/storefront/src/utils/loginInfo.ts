@@ -1,33 +1,21 @@
+import { DispatchProps } from '@/shared/global/context/config'
 import {
-  getBCToken,
+  getAgentInfo,
   getB2BCompanyUserInfo,
   getB2BToken,
-  getAgentInfo,
-  getUserCompany,
+  getBCToken,
   getCurrencies,
+  getUserCompany,
 } from '@/shared/service/b2b'
-
-import {
-  getCustomerInfo,
-  getBcCurrentJWT,
-} from '@/shared/service/bc'
-
-import {
-  B3LStorage,
-  B3SStorage,
-  storeHash,
-} from '@/utils'
-
-import {
-  DispatchProps,
-} from '@/shared/global/context/config'
+import { getBcCurrentJWT, getCustomerInfo } from '@/shared/service/bc'
+import { B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 interface ChannelIdProps {
-  channelId: number,
-  urls: Array<string>,
-  b2bEnabled: boolean,
-  channelLogo: string,
-  b3ChannelId?: number,
+  channelId: number
+  urls: Array<string>
+  b2bEnabled: boolean
+  channelLogo: string
+  b3ChannelId?: number
 }
 
 type B2BToken = {
@@ -46,7 +34,7 @@ type B2BToken = {
 // }
 
 export interface ChannelStoreSites {
-  storeSites?: Array<ChannelIdProps> | [],
+  storeSites?: Array<ChannelIdProps> | []
 }
 
 export const getCurrentStoreInfo = (storeSites: Array<ChannelIdProps>) => {
@@ -62,9 +50,7 @@ export const getCurrentStoreInfo = (storeSites: Array<ChannelIdProps>) => {
     b3ChannelId: 16,
   }
 
-  const {
-    origin,
-  } = window.location
+  const { origin } = window.location
 
   storeSites.forEach((item: ChannelIdProps) => {
     if (item.urls.includes(origin)) {
@@ -76,9 +62,7 @@ export const getCurrentStoreInfo = (storeSites: Array<ChannelIdProps>) => {
 }
 
 export const getloginTokenInfo = (channelId: number) => {
-  const {
-    origin,
-  } = window.location
+  const { origin } = window.location
   const data = {
     storeHash,
     method: 'post',
@@ -87,9 +71,7 @@ export const getloginTokenInfo = (channelId: number) => {
     data: {
       channel_id: channelId || 1,
       expires_at: 1866896353,
-      allowed_cors_origins: [
-        `${origin}`,
-      ],
+      allowed_cors_origins: [`${origin}`],
     },
   }
 
@@ -100,9 +82,7 @@ export const loginInfo = async () => {
   const channelId = B3SStorage.get('B3channelId')
   const loginTokenInfo = getloginTokenInfo(channelId)
   const {
-    data: {
-      token,
-    },
+    data: { token },
   } = await getBCToken(loginTokenInfo)
 
   B3SStorage.set('BcToken', token)
@@ -111,9 +91,7 @@ export const loginInfo = async () => {
 export const getCurrenciesInfo = async (dispatch: DispatchProps) => {
   const channelId = B3SStorage.get('B3channelId')
 
-  const {
-    currencies,
-  } = await getCurrencies(channelId)
+  const { currencies } = await getCurrencies(channelId)
 
   dispatch({
     type: 'common',
@@ -171,6 +149,7 @@ export const getCurrentJwt = async () => {
   } catch (error) {
     console.log(error)
   }
+  return undefined
 }
 
 const getCurrentJwtAndB2BToken = async (userType: number) => {
@@ -199,16 +178,14 @@ const getCurrentJwtAndB2BToken = async (userType: number) => {
 // 3: inactive
 // 4: deleted
 
-const getCompanyInfo = async (id: number, userType: number, role:number) => {
+const getCompanyInfo = async (id: number, userType: number, role: number) => {
   let companyInfo = {
     id: '',
     companyName: '',
     companyStatus: 99,
   }
   if (userType === 3 && role !== 3) {
-    const {
-      userCompany,
-    } = await getUserCompany(id)
+    const { userCompany } = await getUserCompany(id)
 
     if (userCompany) {
       companyInfo = {
@@ -222,17 +199,19 @@ const getCompanyInfo = async (id: number, userType: number, role:number) => {
   return companyInfo
 }
 
-export const agentInfo = async (customerId: number, role: number, b3UserId: number | string, dispatch: any) => {
+export const agentInfo = async (
+  customerId: number,
+  role: number,
+  b3UserId: number | string,
+  dispatch: any
+) => {
   const isRelogin = sessionStorage.getItem('isReLogin') === 'true'
 
   if (+role === 3) {
     try {
       const data: any = await getAgentInfo(customerId)
       if (data?.superAdminMasquerading) {
-        const {
-          id,
-          companyName,
-        } = data.superAdminMasquerading
+        const { id, companyName } = data.superAdminMasquerading
 
         if (isRelogin) {
           B3SStorage.set('isAgenting', true)
@@ -259,12 +238,10 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     await getCurrenciesInfo(dispatch)
 
     const {
-      data: {
-        customer,
-      },
+      data: { customer },
     } = await getCustomerInfo()
 
-    if (!customer) return
+    if (!customer) return undefined
 
     const {
       entityId: customerId,
@@ -278,10 +255,7 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     const {
       companyUserInfo: {
         userType,
-        userInfo: {
-          role = '',
-          id,
-        },
+        userInfo: { role = '', id },
       },
     } = await getB2BCompanyUserInfo(emailAddress, customerId)
 
@@ -301,7 +275,8 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
         customerGroupId,
       }
 
-      const isB2BUser = (userType === 3 && companyInfo?.companyStatus === 1) || +role === 3
+      const isB2BUser =
+        (userType === 3 && companyInfo?.companyStatus === 1) || +role === 3
 
       B3SStorage.set('B3CustomerInfo', customerInfo)
       B3SStorage.set('B3CompanyInfo', companyInfo)
@@ -342,9 +317,10 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     console.log(error)
     clearCurrentCustomerInfo(dispatch)
   }
+  return undefined
 }
 
-export const getSearchVal = (search:string, key:string) => {
+export const getSearchVal = (search: string, key: string) => {
   if (!search) {
     return ''
   }

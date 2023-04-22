@@ -1,30 +1,13 @@
-import {
-  useContext,
-  useEffect,
-  useRef,
-} from 'react'
+import { useContext, useEffect, useRef } from 'react'
 
-import {
-  DynamicallyVariableedContext,
-} from '@/shared/dynamicallyVariable'
+import { B3Tip } from '@/components'
+import { useMobile } from '@/hooks'
+import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
+import { MsgsProps } from '@/shared/dynamicallyVariable/context/config'
 
-import {
-  B3Tip,
-} from '@/components'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  MsgsProps,
-} from '@/shared/dynamicallyVariable/context/config'
-
-const B3LayoutTip = () => {
+function B3LayoutTip() {
   const {
-    state: {
-      tipMessage,
-    },
+    state: { tipMessage },
     dispatch,
   } = useContext(DynamicallyVariableedContext)
 
@@ -66,9 +49,7 @@ const B3LayoutTip = () => {
   } = tipMessage
 
   const closeMsgs = () => {
-    const {
-      msgs = [],
-    } = tipMessage
+    const { msgs = [] } = tipMessage
 
     if (timer.current) {
       clearTimeout(timer.current)
@@ -91,17 +72,15 @@ const B3LayoutTip = () => {
   }
 
   return (
-    <>
-      <B3Tip
-        msgs={msgs}
-        handleAllClose={closeMsgs}
-        autoHideDuration={autoHideDuration}
-        handleItemClose={handleClose}
-        // handleItemClose={isClose ? handleClose : undefined}
-        vertical={vertical}
-        horizontal={horizontal}
-      />
-    </>
+    <B3Tip
+      msgs={msgs}
+      handleAllClose={closeMsgs}
+      autoHideDuration={autoHideDuration}
+      handleItemClose={handleClose}
+      // handleItemClose={isClose ? handleClose : undefined}
+      vertical={vertical}
+      horizontal={horizontal}
+    />
   )
 }
 

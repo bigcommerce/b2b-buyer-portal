@@ -1,92 +1,61 @@
 import {
-  useState,
+  Dispatch,
+  SetStateAction,
   useContext,
   useEffect,
   useRef,
-  Dispatch,
-  SetStateAction,
+  useState,
 } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Box, Grid, useTheme } from '@mui/material'
 
+import { B3Sping } from '@/components'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
-  useNavigate,
-  useParams,
-} from 'react-router-dom'
-
-import {
-  Box,
-  Grid,
-  useTheme,
-} from '@mui/material'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  getB2BShoppingListDetails,
-  getBcShoppingListDetails,
   deleteB2BShoppingListItem,
   deleteBcShoppingListItem,
+  getB2BJuniorPlaceOrder,
+  getB2BShoppingListDetails,
+  getBcShoppingListDetails,
   updateB2BShoppingList,
   updateBcShoppingList,
-  getB2BJuniorPlaceOrder,
 } from '@/shared/service/b2b'
-
+import { getDefaultCurrencyInfo, getNewProductsList, snackbar } from '@/utils'
 import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  snackbar,
-  getDefaultCurrencyInfo,
-  getNewProductsList,
-} from '@/utils'
-
-import {
-  ShoppingListInfoProps,
   CustomerInfoProps,
   ListItemProps,
-  SearchProps,
   ProductsProps,
-} from '../../utils/b3Product/shared/config'
+  SearchProps,
+  ShoppingListInfoProps,
+} from '@/utils/b3Product/shared/config'
 
+import AddToShoppingList from './components/AddToShoppingList'
+import ReAddToCart from './components/ReAddToCart'
+import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems'
+import ShoppingDetailFooter from './components/ShoppingDetailFooter'
+import ShoppingDetailHeader from './components/ShoppingDetailHeader'
+import ShoppingDetailTable from './components/ShoppingDetailTable'
 import {
   ShoppingListDetailsContext,
   ShoppingListDetailsProvider,
 } from './context/ShoppingListDetailsContext'
 
-import {
-  AddToShoppingList,
-} from './components/AddToShoppingList'
-
-import {
-  ReAddToCart,
-} from './components/ReAddToCart'
-
-import ShoppingDetailHeader from './components/ShoppingDetailHeader'
-import ShoppingDetailFooter from './components/ShoppingDetailFooter'
-import ShoppingDetailTable from './components/ShoppingDetailTable'
-import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems'
-
 interface TableRefProps extends HTMLInputElement {
-  initSearch: () => void,
+  initSearch: () => void
 }
 
 interface OpenPageState {
-  isOpen: boolean,
-  openUrl?: string,
+  isOpen: boolean
+  openUrl?: string
 }
 
 interface UpdateShoppingListParamsProps {
-  id: number,
-  name: string,
-  description: string,
-  status?: number,
-  channelId?: number,
+  id: number
+  name: string
+  description: string
+  status?: number
+  channelId?: number
 }
 
 interface ShoppingListDetailsProps {
@@ -99,18 +68,12 @@ interface ShoppingListDetailsContentProps {
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
 
-const ShoppingListDetails = ({
-  setOpenPage,
-}: ShoppingListDetailsProps) => {
-  const {
-    id = '',
-  } = useParams()
+function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
+  const { id = '' } = useParams()
   const {
     state: {
       role,
-      companyInfo: {
-        id: companyInfoId,
-      },
+      companyInfo: { id: companyInfoId },
       isB2BUser,
       currentChannelId,
       isAgenting,
@@ -119,9 +82,7 @@ const ShoppingListDetails = ({
   } = useContext(GlobaledContext)
   const navigate = useNavigate()
   const [isMobile] = useMobile()
-  const {
-    dispatch,
-  } = useContext(ShoppingListDetailsContext)
+  const { dispatch } = useContext(ShoppingListDetailsContext)
 
   const theme = useTheme()
 
@@ -130,25 +91,32 @@ const ShoppingListDetails = ({
   const tableRef = useRef<TableRefProps | null>(null)
 
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
-  const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null)
-  const [customerInfo, setCustomerInfo] = useState<null | CustomerInfoProps>(null)
-  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.00)
+  const [shoppingListInfo, setShoppingListInfo] =
+    useState<null | ShoppingListInfoProps>(null)
+  const [customerInfo, setCustomerInfo] = useState<null | CustomerInfoProps>(
+    null
+  )
+  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.0)
   const [isRequestLoading, setIsRequestLoading] = useState(false)
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
   const [deleteItemId, setDeleteItemId] = useState<number | string>('')
 
-  const [validateSuccessProducts, setValidateSuccessProducts] = useState<ProductsProps[]>([])
-  const [validateFailureProducts, setValidateFailureProducts] = useState<ProductsProps[]>([])
+  const [validateSuccessProducts, setValidateSuccessProducts] = useState<
+    ProductsProps[]
+  >([])
+  const [validateFailureProducts, setValidateFailureProducts] = useState<
+    ProductsProps[]
+  >([])
 
-  const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false)
+  const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] =
+    useState<boolean>(false)
 
   const isJuniorApprove = shoppingListInfo?.status === 0 && role === 2
-  const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
+  const isReadForApprove =
+    shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
 
-  const {
-    token: currencyToken,
-  } = getDefaultCurrencyInfo()
+  const { token: currencyToken } = getDefaultCurrencyInfo()
 
   const goToShoppingLists = () => {
     navigate('/shoppingLists')
@@ -164,7 +132,9 @@ const ShoppingListDetails = ({
   }, [id])
 
   const getShoppingListDetails = async (params: SearchProps) => {
-    const getSLDetail = isB2BUser ? getB2BShoppingListDetails : getBcShoppingListDetails
+    const getSLDetail = isB2BUser
+      ? getB2BShoppingListDetails
+      : getBcShoppingListDetails
     const infoKey = isB2BUser ? 'shoppingList' : 'customerShoppingList'
 
     const shoppingListInfos = await getSLDetail({
@@ -175,13 +145,14 @@ const ShoppingListDetails = ({
     const shoppingListDetailInfo = shoppingListInfos[infoKey]
 
     const {
-      products: {
-        edges,
-        totalCount,
-      },
+      products: { edges, totalCount },
     } = shoppingListDetailInfo
 
-    const listProducts = await getNewProductsList(edges, isB2BUser, companyInfoId)
+    const listProducts = await getNewProductsList(
+      edges,
+      isB2BUser,
+      companyInfoId
+    )
 
     console.log(listProducts, 'listProducts')
 
@@ -196,7 +167,9 @@ const ShoppingListDetails = ({
   const handleUpdateShoppingList = async (status: number) => {
     setIsRequestLoading(true)
     try {
-      const updateShoppingList = isB2BUser ? updateB2BShoppingList : updateBcShoppingList
+      const updateShoppingList = isB2BUser
+        ? updateB2BShoppingList
+        : updateBcShoppingList
       const params: UpdateShoppingListParamsProps = {
         id: +id,
         name: shoppingListInfo?.name || '',
@@ -220,7 +193,9 @@ const ShoppingListDetails = ({
 
   const handleDeleteItems = async (itemId: number | string = '') => {
     setIsRequestLoading(true)
-    const deleteShoppingListItem = isB2BUser ? deleteB2BShoppingListItem : deleteBcShoppingListItem
+    const deleteShoppingListItem = isB2BUser
+      ? deleteB2BShoppingListItem
+      : deleteBcShoppingListItem
 
     try {
       if (itemId) {
@@ -231,9 +206,7 @@ const ShoppingListDetails = ({
 
         if (checkedArr.length > 0) {
           const newCheckedArr = checkedArr.filter((item: ListItemProps) => {
-            const {
-              itemId: checkedItemId,
-            } = item.node
+            const { itemId: checkedItemId } = item.node
 
             return itemId !== checkedItemId
           })
@@ -243,9 +216,7 @@ const ShoppingListDetails = ({
       } else {
         if (checkedArr.length === 0) return
         checkedArr.forEach(async (item: ListItemProps) => {
-          const {
-            node,
-          } = item
+          const { node } = item
 
           await deleteShoppingListItem({
             itemId: node.itemId,
@@ -269,31 +240,23 @@ const ShoppingListDetails = ({
 
   useEffect(() => {
     if (checkedArr.length > 0) {
-      let total = 0.00
+      let total = 0.0
 
       checkedArr.forEach((item: ListItemProps) => {
         const {
-          node: {
-            variantId,
-            productsSearch,
-            quantity,
-            basePrice,
-          },
+          node: { variantId, productsSearch, quantity, basePrice },
         } = item
 
         if (productsSearch) {
-          const {
-            variants,
-          } = productsSearch
+          const { variants } = productsSearch
 
           if (variants) {
-            const currentVariants = variants.find((variant: CustomFieldItems) => +variant.variant_id
-          === +variantId)
+            const currentVariants = variants.find(
+              (variant: CustomFieldItems) => +variant.variant_id === +variantId
+            )
 
             if (currentVariants) {
-              const {
-                bc_calculated_price: bcCalculatedPrice,
-              } = currentVariants
+              const { bc_calculated_price: bcCalculatedPrice } = currentVariants
 
               const price = +bcCalculatedPrice.tax_inclusive || +basePrice
 
@@ -307,7 +270,7 @@ const ShoppingListDetails = ({
 
       setSelectedSubTotal((1000 * total) / 1000)
     } else {
-      setSelectedSubTotal(0.00)
+      setSelectedSubTotal(0.0)
     }
   }, [checkedArr])
 
@@ -323,9 +286,7 @@ const ShoppingListDetails = ({
 
   const getJuniorPlaceOrder = async () => {
     const {
-      storeConfigSwitchStatus: {
-        isEnabled,
-      },
+      storeConfigSwitchStatus: { isEnabled },
     } = await getB2BJuniorPlaceOrder()
 
     setAllowJuniorPlaceOrder(isEnabled === '1')
@@ -369,28 +330,33 @@ const ShoppingListDetails = ({
           }}
         >
           <Box
-            sx={isMobile ? {
-              flexBasis: '100%',
-              pl: '16px',
-            } : {
-              flexBasis: '690px',
-              flexGrow: 1,
-              ml: '16px',
-              pt: '16px',
-            }}
+            sx={
+              isMobile
+                ? {
+                    flexBasis: '100%',
+                    pl: '16px',
+                  }
+                : {
+                    flexBasis: '690px',
+                    flexGrow: 1,
+                    ml: '16px',
+                    pt: '16px',
+                  }
+            }
           >
-            <B3Sping
-              isSpinning={isRequestLoading}
-              spinningHeight="auto"
-            >
+            <B3Sping isSpinning={isRequestLoading} spinningHeight="auto">
               <Grid
                 item
-                sx={isMobile ? {
-                  flexBasis: '100%',
-                } : {
-                  flexBasis: '690px',
-                  flexGrow: 1,
-                }}
+                sx={
+                  isMobile
+                    ? {
+                        flexBasis: '100%',
+                      }
+                    : {
+                        flexBasis: '690px',
+                        flexGrow: 1,
+                      }
+                }
               >
                 <ShoppingDetailTable
                   ref={tableRef}
@@ -414,42 +380,41 @@ const ShoppingListDetails = ({
 
           <Grid
             item
-            sx={isMobile ? {
-              flexBasis: '100%',
-            } : {
-              flexBasis: '340px',
-            }}
-          >
-            {
-              (!isReadForApprove && !isJuniorApprove) && (
-                <AddToShoppingList
-                  updateList={updateList}
-                  isB2BUser={isB2BUser}
-                />
-              )
+            sx={
+              isMobile
+                ? {
+                    flexBasis: '100%',
+                  }
+                : {
+                    flexBasis: '340px',
+                  }
             }
+          >
+            {!isReadForApprove && !isJuniorApprove && (
+              <AddToShoppingList
+                updateList={updateList}
+                isB2BUser={isB2BUser}
+              />
+            )}
           </Grid>
         </Grid>
 
-        {
-          (!isReadForApprove && (allowJuniorPlaceOrder || !isJuniorApprove)) && (
-            <ShoppingDetailFooter
-              shoppingListInfo={shoppingListInfo}
-              role={role}
-              allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-              checkedArr={checkedArr}
-              currencyToken={currencyToken}
-              selectedSubTotal={selectedSubTotal}
-              setLoading={setIsRequestLoading}
-              setDeleteOpen={setDeleteOpen}
-              setValidateFailureProducts={setValidateFailureProducts}
-              setValidateSuccessProducts={setValidateSuccessProducts}
-              isB2BUser={isB2BUser}
-              customColor={primaryColor}
-            />
-          )
-        }
-
+        {!isReadForApprove && (allowJuniorPlaceOrder || !isJuniorApprove) && (
+          <ShoppingDetailFooter
+            shoppingListInfo={shoppingListInfo}
+            role={role}
+            allowJuniorPlaceOrder={allowJuniorPlaceOrder}
+            checkedArr={checkedArr}
+            currencyToken={currencyToken}
+            selectedSubTotal={selectedSubTotal}
+            setLoading={setIsRequestLoading}
+            setDeleteOpen={setDeleteOpen}
+            setValidateFailureProducts={setValidateFailureProducts}
+            setValidateSuccessProducts={setValidateSuccessProducts}
+            isB2BUser={isB2BUser}
+            customColor={primaryColor}
+          />
+        )}
       </Box>
 
       <ReAddToCart
@@ -473,12 +438,14 @@ const ShoppingListDetails = ({
   )
 }
 
-const ShoppingListDetailsContent = ({
+function ShoppingListDetailsContent({
   setOpenPage,
-}: ShoppingListDetailsContentProps) => (
-  <ShoppingListDetailsProvider>
-    <ShoppingListDetails setOpenPage={setOpenPage} />
-  </ShoppingListDetailsProvider>
-)
+}: ShoppingListDetailsContentProps) {
+  return (
+    <ShoppingListDetailsProvider>
+      <ShoppingListDetails setOpenPage={setOpenPage} />
+    </ShoppingListDetailsProvider>
+  )
+}
 
 export default ShoppingListDetailsContent

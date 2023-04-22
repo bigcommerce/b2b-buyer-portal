@@ -1,40 +1,28 @@
-import {
-  Box,
-} from '@mui/material'
+import { Box } from '@mui/material'
 
 interface StyleWidget {
-  [key:string]: string;
+  [key: string]: string
 }
 
 interface LoginWidgetProps {
-  isVisible: boolean,
-  sx: StyleWidget,
-  html: string,
+  isVisible: boolean
+  sx: StyleWidget
+  html: string
 }
 
-const LoginWidget = (props: LoginWidgetProps) => {
-  const {
-    isVisible,
-    html,
-    sx,
-  } = props
+function LoginWidget(props: LoginWidgetProps) {
+  const { isVisible, html, sx } = props
 
-  return (
-    <>
-      {
-      isVisible && (
-      <Box
-        sx={{
-          ...sx,
-        }}
-        dangerouslySetInnerHTML={{
-          __html: html,
-        }}
-      />
-      )
-    }
-    </>
-  )
+  return isVisible ? (
+    <Box
+      sx={{
+        ...sx,
+      }}
+      dangerouslySetInnerHTML={{
+        __html: html,
+      }}
+    />
+  ) : null
 }
 
 export default LoginWidget

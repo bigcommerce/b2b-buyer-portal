@@ -1,30 +1,17 @@
-import {
-  Card,
-  CardContent,
-  Box,
-  Typography,
-} from '@mui/material'
+import { useState } from 'react'
+import { Box, Card, CardContent, Typography } from '@mui/material'
 
-import {
-  useState,
-} from 'react'
+import { B3CollapseContainer } from '@/components'
+import { useMobile } from '@/hooks'
 
-import {
-  B3CollapseContainer,
-} from '@/components'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-interface QuoteTermsAndConditionsProps{
-  quoteLegalTerms: string,
+interface QuoteTermsAndConditionsProps {
+  quoteLegalTerms: string
 }
 
-export const QuoteTermsAndConditions = (props: QuoteTermsAndConditionsProps) => {
-  const {
-    quoteLegalTerms = '',
-  } = props
+export default function QuoteTermsAndConditions(
+  props: QuoteTermsAndConditionsProps
+) {
+  const { quoteLegalTerms = '' } = props
 
   const [isMobile] = useMobile()
   const [isOpen, setIsOpen] = useState(false)

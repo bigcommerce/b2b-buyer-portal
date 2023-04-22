@@ -1,37 +1,19 @@
 import ReactDOM from 'react-dom/client'
-import {
-  Provider,
-} from 'react-redux'
+import { Provider } from 'react-redux'
+import { LangProvider } from '@b3/lang'
 
-import {
-  LangProvider,
-} from '@b3/lang'
-import {
-  GlobalProvider,
-} from '@/shared/global'
+import { CustomStyleProvider } from '@/shared/customStyleButtton'
+import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable'
+import { GlobalProvider } from '@/shared/global'
 
-import {
-  CustomStyleProvider,
-} from '@/shared/customStyleButtton'
-import {
-  DynamicallyVariableProvider,
-} from '@/shared/dynamicallyVariable'
-
+import { B3StoreContainer } from './components/B3StoreContainer'
+import { createFrameLoading } from './utils/b3PageMask'
 import App from './App'
-import {
-  B3StoreContainer,
-} from './components/B3StoreContainer'
-import B3ThemeProvider from './theme'
+import { SUPPORT_LANGUAGE } from './constants'
 import * as locales from './locales'
-import {
-  SUPPORT_LANGUAGE,
-} from './constants'
-import {
-  createFrameLoading,
-} from './utils/b3PageMask'
-import {
-  store,
-} from './store'
+import { store } from './store'
+import B3ThemeProvider from './theme'
+
 import './main.css'
 
 const CONTAINER_ID = 'bundle-container'
@@ -53,10 +35,7 @@ ReactDOM.createRoot(container).render(
       <CustomStyleProvider>
         <B3StoreContainer>
           <DynamicallyVariableProvider>
-            <LangProvider
-              locales={locales}
-              supportLang={SUPPORT_LANGUAGE}
-            >
+            <LangProvider locales={locales} supportLang={SUPPORT_LANGUAGE}>
               <B3ThemeProvider>
                 <App />
               </B3ThemeProvider>
@@ -65,5 +44,5 @@ ReactDOM.createRoot(container).render(
         </B3StoreContainer>
       </CustomStyleProvider>
     </GlobalProvider>
-  </Provider>,
+  </Provider>
 )

@@ -1,46 +1,31 @@
-import {
-  useState,
-  ReactElement,
-} from 'react'
-import {
-  Box,
-} from '@mui/material'
+import { useState } from 'react'
+import { Box } from '@mui/material'
 
-import {
-  useMobile,
-} from '@/hooks'
+import { useMobile } from '@/hooks'
 
-import {
-  B3Select,
-} from '../ui'
-
-import B3FilterSearch from './B3FilterSearch'
+import CustomButton from '../button/CustomButton'
+import { B3Select } from '../ui'
 
 import B3FilterMore from './B3FilterMore'
+import B3FilterSearch from './B3FilterSearch'
 
-import {
-  CustomButton,
-} from '../button/CustomButton'
-
-// import B3FilterToggleTable from './B3FilterToggleTable'
-
-interface sortByItemNameProps {
-  valueName: string,
-  labelName: string,
+interface SortByItemNameProps {
+  valueName: string
+  labelName: string
 }
 
 interface PickerProps {
-  isEnabled: boolean;
+  isEnabled: boolean
   defaultValue?: Date | number | string | null
   label: string
   w?: number
-  pickerKey?: string,
+  pickerKey?: string
 }
 
-interface sortByConfigProps {
-  isEnabled: boolean;
+interface SortByConfigProps {
+  isEnabled: boolean
   sortByList?: any[]
-  sortByItemName?: sortByItemNameProps | undefined
+  sortByItemName?: SortByItemNameProps | undefined
   sortByLabel: string
   defaultValue?: string | undefined
   isFirstSelect?: boolean
@@ -53,28 +38,28 @@ type DeepPartial<T> = {
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
     ? ReadonlyArray<DeepPartial<U>>
-    : DeepPartial<T[P]>;
+    : DeepPartial<T[P]>
 }
 
-interface customButtomProps {
-  isEnabled: boolean;
-  customLabel: string;
-  customButtomStyle?: {[key: string]: string}
+interface CustomButtomProps {
+  isEnabled: boolean
+  customLabel: string
+  customButtomStyle?: { [key: string]: string }
 }
 
 interface B3FilterProps<T, Y> {
-  sortByConfig?: sortByConfigProps
-  customButtomConfig?: customButtomProps
+  sortByConfig?: SortByConfigProps
+  customButtomConfig?: CustomButtomProps
   startPicker?: PickerProps
   endPicker?: PickerProps
   fiterMoreInfo: Array<DeepPartial<T>>
   handleChange: (key: string, value: string) => void
   handleFilterChange: (value: Y) => void
   handleFilterCustomButtomClick?: () => void
-  showB3FilterMoreIcon?: boolean,
+  showB3FilterMoreIcon?: boolean
 }
 
-const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => {
+function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
   const {
     sortByConfig,
     startPicker,
@@ -89,14 +74,16 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
 
   const [isMobile] = useMobile()
 
-  const [sortByValue, setSortBy] = useState<string>(sortByConfig?.defaultValue || '')
+  const [sortByValue, setSortBy] = useState<string>(
+    sortByConfig?.defaultValue || ''
+  )
 
   const handleSortByChange = (value: string) => {
     setSortBy(value)
     handleChange('sortBy', value)
   }
 
-  const handleSearchChange = (value:string) => {
+  const handleSearchChange = (value: string) => {
     handleChange('search', value)
   }
 
@@ -110,13 +97,13 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
 
   return (
     <>
-      {
-        !isMobile && (
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          mb: '30px',
-        }}
+      {!isMobile && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            mb: '30px',
+          }}
         >
           <Box
             sx={{
@@ -126,20 +113,15 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               alignItems: 'center',
             }}
           >
-            <B3FilterSearch
-              handleChange={handleSearchChange}
-              w="70%"
-            />
-            {
-              showB3FilterMoreIcon && (
-                <B3FilterMore
-                  startPicker={startPicker}
-                  endPicker={endPicker}
-                  fiterMoreInfo={fiterMoreInfo}
-                  onChange={handleFilterChange}
-                />
-              )
-            }
+            <B3FilterSearch handleChange={handleSearchChange} w="70%" />
+            {showB3FilterMoreIcon && (
+              <B3FilterMore
+                startPicker={startPicker}
+                endPicker={endPicker}
+                fiterMoreInfo={fiterMoreInfo}
+                onChange={handleFilterChange}
+              />
+            )}
           </Box>
 
           <Box
@@ -148,50 +130,43 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               alignItems: 'center',
             }}
           >
-            {
-              sortByConfig?.isEnabled && (
-                <Box
-                  sx={{
-                    m: '0 5px',
-                  }}
-                >
-                  <B3Select
-                    list={sortByConfig?.sortByList || []}
-                    value={sortByValue}
-                    handleChange={handleSortByChange}
-                    label={sortByConfig?.sortByLabel || ''}
-                    config={sortByConfig?.sortByItemName}
-                    isFirstSelect={sortByConfig?.isFirstSelect}
-                    firstSelectText={sortByConfig?.firstSelectText}
-                    w={sortByConfig?.w || 150}
-                  />
-                </Box>
-              )
-            }
-            {
-              customButtomConfig?.isEnabled && (
-                <CustomButton
-                  size="small"
-                  variant="contained"
-                  sx={{
-                    height: '42px',
-                    p: '0 20px',
-                    ...customButtomConfig?.customButtomStyle || {},
-                  }}
-                  onClick={handleCustomBtnClick}
-                >
-                  {customButtomConfig?.customLabel || ''}
-                </CustomButton>
-              )
-            }
+            {sortByConfig?.isEnabled && (
+              <Box
+                sx={{
+                  m: '0 5px',
+                }}
+              >
+                <B3Select
+                  list={sortByConfig?.sortByList || []}
+                  value={sortByValue}
+                  handleChange={handleSortByChange}
+                  label={sortByConfig?.sortByLabel || ''}
+                  config={sortByConfig?.sortByItemName}
+                  isFirstSelect={sortByConfig?.isFirstSelect}
+                  firstSelectText={sortByConfig?.firstSelectText}
+                  w={sortByConfig?.w || 150}
+                />
+              </Box>
+            )}
+            {customButtomConfig?.isEnabled && (
+              <CustomButton
+                size="small"
+                variant="contained"
+                sx={{
+                  height: '42px',
+                  p: '0 20px',
+                  ...(customButtomConfig?.customButtomStyle || {}),
+                }}
+                onClick={handleCustomBtnClick}
+              >
+                {customButtomConfig?.customLabel || ''}
+              </CustomButton>
+            )}
             {/* <B3FilterToggleTable /> */}
           </Box>
-
         </Box>
-        )
-      }
-      {
-        isMobile && (
+      )}
+      {isMobile && (
         <Box
           sx={{
             display: 'flex',
@@ -207,10 +182,7 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               justifyContent: 'space-between',
             }}
           >
-            <B3FilterSearch
-              handleChange={handleSearchChange}
-              w="90%"
-            />
+            <B3FilterSearch handleChange={handleSearchChange} w="90%" />
             <B3FilterMore
               startPicker={startPicker}
               endPicker={endPicker}
@@ -218,26 +190,23 @@ const B3Filter:<T, Y> (props: B3FilterProps<T, Y>) => ReactElement = (props) => 
               onChange={handleFilterChange}
             />
           </Box>
-          {
-            customButtomConfig?.isEnabled && (
-              <CustomButton
-                size="small"
-                variant="contained"
-                fullWidth
-                sx={{
-                  marginTop: '20px',
-                  height: '42px',
-                  ...customButtomConfig?.customButtomStyle || {},
-                }}
-                onClick={handleCustomBtnClick}
-              >
-                {customButtomConfig?.customLabel || ''}
-              </CustomButton>
-            )
-          }
+          {customButtomConfig?.isEnabled && (
+            <CustomButton
+              size="small"
+              variant="contained"
+              fullWidth
+              sx={{
+                marginTop: '20px',
+                height: '42px',
+                ...(customButtomConfig?.customButtomStyle || {}),
+              }}
+              onClick={handleCustomBtnClick}
+            >
+              {customButtomConfig?.customLabel || ''}
+            </CustomButton>
+          )}
         </Box>
-        )
-      }
+      )}
     </>
   )
 }

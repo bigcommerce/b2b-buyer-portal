@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Box,
   Button,
@@ -6,18 +7,14 @@ import {
   Grid,
   TextField,
 } from '@mui/material'
-import {
-  useState,
-} from 'react'
-import {
-  Captcha,
-} from '@/components/form'
+
+import { Captcha } from '@/components/form'
 
 const Variant = 'filled'
 const TEST_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 
 export default function Form() {
-  const [state, setState] = useState<'success'|'error'|'expired'>('error')
+  const [state, setState] = useState<'success' | 'error' | 'expired'>('error')
 
   return (
     <form
@@ -28,15 +25,8 @@ export default function Form() {
         }
       }}
     >
-      <Grid
-        container
-        spacing={3}
-      >
-        <Grid
-          item
-          xs={12}
-          sm={6}
-        >
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6}>
           <TextField
             required
             id="firstName"
@@ -47,11 +37,7 @@ export default function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={6}
-        >
+        <Grid item xs={12} sm={6}>
           <TextField
             required
             id="lastName"
@@ -62,10 +48,7 @@ export default function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+        <Grid item xs={12}>
           <TextField
             required
             id="address1"
@@ -76,10 +59,7 @@ export default function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+        <Grid item xs={12}>
           <TextField
             id="address2"
             name="address2"
@@ -89,11 +69,7 @@ export default function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={6}
-        >
+        <Grid item xs={12} sm={6}>
           <TextField
             required
             id="city"
@@ -104,11 +80,7 @@ export default function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={6}
-        >
+        <Grid item xs={12} sm={6}>
           <TextField
             id="state"
             name="state"
@@ -117,11 +89,7 @@ export default function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={6}
-        >
+        <Grid item xs={12} sm={6}>
           <TextField
             required
             id="zip"
@@ -132,11 +100,7 @@ export default function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={6}
-        >
+        <Grid item xs={12} sm={6}>
           <TextField
             required
             id="country"
@@ -147,25 +111,15 @@ export default function Form() {
             variant={Variant}
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+        <Grid item xs={12}>
           <FormControlLabel
-            control={(
-              <Checkbox
-                color="secondary"
-                name="saveAddress"
-                value="yes"
-              />
-            )}
+            control={
+              <Checkbox color="secondary" name="saveAddress" value="yes" />
+            }
             label="Use this address for payment details"
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+        <Grid item xs={12}>
           <Captcha
             size="normal"
             siteKey={TEST_SITE_KEY}
@@ -174,10 +128,11 @@ export default function Form() {
           />
         </Grid>
       </Grid>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-      }}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+        }}
       >
         <Button
           disabled={state !== 'success'}

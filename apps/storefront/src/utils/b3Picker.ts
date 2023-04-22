@@ -1,9 +1,6 @@
-import {
-  subDays, format,
-} from 'date-fns'
+import { format, subDays } from 'date-fns'
 
-const distanceDay = (distanceDay = 0, dateFormat = 'yyyy-MM-dd'): string => format(subDays(new Date(), distanceDay), dateFormat)
+const distanceDay = (distanceDay = 0, dateFormat = 'yyyy-MM-dd'): string =>
+  format(subDays(new Date(), distanceDay), dateFormat)
 
-export {
-  distanceDay,
-}
+export default distanceDay

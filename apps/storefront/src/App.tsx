@@ -1,65 +1,40 @@
-import {
-  useEffect,
-  useContext,
-  useCallback,
-} from 'react'
+import { useCallback, useContext, useEffect } from 'react'
+import { HashRouter } from 'react-router-dom'
+import { useB3AppOpen } from '@b3/hooks'
 
 import {
-  HashRouter,
-} from 'react-router-dom'
+  B3GlobalTip,
+  B3HoverButton,
+  B3MasquradeGobalTip,
+  B3RenderRouter,
+  showPageMask,
+  ThemeFrame,
+} from '@/components'
 import {
-  useB3AppOpen,
-} from '@b3/hooks'
-
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
-import {
-  useOpenPDP,
-  useSetOpen,
-  useMyQuote,
-  useRegisteredbctob2b,
   useCartToQuote,
+  useMyQuote,
+  useOpenPDP,
+  useRegisteredbctob2b,
+  useSetOpen,
 } from '@/hooks'
-
+import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { GlobaledContext } from '@/shared/global'
+import { gotoAllowedAppPage } from '@/shared/routes'
+import { setChannelStoreType } from '@/shared/service/b2b'
 import {
-  loginInfo,
   getCurrentCustomerInfo,
   getQuoteEnabled,
-  getTemPlateConfig,
-  setStorefrontConfig,
   getStoreTaxZoneRates,
+  getTemPlateConfig,
+  loginInfo,
+  setStorefrontConfig,
 } from '@/utils'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  setChannelStoreType,
-} from '@/shared/service/b2b'
-
-import {
-  ThemeFrame,
-  B3RenderRouter,
-  B3MasquradeGobalTip,
-  B3HoverButton,
-  showPageMask,
-  B3GlobalTip,
-} from '@/components'
-
-import {
-  gotoAllowedAppPage,
-} from '@/shared/routes'
-
-const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
+const FONT_URL =
+  'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 
 export default function App() {
-  const [{
-    isOpen,
-    openUrl,
-    params,
-  }, setOpenPage] = useB3AppOpen({
+  const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
     isOpen: false,
   })
 
@@ -82,9 +57,7 @@ export default function App() {
 
   const {
     state: {
-      portalStyle: {
-        backgroundColor,
-      },
+      portalStyle: { backgroundColor },
     },
     dispatch: styleDispatch,
   } = useContext(CustomStyleContext)
@@ -115,11 +88,7 @@ export default function App() {
   // Button to open storefront
   useSetOpen(isOpen, openUrl, params)
 
-  const {
-    pathname,
-    href,
-    search,
-  } = window.location
+  const { pathname, href, search } = window.location
 
   const loginAndRegister = useCallback(() => {
     dispatch({
@@ -169,7 +138,11 @@ export default function App() {
       }
       setChannelStoreType(currentChannelId)
       // await getTaxZoneRates()
-      await Promise.all([getStoreTaxZoneRates(), setStorefrontConfig(dispatch), getTemPlateConfig(currentChannelId, styleDispatch, dispatch)])
+      await Promise.all([
+        getStoreTaxZoneRates(),
+        setStorefrontConfig(dispatch),
+        getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
+      ])
       const userInfo = {
         role: +role,
         isAgenting,
@@ -183,7 +156,10 @@ export default function App() {
       }
 
       // background login enter judgment and refresh
-      if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
+      if (
+        !href.includes('checkout') &&
+        !(customerId && !window.location.hash)
+      ) {
         gotoAllowedAppPage(+userInfo.role, gotoPage)
       }
 
@@ -196,11 +172,14 @@ export default function App() {
 
   useEffect(() => {
     if (quoteConfig.length > 0 && storefrontConfig) {
-      const {
-        productQuoteEnabled,
-        cartQuoteEnabled,
-        shoppingListEnabled,
-      } = getQuoteEnabled(quoteConfig, storefrontConfig, role, isB2BUser, isAgenting)
+      const { productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled } =
+        getQuoteEnabled(
+          quoteConfig,
+          storefrontConfig,
+          role,
+          isB2BUser,
+          isAgenting
+        )
 
       dispatch({
         type: 'common',
@@ -223,9 +202,7 @@ export default function App() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      const {
-        hash,
-      } = window.location
+      const { hash } = window.location
       if (!isOpen && hash) {
         const url = hash.split('#')[1]
         if (url !== '/') {
@@ -252,7 +229,6 @@ export default function App() {
             fontUrl={FONT_URL}
             customStyles={CUSTOM_STYLES}
           >
-
             {isOpen ? (
               <B3RenderRouter
                 openUrl={openUrl}
@@ -262,12 +238,8 @@ export default function App() {
             ) : null}
           </ThemeFrame>
         </div>
-
       </HashRouter>
-      <B3MasquradeGobalTip
-        setOpenPage={setOpenPage}
-        isOpen={isOpen}
-      />
+      <B3MasquradeGobalTip setOpenPage={setOpenPage} isOpen={isOpen} />
       <B3HoverButton
         isOpen={isOpen}
         productQuoteEnabled={productQuoteEnabled}
@@ -275,6 +247,5 @@ export default function App() {
       />
       <B3GlobalTip />
     </>
-
   )
 }

@@ -74,10 +74,11 @@ const orderStatusText: OrderStatusConfig = {
   Incomplete: 'Incomplete',
 }
 
-export const getOrderStatusOptions = () => Object.keys(orderStatusText).map((code) => ({
-  value: code,
-  label: orderStatusText[code],
-}))
+export const getOrderStatusOptions = () =>
+  Object.keys(orderStatusText).map((code) => ({
+    value: code,
+    label: orderStatusText[code],
+  }))
 
 const getOrderStatus = (code: string | number) => ({
   color: orderStatusColor[code],

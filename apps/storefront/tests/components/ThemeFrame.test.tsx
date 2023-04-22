@@ -1,15 +1,8 @@
-import {
-  describe,
-  expect,
-  it,
-} from 'vitest'
 import Button from '@mui/material/Button'
-import {
-  ThemeFrame,
-} from '../../src/components'
-import {
-  renderWithProviders, screen,
-} from '../test-utils'
+import { describe, expect, it } from 'vitest'
+
+import { ThemeFrame } from '../../src/components'
+import { renderWithProviders, screen } from '../test-utils'
 
 describe('ThemeFrame', () => {
   it('should render iframe and main document should not contain anything else', () => {
@@ -18,7 +11,7 @@ describe('ThemeFrame', () => {
     renderWithProviders(
       <ThemeFrame title="test-frame">
         <Button id="test-button">Test Button</Button>
-      </ThemeFrame>,
+      </ThemeFrame>
     )
 
     expect(document.querySelector('button')).toBeNull()
@@ -28,7 +21,7 @@ describe('ThemeFrame', () => {
     renderWithProviders(
       <ThemeFrame title="test-frame">
         <Button id="test-button">Test Button</Button>
-      </ThemeFrame>,
+      </ThemeFrame>
     )
 
     const iframe: HTMLIFrameElement = screen.getByTitle('test-frame')

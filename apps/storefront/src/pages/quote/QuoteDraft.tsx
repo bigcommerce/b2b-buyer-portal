@@ -1,107 +1,55 @@
 import {
-  useEffect,
-  useState,
-  useRef,
-  useContext,
   Dispatch,
   SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowBackIosNew } from '@mui/icons-material'
+import { Box, Stack, Typography } from '@mui/material'
 
+import { B3Sping, CustomButton } from '@/components'
+import { useMobile, useSetCountry } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
-  Box,
-  Stack,
-  Typography,
-} from '@mui/material'
-
-import {
-  ArrowBackIosNew,
-} from '@mui/icons-material'
-
-import {
-  useNavigate,
-} from 'react-router-dom'
-
-import {
-  QuoteStatus,
-} from './components/QuoteStatus'
-
-import {
-  B3Sping,
-  CustomButton,
-} from '@/components'
-
-import {
-  getBCCustomerAddresses,
-  getB2BCustomerAddresses,
-  createQuote,
   createBCQuote,
+  createQuote,
+  getB2BCustomerAddresses,
+  getBCCustomerAddresses,
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-
+import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
+  addQuoteDraftProduce,
   B3LStorage,
   B3SStorage,
-  storeHash,
-  addQuoteDraftProduce,
-  snackbar,
   getDefaultCurrencyInfo,
+  snackbar,
+  storeHash,
 } from '@/utils'
 
 import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  useMobile,
-  useSetCountry,
-} from '@/hooks'
-
-import ContactInfo from './components/ContactInfo'
-import QuoteAddress from './components/QuoteAddress'
-
-import {
-  BCAddressItemType,
-  AddressItemType,
-} from '@/types/address'
-
-import {
-  convertBCToB2BAddress,
-} from '../address/shared/config'
-
-import QuoteInfo from './components/QuoteInfo'
-
-import QuoteTable from './components/QuoteTable'
-import {
-  AddToQuote,
-} from './components/AddToQuote'
-import {
-  QuoteSummary,
-} from './components/QuoteSummary'
-import {
-  QuoteNote,
-} from './components/QuoteNote'
-import {
-  QuoteAttachment,
-} from './components/QuoteAttachment'
-
-import {
-  QuoteListitemProps,
-} from './shared/config'
-
-import {
-  getProductOptionsFields,
   conversionProductsList,
+  getProductOptionsFields,
   ListItemProps,
 } from '../../utils/b3Product/shared/config'
+import { convertBCToB2BAddress } from '../address/shared/config'
 
-import {
-  getAccountFormFields,
-} from './config'
-
-import {
-  Container,
-} from './style'
+import AddToQuote from './components/AddToQuote'
+import ContactInfo from './components/ContactInfo'
+import QuoteAddress from './components/QuoteAddress'
+import QuoteAttachment from './components/QuoteAttachment'
+import QuoteInfo from './components/QuoteInfo'
+import QuoteNote from './components/QuoteNote'
+import QuoteStatus from './components/QuoteStatus'
+import QuoteSummary from './components/QuoteSummary'
+import QuoteTable from './components/QuoteTable'
+import { QuoteListitemProps } from './shared/config'
+import getAccountFormFields from './config'
+import Container from './style'
 
 type BCAddress = {
   node: BCAddressItemType
@@ -112,22 +60,22 @@ type B2BAddress = {
 }
 
 export interface Country {
-  countryCode: string,
-  countryName: string,
-  id?: string,
+  countryCode: string
+  countryName: string
+  id?: string
 }
 
 interface GetValue {
-  [key: string]: string,
+  [key: string]: string
 }
 interface InfoRefProps extends HTMLInputElement {
-  getContactInfoValue: () => GetValue,
+  getContactInfoValue: () => GetValue
 }
 
 interface InfoProps {
-  contactInfo: GetValue,
-  shippingAddress: GetValue,
-  billingAddress: GetValue,
+  contactInfo: GetValue
+  shippingAddress: GetValue
+  billingAddress: GetValue
 }
 
 interface QuoteTableRef extends HTMLInputElement {
@@ -139,17 +87,15 @@ interface QuoteSummaryRef extends HTMLInputElement {
 }
 
 interface OpenPageState {
-  isOpen: boolean,
-  openUrl?: string,
+  isOpen: boolean
+  openUrl?: string
 }
 
 interface QuoteDraftProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
-const QuoteDraft = ({
-  setOpenPage,
-}: QuoteDraftProps) => {
+function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const {
     state: {
       role,
@@ -159,10 +105,7 @@ const QuoteDraft = ({
       currentChannelId,
       salesRepCompanyId,
       salesRepCompanyName,
-      companyInfo: {
-        id: companyB2BId,
-        companyName,
-      },
+      companyInfo: { id: companyB2BId, companyName },
       countriesList,
       customer,
       emailAddress,
@@ -231,14 +174,20 @@ const QuoteDraft = ({
         if (isB2BUser) {
           const companyId = companyB2BId || salesRepCompanyId
           const {
-            addresses: {
-              edges: addressB2BList = [],
-            },
+            addresses: { edges: addressB2BList = [] },
           } = await getB2BCustomerAddresses(+companyId)
 
-          const shippingDefautAddress = addressB2BList.find((item: B2BAddress) => (item?.node?.isDefaultShipping === 1))
-          const billingDefautAddress = addressB2BList.find((item: B2BAddress) => (item?.node?.isDefaultBilling === 1))
-          if (shippingDefautAddress && (!quoteInfo?.shippingAddress || JSON.stringify(quoteInfo.shippingAddress) === '{}')) {
+          const shippingDefautAddress = addressB2BList.find(
+            (item: B2BAddress) => item?.node?.isDefaultShipping === 1
+          )
+          const billingDefautAddress = addressB2BList.find(
+            (item: B2BAddress) => item?.node?.isDefaultBilling === 1
+          )
+          if (
+            shippingDefautAddress &&
+            (!quoteInfo?.shippingAddress ||
+              JSON.stringify(quoteInfo.shippingAddress) === '{}')
+          ) {
             const addressItem = {
               label: shippingDefautAddress?.node?.label || '',
               firstName: shippingDefautAddress?.node?.firstName || '',
@@ -255,7 +204,11 @@ const QuoteDraft = ({
 
             quoteInfo.shippingAddress = addressItem
           }
-          if (billingDefautAddress && (!quoteInfo?.billingAddress || JSON.stringify(quoteInfo.billingAddress) === '{}')) {
+          if (
+            billingDefautAddress &&
+            (!quoteInfo?.billingAddress ||
+              JSON.stringify(quoteInfo.billingAddress) === '{}')
+          ) {
             const addressItem = {
               label: billingDefautAddress?.node?.label || '',
               firstName: billingDefautAddress?.node?.firstName || '',
@@ -276,9 +229,7 @@ const QuoteDraft = ({
           setAddressList(addressB2BList)
         } else if (role !== 100) {
           const {
-            customerAddresses: {
-              edges: addressBCList = [],
-            },
+            customerAddresses: { edges: addressBCList = [] },
           } = await getBCCustomerAddresses()
 
           const list = addressBCList.map((address: BCAddress) => ({
@@ -287,7 +238,12 @@ const QuoteDraft = ({
           setAddressList(list)
         }
 
-        if (quoteInfo && (!quoteInfo?.contactInfo || JSON.stringify(quoteInfo.contactInfo) === '{}') && +role !== 100) {
+        if (
+          quoteInfo &&
+          (!quoteInfo?.contactInfo ||
+            JSON.stringify(quoteInfo.contactInfo) === '{}') &&
+          +role !== 100
+        ) {
           setCustomInfo(quoteInfo)
         } else if (quoteInfo) {
           setInfo(quoteInfo)
@@ -317,12 +273,14 @@ const QuoteDraft = ({
       saveInfo.shippingAddress = shippingRef.current.getContactInfoValue()
     }
 
-    const isComplete = Object.keys(saveInfo.contactInfo).every((key: string) => {
-      if (key === 'phoneNumber' || key === 'companyName') {
-        return true
+    const isComplete = Object.keys(saveInfo.contactInfo).every(
+      (key: string) => {
+        if (key === 'phoneNumber' || key === 'companyName') {
+          return true
+        }
+        return !!saveInfo.contactInfo[key]
       }
-      return !!saveInfo.contactInfo[key]
-    })
+    )
 
     if (isComplete) {
       B3LStorage.set('MyQuoteInfo', saveInfo)
@@ -335,18 +293,14 @@ const QuoteDraft = ({
     setEdit(true)
   }
 
-  const {
-    token: currencyToken,
-    currency_code: currencyCode,
-  } = getDefaultCurrencyInfo()
+  const { token: currencyToken, currency_code: currencyCode } =
+    getDefaultCurrencyInfo()
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
       const productIds: number[] = []
       listProducts.forEach((item) => {
-        const {
-          node,
-        } = item
+        const { node } = item
         if (!productIds.includes(node.productId)) {
           productIds.push(node.productId)
         }
@@ -355,9 +309,7 @@ const QuoteDraft = ({
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
       try {
-        const {
-          productsSearch,
-        } = await getProducts({
+        const { productsSearch } = await getProducts({
           productIds,
           currencyCode,
           companyId: companyB2BId,
@@ -366,17 +318,15 @@ const QuoteDraft = ({
         const newProductsSearch = conversionProductsList(productsSearch)
 
         listProducts.forEach((item) => {
-          const {
-            node,
-          } = item
+          const { node } = item
 
-          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
-            const {
-              id: productId,
-            } = search
+          const productInfo = newProductsSearch.find(
+            (search: CustomFieldItems) => {
+              const { id: productId } = search
 
-            return +node.productId === +productId
-          })
+              return +node.productId === +productId
+            }
+          )
 
           node.productsSearch = productInfo || {}
         })
@@ -386,6 +336,7 @@ const QuoteDraft = ({
         snackbar.error(err)
       }
     }
+    return undefined
   }
 
   const getQuoteTableDetails = async (params: CustomFieldItems) => {
@@ -416,8 +367,8 @@ const QuoteDraft = ({
         })
       }
 
-      item.node.basePrice = (+item.node.basePrice) + additionalCalculatedPrice
-      item.node.tax = (+item.node.tax) + additionalCalculatedPriceTax
+      item.node.basePrice = +item.node.basePrice + additionalCalculatedPrice
+      item.node.tax = +item.node.tax + additionalCalculatedPriceTax
     })
 
     return {
@@ -443,15 +394,17 @@ const QuoteDraft = ({
         optionList,
         quantity,
         variantSku,
-        productsSearch: {
-          variants,
-        },
+        productsSearch: { variants },
         basePrice,
       } = product.node
-      const variantItem = variants.find((item: CustomFieldItems) => item.sku === variantSku)
+      const variantItem = variants.find(
+        (item: CustomFieldItems) => item.sku === variantSku
+      )
 
       product.node.basePrice = basePrice
-      product.node.tax = variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive
+      product.node.tax =
+        variantItem.bc_calculated_price.tax_inclusive -
+        variantItem.bc_calculated_price.tax_exclusive
 
       const newOptionList = JSON.parse(optionList) || []
 
@@ -508,7 +461,9 @@ const QuoteDraft = ({
           ...address,
         }
 
-        const countryItem = countriesList?.find((item:Country) => item.countryCode === newAddress.country)
+        const countryItem = countriesList?.find(
+          (item: Country) => item.countryCode === newAddress.country
+        )
 
         if (countryItem) {
           newAddress.country = countryItem.countryName
@@ -520,33 +475,40 @@ const QuoteDraft = ({
         return newAddress
       }
 
-      const shippingAddress = info?.shippingAddress ? perfectAddress(info.shippingAddress) : {}
+      const shippingAddress = info?.shippingAddress
+        ? perfectAddress(info.shippingAddress)
+        : {}
 
-      const billingAddress = info?.billingAddress ? perfectAddress(info.billingAddress) : {}
+      const billingAddress = info?.billingAddress
+        ? perfectAddress(info.billingAddress)
+        : {}
 
       let allPrice = 0
       let allTaxPrice = 0
 
       const productList = b2bQuoteDraftList.map((item: QuoteListitemProps) => {
-        const {
-          node,
-        } = item
+        const { node } = item
         const product: any = {
           ...node.productsSearch,
           selectOptions: node?.optionList || '',
         }
 
-        const productFields = (getProductOptionsFields(product, {}))
+        const productFields = getProductOptionsFields(product, {})
 
-        const optionsList: CustomFieldItems[] = productFields.map((item) => ({
-          optionId: item.optionId,
-          optionValue: item.optionValue,
-          optionLabel: item.valueText,
-          optionName: item.valueLabel,
-        })).filter((list:CustomFieldItems) => !!list.optionName) || []
+        const optionsList: CustomFieldItems[] =
+          productFields
+            .map((item) => ({
+              optionId: item.optionId,
+              optionValue: item.optionValue,
+              optionLabel: item.valueText,
+              optionName: item.valueLabel,
+            }))
+            .filter((list: CustomFieldItems) => !!list.optionName) || []
 
         const varants = node.productsSearch.variants
-        const varantsItem = varants.find((item: CustomFieldItems) => item.sku === node.variantSku)
+        const varantsItem = varants.find(
+          (item: CustomFieldItems) => item.sku === node.variantSku
+        )
 
         let prices = 0
         let tax = 0
@@ -611,10 +573,7 @@ const QuoteDraft = ({
 
       const {
         quoteCreate: {
-          quote: {
-            id,
-            createdAt,
-          },
+          quote: { id, createdAt },
         },
       } = await fn(data)
 
@@ -643,9 +602,7 @@ const QuoteDraft = ({
   }
 
   return (
-    <B3Sping
-      isSpinning={loading}
-    >
+    <B3Sping isSpinning={loading}>
       <Box
         sx={{
           mb: '60px',
@@ -685,11 +642,7 @@ const QuoteDraft = ({
                 marginRight: '0.5rem',
               }}
             />
-            <p>
-              {
-                backText()
-              }
-            </p>
+            <p>{backText()}</p>
           </Box>
         </Box>
         <Box
@@ -718,114 +671,105 @@ const QuoteDraft = ({
             </Typography>
             <QuoteStatus code="0" />
           </Box>
-          {
-            !isMobile ? (
+          {!isMobile ? (
+            <CustomButton
+              variant="contained"
+              size="small"
+              sx={{
+                padding: '8px 22px',
+                alignSelf: 'center',
+                marginBottom: '24px',
+              }}
+              onClick={handleSubmit}
+            >
+              submit
+            </CustomButton>
+          ) : (
+            <Box
+              sx={{
+                position: 'fixed',
+                left: 0,
+                bottom: 0,
+                background: '#FFF',
+                width: '100%',
+                display: 'flex',
+                p: '8px 0',
+                zIndex: 100,
+                justifyContent: 'center',
+              }}
+            >
               <CustomButton
                 variant="contained"
                 size="small"
                 sx={{
-                  padding: '8px 22px',
-                  alignSelf: 'center',
-                  marginBottom: '24px',
+                  height: '38px',
+                  width: '90%',
                 }}
                 onClick={handleSubmit}
               >
                 submit
               </CustomButton>
-            ) : (
-              <Box
-                sx={{
-                  position: 'fixed',
-                  left: 0,
-                  bottom: 0,
-                  background: '#FFF',
-                  width: '100%',
-                  display: 'flex',
-                  p: '8px 0',
-                  zIndex: 100,
-                  justifyContent: 'center',
-                }}
-              >
-                <CustomButton
-                  variant="contained"
-                  size="small"
-                  sx={{
-                    height: '38px',
-                    width: '90%',
-                  }}
-                  onClick={handleSubmit}
-                >
-                  submit
-                </CustomButton>
-              </Box>
-            )
-          }
+            </Box>
+          )}
         </Box>
 
         <Box>
-          {
-          !isEdit && (
-          <QuoteInfo
-            status="Draft"
-            contactInfo={info?.contactInfo || {}}
-            shippingAddress={info?.shippingAddress || {}}
-            billingAddress={info?.billingAddress || {}}
-            handleEditInfoClick={handleEditInfoClick}
-          />
-          )
-        }
-          {
-          isEdit && (
-          <Container
-            flexDirection="column"
-          >
-            <ContactInfo
-              isB2BUser={isB2BUser}
-              emailAddress={emailAddress}
-              currentChannelId={currentChannelId}
-              info={info.contactInfo}
-              ref={contactInfoRef}
+          {!isEdit && (
+            <QuoteInfo
+              status="Draft"
+              contactInfo={info?.contactInfo || {}}
+              shippingAddress={info?.shippingAddress || {}}
+              billingAddress={info?.billingAddress || {}}
+              handleEditInfoClick={handleEditInfoClick}
             />
-            <Box
-              sx={{
-                display: 'flex',
-                mt: isMobile ? 0 : '3rem',
-                flexDirection: isMobile ? 'column' : 'row',
-              }}
-            >
-              <QuoteAddress
-                title="Billing"
-                info={info?.billingAddress || {}}
-                addressList={addressList}
-                pr={isMobile ? 0 : '8px'}
-                ref={billingRef}
-                role={role}
-                accountFormFields={accountFormFields}
+          )}
+          {isEdit && (
+            <Container flexDirection="column">
+              <ContactInfo
+                isB2BUser={isB2BUser}
+                emailAddress={emailAddress}
+                currentChannelId={currentChannelId}
+                info={info.contactInfo}
+                ref={contactInfoRef}
               />
-              <QuoteAddress
-                title="Shipping"
-                info={info?.shippingAddress || {}}
-                addressList={addressList}
-                pl={isMobile ? 0 : '8px'}
-                ref={shippingRef}
-                role={role}
-                accountFormFields={accountFormFields}
-              />
-            </Box>
-            <CustomButton
-              sx={{
-                mt: '20px',
-                mb: '15px',
-              }}
-              onClick={handleSaveInfoClick}
-              variant="outlined"
-            >
-              Save info
-
-            </CustomButton>
-          </Container>
-          )
-        }
+              <Box
+                sx={{
+                  display: 'flex',
+                  mt: isMobile ? 0 : '3rem',
+                  flexDirection: isMobile ? 'column' : 'row',
+                }}
+              >
+                <QuoteAddress
+                  title="Billing"
+                  info={info?.billingAddress || {}}
+                  addressList={addressList}
+                  pr={isMobile ? 0 : '8px'}
+                  ref={billingRef}
+                  role={role}
+                  accountFormFields={accountFormFields}
+                />
+                <QuoteAddress
+                  title="Shipping"
+                  info={info?.shippingAddress || {}}
+                  addressList={addressList}
+                  pl={isMobile ? 0 : '8px'}
+                  ref={shippingRef}
+                  role={role}
+                  accountFormFields={accountFormFields}
+                />
+              </Box>
+              <CustomButton
+                sx={{
+                  mt: '20px',
+                  mb: '15px',
+                }}
+                onClick={handleSaveInfoClick}
+                variant="outlined"
+              >
+                Save info
+              </CustomButton>
+            </Container>
+          )}
         </Box>
         <Box
           sx={{
@@ -852,7 +796,6 @@ const QuoteDraft = ({
               getQuoteTableDetails={getQuoteTableDetails}
               isB2BUser={isB2BUser}
             />
-
           </Container>
 
           <Container
@@ -880,13 +823,9 @@ const QuoteDraft = ({
                 isB2BUser={isB2BUser}
               />
 
-              <QuoteNote
-                quoteStatus="Draft"
-              />
+              <QuoteNote quoteStatus="Draft" />
 
-              {
-                role !== 100 && <QuoteAttachment status={0} />
-              }
+              {role !== 100 && <QuoteAttachment status={0} />}
             </Stack>
           </Container>
         </Box>

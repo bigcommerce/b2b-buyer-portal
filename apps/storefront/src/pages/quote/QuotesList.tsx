@@ -1,65 +1,25 @@
-import {
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
-import {
-  Box,
-} from '@mui/material'
-import {
-  useNavigate,
-} from 'react-router-dom'
-import {
-  format,
-} from 'date-fns'
-import {
-  TableColumnItem,
-} from '@/components/table/B3Table'
+import { useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Box } from '@mui/material'
+import { format } from 'date-fns'
 
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  useMobile,
-} from '@/hooks'
-
+import { B3Sping } from '@/components'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { TableColumnItem } from '@/components/table/B3Table'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
   getB2BQuotesList,
   getBCQuotesList,
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-// import {
-//   displayFormat,
-// } from '@/utils/b3DateFormat'
+import { B3LStorage, getDefaultCurrencyInfo } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 
-import {
-  QuoteStatus,
-} from './components/QuoteStatus'
-
-import {
-  QuoteItemCard,
-} from './components/QuoteItemCard'
-
-import {
-  getDefaultCurrencyInfo,
-  B3LStorage,
-} from '@/utils'
-
-import {
-  addPrice,
-} from './shared/config'
+import { QuoteItemCard } from './components/QuoteItemCard'
+import QuoteStatus from './components/QuoteStatus'
+import { addPrice } from './shared/config'
 
 interface SortByListProps {
   [key: string]: number | string
@@ -67,24 +27,24 @@ interface SortByListProps {
 
 interface ListItem {
   [key: string]: string | Object
-  status: string,
-  quoteNumber: string,
+  status: string
+  quoteNumber: string
   currency: {
     token: string
   }
 }
 
 interface FilterSearchProps {
-  first: number,
-  offset: number,
-  q: string,
-  orderBy: string,
-  createdBy: string,
-  status: string | number,
-  salesRep: string,
-  dateCreatedBeginAt: string,
-  dateCreatedEndAt: string,
-  startValue: string,
+  first: number
+  offset: number
+  q: string
+  orderBy: string
+  createdBy: string
+  status: string | number
+  salesRep: string
+  dateCreatedBeginAt: string
+  dateCreatedEndAt: string
+  startValue: string
   endValue: string
 }
 
@@ -138,12 +98,14 @@ const quotesStatuses = [
 ]
 
 const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any) => {
-  const newCreatedByUsers = createdByUsers?.createdByUser?.results?.createdBy.map((item: any) => ({
-    createdBy: item.email ? `${item.name} (${item.email})` : `${item.name}`,
-  })) || []
-  const newCreatedBySalesReps = createdByUsers?.createdByUser?.results?.salesRep.map((item: any) => ({
-    salesRep: `${item.salesRep || item.salesRepEmail}`,
-  })) || []
+  const newCreatedByUsers =
+    createdByUsers?.createdByUser?.results?.createdBy.map((item: any) => ({
+      createdBy: item.email ? `${item.name} (${item.email})` : `${item.name}`,
+    })) || []
+  const newCreatedBySalesReps =
+    createdByUsers?.createdByUser?.results?.salesRep.map((item: any) => ({
+      salesRep: `${item.salesRep || item.salesRepEmail}`,
+    })) || []
   const filterMoreList = [
     {
       name: 'status',
@@ -193,14 +155,15 @@ const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any) => {
   ]
 
   const filterCurrentMoreList = filterMoreList.filter((item) => {
-    if (!isB2BUser && (item.name === 'createdBy' || item.name === 'salesRep')) return false
+    if (!isB2BUser && (item.name === 'createdBy' || item.name === 'salesRep'))
+      return false
     return true
   })
 
   return filterCurrentMoreList
 }
 
-const QuotesList = () => {
+function QuotesList() {
   const initSearch = {
     q: '',
     orderBy: '',
@@ -210,7 +173,8 @@ const QuotesList = () => {
     dateCreatedBeginAt: '',
     dateCreatedEndAt: '',
   }
-  const [filterData, setFilterData] = useState<Partial<FilterSearchProps>>(initSearch)
+  const [filterData, setFilterData] =
+    useState<Partial<FilterSearchProps>>(initSearch)
 
   const [isRequestLoading, setIsRequestLoading] = useState(false)
 
@@ -224,9 +188,7 @@ const QuotesList = () => {
     state: {
       isB2BUser,
       customer,
-      companyInfo: {
-        id: companyB2BId,
-      },
+      companyInfo: { id: companyB2BId },
       salesRepCompanyId,
     },
   } = useContext(GlobaledContext)
@@ -235,7 +197,8 @@ const QuotesList = () => {
     const initFilter = async () => {
       const companyId = companyB2BId || salesRepCompanyId
       let createdByUsers: CustomFieldItems = {}
-      if (isB2BUser) createdByUsers = await getShoppingListsCreatedByUser(+companyId, 2)
+      if (isB2BUser)
+        createdByUsers = await getShoppingListsCreatedByUser(+companyId, 2)
 
       const filterInfos = getFilterMoreList(isB2BUser, createdByUsers)
       setFilterMoreInfo(filterInfos)
@@ -252,25 +215,19 @@ const QuotesList = () => {
     }
   }
 
-  const {
-    token: currencyToken,
-  } = getDefaultCurrencyInfo()
+  const { token: currencyToken } = getDefaultCurrencyInfo()
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
     const fn = isB2BUser ? getB2BQuotesList : getBCQuotesList
     const key = isB2BUser ? 'quotes' : 'customerQuotes'
     const {
-      [key]: {
-        edges = [],
-        totalCount,
-      },
+      [key]: { edges = [], totalCount },
     } = await fn(params)
 
     const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
     if (params.offset === 0 && quoteDraftAllList.length) {
       const summaryPrice = addPrice()
 
-      // const price = quoteDraftAllList.reduce((pre: number, cur: CustomFieldItems) => pre + (cur.node.basePrice * cur.node.quantity), 0)
       const quoteDraft = {
         node: {
           quoteNumber: '—',
@@ -297,13 +254,17 @@ const QuotesList = () => {
         dateCreatedEndAt,
       } = filterData
 
-      const showDraft = !status && !salesRep && !dateCreatedBeginAt && !dateCreatedEndAt
+      const showDraft =
+        !status && !salesRep && !dateCreatedBeginAt && !dateCreatedEndAt
 
       if (createdBy && showDraft) {
-        const getCreatedByReg: RegExp = /^[^(]+/
+        const getCreatedByReg = /^[^(]+/
         const createdByUserRegArr = getCreatedByReg.exec(createdBy)
-        const createdByUser = createdByUserRegArr?.length ? createdByUserRegArr[0].trim() : ''
-        if (createdByUser === quoteDraft.node.createdBy) edges.unshift(quoteDraft)
+        const createdByUser = createdByUserRegArr?.length
+          ? createdByUserRegArr[0].trim()
+          : ''
+        if (createdByUser === quoteDraft.node.createdBy)
+          edges.unshift(quoteDraft)
       } else if (showDraft) {
         edges.unshift(quoteDraft)
       }
@@ -327,7 +288,7 @@ const QuotesList = () => {
     {
       key: 'salesRep',
       title: 'Sales rep',
-      render: (item: ListItem) => (`${item.salesRep || item.salesRepEmail}`),
+      render: (item: ListItem) => `${item.salesRep || item.salesRepEmail}`,
     },
     {
       key: 'createdBy',
@@ -336,31 +297,44 @@ const QuotesList = () => {
     {
       key: 'createdAt',
       title: 'Date created',
-      render: (item: ListItem) => (`${+item.status !== 0 ? format(+item.createdAt * 1000, 'dd MMM yyyy') : item.createdAt}`),
+      render: (item: ListItem) =>
+        `${
+          +item.status !== 0
+            ? format(+item.createdAt * 1000, 'dd MMM yyyy')
+            : item.createdAt
+        }`,
     },
     {
       key: 'updatedAt',
       title: 'Last update',
-      render: (item: ListItem) => (`${+item.status !== 0 ? format(+item.updatedAt * 1000, 'dd MMM yyyy') : item.updatedAt}`),
+      render: (item: ListItem) =>
+        `${
+          +item.status !== 0
+            ? format(+item.updatedAt * 1000, 'dd MMM yyyy')
+            : item.updatedAt
+        }`,
     },
     {
       key: 'expiredAt',
       title: 'Expiration date',
-      render: (item: ListItem) => (`${+item.status !== 0 ? format(+item.expiredAt * 1000, 'dd MMM yyyy') : item.expiredAt}`),
+      render: (item: ListItem) =>
+        `${
+          +item.status !== 0
+            ? format(+item.expiredAt * 1000, 'dd MMM yyyy')
+            : item.expiredAt
+        }`,
     },
     {
       key: 'totalAmount',
       title: 'Subtotal',
       render: (item: ListItem) => {
         const {
-          currency: {
-            token,
-          },
+          currency: { token },
           totalAmount,
           taxTotal,
         } = item
 
-        return (`${token}${(+totalAmount + +taxTotal).toFixed(2)}`)
+        return `${token}${(+totalAmount + +taxTotal).toFixed(2)}`
       },
       style: {
         textAlign: 'right',
@@ -369,11 +343,11 @@ const QuotesList = () => {
     {
       key: 'status',
       title: 'Status',
-      render: (item: ListItem) => (<QuoteStatus code={item.status} />),
+      render: (item: ListItem) => <QuoteStatus code={item.status} />,
     },
   ]
 
-  const handleChange = (key:string, value: string) => {
+  const handleChange = (key: string, value: string) => {
     if (key === 'search') {
       setFilterData({
         ...filterData,
@@ -403,58 +377,53 @@ const QuotesList = () => {
   }
 
   return (
-    (
-      <B3Sping
-        isSpinning={isRequestLoading}
+    <B3Sping isSpinning={isRequestLoading}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+        }}
       >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            flex: 1,
+        <B3Filter
+          sortByConfig={sortByConfigData}
+          fiterMoreInfo={filterMoreInfo}
+          startPicker={{
+            isEnabled: true,
+            label: 'From',
+            defaultValue: filterData?.dateCreatedBeginAt || '',
+            pickerKey: 'start',
           }}
-        >
-          <B3Filter
-            sortByConfig={sortByConfigData}
-            fiterMoreInfo={filterMoreInfo}
-            startPicker={{
-              isEnabled: true,
-              label: 'From',
-              defaultValue: filterData?.dateCreatedBeginAt || '',
-              pickerKey: 'start',
-            }}
-            endPicker={{
-              isEnabled: true,
-              label: 'To',
-              defaultValue: filterData?.dateCreatedEndAt || '',
-              pickerKey: 'end',
-            }}
-            handleChange={handleChange}
-            handleFilterChange={handleFirterChange}
-          />
-          <B3PaginationTable
-            columnItems={columnAllItems}
-            rowsPerPageOptions={[10, 20, 30]}
-            getRequestList={fetchList}
-            searchParams={filterData}
-            isCustomRender={false}
-            requestLoading={setIsRequestLoading}
-            tableKey="quoteNumber"
-            labelRowsPerPage={`${isMobile ? 'Cards per page' : 'Quotes per page'}`}
-            renderItem={(row: ListItem) => (
-              <QuoteItemCard
-                item={row}
-                goToDetail={goToDetail}
-              />
-            )}
-            onClickRow={(row: ListItem) => {
-              goToDetail(row, +row.status)
-            }}
-            hover
-          />
-        </Box>
-      </B3Sping>
-    )
+          endPicker={{
+            isEnabled: true,
+            label: 'To',
+            defaultValue: filterData?.dateCreatedEndAt || '',
+            pickerKey: 'end',
+          }}
+          handleChange={handleChange}
+          handleFilterChange={handleFirterChange}
+        />
+        <B3PaginationTable
+          columnItems={columnAllItems}
+          rowsPerPageOptions={[10, 20, 30]}
+          getRequestList={fetchList}
+          searchParams={filterData}
+          isCustomRender={false}
+          requestLoading={setIsRequestLoading}
+          tableKey="quoteNumber"
+          labelRowsPerPage={`${
+            isMobile ? 'Cards per page' : 'Quotes per page'
+          }`}
+          renderItem={(row: ListItem) => (
+            <QuoteItemCard item={row} goToDetail={goToDetail} />
+          )}
+          onClickRow={(row: ListItem) => {
+            goToDetail(row, +row.status)
+          }}
+          hover
+        />
+      </Box>
+    </B3Sping>
   )
 }
 

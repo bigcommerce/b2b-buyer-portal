@@ -2,10 +2,21 @@
   "name": "@b3/hooks",
   "version": "0.0.0",
   "main": "index.ts",
+  "private": true,
   "scripts": {
     "lint": "eslint \"**/*.{ts,tsx}\""
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@b3/global-b3": "*"
+  },
+  "devDependencies": {
+    "@b3/tsconfig": "*",
+    "@types/react": "^18.0.0",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-b2b": "*",
+    "typescript": "^4.7.4"
   }
 }

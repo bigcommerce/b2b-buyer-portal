@@ -1,37 +1,24 @@
-import {
-  Button,
-  ButtonProps,
-  SxProps,
-} from '@mui/material'
-
-import {
-  MouseEvent,
-} from 'react'
+import { MouseEvent } from 'react'
+import { Button, ButtonProps, SxProps } from '@mui/material'
 
 interface CustomButtonProps extends ButtonProps {
-  onClick?: (e?: MouseEvent<HTMLButtonElement> | any) => void,
-  sx?: SxProps,
-  customLabel?: string,
-  children: React.ReactNode,
+  onClick?: (e?: MouseEvent<HTMLButtonElement> | any) => void
+  sx?: SxProps
+  customLabel?: string
+  children: React.ReactNode
 }
 
-const CustomButton = ({
-  onClick,
-  sx,
-  children,
-  ...rest
-}: CustomButtonProps) => (
-  <Button
-    {...rest}
-    sx={{
-      ...sx || {},
-    }}
-    onClick={onClick}
-  >
-    {children}
-  </Button>
-)
-
-export {
-  CustomButton,
+function CustomButton({ onClick, sx, children, ...rest }: CustomButtonProps) {
+  return (
+    <Button
+      {...rest}
+      sx={{
+        ...(sx || {}),
+      }}
+      onClick={onClick}
+    >
+      {children}
+    </Button>
+  )
 }
+export default CustomButton

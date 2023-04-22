@@ -5,33 +5,14 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material'
 
-import {
-  Box,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-} from '@mui/material'
+import { B3Dialog } from '@/components'
+import { useMobile } from '@/hooks'
+import { updateB2BAddress } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  B3Dialog,
-} from '@/components'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  updateB2BAddress,
-} from '@/shared/service/b2b'
-
-import {
-  AddressItemType,
-} from '../../../types/address'
+import { AddressItemType } from '../../../types/address'
 
 interface SetDefaultDialogProps {
   isOpen: boolean
@@ -42,7 +23,7 @@ interface SetDefaultDialogProps {
   companyId: string | number
 }
 
-export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
+export default function SetDefaultDialog(props: SetDefaultDialogProps) {
   const {
     isOpen,
     setIsOpen,
@@ -60,26 +41,26 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
     setAddress(addressData)
   }, [addressData])
 
-  const handleChange = (key: 'isDefaultShipping' | 'isDefaultBilling') => (e: ChangeEvent<HTMLInputElement>) => {
-    const {
-      checked,
-    } = e.target
+  const handleChange =
+    (key: 'isDefaultShipping' | 'isDefaultBilling') =>
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const { checked } = e.target
 
-    if (address) {
-      const newAddress = {
-        ...address,
+      if (address) {
+        const newAddress = {
+          ...address,
+        }
+        if (key === 'isDefaultShipping') {
+          newAddress.isDefaultShipping = checked ? 1 : 0
+          newAddress.isShipping = checked ? 1 : newAddress.isShipping
+        }
+        if (key === 'isDefaultBilling') {
+          newAddress.isDefaultBilling = checked ? 1 : 0
+          newAddress.isBilling = checked ? 1 : newAddress.isShipping
+        }
+        setAddress(newAddress)
       }
-      if (key === 'isDefaultShipping') {
-        newAddress.isDefaultShipping = checked ? 1 : 0
-        newAddress.isShipping = checked ? 1 : newAddress.isShipping
-      }
-      if (key === 'isDefaultBilling') {
-        newAddress.isDefaultBilling = checked ? 1 : 0
-        newAddress.isBilling = checked ? 1 : newAddress.isShipping
-      }
-      setAddress(newAddress)
     }
-  }
 
   const handleSetDefault = async () => {
     try {
@@ -105,7 +86,9 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
       title="Set as default address"
       leftSizeBtn="cancel"
       rightSizeBtn="set"
-      handleLeftClick={() => { setIsOpen(false) }}
+      handleLeftClick={() => {
+        setIsOpen(false)
+      }}
       handRightClick={handleSetDefault}
     >
       <Box
@@ -117,8 +100,7 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
           height: '100%',
         }}
       >
-        {
-        address && (
+        {address && (
           <Box
             sx={{
               padding: !isMobile ? '10px 0' : '0',
@@ -126,27 +108,26 @@ export const SetDefaultDialog = (props: SetDefaultDialogProps) => {
           >
             <FormGroup>
               <FormControlLabel
-                control={(
+                control={
                   <Checkbox
                     checked={address.isDefaultShipping === 1}
                     onChange={handleChange('isDefaultShipping')}
                   />
-            )}
+                }
                 label="Set as default shipping address "
               />
               <FormControlLabel
-                control={(
+                control={
                   <Checkbox
                     checked={address.isDefaultBilling === 1}
                     onChange={handleChange('isDefaultBilling')}
                   />
-            )}
+                }
                 label="Set as default billing address "
               />
             </FormGroup>
           </Box>
-        )
-      }
+        )}
       </Box>
     </B3Dialog>
   )

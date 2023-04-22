@@ -1,42 +1,34 @@
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemText from '@mui/material/ListItemText'
+import { MouseEvent, useState } from 'react'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
+import { Box } from '@mui/material'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 
-import {
-  Box,
-} from '@mui/material'
-
-import {
-  useState,
-  ReactElement,
-  MouseEvent,
-} from 'react'
-
-type configProps = {
-    name: string,
-    key: string | number,
+type ConfigProps = {
+  name: string
+  key: string | number
 }
 
 interface B3DropDownProps<T> {
-  width?: string,
-  list: Array<T>,
-  config?: configProps,
-  title: string,
-  handleItemClick: (arg0: T) => void,
-  value?: string,
+  width?: string
+  list: Array<T>
+  config?: ConfigProps
+  title: string
+  handleItemClick: (arg0: T) => void
+  value?: string
 }
 
-export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
+export default function B3DropDown<T>({
   width,
   list,
   config,
   title,
   value,
   handleItemClick,
-}) => {
+}: B3DropDownProps<T>) {
   const [open, setOpen] = useState<null | HTMLElement>(null)
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
@@ -79,9 +71,8 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
         keepMounted
         onClose={handleCloseMenuClick}
       >
-
-        {
-          list.length && list.map((item: any) => {
+        {list.length &&
+          list.map((item: any) => {
             const name = item[keyName]
             const color = value === item.key ? '#3385d6' : 'black'
             return (
@@ -99,9 +90,7 @@ export const B3DropDown: <T>(props: B3DropDownProps<T>) => ReactElement = ({
                 {name}
               </MenuItem>
             )
-          })
-        }
-
+          })}
       </Menu>
     </Box>
   )

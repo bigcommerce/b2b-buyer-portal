@@ -1,45 +1,27 @@
-import {
-  useState,
-  MouseEvent,
-} from 'react'
-
+import { MouseEvent, useState } from 'react'
+import { InsertDriveFile, MoreHoriz } from '@mui/icons-material'
 import {
   Box,
   Button,
-  Typography,
-  MenuItem,
-  Menu,
-  Tabs,
-  Tab,
   Link,
+  Menu,
+  MenuItem,
+  Tab,
+  Tabs,
+  Typography,
 } from '@mui/material'
-import {
-  InsertDriveFile,
-  MoreHoriz,
-} from '@mui/icons-material'
+import { styled } from '@mui/material/styles'
 
-import {
-  styled,
-} from '@mui/material/styles'
-
-import {
-  TableColumnItem,
-} from '@/components/table/B3Table'
-
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
-
-import {
-  useMobile,
-} from '@/hooks'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { TableColumnItem } from '@/components/table/B3Table'
+import { useMobile } from '@/hooks'
 
 import BulkUploadTableCard from './BulkUploadTableCard'
 
 interface BulkUploadTableProps {
-  setStep: (step: string) => void,
-  fileDatas: CustomFieldItems | null,
-  fileName: string,
+  setStep: (step: string) => void
+  fileDatas: CustomFieldItems | null
+  fileName: string
 }
 
 interface ListItem {
@@ -55,28 +37,25 @@ const StyledTableContainer = styled(Box)(() => {
   const mobileStyle = {
     marginTop: '0.5rem',
   }
-  return ({
+  return {
     '& div': isMobile ? mobileStyle : style,
-  })
+  }
 })
 
-const BulkUploadTable = (props: BulkUploadTableProps) => {
-  const {
-    setStep,
-    fileDatas,
-    fileName,
-  } = props
+function BulkUploadTable(props: BulkUploadTableProps) {
+  const { setStep, fileDatas, fileName } = props
   const [isMobile] = useMobile()
 
-  const columnErrorsItems: TableColumnItem <ListItem>[] = [
+  const columnErrorsItems: TableColumnItem<ListItem>[] = [
     {
       key: 'sku',
       title: 'SKU',
       width: '25%',
       render: (row) => (
-        <Typography sx={{
-          fontSize: '14px',
-        }}
+        <Typography
+          sx={{
+            fontSize: '14px',
+          }}
         >
           {row.sku}
         </Typography>
@@ -87,9 +66,10 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
       title: 'Qty',
       width: '20%',
       render: (row) => (
-        <Typography sx={{
-          fontSize: '14px',
-        }}
+        <Typography
+          sx={{
+            fontSize: '14px',
+          }}
         >
           {row.qty}
         </Typography>
@@ -100,9 +80,10 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
       title: 'Row',
       width: '20%',
       render: (row) => (
-        <Typography sx={{
-          fontSize: '14px',
-        }}
+        <Typography
+          sx={{
+            fontSize: '14px',
+          }}
         >
           {row.row + 1}
         </Typography>
@@ -113,9 +94,10 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
       title: 'Error',
       width: '35%',
       render: (row) => (
-        <Typography sx={{
-          fontSize: '14px',
-        }}
+        <Typography
+          sx={{
+            fontSize: '14px',
+          }}
         >
           {row.error}
         </Typography>
@@ -123,15 +105,16 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
     },
   ]
 
-  const columnValidItems: TableColumnItem <ListItem>[] = [
+  const columnValidItems: TableColumnItem<ListItem>[] = [
     {
       key: 'sku',
       title: 'SKU',
       width: '50%',
       render: (row) => (
-        <Typography sx={{
-          fontSize: '14px',
-        }}
+        <Typography
+          sx={{
+            fontSize: '14px',
+          }}
         >
           {row.sku}
         </Typography>
@@ -142,9 +125,10 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
       title: 'Qty',
       width: '50%',
       render: (row) => (
-        <Typography sx={{
-          fontSize: '14px',
-        }}
+        <Typography
+          sx={{
+            fontSize: '14px',
+          }}
         >
           {row.qty}
         </Typography>
@@ -156,7 +140,9 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
   const validProduct = fileDatas?.validProduct || []
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
-  const [activeTab, setActiveTab] = useState<string>(errorProduct.length > 0 ? 'error' : 'valid')
+  const [activeTab, setActiveTab] = useState<string>(
+    errorProduct.length > 0 ? 'error' : 'valid'
+  )
 
   const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(e.currentTarget)
@@ -180,10 +166,7 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
   const getProductInfo = (params: CustomFieldItems) => {
     const products = activeTab === 'error' ? errorProduct : validProduct
 
-    const {
-      first,
-      offset,
-    } = params
+    const { first, offset } = params
 
     const start = offset
     const limit = first + start
@@ -243,11 +226,7 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
           />
         </Button>
 
-        <Menu
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-        >
+        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
           <MenuItem
             onClick={() => {
               handleRemoveCsv()
@@ -259,13 +238,14 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
           >
             Remove
           </MenuItem>
-
         </Menu>
       </Box>
       <Box
         sx={{
           marginTop: '20px',
-          boxShadow: isMobile ? 'none' : '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
+          boxShadow: isMobile
+            ? 'none'
+            : '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
           borderRadius: '4px',
           position: 'relative',
         }}
@@ -276,28 +256,34 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
             onChange={handleChangeTab}
             aria-label="basic tabs example"
           >
-            {
-              errorProduct.length > 0 && (
-                <Tab
-                  value="error"
-                  label={errorProduct.length ? `Errors (${errorProduct.length})` : 'Errors'}
-                />
-              )
-            }
-            {
-              validProduct.length > 0 && (
+            {errorProduct.length > 0 && (
+              <Tab
+                value="error"
+                label={
+                  errorProduct.length
+                    ? `Errors (${errorProduct.length})`
+                    : 'Errors'
+                }
+              />
+            )}
+            {validProduct.length > 0 && (
               <Tab
                 value="valid"
-                label={validProduct.length ? `Valid (${validProduct.length})` : 'Valid'}
+                label={
+                  validProduct.length
+                    ? `Valid (${validProduct.length})`
+                    : 'Valid'
+                }
               />
-              )
-            }
+            )}
           </Tabs>
         </Box>
 
         <StyledTableContainer>
           <B3PaginationTable
-            columnItems={activeTab === 'error' ? columnErrorsItems : columnValidItems}
+            columnItems={
+              activeTab === 'error' ? columnErrorsItems : columnValidItems
+            }
             rowsPerPageOptions={[10, 20, 50]}
             showBorder={!isMobile}
             getRequestList={getProductInfo}
@@ -309,30 +295,22 @@ const BulkUploadTable = (props: BulkUploadTableProps) => {
               activeTab,
             }}
             renderItem={(row: CustomFieldItems) => (
-              <BulkUploadTableCard
-                products={row}
-                activeTab={activeTab}
-              />
+              <BulkUploadTableCard products={row} activeTab={activeTab} />
             )}
           />
         </StyledTableContainer>
 
-        {
-          activeTab === 'error' && (
-            <Box
-              sx={{
-                padding: isMobile ? '18px 0' : '0 16px 18px 16px',
-              }}
-            >
-              <Link
-                href={fileDatas?.errorFile}
-                underline="none"
-              >
-                Download errors
-              </Link>
-            </Box>
-          )
-        }
+        {activeTab === 'error' && (
+          <Box
+            sx={{
+              padding: isMobile ? '18px 0' : '0 16px 18px 16px',
+            }}
+          >
+            <Link href={fileDatas?.errorFile} underline="none">
+              Download errors
+            </Link>
+          </Box>
+        )}
       </Box>
     </Box>
   )

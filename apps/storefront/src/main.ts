@@ -1,5 +1,8 @@
 import {
-  bindLinks, initApp, requestIdleCallbackFunction, unbindLinks,
+  bindLinks,
+  initApp,
+  requestIdleCallbackFunction,
+  unbindLinks,
 } from './load-functions'
 
 // check if the accesed url contains a hashtag

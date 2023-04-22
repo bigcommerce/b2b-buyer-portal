@@ -127,6 +127,4 @@ const getAccountFormFields = (isMobile: boolean) => {
   return accountFormFields
 }
 
-export {
-  getAccountFormFields,
-}
+export default getAccountFormFields

@@ -1,52 +1,27 @@
-import {
-  useState,
-  ReactNode,
-  useContext,
-} from 'react'
-import {
-  Box,
-  Badge,
-} from '@mui/material'
+import { ReactNode, useContext, useState } from 'react'
+import { Close, Dehaze } from '@mui/icons-material'
+import { Badge, Box } from '@mui/material'
 
-import {
-  Dehaze,
-  Close,
-} from '@mui/icons-material'
+import { GlobaledContext } from '@/shared/global'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import B3AccountInfo from './B3AccountInfo'
+import B3Logo from './B3Logo'
+import B3Nav from './B3Nav'
 
-import {
-  B3Logo,
-} from './B3Logo'
-
-import {
-  B3Nav,
-} from './B3Nav'
-
-import {
-  B3AccountInfo,
-} from './B3AccountInfo'
-
-export const B3MobileLayout = ({
+export default function B3MobileLayout({
   children,
   title,
 }: {
-  children: ReactNode;
-  title: string,
-}) => {
+  children: ReactNode
+  title: string
+}) {
   const [isOpenMobileSidebar, setOpenMobileSidebar] = useState<boolean>(false)
   const openRouteList = () => {
     setOpenMobileSidebar(true)
   }
 
   const {
-    state: {
-      companyInfo,
-      salesRepCompanyName,
-      isAgenting,
-    },
+    state: { companyInfo, salesRepCompanyName, isAgenting },
   } = useContext(GlobaledContext)
 
   return (
@@ -70,10 +45,7 @@ export const B3MobileLayout = ({
       >
         <B3Logo />
 
-        <Badge
-          badgeContent={0}
-          color="secondary"
-        >
+        <Badge badgeContent={0} color="secondary">
           <Dehaze onClick={openRouteList} />
         </Badge>
       </Box>
@@ -89,9 +61,7 @@ export const B3MobileLayout = ({
           color: '#263238',
         }}
       >
-        {
-          title
-        }
+        {title}
       </Box>
       <Box
         sx={{
@@ -105,8 +75,7 @@ export const B3MobileLayout = ({
       >
         {children}
       </Box>
-      {
-        isOpenMobileSidebar && (
+      {isOpenMobileSidebar && (
         <Box
           sx={{
             height: '100vh',
@@ -117,7 +86,8 @@ export const B3MobileLayout = ({
             top: 0,
             p: '4vw',
             backgroundColor: 'white',
-            boxShadow: '0px 7px 8px -4px #00000033, 0px 12px 17px 2px #00000024, 0px 5px 22px 4px #0000001f',
+            boxShadow:
+              '0px 7px 8px -4px #00000033, 0px 12px 17px 2px #00000024, 0px 5px 22px 4px #0000001f',
           }}
         >
           <Box
@@ -141,9 +111,7 @@ export const B3MobileLayout = ({
             <Close onClick={() => setOpenMobileSidebar(false)} />
           </Box>
 
-          <B3Nav
-            closeSidebar={setOpenMobileSidebar}
-          />
+          <B3Nav closeSidebar={setOpenMobileSidebar} />
           <Box
             sx={{
               position: 'absolute',
@@ -151,14 +119,10 @@ export const B3MobileLayout = ({
               left: 0,
             }}
           >
-            <B3AccountInfo
-              closeSidebar={setOpenMobileSidebar}
-            />
+            <B3AccountInfo closeSidebar={setOpenMobileSidebar} />
           </Box>
         </Box>
-        )
-      }
-
+      )}
     </Box>
   )
 }

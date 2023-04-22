@@ -1,16 +1,11 @@
-import {
-  Box,
-  Button,
-} from '@mui/material'
+import { Box, Button } from '@mui/material'
 
 interface B3AddToQuoteTipProps {
-  gotoQuoteDraft: () => void,
+  gotoQuoteDraft: () => void
 }
 
-export const B3AddToQuoteTip = (props: B3AddToQuoteTipProps) => {
-  const {
-    gotoQuoteDraft,
-  } = props
+export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
+  const { gotoQuoteDraft } = props
 
   return (
     <Box

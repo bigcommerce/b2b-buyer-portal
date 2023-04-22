@@ -9,8 +9,9 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
-    "lint:fix": "turbo run lint --continue=true -- --fix",
-    "lint": "turbo run lint -- --max-warnings=0",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "format": "prettier --write --ignore-unknown .",
     "test": "turbo run test",
     "prepare": "husky install",
     "clean": "yarn run clean:node-modules",
@@ -19,20 +20,22 @@
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
-    "eslint-config-b3": "*",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-b2b": "*",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
+    "prettier": "^2",
     "turbo": "latest"
   },
   "engines": {
-    "npm": ">=7.0.0",
     "node": ">=14.0.0"
   },
   "dependencies": {},
   "packageManager": "yarn@1.22.17",
   "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown",
     "*.{ts,tsx}": [
-      "eslint \"**/*.{ts,tsx}\" --fix"
+      "eslint --fix"
     ]
   }
 }

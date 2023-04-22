@@ -1,64 +1,21 @@
-import {
-  useContext,
-  useEffect,
-  ReactNode,
-  useState,
-} from 'react'
+import { ReactNode, useContext, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Box } from '@mui/material'
 
-import {
-  Box,
-} from '@mui/material'
+import { useMobile } from '@/hooks'
+import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
+import { GlobaledContext } from '@/shared/global'
+import { routes } from '@/shared/routes'
+import { getIsTokenGotoPage, RouteItem } from '@/shared/routes/routes'
 
-import {
-  useNavigate,
-  useLocation,
-} from 'react-router-dom'
+import B3Dialog from '../B3Dialog'
 
-import {
-  useMobile,
-} from '@/hooks'
+import B3Logo from './B3Logo'
+import B3Mainheader from './B3Mainheader'
+import B3MobileLayout from './B3MobileLayout'
+import B3Nav from './B3Nav'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  DynamicallyVariableedContext,
-} from '@/shared/dynamicallyVariable'
-
-import {
-  B3Logo,
-} from './B3Logo'
-import {
-  B3Nav,
-} from './B3Nav'
-
-import {
-  B3MobileLayout,
-} from './B3MobileLayout'
-
-import {
-  B3Mainheader,
-} from './B3Mainheader'
-
-import {
-  B3Dialog,
-} from '../B3Dialog'
-
-import {
-  routes,
-} from '@/shared/routes'
-
-import {
-  RouteItem,
-  getIsTokenGotoPage,
-} from '@/shared/routes/routes'
-
-export function B3Layout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function B3Layout({ children }: { children: ReactNode }) {
   const [isMobile] = useMobile()
 
   const location = useLocation()
@@ -75,22 +32,25 @@ export function B3Layout({
   } = useContext(GlobaledContext)
 
   const {
-    state: {
-      globalMessageDialog,
-    },
+    state: { globalMessageDialog },
     dispatch,
   } = useContext(DynamicallyVariableedContext)
 
   const navigate = useNavigate()
 
   useEffect(() => {
-    if ((!emailAddress || !customerId) && !getIsTokenGotoPage(location.pathname)) {
+    if (
+      (!emailAddress || !customerId) &&
+      !getIsTokenGotoPage(location.pathname)
+    ) {
       navigate('/login')
     }
   }, [emailAddress, customerId, location])
 
   useEffect(() => {
-    const itemsRoutes = routes.filter((item: RouteItem) => item.path === location.pathname)
+    const itemsRoutes = routes.filter(
+      (item: RouteItem) => item.path === location.pathname
+    )
     if (itemsRoutes.length && location.pathname !== '/quoteDraft') {
       setTitle(itemsRoutes[0].pageTitle || itemsRoutes[0].name)
     } else {
@@ -122,14 +82,9 @@ export function B3Layout({
 
   return (
     <Box>
-
-      {
-        isMobile ? (
-          <B3MobileLayout title={title}>
-            {children}
-          </B3MobileLayout>
-        )
-          : (
+      {isMobile ? (
+        <B3MobileLayout title={title}>{children}</B3MobileLayout>
+      ) : (
         // <Box
         //   sx={{
         //     p: '40px 30px',
@@ -138,59 +93,59 @@ export function B3Layout({
         //     backgroundColor: '#d2d2d3',
         //   }}
         // >
+        <Box
+          id="app-mainPage-layout"
+          sx={{
+            display: 'flex',
+            minHeight: '100vh',
+            width: '100%',
+            flexDirection: 'row',
+            p: '30px 40px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '250px',
+              pl: '20px',
+              displayPrint: 'none',
+            }}
+          >
+            <B3Logo />
             <Box
-              id="app-mainPage-layout"
               sx={{
-                display: 'flex',
-                minHeight: '100vh',
-                width: '100%',
-                flexDirection: 'row',
-                p: '30px 40px',
+                pt: '40px',
               }}
             >
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  width: '250px',
-                  pl: '20px',
-                  displayPrint: 'none',
-                }}
-              >
-                <B3Logo />
-                <Box
-                  sx={{
-                    pt: '40px',
-                  }}
-                >
-                  <B3Nav />
-                </Box>
-              </Box>
-
-              <Box
-                sx={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  p: '0 24px 50px 50px',
-                }}
-              >
-                <B3Mainheader title={title} />
-                <Box
-                  component="main"
-                  sx={{
-                    // flexGrow: 1,
-                  }}
-                >
-                  {children}
-                </Box>
-              </Box>
-
+              <B3Nav />
             </Box>
+          </Box>
+
+          <Box
+            sx={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              p: '0 24px 50px 50px',
+            }}
+          >
+            <B3Mainheader title={title} />
+            <Box
+              component="main"
+              sx={
+                {
+                  // flexGrow: 1,
+                }
+              }
+            >
+              {children}
+            </Box>
+          </Box>
+        </Box>
 
         // </Box>
-          )
-      }
+      )}
 
       <B3Dialog
         isOpen={globalMessageDialog.open}
@@ -213,6 +168,5 @@ export function B3Layout({
         </Box>
       </B3Dialog>
     </Box>
-
   )
 }

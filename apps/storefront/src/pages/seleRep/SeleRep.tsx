@@ -1,25 +1,14 @@
-import {
-  useEffect,
-  useContext,
-} from 'react'
+import { useContext, useEffect } from 'react'
+import { Box } from '@mui/material'
 
-import {
-  Box,
-} from '@mui/material'
-import {
-  getAgentInfo,
-} from '@/shared/service/b2b'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
+import { GlobaledContext } from '@/shared/global'
+import { getAgentInfo } from '@/shared/service/b2b'
 import {
   B3SStorage,
   // storeHash,
 } from '@/utils'
 
-const SeleRep = () => {
+function SeleRep() {
   const {
     state: {
       // isB2BUser,
@@ -45,16 +34,14 @@ const SeleRep = () => {
             salesRepCompanyName = data.companyName
             isAgenting = true
 
-            dispatch(
-              {
-                type: 'common',
-                payload: {
-                  salesRepCompanyId,
-                  salesRepCompanyName,
-                  isAgenting,
-                },
+            dispatch({
+              type: 'common',
+              payload: {
+                salesRepCompanyId,
+                salesRepCompanyName,
+                isAgenting,
               },
-            )
+            })
           }
         } catch (error) {
           console.log(error)
@@ -65,11 +52,7 @@ const SeleRep = () => {
     init()
   }, [])
 
-  return (
-    <Box>
-      111111
-    </Box>
-  )
+  return <Box>111111</Box>
 }
 
 export default SeleRep

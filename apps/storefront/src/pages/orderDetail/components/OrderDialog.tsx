@@ -1,121 +1,66 @@
-import {
-  useState,
-  ReactElement,
-  useEffect,
-  useContext,
-} from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Box, Typography } from '@mui/material'
 
+import { B3CustomForm, B3Dialog, successTip } from '@/components'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
-  Box,
-  Typography,
-} from '@mui/material'
-
-import {
-  useForm,
-} from 'react-hook-form'
-
-import {
-  addProductToShoppingList,
   addProductToBcShoppingList,
+  addProductToShoppingList,
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
-
-import {
-  createCart,
-  getCartInfo,
-  addProductToCart,
-} from '@/shared/service/bc'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  B3CustomForm,
-  B3Dialog,
-  B3LinkTipContent,
-} from '@/components'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  OrderCheckboxProduct,
-} from './OrderCheckboxProduct'
-
-import {
-  OrderShoppingList,
-} from './OrderShoppingList'
-import CreateShoppingList from './CreateShoppingList'
-
-import {
-  getReturnFormFields,
-} from '../shared/config'
+import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
+import { snackbar } from '@/utils'
 
 import {
   EditableProductItem,
-  OrderProductItem,
   OrderCurrency,
+  OrderProductItem,
 } from '../../../types'
+import getReturnFormFields from '../shared/config'
+
+import CreateShoppingList from './CreateShoppingList'
+import OrderCheckboxProduct from './OrderCheckboxProduct'
+import OrderShoppingList from './OrderShoppingList'
 
 interface DialogData {
-  dialogTitle: string,
-  type: string,
-  description: string,
-  confirmText: string,
+  dialogTitle: string
+  type: string
+  description: string
+  confirmText: string
 }
 
 interface OrderDialogProps {
-  open: boolean,
-  setOpen: (open: boolean) => void,
-  products?: OrderProductItem[],
-  type?: string,
-  currentDialogData?: DialogData,
-  itemKey: string,
-  currencyInfo: OrderCurrency,
+  open: boolean
+  setOpen: (open: boolean) => void
+  products?: OrderProductItem[]
+  type?: string
+  currentDialogData?: DialogData
+  itemKey: string
+  currencyInfo: OrderCurrency
 }
 
-interface successTipOptions{
-  message: string,
-  link?: string,
-  linkText?: string,
-  isOutLink?: boolean,
-}
-
-const successTip = (options: successTipOptions) => () => (
-  <B3LinkTipContent
-    message={options.message}
-    link={options.link}
-    linkText={options.linkText}
-    isOutLink={options.isOutLink}
-  />
-)
-
-export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
+export default function OrderDialog({
   open,
   products = [],
   type,
-  currentDialogData = null,
+  currentDialogData = undefined,
   setOpen,
   itemKey,
   currencyInfo,
-}) => {
+}: OrderDialogProps) {
   const {
-    state: {
-      isB2BUser,
-    },
+    state: { isB2BUser },
   } = useContext(GlobaledContext)
 
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false)
 
   const [openShoppingList, setOpenShoppingList] = useState(false)
-  const [editableProducts, setEditableProducts] = useState<EditableProductItem[]>([])
+  const [editableProducts, setEditableProducts] = useState<
+    EditableProductItem[]
+  >([])
   const [variantInfoList, setVariantInfoList] = useState<CustomFieldItems[]>([])
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [checkedArr, setCheckedArr] = useState<number[]>([])
@@ -128,9 +73,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
   } = useForm({
     mode: 'all',
@@ -148,22 +91,29 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
 
   const getVariantInfoByList = async () => {
     const skus = products.map((product) => product.sku)
-    const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus
+    const getVariantInfoBySku = isB2BUser
+      ? getB2BVariantInfoBySkus
+      : getBcVariantInfoBySkus
 
-    const {
-      variantSku: variantInfoList = [],
-    }: CustomFieldItems = await getVariantInfoBySku({
-      skus,
-    })
+    const { variantSku: variantInfoList = [] }: CustomFieldItems =
+      await getVariantInfoBySku({
+        skus,
+      })
 
     setVariantInfoList(variantInfoList)
   }
 
-  const validateProductNumber = (variantInfoList: CustomFieldItems, skus: string[]) => {
+  const validateProductNumber = (
+    variantInfoList: CustomFieldItems,
+    skus: string[]
+  ) => {
     let isValid = true
 
     skus.forEach((sku) => {
-      const variantInfo : CustomFieldItems | null = (variantInfoList || []).find((variant: CustomFieldItems) => variant.variantSku.toUpperCase() === sku.toUpperCase())
+      const variantInfo: CustomFieldItems | null = (variantInfoList || []).find(
+        (variant: CustomFieldItems) =>
+          variant.variantSku.toUpperCase() === sku.toUpperCase()
+      )
       const product = editableProducts.find((product) => product.sku === sku)
       if (!variantInfo || !product) {
         return
@@ -233,9 +183,12 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
       const cartInfo = await getCartInfo()
       let res
       if (cartInfo.length > 0) {
-        res = await addProductToCart({
-          lineItems: items,
-        }, cartInfo[0].id)
+        res = await addProductToCart(
+          {
+            lineItems: items,
+          },
+          cartInfo[0].id
+        )
       } else {
         res = await createCart({
           lineItems: items,
@@ -305,10 +258,7 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           variantId,
           quantity: +editQuantity,
           optionList: productOptions.map((option) => {
-            const {
-              product_option_id: optionId,
-              value: optionValue,
-            } = option
+            const { product_option_id: optionId, value: optionValue } = option
 
             return {
               optionId: `attribute[${optionId}]`,
@@ -317,9 +267,13 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           }),
         }
       })
-      const params = items.filter((item) => checkedArr.includes(+item.variantId))
+      const params = items.filter((item) =>
+        checkedArr.includes(+item.variantId)
+      )
 
-      const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList
+      const addToShoppingList = isB2BUser
+        ? addProductToShoppingList
+        : addProductToBcShoppingList
 
       await addToShoppingList({
         shoppingListId: +id,
@@ -353,10 +307,12 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
 
   useEffect(() => {
     if (open) {
-      setEditableProducts(products.map((item: OrderProductItem) => ({
-        ...item,
-        editQuantity: item.quantity,
-      })))
+      setEditableProducts(
+        products.map((item: OrderProductItem) => ({
+          ...item,
+          editQuantity: item.quantity,
+        }))
+      )
 
       getVariantInfoByList()
     }
@@ -375,7 +331,6 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           width: '50%',
         }}
       >
-
         <B3Dialog
           isOpen={open}
           fullWidth
@@ -401,31 +356,28 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
             textAlign={isMobile ? 'left' : 'right'}
           />
 
-          {
-            type === 'return' && (
-              <>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    margin: '20px 0',
-                  }}
-                >
-                  Additional Information
-                </Typography>
-                <B3CustomForm
-                  formFields={returnFormFields}
-                  errors={errors}
-                  control={control}
-                  getValues={getValues}
-                  setValue={setValue}
-                />
-              </>
-            )
-          }
+          {type === 'return' && (
+            <>
+              <Typography
+                variant="body1"
+                sx={{
+                  margin: '20px 0',
+                }}
+              >
+                Additional Information
+              </Typography>
+              <B3CustomForm
+                formFields={returnFormFields}
+                errors={errors}
+                control={control}
+                getValues={getValues}
+                setValue={setValue}
+              />
+            </>
+          )}
         </B3Dialog>
       </Box>
-      {
-        itemKey === 'order-summary' && (
+      {itemKey === 'order-summary' && (
         <OrderShoppingList
           isOpen={openShoppingList}
           dialogTitle="Add to shopping list"
@@ -435,17 +387,14 @@ export const OrderDialog: (props: OrderDialogProps) => ReactElement = ({
           isLoading={isRequestLoading}
           setLoading={setIsRequestLoading}
         />
-        )
-      }
-      {
-        itemKey === 'order-summary' && (
+      )}
+      {itemKey === 'order-summary' && (
         <CreateShoppingList
           open={isOpenCreateShopping}
           onChange={handleCreateShoppingClick}
           onClose={handleCloseShoppingClick}
         />
-        )
-      }
+      )}
     </>
   )
 }

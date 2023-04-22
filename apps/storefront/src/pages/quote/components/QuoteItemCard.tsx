@@ -1,33 +1,26 @@
+import styled from '@emotion/styled'
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import { format } from 'date-fns'
 
-import styled from '@emotion/styled'
+import { TableColumnItem } from '@/components/table/B3Table'
 
-import {
-  format,
-} from 'date-fns'
-import {
-  TableColumnItem,
-} from '@/components/table/B3Table'
-
-import {
-  QuoteStatus,
-} from './QuoteStatus'
+import QuoteStatus from './QuoteStatus'
 
 interface ListItem {
   [key: string]: string | Object
-  status: string,
-  quoteNumber: string,
+  status: string
+  quoteNumber: string
   currency: {
     token: string
   }
 }
 
 export interface QuoteItemCardProps {
-  goToDetail: (val: ListItem, status: number) => void,
-  item: ListItem,
+  goToDetail: (val: ListItem, status: number) => void
+  item: ListItem
 }
 
 const Flex = styled('div')(() => ({
@@ -37,11 +30,8 @@ const Flex = styled('div')(() => ({
   marginBottom: '1rem',
 }))
 
-export const QuoteItemCard = (props: QuoteItemCardProps) => {
-  const {
-    item,
-    goToDetail,
-  } = props
+export function QuoteItemCard(props: QuoteItemCardProps) {
+  const { item, goToDetail } = props
 
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {
@@ -59,30 +49,43 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
     {
       key: 'createdAt',
       title: 'Date created',
-      render: () => (`${+item.status !== 0 ? format(+item.createdAt * 1000, 'dd MMM yyyy') : item.createdAt}`),
+      render: () =>
+        `${
+          +item.status !== 0
+            ? format(+item.createdAt * 1000, 'dd MMM yyyy')
+            : item.createdAt
+        }`,
     },
     {
       key: 'updatedAt',
       title: 'Last update',
-      render: () => (`${+item.status !== 0 ? format(+item.updatedAt * 1000, 'dd MMM yyyy') : item.updatedAt}`),
+      render: () =>
+        `${
+          +item.status !== 0
+            ? format(+item.updatedAt * 1000, 'dd MMM yyyy')
+            : item.updatedAt
+        }`,
     },
     {
       key: 'expiredAt',
       title: 'Expiration date',
-      render: () => (`${+item.status !== 0 ? format(+item.expiredAt * 1000, 'dd MMM yyyy') : item.expiredAt}`),
+      render: () =>
+        `${
+          +item.status !== 0
+            ? format(+item.expiredAt * 1000, 'dd MMM yyyy')
+            : item.expiredAt
+        }`,
     },
     {
       key: 'totalAmount',
       title: 'Subtotal',
       render: () => {
         const {
-          currency: {
-            token,
-          },
+          currency: { token },
           totalAmount,
         } = item
 
-        return (`${token}${(+totalAmount).toFixed(2)}`)
+        return `${token}${(+totalAmount).toFixed(2)}`
       },
     },
   ]
@@ -114,37 +117,33 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
           <Box>
             <QuoteStatus code={item.status} />
           </Box>
-
         </Flex>
 
-        {
-          columnAllItems.map((list: any) => (
-            <Box
-              key={list.key}
+        {columnAllItems.map((list: any) => (
+          <Box
+            key={list.key}
+            sx={{
+              display: 'flex',
+            }}
+          >
+            <Typography
               sx={{
-                display: 'flex',
+                fontWeight: 'bold',
+                color: 'rgba(0, 0, 0, 0.87)',
+                mr: '5px',
               }}
             >
-              <Typography
-                sx={{
-                  fontWeight: 'bold',
-                  color: 'rgba(0, 0, 0, 0.87)',
-                  mr: '5px',
-                }}
-              >
-                {`${list.title}:`}
-              </Typography>
-              <Typography
-                sx={{
-                  color: 'black',
-                }}
-              >
-                {list?.render ? list.render() : item[list.key]}
-              </Typography>
-            </Box>
-
-          ))
-        }
+              {`${list.title}:`}
+            </Typography>
+            <Typography
+              sx={{
+                color: 'black',
+              }}
+            >
+              {list?.render ? list.render() : item[list.key]}
+            </Typography>
+          </Box>
+        ))}
 
         <Box
           onClick={() => goToDetail(item, +item.status)}
@@ -159,7 +158,6 @@ export const QuoteItemCard = (props: QuoteItemCardProps) => {
         >
           VIEW
         </Box>
-
       </CardContent>
     </Card>
   )

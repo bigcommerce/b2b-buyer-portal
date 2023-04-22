@@ -1,32 +1,25 @@
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-
+import styled from '@emotion/styled'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 
-import styled from '@emotion/styled'
+import { B3Tag } from '@/components'
 
-import {
-  B3Tag,
-} from '@/components/B3Tag'
-
-import {
-  UsersList,
-  getUserRole,
-} from './config'
+import { getUserRole, UsersList } from './config'
 
 interface RoleListProps {
-  label: string,
-  value: string | number,
-  color: string,
-  textColor: string,
+  label: string
+  value: string | number
+  color: string
+  textColor: string
 }
 
 export interface OrderItemCardProps {
-  item: UsersList,
+  item: UsersList
   onEdit: (data: UsersList) => void
   onDelete: (data: UsersList) => void
   isPermissions: boolean
@@ -38,13 +31,8 @@ const Flex = styled('div')(() => ({
   justifyContent: 'space-between',
 }))
 
-export const UserItemCard = (props: OrderItemCardProps) => {
-  const {
-    item: userInfo,
-    onEdit,
-    onDelete,
-    isPermissions,
-  } = props
+export function UserItemCard(props: OrderItemCardProps) {
+  const { item: userInfo, onEdit, onDelete, isPermissions } = props
 
   const getNewRoleList = () => {
     const userRole = getUserRole()
@@ -75,23 +63,20 @@ export const UserItemCard = (props: OrderItemCardProps) => {
 
   const statusRender = (role: number) => {
     const newRoleList = getNewRoleList()
-    const roleItem = newRoleList.find((item: RoleListProps) => +item.value === +role)
+    const roleItem = newRoleList.find(
+      (item: RoleListProps) => +item.value === +role
+    )
 
-    if (!roleItem) return
+    if (!roleItem) return null
     return (
-      <B3Tag
-        color={roleItem.color}
-        textColor={roleItem.textColor}
-      >
+      <B3Tag color={roleItem.color} textColor={roleItem.textColor}>
         {roleItem.label}
       </B3Tag>
     )
   }
 
   return (
-    <Card
-      key={userInfo.id}
-    >
+    <Card key={userInfo.id}>
       <CardContent
         sx={{
           color: '#313440',
@@ -103,9 +88,7 @@ export const UserItemCard = (props: OrderItemCardProps) => {
             color: 'rgba(0, 0, 0, 0.87)',
           }}
         >
-          {userInfo.firstName}
-          {' '}
-          {userInfo.lastName}
+          {userInfo.firstName} {userInfo.lastName}
         </Typography>
 
         <Typography
@@ -115,7 +98,6 @@ export const UserItemCard = (props: OrderItemCardProps) => {
           variant="body1"
         >
           {userInfo.email}
-
         </Typography>
         <Flex>
           {statusRender(userInfo.role)}
@@ -130,14 +112,18 @@ export const UserItemCard = (props: OrderItemCardProps) => {
               sx={{
                 marginRight: '8px',
               }}
-              onClick={() => { onEdit(userInfo) }}
+              onClick={() => {
+                onEdit(userInfo)
+              }}
             >
               <EditIcon fontSize="inherit" />
             </IconButton>
             <IconButton
               aria-label="delete"
               size="small"
-              onClick={() => { onDelete(userInfo) }}
+              onClick={() => {
+                onDelete(userInfo)
+              }}
             >
               <DeleteIcon fontSize="inherit" />
             </IconButton>

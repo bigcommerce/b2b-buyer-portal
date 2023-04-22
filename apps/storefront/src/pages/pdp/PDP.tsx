@@ -1,51 +1,34 @@
 import {
-  useEffect,
-  useState,
   Dispatch,
   SetStateAction,
   useContext,
+  useEffect,
+  useState,
 } from 'react'
+import type { OpenPageState } from '@b3/hooks'
+import { Box, Button } from '@mui/material'
 
+import { GlobaledContext } from '@/shared/global'
 import {
-  Button,
-  Box,
-} from '@mui/material'
-
-import type {
-  OpenPageState,
-} from '@b3/hooks'
-
-import {
-  B3SStorage,
-  snackbar,
-  globalSnackbar,
-  isAllRequiredOptionFilled,
-  getDefaultCurrencyInfo,
-} from '@/utils'
-
-import {
+  addProductToBcShoppingList,
+  addProductToShoppingList,
   searchB2BProducts,
   searchBcProducts,
-  addProductToShoppingList,
-  addProductToBcShoppingList,
 } from '@/shared/service/b2b'
-
 import {
-  GlobaledContext,
-} from '@/shared/global'
+  B3SStorage,
+  getDefaultCurrencyInfo,
+  globalSnackbar,
+  isAllRequiredOptionFilled,
+  snackbar,
+} from '@/utils'
 
-import {
-  OrderShoppingList,
-} from '../orderDetail/components/OrderShoppingList'
-
+import { conversionProductsList } from '../../utils/b3Product/shared/config'
 import CreateShoppingList from '../orderDetail/components/CreateShoppingList'
-
-import {
-  conversionProductsList,
-} from '../../utils/b3Product/shared/config'
+import OrderShoppingList from '../orderDetail/components/OrderShoppingList'
 
 interface PDPProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
 export const serialize = (form: any) => {
@@ -97,18 +80,15 @@ export const getProductOptionList = (optionMap: CustomFieldItems) => {
   return optionList
 }
 
-const PDP = ({
-  setOpenPage,
-}: PDPProps) => {
+function PDP({ setOpenPage }: PDPProps) {
   const isPromission = true
   const {
-    state: {
-      isB2BUser,
-    },
+    state: { isB2BUser },
   } = useContext(GlobaledContext)
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
-  const [isOpenCreateShopping, setIsOpenCreateShopping] = useState<boolean>(false)
+  const [isOpenCreateShopping, setIsOpenCreateShopping] =
+    useState<boolean>(false)
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
@@ -163,31 +143,30 @@ const PDP = ({
   const handleShoppingConfirm = async (id: string | number) => {
     try {
       setIsRequestLoading(true)
-      const productId = (document.querySelector('input[name=product_id]') as any)?.value
+      const productId = (
+        document.querySelector('input[name=product_id]') as any
+      )?.value
       const qty = (document.querySelector('[name="qty[]"]') as any)?.value ?? 1
-      const sku = (document.querySelector('[data-product-sku]')?.innerHTML ?? '').trim()
+      const sku = (
+        document.querySelector('[data-product-sku]')?.innerHTML ?? ''
+      ).trim()
       const form = document.querySelector('form[data-cart-item-add]')
 
-      const {
-        currency_code: currencyCode,
-      } = getDefaultCurrencyInfo()
+      const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
-      const companyId = B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+      const companyId =
+        B3SStorage.get('B3CompanyInfo')?.id ||
+        B3SStorage.get('salesRepCompanyId')
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
-      const {
-        productsSearch,
-      } = await getProducts({
+      const { productsSearch } = await getProducts({
         productIds: [+productId],
         currencyCode,
         companyId,
       })
 
       const newProductInfo: any = conversionProductsList(productsSearch)
-      const {
-        allOptions,
-        variants,
-      } = newProductInfo[0]
+      const { allOptions, variants } = newProductInfo[0]
 
       const variantItem = variants.find((item: any) => item.sku === sku)
 
@@ -195,10 +174,10 @@ const PDP = ({
 
       const optionList = getProductOptionList(optionMap)
 
-      const {
-        isValid,
-        message,
-      } = isAllRequiredOptionFilled(allOptions, optionList)
+      const { isValid, message } = isAllRequiredOptionFilled(
+        allOptions,
+        optionList
+      )
       if (!isValid) {
         snackbar.error(message, {
           isClose: true,
@@ -213,7 +192,9 @@ const PDP = ({
         optionList,
       }
 
-      const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList
+      const addToShoppingList = isB2BUser
+        ? addProductToShoppingList
+        : addProductToBcShoppingList
 
       await addToShoppingList({
         shoppingListId: +id,
@@ -245,28 +226,24 @@ const PDP = ({
 
   return (
     <>
-      {
-      isPromission && (
-      <OrderShoppingList
-        isOpen={openShoppingList}
-        dialogTitle="Add to shopping list"
-        onClose={handleShoppingClose}
-        onConfirm={handleShoppingConfirm}
-        onCreate={handleOpenCreateDialog}
-        isLoading={isRequestLoading}
-        setLoading={setIsRequestLoading}
-      />
-      )
-    }
-      {
-      isPromission && (
-      <CreateShoppingList
-        open={isOpenCreateShopping}
-        onChange={handleCreateShoppingClick}
-        onClose={handleCloseShoppingClick}
-      />
-      )
-    }
+      {isPromission && (
+        <OrderShoppingList
+          isOpen={openShoppingList}
+          dialogTitle="Add to shopping list"
+          onClose={handleShoppingClose}
+          onConfirm={handleShoppingConfirm}
+          onCreate={handleOpenCreateDialog}
+          isLoading={isRequestLoading}
+          setLoading={setIsRequestLoading}
+        />
+      )}
+      {isPromission && (
+        <CreateShoppingList
+          open={isOpenCreateShopping}
+          onChange={handleCreateShoppingClick}
+          onClose={handleCloseShoppingClick}
+        />
+      )}
     </>
   )
 }

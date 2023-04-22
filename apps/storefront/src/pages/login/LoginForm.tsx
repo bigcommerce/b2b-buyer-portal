@@ -1,61 +1,33 @@
-import {
-  useForm,
-  SubmitHandler,
-} from 'react-hook-form'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
+import { Box, useTheme } from '@mui/material'
 
-import {
-  useB3Lang,
-} from '@b3/lang'
+import { B3CustomForm, CustomButton } from '@/components'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 
-import {
-  Box,
-  useTheme,
-} from '@mui/material'
-
-import {
-  B3CustomForm,
-  CustomButton,
-} from '@/components'
-
-import {
-  LoginInfoInit,
-  getLoginFields,
-  LoginConfig,
-} from './config'
-
-import {
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
+import { getLoginFields, LoginConfig, LoginInfoInit } from './config'
 
 interface LoginFormProps {
-  loginInfo: Partial<LoginInfoInit>;
-  handleLoginSubmit: (data: LoginConfig) => void;
-  gotoForgotPassword: () => void;
+  loginInfo: Partial<LoginInfoInit>
+  handleLoginSubmit: (data: LoginConfig) => void
+  gotoForgotPassword: () => void
 }
 
-const LoginForm = (props: LoginFormProps) => {
-  const {
-    loginInfo,
-    handleLoginSubmit,
-    gotoForgotPassword,
-  } = props
+function LoginForm(props: LoginFormProps) {
+  const { loginInfo, handleLoginSubmit, gotoForgotPassword } = props
 
   const b3Lang = useB3Lang()
   const theme = useTheme()
 
   const loginFields = getLoginFields(b3Lang)
 
-  const {
-    loginBtn,
-  } = loginInfo
+  const { loginBtn } = loginInfo
 
   const {
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
   } = useForm<LoginConfig>({
     mode: 'onSubmit',
@@ -66,9 +38,10 @@ const LoginForm = (props: LoginFormProps) => {
   }
 
   return (
-    <Box sx={{
-      width: '100%',
-    }}
+    <Box
+      sx={{
+        width: '100%',
+      }}
     >
       <B3CustomForm
         formFields={loginFields}
@@ -78,12 +51,13 @@ const LoginForm = (props: LoginFormProps) => {
         setValue={setValue}
       />
 
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'flex-start ',
-        alignItems: 'center',
-        mt: 2,
-      }}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-start ',
+          alignItems: 'center',
+          mt: 2,
+        }}
       >
         <CustomButton
           type="submit"
@@ -94,7 +68,7 @@ const LoginForm = (props: LoginFormProps) => {
             color: getContrastColor(theme.palette.primary.main),
           }}
         >
-          { loginBtn }
+          {loginBtn}
         </CustomButton>
         <Box
           sx={{
@@ -108,7 +82,6 @@ const LoginForm = (props: LoginFormProps) => {
           {b3Lang('intl.user.login.loginText.forgotPasswordText')}
         </Box>
       </Box>
-
     </Box>
   )
 }

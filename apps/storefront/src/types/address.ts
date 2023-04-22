@@ -1,6 +1,6 @@
 export interface AddressExtraFieldType {
-  fieldName: string,
-  fieldValue: string,
+  fieldName: string
+  fieldValue: string
 }
 
 export interface AddressItemType {

@@ -1,65 +1,37 @@
-import {
-  Box,
-  Divider,
-  Typography,
-  Card,
-  CardContent,
-} from '@mui/material'
-
+import { useContext, useState } from 'react'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
+import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 
+import { B3Upload, CustomButton } from '@/components'
 import {
-  useState,
-  useContext,
-} from 'react'
-
-import {
-  SearchProduct,
-} from './SearchProduct'
-
-import {
-  QuickAdd,
-} from './QuickAdd'
-
-import {
-  ShoppingListDetailsContext,
-} from '../context/ShoppingListDetailsContext'
-
-import {
-  addProductToShoppingList,
   addProductToBcShoppingList,
+  addProductToShoppingList,
 } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
-import {
-  snackbar,
-} from '@/utils'
+import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'
 
-import {
-  B3Upload,
-  CustomButton,
-} from '@/components'
+import QuickAdd from './QuickAdd'
+import SearchProduct from './SearchProduct'
 
 interface AddToListProps {
   updateList: () => void
   isB2BUser: boolean
 }
 
-export const AddToShoppingList = (props: AddToListProps) => {
+export default function AddToShoppingList(props: AddToListProps) {
   const {
-    state: {
-      id,
-    },
+    state: { id },
   } = useContext(ShoppingListDetailsContext)
 
-  const {
-    updateList,
-    isB2BUser,
-  } = props
+  const { updateList, isB2BUser } = props
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const addItemsToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList
+  const addItemsToShoppingList = isB2BUser
+    ? addProductToShoppingList
+    : addProductToBcShoppingList
 
   const addToList = async (products: CustomFieldItems[]) => {
     const items = products.map((product) => ({
@@ -106,17 +78,9 @@ export const AddToShoppingList = (props: AddToListProps) => {
     const productItems: CustomFieldItems[] = []
 
     products.forEach((item: CustomFieldItems) => {
-      const {
-        products: currentProduct,
-        qty,
-      } = item
-      const {
-        option,
-        purchasingDisabled,
-        variantSku,
-        variantId,
-        productId,
-      } = currentProduct
+      const { products: currentProduct, qty } = item
+      const { option, purchasingDisabled, variantSku, variantId, productId } =
+        currentProduct
 
       if (purchasingDisabled) {
         notPurchaseSku.push(variantSku)
@@ -145,14 +109,9 @@ export const AddToShoppingList = (props: AddToListProps) => {
   const handleCSVAddToList = async (productsData: CustomFieldItems) => {
     setIsLoading(true)
     try {
-      const {
-        validProduct,
-      } = productsData
+      const { validProduct } = productsData
 
-      const {
-        notPurchaseSku,
-        productItems,
-      } = getValidProducts(validProduct)
+      const { notPurchaseSku, productItems } = getValidProducts(validProduct)
 
       if (productItems.length > 0) {
         await quickAddToList(productItems)
@@ -161,9 +120,12 @@ export const AddToShoppingList = (props: AddToListProps) => {
       }
 
       if (notPurchaseSku.length > 0) {
-        snackbar.error(`SKU ${notPurchaseSku} cannot be purchased in online store.`, {
-          isClose: true,
-        })
+        snackbar.error(
+          `SKU ${notPurchaseSku} cannot be purchased in online store.`,
+          {
+            isClose: true,
+          }
+        )
       }
 
       setIsOpenBulkLoadCSV(false)
@@ -173,9 +135,10 @@ export const AddToShoppingList = (props: AddToListProps) => {
   }
 
   return (
-    <Card sx={{
-      marginBottom: '50px',
-    }}
+    <Card
+      sx={{
+        marginBottom: '50px',
+      }}
     >
       <CardContent>
         <Box>
@@ -188,16 +151,14 @@ export const AddToShoppingList = (props: AddToListProps) => {
 
           <Divider />
 
-          <QuickAdd
-            updateList={updateList}
-            quickAddToList={quickAddToList}
-          />
+          <QuickAdd updateList={updateList} quickAddToList={quickAddToList} />
 
           <Divider />
 
-          <Box sx={{
-            margin: '20px 0 0',
-          }}
+          <Box
+            sx={{
+              margin: '20px 0 0',
+            }}
           >
             <CustomButton
               variant="text"
@@ -205,9 +166,10 @@ export const AddToShoppingList = (props: AddToListProps) => {
                 setIsOpenBulkLoadCSV(true)
               }}
             >
-              <UploadFileIcon sx={{
-                marginRight: '8px',
-              }}
+              <UploadFileIcon
+                sx={{
+                  marginRight: '8px',
+                }}
               />
               Bulk upload CSV
             </CustomButton>

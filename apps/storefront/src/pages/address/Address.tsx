@@ -1,67 +1,31 @@
-import {
-  Box,
-} from '@mui/material'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { Box } from '@mui/material'
 
+import { B3Sping } from '@/components'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { useCardListColumn } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
-  useEffect,
-  useContext,
-  useState,
-  useRef,
-} from 'react'
+  getB2BAddress,
+  getB2BAddressConfig,
+  getB2BCountries,
+  getBCCustomerAddress,
+} from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 import {
-  AddressItemCard,
-} from './components/AddressItemCard'
-import {
-  SetDefaultDialog,
-} from './components/SetDefaultDialog'
-import {
-  DeleteAddressDialog,
-} from './components/DeleteAddressDialog '
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  getB2BCountries,
-  getB2BAddress,
-  getBCCustomerAddress,
-  getB2BAddressConfig,
-} from '@/shared/service/b2b'
-
-import {
-  useCardListColumn,
-} from '@/hooks'
-
-import {
-  filterFormConfig,
-  convertBCToB2BAddress,
-} from './shared/config'
-
-import {
-  CountryProps,
-  getAddressFields,
-} from './shared/getAddressFields'
-
-import {
+  AddressConfigItem,
   AddressItemType,
   BCAddressItemType,
-  AddressConfigItem,
 } from '../../types/address'
 
 import B3AddressForm from './components/AddressForm'
+import { AddressItemCard } from './components/AddressItemCard'
+import DeleteAddressDialog from './components/DeleteAddressDialog'
+import SetDefaultDialog from './components/SetDefaultDialog'
+import { convertBCToB2BAddress, filterFormConfig } from './shared/config'
+import { CountryProps, getAddressFields } from './shared/getAddressFields'
 
 interface RefCurrntProps extends HTMLInputElement {
   handleOpenAddEditAddressClick: (type: string, data?: AddressItemType) => void
@@ -71,23 +35,21 @@ type BCAddress = {
   node: BCAddressItemType
 }
 
-interface FilterSearchProps{
-  country?: string,
-  state?: string,
-  city?: string,
-  search?: string,
+interface FilterSearchProps {
+  country?: string
+  state?: string
+  city?: string
+  search?: string
 }
 
-const Address = () => {
+function Address() {
   const {
     state: {
       role,
       isB2BUser,
       isAgenting,
       salesRepCompanyId,
-      companyInfo: {
-        id: companyInfoId,
-      },
+      companyInfo: { id: companyInfoId },
       addressConfig,
     },
     dispatch,
@@ -111,15 +73,16 @@ const Address = () => {
   useEffect(() => {
     if (addressFields.length === 0) {
       const handleGetAddressFields = async () => {
-        const {
-          countries,
-        } = await getB2BCountries()
+        const { countries } = await getB2BCountries()
 
         setCountries(countries)
 
         setIsRequestLoading(true)
         try {
-          const addressFields = await getAddressFields(!isBCPermission, countries)
+          const addressFields = await getAddressFields(
+            !isBCPermission,
+            countries
+          )
           setAddressFields(addressFields)
         } catch (err) {
           console.log(err)
@@ -138,10 +101,7 @@ const Address = () => {
 
     if (!isBCPermission) {
       const {
-        addresses: {
-          edges: addressList = [],
-          totalCount,
-        },
+        addresses: { edges: addressList = [], totalCount },
       }: CustomFieldItems = await getB2BAddress({
         companyId,
         ...params,
@@ -151,10 +111,7 @@ const Address = () => {
       count = totalCount
     } else {
       const {
-        customerAddresses: {
-          edges: addressList = [],
-          totalCount,
-        },
+        customerAddresses: { edges: addressList = [], totalCount },
       }: CustomFieldItems = await getBCCustomerAddress({
         ...params,
       })
@@ -208,9 +165,8 @@ const Address = () => {
       try {
         let configList = addressConfig
         if (!configList) {
-          const {
-            addressConfig: newConfig,
-          }: CustomFieldItems = await getB2BAddressConfig()
+          const { addressConfig: newConfig }: CustomFieldItems =
+            await getB2BAddressConfig()
           configList = newConfig
 
           dispatch({
@@ -223,7 +179,10 @@ const Address = () => {
 
         const key = role === 3 ? 'address_sales_rep' : 'address_admin'
 
-        const editPermission = (configList || []).find((config: AddressConfigItem) => config.key === key)?.isEnabled === '1'
+        const editPermission =
+          (configList || []).find(
+            (config: AddressConfigItem) => config.key === key
+          )?.isEnabled === '1'
         setEditPermission(editPermission)
       } catch (error) {
         console.error(error)
@@ -237,7 +196,9 @@ const Address = () => {
 
   const handleCreate = () => {
     if (!editPermission) {
-      snackbar.error('You do not have permission to add new address, please contact store owner ')
+      snackbar.error(
+        'You do not have permission to add new address, please contact store owner '
+      )
       return
     }
     addEditAddressRef.current?.handleOpenAddEditAddressClick('add')
@@ -245,7 +206,9 @@ const Address = () => {
 
   const handleEdit = (row: AddressItemType) => {
     if (!editPermission) {
-      snackbar.error('You do not have permission to edit address, please contact store owner ')
+      snackbar.error(
+        'You do not have permission to edit address, please contact store owner '
+      )
       return
     }
     addEditAddressRef.current?.handleOpenAddEditAddressClick('edit', row)
@@ -253,7 +216,9 @@ const Address = () => {
 
   const handleDelete = (address: AddressItemType) => {
     if (!editPermission) {
-      snackbar.error('You do not have permission to delete address, please contact store owner ')
+      snackbar.error(
+        'You do not have permission to delete address, please contact store owner '
+      )
       return
     }
     setCurrentAddress({
@@ -275,14 +240,13 @@ const Address = () => {
   }
 
   return (
-    <B3Sping
-      isSpinning={isRequestLoading}
-    >
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        flex: 1,
-      }}
+    <B3Sping isSpinning={isRequestLoading}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+        }}
       >
         <B3Filter
           fiterMoreInfo={filterFormConfig}
@@ -321,8 +285,7 @@ const Address = () => {
           countries={countries}
         />
 
-        {
-        editPermission && !isBCPermission && (
+        {editPermission && !isBCPermission && (
           <SetDefaultDialog
             isOpen={isOpenSetDefault}
             setIsOpen={setIsOpenSetDefault}
@@ -331,10 +294,8 @@ const Address = () => {
             updateAddressList={updateAddressList}
             companyId={companyId}
           />
-        )
-      }
-        {
-        editPermission && (
+        )}
+        {editPermission && (
           <DeleteAddressDialog
             isOpen={isOpenDelete}
             setIsOpen={setIsOpenDelete}
@@ -344,10 +305,8 @@ const Address = () => {
             companyId={companyId}
             isBCPermission={isBCPermission}
           />
-        )
-      }
+        )}
       </Box>
-
     </B3Sping>
   )
 }

@@ -1,95 +1,53 @@
-import {
-  useContext,
-} from 'react'
+import { useContext } from 'react'
+import { Delete } from '@mui/icons-material'
+import { Box, Grid, Typography } from '@mui/material'
 
-import {
-  Box,
-  Typography,
-  Grid,
-} from '@mui/material'
-
-import {
-  Delete,
-} from '@mui/icons-material'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  createCart,
-  getCartInfo,
-  addProductToCart,
-  deleteCart,
-} from '@/shared/service/bc'
-import {
-  snackbar,
-} from '@/utils'
-
+import { CustomButton, successTip } from '@/components'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b/graphql/product'
-
 import {
-  ProductsProps,
-  addlineItems,
-} from '../../../utils/b3Product/shared/config'
-import {
-  B3LinkTipContent,
-  CustomButton,
-} from '@/components'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-interface successTipOptions{
-  message: string,
-  link?: string,
-  linkText?: string,
-  isOutLink?: boolean,
-}
-
-const successTip = (options: successTipOptions) => () => (
-  <B3LinkTipContent
-    message={options.message}
-    link={options.link}
-    linkText={options.linkText}
-    isOutLink={options.isOutLink}
-  />
-)
+  addProductToCart,
+  createCart,
+  deleteCart,
+  getCartInfo,
+} from '@/shared/service/bc'
+import { snackbar } from '@/utils'
+import { addlineItems, ProductsProps } from '@/utils/b3Product/shared/config'
 
 interface ShoppingDetailFooterProps {
-  shoppingListInfo: any,
-  role: string | number,
-  allowJuniorPlaceOrder: boolean,
-  checkedArr: any,
-  currencyToken: string,
-  selectedSubTotal: number,
-  setLoading: (val: boolean) => void,
-  setDeleteOpen: (val: boolean) => void,
-  setValidateFailureProducts: (arr: ProductsProps[]) => void,
-  setValidateSuccessProducts: (arr: ProductsProps[]) => void,
-  isB2BUser: boolean,
-  customColor: string,
+  shoppingListInfo: any
+  role: string | number
+  allowJuniorPlaceOrder: boolean
+  checkedArr: any
+  currencyToken: string
+  selectedSubTotal: number
+  setLoading: (val: boolean) => void
+  setDeleteOpen: (val: boolean) => void
+  setValidateFailureProducts: (arr: ProductsProps[]) => void
+  setValidateSuccessProducts: (arr: ProductsProps[]) => void
+  isB2BUser: boolean
+  customColor: string
 }
 
-const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
+function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile()
 
   const {
-    state: {
-      isAgenting,
-    },
+    state: { isAgenting },
   } = useContext(GlobaledContext)
 
-  const containerStyle = isMobile ? {
-    alignItems: 'flex-start',
-    flexDirection: 'column',
-  } : {
-    alignItems: 'center',
-  }
+  const containerStyle = isMobile
+    ? {
+        alignItems: 'flex-start',
+        flexDirection: 'column',
+      }
+    : {
+        alignItems: 'center',
+      }
 
   const {
     shoppingListInfo,
@@ -111,18 +69,19 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
     const validateSuccessArr: ProductsProps[] = []
 
     checkedArr.forEach((item: ProductsProps) => {
-      const {
-        node,
-      } = item
+      const { node } = item
 
       inventoryInfos.forEach((option: CustomFieldItems) => {
         if (node.variantSku === option.variantSku) {
           let isPassVerify = true
-          if (option.isStock === '1' && +node.quantity > option.stock) isPassVerify = false
+          if (option.isStock === '1' && +node.quantity > option.stock)
+            isPassVerify = false
 
-          if (option.minQuantity !== 0 && +node.quantity < option.minQuantity) isPassVerify = false
+          if (option.minQuantity !== 0 && +node.quantity < option.minQuantity)
+            isPassVerify = false
 
-          if (option.maxQuantity !== 0 && +node.quantity > option.maxQuantity) isPassVerify = false
+          if (option.maxQuantity !== 0 && +node.quantity > option.maxQuantity)
+            isPassVerify = false
 
           if (isPassVerify) {
             validateSuccessArr.push({
@@ -154,12 +113,10 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
     try {
       const skus: string[] = []
 
-      let cantPurchase: string = ''
+      let cantPurchase = ''
 
       checkedArr.forEach((item: ProductsProps) => {
-        const {
-          node,
-        } = item
+        const { node } = item
 
         if (node.productsSearch.availability === 'disabled') {
           cantPurchase += `${node.variantSku},`
@@ -169,29 +126,41 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
       })
 
       if (cantPurchase) {
-        snackbar.error(`Sku(s): ${cantPurchase.slice(0, -1)} unavailable for purchasing, please uncheck.`, {
-          isClose: true,
-        })
+        snackbar.error(
+          `Sku(s): ${cantPurchase.slice(
+            0,
+            -1
+          )} unavailable for purchasing, please uncheck.`,
+          {
+            isClose: true,
+          }
+        )
         return
       }
 
       if (skus.length === 0) {
-        snackbar.error(allowJuniorPlaceOrder ? 'Please select at least one item to checkout' : 'Please select at least one item to add to cart', {
-          isClose: true,
-        })
+        snackbar.error(
+          allowJuniorPlaceOrder
+            ? 'Please select at least one item to checkout'
+            : 'Please select at least one item to add to cart',
+          {
+            isClose: true,
+          }
+        )
         return
       }
 
-      const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus
+      const getVariantInfoBySku = isB2BUser
+        ? getB2BVariantInfoBySkus
+        : getBcVariantInfoBySkus
 
       const getInventoryInfos = await getVariantInfoBySku({
         skus,
       })
 
-      const {
-        validateFailureArr,
-        validateSuccessArr,
-      } = verifyInventory(getInventoryInfos?.variantSku || [])
+      const { validateFailureArr, validateSuccessArr } = verifyInventory(
+        getInventoryInfos?.variantSku || []
+      )
 
       if (validateSuccessArr.length !== 0) {
         const lineItems = addlineItems(validateSuccessArr)
@@ -203,18 +172,27 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
             lineItems,
           })
         } else {
-          res = cartInfo.length ? await addProductToCart({
-            lineItems,
-          }, cartInfo[0].id) : await createCart({
-            lineItems,
-          })
+          res = cartInfo.length
+            ? await addProductToCart(
+                {
+                  lineItems,
+                },
+                cartInfo[0].id
+              )
+            : await createCart({
+                lineItems,
+              })
         }
         if (res.status === 422) {
           snackbar.error(res.detail, {
             isClose: true,
           })
         } else if (validateFailureArr.length === 0) {
-          if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
+          if (
+            allowJuniorPlaceOrder &&
+            +role === 2 &&
+            shoppingListInfo?.status === 0
+          ) {
             window.location.href = '/checkout'
           } else {
             snackbar.success('', {
@@ -264,12 +242,16 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
       />
       <Grid
         item
-        sx={isMobile ? {
-          flexBasis: '100%',
-        } : {
-          flexBasis: '690px',
-          flexGrow: 1,
-        }}
+        sx={
+          isMobile
+            ? {
+                flexBasis: '100%',
+              }
+            : {
+                flexBasis: '690px',
+                flexGrow: 1,
+              }
+        }
       >
         <Box
           sx={{
@@ -315,61 +297,65 @@ const ShoppingDetailFooter = (props: ShoppingDetailFooterProps) => {
                 width: isMobile ? '100%' : 'auto',
               }}
             >
-              {
-                (!allowJuniorPlaceOrder) && (
-                  <CustomButton
+              {!allowJuniorPlaceOrder && (
+                <CustomButton
+                  sx={{
+                    padding: '5px',
+                    border: `1px solid ${customColor || '#1976d2'}`,
+                    margin: isMobile ? '0 1rem 0 0' : '0 1rem',
+                    minWidth: 'auto',
+                  }}
+                  disabled={shoppingListInfo?.status === 40}
+                >
+                  <Delete
+                    color="primary"
                     sx={{
-                      padding: '5px',
-                      border: `1px solid ${customColor || '#1976d2'}`,
-                      margin: isMobile ? '0 1rem 0 0' : '0 1rem',
-                      minWidth: 'auto',
+                      color: customColor,
                     }}
-                    disabled={shoppingListInfo?.status === 40}
-                  >
-                    <Delete
-                      color="primary"
-                      sx={{
-                        color: customColor,
-                      }}
-                      onClick={() => {
-                        setDeleteOpen(true)
-                      }}
-                    />
-                  </CustomButton>
-                )
-              }
-              {
-                (allowJuniorPlaceOrder || (role !== 2 && shoppingListInfo?.status === 0) || !isB2BUser) && (
-                  <CustomButton
-                    variant="contained"
                     onClick={() => {
-                      handleAddProductsToCart()
+                      setDeleteOpen(true)
                     }}
-                    sx={{
-                      marginLeft: '0.5rem',
-                      marginRight: '0.25rem',
-                      width: isMobile ? '80%' : '210px',
-                      height: isMobile ? '80%' : '40px',
-                      padding: '8px 22px',
-                    }}
-                  >
-                    {allowJuniorPlaceOrder ? 'Proceed to checkout' : 'Add selected to cart'}
-                  </CustomButton>
-                )
-              }
+                  />
+                </CustomButton>
+              )}
+              {(allowJuniorPlaceOrder ||
+                (role !== 2 && shoppingListInfo?.status === 0) ||
+                !isB2BUser) && (
+                <CustomButton
+                  variant="contained"
+                  onClick={() => {
+                    handleAddProductsToCart()
+                  }}
+                  sx={{
+                    marginLeft: '0.5rem',
+                    marginRight: '0.25rem',
+                    width: isMobile ? '80%' : '210px',
+                    height: isMobile ? '80%' : '40px',
+                    padding: '8px 22px',
+                  }}
+                >
+                  {allowJuniorPlaceOrder
+                    ? 'Proceed to checkout'
+                    : 'Add selected to cart'}
+                </CustomButton>
+              )}
             </Box>
           </Box>
         </Box>
       </Grid>
       <Grid
         item
-        sx={isMobile ? {
-          flexBasis: '100%',
-          display: isMobile ? 'none' : 'block',
-        } : {
-          flexBasis: '340px',
-          display: isMobile ? 'none' : 'block',
-        }}
+        sx={
+          isMobile
+            ? {
+                flexBasis: '100%',
+                display: isMobile ? 'none' : 'block',
+              }
+            : {
+                flexBasis: '340px',
+                display: isMobile ? 'none' : 'block',
+              }
+        }
       />
     </Grid>
   )

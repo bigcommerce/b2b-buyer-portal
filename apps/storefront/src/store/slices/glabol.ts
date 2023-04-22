@@ -1,36 +1,31 @@
-import {
-  Draft,
-  createSlice,
-} from '@reduxjs/toolkit'
-import type {
-  PayloadAction,
-} from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, Draft } from '@reduxjs/toolkit'
 
 export interface TaxZoneRates {
-  rate?: number,
+  rate?: number
   taxClassId?: number
 }
 
 interface Rates {
-  enabled: boolean,
-  id: number,
-  name: string,
-  priority: number,
-  classRates: TaxZoneRates[],
+  enabled: boolean
+  id: number
+  name: string
+  priority: number
+  classRates: TaxZoneRates[]
 }
 
 export interface TaxZoneRatesProps {
-  enabled: boolean,
-  id: number,
-  name: string,
+  enabled: boolean
+  id: number
+  name: string
   rates: Rates[]
 }
 
-export interface glabolState {
+export interface GlabolState {
   taxZoneRates?: TaxZoneRatesProps[]
 }
 
-const initialState: glabolState = {
+const initialState: GlabolState = {
   taxZoneRates: [],
 }
 
@@ -39,17 +34,15 @@ export const glabolSlice = createSlice({
   initialState,
   reducers: {
     clearglabol: () => initialState,
-    setTaxZoneRates: (state, {
-      payload,
-    }: PayloadAction<TaxZoneRatesProps[]>) => {
+    setTaxZoneRates: (
+      state,
+      { payload }: PayloadAction<TaxZoneRatesProps[]>
+    ) => {
       state.taxZoneRates = payload as Draft<TaxZoneRatesProps[]>
     },
   },
 })
 
-export const {
-  clearglabol,
-  setTaxZoneRates,
-} = glabolSlice.actions
+export const { clearglabol, setTaxZoneRates } = glabolSlice.actions
 
 export default glabolSlice.reducer

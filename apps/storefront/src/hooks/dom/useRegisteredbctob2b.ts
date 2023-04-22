@@ -1,48 +1,25 @@
-import {
-  SetStateAction,
-  Dispatch,
-  useEffect,
-  useContext,
-} from 'react'
-
-import {
-  useB3Lang,
-} from '@b3/lang'
-
-import type {
-  OpenPageState,
-} from '@b3/hooks'
-
+import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import globalB3 from '@b3/global-b3'
+import type { OpenPageState } from '@b3/hooks'
+import { useB3Lang } from '@b3/lang'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { GlobaledContext } from '@/shared/global'
 
-import {
-  CustomStyleContext,
-} from '@/shared/customStyleButtton'
+import useDomVariation from './useDomVariation'
 
-import {
-  useDomVariation,
-} from './useDomVariation'
-
-const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState>>) => {
+const useRegisteredbctob2b = (
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+) => {
   const b3Lang = useB3Lang()
 
   const {
-    state: {
-      isB2BUser,
-      customerId,
-      companyInfo,
-    },
+    state: { isB2BUser, customerId, companyInfo },
   } = useContext(GlobaledContext)
 
   const {
     state: {
-      accountLoginRegistration: {
-        b2b,
-      },
+      accountLoginRegistration: { b2b },
     },
   } = useContext(CustomStyleContext)
 
@@ -60,14 +37,22 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
   const [openQuickView] = useDomVariation(globalB3['dom.navUserLoginElement'])
 
   useEffect(() => {
-    if (b2b && !isB2BUser && +companyInfo.companyStatus === 99 && customerId && document.querySelector(globalB3['dom.navUserLoginElement'])) {
+    if (
+      b2b &&
+      !isB2BUser &&
+      +companyInfo.companyStatus === 99 &&
+      customerId &&
+      document.querySelector(globalB3['dom.navUserLoginElement'])
+    ) {
       // already exist
       if (document.querySelector('.navUser-item.navUser-convert-b2b')) {
         return
       }
 
       const convertB2BNavNode = createConvertB2BNavNode()
-      const accountNode = document.querySelector(globalB3['dom.navUserLoginElement'])
+      const accountNode = document.querySelector(
+        globalB3['dom.navUserLoginElement']
+      )
 
       accountNode?.parentNode?.insertBefore(convertB2BNavNode, accountNode)
 
@@ -86,6 +71,4 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
   }, [isB2BUser, customerId, openQuickView, b2b])
 }
 
-export {
-  useRegisteredbctob2b,
-}
+export default useRegisteredbctob2b

@@ -1,4 +1,4 @@
-export const getReturnFormFields = () => [
+const getReturnFormFields = () => [
   {
     name: 'return_reason',
     label: 'Return reason',
@@ -10,19 +10,24 @@ export const getReturnFormFields = () => [
     default: '',
     options: [
       {
-        label: 'Received Wrong Product', value: 'Received Wrong Product',
+        label: 'Received Wrong Product',
+        value: 'Received Wrong Product',
       },
       {
-        label: 'Wrong Product Ordered', value: 'Wrong Product Ordered',
+        label: 'Wrong Product Ordered',
+        value: 'Wrong Product Ordered',
       },
       {
-        label: 'Not Satisfied With The Product', value: 'Not Satisfied With The Product',
+        label: 'Not Satisfied With The Product',
+        value: 'Not Satisfied With The Product',
       },
       {
-        label: 'There Was A Problem With The Product', value: 'There Was A Problem With The Product',
+        label: 'There Was A Problem With The Product',
+        value: 'There Was A Problem With The Product',
       },
     ],
-  }, {
+  },
+  {
     name: 'return_action',
     label: 'Return action',
     required: true,
@@ -33,16 +38,20 @@ export const getReturnFormFields = () => [
     default: '',
     options: [
       {
-        label: 'Repair', value: 'Repair',
+        label: 'Repair',
+        value: 'Repair',
       },
       {
-        label: 'Replacement', value: 'Replacement',
+        label: 'Replacement',
+        value: 'Replacement',
       },
       {
-        label: 'Store Credit', value: 'Store Credit',
+        label: 'Store Credit',
+        value: 'Store Credit',
       },
     ],
-  }, {
+  },
+  {
     name: 'return_comments',
     label: 'Comment',
     required: false,
@@ -54,3 +63,4 @@ export const getReturnFormFields = () => [
     default: '',
   },
 ]
+export default getReturnFormFields

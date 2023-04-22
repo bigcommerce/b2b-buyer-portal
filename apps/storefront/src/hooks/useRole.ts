@@ -1,19 +1,10 @@
-import {
-  useState,
-  useEffect,
-  useContext,
-} from 'react'
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import { useContext, useEffect, useState } from 'react'
+
+import { GlobaledContext } from '@/shared/global'
 
 const useRole = () => {
   const {
-    state: {
-      isB2BUser,
-      role,
-      isAgenting,
-    },
+    state: { isB2BUser, role, isAgenting },
   } = useContext(GlobaledContext)
 
   const [roleText, setRoleText] = useState('')
@@ -43,6 +34,4 @@ const useRole = () => {
   return [roleText]
 }
 
-export {
-  useRole,
-}
+export default useRole

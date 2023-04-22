@@ -1,66 +1,44 @@
-import {
-  useState,
-  useContext,
-  useRef,
-  useEffect,
-} from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { Box } from '@mui/material'
 
+import { B3Dialog, B3Sping } from '@/components'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { useCardListColumn, useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
-  Box,
-} from '@mui/material'
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  getB2BShoppingList,
-  getBcShoppingList,
   deleteB2BShoppingList,
   deleteBcShoppingList,
+  getB2BShoppingList,
+  getBcShoppingList,
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
+import { snackbar } from '@/utils'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import B3Filter from '../../components/filter/B3Filter'
 
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
-
-import {
-  B3Dialog,
-} from '@/components'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  useMobile,
-  useCardListColumn,
-} from '@/hooks'
-
+import AddEditShoppingLists from './AddEditShoppingLists'
 import {
   getFilterMoreList,
   ShoppingListSearch,
   ShoppingListsItemsProps,
 } from './config'
-
-import AddEditShoppingLists from './AddEditShoppingLists'
 import ShoppingListsCard from './ShoppingListsCard'
-import B3Filter from '../../components/filter/B3Filter'
 
 interface RefCurrntProps extends HTMLInputElement {
-  handleOpenAddEditShoppingListsClick: (type: string, data?: ShoppingListsItemsProps) => void
+  handleOpenAddEditShoppingListsClick: (
+    type: string,
+    data?: ShoppingListsItemsProps
+  ) => void
 }
 
-const shoppingLists = () => {
+function ShoppingLists() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
 
-  const [deleteItem, setDeleteItem] = useState<null | ShoppingListsItemsProps>(null)
+  const [deleteItem, setDeleteItem] = useState<null | ShoppingListsItemsProps>(
+    null
+  )
 
   const [fiterMoreInfo, setFiterMoreinfo] = useState<Array<any>>([])
 
@@ -71,9 +49,7 @@ const shoppingLists = () => {
       role,
       isB2BUser,
       currentChannelId,
-      companyInfo: {
-        id: companyB2BId,
-      },
+      companyInfo: { id: companyB2BId },
       salesRepCompanyId,
     },
   } = useContext(GlobaledContext)
@@ -82,7 +58,8 @@ const shoppingLists = () => {
     const initFilter = async () => {
       const companyId = companyB2BId || salesRepCompanyId
       let createdByUsers: CustomFieldItems = {}
-      if (isB2BUser) createdByUsers = await getShoppingListsCreatedByUser(+companyId, 1)
+      if (isB2BUser)
+        createdByUsers = await getShoppingListsCreatedByUser(+companyId, 1)
 
       const filterInfo = getFilterMoreList(createdByUsers, role)
       setFiterMoreinfo(filterInfo)
@@ -114,7 +91,8 @@ const shoppingLists = () => {
     isDefault: true,
   }
 
-  const [filterSearch, setFilterSearch] = useState<ShoppingListSearch>(initSearch)
+  const [filterSearch, setFilterSearch] =
+    useState<ShoppingListSearch>(initSearch)
 
   const addEditShoppingListsRef = useRef<RefCurrntProps | null>(null)
 
@@ -124,7 +102,7 @@ const shoppingLists = () => {
     })
   }
 
-  const handleChange = (key:string, value: string) => {
+  const handleChange = (key: string, value: string) => {
     if (key === 'search') {
       const search = {
         ...initSearch,
@@ -136,11 +114,10 @@ const shoppingLists = () => {
   }
 
   const handleFirterChange = (data: ShoppingListSearch) => {
-    const {
-      status,
-    } = data
+    const { status } = data
 
-    const getNewStatus = (status === '' || status === 99) ? statusPermissions : status
+    const getNewStatus =
+      status === '' || status === 99 ? statusPermissions : status
     const search = {
       ...initSearch,
       createdBy: data.createdBy,
@@ -152,19 +129,19 @@ const shoppingLists = () => {
   }
 
   const fetchList = async (params: ShoppingListSearch) => {
-    const newParams = isB2BUser ? params : {
-      offset: params.offset,
-      first: params.first,
-      search: params.search,
-      channelId: currentChannelId,
-    }
+    const newParams = isB2BUser
+      ? params
+      : {
+          offset: params.offset,
+          first: params.first,
+          search: params.search,
+          channelId: currentChannelId,
+        }
     const getShoppingLists = isB2BUser ? getB2BShoppingList : getBcShoppingList
     const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
 
     const {
-      [infoKey]: {
-        edges, totalCount,
-      },
+      [infoKey]: { edges, totalCount },
     } = await getShoppingLists(newParams)
 
     return {
@@ -178,11 +155,17 @@ const shoppingLists = () => {
   }
 
   const handleEdit = (shoppingList: ShoppingListsItemsProps) => {
-    addEditShoppingListsRef.current?.handleOpenAddEditShoppingListsClick('edit', shoppingList)
+    addEditShoppingListsRef.current?.handleOpenAddEditShoppingListsClick(
+      'edit',
+      shoppingList
+    )
   }
 
   const handleCopy = (shoppingList: ShoppingListsItemsProps) => {
-    addEditShoppingListsRef.current?.handleOpenAddEditShoppingListsClick('dup', shoppingList)
+    addEditShoppingListsRef.current?.handleOpenAddEditShoppingListsClick(
+      'dup',
+      shoppingList
+    )
   }
 
   const handleDelete = (row: ShoppingListsItemsProps) => {
@@ -201,7 +184,9 @@ const shoppingLists = () => {
       handleCancelClick()
       const id: number = deleteItem?.id || 0
 
-      const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteBcShoppingList
+      const deleteShoppingList = isB2BUser
+        ? deleteB2BShoppingList
+        : deleteBcShoppingList
       await deleteShoppingList(id)
       snackbar.success('delete shoppingList successfully')
       initSearchList()
@@ -211,9 +196,7 @@ const shoppingLists = () => {
   }
 
   return (
-    <B3Sping
-      isSpinning={isRequestLoading}
-    >
+    <B3Sping isSpinning={isRequestLoading}>
       <Box
         sx={{
           display: 'flex',
@@ -286,4 +269,4 @@ const shoppingLists = () => {
   )
 }
 
-export default shoppingLists
+export default ShoppingLists

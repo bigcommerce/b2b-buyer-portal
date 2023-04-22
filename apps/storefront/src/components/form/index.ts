@@ -1,32 +1,10 @@
-export {
-  B3ControlTextField,
-} from './B3ControlTextField'
-export {
-  B3ControlSelect,
-} from './B3ControlSelect'
-export {
-  B3ControlRadioGroup,
-} from './B3ControlRadioGroup'
-export {
-  B3ControlCheckbox,
-} from './B3ControlCheckbox'
-export {
-  B3ControlPicker,
-} from './B3ControlPicker'
-export {
-  B3ControlFileUpload,
-} from './B3ControlFileUpload'
-export {
-  B3ControlRectangle,
-} from './B3ControlRectangle'
-export {
-  B3ControlProductRadio,
-} from './B3ControlProductRadio'
-
-export {
-  B3ControlSwatchRadio,
-} from './B3ControlSwatchRadio'
-
-export {
-  Captcha,
-} from '../captcha/Captcha'
+export { Captcha } from '../captcha/Captcha'
+export { default as B3ControlCheckbox } from './B3ControlCheckbox'
+export { default as B3ControlFileUpload } from './B3ControlFileUpload'
+export { default as B3ControlPicker } from './B3ControlPicker'
+export { default as B3ControlProductRadio } from './B3ControlProductRadio'
+export { default as B3ControlRadioGroup } from './B3ControlRadioGroup'
+export { default as B3ControlRectangle } from './B3ControlRectangle'
+export { default as B3ControlSelect } from './B3ControlSelect'
+export { default as B3ControlSwatchRadio } from './B3ControlSwatchRadio'
+export { default as B3ControlTextField } from './B3ControlTextField'

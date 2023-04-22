@@ -1,42 +1,19 @@
+import { BaseSyntheticEvent, useEffect, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import FilterListIcon from '@mui/icons-material/FilterList'
-import {
-  Box,
-  IconButton,
-} from '@mui/material'
+import { Box, IconButton } from '@mui/material'
+import { grey } from '@mui/material/colors'
 
-import {
-  grey,
-} from '@mui/material/colors'
-
-import {
-  useForm,
-} from 'react-hook-form'
-
-import {
-  useState,
-  useRef,
-  BaseSyntheticEvent,
-  ReactElement,
-  useEffect,
-} from 'react'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  B3CustomForm,
-  B3Dialog,
-  CustomButton,
-} from '@/components'
+import { B3CustomForm, B3Dialog, CustomButton } from '@/components'
+import { useMobile } from '@/hooks'
 
 import B3FilterPicker from './B3FilterPicker'
 
 interface PickerProps {
-  isEnabled: boolean;
+  isEnabled: boolean
   defaultValue?: Date | number | string | null
   label: string
-  pickerKey?: string,
+  pickerKey?: string
 }
 
 type DeepPartial<T> = {
@@ -44,7 +21,7 @@ type DeepPartial<T> = {
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
     ? ReadonlyArray<DeepPartial<U>>
-    : DeepPartial<T[P]>;
+    : DeepPartial<T[P]>
 }
 
 interface B3FilterMoreProps<T, Y> {
@@ -57,22 +34,16 @@ interface B3FilterMoreProps<T, Y> {
 
 interface PickerRefProps extends HTMLInputElement {
   setClearPickerValue: () => void
-  getPickerValue: () => {[key: string]: string}
+  getPickerValue: () => { [key: string]: string }
 }
 
-const B3FilterMore:<T, Y> ({
-  startPicker,
-  endPicker,
-  fiterMoreInfo,
-  onChange,
-  isShowMore,
-}: B3FilterMoreProps<T, Y>) => ReactElement = ({
+function B3FilterMore<T, Y>({
   startPicker,
   endPicker,
   fiterMoreInfo,
   onChange,
   isShowMore = false,
-}) => {
+}: B3FilterMoreProps<T, Y>) {
   const [open, setOpen] = useState<boolean>(false)
   const [isFiltering, setIsFiltering] = useState<boolean>(false)
   const [filterCounter, setFilterCounter] = useState<number>(0)
@@ -85,9 +56,7 @@ const B3FilterMore:<T, Y> ({
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
   } = useForm({
     mode: 'onSubmit',
@@ -114,7 +83,9 @@ const B3FilterMore:<T, Y> ({
   const handleFilterStatus = (submitData?: any) => {
     if (submitData) {
       const filterCountArr = []
-      const isNotFiltering = Object.keys(submitData).every((item) => submitData[item] === '')
+      const isNotFiltering = Object.keys(submitData).every(
+        (item) => submitData[item] === ''
+      )
       Object.keys(submitData).forEach((item) => {
         if (submitData[item] !== '') {
           filterCountArr.push(item)
@@ -126,12 +97,15 @@ const B3FilterMore:<T, Y> ({
     }
   }
 
-  const handleSaveFilters = (event: BaseSyntheticEvent<object, any, any> | undefined) => {
+  const handleSaveFilters = (
+    event: BaseSyntheticEvent<object, any, any> | undefined
+  ) => {
     handleSubmit((data) => {
       const getPickerValues = pickerRef.current?.getPickerValue()
       if (onChange) {
         const submitData: any = {
-          ...getPickerValues, ...data,
+          ...getPickerValues,
+          ...data,
         }
 
         handleFilterStatus(submitData)
@@ -159,17 +133,14 @@ const B3FilterMore:<T, Y> ({
         cursor: 'pointer',
       }}
     >
-
-      {
-        ((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
+      {((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
         <Box
           onClick={handleDialogClick}
           sx={{
             mr: '-10px',
           }}
         >
-          {
-            !isFiltering && (
+          {!isFiltering && (
             <IconButton
               aria-label="edit"
               size="medium"
@@ -181,50 +152,46 @@ const B3FilterMore:<T, Y> ({
             >
               <FilterListIcon />
             </IconButton>
-            )
-          }
-          {
-            isFiltering && (
-              <>
-                <IconButton
-                  aria-label="edit"
-                  size="medium"
-                  sx={{
-                    ':hover': {
-                      backgroundColor: grey[100],
-                    },
-                  }}
-                >
-                  <FilterListIcon />
-                </IconButton>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexFlow: 'row wrap',
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    background: '#ff8a65',
-                    fontSize: '12px',
-                    ml: '5px',
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    alignItems: 'center',
-                    position: 'absolute',
-                    top: '7px',
-                    padding: '0 7px',
-                    transform: 'scale(1) translate(50%, -50%)',
-                    transformOrigin: '100% 0%',
-                  }}
-                >
-                  {filterCounter}
-                </Box>
-              </>
-            )
-          }
+          )}
+          {isFiltering && (
+            <>
+              <IconButton
+                aria-label="edit"
+                size="medium"
+                sx={{
+                  ':hover': {
+                    backgroundColor: grey[100],
+                  },
+                }}
+              >
+                <FilterListIcon />
+              </IconButton>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexFlow: 'row wrap',
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  background: '#ff8a65',
+                  fontSize: '12px',
+                  ml: '5px',
+                  justifyContent: 'center',
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  position: 'absolute',
+                  top: '7px',
+                  padding: '0 7px',
+                  transform: 'scale(1) translate(50%, -50%)',
+                  transformOrigin: '100% 0%',
+                }}
+              >
+                {filterCounter}
+              </Box>
+            </>
+          )}
         </Box>
-        )
-      }
+      )}
 
       <B3Dialog
         isOpen={open}
@@ -260,11 +227,9 @@ const B3FilterMore:<T, Y> ({
           size="small"
         >
           clear filters
-
         </CustomButton>
       </B3Dialog>
     </Box>
-
   )
 }
 

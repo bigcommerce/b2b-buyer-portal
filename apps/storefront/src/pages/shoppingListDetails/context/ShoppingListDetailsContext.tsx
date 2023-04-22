@@ -1,22 +1,16 @@
-import {
-  useReducer,
-  createContext,
-  Dispatch,
-  ReactNode,
-  useMemo,
-} from 'react'
+import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react'
 
 export interface ShoppingListDetailsState {
-  id?: number,
-  isLoading?: boolean,
+  id?: number
+  isLoading?: boolean
 }
 interface ShoppingListDetailsAction {
-  type: string,
+  type: string
   payload: ShoppingListDetailsState
 }
 export interface ShoppingListDetailsContextType {
-  state: ShoppingListDetailsState,
-  dispatch: Dispatch<ShoppingListDetailsAction>,
+  state: ShoppingListDetailsState
+  dispatch: Dispatch<ShoppingListDetailsAction>
 }
 
 interface ShoppingListDetailsProviderProps {
@@ -28,12 +22,16 @@ const initState = {
   isLoading: false,
 }
 
-export const ShoppingListDetailsContext = createContext<ShoppingListDetailsContextType>({
-  state: initState,
-  dispatch: () => {},
-})
+export const ShoppingListDetailsContext =
+  createContext<ShoppingListDetailsContextType>({
+    state: initState,
+    dispatch: () => {},
+  })
 
-const reducer = (state: ShoppingListDetailsState, action: ShoppingListDetailsAction) => {
+const reducer = (
+  state: ShoppingListDetailsState,
+  action: ShoppingListDetailsAction
+) => {
   switch (action.type) {
     case 'all':
       return {
@@ -55,17 +53,20 @@ const reducer = (state: ShoppingListDetailsState, action: ShoppingListDetailsAct
   }
 }
 
-export function ShoppingListDetailsProvider(props: ShoppingListDetailsProviderProps) {
+export function ShoppingListDetailsProvider(
+  props: ShoppingListDetailsProviderProps
+) {
   const [state, dispatch] = useReducer(reducer, initState)
 
-  const {
-    children,
-  } = props
+  const { children } = props
 
-  const ShoppingListDetailsValue = useMemo(() => ({
-    state,
-    dispatch,
-  }), [state])
+  const ShoppingListDetailsValue = useMemo(
+    () => ({
+      state,
+      dispatch,
+    }),
+    [state]
+  )
 
   return (
     <ShoppingListDetailsContext.Provider value={ShoppingListDetailsValue}>

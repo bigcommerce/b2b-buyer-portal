@@ -1,9 +1,5 @@
-const HomePageLoadding = () => (
-  <div>
-    loadding
-  </div>
-)
-
-export {
-  HomePageLoadding,
+function HomePageLoadding() {
+  return <div>loadding</div>
 }
+
+export default HomePageLoadding

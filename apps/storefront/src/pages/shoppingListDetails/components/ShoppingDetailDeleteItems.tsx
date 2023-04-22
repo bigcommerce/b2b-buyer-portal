@@ -1,28 +1,17 @@
-import {
-  Box,
-} from '@mui/material'
+import { Box } from '@mui/material'
 
-import {
-  B3Dialog,
-} from '@/components'
-
-import {
-  useMobile,
-} from '@/hooks'
+import { B3Dialog } from '@/components'
+import { useMobile } from '@/hooks'
 
 interface ShoppingDetailDeleteItemsProps {
-  open: boolean,
-  handleCancelClick: () => void,
-  handleDeleteProductClick: () => void,
+  open: boolean
+  handleCancelClick: () => void
+  handleDeleteProductClick: () => void
 }
 
-const ShoppingDetailDeleteItems = (props: ShoppingDetailDeleteItemsProps) => {
+function ShoppingDetailDeleteItems(props: ShoppingDetailDeleteItemsProps) {
   const [isMobile] = useMobile()
-  const {
-    open,
-    handleCancelClick,
-    handleDeleteProductClick,
-  } = props
+  const { open, handleCancelClick, handleDeleteProductClick } = props
 
   return (
     <B3Dialog

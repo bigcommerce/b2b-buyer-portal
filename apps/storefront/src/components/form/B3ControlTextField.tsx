@@ -1,27 +1,16 @@
-import {
-  TextField,
-  Box,
-} from '@mui/material'
-import {
-  Controller,
-} from 'react-hook-form'
-import {
-  useB3Lang,
-} from '@b3/lang'
-import {
-  KeyboardEvent,
-  WheelEvent,
-} from 'react'
-import Form from './ui'
-import {
-  StyleNumberTextField,
-} from './styled'
+import { KeyboardEvent, WheelEvent } from 'react'
+import { Controller } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
+import { Box, TextField } from '@mui/material'
 
-export const B3ControlTextField = ({
+import { StyleNumberTextField } from './styled'
+import Form from './ui'
+
+export default function B3ControlTextField({
   control,
   errors,
   ...rest
-} : Form.B3UIProps) => {
+}: Form.B3UIProps) {
   const {
     fieldType,
     name,
@@ -89,86 +78,75 @@ export const B3ControlTextField = ({
     readOnly,
   }
 
-  const muiAttributeProps = muiTextFieldProps ? {
-    ...muiTextFieldProps,
-    ...inputProps,
-  } : {
-    ...inputProps,
-  }
+  const muiAttributeProps = muiTextFieldProps
+    ? {
+        ...muiTextFieldProps,
+        ...inputProps,
+      }
+    : {
+        ...inputProps,
+      }
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    const keys = allowArrow ? ['KeyE', 'Period'] : ['ArrowUp', 'ArrowDown', 'KeyE', 'Period']
+    const keys = allowArrow
+      ? ['KeyE', 'Period']
+      : ['ArrowUp', 'ArrowDown', 'KeyE', 'Period']
     if (keys.indexOf(event.code) > -1) {
       event.preventDefault()
     }
   }
 
   const handleNumberInputWheel = (event: WheelEvent<HTMLInputElement>) => {
-    (event.target as HTMLElement).blur()
+    ;(event.target as HTMLElement).blur()
   }
 
-  return (
+  return ['text', 'number', 'password', 'multiline'].includes(fieldType) ? (
     <>
-      {
-        [
-          'text',
-          'number',
-          'password',
-          'multiline',
-        ].includes(fieldType) && (
-          <>
-            {
-              labelName && (
-              <Box sx={{
-                mb: 1,
+      {labelName && (
+        <Box
+          sx={{
+            mb: 1,
+          }}
+        >
+          {`${labelName} :`}
+        </Box>
+      )}
+      <Controller
+        {...fieldsProps}
+        render={({ field: { ...rest } }) =>
+          fieldType === 'number' ? (
+            <StyleNumberTextField
+              {...textField}
+              {...rest}
+              sx={{
+                color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
               }}
-              >
-                {`${labelName} :`}
-              </Box>
-              )
-
-            }
-            <Controller
-              {...fieldsProps}
-              render={({
-                field: {
-                  ...rest
-                },
-              }) => (
-                fieldType === 'number'
-                  ? (
-                    <StyleNumberTextField
-                      {...textField}
-                      {...rest}
-                      sx={{
-                        color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
-                      }}
-                      allowarrow={allowArrow ? 1 : 0}
-                      inputProps={muiAttributeProps}
-                      error={!!errors[name]}
-                      helperText={(errors as any)[name] ? (errors as any)[name].message : null}
-                      onKeyDown={handleNumberInputKeyDown}
-                      onWheel={handleNumberInputWheel}
-                    />
-                  )
-                  : (
-                    <TextField
-                      {...textField}
-                      {...rest}
-                      sx={{
-                        color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
-                      }}
-                      inputProps={muiAttributeProps}
-                      error={!!errors[name]}
-                      helperText={(errors as any)[name] ? (errors as any)[name].message : null}
-                      autoComplete={fieldType === 'password' ? 'new-password' : 'off'}
-                    />
-                  )
-              )}
+              allowarrow={allowArrow ? 1 : 0}
+              inputProps={muiAttributeProps}
+              error={!!errors[name]}
+              helperText={
+                (errors as any)[name] ? (errors as any)[name].message : null
+              }
+              onKeyDown={handleNumberInputKeyDown}
+              onWheel={handleNumberInputWheel}
             />
-          </>
-        )
-      }
+          ) : (
+            <TextField
+              {...textField}
+              {...rest}
+              sx={{
+                color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
+              }}
+              inputProps={muiAttributeProps}
+              error={!!errors[name]}
+              helperText={
+                (errors as any)[name] ? (errors as any)[name].message : null
+              }
+              autoComplete={fieldType === 'password' ? 'new-password' : 'off'}
+            />
+          )
+        }
+      />
     </>
-  )
+  ) : null
 }

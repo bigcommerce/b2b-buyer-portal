@@ -1,64 +1,30 @@
-import {
-  useState,
-  Dispatch,
-  SetStateAction,
-} from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import type { OpenPageState } from '@b3/hooks'
+import { useB3Lang } from '@b3/lang'
+import { Box, Grid } from '@mui/material'
 
-import {
-  Box,
-  Grid,
-} from '@mui/material'
+import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
 
-import {
-  useForm,
-  SubmitHandler,
-} from 'react-hook-form'
-
-import {
-  useB3Lang,
-} from '@b3/lang'
-
-import type {
-  OpenPageState,
-} from '@b3/hooks'
-
-import {
-  useNavigate,
-} from 'react-router-dom'
-
-import {
-  getForgotPasswordFields,
-  sendEmail,
-  LoginConfig,
-} from './config'
-
-import {
-  B3CustomForm,
-  B3Sping,
-  B3Card,
-  CustomButton,
-} from '@/components'
+import { getForgotPasswordFields, LoginConfig, sendEmail } from './config'
 
 interface ForgotPasswordProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>,
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
-const ForgotPassword = (props: ForgotPasswordProps) => {
+function ForgotPassword(props: ForgotPasswordProps) {
   const [isLoading, setLoading] = useState<boolean>(false)
   const b3Lang = useB3Lang()
   const forgotPasswordFields = getForgotPasswordFields(b3Lang)
 
-  const {
-    setOpenPage,
-  } = props
+  const { setOpenPage } = props
 
   const {
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setValue,
   } = useForm<LoginConfig>({
     mode: 'onSubmit',
@@ -68,9 +34,7 @@ const ForgotPassword = (props: ForgotPasswordProps) => {
 
   const handleLoginClick: SubmitHandler<LoginConfig> = async (data) => {
     setLoading(true)
-    const {
-      emailAddress,
-    } = data
+    const { emailAddress } = data
     try {
       await sendEmail(emailAddress)
       setLoading(false)
@@ -82,37 +46,37 @@ const ForgotPassword = (props: ForgotPasswordProps) => {
 
   return (
     <B3Card setOpenPage={setOpenPage}>
-      <Box sx={{
-        mr: '25%',
-        ml: '25%',
-      }}
-      >
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          fontSize: '25px',
-          mt: 3,
-          mb: 3,
+      <Box
+        sx={{
+          mr: '25%',
+          ml: '25%',
         }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            fontSize: '25px',
+            mt: 3,
+            mb: 3,
+          }}
         >
           {b3Lang('intl.user.forgot.forgotText.resetPassword')}
         </Box>
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          mt: '50px',
-          mb: '50px',
-        }}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            mt: '50px',
+            mb: '50px',
+          }}
         >
           {b3Lang('intl.user.forgot.forgotText.requestEmail')}
         </Box>
 
         <Box>
           <Grid container>
-            <Grid
-              item
-              xs={8}
-            >
+            <Grid item xs={8}>
               <B3CustomForm
                 formFields={forgotPasswordFields}
                 errors={errors}
@@ -122,18 +86,13 @@ const ForgotPassword = (props: ForgotPasswordProps) => {
               />
             </Grid>
 
-            <Grid
-              item
-              xs={4}
-            >
-              <Box sx={{
-                pl: 2,
-              }}
+            <Grid item xs={4}>
+              <Box
+                sx={{
+                  pl: 2,
+                }}
               >
-                <B3Sping
-                  isSpinning={isLoading}
-                  size={20}
-                >
+                <B3Sping isSpinning={isLoading} size={20}>
                   <CustomButton
                     type="submit"
                     size="medium"
@@ -143,11 +102,8 @@ const ForgotPassword = (props: ForgotPasswordProps) => {
                     {b3Lang('intl.user.forgot.forgotText.resetPasswordBtn')}
                   </CustomButton>
                 </B3Sping>
-
               </Box>
-
             </Grid>
-
           </Grid>
         </Box>
       </Box>

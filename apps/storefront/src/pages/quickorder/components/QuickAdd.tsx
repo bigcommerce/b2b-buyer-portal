@@ -1,60 +1,27 @@
-import {
-  useState,
-  useEffect,
-  KeyboardEventHandler,
-  useContext,
-} from 'react'
+import { KeyboardEventHandler, useContext, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
+import { Box, Grid, Typography } from '@mui/material'
 
-import {
-  useForm,
-} from 'react-hook-form'
-
-import {
-  Box,
-  Typography,
-  Grid,
-} from '@mui/material'
-
-import {
-  useB3Lang,
-} from '@b3/lang'
-
-import {
-  B3CustomForm,
-  B3Sping,
-  CustomButton,
-} from '@/components'
-
-import {
-  snackbar,
-} from '@/utils'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  getQuickAddRowFields,
-} from '../../../utils/b3Product/shared/config'
-
-import {
-  SimpleObject,
-  ShoppingListAddProductOption,
-} from '../../../types'
+import { B3CustomForm, B3Sping, CustomButton } from '@/components'
+import { GlobaledContext } from '@/shared/global'
+import { snackbar } from '@/utils'
+import { getQuickAddRowFields } from '@/utils/b3Product/shared/config'
 
 import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '../../../shared/service/b2b'
+import { ShoppingListAddProductOption, SimpleObject } from '../../../types'
 
 interface AddToListContentProps {
-  updateList?: () => void,
-  quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems,
-  level?: number,
-  buttonText?: string,
+  updateList?: () => void
+  quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems
+  level?: number
+  buttonText?: string
 }
 
-export const QuickAdd = (props: AddToListContentProps) => {
+export default function QuickAdd(props: AddToListContentProps) {
   const {
     updateList = () => {},
     quickAddToList,
@@ -63,9 +30,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
   } = props
 
   const {
-    state: {
-      isB2BUser,
-    },
+    state: { isB2BUser },
   } = useContext(GlobaledContext)
 
   const b3Lang = useB3Lang()
@@ -74,7 +39,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  const loopRows = (rows: number, fn:(index: number)=>void) => {
+  const loopRows = (rows: number, fn: (index: number) => void) => {
     new Array(rows).fill(1).forEach((item, index) => fn(index))
   }
 
@@ -94,9 +59,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
     control,
     handleSubmit,
     getValues,
-    formState: {
-      errors,
-    },
+    formState: { errors },
     setError,
     setValue,
   } = useForm({
@@ -151,7 +114,9 @@ export const QuickAdd = (props: AddToListContentProps) => {
 
       if (isValid && sku) {
         const quantity = parseInt(qty, 10) || 0
-        skuValue[sku] = skuValue[sku] ? (skuValue[sku] as number) + quantity : quantity
+        skuValue[sku] = skuValue[sku]
+          ? (skuValue[sku] as number) + quantity
+          : quantity
       }
     })
 
@@ -162,23 +127,30 @@ export const QuickAdd = (props: AddToListContentProps) => {
     }
   }
 
-  const getProductItems = (variantInfoList: CustomFieldItems, skuValue: SimpleObject, skus: string[]) => {
+  const getProductItems = (
+    variantInfoList: CustomFieldItems,
+    skuValue: SimpleObject,
+    skus: string[]
+  ) => {
     const notFoundSku: string[] = []
     const notPurchaseSku: string[] = []
     const productItems: CustomFieldItems[] = []
     const passSku: string[] = []
     const notStockSku: {
-      sku: string,
-      stock: number,
+      sku: string
+      stock: number
     }[] = []
     const orderLimitSku: {
-      sku: string,
-      min: number,
-      max: number,
+      sku: string
+      min: number
+      max: number
     }[] = []
 
     skus.forEach((sku) => {
-      const variantInfo : CustomFieldItems | null = (variantInfoList || []).find((variant: CustomFieldItems) => variant.variantSku.toUpperCase() === sku.toUpperCase())
+      const variantInfo: CustomFieldItems | null = (variantInfoList || []).find(
+        (variant: CustomFieldItems) =>
+          variant.variantSku.toUpperCase() === sku.toUpperCase()
+      )
 
       if (!variantInfo) {
         notFoundSku.push(sku)
@@ -212,7 +184,12 @@ export const QuickAdd = (props: AddToListContentProps) => {
         return
       }
 
-      if (maxQuantity !== 0 && minQuantity !== 0 && quantity > 0 && (quantity > maxQuantity || quantity < minQuantity)) {
+      if (
+        maxQuantity !== 0 &&
+        minQuantity !== 0 &&
+        quantity > 0 &&
+        (quantity > maxQuantity || quantity < minQuantity)
+      ) {
         orderLimitSku.push({
           sku,
           min: quantity < minQuantity ? minQuantity : 0,
@@ -222,18 +199,22 @@ export const QuickAdd = (props: AddToListContentProps) => {
         return
       }
 
-      const optionList = (options || []).reduce((arr: ShoppingListAddProductOption[], optionStr: string) => {
-        try {
-          const option = typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr
-          arr.push({
-            optionId: `attribute[${option.option_id}]`,
-            optionValue: `${option.id}`,
-          })
-          return arr
-        } catch (error) {
-          return arr
-        }
-      }, [])
+      const optionList = (options || []).reduce(
+        (arr: ShoppingListAddProductOption[], optionStr: string) => {
+          try {
+            const option =
+              typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr
+            arr.push({
+              optionId: `attribute[${option.option_id}]`,
+              optionValue: `${option.id}`,
+            })
+            return arr
+          } catch (error) {
+            return arr
+          }
+        },
+        []
+      )
 
       passSku.push(sku)
 
@@ -256,9 +237,15 @@ export const QuickAdd = (props: AddToListContentProps) => {
     }
   }
 
-  const showErrors = (value: CustomFieldItems, skus: string[], inputType: 'sku' | 'qty', message: string) => {
+  const showErrors = (
+    value: CustomFieldItems,
+    skus: string[],
+    inputType: 'sku' | 'qty',
+    message: string
+  ) => {
     skus.forEach((sku) => {
-      const skuFieldName = Object.keys(value).find((name) => value[name] === sku) || ''
+      const skuFieldName =
+        Object.keys(value).find((name) => value[name] === sku) || ''
 
       if (skuFieldName) {
         setError(skuFieldName.replace('sku', inputType), {
@@ -271,7 +258,8 @@ export const QuickAdd = (props: AddToListContentProps) => {
 
   const clearInputValue = (value: CustomFieldItems, skus: string[]) => {
     skus.forEach((sku) => {
-      const skuFieldName = Object.keys(value).find((name) => value[name] === sku) || ''
+      const skuFieldName =
+        Object.keys(value).find((name) => value[name] === sku) || ''
 
       if (skuFieldName) {
         setValue(skuFieldName, '')
@@ -281,13 +269,17 @@ export const QuickAdd = (props: AddToListContentProps) => {
   }
 
   const getVariantList = async (skus: string[]) => {
-    const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus
+    const getVariantInfoBySku = isB2BUser
+      ? getB2BVariantInfoBySkus
+      : getBcVariantInfoBySkus
     try {
-      const {
-        variantSku: variantInfoList,
-      }: CustomFieldItems = await getVariantInfoBySku({
-        skus,
-      }, true)
+      const { variantSku: variantInfoList }: CustomFieldItems =
+        await getVariantInfoBySku(
+          {
+            skus,
+          },
+          true
+        )
 
       return variantInfoList
     } catch (error) {
@@ -299,11 +291,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
     handleSubmit(async (value) => {
       try {
         setIsLoading(true)
-        const {
-          skuValue,
-          isValid,
-          skus,
-        } = getProductData(value)
+        const { skuValue, isValid, skus } = getProductData(value)
 
         if (!isValid || skus.length <= 0) {
           return
@@ -322,9 +310,12 @@ export const QuickAdd = (props: AddToListContentProps) => {
 
         if (notFoundSku.length > 0) {
           showErrors(value, notFoundSku, 'sku', '')
-          snackbar.error(`SKU ${notFoundSku} were not found, please check entered values`, {
-            isClose: true,
-          })
+          snackbar.error(
+            `SKU ${notFoundSku} were not found, please check entered values`,
+            {
+              isClose: true,
+            }
+          )
         }
 
         if (notPurchaseSku.length > 0) {
@@ -338,36 +329,35 @@ export const QuickAdd = (props: AddToListContentProps) => {
           const stockSku = notStockSku.map((item) => item.sku)
 
           notStockSku.forEach((item) => {
-            const {
-              sku,
-              stock,
-            } = item
+            const { sku, stock } = item
 
             showErrors(value, [sku], 'qty', `${stock} in stock`)
           })
 
-          snackbar.error(`SKU ${stockSku} do not have enough stock, please change quantity.`, {
-            isClose: true,
-          })
+          snackbar.error(
+            `SKU ${stockSku} do not have enough stock, please change quantity.`,
+            {
+              isClose: true,
+            }
+          )
         }
 
         if (orderLimitSku.length > 0) {
           // const stockSku = orderLimitSku.map((item) => item.sku)
           orderLimitSku.forEach((item) => {
-            const {
-              min,
-              max,
-              sku,
-            } = item
+            const { min, max, sku } = item
 
             const type = min === 0 ? 'Max' : 'Min'
             const limit = min === 0 ? max : min
             showErrors(value, [sku], 'qty', `${type} is ${limit}`)
 
             const typeText = min === 0 ? 'maximum' : 'minimum'
-            snackbar.error(`You need to purchase a ${typeText} of ${limit} of the ${sku} per order.`, {
-              isClose: true,
-            })
+            snackbar.error(
+              `You need to purchase a ${typeText} of ${limit} of the ${sku} per order.`,
+              {
+                isClose: true,
+              }
+            )
           })
         }
 
@@ -390,10 +380,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
   }
 
   return (
-    <B3Sping
-      isSpinning={isLoading}
-      spinningHeight="auto"
-    >
+    <B3Sping isSpinning={isLoading} spinningHeight="auto">
       <Box>
         <Grid
           container
@@ -458,11 +445,7 @@ export const QuickAdd = (props: AddToListContentProps) => {
             margin: '20px 0',
           }}
         >
-          <B3Sping
-            isSpinning={isLoading}
-            tip=""
-            size={16}
-          >
+          <B3Sping isSpinning={isLoading} tip="" size={16}>
             <Box
               sx={{
                 flex: 1,
@@ -473,7 +456,6 @@ export const QuickAdd = (props: AddToListContentProps) => {
             </Box>
           </B3Sping>
         </CustomButton>
-
       </Box>
     </B3Sping>
   )

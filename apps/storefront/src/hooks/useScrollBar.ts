@@ -1,12 +1,7 @@
-import {
-  useEffect,
-} from 'react'
-import {
-  useSelector,
-} from 'react-redux'
-import {
-  themeFrameSelector,
-} from '@/store'
+import { useEffect } from 'react'
+import { useSelector } from 'react-redux'
+
+import { themeFrameSelector } from '@/store'
 
 const useScrollBar = (open: boolean) => {
   const IframeDocument = useSelector(themeFrameSelector)
@@ -19,6 +14,4 @@ const useScrollBar = (open: boolean) => {
   }, [open])
 }
 
-export {
-  useScrollBar,
-}
+export default useScrollBar

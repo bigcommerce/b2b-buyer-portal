@@ -22,9 +22,10 @@ const bull = (
 
 export default function Home() {
   return (
-    <Card sx={{
-      minWidth: 275,
-    }}
+    <Card
+      sx={{
+        minWidth: 275,
+      }}
     >
       <CardContent>
         <Typography
@@ -36,16 +37,11 @@ export default function Home() {
         >
           Word of the Day
         </Typography>
-        <Typography
-          variant="h5"
-          component="div"
-        >
+        <Typography variant="h5" component="div">
           be
           {bull}
           nev
-          {bull}
-          o
-          {bull}
+          {bull}o{bull}
           lent
         </Typography>
         <Typography
@@ -58,8 +54,7 @@ export default function Home() {
         </Typography>
         <Typography variant="body2">
           well meaning and kindly.
-          <br />
-          a benevolent smile
+          <br />a benevolent smile
         </Typography>
       </CardContent>
       <CardActions>

@@ -1,12 +1,5 @@
-import {
-  styled,
-} from '@mui/material/styles'
-
-import {
-  FormControl,
-  TextField,
-  FormControlLabel,
-} from '@mui/material'
+import { FormControl, FormControlLabel, TextField } from '@mui/material'
+import { styled } from '@mui/material/styles'
 
 export const DropzoneBox = styled('div')(() => ({
   cursor: 'pointer',
@@ -40,7 +33,8 @@ export const DropzoneBox = styled('div')(() => ({
       alignItems: 'center',
       borderRadius: '4px',
       margin: '20px 20px 0 0',
-      boxShadow: '0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
+      boxShadow:
+        '0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)',
       position: 'relative',
       '& .MuiSvgIcon-root': {
         color: '#757575',
@@ -83,23 +77,26 @@ export const PickerFormControl = styled(FormControl)(() => ({
   width: '100%',
 }))
 
-interface StyleNumberTextFieldProps{
+interface StyleNumberTextFieldProps {
   allowarrow?: number
 }
 
-export const StyleNumberTextField = styled(TextField)((props: StyleNumberTextFieldProps) => {
-  const {
-    allowarrow = 0,
-  } = props
-  return allowarrow ? {} : {
-    '& input[type="number"]': {
-      MozAppearance: 'textfield',
-    },
-    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
-      WebkitAppearance: 'none',
-    },
+export const StyleNumberTextField = styled(TextField)(
+  (props: StyleNumberTextFieldProps) => {
+    const { allowarrow = 0 } = props
+    return allowarrow
+      ? {}
+      : {
+          '& input[type="number"]': {
+            MozAppearance: 'textfield',
+          },
+          '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
+            {
+              WebkitAppearance: 'none',
+            },
+        }
   }
-})
+)
 
 export const StyleRectangleFormControlLabel = styled(FormControlLabel)(() => ({
   marginLeft: '0',

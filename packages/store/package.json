@@ -7,6 +7,13 @@
     "lint": "eslint \"**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@b3/utils": "*",
     "@reduxjs/toolkit": "^1.9.3"
+  },
+  "devDependencies": {
+    "@b3/tsconfig": "*",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-b2b": "*",
+    "typescript": "^4.7.4"
   }
 }

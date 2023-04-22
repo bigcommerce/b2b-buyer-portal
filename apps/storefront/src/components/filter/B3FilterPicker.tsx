@@ -1,48 +1,48 @@
 import {
-  useState,
   forwardRef,
-  useImperativeHandle,
   Ref,
   useEffect,
+  useImperativeHandle,
+  useState,
 } from 'react'
+import { Box } from '@mui/material'
 
-import {
-  Box,
-} from '@mui/material'
+import { distanceDay } from '@/utils'
 
-import {
-  distanceDay,
-} from '@/utils'
-
-import {
-  B3Picker,
-} from '../ui'
+import { B3Picker } from '../ui'
 
 interface PickerProps {
-  isEnabled: boolean;
+  isEnabled: boolean
   defaultValue?: Date | number | string | null
   label: string
-  pickerKey?: string,
+  pickerKey?: string
 }
 
 interface B3FilterPickerProps {
   startPicker?: PickerProps
   endPicker?: PickerProps
-  xs?: {[key: string]: number | string}
-  isMonthlySpacing?: boolean,
+  xs?: { [key: string]: number | string }
+  isMonthlySpacing?: boolean
   handleChange?: (key: string, value: Date | string | number) => void
 }
 
-const B3FilterPickers = ({
-  startPicker,
-  endPicker,
-  handleChange,
-  isMonthlySpacing = false,
-  xs = {},
-}: B3FilterPickerProps, ref: Ref<unknown> | undefined) => {
+function B3FilterPickers(
+  {
+    startPicker,
+    endPicker,
+    handleChange,
+    isMonthlySpacing = false,
+    xs = {},
+  }: B3FilterPickerProps,
+  ref: Ref<unknown> | undefined
+) {
   // const [isMobile] = useMobile()
-  const [startValue, setStartValue] = useState<Date | number | string>(startPicker?.defaultValue || '')
-  const [endValue, setEndValue] = useState<Date | number | string>(endPicker?.defaultValue || '')
+  const [startValue, setStartValue] = useState<Date | number | string>(
+    startPicker?.defaultValue || ''
+  )
+  const [endValue, setEndValue] = useState<Date | number | string>(
+    endPicker?.defaultValue || ''
+  )
 
   const setClearPickerValue = () => {
     setStartValue(isMonthlySpacing ? distanceDay(30) : '')
@@ -89,55 +89,50 @@ const B3FilterPickers = ({
         display: 'flex',
       }}
     >
-      {
-      startPicker?.isEnabled && (
-      <Box
-        sx={{
-          width: '49%',
-          mt: '16px',
-          mr: '1%',
-          cursor: 'pointer',
-          '& > .MuiFormControl-root': {
-            width: '100%',
-          },
-          ...xs,
-        }}
-      >
-        <B3Picker
-          onChange={handleStartDatePickerChange}
-          value={startValue}
-          label={startPicker?.label}
-          variant="filled"
-        />
-      </Box>
-      )
-    }
+      {startPicker?.isEnabled && (
+        <Box
+          sx={{
+            width: '49%',
+            mt: '16px',
+            mr: '1%',
+            cursor: 'pointer',
+            '& > .MuiFormControl-root': {
+              width: '100%',
+            },
+            ...xs,
+          }}
+        >
+          <B3Picker
+            onChange={handleStartDatePickerChange}
+            value={startValue}
+            label={startPicker?.label}
+            variant="filled"
+          />
+        </Box>
+      )}
 
-      {
-      endPicker?.isEnabled && (
-      <Box
-        sx={{
-          width: '49%',
-          mt: '16px',
-          ml: '1%',
-          '& > .MuiFormControl-root': {
-            width: '100%',
-          },
-          cursor: 'pointer',
-          ...xs,
-        }}
-      >
-        <B3Picker
-          onChange={handleEndDatePickerChange}
-          value={endValue}
-          label={endPicker?.label}
-          variant="filled"
-        />
-      </Box>
-      )
-    }
+      {endPicker?.isEnabled && (
+        <Box
+          sx={{
+            width: '49%',
+            mt: '16px',
+            ml: '1%',
+            '& > .MuiFormControl-root': {
+              width: '100%',
+            },
+            cursor: 'pointer',
+            ...xs,
+          }}
+        >
+          <B3Picker
+            onChange={handleEndDatePickerChange}
+            value={endValue}
+            label={endPicker?.label}
+            variant="filled"
+          />
+        </Box>
+      )}
     </Box>
-
   )
 }
 

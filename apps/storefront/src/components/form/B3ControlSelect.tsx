@@ -1,28 +1,21 @@
-import {
-  ChangeEvent,
-} from 'react'
-
+import { ChangeEvent } from 'react'
+import { Controller } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
 import {
   FormControl,
-  InputLabel,
   FormHelperText,
+  InputLabel,
   MenuItem,
   Select,
 } from '@mui/material'
-import {
-  Controller,
-} from 'react-hook-form'
-import {
-  useB3Lang,
-} from '@b3/lang'
 
 import Form from './ui'
 
-export const B3ControlSelect = ({
+export default function B3ControlSelect({
   control,
   errors,
   ...rest
-} : Form.B3UIProps) => {
+}: Form.B3UIProps) {
   const {
     fieldType,
     name,
@@ -48,9 +41,11 @@ export const B3ControlSelect = ({
     key: name,
     defaultValue,
     rules: {
-      required: required && b3Lang('intl.global.validate.required', {
-        label,
-      }),
+      required:
+        required &&
+        b3Lang('intl.global.validate.required', {
+          label,
+        }),
       validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,
@@ -61,67 +56,62 @@ export const B3ControlSelect = ({
     setValue(name, e.target.value)
   }
 
-  const onChangeProps = onChange ? {
-    onChange: onHandleChange,
-  } : {}
-
-  return (
-    <>
-      {
-        ['dropdown'].includes(fieldType) && (
-        <FormControl
-          variant="filled"
-          style={{
-            width: '100%',
-            color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
-          }}
-        >
-          {
-            label && (
-            <InputLabel
-              sx={{
-                color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
-              }}
-              error={!!errors[name]}
-              required={required}
-            >
-              {label}
-            </InputLabel>
-            )
-          }
-          <Controller
-            {...fieldsProps}
-            render={({
-              field,
-            }) => (
-              <Select
-                {...field}
-                {...muiAttributeProps}
-                {...onChangeProps}
-                size={size}
-                error={!!errors[name]}
-              >
-                {
-                  options?.length && (
-                    options.map((option: any) => (
-                      <MenuItem
-                        key={option[replaceOptions?.label || 'label']}
-                        value={option[replaceOptions?.value || 'value']}
-                      >
-                        {option[replaceOptions?.label || 'label']}
-                      </MenuItem>
-                    ))
-                  )
-                  }
-              </Select>
-            )}
-          />
-          {
-            errors[name] && (<FormHelperText error={!!errors[name]}>{errors[name] ? errors[name].message : null}</FormHelperText>)
-          }
-        </FormControl>
-        )
+  const onChangeProps = onChange
+    ? {
+        onChange: onHandleChange,
       }
-    </>
-  )
+    : {}
+
+  return ['dropdown'].includes(fieldType) ? (
+    <FormControl
+      variant="filled"
+      style={{
+        width: '100%',
+        color: muiSelectProps?.disabled
+          ? 'rgba(0, 0, 0, 0.38)'
+          : 'rgba(0, 0, 0, 0.6)',
+      }}
+    >
+      {label && (
+        <InputLabel
+          sx={{
+            color: muiSelectProps?.disabled
+              ? 'rgba(0, 0, 0, 0.38)'
+              : 'rgba(0, 0, 0, 0.6)',
+          }}
+          error={!!errors[name]}
+          required={required}
+        >
+          {label}
+        </InputLabel>
+      )}
+      <Controller
+        {...fieldsProps}
+        render={({ field }) => (
+          <Select
+            {...field}
+            {...muiAttributeProps}
+            {...onChangeProps}
+            size={size}
+            error={!!errors[name]}
+          >
+            {options?.length &&
+              options.map((option: any) => (
+                <MenuItem
+                  key={option[replaceOptions?.label || 'label']}
+                  value={option[replaceOptions?.value || 'value']}
+                >
+                  {option[replaceOptions?.label || 'label']}
+                </MenuItem>
+              ))}
+          </Select>
+        )}
+      />
+      {errors[name] && (
+        <FormHelperText error={!!errors[name]}>
+          {errors[name] ? errors[name].message : null}
+        </FormHelperText>
+      )}
+    </FormControl>
+  ) : null
 }

@@ -1,100 +1,25 @@
-export {
-  B3Layout,
-  B3Nav,
-  B3Header,
-  B3RenderRouter,
-} from './layout'
-export {
-  B3CustomForm,
-} from './B3CustomForm'
-export {
-  B3Sping,
-} from './spin/B3Sping'
-export {
-  RegisteredCloseButton,
-} from './RegisteredCloseButton'
-export {
-  ThemeFrame,
-} from './ThemeFrame'
-
-export {
-  B3Card,
-} from './B3Card'
-
-export {
-  B3Tag,
-} from './B3Tag'
-
-export {
-  B3Table,
-} from './table/B3Table'
-
-export {
-  B3NoData,
-} from './table/B3NoData'
-
-export {
-  B3PaginationTable,
-} from './table/B3PaginationTable'
-
-export {
-  B3Dialog,
-} from './B3Dialog'
-
-export {
-  B3Tip,
-} from './B3Tip'
-
-export {
-  B3ProductList,
-} from './B3ProductList'
-
-export {
-  B3LinkTipContent,
-} from './B3LinkTipContent'
-
-export {
-  B3CollapseContainer,
-} from './B3CollapseContainer'
-
-export {
-  B3QuantityTextField,
-} from './B3QuantityTextField'
-
-export {
-  B3MasquradeGobalTip,
-} from './outSideComponents/B3MasquradeGobalTip'
-
-export {
-  B3HoverButton,
-} from './outSideComponents/B3HoverButton'
-
-export {
-  CheckoutTip,
-} from './extraTip/CheckoutTip'
-
-export {
-  B3Upload,
-} from './upload/B3Upload'
-
-export {
-  HomePageLoadding,
-} from './loadding/B3HomePageLoadding'
-
-export {
-  B3PageMask,
-  showPageMask,
-  Loading,
-} from './loadding'
-
-export {
-  B3GlobalTip,
-} from './B3GlobalTip'
-
-export {
-  B3AddToQuoteTip,
-} from './B3AddToQuoteTip'
-
-export {
-  CustomButton,
-} from './button/CustomButton'
+export { default as B3AddToQuoteTip } from './B3AddToQuoteTip'
+export { default as B3Card } from './B3Card'
+export { default as B3CollapseContainer } from './B3CollapseContainer'
+export { default as B3CustomForm } from './B3CustomForm'
+export { default as B3Dialog } from './B3Dialog'
+export { default as B3GlobalTip } from './B3GlobalTip'
+export * from './B3LinkTipContent'
+export { default as B3ProductList } from './B3ProductList'
+export { default as B3QuantityTextField } from './B3QuantityTextField'
+export { default as B3Tag } from './B3Tag'
+export { default as B3Tip } from './B3Tip'
+export { default as CustomButton } from './button/CustomButton'
+export { default as CheckoutTip } from './extraTip/CheckoutTip'
+export * from './layout'
+export { B3PageMask, Loading, showPageMask } from './loadding'
+export { default as HomePageLoadding } from './loadding/B3HomePageLoadding'
+export { default as B3HoverButton } from './outSideComponents/B3HoverButton'
+export { default as B3MasquradeGobalTip } from './outSideComponents/B3MasquradeGobalTip'
+export { default as RegisteredCloseButton } from './RegisteredCloseButton'
+export { default as B3Sping } from './spin/B3Sping'
+export { default as B3NoData } from './table/B3NoData'
+export { B3PaginationTable } from './table/B3PaginationTable'
+export { B3Table } from './table/B3Table'
+export { ThemeFrame } from './ThemeFrame'
+export { default as B3Upload } from './upload/B3Upload'

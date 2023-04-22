@@ -3,7 +3,8 @@ export interface QuoteConfigItem {
 }
 
 export const getLogo = (quoteConfig: CustomFieldItems[]): string => {
-  const logoItem = quoteConfig.find((list:QuoteConfigItem) => list.key === 'quote_logo') || {}
+  const logoItem =
+    quoteConfig.find((list: QuoteConfigItem) => list.key === 'quote_logo') || {}
 
   return logoItem.isEnabled || ''
 }
@@ -11,15 +12,17 @@ export const getLogo = (quoteConfig: CustomFieldItems[]): string => {
 export const getQuoteEnabled = (
   quoteConfig: CustomFieldItems[],
   storefrontConfig: {
-    [k: string]: boolean | {
-      value: boolean,
-      enabledStatus: boolean,
-    },
-    shoppingLists: boolean,
+    [k: string]:
+      | boolean
+      | {
+          value: boolean
+          enabledStatus: boolean
+        }
+    shoppingLists: boolean
   },
   role: number | string,
   isB2BUser: boolean,
-  isAgenting: boolean,
+  isAgenting: boolean
 ) => {
   let customerEnabled = '1'
   let guestEnabled = '1'
@@ -53,10 +56,13 @@ export const getQuoteEnabled = (
     }
   })
 
-  let productQuoteEnabled = quoteEnabled && customerEnabled === '1' && productEnabled === '1'
-  let cartQuoteEnabled = quoteEnabled && customerEnabled === '1' && cartEnabled === '1'
+  let productQuoteEnabled =
+    quoteEnabled && customerEnabled === '1' && productEnabled === '1'
+  let cartQuoteEnabled =
+    quoteEnabled && customerEnabled === '1' && cartEnabled === '1'
 
-  if (`${role}` === '100') { // guest
+  if (`${role}` === '100') {
+    // guest
     productQuoteEnabled = productQuoteEnabled && guestEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && guestEnabled === '1'
   } else if (isB2BUser) {
@@ -66,7 +72,8 @@ export const getQuoteEnabled = (
       productQuoteEnabled = false
       cartQuoteEnabled = false
     }
-  } else if (!isB2BUser) { // BCUser
+  } else if (!isB2BUser) {
+    // BCUser
     productQuoteEnabled = productQuoteEnabled && bcUserEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && bcUserEnabled === '1'
   }

@@ -1,100 +1,70 @@
-import {
-  useState,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-  Ref,
-} from 'react'
+import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
+import { Delete, Edit } from '@mui/icons-material'
+import { Box, styled, TextField, Typography } from '@mui/material'
 
-import {
-  Box,
-  styled,
-  Typography,
-  TextField,
-} from '@mui/material'
-
-import {
-  Delete,
-  Edit,
-} from '@mui/icons-material'
-
+import { B3PaginationTable } from '@/components/table/B3PaginationTable'
+import { TableColumnItem } from '@/components/table/B3Table'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import {
   B3LStorage,
   getModifiersPrice,
+  getProductPriceIncTax,
   getQuickAddProductExtraPrice,
   snackbar,
-  getProductPriceIncTax,
 } from '@/utils'
+import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
-import {
-  TableColumnItem,
-} from '@/components/table/B3Table'
-
-import {
-  B3PaginationTable,
-} from '@/components/table/B3PaginationTable'
+import ChooseOptionsDialog from '../../shoppingListDetails/components/ChooseOptionsDialog'
 
 import QuoteTableCard from './QuoteTableCard'
-
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
-import {
-  ChooseOptionsDialog,
-} from '../../shoppingListDetails/components/ChooseOptionsDialog'
-
-import {
-  getProductOptionsFields,
-} from '../../../utils/b3Product/shared/config'
 
 interface ListItem {
   [key: string]: string
 }
 
 interface ProductInfoProps {
-  basePrice: number | string,
-  baseSku: string,
-  createdAt: number,
-  discount: number | string,
-  enteredInclusive: boolean,
-  id: number | string,
-  itemId: number,
-  optionList: string,
-  primaryImage: string,
-  productId: number,
-  productName: string,
-  productUrl: string,
-  quantity: number | string,
-  tax: number | string,
-  updatedAt: number,
-  variantId: number,
-  variantSku: string,
-  productsSearch: CustomFieldItems,
+  basePrice: number | string
+  baseSku: string
+  createdAt: number
+  discount: number | string
+  enteredInclusive: boolean
+  id: number | string
+  itemId: number
+  optionList: string
+  primaryImage: string
+  productId: number
+  productName: string
+  productUrl: string
+  quantity: number | string
+  tax: number | string
+  updatedAt: number
+  variantId: number
+  variantSku: string
+  productsSearch: CustomFieldItems
 }
 
 interface ListItemProps {
-  node: ProductInfoProps,
+  node: ProductInfoProps
 }
 
 interface ShoppingDetailTableProps {
-  total: number,
-  currencyToken?: string,
-  getQuoteTableDetails: any,
-  idEdit?: boolean,
-  isB2BUser: boolean,
-  updateSummary: () => void,
+  total: number
+  currencyToken?: string
+  getQuoteTableDetails: any
+  idEdit?: boolean
+  isB2BUser: boolean
+  updateSummary: () => void
 }
 
 interface SearchProps {
-  first?: number,
-  offset?: number,
+  first?: number
+  offset?: number
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
-  getList: () => void,
-  setList: (items?: ListItemProps[]) => void,
-  getSelectedValue: () => void,
+  getList: () => void
+  setList: (items?: ListItemProps[]) => void
+  getSelectedValue: () => void
 }
 
 const StyledQuoteTableContainer = styled('div')(() => ({
@@ -132,7 +102,7 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }))
 
-const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
+function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const {
     total,
     currencyToken,
@@ -153,12 +123,13 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
     offset: 0,
   })
 
-  const handleUpdateProductQty = (id: number | string, value: number | string) => {
+  const handleUpdateProductQty = (
+    id: number | string,
+    value: number | string
+  ) => {
     const listItems = paginationTableRef.current?.getList() || []
     const newListItems = listItems?.map((item: ListItemProps) => {
-      const {
-        node,
-      } = item
+      const { node } = item
       if (node?.id === id) {
         node.quantity = +value || ''
       }
@@ -168,7 +139,9 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
 
     const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
 
-    const index = quoteDraftAllList.findIndex((item: CustomFieldItems) => item.node.id === id)
+    const index = quoteDraftAllList.findIndex(
+      (item: CustomFieldItems) => item.node.id === id
+    )
 
     quoteDraftAllList[index].node.quantity = +value
 
@@ -181,7 +154,9 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
   const handleDeleteClick = (id: number | string) => {
     const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
 
-    const index = quoteDraftAllList.findIndex((item: CustomFieldItems) => item.node.id === id)
+    const index = quoteDraftAllList.findIndex(
+      (item: CustomFieldItems) => item.node.id === id
+    )
 
     quoteDraftAllList.splice(index, 1)
 
@@ -213,74 +188,94 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
     setSelectedOptionsOpen(true)
   }
 
-  const getNewQuoteProduct = (products: CustomFieldItems[]) => products.map((product) => {
-    const {
-      variantId,
-      newSelectOptionList,
-      id: productId,
-      name: productName,
-      quantity,
-      variants = [],
-      allOptions,
-      additionalProducts,
-    } = product
-
-    const modifiersPrice = getModifiersPrice(allOptions || [], newSelectOptionList)
-
-    const productExtraPrice = getQuickAddProductExtraPrice(allOptions || [], newSelectOptionList, additionalProducts)
-
-    const additionalCalculatedPrices = [...modifiersPrice, ...productExtraPrice]
-
-    const variantInfo = variants.length === 1 ? variants[0] : variants.find((item: CustomFieldItems) => item.variant_id === variantId)
-
-    const {
-      image_url: primaryImage = '',
-      calculated_price: basePrice,
-      sku: variantSku,
-    } = variantInfo
-
-    let selectOptions
-    try {
-      selectOptions = JSON.stringify(newSelectOptionList)
-    } catch (error) {
-      selectOptions = '[]'
-    }
-
-    return {
-      node: {
-        basePrice: basePrice.toFixed(2),
-        additionalCalculatedPrices,
-        optionList: selectOptions,
-        primaryImage,
-        productId,
-        productName,
-        productsSearch: {
-          ...product,
-          selectOptions,
-        },
+  const getNewQuoteProduct = (products: CustomFieldItems[]) =>
+    products.map((product) => {
+      const {
+        variantId,
+        newSelectOptionList,
+        id: productId,
+        name: productName,
         quantity,
-        variantSku,
-      },
-    }
-  })
+        variants = [],
+        allOptions,
+        additionalProducts,
+      } = product
 
-  const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
+      const modifiersPrice = getModifiersPrice(
+        allOptions || [],
+        newSelectOptionList
+      )
+
+      const productExtraPrice = getQuickAddProductExtraPrice(
+        allOptions || [],
+        newSelectOptionList,
+        additionalProducts
+      )
+
+      const additionalCalculatedPrices = [
+        ...modifiersPrice,
+        ...productExtraPrice,
+      ]
+
+      const variantInfo =
+        variants.length === 1
+          ? variants[0]
+          : variants.find(
+              (item: CustomFieldItems) => item.variant_id === variantId
+            )
+
+      const {
+        image_url: primaryImage = '',
+        calculated_price: basePrice,
+        sku: variantSku,
+      } = variantInfo
+
+      let selectOptions
+      try {
+        selectOptions = JSON.stringify(newSelectOptionList)
+      } catch (error) {
+        selectOptions = '[]'
+      }
+
+      return {
+        node: {
+          basePrice: basePrice.toFixed(2),
+          additionalCalculatedPrices,
+          optionList: selectOptions,
+          primaryImage,
+          productId,
+          productName,
+          productsSearch: {
+            ...product,
+            selectOptions,
+          },
+          quantity,
+          variantSku,
+        },
+      }
+    })
+
+  const handleChooseOptionsDialogConfirm = async (
+    products: CustomFieldItems[]
+  ) => {
     const productsss = getNewQuoteProduct(products)
 
     productsss.forEach((product: CustomFieldItems) => {
       const {
         variantSku,
-        productsSearch: {
-          variants,
-        },
+        productsSearch: { variants },
         basePrice,
       } = product.node
-      const variantItem = variants.find((item: CustomFieldItems) => item.sku === variantSku)
+      const variantItem = variants.find(
+        (item: CustomFieldItems) => item.sku === variantSku
+      )
 
       product.node.id = optionsProductId
 
       product.node.basePrice = basePrice
-      product.node.tax = variantItem.bc_calculated_price.tax_inclusive - variantItem.bc_calculated_price.tax_exclusive
+      product.node.tax =
+        variantItem.bc_calculated_price.tax_inclusive -
+        variantItem.bc_calculated_price.tax_exclusive
     })
 
     setSelectedOptionsOpen(false)
@@ -313,10 +308,12 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
           ...row.productsSearch,
           selectOptions: row.optionList,
         }
-        const productFields = (getProductOptionsFields(product, {}))
+        const productFields = getProductOptionsFields(product, {})
 
         const optionList = JSON.parse(row.optionList)
-        const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
+        const optionsValue: CustomFieldItems[] = productFields.filter(
+          (item) => item.valueText
+        )
 
         return (
           <Box
@@ -331,39 +328,28 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
               loading="lazy"
             />
             <Box>
-              <Typography
-                variant="body1"
-                color="#212121"
-              >
+              <Typography variant="body1" color="#212121">
                 {row.productName}
               </Typography>
-              <Typography
-                variant="body1"
-                color="#616161"
-              >
+              <Typography variant="body1" color="#616161">
                 {row.variantSku}
               </Typography>
-              {
-                (optionList.length > 0 && optionsValue.length > 0) && (
-                  <Box>
-                    {
-                      optionsValue.map((option: any) => (
-                        <Typography
-                          sx={{
-                            fontSize: '0.75rem',
-                            lineHeight: '1.5',
-                            color: '#455A64',
-                          }}
-                          key={option.valueLabel}
-                        >
-                          {`${option.valueLabel
-                          }: ${option.valueText}`}
-                        </Typography>
-                      ))
-                    }
-                  </Box>
-                )
-              }
+              {optionList.length > 0 && optionsValue.length > 0 && (
+                <Box>
+                  {optionsValue.map((option: any) => (
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        lineHeight: '1.5',
+                        color: '#455A64',
+                      }}
+                      key={option.valueLabel}
+                    >
+                      {`${option.valueLabel}: ${option.valueText}`}
+                    </Typography>
+                  ))}
+                </Box>
+              )}
             </Box>
           </Box>
         )
@@ -375,9 +361,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
       title: 'Price',
       render: (row: CustomFieldItems) => {
         const {
-          productsSearch: {
-            variants = [],
-          },
+          productsSearch: { variants = [] },
           variantId,
           variantSku,
           basePrice,
@@ -416,7 +400,8 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
           disabled={!idEdit}
           value={row.quantity}
           inputProps={{
-            inputMode: 'numeric', pattern: '[0-9]*',
+            inputMode: 'numeric',
+            pattern: '[0-9]*',
           }}
           onChange={(e) => {
             handleUpdateProductQty(row.id, e.target.value)
@@ -435,9 +420,7 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
         const {
           basePrice,
           quantity,
-          productsSearch: {
-            variants = [],
-          },
+          productsSearch: { variants = [] },
           variantId,
           variantSku,
         } = row
@@ -467,48 +450,39 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
               }}
               id="shoppingList-actionList"
             >
-              {
-                optionList.length > 0 && idEdit && (
-                  <Edit
-                    sx={{
-                      marginRight: '0.5rem',
-                      cursor: 'pointer',
-                      color: 'rgba(0, 0, 0, 0.54)',
-                    }}
-                    onClick={() => {
-                      const {
-                        productsSearch,
-                        id,
-                        optionList,
-                        quantity,
-                      } = row
+              {optionList.length > 0 && idEdit && (
+                <Edit
+                  sx={{
+                    marginRight: '0.5rem',
+                    cursor: 'pointer',
+                    color: 'rgba(0, 0, 0, 0.54)',
+                  }}
+                  onClick={() => {
+                    const { productsSearch, id, optionList, quantity } = row
 
-                      handleOpenProductEdit({
+                    handleOpenProductEdit(
+                      {
                         ...productsSearch,
                         quantity,
                         selectOptions: optionList,
-                      }, id)
-                    }}
-                  />
-                )
-              }
-              {
-                idEdit && (
+                      },
+                      id
+                    )
+                  }}
+                />
+              )}
+              {idEdit && (
                 <Delete
                   sx={{
                     cursor: 'pointer',
                     color: 'rgba(0, 0, 0, 0.54)',
                   }}
                   onClick={() => {
-                    const {
-                      id,
-                    } = row
+                    const { id } = row
                     handleDeleteClick(id)
                   }}
                 />
-                )
-              }
-
+              )}
             </Box>
           </Box>
         )
@@ -576,7 +550,6 @@ const QuoteTable = (props: ShoppingDetailTableProps, ref: Ref<unknown>) => {
         isEdit
         isB2BUser={isB2BUser}
       />
-
     </StyledQuoteTableContainer>
   )
 }

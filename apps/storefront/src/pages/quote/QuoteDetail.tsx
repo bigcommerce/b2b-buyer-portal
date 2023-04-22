@@ -1,87 +1,40 @@
-import {
-  useState,
-  useContext,
-  useEffect,
-} from 'react'
-
-import {
-  useParams,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
+import { useContext, useEffect, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Box, Button, Grid } from '@mui/material'
 import copy from 'copy-to-clipboard'
 
+import { B3Sping } from '@/components'
+import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
-  Box,
-  Grid,
-  Button,
-} from '@mui/material'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  getB2BQuoteDetail,
-  getBcQuoteDetail,
   exportB2BQuotePdf,
   exportBcQuotePdf,
+  getB2BQuoteDetail,
+  getBcQuoteDetail,
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-
-import {
-  GlobaledContext,
-} from '@/shared/global'
-
-import {
-  B3Sping,
-} from '@/components/spin/B3Sping'
-
-import {
-  snackbar,
-  getSearchVal,
-  getDefaultCurrencyInfo,
-} from '@/utils'
-
-import QuoteDetailHeader from './components/QuoteDetailHeader'
-import QuoteInfo from './components/QuoteInfo'
-import QuoteDetailFooter from './components/QuoteDetailFooter'
-import QuoteDetailTable from './components/QuoteDetailTable'
-import {
-  QuoteDetailSummary,
-} from './components/QuoteDetailSummary'
-import {
-  QuoteAttachment,
-} from './components/QuoteAttachment'
-
-import {
-  QuoteNote,
-} from './components/QuoteNote'
+import { getDefaultCurrencyInfo, getSearchVal, snackbar } from '@/utils'
+import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import Message from './components/Message'
+import QuoteAttachment from './components/QuoteAttachment'
+import QuoteDetailFooter from './components/QuoteDetailFooter'
+import QuoteDetailHeader from './components/QuoteDetailHeader'
+import QuoteDetailSummary from './components/QuoteDetailSummary'
+import QuoteDetailTable from './components/QuoteDetailTable'
+import QuoteInfo from './components/QuoteInfo'
+import QuoteNote from './components/QuoteNote'
+import QuoteTermsAndConditions from './components/QuoteTermsAndConditions'
+import { ProductInfoProps } from './shared/config'
 
-import {
-  ProductInfoProps,
-} from './shared/config'
-import {
-  conversionProductsList,
-} from '../../utils/b3Product/shared/config'
-import {
-  QuoteTermsAndConditions,
-} from './components/QuoteTermsAndConditions'
-
-const QuoteDetail = () => {
-  const {
-    id = '',
-  } = useParams()
+function QuoteDetail() {
+  const { id = '' } = useParams()
   const navigate = useNavigate()
 
   const {
     state: {
-      companyInfo: {
-        id: companyInfoId,
-      },
+      companyInfo: { id: companyInfoId },
       role,
       customer,
       isB2BUser,
@@ -103,9 +56,7 @@ const QuoteDetail = () => {
     grandTotal: 0,
   })
   const [isRequestLoading, setIsRequestLoading] = useState(false)
-  const {
-    currency_code: currencyCode,
-  } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
   const location = useLocation()
 
@@ -121,9 +72,7 @@ const QuoteDetail = () => {
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
       try {
-        const {
-          productsSearch,
-        } = await getProducts({
+        const { productsSearch } = await getProducts({
           productIds,
           currencyCode,
           companyId: companyInfoId,
@@ -132,13 +81,13 @@ const QuoteDetail = () => {
         const newProductsSearch = conversionProductsList(productsSearch)
 
         listProducts.forEach((item) => {
-          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
-            const {
-              id: productId,
-            } = search
+          const productInfo = newProductsSearch.find(
+            (search: CustomFieldItems) => {
+              const { id: productId } = search
 
-            return +item.productId === +productId
-          })
+              return +item.productId === +productId
+            }
+          )
 
           item.productsSearch = productInfo || {}
         })
@@ -148,15 +97,14 @@ const QuoteDetail = () => {
         snackbar.error(err)
       }
     }
+    return undefined
   }
 
   const getQuoteDetail = async () => {
     setIsRequestLoading(true)
 
     try {
-      const {
-        search,
-      } = location
+      const { search } = location
 
       const date = getSearchVal(search, 'date') || ''
       const data = {
@@ -166,10 +114,10 @@ const QuoteDetail = () => {
 
       const fn = +role === 99 ? getBcQuoteDetail : getB2BQuoteDetail
 
-      const {
-        quote,
-      } = await fn(data)
-      const productsWithMoreInfo = await handleGetProductsById(quote.productsList)
+      const { quote } = await fn(data)
+      const productsWithMoreInfo = await handleGetProductsById(
+        quote.productsList
+      )
 
       setQuoteDetail(quote)
       setQuoteSummary({
@@ -182,10 +130,7 @@ const QuoteDetail = () => {
       setCurrency(quote.currency)
       setProductList(productsWithMoreInfo)
 
-      const {
-        backendAttachFiles = [],
-        storefrontAttachFiles = [],
-      } = quote
+      const { backendAttachFiles = [], storefrontAttachFiles = [] } = quote
 
       const newFileList: CustomFieldItems[] = []
       storefrontAttachFiles.forEach((file: CustomFieldItems) => {
@@ -224,10 +169,7 @@ const QuoteDetail = () => {
     setIsRequestLoading(true)
     const {
       id,
-      currency: {
-        currencyExchangeRate,
-        token,
-      },
+      currency: { currencyExchangeRate, token },
     } = quoteDetail
     try {
       const data = {
@@ -248,6 +190,7 @@ const QuoteDetail = () => {
     } catch (err: any) {
       snackbar.error(err)
     }
+    return undefined
   }
 
   const exportPdf = async () => {
@@ -331,9 +274,9 @@ const QuoteDetail = () => {
           mr: '15px',
         }}
       >
-        {
-          +role === 100 ? 'Your quote was submitted. You can always find the quote using this link.' : 'Your quote was submitted'
-        }
+        {+role === 100
+          ? 'Your quote was submitted. You can always find the quote using this link.'
+          : 'Your quote was submitted'}
       </Box>
       <Button
         onClick={() => {
@@ -349,17 +292,13 @@ const QuoteDetail = () => {
           color: '#ffffff',
         }}
       >
-        {
-          +role === 100 ? 'Copy quote link' : 'Review all quotes'
-        }
+        {+role === 100 ? 'Copy quote link' : 'Review all quotes'}
       </Button>
     </Box>
   )
 
   useEffect(() => {
-    const {
-      state,
-    } = location
+    const { state } = location
 
     if (state) {
       setTimeout(() => {
@@ -374,9 +313,7 @@ const QuoteDetail = () => {
   }, [])
 
   return (
-    <B3Sping
-      isSpinning={isRequestLoading}
-    >
+    <B3Sping isSpinning={isRequestLoading}>
       <Box
         sx={{
           display: 'flex',
@@ -392,8 +329,6 @@ const QuoteDetail = () => {
           exportPdf={exportPdf}
           printQuote={printQuote}
           role={role}
-          quoteTitle={quoteDetail.quoteTitle}
-          salesRepInfo={quoteDetail.salesRepInfo}
         />
 
         <Box
@@ -423,24 +358,32 @@ const QuoteDetail = () => {
           }}
         >
           <Box
-            sx={isMobile ? {
-              flexBasis: '100%',
-              pl: '16px',
-            } : {
-              flexBasis: '690px',
-              flexGrow: 1,
-              ml: '16px',
-              pt: '16px',
-            }}
+            sx={
+              isMobile
+                ? {
+                    flexBasis: '100%',
+                    pl: '16px',
+                  }
+                : {
+                    flexBasis: '690px',
+                    flexGrow: 1,
+                    ml: '16px',
+                    pt: '16px',
+                  }
+            }
           >
             <Grid
               item
-              sx={isMobile ? {
-                flexBasis: '100%',
-              } : {
-                flexBasis: '690px',
-                flexGrow: 1,
-              }}
+              sx={
+                isMobile
+                  ? {
+                      flexBasis: '100%',
+                    }
+                  : {
+                      flexBasis: '690px',
+                      flexGrow: 1,
+                    }
+              }
             >
               <QuoteDetailTable
                 currencyToken={currency?.token}
@@ -452,11 +395,15 @@ const QuoteDetail = () => {
 
           <Grid
             item
-            sx={isMobile ? {
-              flexBasis: '100%',
-            } : {
-              flexBasis: '340px',
-            }}
+            sx={
+              isMobile
+                ? {
+                    flexBasis: '100%',
+                  }
+                : {
+                    flexBasis: '340px',
+                  }
+            }
           >
             <Box
               sx={{
@@ -469,20 +416,27 @@ const QuoteDetail = () => {
               />
             </Box>
 
-            {
-              quoteDetail.notes && (
+            {quoteDetail.notes && (
               <Box
                 sx={{
                   marginBottom: '1rem',
                   displayPrint: 'none',
                 }}
               >
-                <QuoteNote
-                  quoteNotes={quoteDetail.notes}
-                />
+                <QuoteNote quoteNotes={quoteDetail.notes} />
               </Box>
-              )
-            }
+            )}
+
+            {quoteDetail.notes && (
+              <Box
+                sx={{
+                  marginBottom: '1rem',
+                  displayPrint: 'none',
+                }}
+              >
+                <QuoteNote quoteNotes={quoteDetail.notes} />
+              </Box>
+            )}
 
             <Box
               sx={{
@@ -513,8 +467,7 @@ const QuoteDetail = () => {
               />
             </Box>
 
-            {
-              quoteDetail.legalTerms && (
+            {quoteDetail.legalTerms && (
               <Box
                 sx={{
                   displayPrint: 'none',
@@ -524,22 +477,18 @@ const QuoteDetail = () => {
                   quoteLegalTerms={quoteDetail.legalTerms}
                 />
               </Box>
-              )
-            }
-
+            )}
           </Grid>
         </Grid>
 
-        {
-          (+role !== 2 && +quoteDetail.status !== 4) && (
-            <QuoteDetailFooter
-              quoteId={quoteDetail.id}
-              role={role}
-              isAgenting={isAgenting}
-              status={quoteDetail.status}
-            />
-          )
-        }
+        {+role !== 2 && +quoteDetail.status !== 4 && (
+          <QuoteDetailFooter
+            quoteId={quoteDetail.id}
+            role={role}
+            isAgenting={isAgenting}
+            status={quoteDetail.status}
+          />
+        )}
       </Box>
     </B3Sping>
   )

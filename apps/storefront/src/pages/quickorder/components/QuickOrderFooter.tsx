@@ -1,185 +1,127 @@
 import {
-  useState,
-  MouseEvent,
-  useEffect,
   Dispatch,
+  MouseEvent,
   SetStateAction,
+  useEffect,
+  useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowDropDown } from '@mui/icons-material'
+import { Box, Button, Grid, Menu, MenuItem, Typography } from '@mui/material'
+import { v1 as uuid } from 'uuid'
 
+import { CustomButton, successTip } from '@/components'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { useMobile } from '@/hooks'
 import {
-  useNavigate,
-} from 'react-router-dom'
-
-import {
-  v1 as uuid,
-} from 'uuid'
-
-import {
-  Box,
-  Typography,
-  Button,
-  Menu,
-  MenuItem,
-  Grid,
-} from '@mui/material'
-
-import {
-  ArrowDropDown,
-} from '@mui/icons-material'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
+  addProductToBcShoppingList,
+  addProductToShoppingList,
   searchB2BProducts,
   searchBcProducts,
-  addProductToShoppingList,
-  addProductToBcShoppingList,
 } from '@/shared/service/b2b'
-
-import {
-  createCart,
-  getCartInfo,
-  addProductToCart,
-} from '@/shared/service/bc'
-
-import {
-  snackbar,
-  getDefaultCurrencyInfo,
-  addQuoteDraftProduce,
-  getProductPriceIncTax,
-} from '@/utils'
-
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
-
 import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b/graphql/product'
-
+import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import {
-  B3LinkTipContent,
-  CustomButton,
-} from '@/components'
-
-import {
-  conversionProductsList,
-} from '../../../utils/b3Product/shared/config'
-
-import {
-  OrderShoppingList,
-} from '../../orderDetail/components/OrderShoppingList'
+  addQuoteDraftProduce,
+  getDefaultCurrencyInfo,
+  getProductPriceIncTax,
+  snackbar,
+} from '@/utils'
+import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import CreateShoppingList from '../../orderDetail/components/CreateShoppingList'
+import OrderShoppingList from '../../orderDetail/components/OrderShoppingList'
 
 export interface ProductInfoProps {
-  basePrice: number | string,
-  baseSku: string,
-  createdAt: number,
-  discount: number | string,
-  enteredInclusive: boolean,
-  id: number | string,
-  itemId: number,
-  optionList: CustomFieldItems,
-  primaryImage: string,
-  productId: number,
-  productName: string,
-  productUrl: string,
-  quantity: number | string,
-  tax: number | string,
-  updatedAt: number,
-  variantId: number,
-  variantSku: string,
-  productsSearch: CustomFieldItems,
+  basePrice: number | string
+  baseSku: string
+  createdAt: number
+  discount: number | string
+  enteredInclusive: boolean
+  id: number | string
+  itemId: number
+  optionList: CustomFieldItems
+  primaryImage: string
+  productId: number
+  productName: string
+  productUrl: string
+  quantity: number | string
+  tax: number | string
+  updatedAt: number
+  variantId: number
+  variantSku: string
+  productsSearch: CustomFieldItems
 }
 
 export interface ListItemProps {
-  node: ProductInfoProps,
+  node: ProductInfoProps
 }
 
 interface NodeProps {
-  basePrice: number | string,
-  baseSku: string,
-  createdAt: number,
-  discount: number | string,
-  enteredInclusive: boolean,
-  id: number | string,
-  itemId: number,
-  optionList: CustomFieldItems,
-  primaryImage: string,
-  productId: number,
-  productName: string,
-  productUrl: string,
-  quantity: number | string,
-  tax: number | string,
-  updatedAt: number,
-  variantId: number,
-  variantSku: string,
-  productsSearch: CustomFieldItems,
-  optionSelections: CustomFieldItems,
+  basePrice: number | string
+  baseSku: string
+  createdAt: number
+  discount: number | string
+  enteredInclusive: boolean
+  id: number | string
+  itemId: number
+  optionList: CustomFieldItems
+  primaryImage: string
+  productId: number
+  productName: string
+  productUrl: string
+  quantity: number | string
+  tax: number | string
+  updatedAt: number
+  variantId: number
+  variantSku: string
+  productsSearch: CustomFieldItems
+  optionSelections: CustomFieldItems
 }
 
 interface ProductsProps {
-  maxQuantity?: number,
-  minQuantity?: number,
-  stock?: number,
-  isStock?: string,
+  maxQuantity?: number
+  minQuantity?: number
+  stock?: number
+  isStock?: string
   node: NodeProps
-  isValid?: boolean,
+  isValid?: boolean
 }
-
-interface successTipOptions{
-  message: string,
-  link?: string,
-  linkText?: string,
-  isOutLink?: boolean,
-}
-
-const successTip = (options: successTipOptions) => () => (
-  <B3LinkTipContent
-    message={options.message}
-    link={options.link}
-    linkText={options.linkText}
-    isOutLink={options.isOutLink}
-  />
-)
 
 interface QuickOrderFooterProps {
-  role: number | string,
-  checkedArr: CustomFieldItems,
-  isAgenting: boolean,
-  setIsRequestLoading: Dispatch<SetStateAction<boolean>>,
-  isB2BUser: boolean,
+  role: number | string
+  checkedArr: CustomFieldItems
+  isAgenting: boolean
+  setIsRequestLoading: Dispatch<SetStateAction<boolean>>
+  isB2BUser: boolean
 }
 
-const QuickOrderFooter = (props: QuickOrderFooterProps) => {
-  const {
-    role,
-    checkedArr,
-    isAgenting,
-    setIsRequestLoading,
-    isB2BUser,
-  } = props
+function QuickOrderFooter(props: QuickOrderFooterProps) {
+  const { role, checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props
 
   const [isMobile] = useMobile()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
-  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.00)
+  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.0)
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
-  const [isOpenCreateShopping, setIsOpenCreateShopping] = useState<boolean>(false)
-  const [isShoppingListLoading, setIisShoppingListLoading] = useState<boolean>(false)
+  const [isOpenCreateShopping, setIsOpenCreateShopping] =
+    useState<boolean>(false)
+  const [isShoppingListLoading, setIisShoppingListLoading] =
+    useState<boolean>(false)
 
   const navigate = useNavigate()
 
-  const containerStyle = isMobile ? {
-    alignItems: 'flex-start',
-    flexDirection: 'column',
-  } : {
-    alignItems: 'center',
-  }
+  const containerStyle = isMobile
+    ? {
+        alignItems: 'flex-start',
+        flexDirection: 'column',
+      }
+    : {
+        alignItems: 'center',
+      }
 
   const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
     if (checkedArr.length === 0) {
@@ -195,25 +137,18 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
     setOpen(false)
   }
 
-  const {
-    token: currencyToken,
-  } = getDefaultCurrencyInfo()
+  const { token: currencyToken } = getDefaultCurrencyInfo()
 
   // Add selected to cart
   const handleSetCartLineItems = (inventoryInfos: ProductsProps[]) => {
     const lineItems: CustomFieldItems = []
 
     checkedArr.forEach((item: ProductsProps) => {
-      const {
-        node,
-      } = item
+      const { node } = item
 
       inventoryInfos.forEach((inventory: CustomFieldItems) => {
         if (node.variantSku === inventory.variantSku) {
-          const {
-            optionList,
-            quantity,
-          } = node
+          const { optionList, quantity } = node
 
           const options = optionList.map((option: CustomFieldItems) => ({
             optionId: option.product_option_id,
@@ -240,14 +175,14 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
       const skus: string[] = []
 
       checkedArr.forEach((item: ProductsProps) => {
-        const {
-          node,
-        } = item
+        const { node } = item
 
         skus.push(node.variantSku)
       })
 
-      const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus
+      const getVariantInfoBySku = isB2BUser
+        ? getB2BVariantInfoBySkus
+        : getBcVariantInfoBySkus
 
       if (skus.length === 0) {
         snackbar.error('Please select at least one item to add to cart')
@@ -258,14 +193,21 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
         skus,
       })
 
-      const lineItems = handleSetCartLineItems(getInventoryInfos?.variantSku || [])
+      const lineItems = handleSetCartLineItems(
+        getInventoryInfos?.variantSku || []
+      )
 
       const cartInfo = await getCartInfo()
-      const res = cartInfo.length ? await addProductToCart({
-        lineItems,
-      }, cartInfo[0].id) : await createCart({
-        lineItems,
-      })
+      const res = cartInfo.length
+        ? await addProductToCart(
+            {
+              lineItems,
+            },
+            cartInfo[0].id
+          )
+        : await createCart({
+            lineItems,
+          })
 
       if (res.status) {
         snackbar.error(res.detail, {
@@ -291,16 +233,18 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
   const getOptionsList = (options: CustomFieldItems) => {
     if (options?.length === 0) return []
 
-    const option = options.map(({
-      product_option_id: optionId,
-      value,
-    }: {
-      product_option_id: number | string,
-      value: string | number,
-    }) => ({
-      optionId: `attribute[${optionId}]`,
-      optionValue: value,
-    }))
+    const option = options.map(
+      ({
+        product_option_id: optionId,
+        value,
+      }: {
+        product_option_id: number | string
+        value: string | number
+      }) => ({
+        optionId: `attribute[${optionId}]`,
+        optionValue: value,
+      })
+    )
 
     return option
   }
@@ -309,21 +253,21 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
     setIsRequestLoading(true)
     handleClose()
     try {
-      const productsWithSku = checkedArr.filter((checkedItem: ListItemProps) => {
-        const {
-          node: {
-            variantSku,
-          },
-        } = checkedItem
+      const productsWithSku = checkedArr.filter(
+        (checkedItem: ListItemProps) => {
+          const {
+            node: { variantSku },
+          } = checkedItem
 
-        return variantSku !== '' && variantSku !== null && variantSku !== undefined
-      })
+          return (
+            variantSku !== '' && variantSku !== null && variantSku !== undefined
+          )
+        }
+      )
 
       const productIds: number[] = []
       productsWithSku.forEach((product: ListItemProps) => {
-        const {
-          node,
-        } = product
+        const { node } = product
 
         if (!productIds.includes(+node.productId)) {
           productIds.push(+node.productId)
@@ -332,13 +276,12 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
 
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
-      const {
-        productsSearch,
-      } = await getProducts({
+      const { productsSearch } = await getProducts({
         productIds,
       })
 
-      const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch)
+      const newProductInfo: CustomFieldItems =
+        conversionProductsList(productsSearch)
       let isSuccess = false
       productsWithSku.forEach((product: ListItemProps) => {
         const {
@@ -356,9 +299,13 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
 
         const optionsList = getOptionsList(optionList)
 
-        const currentProductSearch = newProductInfo.find((product: CustomFieldItems) => +product.id === +productId)
+        const currentProductSearch = newProductInfo.find(
+          (product: CustomFieldItems) => +product.id === +productId
+        )
 
-        const variantItem = currentProductSearch.variants.find((item: CustomFieldItems) => item.sku === variantSku)
+        const variantItem = currentProductSearch.variants.find(
+          (item: CustomFieldItems) => item.sku === variantSku
+        )
 
         const quoteListitem = {
           node: {
@@ -455,14 +402,14 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
     setOpenShoppingList(true)
   }
 
-  const handleAddSelectedToShoppingList = async (shoppingListId: string | number) => {
+  const handleAddSelectedToShoppingList = async (
+    shoppingListId: string | number
+  ) => {
     setIisShoppingListLoading(true)
     try {
       const productIds: number[] = []
       checkedArr.forEach((product: ListItemProps) => {
-        const {
-          node,
-        } = product
+        const { node } = product
 
         if (!productIds.includes(+node.productId)) {
           productIds.push(+node.productId)
@@ -473,12 +420,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
 
       checkedArr.forEach((product: ListItemProps) => {
         const {
-          node: {
-            optionList,
-            productId,
-            quantity,
-            variantId,
-          },
+          node: { optionList, productId, quantity, variantId },
         } = product
 
         const optionsList = getOptionsList(optionList)
@@ -491,7 +433,9 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
         })
       })
 
-      const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList
+      const addToShoppingList = isB2BUser
+        ? addProductToShoppingList
+        : addProductToBcShoppingList
 
       await addToShoppingList({
         shoppingListId: +shoppingListId,
@@ -510,39 +454,42 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
     }
   }
 
-  const buttonList = [{
-    name: 'Add selected to cart',
-    key: 'add-selected-to-cart',
-    handleClick: handleAddSelectedToCart,
-    isDisabled: role === 2,
-  }, {
-    name: 'Add selected to quote',
-    key: 'add-selected-to-quote',
-    handleClick: handleAddSelectedToQuote,
-  }, {
-    name: 'Add selected to shopping list',
-    key: 'add-selected-to-shoppingList',
-    handleClick: handleCreateShoppingClick,
-  }]
+  const buttonList = [
+    {
+      name: 'Add selected to cart',
+      key: 'add-selected-to-cart',
+      handleClick: handleAddSelectedToCart,
+      isDisabled: role === 2,
+    },
+    {
+      name: 'Add selected to quote',
+      key: 'add-selected-to-quote',
+      handleClick: handleAddSelectedToQuote,
+    },
+    {
+      name: 'Add selected to shopping list',
+      key: 'add-selected-to-shoppingList',
+      handleClick: handleCreateShoppingClick,
+    },
+  ]
 
   useEffect(() => {
     if (checkedArr.length > 0) {
-      let total = 0.00
+      let total = 0.0
 
       checkedArr.forEach((item: ListItemProps) => {
         const {
           node: {
             variantId,
-            productsSearch: {
-              variants,
-            },
+            productsSearch: { variants },
             quantity,
             basePrice,
           },
         } = item
 
         if (variants) {
-          const priceIncTax = getProductPriceIncTax(variants, +variantId) || +basePrice
+          const priceIncTax =
+            getProductPriceIncTax(variants, +variantId) || +basePrice
           total += priceIncTax * +quantity
         } else {
           total += +basePrice * +quantity
@@ -551,7 +498,7 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
 
       setSelectedSubTotal((1000 * total) / 1000)
     } else {
-      setSelectedSubTotal(0.00)
+      setSelectedSubTotal(0.0)
     }
   }, [checkedArr])
 
@@ -564,7 +511,9 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
           left: 0,
           backgroundColor: '#fff',
           width: '100%',
-          padding: isMobile ? '0 0 1rem 0' : `0 ${open ? '57px' : '40px'} 1rem 40px`,
+          padding: isMobile
+            ? '0 0 1rem 0'
+            : `0 ${open ? '57px' : '40px'} 1rem 40px`,
           height: isMobile ? '8rem' : 'auto',
           marginLeft: 0,
           display: 'flex',
@@ -585,13 +534,17 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
         />
         <Grid
           item
-          sx={isMobile ? {
-            flexBasis: '100%',
-          } : {
-            flexBasis: '66.6667%',
-            flexGrow: 1,
-            maxWidth: '66.6667%',
-          }}
+          sx={
+            isMobile
+              ? {
+                  flexBasis: '100%',
+                }
+              : {
+                  flexBasis: '66.6667%',
+                  flexGrow: 1,
+                  maxWidth: '66.6667%',
+                }
+          }
         >
           <Box
             sx={{
@@ -658,26 +611,21 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
                     'aria-labelledby': 'basic-button',
                   }}
                 >
-                  {
-                    buttonList.length > 0 && (
-                      buttonList.map((button) => {
-                        if (button.isDisabled) return
+                  {buttonList.length > 0 &&
+                    buttonList.map((button) => {
+                      if (button.isDisabled) return null
 
-                        return (
-                          (
-                            <MenuItem
-                              key={button.key}
-                              onClick={() => {
-                                button.handleClick()
-                              }}
-                            >
-                              {button.name}
-                            </MenuItem>
-                          )
-                        )
-                      })
-                    )
-                  }
+                      return (
+                        <MenuItem
+                          key={button.key}
+                          onClick={() => {
+                            button.handleClick()
+                          }}
+                        >
+                          {button.name}
+                        </MenuItem>
+                      )
+                    })}
                 </Menu>
               </Box>
             </Box>
@@ -685,15 +633,19 @@ const QuickOrderFooter = (props: QuickOrderFooterProps) => {
         </Grid>
         <Grid
           item
-          sx={isMobile ? {
-            flexBasis: '100%',
-            display: isMobile ? 'none' : 'block',
-          } : {
-            flexBasis: '33.3333%',
-            display: isMobile ? 'none' : 'block',
-            maxWidth: '33.3333%',
-            marginRight: '16px',
-          }}
+          sx={
+            isMobile
+              ? {
+                  flexBasis: '100%',
+                  display: isMobile ? 'none' : 'block',
+                }
+              : {
+                  flexBasis: '33.3333%',
+                  display: isMobile ? 'none' : 'block',
+                  maxWidth: '33.3333%',
+                  marginRight: '16px',
+                }
+          }
         />
       </Grid>
       {/* <Box

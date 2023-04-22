@@ -1,78 +1,41 @@
-import {
-  getTracking,
-} from 'ts-tracking-number'
-
-import {
-  useContext,
-  Fragment,
-  useEffect,
-  useState,
-} from 'react'
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Stack,
-  Typography,
-  Link,
-} from '@mui/material'
-
+import { Fragment, useContext, useEffect, useState } from 'react'
 import styled from '@emotion/styled'
+import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material'
+import { format } from 'date-fns'
+import { getTracking } from 'ts-tracking-number'
 
-import {
-  format,
-} from 'date-fns'
+import { B3ProductList } from '@/components'
+import { useMobile } from '@/hooks'
 
-import {
-  B3ProductList,
-} from '@/components'
-
-import {
-  useMobile,
-} from '@/hooks'
-
-import {
-  OrderShippedItem,
-  OrderShippingsItem,
-} from '../../../types'
-
-import {
-  OrderDetailsContext,
-} from '../context/OrderDetailsContext'
+import { OrderShippedItem, OrderShippingsItem } from '../../../types'
+import { OrderDetailsContext } from '../context/OrderDetailsContext'
 
 const ShipmentTitle = styled('span')(() => ({
   fontWeight: 'bold',
   color: '#313440',
 }))
 
-export const OrderShipping = () => {
+export default function OrderShipping() {
   const {
-    state: {
-      shippings = [],
-      currency,
-      addressLabelPermission,
-    },
+    state: { shippings = [], currency, addressLabelPermission },
   } = useContext(OrderDetailsContext)
 
   const [isMobile] = useMobile()
 
-  const [shippingsDetail, setShippingsDetail] = useState<OrderShippingsItem[]>([])
+  const [shippingsDetail, setShippingsDetail] = useState<OrderShippingsItem[]>(
+    []
+  )
 
   useEffect(() => {
     if (shippings.length) {
       shippings.forEach((list: OrderShippingsItem) => {
         if (list.shipmentItems.length) {
-          const {
-            shipmentItems,
-          } = list
+          const { shipmentItems } = list
           shipmentItems.forEach((item: OrderShippedItem) => {
             const trackingNumber = item.tracking_number
             const tracking = getTracking(trackingNumber)
             if (tracking) {
-              const {
-                trackingUrl = '',
-              } = tracking
+              const { trackingUrl = '' } = tracking
               if (trackingUrl) item.tracking_link = trackingUrl
             }
           })
@@ -83,22 +46,13 @@ export const OrderShipping = () => {
   }, [shippings])
 
   const getFullName = (shipping: OrderShippingsItem) => {
-    const {
-      first_name: firstName,
-      last_name: lastName,
-    } = shipping
+    const { first_name: firstName, last_name: lastName } = shipping
 
     return `${firstName} ${lastName}`
   }
 
   const getFullAddress = (shipping: OrderShippingsItem) => {
-    const {
-      street_1: street1,
-      city,
-      state,
-      zip,
-      country,
-    } = shipping
+    const { street_1: street1, city, state, zip, country } = shipping
 
     return `${street1}, ${city}, ${state} ${zip}, ${country}`
   }
@@ -133,110 +87,98 @@ export const OrderShipping = () => {
 
   return (
     <Stack spacing={2}>
-      {
-        shippingsDetail.map((shipping: OrderShippingsItem) => (
-          <Card key={`shipping-${shipping.id}`}>
-            <CardContent>
-              <Box sx={{
+      {shippingsDetail.map((shipping: OrderShippingsItem) => (
+        <Card key={`shipping-${shipping.id}`}>
+          <CardContent>
+            <Box
+              sx={{
                 wordBreak: 'break-word',
                 color: 'rgba(0, 0, 0, 0.87)',
               }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: '24px',
+                  fontWeight: '400',
+                }}
               >
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontSize: '24px',
-                    fontWeight: '400',
-                  }}
-                >
-                  {getFullName(shipping)}
-                  {' – '}
-                  {getCompanyName(shipping.company || '')}
-                </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontSize: '24px',
-                    fontWeight: '400',
-                  }}
-                >
-                  {getFullAddress(shipping)}
-                </Typography>
-              </Box>
+                {getFullName(shipping)}
+                {' – '}
+                {getCompanyName(shipping.company || '')}
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: '24px',
+                  fontWeight: '400',
+                }}
+              >
+                {getFullAddress(shipping)}
+              </Typography>
+            </Box>
 
-              {
-                (shipping.shipmentItems || []).map((shipment: OrderShippedItem) => (
-                  shipment.itemsInfo.length > 0 ? (
-                    <Fragment key={`shipment-${shipment.id}`}>
-                      <Box sx={{
-                        margin: '20px 0 2px',
-                      }}
-                      >
-                        <Typography variant="body1">
-                          <>
-                            <ShipmentTitle>{`Shipment ${getShipmentIndex()} – `}</ShipmentTitle>
-                            {getShipmentText(shipment)}
-                          </>
-                        </Typography>
-                        {
-                          shipment.tracking_link
-                            ? (
-                              <Link
-                                href={shipment.tracking_link}
-                                target="_blank"
-                              >
-                                {shipment.tracking_number}
-                              </Link>
-                            )
-                            : (
-                              <Typography variant="body1">
-                                {shipment.tracking_number}
-                              </Typography>
-                            )
-                        }
-                      </Box>
-                      <B3ProductList
-                        quantityKey="current_quantity_shipped"
-                        products={shipment.itemsInfo}
-                        currency={currency}
-                        totalText="Total"
-                        canToProduct
-                        textAlign="right"
-                      />
-                    </Fragment>
-                  ) : <></>
-                ))
-              }
-
-              {
-                shipping.notShip.itemsInfo.length > 0 ? (
-                  <Fragment key={`shipment-notShip-${shipping.id}`}>
-                    <Box
-                      sx={{
-                        margin: '20px 0 2px',
-                      }}
-                    >
+            {(shipping.shipmentItems || []).map((shipment: OrderShippedItem) =>
+              shipment.itemsInfo.length > 0 ? (
+                <Fragment key={`shipment-${shipment.id}`}>
+                  <Box
+                    sx={{
+                      margin: '20px 0 2px',
+                    }}
+                  >
+                    <Typography variant="body1">
+                      <>
+                        <ShipmentTitle>{`Shipment ${getShipmentIndex()} – `}</ShipmentTitle>
+                        {getShipmentText(shipment)}
+                      </>
+                    </Typography>
+                    {shipment.tracking_link ? (
+                      <Link href={shipment.tracking_link} target="_blank">
+                        {shipment.tracking_number}
+                      </Link>
+                    ) : (
                       <Typography variant="body1">
-                        <ShipmentTitle>Not Shipped yet</ShipmentTitle>
+                        {shipment.tracking_number}
                       </Typography>
-                    </Box>
+                    )}
+                  </Box>
+                  <B3ProductList
+                    quantityKey="current_quantity_shipped"
+                    products={shipment.itemsInfo}
+                    currency={currency}
+                    totalText="Total"
+                    canToProduct
+                    textAlign="right"
+                  />
+                </Fragment>
+              ) : null
+            )}
 
-                    <B3ProductList
-                      quantityKey="not_shipping_number"
-                      products={shipping.notShip.itemsInfo}
-                      currency={currency}
-                      totalText="Total"
-                      canToProduct
-                      textAlign={isMobile ? 'left' : 'right'}
-                    />
-                  </Fragment>
-                ) : <></>
-              }
+            {shipping.notShip.itemsInfo.length > 0 ? (
+              <Fragment key={`shipment-notShip-${shipping.id}`}>
+                <Box
+                  sx={{
+                    margin: '20px 0 2px',
+                  }}
+                >
+                  <Typography variant="body1">
+                    <ShipmentTitle>Not Shipped yet</ShipmentTitle>
+                  </Typography>
+                </Box>
 
-            </CardContent>
-          </Card>
-        ))
-      }
+                <B3ProductList
+                  quantityKey="not_shipping_number"
+                  products={shipping.notShip.itemsInfo}
+                  currency={currency}
+                  totalText="Total"
+                  canToProduct
+                  textAlign={isMobile ? 'left' : 'right'}
+                />
+              </Fragment>
+            ) : null}
+          </CardContent>
+        </Card>
+      ))}
     </Stack>
   )
 }

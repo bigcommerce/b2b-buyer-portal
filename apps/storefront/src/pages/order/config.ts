@@ -1,7 +1,3 @@
-// import {
-//   distanceDay,
-// } from '@/utils'
-
 export interface FilterSearchProps {
   [key: string]: string | number | null
   beginDateAt: string | null
@@ -19,10 +15,10 @@ export interface FilterMoreProps {
   endValue?: string
   PlacedBy?: string
   company?: string
-  orderStatus?: string| number
+  orderStatus?: string | number
 }
 
-const b2bFilterSearch:FilterSearchProps = {
+const b2bFilterSearch: FilterSearchProps = {
   // offset: 0,
   // first: 10,
   q: '',
@@ -47,11 +43,22 @@ const bcFilterSearch = {
   q: '',
 }
 
-export const getFilterMoreData = (isB2BUser:boolean, role: string | number, isCompanyOrder: boolean, isAgenting: boolean, createdByUsers: any, orderStatuses = []) => {
-  const newOrderStatuses = orderStatuses.filter((item: CustomFieldStringItems) => item.statusCode !== '0' && item.statusCode !== '1')
-  const newCreatedByUsers = createdByUsers?.createdByUser?.results.map((item: any) => ({
-    createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
-  })) || []
+export const getFilterMoreData = (
+  isB2BUser: boolean,
+  role: string | number,
+  isCompanyOrder: boolean,
+  isAgenting: boolean,
+  createdByUsers: any,
+  orderStatuses = []
+) => {
+  const newOrderStatuses = orderStatuses.filter(
+    (item: CustomFieldStringItems) =>
+      item.statusCode !== '0' && item.statusCode !== '1'
+  )
+  const newCreatedByUsers =
+    createdByUsers?.createdByUser?.results.map((item: any) => ({
+      createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
+    })) || []
   const filterMoreList = [
     {
       name: 'company',
@@ -97,16 +104,29 @@ export const getFilterMoreData = (isB2BUser:boolean, role: string | number, isCo
 
   const filterCondition = isB2BUser && !(+role === 3 && !isAgenting)
   const filterCurrentMoreList = filterMoreList.filter((item) => {
-    if ((!isB2BUser || filterCondition) && !isCompanyOrder && (item.name === 'company' || item.name === 'PlacedBy')) return false
-    if ((+role === 3 && !isAgenting) && item.name === 'PlacedBy') return false
-    if ((isB2BUser || (+role === 3 && isAgenting)) && isCompanyOrder && item.name === 'company') return false
+    if (
+      (!isB2BUser || filterCondition) &&
+      !isCompanyOrder &&
+      (item.name === 'company' || item.name === 'PlacedBy')
+    )
+      return false
+    if (+role === 3 && !isAgenting && item.name === 'PlacedBy') return false
+    if (
+      (isB2BUser || (+role === 3 && isAgenting)) &&
+      isCompanyOrder &&
+      item.name === 'company'
+    )
+      return false
     return true
   })
 
   return filterCurrentMoreList
 }
 
-export const getInitFilter = (isCompanyOrder: boolean, isB2BUser: boolean): Partial<FilterSearchProps> => {
+export const getInitFilter = (
+  isCompanyOrder: boolean,
+  isB2BUser: boolean
+): Partial<FilterSearchProps> => {
   if (isB2BUser) b2bFilterSearch.isShowMy = isCompanyOrder ? 0 : 1
 
   return isB2BUser ? b2bFilterSearch : bcFilterSearch
@@ -115,7 +135,8 @@ export const getInitFilter = (isCompanyOrder: boolean, isB2BUser: boolean): Part
 export const currencySymbol = (currencyItem: string) => {
   try {
     if (currencyItem) {
-      const currencyToken = JSON.parse(JSON.parse(currencyItem))?.currency_token || ''
+      const currencyToken =
+        JSON.parse(JSON.parse(currencyItem))?.currency_token || ''
 
       return currencyToken
     }
@@ -126,4 +147,9 @@ export const currencySymbol = (currencyItem: string) => {
   }
 }
 
-export const getOrderStatusText = (status: number | string, getOrderStatuses: any) => getOrderStatuses.find((item: any) => item.systemLabel === status)?.customLabel || ''
+export const getOrderStatusText = (
+  status: number | string,
+  getOrderStatuses: any
+) =>
+  getOrderStatuses.find((item: any) => item.systemLabel === status)
+    ?.customLabel || ''

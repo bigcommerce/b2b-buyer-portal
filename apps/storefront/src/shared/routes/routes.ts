@@ -1,14 +1,7 @@
-import {
-  lazy,
-} from 'react'
+import { lazy } from 'react'
+import { matchPath } from 'react-router-dom'
 
-import {
-  matchPath,
-} from 'react-router'
-
-import {
-  GlobalState,
-} from '@/shared/global/context/config'
+import { GlobalState } from '@/shared/global/context/config'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
 
@@ -18,24 +11,36 @@ const Dashboard = lazy(() => import('../../pages/dashboard/Dashboard'))
 
 const OrderDetail = lazy(() => import('../../pages/orderDetail/OrderDetail'))
 
-const InvoiceDetail = lazy(() => import('../../pages/invoiceDetail/InvoiceDetail'))
+const InvoiceDetail = lazy(
+  () => import('../../pages/invoiceDetail/InvoiceDetail')
+)
 
-const Usermanagement = lazy(() => import('../../pages/usermanagement/Usermanagement'))
+const Usermanagement = lazy(
+  () => import('../../pages/usermanagement/Usermanagement')
+)
 
 const AddressList = lazy(() => import('../../pages/address/Address'))
 
-const ShippingLists = lazy(() => import('../../pages/shoppingLists/ShoppingLists'))
+const ShippingLists = lazy(
+  () => import('../../pages/shoppingLists/ShoppingLists')
+)
 
 const QuoteDraft = lazy(() => import('../../pages/quote/QuoteDraft'))
 const Quotes = lazy(() => import('../../pages/quote/QuotesList'))
 const QuoteDetail = lazy(() => import('../../pages/quote/QuoteDetail'))
 
-const AccountSetting = lazy(() => import('../../pages/accountSetting/AccountSetting'))
-const ShoppingListDetails = lazy(() => import('../../pages/shoppingListDetails/ShoppingListDetails'))
+const AccountSetting = lazy(
+  () => import('../../pages/accountSetting/AccountSetting')
+)
+const ShoppingListDetails = lazy(
+  () => import('../../pages/shoppingListDetails/ShoppingListDetails')
+)
 
 const Registered = lazy(() => import('../../pages/registered/Registered'))
 
-const RegisteredBCToB2B = lazy(() => import('../../pages/registered/RegisteredBCToB2B'))
+const RegisteredBCToB2B = lazy(
+  () => import('../../pages/registered/RegisteredBCToB2B')
+)
 
 const Login = lazy(() => import('../../pages/login/Login'))
 
@@ -47,25 +52,25 @@ const Quickorder = lazy(() => import('../../pages/quickorder/Quickorder'))
 
 const HomePage = lazy(() => import('../../pages/homePage/HomePage'))
 
-type RegisteredItem = typeof Registered
+type RegisteredItem = typeof Registered | typeof HomePage
 
 interface RouteItemBasic {
-  path: string,
-  name: string,
-  permissions: number[], // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 99: bc user
+  path: string
+  name: string
+  permissions: number[] // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 99: bc user
 }
 
 export interface RouteItem extends RouteItemBasic {
-  component: RegisteredItem,
-  isMenuItem: boolean,
-  wsKey: string,
-  configKey?: string,
-  isTokenLogin: boolean,
-  pageTitle?: string,
+  component: RegisteredItem
+  isMenuItem: boolean
+  wsKey: string
+  configKey?: string
+  isTokenLogin: boolean
+  pageTitle?: string
 }
 
-export interface RouteFirstLevelItem extends RouteItemBasic{
-  isProvider: boolean,
+export interface RouteFirstLevelItem extends RouteItemBasic {
+  isProvider: boolean
   component: RegisteredItem
 }
 
@@ -263,17 +268,18 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   } = globalState
 
   return routes.filter((item: RouteItem) => {
-    const {
-      permissions = [],
-      configKey,
-    } = item
+    const { permissions = [], configKey } = item
 
     // quotes is enabled
-    if ((configKey === 'quotes' || configKey === 'quoteDraft') && !productQuoteEnabled && !cartQuoteEnabled) {
+    if (
+      (configKey === 'quotes' || configKey === 'quoteDraft') &&
+      !productQuoteEnabled &&
+      !cartQuoteEnabled
+    ) {
       return false
     }
 
-    if ((role === 3 && !isAgenting)) {
+    if (role === 3 && !isAgenting) {
       return permissions.includes(4)
     }
 
@@ -300,26 +306,31 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
 }
 
 const gotoAllowedAppPage = (role: number, gotoPage: (url: string) => void) => {
-  const {
-    hash,
-  } = window.location
+  const { hash } = window.location
   let url = hash.split('#')[1] || ''
   if (!url && role !== 100) url = role === 3 ? '/dashboard' : '/orders'
-  const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && item.permissions.includes(role))
+  const flag = routes.some(
+    (item: RouteItem) =>
+      matchPath(item.path, url) && item.permissions.includes(role)
+  )
 
-  const isFirstLevelFlag = firstLevelRouting.some((item: RouteFirstLevelItem) => matchPath(item.path, url))
+  const isFirstLevelFlag = firstLevelRouting.some((item: RouteFirstLevelItem) =>
+    matchPath(item.path, url)
+  )
   if (flag || isFirstLevelFlag) gotoPage(url)
 }
 
 const getIsTokenGotoPage = (url: string): boolean => {
-  const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && !item.isTokenLogin)
+  const flag = routes.some(
+    (item: RouteItem) => matchPath(item.path, url) && !item.isTokenLogin
+  )
   return flag
 }
 
 export {
-  gotoAllowedAppPage,
-  getAllowedRoutes,
-  routes,
-  getIsTokenGotoPage,
   firstLevelRouting,
+  getAllowedRoutes,
+  getIsTokenGotoPage,
+  gotoAllowedAppPage,
+  routes,
 }

@@ -1,28 +1,18 @@
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 
+import B3ControlRadioGroup from './B3ControlRadioGroup'
+import { ProductImageContainer } from './styled'
 import Form from './ui'
-
-import {
-  ProductImageContainer,
-} from './styled'
-
-import {
-  B3ControlRadioGroup,
-} from './B3ControlRadioGroup'
 
 const NoneOption = {
   label: 'None',
   value: '',
 }
 
-export const B3ControlProductRadio = (props : Form.B3UIProps) => {
-  const {
-    options,
-  } = props
+export default function B3ControlProductRadio(props: Form.B3UIProps) {
+  const { options } = props
 
-  const getProductImageUrl = (url: string = '') => url.replace('{:size}', 'original')
+  const getProductImageUrl = (url = '') => url.replace('{:size}', 'original')
 
   const newOptions = options.map((option: Form.ProductRadioGroupListProps) => ({
     ...option,

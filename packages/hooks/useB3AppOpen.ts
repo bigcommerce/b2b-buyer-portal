@@ -1,23 +1,17 @@
-import {
-  useState,
-  useLayoutEffect,
-  useCallback,
-  // useEffect,
-} from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import globalB3 from '@b3/global-b3'
 
-import {
-  useMutationObservable,
-} from './useMutationObservable'
+import useMutationObservable from './useMutationObservable'
 
 export interface OpenPageState {
-  isOpen: boolean,
-  openUrl?: string,
-  params?: {} | CustomFieldItems
+  isOpen: boolean
+  openUrl?: string
+  params?: CustomFieldItems
 }
 
 export const useB3AppOpen = (initOpenState: OpenPageState) => {
-  const [checkoutRegisterNumber, setCheckoutRegisterNumber] = useState<number>(0)
+  const [checkoutRegisterNumber, setCheckoutRegisterNumber] =
+    useState<number>(0)
 
   const callback = useCallback(() => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1)
@@ -50,15 +44,21 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
     // }
     // login register  orther
     if (document.querySelectorAll(globalB3['dom.registerElement']).length) {
-      const registerArr = Array.from(document.querySelectorAll(globalB3['dom.registerElement']))
-      const allOtherArr = Array.from(document.querySelectorAll(globalB3['dom.allOtherElement']))
+      const registerArr = Array.from(
+        document.querySelectorAll(globalB3['dom.registerElement'])
+      )
+      const allOtherArr = Array.from(
+        document.querySelectorAll(globalB3['dom.allOtherElement'])
+      )
       const handleTriggerClick = (e: MouseEvent) => {
         if (registerArr.includes(e.target) || allOtherArr.includes(e.target)) {
           e.preventDefault()
           e.stopPropagation()
 
-          const href = (e.target as any)?.href || ''
-          const gotoUrl = registerArr.includes(e.target) ? getCurrentLoginUrl(href) : '/orders'
+          const href = (e.target as HTMLAnchorElement).href || ''
+          const gotoUrl = registerArr.includes(e.target)
+            ? getCurrentLoginUrl(href)
+            : '/orders'
           setOpenPage({
             isOpen: true,
             openUrl: gotoUrl,
@@ -66,7 +66,8 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
         }
         return false
       }
-      window.b2bStorefrontApp.__isInit = true
+      window.b2bStorefrontApp.isInit = true
+
       window.addEventListener('click', handleTriggerClick, {
         capture: true,
       })
@@ -74,6 +75,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
         window.removeEventListener('click', handleTriggerClick)
       }
     }
+    return () => {}
   }, [checkoutRegisterNumber])
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback)

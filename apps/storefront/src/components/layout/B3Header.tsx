@@ -1,1 +1,3 @@
-export const B3Header = () => {}
+const B3Header = () => {}
+
+export default B3Header

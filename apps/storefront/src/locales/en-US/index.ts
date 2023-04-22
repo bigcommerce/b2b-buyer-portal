@@ -1,7 +1,8 @@
-import users from './users'
 import global from './global'
+import users from './users'
 
-export const en = {
+const en = {
   ...global,
   ...users,
 }
+export default en

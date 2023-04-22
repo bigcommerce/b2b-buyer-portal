@@ -1,29 +1,18 @@
-import {
-  useEffect,
-  useContext,
-} from 'react'
+import { useContext, useEffect } from 'react'
 
-import {
-  GlobaledContext,
-} from '@/shared/global'
+import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
+import { GlobaledContext } from '@/shared/global'
 
-import {
-  DynamicallyVariableedContext,
-} from '@/shared/dynamicallyVariable'
+const { height: defaultHeight, overflow: defaultOverflow } = document.body.style
 
-const {
-  height: defaultHeight,
-  overflow: defaultOverflow,
-} = document.body.style
+const useSetOpen = (
+  isOpen: boolean,
+  openUrl?: string,
+  params?: CustomFieldItems
+) => {
+  const { dispatch } = useContext(GlobaledContext)
 
-const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems) => {
-  const {
-    dispatch,
-  } = useContext(GlobaledContext)
-
-  const {
-    dispatch: dispatchMsg,
-  } = useContext(DynamicallyVariableedContext)
+  const { dispatch: dispatchMsg } = useContext(DynamicallyVariableedContext)
   useEffect(() => {
     if (isOpen) {
       // The iframe screen is removed
@@ -41,11 +30,7 @@ const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems
       })
       // hot refresh and browser refresh
       if (openUrl) {
-        const {
-          origin,
-          pathname,
-          search,
-        } = window.location
+        const { origin, pathname, search } = window.location
         window.location.href = `${origin}${pathname}${search}#${openUrl}`
       }
 
@@ -78,6 +63,4 @@ const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems
   }, [isOpen])
 }
 
-export {
-  useSetOpen,
-}
+export default useSetOpen

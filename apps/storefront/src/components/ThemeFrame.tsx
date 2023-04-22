@@ -1,30 +1,17 @@
-import {
-  ReactNode,
-  RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import {
-  createPortal,
-} from 'react-dom'
-import {
-  useDispatch,
-} from 'react-redux'
-import createCache, {
-  EmotionCache,
-} from '@emotion/cache'
-import {
-  CacheProvider,
-} from '@emotion/react'
-import {
-  CssBaseline,
-} from '@mui/material'
-import {
-  clearThemeFrame, setThemeFrame,
-} from '@/store'
+import { ReactNode, RefObject, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { useDispatch } from 'react-redux'
+import createCache, { EmotionCache } from '@emotion/cache'
+import { CacheProvider } from '@emotion/react'
+import { CssBaseline } from '@mui/material'
 
-export function IFrameSetContent(el: HTMLIFrameElement | null, content: string, forceWrite: boolean = false) {
+import { clearThemeFrame, setThemeFrame } from '@/store'
+
+export function IFrameSetContent(
+  el: HTMLIFrameElement | null,
+  content: string,
+  forceWrite = false
+) {
   if (el) {
     if ('srcdoc' in HTMLIFrameElement.prototype && !forceWrite) {
       el.srcdoc = content
@@ -73,13 +60,13 @@ interface ThemeFramePortalProps {
   bodyRef?: RefObject<HTMLBodyElement>
 }
 
-const DefaultIframeContent = '<!DOCTYPE html><html><head></head><body></body></html>'
+const DefaultIframeContent =
+  '<!DOCTYPE html><html><head></head><body></body></html>'
 
-function ThemeFramePortal(props:ThemeFramePortalProps) {
+function ThemeFramePortal(props: ThemeFramePortalProps) {
   const dispatch = useDispatch()
-  const {
-    isSetupComplete, emotionCache, iframeDocument, bodyRef, children,
-  } = props
+  const { isSetupComplete, emotionCache, iframeDocument, bodyRef, children } =
+    props
 
   useEffect(() => {
     if (iframeDocument) {
@@ -97,6 +84,7 @@ function ThemeFramePortal(props:ThemeFramePortalProps) {
   }
 
   if (bodyRef?.current !== undefined) {
+    // eslint-disable-next-line
     // @ts-ignore - we are intentionally setting ref passed from parent
     bodyRef.current = iframeDocument.body
   }
@@ -106,26 +94,26 @@ function ThemeFramePortal(props:ThemeFramePortalProps) {
       <CssBaseline />
       {children}
     </CacheProvider>,
-    iframeDocument.body,
+    iframeDocument.body
   )
 }
 
 export function ThemeFrame(props: ThemeFrameProps) {
-  const {
-    title, className, fontUrl, customStyles, children, bodyRef,
-  } = props
-  const _iframeRef = useRef<HTMLIFrameElement>(null)
+  const { title, className, fontUrl, customStyles, children, bodyRef } = props
+  const iframeRef = useRef<HTMLIFrameElement>(null)
   const [isSetupComplete, setIsSetupComplete] = useState(false)
-  const [emotionCache, setEmotionCache] = useState<EmotionCache|undefined>(undefined)
+  const [emotionCache, setEmotionCache] = useState<EmotionCache | undefined>(
+    undefined
+  )
 
   useEffect(() => {
-    const iframe = _iframeRef.current
+    const iframe = iframeRef.current
     if (!iframe) {
       return
     }
 
     IFrameSetContent(iframe, DefaultIframeContent, true)
-    const doc = _iframeRef.current?.contentDocument
+    const doc = iframeRef.current?.contentDocument
     if (!doc) {
       return
     }
@@ -151,15 +139,18 @@ export function ThemeFrame(props: ThemeFrameProps) {
     setEmotionCache(emotionCacheObj)
 
     if (doc.readyState === 'complete') {
-      handleLoad(_iframeRef)
+      handleLoad(iframeRef)
     } else {
-      _iframeRef.current?.addEventListener('load', () => handleLoad(_iframeRef))
+      iframeRef.current?.addEventListener('load', () => handleLoad(iframeRef))
     }
 
     setIsSetupComplete(true)
+    // eslint-disable-next-line
     return () => {
       setIsSetupComplete(false)
-      _iframeRef.current?.removeEventListener('load', () => handleLoad(_iframeRef))
+      iframeRef.current?.removeEventListener('load', () =>
+        handleLoad(iframeRef)
+      )
     }
   }, [])
 
@@ -168,12 +159,12 @@ export function ThemeFrame(props: ThemeFrameProps) {
       allowFullScreen
       className={isSetupComplete ? className : undefined}
       title={title}
-      ref={_iframeRef}
+      ref={iframeRef}
     >
       <ThemeFramePortal
         isSetupComplete={isSetupComplete}
         emotionCache={emotionCache}
-        iframeDocument={_iframeRef.current?.contentDocument}
+        iframeDocument={iframeRef.current?.contentDocument}
         bodyRef={bodyRef}
       >
         {children}

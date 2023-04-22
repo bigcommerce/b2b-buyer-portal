@@ -1,24 +1,19 @@
-import {
-  Box,
-} from '@mui/material'
+import { useNavigate } from 'react-router-dom'
+import { Box } from '@mui/material'
 
-import {
-  useNavigate,
-} from 'react-router-dom'
-
-interface B3SuccessTipContentProps{
-  message: string,
-  link?: string,
-  linkText?: string,
-  isOutLink?: boolean,
+export interface B3SuccessTipContentProps {
+  message: string
+  link?: string
+  linkText?: string
+  isOutLink?: boolean
 }
 
-export const B3LinkTipContent = ({
+export function B3LinkTipContent({
   message,
   link = '',
   linkText = 'View',
   isOutLink = false,
-}: B3SuccessTipContentProps) => {
+}: B3SuccessTipContentProps) {
   const navigate = useNavigate()
 
   const handleLink = () => {
@@ -55,3 +50,20 @@ export const B3LinkTipContent = ({
     </Box>
   )
 }
+
+export const successTip = ({
+  message,
+  link = '',
+  linkText = 'View',
+  isOutLink = false,
+}: B3SuccessTipContentProps) =>
+  function componentTip() {
+    return (
+      <B3LinkTipContent
+        message={message}
+        link={link}
+        linkText={linkText}
+        isOutLink={isOutLink}
+      />
+    )
+  }

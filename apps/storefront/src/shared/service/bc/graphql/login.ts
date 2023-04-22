@@ -1,6 +1,4 @@
-import {
-  B3Request,
-} from '../../request/b3Fetch'
+import B3Request from '../../request/b3Fetch'
 
 const getbcLogin = () => `mutation Login($email: String!, $pass: String!) {
   login(email: $email, password: $pass) {
@@ -14,11 +12,13 @@ const logoutLogin = () => `mutation Logout {
   }
 }`
 
-export const bcLogin = (data: CustomFieldItems): CustomFieldItems => B3Request.graphqlBC({
-  query: getbcLogin(),
-  variables: data,
-})
+export const bcLogin = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlBC({
+    query: getbcLogin(),
+    variables: data,
+  })
 
-export const bcLogoutLogin = (): CustomFieldItems => B3Request.graphqlBC({
-  query: logoutLogin(),
-})
+export const bcLogoutLogin = (): CustomFieldItems =>
+  B3Request.graphqlBC({
+    query: logoutLogin(),
+  })

@@ -1,3 +1,0 @@
-export {
-  OrderStatus,
-} from './OrderStatus'

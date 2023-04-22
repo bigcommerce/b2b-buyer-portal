@@ -1,36 +1,20 @@
-import {
-  Box,
-  CardContent,
-  Typography,
-  styled,
-  TextField,
-} from '@mui/material'
-import {
-  Delete,
-  Edit,
-} from '@mui/icons-material'
+import { Delete, Edit } from '@mui/icons-material'
+import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
-import {
-  PRODUCT_DEFAULT_IMAGE,
-} from '@/constants'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { getProductPriceIncTax } from '@/utils'
 
-import {
-  getProductPriceIncTax,
-} from '@/utils'
-
-import {
-  getProductOptionsFields,
-} from '../../../utils/b3Product/shared/config'
+import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
 
 interface QuoteTableCardProps {
-  item: any,
-  onEdit: (item: any, itemId: number | string) => void,
-  onDelete: (id: string) => void,
-  currencyToken?: string,
-  handleUpdateProductQty: (id: number | string, value: number | string) => void,
-  idEdit: boolean,
-  len: number,
-  itemIndex?: number,
+  item: any
+  onEdit: (item: any, itemId: number | string) => void
+  onDelete: (id: string) => void
+  currencyToken?: string
+  handleUpdateProductQty: (id: number | string, value: number | string) => void
+  idEdit: boolean
+  len: number
+  itemIndex?: number
 }
 
 const StyledImage = styled('img')(() => ({
@@ -39,7 +23,7 @@ const StyledImage = styled('img')(() => ({
   marginRight: '0.5rem',
 }))
 
-const QuoteTableCard = (props: QuoteTableCardProps) => {
+function QuoteTableCard(props: QuoteTableCardProps) {
   const {
     item: quoteTableItem,
     onEdit,
@@ -59,9 +43,7 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
     productName,
     variantSku,
     productsSearch,
-    productsSearch: {
-      variants,
-    },
+    productsSearch: { variants },
     variantId,
   } = quoteTableItem
 
@@ -79,10 +61,12 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
     selectOptions: quoteTableItem.optionList,
   }
 
-  const productFields = (getProductOptionsFields(product, {}))
+  const productFields = getProductOptionsFields(product, {})
 
   const optionList = JSON.parse(quoteTableItem.optionList)
-  const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText)
+  const optionsValue: CustomFieldItems[] = productFields.filter(
+    (item) => item.valueText
+  )
 
   return (
     <Box
@@ -112,16 +96,10 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
             flex: 1,
           }}
         >
-          <Typography
-            variant="body1"
-            color="#212121"
-          >
+          <Typography variant="body1" color="#212121">
             {productName}
           </Typography>
-          <Typography
-            variant="body1"
-            color="#616161"
-          >
+          <Typography variant="body1" color="#616161">
             {variantSku}
           </Typography>
           <Box
@@ -129,30 +107,27 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
               margin: '1rem 0',
             }}
           >
-            {
-              (optionList.length > 0 && optionsValue.length > 0) && (
-                <Box>
-                  {
-                    optionsValue.map((option: any) => (
-                      <Typography
-                        sx={{
-                          fontSize: '0.75rem',
-                          lineHeight: '1.5',
-                          color: '#455A64',
-                        }}
-                        key={option.valueLabel}
-                      >
-                        {`${option.valueLabel
-                        }: ${option.valueText}`}
-                      </Typography>
-                    ))
-                  }
-                </Box>
-              )
-            }
+            {optionList.length > 0 && optionsValue.length > 0 && (
+              <Box>
+                {optionsValue.map((option: any) => (
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      lineHeight: '1.5',
+                      color: '#455A64',
+                    }}
+                    key={option.valueLabel}
+                  >
+                    {`${option.valueLabel}: ${option.valueText}`}
+                  </Typography>
+                ))}
+              </Box>
+            )}
           </Box>
 
-          <Typography>{`Price: ${currencyToken}${price.toFixed(2)}`}</Typography>
+          <Typography>{`Price: ${currencyToken}${price.toFixed(
+            2
+          )}`}</Typography>
 
           <TextField
             size="small"
@@ -161,7 +136,8 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
             label="qty"
             disabled={!idEdit}
             inputProps={{
-              inputMode: 'numeric', pattern: '[0-9]*',
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
             }}
             value={quantity}
             sx={{
@@ -173,7 +149,9 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
               handleUpdateProductQty(id, e.target.value)
             }}
           />
-          <Typography>{`Total: ${currencyToken}${total.toFixed(2)}`}</Typography>
+          <Typography>{`Total: ${currencyToken}${total.toFixed(
+            2
+          )}`}</Typography>
           <Box
             sx={{
               marginTop: '1rem',
@@ -181,26 +159,26 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
             }}
             id="shoppingList-actionList-mobile"
           >
-            {
-              optionList.length > 0 && idEdit && (
-                <Edit
-                  sx={{
-                    marginRight: '0.5rem',
-                    cursor: 'pointer',
-                    color: 'rgba(0, 0, 0, 0.54)',
-                  }}
-                  onClick={() => {
-                    onEdit({
+            {optionList.length > 0 && idEdit && (
+              <Edit
+                sx={{
+                  marginRight: '0.5rem',
+                  cursor: 'pointer',
+                  color: 'rgba(0, 0, 0, 0.54)',
+                }}
+                onClick={() => {
+                  onEdit(
+                    {
                       ...productsSearch,
                       quantity,
                       selectOptions: quoteTableItem.optionList,
-                    }, id)
-                  }}
-                />
-              )
-            }
-            {
-              idEdit && (
+                    },
+                    id
+                  )
+                }}
+              />
+            )}
+            {idEdit && (
               <Delete
                 sx={{
                   cursor: 'pointer',
@@ -210,9 +188,7 @@ const QuoteTableCard = (props: QuoteTableCardProps) => {
                   onDelete(id)
                 }}
               />
-              )
-            }
-
+            )}
           </Box>
         </Box>
       </CardContent>
