@@ -19,6 +19,12 @@ function B3LayoutTip() {
     window.tipDispatch = dispatch
   }, [])
 
+  useEffect(() => {
+    if (tipMessage?.msgs?.length === 0 && timer.current) {
+      clearTimeout(timer.current)
+    }
+  }, [tipMessage?.msgs])
+
   // useEffect(() => {
   //   window.b3Tipmessage = tipMessage?.msgs || []
   // }, [tipMessage])
@@ -35,12 +41,6 @@ function B3LayoutTip() {
     })
   }
 
-  const handleClose = (id: number | string) => {
-    const msgs = tipMessage?.msgs || []
-    const newMsgs = msgs.filter((msg) => msg.id !== id)
-    setMsgs(newMsgs)
-  }
-
   const {
     msgs = [],
     autoHideDuration = 3000,
@@ -48,9 +48,15 @@ function B3LayoutTip() {
     horizontal = 'right',
   } = tipMessage
 
-  const closeMsgs = () => {
-    const { msgs = [] } = tipMessage
+  const handleClose = (id: number | string) => {
+    const newMsgs = msgs.filter((msg) => msg.id !== id)
+    if (!!newMsgs.length && timer.current) {
+      clearTimeout(timer.current)
+    }
+    setMsgs(newMsgs)
+  }
 
+  const closeMsgs = () => {
     if (timer.current) {
       clearTimeout(timer.current)
     }

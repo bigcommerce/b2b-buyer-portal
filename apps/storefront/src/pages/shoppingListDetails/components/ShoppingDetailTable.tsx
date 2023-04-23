@@ -152,9 +152,7 @@ function ShoppingDetailTable(
   const [editProductItemId, setEditProductItemId] = useState<
     number | string | null
   >(null)
-  const [search, setSearch] = useState<SearchProps>({
-    search: '',
-  })
+  const [search, setSearch] = useState<SearchProps | {}>()
   const [qtyNotChangeFlag, setQtyNotChangeFlag] = useState<boolean>(true)
   const [originProducts, setOriginProducts] = useState<ListItemProps[]>([])
   const [shoppingListTotalPrice, setShoppingListTotalPrice] =
@@ -328,10 +326,9 @@ function ShoppingDetailTable(
       const {
         products: { edges },
         grandTotal,
-        totalDiscount,
       } = shoppingListInfo
 
-      const NewShoppingListTotalPrice = +grandTotal + +totalDiscount || 0.0
+      const NewShoppingListTotalPrice = +grandTotal || 0.0
 
       setOriginProducts(cloneDeep(edges))
       setShoppingListTotalPrice(NewShoppingListTotalPrice)

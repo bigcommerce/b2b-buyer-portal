@@ -5,8 +5,10 @@ import {
   Ref,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from 'react'
+import { isEmpty, isEqual } from 'lodash'
 
 import { useMobile } from '@/hooks'
 
@@ -89,6 +91,8 @@ function PaginationTable(
     first: rowsPerPageOptions[0],
   }
 
+  const cache = useRef(null)
+
   const [loading, setLoading] = useState<boolean>()
 
   const [pagination, setPagination] = useState<TablePagination>(initPagination)
@@ -105,6 +109,11 @@ function PaginationTable(
 
   const fetchList = async (b3Pagination?: TablePagination) => {
     try {
+      if (cache?.current && isEqual(cache.current, searchParams)) {
+        return
+      }
+      cache.current = searchParams
+
       setLoading(true)
       if (requestLoading) requestLoading(true)
       const { createdBy } = searchParams
@@ -140,14 +149,16 @@ function PaginationTable(
       }
 
       setAllCount(totalCount)
-    } finally {
+      setLoading(false)
+      if (requestLoading) requestLoading(false)
+    } catch (e) {
       setLoading(false)
       if (requestLoading) requestLoading(false)
     }
   }
 
   useEffect(() => {
-    if (JSON.stringify(searchParams) !== '{}') {
+    if (!isEmpty(searchParams)) {
       fetchList()
     }
   }, [searchParams])

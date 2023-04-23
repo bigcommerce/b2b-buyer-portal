@@ -345,19 +345,23 @@ function QuoteDetail() {
 
         <Grid
           container
-          spacing={2}
+          spacing={isMobile ? 2 : 0}
+          rowSpacing={0}
           sx={{
-            marginTop: '0',
             overflow: 'auto',
             flexWrap: isMobile ? 'wrap' : 'nowrap',
             paddingBottom: '20px',
             marginBottom: isMobile ? '6rem' : 0,
+            marginTop: !isMobile ? '1rem' : 0,
             '@media print': {
               overflow: 'hidden',
             },
           }}
         >
-          <Box
+          <Grid
+            item
+            xs={isMobile ? 12 : 8}
+            rowSpacing={0}
             sx={
               isMobile
                 ? {
@@ -365,24 +369,17 @@ function QuoteDetail() {
                     pl: '16px',
                   }
                 : {
-                    flexBasis: '690px',
-                    flexGrow: 1,
-                    ml: '16px',
-                    pt: '16px',
+                    mr: '16px',
                   }
             }
           >
-            <Grid
-              item
+            <Box
               sx={
                 isMobile
                   ? {
                       flexBasis: '100%',
                     }
-                  : {
-                      flexBasis: '690px',
-                      flexGrow: 1,
-                    }
+                  : {}
               }
             >
               <QuoteDetailTable
@@ -390,18 +387,20 @@ function QuoteDetail() {
                 total={productList.length}
                 getQuoteTableDetails={getQuoteTableDetails}
               />
-            </Grid>
-          </Box>
+            </Box>
+          </Grid>
 
           <Grid
             item
+            xs={isMobile ? 12 : 4}
+            rowSpacing={0}
             sx={
               isMobile
                 ? {
                     flexBasis: '100%',
                   }
                 : {
-                    flexBasis: '340px',
+                    pl: 0,
                   }
             }
           >

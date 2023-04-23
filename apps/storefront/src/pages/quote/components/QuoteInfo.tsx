@@ -59,6 +59,7 @@ interface QuoteInfoItemProps {
 
 function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
   const keyTable = flag === 'info' ? contactInfoKeys : addressKeys
+  const [isMobile] = useMobile()
 
   const noAddresssText =
     status === 'Draft'
@@ -70,11 +71,12 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
       ? addressVerifyKeys.some((item: string) => !!info[item])
       : false
 
+  const infoPaddingLeft = flag === 'info' || isMobile ? 0 : '10px'
   return (
     <Box
       sx={{
         width: '33.3%',
-        paddingRight: '10px',
+        paddingLeft: infoPaddingLeft,
       }}
     >
       <Typography

@@ -783,7 +783,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             flexDirection="column"
             xs={{
               flexBasis: isMobile ? '100%' : '680px',
-              flexGrow: 1,
+              flexGrow: 2,
               marginRight: '20px',
               marginBottom: '20px',
             }}
@@ -805,6 +805,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
               marginBottom: '20px',
               backgroundColor: 'transparent',
               padding: 0,
+              flexGrow: 1,
             }}
           >
             <Stack

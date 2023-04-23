@@ -388,13 +388,12 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                   optionList,
                   productsSearch,
                   tax,
-                  discount,
                   // productsSearch: {
                   //   variants,
                   // },
                   // variantId,
                 } = product.node
-                const price = +basePrice + +tax + +discount
+                const price = +basePrice + +(+tax / +quantity)
                 const total = +price * +quantity
 
                 // const newOptionList = JSON.parse(optionList)

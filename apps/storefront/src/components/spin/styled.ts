@@ -17,7 +17,7 @@ const SpinCenter = styled('div')(
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: background || 'rgba(255, 255, 255, .75)',
+    backgroundColor: background || 'rgba(255, 255, 255)',
   })
 )
 
