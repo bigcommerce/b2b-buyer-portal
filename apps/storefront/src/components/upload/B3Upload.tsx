@@ -384,6 +384,13 @@ export default function B3Upload(props: B3UploadProps) {
       }}
       showRightBtn={step === 'end'}
       isShowBordered={false}
+      dialogContentSx={
+        step === 'end'
+          ? {
+              paddingBottom: '2px',
+            }
+          : {}
+      }
     >
       {fileErrorText.length > 0 && (
         <Box

@@ -74,7 +74,7 @@ export const b2bShippingBilling = [
 export const b2bAddressFields = [
   {
     name: 'label',
-    label: 'Address Label',
+    label: 'Address label',
     required: false,
     fieldType: 'text',
     xs: 12,
@@ -84,7 +84,7 @@ export const b2bAddressFields = [
   },
   {
     name: 'firstName',
-    label: 'First Name',
+    label: 'First name',
     required: true,
     default: '',
     fieldType: 'text',
@@ -94,7 +94,7 @@ export const b2bAddressFields = [
   },
   {
     name: 'lastName',
-    label: 'Last Name',
+    label: 'Last name',
     required: true,
     fieldType: 'text',
     xs: 6,
@@ -129,7 +129,7 @@ export const b2bAddressFields = [
   },
   {
     name: 'addressLine1',
-    label: 'Address Line 1',
+    label: 'Address line 1',
     required: true,
     fieldType: 'text',
     xs: 12,
@@ -139,7 +139,7 @@ export const b2bAddressFields = [
   },
   {
     name: 'addressLine2',
-    label: 'Address Line 2',
+    label: 'Address line 2',
     required: false,
     fieldType: 'text',
     xs: 12,
@@ -173,7 +173,7 @@ export const b2bAddressFields = [
   },
   {
     name: 'zipCode',
-    label: 'ZIP Code',
+    label: 'ZIP code',
     required: true,
     fieldType: 'text',
     xs: 4,
@@ -183,7 +183,7 @@ export const b2bAddressFields = [
   },
   {
     name: 'phoneNumber',
-    label: 'Phone Number',
+    label: 'Phone number',
     required: false,
     fieldType: 'text',
     xs: 12,

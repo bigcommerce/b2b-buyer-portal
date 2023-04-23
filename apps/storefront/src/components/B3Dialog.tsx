@@ -31,6 +31,7 @@ interface B3DialogProps<T> {
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false
   fullWidth?: boolean
   disabledSaveBtn?: boolean
+  dialogContentSx?: { [key: string]: string }
 }
 
 export default function B3Dialog<T>({
@@ -49,6 +50,7 @@ export default function B3Dialog<T>({
   isShowBordered = true,
   showRightBtn = true,
   maxWidth = 'sm',
+  dialogContentSx = {},
   fullWidth = false,
   disabledSaveBtn = false,
 }: B3DialogProps<T>) {
@@ -103,7 +105,13 @@ export default function B3Dialog<T>({
             {title}
           </DialogTitle>
         )}
-        <DialogContent>{children}</DialogContent>
+        <DialogContent
+          sx={{
+            ...dialogContentSx,
+          }}
+        >
+          {children}
+        </DialogContent>
         <DialogActions
           sx={
             isShowBordered

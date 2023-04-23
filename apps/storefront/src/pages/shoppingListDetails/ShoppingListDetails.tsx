@@ -154,8 +154,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       companyInfoId
     )
 
-    console.log(listProducts, 'listProducts')
-
     if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo)
     setShoppingListInfo(shoppingListDetailInfo)
     return {

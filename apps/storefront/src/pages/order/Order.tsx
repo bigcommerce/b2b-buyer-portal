@@ -53,11 +53,11 @@ const sortByList: Array<SortByListProps> = [
     id: '-createdAt',
   },
   {
-    name: 'Lowest Total',
+    name: 'Lowest total',
     id: 'totalIncTax',
   },
   {
-    name: 'Highest Total',
+    name: 'Highest total',
     id: '-totalIncTax',
   },
 ]

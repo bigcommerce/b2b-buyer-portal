@@ -31,5 +31,5 @@ export const validatorRules =
         str = b3lang('intl.user.register.validatorRules.passwords')
       }
     })
-    return str
+    return str || undefined
   }

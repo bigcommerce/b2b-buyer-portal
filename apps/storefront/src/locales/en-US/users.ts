@@ -15,12 +15,12 @@ export default {
   'intl.user.register.step.details': 'Details',
   'intl.user.register.step.finish': 'Finish',
 
-  'intl.user.register.registeredAccount.firstName': 'First Name',
-  'intl.user.register.registeredAccount.lastName': 'Last Name',
-  'intl.user.register.registeredAccount.workEmailAddress': 'Work Email Address',
-  'intl.user.register.registeredAccount.phoneNumber': 'Phone Number',
-  'intl.user.register.registeredAccount.emailAddress': 'Email Address',
-  'intl.user.register.registeredAccount.companyName': 'Company Name',
+  'intl.user.register.registeredAccount.firstName': 'First name',
+  'intl.user.register.registeredAccount.lastName': 'Last name',
+  'intl.user.register.registeredAccount.workEmailAddress': 'Work email address',
+  'intl.user.register.registeredAccount.phoneNumber': 'Phone number',
+  'intl.user.register.registeredAccount.emailAddress': 'Email address',
+  'intl.user.register.registeredAccount.companyName': 'Company name',
 
   'intl.user.register.registeredAccount.loginLeft':
     'It appears you may already have an account. Please',
@@ -47,17 +47,17 @@ export default {
   'intl.user.register.validatorRules.passwords':
     'Passwords must be at least 7 characters and contain both alphabetic and numeric characters.',
 
-  'intl.user.register.label.companyName': 'Company Name',
-  'intl.user.register.label.companyEmail': 'Company Email',
-  'intl.user.register.label.companyPhoneNumber': 'Company Phone Number',
-  'intl.user.register.label.companyAttachments': 'Company Attachments',
+  'intl.user.register.label.companyName': 'Company name',
+  'intl.user.register.label.companyEmail': 'Company email',
+  'intl.user.register.label.companyPhoneNumber': 'Company phone number',
+  'intl.user.register.label.companyAttachments': 'Company attachments',
 
   'intl.user.register.label.country': 'Country',
   'intl.user.register.label.address1': 'Address 1',
   'intl.user.register.label.address2': 'Address 2',
   'intl.user.register.label.city': 'City',
   'intl.user.register.label.state': 'State',
-  'intl.user.register.label.zipCode': 'Zip Code',
+  'intl.user.register.label.zipCode': 'Zip code',
 
   'intl.user.register.tips.registerLogo': 'register Logo',
 

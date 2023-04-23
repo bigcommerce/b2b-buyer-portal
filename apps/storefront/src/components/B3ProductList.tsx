@@ -237,16 +237,13 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
           <FlexItem textAlignLocation={textAlign} {...itemStyle.qty}>
             <ProductHead>Qty</ProductHead>
           </FlexItem>
-          <FlexItem
-            textAlignLocation={textAlign}
-            {...itemStyle.default}
-            width={isMobile ? '100%' : actionWidth}
-          >
+          <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
             <ProductHead>{totalText}</ProductHead>
           </FlexItem>
           {renderAction && (
             <FlexItem
               {...itemStyle.default}
+              textAlignLocation="right"
               width={isMobile ? '100%' : actionWidth}
             />
           )}
@@ -372,7 +369,6 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
             <FlexItem
               padding={quantityEditable ? '10px 0 0' : ''}
               {...itemStyle.default}
-              width={isMobile ? '100%' : actionWidth}
               textAlignLocation={textAlign}
             >
               {isMobile && <span>{totalText}:</span>}
@@ -385,6 +381,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
             {renderAction && (
               <FlexItem
                 {...itemStyle.default}
+                textAlignLocation="right"
                 width={isMobile ? '100%' : actionWidth}
               >
                 <>{renderAction(product)}</>

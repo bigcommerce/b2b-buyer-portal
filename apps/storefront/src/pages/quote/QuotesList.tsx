@@ -50,7 +50,7 @@ interface FilterSearchProps {
 
 const sortByList: Array<SortByListProps> = [
   {
-    name: 'Date Created',
+    name: 'Date created',
     id: 'createdAt',
   },
   {

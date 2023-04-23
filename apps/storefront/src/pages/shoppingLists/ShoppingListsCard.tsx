@@ -88,12 +88,13 @@ function ShoppingListsCard(props: OrderItemCardProps) {
     <Card
       key={shoppingList.id}
       sx={{
-        '.MuiCardContent-root': {
-          pb: '18px',
+        '& .b2b-card-content': {
+          paddingBottom: '20px',
         },
       }}
     >
       <CardContent
+        className="b2b-card-content"
         sx={{
           color: '#313440',
         }}

@@ -181,7 +181,6 @@ function BulkUploadTable(props: BulkUploadTableProps) {
   return (
     <Box
       sx={{
-        paddingBottom: '1rem',
         width: '100%',
       }}
     >

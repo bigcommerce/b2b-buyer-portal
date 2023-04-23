@@ -12,7 +12,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'firstName',
-      label: 'First Name',
+      label: 'First name',
       required: false,
       default: '',
       fieldType: 'text',
@@ -22,7 +22,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'lastName',
-      label: 'Last Name',
+      label: 'Last name',
       required: false,
       default: '',
       fieldType: 'text',
@@ -114,7 +114,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'phoneNumber',
-      label: 'Phone Number',
+      label: 'Phone number',
       required: false,
       default: '',
       fieldType: 'text',

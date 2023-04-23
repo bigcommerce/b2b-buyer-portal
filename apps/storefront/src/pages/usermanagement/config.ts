@@ -87,7 +87,7 @@ const getUsersFiles = (type: string) => {
     },
     {
       name: 'firstName',
-      label: 'First Name',
+      label: 'First name',
       required: true,
       default: '',
       fieldType: 'text',
@@ -97,7 +97,7 @@ const getUsersFiles = (type: string) => {
     },
     {
       name: 'lastName',
-      label: 'Last Name',
+      label: 'Last name',
       required: true,
       fieldType: 'text',
       xs: 6,
@@ -107,7 +107,7 @@ const getUsersFiles = (type: string) => {
     },
     {
       name: 'phone',
-      label: 'Phone Number',
+      label: 'Phone number',
       required: false,
       fieldType: 'text',
       xs: 12,

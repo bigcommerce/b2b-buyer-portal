@@ -39,7 +39,7 @@ const getContactInfo = (isMobile: boolean) => {
     },
     {
       name: 'companyName',
-      label: 'Company Name',
+      label: 'Company name',
       required: false,
       default: '',
       fieldType: 'text',
