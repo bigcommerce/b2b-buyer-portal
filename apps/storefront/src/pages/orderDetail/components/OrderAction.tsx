@@ -1,6 +1,6 @@
 import { Fragment, ReactNode, useContext, useState } from 'react'
 import styled from '@emotion/styled'
-import { Card, CardContent, Typography } from '@mui/material'
+import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 import { format } from 'date-fns'
 import { throttle } from 'lodash'
 
@@ -18,22 +18,13 @@ import OrderDialog from './OrderDialog'
 
 const OrderActionContainer = styled('div')(() => ({}))
 
-/// orderCard
-const InformationContainer = styled('div')(() => ({
-  background: '#F5F5F5',
-  padding: '1rem',
-  border: '1px solid rgba(0, 0, 0, 0.12)',
-  borderRadius: '4px',
-  marginTop: '0.5rem',
-}))
+interface StyledCardActionsProps {
+  isShowButtons: boolean
+}
 
-const OrderCardHeader = styled(Typography)(() => ({
-  padding: '1rem 0 0 1rem',
-}))
-
-const StyledCardActions = styled('div')(() => ({
+const StyledCardActions = styled('div')((props: StyledCardActionsProps) => ({
   flexWrap: 'wrap',
-  padding: '0 1rem 1rem 1rem',
+  padding: props.isShowButtons ? '0 1rem 1rem 1rem' : 0,
 
   '& button': {
     marginLeft: '0',
@@ -53,21 +44,16 @@ const ItemContainer = styled('div')((props: ItemContainerProps) => ({
 
   '& p': {
     marginTop: 0,
+    marginBottom: props.nameKey === 'Grand total' ? '0' : '12px',
+    lineHeight: 1,
   },
 }))
 
-interface PaymentItemContainerProps {
-  isAddMarginButton: boolean
-}
-
-const PaymentItemContainer = styled('div')(
-  (props: PaymentItemContainerProps) => ({
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontWeight: 400,
-    marginBottom: props.isAddMarginButton ? '0.8rem' : '',
-  })
-)
+const PaymentItemContainer = styled('div')(() => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontWeight: 400,
+}))
 
 interface Infos {
   info: {
@@ -144,6 +130,7 @@ function OrderCard(props: OrderCardProps) {
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
   const [currentDialogData, setCurrentDialogData] = useState<DialogData>()
+  const isShowButtons = buttons.filter((btn) => btn.isCanShow).length > 0
 
   let infoKey: string[] = []
   let infoValue: string[] = []
@@ -177,15 +164,8 @@ function OrderCard(props: OrderCardProps) {
   }
 
   let showedInformation: ReactNode[] | string = infoValue?.map(
-    (value: string, index: number) => (
-      <PaymentItemContainer
-        key={value}
-        isAddMarginButton={
-          infoKey[index] === 'paymentMethod' || infoKey[index] === 'company'
-        }
-      >
-        {value}
-      </PaymentItemContainer>
+    (value: string) => (
+      <PaymentItemContainer key={value}>{value}</PaymentItemContainer>
     )
   )
 
@@ -193,10 +173,21 @@ function OrderCard(props: OrderCardProps) {
     showedInformation = infos
   } else if (infos.money) {
     showedInformation = infoKey?.map((key: string, index: number) => (
-      <ItemContainer key={key} nameKey={key}>
-        <p>{key}</p>
-        <p>{`${infos.money?.currency_token}${infoValue[index]}`}</p>
-      </ItemContainer>
+      <Fragment key={key}>
+        {key === 'Grand total' && (
+          <Divider
+            sx={{
+              marginBottom: '1rem',
+              marginTop: '0.5rem',
+            }}
+          />
+        )}
+
+        <ItemContainer key={key} nameKey={key}>
+          <p>{key}</p>
+          <p>{`${infos.money?.currency_token}${infoValue[index]}`}</p>
+        </ItemContainer>
+      </Fragment>
     ))
   }
 
@@ -206,12 +197,18 @@ function OrderCard(props: OrderCardProps) {
         marginBottom: '1rem',
       }}
     >
-      <OrderCardHeader variant="h5">{header}</OrderCardHeader>
-      <CardContent>
+      <Box
+        sx={{
+          padding: '1rem 0 0 1rem',
+        }}
+      >
+        <Typography variant="h5">{header}</Typography>
         {subtitle && <div>{subtitle}</div>}
-        <InformationContainer>{showedInformation}</InformationContainer>
+      </Box>
+      <CardContent>
+        <Box>{showedInformation}</Box>
       </CardContent>
-      <StyledCardActions>
+      <StyledCardActions isShowButtons={isShowButtons}>
         {buttons &&
           buttons.map((button: Buttons) => (
             <Fragment key={button.key}>
@@ -399,7 +396,7 @@ export default function OrderAction(props: OrderActionProps) {
       },
     },
     {
-      header: 'Order comments',
+      header: 'Comments',
       key: 'order-comments',
       subtitle: '',
       buttons: [],
