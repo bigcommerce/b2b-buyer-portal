@@ -81,7 +81,7 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
         minWidth: '150px',
         display: 'flex',
         justifyContent: 'end',
-        mr: '-2px',
+        mr: '-5px',
         fontSize: '16px',
         color: '#333333',
       }}

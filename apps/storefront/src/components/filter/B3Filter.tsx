@@ -133,7 +133,8 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
             {sortByConfig?.isEnabled && (
               <Box
                 sx={{
-                  m: '0 5px',
+                  ml: '5px',
+                  mr: 0,
                 }}
               >
                 <B3Select
