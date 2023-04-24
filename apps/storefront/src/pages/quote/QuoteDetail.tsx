@@ -406,21 +406,8 @@ function QuoteDetail() {
                 marginBottom: '1rem',
               }}
             >
-              <QuoteDetailSummary
-                quoteSummary={quoteSummary}
-              />
+              <QuoteDetailSummary quoteSummary={quoteSummary} />
             </Box>
-
-            {quoteDetail.notes && (
-              <Box
-                sx={{
-                  marginBottom: '1rem',
-                  displayPrint: 'none',
-                }}
-              >
-                <QuoteNote quoteNotes={quoteDetail.notes} />
-              </Box>
-            )}
 
             {quoteDetail.notes && (
               <Box

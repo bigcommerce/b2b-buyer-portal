@@ -21,7 +21,7 @@ import {
   updateB2BShoppingListsItem,
   updateBcShoppingListsItem,
 } from '@/shared/service/b2b'
-import { currencyFormat, getProductPriceIncTax, snackbar } from '@/utils'
+import { currencyFormat, snackbar } from '@/utils'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
@@ -413,9 +413,7 @@ function ShoppingDetailTable(
               padding: '12px 0',
             }}
           >
-            {currencyFormat(
-              +baseAllPrice !== 0 ? baseAllPrice : basePrice
-            )}
+            {currencyFormat(+baseAllPrice !== 0 ? baseAllPrice : basePrice)}
           </Typography>
         )
       },
@@ -573,7 +571,7 @@ function ShoppingDetailTable(
             fontSize: '24px',
           }}
         >
-          {`${currencyFormat(shoppingListTotalPrice || 0.00)}`}
+          {`${currencyFormat(shoppingListTotalPrice || 0.0)}`}
         </Typography>
       </Box>
       <Box

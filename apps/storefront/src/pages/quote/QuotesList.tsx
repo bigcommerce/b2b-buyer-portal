@@ -28,9 +28,6 @@ interface ListItem {
   [key: string]: string | Object
   status: string
   quoteNumber: string
-  currency: {
-    token: string
-  }
 }
 
 interface FilterSearchProps {

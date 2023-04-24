@@ -58,7 +58,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
   } = shoppingDetail
 
   let priceIncTax = +basePrice
-  if (variants) {
+  if (variants?.length) {
     priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
   }
 

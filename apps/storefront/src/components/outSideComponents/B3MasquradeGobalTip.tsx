@@ -51,7 +51,17 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
     hash.includes(item)
   )
 
-  const [isExpansion, setExpansion] = useState<boolean>(true)
+  const initExpansion = () => {
+    const isMasqueradeTipExpansion = B3SStorage.get('isMasqueradeTipExpansion')
+
+    if (typeof isMasqueradeTipExpansion === 'boolean') {
+      return isMasqueradeTipExpansion
+    }
+
+    return true
+  }
+
+  const [isExpansion, setExpansion] = useState<boolean>(initExpansion())
 
   const [isMobile] = useMobile()
 
@@ -79,6 +89,11 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         openUrl: '/dashboard',
       })
     }
+  }
+
+  const isMasqueradeTipExpansion = (isExpansion: boolean) => {
+    setExpansion(isExpansion)
+    B3SStorage.set('isMasqueradeTipExpansion', isExpansion)
   }
 
   if (href.includes('/checkout') || !customerId) return null
@@ -216,14 +231,14 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
 
                 {isExpansion ? (
                   <KeyboardArrowLeftIcon
-                    onClick={() => setExpansion(false)}
+                    onClick={() => isMasqueradeTipExpansion(false)}
                     sx={{
                       ml: '10px',
                     }}
                   />
                 ) : (
                   <KeyboardArrowRightIcon
-                    onClick={() => setExpansion(true)}
+                    onClick={() => isMasqueradeTipExpansion(true)}
                     sx={{
                       ml: '10px',
                     }}
@@ -299,14 +314,14 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
 
               {isExpansion ? (
                 <KeyboardArrowLeftIcon
-                  onClick={() => setExpansion(false)}
+                  onClick={() => isMasqueradeTipExpansion(false)}
                   sx={{
                     ml: '10px',
                   }}
                 />
               ) : (
                 <KeyboardArrowRightIcon
-                  onClick={() => setExpansion(true)}
+                  onClick={() => isMasqueradeTipExpansion(true)}
                   sx={{
                     ml: '10px',
                   }}

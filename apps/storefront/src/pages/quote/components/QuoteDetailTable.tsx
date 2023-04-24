@@ -184,7 +184,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           variantId,
         } = row
         let priceIncTax = +basePrice
-        if (variants) {
+        if (variants?.length) {
           priceIncTax = getProductPriceIncTax(variants, +variantId)
         }
 
@@ -212,7 +212,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat((+withTaxPrice - +isDiscount))}`}
+              {`${currencyFormat(+withTaxPrice - +isDiscount)}`}
             </Typography>
           </>
         )
@@ -250,9 +250,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           productsSearch: { variants = [] },
           variantId,
         } = row
-
         let priceIncTax = +basePrice
-        if (variants) {
+        if (variants?.length) {
           priceIncTax = getProductPriceIncTax(variants, +variantId)
         }
 
@@ -327,11 +326,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         noDataText="No products found"
         tableKey="productId"
         renderItem={(row: ProductInfoProps, index?: number) => (
-          <QuoteDetailTableCard
-            len={total || 0}
-            item={row}
-            itemIndex={index}
-          />
+          <QuoteDetailTableCard len={total || 0} item={row} itemIndex={index} />
         )}
       />
     </StyledQuoteTableContainer>

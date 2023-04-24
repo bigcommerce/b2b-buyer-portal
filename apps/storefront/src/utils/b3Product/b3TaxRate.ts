@@ -3,7 +3,7 @@ import { TaxZoneRates, TaxZoneRatesProps } from '@/store/slices/global'
 
 const getTaxRate = (taxClassId: number) => {
   const {
-    glabol: { taxZoneRates },
+    global: { taxZoneRates },
   } = store.getState()
 
   let taxRates: TaxZoneRates[] = []

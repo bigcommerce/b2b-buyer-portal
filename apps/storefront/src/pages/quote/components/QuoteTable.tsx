@@ -367,7 +367,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         } = row
 
         let priceIncTax = +basePrice
-        if (variants) {
+        if (variants?.length) {
           priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
         }
 
@@ -424,7 +424,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           variantSku,
         } = row
         let priceIncTax = +basePrice
-        if (variants) {
+        if (variants?.length) {
           priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
         }
 

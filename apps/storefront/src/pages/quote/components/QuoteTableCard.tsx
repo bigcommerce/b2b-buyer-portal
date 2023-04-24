@@ -46,7 +46,7 @@ function QuoteTableCard(props: QuoteTableCardProps) {
   } = quoteTableItem
 
   let priceIncTax = +basePrice
-  if (variants) {
+  if (variants?.length) {
     priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
   }
 

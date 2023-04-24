@@ -485,7 +485,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           },
         } = item
 
-        if (variants) {
+        if (variants?.length) {
           const priceIncTax =
             getProductPriceIncTax(variants, +variantId) || +basePrice
           total += priceIncTax * +quantity

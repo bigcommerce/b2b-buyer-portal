@@ -146,7 +146,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
           </FlexItem>
           <FlexItem>
             <FontBold>Last activity:</FontBold>
-            {displayFormat(shoppingList.updatedAt)}
+            {`${displayFormat(shoppingList.updatedAt)}`}
           </FlexItem>
         </Box>
         <Flex>

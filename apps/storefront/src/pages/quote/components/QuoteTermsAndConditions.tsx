@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Box, Card, CardContent, Typography } from '@mui/material'
 
 import { B3CollapseContainer } from '@/components'
-import { useMobile } from '@/hooks'
 
 interface QuoteTermsAndConditionsProps {
   quoteLegalTerms: string
@@ -13,7 +12,6 @@ export default function QuoteTermsAndConditions(
 ) {
   const { quoteLegalTerms = '' } = props
 
-  const [isMobile] = useMobile()
   const [isOpen, setIsOpen] = useState(false)
 
   const handleOnChange = (open: boolean) => {
@@ -24,7 +22,6 @@ export default function QuoteTermsAndConditions(
     <Card
       sx={{
         '.MuiCardContent-root': {
-          width: isMobile ? '343px' : '338px',
           height: isOpen ? '637px' : 'auto',
         },
       }}
@@ -39,7 +36,6 @@ export default function QuoteTermsAndConditions(
               variant="body1"
               sx={{
                 padding: '16px 0',
-                width: '288px',
                 height: '545px',
                 whiteSpace: 'pre-wrap',
                 overflow: 'auto',

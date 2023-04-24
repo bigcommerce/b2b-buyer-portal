@@ -20,7 +20,7 @@ function B3LayoutTip() {
   }, [])
 
   useEffect(() => {
-    if (tipMessage?.msgs?.length === 0 && timer.current) {
+    if (timer.current) {
       clearTimeout(timer.current)
     }
   }, [tipMessage?.msgs])

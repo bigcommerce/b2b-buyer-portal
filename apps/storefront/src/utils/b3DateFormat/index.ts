@@ -21,7 +21,9 @@ const formatCreator =
     const display = dateFormat[displayType]
 
     if (!timestamp) return ''
-    const dateTime = isDateStr ? timestamp : parseInt(timestamp, 10) * 1000
+    const dateTime = isDateStr
+      ? timestamp
+      : parseInt(String(timestamp), 10) * 1000
     const localDate = new Date(dateTime)
     const localTime = localDate.getTime()
     const offset = useOffset
@@ -43,4 +45,4 @@ const formatCreator =
 const displayFormat = formatCreator('display', 'formatDate')
 const displayExtendedFormat = formatCreator('extendedDisplay', 'formatDate')
 
-export { displayExtendedFormat,displayFormat }
+export { displayExtendedFormat, displayFormat }

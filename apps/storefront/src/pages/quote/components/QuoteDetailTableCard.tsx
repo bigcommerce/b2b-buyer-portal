@@ -32,7 +32,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   } = quoteTableItem
 
   let priceIncTax = +basePrice
-  if (variants) {
+  if (variants?.length) {
     priceIncTax = getProductPriceIncTax(variants, +variantId)
   }
 
@@ -122,7 +122,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat((+withTaxPrice - +isDiscount))}`}
+              {`${currencyFormat(+withTaxPrice - +isDiscount)}`}
             </span>
           </Typography>
 
