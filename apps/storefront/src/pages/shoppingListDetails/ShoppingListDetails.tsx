@@ -71,14 +71,7 @@ interface ShoppingListDetailsContentProps {
 function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const { id = '' } = useParams()
   const {
-    state: {
-      role,
-      companyInfo: { id: companyInfoId },
-      isB2BUser,
-      currentChannelId,
-      isAgenting,
-      openAPPParams,
-    },
+    state: { role, isB2BUser, currentChannelId, isAgenting, openAPPParams },
   } = useContext(GlobaledContext)
   const navigate = useNavigate()
   const [isMobile] = useMobile()
@@ -148,14 +141,18 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       products: { edges, totalCount },
     } = shoppingListDetailInfo
 
-    const listProducts = await getNewProductsList(
-      edges,
-      isB2BUser,
-      companyInfoId
-    )
+    const listProducts = await getNewProductsList(edges, isB2BUser)
 
     if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo)
     setShoppingListInfo(shoppingListDetailInfo)
+
+    if (!listProducts) {
+      return {
+        edges: [],
+        totalCount: 0,
+      }
+    }
+
     return {
       edges: listProducts,
       totalCount,
@@ -187,6 +184,15 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
     } finally {
       setIsRequestLoading(false)
     }
+  }
+
+  const updateList = () => {
+    tableRef.current?.initSearch()
+  }
+
+  const handleCancelClick = () => {
+    setDeleteOpen(false)
+    setDeleteItemId('')
   }
 
   const handleDeleteItems = async (itemId: number | string = '') => {
@@ -226,14 +232,10 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       }
 
       snackbar.success('Product removed from your shopping list')
-      tableRef.current?.initSearch()
+      updateList()
     } finally {
       setIsRequestLoading(false)
     }
-  }
-
-  const updateList = () => {
-    tableRef.current?.initSearch()
   }
 
   useEffect(() => {
@@ -271,11 +273,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       setSelectedSubTotal(0.0)
     }
   }, [checkedArr])
-
-  const handleCancelClick = () => {
-    setDeleteOpen(false)
-    setDeleteItemId('')
-  }
 
   const handleDeleteProductClick = async () => {
     await handleDeleteItems(+deleteItemId)

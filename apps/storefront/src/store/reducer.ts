@@ -1,6 +1,6 @@
 import { setupStore } from '@b3/store'
 
-import glabol from './slices/glabol'
+import global from './slices/global'
 import theme from './slices/theme'
 
 export const middlewareOptions = {
@@ -10,9 +10,9 @@ export const middlewareOptions = {
   },
 }
 
-export const store = setupStore({
+export const store = setupStore<{}>({
   reducers: {
-    glabol,
+    global,
     theme,
   },
   middlewareOptions,

@@ -10,7 +10,7 @@ import lang from './slices/lang'
 
 type Reducers<Type> = Record<string, Reducer<Type>>
 interface SetupStoreParams<Type> {
-  reducers: any
+  reducers: Reducers<Type>
   preloadedState?:
     | {
         [x: string]:

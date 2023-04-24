@@ -188,7 +188,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     isValid: boolean
   ) => {
     const newProduct: ProductsProps[] = [...products]
-    newProduct[index].node.quantity = value
+    newProduct[index].node.quantity = +value
     newProduct[index].isValid = isValid
     setValidateFailureProducts(newProduct)
   }
@@ -278,7 +278,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
         product.node.quantity = maxQuantity
       }
-      if (isStock !== '0' && stock && +quantity > stock) {
+      if (isStock !== '0' && stock && (quantity ? +quantity : 0) > stock) {
         product.node.quantity = stock
       }
 
@@ -380,30 +380,18 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 const { isStock, maxQuantity, minQuantity, stock } = product
 
                 const {
-                  basePrice,
                   quantity,
                   primaryImage,
                   productName,
                   variantSku,
                   optionList,
                   productsSearch,
-                  tax,
-                  // productsSearch: {
-                  //   variants,
-                  // },
-                  // variantId,
+                  baseAllPrice,
+                  basePrice,
                 } = product.node
-                const price = +basePrice + +(+tax / +quantity)
-                const total = +price * +quantity
 
-                // const newOptionList = JSON.parse(optionList)
-                // let optionsValue = []
-                // if (newOptionList.length > 0) {
-                //   const newVariant = variants.find((item:CustomFieldItems) => +item.variant_id
-                //   === +variantId || +item.id === +variantId)
-
-                //   optionsValue = newVariant?.option_values || []
-                // }
+                const price = +baseAllPrice !== 0 ? +baseAllPrice : +basePrice
+                const total = (price * (quantity ? +quantity : 0)).toFixed(2)
 
                 const newProduct: any = {
                   ...productsSearch,
@@ -477,7 +465,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                       textAlignLocation={textAlign}
                     >
                       {isMobile && <div>Total: </div>}
-                      {`${currencyToken}${total.toFixed(2)}`}
+                      {`${currencyToken}${total}`}
                     </FlexItem>
 
                     <FlexItem {...itemStyle.delete}>

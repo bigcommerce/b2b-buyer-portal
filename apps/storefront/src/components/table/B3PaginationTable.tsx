@@ -107,9 +107,17 @@ function PaginationTable(
 
   const [isMobile] = useMobile()
 
-  const fetchList = async (b3Pagination?: TablePagination) => {
+  const fetchList = async (
+    b3Pagination?: TablePagination,
+    isRefresh?: boolean
+  ) => {
     try {
-      if (cache?.current && isEqual(cache.current, searchParams)) {
+      if (
+        cache?.current &&
+        isEqual(cache.current, searchParams) &&
+        !isRefresh &&
+        !b3Pagination
+      ) {
         return
       }
       cache.current = searchParams
@@ -157,6 +165,10 @@ function PaginationTable(
     }
   }
 
+  const refresh = () => {
+    fetchList(initPagination, true)
+  }
+
   useEffect(() => {
     if (!isEmpty(searchParams)) {
       fetchList()
@@ -187,6 +199,7 @@ function PaginationTable(
     getSelectedValue,
     setList,
     getList,
+    refresh,
   }))
 
   const handleSelectAllItems = () => {

@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 
-import { AllOptionProps, ALlOptionValue } from '@/types/products'
+import { AllOptionProps, ALlOptionValue, Product } from '@/types/products'
 
 import {
   BcCalculatedPrice,
@@ -53,6 +53,8 @@ export interface ProductInfoProps {
   productsSearch: CustomFieldItems
   picklistIds?: number[]
   modifierPrices?: ModifierPrices[]
+  baseAllPrice?: number | string
+  baseAllPricetax?: number | string
   currentProductPrices?: BcCalculatedPrice
   extraProductPrices?: BcCalculatedPrice[]
   [key: string]: any
@@ -74,33 +76,33 @@ export interface SearchProps {
   offset?: number
 }
 
-interface NodeProps {
-  basePrice: number | string
-  baseSku: string
-  createdAt: number
-  discount: number | string
-  enteredInclusive: boolean
-  id: number | string
-  itemId: number
-  optionList: string
-  primaryImage: string
-  productId: number
-  productName: string
-  productUrl: string
-  quantity: number | string
-  tax: number | string
-  updatedAt: number
-  variantId: number
-  variantSku: string
-  productsSearch: CustomFieldItems
-}
+// interface NodeProps {
+//   basePrice: number | string
+//   baseSku: string
+//   createdAt: number
+//   discount: number | string
+//   enteredInclusive: boolean
+//   id: number | string
+//   itemId: number
+//   optionList: string
+//   primaryImage: string
+//   productId: number
+//   productName: string
+//   productUrl: string
+//   quantity: number | string
+//   tax: number | string
+//   updatedAt: number
+//   variantId: number
+//   variantSku: string
+//   productsSearch: CustomFieldItems
+// }
 
 export interface ProductsProps {
   maxQuantity?: number
   minQuantity?: number
   stock?: number
   isStock?: string
-  node: NodeProps
+  node: Partial<Product>
   isValid?: boolean
 }
 

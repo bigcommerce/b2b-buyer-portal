@@ -74,13 +74,22 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       inventoryInfos.forEach((option: CustomFieldItems) => {
         if (node.variantSku === option.variantSku) {
           let isPassVerify = true
-          if (option.isStock === '1' && +node.quantity > option.stock)
+          if (
+            option.isStock === '1' &&
+            (node?.quantity ? +node.quantity : 0) > option.stock
+          )
             isPassVerify = false
 
-          if (option.minQuantity !== 0 && +node.quantity < option.minQuantity)
+          if (
+            option.minQuantity !== 0 &&
+            (node?.quantity ? +node.quantity : 0) < option.minQuantity
+          )
             isPassVerify = false
 
-          if (option.maxQuantity !== 0 && +node.quantity > option.maxQuantity)
+          if (
+            option.maxQuantity !== 0 &&
+            (node?.quantity ? +node.quantity : 0) > option.maxQuantity
+          )
             isPassVerify = false
 
           if (isPassVerify) {

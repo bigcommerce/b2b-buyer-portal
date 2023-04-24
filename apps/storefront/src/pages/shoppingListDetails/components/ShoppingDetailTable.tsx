@@ -21,7 +21,7 @@ import {
   updateB2BShoppingListsItem,
   updateBcShoppingListsItem,
 } from '@/shared/service/b2b'
-import { getProductPriceIncTax, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
@@ -84,6 +84,7 @@ interface PaginationTableRefProps extends HTMLInputElement {
   getList: () => void
   setList: (items?: ListItemProps[]) => void
   getSelectedValue: () => void
+  refresh: () => void
 }
 
 const StyledShoppingListTableContainer = styled('div')(() => ({
@@ -187,9 +188,7 @@ function ShoppingDetailTable(
   }
 
   const initSearch = () => {
-    setSearch({
-      search: '',
-    })
+    paginationTableRef.current?.refresh()
   }
 
   useImperativeHandle(ref, () => ({
@@ -409,24 +408,16 @@ function ShoppingDetailTable(
       key: 'Price',
       title: 'Price',
       render: (row: CustomFieldItems) => {
-        const {
-          productsSearch: { variants = [] },
-          variantId,
-        } = row
-        let priceIncTax
-        if (variants) {
-          priceIncTax = getProductPriceIncTax(variants, +variantId)
-        }
-        const price = +row.basePrice
-        const withTaxPrice = priceIncTax || price
-
+        const { basePrice, baseAllPrice } = row
         return (
           <Typography
             sx={{
               padding: '12px 0',
             }}
           >
-            {`${currencyToken}${withTaxPrice.toFixed(2)}`}
+            {`${currencyToken}${
+              +baseAllPrice !== 0 ? baseAllPrice : basePrice
+            }`}
           </Typography>
         )
       },
@@ -473,17 +464,10 @@ function ShoppingDetailTable(
           basePrice,
           quantity,
           itemId,
-          productsSearch: { variants = [], options },
-          variantId,
+          baseAllPrice,
+          productsSearch: { options },
         } = row
 
-        let priceIncTax
-        if (variants) {
-          priceIncTax = getProductPriceIncTax(variants, +variantId)
-        }
-
-        const withTaxPrice = priceIncTax || basePrice
-        const total = +withTaxPrice * +quantity
         const optionList = options || JSON.parse(row.optionList)
 
         return (
@@ -493,7 +477,9 @@ function ShoppingDetailTable(
                 padding: '12px 0',
               }}
             >
-              {`${currencyToken}${total.toFixed(2)}`}
+              {`${currencyToken}${(
+                +(+baseAllPrice !== 0 ? baseAllPrice : basePrice) * +quantity
+              ).toFixed(2)}`}
             </Typography>
             <Box
               sx={{

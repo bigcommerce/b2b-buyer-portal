@@ -1,5 +1,5 @@
 import { store } from '@/store/reducer'
-import { TaxZoneRates, TaxZoneRatesProps } from '@/store/slices/glabol'
+import { TaxZoneRates, TaxZoneRatesProps } from '@/store/slices/global'
 
 const getTaxRate = (taxClassId: number) => {
   const {

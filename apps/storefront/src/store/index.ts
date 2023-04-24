@@ -1,4 +1,4 @@
 export * from './reducer'
 export * from './selectors'
-export * from './slices/glabol'
+export * from './slices/global'
 export * from './slices/theme'

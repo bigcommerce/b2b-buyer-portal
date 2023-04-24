@@ -168,6 +168,6 @@ export interface Product {
   optionsV3?: ShoppingListProductItemModifiers[]
   allOptions?: Partial<AllOptionProps>[]
   productUrl: string
-  quantity: number
+  quantity: number | string
   [key: string]: any
 }

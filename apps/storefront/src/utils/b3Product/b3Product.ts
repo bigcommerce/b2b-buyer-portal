@@ -306,8 +306,8 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
       singleCurrentPrice * ((100 + rate) / 100) + singleextraProductPrice
     const productTax = singleCurrentPrice * (rate / 100) + singleAllTax
 
-    item.node.basePrice = productPrice.toFixed(2)
-    item.node.basePricetax = productTax.toFixed(2)
+    item.node.baseAllPrice = productPrice.toFixed(2)
+    item.node.baseAllPricetax = productTax.toFixed(2)
   })
 }
 
@@ -406,48 +406,50 @@ const addTaxProductPrices = (
 
 const getNewProductsList = async (
   listProducts: ListItemProps[],
-  isB2BUser: boolean,
-  companyId: number | string
+  isB2BUser: boolean
 ) => {
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
-  if (listProducts.length > 0) {
-    const productIds: number[] = []
-    listProducts.forEach((item) => {
-      const { node } = item
-      if (!productIds.includes(node.productId)) {
-        productIds.push(node.productId)
+  try {
+    const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+    if (listProducts.length > 0) {
+      const productIds: number[] = []
+      listProducts.forEach((item) => {
+        const { node } = item
+        if (!productIds.includes(node.productId)) {
+          productIds.push(node.productId)
+        }
+      })
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+
+      const { productsSearch } = await getProducts({
+        productIds,
+        currencyCode,
+      })
+
+      const newProductsSearch: Partial<Product>[] =
+        conversionProductsList(productsSearch)
+
+      const picklistIds: number[] = []
+
+      // add modifier price,  current  price and tax price, get the associated product id
+      addTaxProductPrices(listProducts, newProductsSearch, picklistIds)
+
+      let newListProducts: ListItemProps[] = listProducts
+
+      // Get a collection of related products
+      if (picklistIds.length) {
+        newListProducts = await getExtraProductPricesProducts(
+          isB2BUser,
+          listProducts,
+          picklistIds
+        )
       }
-    })
-    const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
-    const { productsSearch } = await getProducts({
-      productIds,
-      currencyCode,
-      companyId,
-    })
+      setItemProductPrice(newListProducts)
 
-    const newProductsSearch: Partial<Product>[] =
-      conversionProductsList(productsSearch)
-
-    const picklistIds: number[] = []
-
-    // add modifier price,  current  price and tax price, get the associated product id
-    addTaxProductPrices(listProducts, newProductsSearch, picklistIds)
-
-    let newListProducts: ListItemProps[] = listProducts
-
-    // Get a collection of related products
-    if (picklistIds.length) {
-      newListProducts = await getExtraProductPricesProducts(
-        isB2BUser,
-        listProducts,
-        picklistIds
-      )
+      return newListProducts
     }
-
-    setItemProductPrice(newListProducts)
-
-    return newListProducts
+  } catch (error) {
+    console.log(error, 'error')
   }
   return undefined
 }
