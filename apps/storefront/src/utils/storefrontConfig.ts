@@ -163,7 +163,7 @@ const getQuoteConfig = async (dispatch: DispatchProps) => {
 
 const setStorefrontConfig = async (
   dispatch: DispatchProps,
-  currentChannelId: string
+  currentChannelId: string | number
 ) => {
   const {
     storefrontConfig: { config: storefrontConfig },

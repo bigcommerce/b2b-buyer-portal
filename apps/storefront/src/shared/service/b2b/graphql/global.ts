@@ -106,7 +106,7 @@ const storefrontConfig = () => `{
   }
 }`
 
-const currencies = (channelId: string) => `{
+const currencies = (channelId: string | number) => `{
   currencies(
     storeHash: "${storeHash}",
     channelId: "${channelId}",
@@ -216,7 +216,7 @@ export const getStorefrontConfig = (): CustomFieldItems =>
     query: storefrontConfig(),
   })
 
-export const getCurrencies = (channelId: string): CustomFieldItems =>
+export const getCurrencies = (channelId: string | number): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: currencies(channelId),
   })
