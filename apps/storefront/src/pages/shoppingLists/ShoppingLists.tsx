@@ -3,7 +3,7 @@ import { Box } from '@mui/material'
 
 import { B3Dialog, B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { useCardListColumn, useMobile } from '@/hooks'
+import { useCardListColumn, useMobile , useTableRef } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   deleteB2BShoppingList,
@@ -43,6 +43,8 @@ function ShoppingLists() {
   const [fiterMoreInfo, setFiterMoreinfo] = useState<Array<any>>([])
 
   const [isMobile] = useMobile()
+
+  const [paginationTableRef] = useTableRef()
 
   const {
     state: {
@@ -97,9 +99,7 @@ function ShoppingLists() {
   const addEditShoppingListsRef = useRef<RefCurrntProps | null>(null)
 
   const initSearchList = () => {
-    setFilterSearch({
-      ...initSearch,
-    })
+    paginationTableRef.current?.refresh()
   }
 
   const handleChange = (key: string, value: string) => {
@@ -189,9 +189,9 @@ function ShoppingLists() {
         : deleteBcShoppingList
       await deleteShoppingList(id)
       snackbar.success('delete shoppingList successfully')
-      initSearchList()
     } finally {
       setIsRequestLoading(false)
+      initSearchList()
     }
   }
 
@@ -214,6 +214,7 @@ function ShoppingLists() {
         />
         <B3PaginationTable
           columnItems={[]}
+          ref={paginationTableRef}
           rowsPerPageOptions={[12, 24, 36]}
           getRequestList={fetchList}
           searchParams={filterSearch}

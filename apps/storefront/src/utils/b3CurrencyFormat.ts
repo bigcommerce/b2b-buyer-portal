@@ -1,8 +1,8 @@
 import getDefaultCurrencyInfo from './currencyUtils'
 
 interface MoneyFormat {
-  currency_location: 'left' | 'right'
-  currency_token: string
+  token_location: 'left' | 'right'
+  token: string
   decimal_token: string
   decimal_places: number
   thousands_token: string
@@ -11,8 +11,8 @@ interface MoneyFormat {
 
 const currencyFormat = (price: string | number, showCurrencyToken = true) => {
   const {
-    currency_location: currencyLocation = 'left',
-    currency_token: currencyToken = '$',
+    token_location: tokenLocation = 'left',
+    token: currencyToken = '$',
     decimal_token: decimalToken = '.',
     decimal_places: decimalPlaces = 2,
     thousands_token: thousandsToken = ',',
@@ -32,7 +32,7 @@ const currencyFormat = (price: string | number, showCurrencyToken = true) => {
       decimalPart ? `${decimalToken}${decimalPart}` : ''
     }`
 
-    return currencyLocation === 'left'
+    return tokenLocation === 'left'
       ? `${showCurrencyToken ? currencyToken : ''}${priceStr}`
       : `${priceStr}${showCurrencyToken ? currencyToken : ''}`
   } catch (e) {

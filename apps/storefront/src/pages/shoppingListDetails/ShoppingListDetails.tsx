@@ -230,9 +230,9 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       }
 
       snackbar.success('Product removed from your shopping list')
-      updateList()
     } finally {
       setIsRequestLoading(false)
+      updateList()
     }
   }
 

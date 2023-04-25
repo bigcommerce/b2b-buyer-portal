@@ -122,6 +122,8 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
   const [loading, setLoading] = useState<boolean>(false)
 
+  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
+
   const [isEdit, setEdit] = useState<boolean>(false)
 
   const [addressList, setAddressList] = useState<B2BAddress[]>([])
@@ -293,8 +295,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     setEdit(true)
   }
 
-  const { currency_code: currencyCode } =
-    getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
@@ -340,6 +341,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   }
 
   const getQuoteTableDetails = async (params: CustomFieldItems) => {
+    setIsRequestLoading(true)
     const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
 
     const startIndex = +params.offset
@@ -370,6 +372,8 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       item.node.basePrice = +item.node.basePrice + additionalCalculatedPrice
       item.node.tax = +item.node.tax + additionalCalculatedPriceTax
     })
+
+    setIsRequestLoading(false)
 
     return {
       edges: list,
@@ -779,23 +783,25 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             alignItems: 'flex-start',
           }}
         >
-          <Container
-            flexDirection="column"
-            xs={{
-              flexBasis: isMobile ? '100%' : '680px',
-              flexGrow: 2,
-              marginRight: '20px',
-              marginBottom: '20px',
-            }}
-          >
-            <QuoteTable
-              ref={quoteTableRef}
-              updateSummary={updateSummary}
-              total={total}
-              getQuoteTableDetails={getQuoteTableDetails}
-              isB2BUser={isB2BUser}
-            />
-          </Container>
+          <B3Sping isSpinning={isRequestLoading}>
+            <Container
+              flexDirection="column"
+              xs={{
+                flexBasis: isMobile ? '100%' : '680px',
+                flexGrow: 2,
+                marginRight: '20px',
+                marginBottom: '20px',
+              }}
+            >
+              <QuoteTable
+                ref={quoteTableRef}
+                updateSummary={updateSummary}
+                total={total}
+                getQuoteTableDetails={getQuoteTableDetails}
+                isB2BUser={isB2BUser}
+              />
+            </Container>
+          </B3Sping>
 
           <Container
             flexDirection="column"
@@ -813,9 +819,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 width: '100%',
               }}
             >
-              <QuoteSummary
-                ref={quoteSummaryRef}
-              />
+              <QuoteSummary ref={quoteSummaryRef} />
               <AddToQuote
                 updateList={updateList}
                 addToQuote={addToQuote}

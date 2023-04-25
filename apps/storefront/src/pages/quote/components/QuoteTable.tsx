@@ -65,6 +65,7 @@ interface PaginationTableRefProps extends HTMLInputElement {
   getList: () => void
   setList: (items?: ListItemProps[]) => void
   getSelectedValue: () => void
+  refresh: () => void
 }
 
 const StyledQuoteTableContainer = styled('div')(() => ({
@@ -161,20 +162,14 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
     B3LStorage.set('b2bQuoteDraftList', quoteDraftAllList)
 
-    setSearch({
-      offset: 0,
-    })
+    paginationTableRef.current?.refresh()
 
     updateSummary()
   }
 
   useImperativeHandle(ref, () => ({
     getList: () => paginationTableRef.current?.getList(),
-    refreshList: () => {
-      setSearch({
-        offset: 0,
-      })
-    },
+    refreshList: () => paginationTableRef.current?.refresh(),
   }))
 
   const handleChooseOptionsDialogCancel = () => {

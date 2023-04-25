@@ -22,6 +22,8 @@ interface QuoteDetailHeaderProps {
   exportPdf: () => void
   printQuote: () => Promise<void>
   role: string | number
+  quoteTitle: string
+  salesRepInfo: { [key: string]: string }
 }
 
 function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
@@ -35,6 +37,8 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
     exportPdf,
     printQuote,
     role,
+    quoteTitle,
+    salesRepInfo,
   } = props
 
   const theme = useTheme()
@@ -119,6 +123,38 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
 
             <QuoteStatus code={status} />
           </Box>
+          {quoteTitle && (
+            <StyledCreateName>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  marginRight: '0.5rem',
+                  fontSize: '16px',
+                }}
+              >
+                Title:
+              </Typography>
+              <span>{quoteTitle}</span>
+            </StyledCreateName>
+          )}
+          {(salesRepInfo?.salesRepName || salesRepInfo?.salesRepEmail) && (
+            <StyledCreateName>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  marginRight: '0.5rem',
+                  fontSize: '16px',
+                }}
+              >
+                Sales rep:
+              </Typography>
+              <span>
+                {salesRepInfo?.salesRepEmail !== ''
+                  ? `${salesRepInfo?.salesRepName}(${salesRepInfo?.salesRepEmail})`
+                  : salesRepInfo?.salesRepName}
+              </span>
+            </StyledCreateName>
+          )}
           <Box>
             <StyledCreateName>
               <Typography

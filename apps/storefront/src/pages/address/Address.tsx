@@ -3,7 +3,7 @@ import { Box } from '@mui/material'
 
 import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { useCardListColumn } from '@/hooks'
+import { useCardListColumn, useTableRef } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   getB2BAddress,
@@ -56,6 +56,7 @@ function Address() {
   } = useContext(GlobaledContext)
 
   const isExtraLarge = useCardListColumn()
+  const [paginationTableRef] = useTableRef()
 
   const addEditAddressRef = useRef<RefCurrntProps | null>(null)
 
@@ -146,9 +147,7 @@ function Address() {
   }
 
   const updateAddressList = () => {
-    setFilterData({
-      ...filterData,
-    })
+    paginationTableRef.current?.refresh()
   }
 
   const [editPermission, setEditPermission] = useState(false)
@@ -256,6 +255,7 @@ function Address() {
           handleFilterCustomButtomClick={handleCreate}
         />
         <B3PaginationTable
+          ref={paginationTableRef}
           columnItems={[]}
           rowsPerPageOptions={[12, 24, 36]}
           getRequestList={getAddressList}

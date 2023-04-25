@@ -3,7 +3,7 @@ import { Box } from '@mui/material'
 
 import { B3Dialog, B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { useCardListColumn, useMobile } from '@/hooks'
+import { useCardListColumn, useMobile, useTableRef } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { deleteUsers, getUsers } from '@/shared/service/b2b'
 import { snackbar } from '@/utils'
@@ -49,6 +49,7 @@ function Usermanagement() {
   const isEnableBtnPermissions = role === 0 || role === 3
 
   const addEditUserRef = useRef<RefCurrntProps | null>(null)
+  const [paginationTableRef] = useTableRef()
 
   const customItem = {
     isEnabled: isEnableBtnPermissions,
@@ -78,9 +79,7 @@ function Usermanagement() {
   }
 
   const initSearchList = () => {
-    setFilterSearch({
-      ...filterSearch,
-    })
+    paginationTableRef.current?.refresh()
   }
 
   const fiterMoreInfo = getFilterMoreList()
@@ -129,9 +128,9 @@ function Usermanagement() {
         companyId,
       })
       snackbar.success('delete user successfully')
-      initSearchList()
     } finally {
       setIsRequestLoading(false)
+      initSearchList()
     }
   }
 
@@ -152,6 +151,7 @@ function Usermanagement() {
           handleFilterCustomButtomClick={handleAddUserClick}
         />
         <B3PaginationTable
+          ref={paginationTableRef}
           columnItems={[]}
           rowsPerPageOptions={[12, 24, 36]}
           getRequestList={fetchList}

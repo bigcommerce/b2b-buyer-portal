@@ -327,6 +327,8 @@ function QuoteDetail() {
           exportPdf={exportPdf}
           printQuote={printQuote}
           role={role}
+          quoteTitle={quoteDetail.quoteTitle}
+          salesRepInfo={quoteDetail.salesRepInfo}
         />
 
         <Box
