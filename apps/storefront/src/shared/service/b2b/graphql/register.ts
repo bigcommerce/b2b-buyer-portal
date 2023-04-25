@@ -146,6 +146,7 @@ const getStoreChannelId = () => `{
     storeCountry
     storeLogo
     storeUrl
+    multiStorefrontEnabled
     storeSites{
       channelId
       urls

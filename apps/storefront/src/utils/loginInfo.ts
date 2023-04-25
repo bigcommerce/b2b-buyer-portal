@@ -4,7 +4,6 @@ import {
   getB2BCompanyUserInfo,
   getB2BToken,
   getBCToken,
-  getCurrencies,
   getUserCompany,
 } from '@/shared/service/b2b'
 import { getBcCurrentJWT, getCustomerInfo } from '@/shared/service/bc'
@@ -86,22 +85,6 @@ export const loginInfo = async () => {
   } = await getBCToken(loginTokenInfo)
 
   B3SStorage.set('BcToken', token)
-}
-
-export const getCurrenciesInfo = async (
-  dispatch: DispatchProps,
-  channelId: string
-) => {
-  const { currencies } = await getCurrencies(channelId)
-
-  dispatch({
-    type: 'common',
-    payload: {
-      currencies,
-    },
-  })
-
-  B3SStorage.set('currencies', currencies)
 }
 
 export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
@@ -236,9 +219,6 @@ export const agentInfo = async (
 
 export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   try {
-    const channelId = B3SStorage.get('B3channelId')
-    await getCurrenciesInfo(dispatch, channelId)
-
     const {
       data: { customer },
     } = await getCustomerInfo()

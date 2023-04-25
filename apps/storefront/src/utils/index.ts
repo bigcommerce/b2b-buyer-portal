@@ -7,7 +7,7 @@ import {
   serialize,
 } from './b3AddToShoppingList'
 import currencyFormat from './b3CurrencyFormat'
-import { displayExtendedFormat,displayFormat } from './b3DateFormat'
+import { displayExtendedFormat, displayFormat } from './b3DateFormat'
 import { getLogo, getQuoteEnabled } from './b3Init'
 import { showPageMask } from './b3PageMask'
 import distanceDay from './b3Picker'
@@ -25,7 +25,6 @@ import {
 } from './graphqlDataConvert'
 import {
   clearCurrentCustomerInfo,
-  getCurrenciesInfo,
   getCurrentCustomerInfo,
   getCurrentJwt,
   getSearchVal,
@@ -60,7 +59,6 @@ export {
   displayFormat,
   distanceDay,
   getCookie,
-  getCurrenciesInfo,
   getCurrentCustomerInfo,
   getCurrentJwt,
   getDefaultCurrencyInfo,

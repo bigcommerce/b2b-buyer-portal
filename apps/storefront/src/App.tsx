@@ -140,7 +140,7 @@ export default function App() {
       // await getTaxZoneRates()
       await Promise.all([
         getStoreTaxZoneRates(),
-        setStorefrontConfig(dispatch),
+        setStorefrontConfig(dispatch, currentChannelId),
         getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
       ])
       const userInfo = {

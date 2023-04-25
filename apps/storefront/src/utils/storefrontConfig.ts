@@ -4,11 +4,13 @@ import { CustomStyleButtonState } from '@/shared/customStyleButtton/context/conf
 import { DispatchProps } from '@/shared/global/context/config'
 import {
   getB2BRegisterLogo,
+  getCurrencies,
   getStorefrontConfig,
   getStorefrontConfigs,
   getTaxZoneRates,
 } from '@/shared/service/b2b'
 import { setTaxZoneRates, store } from '@/store'
+import { B3SStorage } from '@/utils'
 
 // import {
 //   storeHash,
@@ -159,15 +161,22 @@ const getQuoteConfig = async (dispatch: DispatchProps) => {
   })
 }
 
-const setStorefrontConfig = async (dispatch: DispatchProps) => {
+const setStorefrontConfig = async (
+  dispatch: DispatchProps,
+  currentChannelId: string
+) => {
   const {
     storefrontConfig: { config: storefrontConfig },
   } = await getStorefrontConfig()
+
+  const { currencies } = await getCurrencies(currentChannelId)
+  B3SStorage.set('currencies', currencies)
 
   dispatch({
     type: 'common',
     payload: {
       storefrontConfig,
+      currencies,
     },
   })
 }

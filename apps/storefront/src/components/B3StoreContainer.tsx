@@ -4,7 +4,7 @@ import { B3PageMask, showPageMask } from '@/components'
 import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
 import { B3SStorage } from '@/utils'
-import { getCurrenciesInfo, getCurrentStoreInfo } from '@/utils/loginInfo'
+import { getCurrentStoreInfo } from '@/utils/loginInfo'
 
 interface B3StoreContainerProps {
   children: ReactNode
@@ -42,7 +42,6 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
       try {
         const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
 
-        B3SStorage.set('timeFormat', storeBasicInfo.timeFormat)
         const {
           channelId,
           b3ChannelId: b2bChannelId,
@@ -51,11 +50,14 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
           (storeBasicInfo as StoreBasicInfo)?.storeSites || []
         )
 
-        await getCurrenciesInfo(dispatch, String(channelId))
+        const isEnabled = storeBasicInfo?.multiStorefrontEnabled
+          ? storeEnabled
+          : true
+
         dispatch({
           type: 'common',
           payload: {
-            storeEnabled,
+            storeEnabled: isEnabled,
             currentChannelId: channelId,
             b2bChannelId,
             storeName: storeBasicInfo.storeName,
@@ -63,10 +65,11 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
           },
         })
 
-        if (!storeEnabled) {
+        if (!isEnabled) {
           showPageMask(dispatch, false)
         }
 
+        B3SStorage.set('timeFormat', storeBasicInfo.timeFormat)
         B3SStorage.set('B3channelId', channelId)
       } catch (error) {
         showPageMask(dispatch, false)
