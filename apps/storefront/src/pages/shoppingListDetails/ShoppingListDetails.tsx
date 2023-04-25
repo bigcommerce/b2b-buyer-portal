@@ -242,28 +242,11 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
 
       checkedArr.forEach((item: ListItemProps) => {
         const {
-          node: { variantId, productsSearch, quantity, basePrice },
+          node: { quantity, basePrice, baseAllPrice = 0 },
         } = item
 
-        if (productsSearch) {
-          const { variants } = productsSearch
-
-          if (variants) {
-            const currentVariants = variants.find(
-              (variant: CustomFieldItems) => +variant.variant_id === +variantId
-            )
-
-            if (currentVariants) {
-              const { bc_calculated_price: bcCalculatedPrice } = currentVariants
-
-              const price = +bcCalculatedPrice.tax_inclusive || +basePrice
-
-              total += price * +quantity
-            }
-          } else {
-            total += +basePrice * +quantity
-          }
-        }
+        const price = +baseAllPrice || +basePrice
+        total += price * +quantity
       })
 
       setSelectedSubTotal((1000 * total) / 1000)

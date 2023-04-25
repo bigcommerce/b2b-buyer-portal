@@ -358,6 +358,7 @@ const addTaxProductPrices = (
 ) => {
   listProducts.forEach((item) => {
     const { node } = item
+    const optionList = JSON.parse(node?.optionList || '[]')
 
     const productInfo: Partial<Product> =
       newProductsSearch.find((search: Partial<Product>) => {
@@ -374,13 +375,19 @@ const addTaxProductPrices = (
           item.type === 'product_list_with_images'
       )
       if (picklist && picklist?.option_values?.length) {
-        picklist.option_values.forEach((list: Partial<ALlOptionValue>) => {
-          const picklistProductId: number = list?.value_data?.product_id || 0
-          if (picklistProductId) currentPicklistIds.push(picklistProductId)
-          if (!picklistIds.includes(picklistProductId)) {
-            picklistIds.push(picklistProductId)
-          }
-        })
+        const flag = optionList.some(
+          (item: CustomFieldItems) =>
+            item.option_id.includes(picklist.id) && item.option_value
+        )
+        if (flag) {
+          picklist.option_values.forEach((list: Partial<ALlOptionValue>) => {
+            const picklistProductId: number = list?.value_data?.product_id || 0
+            if (picklistProductId) currentPicklistIds.push(picklistProductId)
+            if (!picklistIds.includes(picklistProductId)) {
+              picklistIds.push(picklistProductId)
+            }
+          })
+        }
       }
     }
     // get modifier price
