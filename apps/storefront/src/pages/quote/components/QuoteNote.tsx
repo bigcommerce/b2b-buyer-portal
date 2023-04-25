@@ -66,7 +66,6 @@ export default function QuoteNote(props: QuoteNoteProps) {
                 variant="body1"
                 style={{
                   whiteSpace: 'pre-line',
-                  maxWidth: '338px',
                   maxHeight: '400px',
                   overflow: 'auto',
                 }}

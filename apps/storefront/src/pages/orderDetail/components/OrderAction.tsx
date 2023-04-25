@@ -5,7 +5,12 @@ import { throttle } from 'lodash'
 
 import { CustomButton } from '@/components'
 import { GlobaledContext } from '@/shared/global'
-import { b2bPrintInvoice, displayFormat, snackbar } from '@/utils'
+import {
+  b2bPrintInvoice,
+  currencyFormat,
+  displayFormat,
+  snackbar,
+} from '@/utils'
 
 import { Address, OrderCurrency, OrderProductItem } from '../../../types'
 import {
@@ -174,7 +179,7 @@ function OrderCard(props: OrderCardProps) {
 
         <ItemContainer key={key} nameKey={key}>
           <p>{key}</p>
-          <p>{`${infos.money?.currency_token}${infoValue[index]}`}</p>
+          <p>{`${currencyFormat(infoValue[index])}`}</p>
         </ItemContainer>
       </Fragment>
     ))

@@ -4,7 +4,7 @@ import { B3PageMask, showPageMask } from '@/components'
 import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
 import { B3SStorage } from '@/utils'
-import { getCurrentStoreInfo } from '@/utils/loginInfo'
+import { getCurrenciesInfo, getCurrentStoreInfo } from '@/utils/loginInfo'
 
 interface B3StoreContainerProps {
   children: ReactNode
@@ -51,6 +51,7 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
           (storeBasicInfo as StoreBasicInfo)?.storeSites || []
         )
 
+        await getCurrenciesInfo(dispatch, String(channelId))
         dispatch({
           type: 'common',
           payload: {

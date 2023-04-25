@@ -10,33 +10,31 @@ interface MoneyFormat {
 }
 
 const currencyFormat = (price: string | number, showCurrencyToken = true) => {
-  const currentCurrency = getDefaultCurrencyInfo()
-
-  const moneyFormat: MoneyFormat = {
-    currency_location: currentCurrency?.token_location || 'left',
-    currency_token: currentCurrency?.token || '$',
-    decimal_token: currentCurrency?.decimal_token || '.',
-    decimal_places: currentCurrency?.decimal_places || 2,
-    thousands_token: currentCurrency?.thousands_token || ',',
-    currency_exchange_rate:
-      currentCurrency?.currency_exchange_rate || '1.0000000000',
-  }
+  const {
+    currency_location: currencyLocation = 'left',
+    currency_token: currencyToken = '$',
+    decimal_token: decimalToken = '.',
+    decimal_places: decimalPlaces = 2,
+    thousands_token: thousandsToken = ',',
+    currency_exchange_rate: currencyExchangeRate = '1.0000000000',
+  }: MoneyFormat = getDefaultCurrencyInfo() || {}
 
   try {
-    if (moneyFormat.currency_location === 'left') {
-      const priceStr = `${
-        showCurrencyToken ? moneyFormat.currency_token : ''
-      }${(+price * +moneyFormat.currency_exchange_rate)
-        .toFixed(moneyFormat.decimal_places)
-        .replace(/\B(?=(\d{3})+(?!\d))/g, moneyFormat.thousands_token)}`
-      return priceStr
-    }
-    const priceStr = `${(+price * +moneyFormat.currency_exchange_rate)
-      .toFixed(moneyFormat.decimal_places)
-      .replace(/\B(?=(\d{3})+(?!\d))/g, moneyFormat.thousands_token)}${
-      showCurrencyToken ? moneyFormat.currency_token : ''
+    const priceValue = +price * +currencyExchangeRate
+    const [integerPart, decimalPart = ''] = priceValue
+      .toFixed(decimalPlaces)
+      .split('.')
+    const integerPartWithSeparator = integerPart.replace(
+      /\B(?=(\d{3})+(?!\d\.))/g,
+      thousandsToken
+    )
+    const priceStr = `${integerPartWithSeparator}${
+      decimalPart ? `${decimalToken}${decimalPart}` : ''
     }`
-    return priceStr
+
+    return currencyLocation === 'left'
+      ? `${showCurrencyToken ? currencyToken : ''}${priceStr}`
+      : `${priceStr}${showCurrencyToken ? currencyToken : ''}`
   } catch (e) {
     console.error(e)
     return ''

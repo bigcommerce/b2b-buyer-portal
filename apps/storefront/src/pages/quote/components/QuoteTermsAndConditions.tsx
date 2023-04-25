@@ -22,7 +22,7 @@ export default function QuoteTermsAndConditions(
     <Card
       sx={{
         '.MuiCardContent-root': {
-          height: isOpen ? '637px' : 'auto',
+          maxHeight: isOpen ? '637px' : 'auto',
         },
       }}
     >
@@ -36,7 +36,7 @@ export default function QuoteTermsAndConditions(
               variant="body1"
               sx={{
                 padding: '16px 0',
-                height: '545px',
+                maxHeight: '545px',
                 whiteSpace: 'pre-wrap',
                 overflow: 'auto',
               }}
