@@ -71,6 +71,28 @@ const productsBulkUploadCSV = (data: CustomFieldItems) => `mutation {
       productList: ${convertArrayToGraphql(data.productList || [])}
       ${!data?.channelId ? '' : `channelId: ${data.channelId}`}
       isToCart: ${data.isToCart || false}
+      withModifiers: ${data.withModifiers || false}
+    }
+  ) {
+    result {
+      errorFile,
+      errorProduct,
+      validProduct,
+      stockErrorFile,
+      stockErrorSkus,
+    }
+  }
+}`
+
+const productAnonUploadBulkUploadCSV = (data: CustomFieldItems) => `mutation {
+  productAnonUpload (
+    productListData: {
+      currencyCode: "${data.currencyCode || ''}"
+      productList: ${convertArrayToGraphql(data.productList || [])}
+      ${!data?.channelId ? '' : `channelId: ${data.channelId}`}
+      isToCart: ${data.isToCart || false}
+      withModifiers: ${data.withModifiers || false}
+      storeHash: "${storeHash}"
     }
   ) {
     result {
@@ -134,4 +156,11 @@ export const BcProductsBulkUploadCSV = (
 ): CustomFieldItems =>
   B3Request.graphqlProxyBC({
     query: productsBulkUploadCSV(data),
+  })
+
+export const guestProductsBulkUploadCSV = (
+  data: CustomFieldItems = {}
+): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: productAnonUploadBulkUploadCSV(data),
   })

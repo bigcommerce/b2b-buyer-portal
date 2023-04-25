@@ -9,6 +9,7 @@ import {
 } from '@/shared/service/b2b'
 import { snackbar } from '@/utils'
 
+import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config'
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'
 
 import QuickAdd from './QuickAdd'
@@ -76,14 +77,31 @@ export default function AddToShoppingList(props: AddToListProps) {
   const getValidProducts = (products: CustomFieldItems) => {
     const notPurchaseSku: string[] = []
     const productItems: CustomFieldItems[] = []
+    const notAddAble: string[] = []
 
     products.forEach((item: CustomFieldItems) => {
       const { products: currentProduct, qty } = item
-      const { option, purchasingDisabled, variantSku, variantId, productId } =
-        currentProduct
+      const {
+        option,
+        purchasingDisabled,
+        variantSku,
+        variantId,
+        productId,
+        modifiers,
+      } = currentProduct
 
+      const defaultModifiers = getAllModifierDefaultValue(modifiers)
       if (purchasingDisabled) {
         notPurchaseSku.push(variantSku)
+        return
+      }
+
+      const notPassedModifier = defaultModifiers.filter(
+        (modifier: CustomFieldItems) => !modifier.isVerified
+      )
+      if (notPassedModifier.length > 0) {
+        notAddAble.push(variantSku)
+
         return
       }
 
@@ -91,6 +109,25 @@ export default function AddToShoppingList(props: AddToListProps) {
         optionId: `attribute[${item.option_id}]`,
         optionValue: item.id.toString(),
       }))
+
+      defaultModifiers.forEach((modifier: CustomFieldItems) => {
+        const { type } = modifier
+
+        if (type === 'date') {
+          const { defaultValue } = modifier
+          Object.keys(defaultValue).forEach((key) => {
+            optionsList.push({
+              optionId: `attribute[${modifier.option_id}][${key}]`,
+              optionValue: `${modifier.defaultValue[key]}`,
+            })
+          })
+        } else {
+          optionsList.push({
+            optionId: `attribute[${modifier.option_id}]`,
+            optionValue: `${modifier.defaultValue}`,
+          })
+        }
+      })
 
       productItems.push({
         productId: parseInt(productId, 10) || 0,
@@ -103,6 +140,7 @@ export default function AddToShoppingList(props: AddToListProps) {
     return {
       notPurchaseSku,
       productItems,
+      notAddAble,
     }
   }
 
@@ -111,12 +149,19 @@ export default function AddToShoppingList(props: AddToListProps) {
     try {
       const { validProduct } = productsData
 
-      const { notPurchaseSku, productItems } = getValidProducts(validProduct)
+      const { notPurchaseSku, productItems, notAddAble } =
+        getValidProducts(validProduct)
 
       if (productItems.length > 0) {
         await quickAddToList(productItems)
 
         updateList()
+      }
+
+      if (notAddAble.length > 0) {
+        snackbar.error(`SKU ${notAddAble} cannot be added quickly`, {
+          isClose: true,
+        })
       }
 
       if (notPurchaseSku.length > 0) {
@@ -180,6 +225,7 @@ export default function AddToShoppingList(props: AddToListProps) {
             setIsOpen={setIsOpenBulkLoadCSV}
             handleAddToList={handleCSVAddToList}
             isLoading={isLoading}
+            withModifiers
           />
         </Box>
       </CardContent>

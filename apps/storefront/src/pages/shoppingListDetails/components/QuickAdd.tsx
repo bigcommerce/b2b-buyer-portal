@@ -6,7 +6,10 @@ import { Box, Grid, Typography } from '@mui/material'
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { GlobaledContext } from '@/shared/global'
 import { snackbar } from '@/utils'
-import { getQuickAddRowFields } from '@/utils/b3Product/shared/config'
+import {
+  getAllModifierDefaultValue,
+  getQuickAddRowFields,
+} from '@/utils/b3Product/shared/config'
 
 import {
   getB2BVariantInfoBySkus,
@@ -136,6 +139,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     const notPurchaseSku: string[] = []
     const productItems: CustomFieldItems[] = []
     const passSku: string[] = []
+    const notAddAble: string[] = []
 
     skus.forEach((sku) => {
       const variantInfo: CustomFieldItems | null = (variantInfoList || []).find(
@@ -153,12 +157,23 @@ export default function QuickAdd(props: AddToListContentProps) {
         variantId,
         option: options,
         purchasingDisabled = '1',
+        modifiers,
       } = variantInfo
+      const defaultModifiers = getAllModifierDefaultValue(modifiers)
 
       const quantity = (skuValue[sku] as number) || 0
 
       if (purchasingDisabled === '1') {
         notPurchaseSku.push(sku)
+        return
+      }
+
+      const notPassedModifier = defaultModifiers.filter(
+        (modifier: CustomFieldItems) => !modifier.isVerified
+      )
+      if (notPassedModifier.length > 0) {
+        notAddAble.push(sku)
+
         return
       }
 
@@ -179,6 +194,25 @@ export default function QuickAdd(props: AddToListContentProps) {
         []
       )
 
+      defaultModifiers.forEach((modifier: CustomFieldItems) => {
+        const { type } = modifier
+
+        if (type === 'date') {
+          const { defaultValue } = modifier
+          Object.keys(defaultValue).forEach((key) => {
+            optionList.push({
+              optionId: `attribute[${modifier.option_id}][${key}]`,
+              optionValue: `${modifier.defaultValue[key]}`,
+            })
+          })
+        } else {
+          optionList.push({
+            optionId: `attribute[${modifier.option_id}]`,
+            optionValue: `${modifier.defaultValue}`,
+          })
+        }
+      })
+
       passSku.push(sku)
 
       productItems.push({
@@ -195,6 +229,7 @@ export default function QuickAdd(props: AddToListContentProps) {
       notPurchaseSku,
       productItems,
       passSku,
+      notAddAble,
     }
   }
 
@@ -260,9 +295,13 @@ export default function QuickAdd(props: AddToListContentProps) {
         }
 
         const variantInfoList = await getVariantList(skus)
-
-        const { notFoundSku, notPurchaseSku, productItems, passSku } =
-          getProductItems(variantInfoList, skuValue, skus)
+        const {
+          notFoundSku,
+          notPurchaseSku,
+          productItems,
+          notAddAble,
+          passSku,
+        } = getProductItems(variantInfoList, skuValue, skus)
 
         if (notFoundSku.length > 0) {
           showErrors(value, notFoundSku, 'sku', '')
@@ -277,6 +316,13 @@ export default function QuickAdd(props: AddToListContentProps) {
         if (notPurchaseSku.length > 0) {
           showErrors(value, notPurchaseSku, 'sku', '')
           snackbar.error(`SKU ${notPurchaseSku} no longer for sale`, {
+            isClose: true,
+          })
+        }
+
+        if (notAddAble.length > 0) {
+          showErrors(value, notAddAble, 'sku', '')
+          snackbar.error(`SKU ${notAddAble} cannot be added quickly`, {
             isClose: true,
           })
         }

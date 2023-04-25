@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import { isEmpty } from 'lodash'
 
 import { AllOptionProps, ALlOptionValue, Product } from '@/types/products'
 
@@ -323,10 +324,12 @@ export const getProductOptionsFields = (
         value =
           optionValue === '1' || optionValue.includes(`${checkedId}`)
             ? [checkedId]
-            : []
+            : value
       } else if (fieldType !== 'date') {
         value =
-          (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || ''
+          (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] ||
+          value ||
+          ''
       } else {
         const year =
           (selectOptionsJSON[`attribute[${id}][year]`] || {})[optionValueKey] ||
@@ -369,6 +372,97 @@ export const getProductOptionsFields = (
   })
 
   return list
+}
+
+export const getAllModifierDefaultValue = (modifiers: CustomFieldItems) => {
+  const modifierDefaultValue: CustomFieldItems = []
+
+  modifiers.forEach((modifier: CustomFieldItems) => {
+    const {
+      id: modifierId,
+      type,
+      display_name: displayName,
+      config,
+      required,
+      option_values: optionValues,
+    } = modifier
+
+    const modifierInfo = {
+      option_id: modifierId,
+      type,
+      displayName,
+      required,
+      defaultValue: config?.default_value || '',
+      isVerified: required
+        ? (config?.default_value || '').toString().length > 0
+        : true,
+    }
+
+    if (
+      [
+        'checkbox',
+        'rectangles',
+        'swatch',
+        'radio-buttons',
+        'dropdown',
+      ].includes(type)
+    ) {
+      const defaultInfo =
+        optionValues.find((values: CustomFieldItems) => values.is_default) || {}
+
+      modifierInfo.defaultValue = defaultInfo?.id || ''
+
+      if (required) {
+        modifierInfo.isVerified =
+          modifierInfo.defaultValue.toString().length > 0
+      }
+    }
+
+    if (type.includes('product_list')) {
+      const defaultInfo =
+        optionValues.find((values: CustomFieldItems) => values.is_default) || {}
+
+      modifierInfo.defaultValue = defaultInfo?.id || ''
+
+      if (required) {
+        modifierInfo.isVerified =
+          modifierInfo.defaultValue.toString().length > 0
+      }
+    }
+
+    if (type === 'file') {
+      modifierInfo.defaultValue = ''
+
+      if (required) {
+        modifierInfo.isVerified = false
+      }
+    }
+
+    if (type === 'date') {
+      const { default_value: defaultValue } = config || {}
+
+      if (defaultValue && defaultValue?.length > 0) {
+        const date = new Date(defaultValue)
+        const year = date.getFullYear()
+        const month = date.getMonth() + 1
+        const day = date.getDate()
+
+        modifierInfo.defaultValue = {
+          year,
+          month,
+          day,
+        }
+      }
+
+      if (required) {
+        modifierInfo.isVerified = !isEmpty(modifierInfo.defaultValue)
+      }
+    }
+
+    modifierDefaultValue.push(modifierInfo)
+  })
+
+  return modifierDefaultValue
 }
 
 export const conversionProductsList = (

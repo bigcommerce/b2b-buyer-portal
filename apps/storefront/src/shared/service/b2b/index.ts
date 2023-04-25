@@ -45,6 +45,7 @@ import {
   BcProductsBulkUploadCSV,
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
+  guestProductsBulkUploadCSV,
   searchB2BProducts,
   searchBcProducts,
 } from './graphql/product'
@@ -191,6 +192,7 @@ export {
   getTaxZoneRates,
   getUserCompany,
   getUsers,
+  guestProductsBulkUploadCSV,
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
   searchB2BProducts,

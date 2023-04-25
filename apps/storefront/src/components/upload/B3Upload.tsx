@@ -19,6 +19,7 @@ import { GlobaledContext } from '@/shared/global'
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
+  guestProductsBulkUploadCSV,
 } from '@/shared/service/b2b'
 import { getDefaultCurrencyInfo } from '@/utils'
 
@@ -37,6 +38,7 @@ interface B3UploadProps {
   setProductData?: (product: CustomFieldItems) => void
   isLoading?: boolean
   isToCart?: boolean
+  withModifiers?: boolean
 }
 
 interface BulkUploadCSVProps {
@@ -44,6 +46,7 @@ interface BulkUploadCSVProps {
   productList: CustomFieldItems
   channelId?: number
   isToCart: boolean
+  withModifiers?: boolean
 }
 
 const FileUploadContainer = styled(Box)(() => ({
@@ -69,6 +72,7 @@ export default function B3Upload(props: B3UploadProps) {
     setProductData = () => {},
     isLoading = false,
     isToCart = false,
+    withModifiers = false,
   } = props
 
   const [isMobile] = useMobile()
@@ -76,7 +80,7 @@ export default function B3Upload(props: B3UploadProps) {
   const uploadRef = useRef<HTMLInputElement>(null)
 
   const {
-    state: { isB2BUser, currentChannelId },
+    state: { isB2BUser, currentChannelId, role },
   } = useContext(GlobaledContext)
 
   const theme = useTheme()
@@ -142,14 +146,20 @@ export default function B3Upload(props: B3UploadProps) {
         currencyCode,
         productList: parseData,
         isToCart,
+        withModifiers,
       }
 
       if (!isB2BUser) params.channelId = currentChannelId
-      const BulkUploadCSV = isB2BUser
+      const uploadAction = isB2BUser
         ? B2BProductsBulkUploadCSV
         : BcProductsBulkUploadCSV
 
-      const { productUpload } = await BulkUploadCSV(params)
+      const BulkUploadCSV =
+        role === 100 ? guestProductsBulkUploadCSV : uploadAction
+
+      const resp = await BulkUploadCSV(params)
+      const productUpload =
+        role === 100 ? resp.productAnonUpload : resp.productUpload
 
       if (productUpload) {
         const { result } = productUpload
