@@ -23,18 +23,20 @@ const currencyFormat = (price: string | number, showCurrencyToken = true) => {
   }
 
   try {
-    const newPrice = `${(+price * +moneyFormat.currency_exchange_rate)
+    const [integerPart, decimalPart] = (
+      +price * +moneyFormat.currency_exchange_rate
+    )
       .toFixed(moneyFormat.decimal_places)
-      .replace(/\B(?=(\d{3})+(?!\d))/g, moneyFormat.thousands_token)}`
+      .split('.')
+    const newPrice = `${integerPart.replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      moneyFormat.thousands_token
+    )}${moneyFormat.decimal_token}${decimalPart}`
     const priceStr =
       moneyFormat.currency_location === 'left'
         ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
-    const location = priceStr.lastIndexOf('.')
-    const newPriceStr = `${priceStr.slice(0, location)}${
-      moneyFormat.decimal_token
-    }${priceStr.slice(location + 1)}`
-    return newPriceStr
+    return priceStr
   } catch (e) {
     console.error(e)
     return ''

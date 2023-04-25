@@ -69,44 +69,47 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     checkedArr.forEach((item: ProductsProps) => {
       const { node } = item
 
-      inventoryInfos.forEach((option: CustomFieldItems) => {
-        if (node.variantSku === option.variantSku) {
-          let isPassVerify = true
-          if (
-            option.isStock === '1' &&
-            (node?.quantity ? +node.quantity : 0) > option.stock
-          )
-            isPassVerify = false
+      const inventoryInfo: CustomFieldItems =
+        inventoryInfos.find(
+          (option: CustomFieldItems) => option.variantSku === node.variantSku
+        ) || {}
 
-          if (
-            option.minQuantity !== 0 &&
-            (node?.quantity ? +node.quantity : 0) < option.minQuantity
-          )
-            isPassVerify = false
+      if (inventoryInfo) {
+        let isPassVerify = true
+        if (
+          inventoryInfo.isStock === '1' &&
+          (node?.quantity ? +node.quantity : 0) > inventoryInfo.stock
+        )
+          isPassVerify = false
 
-          if (
-            option.maxQuantity !== 0 &&
-            (node?.quantity ? +node.quantity : 0) > option.maxQuantity
-          )
-            isPassVerify = false
+        if (
+          inventoryInfo.minQuantity !== 0 &&
+          (node?.quantity ? +node.quantity : 0) < inventoryInfo.minQuantity
+        )
+          isPassVerify = false
 
-          if (isPassVerify) {
-            validateSuccessArr.push({
-              node,
-            })
-          } else {
-            validateFailureArr.push({
-              node: {
-                ...node,
-              },
-              stock: option.stock,
-              isStock: option.isStock,
-              maxQuantity: option.maxQuantity,
-              minQuantity: option.minQuantity,
-            })
-          }
+        if (
+          inventoryInfo.maxQuantity !== 0 &&
+          (node?.quantity ? +node.quantity : 0) > inventoryInfo.maxQuantity
+        )
+          isPassVerify = false
+
+        if (isPassVerify) {
+          validateSuccessArr.push({
+            node,
+          })
+        } else {
+          validateFailureArr.push({
+            node: {
+              ...node,
+            },
+            stock: inventoryInfo.stock,
+            isStock: inventoryInfo.isStock,
+            maxQuantity: inventoryInfo.maxQuantity,
+            minQuantity: inventoryInfo.minQuantity,
+          })
         }
-      })
+      }
     })
 
     return {

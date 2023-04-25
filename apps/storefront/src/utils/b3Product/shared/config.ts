@@ -221,8 +221,14 @@ const getFieldOptions = (
   }
 
   if (fieldType === 'dropdown') {
+    const value =
+      (optionValues || []).find(
+        (item: Partial<ALlOptionValue>) => item.is_default
+      )?.id || ''
+
     return {
       options: optionValues,
+      default: value,
       replaceOptions: {
         label: 'label',
         value: 'id',
