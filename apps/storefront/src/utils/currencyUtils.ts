@@ -19,19 +19,42 @@ interface CurrencyProps {
   token_location: 'left' | 'right'
 }
 
-const getDefaultCurrencyInfo = () => {
-  const currencies = B3SStorage.get('currencies')
-  if (currencies) {
-    const { currencies: currencyArr } = currencies
-
-    const defaultCurrency = currencyArr.find(
-      (currency: CurrencyProps) => currency.is_default
-    )
-
-    return defaultCurrency
+interface ActiveCurrencyProps {
+  node: {
+    entityId: number
+    isActive: boolean
   }
-
-  return undefined
 }
 
-export default getDefaultCurrencyInfo
+const getActiveCurrencyInfo = () => {
+  const { currencies } = B3SStorage.get('currencies')
+  const { node: activeCurrencyObj }: ActiveCurrencyProps =
+    B3SStorage.get('activeCurrency')
+  const activeCurrency: CurrencyProps = currencies.find(
+    (currency: CurrencyProps) => +currency.id === activeCurrencyObj.entityId
+  )
+
+  return activeCurrency
+}
+
+const getDefaultCurrencyInfo = () => {
+  const currencies = B3SStorage.get('currencies')
+  const { currencies: currencyArr } = currencies
+
+  const activeCurrency = getActiveCurrencyInfo()
+
+  let defaultCurrency: CurrencyProps
+  if (activeCurrency.enabled) {
+    defaultCurrency = currencyArr.find(
+      (currency: CurrencyProps) => +currency.id === +activeCurrency.id
+    )
+  } else {
+    defaultCurrency = currencyArr.find(
+      (currency: CurrencyProps) => currency.is_default
+    )
+  }
+
+  return defaultCurrency
+}
+
+export { getActiveCurrencyInfo, getDefaultCurrencyInfo }

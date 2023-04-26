@@ -1,4 +1,4 @@
-import getDefaultCurrencyInfo from './currencyUtils'
+import { getActiveCurrencyInfo } from './currencyUtils'
 
 interface MoneyFormat {
   currency_location: 'left' | 'right'
@@ -10,16 +10,19 @@ interface MoneyFormat {
 }
 
 const currencyFormat = (price: string | number, showCurrencyToken = true) => {
-  const currentCurrency = getDefaultCurrencyInfo()
+  const currentCurrency = getActiveCurrencyInfo()
 
   const moneyFormat: MoneyFormat = {
-    currency_location: currentCurrency?.token_location || 'left',
-    currency_token: currentCurrency?.token || '$',
-    decimal_token: currentCurrency?.decimal_token || '.',
-    decimal_places: currentCurrency?.decimal_places || 2,
-    thousands_token: currentCurrency?.thousands_token || ',',
+    currency_location: currentCurrency.token_location || 'left',
+    currency_token: currentCurrency.token || '$',
+    decimal_token: currentCurrency.decimal_token || '.',
+    decimal_places:
+      currentCurrency.decimal_places === 0
+        ? 0
+        : currentCurrency.decimal_places || 2,
+    thousands_token: currentCurrency.thousands_token || ',',
     currency_exchange_rate:
-      currentCurrency?.currency_exchange_rate || '1.0000000000',
+      currentCurrency.currency_exchange_rate || '1.0000000000',
   }
 
   try {
@@ -31,7 +34,7 @@ const currencyFormat = (price: string | number, showCurrencyToken = true) => {
     const newPrice = `${integerPart.replace(
       /\B(?=(\d{3})+(?!\d))/g,
       moneyFormat.thousands_token
-    )}${moneyFormat.decimal_token}${decimalPart}`
+    )}${decimalPart ? `${moneyFormat.decimal_token}${decimalPart}` : ''}`
     const priceStr =
       moneyFormat.currency_location === 'left'
         ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`

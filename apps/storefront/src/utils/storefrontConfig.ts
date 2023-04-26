@@ -9,6 +9,7 @@ import {
   getStorefrontConfigs,
   getTaxZoneRates,
 } from '@/shared/service/b2b'
+import { getActiveBcCurrency } from '@/shared/service/bc'
 import { setTaxZoneRates, store } from '@/store'
 import { B3SStorage } from '@/utils'
 
@@ -34,6 +35,13 @@ import { B3SStorage } from '@/utils'
 interface StoreforntKeysProps {
   key: string
   name: string
+}
+
+interface CurrencyNodeProps {
+  node: {
+    entityId: number
+    isActive: boolean
+  }
 }
 
 const storeforntKeys: StoreforntKeysProps[] = [
@@ -168,10 +176,20 @@ const setStorefrontConfig = async (
   const {
     storefrontConfig: { config: storefrontConfig },
   } = await getStorefrontConfig()
-
   const { currencies } = await getCurrencies(currentChannelId)
-  B3SStorage.set('currencies', currencies)
+  const {
+    data: {
+      site: {
+        currencies: { edges },
+      },
+    },
+  } = await getActiveBcCurrency()
 
+  B3SStorage.set('currencies', currencies)
+  B3SStorage.set(
+    'activeCurrency',
+    edges.find((item: CurrencyNodeProps) => item.node.isActive)
+  )
   dispatch({
     type: 'common',
     payload: {

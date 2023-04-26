@@ -18,7 +18,7 @@ import { B3LStorage, B3SStorage } from './b3Storage'
 import { globalSnackbar, snackbar } from './b3Tip'
 import getCookie from './b3utils'
 import { captchaSetkey, storeHash } from './basicConfig'
-import getDefaultCurrencyInfo from './currencyUtils'
+import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
 import {
   convertArrayToGraphql,
   convertObjectToGraphql,
@@ -58,6 +58,7 @@ export {
   displayExtendedFormat,
   displayFormat,
   distanceDay,
+  getActiveCurrencyInfo,
   getCookie,
   getCurrentCustomerInfo,
   getCurrentJwt,
