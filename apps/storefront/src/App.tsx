@@ -59,8 +59,6 @@ export default function App() {
   // isLoadComplete
   const isLoadComplete = useSelector(globalStateSelector)
 
-  console.log(isLoadComplete, 'isLoadComplete')
-
   const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
     isOpen: false,
     isLoaddingComplete: isLoadComplete,

@@ -41,19 +41,9 @@ const getDefaultCurrencyInfo = () => {
   const currencies = B3SStorage.get('currencies')
   const { currencies: currencyArr } = currencies
 
-  const activeCurrency = getActiveCurrencyInfo()
-
-  let defaultCurrency: CurrencyProps
-  if (activeCurrency.enabled) {
-    defaultCurrency = currencyArr.find(
-      (currency: CurrencyProps) => +currency.id === +activeCurrency.id
-    )
-  } else {
-    defaultCurrency = currencyArr.find(
-      (currency: CurrencyProps) => currency.is_default
-    )
-  }
-
+  const defaultCurrency: CurrencyProps = currencyArr.find(
+    (currency: CurrencyProps) => currency.is_default
+  )
   return defaultCurrency
 }
 
