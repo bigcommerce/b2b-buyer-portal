@@ -155,6 +155,8 @@ const getStoreChannelId = () => `{
       isEnabled
       b2bEnabled
       b3ChannelId
+      type
+      platform
     }
     timeFormat{
       display

@@ -15,6 +15,8 @@ interface ChannelIdProps {
   b2bEnabled: boolean
   channelLogo: string
   b3ChannelId?: number
+  type: string
+  platform: string
 }
 
 type B2BToken = {
@@ -37,27 +39,28 @@ export interface ChannelStoreSites {
 }
 
 export const getCurrentStoreInfo = (storeSites: Array<ChannelIdProps>) => {
-  if (storeSites.length === 1) {
-    return storeSites[0]
-  }
+  const newStoreSites =
+    storeSites.filter(
+      (site: ChannelIdProps) =>
+        site.type === 'storefront' && site.platform === 'bigcommerce'
+    ) || []
 
-  let store: ChannelIdProps = {
+  const store: ChannelIdProps = {
     channelId: 1,
     urls: [],
     b2bEnabled: true,
     channelLogo: '',
     b3ChannelId: 16,
+    type: 'storefront',
+    platform: 'bigcommerce',
   }
 
   const { origin } = window.location
+  const storeItem =
+    newStoreSites.find((item: ChannelIdProps) => item.urls.includes(origin)) ||
+    store
 
-  storeSites.forEach((item: ChannelIdProps) => {
-    if (item.urls.includes(origin)) {
-      store = item
-    }
-  })
-
-  return store
+  return storeItem
 }
 
 export const getloginTokenInfo = (channelId: number) => {

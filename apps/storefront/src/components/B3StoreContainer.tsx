@@ -17,6 +17,8 @@ interface StoreItem {
   channelLogo: string
   isEnabled: boolean
   b3ChannelId: number
+  type: string
+  platform: string
 }
 
 export interface StoreBasicInfo {
