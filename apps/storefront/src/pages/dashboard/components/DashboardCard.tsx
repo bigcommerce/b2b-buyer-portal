@@ -99,7 +99,7 @@ function DashboardCard({
             mb: '10px',
           }}
           variant="text"
-          onClick={() => startActing(row.companyId)}
+          onClick={() => startActing((row as CustomFieldItems).companyId)}
         >
           MASQUERADE
         </Button>

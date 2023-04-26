@@ -4,7 +4,7 @@ declare interface CustomFieldItems {
 }
 
 declare interface CustomFieldStringItems {
-  [key: string]: strting
+  [key: string]: string | number
 }
 
 declare interface Window {

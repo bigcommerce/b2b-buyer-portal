@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { useB3AppOpen } from '@b3/hooks'
 
@@ -30,14 +31,12 @@ import {
   setStorefrontConfig,
 } from '@/utils'
 
+import { globalStateSelector, setGlabolCommonState } from './store'
+
 const FONT_URL =
   'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 
 export default function App() {
-  const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
-    isOpen: false,
-  })
-
   const {
     state: {
       isB2BUser,
@@ -54,6 +53,18 @@ export default function App() {
     },
     dispatch,
   } = useContext(GlobaledContext)
+
+  const storeDispatch = useDispatch()
+
+  // isLoadComplete
+  const isLoadComplete = useSelector(globalStateSelector)
+
+  console.log(isLoadComplete, 'isLoadComplete')
+
+  const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
+    isOpen: false,
+    isLoaddingComplete: isLoadComplete,
+  })
 
   const {
     state: {
@@ -165,6 +176,11 @@ export default function App() {
 
       sessionStorage.removeItem('isReLogin')
       showPageMask(dispatch, false)
+      storeDispatch(
+        setGlabolCommonState({
+          isLoadComplete: false,
+        })
+      )
     }
 
     init()

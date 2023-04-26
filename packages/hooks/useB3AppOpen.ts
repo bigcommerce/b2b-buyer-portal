@@ -6,7 +6,8 @@ import useMutationObservable from './useMutationObservable'
 export interface OpenPageState {
   isOpen: boolean
   openUrl?: string
-  params?: CustomFieldItems
+  isLoaddingComplete?: boolean
+  params?: { [key: string]: string }
 }
 
 export const useB3AppOpen = (initOpenState: OpenPageState) => {
@@ -43,6 +44,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
     //   })
     // }
     // login register  orther
+
     if (document.querySelectorAll(globalB3['dom.registerElement']).length) {
       const registerArr = Array.from(
         document.querySelectorAll(globalB3['dom.registerElement'])
@@ -55,14 +57,21 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           e.preventDefault()
           e.stopPropagation()
 
-          const href = (e.target as HTMLAnchorElement).href || ''
-          const gotoUrl = registerArr.includes(e.target)
-            ? getCurrentLoginUrl(href)
-            : '/orders'
-          setOpenPage({
-            isOpen: true,
-            openUrl: gotoUrl,
-          })
+          if (
+            !(
+              initOpenState?.isLoaddingComplete &&
+              allOtherArr.includes(e.target)
+            )
+          ) {
+            const href = (e.target as HTMLAnchorElement).href || ''
+            const gotoUrl = registerArr.includes(e.target)
+              ? getCurrentLoginUrl(href)
+              : '/orders'
+            setOpenPage({
+              isOpen: true,
+              openUrl: gotoUrl,
+            })
+          }
         }
         return false
       }
@@ -76,7 +85,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
       }
     }
     return () => {}
-  }, [checkoutRegisterNumber])
+  }, [checkoutRegisterNumber, initOpenState?.isLoaddingComplete])
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback)
 

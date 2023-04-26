@@ -23,14 +23,16 @@ export interface TaxZoneRatesProps {
 
 export interface GlabolState {
   taxZoneRates?: TaxZoneRatesProps[]
+  isLoadComplete?: boolean
 }
 
 const initialState: GlabolState = {
   taxZoneRates: [],
+  isLoadComplete: true,
 }
 
 export const glabolSlice = createSlice({
-  name: 'glabol',
+  name: 'global',
   initialState,
   reducers: {
     clearglabol: () => initialState,
@@ -40,9 +42,14 @@ export const glabolSlice = createSlice({
     ) => {
       state.taxZoneRates = payload as Draft<TaxZoneRatesProps[]>
     },
+    setGlabolCommonState: (state, { payload }: PayloadAction<GlabolState>) => ({
+      ...state,
+      ...payload,
+    }),
   },
 })
 
-export const { clearglabol, setTaxZoneRates } = glabolSlice.actions
+export const { clearglabol, setTaxZoneRates, setGlabolCommonState } =
+  glabolSlice.actions
 
 export default glabolSlice.reducer
