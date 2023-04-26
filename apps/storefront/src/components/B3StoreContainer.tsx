@@ -34,12 +34,14 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
 
   useLayoutEffect(() => {
     const getStoreBasicInfo = async () => {
-      if (
-        window.location.pathname.includes('account.php') ||
-        window.location.hash
-      ) {
-        showPageMask(dispatch, true)
-      }
+      // if (
+      //   window.location.pathname.includes('account.php') ||
+      //   window.location.hash
+      // ) {
+      //   showPageMask(dispatch, true)
+      // }
+
+      showPageMask(dispatch, true)
 
       try {
         const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
