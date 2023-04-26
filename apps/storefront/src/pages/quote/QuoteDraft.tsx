@@ -18,8 +18,6 @@ import {
   createQuote,
   getB2BCustomerAddresses,
   getBCCustomerAddresses,
-  searchB2BProducts,
-  searchBcProducts,
 } from '@/shared/service/b2b'
 import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
@@ -31,11 +29,7 @@ import {
   storeHash,
 } from '@/utils'
 
-import {
-  conversionProductsList,
-  getProductOptionsFields,
-  ListItemProps,
-} from '../../utils/b3Product/shared/config'
+import { getProductOptionsFields } from '../../utils/b3Product/shared/config'
 import { convertBCToB2BAddress } from '../address/shared/config'
 
 import AddToQuote from './components/AddToQuote'
@@ -116,13 +110,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
   const navigate = useNavigate()
 
-  // const nextPath = B3SStorage.get('nextPath')
-
   const [isMobile] = useMobile()
 
   const [loading, setLoading] = useState<boolean>(false)
-
-  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
   const [isEdit, setEdit] = useState<boolean>(false)
 
@@ -295,53 +285,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     setEdit(true)
   }
 
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
-
-  const handleGetProductsById = async (listProducts: ListItemProps[]) => {
-    if (listProducts.length > 0) {
-      const productIds: number[] = []
-      listProducts.forEach((item) => {
-        const { node } = item
-        if (!productIds.includes(node.productId)) {
-          productIds.push(node.productId)
-        }
-      })
-
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
-
-      try {
-        const { productsSearch } = await getProducts({
-          productIds,
-          currencyCode,
-          companyId: companyB2BId,
-        })
-
-        const newProductsSearch = conversionProductsList(productsSearch)
-
-        listProducts.forEach((item) => {
-          const { node } = item
-
-          const productInfo = newProductsSearch.find(
-            (search: CustomFieldItems) => {
-              const { id: productId } = search
-
-              return +node.productId === +productId
-            }
-          )
-
-          node.productsSearch = productInfo || {}
-        })
-
-        return listProducts
-      } catch (err: any) {
-        snackbar.error(err)
-      }
-    }
-    return undefined
-  }
-
   const getQuoteTableDetails = async (params: CustomFieldItems) => {
-    setIsRequestLoading(true)
     const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
 
     const startIndex = +params.offset
@@ -355,8 +299,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       }
     }
     const list = quoteDraftAllList.slice(startIndex, endIndex)
-
-    await handleGetProductsById(list)
 
     list.forEach((item: any) => {
       let additionalCalculatedPriceTax = 0
@@ -372,8 +314,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       item.node.basePrice = +item.node.basePrice + additionalCalculatedPrice
       item.node.tax = +item.node.tax + additionalCalculatedPriceTax
     })
-
-    setIsRequestLoading(false)
 
     return {
       edges: list,
@@ -459,6 +399,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       const emailAddress = B3SStorage.get('B3EmailAddress')
 
       const note = info?.note || ''
+      const newNote = note.trim().replace(/[\r\n]/g, '\\n')
 
       const perfectAddress = (address: CustomFieldStringItems) => {
         const newAddress = {
@@ -546,7 +487,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
       const data = {
         // notes: note,
-        message: note,
+        message: newNote,
         legalTerms: '',
         totalAmount: allPrice.toFixed(2),
         grandTotal: allPrice.toFixed(2),
@@ -783,25 +724,23 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             alignItems: 'flex-start',
           }}
         >
-          <B3Sping isSpinning={isRequestLoading}>
-            <Container
-              flexDirection="column"
-              xs={{
-                flexBasis: isMobile ? '100%' : '680px',
-                flexGrow: 2,
-                marginRight: '20px',
-                marginBottom: '20px',
-              }}
-            >
-              <QuoteTable
-                ref={quoteTableRef}
-                updateSummary={updateSummary}
-                total={total}
-                getQuoteTableDetails={getQuoteTableDetails}
-                isB2BUser={isB2BUser}
-              />
-            </Container>
-          </B3Sping>
+          <Container
+            flexDirection="column"
+            xs={{
+              flexBasis: isMobile ? '100%' : '680px',
+              flexGrow: 2,
+              marginRight: '20px',
+              marginBottom: '20px',
+            }}
+          >
+            <QuoteTable
+              ref={quoteTableRef}
+              updateSummary={updateSummary}
+              total={total}
+              getQuoteTableDetails={getQuoteTableDetails}
+              isB2BUser={isB2BUser}
+            />
+          </Container>
 
           <Container
             flexDirection="column"
