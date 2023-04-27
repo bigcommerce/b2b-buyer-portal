@@ -55,6 +55,7 @@ function QuoteDetail() {
     grandTotal: 0,
   })
   const [isRequestLoading, setIsRequestLoading] = useState(false)
+  const [isShowFooter, setIsShowFooter] = useState(false)
   const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
   const location = useLocation()
@@ -101,6 +102,7 @@ function QuoteDetail() {
 
   const getQuoteDetail = async () => {
     setIsRequestLoading(true)
+    setIsShowFooter(false)
 
     try {
       const { search } = location
@@ -160,6 +162,7 @@ function QuoteDetail() {
       throw err
     } finally {
       setIsRequestLoading(false)
+      setIsShowFooter(true)
     }
   }
 
@@ -465,7 +468,7 @@ function QuoteDetail() {
           </Grid>
         </Grid>
 
-        {+role !== 2 && +quoteDetail.status !== 4 && (
+        {+role !== 2 && +quoteDetail.status !== 4 && isShowFooter && (
           <QuoteDetailFooter
             quoteId={quoteDetail.id}
             role={role}
