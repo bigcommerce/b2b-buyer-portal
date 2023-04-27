@@ -45,6 +45,23 @@ export interface CustomStyleButtonState
   globalButtonBackgroundColor: string
 }
 
+export const defaultCreateAccountPanel = `<div class="panel">
+<div class="panel-header">
+    <h2 class="panel-title">New Customer?</h2>
+</div>
+<div class="panel-body">
+    <p class="new-customer-intro">Create an account with us and you'll be able to:</p>
+    <ul class="new-customer-fact-list">
+        <li class="new-customer-fact">Check out faster</li>
+        <li class="new-customer-fact">Save multiple shipping addresses</li>
+        <li class="new-customer-fact">Access your order history</li>
+        <li class="new-customer-fact">Track new orders</li>
+        <li class="new-customer-fact">Save items to your Wish List</li>
+    </ul>
+</div>
+</div>
+`
+
 export const initState = {
   globalButtonBackgroundColor: '#3385D6',
   portalStyle: {
@@ -107,7 +124,7 @@ export const initState = {
   loginPageHtml: {
     bottomHtmlRegionEnabled: false,
     bottomHtmlRegionHtml: '',
-    createAccountPanelHtml: '',
+    createAccountPanelHtml: defaultCreateAccountPanel,
     enabled: true,
     topHtmlRegionEnabled: false,
     topHtmlRegionHtml: '',

@@ -12,6 +12,7 @@ import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { defaultCreateAccountPanel } from '@/shared/customStyleButtton/context/config'
 import { GlobaledContext } from '@/shared/global'
 import { getBCForcePasswordReset } from '@/shared/service/b2b'
 import {
@@ -101,7 +102,7 @@ export default function Login(props: RegisteredProps) {
           btnColor: primaryButtonColor || '',
           isShowWidgetHead: topHtmlRegionEnabled || false,
           widgetHeadText: topHtmlRegionHtml || '',
-          widgetBodyText: createAccountPanelHtml || '',
+          widgetBodyText: createAccountPanelHtml || defaultCreateAccountPanel,
           isShowWidgetFooter: bottomHtmlRegionEnabled || false,
           widgetFooterText: bottomHtmlRegionHtml || '',
           displayStoreLogo: displayStoreLogo || false,
