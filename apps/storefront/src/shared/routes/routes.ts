@@ -258,26 +258,10 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
   },
 ]
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
-  const {
-    isB2BUser,
-    role,
-    isAgenting,
-    storefrontConfig,
-    productQuoteEnabled,
-    cartQuoteEnabled,
-  } = globalState
+  const { isB2BUser, role, isAgenting, storefrontConfig } = globalState
 
   return routes.filter((item: RouteItem) => {
-    const { permissions = [], configKey } = item
-
-    // quotes is enabled
-    if (
-      (configKey === 'quotes' || configKey === 'quoteDraft') &&
-      !productQuoteEnabled &&
-      !cartQuoteEnabled
-    ) {
-      return false
-    }
+    const { permissions = [] } = item
 
     if (role === 3 && !isAgenting) {
       return permissions.includes(4)

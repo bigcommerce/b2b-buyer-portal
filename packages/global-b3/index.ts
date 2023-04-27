@@ -22,6 +22,8 @@ const globalB3 = {
   'dom.setToShoppingListParentEl': '#add-to-cart-wrapper',
   'dom.cartActions.container': '.cart-actions',
   'dom.openB3Checkout': 'checkout-customer-continue',
+  'dom.cartElement':
+    '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"]',
   before_login_goto_page: '/account.php?action=order_status',
   checkout_super_clear_session: 'true',
   setting: {

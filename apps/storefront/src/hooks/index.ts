@@ -1,4 +1,6 @@
 export { default as useCartToQuote } from './dom/useCartToQuote'
+export { default as useDomHooks } from './dom/useDomHooks'
+export { default as useJuniorCart } from './dom/useJuniorCart'
 export { default as useMyQuote } from './dom/useMyQuote'
 export { default as useOpenPDP } from './dom/useOpenPDP'
 export { default as useRegisteredbctob2b } from './dom/useRegisteredbctob2b'

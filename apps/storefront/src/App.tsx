@@ -11,13 +11,7 @@ import {
   showPageMask,
   ThemeFrame,
 } from '@/components'
-import {
-  useCartToQuote,
-  useMyQuote,
-  useOpenPDP,
-  useRegisteredbctob2b,
-  useSetOpen,
-} from '@/hooks'
+import { useDomHooks, useSetOpen } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { gotoAllowedAppPage } from '@/shared/routes'
@@ -48,8 +42,6 @@ export default function App() {
       quoteConfig,
       storefrontConfig,
       productQuoteEnabled,
-      cartQuoteEnabled,
-      B3UserId,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -74,21 +66,7 @@ export default function App() {
   };`
   // const [openApp, setOpenApp] = useState<boolean>(false)
 
-  useOpenPDP({
-    setOpenPage,
-  })
-
-  useMyQuote({
-    setOpenPage,
-    productQuoteEnabled,
-    B3UserId,
-    role,
-    customerId,
-  })
-  useCartToQuote({
-    setOpenPage,
-    cartQuoteEnabled,
-  })
+  useDomHooks({ setOpenPage })
 
   // Button to open storefront
   useSetOpen(isOpen, openUrl, params)
@@ -201,8 +179,6 @@ export default function App() {
       })
     }
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
-
-  useRegisteredbctob2b(setOpenPage)
 
   useEffect(() => {
     if (isOpen) {
