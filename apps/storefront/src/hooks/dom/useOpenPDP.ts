@@ -47,7 +47,7 @@ const useOpenPDP = ({ setOpenPage }: MutationObserverProps) => {
   )
 
   const {
-    color = '',
+    color = '#74685c',
     text = '',
     customCss = '',
     classSelector = '',
