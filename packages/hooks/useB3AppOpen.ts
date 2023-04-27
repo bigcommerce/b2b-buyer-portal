@@ -6,7 +6,6 @@ import useMutationObservable from './useMutationObservable'
 export interface OpenPageState {
   isOpen: boolean
   openUrl?: string
-  isLoaddingComplete?: boolean
   params?: { [key: string]: string }
 }
 
@@ -57,21 +56,14 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           e.preventDefault()
           e.stopPropagation()
 
-          if (
-            !(
-              initOpenState?.isLoaddingComplete &&
-              allOtherArr.includes(e.target)
-            )
-          ) {
-            const href = (e.target as HTMLAnchorElement).href || ''
-            const gotoUrl = registerArr.includes(e.target)
-              ? getCurrentLoginUrl(href)
-              : '/orders'
-            setOpenPage({
-              isOpen: true,
-              openUrl: gotoUrl,
-            })
-          }
+          const href = (e.target as HTMLAnchorElement).href || ''
+          const gotoUrl = registerArr.includes(e.target)
+            ? getCurrentLoginUrl(href)
+            : '/orders'
+          setOpenPage({
+            isOpen: true,
+            openUrl: gotoUrl,
+          })
         }
         return false
       }
@@ -85,7 +77,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
       }
     }
     return () => {}
-  }, [checkoutRegisterNumber, initOpenState?.isLoaddingComplete])
+  }, [checkoutRegisterNumber])
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback)
 

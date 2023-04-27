@@ -99,7 +99,7 @@ const B3Request = {
   },
   graphqlProxyBC: function post<T>(data: T): Promise<any> {
     const config = {
-      Authorization: `Bearer  ${B3SStorage.get('bc_jwt_token') || ''}`,
+      Authorization: `Bearer  ${B3SStorage.get('bcJwtToken') || ''}`,
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config)
   },

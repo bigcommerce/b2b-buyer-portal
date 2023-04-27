@@ -37,7 +37,7 @@ function b3Fetch(
           try {
             await getCurrentJwt()
             const config = {
-              Authorization: `Bearer  ${B3SStorage.get('bc_jwt_token') || ''}`,
+              Authorization: `Bearer  ${B3SStorage.get('bcJwtToken') || ''}`,
             }
             const headers = {
               'content-type': 'application/json',

@@ -96,7 +96,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('B3EmailAddress', '')
   B3SStorage.set('B3Role', '')
   B3SStorage.set('isB2BUser', false)
-  B3SStorage.set('bc_jwt_token', '')
+  B3SStorage.set('bcJwtToken', '')
   B3SStorage.set('B3B2BToken', false)
   B3SStorage.set('B3UserId', '')
 
@@ -131,7 +131,7 @@ export const getCurrentJwt = async () => {
       app_client_id: 'r2x8j3tn54wduq47b4efct5tqxio5z2',
     })
 
-    B3SStorage.set('bc_jwt_token', res)
+    B3SStorage.set('bcJwtToken', res)
     return res
   } catch (error) {
     console.log(error)

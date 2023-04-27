@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { useB3AppOpen } from '@b3/hooks'
 
@@ -31,7 +31,7 @@ import {
   setStorefrontConfig,
 } from '@/utils'
 
-import { globalStateSelector, setGlabolCommonState } from './store'
+import { setGlabolCommonState } from './store'
 
 const FONT_URL =
   'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
@@ -56,12 +56,8 @@ export default function App() {
 
   const storeDispatch = useDispatch()
 
-  // isLoadComplete
-  const isLoadComplete = useSelector(globalStateSelector)
-
   const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
     isOpen: false,
-    isLoaddingComplete: isLoadComplete,
   })
 
   const {
@@ -157,9 +153,11 @@ export default function App() {
         isAgenting,
       }
 
-      const info = await getCurrentCustomerInfo(dispatch)
-      if (info) {
-        userInfo.role = info?.role
+      if (!customerId || isRelogin) {
+        const info = await getCurrentCustomerInfo(dispatch)
+        if (info) {
+          userInfo.role = info?.role
+        }
       }
 
       // background login enter judgment and refresh
