@@ -1,6 +1,6 @@
-import globalB3 from '@b3/global-b3'
+const { VITE_B2B_URL } = import.meta.env
 
-const B2B_BASIC_URL = globalB3?.setting?.b2b_url
+const B2B_BASIC_URL = VITE_B2B_URL
 
 enum RequestType {
   B2BGraphql = 'B2BGraphql',

@@ -9,6 +9,8 @@ import {
 import { getBcCurrentJWT, getCustomerInfo } from '@/shared/service/bc'
 import { B3LStorage, B3SStorage, storeHash } from '@/utils'
 
+const { VITE_B2B_CLIENT_ID } = import.meta.env
+
 interface ChannelIdProps {
   channelId: number
   urls: Array<string>
@@ -128,7 +130,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
 export const getCurrentJwt = async () => {
   try {
     const res = await getBcCurrentJWT({
-      app_client_id: 'r2x8j3tn54wduq47b4efct5tqxio5z2',
+      app_client_id: VITE_B2B_CLIENT_ID,
     })
 
     B3SStorage.set('bcJwtToken', res)

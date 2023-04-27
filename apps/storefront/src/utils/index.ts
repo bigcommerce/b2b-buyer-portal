@@ -17,7 +17,7 @@ import getProxyInfo from './b3Proxy'
 import { B3LStorage, B3SStorage } from './b3Storage'
 import { globalSnackbar, snackbar } from './b3Tip'
 import getCookie from './b3utils'
-import { captchaSetkey, storeHash } from './basicConfig'
+import { storeHash } from './basicConfig'
 import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
 import {
   convertArrayToGraphql,
@@ -50,7 +50,6 @@ export {
   b2bPrintInvoice,
   B3LStorage,
   B3SStorage,
-  captchaSetkey,
   clearCurrentCustomerInfo,
   convertArrayToGraphql,
   convertObjectToGraphql,

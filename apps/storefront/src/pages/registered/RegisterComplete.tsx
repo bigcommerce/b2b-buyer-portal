@@ -19,10 +19,7 @@ import {
   createBCCompanyUser,
   uploadB2BFile,
 } from '@/shared/service/b2b'
-import {
-  storeHash,
-  // captchaSetkey,
-} from '@/utils'
+import { storeHash } from '@/utils'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
