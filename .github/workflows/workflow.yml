@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - run: base64 -d <<<${{ secrets.STAGING_ENV }} > .env.staging
       - run: yarn
       - run: yarn build
       - run: echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
@@ -51,4 +52,3 @@ jobs:
           }
           EOF
         shell: bash
-
