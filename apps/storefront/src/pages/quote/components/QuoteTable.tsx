@@ -1,6 +1,7 @@
 import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
 import { Delete, Edit } from '@mui/icons-material'
 import { Box, styled, TextField, Typography } from '@mui/material'
+import { ceil } from 'lodash'
 
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
@@ -111,6 +112,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     isB2BUser,
     updateSummary,
   } = props
+  const quoteProductQtyMaxLimit = 1000000
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
@@ -149,6 +151,24 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
     paginationTableRef.current?.setList([...newListItems])
     updateSummary()
+  }
+
+  const handleCheckProductQty = (
+    id: number | string,
+    value: number | string
+  ) => {
+    let newQty = ceil(+value)
+    if (newQty === +value && newQty >= 1 && newQty <= quoteProductQtyMaxLimit)
+      return
+
+    if (value < 1) {
+      newQty = 1
+    }
+
+    if (value > quoteProductQtyMaxLimit) {
+      newQty = quoteProductQtyMaxLimit
+    }
+    handleUpdateProductQty(id, newQty)
   }
 
   const handleDeleteClick = (id: number | string) => {
@@ -398,7 +418,10 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             pattern: '[0-9]*',
           }}
           onChange={(e) => {
-            handleUpdateProductQty(row.id, e.target.value)
+            handleUpdateProductQty(row.id, +e.target.value)
+          }}
+          onBlur={(e) => {
+            handleCheckProductQty(row.id, +e.target.value)
           }}
         />
       ),

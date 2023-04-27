@@ -157,11 +157,9 @@ export default function App() {
         isAgenting,
       }
 
-      if (!customerId || isRelogin) {
-        const info = await getCurrentCustomerInfo(dispatch)
-        if (info) {
-          userInfo.role = info?.role
-        }
+      const info = await getCurrentCustomerInfo(dispatch)
+      if (info) {
+        userInfo.role = info?.role
       }
 
       // background login enter judgment and refresh

@@ -146,7 +146,9 @@ function AccountSetting() {
         const { accountB2BFormFields, passwordModified } =
           getAccountSettingFiles(12)
 
-        const contactInformation = accountFormFields.contactInformation.filter(
+        const contactInformation = (
+          accountFormFields?.contactInformation || []
+        ).filter(
           (item: Partial<Fields>) =>
             item.fieldId !== 'field_email_marketing_newsletter'
         )

@@ -10,8 +10,10 @@ const getTaxRate = (taxClassId: number) => {
 
   if (taxZoneRates.length) {
     taxZoneRates.forEach((taxZoneRate: TaxZoneRatesProps) => {
-      if (taxZoneRate.rates[0].priority === 1) {
+      if (taxZoneRate.rates.length > 0 && taxZoneRate.rates[0].priority === 1) {
         taxRates = taxZoneRate?.rates[0]?.classRates || []
+      } else {
+        taxRates = []
       }
     })
   }

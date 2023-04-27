@@ -3,7 +3,6 @@ import { Box } from '@mui/material'
 import { CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
 import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
 
 interface QuoteDetailFooterProps {
   quoteId: string
@@ -40,8 +39,8 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
       } = res
 
       window.location.href = checkoutUrl
-    } catch (err: any) {
-      snackbar.error(err)
+    } catch (err) {
+      console.error(err)
     }
   }
 
