@@ -4,6 +4,7 @@ import { useContext } from 'react'
 // } from '@mui/material/styles'
 import { Box, ImageListItem } from '@mui/material'
 
+import { STORE_DEFAULT_LOGO } from '@/constants'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 
@@ -50,7 +51,7 @@ export default function B3Logo() {
           window.location.href = '/'
         }}
       >
-        <img src={logo} alt="logo" />
+        <img src={logo || STORE_DEFAULT_LOGO} alt="logo" />
       </ImageListItem>
     </Box>
   )
