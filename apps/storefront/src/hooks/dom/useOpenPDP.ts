@@ -21,9 +21,10 @@ import { removeElement } from './utils'
 
 interface MutationObserverProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+  role: number | string
 }
 
-const useOpenPDP = ({ setOpenPage }: MutationObserverProps) => {
+const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   const {
     state: { shoppingListBtn },
   } = useContext(CustomStyleContext)
@@ -56,6 +57,7 @@ const useOpenPDP = ({ setOpenPage }: MutationObserverProps) => {
   } = shoppingListBtn
 
   useEffect(() => {
+    if (role === 100) return
     const addToShoppingListAll = document.querySelectorAll(
       globalB3['dom.setToShoppingListParentEl']
     )

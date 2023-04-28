@@ -29,6 +29,7 @@ const useDomHooks = ({ setOpenPage }: MutationObserverProps) => {
 
   useOpenPDP({
     setOpenPage,
+    role,
   })
 
   useRegisteredbctob2b(setOpenPage)
