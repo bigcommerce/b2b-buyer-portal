@@ -71,7 +71,7 @@ export const initState = {
   masqueradeButton: {
     color: '#FFFFFF',
     text: 'END MASQUERADE',
-    location: '',
+    location: 'bottomLeft',
     customCss: '',
     horizontalPadding: '',
     verticalPadding: '',
@@ -85,10 +85,10 @@ export const initState = {
     enabled: true,
   },
   floatingAction: {
-    color: '#ed6c02',
+    color: '#3385d6',
     text: 'Finish quote',
     buttonText: 'Finish quote',
-    location: '',
+    location: 'bottomRight',
     customCss: '',
     horizontalPadding: '',
     verticalPadding: '',

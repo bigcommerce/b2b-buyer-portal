@@ -11,11 +11,7 @@ import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { B3LStorage } from '@/utils'
 
-import {
-  getContrastColor,
-  getLocation,
-  getStyles,
-} from './utils/b3CustomStyles'
+import { getHoverColor, getLocation, getStyles } from './utils/b3CustomStyles'
 
 interface B3HoverButtonProps {
   isOpen: boolean
@@ -44,7 +40,7 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
 
   const {
     text = '',
-    color = '',
+    color = '#3385d6',
     customCss = '',
     location = 'bottomRight',
     horizontalPadding = '',
@@ -58,9 +54,11 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
   }
 
   const defaultSx: SxProps = {
-    backgroundColor: `${color}`,
-    color: getContrastColor(color),
-    padding: `${verticalPadding}px ${horizontalPadding}px`,
+    backgroundColor: color,
+    padding:
+      verticalPadding && horizontalPadding
+        ? `${verticalPadding}px ${horizontalPadding}px`
+        : '',
     ...getStyles(customCss),
   }
 
@@ -88,8 +86,10 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
           !href.includes('/cart') && (
             <Button
               sx={{
-                backgroundColor: '#ED6C02',
                 height: '42px',
+                ':hover': {
+                  backgroundColor: getHoverColor(color, 0.2),
+                },
                 ...defaultSx,
               }}
               onClick={() => {

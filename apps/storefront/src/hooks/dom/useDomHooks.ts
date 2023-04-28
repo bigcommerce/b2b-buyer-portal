@@ -25,11 +25,11 @@ const useDomHooks = ({ setOpenPage }: MutationObserverProps) => {
     },
   } = useContext(GlobaledContext)
 
+  useJuniorCart({ role })
+
   useOpenPDP({
     setOpenPage,
   })
-
-  useJuniorCart({ role })
 
   useRegisteredbctob2b(setOpenPage)
 
