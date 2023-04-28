@@ -23,12 +23,14 @@ export interface TaxZoneRatesProps {
 
 export interface GlabolState {
   taxZoneRates?: TaxZoneRatesProps[]
-  isLoadComplete?: boolean
+  isClickEnterBtn?: boolean
+  isPageComplete?: boolean
 }
 
 const initialState: GlabolState = {
   taxZoneRates: [],
-  isLoadComplete: true,
+  isClickEnterBtn: false,
+  isPageComplete: false,
 }
 
 export const glabolSlice = createSlice({

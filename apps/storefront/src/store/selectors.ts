@@ -14,5 +14,10 @@ export const themeFrameSelector = createSelector(
 
 export const globalStateSelector = createSelector(
   globalSelector,
-  (state) => state.isLoadComplete
+  (state) => state
 )
+
+// export const globalStateSelector = createSelector(
+//   globalSelector,
+//   (state) => state.isClickEnterBtn
+// )
