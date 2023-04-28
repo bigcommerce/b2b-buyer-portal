@@ -5,8 +5,8 @@ import theme from './slices/theme'
 
 export const middlewareOptions = {
   serializableCheck: {
-    ignoredActions: ['theme/setThemeFrame'],
-    ignoredPaths: ['theme.themeFrame'],
+    ignoredActions: ['theme/setThemeFrame', 'global/setGlabolCommonState'],
+    ignoredPaths: ['theme.themeFrame', 'global.globalMessage'],
   },
 }
 

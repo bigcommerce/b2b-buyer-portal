@@ -8,6 +8,7 @@ import {
   B3HoverButton,
   B3MasquradeGobalTip,
   B3RenderRouter,
+  GlobalDialog,
   showPageMask,
   ThemeFrame,
 } from '@/components'
@@ -257,6 +258,7 @@ export default function App() {
         setOpenPage={setOpenPage}
       />
       <B3GlobalTip />
+      <GlobalDialog />
     </>
   )
 }
