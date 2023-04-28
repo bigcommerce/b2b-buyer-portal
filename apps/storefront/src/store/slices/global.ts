@@ -21,16 +21,33 @@ export interface TaxZoneRatesProps {
   rates: Rates[]
 }
 
+interface GlobalMessageDialog {
+  open: boolean
+  title: string
+  message: string
+  cancelText?: string
+  cancelFn?: () => void
+  saveText?: string
+  saveFn?: () => void
+}
+
 export interface GlabolState {
   taxZoneRates?: TaxZoneRatesProps[]
   isClickEnterBtn?: boolean
   isPageComplete?: boolean
+  globalMessage?: GlobalMessageDialog
 }
 
 const initialState: GlabolState = {
   taxZoneRates: [],
   isClickEnterBtn: false,
   isPageComplete: false,
+  globalMessage: {
+    open: false,
+    title: '',
+    message: '',
+    cancelText: 'Cancel',
+  },
 }
 
 export const glabolSlice = createSlice({

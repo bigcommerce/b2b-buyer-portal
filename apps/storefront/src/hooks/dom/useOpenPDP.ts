@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
 } from 'react'
+import { useDispatch } from 'react-redux'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 import { cloneDeep } from 'lodash'
@@ -13,6 +14,7 @@ import { cloneDeep } from 'lodash'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+import { setGlabolCommonState } from '@/store'
 
 import useRole from '../useRole'
 
@@ -30,18 +32,43 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   } = useContext(CustomStyleContext)
 
   const cache = useRef({})
+
+  const storeDispatch = useDispatch()
   const {
     state: { isB2BUser, shoppingListEnabled },
   } = useContext(GlobaledContext)
 
   const [roleText] = useRole()
 
-  const pdpCallBbck = useCallback(() => {
+  const jumpRegister = useCallback(() => {
     setOpenPage({
       isOpen: true,
-      openUrl: '/pdp',
+      openUrl: '/registered',
     })
   }, [])
+
+  const pdpCallBbck = useCallback(() => {
+    if (role === 100) {
+      storeDispatch(
+        setGlabolCommonState({
+          globalMessage: {
+            open: true,
+            title: 'Registration',
+            message:
+              'Please create an account, or login to create a shopping list.',
+            cancelText: 'Cancel',
+            saveText: 'Register',
+            saveFn: jumpRegister,
+          },
+        })
+      )
+    } else {
+      setOpenPage({
+        isOpen: true,
+        openUrl: '/pdp',
+      })
+    }
+  }, [role])
 
   const [openQuickView] = useDomVariation(
     globalB3['dom.setToShoppingListParentEl']
@@ -57,7 +84,7 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   } = shoppingListBtn
 
   useEffect(() => {
-    if (role === 100) return
+    // if (role === 100) return
     const addToShoppingListAll = document.querySelectorAll(
       globalB3['dom.setToShoppingListParentEl']
     )
