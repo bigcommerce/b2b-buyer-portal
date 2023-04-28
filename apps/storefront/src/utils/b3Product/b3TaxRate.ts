@@ -9,11 +9,20 @@ const getTaxRate = (taxClassId: number) => {
   let taxRates: TaxZoneRates[] = []
 
   if (taxZoneRates.length) {
-    taxZoneRates.forEach((taxZoneRate: TaxZoneRatesProps) => {
-      if (taxZoneRate.rates.length > 0 && taxZoneRate.rates[0].priority === 1) {
-        taxRates = taxZoneRate?.rates[0]?.classRates || []
-      }
-    })
+    const withValueTaxZoneRates =
+      taxZoneRates.filter(
+        (taxZoneRate: TaxZoneRatesProps) => taxZoneRate.rates.length > 0
+      ) || []
+
+    if (withValueTaxZoneRates.length > 0) {
+      const currentTaxZoneRate =
+        withValueTaxZoneRates.find(
+          (taxZoneRate: TaxZoneRatesProps) =>
+            taxZoneRate.rates[0].priority === 1
+        ) || withValueTaxZoneRates[0]
+
+      taxRates = currentTaxZoneRate?.rates[0]?.classRates || []
+    }
   }
 
   const rate =
