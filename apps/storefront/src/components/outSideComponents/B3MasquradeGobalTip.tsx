@@ -132,7 +132,10 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
   const customStyles: SxProps = {
     backgroundColor: `${color || '#FFFFFF'}`,
     color: getContrastColor(color || '#FFFFFF'),
-    padding: `${verticalPadding}px ${horizontalPadding}px`,
+    padding:
+      verticalPadding && horizontalPadding
+        ? `${verticalPadding}px ${horizontalPadding}px`
+        : '',
     ...getStyles(customCss),
   }
 

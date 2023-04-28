@@ -101,3 +101,23 @@ export const b3HexToRgb = (color: string, transparency?: number) => {
     ? `rgb(${r}, ${g}, ${b}, ${transparency})`
     : `rgb(${r}, ${g}, ${b})`
 }
+
+export const getHoverColor = (color: string, factor: number): string => {
+  const hexToRGB = (hex: string): number[] =>
+    hex.match(/\w\w/g)?.map((x) => parseInt(x, 16)) || []
+
+  const [r, g, b] = hexToRGB(color)
+
+  const newR = Math.round(r * (1 - factor))
+  const newG = Math.round(g * (1 - factor))
+  const newB = Math.round(b * (1 - factor))
+
+  const componentToHex = (c: number): string => {
+    const hex = c.toString(16)
+    return hex.length === 1 ? `0${hex}` : hex
+  }
+
+  return `#${componentToHex(newR)}${componentToHex(newG)}${componentToHex(
+    newB
+  )}`
+}
