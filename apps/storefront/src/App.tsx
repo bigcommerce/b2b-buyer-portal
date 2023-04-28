@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { useB3AppOpen } from '@b3/hooks'
 
@@ -25,7 +25,7 @@ import {
   setStorefrontConfig,
 } from '@/utils'
 
-import { setGlabolCommonState } from './store'
+import { globalStateSelector, setGlabolCommonState } from './store'
 
 const FONT_URL =
   'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
@@ -42,14 +42,28 @@ export default function App() {
       quoteConfig,
       storefrontConfig,
       productQuoteEnabled,
+      // showPageMask
     },
     dispatch,
   } = useContext(GlobaledContext)
 
   const storeDispatch = useDispatch()
 
+  const { isClickEnterBtn, isPageComplete } = useSelector(globalStateSelector)
+
+  const handleAccountClick = () => {
+    showPageMask(dispatch, true)
+    storeDispatch(
+      setGlabolCommonState({
+        isClickEnterBtn: true,
+      })
+    )
+  }
+
   const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
     isOpen: false,
+    isPageComplete,
+    handleEnterClick: handleAccountClick,
   })
 
   const {
@@ -150,7 +164,7 @@ export default function App() {
       showPageMask(dispatch, false)
       storeDispatch(
         setGlabolCommonState({
-          isLoadComplete: false,
+          isPageComplete: true,
         })
       )
     }
@@ -185,6 +199,17 @@ export default function App() {
       showPageMask(dispatch, false)
     }
   }, [isOpen])
+
+  useEffect(() => {
+    if (isClickEnterBtn && isPageComplete) {
+      gotoAllowedAppPage(+role, gotoPage, true)
+      storeDispatch(
+        setGlabolCommonState({
+          isClickEnterBtn: false,
+        })
+      )
+    }
+  }, [isPageComplete])
 
   useEffect(() => {
     const handleHashChange = () => {

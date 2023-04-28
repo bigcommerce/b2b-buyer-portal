@@ -289,10 +289,18 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   })
 }
 
-const gotoAllowedAppPage = (role: number, gotoPage: (url: string) => void) => {
-  const { hash } = window.location
+const gotoAllowedAppPage = (
+  role: number,
+  gotoPage: (url: string) => void,
+  isAccountEnter?: boolean
+) => {
+  const { hash, pathname } = window.location
   let url = hash.split('#')[1] || ''
-  if (!url && role !== 100) url = role === 3 ? '/dashboard' : '/orders'
+  if (
+    (!url && role !== 100 && pathname.includes('account.php')) ||
+    isAccountEnter
+  )
+    url = role === 3 ? '/dashboard' : '/orders'
   const flag = routes.some(
     (item: RouteItem) =>
       matchPath(item.path, url) && item.permissions.includes(role)

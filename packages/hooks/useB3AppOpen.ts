@@ -6,6 +6,8 @@ import useMutationObservable from './useMutationObservable'
 export interface OpenPageState {
   isOpen: boolean
   openUrl?: string
+  isPageComplete?: boolean
+  handleEnterClick?: () => void
   params?: { [key: string]: string }
 }
 
@@ -16,6 +18,10 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
   const callback = useCallback(() => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1)
   }, [checkoutRegisterNumber])
+
+  // const {
+  //   dispatch,
+  // } = useContext(GlobaledContext)
 
   const [openPage, setOpenPage] = useState<OpenPageState>({
     isOpen: initOpenState.isOpen,
@@ -55,15 +61,22 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
         if (registerArr.includes(e.target) || allOtherArr.includes(e.target)) {
           e.preventDefault()
           e.stopPropagation()
-
-          const href = (e.target as HTMLAnchorElement).href || ''
-          const gotoUrl = registerArr.includes(e.target)
-            ? getCurrentLoginUrl(href)
-            : '/orders'
-          setOpenPage({
-            isOpen: true,
-            openUrl: gotoUrl,
-          })
+          if (
+            !initOpenState?.isPageComplete &&
+            allOtherArr.includes(e.target) &&
+            initOpenState?.handleEnterClick
+          ) {
+            initOpenState.handleEnterClick()
+          } else {
+            const href = (e.target as HTMLAnchorElement).href || ''
+            const gotoUrl = registerArr.includes(e.target)
+              ? getCurrentLoginUrl(href)
+              : '/orders'
+            setOpenPage({
+              isOpen: true,
+              openUrl: gotoUrl,
+            })
+          }
         }
         return false
       }
@@ -77,7 +90,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
       }
     }
     return () => {}
-  }, [checkoutRegisterNumber])
+  }, [checkoutRegisterNumber, initOpenState?.isPageComplete])
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback)
 

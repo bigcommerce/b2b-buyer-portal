@@ -30,6 +30,7 @@ export default function RegisteredCloseButton(props: CloseButtonProps) {
         openUrl: '',
       })
     }
+    window.history.replaceState(null, '', window.location.pathname || '/')
   }
 
   return (
