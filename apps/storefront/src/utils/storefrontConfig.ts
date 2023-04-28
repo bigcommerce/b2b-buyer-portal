@@ -134,6 +134,52 @@ const getTemPlateConfig = async (
       if (storeforntKey.key === 'quote_logo') {
         logo = item.value
       }
+      if (storeforntKey.key === 'quote_on_product_page') {
+        item.extraFields = {
+          ...item.extraFields,
+          locationSelector:
+            item.extraFields?.locationSelector || '.add-to-cart-buttons',
+          classSelector: item.extraFields?.classSelector || 'button',
+          customCss: item.extraFields?.customCss || 'margin-top: 0.5rem',
+        }
+      }
+
+      if (storeforntKey.key === 'quote_on_cart_page') {
+        item.extraFields = {
+          ...item.extraFields,
+          classSelector: item.extraFields?.classSelector || 'button',
+        }
+      }
+      if (storeforntKey.key === 'masquerade_button') {
+        item.extraFields = {
+          ...item.extraFields,
+          color: item.extraFields?.color || '#ED6C02',
+          location: item.extraFields?.location || ' bottomLeft',
+          horizontalPadding: item.extraFields?.horizontalPadding || '20',
+          verticalPadding: item.extraFields?.verticalPadding || '20',
+        }
+      }
+
+      if (storeforntKey.key === 'quote_floating_action_button') {
+        item.extraFields = {
+          ...item.extraFields,
+          color: item.extraFields?.color || '#E00F36',
+          location: item.extraFields?.location || ' bottomRight',
+          horizontalPadding: item.extraFields?.horizontalPadding || '20',
+          verticalPadding: item.extraFields?.verticalPadding || '20',
+        }
+      }
+
+      if (storeforntKey.key === 'shopping_list_on_product_page') {
+        item.extraFields = {
+          ...item.extraFields,
+          locationSelector:
+            item.extraFields?.locationSelector || '.add-to-cart-buttons',
+          classSelector: item.extraFields?.classSelector || 'button',
+          customCss: item.extraFields?.customCss || 'margin-top: 0.5rem',
+        }
+      }
+
       ;(obj as CustomFieldItems)[(storeforntKey as StoreforntKeysProps).name] =
         {
           ...item.extraFields,

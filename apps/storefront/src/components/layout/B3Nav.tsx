@@ -63,7 +63,9 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
             open: true,
             title: 'Registration',
             message:
-              'Please create an account, or login to create a shopping list.',
+              item.configKey === 'shoppingLists'
+                ? 'Please create an account, or login to create a shopping list.'
+                : 'To receive full access to buyer portal, please register. It will take 2 minutes.',
             cancelText: 'Cancel',
             saveText: 'Register',
             saveFn: jumpRegister,
