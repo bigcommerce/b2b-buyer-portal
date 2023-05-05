@@ -1,10 +1,10 @@
-import { Dispatch, SetStateAction, useContext } from 'react'
+import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import { OpenPageState } from '@b3/hooks'
 
 import { GlobaledContext } from '@/shared/global'
+import { removeCartPermissions } from '@/utils/b3RolePermissions'
 
 import useCartToQuote from './useCartToQuote'
-import useJuniorCart from './useJuniorCart'
 import useMyQuote from './useMyQuote'
 import useOpenPDP from './useOpenPDP'
 import useRegisteredbctob2b from './useRegisteredbctob2b'
@@ -25,7 +25,11 @@ const useDomHooks = ({ setOpenPage }: MutationObserverProps) => {
     },
   } = useContext(GlobaledContext)
 
-  useJuniorCart({ role })
+  useEffect(() => {
+    if (+role === 2) {
+      removeCartPermissions(role)
+    }
+  }, [role])
 
   useOpenPDP({
     setOpenPage,

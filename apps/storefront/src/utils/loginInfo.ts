@@ -222,6 +222,44 @@ export const agentInfo = async (
   }
 }
 
+export const getCompanyUserInfo = async (
+  emailAddress: string,
+  dispatch: DispatchProps,
+  customerId: string | number,
+  isB2BUser = false
+) => {
+  try {
+    if (!emailAddress) return undefined
+
+    const {
+      companyUserInfo: {
+        userType,
+        userInfo: { role = '', id },
+      },
+    } = await getB2BCompanyUserInfo(emailAddress, customerId)
+
+    if (isB2BUser) {
+      B3SStorage.set('B3Role', role)
+
+      dispatch({
+        type: 'common',
+        payload: {
+          role,
+        },
+      })
+    }
+
+    return {
+      userType,
+      role,
+      id,
+    }
+  } catch (error) {
+    console.log(error)
+  }
+  return undefined
+}
+
 export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   try {
     const {
@@ -231,7 +269,7 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     if (!customer) return undefined
 
     const {
-      entityId: customerId,
+      entityId: customerId = '',
       phone: phoneNumber,
       firstName,
       lastName,
@@ -239,16 +277,17 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       customerGroupId,
     } = customer
 
-    const {
-      companyUserInfo: {
-        userType,
-        userInfo: { role = '', id },
-      },
-    } = await getB2BCompanyUserInfo(emailAddress, customerId)
+    const companyUserInfo = await getCompanyUserInfo(
+      emailAddress,
+      dispatch,
+      customerId
+    )
 
-    await getCurrentJwtAndB2BToken(userType)
+    if (companyUserInfo && customerId) {
+      const { userType, role, id } = companyUserInfo
 
-    if (customerId) {
+      await getCurrentJwtAndB2BToken(userType)
+
       const [companyInfo] = await Promise.all([
         getCompanyInfo(id, userType, role),
         agentInfo(customerId, role, id, dispatch),
@@ -294,11 +333,11 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
           emailAddress,
         },
       })
-    }
 
-    return {
-      role,
-      userType,
+      return {
+        role,
+        userType,
+      }
     }
   } catch (error) {
     console.log(error)
