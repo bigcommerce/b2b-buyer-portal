@@ -381,7 +381,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
   return (
     <B3Sping isSpinning={isLoading} spinningHeight="auto">
-      <Box>
+      <Box sx={{ width: '100%' }}>
         <Grid
           container
           sx={{

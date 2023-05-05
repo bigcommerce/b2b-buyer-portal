@@ -585,6 +585,8 @@ export const getQuickAddRowFields = (name: string | number) => [
     fieldType: 'number',
     default: '',
     allowArrow: true,
+    min: 1,
+    max: 1000000,
   },
 ]
 

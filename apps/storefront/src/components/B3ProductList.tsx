@@ -173,9 +173,13 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
     }
   }
 
-  const handleNumberInputBlur = (product: any) => () => {
+  const handleNumberInputBlur = (product: CustomFieldItems) => () => {
     if (!product[quantityKey]) {
       onProductQuantityChange(product.id, 1)
+    }
+
+    if (+product[quantityKey] > 1000000) {
+      onProductQuantityChange(product.id, 1000000)
     }
   }
 

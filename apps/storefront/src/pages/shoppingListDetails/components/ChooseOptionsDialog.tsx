@@ -192,6 +192,10 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     if (!quantity) {
       setQuantity(1)
     }
+
+    if (+quantity > 1000000) {
+      setQuantity(1000000)
+    }
   }
 
   const {
