@@ -18,6 +18,7 @@ import { GlobaledContext } from '@/shared/global'
 import { gotoAllowedAppPage } from '@/shared/routes'
 import { setChannelStoreType } from '@/shared/service/b2b'
 import {
+  getCompanyUserInfo,
   getCurrentCustomerInfo,
   getQuoteEnabled,
   getStoreTaxZoneRates,
@@ -43,6 +44,7 @@ export default function App() {
       quoteConfig,
       storefrontConfig,
       productQuoteEnabled,
+      emailAddress,
       // showPageMask
     },
     dispatch,
@@ -140,6 +142,7 @@ export default function App() {
         getStoreTaxZoneRates(),
         setStorefrontConfig(dispatch, currentChannelId),
         getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
+        getCompanyUserInfo(emailAddress, dispatch, customerId, isB2BUser),
       ])
       const userInfo = {
         role: +role,

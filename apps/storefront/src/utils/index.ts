@@ -25,6 +25,7 @@ import {
 } from './graphqlDataConvert'
 import {
   clearCurrentCustomerInfo,
+  getCompanyUserInfo,
   getCurrentCustomerInfo,
   getCurrentJwt,
   getSearchVal,
@@ -58,6 +59,7 @@ export {
   displayFormat,
   distanceDay,
   getActiveCurrencyInfo,
+  getCompanyUserInfo,
   getCookie,
   getCurrentCustomerInfo,
   getCurrentJwt,
