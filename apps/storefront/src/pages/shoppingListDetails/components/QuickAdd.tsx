@@ -140,6 +140,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     const productItems: CustomFieldItems[] = []
     const passSku: string[] = []
     const notAddAble: string[] = []
+    const numberLimit: string[] = []
 
     skus.forEach((sku) => {
       const variantInfo: CustomFieldItems | null = (variantInfoList || []).find(
@@ -174,6 +175,11 @@ export default function QuickAdd(props: AddToListContentProps) {
       if (notPassedModifier.length > 0) {
         notAddAble.push(sku)
 
+        return
+      }
+
+      if (+quantity < 1 || +quantity > 1000000) {
+        numberLimit.push(sku)
         return
       }
 
@@ -230,6 +236,7 @@ export default function QuickAdd(props: AddToListContentProps) {
       productItems,
       passSku,
       notAddAble,
+      numberLimit,
     }
   }
 
@@ -301,6 +308,7 @@ export default function QuickAdd(props: AddToListContentProps) {
           productItems,
           notAddAble,
           passSku,
+          numberLimit,
         } = getProductItems(variantInfoList, skuValue, skus)
 
         if (notFoundSku.length > 0) {
@@ -327,6 +335,19 @@ export default function QuickAdd(props: AddToListContentProps) {
           })
         }
 
+        if (numberLimit.length > 0) {
+          numberLimit.forEach((sku) => {
+            showErrors(value, [sku], 'qty', '')
+          })
+
+          snackbar.error(
+            `SKU ${numberLimit} add quantity is limited from 1 to 1,000,000`,
+            {
+              isClose: true,
+            }
+          )
+        }
+
         if (productItems.length > 0) {
           await quickAddToList(productItems)
           clearInputValue(value, passSku)
@@ -347,7 +368,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
   return (
     <B3Sping isSpinning={isLoading} spinningHeight="auto">
-      <Box>
+      <Box sx={{ width: '100%' }}>
         <Grid
           container
           sx={{
