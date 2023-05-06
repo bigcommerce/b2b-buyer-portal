@@ -306,7 +306,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
             }}
           >
             <Link href={fileDatas?.errorFile} underline="none">
-              Download errors
+              Bulk Upload Errors
             </Link>
           </Box>
         )}
