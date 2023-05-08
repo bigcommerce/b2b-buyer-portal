@@ -16,8 +16,3 @@ export const globalStateSelector = createSelector(
   globalSelector,
   (state) => state
 )
-
-// export const globalStateSelector = createSelector(
-//   globalSelector,
-//   (state) => state.isClickEnterBtn
-// )

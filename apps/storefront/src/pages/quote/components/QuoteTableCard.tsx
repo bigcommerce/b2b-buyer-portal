@@ -2,7 +2,7 @@ import { Delete, Edit } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { currencyFormat, getProductPriceIncTax } from '@/utils'
+import { currencyFormat } from '@/utils'
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
 
@@ -41,16 +41,10 @@ function QuoteTableCard(props: QuoteTableCardProps) {
     productName,
     variantSku,
     productsSearch,
-    productsSearch: { variants },
-    variantId,
+    taxPrice,
   } = quoteTableItem
 
-  let priceIncTax = +basePrice
-  if (variants?.length) {
-    priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
-  }
-
-  const withTaxPrice = priceIncTax || +basePrice
+  const withTaxPrice = +basePrice + +taxPrice
   const total = withTaxPrice * +quantity
   const price = withTaxPrice
 

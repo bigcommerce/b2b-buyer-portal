@@ -52,7 +52,7 @@ function QuoteDetail() {
     discount: 0,
     tax: 0,
     shipping: 0,
-    grandTotal: 0,
+    totalAmount: 0,
   })
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [isShowFooter, setIsShowFooter] = useState(false)
@@ -126,7 +126,7 @@ function QuoteDetail() {
         discount: quote.discount,
         tax: quote.taxTotal,
         shipping: quote.shippingTotal,
-        grandTotal: quote.totalAmount,
+        totalAmount: quote.totalAmount,
       })
       setProductList(productsWithMoreInfo)
 

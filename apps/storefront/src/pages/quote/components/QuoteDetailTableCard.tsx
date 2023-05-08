@@ -1,7 +1,7 @@
 import { Box, CardContent, styled, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { currencyFormat, getProductPriceIncTax } from '@/utils'
+import { currencyFormat } from '@/utils'
 
 interface QuoteTableCardProps {
   item: any
@@ -27,22 +27,14 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     sku,
     notes,
     offeredPrice,
-    productsSearch: { variants = [] },
-    variantId,
+    // taxPrice,
   } = quoteTableItem
 
-  let priceIncTax = +basePrice
-  if (variants?.length) {
-    priceIncTax = getProductPriceIncTax(variants, +variantId)
-  }
-
   const price = +basePrice
-  const withTaxPrice = priceIncTax || +basePrice
-  const discountPrice = +offeredPrice
-  const isDiscount = price - discountPrice > 0
+  const isDiscount = +basePrice - +offeredPrice > 0
 
-  const total = +withTaxPrice * +quantity
-  const totalWithDiscount = (+withTaxPrice - +isDiscount) * +quantity
+  const total = +price * +quantity
+  const totalWithDiscount = +offeredPrice * +quantity
 
   return (
     <Box
@@ -113,7 +105,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(withTaxPrice)}`}
+                {`${currencyFormat(+offeredPrice)}`}
               </span>
             )}
             <span
@@ -122,7 +114,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(+withTaxPrice - +isDiscount)}`}
+              {`${currencyFormat(price)}`}
             </span>
           </Typography>
 
@@ -143,7 +135,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(total)}`}
+                {`${currencyFormat(totalWithDiscount)}`}
               </span>
             )}
             <span
@@ -152,7 +144,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(totalWithDiscount)}`}
+              {`${currencyFormat(total)}`}
             </span>
           </Typography>
         </Box>

@@ -15,6 +15,9 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
+// import {
+//   OptionListProduct,
+// } from '@/types/products'
 import {
   B3SStorage,
   getDefaultCurrencyInfo,

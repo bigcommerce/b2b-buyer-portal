@@ -214,3 +214,5 @@ export {
   validateAddressExtraFields,
   validateBCCompanyExtraFields,
 }
+
+export { default as getProxyInfo } from './api/proxy'

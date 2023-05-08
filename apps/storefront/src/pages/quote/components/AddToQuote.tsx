@@ -8,8 +8,7 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import {
   addQuoteDraftProduce,
-  getModifiersPrice,
-  getQuickAddProductExtraPrice,
+  calculateProductListPrice,
   snackbar,
 } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
@@ -38,25 +37,10 @@ export default function AddToQuote(props: AddToListProps) {
         name: productName,
         quantity,
         variants = [],
-        allOptions,
-        additionalProducts,
+        basePrice,
+        taxPrice,
+        calculatedValue,
       } = product
-
-      const modifiersPrice = getModifiersPrice(
-        allOptions || [],
-        newSelectOptionList
-      )
-
-      const productExtraPrice = getQuickAddProductExtraPrice(
-        allOptions || [],
-        newSelectOptionList,
-        additionalProducts
-      )
-
-      const additionalCalculatedPrices = [
-        ...modifiersPrice,
-        ...productExtraPrice,
-      ]
 
       const variantInfo =
         variants.length === 1
@@ -65,11 +49,7 @@ export default function AddToQuote(props: AddToListProps) {
               (item: CustomFieldItems) => item.variant_id === variantId
             )
 
-      const {
-        image_url: primaryImage = '',
-        calculated_price: basePrice,
-        sku: variantSku,
-      } = variantInfo
+      const { image_url: primaryImage = '', sku: variantSku } = variantInfo
 
       let selectOptions
       try {
@@ -78,15 +58,23 @@ export default function AddToQuote(props: AddToListProps) {
         selectOptions = '[]'
       }
 
+      const taxExclusive = variantInfo.bc_calculated_price.tax_exclusive
+      const taxInclusive = variantInfo.bc_calculated_price.tax_inclusive
+
+      const basePriceExclusiveTax = basePrice || taxExclusive
+
+      const tax = taxPrice || +taxInclusive - +taxInclusive
+
       return {
         node: {
-          basePrice: basePrice.toFixed(2),
-          additionalCalculatedPrices,
+          basePrice: basePriceExclusiveTax,
+          taxPrice: tax,
           optionList: selectOptions,
           id: uuid(),
           primaryImage,
           productId,
           productName,
+          calculatedValue,
           productsSearch: {
             ...product,
             selectOptions,
@@ -132,6 +120,8 @@ export default function AddToQuote(props: AddToListProps) {
         quantity,
       }
     })
+
+    await calculateProductListPrice(productList)
 
     const newProducts = getNewQuoteProduct(productList)
 
@@ -187,6 +177,8 @@ export default function AddToQuote(props: AddToListProps) {
         conversionProductsList(productsSearch)
 
       let isSuccess = false
+
+      const newProducts: CustomFieldItems[] = []
       validProduct.forEach((product: CustomFieldItems) => {
         const {
           products: { option, variantSku, productId, productName, variantId },
@@ -221,12 +213,20 @@ export default function AddToQuote(props: AddToListProps) {
           },
         }
 
-        addQuoteDraftProduce(quoteListitem, +qty, optionsList || [])
+        newProducts.push(quoteListitem)
 
         isSuccess = true
       })
 
       if (isSuccess) {
+        await calculateProductListPrice(newProducts, '2')
+        newProducts.forEach((item: CustomFieldItems) => {
+          addQuoteDraftProduce(
+            item,
+            +item.node.qty,
+            JSON.parse(item.node.optionList) || []
+          )
+        })
         snackbar.success('Products were added to your quote.', {
           isClose: true,
         })

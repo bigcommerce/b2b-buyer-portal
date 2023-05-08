@@ -1,14 +1,30 @@
-import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
+import { v1 as uuid } from 'uuid'
+
+import {
+  getProxyInfo,
+  searchB2BProducts,
+  searchBcProducts,
+} from '@/shared/service/b2b'
+import { store } from '@/store/reducer'
 import {
   AdjustersPrice,
   AllOptionProps,
   ALlOptionValue,
   BcCalculatedPrice,
+  Calculateditems,
+  CalculatedOptions,
+  // OptionListProduct,
   OptionValue,
   Product,
   Variant,
 } from '@/types/products'
-import { B3LStorage, getDefaultCurrencyInfo } from '@/utils'
+import { ShoppingListProductItemModifiers } from '@/types/shoppingList'
+import {
+  B3LStorage,
+  B3SStorage,
+  getDefaultCurrencyInfo,
+  storeHash,
+} from '@/utils'
 
 import {
   conversionProductsList,
@@ -16,10 +32,6 @@ import {
   ProductInfoProps,
 } from './shared/config'
 import getTaxRate from './b3TaxRate'
-
-// import {
-//   ShoppingListProductItemModifiers,
-// } from '@/types/shoppingList'
 
 interface QuoteListitemProps {
   node: {
@@ -461,11 +473,383 @@ const getNewProductsList = async (
   return undefined
 }
 
+const getCalculatedParams = (
+  optionList: CustomFieldItems[],
+  variantItem: Partial<Variant>,
+  allOptions: Partial<AllOptionProps>[] = []
+): Partial<Calculateditems>[] | [] => {
+  if (variantItem) {
+    const arr: Partial<CalculatedOptions>[] = []
+    const date: Partial<CalculatedOptions>[] = []
+
+    ;(optionList || []).forEach((option: CustomFieldItems) => {
+      const newOption = {
+        optionId: option?.option_id || option.optionId,
+        optionValue: option?.option_value || option.optionValue,
+      }
+      const itemOption = (allOptions || []).find(
+        (select: Partial<AllOptionProps>) =>
+          `${newOption.optionId}`.includes(`${select?.id}`) &&
+          ((select.type !== 'text' && select.option_values?.length) ||
+            (select.type === 'date' && newOption.optionValue))
+      )
+      if (itemOption && newOption.optionValue) {
+        if (itemOption.type === 'date') {
+          if (newOption.optionId.includes('year')) {
+            date[1] = {
+              option_id: itemOption?.id ? +itemOption.id : 0,
+              value_id: +newOption.optionValue,
+            }
+          } else if (newOption.optionId.includes('month')) {
+            date[0] = {
+              option_id: itemOption?.id ? +itemOption.id : 0,
+              value_id: +newOption.optionValue,
+            }
+          } else {
+            date[2] = {
+              option_id: itemOption?.id ? +itemOption.id : 0,
+              value_id: +newOption.optionValue,
+            }
+          }
+        } else {
+          arr.push({
+            option_id: itemOption?.id ? +itemOption.id : 0,
+            value_id: +newOption.optionValue,
+          })
+        }
+      }
+    })
+
+    return [
+      {
+        product_id: variantItem.product_id,
+        variant_id: variantItem.variant_id,
+        options: [...arr, ...date],
+      },
+    ]
+  }
+
+  return []
+}
+
+const getBulkPrice = (
+  bulkPrices: any,
+  price: number,
+  qty: number,
+  basePrice: number,
+  isTax?: boolean
+) => {
+  bulkPrices.forEach(
+    ({
+      minimum,
+      maximum,
+      discount_type: discountType,
+      discount_amount: bulkPrice,
+      tax_discount_amount: taxDiscountAmount,
+    }: any) => {
+      let tax = 0
+
+      const taxExclusive = taxDiscountAmount?.tax_exclusive || 0
+      const taxInclusive = taxDiscountAmount?.tax_inclusive || 0
+
+      if (taxInclusive) {
+        tax = taxInclusive - taxExclusive
+      }
+
+      const newPrice = isTax ? tax : bulkPrice
+      if (qty >= minimum && qty <= (maximum || qty)) {
+        switch (discountType) {
+          case 'fixed':
+            price -= +basePrice - newPrice
+            break
+          case 'percent':
+            basePrice *= newPrice / 100
+            price -= +basePrice
+            break
+          case 'price':
+            price -= newPrice
+            break
+          default:
+            break
+        }
+      }
+    }
+  )
+  return price
+}
+
+interface CalculatedProductPrice {
+  optionList: CustomFieldItems[]
+  productsSearch: Partial<Product>
+  sku: string
+  qty: number
+}
+
+const getCalculatedProductPrice = async (
+  { optionList, productsSearch, sku, qty }: CalculatedProductPrice,
+  calculatedValue?: CustomFieldItems
+) => {
+  const { variants = [] } = productsSearch
+
+  const variantItem = variants.find(
+    (item: Partial<Variant>) => item.sku === sku
+  )
+
+  if (variantItem) {
+    const items = getCalculatedParams(
+      optionList,
+      variantItem,
+      productsSearch?.allOptions || []
+    )
+    const channelId = B3SStorage.get('B3channelId')
+
+    const data = {
+      channel_id: channelId,
+      currency_code: getDefaultCurrencyInfo().currency_code,
+      items,
+      customer_group_id: 0,
+    }
+
+    let calculatedData = []
+
+    if (calculatedValue) {
+      calculatedData = [calculatedValue]
+    } else {
+      const res = await getProxyInfo({
+        storeHash,
+        method: 'post',
+        url: '/v3/pricing/products',
+        data,
+      })
+
+      calculatedData = res.data
+    }
+
+    const taxExclusivePrice = calculatedData[0].calculated_price.tax_exclusive
+    const taInclusivePrice = calculatedData[0].calculated_price.tax_inclusive
+    let asEntered = calculatedData[0].calculated_price.as_entered
+
+    let tax = taInclusivePrice - taxExclusivePrice
+
+    if (calculatedData[0].bulk_pricing.length) {
+      const basePrice = calculatedData[0].price.as_entered
+      asEntered = getBulkPrice(
+        calculatedData[0].bulk_pricing,
+        +asEntered,
+        qty,
+        basePrice
+      )
+
+      const taxBasePrice =
+        calculatedData[0].price.tax_inclusive -
+        calculatedData[0].price.tax_exclusive
+      tax = getBulkPrice(
+        calculatedData[0].bulk_pricing,
+        +tax,
+        qty,
+        taxBasePrice,
+        true
+      )
+    }
+
+    const quoteListitem = {
+      node: {
+        id: uuid(),
+        variantSku: variantItem.sku,
+        variantId: variantItem.variant_id,
+        productsSearch,
+        primaryImage: variantItem.image_url,
+        productName: productsSearch.name,
+        quantity: +qty,
+        optionList: JSON.stringify(optionList),
+        productId: variantItem.product_id,
+        basePrice: asEntered.toFixed(2),
+        taxPrice: tax.toFixed(2),
+        calculatedValue: calculatedData[0],
+      },
+    }
+
+    return quoteListitem
+  }
+
+  return ''
+}
+
+const calculateProductListPrice = async (
+  products: Partial<Product>[],
+  type = '1'
+) => {
+  try {
+    let isError = false
+    let i = 0
+    let itemsOptions: Partial<Calculateditems>[] | [] = []
+
+    while (i < products.length && !isError) {
+      let newSelectOptionList = []
+      let allOptions: Partial<AllOptionProps>[] = []
+      let variants: Partial<Variant>[] = []
+      let variantId = 0
+      let modifiers: Partial<ShoppingListProductItemModifiers>[] = []
+      let optionsV3: Partial<ShoppingListProductItemModifiers>[] = []
+
+      if (type === '1') {
+        newSelectOptionList = products[i].newSelectOptionList
+        allOptions = products[i]?.allOptions || []
+        variants = products[i]?.variants || []
+        variantId = products[i].variantId
+        modifiers = products[i]?.modifiers || []
+        optionsV3 = products[i]?.optionsV3 || []
+      } else if (type === '2') {
+        newSelectOptionList = JSON.parse(products[i]?.node?.optionList) || []
+        allOptions = products[i]?.node?.productsSearch?.allOptions || []
+        variants = products[i]?.node?.productsSearch?.variants || []
+        variantId = products[i].node.variantId
+        modifiers = products[i]?.node?.productsSearch?.modifiers || []
+        optionsV3 = products[i]?.node?.productsSearch?.optionsV3 || []
+      }
+
+      let allOptionsArr: Partial<AllOptionProps>[] = allOptions
+
+      if (!allOptionsArr.length) {
+        allOptionsArr = [...modifiers, ...optionsV3]
+      }
+
+      i += 1
+
+      const variantItem = variants.find(
+        (item: Partial<Variant>) => item.variant_id === variantId
+      )
+
+      if (variantItem) {
+        const items =
+          getCalculatedParams(
+            newSelectOptionList,
+            variantItem,
+            allOptionsArr || []
+          ) || []
+        itemsOptions = [...itemsOptions, ...items]
+      } else {
+        isError = true
+      }
+    }
+
+    if (isError) {
+      return products
+    }
+
+    const channelId = B3SStorage.get('B3channelId')
+
+    const data = {
+      channel_id: channelId,
+      currency_code: getDefaultCurrencyInfo().currency_code,
+      items: itemsOptions,
+      customer_group_id: 0,
+    }
+
+    const res = await getProxyInfo({
+      storeHash,
+      method: 'post',
+      url: '/v3/pricing/products',
+      data,
+    })
+
+    const { data: calculatedData } = res
+
+    products.forEach((product: Partial<Product>, index: number) => {
+      const taxExclusivePrice =
+        calculatedData[index].calculated_price.tax_exclusive
+      const taInclusivePrice =
+        calculatedData[index].calculated_price.tax_inclusive
+      let asEntered = calculatedData[index].calculated_price.as_entered
+
+      let tax = taInclusivePrice - taxExclusivePrice
+
+      const qty = product?.quantity ? +product.quantity : 0
+
+      if (calculatedData[0].bulk_pricing.length) {
+        const basePrice = calculatedData[index].price.as_entered
+        asEntered = getBulkPrice(
+          calculatedData[index].bulk_pricing,
+          +asEntered,
+          qty,
+          basePrice
+        )
+
+        const taxBasePrice =
+          calculatedData[index].price.tax_inclusive -
+          calculatedData[0].price.tax_exclusive
+        tax = getBulkPrice(
+          calculatedData[index].bulk_pricing,
+          +tax,
+          qty,
+          taxBasePrice,
+          true
+        )
+      }
+      if (type === '1') {
+        product.basePrice = asEntered.toFixed(2)
+        product.taxPrice = tax.toFixed(2)
+        product.tax = tax.toFixed(2)
+        product.calculatedValue = calculatedData[index]
+      } else if (type === '2') {
+        product.node.basePrice = asEntered.toFixed(2)
+        product.node.taxPrice = tax.toFixed(2)
+        product.node.tax = tax.toFixed(2)
+        product.node.calculatedValue = calculatedData[index]
+      }
+    })
+    return products
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+
+const setModifierQtyPrice = async (product: CustomFieldItems, qty: number) => {
+  const { productsSearch, optionList, variantSku, calculatedValue } = product
+
+  const newProduct = await getCalculatedProductPrice(
+    {
+      productsSearch,
+      optionList: JSON.parse(optionList),
+      sku: variantSku,
+      qty,
+    },
+    calculatedValue
+  )
+
+  if (newProduct) {
+    newProduct.node.id = product.id
+
+    return newProduct.node
+  }
+
+  return product
+}
+
+const calculateIsInclude = (price: number | string, tax: number | string) => {
+  const {
+    global: { enteredInclusive },
+  } = store.getState()
+
+  console.log(enteredInclusive, price, tax, '123123')
+
+  if (enteredInclusive) return price
+
+  console.log(+price + +tax)
+
+  return (+price + +tax).toFixed(2)
+}
+
 export {
-  // getProductPrice,
   addQuoteDraftProduce,
+  calculateIsInclude,
+  calculateProductListPrice,
+  getCalculatedParams,
+  getCalculatedProductPrice,
   getModifiersPrice,
   getNewProductsList,
   getProductExtraPrice,
   getQuickAddProductExtraPrice,
+  setModifierQtyPrice,
 }
