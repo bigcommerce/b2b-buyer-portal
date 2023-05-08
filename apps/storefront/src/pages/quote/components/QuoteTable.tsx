@@ -8,10 +8,9 @@ import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import {
   B3LStorage,
+  calculateProductListPrice,
   currencyFormat,
-  getModifiersPrice,
-  getProductPriceIncTax,
-  getQuickAddProductExtraPrice,
+  setModifierQtyPrice,
   snackbar,
 } from '@/utils'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
@@ -125,15 +124,14 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     offset: 0,
   })
 
-  const handleUpdateProductQty = (
-    id: number | string,
-    value: number | string
-  ) => {
+  const handleUpdateProductQty = async (row: any, value: number | string) => {
+    const product = await setModifierQtyPrice(row, +value)
+
     const listItems = paginationTableRef.current?.getList() || []
     const newListItems = listItems?.map((item: ListItemProps) => {
       const { node } = item
-      if (node?.id === id) {
-        node.quantity = +value || ''
+      if (node?.id === (product as CustomFieldItems).id) {
+        ;(item as CustomFieldItems).node = product
       }
 
       return item
@@ -142,10 +140,11 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
 
     const index = quoteDraftAllList.findIndex(
-      (item: CustomFieldItems) => item.node.id === id
+      (item: CustomFieldItems) =>
+        item.node.id === (product as CustomFieldItems).id
     )
 
-    quoteDraftAllList[index].node.quantity = +value
+    quoteDraftAllList[index].node = product
 
     B3LStorage.set('b2bQuoteDraftList', quoteDraftAllList)
 
@@ -153,22 +152,20 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     updateSummary()
   }
 
-  const handleCheckProductQty = (
-    id: number | string,
-    value: number | string
-  ) => {
+  const handleCheckProductQty = async (row: any, value: number | string) => {
     let newQty = ceil(+value)
     if (newQty === +value && newQty >= 1 && newQty <= quoteProductQtyMaxLimit)
       return
 
-    if (value < 1) {
+    if (+value < 1) {
       newQty = 1
     }
 
-    if (value > quoteProductQtyMaxLimit) {
+    if (+value > quoteProductQtyMaxLimit) {
       newQty = quoteProductQtyMaxLimit
     }
-    handleUpdateProductQty(id, newQty)
+
+    handleUpdateProductQty(row, newQty)
   }
 
   const handleDeleteClick = (id: number | string) => {
@@ -207,29 +204,14 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       const {
         variantId,
         newSelectOptionList,
-        id: productId,
+        id,
+        productId,
         name: productName,
         quantity,
         variants = [],
-        allOptions,
-        additionalProducts,
+        basePrice,
+        taxPrice,
       } = product
-
-      const modifiersPrice = getModifiersPrice(
-        allOptions || [],
-        newSelectOptionList
-      )
-
-      const productExtraPrice = getQuickAddProductExtraPrice(
-        allOptions || [],
-        newSelectOptionList,
-        additionalProducts
-      )
-
-      const additionalCalculatedPrices = [
-        ...modifiersPrice,
-        ...productExtraPrice,
-      ]
 
       const variantInfo =
         variants.length === 1
@@ -238,11 +220,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
               (item: CustomFieldItems) => item.variant_id === variantId
             )
 
-      const {
-        image_url: primaryImage = '',
-        calculated_price: basePrice,
-        sku: variantSku,
-      } = variantInfo
+      const { image_url: primaryImage = '', sku: variantSku } = variantInfo
 
       let selectOptions
       try {
@@ -251,11 +229,19 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         selectOptions = '[]'
       }
 
+      const taxExclusive = variantInfo.bc_calculated_price.tax_exclusive
+      const taxInclusive = variantInfo.bc_calculated_price.tax_inclusive
+
+      const basePriceExclusiveTax = basePrice || taxExclusive
+
+      const tax = taxPrice || +taxInclusive - +taxInclusive
+
       return {
         node: {
-          basePrice: basePrice.toFixed(2),
-          additionalCalculatedPrices,
+          basePrice: basePriceExclusiveTax,
+          taxPrice: tax,
           optionList: selectOptions,
+          id,
           primaryImage,
           productId,
           productName,
@@ -272,9 +258,10 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const handleChooseOptionsDialogConfirm = async (
     products: CustomFieldItems[]
   ) => {
-    const productsss = getNewQuoteProduct(products)
+    await calculateProductListPrice(products)
+    const newProducts = getNewQuoteProduct(products)
 
-    productsss.forEach((product: CustomFieldItems) => {
+    newProducts.forEach((product: CustomFieldItems) => {
       const {
         variantSku,
         productsSearch: { variants },
@@ -298,7 +285,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
     b2bQuoteDraftList.forEach((item: CustomFieldItems) => {
       if (item.node.id === optionsProductId) {
-        item.node = productsss[0]?.node || {}
+        item.node = newProducts[0]?.node || {}
       }
     })
 
@@ -375,18 +362,18 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       title: 'Price',
       render: (row: CustomFieldItems) => {
         const {
-          productsSearch: { variants = [] },
-          variantId,
-          variantSku,
+          // productsSearch: { variants = [] },
+          // variantId,
+          // variantSku,
           basePrice,
+          // taxPrice,
         } = row
 
-        let priceIncTax = +basePrice
-        if (variants?.length) {
-          priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
-        }
-
-        const withTaxPrice = priceIncTax || +basePrice
+        // let priceIncTax = +basePrice
+        // if (variants?.length) {
+        //   priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
+        // }
+        const inTaxPrice = +basePrice
 
         return (
           <Typography
@@ -394,7 +381,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
               padding: '12px 0',
             }}
           >
-            {`${currencyFormat(withTaxPrice)}`}
+            {`${currencyFormat(inTaxPrice)}`}
           </Typography>
         )
       },
@@ -418,10 +405,10 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             pattern: '[0-9]*',
           }}
           onChange={(e) => {
-            handleUpdateProductQty(row.id, +e.target.value)
+            handleUpdateProductQty(row, +e.target.value)
           }}
           onBlur={(e) => {
-            handleCheckProductQty(row.id, +e.target.value)
+            handleCheckProductQty(row, +e.target.value)
           }}
         />
       ),
@@ -437,17 +424,10 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         const {
           basePrice,
           quantity,
-          productsSearch: { variants = [] },
-          variantId,
-          variantSku,
+          // taxPrice,
         } = row
-        let priceIncTax = +basePrice
-        if (variants?.length) {
-          priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
-        }
-
-        const withTaxPrice = priceIncTax || +basePrice
-        const total = withTaxPrice * +quantity
+        const inTaxPrice = +basePrice
+        const total = inTaxPrice * +quantity
         const optionList = JSON.parse(row.optionList)
 
         return (

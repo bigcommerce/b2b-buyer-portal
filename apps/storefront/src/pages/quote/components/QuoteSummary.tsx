@@ -37,29 +37,29 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
       (summary: Summary, product: CustomFieldItems) => {
         const {
           basePrice,
-          tax: productTax,
+          taxPrice: productTax,
           quantity,
-          additionalCalculatedPrices = [],
+          // additionalCalculatedPrices = [],
         } = product.node
 
         let { subtotal, grandTotal, tax } = summary
 
         const { shipping } = summary
 
-        let additionalCalculatedPriceTax = 0
+        // let additionalCalculatedPriceTax = 0
 
-        let additionalCalculatedPrice = 0
+        // let additionalCalculatedPrice = 0
 
-        additionalCalculatedPrices.forEach((item: CustomFieldItems) => {
-          additionalCalculatedPriceTax += item.additionalCalculatedPriceTax
-          additionalCalculatedPrice += item.additionalCalculatedPrice
-        })
+        // additionalCalculatedPrices.forEach((item: CustomFieldItems) => {
+        //   additionalCalculatedPriceTax += item.additionalCalculatedPriceTax
+        //   additionalCalculatedPrice += item.additionalCalculatedPrice
+        // })
 
         subtotal += priceCalc(
-          (+basePrice + additionalCalculatedPrice) * quantity
+          (+basePrice + +productTax) * quantity
         )
         tax += priceCalc(
-          (+productTax + additionalCalculatedPriceTax) * quantity
+          (+productTax) * +quantity
         )
 
         grandTotal = subtotal + shipping
@@ -109,7 +109,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
             >
               <Typography>Sub total</Typography>
               <Typography>
-                {priceFormat(quoteSummary.subtotal + +quoteSummary.tax)}
+                {priceFormat(quoteSummary.subtotal)}
               </Typography>
             </Grid>
 
@@ -154,7 +154,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                   fontWeight: 'bold',
                 }}
               >
-                {priceFormat(quoteSummary.grandTotal + +quoteSummary.tax)}
+                {priceFormat(quoteSummary.grandTotal)}
               </Typography>
             </Grid>
           </Box>

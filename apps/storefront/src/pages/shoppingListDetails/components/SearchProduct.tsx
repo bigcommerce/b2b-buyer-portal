@@ -4,6 +4,7 @@ import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
 import { B3Sping, CustomButton } from '@/components'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
+import { calculateProductListPrice } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import { ShoppingListProductItem } from '../../../types'
@@ -127,10 +128,18 @@ export default function SearchProduct({
     setProductListOpen(true)
   }
 
-  const handleChooseOptionsDialogConfirm = (products: CustomFieldItems[]) => {
-    handleAddToListClick(products)
-    setChooseOptionsOpen(false)
-    setProductListOpen(true)
+  const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
+    try {
+      setIsLoading(true)
+      await calculateProductListPrice(products)
+      handleAddToListClick(products)
+      setChooseOptionsOpen(false)
+      setProductListOpen(true)
+      setIsLoading(false)
+    } catch (error) {
+      setIsLoading(false)
+    }
+
   }
 
   return (

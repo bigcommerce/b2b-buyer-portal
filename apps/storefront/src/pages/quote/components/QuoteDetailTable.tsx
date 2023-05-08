@@ -4,7 +4,7 @@ import { Box, styled, Typography } from '@mui/material'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { currencyFormat, getProductPriceIncTax } from '@/utils'
+import { calculateIsInclude, currencyFormat } from '@/utils'
 
 import QuoteDetailTableCard from './QuoteDetailTableCard'
 
@@ -180,18 +180,21 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         const {
           basePrice,
           offeredPrice,
-          productsSearch: { variants },
-          variantId,
+          taxPrice,
+          // productsSearch: { variants },
+          // variantId,
         } = row
-        let priceIncTax = +basePrice
-        if (variants?.length) {
-          priceIncTax = getProductPriceIncTax(variants, +variantId)
-        }
 
-        const price = +basePrice
-        const withTaxPrice = priceIncTax || +basePrice
-        const discountPrice = +offeredPrice
-        const isDiscount = price - discountPrice > 0
+        console.log(taxPrice, 'taxPrice')
+        // let priceIncTax = +basePrice
+        // if (variants?.length) {
+        //   priceIncTax = getProductPriceIncTax(variants, +variantId)
+        // }
+
+        // const price = +basePrice
+        // const withTaxPrice = priceIncTax || +basePrice
+        // const discountPrice = +offeredPrice
+        const isDiscount = +basePrice - +offeredPrice > 0
 
         return (
           <>
@@ -202,7 +205,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(withTaxPrice)}`}
+                {`${currencyFormat(+offeredPrice)}`}
               </Typography>
             )}
 
@@ -212,7 +215,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(+withTaxPrice - +isDiscount)}`}
+              {`${currencyFormat(calculateIsInclude(basePrice, taxPrice))}`}
             </Typography>
           </>
         )
@@ -247,21 +250,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           basePrice,
           quantity,
           offeredPrice,
-          productsSearch: { variants = [] },
-          variantId,
+          // taxPrice,
         } = row
-        let priceIncTax = +basePrice
-        if (variants?.length) {
-          priceIncTax = getProductPriceIncTax(variants, +variantId)
-        }
+        const isDiscount = +basePrice - +offeredPrice > 0
 
-        const price = +basePrice
-        const withTaxPrice = priceIncTax || +basePrice
-        const discountPrice = +offeredPrice
-        const isDiscount = price - discountPrice > 0
-
-        const total = withTaxPrice * +quantity
-        const totalWithDiscount = (withTaxPrice - +isDiscount) * +quantity
+        const total = +basePrice * +quantity
+        const totalWithDiscount = +offeredPrice * +quantity
 
         return (
           <Box>
@@ -272,7 +266,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(total)}`}
+                {`${currencyFormat(totalWithDiscount)}`}
               </Typography>
             )}
             <Typography
@@ -281,7 +275,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(totalWithDiscount)}`}
+              {`${currencyFormat(total)}`}
             </Typography>
           </Box>
         )

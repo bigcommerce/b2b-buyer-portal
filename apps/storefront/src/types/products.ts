@@ -171,3 +171,28 @@ export interface Product {
   quantity: number | string
   [key: string]: any
 }
+
+export interface OptionListProduct {
+  optionId: string
+  optionValue: string
+  option_id: string
+  option_value: string
+}
+
+export interface CalculatedOptions {
+  option_id: number
+  value_id: number
+}
+
+export interface Calculateditems {
+  product_id: number
+  variant_id: number
+  options: Partial<CalculatedOptions>[]
+}
+
+export interface CalculatedProducts {
+  channel_id: number
+  customer_group_id: number
+  items: Partial<Calculateditems>[]
+  currency_code: string
+}

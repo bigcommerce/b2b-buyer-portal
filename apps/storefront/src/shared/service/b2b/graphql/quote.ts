@@ -232,6 +232,7 @@ const getQuoteInfo = (data: { id: number; date: string }) => `{
       discount,
       offeredPrice,
       quantity,
+      taxPrice,
       variantId,
       imageUrl,
       orderQuantityMaximum,

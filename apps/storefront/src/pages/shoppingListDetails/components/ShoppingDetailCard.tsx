@@ -3,7 +3,7 @@ import { Delete, Edit } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { currencyFormat, getProductPriceIncTax } from '@/utils'
+import { currencyFormat } from '@/utils'
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
 
@@ -54,15 +54,15 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     variantSku,
     productsSearch,
     productUrl,
-    productsSearch: { variants = [] },
+    // productsSearch: { variants = [] },
   } = shoppingDetail
 
-  let priceIncTax = +basePrice
-  if (variants?.length) {
-    priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
-  }
+  // let priceIncTax = +basePrice
+  // if (variants?.length) {
+  //   priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
+  // }
 
-  const withTaxPrice = priceIncTax || +basePrice
+  const withTaxPrice = +basePrice
 
   const total = withTaxPrice * +quantity
   const price = withTaxPrice

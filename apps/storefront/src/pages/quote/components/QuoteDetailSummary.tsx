@@ -7,7 +7,7 @@ interface Summary {
   discount: string | number
   tax: string | number
   shipping: string | number
-  grandTotal: string | number
+  totalAmount: string | number
 }
 
 interface QuoteDetailSummaryProps {
@@ -16,11 +16,10 @@ interface QuoteDetailSummaryProps {
 
 export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
   const {
-    quoteSummary: { originalSubtotal, discount, tax, shipping, grandTotal },
+    quoteSummary: { originalSubtotal, discount, tax, shipping, totalAmount },
   } = props
 
-  const priceFormat = (price: number) =>
-    `${currencyFormat(price)}`
+  const priceFormat = (price: number) => `${currencyFormat(price)}`
   const quotedSubtotal = +originalSubtotal - +discount
 
   return (
@@ -42,7 +41,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
               }}
             >
               <Typography>Original subtotal</Typography>
-              <Typography>{priceFormat(+originalSubtotal + +tax)}</Typography>
+              <Typography>{priceFormat(+originalSubtotal)}</Typography>
             </Grid>
             <Grid
               container
@@ -79,7 +78,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   color: '#212121',
                 }}
               >
-                {priceFormat(+quotedSubtotal + +tax)}
+                {priceFormat(+quotedSubtotal)}
               </Typography>
             </Grid>
 
@@ -126,7 +125,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   color: '#212121',
                 }}
               >
-                {priceFormat(+grandTotal + +tax)}
+                {priceFormat(+totalAmount)}
               </Typography>
             </Grid>
           </Box>

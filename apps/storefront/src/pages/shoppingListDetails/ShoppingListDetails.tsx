@@ -18,11 +18,18 @@ import {
   getB2BJuniorPlaceOrder,
   getB2BShoppingListDetails,
   getBcShoppingListDetails,
+  searchB2BProducts,
+  searchBcProducts,
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b'
-import { getNewProductsList, snackbar } from '@/utils'
 import {
+  calculateProductListPrice,
+  getDefaultCurrencyInfo,
+  snackbar,
+} from '@/utils'
+import {
+  conversionProductsList,
   CustomerInfoProps,
   ListItemProps,
   ProductsProps,
@@ -71,7 +78,14 @@ interface ShoppingListDetailsContentProps {
 function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const { id = '' } = useParams()
   const {
-    state: { role, isB2BUser, currentChannelId, isAgenting, openAPPParams },
+    state: {
+      role,
+      companyInfo: { id: companyInfoId },
+      isB2BUser,
+      currentChannelId,
+      isAgenting,
+      openAPPParams,
+    },
   } = useContext(GlobaledContext)
   const navigate = useNavigate()
   const [isMobile] = useMobile()
@@ -113,6 +127,11 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
     navigate('/shoppingLists')
   }
 
+  const {
+    currency_code: currencyCode,
+    // token: currencyToken,
+  } = getDefaultCurrencyInfo()
+
   useEffect(() => {
     dispatch({
       type: 'init',
@@ -121,6 +140,49 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       },
     })
   }, [id])
+
+  const handleGetProductsById = async (listProducts: ListItemProps[]) => {
+    if (listProducts.length > 0) {
+      try {
+        const productIds: number[] = []
+        listProducts.forEach((item) => {
+          const { node } = item
+          if (!productIds.includes(node.productId)) {
+            productIds.push(node.productId)
+          }
+        })
+        const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+
+        const { productsSearch } = await getProducts({
+          productIds,
+          currencyCode,
+          companyId: companyInfoId,
+        })
+
+        const newProductsSearch = conversionProductsList(productsSearch)
+
+        listProducts.forEach((item) => {
+          const { node } = item
+
+          const productInfo = newProductsSearch.find(
+            (search: CustomFieldItems) => {
+              const { id: productId } = search
+
+              return node.productId === productId
+            }
+          )
+
+          node.productsSearch = productInfo || {}
+        })
+
+        return listProducts
+      } catch (err: any) {
+        snackbar.error(err)
+      }
+    }
+
+    return []
+  }
 
   const getShoppingListDetails = async (params: SearchProps) => {
     const getSLDetail = isB2BUser
@@ -139,7 +201,11 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       products: { edges, totalCount },
     } = shoppingListDetailInfo
 
-    const listProducts = await getNewProductsList(edges, isB2BUser)
+    const listProducts = await handleGetProductsById(edges)
+
+    await calculateProductListPrice(listProducts, '2')
+
+    // const listProducts = await getNewProductsList(edges, isB2BUser)
 
     if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo)
     setShoppingListInfo(shoppingListDetailInfo)

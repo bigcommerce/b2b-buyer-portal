@@ -17,6 +17,7 @@ export interface QuoteListitemProps {
     productsSearch: CustomFieldItems
     quantity: number
     tax: number
+    taxPrice: number
     additionalCalculatedPrices: AdditionalCalculatedPricesProps[]
     // additionalCalculatedPrice?: number
     // additionalCalculatedPriceTax?: number

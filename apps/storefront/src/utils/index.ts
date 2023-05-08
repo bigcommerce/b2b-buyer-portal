@@ -36,10 +36,15 @@ import { validatorRules } from './validatorRules'
 
 export {
   addQuoteDraftProduce,
+  calculateIsInclude,
+  calculateProductListPrice,
+  getCalculatedParams,
+  getCalculatedProductPrice,
   getModifiersPrice,
   getNewProductsList,
   getProductExtraPrice,
   getQuickAddProductExtraPrice,
+  setModifierQtyPrice,
 } from './b3Product/b3Product'
 export {
   getQuoteConfig,

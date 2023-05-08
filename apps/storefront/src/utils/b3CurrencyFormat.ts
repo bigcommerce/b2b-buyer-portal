@@ -1,4 +1,6 @@
-import { getActiveCurrencyInfo } from './currencyUtils'
+import globalB3 from '@b3/global-b3'
+
+import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
 
 interface MoneyFormat {
   currency_location: 'left' | 'right'
@@ -10,7 +12,7 @@ interface MoneyFormat {
 }
 
 const currencyFormat = (price: string | number, showCurrencyToken = true) => {
-  const currentCurrency = getActiveCurrencyInfo()
+  const currentCurrency = globalB3?.setting?.is_local_debugging ? getDefaultCurrencyInfo() : getActiveCurrencyInfo()
 
   const moneyFormat: MoneyFormat = {
     currency_location: currentCurrency.token_location || 'left',

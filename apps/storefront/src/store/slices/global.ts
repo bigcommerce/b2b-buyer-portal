@@ -36,6 +36,7 @@ export interface GlabolState {
   isClickEnterBtn?: boolean
   isPageComplete?: boolean
   globalMessage?: GlobalMessageDialog
+  enteredInclusive?: boolean
 }
 
 const initialState: GlabolState = {
@@ -48,6 +49,7 @@ const initialState: GlabolState = {
     message: '',
     cancelText: 'Cancel',
   },
+  enteredInclusive: false,
 }
 
 export const glabolSlice = createSlice({
@@ -65,6 +67,9 @@ export const glabolSlice = createSlice({
       ...state,
       ...payload,
     }),
+    setEnteredInclusive: (state, { payload }: PayloadAction<boolean>) => {
+      state.enteredInclusive = payload as Draft<boolean>
+    },
   },
 })
 

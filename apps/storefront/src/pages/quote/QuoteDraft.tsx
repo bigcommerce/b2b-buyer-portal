@@ -455,22 +455,23 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           (item: CustomFieldItems) => item.sku === node.variantSku
         )
 
-        let prices = 0
-        let tax = 0
-        node.additionalCalculatedPrices?.forEach((item: CustomFieldItems) => {
-          prices += item.additionalCalculatedPrice
-          tax += item.additionalCalculatedPriceTax
-        })
-        allPrice += (+node.basePrice + prices) * node.quantity
+        // let prices = 0
+        // let tax = 0
+        // node.additionalCalculatedPrices?.forEach((item: CustomFieldItems) => {
+        //   prices += item.additionalCalculatedPrice
+        //   tax += item.additionalCalculatedPriceTax
+        // })
+        allPrice += +node.basePrice * node.quantity
 
-        allTaxPrice += (+node.tax + tax) * node.quantity
+        allTaxPrice += +node.taxPrice * node.quantity
 
         const items = {
           productId: node.productsSearch.id,
           sku: node.variantSku,
-          basePrice: (+node.basePrice + prices).toFixed(2),
+          basePrice: (+node.basePrice).toFixed(2),
+          taxPrice: (+node.taxPrice).toFixed(2),
           discount: '0.00',
-          offeredPrice: (+node.basePrice + prices).toFixed(2),
+          offeredPrice: (+node.basePrice).toFixed(2),
           quantity: node.quantity,
           variantId: varantsItem.variant_id,
           imageUrl: node.primaryImage,
@@ -489,7 +490,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         // notes: note,
         message: newNote,
         legalTerms: '',
-        totalAmount: allPrice.toFixed(2),
+        totalAmount: (allPrice + allTaxPrice).toFixed(2),
         grandTotal: allPrice.toFixed(2),
         subtotal: allPrice.toFixed(2),
         companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',

@@ -406,14 +406,14 @@ function ShoppingDetailTable(
       key: 'Price',
       title: 'Price',
       render: (row: CustomFieldItems) => {
-        const { basePrice, baseAllPrice } = row
+        const { basePrice } = row
         return (
           <Typography
             sx={{
               padding: '12px 0',
             }}
           >
-            {currencyFormat(+baseAllPrice !== 0 ? baseAllPrice : basePrice)}
+            {currencyFormat(+basePrice)}
           </Typography>
         )
       },
@@ -460,7 +460,6 @@ function ShoppingDetailTable(
           basePrice,
           quantity,
           itemId,
-          baseAllPrice,
           productsSearch: { options },
         } = row
 
@@ -473,9 +472,7 @@ function ShoppingDetailTable(
                 padding: '12px 0',
               }}
             >
-              {currencyFormat(
-                +(+baseAllPrice !== 0 ? baseAllPrice : basePrice) * +quantity
-              )}
+              {currencyFormat(+basePrice * +quantity)}
             </Typography>
             <Box
               sx={{

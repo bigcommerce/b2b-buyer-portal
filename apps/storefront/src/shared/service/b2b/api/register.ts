@@ -2,8 +2,9 @@ import { storeHash } from '../../../../utils/basicConfig'
 import B3Request from '../../request/b3Fetch'
 import { RequestType } from '../../request/base'
 
-export const createBCCompanyUser = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.post('/api/v2/proxy', RequestType.B2BRest, data)
+import getProxyInfo from './proxy'
+
+export const createBCCompanyUser = getProxyInfo
 
 export const validateBCCompanyExtraFields = (
   data: CustomFieldItems
