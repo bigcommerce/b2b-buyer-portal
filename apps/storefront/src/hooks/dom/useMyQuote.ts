@@ -12,7 +12,7 @@ import { cloneDeep } from 'lodash'
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { B3LStorage } from '@/utils'
+import { B3LStorage, removeCartPermissions } from '@/utils'
 
 // import { removeCartPermissions } from '@/utils/b3RolePermissions'
 import useDomVariation from './useDomVariation'
@@ -61,7 +61,13 @@ const useMyQuote = ({
     }
   }, [])
 
-  const [openQuickView] = useDomVariation(globalB3['dom.setToQuote'])
+  const cd = () => {
+    if (+role === 2) {
+      removeCartPermissions(role)
+    }
+  }
+
+  const [openQuickView] = useDomVariation(globalB3['dom.setToQuote'], cd)
 
   const {
     color = '',

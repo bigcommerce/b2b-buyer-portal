@@ -12,7 +12,7 @@ import { useB3Lang } from '@b3/lang'
 import { B3CustomForm, B3Dialog } from '@/components'
 import { GlobaledContext } from '@/shared/global'
 import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
+import { B3SStorage, snackbar } from '@/utils'
 
 import {
   emailError,
@@ -151,7 +151,9 @@ function AddEditUser(
   }
 
   const handleOpenAddEditUserClick = (type: string, data: UsersList) => {
-    const usersFiles = getUsersFiles(type)
+    const currentUserId = B3SStorage.get('B3UserId')
+    const disabledUserRole = +data.id === +currentUserId
+    const usersFiles = getUsersFiles(type, disabledUserRole)
     setUsersFiles(usersFiles)
     setEditData(data)
     setType(type)

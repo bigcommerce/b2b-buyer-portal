@@ -61,6 +61,7 @@ const getFilterMoreList = () => {
       fieldType: 'dropdown',
       options: getUserRole(),
       xs: 12,
+      disabled: false,
       variant: 'filled',
       size: 'small',
     },
@@ -69,9 +70,10 @@ const getFilterMoreList = () => {
   return filterMoreList
 }
 
-const getUsersFiles = (type: string) => {
+const getUsersFiles = (type: string, disabledUserRole = false) => {
   const roleArr = [...getFilterMoreList()]
   roleArr[0].required = true
+  roleArr[0].disabled = disabledUserRole
   const usersFiles = [
     ...roleArr,
     {

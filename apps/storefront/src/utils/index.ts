@@ -14,6 +14,7 @@ import distanceDay from './b3Picker'
 import getProductPriceIncTax from './b3Price'
 import b2bPrintInvoice from './b3PrintInvoice'
 import getProxyInfo from './b3Proxy'
+import { removeCartPermissions } from './b3RolePermissions'
 import { B3LStorage, B3SStorage } from './b3Storage'
 import { globalSnackbar, snackbar } from './b3Tip'
 import getCookie from './b3utils'
@@ -76,6 +77,7 @@ export {
   isModifierNumberTextValid,
   isModifierTextValid,
   loginInfo,
+  removeCartPermissions,
   serialize,
   showPageMask,
   snackbar,
