@@ -29,6 +29,7 @@ export default function B3ControlSelect({
     onChange,
     replaceOptions,
     size = 'small',
+    disabled = false,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -71,6 +72,7 @@ export default function B3ControlSelect({
           ? 'rgba(0, 0, 0, 0.38)'
           : 'rgba(0, 0, 0, 0.6)',
       }}
+      disabled={disabled}
     >
       {label && (
         <InputLabel

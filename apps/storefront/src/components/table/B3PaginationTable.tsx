@@ -166,7 +166,7 @@ function PaginationTable(
   }
 
   const refresh = () => {
-    fetchList(initPagination, true)
+    fetchList(pagination, true)
   }
 
   useEffect(() => {
