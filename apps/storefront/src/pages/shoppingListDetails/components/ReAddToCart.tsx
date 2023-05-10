@@ -13,7 +13,7 @@ import {
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
-import { currencyFormat, snackbar } from '@/utils'
+import { currencyFormat, setModifierQtyPrice, snackbar } from '@/utils'
 import {
   addlineItems,
   getProductOptionsFields,
@@ -180,7 +180,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
 
-  const handleUpdateProductQty = (
+  const handleUpdateProductQty = async (
     index: number,
     value: number | string,
     isValid: boolean
@@ -188,7 +188,14 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     const newProduct: ProductsProps[] = [...products]
     newProduct[index].node.quantity = +value
     newProduct[index].isValid = isValid
-    setValidateFailureProducts(newProduct)
+    const caculateProduct = await setModifierQtyPrice(
+      newProduct[index].node,
+      +value
+    )
+    if (caculateProduct) {
+      ;(newProduct[index] as CustomFieldItems).node = caculateProduct
+      setValidateFailureProducts(newProduct)
+    }
   }
 
   const handleCancelClicked = () => {
@@ -257,10 +264,11 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     }
   }
 
-  const handleClearNoStock = () => {
+  const handleClearNoStock = async () => {
     const newProduct = products.filter(
       (item: ProductsProps) => item.isStock === '0' || item.stock !== 0
     )
+    const requestArr: Promise<any>[] = []
     newProduct.forEach((product) => {
       const {
         node: { quantity },
@@ -281,8 +289,17 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       }
 
       product.isValid = true
+
+      const qty = product?.node?.quantity ? +product.node.quantity : 0
+
+      requestArr.push(setModifierQtyPrice(product.node, qty))
     })
 
+    const productArr = await Promise.all(requestArr)
+
+    productArr.forEach((item, index) => {
+      newProduct[index].node = item
+    })
     setValidateFailureProducts(newProduct)
   }
 
@@ -378,17 +395,16 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 const { isStock, maxQuantity, minQuantity, stock } = product
 
                 const {
-                  quantity,
+                  quantity = 1,
                   primaryImage,
                   productName,
                   variantSku,
                   optionList,
                   productsSearch,
-                  baseAllPrice,
                   basePrice,
                 } = product.node
 
-                const price = +baseAllPrice !== 0 ? +baseAllPrice : +basePrice
+                const price = +basePrice
                 const total = (price * (quantity ? +quantity : 0)).toFixed(2)
 
                 const newProduct: any = {
