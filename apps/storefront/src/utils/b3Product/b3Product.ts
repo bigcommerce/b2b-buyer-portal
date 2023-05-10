@@ -683,7 +683,6 @@ const calculateProductListPrice = async (
     let isError = false
     let i = 0
     let itemsOptions: Partial<Calculateditems>[] | [] = []
-
     while (i < products.length && !isError) {
       let newSelectOptionList = []
       let allOptions: Partial<AllOptionProps>[] = []
@@ -717,7 +716,7 @@ const calculateProductListPrice = async (
       i += 1
 
       const variantItem = variants.find(
-        (item: Partial<Variant>) => item.variant_id === variantId
+        (item: Partial<Variant>) => item.variant_id === +variantId
       )
 
       if (variantItem) {
