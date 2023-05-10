@@ -4,6 +4,7 @@ import { Box, ListItemText, MenuItem, MenuList, useTheme } from '@mui/material'
 
 import { B3Dialog, B3Sping, CustomButton } from '@/components'
 import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b'
 
@@ -43,6 +44,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
   } = useContext(GlobaledContext)
 
   const theme = useTheme()
+  const [isMobile] = useMobile()
   const primaryColor = theme.palette.primary.main
 
   const [list, setList] = useState([])
@@ -113,9 +115,16 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
     >
       <B3Sping isSpinning={isLoading} isFlex={false}>
         <Box
-          sx={{
-            height: '430px',
-          }}
+          sx={
+            isMobile
+              ? {
+                  height: '430px',
+                }
+              : {
+                  padding: isLoading ? '4rem 0' : 'unset',
+                  maxHeight: '430PX',
+                }
+          }
         >
           <MenuList
             sx={{
