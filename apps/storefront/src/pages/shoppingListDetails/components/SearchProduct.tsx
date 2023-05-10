@@ -100,6 +100,7 @@ export default function SearchProduct({
   const handleAddToListClick = async (products: CustomFieldItems[]) => {
     try {
       setIsLoading(true)
+      await calculateProductListPrice(products)
       await addToList(products)
 
       updateList()
@@ -108,8 +109,8 @@ export default function SearchProduct({
     }
   }
 
-  const handleProductListAddToList = (products: CustomFieldItems[]) => {
-    handleAddToListClick(products)
+  const handleProductListAddToList = async (products: CustomFieldItems[]) => {
+    await handleAddToListClick(products)
   }
 
   const handleChangeOptionsClick = (productId: number) => {
@@ -128,7 +129,9 @@ export default function SearchProduct({
     setProductListOpen(true)
   }
 
-  const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
+  const handleChooseOptionsDialogConfirm = async (
+    products: CustomFieldItems[]
+  ) => {
     try {
       setIsLoading(true)
       await calculateProductListPrice(products)
@@ -139,7 +142,6 @@ export default function SearchProduct({
     } catch (error) {
       setIsLoading(false)
     }
-
   }
 
   return (

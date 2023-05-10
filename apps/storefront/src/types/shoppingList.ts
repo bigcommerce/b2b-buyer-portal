@@ -85,6 +85,7 @@ export interface ShoppingListProductItem extends ProductItem {
   selectOptions?: string
   orderQuantityMaximum?: number
   orderQuantityMinimum?: number
+  variantId?: number | string
 }
 
 export interface ShoppingListAddProductOption {
