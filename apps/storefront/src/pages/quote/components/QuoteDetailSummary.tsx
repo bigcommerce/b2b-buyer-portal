@@ -52,7 +52,11 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
               }}
             >
               <Typography>Discount amount</Typography>
-              <Typography>{`-${priceFormat(+discount)}`}</Typography>
+              <Typography>
+                {+discount > 0
+                  ? `-${priceFormat(+discount)}`
+                  : priceFormat(+discount)}
+              </Typography>
             </Grid>
             <Grid
               container
