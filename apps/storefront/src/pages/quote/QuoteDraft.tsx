@@ -468,7 +468,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           productId: node.productsSearch.id,
           sku: node.variantSku,
           basePrice: (+node.basePrice).toFixed(2),
-          taxPrice: (+node.taxPrice).toFixed(2),
+          // taxPrice: (+node.taxPrice).toFixed(2),
           discount: '0.00',
           offeredPrice: (+node.basePrice).toFixed(2),
           quantity: node.quantity,
