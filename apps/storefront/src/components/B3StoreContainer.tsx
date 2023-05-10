@@ -74,6 +74,7 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
 
         B3SStorage.set('timeFormat', storeBasicInfo.timeFormat)
         B3SStorage.set('B3channelId', channelId)
+        sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled))
       } catch (error) {
         showPageMask(dispatch, false)
       }

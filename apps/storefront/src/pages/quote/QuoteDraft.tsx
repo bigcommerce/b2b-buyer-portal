@@ -19,6 +19,7 @@ import {
   getB2BCustomerAddresses,
   getBCCustomerAddresses,
 } from '@/shared/service/b2b'
+import { store } from '@/store'
 import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
   addQuoteDraftProduce,
@@ -107,6 +108,10 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       openAPPParams,
     },
   } = useContext(GlobaledContext)
+
+  const {
+    global: { enteredInclusive: enteredInclusiveTax },
+  } = store.getState()
 
   const navigate = useNavigate()
 
@@ -455,12 +460,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           (item: CustomFieldItems) => item.sku === node.variantSku
         )
 
-        // let prices = 0
-        // let tax = 0
-        // node.additionalCalculatedPrices?.forEach((item: CustomFieldItems) => {
-        //   prices += item.additionalCalculatedPrice
-        //   tax += item.additionalCalculatedPriceTax
-        // })
         allPrice += +node.basePrice * node.quantity
 
         allTaxPrice += +node.taxPrice * node.quantity
@@ -490,7 +489,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         // notes: note,
         message: newNote,
         legalTerms: '',
-        totalAmount: (allPrice + allTaxPrice).toFixed(2),
+        totalAmount: enteredInclusiveTax
+          ? allPrice.toFixed(2)
+          : (allPrice + allTaxPrice).toFixed(2),
         grandTotal: allPrice.toFixed(2),
         subtotal: allPrice.toFixed(2),
         companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
