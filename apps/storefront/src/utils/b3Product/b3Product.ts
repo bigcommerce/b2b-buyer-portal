@@ -764,9 +764,15 @@ const calculateProductListPrice = async (
 
       let tax = taInclusivePrice - taxExclusivePrice
 
-      const qty = product?.quantity ? +product.quantity : 0
+      let qty = 0
 
-      if (calculatedData[0].bulk_pricing.length) {
+      if (type === '1') {
+        qty = product?.quantity ? +product.quantity : 0
+      } else {
+        qty = product?.node?.quantity ? +product.node.quantity : 0
+      }
+
+      if (calculatedData[index].bulk_pricing.length) {
         const basePrice = calculatedData[index].price.as_entered
         asEntered = getBulkPrice(
           calculatedData[index].bulk_pricing,
@@ -777,7 +783,7 @@ const calculateProductListPrice = async (
 
         const taxBasePrice =
           calculatedData[index].price.tax_inclusive -
-          calculatedData[0].price.tax_exclusive
+          calculatedData[index].price.tax_exclusive
         tax = getBulkPrice(
           calculatedData[index].bulk_pricing,
           +tax,
@@ -786,6 +792,7 @@ const calculateProductListPrice = async (
           true
         )
       }
+
       if (type === '1') {
         product.basePrice = asEntered.toFixed(2)
         product.taxPrice = tax.toFixed(2)
@@ -832,13 +839,9 @@ const calculateIsInclude = (price: number | string, tax: number | string) => {
     global: { enteredInclusive },
   } = store.getState()
 
-  console.log(enteredInclusive, price, tax, '123123')
+  if (enteredInclusive) return +price
 
-  if (enteredInclusive) return price
-
-  console.log(+price + +tax)
-
-  return (+price + +tax).toFixed(2)
+  return +price + +tax
 }
 
 export {

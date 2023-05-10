@@ -10,7 +10,7 @@ import {
   getTaxZoneRates,
 } from '@/shared/service/b2b'
 import { getActiveBcCurrency } from '@/shared/service/bc'
-import { setTaxZoneRates, store } from '@/store'
+import { setEnteredInclusive, setTaxZoneRates, store } from '@/store'
 import { B3SStorage } from '@/utils'
 
 // import {
@@ -223,6 +223,8 @@ const setStorefrontConfig = async (
     storefrontConfig: { config: storefrontConfig },
   } = await getStorefrontConfig()
   const { currencies } = await getCurrencies(currentChannelId)
+  store.dispatch(setEnteredInclusive(currencies.enteredInclusiveTax))
+
   const {
     data: {
       site: {
@@ -232,6 +234,7 @@ const setStorefrontConfig = async (
   } = await getActiveBcCurrency()
 
   B3SStorage.set('currencies', currencies)
+  B3SStorage.set('enteredInclusiveTax', currencies.enteredInclusiveTax || false)
   B3SStorage.set(
     'activeCurrency',
     edges.find((item: CurrencyNodeProps) => item.node.isActive)
@@ -241,6 +244,7 @@ const setStorefrontConfig = async (
     payload: {
       storefrontConfig,
       currencies,
+      enteredInclusiveTax: currencies.enteredInclusiveTax || false,
     },
   })
 }

@@ -21,6 +21,7 @@ import {
   updateB2BShoppingListsItem,
   updateBcShoppingListsItem,
 } from '@/shared/service/b2b'
+import { store } from '@/store'
 import { currencyFormat, snackbar } from '@/utils'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
@@ -143,6 +144,10 @@ function ShoppingDetailTable(
     isB2BUser,
     allowJuniorPlaceOrder,
   } = props
+
+  const {
+    global: { enteredInclusive: enteredInclusiveTax },
+  } = store.getState()
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
@@ -295,7 +300,7 @@ function ShoppingDetailTable(
       setQtyNotChangeFlag(true)
       initSearch()
     } finally {
-      setIsRequestLoading(false)
+      // setIsRequestLoading(false)
     }
   }
 
@@ -406,14 +411,16 @@ function ShoppingDetailTable(
       key: 'Price',
       title: 'Price',
       render: (row: CustomFieldItems) => {
-        const { basePrice } = row
+        const { basePrice, taxPrice } = row
         return (
           <Typography
             sx={{
               padding: '12px 0',
             }}
           >
-            {currencyFormat(+basePrice)}
+            {currencyFormat(
+              enteredInclusiveTax ? +basePrice : +basePrice + +taxPrice
+            )}
           </Typography>
         )
       },
@@ -461,6 +468,7 @@ function ShoppingDetailTable(
           quantity,
           itemId,
           productsSearch: { options },
+          taxPrice,
         } = row
 
         const optionList = options || JSON.parse(row.optionList)
@@ -472,7 +480,11 @@ function ShoppingDetailTable(
                 padding: '12px 0',
               }}
             >
-              {currencyFormat(+basePrice * +quantity)}
+              {currencyFormat(
+                enteredInclusiveTax
+                  ? +basePrice * +quantity
+                  : (+basePrice + +taxPrice) * +quantity
+              )}
             </Typography>
             <Box
               sx={{

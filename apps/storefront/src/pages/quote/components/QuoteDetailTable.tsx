@@ -4,7 +4,7 @@ import { Box, styled, Typography } from '@mui/material'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { calculateIsInclude, currencyFormat } from '@/utils'
+import { currencyFormat } from '@/utils'
 
 import QuoteDetailTableCard from './QuoteDetailTableCard'
 
@@ -177,23 +177,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       key: 'Price',
       title: 'Price',
       render: (row: CustomFieldItems) => {
-        const {
-          basePrice,
-          offeredPrice,
-          taxPrice,
-          // productsSearch: { variants },
-          // variantId,
-        } = row
+        const { basePrice, offeredPrice } = row
 
-        console.log(taxPrice, 'taxPrice')
-        // let priceIncTax = +basePrice
-        // if (variants?.length) {
-        //   priceIncTax = getProductPriceIncTax(variants, +variantId)
-        // }
-
-        // const price = +basePrice
-        // const withTaxPrice = priceIncTax || +basePrice
-        // const discountPrice = +offeredPrice
         const isDiscount = +basePrice - +offeredPrice > 0
 
         return (
@@ -205,7 +190,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(+offeredPrice)}`}
+                {`${currencyFormat(+basePrice)}`}
               </Typography>
             )}
 
@@ -215,7 +200,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(calculateIsInclude(basePrice, taxPrice))}`}
+              {`${currencyFormat(offeredPrice)}`}
             </Typography>
           </>
         )
@@ -246,12 +231,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       key: 'Total',
       title: 'Total',
       render: (row: CustomFieldItems) => {
-        const {
-          basePrice,
-          quantity,
-          offeredPrice,
-          // taxPrice,
-        } = row
+        const { basePrice, quantity, offeredPrice } = row
         const isDiscount = +basePrice - +offeredPrice > 0
 
         const total = +basePrice * +quantity
@@ -266,7 +246,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(totalWithDiscount)}`}
+                {`${currencyFormat(total)}`}
               </Typography>
             )}
             <Typography
@@ -275,7 +255,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(total)}`}
+              {`${currencyFormat(totalWithDiscount)}`}
             </Typography>
           </Box>
         )

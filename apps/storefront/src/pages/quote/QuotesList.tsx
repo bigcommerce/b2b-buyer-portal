@@ -313,9 +313,9 @@ function QuotesList() {
       key: 'totalAmount',
       title: 'Subtotal',
       render: (item: ListItem) => {
-        const { totalAmount, taxTotal } = item
+        const { totalAmount } = item
 
-        return `${currencyFormat(+totalAmount + +taxTotal)}`
+        return `${currencyFormat(+totalAmount)}`
       },
       style: {
         textAlign: 'right',

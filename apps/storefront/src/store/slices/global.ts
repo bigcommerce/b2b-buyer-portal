@@ -73,7 +73,11 @@ export const glabolSlice = createSlice({
   },
 })
 
-export const { clearglabol, setTaxZoneRates, setGlabolCommonState } =
-  glabolSlice.actions
+export const {
+  clearglabol,
+  setTaxZoneRates,
+  setGlabolCommonState,
+  setEnteredInclusive,
+} = glabolSlice.actions
 
 export default glabolSlice.reducer

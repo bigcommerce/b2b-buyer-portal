@@ -1,4 +1,5 @@
-import { storeHash } from '../../../../utils'
+import { convertArrayToGraphql, storeHash } from '@/utils'
+
 import B3Request from '../../request/b3Fetch'
 
 const getB2BTokenQl = (bcJwtToken: string, channelId: number) => `mutation {
@@ -130,6 +131,7 @@ const currencies = (channelId: string | number) => `{
       thousands_token,
     },
     channelCurrencies,
+    enteredInclusiveTax,
   }
 }`
 
@@ -143,7 +145,7 @@ const storefrontConfigs = (channelId: number, keys: string[]) => `{
   storefrontConfigs(
     storeHash: "${storeHash}",
     channelId: ${channelId},
-    keys: "${keys}"
+    keys: ${convertArrayToGraphql(keys)}
   ) {
     key,
     value,

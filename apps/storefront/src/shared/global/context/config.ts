@@ -105,10 +105,12 @@ export interface GlobalState {
   currencies: {
     channelCurrencies: ChannelCurrenciesProps
     currencies: CurrencyProps
+    enteredInclusiveTax: boolean
   }
   openAPPParams: OpenAPPParamsProps
   showPageMask: boolean
   timeFormat: TimeFormatProps
+  enteredInclusiveTax: boolean
 }
 
 export const initState = {
@@ -158,6 +160,7 @@ export const initState = {
   },
   showPageMask: false,
   timeFormat: B3SStorage.get('timeFormat') || {},
+  enteredInclusiveTax: B3SStorage.get('enteredInclusiveTax') || false,
 }
 
 export interface GlobalAction {
