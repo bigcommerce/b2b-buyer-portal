@@ -812,26 +812,49 @@ const calculateProductListPrice = async (
   }
 }
 
-const setModifierQtyPrice = async (product: CustomFieldItems, qty: number) => {
-  const { productsSearch, optionList, variantSku, calculatedValue } = product
+const setModifierQtyPrice = async (
+  product: CustomFieldItems,
+  qty: number,
+  isRequest = true
+) => {
+  try {
+    const { productsSearch, optionList, variantSku, calculatedValue } = product
 
-  const newProduct = await getCalculatedProductPrice(
-    {
-      productsSearch,
-      optionList: JSON.parse(optionList),
-      sku: variantSku,
-      qty,
-    },
-    calculatedValue
-  )
+    let newProduct: CustomFieldItems | string = {}
 
-  if (newProduct) {
-    newProduct.node.id = product.id
+    if (isRequest) {
+      newProduct = await getCalculatedProductPrice(
+        {
+          productsSearch,
+          optionList: JSON.parse(optionList),
+          sku: variantSku,
+          qty,
+        },
+        calculatedValue
+      )
+    } else {
+      newProduct = getCalculatedProductPrice(
+        {
+          productsSearch,
+          optionList: JSON.parse(optionList),
+          sku: variantSku,
+          qty,
+        },
+        calculatedValue
+      )
+    }
 
-    return newProduct.node
+    if (newProduct && (newProduct as CustomFieldItems)?.node?.id) {
+      ;(newProduct as CustomFieldItems).node.id = product.id
+
+      return (newProduct as CustomFieldItems).node
+    }
+
+    return product
+  } catch (e) {
+    console.log(e)
+    return product
   }
-
-  return product
 }
 
 const calculateIsInclude = (price: number | string, tax: number | string) => {

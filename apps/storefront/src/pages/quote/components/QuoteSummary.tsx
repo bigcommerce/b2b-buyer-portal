@@ -7,6 +7,7 @@ import {
 } from 'react'
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
+import { store } from '@/store'
 import { B3LStorage, currencyFormat } from '@/utils'
 
 interface Summary {
@@ -28,6 +29,10 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     ...defaultSummary,
   })
 
+  const {
+    global: { enteredInclusive: enteredInclusiveTax },
+  } = store.getState()
+
   const priceCalc = (price: number) => parseFloat(price.toFixed(2))
 
   const getSummary = () => {
@@ -35,32 +40,17 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
 
     const newQuoteSummary = productList.reduce(
       (summary: Summary, product: CustomFieldItems) => {
-        const {
-          basePrice,
-          taxPrice: productTax,
-          quantity,
-          // additionalCalculatedPrices = [],
-        } = product.node
+        const { basePrice, taxPrice: productTax, quantity } = product.node
 
         let { subtotal, grandTotal, tax } = summary
 
         const { shipping } = summary
 
-        // let additionalCalculatedPriceTax = 0
-
-        // let additionalCalculatedPrice = 0
-
-        // additionalCalculatedPrices.forEach((item: CustomFieldItems) => {
-        //   additionalCalculatedPriceTax += item.additionalCalculatedPriceTax
-        //   additionalCalculatedPrice += item.additionalCalculatedPrice
-        // })
-
         subtotal += priceCalc(
-          (+basePrice + +productTax) * quantity
+          (enteredInclusiveTax ? +basePrice : +basePrice + +productTax) *
+            quantity
         )
-        tax += priceCalc(
-          (+productTax) * +quantity
-        )
+        tax += priceCalc(+productTax * +quantity)
 
         grandTotal = subtotal + shipping
 
@@ -108,9 +98,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
               }}
             >
               <Typography>Sub total</Typography>
-              <Typography>
-                {priceFormat(quoteSummary.subtotal)}
-              </Typography>
+              <Typography>{priceFormat(quoteSummary.subtotal)}</Typography>
             </Grid>
 
             <Grid
