@@ -123,12 +123,16 @@ export default function ProductListDialog(props: ProductListDialogProps) {
     const product = productList.find((product) => product.id === id)
 
     if (product && validateQuantityNumber(product || {})) {
+      let variantId: number | string = product?.variantId || 0
+      if (!product?.variantId && product?.variants?.length) {
+        variantId = product.variants[0].variant_id
+      }
       onAddToListClick([
         {
           ...product,
           newSelectOptionList: [],
           quantity: parseInt(product.quantity.toString(), 10) || 1,
-          variantId: id,
+          variantId,
         },
       ])
     }
