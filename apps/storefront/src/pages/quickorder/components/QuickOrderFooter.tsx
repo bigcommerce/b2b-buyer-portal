@@ -26,6 +26,7 @@ import {
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import {
   addQuoteDraftProduce,
+  calculateProductListPrice,
   currencyFormat,
   getProductPriceIncTax,
   snackbar,
@@ -281,6 +282,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       const newProductInfo: CustomFieldItems =
         conversionProductsList(productsSearch)
       let isSuccess = false
+
+      const newProducts: CustomFieldItems[] = []
       productsWithSku.forEach((product: ListItemProps) => {
         const {
           node: {
@@ -321,10 +324,19 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           },
         }
 
-        addQuoteDraftProduce(quoteListitem, +quantity, optionsList || [])
+        newProducts.push(quoteListitem)
+
         isSuccess = true
       })
 
+      await calculateProductListPrice(newProducts, '2')
+      newProducts.forEach((product: CustomFieldItems) => {
+        addQuoteDraftProduce(
+          product,
+          product.node.quantity,
+          JSON.parse(product.node.optionList) || []
+        )
+      })
       if (isSuccess) {
         snackbar.success('', {
           jsx: successTip({

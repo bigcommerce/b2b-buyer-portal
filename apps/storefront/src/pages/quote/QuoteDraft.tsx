@@ -450,7 +450,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             .map((item) => ({
               optionId: item.optionId,
               optionValue: item.optionValue,
-              optionLabel: item.valueText,
+              optionLabel: `${item.valueText}`,
               optionName: item.valueLabel,
             }))
             .filter((list: CustomFieldItems) => !!list.optionName) || []
