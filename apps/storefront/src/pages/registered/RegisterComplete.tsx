@@ -13,6 +13,7 @@ import { Alert, Box } from '@mui/material'
 //   Captcha,
 // } from '@/components/form'
 import { B3CustomForm } from '@/components'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import {
   createB2BCompanyUser,
@@ -55,6 +56,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const {
     state: { currentChannelId },
   } = useContext(GlobaledContext)
+
+  const {
+    state: { blockPendingAccountOrderCreation },
+  } = useContext(CustomStyleContext)
 
   const {
     contactInformation,
@@ -395,6 +400,8 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           payload: {
             submitSuccess: true,
             isAutoApproval: isAuto,
+            blockPendingAccountOrderCreation:
+              blockPendingAccountOrderCreation.enabled,
           },
         })
         saveRegisterPassword(completeData)

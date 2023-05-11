@@ -94,7 +94,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   const { state, dispatch } = useContext(RegisteredContext)
 
   const {
-    state: { companyAutoApproval },
+    state: { companyAutoApproval, blockPendingAccountOrderCreation },
   } = useContext(CustomStyleContext)
 
   const showLoading = (isShow = false) => {
@@ -415,12 +415,17 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         await getB2BFieldsValue(data, customerId, fileList)
 
         const isAuto = companyAutoApproval.enabled
+        const isBlockPendingAccountOrderCreation =
+          blockPendingAccountOrderCreation.enabled
+
         if (emailAddress) {
           dispatch({
             type: 'finishInfo',
             payload: {
               submitSuccess: true,
               isAutoApproval: isAuto,
+              blockPendingAccountOrderCreation:
+                isBlockPendingAccountOrderCreation,
             },
           })
           dispatch({

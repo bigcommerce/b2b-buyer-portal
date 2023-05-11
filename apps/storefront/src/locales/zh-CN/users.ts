@@ -65,6 +65,8 @@ export default {
     '您的公司账户申请已收到。 请等待 24 小时来批准和激活帐户。',
   'intl.user.register.RegisterFinish.bcSuccess.tip':
     '感谢您在 {storeName} 创建帐户。',
+  'intl.user.register.RegisterFinish.blockPendingAccountOrderCreation.tip':
+    '您的帐户正在等待批准。 帐户批准后将启用订购',
 
   // register components
   'intl.user.register.RegisteredSingleCheckBox.label': '电子邮件营销通讯',

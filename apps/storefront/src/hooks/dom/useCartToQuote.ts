@@ -10,6 +10,8 @@ import type { OpenPageState } from '@b3/hooks'
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { GlobaledContext } from '@/shared/global'
+import { B3SStorage, globalSnackbar } from '@/utils'
 
 import { addQuoteToCart } from './utils'
 
@@ -19,6 +21,11 @@ interface MutationObserverProps {
   cartQuoteEnabled: boolean
 }
 
+interface IsShowBlockPendingAccountOrderCreationTipProps {
+  cartTip: number
+  checkoutTip: number
+}
+
 const useCartToQuote = ({
   setOpenPage,
   cartQuoteEnabled,
@@ -26,8 +33,50 @@ const useCartToQuote = ({
   const { addToQuote, addLoadding } = addQuoteToCart(setOpenPage)
 
   const {
-    state: { addToAllQuoteBtn },
+    state: { addToAllQuoteBtn, blockPendingAccountOrderCreation },
   } = useContext(CustomStyleContext)
+
+  const {
+    state: { companyInfo },
+  } = useContext(GlobaledContext)
+
+  const urlArr = ['/cart.php', '/checkout']
+
+  const checkIsInPage = (url: string) => window.location.href.includes(url)
+
+  const isBlockPendingAccountOrderCreation =
+    (checkIsInPage(urlArr[0]) || checkIsInPage(urlArr[1])) &&
+    blockPendingAccountOrderCreation.enabled &&
+    +companyInfo.companyStatus === 0
+
+  useEffect(() => {
+    const isShowBlockPendingAccountOrderCreationTip: IsShowBlockPendingAccountOrderCreationTipProps =
+      B3SStorage.get('isShowBlockPendingAccountOrderCreationTip') || {
+        cartTip: 0,
+        checkoutTip: 0,
+      }
+    const isShowTips =
+      (checkIsInPage(urlArr[0]) &&
+        isShowBlockPendingAccountOrderCreationTip.cartTip === 0) ||
+      (checkIsInPage(urlArr[1]) &&
+        isShowBlockPendingAccountOrderCreationTip.checkoutTip === 0)
+    if (isBlockPendingAccountOrderCreation && isShowTips) {
+      globalSnackbar.warning(
+        'Your account is pending approval. Ordering will be enabled after account approval',
+        {
+          isClose: true,
+        }
+      )
+      B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
+        cartTip:
+          +checkIsInPage(urlArr[0]) +
+          isShowBlockPendingAccountOrderCreationTip.cartTip,
+        checkoutTip:
+          +checkIsInPage(urlArr[1]) +
+          isShowBlockPendingAccountOrderCreationTip.checkoutTip,
+      })
+    }
+  }, [isBlockPendingAccountOrderCreation])
 
   const quoteCallBbck = useCallback(() => {
     const b3CartToQuote = document.querySelector('.b2b-cart-to-quote')

@@ -107,6 +107,8 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('salesRepCompanyId', '')
   B3SStorage.set('isAgenting', '')
 
+  B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {})
+
   dispatch({
     type: 'common',
     payload: {
