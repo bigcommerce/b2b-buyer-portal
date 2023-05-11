@@ -234,7 +234,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
       const basePriceExclusiveTax = basePrice || taxExclusive
 
-      const tax = taxPrice || +taxInclusive - +taxInclusive
+      const tax = taxPrice || +taxInclusive - +taxExclusive
 
       return {
         node: {

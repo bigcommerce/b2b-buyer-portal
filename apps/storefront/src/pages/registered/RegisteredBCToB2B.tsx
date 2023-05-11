@@ -84,6 +84,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       } = {},
       storeName,
       logo,
+      currentChannelId: channelId,
     },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
@@ -346,6 +347,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       b2bFields.addressExtraFields = extraFields
     }
     b2bFields.fileList = fileList
+    b2bFields.channelId = channelId
 
     return createB2BCompanyUser(b2bFields)
   }

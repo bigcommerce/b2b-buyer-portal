@@ -180,7 +180,7 @@ const createCustomerAddress = (data: CustomFieldItems) => `mutation{
   customerAddressCreate(addressData: {
     firstName: "${data.firstName}",
     lastName: "${data.lastName}",
-    company: "${data.company}",
+    company: "${data.company || ''}",
     address1: "${data.address1}",
     address2: "${data.address2 || ''}",
     city: "${data.city}",
@@ -198,7 +198,7 @@ const createCustomerAddress = (data: CustomFieldItems) => `mutation{
 }`
 const updateCustomerAddress = (data: CustomFieldItems) => `mutation{
   customerAddressUpdate(addressData: {
-    company: "${data.company}",
+    company: "${data.company || ''}",
     firstName: "${data.firstName}",
     lastName: "${data.lastName}",
     address1: "${data.address1}",
