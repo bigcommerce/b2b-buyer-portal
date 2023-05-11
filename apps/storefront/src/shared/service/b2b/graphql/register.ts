@@ -102,6 +102,7 @@ const createCompanyUser = (data: any) => `mutation{
         : ''
     }
     fileList: ${convertArrayToGraphql(data.fileList)}
+    channelId: ${data.channelId || 1}
   }) {
     company {
       id,

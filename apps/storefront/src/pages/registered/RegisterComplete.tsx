@@ -263,6 +263,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         b2bFields.addressExtraFields = extraFields
       }
       b2bFields.fileList = fileList
+      b2bFields.channelId = currentChannelId
 
       return createB2BCompanyUser(b2bFields)
     } catch (error) {

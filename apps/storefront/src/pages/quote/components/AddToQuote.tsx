@@ -63,7 +63,7 @@ export default function AddToQuote(props: AddToListProps) {
 
       const basePriceExclusiveTax = basePrice || taxExclusive
 
-      const tax = taxPrice || +taxInclusive - +taxInclusive
+      const tax = taxPrice || +taxInclusive - +taxExclusive
 
       return {
         node: {
@@ -223,7 +223,7 @@ export default function AddToQuote(props: AddToListProps) {
         newProducts.forEach((item: CustomFieldItems) => {
           addQuoteDraftProduce(
             item,
-            +item.node.qty,
+            +item.node.quantity,
             JSON.parse(item.node.optionList) || []
           )
         })
