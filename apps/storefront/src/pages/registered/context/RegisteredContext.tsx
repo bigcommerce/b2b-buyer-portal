@@ -24,6 +24,7 @@ interface RegisterState {
   submitSuccess?: boolean
   isAutoApproval?: boolean
   storeName?: string
+  blockPendingAccountOrderCreation?: boolean
 }
 interface RegisterAction {
   type: string
@@ -60,6 +61,7 @@ const initState = {
   storeName: '',
   submitSuccess: false,
   isAutoApproval: true,
+  blockPendingAccountOrderCreation: true,
 }
 
 export const RegisteredContext = createContext<RegisterContext>({

@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { useB3Lang } from '@b3/lang'
-import { Box } from '@mui/material'
+import { Alert, Box } from '@mui/material'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
@@ -14,7 +14,13 @@ export default function RegisteredFinish(props: {
   const { state } = useContext(RegisteredContext)
   const b3Lang = useB3Lang()
 
-  const { accountType, submitSuccess, isAutoApproval, storeName } = state
+  const {
+    accountType,
+    submitSuccess,
+    isAutoApproval,
+    storeName,
+    blockPendingAccountOrderCreation,
+  } = state
 
   const renderB2BSuccessPage = () => {
     if (accountType === '1') {
@@ -25,9 +31,27 @@ export default function RegisteredFinish(props: {
           })}
         </StyleTipContainer>
       ) : (
-        <StyleTipContainer>
-          {b3Lang('intl.user.register.RegisterFinish.notAutoApproved.tip')}
-        </StyleTipContainer>
+        <>
+          <StyleTipContainer>
+            {b3Lang('intl.user.register.RegisterFinish.notAutoApproved.tip')}
+          </StyleTipContainer>
+          {blockPendingAccountOrderCreation && (
+            <Alert
+              severity="warning"
+              variant="filled"
+              sx={{
+                margin: 'auto',
+                borderRadius: '4px',
+                padding: '6px 16px',
+                maxWidth: '820px',
+              }}
+            >
+              {b3Lang(
+                'intl.user.register.RegisterFinish.blockPendingAccountOrderCreation.tip'
+              )}
+            </Alert>
+          )}
+        </>
       )
     }
 

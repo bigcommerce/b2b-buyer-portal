@@ -75,6 +75,8 @@ export default {
     'Your company account application has been received. Please allow 24 hours for account approval and activation.',
   'intl.user.register.RegisterFinish.bcSuccess.tip':
     'Thank you for creating your account at {storeName}.',
+  'intl.user.register.RegisterFinish.blockPendingAccountOrderCreation.tip':
+    'Your account is pending approval. Ordering will be enabled after account approval',
 
   // register components
   'intl.user.register.RegisteredSingleCheckBox.label':

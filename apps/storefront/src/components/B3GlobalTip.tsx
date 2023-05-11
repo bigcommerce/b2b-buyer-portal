@@ -48,7 +48,7 @@ export default function B3GlobalTip() {
         dispatch({
           type: 'common',
           payload: {
-            tipMessage: {
+            globalTipMessage: {
               ...globalTipMessage,
               msgs: newMsgs,
             },

@@ -86,10 +86,6 @@ const storeforntKeys: StoreforntKeysProps[] = [
     name: 'shoppingListBtn',
   },
   {
-    key: 'account_login_registration',
-    name: 'accountLoginRegistration',
-  },
-  {
     key: 'quote_customer',
     name: 'quote_customer',
   },
@@ -112,6 +108,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
   {
     key: 'company_auto_approval',
     name: 'companyAutoApproval',
+  },
+  {
+    key: 'block_pending_account_order_creation',
+    name: 'blockPendingAccountOrderCreation',
   },
 ]
 
@@ -178,6 +178,13 @@ const getTemPlateConfig = async (
           classSelector: item.extraFields?.classSelector || 'button',
           customCss: item.extraFields?.customCss || 'margin-top: 0.5rem',
         }
+      }
+
+      if (storeforntKey.key === 'block_pending_account_order_creation') {
+        sessionStorage.setItem(
+          'b2b-blockPendingAccountOrderCreation',
+          JSON.stringify(item.value === '1')
+        )
       }
 
       ;(obj as CustomFieldItems)[(storeforntKey as StoreforntKeysProps).name] =
