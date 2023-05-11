@@ -13,7 +13,7 @@ import ChooseOptionsDialog from './ChooseOptionsDialog'
 import ProductListDialog from './ProductListDialog'
 
 interface SearchProductProps {
-  updateList: () => void
+  updateList?: () => void
   addToList: (products: CustomFieldItems[]) => CustomFieldItems
   searchDialogTitle?: string
   addButtonText?: string
@@ -21,7 +21,7 @@ interface SearchProductProps {
 }
 
 export default function SearchProduct({
-  updateList,
+  updateList = () => {},
   addToList,
   searchDialogTitle,
   addButtonText,

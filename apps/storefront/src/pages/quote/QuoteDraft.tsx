@@ -460,17 +460,17 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           (item: CustomFieldItems) => item.sku === node.variantSku
         )
 
-        allPrice += +node.basePrice * node.quantity
+        allPrice += +(node?.basePrice || 0) * +(node?.quantity || 0)
 
-        allTaxPrice += +node.taxPrice * node.quantity
+        allTaxPrice += +(node?.taxPrice || 0) * +(node?.quantity || 0)
 
         const items = {
           productId: node.productsSearch.id,
           sku: node.variantSku,
-          basePrice: (+node.basePrice).toFixed(2),
+          basePrice: (+(node?.basePrice || 0)).toFixed(2),
           // taxPrice: (+node.taxPrice).toFixed(2),
           discount: '0.00',
-          offeredPrice: (+node.basePrice).toFixed(2),
+          offeredPrice: (+(node?.basePrice || 0)).toFixed(2),
           quantity: node.quantity,
           variantId: varantsItem.variant_id,
           imageUrl: node.primaryImage,

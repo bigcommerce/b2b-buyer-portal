@@ -14,9 +14,16 @@ import { useMobile } from '@/hooks'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import { snackbar } from '@/utils'
 
+import SearchProduct from '../../shoppingListDetails/components/SearchProduct'
+
 import QuickAdd from './QuickAdd'
 
-export default function QuickOrderPad() {
+interface QuickOrderPadProps {
+  isB2BUser: boolean
+}
+
+export default function QuickOrderPad(props: QuickOrderPadProps) {
+  const { isB2BUser } = props
   const [isMobile] = useMobile()
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
@@ -308,6 +315,90 @@ export default function QuickOrderPad() {
     }
   }
 
+  const handleVerifyProduct = (products: CustomFieldItems) => {
+    const {
+      variantId,
+      variants,
+      inventoryLevel,
+      inventoryTracking,
+      orderQuantityMaximum,
+      orderQuantityMinimum,
+      quantity,
+      sku,
+    } = products
+    const isStock = inventoryTracking !== 'none'
+    let purchasingDisabled = false
+    let stock = inventoryLevel
+    let productSku = sku
+
+    const currentVariant = variants.find(
+      (variant: CustomFieldItems) => +variant.variant_id === +variantId
+    )
+    if (currentVariant) {
+      purchasingDisabled = currentVariant.purchasing_disabled
+      stock =
+        inventoryTracking === 'variant' ? currentVariant.inventory_level : stock
+      productSku = currentVariant.sku || sku
+    }
+
+    if (purchasingDisabled) {
+      snackbar.error(`SKU ${productSku} cannot be purchased in online store.`, {
+        isClose: true,
+      })
+
+      return false
+    }
+
+    if (isStock && +quantity > +stock) {
+      snackbar.error(
+        `SKU ${productSku} do not have enough stock, please change quantity.`,
+        {
+          isClose: true,
+        }
+      )
+
+      return false
+    }
+
+    if (+orderQuantityMinimum > 0 && +quantity < orderQuantityMinimum) {
+      snackbar.error(
+        `You need to purchase a minimum of ${orderQuantityMinimum} of the ${productSku} per order.`,
+        {
+          isClose: true,
+        }
+      )
+
+      return false
+    }
+
+    if (+orderQuantityMaximum > 0 && +quantity > +orderQuantityMaximum) {
+      snackbar.error(
+        `You need to purchase a maximum of ${orderQuantityMaximum} of the ${productSku} per order.`,
+        {
+          isClose: true,
+        }
+      )
+
+      return false
+    }
+
+    return true
+  }
+
+  const handleQuickSearchAddCart = async (productData: CustomFieldItems[]) => {
+    const currentProduct = productData[0]
+    const isPassVerify = handleVerifyProduct(currentProduct)
+    try {
+      if (isPassVerify) {
+        quickAddToList(productData)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+
+    return productData
+  }
+
   useEffect(() => {
     if (productData?.length > 0) {
       setAddBtnText(`Add ${productData.length} products to cart`)
@@ -330,6 +421,13 @@ export default function QuickOrderPad() {
           >
             Quick order pad
           </Typography>
+
+          <SearchProduct
+            addToList={handleQuickSearchAddCart}
+            searchDialogTitle="Quick order"
+            addButtonText="Add to cart"
+            isB2BUser={isB2BUser}
+          />
 
           <Divider />
 
