@@ -64,7 +64,6 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
         <Box
           sx={{
             display: 'inline-block',
-            height: '34px',
             lineHeight: '34px',
             padding: '0 10px',
             background: `${
