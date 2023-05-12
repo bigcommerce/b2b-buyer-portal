@@ -135,11 +135,12 @@ export default function SearchProduct({
     try {
       setIsLoading(true)
       await calculateProductListPrice(products)
-      handleAddToListClick(products)
+      await handleAddToListClick(products)
       setChooseOptionsOpen(false)
       setProductListOpen(true)
-      setIsLoading(false)
     } catch (error) {
+      setIsLoading(false)
+    } finally {
       setIsLoading(false)
     }
   }

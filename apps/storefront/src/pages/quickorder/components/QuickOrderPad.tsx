@@ -49,18 +49,20 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
   const quickAddToList = async (products: CustomFieldItems[]) => {
     const lineItems = products.map((product) => {
       const { newSelectOptionList, quantity } = product
-      const optionList = newSelectOptionList.map((option: any) => {
-        const splitOptionId = handleSplitOptionId(option.optionId)
+      const optionSelections = newSelectOptionList.map(
+        (option: CustomFieldItems) => {
+          const splitOptionId = handleSplitOptionId(option.optionId)
 
-        return {
-          optionId: splitOptionId,
-          optionValue: option.optionValue,
+          return {
+            optionId: splitOptionId,
+            optionValue: option.optionValue,
+          }
         }
-      })
+      )
 
       return {
-        optionList,
-        productId: parseInt(product.productId, 10) || 0,
+        optionSelections,
+        productId: parseInt(product.productId || product.id, 10) || 0,
         quantity,
         variantId: parseInt(product.variantId, 10) || 0,
       }
@@ -206,7 +208,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         productId: parseInt(productId, 10) || 0,
         variantId: parseInt(variantId, 10) || 0,
         quantity: +qty,
-        optionList: optionsList,
+        optionSelections: optionsList,
       })
     })
 
@@ -390,7 +392,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
     const isPassVerify = handleVerifyProduct(currentProduct)
     try {
       if (isPassVerify) {
-        quickAddToList(productData)
+        await quickAddToList(productData)
       }
     } catch (error) {
       console.error(error)
