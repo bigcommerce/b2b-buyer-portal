@@ -105,7 +105,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(+offeredPrice)}`}
+                {`${currencyFormat(price)}`}
               </span>
             )}
             <span
@@ -114,7 +114,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(price)}`}
+              {`${currencyFormat(+offeredPrice)}`}
             </span>
           </Typography>
 
@@ -135,7 +135,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(totalWithDiscount)}`}
+                {`${currencyFormat(total)}`}
               </span>
             )}
             <span
@@ -144,7 +144,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(total)}`}
+              {`${currencyFormat(totalWithDiscount)}`}
             </span>
           </Typography>
         </Box>

@@ -2,6 +2,7 @@ import { Delete, Edit } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { store } from '@/store'
 import { currencyFormat } from '@/utils'
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
@@ -41,12 +42,15 @@ function QuoteTableCard(props: QuoteTableCardProps) {
     productName,
     variantSku,
     productsSearch,
-    taxPrice,
+    taxPrice = 0,
   } = quoteTableItem
 
-  const withTaxPrice = +basePrice + +taxPrice
-  const total = withTaxPrice * +quantity
-  const price = withTaxPrice
+  const {
+    global: { enteredInclusive: enteredInclusiveTax },
+  } = store.getState()
+
+  const price = enteredInclusiveTax ? +basePrice : +basePrice + +taxPrice
+  const total = price * +quantity
 
   const product: any = {
     ...quoteTableItem.productsSearch,
@@ -136,7 +140,7 @@ function QuoteTableCard(props: QuoteTableCardProps) {
               maxWidth: '100px',
             }}
             onChange={(e) => {
-              handleUpdateProductQty(id, e.target.value)
+              handleUpdateProductQty(quoteTableItem, e.target.value)
             }}
           />
           <Typography>{`Total: ${currencyFormat(total)}`}</Typography>
