@@ -52,6 +52,11 @@ interface AdditionalCalculatedPricesProps {
   [key: string]: number
 }
 
+interface NewOptionProps {
+  optionId: string
+  optionValue: string
+}
+
 const addQuoteDraftProduce = async (
   quoteListitem: CustomFieldItems,
   qty: number,
@@ -473,6 +478,48 @@ const getNewProductsList = async (
   return undefined
 }
 
+const calculatedDate = (
+  newOption: NewOptionProps,
+  itemOption: Partial<AllOptionProps>
+) => {
+  let date = []
+  const dateTypes = ['year', 'month', 'day']
+  const isIncludeDate = (date: string) => newOption.optionId.includes(date)
+  if (
+    isIncludeDate(dateTypes[0]) ||
+    isIncludeDate(dateTypes[1]) ||
+    isIncludeDate(dateTypes[2])
+  ) {
+    date = [
+      {
+        option_id: itemOption?.id ? +itemOption.id : 0,
+        value_id: +newOption.optionValue,
+      },
+    ]
+  } else {
+    const data = new Date(+newOption.optionValue * 1000)
+    const year = data.getFullYear()
+    const month = data.getMonth() + 1
+    const day = data.getDate()
+    date = [
+      {
+        option_id: itemOption?.id ? +itemOption.id : 0,
+        value_id: month,
+      },
+      {
+        option_id: itemOption?.id ? +itemOption.id : 0,
+        value_id: year,
+      },
+      {
+        option_id: itemOption?.id ? +itemOption.id : 0,
+        value_id: day,
+      },
+    ]
+  }
+
+  return date
+}
+
 const getCalculatedParams = (
   optionList: CustomFieldItems[],
   variantItem: Partial<Variant>,
@@ -494,23 +541,8 @@ const getCalculatedParams = (
             (select.type === 'date' && newOption.optionValue))
       )
       if (itemOption && newOption.optionValue) {
-        if (itemOption.type === 'date') {
-          if (newOption.optionId.includes('year')) {
-            date[1] = {
-              option_id: itemOption?.id ? +itemOption.id : 0,
-              value_id: +newOption.optionValue,
-            }
-          } else if (newOption.optionId.includes('month')) {
-            date[0] = {
-              option_id: itemOption?.id ? +itemOption.id : 0,
-              value_id: +newOption.optionValue,
-            }
-          } else {
-            date[2] = {
-              option_id: itemOption?.id ? +itemOption.id : 0,
-              value_id: +newOption.optionValue,
-            }
-          }
+        if (itemOption.type === 'date' && +newOption.optionValue) {
+          date.push(...calculatedDate(newOption, itemOption))
         } else {
           arr.push({
             option_id: itemOption?.id ? +itemOption.id : 0,

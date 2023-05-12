@@ -411,7 +411,7 @@ function ShoppingDetailTable(
       key: 'Price',
       title: 'Price',
       render: (row: CustomFieldItems) => {
-        const { basePrice, taxPrice } = row
+        const { basePrice, taxPrice = 0 } = row
         return (
           <Typography
             sx={{
@@ -468,7 +468,7 @@ function ShoppingDetailTable(
           quantity,
           itemId,
           productsSearch: { options },
-          taxPrice,
+          taxPrice = 0,
         } = row
 
         const optionList = options || JSON.parse(row.optionList)

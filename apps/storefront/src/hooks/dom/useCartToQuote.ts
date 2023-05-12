@@ -47,6 +47,7 @@ const useCartToQuote = ({
   const isBlockPendingAccountOrderCreation =
     (checkIsInPage(urlArr[0]) || checkIsInPage(urlArr[1])) &&
     blockPendingAccountOrderCreation.enabled &&
+    companyInfo.companyStatus &&
     +companyInfo.companyStatus === 0
 
   useEffect(() => {

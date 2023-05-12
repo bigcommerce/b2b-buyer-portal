@@ -3,6 +3,7 @@ import { Delete, Edit } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { store } from '@/store'
 import { currencyFormat } from '@/utils'
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
@@ -45,6 +46,10 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
   } = props
 
   const {
+    global: { enteredInclusive: enteredInclusiveTax },
+  } = store.getState()
+
+  const {
     basePrice,
     quantity,
     itemId,
@@ -54,18 +59,11 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     variantSku,
     productsSearch,
     productUrl,
-    // productsSearch: { variants = [] },
+    taxPrice = 0,
   } = shoppingDetail
 
-  // let priceIncTax = +basePrice
-  // if (variants?.length) {
-  //   priceIncTax = getProductPriceIncTax(variants, +variantId, variantSku)
-  // }
-
-  const withTaxPrice = +basePrice
-
-  const total = withTaxPrice * +quantity
-  const price = withTaxPrice
+  const price = enteredInclusiveTax ? +basePrice : +basePrice + +taxPrice
+  const total = price * +quantity
 
   const product: any = {
     ...shoppingDetail.productsSearch,

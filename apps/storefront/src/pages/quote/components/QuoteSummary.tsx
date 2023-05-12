@@ -40,7 +40,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
 
     const newQuoteSummary = productList.reduce(
       (summary: Summary, product: CustomFieldItems) => {
-        const { basePrice, taxPrice: productTax, quantity } = product.node
+        const { basePrice, taxPrice: productTax = 0, quantity } = product.node
 
         let { subtotal, grandTotal, tax } = summary
 
