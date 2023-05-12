@@ -12,6 +12,7 @@ import { useB3Lang } from '@b3/lang'
 import { Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
+import { useScrollBar } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b'
@@ -277,6 +278,8 @@ function Registered(props: RegisteredProps) {
   useEffect(() => {
     IframeDocument?.body.scrollIntoView(true)
   }, [activeStep])
+
+  useScrollBar(false)
 
   return (
     <B3Card setOpenPage={setOpenPage}>
