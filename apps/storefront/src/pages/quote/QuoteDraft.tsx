@@ -436,6 +436,13 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       let allPrice = 0
       let allTaxPrice = 0
 
+      const calculationTime = (value: string | number) => {
+        if (typeof value === 'string' && value.includes('-')) {
+          return `${new Date(value).getTime() / 1000}`
+        }
+        return value
+      }
+
       const productList = b2bQuoteDraftList.map((item: QuoteListitemProps) => {
         const { node } = item
         const product: any = {
@@ -444,12 +451,14 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         }
 
         const productFields = getProductOptionsFields(product, {})
-
         const optionsList: CustomFieldItems[] =
           productFields
             .map((item) => ({
               optionId: item.optionId,
-              optionValue: item.optionValue,
+              optionValue:
+                item.fieldType === 'date'
+                  ? calculationTime(item.optionValue)
+                  : item.optionValue,
               optionLabel: `${item.valueText}`,
               optionName: item.valueLabel,
             }))

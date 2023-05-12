@@ -13,7 +13,6 @@ import {
   BcCalculatedPrice,
   Calculateditems,
   CalculatedOptions,
-  // OptionListProduct,
   OptionValue,
   Product,
   Variant,
@@ -55,57 +54,6 @@ interface AdditionalCalculatedPricesProps {
 interface NewOptionProps {
   optionId: string
   optionValue: string
-}
-
-const addQuoteDraftProduce = async (
-  quoteListitem: CustomFieldItems,
-  qty: number,
-  optionList: CustomFieldItems[]
-) => {
-  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
-
-  const compareOption = (
-    langList: CustomFieldItems[],
-    shortList: CustomFieldItems[]
-  ) => {
-    let flag = true
-    langList.forEach((item: CustomFieldItems) => {
-      const option = shortList.find(
-        (list: CustomFieldItems) => list.optionId === item.optionId
-      )
-      if (!option) {
-        if (item?.optionValue) flag = false
-      } else if (item.optionValue !== option.optionValue) flag = false
-    })
-    return flag
-  }
-
-  const index = b2bQuoteDraftList.findIndex(
-    (item: QuoteListitemProps) =>
-      item?.node?.variantSku === quoteListitem.node.variantSku
-  )
-
-  if (index !== -1) {
-    // TODO optionList compare
-    const oldOptionList = JSON.parse(b2bQuoteDraftList[index].node.optionList)
-
-    const isAdd =
-      oldOptionList.length > optionList.length
-        ? compareOption(oldOptionList, optionList)
-        : compareOption(optionList, oldOptionList)
-
-    if (isAdd) {
-      b2bQuoteDraftList[index].node.quantity += +qty
-    } else {
-      // const productList = await getProductPrice(optionList, quoteListitem)
-      b2bQuoteDraftList.push(quoteListitem)
-    }
-  } else {
-    // const productList = await getProductPrice(optionList, quoteListitem)
-    b2bQuoteDraftList.push(quoteListitem)
-  }
-
-  B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
 }
 
 const getModifiersPrice = (
@@ -564,42 +512,48 @@ const getCalculatedParams = (
   return []
 }
 
-const getBulkPrice = (
-  bulkPrices: any,
-  price: number,
-  qty: number,
-  basePrice: number,
-  isTax?: boolean
-) => {
+const getBulkPrice = (calculatedPrices: any, qty: number) => {
+  const { calculated_price: calculatedPrice, bulk_pricing: bulkPrices } =
+    calculatedPrices
+
+  const calculatedTaxPrice = calculatedPrice.tax_inclusive
+  const calculatedNoTaxPrice = calculatedPrice.tax_exclusive
+  let enteredPrice = calculatedPrice.as_entered
+  const enteredInclusive = calculatedPrice.entered_inclusive
+
+  const tax = (calculatedTaxPrice - calculatedNoTaxPrice).toFixed(2)
+
+  const taxRate = +(+tax / calculatedNoTaxPrice).toFixed(2)
+
+  let finalDiscount = 0
+  let itemTotalTaxPrice = 0
+  let singlePrice = 0
   bulkPrices.forEach(
     ({
       minimum,
       maximum,
       discount_type: discountType,
       discount_amount: bulkPrice,
-      tax_discount_amount: taxDiscountAmount,
-    }: any) => {
-      let tax = 0
+    }: // tax_discount_amount: taxDiscountAmount,
+    any) => {
+      // const taxExclusive = taxDiscountAmount?.tax_exclusive || 0
+      // const taxInclusive = taxDiscountAmount?.tax_inclusive || 0
+      // const newPrice = isTax ? tax : bulkPrice
 
-      const taxExclusive = taxDiscountAmount?.tax_exclusive || 0
-      const taxInclusive = taxDiscountAmount?.tax_inclusive || 0
-
-      if (taxInclusive) {
-        tax = taxInclusive - taxExclusive
-      }
-
-      const newPrice = isTax ? tax : bulkPrice
       if (qty >= minimum && qty <= (maximum || qty)) {
         switch (discountType) {
           case 'fixed':
-            price -= +basePrice - newPrice
+            // price -= +basePrice - newPrice
+            finalDiscount = 0
+            enteredPrice = bulkPrice
             break
           case 'percent':
-            basePrice *= newPrice / 100
-            price -= +basePrice
+            // basePrice *= newPrice / 100
+            // price -= +basePrice
+            finalDiscount = enteredPrice * +(bulkPrice / 100).toFixed(2)
             break
           case 'price':
-            price -= newPrice
+            finalDiscount = bulkPrice
             break
           default:
             break
@@ -607,7 +561,27 @@ const getBulkPrice = (
       }
     }
   )
-  return price
+
+  if (finalDiscount > 0) {
+    enteredPrice -= finalDiscount
+  }
+
+  if (enteredInclusive) {
+    itemTotalTaxPrice = enteredPrice
+    singlePrice = enteredPrice / (1 + taxRate)
+  } else {
+    singlePrice = enteredPrice
+    itemTotalTaxPrice = enteredPrice * (1 + taxRate)
+  }
+
+  const taxPrice = singlePrice * taxRate
+
+  const itemPrice = !enteredInclusive ? singlePrice : itemTotalTaxPrice
+
+  return {
+    taxPrice,
+    itemPrice,
+  }
 }
 
 interface CalculatedProductPrice {
@@ -657,32 +631,7 @@ const getCalculatedProductPrice = async (
       calculatedData = res.data
     }
 
-    const taxExclusivePrice = calculatedData[0].calculated_price.tax_exclusive
-    const taInclusivePrice = calculatedData[0].calculated_price.tax_inclusive
-    let asEntered = calculatedData[0].calculated_price.as_entered
-
-    let tax = taInclusivePrice - taxExclusivePrice
-
-    if (calculatedData[0].bulk_pricing.length) {
-      const basePrice = calculatedData[0].price.as_entered
-      asEntered = getBulkPrice(
-        calculatedData[0].bulk_pricing,
-        +asEntered,
-        qty,
-        basePrice
-      )
-
-      const taxBasePrice =
-        calculatedData[0].price.tax_inclusive -
-        calculatedData[0].price.tax_exclusive
-      tax = getBulkPrice(
-        calculatedData[0].bulk_pricing,
-        +tax,
-        qty,
-        taxBasePrice,
-        true
-      )
-    }
+    const { taxPrice, itemPrice } = getBulkPrice(calculatedData[0], qty)
 
     const quoteListitem = {
       node: {
@@ -695,8 +644,8 @@ const getCalculatedProductPrice = async (
         quantity: +qty,
         optionList: JSON.stringify(optionList),
         productId: variantItem.product_id,
-        basePrice: asEntered.toFixed(2),
-        taxPrice: tax.toFixed(2),
+        basePrice: itemPrice.toFixed(2),
+        taxPrice: taxPrice.toFixed(2),
         calculatedValue: calculatedData[0],
       },
     }
@@ -787,14 +736,6 @@ const calculateProductListPrice = async (
     const { data: calculatedData } = res
 
     products.forEach((product: Partial<Product>, index: number) => {
-      const taxExclusivePrice =
-        calculatedData[index].calculated_price.tax_exclusive
-      const taInclusivePrice =
-        calculatedData[index].calculated_price.tax_inclusive
-      let asEntered = calculatedData[index].calculated_price.as_entered
-
-      let tax = taInclusivePrice - taxExclusivePrice
-
       let qty = 0
 
       if (type === '1') {
@@ -803,36 +744,17 @@ const calculateProductListPrice = async (
         qty = product?.node?.quantity ? +product.node.quantity : 0
       }
 
-      if (calculatedData[index].bulk_pricing.length) {
-        const basePrice = calculatedData[index].price.as_entered
-        asEntered = getBulkPrice(
-          calculatedData[index].bulk_pricing,
-          +asEntered,
-          qty,
-          basePrice
-        )
-
-        const taxBasePrice =
-          calculatedData[index].price.tax_inclusive -
-          calculatedData[index].price.tax_exclusive
-        tax = getBulkPrice(
-          calculatedData[index].bulk_pricing,
-          +tax,
-          qty,
-          taxBasePrice,
-          true
-        )
-      }
+      const { taxPrice, itemPrice } = getBulkPrice(calculatedData[index], qty)
 
       if (type === '1') {
-        product.basePrice = asEntered.toFixed(2)
-        product.taxPrice = tax.toFixed(2)
-        product.tax = tax.toFixed(2)
+        product.basePrice = itemPrice.toFixed(2)
+        product.taxPrice = taxPrice.toFixed(2)
+        product.tax = taxPrice.toFixed(2)
         product.calculatedValue = calculatedData[index]
       } else if (type === '2') {
-        product.node.basePrice = asEntered.toFixed(2)
-        product.node.taxPrice = tax.toFixed(2)
-        product.node.tax = tax.toFixed(2)
+        product.node.basePrice = itemPrice.toFixed(2)
+        product.node.taxPrice = taxPrice.toFixed(2)
+        product.node.tax = taxPrice.toFixed(2)
         product.node.calculatedValue = calculatedData[index]
       }
     })
@@ -886,6 +808,82 @@ const setModifierQtyPrice = async (
     console.log(e)
     return product
   }
+}
+
+const addQuoteDraftProduce = async (
+  quoteListitem: CustomFieldItems,
+  qty: number,
+  optionList: CustomFieldItems[]
+) => {
+  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
+
+  const compareOption = (
+    langList: CustomFieldItems[],
+    shortList: CustomFieldItems[]
+  ) => {
+    let flag = true
+    langList.forEach((item: CustomFieldItems) => {
+      const option = shortList.find(
+        (list: CustomFieldItems) => list.optionId === item.optionId
+      )
+      if (!option) {
+        if (item?.optionValue) flag = false
+      } else if (item.optionValue !== option.optionValue) flag = false
+    })
+    return flag
+  }
+
+  const index = b2bQuoteDraftList.findIndex(
+    (item: QuoteListitemProps) =>
+      item?.node?.variantSku === quoteListitem.node.variantSku
+  )
+
+  if (index !== -1) {
+    // TODO optionList compare
+    const oldOptionList = JSON.parse(b2bQuoteDraftList[index].node.optionList)
+
+    const isAdd =
+      oldOptionList.length > optionList.length
+        ? compareOption(oldOptionList, optionList)
+        : compareOption(optionList, oldOptionList)
+
+    if (isAdd) {
+      b2bQuoteDraftList[index].node.quantity += +qty
+
+      const {
+        optionList,
+        productsSearch,
+        variantSku,
+        quantity,
+        calculatedValue,
+      } = b2bQuoteDraftList[index].node
+
+      const product = await getCalculatedProductPrice(
+        {
+          optionList:
+            typeof optionList === 'string'
+              ? JSON.parse(optionList)
+              : optionList,
+          productsSearch,
+          sku: variantSku,
+          qty: quantity,
+        },
+        calculatedValue
+      )
+
+      if (product) {
+        b2bQuoteDraftList[index].node = product.node
+      }
+    } else {
+      // const productList = await getProductPrice(optionList, quoteListitem)
+      b2bQuoteDraftList.push(quoteListitem)
+    }
+  } else {
+    // const productList = await getProductPrice(optionList, quoteListitem)
+    b2bQuoteDraftList.push(quoteListitem)
+  }
+
+  B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
 }
 
 const calculateIsInclude = (price: number | string, tax: number | string) => {

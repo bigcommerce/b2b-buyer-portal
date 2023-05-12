@@ -13,7 +13,7 @@ export default defineConfig({
     react(),
   ],
   server: {
-    port: 3000,
+    port: 3001,
     proxy: {
       '/bigcommerce': {
         target: 'https://storefront-staging.mybigcommerce.com/',
