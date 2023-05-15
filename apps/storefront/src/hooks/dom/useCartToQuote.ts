@@ -40,7 +40,7 @@ const useCartToQuote = ({
     state: { companyInfo },
   } = useContext(GlobaledContext)
 
-  const urlArr = ['/cart', '/checkout']
+  const urlArr = ['/cart.php', '/checkout']
 
   const checkIsInPage = (url: string) => window.location.href.includes(url)
 
