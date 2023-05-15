@@ -21,7 +21,7 @@ export default function B3MobileLayout({
   }
 
   const {
-    state: { companyInfo, salesRepCompanyName, isAgenting },
+    state: { companyInfo, salesRepCompanyName, isAgenting, role },
   } = useContext(GlobaledContext)
 
   return (
@@ -119,7 +119,9 @@ export default function B3MobileLayout({
               left: 0,
             }}
           >
-            <B3AccountInfo closeSidebar={setOpenMobileSidebar} />
+            {role !== 100 && (
+              <B3AccountInfo closeSidebar={setOpenMobileSidebar} />
+            )}
           </Box>
         </Box>
       )}
