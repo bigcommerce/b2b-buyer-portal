@@ -111,6 +111,7 @@ export interface GlobalState {
   showPageMask: boolean
   timeFormat: TimeFormatProps
   enteredInclusiveTax: boolean
+  blockPendingAccountOrderCreation: boolean
 }
 
 export const initState = {
@@ -161,6 +162,8 @@ export const initState = {
   showPageMask: false,
   timeFormat: B3SStorage.get('timeFormat') || {},
   enteredInclusiveTax: B3SStorage.get('enteredInclusiveTax') || false,
+  blockPendingAccountOrderCreation:
+    B3SStorage.get('blockPendingAccountOrderCreation') || true,
 }
 
 export interface GlobalAction {

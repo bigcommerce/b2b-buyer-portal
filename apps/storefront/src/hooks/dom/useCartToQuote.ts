@@ -33,11 +33,11 @@ const useCartToQuote = ({
   const { addToQuote, addLoadding } = addQuoteToCart(setOpenPage)
 
   const {
-    state: { addToAllQuoteBtn, blockPendingAccountOrderCreation },
+    state: { addToAllQuoteBtn },
   } = useContext(CustomStyleContext)
 
   const {
-    state: { companyInfo },
+    state: { companyInfo, blockPendingAccountOrderCreation },
   } = useContext(GlobaledContext)
 
   const urlArr = ['/cart.php', '/checkout']
@@ -57,8 +57,7 @@ const useCartToQuote = ({
 
     if (companyInfo.companyStatus === '') return
 
-    if (+companyInfo.companyStatus || !blockPendingAccountOrderCreation.enabled)
-      return
+    if (+companyInfo.companyStatus || !blockPendingAccountOrderCreation) return
 
     if (
       isShowBlockPendingAccountOrderCreationTip.cartTip &&

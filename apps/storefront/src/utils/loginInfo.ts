@@ -169,7 +169,12 @@ const getCurrentJwtAndB2BToken = async (userType: number) => {
 // 3: inactive
 // 4: deleted
 
-const getCompanyInfo = async (id: number, userType: number, role: number) => {
+const getCompanyInfo = async (
+  id: number,
+  userType: number,
+  role: number,
+  blockPendingAccountOrderCreation = true
+) => {
   let companyInfo = {
     id: '',
     companyName: '',
@@ -186,6 +191,17 @@ const getCompanyInfo = async (id: number, userType: number, role: number) => {
   }
 
   B3SStorage.set('companyStatus', companyInfo.companyStatus)
+
+  const noNewSFPlaceOrders =
+    blockPendingAccountOrderCreation && +companyInfo.companyStatus === 0
+  if (noNewSFPlaceOrders) {
+    sessionStorage.setItem(
+      'b2b-blockPendingAccountOrderCreation',
+      JSON.stringify(noNewSFPlaceOrders)
+    )
+  } else {
+    sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
+  }
 
   return companyInfo
 }
@@ -262,7 +278,10 @@ export const getCompanyUserInfo = async (
   return undefined
 }
 
-export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
+export const getCurrentCustomerInfo = async (
+  dispatch: DispatchProps,
+  blockPendingAccountOrderCreation?: boolean
+) => {
   try {
     const {
       data: { customer },
@@ -291,7 +310,7 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       await getCurrentJwtAndB2BToken(userType)
 
       const [companyInfo] = await Promise.all([
-        getCompanyInfo(id, userType, role),
+        getCompanyInfo(id, userType, role, blockPendingAccountOrderCreation),
         agentInfo(customerId, role, id, dispatch),
       ])
 

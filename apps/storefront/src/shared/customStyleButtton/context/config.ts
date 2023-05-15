@@ -12,7 +12,6 @@ type BtnKeys =
   | 'loginPageHtml'
   | 'accountLoginRegistration'
   | 'companyAutoApproval'
-  | 'blockPendingAccountOrderCreation'
 
 interface BtnStyle {
   color: string
@@ -135,9 +134,6 @@ export const initState = {
     b2c: true,
   },
   companyAutoApproval: {
-    enabled: true,
-  },
-  blockPendingAccountOrderCreation: {
     enabled: true,
   },
 }

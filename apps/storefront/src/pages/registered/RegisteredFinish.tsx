@@ -2,6 +2,8 @@ import { useContext } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Alert, Box } from '@mui/material'
 
+import { GlobaledContext } from '@/shared/global'
+
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
 import { StyleTipContainer } from './styled'
@@ -13,14 +15,11 @@ export default function RegisteredFinish(props: {
   const { activeStep, handleFinish } = props
   const { state } = useContext(RegisteredContext)
   const b3Lang = useB3Lang()
-
   const {
-    accountType,
-    submitSuccess,
-    isAutoApproval,
-    storeName,
-    blockPendingAccountOrderCreation,
-  } = state
+    state: { blockPendingAccountOrderCreation },
+  } = useContext(GlobaledContext)
+
+  const { accountType, submitSuccess, isAutoApproval, storeName } = state
 
   const renderB2BSuccessPage = () => {
     if (accountType === '1') {
