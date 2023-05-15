@@ -126,6 +126,7 @@ const getTemPlateConfig = async (
   let logo = ''
 
   const obj: Partial<CustomStyleButtonState> | {} = {}
+  let blockPendingAccountOrderCreation = true
   storefrontConfigs.forEach((item: any) => {
     const storeforntKey: StoreforntKeysProps | undefined = storeforntKeys.find(
       (option) => option.key === item.key
@@ -181,9 +182,10 @@ const getTemPlateConfig = async (
       }
 
       if (storeforntKey.key === 'block_pending_account_order_creation') {
-        sessionStorage.setItem(
-          'b2b-blockPendingAccountOrderCreation',
-          JSON.stringify(item.value === '1')
+        blockPendingAccountOrderCreation = item.value === '1'
+        B3SStorage.set(
+          'blockPendingAccountOrderCreation',
+          blockPendingAccountOrderCreation
         )
       }
 
@@ -200,6 +202,7 @@ const getTemPlateConfig = async (
     payload: {
       logo,
       quoteConfig: storefrontConfigs,
+      blockPendingAccountOrderCreation,
     },
   })
 

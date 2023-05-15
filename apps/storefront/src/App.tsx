@@ -45,6 +45,8 @@ export default function App() {
       storefrontConfig,
       productQuoteEnabled,
       emailAddress,
+      companyInfo,
+      blockPendingAccountOrderCreation,
       // showPageMask
     },
     dispatch,
@@ -150,7 +152,10 @@ export default function App() {
       }
 
       if (!customerId || isRelogin) {
-        const info = await getCurrentCustomerInfo(dispatch)
+        const info = await getCurrentCustomerInfo(
+          dispatch,
+          blockPendingAccountOrderCreation
+        )
         if (info) {
           userInfo.role = info?.role
         }
@@ -164,6 +169,18 @@ export default function App() {
         gotoAllowedAppPage(+userInfo.role, gotoPage)
       }
 
+      const noNewSFPlaceOrders =
+        blockPendingAccountOrderCreation &&
+        companyInfo.companyStatus !== '' &&
+        +companyInfo.companyStatus === 0
+      if (noNewSFPlaceOrders) {
+        sessionStorage.setItem(
+          'b2b-blockPendingAccountOrderCreation',
+          JSON.stringify(noNewSFPlaceOrders)
+        )
+      } else {
+        sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
+      }
       sessionStorage.removeItem('isReLogin')
       showPageMask(dispatch, false)
       storeDispatch(

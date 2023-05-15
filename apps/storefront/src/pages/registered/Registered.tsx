@@ -55,7 +55,13 @@ function Registered(props: RegisteredProps) {
   const IframeDocument = useSelector(themeFrameSelector)
 
   const {
-    state: { isCheckout, isCloseGotoBCHome, logo, storeName },
+    state: {
+      isCheckout,
+      isCloseGotoBCHome,
+      logo,
+      storeName,
+      blockPendingAccountOrderCreation,
+    },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 
@@ -254,7 +260,10 @@ function Registered(props: RegisteredProps) {
 
         await bcLogin(getBCFieldsValue)
 
-        await getCurrentCustomerInfo(globalDispatch)
+        await getCurrentCustomerInfo(
+          globalDispatch,
+          blockPendingAccountOrderCreation
+        )
 
         if (isCloseGotoBCHome) {
           window.location.href = '/'

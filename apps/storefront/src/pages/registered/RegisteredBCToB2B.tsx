@@ -85,6 +85,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       storeName,
       logo,
       currentChannelId: channelId,
+      blockPendingAccountOrderCreation,
     },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
@@ -94,7 +95,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   const { state, dispatch } = useContext(RegisteredContext)
 
   const {
-    state: { companyAutoApproval, blockPendingAccountOrderCreation },
+    state: { companyAutoApproval },
   } = useContext(CustomStyleContext)
 
   const showLoading = (isShow = false) => {
@@ -415,8 +416,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         await getB2BFieldsValue(data, customerId, fileList)
 
         const isAuto = companyAutoApproval.enabled
-        const isBlockPendingAccountOrderCreation =
-          blockPendingAccountOrderCreation.enabled
 
         if (emailAddress) {
           dispatch({
@@ -424,8 +423,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             payload: {
               submitSuccess: true,
               isAutoApproval: isAuto,
-              blockPendingAccountOrderCreation:
-                isBlockPendingAccountOrderCreation,
+              blockPendingAccountOrderCreation,
             },
           })
           dispatch({
@@ -434,7 +432,10 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               accountType: '1',
             },
           })
-          await getCurrentCustomerInfo(globalDispatch)
+          await getCurrentCustomerInfo(
+            globalDispatch,
+            blockPendingAccountOrderCreation
+          )
           setShowFinishPage(true)
         }
       } catch (err: any) {
