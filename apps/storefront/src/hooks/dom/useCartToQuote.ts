@@ -40,44 +40,56 @@ const useCartToQuote = ({
     state: { companyInfo },
   } = useContext(GlobaledContext)
 
-  const urlArr = ['/cart.php', '/checkout']
+  const urlArr = ['/cart', '/checkout']
 
   const checkIsInPage = (url: string) => window.location.href.includes(url)
 
-  const isBlockPendingAccountOrderCreation =
-    (checkIsInPage(urlArr[0]) || checkIsInPage(urlArr[1])) &&
-    blockPendingAccountOrderCreation.enabled &&
-    companyInfo.companyStatus &&
-    +companyInfo.companyStatus === 0
+  const { pathname } = window.location
 
-  useEffect(() => {
+  const showPendingAccountTip = () => {
     const isShowBlockPendingAccountOrderCreationTip: IsShowBlockPendingAccountOrderCreationTipProps =
       B3SStorage.get('isShowBlockPendingAccountOrderCreationTip') || {
         cartTip: 0,
         checkoutTip: 0,
       }
-    const isShowTips =
-      (checkIsInPage(urlArr[0]) &&
-        isShowBlockPendingAccountOrderCreationTip.cartTip === 0) ||
-      (checkIsInPage(urlArr[1]) &&
-        isShowBlockPendingAccountOrderCreationTip.checkoutTip === 0)
-    if (isBlockPendingAccountOrderCreation && isShowTips) {
-      globalSnackbar.warning(
-        'Your account is pending approval. Ordering will be enabled after account approval',
-        {
-          isClose: true,
-        }
-      )
-      B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
-        cartTip:
-          +checkIsInPage(urlArr[0]) +
-          isShowBlockPendingAccountOrderCreationTip.cartTip,
-        checkoutTip:
-          +checkIsInPage(urlArr[1]) +
-          isShowBlockPendingAccountOrderCreationTip.checkoutTip,
-      })
-    }
-  }, [isBlockPendingAccountOrderCreation])
+
+    if (!urlArr.includes(pathname)) return
+
+    if (companyInfo.companyStatus === '') return
+
+    if (+companyInfo.companyStatus || !blockPendingAccountOrderCreation.enabled)
+      return
+
+    if (
+      isShowBlockPendingAccountOrderCreationTip.cartTip &&
+      checkIsInPage(urlArr[0])
+    )
+      return
+
+    if (
+      isShowBlockPendingAccountOrderCreationTip.checkoutTip &&
+      checkIsInPage(urlArr[1])
+    )
+      return
+    globalSnackbar.warning(
+      'Your account is pending approval. Ordering will be enabled after account approval',
+      {
+        isClose: true,
+      }
+    )
+    B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
+      cartTip:
+        +checkIsInPage(urlArr[0]) +
+        isShowBlockPendingAccountOrderCreationTip.cartTip,
+      checkoutTip:
+        +checkIsInPage(urlArr[1]) +
+        isShowBlockPendingAccountOrderCreationTip.checkoutTip,
+    })
+  }
+
+  useEffect(() => {
+    showPendingAccountTip()
+  }, [pathname])
 
   const quoteCallBbck = useCallback(() => {
     const b3CartToQuote = document.querySelector('.b2b-cart-to-quote')
