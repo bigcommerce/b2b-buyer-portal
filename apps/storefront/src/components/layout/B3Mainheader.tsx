@@ -32,7 +32,7 @@ export default function B3Mainheader({ title }: { title: string }) {
           {+role === 3 &&
             (companyInfo?.companyName || salesRepCompanyName || 'Super admin')}
         </Box>
-        <B3AccountInfo />
+        {role !== 100 && <B3AccountInfo />}
       </Box>
       {title && (
         <Box
