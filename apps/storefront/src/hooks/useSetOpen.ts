@@ -61,6 +61,13 @@ const useSetOpen = (
       })
     }
   }, [isOpen])
+
+  // useEffect(() => {
+  //   if (openUrl === '/') {
+  //     const { origin, pathname, search } = window.location
+  //     window.location.href = `${origin}${pathname}${search}`
+  //   }
+  // }, [openUrl])
 }
 
 export default useSetOpen

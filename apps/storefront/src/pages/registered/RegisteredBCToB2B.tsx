@@ -432,10 +432,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               accountType: '1',
             },
           })
-          await getCurrentCustomerInfo(
-            globalDispatch,
-            blockPendingAccountOrderCreation
-          )
+          await getCurrentCustomerInfo(globalDispatch)
           setShowFinishPage(true)
         }
       } catch (err: any) {

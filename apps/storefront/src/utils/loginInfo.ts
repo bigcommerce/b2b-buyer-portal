@@ -169,19 +169,23 @@ const getCurrentJwtAndB2BToken = async (userType: number) => {
 // 3: inactive
 // 4: deleted
 
-const getCompanyInfo = async (
-  id: number,
-  userType: number,
-  role: number,
-  blockPendingAccountOrderCreation = true
+export const getCompanyInfo = async (
+  id: number | string,
+  role: number | string,
+  userType = 3
 ) => {
   let companyInfo = {
     id: '',
     companyName: '',
     companyStatus: 99,
   }
-  if (userType === 3 && role !== 3) {
-    const { userCompany } = await getUserCompany(id)
+  const realRole = B3SStorage.get('realRole') || role
+  const B3B2BToken = B3SStorage.get('B3B2BToken')
+  const roles = [0, 1, 2]
+  if (!B3B2BToken || !roles.includes(+realRole)) return companyInfo
+
+  if (userType === 3 && +realRole !== 3) {
+    const { userCompany } = await getUserCompany(+id)
 
     if (userCompany) {
       companyInfo = {
@@ -192,8 +196,11 @@ const getCompanyInfo = async (
 
   B3SStorage.set('companyStatus', companyInfo.companyStatus)
 
+  const blockPendingAccountOrderCreation = B3SStorage.get(
+    'blockPendingAccountOrderCreation'
+  )
   const noNewSFPlaceOrders =
-    blockPendingAccountOrderCreation && +companyInfo.companyStatus === 0
+    blockPendingAccountOrderCreation && companyInfo.companyStatus === 0
   if (noNewSFPlaceOrders) {
     sessionStorage.setItem(
       'b2b-blockPendingAccountOrderCreation',
@@ -207,7 +214,7 @@ const getCompanyInfo = async (
 }
 
 export const agentInfo = async (
-  customerId: number,
+  customerId: number | string,
   role: number,
   b3UserId: number | string,
   dispatch: any
@@ -256,6 +263,14 @@ export const getCompanyUserInfo = async (
       },
     } = await getB2BCompanyUserInfo(emailAddress, customerId)
 
+    B3SStorage.set('realRole', role)
+    dispatch({
+      type: 'common',
+      payload: {
+        realRole: role,
+      },
+    })
+
     if (isB2BUser) {
       B3SStorage.set('B3Role', role)
 
@@ -278,10 +293,7 @@ export const getCompanyUserInfo = async (
   return undefined
 }
 
-export const getCurrentCustomerInfo = async (
-  dispatch: DispatchProps,
-  blockPendingAccountOrderCreation?: boolean
-) => {
+export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   try {
     const {
       data: { customer },
@@ -310,7 +322,7 @@ export const getCurrentCustomerInfo = async (
       await getCurrentJwtAndB2BToken(userType)
 
       const [companyInfo] = await Promise.all([
-        getCompanyInfo(id, userType, role, blockPendingAccountOrderCreation),
+        getCompanyInfo(id, role, userType),
         agentInfo(customerId, role, id, dispatch),
       ])
 
@@ -342,6 +354,7 @@ export const getCurrentCustomerInfo = async (
         payload: {
           isB2BUser,
           role: isB2BUser ? role : 99,
+          realRole: role,
           customerId,
           B3UserId: id,
           companyInfo,

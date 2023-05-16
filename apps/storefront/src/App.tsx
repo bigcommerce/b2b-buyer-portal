@@ -27,7 +27,12 @@ import {
   setStorefrontConfig,
 } from '@/utils'
 
-import { globalStateSelector, setGlabolCommonState } from './store'
+import { getCompanyInfo } from './utils/loginInfo'
+import {
+  globalStateSelector,
+  setGlabolCommonState,
+  setOpenPageReducer,
+} from './store'
 
 const FONT_URL =
   'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
@@ -39,14 +44,14 @@ export default function App() {
       customerId,
       BcToken,
       role,
+      realRole,
+      B3UserId,
       currentChannelId,
       isAgenting,
       quoteConfig,
       storefrontConfig,
       productQuoteEnabled,
       emailAddress,
-      companyInfo,
-      blockPendingAccountOrderCreation,
       // showPageMask
     },
     dispatch,
@@ -132,6 +137,7 @@ export default function App() {
 
   useEffect(() => {
     const isRelogin = sessionStorage.getItem('isReLogin') === 'true'
+    storeDispatch(setOpenPageReducer(setOpenPage))
     loginAndRegister()
     const init = async () => {
       // bc token
@@ -140,11 +146,13 @@ export default function App() {
       }
       setChannelStoreType(currentChannelId)
       // await getTaxZoneRates()
+
       await Promise.all([
         getStoreTaxZoneRates(),
         setStorefrontConfig(dispatch, currentChannelId),
         getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
         getCompanyUserInfo(emailAddress, dispatch, customerId, isB2BUser),
+        getCompanyInfo(B3UserId, realRole),
       ])
       const userInfo = {
         role: +role,
@@ -152,10 +160,7 @@ export default function App() {
       }
 
       if (!customerId || isRelogin) {
-        const info = await getCurrentCustomerInfo(
-          dispatch,
-          blockPendingAccountOrderCreation
-        )
+        const info = await getCurrentCustomerInfo(dispatch)
         if (info) {
           userInfo.role = info?.role
         }
@@ -169,18 +174,6 @@ export default function App() {
         gotoAllowedAppPage(+userInfo.role, gotoPage)
       }
 
-      const noNewSFPlaceOrders =
-        blockPendingAccountOrderCreation &&
-        companyInfo.companyStatus !== '' &&
-        +companyInfo.companyStatus === 0
-      if (noNewSFPlaceOrders) {
-        sessionStorage.setItem(
-          'b2b-blockPendingAccountOrderCreation',
-          JSON.stringify(noNewSFPlaceOrders)
-        )
-      } else {
-        sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
-      }
       sessionStorage.removeItem('isReLogin')
       showPageMask(dispatch, false)
       storeDispatch(

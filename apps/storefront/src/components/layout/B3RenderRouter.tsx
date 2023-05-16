@@ -45,12 +45,19 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
 
   useEffect(() => {
     if (location && isOpen) {
-      setOpenPage({
-        isOpen: true,
-        openUrl: location.pathname,
-      })
-      if (location.state && location.pathname.includes('dashboard'))
-        location.state = null
+      if (location.pathname === '/') {
+        setOpenPage({
+          isOpen: false,
+          openUrl: '',
+        })
+      } else {
+        setOpenPage({
+          isOpen: true,
+          openUrl: location.pathname,
+        })
+        if (location.state && location.pathname.includes('dashboard'))
+          location.state = null
+      }
     }
   }, [location])
 

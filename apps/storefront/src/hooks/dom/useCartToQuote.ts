@@ -37,10 +37,13 @@ const useCartToQuote = ({
   } = useContext(CustomStyleContext)
 
   const {
-    state: { companyInfo, blockPendingAccountOrderCreation },
+    state: { companyInfo },
   } = useContext(GlobaledContext)
+  const blockPendingAccountOrderCreation = B3SStorage.get(
+    'blockPendingAccountOrderCreation'
+  )
 
-  const urlArr = ['/cart.php', '/checkout']
+  const urlArr = ['/', '/checkout']
 
   const checkIsInPage = (url: string) => window.location.href.includes(url)
 
@@ -70,12 +73,22 @@ const useCartToQuote = ({
       checkIsInPage(urlArr[1])
     )
       return
-    globalSnackbar.warning(
-      'Your account is pending approval. Ordering will be enabled after account approval',
-      {
-        isClose: true,
-      }
-    )
+
+    if (checkIsInPage(urlArr[0])) {
+      globalSnackbar.warning(
+        'Your account is pending approval. Ordering will be enabled after account approval',
+        {
+          isClose: true,
+        }
+      )
+    }
+
+    if (checkIsInPage(urlArr[1])) {
+      globalSnackbar.error(
+        'Your account is pending approval. Ordering will be enabled after account approval'
+      )
+    }
+
     B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
       cartTip:
         +checkIsInPage(urlArr[0]) +
@@ -88,7 +101,7 @@ const useCartToQuote = ({
 
   useEffect(() => {
     showPendingAccountTip()
-  }, [pathname])
+  }, [pathname, blockPendingAccountOrderCreation])
 
   const quoteCallBbck = useCallback(() => {
     const b3CartToQuote = document.querySelector('.b2b-cart-to-quote')

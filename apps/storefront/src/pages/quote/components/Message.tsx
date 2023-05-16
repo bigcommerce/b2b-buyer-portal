@@ -78,7 +78,13 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
             placement="top"
             arrow
           >
-            <Box>{msg.message}</Box>
+            <Box
+              sx={{
+                wordBreak: 'break-word',
+              }}
+            >
+              {msg.message}
+            </Box>
           </Tooltip>
           {isEndMessage && (
             <Box

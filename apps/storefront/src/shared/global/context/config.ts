@@ -73,6 +73,7 @@ export interface GlobalState {
   }
   emailAddress: string
   role: number | string
+  realRole: number | string
   logo: string
   isCompanyAccount: boolean
   isAgenting: boolean
@@ -129,6 +130,7 @@ export const initState = {
     B3SStorage.get('B3Role') || B3SStorage.get('B3Role') === 0
       ? B3SStorage.get('B3Role')
       : 100,
+  realRole: B3SStorage.get('realRole') || 100,
   isAgenting: B3SStorage.get('isAgenting') || false,
   salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
   salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',

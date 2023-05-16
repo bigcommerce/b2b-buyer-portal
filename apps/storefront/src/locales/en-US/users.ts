@@ -76,7 +76,7 @@ export default {
   'intl.user.register.RegisterFinish.bcSuccess.tip':
     'Thank you for creating your account at {storeName}.',
   'intl.user.register.RegisterFinish.blockPendingAccountOrderCreation.tip':
-    'Your account is pending approval. Ordering will be enabled after account approval',
+    'Your business account is pending approval. Ordering will be enabled after account approval',
 
   // register components
   'intl.user.register.RegisteredSingleCheckBox.label':
