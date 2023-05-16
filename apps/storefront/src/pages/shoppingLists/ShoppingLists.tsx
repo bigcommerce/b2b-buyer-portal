@@ -3,7 +3,7 @@ import { Box } from '@mui/material'
 
 import { B3Dialog, B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { useCardListColumn, useMobile , useTableRef } from '@/hooks'
+import { useCardListColumn, useMobile, useTableRef } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   deleteB2BShoppingList,

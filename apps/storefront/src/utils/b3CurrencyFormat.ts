@@ -12,7 +12,9 @@ interface MoneyFormat {
 }
 
 const currencyFormat = (price: string | number, showCurrencyToken = true) => {
-  const currentCurrency = globalB3?.setting?.is_local_debugging ? getDefaultCurrencyInfo() : getActiveCurrencyInfo()
+  const currentCurrency = globalB3?.setting?.is_local_debugging
+    ? getDefaultCurrencyInfo()
+    : getActiveCurrencyInfo()
 
   const moneyFormat: MoneyFormat = {
     currency_location: currentCurrency.token_location || 'left',

@@ -1,4 +1,3 @@
-/// <reference types="./shared/global/context/config.ts" />
 declare interface CustomFieldItems {
   [key: string]: any
 }
@@ -8,9 +7,14 @@ declare interface CustomFieldStringItems {
 }
 
 declare interface Window {
-  tipDispatch: DispatchProps
+  tipDispatch: import('./shared/global/context/config.ts').DispatchProps
   b3Tipmessage: any
   b2bStorefrontApp: any
   globalTipDispatch: any
   B3Local: any
+  b2b: {
+    utils: {
+      openPage: (page: import('./constants').HeadlessRoute) => void
+    }
+  }
 }

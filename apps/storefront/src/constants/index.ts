@@ -24,3 +24,14 @@ export const PRODUCT_DEFAULT_IMAGE =
 
 export const STORE_DEFAULT_LOGO =
   'https://cdn.bundleb2b.net/b2blogo/b2be-logo.png'
+
+export enum HeadlessRoutes {
+  SIGN_IN = '/login',
+  LOG_OUT = '/login?loginFlag=3',
+  FORGOT_PASSWORD = '/forgotpassword',
+  REGISTER_ACCOUNT = '/registered',
+  DRAFT_QUOTE = '/quoteDraft',
+  SHOPPING_LISTS = '/shoppingLists',
+}
+
+export type HeadlessRoute = keyof typeof HeadlessRoutes

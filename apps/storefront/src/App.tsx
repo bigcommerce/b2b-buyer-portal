@@ -9,6 +9,7 @@ import {
   B3MasquradeGobalTip,
   B3RenderRouter,
   GlobalDialog,
+  HeadlessController,
   showPageMask,
   ThemeFrame,
 } from '@/components'
@@ -270,6 +271,7 @@ export default function App() {
         productQuoteEnabled={productQuoteEnabled}
         setOpenPage={setOpenPage}
       />
+      <HeadlessController setOpenPage={setOpenPage} />
       <B3GlobalTip />
       <GlobalDialog />
     </>
