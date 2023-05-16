@@ -5,6 +5,8 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import type { OpenPageState } from '@b3/hooks'
 import { Box, Button } from '@mui/material'
 
@@ -15,6 +17,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
+import { globalStateSelector } from '@/store'
 // import {
 //   OptionListProduct,
 // } from '@/types/products'
@@ -95,6 +98,9 @@ function PDP({ setOpenPage }: PDPProps) {
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
+  const navigate = useNavigate()
+  const { setOpenPageFn } = useSelector(globalStateSelector)
+
   useEffect(() => {
     setOpenShoppingList(true)
   }, [])
@@ -102,8 +108,10 @@ function PDP({ setOpenPage }: PDPProps) {
   const handleShoppingClose = () => {
     setOpenShoppingList(false)
     setIsOpenCreateShopping(false)
-    setOpenPage({
+    navigate('/')
+    setOpenPageFn({
       isOpen: false,
+      openUrl: '',
     })
   }
 

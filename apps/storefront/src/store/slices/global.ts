@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react'
+import type { OpenPageState } from '@b3/hooks'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice, Draft } from '@reduxjs/toolkit'
 
@@ -37,6 +39,7 @@ export interface GlabolState {
   isPageComplete?: boolean
   globalMessage?: GlobalMessageDialog
   enteredInclusive?: boolean
+  setOpenPageFn?: Dispatch<SetStateAction<OpenPageState>>
 }
 
 const initialState: GlabolState = {
@@ -50,6 +53,7 @@ const initialState: GlabolState = {
     cancelText: 'Cancel',
   },
   enteredInclusive: false,
+  setOpenPageFn: undefined,
 }
 
 export const glabolSlice = createSlice({
@@ -70,6 +74,14 @@ export const glabolSlice = createSlice({
     setEnteredInclusive: (state, { payload }: PayloadAction<boolean>) => {
       state.enteredInclusive = payload as Draft<boolean>
     },
+    setOpenPageReducer: (
+      state,
+      { payload }: PayloadAction<Dispatch<SetStateAction<OpenPageState>>>
+    ) => {
+      state.setOpenPageFn = payload as Draft<
+        Dispatch<SetStateAction<OpenPageState>>
+      >
+    },
   },
 })
 
@@ -78,6 +90,7 @@ export const {
   setTaxZoneRates,
   setGlabolCommonState,
   setEnteredInclusive,
+  setOpenPageReducer,
 } = glabolSlice.actions
 
 export default glabolSlice.reducer

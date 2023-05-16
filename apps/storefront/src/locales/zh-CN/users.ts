@@ -66,7 +66,7 @@ export default {
   'intl.user.register.RegisterFinish.bcSuccess.tip':
     '感谢您在 {storeName} 创建帐户。',
   'intl.user.register.RegisterFinish.blockPendingAccountOrderCreation.tip':
-    '您的帐户正在等待批准。 帐户批准后将启用订购',
+    '您的企业帐户正在等待批准。 帐户批准后将启用订购',
 
   // register components
   'intl.user.register.RegisteredSingleCheckBox.label': '电子邮件营销通讯',

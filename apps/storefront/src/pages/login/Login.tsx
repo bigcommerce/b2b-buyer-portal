@@ -69,7 +69,7 @@ export default function Login(props: RegisteredProps) {
   const b3Lang = useB3Lang()
 
   const {
-    state: { isCheckout, logo, blockPendingAccountOrderCreation },
+    state: { isCheckout, logo },
     dispatch,
   } = useContext(GlobaledContext)
 
@@ -203,10 +203,7 @@ export default function Login(props: RegisteredProps) {
         if (errors?.length || !bcData) {
           getforcePasswordReset(data.emailAddress)
         } else {
-          const info = await getCurrentCustomerInfo(
-            dispatch,
-            blockPendingAccountOrderCreation
-          )
+          const info = await getCurrentCustomerInfo(dispatch)
 
           if (info?.userType === 3 && info?.role === 3) {
             navigate('/dashboard')
