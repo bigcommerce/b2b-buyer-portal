@@ -1,6 +1,8 @@
 declare global {
   interface Window {
     B3: any
+    B3Local: any
+    B3CustomConfig: any
   }
 }
 
@@ -31,6 +33,7 @@ const globalB3 = {
     b2b_socket_url: 'https://staging-v2.bundleb2b.net',
   },
   ...localConfig(),
+  ...(window?.B3CustomConfig || {}),
 }
 
 export default globalB3
