@@ -1,8 +1,10 @@
 import {
   combineReducers,
   configureStore,
+  ImmutableStateInvariantMiddlewareOptions,
   PreloadedState,
   Reducer,
+  SerializableStateInvariantMiddlewareOptions,
 } from '@reduxjs/toolkit'
 import { ToolkitStore } from '@reduxjs/toolkit/dist/configureStore'
 
@@ -18,7 +20,11 @@ interface SetupStoreParams<Type> {
           | undefined
       }
     | undefined
-  middlewareOptions?: Record<string, any>
+  middlewareOptions?: Record<
+    string,
+    | ImmutableStateInvariantMiddlewareOptions
+    | SerializableStateInvariantMiddlewareOptions
+  >
 }
 export interface CustomToolkitStore<Type> extends ToolkitStore {
   asyncReducers?: Reducers<Type>

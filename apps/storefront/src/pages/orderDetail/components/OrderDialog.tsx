@@ -14,10 +14,7 @@ import {
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import { snackbar } from '@/utils'
 
-import {
-  EditableProductItem,
-  OrderProductItem,
-} from '../../../types'
+import { EditableProductItem, OrderProductItem } from '../../../types'
 import getReturnFormFields from '../shared/config'
 
 import CreateShoppingList from './CreateShoppingList'
