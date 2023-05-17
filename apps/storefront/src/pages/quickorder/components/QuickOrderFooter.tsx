@@ -30,6 +30,7 @@ import {
   currencyFormat,
   getProductPriceIncTax,
   snackbar,
+  validProductQty,
 } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
@@ -304,17 +305,17 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           (product: CustomFieldItems) => +product.id === +productId
         )
 
-        const variantItem = currentProductSearch.variants.find(
+        const variantItem = currentProductSearch?.variants.find(
           (item: CustomFieldItems) => item.sku === variantSku
         )
 
         const quoteListitem = {
           node: {
             id: uuid(),
-            variantSku: variantItem.sku,
+            variantSku: variantItem?.sku || variantSku,
             variantId,
             productsSearch: currentProductSearch,
-            primaryImage: variantItem.image_url || PRODUCT_DEFAULT_IMAGE,
+            primaryImage: variantItem?.image_url || PRODUCT_DEFAULT_IMAGE,
             productName,
             quantity: +quantity || 1,
             optionList: JSON.stringify(optionsList),
@@ -329,19 +330,24 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         isSuccess = true
       })
 
-      await calculateProductListPrice(newProducts, '2')
-      addQuoteDraftProducts(newProducts)
-      // newProducts.forEach((product: CustomFieldItems) => {
-      //   addQuoteDraftProduce(
-      //     product,
-      //     product.node.quantity,
-      //     JSON.parse(product.node.optionList) || []
-      //   )
-      // })
+      isSuccess = validProductQty(newProducts)
+
       if (isSuccess) {
+        await calculateProductListPrice(newProducts, '2')
+        addQuoteDraftProducts(newProducts)
         snackbar.success('', {
           jsx: successTip({
             message: 'Products were added to your quote.',
+            link: '/quoteDraft',
+            linkText: 'VIEW QUOTE',
+            isOutLink: false,
+          }),
+          isClose: true,
+        })
+      } else {
+        snackbar.error('', {
+          jsx: successTip({
+            message: 'The quantity of each product in Quote is 1-1000000.',
             link: '/quoteDraft',
             linkText: 'VIEW QUOTE',
             isOutLink: false,

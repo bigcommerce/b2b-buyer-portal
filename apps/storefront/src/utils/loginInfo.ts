@@ -107,7 +107,10 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('salesRepCompanyId', '')
   B3SStorage.set('isAgenting', '')
 
-  B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {})
+  B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
+    cartTip: 0,
+    checkoutTip: 0,
+  })
 
   dispatch({
     type: 'common',
@@ -179,7 +182,9 @@ export const getCompanyInfo = async (
     companyName: '',
     companyStatus: 99,
   }
-  const realRole = B3SStorage.get('realRole') || role
+  const realRole =
+    B3SStorage.get('realRole') === 0 ? 0 : B3SStorage.get('realRole') || role
+
   const B3B2BToken = B3SStorage.get('B3B2BToken')
   const roles = [0, 1, 2]
   if (!B3B2BToken || !roles.includes(+realRole)) return companyInfo

@@ -13,6 +13,7 @@ import {
   getCalculatedProductPrice,
   globalSnackbar,
   isAllRequiredOptionFilled,
+  validProductQty,
 } from '@/utils'
 
 import { getProductOptionList, serialize } from '../../pages/pdp/PDP'
@@ -267,17 +268,29 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
         newProduct.push(quoteListitem)
       })
 
-      await calculateProductListPrice(newProduct, '2')
+      const isSuccess = validProductQty(newProduct)
+      if (isSuccess) {
+        await calculateProductListPrice(newProduct, '2')
+        addQuoteDraftProducts(newProduct)
 
-      addQuoteDraftProducts(newProduct)
-
-      globalSnackbar.success('Product was added to your quote.', {
-        jsx: () =>
-          B3AddToQuoteTip({
-            gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
-          }),
-        isClose: true,
-      })
+        globalSnackbar.success('', {
+          jsx: () =>
+            B3AddToQuoteTip({
+              gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
+              msg: 'Product was added to your quote.',
+            }),
+          isClose: true,
+        })
+      } else {
+        globalSnackbar.error('', {
+          jsx: () =>
+            B3AddToQuoteTip({
+              gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
+              msg: 'The quantity of each product in Quote is 1-1000000.',
+            }),
+          isClose: true,
+        })
+      }
     } catch (e) {
       console.log(e)
     } finally {
@@ -338,12 +351,24 @@ const addQuoteToProduct = (setOpenPage: DispatchProps) => {
         qty,
       })
 
-      if (quoteListitem) {
-        addQuoteDraftProduce(quoteListitem, qty, optionList || [])
-        globalSnackbar.success('Product was added to your quote.', {
+      const newProducts: CustomFieldItems = [quoteListitem]
+      const isSuccess = validProductQty(newProducts)
+      if (quoteListitem && isSuccess) {
+        await addQuoteDraftProduce(quoteListitem, qty, optionList || [])
+        globalSnackbar.success('', {
           jsx: () =>
             B3AddToQuoteTip({
               gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
+              msg: 'Product was added to your quote.',
+            }),
+          isClose: true,
+        })
+      } else if (!isSuccess) {
+        globalSnackbar.error('', {
+          jsx: () =>
+            B3AddToQuoteTip({
+              gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
+              msg: 'The maximum purchase quantity does not exceed 1,000,000.',
             }),
           isClose: true,
         })
