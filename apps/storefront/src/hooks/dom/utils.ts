@@ -8,6 +8,7 @@ import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { getCartInfoWithOptions } from '@/shared/service/bc'
 import {
   addQuoteDraftProduce,
+  addQuoteDraftProducts,
   calculateProductListPrice,
   getCalculatedProductPrice,
   globalSnackbar,
@@ -264,17 +265,11 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
         }
 
         newProduct.push(quoteListitem)
-
-        // addQuoteDraftProduce(quoteListitem, quantity, optionsList || [])
       })
 
       await calculateProductListPrice(newProduct, '2')
 
-      newProduct.forEach((product: CustomFieldItems) => {
-        const { optionList, quantity } = product.node
-
-        addQuoteDraftProduce(product, quantity, JSON.parse(optionList) || [])
-      })
+      addQuoteDraftProducts(newProduct)
 
       globalSnackbar.success('Product was added to your quote.', {
         jsx: () =>

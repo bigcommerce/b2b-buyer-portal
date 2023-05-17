@@ -36,6 +36,7 @@ import { validatorRules } from './validatorRules'
 
 export {
   addQuoteDraftProduce,
+  addQuoteDraftProducts,
   calculateIsInclude,
   calculateProductListPrice,
   getCalculatedParams,

@@ -22,7 +22,7 @@ import {
 import { store } from '@/store'
 import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
-  addQuoteDraftProduce,
+  addQuoteDraftProducts,
   B3LStorage,
   B3SStorage,
   getDefaultCurrencyInfo,
@@ -338,27 +338,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   }
 
   const addToQuote = (products: CustomFieldItems[]) => {
-    products.forEach((product) => {
-      const {
-        optionList,
-        quantity,
-        variantSku,
-        productsSearch: { variants },
-        basePrice,
-      } = product.node
-      const variantItem = variants.find(
-        (item: CustomFieldItems) => item.sku === variantSku
-      )
-
-      product.node.basePrice = basePrice
-      product.node.tax =
-        variantItem.bc_calculated_price.tax_inclusive -
-        variantItem.bc_calculated_price.tax_exclusive
-
-      const newOptionList = JSON.parse(optionList) || []
-
-      addQuoteDraftProduce(product, quantity, newOptionList)
-    })
+    addQuoteDraftProducts(products)
 
     quoteTableRef.current?.refreshList()
   }

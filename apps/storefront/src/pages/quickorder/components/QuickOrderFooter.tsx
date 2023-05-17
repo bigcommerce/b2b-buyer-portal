@@ -25,7 +25,7 @@ import {
 } from '@/shared/service/b2b/graphql/product'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import {
-  addQuoteDraftProduce,
+  addQuoteDraftProducts,
   calculateProductListPrice,
   currencyFormat,
   getProductPriceIncTax,
@@ -330,13 +330,14 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       })
 
       await calculateProductListPrice(newProducts, '2')
-      newProducts.forEach((product: CustomFieldItems) => {
-        addQuoteDraftProduce(
-          product,
-          product.node.quantity,
-          JSON.parse(product.node.optionList) || []
-        )
-      })
+      addQuoteDraftProducts(newProducts)
+      // newProducts.forEach((product: CustomFieldItems) => {
+      //   addQuoteDraftProduce(
+      //     product,
+      //     product.node.quantity,
+      //     JSON.parse(product.node.optionList) || []
+      //   )
+      // })
       if (isSuccess) {
         snackbar.success('', {
           jsx: successTip({
