@@ -39,6 +39,7 @@ export {
   addQuoteDraftProducts,
   calculateIsInclude,
   calculateProductListPrice,
+  compareOption,
   getCalculatedParams,
   getCalculatedProductPrice,
   getModifiersPrice,
@@ -46,6 +47,7 @@ export {
   getProductExtraPrice,
   getQuickAddProductExtraPrice,
   setModifierQtyPrice,
+  validProductQty,
 } from './b3Product/b3Product'
 export {
   getQuoteConfig,

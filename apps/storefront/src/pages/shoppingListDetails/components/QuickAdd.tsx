@@ -4,8 +4,9 @@ import { useB3Lang } from '@b3/lang'
 import { Box, Grid, Typography } from '@mui/material'
 
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
+import { QuoteListitemProps } from '@/pages/quote/shared/config'
 import { GlobaledContext } from '@/shared/global'
-import { snackbar } from '@/utils'
+import { B3LStorage, compareOption, snackbar } from '@/utils'
 import {
   getAllModifierDefaultValue,
   getQuickAddRowFields,
@@ -159,6 +160,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         option: options,
         purchasingDisabled = '1',
         modifiers,
+        variantSku,
       } = variantInfo
       const defaultModifiers = getAllModifierDefaultValue(modifiers)
 
@@ -220,6 +222,29 @@ export default function QuickAdd(props: AddToListContentProps) {
       })
 
       passSku.push(sku)
+
+      const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
+      const index = b2bQuoteDraftList.findIndex(
+        (item: QuoteListitemProps) => item?.node?.variantSku === variantSku
+      )
+      if (index !== -1) {
+        const oldOptionList = JSON.parse(
+          b2bQuoteDraftList[index].node.optionList
+        )
+
+        const isAdd =
+          oldOptionList.length > optionList.length
+            ? compareOption(oldOptionList, optionList)
+            : compareOption(optionList, oldOptionList)
+
+        if (isAdd) {
+          b2bQuoteDraftList[index].node.quantity += +quantity
+        }
+        if (+b2bQuoteDraftList[index].node.quantity > 1000000) {
+          numberLimit.push(sku)
+          return
+        }
+      }
 
       productItems.push({
         ...variantInfo,

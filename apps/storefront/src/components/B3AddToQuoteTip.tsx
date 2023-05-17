@@ -2,10 +2,11 @@ import { Box, Button } from '@mui/material'
 
 interface B3AddToQuoteTipProps {
   gotoQuoteDraft: () => void
+  msg: string
 }
 
 export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
-  const { gotoQuoteDraft } = props
+  const { gotoQuoteDraft, msg } = props
 
   return (
     <Box
@@ -19,7 +20,7 @@ export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
           mr: '15px',
         }}
       >
-        Product was added to your quote.
+        {msg}
       </Box>
       <Button
         onClick={() => gotoQuoteDraft()}

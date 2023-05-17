@@ -863,6 +863,39 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
   B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
 }
 
+const validProductQty = (products: CustomFieldItems) => {
+  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
+
+  let canAdd = true
+  products.forEach((product: CustomFieldItems) => {
+    const index = b2bQuoteDraftList.findIndex(
+      (item: QuoteListitemProps) =>
+        item?.node?.variantSku === product.node.variantSku
+    )
+    const optionList = JSON.parse(product.node.optionList) || []
+
+    if (index !== -1) {
+      const oldOptionList = JSON.parse(b2bQuoteDraftList[index].node.optionList)
+
+      const isAdd =
+        oldOptionList.length > optionList.length
+          ? compareOption(oldOptionList, optionList)
+          : compareOption(optionList, oldOptionList)
+
+      if (isAdd) {
+        b2bQuoteDraftList[index].node.quantity += +product.node.quantity
+      }
+      if (+b2bQuoteDraftList[index].node.quantity > 1000000) {
+        canAdd = false
+      }
+    } else if (+product.node.quantity > 1000000) {
+      canAdd = false
+    }
+  })
+
+  return canAdd
+}
+
 const addQuoteDraftProduce = async (
   quoteListitem: CustomFieldItems,
   qty: number,
@@ -938,6 +971,7 @@ export {
   addQuoteDraftProducts,
   calculateIsInclude,
   calculateProductListPrice,
+  compareOption,
   getCalculatedParams,
   getCalculatedProductPrice,
   getModifiersPrice,
@@ -945,4 +979,5 @@ export {
   getProductExtraPrice,
   getQuickAddProductExtraPrice,
   setModifierQtyPrice,
+  validProductQty,
 }

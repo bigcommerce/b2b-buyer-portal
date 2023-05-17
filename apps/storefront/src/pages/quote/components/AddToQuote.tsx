@@ -10,6 +10,7 @@ import {
   addQuoteDraftProducts,
   calculateProductListPrice,
   snackbar,
+  validProductQty,
 } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
@@ -217,7 +218,7 @@ export default function AddToQuote(props: AddToListProps) {
 
         isSuccess = true
       })
-
+      isSuccess = validProductQty(newProducts)
       if (isSuccess) {
         await calculateProductListPrice(newProducts, '2')
 
@@ -227,6 +228,8 @@ export default function AddToQuote(props: AddToListProps) {
         })
         updateList()
         setIsOpenBulkLoadCSV(false)
+      } else {
+        snackbar.error('The quantity of each product in Quote is 1-1000000.')
       }
     } catch (e) {
       console.log(e)
