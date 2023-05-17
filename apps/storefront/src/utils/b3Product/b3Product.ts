@@ -810,28 +810,65 @@ const setModifierQtyPrice = async (
   }
 }
 
+const compareOption = (
+  langList: CustomFieldItems[],
+  shortList: CustomFieldItems[]
+) => {
+  let flag = true
+  langList.forEach((item: CustomFieldItems) => {
+    const option = shortList.find(
+      (list: CustomFieldItems) => list.optionId === item.optionId
+    )
+    if (!option) {
+      if (item?.optionValue) flag = false
+    } else if (item.optionValue !== option.optionValue) flag = false
+  })
+  return flag
+}
+
+const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
+  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
+  if (b2bQuoteDraftList.length === 0) {
+    B3LStorage.set('b2bQuoteDraftList', products)
+    return
+  }
+  if (products.length) {
+    products.forEach((quoteProduct: CustomFieldItems) => {
+      const optionList = JSON.parse(quoteProduct.node.optionList)
+      const productIndex = b2bQuoteDraftList.findIndex(
+        (item: CustomFieldItems) => {
+          const oldOptionList = JSON.parse(item.node.optionList)
+          const isAdd =
+            oldOptionList.length > optionList.length
+              ? compareOption(oldOptionList, optionList)
+              : compareOption(optionList, oldOptionList)
+
+          return item.node.variantSku === quoteProduct.node.variantSku && isAdd
+        }
+      )
+
+      if (productIndex !== -1) {
+        b2bQuoteDraftList[productIndex].node.quantity +=
+          quoteProduct.node.quantity
+        if (quoteProduct.node?.calculatedValue) {
+          b2bQuoteDraftList[productIndex].node.calculatedValue =
+            quoteProduct.node.calculatedValue
+        }
+      } else {
+        b2bQuoteDraftList.push(quoteProduct)
+      }
+    })
+  }
+
+  B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
+}
+
 const addQuoteDraftProduce = async (
   quoteListitem: CustomFieldItems,
   qty: number,
   optionList: CustomFieldItems[]
 ) => {
   const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
-
-  const compareOption = (
-    langList: CustomFieldItems[],
-    shortList: CustomFieldItems[]
-  ) => {
-    let flag = true
-    langList.forEach((item: CustomFieldItems) => {
-      const option = shortList.find(
-        (list: CustomFieldItems) => list.optionId === item.optionId
-      )
-      if (!option) {
-        if (item?.optionValue) flag = false
-      } else if (item.optionValue !== option.optionValue) flag = false
-    })
-    return flag
-  }
 
   const index = b2bQuoteDraftList.findIndex(
     (item: QuoteListitemProps) =>
@@ -898,6 +935,7 @@ const calculateIsInclude = (price: number | string, tax: number | string) => {
 
 export {
   addQuoteDraftProduce,
+  addQuoteDraftProducts,
   calculateIsInclude,
   calculateProductListPrice,
   getCalculatedParams,

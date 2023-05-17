@@ -7,7 +7,7 @@ import { B3CollapseContainer, B3Upload, CustomButton } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import {
-  addQuoteDraftProduce,
+  addQuoteDraftProducts,
   calculateProductListPrice,
   snackbar,
 } from '@/utils'
@@ -220,13 +220,8 @@ export default function AddToQuote(props: AddToListProps) {
 
       if (isSuccess) {
         await calculateProductListPrice(newProducts, '2')
-        newProducts.forEach((item: CustomFieldItems) => {
-          addQuoteDraftProduce(
-            item,
-            +item.node.quantity,
-            JSON.parse(item.node.optionList) || []
-          )
-        })
+
+        addQuoteDraftProducts(newProducts)
         snackbar.success('Products were added to your quote.', {
           isClose: true,
         })
