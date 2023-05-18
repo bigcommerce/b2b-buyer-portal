@@ -111,6 +111,14 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     cartTip: 0,
     checkoutTip: 0,
   })
+  B3SStorage.set('blockPendingAccountOrderCreation', false)
+  B3SStorage.set('realRole', 100)
+  B3SStorage.set('B3CompanyInfo', {
+    id: '',
+    companyName: '',
+    companyStatus: '',
+  })
+  sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
 
   dispatch({
     type: 'common',
