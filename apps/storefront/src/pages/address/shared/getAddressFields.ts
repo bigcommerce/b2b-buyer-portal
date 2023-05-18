@@ -78,9 +78,12 @@ const convertExtraFields = (
   extraFields: B2bExtraFieldsProps[]
 ): [] | ExtraFieldsProp[] => {
   if (extraFields.length === 0) return []
-  const visibleFields = extraFields.filter(
-    (field: B2bExtraFieldsProps) => field.visibleToEnduser
-  )
+  const visibleFields =
+    extraFields.filter(
+      (field: B2bExtraFieldsProps) => field.visibleToEnduser
+    ) || []
+
+  if (visibleFields?.length === 0) return []
 
   const b2bExtraFields = visibleFields.map((field: B2bExtraFieldsProps) => {
     const fields = {
