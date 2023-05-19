@@ -11,7 +11,10 @@ import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 import { cloneDeep } from 'lodash'
 
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import {
+  getContrastColor,
+  getStyles,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { setGlabolCommonState } from '@/store'
@@ -83,6 +86,8 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     enabled = false,
   } = shoppingListBtn
 
+  const customTextColor = getStyles(customCss).color || getContrastColor(color)
+
   useEffect(() => {
     // if (role === 100) return
     const addToShoppingListAll = document.querySelectorAll(
@@ -109,7 +114,7 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
           myShoppingListBtn.innerHTML = text || 'Add to Shopping List'
           myShoppingListBtn.setAttribute('style', customCss)
           myShoppingListBtn.style.backgroundColor = color
-          myShoppingListBtn.style.color = getContrastColor(color)
+          myShoppingListBtn.style.color = customTextColor
           myShoppingListBtn.setAttribute(
             'class',
             `b2b-add-to-list ${classSelector}`
@@ -133,7 +138,7 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         shoppingBtnDom.innerHTML = text || 'Add to Shopping List'
         shoppingBtnDom.setAttribute('style', customCss)
         shoppingBtnDom.style.backgroundColor = color
-        shoppingBtnDom.style.color = getContrastColor(color)
+        shoppingBtnDom.style.color = customTextColor
         shoppingBtnDom.setAttribute('class', `b2b-add-to-list ${classSelector}`)
         if (CustomAddToShoppingListAll.length) {
           node.appendChild(shoppingBtnDom)

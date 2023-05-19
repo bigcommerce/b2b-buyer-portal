@@ -1,4 +1,4 @@
-import { SnackbarOrigin, SxProps } from '@mui/material'
+import { SnackbarOrigin } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { trim } from 'lodash'
 
@@ -13,7 +13,7 @@ export const getLocation = (location: string): SnackbarOrigin => ({
   horizontal: location.includes('Left') ? 'left' : 'right',
 })
 
-export const getStyles = (customCss: string): SxProps => {
+export const getStyles = (customCss: string) => {
   const str = trim(customCss)
   const sx = str
     .replace(/\n/g, '')
@@ -22,7 +22,9 @@ export const getStyles = (customCss: string): SxProps => {
       const [property, value] = style.split(':')
       if (property && value) {
         acc[
-          property.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+          property
+            .trim()
+            .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
         ] = value.trim().replace(';', '')
       }
       return acc

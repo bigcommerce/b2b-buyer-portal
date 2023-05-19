@@ -8,7 +8,10 @@ import {
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import {
+  getContrastColor,
+  getStyles,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { B3SStorage, globalSnackbar } from '@/utils'
@@ -122,6 +125,8 @@ const useCartToQuote = ({
     enabled = false,
   } = addToAllQuoteBtn
 
+  const customTextColor = getStyles(customCss).color || getContrastColor(color)
+
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(
       globalB3['dom.cartActions.container']
@@ -144,7 +149,7 @@ const useCartToQuote = ({
         cartToQuoteBtn.innerHTML = text || 'Add All to Quote'
         cartToQuoteBtn.setAttribute('style', customCss)
         cartToQuoteBtn.style.backgroundColor = color
-        cartToQuoteBtn.style.color = getContrastColor(color)
+        cartToQuoteBtn.style.color = customTextColor
         cartToQuoteBtn.setAttribute(
           'class',
           `b2b-cart-to-quote ${classSelector}`
@@ -162,7 +167,7 @@ const useCartToQuote = ({
         cartQuoteBtnDom.innerHTML = text || 'Add All to Quote'
         cartQuoteBtnDom.setAttribute('style', customCss)
         cartQuoteBtnDom.style.backgroundColor = color
-        cartQuoteBtnDom.style.color = getContrastColor(color)
+        cartQuoteBtnDom.style.color = customTextColor
         cartQuoteBtnDom.setAttribute(
           'class',
           `b2b-cart-to-quote ${classSelector}`
