@@ -180,8 +180,12 @@ function Address() {
 
         const editPermission =
           (configList || []).find(
+            (config: AddressConfigItem) => config.key === 'address_book'
+          )?.isEnabled === '1' &&
+          (configList || []).find(
             (config: AddressConfigItem) => config.key === key
           )?.isEnabled === '1'
+
         setEditPermission(editPermission)
       } catch (error) {
         console.error(error)
