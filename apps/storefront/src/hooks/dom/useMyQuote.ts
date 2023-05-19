@@ -10,7 +10,10 @@ import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 import { cloneDeep } from 'lodash'
 
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import {
+  getContrastColor,
+  getStyles,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { B3LStorage, removeCartPermissions } from '@/utils'
 
@@ -78,6 +81,8 @@ const useMyQuote = ({
     enabled = false,
   } = addQuoteBtn
 
+  const customTextColor = getStyles(customCss).color || getContrastColor(color)
+
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(globalB3['dom.setToQuote'])
     const CustomAddToQuoteAll = locationSelector
@@ -105,7 +110,7 @@ const useMyQuote = ({
           myQuote.innerHTML = text || 'Add to Quote'
           myQuote.setAttribute('style', customCss)
           myQuote.style.backgroundColor = color
-          myQuote.style.color = getContrastColor(color)
+          myQuote.style.color = customTextColor
           myQuote.setAttribute('class', `b2b-add-to-quote ${classSelector}`)
         })
         cache.current = cloneDeep(addQuoteBtn)
@@ -122,7 +127,7 @@ const useMyQuote = ({
         myQuote.innerHTML = text || 'Add to Quote'
         myQuote.setAttribute('style', customCss)
         myQuote.style.backgroundColor = color
-        myQuote.style.color = getContrastColor(color)
+        myQuote.style.color = customTextColor
         myQuote.setAttribute('class', `b2b-add-to-quote ${classSelector}`)
         if (CustomAddToQuoteAll.length) {
           node.appendChild(myQuote)
