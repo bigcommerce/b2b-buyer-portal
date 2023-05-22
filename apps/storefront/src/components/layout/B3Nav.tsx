@@ -1,6 +1,7 @@
 import { useContext } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
+  Badge,
   List,
   ListItem,
   ListItemButton,
@@ -32,9 +33,9 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const { dispatch } = useContext(DynamicallyVariableedContext)
 
   const { state: globalState } = useContext(GlobaledContext)
+  const { quoteDetailHasNewMessages } = globalState
 
   const theme = useTheme()
-
   const primaryColor = theme.palette.primary.main
 
   const jumpRegister = () => {
@@ -142,16 +143,50 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
       component="nav"
       aria-labelledby="nested-list-subheader"
     >
-      {newRoutes.map((item: RouteItem) => (
-        <ListItem key={item.path} disablePadding>
-          <ListItemButton
-            onClick={() => handleClick(item)}
-            selected={activePath(item.path)}
-          >
-            <ListItemText primary={item.name} />
-          </ListItemButton>
-        </ListItem>
-      ))}
+      {newRoutes.map((item: RouteItem) => {
+        if (item.name === 'Quotes') {
+          const { pathname } = location
+          return (
+            <Badge
+              badgeContent={
+                quoteDetailHasNewMessages && pathname.includes('quoteDetail')
+                  ? ''
+                  : 0
+              }
+              variant="dot"
+              sx={{
+                width: '100%',
+                '& .MuiBadge-badge.MuiBadge-dot': {
+                  width: 8,
+                  height: 8,
+                  bgcolor: '#FFFFFF',
+                  right: 14,
+                  top: 22,
+                },
+              }}
+            >
+              <ListItem key={item.path} disablePadding>
+                <ListItemButton
+                  onClick={() => handleClick(item)}
+                  selected={activePath(item.path)}
+                >
+                  <ListItemText primary={item.name} />
+                </ListItemButton>
+              </ListItem>
+            </Badge>
+          )
+        }
+        return (
+          <ListItem key={item.path} disablePadding>
+            <ListItemButton
+              onClick={() => handleClick(item)}
+              selected={activePath(item.path)}
+            >
+              <ListItemText primary={item.name} />
+            </ListItemButton>
+          </ListItem>
+        )
+      })}
     </List>
   )
 }

@@ -1,15 +1,25 @@
 import {
   KeyboardEvent,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react'
-import { Box, Card, CardContent, TextField, Tooltip } from '@mui/material'
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
+import {
+  Box,
+  Card,
+  CardContent,
+  TextField,
+  Tooltip,
+  useTheme,
+} from '@mui/material'
 import { format, formatDistanceStrict } from 'date-fns'
 
 import { B3CollapseContainer, B3Sping } from '@/components'
+import { GlobaledContext } from '@/shared/global'
 import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b'
 import { displayExtendedFormat, storeHash } from '@/utils'
 
@@ -44,6 +54,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: `${isCustomer ? 'flex-end' : 'flex-start'}`,
+        paddingTop: '5px',
       }}
     >
       {msg?.role && (
@@ -132,6 +143,11 @@ function DateMessage({ msg }: DateMessageProps) {
 }
 
 function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
+  const { dispatch: globalDispatch } = useContext(GlobaledContext)
+
+  const theme = useTheme()
+  const primaryColor = theme.palette.primary.main
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const changeReadRef = useRef(0)
 
@@ -221,7 +237,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
               width: '20px',
               height: '20px',
               borderRadius: '50%',
-              background: '#1976D2',
+              background: primaryColor || '#1976D2',
               color: '#fff',
               fontSize: '12px',
               ml: '8px',
@@ -299,6 +315,16 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
     },
     [msgs]
   )
+
+  useEffect(() => {
+    globalDispatch({
+      type: 'common',
+      payload: {
+        quoteDetailHasNewMessages: read !== 0,
+      },
+    })
+  }, [read])
+
   return (
     <Card>
       <CardContent>
@@ -313,7 +339,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                 position: 'relative',
                 color: 'rgba(0, 0, 0, 0.6)',
                 opacity: 0.6,
-                textAlign: 'center',
+                textAlign: 'left',
                 width: '100%',
                 fontSize: '14px',
               }}
@@ -354,6 +380,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             >
               <Box
                 sx={{
+                  display: 'flex',
                   width: '100%',
                 }}
               >
@@ -364,6 +391,9 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                     '& .MuiFormLabel-root': {
                       color: 'rgba(0, 0, 0, 0.38)',
                     },
+                    '& input': {
+                      padding: '1.5rem 0 0.5rem 0',
+                    },
                   }}
                   value={message}
                   onChange={(event) => {
@@ -373,6 +403,26 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                   label="Type a message..."
                   variant="filled"
                 />
+                <Box
+                  onClick={() => updateMsgs(message)}
+                  sx={{
+                    width: '42px',
+                    height: '36px',
+                    margin: '10px 0 0 10px',
+                    background: '#BAD6F2',
+                    borderRadius: '50%',
+                  }}
+                >
+                  <ArrowUpwardIcon
+                    sx={{
+                      height: '18px',
+                      width: '18px',
+                      margin: '8px 0 0 9px',
+                      color: '#0000008A',
+                    }}
+                    fontSize="small"
+                  />
+                </Box>
               </Box>
             </B3Sping>
           )}
