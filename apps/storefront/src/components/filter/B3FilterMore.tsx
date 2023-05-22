@@ -7,7 +7,7 @@ import {
 } from 'react'
 import { useForm } from 'react-hook-form'
 import FilterListIcon from '@mui/icons-material/FilterList'
-import { Box, IconButton, useTheme } from '@mui/material'
+import { Badge, Box, IconButton, useTheme } from '@mui/material'
 
 import { B3CustomForm, B3Dialog, CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
@@ -177,42 +177,29 @@ function B3FilterMore<T, Y>({
             </IconButton>
           )}
           {isFiltering && (
-            <>
-              <IconButton
-                aria-label="edit"
-                size="medium"
+            <IconButton
+              aria-label="edit"
+              size="medium"
+              sx={{
+                color: customColor,
+                ':hover': {
+                  backgroundColor: getHoverColor('#FFFFFF', 0.1),
+                },
+              }}
+            >
+              <Badge
+                badgeContent={filterCounter}
                 sx={{
-                  color: customColor,
-                  ':hover': {
-                    backgroundColor: getHoverColor('#FFFFFF', 0.1),
-                  },
+                  '& .MuiBadge-badge.MuiBadge-standard.MuiBadge-anchorOriginTopRight':
+                    {
+                      bgcolor: primaryColor,
+                      borderRadius: '50%',
+                    },
                 }}
               >
                 <FilterListIcon />
-              </IconButton>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexFlow: 'row wrap',
-                  width: '20px',
-                  height: '20px',
-                  borderRadius: '50%',
-                  background: primaryColor || '#ff8a65',
-                  fontSize: '12px',
-                  ml: '5px',
-                  justifyContent: 'center',
-                  alignContent: 'center',
-                  alignItems: 'center',
-                  position: 'absolute',
-                  top: '7px',
-                  padding: '0 7px',
-                  transform: 'scale(1) translate(50%, -50%)',
-                  transformOrigin: '100% 0%',
-                }}
-              >
-                {filterCounter}
-              </Box>
-            </>
+              </Badge>
+            </IconButton>
           )}
         </Box>
       )}
