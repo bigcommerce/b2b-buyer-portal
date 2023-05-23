@@ -39,7 +39,7 @@ variants.forEach((variant) => {
       type: 'tip',
       payload: {
         tipMessage: {
-          autoHideDuration: options?.duration || 3000,
+          autoHideDuration: options?.duration || 5000,
           msgs,
         },
       },
@@ -61,7 +61,7 @@ variants.forEach((variant) => {
       type: 'globalTip',
       payload: {
         globalTipMessage: {
-          autoHideDuration: options?.duration || 3000,
+          autoHideDuration: options?.duration || 5000,
           msgs,
         },
       },

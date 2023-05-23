@@ -51,7 +51,6 @@ interface BulkUploadCSVProps {
 
 const FileUploadContainer = styled(Box)(() => ({
   width: '100%',
-  border: '1px dashed #1976D2',
   borderRadius: '5px',
   position: 'relative',
   '& .file-upload-area': {
@@ -420,7 +419,12 @@ export default function B3Upload(props: B3UploadProps) {
         }}
       >
         {step === 'init' && (
-          <FileUploadContainer ref={uploadRef}>
+          <FileUploadContainer
+            ref={uploadRef}
+            sx={{
+              border: `1px dashed ${primaryColor || '#1976D2'}`,
+            }}
+          >
             {content}
             <DropzoneArea
               dropzoneClass="file-upload-area"

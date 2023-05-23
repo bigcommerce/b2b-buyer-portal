@@ -364,14 +364,20 @@ export const getBCQuotesList = (data: CustomFieldItems): CustomFieldItems =>
   })
 
 export const createQuote = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2B({
-    query: quoteCreate(data),
-  })
+  B3Request.graphqlB2B(
+    {
+      query: quoteCreate(data),
+    },
+    true
+  )
 
 export const createBCQuote = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlProxyBC({
-    query: quoteCreate(data),
-  })
+  B3Request.graphqlProxyBC(
+    {
+      query: quoteCreate(data),
+    },
+    true
+  )
 
 export const updateB2BQuote = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({

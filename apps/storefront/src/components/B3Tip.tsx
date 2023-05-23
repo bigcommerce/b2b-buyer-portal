@@ -11,7 +11,7 @@ interface B3TipProps extends TipMessagesProps {
 }
 
 export default function B3Tip({
-  autoHideDuration = 3000,
+  autoHideDuration = 5000,
   handleItemClose,
   vertical = 'bottom',
   horizontal = 'right',
