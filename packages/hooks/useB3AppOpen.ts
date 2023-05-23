@@ -68,7 +68,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           ) {
             initOpenState.handleEnterClick()
           } else {
-            const href = (e.target as HTMLAnchorElement).href || ''
+            const href = (e.target as HTMLAnchorElement)?.href || ''
             const gotoUrl = registerArr.includes(e.target)
               ? getCurrentLoginUrl(href)
               : '/orders'
@@ -83,7 +83,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
       window.b2bStorefrontApp.isInit = true
 
       window.addEventListener('click', handleTriggerClick, {
-        capture: true,
+        capture: false,
       })
       return () => {
         window.removeEventListener('click', handleTriggerClick)
