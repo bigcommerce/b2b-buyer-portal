@@ -586,6 +586,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                 display: 'flex',
                 alignItems: 'center',
                 flexWrap: isMobile ? 'wrap' : 'nowrap',
+                width: isMobile ? '100%' : 'auto',
               }}
             >
               <Typography
