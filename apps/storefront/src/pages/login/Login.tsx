@@ -11,6 +11,7 @@ import { useB3Lang } from '@b3/lang'
 import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
+import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { defaultCreateAccountPanel } from '@/shared/customStyleButtton/context/config'
 import { GlobaledContext } from '@/shared/global'
@@ -52,6 +53,7 @@ interface RegisteredProps {
 
 export default function Login(props: RegisteredProps) {
   const [isLoading, setLoading] = useState(true)
+  const [isMobile] = useMobile()
 
   const { setOpenPage } = props
 
@@ -295,7 +297,7 @@ export default function Login(props: RegisteredProps) {
                 )}
                 <Box
                   sx={{
-                    padding: '0 5%',
+                    padding: isMobile ? 0 : '0 5%',
                   }}
                 >
                   <LoginWidget
@@ -309,15 +311,17 @@ export default function Login(props: RegisteredProps) {
                     sx={{
                       margin: '50px 0',
                       display: 'flex',
+                      flexDirection: isMobile ? 'column' : 'row',
                     }}
                   >
                     <Box
                       sx={{
-                        width: '50%',
-                        paddingRight: '2%',
+                        width: isMobile ? '100%' : '50%',
+                        paddingRight: isMobile ? 0 : '2%',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        marginBottom: isMobile ? '20px' : '',
                       }}
                     >
                       <LoginForm
@@ -330,7 +334,7 @@ export default function Login(props: RegisteredProps) {
                     <Box
                       sx={{
                         flex: '1',
-                        paddingLeft: '2%',
+                        paddingLeft: isMobile ? 0 : '2%',
                       }}
                     >
                       <LoginPanel

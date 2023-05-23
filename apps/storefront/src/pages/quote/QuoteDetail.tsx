@@ -291,6 +291,7 @@ function QuoteDetail() {
         variant="text"
         sx={{
           color: '#ffffff',
+          textAlign: 'left',
         }}
       >
         {+role === 100 ? 'Copy quote link' : 'Review all quotes'}

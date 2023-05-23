@@ -521,6 +521,10 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
       B3LStorage.delete('b2bQuoteDraftList')
       B3LStorage.delete('MyQuoteInfo')
+    } catch (error: any) {
+      snackbar.error(error, {
+        isClose: true,
+      })
     } finally {
       setLoading(false)
     }
@@ -722,6 +726,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
               flexGrow: 2,
               marginRight: '20px',
               marginBottom: '20px',
+              boxShadow:
+                '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
+              borderRadius: '4px',
             }}
           >
             <QuoteTable

@@ -1,4 +1,5 @@
 import styled from '@emotion/styled'
+import { useTheme } from '@mui/material'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -29,6 +30,9 @@ const Flex = styled('div')(() => ({
 
 export function QuoteItemCard(props: QuoteItemCardProps) {
   const { item, goToDetail } = props
+  const theme = useTheme()
+
+  const primaryColor = theme.palette.primary.main
 
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {
@@ -119,6 +123,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
                 fontWeight: 'bold',
                 color: 'rgba(0, 0, 0, 0.87)',
                 mr: '5px',
+                whiteSpace: 'nowrap',
               }}
             >
               {`${list.title}:`}
@@ -126,6 +131,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
             <Typography
               sx={{
                 color: 'black',
+                wordBreak: 'break-all',
               }}
             >
               {list?.render ? list.render() : item[list.key]}
@@ -138,7 +144,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
           sx={{
             mt: '1rem',
             pl: 0,
-            color: '#1976D2',
+            color: primaryColor || '#1976D2',
             cursor: 'pointer',
             fontWeight: 'bold',
             display: 'inline-block',

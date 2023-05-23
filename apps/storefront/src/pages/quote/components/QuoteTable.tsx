@@ -407,6 +407,9 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           onBlur={(e) => {
             handleCheckProductQty(row, +e.target.value)
           }}
+          sx={{
+            width: '90%',
+          }}
         />
       ),
       width: '15%',
@@ -479,7 +482,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           </Box>
         )
       },
-      width: '20%',
+      width: '15%',
       style: {
         textAlign: 'right',
       },

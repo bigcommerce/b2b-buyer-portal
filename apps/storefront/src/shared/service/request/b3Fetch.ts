@@ -97,11 +97,14 @@ const B3Request = {
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
-  graphqlProxyBC: function post<T>(data: T): Promise<any> {
+  graphqlProxyBC: function post<T>(
+    data: T,
+    customMessage = false
+  ): Promise<any> {
     const config = {
       Authorization: `Bearer  ${B3SStorage.get('bcJwtToken') || ''}`,
     }
-    return graphqlRequest(RequestType.B2BGraphql, data, config)
+    return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
   graphqlBC: function post<T>(data: T): Promise<any> {
     const config = {

@@ -23,6 +23,7 @@ interface AddToListContentProps {
   quickAddToList: (products: CustomFieldItems[]) => CustomFieldItems
   level?: number
   buttonText?: string
+  buttonLoading?: boolean
 }
 
 export default function QuickAdd(props: AddToListContentProps) {
@@ -31,6 +32,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     quickAddToList,
     level = 3,
     buttonText = 'Add product to list',
+    buttonLoading = false,
   } = props
 
   const {
@@ -423,6 +425,7 @@ export default function QuickAdd(props: AddToListContentProps) {
               sx={{
                 textTransform: 'initial',
                 ml: '-8px',
+                fontWeight: '400',
               }}
               onClick={handleAddRowsClick}
             >
@@ -457,7 +460,11 @@ export default function QuickAdd(props: AddToListContentProps) {
             margin: '20px 0',
           }}
         >
-          <B3Sping isSpinning={isLoading} tip="" size={16}>
+          <B3Sping
+            isSpinning={buttonLoading ? isLoading : false}
+            tip=""
+            size={16}
+          >
             <Box
               sx={{
                 flex: 1,
