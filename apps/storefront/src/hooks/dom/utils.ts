@@ -133,64 +133,124 @@ const gotoQuoteDraft = (setOpenPage: DispatchProps) => {
   })
 }
 
-const addQuoteToCart = (setOpenPage: DispatchProps) => {
-  const getCartProducts = (lineItems: LineItemsProps) => {
-    const cartProductsList: CustomFieldItems[] = []
+const getCartProducts = (lineItems: LineItemsProps) => {
+  const cartProductsList: CustomFieldItems[] = []
 
-    productTypes.forEach((type: Cart) => {
-      if (lineItems[type].length > 0) {
-        lineItems[type].forEach(
-          (product: ProductItemProps | CustomFieldItems) => {
-            if (!product.parentId) {
-              cartProductsList.push(product)
-            }
+  productTypes.forEach((type: Cart) => {
+    if (lineItems[type].length > 0) {
+      lineItems[type].forEach(
+        (product: ProductItemProps | CustomFieldItems) => {
+          if (!product.parentId) {
+            cartProductsList.push(product)
           }
-        )
-      }
-    })
+        }
+      )
+    }
+  })
 
-    return cartProductsList
+  return cartProductsList
+}
+
+const getOptionsList = (options: ProductOptionsProps[] | []) => {
+  if (!options?.length) return []
+  const option: CustomFieldItems = []
+  options.forEach(({ nameId, valueId, value }) => {
+    let optionValue: number | string = valueId ? `${valueId}`.toString() : value
+    if (typeof valueId === 'number' && `${valueId}`.toString().length === 10) {
+      optionValue = valueId
+      const date = new Date(+valueId * 1000)
+      const year = date.getFullYear()
+      const month = date.getMonth() + 1
+      const day = date.getDate()
+      option.push({
+        optionId: `attribute[${nameId}][year]`,
+        optionValue: year,
+      })
+      option.push({
+        optionId: `attribute[${nameId}][month]`,
+        optionValue: month,
+      })
+      option.push({
+        optionId: `attribute[${nameId}][day]`,
+        optionValue: day,
+      })
+    } else {
+      option.push({
+        optionId: `attribute[${nameId}]`,
+        optionValue,
+      })
+    }
+  })
+
+  return option
+}
+
+const addProductsToDraftQuote = async (products: CustomFieldItems[]) => {
+  // filter products with SKU
+  const productsWithSKU = products.filter(({ sku }) => !!sku)
+
+  // fetch data with products IDs
+  const { productsSearch } = await searchB2BProducts({
+    productIds: Array.from(
+      new Set(products.map(({ productId }) => +productId))
+    ),
+  })
+
+  // convert to product search response format
+  const productsListSearch: CustomFieldItems[] =
+    conversionProductsList(productsSearch)
+
+  // create products list structure compatible with quote structure
+  const productsList = productsWithSKU.map((product) => {
+    const {
+      options,
+      sku,
+      productId,
+      name,
+      quantity,
+      variantId,
+      salePrice,
+      imageUrl,
+      listPrice,
+    } = product
+
+    const optionsList = getOptionsList(options)
+
+    const currentProductSearch = productsListSearch.find(
+      (product: any) => +product.id === +productId
+    )
+
+    const quoteListitem = {
+      node: {
+        id: uuid(),
+        variantSku: sku,
+        variantId,
+        productsSearch: currentProductSearch,
+        primaryImage: imageUrl || PRODUCT_DEFAULT_IMAGE,
+        productName: name,
+        quantity: +quantity || 1,
+        optionList: JSON.stringify(optionsList),
+        productId,
+        basePrice: listPrice,
+        taxPrice: salePrice - listPrice,
+      },
+    }
+
+    return quoteListitem
+  })
+
+  // update prices for products list
+  await calculateProductListPrice(productsList, '2')
+
+  const isSuccess = validProductQty(productsList)
+  if (isSuccess) {
+    addQuoteDraftProducts(productsList)
   }
 
-  const getOptionsList = (options: ProductOptionsProps[] | []) => {
-    if (options?.length === 0) return []
-    const option: CustomFieldItems = []
-    options.forEach(({ nameId, valueId, value }) => {
-      let optionValue: number | string = valueId
-        ? `${valueId}`.toString()
-        : value
-      if (
-        typeof valueId === 'number' &&
-        `${valueId}`.toString().length === 10
-      ) {
-        optionValue = valueId
-        const date = new Date(+valueId * 1000)
-        const year = date.getFullYear()
-        const month = date.getMonth() + 1
-        const day = date.getDate()
-        option.push({
-          optionId: `attribute[${nameId}][year]`,
-          optionValue: year,
-        })
-        option.push({
-          optionId: `attribute[${nameId}][month]`,
-          optionValue: month,
-        })
-        option.push({
-          optionId: `attribute[${nameId}][day]`,
-          optionValue: day,
-        })
-      } else {
-        option.push({
-          optionId: `attribute[${nameId}]`,
-          optionValue,
-        })
-      }
-    })
+  return isSuccess
+}
 
-    return option
-  }
-
+const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
   const addToQuote = async () => {
     try {
       const cartInfoWithOptions: CartInfoProps | any =
@@ -213,66 +273,8 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
         })
       }
 
-      const productsWithSKU = cartProductsList.filter(({ sku }) => !!sku)
-
-      const productIds: number[] = []
-      productsWithSKU.forEach((product: CustomFieldItems) => {
-        if (!productIds.includes(+product.productId)) {
-          productIds.push(+product.productId)
-        }
-      })
-
-      const { productsSearch } = await searchB2BProducts({
-        productIds,
-      })
-
-      const newProduct: CustomFieldItems[] = []
-
-      const newProductInfo: CustomFieldItems =
-        conversionProductsList(productsSearch)
-      productsWithSKU.forEach((product) => {
-        const {
-          options,
-          sku,
-          productId,
-          name,
-          quantity,
-          variantId,
-          salePrice,
-          imageUrl,
-          listPrice,
-        } = product
-
-        const optionsList = getOptionsList(options)
-
-        const currentProductSearch = newProductInfo.find(
-          (product: any) => +product.id === +productId
-        )
-
-        const quoteListitem = {
-          node: {
-            id: uuid(),
-            variantSku: sku,
-            variantId,
-            productsSearch: currentProductSearch,
-            primaryImage: imageUrl || PRODUCT_DEFAULT_IMAGE,
-            productName: name,
-            quantity: +quantity || 1,
-            optionList: JSON.stringify(optionsList),
-            productId,
-            basePrice: listPrice,
-            taxPrice: salePrice - listPrice,
-          },
-        }
-
-        newProduct.push(quoteListitem)
-      })
-
-      const isSuccess = validProductQty(newProduct)
+      const isSuccess = await addProductsToDraftQuote(cartProductsList)
       if (isSuccess) {
-        await calculateProductListPrice(newProduct, '2')
-        addQuoteDraftProducts(newProduct)
-
         globalSnackbar.success('', {
           jsx: () =>
             B3AddToQuoteTip({
@@ -304,7 +306,7 @@ const addQuoteToCart = (setOpenPage: DispatchProps) => {
   }
 }
 
-const addQuoteToProduct = (setOpenPage: DispatchProps) => {
+const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
   const addToQuote = async (role: string | number) => {
     try {
       const productId = (
@@ -390,4 +392,10 @@ const addQuoteToProduct = (setOpenPage: DispatchProps) => {
   }
 }
 
-export { addLoadding, addQuoteToCart, addQuoteToProduct, removeElement }
+export {
+  addLoadding,
+  addProductFromProductPageToQuote,
+  addProductsFromCartToQuote,
+  addProductsToDraftQuote,
+  removeElement,
+}
