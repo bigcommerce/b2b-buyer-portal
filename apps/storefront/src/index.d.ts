@@ -15,6 +15,11 @@ declare interface Window {
   b2b: {
     utils: {
       openPage: (page: import('./constants').HeadlessRoute) => void
+      quote: {
+        addProductFromPage: () => Promise<void>
+        addProductsFromCart: () => Promise<void>
+        addProducts: (items: CustomFieldItems[]) => Promise<boolean>
+      }
     }
   }
 }

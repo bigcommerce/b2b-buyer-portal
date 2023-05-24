@@ -16,7 +16,7 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { B3SStorage, globalSnackbar } from '@/utils'
 
-import { addQuoteToCart } from './utils'
+import { addProductsFromCartToQuote } from './utils'
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 interface MutationObserverProps {
@@ -33,7 +33,7 @@ const useCartToQuote = ({
   setOpenPage,
   cartQuoteEnabled,
 }: MutationObserverProps) => {
-  const { addToQuote, addLoadding } = addQuoteToCart(setOpenPage)
+  const { addToQuote, addLoadding } = addProductsFromCartToQuote(setOpenPage)
 
   const {
     state: { addToAllQuoteBtn },

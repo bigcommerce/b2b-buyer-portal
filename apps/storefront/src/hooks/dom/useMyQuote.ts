@@ -19,7 +19,7 @@ import { B3LStorage, removeCartPermissions } from '@/utils'
 
 // import { removeCartPermissions } from '@/utils/b3RolePermissions'
 import useDomVariation from './useDomVariation'
-import { addQuoteToProduct, removeElement } from './utils'
+import { addProductFromProductPageToQuote, removeElement } from './utils'
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 
@@ -53,7 +53,8 @@ const useMyQuote = ({
   } = useContext(CustomStyleContext)
 
   // quote method and goto draft
-  const { addToQuote, addLoadding } = addQuoteToProduct(setOpenPage)
+  const { addToQuote, addLoadding } =
+    addProductFromProductPageToQuote(setOpenPage)
 
   const quoteCallBbck = useCallback(() => {
     const b3MyQuote = document.querySelector('.b2b-add-to-quote')
