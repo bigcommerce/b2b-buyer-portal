@@ -166,9 +166,10 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   return (
     <Box
       sx={{
-        pl: 10,
+        pl: 1,
         pr: 10,
         mt: 2,
+        width: '505px',
       }}
     >
       {errorTips && (

@@ -427,6 +427,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         pl: 10,
         pr: 10,
         mt: 2,
+        width: '505px',
       }}
     >
       {errorMessage && (

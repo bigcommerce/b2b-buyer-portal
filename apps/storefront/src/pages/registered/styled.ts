@@ -28,7 +28,7 @@ export const TipLogin = styled('div')(() => ({
 }))
 
 export const RegisteredContainer = styled('div')({
-  padding: '20px 20px',
+  padding: '20px 40px',
 })
 
 export const RegisteredImage = styled('div')({

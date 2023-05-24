@@ -408,7 +408,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             handleCheckProductQty(row, +e.target.value)
           }}
           sx={{
-            width: '90%',
+            width: '75%',
           }}
         />
       ),

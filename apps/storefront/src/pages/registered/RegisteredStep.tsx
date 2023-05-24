@@ -32,6 +32,9 @@ export default function RegisteredStep(props: RegisteredStepProps) {
           flexDirection: 'row',
           justifyContent: 'center',
           pt: 2,
+          fontSize: '34px',
+          fontWeight: '400',
+          margin: '0.5rem 0',
         }}
       >
         {submitSuccess
