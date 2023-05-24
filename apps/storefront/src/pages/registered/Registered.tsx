@@ -72,7 +72,10 @@ function Registered(props: RegisteredProps) {
   } = useContext(RegisteredContext)
 
   const {
-    state: { accountLoginRegistration },
+    state: {
+      accountLoginRegistration,
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
   } = useContext(CustomStyleContext)
 
   useEffect(() => {
@@ -316,6 +319,7 @@ function Registered(props: RegisteredProps) {
             <RegisteredStep
               activeStep={activeStep}
               isStepOptional={isStepOptional}
+              backgroundColor={backgroundColor}
             >
               <RegisterContent
                 activeStep={activeStep}

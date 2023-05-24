@@ -6,7 +6,9 @@ import { Box } from '@mui/material'
 import { trim } from 'lodash'
 
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
+import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import {
   checkUserBCEmail,
@@ -91,6 +93,12 @@ function AccountSetting() {
       companyInfo: { id: companyInfoId },
     },
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
 
   const b3Lang = useB3Lang()
 
@@ -486,11 +494,17 @@ function AccountSetting() {
   }
 
   return (
-    <B3Sping isSpinning={isloadding} background="rgb(254, 249, 245)">
+    <B3Sping isSpinning={isloadding} background={backgroundColor}>
       <Box
         sx={{
           width: `${isMobile ? '100%' : '35%'}`,
           minHeight: `${isMobile ? '800px' : '300px'}`,
+          '& input, & .MuiFormControl-root': {
+            bgcolor: b3HexToRgb('#FFFFFF', 0.87),
+            borderRadius: '4px',
+            borderBottomLeftRadius: '0',
+            borderBottomRightRadius: '0',
+          },
         }}
       >
         <B3CustomForm

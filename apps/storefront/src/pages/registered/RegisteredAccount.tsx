@@ -12,6 +12,10 @@ import {
 } from '@mui/material'
 
 import { B3CustomForm } from '@/components'
+import {
+  b3HexToRgb,
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
@@ -39,8 +43,13 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const IframeDocument = useSelector(themeFrameSelector)
 
   const {
-    state: { accountLoginRegistration },
+    state: {
+      accountLoginRegistration,
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
   } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
 
   const b3Lang = useB3Lang()
 
@@ -178,7 +187,13 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         </Alert>
       )}
 
-      <FormControl>
+      <FormControl
+        sx={{
+          '& h4': {
+            color: customColor,
+          },
+        }}
+      >
         <InformationFourLabels>
           {b3Lang('intl.user.register.registeredAccount.accountType')}
         </InformationFourLabels>
@@ -188,6 +203,16 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           name="row-radio-buttons-group"
           value={accountType}
           onChange={handleChange}
+          sx={{
+            '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label':
+              {
+                color: b3HexToRgb(customColor, 0.87),
+              },
+            '& .MuiButtonBase-root.MuiRadio-root.MuiRadio-colorPrimary:not(.Mui-checked)':
+              {
+                color: b3HexToRgb(customColor, 0.6),
+              },
+          }}
         >
           {accountLoginRegistration.b2b && (
             <FormControlLabel
@@ -210,7 +235,27 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         </RadioGroup>
       </FormControl>
 
-      <Box>
+      <Box
+        sx={{
+          '& h4': {
+            color: customColor,
+          },
+          '& input, & .MuiFormControl-root .MuiTextField-root': {
+            bgcolor: b3HexToRgb('#FFFFFF', 0.87),
+            borderRadius: '4px',
+            borderBottomLeftRadius: '0',
+            borderBottomRightRadius: '0',
+          },
+          '& .MuiButtonBase-root.MuiCheckbox-root.MuiCheckbox-colorPrimary:not(.Mui-checked)':
+            {
+              color: b3HexToRgb(customColor, 0.6),
+            },
+          '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label':
+            {
+              color: b3HexToRgb(customColor, 0.87),
+            },
+        }}
+      >
         <InformationFourLabels>{contactInformationLabel}</InformationFourLabels>
         <B3CustomForm
           formFields={contactInfo}
@@ -223,7 +268,20 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
 
       <Box />
       {additionalInfo && additionalInfo.length ? (
-        <Box>
+        <Box
+          sx={{
+            '& h4': {
+              color: customColor,
+            },
+            '& .MuiFormControlLabel-label, & .MuiFormControl-root .MuiFormLabel-root:not(.Mui-focused)':
+              {
+                color: b3HexToRgb(customColor, 0.87),
+              },
+            '& .MuiRadio-root:not(.Mui-checked)': {
+              color: b3HexToRgb(customColor, 0.6),
+            },
+          }}
+        >
           <InformationFourLabels>
             {additionalInformationLabel}
           </InformationFourLabels>

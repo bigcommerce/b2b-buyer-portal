@@ -13,6 +13,11 @@ import { Alert, Box } from '@mui/material'
 //   Captcha,
 // } from '@/components/form'
 import { B3CustomForm } from '@/components'
+import {
+  b3HexToRgb,
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import {
   createB2BCompanyUser,
@@ -55,6 +60,14 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const {
     state: { currentChannelId, blockPendingAccountOrderCreation },
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
 
   const {
     contactInformation,
@@ -428,6 +441,15 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         pr: 10,
         mt: 2,
         width: '505px',
+        '& h4': {
+          color: customColor,
+        },
+        '& input, & .MuiFormControl-root .MuiTextField-root': {
+          bgcolor: b3HexToRgb('#FFFFFF', 0.87),
+          borderRadius: '4px',
+          borderBottomLeftRadius: '0',
+          borderBottomRightRadius: '0',
+        },
       }}
     >
       {errorMessage && (

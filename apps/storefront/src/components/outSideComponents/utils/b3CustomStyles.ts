@@ -1,5 +1,4 @@
 import { SnackbarOrigin } from '@mui/material'
-import { grey } from '@mui/material/colors'
 import { trim } from 'lodash'
 
 interface RGBColor {
@@ -76,21 +75,14 @@ const getContrastRatio = (foreground: string, background: string): number => {
 }
 
 export const getContrastColor = (color: string) => {
-  let brightness: string | undefined
-  const res = Object.keys(grey).find(
-    (key) => getContrastRatio(grey[key as keyof typeof grey], color) > 4.5
-  )
-  if (res) {
-    brightness = grey[res as keyof typeof grey]
-  } else {
-    const hex = color.replace('#', '')
-    const r = parseInt(hex.slice(0, 2), 16)
-    const g = parseInt(hex.slice(2, 4), 16)
-    const b = parseInt(hex.slice(4, 6), 16)
-    brightness = (r * 299 + g * 587 + b * 114) / 1000 >= 150 ? '#000' : '#fff'
-  }
+  const contrastThreshold = 4.5
+  const blackContrast = getContrastRatio(color, '#000000')
+  const whiteContrast = getContrastRatio(color, '#FFFFFF')
 
-  return brightness || '#fff'
+  if (blackContrast >= contrastThreshold || whiteContrast < blackContrast) {
+    return '#000000'
+  }
+  return '#FFFFFF'
 }
 
 export const b3HexToRgb = (color: string, transparency?: number) => {

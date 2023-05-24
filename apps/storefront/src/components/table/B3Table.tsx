@@ -1,4 +1,10 @@
-import { ChangeEvent, MouseEvent, ReactElement, ReactNode } from 'react'
+import {
+  ChangeEvent,
+  MouseEvent,
+  ReactElement,
+  ReactNode,
+  useContext,
+} from 'react'
 import {
   Box,
   Card,
@@ -12,6 +18,14 @@ import {
   TablePagination,
   TableRow,
 } from '@mui/material'
+
+import { useMobile } from '@/hooks'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
+
+import {
+  b3HexToRgb,
+  getContrastColor,
+} from '../outSideComponents/utils/b3CustomStyles'
 
 import B3NoData from './B3NoData'
 
@@ -104,6 +118,16 @@ export function B3Table<T>({
   onClickRow,
   showRowsPerPageOptions = true,
 }: TableProps<T>) {
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
+
+  const [isMobile] = useMobile()
+
   const { offset, count, first } = pagination
   const clickableRowStyles =
     typeof onClickRow === 'function' ? MOUSE_POINTER_STYLE : undefined
@@ -184,9 +208,17 @@ export function B3Table<T>({
               labelRowsPerPage={labelRowsPerPage || 'per page:'}
               component="div"
               sx={{
+                color: isMobile
+                  ? b3HexToRgb(customColor, 0.87)
+                  : 'rgba(0, 0, 0, 0.87)',
                 marginTop: '1.5rem',
                 '::-webkit-scrollbar': {
                   display: 'none',
+                },
+                '& svg': {
+                  color: isMobile
+                    ? b3HexToRgb(customColor, 0.87)
+                    : 'rgba(0, 0, 0, 0.87)',
                 },
               }}
               count={count}
@@ -218,9 +250,13 @@ export function B3Table<T>({
               labelRowsPerPage={labelRowsPerPage || 'Cards per page:'}
               component="div"
               sx={{
+                color: customColor,
                 marginTop: '1.5rem',
                 '::-webkit-scrollbar': {
                   display: 'none',
+                },
+                '& svg': {
+                  color: customColor,
                 },
               }}
               count={count}

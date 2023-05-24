@@ -1,9 +1,15 @@
+import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, styled, Typography, useTheme } from '@mui/material'
 
 import { CustomButton } from '@/components'
+import {
+  b3HexToRgb,
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { displayFormat } from '@/utils'
 
 import QuoteStatus from './QuoteStatus'
@@ -40,6 +46,14 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
     quoteTitle,
     salesRepInfo,
   } = props
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
 
   const theme = useTheme()
 
@@ -103,7 +117,13 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
           mb: `${isMobile ? '16px' : ''}`,
         }}
       >
-        <Grid item {...gridOptions(8)}>
+        <Grid
+          item
+          {...gridOptions(8)}
+          sx={{
+            color: customColor,
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
@@ -115,7 +135,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
               sx={{
                 marginRight: '10px',
                 fontSize: '34px',
-                color: '#263238',
+                color: b3HexToRgb(customColor, 0.87),
               }}
             >
               {`Quote #${quoteNumber || ''}`}

@@ -11,7 +11,9 @@ import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Stack, Typography } from '@mui/material'
 
 import { B3Sping, CustomButton } from '@/components'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile, useSetCountry } from '@/hooks'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import {
   createBCQuote,
@@ -112,6 +114,12 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const {
     global: { enteredInclusive: enteredInclusiveTax },
   } = store.getState()
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
 
   const navigate = useNavigate()
 
@@ -605,6 +613,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 fontSize: '34px',
                 mr: '1rem',
                 mb: `${isMobile ? '1rem' : '0'}`,
+                color: getContrastColor(backgroundColor),
               }}
             >
               Quote

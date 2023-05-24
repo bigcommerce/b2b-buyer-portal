@@ -11,10 +11,12 @@ interface LoginFormProps {
   loginInfo: Partial<LoginInfoInit>
   handleLoginSubmit: (data: LoginConfig) => void
   gotoForgotPassword: () => void
+  backgroundColor: string
 }
 
 function LoginForm(props: LoginFormProps) {
-  const { loginInfo, handleLoginSubmit, gotoForgotPassword } = props
+  const { loginInfo, handleLoginSubmit, gotoForgotPassword, backgroundColor } =
+    props
 
   const b3Lang = useB3Lang()
   const theme = useTheme()
@@ -41,6 +43,12 @@ function LoginForm(props: LoginFormProps) {
     <Box
       sx={{
         width: '100%',
+        '& input': {
+          bgcolor: '#F5F5F5',
+          borderRadius: '4px',
+          borderBottomLeftRadius: '0',
+          borderBottomRightRadius: '0',
+        },
       }}
     >
       <B3CustomForm
@@ -76,6 +84,7 @@ function LoginForm(props: LoginFormProps) {
             ml: 2,
             textDecoration: 'underline',
             textUnderlineOffset: '4px',
+            color: getContrastColor(backgroundColor),
           }}
           onClick={() => gotoForgotPassword()}
         >

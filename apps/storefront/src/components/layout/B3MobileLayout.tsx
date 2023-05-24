@@ -2,7 +2,10 @@ import { ReactNode, useContext, useState } from 'react'
 import { Close, Dehaze } from '@mui/icons-material'
 import { Badge, Box } from '@mui/material'
 
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+
+import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 
 import B3AccountInfo from './B3AccountInfo'
 import B3Logo from './B3Logo'
@@ -23,6 +26,14 @@ export default function B3MobileLayout({
   const {
     state: { companyInfo, salesRepCompanyName, isAgenting, role },
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
 
   return (
     <Box
@@ -46,7 +57,7 @@ export default function B3MobileLayout({
         <B3Logo />
 
         <Badge badgeContent={0} color="secondary">
-          <Dehaze onClick={openRouteList} />
+          <Dehaze onClick={openRouteList} sx={{ color: customColor }} />
         </Badge>
       </Box>
 
@@ -58,7 +69,7 @@ export default function B3MobileLayout({
           mb: '2vw',
           fontSize: '34px',
           fontWeight: '400',
-          color: '#263238',
+          color: customColor || '#263238',
         }}
       >
         {title}

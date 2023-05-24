@@ -13,6 +13,10 @@ import { useB3Lang } from '@b3/lang'
 import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
+import {
+  b3HexToRgb,
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getCurrentCustomerInfo, storeHash } from '@/utils'
@@ -95,8 +99,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   const { state, dispatch } = useContext(RegisteredContext)
 
   const {
-    state: { companyAutoApproval },
+    state: {
+      companyAutoApproval,
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
   } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
 
   const showLoading = (isShow = false) => {
     dispatch({
@@ -464,6 +473,16 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               display: 'flex',
               flexDirection: 'column',
               width: '100%',
+              '& h4': {
+                color: customColor,
+              },
+              '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiDropzoneArea-textContainer, & .MuiSelect-select.MuiSelect-filled':
+                {
+                  bgcolor: b3HexToRgb('#FFFFFF', 0.87),
+                  borderRadius: '4px',
+                  borderBottomLeftRadius: '0',
+                  borderBottomRightRadius: '0',
+                },
             }}
           >
             {logo && (

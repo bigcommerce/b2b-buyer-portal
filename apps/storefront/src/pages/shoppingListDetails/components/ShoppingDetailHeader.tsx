@@ -1,9 +1,11 @@
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useContext } from 'react'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, styled, Typography } from '@mui/material'
 
 import { CustomButton } from '@/components'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 
 import { ShoppingStatus } from '../../shoppingLists/ShoppingStatus'
 
@@ -47,6 +49,12 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
     openAPPParams,
     customColor,
   } = props
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
 
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0
 
@@ -113,7 +121,13 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
           mb: `${isMobile ? '16px' : ''}`,
         }}
       >
-        <Grid item {...gridOptions(8)}>
+        <Grid
+          item
+          {...gridOptions(8)}
+          sx={{
+            color: getContrastColor(backgroundColor),
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
@@ -126,7 +140,6 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
               sx={{
                 marginRight: '1rem',
                 wordBreak: 'break-all',
-                color: '#263238',
               }}
             >
               {`${shoppingListInfo?.name || ''}`}

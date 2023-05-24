@@ -23,6 +23,7 @@ function LoginPanel(props: LoginPanelProps) {
       sx={{
         padding: '20px',
         background: '#F5F5F5',
+        borderRadius: '4px',
       }}
     >
       <LoginWidget
