@@ -4,7 +4,12 @@ import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, Stack, Typography } from '@mui/material'
 
 import { B3Sping } from '@/components'
+import {
+  b3HexToRgb,
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import {
   getB2BAddressConfig,
@@ -54,6 +59,14 @@ function OrderDetail() {
     state: detailsData,
     dispatch,
   } = useContext(OrderDetailsContext)
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
 
   const localtion = useLocation()
 
@@ -223,7 +236,7 @@ function OrderDetail() {
             <Typography
               variant="h4"
               sx={{
-                color: '#263238',
+                color: b3HexToRgb(customColor, 0.87) || '#263238',
               }}
             >
               {`Order #${orderId}`}
@@ -243,6 +256,7 @@ function OrderDetail() {
           >
             <DetailPagination
               onChange={(orderId) => handlePageChange(orderId)}
+              color={customColor}
             />
           </Grid>
         </Grid>

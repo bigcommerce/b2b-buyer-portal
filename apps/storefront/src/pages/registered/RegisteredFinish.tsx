@@ -2,6 +2,8 @@ import { useContext } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Alert, Box } from '@mui/material'
 
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
@@ -18,6 +20,14 @@ export default function RegisteredFinish(props: {
   const {
     state: { blockPendingAccountOrderCreation },
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
 
   const { accountType, submitSuccess, isAutoApproval, storeName } = state
 
@@ -72,6 +82,9 @@ export default function RegisteredFinish(props: {
         pl: 10,
         pr: 10,
         mt: 2,
+        '& p': {
+          color: customColor,
+        },
       }}
     >
       {submitSuccess && (

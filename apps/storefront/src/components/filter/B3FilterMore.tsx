@@ -1,11 +1,22 @@
-import { BaseSyntheticEvent, useEffect, useRef, useState } from 'react'
+import {
+  BaseSyntheticEvent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { useForm } from 'react-hook-form'
 import FilterListIcon from '@mui/icons-material/FilterList'
-import { Box, IconButton } from '@mui/material'
-import { grey } from '@mui/material/colors'
+import { Box, IconButton, useTheme } from '@mui/material'
 
 import { B3CustomForm, B3Dialog, CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
+
+import {
+  getContrastColor,
+  getHoverColor,
+} from '../outSideComponents/utils/b3CustomStyles'
 
 import B3FilterPicker from './B3FilterPicker'
 
@@ -44,6 +55,14 @@ function B3FilterMore<T, Y>({
   onChange,
   isShowMore = false,
 }: B3FilterMoreProps<T, Y>) {
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
+
   const [open, setOpen] = useState<boolean>(false)
   const [isFiltering, setIsFiltering] = useState<boolean>(false)
   const [filterCounter, setFilterCounter] = useState<number>(0)
@@ -63,6 +82,9 @@ function B3FilterMore<T, Y>({
   })
 
   const [isMobile] = useMobile()
+
+  const theme = useTheme()
+  const primaryColor = theme.palette.primary.main
 
   useEffect(() => {
     if (cacheData) {
@@ -145,8 +167,9 @@ function B3FilterMore<T, Y>({
               aria-label="edit"
               size="medium"
               sx={{
+                color: customColor,
                 ':hover': {
-                  backgroundColor: grey[100],
+                  backgroundColor: getHoverColor('#FFFFFF', 0.1),
                 },
               }}
             >
@@ -159,8 +182,9 @@ function B3FilterMore<T, Y>({
                 aria-label="edit"
                 size="medium"
                 sx={{
+                  color: customColor,
                   ':hover': {
-                    backgroundColor: grey[100],
+                    backgroundColor: getHoverColor('#FFFFFF', 0.1),
                   },
                 }}
               >
@@ -173,7 +197,7 @@ function B3FilterMore<T, Y>({
                   width: '20px',
                   height: '20px',
                   borderRadius: '50%',
-                  background: '#ff8a65',
+                  background: primaryColor || '#ff8a65',
                   fontSize: '12px',
                   ml: '5px',
                   justifyContent: 'center',

@@ -16,6 +16,7 @@ interface SearchParamsProps {
 }
 interface DetailPageProps {
   onChange: (id: number | string) => void
+  color: string
 }
 
 interface LocationState {
@@ -33,7 +34,7 @@ interface RightLeftSideProps {
 
 const initListIndex = 100000000
 
-function DetailPagination({ onChange }: DetailPageProps) {
+function DetailPagination({ onChange, color }: DetailPageProps) {
   const [listIndex, setListIndex] = useState<number>(initListIndex)
   const [arrived, setArrived] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
@@ -149,6 +150,7 @@ function DetailPagination({ onChange }: DetailPageProps) {
     <Box
       sx={{
         display: 'flex',
+        color: `${color}`,
       }}
     >
       {!isMobile && (
@@ -181,13 +183,21 @@ function DetailPagination({ onChange }: DetailPageProps) {
         onClick={handleBeforePage}
         disabled={totalCount <= 1 || arrived === 'toLeft' || loading}
       >
-        <NavigateBeforeIcon />
+        <NavigateBeforeIcon
+          sx={{
+            color: `${color}`,
+          }}
+        />
       </IconButton>
       <IconButton
         onClick={handleNextPage}
         disabled={totalCount <= 1 || arrived === 'toRight' || loading}
       >
-        <NavigateNextIcon />
+        <NavigateNextIcon
+          sx={{
+            color: `${color}`,
+          }}
+        />
       </IconButton>
     </Box>
   )

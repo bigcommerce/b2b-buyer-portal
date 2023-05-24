@@ -3,6 +3,11 @@ import { useForm } from 'react-hook-form'
 import { Alert, Box } from '@mui/material'
 
 import { B3CustomForm } from '@/components'
+import {
+  b3HexToRgb,
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { validateBCCompanyExtraFields } from '@/shared/service/b2b'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
@@ -20,6 +25,14 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
   const { handleBack, handleNext, activeStep } = props
 
   const { state, dispatch } = useContext(RegisteredContext)
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
 
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -229,6 +242,16 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         pr: 10,
         mt: 2,
         width: '505px',
+        '& h4': {
+          color: customColor,
+        },
+        '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiDropzoneArea-textContainer, & .MuiSelect-select.MuiSelect-filled':
+          {
+            bgcolor: b3HexToRgb('#FFFFFF', 0.87),
+            borderRadius: '4px',
+            borderBottomLeftRadius: '0',
+            borderBottomRightRadius: '0',
+          },
       }}
     >
       {errorMessage && (

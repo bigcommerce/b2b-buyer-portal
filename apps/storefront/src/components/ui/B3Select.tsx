@@ -6,6 +6,8 @@ import {
   SelectChangeEvent,
 } from '@mui/material'
 
+import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
+
 interface ConfigProps {
   labelName: string
   valueName: string
@@ -50,16 +52,36 @@ export default function B3Select<T extends string | undefined>({
     <FormControl
       variant="filled"
       sx={{
+        borderRadius: '4px',
+        borderBottomLeftRadius: '0',
+        borderBottomRightRadius: '0',
         width: w || 120,
+        backgroundColor: '#efeae7',
+        '& .MuiInputBase-root.MuiFilledInput-root': {
+          backgroundColor: '#efeae7',
+        },
       }}
     >
-      <InputLabel id="demo-simple-select-filled-label">{label}</InputLabel>
+      <InputLabel
+        id="demo-simple-select-filled-label"
+        sx={{
+          color: getContrastColor('#efeae7'),
+        }}
+      >
+        {label}
+      </InputLabel>
       <Select
         labelId="demo-simple-select-filled-label"
         id="demo-simple-select-filled"
         value={value}
         size={size}
         onChange={handleSelectChange}
+        sx={{
+          color: getContrastColor('#efeae7'),
+          '& svg': {
+            color: getContrastColor('#efeae7'),
+          },
+        }}
       >
         {isFirstSelect && (
           <MenuItem value="">

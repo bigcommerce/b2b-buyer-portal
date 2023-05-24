@@ -11,6 +11,7 @@ import { useB3Lang } from '@b3/lang'
 import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { defaultCreateAccountPanel } from '@/shared/customStyleButtton/context/config'
@@ -76,7 +77,12 @@ export default function Login(props: RegisteredProps) {
   } = useContext(GlobaledContext)
 
   const {
-    state: { loginPageButton, loginPageDisplay, loginPageHtml },
+    state: {
+      loginPageButton,
+      loginPageDisplay,
+      loginPageHtml,
+      portalStyle: { backgroundColor = 'FEF9F5' },
+    },
   } = useContext(CustomStyleContext)
 
   useEffect(() => {
@@ -273,6 +279,7 @@ export default function Login(props: RegisteredProps) {
                       display: 'flex',
                       justifyContent: 'center',
                       fontSize: '28px',
+                      color: getContrastColor(backgroundColor),
                     }}
                   >
                     {loginInfo.loginTitle}
@@ -328,6 +335,7 @@ export default function Login(props: RegisteredProps) {
                         loginInfo={loginInfo}
                         gotoForgotPassword={gotoForgotPassword}
                         handleLoginSubmit={handleLoginSubmit}
+                        backgroundColor={backgroundColor}
                       />
                     </Box>
 

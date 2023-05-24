@@ -1,7 +1,10 @@
 import { useContext } from 'react'
 import { Box } from '@mui/material'
 
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+
+import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 
 import B3AccountInfo from './B3AccountInfo'
 
@@ -9,6 +12,14 @@ export default function B3Mainheader({ title }: { title: string }) {
   const {
     state: { companyInfo, salesRepCompanyName, role },
   } = useContext(GlobaledContext)
+
+  const {
+    state: {
+      portalStyle: { backgroundColor = '#FEF9F5' },
+    },
+  } = useContext(CustomStyleContext)
+
+  const customColor = getContrastColor(backgroundColor)
 
   return (
     <Box>
@@ -26,7 +37,7 @@ export default function B3Mainheader({ title }: { title: string }) {
           sx={{
             fontSize: '20px',
             fontWeight: '500',
-            color: '#333333',
+            color: customColor || '#333333',
           }}
         >
           {+role === 3 &&
@@ -46,6 +57,7 @@ export default function B3Mainheader({ title }: { title: string }) {
             display: 'flex',
             alignItems: 'end',
             mb: '8px',
+            color: customColor,
           }}
         >
           {title}
