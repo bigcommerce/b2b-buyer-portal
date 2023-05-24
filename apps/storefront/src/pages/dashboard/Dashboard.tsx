@@ -24,20 +24,81 @@ interface ListItem {
   [key: string]: string
 }
 
+interface B3MeanProps {
+  isMasquerade: boolean
+  handleSelect: () => void
+  startActing: () => void
+  endActing: () => void
+}
+
 const StyledMenu = styled(Menu)(() => ({
   '& .MuiPaper-elevation': {
     boxShadow:
       '0px 1px 0px -1px rgba(0, 0, 0, 0.1), 0px 1px 6px rgba(0, 0, 0, 0.07), 0px 1px 4px rgba(0, 0, 0, 0.06)',
+    borderRadius: '4px',
   },
 }))
+
+function B3Mean({
+  isMasquerade,
+  handleSelect,
+  startActing,
+  endActing,
+}: B3MeanProps) {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+
+  const open = Boolean(anchorEl)
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleMoreActionsClick = (event: MouseEvent<HTMLButtonElement>) => {
+    handleSelect()
+    setAnchorEl(event.currentTarget)
+  }
+
+  const menuItemText = isMasquerade ? 'End Masquerade' : 'Masquerade'
+
+  return (
+    <>
+      <IconButton onClick={(e) => handleMoreActionsClick(e)}>
+        <MoreHorizIcon />
+      </IconButton>
+      <StyledMenu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem
+          sx={{
+            color: 'primary.main',
+          }}
+          onClick={() => {
+            if (isMasquerade) {
+              endActing()
+            } else {
+              setAnchorEl(null)
+              startActing()
+            }
+          }}
+        >
+          {menuItemText}
+        </MenuItem>
+      </StyledMenu>
+    </>
+  )
+}
 
 function Dashboard() {
   const {
     state: { customerId, B3UserId, salesRepCompanyId = 0 },
     dispatch,
   } = useContext(GlobaledContext)
-
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
   const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] =
     useState<number>(+salesRepCompanyId)
@@ -74,7 +135,6 @@ function Dashboard() {
     } finally {
       setIsRequestLoading(false)
     }
-    // }
   }
 
   const getSuperAdminCompaniesList = async (params: ListItem) => {
@@ -88,22 +148,9 @@ function Dashboard() {
     }
   }
 
-  const handleMoreActionsClick = (
-    event: MouseEvent<HTMLButtonElement>,
-    companyId: number
-  ) => {
-    setCurrentSalesRepCompanyId(companyId)
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-
   const startActing = async (id?: number) => {
     try {
       setIsRequestLoading(true)
-      setAnchorEl(null)
       await superAdminBeginMasquerade(id || currentSalesRepCompanyId, +B3UserId)
       await setMasqueradeInfo()
       setFilterData({
@@ -153,8 +200,6 @@ function Dashboard() {
     })
   }
 
-  const open = Boolean(anchorEl)
-
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'companyName',
@@ -173,7 +218,7 @@ function Dashboard() {
                 fontWeight: 400,
                 fontSize: '13px',
                 background: '#ED6C02',
-                ml: '5px',
+                ml: '16px',
                 p: '2px 7px',
                 color: '#FFFFFF',
                 borderRadius: '10px',
@@ -198,30 +243,17 @@ function Dashboard() {
       title: 'Action',
       render: (row: CustomFieldItems) => {
         const { companyId } = row
+        const isMasquerade = +companyId === +salesRepCompanyId
+
         return (
-          <>
-            <IconButton onClick={(e) => handleMoreActionsClick(e, companyId)}>
-              <MoreHorizIcon />
-            </IconButton>
-            <StyledMenu
-              id="basic-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              MenuListProps={{
-                'aria-labelledby': 'basic-button',
-              }}
-            >
-              <MenuItem
-                sx={{
-                  color: 'primary.main',
-                }}
-                onClick={() => startActing()}
-              >
-                Masquerade
-              </MenuItem>
-            </StyledMenu>
-          </>
+          <B3Mean
+            isMasquerade={isMasquerade}
+            handleSelect={() => {
+              setCurrentSalesRepCompanyId(companyId)
+            }}
+            startActing={startActing}
+            endActing={endActing}
+          />
         )
       },
     },

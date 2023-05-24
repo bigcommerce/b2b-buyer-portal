@@ -237,6 +237,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                     onClick={() => isMasqueradeTipExpansion(false)}
                     sx={{
                       ml: '10px',
+                      cursor: 'pointer',
                     }}
                   />
                 ) : (
@@ -244,6 +245,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                     onClick={() => isMasqueradeTipExpansion(true)}
                     sx={{
                       ml: '10px',
+                      cursor: 'pointer',
                     }}
                   />
                 )}
@@ -320,6 +322,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                   onClick={() => isMasqueradeTipExpansion(false)}
                   sx={{
                     ml: '10px',
+                    cursor: 'pointer',
                   }}
                 />
               ) : (
@@ -327,6 +330,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                   onClick={() => isMasqueradeTipExpansion(true)}
                   sx={{
                     ml: '10px',
+                    cursor: 'pointer',
                   }}
                 />
               )}
