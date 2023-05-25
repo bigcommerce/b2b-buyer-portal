@@ -147,33 +147,33 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
         if (item.name === 'Quotes') {
           const { pathname } = location
           return (
-            <Badge
-              badgeContent={
-                quoteDetailHasNewMessages && pathname.includes('quoteDetail')
-                  ? ''
-                  : 0
-              }
-              variant="dot"
-              sx={{
-                width: '100%',
-                '& .MuiBadge-badge.MuiBadge-dot': {
-                  width: 8,
-                  height: 8,
-                  bgcolor: '#FFFFFF',
-                  right: 14,
-                  top: 22,
-                },
-              }}
-            >
-              <ListItem key={item.path} disablePadding>
+            <ListItem key={item.path} disablePadding>
+              <Badge
+                badgeContent={
+                  quoteDetailHasNewMessages && pathname.includes('quoteDetail')
+                    ? ''
+                    : 0
+                }
+                variant="dot"
+                sx={{
+                  width: '100%',
+                  '& .MuiBadge-badge.MuiBadge-dot': {
+                    width: 8,
+                    height: 8,
+                    bgcolor: '#FFFFFF',
+                    right: 14,
+                    top: 22,
+                  },
+                }}
+              >
                 <ListItemButton
                   onClick={() => handleClick(item)}
                   selected={activePath(item.path)}
                 >
                   <ListItemText primary={item.name} />
                 </ListItemButton>
-              </ListItem>
-            </Badge>
+              </Badge>
+            </ListItem>
           )
         }
         return (
