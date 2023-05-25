@@ -103,6 +103,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
             sx={{
               margin: 0,
               color: customColor,
+              m: '16px 0',
             }}
           >
             {openAPPParams.shoppingListBtn !== 'add'

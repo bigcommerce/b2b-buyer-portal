@@ -8,7 +8,13 @@ import {
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowBackIosNew } from '@mui/icons-material'
-import { Box, Stack, Typography } from '@mui/material'
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  Stack,
+  Typography,
+} from '@mui/material'
 
 import { B3Sping, CustomButton } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
@@ -67,6 +73,7 @@ interface GetValue {
 }
 interface InfoRefProps extends HTMLInputElement {
   getContactInfoValue: () => GetValue
+  setShippingInfoValue: (address: any) => void
 }
 
 interface InfoProps {
@@ -138,6 +145,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     shippingAddress: {},
     billingAddress: {},
   })
+  const [shippingSameAsBilling, setShippingSameAsBilling] =
+    useState<boolean>(false)
+  const [billingChange, setBillingChange] = useState<boolean>(false)
 
   const quoteTableRef = useRef<QuoteTableRef | null>(null)
 
@@ -549,6 +559,18 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     return text
   }
 
+  useEffect(() => {
+    if (billingChange && shippingSameAsBilling) {
+      if (billingRef.current) {
+        const billingAddress = billingRef.current.getContactInfoValue()
+
+        if (shippingRef.current) {
+          shippingRef.current.setShippingInfoValue(billingAddress)
+        }
+      }
+    }
+  }, [billingChange])
+
   return (
     <B3Sping isSpinning={loading}>
       <Box
@@ -696,6 +718,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                   ref={billingRef}
                   role={role}
                   accountFormFields={accountFormFields}
+                  shippingSameAsBilling={shippingSameAsBilling}
+                  type="billing"
+                  setBillingChange={setBillingChange}
                 />
                 <QuoteAddress
                   title="Shipping"
@@ -705,8 +730,35 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                   ref={shippingRef}
                   role={role}
                   accountFormFields={accountFormFields}
+                  shippingSameAsBilling={shippingSameAsBilling}
+                  type="shipping"
+                  setBillingChange={setBillingChange}
                 />
               </Box>
+              <FormControlLabel
+                label="My shipping address is the same as my billing address"
+                control={
+                  <Checkbox
+                    checked={shippingSameAsBilling}
+                    onChange={(e) => {
+                      setShippingSameAsBilling(e.target.checked)
+                      if (billingRef.current) {
+                        const billingAddress =
+                          billingRef.current.getContactInfoValue()
+
+                        if (shippingRef.current && e.target.checked) {
+                          shippingRef.current.setShippingInfoValue(
+                            billingAddress
+                          )
+                        }
+                      }
+                    }}
+                  />
+                }
+                sx={{
+                  mt: 2,
+                }}
+              />
               <CustomButton
                 sx={{
                   mt: '20px',

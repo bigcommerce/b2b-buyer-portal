@@ -215,7 +215,7 @@ const routes: RouteItem[] = [
     isMenuItem: false,
     component: QuoteDetail,
     configKey: 'quoteDetail',
-    permissions: [0, 1, 2, 3, 99, 100],
+    permissions: [0, 1, 2, 3, 4, 99, 100],
     isTokenLogin: false,
   },
 ]

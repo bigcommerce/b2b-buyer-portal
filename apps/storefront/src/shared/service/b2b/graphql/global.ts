@@ -9,6 +9,7 @@ const getB2BTokenQl = (bcJwtToken: string, channelId: number) => `mutation {
   }) {
     result {
       token
+      loginType
     }
   }
 }`

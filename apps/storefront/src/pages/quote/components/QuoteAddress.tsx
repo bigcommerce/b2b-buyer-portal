@@ -35,6 +35,9 @@ interface AddressProps {
   }
   role: string | number
   accountFormFields: AccountFormFieldsProps[]
+  shippingSameAsBilling: boolean
+  type: string
+  setBillingChange: (value: boolean) => void
 }
 
 export interface FormFieldsProps extends Record<string, any> {
@@ -74,6 +77,9 @@ function QuoteAddress(
     info = {},
     role,
     accountFormFields = [],
+    shippingSameAsBilling = false,
+    type,
+    setBillingChange,
   }: AddressProps,
   ref: any
 ) {
@@ -102,9 +108,18 @@ function QuoteAddress(
   })
 
   const getContactInfoValue = () => getValues()
+  const setShippingInfoValue = (address: any) => {
+    const addressKey = Object.keys(address)
+
+    addressKey.forEach((item: string) => {
+      if (item === 'company') return
+      setValue(item, address[item])
+    })
+  }
 
   useImperativeHandle(ref, () => ({
     getContactInfoValue,
+    setShippingInfoValue,
   }))
 
   const handleAddressChoose = () => {
@@ -134,6 +149,9 @@ function QuoteAddress(
       if (item === 'company') return
       setValue(item, addressItem[item])
     })
+    if (type === 'billing' && shippingSameAsBilling) {
+      setBillingChange(true)
+    }
 
     handleCloseAddressChoose()
   }

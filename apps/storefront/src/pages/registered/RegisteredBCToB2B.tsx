@@ -17,6 +17,7 @@ import {
   b3HexToRgb,
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getCurrentCustomerInfo, storeHash } from '@/utils'
@@ -64,6 +65,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   const { setOpenPage } = props
 
   const b3Lang = useB3Lang()
+  const [isMobile] = useMobile()
 
   const {
     control,
@@ -467,6 +469,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         <B3Sping
           isSpinning={isLoading}
           tip={b3Lang('intl.global.tips.loading')}
+          transparency=".75"
         >
           <Box
             sx={{
@@ -523,7 +526,17 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                   </Alert>
                 )}
 
-                <Box>
+                <Box
+                  sx={
+                    isMobile
+                      ? {
+                          width: '100%',
+                        }
+                      : {
+                          width: '505px',
+                        }
+                  }
+                >
                   <InformationFourLabels>
                     {contactInformation?.length
                       ? contactInformation[0]?.groupName
@@ -538,7 +551,17 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                   />
                 </Box>
 
-                <Box>
+                <Box
+                  sx={
+                    isMobile
+                      ? {
+                          width: '100%',
+                        }
+                      : {
+                          width: '505px',
+                        }
+                  }
+                >
                   <InformationFourLabels>
                     {companyInformation?.length
                       ? companyInformation[0]?.groupName
@@ -553,7 +576,17 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                   />
                 </Box>
 
-                <Box>
+                <Box
+                  sx={
+                    isMobile
+                      ? {
+                          width: '100%',
+                        }
+                      : {
+                          width: '505px',
+                        }
+                  }
+                >
                   <InformationFourLabels>
                     {addressBasicFields?.length
                       ? addressBasicFields[0]?.groupName
@@ -579,6 +612,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               display: 'flex',
               flexDirection: 'row-reverse',
               pt: 2,
+              width: isMobile ? '100%' : '505px',
             }}
           >
             <CustomButton variant="contained" onClick={handleNext}>

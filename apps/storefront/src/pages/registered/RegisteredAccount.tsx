@@ -16,6 +16,7 @@ import {
   b3HexToRgb,
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
@@ -38,6 +39,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const {
     state: { currentChannelId },
   } = useContext(GlobaledContext)
+  const [isMobile] = useMobile()
 
   const { state, dispatch } = useContext(RegisteredContext)
   const IframeDocument = useSelector(themeFrameSelector)
@@ -174,12 +176,21 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
 
   return (
     <Box
-      sx={{
-        pl: 1,
-        pr: 10,
-        mt: 2,
-        width: '505px',
-      }}
+      sx={
+        isMobile
+          ? {
+              pl: 1,
+              pr: 1,
+              mt: 2,
+              width: 'auto',
+            }
+          : {
+              pl: 1,
+              pr: 10,
+              mt: 2,
+              width: '505px',
+            }
+      }
     >
       {errorTips && (
         <Alert severity="error">

@@ -15,6 +15,7 @@ interface B3SpingProps {
   background?: string
   spinningHeight?: number | string
   isFlex?: boolean
+  transparency?: string
 }
 
 export default function B3Sping(props: B3SpingProps) {
@@ -28,6 +29,7 @@ export default function B3Sping(props: B3SpingProps) {
     background,
     spinningHeight,
     isFlex,
+    transparency = '1',
   } = props
 
   const theme = useTheme()
@@ -39,7 +41,11 @@ export default function B3Sping(props: B3SpingProps) {
   return (
     <SpinContext isFlex={isFlex} height={spinningHeight}>
       {isSpinning && (
-        <SpinCenter background={background} isMobile={isMobile}>
+        <SpinCenter
+          background={background}
+          isMobile={isMobile}
+          transparency={transparency}
+        >
           {!isCloseLoading && (
             <CircularProgress size={size || 40} thickness={thickness || 2} />
           )}
