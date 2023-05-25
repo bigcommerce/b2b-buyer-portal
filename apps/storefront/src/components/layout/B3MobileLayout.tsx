@@ -24,7 +24,7 @@ export default function B3MobileLayout({
   }
 
   const {
-    state: { companyInfo, salesRepCompanyName, isAgenting, role },
+    state: { isAgenting },
   } = useContext(GlobaledContext)
 
   const {
@@ -109,31 +109,11 @@ export default function B3MobileLayout({
               pb: '4vw',
             }}
           >
-            <Box
-              component="h4"
-              sx={{
-                p: 0,
-                m: 0,
-                fontSize: '20px',
-              }}
-            >
-              {companyInfo?.companyName || salesRepCompanyName}
-            </Box>
+            <B3AccountInfo closeSidebar={setOpenMobileSidebar} />
             <Close onClick={() => setOpenMobileSidebar(false)} />
           </Box>
 
           <B3Nav closeSidebar={setOpenMobileSidebar} />
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-            }}
-          >
-            {role !== 100 && (
-              <B3AccountInfo closeSidebar={setOpenMobileSidebar} />
-            )}
-          </Box>
         </Box>
       )}
     </Box>

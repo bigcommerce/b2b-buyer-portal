@@ -47,40 +47,12 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
 
   const name = `${firstName}  ${lastName}`
 
-  return isMobile ? (
-    <Box
-      sx={{
-        pb: '5vw',
-      }}
-    >
-      <Box
-        sx={{
-          m: 0,
-          p: '2vw 4vw',
-          color: 'black',
-        }}
-      >
-        Logged in as {name}
-      </Box>
-      {list.map((item) => (
-        <Box
-          sx={{
-            p: '2vw 4vw',
-            color: '#3385d6',
-          }}
-          key={item.name}
-          onClick={() => handleItemClick(item)}
-        >
-          {item.name}
-        </Box>
-      ))}
-    </Box>
-  ) : (
+  return (
     <Box
       sx={{
         minWidth: '150px',
         display: 'flex',
-        justifyContent: 'end',
+        justifyContent: isMobile ? 'start' : 'end',
         mr: '-5px',
         fontSize: '16px',
         color: '#333333',
