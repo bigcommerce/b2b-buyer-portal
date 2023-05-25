@@ -230,6 +230,7 @@ function OrderCard(props: OrderCardProps) {
         type={type}
         setOpen={setOpen}
         itemKey={itemKey}
+        orderId={+orderId}
       />
     </Card>
   )
