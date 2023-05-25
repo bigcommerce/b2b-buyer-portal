@@ -7,6 +7,7 @@ import { GlobaledContext } from '@/shared/global'
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 
 import B3AccountInfo from './B3AccountInfo'
+import B3StatusNotification from './B3StatusNotification'
 
 export default function B3Mainheader({ title }: { title: string }) {
   const {
@@ -63,6 +64,7 @@ export default function B3Mainheader({ title }: { title: string }) {
           {title}
         </Box>
       )}
+      <B3StatusNotification title={title} />
     </Box>
   )
 }

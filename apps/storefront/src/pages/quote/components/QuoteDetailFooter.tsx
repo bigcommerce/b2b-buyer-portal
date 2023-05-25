@@ -38,6 +38,8 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
         },
       } = res
 
+      sessionStorage.setItem('isNewStorefront', JSON.stringify(true))
+
       window.location.href = checkoutUrl
     } catch (err) {
       console.error(err)

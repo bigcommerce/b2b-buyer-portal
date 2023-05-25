@@ -25,6 +25,7 @@ type B2BToken = {
   authorization: {
     result: {
       token: string
+      loginType: null | string
     }
   }
 }
@@ -165,6 +166,9 @@ const getCurrentJwtAndB2BToken = async (userType: number) => {
       if (data) {
         const B3B2BToken = (data as B2BToken).authorization.result.token
         B3SStorage.set('B3B2BToken', B3B2BToken)
+        const { loginType } = (data as B2BToken).authorization.result
+
+        sessionStorage.setItem('loginType', JSON.stringify(loginType || null))
       }
     }
   } catch (error) {
@@ -232,27 +236,23 @@ export const agentInfo = async (
   b3UserId: number | string,
   dispatch: any
 ) => {
-  const isRelogin = sessionStorage.getItem('isReLogin') === 'true'
-
   if (+role === 3) {
     try {
       const data: any = await getAgentInfo(customerId)
       if (data?.superAdminMasquerading) {
         const { id, companyName } = data.superAdminMasquerading
 
-        if (isRelogin) {
-          B3SStorage.set('isAgenting', true)
-          B3SStorage.set('salesRepCompanyId', id)
-          B3SStorage.set('salesRepCompanyName', companyName)
-          dispatch({
-            type: 'common',
-            payload: {
-              isAgenting: true,
-              salesRepCompanyId: id,
-              salesRepCompanyName: companyName,
-            },
-          })
-        }
+        B3SStorage.set('isAgenting', true)
+        B3SStorage.set('salesRepCompanyId', id)
+        B3SStorage.set('salesRepCompanyName', companyName)
+        dispatch({
+          type: 'common',
+          payload: {
+            isAgenting: true,
+            salesRepCompanyId: id,
+            salesRepCompanyName: companyName,
+          },
+        })
       }
     } catch (error) {
       console.log(error)

@@ -3,10 +3,11 @@ import styled from '@emotion/styled'
 interface SpinCenterProps {
   background?: string
   isMobile?: boolean
+  transparency?: string
 }
 
 const SpinCenter = styled('div')(
-  ({ background, isMobile }: SpinCenterProps) => ({
+  ({ background, isMobile, transparency }: SpinCenterProps) => ({
     position: isMobile ? 'fixed' : 'absolute',
     zIndex: 100,
     left: 0,
@@ -17,7 +18,7 @@ const SpinCenter = styled('div')(
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: background || 'rgba(255, 255, 255)',
+    backgroundColor: background || `rgba(255, 255, 255, ${transparency})`,
   })
 )
 
