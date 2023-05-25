@@ -7,6 +7,7 @@ import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 
+import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 
 import { getContrastColor } from './outSideComponents/utils/b3CustomStyles'
@@ -51,6 +52,16 @@ export default function B3DropDown<T>({
 
   const keyName = config?.name || 'name'
 
+  const [isMobile] = useMobile()
+
+  const sx = isMobile
+    ? {
+        width: 'auto',
+      }
+    : {
+        width: width || '155px',
+      }
+
   return (
     <Box
       sx={{
@@ -89,8 +100,8 @@ export default function B3DropDown<T>({
             return (
               <MenuItem
                 sx={{
-                  width: width || '155px',
                   color,
+                  ...sx,
                 }}
                 key={name}
                 onClick={() => {
