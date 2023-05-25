@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { FieldValues, useForm } from 'react-hook-form'
 import { Box, Typography } from '@mui/material'
 
 import { B3CustomForm, B3Dialog, successTip } from '@/components'
@@ -13,6 +13,7 @@ import {
 } from '@/shared/service/b2b'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import { snackbar } from '@/utils'
+import { bcBaseUrl } from '@/utils/basicConfig'
 
 import { EditableProductItem, OrderProductItem } from '../../../types'
 import getReturnFormFields from '../shared/config'
@@ -20,6 +21,11 @@ import getReturnFormFields from '../shared/config'
 import CreateShoppingList from './CreateShoppingList'
 import OrderCheckboxProduct from './OrderCheckboxProduct'
 import OrderShoppingList from './OrderShoppingList'
+
+interface ReturnListProps {
+  returnId: number
+  returnQty: number
+}
 
 interface DialogData {
   dialogTitle: string
@@ -35,6 +41,12 @@ interface OrderDialogProps {
   type?: string
   currentDialogData?: DialogData
   itemKey: string
+  orderId: number
+}
+
+interface ReturnListProps {
+  returnId: number
+  returnQty: number
 }
 
 export default function OrderDialog({
@@ -44,6 +56,7 @@ export default function OrderDialog({
   currentDialogData = undefined,
   setOpen,
   itemKey,
+  orderId,
 }: OrderDialogProps) {
   const {
     state: { isB2BUser },
@@ -58,6 +71,7 @@ export default function OrderDialog({
   const [variantInfoList, setVariantInfoList] = useState<CustomFieldItems[]>([])
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [checkedArr, setCheckedArr] = useState<number[]>([])
+  const [returnArr, setReturnArr] = useState<ReturnListProps[]>([])
 
   const [returnFormFields] = useState(getReturnFormFields())
 
@@ -76,10 +90,77 @@ export default function OrderDialog({
   const handleClose = () => {
     setOpen(false)
   }
+  const getXsrfToken = (): string | undefined => {
+    const cookies = document.cookie
+    const cookieArray = cookies.split(';').map((cookie) => cookie.trim())
+
+    const xsrfCookie = cookieArray.find((cookie) =>
+      cookie.startsWith('XSRF-TOKEN=')
+    )
+
+    if (xsrfCookie) {
+      const xsrfToken = xsrfCookie.split('=')[1]
+      return decodeURIComponent(xsrfToken)
+    }
+
+    return undefined
+  }
+
+  const sendReturnRequest = async (
+    returnReason: FieldValues,
+    returnArr: ReturnListProps[],
+    orderId: number
+  ) => {
+    if (!Object.keys(returnReason).length || !returnArr.length) {
+      snackbar.error('Please select at least one item')
+      return
+    }
+    const transformedData = returnArr.reduce((result, item) => {
+      const key = `return_qty[${item.returnId}]`
+      result[key] = item.returnQty
+      return result
+    }, returnReason)
+    transformedData.authenticity_token = getXsrfToken()
+    transformedData.order_id = orderId
+
+    const urlencoded = new URLSearchParams(transformedData)
+
+    const requestOptions: any = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      referrer: `${bcBaseUrl}/account.php?action=new_return&order_id=${orderId}`,
+      body: urlencoded,
+      mode: 'no-cors',
+    }
+
+    try {
+      setIsRequestLoading(true)
+      const returnResult = await fetch(
+        `${bcBaseUrl}/account.php?action=save_new_return`,
+        requestOptions
+      )
+      if (
+        returnResult.status === 200 &&
+        returnResult.url.includes('saved_new_return')
+      ) {
+        snackbar.success(
+          "The application is successful, please wait for the merchant's review."
+        )
+      } else {
+        snackbar.error('Application failed, please contact the merchant.')
+      }
+      setIsRequestLoading(false)
+      handleClose()
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   const handleReturn = () => {
     handleSubmit((data) => {
-      console.log(11111, data)
+      sendReturnRequest(data, returnArr, orderId)
     })()
   }
 
@@ -346,6 +427,7 @@ export default function OrderDialog({
             products={editableProducts}
             onProductChange={handleProductChange}
             setCheckedArr={setCheckedArr}
+            setReturnArr={setReturnArr}
             textAlign={isMobile ? 'left' : 'right'}
           />
 

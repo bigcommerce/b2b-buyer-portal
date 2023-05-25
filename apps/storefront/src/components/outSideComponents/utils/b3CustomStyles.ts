@@ -28,7 +28,6 @@ export const getStyles = (customCss: string) => {
       }
       return acc
     }, {})
-
   return sx
 }
 

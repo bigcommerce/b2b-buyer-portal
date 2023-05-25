@@ -1,5 +1,4 @@
 import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react'
-import styled from '@emotion/styled'
 import {
   Box,
   Checkbox,
@@ -13,111 +12,27 @@ import { useMobile } from '@/hooks'
 import { currencyFormat } from '@/utils'
 
 import { EditableProductItem, OrderProductOption } from '../../../types'
+import {
+  defaultItemStyle,
+  Flex,
+  FlexItem,
+  mobileItemStyle,
+  ProductHead,
+  ProductImage,
+  ProductOptionText,
+} from '../styled'
 
+interface ReturnListProps {
+  returnId: number
+  returnQty: number
+}
 interface OrderCheckboxProductProps {
   products: EditableProductItem[]
   getProductQuantity?: (item: EditableProductItem) => number
   onProductChange?: (products: EditableProductItem[]) => void
   setCheckedArr?: (items: number[]) => void
+  setReturnArr?: (items: ReturnListProps[]) => void
   textAlign?: string
-}
-
-interface FlexProps {
-  isHeader?: boolean
-  isMobile?: boolean
-}
-
-interface FlexItemProps {
-  width?: string
-  padding?: string
-  flexBasis?: string
-  minHeight?: string
-  textAlignLocation?: string
-}
-
-const Flex = styled('div')(({ isHeader, isMobile }: FlexProps) => {
-  const headerStyle = isHeader
-    ? {
-        borderBottom: '1px solid #D9DCE9',
-        paddingBottom: '8px',
-        alignItems: 'center',
-      }
-    : {
-        alignItems: 'flex-start',
-      }
-
-  const mobileStyle = isMobile
-    ? {
-        borderTop: '1px solid #D9DCE9',
-        padding: '12px 0 12px',
-        '&:first-of-type': {
-          marginTop: '12px',
-        },
-      }
-    : {}
-
-  const flexWrap = isMobile ? 'wrap' : 'initial'
-
-  return {
-    display: 'flex',
-    wordBreak: 'break-word',
-    padding: '8px 0 0',
-    gap: '8px',
-    flexWrap,
-    ...headerStyle,
-    ...mobileStyle,
-  }
-})
-
-const FlexItem = styled('div')(
-  ({ width, padding = '0', flexBasis, textAlignLocation }: FlexItemProps) => ({
-    display: 'flex',
-    flexGrow: width ? 0 : 1,
-    flexShrink: width ? 0 : 1,
-    alignItems: 'flex-start',
-    justifyContent: textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
-    flexBasis,
-    width,
-    padding,
-  })
-)
-
-const ProductHead = styled('div')(() => ({
-  fontSize: '0.875rem',
-  lineHeight: '1.5',
-  color: '#263238',
-}))
-
-const ProductImage = styled('img')(() => ({
-  width: '60px',
-  borderRadius: '4px',
-  flexShrink: 0,
-}))
-
-const ProductOptionText = styled('div')(() => ({
-  fontSize: '0.75rem',
-  lineHeight: '1.5',
-  color: '#455A64',
-}))
-
-const defaultItemStyle = {
-  default: {
-    width: '15%',
-  },
-  qty: {
-    width: '80px',
-  },
-}
-
-const mobileItemStyle = {
-  default: {
-    width: '100%',
-    padding: '0 0 0 128px',
-  },
-  qty: {
-    width: '100%',
-    padding: '0 0 0 128px',
-  },
 }
 
 export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
@@ -126,12 +41,15 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     getProductQuantity = (item) => item.editQuantity,
     onProductChange = () => {},
     setCheckedArr = () => {},
+    setReturnArr = () => {},
     textAlign = 'left',
   } = props
 
   const [isMobile] = useMobile()
 
   const [list, setList] = useState<number[]>([])
+
+  const [returnList, setReturnList] = useState<ReturnListProps[]>([])
 
   const getProductTotals = (
     quantity: string | number,
@@ -149,29 +67,63 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     const newlist = [...list]
     if (newlist.length === products.length) {
       setList([])
+      setReturnList([])
     } else {
       const variantIds = products.map((item) => item.variant_id)
+      const returnIds: ReturnListProps[] = []
+      products.forEach((item, index) => {
+        returnIds[index] = {
+          returnId: item.id,
+          returnQty: +item.editQuantity,
+        }
+      })
+
       setList(variantIds)
+      setReturnList(returnIds)
     }
   }
 
-  const handleSelectChange = (variantId: number) => {
+  const handleSelectChange = (
+    variantId: number,
+    returnId: number,
+    returnQty: number
+  ) => {
     const newlist = [...list]
+    const newReturnList = [...returnList]
     const index = newlist.findIndex((item) => item === variantId)
+    const returnIndex = newReturnList.findIndex(
+      (item) => item.returnId === returnId
+    )
     if (index !== -1) {
       newlist.splice(index, 1)
+      newReturnList.splice(returnIndex, 1)
     } else {
       newlist.push(variantId)
+      newReturnList.push({
+        returnId,
+        returnQty,
+      })
     }
     setList(newlist)
+    setReturnList(newReturnList)
   }
 
   const isChecked = (variantId: number) => list.includes(variantId)
 
   const handleProductQuantityChange =
     (product: EditableProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
-      if (!e.target.value || parseInt(e.target.value, 10) > 0) {
+      if (
+        !e.target.value ||
+        (parseInt(e.target.value, 10) >= 0 &&
+          parseInt(e.target.value, 10) <= product.quantity)
+      ) {
         product.editQuantity = e.target.value
+        returnList.forEach((item) => {
+          if (item.returnId === product.id) {
+            item.returnQty = +e.target.value
+          }
+        })
+        setReturnArr(returnList)
         onProductChange([...products])
       }
     }
@@ -192,6 +144,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   useEffect(() => {
     setCheckedArr(list)
   }, [list])
+
+  useEffect(() => {
+    setReturnArr(returnList)
+  }, [returnList])
 
   return products.length > 0 ? (
     <Box>
@@ -235,7 +191,13 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
         <Flex isMobile={isMobile} key={product.sku}>
           <Checkbox
             checked={isChecked(product.variant_id)}
-            onChange={() => handleSelectChange(product.variant_id)}
+            onChange={() =>
+              handleSelectChange(
+                product.variant_id,
+                product.id,
+                +product.editQuantity
+              )
+            }
           />
           <FlexItem>
             <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />

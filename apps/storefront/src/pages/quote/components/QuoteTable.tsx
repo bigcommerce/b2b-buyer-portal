@@ -1,6 +1,6 @@
 import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
 import { Delete, Edit } from '@mui/icons-material'
-import { Box, Link, styled, TextField, Typography } from '@mui/material'
+import { Box, styled, TextField, Typography } from '@mui/material'
 import { ceil } from 'lodash'
 
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
@@ -334,16 +334,22 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
               loading="lazy"
             />
             <Box>
-              <Typography variant="body1">
-                <Link
-                  href={row.productsSearch?.productUrl || '#'}
-                  underline="none"
-                  sx={{
-                    color: '#212121',
-                  }}
-                >
-                  {row.productName}
-                </Link>
+              <Typography
+                variant="body1"
+                color="#212121"
+                onClick={() => {
+                  const {
+                    location: { origin },
+                  } = window
+
+                  if (product?.productUrl)
+                    window.location.href = `${origin}${product?.productUrl}`
+                }}
+                sx={{
+                  cursor: 'pointer',
+                }}
+              >
+                {row.productName}
               </Typography>
               <Typography variant="body1" color="#616161">
                 {row.variantSku}

@@ -11,19 +11,19 @@ const getReturnFormFields = () => [
     options: [
       {
         label: 'Received Wrong Product',
-        value: 'Received Wrong Product',
+        value: 'Received wrong product',
       },
       {
         label: 'Wrong Product Ordered',
-        value: 'Wrong Product Ordered',
+        value: 'Wrong product ordered',
       },
       {
         label: 'Not Satisfied With The Product',
-        value: 'Not Satisfied With The Product',
+        value: 'Not satisfied with the product',
       },
       {
         label: 'There Was A Problem With The Product',
-        value: 'There Was A Problem With The Product',
+        value: 'There was a problem with the product',
       },
     ],
   },
@@ -47,7 +47,7 @@ const getReturnFormFields = () => [
       },
       {
         label: 'Store Credit',
-        value: 'Store Credit',
+        value: 'Store credit',
       },
     ],
   },
@@ -63,4 +63,5 @@ const getReturnFormFields = () => [
     default: '',
   },
 ]
+
 export default getReturnFormFields
