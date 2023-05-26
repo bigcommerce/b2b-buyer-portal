@@ -591,6 +591,15 @@ interface CalculatedProductPrice {
   qty: number
 }
 
+const getCustomerGroupId = () => {
+  let customerGroupId = 0
+  const B3CustomerInfo = B3SStorage.get('B3CustomerInfo')
+  if (B3CustomerInfo && Object.keys(B3CustomerInfo).length !== 0) {
+    customerGroupId = B3CustomerInfo.customerGroupId
+  }
+  return customerGroupId
+}
+
 const getCalculatedProductPrice = async (
   { optionList, productsSearch, sku, qty }: CalculatedProductPrice,
   calculatedValue?: CustomFieldItems
@@ -608,12 +617,13 @@ const getCalculatedProductPrice = async (
       productsSearch?.allOptions || []
     )
     const channelId = B3SStorage.get('B3channelId')
+    const customerGroupId = getCustomerGroupId()
 
     const data = {
       channel_id: channelId,
       currency_code: getDefaultCurrencyInfo().currency_code,
       items,
-      customer_group_id: 0,
+      customer_group_id: customerGroupId,
     }
 
     let calculatedData = []
@@ -719,11 +729,13 @@ const calculateProductListPrice = async (
 
     const channelId = B3SStorage.get('B3channelId')
 
+    const customerGroupId = getCustomerGroupId()
+
     const data = {
       channel_id: channelId,
       currency_code: getDefaultCurrencyInfo().currency_code,
       items: itemsOptions,
-      customer_group_id: 0,
+      customer_group_id: customerGroupId,
     }
 
     const res = await getProxyInfo({
