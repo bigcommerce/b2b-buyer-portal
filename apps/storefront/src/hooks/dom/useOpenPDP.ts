@@ -14,6 +14,8 @@ import { cloneDeep } from 'lodash'
 import {
   getContrastColor,
   getStyles,
+  setMediaStyle,
+  splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
@@ -86,7 +88,15 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     enabled = false,
   } = shoppingListBtn
 
-  const customTextColor = getStyles(customCss).color || getContrastColor(color)
+  const cssInfo = splitCustomCssValue(customCss)
+  const {
+    cssValue,
+    mediaBlocks,
+  }: {
+    cssValue: string
+    mediaBlocks: string[]
+  } = cssInfo
+  const customTextColor = getStyles(cssValue).color || getContrastColor(color)
 
   useEffect(() => {
     // if (role === 100) return
@@ -119,6 +129,7 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
             'class',
             `b2b-add-to-list ${classSelector}`
           )
+          setMediaStyle(mediaBlocks, `b2b-add-to-list ${classSelector}`)
         })
         cache.current = cloneDeep(shoppingListBtn)
       }
@@ -140,6 +151,8 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         shoppingBtnDom.style.backgroundColor = color
         shoppingBtnDom.style.color = customTextColor
         shoppingBtnDom.setAttribute('class', `b2b-add-to-list ${classSelector}`)
+
+        setMediaStyle(mediaBlocks, `b2b-add-to-list ${classSelector}`)
         if (CustomAddToShoppingListAll.length) {
           node.appendChild(shoppingBtnDom)
         } else {

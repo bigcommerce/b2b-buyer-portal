@@ -19,6 +19,8 @@ import {
   getContrastColor,
   getLocation,
   getStyles,
+  setMUIMediaStyle,
+  splitCustomCssValue,
 } from './utils/b3CustomStyles'
 
 interface B3MasquradeGobalTipProps {
@@ -129,6 +131,16 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
     }
   }
 
+  const cssInfo = splitCustomCssValue(customCss)
+  const {
+    cssValue,
+    mediaBlocks,
+  }: {
+    cssValue: string
+    mediaBlocks: string[]
+  } = cssInfo
+  const MUIMediaStyle = setMUIMediaStyle(mediaBlocks)
+
   const customStyles: SxProps = {
     backgroundColor: `${color || '#FFFFFF'}`,
     color: getContrastColor(color || '#FFFFFF'),
@@ -136,7 +148,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       verticalPadding && horizontalPadding
         ? `${verticalPadding}px ${horizontalPadding}px`
         : '',
-    ...getStyles(customCss),
+    ...getStyles(cssValue),
   }
 
   const isMobileCustomStyles: SxProps = {
@@ -160,6 +172,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
               height: '42px',
               marginTop: '10px',
               ...customStyles,
+              ...MUIMediaStyle,
             }}
             onClick={() => endActing()}
             variant="contained"
@@ -180,6 +193,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
             backgroundColor: '#ED6C02',
             ...sx,
             ...customStyles,
+            ...MUIMediaStyle,
           }}
           anchorOrigin={getLocation(location) || defaultLocation}
           open
@@ -265,6 +279,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
             color: '#FFFFFF',
             ...sx,
             ...customStyles,
+            ...MUIMediaStyle,
           }}
           anchorOrigin={getLocation(location) || defaultLocation}
           open
@@ -349,6 +364,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
             color: '#FFFFFF',
             ...sx,
             ...isMobileCustomStyles,
+            ...MUIMediaStyle,
           }}
           anchorOrigin={defaultLocation}
           open

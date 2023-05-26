@@ -11,6 +11,8 @@ import type { OpenPageState } from '@b3/hooks'
 import {
   getContrastColor,
   getStyles,
+  setMediaStyle,
+  splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
@@ -125,7 +127,15 @@ const useCartToQuote = ({
     enabled = false,
   } = addToAllQuoteBtn
 
-  const customTextColor = getStyles(customCss).color || getContrastColor(color)
+  const cssInfo = splitCustomCssValue(customCss)
+  const {
+    cssValue,
+    mediaBlocks,
+  }: {
+    cssValue: string
+    mediaBlocks: string[]
+  } = cssInfo
+  const customTextColor = getStyles(cssValue).color || getContrastColor(color)
 
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(
@@ -154,6 +164,8 @@ const useCartToQuote = ({
           'class',
           `b2b-cart-to-quote ${classSelector}`
         )
+
+        setMediaStyle(mediaBlocks, `b2b-cart-to-quote ${classSelector}`)
       })
       return
     }
@@ -172,6 +184,8 @@ const useCartToQuote = ({
           'class',
           `b2b-cart-to-quote ${classSelector}`
         )
+
+        setMediaStyle(mediaBlocks, `b2b-cart-to-quote ${classSelector}`)
         node.appendChild(cartQuoteBtnDom)
         cartQuoteBtnDom.addEventListener('click', quoteCallBbck, {
           capture: true,

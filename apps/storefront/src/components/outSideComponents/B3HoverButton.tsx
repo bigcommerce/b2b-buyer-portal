@@ -11,7 +11,13 @@ import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { B3LStorage } from '@/utils'
 
-import { getHoverColor, getLocation, getStyles } from './utils/b3CustomStyles'
+import {
+  getHoverColor,
+  getLocation,
+  getStyles,
+  setMUIMediaStyle,
+  splitCustomCssValue,
+} from './utils/b3CustomStyles'
 
 interface B3HoverButtonProps {
   isOpen: boolean
@@ -53,13 +59,23 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
     horizontal: 'right',
   }
 
+  const cssInfo = splitCustomCssValue(customCss)
+  const {
+    cssValue,
+    mediaBlocks,
+  }: {
+    cssValue: string
+    mediaBlocks: string[]
+  } = cssInfo
+  const MUIMediaStyle = setMUIMediaStyle(mediaBlocks)
+
   const defaultSx: SxProps = {
     backgroundColor: color,
     padding:
       verticalPadding && horizontalPadding
         ? `${verticalPadding}px ${horizontalPadding}px`
         : '',
-    ...getStyles(customCss),
+    ...getStyles(cssValue),
   }
 
   if (href.includes('/checkout')) return null
@@ -91,6 +107,7 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
                   backgroundColor: getHoverColor(color, 0.2),
                 },
                 ...defaultSx,
+                ...MUIMediaStyle,
               }}
               onClick={() => {
                 setOpenPage({

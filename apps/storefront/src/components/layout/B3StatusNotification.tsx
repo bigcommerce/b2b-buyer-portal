@@ -20,10 +20,9 @@ const B3StatusNotificationContainer = styled(Box)(() => ({
 
 export default function B3StatusNotification(props: B3StatusNotificationProps) {
   const { title } = props
-  console.log(title, 'title')
 
   const {
-    state: { companyInfo },
+    state: { companyInfo, role },
   } = useContext(GlobaledContext)
   // companyStatus
   // 99: default, Distinguish between bc and b2b; 0: pending; 1: approved; 2: rejected; 3: inactive; 4: deleted
@@ -34,9 +33,7 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
   const loginType = JSON.parse(sessionStorage.getItem('loginType') || 'false')
 
   const [tip, setTip] = useState<string>('')
-  const [isShow, setIsShow] = useState<boolean>(
-    +companyStatus === 0 ? true : loginType === 1
-  )
+  const [isShow, setIsShow] = useState<boolean>(false)
   const [type, setType] = useState<AlertColor>('success')
   const [bcColor, setBcColor] = useState<string>('#2E7D32')
 
@@ -51,7 +48,11 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
   }
 
   useEffect(() => {
-    if (isShow) {
+    const loginTypeStatus = +companyStatus === 0 ? true : loginType === 1
+
+    const showTip = role === 100 ? false : loginTypeStatus
+    setIsShow(showTip)
+    if (showTip) {
       if (+companyStatus === 0) {
         setTip(
           blockPendingAccountOrderCreation
