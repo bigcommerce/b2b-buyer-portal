@@ -12,6 +12,97 @@ export const getLocation = (location: string): SnackbarOrigin => ({
   horizontal: location.includes('Left') ? 'left' : 'right',
 })
 
+export const splitCustomCssValue = (customCss: string) => {
+  let cssValue = customCss
+
+  // Parse the media block
+  const mediaRegex = /(@media[^{]+{[^}]+})/g
+  // media block
+  const mediaBlocks: string[] = []
+  // Blocks that do not contain media
+  cssValue = cssValue.replace(mediaRegex, (match, mediaBlock) => {
+    mediaBlocks.push(mediaBlock)
+    return ''
+  })
+
+  return {
+    mediaBlocks,
+    cssValue,
+  }
+}
+
+export const setMediaStyle = (mediaBlocks: string[], className: string) => {
+  if (mediaBlocks.length === 0) return
+
+  const classNameArr = className.split(' ').map((item) => `.${item}`)
+  const classNameId = classNameArr.join('')
+
+  const newCustomCss = mediaBlocks.map((media: string) => {
+    const mediaArr = media.split('\n')
+    const newMediaArr = mediaArr.map((style) => {
+      const [property, value] = style.split(':')
+      let newValue = value
+
+      if (
+        property.trim() === 'color' ||
+        property.trim() === 'background-color'
+      ) {
+        newValue = value.replace(';', '!important;')
+      }
+
+      return newValue?.trim() ? `${property}: ${newValue}` : `${property}`
+    })
+
+    const newMedia = newMediaArr.join('\n')
+
+    return newMedia
+  })
+
+  let value = ''
+  newCustomCss.forEach((style) => {
+    value += `${style}\n`
+  })
+
+  const css = `${classNameId} {
+    ${value}
+  }`
+
+  const style = document.createElement('style')
+  style.appendChild(document.createTextNode(css))
+
+  const head = document.head || document.getElementsByTagName('head')[0]
+  head.appendChild(style)
+}
+
+export const setMUIMediaStyle = (mediaBlocks: string[]) => {
+  if (mediaBlocks.length === 0) return []
+  const newMedia: CustomFieldItems = {}
+  mediaBlocks.forEach((media: string) => {
+    const mediaArr = media.split('\n')
+    const first = mediaArr.find((item) => item.includes('@media'))
+    if (first) {
+      const key = `${first.split(')')[0]})`
+
+      mediaArr.forEach((style) => {
+        const [property, value] = style.split(':')
+
+        if (!style.includes('@media') && value) {
+          newMedia[key] = {
+            ...(newMedia[key] || {}),
+            [property
+              .trim()
+              .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())]: value
+              .trim()
+              .replace(';', ''),
+          }
+        }
+      })
+    }
+  })
+
+  return newMedia
+}
+
 export const getStyles = (customCss: string) => {
   const str = trim(customCss)
   const sx = str

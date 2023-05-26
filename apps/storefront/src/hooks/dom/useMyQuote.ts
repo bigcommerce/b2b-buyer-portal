@@ -13,6 +13,8 @@ import { cloneDeep } from 'lodash'
 import {
   getContrastColor,
   getStyles,
+  setMediaStyle,
+  splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { B3LStorage, removeCartPermissions } from '@/utils'
@@ -82,7 +84,15 @@ const useMyQuote = ({
     enabled = false,
   } = addQuoteBtn
 
-  const customTextColor = getStyles(customCss).color || getContrastColor(color)
+  const cssInfo = splitCustomCssValue(customCss)
+  const {
+    cssValue,
+    mediaBlocks,
+  }: {
+    cssValue: string
+    mediaBlocks: string[]
+  } = cssInfo
+  const customTextColor = getStyles(cssValue).color || getContrastColor(color)
 
   useEffect(() => {
     const addToQuoteAll = document.querySelectorAll(globalB3['dom.setToQuote'])
@@ -113,6 +123,8 @@ const useMyQuote = ({
           myQuote.style.backgroundColor = color
           myQuote.style.color = customTextColor
           myQuote.setAttribute('class', `b2b-add-to-quote ${classSelector}`)
+
+          setMediaStyle(mediaBlocks, `b2b-add-to-quote ${classSelector}`)
         })
         cache.current = cloneDeep(addQuoteBtn)
       }
@@ -130,6 +142,8 @@ const useMyQuote = ({
         myQuote.style.backgroundColor = color
         myQuote.style.color = customTextColor
         myQuote.setAttribute('class', `b2b-add-to-quote ${classSelector}`)
+
+        setMediaStyle(mediaBlocks, `b2b-add-to-quote ${classSelector}`)
         if (CustomAddToQuoteAll.length) {
           node.appendChild(myQuote)
         } else {
