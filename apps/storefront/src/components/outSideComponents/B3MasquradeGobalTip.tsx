@@ -156,6 +156,15 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
     color: getContrastColor(color || '#FFFFFF'),
   }
 
+  const customBuyerPortalPagesStyles: SxProps = {
+    backgroundColor: `${color || '#FFFFFF'}`,
+    color: getContrastColor(color || '#FFFFFF'),
+    padding:
+      verticalPadding && horizontalPadding
+        ? `${verticalPadding}px ${horizontalPadding}px`
+        : '',
+  }
+
   return (
     <>
       {!isOpen && isMobile && (
@@ -278,10 +287,9 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
             height: '52px',
             color: '#FFFFFF',
             ...sx,
-            ...customStyles,
-            ...MUIMediaStyle,
+            ...customBuyerPortalPagesStyles,
           }}
-          anchorOrigin={getLocation(location) || defaultLocation}
+          anchorOrigin={defaultLocation}
           open
         >
           <Box
@@ -364,7 +372,6 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
             color: '#FFFFFF',
             ...sx,
             ...isMobileCustomStyles,
-            ...MUIMediaStyle,
           }}
           anchorOrigin={defaultLocation}
           open
