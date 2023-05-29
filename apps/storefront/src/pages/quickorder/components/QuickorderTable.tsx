@@ -88,6 +88,7 @@ const StyledImage = styled('img')(() => ({
 const StyleQuickOrderTable = styled(Box)(() => ({
   display: 'flex',
   flexDirection: 'column',
+  width: '100%',
 
   '& tbody': {
     '& tr': {
@@ -386,7 +387,10 @@ function QuickorderTable({
           </Typography>
         </Box>
       ),
-      width: '20%',
+      width: '15%',
+      style: {
+        textAlign: 'right',
+      },
     },
   ]
 
@@ -473,6 +477,7 @@ function QuickorderTable({
                 defaultValue: distanceDay(),
                 pickerKey: 'end',
               }}
+              customWidth="58%"
             />
           )}
         </Box>
