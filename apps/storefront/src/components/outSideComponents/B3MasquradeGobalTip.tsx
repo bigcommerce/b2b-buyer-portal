@@ -163,6 +163,11 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       verticalPadding && horizontalPadding
         ? `${verticalPadding}px ${horizontalPadding}px`
         : '',
+    ...getStyles(cssValue),
+    bottom: '24px',
+    left: '24px',
+    right: 'auto',
+    top: 'unset',
   }
 
   return (

@@ -6,7 +6,10 @@ import { Box } from '@mui/material'
 import { trim } from 'lodash'
 
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
-import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
+import {
+  b3HexToRgb,
+  getContrastColor,
+} from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
@@ -499,11 +502,23 @@ function AccountSetting() {
         sx={{
           width: `${isMobile ? '100%' : '35%'}`,
           minHeight: `${isMobile ? '800px' : '300px'}`,
-          '& input, & .MuiFormControl-root': {
-            bgcolor: b3HexToRgb('#FFFFFF', 0.87),
-            borderRadius: '4px',
-            borderBottomLeftRadius: '0',
-            borderBottomRightRadius: '0',
+          '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiSelect-select.MuiSelect-filled':
+            {
+              bgcolor: b3HexToRgb('#FFFFFF', 0.87),
+              borderRadius: '4px',
+              borderBottomLeftRadius: '0',
+              borderBottomRightRadius: '0',
+            },
+          '& .MuiButtonBase-root.MuiCheckbox-root:not(.Mui-checked), & .MuiRadio-root:not(.Mui-checked)':
+            {
+              color: b3HexToRgb(getContrastColor(backgroundColor), 0.6),
+            },
+          '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label, & .MuiFormControl-root .MuiFormLabel-root:not(.Mui-focused)':
+            {
+              color: b3HexToRgb(getContrastColor(backgroundColor), 0.87),
+            },
+          '& .MuiInputLabel-root.MuiInputLabel-formControl:not(.Mui-focused)': {
+            color: b3HexToRgb(getContrastColor('#FFFFFF'), 0.6),
           },
         }}
       >

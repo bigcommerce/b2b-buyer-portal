@@ -4,7 +4,7 @@ import { Alert, Box } from '@mui/material'
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
+import { B3SStorage } from '@/utils'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
@@ -17,9 +17,6 @@ export default function RegisteredFinish(props: {
   const { activeStep, handleFinish } = props
   const { state } = useContext(RegisteredContext)
   const b3Lang = useB3Lang()
-  const {
-    state: { blockPendingAccountOrderCreation },
-  } = useContext(GlobaledContext)
 
   const {
     state: {
@@ -30,6 +27,9 @@ export default function RegisteredFinish(props: {
   const customColor = getContrastColor(backgroundColor)
 
   const { accountType, submitSuccess, isAutoApproval, storeName } = state
+
+  const blockPendingAccountOrderCreation =
+    B3SStorage.get('blockPendingAccountOrderCreation') && !isAutoApproval
 
   const renderB2BSuccessPage = () => {
     if (accountType === '1') {

@@ -31,7 +31,8 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
 
   const getCurrentLoginUrl = (href: string): string => {
     let url = '/login'
-    if (href?.includes('logout')) {
+    if (typeof href !== 'string') return url
+    if (href.includes('logout')) {
       url = '/login?loginFlag=3'
     }
     if (href?.includes('create_account')) {
