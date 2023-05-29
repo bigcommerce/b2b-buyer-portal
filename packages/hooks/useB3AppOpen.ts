@@ -31,10 +31,10 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
 
   const getCurrentLoginUrl = (href: string): string => {
     let url = '/login'
-    if (href.includes('logout')) {
+    if (href?.includes('logout')) {
       url = '/login?loginFlag=3'
     }
-    if (href.includes('create_account')) {
+    if (href?.includes('create_account')) {
       url = '/registered'
     }
 
@@ -83,7 +83,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
       window.b2bStorefrontApp.isInit = true
 
       window.addEventListener('click', handleTriggerClick, {
-        capture: false,
+        capture: true,
       })
       return () => {
         window.removeEventListener('click', handleTriggerClick)

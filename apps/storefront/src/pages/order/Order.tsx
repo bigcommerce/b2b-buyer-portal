@@ -105,6 +105,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser)
     setFilterData(search)
+    if (role === 100) return
+
     const initFilter = async () => {
       const companyId = companyB2BId || salesRepCompanyId
       let createdByUsers: CustomFieldItems = {}
