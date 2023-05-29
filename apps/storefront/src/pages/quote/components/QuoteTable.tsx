@@ -342,8 +342,9 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                     location: { origin },
                   } = window
 
-                  if (product?.productUrl)
+                  if (product?.productUrl) {
                     window.location.href = `${origin}${product?.productUrl}`
+                  }
                 }}
                 sx={{
                   cursor: 'pointer',

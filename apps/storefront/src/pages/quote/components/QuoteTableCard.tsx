@@ -64,6 +64,8 @@ function QuoteTableCard(props: QuoteTableCardProps) {
     (item) => item.valueText
   )
 
+  const { productUrl } = productsSearch
+
   return (
     <Box
       key={quoteTableItem.id}
@@ -92,7 +94,22 @@ function QuoteTableCard(props: QuoteTableCardProps) {
             flex: 1,
           }}
         >
-          <Typography variant="body1" color="#212121">
+          <Typography
+            variant="body1"
+            color="#212121"
+            onClick={() => {
+              const {
+                location: { origin },
+              } = window
+
+              if (productUrl) {
+                window.location.href = `${origin}${productUrl}`
+              }
+            }}
+            sx={{
+              cursor: 'pointer',
+            }}
+          >
             {productName}
           </Typography>
           <Typography variant="body1" color="#616161">
