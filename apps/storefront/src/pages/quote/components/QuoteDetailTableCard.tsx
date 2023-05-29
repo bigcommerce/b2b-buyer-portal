@@ -27,7 +27,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     sku,
     notes,
     offeredPrice,
-    // taxPrice,
+    productsSearch: { productUrl },
   } = quoteTableItem
 
   const price = +basePrice
@@ -64,7 +64,22 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
             flex: 1,
           }}
         >
-          <Typography variant="body1" color="#212121">
+          <Typography
+            variant="body1"
+            color="#212121"
+            onClick={() => {
+              const {
+                location: { origin },
+              } = window
+
+              if (productUrl) {
+                window.location.href = `${origin}${productUrl}`
+              }
+            }}
+            sx={{
+              cursor: 'pointer',
+            }}
+          >
             {productName}
           </Typography>
           <Typography variant="body1" color="#616161">

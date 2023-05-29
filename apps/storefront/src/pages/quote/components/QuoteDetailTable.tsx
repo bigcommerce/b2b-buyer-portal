@@ -114,6 +114,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       title: 'Product',
       render: (row: CustomFieldItems) => {
         const optionsValue = row.options
+        const productUrl = row.productsSearch?.productUrl
 
         return (
           <Box
@@ -135,9 +136,9 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   const {
                     location: { origin },
                   } = window
-
-                  if (row.productSearch?.productUrl)
-                    window.location.href = `${origin}${row.productSearch?.productUrl}`
+                  if (productUrl) {
+                    window.location.href = `${origin}${productUrl}`
+                  }
                 }}
                 sx={{
                   cursor: 'pointer',
