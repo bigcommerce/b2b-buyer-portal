@@ -24,6 +24,7 @@ interface B3FilterPickerProps {
   xs?: { [key: string]: number | string }
   isMonthlySpacing?: boolean
   handleChange?: (key: string, value: Date | string | number) => void
+  customWidth?: string
 }
 
 function B3FilterPickers(
@@ -33,6 +34,7 @@ function B3FilterPickers(
     handleChange,
     isMonthlySpacing = false,
     xs = {},
+    customWidth,
   }: B3FilterPickerProps,
   ref: Ref<unknown> | undefined
 ) {
@@ -87,6 +89,7 @@ function B3FilterPickers(
     <Box
       sx={{
         display: 'flex',
+        width: customWidth || 'auto',
       }}
     >
       {startPicker?.isEnabled && (
