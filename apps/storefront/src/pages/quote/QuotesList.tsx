@@ -186,7 +186,9 @@ function QuotesList() {
       customer,
       companyInfo: { id: companyB2BId },
       salesRepCompanyId,
+      openAPPParams,
     },
+    dispatch,
   } = useContext(GlobaledContext)
 
   useEffect(() => {
@@ -201,6 +203,18 @@ function QuotesList() {
     }
 
     initFilter()
+
+    if (openAPPParams.quoteBtn) {
+      dispatch({
+        type: 'common',
+        payload: {
+          openAPPParams: {
+            quoteBtn: '',
+            shoppingListBtn: '',
+          },
+        },
+      })
+    }
   }, [])
 
   const goToDetail = (item: ListItem, status: number) => {
