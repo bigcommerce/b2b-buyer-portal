@@ -128,7 +128,7 @@ const gotoQuoteDraft = (setOpenPage: DispatchProps) => {
     isOpen: true,
     openUrl: '/quoteDraft',
     params: {
-      quoteBtn: 'open',
+      quoteBtn: 'add',
     },
   })
 }

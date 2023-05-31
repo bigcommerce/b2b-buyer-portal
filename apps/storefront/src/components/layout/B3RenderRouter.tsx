@@ -29,11 +29,10 @@ import B3LayoutTip from './B3LayoutTip'
 interface B3RenderRouterProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
   openUrl?: string
-  isOpen?: boolean
 }
 
 export default function B3RenderRouter(props: B3RenderRouterProps) {
-  const { setOpenPage, openUrl, isOpen } = props
+  const { setOpenPage, openUrl } = props
 
   const { state: globaledState } = useContext(GlobaledContext)
 
@@ -44,30 +43,14 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (location && isOpen) {
-      if (location.pathname === '/') {
-        setOpenPage({
-          isOpen: false,
-          openUrl: '',
-        })
-      } else {
-        setOpenPage({
-          isOpen: true,
-          openUrl: location.pathname,
-        })
-        if (location.state && location.pathname.includes('dashboard'))
-          location.state = null
-      }
-    }
-  }, [location])
-
-  useEffect(() => {
     if (openUrl && openUrl === '/dashboard?closeMasqurade=1') {
       navigate('/dashboard', {
         state: {
           closeMasqurade: '1',
         },
       })
+    } else if (openUrl === '/dashboard') {
+      location.state = null
     }
   }, [openUrl])
 

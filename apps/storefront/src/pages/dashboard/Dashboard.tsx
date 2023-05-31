@@ -1,5 +1,13 @@
-import { MouseEvent, useContext, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  MouseEvent,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { useLocation } from 'react-router-dom'
+import type { OpenPageState } from '@b3/hooks'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { Box, IconButton, Menu, MenuItem } from '@mui/material'
 import { styled } from '@mui/material/styles'
@@ -29,6 +37,10 @@ interface B3MeanProps {
   handleSelect: () => void
   startActing: () => void
   endActing: () => void
+}
+
+interface DashboardProps {
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
 const StyledMenu = styled(Menu)(() => ({
@@ -102,11 +114,13 @@ function B3Mean({
   )
 }
 
-function Dashboard() {
+function Dashboard(props: DashboardProps) {
   const {
     state: { customerId, B3UserId, salesRepCompanyId = 0 },
     dispatch,
   } = useContext(GlobaledContext)
+
+  const { setOpenPage } = props
 
   const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] =
     useState<number>(+salesRepCompanyId)
@@ -161,6 +175,12 @@ function Dashboard() {
       setIsRequestLoading(true)
       await superAdminBeginMasquerade(id || currentSalesRepCompanyId, +B3UserId)
       await setMasqueradeInfo()
+
+      setOpenPage({
+        isOpen: true,
+        openUrl: '/dashboard',
+      })
+
       setFilterData({
         ...filterData,
       })

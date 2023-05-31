@@ -549,7 +549,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   }
 
   const backText = () => {
-    let text = 'Back to quote lists'
+    let text = +role === 100 ? 'Back' : 'to quote lists'
     if (openAPPParams?.quoteBtn === 'open') {
       text = 'Back'
     } else if (openAPPParams?.quoteBtn === 'add') {
@@ -594,7 +594,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
               alignItems: 'center',
             }}
             onClick={() => {
-              if (openAPPParams?.quoteBtn) {
+              if (openAPPParams?.quoteBtn || +role === 100) {
                 navigate('/')
                 setOpenPage({
                   isOpen: false,
