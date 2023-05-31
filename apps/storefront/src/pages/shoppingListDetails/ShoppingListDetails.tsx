@@ -23,6 +23,7 @@ import {
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b'
+import { store } from '@/store'
 import {
   calculateProductListPrice,
   getDefaultCurrencyInfo,
@@ -90,6 +91,10 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const navigate = useNavigate()
   const [isMobile] = useMobile()
   const { dispatch } = useContext(ShoppingListDetailsContext)
+
+  const {
+    global: { enteredInclusive: enteredInclusiveTax },
+  } = store.getState()
 
   const theme = useTheme()
 
@@ -308,10 +313,11 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
 
       checkedArr.forEach((item: ListItemProps) => {
         const {
-          node: { quantity, basePrice, baseAllPrice = 0 },
+          node: { quantity, basePrice, taxPrice },
         } = item
 
-        const price = +baseAllPrice || +basePrice
+        const price = enteredInclusiveTax ? +basePrice : +basePrice + +taxPrice
+
         total += price * +quantity
       })
 
