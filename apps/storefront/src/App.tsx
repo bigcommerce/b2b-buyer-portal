@@ -229,15 +229,21 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const { hash } = window.location
-      if (!isOpen && hash) {
+      if (hash) {
         const url = hash.split('#')[1]
-        if (url !== '/') {
+        if (url && url !== '/') {
           setOpenPage({
             isOpen: true,
             openUrl: url,
           })
+          return
         }
       }
+
+      setOpenPage({
+        isOpen: false,
+        openUrl: '',
+      })
     }
     window.addEventListener('hashchange', handleHashChange)
 
@@ -256,11 +262,7 @@ export default function App() {
             customStyles={CUSTOM_STYLES}
           >
             {isOpen ? (
-              <B3RenderRouter
-                openUrl={openUrl}
-                isOpen={isOpen}
-                setOpenPage={setOpenPage}
-              />
+              <B3RenderRouter openUrl={openUrl} setOpenPage={setOpenPage} />
             ) : null}
           </ThemeFrame>
         </div>
