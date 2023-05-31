@@ -53,7 +53,9 @@ function ShoppingLists() {
       currentChannelId,
       companyInfo: { id: companyB2BId },
       salesRepCompanyId,
+      openAPPParams,
     },
+    dispatch,
   } = useContext(GlobaledContext)
 
   useEffect(() => {
@@ -68,6 +70,18 @@ function ShoppingLists() {
     }
 
     initFilter()
+
+    if (openAPPParams.shoppingListBtn) {
+      dispatch({
+        type: 'common',
+        payload: {
+          openAPPParams: {
+            quoteBtn: '',
+            shoppingListBtn: '',
+          },
+        },
+      })
+    }
   }, [])
 
   const isExtraLarge = useCardListColumn()

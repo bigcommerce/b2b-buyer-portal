@@ -549,7 +549,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   }
 
   const backText = () => {
-    let text = +role === 100 ? 'Back' : 'to quote lists'
+    let text = +role === 100 ? 'Back' : 'Back to quote lists'
     if (openAPPParams?.quoteBtn === 'open') {
       text = 'Back'
     } else if (openAPPParams?.quoteBtn === 'add') {
