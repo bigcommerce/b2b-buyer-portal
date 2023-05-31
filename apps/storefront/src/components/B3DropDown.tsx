@@ -92,6 +92,12 @@ export default function B3DropDown<T>({
         id="customized-menu"
         keepMounted
         onClose={handleCloseMenuClick}
+        sx={{
+          '& .MuiList-root.MuiList-padding.MuiMenu-list': {
+            pt: isMobile ? 0 : '8px',
+            pb: isMobile ? 0 : '8px',
+          },
+        }}
       >
         {list.length &&
           list.map((item: any) => {
