@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, styled, Typography } from '@mui/material'
 
@@ -55,6 +56,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext)
+  const navigate = useNavigate()
 
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0
 
@@ -85,8 +87,10 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
             if (openAPPParams.shoppingListBtn !== 'add') {
               goToShoppingLists()
             } else {
+              navigate('/')
               setOpenPage({
                 isOpen: false,
+                openUrl: '',
               })
             }
           }}

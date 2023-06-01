@@ -252,6 +252,17 @@ export default function App() {
     }
   }, [])
 
+  useEffect(() => {
+    const { hash } = window.location
+
+    if (isOpen && hash === '#/') {
+      setOpenPage({
+        isOpen: false,
+        openUrl: '',
+      })
+    }
+  }, [isOpen])
+
   return (
     <>
       <HashRouter>

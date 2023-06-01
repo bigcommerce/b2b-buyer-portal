@@ -26,6 +26,7 @@ const globalB3 = {
   'dom.openB3Checkout': 'checkout-customer-continue',
   'dom.cartElement':
     '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"]',
+  'dom.productView': '.productView',
   before_login_goto_page: '/account.php?action=order_status',
   checkout_super_clear_session: 'true',
   setting: {
