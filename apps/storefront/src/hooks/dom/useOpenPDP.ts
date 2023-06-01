@@ -40,6 +40,7 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
 
   const storeDispatch = useDispatch()
   const {
+    dispatch,
     state: { isB2BUser, shoppingListEnabled },
   } = useContext(GlobaledContext)
 
@@ -52,28 +53,40 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     })
   }, [])
 
-  const pdpCallBbck = useCallback(() => {
-    if (role === 100) {
-      storeDispatch(
-        setGlabolCommonState({
-          globalMessage: {
-            open: true,
-            title: 'Registration',
-            message:
-              'Please create an account, or login to create a shopping list.',
-            cancelText: 'Cancel',
-            saveText: 'Register',
-            saveFn: jumpRegister,
+  const pdpCallBack = useCallback(
+    (e: React.MouseEvent) => {
+      const b3ShoppingList = e.target as HTMLElement
+
+      if (role === 100) {
+        storeDispatch(
+          setGlabolCommonState({
+            globalMessage: {
+              open: true,
+              title: 'Registration',
+              message:
+                'Please create an account, or login to create a shopping list.',
+              cancelText: 'Cancel',
+              saveText: 'Register',
+              saveFn: jumpRegister,
+            },
+          })
+        )
+      } else {
+        setOpenPage({
+          isOpen: true,
+          openUrl: '/pdp',
+        })
+
+        dispatch({
+          type: 'common',
+          payload: {
+            shoppingListClickNode: b3ShoppingList,
           },
         })
-      )
-    } else {
-      setOpenPage({
-        isOpen: true,
-        openUrl: '/pdp',
-      })
-    }
-  }, [role])
+      }
+    },
+    [role]
+  )
 
   const [openQuickView] = useDomVariation(
     globalB3['dom.setToShoppingListParentEl']
@@ -108,7 +121,6 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
       : []
 
     const wishlistSdd = document.querySelector('form[data-wishlist-add]')
-    let shoppingBtnDom: CustomFieldItems | null = null
     if (!addToShoppingListAll.length && !CustomAddToShoppingListAll.length)
       return
     if (document.querySelectorAll('.b2b-add-to-list').length) {
@@ -133,7 +145,6 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         })
         cache.current = cloneDeep(shoppingListBtn)
       }
-      return
     }
 
     const isCurrentUserEnabled = roleText
@@ -145,28 +156,36 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         ? CustomAddToShoppingListAll
         : addToShoppingListAll
       ).forEach((node: CustomFieldItems) => {
-        shoppingBtnDom = document.createElement('div')
-        shoppingBtnDom.innerHTML = text || 'Add to Shopping List'
-        shoppingBtnDom.setAttribute('style', customCss)
-        shoppingBtnDom.style.backgroundColor = color
-        shoppingBtnDom.style.color = customTextColor
-        shoppingBtnDom.setAttribute('class', `b2b-add-to-list ${classSelector}`)
+        const children = node.parentNode.querySelectorAll('.b2b-add-to-list')
 
-        setMediaStyle(mediaBlocks, `b2b-add-to-list ${classSelector}`)
-        if (CustomAddToShoppingListAll.length) {
-          node.appendChild(shoppingBtnDom)
-        } else {
-          node.parentNode.appendChild(shoppingBtnDom)
+        if (!children.length) {
+          let shoppingBtnDom: CustomFieldItems | null = null
+          shoppingBtnDom = document.createElement('div')
+          shoppingBtnDom.innerHTML = text || 'Add to Shopping List'
+          shoppingBtnDom.setAttribute('style', customCss)
+          shoppingBtnDom.style.backgroundColor = color
+          shoppingBtnDom.style.color = customTextColor
+          shoppingBtnDom.setAttribute(
+            'class',
+            `b2b-add-to-list ${classSelector}`
+          )
+
+          setMediaStyle(mediaBlocks, `b2b-add-to-list ${classSelector}`)
+          if (CustomAddToShoppingListAll.length) {
+            node.appendChild(shoppingBtnDom)
+          } else {
+            node.parentNode.appendChild(shoppingBtnDom)
+          }
+          shoppingBtnDom.addEventListener('click', pdpCallBack, {
+            capture: true,
+          })
         }
-        shoppingBtnDom.addEventListener('click', pdpCallBbck, {
-          capture: true,
-        })
       })
       cache.current = cloneDeep(shoppingListBtn)
       if (wishlistSdd) (wishlistSdd as CustomFieldItems).style.display = 'none'
     } else {
       const shoppingListBtn = document.querySelectorAll('.b2b-add-to-list')
-      shoppingListBtn.forEach((item: any) => {
+      shoppingListBtn.forEach((item: CustomFieldItems) => {
         removeElement(item)
       })
       if (wishlistSdd) (wishlistSdd as CustomFieldItems).style.display = 'block'
@@ -174,9 +193,10 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
 
     // eslint-disable-next-line
     return () => {
-      if (shoppingBtnDom) {
-        shoppingBtnDom.removeEventListener('click', pdpCallBbck)
-      }
+      const shoppingListBtn = document.querySelectorAll('.b2b-add-to-list')
+      shoppingListBtn.forEach((item: CustomFieldItems) => {
+        item.removeEventListener('click', pdpCallBack)
+      })
     }
   }, [isB2BUser, shoppingListEnabled, openQuickView, shoppingListBtn, roleText])
 }

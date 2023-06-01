@@ -7,6 +7,7 @@ import {
 } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 import { Box, Button } from '@mui/material'
 
@@ -89,7 +90,7 @@ export const getProductOptionList = (optionMap: CustomFieldItems) => {
 function PDP({ setOpenPage }: PDPProps) {
   const isPromission = true
   const {
-    state: { isB2BUser },
+    state: { isB2BUser, shoppingListClickNode },
   } = useContext(GlobaledContext)
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
@@ -152,16 +153,23 @@ function PDP({ setOpenPage }: PDPProps) {
   )
 
   const handleShoppingConfirm = async (id: string | number) => {
+    if (!shoppingListClickNode) return
+    const productView: HTMLElement | null = shoppingListClickNode.closest(
+      globalB3['dom.productView']
+    )
+    if (!productView) return
+
     try {
       setIsRequestLoading(true)
       const productId = (
-        document.querySelector('input[name=product_id]') as any
+        productView.querySelector('input[name=product_id]') as any
       )?.value
-      const qty = (document.querySelector('[name="qty[]"]') as any)?.value ?? 1
+      const qty =
+        (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1
       const sku = (
-        document.querySelector('[data-product-sku]')?.innerHTML ?? ''
+        productView.querySelector('[data-product-sku]')?.innerHTML ?? ''
       ).trim()
-      const form = document.querySelector('form[data-cart-item-add]')
+      const form = productView.querySelector('form[data-cart-item-add]')
 
       const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 

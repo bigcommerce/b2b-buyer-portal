@@ -58,12 +58,12 @@ const useMyQuote = ({
   const { addToQuote, addLoadding } =
     addProductFromProductPageToQuote(setOpenPage)
 
-  const quoteCallBbck = useCallback(() => {
-    const b3MyQuote = document.querySelector('.b2b-add-to-quote')
+  const quoteCallBack = useCallback((e: React.MouseEvent) => {
+    const b3MyQuote = e.target as HTMLElement
     const b2bLoading = document.querySelector('#b2b-div-loading')
     if (b3MyQuote && !b2bLoading) {
       addLoadding(b3MyQuote)
-      addToQuote(role)
+      addToQuote(role, b3MyQuote)
     }
   }, [])
 
@@ -100,7 +100,6 @@ const useMyQuote = ({
       ? document.querySelectorAll(locationSelector)
       : []
 
-    let myQuote: CustomFieldItems | null = null
     if (!addToQuoteAll.length && !CustomAddToQuoteAll.length) return
 
     if (!productQuoteEnabled) {
@@ -128,7 +127,6 @@ const useMyQuote = ({
         })
         cache.current = cloneDeep(addQuoteBtn)
       }
-      return
     }
 
     if (enabled) {
@@ -136,22 +134,26 @@ const useMyQuote = ({
         ? CustomAddToQuoteAll
         : addToQuoteAll
       ).forEach((node: CustomFieldItems) => {
-        myQuote = document.createElement('div')
-        myQuote.innerHTML = text || 'Add to Quote'
-        myQuote.setAttribute('style', customCss)
-        myQuote.style.backgroundColor = color
-        myQuote.style.color = customTextColor
-        myQuote.setAttribute('class', `b2b-add-to-quote ${classSelector}`)
+        const children = node.parentNode.querySelectorAll('.b2b-add-to-quote')
+        if (!children.length) {
+          let myQuote: CustomFieldItems | null = null
+          myQuote = document.createElement('div')
+          myQuote.innerHTML = text || 'Add to Quote'
+          myQuote.setAttribute('style', customCss)
+          myQuote.style.backgroundColor = color
+          myQuote.style.color = customTextColor
+          myQuote.setAttribute('class', `b2b-add-to-quote ${classSelector}`)
 
-        setMediaStyle(mediaBlocks, `b2b-add-to-quote ${classSelector}`)
-        if (CustomAddToQuoteAll.length) {
-          node.appendChild(myQuote)
-        } else {
-          node.parentNode.appendChild(myQuote)
+          setMediaStyle(mediaBlocks, `b2b-add-to-quote ${classSelector}`)
+          if (CustomAddToQuoteAll.length) {
+            node.appendChild(myQuote)
+          } else {
+            node.parentNode.appendChild(myQuote)
+          }
+          myQuote.addEventListener('click', quoteCallBack, {
+            capture: true,
+          })
         }
-        myQuote.addEventListener('click', quoteCallBbck, {
-          capture: true,
-        })
       })
       cache.current = cloneDeep(addQuoteBtn)
     } else {
@@ -163,9 +165,10 @@ const useMyQuote = ({
 
     // eslint-disable-next-line
     return () => {
-      if (myQuote) {
-        myQuote.removeEventListener('click', quoteCallBbck)
-      }
+      const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote')
+      myQuoteBtn.forEach((item: CustomFieldItems) => {
+        item.removeEventListener('click', quoteCallBack)
+      })
     }
   }, [openQuickView, productQuoteEnabled, addQuoteBtn])
 }

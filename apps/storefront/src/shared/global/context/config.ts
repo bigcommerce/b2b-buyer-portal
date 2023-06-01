@@ -114,6 +114,7 @@ export interface GlobalState {
   enteredInclusiveTax: boolean
   blockPendingAccountOrderCreation: boolean
   quoteDetailHasNewMessages: boolean
+  shoppingListClickNode: HTMLElement | null
 }
 
 export const initState = {
@@ -168,6 +169,7 @@ export const initState = {
   blockPendingAccountOrderCreation:
     B3SStorage.get('blockPendingAccountOrderCreation') || true,
   quoteDetailHasNewMessages: false,
+  shoppingListClickNode: null,
 }
 
 export interface GlobalAction {

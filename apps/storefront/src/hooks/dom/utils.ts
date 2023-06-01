@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from 'react'
+import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 import { v1 as uuid } from 'uuid'
 
@@ -307,18 +308,22 @@ const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
 }
 
 const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
-  const addToQuote = async (role: string | number) => {
+  const addToQuote = async (role: string | number, node?: HTMLElement) => {
     try {
+      const productView: HTMLElement | null = node
+        ? node.closest(globalB3['dom.productView'])
+        : document
+      if (!productView) return
       const productId = (
-        document.querySelector('input[name=product_id]') as CustomFieldItems
+        productView.querySelector('input[name=product_id]') as CustomFieldItems
       )?.value
       const qty =
-        (document.querySelector('[name="qty[]"]') as CustomFieldItems)?.value ??
-        1
+        (productView.querySelector('[name="qty[]"]') as CustomFieldItems)
+          ?.value ?? 1
       const sku = (
-        document.querySelector('[data-product-sku]')?.innerHTML ?? ''
+        productView.querySelector('[data-product-sku]')?.innerHTML ?? ''
       ).trim()
-      const form = document.querySelector('form[data-cart-item-add]')
+      const form = productView.querySelector('form[data-cart-item-add]')
 
       const fn =
         +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
