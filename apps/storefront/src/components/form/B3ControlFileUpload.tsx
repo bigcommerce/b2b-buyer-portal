@@ -42,6 +42,7 @@ interface FileUploadProps extends B3UI.B3UIProps {
   dropzoneText?: string
   previewText?: string
   default?: File[]
+  labelColor?: string
 }
 
 const getMaxFileSizeLabel = (maxSize: number) => {
@@ -67,7 +68,8 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
     default: defaultValue = [],
     name,
     setValue,
-    title,
+    label,
+    labelColor = 'text.primary',
   } = props
 
   const getRejectMessage = (
@@ -112,14 +114,15 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
 
   return ['files'].includes(fieldType) ? (
     <>
-      {title && (
+      {label && (
         <FormLabel
           sx={{
             marginBottom: '5px',
             display: 'block',
+            color: labelColor,
           }}
         >
-          {title}
+          {label}
         </FormLabel>
       )}
       <DropzoneBox>
