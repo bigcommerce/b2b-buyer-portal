@@ -17,7 +17,6 @@ import {
   b3HexToRgb,
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import {
@@ -43,7 +42,6 @@ type RegisterCompleteList = Array<RegisterFields> | undefined
 export default function RegisterComplete(props: RegisterCompleteProps) {
   const b3Lang = useB3Lang()
   const { handleBack, activeStep, handleNext } = props
-  const [isMobile] = useMobile()
 
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
   const [errorMessage, setErrorMessage] = useState<string>('')
@@ -440,9 +438,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     <Box
       sx={{
         pl: 1,
-        pr: isMobile ? 1 : 10,
+        pr: 1,
         mt: 2,
-        width: isMobile ? 'auto' : '505px',
+        width: '100%',
         '& h4': {
           color: customColor,
         },

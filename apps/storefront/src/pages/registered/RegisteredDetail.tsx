@@ -7,7 +7,6 @@ import {
   b3HexToRgb,
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { validateBCCompanyExtraFields } from '@/shared/service/b2b'
 
@@ -26,7 +25,6 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
   const { handleBack, handleNext, activeStep } = props
 
   const { state, dispatch } = useContext(RegisteredContext)
-  const [isMobile] = useMobile()
 
   const {
     state: {
@@ -241,9 +239,9 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     <Box
       sx={{
         pl: 1,
-        pr: isMobile ? 1 : 10,
+        pr: 1,
         mt: 2,
-        width: isMobile ? 'auto' : '505px',
+        width: '100%',
         '& h4': {
           color: customColor,
         },
