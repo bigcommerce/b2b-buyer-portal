@@ -17,7 +17,6 @@ import {
   b3HexToRgb,
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getCurrentCustomerInfo, storeHash } from '@/utils'
@@ -65,7 +64,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   const { setOpenPage } = props
 
   const b3Lang = useB3Lang()
-  const [isMobile] = useMobile()
 
   const {
     control,
@@ -527,15 +525,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 )}
 
                 <Box
-                  sx={
-                    isMobile
-                      ? {
-                          width: '100%',
-                        }
-                      : {
-                          width: '505px',
-                        }
-                  }
+                  sx={{
+                    width: '100%',
+                  }}
                 >
                   <InformationFourLabels>
                     {contactInformation?.length
@@ -552,15 +544,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 </Box>
 
                 <Box
-                  sx={
-                    isMobile
-                      ? {
-                          width: '100%',
-                        }
-                      : {
-                          width: '505px',
-                        }
-                  }
+                  sx={{
+                    width: '100%',
+                  }}
                 >
                   <InformationFourLabels>
                     {companyInformation?.length
@@ -577,15 +563,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 </Box>
 
                 <Box
-                  sx={
-                    isMobile
-                      ? {
-                          width: '100%',
-                        }
-                      : {
-                          width: '505px',
-                        }
-                  }
+                  sx={{
+                    width: '100%',
+                  }}
                 >
                   <InformationFourLabels>
                     {addressBasicFields?.length
@@ -612,7 +592,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               display: 'flex',
               flexDirection: 'row-reverse',
               pt: 2,
-              width: isMobile ? '100%' : '505px',
+              width: '100%',
             }}
           >
             <CustomButton variant="contained" onClick={handleNext}>
