@@ -86,6 +86,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       currentChannelId,
       isAgenting,
       openAPPParams,
+      customer: { customerGroupId },
     },
   } = useContext(GlobaledContext)
   const navigate = useNavigate()
@@ -162,6 +163,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
           productIds,
           currencyCode,
           companyId: companyInfoId,
+          customerGroupId,
         })
 
         const newProductsSearch = conversionProductsList(productsSearch)

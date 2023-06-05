@@ -4,7 +4,7 @@ import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
 import { B3Sping, CustomButton } from '@/components'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { calculateProductListPrice } from '@/utils'
+import { B3SStorage, calculateProductListPrice } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import { ShoppingListProductItem } from '../../../types'
@@ -45,12 +45,17 @@ export default function SearchProduct({
     if (!searchText || isLoading) {
       return
     }
+    const companyId =
+      B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+    const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
     const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
     setIsLoading(true)
     try {
       const { productsSearch }: CustomFieldItems = await getProducts({
         search: searchText,
+        companyId,
+        customerGroupId,
       })
 
       const product = conversionProductsList(productsSearch)

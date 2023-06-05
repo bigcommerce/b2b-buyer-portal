@@ -90,7 +90,11 @@ export const getProductOptionList = (optionMap: CustomFieldItems) => {
 function PDP({ setOpenPage }: PDPProps) {
   const isPromission = true
   const {
-    state: { isB2BUser, shoppingListClickNode },
+    state: {
+      isB2BUser,
+      shoppingListClickNode,
+      customer: { customerGroupId },
+    },
   } = useContext(GlobaledContext)
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
@@ -182,6 +186,7 @@ function PDP({ setOpenPage }: PDPProps) {
         productIds: [+productId],
         currencyCode,
         companyId,
+        customerGroupId,
       })
 
       const newProductInfo: any = conversionProductsList(productsSearch)

@@ -7,6 +7,7 @@ export interface CustomerInfo {
   firstName: string
   lastName: string
   emailAddress: string
+  customerGroupId?: number
 }
 
 export type AlertTip = 'error' | 'info' | 'success' | 'warning'

@@ -1,5 +1,5 @@
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { B3LStorage } from '@/utils'
+import { B3LStorage, B3SStorage } from '@/utils'
 
 interface QuoteListitemProps {
   node: {
@@ -135,8 +135,14 @@ const getProductExtraPrice = async (
     const fn =
       +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
 
+    const companyId =
+      B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+    const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+
     const { productsSearch: additionalProductsSearch } = await fn({
       productIds,
+      companyId,
+      customerGroupId,
     })
 
     additionalProductsSearch.forEach((item: CustomFieldItems) => {

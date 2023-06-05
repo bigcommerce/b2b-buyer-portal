@@ -10,6 +10,7 @@ import { getCartInfoWithOptions } from '@/shared/service/bc'
 import {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
+  B3SStorage,
   calculateProductListPrice,
   getCalculatedProductPrice,
   globalSnackbar,
@@ -190,11 +191,17 @@ const addProductsToDraftQuote = async (products: CustomFieldItems[]) => {
   // filter products with SKU
   const productsWithSKU = products.filter(({ sku }) => !!sku)
 
+  const companyId =
+    B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+  const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+
   // fetch data with products IDs
   const { productsSearch } = await searchB2BProducts({
     productIds: Array.from(
       new Set(products.map(({ productId }) => +productId))
     ),
+    companyId,
+    customerGroupId,
   })
 
   // convert to product search response format
@@ -325,11 +332,17 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
       ).trim()
       const form = productView.querySelector('form[data-cart-item-add]')
 
+      const companyId =
+        B3SStorage.get('B3CompanyInfo')?.id ||
+        B3SStorage.get('salesRepCompanyId')
+      const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
       const fn =
         +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
 
       const { productsSearch } = await fn({
         productIds: [+productId],
+        companyId,
+        customerGroupId,
       })
 
       const newProductInfo: CustomFieldItems =

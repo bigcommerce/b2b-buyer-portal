@@ -9,6 +9,7 @@ export const handleGetCurrentProductInfo = async (
   const currencies = B3SStorage.get('currencies')
   const companyId =
     B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+  const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
 
   let currencyCode = '$'
   if (currencies) {
@@ -27,6 +28,7 @@ export const handleGetCurrentProductInfo = async (
     productIds: [+productId],
     currencyCode,
     companyId,
+    customerGroupId,
   })
 
   const currentProductInfo = conversionProductsList(productsSearch)

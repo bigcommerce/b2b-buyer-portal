@@ -42,6 +42,7 @@ const searchProducts = (data: CustomFieldItems) => `{
     companyId: "${data.companyId || ''}"
     storeHash: "${storeHash}"
     channelId: ${B3SStorage.get('B3channelId') || 1}
+    customerGroupId: ${data.customerGroupId || 0}
   ){
     id,
     name,

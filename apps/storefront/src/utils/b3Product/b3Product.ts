@@ -120,8 +120,13 @@ const getProductExtraPrice = async (
     const fn =
       +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
 
+    const companyId =
+      B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+    const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
     const { productsSearch: additionalProductsSearch } = await fn({
       productIds,
+      companyId,
+      customerGroupId,
     })
 
     additionalProductsSearch.forEach((item: CustomFieldItems) => {
@@ -390,11 +395,18 @@ const getNewProductsList = async (
           productIds.push(node.productId)
         }
       })
+      const companyId =
+        B3SStorage.get('B3CompanyInfo')?.id ||
+        B3SStorage.get('salesRepCompanyId')
+      const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
       const { productsSearch } = await getProducts({
         productIds,
         currencyCode,
+        companyId,
+        customerGroupId,
       })
 
       const newProductsSearch: Partial<Product>[] =

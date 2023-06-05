@@ -36,7 +36,7 @@ function QuoteDetail() {
     state: {
       companyInfo: { id: companyInfoId },
       role,
-      customer,
+      customer: { emailAddress, customerGroupId },
       isB2BUser,
       isAgenting,
     },
@@ -76,6 +76,7 @@ function QuoteDetail() {
           productIds,
           currencyCode,
           companyId: companyInfoId,
+          customerGroupId,
         })
 
         const newProductsSearch = conversionProductsList(productsSearch)
@@ -436,7 +437,7 @@ function QuoteDetail() {
                 id={id}
                 status={quoteDetail.status}
                 isB2BUser={isB2BUser}
-                email={customer?.emailAddress || ''}
+                email={emailAddress || ''}
                 msgs={quoteDetail?.trackingHistory || []}
               />
             </Box>
