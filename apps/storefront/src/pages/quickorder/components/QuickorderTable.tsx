@@ -126,6 +126,7 @@ function QuickorderTable({
     state: {
       isB2BUser,
       companyInfo: { id: companyInfoId },
+      customer: { customerGroupId },
     },
   } = useContext(GlobaledContext)
 
@@ -159,6 +160,7 @@ function QuickorderTable({
           productIds,
           currencyCode,
           companyId: companyInfoId,
+          customerGroupId,
         })
 
         const newProductsSearch = conversionProductsList(productsSearch)

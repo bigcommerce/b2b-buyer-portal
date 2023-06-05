@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider } from '@mui/material'
 import { v1 as uuid } from 'uuid'
 
 import { B3CollapseContainer, B3Upload, CustomButton } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { GlobaledContext } from '@/shared/global'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import {
   addQuoteDraftProducts,
@@ -25,6 +26,13 @@ interface AddToListProps {
 
 export default function AddToQuote(props: AddToListProps) {
   const { updateList, addToQuote, isB2BUser } = props
+
+  const {
+    state: {
+      companyInfo: { id: companyId },
+      customer: { customerGroupId },
+    },
+  } = useContext(GlobaledContext)
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -103,6 +111,8 @@ export default function AddToQuote(props: AddToListProps) {
 
     const { productsSearch }: CustomFieldItems = await searchB2BProducts({
       productIds,
+      companyId,
+      customerGroupId,
     })
 
     const productList = productsSearch.map((product: CustomFieldItems) => {
@@ -172,6 +182,8 @@ export default function AddToQuote(props: AddToListProps) {
 
       const { productsSearch } = await getProducts({
         productIds,
+        companyId,
+        customerGroupId,
       })
 
       const newProductInfo: CustomFieldItems =

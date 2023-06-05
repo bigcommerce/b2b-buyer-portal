@@ -2,6 +2,7 @@ import {
   Dispatch,
   MouseEvent,
   SetStateAction,
+  useContext,
   useEffect,
   useState,
 } from 'react'
@@ -13,6 +14,7 @@ import { v1 as uuid } from 'uuid'
 import { CustomButton, successTip } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
@@ -102,6 +104,13 @@ interface QuickOrderFooterProps {
 }
 
 function QuickOrderFooter(props: QuickOrderFooterProps) {
+  const {
+    state: {
+      companyInfo: { id: companyId },
+      customer: { customerGroupId },
+    },
+  } = useContext(GlobaledContext)
+
   const { role, checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props
 
   const [isMobile] = useMobile()
@@ -278,6 +287,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const { productsSearch } = await getProducts({
         productIds,
+        companyId,
+        customerGroupId,
       })
 
       const newProductInfo: CustomFieldItems =

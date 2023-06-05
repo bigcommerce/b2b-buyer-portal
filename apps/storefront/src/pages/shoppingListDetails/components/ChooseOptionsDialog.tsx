@@ -13,7 +13,7 @@ import { Box, Divider, TextField, Typography } from '@mui/material'
 import { B3CustomForm, B3Dialog, B3Sping } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { currencyFormat, snackbar } from '@/utils'
+import { B3SStorage, currencyFormat, snackbar } from '@/utils'
 
 import { ShoppingListProductItem, SimpleObject, Variant } from '../../../types'
 import {
@@ -123,8 +123,15 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         if (productIds.length > 0) {
           const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
+          const companyId =
+            B3SStorage.get('B3CompanyInfo')?.id ||
+            B3SStorage.get('salesRepCompanyId')
+          const customerGroupId =
+            B3SStorage.get('B3CustomerInfo')?.customerGroupId
           const { productsSearch }: CustomFieldItems = await getProducts({
             productIds,
+            companyId,
+            customerGroupId,
           })
 
           productsSearch.forEach((product: CustomFieldItems) => {
