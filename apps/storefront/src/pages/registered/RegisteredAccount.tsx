@@ -240,12 +240,13 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           '& h4': {
             color: customColor,
           },
-          '& input, & .MuiFormControl-root .MuiTextField-root': {
-            bgcolor: b3HexToRgb('#FFFFFF', 0.87),
-            borderRadius: '4px',
-            borderBottomLeftRadius: '0',
-            borderBottomRightRadius: '0',
-          },
+          '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiTextField-root .MuiInputBase-multiline':
+            {
+              bgcolor: b3HexToRgb('#FFFFFF', 0.87),
+              borderRadius: '4px',
+              borderBottomLeftRadius: '0',
+              borderBottomRightRadius: '0',
+            },
           '& .MuiButtonBase-root.MuiCheckbox-root.MuiCheckbox-colorPrimary:not(.Mui-checked)':
             {
               color: b3HexToRgb(customColor, 0.6),
