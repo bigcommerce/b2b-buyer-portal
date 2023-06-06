@@ -245,7 +245,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         '& h4': {
           color: customColor,
         },
-        '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiDropzoneArea-textContainer, & .MuiSelect-select.MuiSelect-filled':
+        '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiDropzoneArea-textContainer, & .MuiSelect-select.MuiSelect-filled, & .MuiTextField-root .MuiInputBase-multiline':
           {
             bgcolor: b3HexToRgb('#FFFFFF', 0.87),
             borderRadius: '4px',

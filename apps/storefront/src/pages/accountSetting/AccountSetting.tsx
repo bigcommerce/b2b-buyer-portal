@@ -502,7 +502,7 @@ function AccountSetting() {
         sx={{
           width: `${isMobile ? '100%' : '35%'}`,
           minHeight: `${isMobile ? '800px' : '300px'}`,
-          '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiSelect-select.MuiSelect-filled':
+          '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiSelect-select.MuiSelect-filled, & .MuiTextField-root .MuiInputBase-multiline':
             {
               bgcolor: b3HexToRgb('#FFFFFF', 0.87),
               borderRadius: '4px',
