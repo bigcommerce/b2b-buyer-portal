@@ -11,7 +11,7 @@ export const LoginImage = styled('div')({
   justifyContent: 'center',
   alignItems: 'center',
   width: '100%',
-  height: '130px',
+  height: '100%',
 })
 
 export const B3ForgotButton = styled(Button)({
