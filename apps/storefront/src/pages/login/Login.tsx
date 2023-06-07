@@ -11,7 +11,6 @@ import { useB3Lang } from '@b3/lang'
 import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { defaultCreateAccountPanel } from '@/shared/customStyleButtton/context/config'
@@ -236,7 +235,7 @@ export default function Login(props: RegisteredProps) {
 
   return (
     <B3Card setOpenPage={setOpenPage}>
-      <LoginContainer>
+      <LoginContainer paddings={isMobile ? '0' : '20px 20px'}>
         <B3Sping
           isSpinning={isLoading}
           tip={b3Lang('intl.global.tips.loading')}
@@ -248,6 +247,7 @@ export default function Login(props: RegisteredProps) {
               flexDirection: 'column',
               width: '100%',
               minHeight: '400px',
+              minWidth: '343px',
             }}
           >
             {loginInfo && (
@@ -256,8 +256,8 @@ export default function Login(props: RegisteredProps) {
                   <LoginImage>
                     <ImageListItem
                       sx={{
-                        maxWidth: '250px',
-                        maxHeight: '250px',
+                        maxWidth: isMobile ? '70%' : '250px',
+                        maxHeight: isMobile ? '70%' : '250px',
                       }}
                       onClick={() => {
                         window.location.href = '/'
@@ -272,32 +272,18 @@ export default function Login(props: RegisteredProps) {
                   </LoginImage>
                 )}
 
-                {loginInfo?.loginTitle && (
-                  <Box
-                    sx={{
-                      mb: 2,
-                      mt: 2,
-                      display: 'flex',
-                      justifyContent: 'center',
-                      fontSize: '28px',
-                      color: getContrastColor(backgroundColor),
-                    }}
-                  >
-                    {loginInfo.loginTitle}
-                  </Box>
-                )}
-
                 {flag && showTipInfo && (
                   <Box
                     sx={{
-                      padding: '0 5%',
-                      margin: '30px 0',
+                      padding: isMobile ? 0 : '0 5%',
+                      margin: '30px 0 0 0',
                     }}
                   >
                     <Alert
                       severity={
                         flag === '1' || flag === '4' ? 'error' : 'success'
                       }
+                      variant="filled"
                     >
                       {tipInfo(flag, loginAccount?.emailAddress || '')}
                     </Alert>
@@ -308,28 +294,32 @@ export default function Login(props: RegisteredProps) {
                     padding: isMobile ? 0 : '0 5%',
                   }}
                 >
-                  <LoginWidget
-                    sx={{
-                      padding: '10px',
-                    }}
-                    isVisible={loginInfo.isShowWidgetHead}
-                    html={loginInfo.widgetHeadText}
-                  />
+                  {loginInfo.widgetHeadText && (
+                    <LoginWidget
+                      sx={{
+                        bgcolor: '#D9D9D9',
+                        mt: isMobile ? '20px' : '32px',
+                        minHeight: '48px',
+                      }}
+                      isVisible={loginInfo.isShowWidgetHead}
+                      html={loginInfo.widgetHeadText}
+                    />
+                  )}
                   <Box
                     sx={{
-                      margin: '50px 0',
+                      bgcolor: '#FFFFFF',
+                      borderRadius: '4px',
+                      margin: '20px 0',
                       display: 'flex',
                       flexDirection: isMobile ? 'column' : 'row',
                     }}
                   >
                     <Box
                       sx={{
-                        width: isMobile ? '100%' : '50%',
+                        width: isMobile ? 'auto' : '50%',
                         paddingRight: isMobile ? 0 : '2%',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginBottom: isMobile ? '20px' : '',
+                        ml: '16px',
+                        mr: isMobile ? '16px' : '',
                       }}
                     >
                       <LoginForm
@@ -353,13 +343,17 @@ export default function Login(props: RegisteredProps) {
                     </Box>
                   </Box>
 
-                  <LoginWidget
-                    sx={{
-                      padding: '20px',
-                    }}
-                    isVisible={loginInfo.isShowWidgetFooter}
-                    html={loginInfo.widgetFooterText}
-                  />
+                  {loginInfo.widgetFooterText && (
+                    <LoginWidget
+                      sx={{
+                        bgcolor: '#D9D9D9',
+                        mt: '20px',
+                        minHeight: '48px',
+                      }}
+                      isVisible={loginInfo.isShowWidgetFooter}
+                      html={loginInfo.widgetFooterText}
+                    />
+                  )}
                 </Box>
               </>
             )}

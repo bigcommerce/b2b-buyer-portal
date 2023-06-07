@@ -1,9 +1,15 @@
 import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
 
-export const LoginContainer = styled('div')({
-  padding: '20px 20px',
-})
+interface LoginContainerProps {
+  paddings: string
+}
+
+export const LoginContainer = styled('div')(
+  ({ paddings }: LoginContainerProps) => ({
+    padding: paddings,
+  })
+)
 
 export const LoginImage = styled('div')({
   display: 'flex',
@@ -16,4 +22,8 @@ export const LoginImage = styled('div')({
 
 export const B3ForgotButton = styled(Button)({
   height: '40px',
+})
+
+export const B3ResetPassWordButton = styled('div')({
+  margin: '16px 0 20px 16px',
 })

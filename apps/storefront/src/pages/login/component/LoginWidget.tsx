@@ -1,12 +1,8 @@
-import { Box } from '@mui/material'
-
-interface StyleWidget {
-  [key: string]: string
-}
+import { Box, SxProps } from '@mui/material'
 
 interface LoginWidgetProps {
   isVisible: boolean
-  sx: StyleWidget
+  sx: SxProps
   html: string
 }
 
