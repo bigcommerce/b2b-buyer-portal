@@ -1,6 +1,6 @@
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
-import { Box, useTheme } from '@mui/material'
+import { Box, Typography, useTheme } from '@mui/material'
 
 import { B3CustomForm, CustomButton } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
@@ -42,53 +42,71 @@ function LoginForm(props: LoginFormProps) {
   return (
     <Box
       sx={{
-        width: '100%',
-        '& input': {
-          bgcolor: '#F5F5F5',
-          borderRadius: '4px',
-          borderBottomLeftRadius: '0',
-          borderBottomRightRadius: '0',
-        },
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <B3CustomForm
-        formFields={loginFields}
-        errors={errors}
-        control={control}
-        getValues={getValues}
-        setValue={setValue}
-      />
-
-      <Box
+      <Typography
+        variant="h5"
         sx={{
+          margin: '20px 0',
           display: 'flex',
-          justifyContent: 'flex-start ',
+          justifyContent: 'center',
           alignItems: 'center',
-          mt: 2,
         }}
       >
-        <CustomButton
-          type="submit"
-          onClick={handleSubmit(handleLoginClick)}
-          variant="contained"
-          sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: getContrastColor(theme.palette.primary.main),
-          }}
-        >
-          {loginBtn}
-        </CustomButton>
+        Sign In
+      </Typography>
+      <Box
+        sx={{
+          width: '100%',
+          '& input': {
+            bgcolor: '#F5F5F5',
+            borderRadius: '4px',
+            borderBottomLeftRadius: '0',
+            borderBottomRightRadius: '0',
+          },
+        }}
+      >
+        <B3CustomForm
+          formFields={loginFields}
+          errors={errors}
+          control={control}
+          getValues={getValues}
+          setValue={setValue}
+        />
+
         <Box
           sx={{
-            cursor: 'pointer',
-            ml: 2,
-            textDecoration: 'underline',
-            textUnderlineOffset: '4px',
-            color: getContrastColor(backgroundColor),
+            display: 'flex',
+            justifyContent: 'flex-start ',
+            alignItems: 'center',
+            mt: 2,
           }}
-          onClick={() => gotoForgotPassword()}
         >
-          {b3Lang('intl.user.login.loginText.forgotPasswordText')}
+          <CustomButton
+            type="submit"
+            onClick={handleSubmit(handleLoginClick)}
+            variant="contained"
+            sx={{
+              backgroundColor: theme.palette.primary.main,
+              color: getContrastColor(theme.palette.primary.main),
+            }}
+          >
+            {loginBtn}
+          </CustomButton>
+          <Box
+            sx={{
+              cursor: 'pointer',
+              ml: 2,
+              textDecoration: 'underline',
+              textUnderlineOffset: '4px',
+              color: getContrastColor(backgroundColor),
+            }}
+            onClick={() => gotoForgotPassword()}
+          >
+            {b3Lang('intl.user.login.loginText.forgotPasswordText')}
+          </Box>
         </Box>
       </Box>
     </Box>

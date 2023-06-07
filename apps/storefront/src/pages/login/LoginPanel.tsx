@@ -2,6 +2,7 @@ import { Box, useTheme } from '@mui/material'
 
 import { CustomButton } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { useMobile } from '@/hooks'
 
 import LoginWidget from './component/LoginWidget'
 import { LoginInfoInit } from './config'
@@ -15,20 +16,31 @@ function LoginPanel(props: LoginPanelProps) {
   const { loginInfo, handleSubmit } = props
 
   const theme = useTheme()
+  const [isMobile] = useMobile()
 
   const { widgetBodyText = '', CreateAccountButtonText } = loginInfo
 
   return (
     <Box
       sx={{
-        padding: '20px',
-        background: '#F5F5F5',
+        padding: isMobile ? '16px' : '20px',
         borderRadius: '4px',
+        mt: isMobile ? '0' : '-25px',
       }}
     >
       <LoginWidget
         sx={{
           minHeight: '250px',
+          '& .panel': {
+            '.panel-title': {
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              fontWeight: 400,
+              fontSize: '24px',
+            },
+          },
         }}
         isVisible
         html={widgetBodyText}
@@ -43,7 +55,7 @@ function LoginPanel(props: LoginPanelProps) {
           onClick={handleSubmit}
           variant="contained"
           sx={{
-            ml: 1,
+            ml: isMobile ? 0 : 1,
             backgroundColor: theme.palette.primary.main,
             color: getContrastColor(theme.palette.primary.main),
           }}

@@ -27,6 +27,7 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
             ) && (
               <B3ControlTextField
                 {...field}
+                {...props}
                 errors={errors}
                 control={control}
               />

@@ -31,6 +31,7 @@ export default function B3ControlTextField({
     size,
     readOnly,
     allowArrow = false,
+    sx = {},
   } = rest
 
   const b3Lang = useB3Lang()
@@ -136,6 +137,7 @@ export default function B3ControlTextField({
               {...rest}
               sx={{
                 color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
+                ...sx,
               }}
               inputProps={muiAttributeProps}
               error={!!errors[name]}
