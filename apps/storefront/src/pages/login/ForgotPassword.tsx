@@ -75,7 +75,6 @@ function ForgotPassword(props: ForgotPasswordProps) {
             <ImageListItem
               sx={{
                 maxWidth: isMobile ? '175px' : '250px',
-                maxHeight: isMobile ? '175px' : '250px',
               }}
               onClick={() => {
                 window.location.href = '/'

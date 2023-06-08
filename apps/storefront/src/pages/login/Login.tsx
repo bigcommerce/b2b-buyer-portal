@@ -257,7 +257,6 @@ export default function Login(props: RegisteredProps) {
                     <ImageListItem
                       sx={{
                         maxWidth: isMobile ? '70%' : '250px',
-                        maxHeight: isMobile ? '70%' : '250px',
                       }}
                       onClick={() => {
                         window.location.href = '/'

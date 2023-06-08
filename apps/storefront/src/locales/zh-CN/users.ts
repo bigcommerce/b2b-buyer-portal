@@ -1,6 +1,7 @@
 export default {
-  'intl.user.register.title.registerComplete': '注册完成。欢迎！',
-  'intl.user.register.title.accountCreated': '您的个人帐户已被创建。',
+  'intl.user.register.title.registerComplete': '已提交申请',
+  'intl.user.register.title.registerComplete.warning': '申请已提交',
+  'intl.user.register.title.accountCreated': '注册完成！',
   'intl.user.register.title.accountRegister': '账户注册',
   'intl.user.register.title.bcToB2B.businessAccountApplication': '商业账户申请',
   'intl.user.register.title.attachments': '附件',
@@ -62,7 +63,9 @@ export default {
   'intl.user.register.RegisterFinish.autoApproved.tip':
     '感谢您在 {storeName} 创建帐户。 您的公司帐户申请已获批准。',
   'intl.user.register.RegisterFinish.notAutoApproved.tip':
-    '您的公司账户申请已收到。 请等待 24 小时来批准和激活帐户。',
+    '在您的帐户获得批准之前，某些帐户和购买功能可能不可用。 我们期待您的光临。',
+  'intl.user.register.RegisterFinish.notAutoApproved.warningTip':
+    '您的企业账户申请已提交。 帐户批准和激活需要 24 小时。 但是您已经可以使用部分功能，请检查您的帐户。',
   'intl.user.register.RegisterFinish.bcSuccess.tip':
     '感谢您在 {storeName} 创建帐户。',
   'intl.user.register.RegisterFinish.blockPendingAccountOrderCreation.tip':

@@ -1,7 +1,6 @@
 import styled from '@emotion/styled'
 
 export const StyleTipContainer = styled('p')(() => ({
-  textAlign: 'center',
   margin: '2rem auto',
 }))
 

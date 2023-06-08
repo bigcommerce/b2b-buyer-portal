@@ -1,8 +1,8 @@
 export default {
-  'intl.user.register.title.registerComplete':
-    'Registration Complete. Thank You!',
-  'intl.user.register.title.accountCreated':
-    'Your personal account has been created.',
+  'intl.user.register.title.registerComplete': 'Application submitted',
+  'intl.user.register.title.registerComplete.warning':
+    'Application has been submitted',
+  'intl.user.register.title.accountCreated': 'Registration complete!',
   'intl.user.register.title.accountRegister': 'Account Registration',
   'intl.user.register.title.attachments': 'Attachments',
   'intl.user.register.title.bcToB2B.businessAccountApplication':
@@ -72,7 +72,9 @@ export default {
   'intl.user.register.RegisterFinish.autoApproved.tip':
     'Thank you for creating your account at {storeName}. Your company account application has been approved.',
   'intl.user.register.RegisterFinish.notAutoApproved.tip':
-    'Your company account application has been received. Please allow 24 hours for account approval and activation.',
+    'Some account and purchase functionality may not be available until your account is approved. We look forward to serving you.',
+  'intl.user.register.RegisterFinish.notAutoApproved.warningTip':
+    'Your business account application has been submitted. Please allow 24 hours for account approval and activation. But part of the functionality is already available to you, please review your account.',
   'intl.user.register.RegisterFinish.bcSuccess.tip':
     'Thank you for creating your account at {storeName}.',
   'intl.user.register.RegisterFinish.blockPendingAccountOrderCreation.tip':
