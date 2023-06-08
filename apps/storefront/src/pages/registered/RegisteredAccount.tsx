@@ -79,8 +79,19 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const additionalInfo: any =
     accountType === '1' ? additionalInformation : bcAdditionalInformation
 
+  const newContactInformation = contactInformation?.map(
+    (info: CustomFieldItems) => {
+      if (info.fieldId === 'field_email' && accountType === '1') {
+        info.isTip = true
+        info.tipText = 'This email will be used for sign in to your account'
+      }
+
+      return info
+    }
+  )
+
   const contactInfo: any =
-    accountType === '1' ? contactInformation : bcContactInformation
+    accountType === '1' ? newContactInformation : bcContactInformation
   const contactName =
     accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
 
@@ -198,7 +209,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           {b3Lang('intl.user.register.registeredAccount.accountType')}
         </InformationFourLabels>
         <RadioGroup
-          row
           aria-labelledby="demo-row-radio-buttons-group-label"
           name="row-radio-buttons-group"
           value={accountType}
@@ -242,7 +252,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           },
           '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiTextField-root .MuiInputBase-multiline':
             {
-              bgcolor: b3HexToRgb('#FFFFFF', 0.87),
               borderRadius: '4px',
               borderBottomLeftRadius: '0',
               borderBottomRightRadius: '0',

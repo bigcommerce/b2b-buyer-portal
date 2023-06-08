@@ -13,10 +13,8 @@ import { useB3Lang } from '@b3/lang'
 import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
-import {
-  b3HexToRgb,
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getCurrentCustomerInfo, storeHash } from '@/utils'
@@ -64,6 +62,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   const { setOpenPage } = props
 
   const b3Lang = useB3Lang()
+  const [isMobile] = useMobile()
 
   const {
     control,
@@ -177,10 +176,12 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             payload: {
               isLoading: false,
               storeName,
-              contactInformation: [...newContactInformation],
-              companyExtraFields: [],
-              companyInformation: [...bcToB2BAccountFormFields.businessDetails],
-              addressBasicFields: [...newAddressInformationFields],
+              bcTob2bContactInformation: [...newContactInformation],
+              bcTob2bCompanyExtraFields: [],
+              bcTob2bCompanyInformation: [
+                ...bcToB2BAccountFormFields.businessDetails,
+              ],
+              bcTob2bAddressBasicFields: [...newAddressInformationFields],
               countryList: [...countries],
             },
           })
@@ -194,12 +195,12 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   }, [])
 
   const {
-    contactInformation,
+    bcTob2bContactInformation,
     isLoading,
-    companyInformation = [],
-    addressBasicFields = [],
+    bcTob2bCompanyInformation = [],
+    bcTob2bAddressBasicFields = [],
     countryList = [],
-    companyExtraFields = [],
+    bcTob2bCompanyExtraFields = [],
   } = state
 
   const handleCountryChange = (countryCode: string, stateCode = '') => {
@@ -207,7 +208,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       countryList.find(
         (country: Country) => country.countryCode === countryCode
       )?.states || []
-    const stateFields = addressBasicFields.find(
+    const stateFields = bcTob2bAddressBasicFields.find(
       (formFields: RegisterFields) => formFields.name === 'state'
     )
 
@@ -235,7 +236,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       type: 'stateList',
       payload: {
         stateList,
-        addressBasicFields: [...addressBasicFields],
+        bcTob2bAddressBasicFields: [...bcTob2bAddressBasicFields],
       },
     })
   }
@@ -301,10 +302,12 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
     b2bFields.customerId = customerId || ''
     b2bFields.storeHash = storeHash
-    const companyInfo = companyInformation.filter(
+    const companyInfo = bcTob2bCompanyInformation.filter(
       (list) => !list.custom && list.fieldType !== 'files'
     )
-    const companyExtraInfo = companyInformation.filter((list) => !!list.custom)
+    const companyExtraInfo = bcTob2bCompanyInformation.filter(
+      (list) => !!list.custom
+    )
     // company field
     if (companyInfo.length) {
       companyInfo.forEach((item: any) => {
@@ -327,8 +330,10 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     b2bFields.companyEmail = data.email
 
     // address Field
-    const addressBasicInfo = addressBasicFields.filter((list) => !list.custom)
-    const addressExtraBasicInfo = addressBasicFields.filter(
+    const addressBasicInfo = bcTob2bAddressBasicFields.filter(
+      (list) => !list.custom
+    )
+    const addressExtraBasicInfo = bcTob2bAddressBasicFields.filter(
       (list) => !!list.custom
     )
 
@@ -364,7 +369,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
   const validateCompanyExtraFieldsUnique = async (data: CustomFieldItems) => {
     try {
-      const extraCompanyInformation = companyInformation.filter(
+      const extraCompanyInformation = bcTob2bCompanyInformation.filter(
         (item: RegisterFields) => !!item.custom
       )
       const extraFields = extraCompanyInformation.map(
@@ -417,7 +422,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           return
         }
 
-        const attachmentsList = companyInformation.filter(
+        const attachmentsList = bcTob2bCompanyInformation.filter(
           (list) => list.fieldType === 'files'
         )
         const fileList = await getFileUrl(attachmentsList || [], data)
@@ -463,7 +468,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
   return (
     <B3Card setOpenPage={setOpenPage}>
-      <RegisteredContainer>
+      <RegisteredContainer isMobile={isMobile}>
         <B3Sping
           isSpinning={isLoading}
           tip={b3Lang('intl.global.tips.loading')}
@@ -474,12 +479,12 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               display: 'flex',
               flexDirection: 'column',
               width: '100%',
+              alignItems: 'center',
               '& h4': {
                 color: customColor,
               },
               '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiDropzoneArea-textContainer, & .MuiSelect-select.MuiSelect-filled, & .MuiTextField-root .MuiInputBase-multiline':
                 {
-                  bgcolor: b3HexToRgb('#FFFFFF', 0.87),
                   borderRadius: '4px',
                   borderBottomLeftRadius: '0',
                   borderBottomRightRadius: '0',
@@ -510,9 +515,20 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               <RegisteredFinish
                 activeStep={steps.length}
                 handleFinish={handleFinish}
+                isBCToB2B
               />
             ) : (
-              <>
+              <Box
+                sx={{
+                  width: isMobile ? '100%' : '537px',
+                  boxShadow:
+                    '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
+                  borderRadius: '4px',
+                  marginTop: '1rem',
+                  background: '#FFFFFF',
+                  padding: '0 0.8rem 1rem 0.8rem',
+                }}
+              >
                 <InformationLabels>
                   {b3Lang(
                     'intl.user.register.title.bcToB2B.businessAccountApplication'
@@ -531,12 +547,12 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                   }}
                 >
                   <InformationFourLabels>
-                    {contactInformation?.length
-                      ? contactInformation[0]?.groupName
+                    {bcTob2bContactInformation?.length
+                      ? bcTob2bContactInformation[0]?.groupName
                       : ''}
                   </InformationFourLabels>
                   <B3CustomForm
-                    formFields={contactInformation}
+                    formFields={bcTob2bContactInformation}
                     errors={errors}
                     control={control}
                     getValues={getValues}
@@ -550,12 +566,15 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                   }}
                 >
                   <InformationFourLabels>
-                    {companyInformation?.length
-                      ? companyInformation[0]?.groupName
+                    {bcTob2bCompanyInformation?.length
+                      ? bcTob2bCompanyInformation[0]?.groupName
                       : ''}
                   </InformationFourLabels>
                   <B3CustomForm
-                    formFields={[...companyInformation, ...companyExtraFields]}
+                    formFields={[
+                      ...bcTob2bCompanyInformation,
+                      ...bcTob2bCompanyExtraFields,
+                    ]}
                     errors={errors}
                     control={control}
                     getValues={getValues}
@@ -569,38 +588,38 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                   }}
                 >
                   <InformationFourLabels>
-                    {addressBasicFields?.length
-                      ? addressBasicFields[0]?.groupName
+                    {bcTob2bAddressBasicFields?.length
+                      ? bcTob2bAddressBasicFields[0]?.groupName
                       : ''}
                   </InformationFourLabels>
 
                   <B3CustomForm
-                    formFields={addressBasicFields}
+                    formFields={bcTob2bAddressBasicFields}
                     errors={errors}
                     control={control}
                     getValues={getValues}
                     setValue={setValue}
                   />
                 </Box>
-              </>
+
+                {!showFinishPage && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'row-reverse',
+                      pt: 2,
+                      width: '100%',
+                    }}
+                  >
+                    <CustomButton variant="contained" onClick={handleNext}>
+                      {b3Lang('intl.global.button.submit')}
+                    </CustomButton>
+                  </Box>
+                )}
+              </Box>
             )}
           </Box>
         </B3Sping>
-
-        {!showFinishPage && (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row-reverse',
-              pt: 2,
-              width: '100%',
-            }}
-          >
-            <CustomButton variant="contained" onClick={handleNext}>
-              {b3Lang('intl.global.button.submit')}
-            </CustomButton>
-          </Box>
-        )}
       </RegisteredContainer>
     </B3Card>
   )

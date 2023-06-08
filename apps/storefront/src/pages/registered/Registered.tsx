@@ -12,7 +12,7 @@ import { useB3Lang } from '@b3/lang'
 import { Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
-import { useScrollBar } from '@/hooks'
+import { useMobile, useScrollBar } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b'
@@ -49,6 +49,7 @@ function Registered(props: RegisteredProps) {
   const [activeStep, setActiveStep] = useState(0)
 
   const b3Lang = useB3Lang()
+  const [isMobile] = useMobile()
 
   const navigate = useNavigate()
 
@@ -286,7 +287,7 @@ function Registered(props: RegisteredProps) {
 
   return (
     <B3Card setOpenPage={setOpenPage}>
-      <RegisteredContainer>
+      <RegisteredContainer isMobile={isMobile}>
         <B3Sping
           isSpinning={isLoading}
           tip={b3Lang('intl.global.tips.loading')}
@@ -297,6 +298,7 @@ function Registered(props: RegisteredProps) {
               display: 'flex',
               flexDirection: 'column',
               width: '100%',
+              alignItems: 'center',
             }}
           >
             {logo && (

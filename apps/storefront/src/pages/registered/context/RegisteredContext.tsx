@@ -25,6 +25,10 @@ interface RegisterState {
   isAutoApproval?: boolean
   storeName?: string
   blockPendingAccountOrderCreation?: boolean
+  bcTob2bContactInformation?: Array<RegisterFields>
+  bcTob2bCompanyExtraFields?: Array<RegisterFields>
+  bcTob2bCompanyInformation?: Array<RegisterFields>
+  bcTob2bAddressBasicFields?: Array<RegisterFields>
 }
 interface RegisterAction {
   type: string
@@ -62,6 +66,10 @@ const initState = {
   submitSuccess: false,
   isAutoApproval: true,
   blockPendingAccountOrderCreation: true,
+  bcTob2bContactInformation: [],
+  bcTob2bCompanyExtraFields: [],
+  bcTob2bCompanyInformation: [],
+  bcTob2bAddressBasicFields: [],
 }
 
 export const RegisteredContext = createContext<RegisterContext>({
@@ -102,6 +110,7 @@ const reducer = (state: RegisterState, action: RegisterAction) => {
         stateList: action.payload.stateList,
         addressBasicFields: action.payload.addressBasicFields,
         bcAddressBasicFields: action.payload.bcAddressBasicFields,
+        bcTob2bAddressBasicFields: action.payload.bcTob2bAddressBasicFields,
       }
     case 'finishInfo':
       return {

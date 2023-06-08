@@ -29,8 +29,15 @@ export const TipLogin = styled('div')(() => ({
   borderBottom: '1px solid #1976d2',
 }))
 
-export const RegisteredContainer = styled('div')({
-  padding: '20px 40px',
+export const RegisteredContainer = styled('div')((props: CustomFieldItems) => {
+  const { isMobile = false } = props
+  const style = isMobile
+    ? {}
+    : {
+        padding: '20px 40px',
+      }
+
+  return style
 })
 
 export const RegisteredImage = styled('div')({

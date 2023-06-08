@@ -13,10 +13,7 @@ import { Alert, Box } from '@mui/material'
 //   Captcha,
 // } from '@/components/form'
 import { B3CustomForm } from '@/components'
-import {
-  b3HexToRgb,
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import {
@@ -45,6 +42,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
   const [errorMessage, setErrorMessage] = useState<string>('')
+  const [enterEmail, setEnterEmail] = useState<string>('')
   // const [captchaMessage, setCaptchaMessage] = useState<string>('')
 
   const {
@@ -98,23 +96,14 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
   useEffect(() => {
     if (!accountType) return
-    let newPasswordInformation: Array<CustomFieldItems> = []
-    let emailItem: CustomFieldItems = {}
     if (list && list.length) {
-      const emailFields =
+      const emailFields: CustomFieldItems =
         list.find((item: RegisterFields) => item.name === 'email') || {}
-      emailItem = {
-        ...emailFields,
-      }
-      emailItem.label = `${b3Lang('intl.user.register.RegisterComplete.email')}`
-      emailItem.name = 'email'
-      emailItem.disabled = true
-      newPasswordInformation.push(emailItem)
+
+      setEnterEmail(emailFields?.default || '')
     }
 
-    newPasswordInformation = [...newPasswordInformation, ...passwordInfo]
-
-    setPersonalInfo(newPasswordInformation)
+    setPersonalInfo(passwordInfo)
   }, [contactInformation, bcContactInformation, accountType])
 
   const getBCFieldsValue = (data: CustomFieldItems) => {
@@ -445,7 +434,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           color: customColor,
         },
         '& input, & .MuiFormControl-root .MuiTextField-root': {
-          bgcolor: b3HexToRgb('#FFFFFF', 0.87),
           borderRadius: '4px',
           borderBottomLeftRadius: '0',
           borderBottomRightRadius: '0',
@@ -460,11 +448,26 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       <Box>
         <InformationFourLabels>{passwordName}</InformationFourLabels>
         {personalInfo && (
-          <B3CustomForm
-            formFields={personalInfo}
-            errors={errors}
-            control={control}
-          />
+          <>
+            {enterEmail.length > 0 && (
+              <Box
+                sx={{
+                  fontSize: '16px',
+                  fontWeight: 400,
+                  color: '#000000',
+                  marginBottom: '10px',
+                  marginTop: '-12px',
+                }}
+              >
+                {`Create password for ${enterEmail}`}
+              </Box>
+            )}
+            <B3CustomForm
+              formFields={personalInfo}
+              errors={errors}
+              control={control}
+            />
+          </>
         )}
       </Box>
 

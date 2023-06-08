@@ -32,6 +32,8 @@ export default function B3ControlTextField({
     readOnly,
     allowArrow = false,
     sx = {},
+    isTip = false,
+    tipText = '',
   } = rest
 
   const b3Lang = useB3Lang()
@@ -149,6 +151,17 @@ export default function B3ControlTextField({
           )
         }
       />
+      {isTip && (
+        <Box
+          sx={{
+            fontSize: '12px',
+            color: 'rgba(0, 0, 0, 0.6)',
+            marginTop: '0.5rem',
+          }}
+        >
+          {tipText}
+        </Box>
+      )}
     </>
   ) : null
 }
