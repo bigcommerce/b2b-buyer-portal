@@ -77,6 +77,8 @@ interface TableProps<T> {
   disableCheckbox?: boolean
   onClickRow?: (item: any, index?: number) => void
   showRowsPerPageOptions?: boolean
+  isSelectOtherPageCheckbox?: boolean
+  isAllSelect?: boolean
 }
 
 const MOUSE_POINTER_STYLE = {
@@ -112,6 +114,8 @@ export function B3Table<T>({
   hover = false,
   showBorder = true,
   selectedSymbol = 'id',
+  isSelectOtherPageCheckbox = false,
+  isAllSelect = false,
   selectCheckbox = [],
   labelRowsPerPage = '',
   disableCheckbox = false,
@@ -172,7 +176,11 @@ export function B3Table<T>({
               }}
             >
               <Checkbox
-                checked={selectCheckbox.length === listItems.length}
+                checked={
+                  isSelectOtherPageCheckbox
+                    ? isAllSelect
+                    : selectCheckbox.length === listItems.length
+                }
                 onChange={handleSelectAllItems}
                 disabled={disableCheckbox}
               />
@@ -289,7 +297,11 @@ export function B3Table<T>({
                     {showCheckbox && (
                       <TableCell key="showCheckbox">
                         <Checkbox
-                          checked={selectCheckbox.length === listItems.length}
+                          checked={
+                            isSelectOtherPageCheckbox
+                              ? isAllSelect
+                              : selectCheckbox.length === listItems.length
+                          }
                           onChange={handleSelectAllItems}
                           disabled={disableCheckbox}
                         />

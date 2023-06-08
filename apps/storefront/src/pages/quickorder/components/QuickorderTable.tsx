@@ -75,6 +75,8 @@ interface SearchProps {
 
 interface PaginationTableRefProps extends HTMLInputElement {
   getList: () => void
+  getCacheList: () => void
+  setCacheAllList: (items?: ListItemProps[]) => void
   setList: (items?: ListItemProps[]) => void
   getSelectedValue: () => void
 }
@@ -213,7 +215,7 @@ function QuickorderTable({
 
   const getSelectCheckbox = (selectCheckbox: Array<string | number>) => {
     if (selectCheckbox.length > 0) {
-      const productList = paginationTableRef.current?.getList() || []
+      const productList = paginationTableRef.current?.getCacheList() || []
       const checkedItems = selectCheckbox.map((item: number | string) => {
         const newItems = productList.find((product: ListItemProps) => {
           const { node } = product
@@ -261,6 +263,8 @@ function QuickorderTable({
   ) => {
     if (value !== '' && +value <= 0) return
     const listItems = paginationTableRef.current?.getList() || []
+    const listCacheItems = paginationTableRef.current?.getCacheList() || []
+
     const newListItems = listItems?.map((item: ListItemProps) => {
       const { node } = item
       if (node?.id === id) {
@@ -269,7 +273,16 @@ function QuickorderTable({
 
       return item
     })
+    const newListCacheItems = listCacheItems?.map((item: ListItemProps) => {
+      const { node } = item
+      if (node?.id === id) {
+        node.quantity = +value || ''
+      }
+
+      return item
+    })
     paginationTableRef.current?.setList([...newListItems])
+    paginationTableRef.current?.setCacheAllList([...newListCacheItems])
   }
 
   const columnItems: TableColumnItem<ListItem>[] = [
@@ -499,6 +512,7 @@ function QuickorderTable({
           requestLoading={setIsRequestLoading}
           getSelectCheckbox={getSelectCheckbox}
           itemIsMobileSpacing={0}
+          isSelectOtherPageCheckbox
           noDataText="No products found"
           renderItem={(
             row: ProductInfoProps,
