@@ -9,11 +9,9 @@ import {
   useTheme,
 } from '@mui/material'
 
-import {
-  b3HexToRgb,
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
+import { B3SStorage } from '@/utils'
 
 import { RegisteredContext } from './context/RegisteredContext'
 import { steps } from './config'
@@ -33,10 +31,16 @@ export default function RegisteredStep(props: RegisteredStepProps) {
   const theme = useTheme()
 
   const { state } = useContext(RegisteredContext)
-  const { accountType, submitSuccess } = state
+  const { accountType, submitSuccess, isAutoApproval } = state
+  const blockPendingAccountOrderCreation =
+    B3SStorage.get('blockPendingAccountOrderCreation') && !isAutoApproval
+  const registerCompleteText = blockPendingAccountOrderCreation
+    ? b3Lang('intl.user.register.title.registerComplete.warning')
+    : b3Lang('intl.user.register.title.registerComplete')
+
   const newPageTitle =
     accountType === '1'
-      ? b3Lang('intl.user.register.title.registerComplete')
+      ? registerCompleteText
       : b3Lang('intl.user.register.title.accountCreated')
 
   const customColor = getContrastColor(backgroundColor)
@@ -74,10 +78,6 @@ export default function RegisteredStep(props: RegisteredStepProps) {
         <Stepper
           activeStep={activeStep}
           sx={{
-            '& .MuiSvgIcon-root:not(.Mui-active), & .MuiStepLabel-label, & .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed':
-              {
-                color: b3HexToRgb(customColor, 0.87),
-              },
             '& .MuiSvgIcon-root:not(.Mui-active) .MuiStepIcon-text': {
               fill: getContrastColor(customColor),
             },

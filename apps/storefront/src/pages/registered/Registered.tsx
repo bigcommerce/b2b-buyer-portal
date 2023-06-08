@@ -291,7 +291,7 @@ function Registered(props: RegisteredProps) {
         <B3Sping
           isSpinning={isLoading}
           tip={b3Lang('intl.global.tips.loading')}
-          transparency=".75"
+          transparency="0"
         >
           <Box
             sx={{
@@ -306,7 +306,6 @@ function Registered(props: RegisteredProps) {
                 <ImageListItem
                   sx={{
                     maxWidth: '250px',
-                    maxHeight: '250px',
                   }}
                   onClick={() => {
                     window.location.href = '/'

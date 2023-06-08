@@ -44,9 +44,6 @@ export default function RegisteredFinish(props: {
         </StyleTipContainer>
       ) : (
         <>
-          <StyleTipContainer>
-            {b3Lang('intl.user.register.RegisterFinish.notAutoApproved.tip')}
-          </StyleTipContainer>
           {blockPendingAccountOrderCreation && (
             <Alert
               severity="warning"
@@ -63,6 +60,13 @@ export default function RegisteredFinish(props: {
               )}
             </Alert>
           )}
+          <StyleTipContainer>
+            {blockPendingAccountOrderCreation
+              ? b3Lang(
+                  'intl.user.register.RegisterFinish.notAutoApproved.warningTip'
+                )
+              : b3Lang('intl.user.register.RegisterFinish.notAutoApproved.tip')}
+          </StyleTipContainer>
         </>
       )
     }
