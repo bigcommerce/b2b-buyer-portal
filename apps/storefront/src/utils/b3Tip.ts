@@ -1,31 +1,33 @@
 import { ReactElement } from 'react'
 import { v1 as uuid } from 'uuid'
 
+import {
+  AlertTip,
+  MsgsProps,
+} from '@/shared/dynamicallyVariable/context/config'
+
 interface SnackbarItemProps {
   duration?: number
   jsx?: () => ReactElement
   isClose?: boolean
 }
 
-interface SnackbarMessageProps extends SnackbarItemProps {
-  message: string
-}
+// interface SnackbarMessageProps extends SnackbarItemProps {
+//   message: string
+// }
 
 interface SnackbarProps {
-  [key: string]: (
-    message: string | SnackbarMessageProps[],
-    options?: SnackbarItemProps
-  ) => void
+  [key: string]: (message: string, options?: SnackbarItemProps) => void
 }
 
 const snackbar: SnackbarProps = {}
 const globalSnackbar: SnackbarProps = {}
 
-const variants = ['error', 'success', 'info', 'warning']
+const variants: AlertTip[] = ['error', 'success', 'info', 'warning']
 
 variants.forEach((variant) => {
   snackbar[variant] = (message, options) => {
-    const msgs = [
+    const msgs: Array<MsgsProps> = [
       {
         isClose: options?.isClose || false,
         id: uuid(),

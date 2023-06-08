@@ -246,7 +246,7 @@ function ShoppingDetailTable(
       snackbar.success('Product updated successfully')
       initSearch()
     } finally {
-      setIsRequestLoading(false)
+      // setIsRequestLoading(false)
     }
   }
 

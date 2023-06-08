@@ -6,16 +6,26 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useForm } from 'react-hook-form'
+import { FieldValues, useForm } from 'react-hook-form'
 import styled from '@emotion/styled'
 import { Box, Divider, TextField, Typography } from '@mui/material'
 
 import { B3CustomForm, B3Dialog, B3Sping } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { B3SStorage, currencyFormat, snackbar } from '@/utils'
+import {
+  B3SStorage,
+  calculateProductListPrice,
+  currencyFormat,
+  snackbar,
+} from '@/utils'
 
-import { ShoppingListProductItem, SimpleObject, Variant } from '../../../types'
+import {
+  AllOptionProps,
+  ShoppingListProductItem,
+  SimpleObject,
+  Variant,
+} from '../../../types'
 import {
   Base64,
   getOptionRequestData,
@@ -79,6 +89,17 @@ interface ChooseOptionsDialogProps {
   isB2BUser: boolean
 }
 
+interface ChooseOptionsProductProps extends ShoppingListProductItem {
+  newSelectOptionList: {
+    optionId: string
+    optionValue: any
+  }[]
+  productId: number
+  quantity: number
+  variantId: number
+  additionalProducts: CustomFieldItems
+}
+
 export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const {
     isOpen,
@@ -98,6 +119,14 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [variantSku, setVariantSku] = useState('')
   const [additionalProducts, setAdditionalProducts] =
     useState<CustomFieldItems>({})
+  const [productPriceChangeOptions, setProductPriceChangeOptions] = useState<
+    Partial<AllOptionProps>[]
+  >([])
+  const [newPrice, setNewPrice] = useState<number>(0)
+  const [chooseOptionsProduct, setChooseOptionsProduct] = useState<
+    ChooseOptionsProductProps[]
+  >([])
+  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
@@ -158,9 +187,34 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     }
   }
 
+  const getProductPriceOptions = (product: ShoppingListProductItem) => {
+    const newProductPriceChangeOptionLists: Partial<AllOptionProps>[] = []
+    product.allOptions?.forEach((item) => {
+      if (
+        item.type === 'product_list_with_images' ||
+        item.type === 'product_list' ||
+        item.type === 'checkbox' ||
+        item.type === 'rectangles' ||
+        item.type === 'swatch' ||
+        item.type === 'radio_buttons' ||
+        item.type === 'dropdown'
+      ) {
+        newProductPriceChangeOptionLists.push(item)
+      }
+    })
+
+    setProductPriceChangeOptions(newProductPriceChangeOptionLists)
+  }
+
   useEffect(() => {
     if (product) {
       setChooseOptionsForm(product)
+      setChooseOptionsProduct([])
+      setNewPrice(0)
+      setFormFields([])
+      if (product?.allOptions?.length) {
+        getProductPriceOptions(product)
+      }
     } else {
       setQuantity(1)
       setFormFields([])
@@ -170,17 +224,19 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const getProductPrice = (product: ShoppingListProductItem) => {
     const { variants = [] } = product
 
+    let priceNumber = 0
     if (variantSku) {
-      const priceNumber =
+      priceNumber =
         variants.find((variant) => variant.sku === variantSku)
           ?.bc_calculated_price?.tax_inclusive || 0
-      return `${currencyFormat(priceNumber)}`
+    } else {
+      priceNumber =
+        parseFloat(
+          variants[0]?.bc_calculated_price?.tax_inclusive?.toString()
+        ) || 0
     }
 
-    const priceNumber =
-      parseFloat(variants[0]?.bc_calculated_price?.tax_inclusive?.toString()) ||
-      0
-    return `${currencyFormat(priceNumber)}`
+    return priceNumber
   }
 
   const handleProductQuantityChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -216,6 +272,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   } = useForm({
     mode: 'all',
   })
+
+  const formValues = watch()
 
   const getProductVariantId = async (
     value: CustomFieldItems,
@@ -284,13 +342,86 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     return true
   }
 
+  const getOptionList = (value: FieldValues) => {
+    const optionsData = getOptionRequestData(formFields, {}, value)
+    return Object.keys(optionsData).map((optionId) => ({
+      optionId,
+      optionValue: optionsData[optionId]?.toString(),
+    }))
+  }
+
+  useEffect(() => {
+    if (
+      Object.keys(formValues).length &&
+      formFields.length &&
+      productPriceChangeOptions.length
+    ) {
+      const optionList = getOptionList(formValues)
+      const { variant_id: variantId = '' } = variantInfo || {}
+      if (!product || !product.id || !variantId || !validateQuantityNumber()) {
+        return
+      }
+
+      const newChooseOptionsProduct = [
+        {
+          ...product,
+          newSelectOptionList: optionList,
+          productId: product?.id,
+          quantity: parseInt(quantity.toString(), 10) || 1,
+          variantId: parseInt(variantId.toString(), 10) || 1,
+          additionalProducts,
+        },
+      ]
+
+      if (chooseOptionsProduct.length) {
+        let optionChangeFlag = false
+        const { newSelectOptionList } = chooseOptionsProduct[0]
+        newSelectOptionList.forEach((option) => {
+          const findAttributeId = productPriceChangeOptions.findIndex((item) =>
+            option.optionId.includes(String(item.id))
+          )
+          optionList.forEach((newOption) => {
+            if (
+              option.optionId === newOption.optionId &&
+              option.optionValue !== newOption.optionValue &&
+              findAttributeId !== -1
+            ) {
+              optionChangeFlag = true
+            }
+          })
+        })
+        if (optionChangeFlag) {
+          setChooseOptionsProduct(newChooseOptionsProduct)
+        }
+      } else {
+        setChooseOptionsProduct(newChooseOptionsProduct)
+      }
+    }
+  }, [formValues, productPriceChangeOptions])
+
+  useEffect(() => {
+    const getProductPrice = async () => {
+      try {
+        if (chooseOptionsProduct.length) {
+          setIsRequestLoading(true)
+          const products = await calculateProductListPrice(chooseOptionsProduct)
+          if (products.length && products[0].basePrice) {
+            setNewPrice(+products[0].basePrice)
+          }
+        }
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setIsRequestLoading(false)
+      }
+    }
+
+    getProductPrice()
+  }, [chooseOptionsProduct])
+
   const handleConfirmClicked = () => {
     handleSubmit((value) => {
-      const optionsData = getOptionRequestData(formFields, {}, value)
-      const optionList = Object.keys(optionsData).map((optionId) => ({
-        optionId,
-        optionValue: optionsData[optionId].toString(),
-      }))
+      const optionList = getOptionList(value)
 
       const { variant_id: variantId = '' } = variantInfo || {}
 
@@ -329,7 +460,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       handleLeftClick={handleCancelClicked}
       handRightClick={handleConfirmClicked}
       title="Choose options"
-      loading={isLoading}
+      loading={isLoading || isRequestLoading}
     >
       <B3Sping isSpinning={isLoading}>
         {product && (
@@ -369,7 +500,9 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
                   <FlexItem>
                     <span>Price:</span>
-                    {getProductPrice(product)}
+                    {currencyFormat(
+                      newPrice * +quantity || getProductPrice(product)
+                    )}
                   </FlexItem>
 
                   <FlexItem>

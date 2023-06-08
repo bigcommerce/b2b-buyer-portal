@@ -1,5 +1,6 @@
 import { Dispatch, ReactNode } from 'react'
 
+import { TipMessagesProps } from '@/shared/dynamicallyVariable/context/config'
 import { B3SStorage } from '@/utils'
 
 export interface CustomerInfo {
@@ -81,7 +82,7 @@ export interface GlobalState {
   salesRepCompanyId: string
   salesRepCompanyName: string
   B3UserId: number | string
-  // tipMessage: TipMessagesProps,
+  tipMessage: TipMessagesProps
   addressConfig?: {
     key: string
     isEnabled: string
@@ -171,6 +172,7 @@ export const initState = {
     B3SStorage.get('blockPendingAccountOrderCreation') || true,
   quoteDetailHasNewMessages: false,
   shoppingListClickNode: null,
+  tipMessage: {},
 }
 
 export interface GlobalAction {

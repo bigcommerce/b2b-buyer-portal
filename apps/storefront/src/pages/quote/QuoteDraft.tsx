@@ -794,6 +794,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           >
             <QuoteTable
               ref={quoteTableRef}
+              updateList={updateList}
               updateSummary={updateSummary}
               total={total}
               getQuoteTableDetails={getQuoteTableDetails}
