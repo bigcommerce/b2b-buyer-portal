@@ -13,6 +13,7 @@ import {
   b3HexToRgb,
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { useMobile } from '@/hooks'
 
 import { RegisteredContext } from './context/RegisteredContext'
 import { steps } from './config'
@@ -28,6 +29,7 @@ export default function RegisteredStep(props: RegisteredStepProps) {
   const { children, isStepOptional, activeStep, backgroundColor } = props
 
   const b3Lang = useB3Lang()
+  const [isMobile] = useMobile()
   const theme = useTheme()
 
   const { state } = useContext(RegisteredContext)
@@ -39,7 +41,18 @@ export default function RegisteredStep(props: RegisteredStepProps) {
 
   const customColor = getContrastColor(backgroundColor)
   return (
-    <Box component="div">
+    <Box
+      component="div"
+      sx={{
+        width: isMobile ? '100%' : '537px',
+        boxShadow:
+          '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
+        borderRadius: '4px',
+        marginTop: '1rem',
+        background: '#FFFFFF',
+        padding: '0 0.8rem 1rem 0.8rem',
+      }}
+    >
       <Box
         component="h3"
         sx={{
@@ -47,7 +60,7 @@ export default function RegisteredStep(props: RegisteredStepProps) {
           flexDirection: 'row',
           justifyContent: 'center',
           pt: 2,
-          fontSize: '34px',
+          fontSize: '24px',
           fontWeight: '400',
           margin: '0.5rem 0',
           color: customColor,

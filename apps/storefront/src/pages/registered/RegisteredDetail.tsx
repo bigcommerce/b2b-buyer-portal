@@ -3,10 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Alert, Box } from '@mui/material'
 
 import { B3CustomForm } from '@/components'
-import {
-  b3HexToRgb,
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { validateBCCompanyExtraFields } from '@/shared/service/b2b'
 
@@ -247,7 +244,6 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         },
         '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiDropzoneArea-textContainer, & .MuiSelect-select.MuiSelect-filled, & .MuiTextField-root .MuiInputBase-multiline':
           {
-            bgcolor: b3HexToRgb('#FFFFFF', 0.87),
             borderRadius: '4px',
             borderBottomLeftRadius: '0',
             borderBottomRightRadius: '0',
