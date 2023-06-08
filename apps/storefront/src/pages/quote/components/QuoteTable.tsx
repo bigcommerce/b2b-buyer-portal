@@ -55,6 +55,7 @@ interface ShoppingDetailTableProps {
   idEdit?: boolean
   isB2BUser: boolean
   updateSummary: () => void
+  updateList: () => void
 }
 
 interface SearchProps {
@@ -111,6 +112,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     idEdit = true,
     isB2BUser,
     updateSummary,
+    updateList,
   } = props
   const quoteProductQtyMaxLimit = 1000000
 
@@ -154,7 +156,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     B3LStorage.set('b2bQuoteDraftList', quoteDraftAllList)
 
     paginationTableRef.current?.setList([...newListItems])
-    updateSummary()
+    updateList()
   }
 
   const handleCheckProductQty = async (row: any, value: number | string) => {
@@ -296,7 +298,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
     B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
 
-    updateSummary()
+    updateList()
 
     setSearch({
       offset: 0,
