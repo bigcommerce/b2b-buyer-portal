@@ -47,6 +47,7 @@ interface B3PaginationTableProps {
   requestLoading?: (bool: boolean) => void
   showCheckbox?: boolean
   selectedSymbol?: string
+  isSelectOtherPageCheckbox?: boolean
   showBorder?: boolean
   getSelectCheckbox?: (arr: Array<string | number>) => void
   hover?: boolean
@@ -74,6 +75,7 @@ function PaginationTable(
     requestLoading,
     showCheckbox = false,
     selectedSymbol = 'id',
+    isSelectOtherPageCheckbox = false,
     showBorder = true,
     getSelectCheckbox,
     hover = false,
@@ -99,6 +101,10 @@ function PaginationTable(
 
   const [count, setAllCount] = useState<number>(0)
 
+  const [isAllSelect, setAllSelect] = useState<boolean>(false)
+
+  const [cacheAllList, setCacheAllList] = useState<Array<CustomFieldItems>>([])
+
   const [list, setList] = useState<Array<CustomFieldItems>>([])
 
   const [selectCheckbox, setSelectCheckbox] = useState<Array<string | number>>(
@@ -106,6 +112,28 @@ function PaginationTable(
   )
 
   const [isMobile] = useMobile()
+
+  const cacheList = (edges: Array<CustomFieldItems>) => {
+    if (!cacheAllList.length) setCacheAllList(edges)
+
+    const copyCacheAllList = [...cacheAllList]
+
+    edges.forEach((item: CustomFieldItems) => {
+      const option = item?.node || item
+      const isExist = cacheAllList.some((cache: CustomFieldItems) => {
+        const cacheOption = cache?.node || cache
+        return cacheOption[selectedSymbol] === option[selectedSymbol]
+      })
+
+      if (!isExist) {
+        copyCacheAllList.push(item)
+      }
+    })
+
+    console.log(copyCacheAllList, 'copyCacheAllList')
+
+    setCacheAllList(copyCacheAllList)
+  }
 
   const fetchList = async (
     b3Pagination?: TablePagination,
@@ -147,7 +175,10 @@ function PaginationTable(
       const { edges, totalCount }: CustomFieldItems = requestList
 
       setList(edges)
-      setSelectCheckbox([])
+
+      cacheList(edges)
+
+      if (!isSelectOtherPageCheckbox) setSelectCheckbox([])
 
       if (!b3Pagination) {
         setPagination({
@@ -179,9 +210,9 @@ function PaginationTable(
     if (getSelectCheckbox) getSelectCheckbox(selectCheckbox)
   }, [selectCheckbox, list])
 
-  const handlePaginationChange = (pagination: TablePagination) => {
+  const handlePaginationChange = async (pagination: TablePagination) => {
+    await fetchList(pagination)
     setPagination(pagination)
-    fetchList(pagination)
   }
 
   const tablePagination = {
@@ -195,25 +226,77 @@ function PaginationTable(
 
   const getList = () => list
 
+  const getCacheList = () => cacheAllList
+
   useImperativeHandle(ref, () => ({
     getSelectedValue,
     setList,
+    setCacheAllList,
     getList,
+    getCacheList,
     refresh,
   }))
 
+  const getCurrentAllItemsSelect = () => {
+    if (!selectCheckbox.length) return false
+    return list.every((item: CustomFieldItems) => {
+      const option = item?.node || item
+
+      return selectCheckbox.includes(option[selectedSymbol])
+    })
+  }
+
+  useEffect(() => {
+    if (isSelectOtherPageCheckbox) {
+      const flag = getCurrentAllItemsSelect()
+      setAllSelect(flag)
+    }
+  }, [selectCheckbox, pagination])
+
   const handleSelectAllItems = () => {
-    if (selectCheckbox.length === list.length) {
-      setSelectCheckbox([])
+    const singlePageCheckbox = () => {
+      if (selectCheckbox.length === list.length) {
+        setSelectCheckbox([])
+      } else {
+        const selects: Array<string | number> = []
+        list.forEach((item: CustomFieldItems) => {
+          const option = item?.node || item
+          if (option) {
+            selects.push(option[selectedSymbol])
+          }
+        })
+        setSelectCheckbox(selects)
+      }
+    }
+
+    const otherPageCheckbox = () => {
+      const flag = getCurrentAllItemsSelect()
+
+      const newSelectCheckbox = [...selectCheckbox]
+      if (flag) {
+        list.forEach((item: CustomFieldItems) => {
+          const option = item?.node || item
+          const index = newSelectCheckbox.findIndex(
+            (item: any) => item === option[selectedSymbol]
+          )
+          newSelectCheckbox.splice(index, 1)
+        })
+      } else {
+        list.forEach((item: CustomFieldItems) => {
+          const option = item?.node || item
+          if (!selectCheckbox.includes(option[selectedSymbol])) {
+            newSelectCheckbox.push(option[selectedSymbol])
+          }
+        })
+      }
+
+      setSelectCheckbox(newSelectCheckbox)
+    }
+
+    if (isSelectOtherPageCheckbox) {
+      otherPageCheckbox()
     } else {
-      const selects: Array<string | number> = []
-      list.forEach((item: CustomFieldItems) => {
-        const option = item?.node || item
-        if (option) {
-          selects.push(option[selectedSymbol])
-        }
-      })
-      setSelectCheckbox(selects)
+      singlePageCheckbox()
     }
   }
 
@@ -250,6 +333,8 @@ function PaginationTable(
       showCheckbox={showCheckbox}
       disableCheckbox={disableCheckbox}
       selectedSymbol={selectedSymbol}
+      isSelectOtherPageCheckbox={isSelectOtherPageCheckbox}
+      isAllSelect={isAllSelect}
       selectCheckbox={selectCheckbox}
       handleSelectAllItems={handleSelectAllItems}
       handleSelectOneItem={handleSelectOneItem}
