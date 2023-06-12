@@ -187,6 +187,7 @@ function QuotesList() {
       companyInfo: { id: companyB2BId },
       salesRepCompanyId,
       openAPPParams,
+      currentChannelId,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -230,7 +231,7 @@ function QuotesList() {
     const key = isB2BUser ? 'quotes' : 'customerQuotes'
     const {
       [key]: { edges = [], totalCount },
-    } = await fn(params)
+    } = await fn({ ...params, currentChannelId })
 
     const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
     if (params.offset === 0 && quoteDraftAllList.length) {
