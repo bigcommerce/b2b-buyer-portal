@@ -259,7 +259,6 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
 ]
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   const { isB2BUser, role, isAgenting, storefrontConfig } = globalState
-
   return routes.filter((item: RouteItem) => {
     const { permissions = [] } = item
 
@@ -267,8 +266,11 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
       return permissions.includes(4)
     }
 
-    // b2b user
+    // bc user
     if (!isB2BUser) {
+      const navListKey =
+        storefrontConfig && storefrontConfig[item.configKey || '']
+      if (typeof navListKey === 'boolean') return navListKey
       return permissions.includes(99)
     }
 
