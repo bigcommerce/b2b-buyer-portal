@@ -130,8 +130,6 @@ function PaginationTable(
       }
     })
 
-    console.log(copyCacheAllList, 'copyCacheAllList')
-
     setCacheAllList(copyCacheAllList)
   }
 
