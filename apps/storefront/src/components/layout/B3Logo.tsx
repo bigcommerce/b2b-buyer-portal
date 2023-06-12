@@ -33,7 +33,7 @@ export default function B3Logo() {
     <Box
       sx={{
         flexShrink: '0',
-        height: `${isMobile ? '15vw' : '70px'}`,
+        height: 'auto',
         width: `${isMobile ? '45%' : '100%'}`,
         '& img': {
           width: '100%',

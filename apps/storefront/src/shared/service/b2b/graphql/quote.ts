@@ -25,6 +25,7 @@ const getQuotesList = (data: CustomFieldItems, type: string) => `{
         ? `dateCreatedEndAt: "${data.dateCreatedEndAt}"`
         : ''
     }
+    ${type === 'bc' ? `channelId: ${data?.currentChannelId || 1}` : ''}
   ) {
     totalCount,
     edges {
