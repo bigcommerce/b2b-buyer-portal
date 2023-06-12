@@ -30,7 +30,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
   })
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax },
+    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
   } = store.getState()
 
   const priceCalc = (price: number) => parseFloat(price.toFixed(2))
@@ -46,13 +46,19 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
 
         const { shipping } = summary
 
-        subtotal += priceCalc(
-          (enteredInclusiveTax ? +basePrice : +basePrice + +productTax) *
-            quantity
-        )
+        let price: number
+        if (enteredInclusiveTax) {
+          price = showInclusiveTaxPrice ? +basePrice : +basePrice - +productTax
+        } else {
+          price = showInclusiveTaxPrice ? +basePrice + +productTax : +basePrice
+        }
+
+        subtotal += priceCalc(price * quantity)
         tax += priceCalc(+productTax * +quantity)
 
-        grandTotal = subtotal + shipping
+        const totalPrice = showInclusiveTaxPrice ? subtotal : subtotal + tax
+
+        grandTotal = totalPrice + shipping
 
         return {
           grandTotal,

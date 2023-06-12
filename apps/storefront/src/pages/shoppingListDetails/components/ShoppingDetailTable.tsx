@@ -146,7 +146,7 @@ function ShoppingDetailTable(
   } = props
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax },
+    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
   } = store.getState()
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -328,9 +328,17 @@ function ShoppingDetailTable(
       const {
         products: { edges },
         grandTotal,
+        totalTax,
       } = shoppingListInfo
 
-      const NewShoppingListTotalPrice = +grandTotal || 0.0
+      let price: number
+      if (enteredInclusiveTax) {
+        price = showInclusiveTaxPrice ? +grandTotal : +grandTotal - +totalTax
+      } else {
+        price = showInclusiveTaxPrice ? +grandTotal + +totalTax : +grandTotal
+      }
+
+      const NewShoppingListTotalPrice = price || 0.0
 
       setOriginProducts(cloneDeep(edges))
       setShoppingListTotalPrice(NewShoppingListTotalPrice)
@@ -412,15 +420,23 @@ function ShoppingDetailTable(
       title: 'Price',
       render: (row: CustomFieldItems) => {
         const { basePrice, taxPrice = 0 } = row
+        let inTaxPrice: number
+        if (enteredInclusiveTax) {
+          inTaxPrice = showInclusiveTaxPrice
+            ? +basePrice
+            : +basePrice - +taxPrice
+        } else {
+          inTaxPrice = showInclusiveTaxPrice
+            ? +basePrice + +taxPrice
+            : +basePrice
+        }
         return (
           <Typography
             sx={{
               padding: '12px 0',
             }}
           >
-            {currencyFormat(
-              enteredInclusiveTax ? +basePrice : +basePrice + +taxPrice
-            )}
+            {currencyFormat(inTaxPrice)}
           </Typography>
         )
       },
@@ -471,6 +487,18 @@ function ShoppingDetailTable(
           taxPrice = 0,
         } = row
 
+        let inTaxPrice: number
+        if (enteredInclusiveTax) {
+          inTaxPrice = showInclusiveTaxPrice
+            ? +basePrice
+            : +basePrice - +taxPrice
+        } else {
+          inTaxPrice = showInclusiveTaxPrice
+            ? +basePrice + +taxPrice
+            : +basePrice
+        }
+        const totalPrice = inTaxPrice * +quantity
+
         const optionList = options || JSON.parse(row.optionList)
 
         return (
@@ -480,11 +508,7 @@ function ShoppingDetailTable(
                 padding: '12px 0',
               }}
             >
-              {currencyFormat(
-                enteredInclusiveTax
-                  ? +basePrice * +quantity
-                  : (+basePrice + +taxPrice) * +quantity
-              )}
+              {currencyFormat(totalPrice)}
             </Typography>
             <Box
               sx={{

@@ -46,10 +46,16 @@ function QuoteTableCard(props: QuoteTableCardProps) {
   } = quoteTableItem
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax },
+    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
   } = store.getState()
 
-  const price = enteredInclusiveTax ? +basePrice : +basePrice + +taxPrice
+  let price: number
+  if (enteredInclusiveTax) {
+    price = showInclusiveTaxPrice ? +basePrice : +basePrice - +taxPrice
+  } else {
+    price = showInclusiveTaxPrice ? +basePrice + +taxPrice : +basePrice
+  }
+
   const total = price * +quantity
 
   const product: any = {

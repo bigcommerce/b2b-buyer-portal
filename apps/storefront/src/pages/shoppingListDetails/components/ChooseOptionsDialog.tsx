@@ -13,6 +13,7 @@ import { Box, Divider, TextField, Typography } from '@mui/material'
 import { B3CustomForm, B3Dialog, B3Sping } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
+import { store } from '@/store'
 import {
   B3SStorage,
   calculateProductListPrice,
@@ -112,6 +113,10 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     addButtonText = 'Add To List',
     isB2BUser,
   } = props
+
+  const {
+    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
+  } = store.getState()
 
   const [quantity, setQuantity] = useState<number | string>(1)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
@@ -226,13 +231,21 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
     let priceNumber = 0
     if (variantSku) {
+      const variantCalculatePrice = variants.find(
+        (variant) => variant.sku === variantSku
+      )?.bc_calculated_price
       priceNumber =
-        variants.find((variant) => variant.sku === variantSku)
-          ?.bc_calculated_price?.tax_inclusive || 0
+        (showInclusiveTaxPrice
+          ? variantCalculatePrice?.tax_inclusive
+          : variantCalculatePrice?.tax_exclusive) || 0
     } else {
+      const variantCalculatePrice = variants[0]?.bc_calculated_price
       priceNumber =
         parseFloat(
-          variants[0]?.bc_calculated_price?.tax_inclusive?.toString()
+          (showInclusiveTaxPrice
+            ? variantCalculatePrice?.tax_inclusive
+            : variantCalculatePrice?.tax_exclusive
+          )?.toString()
         ) || 0
     }
 
@@ -400,13 +413,25 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   }, [formValues, productPriceChangeOptions])
 
   useEffect(() => {
-    const getProductPrice = async () => {
+    const getNewProductPrice = async () => {
       try {
         if (chooseOptionsProduct.length) {
           setIsRequestLoading(true)
           const products = await calculateProductListPrice(chooseOptionsProduct)
-          if (products.length && products[0].basePrice) {
-            setNewPrice(+products[0].basePrice)
+
+          if (products.length) {
+            const { basePrice, taxPrice } = products[0]
+            let price: number
+            if (enteredInclusiveTax) {
+              price = showInclusiveTaxPrice
+                ? +basePrice
+                : +basePrice - +taxPrice
+            } else {
+              price = showInclusiveTaxPrice
+                ? +basePrice + +taxPrice
+                : +basePrice
+            }
+            setNewPrice(price)
           }
         }
       } catch (err) {
@@ -416,7 +441,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       }
     }
 
-    getProductPrice()
+    getNewProductPrice()
   }, [chooseOptionsProduct])
 
   const handleConfirmClicked = () => {

@@ -10,7 +10,12 @@ import {
   getTaxZoneRates,
 } from '@/shared/service/b2b'
 import { getActiveBcCurrency } from '@/shared/service/bc'
-import { setEnteredInclusive, setTaxZoneRates, store } from '@/store'
+import {
+  setEnteredInclusive,
+  setShowInclusiveTaxPrice,
+  setTaxZoneRates,
+  store,
+} from '@/store'
 import { B3SStorage } from '@/utils'
 
 // import {
@@ -42,6 +47,27 @@ interface CurrencyNodeProps {
     entityId: number
     isActive: boolean
   }
+}
+
+interface TaxZoneRatesProps {
+  rates: {
+    id: number
+    name: string
+    enabled: boolean
+    priority: number
+    classRates: {
+      rate: number
+      taxClassId: number
+    }[]
+  }[]
+  priceDisplaySettings: {
+    showInclusive: boolean
+    showBothOnDetailView: boolean
+    showBothOnListView: boolean
+  }
+  enabled: boolean
+  id: number
+  name: string
 }
 
 const storeforntKeys: StoreforntKeysProps[] = [
@@ -261,6 +287,26 @@ const setStorefrontConfig = async (
 
 const getStoreTaxZoneRates = async () => {
   const { taxZoneRates = [] } = await getTaxZoneRates()
+
+  if (taxZoneRates.length) {
+    const defaultTaxZone: TaxZoneRatesProps = taxZoneRates.find(
+      (taxZone: { id: number }) => taxZone.id === 1
+    )
+    if (defaultTaxZone) {
+      const {
+        rates,
+        priceDisplaySettings: { showInclusive },
+      } = defaultTaxZone
+      const { enabled } = rates[0]
+      if (enabled) {
+        B3SStorage.set('showInclusiveTaxPrice', showInclusive)
+        store.dispatch(setShowInclusiveTaxPrice(showInclusive))
+      } else {
+        B3SStorage.set('showInclusiveTaxPrice', false)
+        store.dispatch(setShowInclusiveTaxPrice(false))
+      }
+    }
+  }
 
   store.dispatch(setTaxZoneRates(taxZoneRates))
 }
