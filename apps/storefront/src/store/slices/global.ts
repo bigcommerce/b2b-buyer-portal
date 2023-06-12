@@ -40,6 +40,7 @@ export interface GlabolState {
   globalMessage?: GlobalMessageDialog
   enteredInclusive?: boolean
   setOpenPageFn?: Dispatch<SetStateAction<OpenPageState>>
+  showInclusiveTaxPrice?: boolean
 }
 
 const initialState: GlabolState = {
@@ -54,6 +55,7 @@ const initialState: GlabolState = {
   },
   enteredInclusive: false,
   setOpenPageFn: undefined,
+  showInclusiveTaxPrice: false,
 }
 
 export const glabolSlice = createSlice({
@@ -82,6 +84,9 @@ export const glabolSlice = createSlice({
         Dispatch<SetStateAction<OpenPageState>>
       >
     },
+    setShowInclusiveTaxPrice: (state, { payload }: PayloadAction<boolean>) => {
+      state.showInclusiveTaxPrice = payload as Draft<boolean>
+    },
   },
 })
 
@@ -91,6 +96,7 @@ export const {
   setGlabolCommonState,
   setEnteredInclusive,
   setOpenPageReducer,
+  setShowInclusiveTaxPrice,
 } = glabolSlice.actions
 
 export default glabolSlice.reducer

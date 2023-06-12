@@ -46,7 +46,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
   } = props
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax },
+    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
   } = store.getState()
 
   const {
@@ -62,7 +62,13 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     taxPrice = 0,
   } = shoppingDetail
 
-  const price = enteredInclusiveTax ? +basePrice : +basePrice + +taxPrice
+  let price: number
+  if (enteredInclusiveTax) {
+    price = showInclusiveTaxPrice ? +basePrice : +basePrice - +taxPrice
+  } else {
+    price = showInclusiveTaxPrice ? +basePrice + +taxPrice : +basePrice
+  }
+
   const total = price * +quantity
 
   const product: any = {

@@ -166,6 +166,11 @@ const taxZoneRates = () => `{
         taxClassId,
       }
     },
+    priceDisplaySettings {
+      showInclusive,
+      showBothOnDetailView,
+      showBothOnListView,
+    },
     enabled,
     id,
     name,

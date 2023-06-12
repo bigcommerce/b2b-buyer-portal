@@ -94,7 +94,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const { dispatch } = useContext(ShoppingListDetailsContext)
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax },
+    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
   } = store.getState()
 
   const theme = useTheme()
@@ -318,7 +318,12 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
           node: { quantity, basePrice, taxPrice },
         } = item
 
-        const price = enteredInclusiveTax ? +basePrice : +basePrice + +taxPrice
+        let price: number
+        if (enteredInclusiveTax) {
+          price = showInclusiveTaxPrice ? +basePrice : +basePrice - +taxPrice
+        } else {
+          price = showInclusiveTaxPrice ? +basePrice + +taxPrice : +basePrice
+        }
 
         total += price * +quantity
       })

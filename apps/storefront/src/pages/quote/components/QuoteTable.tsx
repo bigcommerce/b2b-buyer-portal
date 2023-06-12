@@ -117,7 +117,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const quoteProductQtyMaxLimit = 1000000
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax },
+    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
   } = store.getState()
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -218,6 +218,8 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         variants = [],
         basePrice,
         taxPrice = 0,
+        calculatedNoTaxPrice = 0,
+        calculatedTaxPrice = 0,
       } = product
 
       const variantInfo =
@@ -258,6 +260,8 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           },
           quantity,
           variantSku,
+          calculatedTaxPrice,
+          calculatedNoTaxPrice,
         },
       }
     })
@@ -385,9 +389,16 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       render: (row: CustomFieldItems) => {
         const { basePrice, taxPrice } = row
 
-        const inTaxPrice = enteredInclusiveTax
-          ? +basePrice
-          : +basePrice + +taxPrice
+        let inTaxPrice: number
+        if (enteredInclusiveTax) {
+          inTaxPrice = showInclusiveTaxPrice
+            ? +basePrice
+            : +basePrice - +taxPrice
+        } else {
+          inTaxPrice = showInclusiveTaxPrice
+            ? +basePrice + +taxPrice
+            : +basePrice
+        }
 
         return (
           <Typography
@@ -439,9 +450,17 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       title: 'Total',
       render: (row: CustomFieldItems) => {
         const { basePrice, quantity, taxPrice } = row
-        const inTaxPrice = enteredInclusiveTax
-          ? +basePrice
-          : +basePrice + +taxPrice
+
+        let inTaxPrice: number
+        if (enteredInclusiveTax) {
+          inTaxPrice = showInclusiveTaxPrice
+            ? +basePrice
+            : +basePrice - +taxPrice
+        } else {
+          inTaxPrice = showInclusiveTaxPrice
+            ? +basePrice + +taxPrice
+            : +basePrice
+        }
         const total = inTaxPrice * +quantity
         const optionList = JSON.parse(row.optionList)
 

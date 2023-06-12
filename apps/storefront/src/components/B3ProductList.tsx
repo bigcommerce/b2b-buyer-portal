@@ -17,6 +17,7 @@ import { noop } from 'lodash'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
+import { store } from '@/store'
 import { currencyFormat } from '@/utils'
 
 import { ProductItem } from '../types'
@@ -151,6 +152,10 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
   const [isMobile] = useMobile()
 
+  const {
+    global: { showInclusiveTaxPrice },
+  } = store.getState()
+
   const getQuantity = (product: any) =>
     parseInt(product[quantityKey]?.toString() || '', 10) || ''
 
@@ -270,14 +275,16 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
         if (currentVariant) {
           const bcCalculatedPrice = currentVariant.bc_calculated_price
 
-          productPrice = +bcCalculatedPrice.tax_inclusive
+          productPrice = showInclusiveTaxPrice
+            ? +bcCalculatedPrice.tax_inclusive
+            : +bcCalculatedPrice.tax_exclusive
         }
 
         if (!currentVariant) {
           const priceIncTax = product?.price_inc_tax || product.base_price
           const priceExTax = product?.price_ex_tax || product.base_price
 
-          productPrice = +priceIncTax || +priceExTax
+          productPrice = showInclusiveTaxPrice ? +priceIncTax : +priceExTax
         }
 
         return (
