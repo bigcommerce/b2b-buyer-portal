@@ -296,7 +296,6 @@ export default function Login(props: RegisteredProps) {
                   {loginInfo.widgetHeadText && (
                     <LoginWidget
                       sx={{
-                        bgcolor: '#D9D9D9',
                         mt: isMobile ? '20px' : '32px',
                         minHeight: '48px',
                       }}
@@ -345,7 +344,6 @@ export default function Login(props: RegisteredProps) {
                   {loginInfo.widgetFooterText && (
                     <LoginWidget
                       sx={{
-                        bgcolor: '#D9D9D9',
                         mt: '20px',
                         minHeight: '48px',
                       }}
