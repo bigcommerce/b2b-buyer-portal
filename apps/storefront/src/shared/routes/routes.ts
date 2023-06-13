@@ -76,15 +76,6 @@ export interface RouteFirstLevelItem extends RouteItemBasic {
 
 const routes: RouteItem[] = [
   {
-    path: '/',
-    name: '',
-    wsKey: 'router-orders',
-    isMenuItem: false,
-    component: HomePage,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
-    isTokenLogin: true,
-  },
-  {
     path: '/dashboard',
     name: 'Dashboard',
     wsKey: 'router-orders',
@@ -221,6 +212,13 @@ const routes: RouteItem[] = [
 ]
 
 const firstLevelRouting: RouteFirstLevelItem[] = [
+  {
+    path: '/',
+    name: '',
+    component: HomePage,
+    permissions: [0, 1, 2, 3, 4, 99, 100],
+    isProvider: false,
+  },
   {
     path: '/registered',
     name: 'registered',
