@@ -2,8 +2,8 @@ import { Delete, Edit } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { store } from '@/store'
 import { currencyFormat } from '@/utils'
+import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
 
@@ -45,16 +45,7 @@ function QuoteTableCard(props: QuoteTableCardProps) {
     taxPrice = 0,
   } = quoteTableItem
 
-  const {
-    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
-  } = store.getState()
-
-  let price: number
-  if (enteredInclusiveTax) {
-    price = showInclusiveTaxPrice ? +basePrice : +basePrice - +taxPrice
-  } else {
-    price = showInclusiveTaxPrice ? +basePrice + +taxPrice : +basePrice
-  }
+  const price = getBCPrice(+basePrice, +taxPrice)
 
   const total = price * +quantity
 

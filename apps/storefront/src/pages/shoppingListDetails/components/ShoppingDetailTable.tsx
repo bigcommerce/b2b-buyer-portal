@@ -23,6 +23,7 @@ import {
 } from '@/shared/service/b2b'
 import { store } from '@/store'
 import { currencyFormat, snackbar } from '@/utils'
+import { getBCPrice } from '@/utils/b3Product/b3Product'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
@@ -146,7 +147,7 @@ function ShoppingDetailTable(
   } = props
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
+    global: { showInclusiveTaxPrice },
   } = store.getState()
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -331,14 +332,9 @@ function ShoppingDetailTable(
         totalTax,
       } = shoppingListInfo
 
-      let price: number
-      if (enteredInclusiveTax) {
-        price = showInclusiveTaxPrice ? +grandTotal : +grandTotal - +totalTax
-      } else {
-        price = showInclusiveTaxPrice ? +grandTotal + +totalTax : +grandTotal
-      }
-
-      const NewShoppingListTotalPrice = price || 0.0
+      const NewShoppingListTotalPrice = showInclusiveTaxPrice
+        ? +grandTotal
+        : +grandTotal - +totalTax || 0.0
 
       setOriginProducts(cloneDeep(edges))
       setShoppingListTotalPrice(NewShoppingListTotalPrice)
@@ -420,16 +416,8 @@ function ShoppingDetailTable(
       title: 'Price',
       render: (row: CustomFieldItems) => {
         const { basePrice, taxPrice = 0 } = row
-        let inTaxPrice: number
-        if (enteredInclusiveTax) {
-          inTaxPrice = showInclusiveTaxPrice
-            ? +basePrice
-            : +basePrice - +taxPrice
-        } else {
-          inTaxPrice = showInclusiveTaxPrice
-            ? +basePrice + +taxPrice
-            : +basePrice
-        }
+        const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
+
         return (
           <Typography
             sx={{
@@ -487,16 +475,8 @@ function ShoppingDetailTable(
           taxPrice = 0,
         } = row
 
-        let inTaxPrice: number
-        if (enteredInclusiveTax) {
-          inTaxPrice = showInclusiveTaxPrice
-            ? +basePrice
-            : +basePrice - +taxPrice
-        } else {
-          inTaxPrice = showInclusiveTaxPrice
-            ? +basePrice + +taxPrice
-            : +basePrice
-        }
+        const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
+
         const totalPrice = inTaxPrice * +quantity
 
         const optionList = options || JSON.parse(row.optionList)

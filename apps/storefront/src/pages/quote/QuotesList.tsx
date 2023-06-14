@@ -246,7 +246,7 @@ function QuotesList() {
           createdBy: `${customer.firstName} ${customer.lastName}`,
           updatedAt: '—',
           expiredAt: '—',
-          totalAmount: summaryPrice?.subtotal,
+          totalAmount: summaryPrice?.grandTotal,
           status: 0,
           taxTotal: summaryPrice?.tax,
         },
