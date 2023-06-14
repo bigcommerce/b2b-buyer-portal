@@ -298,6 +298,7 @@ export default function AddToQuote(props: AddToListProps) {
             setIsOpen={setIsOpenBulkLoadCSV}
             handleAddToList={handleCSVAddToList}
             isLoading={isLoading}
+            withModifiers
           />
         </B3CollapseContainer>
       </CardContent>
