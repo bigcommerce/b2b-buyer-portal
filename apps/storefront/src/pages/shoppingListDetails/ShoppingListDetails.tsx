@@ -23,12 +23,12 @@ import {
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b'
-import { store } from '@/store'
 import {
   calculateProductListPrice,
   getDefaultCurrencyInfo,
   snackbar,
 } from '@/utils'
+import { getBCPrice } from '@/utils/b3Product/b3Product'
 import {
   conversionProductsList,
   CustomerInfoProps,
@@ -92,10 +92,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const navigate = useNavigate()
   const [isMobile] = useMobile()
   const { dispatch } = useContext(ShoppingListDetailsContext)
-
-  const {
-    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
-  } = store.getState()
 
   const theme = useTheme()
 
@@ -318,12 +314,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
           node: { quantity, basePrice, taxPrice },
         } = item
 
-        let price: number
-        if (enteredInclusiveTax) {
-          price = showInclusiveTaxPrice ? +basePrice : +basePrice - +taxPrice
-        } else {
-          price = showInclusiveTaxPrice ? +basePrice + +taxPrice : +basePrice
-        }
+        const price = getBCPrice(+basePrice, +taxPrice)
 
         total += price * +quantity
       })

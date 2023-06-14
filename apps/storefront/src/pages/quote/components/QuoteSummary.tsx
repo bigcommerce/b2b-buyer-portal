@@ -9,6 +9,7 @@ import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
 import { store } from '@/store'
 import { B3LStorage, currencyFormat } from '@/utils'
+import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 interface Summary {
   subtotal: number
@@ -30,10 +31,10 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
   })
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
+    global: { showInclusiveTaxPrice },
   } = store.getState()
 
-  const priceCalc = (price: number) => parseFloat(price.toFixed(2))
+  const priceCalc = (price: number) => parseFloat(String(price))
 
   const getSummary = () => {
     const productList = B3LStorage.get('b2bQuoteDraftList') || []
@@ -46,12 +47,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
 
         const { shipping } = summary
 
-        let price: number
-        if (enteredInclusiveTax) {
-          price = showInclusiveTaxPrice ? +basePrice : +basePrice - +productTax
-        } else {
-          price = showInclusiveTaxPrice ? +basePrice + +productTax : +basePrice
-        }
+        const price = getBCPrice(+basePrice, +productTax)
 
         subtotal += priceCalc(price * quantity)
         tax += priceCalc(+productTax * +quantity)

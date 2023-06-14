@@ -20,6 +20,7 @@ import {
   currencyFormat,
   snackbar,
 } from '@/utils'
+import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 import {
   AllOptionProps,
@@ -115,7 +116,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   } = props
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
+    global: { showInclusiveTaxPrice },
   } = store.getState()
 
   const [quantity, setQuantity] = useState<number | string>(1)
@@ -421,16 +422,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
           if (products.length) {
             const { basePrice, taxPrice } = products[0]
-            let price: number
-            if (enteredInclusiveTax) {
-              price = showInclusiveTaxPrice
-                ? +basePrice
-                : +basePrice - +taxPrice
-            } else {
-              price = showInclusiveTaxPrice
-                ? +basePrice + +taxPrice
-                : +basePrice
-            }
+            const price = getBCPrice(+basePrice, +taxPrice)
             setNewPrice(price)
           }
         }

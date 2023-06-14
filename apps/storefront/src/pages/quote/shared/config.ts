@@ -1,4 +1,6 @@
+import { store } from '@/store'
 import { B3LStorage } from '@/utils'
+import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 interface AdditionalCalculatedPricesProps {
   additionalCalculatedPrice: number
@@ -79,11 +81,16 @@ const priceCalc = (price: number) => parseFloat(price.toFixed(2))
 
 export const addPrice = () => {
   const productList = B3LStorage.get('b2bQuoteDraftList') || []
+
+  const {
+    global: { showInclusiveTaxPrice },
+  } = store.getState()
+
   const newQuoteSummary = productList.reduce(
     (summary: Summary, product: CustomFieldItems) => {
       const {
         basePrice,
-        tax: productTax,
+        taxPrice: productTax = 0,
         quantity,
         additionalCalculatedPrices = [],
       } = product.node
@@ -101,10 +108,15 @@ export const addPrice = () => {
         additionalCalculatedPrice += item.additionalCalculatedPrice
       })
 
-      subtotal += priceCalc((+basePrice + additionalCalculatedPrice) * quantity)
+      subtotal += priceCalc(
+        getBCPrice(+basePrice + additionalCalculatedPrice, +productTax) *
+          quantity
+      )
       tax += priceCalc((+productTax + additionalCalculatedPriceTax) * quantity)
 
-      grandTotal = subtotal + shipping
+      grandTotal = showInclusiveTaxPrice
+        ? subtotal + shipping
+        : subtotal + shipping + tax
 
       return {
         grandTotal,

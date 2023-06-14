@@ -201,7 +201,7 @@ export function B3Table<T>({
                 />
               )
               return (
-                <Grid item xs={12} key={node[tableKey || 'id']}>
+                <Grid item xs={12} key={`${node[tableKey || 'id'] + index}`}>
                   {node && renderItem && renderItem(node, index, checkBox)}
                 </Grid>
               )
@@ -244,7 +244,11 @@ export function B3Table<T>({
             {listItems.map((row, index) => {
               const node = row.node || row || {}
               return (
-                <Grid item xs={itemXs} key={node[tableKey || 'id']}>
+                <Grid
+                  item
+                  xs={itemXs}
+                  key={`${node[tableKey || 'id'] + index}`}
+                >
                   {node && renderItem && renderItem(node, index)}
                 </Grid>
               )
@@ -336,7 +340,7 @@ export function B3Table<T>({
                       : 'none'
                   return (
                     <TableRow
-                      key={node[tableKey || 'id']}
+                      key={`${node[tableKey || 'id'] + index}`}
                       hover={hover}
                       onClick={() => onClickRow?.(node, index)}
                       sx={clickableRowStyles}

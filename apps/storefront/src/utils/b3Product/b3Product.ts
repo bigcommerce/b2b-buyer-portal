@@ -5,7 +5,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { store } from '@/store/reducer'
+import { setEnteredInclusive, store } from '@/store'
 import {
   AdjustersPrice,
   AllOptionProps,
@@ -532,6 +532,8 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   const calculatedNoTaxPrice = calculatedPrice.tax_exclusive
   let enteredPrice = calculatedPrice.as_entered
   const enteredInclusive = calculatedPrice.entered_inclusive
+  store.dispatch(setEnteredInclusive(enteredInclusive))
+  B3SStorage.set('enteredInclusiveTax', enteredInclusive)
 
   const tax = (calculatedTaxPrice - calculatedNoTaxPrice).toFixed(2)
 
@@ -990,12 +992,28 @@ const calculateIsInclude = (price: number | string, tax: number | string) => {
   return +price + +tax
 }
 
+const getBCPrice = (basePrice: number, taxPrice: number) => {
+  const {
+    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
+  } = store.getState()
+
+  let price: number
+  if (enteredInclusiveTax) {
+    price = showInclusiveTaxPrice ? basePrice : basePrice - taxPrice
+  } else {
+    price = showInclusiveTaxPrice ? basePrice + taxPrice : basePrice
+  }
+
+  return price
+}
+
 export {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
   calculateIsInclude,
   calculateProductListPrice,
   compareOption,
+  getBCPrice,
   getCalculatedParams,
   getCalculatedProductPrice,
   getModifiersPrice,

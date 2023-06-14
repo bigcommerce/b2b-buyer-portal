@@ -6,7 +6,6 @@ import { ceil } from 'lodash'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { store } from '@/store'
 import {
   B3LStorage,
   calculateProductListPrice,
@@ -14,6 +13,7 @@ import {
   setModifierQtyPrice,
   snackbar,
 } from '@/utils'
+import { getBCPrice } from '@/utils/b3Product/b3Product'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import ChooseOptionsDialog from '../../shoppingListDetails/components/ChooseOptionsDialog'
@@ -115,10 +115,6 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     updateList,
   } = props
   const quoteProductQtyMaxLimit = 1000000
-
-  const {
-    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
-  } = store.getState()
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
@@ -389,16 +385,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       render: (row: CustomFieldItems) => {
         const { basePrice, taxPrice } = row
 
-        let inTaxPrice: number
-        if (enteredInclusiveTax) {
-          inTaxPrice = showInclusiveTaxPrice
-            ? +basePrice
-            : +basePrice - +taxPrice
-        } else {
-          inTaxPrice = showInclusiveTaxPrice
-            ? +basePrice + +taxPrice
-            : +basePrice
-        }
+        const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
 
         return (
           <Typography
@@ -451,16 +438,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       render: (row: CustomFieldItems) => {
         const { basePrice, quantity, taxPrice } = row
 
-        let inTaxPrice: number
-        if (enteredInclusiveTax) {
-          inTaxPrice = showInclusiveTaxPrice
-            ? +basePrice
-            : +basePrice - +taxPrice
-        } else {
-          inTaxPrice = showInclusiveTaxPrice
-            ? +basePrice + +taxPrice
-            : +basePrice
-        }
+        const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
         const total = inTaxPrice * +quantity
         const optionList = JSON.parse(row.optionList)
 
