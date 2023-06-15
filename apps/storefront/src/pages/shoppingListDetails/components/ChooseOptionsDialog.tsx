@@ -140,7 +140,9 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
       const modifiers =
         product?.modifiers?.filter(
-          (modifier) => modifier.type === 'product_list_with_images'
+          (modifier) =>
+            modifier.type === 'product_list_with_images' ||
+            modifier.type === 'product_list'
         ) || []
       const productImages: SimpleObject = {}
       const additionalProductsParams: CustomFieldItems = {}
@@ -217,7 +219,6 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setChooseOptionsForm(product)
       setChooseOptionsProduct([])
       setNewPrice(0)
-      setFormFields([])
       if (product?.allOptions?.length) {
         getProductPriceOptions(product)
       }
