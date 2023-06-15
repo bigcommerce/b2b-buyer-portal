@@ -1,5 +1,6 @@
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
+import { store } from '@/store'
 import { currencyFormat } from '@/utils'
 
 interface Summary {
@@ -12,15 +13,34 @@ interface Summary {
 
 interface QuoteDetailSummaryProps {
   quoteSummary: Summary
+  discountType: number
 }
 
 export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
   const {
     quoteSummary: { originalSubtotal, discount, tax, shipping, totalAmount },
+    discountType = 0,
   } = props
 
+  const {
+    global: { showInclusiveTaxPrice },
+  } = store.getState()
+
+  let subtotalPrice = +originalSubtotal
+  let quotedSubtotal = +originalSubtotal - +discount
+  if (showInclusiveTaxPrice) {
+    const taxTotal =
+      +shipping === 0
+        ? +tax
+        : +totalAmount + +discount - +shipping - subtotalPrice
+    const taxRate =
+      discountType === 2 ? taxTotal / subtotalPrice : taxTotal / quotedSubtotal
+
+    subtotalPrice *= 1 + taxRate
+    quotedSubtotal += taxTotal
+  }
+
   const priceFormat = (price: number) => `${currencyFormat(price)}`
-  const quotedSubtotal = +originalSubtotal - +discount
 
   return (
     <Card>
@@ -41,7 +61,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
               }}
             >
               <Typography>Original subtotal</Typography>
-              <Typography>{priceFormat(+originalSubtotal)}</Typography>
+              <Typography>{priceFormat(subtotalPrice)}</Typography>
             </Grid>
             <Grid
               container
@@ -78,7 +98,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   color: '#212121',
                 }}
               >
-                {priceFormat(+quotedSubtotal)}
+                {priceFormat(quotedSubtotal)}
               </Typography>
             </Grid>
 

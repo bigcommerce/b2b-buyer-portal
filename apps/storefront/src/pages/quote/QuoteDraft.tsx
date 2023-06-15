@@ -37,7 +37,6 @@ import {
   snackbar,
   storeHash,
 } from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config'
 import { convertBCToB2BAddress } from '../address/shared/config'
@@ -120,7 +119,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   } = useContext(GlobaledContext)
 
   const {
-    global: { showInclusiveTaxPrice },
+    global: { enteredInclusive: enteredInclusiveTax },
   } = store.getState()
 
   const {
@@ -468,23 +467,19 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           (item: CustomFieldItems) => item.sku === node.variantSku
         )
 
-        allPrice +=
-          getBCPrice(+(node?.basePrice || 0), +(node?.taxPrice || 0)) *
-          +(node?.quantity || 0)
+        // const salePrice = getBCPrice(+(node?.basePrice || 0), +(node?.taxPrice || 0))
+
+        allPrice += +(node?.basePrice || 0) * +(node?.quantity || 0)
 
         allTaxPrice += +(node?.taxPrice || 0) * +(node?.quantity || 0)
 
-        const price = getBCPrice(
-          +(node?.basePrice || 0),
-          +(node?.taxPrice || 0)
-        ).toFixed(2)
         const items = {
           productId: node.productsSearch.id,
           sku: node.variantSku,
-          basePrice: price,
+          basePrice: (+(node?.basePrice || 0)).toFixed(2),
           // taxPrice: (+node.taxPrice).toFixed(2),
           discount: '0.00',
-          offeredPrice: price,
+          offeredPrice: (+(node?.basePrice || 0)).toFixed(2),
           quantity: node.quantity,
           variantId: varantsItem.variant_id,
           imageUrl: node.primaryImage,
@@ -503,7 +498,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         // notes: note,
         message: newNote,
         legalTerms: '',
-        totalAmount: showInclusiveTaxPrice
+        totalAmount: enteredInclusiveTax
           ? allPrice.toFixed(2)
           : (allPrice + allTaxPrice).toFixed(2),
         grandTotal: allPrice.toFixed(2),

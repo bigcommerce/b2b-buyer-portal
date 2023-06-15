@@ -4,7 +4,9 @@ import { Box, styled, Typography } from '@mui/material'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { store, TaxZoneRates, TaxZoneRatesProps } from '@/store'
 import { currencyFormat } from '@/utils'
+import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 import QuoteDetailTableCard from './QuoteDetailTableCard'
 
@@ -92,6 +94,24 @@ const StyledImage = styled('img')(() => ({
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const { total, getQuoteTableDetails } = props
 
+  const {
+    global: { taxZoneRates },
+  } = store.getState()
+
+  const classRates: TaxZoneRates[] = []
+  if (taxZoneRates.length) {
+    const defaultTaxZone: TaxZoneRatesProps = taxZoneRates.find(
+      (taxZone: { id: number }) => taxZone.id === 1
+    )
+    if (defaultTaxZone) {
+      const { rates } = defaultTaxZone
+      const { enabled } = rates[0]
+      if (enabled && rates[0].classRates.length) {
+        rates[0].classRates.forEach((rate) => classRates.push(rate))
+      }
+    }
+  }
+
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
   const [search, setSearch] = useState<SearchProps>({
@@ -107,6 +127,25 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       })
     },
   }))
+
+  const getTaxRate = (taxClassId: number, variants: any) => {
+    if (variants.length) {
+      const {
+        bc_calculated_price: {
+          tax_exclusive: taxExclusive,
+          tax_inclusive: taxInclusive,
+        },
+      } = variants[0]
+      return (taxInclusive - taxExclusive) / taxExclusive
+    }
+    if (classRates.length) {
+      return (
+        (classRates.find((rate) => rate.taxClassId === taxClassId)?.rate || 0) /
+        100
+      )
+    }
+    return 0
+  }
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
@@ -192,7 +231,18 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       key: 'Price',
       title: 'Price',
       render: (row: CustomFieldItems) => {
-        const { basePrice, offeredPrice } = row
+        const {
+          basePrice,
+          offeredPrice,
+          productsSearch: { variants = [], taxClassId },
+        } = row
+
+        const taxRate = getTaxRate(taxClassId, variants)
+        const taxPrice = +basePrice * taxRate
+        const discountTaxPrice = +offeredPrice * taxRate
+
+        const price = getBCPrice(+basePrice, taxPrice)
+        const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
 
         const isDiscount = +basePrice - +offeredPrice > 0
 
@@ -205,7 +255,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(+basePrice)}`}
+                {`${currencyFormat(price)}`}
               </Typography>
             )}
 
@@ -215,7 +265,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(offeredPrice)}`}
+              {`${currencyFormat(discountPrice)}`}
             </Typography>
           </>
         )
@@ -246,11 +296,23 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       key: 'Total',
       title: 'Total',
       render: (row: CustomFieldItems) => {
-        const { basePrice, quantity, offeredPrice } = row
+        const {
+          basePrice,
+          quantity,
+          offeredPrice,
+          productsSearch: { variants = [], taxClassId },
+        } = row
+
+        const taxRate = getTaxRate(taxClassId, variants)
+        const taxPrice = +basePrice * taxRate
+        const discountTaxPrice = +offeredPrice * taxRate
+
+        const price = getBCPrice(+basePrice, taxPrice)
+        const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
         const isDiscount = +basePrice - +offeredPrice > 0
 
-        const total = +basePrice * +quantity
-        const totalWithDiscount = +offeredPrice * +quantity
+        const total = price * +quantity
+        const totalWithDiscount = discountPrice * +quantity
 
         return (
           <Box>

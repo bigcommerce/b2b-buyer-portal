@@ -413,7 +413,10 @@ function QuoteDetail() {
                 marginBottom: '1rem',
               }}
             >
-              <QuoteDetailSummary quoteSummary={quoteSummary} />
+              <QuoteDetailSummary
+                quoteSummary={quoteSummary}
+                discountType={quoteDetail?.discountType}
+              />
             </Box>
 
             {quoteDetail.notes && (
