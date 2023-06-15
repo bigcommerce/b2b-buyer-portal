@@ -27,6 +27,8 @@ import { loginCheckout, LoginConfig } from '../login/config'
 
 import { RegisteredContext } from './context/RegisteredContext'
 import {
+  AccountFormFieldsItems,
+  b2bAddressRequiredFields,
   companyAttachmentsFields,
   getAccountFormFields,
   RegisterFields,
@@ -105,11 +107,25 @@ function Registered(props: RegisteredProps) {
 
         const accountFormFields = await Promise.all(accountFormAllFields)
 
+        const newB2bAccountFormFields: AccountFormFieldsItems[] = (
+          accountFormFields[1]?.accountFormFields || []
+        ).map((fields: AccountFormFieldsItems) => {
+          if (
+            b2bAddressRequiredFields.includes(fields?.fieldId || '') &&
+            fields.groupId === 4
+          ) {
+            fields.isRequired = true
+            fields.visible = true
+          }
+
+          return fields
+        })
+
         const bcAccountFormFields = getAccountFormFields(
           accountFormFields[0]?.accountFormFields || []
         )
         const b2bAccountFormFields = getAccountFormFields(
-          accountFormFields[1]?.accountFormFields || []
+          newB2bAccountFormFields || []
         )
 
         const { countries } = await getB2BCountries()
@@ -121,6 +137,10 @@ function Registered(props: RegisteredProps) {
             ): Partial<RegisterFieldsItems> => {
               if (addressFields.name === 'country') {
                 addressFields.options = countries
+                addressFields.replaceOptions = {
+                  label: 'countryName',
+                  value: 'countryName',
+                }
               }
               return addressFields
             }

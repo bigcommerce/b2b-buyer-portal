@@ -61,6 +61,11 @@ export interface AccountFormFieldsItems {
 
 type AccountFormFieldsList = Array<[]> | Array<AccountFormFieldsItems>
 
+interface ReplaceOptionsProps {
+  label: string
+  value: string
+}
+
 export interface RegisterFieldsItems {
   id?: string | number
   name: string
@@ -77,6 +82,7 @@ export interface RegisterFieldsItems {
   groupName: string
   options?: any
   disabled: boolean
+  replaceOptions?: ReplaceOptionsProps
 }
 
 export const steps = [
@@ -183,6 +189,13 @@ const classificationType = (item: CustomFieldItems) => {
 }
 
 const noEncryptFieldList = ['country', 'state', 'email']
+export const b2bAddressRequiredFields = [
+  'field_country',
+  'field_address_1',
+  'field_city',
+  'field_state',
+  'field_zip_code',
+]
 
 const groupItems = {
   1: 'contactInformation',
