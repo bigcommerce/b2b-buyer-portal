@@ -29,6 +29,8 @@ import {
 
 import { RegisteredContext } from './context/RegisteredContext'
 import {
+  AccountFormFieldsItems,
+  b2bAddressRequiredFields,
   Country,
   deCodeField,
   getAccountFormFields,
@@ -130,8 +132,22 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
         const accountFormAllFields = await getB2BAccountFormFields(3)
 
-        const bcToB2BAccountFormFields = getAccountFormFields(
+        const newAccountFormFields: AccountFormFieldsItems[] = (
           accountFormAllFields?.accountFormFields || []
+        ).map((fields: AccountFormFieldsItems) => {
+          if (
+            b2bAddressRequiredFields.includes(fields?.fieldId || '') &&
+            fields.groupId === 4
+          ) {
+            fields.isRequired = true
+            fields.visible = true
+          }
+
+          return fields
+        })
+
+        const bcToB2BAccountFormFields = getAccountFormFields(
+          newAccountFormFields || []
         )
         const { countries } = await getB2BCountries()
 
@@ -142,6 +158,10 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             ): Partial<RegisterFieldsItems> => {
               if (addressFields.name === 'country') {
                 addressFields.options = countries
+                addressFields.replaceOptions = {
+                  label: 'countryName',
+                  value: 'countryName',
+                }
               }
               return addressFields
             }
@@ -206,7 +226,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   const handleCountryChange = (countryCode: string, stateCode = '') => {
     const stateList =
       countryList.find(
-        (country: Country) => country.countryCode === countryCode
+        (country: Country) =>
+          country.countryCode === countryCode ||
+          country.countryName === countryCode
       )?.states || []
     const stateFields = bcTob2bAddressBasicFields.find(
       (formFields: RegisterFields) => formFields.name === 'state'
