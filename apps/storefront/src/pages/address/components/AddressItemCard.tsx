@@ -102,7 +102,11 @@ export function AddressItemCard(props: OrderItemCardProps) {
         <Typography variant="body1">{`${addressInfo.firstName} ${addressInfo.lastName}`}</Typography>
         <Typography variant="body1">{addressInfo.company || ''}</Typography>
         <Typography variant="body1">{addressInfo.addressLine1}</Typography>
-        <Typography variant="body1">{addressInfo.addressLine2}</Typography>
+        <Typography variant="body1">
+          {addressInfo.addressLine2 === 'undefined'
+            ? ''
+            : addressInfo.addressLine2}
+        </Typography>
         <Typography variant="body1">{`${addressInfo.city}, ${addressInfo.state} ${addressInfo.zipCode}, ${addressInfo.country}`}</Typography>
         <Typography variant="body1">{addressInfo.phoneNumber}</Typography>
 
