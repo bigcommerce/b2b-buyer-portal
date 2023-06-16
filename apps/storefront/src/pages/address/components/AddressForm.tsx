@@ -431,7 +431,12 @@ function AddressForm(
             }
           }
         } else {
-          setValue(field.name, addressData[field.name])
+          setValue(
+            field.name,
+            addressData[field.name] === 'undefined'
+              ? ''
+              : addressData[field.name]
+          )
         }
       })
     }

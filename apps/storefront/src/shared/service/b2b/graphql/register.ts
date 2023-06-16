@@ -92,7 +92,7 @@ const createCompanyUser = (data: any) => `mutation{
     companyPhoneNumber: "${data.companyPhoneNumber || ''}",
     country: "${data.country}",
     addressLine1: "${data.addressLine1}",
-    addressLine2: "${data.addressLine2}",
+    addressLine2: "${data.addressLine2 || ''}",
     city: "${data.city}",
     state: "${data.state}",
     zipCode: "${data.zip_code}",
