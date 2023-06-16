@@ -58,6 +58,8 @@ function QuoteDetail() {
   const [isShowFooter, setIsShowFooter] = useState(false)
   const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
+  const [quoteDetailTaxRate, setQuoteDetailTaxRate] = useState(0)
+
   const location = useLocation()
 
   const handleGetProductsById = async (listProducts: ProductInfoProps[]) => {
@@ -390,6 +392,7 @@ function QuoteDetail() {
               <QuoteDetailTable
                 total={productList.length}
                 getQuoteTableDetails={getQuoteTableDetails}
+                setQuoteDetailTaxRate={setQuoteDetailTaxRate}
               />
             </Box>
           </Grid>
@@ -415,7 +418,7 @@ function QuoteDetail() {
             >
               <QuoteDetailSummary
                 quoteSummary={quoteSummary}
-                discountType={quoteDetail?.discountType}
+                quoteDetailTaxRate={quoteDetailTaxRate}
               />
             </Box>
 

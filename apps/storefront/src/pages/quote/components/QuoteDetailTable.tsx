@@ -42,7 +42,11 @@ interface ListItemProps {
 
 interface ShoppingDetailTableProps {
   total: number
-  getQuoteTableDetails: any
+  getQuoteTableDetails: (params: any) => Promise<{
+    edges: any[]
+    totalCount: number
+  }>
+  setQuoteDetailTaxRate: React.Dispatch<React.SetStateAction<number>>
 }
 
 interface SearchProps {
@@ -92,10 +96,10 @@ const StyledImage = styled('img')(() => ({
 }))
 
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
-  const { total, getQuoteTableDetails } = props
+  const { total, getQuoteTableDetails, setQuoteDetailTaxRate } = props
 
   const {
-    global: { taxZoneRates },
+    global: { taxZoneRates, enteredInclusive: enteredInclusiveTax },
   } = store.getState()
 
   const classRates: TaxZoneRates[] = []
@@ -238,8 +242,13 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         } = row
 
         const taxRate = getTaxRate(taxClassId, variants)
-        const taxPrice = +basePrice * taxRate
-        const discountTaxPrice = +offeredPrice * taxRate
+        setQuoteDetailTaxRate(taxRate)
+        const taxPrice = enteredInclusiveTax
+          ? (+basePrice * taxRate) / (1 + taxRate)
+          : +basePrice * taxRate
+        const discountTaxPrice = enteredInclusiveTax
+          ? (+offeredPrice * taxRate) / (1 + taxRate)
+          : +offeredPrice * taxRate
 
         const price = getBCPrice(+basePrice, taxPrice)
         const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
@@ -304,8 +313,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         } = row
 
         const taxRate = getTaxRate(taxClassId, variants)
-        const taxPrice = +basePrice * taxRate
-        const discountTaxPrice = +offeredPrice * taxRate
+        const taxPrice = enteredInclusiveTax
+          ? (+basePrice * taxRate) / (1 + taxRate)
+          : +basePrice * taxRate
+        const discountTaxPrice = enteredInclusiveTax
+          ? (+offeredPrice * taxRate) / (1 + taxRate)
+          : +offeredPrice * taxRate
 
         const price = getBCPrice(+basePrice, taxPrice)
         const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
