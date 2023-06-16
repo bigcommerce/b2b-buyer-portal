@@ -13,31 +13,38 @@ interface Summary {
 
 interface QuoteDetailSummaryProps {
   quoteSummary: Summary
-  discountType: number
+  quoteDetailTaxRate: number
 }
 
 export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
   const {
     quoteSummary: { originalSubtotal, discount, tax, shipping, totalAmount },
-    discountType = 0,
+    quoteDetailTaxRate: taxRates = 0,
   } = props
 
   const {
     global: { showInclusiveTaxPrice },
   } = store.getState()
 
-  let subtotalPrice = +originalSubtotal
-  let quotedSubtotal = +originalSubtotal - +discount
-  if (showInclusiveTaxPrice) {
-    const taxTotal =
-      +shipping === 0
-        ? +tax
-        : +totalAmount + +discount - +shipping - subtotalPrice
-    const taxRate =
-      discountType === 2 ? taxTotal / subtotalPrice : taxTotal / quotedSubtotal
+  const subtotalPrice = +originalSubtotal
+  const quotedSubtotal = +originalSubtotal - +discount
+  const taxTotal =
+    +shipping === 0
+      ? +tax
+      : +totalAmount + +discount - +shipping - subtotalPrice
+  let enteredInclusiveTax = false
 
-    subtotalPrice *= 1 + taxRate
-    quotedSubtotal += taxTotal
+  if (+shipping) {
+    enteredInclusiveTax = +shipping > taxTotal
+  } else {
+    enteredInclusiveTax = +totalAmount + +discount === +originalSubtotal
+  }
+
+  const getCurrentPrice = (price: number, taxRate: number) => {
+    if (enteredInclusiveTax) {
+      return showInclusiveTaxPrice ? price : price / (1 + taxRate)
+    }
+    return showInclusiveTaxPrice ? price * (1 + taxRate) : price
   }
 
   const priceFormat = (price: number) => `${currencyFormat(price)}`
@@ -61,7 +68,9 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
               }}
             >
               <Typography>Original subtotal</Typography>
-              <Typography>{priceFormat(subtotalPrice)}</Typography>
+              <Typography>
+                {priceFormat(getCurrentPrice(subtotalPrice, taxRates))}
+              </Typography>
             </Grid>
             <Grid
               container
@@ -98,7 +107,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   color: '#212121',
                 }}
               >
-                {priceFormat(quotedSubtotal)}
+                {priceFormat(getCurrentPrice(quotedSubtotal, taxRates))}
               </Typography>
             </Grid>
 
