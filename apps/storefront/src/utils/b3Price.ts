@@ -1,3 +1,5 @@
+import { isEmpty } from 'lodash'
+
 const getProductPriceIncTax = (
   variants: CustomFieldItems,
   variantId?: number,
@@ -8,13 +10,18 @@ const getProductPriceIncTax = (
       (item: CustomFieldItems) =>
         +item.variant_id === variantId || variantSku === item.sku
     ) || {}
-  const bcCalculatedPrice: {
-    tax_inclusive: number | string
-  } = currentVariantInfo.bc_calculated_price
 
-  const priceIncTax = +bcCalculatedPrice.tax_inclusive
+  if (!isEmpty(currentVariantInfo)) {
+    const bcCalculatedPrice: {
+      tax_inclusive: number | string
+    } = currentVariantInfo.bc_calculated_price
 
-  return priceIncTax
+    const priceIncTax = +bcCalculatedPrice.tax_inclusive
+
+    return priceIncTax
+  }
+
+  return false
 }
 
 export default getProductPriceIncTax
