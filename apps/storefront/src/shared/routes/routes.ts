@@ -306,8 +306,13 @@ const gotoAllowedAppPage = (
       matchPath(item.path, url) && item.permissions.includes(role)
   )
 
-  const isFirstLevelFlag = firstLevelRouting.some((item: RouteFirstLevelItem) =>
-    matchPath(item.path, url)
+  const isFirstLevelFlag = firstLevelRouting.some(
+    (item: RouteFirstLevelItem) => {
+      if (url.includes('/login?')) {
+        return true
+      }
+      return matchPath(item.path, url)
+    }
   )
   if (flag || isFirstLevelFlag) gotoPage(url)
 }
