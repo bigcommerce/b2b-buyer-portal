@@ -15,7 +15,10 @@ import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { defaultCreateAccountPanel } from '@/shared/customStyleButtton/context/config'
 import { GlobaledContext } from '@/shared/global'
-import { getBCForcePasswordReset } from '@/shared/service/b2b'
+import {
+  getBCForcePasswordReset,
+  superAdminEndMasquerade,
+} from '@/shared/service/b2b'
 import {
   bcLogin,
   // bcLogoutLogin,
@@ -71,7 +74,7 @@ export default function Login(props: RegisteredProps) {
   const b3Lang = useB3Lang()
 
   const {
-    state: { isCheckout, logo },
+    state: { isCheckout, logo, B3UserId, salesRepCompanyId = 0, isAgenting },
     dispatch,
   } = useContext(GlobaledContext)
 
@@ -127,6 +130,9 @@ export default function Login(props: RegisteredProps) {
         if (loginFlag === '3') {
           // await bcLogoutLogin()
 
+          if (isAgenting) {
+            await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
+          }
           dispatch({
             type: 'common',
             payload: {

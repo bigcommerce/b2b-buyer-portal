@@ -159,7 +159,6 @@ export default function App() {
         role: +role,
         isAgenting,
       }
-
       if (!customerId || isRelogin) {
         const info = await getCurrentCustomerInfo(dispatch)
         if (info) {
