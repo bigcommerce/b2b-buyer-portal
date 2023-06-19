@@ -294,6 +294,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       const newProductInfo: CustomFieldItems =
         conversionProductsList(productsSearch)
       let isSuccess = false
+      let errorMessage = ''
+      let isFondVariant = true
 
       const newProducts: CustomFieldItems[] = []
       productsWithSku.forEach((product: ListItemProps) => {
@@ -320,6 +322,11 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           (item: CustomFieldItems) => item.sku === variantSku
         )
 
+        if (!variantItem) {
+          errorMessage = `${variantSku} not found`
+          isFondVariant = false
+        }
+
         const quoteListitem = {
           node: {
             id: uuid(),
@@ -342,6 +349,20 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       })
 
       isSuccess = validProductQty(newProducts)
+
+      if (!isFondVariant) {
+        snackbar.error('', {
+          jsx: successTip({
+            message: errorMessage,
+            link: '',
+            linkText: '',
+            isOutLink: false,
+          }),
+          isClose: true,
+        })
+
+        return
+      }
 
       if (isSuccess) {
         await calculateProductListPrice(newProducts, '2')

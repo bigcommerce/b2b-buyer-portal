@@ -344,7 +344,8 @@ function QuickorderTable({
         } = row
         let priceIncTax = +basePrice
         if (variants?.length) {
-          priceIncTax = getProductPriceIncTax(variants, +variantId)
+          priceIncTax =
+            getProductPriceIncTax(variants, +variantId) || +basePrice
         }
 
         const withTaxPrice = priceIncTax || +basePrice
