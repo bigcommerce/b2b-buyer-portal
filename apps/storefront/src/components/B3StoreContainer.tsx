@@ -40,7 +40,6 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
       ) {
         showPageMask(dispatch, true)
       }
-      // if (!B3SStorage.get('bcJwtToken')) showPageMask(dispatch, true)
 
       try {
         const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()

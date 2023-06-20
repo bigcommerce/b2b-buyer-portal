@@ -102,13 +102,15 @@ const B3Request = {
     customMessage = false
   ): Promise<any> {
     const config = {
-      Authorization: `Bearer  ${B3SStorage.get('bcJwtToken') || ''}`,
+      Authorization: `Bearer  ${
+        B3SStorage.get('currentCustomerJWTToken') || ''
+      }`,
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
   graphqlBC: function post<T>(data: T): Promise<any> {
     const config = {
-      Authorization: `Bearer  ${B3SStorage.get('BcToken') || ''}`,
+      Authorization: `Bearer  ${B3SStorage.get('bcGraphqlToken') || ''}`,
     }
     return graphqlRequest(RequestType.BCGraphql, data, config)
   },

@@ -64,7 +64,6 @@ export interface TimeFormatProps {
 export interface GlobalState {
   isCheckout: boolean
   isCloseGotoBCHome: boolean
-  BcToken: string
   isB2BUser: boolean
   customerId: number | string
   customer: CustomerInfo
@@ -122,7 +121,6 @@ export interface GlobalState {
 export const initState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
-  BcToken: B3SStorage.get('BcToken') || '',
   isB2BUser: B3SStorage.get('isB2BUser') || false,
   customerId: B3SStorage.get('B3CustomerId') || '',
   B3UserId: B3SStorage.get('B3UserId') || '',

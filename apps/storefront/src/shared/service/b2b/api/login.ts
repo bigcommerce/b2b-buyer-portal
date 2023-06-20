@@ -1,5 +1,5 @@
 import getProxyInfo from './proxy'
 
-const getBCToken = getProxyInfo
+const getBCGraphqlToken = getProxyInfo
 
-export default getBCToken
+export default getBCGraphqlToken

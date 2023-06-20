@@ -19,6 +19,7 @@ import { GlobaledContext } from '@/shared/global'
 import { gotoAllowedAppPage } from '@/shared/routes'
 import { setChannelStoreType } from '@/shared/service/b2b'
 import {
+  B3SStorage,
   getCompanyUserInfo,
   getCurrentCustomerInfo,
   getQuoteEnabled,
@@ -43,7 +44,6 @@ export default function App() {
     state: {
       isB2BUser,
       customerId,
-      BcToken,
       role,
       realRole,
       B3UserId,
@@ -141,8 +141,9 @@ export default function App() {
     storeDispatch(setOpenPageReducer(setOpenPage))
     loginAndRegister()
     const init = async () => {
-      // bc token
-      if (!BcToken || isRelogin) {
+      // bc graphql token
+      const bcGraphqlToken = B3SStorage.get('bcGraphqlToken')
+      if (!bcGraphqlToken || isRelogin) {
         await loginInfo()
       }
       setChannelStoreType(currentChannelId)

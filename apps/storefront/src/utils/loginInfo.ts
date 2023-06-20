@@ -3,7 +3,7 @@ import {
   getAgentInfo,
   getB2BCompanyUserInfo,
   getB2BToken,
-  getBCToken,
+  getBCGraphqlToken,
   getUserCompany,
 } from '@/shared/service/b2b'
 import { getBcCurrentJWT, getCustomerInfo } from '@/shared/service/bc'
@@ -88,9 +88,9 @@ export const loginInfo = async () => {
   const loginTokenInfo = getloginTokenInfo(channelId)
   const {
     data: { token },
-  } = await getBCToken(loginTokenInfo)
+  } = await getBCGraphqlToken(loginTokenInfo)
 
-  B3SStorage.set('BcToken', token)
+  B3SStorage.set('bcGraphqlToken', token)
 }
 
 export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
@@ -99,7 +99,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('B3EmailAddress', '')
   B3SStorage.set('B3Role', '')
   B3SStorage.set('isB2BUser', false)
-  B3SStorage.set('bcJwtToken', '')
+  B3SStorage.set('currentCustomerJWTToken', '')
   B3SStorage.set('B3B2BToken', false)
   B3SStorage.set('B3UserId', '')
 
@@ -147,7 +147,7 @@ export const getCurrentJwt = async () => {
       app_client_id: VITE_B2B_CLIENT_ID,
     })
 
-    B3SStorage.set('bcJwtToken', res)
+    B3SStorage.set('currentCustomerJWTToken', res)
     return res
   } catch (error) {
     console.log(error)
@@ -155,14 +155,12 @@ export const getCurrentJwt = async () => {
   return undefined
 }
 
-const getCurrentJwtAndB2BToken = async (userType: number) => {
+const getB2BTokenWithJWTToken = async (userType: number, jwtToken: string) => {
   try {
-    const res = await getCurrentJwt()
-
     const channelId = B3SStorage.get('B3channelId') || 1
 
     if (userType === 3) {
-      const data = await getB2BToken(res, channelId)
+      const data = await getB2BToken(jwtToken, channelId)
       if (data) {
         const B3B2BToken = (data as B2BToken).authorization.result.token
         B3SStorage.set('B3B2BToken', B3B2BToken)
@@ -306,7 +304,10 @@ export const getCompanyUserInfo = async (
   return undefined
 }
 
-export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
+export const getCurrentCustomerInfo = async (
+  dispatch: DispatchProps,
+  jwtToken?: string
+) => {
   try {
     const {
       data: { customer },
@@ -332,7 +333,10 @@ export const getCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     if (companyUserInfo && customerId) {
       const { userType, role, id } = companyUserInfo
 
-      await getCurrentJwtAndB2BToken(userType)
+      await getB2BTokenWithJWTToken(
+        userType,
+        jwtToken || (await getCurrentJwt())
+      )
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(id, role, userType),
