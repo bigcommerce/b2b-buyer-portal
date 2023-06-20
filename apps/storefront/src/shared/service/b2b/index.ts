@@ -1,6 +1,6 @@
 import validateAddressExtraFields from './api/address'
 import { setChannelStoreType, uploadB2BFile } from './api/global'
-import getBCToken from './api/login'
+import getBCGraphqlToken from './api/login'
 import getBCOrders from './api/order'
 import {
   createBCCompanyUser,
@@ -172,6 +172,7 @@ export {
   getBCCustomerAddress,
   getBCCustomerAddresses,
   getBCForcePasswordReset,
+  getBCGraphqlToken,
   getBCOrderDetails,
   getBCOrders,
   getBcOrderStatusType,
@@ -180,7 +181,6 @@ export {
   getBcShoppingList,
   getBcShoppingListDetails,
   getBCStoreChannelId,
-  getBCToken,
   getBcVariantInfoBySkus,
   getCurrencies,
   getOrdersCreatedByUser,

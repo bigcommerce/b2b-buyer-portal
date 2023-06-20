@@ -16,13 +16,8 @@ import { B3Sping, showPageMask } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { GlobaledContext } from '@/shared/global'
-import {
-  getAgentInfo,
-  superAdminBeginMasquerade,
-  superAdminCompanies,
-  superAdminEndMasquerade,
-} from '@/shared/service/b2b'
-import { B3SStorage } from '@/utils'
+import { superAdminCompanies } from '@/shared/service/b2b'
+import { endMasquerade, startMasquerade } from '@/utils'
 
 import B3FilterSearch from '../../components/filter/B3FilterSearch'
 
@@ -133,32 +128,6 @@ function Dashboard(props: DashboardProps) {
 
   const location = useLocation()
 
-  const setMasqueradeInfo = async () => {
-    try {
-      setIsRequestLoading(true)
-      const data: any = await getAgentInfo(customerId)
-      if (data?.superAdminMasquerading) {
-        const { id, companyName } = data.superAdminMasquerading
-        B3SStorage.set('isAgenting', true)
-        B3SStorage.set('salesRepCompanyId', id)
-        B3SStorage.set('salesRepCompanyName', companyName)
-        // B3SStorage.set('isB2BUser', true)
-
-        dispatch({
-          type: 'common',
-          payload: {
-            salesRepCompanyId: id,
-            salesRepCompanyName: companyName,
-            isAgenting: true,
-            isB2BUser: true,
-          },
-        })
-      }
-    } finally {
-      setIsRequestLoading(false)
-    }
-  }
-
   const getSuperAdminCompaniesList = async (params: ListItem) => {
     const {
       superAdminCompanies: { edges = [], totalCount },
@@ -173,8 +142,12 @@ function Dashboard(props: DashboardProps) {
   const startActing = async (id?: number) => {
     try {
       setIsRequestLoading(true)
-      await superAdminBeginMasquerade(id || currentSalesRepCompanyId, +B3UserId)
-      await setMasqueradeInfo()
+      await startMasquerade({
+        dispatch,
+        customerId,
+        companyId: id || currentSalesRepCompanyId,
+        B3UserId: +B3UserId,
+      })
 
       setOpenPage({
         isOpen: true,
@@ -184,7 +157,7 @@ function Dashboard(props: DashboardProps) {
       setFilterData({
         ...filterData,
       })
-    } catch (error) {
+    } finally {
       setIsRequestLoading(false)
     }
   }
@@ -192,18 +165,10 @@ function Dashboard(props: DashboardProps) {
   const endActing = async () => {
     try {
       showPageMask(dispatch, true)
-      await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
-      location.state = null
-      B3SStorage.delete('isAgenting')
-      B3SStorage.delete('salesRepCompanyId')
-      B3SStorage.delete('salesRepCompanyName')
-      dispatch({
-        type: 'common',
-        payload: {
-          salesRepCompanyId: '',
-          salesRepCompanyName: '',
-          isAgenting: false,
-        },
+      await endMasquerade({
+        dispatch,
+        salesRepCompanyId: +salesRepCompanyId,
+        B3UserId: +B3UserId,
       })
       setFilterData({
         ...filterData,

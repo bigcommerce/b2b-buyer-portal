@@ -2,9 +2,12 @@ import { convertArrayToGraphql, storeHash } from '@/utils'
 
 import B3Request from '../../request/b3Fetch'
 
-const getB2BTokenQl = (bcJwtToken: string, channelId: number) => `mutation {
+const getB2BTokenQl = (
+  currentCustomerJWTToken: string,
+  channelId: number
+) => `mutation {
   authorization(authData: {
-    bcToken: "${bcJwtToken}"
+    bcToken: "${currentCustomerJWTToken}"
     channelId: ${channelId}
   }) {
     result {
@@ -178,11 +181,11 @@ const taxZoneRates = () => `{
 }`
 
 export const getB2BToken = (
-  bcJwtToken: string,
+  currentCustomerJWTToken: string,
   channelId = 1
 ): CustomFieldItems =>
   B3Request.graphqlB2B({
-    query: getB2BTokenQl(bcJwtToken, channelId),
+    query: getB2BTokenQl(currentCustomerJWTToken, channelId),
   })
 
 export const getAgentInfo = (customerId: string | number): CustomFieldItems =>

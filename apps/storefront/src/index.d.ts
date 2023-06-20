@@ -20,6 +20,19 @@ declare interface Window {
         addProductsFromCart: () => Promise<void>
         addProducts: (items: CustomFieldItems[]) => Promise<boolean>
       }
+      user: {
+        getProfile: () => Record<string, string | number>
+        getMasqueradeState: () => Promise<{
+          current_company_id: number
+          companies: CustomFieldStringItems[]
+        }>
+        getB2BToken: () => string
+        setMasqueradeCompany: (companyId: number) => Promise<void>
+        endMasquerade: () => Promise<void>
+        logInWithStorefrontToken: (
+          customerJWTToken: string
+        ) => Promise<{ role: number; userType: string } | undefined>
+      }
     }
   }
 }

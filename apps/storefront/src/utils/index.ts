@@ -49,6 +49,7 @@ export {
   setModifierQtyPrice,
   validProductQty,
 } from './b3Product/b3Product'
+export * from './masquerade'
 export {
   getQuoteConfig,
   getStoreTaxZoneRates,
