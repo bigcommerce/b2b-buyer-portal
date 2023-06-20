@@ -13,38 +13,27 @@ interface Summary {
 
 interface QuoteDetailSummaryProps {
   quoteSummary: Summary
-  quoteDetailTaxRate: number
+  quoteDetailTax: number
 }
 
 export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
   const {
     quoteSummary: { originalSubtotal, discount, tax, shipping, totalAmount },
-    quoteDetailTaxRate: taxRates = 0,
+    quoteDetailTax = 0,
   } = props
 
   const {
-    global: { showInclusiveTaxPrice },
+    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
   } = store.getState()
 
   const subtotalPrice = +originalSubtotal
   const quotedSubtotal = +originalSubtotal - +discount
-  const taxTotal =
-    +shipping === 0
-      ? +tax
-      : +totalAmount + +discount - +shipping - subtotalPrice
-  let enteredInclusiveTax = false
 
-  if (+shipping) {
-    enteredInclusiveTax = +shipping > taxTotal
-  } else {
-    enteredInclusiveTax = +totalAmount + +discount === +originalSubtotal
-  }
-
-  const getCurrentPrice = (price: number, taxRate: number) => {
+  const getCurrentPrice = (price: number, quoteDetailTax: number) => {
     if (enteredInclusiveTax) {
-      return showInclusiveTaxPrice ? price : price / (1 + taxRate)
+      return showInclusiveTaxPrice ? price : price - quoteDetailTax
     }
-    return showInclusiveTaxPrice ? price * (1 + taxRate) : price
+    return showInclusiveTaxPrice ? price + quoteDetailTax : price
   }
 
   const priceFormat = (price: number) => `${currencyFormat(price)}`
@@ -69,7 +58,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
             >
               <Typography>Original subtotal</Typography>
               <Typography>
-                {priceFormat(getCurrentPrice(subtotalPrice, taxRates))}
+                {priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax))}
               </Typography>
             </Grid>
             <Grid
@@ -107,7 +96,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   color: '#212121',
                 }}
               >
-                {priceFormat(getCurrentPrice(quotedSubtotal, taxRates))}
+                {priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax))}
               </Typography>
             </Grid>
 

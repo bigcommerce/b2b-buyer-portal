@@ -4,7 +4,7 @@ import { Box, styled, Typography } from '@mui/material'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { store, TaxZoneRates, TaxZoneRatesProps } from '@/store'
+import { store } from '@/store'
 import { currencyFormat } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
 
@@ -46,7 +46,7 @@ interface ShoppingDetailTableProps {
     edges: any[]
     totalCount: number
   }>
-  setQuoteDetailTaxRate: React.Dispatch<React.SetStateAction<number>>
+  getTaxRate: (taxClassId: number, variants: any) => number
 }
 
 interface SearchProps {
@@ -96,25 +96,11 @@ const StyledImage = styled('img')(() => ({
 }))
 
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
-  const { total, getQuoteTableDetails, setQuoteDetailTaxRate } = props
+  const { total, getQuoteTableDetails, getTaxRate } = props
 
   const {
-    global: { taxZoneRates, enteredInclusive: enteredInclusiveTax },
+    global: { enteredInclusive: enteredInclusiveTax },
   } = store.getState()
-
-  const classRates: TaxZoneRates[] = []
-  if (taxZoneRates.length) {
-    const defaultTaxZone: TaxZoneRatesProps = taxZoneRates.find(
-      (taxZone: { id: number }) => taxZone.id === 1
-    )
-    if (defaultTaxZone) {
-      const { rates } = defaultTaxZone
-      const { enabled } = rates[0]
-      if (enabled && rates[0].classRates.length) {
-        rates[0].classRates.forEach((rate) => classRates.push(rate))
-      }
-    }
-  }
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
@@ -131,25 +117,6 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       })
     },
   }))
-
-  const getTaxRate = (taxClassId: number, variants: any) => {
-    if (variants.length) {
-      const {
-        bc_calculated_price: {
-          tax_exclusive: taxExclusive,
-          tax_inclusive: taxInclusive,
-        },
-      } = variants[0]
-      return (taxInclusive - taxExclusive) / taxExclusive
-    }
-    if (classRates.length) {
-      return (
-        (classRates.find((rate) => rate.taxClassId === taxClassId)?.rate || 0) /
-        100
-      )
-    }
-    return 0
-  }
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
@@ -242,7 +209,6 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         } = row
 
         const taxRate = getTaxRate(taxClassId, variants)
-        setQuoteDetailTaxRate(taxRate)
         const taxPrice = enteredInclusiveTax
           ? (+basePrice * taxRate) / (1 + taxRate)
           : +basePrice * taxRate
@@ -390,7 +356,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         noDataText="No products found"
         tableKey="productId"
         renderItem={(row: ProductInfoProps, index?: number) => (
-          <QuoteDetailTableCard len={total || 0} item={row} itemIndex={index} />
+          <QuoteDetailTableCard
+            len={total || 0}
+            item={row}
+            itemIndex={index}
+            getTaxRate={getTaxRate}
+          />
         )}
       />
     </StyledQuoteTableContainer>

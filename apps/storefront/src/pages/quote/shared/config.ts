@@ -31,6 +31,7 @@ export interface ProductInfoProps {
   baseSku: string
   createdAt: number
   discount: number | string
+  offeredPrice: number | string
   enteredInclusive: boolean
   id: number | string
   itemId: number
