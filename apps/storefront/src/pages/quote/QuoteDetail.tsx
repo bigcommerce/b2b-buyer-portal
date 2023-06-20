@@ -14,6 +14,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
+import { store, TaxZoneRates, TaxZoneRatesProps } from '@/store'
 import { getDefaultCurrencyInfo, getSearchVal, snackbar } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
@@ -58,9 +59,46 @@ function QuoteDetail() {
   const [isShowFooter, setIsShowFooter] = useState(false)
   const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
-  const [quoteDetailTaxRate, setQuoteDetailTaxRate] = useState(0)
+  const [quoteDetailTax, setQuoteDetailTax] = useState(0)
 
   const location = useLocation()
+
+  const {
+    global: { taxZoneRates, enteredInclusive: enteredInclusiveTax },
+  } = store.getState()
+
+  const classRates: TaxZoneRates[] = []
+  if (taxZoneRates.length) {
+    const defaultTaxZone: TaxZoneRatesProps = taxZoneRates.find(
+      (taxZone: { id: number }) => taxZone.id === 1
+    )
+    if (defaultTaxZone) {
+      const { rates } = defaultTaxZone
+      const { enabled } = rates[0]
+      if (enabled && rates[0].classRates.length) {
+        rates[0].classRates.forEach((rate) => classRates.push(rate))
+      }
+    }
+  }
+
+  const getTaxRate = (taxClassId: number, variants: any) => {
+    if (variants.length) {
+      const {
+        bc_calculated_price: {
+          tax_exclusive: taxExclusive,
+          tax_inclusive: taxInclusive,
+        },
+      } = variants[0]
+      return (taxInclusive - taxExclusive) / taxExclusive
+    }
+    if (classRates.length) {
+      return (
+        (classRates.find((rate) => rate.taxClassId === taxClassId)?.rate || 0) /
+        100
+      )
+    }
+    return 0
+  }
 
   const handleGetProductsById = async (listProducts: ProductInfoProps[]) => {
     if (listProducts.length > 0) {
@@ -132,6 +170,26 @@ function QuoteDetail() {
         totalAmount: quote.totalAmount,
       })
       setProductList(productsWithMoreInfo)
+
+      if (+quote.shippingTotal === 0) {
+        setQuoteDetailTax(+quote.taxTotal)
+      } else {
+        let taxPrice = 0
+        productsWithMoreInfo?.forEach((product) => {
+          const {
+            quantity,
+            offeredPrice,
+            productsSearch: { variants = [], taxClassId },
+          } = product
+
+          const taxRate = getTaxRate(taxClassId, variants)
+          taxPrice += enteredInclusiveTax
+            ? ((+offeredPrice * taxRate) / (1 + taxRate)) * +quantity
+            : +offeredPrice * taxRate * +quantity
+        })
+
+        setQuoteDetailTax(taxPrice)
+      }
 
       const { backendAttachFiles = [], storefrontAttachFiles = [] } = quote
 
@@ -392,7 +450,7 @@ function QuoteDetail() {
               <QuoteDetailTable
                 total={productList.length}
                 getQuoteTableDetails={getQuoteTableDetails}
-                setQuoteDetailTaxRate={setQuoteDetailTaxRate}
+                getTaxRate={getTaxRate}
               />
             </Box>
           </Grid>
@@ -418,7 +476,7 @@ function QuoteDetail() {
             >
               <QuoteDetailSummary
                 quoteSummary={quoteSummary}
-                quoteDetailTaxRate={quoteDetailTaxRate}
+                quoteDetailTax={quoteDetailTax}
               />
             </Box>
 

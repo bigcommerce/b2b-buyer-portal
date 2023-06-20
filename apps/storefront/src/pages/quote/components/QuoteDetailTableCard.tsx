@@ -1,11 +1,14 @@
 import { Box, CardContent, styled, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { store } from '@/store'
 import { currencyFormat } from '@/utils'
+import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 interface QuoteTableCardProps {
   item: any
   len: number
+  getTaxRate: (taxClassId: number, variants: any) => number
   itemIndex?: number
 }
 
@@ -16,7 +19,11 @@ const StyledImage = styled('img')(() => ({
 }))
 
 function QuoteDetailTableCard(props: QuoteTableCardProps) {
-  const { item: quoteTableItem, len, itemIndex } = props
+  const { item: quoteTableItem, len, itemIndex, getTaxRate } = props
+
+  const {
+    global: { enteredInclusive: enteredInclusiveTax },
+  } = store.getState()
 
   const {
     basePrice,
@@ -27,14 +34,24 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     sku,
     notes,
     offeredPrice,
-    productsSearch: { productUrl },
+    productsSearch: { productUrl, variants = [], taxClassId },
   } = quoteTableItem
 
-  const price = +basePrice
+  const taxRate = getTaxRate(taxClassId, variants)
+  const taxPrice = enteredInclusiveTax
+    ? (+basePrice * taxRate) / (1 + taxRate)
+    : +basePrice * taxRate
+  const discountTaxPrice = enteredInclusiveTax
+    ? (+offeredPrice * taxRate) / (1 + taxRate)
+    : +offeredPrice * taxRate
+
+  const price = getBCPrice(+basePrice, taxPrice)
+  const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
+
   const isDiscount = +basePrice - +offeredPrice > 0
 
   const total = +price * +quantity
-  const totalWithDiscount = +offeredPrice * +quantity
+  const totalWithDiscount = discountPrice * +quantity
 
   return (
     <Box
