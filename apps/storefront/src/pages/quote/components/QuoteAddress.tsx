@@ -218,6 +218,7 @@ function QuoteAddress(
         handleChangeAddress={handleChangeAddress}
         closeModal={handleCloseAddressChoose}
         addressList={addressList}
+        type={type}
       />
     </Box>
   )
