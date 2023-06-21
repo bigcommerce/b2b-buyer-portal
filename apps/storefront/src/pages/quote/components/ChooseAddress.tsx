@@ -17,6 +17,7 @@ interface ChooseAddressProps {
   addressList: AddressItemProps[]
   closeModal: () => void
   handleChangeAddress: (address: AddressItemType) => void
+  type: string
 }
 
 interface RefProps {
@@ -28,6 +29,7 @@ function ChooseAddress({
   closeModal,
   handleChangeAddress,
   addressList = [],
+  type,
 }: ChooseAddressProps) {
   const recordList = useRef<RefProps>({
     copyList: [],
@@ -37,7 +39,12 @@ function ChooseAddress({
 
   useEffect(() => {
     if (addressList.length) {
-      const newList = addressList.map((item: AddressItemProps) => item.node)
+      const allList = addressList.map((item: AddressItemProps) => item.node)
+      const newList = allList.filter(
+        (item) =>
+          (item.isShipping === 1 && type === 'shipping') ||
+          (item.isBilling === 1 && type === 'billing')
+      )
       recordList.current.copyList = newList
       setList(newList)
     }
