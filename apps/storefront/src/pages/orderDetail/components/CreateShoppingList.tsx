@@ -41,6 +41,34 @@ interface CreateShoppingListProps {
   onClose: () => void
 }
 
+interface CreateShoppingListParams {
+  data: { name: string; description: string }
+  isB2BUser: boolean
+  role: number
+  currentChannelId: number
+}
+
+export const createShoppingList = ({
+  data,
+  isB2BUser,
+  role,
+  currentChannelId,
+}: CreateShoppingListParams) => {
+  const createShoppingData: Record<string, string | number> = data
+  if (data.description.indexOf('\n') > -1) {
+    createShoppingData.description = data.description.split('\n').join('\\n')
+  }
+  const createSL = isB2BUser ? createB2BShoppingList : createBcShoppingList
+
+  if (isB2BUser) {
+    createShoppingData.status = +role === 2 ? 30 : 0
+  } else {
+    createShoppingData.channelId = currentChannelId
+  }
+
+  return createSL(createShoppingData)
+}
+
 function CreateShoppingList({
   open,
   onChange,
@@ -70,21 +98,15 @@ function CreateShoppingList({
 
   const handleConfirm = () => {
     handleSubmit(async (data) => {
+      const { name, description } = data
+
       setLoading(true)
-      const { description } = data
-      if (description.indexOf('\n') > -1) {
-        data.description = description.split('\n').join('\\n')
-      }
-      const createSL = isB2BUser ? createB2BShoppingList : createBcShoppingList
-
-      const createShoppingData = data
-      if (isB2BUser) {
-        createShoppingData.status = +role === 2 ? 30 : 0
-      } else {
-        createShoppingData.channelId = currentChannelId
-      }
-
-      await createSL(createShoppingData)
+      await createShoppingList({
+        data: { name, description },
+        isB2BUser,
+        role: +role,
+        currentChannelId,
+      })
       setLoading(false)
       onChange()
     })()

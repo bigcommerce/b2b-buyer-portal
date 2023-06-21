@@ -19,15 +19,11 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b'
 import { globalStateSelector } from '@/store'
-// import {
-//   OptionListProduct,
-// } from '@/types/products'
 import {
   B3SStorage,
   getDefaultCurrencyInfo,
   globalSnackbar,
   isAllRequiredOptionFilled,
-  snackbar,
 } from '@/utils'
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config'
@@ -36,6 +32,13 @@ import OrderShoppingList from '../orderDetail/components/OrderShoppingList'
 
 interface PDPProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+}
+interface AddProductsToShoppingListParams {
+  isB2BUser: boolean
+  items: CustomFieldItems[]
+  shoppingListId: number | string
+  gotoShoppingDetail: (id: number | string) => void
+  customerGroupId?: number
 }
 
 export const serialize = (form: any) => {
@@ -87,6 +90,111 @@ export const getProductOptionList = (optionMap: CustomFieldItems) => {
   return optionList
 }
 
+const tip = (
+  id: number | string,
+  gotoShoppingDetail: (id: number | string) => void
+) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+    }}
+  >
+    <Box
+      sx={{
+        mr: '15px',
+      }}
+    >
+      Products were added to your shopping list
+    </Box>
+    <Button
+      onClick={() => gotoShoppingDetail(id)}
+      variant="text"
+      sx={{
+        color: '#ffffff',
+      }}
+    >
+      view shopping list
+    </Button>
+  </Box>
+)
+
+export const addProductsToShoppingList = async ({
+  isB2BUser,
+  customerGroupId,
+  items,
+  shoppingListId,
+  gotoShoppingDetail,
+}: AddProductsToShoppingListParams) => {
+  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+  const companyId =
+    B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+  const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+
+  const { productsSearch } = await getProducts({
+    productIds: items.map(({ productId }) => productId),
+    currencyCode,
+    companyId,
+    customerGroupId,
+  })
+
+  const productsInfo = conversionProductsList(productsSearch)
+  const products = []
+  let isError = false
+
+  for (let index = 0; index < productsInfo.length; index += 1) {
+    const { allOptions: requiredOptions, variants } = productsInfo[index]
+    const {
+      productId,
+      sku,
+      variantId: vId,
+      quantity,
+      optionSelections,
+    } = items[index]
+    // check if it's an specified product
+    const variantId =
+      vId ||
+      variants.find((item: { sku: string }) => item.sku === sku)?.variant_id
+    // get selected options by inputed data
+    const optionList = getProductOptionList(optionSelections)
+    // verify inputed data includes required data
+    const { isValid, message } = isAllRequiredOptionFilled(
+      requiredOptions,
+      optionList
+    )
+
+    if (!isValid) {
+      isError = true
+      globalSnackbar.error(message, {
+        isClose: true,
+      })
+      break
+    }
+
+    products.push({
+      productId,
+      variantId,
+      quantity,
+      optionList,
+    })
+  }
+
+  if (isError) return
+
+  const addToShoppingList = isB2BUser
+    ? addProductToShoppingList
+    : addProductToBcShoppingList
+
+  await addToShoppingList({
+    shoppingListId,
+    items: products,
+  })
+  globalSnackbar.success('Products were added to your shopping list', {
+    jsx: () => tip(shoppingListId, gotoShoppingDetail),
+    isClose: true,
+  })
+}
+
 function PDP({ setOpenPage }: PDPProps) {
   const isPromission = true
   const {
@@ -130,34 +238,9 @@ function PDP({ setOpenPage }: PDPProps) {
     })
   }
 
-  const tip = (id: string | number) => (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      <Box
-        sx={{
-          mr: '15px',
-        }}
-      >
-        Products were added to your shopping list
-      </Box>
-      <Button
-        onClick={() => gotoShoppingDetail(id)}
-        variant="text"
-        sx={{
-          color: '#ffffff',
-        }}
-      >
-        view shopping list
-      </Button>
-    </Box>
-  )
-
-  const handleShoppingConfirm = async (id: string | number) => {
+  const handleShoppingConfirm = async (shoppingListId: string) => {
     if (!shoppingListClickNode) return
+
     const productView: HTMLElement | null = shoppingListClickNode.closest(
       globalB3['dom.productView']
     )
@@ -168,65 +251,25 @@ function PDP({ setOpenPage }: PDPProps) {
       const productId = (
         productView.querySelector('input[name=product_id]') as any
       )?.value
-      const qty =
+      const quantity =
         (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1
       const sku = (
         productView.querySelector('[data-product-sku]')?.innerHTML ?? ''
       ).trim()
       const form = productView.querySelector('form[data-cart-item-add]')
-
-      const { currency_code: currencyCode } = getDefaultCurrencyInfo()
-
-      const companyId =
-        B3SStorage.get('B3CompanyInfo')?.id ||
-        B3SStorage.get('salesRepCompanyId')
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
-
-      const { productsSearch } = await getProducts({
-        productIds: [+productId],
-        currencyCode,
-        companyId,
+      await addProductsToShoppingList({
+        isB2BUser,
         customerGroupId,
-      })
-
-      const newProductInfo: any = conversionProductsList(productsSearch)
-      const { allOptions, variants } = newProductInfo[0]
-
-      const variantItem = variants.find((item: any) => item.sku === sku)
-
-      const optionMap = serialize(form)
-
-      const optionList = getProductOptionList(optionMap)
-
-      const { isValid, message } = isAllRequiredOptionFilled(
-        allOptions,
-        optionList
-      )
-      if (!isValid) {
-        snackbar.error(message, {
-          isClose: true,
-        })
-        return
-      }
-
-      const params = {
-        productId: +productId,
-        variantId: variantItem?.variant_id,
-        quantity: +qty,
-        optionList,
-      }
-
-      const addToShoppingList = isB2BUser
-        ? addProductToShoppingList
-        : addProductToBcShoppingList
-
-      await addToShoppingList({
-        shoppingListId: +id,
-        items: [params],
-      })
-      globalSnackbar.success('Products were added to your shopping list', {
-        jsx: () => tip(id),
-        isClose: true,
+        shoppingListId,
+        items: [
+          {
+            productId: +productId,
+            sku,
+            quantity: +quantity,
+            optionSelections: serialize(form),
+          },
+        ],
+        gotoShoppingDetail,
       })
       handleShoppingClose()
     } finally {
