@@ -1,12 +1,17 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
+import { useDispatch } from 'react-redux'
+import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 
 import { HeadlessRoutes } from '@/constants'
+import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks'
 import {
   addProductFromProductPageToQuote,
   addProductsFromCartToQuote,
   addProductsToDraftQuote,
 } from '@/hooks/dom/utils'
+import { createShoppingList } from '@/pages/orderDetail/components/CreateShoppingList'
+import { addProductsToShoppingList } from '@/pages/pdp/PDP'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
 import {
@@ -20,30 +25,79 @@ interface HeadlessControllerProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
+const transformOptionSelectionsToAttributes = (items: CustomFieldItems[]) =>
+  items.map((product) => {
+    const { optionSelections } = product
+
+    return {
+      ...product,
+      optionSelections: optionSelections.map(
+        ({ optionId, optionValue }: Record<string, string | number>) => ({
+          optionId: `attribute[${optionId}]`,
+          optionValue,
+        })
+      ),
+    }
+  })
+
 export default function HeadlessController({
   setOpenPage,
 }: HeadlessControllerProps) {
+  const storeDispatch = useDispatch()
+
   const {
-    state: { customerId, role, customer, B3UserId, salesRepCompanyId = 0 },
     dispatch,
+    state: {
+      customerId,
+      role,
+      customer,
+      B3UserId,
+      salesRepCompanyId = 0,
+      isB2BUser,
+      currentChannelId,
+    },
   } = useContext(GlobaledContext)
-  const { addToQuote: addProductFromPage } =
+  const { addToQuote: addProductFromPageToQuote } =
     addProductFromProductPageToQuote(setOpenPage)
   const { addToQuote: addProductsFromCart } =
     addProductsFromCartToQuote(setOpenPage)
 
+  const saveFn = () => {
+    setOpenPage({
+      isOpen: true,
+      openUrl: '/registered',
+    })
+  }
+  const gotoShoppingDetail = (id: number | string) => {
+    setOpenPage({
+      isOpen: true,
+      openUrl: `/shoppingList/${id}`,
+      params: {
+        shoppingListBtn: 'add',
+      },
+    })
+  }
+
   // Keep updated values
-  const addProductFromPageRef = useRef(() => addProductFromPage(role))
+  const addProductFromPageToQuoteRef = useRef(() =>
+    addProductFromPageToQuote(role)
+  )
   const B3UserIdRef = useRef(+B3UserId)
   const salesRepCompanyIdRef = useRef(+salesRepCompanyId)
   const customerIdRef = useRef(customerId)
   const customerRef = useRef(customer)
+  const roleRef = useRef(+role)
+  const isB2BUserRef = useRef(isB2BUser)
+  const currentChannelIdRef = useRef(currentChannelId)
 
-  addProductFromPageRef.current = () => addProductFromPage(role)
+  addProductFromPageToQuoteRef.current = () => addProductFromPageToQuote(role)
   B3UserIdRef.current = +B3UserId
   salesRepCompanyIdRef.current = +salesRepCompanyId
   customerIdRef.current = customerId
   customerRef.current = customer
+  roleRef.current = +role
+  isB2BUserRef.current = isB2BUser
+  currentChannelIdRef.current = currentChannelId
 
   useEffect(() => {
     window.b2b = {
@@ -56,7 +110,7 @@ export default function HeadlessController({
           )
         },
         quote: {
-          addProductFromPage: addProductFromPageRef.current,
+          addProductFromPage: addProductFromPageToQuoteRef.current,
           addProductsFromCart: () => addProductsFromCart(),
           addProducts: (items) => addProductsToDraftQuote(items),
         },
@@ -94,6 +148,43 @@ export default function HeadlessController({
             }),
           logInWithStorefrontToken: (customerJWTToken: string) =>
             getCurrentCustomerInfo(dispatch, customerJWTToken),
+        },
+        shoppingList: {
+          addProductFromPage: () => {
+            dispatch({
+              type: 'common',
+              payload: {
+                shoppingListClickNode: document.querySelector(
+                  globalB3['dom.productView']
+                ),
+              },
+            })
+
+            addProductFromPageToShoppingList({
+              role: roleRef.current,
+              storeDispatch,
+              saveFn,
+              setOpenPage,
+            })
+          },
+          addProducts: (shoppingListId, items) =>
+            addProductsToShoppingList({
+              shoppingListId,
+              items: transformOptionSelectionsToAttributes(items),
+              isB2BUser: isB2BUserRef.current,
+              customerGroupId: customerRef.current.customerGroupId,
+              gotoShoppingDetail,
+            }),
+          createNewShoppingList: async (name, description) => {
+            const { shoppingListsCreate } = await createShoppingList({
+              data: { name, description },
+              isB2BUser: isB2BUserRef.current,
+              role: roleRef.current,
+              currentChannelId: currentChannelIdRef.current,
+            })
+
+            return shoppingListsCreate.shoppingList
+          },
         },
       },
     }

@@ -33,6 +33,17 @@ declare interface Window {
           customerJWTToken: string
         ) => Promise<{ role: number; userType: string } | undefined>
       }
+      shoppingList: {
+        addProductFromPage: () => void
+        addProducts: (
+          shoppingListId: number,
+          items: CustomFieldItems[]
+        ) => Promise<void>
+        createNewShoppingList: (
+          name: string,
+          description: string
+        ) => Promise<{ id: number; name: string; description: string }>
+      }
     }
   }
 }

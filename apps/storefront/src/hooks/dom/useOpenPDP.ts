@@ -9,6 +9,7 @@ import {
 import { useDispatch } from 'react-redux'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
+import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit'
 import { cloneDeep } from 'lodash'
 
 import {
@@ -30,8 +31,42 @@ interface MutationObserverProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
   role: number | string
 }
+interface AddProductFromPageParams {
+  role: number
+  storeDispatch: DispatchRedux<AnyAction>
+  saveFn: () => void
+  setOpenPage: (value: SetStateAction<OpenPageState>) => void
+}
 
-const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
+export const addProductFromPage = ({
+  role,
+  storeDispatch,
+  saveFn,
+  setOpenPage,
+}: AddProductFromPageParams) => {
+  if (role === 100) {
+    storeDispatch(
+      setGlabolCommonState({
+        globalMessage: {
+          open: true,
+          title: 'Registration',
+          message:
+            'Please create an account, or login to create a shopping list.',
+          cancelText: 'Cancel',
+          saveText: 'Register',
+          saveFn,
+        },
+      })
+    )
+  } else {
+    setOpenPage({
+      isOpen: true,
+      openUrl: '/pdp',
+    })
+  }
+}
+
+export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   const {
     state: { shoppingListBtn },
   } = useContext(CustomStyleContext)
@@ -54,36 +89,20 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   }, [])
 
   const pdpCallBack = useCallback(
-    (e: React.MouseEvent) => {
-      const b3ShoppingList = e.target as HTMLElement
+    ({ target }: { target: HTMLElement }) => {
+      dispatch({
+        type: 'common',
+        payload: {
+          shoppingListClickNode: target,
+        },
+      })
 
-      if (role === 100) {
-        storeDispatch(
-          setGlabolCommonState({
-            globalMessage: {
-              open: true,
-              title: 'Registration',
-              message:
-                'Please create an account, or login to create a shopping list.',
-              cancelText: 'Cancel',
-              saveText: 'Register',
-              saveFn: jumpRegister,
-            },
-          })
-        )
-      } else {
-        setOpenPage({
-          isOpen: true,
-          openUrl: '/pdp',
-        })
-
-        dispatch({
-          type: 'common',
-          payload: {
-            shoppingListClickNode: b3ShoppingList,
-          },
-        })
-      }
+      addProductFromPage({
+        role: +role,
+        storeDispatch,
+        saveFn: jumpRegister,
+        setOpenPage,
+      })
     },
     [role]
   )
@@ -200,5 +219,3 @@ const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     }
   }, [isB2BUser, shoppingListEnabled, openQuickView, shoppingListBtn, roleText])
 }
-
-export default useOpenPDP
