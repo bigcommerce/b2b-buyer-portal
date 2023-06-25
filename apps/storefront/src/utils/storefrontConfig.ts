@@ -192,8 +192,8 @@ const getTemPlateConfig = async (
           ...item.extraFields,
           color: item.extraFields?.color || '#E00F36',
           location: item.extraFields?.location || ' bottomRight',
-          horizontalPadding: item.extraFields?.horizontalPadding || '0',
-          verticalPadding: item.extraFields?.verticalPadding || '0',
+          horizontalPadding: item.extraFields?.horizontalPadding || '16',
+          verticalPadding: item.extraFields?.verticalPadding || '6',
         }
       }
 
