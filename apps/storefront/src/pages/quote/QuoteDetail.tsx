@@ -73,9 +73,8 @@ function QuoteDetail() {
       (taxZone: { id: number }) => taxZone.id === 1
     )
     if (defaultTaxZone) {
-      const { rates } = defaultTaxZone
-      const { enabled } = rates[0]
-      if (enabled && rates[0].classRates.length) {
+      const { rates = [] } = defaultTaxZone
+      if (rates.length && rates[0].enabled && rates[0].classRates.length) {
         rates[0].classRates.forEach((rate) => classRates.push(rate))
       }
     }

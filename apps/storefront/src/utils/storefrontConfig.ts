@@ -294,17 +294,10 @@ const getStoreTaxZoneRates = async () => {
     )
     if (defaultTaxZone) {
       const {
-        rates,
         priceDisplaySettings: { showInclusive },
       } = defaultTaxZone
-      const { enabled } = rates[0]
-      if (enabled) {
-        B3SStorage.set('showInclusiveTaxPrice', showInclusive)
-        store.dispatch(setShowInclusiveTaxPrice(showInclusive))
-      } else {
-        B3SStorage.set('showInclusiveTaxPrice', false)
-        store.dispatch(setShowInclusiveTaxPrice(false))
-      }
+      B3SStorage.set('showInclusiveTaxPrice', showInclusive)
+      store.dispatch(setShowInclusiveTaxPrice(showInclusive))
     }
   }
 
