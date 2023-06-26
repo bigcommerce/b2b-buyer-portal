@@ -11,14 +11,15 @@ const getTaxRate = (taxClassId: number) => {
   if (taxZoneRates.length) {
     const withValueTaxZoneRates =
       taxZoneRates.filter(
-        (taxZoneRate: TaxZoneRatesProps) => taxZoneRate.rates.length > 0
+        (taxZoneRate: TaxZoneRatesProps) =>
+          taxZoneRate.rates.length > 0 && taxZoneRate.enabled
       ) || []
 
     if (withValueTaxZoneRates.length > 0) {
       const currentTaxZoneRate =
         withValueTaxZoneRates.find(
           (taxZoneRate: TaxZoneRatesProps) =>
-            taxZoneRate.rates[0].priority === 1
+            taxZoneRate.rates[0].priority === 0 && taxZoneRate.rates[0].enabled
         ) || withValueTaxZoneRates[0]
 
       taxRates = currentTaxZoneRate?.rates[0]?.classRates || []
