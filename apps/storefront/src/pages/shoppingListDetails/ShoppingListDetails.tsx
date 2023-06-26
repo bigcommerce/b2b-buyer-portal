@@ -246,7 +246,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
 
       await updateShoppingList(params)
 
-      snackbar.success('Shipping list status updated successfully')
+      snackbar.success('Shopping list status updated successfully')
       tableRef.current?.initSearch()
     } finally {
       setIsRequestLoading(false)
