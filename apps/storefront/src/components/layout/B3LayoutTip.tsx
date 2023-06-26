@@ -1,4 +1,5 @@
-import { useContext, useEffect, useRef } from 'react'
+import { useContext, useEffect } from 'react'
+import { flushSync } from 'react-dom'
 
 import { B3Tip } from '@/components'
 import { useMobile } from '@/hooks'
@@ -13,17 +14,9 @@ function B3LayoutTip() {
 
   const [isMobile] = useMobile()
 
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
   useEffect(() => {
     window.tipDispatch = dispatch
   }, [])
-
-  useEffect(() => {
-    if (timer.current) {
-      clearTimeout(timer.current)
-    }
-  }, [tipMessage?.msgs])
 
   // useEffect(() => {
   //   window.b3Tipmessage = tipMessage?.msgs || []
@@ -50,20 +43,17 @@ function B3LayoutTip() {
 
   const handleClose = (id: number | string) => {
     const newMsgs = msgs.filter((msg) => msg.id !== id)
-    if (!!newMsgs.length && timer.current) {
-      clearTimeout(timer.current)
-    }
+
     setMsgs(newMsgs)
   }
 
-  const closeMsgs = () => {
-    if (timer.current) {
-      clearTimeout(timer.current)
-    }
+  const closeMsgs = (id: number | string, reason: string) => {
+    if (reason === 'clickaway') return
 
-    if (msgs.length) {
-      timer.current = setTimeout(() => {
-        const newMsgs = msgs.filter((item: MsgsProps) => item.isClose)
+    flushSync(() => {
+      if (msgs.length) {
+        const newMsgs = msgs.filter((item: MsgsProps) => item.id !== id)
+
         dispatch({
           type: 'common',
           payload: {
@@ -73,8 +63,8 @@ function B3LayoutTip() {
             },
           },
         })
-      }, autoHideDuration)
-    }
+      }
+    })
   }
 
   return (

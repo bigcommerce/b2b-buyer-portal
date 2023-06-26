@@ -10,6 +10,7 @@ export interface MsgsProps {
   isClose?: boolean
   vertical?: 'top' | 'bottom'
   horizontal?: 'left' | 'right' | 'center'
+  time: number
 }
 export interface TipMessagesProps {
   msgs?: Array<MsgsProps> | []

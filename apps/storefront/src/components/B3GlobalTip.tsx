@@ -1,4 +1,5 @@
-import { useContext, useEffect, useRef } from 'react'
+import { useContext, useEffect } from 'react'
+import { flushSync } from 'react-dom'
 
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
 import { MsgsProps } from '@/shared/dynamicallyVariable/context/config'
@@ -14,8 +15,6 @@ export default function B3GlobalTip() {
   useEffect(() => {
     window.globalTipDispatch = dispatch
   }, [])
-
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const setMsgs = (msgs: [] | Array<MsgsProps> = []) => {
     dispatch({
@@ -35,16 +34,14 @@ export default function B3GlobalTip() {
     setMsgs(newMsgs)
   }
 
-  const closeMsgs = () => {
+  const closeMsgs = (id: number | string, reason: string) => {
     const { msgs = [] } = globalTipMessage
 
-    if (timer.current) {
-      clearTimeout(timer.current)
-    }
+    if (reason === 'clickaway') return
 
-    if (msgs.length) {
-      timer.current = setTimeout(() => {
-        const newMsgs = msgs.filter((item: MsgsProps) => item.isClose)
+    flushSync(() => {
+      if (msgs.length) {
+        const newMsgs = msgs.filter((item: MsgsProps) => item.id !== id)
         dispatch({
           type: 'common',
           payload: {
@@ -54,15 +51,15 @@ export default function B3GlobalTip() {
             },
           },
         })
-      }, globalTipMessage?.autoHideDuration)
-    }
+      }
+    })
   }
 
   return (
     <B3Tip
       autoHideDuration={globalTipMessage?.autoHideDuration}
       msgs={globalTipMessage?.msgs}
-      handleAllClose={() => closeMsgs()}
+      handleAllClose={closeMsgs}
       handleItemClose={handleClose}
       vertical="top"
       horizontal="right"

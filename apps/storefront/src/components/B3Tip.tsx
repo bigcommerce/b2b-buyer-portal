@@ -1,5 +1,6 @@
 import { Alert, AlertTitle, Box, Snackbar } from '@mui/material'
 
+import { useMobile } from '@/hooks'
 import {
   MsgsProps,
   TipMessagesProps,
@@ -7,50 +8,63 @@ import {
 
 interface B3TipProps extends TipMessagesProps {
   handleItemClose: (id: number | string) => void
-  handleAllClose: () => void
+  handleAllClose: (id: string | number, reason: string) => void
 }
 
 export default function B3Tip({
-  autoHideDuration = 5000,
   handleItemClose,
   vertical = 'bottom',
   horizontal = 'right',
   msgs = [],
   handleAllClose,
 }: B3TipProps) {
+  const [isMobile] = useMobile()
   if (!msgs || !msgs.length) return null
   return (
-    <Snackbar
-      open={!!msgs.length}
-      autoHideDuration={autoHideDuration}
-      onClose={handleAllClose}
-      anchorOrigin={{
-        vertical,
-        horizontal,
-      }}
-    >
-      <Box>
-        {msgs.length &&
-          msgs.map((msg: MsgsProps) => (
-            <Alert
-              sx={{
-                width: '100%',
-                alignItems: 'center',
-                '& button[title="Close"]': {
-                  display: `${msg.isClose ? 'block' : 'none'}`,
-                },
-                mb: '5px',
-              }}
-              variant="filled"
+    <Box>
+      {msgs.length > 0
+        ? msgs.map((msg: MsgsProps, index: number) => (
+            <Snackbar
               key={msg.id}
-              severity={msg.type}
-              onClose={() => msg.isClose && handleItemClose(msg.id)}
+              open={!!msg?.msg?.length}
+              autoHideDuration={msg?.time || 5000}
+              onClose={(e, reason: string) => handleAllClose(msg.id, reason)}
+              anchorOrigin={{
+                vertical,
+                horizontal,
+              }}
+              sx={{
+                top: `${
+                  24 + index * 8 + index * (isMobile ? 70 : 60)
+                }px !important`,
+              }}
             >
-              {msg?.title && <AlertTitle>{msg.title}</AlertTitle>}
-              {msg.jsx ? msg.jsx() : msg.msg}
-            </Alert>
-          ))}
-      </Box>
-    </Snackbar>
+              <Box
+                sx={{
+                  display: 'flex',
+                }}
+              >
+                <Alert
+                  sx={{
+                    width: '100%',
+                    alignItems: 'center',
+                    '& button[title="Close"]': {
+                      display: `${msg.isClose ? 'block' : 'none'}`,
+                    },
+                    mb: '5px',
+                  }}
+                  variant="filled"
+                  key={msg.id}
+                  severity={msg.type}
+                  onClose={() => msg.isClose && handleItemClose(msg.id)}
+                >
+                  {msg?.title && <AlertTitle>{msg.title}</AlertTitle>}
+                  {msg.jsx ? msg.jsx() : msg.msg}
+                </Alert>
+              </Box>
+            </Snackbar>
+          ))
+        : null}
+    </Box>
   )
 }
