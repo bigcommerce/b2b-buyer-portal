@@ -451,6 +451,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         variant="text"
         sx={{
           color: '#ffffff',
+          padding: 0,
         }}
       >
         view shopping list

@@ -34,6 +34,7 @@ variants.forEach((variant) => {
         type: variant,
         msg: message || `${variant} without any info.`,
         jsx: options?.jsx,
+        time: 5000,
       },
     ]
 
@@ -56,6 +57,7 @@ variants.forEach((variant) => {
         type: variant,
         msg: message || `${variant} without any info.`,
         jsx: options?.jsx,
+        time: 5000,
       },
     ]
 

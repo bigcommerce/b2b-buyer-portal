@@ -27,6 +27,7 @@ export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
         variant="text"
         sx={{
           color: '#ffffff',
+          padding: 0,
         }}
       >
         OPEN QUOTE
