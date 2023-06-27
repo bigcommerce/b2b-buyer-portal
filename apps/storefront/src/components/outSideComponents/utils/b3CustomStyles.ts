@@ -27,7 +27,7 @@ export const splitCustomCssValue = (customCss: string) => {
 
   return {
     mediaBlocks,
-    cssValue,
+    cssValue: cssValue.trim(),
   }
 }
 
@@ -40,6 +40,10 @@ export const setMediaStyle = (mediaBlocks: string[], className: string) => {
   const newCustomCss = mediaBlocks.map((media: string) => {
     const mediaArr = media.split('\n')
     const newMediaArr = mediaArr.map((style) => {
+      if (style.includes('@media')) {
+        return style
+      }
+
       const [property, value] = style.split(':')
       let newValue = value
 
@@ -81,7 +85,7 @@ export const setMUIMediaStyle = (mediaBlocks: string[]) => {
     const mediaArr = media.split('\n')
     const first = mediaArr.find((item) => item.includes('@media'))
     if (first) {
-      const key = `${first.split(')')[0]})`
+      const key = first.split('{')[0]
 
       mediaArr.forEach((style) => {
         const [property, value] = style.split(':')
