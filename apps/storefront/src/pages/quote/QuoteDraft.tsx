@@ -27,6 +27,7 @@ import {
   getB2BCustomerAddresses,
   getBCCustomerAddresses,
 } from '@/shared/service/b2b'
+import { deleteCart } from '@/shared/service/bc'
 import { store } from '@/store'
 import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
@@ -533,6 +534,12 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         },
       } = await fn(data)
 
+      if (id) {
+        const cartId = B3LStorage.get('cartToQuoteId')
+
+        await deleteCart(cartId)
+      }
+
       navigate(`/quoteDetail/${id}?date=${createdAt}`, {
         state: {
           to: 'draft',
@@ -541,6 +548,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
       B3LStorage.delete('b2bQuoteDraftList')
       B3LStorage.delete('MyQuoteInfo')
+      B3LStorage.delete('cartToQuoteId')
     } catch (error: any) {
       snackbar.error(error, {
         isClose: true,

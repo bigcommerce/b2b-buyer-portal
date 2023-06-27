@@ -365,6 +365,7 @@ export const getCurrentCustomerInfo = async (
       B3LStorage.set('MyQuoteInfo', {})
       B3LStorage.set('b2bQuoteDraftList', [])
       B3LStorage.set('quoteDraftUserId', id || customerId || 0)
+      B3LStorage.set('cartToQuoteId', '')
 
       dispatch({
         type: 'common',
