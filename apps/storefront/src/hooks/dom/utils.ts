@@ -10,6 +10,7 @@ import { getCartInfoWithOptions } from '@/shared/service/bc'
 import {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
+  B3LStorage,
   B3SStorage,
   calculateProductListPrice,
   getCalculatedProductPrice,
@@ -271,7 +272,7 @@ const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
         return
       }
 
-      const { lineItems } = cartInfoWithOptions[0]
+      const { lineItems, id: cartId } = cartInfoWithOptions[0]
 
       const cartProductsList = getCartProducts(lineItems)
 
@@ -283,6 +284,9 @@ const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
 
       const isSuccess = await addProductsToDraftQuote(cartProductsList)
       if (isSuccess) {
+        // Save the shopping cart id, used to clear the shopping cart after submitting the quote
+        B3LStorage.set('cartToQuoteId', cartId)
+
         globalSnackbar.success('', {
           jsx: () =>
             B3AddToQuoteTip({
