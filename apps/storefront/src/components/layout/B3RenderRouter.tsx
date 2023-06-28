@@ -95,7 +95,7 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
           return (
             <Route
               key={path}
-              path={route.name}
+              path={path}
               element={<Component setOpenPage={setOpenPage} />}
             />
           )

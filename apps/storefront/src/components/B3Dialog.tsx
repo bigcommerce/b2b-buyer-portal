@@ -28,6 +28,7 @@ interface B3DialogProps<T> {
   row?: T
   isShowBordered?: boolean
   showRightBtn?: boolean
+  showLeftBtn?: boolean
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false
   fullWidth?: boolean
   disabledSaveBtn?: boolean
@@ -49,6 +50,7 @@ export default function B3Dialog<T>({
   row,
   isShowBordered = true,
   showRightBtn = true,
+  showLeftBtn = true,
   maxWidth = 'sm',
   dialogContentSx = {},
   fullWidth = false,
@@ -128,14 +130,16 @@ export default function B3Dialog<T>({
             customActions()
           ) : (
             <>
-              <CustomButton
-                sx={{
-                  ...leftStyleBtn,
-                }}
-                onClick={() => handleCloseClick('')}
-              >
-                {leftSizeBtn || 'cancel'}
-              </CustomButton>
+              {showLeftBtn && (
+                <CustomButton
+                  sx={{
+                    ...leftStyleBtn,
+                  }}
+                  onClick={() => handleCloseClick('')}
+                >
+                  {leftSizeBtn || 'cancel'}
+                </CustomButton>
+              )}
 
               {showRightBtn && (
                 <CustomButton

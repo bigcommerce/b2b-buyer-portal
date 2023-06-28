@@ -1,6 +1,10 @@
 import { Box, Typography } from '@mui/material'
 
-function Loading() {
+interface LoadingProps {
+  backColor?: string
+}
+
+function Loading({ backColor }: LoadingProps) {
   return (
     <Box
       sx={{
@@ -9,7 +13,7 @@ function Loading() {
         position: 'fixed',
         top: 0,
         left: 0,
-        backgroundColor: 'background.default',
+        backgroundColor: backColor || 'background.default',
         zIndex: 120000,
         display: 'flex',
         justifyContent: 'center',

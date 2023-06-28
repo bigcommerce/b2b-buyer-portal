@@ -4,11 +4,15 @@ import {
   ReactElement,
   ReactNode,
   useContext,
+  useState,
 } from 'react'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import {
   Box,
   Card,
   Checkbox,
+  Collapse,
   Grid,
   Table,
   TableBody,
@@ -18,6 +22,7 @@ import {
   TablePagination,
   TableRow,
 } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
 
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
@@ -60,6 +65,7 @@ interface TableProps<T> {
     index?: number,
     checkBox?: () => ReactElement
   ) => ReactElement
+  CollapseComponent?: (row: T) => ReactElement
   isCustomRender?: boolean
   isInfiniteScroll?: boolean
   isLoading?: boolean
@@ -81,8 +87,114 @@ interface TableProps<T> {
   isAllSelect?: boolean
 }
 
+interface RowProps<T> {
+  CollapseComponent?: (row: T) => ReactElement
+  columnItems: TableColumnItem<T>[]
+  node: T
+  index: number
+  showBorder?: boolean
+  showCheckbox?: boolean
+  selectedSymbol?: string
+  selectCheckbox?: Array<number | string>
+  disableCheckbox?: boolean
+  handleSelectOneItem?: (id: number | string) => void
+  tableKey?: string
+  onClickRow?: (item: any, index?: number) => void
+  hover?: boolean
+  clickableRowStyles?: { [key: string]: string }
+  lastItemBorderBottom: string
+}
+
 const MOUSE_POINTER_STYLE = {
   cursor: 'pointer',
+}
+
+function Row({
+  columnItems,
+  node,
+  index,
+  showCheckbox,
+  selectCheckbox = [],
+  selectedSymbol,
+  disableCheckbox,
+  showBorder,
+  handleSelectOneItem,
+  clickableRowStyles,
+  lastItemBorderBottom,
+  tableKey,
+  onClickRow,
+  hover,
+  CollapseComponent,
+}: RowProps<any>) {
+  const { isCollapse = false } = node
+
+  const [open, setOpen] = useState<boolean>(isCollapse || false)
+
+  return (
+    <>
+      <TableRow
+        key={`${node[tableKey || 'id'] + index}`}
+        hover={hover}
+        onClick={() => onClickRow?.(node, index)}
+        sx={clickableRowStyles}
+      >
+        {showCheckbox && selectedSymbol && (
+          <TableCell
+            key={`showItemCheckbox-${node.id}`}
+            sx={{
+              borderBottom: showBorder
+                ? '1px solid rgba(224, 224, 224, 1)'
+                : lastItemBorderBottom,
+            }}
+          >
+            <Checkbox
+              checked={selectCheckbox.includes(node[selectedSymbol])}
+              onChange={() => {
+                if (handleSelectOneItem)
+                  handleSelectOneItem(node[selectedSymbol])
+              }}
+              disabled={disableCheckbox}
+            />
+          </TableCell>
+        )}
+
+        {CollapseComponent && (
+          <TableCell>
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              onClick={() => setOpen(!open)}
+            >
+              {open ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
+            </IconButton>
+          </TableCell>
+        )}
+
+        {columnItems.map((column) => (
+          <TableCell
+            key={column.title}
+            sx={{
+              ...column?.style,
+              borderBottom: showBorder
+                ? '1px solid rgba(224, 224, 224, 1)'
+                : lastItemBorderBottom,
+            }}
+          >
+            {column.render ? column.render(node, index) : node[column.key]}
+          </TableCell>
+        ))}
+      </TableRow>
+      {CollapseComponent && (
+        <TableRow>
+          <TableCell style={{ padding: 0 }} colSpan={6}>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <CollapseComponent row={node} />
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  )
 }
 
 export function B3Table<T>({
@@ -121,6 +233,7 @@ export function B3Table<T>({
   disableCheckbox = false,
   onClickRow,
   showRowsPerPageOptions = true,
+  CollapseComponent,
 }: TableProps<T>) {
   const {
     state: {
@@ -311,6 +424,8 @@ export function B3Table<T>({
                         />
                       </TableCell>
                     )}
+                    {CollapseComponent && <TableCell width="2%" />}
+
                     {columnItems.map((column) => (
                       <TableCell
                         key={column.title}
@@ -339,49 +454,23 @@ export function B3Table<T>({
                       ? '1px solid rgba(224, 224, 224, 1)'
                       : 'none'
                   return (
-                    <TableRow
-                      key={`${node[tableKey || 'id'] + index}`}
+                    <Row
+                      columnItems={columnItems}
+                      node={node}
+                      index={index}
+                      showCheckbox={showCheckbox}
+                      selectCheckbox={selectCheckbox}
+                      selectedSymbol={selectedSymbol}
+                      disableCheckbox={disableCheckbox}
+                      showBorder={showBorder}
+                      handleSelectOneItem={handleSelectOneItem}
+                      clickableRowStyles={clickableRowStyles}
+                      lastItemBorderBottom={lastItemBorderBottom}
                       hover={hover}
-                      onClick={() => onClickRow?.(node, index)}
-                      sx={clickableRowStyles}
-                    >
-                      {showCheckbox && (
-                        <TableCell
-                          key={`showItemCheckbox-${node.id}`}
-                          sx={{
-                            borderBottom: showBorder
-                              ? '1px solid rgba(224, 224, 224, 1)'
-                              : lastItemBorderBottom,
-                          }}
-                        >
-                          <Checkbox
-                            checked={selectCheckbox.includes(
-                              node[selectedSymbol]
-                            )}
-                            onChange={() => {
-                              if (handleSelectOneItem)
-                                handleSelectOneItem(node[selectedSymbol])
-                            }}
-                            disabled={disableCheckbox}
-                          />
-                        </TableCell>
-                      )}
-                      {columnItems.map((column) => (
-                        <TableCell
-                          key={column.title}
-                          sx={{
-                            ...column?.style,
-                            borderBottom: showBorder
-                              ? '1px solid rgba(224, 224, 224, 1)'
-                              : lastItemBorderBottom,
-                          }}
-                        >
-                          {column.render
-                            ? column.render(node, index)
-                            : node[column.key]}
-                        </TableCell>
-                      ))}
-                    </TableRow>
+                      tableKey={tableKey}
+                      onClickRow={onClickRow}
+                      CollapseComponent={CollapseComponent}
+                    />
                   )
                 })}
               </TableBody>
