@@ -419,8 +419,13 @@ export const getAllModifierDefaultValue = (modifiers: CustomFieldItems) => {
       modifierInfo.defaultValue = defaultInfo?.id || ''
 
       if (required) {
-        modifierInfo.isVerified =
-          modifierInfo.defaultValue.toString().length > 0
+        if (type === 'checkbox') {
+          modifierInfo.isVerified =
+            defaultInfo?.value_data?.checked_value || false
+        } else {
+          modifierInfo.isVerified =
+            modifierInfo.defaultValue.toString().length > 0
+        }
       }
     }
 
