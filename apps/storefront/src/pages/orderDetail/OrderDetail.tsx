@@ -254,10 +254,12 @@ function OrderDetail() {
               justifyContent: 'flex-end',
             }}
           >
-            <DetailPagination
-              onChange={(orderId) => handlePageChange(orderId)}
-              color={customColor}
-            />
+            {localtion?.state && (
+              <DetailPagination
+                onChange={(orderId) => handlePageChange(orderId)}
+                color={customColor}
+              />
+            )}
           </Grid>
         </Grid>
 

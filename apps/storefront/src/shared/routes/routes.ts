@@ -52,6 +52,10 @@ const Quickorder = lazy(() => import('../../pages/quickorder/Quickorder'))
 
 const HomePage = lazy(() => import('../../pages/homePage/HomePage'))
 
+const Invoice = lazy(() => import('../../pages/invoice/Invoice'))
+
+const InvoicePayment = lazy(() => import('../../pages/invoice/Payment'))
+
 type RegisteredItem = typeof Registered | typeof HomePage
 
 interface RouteItemBasic {
@@ -209,6 +213,16 @@ const routes: RouteItem[] = [
     permissions: [0, 1, 2, 3, 4, 99, 100],
     isTokenLogin: false,
   },
+  {
+    path: '/invoice',
+    name: 'Invoice',
+    wsKey: 'invoice',
+    isMenuItem: true,
+    component: Invoice,
+    configKey: 'invoice',
+    permissions: [0, 1, 2, 3, 4, 99, 100],
+    isTokenLogin: true,
+  },
 ]
 
 const firstLevelRouting: RouteFirstLevelItem[] = [
@@ -253,6 +267,13 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
     component: RegisteredBCToB2B,
     permissions: [0, 1, 2, 3, 4, 99, 100],
     isProvider: true,
+  },
+  {
+    path: '/payment/:id',
+    name: 'payment',
+    component: InvoicePayment,
+    permissions: [0, 1, 2, 3, 4, 99, 100],
+    isProvider: false,
   },
 ]
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
@@ -303,12 +324,13 @@ const gotoAllowedAppPage = (
     url = role === 3 ? '/dashboard' : '/orders'
   const flag = routes.some(
     (item: RouteItem) =>
-      matchPath(item.path, url) && item.permissions.includes(role)
+      (matchPath(item.path, url) || url.includes('invoice?')) &&
+      item.permissions.includes(role)
   )
 
   const isFirstLevelFlag = firstLevelRouting.some(
     (item: RouteFirstLevelItem) => {
-      if (url.includes('/login?')) {
+      if (url.includes('/login?') || url.includes('payment')) {
         return true
       }
       return matchPath(item.path, url)

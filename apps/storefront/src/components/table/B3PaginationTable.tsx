@@ -39,6 +39,7 @@ interface B3PaginationTableProps {
     index?: number,
     checkBox?: () => ReactElement
   ) => ReactElement
+  CollapseComponent?: (row: any) => ReactElement
   isCustomRender?: boolean
   noDataText?: string
   tableKey?: string
@@ -85,6 +86,7 @@ function PaginationTable(
     onClickRow,
     showPagination = true,
     showRowsPerPageOptions = true,
+    CollapseComponent,
   }: B3PaginationTableProps,
   ref?: Ref<unknown>
 ) {
@@ -341,6 +343,7 @@ function PaginationTable(
       onClickRow={onClickRow}
       showPagination={showPagination}
       showRowsPerPageOptions={showRowsPerPageOptions}
+      CollapseComponent={CollapseComponent}
     />
   )
 }

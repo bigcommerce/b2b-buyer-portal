@@ -16,7 +16,7 @@ export default defineConfig({
     port: 3001,
     proxy: {
       '/bigcommerce': {
-        target: 'https://storefront-staging.mybigcommerce.com/',
+        target: 'https://msfremote-frontend-demo.mybigcommerce.com/',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/bigcommerce/, ''),
       },
