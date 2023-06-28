@@ -97,6 +97,15 @@ export default function AddToQuote(props: AddToListProps) {
   const addToList = async (products: CustomFieldItems[]) => {
     const newProducts = getNewQuoteProduct(products)
 
+    const noSkuProducts = products.filter(({ sku }) => !sku)
+    if (noSkuProducts.length > 0) {
+      snackbar.error('Can not add products without SKU.', {
+        isClose: true,
+      })
+    }
+
+    if (noSkuProducts.length === products.length) return []
+
     addToQuote(newProducts)
 
     snackbar.success('Product were added to your quote.', {

@@ -156,7 +156,10 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       const { node } = item
 
       inventoryInfos.forEach((inventory: CustomFieldItems) => {
-        if (node.variantSku === inventory.variantSku) {
+        if (
+          node.variantSku === inventory.variantSku &&
+          +node.variantId === +inventory.variantId
+        ) {
           const { optionList, quantity } = node
 
           const options = optionList.map((option: CustomFieldItems) => ({
@@ -273,6 +276,20 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           )
         }
       )
+
+      const noSkuProducts = checkedArr.filter((checkedItem: ListItemProps) => {
+        const {
+          node: { variantSku },
+        } = checkedItem
+
+        return !variantSku
+      })
+      if (noSkuProducts.length > 0) {
+        snackbar.error('Can not add products without SKU.', {
+          isClose: true,
+        })
+      }
+      if (noSkuProducts.length === checkedArr.length) return
 
       const productIds: number[] = []
       productsWithSku.forEach((product: ListItemProps) => {

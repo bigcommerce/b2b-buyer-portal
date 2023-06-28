@@ -276,11 +276,20 @@ const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
 
       const cartProductsList = getCartProducts(lineItems)
 
+      const noSkuProducts = cartProductsList.filter(({ sku }) => !sku)
+
+      if (noSkuProducts.length > 0) {
+        globalSnackbar.error('Can not add products without SKU.', {
+          isClose: true,
+        })
+      }
+
       if (cartProductsList.length === 0) {
         globalSnackbar.error('No products being added.', {
           isClose: true,
         })
       }
+      if (noSkuProducts.length === cartProductsList.length) return
 
       const isSuccess = await addProductsToDraftQuote(cartProductsList)
       if (isSuccess) {

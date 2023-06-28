@@ -46,8 +46,12 @@ export const convertObjectToGraphql = (data: CustomFieldItems) => {
 
 export const convertArrayToGraphql = (data: CustomFieldItems) => {
   let str = '['
-  data.forEach((list: any) => {
-    str += convertObjectToGraphql(list)
+  data.forEach((list: CustomFieldItems, index: number) => {
+    if (index === data.length - 1) {
+      str += convertObjectToGraphql(list)
+    } else {
+      str += `${convertObjectToGraphql(list)},`
+    }
   })
   str += ']'
 
