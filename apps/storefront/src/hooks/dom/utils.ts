@@ -345,6 +345,14 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
       ).trim()
       const form = productView.querySelector('form[data-cart-item-add]')
 
+      if (!sku) {
+        globalSnackbar.error('Can not add products without SKU.', {
+          isClose: true,
+        })
+
+        return
+      }
+
       const companyId =
         B3SStorage.get('B3CompanyInfo')?.id ||
         B3SStorage.get('salesRepCompanyId')
