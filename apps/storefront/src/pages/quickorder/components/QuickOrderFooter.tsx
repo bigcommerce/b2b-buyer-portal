@@ -21,13 +21,10 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import {
-  getB2BVariantInfoBySkus,
-  getBcVariantInfoBySkus,
-} from '@/shared/service/b2b/graphql/product'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import {
   addQuoteDraftProducts,
+  B3SStorage,
   calculateProductListPrice,
   currencyFormat,
   getProductPriceIncTax,
@@ -155,26 +152,37 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     checkedArr.forEach((item: ProductsProps) => {
       const { node } = item
 
-      inventoryInfos.forEach((inventory: CustomFieldItems) => {
-        if (
-          node.variantSku === inventory.variantSku &&
-          +node.variantId === +inventory.variantId
-        ) {
-          const { optionList, quantity } = node
+      const currentProduct: CustomFieldItems | undefined = inventoryInfos.find(
+        (inventory: CustomFieldItems) => +node.productId === inventory.id
+      )
+      if (currentProduct) {
+        const { variants }: CustomFieldItems = currentProduct
 
-          const options = optionList.map((option: CustomFieldItems) => ({
-            optionId: option.product_option_id,
-            optionValue: option.value,
-          }))
+        if (variants.length > 0) {
+          const currentInventoryInfo: CustomFieldItems | undefined =
+            variants.find(
+              (variant: CustomFieldItems) =>
+                node.variantSku === variant.sku &&
+                +node.variantId === +variant.variant_id
+            )
 
-          lineItems.push({
-            optionSelections: options,
-            productId: parseInt(inventory.productId, 10) || 0,
-            quantity,
-            variantId: parseInt(inventory.variantId, 10) || 0,
-          })
+          if (currentInventoryInfo) {
+            const { optionList, quantity } = node
+
+            const options = optionList.map((option: CustomFieldItems) => ({
+              optionId: option.product_option_id,
+              optionValue: option.value,
+            }))
+
+            lineItems.push({
+              optionSelections: options,
+              productId: parseInt(currentInventoryInfo.product_id, 10) || 0,
+              quantity,
+              variantId: parseInt(currentInventoryInfo.variant_id, 10) || 0,
+            })
+          }
         }
-      })
+      }
     })
 
     return lineItems
@@ -184,30 +192,38 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     setIsRequestLoading(true)
     handleClose()
     try {
-      const skus: string[] = []
+      const productIds: number[] = []
 
       checkedArr.forEach((item: ProductsProps) => {
         const { node } = item
 
-        skus.push(node.variantSku)
+        if (!productIds.includes(+node.productId)) {
+          productIds.push(+node.productId)
+        }
       })
 
-      const getVariantInfoBySku = isB2BUser
-        ? getB2BVariantInfoBySkus
-        : getBcVariantInfoBySkus
+      const getVariantInfoByProductId = isB2BUser
+        ? searchB2BProducts
+        : searchBcProducts
 
-      if (skus.length === 0) {
+      if (productIds.length === 0) {
         snackbar.error('Please select at least one item to add to cart')
         return
       }
 
-      const getInventoryInfos = await getVariantInfoBySku({
-        skus,
-      })
+      const companyId =
+        B3SStorage.get('B3CompanyInfo')?.id ||
+        B3SStorage.get('salesRepCompanyId')
+      const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
 
-      const lineItems = handleSetCartLineItems(
-        getInventoryInfos?.variantSku || []
-      )
+      const { productsSearch: getInventoryInfos } =
+        await getVariantInfoByProductId({
+          productIds,
+          companyId,
+          customerGroupId,
+        })
+
+      const lineItems = handleSetCartLineItems(getInventoryInfos || [])
 
       const cartInfo = await getCartInfo()
       const res = cartInfo.length
