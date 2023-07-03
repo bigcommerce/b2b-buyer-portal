@@ -1,5 +1,5 @@
 import { useB3Lang } from '@b3/lang'
-import { Box, Button } from '@mui/material'
+import { Box } from '@mui/material'
 
 import { CustomButton } from '@/components'
 
@@ -38,7 +38,7 @@ function RegisteredStepButton(props: any) {
               : b3Lang('intl.global.button.next')}
           </CustomButton>
           {activeStep !== 0 && (
-            <Button
+            <CustomButton
               variant="text"
               onClick={handleBack}
               sx={{
@@ -46,7 +46,7 @@ function RegisteredStepButton(props: any) {
               }}
             >
               {b3Lang('intl.global.button.back')}
-            </Button>
+            </CustomButton>
           )}
         </Box>
       )}
