@@ -91,7 +91,7 @@ interface TableProps<T> {
   isAllSelect?: boolean
   sortDirection?: 'asc' | 'desc'
   sortByFn?: (node: any) => void
-  orderBy: string
+  orderBy?: string
 }
 
 interface RowProps<T> {
