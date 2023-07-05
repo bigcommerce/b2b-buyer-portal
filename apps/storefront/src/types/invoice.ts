@@ -16,6 +16,8 @@ export interface InvoiceList {
   openBalance: OpenBalance
   originalBalance: OpenBalance
   isCollapse?: boolean
+  disableCurrentCheckbox?: boolean
+  sortDirection?: any
 }
 
 export interface InvoiceListNode {
@@ -30,7 +32,7 @@ export interface BcCartData {
   }
 }
 
-interface BcCartDataLineItem {
+export interface BcCartDataLineItem {
   invoiceId: number
   amount: string
 }

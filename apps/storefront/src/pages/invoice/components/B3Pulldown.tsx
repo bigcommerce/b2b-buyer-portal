@@ -1,9 +1,10 @@
-import { MouseEvent, useState } from 'react'
+import { MouseEvent, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
+import { GlobaledContext } from '@/shared/global'
 import { InvoiceList } from '@/types/invoice'
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment'
@@ -30,7 +31,11 @@ function B3Pulldown({
   setInvoiceId,
   handleOpenHistoryModal,
 }: B3PulldownProps) {
+  const {
+    state: { role, isAgenting },
+  } = useContext(GlobaledContext)
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const [isCanPay, setIsCanPay] = useState<boolean>(true)
 
   const navigate = useNavigate()
 
@@ -109,6 +114,13 @@ function B3Pulldown({
     a.click()
   }
 
+  useEffect(() => {
+    const { openBalance } = row
+    const payPermissions = +openBalance.value > 0 && (role === 0 || isAgenting)
+
+    setIsCanPay(payPermissions)
+  }, [])
+
   return (
     <>
       <IconButton onClick={(e) => handleMoreActionsClick(e)}>
@@ -132,6 +144,7 @@ function B3Pulldown({
         }}
       >
         <MenuItem
+          key="View-invoice"
           sx={{
             color: 'primary.main',
           }}
@@ -140,6 +153,7 @@ function B3Pulldown({
           View invoice
         </MenuItem>
         <MenuItem
+          key="View-Order"
           sx={{
             color: 'primary.main',
           }}
@@ -147,23 +161,30 @@ function B3Pulldown({
         >
           View Order
         </MenuItem>
+        {row.status !== 0 && (
+          <MenuItem
+            key="View-payment-history"
+            sx={{
+              color: 'primary.main',
+            }}
+            onClick={viewPaymentHistory}
+          >
+            View payment history
+          </MenuItem>
+        )}
+        {isCanPay && (
+          <MenuItem
+            key="Pay"
+            sx={{
+              color: 'primary.main',
+            }}
+            onClick={handlePay}
+          >
+            Pay
+          </MenuItem>
+        )}
         <MenuItem
-          sx={{
-            color: 'primary.main',
-          }}
-          onClick={viewPaymentHistory}
-        >
-          View payment history
-        </MenuItem>
-        <MenuItem
-          sx={{
-            color: 'primary.main',
-          }}
-          onClick={handlePay}
-        >
-          Pay
-        </MenuItem>
-        <MenuItem
+          key="Print"
           sx={{
             color: 'primary.main',
           }}
@@ -172,6 +193,7 @@ function B3Pulldown({
           Print
         </MenuItem>
         <MenuItem
+          key="Download"
           sx={{
             color: 'primary.main',
           }}

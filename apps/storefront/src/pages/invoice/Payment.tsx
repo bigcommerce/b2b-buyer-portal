@@ -15,8 +15,6 @@ function Payment() {
 
   const params = useParams()
 
-  console.log(params, 'params')
-
   const navigate = useNavigate()
 
   useEffect(() => {

@@ -47,6 +47,7 @@ interface B3PaginationTableProps {
   searchParams?: any
   requestLoading?: (bool: boolean) => void
   showCheckbox?: boolean
+  showSelectAllCheckbox?: boolean
   selectedSymbol?: string
   isSelectOtherPageCheckbox?: boolean
   showBorder?: boolean
@@ -55,8 +56,12 @@ interface B3PaginationTableProps {
   labelRowsPerPage?: string
   itemIsMobileSpacing?: number
   disableCheckbox?: boolean
+  applyAllDisableCheckbox?: boolean
   onClickRow?: (item: any, index?: number) => void
   showRowsPerPageOptions?: boolean
+  sortDirection?: 'asc' | 'desc'
+  sortByFn?: (node: CustomFieldItems) => void
+  orderBy?: string
 }
 
 function PaginationTable(
@@ -75,6 +80,7 @@ function PaginationTable(
     searchParams,
     requestLoading,
     showCheckbox = false,
+    showSelectAllCheckbox = false,
     selectedSymbol = 'id',
     isSelectOtherPageCheckbox = false,
     showBorder = true,
@@ -87,6 +93,10 @@ function PaginationTable(
     showPagination = true,
     showRowsPerPageOptions = true,
     CollapseComponent,
+    applyAllDisableCheckbox = true,
+    sortDirection = 'asc',
+    sortByFn = () => {},
+    orderBy = '',
   }: B3PaginationTableProps,
   ref?: Ref<unknown>
 ) {
@@ -331,6 +341,7 @@ function PaginationTable(
       tableKey={tableKey}
       itemIsMobileSpacing={itemIsMobileSpacing}
       showCheckbox={showCheckbox}
+      showSelectAllCheckbox={showSelectAllCheckbox}
       disableCheckbox={disableCheckbox}
       selectedSymbol={selectedSymbol}
       isSelectOtherPageCheckbox={isSelectOtherPageCheckbox}
@@ -344,6 +355,10 @@ function PaginationTable(
       showPagination={showPagination}
       showRowsPerPageOptions={showRowsPerPageOptions}
       CollapseComponent={CollapseComponent}
+      applyAllDisableCheckbox={applyAllDisableCheckbox}
+      sortDirection={sortDirection}
+      sortByFn={sortByFn}
+      orderBy={orderBy}
     />
   )
 }

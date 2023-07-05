@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Box, Card, CardContent, Typography } from '@mui/material'
 
 import { B3Dialog, B3NoData, B3Sping } from '@/components'
+import { useMobile } from '@/hooks'
 import { getInvoicePaymentHistory } from '@/shared/service/b2b'
 import { currencyFormat, displayFormat } from '@/utils'
 
@@ -128,6 +129,7 @@ function PaymentsHistory({
   setOpen,
   currentInvoiceId,
 }: PaymentsHistoryProps) {
+  const [isMobile] = useMobile()
   const [loadding, setLoadding] = useState<boolean>(false)
 
   const [list, setList] = useState<PaymentsHistoryList[] | []>([])
@@ -159,7 +161,7 @@ function PaymentsHistory({
     >
       <Box
         sx={{
-          width: `${'384px'}`,
+          width: isMobile ? '100%' : `${'384px'}`,
           maxHeight: '600px',
         }}
       >

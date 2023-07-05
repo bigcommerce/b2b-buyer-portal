@@ -5,7 +5,15 @@ const invoiceList = (data: CustomFieldItems) => `{
   invoices (
     search: "${data.q || ''}"
     first: ${data.first}
-    offset: ${data.offset}
+    offset: ${data.offset} 
+    ${
+      data?.status
+        ? `status: ${convertArrayToGraphql(data.status ? [data.status] : [])}`
+        : ''
+    }
+    ${data?.beginDateAt ? `beginDateAt: "${data.beginDateAt}"` : ''}
+    ${data?.endDateAt ? `endDateAt: "${data.endDateAt}"` : ''}
+    orderBy: "${data?.orderBy || '-invoiceNumber'}"
   ){
     totalCount,
     pageInfo{
@@ -168,6 +176,21 @@ const invoiceReceipt = (id: number) => `{
   }
 }`
 
+const exportInvoices = (data: CustomFieldItems) => `mutation {
+  invoicesExport (
+    invoiceFilterData: {
+      search: "${data?.search || ''}"
+      invoiceNumber: "${data?.invoiceNumber || ''}"
+      orderNumber: "${data?.orderNumber || ''}"
+      ${data?.beginDateAt ? `beginDateAt: ${data.beginDateAt}` : ''}
+      ${data?.endDateAt ? `endDateAt: ${data.endDateAt}` : ''}
+      ${data?.status ? `status: ${data?.status}` : ''}
+    }
+  ) {
+    url
+  }
+}`
+
 export const getInvoiceList = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: invoiceList(data),
@@ -201,4 +224,9 @@ export const getInvoiceDetail = (id: number): CustomFieldItems =>
 export const getInvoicePaymentInfo = (id: number): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: invoiceReceipt(id),
+  })
+
+export const exportInvoicesAsCSV = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: exportInvoices(data),
   })
