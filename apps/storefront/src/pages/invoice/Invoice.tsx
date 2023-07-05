@@ -1,4 +1,4 @@
-import { ReactElement, useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import globalB3 from '@b3/global-b3'
 import {
@@ -34,7 +34,7 @@ import PaymentSuccess from './components/PaymentSuccess'
 import PrintTempalte from './components/PrintTempalte'
 import InvoiceListType, { filterFormConfig, sortIdArr } from './utils/config'
 import { handlePrintPDF } from './utils/pdf'
-import { InvoiceItemCard } from './InvoiceItemCard'
+// import { InvoiceItemCard } from './InvoiceItemCard'
 
 export interface FilterSearchProps {
   [key: string]: string | number | null
@@ -638,23 +638,23 @@ function Invoice() {
           sortByFn={handleSetOrderBy}
           isSelectOtherPageCheckbox
           hover
-          renderItem={(
-            row: InvoiceList,
-            index?: number,
-            checkBox?: () => ReactElement
-          ) => (
-            <InvoiceItemCard
-              item={row}
-              checkBox={checkBox}
-              handleSetSelectedInvoiceAccount={handleSetSelectedInvoiceAccount}
-              handleViewInvoice={handleViewInvoice}
-              setIsRequestLoading={setIsRequestLoading}
-              setInvoiceId={setCurrentInvoiceId}
-              handleOpenHistoryModal={setIsOpenHistorys}
-              currentCurrencyToken={currentCurrency.token}
-              selectedPay={selectedPay}
-            />
-          )}
+          // renderItem={(
+          //   row: InvoiceList,
+          //   index?: number,
+          //   checkBox?: () => ReactElement
+          // ) => (
+          //   <InvoiceItemCard
+          //     item={row}
+          //     checkBox={checkBox}
+          //     handleSetSelectedInvoiceAccount={handleSetSelectedInvoiceAccount}
+          //     handleViewInvoice={handleViewInvoice}
+          //     setIsRequestLoading={setIsRequestLoading}
+          //     setInvoiceId={setCurrentInvoiceId}
+          //     handleOpenHistoryModal={setIsOpenHistorys}
+          //     currentCurrencyToken={currentCurrency.token}
+          //     selectedPay={selectedPay}
+          //   />
+          // )}
         />
         {list.length > 0 && !isMobile && (
           <Box
