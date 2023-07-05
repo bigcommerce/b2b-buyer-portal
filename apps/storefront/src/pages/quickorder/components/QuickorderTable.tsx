@@ -506,6 +506,7 @@ function QuickorderTable({
           searchParams={search}
           isCustomRender={false}
           showCheckbox
+          showSelectAllCheckbox
           disableCheckbox={false}
           hover
           labelRowsPerPage="Items per page:"

@@ -10,6 +10,7 @@ interface B3FilterSearchProps {
   searchBGColor?: string
   placeholder?: string
   h?: number | string
+  searchValue?: string
 }
 
 function B3FilterSearch({
@@ -18,6 +19,7 @@ function B3FilterSearch({
   h,
   searchBGColor = '#efeae7',
   placeholder = 'Search',
+  searchValue = '',
 }: B3FilterSearchProps) {
   const [search, setSearch] = useState<string>('')
   const debouncedValue = useDebounce<string>(search, 500)
@@ -30,6 +32,11 @@ function B3FilterSearch({
   useEffect(() => {
     handleChange(search)
   }, [debouncedValue])
+  useEffect(() => {
+    if (searchValue.length > 0) {
+      setSearch(searchValue)
+    }
+  }, [searchValue])
 
   return (
     <Paper

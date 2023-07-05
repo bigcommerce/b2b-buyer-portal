@@ -107,6 +107,16 @@ const routes: RouteItem[] = [
     isTokenLogin: true,
   },
   {
+    path: '/invoice',
+    name: 'Invoice',
+    wsKey: 'invoice',
+    isMenuItem: true,
+    component: Invoice,
+    configKey: 'invoice',
+    permissions: [0, 1, 2, 3, 4, 99, 100],
+    isTokenLogin: true,
+  },
+  {
     path: '/quotes',
     name: 'Quotes',
     wsKey: 'quotes',
@@ -212,16 +222,6 @@ const routes: RouteItem[] = [
     configKey: 'quoteDetail',
     permissions: [0, 1, 2, 3, 4, 99, 100],
     isTokenLogin: false,
-  },
-  {
-    path: '/invoice',
-    name: 'Invoice',
-    wsKey: 'invoice',
-    isMenuItem: true,
-    component: Invoice,
-    configKey: 'invoice',
-    permissions: [0, 1, 2, 3, 4, 99, 100],
-    isTokenLogin: true,
   },
 ]
 

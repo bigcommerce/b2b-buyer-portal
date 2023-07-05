@@ -23,6 +23,7 @@ import {
   TableRow,
 } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
+import TableSortLabel from '@mui/material/TableSortLabel'
 
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
@@ -46,6 +47,7 @@ export interface TableColumnItem<T> {
   width?: string
   render?: (item: T, index: number) => ReactNode
   style?: { [key: string]: string }
+  isSortable?: boolean
 }
 
 interface TableProps<T> {
@@ -72,6 +74,7 @@ interface TableProps<T> {
   noDataText?: string
   tableKey?: string
   showCheckbox?: boolean
+  showSelectAllCheckbox?: boolean
   setNeedUpdate?: (boolean: boolean) => void
   handleSelectAllItems?: () => void
   handleSelectOneItem?: (id: number | string) => void
@@ -81,10 +84,14 @@ interface TableProps<T> {
   selectCheckbox?: Array<number | string>
   labelRowsPerPage?: string
   disableCheckbox?: boolean
+  applyAllDisableCheckbox?: boolean
   onClickRow?: (item: any, index?: number) => void
   showRowsPerPageOptions?: boolean
   isSelectOtherPageCheckbox?: boolean
   isAllSelect?: boolean
+  sortDirection?: 'asc' | 'desc'
+  sortByFn?: (node: any) => void
+  orderBy: string
 }
 
 interface RowProps<T> {
@@ -97,6 +104,7 @@ interface RowProps<T> {
   selectedSymbol?: string
   selectCheckbox?: Array<number | string>
   disableCheckbox?: boolean
+  applyAllDisableCheckbox?: boolean
   handleSelectOneItem?: (id: number | string) => void
   tableKey?: string
   onClickRow?: (item: any, index?: number) => void
@@ -125,8 +133,9 @@ function Row({
   onClickRow,
   hover,
   CollapseComponent,
+  applyAllDisableCheckbox,
 }: RowProps<any>) {
-  const { isCollapse = false } = node
+  const { isCollapse = false, disableCurrentCheckbox } = node
 
   const [open, setOpen] = useState<boolean>(isCollapse || false)
 
@@ -153,7 +162,11 @@ function Row({
                 if (handleSelectOneItem)
                   handleSelectOneItem(node[selectedSymbol])
               }}
-              disabled={disableCheckbox}
+              disabled={
+                applyAllDisableCheckbox
+                  ? disableCheckbox
+                  : disableCurrentCheckbox
+              }
             />
           </TableCell>
         )}
@@ -186,7 +199,7 @@ function Row({
       </TableRow>
       {CollapseComponent && (
         <TableRow>
-          <TableCell style={{ padding: 0 }} colSpan={6}>
+          <TableCell style={{ padding: 0 }} colSpan={24}>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <CollapseComponent row={node} />
             </Collapse>
@@ -220,6 +233,7 @@ export function B3Table<T>({
   tableHeaderHide = false,
   tableKey,
   showCheckbox = false,
+  showSelectAllCheckbox = false,
   setNeedUpdate = () => {},
   handleSelectAllItems,
   handleSelectOneItem,
@@ -234,6 +248,10 @@ export function B3Table<T>({
   onClickRow,
   showRowsPerPageOptions = true,
   CollapseComponent,
+  applyAllDisableCheckbox = true,
+  sortDirection = 'asc',
+  sortByFn,
+  orderBy = '',
 }: TableProps<T>) {
   const {
     state: {
@@ -281,7 +299,7 @@ export function B3Table<T>({
     <>
       {isInfiniteScroll && (
         <>
-          {showCheckbox && (
+          {showSelectAllCheckbox && (
             <Box
               sx={{
                 display: 'flex',
@@ -411,8 +429,8 @@ export function B3Table<T>({
               {!tableHeaderHide && (
                 <TableHead>
                   <TableRow>
-                    {showCheckbox && (
-                      <TableCell key="showCheckbox">
+                    {showSelectAllCheckbox && (
+                      <TableCell key="showSelectAllCheckbox">
                         <Checkbox
                           checked={
                             isSelectOtherPageCheckbox
@@ -437,8 +455,24 @@ export function B3Table<T>({
                               }
                             : {}
                         }
+                        sortDirection={
+                          column.key === orderBy ? sortDirection : false
+                        }
                       >
-                        {column.title}
+                        {column?.isSortable ? (
+                          <TableSortLabel
+                            active={column.key === orderBy}
+                            direction={
+                              column.key === orderBy ? sortDirection : 'desc'
+                            }
+                            hideSortIcon={column.key !== orderBy}
+                            onClick={() => sortByFn && sortByFn(column)}
+                          >
+                            {column.title}
+                          </TableSortLabel>
+                        ) : (
+                          column.title
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -462,6 +496,7 @@ export function B3Table<T>({
                       selectCheckbox={selectCheckbox}
                       selectedSymbol={selectedSymbol}
                       disableCheckbox={disableCheckbox}
+                      applyAllDisableCheckbox={applyAllDisableCheckbox}
                       showBorder={showBorder}
                       handleSelectOneItem={handleSelectOneItem}
                       clickableRowStyles={clickableRowStyles}

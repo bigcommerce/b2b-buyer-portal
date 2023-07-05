@@ -608,6 +608,7 @@ function ShoppingDetailTable(
         searchParams={search}
         isCustomRender={false}
         showCheckbox
+        showSelectAllCheckbox
         disableCheckbox={
           allowJuniorPlaceOrder
             ? !allowJuniorPlaceOrder

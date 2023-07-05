@@ -57,6 +57,7 @@ interface B3FilterProps<T, Y> {
   handleFilterChange: (value: Y) => void
   handleFilterCustomButtomClick?: () => void
   showB3FilterMoreIcon?: boolean
+  searchValue?: string
 }
 
 function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
@@ -70,6 +71,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
     handleFilterChange,
     handleFilterCustomButtomClick,
     showB3FilterMoreIcon = true,
+    searchValue = '',
   } = props
 
   const [isMobile] = useMobile()
@@ -113,7 +115,11 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
               alignItems: 'center',
             }}
           >
-            <B3FilterSearch handleChange={handleSearchChange} w="70%" />
+            <B3FilterSearch
+              handleChange={handleSearchChange}
+              w="70%"
+              searchValue={searchValue}
+            />
             {showB3FilterMoreIcon && (
               <B3FilterMore
                 startPicker={startPicker}
@@ -183,7 +189,11 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
               justifyContent: 'space-between',
             }}
           >
-            <B3FilterSearch handleChange={handleSearchChange} w="90%" />
+            <B3FilterSearch
+              handleChange={handleSearchChange}
+              w="90%"
+              searchValue={searchValue}
+            />
             <B3FilterMore
               startPicker={startPicker}
               endPicker={endPicker}

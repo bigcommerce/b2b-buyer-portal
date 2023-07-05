@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Box, Typography } from '@mui/material'
 
 import { B3Dialog, B3NoData, B3Sping } from '@/components'
+import { useMobile } from '@/hooks'
 import { getInvoicePaymentInfo } from '@/shared/service/b2b'
 import { InvoiceSuccessData, ReceiptLineSet } from '@/types/invoice'
 import { currencyFormat, displayFormat } from '@/utils'
@@ -75,7 +76,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
     },
     {
       key: 'createdAt',
-      label: 'Date received',
+      label: 'Payment received on',
       type: 'time',
       isRow: true,
     },
@@ -187,6 +188,7 @@ interface PaymentSuccessProps {
 }
 
 function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
+  const [isMobile] = useMobile()
   const [loadding, setLoadding] = useState<boolean>(false)
 
   const [open, setOpen] = useState<boolean>(false)
@@ -198,7 +200,6 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
       setLoadding(true)
       const { receipt } = await getInvoicePaymentInfo(+receiptId)
 
-      console.log(receipt, 'data')
       setDetailData(receipt)
       setOpen(true)
       setLoadding(false)
@@ -220,7 +221,7 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
     >
       <Box
         sx={{
-          width: `${'384px'}`,
+          width: isMobile ? '100%' : `${'384px'}`,
           maxHeight: '600px',
         }}
       >
