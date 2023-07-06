@@ -1,6 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import globalB3 from '@b3/global-b3'
 import {
   Box,
   Button,
@@ -18,10 +17,11 @@ import { GlobaledContext } from '@/shared/global'
 import { exportInvoicesAsCSV, getInvoiceList } from '@/shared/service/b2b'
 import { InvoiceList, InvoiceListNode } from '@/types/invoice'
 import {
+  B3SStorage,
   currencyFormat,
+  currencyFormatInfo,
   displayFormat,
-  getActiveCurrencyInfo,
-  getDefaultCurrencyInfo,
+  getUTCTimestamp,
 } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -60,13 +60,13 @@ function Invoice() {
   const {
     state: { role, isAgenting },
   } = useContext(GlobaledContext)
+  const juniorOrSenior = +role === 1 || role === 2
   const navigate = useNavigate()
   const [isMobile] = useMobile()
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
-  const currentCurrency = globalB3?.setting?.is_local_debugging
-    ? getDefaultCurrencyInfo()
-    : getActiveCurrencyInfo()
+  const allCurrencies = B3SStorage.get('currencies')
+  const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo()
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
   const [isOpenHistorys, setIsOpenHistorys] = useState<boolean>(false)
@@ -89,6 +89,21 @@ function Invoice() {
     useState<Partial<FilterSearchProps> | null>()
 
   const location = useLocation()
+
+  const handleGetCorrespondingCurrency = (code: string) => {
+    const { currencies: currencyArr } = allCurrencies
+    let token = '$'
+    const correspondingCurrency =
+      currencyArr.find(
+        (currency: CustomFieldItems) => currency.currency_code === code
+      ) || {}
+
+    if (correspondingCurrency) {
+      token = correspondingCurrency.token
+    }
+
+    return token
+  }
 
   const handleStatisticsInvoiceAmount = (invoices: InvoiceListNode[]) => {
     let unpaidAmount = 0
@@ -123,10 +138,11 @@ function Invoice() {
 
   const handleFilterChange = (value: Partial<FilterSearchProps>) => {
     const startValue = value?.startValue
-      ? new Date(value?.startValue).getTime() / 1000
+      ? getUTCTimestamp(new Date(value?.startValue).getTime() / 1000)
       : ''
+
     const endValue = value?.endValue
-      ? new Date(value?.endValue).getTime() / 1000
+      ? getUTCTimestamp(new Date(value?.endValue).getTime() / 1000, true)
       : ''
 
     const search: Partial<FilterSearchProps> = {
@@ -162,11 +178,11 @@ function Invoice() {
     }
   }
 
-  const handleViewInvoice = async (id: string) => {
+  const handleViewInvoice = async (id: string, status: string | number) => {
     try {
       setIsRequestLoading(true)
-
-      const pdfUrl = await handlePrintPDF(id, true)
+      const isPayNow = !juniorOrSenior && status !== 2
+      const pdfUrl = await handlePrintPDF(id, isPayNow)
 
       if (!pdfUrl) {
         console.error('pdf url resolution error')
@@ -322,23 +338,38 @@ function Invoice() {
       invoices: { edges, totalCount },
     } = await getInvoiceList(params)
 
-    if (type === InvoiceListType.DETAIL && edges.length) {
-      edges.forEach((item: InvoiceListNode) => {
+    let invoicesList: InvoiceListNode[] = edges
+    if (filterData?.status === '0') {
+      invoicesList = edges.filter((invoice: InvoiceListNode) => {
+        const {
+          node: { status, dueDate },
+        } = invoice
+
+        return (
+          `${+status}` === filterData.status && currentDate <= dueDate * 1000
+        )
+      })
+    }
+
+    if (type === InvoiceListType.DETAIL && invoicesList.length) {
+      invoicesList.forEach((item: InvoiceListNode) => {
         item.node.isCollapse = true
       })
     }
 
-    edges.forEach((item: InvoiceListNode) => {
+    invoicesList.forEach((item: InvoiceListNode) => {
       const {
         node: { openBalance },
       } = item
       item.node.disableCurrentCheckbox = +openBalance.value === 0
+
+      openBalance.value = (+openBalance.value).toFixed(decimalPlaces)
     })
-    setList(edges)
-    handleStatisticsInvoiceAmount(edges)
+    setList(invoicesList)
+    handleStatisticsInvoiceAmount(invoicesList)
 
     return {
-      edges,
+      edges: invoicesList,
       totalCount,
     }
   }
@@ -372,7 +403,7 @@ function Invoice() {
             },
           }}
           onClick={() => {
-            handleViewInvoice(item.id)
+            handleViewInvoice(item.id, item.status)
           }}
         >
           {item?.id || '-'}
@@ -438,8 +469,9 @@ function Invoice() {
       render: (item: InvoiceList) => {
         const { originalBalance } = item
         const originalAmount = (+originalBalance.value).toFixed(2)
+        const token = handleGetCorrespondingCurrency(originalBalance.code)
 
-        return currencyFormat(+originalAmount || 0)
+        return `${token}${+originalAmount || 0}`
       },
       width: '10%',
     },
@@ -451,8 +483,9 @@ function Invoice() {
         const { openBalance } = item
 
         const openAmount = (+openBalance.value).toFixed(2)
+        const token = handleGetCorrespondingCurrency(openBalance.code)
 
-        return currencyFormat(+openAmount || 0)
+        return `${token}${+openAmount || 0}`
       },
       width: '10%',
     },
@@ -461,7 +494,8 @@ function Invoice() {
       title: 'Amount to pay',
       render: (item: InvoiceList) => {
         const { openBalance, id } = item
-        let valuePrice = +openBalance.value
+        const currentCode = openBalance.code || '$'
+        let valuePrice = openBalance.value
         let disabled = true
 
         if (selectedPay.length > 0) {
@@ -479,7 +513,7 @@ function Invoice() {
             } = currentSelected
 
             disabled = false
-            valuePrice = +selectedOpenBalance.value
+            valuePrice = selectedOpenBalance.value
 
             if (+openBalance.value === 0) {
               disabled = true
@@ -491,14 +525,14 @@ function Invoice() {
           <TextField
             disabled={disabled}
             variant="filled"
-            value={valuePrice}
+            value={valuePrice || ''}
             InputProps={{
               startAdornment: (
                 <InputAdornment
                   position="start"
                   sx={{ padding: '8px 0', marginTop: '0 !important' }}
                 >
-                  {currentCurrency.token}
+                  {handleGetCorrespondingCurrency(currentCode)}
                 </InputAdornment>
               ),
             }}
@@ -506,10 +540,36 @@ function Invoice() {
               '& input': {
                 paddingTop: '8px',
               },
+              '& input[type="number"]::-webkit-inner-spin-button, & input[type="number"]::-webkit-outer-spin-button':
+                {
+                  '-webkit-appearance': 'none',
+                  margin: 0,
+                },
             }}
-            onChange={(e: CustomFieldItems) =>
-              handleSetSelectedInvoiceAccount(e.target?.value, id)
-            }
+            onChange={(e: CustomFieldItems) => {
+              const val = e.target?.value
+              let result = val
+              if (val.includes('.')) {
+                const wholeDecimalNumber = val.split('.')
+                const movePoint = wholeDecimalNumber[1].length - +decimalPlaces
+                if (wholeDecimalNumber[1] && movePoint > 0) {
+                  const newVal = wholeDecimalNumber[0] + wholeDecimalNumber[1]
+                  result = `${newVal.slice(0, -decimalPlaces)}.${newVal.slice(
+                    -decimalPlaces
+                  )}`
+                }
+              } else {
+                const movePoint = result.length - +decimalPlaces
+                if (movePoint > 0) {
+                  result = `${val.slice(0, -decimalPlaces)}.${val.slice(
+                    -decimalPlaces
+                  )}`
+                } else {
+                  result = `.${val}`
+                }
+              }
+              handleSetSelectedInvoiceAccount(result, id)
+            }}
             type="number"
           />
         )
@@ -534,14 +594,32 @@ function Invoice() {
     {
       key: 'companyName',
       title: 'Action',
-      render: (row: InvoiceList) => (
-        <B3Pulldown
-          row={row}
-          setInvoiceId={setCurrentInvoiceId}
-          handleOpenHistoryModal={setIsOpenHistorys}
-          setIsRequestLoading={setIsRequestLoading}
-        />
-      ),
+      render: (row: InvoiceList) => {
+        const { id } = row
+        let actionRow = row
+        if (selectedPay.length > 0) {
+          const currentSelected = selectedPay.find((item: InvoiceListNode) => {
+            const {
+              node: { id: selectedId },
+            } = item
+
+            return +selectedId === +id
+          })
+
+          if (currentSelected) {
+            actionRow = currentSelected.node
+          }
+        }
+
+        return (
+          <B3Pulldown
+            row={actionRow}
+            setInvoiceId={setCurrentInvoiceId}
+            handleOpenHistoryModal={setIsOpenHistorys}
+            setIsRequestLoading={setIsRequestLoading}
+          />
+        )
+      },
       width: '10%',
     },
   ]
@@ -571,13 +649,19 @@ function Invoice() {
             startPicker={{
               isEnabled: true,
               label: 'From',
-              defaultValue: filterData?.dateCreatedBeginAt || '',
+              defaultValue:
+                typeof filterData?.beginDateAt === 'number'
+                  ? +filterData.beginDateAt * 1000
+                  : '',
               pickerKey: 'start',
             }}
             endPicker={{
               isEnabled: true,
               label: 'To',
-              defaultValue: filterData?.dateCreatedEndAt || '',
+              defaultValue:
+                typeof filterData?.endDateAt === 'number'
+                  ? +filterData.endDateAt * 1000
+                  : '',
               pickerKey: 'end',
             }}
             searchValue={filterData?.q || ''}
@@ -627,8 +711,8 @@ function Invoice() {
           isCustomRender={false}
           requestLoading={setIsRequestLoading}
           tableKey="id"
-          showCheckbox
-          showSelectAllCheckbox={!isMobile}
+          showCheckbox={!juniorOrSenior}
+          showSelectAllCheckbox={!isMobile && !juniorOrSenior}
           disableCheckbox={false}
           applyAllDisableCheckbox={false}
           getSelectCheckbox={getSelectCheckbox}

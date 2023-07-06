@@ -20,6 +20,7 @@ import { gotoAllowedAppPage } from '@/shared/routes'
 import { setChannelStoreType } from '@/shared/service/b2b'
 import {
   B3SStorage,
+  clearInvoiceCart,
   getCompanyUserInfo,
   getCurrentCustomerInfo,
   getQuoteEnabled,
@@ -173,6 +174,10 @@ export default function App() {
         !(customerId && !window.location.hash)
       ) {
         gotoAllowedAppPage(+userInfo.role, gotoPage)
+      }
+
+      if (customerId) {
+        clearInvoiceCart()
       }
 
       sessionStorage.removeItem('isReLogin')
