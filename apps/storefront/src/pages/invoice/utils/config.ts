@@ -16,7 +16,7 @@ export const invoiceStatus = [
   {
     key: 'partialPaid',
     value: 1,
-    label: 'Partial paid',
+    label: 'Partially paid',
   },
   {
     key: 'paid',

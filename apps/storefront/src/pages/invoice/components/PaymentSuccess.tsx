@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Box, Typography } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
+import { Box, Button, Typography } from '@mui/material'
 
 import { B3Dialog, B3NoData, B3Sping } from '@/components'
 import { useMobile } from '@/hooks'
@@ -16,7 +17,13 @@ interface PaymentSuccessKeysProps {
   isRow: boolean
 }
 
-function Title({ title }: { title: string }) {
+function Title({
+  title,
+  withColon = true,
+}: {
+  title: string
+  withColon?: boolean
+}) {
   return (
     <Typography
       sx={{
@@ -24,7 +31,7 @@ function Title({ title }: { title: string }) {
         pr: '5px',
       }}
     >
-      {title}:
+      {withColon ? `${title}:` : title}
     </Typography>
   )
 }
@@ -139,7 +146,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
           flexDirection: 'column',
         }}
       >
-        <Title title="Invoices paid" />
+        <Title title="Invoices paid" withColon={false} />
         <Typography variant="body1">
           Yo made payments towards the invoices shown below{' '}
         </Typography>
@@ -155,8 +162,24 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
             fontWeight: 500,
           }}
         >
-          <Typography>Invoice#</Typography>
-          <Typography>Amount paid</Typography>
+          <Typography
+            sx={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#000000',
+            }}
+          >
+            Invoice#
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#000000',
+            }}
+          >
+            Amount paid
+          </Typography>
         </Box>
         {edges.map((item: ReceiptLineSet) => {
           const {
@@ -195,6 +218,8 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
 
   const [detailData, setDetailData] = useState<InvoiceSuccessData | null>(null)
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     const init = async () => {
       setLoadding(true)
@@ -210,14 +235,23 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
     }
   }, [receiptId, type])
 
+  const handleCloseClick = () => {
+    setOpen(false)
+    navigate('/invoice')
+  }
+  const customActions = () => (
+    <Button onClick={handleCloseClick} variant="text">
+      ok
+    </Button>
+  )
+
   return (
     <B3Dialog
       isOpen={open}
       leftSizeBtn=""
-      rightSizeBtn="ok"
+      customActions={customActions}
       title="Thank you for your payment"
       showLeftBtn={false}
-      handRightClick={() => setOpen(false)}
     >
       <Box
         sx={{

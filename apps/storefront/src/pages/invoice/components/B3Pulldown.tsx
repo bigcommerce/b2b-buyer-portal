@@ -34,6 +34,7 @@ function B3Pulldown({
   const {
     state: { role, isAgenting },
   } = useContext(GlobaledContext)
+  const juniorOrSenior = +role === 1 || role === 2
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [isCanPay, setIsCanPay] = useState<boolean>(true)
 
@@ -148,7 +149,7 @@ function B3Pulldown({
           sx={{
             color: 'primary.main',
           }}
-          onClick={() => handleViewInvoice(true)}
+          onClick={() => handleViewInvoice(row.status !== 2 && !juniorOrSenior)}
         >
           View invoice
         </MenuItem>
@@ -159,7 +160,7 @@ function B3Pulldown({
           }}
           onClick={handleViewOrder}
         >
-          View Order
+          View order
         </MenuItem>
         {row.status !== 0 && (
           <MenuItem
@@ -188,7 +189,7 @@ function B3Pulldown({
           sx={{
             color: 'primary.main',
           }}
-          onClick={() => handleViewInvoice(false)}
+          onClick={() => handleViewInvoice(row.status !== 2 && !juniorOrSenior)}
         >
           Print
         </MenuItem>

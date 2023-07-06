@@ -8,7 +8,7 @@ import {
   BcCartDataLineItem,
   InvoiceListNode,
 } from '@/types/invoice'
-import { currencyFormat } from '@/utils'
+import { B3SStorage, snackbar } from '@/utils'
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment'
 
@@ -17,8 +17,10 @@ interface InvoiceFooterProps {
 }
 
 function InvoiceFooter(props: InvoiceFooterProps) {
+  const allCurrencies = B3SStorage.get('currencies')
   const [isMobile] = useMobile()
   const [selectedAccount, setSelectedAccount] = useState<number>(0)
+  const [currentToken, setCurrentToken] = useState<string>('$')
 
   const {
     state: { isAgenting },
@@ -35,6 +37,21 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
   const { selectedPay } = props
 
+  const handleGetCorrespondingCurrency = (code: string) => {
+    const { currencies: currencyArr } = allCurrencies
+    let token = '$'
+    const correspondingCurrency =
+      currencyArr.find(
+        (currency: CustomFieldItems) => currency.currency_code === code
+      ) || {}
+
+    if (correspondingCurrency) {
+      token = correspondingCurrency.token
+    }
+
+    return token
+  }
+
   const handleStatisticsInvoiceAmount = (checkedArr: CustomFieldItems) => {
     let amount = 0
 
@@ -42,7 +59,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
       const {
         node: { openBalance },
       } = item
-      amount += +openBalance.value
+      amount += openBalance.value === '.' ? 0 : +openBalance.value
     })
 
     setSelectedAccount(+amount.toFixed(2))
@@ -66,6 +83,17 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         currency = openBalance?.code || originalBalance.code
       })
 
+      const badItem = lineItems.find(
+        (item: CustomFieldItems) => item.amount === '.' || +item.amount === 0
+      )
+      if (badItem) {
+        snackbar.error('The payment amount entered has an invalid value.', {
+          isClose: true,
+        })
+
+        return
+      }
+
       const params: BcCartData = {
         lineItems,
         currency,
@@ -77,6 +105,12 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
   useEffect(() => {
     if (selectedPay.length > 0) {
+      const {
+        node: { openBalance },
+      } = selectedPay[0]
+
+      const token = handleGetCorrespondingCurrency(openBalance.code)
+      setCurrentToken(token)
       handleStatisticsInvoiceAmount(selectedPay)
     }
   }, [selectedPay])
@@ -155,7 +189,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
                 color: '#000000',
               }}
             >
-              {`Total payment: ${currencyFormat(selectedAccount)}`}
+              {`Total payment: ${currentToken}${selectedAccount}`}
             </Typography>
             <Box
               sx={{

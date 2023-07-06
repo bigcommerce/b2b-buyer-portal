@@ -6,8 +6,13 @@ import {
   isModifierTextValid,
   serialize,
 } from './b3AddToShoppingList'
-import currencyFormat from './b3CurrencyFormat'
-import { displayExtendedFormat, displayFormat } from './b3DateFormat'
+import clearInvoiceCart from './b3ClearCart'
+import currencyFormat, { currencyFormatInfo } from './b3CurrencyFormat'
+import {
+  displayExtendedFormat,
+  displayFormat,
+  getUTCTimestamp,
+} from './b3DateFormat'
 import { getLogo, getQuoteEnabled } from './b3Init'
 import { showPageMask } from './b3PageMask'
 import distanceDay from './b3Picker'
@@ -62,9 +67,11 @@ export {
   B3LStorage,
   B3SStorage,
   clearCurrentCustomerInfo,
+  clearInvoiceCart,
   convertArrayToGraphql,
   convertObjectToGraphql,
   currencyFormat,
+  currencyFormatInfo,
   displayExtendedFormat,
   displayFormat,
   distanceDay,
@@ -80,6 +87,7 @@ export {
   getProxyInfo,
   getQuoteEnabled,
   getSearchVal,
+  getUTCTimestamp,
   globalSnackbar,
   handleGetCurrentProductInfo,
   isAllRequiredOptionFilled,

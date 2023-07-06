@@ -61,7 +61,7 @@ type RegisteredItem = typeof Registered | typeof HomePage
 interface RouteItemBasic {
   path: string
   name: string
-  permissions: number[] // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 99: bc user
+  permissions: number[] // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 4: salesRep-【Not represented】, 99: bc user, 100: guest
 }
 
 export interface RouteItem extends RouteItemBasic {
@@ -113,7 +113,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: Invoice,
     configKey: 'invoice',
-    permissions: [0, 1, 2, 3, 4, 99, 100],
+    permissions: [0, 1, 2, 3],
     isTokenLogin: true,
   },
   {
@@ -306,6 +306,10 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
     if (typeof config === 'boolean') {
       return config
     }
+    if (item.configKey === 'invoice') {
+      return !!config.enabledStatus && !!config.value
+    }
+
     return !!config.enabledStatus
   })
 }

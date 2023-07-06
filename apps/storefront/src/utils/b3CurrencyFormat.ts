@@ -11,12 +11,12 @@ interface MoneyFormat {
   currency_exchange_rate: string
 }
 
-const currencyFormat = (price: string | number, showCurrencyToken = true) => {
+export const currencyFormatInfo = () => {
   const currentCurrency = globalB3?.setting?.is_local_debugging
     ? getDefaultCurrencyInfo()
     : getActiveCurrencyInfo()
 
-  const moneyFormat: MoneyFormat = {
+  return {
     currency_location: currentCurrency.token_location || 'left',
     currency_token: currentCurrency.token || '$',
     decimal_token: currentCurrency.decimal_token || '.',
@@ -28,6 +28,10 @@ const currencyFormat = (price: string | number, showCurrencyToken = true) => {
     currency_exchange_rate:
       currentCurrency.currency_exchange_rate || '1.0000000000',
   }
+}
+
+const currencyFormat = (price: string | number, showCurrencyToken = true) => {
+  const moneyFormat: MoneyFormat = currencyFormatInfo()
 
   try {
     const [integerPart, decimalPart] = (
