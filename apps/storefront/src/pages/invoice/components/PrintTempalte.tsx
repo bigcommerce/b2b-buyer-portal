@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { SyntheticEvent, useEffect, useRef, useState } from 'react'
+import { Resizable } from 'react-resizable'
+import { Box } from '@mui/material'
 import PDFObject from 'pdfobject'
 
 import { B3Sping } from '@/components'
@@ -12,6 +14,8 @@ interface RowList {
   updatedAt: number
 }
 
+const templateMinHeight = 300
+
 interface PrintTempalteProps {
   row: RowList
 }
@@ -19,7 +23,18 @@ interface PrintTempalteProps {
 function PrintTempalte({ row }: PrintTempalteProps) {
   const container = useRef<HTMLInputElement | null>(null)
 
+  const dom = useRef<HTMLInputElement | null>(null)
+
   const [loadding, setLoadding] = useState<boolean>(false)
+
+  const [height, setHeight] = useState<number>(templateMinHeight)
+
+  const onFirstBoxResize = (
+    event: SyntheticEvent<Element, Event>,
+    { size }: { size: { height: number } }
+  ) => {
+    setHeight(size.height)
+  }
   const viewPrint = async () => {
     setLoadding(true)
     const { id: invoiceId } = row
@@ -43,7 +58,49 @@ function PrintTempalte({ row }: PrintTempalteProps) {
 
   return (
     <B3Sping isSpinning={loadding}>
-      <div ref={container} style={{ height: '400px', width: '100%' }} />
+      <Box
+        ref={dom}
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          width: '100%',
+          '& .box': {
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            position: 'relative',
+            width: '100%',
+            '& .react-resizable': {
+              position: 'relative',
+            },
+            '& .react-resizable-handle': {
+              position: 'absolute',
+              width: '100%',
+              height: '20px',
+              backgroundRepeat: 'no-repeat',
+              backgroundOrigin: 'content-box',
+              boxSizing: 'border-box',
+            },
+            '& .react-resizable-handle-s': {
+              cursor: 'ns-resize',
+              bottom: 0,
+            },
+          },
+        }}
+      >
+        <Resizable
+          className="box"
+          height={height}
+          minConstraints={[dom?.current?.offsetWidth || 0, templateMinHeight]}
+          width={dom.current?.offsetWidth || 0}
+          onResize={onFirstBoxResize}
+          resizeHandles={['s']}
+        >
+          <div style={{ width: '100%', height: `${height}px` }}>
+            <div ref={container} style={{ height: '100%', width: '100%' }} />
+          </div>
+        </Resizable>
+      </Box>
     </B3Sping>
   )
 }
