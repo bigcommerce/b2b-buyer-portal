@@ -26,9 +26,10 @@ export default function B3Tip({
         ? msgs.map((msg: MsgsProps, index: number) => (
             <Snackbar
               key={msg.id}
-              open={!!msg?.msg?.length}
+              open={!!msg?.id}
               autoHideDuration={msg?.time || 5000}
               onClose={(e, reason: string) => handleAllClose(msg.id, reason)}
+              disableWindowBlurListener
               anchorOrigin={{
                 vertical,
                 horizontal,
