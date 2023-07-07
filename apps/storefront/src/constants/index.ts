@@ -32,6 +32,14 @@ export enum HeadlessRoutes {
   REGISTER_ACCOUNT = '/registered',
   DRAFT_QUOTE = '/quoteDraft',
   SHOPPING_LISTS = '/shoppingLists',
+  DASHBOARD = '/dashboard',
+  ORDERS = '/orders',
+  COMPANY_ORDERS = '/company-orders',
+  QUOTES = '/quotes',
+  PURCHASED_PRODUCTS = '/purchased-products',
+  ADDRESSES = '/addresses',
+  USER_MANAGEMENT = '/user-management',
+  ACCOUNT_SETTINGS = '/accountSettings',
 }
 
 export type HeadlessRoute = keyof typeof HeadlessRoutes

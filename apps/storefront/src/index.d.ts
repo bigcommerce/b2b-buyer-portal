@@ -18,7 +18,7 @@ declare interface Window {
       quote: {
         addProductFromPage: () => Promise<void>
         addProductsFromCart: () => Promise<void>
-        addProducts: (items: CustomFieldItems[]) => Promise<boolean>
+        addProducts: (items: import('@/utils').LineItems[]) => Promise<void>
       }
       user: {
         getProfile: () => Record<string, string | number>
@@ -37,7 +37,7 @@ declare interface Window {
         addProductFromPage: () => void
         addProducts: (
           shoppingListId: number,
-          items: CustomFieldItems[]
+          items: import('@/utils').LineItems[]
         ) => Promise<void>
         createNewShoppingList: (
           name: string,
