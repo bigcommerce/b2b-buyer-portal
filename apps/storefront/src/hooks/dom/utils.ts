@@ -1,10 +1,8 @@
 import { Dispatch, SetStateAction } from 'react'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
-import { v1 as uuid } from 'uuid'
 
 import { B3AddToQuoteTip } from '@/components'
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { getCartInfoWithOptions } from '@/shared/service/bc'
 import {
@@ -12,10 +10,11 @@ import {
   addQuoteDraftProducts,
   B3LStorage,
   B3SStorage,
-  calculateProductListPrice,
+  calculateProductsPrice,
   getCalculatedProductPrice,
   globalSnackbar,
   isAllRequiredOptionFilled,
+  LineItems,
   validProductQty,
 } from '@/utils'
 
@@ -31,50 +30,64 @@ interface DiscountsProps {
 
 interface ProductOptionsProps {
   name: string
-  nameId: number | string
+  nameId: number
   value: number | string
-  valueId: number | string
+  valueId: number
 }
 
-interface ProductItemProps {
-  brand: string | number
-  couponAmount: number
-  discountAmount: number
-  discounts: Array<any>
+interface CustomItemProps {
   extendedListPrice: number
-  extendedSalePrice: number
-  giftWrapping: any
   id: string
-  imageUrl: string
-  isMutable: boolean
-  isShippingRequired: boolean
-  isTaxable: boolean
   listPrice: number
   name: string
-  options: ProductOptionsProps[]
-  originalPrice: number
-  parentId: string | number | null
-  productId: number
   quantity: number
-  salePrice: number
   sku: string
-  type: string
+}
+
+interface DigitalItemProps extends CustomItemProps {
+  options: ProductOptionsProps[]
+  brand: string
+  couponAmount: number
+  discountAmount: number
+  discounts: DiscountsProps[]
+  extendedSalePrice: number
+  imageUrl: string
+  isTaxable: boolean
+  originalPrice: number
+  parentId?: string
+  productId: number
+  salePrice: number
   url: string
   variantId: number
 }
 
-interface LineItemsProps {
-  customItems: Array<CustomFieldItems>
-  digitalItems: Array<CustomFieldItems>
-  giftCertificates: Array<CustomFieldItems>
-  physicalItems: ProductItemProps[]
+interface PhysicalItemProps extends DigitalItemProps {
+  giftWrapping: {
+    amount: number
+    message: string
+    name: string
+  }
+  isShippingRequire: boolean
+}
+interface Contact {
+  email: string
+  name: string
+}
+interface GiftCertificateProps {
+  amount: number
+  id: string
+  isTaxable: boolean
+  name: string
+  recipient: Contact
+  sender: Contact
 }
 
-type Cart =
-  | 'customItems'
-  | 'digitalItems'
-  | 'giftCertificates'
-  | 'physicalItems'
+interface LineItemsProps {
+  customItems: CustomItemProps[]
+  digitalItems: DigitalItemProps[]
+  giftCertificates: GiftCertificateProps[]
+  physicalItems: PhysicalItemProps[]
+}
 
 interface CartInfoProps {
   baseAmount: number
@@ -97,13 +110,6 @@ interface CartInfoProps {
   locale: string
   updatedTime: string
 }
-
-const productTypes: Array<Cart> = [
-  'customItems',
-  'digitalItems',
-  'giftCertificates',
-  'physicalItems',
-]
 
 const addLoadding = (b3CartToQuote: any) => {
   const loadingDiv = document.createElement('div')
@@ -136,61 +142,41 @@ const gotoQuoteDraft = (setOpenPage: DispatchProps) => {
   })
 }
 
-const getCartProducts = (lineItems: LineItemsProps) => {
-  const cartProductsList: CustomFieldItems[] = []
-
-  productTypes.forEach((type: Cart) => {
-    if (lineItems[type].length > 0) {
-      lineItems[type].forEach(
-        (product: ProductItemProps | CustomFieldItems) => {
-          if (!product.parentId) {
-            cartProductsList.push(product)
-          }
+const getCartProducts = (lineItems: LineItemsProps) =>
+  Object.values(lineItems)
+    .flat()
+    .reduce(
+      (accumulator, { options = [], sku, ...product }) => {
+        if (!sku) {
+          accumulator.noSkuProducts.push(product)
+          return accumulator
         }
-      )
-    }
-  })
+        if (!product.parentId) {
+          accumulator.cartProductsList.push({
+            ...product,
+            sku,
+            optionSelections: options.map(
+              ({ nameId, valueId }: ProductOptionsProps) => ({
+                optionId: nameId,
+                optionValue: valueId,
+              })
+            ),
+          })
+        }
+        return accumulator
+      },
+      { cartProductsList: [], noSkuProducts: [] }
+    )
 
-  return cartProductsList
-}
-
-const getOptionsList = (options: ProductOptionsProps[] | []) => {
-  if (!options?.length) return []
-  const option: CustomFieldItems = []
-  options.forEach(({ nameId, valueId, value }) => {
-    let optionValue: number | string = valueId ? `${valueId}`.toString() : value
-    if (typeof valueId === 'number' && `${valueId}`.toString().length === 10) {
-      optionValue = valueId
-      const date = new Date(+valueId * 1000)
-      const year = date.getFullYear()
-      const month = date.getMonth() + 1
-      const day = date.getDate()
-      option.push({
-        optionId: `attribute[${nameId}][year]`,
-        optionValue: year,
-      })
-      option.push({
-        optionId: `attribute[${nameId}][month]`,
-        optionValue: month,
-      })
-      option.push({
-        optionId: `attribute[${nameId}][day]`,
-        optionValue: day,
-      })
-    } else {
-      option.push({
-        optionId: `attribute[${nameId}]`,
-        optionValue,
-      })
-    }
-  })
-
-  return option
-}
-
-const addProductsToDraftQuote = async (products: CustomFieldItems[]) => {
+const addProductsToDraftQuote = async (
+  products: LineItems[],
+  setOpenPage: DispatchProps,
+  cartId?: string
+) => {
   // filter products with SKU
-  const productsWithSKU = products.filter(({ sku }) => !!sku)
+  const productsWithSKUOrVariantId = products.filter(
+    ({ sku, variantId }) => sku || variantId
+  )
 
   const companyId =
     B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
@@ -199,64 +185,47 @@ const addProductsToDraftQuote = async (products: CustomFieldItems[]) => {
   // fetch data with products IDs
   const { productsSearch } = await searchB2BProducts({
     productIds: Array.from(
-      new Set(products.map(({ productId }) => +productId))
+      new Set(productsWithSKUOrVariantId.map(({ productId }) => +productId))
     ),
     companyId,
     customerGroupId,
   })
 
-  // convert to product search response format
-  const productsListSearch: CustomFieldItems[] =
-    conversionProductsList(productsSearch)
-
-  // create products list structure compatible with quote structure
-  const productsList = productsWithSKU.map((product) => {
-    const {
-      options,
-      sku,
-      productId,
-      name,
-      quantity,
-      variantId,
-      salePrice,
-      imageUrl,
-      listPrice,
-    } = product
-
-    const optionsList = getOptionsList(options)
-
-    const currentProductSearch = productsListSearch.find(
-      (product: any) => +product.id === +productId
-    )
-
-    const quoteListitem = {
-      node: {
-        id: uuid(),
-        variantSku: sku,
-        variantId,
-        productsSearch: currentProductSearch,
-        primaryImage: imageUrl || PRODUCT_DEFAULT_IMAGE,
-        productName: name,
-        quantity: +quantity || 1,
-        optionList: JSON.stringify(optionsList),
-        productId,
-        basePrice: listPrice,
-        taxPrice: salePrice - listPrice,
-      },
-    }
-
-    return quoteListitem
-  })
-
-  // update prices for products list
-  await calculateProductListPrice(productsList, '2')
+  // get products prices
+  const productsListSearch = conversionProductsList(productsSearch)
+  const productsList = await calculateProductsPrice(
+    productsWithSKUOrVariantId,
+    productsListSearch
+  )
 
   const isSuccess = validProductQty(productsList)
   if (isSuccess) {
     addQuoteDraftProducts(productsList)
   }
 
-  return isSuccess
+  if (isSuccess) {
+    // Save the shopping cart id, used to clear the shopping cart after submitting the quote
+    if (cartId) B3LStorage.set('cartToQuoteId', cartId)
+
+    globalSnackbar.success('', {
+      jsx: () =>
+        B3AddToQuoteTip({
+          gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
+          msg: 'Product was added to your quote.',
+        }),
+      isClose: true,
+    })
+    return
+  }
+
+  globalSnackbar.error('', {
+    jsx: () =>
+      B3AddToQuoteTip({
+        gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
+        msg: 'The quantity of each product in Quote is 1-1000000.',
+      }),
+    isClose: true,
+  })
 }
 
 const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
@@ -274,9 +243,7 @@ const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
 
       const { lineItems, id: cartId } = cartInfoWithOptions[0]
 
-      const cartProductsList = getCartProducts(lineItems)
-
-      const noSkuProducts = cartProductsList.filter(({ sku }) => !sku)
+      const { cartProductsList, noSkuProducts } = getCartProducts(lineItems)
 
       if (noSkuProducts.length > 0) {
         globalSnackbar.error('Can not add products without SKU.', {
@@ -291,29 +258,7 @@ const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
       }
       if (noSkuProducts.length === cartProductsList.length) return
 
-      const isSuccess = await addProductsToDraftQuote(cartProductsList)
-      if (isSuccess) {
-        // Save the shopping cart id, used to clear the shopping cart after submitting the quote
-        B3LStorage.set('cartToQuoteId', cartId)
-
-        globalSnackbar.success('', {
-          jsx: () =>
-            B3AddToQuoteTip({
-              gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
-              msg: 'Product was added to your quote.',
-            }),
-          isClose: true,
-        })
-      } else {
-        globalSnackbar.error('', {
-          jsx: () =>
-            B3AddToQuoteTip({
-              gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
-              msg: 'The quantity of each product in Quote is 1-1000000.',
-            }),
-          isClose: true,
-        })
-      }
+      await addProductsToDraftQuote(cartProductsList, setOpenPage, cartId)
     } catch (e) {
       console.log(e)
     } finally {

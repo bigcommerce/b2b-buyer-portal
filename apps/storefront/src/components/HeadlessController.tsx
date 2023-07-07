@@ -18,6 +18,7 @@ import {
   B3SStorage,
   endMasquerade,
   getCurrentCustomerInfo,
+  LineItems,
   startMasquerade,
 } from '@/utils'
 
@@ -25,17 +26,19 @@ interface HeadlessControllerProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
-const transformOptionSelectionsToAttributes = (items: CustomFieldItems[]) =>
+const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
   items.map((product) => {
     const { optionSelections } = product
 
     return {
       ...product,
-      optionSelections: optionSelections.map(
-        ({ optionId, optionValue }: Record<string, string | number>) => ({
-          optionId: `attribute[${optionId}]`,
-          optionValue,
-        })
+      optionSelections: optionSelections?.reduce(
+        (accumulator: Record<string, number>, { optionId, optionValue }) => {
+          accumulator[`attribute[${optionId}]`] = optionValue
+
+          return accumulator
+        },
+        {}
       ),
     }
   })
@@ -112,7 +115,7 @@ export default function HeadlessController({
         quote: {
           addProductFromPage: addProductFromPageToQuoteRef.current,
           addProductsFromCart: () => addProductsFromCart(),
-          addProducts: (items) => addProductsToDraftQuote(items),
+          addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
         },
         user: {
           getProfile: () => ({ ...customerRef.current, role }),

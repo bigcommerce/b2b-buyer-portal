@@ -39,21 +39,7 @@ import {
 } from './loginInfo'
 import { validatorRules } from './validatorRules'
 
-export {
-  addQuoteDraftProduce,
-  addQuoteDraftProducts,
-  calculateIsInclude,
-  calculateProductListPrice,
-  compareOption,
-  getCalculatedParams,
-  getCalculatedProductPrice,
-  getModifiersPrice,
-  getNewProductsList,
-  getProductExtraPrice,
-  getQuickAddProductExtraPrice,
-  setModifierQtyPrice,
-  validProductQty,
-} from './b3Product/b3Product'
+export * from './b3Product/b3Product'
 export * from './masquerade'
 export {
   getQuoteConfig,

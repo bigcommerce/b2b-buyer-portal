@@ -17,7 +17,10 @@ import {
   Product,
   Variant,
 } from '@/types/products'
-import { ShoppingListProductItemModifiers } from '@/types/shoppingList'
+import {
+  ShoppingListProductItem,
+  ShoppingListProductItemModifiers,
+} from '@/types/shoppingList'
 import {
   B3LStorage,
   B3SStorage,
@@ -53,7 +56,31 @@ interface AdditionalCalculatedPricesProps {
 
 interface NewOptionProps {
   optionId: string
+  optionValue: number
+}
+
+interface ProductOption {
+  optionId: number
+  optionValue: number
+}
+
+interface ProductOptionString {
+  optionId: string
   optionValue: string
+}
+
+interface ProductInfo extends Variant {
+  quantity: number
+  productsSearch: ShoppingListProductItem
+  optionSelections?: ProductOptionString[]
+}
+
+export interface LineItems {
+  quantity: number
+  productId: number
+  optionSelections?: ProductOption[]
+  sku?: string
+  variantId?: number
 }
 
 const getModifiersPrice = (
@@ -438,6 +465,27 @@ const getNewProductsList = async (
   return undefined
 }
 
+const getDateValuesArray = (id: number, value: number) => {
+  const data = new Date(value * 1000)
+  const year = data.getFullYear()
+  const month = data.getMonth() + 1
+  const day = data.getDate()
+  return [
+    {
+      option_id: id,
+      value_id: month,
+    },
+    {
+      option_id: id,
+      value_id: year,
+    },
+    {
+      option_id: id,
+      value_id: day,
+    },
+  ]
+}
+
 const calculatedDate = (
   newOption: NewOptionProps,
   itemOption: Partial<AllOptionProps>
@@ -614,6 +662,11 @@ const getCustomerGroupId = () => {
   return customerGroupId
 }
 
+/**
+ * Calculate price for a product.
+ *
+ * @deprecated Use the new {@link calculateProductsPrice} function instead.
+ */
 const getCalculatedProductPrice = async (
   { optionList, productsSearch, sku, qty }: CalculatedProductPrice,
   calculatedValue?: CustomFieldItems
@@ -678,6 +731,137 @@ const getCalculatedProductPrice = async (
   }
 
   return ''
+}
+const formatOptionsSelections = (
+  options: ProductOption[],
+  allOptions: Partial<AllOptionProps>[]
+) =>
+  options.reduce((accumulator: CalculatedOptions[], option) => {
+    const matchedOption = allOptions.find(({ id, type, option_values }) => {
+      if (option.optionId === id) {
+        if (
+          (type !== 'text' && option_values?.length) ||
+          (type === 'date' && option.optionValue)
+        ) {
+          return true
+        }
+      }
+      return false
+    })
+
+    if (matchedOption) {
+      if (matchedOption.type === 'date') {
+        const id = matchedOption.id ? +matchedOption.id : 0
+        accumulator.push(...getDateValuesArray(id, option.optionValue))
+      } else {
+        accumulator.push({
+          option_id: matchedOption.id ? +matchedOption.id : 0,
+          value_id: option.optionValue,
+        })
+      }
+    }
+
+    return accumulator
+  }, [])
+const formatLineItemsToGetPrices = (
+  items: LineItems[],
+  productsSearch: ShoppingListProductItem[]
+) =>
+  items.reduce(
+    (
+      formatedLineItems: {
+        items: Calculateditems[]
+        variants: ProductInfo[]
+      },
+      { optionSelections = [], productId, sku, variantId, quantity }
+    ) => {
+      const selectedProduct = productsSearch.find(({ id }) => id === productId)
+      const variantItem = selectedProduct?.variants?.find(
+        ({ sku: skuResult, variant_id: variantIdResult }) =>
+          sku === skuResult || variantIdResult === variantId
+      )
+
+      if (!variantItem || !selectedProduct) {
+        return formatedLineItems
+      }
+      const { allOptions = [] } = selectedProduct
+
+      const options = formatOptionsSelections(optionSelections, allOptions)
+
+      formatedLineItems.items.push({
+        product_id: variantItem.product_id,
+        variant_id: variantItem.variant_id,
+        options,
+      })
+      formatedLineItems.variants.push({
+        ...variantItem,
+        quantity,
+        productsSearch: selectedProduct,
+        optionSelections: optionSelections.map(({ optionId, optionValue }) => ({
+          optionId: `attribute[${optionId}]`,
+          optionValue: `${optionValue}`,
+        })),
+      })
+      return formatedLineItems
+    },
+    { items: [], variants: [] }
+  )
+const calculateProductsPrice = async (
+  lineItems: LineItems[],
+  products: ShoppingListProductItem[],
+  calculatedValue: CustomFieldItems[] = []
+) => {
+  let calculatedPrices = calculatedValue
+  const { variants, items } = formatLineItemsToGetPrices(lineItems, products)
+
+  // check if it's included calculatedValue
+  // if not, prepare items array to get prices by `/v3/pricing/products` endpoint
+  // then fetch them
+  if (calculatedValue.length === 0) {
+    const data = {
+      channel_id: B3SStorage.get('B3channelId'),
+      currency_code: getDefaultCurrencyInfo().currency_code,
+      customer_group_id: getCustomerGroupId(),
+      items,
+    }
+    const res = await getProxyInfo({
+      storeHash,
+      method: 'post',
+      url: '/v3/pricing/products',
+      data,
+    })
+    calculatedPrices = res.data
+  }
+
+  // create quote array struture and return it
+  return calculatedPrices.map((calculatedPrice, index) => {
+    const {
+      productsSearch,
+      quantity,
+      optionSelections,
+      sku: variantSku,
+      variant_id: variantId,
+      image_url: primaryImage,
+      product_id: productId,
+    } = variants[index]
+    const { taxPrice, itemPrice } = getBulkPrice(calculatedPrice, quantity)
+    return {
+      node: {
+        id: uuid(),
+        variantSku,
+        variantId,
+        productsSearch,
+        primaryImage,
+        productName: productsSearch.name,
+        quantity,
+        optionList: JSON.stringify(optionSelections),
+        productId,
+        basePrice: itemPrice.toFixed(2),
+        taxPrice: taxPrice.toFixed(2),
+        calculatedValue: calculatedPrice,
+      },
+    }
+  })
 }
 
 const calculateProductListPrice = async (
@@ -1012,6 +1196,7 @@ export {
   addQuoteDraftProducts,
   calculateIsInclude,
   calculateProductListPrice,
+  calculateProductsPrice,
   compareOption,
   getBCPrice,
   getCalculatedParams,
