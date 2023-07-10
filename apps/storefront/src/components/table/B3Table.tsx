@@ -489,6 +489,7 @@ export function B3Table<T>({
                       : 'none'
                   return (
                     <Row
+                      key={`row-${node[tableKey || 'id'] + index}`}
                       columnItems={columnItems}
                       node={node}
                       index={index}

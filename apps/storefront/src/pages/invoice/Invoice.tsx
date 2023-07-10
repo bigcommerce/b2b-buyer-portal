@@ -14,7 +14,11 @@ import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
-import { exportInvoicesAsCSV, getInvoiceList } from '@/shared/service/b2b'
+import {
+  exportInvoicesAsCSV,
+  getInvoiceList,
+  getInvoiceStats,
+} from '@/shared/service/b2b'
 import { InvoiceList, InvoiceListNode } from '@/types/invoice'
 import {
   B3SStorage,
@@ -22,6 +26,7 @@ import {
   currencyFormatInfo,
   displayFormat,
   getUTCTimestamp,
+  snackbar,
 } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -105,25 +110,23 @@ function Invoice() {
     return token
   }
 
-  const handleStatisticsInvoiceAmount = (invoices: InvoiceListNode[]) => {
-    let unpaidAmount = 0
-    let overdueAmount = 0
-    if (invoices.length > 0) {
-      invoices.forEach((invoice: InvoiceListNode) => {
-        const { node } = invoice
-        const { status, dueDate, openBalance } = node
+  const handleStatisticsInvoiceAmount = async () => {
+    try {
+      setIsRequestLoading(true)
+      const { invoiceStats } = await getInvoiceStats(
+        filterData?.status ? +filterData.status : 0
+      )
 
-        if (status !== 2) {
-          unpaidAmount += +openBalance.value
-        }
-
-        if (status !== 2 && currentDate > dueDate * 1000) {
-          overdueAmount += +openBalance.value
-        }
-      })
+      if (invoiceStats) {
+        const { overDueBalance, totalBalance } = invoiceStats
+        setUnpaidAmount(+totalBalance.toFixed(decimalPlaces || 2))
+        setOverdueAmount(+overDueBalance.toFixed(decimalPlaces || 2))
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsRequestLoading(false)
     }
-    setUnpaidAmount(+unpaidAmount.toFixed(2))
-    setOverdueAmount(+overdueAmount.toFixed(2))
   }
 
   const handleChange = (key: string, value: string) => {
@@ -145,10 +148,16 @@ function Invoice() {
       ? getUTCTimestamp(new Date(value?.endValue).getTime() / 1000, true)
       : ''
 
+    const status = value?.status === 3 ? 0 : value?.status
+
     const search: Partial<FilterSearchProps> = {
-      status: `${value?.status}` || '',
+      status: `${status}` || '',
       beginDateAt: startValue,
       endDateAt: endValue,
+      beginDueDateAt:
+        value?.status === 0 ? parseInt(`${currentDate / 1000}`, 10) : '',
+      endDueDateAt:
+        value?.status === 3 ? parseInt(`${currentDate / 1000}`, 10) : '',
     }
 
     setFilterData({
@@ -185,7 +194,7 @@ function Invoice() {
       const pdfUrl = await handlePrintPDF(id, isPayNow)
 
       if (!pdfUrl) {
-        console.error('pdf url resolution error')
+        snackbar.error('pdf url resolution error')
         return
       }
       window.open(pdfUrl, '_blank', 'fullscreen=yes')
@@ -236,12 +245,12 @@ function Invoice() {
       setIsRequestLoading(true)
 
       const params = {
-        search: filterData?.q || '',
-        invoiceNumber: filterData?.invoiceNumber || '',
-        orderNumber: filterData?.orderNumber || '',
-        beginDateAt: filterData?.beginDateAt || '',
-        endDateAt: filterData?.endDateAt || '',
-        status: filterData?.status || '',
+        search: '',
+        invoiceNumber: '',
+        orderNumber: '',
+        beginDateAt: '',
+        endDateAt: '',
+        status: '',
       }
 
       const { invoicesExport } = await exportInvoicesAsCSV(params)
@@ -338,18 +347,7 @@ function Invoice() {
       invoices: { edges, totalCount },
     } = await getInvoiceList(params)
 
-    let invoicesList: InvoiceListNode[] = edges
-    if (filterData?.status === '0') {
-      invoicesList = edges.filter((invoice: InvoiceListNode) => {
-        const {
-          node: { status, dueDate },
-        } = invoice
-
-        return (
-          `${+status}` === filterData.status && currentDate <= dueDate * 1000
-        )
-      })
-    }
+    const invoicesList: InvoiceListNode[] = edges
 
     if (type === InvoiceListType.DETAIL && invoicesList.length) {
       invoicesList.forEach((item: InvoiceListNode) => {
@@ -366,7 +364,7 @@ function Invoice() {
       openBalance.value = (+openBalance.value).toFixed(decimalPlaces)
     })
     setList(invoicesList)
-    handleStatisticsInvoiceAmount(invoicesList)
+    handleStatisticsInvoiceAmount()
 
     return {
       edges: invoicesList,
@@ -468,10 +466,13 @@ function Invoice() {
       isSortable: true,
       render: (item: InvoiceList) => {
         const { originalBalance } = item
-        const originalAmount = (+originalBalance.value).toFixed(2)
+        const originalAmount = (+originalBalance.value).toFixed(
+          decimalPlaces || 2
+        )
+
         const token = handleGetCorrespondingCurrency(originalBalance.code)
 
-        return `${token}${+originalAmount || 0}`
+        return `${token}${originalAmount || 0}`
       },
       width: '10%',
     },
@@ -482,10 +483,10 @@ function Invoice() {
       render: (item: InvoiceList) => {
         const { openBalance } = item
 
-        const openAmount = (+openBalance.value).toFixed(2)
+        const openAmount = (+openBalance.value).toFixed(decimalPlaces || 2)
         const token = handleGetCorrespondingCurrency(openBalance.code)
 
-        return `${token}${+openAmount || 0}`
+        return `${token}${openAmount || 0}`
       },
       width: '10%',
     },
@@ -755,7 +756,10 @@ function Invoice() {
         )}
       </Box>
       {selectedPay.length > 0 && (role === 0 || isAgenting) && (
-        <InvoiceFooter selectedPay={selectedPay} />
+        <InvoiceFooter
+          selectedPay={selectedPay}
+          decimalPlaces={decimalPlaces}
+        />
       )}
       <PaymentsHistory
         open={isOpenHistorys}

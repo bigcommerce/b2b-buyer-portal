@@ -123,6 +123,7 @@ export {
   getInvoiceList,
   getInvoicePaymentHistory,
   getInvoicePaymentInfo,
+  getInvoiceStats,
   invoiceDownloadPDF,
 } from './graphql/invoice'
 export { getBcOrderedProducts, getOrderedProducts } from './graphql/quickorder'

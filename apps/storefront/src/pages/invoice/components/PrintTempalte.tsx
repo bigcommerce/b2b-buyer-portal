@@ -4,6 +4,7 @@ import { Box } from '@mui/material'
 import PDFObject from 'pdfobject'
 
 import { B3Sping } from '@/components'
+import { snackbar } from '@/utils'
 
 import { handlePrintPDF } from '../utils/pdf'
 
@@ -42,8 +43,7 @@ function PrintTempalte({ row }: PrintTempalteProps) {
     const invoicePDFUrl = await handlePrintPDF(invoiceId)
 
     if (!invoicePDFUrl) {
-      // TODO: error
-      console.error('pdf url resolution error')
+      snackbar.error('pdf url resolution error')
       return
     }
 
@@ -76,7 +76,7 @@ function PrintTempalte({ row }: PrintTempalteProps) {
             '& .react-resizable-handle': {
               position: 'absolute',
               width: '100%',
-              height: '20px',
+              height: '30px',
               backgroundRepeat: 'no-repeat',
               backgroundOrigin: 'content-box',
               boxSizing: 'border-box',
@@ -91,7 +91,7 @@ function PrintTempalte({ row }: PrintTempalteProps) {
         <Resizable
           className="box"
           height={height}
-          minConstraints={[dom?.current?.offsetWidth || 0, templateMinHeight]}
+          minConstraints={[dom?.current?.offsetWidth || 0, 0]}
           width={dom.current?.offsetWidth || 0}
           onResize={onFirstBoxResize}
           resizeHandles={['s']}

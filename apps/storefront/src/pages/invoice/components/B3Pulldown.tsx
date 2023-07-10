@@ -6,6 +6,7 @@ import { styled } from '@mui/material/styles'
 
 import { GlobaledContext } from '@/shared/global'
 import { InvoiceList } from '@/types/invoice'
+import { snackbar } from '@/utils'
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment'
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf'
@@ -64,8 +65,7 @@ function B3Pulldown({
     setIsRequestLoading(false)
 
     if (!pdfUrl) {
-      // TODO: error
-      console.error('pdf url resolution error')
+      snackbar.error('pdf url resolution error')
       return
     }
     window.open(pdfUrl, '_blank', 'fullscreen=yes')
@@ -86,10 +86,18 @@ function B3Pulldown({
       lineItems: [
         {
           invoiceId: +id,
-          amount: openBalance.value,
+          amount: openBalance.value === '.' ? '0' : `${+openBalance.value}`,
         },
       ],
       currency: openBalance?.code || originalBalance.code,
+    }
+
+    if (openBalance.value === '.' || +openBalance.value === 0) {
+      snackbar.error('The payment amount entered has an invalid value.', {
+        isClose: true,
+      })
+
+      return
     }
 
     await gotoInvoiceCheckoutUrl(params)

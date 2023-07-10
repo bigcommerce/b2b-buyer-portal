@@ -14,6 +14,8 @@ const invoiceList = (data: CustomFieldItems) => `{
     ${data?.beginDateAt ? `beginDateAt: "${data.beginDateAt}"` : ''}
     ${data?.endDateAt ? `endDateAt: "${data.endDateAt}"` : ''}
     orderBy: "${data?.orderBy || '-invoiceNumber'}"
+    ${data?.beginDueDateAt ? `beginDueDateAt: "${data.beginDueDateAt}"` : ''}
+    ${data?.endDueDateAt ? `endDueDateAt: "${data.endDueDateAt}"` : ''}
   ){
     totalCount,
     pageInfo{
@@ -47,6 +49,15 @@ const invoiceList = (data: CustomFieldItems) => `{
         },
       }
     }
+  }
+}`
+
+const invoiceStats = (status: number | string) => `{
+  invoiceStats (
+    ${status === '' ? '' : `status: ${status},`}
+  ){
+    totalBalance,
+    overDueBalance,
   }
 }`
 
@@ -229,4 +240,9 @@ export const getInvoicePaymentInfo = (id: number): CustomFieldItems =>
 export const exportInvoicesAsCSV = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: exportInvoices(data),
+  })
+
+export const getInvoiceStats = (status: number | string): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: invoiceStats(status),
   })
