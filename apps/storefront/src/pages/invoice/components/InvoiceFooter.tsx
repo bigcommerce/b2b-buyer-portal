@@ -14,12 +14,13 @@ import { gotoInvoiceCheckoutUrl } from '../utils/payment'
 
 interface InvoiceFooterProps {
   selectedPay: CustomFieldItems
+  decimalPlaces: number
 }
 
 function InvoiceFooter(props: InvoiceFooterProps) {
   const allCurrencies = B3SStorage.get('currencies')
   const [isMobile] = useMobile()
-  const [selectedAccount, setSelectedAccount] = useState<number>(0)
+  const [selectedAccount, setSelectedAccount] = useState<number | string>(0)
   const [currentToken, setCurrentToken] = useState<string>('$')
 
   const {
@@ -35,7 +36,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         alignItems: 'center',
       }
 
-  const { selectedPay } = props
+  const { selectedPay, decimalPlaces } = props
 
   const handleGetCorrespondingCurrency = (code: string) => {
     const { currencies: currencyArr } = allCurrencies
@@ -62,7 +63,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
       amount += openBalance.value === '.' ? 0 : +openBalance.value
     })
 
-    setSelectedAccount(+amount.toFixed(2))
+    setSelectedAccount(amount.toFixed(decimalPlaces))
   }
 
   const handlePay = async () => {
@@ -77,7 +78,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
         lineItems.push({
           invoiceId: +id,
-          amount: openBalance.value,
+          amount: openBalance.value === '.' ? '0' : `${+openBalance.value}`,
         })
 
         currency = openBalance?.code || originalBalance.code

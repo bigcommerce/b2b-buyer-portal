@@ -9,6 +9,7 @@ const clearInvoiceCart = async () => {
       const cartInfo = await getCartInfo()
       if (cartInfo) {
         await deleteCart(cartInfo[0].id)
+        localStorage.removeItem('invoicePay')
       }
     }
   } catch (err) {

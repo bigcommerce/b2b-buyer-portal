@@ -23,6 +23,11 @@ export const invoiceStatus = [
     value: 2,
     label: 'Paid',
   },
+  {
+    key: 'overdue',
+    value: 3,
+    label: 'Overdue',
+  },
 ]
 // (3, "Overdue")-【Display status when invoice exceeds due date. For front-end display only】
 export const extraStatus = [
