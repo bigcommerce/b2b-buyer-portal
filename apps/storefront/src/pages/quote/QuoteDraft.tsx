@@ -273,6 +273,22 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     init()
   }, [])
 
+  const getAddress = () => {
+    const addresssaveInfo = {
+      shippingAddress: {},
+      billingAddress: {},
+    }
+    if (billingRef?.current) {
+      addresssaveInfo.billingAddress = billingRef.current.getContactInfoValue()
+    }
+    if (shippingRef?.current) {
+      addresssaveInfo.shippingAddress =
+        shippingRef.current.getContactInfoValue()
+    }
+
+    return addresssaveInfo
+  }
+
   const handleSaveInfoClick = async () => {
     const saveInfo = {
       ...info,
@@ -282,12 +298,11 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       if (!contactInfo) return
       saveInfo.contactInfo = contactInfo
     }
-    if (billingRef?.current) {
-      saveInfo.billingAddress = billingRef.current.getContactInfoValue()
-    }
-    if (shippingRef?.current) {
-      saveInfo.shippingAddress = shippingRef.current.getContactInfoValue()
-    }
+
+    const { shippingAddress, billingAddress } = getAddress()
+
+    saveInfo.shippingAddress = shippingAddress
+    saveInfo.billingAddress = billingAddress
 
     const isComplete = Object.keys(saveInfo.contactInfo).every(
       (key: string) => {
@@ -424,12 +439,17 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         return newAddress
       }
 
-      const shippingAddress = info?.shippingAddress
-        ? perfectAddress(info.shippingAddress)
+      const {
+        shippingAddress: editShippingAddress,
+        billingAddress: editBillingAddress,
+      } = getAddress()
+
+      const shippingAddress = editShippingAddress
+        ? perfectAddress(editShippingAddress)
         : {}
 
-      const billingAddress = info?.billingAddress
-        ? perfectAddress(info.billingAddress)
+      const billingAddress = editBillingAddress
+        ? perfectAddress(editBillingAddress)
         : {}
 
       let allPrice = 0
