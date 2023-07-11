@@ -442,7 +442,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       const {
         shippingAddress: editShippingAddress,
         billingAddress: editBillingAddress,
-      } = getAddress()
+      } = billingRef?.current ? getAddress() : info
 
       const shippingAddress = editShippingAddress
         ? perfectAddress(editShippingAddress)
