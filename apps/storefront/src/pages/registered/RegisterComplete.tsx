@@ -232,7 +232,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         b2bFields.extraFields = extraFields
       }
 
-      b2bFields.companyEmail = data.email || enterEmail
+      // b2bFields.companyEmail = data.email || enterEmail
 
       // address Field
       const addressBasicInfo =
