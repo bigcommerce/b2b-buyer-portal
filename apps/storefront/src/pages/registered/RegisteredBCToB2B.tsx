@@ -349,7 +349,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       b2bFields.extraFields = extraFields
     }
 
-    b2bFields.companyEmail = data.email
+    // b2bFields.companyEmail = data.email
 
     // address Field
     const addressBasicInfo = bcTob2bAddressBasicFields.filter(
