@@ -14,6 +14,7 @@ import { createShoppingList } from '@/pages/orderDetail/components/CreateShoppin
 import { addProductsToShoppingList } from '@/pages/pdp/PDP'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
+import B3Request from '@/shared/service/request/b3Fetch'
 import {
   B3SStorage,
   endMasquerade,
@@ -151,6 +152,7 @@ export default function HeadlessController({
             }),
           logInWithStorefrontToken: (customerJWTToken: string) =>
             getCurrentCustomerInfo(dispatch, customerJWTToken),
+          graphqlBCProxy: B3Request.graphqlBCProxy,
         },
         shoppingList: {
           addProductFromPage: () => {

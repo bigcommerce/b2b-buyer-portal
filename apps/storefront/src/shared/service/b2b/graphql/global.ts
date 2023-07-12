@@ -232,7 +232,7 @@ export const getCurrencies = (channelId: string | number): CustomFieldItems =>
     query: currencies(channelId),
   })
 export const getBcCurrencies = (channelId: string): CustomFieldItems =>
-  B3Request.graphqlProxyBC({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: currencies(channelId),
   })
 

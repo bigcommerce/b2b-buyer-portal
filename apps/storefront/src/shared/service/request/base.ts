@@ -5,6 +5,7 @@ const B2B_BASIC_URL = VITE_B2B_URL
 enum RequestType {
   B2BGraphql = 'B2BGraphql',
   BCGraphql = 'BCGraphql',
+  BCProxyGraphql = 'BCProxyGraphql',
   B2BRest = 'B2BRest',
   BCRest = 'BCRest',
 }
