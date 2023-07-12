@@ -41,6 +41,12 @@ interface Config {
   }
 }
 
+const GraphqlEndpoints = {
+  B2BGraphql: `${B2B_BASIC_URL}/graphql`,
+  BCGraphql: `${bcBaseUrl}/graphql`,
+  BCProxyGraphql: `${B2B_BASIC_URL}/api/v3/proxy/bc-storefront/graphql`,
+} as const
+
 function request<T>(path: string, config?: T & Config, type?: string) {
   const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
   const getToken =
@@ -69,7 +75,7 @@ function request<T>(path: string, config?: T & Config, type?: string) {
 }
 
 function graphqlRequest<T, Y>(
-  type: string,
+  type: keyof typeof GraphqlEndpoints,
   data: T,
   config?: Y,
   customMessage = false
@@ -83,21 +89,24 @@ function graphqlRequest<T, Y>(
     body: JSON.stringify(data),
   }
 
-  const graphqlB2BUrl = `${B2B_BASIC_URL}/graphql`
-
-  const url =
-    type === RequestType.B2BGraphql ? graphqlB2BUrl : `${bcBaseUrl}/graphql`
+  const url = GraphqlEndpoints[type]
   return b3Fetch(url, init, type, customMessage)
 }
 
 const B3Request = {
+  /**
+   * Request to B2B graphql API using B2B token
+   */
   graphqlB2B: function post<T>(data: T, customMessage = false): Promise<any> {
     const config = {
       Authorization: `Bearer  ${B3SStorage.get('B3B2BToken') || ''}`,
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
-  graphqlProxyBC: function post<T>(
+  /**
+   * Request to B2B graphql API using BC customer token
+   */
+  graphqlB2BWithBCCustomerToken: function post<T>(
     data: T,
     customMessage = false
   ): Promise<any> {
@@ -108,11 +117,24 @@ const B3Request = {
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
+  /**
+   * @deprecated use {@link B3Request.graphqlBCProxy} instead
+   * Request to BC graphql API using BC graphql token
+   */
   graphqlBC: function post<T>(data: T): Promise<any> {
     const config = {
       Authorization: `Bearer  ${B3SStorage.get('bcGraphqlToken') || ''}`,
     }
     return graphqlRequest(RequestType.BCGraphql, data, config)
+  },
+  /**
+   * Request to BC graphql API using B2B token
+   */
+  graphqlBCProxy: function post<T>(data: T): Promise<any> {
+    const config = {
+      Authorization: `Bearer  ${B3SStorage.get('B3B2BToken') || ''}`,
+    }
+    return graphqlRequest(RequestType.BCProxyGraphql, data, config)
   },
   get: function get<T, Y>(
     url: string,
