@@ -24,12 +24,12 @@ export interface InvoiceItemCardProps {
     newPrice: number | string,
     invoiceId: string
   ) => void
-  handleViewInvoice: (id: string) => void
+  handleViewInvoice: (id: string, status: string | number) => void
   setIsRequestLoading: (bool: boolean) => void
   setInvoiceId: (id: string) => void
   handleOpenHistoryModal: (bool: boolean) => void
   selectedPay: CustomFieldItems | InvoiceListNode[]
-  currentCurrencyToken: string
+  handleGetCorrespondingCurrency: (code: string) => string
 }
 
 const StyleCheckoutContainer = styled(Box)(() => ({
@@ -49,11 +49,14 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     setInvoiceId,
     handleOpenHistoryModal,
     selectedPay = [],
-    currentCurrencyToken = '$',
+    handleGetCorrespondingCurrency,
   } = props
   const navigate = useNavigate()
 
-  const { id, status, dueDate } = item
+  const { id, status, dueDate, openBalance } = item
+  const currentCode = openBalance.code || 'USD'
+  const currentCurrencyToken = handleGetCorrespondingCurrency(currentCode)
+
   let statusCode = item.status
   if (status !== 2 && currentDate > dueDate * 1000) {
     statusCode = 3
@@ -165,7 +168,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
                   position="start"
                   sx={{ padding: '8px 0', marginTop: '0 !important' }}
                 >
-                  {currentCurrencyToken}
+                  {currentCurrencyToken || '$'}
                 </InputAdornment>
               ),
             }}
@@ -185,7 +188,11 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
   ]
 
   return (
-    <Card>
+    <Card
+      sx={{
+        marginBottom: selectedPay.length > 0 ? '5rem' : 0,
+      }}
+    >
       <CardContent
         sx={{
           color: 'rgba(0, 0, 0, 0.6)',
@@ -221,7 +228,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
                   textDecoration: 'underline',
                 }}
                 onClick={() => {
-                  handleViewInvoice(id)
+                  handleViewInvoice(id, status)
                 }}
               >
                 {id || '-'}

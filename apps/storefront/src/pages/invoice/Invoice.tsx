@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { ReactElement, useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Box,
@@ -39,7 +39,7 @@ import PaymentSuccess from './components/PaymentSuccess'
 import PrintTempalte from './components/PrintTempalte'
 import InvoiceListType, { filterFormConfig, sortIdArr } from './utils/config'
 import { handlePrintPDF } from './utils/pdf'
-// import { InvoiceItemCard } from './InvoiceItemCard'
+import { InvoiceItemCard } from './InvoiceItemCard'
 
 export interface FilterSearchProps {
   [key: string]: string | number | null
@@ -495,7 +495,7 @@ function Invoice() {
       title: 'Amount to pay',
       render: (item: InvoiceList) => {
         const { openBalance, id } = item
-        const currentCode = openBalance.code || '$'
+        const currentCode = openBalance.code || 'USD'
         let valuePrice = openBalance.value
         let disabled = true
 
@@ -723,23 +723,23 @@ function Invoice() {
           sortByFn={handleSetOrderBy}
           isSelectOtherPageCheckbox
           hover
-          // renderItem={(
-          //   row: InvoiceList,
-          //   index?: number,
-          //   checkBox?: () => ReactElement
-          // ) => (
-          //   <InvoiceItemCard
-          //     item={row}
-          //     checkBox={checkBox}
-          //     handleSetSelectedInvoiceAccount={handleSetSelectedInvoiceAccount}
-          //     handleViewInvoice={handleViewInvoice}
-          //     setIsRequestLoading={setIsRequestLoading}
-          //     setInvoiceId={setCurrentInvoiceId}
-          //     handleOpenHistoryModal={setIsOpenHistorys}
-          //     currentCurrencyToken={currentCurrency.token}
-          //     selectedPay={selectedPay}
-          //   />
-          // )}
+          renderItem={(
+            row: InvoiceList,
+            index?: number,
+            checkBox?: () => ReactElement
+          ) => (
+            <InvoiceItemCard
+              item={row}
+              checkBox={checkBox}
+              handleSetSelectedInvoiceAccount={handleSetSelectedInvoiceAccount}
+              handleViewInvoice={handleViewInvoice}
+              setIsRequestLoading={setIsRequestLoading}
+              setInvoiceId={setCurrentInvoiceId}
+              handleOpenHistoryModal={setIsOpenHistorys}
+              selectedPay={selectedPay}
+              handleGetCorrespondingCurrency={handleGetCorrespondingCurrency}
+            />
+          )}
         />
         {list.length > 0 && !isMobile && (
           <Box
