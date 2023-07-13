@@ -109,6 +109,7 @@ export interface InvoiceSuccessData {
   details: {
     paymentDetails: {
       memo: string
+      comment: string
     }
   }
   paymentId: number
