@@ -72,7 +72,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
     details,
   } = list
 
-  const memo = details?.paymentDetails?.memo || ''
+  const comment = details?.paymentDetails?.comment || ''
 
   const paymentSuccessKeys = [
     {
@@ -136,7 +136,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
             maxHeight: '50px',
           }}
         >
-          {memo}
+          {comment}
         </Typography>
       </Box>
 
