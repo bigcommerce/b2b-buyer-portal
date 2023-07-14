@@ -1,7 +1,5 @@
 import { MouseEvent } from 'react'
-import { Button, ButtonProps, SxProps, useTheme } from '@mui/material'
-
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { Button, ButtonProps, SxProps } from '@mui/material'
 
 interface CustomButtonProps extends ButtonProps {
   onClick?: (e?: MouseEvent<HTMLButtonElement> | any) => void
@@ -11,13 +9,10 @@ interface CustomButtonProps extends ButtonProps {
 }
 
 function CustomButton({ onClick, sx, children, ...rest }: CustomButtonProps) {
-  const theme = useTheme()
   return (
     <Button
       {...rest}
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        color: getContrastColor(theme.palette.primary.main),
         ...(sx || {}),
       }}
       onClick={onClick}

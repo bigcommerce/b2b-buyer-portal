@@ -1,7 +1,8 @@
 import { useB3Lang } from '@b3/lang'
-import { Box } from '@mui/material'
+import { Box, useTheme } from '@mui/material'
 
 import { CustomButton } from '@/components'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 
 import { steps } from '../config'
 
@@ -9,6 +10,7 @@ function RegisteredStepButton(props: any) {
   const { activeStep, handleBack, handleNext, handleFinish } = props
 
   const b3Lang = useB3Lang()
+  const theme = useTheme()
 
   return (
     <Box>
@@ -32,7 +34,14 @@ function RegisteredStepButton(props: any) {
             pt: 2,
           }}
         >
-          <CustomButton variant="contained" onClick={handleNext}>
+          <CustomButton
+            variant="contained"
+            onClick={handleNext}
+            sx={{
+              backgroundColor: theme.palette.primary.main,
+              color: getContrastColor(theme.palette.primary.main),
+            }}
+          >
             {activeStep === steps.length - 1
               ? b3Lang('intl.global.button.submit')
               : b3Lang('intl.global.button.next')}
@@ -42,6 +51,8 @@ function RegisteredStepButton(props: any) {
               variant="contained"
               onClick={handleBack}
               sx={{
+                backgroundColor: theme.palette.primary.main,
+                color: getContrastColor(theme.palette.primary.main),
                 mr: 1,
               }}
             >
