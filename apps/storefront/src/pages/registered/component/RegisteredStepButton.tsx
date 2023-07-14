@@ -39,7 +39,7 @@ function RegisteredStepButton(props: any) {
           </CustomButton>
           {activeStep !== 0 && (
             <CustomButton
-              variant="text"
+              variant="contained"
               onClick={handleBack}
               sx={{
                 mr: 1,
