@@ -36,7 +36,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
       url = '/login?loginFlag=3'
     }
     if (href?.includes('create_account')) {
-      url = '/registered'
+      url = '/register'
     }
 
     return url

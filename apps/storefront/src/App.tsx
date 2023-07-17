@@ -117,7 +117,7 @@ export default function App() {
 
       let openUrl = '/login'
       if (/action=create_account/.test(search)) {
-        openUrl = '/registered'
+        openUrl = '/register'
       }
       if (/action=reset_password/.test(search)) {
         openUrl = '/forgotpassword'

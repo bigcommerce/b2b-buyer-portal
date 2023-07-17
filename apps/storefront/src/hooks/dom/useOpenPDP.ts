@@ -84,7 +84,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   const jumpRegister = useCallback(() => {
     setOpenPage({
       isOpen: true,
-      openUrl: '/registered',
+      openUrl: '/register',
     })
   }, [])
 
