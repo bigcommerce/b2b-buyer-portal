@@ -68,7 +68,7 @@ export default function HeadlessController({
   const saveFn = () => {
     setOpenPage({
       isOpen: true,
-      openUrl: '/registered',
+      openUrl: '/register',
     })
   }
   const gotoShoppingDetail = (id: number | string) => {

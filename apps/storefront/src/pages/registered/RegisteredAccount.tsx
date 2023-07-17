@@ -83,7 +83,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     (info: CustomFieldItems) => {
       if (info.fieldId === 'field_email' && accountType === '1') {
         info.isTip = true
-        info.tipText = 'This email will be used for sign in to your account'
+        info.tipText = 'This email will be used to sign in to your account'
       }
 
       return info

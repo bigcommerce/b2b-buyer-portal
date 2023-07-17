@@ -232,7 +232,7 @@ export default function Login(props: RegisteredProps) {
   }
 
   const handleCreateAccountSubmit = () => {
-    navigate('/registered')
+    navigate('/register')
   }
 
   const gotoForgotPassword = () => {

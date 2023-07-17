@@ -17,7 +17,7 @@ const localConfig = () => {
 const globalB3 = {
   'dom.registerElement':
     '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel',
-  'dom.registerUrl': '/registered',
+  'dom.registerUrl': '/register',
   'dom.allOtherElement':
     '[href^="/account.php"],  [href^="/account.php"] .navUser-item-accountLabel',
   'dom.checkoutRegisterParentElement': '#checkout-app',

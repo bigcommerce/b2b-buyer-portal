@@ -234,8 +234,8 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
     isProvider: false,
   },
   {
-    path: '/registered',
-    name: 'registered',
+    path: '/register',
+    name: 'register',
     component: Registered,
     permissions: [0, 1, 2, 3, 4, 99, 100],
     isProvider: true,
@@ -277,7 +277,8 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
   },
 ]
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
-  const { isB2BUser, role, isAgenting, storefrontConfig } = globalState
+  const { isB2BUser, role, isAgenting, storefrontConfig, quoteConfig } =
+    globalState
   return routes.filter((item: RouteItem) => {
     const { permissions = [] } = item
 
@@ -289,12 +290,53 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
     if (!isB2BUser) {
       const navListKey =
         storefrontConfig && storefrontConfig[item.configKey || '']
+
+      if (item.configKey === 'quotes') {
+        if (role === 100) {
+          const quoteGuest =
+            quoteConfig.find((config: any) => config.key === 'quote_for_guest')
+              ?.value || '0'
+          return quoteGuest === '1' && navListKey
+        }
+        if (role === 99) {
+          const quoteIndividualCustomer =
+            quoteConfig.find(
+              (config: any) => config.key === 'quote_for_individual_customer'
+            )?.value || '0'
+          return quoteIndividualCustomer === '1' && navListKey
+        }
+      }
+      if (item.configKey === 'shoppingLists') {
+        const shoppingListOnProductPage = quoteConfig.find(
+          (config: any) => config.key === 'shopping_list_on_product_page'
+        )?.extraFields
+        if (role === 100) {
+          return shoppingListOnProductPage?.guest && navListKey
+        }
+        if (role === 99) {
+          return shoppingListOnProductPage?.b2c && navListKey
+        }
+      }
       if (typeof navListKey === 'boolean') return navListKey
       return permissions.includes(99)
     }
 
     if (!permissions.includes(+role || 0) || !storefrontConfig) {
       return false
+    }
+
+    if (item.configKey === 'quotes') {
+      const quoteB2B =
+        quoteConfig.find((config: any) => config.key === 'quote_for_b2b')
+          ?.value || '0'
+      return storefrontConfig.quotes && quoteB2B === '1'
+    }
+
+    if (item.configKey === 'shoppingLists') {
+      const shoppingListOnProductPage = quoteConfig.find(
+        (config: any) => config.key === 'shopping_list_on_product_page'
+      )?.extraFields
+      return storefrontConfig.quotes && shoppingListOnProductPage?.b2b
     }
 
     if (item.configKey === 'quickOrderPad') {

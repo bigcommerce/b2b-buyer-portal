@@ -29,7 +29,7 @@ export enum HeadlessRoutes {
   SIGN_IN = '/login',
   LOG_OUT = '/login?loginFlag=3',
   FORGOT_PASSWORD = '/forgotpassword',
-  REGISTER_ACCOUNT = '/registered',
+  REGISTER_ACCOUNT = '/register',
   DRAFT_QUOTE = '/quoteDraft',
   SHOPPING_LISTS = '/shoppingLists',
   DASHBOARD = '/dashboard',
