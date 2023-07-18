@@ -74,7 +74,14 @@ export default function Login(props: RegisteredProps) {
   const b3Lang = useB3Lang()
 
   const {
-    state: { isCheckout, logo, B3UserId, salesRepCompanyId = 0, isAgenting },
+    state: {
+      isCheckout,
+      logo,
+      B3UserId,
+      salesRepCompanyId = 0,
+      isAgenting,
+      registerEnabled,
+    },
     dispatch,
   } = useContext(GlobaledContext)
 
@@ -316,6 +323,7 @@ export default function Login(props: RegisteredProps) {
                       margin: '20px 0',
                       display: 'flex',
                       flexDirection: isMobile ? 'column' : 'row',
+                      justifyContent: 'center',
                     }}
                   >
                     <Box
@@ -324,6 +332,7 @@ export default function Login(props: RegisteredProps) {
                         paddingRight: isMobile ? 0 : '2%',
                         ml: '16px',
                         mr: isMobile ? '16px' : '',
+                        pb: registerEnabled ? '' : '36px',
                       }}
                     >
                       <LoginForm
@@ -334,17 +343,19 @@ export default function Login(props: RegisteredProps) {
                       />
                     </Box>
 
-                    <Box
-                      sx={{
-                        flex: '1',
-                        paddingLeft: isMobile ? 0 : '2%',
-                      }}
-                    >
-                      <LoginPanel
-                        loginInfo={loginInfo}
-                        handleSubmit={handleCreateAccountSubmit}
-                      />
-                    </Box>
+                    {registerEnabled && (
+                      <Box
+                        sx={{
+                          flex: '1',
+                          paddingLeft: isMobile ? 0 : '2%',
+                        }}
+                      >
+                        <LoginPanel
+                          loginInfo={loginInfo}
+                          handleSubmit={handleCreateAccountSubmit}
+                        />
+                      </Box>
+                    )}
                   </Box>
 
                   {loginInfo.widgetFooterText && (

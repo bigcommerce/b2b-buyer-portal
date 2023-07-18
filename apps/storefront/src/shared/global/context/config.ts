@@ -94,6 +94,7 @@ export interface GlobalState {
           enabledStatus: boolean
         }
     shoppingLists: boolean
+    tradeProfessionalApplication: boolean
   }
   storeEnabled: boolean
   storeName: string
@@ -103,6 +104,7 @@ export interface GlobalState {
   productQuoteEnabled: boolean
   cartQuoteEnabled: boolean
   shoppingListEnabled: boolean
+  registerEnabled: boolean
   quoteConfig: CustomFieldItems[]
   currencies: {
     channelCurrencies: ChannelCurrenciesProps
@@ -157,6 +159,7 @@ export const initState = {
   productQuoteEnabled: false,
   cartQuoteEnabled: false,
   shoppingListEnabled: false,
+  registerEnabled: true,
   quoteConfig: [],
   currencies: B3SStorage.get('currencies') || {},
   openAPPParams: {

@@ -13,6 +13,7 @@ import {
   displayFormat,
   getUTCTimestamp,
 } from './b3DateFormat'
+import handleHideRegisterPage from './b3HideRegister'
 import { getLogo, getQuoteEnabled } from './b3Init'
 import { showPageMask } from './b3PageMask'
 import distanceDay from './b3Picker'
@@ -76,6 +77,7 @@ export {
   getUTCTimestamp,
   globalSnackbar,
   handleGetCurrentProductInfo,
+  handleHideRegisterPage,
   isAllRequiredOptionFilled,
   isModifierNumberTextValid,
   isModifierTextValid,
