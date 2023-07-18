@@ -26,6 +26,7 @@ import {
   getQuoteEnabled,
   getStoreTaxZoneRates,
   getTemPlateConfig,
+  handleHideRegisterPage,
   loginInfo,
   setStorefrontConfig,
 } from '@/utils'
@@ -55,6 +56,7 @@ export default function App() {
       productQuoteEnabled,
       emailAddress,
       // showPageMask
+      registerEnabled,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -194,14 +196,18 @@ export default function App() {
 
   useEffect(() => {
     if (quoteConfig.length > 0 && storefrontConfig) {
-      const { productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled } =
-        getQuoteEnabled(
-          quoteConfig,
-          storefrontConfig,
-          role,
-          isB2BUser,
-          isAgenting
-        )
+      const {
+        productQuoteEnabled,
+        cartQuoteEnabled,
+        shoppingListEnabled,
+        registerEnabled,
+      } = getQuoteEnabled(
+        quoteConfig,
+        storefrontConfig,
+        role,
+        isB2BUser,
+        isAgenting
+      )
 
       dispatch({
         type: 'common',
@@ -209,10 +215,15 @@ export default function App() {
           productQuoteEnabled,
           cartQuoteEnabled,
           shoppingListEnabled,
+          registerEnabled,
         },
       })
     }
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
+
+  useEffect(() => {
+    handleHideRegisterPage(registerEnabled)
+  }, [registerEnabled, storefrontConfig])
 
   useEffect(() => {
     if (isOpen) {

@@ -19,6 +19,7 @@ export const getQuoteEnabled = (
           enabledStatus: boolean
         }
     shoppingLists: boolean
+    tradeProfessionalApplication: boolean
   },
   role: number | string,
   isB2BUser: boolean,
@@ -34,6 +35,7 @@ export const getQuoteEnabled = (
   const quoteEnabled = storefrontConfig.quotes || false
 
   const shoppingListEnabled = storefrontConfig.shoppingLists
+  const registerEnabled = storefrontConfig.tradeProfessionalApplication
 
   quoteConfig.forEach((config) => {
     if (config.key === 'quote_customer') {
@@ -82,5 +84,6 @@ export const getQuoteEnabled = (
     productQuoteEnabled,
     cartQuoteEnabled,
     shoppingListEnabled,
+    registerEnabled,
   }
 }

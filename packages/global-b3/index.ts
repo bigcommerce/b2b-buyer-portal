@@ -29,6 +29,7 @@ const globalB3 = {
   'dom.cartElement':
     '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"], [data-event-type="product-click"], .card-body a, [data-emthemesmodez-cart-item-add]',
   'dom.productView': '.productView',
+  'dom.register': '[href^="/login.php?action=create_account"]',
   before_login_goto_page: '/account.php?action=order_status',
   checkout_super_clear_session: 'true',
   setting: {

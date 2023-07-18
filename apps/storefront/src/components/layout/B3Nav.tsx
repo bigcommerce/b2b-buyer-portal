@@ -33,7 +33,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const { dispatch } = useContext(DynamicallyVariableedContext)
 
   const { state: globalState } = useContext(GlobaledContext)
-  const { quoteDetailHasNewMessages } = globalState
+  const { quoteDetailHasNewMessages, registerEnabled } = globalState
 
   const theme = useTheme()
   const primaryColor = theme.palette.primary.main
@@ -68,7 +68,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
                 ? 'Please create an account, or login to create a shopping list.'
                 : 'To receive full access to buyer portal, please register. It will take 2 minutes.',
             cancelText: 'Cancel',
-            saveText: 'Register',
+            saveText: registerEnabled ? 'Register' : '',
             saveFn: jumpRegister,
           },
         },

@@ -14,7 +14,7 @@ const useRegisteredbctob2b = (
   const b3Lang = useB3Lang()
 
   const {
-    state: { isB2BUser, customerId, companyInfo },
+    state: { isB2BUser, customerId, companyInfo, registerEnabled },
   } = useContext(GlobaledContext)
 
   const {
@@ -45,9 +45,17 @@ const useRegisteredbctob2b = (
       document.querySelector(globalB3['dom.navUserLoginElement'])
     ) {
       // already exist
-      if (document.querySelector('.navUser-item.navUser-convert-b2b')) {
+      const b2ToB2b = document.querySelector(
+        '.navUser-item.navUser-convert-b2b'
+      )
+
+      if (b2ToB2b) {
+        if (!registerEnabled) b2ToB2b.remove()
+
         return
       }
+
+      if (!registerEnabled) return
 
       const convertB2BNavNode = createConvertB2BNavNode()
       const accountNode = document.querySelector(
@@ -68,7 +76,7 @@ const useRegisteredbctob2b = (
     } else {
       document.querySelector('.navUser-item.navUser-convert-b2b')?.remove()
     }
-  }, [isB2BUser, customerId, openQuickView, b2b])
+  }, [isB2BUser, customerId, openQuickView, b2b, registerEnabled])
 }
 
 export default useRegisteredbctob2b
