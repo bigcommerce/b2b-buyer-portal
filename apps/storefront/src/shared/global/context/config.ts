@@ -30,6 +30,12 @@ export interface ChannelCurrenciesProps {
   enabled_currencies: Array<string>
 }
 
+export interface QuoteConfigProps {
+  key: string
+  value: string
+  extraFields: CustomFieldItems
+}
+
 export interface CurrencyProps {
   auto_update: boolean
   country_iso2: string
@@ -105,7 +111,7 @@ export interface GlobalState {
   cartQuoteEnabled: boolean
   shoppingListEnabled: boolean
   registerEnabled: boolean
-  quoteConfig: CustomFieldItems[]
+  quoteConfig: QuoteConfigProps[]
   currencies: {
     channelCurrencies: ChannelCurrenciesProps
     currencies: CurrencyProps

@@ -1,7 +1,7 @@
 import { lazy } from 'react'
 import { matchPath } from 'react-router-dom'
 
-import { GlobalState } from '@/shared/global/context/config'
+import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
 
@@ -294,21 +294,24 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
       if (item.configKey === 'quotes') {
         if (role === 100) {
           const quoteGuest =
-            quoteConfig.find((config: any) => config.key === 'quote_for_guest')
-              ?.value || '0'
+            quoteConfig.find(
+              (config: QuoteConfigProps) => config.key === 'quote_for_guest'
+            )?.value || '0'
           return quoteGuest === '1' && navListKey
         }
         if (role === 99) {
           const quoteIndividualCustomer =
             quoteConfig.find(
-              (config: any) => config.key === 'quote_for_individual_customer'
+              (config: QuoteConfigProps) =>
+                config.key === 'quote_for_individual_customer'
             )?.value || '0'
           return quoteIndividualCustomer === '1' && navListKey
         }
       }
       if (item.configKey === 'shoppingLists') {
         const shoppingListOnProductPage = quoteConfig.find(
-          (config: any) => config.key === 'shopping_list_on_product_page'
+          (config: QuoteConfigProps) =>
+            config.key === 'shopping_list_on_product_page'
         )?.extraFields
         if (role === 100) {
           return shoppingListOnProductPage?.guest && navListKey
@@ -327,14 +330,16 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
 
     if (item.configKey === 'quotes') {
       const quoteB2B =
-        quoteConfig.find((config: any) => config.key === 'quote_for_b2b')
-          ?.value || '0'
+        quoteConfig.find(
+          (config: QuoteConfigProps) => config.key === 'quote_for_b2b'
+        )?.value || '0'
       return storefrontConfig.quotes && quoteB2B === '1'
     }
 
     if (item.configKey === 'shoppingLists') {
       const shoppingListOnProductPage = quoteConfig.find(
-        (config: any) => config.key === 'shopping_list_on_product_page'
+        (config: QuoteConfigProps) =>
+          config.key === 'shopping_list_on_product_page'
       )?.extraFields
       return storefrontConfig.quotes && shoppingListOnProductPage?.b2b
     }
