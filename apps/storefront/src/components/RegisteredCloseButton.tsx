@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 import { Box } from '@mui/material'
 
@@ -16,15 +15,12 @@ export default function RegisteredCloseButton(props: CloseButtonProps) {
   const { setOpenPage } = props
 
   const {
-    state: { isCheckout, isCloseGotoBCHome },
+    state: { isCloseGotoBCHome },
   } = useContext(GlobaledContext)
   const navigate = useNavigate()
 
   const handleCloseForm = () => {
-    if (
-      isCloseGotoBCHome ||
-      (isCheckout && document.getElementById(globalB3['dom.openB3Checkout']))
-    ) {
+    if (isCloseGotoBCHome) {
       window.location.href = '/'
     } else {
       navigate('/')
