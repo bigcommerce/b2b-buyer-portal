@@ -108,7 +108,7 @@ export default {
   'intl.user.addUser.emailValidate.multipleCustomer':
     'This email is used by multiple customers in your store. Please use another email.',
   'intl.user.addUser.emailValidate.companyUsed':
-    'This email is used by a customer within another company ({companyName}).',
+    'This email is used by a customer within another company',
   'intl.user.addUser.emailValidate.alreadyExits':
     'This user already exists in this company.',
   'intl.user.addUser.emailValidate.usedSuperAdmin':
