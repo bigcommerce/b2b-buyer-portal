@@ -33,6 +33,7 @@ declare interface Window {
           customerJWTToken: string
         ) => Promise<{ role: number; userType: string } | undefined>
         graphqlBCProxy: typeof import('@/shared/service/request/b3Fetch').default.graphqlBCProxy
+        loginWithB2BStorefrontToken: (b2bStorefrontJWTToken: string) => void
       }
       shoppingList: {
         addProductFromPage: () => void
