@@ -100,7 +100,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('B3Role', '')
   B3SStorage.set('isB2BUser', false)
   B3SStorage.set('currentCustomerJWTToken', '')
-  B3SStorage.set('B3B2BToken', false)
+  B3SStorage.set('B2BToken', false)
   B3SStorage.set('B3UserId', '')
 
   B3SStorage.set('salesRepCompanyName', '')
@@ -162,8 +162,8 @@ const getB2BTokenWithJWTToken = async (userType: number, jwtToken: string) => {
     if (userType === 3) {
       const data = await getB2BToken(jwtToken, channelId)
       if (data) {
-        const B3B2BToken = (data as B2BToken).authorization.result.token
-        B3SStorage.set('B3B2BToken', B3B2BToken)
+        const B2BToken = (data as B2BToken).authorization.result.token
+        B3SStorage.set('B2BToken', B2BToken)
         const { loginType } = (data as B2BToken).authorization.result
 
         sessionStorage.setItem('loginType', JSON.stringify(loginType || null))
@@ -195,9 +195,9 @@ export const getCompanyInfo = async (
   const realRole =
     B3SStorage.get('realRole') === 0 ? 0 : B3SStorage.get('realRole') || role
 
-  const B3B2BToken = B3SStorage.get('B3B2BToken')
+  const B2BToken = B3SStorage.get('B2BToken')
   const roles = [0, 1, 2]
-  if (!B3B2BToken || !roles.includes(+realRole)) return companyInfo
+  if (!B2BToken || !roles.includes(+realRole)) return companyInfo
 
   if (userType === 3 && +realRole !== 3) {
     const { userCompany } = await getUserCompany(+id)

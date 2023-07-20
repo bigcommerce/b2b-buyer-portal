@@ -20,9 +20,9 @@ function Payment() {
   useEffect(() => {
     const init = async () => {
       setLoadding(true)
-      const B3B2BToken = B3SStorage.get('B3B2BToken')
+      const B2BToken = B3SStorage.get('B2BToken')
 
-      if (!B3B2BToken) {
+      if (!B2BToken) {
         setOpen(true)
         setLoadding(false)
         return
