@@ -137,7 +137,7 @@ export default function HeadlessController({
               ),
             }
           },
-          getB2BToken: () => B3SStorage.get('B3B2BToken') || '',
+          getB2BToken: () => B3SStorage.get('B2BToken') || '',
           setMasqueradeCompany: (companyId) =>
             startMasquerade({
               dispatch,
@@ -155,7 +155,7 @@ export default function HeadlessController({
             getCurrentCustomerInfo(dispatch, customerJWTToken),
           graphqlBCProxy: B3Request.graphqlBCProxy,
           loginWithB2BStorefrontToken: (b2bStorefrontJWTToken: string) =>
-            B3SStorage.set('B3B2BToken', b2bStorefrontJWTToken),
+            B3SStorage.set('B2BToken', b2bStorefrontJWTToken),
         },
         shoppingList: {
           addProductFromPage: () => {

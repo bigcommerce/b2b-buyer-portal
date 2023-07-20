@@ -55,7 +55,7 @@ function request<T>(path: string, config?: T & Config, type?: string) {
           'x-xsrf-token': getCookie('XSRF-TOKEN'),
         }
       : {
-          authToken: `${B3SStorage.get('B3B2BToken') || ''}`,
+          authToken: `${B3SStorage.get('B2BToken') || ''}`,
         }
 
   const {
@@ -99,7 +99,7 @@ const B3Request = {
    */
   graphqlB2B: function post<T>(data: T, customMessage = false): Promise<any> {
     const config = {
-      Authorization: `Bearer  ${B3SStorage.get('B3B2BToken') || ''}`,
+      Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
