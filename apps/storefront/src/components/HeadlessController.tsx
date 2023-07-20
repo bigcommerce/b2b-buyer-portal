@@ -154,6 +154,8 @@ export default function HeadlessController({
           logInWithStorefrontToken: (customerJWTToken: string) =>
             getCurrentCustomerInfo(dispatch, customerJWTToken),
           graphqlBCProxy: B3Request.graphqlBCProxy,
+          loginWithB2BStorefrontToken: (b2bStorefrontJWTToken: string) =>
+            B3SStorage.set('B3B2BToken', b2bStorefrontJWTToken),
         },
         shoppingList: {
           addProductFromPage: () => {
