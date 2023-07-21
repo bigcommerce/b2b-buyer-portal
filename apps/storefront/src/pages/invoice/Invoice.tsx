@@ -386,6 +386,28 @@ function Invoice() {
     })
   }
 
+  const handleSetSelectedInvoiceAccountNumber = (val: string, id: string) => {
+    let result = val
+    if (val.includes('.')) {
+      const wholeDecimalNumber = val.split('.')
+      const movePoint = wholeDecimalNumber[1].length - +decimalPlaces
+      if (wholeDecimalNumber[1] && movePoint > 0) {
+        const newVal = wholeDecimalNumber[0] + wholeDecimalNumber[1]
+        result = `${newVal.slice(0, -decimalPlaces)}.${newVal.slice(
+          -decimalPlaces
+        )}`
+      }
+    } else {
+      const movePoint = result.length - +decimalPlaces
+      if (movePoint > 0) {
+        result = `${val.slice(0, -decimalPlaces)}.${val.slice(-decimalPlaces)}`
+      } else {
+        result = `.${val}`
+      }
+    }
+    handleSetSelectedInvoiceAccount(result, id)
+  }
+
   const columnAllItems: TableColumnItem<InvoiceList>[] = [
     {
       key: 'id',
@@ -549,27 +571,7 @@ function Invoice() {
             }}
             onChange={(e: CustomFieldItems) => {
               const val = e.target?.value
-              let result = val
-              if (val.includes('.')) {
-                const wholeDecimalNumber = val.split('.')
-                const movePoint = wholeDecimalNumber[1].length - +decimalPlaces
-                if (wholeDecimalNumber[1] && movePoint > 0) {
-                  const newVal = wholeDecimalNumber[0] + wholeDecimalNumber[1]
-                  result = `${newVal.slice(0, -decimalPlaces)}.${newVal.slice(
-                    -decimalPlaces
-                  )}`
-                }
-              } else {
-                const movePoint = result.length - +decimalPlaces
-                if (movePoint > 0) {
-                  result = `${val.slice(0, -decimalPlaces)}.${val.slice(
-                    -decimalPlaces
-                  )}`
-                } else {
-                  result = `.${val}`
-                }
-              }
-              handleSetSelectedInvoiceAccount(result, id)
+              handleSetSelectedInvoiceAccountNumber(val, id)
             }}
             type="number"
           />
@@ -731,13 +733,16 @@ function Invoice() {
             <InvoiceItemCard
               item={row}
               checkBox={checkBox}
-              handleSetSelectedInvoiceAccount={handleSetSelectedInvoiceAccount}
+              handleSetSelectedInvoiceAccount={
+                handleSetSelectedInvoiceAccountNumber
+              }
               handleViewInvoice={handleViewInvoice}
               setIsRequestLoading={setIsRequestLoading}
               setInvoiceId={setCurrentInvoiceId}
               handleOpenHistoryModal={setIsOpenHistorys}
               selectedPay={selectedPay}
               handleGetCorrespondingCurrency={handleGetCorrespondingCurrency}
+              addBottom={list.length - 1 === index}
             />
           )}
         />

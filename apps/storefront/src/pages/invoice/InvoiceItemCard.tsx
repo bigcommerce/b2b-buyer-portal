@@ -20,16 +20,14 @@ import InvoiceStatus from './components/InvoiceStatus'
 export interface InvoiceItemCardProps {
   item: any
   checkBox?: () => ReactElement
-  handleSetSelectedInvoiceAccount: (
-    newPrice: number | string,
-    invoiceId: string
-  ) => void
+  handleSetSelectedInvoiceAccount: (value: string, id: string) => void
   handleViewInvoice: (id: string, status: string | number) => void
   setIsRequestLoading: (bool: boolean) => void
   setInvoiceId: (id: string) => void
   handleOpenHistoryModal: (bool: boolean) => void
   selectedPay: CustomFieldItems | InvoiceListNode[]
   handleGetCorrespondingCurrency: (code: string) => string
+  addBottom: boolean
 }
 
 const StyleCheckoutContainer = styled(Box)(() => ({
@@ -50,6 +48,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     handleOpenHistoryModal,
     selectedPay = [],
     handleGetCorrespondingCurrency,
+    addBottom,
   } = props
   const navigate = useNavigate()
 
@@ -131,7 +130,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
       title: 'Amount to pay',
       render: () => {
         const { openBalance, id } = item
-        let valuePrice = +openBalance.value
+        let valuePrice = openBalance.value
         let disabled = true
 
         if (selectedPay.length > 0) {
@@ -149,7 +148,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
             } = currentSelected
 
             disabled = false
-            valuePrice = +selectedOpenBalance.value
+            valuePrice = selectedOpenBalance.value
 
             if (+openBalance.value === 0) {
               disabled = true
@@ -177,9 +176,10 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
                 paddingTop: '8px',
               },
             }}
-            onChange={(e: CustomFieldItems) =>
-              handleSetSelectedInvoiceAccount(e.target?.value, id)
-            }
+            onChange={(e: CustomFieldItems) => {
+              const val = e.target?.value
+              handleSetSelectedInvoiceAccount(val, id)
+            }}
             type="number"
           />
         )
@@ -190,7 +190,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
   return (
     <Card
       sx={{
-        marginBottom: selectedPay.length > 0 ? '5rem' : 0,
+        marginBottom: selectedPay.length > 0 && addBottom ? '5rem' : 0,
       }}
     >
       <CardContent
