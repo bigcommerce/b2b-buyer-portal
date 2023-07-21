@@ -105,6 +105,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
     state: {
       companyInfo: { id: companyId },
       customer: { customerGroupId },
+      productQuoteEnabled = false,
+      shoppingListEnabled = false,
     },
   } = useContext(GlobaledContext)
 
@@ -548,11 +550,13 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       name: 'Add selected to quote',
       key: 'add-selected-to-quote',
       handleClick: handleAddSelectedToQuote,
+      isDisabled: !productQuoteEnabled,
     },
     {
       name: 'Add selected to shopping list',
       key: 'add-selected-to-shoppingList',
       handleClick: handleCreateShoppingClick,
+      isDisabled: !shoppingListEnabled,
     },
   ]
 
