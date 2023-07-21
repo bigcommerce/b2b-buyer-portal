@@ -3,12 +3,20 @@ import globalB3 from '@b3/global-b3'
 
 import useMutationObservable from './useMutationObservable'
 
+interface GotoPageByClickProps {
+  href: string
+  isRegisterArrInclude: boolean
+}
 export interface OpenPageState {
   isOpen: boolean
   openUrl?: string
   isPageComplete?: boolean
-  handleEnterClick?: () => void
+  handleEnterClick?: (href: string) => void
   params?: { [key: string]: string }
+  gotoPageByClick?: ({
+    href,
+    isRegisterArrInclude,
+  }: GotoPageByClickProps) => string
 }
 
 export const useB3AppOpen = (initOpenState: OpenPageState) => {
@@ -28,19 +36,6 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
     openUrl: '',
     params: {},
   })
-
-  const getCurrentLoginUrl = (href: string): string => {
-    let url = '/login'
-    if (typeof href !== 'string') return url
-    if (href.includes('logout')) {
-      url = '/login?loginFlag=3'
-    }
-    if (href?.includes('create_account')) {
-      url = '/register'
-    }
-
-    return url
-  }
 
   useLayoutEffect(() => {
     // if (globalB3['dom.openB3Checkout'] && document.getElementById(globalB3['dom.openB3Checkout'])) {
@@ -67,16 +62,27 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
             allOtherArr.includes(e.target) &&
             initOpenState?.handleEnterClick
           ) {
-            initOpenState.handleEnterClick()
+            const href = (e.target as HTMLAnchorElement)?.href || ''
+            initOpenState.handleEnterClick(href)
           } else {
             const href = (e.target as HTMLAnchorElement)?.href || ''
-            const gotoUrl = registerArr.includes(e.target)
-              ? getCurrentLoginUrl(href)
-              : '/orders'
-            setOpenPage({
-              isOpen: true,
-              openUrl: gotoUrl,
-            })
+            const isRegisterArrInclude = registerArr.includes(e.target)
+            if (initOpenState?.gotoPageByClick) {
+              const gotoUrl = initOpenState.gotoPageByClick({
+                href,
+                isRegisterArrInclude,
+              })
+
+              setOpenPage({
+                isOpen: true,
+                openUrl: gotoUrl,
+              })
+            } else {
+              setOpenPage({
+                isOpen: true,
+                openUrl: '/orders',
+              })
+            }
           }
         }
         return false

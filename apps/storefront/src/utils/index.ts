@@ -1,4 +1,9 @@
 import {
+  gotoPageByClick,
+  redirectBcMenus,
+  removeBCMenus,
+} from './b3AccountItem'
+import {
   getProductOptionList,
   handleGetCurrentProductInfo,
   isAllRequiredOptionFilled,
@@ -76,12 +81,15 @@ export {
   getSearchVal,
   getUTCTimestamp,
   globalSnackbar,
+  gotoPageByClick,
   handleGetCurrentProductInfo,
   handleHideRegisterPage,
   isAllRequiredOptionFilled,
   isModifierNumberTextValid,
   isModifierTextValid,
   loginInfo,
+  redirectBcMenus,
+  removeBCMenus,
   removeCartPermissions,
   serialize,
   showPageMask,

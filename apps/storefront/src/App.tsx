@@ -26,8 +26,10 @@ import {
   getQuoteEnabled,
   getStoreTaxZoneRates,
   getTemPlateConfig,
+  gotoPageByClick,
   handleHideRegisterPage,
   loginInfo,
+  removeBCMenus,
   setStorefrontConfig,
 } from '@/utils'
 
@@ -63,21 +65,33 @@ export default function App() {
 
   const storeDispatch = useDispatch()
 
-  const { isClickEnterBtn, isPageComplete } = useSelector(globalStateSelector)
+  const { isClickEnterBtn, isPageComplete, currentClickedUrl } =
+    useSelector(globalStateSelector)
 
-  const handleAccountClick = () => {
+  const handleAccountClick = (href: string) => {
     showPageMask(dispatch, true)
     storeDispatch(
       setGlabolCommonState({
         isClickEnterBtn: true,
+        currentClickedUrl: href,
       })
     )
+  }
+
+  const handleGotoPageByClick = ({
+    href,
+    isRegisterArrInclude,
+  }: CustomFieldItems) => {
+    const gotoUrl = gotoPageByClick({ href, role, isRegisterArrInclude })
+
+    return gotoUrl
   }
 
   const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
     isOpen: false,
     isPageComplete,
     handleEnterClick: handleAccountClick,
+    gotoPageByClick: handleGotoPageByClick,
   })
 
   const {
@@ -138,6 +152,10 @@ export default function App() {
       openUrl: url,
     })
   }, [])
+
+  useEffect(() => {
+    removeBCMenus()
+  }, [window.location.pathname, role])
 
   useEffect(() => {
     const isRelogin = sessionStorage.getItem('isReLogin') === 'true'
@@ -233,7 +251,19 @@ export default function App() {
 
   useEffect(() => {
     if (isClickEnterBtn && isPageComplete) {
-      gotoAllowedAppPage(+role, gotoPage, true)
+      const gotoUrl =
+        gotoPageByClick({
+          href: currentClickedUrl,
+          role,
+          isRegisterArrInclude: false,
+        }) || '/orders'
+
+      setOpenPage({
+        isOpen: true,
+        openUrl: gotoUrl,
+      })
+
+      // gotoAllowedAppPage(+role, gotoPage, true)
       storeDispatch(
         setGlabolCommonState({
           isClickEnterBtn: false,

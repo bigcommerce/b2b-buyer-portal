@@ -88,6 +88,75 @@
         Loyout
       </a>
     </div>
+    <div class="dropdown-menu signout-list" id="account-dropdown-signout-list">
+      <!-- <h2 class="container-header">Account Info</h2> -->
+      <nav class="navBar navBar--sub navBar--account signout-list">
+        <ul class="navBar-section signout-list">
+          <li class="navBar-item signout-list">
+            <a
+              class="navBar-action signout-list"
+              href="/account.php?action=order_status"
+              >Orders</a
+            >
+          </li>
+          <li class="navBar-item signout-list">
+            <a
+              class="navBar-action signout-list"
+              href="/account.php?action=view_returns"
+              >Returns</a
+            >
+          </li>
+          <li class="navBar-item signout-list">
+            <a
+              class="navBar-action signout-list"
+              href="/account.php?action=inbox"
+              >Messages (0)</a
+            >
+          </li>
+
+          <li class="navBar-item signout-list">
+            <a
+              class="navBar-action signout-list"
+              href="/account.php?action=address_book"
+              >Addresses</a
+            >
+          </li>
+
+          <li class="navBar-item signout-list">
+            <a
+              class="navBar-action signout-list"
+              href="/account.php?action=recent_items"
+              >Recently Viewed</a
+            >
+          </li>
+          <li class="navBar-item signout-list">
+            <a
+              class="navBar-action signout-list"
+              href="/account.php?action=account_details"
+              >Account Settings</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <a class="navBar-action signout-list" href="/login.php?action=logout"
+        >Sign out</a
+      >
+      <!-- <hr class="left full-width" /> -->
+      <!-- { {> components / common / currency-selector-dropdown } } -->
+    </div>
+    <li class="navUser-item navUser-item--account">
+      <a class="navUser-action" href="/account.php" aria-label="Account">
+        Account
+      </a>
+
+      <a
+        class="navUser-action"
+        href="/login.php?action=logout"
+        aria-label="Sign out"
+      >
+        Sign out
+      </a>
+    </li>
     <div id="b2bRemoveOrAdd">onclick(remove/add)</div>
     <div>
       <!--

@@ -19,7 +19,7 @@ const globalB3 = {
     '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel',
   'dom.registerUrl': '/register',
   'dom.allOtherElement':
-    '[href^="/account.php"],  [href^="/account.php"] .navUser-item-accountLabel',
+    '[href^="/account.php"],  [href^="/account.php"] .navUser-item-accountLabel, [href^="/account.php?action=address_book"], [href^="/account.php?action=order_status"], [href^="/account.php?action=account_details"]',
   'dom.checkoutRegisterParentElement': '#checkout-app',
   'dom.navUserLoginElement': '.navUser-item.navUser-item--account',
   'dom.setToQuote': '#form-action-addToCart',
