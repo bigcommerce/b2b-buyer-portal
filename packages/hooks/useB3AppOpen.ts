@@ -3,20 +3,20 @@ import globalB3 from '@b3/global-b3'
 
 import useMutationObservable from './useMutationObservable'
 
-interface GotoPageByClickProps {
-  href: string
-  isRegisterArrInclude: boolean
-}
+// interface GotoPageByClickProps {
+//   href: string
+//   isRegisterArrInclude: boolean
+// }
 export interface OpenPageState {
   isOpen: boolean
   openUrl?: string
   isPageComplete?: boolean
-  handleEnterClick?: (href: string) => void
+  handleEnterClick?: (href: string, bool: boolean) => void
   params?: { [key: string]: string }
-  gotoPageByClick?: ({
-    href,
-    isRegisterArrInclude,
-  }: GotoPageByClickProps) => string
+  // gotoPageByClick: ({
+  //   href,
+  //   isRegisterArrInclude,
+  // }: GotoPageByClickProps) => string
 }
 
 export const useB3AppOpen = (initOpenState: OpenPageState) => {
@@ -27,10 +27,6 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1)
   }, [checkoutRegisterNumber])
 
-  // const {
-  //   dispatch,
-  // } = useContext(GlobaledContext)
-
   const [openPage, setOpenPage] = useState<OpenPageState>({
     isOpen: initOpenState.isOpen,
     openUrl: '',
@@ -38,52 +34,41 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
   })
 
   useLayoutEffect(() => {
-    // if (globalB3['dom.openB3Checkout'] && document.getElementById(globalB3['dom.openB3Checkout'])) {
-    //   setOpenPage({
-    //     isOpen: true,
-    //     openUrl: '/login',
-    //   })
-    // }
-    // login register  orther
+    const registerArr = Array.from(
+      document.querySelectorAll(globalB3['dom.registerElement'])
+    )
+    const allOtherArr = Array.from(
+      document.querySelectorAll(globalB3['dom.allOtherElement'])
+    )
 
-    if (document.querySelectorAll(globalB3['dom.registerElement']).length) {
-      const registerArr = Array.from(
-        document.querySelectorAll(globalB3['dom.registerElement'])
-      )
-      const allOtherArr = Array.from(
-        document.querySelectorAll(globalB3['dom.allOtherElement'])
-      )
+    if (registerArr.length || allOtherArr.length) {
       const handleTriggerClick = (e: MouseEvent) => {
         if (registerArr.includes(e.target) || allOtherArr.includes(e.target)) {
           e.preventDefault()
           e.stopPropagation()
-          if (
-            !initOpenState?.isPageComplete &&
-            allOtherArr.includes(e.target) &&
-            initOpenState?.handleEnterClick
-          ) {
-            const href = (e.target as HTMLAnchorElement)?.href || ''
-            initOpenState.handleEnterClick(href)
-          } else {
-            const href = (e.target as HTMLAnchorElement)?.href || ''
-            const isRegisterArrInclude = registerArr.includes(e.target)
-            if (initOpenState?.gotoPageByClick) {
-              const gotoUrl = initOpenState.gotoPageByClick({
-                href,
-                isRegisterArrInclude,
-              })
+          const isRegisterArrInclude = registerArr.includes(e.target)
+          const href = (e.target as HTMLAnchorElement)?.href || ''
 
-              setOpenPage({
-                isOpen: true,
-                openUrl: gotoUrl,
-              })
-            } else {
-              setOpenPage({
-                isOpen: true,
-                openUrl: '/orders',
-              })
-            }
+          if (initOpenState?.handleEnterClick) {
+            initOpenState.handleEnterClick(href, isRegisterArrInclude)
           }
+          // if (
+          //   !initOpenState?.isPageComplete &&
+          //   initOpenState?.handleEnterClick
+          // ) {
+          //   initOpenState.handleLoadPageClick(href, isRegisterArrInclude)
+          // } else {
+          //   initOpenState.handleEnterClick(href, isRegisterArrInclude)
+          //   // const gotoUrl = initOpenState.gotoPageByClick({
+          //   //   href,
+          //   //   isRegisterArrInclude,
+          //   // })
+
+          //   // setOpenPage({
+          //   //   isOpen: true,
+          //   //   openUrl: gotoUrl,
+          //   // })
+          // }
         }
         return false
       }

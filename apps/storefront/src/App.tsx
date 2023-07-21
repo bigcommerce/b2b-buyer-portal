@@ -26,9 +26,9 @@ import {
   getQuoteEnabled,
   getStoreTaxZoneRates,
   getTemPlateConfig,
-  gotoPageByClick,
   handleHideRegisterPage,
   loginInfo,
+  openPageByClick,
   removeBCMenus,
   setStorefrontConfig,
 } from '@/utils'
@@ -65,33 +65,28 @@ export default function App() {
 
   const storeDispatch = useDispatch()
 
-  const { isClickEnterBtn, isPageComplete, currentClickedUrl } =
-    useSelector(globalStateSelector)
+  const {
+    isClickEnterBtn,
+    isPageComplete,
+    currentClickedUrl,
+    isRegisterAndLogin,
+  } = useSelector(globalStateSelector)
 
-  const handleAccountClick = (href: string) => {
+  const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
     showPageMask(dispatch, true)
     storeDispatch(
       setGlabolCommonState({
         isClickEnterBtn: true,
         currentClickedUrl: href,
+        isRegisterAndLogin,
       })
     )
-  }
-
-  const handleGotoPageByClick = ({
-    href,
-    isRegisterArrInclude,
-  }: CustomFieldItems) => {
-    const gotoUrl = gotoPageByClick({ href, role, isRegisterArrInclude })
-
-    return gotoUrl
   }
 
   const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
     isOpen: false,
     isPageComplete,
     handleEnterClick: handleAccountClick,
-    gotoPageByClick: handleGotoPageByClick,
   })
 
   const {
@@ -110,7 +105,7 @@ export default function App() {
 
   useDomHooks({ setOpenPage })
 
-  // Button to open storefront
+  // open storefront
   useSetOpen(isOpen, openUrl, params)
 
   const { pathname, href, search } = window.location
@@ -250,27 +245,25 @@ export default function App() {
   }, [isOpen])
 
   useEffect(() => {
-    if (isClickEnterBtn && isPageComplete) {
-      const gotoUrl =
-        gotoPageByClick({
-          href: currentClickedUrl,
-          role,
-          isRegisterArrInclude: false,
-        }) || '/orders'
+    if (isClickEnterBtn && isPageComplete && currentClickedUrl) {
+      const gotoUrl = openPageByClick({
+        href: currentClickedUrl,
+        role,
+        isRegisterAndLogin,
+      })
 
       setOpenPage({
         isOpen: true,
         openUrl: gotoUrl,
       })
 
-      // gotoAllowedAppPage(+role, gotoPage, true)
       storeDispatch(
         setGlabolCommonState({
           isClickEnterBtn: false,
         })
       )
     }
-  }, [isPageComplete])
+  }, [isPageComplete, currentClickedUrl])
 
   useEffect(() => {
     const handleHashChange = () => {

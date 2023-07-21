@@ -37,6 +37,7 @@ export interface GlabolState {
   taxZoneRates?: TaxZoneRatesProps[]
   isClickEnterBtn?: boolean
   currentClickedUrl?: string
+  isRegisterAndLogin?: boolean
   isPageComplete?: boolean
   globalMessage?: GlobalMessageDialog
   enteredInclusive?: boolean
@@ -48,6 +49,7 @@ const initialState: GlabolState = {
   taxZoneRates: [],
   isClickEnterBtn: false,
   currentClickedUrl: '',
+  isRegisterAndLogin: false,
   isPageComplete: false,
   globalMessage: {
     open: false,
