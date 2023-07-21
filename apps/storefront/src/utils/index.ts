@@ -1,5 +1,5 @@
 import {
-  gotoPageByClick,
+  openPageByClick,
   redirectBcMenus,
   removeBCMenus,
 } from './b3AccountItem'
@@ -81,13 +81,13 @@ export {
   getSearchVal,
   getUTCTimestamp,
   globalSnackbar,
-  gotoPageByClick,
   handleGetCurrentProductInfo,
   handleHideRegisterPage,
   isAllRequiredOptionFilled,
   isModifierNumberTextValid,
   isModifierTextValid,
   loginInfo,
+  openPageByClick,
   redirectBcMenus,
   removeBCMenus,
   removeCartPermissions,

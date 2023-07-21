@@ -1,7 +1,7 @@
-interface GotoPageByClickProps {
+interface OpenPageByClickProps {
   href: string
   role: number | string
-  isRegisterArrInclude: boolean
+  isRegisterAndLogin: boolean
 }
 
 const hideAccountItems = [
@@ -24,6 +24,7 @@ const accountTarget = [
   },
 ]
 
+// Vault theme remove associated nav
 const removeBCMenus = () => {
   hideAccountItems.forEach((item: string) => {
     const itemNodes = document.querySelectorAll(`[href^="${item}"]`)
@@ -36,47 +37,56 @@ const removeBCMenus = () => {
   })
 }
 
-const redirectBcMenus = (key: string) => {
-  let redirectUrl = '/orders'
+const redirectBcMenus = (key: string, role: number): string => {
+  // Supermarket theme
+  if (key === '/account.php') {
+    return +role !== 3 ? '/orders' : '/dashboard'
+  }
 
+  // Vault theme
+  // superAdmin exits's url
+  const superAdminExistUrl = ['/accountSettings']
   const currentItem: CustomFieldItems =
     accountTarget.find((item) => key.includes(item.originUrl)) || {}
 
-  if (currentItem) {
-    redirectUrl = currentItem?.newTargetUrl || '/orders'
+  if (currentItem && superAdminExistUrl.includes(currentItem.newTargetUrl)) {
+    return +role !== 3 ? currentItem.newTargetUrl : '/dashboard'
   }
 
-  return redirectUrl
+  if (currentItem) {
+    return currentItem.newTargetUrl
+  }
+
+  return '/orders'
 }
 
 const getCurrentLoginUrl = (href: string): string => {
-  let url = '/login'
-  if (typeof href !== 'string') return url
+  // quit login
   if (href.includes('logout')) {
-    url = '/login?loginFlag=3'
-  }
-  if (href?.includes('create_account')) {
-    url = '/register'
+    return '/login?loginFlag=3'
   }
 
-  return url
+  if (href?.includes('create_account')) {
+    return '/register'
+  }
+
+  return '/login'
 }
 
-const gotoPageByClick = ({
+const openPageByClick = ({
   href,
   role,
-  isRegisterArrInclude,
-}: GotoPageByClickProps) => {
-  const getUrl = redirectBcMenus(href)
-  let newUrl = role === 3 ? '/dashboard' : getUrl
+  isRegisterAndLogin,
+}: OpenPageByClickProps) => {
+  if (role === 100) return '/login'
 
-  if (getUrl === '/accountSettings') {
-    newUrl = getUrl
+  // register and login click
+  if (href.includes('/login') || isRegisterAndLogin) {
+    return getCurrentLoginUrl(href)
   }
 
-  const gotoUrl = isRegisterArrInclude ? getCurrentLoginUrl(href) : newUrl
-
-  return gotoUrl
+  // other click
+  return redirectBcMenus(href, +role)
 }
 
-export { getCurrentLoginUrl, gotoPageByClick, redirectBcMenus, removeBCMenus }
+export { getCurrentLoginUrl, openPageByClick, redirectBcMenus, removeBCMenus }
