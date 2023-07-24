@@ -30,6 +30,9 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
   const blockPendingAccountOrderCreation = B3SStorage.get(
     'blockPendingAccountOrderCreation'
   )
+  const blockPendingAccountViewPrice = B3SStorage.get(
+    'blockPendingAccountViewPrice'
+  )
   const loginType = JSON.parse(sessionStorage.getItem('loginType') || 'false')
 
   const [tip, setTip] = useState<string>('')
@@ -54,11 +57,24 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
     setIsShow(showTip)
     if (showTip) {
       if (+companyStatus === 0) {
-        setTip(
-          blockPendingAccountOrderCreation
-            ? StatusNotifications.pendingOrderingBlocked
-            : StatusNotifications.pendingOrderingNotBlocked
-        )
+        if (blockPendingAccountOrderCreation && blockPendingAccountViewPrice) {
+          setTip(StatusNotifications.pendingOrderingAndViewPriceBlocked)
+        }
+
+        if (blockPendingAccountOrderCreation && !blockPendingAccountViewPrice) {
+          setTip(StatusNotifications.pendingOrderingBlocked)
+        }
+
+        if (!blockPendingAccountOrderCreation && blockPendingAccountViewPrice) {
+          setTip(StatusNotifications.pendingViewPriceBlocked)
+        }
+
+        if (
+          !blockPendingAccountOrderCreation &&
+          !blockPendingAccountViewPrice
+        ) {
+          setTip(StatusNotifications.pendingOrderingNotBlocked)
+        }
         setType('info')
         setBcColor('#0288D1')
       }

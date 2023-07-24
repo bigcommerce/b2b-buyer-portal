@@ -139,6 +139,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
     key: 'block_pending_account_order_creation',
     name: 'blockPendingAccountOrderCreation',
   },
+  {
+    key: 'block_pending_account_seeing_products_pricing',
+    name: 'blockPendingAccountViewPrice',
+  },
 ]
 
 const getTemPlateConfig = async (
@@ -153,6 +157,7 @@ const getTemPlateConfig = async (
 
   const obj: Partial<CustomStyleButtonState> | {} = {}
   let blockPendingAccountOrderCreation = true
+  let blockPendingAccountViewPrice = true
   storefrontConfigs.forEach((item: any) => {
     const storeforntKey: StoreforntKeysProps | undefined = storeforntKeys.find(
       (option) => option.key === item.key
@@ -212,6 +217,16 @@ const getTemPlateConfig = async (
         B3SStorage.set(
           'blockPendingAccountOrderCreation',
           blockPendingAccountOrderCreation
+        )
+      }
+
+      if (
+        storeforntKey.key === 'block_pending_account_seeing_products_pricing'
+      ) {
+        blockPendingAccountViewPrice = item.value === '1'
+        B3SStorage.set(
+          'blockPendingAccountViewPrice',
+          blockPendingAccountViewPrice
         )
       }
 

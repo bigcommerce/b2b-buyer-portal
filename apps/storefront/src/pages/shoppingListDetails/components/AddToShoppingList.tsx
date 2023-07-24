@@ -7,7 +7,7 @@ import {
   addProductToBcShoppingList,
   addProductToShoppingList,
 } from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
+import { B3SStorage, snackbar } from '@/utils'
 
 import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config'
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'
@@ -179,6 +179,19 @@ export default function AddToShoppingList(props: AddToListProps) {
     }
   }
 
+  const handleOpenUploadDiag = () => {
+    const blockPendingAccountViewPrice = B3SStorage.get(
+      'blockPendingAccountViewPrice'
+    )
+    if (blockPendingAccountViewPrice) {
+      snackbar.info(
+        'Your business account is pending approval. This feature is currently disabled.'
+      )
+    } else {
+      setIsOpenBulkLoadCSV(true)
+    }
+  }
+
   return (
     <Card
       sx={{
@@ -205,12 +218,7 @@ export default function AddToShoppingList(props: AddToListProps) {
               margin: '20px 0 0',
             }}
           >
-            <CustomButton
-              variant="text"
-              onClick={() => {
-                setIsOpenBulkLoadCSV(true)
-              }}
-            >
+            <CustomButton variant="text" onClick={() => handleOpenUploadDiag()}>
               <UploadFileIcon
                 sx={{
                   marginRight: '8px',

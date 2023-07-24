@@ -49,6 +49,10 @@ export const StatusNotifications = {
     'Your business account is pending approval. Ordering will be enabled after account approval.',
   pendingOrderingNotBlocked:
     'Your business account is pending approval. You will gain access to business account features after account approval.',
+  pendingViewPriceBlocked:
+    'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.',
+  pendingOrderingAndViewPriceBlocked:
+    'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval',
   approvedTip:
     'Your business account has been approved. Check your email inbox, we sent you a letter with all details.',
   rejectedTip:

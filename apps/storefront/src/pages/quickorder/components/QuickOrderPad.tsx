@@ -12,7 +12,7 @@ import {
 import { B3Upload, CustomButton, successTip } from '@/components'
 import { useMobile } from '@/hooks'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
-import { snackbar } from '@/utils'
+import { B3SStorage, snackbar } from '@/utils'
 
 import SearchProduct from '../../shoppingListDetails/components/SearchProduct'
 
@@ -401,6 +401,19 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
     return productData
   }
 
+  const handleOpenUploadDiag = () => {
+    const blockPendingAccountViewPrice = B3SStorage.get(
+      'blockPendingAccountViewPrice'
+    )
+    if (blockPendingAccountViewPrice) {
+      snackbar.info(
+        'Your business account is pending approval. This feature is currently disabled.'
+      )
+    } else {
+      setIsOpenBulkLoadCSV(true)
+    }
+  }
+
   useEffect(() => {
     if (productData?.length > 0) {
       setAddBtnText(`Add ${productData.length} products to cart`)
@@ -445,12 +458,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
               margin: '20px 0 0',
             }}
           >
-            <CustomButton
-              variant="text"
-              onClick={() => {
-                setIsOpenBulkLoadCSV(true)
-              }}
-            >
+            <CustomButton variant="text" onClick={() => handleOpenUploadDiag()}>
               <UploadFileIcon
                 sx={{
                   marginRight: '8px',
