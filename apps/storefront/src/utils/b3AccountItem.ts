@@ -78,10 +78,8 @@ const openPageByClick = ({
   role,
   isRegisterAndLogin,
 }: OpenPageByClickProps) => {
-  if (role === 100) return '/login'
-
   // register and login click
-  if (href.includes('/login') || isRegisterAndLogin) {
+  if (href.includes('/login') || isRegisterAndLogin || role === 100) {
     return getCurrentLoginUrl(href)
   }
 

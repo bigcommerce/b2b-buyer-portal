@@ -58,7 +58,7 @@ function Registered(props: RegisteredProps) {
   const IframeDocument = useSelector(themeFrameSelector)
 
   const {
-    state: { isCheckout, isCloseGotoBCHome, logo, storeName },
+    state: { isCheckout, isCloseGotoBCHome, logo, storeName, registerEnabled },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 
@@ -80,6 +80,12 @@ function Registered(props: RegisteredProps) {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext)
+
+  useEffect(() => {
+    if (!registerEnabled) {
+      navigate('/login')
+    }
+  }, [registerEnabled])
 
   useEffect(() => {
     const getBCAdditionalFields = async () => {
