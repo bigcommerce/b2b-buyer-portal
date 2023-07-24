@@ -4,7 +4,7 @@ import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
 import { B3Sping, CustomButton } from '@/components'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { B3SStorage, calculateProductListPrice } from '@/utils'
+import { B3SStorage, calculateProductListPrice, snackbar } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import { ShoppingListProductItem } from '../../../types'
@@ -45,6 +45,17 @@ export default function SearchProduct({
     if (!searchText || isLoading) {
       return
     }
+
+    const blockPendingAccountViewPrice = B3SStorage.get(
+      'blockPendingAccountViewPrice'
+    )
+    if (blockPendingAccountViewPrice) {
+      snackbar.info(
+        'Your business account is pending approval. This feature is currently disabled.'
+      )
+      return
+    }
+
     const companyId =
       B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
     const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId

@@ -5,7 +5,7 @@ import { Box, Grid, Typography } from '@mui/material'
 
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { GlobaledContext } from '@/shared/global'
-import { snackbar } from '@/utils'
+import { B3SStorage, snackbar } from '@/utils'
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config'
 
 import {
@@ -288,6 +288,16 @@ export default function QuickAdd(props: AddToListContentProps) {
   }
 
   const handleAddToList = () => {
+    const blockPendingAccountViewPrice = B3SStorage.get(
+      'blockPendingAccountViewPrice'
+    )
+    if (blockPendingAccountViewPrice) {
+      snackbar.info(
+        'Your business account is pending approval. This feature is currently disabled.'
+      )
+      return
+    }
+
     handleSubmit(async (value) => {
       try {
         setIsLoading(true)

@@ -9,6 +9,7 @@ import { GlobaledContext } from '@/shared/global'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import {
   addQuoteDraftProducts,
+  B3SStorage,
   calculateProductListPrice,
   snackbar,
   validProductQty,
@@ -259,6 +260,19 @@ export default function AddToQuote(props: AddToListProps) {
     }
   }
 
+  const handleOpenUploadDiag = () => {
+    const blockPendingAccountViewPrice = B3SStorage.get(
+      'blockPendingAccountViewPrice'
+    )
+    if (blockPendingAccountViewPrice) {
+      snackbar.info(
+        'Your business account is pending approval. This feature is currently disabled.'
+      )
+    } else {
+      setIsOpenBulkLoadCSV(true)
+    }
+  }
+
   return (
     <Card>
       <CardContent>
@@ -287,12 +301,7 @@ export default function AddToQuote(props: AddToListProps) {
               margin: '20px 0 0',
             }}
           >
-            <CustomButton
-              variant="text"
-              onClick={() => {
-                setIsOpenBulkLoadCSV(true)
-              }}
-            >
+            <CustomButton variant="text" onClick={() => handleOpenUploadDiag()}>
               <UploadFileIcon
                 sx={{
                   marginRight: '8px',
