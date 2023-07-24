@@ -91,6 +91,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       logo,
       currentChannelId: channelId,
       blockPendingAccountOrderCreation,
+      registerEnabled,
     },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
@@ -116,6 +117,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       },
     })
   }
+
+  useEffect(() => {
+    showLoading(false)
+    if (!registerEnabled) {
+      navigate('/login')
+    }
+  }, [registerEnabled])
 
   useEffect(() => {
     const getBCAdditionalFields = async () => {
