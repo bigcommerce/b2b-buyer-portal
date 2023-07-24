@@ -36,6 +36,7 @@ interface AddProductFromPageParams {
   storeDispatch: DispatchRedux<AnyAction>
   saveFn: () => void
   setOpenPage: (value: SetStateAction<OpenPageState>) => void
+  registerEnabled: boolean
 }
 
 export const addProductFromPage = ({
@@ -43,6 +44,7 @@ export const addProductFromPage = ({
   storeDispatch,
   saveFn,
   setOpenPage,
+  registerEnabled,
 }: AddProductFromPageParams) => {
   if (role === 100) {
     storeDispatch(
@@ -53,7 +55,7 @@ export const addProductFromPage = ({
           message:
             'Please create an account, or login to create a shopping list.',
           cancelText: 'Cancel',
-          saveText: 'Register',
+          saveText: registerEnabled ? 'Register' : '',
           saveFn,
         },
       })
@@ -76,7 +78,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   const storeDispatch = useDispatch()
   const {
     dispatch,
-    state: { isB2BUser, shoppingListEnabled },
+    state: { isB2BUser, shoppingListEnabled, registerEnabled },
   } = useContext(GlobaledContext)
 
   const [roleText] = useRole()
@@ -102,9 +104,10 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         storeDispatch,
         saveFn: jumpRegister,
         setOpenPage,
+        registerEnabled,
       })
     },
-    [role]
+    [role, registerEnabled]
   )
 
   const [openQuickView] = useDomVariation(
@@ -217,5 +220,12 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         item.removeEventListener('click', pdpCallBack)
       })
     }
-  }, [isB2BUser, shoppingListEnabled, openQuickView, shoppingListBtn, roleText])
+  }, [
+    isB2BUser,
+    shoppingListEnabled,
+    openQuickView,
+    shoppingListBtn,
+    roleText,
+    registerEnabled,
+  ])
 }

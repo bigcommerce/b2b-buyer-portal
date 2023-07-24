@@ -59,6 +59,7 @@ export default function HeadlessController({
       salesRepCompanyId = 0,
       isB2BUser,
       currentChannelId,
+      registerEnabled,
     },
   } = useContext(GlobaledContext)
   const { addToQuote: addProductFromPageToQuote } =
@@ -170,6 +171,7 @@ export default function HeadlessController({
               storeDispatch,
               saveFn,
               setOpenPage,
+              registerEnabled,
             })
           },
           addProducts: (shoppingListId, items) =>

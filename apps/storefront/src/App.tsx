@@ -236,7 +236,7 @@ export default function App() {
 
   useEffect(() => {
     handleHideRegisterPage(registerEnabled)
-  }, [registerEnabled, storefrontConfig])
+  }, [registerEnabled, storefrontConfig, window.location.pathname])
 
   useEffect(() => {
     if (isOpen) {

@@ -246,6 +246,9 @@ export default function Login(props: RegisteredProps) {
     navigate('/forgotpassword')
   }
 
+  const loginAndRegisterContainerWidth = registerEnabled ? '100%' : '50%'
+  const loginContainerWidth = registerEnabled ? '50%' : 'auto'
+
   return (
     <B3Card setOpenPage={setOpenPage}>
       <LoginContainer paddings={isMobile ? '0' : '20px 20px'}>
@@ -304,6 +307,10 @@ export default function Login(props: RegisteredProps) {
                 <Box
                   sx={{
                     padding: isMobile ? 0 : '0 5%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
                   }}
                 >
                   {loginInfo.widgetHeadText && (
@@ -311,6 +318,7 @@ export default function Login(props: RegisteredProps) {
                       sx={{
                         mt: isMobile ? '20px' : '32px',
                         minHeight: '48px',
+                        width: registerEnabled || isMobile ? '100%' : '50%',
                       }}
                       isVisible={loginInfo.isShowWidgetHead}
                       html={loginInfo.widgetHeadText}
@@ -324,11 +332,12 @@ export default function Login(props: RegisteredProps) {
                       display: 'flex',
                       flexDirection: isMobile ? 'column' : 'row',
                       justifyContent: 'center',
+                      width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
                     }}
                   >
                     <Box
                       sx={{
-                        width: isMobile ? 'auto' : '50%',
+                        width: isMobile ? 'auto' : loginContainerWidth,
                         paddingRight: isMobile ? 0 : '2%',
                         ml: '16px',
                         mr: isMobile ? '16px' : '',
@@ -363,6 +372,7 @@ export default function Login(props: RegisteredProps) {
                       sx={{
                         mt: '20px',
                         minHeight: '48px',
+                        width: registerEnabled || isMobile ? '100%' : '50%',
                       }}
                       isVisible={loginInfo.isShowWidgetFooter}
                       html={loginInfo.widgetFooterText}

@@ -7,13 +7,13 @@ const handleHideRegisterPage = (registerEnabled: boolean) => {
 
   if (registerPageAll.length > 0) {
     registerPageAll.forEach((page: CustomFieldItems) => {
-      page.style.display = registerEnabled ? 'block' : 'none'
+      page.style.display = registerEnabled ? 'inline-block' : 'none'
     })
   }
 
   if (navUserOrText.length > 0) {
     navUserOrText.forEach((text: CustomFieldItems) => {
-      text.style.display = registerEnabled ? 'block' : 'none'
+      text.style.display = registerEnabled ? 'inline-block' : 'none'
     })
   }
 }
