@@ -345,7 +345,7 @@ const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
 }`
 
 export const getBCCustomerAddresses = (): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: getCustomerAddresses(),
   })
 
@@ -360,7 +360,7 @@ export const getB2BQuotesList = (data: CustomFieldItems): CustomFieldItems =>
   })
 
 export const getBCQuotesList = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: getQuotesList(data, 'bc'),
   })
 
@@ -373,7 +373,7 @@ export const createQuote = (data: CustomFieldItems): CustomFieldItems =>
   )
 
 export const createBCQuote = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken(
+  B3Request.graphqlB2B(
     {
       query: quoteCreate(data),
     },
@@ -386,7 +386,7 @@ export const updateB2BQuote = (data: CustomFieldItems): CustomFieldItems =>
   })
 
 export const updateBCQuote = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: quoteUpdate(data),
   })
 
@@ -402,7 +402,7 @@ export const getBcQuoteDetail = (data: {
   id: number
   date: string
 }): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: getQuoteInfo(data),
   })
 
@@ -418,7 +418,7 @@ export const exportBcQuotePdf = (data: {
   quoteId: number
   currency: object
 }): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: exportQuotePdf(data),
   })
 
@@ -428,21 +428,21 @@ export const b2bQuoteCheckout = (data: { id: number }): CustomFieldItems =>
   })
 
 export const bcQuoteCheckout = (data: { id: number }): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: quoteCheckout(data),
   })
 
 export const quoteDetailAttachFileCreate = (
   data: CustomFieldItems
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: quoteAttachFileCreate(data),
   })
 
 export const quoteDetailAttachFileDelete = (
   data: CustomFieldItems
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: quoteAttachFileDelete(data),
   })
 

@@ -99,20 +99,10 @@ const B3Request = {
    */
   graphqlB2B: function post<T>(data: T, customMessage = false): Promise<any> {
     const config = {
-      Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
-    }
-    return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
-  },
-  /**
-   * Request to B2B graphql API using BC customer token
-   */
-  graphqlB2BWithBCCustomerToken: function post<T>(
-    data: T,
-    customMessage = false
-  ): Promise<any> {
-    const config = {
       Authorization: `Bearer  ${
-        B3SStorage.get('currentCustomerJWTToken') || ''
+        B3SStorage.get('B2BToken') ||
+        B3SStorage.get('currentCustomerJWTToken') ||
+        ''
       }`,
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
