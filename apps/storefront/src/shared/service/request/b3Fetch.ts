@@ -132,7 +132,7 @@ const B3Request = {
    */
   graphqlBCProxy: function post<T>(data: T): Promise<any> {
     const config = {
-      Authorization: `Bearer  ${B3SStorage.get('B3B2BToken') || ''}`,
+      Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
     }
     return graphqlRequest(RequestType.BCProxyGraphql, data, config)
   },
