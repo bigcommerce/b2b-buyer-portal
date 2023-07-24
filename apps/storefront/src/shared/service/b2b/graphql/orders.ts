@@ -198,7 +198,7 @@ export const getB2BAllOrders = (data: CustomFieldItems): CustomFieldItems =>
   })
 
 export const getBCAllOrders = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: allOrders(data, 'customerOrders'),
   })
 
@@ -208,7 +208,7 @@ export const getB2BOrderDetails = (id: number): CustomFieldItems =>
   })
 
 export const getBCOrderDetails = (id: number): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: orderDetail(id, 'customerOrder'),
   })
 
@@ -218,7 +218,7 @@ export const getOrderStatusType = (): CustomFieldItems =>
   })
 
 export const getBcOrderStatusType = (): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('bcOrderStatuses'),
   })
 
