@@ -306,7 +306,8 @@ export const getCompanyUserInfo = async (
 
 export const getCurrentCustomerInfo = async (
   dispatch: DispatchProps,
-  jwtToken?: string
+  jwtToken?: string,
+  b2bToken?: string
 ) => {
   try {
     const {
@@ -333,10 +334,12 @@ export const getCurrentCustomerInfo = async (
     if (companyUserInfo && customerId) {
       const { userType, role, id } = companyUserInfo
 
-      await getB2BTokenWithJWTToken(
-        userType,
-        jwtToken || (await getCurrentJwt())
-      )
+      if (!b2bToken) {
+        await getB2BTokenWithJWTToken(
+          userType,
+          jwtToken || (await getCurrentJwt())
+        )
+      }
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(id, role, userType),
