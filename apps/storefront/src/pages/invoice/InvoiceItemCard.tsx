@@ -19,7 +19,7 @@ import InvoiceStatus from './components/InvoiceStatus'
 
 export interface InvoiceItemCardProps {
   item: any
-  checkBox?: () => ReactElement
+  checkBox?: (disable: boolean) => ReactElement
   handleSetSelectedInvoiceAccount: (value: string, id: string) => void
   handleViewInvoice: (id: string, status: string | number) => void
   setIsRequestLoading: (bool: boolean) => void
@@ -213,7 +213,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
             }}
           >
             <StyleCheckoutContainer>
-              {checkBox && checkBox()}
+              {checkBox && checkBox(!!item?.disableCurrentCheckbox)}
             </StyleCheckoutContainer>
             <Typography
               variant="h6"

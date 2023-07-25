@@ -315,11 +315,16 @@ export default function OrderAction(props: OrderActionProps) {
       [k: string]: string
     } = {}
 
+    const dividingLine = ['-------------------------------------']
+
     commentsArr.forEach((item, index) => {
       if (item.trim().length > 0) {
         const isHaveTitle = item.trim().includes(':')
 
-        const message = isHaveTitle ? item : `Comments: ${item}`
+        let message = isHaveTitle ? item : `Comments: ${item}`
+        if (dividingLine.includes(item)) {
+          message = item
+        }
 
         comments[`mes${index}`] = message
       }

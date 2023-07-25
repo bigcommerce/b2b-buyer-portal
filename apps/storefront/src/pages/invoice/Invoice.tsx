@@ -728,7 +728,7 @@ function Invoice() {
           renderItem={(
             row: InvoiceList,
             index?: number,
-            checkBox?: () => ReactElement
+            checkBox?: (disable?: boolean) => ReactElement
           ) => (
             <InvoiceItemCard
               item={row}
