@@ -49,7 +49,8 @@ export default function SearchProduct({
     const blockPendingAccountViewPrice = B3SStorage.get(
       'blockPendingAccountViewPrice'
     )
-    if (blockPendingAccountViewPrice) {
+    const companyStatus = B3SStorage.get('companyStatus')
+    if (blockPendingAccountViewPrice && companyStatus !== 1) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.'
       )
