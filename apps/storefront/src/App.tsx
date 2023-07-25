@@ -149,6 +149,10 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    handleHideRegisterPage(registerEnabled)
+  }, [registerEnabled, storefrontConfig, window.location.pathname])
+
+  useEffect(() => {
     removeBCMenus()
   }, [window.location.pathname, role])
 
@@ -235,10 +239,6 @@ export default function App() {
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
 
   useEffect(() => {
-    handleHideRegisterPage(registerEnabled)
-  }, [registerEnabled, storefrontConfig, window.location.pathname])
-
-  useEffect(() => {
     if (isOpen) {
       showPageMask(dispatch, false)
     }
@@ -250,6 +250,7 @@ export default function App() {
         href: currentClickedUrl,
         role,
         isRegisterAndLogin,
+        isAgenting,
       })
 
       setOpenPage({
@@ -257,6 +258,7 @@ export default function App() {
         openUrl: gotoUrl,
       })
 
+      showPageMask(dispatch, false)
       storeDispatch(
         setGlabolCommonState({
           isClickEnterBtn: false,

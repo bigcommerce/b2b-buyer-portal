@@ -2,6 +2,7 @@ interface OpenPageByClickProps {
   href: string
   role: number | string
   isRegisterAndLogin: boolean
+  isAgenting: boolean
 }
 
 const hideAccountItems = [
@@ -37,7 +38,11 @@ const removeBCMenus = () => {
   })
 }
 
-const redirectBcMenus = (key: string, role: number): string => {
+const redirectBcMenus = (
+  key: string,
+  role: number,
+  isAgenting: boolean
+): string => {
   // Supermarket theme
   if (key === '/account.php') {
     return +role !== 3 ? '/orders' : '/dashboard'
@@ -49,11 +54,14 @@ const redirectBcMenus = (key: string, role: number): string => {
   const currentItem: CustomFieldItems =
     accountTarget.find((item) => key.includes(item.originUrl)) || {}
 
-  if (currentItem && superAdminExistUrl.includes(currentItem.newTargetUrl)) {
-    return +role !== 3 ? currentItem.newTargetUrl : '/dashboard'
+  // super admin
+  if (currentItem?.newTargetUrl && +role === 3) {
+    return superAdminExistUrl.includes(currentItem.newTargetUrl) || isAgenting
+      ? currentItem.newTargetUrl
+      : '/dashboard'
   }
 
-  if (currentItem) {
+  if (currentItem?.newTargetUrl) {
     return currentItem.newTargetUrl
   }
 
@@ -77,6 +85,7 @@ const openPageByClick = ({
   href,
   role,
   isRegisterAndLogin,
+  isAgenting,
 }: OpenPageByClickProps) => {
   // register and login click
   if (href.includes('/login') || isRegisterAndLogin || role === 100) {
@@ -84,7 +93,7 @@ const openPageByClick = ({
   }
 
   // other click
-  return redirectBcMenus(href, +role)
+  return redirectBcMenus(href, +role, isAgenting)
 }
 
 export { getCurrentLoginUrl, openPageByClick, redirectBcMenus, removeBCMenus }

@@ -65,7 +65,7 @@ interface TableProps<T> {
   renderItem?: (
     row: T,
     index?: number,
-    checkBox?: () => ReactElement
+    checkBox?: (disable?: boolean) => ReactElement
   ) => ReactElement
   CollapseComponent?: (row: T) => ReactElement
   isCustomRender?: boolean
@@ -321,14 +321,14 @@ export function B3Table<T>({
           <Grid container spacing={itemIsMobileSpacing}>
             {listItems.map((row, index) => {
               const node = row.node || row || {}
-              const checkBox = () => (
+              const checkBox = (disable = false) => (
                 <Checkbox
                   checked={selectCheckbox.includes(node[selectedSymbol])}
                   onChange={() => {
                     if (handleSelectOneItem)
                       handleSelectOneItem(node[selectedSymbol])
                   }}
-                  disabled={disableCheckbox}
+                  disabled={disable || disableCheckbox}
                 />
               )
               return (

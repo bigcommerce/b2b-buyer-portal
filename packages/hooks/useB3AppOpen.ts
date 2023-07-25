@@ -47,28 +47,12 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           e.preventDefault()
           e.stopPropagation()
           const isRegisterArrInclude = registerArr.includes(e.target)
-          const href = (e.target as HTMLAnchorElement)?.href || ''
 
+          const href =
+            (e.target as HTMLAnchorElement)?.getAttribute('href') || ''
           if (initOpenState?.handleEnterClick) {
             initOpenState.handleEnterClick(href, isRegisterArrInclude)
           }
-          // if (
-          //   !initOpenState?.isPageComplete &&
-          //   initOpenState?.handleEnterClick
-          // ) {
-          //   initOpenState.handleLoadPageClick(href, isRegisterArrInclude)
-          // } else {
-          //   initOpenState.handleEnterClick(href, isRegisterArrInclude)
-          //   // const gotoUrl = initOpenState.gotoPageByClick({
-          //   //   href,
-          //   //   isRegisterArrInclude,
-          //   // })
-
-          //   // setOpenPage({
-          //   //   isOpen: true,
-          //   //   openUrl: gotoUrl,
-          //   // })
-          // }
         }
         return false
       }
