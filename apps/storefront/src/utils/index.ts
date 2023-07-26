@@ -12,7 +12,10 @@ import {
   serialize,
 } from './b3AddToShoppingList'
 import clearInvoiceCart from './b3ClearCart'
-import currencyFormat, { currencyFormatInfo } from './b3CurrencyFormat'
+import currencyFormat, {
+  currencyFormatInfo,
+  handleGetCorrespondingCurrency,
+} from './b3CurrencyFormat'
 import {
   displayExtendedFormat,
   displayFormat,
@@ -81,6 +84,7 @@ export {
   getSearchVal,
   getUTCTimestamp,
   globalSnackbar,
+  handleGetCorrespondingCurrency,
   handleGetCurrentProductInfo,
   handleHideRegisterPage,
   isAllRequiredOptionFilled,
