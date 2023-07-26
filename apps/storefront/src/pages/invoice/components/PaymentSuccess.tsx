@@ -6,7 +6,7 @@ import { B3Dialog, B3NoData, B3Sping } from '@/components'
 import { useMobile } from '@/hooks'
 import { getInvoicePaymentInfo } from '@/shared/service/b2b'
 import { InvoiceSuccessData, ReceiptLineSet } from '@/types/invoice'
-import { currencyFormat, displayFormat } from '@/utils'
+import { displayFormat, handleGetCorrespondingCurrency } from '@/utils'
 
 import InvoiceListType from '../utils/config'
 
@@ -41,14 +41,17 @@ interface RowProps {
   type: string
   value: string | number
   label: string
+  code: string
 }
-function Row({ isRow = true, type = '', value, label }: RowProps) {
+function Row({ isRow = true, type = '', value, label, code }: RowProps) {
   const getNewVal = (): string | number | Date => {
     if (type === 'time') {
       return displayFormat(+value) || ''
     }
     if (type === 'currency') {
-      return currencyFormat(+(value || 0))
+      const val = +(value || 0)
+      const accountValue = handleGetCorrespondingCurrency(code, val)
+      return accountValue
     }
     return value || '–'
   }
@@ -120,6 +123,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
           isRow={!!item.isRow}
           type={item.type}
           value={(list as CustomFieldItems)[item.key]}
+          code={(list as CustomFieldItems)?.totalCode || 'SGD'}
           label={item.label}
         />
       ))}
@@ -184,8 +188,11 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
         {edges.map((item: ReceiptLineSet) => {
           const {
             invoiceNumber,
-            amount: { value },
+            amount: { value, code },
           } = item.node
+          const val = +(value || 0)
+
+          const accountValue = handleGetCorrespondingCurrency(code, val)
           return (
             <Box
               sx={{
@@ -196,7 +203,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
               }}
             >
               <Typography>{invoiceNumber}</Typography>
-              <Typography>{`${currencyFormat(+(value || 0))}`}</Typography>
+              <Typography>{accountValue}</Typography>
             </Box>
           )
         })}

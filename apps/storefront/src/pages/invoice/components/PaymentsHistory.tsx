@@ -4,7 +4,7 @@ import { Box, Card, CardContent, Typography } from '@mui/material'
 import { B3Dialog, B3NoData, B3Sping } from '@/components'
 import { useMobile } from '@/hooks'
 import { getInvoicePaymentHistory } from '@/shared/service/b2b'
-import { currencyFormat, displayFormat } from '@/utils'
+import { displayFormat, handleGetCorrespondingCurrency } from '@/utils'
 
 interface PaymentsHistoryProps {
   open: boolean
@@ -86,9 +86,12 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
                 }}
               >
                 <Title title="Amount" />
-                <Typography variant="body1">{`${currencyFormat(
-                  +(amount?.value || 0)
-                )}`}</Typography>
+                <Typography variant="body1">
+                  {`${handleGetCorrespondingCurrency(
+                    amount.code,
+                    +(amount?.value || 0)
+                  )}`}
+                </Typography>
               </Box>
               <Box
                 sx={{

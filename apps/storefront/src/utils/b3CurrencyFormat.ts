@@ -1,5 +1,6 @@
 import globalB3 from '@b3/global-b3'
 
+import { B3SStorage } from './b3Storage'
 import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
 
 interface MoneyFormat {
@@ -28,6 +29,25 @@ export const currencyFormatInfo = () => {
     currency_exchange_rate:
       currentCurrency.currency_exchange_rate || '1.0000000000',
   }
+}
+
+export const handleGetCorrespondingCurrency = (code: string, value: number) => {
+  const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo()
+  const allCurrencies = B3SStorage.get('currencies')
+  const { currencies: currencyArr } = allCurrencies
+  let token = '$'
+  const correspondingCurrency =
+    currencyArr.find(
+      (currency: CustomFieldItems) => currency.currency_code === code
+    ) || {}
+
+  if (correspondingCurrency) {
+    token = correspondingCurrency.token
+  }
+
+  const accountValue = `${token}${value.toFixed(decimalPlaces)}`
+
+  return accountValue
 }
 
 const currencyFormat = (price: string | number, showCurrencyToken = true) => {
