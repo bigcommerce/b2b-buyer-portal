@@ -43,6 +43,7 @@ export default function B3CollapseContainer(props: CollapseContainerProps) {
           display: 'flex',
           justifyContent: 'space-between',
           cursor: 'pointer',
+          alignItems: 'center',
         }}
       >
         {header || <Typography variant="h5">{title}</Typography>}
