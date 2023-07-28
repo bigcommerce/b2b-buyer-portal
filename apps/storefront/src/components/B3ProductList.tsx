@@ -31,6 +31,9 @@ interface FlexItemProps {
   width?: string
   padding?: string
   textAlignLocation?: string
+  sx?: {
+    [key: string]: string | number
+  }
 }
 
 const Flex = styled('div')(({ isHeader, isMobile }: FlexProps) => {
@@ -67,7 +70,7 @@ const Flex = styled('div')(({ isHeader, isMobile }: FlexProps) => {
 })
 
 const FlexItem = styled('div')(
-  ({ width, textAlignLocation, padding = '0' }: FlexItemProps) => ({
+  ({ width, textAlignLocation, padding = '0', sx }: FlexItemProps) => ({
     display: 'flex',
     justifyContent: textAlignLocation === 'right' ? 'flex-end' : 'flex-start',
     flexGrow: width ? 0 : 1,
@@ -75,6 +78,7 @@ const FlexItem = styled('div')(
     alignItems: 'center',
     width,
     padding,
+    ...sx,
   })
 )
 
@@ -336,12 +340,29 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               textAlignLocation={textAlign}
               padding={quantityEditable ? '10px 0 0' : ''}
               {...itemStyle.default}
+              sx={
+                isMobile
+                  ? {
+                      fontSize: '14px',
+                    }
+                  : {}
+              }
             >
               {isMobile && <span>Price:</span>}
               {`${currencyFormat(productPrice)}`}
             </FlexItem>
 
-            <FlexItem textAlignLocation={textAlign} {...itemStyle.qty}>
+            <FlexItem
+              textAlignLocation={textAlign}
+              {...itemStyle.qty}
+              sx={
+                isMobile
+                  ? {
+                      fontSize: '14px',
+                    }
+                  : {}
+              }
+            >
               {quantityEditable ? (
                 <TextField
                   type="number"
@@ -375,6 +396,13 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               padding={quantityEditable ? '10px 0 0' : ''}
               {...itemStyle.default}
               textAlignLocation={textAlign}
+              sx={
+                isMobile
+                  ? {
+                      fontSize: '14px',
+                    }
+                  : {}
+              }
             >
               {isMobile && <span>{totalText}:</span>}
               {`${currencyFormat(

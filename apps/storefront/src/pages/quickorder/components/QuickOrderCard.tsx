@@ -86,7 +86,9 @@ function QuickOrderCard(props: QuickOrderCardProps) {
             )}
           </Box>
 
-          <Typography>{`Price: ${currencyFormat(price)}`}</Typography>
+          <Typography sx={{ fontSize: '14px' }}>{`Price: ${currencyFormat(
+            price
+          )}`}</Typography>
           <Box
             sx={{
               '& label': {
@@ -108,6 +110,12 @@ function QuickOrderCard(props: QuickOrderCardProps) {
                 margin: '1rem 0',
                 width: '60%',
                 maxWidth: '100px',
+                '& label': {
+                  fontSize: '14px',
+                },
+                '& input': {
+                  fontSize: '14px',
+                },
               }}
               onChange={(e) => {
                 handleUpdateProductQty(shoppingDetail.id, e.target.value)
@@ -115,7 +123,7 @@ function QuickOrderCard(props: QuickOrderCardProps) {
             />
           </Box>
 
-          <Typography>{`Last ordered: ${displayFormat(
+          <Typography sx={{ fontSize: '14px' }}>{`Last ordered: ${displayFormat(
             lastOrderedAt
           )}`}</Typography>
         </Box>
