@@ -128,7 +128,11 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
             {notes}
           </Typography>
 
-          <Typography>
+          <Typography
+            sx={{
+              fontSize: '14px',
+            }}
+          >
             Price:
             {isDiscount && (
               <span
@@ -153,12 +157,17 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
           <Typography
             sx={{
               padding: '12px 0',
+              fontSize: '14px',
             }}
           >
             {`Qty: ${quantity}`}
           </Typography>
 
-          <Typography>
+          <Typography
+            sx={{
+              fontSize: '14px',
+            }}
+          >
             Total:
             {isDiscount && (
               <span

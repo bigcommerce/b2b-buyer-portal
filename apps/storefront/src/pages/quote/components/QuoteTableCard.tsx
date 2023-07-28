@@ -135,7 +135,9 @@ function QuoteTableCard(props: QuoteTableCardProps) {
             )}
           </Box>
 
-          <Typography>{`Price: ${currencyFormat(price)}`}</Typography>
+          <Typography sx={{ fontSize: '14px' }}>{`Price: ${currencyFormat(
+            price
+          )}`}</Typography>
 
           <TextField
             size="small"
@@ -152,12 +154,20 @@ function QuoteTableCard(props: QuoteTableCardProps) {
               margin: '1rem 0',
               width: '60%',
               maxWidth: '100px',
+              '& label': {
+                fontSize: '14px',
+              },
+              '& input': {
+                fontSize: '14px',
+              },
             }}
             onChange={(e) => {
               handleUpdateProductQty(quoteTableItem, e.target.value)
             }}
           />
-          <Typography>{`Total: ${currencyFormat(total)}`}</Typography>
+          <Typography sx={{ fontSize: '14px' }}>{`Total: ${currencyFormat(
+            total
+          )}`}</Typography>
           <Box
             sx={{
               marginTop: '1rem',

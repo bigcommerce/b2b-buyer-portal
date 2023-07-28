@@ -57,7 +57,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
   const currentCurrencyToken = handleGetCorrespondingCurrency(currentCode)
 
   let statusCode = item.status
-  if (status !== 2 && currentDate > dueDate * 1000) {
+  if (status === 0 && currentDate > dueDate * 1000) {
     statusCode = 3
   }
 

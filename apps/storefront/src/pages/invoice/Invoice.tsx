@@ -587,7 +587,7 @@ function Invoice() {
         let code = item.status
 
         // (3, "Overdue")-【Display status when invoice exceeds due date. For front-end display only】
-        if (status !== 2 && currentDate > dueDate * 1000) {
+        if (status === 0 && currentDate > dueDate * 1000) {
           code = 3
         }
 

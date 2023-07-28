@@ -147,6 +147,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
           <Typography
             sx={{
               color: '#212121',
+              fontSize: '14px',
             }}
           >
             {`Price: ${currencyFormat(price)}`}
@@ -169,6 +170,10 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               maxWidth: '100px',
               '& label': {
                 zIndex: 0,
+                fontSize: '14px',
+              },
+              '& input': {
+                fontSize: '14px',
               },
             }}
             onChange={(e) => {
@@ -181,6 +186,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
           <Typography
             sx={{
               color: '#212121',
+              fontSize: '14px',
             }}
           >
             {`Total: ${currencyFormat(total)}`}
