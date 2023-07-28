@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { useB3AppOpen } from '@b3/hooks'
@@ -71,8 +71,10 @@ export default function App() {
     currentClickedUrl,
     isRegisterAndLogin,
   } = useSelector(globalStateSelector)
+  const [isClickBtn, setIsClickEnterBtn] = useState<boolean>(false)
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
+    setIsClickEnterBtn(!isClickBtn)
     showPageMask(dispatch, true)
     storeDispatch(
       setGlabolCommonState({
@@ -265,7 +267,7 @@ export default function App() {
         })
       )
     }
-  }, [isPageComplete, currentClickedUrl])
+  }, [isPageComplete, currentClickedUrl, isClickBtn])
 
   useEffect(() => {
     const handleHashChange = () => {
