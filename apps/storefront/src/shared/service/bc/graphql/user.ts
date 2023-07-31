@@ -12,7 +12,7 @@ const getCustomer = () => `query customer {
 }`
 
 const getCustomerInfo = (): CustomFieldItems =>
-  B3Request.graphqlBCProxy({
+  B3Request.graphqlBC({
     query: getCustomer(),
   })
 
