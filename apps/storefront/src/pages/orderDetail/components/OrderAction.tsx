@@ -1,16 +1,12 @@
 import { Fragment, ReactNode, useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 import { throttle } from 'lodash'
 
 import { CustomButton } from '@/components'
 import { GlobaledContext } from '@/shared/global'
-import {
-  b2bPrintInvoice,
-  currencyFormat,
-  displayFormat,
-  snackbar,
-} from '@/utils'
+import { currencyFormat, displayFormat, snackbar } from '@/utils'
 
 import { Address, OrderCurrency, OrderProductItem } from '../../../types'
 import {
@@ -83,6 +79,7 @@ interface OrderCardProps {
   itemKey: string
   orderId: string
   role: number | string
+  invoiceId?: number | string | undefined | null
 }
 
 interface DialogData {
@@ -93,8 +90,17 @@ interface DialogData {
 }
 
 function OrderCard(props: OrderCardProps) {
-  const { header, subtitle, buttons, infos, products, itemKey, orderId, role } =
-    props
+  const {
+    header,
+    subtitle,
+    buttons,
+    infos,
+    products,
+    itemKey,
+    orderId,
+    role,
+    invoiceId,
+  } = props
 
   const {
     state: { isAgenting },
@@ -121,6 +127,8 @@ function OrderCard(props: OrderCardProps) {
     },
   ]
 
+  const navigate = useNavigate()
+
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
   const [currentDialogData, setCurrentDialogData] = useState<DialogData>()
@@ -137,7 +145,7 @@ function OrderCard(props: OrderCardProps) {
 
   const handleOpenDialog = (name: string) => {
     if (name === 'viewInvoice') {
-      b2bPrintInvoice(orderId, 'b2b_print_invoice')
+      navigate(`/invoice?invoiceId=${invoiceId}`)
     } else if (name === 'printInvoice') {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
     } else {
@@ -251,11 +259,11 @@ interface OrderData {
 export default function OrderAction(props: OrderActionProps) {
   const { detailsData } = props
   const {
-    state: { isB2BUser, role, emailAddress },
+    state: { isB2BUser, role },
   } = useContext(GlobaledContext)
 
   const {
-    state: { addressLabelPermission, createdEmail },
+    state: { addressLabelPermission },
   } = useContext(OrderDetailsContext)
 
   const {
@@ -267,6 +275,7 @@ export default function OrderAction(props: OrderActionProps) {
     orderId,
     ipStatus = 0,
     canReturn = false,
+    invoiceId,
   } = detailsData
 
   if (!orderId) {
@@ -383,8 +392,7 @@ export default function OrderAction(props: OrderActionProps) {
           key: 'aboutInvoice',
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
-          isCanShow:
-            (!isB2BUser || +ipStatus !== 0) && createdEmail === emailAddress,
+          isCanShow: !isB2BUser || +ipStatus === 1,
         },
       ],
       infos: {
@@ -412,6 +420,7 @@ export default function OrderAction(props: OrderActionProps) {
             {...item}
             itemKey={item.key}
             role={role}
+            invoiceId={invoiceId}
           />
         ))}
     </OrderActionContainer>

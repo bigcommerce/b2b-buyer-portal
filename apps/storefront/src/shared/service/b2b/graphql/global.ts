@@ -32,6 +32,7 @@ const superAdminCompaniesQl = (id: number, params: CustomFieldItems) => `{
     first: ${params.first}
     offset: ${params.offset}
     search: "${params.q || ''}"
+    orderBy: "${params.orderBy}"
   ) {
     edges{
       node{

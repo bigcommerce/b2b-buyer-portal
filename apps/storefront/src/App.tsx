@@ -103,7 +103,6 @@ export default function App() {
     background: ${backgroundColor};
     font-family: Roboto;
   };`
-  // const [openApp, setOpenApp] = useState<boolean>(false)
 
   useDomHooks({ setOpenPage })
 

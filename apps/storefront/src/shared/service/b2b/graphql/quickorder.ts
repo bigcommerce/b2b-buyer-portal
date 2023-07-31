@@ -12,6 +12,7 @@ const orderedProducts = (data: CustomFieldItems) => `{
     offset: ${data.offset}
     beginDateAt: "${data.beginDateAt}"
     endDateAt: "${data.endDateAt}"
+    orderBy: "${data?.orderBy || ''}"
   ){
     totalCount,
     pageInfo{

@@ -5,7 +5,7 @@ import { Box } from '@mui/material'
 import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
-import { useMobile } from '@/hooks'
+import { useMobile, useSort } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   getB2BQuotesList,
@@ -19,10 +19,6 @@ import B3Filter from '../../components/filter/B3Filter'
 import { QuoteItemCard } from './components/QuoteItemCard'
 import QuoteStatus from './components/QuoteStatus'
 import { addPrice } from './shared/config'
-
-interface SortByListProps {
-  [key: string]: number | string
-}
 
 interface ListItem {
   [key: string]: string | Object
@@ -42,40 +38,6 @@ interface FilterSearchProps {
   dateCreatedEndAt: string
   startValue: string
   endValue: string
-}
-
-const sortByList: Array<SortByListProps> = [
-  {
-    name: 'Date created',
-    id: 'createdAt',
-  },
-  {
-    name: 'Status',
-    id: 'status',
-  },
-  {
-    name: 'Updated',
-    id: 'updatedAt',
-  },
-  {
-    name: 'Expiration',
-    id: 'expiredAt',
-  },
-]
-
-const sortByItemName = {
-  labelName: 'name',
-  valueName: 'id',
-}
-
-const sortByConfigData = {
-  isEnabled: true,
-  sortByList,
-  sortByItemName,
-  sortByLabel: 'Sort by',
-  defaultValue: 'createdAt',
-  isFirstSelect: false,
-  w: 150,
 }
 
 const quotesStatuses = [
@@ -159,10 +121,23 @@ const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any) => {
   return filterCurrentMoreList
 }
 
+const defaultSortKey = 'quoteNumber'
+
+const sortKeys = {
+  quoteNumber: 'quoteNumber',
+  quoteTitle: 'quoteTitle',
+  salesRep: 'salesRep',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  expiredAt: 'expiredAt',
+  status: 'status',
+}
+
 function QuotesList() {
   const initSearch = {
     q: '',
-    orderBy: '',
+    orderBy: `-${sortKeys[defaultSortKey]}`,
     createdBy: '',
     salesRep: '',
     status: '',
@@ -175,6 +150,13 @@ function QuotesList() {
   const [isRequestLoading, setIsRequestLoading] = useState(false)
 
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([])
+
+  const [handleSetOrderBy, order, orderBy] = useSort(
+    sortKeys,
+    defaultSortKey,
+    filterData,
+    setFilterData
+  )
 
   const navigate = useNavigate()
 
@@ -286,19 +268,23 @@ function QuotesList() {
     {
       key: 'quoteNumber',
       title: 'Quote #',
+      isSortable: true,
     },
     {
       key: 'quoteTitle',
       title: 'Title',
+      isSortable: true,
     },
     {
       key: 'salesRep',
       title: 'Sales rep',
       render: (item: ListItem) => `${item.salesRep || item.salesRepEmail}`,
+      isSortable: true,
     },
     {
       key: 'createdBy',
       title: 'Created by',
+      isSortable: true,
     },
     {
       key: 'createdAt',
@@ -307,6 +293,7 @@ function QuotesList() {
         `${
           +item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt
         }`,
+      isSortable: true,
     },
     {
       key: 'updatedAt',
@@ -315,6 +302,7 @@ function QuotesList() {
         `${
           +item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt
         }`,
+      isSortable: true,
     },
     {
       key: 'expiredAt',
@@ -323,6 +311,7 @@ function QuotesList() {
         `${
           +item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt
         }`,
+      isSortable: true,
     },
     {
       key: 'totalAmount',
@@ -340,6 +329,7 @@ function QuotesList() {
       key: 'status',
       title: 'Status',
       render: (item: ListItem) => <QuoteStatus code={item.status} />,
+      isSortable: true,
     },
   ]
 
@@ -348,11 +338,6 @@ function QuotesList() {
       setFilterData({
         ...filterData,
         q: value,
-      })
-    } else if (key === 'sortBy') {
-      setFilterData({
-        ...filterData,
-        orderBy: value,
       })
     }
   }
@@ -382,7 +367,7 @@ function QuotesList() {
         }}
       >
         <B3Filter
-          sortByConfig={sortByConfigData}
+          // sortByConfig={sortByConfigData}
           fiterMoreInfo={filterMoreInfo}
           startPicker={{
             isEnabled: true,
@@ -407,6 +392,9 @@ function QuotesList() {
           isCustomRender={false}
           requestLoading={setIsRequestLoading}
           tableKey="quoteNumber"
+          sortDirection={order}
+          orderBy={orderBy}
+          sortByFn={handleSetOrderBy}
           labelRowsPerPage={`${
             isMobile ? 'Cards per page' : 'Quotes per page'
           }`}

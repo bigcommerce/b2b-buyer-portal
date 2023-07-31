@@ -13,7 +13,7 @@ const invoiceList = (data: CustomFieldItems) => `{
     }
     ${data?.beginDateAt ? `beginDateAt: "${data.beginDateAt}"` : ''}
     ${data?.endDateAt ? `endDateAt: "${data.endDateAt}"` : ''}
-    orderBy: "${data?.orderBy || '-invoiceNumber'}"
+    orderBy: "${data?.orderBy}"
     ${data?.beginDueDateAt ? `beginDueDateAt: "${data.beginDueDateAt}"` : ''}
     ${data?.endDueDateAt ? `endDueDateAt: "${data.endDueDateAt}"` : ''}
   ){

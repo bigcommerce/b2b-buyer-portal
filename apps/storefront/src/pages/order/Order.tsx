@@ -5,6 +5,7 @@ import { Box } from '@mui/material'
 import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
+import { useSort } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   getB2BAllOrders,
@@ -19,10 +20,12 @@ import B3Filter from '../../components/filter/B3Filter'
 
 import OrderStatus from './components/OrderStatus'
 import {
+  defaultSortKey,
   FilterSearchProps,
   getFilterMoreData,
   getInitFilter,
   getOrderStatusText,
+  sortKeys,
 } from './config'
 import { OrderItemCard } from './OrderItemCard'
 
@@ -41,39 +44,6 @@ interface SearchChangeProps {
   PlacedBy?: string
   orderStatus?: string | number
   company?: string
-}
-interface SortByListProps {
-  [key: string]: number | string
-}
-
-const sortByList: Array<SortByListProps> = [
-  {
-    name: 'Created on',
-    id: '-createdAt',
-  },
-  {
-    name: 'Lowest total',
-    id: 'totalIncTax',
-  },
-  {
-    name: 'Highest total',
-    id: '-totalIncTax',
-  },
-]
-
-const sortByItemName = {
-  labelName: 'name',
-  valueName: 'id',
-}
-
-const sortByConfigData = {
-  isEnabled: true,
-  sortByList,
-  sortByItemName,
-  sortByLabel: 'Sort by',
-  defaultValue: '-createdAt',
-  isFirstSelect: false,
-  w: 150,
 }
 
 interface OrderProps {
@@ -101,6 +71,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [filterInfo, setFilterInfo] = useState<Array<any>>([])
 
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([])
+
+  const [handleSetOrderBy, order, orderBy] = useSort(
+    sortKeys,
+    defaultSortKey,
+    filterData,
+    setFilterData
+  )
 
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser)
@@ -167,6 +144,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       key: 'orderId',
       title: 'Order',
       width: '10%',
+      isSortable: true,
     },
     {
       key: 'poNumber',
@@ -175,6 +153,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         <Box>{item.poNumber ? item.poNumber : '–'}</Box>
       ),
       width: '10%',
+      isSortable: true,
     },
     {
       key: 'totalIncTax',
@@ -184,6 +163,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       style: {
         textAlign: 'right',
       },
+      isSortable: true,
     },
     {
       key: 'status',
@@ -195,18 +175,21 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         />
       ),
       width: '10%',
+      isSortable: true,
     },
     {
       key: 'placedby',
       title: 'Placed by',
       render: (item: ListItem) => `${item.firstName} ${item.lastName}`,
       width: '10%',
+      isSortable: true,
     },
     {
       key: 'createdAt',
       title: 'Created on',
       render: (item: ListItem) => `${displayFormat(+item.createdAt)}`,
       width: '10%',
+      isSortable: true,
     },
     {
       key: 'companyId',
@@ -242,11 +225,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         ...filterData,
         q: value,
       })
-    } else if (key === 'sortBy') {
-      setFilterData({
-        ...filterData,
-        orderBy: value,
-      })
     }
   }
 
@@ -276,7 +254,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         }}
       >
         <B3Filter
-          sortByConfig={sortByConfigData}
+          // sortByConfig={sortByConfigData}
           startPicker={{
             isEnabled: true,
             label: 'From',
@@ -301,6 +279,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           isCustomRender={false}
           requestLoading={setIsRequestLoading}
           tableKey="orderId"
+          sortDirection={order}
+          orderBy={orderBy}
+          sortByFn={handleSetOrderBy}
           renderItem={(row: ListItem, index?: number) => (
             <OrderItemCard
               key={row.orderId}

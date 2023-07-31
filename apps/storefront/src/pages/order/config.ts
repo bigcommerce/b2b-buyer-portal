@@ -18,15 +18,25 @@ export interface FilterMoreProps {
   orderStatus?: string | number
 }
 
+export const defaultSortKey = 'orderId'
+
+export const sortKeys = {
+  orderId: 'bcOrderId',
+  poNumber: 'poNumber',
+  totalIncTax: 'totalIncTax',
+  status: 'status',
+  placedby: 'placedBy',
+  createdAt: 'createdAt',
+}
+
 const b2bFilterSearch: FilterSearchProps = {
-  // offset: 0,
-  // first: 10,
   q: '',
   companyId: '',
   beginDateAt: null,
   endDateAt: null,
   companyName: '',
-  orderBy: '-createdAt',
+  // orderBy: `-${sortKeys[defaultSortKey]}`,
+  orderBy: '',
   createdBy: '',
   orderNumber: '',
   poNumber: '',
@@ -34,11 +44,10 @@ const b2bFilterSearch: FilterSearchProps = {
 }
 
 const bcFilterSearch = {
-  // offset: 0,
-  // first: 10,
   beginDateAt: null,
   endDateAt: null,
-  orderBy: '-createdAt',
+  orderBy: '',
+  // orderBy: `-${sortKeys[defaultSortKey]}`,
   createdBy: '',
   q: '',
 }

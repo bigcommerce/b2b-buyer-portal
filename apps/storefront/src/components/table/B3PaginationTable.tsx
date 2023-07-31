@@ -60,7 +60,7 @@ interface B3PaginationTableProps {
   onClickRow?: (item: any, index?: number) => void
   showRowsPerPageOptions?: boolean
   sortDirection?: 'asc' | 'desc'
-  sortByFn?: (node: CustomFieldItems) => void
+  sortByFn?: (e: { key: string }) => void
   orderBy?: string
 }
 
