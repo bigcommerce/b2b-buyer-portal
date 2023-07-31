@@ -69,7 +69,7 @@ interface PaginationTableRefProps extends HTMLInputElement {
 
 const StyledQuoteTableContainer = styled('div')(() => ({
   backgroundColor: '#FFFFFF',
-  padding: '0.5rem',
+  padding: '1rem',
   width: '100%',
 
   '& tbody': {

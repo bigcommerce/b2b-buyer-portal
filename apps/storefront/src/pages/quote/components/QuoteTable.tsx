@@ -510,7 +510,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          margin: '0.5rem 16px 1rem',
+          margin: '0.5rem 0 1rem',
         }}
       >
         <Typography

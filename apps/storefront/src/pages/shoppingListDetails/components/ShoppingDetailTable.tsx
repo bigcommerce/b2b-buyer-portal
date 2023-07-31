@@ -90,7 +90,7 @@ interface PaginationTableRefProps extends HTMLInputElement {
 
 const StyledShoppingListTableContainer = styled('div')(() => ({
   backgroundColor: '#FFFFFF',
-  padding: '0.5rem 1rem',
+  padding: '1rem',
   borderRadius: '4px',
   boxShadow:
     '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
@@ -569,7 +569,7 @@ function ShoppingDetailTable(
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          margin: '0.5rem 0 1rem 0',
+          margin: '0 0 1rem 0',
         }}
       >
         <Typography
