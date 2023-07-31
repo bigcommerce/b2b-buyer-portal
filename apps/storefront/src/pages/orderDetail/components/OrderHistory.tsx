@@ -62,14 +62,7 @@ export default function OrderHistory() {
           paddingBottom: '50px',
         }}
       >
-        <Typography
-          variant="h5"
-          sx={{
-            padding: '0 16px',
-          }}
-        >
-          History
-        </Typography>
+        <Typography variant="h5">History</Typography>
         <HistoryListContainer>
           <B3Table
             columnItems={columnItems}

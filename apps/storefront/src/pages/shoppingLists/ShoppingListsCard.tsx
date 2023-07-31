@@ -89,7 +89,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
       key={shoppingList.id}
       sx={{
         '& .b2b-card-content': {
-          paddingBottom: '20px',
+          paddingBottom: '16px',
         },
       }}
     >
