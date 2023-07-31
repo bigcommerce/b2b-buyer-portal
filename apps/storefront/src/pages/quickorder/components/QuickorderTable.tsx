@@ -12,7 +12,7 @@ import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useMobile } from '@/hooks'
+import { useMobile, useSort } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   getBcOrderedProducts,
@@ -71,6 +71,7 @@ interface SearchProps {
   offset?: number
   beginDateAt?: Date | string | number
   endDateAt?: Date | string | number
+  orderBy: string
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
@@ -117,6 +118,13 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }))
 
+export const defaultSortKey = 'lastOrderedAt'
+
+export const sortKeys = {
+  product: 'productName',
+  lastOrderedAt: 'lastOrderedAt',
+}
+
 function QuickorderTable({
   setIsRequestLoading,
   setCheckedArr,
@@ -136,7 +144,15 @@ function QuickorderTable({
     q: '',
     beginDateAt: distanceDay(90),
     endDateAt: distanceDay(0),
+    orderBy: sortKeys[defaultSortKey],
   })
+
+  const [handleSetOrderBy, order, orderBy] = useSort(
+    sortKeys,
+    defaultSortKey,
+    search,
+    setSearch
+  )
 
   const [total, setTotalCount] = useState<number>(0)
 
@@ -287,7 +303,7 @@ function QuickorderTable({
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
-      key: 'Product',
+      key: 'product',
       title: 'Product',
       render: (row: CustomFieldItems) => {
         const { optionList } = row
@@ -331,9 +347,10 @@ function QuickorderTable({
         )
       },
       width: '40%',
+      isSortable: true,
     },
     {
-      key: 'Price',
+      key: 'price',
       title: 'Price',
       render: (row: CustomFieldItems) => {
         const {
@@ -367,7 +384,7 @@ function QuickorderTable({
       },
     },
     {
-      key: 'Qty',
+      key: 'qty',
       title: 'Qty',
       render: (row) => (
         <StyledTextField
@@ -407,6 +424,7 @@ function QuickorderTable({
       style: {
         textAlign: 'right',
       },
+      isSortable: true,
     },
   ]
 
@@ -516,6 +534,9 @@ function QuickorderTable({
           itemIsMobileSpacing={0}
           isSelectOtherPageCheckbox
           noDataText="No products found"
+          sortDirection={order}
+          orderBy={orderBy}
+          sortByFn={handleSetOrderBy}
           renderItem={(
             row: ProductInfoProps,
             index?: number,

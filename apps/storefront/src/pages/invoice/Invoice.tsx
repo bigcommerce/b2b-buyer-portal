@@ -12,7 +12,7 @@ import { cloneDeep } from 'lodash'
 import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
-import { useMobile } from '@/hooks'
+import { useMobile, useSort } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   exportInvoicesAsCSV,
@@ -37,7 +37,11 @@ import InvoiceStatus from './components/InvoiceStatus'
 import PaymentsHistory from './components/PaymentsHistory'
 import PaymentSuccess from './components/PaymentSuccess'
 import PrintTempalte from './components/PrintTempalte'
-import InvoiceListType, { filterFormConfig, sortIdArr } from './utils/config'
+import InvoiceListType, {
+  defaultSortKey,
+  filterFormConfig,
+  sortIdArr,
+} from './utils/config'
 import { handlePrintPDF } from './utils/pdf'
 import { InvoiceItemCard } from './InvoiceItemCard'
 
@@ -58,6 +62,7 @@ const initFilter = {
   q: '',
   first: 10,
   offset: 0,
+  orderBy: sortIdArr[defaultSortKey],
 }
 
 function Invoice() {
@@ -87,11 +92,16 @@ function Invoice() {
     CustomFieldItems | InvoiceListNode[]
   >([])
   const [list, setList] = useState<InvoiceListNode[]>([])
-  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
-  const [orderBy, setOrderBy] = useState<string>('id')
 
   const [filterData, setFilterData] =
     useState<Partial<FilterSearchProps> | null>()
+
+  const [handleSetOrderBy, order, orderBy] = useSort(
+    sortIdArr,
+    defaultSortKey,
+    filterData,
+    setFilterData
+  )
 
   const location = useLocation()
 
@@ -372,20 +382,6 @@ function Invoice() {
     }
   }
 
-  const handleSetOrderBy = (e: CustomFieldItems) => {
-    const sortDirection = order === 'asc' ? 'desc' : 'asc'
-    setOrder(sortDirection)
-    setOrderBy(e.key)
-
-    setFilterData({
-      ...filterData,
-      orderBy:
-        sortDirection === 'asc'
-          ? `${sortIdArr[e.key]}`
-          : `-${sortIdArr[e.key]}`,
-    })
-  }
-
   const handleSetSelectedInvoiceAccountNumber = (val: string, id: string) => {
     let result = val
     if (val.includes('.')) {
@@ -582,6 +578,7 @@ function Invoice() {
     {
       key: 'status',
       title: 'Status',
+      isSortable: true,
       render: (item: InvoiceList) => {
         const { status, dueDate } = item
         let code = item.status

@@ -15,6 +15,7 @@ import { styled } from '@mui/material/styles'
 import { B3Sping, showPageMask } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
+import { useSort } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
 import { endMasquerade, startMasquerade } from '@/utils'
@@ -36,6 +37,14 @@ interface B3MeanProps {
 
 interface DashboardProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+}
+
+export const defaultSortKey = 'companyName'
+
+export const sortKeys = {
+  companyName: 'companyName',
+  companyAdminName: 'companyAdminName',
+  companyEmail: 'companyEmail',
 }
 
 const StyledMenu = styled(Menu)(() => ({
@@ -124,7 +133,15 @@ function Dashboard(props: DashboardProps) {
 
   const [filterData, setFilterData] = useState<ListItem>({
     q: '',
+    orderBy: `-${sortKeys[defaultSortKey]}`,
   })
+
+  const [handleSetOrderBy, order, orderBy] = useSort(
+    sortKeys,
+    defaultSortKey,
+    filterData,
+    setFilterData
+  )
 
   const location = useLocation()
 
@@ -222,14 +239,17 @@ function Dashboard(props: DashboardProps) {
           )}
         </Box>
       ),
+      isSortable: true,
     },
     {
       key: 'companyAdminName',
       title: 'Admin',
+      isSortable: true,
     },
     {
       key: 'companyEmail',
       title: 'Email',
+      isSortable: true,
     },
     {
       key: 'companyName',
@@ -276,6 +296,9 @@ function Dashboard(props: DashboardProps) {
           isCustomRender={false}
           requestLoading={setIsRequestLoading}
           tableKey="id"
+          sortDirection={order}
+          orderBy={orderBy}
+          sortByFn={handleSetOrderBy}
           renderItem={(row: ListItem) => (
             <DashboardCard
               row={row}

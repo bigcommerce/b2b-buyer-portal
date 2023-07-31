@@ -52,6 +52,8 @@ export const filterFormConfig = [
   },
 ]
 
+export const defaultSortKey = 'id'
+
 export const sortIdArr: { [key: string]: string } = {
   id: 'invoiceNumber',
   orderNumber: 'orderNumber',
@@ -59,5 +61,6 @@ export const sortIdArr: { [key: string]: string } = {
   updatedAt: 'dueDate',
   originalBalance: 'originalBalanceAmount',
   openBalance: 'openBalanceAmount',
+  status: 'status',
 }
 export default InvoiceListType

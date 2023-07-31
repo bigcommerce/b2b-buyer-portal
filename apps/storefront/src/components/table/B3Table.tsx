@@ -90,7 +90,7 @@ interface TableProps<T> {
   isSelectOtherPageCheckbox?: boolean
   isAllSelect?: boolean
   sortDirection?: 'asc' | 'desc'
-  sortByFn?: (node: any) => void
+  sortByFn?: (e: { key: string }) => void
   orderBy?: string
 }
 
