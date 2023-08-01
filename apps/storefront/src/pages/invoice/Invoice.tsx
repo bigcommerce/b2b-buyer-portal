@@ -39,6 +39,7 @@ import PaymentSuccess from './components/PaymentSuccess'
 import PrintTempalte from './components/PrintTempalte'
 import InvoiceListType, {
   defaultSortKey,
+  exportOrderByArr,
   filterFormConfig,
   sortIdArr,
 } from './utils/config'
@@ -95,6 +96,9 @@ function Invoice() {
 
   const [filterData, setFilterData] =
     useState<Partial<FilterSearchProps> | null>()
+
+  const [exportCsvText, setExportCsvText] =
+    useState<string>('Export all as CSV')
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortIdArr,
@@ -253,14 +257,34 @@ function Invoice() {
   const handleExportInvoiceAsCSV = async () => {
     try {
       setIsRequestLoading(true)
+      const currentProductList = paginationTableRef.current?.getList() || []
+      const currentCheckedArr = currentProductList.filter(
+        (item: InvoiceListNode) =>
+          checkedArr.some(
+            (item2: InvoiceListNode) => item?.node?.id === item2?.node?.id
+          )
+      )
+      const invoiceNumber = currentCheckedArr.map(
+        (item: InvoiceListNode) => item.node.id
+      )
+      const invoiceStatus = filterData?.status ? [+filterData.status] : []
+
+      let orderByFiled = '-invoice_number'
+      if (filterData?.orderBy) {
+        const orderByStr = String(filterData.orderBy)
+        orderByFiled = orderByStr.includes('-')
+          ? `-${exportOrderByArr[orderByStr.split('-')[1]]}`
+          : exportOrderByArr[orderByStr]
+      }
 
       const params = {
-        search: '',
-        invoiceNumber: '',
+        search: filterData?.q || '',
+        invoiceNumber: invoiceNumber || '',
         orderNumber: '',
-        beginDateAt: '',
-        endDateAt: '',
-        status: '',
+        beginDateAt: filterData?.beginDateAt || '',
+        endDateAt: filterData?.endDateAt || '',
+        status: invoiceStatus,
+        orderBy: orderByFiled,
       }
 
       const { invoicesExport } = await exportInvoicesAsCSV(params)
@@ -369,7 +393,7 @@ function Invoice() {
       const {
         node: { openBalance },
       } = item
-      item.node.disableCurrentCheckbox = +openBalance.value === 0
+      item.node.disableCurrentCheckbox = false
 
       openBalance.value = (+openBalance.value).toFixed(decimalPlaces)
     })
@@ -401,6 +425,7 @@ function Invoice() {
         result = `.${val}`
       }
     }
+
     handleSetSelectedInvoiceAccount(result, id)
   }
 
@@ -561,7 +586,7 @@ function Invoice() {
               },
               '& input[type="number"]::-webkit-inner-spin-button, & input[type="number"]::-webkit-outer-spin-button':
                 {
-                  '-webkit-appearance': 'none',
+                  WebkitAppearance: 'none',
                   margin: 0,
                 },
             }}
@@ -623,6 +648,40 @@ function Invoice() {
       width: '10%',
     },
   ]
+
+  useEffect(() => {
+    const currentProductList = paginationTableRef.current?.getList() || []
+    const currentCheckedArr = currentProductList.filter(
+      (item: InvoiceListNode) =>
+        checkedArr.some(
+          (item2: InvoiceListNode) => item?.node?.id === item2?.node?.id
+        )
+    )
+
+    let exportCsvTexts = 'Export all as CSV'
+    const hasSelectedItems = currentCheckedArr.length > 0
+
+    if (filterData) {
+      const filtering = Object.keys(filterData).some(
+        (key) => key !== 'first' && key !== 'offset' && filterData[key]
+      )
+      if (filtering) {
+        exportCsvTexts = hasSelectedItems
+          ? 'Export selected as CSV'
+          : 'Export filtered as CSV'
+      } else {
+        exportCsvTexts = hasSelectedItems
+          ? 'Export selected as CSV'
+          : 'Export all as CSV'
+      }
+    } else {
+      exportCsvTexts = hasSelectedItems
+        ? 'Export selected as CSV'
+        : 'Export all as CSV'
+    }
+
+    setExportCsvText(exportCsvTexts)
+  }, [checkedArr, filterData])
 
   return (
     <B3Sping isSpinning={isRequestLoading}>
@@ -752,7 +811,7 @@ function Invoice() {
             }}
           >
             <Button variant="text" onClick={handleExportInvoiceAsCSV}>
-              Export all as csv file
+              {exportCsvText}
             </Button>
           </Box>
         )}
