@@ -12,6 +12,53 @@ export const getLocation = (location: string): SnackbarOrigin => ({
   horizontal: location.includes('Left') ? 'left' : 'right',
 })
 
+export const getPosition = (
+  horizontalPadding: string,
+  verticalPadding: string,
+  location = 'bottomRight'
+) => {
+  const locations = getLocation(location)
+  const positions = {
+    top: 'auto',
+    bottom: '24px',
+    left: 'auto',
+    right: '24px',
+  }
+  switch (locations.horizontal) {
+    case 'left':
+      positions.left = horizontalPadding
+        ? `${horizontalPadding}px !important`
+        : '24px'
+      positions.right = 'auto'
+      break
+
+    default:
+      positions.left = 'auto'
+      positions.right = horizontalPadding
+        ? `${horizontalPadding}px !important`
+        : '24px'
+      break
+  }
+
+  switch (locations.vertical) {
+    case 'top':
+      positions.top = verticalPadding
+        ? `${verticalPadding}px !important`
+        : '24px'
+      positions.bottom = 'auto'
+      break
+
+    default:
+      positions.top = 'auto'
+      positions.bottom = verticalPadding
+        ? `${verticalPadding}px !important`
+        : '24px'
+      break
+  }
+
+  return positions
+}
+
 export const splitCustomCssValue = (customCss: string) => {
   let cssValue = customCss
 

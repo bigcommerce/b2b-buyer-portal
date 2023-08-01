@@ -8,12 +8,14 @@ import {
 import type { OpenPageState } from '@b3/hooks'
 import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material'
 
+import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { B3LStorage } from '@/utils'
 
 import {
   getHoverColor,
   getLocation,
+  getPosition,
   getStyles,
   setMUIMediaStyle,
   splitCustomCssValue,
@@ -44,6 +46,8 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
     state: { floatingAction },
   } = useContext(CustomStyleContext)
 
+  const [isMobile] = useMobile()
+
   const {
     text = '',
     color = '#3385d6',
@@ -71,12 +75,13 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
 
   const defaultSx: SxProps = {
     backgroundColor: color,
-    padding:
-      verticalPadding && horizontalPadding
-        ? `${verticalPadding}px ${horizontalPadding}px`
-        : '',
+    padding: '6px 16px',
     ...getStyles(cssValue),
   }
+
+  const positionStyles = isMobile
+    ? {}
+    : getPosition(horizontalPadding, verticalPadding, location)
 
   if (href.includes('/checkout')) return null
   return (
@@ -84,6 +89,7 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
       sx={{
         zIndex: '110000',
         width: 'auto',
+        ...positionStyles,
       }}
       anchorOrigin={getLocation(location) || defaultLocation}
       open

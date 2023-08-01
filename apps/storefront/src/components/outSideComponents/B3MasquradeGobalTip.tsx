@@ -10,14 +10,12 @@ import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminEndMasquerade } from '@/shared/service/b2b'
-import {
-  B3SStorage,
-  // storeHash,
-} from '@/utils'
+import { B3SStorage } from '@/utils'
 
 import {
   getContrastColor,
   getLocation,
+  getPosition,
   getStyles,
   setMUIMediaStyle,
   splitCustomCssValue,
@@ -144,10 +142,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
   const customStyles: SxProps = {
     backgroundColor: `${color || '#FFFFFF'}`,
     color: getContrastColor(color || '#FFFFFF'),
-    padding:
-      verticalPadding && horizontalPadding
-        ? `${verticalPadding}px ${horizontalPadding}px`
-        : '',
+    padding: '0',
     ...getStyles(cssValue),
   }
 
@@ -159,10 +154,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
   const customBuyerPortalPagesStyles: SxProps = {
     backgroundColor: `${color || '#FFFFFF'}`,
     color: getContrastColor(color || '#FFFFFF'),
-    padding:
-      verticalPadding && horizontalPadding
-        ? `${verticalPadding}px ${horizontalPadding}px`
-        : '',
+    padding: '0',
     ...getStyles(cssValue),
     bottom: '24px',
     left: '24px',
@@ -176,6 +168,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         <Snackbar
           sx={{
             zIndex: '110000',
+            ...getPosition(horizontalPadding, verticalPadding, location),
           }}
           anchorOrigin={getLocation(location) || defaultLocation}
           open
@@ -205,6 +198,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
             height: '52px',
             fontSize: '16px',
             backgroundColor: '#ED6C02',
+            ...getPosition(horizontalPadding, verticalPadding, location),
             ...sx,
             ...customStyles,
             ...MUIMediaStyle,
