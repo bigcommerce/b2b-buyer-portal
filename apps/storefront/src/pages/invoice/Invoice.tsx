@@ -663,7 +663,11 @@ function Invoice() {
 
     if (filterData) {
       const filtering = Object.keys(filterData).some(
-        (key) => key !== 'first' && key !== 'offset' && filterData[key]
+        (key) =>
+          key !== 'first' &&
+          key !== 'offset' &&
+          key !== 'orderBy' &&
+          filterData[key]
       )
       if (filtering) {
         exportCsvTexts = hasSelectedItems
