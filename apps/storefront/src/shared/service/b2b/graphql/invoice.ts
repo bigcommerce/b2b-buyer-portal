@@ -190,12 +190,13 @@ const invoiceReceipt = (id: number) => `{
 const exportInvoices = (data: CustomFieldItems) => `mutation {
   invoicesExport (
     invoiceFilterData: {
-      search: "${data?.search || ''}"
-      invoiceNumber: "${data?.invoiceNumber || ''}"
-      orderNumber: "${data?.orderNumber || ''}"
+      idIn: "${data?.invoiceNumber || ''}"
+      orderBy: "${data?.orderBy || ''}"
+      status: ${data?.status ? convertArrayToGraphql(data.status) : []}
+      ${data?.search ? `search: ${data.search}` : ''}
+      ${data?.orderNumber ? `orderNumber: ${data.orderNumber}` : ''}
       ${data?.beginDateAt ? `beginDateAt: ${data.beginDateAt}` : ''}
       ${data?.endDateAt ? `endDateAt: ${data.endDateAt}` : ''}
-      ${data?.status ? `status: ${data?.status}` : ''}
     }
   ) {
     url

@@ -63,4 +63,13 @@ export const sortIdArr: { [key: string]: string } = {
   openBalance: 'openBalanceAmount',
   status: 'status',
 }
+
+export const exportOrderByArr: { [key: string]: string } = {
+  invoiceNumber: 'invoice_number',
+  orderNumber: 'order_number',
+  createdAt: 'created_at',
+  dueDate: 'due_date',
+  originalBalanceAmount: 'original_balance_amount',
+  openBalanceAmount: 'open_balance_amount',
+}
 export default InvoiceListType
