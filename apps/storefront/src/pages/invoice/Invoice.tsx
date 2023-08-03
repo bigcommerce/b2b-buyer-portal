@@ -100,6 +100,9 @@ function Invoice() {
   const [exportCsvText, setExportCsvText] =
     useState<string>('Export all as CSV')
 
+  const [filterChangeFlag, setFilterChangeFlag] = useState(false)
+  const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([])
+
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortIdArr,
     defaultSortKey,
@@ -108,6 +111,41 @@ function Invoice() {
   )
 
   const location = useLocation()
+
+  const isFiltering = (filterData: Partial<FilterSearchProps>) =>
+    Object.keys(filterData).some(
+      (key) =>
+        key !== 'first' &&
+        key !== 'offset' &&
+        key !== 'orderBy' &&
+        filterData[key]
+    )
+
+  const cacheFilterLists = (edges: InvoiceListNode[]) => {
+    if (filterChangeFlag) {
+      setFilterLists(edges)
+      setFilterChangeFlag(false)
+      return
+    }
+
+    if (!filterLists.length) setFilterLists(edges)
+
+    const copyCacheFilterList = [...filterLists]
+
+    edges.forEach((item: InvoiceListNode) => {
+      const option = item?.node || item
+      const isExist = filterLists.some((cache: InvoiceListNode) => {
+        const cacheOption = cache.node
+        return cacheOption.id === option.id
+      })
+
+      if (!isExist) {
+        copyCacheFilterList.push(item)
+      }
+    })
+
+    setFilterLists(copyCacheFilterList)
+  }
 
   const handleGetCorrespondingCurrency = (code: string) => {
     const { currencies: currencyArr } = allCurrencies
@@ -149,6 +187,7 @@ function Invoice() {
         ...filterData,
         q: value,
       })
+      setFilterChangeFlag(true)
       setType(InvoiceListType.NORMAL)
     }
   }
@@ -178,6 +217,7 @@ function Invoice() {
       ...filterData,
       ...search,
     })
+    setFilterChangeFlag(true)
     setType(InvoiceListType.NORMAL)
   }
 
@@ -257,13 +297,15 @@ function Invoice() {
   const handleExportInvoiceAsCSV = async () => {
     try {
       setIsRequestLoading(true)
-      const currentProductList = paginationTableRef.current?.getList() || []
-      const currentCheckedArr = currentProductList.filter(
-        (item: InvoiceListNode) =>
-          checkedArr.some(
-            (item2: InvoiceListNode) => item?.node?.id === item2?.node?.id
+      const filtering = filterData ? isFiltering(filterData) : false
+      const currentCheckedArr = filtering
+        ? filterLists.filter((item: InvoiceListNode) =>
+            checkedArr.some(
+              (item2: InvoiceListNode) => item?.node?.id === item2?.node?.id
+            )
           )
-      )
+        : checkedArr
+
       const invoiceNumber = currentCheckedArr.map(
         (item: InvoiceListNode) => item.node.id
       )
@@ -399,6 +441,12 @@ function Invoice() {
     })
     setList(invoicesList)
     handleStatisticsInvoiceAmount()
+
+    if (filterData && isFiltering(filterData) && invoicesList.length) {
+      cacheFilterLists(invoicesList)
+    } else {
+      setFilterLists([])
+    }
 
     return {
       edges: invoicesList,
@@ -650,38 +698,27 @@ function Invoice() {
   ]
 
   useEffect(() => {
-    const currentProductList = paginationTableRef.current?.getList() || []
-    const currentCheckedArr = currentProductList.filter(
-      (item: InvoiceListNode) =>
-        checkedArr.some(
-          (item2: InvoiceListNode) => item?.node?.id === item2?.node?.id
-        )
-    )
-
     let exportCsvTexts = 'Export all as CSV'
-    const hasSelectedItems = currentCheckedArr.length > 0
 
-    if (filterData) {
-      const filtering = Object.keys(filterData).some(
-        (key) =>
-          key !== 'first' &&
-          key !== 'offset' &&
-          key !== 'orderBy' &&
-          filterData[key]
-      )
-      if (filtering) {
-        exportCsvTexts = hasSelectedItems
+    const filtering = filterData ? isFiltering(filterData) : false
+    const currentCheckedArr = filtering
+      ? filterLists.filter((item: InvoiceListNode) =>
+          checkedArr.some(
+            (item2: InvoiceListNode) => item?.node?.id === item2?.node?.id
+          )
+        )
+      : checkedArr
+
+    if (filtering) {
+      exportCsvTexts =
+        currentCheckedArr.length > 0
           ? 'Export selected as CSV'
           : 'Export filtered as CSV'
-      } else {
-        exportCsvTexts = hasSelectedItems
+    } else {
+      exportCsvTexts =
+        currentCheckedArr.length > 0
           ? 'Export selected as CSV'
           : 'Export all as CSV'
-      }
-    } else {
-      exportCsvTexts = hasSelectedItems
-        ? 'Export selected as CSV'
-        : 'Export all as CSV'
     }
 
     setExportCsvText(exportCsvTexts)
