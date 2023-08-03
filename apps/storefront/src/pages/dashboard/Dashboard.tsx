@@ -206,6 +206,7 @@ function Dashboard(props: DashboardProps) {
 
   const handleChange = async (q: string) => {
     setFilterData({
+      ...filterData,
       q,
     })
   }
