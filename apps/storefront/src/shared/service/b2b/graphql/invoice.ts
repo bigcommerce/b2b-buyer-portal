@@ -193,7 +193,7 @@ const exportInvoices = (data: CustomFieldItems) => `mutation {
       idIn: "${data?.invoiceNumber || ''}"
       orderBy: "${data?.orderBy || ''}"
       status: ${data?.status ? convertArrayToGraphql(data.status) : []}
-      ${data?.search ? `search: ${data.search}` : ''}
+      search: "${data?.search || ''}"
       ${data?.orderNumber ? `orderNumber: ${data.orderNumber}` : ''}
       ${data?.beginDateAt ? `beginDateAt: ${data.beginDateAt}` : ''}
       ${data?.endDateAt ? `endDateAt: ${data.endDateAt}` : ''}
