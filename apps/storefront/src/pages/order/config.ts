@@ -35,8 +35,7 @@ const b2bFilterSearch: FilterSearchProps = {
   beginDateAt: null,
   endDateAt: null,
   companyName: '',
-  // orderBy: `-${sortKeys[defaultSortKey]}`,
-  orderBy: '',
+  orderBy: `-${sortKeys[defaultSortKey]}`,
   createdBy: '',
   orderNumber: '',
   poNumber: '',
@@ -46,8 +45,7 @@ const b2bFilterSearch: FilterSearchProps = {
 const bcFilterSearch = {
   beginDateAt: null,
   endDateAt: null,
-  orderBy: '',
-  // orderBy: `-${sortKeys[defaultSortKey]}`,
+  orderBy: `-${sortKeys[defaultSortKey]}`,
   createdBy: '',
   q: '',
 }

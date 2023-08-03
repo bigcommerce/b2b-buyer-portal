@@ -15,7 +15,7 @@ const useSort = <T>(
     setOrderBy(e.key)
     setFilterData({
       ...filterData,
-      orderBy: order === 'asc' ? sortKeys[e.key] : `-${sortKeys[e.key]}`,
+      orderBy: order === 'desc' ? sortKeys[e.key] : `-${sortKeys[e.key]}`,
     })
   }
 
