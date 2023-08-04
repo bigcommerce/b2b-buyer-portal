@@ -1,6 +1,7 @@
 import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react'
 
 import {
+  OrderBillings,
   OrderCurrency,
   OrderHistoryItem,
   OrderPayment,
@@ -12,6 +13,7 @@ import {
 
 export interface OrderDetailsState {
   shippings?: OrderShippingsItem[]
+  billings?: OrderBillings[]
   history?: OrderHistoryItem[]
   poNumber?: string
   status?: string
@@ -31,6 +33,7 @@ export interface OrderDetailsState {
   addressLabelPermission?: boolean
   canReturn?: boolean
   createdEmail?: string
+  orderIsDigital?: boolean
 }
 interface OrderDetailsAction {
   type: string
@@ -47,6 +50,7 @@ interface OrderDetailsProviderProps {
 
 const initState = {
   shippings: [],
+  billings: [],
   history: [],
   poNumber: '',
   status: '',
@@ -70,6 +74,7 @@ const initState = {
   addressLabelPermission: false,
   canReturn: false,
   createdEmail: '',
+  orderIsDigital: false,
 }
 
 export const OrderDetailsContext = createContext<OrderDetailsContextType>({

@@ -34,6 +34,7 @@ import convertB2BOrderDetails from './shared/B2BOrderData'
 import {
   DetailPagination,
   OrderAction,
+  OrderBilling,
   OrderHistory,
   OrderShipping,
 } from './components'
@@ -288,6 +289,8 @@ function OrderDetail() {
           >
             <Stack spacing={3}>
               <OrderShipping />
+              {/* Digital Order Display */}
+              <OrderBilling />
 
               <OrderHistory />
             </Stack>
