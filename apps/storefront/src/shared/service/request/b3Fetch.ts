@@ -108,6 +108,21 @@ const B3Request = {
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
   /**
+   * super admin
+   * Request to B2B graphql API using BC JWT Token
+   */
+  graphqlB2BWithBCCustomerToken: function post<T>(
+    data: T,
+    customMessage = false
+  ): Promise<any> {
+    const config = {
+      Authorization: `Bearer  ${
+        B3SStorage.get('currentCustomerJWTToken') || ''
+      }`,
+    }
+    return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
+  },
+  /**
    * @deprecated use {@link B3Request.graphqlBCProxy} instead
    * Request to BC graphql API using BC graphql token
    */
