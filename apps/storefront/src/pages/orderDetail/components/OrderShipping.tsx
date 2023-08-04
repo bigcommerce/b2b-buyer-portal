@@ -17,7 +17,7 @@ const ShipmentTitle = styled('span')(() => ({
 
 export default function OrderShipping() {
   const {
-    state: { shippings = [], currency, addressLabelPermission },
+    state: { shippings = [], currency, addressLabelPermission, orderIsDigital },
   } = useContext(OrderDetailsContext)
 
   const [isMobile] = useMobile()
@@ -85,7 +85,7 @@ export default function OrderShipping() {
     return company.substring(index + 1, company.length)
   }
 
-  return (
+  return orderIsDigital ? null : (
     <Stack spacing={2}>
       {shippingsDetail.map((shipping: OrderShippingsItem) => (
         <Card key={`shipping-${shipping.id}`}>

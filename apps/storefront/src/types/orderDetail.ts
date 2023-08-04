@@ -148,6 +148,11 @@ export interface OrderPayment {
   paymentMethod?: string
 }
 
+export interface OrderBillings {
+  billingAddress: Address
+  products: OrderProductItem[]
+}
+
 export interface B2BOrderData {
   baseHandlingCost: string
   baseShippingCost: string

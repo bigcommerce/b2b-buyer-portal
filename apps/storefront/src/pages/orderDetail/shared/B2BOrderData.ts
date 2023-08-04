@@ -1,5 +1,6 @@
 import {
   B2BOrderData,
+  OrderBillings,
   OrderProductItem,
   OrderShipmentItem,
   OrderShipmentProductItem,
@@ -59,6 +60,19 @@ const getOrderShipping = (data: B2BOrderData) => {
   )
 
   return shippings
+}
+
+const getOrderBilling = (data: B2BOrderData) => {
+  const { billingAddress, products } = data
+
+  const billings: OrderBillings[] = [
+    {
+      billingAddress,
+      products,
+    },
+  ]
+
+  return billings
 }
 
 const formatPrice = (price: string | number) => {
@@ -137,7 +151,8 @@ const handleProductQuantity = (data: B2BOrderData) => {
 }
 
 const convertB2BOrderDetails = (data: B2BOrderData) => ({
-  shippings: getOrderShipping(data),
+  shippings: data.orderIsDigital ? [] : getOrderShipping(data),
+  billings: data.orderIsDigital ? getOrderBilling(data) : [],
   history: data.orderHistoryEvent || [],
   poNumber: data.poNumber || '',
   status: data.status,
@@ -155,6 +170,7 @@ const convertB2BOrderDetails = (data: B2BOrderData) => ({
   invoiceId: +(data.invoiceId || 0),
   canReturn: data.canReturn,
   createdEmail: data.createdEmail,
+  orderIsDigital: data.orderIsDigital,
 })
 
 export default convertB2BOrderDetails
