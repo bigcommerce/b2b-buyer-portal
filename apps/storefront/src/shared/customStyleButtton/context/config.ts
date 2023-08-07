@@ -12,6 +12,7 @@ type BtnKeys =
   | 'loginPageHtml'
   | 'accountLoginRegistration'
   | 'companyAutoApproval'
+  | 'cssOverride'
 
 interface BtnStyle {
   color: string
@@ -38,6 +39,7 @@ interface BtnStyle {
   createAccountPanelHtml?: string
   topHtmlRegionEnabled?: boolean
   topHtmlRegionHtml?: string
+  css?: string
 }
 
 export interface CustomStyleButtonState
@@ -135,6 +137,9 @@ export const initState = {
   },
   companyAutoApproval: {
     enabled: true,
+  },
+  cssOverride: {
+    css: '',
   },
 }
 
