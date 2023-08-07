@@ -6,7 +6,12 @@ import { throttle } from 'lodash'
 
 import { CustomButton } from '@/components'
 import { GlobaledContext } from '@/shared/global'
-import { currencyFormat, displayFormat, snackbar } from '@/utils'
+import {
+  b2bPrintInvoice,
+  currencyFormat,
+  displayFormat,
+  snackbar,
+} from '@/utils'
 
 import { Address, OrderCurrency, OrderProductItem } from '../../../types'
 import {
@@ -79,6 +84,7 @@ interface OrderCardProps {
   itemKey: string
   orderId: string
   role: number | string
+  ipStatus: number
   invoiceId?: number | string | undefined | null
 }
 
@@ -100,6 +106,7 @@ function OrderCard(props: OrderCardProps) {
     orderId,
     role,
     invoiceId,
+    ipStatus,
   } = props
 
   const {
@@ -145,7 +152,11 @@ function OrderCard(props: OrderCardProps) {
 
   const handleOpenDialog = (name: string) => {
     if (name === 'viewInvoice') {
-      navigate(`/invoice?invoiceId=${invoiceId}`)
+      if (ipStatus !== 0) {
+        navigate(`/invoice?invoiceId=${invoiceId}`)
+      } else {
+        b2bPrintInvoice(orderId, 'b2b_print_invoice')
+      }
     } else if (name === 'printInvoice') {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
     } else {
@@ -259,11 +270,11 @@ interface OrderData {
 export default function OrderAction(props: OrderActionProps) {
   const { detailsData } = props
   const {
-    state: { isB2BUser, role },
+    state: { isB2BUser, role, emailAddress },
   } = useContext(GlobaledContext)
 
   const {
-    state: { addressLabelPermission },
+    state: { addressLabelPermission, createdEmail },
   } = useContext(OrderDetailsContext)
 
   const {
@@ -392,7 +403,8 @@ export default function OrderAction(props: OrderActionProps) {
           key: 'aboutInvoice',
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
-          isCanShow: !isB2BUser || +ipStatus === 1,
+          isCanShow:
+            (!isB2BUser || +ipStatus !== 0) && createdEmail === emailAddress,
         },
       ],
       infos: {
@@ -420,6 +432,7 @@ export default function OrderAction(props: OrderActionProps) {
             {...item}
             itemKey={item.key}
             role={role}
+            ipStatus={ipStatus}
             invoiceId={invoiceId}
           />
         ))}

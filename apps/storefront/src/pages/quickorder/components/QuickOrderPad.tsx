@@ -10,7 +10,7 @@ import {
 } from '@mui/material'
 
 import { B3Upload, CustomButton, successTip } from '@/components'
-import { useMobile } from '@/hooks'
+import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import { B3SStorage, snackbar } from '@/utils'
 
@@ -30,6 +30,8 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
   const [productData, setProductData] = useState<CustomFieldItems>([])
   const [addBtnText, setAddBtnText] = useState<string>('Add to cart')
   const [isLoading, setIsLoading] = useState(false)
+
+  const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
 
   const handleSplitOptionId = (id: string | number) => {
     if (typeof id === 'string' && id.includes('attribute')) {
@@ -402,11 +404,8 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
   }
 
   const handleOpenUploadDiag = () => {
-    const blockPendingAccountViewPrice = B3SStorage.get(
-      'blockPendingAccountViewPrice'
-    )
     const companyStatus = B3SStorage.get('companyStatus')
-    if (blockPendingAccountViewPrice && companyStatus !== 1) {
+    if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.'
       )

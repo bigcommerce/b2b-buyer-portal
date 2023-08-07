@@ -11,6 +11,7 @@ import {
 } from '@/shared/service/b2b'
 import { getActiveBcCurrency } from '@/shared/service/bc'
 import {
+  setBlockPendingAccountViewPrice,
   setEnteredInclusive,
   setShowInclusiveTaxPrice,
   setTaxZoneRates,
@@ -231,6 +232,9 @@ const getTemPlateConfig = async (
         B3SStorage.set(
           'blockPendingAccountViewPrice',
           blockPendingAccountViewPrice
+        )
+        store.dispatch(
+          setBlockPendingAccountViewPrice(blockPendingAccountViewPrice)
         )
       }
 

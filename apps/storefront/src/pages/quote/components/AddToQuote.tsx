@@ -5,6 +5,7 @@ import { v1 as uuid } from 'uuid'
 
 import { B3CollapseContainer, B3Upload, CustomButton } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
+import { useBlockPendingAccountViewPrice } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import {
@@ -37,6 +38,8 @@ export default function AddToQuote(props: AddToListProps) {
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
 
   const getNewQuoteProduct = (products: CustomFieldItems[]) =>
     products.map((product) => {
@@ -261,11 +264,8 @@ export default function AddToQuote(props: AddToListProps) {
   }
 
   const handleOpenUploadDiag = () => {
-    const blockPendingAccountViewPrice = B3SStorage.get(
-      'blockPendingAccountViewPrice'
-    )
     const companyStatus = B3SStorage.get('companyStatus')
-    if (blockPendingAccountViewPrice && companyStatus !== 1) {
+    if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.'
       )

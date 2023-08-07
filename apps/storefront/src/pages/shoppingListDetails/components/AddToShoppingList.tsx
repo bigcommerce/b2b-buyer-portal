@@ -3,6 +3,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 
 import { B3Upload, CustomButton } from '@/components'
+import { useBlockPendingAccountViewPrice } from '@/hooks'
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
@@ -29,6 +30,8 @@ export default function AddToShoppingList(props: AddToListProps) {
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
 
   const addItemsToShoppingList = isB2BUser
     ? addProductToShoppingList
@@ -180,11 +183,8 @@ export default function AddToShoppingList(props: AddToListProps) {
   }
 
   const handleOpenUploadDiag = () => {
-    const blockPendingAccountViewPrice = B3SStorage.get(
-      'blockPendingAccountViewPrice'
-    )
     const companyStatus = B3SStorage.get('companyStatus')
-    if (blockPendingAccountViewPrice && companyStatus !== 1) {
+    if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.'
       )
