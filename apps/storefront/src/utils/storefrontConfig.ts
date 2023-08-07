@@ -143,6 +143,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
     key: 'block_pending_account_seeing_products_pricing',
     name: 'blockPendingAccountViewPrice',
   },
+  {
+    key: 'css_override',
+    name: 'cssOverride',
+  },
 ]
 
 const getTemPlateConfig = async (

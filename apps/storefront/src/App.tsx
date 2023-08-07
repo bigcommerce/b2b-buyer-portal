@@ -94,6 +94,7 @@ export default function App() {
   const {
     state: {
       portalStyle: { backgroundColor },
+      cssOverride,
     },
     dispatch: styleDispatch,
   } = useContext(CustomStyleContext)
@@ -102,7 +103,9 @@ export default function App() {
   body {
     background: ${backgroundColor};
     font-family: Roboto;
-  };`
+  }`
+
+  const [customStyles, setCustomStyle] = useState<string>(CUSTOM_STYLES)
 
   useDomHooks({ setOpenPage })
 
@@ -305,6 +308,14 @@ export default function App() {
     }
   }, [isOpen])
 
+  useEffect(() => {
+    const cssValue = (cssOverride.css || '').replace(/\};/g, '}')
+
+    const newStyle = `${CUSTOM_STYLES}\n${cssValue}`
+
+    setCustomStyle(newStyle)
+  }, [cssOverride, window.location.href])
+
   return (
     <>
       <HashRouter>
@@ -312,7 +323,8 @@ export default function App() {
           <ThemeFrame
             className={isOpen ? 'active-frame' : undefined}
             fontUrl={FONT_URL}
-            customStyles={CUSTOM_STYLES}
+            customStyles={customStyles}
+            isOpen={isOpen}
           >
             {isOpen ? (
               <B3RenderRouter openUrl={openUrl} setOpenPage={setOpenPage} />
