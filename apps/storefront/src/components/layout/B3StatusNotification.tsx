@@ -3,6 +3,7 @@ import styled from '@emotion/styled'
 import { Alert, Box } from '@mui/material'
 
 import { StatusNotifications } from '@/constants'
+import { useBlockPendingAccountViewPrice } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { B3SStorage } from '@/utils'
 
@@ -30,9 +31,7 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
   const blockPendingAccountOrderCreation = B3SStorage.get(
     'blockPendingAccountOrderCreation'
   )
-  const blockPendingAccountViewPrice = B3SStorage.get(
-    'blockPendingAccountViewPrice'
-  )
+  const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
   const loginType = JSON.parse(sessionStorage.getItem('loginType') || 'false')
 
   const [tip, setTip] = useState<string>('')
@@ -91,7 +90,7 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
         setBcColor('#ED6C02')
       }
     }
-  }, [])
+  }, [blockPendingAccountViewPrice])
 
   return isShow ? (
     <B3StatusNotificationContainer

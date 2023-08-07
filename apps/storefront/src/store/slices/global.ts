@@ -43,6 +43,7 @@ export interface GlabolState {
   enteredInclusive?: boolean
   setOpenPageFn?: Dispatch<SetStateAction<OpenPageState>>
   showInclusiveTaxPrice?: boolean
+  blockPendingAccountViewPrice?: boolean
 }
 
 const initialState: GlabolState = {
@@ -60,6 +61,7 @@ const initialState: GlabolState = {
   enteredInclusive: false,
   setOpenPageFn: undefined,
   showInclusiveTaxPrice: false,
+  blockPendingAccountViewPrice: false,
 }
 
 export const glabolSlice = createSlice({
@@ -91,6 +93,12 @@ export const glabolSlice = createSlice({
     setShowInclusiveTaxPrice: (state, { payload }: PayloadAction<boolean>) => {
       state.showInclusiveTaxPrice = payload as Draft<boolean>
     },
+    setBlockPendingAccountViewPrice: (
+      state,
+      { payload }: PayloadAction<boolean>
+    ) => {
+      state.blockPendingAccountViewPrice = payload as Draft<boolean>
+    },
   },
 })
 
@@ -101,6 +109,7 @@ export const {
   setEnteredInclusive,
   setOpenPageReducer,
   setShowInclusiveTaxPrice,
+  setBlockPendingAccountViewPrice,
 } = glabolSlice.actions
 
 export default glabolSlice.reducer

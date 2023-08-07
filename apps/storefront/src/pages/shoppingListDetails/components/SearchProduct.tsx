@@ -3,6 +3,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
 import { B3Sping, CustomButton } from '@/components'
+import { useBlockPendingAccountViewPrice } from '@/hooks'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { B3SStorage, calculateProductListPrice, snackbar } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
@@ -37,6 +38,8 @@ export default function SearchProduct({
   const [optionsProduct, setOptionsProduct] =
     useState<ShoppingListProductItem>()
 
+  const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
+
   const handleSearchTextChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value)
   }
@@ -46,11 +49,8 @@ export default function SearchProduct({
       return
     }
 
-    const blockPendingAccountViewPrice = B3SStorage.get(
-      'blockPendingAccountViewPrice'
-    )
     const companyStatus = B3SStorage.get('companyStatus')
-    if (blockPendingAccountViewPrice && companyStatus !== 1) {
+    if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.'
       )
