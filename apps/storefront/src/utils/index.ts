@@ -15,6 +15,7 @@ import clearInvoiceCart from './b3ClearCart'
 import currencyFormat, {
   currencyFormatInfo,
   handleGetCorrespondingCurrency,
+  ordersCurrencyFormat,
 } from './b3CurrencyFormat'
 import {
   displayExtendedFormat,
@@ -92,6 +93,7 @@ export {
   isModifierTextValid,
   loginInfo,
   openPageByClick,
+  ordersCurrencyFormat,
   redirectBcMenus,
   removeBCMenus,
   removeCartPermissions,

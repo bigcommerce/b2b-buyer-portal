@@ -17,7 +17,7 @@ const ShipmentTitle = styled('span')(() => ({
 
 export default function OrderShipping() {
   const {
-    state: { shippings = [], currency, addressLabelPermission, orderIsDigital },
+    state: { shippings = [], addressLabelPermission, orderIsDigital, money },
   } = useContext(OrderDetailsContext)
 
   const [isMobile] = useMobile()
@@ -145,7 +145,7 @@ export default function OrderShipping() {
                   <B3ProductList
                     quantityKey="current_quantity_shipped"
                     products={shipment.itemsInfo}
-                    currency={currency}
+                    money={money}
                     totalText="Total"
                     canToProduct
                     textAlign="right"
@@ -169,7 +169,7 @@ export default function OrderShipping() {
                 <B3ProductList
                   quantityKey="not_shipping_number"
                   products={shipping.notShip.itemsInfo}
-                  currency={currency}
+                  money={money}
                   totalText="Total"
                   canToProduct
                   textAlign={isMobile ? 'left' : 'right'}

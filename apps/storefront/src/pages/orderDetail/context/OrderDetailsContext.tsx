@@ -1,8 +1,8 @@
 import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react'
 
 import {
+  MoneyFormat,
   OrderBillings,
-  OrderCurrency,
   OrderHistoryItem,
   OrderPayment,
   OrderProductItem,
@@ -22,7 +22,7 @@ export interface OrderDetailsState {
   currency?: string
   orderSummary?: OrderSummary
   customStatus?: string
-  money?: OrderCurrency
+  money?: MoneyFormat
   payment?: OrderPayment
   orderComments?: string
   products?: OrderProductItem[]
@@ -48,6 +48,15 @@ interface OrderDetailsProviderProps {
   children: ReactNode
 }
 
+const defaultMoneyFormat: MoneyFormat = {
+  currency_location: 'left',
+  currency_token: '$',
+  decimal_token: '.',
+  decimal_places: 2,
+  thousands_token: ',',
+  currency_exchange_rate: '1.0000000000',
+}
+
 const initState = {
   shippings: [],
   billings: [],
@@ -63,7 +72,9 @@ const initState = {
     priceData: {},
   },
   customStatus: '',
-  money: {},
+  money: {
+    ...defaultMoneyFormat,
+  },
   payment: {},
   orderComments: '',
   products: [],

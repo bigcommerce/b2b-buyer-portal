@@ -18,9 +18,9 @@ import { noop } from 'lodash'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { store } from '@/store'
-import { currencyFormat } from '@/utils'
+import { currencyFormat, ordersCurrencyFormat } from '@/utils'
 
-import { ProductItem } from '../types'
+import { MoneyFormat, ProductItem } from '../types'
 
 interface FlexProps {
   isHeader?: boolean
@@ -122,7 +122,7 @@ const mobileItemStyle = {
 
 interface ProductProps<T> {
   products: Array<T & ProductItem>
-  currency?: string
+  money?: MoneyFormat
   renderAction?: (item: T & ProductItem) => ReactElement
   actionWidth?: string
   quantityKey?: string
@@ -150,6 +150,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
     totalText = 'Total',
     canToProduct = false,
     textAlign = 'left',
+    money,
   } = props
 
   const [list, setList] = useState<ProductItem[]>([])
@@ -291,6 +292,11 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
           productPrice = showInclusiveTaxPrice ? +priceIncTax : +priceExTax
         }
 
+        const totalPrice = getProductTotals(
+          getQuantity(product) || 0,
+          productPrice
+        )
+
         return (
           <Flex isMobile={isMobile} key={product.id}>
             {showCheckbox && (
@@ -349,7 +355,9 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               }
             >
               {isMobile && <span>Price:</span>}
-              {`${currencyFormat(productPrice)}`}
+              {money
+                ? `${ordersCurrencyFormat(money, productPrice)}`
+                : `${currencyFormat(productPrice)}`}
             </FlexItem>
 
             <FlexItem
@@ -405,9 +413,9 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               }
             >
               {isMobile && <span>{totalText}:</span>}
-              {`${currencyFormat(
-                getProductTotals(getQuantity(product) || 0, productPrice)
-              )}`}
+              {money
+                ? `${ordersCurrencyFormat(money, totalPrice)}`
+                : `${currencyFormat(totalPrice)}`}
             </FlexItem>
 
             {renderAction && (

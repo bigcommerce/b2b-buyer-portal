@@ -50,6 +50,30 @@ export const handleGetCorrespondingCurrency = (code: string, value: number) => {
   return accountValue
 }
 
+export const ordersCurrencyFormat = (
+  moneyFormat: MoneyFormat,
+  price: string | number,
+  showCurrencyToken = true
+) => {
+  try {
+    const [integerPart, decimalPart] = (+price)
+      .toFixed(moneyFormat.decimal_places)
+      .split('.')
+    const newPrice = `${integerPart.replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      moneyFormat.thousands_token
+    )}${decimalPart ? `${moneyFormat.decimal_token}${decimalPart}` : ''}`
+    const priceStr =
+      moneyFormat.currency_location === 'left'
+        ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
+        : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
+    return priceStr
+  } catch (e) {
+    console.error(e)
+    return ''
+  }
+}
+
 const currencyFormat = (price: string | number, showCurrencyToken = true) => {
   const moneyFormat: MoneyFormat = currencyFormatInfo()
 
