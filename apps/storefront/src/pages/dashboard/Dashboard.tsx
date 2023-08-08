@@ -133,14 +133,15 @@ function Dashboard(props: DashboardProps) {
 
   const [filterData, setFilterData] = useState<ListItem>({
     q: '',
-    orderBy: `-${sortKeys[defaultSortKey]}`,
+    orderBy: sortKeys[defaultSortKey],
   })
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortKeys,
     defaultSortKey,
     filterData,
-    setFilterData
+    setFilterData,
+    'asc'
   )
 
   const location = useLocation()

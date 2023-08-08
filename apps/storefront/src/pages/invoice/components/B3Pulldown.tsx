@@ -119,6 +119,7 @@ function B3Pulldown({
 
     const a = document.createElement('a')
     a.href = url
+    a.target = '_blank'
     a.download = 'file.pdf'
     a.click()
   }
