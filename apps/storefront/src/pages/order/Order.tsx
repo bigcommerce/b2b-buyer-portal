@@ -14,7 +14,7 @@ import {
   getOrdersCreatedByUser,
   getOrderStatusType,
 } from '@/shared/service/b2b'
-import { currencyFormat, displayFormat } from '@/utils'
+import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 
@@ -158,7 +158,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'totalIncTax',
       title: 'Grand total',
-      render: (item: ListItem) => `${currencyFormat(item.totalIncTax)}`,
+      render: (item: ListItem) =>
+        item?.money
+          ? `${ordersCurrencyFormat(
+              JSON.parse(JSON.parse(item.money)),
+              item.totalIncTax
+            )}`
+          : `${currencyFormat(item.totalIncTax)}`,
       width: '8%',
       style: {
         textAlign: 'right',

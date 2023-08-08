@@ -10,10 +10,11 @@ import {
   b2bPrintInvoice,
   currencyFormat,
   displayFormat,
+  ordersCurrencyFormat,
   snackbar,
 } from '@/utils'
 
-import { Address, OrderCurrency, OrderProductItem } from '../../../types'
+import { Address, MoneyFormat, OrderProductItem } from '../../../types'
 import {
   OrderDetailsContext,
   OrderDetailsState,
@@ -64,7 +65,7 @@ interface Infos {
   info: {
     [k: string]: string
   }
-  money?: OrderCurrency
+  money?: MoneyFormat
 }
 
 interface Buttons {
@@ -184,7 +185,7 @@ function OrderCard(props: OrderCardProps) {
 
   if (typeof infos === 'string') {
     showedInformation = infos
-  } else if (infos.money) {
+  } else if (infos?.money) {
     showedInformation = infoKey?.map((key: string, index: number) => (
       <Fragment key={key}>
         {key === 'Grand total' && (
@@ -198,7 +199,11 @@ function OrderCard(props: OrderCardProps) {
 
         <ItemContainer key={key} nameKey={key}>
           <p>{key}</p>
-          <p>{`${currencyFormat(infoValue[index])}`}</p>
+          <p>
+            {infos?.money
+              ? `${ordersCurrencyFormat(infos.money, infoValue[index])}`
+              : currencyFormat(infoValue[index])}
+          </p>
         </ItemContainer>
       </Fragment>
     ))

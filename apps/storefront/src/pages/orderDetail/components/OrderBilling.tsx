@@ -9,13 +9,7 @@ import { OrderDetailsContext } from '../context/OrderDetailsContext'
 
 export default function OrderBilling() {
   const {
-    state: {
-      billings = [],
-      currency,
-      addressLabelPermission,
-      orderId,
-      orderIsDigital,
-    },
+    state: { billings = [], addressLabelPermission, orderId, orderIsDigital },
   } = useContext(OrderDetailsContext)
 
   const [isMobile] = useMobile()
@@ -89,7 +83,6 @@ export default function OrderBilling() {
 
             <B3ProductList
               products={billingItem.products}
-              currency={currency}
               totalText="Total"
               canToProduct
               textAlign={isMobile ? 'left' : 'right'}

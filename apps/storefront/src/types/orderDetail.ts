@@ -142,6 +142,15 @@ export interface OrderCurrency {
   thousands_token?: string
 }
 
+export interface MoneyFormat {
+  currency_location: 'left' | 'right'
+  currency_token: string
+  decimal_token: string
+  decimal_places: number
+  thousands_token: string
+  currency_exchange_rate: string
+}
+
 export interface OrderPayment {
   updatedAt?: string
   billingAddress?: Address
@@ -193,7 +202,7 @@ export interface B2BOrderData {
   itemsShipped: number
   itemsTotal: number
   lastName: string
-  money: OrderCurrency
+  money: MoneyFormat
   orderHistoryEvent: OrderHistoryItem[]
   orderIsDigital: boolean
   paymentMethod: string
