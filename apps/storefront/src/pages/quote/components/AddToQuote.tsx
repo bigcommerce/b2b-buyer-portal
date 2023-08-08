@@ -218,13 +218,14 @@ export default function AddToQuote(props: AddToListProps) {
         )
 
         const variantItem = currentProductSearch.variants.find(
-          (item: CustomFieldItems) => item.sku === variantSku
+          (item: CustomFieldItems) =>
+            item?.sku?.toUpperCase() === variantSku?.toUpperCase()
         )
 
         const quoteListitem = {
           node: {
             id: uuid(),
-            variantSku: variantItem.sku,
+            variantSku: variantItem?.sku,
             variantId,
             productsSearch: currentProductSearch,
             primaryImage: variantItem.image_url || PRODUCT_DEFAULT_IMAGE,

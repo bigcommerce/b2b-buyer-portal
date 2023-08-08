@@ -269,7 +269,7 @@ export const getB2BAddressConfig = (): CustomFieldItems =>
 export const getBCCustomerAddress = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: getCustomerAddress(data),
   })
 
@@ -283,7 +283,7 @@ export const deleteB2BAddress = (
 export const deleteBCCustomerAddress = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: deleteCustomerAddress(data),
   })
 
@@ -304,12 +304,12 @@ export const createB2BAddress = (
 export const createBcAddress = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: createCustomerAddress(data),
   })
 export const updateBcAddress = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: updateCustomerAddress(data),
   })

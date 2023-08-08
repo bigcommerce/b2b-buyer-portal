@@ -345,7 +345,7 @@ const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
 }`
 
 export const getBCCustomerAddresses = (): CustomFieldItems =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: getCustomerAddresses(),
   })
 
@@ -360,7 +360,7 @@ export const getB2BQuotesList = (data: CustomFieldItems): CustomFieldItems =>
   })
 
 export const getBCQuotesList = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: getQuotesList(data, 'bc'),
   })
 
@@ -373,7 +373,7 @@ export const createQuote = (data: CustomFieldItems): CustomFieldItems =>
   )
 
 export const createBCQuote = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2B(
+  B3Request.graphqlB2BWithBCCustomerToken(
     {
       query: quoteCreate(data),
     },
@@ -386,7 +386,7 @@ export const updateB2BQuote = (data: CustomFieldItems): CustomFieldItems =>
   })
 
 export const updateBCQuote = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: quoteUpdate(data),
   })
 
