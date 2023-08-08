@@ -108,7 +108,7 @@ const B3Request = {
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
   /**
-   * super admin
+   * super admin / pending company
    * Request to B2B graphql API using BC JWT Token
    */
   graphqlB2BWithBCCustomerToken: function post<T>(

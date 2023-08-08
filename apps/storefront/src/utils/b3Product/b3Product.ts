@@ -674,7 +674,7 @@ const getCalculatedProductPrice = async (
   const { variants = [] } = productsSearch
 
   const variantItem = variants.find(
-    (item: Partial<Variant>) => item.sku === sku
+    (item: Partial<Variant>) => item.sku?.toUpperCase() === sku.toUpperCase()
   )
 
   if (variantItem) {
