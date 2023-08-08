@@ -4,9 +4,10 @@ const useSort = <T>(
   sortKeys: { [key: string]: string },
   initKey: string,
   filterData: T,
-  setFilterData: React.Dispatch<React.SetStateAction<T>>
+  setFilterData: React.Dispatch<React.SetStateAction<T>>,
+  sortDirection?: 'asc' | 'desc'
 ): [(e: { key: string }) => void, 'asc' | 'desc', string] => {
-  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
+  const [order, setOrder] = useState<'asc' | 'desc'>(sortDirection || 'desc')
   const [orderBy, setOrderBy] = useState<string>(initKey)
 
   const handleSetOrderBy = (e: { key: string }) => {

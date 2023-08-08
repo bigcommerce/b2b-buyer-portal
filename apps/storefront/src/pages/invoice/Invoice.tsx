@@ -63,7 +63,7 @@ const initFilter = {
   q: '',
   first: 10,
   offset: 0,
-  orderBy: sortIdArr[defaultSortKey],
+  orderBy: `-${sortIdArr[defaultSortKey]}`,
 }
 
 function Invoice() {
