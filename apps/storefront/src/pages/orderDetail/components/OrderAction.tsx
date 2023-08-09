@@ -408,8 +408,7 @@ export default function OrderAction(props: OrderActionProps) {
           key: 'aboutInvoice',
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
-          isCanShow:
-            (!isB2BUser || +ipStatus !== 0) && createdEmail === emailAddress,
+          isCanShow: createdEmail === emailAddress,
         },
       ],
       infos: {
