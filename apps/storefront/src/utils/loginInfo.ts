@@ -9,7 +9,7 @@ import {
 import { getBcCurrentJWT, getCustomerInfo } from '@/shared/service/bc'
 import { B3LStorage, B3SStorage, storeHash } from '@/utils'
 
-const { VITE_B2B_CLIENT_ID } = import.meta.env
+const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
 
 interface ChannelIdProps {
   channelId: number
@@ -19,6 +19,7 @@ interface ChannelIdProps {
   b3ChannelId?: number
   type: string
   platform: string
+  isEnabled: boolean
 }
 
 type B2BToken = {
@@ -41,21 +42,25 @@ export interface ChannelStoreSites {
   storeSites?: Array<ChannelIdProps> | []
 }
 
-export const getCurrentStoreInfo = (storeSites: Array<ChannelIdProps>) => {
+export const getCurrentStoreInfo = (
+  storeSites: Array<ChannelIdProps>
+): Partial<ChannelIdProps> => {
   const newStoreSites =
-    storeSites.filter(
-      (site: ChannelIdProps) =>
-        site.type === 'storefront' && site.platform === 'bigcommerce'
-    ) || []
+    storeSites.filter((site: ChannelIdProps) => !!site.isEnabled) || []
 
-  const store: ChannelIdProps = {
-    channelId: 1,
-    urls: [],
-    b2bEnabled: true,
-    channelLogo: '',
-    b3ChannelId: 16,
-    type: 'storefront',
-    platform: 'bigcommerce',
+  let store: ChannelIdProps | {} = {}
+
+  if (VITE_LOCAL_DEBUG) {
+    store = {
+      channelId: 1,
+      urls: [],
+      b2bEnabled: true,
+      channelLogo: '',
+      b3ChannelId: 16,
+      type: 'storefront',
+      platform: 'bigcommerce',
+      isEnabled: true,
+    }
   }
 
   const { origin } = window.location
