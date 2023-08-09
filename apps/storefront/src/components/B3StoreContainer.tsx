@@ -3,7 +3,8 @@ import { ReactNode, useContext, useLayoutEffect } from 'react'
 import { B3PageMask, showPageMask } from '@/components'
 import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
-import { B3SStorage } from '@/utils'
+import { setHeadLessBcUrl, store } from '@/store'
+import { B3SStorage, storeHash } from '@/utils'
 import { getCurrentStoreInfo } from '@/utils/loginInfo'
 
 interface B3StoreContainerProps {
@@ -44,14 +45,23 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
       try {
         const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
 
+        const storeInfo = getCurrentStoreInfo(
+          (storeBasicInfo as StoreBasicInfo)?.storeSites || []
+        )
+
+        if (!storeInfo?.channelId) return
+
         const {
           channelId,
           b3ChannelId: b2bChannelId,
           b2bEnabled: storeEnabled,
-        } = getCurrentStoreInfo(
-          (storeBasicInfo as StoreBasicInfo)?.storeSites || []
-        )
+          platform,
+        } = storeInfo
 
+        const bcUrl =
+          platform === 'next'
+            ? `https://store-${storeHash}-${channelId}.mybigcommerce.com`
+            : ''
         const isEnabled = storeBasicInfo?.multiStorefrontEnabled
           ? storeEnabled
           : true
@@ -71,8 +81,10 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
           showPageMask(dispatch, false)
         }
 
+        store.dispatch(setHeadLessBcUrl(bcUrl))
         B3SStorage.set('timeFormat', storeBasicInfo.timeFormat)
         B3SStorage.set('B3channelId', channelId)
+        B3SStorage.set('bcUrl', bcUrl)
         sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled))
       } catch (error) {
         showPageMask(dispatch, false)
