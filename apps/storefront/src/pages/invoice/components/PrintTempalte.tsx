@@ -47,6 +47,8 @@ function PrintTempalte({ row }: PrintTempalteProps) {
       return
     }
 
+    if (!container?.current) return
+
     PDFObject.embed(invoicePDFUrl, container.current)
 
     setLoadding(false)
@@ -54,6 +56,10 @@ function PrintTempalte({ row }: PrintTempalteProps) {
 
   useEffect(() => {
     viewPrint()
+
+    return () => {
+      container.current = null
+    }
   }, [row])
 
   return (

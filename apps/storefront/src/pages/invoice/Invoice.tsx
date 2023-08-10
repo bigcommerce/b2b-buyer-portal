@@ -251,6 +251,12 @@ function Invoice() {
         snackbar.error('pdf url resolution error')
         return
       }
+
+      const { href } = window.location
+      if (!href.includes('invoice')) {
+        return
+      }
+
       window.open(pdfUrl, '_blank', 'fullscreen=yes')
     } catch (err) {
       console.error(err)
