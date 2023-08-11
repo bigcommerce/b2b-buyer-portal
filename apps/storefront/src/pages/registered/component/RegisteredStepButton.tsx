@@ -2,7 +2,6 @@ import { useB3Lang } from '@b3/lang'
 import { Box, useTheme } from '@mui/material'
 
 import { CustomButton } from '@/components'
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 
 import { steps } from '../config'
 
@@ -39,7 +38,6 @@ function RegisteredStepButton(props: any) {
             onClick={handleNext}
             sx={{
               backgroundColor: theme.palette.primary.main,
-              color: getContrastColor(theme.palette.primary.main),
             }}
           >
             {activeStep === steps.length - 1
@@ -52,7 +50,6 @@ function RegisteredStepButton(props: any) {
               onClick={handleBack}
               sx={{
                 backgroundColor: theme.palette.primary.main,
-                color: getContrastColor(theme.palette.primary.main),
                 mr: 1,
               }}
             >

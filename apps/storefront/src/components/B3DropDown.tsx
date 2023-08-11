@@ -1,4 +1,4 @@
-import { MouseEvent, useContext, useState } from 'react'
+import { MouseEvent, useState } from 'react'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
 import { Box } from '@mui/material'
@@ -8,9 +8,6 @@ import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 
 import { useMobile } from '@/hooks'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-
-import { getContrastColor } from './outSideComponents/utils/b3CustomStyles'
 
 type ConfigProps = {
   name: string
@@ -34,12 +31,6 @@ export default function B3DropDown<T>({
   value,
   handleItemClick,
 }: B3DropDownProps<T>) {
-  const {
-    state: {
-      portalStyle: { backgroundColor = '#FEF9F5' },
-    },
-  } = useContext(CustomStyleContext)
-
   const [open, setOpen] = useState<null | HTMLElement>(null)
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
@@ -72,7 +63,6 @@ export default function B3DropDown<T>({
         onClick={handleClick}
         sx={{
           pr: 0,
-          color: getContrastColor(backgroundColor),
         }}
       >
         <ListItemText primary={title} />
