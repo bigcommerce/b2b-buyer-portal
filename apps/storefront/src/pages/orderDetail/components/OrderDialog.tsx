@@ -130,7 +130,7 @@ export default function OrderDialog({
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
       },
-      referrer: `${bcBaseUrl}/account.php?action=new_return&order_id=${orderId}`,
+      referrer: `${bcBaseUrl()}/account.php?action=new_return&order_id=${orderId}`,
       body: urlencoded,
       mode: 'no-cors',
     }
@@ -138,7 +138,7 @@ export default function OrderDialog({
     try {
       setIsRequestLoading(true)
       const returnResult = await fetch(
-        `${bcBaseUrl}/account.php?action=save_new_return`,
+        `${bcBaseUrl()}/account.php?action=save_new_return`,
         requestOptions
       )
       if (

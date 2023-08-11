@@ -3,7 +3,7 @@ declare interface CustomFieldItems {
 }
 
 declare interface CustomFieldStringItems {
-  [key: string]: string | number
+  [key: string]: string
 }
 
 declare interface Window {

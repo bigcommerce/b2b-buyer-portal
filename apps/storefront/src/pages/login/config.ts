@@ -97,7 +97,10 @@ export const loginCheckout = (data: LoginConfig) => {
     }),
   }
 
-  return fetch(`${bcBaseUrl}/internalapi/v1/checkout/customer`, requestOptions)
+  return fetch(
+    `${bcBaseUrl()}/internalapi/v1/checkout/customer`,
+    requestOptions
+  )
     .then((response) => response.text())
     .catch((error) => console.log('error', error))
 }
@@ -116,7 +119,7 @@ export const sendEmail = (emailAddress: string) => {
   }
 
   return fetch(
-    `${bcBaseUrl}/login.php?action=send_password_email`,
+    `${bcBaseUrl()}/login.php?action=send_password_email`,
     requestOptions
   )
     .then((response) => response.text())

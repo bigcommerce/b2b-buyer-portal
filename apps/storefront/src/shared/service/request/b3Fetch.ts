@@ -41,11 +41,15 @@ interface Config {
   }
 }
 
-const GraphqlEndpoints = {
-  B2BGraphql: `${B2B_BASIC_URL}/graphql`,
-  BCGraphql: `${bcBaseUrl}/graphql`,
-  BCProxyGraphql: `${B2B_BASIC_URL}/api/v3/proxy/bc-storefront/graphql`,
-} as const
+const GraphqlEndpointsFn = (type: string): string => {
+  const GraphqlEndpoints: CustomFieldStringItems = {
+    B2BGraphql: `${B2B_BASIC_URL}/graphql`,
+    BCGraphql: `${bcBaseUrl()}/graphql`,
+    BCProxyGraphql: `${B2B_BASIC_URL}/api/v3/proxy/bc-storefront/graphql`,
+  }
+
+  return GraphqlEndpoints[type] || ''
+}
 
 function request<T>(path: string, config?: T & Config, type?: string) {
   const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
@@ -75,7 +79,7 @@ function request<T>(path: string, config?: T & Config, type?: string) {
 }
 
 function graphqlRequest<T, Y>(
-  type: keyof typeof GraphqlEndpoints,
+  type: string,
   data: T,
   config?: Y,
   customMessage = false
@@ -89,7 +93,7 @@ function graphqlRequest<T, Y>(
     body: JSON.stringify(data),
   }
 
-  const url = GraphqlEndpoints[type]
+  const url = GraphqlEndpointsFn(type)
   return b3Fetch(url, init, type, customMessage)
 }
 
