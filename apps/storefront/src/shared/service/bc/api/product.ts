@@ -7,7 +7,7 @@ const getBCProductVariantId = (
   data: CustomFieldItems
 ): CustomFieldItems =>
   B3Request.post(
-    `${bcBaseUrl}/remote/v1/product-attributes/${productId}`,
+    `${bcBaseUrl()}/remote/v1/product-attributes/${productId}`,
     RequestType.BCRest,
     data
   )

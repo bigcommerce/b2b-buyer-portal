@@ -1,7 +1,11 @@
 import { Box, Button, Card, CardContent, Typography } from '@mui/material'
 
+interface CustomField {
+  [key: string]: string | number
+}
+
 interface DashboardCardProps {
-  row: CustomFieldStringItems
+  row: CustomField
   startActing: (id: number) => void
   endActing: () => void
   salesRepCompanyId?: number
