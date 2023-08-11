@@ -1,7 +1,6 @@
 import { Box, useTheme } from '@mui/material'
 
 import { CustomButton } from '@/components'
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
 
 import LoginWidget from './component/LoginWidget'
@@ -57,7 +56,6 @@ function LoginPanel(props: LoginPanelProps) {
           sx={{
             ml: isMobile ? 0 : 1,
             backgroundColor: theme.palette.primary.main,
-            color: getContrastColor(theme.palette.primary.main),
           }}
         >
           {CreateAccountButtonText}

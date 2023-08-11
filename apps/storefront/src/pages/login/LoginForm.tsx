@@ -90,7 +90,6 @@ function LoginForm(props: LoginFormProps) {
             variant="contained"
             sx={{
               backgroundColor: theme.palette.primary.main,
-              color: getContrastColor(theme.palette.primary.main),
             }}
           >
             {loginBtn}
