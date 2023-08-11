@@ -33,10 +33,6 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
 
   const [fileList, setFileList] = useState<FileObjects[]>([])
 
-  // useEffect(() => {
-  //   setFileList(defaultFileList)
-  // }, [defaultFileList])
-
   const uploadRef = useRef<UpLoaddingProps | null>(null)
 
   useEffect(() => {
@@ -141,7 +137,11 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
 
   return (
     <Card>
-      <CardContent>
+      <CardContent
+        sx={{
+          p: '16px !important',
+        }}
+      >
         <B3CollapseContainer title="Attachment">
           <Box>
             <FileUpload

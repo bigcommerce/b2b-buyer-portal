@@ -40,7 +40,11 @@ export default function QuoteNote(props: QuoteNoteProps) {
 
   return (
     <Card>
-      <CardContent>
+      <CardContent
+        sx={{
+          p: '16px !important',
+        }}
+      >
         <B3CollapseContainer
           title={quoteStatus && quoteStatus === 'Draft' ? 'Message' : 'Notes'}
           defaultOpen={defaultOpen}

@@ -140,22 +140,18 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
   const MUIMediaStyle = setMUIMediaStyle(mediaBlocks)
 
   const customStyles: SxProps = {
-    backgroundColor: `${color || '#FFFFFF'}`,
+    backgroundColor: `${color || '#ED6C02'}`,
     color: getContrastColor(color || '#FFFFFF'),
     padding: '0',
     ...getStyles(cssValue),
   }
 
   const isMobileCustomStyles: SxProps = {
-    backgroundColor: `${color || '#FFFFFF'}`,
+    backgroundColor: `${color || '#ED6C02'}`,
     color: getContrastColor(color || '#FFFFFF'),
   }
 
   const customBuyerPortalPagesStyles: SxProps = {
-    backgroundColor: `${color || '#FFFFFF'}`,
-    color: getContrastColor(color || '#FFFFFF'),
-    padding: '0',
-    ...getStyles(cssValue),
     bottom: '24px',
     left: '24px',
     right: 'auto',
@@ -175,7 +171,6 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         >
           <Button
             sx={{
-              backgroundColor: '#ED6C02',
               height: '42px',
               marginTop: '10px',
               ...customStyles,
@@ -197,7 +192,6 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
             borderRadius: '4px',
             height: '52px',
             fontSize: '16px',
-            backgroundColor: '#ED6C02',
             ...getPosition(horizontalPadding, verticalPadding, location),
             ...sx,
             ...customStyles,
@@ -281,12 +275,11 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         <Snackbar
           sx={{
             zIndex: '110000',
-            backgroundColor: '#ED6C02',
             borderRadius: '4px',
             height: '52px',
-            color: '#FFFFFF',
-            ...sx,
+            ...customStyles,
             ...customBuyerPortalPagesStyles,
+            ...sx,
           }}
           anchorOrigin={defaultLocation}
           open
@@ -365,10 +358,8 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         <Snackbar
           sx={{
             zIndex: '110000',
-            backgroundColor: '#ED6C02',
             borderRadius: '4px',
             height: '52px',
-            color: '#FFFFFF',
             ...sx,
             ...isMobileCustomStyles,
           }}

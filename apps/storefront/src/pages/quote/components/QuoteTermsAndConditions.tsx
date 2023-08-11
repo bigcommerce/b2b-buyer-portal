@@ -26,7 +26,11 @@ export default function QuoteTermsAndConditions(
         },
       }}
     >
-      <CardContent>
+      <CardContent
+        sx={{
+          p: '16px !important',
+        }}
+      >
         <B3CollapseContainer
           title="Terms and conditions"
           handleOnChange={handleOnChange}

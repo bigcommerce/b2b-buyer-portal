@@ -327,7 +327,11 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
 
   return (
     <Card>
-      <CardContent>
+      <CardContent
+        sx={{
+          p: '16px !important',
+        }}
+      >
         <B3CollapseContainer handleOnChange={handleOnChange} title={title}>
           <Box
             sx={{
