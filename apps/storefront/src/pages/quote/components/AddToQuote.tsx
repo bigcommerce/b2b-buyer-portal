@@ -277,7 +277,11 @@ export default function AddToQuote(props: AddToListProps) {
 
   return (
     <Card>
-      <CardContent>
+      <CardContent
+        sx={{
+          p: '16px !important',
+        }}
+      >
         <B3CollapseContainer title="Add to quote">
           <SearchProduct
             updateList={updateList}
