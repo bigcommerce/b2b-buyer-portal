@@ -53,6 +53,15 @@ function Row({ isRow = true, type = '', value, label, code }: RowProps) {
       const accountValue = handleGetCorrespondingCurrency(code, val)
       return accountValue
     }
+    if (type === 'paymentType') {
+      let val = `${value}`.trim()
+
+      if (value) {
+        val = val.slice(0, 1).toUpperCase() + val.slice(1).toLowerCase()
+      }
+
+      return val
+    }
     return value || '–'
   }
 
@@ -99,12 +108,12 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
     {
       key: 'paymentType',
       label: 'Payment type',
-      type: '',
+      type: 'paymentType',
       isRow: true,
     },
     {
       key: 'totalAmount',
-      label: 'Payment Total',
+      label: 'Payment total',
       type: 'currency',
       isRow: true,
     },
@@ -152,7 +161,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
       >
         <Title title="Invoices paid" withColon={false} />
         <Typography variant="body1">
-          Yo made payments towards the invoices shown below{' '}
+          You made payments towards the invoices shown below{' '}
         </Typography>
       </Box>
 
