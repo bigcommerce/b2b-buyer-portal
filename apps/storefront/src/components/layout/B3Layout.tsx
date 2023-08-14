@@ -2,7 +2,7 @@ import { ReactNode, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
 import { GlobaledContext } from '@/shared/global'
 import { routes } from '@/shared/routes'

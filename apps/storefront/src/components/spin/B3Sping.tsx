@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { CircularProgress, useTheme } from '@mui/material'
 
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 
 import { SpinCenter, SpinContext, SpinTip } from './styled'
 

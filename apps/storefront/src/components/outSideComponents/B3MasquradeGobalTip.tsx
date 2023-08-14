@@ -6,7 +6,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import { Box, Button, SnackbarOrigin, SxProps } from '@mui/material'
 import Snackbar from '@mui/material/Snackbar'
 
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminEndMasquerade } from '@/shared/service/b2b'

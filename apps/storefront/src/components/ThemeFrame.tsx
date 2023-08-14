@@ -99,7 +99,7 @@ function ThemeFramePortal(props: ThemeFramePortalProps) {
   )
 }
 
-export function ThemeFrame(props: ThemeFrameProps) {
+export default function ThemeFrame(props: ThemeFrameProps) {
   const { title, className, fontUrl, customStyles, children, bodyRef, isOpen } =
     props
   const iframeRef = useRef<HTMLIFrameElement>(null)

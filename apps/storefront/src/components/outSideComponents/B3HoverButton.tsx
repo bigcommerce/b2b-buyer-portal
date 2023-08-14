@@ -8,7 +8,7 @@ import {
 import type { OpenPageState } from '@b3/hooks'
 import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material'
 
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { B3LStorage } from '@/utils'
 

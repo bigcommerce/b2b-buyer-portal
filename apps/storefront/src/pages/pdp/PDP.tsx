@@ -1,5 +1,6 @@
 import {
   Dispatch,
+  lazy,
   SetStateAction,
   useContext,
   useEffect,
@@ -27,8 +28,14 @@ import {
 } from '@/utils'
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config'
-import CreateShoppingList from '../orderDetail/components/CreateShoppingList'
-import OrderShoppingList from '../orderDetail/components/OrderShoppingList'
+
+const CreateShoppingList = lazy(
+  () => import('../orderDetail/components/CreateShoppingList')
+)
+
+const OrderShoppingList = lazy(
+  () => import('../orderDetail/components/OrderShoppingList')
+)
 
 interface PDPProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>

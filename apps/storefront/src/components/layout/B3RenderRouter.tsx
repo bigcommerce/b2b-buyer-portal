@@ -1,5 +1,6 @@
 import {
   Dispatch,
+  lazy,
   SetStateAction,
   Suspense,
   useContext,
@@ -14,7 +15,7 @@ import {
 } from 'react-router-dom'
 import type { OpenPageState } from '@b3/hooks'
 
-import { B3Layout, Loading } from '@/components'
+// import { B3Layout, Loading } from '@/components'
 import { RegisteredProvider } from '@/pages/registered/context/RegisteredContext'
 import { GlobaledContext } from '@/shared/global'
 import {
@@ -24,7 +25,13 @@ import {
   RouteItem,
 } from '@/shared/routes/routes'
 
-import B3LayoutTip from './B3LayoutTip'
+// import B3LayoutTip from './B3LayoutTip'
+
+const B3Layout = lazy(() => import('@/components/layout/B3Layout'))
+
+const Loading = lazy(() => import('@/components/loadding/Loading'))
+
+const B3LayoutTip = lazy(() => import('@/components/layout/B3LayoutTip'))
 
 interface B3RenderRouterProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>

@@ -1,14 +1,12 @@
-import { useContext, useRef, useState } from 'react'
+import { lazy, useContext, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Box } from '@mui/material'
 
-import { B3CustomForm, B3Dialog } from '@/components'
 import { GlobaledContext } from '@/shared/global'
-import {
-  createB2BShoppingList,
-  createBcShoppingList,
-} from '@/shared/service/b2b'
+import createShoppingList from '@/utils/b3ShoppingList'
 
+const B3Dialog = lazy(() => import('../../../components/B3Dialog'))
+const B3CustomForm = lazy(() => import('../../../components/B3CustomForm'))
 const list = [
   {
     name: 'name',
@@ -39,34 +37,6 @@ interface CreateShoppingListProps {
   open: boolean
   onChange: () => void
   onClose: () => void
-}
-
-interface CreateShoppingListParams {
-  data: { name: string; description: string }
-  isB2BUser: boolean
-  role: number
-  currentChannelId: number
-}
-
-export const createShoppingList = ({
-  data,
-  isB2BUser,
-  role,
-  currentChannelId,
-}: CreateShoppingListParams) => {
-  const createShoppingData: Record<string, string | number> = data
-  if (data.description.indexOf('\n') > -1) {
-    createShoppingData.description = data.description.split('\n').join('\\n')
-  }
-  const createSL = isB2BUser ? createB2BShoppingList : createBcShoppingList
-
-  if (isB2BUser) {
-    createShoppingData.status = +role === 2 ? 30 : 0
-  } else {
-    createShoppingData.channelId = currentChannelId
-  }
-
-  return createSL(createShoppingData)
 }
 
 function CreateShoppingList({

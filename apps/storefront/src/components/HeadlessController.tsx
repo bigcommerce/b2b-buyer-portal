@@ -4,13 +4,12 @@ import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 
 import { HeadlessRoutes } from '@/constants'
-import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks'
+import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP'
 import {
   addProductFromProductPageToQuote,
   addProductsFromCartToQuote,
   addProductsToDraftQuote,
 } from '@/hooks/dom/utils'
-import { createShoppingList } from '@/pages/orderDetail/components/CreateShoppingList'
 import { addProductsToShoppingList } from '@/pages/pdp/PDP'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
@@ -22,6 +21,7 @@ import {
   LineItems,
   startMasquerade,
 } from '@/utils'
+import createShoppingList from '@/utils/b3ShoppingList'
 
 interface HeadlessControllerProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>

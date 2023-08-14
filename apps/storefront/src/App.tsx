@@ -1,19 +1,19 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { useB3AppOpen } from '@b3/hooks'
 
-import {
-  B3GlobalTip,
-  B3HoverButton,
-  B3MasquradeGobalTip,
-  B3RenderRouter,
-  GlobalDialog,
-  HeadlessController,
-  showPageMask,
-  ThemeFrame,
-} from '@/components'
-import { useDomHooks, useSetOpen } from '@/hooks'
+import B3RenderRouter from '@/components/layout/B3RenderRouter'
+import showPageMask from '@/components/loadding/B3showPageMask'
+import useDomHooks from '@/hooks/dom/useDomHooks'
+import useSetOpen from '@/hooks/useSetOpen'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { gotoAllowedAppPage } from '@/shared/routes'
@@ -40,6 +40,24 @@ import {
   setOpenPageReducer,
 } from './store'
 
+const B3GlobalTip = lazy(() => import('@/components/B3GlobalTip'))
+
+const B3HoverButton = lazy(
+  () => import('@/components/outSideComponents/B3HoverButton')
+)
+
+const B3MasquradeGobalTip = lazy(
+  () => import('@/components/outSideComponents/B3MasquradeGobalTip')
+)
+
+const GlobalDialog = lazy(() => import('@/components/extraTip/GlobalDialog'))
+
+const HeadlessController = lazy(() => import('@/components/HeadlessController'))
+
+const Loading = lazy(() => import('@/components/loadding/Loading'))
+
+const ThemeFrame = lazy(() => import('@/components/ThemeFrame'))
+
 const FONT_URL =
   'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
 
@@ -57,7 +75,6 @@ export default function App() {
       storefrontConfig,
       productQuoteEnabled,
       emailAddress,
-      // showPageMask
       registerEnabled,
     },
     dispatch,
@@ -320,16 +337,18 @@ export default function App() {
     <>
       <HashRouter>
         <div className="bundle-app">
-          <ThemeFrame
-            className={isOpen ? 'active-frame' : undefined}
-            fontUrl={FONT_URL}
-            customStyles={customStyles}
-            isOpen={isOpen}
-          >
-            {isOpen ? (
-              <B3RenderRouter openUrl={openUrl} setOpenPage={setOpenPage} />
-            ) : null}
-          </ThemeFrame>
+          <Suspense fallback={<Loading />}>
+            <ThemeFrame
+              className={isOpen ? 'active-frame' : undefined}
+              fontUrl={FONT_URL}
+              customStyles={customStyles}
+              isOpen={isOpen}
+            >
+              {isOpen ? (
+                <B3RenderRouter openUrl={openUrl} setOpenPage={setOpenPage} />
+              ) : null}
+            </ThemeFrame>
+          </Suspense>
         </div>
       </HashRouter>
       <B3MasquradeGobalTip setOpenPage={setOpenPage} isOpen={isOpen} />

@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from 'react'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 
-import { B3AddToQuoteTip } from '@/components'
+import B3AddToQuoteTip from '@/components/B3AddToQuoteTip'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { getCartInfoWithOptions } from '@/shared/service/bc'
 import {
