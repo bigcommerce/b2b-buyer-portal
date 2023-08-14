@@ -1,10 +1,10 @@
-import { useContext, useEffect } from 'react'
+import { lazy, useContext, useEffect } from 'react'
 import { flushSync } from 'react-dom'
 
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
 import { MsgsProps } from '@/shared/dynamicallyVariable/context/config'
 
-import B3Tip from './B3Tip'
+const B3Tip = lazy(() => import('./B3Tip'))
 
 export default function B3GlobalTip() {
   const {

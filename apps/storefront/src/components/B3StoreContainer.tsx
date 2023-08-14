@@ -1,11 +1,13 @@
 import { ReactNode, useContext, useLayoutEffect } from 'react'
 
-import { B3PageMask, showPageMask } from '@/components'
 import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
 import { setHeadLessBcUrl, store } from '@/store'
 import { B3SStorage, storeHash } from '@/utils'
 import { getCurrentStoreInfo } from '@/utils/loginInfo'
+
+import B3PageMask from './loadding/B3PageMask'
+import showPageMask from './loadding/B3showPageMask'
 
 interface B3StoreContainerProps {
   children: ReactNode
@@ -27,7 +29,7 @@ export interface StoreBasicInfo {
   storeName: string
 }
 
-export function B3StoreContainer(props: B3StoreContainerProps) {
+export default function B3StoreContainer(props: B3StoreContainerProps) {
   const {
     state: { storeEnabled },
     dispatch,

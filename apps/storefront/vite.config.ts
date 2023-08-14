@@ -3,6 +3,7 @@
 import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig, loadEnv } from 'vite'
 
 export default defineConfig(({ mode }) => {
@@ -37,13 +38,24 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         manualChunks: {
-          mui: ['@mui/material'],
           dropzone: ['react-mui-dropzone'],
-          muiIcon: ['@mui/icons-material'],
           muiPickers: ['@mui/x-date-pickers'],
           dateFns: ['date-fns'],
           lang: ['@b3/lang'],
+          pdfobject: ['pdfobject'],
+          resizable: ['react-resizable'],
+          pdf: ['react-pdf'],
+          toolkit: ['@reduxjs/toolkit'],
+          form: ['react-hook-form'],
         },
+        plugins: [
+          env.VITE_VISUALIZER === '1' &&
+            visualizer({
+              open: true,
+              gzipSize: true,
+              brotliSize: true,
+            }),
+        ],
       },
     },
   }

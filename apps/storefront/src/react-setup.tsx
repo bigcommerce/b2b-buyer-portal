@@ -6,7 +6,7 @@ import { CustomStyleProvider } from '@/shared/customStyleButtton'
 import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable'
 import { GlobalProvider } from '@/shared/global'
 
-import { B3StoreContainer } from './components/B3StoreContainer'
+import B3StoreContainer from './components/B3StoreContainer'
 import { createFrameLoading } from './utils/b3PageMask'
 import App from './App'
 import { SUPPORT_LANGUAGE } from './constants'

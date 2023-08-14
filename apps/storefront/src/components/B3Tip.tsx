@@ -1,6 +1,6 @@
 import { Alert, AlertTitle, Box, Snackbar } from '@mui/material'
 
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import {
   MsgsProps,
   TipMessagesProps,
