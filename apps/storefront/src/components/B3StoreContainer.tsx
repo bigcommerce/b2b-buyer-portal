@@ -46,7 +46,8 @@ export function B3StoreContainer(props: B3StoreContainerProps) {
         const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
 
         const storeInfo = getCurrentStoreInfo(
-          (storeBasicInfo as StoreBasicInfo)?.storeSites || []
+          (storeBasicInfo as StoreBasicInfo)?.storeSites || [],
+          storeBasicInfo.multiStorefrontEnabled
         )
 
         if (!storeInfo?.channelId) return

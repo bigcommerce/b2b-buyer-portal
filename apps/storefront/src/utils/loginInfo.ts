@@ -43,7 +43,8 @@ export interface ChannelStoreSites {
 }
 
 export const getCurrentStoreInfo = (
-  storeSites: Array<ChannelIdProps>
+  storeSites: Array<ChannelIdProps>,
+  multiStorefrontEnabled: boolean
 ): Partial<ChannelIdProps> => {
   const newStoreSites =
     storeSites.filter((site: ChannelIdProps) => !!site.isEnabled) || []
@@ -57,6 +58,19 @@ export const getCurrentStoreInfo = (
       b2bEnabled: true,
       channelLogo: '',
       b3ChannelId: 16,
+      type: 'storefront',
+      platform: 'bigcommerce',
+      isEnabled: true,
+    }
+  }
+
+  if (!multiStorefrontEnabled) {
+    store = {
+      channelId: 1,
+      urls: [],
+      b2bEnabled: true,
+      channelLogo: '',
+      b3ChannelId: 1,
       type: 'storefront',
       platform: 'bigcommerce',
       isEnabled: true,
