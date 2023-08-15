@@ -21,7 +21,7 @@ import {
   LineItems,
   startMasquerade,
 } from '@/utils'
-import createShoppingList from '@/utils/b3ShoppingList'
+import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
 
 interface HeadlessControllerProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
