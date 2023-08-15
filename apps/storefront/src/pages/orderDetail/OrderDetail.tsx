@@ -22,6 +22,7 @@ import {
 import {
   AddressConfigItem,
   OrderDetailsResponse,
+  OrderStatusItem,
   OrderStatusResponse,
 } from '../../types'
 import OrderStatus from '../order/components/OrderStatus'
@@ -56,7 +57,13 @@ function OrderDetail() {
   } = useContext(GlobaledContext)
 
   const {
-    state: { poNumber, status = '', customStatus, orderSummary },
+    state: {
+      poNumber,
+      status = '',
+      customStatus,
+      orderSummary,
+      orderStatus = [],
+    },
     state: detailsData,
     dispatch,
   } = useContext(OrderDetailsContext)
@@ -183,6 +190,10 @@ function OrderDetail() {
     getAddressLabelPermission()
   }, [])
 
+  const getOrderStatusLabel = (status: string) =>
+    orderStatus.find((item: OrderStatusItem) => item.systemLabel === status)
+      ?.customLabel || customStatus
+
   return (
     <B3Sping isSpinning={isRequestLoading} background="rgba(255,255,255,0.2)">
       <Box
@@ -243,7 +254,7 @@ function OrderDetail() {
               {`Order #${orderId}`}
               {poNumber && `, ${poNumber}`}
             </Typography>
-            <OrderStatus code={status} text={customStatus} />
+            <OrderStatus code={status} text={getOrderStatusLabel(status)} />
           </Grid>
           <Grid
             container
