@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Box } from '@mui/material'
 
 import { GlobaledContext } from '@/shared/global'
-import createShoppingList from '@/utils/b3ShoppingList'
+import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
 
 const B3Dialog = lazy(() => import('../../../components/B3Dialog'))
 const B3CustomForm = lazy(() => import('../../../components/B3CustomForm'))
