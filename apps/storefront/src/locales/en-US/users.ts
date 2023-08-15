@@ -3,12 +3,12 @@ export default {
   'intl.user.register.title.registerComplete.warning':
     'Application has been submitted',
   'intl.user.register.title.accountCreated': 'Registration complete!',
-  'intl.user.register.title.accountRegister': 'Account Registration',
+  'intl.user.register.title.accountRegister': 'Account registration',
   'intl.user.register.title.attachments': 'Attachments',
   'intl.user.register.title.bcToB2B.businessAccountApplication':
     'Business Account Application',
   'intl.user.register.title.address': 'Address',
-  'intl.user.register.title.businessDetails': 'Business Details',
+  'intl.user.register.title.businessDetails': 'Business details',
 
   'intl.user.register.step.optional': 'Optional',
   'intl.user.register.step.account': 'Account',
@@ -29,13 +29,13 @@ export default {
   'intl.user.register.registeredAccount.loginb2b':
     'to apply for a business account',
 
-  'intl.user.register.registeredAccount.accountType': 'Account Type',
-  'intl.user.register.registeredAccount.businessAccount': 'Business Account',
-  'intl.user.register.registeredAccount.personalAccount': 'Personal Account',
+  'intl.user.register.registeredAccount.accountType': 'Account type',
+  'intl.user.register.registeredAccount.businessAccount': 'Business account',
+  'intl.user.register.registeredAccount.personalAccount': 'Personal account',
   'intl.user.register.registeredAccount.contactInformation':
-    'Contact Information',
+    'Contact information',
   'intl.user.register.registeredAccount.additionalInformation':
-    'Additional Information',
+    'Additional information',
 
   'intl.user.register.validatorRules.email':
     'Please use a valid email address, such as user@example.com.',
@@ -62,11 +62,11 @@ export default {
   'intl.user.register.tips.registerLogo': 'register Logo',
 
   // complete page
-  'intl.user.register.RegisterComplete.title': 'Complete Registration',
+  'intl.user.register.RegisterComplete.title': 'Complete registration',
   'intl.user.register.RegisterComplete.passwordMatchPrompt':
     'Your passwords do not match.',
   'intl.user.register.RegisterComplete.email': 'email',
-  'intl.user.register.RegisterComplete.confirmPassword': 'Confirm Password',
+  'intl.user.register.RegisterComplete.confirmPassword': 'Confirm password',
 
   // finish page
   'intl.user.register.RegisterFinish.autoApproved.tip':
@@ -95,10 +95,10 @@ export default {
     "Your email address or password is incorrect. Please try again. If you've forgotten your sign in details, just click the 'Forgot your password?' link below.",
 
   'intl.user.login.loginText.forgotPasswordText': 'Forgot your password ?',
-  'intl.user.login.loginText.emailAddress': 'Email Address',
+  'intl.user.login.loginText.emailAddress': 'Email address',
   'intl.user.login.loginText.password': 'Password',
 
-  'intl.user.forgot.forgotText.resetPassword': 'Reset Password',
+  'intl.user.forgot.forgotText.resetPassword': 'Reset password',
   'intl.user.forgot.forgotText.requestEmail':
     'Fill in your email below to request a new password. An email will be sent to the address below containing a link to verify your email address.',
   'intl.user.forgot.forgotText.resetPasswordBtn': 'Reset Password',

@@ -63,6 +63,8 @@ function ForgotPassword(props: ForgotPasswordProps) {
     <B3Card setOpenPage={setOpenPage}>
       <Box
         sx={{
+          bgcolor: '#FFFFFF',
+          borderRadius: '4px',
           display: 'flex',
           flexDirection: 'column',
           mr: 'auto',
@@ -70,29 +72,29 @@ function ForgotPassword(props: ForgotPasswordProps) {
           maxWidth: '537px',
         }}
       >
-        {logo && displayStoreLogo && (
-          <LoginImage>
-            <ImageListItem
-              sx={{
-                maxWidth: isMobile ? '175px' : '250px',
-              }}
-              onClick={() => {
-                window.location.href = '/'
-              }}
-            >
-              <img
-                src={`${logo}`}
-                alt={b3Lang('intl.user.register.tips.registerLogo')}
-                loading="lazy"
-              />
-            </ImageListItem>
-          </LoginImage>
-        )}
+        <Box sx={{ mt: '20px' }}>
+          {logo && displayStoreLogo && (
+            <LoginImage>
+              <ImageListItem
+                sx={{
+                  maxWidth: isMobile ? '175px' : '250px',
+                }}
+                onClick={() => {
+                  window.location.href = '/'
+                }}
+              >
+                <img
+                  src={`${logo}`}
+                  alt={b3Lang('intl.user.register.tips.registerLogo')}
+                  loading="lazy"
+                />
+              </ImageListItem>
+            </LoginImage>
+          )}
+        </Box>
         <Box
           sx={{
-            bgcolor: '#FFFFFF',
-            borderRadius: '4px',
-            margin: '30px 0 0 0',
+            margin: '20px 0 0 0',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
