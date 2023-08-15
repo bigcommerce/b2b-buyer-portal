@@ -144,7 +144,7 @@ function QuickorderTable({
     q: '',
     beginDateAt: distanceDay(90),
     endDateAt: distanceDay(0),
-    orderBy: sortKeys[defaultSortKey],
+    orderBy: `-${sortKeys[defaultSortKey]}`,
   })
 
   const [handleSetOrderBy, order, orderBy] = useSort(
