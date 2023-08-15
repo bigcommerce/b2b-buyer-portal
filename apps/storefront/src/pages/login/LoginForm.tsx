@@ -55,7 +55,7 @@ function LoginForm(props: LoginFormProps) {
           alignItems: 'center',
         }}
       >
-        Sign In
+        Sign in
       </Typography>
       <Box
         sx={{

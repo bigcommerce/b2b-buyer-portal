@@ -268,25 +268,6 @@ export default function Login(props: RegisteredProps) {
           >
             {loginInfo && (
               <>
-                {logo && loginInfo?.displayStoreLogo && (
-                  <LoginImage>
-                    <ImageListItem
-                      sx={{
-                        maxWidth: isMobile ? '70%' : '250px',
-                      }}
-                      onClick={() => {
-                        window.location.href = '/'
-                      }}
-                    >
-                      <img
-                        src={`${logo}`}
-                        alt={b3Lang('intl.user.register.tips.registerLogo')}
-                        loading="lazy"
-                      />
-                    </ImageListItem>
-                  </LoginImage>
-                )}
-
                 {flag && showTipInfo && (
                   <Box
                     sx={{
@@ -330,41 +311,73 @@ export default function Login(props: RegisteredProps) {
                       borderRadius: '4px',
                       margin: '20px 0',
                       display: 'flex',
-                      flexDirection: isMobile ? 'column' : 'row',
+                      flexDirection: 'column',
                       justifyContent: 'center',
                       width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
                     }}
                   >
-                    <Box
-                      sx={{
-                        width: isMobile ? 'auto' : loginContainerWidth,
-                        paddingRight: isMobile ? 0 : '2%',
-                        ml: '16px',
-                        mr: isMobile ? '16px' : '',
-                        pb: registerEnabled ? '' : '36px',
-                      }}
-                    >
-                      <LoginForm
-                        loginInfo={loginInfo}
-                        gotoForgotPassword={gotoForgotPassword}
-                        handleLoginSubmit={handleLoginSubmit}
-                        backgroundColor={backgroundColor}
-                      />
-                    </Box>
-
-                    {registerEnabled && (
-                      <Box
-                        sx={{
-                          flex: '1',
-                          paddingLeft: isMobile ? 0 : '2%',
-                        }}
-                      >
-                        <LoginPanel
-                          loginInfo={loginInfo}
-                          handleSubmit={handleCreateAccountSubmit}
-                        />
+                    {logo && loginInfo?.displayStoreLogo && (
+                      <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
+                        <LoginImage>
+                          <ImageListItem
+                            sx={{
+                              maxWidth: isMobile ? '70%' : '250px',
+                            }}
+                            onClick={() => {
+                              window.location.href = '/'
+                            }}
+                          >
+                            <img
+                              src={`${logo}`}
+                              alt={b3Lang(
+                                'intl.user.register.tips.registerLogo'
+                              )}
+                              loading="lazy"
+                            />
+                          </ImageListItem>
+                        </LoginImage>
                       </Box>
                     )}
+                    <Box
+                      sx={{
+                        mb: '20px',
+                        display: 'flex',
+                        flexDirection: isMobile ? 'column' : 'row',
+                        justifyContent: 'center',
+                        width: isMobile ? 'auto' : '100%',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: isMobile ? 'auto' : loginContainerWidth,
+                          paddingRight: isMobile ? 0 : '2%',
+                          ml: '16px',
+                          mr: isMobile ? '16px' : '',
+                          pb: registerEnabled ? '' : '36px',
+                        }}
+                      >
+                        <LoginForm
+                          loginInfo={loginInfo}
+                          gotoForgotPassword={gotoForgotPassword}
+                          handleLoginSubmit={handleLoginSubmit}
+                          backgroundColor={backgroundColor}
+                        />
+                      </Box>
+
+                      {registerEnabled && (
+                        <Box
+                          sx={{
+                            flex: '1',
+                            paddingLeft: isMobile ? 0 : '2%',
+                          }}
+                        >
+                          <LoginPanel
+                            loginInfo={loginInfo}
+                            handleSubmit={handleCreateAccountSubmit}
+                          />
+                        </Box>
+                      )}
+                    </Box>
                   </Box>
 
                   {loginInfo.widgetFooterText && (
