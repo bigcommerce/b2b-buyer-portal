@@ -1,5 +1,6 @@
 export { default as useCartToQuote } from './dom/useCartToQuote'
 export { default as useDomHooks } from './dom/useDomHooks'
+export { default as useHideGoogleCustomerReviews } from './dom/useHideGoogleCustomerReviews'
 export { default as useMyQuote } from './dom/useMyQuote'
 export * from './dom/useOpenPDP'
 export { default as useRegisteredbctob2b } from './dom/useRegisteredbctob2b'

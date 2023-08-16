@@ -5,6 +5,7 @@ import { GlobaledContext } from '@/shared/global'
 import { removeCartPermissions } from '@/utils/b3RolePermissions'
 
 import useCartToQuote from './useCartToQuote'
+import useHideGoogleCustomerReviews from './useHideGoogleCustomerReviews'
 import useMyQuote from './useMyQuote'
 import { useOpenPDP } from './useOpenPDP'
 import useRegisteredbctob2b from './useRegisteredbctob2b'
@@ -12,9 +13,10 @@ import useRegisteredbctob2b from './useRegisteredbctob2b'
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 interface MutationObserverProps {
   setOpenPage: DispatchProps
+  isOpen: boolean
 }
 
-const useDomHooks = ({ setOpenPage }: MutationObserverProps) => {
+const useDomHooks = ({ setOpenPage, isOpen }: MutationObserverProps) => {
   const {
     state: {
       customerId,
@@ -49,6 +51,8 @@ const useDomHooks = ({ setOpenPage }: MutationObserverProps) => {
     setOpenPage,
     cartQuoteEnabled,
   })
+
+  useHideGoogleCustomerReviews({ isOpen })
 }
 
 export default useDomHooks
