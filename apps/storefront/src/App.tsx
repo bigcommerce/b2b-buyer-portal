@@ -124,7 +124,7 @@ export default function App() {
 
   const [customStyles, setCustomStyle] = useState<string>(CUSTOM_STYLES)
 
-  useDomHooks({ setOpenPage })
+  useDomHooks({ setOpenPage, isOpen })
 
   // open storefront
   useSetOpen(isOpen, openUrl, params)
