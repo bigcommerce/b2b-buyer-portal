@@ -2,7 +2,7 @@
 /// <reference types="vitest" />
 import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
-import path from 'path'
+import path from 'path' // eslint-disable-line
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig, loadEnv } from 'vite'
 

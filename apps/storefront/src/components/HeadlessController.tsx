@@ -15,6 +15,7 @@ import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
 import B3Request from '@/shared/service/request/b3Fetch'
 import {
+  B3LStorage,
   B3SStorage,
   endMasquerade,
   getCurrentCustomerInfo,
@@ -22,6 +23,40 @@ import {
   startMasquerade,
 } from '@/utils'
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
+
+interface QuoteDraftItem {
+  node: {
+    basePrice: string
+    id: string
+    optionList: string
+    primaryImage: string
+    productId: number
+    productName: string
+    quantity: number
+    taxPrice: string
+    variantId: number
+    variantSku: string
+    calculatedValue: Record<
+      string,
+      string | number | Array<string | number> | Record<string, string | number>
+    >
+    productsSearch: Record<
+      string,
+      string | number | Array<string | number> | Record<string, string | number>
+    >
+  }
+}
+
+export interface FormatedQuoteItem
+  extends Omit<
+    QuoteDraftItem['node'],
+    'optionList' | 'calculatedValue' | 'productsSearch'
+  > {
+  optionSelections: {
+    optionId: string | number
+    optionValue: number
+  }[]
+}
 
 interface HeadlessControllerProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
@@ -43,6 +78,39 @@ const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
       ),
     }
   })
+
+const getDraftQuote = () => {
+  const itemsList: QuoteDraftItem[] = B3LStorage.get('b2bQuoteDraftList')
+  let productList: FormatedQuoteItem[] = []
+
+  if (itemsList.length) {
+    productList = itemsList.map(
+      ({
+        node: { optionList, calculatedValue, productsSearch, ...restItem },
+      }) => {
+        const parsedOptionList: Record<string, string>[] =
+          JSON.parse(optionList)
+        const optionSelections = parsedOptionList.map(
+          ({ optionId, optionValue }) => {
+            const optionIdFormated = optionId.match(/\d+/)
+            return {
+              optionId: optionIdFormated?.length
+                ? +optionIdFormated[0]
+                : optionId,
+              optionValue: +optionValue,
+            }
+          }
+        )
+        return {
+          ...restItem,
+          optionSelections,
+        }
+      }
+    )
+  }
+
+  return { productList }
+}
 
 export default function HeadlessController({
   setOpenPage,
@@ -118,6 +186,7 @@ export default function HeadlessController({
           addProductFromPage: addProductFromPageToQuoteRef.current,
           addProductsFromCart: () => addProductsFromCart(),
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
+          getCurrent: getDraftQuote,
         },
         user: {
           getProfile: () => ({ ...customerRef.current, role }),
