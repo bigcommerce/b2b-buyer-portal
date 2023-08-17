@@ -22,6 +22,7 @@ import {
   displayFormat,
   getUTCTimestamp,
 } from './b3DateFormat'
+import { getLineNumber, getTextLenPX } from './b3GetTextLenPX'
 import handleHideRegisterPage from './b3HideRegister'
 import { getLogo, getQuoteEnabled } from './b3Init'
 import { showPageMask } from './b3PageMask'
@@ -77,12 +78,14 @@ export {
   getCurrentCustomerInfo,
   getCurrentJwt,
   getDefaultCurrencyInfo,
+  getLineNumber,
   getLogo,
   getProductOptionList,
   getProductPriceIncTax,
   getProxyInfo,
   getQuoteEnabled,
   getSearchVal,
+  getTextLenPX,
   getUTCTimestamp,
   globalSnackbar,
   handleGetCorrespondingCurrency,
