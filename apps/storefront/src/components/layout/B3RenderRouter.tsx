@@ -15,6 +15,7 @@ import {
 } from 'react-router-dom'
 import type { OpenPageState } from '@b3/hooks'
 
+import Loading from '@/components/loadding/Loading'
 // import { B3Layout, Loading } from '@/components'
 import { RegisteredProvider } from '@/pages/registered/context/RegisteredContext'
 import { GlobaledContext } from '@/shared/global'
@@ -28,8 +29,6 @@ import {
 // import B3LayoutTip from './B3LayoutTip'
 
 const B3Layout = lazy(() => import('@/components/layout/B3Layout'))
-
-const Loading = lazy(() => import('@/components/loadding/Loading'))
 
 const B3LayoutTip = lazy(() => import('@/components/layout/B3LayoutTip'))
 

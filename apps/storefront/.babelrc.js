@@ -17,14 +17,6 @@ const plugins = [
     },
     'icons',
   ],
-  [
-    'import',
-    {
-      libraryName: 'lodash',
-      libraryDirectory: '',
-      camel2DashComponentName: false,
-    },
-  ],
 ]
 
 module.exports = { plugins }

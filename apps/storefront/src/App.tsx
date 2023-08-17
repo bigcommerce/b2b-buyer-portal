@@ -1,15 +1,9 @@
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { lazy, useCallback, useContext, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { useB3AppOpen } from '@b3/hooks'
 
+import GlobalDialog from '@/components/extraTip/GlobalDialog'
 import B3RenderRouter from '@/components/layout/B3RenderRouter'
 import showPageMask from '@/components/loadding/B3showPageMask'
 import useDomHooks from '@/hooks/dom/useDomHooks'
@@ -50,11 +44,7 @@ const B3MasquradeGobalTip = lazy(
   () => import('@/components/outSideComponents/B3MasquradeGobalTip')
 )
 
-const GlobalDialog = lazy(() => import('@/components/extraTip/GlobalDialog'))
-
 const HeadlessController = lazy(() => import('@/components/HeadlessController'))
-
-const Loading = lazy(() => import('@/components/loadding/Loading'))
 
 const ThemeFrame = lazy(() => import('@/components/ThemeFrame'))
 
@@ -337,18 +327,16 @@ export default function App() {
     <>
       <HashRouter>
         <div className="bundle-app">
-          <Suspense fallback={<Loading />}>
-            <ThemeFrame
-              className={isOpen ? 'active-frame' : undefined}
-              fontUrl={FONT_URL}
-              customStyles={customStyles}
-              isOpen={isOpen}
-            >
-              {isOpen ? (
-                <B3RenderRouter openUrl={openUrl} setOpenPage={setOpenPage} />
-              ) : null}
-            </ThemeFrame>
-          </Suspense>
+          <ThemeFrame
+            className={isOpen ? 'active-frame' : undefined}
+            fontUrl={FONT_URL}
+            customStyles={customStyles}
+            isOpen={isOpen}
+          >
+            {isOpen ? (
+              <B3RenderRouter openUrl={openUrl} setOpenPage={setOpenPage} />
+            ) : null}
+          </ThemeFrame>
         </div>
       </HashRouter>
       <B3MasquradeGobalTip setOpenPage={setOpenPage} isOpen={isOpen} />

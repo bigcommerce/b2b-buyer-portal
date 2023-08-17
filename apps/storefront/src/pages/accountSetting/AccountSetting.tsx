@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { B3Lang, useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
-import { trim } from 'lodash'
+import trim from 'lodash-es/trim'
 
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
 import {

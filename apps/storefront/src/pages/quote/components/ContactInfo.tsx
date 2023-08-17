@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle } from 'react'
 import { useForm } from 'react-hook-form'
 import { Box } from '@mui/material'
-import { trim } from 'lodash'
+import trim from 'lodash-es/trim'
 
 import { B3CustomForm } from '@/components'
 import { useMobile } from '@/hooks'

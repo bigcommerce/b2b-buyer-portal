@@ -1,4 +1,4 @@
-import { lazy, ReactElement, ReactNode, useContext, useRef } from 'react'
+import { ReactElement, ReactNode, useContext, useRef } from 'react'
 import {
   Box,
   Dialog,
@@ -12,8 +12,7 @@ import useScrollBar from '@/hooks/useScrollBar'
 import { GlobaledContext } from '@/shared/global'
 
 import CustomButton from './button/CustomButton'
-
-const B3Sping = lazy(() => import('./spin/B3Sping'))
+import B3Sping from './spin/B3Sping'
 
 interface B3DialogProps<T> {
   customActions?: () => ReactElement

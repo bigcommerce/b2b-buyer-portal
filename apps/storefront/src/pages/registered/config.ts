@@ -1,5 +1,5 @@
 import { B3Lang } from '@b3/lang'
-import { format } from 'date-fns'
+import format from 'date-fns/format'
 
 import { validatorRules } from '@/utils'
 

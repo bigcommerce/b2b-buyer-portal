@@ -1,4 +1,4 @@
-import { merge } from 'lodash'
+import merge from 'lodash-es/merge'
 
 import { B3SStorage } from '../b3Storage.js'
 
@@ -21,6 +21,7 @@ const formatCreator =
     const display = dateFormat[displayType]
 
     if (!timestamp) return ''
+
     const dateTime = isDateStr
       ? timestamp
       : parseInt(String(timestamp), 10) * 1000
