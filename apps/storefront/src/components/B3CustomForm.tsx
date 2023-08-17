@@ -20,7 +20,12 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
     fields.map((field: B3UI.B3CustomFormValue) => {
       const { fieldType } = field
       return (
-        <Grid item key={field.name} xs={field.xs || 6}>
+        <Grid
+          item
+          key={field.name}
+          xs={field.xs || 6}
+          id="b3-customForm-id-name"
+        >
           <>
             {['text', 'number', 'password', 'multiline'].includes(
               fieldType

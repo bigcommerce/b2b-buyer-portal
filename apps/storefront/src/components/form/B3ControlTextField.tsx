@@ -34,6 +34,8 @@ export default function B3ControlTextField({
     sx = {},
     isTip = false,
     tipText = '',
+    extraPadding,
+    fieldId,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -103,6 +105,11 @@ export default function B3ControlTextField({
     ;(event.target as HTMLElement).blur()
   }
 
+  const newExtraPadding =
+    fieldId === 'field_state' && extraPadding.paddingTop === '0px'
+      ? {}
+      : extraPadding
+
   return ['text', 'number', 'password', 'multiline'].includes(fieldType) ? (
     <>
       {labelName && (
@@ -123,6 +130,9 @@ export default function B3ControlTextField({
               {...rest}
               sx={{
                 color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
+                '& input': {
+                  ...newExtraPadding,
+                },
               }}
               allowarrow={allowArrow ? 1 : 0}
               inputProps={muiAttributeProps}
@@ -140,6 +150,12 @@ export default function B3ControlTextField({
               sx={{
                 color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
                 ...sx,
+                '& input': {
+                  ...newExtraPadding,
+                },
+                '& textarea': {
+                  ...newExtraPadding,
+                },
               }}
               inputProps={muiAttributeProps}
               error={!!errors[name]}

@@ -1,7 +1,7 @@
 import { B3Lang } from '@b3/lang'
 import format from 'date-fns/format'
 
-import { validatorRules } from '@/utils'
+import { getLineNumber, validatorRules } from '@/utils'
 
 const inputFormat = 'yyyy-MM-dd'
 
@@ -30,6 +30,9 @@ interface ValidateOptionItems extends Record<string, any> {
 }
 
 export type ContactInformationItems = Array<RegisterFields>
+export interface FieldSXConfigs {
+  [key: string]: string | number
+}
 
 interface AccountFormFieldsItemsValueConfigs {
   defaultValue?: string
@@ -57,6 +60,7 @@ export interface AccountFormFieldsItems {
   visible?: boolean
   custom?: boolean
   valueConfigs?: AccountFormFieldsItemsValueConfigs
+  sx?: FieldSXConfigs
 }
 
 type AccountFormFieldsList = Array<[]> | Array<AccountFormFieldsItems>
@@ -330,6 +334,37 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
     if (obj.fieldType === 'text' && obj.type === 'integer') {
       obj.fieldType = 'number'
     }
+
+    if (obj.label.length > 0) {
+      let originPaddingTop = 25
+      const isMobile = document.body.clientWidth <= 750
+      let lineNumber = getLineNumber(obj.label, 16)
+
+      if (obj.fieldType === 'multiline') {
+        originPaddingTop = 0
+      }
+      if (obj.fieldType === 'dropdown') {
+        originPaddingTop = 0
+        if (lineNumber > 1) {
+          lineNumber += isMobile ? 1.4 : 2
+        }
+
+        if (obj.fieldId === 'field_state') {
+          lineNumber -= isMobile ? 0 : 0.8
+        }
+      }
+
+      const paddingTopVal =
+        lineNumber === 1
+          ? `${originPaddingTop}px`
+          : `${originPaddingTop / 16 + (lineNumber - 1)}rem`
+      if (lineNumber > 0) {
+        obj.extraPadding = {
+          paddingTop: paddingTopVal,
+        }
+      }
+    }
+
     getFormFields[key].push(obj)
   })
 

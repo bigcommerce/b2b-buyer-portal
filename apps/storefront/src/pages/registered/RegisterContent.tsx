@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+import styled from '@emotion/styled'
 import { Box } from '@mui/material'
 
 import RegisterComplete from './RegisterComplete'
@@ -12,6 +13,18 @@ interface RegisterContentProps {
   handleNext: () => void
   handleFinish: () => void
 }
+
+export const StyledRegisterContent = styled(Box)({
+  '& #b3-customForm-id-name': {
+    '& label[data-shrink="true"]': {
+      whiteSpace: 'break-spaces',
+    },
+
+    '& label[data-shrink="false"]': {
+      whiteSpace: 'break-spaces',
+    },
+  },
+})
 
 export default function RegisterContent(props: RegisterContentProps) {
   const { activeStep, handleBack, handleNext, handleFinish } = props
@@ -57,5 +70,9 @@ export default function RegisterContent(props: RegisterContentProps) {
         return null
     }
   }
-  return <Box component="div">{renderStep(activeStep)}</Box>
+  return (
+    <StyledRegisterContent component="div">
+      {renderStep(activeStep)}
+    </StyledRegisterContent>
+  )
 }

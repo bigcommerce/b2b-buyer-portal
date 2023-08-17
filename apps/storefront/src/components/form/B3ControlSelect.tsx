@@ -30,6 +30,7 @@ export default function B3ControlSelect({
     replaceOptions,
     size = 'small',
     disabled = false,
+    extraPadding,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -96,6 +97,9 @@ export default function B3ControlSelect({
             {...onChangeProps}
             size={size}
             error={!!errors[name]}
+            sx={{
+              ...extraPadding,
+            }}
           >
             {options?.length &&
               options.map((option: any) => (
