@@ -36,10 +36,11 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      minify: true,
       rollupOptions: {
         manualChunks: {
-          dropzone: ['react-mui-dropzone'],
-          muiPickers: ['@mui/x-date-pickers'],
+          intl: ['react-intl'],
+          redux: ['react-redux'],
           dateFns: ['date-fns'],
           lang: ['@b3/lang'],
           pdfobject: ['pdfobject'],
@@ -47,6 +48,14 @@ export default defineConfig(({ mode }) => {
           pdf: ['react-pdf'],
           toolkit: ['@reduxjs/toolkit'],
           form: ['react-hook-form'],
+          router: ['react-router-dom'],
+          store: ['@b3/store'],
+          lodashEs: ['lodash-es'],
+          dropzone: ['react-dropzone'],
+          draggable: ['react-draggable'],
+          eCache: ['@emotion/cache'],
+          eReact: ['@emotion/react'],
+          eStyled: ['@emotion/styled'],
         },
         plugins: [
           env.VITE_VISUALIZER === '1' &&

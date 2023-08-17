@@ -1,5 +1,5 @@
-import { format } from 'date-fns'
-import { isEmpty } from 'lodash'
+import format from 'date-fns/format'
+import isEmpty from 'lodash-es/isEmpty'
 
 import { AllOptionProps, ALlOptionValue, Product } from '@/types/products'
 

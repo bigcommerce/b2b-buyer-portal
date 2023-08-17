@@ -7,7 +7,7 @@ import {
 } from 'react'
 import { useForm } from 'react-hook-form'
 import { Checkbox, FormControlLabel, styled } from '@mui/material'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash-es/cloneDeep'
 
 import { B3CustomForm, B3Dialog } from '@/components'
 import {

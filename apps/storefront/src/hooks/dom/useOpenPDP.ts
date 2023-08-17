@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash-es/cloneDeep'
 
 import {
   getContrastColor,

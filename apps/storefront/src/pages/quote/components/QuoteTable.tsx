@@ -1,7 +1,7 @@
 import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
 import { Delete, Edit } from '@mui/icons-material'
 import { Box, styled, TextField, Typography } from '@mui/material'
-import { ceil } from 'lodash'
+import ceil from 'lodash-es/ceil'
 
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'

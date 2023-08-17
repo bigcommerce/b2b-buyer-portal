@@ -8,7 +8,8 @@ import {
   useRef,
   useState,
 } from 'react'
-import { isEmpty, isEqual } from 'lodash'
+import isEmpty from 'lodash-es/isEmpty'
+import isEqual from 'lodash-es/isEqual'
 
 import { useMobile } from '@/hooks'
 

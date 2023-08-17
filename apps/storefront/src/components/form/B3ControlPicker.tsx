@@ -7,7 +7,7 @@ import { TextField } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { format } from 'date-fns'
+import format from 'date-fns/format'
 
 import { PickerFormControl } from './styled'
 import Form from './ui'

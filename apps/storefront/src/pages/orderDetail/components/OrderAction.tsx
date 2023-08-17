@@ -2,7 +2,7 @@ import { Fragment, ReactNode, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
-import { throttle } from 'lodash'
+import throttle from 'lodash-es/throttle'
 
 import { CustomButton } from '@/components'
 import { GlobaledContext } from '@/shared/global'

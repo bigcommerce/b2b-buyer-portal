@@ -1,5 +1,5 @@
 import { SnackbarOrigin } from '@mui/material'
-import { trim } from 'lodash'
+import trim from 'lodash-es/trim'
 
 interface RGBColor {
   r: number

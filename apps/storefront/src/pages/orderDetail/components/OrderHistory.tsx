@@ -2,7 +2,7 @@ import { useContext } from 'react'
 import { useSelector } from 'react-redux'
 import styled from '@emotion/styled'
 import { Card, CardContent, Typography } from '@mui/material'
-import { intlFormatDistance } from 'date-fns'
+import intlFormatDistance from 'date-fns/intlFormatDistance'
 
 import { B3Table, TableColumnItem } from '@/components/table/B3Table'
 import { useMobile } from '@/hooks'

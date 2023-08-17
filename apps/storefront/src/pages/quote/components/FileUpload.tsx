@@ -5,7 +5,7 @@ import AttachFileIcon from '@mui/icons-material/AttachFile'
 import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
 import { Box, Tooltip, Typography, useTheme } from '@mui/material'
-import { noop } from 'lodash'
+import noop from 'lodash-es/noop'
 import { v1 as uuid } from 'uuid'
 
 import { B3Sping } from '@/components'

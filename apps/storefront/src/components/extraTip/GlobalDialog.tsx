@@ -1,12 +1,11 @@
-import { lazy } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Box } from '@mui/material'
 
 import useMobile from '@/hooks/useMobile'
 
 import { globalStateSelector, setGlabolCommonState } from '../../store'
-
-const B3Dialog = lazy(() => import('../B3Dialog'))
+// const B3Dialog = lazy(() => import('../B3Dialog'))
+import B3Dialog from '../B3Dialog'
 
 function GlobalDialog() {
   const { globalMessage } = useSelector(globalStateSelector)

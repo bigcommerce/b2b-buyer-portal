@@ -11,7 +11,7 @@ import {
 } from 'react'
 import { Delete, Edit } from '@mui/icons-material'
 import { Box, Grid, styled, TextField, Typography } from '@mui/material'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash-es/cloneDeep'
 
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'

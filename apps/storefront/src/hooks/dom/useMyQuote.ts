@@ -8,7 +8,7 @@ import {
 } from 'react'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash-es/cloneDeep'
 
 import {
   getContrastColor,
