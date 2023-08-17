@@ -7,7 +7,7 @@ declare interface CustomFieldStringItems {
 }
 
 declare interface Window {
-  tipDispatch: import('./shared/global/context/config.ts').DispatchProps
+  tipDispatch: import('@/shared/global/context/config.ts').DispatchProps
   b3Tipmessage: any
   b2bStorefrontApp: any
   globalTipDispatch: any
@@ -19,6 +19,9 @@ declare interface Window {
         addProductFromPage: () => Promise<void>
         addProductsFromCart: () => Promise<void>
         addProducts: (items: import('@/utils').LineItems[]) => Promise<void>
+        getCurrent: () => {
+          productList: import('@/components').FormatedQuoteItem[]
+        }
       }
       user: {
         getProfile: () => Record<string, string | number>

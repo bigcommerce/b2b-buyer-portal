@@ -40,6 +40,7 @@ export enum HeadlessRoutes {
   ADDRESSES = '/addresses',
   USER_MANAGEMENT = '/user-management',
   ACCOUNT_SETTINGS = '/accountSettings',
+  INVOICE = '/invoice',
 }
 
 export type HeadlessRoute = keyof typeof HeadlessRoutes
