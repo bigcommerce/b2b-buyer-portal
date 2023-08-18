@@ -331,7 +331,6 @@ export default function App() {
             className={isOpen ? 'active-frame' : undefined}
             fontUrl={FONT_URL}
             customStyles={customStyles}
-            isOpen={isOpen}
           >
             {isOpen ? (
               <B3RenderRouter openUrl={openUrl} setOpenPage={setOpenPage} />
