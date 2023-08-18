@@ -25,6 +25,7 @@ import {
 import { getLineNumber, getTextLenPX } from './b3GetTextLenPX'
 import handleHideRegisterPage from './b3HideRegister'
 import { getLogo, getQuoteEnabled } from './b3Init'
+import { convertLabel, manipulateString } from './b3ManipulateString'
 import { showPageMask } from './b3PageMask'
 import distanceDay from './b3Picker'
 import getProductPriceIncTax from './b3Price'
@@ -66,6 +67,7 @@ export {
   clearCurrentCustomerInfo,
   clearInvoiceCart,
   convertArrayToGraphql,
+  convertLabel,
   convertObjectToGraphql,
   currencyFormat,
   currencyFormatInfo,
@@ -95,6 +97,7 @@ export {
   isModifierNumberTextValid,
   isModifierTextValid,
   loginInfo,
+  manipulateString,
   openPageByClick,
   ordersCurrencyFormat,
   redirectBcMenus,

@@ -22,7 +22,7 @@ import {
   updateB2BAccountSettings,
   updateBCAccountSettings,
 } from '@/shared/service/b2b'
-import { B3SStorage, snackbar, validatorRules } from '@/utils'
+import { B3SStorage, manipulateString, snackbar, validatorRules } from '@/utils'
 
 import { deCodeField, getAccountFormFields } from '../registered/config'
 
@@ -319,7 +319,7 @@ function AccountSetting() {
   }
 
   const handleAddUserClick = () => {
-    handleSubmit(async (data) => {
+    handleSubmit(async (data: CustomFieldItems) => {
       setLoadding(true)
 
       try {
@@ -496,6 +496,16 @@ function AccountSetting() {
     })()
   }
 
+  const convertLabel = (infos: Partial<Fields>[]) =>
+    infos.map((info: Partial<Fields>) => {
+      const { label } = info
+      if (label) {
+        info.label = manipulateString(label)
+      }
+
+      return info
+    }) || []
+
   return (
     <B3Sping isSpinning={isloadding} background={backgroundColor}>
       <Box
@@ -523,7 +533,7 @@ function AccountSetting() {
         }}
       >
         <B3CustomForm
-          formFields={accountInfoFormFields}
+          formFields={convertLabel(accountInfoFormFields)}
           errors={errors}
           control={control}
           getValues={getValues}
