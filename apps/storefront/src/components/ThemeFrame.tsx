@@ -51,7 +51,6 @@ interface ThemeFrameProps {
   fontUrl?: string
   customStyles?: string
   title?: string
-  isOpen?: boolean
 }
 interface ThemeFramePortalProps {
   children: ReactNode
@@ -100,8 +99,7 @@ function ThemeFramePortal(props: ThemeFramePortalProps) {
 }
 
 export default function ThemeFrame(props: ThemeFrameProps) {
-  const { title, className, fontUrl, customStyles, children, bodyRef, isOpen } =
-    props
+  const { title, className, fontUrl, customStyles, children, bodyRef } = props
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [isSetupComplete, setIsSetupComplete] = useState(false)
   const [emotionCache, setEmotionCache] = useState<EmotionCache | undefined>(
@@ -166,14 +164,9 @@ export default function ThemeFrame(props: ThemeFrameProps) {
     if (customStyles) {
       const customStyleElement = doc.createElement('style')
       customStyleElement.appendChild(document.createTextNode(customStyles))
-
-      if (isOpen) {
-        doc.head.appendChild(customStyleElement)
-      } else {
-        document.head.appendChild(customStyleElement)
-      }
+      doc.head.appendChild(customStyleElement)
     }
-  }, [customStyles, isOpen])
+  }, [customStyles])
 
   return (
     <iframe
