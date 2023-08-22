@@ -18,6 +18,8 @@ export const StyledRegisterContent = styled(Box)({
   '& #b3-customForm-id-name': {
     '& label[data-shrink="true"]': {
       whiteSpace: 'break-spaces',
+      minWidth: 'calc(133% - 24px)',
+      transition: 'unset',
     },
 
     '& label[data-shrink="false"]': {
