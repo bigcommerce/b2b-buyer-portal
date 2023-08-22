@@ -627,12 +627,14 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 >
                   <InformationFourLabels>
                     {bcTob2bAddressBasicFields?.length
-                      ? bcTob2bAddressBasicFields[0]?.groupName
+                      ? manipulateString(
+                          bcTob2bAddressBasicFields[0]?.groupName
+                        )
                       : ''}
                   </InformationFourLabels>
 
                   <B3CustomForm
-                    formFields={bcTob2bAddressBasicFields}
+                    formFields={convertLabel(bcTob2bAddressBasicFields)}
                     errors={errors}
                     control={control}
                     getValues={getValues}
