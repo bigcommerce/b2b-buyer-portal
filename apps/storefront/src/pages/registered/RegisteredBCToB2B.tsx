@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
+import styled from '@emotion/styled'
 import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
@@ -61,6 +62,20 @@ interface CustomerInfo {
 interface RegisteredProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
+
+export const StyledRegisterContent = styled(Box)({
+  '& #b3-customForm-id-name': {
+    '& label[data-shrink="true"]': {
+      whiteSpace: 'break-spaces',
+      minWidth: 'calc(133% - 24px)',
+      transition: 'unset',
+    },
+
+    '& label[data-shrink="false"]': {
+      whiteSpace: 'break-spaces',
+    },
+  },
+})
 
 export default function RegisteredBCToB2B(props: RegisteredProps) {
   const [errorMessage, setErrorMessage] = useState('')
@@ -552,7 +567,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 isBCToB2B
               />
             ) : (
-              <Box
+              <StyledRegisterContent
                 sx={{
                   width: isMobile ? '100%' : '537px',
                   boxShadow:
@@ -656,7 +671,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                     </CustomButton>
                   </Box>
                 )}
-              </Box>
+              </StyledRegisterContent>
             )}
           </Box>
         </B3Sping>
