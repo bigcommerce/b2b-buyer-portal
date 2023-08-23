@@ -1,4 +1,5 @@
 import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Box, styled, Typography } from '@mui/material'
 
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
@@ -96,6 +97,7 @@ const StyledImage = styled('img')(() => ({
 }))
 
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
+  const b3Lang = useB3Lang()
   const { total, getQuoteTableDetails, getTaxRate } = props
 
   const {
@@ -121,7 +123,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'Product',
-      title: 'Product',
+      title: b3Lang('quoteDetail.table.product'),
       render: (row: CustomFieldItems) => {
         const optionsValue = row.options
         const productUrl = row.productsSearch?.productUrl
@@ -200,7 +202,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     },
     {
       key: 'Price',
-      title: 'Price',
+      title: b3Lang('quoteDetail.table.price'),
       render: (row: CustomFieldItems) => {
         const {
           basePrice,
@@ -252,7 +254,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     },
     {
       key: 'Qty',
-      title: 'Qty',
+      title: b3Lang('quoteDetail.table.qty'),
       render: (row) => (
         <Typography
           sx={{
@@ -269,7 +271,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     },
     {
       key: 'Total',
-      title: 'Total',
+      title: b3Lang('quoteDetail.table.total'),
       render: (row: CustomFieldItems) => {
         const {
           basePrice,
@@ -338,7 +340,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             fontSize: '24px',
           }}
         >
-          {`${total || 0} products`}
+          {b3Lang('quoteDetail.table.totalProducts', { total: total || 0 })}
         </Typography>
       </Box>
 
@@ -350,10 +352,10 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         isCustomRender={false}
         hover
         searchParams={search}
-        labelRowsPerPage="Per page:"
+        labelRowsPerPage={b3Lang('quoteDetail.table.perPage')}
         showBorder={false}
         itemIsMobileSpacing={0}
-        noDataText="No products found"
+        noDataText={b3Lang('quoteDetail.table.noProducts')}
         tableKey="productId"
         renderItem={(row: ProductInfoProps, index?: number) => (
           <QuoteDetailTableCard

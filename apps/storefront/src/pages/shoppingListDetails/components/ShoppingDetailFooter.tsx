@@ -1,4 +1,5 @@
 import { useContext } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Delete } from '@mui/icons-material'
 import { Box, Grid, Typography } from '@mui/material'
 
@@ -34,6 +35,7 @@ interface ShoppingDetailFooterProps {
 
 function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile()
+  const b3Lang = useB3Lang()
 
   const {
     state: { isAgenting },
@@ -137,10 +139,9 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
       if (cantPurchase) {
         snackbar.error(
-          `Sku(s): ${cantPurchase.slice(
-            0,
-            -1
-          )} unavailable for purchasing, please uncheck.`,
+          b3Lang('shoppingListDetails.footer.unavailableProducts', {
+            skus: cantPurchase.slice(0, -1),
+          }),
           {
             isClose: true,
           }
@@ -151,8 +152,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       if (skus.length === 0) {
         snackbar.error(
           allowJuniorPlaceOrder
-            ? 'Please select at least one item to checkout'
-            : 'Please select at least one item to add to cart',
+            ? b3Lang('shoppingListDetails.footer.selectItemsToCheckout')
+            : b3Lang('shoppingListDetails.footer.selectItemsToAddToCart'),
           {
             isClose: true,
           }
@@ -207,9 +208,11 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           } else {
             snackbar.success('', {
               jsx: successTip({
-                message: 'Products were added to cart',
+                message: b3Lang(
+                  'shoppingListDetails.footer.productsAddedToCart'
+                ),
                 link: '/cart.php',
-                linkText: 'VIEW CART',
+                linkText: b3Lang('shoppingListDetails.footer.viewCart'),
                 isOutLink: true,
               }),
               isClose: true,
@@ -280,7 +283,9 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
               fontWeight: '400',
             }}
           >
-            {`${checkedArr.length} products  selected`}
+            {b3Lang('shoppingListDetails.footer.selectedProducts', {
+              quantity: checkedArr.length,
+            })}
           </Typography>
           <Box
             sx={{
@@ -297,7 +302,9 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                 color: '#000000',
               }}
             >
-              {`Subtotal: ${currencyFormat(selectedSubTotal)}`}
+              {b3Lang('shoppingListDetails.footer.subtotal', {
+                subtotal: currencyFormat(selectedSubTotal),
+              })}
             </Typography>
             <Box
               sx={{
@@ -345,8 +352,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                   }}
                 >
                   {allowJuniorPlaceOrder
-                    ? 'Proceed to checkout'
-                    : 'Add selected to cart'}
+                    ? b3Lang('shoppingListDetails.footer.proceedToCheckout')
+                    : b3Lang('shoppingListDetails.footer.addToCart')}
                 </CustomButton>
               )}
             </Box>

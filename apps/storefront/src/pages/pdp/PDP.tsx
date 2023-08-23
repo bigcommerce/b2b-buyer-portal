@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
+import { LangFormatFunction,useB3Lang } from '@b3/lang'
 import { Box, Button } from '@mui/material'
 
 import { GlobaledContext } from '@/shared/global'
@@ -46,6 +47,7 @@ interface AddProductsToShoppingListParams {
   shoppingListId: number | string
   gotoShoppingDetail: (id: number | string) => void
   customerGroupId?: number
+  b3Lang: LangFormatFunction
 }
 
 export const serialize = (form: any) => {
@@ -99,7 +101,8 @@ export const getProductOptionList = (optionMap: CustomFieldItems) => {
 
 const tip = (
   id: number | string,
-  gotoShoppingDetail: (id: number | string) => void
+  gotoShoppingDetail: (id: number | string) => void,
+  b3Lang: LangFormatFunction
 ) => (
   <Box
     sx={{
@@ -112,7 +115,7 @@ const tip = (
         mr: '15px',
       }}
     >
-      Products were added to your shopping list
+      {b3Lang('pdp.notification.productsAdded')}
     </Box>
     <Button
       onClick={() => gotoShoppingDetail(id)}
@@ -122,7 +125,7 @@ const tip = (
         padding: 0,
       }}
     >
-      view shopping list
+      {b3Lang('pdp.notification.viewShoppingList')}
     </Button>
   </Box>
 )
@@ -133,6 +136,7 @@ export const addProductsToShoppingList = async ({
   items,
   shoppingListId,
   gotoShoppingDetail,
+  b3Lang,
 }: AddProductsToShoppingListParams) => {
   const { currency_code: currencyCode } = getDefaultCurrencyInfo()
   const companyId =
@@ -198,7 +202,7 @@ export const addProductsToShoppingList = async ({
     items: products,
   })
   globalSnackbar.success('Products were added to your shopping list', {
-    jsx: () => tip(shoppingListId, gotoShoppingDetail),
+    jsx: () => tip(shoppingListId, gotoShoppingDetail, b3Lang),
     isClose: true,
   })
 }
@@ -212,6 +216,7 @@ function PDP({ setOpenPage }: PDPProps) {
       customer: { customerGroupId },
     },
   } = useContext(GlobaledContext)
+  const b3Lang = useB3Lang()
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
   const [isOpenCreateShopping, setIsOpenCreateShopping] =
@@ -278,6 +283,7 @@ function PDP({ setOpenPage }: PDPProps) {
           },
         ],
         gotoShoppingDetail,
+        b3Lang,
       })
       handleShoppingClose()
     } finally {
@@ -304,7 +310,7 @@ function PDP({ setOpenPage }: PDPProps) {
       {isPromission && (
         <OrderShoppingList
           isOpen={openShoppingList}
-          dialogTitle="Add to shopping list"
+          dialogTitle={b3Lang('pdp.addToShoppingList')}
           onClose={handleShoppingClose}
           onConfirm={handleShoppingConfirm}
           onCreate={handleOpenCreateDialog}

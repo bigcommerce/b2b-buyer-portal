@@ -28,7 +28,7 @@ const useRegisteredbctob2b = (
     convertB2BNavNode.className = 'navUser-item navUser-convert-b2b'
     convertB2BNavNode.innerHTML = `
       <a class="navUser-action" href="javascript:;" aria-label="Gift Certificates">
-        ${b3Lang('intl.global.nav.registerB2B.linkText')}
+        ${b3Lang('global.registerB2B.linkText')}
       </a>
     `
     return convertB2BNavNode

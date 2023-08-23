@@ -1,4 +1,5 @@
 import { ChangeEvent, useEffect, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, TextField, Typography } from '@mui/material'
 
 import { B3CollapseContainer } from '@/components'
@@ -10,6 +11,7 @@ interface QuoteNoteProps {
 }
 
 export default function QuoteNote(props: QuoteNoteProps) {
+  const b3Lang = useB3Lang()
   const { quoteStatus, quoteNotes = '' } = props
 
   const [noteText, setNoteText] = useState('')
@@ -46,7 +48,11 @@ export default function QuoteNote(props: QuoteNoteProps) {
         }}
       >
         <B3CollapseContainer
-          title={quoteStatus && quoteStatus === 'Draft' ? 'Message' : 'Notes'}
+          title={
+            quoteStatus && quoteStatus === 'Draft'
+              ? b3Lang('global.quoteNote.message')
+              : b3Lang('global.quoteNote.notes')
+          }
           defaultOpen={defaultOpen}
         >
           <Box
@@ -62,7 +68,7 @@ export default function QuoteNote(props: QuoteNoteProps) {
                   mb: '16px',
                 }}
               >
-                Your message will be sent after submitting a quote
+                {b3Lang('global.quoteNote.messageNote')}
               </Box>
             )}
             {quoteNotes ? (
@@ -83,7 +89,7 @@ export default function QuoteNote(props: QuoteNoteProps) {
                 rows={5}
                 value={noteText}
                 onChange={handleNoteTextChange}
-                label="Type a message..."
+                label={b3Lang('global.quoteNote.typeMessage')}
                 size="small"
                 variant="filled"
                 sx={{

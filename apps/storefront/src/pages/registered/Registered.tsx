@@ -316,7 +316,7 @@ function Registered(props: RegisteredProps) {
       <RegisteredContainer isMobile={isMobile}>
         <B3Sping
           isSpinning={isLoading}
-          tip={b3Lang('intl.global.tips.loading')}
+          tip={b3Lang('global.tips.loading')}
           transparency="0"
         >
           <Box
@@ -339,7 +339,7 @@ function Registered(props: RegisteredProps) {
                 >
                   <img
                     src={`${logo}`}
-                    alt={b3Lang('intl.user.register.tips.registerLogo')}
+                    alt={b3Lang('global.tips.registerLogo')}
                     loading="lazy"
                   />
                 </ImageListItem>

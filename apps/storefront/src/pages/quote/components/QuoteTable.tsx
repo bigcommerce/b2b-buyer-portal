@@ -1,4 +1,5 @@
 import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Delete, Edit } from '@mui/icons-material'
 import { Box, styled, TextField, Typography } from '@mui/material'
 import ceil from 'lodash-es/ceil'
@@ -114,6 +115,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     updateSummary,
     updateList,
   } = props
+  const b3Lang = useB3Lang()
   const quoteProductQtyMaxLimit = 1000000
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -304,13 +306,13 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
       offset: 0,
     })
 
-    snackbar.success('Product were updated in your quote.')
+    snackbar.success(b3Lang('quoteDraft.quoteTable.productUpdated'))
   }
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'Product',
-      title: 'Product',
+      title: b3Lang('quoteDraft.quoteTable.product'),
       render: (row: CustomFieldItems) => {
         const product: any = {
           ...row.productsSearch,
@@ -381,7 +383,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     },
     {
       key: 'Price',
-      title: 'Price',
+      title: b3Lang('quoteDraft.quoteTable.price'),
       render: (row: CustomFieldItems) => {
         const { basePrice, taxPrice } = row
 
@@ -404,7 +406,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     },
     {
       key: 'Qty',
-      title: 'Qty',
+      title: b3Lang('quoteDraft.quoteTable.qty'),
       render: (row) => (
         <StyledTextField
           size="small"
@@ -434,7 +436,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     },
     {
       key: 'Total',
-      title: 'Total',
+      title: b3Lang('quoteDraft.quoteTable.total'),
       render: (row: CustomFieldItems) => {
         const { basePrice, quantity, taxPrice } = row
 
@@ -518,7 +520,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             fontSize: '24px',
           }}
         >
-          {`${total || 0} products`}
+          {b3Lang('quoteDraft.quoteTable.totalProducts', { total: total || 0 })}
         </Typography>
       </Box>
 
@@ -530,10 +532,10 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         isCustomRender={false}
         hover
         searchParams={search}
-        labelRowsPerPage="Per page:"
+        labelRowsPerPage={b3Lang('quoteDraft.quoteTable.perPage')}
         showBorder={false}
         itemIsMobileSpacing={0}
-        noDataText="No products found"
+        noDataText={b3Lang('quoteDraft.quoteTable.noProducts')}
         renderItem={(row: ProductInfoProps, index?: number) => (
           <QuoteTableCard
             len={total || 0}

@@ -6,6 +6,7 @@ import {
   useContext,
   useState,
 } from 'react'
+import { useB3Lang } from '@b3/lang'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import {
@@ -263,6 +264,8 @@ export function B3Table<T>({
 
   const [isMobile] = useMobile()
 
+  const b3Lang = useB3Lang()
+
   const { offset, count, first } = pagination
   const clickableRowStyles =
     typeof onClickRow === 'function' ? MOUSE_POINTER_STYLE : undefined
@@ -344,7 +347,9 @@ export function B3Table<T>({
               rowsPerPageOptions={
                 showRowsPerPageOptions ? rowsPerPageOptions : []
               }
-              labelRowsPerPage={labelRowsPerPage || 'per page:'}
+              labelRowsPerPage={
+                labelRowsPerPage || b3Lang('global.pagination.perPage')
+              }
               component="div"
               sx={{
                 color: isMobile
@@ -390,7 +395,9 @@ export function B3Table<T>({
               rowsPerPageOptions={
                 showRowsPerPageOptions ? rowsPerPageOptions : []
               }
-              labelRowsPerPage={labelRowsPerPage || 'Cards per page:'}
+              labelRowsPerPage={
+                labelRowsPerPage || b3Lang('global.pagination.cardsPerPage')
+              }
               component="div"
               sx={{
                 color: customColor,
@@ -517,7 +524,9 @@ export function B3Table<T>({
               rowsPerPageOptions={
                 showRowsPerPageOptions ? rowsPerPageOptions : []
               }
-              labelRowsPerPage={labelRowsPerPage || 'Rows per page:'}
+              labelRowsPerPage={
+                labelRowsPerPage || b3Lang('global.pagination.rowsPerPage')
+              }
               component="div"
               sx={{
                 marginTop: '1.5rem',

@@ -1,3 +1,4 @@
+import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { DataUsageRounded } from '@mui/icons-material'
 
@@ -31,10 +32,13 @@ export default function B3NoData({
   minHeight,
   isLoading = false,
 }: B3NoDataProps) {
+  const b3Lang = useB3Lang()
   return (
     <NoDataContainer backgroundColor={backgroundColor} minHeight={minHeight}>
       {!isLoading && <DataUsageRounded fontSize="large" />}
-      <NoDataText>{isLoading ? '' : text || 'No data'}</NoDataText>
+      <NoDataText>
+        {isLoading ? '' : text || b3Lang('global.table.noData')}
+      </NoDataText>
     </NoDataContainer>
   )
 }

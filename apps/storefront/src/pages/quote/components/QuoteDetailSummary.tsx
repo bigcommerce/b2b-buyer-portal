@@ -1,3 +1,4 @@
+import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
 import { store } from '@/store'
@@ -17,6 +18,7 @@ interface QuoteDetailSummaryProps {
 }
 
 export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
+  const b3Lang = useB3Lang()
   const {
     quoteSummary: { originalSubtotal, discount, tax, shipping, totalAmount },
     quoteDetailTax = 0,
@@ -42,7 +44,9 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
     <Card>
       <CardContent>
         <Box>
-          <Typography variant="h5">Quote summary</Typography>
+          <Typography variant="h5">
+            {b3Lang('quoteDetail.summary.quoteSummary')}
+          </Typography>
           <Box
             sx={{
               marginTop: '20px',
@@ -56,7 +60,9 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 margin: '4px 0',
               }}
             >
-              <Typography>Original subtotal</Typography>
+              <Typography>
+                {b3Lang('quoteDetail.summary.originalSubtotal')}
+              </Typography>
               <Typography>
                 {priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax))}
               </Typography>
@@ -68,7 +74,9 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 margin: '4px 0',
               }}
             >
-              <Typography>Discount amount</Typography>
+              <Typography>
+                {b3Lang('quoteDetail.summary.discountAmount')}
+              </Typography>
               <Typography>
                 {+discount > 0
                   ? `-${priceFormat(+discount)}`
@@ -88,7 +96,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   color: '#212121',
                 }}
               >
-                Quoted subtotal
+                {b3Lang('quoteDetail.summary.quotedSubtotal')}
               </Typography>
               <Typography
                 sx={{
@@ -107,7 +115,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 margin: '4px 0',
               }}
             >
-              <Typography>Shipping</Typography>
+              <Typography>{b3Lang('quoteDetail.summary.shipping')}</Typography>
               <Typography>{priceFormat(+shipping)}</Typography>
             </Grid>
 
@@ -118,7 +126,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 margin: '4px 0',
               }}
             >
-              <Typography>Tax</Typography>
+              <Typography>{b3Lang('quoteDetail.summary.tax')}</Typography>
               <Typography>{priceFormat(+tax)}</Typography>
             </Grid>
 
@@ -135,7 +143,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   color: '#212121',
                 }}
               >
-                Grand total
+                {b3Lang('quoteDetail.summary.grandTotal')}
               </Typography>
               <Typography
                 sx={{

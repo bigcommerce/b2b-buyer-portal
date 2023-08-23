@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import {
   Box,
@@ -25,6 +26,7 @@ interface QuickOrderPadProps {
 export default function QuickOrderPad(props: QuickOrderPadProps) {
   const { isB2BUser } = props
   const [isMobile] = useMobile()
+  const b3Lang = useB3Lang()
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
   const [productData, setProductData] = useState<CustomFieldItems>([])
@@ -89,9 +91,9 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
     } else if (!res.status) {
       snackbar.success('', {
         jsx: successTip({
-          message: 'Products were added to cart',
+          message: b3Lang('purchasedProducts.quickOrderPad.productsAdded'),
           link: '/cart.php',
-          linkText: 'VIEW CART',
+          linkText: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           isOutLink: true,
         }),
         isClose: true,
@@ -108,20 +110,24 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
           margin: 0,
         }}
       >
-        {`SKU ${data.variantSku} is not enough stock`}
+        {b3Lang('purchasedProducts.quickOrderPad.notEnoughStock', {
+          sku: data.variantSku,
+        })}
       </p>
       <p
         style={{
           margin: 0,
         }}
       >
-        {`Available amount - ${data.AvailableAmount}.`}
+        {b3Lang('purchasedProducts.quickOrderPad.availableAmount', {
+          availableAmount: data.AvailableAmount,
+        })}
       </p>
     </>
   )
 
   const outOfStockProductTips = (
-    outOfStock: CustomFieldItems,
+    outOfStock: string[],
     fileErrorsCSV: string
   ) => (
     <>
@@ -130,7 +136,9 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
           margin: 0,
         }}
       >
-        {`SKU ${outOfStock} are out of stock.`}
+        {b3Lang('purchasedProducts.quickOrderPad.outOfStockSku', {
+          sku: outOfStock,
+        })}
       </p>
       <Link
         href={fileErrorsCSV}
@@ -138,7 +146,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
           color: '#FFFFFF',
         }}
       >
-        Download errors csv
+        {b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV')}
       </Link>
     </>
   )
@@ -149,7 +157,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
     const limitProduct: CustomFieldItems[] = []
     const minLimitQuantity: CustomFieldItems[] = []
     const maxLimitQuantity: CustomFieldItems[] = []
-    const outOfStock: CustomFieldItems[] = []
+    const outOfStock: string[] = []
 
     products.forEach((item: CustomFieldItems) => {
       const { products: currentProduct, qty } = item
@@ -257,9 +265,9 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         } else if (!res.status) {
           snackbar.success('', {
             jsx: successTip({
-              message: 'Products were added to cart',
+              message: b3Lang('purchasedProducts.quickOrderPad.productsAdded'),
               link: '/cart.php',
-              linkText: 'VIEW CART',
+              linkText: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
               isOutLink: true,
             }),
             isClose: true,
@@ -277,7 +285,9 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
       if (notPurchaseSku.length > 0) {
         snackbar.error(
-          `SKU ${notPurchaseSku} cannot be purchased in online store.`,
+          b3Lang('purchasedProducts.quickOrderPad.notPurchaseableSku', {
+            notPurchaseSku,
+          }),
           {
             isClose: true,
           }
@@ -294,7 +304,10 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       if (minLimitQuantity.length > 0) {
         minLimitQuantity.forEach((data: CustomFieldItems) => {
           snackbar.error(
-            `You need to purchase a minimum of ${data.minQuantity} of the ${data.variantSku} per order.`,
+            b3Lang('purchasedProducts.quickOrderPad.minQuantityMessage', {
+              minQuantity: data.minQuantity,
+              sku: data.variantSku,
+            }),
             {
               isClose: true,
             }
@@ -305,7 +318,10 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       if (maxLimitQuantity.length > 0) {
         maxLimitQuantity.forEach((data: CustomFieldItems) => {
           snackbar.error(
-            `You need to purchase a maximum of ${data.maxQuantity} of the ${data.variantSku} per order.`,
+            b3Lang('purchasedProducts.quickOrderPad.maxQuantityMessage', {
+              minQuantity: data.maxQuantity,
+              sku: data.variantSku,
+            }),
             {
               isClose: true,
             }
@@ -346,16 +362,20 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
     }
 
     if (purchasingDisabled) {
-      snackbar.error(`SKU ${productSku} cannot be purchased in online store.`, {
-        isClose: true,
-      })
+      snackbar.error(
+        b3Lang('purchasedProducts.quickOrderPad.notPurchaseableSku', {
+          notPurchaseSku: productSku,
+        })
+      )
 
       return false
     }
 
     if (isStock && +quantity > +stock) {
       snackbar.error(
-        `SKU ${productSku} do not have enough stock, please change quantity.`,
+        b3Lang('purchasedProducts.quickOrderPad.insufficientStockSku', {
+          sku: productSku,
+        }),
         {
           isClose: true,
         }
@@ -366,7 +386,10 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
     if (+orderQuantityMinimum > 0 && +quantity < orderQuantityMinimum) {
       snackbar.error(
-        `You need to purchase a minimum of ${orderQuantityMinimum} of the ${productSku} per order.`,
+        b3Lang('purchasedProducts.quickOrderPad.minQuantityMessage', {
+          minQuantity: orderQuantityMinimum,
+          sku: productSku,
+        }),
         {
           isClose: true,
         }
@@ -377,7 +400,10 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
     if (+orderQuantityMaximum > 0 && +quantity > +orderQuantityMaximum) {
       snackbar.error(
-        `You need to purchase a maximum of ${orderQuantityMaximum} of the ${productSku} per order.`,
+        b3Lang('purchasedProducts.quickOrderPad.minQuantityMessage', {
+          maxQuantity: orderQuantityMaximum,
+          sku: productSku,
+        }),
         {
           isClose: true,
         }
@@ -416,7 +442,11 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
   useEffect(() => {
     if (productData?.length > 0) {
-      setAddBtnText(`Add ${productData.length} products to cart`)
+      setAddBtnText(
+        b3Lang('purchasedProducts.quickOrderPad.addNProductsToCart', {
+          quantity: productData.length,
+        })
+      )
     }
   }, [productData])
 
@@ -434,13 +464,17 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
               marginBottom: '1rem',
             }}
           >
-            Quick order pad
+            {b3Lang('purchasedProducts.quickOrderPad.quickOrderPad')}
           </Typography>
 
           <SearchProduct
             addToList={handleQuickSearchAddCart}
-            searchDialogTitle="Quick order"
-            addButtonText="Add to cart"
+            searchDialogTitle={b3Lang(
+              'purchasedProducts.quickOrderPad.quickOrderPad'
+            )}
+            addButtonText={b3Lang(
+              'purchasedProducts.quickOrderPad.quickOrderPad'
+            )}
             isB2BUser={isB2BUser}
           />
 
@@ -448,7 +482,9 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
           <QuickAdd
             quickAddToList={quickAddToList}
-            buttonText="Add products to cart"
+            buttonText={b3Lang(
+              'purchasedProducts.quickOrderPad.addProductsToCart'
+            )}
           />
 
           <Divider />
@@ -464,7 +500,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
                   marginRight: '8px',
                 }}
               />
-              Bulk upload CSV
+              {b3Lang('purchasedProducts.quickOrderPad.bulkUploadCSV')}
             </CustomButton>
           </Box>
         </Box>

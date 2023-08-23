@@ -1,8 +1,13 @@
-const getAccountFormFields = (isMobile: boolean) => {
+import { LangFormatFunction } from '@b3/lang'
+
+const getAccountFormFields = (
+  isMobile: boolean,
+  b3Lang: LangFormatFunction
+) => {
   const accountFormFields = [
     {
       name: 'label',
-      label: 'Address label',
+      label: b3Lang('quoteDraft.config.addressLabel'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -12,7 +17,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'firstName',
-      label: 'First name',
+      label: b3Lang('quoteDraft.config.firstName'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -22,7 +27,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'lastName',
-      label: 'Last name',
+      label: b3Lang('quoteDraft.config.lastName'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -32,7 +37,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'companyName',
-      label: 'Company',
+      label: b3Lang('quoteDraft.config.company'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -42,7 +47,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'country',
-      label: 'Country',
+      label: b3Lang('quoteDraft.config.country'),
       required: false,
       default: '',
       fieldType: 'dropdown',
@@ -57,7 +62,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'address',
-      label: 'Address line 1 ',
+      label: b3Lang('quoteDraft.config.addressLine1'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -67,7 +72,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'apartment',
-      label: 'Address line 2(optional)',
+      label: b3Lang('quoteDraft.config.addressLine2'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -77,7 +82,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'city',
-      label: 'City',
+      label: b3Lang('quoteDraft.config.city'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -88,7 +93,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'state',
-      label: 'State',
+      label: b3Lang('quoteDraft.config.state'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -103,7 +108,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'zipCode',
-      label: 'Zip code',
+      label: b3Lang('quoteDraft.config.zipCode'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -114,7 +119,7 @@ const getAccountFormFields = (isMobile: boolean) => {
     },
     {
       name: 'phoneNumber',
-      label: 'Phone number',
+      label: b3Lang('quoteDraft.config.phoneNumber'),
       required: false,
       default: '',
       fieldType: 'text',

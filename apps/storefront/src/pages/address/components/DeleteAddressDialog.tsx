@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Dialog } from '@/components'
@@ -30,6 +31,7 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
   } = props
 
   const [isMobile] = useMobile()
+  const b3Lang = useB3Lang()
 
   const handleDelete = async () => {
     if (!addressData) {
@@ -53,7 +55,9 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
         })
       }
 
-      snackbar.success('Successfully deleted')
+      snackbar.success(
+        b3Lang('addresses.deleteAddressDialog.successfullyDeleted')
+      )
 
       updateAddressList()
     } catch (e) {
@@ -64,9 +68,9 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
   return (
     <B3Dialog
       isOpen={isOpen}
-      title="Delete address"
-      leftSizeBtn="cancel"
-      rightSizeBtn="delete"
+      title={b3Lang('addresses.deleteAddressDialog.deleteAddress')}
+      leftSizeBtn={b3Lang('addresses.deleteAddressDialog.cancel')}
+      rightSizeBtn={b3Lang('addresses.deleteAddressDialog.delete')}
       handleLeftClick={() => {
         setIsOpen(false)
       }}
@@ -85,7 +89,7 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
           height: '100%',
         }}
       >
-        Are you sure you want to delete this address?
+        ={b3Lang('addresses.deleteAddressDialog.confirmDelete')}
       </Box>
     </B3Dialog>
   )

@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 import cloneDeep from 'lodash-es/cloneDeep'
 
@@ -93,6 +94,7 @@ function QuoteAddress(
   })
 
   const [isMobile] = useMobile()
+  const b3Lang = useB3Lang()
 
   const [isOpen, setOpen] = useState<boolean>(false)
   const [quoteAddress, setQuoteAddress] = useState<AccountFormFieldsProps[]>(
@@ -200,7 +202,7 @@ function QuoteAddress(
               textTransform: 'uppercase',
             }}
           >
-            Choose from saved
+            {b3Lang('quoteDraft.quoteAddress.chooseFromSaved')}
           </Typography>
         )}
       </Box>
