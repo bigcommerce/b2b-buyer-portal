@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { LangFormatFunction,useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Sping } from '@/components'
@@ -42,20 +43,24 @@ interface FilterSearchProps {
 
 const quotesStatuses = [
   {
-    customLabel: 'Open',
+    idLangCustomLabel: 'quotes.open',
     statusCode: 1,
   },
   {
-    customLabel: 'Ordered',
+    idLangCustomLabel: 'quotes.ordered',
     statusCode: 4,
   },
   {
-    customLabel: 'Expired',
+    idLangCustomLabel: 'quotes.expired',
     statusCode: 5,
   },
 ]
 
-const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any) => {
+const getFilterMoreList = (
+  isB2BUser: boolean,
+  createdByUsers: any,
+  b3Lang: LangFormatFunction
+) => {
   const newCreatedByUsers =
     createdByUsers?.createdByUser?.results?.createdBy.map((item: any) => ({
       createdBy: item.email ? `${item.name} (${item.email})` : `${item.name}`,
@@ -67,11 +72,16 @@ const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any) => {
   const filterMoreList = [
     {
       name: 'status',
-      label: 'Quote status',
+      label: b3Lang('quotes.quoteStatus'),
       required: false,
       default: '',
       fieldType: 'dropdown',
-      options: quotesStatuses,
+      options: quotesStatuses.map(
+        ({ idLangCustomLabel, ...restQuoteStatuses }) => ({
+          customLabel: b3Lang(idLangCustomLabel),
+          ...restQuoteStatuses,
+        })
+      ),
       replaceOptions: {
         label: 'customLabel',
         value: 'statusCode',
@@ -82,7 +92,7 @@ const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any) => {
     },
     {
       name: 'createdBy',
-      label: 'Created by',
+      label: b3Lang('quotes.createdBy'),
       required: false,
       default: '',
       fieldType: 'dropdown',
@@ -97,7 +107,7 @@ const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any) => {
     },
     {
       name: 'salesRep',
-      label: 'Sales rep',
+      label: b3Lang('quotes.salesRep'),
       required: false,
       default: '',
       fieldType: 'dropdown',
@@ -160,6 +170,8 @@ function QuotesList() {
 
   const navigate = useNavigate()
 
+  const b3Lang = useB3Lang()
+
   const [isMobile] = useMobile()
 
   const {
@@ -181,7 +193,7 @@ function QuotesList() {
       if (isB2BUser)
         createdByUsers = await getShoppingListsCreatedByUser(+companyId, 2)
 
-      const filterInfos = getFilterMoreList(isB2BUser, createdByUsers)
+      const filterInfos = getFilterMoreList(isB2BUser, createdByUsers, b3Lang)
       setFilterMoreInfo(filterInfos)
     }
 
@@ -267,28 +279,28 @@ function QuotesList() {
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {
       key: 'quoteNumber',
-      title: 'Quote #',
+      title: b3Lang('quotes.quoteNumber'),
       isSortable: true,
     },
     {
       key: 'quoteTitle',
-      title: 'Title',
+      title: b3Lang('quotes.title'),
       isSortable: true,
     },
     {
       key: 'salesRep',
-      title: 'Sales rep',
+      title: b3Lang('quotes.salesRep'),
       render: (item: ListItem) => `${item.salesRep || item.salesRepEmail}`,
       isSortable: true,
     },
     {
       key: 'createdBy',
-      title: 'Created by',
+      title: b3Lang('quotes.createdBy'),
       isSortable: true,
     },
     {
       key: 'createdAt',
-      title: 'Date created',
+      title: b3Lang('quotes.dateCreated'),
       render: (item: ListItem) =>
         `${
           +item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt
@@ -297,7 +309,7 @@ function QuotesList() {
     },
     {
       key: 'updatedAt',
-      title: 'Last update',
+      title: b3Lang('quotes.lastUpdate'),
       render: (item: ListItem) =>
         `${
           +item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt
@@ -306,7 +318,7 @@ function QuotesList() {
     },
     {
       key: 'expiredAt',
-      title: 'Expiration date',
+      title: b3Lang('quotes.expirationDate'),
       render: (item: ListItem) =>
         `${
           +item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt
@@ -315,7 +327,7 @@ function QuotesList() {
     },
     {
       key: 'totalAmount',
-      title: 'Subtotal',
+      title: b3Lang('quotes.subtotal'),
       render: (item: ListItem) => {
         const { totalAmount } = item
 
@@ -327,7 +339,7 @@ function QuotesList() {
     },
     {
       key: 'status',
-      title: 'Status',
+      title: b3Lang('quotes.status'),
       render: (item: ListItem) => <QuoteStatus code={item.status} />,
       isSortable: true,
     },
@@ -367,17 +379,16 @@ function QuotesList() {
         }}
       >
         <B3Filter
-          // sortByConfig={sortByConfigData}
           fiterMoreInfo={filterMoreInfo}
           startPicker={{
             isEnabled: true,
-            label: 'From',
+            label: b3Lang('quotes.from'),
             defaultValue: filterData?.dateCreatedBeginAt || '',
             pickerKey: 'start',
           }}
           endPicker={{
             isEnabled: true,
-            label: 'To',
+            label: b3Lang('quotes.to'),
             defaultValue: filterData?.dateCreatedEndAt || '',
             pickerKey: 'end',
           }}
@@ -396,7 +407,9 @@ function QuotesList() {
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
           labelRowsPerPage={`${
-            isMobile ? 'Cards per page' : 'Quotes per page'
+            isMobile
+              ? b3Lang('quotes.cardsPerPage')
+              : b3Lang('quotes.quotesPerPage')
           }`}
           renderItem={(row: ListItem) => (
             <QuoteItemCard item={row} goToDetail={goToDetail} />

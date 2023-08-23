@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { useLocation } from 'react-router-dom'
 import type { OpenPageState } from '@b3/hooks'
+import { useB3Lang } from '@b3/lang'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { Box, IconButton, Menu, MenuItem } from '@mui/material'
 import { styled } from '@mui/material/styles'
@@ -125,6 +126,7 @@ function Dashboard(props: DashboardProps) {
   } = useContext(GlobaledContext)
 
   const { setOpenPage } = props
+  const b3Lang = useB3Lang()
 
   const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] =
     useState<number>(+salesRepCompanyId)
@@ -215,7 +217,7 @@ function Dashboard(props: DashboardProps) {
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'companyName',
-      title: 'Company',
+      title: b3Lang('dashboard.company'),
       render: (row: CustomFieldItems) => (
         <Box
           sx={{
@@ -245,17 +247,17 @@ function Dashboard(props: DashboardProps) {
     },
     {
       key: 'companyAdminName',
-      title: 'Admin',
+      title: b3Lang('dashboard.admin'),
       isSortable: true,
     },
     {
       key: 'companyEmail',
-      title: 'Email',
+      title: b3Lang('dashboard.email'),
       isSortable: true,
     },
     {
       key: 'companyName',
-      title: 'Action',
+      title: b3Lang('dashboard.action'),
       render: (row: CustomFieldItems) => {
         const { companyId } = row
         const isMasquerade = +companyId === +salesRepCompanyId

@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Sping } from '@/components'
@@ -54,6 +55,8 @@ function Address() {
     },
     dispatch,
   } = useContext(GlobaledContext)
+
+  const b3Lang = useB3Lang()
 
   const isExtraLarge = useCardListColumn()
   const [paginationTableRef] = useTableRef()
@@ -206,9 +209,7 @@ function Address() {
 
   const handleCreate = () => {
     if (!editPermission) {
-      snackbar.error(
-        'You do not have permission to add new address, please contact store owner '
-      )
+      snackbar.error(b3Lang('addresses.noPermissionToAdd'))
       return
     }
     addEditAddressRef.current?.handleOpenAddEditAddressClick('add')
@@ -216,9 +217,7 @@ function Address() {
 
   const handleEdit = (row: AddressItemType) => {
     if (!editPermission) {
-      snackbar.error(
-        'You do not have permission to edit address, please contact store owner '
-      )
+      snackbar.error(b3Lang('addresses.noPermissionToEdit'))
       return
     }
     addEditAddressRef.current?.handleOpenAddEditAddressClick('edit', row)
@@ -226,9 +225,7 @@ function Address() {
 
   const handleDelete = (address: AddressItemType) => {
     if (!editPermission) {
-      snackbar.error(
-        'You do not have permission to delete address, please contact store owner '
-      )
+      snackbar.error(b3Lang('addresses.noPermissionToEdit'))
       return
     }
     setCurrentAddress({
@@ -246,7 +243,7 @@ function Address() {
 
   const AddButtonConfig = {
     isEnabled: editPermission,
-    customLabel: 'Add new address',
+    customLabel: b3Lang('addresses.addNewAddress'),
   }
 
   return (

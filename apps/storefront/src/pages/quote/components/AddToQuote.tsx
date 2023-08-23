@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider } from '@mui/material'
 import { v1 as uuid } from 'uuid'
@@ -40,6 +41,8 @@ export default function AddToQuote(props: AddToListProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
+
+  const b3Lang = useB3Lang()
 
   const getNewQuoteProduct = (products: CustomFieldItems[]) =>
     products.map((product) => {
@@ -112,7 +115,7 @@ export default function AddToQuote(props: AddToListProps) {
 
     addToQuote(newProducts)
 
-    snackbar.success('Product were added to your quote.', {
+    snackbar.success(b3Lang('quoteDraft.notification.productSingular.'), {
       isClose: true,
     })
 
@@ -151,7 +154,7 @@ export default function AddToQuote(props: AddToListProps) {
 
     addToQuote(newProducts)
 
-    snackbar.success('Products were added to your quote.', {
+    snackbar.success(b3Lang('quoteDraft.notification.productPlural.'), {
       isClose: true,
     })
 
@@ -282,11 +285,13 @@ export default function AddToQuote(props: AddToListProps) {
           p: '16px !important',
         }}
       >
-        <B3CollapseContainer title="Add to quote">
+        <B3CollapseContainer
+          title={b3Lang('quoteDraft.collapseTitle.addToQuote')}
+        >
           <SearchProduct
             updateList={updateList}
             addToList={addToList}
-            searchDialogTitle="Add to quote"
+            searchDialogTitle={b3Lang('quoteDraft.modalTitle.addToQuote')}
             addButtonText="Add to Quote"
             isB2BUser={isB2BUser}
           />
@@ -297,7 +302,7 @@ export default function AddToQuote(props: AddToListProps) {
             updateList={updateList}
             quickAddToList={quickAddToList}
             level={1}
-            buttonText="Add products to Quote"
+            buttonText={b3Lang('quoteDraft.button.addProductsToAddToQuote')}
           />
 
           <Divider />
@@ -313,7 +318,7 @@ export default function AddToQuote(props: AddToListProps) {
                   marginRight: '8px',
                 }}
               />
-              Bulk upload CSV
+              {b3Lang('quoteDraft.button.bulkUploadCSV')}
             </CustomButton>
           </Box>
 

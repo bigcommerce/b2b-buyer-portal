@@ -113,9 +113,10 @@ export default function Login(props: RegisteredProps) {
         } = loginPageHtml
 
         const Info = {
-          loginTitle: pageTitle || 'Sign In',
-          loginBtn: signInButtonText || 'SIGN IN',
-          CreateAccountButtonText: createAccountButtonText || 'CREATE ACCOUNT',
+          loginTitle: pageTitle || b3Lang('login.button.signIn'),
+          loginBtn: signInButtonText || b3Lang('login.button.signInUppercase'),
+          CreateAccountButtonText:
+            createAccountButtonText || b3Lang('login.button.createAccount'),
           btnColor: primaryButtonColor || '',
           isShowWidgetHead: topHtmlRegionEnabled || false,
           widgetHeadText: topHtmlRegionHtml || '',
@@ -166,18 +167,18 @@ export default function Login(props: RegisteredProps) {
     if (loginFlag) {
       switch (loginFlag) {
         case '1':
-          str = b3Lang('intl.user.login.loginTipInfo.resetPassword', {
+          str = b3Lang('login.loginTipInfo.resetPassword', {
             email,
           })
           break
         case '2':
-          str = b3Lang('intl.user.login.loginTipInfo.receivePassword')
+          str = b3Lang('login.loginTipInfo.receivePassword')
           break
         case '3':
-          str = b3Lang('intl.user.login.loginTipInfo.loggedOutLogin')
+          str = b3Lang('login.loginTipInfo.loggedOutLogin')
           break
         case '4':
-          str = b3Lang('intl.user.login.loginTipInfo.accountincorrect')
+          str = b3Lang('login.loginTipInfo.accountincorrect')
           break
         default:
           str = ''
@@ -254,7 +255,7 @@ export default function Login(props: RegisteredProps) {
       <LoginContainer paddings={isMobile ? '0' : '20px 20px'}>
         <B3Sping
           isSpinning={isLoading}
-          tip={b3Lang('intl.global.tips.loading')}
+          tip={b3Lang('global.tips.loading')}
           background="transparent"
         >
           <Box

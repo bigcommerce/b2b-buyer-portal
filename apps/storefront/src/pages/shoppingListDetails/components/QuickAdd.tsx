@@ -28,11 +28,12 @@ interface AddToListContentProps {
 }
 
 export default function QuickAdd(props: AddToListContentProps) {
+  const b3Lang = useB3Lang()
   const {
     updateList,
     quickAddToList,
     level = 3,
-    buttonText = 'Add product to list',
+    buttonText = b3Lang('shoppingListDetails.quickAdd.addToShoppingList'),
     buttonLoading = false,
   } = props
 
@@ -41,8 +42,6 @@ export default function QuickAdd(props: AddToListContentProps) {
   } = useContext(GlobaledContext)
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
-
-  const b3Lang = useB3Lang()
 
   const [rows, setRows] = useState(level)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
@@ -86,7 +85,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     if (!sku) {
       setError(`sku-${index}`, {
         type: 'manual',
-        message: b3Lang('intl.global.validate.required', {
+        message: b3Lang('global.validate.required', {
           label: 'SKU#',
         }),
       })
@@ -96,7 +95,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     if (!qty) {
       setError(`qty-${index}`, {
         type: 'manual',
-        message: b3Lang('intl.global.validate.required', {
+        message: b3Lang('global.validate.required', {
           label: 'Qty',
         }),
       })
@@ -352,7 +351,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         if (notFoundSku.length > 0) {
           showErrors(value, notFoundSku, 'sku', '')
           snackbar.error(
-            `SKU ${notFoundSku} were not found, please check entered values`,
+            b3Lang('shoppingListDetails.quickAdd.skuNotFound', { notFoundSku }),
             {
               isClose: true,
             }
@@ -361,16 +360,26 @@ export default function QuickAdd(props: AddToListContentProps) {
 
         if (notPurchaseSku.length > 0) {
           showErrors(value, notPurchaseSku, 'sku', '')
-          snackbar.error(`SKU ${notPurchaseSku} no longer for sale`, {
-            isClose: true,
-          })
+          snackbar.error(
+            b3Lang('shoppingListDetails.quickAdd.skuNotPurchasable', {
+              notPurchaseSku,
+            }),
+            {
+              isClose: true,
+            }
+          )
         }
 
         if (notAddAble.length > 0) {
           showErrors(value, notAddAble, 'sku', '')
-          snackbar.error(`SKU ${notAddAble} cannot be added quickly`, {
-            isClose: true,
-          })
+          snackbar.error(
+            b3Lang('shoppingListDetails.quickAdd.skuNotAddable', {
+              notAddAble,
+            }),
+            {
+              isClose: true,
+            }
+          )
         }
 
         if (numberLimit.length > 0) {
@@ -379,7 +388,9 @@ export default function QuickAdd(props: AddToListContentProps) {
           })
 
           snackbar.error(
-            `SKU ${numberLimit} add quantity is limited from 1 to 1,000,000`,
+            b3Lang('shoppingListDetails.quickAdd.skuNotAddable', {
+              numberLimit,
+            }),
             {
               isClose: true,
             }
@@ -427,7 +438,7 @@ export default function QuickAdd(props: AddToListContentProps) {
               }}
               variant="body1"
             >
-              Quick add
+              {b3Lang('shoppingListDetails.quickAdd.quickAdd')}
             </Typography>
           </Grid>
           <Grid item>
@@ -440,7 +451,7 @@ export default function QuickAdd(props: AddToListContentProps) {
               }}
               onClick={handleAddRowsClick}
             >
-              Show more rows
+              {b3Lang('shoppingListDetails.quickAdd.showMoreRows')}
             </CustomButton>
           </Grid>
         </Grid>

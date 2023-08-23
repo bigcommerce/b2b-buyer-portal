@@ -23,18 +23,17 @@ interface AddToListContentProps {
 }
 
 export default function QuickAdd(props: AddToListContentProps) {
+  const b3Lang = useB3Lang()
   const {
     updateList = () => {},
     quickAddToList,
     level = 3,
-    buttonText = 'Add product to list',
+    buttonText = b3Lang('purchasedProducts.quickAdd.addProductToList'),
   } = props
 
   const {
     state: { isB2BUser },
   } = useContext(GlobaledContext)
-
-  const b3Lang = useB3Lang()
 
   const [rows, setRows] = useState(level)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
@@ -80,8 +79,8 @@ export default function QuickAdd(props: AddToListContentProps) {
     if (!sku) {
       setError(`sku-${index}`, {
         type: 'manual',
-        message: b3Lang('intl.global.validate.required', {
-          label: 'SKU#',
+        message: b3Lang('global.validate.required', {
+          label: b3Lang('purchasedProducts.quickAdd.sku'),
         }),
       })
       isValid = false
@@ -90,8 +89,8 @@ export default function QuickAdd(props: AddToListContentProps) {
     if (!qty) {
       setError(`qty-${index}`, {
         type: 'manual',
-        message: b3Lang('intl.global.validate.required', {
-          label: 'Qty',
+        message: b3Lang('global.validate.required', {
+          label: b3Lang('purchasedProducts.quickAdd.qty'),
         }),
       })
       isValid = false
@@ -322,7 +321,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         if (notFoundSku.length > 0) {
           showErrors(value, notFoundSku, 'sku', '')
           snackbar.error(
-            `SKU ${notFoundSku} were not found, please check entered values`,
+            b3Lang('purchasedProducts.quickAdd.notFoundSku', { notFoundSku }),
             {
               isClose: true,
             }
@@ -331,9 +330,14 @@ export default function QuickAdd(props: AddToListContentProps) {
 
         if (notPurchaseSku.length > 0) {
           showErrors(value, notPurchaseSku, 'sku', '')
-          snackbar.error(`SKU ${notPurchaseSku} no longer for sale`, {
-            isClose: true,
-          })
+          snackbar.error(
+            b3Lang('purchasedProducts.quickAdd.notPurchaseableSku', {
+              notPurchaseSku,
+            }),
+            {
+              isClose: true,
+            }
+          )
         }
 
         if (notStockSku.length > 0) {
@@ -346,7 +350,9 @@ export default function QuickAdd(props: AddToListContentProps) {
           })
 
           snackbar.error(
-            `SKU ${stockSku} do not have enough stock, please change quantity.`,
+            b3Lang('purchasedProducts.quickAdd.insufficientStockSku', {
+              stockSku,
+            }),
             {
               isClose: true,
             }
@@ -364,7 +370,10 @@ export default function QuickAdd(props: AddToListContentProps) {
 
             const typeText = min === 0 ? 'maximum' : 'minimum'
             snackbar.error(
-              `You need to purchase a ${typeText} of ${limit} of the ${sku} per order.`,
+              b3Lang(
+                'purchasedProducts.quickAdd.purchaseQuantityLimitMessage',
+                { typeText, limit, sku }
+              ),
               {
                 isClose: true,
               }
@@ -413,7 +422,7 @@ export default function QuickAdd(props: AddToListContentProps) {
               }}
               variant="body1"
             >
-              Quick add
+              {b3Lang('purchasedProducts.quickAdd.title')}
             </Typography>
           </Grid>
           <Grid item>
@@ -425,7 +434,7 @@ export default function QuickAdd(props: AddToListContentProps) {
               }}
               onClick={handleAddRowsClick}
             >
-              Show more rows
+              {b3Lang('purchasedProducts.quickAdd.showMoreRowsButton')}
             </CustomButton>
           </Grid>
         </Grid>

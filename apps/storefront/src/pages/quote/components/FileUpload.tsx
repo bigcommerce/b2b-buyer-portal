@@ -1,5 +1,6 @@
 import { forwardRef, Ref, useImperativeHandle, useState } from 'react'
 import { DropzoneArea } from 'react-mui-dropzone'
+import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import AttachFileIcon from '@mui/icons-material/AttachFile'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -101,9 +102,10 @@ const AttachFile = styled(AttachFileIcon)(() => ({
 }))
 
 function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
+  const b3Lang = useB3Lang()
   const {
-    title = 'Add Attachment',
-    tips = 'You can add up to 3 files,not bigger that 2MB each.',
+    title = b3Lang('global.fileUpload.addAttachment'),
+    tips = b3Lang('global.fileUpload.maxFileSizeMessage'),
     maxFileSize = 2097152, // 2MB
     fileNumber = 3,
     limitUploadFn,
@@ -150,13 +152,13 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
 
     let message = ''
     if (!isAcceptFileType) {
-      message = 'file type not support'
+      message = b3Lang('global.fileUpload.fileTypeNotSupported')
     }
 
     if (size > maxFileSize) {
-      message = `file exceeds upload limit. Maximum file size is ${getMaxFileSizeLabel(
-        maxFileSize
-      )}`
+      message = b3Lang('global.fileUpload.fileSizeExceedsLimit', {
+        maxFileSize: getMaxFileSizeLabel(maxFileSize),
+      })
     }
 
     if (message) {
@@ -168,9 +170,9 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
 
   const getFileLimitExceedMessage = () => {
     snackbar.error(
-      `file exceeds upload limit. Maximum file size is ${getMaxFileSizeLabel(
-        maxFileSize
-      )}`
+      b3Lang('global.fileUpload.fileSizeExceedsLimit', {
+        maxFileSize: getMaxFileSizeLabel(maxFileSize),
+      })
     )
     return ''
   }
@@ -183,7 +185,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
     }
 
     if (!limitUploadFn && file && fileList.length >= fileNumber) {
-      snackbar.error(`You can add up to ${fileNumber} files`)
+      snackbar.error(b3Lang('global.fileUpload.maxFileNumber', { fileNumber }))
       return
     }
 

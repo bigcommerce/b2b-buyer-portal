@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
+import { useB3Lang } from '@b3/lang'
 
 import { HeadlessRoutes } from '@/constants'
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP'
@@ -116,6 +117,7 @@ export default function HeadlessController({
   setOpenPage,
 }: HeadlessControllerProps) {
   const storeDispatch = useDispatch()
+  const b3Lang = useB3Lang()
 
   const {
     dispatch,
@@ -260,6 +262,7 @@ export default function HeadlessController({
               isB2BUser: isB2BUserRef.current,
               customerGroupId: customerRef.current.customerGroupId,
               gotoShoppingDetail,
+              b3Lang,
             }),
           createNewShoppingList: async (name, description) => {
             const { shoppingListsCreate } = await createShoppingList({

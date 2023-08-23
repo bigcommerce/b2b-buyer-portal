@@ -1,4 +1,4 @@
-import { B3Lang } from '@b3/lang'
+import { LangFormatFunction } from '@b3/lang'
 
 import { storeHash, validatorRules } from '@/utils'
 import { bcBaseUrl } from '@/utils/basicConfig'
@@ -49,10 +49,10 @@ export interface ChannelstoreSites {
   storeSites?: Array<ChannelIdProps> | []
 }
 
-export const getForgotPasswordFields = (lang: B3Lang) => [
+export const getForgotPasswordFields = (b3Lang: LangFormatFunction) => [
   {
     name: 'emailAddress',
-    label: lang('intl.user.login.loginText.emailAddress'),
+    label: b3Lang('global.loginText.emailAddress'),
     required: true,
     default: '',
     fieldType: 'text',
@@ -63,10 +63,10 @@ export const getForgotPasswordFields = (lang: B3Lang) => [
   },
 ]
 
-export const getLoginFields = (lang: B3Lang) => [
+export const getLoginFields = (b3Lang: LangFormatFunction) => [
   {
     name: 'emailAddress',
-    label: lang('intl.user.login.loginText.emailAddress'),
+    label: b3Lang('global.loginText.emailAddress'),
     required: true,
     default: '',
     fieldType: 'text',
@@ -76,7 +76,7 @@ export const getLoginFields = (lang: B3Lang) => [
   },
   {
     name: 'password',
-    label: lang('intl.user.login.loginText.password'),
+    label: b3Lang('login.loginText.password'),
     required: true,
     default: '',
     fieldType: 'password',

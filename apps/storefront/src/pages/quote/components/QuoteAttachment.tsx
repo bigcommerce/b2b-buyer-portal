@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent } from '@mui/material'
 
 import { B3CollapseContainer } from '@/components'
@@ -24,6 +25,7 @@ interface QuoteAttachmentProps {
 
 export default function QuoteAttachment(props: QuoteAttachmentProps) {
   const { allowUpload = true, defaultFileList = [], status, quoteId } = props
+  const b3Lang = useB3Lang()
 
   const {
     state: {
@@ -82,7 +84,9 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
         newFileList = [
           {
             ...createFile,
-            title: `Uploaded by customer: ${attachFiles[0].createdBy}`,
+            title: b3Lang('global.quoteAttachment.uploadedByCustomer', {
+              createdBy: attachFiles[0].createdBy,
+            }),
             hasDelete: true,
           },
           ...fileList,
@@ -91,7 +95,10 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
         newFileList = [
           {
             ...file,
-            title: `Uploaded by customer: ${firstName} ${lastName}`,
+            title: b3Lang('global.quoteAttachment.uploadedByCustomerWithName', {
+              firstName,
+              lastName,
+            }),
             hasDelete: true,
           },
           ...fileList,
@@ -129,7 +136,7 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
       (file: FileObjects) => file?.title && file.title.includes('by customer')
     )
     if (customerFiles.length >= 3) {
-      snackbar.error('You can add up to 3 files')
+      snackbar.error(b3Lang('global.quoteAttachment.maxFilesMessage'))
       return true
     }
     return false

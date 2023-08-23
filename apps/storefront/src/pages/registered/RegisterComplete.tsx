@@ -354,15 +354,11 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       if (completeData.password !== completeData.confirmPassword) {
         setError('confirmPassword', {
           type: 'manual',
-          message: b3Lang(
-            'intl.user.register.RegisterComplete.passwordMatchPrompt'
-          ),
+          message: b3Lang('global.registerComplete.passwordMatchPrompt'),
         })
         setError('password', {
           type: 'manual',
-          message: b3Lang(
-            'intl.user.register.RegisterComplete.passwordMatchPrompt'
-          ),
+          message: b3Lang('global.registerComplete.passwordMatchPrompt'),
         })
         return
       }

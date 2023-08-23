@@ -1,4 +1,5 @@
 import { ReactElement } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Delete, Edit } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
@@ -32,6 +33,7 @@ const StyledImage = styled('img')(() => ({
 }))
 
 function ShoppingDetailCard(props: ShoppingDetailCardProps) {
+  const b3Lang = useB3Lang()
   const {
     item: shoppingDetail,
     onEdit,
@@ -150,14 +152,16 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               fontSize: '14px',
             }}
           >
-            {`Price: ${currencyFormat(price)}`}
+            {b3Lang('shoppingListDetails.shoppingDetailCard.price', {
+              price: currencyFormat(price),
+            })}
           </Typography>
 
           <TextField
             size="small"
             type="number"
             variant="filled"
-            label="qty"
+            label={b3Lang('shoppingListDetails.shoppingDetailCard.quantity')}
             disabled={isReadForApprove}
             inputProps={{
               inputMode: 'numeric',
@@ -189,7 +193,9 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               fontSize: '14px',
             }}
           >
-            {`Total: ${currencyFormat(total)}`}
+            {b3Lang('shoppingListDetails.shoppingDetailCard.total', {
+              total: currencyFormat(total),
+            })}
           </Typography>
           <Box
             sx={{
