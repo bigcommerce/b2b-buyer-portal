@@ -585,7 +585,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
 
   const tax = (calculatedTaxPrice - calculatedNoTaxPrice).toFixed(2)
 
-  const taxRate = +(+tax / calculatedNoTaxPrice).toFixed(2)
+  const taxRate = +tax / calculatedNoTaxPrice
 
   let finalDiscount = 0
   let itemTotalTaxPrice = 0
