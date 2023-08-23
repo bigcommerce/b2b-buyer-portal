@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useB3Lang } from '@b3/lang'
 import { Box, Button, Grid } from '@mui/material'
 import copy from 'copy-to-clipboard'
 
@@ -43,6 +44,8 @@ function QuoteDetail() {
     },
   } = useContext(GlobaledContext)
   const [isMobile] = useMobile()
+
+  const b3Lang = useB3Lang()
 
   const [quoteDetail, setQuoteDetail] = useState<any>({})
   const [productList, setProductList] = useState<any>([])
@@ -200,7 +203,9 @@ function QuoteDetail() {
           fileUrl: file.fileUrl,
           id: file.id,
           hasDelete: quoteDetail.status !== 4,
-          title: `Uploaded by customer: ${file.createdBy}`,
+          title: b3Lang('quoteDetail.uploadedByCustomer', {
+            createdBy: file.createdBy,
+          }),
         })
       })
 
@@ -210,7 +215,9 @@ function QuoteDetail() {
           fileType: file.fileType,
           fileUrl: file.fileUrl,
           id: file.id,
-          title: `Uploaded by sales rep: ${file.createdBy}`,
+          title: b3Lang('quoteDetail.uploadedBySalesRep', {
+            createdBy: file.createdBy,
+          }),
         })
       })
 
@@ -336,14 +343,14 @@ function QuoteDetail() {
         }}
       >
         {+role === 100
-          ? 'Your quote was submitted. You can always find the quote using this link.'
-          : 'Your quote was submitted'}
+          ? b3Lang('quoteDetail.submittedQuote')
+          : b3Lang('quoteDetail.quoteSubmitted')}
       </Box>
       <Button
         onClick={() => {
           if (+role === 100) {
             copy(window.location.href)
-            snackbar.success('copy successfully')
+            snackbar.success(b3Lang('quoteDetail.copySuccessful'))
           } else {
             navigate('/quotes')
           }
@@ -355,7 +362,9 @@ function QuoteDetail() {
           padding: 0,
         }}
       >
-        {+role === 100 ? 'Copy quote link' : 'Review all quotes'}
+        {+role === 100
+          ? b3Lang('quoteDetail.copyQuoteLink')
+          : b3Lang('quoteDetail.reviewAllQuotes')}
       </Button>
     </Box>
   )

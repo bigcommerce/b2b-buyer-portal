@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useB3Lang } from '@b3/lang'
 import { Box, Grid, useTheme } from '@mui/material'
 
 import { B3Sping } from '@/components'
@@ -94,6 +95,8 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const { dispatch } = useContext(ShoppingListDetailsContext)
 
   const theme = useTheme()
+
+  const b3Lang = useB3Lang()
 
   const primaryColor = theme.palette.primary.main
 
@@ -246,9 +249,12 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
 
       await updateShoppingList(params)
 
-      snackbar.success('Shopping list status updated successfully', {
-        isClose: true,
-      })
+      snackbar.success(
+        b3Lang('shoppingListDetails.shoppingListStatusUpdated'),
+        {
+          isClose: true,
+        }
+      )
       tableRef.current?.initSearch()
     } finally {
       setIsRequestLoading(false)
@@ -300,7 +306,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
         setCheckedArr([])
       }
 
-      snackbar.success('Product removed from your shopping list')
+      snackbar.success(b3Lang('shoppingListDetails.productRemoved'))
     } finally {
       setIsRequestLoading(false)
       updateList()

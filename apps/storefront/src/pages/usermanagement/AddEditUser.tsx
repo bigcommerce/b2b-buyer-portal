@@ -108,7 +108,7 @@ function AddEditUser(
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
 
-      let message = 'add user successfully'
+      let message = b3Lang('userManagement.addUserSuccessfully')
 
       try {
         const params: Partial<FilterProps> = {
@@ -129,13 +129,15 @@ function AddEditUser(
           }
 
           if (userType === 7) {
-            message = `user detected in your company, we will allow current storefront access for email: ${data.email}`
+            message = b3Lang('userManagement.userDetected', {
+              email: data.email,
+            })
           }
         }
 
         if (type === 'edit') {
           params.userId = editData?.id || ''
-          message = 'update user successfully'
+          message = b3Lang('userManagement.updateUserSuccessfully')
           delete params.email
         }
         await addOrUpdateUsers(params)
@@ -156,6 +158,7 @@ function AddEditUser(
     }
     const usersFiles = getUsersFiles(
       type,
+      b3Lang,
       type === 'edit' ? +B3UserId === +data.id : false
     )
     setUsersFiles(usersFiles)
@@ -170,9 +173,13 @@ function AddEditUser(
   return (
     <B3Dialog
       isOpen={open}
-      title={`${type === 'edit' ? 'Edit user' : ' Add new user'}`}
-      leftSizeBtn="cancel"
-      rightSizeBtn="Save user"
+      title={`${
+        type === 'edit'
+          ? b3Lang('userManagement.editUser')
+          : b3Lang('userManagement.addNewUser')
+      }`}
+      leftSizeBtn={b3Lang('userManagement.cancel')}
+      rightSizeBtn={b3Lang('userManagement.saveUser')}
       handleLeftClick={handleCancelClick}
       handRightClick={handleAddUserClick}
       loading={addUpdateLoading}

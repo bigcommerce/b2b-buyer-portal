@@ -1,3 +1,4 @@
+import { useB3Lang } from '@b3/lang'
 import { Box, CardContent, styled, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
@@ -20,6 +21,7 @@ const StyledImage = styled('img')(() => ({
 
 function QuoteDetailTableCard(props: QuoteTableCardProps) {
   const { item: quoteTableItem, len, itemIndex, getTaxRate } = props
+  const b3Lang = useB3Lang()
 
   const {
     global: { enteredInclusive: enteredInclusiveTax },
@@ -133,7 +135,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               fontSize: '14px',
             }}
           >
-            Price:
+            {b3Lang('quoteDetail.tableCard.price')}
             {isDiscount && (
               <span
                 style={{
@@ -160,7 +162,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               fontSize: '14px',
             }}
           >
-            {`Qty: ${quantity}`}
+            {b3Lang('quoteDetail.tableCard.qty', { quantity })}
           </Typography>
 
           <Typography
@@ -168,7 +170,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               fontSize: '14px',
             }}
           >
-            Total:
+            {b3Lang('quoteDetail.tableCard.total')}
             {isDiscount && (
               <span
                 style={{

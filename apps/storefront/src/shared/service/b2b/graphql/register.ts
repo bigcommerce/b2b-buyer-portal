@@ -154,6 +154,7 @@ const getStoreChannelId = () => `{
     storeUrl
     multiStorefrontEnabled
     storeSites{
+      translationVersion
       channelId
       urls
       iconUrl

@@ -1,3 +1,4 @@
+import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
@@ -54,6 +55,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
   } = props
 
   const theme = useTheme()
+  const b3Lang = useB3Lang()
 
   return (
     <Card key={addressInfo.id}>
@@ -89,12 +91,12 @@ export function AddressItemCard(props: OrderItemCardProps) {
         >
           {addressInfo.isDefaultShipping === 1 && (
             <B3Tag color="#C4DD6C" textColor="rgba(0, 0, 0, 0.87)">
-              Default shipping
+              {b3Lang('addresses.addressItemCard.defaultShipping')}
             </B3Tag>
           )}
           {addressInfo.isDefaultBilling === 1 && (
             <B3Tag color="#C4DD6C" textColor="rgba(0, 0, 0, 0.87)">
-              Default billing
+              {b3Lang('addresses.addressItemCard.defaultBilling')}
             </B3Tag>
           )}
         </TagBox>
@@ -122,7 +124,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
                   onSetDefault(addressInfo)
                 }}
               >
-                Set as default
+                {b3Lang('addresses.addressItemCard.setAsDefault')}
               </CustomButton>
             )}
             <Box

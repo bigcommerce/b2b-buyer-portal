@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Delete, Edit } from '@mui/icons-material'
 import { Box, Grid, styled, TextField, Typography } from '@mui/material'
 import cloneDeep from 'lodash-es/cloneDeep'
@@ -130,6 +131,7 @@ function ShoppingDetailTable(
   ref: Ref<unknown>
 ) {
   const [isMobile] = useMobile()
+  const b3Lang = useB3Lang()
 
   const {
     shoppingListInfo,
@@ -244,7 +246,7 @@ function ShoppingDetailTable(
       await updateShoppingListItem(data)
       setSelectedOptionsOpen(false)
       setEditProductItemId('')
-      snackbar.success('Product updated successfully')
+      snackbar.success(b3Lang('shoppingListDetails.table.productUpdated'))
       initSearch()
     } finally {
       // setIsRequestLoading(false)
@@ -297,7 +299,7 @@ function ShoppingDetailTable(
         : updateBcShoppingListsItem
 
       await updateShoppingListItem(data)
-      snackbar.success('Product quantity updated successfully')
+      snackbar.success(b3Lang('shoppingListDetails.table.quantityUpdated'))
       setQtyNotChangeFlag(true)
       initSearch()
     } finally {
@@ -344,7 +346,7 @@ function ShoppingDetailTable(
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'Product',
-      title: 'Product',
+      title: b3Lang('shoppingListDetails.table.product'),
       render: (row: CustomFieldItems) => {
         const product: any = {
           ...row.productsSearch,
@@ -413,7 +415,7 @@ function ShoppingDetailTable(
     },
     {
       key: 'Price',
-      title: 'Price',
+      title: b3Lang('shoppingListDetails.table.price'),
       render: (row: CustomFieldItems) => {
         const { basePrice, taxPrice = 0 } = row
         const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
@@ -435,7 +437,7 @@ function ShoppingDetailTable(
     },
     {
       key: 'Qty',
-      title: 'Qty',
+      title: b3Lang('shoppingListDetails.table.quantity'),
       render: (row) => (
         <StyledTextField
           size="small"
@@ -465,7 +467,7 @@ function ShoppingDetailTable(
     },
     {
       key: 'Total',
-      title: 'Total',
+      title: b3Lang('shoppingListDetails.table.total'),
       render: (row: CustomFieldItems) => {
         const {
           basePrice,
@@ -577,7 +579,9 @@ function ShoppingDetailTable(
             fontSize: '24px',
           }}
         >
-          {`${shoppingListInfo?.products?.totalCount || 0} products`}
+          {b3Lang('shoppingListDetails.table.totalProductCount', {
+            quantity: shoppingListInfo?.products?.totalCount || 0,
+          })}
         </Typography>
         <Typography
           sx={{
@@ -615,12 +619,12 @@ function ShoppingDetailTable(
             : isReadForApprove || isJuniorApprove
         }
         hover
-        labelRowsPerPage="Items per page:"
+        labelRowsPerPage={b3Lang('shoppingListDetails.table.itemsPerPage')}
         showBorder={false}
         requestLoading={setIsRequestLoading}
         getSelectCheckbox={getSelectCheckbox}
         itemIsMobileSpacing={0}
-        noDataText="No products found"
+        noDataText={b3Lang('shoppingListDetails.table.noProductsFound')}
         renderItem={(
           row: ProductInfoProps,
           index?: number,

@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Sping } from '@/components'
@@ -60,6 +61,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       salesRepCompanyId,
     },
   } = useContext(GlobaledContext)
+  const b3Lang = useB3Lang()
 
   const [isRequestLoading, setIsRequestLoading] = useState(false)
 
@@ -142,13 +144,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {
       key: 'orderId',
-      title: 'Order',
+      title: b3Lang('orders.order'),
       width: '10%',
       isSortable: true,
     },
     {
       key: 'poNumber',
-      title: 'PO / Reference',
+      title: b3Lang('orders.poReference'),
       render: (item: ListItem) => (
         <Box>{item.poNumber ? item.poNumber : '–'}</Box>
       ),
@@ -157,7 +159,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     },
     {
       key: 'totalIncTax',
-      title: 'Grand total',
+      title: b3Lang('orders.grandTotal'),
       render: (item: ListItem) =>
         item?.money
           ? `${ordersCurrencyFormat(
@@ -173,7 +175,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     },
     {
       key: 'status',
-      title: 'Order status',
+      title: b3Lang('orders.orderStatus'),
       render: (item: ListItem) => (
         <OrderStatus
           text={getOrderStatusText(item.status, getOrderStatuses)}
@@ -185,21 +187,21 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     },
     {
       key: 'placedby',
-      title: 'Placed by',
+      title: b3Lang('orders.placedBy'),
       render: (item: ListItem) => `${item.firstName} ${item.lastName}`,
       width: '10%',
       isSortable: true,
     },
     {
       key: 'createdAt',
-      title: 'Created on',
+      title: b3Lang('orders.createdOn'),
       render: (item: ListItem) => `${displayFormat(+item.createdAt)}`,
       width: '10%',
       isSortable: true,
     },
     {
       key: 'companyId',
-      title: 'Company',
+      title: b3Lang('orders.company'),
       render: (item) =>
         `${(item as ListCompanyItem)?.companyId?.companyName || ''}`,
       width: '10%',
@@ -263,13 +265,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           // sortByConfig={sortByConfigData}
           startPicker={{
             isEnabled: true,
-            label: 'From',
+            label: b3Lang('orders.from'),
             defaultValue: filterData?.beginDateAt || null,
             pickerKey: 'start',
           }}
           endPicker={{
             isEnabled: true,
-            label: 'To',
+            label: b3Lang('orders.to'),
             defaultValue: filterData?.endDateAt || null,
             pickerKey: 'end',
           }}

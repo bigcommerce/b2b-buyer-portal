@@ -1,5 +1,6 @@
 import { lazy, useContext, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { LangFormatFunction,useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { GlobaledContext } from '@/shared/global'
@@ -7,10 +8,10 @@ import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
 
 const B3Dialog = lazy(() => import('../../../components/B3Dialog'))
 const B3CustomForm = lazy(() => import('../../../components/B3CustomForm'))
-const list = [
+const getList = (b3Lang: LangFormatFunction) => [
   {
     name: 'name',
-    label: 'Name',
+    label: b3Lang('global.createShoppingList.name'),
     required: true,
     default: '',
     fieldType: 'text',
@@ -21,7 +22,7 @@ const list = [
   },
   {
     name: 'description',
-    label: 'Description',
+    label: b3Lang('global.createShoppingList.description'),
     required: false,
     default: '',
     fieldType: 'multiline',
@@ -45,6 +46,8 @@ function CreateShoppingList({
   onClose,
 }: CreateShoppingListProps) {
   const container = useRef<HTMLInputElement | null>(null)
+
+  const b3Lang = useB3Lang()
 
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -95,7 +98,7 @@ function CreateShoppingList({
       <B3Dialog
         isOpen={open}
         fullWidth
-        title="Create new"
+        title={b3Lang('global.createShoppingList.createNew')}
         loading={loading}
         handleLeftClick={handleClose}
         handRightClick={handleConfirm}
@@ -108,7 +111,7 @@ function CreateShoppingList({
           }}
         >
           <B3CustomForm
-            formFields={list}
+            formFields={getList(b3Lang)}
             errors={errors}
             control={control}
             getValues={getValues}

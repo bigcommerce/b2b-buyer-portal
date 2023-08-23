@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react'
 import { useForm } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
 import { Checkbox, FormControlLabel, styled } from '@mui/material'
 import cloneDeep from 'lodash-es/cloneDeep'
 
@@ -64,6 +65,7 @@ function AddressForm(
   }: AddressFormProps,
   ref: Ref<unknown> | undefined
 ) {
+  const b3Lang = useB3Lang()
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false)
@@ -208,7 +210,7 @@ function AddressForm(
 
         if (type === 'add') {
           await createB2BAddress(params)
-          snackbar.success('New address is added')
+          snackbar.success(b3Lang('addresses.addressForm.newAddressAdded'))
         } else if (type === 'edit' && addressData) {
           const { id } = addressData
 
@@ -217,7 +219,7 @@ function AddressForm(
             id: +id,
           })
 
-          snackbar.success('Address updated successfully')
+          snackbar.success(b3Lang('addresses.addressForm.addressUpdated'))
         }
         setShippingBilling({
           isShipping: false,
@@ -287,7 +289,7 @@ function AddressForm(
 
         if (type === 'add') {
           await createBcAddress(params)
-          snackbar.success('New address is added')
+          snackbar.success(b3Lang('addresses.addressForm.newAddressAdded'))
         } else if (type === 'edit' && addressData) {
           const { bcAddressId } = addressData
 
@@ -297,7 +299,7 @@ function AddressForm(
               id: +bcAddressId,
             })
           }
-          snackbar.success('Address updated successfully')
+          snackbar.success(b3Lang('addresses.addressForm.addressUpdated'))
         }
         setOpen(false)
 
@@ -516,9 +518,13 @@ function AddressForm(
   return (
     <B3Dialog
       isOpen={open}
-      title={type === 'add' ? 'Add new address' : 'Edit address'}
-      leftSizeBtn="Cancel"
-      rightSizeBtn="Save Address"
+      title={
+        type === 'add'
+          ? b3Lang('addresses.addressForm.addNewAddress')
+          : b3Lang('addresses.addressForm.editAddress')
+      }
+      leftSizeBtn={b3Lang('addresses.addressForm.cancel')}
+      rightSizeBtn={b3Lang('addresses.addressForm.saveAddress')}
       handleLeftClick={handleCancelClick}
       handRightClick={handleSaveAddress}
       loading={addUpdateLoading}
@@ -526,7 +532,7 @@ function AddressForm(
     >
       {isB2BUser && (
         <>
-          <p>Select address type</p>
+          <p>{b3Lang('addresses.addressForm.selectAddressType')}</p>
 
           <StyledCheckbox>
             {b2bShippingBilling.map((item: B2bShippingBillingProps) => {

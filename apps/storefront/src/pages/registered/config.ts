@@ -1,4 +1,4 @@
-import { B3Lang } from '@b3/lang'
+import { LangFormatFunction } from '@b3/lang'
 import format from 'date-fns/format'
 
 import { getLineNumber, validatorRules } from '@/utils'
@@ -90,9 +90,9 @@ export interface RegisterFieldsItems {
 }
 
 export const steps = [
-  'intl.user.register.step.account',
-  'intl.user.register.step.details',
-  'intl.user.register.step.finish',
+  'registered.step.account',
+  'registered.step.details',
+  'registered.step.finish',
 ]
 
 const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown']
@@ -394,11 +394,11 @@ export const getAccountFormFields = (
 // todo
 
 export const companyAttachmentsFields = (
-  b3lang: B3Lang
+  b3lang: LangFormatFunction
 ): ContactInformationItems => [
   {
     name: 'companyAttachments',
-    label: b3lang('intl.user.register.label.companyAttachments'),
+    label: b3lang('registered.label.companyAttachments'),
     default: [],
     fieldType: 'file',
     required: false,
@@ -432,9 +432,9 @@ type EmailError = {
 }
 
 export const emailError: EmailError = {
-  2: 'intl.user.addUser.emailValidate.alreadyExitsBC',
-  3: 'intl.user.addUser.emailValidate.multipleCustomer',
-  4: 'intl.user.addUser.emailValidate.companyUsed',
-  5: 'intl.user.addUser.emailValidate.alreadyExits',
-  6: 'intl.user.addUser.emailValidate.usedSuperAdmin',
+  2: 'registered.emailValidate.alreadyExitsBC',
+  3: 'global.emailValidate.multipleCustomer',
+  4: 'global.emailValidate.companyUsed',
+  5: 'global.emailValidate.alreadyExits',
+  6: 'global.emailValidate.usedSuperAdmin',
 }

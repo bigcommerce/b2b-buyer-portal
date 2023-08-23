@@ -38,7 +38,7 @@ export default function RegisteredFinish(props: {
     if (accountType === '1') {
       return isAutoApproval ? (
         <StyleTipContainer>
-          {b3Lang('intl.user.register.RegisterFinish.autoApproved.tip', {
+          {b3Lang('global.registerFinish.autoApproved.tip', {
             storeName,
           })}
         </StyleTipContainer>
@@ -56,16 +56,14 @@ export default function RegisteredFinish(props: {
               }}
             >
               {b3Lang(
-                'intl.user.register.RegisterFinish.blockPendingAccountOrderCreation.tip'
+                'global.registerFinish.blockPendingAccountOrderCreation.tip'
               )}
             </Alert>
           )}
           <StyleTipContainer>
             {blockPendingAccountOrderCreation
-              ? b3Lang(
-                  'intl.user.register.RegisterFinish.notAutoApproved.warningTip'
-                )
-              : b3Lang('intl.user.register.RegisterFinish.notAutoApproved.tip')}
+              ? b3Lang('global.registerFinish.notAutoApproved.warningTip')
+              : b3Lang('global.registerFinish.notAutoApproved.tip')}
           </StyleTipContainer>
         </>
       )
@@ -74,7 +72,7 @@ export default function RegisteredFinish(props: {
     if (accountType === '2') {
       return (
         <StyleTipContainer>
-          {b3Lang('intl.user.register.RegisterFinish.bcSuccess.tip', {
+          {b3Lang('global.registerFinish.bcSuccess.tip', {
             storeName,
           })}
         </StyleTipContainer>

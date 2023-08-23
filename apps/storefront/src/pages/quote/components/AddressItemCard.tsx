@@ -1,3 +1,4 @@
+import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Theme, useTheme } from '@mui/material'
 import Card from '@mui/material/Card'
@@ -40,6 +41,8 @@ export function AddressItemCard(props: OrderItemCardProps) {
 
   const theme = useTheme()
 
+  const b3Lang = useB3Lang()
+
   return (
     <Card key={addressInfo.id}>
       <CardContent
@@ -74,12 +77,12 @@ export function AddressItemCard(props: OrderItemCardProps) {
         >
           {addressInfo.isDefaultShipping === 1 && (
             <B3Tag color="#C4DD6C" textColor="rgba(0, 0, 0, 0.87)">
-              Default shipping
+              {b3Lang('quoteDraft.addressItemCard.defaultShipping')}
             </B3Tag>
           )}
           {addressInfo.isDefaultBilling === 1 && (
             <B3Tag color="#C4DD6C" textColor="rgba(0, 0, 0, 0.87)">
-              Default billing
+              {b3Lang('quoteDraft.addressItemCard.defaultBilling')}
             </B3Tag>
           )}
         </TagBox>
@@ -98,7 +101,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
               onSetAddress(addressInfo)
             }}
           >
-            Choose address
+            {b3Lang('quoteDraft.addressItemCard.chooseAddress')}
           </CustomButton>
         </Flex>
       </CardContent>

@@ -9,8 +9,6 @@ import { GlobalProvider } from '@/shared/global'
 import B3StoreContainer from './components/B3StoreContainer'
 import { createFrameLoading } from './utils/b3PageMask'
 import App from './App'
-import { SUPPORT_LANGUAGE } from './constants'
-import * as locales from './locales'
 import { store } from './store'
 import B3ThemeProvider from './theme'
 
@@ -35,7 +33,7 @@ ReactDOM.createRoot(container).render(
       <CustomStyleProvider>
         <B3StoreContainer>
           <DynamicallyVariableProvider>
-            <LangProvider locales={locales} supportLang={SUPPORT_LANGUAGE}>
+            <LangProvider>
               <B3ThemeProvider>
                 <App />
               </B3ThemeProvider>

@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Box, styled, TextField, Typography } from '@mui/material'
 
 import { B3Sping } from '@/components'
@@ -158,6 +159,8 @@ function QuickorderTable({
 
   const [isMobile] = useMobile()
 
+  const b3Lang = useB3Lang()
+
   const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
@@ -304,7 +307,7 @@ function QuickorderTable({
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'product',
-      title: 'Product',
+      title: b3Lang('purchasedProducts.product'),
       render: (row: CustomFieldItems) => {
         const { optionList } = row
         return (
@@ -351,7 +354,7 @@ function QuickorderTable({
     },
     {
       key: 'price',
-      title: 'Price',
+      title: b3Lang('purchasedProducts.price'),
       render: (row: CustomFieldItems) => {
         const {
           productsSearch: { variants },
@@ -385,7 +388,7 @@ function QuickorderTable({
     },
     {
       key: 'qty',
-      title: 'Qty',
+      title: b3Lang('purchasedProducts.qty'),
       render: (row) => (
         <StyledTextField
           size="small"
@@ -408,7 +411,7 @@ function QuickorderTable({
     },
     {
       key: 'lastOrderedAt',
-      title: 'Last ordered',
+      title: b3Lang('purchasedProducts.lastOrdered'),
       render: (row: CustomFieldItems) => (
         <Box>
           <Typography
@@ -437,7 +440,7 @@ function QuickorderTable({
             height: '50px',
           }}
         >
-          {`${total} products`}
+          {b3Lang('purchasedProducts.totalProducts', { total })}
         </Typography>
         <Box
           sx={{
@@ -475,13 +478,13 @@ function QuickorderTable({
                   fiterMoreInfo={[]}
                   startPicker={{
                     isEnabled: true,
-                    label: 'From',
+                    label: b3Lang('ppurchasedProducts.from'),
                     defaultValue: search?.beginDateAt || '',
                     pickerKey: 'start',
                   }}
                   endPicker={{
                     isEnabled: true,
-                    label: 'To',
+                    label: b3Lang('ppurchasedProducts.to'),
                     defaultValue: search?.endDateAt || '',
                     pickerKey: 'end',
                   }}
@@ -501,13 +504,13 @@ function QuickorderTable({
               }}
               startPicker={{
                 isEnabled: true,
-                label: 'From',
+                label: b3Lang('ppurchasedProducts.from'),
                 defaultValue: distanceDay(90),
                 pickerKey: 'start',
               }}
               endPicker={{
                 isEnabled: true,
-                label: 'To',
+                label: b3Lang('ppurchasedProducts.to'),
                 defaultValue: distanceDay(),
                 pickerKey: 'end',
               }}
@@ -527,13 +530,13 @@ function QuickorderTable({
           showSelectAllCheckbox
           disableCheckbox={false}
           hover
-          labelRowsPerPage="Items per page:"
+          labelRowsPerPage={b3Lang('purchasedProducts.itemsPerPage')}
           showBorder={false}
           requestLoading={setIsRequestLoading}
           getSelectCheckbox={getSelectCheckbox}
           itemIsMobileSpacing={0}
           isSelectOtherPageCheckbox
-          noDataText="No products found"
+          noDataText={b3Lang('purchasedProducts.noProductsFound')}
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}

@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import AddIcon from '@mui/icons-material/Add'
 import { Box, ListItemText, MenuItem, MenuList, useTheme } from '@mui/material'
 
@@ -28,10 +29,11 @@ interface ListItem {
 const noop = () => {}
 
 export default function OrderShoppingList(props: OrderShoppingListProps) {
+  const b3Lang = useB3Lang()
   const {
     isOpen,
-    dialogTitle = 'Confirm',
-    confirmText = 'OK',
+    dialogTitle = b3Lang('global.orderShoppingList.confirm'),
+    confirmText = b3Lang('global.orderShoppingList.ok'),
     onClose = noop,
     onConfirm = noop,
     onCreate = noop,
@@ -164,8 +166,8 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
             sx={{
               fontSize: '17px',
             }}
-          />{' '}
-          Create new
+          />
+          {` ${b3Lang('global.orderShoppingList.createNew')}`}
         </CustomButton>
       </B3Sping>
     </B3Dialog>

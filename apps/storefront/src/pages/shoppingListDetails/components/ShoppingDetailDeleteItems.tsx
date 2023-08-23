@@ -1,3 +1,4 @@
+import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Dialog } from '@/components'
@@ -10,15 +11,16 @@ interface ShoppingDetailDeleteItemsProps {
 }
 
 function ShoppingDetailDeleteItems(props: ShoppingDetailDeleteItemsProps) {
+  const b3Lang = useB3Lang()
   const [isMobile] = useMobile()
   const { open, handleCancelClick, handleDeleteProductClick } = props
 
   return (
     <B3Dialog
       isOpen={open}
-      title="Delete product"
-      leftSizeBtn="cancel"
-      rightSizeBtn="delete"
+      title={b3Lang('shoppingListDetails.deleteItems.subtotal')}
+      leftSizeBtn={b3Lang('shoppingListDetails.deleteItems.cancel')}
+      rightSizeBtn={b3Lang('shoppingListDetails.deleteItems.delete')}
       handleLeftClick={handleCancelClick}
       handRightClick={handleDeleteProductClick}
       rightStyleBtn={{
@@ -33,7 +35,7 @@ function ShoppingDetailDeleteItems(props: ShoppingDetailDeleteItemsProps) {
           height: '100%',
         }}
       >
-        Are you sure you want to delete this product?
+        {b3Lang('shoppingListDetails.deleteItems.confirmDelete')}
       </Box>
     </B3Dialog>
   )

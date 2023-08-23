@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle } from 'react'
 import { useForm } from 'react-hook-form'
+import { LangFormatFunction,useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 import trim from 'lodash-es/trim'
 
@@ -14,11 +15,11 @@ import { validatorRules } from '@/utils'
 
 const emailValidate = validatorRules(['email'])
 
-const getContactInfo = (isMobile: boolean) => {
+const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
   const contactInfo = [
     {
       name: 'name',
-      label: 'Contact person',
+      label: b3Lang('quoteDraft.contactInfo.contactPerson'),
       required: true,
       default: '',
       fieldType: 'text',
@@ -28,7 +29,7 @@ const getContactInfo = (isMobile: boolean) => {
     },
     {
       name: 'email',
-      label: 'Email',
+      label: b3Lang('quoteDraft.contactInfo.email'),
       required: true,
       default: '',
       fieldType: 'text',
@@ -39,7 +40,7 @@ const getContactInfo = (isMobile: boolean) => {
     },
     {
       name: 'companyName',
-      label: 'Company name',
+      label: b3Lang('quoteDraft.contactInfo.companyName'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -49,7 +50,7 @@ const getContactInfo = (isMobile: boolean) => {
     },
     {
       name: 'phoneNumber',
-      label: 'Phone',
+      label: b3Lang('quoteDraft.contactInfo.phone'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -88,6 +89,8 @@ function ContactInfo(
 
   const [isMobile] = useMobile()
 
+  const b3Lang = useB3Lang()
+
   useEffect(() => {
     if (info && JSON.stringify(info) !== '{}') {
       Object.keys(info).forEach((item: string) => {
@@ -113,7 +116,7 @@ function ContactInfo(
     if (!isValid) {
       setError('email', {
         type: 'custom',
-        message: 'Email already exists',
+        message: b3Lang('quoteDraft.contactInfo.emailExists'),
       })
     }
 
@@ -138,7 +141,7 @@ function ContactInfo(
     getContactInfoValue,
   }))
 
-  const contactInfo = getContactInfo(isMobile)
+  const contactInfo = getContactInfo(isMobile, b3Lang)
 
   return (
     <Box width="100%">
@@ -150,7 +153,7 @@ function ContactInfo(
           mb: '20px',
         }}
       >
-        Contact
+        {b3Lang('quoteDraft.contactInfo.contact')}
       </Box>
 
       <B3CustomForm

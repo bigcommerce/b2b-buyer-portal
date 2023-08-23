@@ -1,4 +1,5 @@
 import { useContext, useRef, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Dialog, B3Sping } from '@/components'
@@ -36,6 +37,7 @@ function Usermanagement() {
     role: 0,
     updatedAt: 0,
   })
+  const b3Lang = useB3Lang()
 
   const [isMobile] = useMobile()
 
@@ -53,7 +55,7 @@ function Usermanagement() {
 
   const customItem = {
     isEnabled: isEnableBtnPermissions,
-    customLabel: 'add new user',
+    customLabel: b3Lang('userManagement.addUser'),
   }
 
   const initSearch = {
@@ -82,7 +84,7 @@ function Usermanagement() {
     paginationTableRef.current?.refresh()
   }
 
-  const fiterMoreInfo = getFilterMoreList()
+  const fiterMoreInfo = getFilterMoreList(b3Lang)
 
   const handleChange = (key: string, value: string) => {
     const search = {
@@ -127,7 +129,7 @@ function Usermanagement() {
         userId: row.id || '',
         companyId,
       })
-      snackbar.success('delete user successfully')
+      snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'))
     } finally {
       setIsRequestLoading(false)
       initSearchList()
@@ -176,9 +178,9 @@ function Usermanagement() {
         />
         <B3Dialog
           isOpen={deleteOpen}
-          title="Delete user"
-          leftSizeBtn="cancel"
-          rightSizeBtn="delete"
+          title={b3Lang('userManagement.deleteUser')}
+          leftSizeBtn={b3Lang('userManagement.cancel')}
+          rightSizeBtn={b3Lang('userManagement.delete')}
           handleLeftClick={handleCancelClick}
           handRightClick={handleDeleteUserClick}
           row={userItem}
@@ -195,7 +197,7 @@ function Usermanagement() {
               height: '100%',
             }}
           >
-            Are you sure you want to delete this user?
+            {b3Lang('userManagement.confirmDelete')}
           </Box>
         </B3Dialog>
       </Box>
