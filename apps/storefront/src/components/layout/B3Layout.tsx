@@ -1,6 +1,6 @@
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Box } from '@mui/material'
+import { Box, useMediaQuery } from '@mui/material'
 
 import useMobile from '@/hooks/useMobile'
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
@@ -17,6 +17,7 @@ import B3Nav from './B3Nav'
 
 export default function B3Layout({ children }: { children: ReactNode }) {
   const [isMobile] = useMobile()
+  const isDesktopLimit = useMediaQuery('(min-width:1775px)')
 
   const location = useLocation()
 
@@ -98,17 +99,19 @@ export default function B3Layout({ children }: { children: ReactNode }) {
           sx={{
             display: 'flex',
             minHeight: '100vh',
-            width: '100%',
+            margin: 'auto',
+            width: !isDesktopLimit ? '100%' : 1775,
+            minWidth: !isDesktopLimit ? '100%' : 1775,
+            maxWidth: !isDesktopLimit ? '100%' : 1775,
             flexDirection: 'row',
-            p: '30px 40px',
+            p: '32px 63px 70px 63px',
           }}
         >
           <Box
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              width: '250px',
-              pl: '20px',
+              width: '199px',
               displayPrint: 'none',
             }}
           >
@@ -127,7 +130,9 @@ export default function B3Layout({ children }: { children: ReactNode }) {
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              p: '0 24px 50px 50px',
+              maxWidth: '1450px',
+              width: '100%',
+              p: '0 0px 0px 50px',
             }}
           >
             <B3Mainheader title={title} />
