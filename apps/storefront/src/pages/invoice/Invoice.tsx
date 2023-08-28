@@ -171,8 +171,8 @@ function Invoice() {
 
       if (invoiceStats) {
         const { overDueBalance, totalBalance } = invoiceStats
-        setUnpaidAmount(+totalBalance.toFixed(decimalPlaces || 2))
-        setOverdueAmount(+overDueBalance.toFixed(decimalPlaces || 2))
+        setUnpaidAmount(+totalBalance.toFixed(decimalPlaces))
+        setOverdueAmount(+overDueBalance.toFixed(decimalPlaces))
       }
     } catch (err) {
       console.error(err)
@@ -563,9 +563,7 @@ function Invoice() {
       isSortable: true,
       render: (item: InvoiceList) => {
         const { originalBalance } = item
-        const originalAmount = (+originalBalance.value).toFixed(
-          decimalPlaces || 2
-        )
+        const originalAmount = (+originalBalance.value).toFixed(decimalPlaces)
 
         const token = handleGetCorrespondingCurrency(originalBalance.code)
 
@@ -580,7 +578,7 @@ function Invoice() {
       render: (item: InvoiceList) => {
         const { openBalance } = item
 
-        const openAmount = (+openBalance.value).toFixed(decimalPlaces || 2)
+        const openAmount = (+openBalance.value).toFixed(decimalPlaces)
         const token = handleGetCorrespondingCurrency(openBalance.code)
 
         return `${token}${openAmount || 0}`
