@@ -1,5 +1,5 @@
 import { store } from '@/store'
-import { B3LStorage } from '@/utils'
+import { B3LStorage, getActiveCurrencyInfo } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 interface AdditionalCalculatedPricesProps {
@@ -78,7 +78,9 @@ const defaultSummary: Summary = {
   grandTotal: 0,
 }
 
-const priceCalc = (price: number) => parseFloat(price.toFixed(2))
+const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
+
+const priceCalc = (price: number) => parseFloat(price.toFixed(decimalPlaces))
 
 export const addPrice = () => {
   const productList = B3LStorage.get('b2bQuoteDraftList') || []
