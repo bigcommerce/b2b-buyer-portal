@@ -26,7 +26,7 @@ jobs:
       - name: create revision
         run: |
           poly_js=$(find apps/storefront/dist -name polyfills-legacy.*.js -type f -printf '%f')
-          index_js=$(find apps/storefront/dist -name index-legacy.*.js -type f -printf '%f')
+          index_js=$(find apps/storefront/dist -name index-legacy.*.js ! -path "apps/storefront/dist/assets/*" -type f -printf '%f')
           curl --location --request POST '${{ secrets.API_HOST }}/api/v3/stores/revisions' \
           --header 'Authorization: Basic ${{ secrets.API_CREDENTIAL }}' \
           --header 'Content-Type: application/json' \
