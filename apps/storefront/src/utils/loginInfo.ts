@@ -125,6 +125,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('salesRepCompanyName', '')
   B3SStorage.set('nextPath', '')
   B3SStorage.set('salesRepCompanyId', '')
+  B3SStorage.set('salesRepCustomerGroupId', '')
   B3SStorage.set('isAgenting', '')
 
   B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
@@ -257,17 +258,23 @@ export const agentInfo = async (
     try {
       const data: any = await getAgentInfo(customerId)
       if (data?.superAdminMasquerading) {
-        const { id, companyName } = data.superAdminMasquerading
+        const {
+          id,
+          companyName,
+          customerGroupId = 0,
+        } = data.superAdminMasquerading
 
         B3SStorage.set('isAgenting', true)
         B3SStorage.set('salesRepCompanyId', id)
         B3SStorage.set('salesRepCompanyName', companyName)
+        B3SStorage.set('salesRepCustomerGroupId', customerGroupId)
         dispatch({
           type: 'common',
           payload: {
             isAgenting: true,
             salesRepCompanyId: id,
             salesRepCompanyName: companyName,
+            salesRepCustomerGroupId: customerGroupId,
           },
         })
       }

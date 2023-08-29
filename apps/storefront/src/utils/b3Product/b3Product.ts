@@ -599,22 +599,14 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
       maximum,
       discount_type: discountType,
       discount_amount: bulkPrice,
-    }: // tax_discount_amount: taxDiscountAmount,
-    any) => {
-      // const taxExclusive = taxDiscountAmount?.tax_exclusive || 0
-      // const taxInclusive = taxDiscountAmount?.tax_inclusive || 0
-      // const newPrice = isTax ? tax : bulkPrice
-
+    }: any) => {
       if (qty >= minimum && qty <= (maximum || qty)) {
         switch (discountType) {
           case 'fixed':
-            // price -= +basePrice - newPrice
             finalDiscount = 0
             enteredPrice = bulkPrice
             break
           case 'percent':
-            // basePrice *= newPrice / 100
-            // price -= +basePrice
             finalDiscount =
               enteredPrice * +(bulkPrice / 100).toFixed(decimalPlaces)
             break
@@ -659,10 +651,14 @@ interface CalculatedProductPrice {
 
 const getCustomerGroupId = () => {
   let customerGroupId = 0
+  const isAgenting = B3SStorage.get('isAgenting') || false
   const B3CustomerInfo = B3SStorage.get('B3CustomerInfo')
   if (B3CustomerInfo && Object.keys(B3CustomerInfo).length !== 0) {
     customerGroupId = B3CustomerInfo.customerGroupId
   }
+  const salesRepCustomerGroupId = B3SStorage.get('salesRepCustomerGroupId') || 0
+  if (isAgenting) return +salesRepCustomerGroupId || customerGroupId
+
   return customerGroupId
 }
 
