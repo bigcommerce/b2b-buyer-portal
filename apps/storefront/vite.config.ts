@@ -6,6 +6,15 @@ import path from 'path' // eslint-disable-line
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig, loadEnv } from 'vite'
 
+interface AssetsAbsolutePathProps {
+  [key: string]: string
+}
+
+const assetsAbsolutePath: AssetsAbsolutePathProps = {
+  staging: 'https://cdn.bundleb2b.net/b2b/staging/storefront/assets/',
+  production: 'https://cdn.bundleb2b.net/b2b/production/storefront/assets/',
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
   return {
@@ -15,6 +24,23 @@ export default defineConfig(({ mode }) => {
       }),
       react(),
     ],
+    experimental: {
+      renderBuiltUrl(
+        filename: string,
+        {
+          type,
+        }: {
+          type: 'public' | 'asset'
+        }
+      ) {
+        if (type === 'asset') {
+          const name = filename.split('assets/')[1]
+          return `${assetsAbsolutePath[mode]}${name}`
+        }
+
+        return undefined
+      },
+    },
     server: {
       port: 3001,
       proxy: {
@@ -38,6 +64,24 @@ export default defineConfig(({ mode }) => {
     build: {
       minify: true,
       rollupOptions: {
+        input: {
+          index: 'src/main.ts',
+          buyerPortal: 'src/buyerPortal.ts',
+        },
+        output: {
+          entryFileNames(info) {
+            const { name } = info
+            return name.includes('buyerPortal')
+              ? '[name].js'
+              : '[name].[hash].js'
+          },
+        },
+        onwarn(warning, warn) {
+          if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+            return
+          }
+          warn(warning)
+        },
         manualChunks: {
           intl: ['react-intl'],
           redux: ['react-redux'],
