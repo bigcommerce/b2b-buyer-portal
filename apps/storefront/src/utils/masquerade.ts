@@ -32,17 +32,19 @@ export const startMasquerade = async ({
   // get data to be saved on global
   const data = await getAgentInfo(customerId)
   if (!data?.superAdminMasquerading) return
-  const { id, companyName } = data.superAdminMasquerading
+  const { id, companyName, customerGroupId = 0 } = data.superAdminMasquerading
 
   B3SStorage.set('isAgenting', true)
   B3SStorage.set('salesRepCompanyId', id)
   B3SStorage.set('salesRepCompanyName', companyName)
+  B3SStorage.set('salesRepCustomerGroupId', customerGroupId)
 
   dispatch({
     type: 'common',
     payload: {
       salesRepCompanyId: id,
       salesRepCompanyName: companyName,
+      salesRepCustomerGroupId: customerGroupId,
       isAgenting: true,
       isB2BUser: true,
     },
@@ -60,12 +62,14 @@ export const endMasquerade = async ({
   B3SStorage.delete('isAgenting')
   B3SStorage.delete('salesRepCompanyId')
   B3SStorage.delete('salesRepCompanyName')
+  B3SStorage.delete('salesRepCustomerGroupId')
 
   dispatch({
     type: 'common',
     payload: {
       salesRepCompanyId: '',
       salesRepCompanyName: '',
+      salesRepCustomerGroupId: '',
       isAgenting: false,
     },
   })
