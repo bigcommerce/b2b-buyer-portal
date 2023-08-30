@@ -471,13 +471,10 @@ function Invoice() {
           -decimalPlaces
         )}`
       }
+    } else if (result.length > 1) {
+      result = `${val.slice(0, 1)}.${val.slice(-1)}`
     } else {
-      const movePoint = result.length - +decimalPlaces
-      if (movePoint > 0) {
-        result = `${val.slice(0, -decimalPlaces)}.${val.slice(-decimalPlaces)}`
-      } else {
-        result = `.${val}`
-      }
+      result = `${val}`
     }
 
     handleSetSelectedInvoiceAccount(result, id)
