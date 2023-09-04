@@ -433,7 +433,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
     const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
-        'Your business account is pending approval. This feature is currently disabled.'
+        b3Lang('purchasedProducts.quickOrderPad.addNProductsToCart')
       )
     } else {
       setIsOpenBulkLoadCSV(true)

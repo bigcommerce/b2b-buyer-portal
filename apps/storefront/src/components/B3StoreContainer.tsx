@@ -3,7 +3,7 @@ import { ReactNode, useContext, useLayoutEffect } from 'react'
 import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
 import { setHeadLessBcUrl, store } from '@/store'
-import { B3SStorage, storeHash } from '@/utils'
+import { B3SStorage, setGlobalTranslation, storeHash } from '@/utils'
 import { getCurrentStoreInfo } from '@/utils/loginInfo'
 
 import B3PageMask from './loadding/B3PageMask'
@@ -22,6 +22,7 @@ interface StoreItem {
   b3ChannelId: number
   type: string
   platform: string
+  translationVersion: number
 }
 
 export interface StoreBasicInfo {
@@ -52,13 +53,14 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           storeBasicInfo.multiStorefrontEnabled
         )
 
-        if (!storeInfo?.channelId) return
+        if (!storeInfo) return
 
         const {
           channelId,
           b3ChannelId: b2bChannelId,
           b2bEnabled: storeEnabled,
           platform,
+          translationVersion,
         } = storeInfo
 
         const bcUrl =
@@ -82,6 +84,10 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
 
         if (!isEnabled) {
           showPageMask(dispatch, false)
+        }
+
+        if (translationVersion > 0) {
+          setGlobalTranslation({ translationVersion, channelId })
         }
 
         store.dispatch(setHeadLessBcUrl(bcUrl))
