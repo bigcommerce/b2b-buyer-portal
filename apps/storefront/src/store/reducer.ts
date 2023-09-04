@@ -1,6 +1,7 @@
 import { setupStore } from '@b3/store'
 
 import global from './slices/global'
+import lang from './slices/lang'
 import theme from './slices/theme'
 
 export const middlewareOptions = {
@@ -18,10 +19,11 @@ export const middlewareOptions = {
   },
 }
 
-export const store = setupStore<{}>({
+export const store = setupStore({
   reducers: {
     global,
     theme,
+    lang,
   },
   middlewareOptions,
 })

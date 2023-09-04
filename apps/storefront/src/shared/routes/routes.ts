@@ -71,6 +71,7 @@ export interface RouteItem extends RouteItemBasic {
   configKey?: string
   isTokenLogin: boolean
   pageTitle?: string
+  idLang: string
 }
 
 export interface RouteFirstLevelItem extends RouteItemBasic {
@@ -87,6 +88,7 @@ const routes: RouteItem[] = [
     component: Dashboard,
     permissions: [3, 4],
     isTokenLogin: true,
+    idLang: 'global.navMenu.dashboard',
   },
   {
     path: '/orders',
@@ -96,6 +98,7 @@ const routes: RouteItem[] = [
     component: OrderList,
     permissions: [0, 1, 2, 3, 4, 99, 100],
     isTokenLogin: true,
+    idLang: 'global.navMenu.orders',
   },
   {
     path: '/company-orders',
@@ -105,6 +108,7 @@ const routes: RouteItem[] = [
     component: CompanyOrderList,
     permissions: [0, 1, 2, 3],
     isTokenLogin: true,
+    idLang: 'global.navMenu.companyOrders',
   },
   {
     path: '/invoice',
@@ -115,6 +119,7 @@ const routes: RouteItem[] = [
     configKey: 'invoice',
     permissions: [0, 1, 2, 3],
     isTokenLogin: true,
+    idLang: 'global.navMenu.invoice',
   },
   {
     path: '/quotes',
@@ -125,6 +130,7 @@ const routes: RouteItem[] = [
     configKey: 'quotes',
     permissions: [0, 1, 2, 3, 99, 100],
     isTokenLogin: true,
+    idLang: 'global.navMenu.quotes',
   },
   {
     path: '/shoppingLists',
@@ -135,6 +141,7 @@ const routes: RouteItem[] = [
     configKey: 'shoppingLists',
     permissions: [0, 1, 2, 3, 99],
     isTokenLogin: true,
+    idLang: 'global.navMenu.shoppingLists',
   },
   {
     path: '/purchased-products',
@@ -146,6 +153,7 @@ const routes: RouteItem[] = [
     configKey: 'quickOrderPad',
     permissions: [0, 1, 2, 3, 99],
     isTokenLogin: true,
+    idLang: 'global.navMenu.purchasedProducts',
   },
   {
     path: '/orderDetail/:id',
@@ -155,6 +163,7 @@ const routes: RouteItem[] = [
     component: OrderDetail,
     permissions: [0, 1, 2, 3, 4, 99, 100],
     isTokenLogin: true,
+    idLang: 'global.navMenu.orderDetail',
   },
   {
     path: '/invoiceDetail/:id',
@@ -164,6 +173,7 @@ const routes: RouteItem[] = [
     component: InvoiceDetail,
     permissions: [0, 1, 2, 3, 99, 100],
     isTokenLogin: true,
+    idLang: 'global.navMenu.invoiceDetail',
   },
   {
     path: '/addresses',
@@ -174,6 +184,7 @@ const routes: RouteItem[] = [
     configKey: 'addressBook',
     permissions: [0, 1, 2, 3, 99, 100],
     isTokenLogin: true,
+    idLang: 'global.navMenu.addresses',
   },
   {
     path: '/shoppingList/:id',
@@ -183,6 +194,7 @@ const routes: RouteItem[] = [
     component: ShoppingListDetails,
     permissions: [0, 1, 2, 3, 99],
     isTokenLogin: true,
+    idLang: 'global.navMenu.shoppingList',
   },
   {
     path: '/user-management',
@@ -192,6 +204,7 @@ const routes: RouteItem[] = [
     component: Usermanagement,
     permissions: [0, 1, 3],
     isTokenLogin: true,
+    idLang: 'global.navMenu.userManagement',
   },
   {
     path: '/quoteDraft',
@@ -202,6 +215,7 @@ const routes: RouteItem[] = [
     configKey: 'quoteDraft',
     permissions: [0, 1, 2, 3, 4, 99, 100],
     isTokenLogin: false,
+    idLang: 'global.navMenu.quoteDraft',
   },
   {
     path: '/accountSettings',
@@ -212,6 +226,7 @@ const routes: RouteItem[] = [
     configKey: 'accountSettings',
     permissions: [0, 1, 2, 3, 4, 99],
     isTokenLogin: true,
+    idLang: 'global.navMenu.accountSettings',
   },
   {
     path: '/quoteDetail/:id',
@@ -222,6 +237,7 @@ const routes: RouteItem[] = [
     configKey: 'quoteDetail',
     permissions: [0, 1, 2, 3, 4, 99, 100],
     isTokenLogin: false,
+    idLang: 'global.navMenu.quoteDetail',
   },
 ]
 

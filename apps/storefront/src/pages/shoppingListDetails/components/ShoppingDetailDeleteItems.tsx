@@ -18,9 +18,9 @@ function ShoppingDetailDeleteItems(props: ShoppingDetailDeleteItemsProps) {
   return (
     <B3Dialog
       isOpen={open}
-      title={b3Lang('shoppingListDetails.deleteItems.subtotal')}
-      leftSizeBtn={b3Lang('shoppingListDetails.deleteItems.cancel')}
-      rightSizeBtn={b3Lang('shoppingListDetails.deleteItems.delete')}
+      title={b3Lang('shoppingList.deleteItems.subtotal')}
+      leftSizeBtn={b3Lang('shoppingList.deleteItems.cancel')}
+      rightSizeBtn={b3Lang('shoppingList.deleteItems.delete')}
       handleLeftClick={handleCancelClick}
       handRightClick={handleDeleteProductClick}
       rightStyleBtn={{
@@ -35,7 +35,7 @@ function ShoppingDetailDeleteItems(props: ShoppingDetailDeleteItemsProps) {
           height: '100%',
         }}
       >
-        {b3Lang('shoppingListDetails.deleteItems.confirmDelete')}
+        {b3Lang('shoppingList.deleteItems.confirmDelete')}
       </Box>
     </B3Dialog>
   )

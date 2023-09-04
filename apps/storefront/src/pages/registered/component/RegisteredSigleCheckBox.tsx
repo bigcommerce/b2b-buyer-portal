@@ -17,7 +17,7 @@ const RegisteredSigleCheckBox = memo((props: any) => {
           checked={isChecked}
           onChange={onChange}
           control={<Checkbox />}
-          label={b3Lang('registered.RegisteredSingleCheckBox.label')}
+          label={b3Lang('register.registeredSingleCheckBox.label')}
           labelPlacement="end"
         />
       </FormGroup>

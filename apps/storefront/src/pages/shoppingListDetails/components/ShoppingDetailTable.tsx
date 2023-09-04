@@ -250,7 +250,7 @@ function ShoppingDetailTable(
       await updateShoppingListItem(data)
       setSelectedOptionsOpen(false)
       setEditProductItemId('')
-      snackbar.success(b3Lang('shoppingListDetails.table.productUpdated'))
+      snackbar.success(b3Lang('shoppingList.table.productUpdated'))
       initSearch()
     } finally {
       // setIsRequestLoading(false)
@@ -303,7 +303,7 @@ function ShoppingDetailTable(
         : updateBcShoppingListsItem
 
       await updateShoppingListItem(data)
-      snackbar.success(b3Lang('shoppingListDetails.table.quantityUpdated'))
+      snackbar.success(b3Lang('shoppingList.table.quantityUpdated'))
       setQtyNotChangeFlag(true)
       initSearch()
     } finally {
@@ -350,7 +350,7 @@ function ShoppingDetailTable(
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'Product',
-      title: b3Lang('shoppingListDetails.table.product'),
+      title: b3Lang('shoppingList.table.product'),
       render: (row: CustomFieldItems) => {
         const product: any = {
           ...row.productsSearch,
@@ -419,7 +419,7 @@ function ShoppingDetailTable(
     },
     {
       key: 'Price',
-      title: b3Lang('shoppingListDetails.table.price'),
+      title: b3Lang('shoppingList.table.price'),
       render: (row: CustomFieldItems) => {
         const { basePrice, taxPrice = 0 } = row
         const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
@@ -441,7 +441,7 @@ function ShoppingDetailTable(
     },
     {
       key: 'Qty',
-      title: b3Lang('shoppingListDetails.table.quantity'),
+      title: b3Lang('shoppingList.table.quantity'),
       render: (row) => (
         <StyledTextField
           size="small"
@@ -471,7 +471,7 @@ function ShoppingDetailTable(
     },
     {
       key: 'Total',
-      title: b3Lang('shoppingListDetails.table.total'),
+      title: b3Lang('shoppingList.table.total'),
       render: (row: CustomFieldItems) => {
         const {
           basePrice,
@@ -583,7 +583,7 @@ function ShoppingDetailTable(
             fontSize: '24px',
           }}
         >
-          {b3Lang('shoppingListDetails.table.totalProductCount', {
+          {b3Lang('shoppingList.table.totalProductCount', {
             quantity: shoppingListInfo?.products?.totalCount || 0,
           })}
         </Typography>
@@ -626,12 +626,12 @@ function ShoppingDetailTable(
           //   : isReadForApprove || isJuniorApprove
         }
         hover
-        labelRowsPerPage={b3Lang('shoppingListDetails.table.itemsPerPage')}
+        labelRowsPerPage={b3Lang('shoppingList.table.itemsPerPage')}
         showBorder={false}
         requestLoading={setIsRequestLoading}
         getSelectCheckbox={getSelectCheckbox}
         itemIsMobileSpacing={0}
-        noDataText={b3Lang('shoppingListDetails.table.noProductsFound')}
+        noDataText={b3Lang('shoppingList.table.noProductsFound')}
         renderItem={(
           row: ProductInfoProps,
           index?: number,

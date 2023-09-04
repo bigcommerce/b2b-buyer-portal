@@ -163,6 +163,7 @@ const getStoreChannelId = () => `{
       b3ChannelId
       type
       platform
+      translationVersion
     }
     timeFormat{
       display

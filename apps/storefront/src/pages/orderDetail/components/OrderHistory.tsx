@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import { useSelector } from 'react-redux'
+import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Card, CardContent, Typography } from '@mui/material'
 import intlFormatDistance from 'date-fns/intlFormatDistance'
@@ -27,6 +28,7 @@ const HistoryListContainer = styled('div')(() => ({
 }))
 
 export default function OrderHistory() {
+  const b3Lang = useB3Lang()
   const {
     state: { history = [], orderStatus: orderStatusLabel = [] },
   } = useContext(OrderDetailsContext)
@@ -47,13 +49,13 @@ export default function OrderHistory() {
   const columnItems: TableColumnItem<OrderHistoryItem>[] = [
     {
       key: 'time',
-      title: 'Date',
+      title: b3Lang('orderDetail.history.dateHeader'),
       render: (item: OrderHistoryItem) => getTime(item.createdAt),
       width: isMobile ? ' 100px' : '150px',
     },
     {
       key: 'code',
-      title: 'Status',
+      title: b3Lang('orderDetail.history.statusHeader'),
       render: (item: OrderHistoryItem) => (
         <OrderStatus
           code={item.status}
@@ -70,7 +72,9 @@ export default function OrderHistory() {
           paddingBottom: '50px',
         }}
       >
-        <Typography variant="h5">History</Typography>
+        <Typography variant="h5">
+          {b3Lang('orderDetail.history.title')}
+        </Typography>
         <HistoryListContainer>
           <B3Table
             columnItems={columnItems}

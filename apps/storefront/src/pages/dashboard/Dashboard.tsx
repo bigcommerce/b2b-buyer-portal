@@ -238,7 +238,7 @@ function Dashboard(props: DashboardProps) {
                 borderRadius: '10px',
               }}
             >
-              Selected
+              {b3Lang('dashboard.selected')}
             </Box>
           )}
         </Box>
