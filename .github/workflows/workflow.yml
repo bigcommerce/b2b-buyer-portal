@@ -26,15 +26,17 @@ jobs:
       - name: create revision
         run: |
           poly_js=$(find apps/storefront/dist -name polyfills-legacy.*.js -type f -printf '%f')
-          index_js=$(find apps/storefront/dist -name index-legacy.*.js ! -path "apps/storefront/dist/assets/*" -type f -printf '%f')
+          index_js=$(find apps/storefront/dist -name index.*.js ! -path "apps/storefront/dist/assets/*" -type f -printf '%f')
+          indexLegacy_js=$(find apps/storefront/dist -name index-legacy.*.js ! -path "apps/storefront/dist/assets/*" -type f -printf '%f')
           curl --location --request POST '${{ secrets.API_HOST }}/api/v3/stores/revisions' \
           --header 'Authorization: Basic ${{ secrets.API_CREDENTIAL }}' \
           --header 'Content-Type: application/json' \
           --data-binary @- << EOF
           {
             "jsFiles": [
-              "https://cdn.bundleb2b.net/b2b/staging/storefront/${poly_js}",
-              "https://cdn.bundleb2b.net/b2b/staging/storefront/${index_js}"
+              "<script type=\"module\" crossorigin src=\"https://cdn.bundleb2b.net/b2b/staging/storefront/${index_js}\"></script>",
+              "<script nomodule crossorigin src=\"https://cdn.bundleb2b.net/b2b/staging/storefront/${poly_js}\"></script>",
+              "<script nomodule crossorigin src=\"https://cdn.bundleb2b.net/b2b/staging/storefront/${indexLegacy_js}\"></script>"
             ],
             "revisionTitle": "${GITHUB_SHA_SHORT}"
           }
