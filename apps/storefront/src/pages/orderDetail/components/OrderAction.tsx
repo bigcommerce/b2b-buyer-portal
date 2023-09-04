@@ -292,7 +292,6 @@ export default function OrderAction(props: OrderActionProps) {
     products,
     orderId,
     ipStatus = 0,
-    canReturn = false,
     invoiceId,
   } = detailsData
 
@@ -380,7 +379,10 @@ export default function OrderAction(props: OrderActionProps) {
       key: 'Return',
       name: 'return',
       variant: 'outlined',
-      isCanShow: canReturn,
+      // isCanShow should be the value of canReturn, obtained from detailsData, but in ticket BUN-1417 was
+      // decided to hide it until the return function works as expected.
+      // After that it should returned to its original value.
+      isCanShow: false,
     },
     {
       value: b3Lang('orderDetail.addToShoppingList'),
