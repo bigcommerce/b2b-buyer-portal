@@ -90,9 +90,9 @@ export interface RegisterFieldsItems {
 }
 
 export const steps = [
-  'registered.step.account',
-  'registered.step.details',
-  'registered.step.finish',
+  'register.step.account',
+  'register.step.details',
+  'register.step.finish',
 ]
 
 const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown']
@@ -398,7 +398,7 @@ export const companyAttachmentsFields = (
 ): ContactInformationItems => [
   {
     name: 'companyAttachments',
-    label: b3lang('registered.label.companyAttachments'),
+    label: b3lang('register.label.companyAttachments'),
     default: [],
     fieldType: 'file',
     required: false,
@@ -432,7 +432,7 @@ type EmailError = {
 }
 
 export const emailError: EmailError = {
-  2: 'registered.emailValidate.alreadyExitsBC',
+  2: 'register.emailValidate.alreadyExitsBC',
   3: 'global.emailValidate.multipleCustomer',
   4: 'global.emailValidate.companyUsed',
   5: 'global.emailValidate.alreadyExits',

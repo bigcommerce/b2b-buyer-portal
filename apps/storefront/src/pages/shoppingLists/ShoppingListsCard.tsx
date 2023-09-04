@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -52,6 +53,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
     role,
     isB2BUser,
   } = props
+  const b3Lang = useB3Lang()
 
   const currentSLCreateRole = shoppingList?.customerInfo?.role
 
@@ -135,17 +137,17 @@ function ShoppingListsCard(props: OrderItemCardProps) {
 
           {isB2BUser && (
             <FlexItem>
-              <FontBold>Created by:</FontBold>
+              <FontBold>{b3Lang('shoppingLists.card.createdBy')}</FontBold>
               {shoppingList.customerInfo.firstName}{' '}
               {shoppingList.customerInfo.lastName}
             </FlexItem>
           )}
           <FlexItem>
-            <FontBold>Products:</FontBold>
+            <FontBold>{b3Lang('shoppingLists.card.products')}</FontBold>
             {shoppingList.products.totalCount}
           </FlexItem>
           <FlexItem>
-            <FontBold>Last activity:</FontBold>
+            <FontBold>{b3Lang('shoppingLists.card.lastActivity')}</FontBold>
             {`${displayFormat(shoppingList.updatedAt)}`}
           </FlexItem>
         </Box>
@@ -158,7 +160,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
             variant="text"
             onClick={() => goToDetail(shoppingList)}
           >
-            View
+            {b3Lang('shoppingLists.card.view')}
           </CustomButton>
           <Box
             sx={{

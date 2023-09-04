@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Box, Button, Grid, Typography } from '@mui/material'
 
 import { useMobile } from '@/hooks'
@@ -18,6 +19,7 @@ interface InvoiceFooterProps {
 }
 
 function InvoiceFooter(props: InvoiceFooterProps) {
+  const b3Lang = useB3Lang()
   const allCurrencies = B3SStorage.get('currencies')
   const [isMobile] = useMobile()
   const [selectedAccount, setSelectedAccount] = useState<number | string>(0)
@@ -88,7 +90,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         (item: CustomFieldItems) => item.amount === '.' || +item.amount === 0
       )
       if (badItem) {
-        snackbar.error('The payment amount entered has an invalid value.', {
+        snackbar.error(b3Lang('invoice.footer.invalidNameError'), {
           isClose: true,
         })
 
@@ -172,7 +174,9 @@ function InvoiceFooter(props: InvoiceFooterProps) {
               fontWeight: '400',
             }}
           >
-            {`${selectedPay.length} invoices selected`}
+            {b3Lang('invoice.footer.invoiceSelected', {
+              invoices: selectedPay.length,
+            })}
           </Typography>
           <Box
             sx={{
@@ -190,7 +194,9 @@ function InvoiceFooter(props: InvoiceFooterProps) {
                 color: '#000000',
               }}
             >
-              {`Total payment: ${currentToken}${selectedAccount}`}
+              {b3Lang('invoice.footer.totalPayment', {
+                total: `${currentToken}${selectedAccount}`,
+              })}
             </Typography>
             <Box
               sx={{
@@ -210,7 +216,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
                   handlePay()
                 }}
               >
-                Pay invoices
+                {b3Lang('invoice.footer.payInvoices')}
               </Button>
             </Box>
           </Box>

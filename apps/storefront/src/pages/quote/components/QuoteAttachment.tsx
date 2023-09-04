@@ -149,7 +149,7 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
           p: '16px !important',
         }}
       >
-        <B3CollapseContainer title="Attachment">
+        <B3CollapseContainer title={b3Lang('global.quoteAttachment.title')}>
           <Box>
             <FileUpload
               ref={uploadRef}

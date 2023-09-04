@@ -33,7 +33,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     updateList,
     quickAddToList,
     level = 3,
-    buttonText = b3Lang('shoppingListDetails.quickAdd.addToShoppingList'),
+    buttonText = b3Lang('shoppingList.quickAdd.addToShoppingList'),
     buttonLoading = false,
   } = props
 
@@ -351,7 +351,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         if (notFoundSku.length > 0) {
           showErrors(value, notFoundSku, 'sku', '')
           snackbar.error(
-            b3Lang('shoppingListDetails.quickAdd.skuNotFound', { notFoundSku }),
+            b3Lang('shoppingList.quickAdd.skuNotFound', { notFoundSku }),
             {
               isClose: true,
             }
@@ -361,7 +361,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         if (notPurchaseSku.length > 0) {
           showErrors(value, notPurchaseSku, 'sku', '')
           snackbar.error(
-            b3Lang('shoppingListDetails.quickAdd.skuNotPurchasable', {
+            b3Lang('shoppingList.quickAdd.skuNotPurchasable', {
               notPurchaseSku,
             }),
             {
@@ -373,7 +373,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         if (notAddAble.length > 0) {
           showErrors(value, notAddAble, 'sku', '')
           snackbar.error(
-            b3Lang('shoppingListDetails.quickAdd.skuNotAddable', {
+            b3Lang('shoppingList.quickAdd.skuNotAddable', {
               notAddAble,
             }),
             {
@@ -388,7 +388,7 @@ export default function QuickAdd(props: AddToListContentProps) {
           })
 
           snackbar.error(
-            b3Lang('shoppingListDetails.quickAdd.skuNotAddable', {
+            b3Lang('shoppingList.quickAdd.skuNotAddable', {
               numberLimit,
             }),
             {
@@ -438,7 +438,7 @@ export default function QuickAdd(props: AddToListContentProps) {
               }}
               variant="body1"
             >
-              {b3Lang('shoppingListDetails.quickAdd.quickAdd')}
+              {b3Lang('shoppingList.quickAdd.quickAdd')}
             </Typography>
           </Grid>
           <Grid item>
@@ -451,7 +451,7 @@ export default function QuickAdd(props: AddToListContentProps) {
               }}
               onClick={handleAddRowsClick}
             >
-              {b3Lang('shoppingListDetails.quickAdd.showMoreRows')}
+              {b3Lang('shoppingList.quickAdd.showMoreRows')}
             </CustomButton>
           </Grid>
         </Grid>

@@ -1,5 +1,6 @@
 import { ReactElement, useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useB3Lang } from '@b3/lang'
 import {
   Box,
   Button,
@@ -68,6 +69,7 @@ const initFilter = {
 
 function Invoice() {
   const currentDate = new Date().getTime()
+  const b3Lang = useB3Lang()
   const {
     state: { role, isAgenting },
   } = useContext(GlobaledContext)
@@ -97,8 +99,9 @@ function Invoice() {
   const [filterData, setFilterData] =
     useState<Partial<FilterSearchProps> | null>()
 
-  const [exportCsvText, setExportCsvText] =
-    useState<string>('Export all as CSV')
+  const [exportCsvText, setExportCsvText] = useState<string>(
+    b3Lang('invoice.exportCsvText')
+  )
 
   const [filterChangeFlag, setFilterChangeFlag] = useState(false)
   const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([])
@@ -248,7 +251,7 @@ function Invoice() {
       const pdfUrl = await handlePrintPDF(id, isPayNow)
 
       if (!pdfUrl) {
-        snackbar.error('pdf url resolution error')
+        snackbar.error(b3Lang('invoice.pdfUrlResolutionError'))
         return
       }
 
@@ -483,7 +486,7 @@ function Invoice() {
   const columnAllItems: TableColumnItem<InvoiceList>[] = [
     {
       key: 'id',
-      title: 'Invoice',
+      title: b3Lang('invoice.headers.invoice'),
       isSortable: true,
       render: (item: InvoiceList) => (
         <Box
@@ -505,7 +508,7 @@ function Invoice() {
     },
     {
       key: 'orderNumber',
-      title: 'Order',
+      title: b3Lang('invoice.headers.order'),
       isSortable: true,
       render: (item: InvoiceList) => (
         <Box
@@ -527,7 +530,7 @@ function Invoice() {
     },
     {
       key: 'createdAt',
-      title: 'Invoice date',
+      title: b3Lang('invoice.headers.invoiceDate'),
       isSortable: true,
       render: (item: InvoiceList) =>
         `${item.createdAt ? displayFormat(+item.createdAt) : '–'}`,
@@ -535,7 +538,7 @@ function Invoice() {
     },
     {
       key: 'updatedAt',
-      title: 'Due date',
+      title: b3Lang('invoice.headers.dueDate'),
       isSortable: true,
       render: (item: InvoiceList) => {
         const { dueDate, status } = item
@@ -556,7 +559,7 @@ function Invoice() {
     },
     {
       key: 'originalBalance',
-      title: 'Invoice total',
+      title: b3Lang('invoice.headers.invoiceTotal'),
       isSortable: true,
       render: (item: InvoiceList) => {
         const { originalBalance } = item
@@ -570,7 +573,7 @@ function Invoice() {
     },
     {
       key: 'openBalance',
-      title: 'Amount due',
+      title: b3Lang('invoice.headers.amountDue'),
       isSortable: true,
       render: (item: InvoiceList) => {
         const { openBalance } = item
@@ -584,7 +587,7 @@ function Invoice() {
     },
     {
       key: 'openBalanceToPay',
-      title: 'Amount to pay',
+      title: b3Lang('invoice.headers.amountToPay'),
       render: (item: InvoiceList) => {
         const { openBalance, id } = item
         const currentCode = openBalance.code || 'USD'
@@ -651,7 +654,7 @@ function Invoice() {
     },
     {
       key: 'status',
-      title: 'Status',
+      title: b3Lang('invoice.headers.status'),
       isSortable: true,
       render: (item: InvoiceList) => {
         const { status, dueDate } = item
@@ -667,7 +670,7 @@ function Invoice() {
     },
     {
       key: 'companyName',
-      title: 'Action',
+      title: b3Lang('invoice.headers.action'),
       render: (row: InvoiceList) => {
         const { id } = row
         let actionRow = row
@@ -699,7 +702,7 @@ function Invoice() {
   ]
 
   useEffect(() => {
-    let exportCsvTexts = 'Export all as CSV'
+    let exportCsvTexts = b3Lang('invoice.exportCsvText')
 
     const filtering = filterData ? isFiltering(filterData) : false
     const currentCheckedArr = filtering
@@ -713,13 +716,13 @@ function Invoice() {
     if (filtering) {
       exportCsvTexts =
         currentCheckedArr.length > 0
-          ? 'Export selected as CSV'
-          : 'Export filtered as CSV'
+          ? b3Lang('invoice.exportSelectedAsCsv')
+          : b3Lang('invoice.exportFilteredAsCsv')
     } else {
       exportCsvTexts =
         currentCheckedArr.length > 0
-          ? 'Export selected as CSV'
-          : 'Export all as CSV'
+          ? b3Lang('invoice.exportSelectedAsCsv')
+          : b3Lang('invoice.exportCsvText')
     }
 
     setExportCsvText(exportCsvTexts)
@@ -749,7 +752,7 @@ function Invoice() {
             handleFilterChange={handleFilterChange}
             startPicker={{
               isEnabled: true,
-              label: 'From',
+              label: b3Lang('invoice.filter.from'),
               defaultValue:
                 typeof filterData?.beginDateAt === 'number'
                   ? +filterData.beginDateAt * 1000
@@ -758,7 +761,7 @@ function Invoice() {
             }}
             endPicker={{
               isEnabled: true,
-              label: 'To',
+              label: b3Lang('invoice.filter.to'),
               defaultValue:
                 typeof filterData?.endDateAt === 'number'
                   ? +filterData.endDateAt * 1000
@@ -781,7 +784,9 @@ function Invoice() {
                 color: '#000000',
               }}
             >
-              {`Open: ${currencyFormat(unpaidAmount)}`}
+              {b3Lang('invoice.openUnpaid', {
+                unpaid: currencyFormat(unpaidAmount),
+              })}
             </Typography>
             {document.body.clientWidth >= 465 && (
               <Typography
@@ -799,7 +804,9 @@ function Invoice() {
                 color: '#D32F2F',
               }}
             >
-              {`Overdue: ${currencyFormat(overdueAmount)}`}
+              {b3Lang('invoice.overdueAmount', {
+                overdue: currencyFormat(overdueAmount),
+              })}
             </Typography>
           </Box>
         </Box>

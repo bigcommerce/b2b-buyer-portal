@@ -1,4 +1,4 @@
-import { IntlShape,useIntl } from 'react-intl'
+import { IntlShape, useIntl } from 'react-intl'
 
 type FormatMessageParameters = Parameters<IntlShape['formatMessage']>
 

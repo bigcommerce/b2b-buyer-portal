@@ -249,12 +249,9 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
 
       await updateShoppingList(params)
 
-      snackbar.success(
-        b3Lang('shoppingListDetails.shoppingListStatusUpdated'),
-        {
-          isClose: true,
-        }
-      )
+      snackbar.success(b3Lang('shoppingList.shoppingListStatusUpdated'), {
+        isClose: true,
+      })
       tableRef.current?.initSearch()
     } finally {
       setIsRequestLoading(false)
@@ -306,7 +303,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
         setCheckedArr([])
       }
 
-      snackbar.success(b3Lang('shoppingListDetails.productRemoved'))
+      snackbar.success(b3Lang('shoppingList.productRemoved'))
     } finally {
       setIsRequestLoading(false)
       updateList()
