@@ -66,14 +66,12 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           index: 'src/main.ts',
-          buyerPortal: 'src/buyerPortal.ts',
+          headless: 'src/buyerPortal.ts',
         },
         output: {
           entryFileNames(info) {
             const { name } = info
-            return name.includes('buyerPortal')
-              ? '[name].js'
-              : '[name].[hash].js'
+            return name.includes('headless') ? '[name].js' : '[name].[hash].js'
           },
         },
         onwarn(warning, warn) {
