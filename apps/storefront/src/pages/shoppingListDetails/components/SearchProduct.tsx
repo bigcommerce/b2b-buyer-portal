@@ -171,7 +171,7 @@ export default function SearchProduct({
       }}
     >
       <Typography>
-        {b3Lang('shoppingListDetails.searchProduct.searchBySkuOrName')}
+        {b3Lang('shoppingList.searchProduct.searchBySkuOrName')}
       </Typography>
       <TextField
         hiddenLabel
@@ -209,7 +209,7 @@ export default function SearchProduct({
               textAlign: 'center',
             }}
           >
-            {b3Lang('shoppingListDetails.searchProduct.searchProduct')}
+            {b3Lang('shoppingList.searchProduct.searchProduct')}
           </Box>
         </B3Sping>
       </CustomButton>

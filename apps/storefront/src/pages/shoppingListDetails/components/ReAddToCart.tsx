@@ -224,9 +224,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     const isValidate = products.every((item: ProductsProps) => item.isValid)
 
     if (!isValidate) {
-      snackbar.error(
-        b3Lang('shoppingListDetails.reAddToCart.fillCorrectQuantity')
-      )
+      snackbar.error(b3Lang('shoppingList.reAddToCart.fillCorrectQuantity'))
       return
     }
     try {
@@ -262,9 +260,9 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
         } else {
           snackbar.success('', {
             jsx: successTip({
-              message: b3Lang('shoppingListDetails.reAddToCart.productsAdded'),
+              message: b3Lang('shoppingList.reAddToCart.productsAdded'),
               link: '/cart.php',
-              linkText: b3Lang('shoppingListDetails.reAddToCart.viewCart'),
+              linkText: b3Lang('shoppingList.reAddToCart.viewCart'),
               isOutLink: true,
             }),
             isClose: true,
@@ -322,13 +320,13 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       handRightClick={handRightClick}
       title={
         allowJuniorPlaceOrder
-          ? b3Lang('shoppingListDetails.reAddToCart.proceedToCheckout')
-          : b3Lang('shoppingListDetails.reAddToCart.addToCart')
+          ? b3Lang('shoppingList.reAddToCart.proceedToCheckout')
+          : b3Lang('shoppingList.reAddToCart.addToCart')
       }
       rightSizeBtn={
         allowJuniorPlaceOrder
-          ? b3Lang('shoppingListDetails.reAddToCart.proceedToCheckout')
-          : b3Lang('shoppingListDetails.reAddToCart.addToCart')
+          ? b3Lang('shoppingList.reAddToCart.proceedToCheckout')
+          : b3Lang('shoppingList.reAddToCart.addToCart')
       }
       maxWidth="xl"
     >
@@ -340,10 +338,10 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
         >
           <Alert variant="filled" severity="success">
             {allowJuniorPlaceOrder
-              ? b3Lang('shoppingListDetails.reAddToCart.productsCanCheckout', {
+              ? b3Lang('shoppingList.reAddToCart.productsCanCheckout', {
                   successProducts,
                 })
-              : b3Lang('shoppingListDetails.reAddToCart.productsAddedToCart', {
+              : b3Lang('shoppingList.reAddToCart.productsAddedToCart', {
                   successProducts,
                 })}
           </Alert>
@@ -356,13 +354,12 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
         >
           <Alert variant="filled" severity="error">
             {allowJuniorPlaceOrder
-              ? b3Lang('shoppingListDetails.reAddToCart.productsCantCheckout', {
+              ? b3Lang('shoppingList.reAddToCart.productsCantCheckout', {
                   quantity: products.length,
                 })
-              : b3Lang(
-                  'shoppingListDetails.reAddToCart.productsNotAddedToCart',
-                  { quantity: products.length }
-                )}
+              : b3Lang('shoppingList.reAddToCart.productsNotAddedToCart', {
+                  quantity: products.length,
+                })}
           </Alert>
         </Box>
         <B3Sping isSpinning={loading} size={16} isFlex={false}>
@@ -378,12 +375,12 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 fontSize: '24px',
               }}
             >
-              {b3Lang('shoppingListDetails.reAddToCart.productCount', {
+              {b3Lang('shoppingList.reAddToCart.productCount', {
                 quantity: products.length,
               })}
             </Box>
             <CustomButton onClick={() => handleClearNoStock()}>
-              {b3Lang('shoppingListDetails.reAddToCart.adjustQuantity')}
+              {b3Lang('shoppingList.reAddToCart.adjustQuantity')}
             </CustomButton>
           </Box>
 
@@ -393,7 +390,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 <Flex isHeader isMobile={isMobile}>
                   <FlexItem>
                     <ProductHead>
-                      {b3Lang('shoppingListDetails.reAddToCart.product')}
+                      {b3Lang('shoppingList.reAddToCart.product')}
                     </ProductHead>
                   </FlexItem>
                   <FlexItem
@@ -401,7 +398,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                     textAlignLocation={textAlign}
                   >
                     <ProductHead>
-                      {b3Lang('shoppingListDetails.reAddToCart.price')}
+                      {b3Lang('shoppingList.reAddToCart.price')}
                     </ProductHead>
                   </FlexItem>
                   <FlexItem
@@ -412,7 +409,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                     textAlignLocation={textAlign}
                   >
                     <ProductHead>
-                      {b3Lang('shoppingListDetails.reAddToCart.quantity')}
+                      {b3Lang('shoppingList.reAddToCart.quantity')}
                     </ProductHead>
                   </FlexItem>
                   <FlexItem
@@ -420,7 +417,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                     textAlignLocation={textAlign}
                   >
                     <ProductHead>
-                      {b3Lang('shoppingListDetails.reAddToCart.total')}
+                      {b3Lang('shoppingList.reAddToCart.total')}
                     </ProductHead>
                   </FlexItem>
                   <FlexItem {...itemStyle.delete}>

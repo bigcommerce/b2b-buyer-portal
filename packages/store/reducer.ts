@@ -8,49 +8,31 @@ import {
 } from '@reduxjs/toolkit'
 import { ToolkitStore } from '@reduxjs/toolkit/dist/configureStore'
 
-import lang from './slices/lang'
-
-type Reducers<Type> = Record<string, Reducer<Type>>
+type Reducers<Type> = { [x: string]: Type }
 interface SetupStoreParams<Type> {
   reducers: Reducers<Type>
-  preloadedState?:
-    | {
-        [x: string]:
-          | (Type extends object ? PreloadedState<Type> : Type)
-          | undefined
-      }
-    | undefined
+  preloadedState?: {
+    [x: string]: (Type extends object ? PreloadedState<Type> : Type) | undefined
+  }
   middlewareOptions?: Record<
     string,
     | ImmutableStateInvariantMiddlewareOptions
     | SerializableStateInvariantMiddlewareOptions
   >
 }
-export interface CustomToolkitStore<Type> extends ToolkitStore {
-  asyncReducers?: Reducers<Type>
-  injectReducer?: (key: string, asyncReducer: Reducer<Type>) => void
+export interface CustomToolkitStore<T, S> extends ToolkitStore {
+  asyncReducers?: Reducers<T>
+  injectReducer?: (key: string, asyncReducer: S) => void
 }
 
-const baseReducers = {
-  lang,
-}
+const baseReducers = {}
 
-const createReducer = <Type>(asyncReducers: Reducers<Type>) =>
-  combineReducers({
-    ...baseReducers,
-    ...asyncReducers,
-  })
-
-export const setupStore = <S>(
-  {
-    reducers,
-    preloadedState,
-    middlewareOptions,
-  }: SetupStoreParams<S> | undefined = {
-    reducers: {},
-  }
-) => {
-  const store: CustomToolkitStore<S> = configureStore({
+export const setupStore = <T extends Reducer, S extends T>({
+  reducers,
+  preloadedState,
+  middlewareOptions,
+}: SetupStoreParams<T>) => {
+  const store: CustomToolkitStore<T, S> = configureStore({
     reducer: {
       ...baseReducers,
       ...reducers,
@@ -60,12 +42,17 @@ export const setupStore = <S>(
       getDefaultMiddleware(middlewareOptions),
   })
 
-  store.injectReducer = (key: string, asyncReducer: Reducer<S>) => {
+  store.injectReducer = (key, asyncReducer) => {
     if (!store.asyncReducers) {
       store.asyncReducers = {}
     }
     store.asyncReducers[key] = asyncReducer
-    store.replaceReducer(createReducer(store.asyncReducers))
+    store.replaceReducer(
+      combineReducers({
+        ...baseReducers,
+        ...store.asyncReducers,
+      })
+    )
   }
 
   return store

@@ -53,6 +53,7 @@ import { validatorRules } from './validatorRules'
 
 export * from './b3Product/b3Product'
 export * from './masquerade'
+export * from './setTranslation'
 export {
   getQuoteConfig,
   getStoreTaxZoneRates,
