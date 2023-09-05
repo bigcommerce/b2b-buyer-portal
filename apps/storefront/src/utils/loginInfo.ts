@@ -6,7 +6,7 @@ import {
   getBCGraphqlToken,
   getUserCompany,
 } from '@/shared/service/b2b'
-import { getBcCurrentJWT, getCustomerInfo } from '@/shared/service/bc'
+import { getBcCurrentJWT } from '@/shared/service/bc'
 import { B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
@@ -82,9 +82,9 @@ export const getCurrentStoreInfo = (
 
   const { origin } = window.location
   const cleanedOrigin = origin.replace('-1.', '.')
-  const storeItem = enabledStores.find((item: ChannelIdProps) => item.urls
-      .map((url) => url.replace('-1.', '.'))
-      .includes(cleanedOrigin))
+  const storeItem = enabledStores.find((item: ChannelIdProps) =>
+    item.urls.map((url) => url.replace('-1.', '.')).includes(cleanedOrigin)
+  )
 
   return storeItem || store
 }
@@ -340,11 +340,11 @@ export const getCurrentCustomerInfo = async (
   b2bToken?: string
 ) => {
   try {
-    const {
-      data: { customer },
-    } = await getCustomerInfo()
+    const loginCustomer = B3SStorage.get('loginCustomer')
 
-    if (!customer) return undefined
+    if (!loginCustomer) {
+      return undefined
+    }
 
     const {
       entityId: customerId = '',
@@ -353,7 +353,7 @@ export const getCurrentCustomerInfo = async (
       lastName,
       email: emailAddress = '',
       customerGroupId,
-    } = customer
+    } = loginCustomer
 
     const companyUserInfo = await getCompanyUserInfo(
       emailAddress,
