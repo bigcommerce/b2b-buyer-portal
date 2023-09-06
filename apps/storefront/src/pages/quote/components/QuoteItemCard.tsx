@@ -39,19 +39,19 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {
       key: 'quoteTitle',
-      title: b3Lang('quoteItemCard.title'),
+      title: b3Lang('quotes.quoteItemCard.title'),
     },
     {
       key: 'salesRepEmail',
-      title: b3Lang('quoteItemCard.salesRep'),
+      title: b3Lang('quotes.quoteItemCard.salesRep'),
     },
     {
       key: 'createdBy',
-      title: b3Lang('quoteItemCard.createdBy'),
+      title: b3Lang('quotes.quoteItemCard.createdBy'),
     },
     {
       key: 'createdAt',
-      title: b3Lang('quoteItemCard.dateCreated'),
+      title: b3Lang('quotes.quoteItemCard.dateCreated'),
       render: () =>
         `${
           +item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt
@@ -59,7 +59,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
     },
     {
       key: 'updatedAt',
-      title: b3Lang('quoteItemCard.lastUpdate'),
+      title: b3Lang('quotes.quoteItemCard.lastUpdate'),
       render: () =>
         `${
           +item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt
@@ -67,7 +67,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
     },
     {
       key: 'expiredAt',
-      title: b3Lang('quoteItemCard.expirationDate'),
+      title: b3Lang('quotes.quoteItemCard.expirationDate'),
       render: () =>
         `${
           +item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt
@@ -75,7 +75,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
     },
     {
       key: 'totalAmount',
-      title: b3Lang('quoteItemCard.subtotal'),
+      title: b3Lang('quotes.quoteItemCard.subtotal'),
       render: () => {
         const { totalAmount } = item
 
@@ -152,7 +152,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
             display: 'inline-block',
           }}
         >
-          {b3Lang('quoteItemCard.view')}
+          {b3Lang('quotes.quoteItemCard.view')}
         </Box>
       </CardContent>
     </Card>
