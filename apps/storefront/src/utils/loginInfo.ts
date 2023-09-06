@@ -138,6 +138,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   })
   B3SStorage.set('blockPendingAccountOrderCreation', false)
   B3SStorage.set('realRole', 100)
+  B3SStorage.set('loginCustomer', '')
   B3SStorage.set('B3CompanyInfo', {
     id: '',
     companyName: '',
