@@ -52,7 +52,7 @@ const redirectBcMenus = (
   // superAdmin exits's url
   const superAdminExistUrl = ['/accountSettings']
   const currentItem: CustomFieldItems =
-    accountTarget.find((item) => key.includes(item.originUrl)) || {}
+    accountTarget.find((item) => key?.includes(item.originUrl)) || {}
 
   // super admin
   if (currentItem?.newTargetUrl && +role === 3) {
@@ -70,7 +70,7 @@ const redirectBcMenus = (
 
 const getCurrentLoginUrl = (href: string): string => {
   // quit login
-  if (href.includes('logout')) {
+  if (href?.includes('logout')) {
     return '/login?loginFlag=3'
   }
 
@@ -87,11 +87,11 @@ const openPageByClick = ({
   isRegisterAndLogin,
   isAgenting,
 }: OpenPageByClickProps) => {
-  if (href.includes('/orders')) {
+  if (href?.includes('/orders')) {
     return role !== 100 ? '/orders' : '/login'
   }
   // register and login click
-  if (href.includes('/login') || isRegisterAndLogin || role === 100) {
+  if (href?.includes('/login') || isRegisterAndLogin || role === 100) {
     return getCurrentLoginUrl(href)
   }
 
