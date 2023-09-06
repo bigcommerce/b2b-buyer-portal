@@ -55,7 +55,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           const tagHref = (e.target as HTMLAnchorElement)?.href
           let href = tagHref || '/orders'
           const timeTarget = Date.now()
-          if (!tagHref) {
+          if (!tagHref || typeof timeTarget !== 'string') {
             const parentNode = (e.target as HTMLAnchorElement)?.parentNode
             const parentNodeOrigin = (e.target as HTMLAnchorElement)?.parentNode
               ?.parentNode
