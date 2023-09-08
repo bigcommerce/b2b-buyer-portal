@@ -62,7 +62,7 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
     acceptedFiles = FILE_UPLOAD_ACCEPT_TYPE,
     filesLimit = 3,
     maxFileSize = 2097152, // 2M
-    dropzoneText = b3Lang('global.fileUpload.defaultText'),
+    dropzoneText = b3Lang('intl.global.fileUpload.defaultText'),
     previewText = ' ',
     fieldType,
     default: defaultValue = [],
@@ -86,13 +86,13 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
     })
 
     if (!isAcceptFileType) {
-      return b3Lang('global.fileUpload.typeNotSupport', {
+      return b3Lang('intl.global.fileUpload.typeNotSupport', {
         name,
       })
     }
 
     if (size > maxFileSize) {
-      return b3Lang('global.fileUpload.namedFileSizeExceedsLimit', {
+      return b3Lang('intl.global.fileUpload.fileSizeExceedsLimit', {
         name,
         maxSize: getMaxFileSizeLabel(maxFileSize),
       })
@@ -102,7 +102,7 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
   }
 
   const getFileLimitExceedMessage = () =>
-    b3Lang('global.fileUpload.fileNumberExceedsLimit', {
+    b3Lang('intl.global.fileUpload.fileNumberExceedsLimit', {
       limit: filesLimit,
     })
 

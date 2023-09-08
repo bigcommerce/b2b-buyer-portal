@@ -1,5 +1,4 @@
 import { ReactElement } from 'react'
-import { useB3Lang } from '@b3/lang'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
@@ -19,7 +18,6 @@ const StyledImage = styled('img')(() => ({
 
 function QuickOrderCard(props: QuickOrderCardProps) {
   const { item: shoppingDetail, checkBox, handleUpdateProductQty } = props
-  const b3Lang = useB3Lang()
 
   const {
     quantity,
@@ -88,11 +86,9 @@ function QuickOrderCard(props: QuickOrderCardProps) {
             )}
           </Box>
 
-          <Typography sx={{ fontSize: '14px' }}>
-            {b3Lang('purchasedProducts.quickOrderCard.price', {
-              price: currencyFormat(price),
-            })}
-          </Typography>
+          <Typography sx={{ fontSize: '14px' }}>{`Price: ${currencyFormat(
+            price
+          )}`}</Typography>
           <Box
             sx={{
               '& label': {
@@ -127,11 +123,9 @@ function QuickOrderCard(props: QuickOrderCardProps) {
             />
           </Box>
 
-          <Typography sx={{ fontSize: '14px' }}>
-            {b3Lang('purchasedProducts.quickOrderCard.lastOrdered', {
-              lastOrderedAt: displayFormat(lastOrderedAt),
-            })}
-          </Typography>
+          <Typography sx={{ fontSize: '14px' }}>{`Last ordered: ${displayFormat(
+            lastOrderedAt
+          )}`}</Typography>
         </Box>
       </CardContent>
     </Box>

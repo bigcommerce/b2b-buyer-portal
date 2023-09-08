@@ -1,3 +1,2 @@
-import en from './en.json'
-
-export default { en, custom: undefined }
+// eslint-disable-next-line
+export { default as en } from './en-US'

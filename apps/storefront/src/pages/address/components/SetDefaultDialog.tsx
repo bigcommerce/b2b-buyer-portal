@@ -5,7 +5,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useB3Lang } from '@b3/lang'
 import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material'
 
 import { B3Dialog } from '@/components'
@@ -35,8 +34,6 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
   } = props
 
   const [isMobile] = useMobile()
-
-  const b3Lang = useB3Lang()
 
   const [address, setAddress] = useState<AddressItemType>()
 
@@ -75,7 +72,7 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
         companyId,
       })
 
-      snackbar.success(b3Lang('addresses.setDefaultDialog.successfullySet'))
+      snackbar.success('Successfully set')
 
       updateAddressList()
     } catch (e) {
@@ -86,8 +83,8 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
   return (
     <B3Dialog
       isOpen={isOpen}
-      title={b3Lang('addresses.setDefaultDialog.setDefaultAddress')}
-      leftSizeBtn={b3Lang('addresses.setDefaultDialog.cancel')}
+      title="Set as default address"
+      leftSizeBtn="cancel"
       rightSizeBtn="set"
       handleLeftClick={() => {
         setIsOpen(false)
@@ -117,9 +114,7 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
                     onChange={handleChange('isDefaultShipping')}
                   />
                 }
-                label={b3Lang(
-                  'addresses.setDefaultDialog.setDefaultShippingAddress'
-                )}
+                label="Set as default shipping address "
               />
               <FormControlLabel
                 control={
@@ -128,9 +123,7 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
                     onChange={handleChange('isDefaultBilling')}
                   />
                 }
-                label={b3Lang(
-                  'addresses.setDefaultDialog.setDefaultBillingAddress'
-                )}
+                label="Set as default billing address "
               />
             </FormGroup>
           </Box>

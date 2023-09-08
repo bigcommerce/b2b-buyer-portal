@@ -7,7 +7,6 @@ import {
   useState,
 } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Box, Divider, TextField, Typography } from '@mui/material'
 
@@ -112,14 +111,9 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     isEdit = false,
     isLoading,
     setIsLoading,
+    addButtonText = 'Add To List',
     isB2BUser,
-    ...restProps
   } = props
-
-  const b3Lang = useB3Lang()
-  const {
-    addButtonText = b3Lang('shoppingListDetails.chooseOptionsDialog.addToList'),
-  } = restProps
 
   const {
     global: { showInclusiveTaxPrice },
@@ -356,9 +350,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     const { purchasing_disabled: purchasingDisabled = true } = variantInfo || {}
 
     if (purchasingDisabled === true) {
-      snackbar.error(
-        b3Lang('shoppingListDetails.chooseOptionsDialog.productNoLongerForSale')
-      )
+      snackbar.error('This product is no longer for sale')
       return false
     }
 
@@ -482,14 +474,10 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   return (
     <B3Dialog
       isOpen={isOpen}
-      rightSizeBtn={
-        isEdit
-          ? b3Lang('shoppingListDetails.chooseOptionsDialog.saveOption')
-          : addButtonText
-      }
+      rightSizeBtn={isEdit ? 'Save Option' : addButtonText}
       handleLeftClick={handleCancelClicked}
       handRightClick={handleConfirmClicked}
-      title={b3Lang('shoppingListDetails.chooseOptionsDialog.chooseOptions')}
+      title="Choose options"
       loading={isLoading || isRequestLoading}
     >
       <B3Sping isSpinning={isLoading}>
@@ -529,9 +517,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                   </FlexItem>
 
                   <FlexItem>
-                    <span>
-                      {b3Lang('shoppingListDetails.chooseOptionsDialog.price')}
-                    </span>
+                    <span>Price:</span>
                     {currencyFormat(
                       newPrice * +quantity || getProductPrice(product)
                     )}
@@ -541,9 +527,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                     <StyleTextField
                       type="number"
                       variant="filled"
-                      label={b3Lang(
-                        'shoppingListDetails.chooseOptionsDialog.quantity'
-                      )}
+                      label="Qty"
                       value={quantity}
                       onChange={handleProductQuantityChange}
                       onKeyDown={handleNumberInputKeyDown}

@@ -6,7 +6,6 @@ import {
   useState,
 } from 'react'
 import { useForm } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
 
 import { B3CustomForm, B3Dialog } from '@/components'
 import {
@@ -46,7 +45,6 @@ function AddEditShoppingLists(
   const [usersFiles, setUsersFiles] = useState<Array<GetFilterMoreListProps>>(
     []
   )
-  const b3Lang = useB3Lang()
 
   const {
     control,
@@ -88,7 +86,7 @@ function AddEditShoppingLists(
         }
 
         let fn = isB2BUser ? createB2BShoppingList : createBcShoppingList
-        let successTip = b3Lang('shoppingLists.addSuccess')
+        let successTip = 'add shoppingLists successfully'
 
         if (type === 'edit') {
           if (isB2BUser) {
@@ -100,11 +98,11 @@ function AddEditShoppingLists(
           }
 
           params.id = editData?.id || 0
-          successTip = b3Lang('shoppingLists.updateSuccess')
+          successTip = 'update shoppingLists successfully'
         } else if (type === 'dup') {
           fn = isB2BUser ? duplicateB2BShoppingList : duplicateBcShoppingList
           params.sampleShoppingListId = editData?.id || 0
-          successTip = b3Lang('shoppingLists.duplicateSuccess')
+          successTip = 'duplicate shoppingLists successfully'
 
           // params.status = +role === 2 ? 30 : editData?.status
         } else if (type === 'add') {
@@ -129,7 +127,7 @@ function AddEditShoppingLists(
     type: string,
     data: ShoppingListsItemsProps
   ) => {
-    const usersFiles = getCreatedShoppingListFiles(b3Lang)
+    const usersFiles = getCreatedShoppingListFiles()
     setUsersFiles(usersFiles)
     if (data) setEditData(data)
     setType(type)
@@ -142,20 +140,20 @@ function AddEditShoppingLists(
 
   const getTitle = () => {
     if (type === 'edit') {
-      return b3Lang('shoppingLists.edit')
+      return 'Edit shopping list'
     }
     if (type === 'add') {
-      return b3Lang('shoppingLists.createNewShoppingList')
+      return 'Create new shopping list'
     }
-    return b3Lang('shoppingLists.duplicateShoppingList')
+    return 'Duplicate shopping list'
   }
 
   return (
     <B3Dialog
       isOpen={open}
       title={getTitle()}
-      leftSizeBtn={b3Lang('shoppingLists.cancel')}
-      rightSizeBtn={b3Lang('shoppingLists.save')}
+      leftSizeBtn="cancel"
+      rightSizeBtn="Save"
       handleLeftClick={handleCancelClick}
       handRightClick={handleAddUserClick}
       loading={addUpdateLoading}

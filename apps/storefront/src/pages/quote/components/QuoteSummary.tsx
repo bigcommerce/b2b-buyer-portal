@@ -5,7 +5,6 @@ import {
   useImperativeHandle,
   useState,
 } from 'react'
-import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
 import { store } from '@/store'
@@ -27,8 +26,6 @@ const defaultSummary: Summary = {
 }
 
 const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
-  const b3Lang = useB3Lang()
-
   const [quoteSummary, setQuoteSummary] = useState<Summary>({
     ...defaultSummary,
   })
@@ -88,9 +85,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     <Card>
       <CardContent>
         <Box>
-          <Typography variant="h5">
-            {b3Lang('quoteDraft.quoteSummary.summary')}
-          </Typography>
+          <Typography variant="h5">Quote summary</Typography>
           <Box
             sx={{
               marginTop: '20px',
@@ -104,9 +99,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 margin: '4px 0',
               }}
             >
-              <Typography>
-                {b3Lang('quoteDraft.quoteSummary.subTotal')}
-              </Typography>
+              <Typography>Sub total</Typography>
               <Typography>{priceFormat(quoteSummary.subtotal)}</Typography>
             </Grid>
 
@@ -117,9 +110,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 margin: '4px 0',
               }}
             >
-              <Typography>
-                {b3Lang('quoteDraft.quoteSummary.shipping')}
-              </Typography>
+              <Typography>Shipping</Typography>
               <Typography>{priceFormat(quoteSummary.shipping)}</Typography>
             </Grid>
 
@@ -130,7 +121,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 margin: '4px 0',
               }}
             >
-              <Typography>{b3Lang('quoteDraft.quoteSummary.tax')}</Typography>
+              <Typography>Tax</Typography>
               <Typography>{priceFormat(quoteSummary.tax)}</Typography>
             </Grid>
 
@@ -146,7 +137,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                   fontWeight: 'bold',
                 }}
               >
-                {b3Lang('quoteDraft.quoteSummary.tax')}
+                Grand total
               </Typography>
               <Typography
                 sx={{

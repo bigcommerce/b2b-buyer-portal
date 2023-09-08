@@ -1,5 +1,4 @@
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Dialog, B3Sping } from '@/components'
@@ -47,8 +46,6 @@ function ShoppingLists() {
 
   const [paginationTableRef] = useTableRef()
 
-  const b3Lang = useB3Lang()
-
   const {
     state: {
       role,
@@ -93,7 +90,7 @@ function ShoppingLists() {
 
   const customItem = {
     isEnabled: isEnableBtnPermissions,
-    customLabel: b3Lang('shoppingLists.createNew'),
+    customLabel: 'Create new',
     customButtomStyle: {
       fontSize: '15px',
       fontWeight: '500',
@@ -205,7 +202,7 @@ function ShoppingLists() {
         ? deleteB2BShoppingList
         : deleteBcShoppingList
       await deleteShoppingList(id)
-      snackbar.success(b3Lang('shoppingLists.deleteSuccess'))
+      snackbar.success('delete shoppingList successfully')
     } finally {
       setIsRequestLoading(false)
       initSearchList()
@@ -260,9 +257,9 @@ function ShoppingLists() {
         />
         <B3Dialog
           isOpen={deleteOpen}
-          title={b3Lang('shoppingLists.deleteShoppingList')}
-          leftSizeBtn={b3Lang('shoppingLists.cancel')}
-          rightSizeBtn={b3Lang('shoppingLists.delete')}
+          title="Delete shopping list"
+          leftSizeBtn="cancel"
+          rightSizeBtn="delete"
           handleLeftClick={handleCancelClick}
           handRightClick={handleDeleteUserClick}
           row={deleteItem}
@@ -279,7 +276,7 @@ function ShoppingLists() {
               height: '100%',
             }}
           >
-            {b3Lang('shoppingLists.confirmDelete')}
+            Are you sure you want to delete this shopping list?
           </Box>
         </B3Dialog>
       </Box>

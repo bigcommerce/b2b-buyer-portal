@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, styled, Typography } from '@mui/material'
 
@@ -37,7 +36,6 @@ interface ShoppingDetailHeaderProps {
 }
 
 function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
-  const b3Lang = useB3Lang()
   const [isMobile] = useMobile()
 
   const {
@@ -113,8 +111,8 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
             }}
           >
             {openAPPParams.shoppingListBtn !== 'add'
-              ? b3Lang('shoppingListDetails.header.backToShoppingLists')
-              : b3Lang('shoppingListDetails.header.backToProduct')}
+              ? 'Back to shopping lists'
+              : 'Back to product'}
           </Box>
         </Box>
       </Box>
@@ -180,7 +178,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                     marginRight: '0.5rem',
                   }}
                 >
-                  {b3Lang('shoppingListDetails.header.createdBy')}
+                  Created by:
                 </Typography>
                 <span>{`${customerInfo?.firstName || ''} ${
                   customerInfo?.lastName || ''
@@ -205,7 +203,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                 handleUpdateShoppingList(40)
               }}
             >
-              {b3Lang('shoppingListDetails.header.submitForApproval')}
+              Submit for Approval
             </CustomButton>
           )}
           {(role === 0 || role === 1 || (role === 3 && isAgenting)) &&
@@ -220,7 +218,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                     handleUpdateShoppingList(20)
                   }}
                 >
-                  {b3Lang('shoppingListDetails.header.reject')}
+                  Reject
                 </CustomButton>
                 <CustomButton
                   variant="outlined"
@@ -228,7 +226,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                     handleUpdateShoppingList(0)
                   }}
                 >
-                  {b3Lang('shoppingListDetails.header.approve')}
+                  Approve
                 </CustomButton>
               </Box>
             )}

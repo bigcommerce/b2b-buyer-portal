@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import { Box, Typography } from '@mui/material'
@@ -36,7 +35,6 @@ interface RightLeftSideProps {
 const initListIndex = 100000000
 
 function DetailPagination({ onChange, color }: DetailPageProps) {
-  const b3Lang = useB3Lang()
   const [listIndex, setListIndex] = useState<number>(initListIndex)
   const [arrived, setArrived] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
@@ -162,7 +160,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
             alignItems: 'center',
           }}
         >
-          {b3Lang('orderDetail.pagination.order')}
+          Order
           <Typography
             sx={{
               m: 1,
@@ -170,7 +168,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
           >
             {index}
           </Typography>
-          {b3Lang('orderDetail.pagination.of')}
+          of
           <Box
             sx={{
               ml: 1,

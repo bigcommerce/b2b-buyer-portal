@@ -1,6 +1,5 @@
 import { Fragment, ReactNode, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 import throttle from 'lodash-es/throttle'
@@ -111,30 +110,28 @@ function OrderCard(props: OrderCardProps) {
     ipStatus,
   } = props
 
-  const b3Lang = useB3Lang()
-
   const {
     state: { isAgenting },
   } = useContext(GlobaledContext)
 
   const dialogData = [
     {
-      dialogTitle: b3Lang('orderDetail.orderCard.reorder'),
+      dialogTitle: 'Re-order',
       type: 'reOrder',
-      description: b3Lang('orderDetail.orderCard.reorderDescription'),
-      confirmText: b3Lang('orderDetail.orderCard.reorderConfirmText'),
+      description: 'Select products and quantity for reorder',
+      confirmText: 'Add to cart',
     },
     {
-      dialogTitle: b3Lang('orderDetail.orderCard.return'),
+      dialogTitle: 'Return',
       type: 'return',
-      description: b3Lang('orderDetail.orderCard.returnDescription'),
-      confirmText: b3Lang('orderDetail.orderCard.returnConfirmText'),
+      description: 'Select products and quantity for return',
+      confirmText: 'Submit return request',
     },
     {
-      dialogTitle: b3Lang('orderDetail.orderCard.addToShoppingList'),
+      dialogTitle: 'Add to shopping list',
       type: 'shoppingList',
-      description: b3Lang('orderDetail.orderCard.addToShoppingListDescription'),
-      confirmText: b3Lang('orderDetail.orderCard.addToShoppingListConfirmText'),
+      description: 'Select products and quantity to add to shopping list',
+      confirmText: 'Add to shopping list',
     },
   ]
 
@@ -165,7 +162,9 @@ function OrderCard(props: OrderCardProps) {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
     } else {
       if (!isAgenting && +role === 3) {
-        snackbar.error(b3Lang('orderDetail.orderCard.errorMasquerade'))
+        snackbar.error(
+          'To re-order, return or add product to shopping list, please masquerade'
+        )
         return
       }
       setOpen(true)
@@ -275,7 +274,6 @@ interface OrderData {
 
 export default function OrderAction(props: OrderActionProps) {
   const { detailsData } = props
-  const b3Lang = useB3Lang()
   const {
     state: { isB2BUser, role, emailAddress },
   } = useContext(GlobaledContext)
@@ -324,16 +322,11 @@ export default function OrderAction(props: OrderActionProps) {
       city,
     } = billingAddress || {}
     const paymentAddress = {
-      paymentMethod: b3Lang('orderDetail.paymentMethod', { paymentMethod }),
-      name: b3Lang('orderDetail.paymentMethod', { firstName, lastName }),
+      paymentMethod: `Payment by ${paymentMethod}`,
+      name: `${firstName} ${lastName}`,
       company: getCompanyName(company),
       street: street1,
-      address: b3Lang('orderDetail.customerAddress', {
-        city,
-        state,
-        zip,
-        country,
-      }),
+      address: `${city}, ${state} ${zip}, ${country}`,
     }
 
     return paymentAddress
@@ -352,9 +345,7 @@ export default function OrderAction(props: OrderActionProps) {
       if (item.trim().length > 0) {
         const isHaveTitle = item.trim().includes(':')
 
-        let message = isHaveTitle
-          ? item
-          : b3Lang('orderDetail.itemComments', { item })
+        let message = isHaveTitle ? item : `Comments: ${item}`
         if (dividingLine.includes(item)) {
           message = item
         }
@@ -368,14 +359,14 @@ export default function OrderAction(props: OrderActionProps) {
 
   const buttons: Buttons[] = [
     {
-      value: b3Lang('orderDetail.reorder'),
+      value: 'Re-Order',
       key: 'Re-Order',
       name: 'reOrder',
       variant: 'outlined',
       isCanShow: +role !== 2,
     },
     {
-      value: b3Lang('orderDetail.return'),
+      value: 'Return',
       key: 'Return',
       name: 'return',
       variant: 'outlined',
@@ -385,7 +376,7 @@ export default function OrderAction(props: OrderActionProps) {
       isCanShow: false,
     },
     {
-      value: b3Lang('orderDetail.addToShoppingList'),
+      value: 'ADD TO SHOPPING LIST',
       key: 'add-to-shopping-list',
       name: 'shoppingList',
       variant: 'outlined',
@@ -395,14 +386,11 @@ export default function OrderAction(props: OrderActionProps) {
 
   const orderData: OrderData[] = [
     {
-      header: b3Lang('orderDetail.summary'),
+      header: 'Summary',
       key: 'order-summary',
       subtitle:
         updatedAt && name
-          ? b3Lang('orderDetail.purchaseDetails', {
-              name,
-              updatedAt: displayFormat(+updatedAt),
-            })
+          ? `Purchased by ${name} on ${displayFormat(+updatedAt)}.`
           : '',
       buttons,
       infos: {
@@ -411,18 +399,14 @@ export default function OrderAction(props: OrderActionProps) {
       },
     },
     {
-      header: b3Lang('orderDetail.payment'),
+      header: 'Payment',
       key: 'payment',
       subtitle: createAt
-        ? b3Lang('orderDetail.paidInFull', {
-            paidDate: displayFormat(createAt, true),
-          })
+        ? `Paid in full on ${displayFormat(createAt, true)}.`
         : '',
       buttons: [
         {
-          value: isB2BUser
-            ? b3Lang('orderDetail.viewInvoice')
-            : b3Lang('orderDetail.printInvoice'),
+          value: isB2BUser ? 'view invoice' : 'print invoice',
           key: 'aboutInvoice',
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
@@ -434,7 +418,7 @@ export default function OrderAction(props: OrderActionProps) {
       },
     },
     {
-      header: b3Lang('orderDetail.comments'),
+      header: 'Comments',
       key: 'order-comments',
       subtitle: '',
       buttons: [],

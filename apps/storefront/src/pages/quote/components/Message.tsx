@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useB3Lang } from '@b3/lang'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import {
   Box,
@@ -148,7 +147,6 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
 
   const theme = useTheme()
   const primaryColor = theme.palette.primary.main
-  const b3Lang = useB3Lang()
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const changeReadRef = useRef(0)
@@ -229,7 +227,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
           alignItems: 'center',
         }}
       >
-        {`${b3Lang('quoteDetail.message.message')} `}
+        Message{' '}
         {read !== 0 && (
           <Box
             sx={{
@@ -350,7 +348,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                 fontSize: '14px',
               }}
             >
-              {b3Lang('quoteDetail.message.merchantAnswers')}
+              Merchant typically answers within 1 day
             </Box>
             <Box
               ref={messagesEndRef}
@@ -406,7 +404,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                     setMessage(event.target.value)
                   }}
                   size="small"
-                  label={b3Lang('quoteDetail.message.typeMessage')}
+                  label="Type a message..."
                   variant="filled"
                 />
                 <Box

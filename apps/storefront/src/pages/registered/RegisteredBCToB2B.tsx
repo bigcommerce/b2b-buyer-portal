@@ -521,7 +521,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       <RegisteredContainer isMobile={isMobile}>
         <B3Sping
           isSpinning={isLoading}
-          tip={b3Lang('global.tips.loading')}
+          tip={b3Lang('intl.global.tips.loading')}
           transparency="0"
         >
           <Box
@@ -553,7 +553,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 >
                   <img
                     src={`${logo}`}
-                    alt={b3Lang('global.tips.registerLogo')}
+                    alt={b3Lang('intl.user.register.tips.registerLogo')}
                     loading="lazy"
                   />
                 </ImageListItem>
@@ -579,7 +579,9 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 }}
               >
                 <InformationLabels>
-                  {b3Lang('registeredbctob2b.title')}
+                  {b3Lang(
+                    'intl.user.register.title.bcToB2B.businessAccountApplication'
+                  )}
                 </InformationLabels>
 
                 {errorMessage && (
@@ -665,7 +667,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                     }}
                   >
                     <CustomButton variant="contained" onClick={handleNext}>
-                      {b3Lang('global.button.submit')}
+                      {b3Lang('intl.global.button.submit')}
                     </CustomButton>
                   </Box>
                 )}

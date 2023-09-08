@@ -1,5 +1,3 @@
-import { LangFormatFunction } from '@b3/lang'
-
 interface UsersListItems {
   createdAt: number
   email: string
@@ -53,11 +51,11 @@ const getUserRole = () => {
   return userRole
 }
 
-const getFilterMoreList = (b3Lang: LangFormatFunction) => {
+const getFilterMoreList = () => {
   const filterMoreList = [
     {
       name: 'role',
-      label: b3Lang('userManagement.config.userRole'),
+      label: 'User role',
       required: false,
       default: '',
       fieldType: 'dropdown',
@@ -72,19 +70,15 @@ const getFilterMoreList = (b3Lang: LangFormatFunction) => {
   return filterMoreList
 }
 
-const getUsersFiles = (
-  type: string,
-  b3Lang: LangFormatFunction,
-  disabledUserRole = false
-) => {
-  const roleArr = [...getFilterMoreList(b3Lang)]
+const getUsersFiles = (type: string, disabledUserRole = false) => {
+  const roleArr = [...getFilterMoreList()]
   roleArr[0].required = true
   roleArr[0].disabled = disabledUserRole
   const usersFiles = [
     ...roleArr,
     {
       name: 'email',
-      label: b3Lang('userManagement.config.email'),
+      label: 'Email',
       required: true,
       fieldType: 'text',
       xs: 12,
@@ -95,7 +89,7 @@ const getUsersFiles = (
     },
     {
       name: 'firstName',
-      label: b3Lang('userManagement.config.firstName'),
+      label: 'First name',
       required: true,
       default: '',
       fieldType: 'text',
@@ -105,7 +99,7 @@ const getUsersFiles = (
     },
     {
       name: 'lastName',
-      label: b3Lang('userManagement.config.lastName'),
+      label: 'Last name',
       required: true,
       fieldType: 'text',
       xs: 6,
@@ -115,7 +109,7 @@ const getUsersFiles = (
     },
     {
       name: 'phone',
-      label: b3Lang('userManagement.config.phoneNumber'),
+      label: 'Phone number',
       required: false,
       fieldType: 'text',
       xs: 12,
@@ -133,10 +127,10 @@ type EmailError = {
 }
 
 const emailError: EmailError = {
-  3: 'global.emailValidate.multipleCustomer',
-  4: 'global.emailValidate.companyUsed',
-  5: 'global.emailValidate.alreadyExits',
-  6: 'global.emailValidate.usedSuperAdmin',
+  3: 'intl.user.addUser.emailValidate.multipleCustomer',
+  4: 'intl.user.addUser.emailValidate.companyUsed',
+  5: 'intl.user.addUser.emailValidate.alreadyExits',
+  6: 'intl.user.addUser.emailValidate.usedSuperAdmin',
 }
 
 export { emailError, getFilterMoreList, getUserRole, getUsersFiles }

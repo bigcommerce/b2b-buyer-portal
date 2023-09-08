@@ -1,5 +1,4 @@
 import { ChangeEvent, KeyboardEvent, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
 import SearchIcon from '@mui/icons-material/Search'
 import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
@@ -29,7 +28,6 @@ export default function SearchProduct({
   addButtonText,
   isB2BUser,
 }: SearchProductProps) {
-  const b3Lang = useB3Lang()
   const [isLoading, setIsLoading] = useState(false)
 
   const [productListOpen, setProductListOpen] = useState(false)
@@ -170,9 +168,7 @@ export default function SearchProduct({
         margin: '24px 0',
       }}
     >
-      <Typography>
-        {b3Lang('shoppingListDetails.searchProduct.searchBySkuOrName')}
-      </Typography>
+      <Typography>Search by SKU or product name</Typography>
       <TextField
         hiddenLabel
         placeholder="eg Towel"
@@ -209,7 +205,7 @@ export default function SearchProduct({
               textAlign: 'center',
             }}
           >
-            {b3Lang('shoppingListDetails.searchProduct.searchProduct')}
+            Search product
           </Box>
         </B3Sping>
       </CustomButton>

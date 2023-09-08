@@ -1,4 +1,3 @@
-import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { CustomButton } from '@/components'
@@ -15,7 +14,6 @@ interface QuoteDetailFooterProps {
 function QuoteDetailFooter(props: QuoteDetailFooterProps) {
   const { quoteId, role, isAgenting, status } = props
   const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
 
   const containerStyle = isMobile
     ? {
@@ -74,7 +72,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
           width: isMobile ? '100%' : 'auto',
         }}
       >
-        {b3Lang('quoteDetail.footer.proceedToCheckout')}
+        Proceed to checkout
       </CustomButton>
     </Box>
   ) : null

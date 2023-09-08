@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { LangFormatFunction,useB3Lang } from '@b3/lang'
+import { B3Lang, useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 import trim from 'lodash-es/trim'
 
@@ -46,7 +46,7 @@ interface Fields {
   required: boolean
   rows: string | number
   type: string
-  validate: (val: string, b3lang: LangFormatFunction) => void | string
+  validate: (val: string, b3lang: B3Lang) => void | string
   variant: string
   visible: boolean
   xs: number
@@ -253,9 +253,7 @@ function AccountSetting() {
         setExtraFields(additionalInformation)
       } finally {
         if (B3SStorage.get('isFinshUpdate') === '1') {
-          snackbar.success(
-            b3Lang('accountSettings.notification.detailsUpdated')
-          )
+          snackbar.success('Your account details have been updated.')
           B3SStorage.delete('isFinshUpdate')
         }
         setLoadding(false)
@@ -283,7 +281,7 @@ function AccountSetting() {
     if (!isValid) {
       setError('email', {
         type: 'custom',
-        message: b3Lang('accountSettings.notification.emailExists'),
+        message: 'Email already exists',
       })
     }
 
@@ -294,11 +292,15 @@ function AccountSetting() {
     if (data.password !== data.confirmPassword) {
       setError('confirmPassword', {
         type: 'manual',
-        message: b3Lang('global.registerComplete.passwordMatchPrompt'),
+        message: b3Lang(
+          'intl.user.register.RegisterComplete.passwordMatchPrompt'
+        ),
       })
       setError('password', {
         type: 'manual',
-        message: b3Lang('global.registerComplete.passwordMatchPrompt'),
+        message: b3Lang(
+          'intl.user.register.RegisterComplete.passwordMatchPrompt'
+        ),
       })
       return false
     }
@@ -308,7 +310,9 @@ function AccountSetting() {
 
   const emailValidation = (data: Partial<ParamProps>) => {
     if (data.email !== customer.emailAddress && !data.currentPassword) {
-      snackbar.error(b3Lang('accountSettings.notification.updateEmailPassword'))
+      snackbar.error(
+        'Please type in your current password to update your email address.'
+      )
       return false
     }
     return true
@@ -399,7 +403,7 @@ function AccountSetting() {
             if (!isEdit) {
               await updateB2BAccountSettings(param)
             } else {
-              snackbar.success(b3Lang('accountSettings.notification.noEdits'))
+              snackbar.success('You haven’t made any edits')
               return
             }
           } else {
@@ -471,7 +475,7 @@ function AccountSetting() {
             if (!isEdit) {
               await updateBCAccountSettings(param)
             } else {
-              snackbar.success(b3Lang('accountSettings.notification.noEdits'))
+              snackbar.success('You haven’t made any edits')
               return
             }
           }
@@ -546,7 +550,7 @@ function AccountSetting() {
           onClick={handleAddUserClick}
           variant="contained"
         >
-          {b3Lang('accountSettings.button.saveUpdates')}
+          save updates
         </CustomButton>
       </Box>
     </B3Sping>

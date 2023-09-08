@@ -1,5 +1,3 @@
-import { LangFormatFunction } from '@b3/lang'
-
 export interface ShoppingListSearch {
   search?: string
   createdBy?: string
@@ -126,12 +124,10 @@ export const getFilterMoreList = (
   return filterMoreList
 }
 
-export const getCreatedShoppingListFiles = (
-  b3Lang: LangFormatFunction
-): GetFilterMoreListProps[] => [
+export const getCreatedShoppingListFiles = (): GetFilterMoreListProps[] => [
   {
     name: 'name',
-    label: b3Lang('shoppingLists.name'),
+    label: 'Name',
     required: true,
     default: '',
     fieldType: 'text',
@@ -142,7 +138,7 @@ export const getCreatedShoppingListFiles = (
   },
   {
     name: 'description',
-    label: b3Lang('shoppingLists.description'),
+    label: 'Description',
     required: false,
     default: '',
     fieldType: 'multiline',

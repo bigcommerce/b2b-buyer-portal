@@ -1,6 +1,5 @@
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, styled, Typography, useTheme } from '@mui/material'
 
@@ -35,7 +34,6 @@ interface QuoteDetailHeaderProps {
 
 function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
   const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
 
   const {
     status,
@@ -103,7 +101,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
                 color: primaryColor,
               }}
             >
-              {b3Lang('quoteDetail.header.backToQuoteLists')}
+              Back to quote lists
             </p>
           </Box>
         </Box>
@@ -140,9 +138,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
                 color: b3HexToRgb(customColor, 0.87),
               }}
             >
-              {b3Lang('quoteDetail.header.quoteNumber', {
-                quoteNumber: quoteNumber || '',
-              })}
+              {`Quote #${quoteNumber || ''}`}
             </Typography>
 
             <QuoteStatus code={status} />
@@ -156,7 +152,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
                   fontSize: '16px',
                 }}
               >
-                {b3Lang('quoteDetail.header.title')}
+                Title:
               </Typography>
               <span>{quoteTitle}</span>
             </StyledCreateName>
@@ -170,7 +166,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
                   fontSize: '16px',
                 }}
               >
-                {b3Lang('quoteDetail.header.salesRep')}
+                Sales rep:
               </Typography>
               <span>
                 {salesRepInfo?.salesRepEmail !== ''
@@ -188,7 +184,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
                   fontSize: '16px',
                 }}
               >
-                {b3Lang('quoteDetail.header.issuedOn')}
+                Issued on:
               </Typography>
               <span>{`${issuedAt ? displayFormat(+issuedAt) : ''}`}</span>
             </StyledCreateName>
@@ -200,7 +196,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
                   fontSize: '16px',
                 }}
               >
-                {b3Lang('quoteDetail.header.expirationDate')}
+                Expiration date:
               </Typography>
               <span>{`${
                 expirationDate ? displayFormat(+expirationDate) : ''
@@ -226,10 +222,10 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
                 }}
                 onClick={printQuote}
               >
-                {b3Lang('quoteDetail.header.print')}
+                Print
               </CustomButton>
               <CustomButton variant="outlined" onClick={exportPdf}>
-                {b3Lang('quoteDetail.header.downloadPDF')}
+                DownLoad pdf
               </CustomButton>
             </Box>
           </Grid>

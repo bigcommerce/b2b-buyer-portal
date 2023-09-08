@@ -1,22 +1,20 @@
-import { IntlShape,useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 
-type FormatMessageParameters = Parameters<IntlShape['formatMessage']>
+type MessageFormatPrimitiveValue = string | number | boolean | null | undefined
+export interface B3Lang {
+  (id: string, options?: Record<string, MessageFormatPrimitiveValue>): string
+}
 
-export type LangFormatFunction = (
-  id: string,
-  options?: FormatMessageParameters[1]
-) => string
-
-export const useB3Lang: () => LangFormatFunction = () => {
+export const useB3Lang: () => B3Lang = () => {
   const intl = useIntl()
-  return (id, options) =>
+  return (id: string, options = {}) =>
     id
-      ? (intl.formatMessage(
+      ? intl.formatMessage(
           {
             id,
             defaultMessage: id,
           },
           options
-        ) as string)
+        )
       : ''
 }

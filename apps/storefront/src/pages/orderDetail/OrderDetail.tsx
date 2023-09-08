@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, Stack, Typography } from '@mui/material'
 
@@ -51,8 +50,6 @@ function OrderDetail() {
   const params = useParams()
 
   const navigate = useNavigate()
-
-  const b3Lang = useB3Lang()
 
   const {
     state: { isB2BUser, addressConfig },
@@ -229,7 +226,7 @@ function OrderDetail() {
                     margin: '0 8px',
                   }}
                 />
-                <span>{b3Lang('orderDetail.backToOrders')}</span>
+                <span>Back to orders</span>
               </>
             ) : (
               ''
@@ -254,10 +251,8 @@ function OrderDetail() {
                 color: b3HexToRgb(customColor, 0.87) || '#263238',
               }}
             >
-              {b3Lang('orderDetail.orderId', { orderId })}
-              {b3Lang('orderDetail.purchaseOrderNumber', {
-                purchaseOrderNumber: poNumber,
-              })}
+              {`Order #${orderId}`}
+              {poNumber && `, ${poNumber}`}
             </Typography>
             <OrderStatus code={status} text={getOrderStatusLabel(status)} />
           </Grid>

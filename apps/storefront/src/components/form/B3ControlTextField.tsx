@@ -42,9 +42,9 @@ export default function B3ControlTextField({
 
   let requiredText = ''
   if (fieldType === 'password') {
-    requiredText = b3Lang('global.validate.password.required')
+    requiredText = b3Lang('intl.global.validate.password.required')
   } else {
-    requiredText = b3Lang('global.validate.required', {
+    requiredText = b3Lang('intl.global.validate.required', {
       label: labelName || label,
     })
   }

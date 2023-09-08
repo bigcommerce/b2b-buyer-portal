@@ -36,7 +36,7 @@ export default function B3ControlRadioGroup({
     rules: {
       required:
         required &&
-        b3Lang('global.validate.required', {
+        b3Lang('intl.global.validate.required', {
           label,
         }),
       validate: validate && ((v: string) => validate(v, b3Lang)),

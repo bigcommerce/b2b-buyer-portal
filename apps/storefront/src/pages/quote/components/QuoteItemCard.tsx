@@ -1,4 +1,3 @@
-import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { useTheme } from '@mui/material'
 import Box from '@mui/material/Box'
@@ -32,26 +31,25 @@ const Flex = styled('div')(() => ({
 export function QuoteItemCard(props: QuoteItemCardProps) {
   const { item, goToDetail } = props
   const theme = useTheme()
-  const b3Lang = useB3Lang()
 
   const primaryColor = theme.palette.primary.main
 
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {
       key: 'quoteTitle',
-      title: b3Lang('quoteItemCard.title'),
+      title: 'Title',
     },
     {
       key: 'salesRepEmail',
-      title: b3Lang('quoteItemCard.salesRep'),
+      title: 'Sales rep',
     },
     {
       key: 'createdBy',
-      title: b3Lang('quoteItemCard.createdBy'),
+      title: 'Created by',
     },
     {
       key: 'createdAt',
-      title: b3Lang('quoteItemCard.dateCreated'),
+      title: 'Date created',
       render: () =>
         `${
           +item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt
@@ -59,7 +57,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
     },
     {
       key: 'updatedAt',
-      title: b3Lang('quoteItemCard.lastUpdate'),
+      title: 'Last update',
       render: () =>
         `${
           +item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt
@@ -67,7 +65,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
     },
     {
       key: 'expiredAt',
-      title: b3Lang('quoteItemCard.expirationDate'),
+      title: 'Expiration date',
       render: () =>
         `${
           +item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt
@@ -75,7 +73,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
     },
     {
       key: 'totalAmount',
-      title: b3Lang('quoteItemCard.subtotal'),
+      title: 'Subtotal',
       render: () => {
         const { totalAmount } = item
 

@@ -85,7 +85,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
               >
                 <img
                   src={`${logo}`}
-                  alt={b3Lang('global.tips.registerLogo')}
+                  alt={b3Lang('intl.user.register.tips.registerLogo')}
                   loading="lazy"
                 />
               </ImageListItem>
@@ -107,7 +107,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
               margin: '16px 0',
             }}
           >
-            {b3Lang('forgotpassword.resetPassword')}
+            {b3Lang('intl.user.forgot.forgotText.resetPassword')}
           </Typography>
           <Typography
             variant="body1"
@@ -115,7 +115,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
               margin: '0 16px 16px 16px',
             }}
           >
-            {b3Lang('forgotpassword.requestEmail')}
+            {b3Lang('intl.user.forgot.forgotText.requestEmail')}
           </Typography>
           <B3CustomForm
             formFields={forgotPasswordFields}
@@ -133,7 +133,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
                 onClick={handleSubmit(handleLoginClick)}
                 variant="contained"
               >
-                {b3Lang('forgotpassword.resetPasswordBtn')}
+                {b3Lang('intl.user.forgot.forgotText.resetPasswordBtn')}
               </CustomButton>
             </B3ResetPassWordButton>
           </B3Sping>

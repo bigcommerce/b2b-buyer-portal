@@ -1,5 +1,4 @@
 import { ChangeEvent, useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
 import SearchIcon from '@mui/icons-material/Search'
 import { InputBase, Paper } from '@mui/material'
 
@@ -19,13 +18,11 @@ function B3FilterSearch({
   w = '100%',
   h,
   searchBGColor = '#efeae7',
+  placeholder = 'Search',
   searchValue = '',
-  ...restProps
 }: B3FilterSearchProps) {
   const [search, setSearch] = useState<string>('')
-  const b3Lang = useB3Lang()
   const debouncedValue = useDebounce<string>(search, 500)
-  const { placeholder = b3Lang('global.filter.search') } = restProps
 
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value)

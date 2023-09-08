@@ -7,7 +7,6 @@ import {
   useState,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import {
   Box,
@@ -131,8 +130,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   } = useContext(CustomStyleContext)
 
   const navigate = useNavigate()
-
-  const b3Lang = useB3Lang()
 
   const [isMobile] = useMobile()
 
@@ -363,7 +360,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     }
   }
 
-  const accountFormFields = getAccountFormFields(isMobile, b3Lang)
+  const accountFormFields = getAccountFormFields(isMobile)
 
   const updateSummary = () => {
     quoteSummaryRef.current?.refreshSummary()
@@ -407,14 +404,14 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       })
 
       if (JSON.stringify(contactInfo) === '{}' || !isComplete) {
-        snackbar.error(b3Lang('quoteDraft.addQuoteInfo'))
+        snackbar.error('Please add quote info before submitting ')
         return
       }
 
       const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
 
       if (!b2bQuoteDraftList || b2bQuoteDraftList.length === 0) {
-        snackbar.error(b3Lang('quoteDraft.submit'))
+        snackbar.error('Please add quote products before submitting ')
         return
       }
 
@@ -582,14 +579,11 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   }
 
   const backText = () => {
-    let text =
-      +role === 100
-        ? b3Lang('quoteDraft.button.back')
-        : b3Lang('quoteDraft.button.backToQuoteLists')
+    let text = +role === 100 ? 'Back' : 'Back to quote lists'
     if (openAPPParams?.quoteBtn === 'open') {
-      text = b3Lang('quoteDraft.button.back')
+      text = 'Back'
     } else if (openAPPParams?.quoteBtn === 'add') {
-      text = b3Lang('quoteDraft.button.backToProduct')
+      text = 'Back to product'
     }
 
     return text
@@ -674,7 +668,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 color: getContrastColor(backgroundColor),
               }}
             >
-              {b3Lang('quoteDraft.title.Quote')}
+              Quote
             </Typography>
             <QuoteStatus code="0" />
           </Box>
@@ -689,7 +683,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
               }}
               onClick={handleSubmit}
             >
-              {b3Lang('quoteDraft.button.submit')}
+              submit
             </CustomButton>
           ) : (
             <Box
@@ -747,7 +741,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 }}
               >
                 <QuoteAddress
-                  title={b3Lang('quoteDraft.section.billing')}
+                  title="Billing"
                   info={info?.billingAddress || {}}
                   addressList={addressList}
                   pr={isMobile ? 0 : '8px'}
@@ -759,7 +753,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                   setBillingChange={setBillingChange}
                 />
                 <QuoteAddress
-                  title={b3Lang('quoteDraft.section.shipping')}
+                  title="Shipping"
                   info={info?.shippingAddress || {}}
                   addressList={addressList}
                   pl={isMobile ? 0 : '8px'}
@@ -772,9 +766,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 />
               </Box>
               <FormControlLabel
-                label={b3Lang(
-                  'quoteDraft.checkbox.sameAddressShippingAndBilling'
-                )}
+                label="My shipping address is the same as my billing address"
                 control={
                   <Checkbox
                     checked={shippingSameAsBilling}
@@ -805,7 +797,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 onClick={handleSaveInfoClick}
                 variant="outlined"
               >
-                {b3Lang('quoteDraft.button.saveInfo')}
+                Save info
               </CustomButton>
             </Container>
           )}

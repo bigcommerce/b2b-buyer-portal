@@ -1,4 +1,3 @@
-import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 
 import { CustomButton } from '@/components'
@@ -131,7 +130,6 @@ function QuoteInfo({
   handleEditInfoClick,
   status,
 }: InfoProps) {
-  const b3Lang = useB3Lang()
   const [isMobile] = useMobile()
   return (
     <Container
@@ -153,14 +151,14 @@ function QuoteInfo({
         <QuoteInfoItem title="Contact" flag="info" info={contactInfo} />
 
         <QuoteInfoItem
-          title={b3Lang('global.quoteInfo.billing')}
+          title="Billing"
           flag="Billing"
           status={status}
           info={billingAddress}
         />
 
         <QuoteInfoItem
-          title={b3Lang('global.quoteInfo.shipping')}
+          title="Shipping"
           flag="Shipping"
           status={status}
           info={shippingAddress}
@@ -175,7 +173,7 @@ function QuoteInfo({
           onClick={handleEditInfoClick}
           variant="outlined"
         >
-          {b3Lang('global.quoteInfo.editInfo')}
+          Edit info
         </CustomButton>
       )}
     </Container>

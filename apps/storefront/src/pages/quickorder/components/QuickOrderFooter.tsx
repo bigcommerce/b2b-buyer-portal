@@ -7,7 +7,6 @@ import {
   useState,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import { ArrowDropDown } from '@mui/icons-material'
 import { Box, Button, Grid, Menu, MenuItem, Typography } from '@mui/material'
 import { v1 as uuid } from 'uuid'
@@ -110,7 +109,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       shoppingListEnabled = false,
     },
   } = useContext(GlobaledContext)
-  const b3Lang = useB3Lang()
 
   const { role, checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props
 
@@ -137,7 +135,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
   const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
     if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('purchasedProducts.footer.selectOneItem'))
+      snackbar.error('Please select at least one item')
     } else {
       setAnchorEl(e.currentTarget)
       setOpen(true)
@@ -211,7 +209,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         : searchBcProducts
 
       if (productIds.length === 0) {
-        snackbar.error(b3Lang('purchasedProducts.footer.selectOneItemToAdd'))
+        snackbar.error('Please select at least one item to add to cart')
         return
       }
 
@@ -248,9 +246,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       } else if (!res.status) {
         snackbar.success('', {
           jsx: successTip({
-            message: b3Lang('purchasedProducts.footer.productsAdded'),
+            message: 'Products were added to cart',
             link: '/cart.php',
-            linkText: b3Lang('purchasedProducts.footer.viewCart'),
+            linkText: 'VIEW CART',
             isOutLink: true,
           }),
           isClose: true,
@@ -406,9 +404,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         addQuoteDraftProducts(newProducts)
         snackbar.success('', {
           jsx: successTip({
-            message: b3Lang('purchasedProducts.footer.productsAddedToQuote'),
+            message: 'Products were added to your quote.',
             link: '/quoteDraft',
-            linkText: b3Lang('purchasedProducts.footer.viewQuote'),
+            linkText: 'VIEW QUOTE',
             isOutLink: false,
           }),
           isClose: true,
@@ -416,9 +414,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       } else {
         snackbar.error('', {
           jsx: successTip({
-            message: b3Lang('purchasedProducts.footer.productsLimit'),
+            message: 'The quantity of each product in Quote is 1-1000000.',
             link: '/quoteDraft',
-            linkText: b3Lang('purchasedProducts.footer.viewQuote'),
+            linkText: 'VIEW QUOTE',
             isOutLink: false,
           }),
           isClose: true,
@@ -448,7 +446,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           mr: '15px',
         }}
       >
-        {b3Lang('purchasedProducts.footer.productsAddedToShoppingList')}
+        Products were added to your shopping list
       </Box>
       <Button
         onClick={() => gotoShoppingDetail(id)}
@@ -529,13 +527,10 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         items,
       })
 
-      snackbar.success(
-        b3Lang('purchasedProducts.footer.productsAddedToShoppingList'),
-        {
-          jsx: () => tip(shoppingListId),
-          isClose: true,
-        }
-      )
+      snackbar.success('Products were added to your shopping list', {
+        jsx: () => tip(shoppingListId),
+        isClose: true,
+      })
       handleShoppingClose(true)
     } catch (err) {
       console.error(err)
@@ -546,21 +541,19 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
   const buttonList = [
     {
-      name: b3Lang('purchasedProducts.footer.addToCart'),
+      name: 'Add selected to cart',
       key: 'add-selected-to-cart',
       handleClick: handleAddSelectedToCart,
       isDisabled: role === 2,
     },
     {
-      name: b3Lang('purchasedProducts.footer.addToQuote'),
+      name: 'Add selected to quote',
       key: 'add-selected-to-quote',
       handleClick: handleAddSelectedToQuote,
       isDisabled: !productQuoteEnabled,
     },
     {
-      name: b3Lang(
-        'purchasedProducts.footer.addSelectedProductsToShoppingList'
-      ),
+      name: 'Add selected to shopping list',
       key: 'add-selected-to-shoppingList',
       handleClick: handleCreateShoppingClick,
       isDisabled: !shoppingListEnabled,
@@ -656,9 +649,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                 fontWeight: '400',
               }}
             >
-              {b3Lang('purchasedProducts.footer.selectedProducts', {
-                quantity: checkedArr.length,
-              })}
+              {`${checkedArr.length} products selected`}
             </Typography>
             <Box
               sx={{
@@ -676,9 +667,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                   color: '#000000',
                 }}
               >
-                {b3Lang('purchasedProducts.footer.subtotal', {
-                  subtotal: currencyFormat(selectedSubTotal),
-                })}
+                {`Subtotal: ${currencyFormat(selectedSubTotal)}`}
               </Typography>
               <Box
                 sx={{
@@ -698,7 +687,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                   }}
                   endIcon={<ArrowDropDown />}
                 >
-                  {b3Lang('purchasedProducts.footer.addSelectedTo')}
+                  Add selected to
                 </CustomButton>
 
                 <Menu
@@ -766,7 +755,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       <OrderShoppingList
         isOpen={openShoppingList}
-        dialogTitle={b3Lang('purchasedProducts.footer.addToShoppingList')}
+        dialogTitle="Add to shopping list"
         onClose={handleShoppingClose}
         onConfirm={handleAddSelectedToShoppingList}
         onCreate={handleOpenCreateDialog}

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
 import { Box, Grid } from '@mui/material'
 
 import { B3Dialog } from '@/components'
@@ -35,7 +34,6 @@ function ChooseAddress({
   const recordList = useRef<RefProps>({
     copyList: [],
   })
-  const b3Lang = useB3Lang()
 
   const [list, setList] = useState<AddressItemType[]>([])
 
@@ -92,14 +90,14 @@ function ChooseAddress({
       fullWidth
       isOpen={isOpen}
       handleLeftClick={handleCancelClicked}
-      title={b3Lang('quoteDraft.chooseAddress.chooseFromSaved')}
+      title="Choose from saved"
       showRightBtn={false}
       maxWidth="lg"
     >
       <Box>
         <B3FilterSearch
           searchBGColor="rgba(0, 0, 0, 0.06)"
-          placeholder={b3Lang('quoteDraft.chooseAddress.searchAddress')}
+          placeholder="Search address"
           handleChange={(e) => {
             handleSearchProduct(e)
           }}

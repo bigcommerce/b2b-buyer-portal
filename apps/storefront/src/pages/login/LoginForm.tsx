@@ -104,7 +104,7 @@ function LoginForm(props: LoginFormProps) {
             }}
             onClick={() => gotoForgotPassword()}
           >
-            {b3Lang('login.loginText.forgotPasswordText')}
+            {b3Lang('intl.user.login.loginText.forgotPasswordText')}
           </Box>
         </Box>
       </Box>

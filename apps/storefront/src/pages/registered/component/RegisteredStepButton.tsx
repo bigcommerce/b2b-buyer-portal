@@ -22,7 +22,7 @@ function RegisteredStepButton(props: any) {
           }}
         >
           <CustomButton variant="contained" onClick={() => handleFinish()}>
-            {b3Lang('global.button.finish')}
+            {b3Lang('intl.global.button.finish')}
           </CustomButton>
         </Box>
       ) : (
@@ -41,8 +41,8 @@ function RegisteredStepButton(props: any) {
             }}
           >
             {activeStep === steps.length - 1
-              ? b3Lang('global.button.submit')
-              : b3Lang('global.button.next')}
+              ? b3Lang('intl.global.button.submit')
+              : b3Lang('intl.global.button.next')}
           </CustomButton>
           {activeStep !== 0 && (
             <CustomButton
@@ -53,7 +53,7 @@ function RegisteredStepButton(props: any) {
                 mr: 1,
               }}
             >
-              {b3Lang('global.button.back')}
+              {b3Lang('intl.global.button.back')}
             </CustomButton>
           )}
         </Box>

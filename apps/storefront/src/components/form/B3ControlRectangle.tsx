@@ -41,7 +41,7 @@ export default function B3ControlRectangle({
     rules: {
       required:
         required &&
-        b3Lang('global.validate.required', {
+        b3Lang('intl.global.validate.required', {
           label,
         }),
       validate: validate && ((v: string) => validate(v, b3Lang)),

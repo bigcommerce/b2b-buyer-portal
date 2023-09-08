@@ -6,7 +6,6 @@ import {
   useState,
 } from 'react'
 import { useForm } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import { Badge, Box, IconButton, useTheme } from '@mui/material'
 
@@ -83,7 +82,6 @@ function B3FilterMore<T, Y>({
   })
 
   const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
 
   const theme = useTheme()
   const primaryColor = theme.palette.primary.main
@@ -208,9 +206,9 @@ function B3FilterMore<T, Y>({
 
       <B3Dialog
         isOpen={open}
-        leftSizeBtn={b3Lang('global.filter.cancel')}
-        rightSizeBtn={b3Lang('global.filter.apply')}
-        title={b3Lang('global.filter.title')}
+        leftSizeBtn="Cancel"
+        rightSizeBtn="Apply"
+        title="Filters"
         handleLeftClick={handleClose}
         handRightClick={handleSaveFilters}
       >
@@ -239,7 +237,7 @@ function B3FilterMore<T, Y>({
           onClick={handleClearFilters}
           size="small"
         >
-          {b3Lang('global.filter.clearFilters')}
+          clear filters
         </CustomButton>
       </B3Dialog>
     </Box>

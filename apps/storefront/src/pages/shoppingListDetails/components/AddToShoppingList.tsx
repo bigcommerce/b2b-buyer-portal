@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 
@@ -28,7 +27,6 @@ export default function AddToShoppingList(props: AddToListProps) {
   } = useContext(ShoppingListDetailsContext)
 
   const { updateList, isB2BUser } = props
-  const b3Lang = useB3Lang()
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -52,12 +50,9 @@ export default function AddToShoppingList(props: AddToListProps) {
       items,
     })
 
-    snackbar.success(
-      b3Lang('shoppingListDetails.addToShoppingList.productsAdded'),
-      {
-        isClose: true,
-      }
-    )
+    snackbar.success('Products were added to your shopping list', {
+      isClose: true,
+    })
 
     return res
   }
@@ -75,12 +70,9 @@ export default function AddToShoppingList(props: AddToListProps) {
       items,
     })
 
-    snackbar.success(
-      b3Lang('shoppingListDetails.addToShoppingList.productsAdded'),
-      {
-        isClose: true,
-      }
-    )
+    snackbar.success('Products were added to your shopping list', {
+      isClose: true,
+    })
 
     return res
   }
@@ -170,21 +162,14 @@ export default function AddToShoppingList(props: AddToListProps) {
       }
 
       if (notAddAble.length > 0) {
-        snackbar.error(
-          b3Lang('shoppingListDetails.addToShoppingList.skuNotAddable', {
-            notAddAble,
-          }),
-          {
-            isClose: true,
-          }
-        )
+        snackbar.error(`SKU ${notAddAble} cannot be added quickly`, {
+          isClose: true,
+        })
       }
 
       if (notPurchaseSku.length > 0) {
         snackbar.error(
-          b3Lang('shoppingListDetails.addToShoppingList.skuNotPurchasable', {
-            notPurchaseSku,
-          }),
+          `SKU ${notPurchaseSku} cannot be purchased in online store.`,
           {
             isClose: true,
           }
@@ -216,9 +201,7 @@ export default function AddToShoppingList(props: AddToListProps) {
     >
       <CardContent>
         <Box>
-          <Typography variant="h5">
-            {b3Lang('shoppingListDetails.addToShoppingList.addToList')}
-          </Typography>
+          <Typography variant="h5">Add to list</Typography>
           <SearchProduct
             updateList={updateList}
             addToList={addToList}
