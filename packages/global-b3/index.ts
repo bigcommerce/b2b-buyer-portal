@@ -32,7 +32,7 @@ const themeOtherElementConfig = () => {
       '[href="/account.php"] svg, [href="/account.php"] svg use, [href="/account.php"] span, [href="/account.php"], [href="/login.php"] span, [href="/login.php"] svg use, [href="/login.php"] svg, [href="/login.php"]',
     SuperMarket: '[href="/login.php"] span, [href="/account.php"] span',
     LifeStyle:
-      '.navUser-item--account a, .navUser-item--account a svg, .navUser-section-sub .navUser-item .needsclick, .navUser-section-sub .navUser-item .needsclick svg, .navUser-section-sub .navUser-item .needsclick span, .navUser-section-sub .navUser-item a, .navUser-section-sub .navUser-item a svg, .navUser-section-sub .navUser-item a svg use, .navUser-section-sub .navUser-item a span',
+      '.navUser-item--account a svg, .navUser-item--account a, .navUser-item .needsclick, .navUser-item .needsclick svg, .navUser-item .needsclick span, .navUser-item a, .navUser-item a svg, .navUser-item a svg use, .navUser-item a span',
   }
 
   if (window?.B3CustomConfig) {
