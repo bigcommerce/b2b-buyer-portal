@@ -21,12 +21,12 @@ jobs:
           aws-region: us-west-2
       - name: deploy to s3
         run: |
-          aws s3 cp apps/storefront/dist s3://b3-cdn-files/b2b/staging/storefront --recursive --acl public-read
+          aws s3 cp apps/storefront/dist/assets s3://b3-cdn-files/b2b/staging/storefront --recursive --acl public-read
           aws cloudfront create-invalidation --distribution-id E1ZCC8QPXD9I6K --path "/*"
       - name: create revision
         run: |
-          poly_js=$(find apps/storefront/dist -name polyfills-legacy.*.js -type f -printf '%f')
-          index_js=$(find apps/storefront/dist -name index-legacy.*.js -type f -printf '%f')
+          poly_js=$(find apps/storefront/dist/assets -name polyfills-legacy.*.js -type f -printf '%f')
+          index_js=$(find apps/storefront/dist/assets -name index-legacy.*.js -type f -printf '%f')
           curl --location --request POST '${{ secrets.API_HOST }}/api/v3/stores/revisions' \
           --header 'Authorization: Basic ${{ secrets.API_CREDENTIAL }}' \
           --header 'Content-Type: application/json' \
