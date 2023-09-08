@@ -7,11 +7,6 @@ import useMutationObservable from './useMutationObservable'
 //   href: string
 //   isRegisterArrInclude: boolean
 // }
-interface ChildNodeListProps extends ChildNode {
-  href?: string
-  localName?: string
-}
-
 export interface OpenPageState {
   isOpen: boolean
   openUrl?: string
@@ -52,29 +47,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           e.preventDefault()
           e.stopPropagation()
           const isRegisterArrInclude = registerArr.includes(e.target)
-          const tagHref = (e.target as HTMLAnchorElement)?.href
-          let href = tagHref || '/orders'
-          if (!tagHref) {
-            const parentNode = (e.target as HTMLAnchorElement)?.parentNode
-            const parentNodeOrigin = (e.target as HTMLAnchorElement)?.parentNode
-              ?.parentNode
-            const parentHref =
-              (parentNodeOrigin as HTMLAnchorElement)?.href ||
-              (parentNode as HTMLAnchorElement)?.href
-            if (parentHref) {
-              href = parentHref || '/orders'
-            } else {
-              const childNodeList = (e.target as HTMLAnchorElement)?.childNodes
-              if (childNodeList.length > 0) {
-                childNodeList.forEach((node: ChildNodeListProps) => {
-                  const nodeHref = node?.href
-                  if (nodeHref && node.localName === 'a') {
-                    href = nodeHref || '/orders'
-                  }
-                })
-              }
-            }
-          }
+          const href = (e.target as HTMLAnchorElement)?.href || '/orders'
           if (initOpenState?.handleEnterClick) {
             initOpenState.handleEnterClick(href, isRegisterArrInclude)
           }
