@@ -109,9 +109,9 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
       title: 'Invoice total',
       render: () => {
         const { originalBalance } = item
-        const originalAmount = +originalBalance.value
+        const originalAmount = (+originalBalance.value).toFixed(2)
 
-        return currencyFormat(originalAmount || 0)
+        return currencyFormat(+originalAmount || 0)
       },
     },
     {
@@ -120,9 +120,9 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
       render: () => {
         const { openBalance } = item
 
-        const openAmount = +openBalance.value
+        const openAmount = (+openBalance.value).toFixed(2)
 
-        return currencyFormat(openAmount || 0)
+        return currencyFormat(+openAmount || 0)
       },
     },
     {

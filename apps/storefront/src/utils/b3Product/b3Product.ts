@@ -24,7 +24,6 @@ import {
 import {
   B3LStorage,
   B3SStorage,
-  getActiveCurrencyInfo,
   getDefaultCurrencyInfo,
   storeHash,
 } from '@/utils'
@@ -263,7 +262,6 @@ const getListModifierPrice = (
 }
 
 const setItemProductPrice = (newListProducts: ListItemProps[]) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
   newListProducts.forEach((item: ListItemProps) => {
     const {
       node: {
@@ -305,8 +303,8 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
       singleCurrentPrice * ((100 + rate) / 100) + singleextraProductPrice
     const productTax = singleCurrentPrice * (rate / 100) + singleAllTax
 
-    item.node.baseAllPrice = productPrice.toFixed(decimalPlaces)
-    item.node.baseAllPricetax = productTax.toFixed(decimalPlaces)
+    item.node.baseAllPrice = productPrice.toFixed(2)
+    item.node.baseAllPricetax = productTax.toFixed(2)
   })
 }
 
@@ -575,7 +573,6 @@ const getCalculatedParams = (
 }
 
 const getBulkPrice = (calculatedPrices: any, qty: number) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
   const { calculated_price: calculatedPrice, bulk_pricing: bulkPrices } =
     calculatedPrices
 
@@ -586,7 +583,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   store.dispatch(setEnteredInclusive(enteredInclusive))
   B3SStorage.set('enteredInclusiveTax', enteredInclusive)
 
-  const tax = calculatedTaxPrice - calculatedNoTaxPrice
+  const tax = (calculatedTaxPrice - calculatedNoTaxPrice).toFixed(2)
 
   const taxRate = +tax / calculatedNoTaxPrice
 
@@ -615,8 +612,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
           case 'percent':
             // basePrice *= newPrice / 100
             // price -= +basePrice
-            finalDiscount =
-              enteredPrice * +(bulkPrice / 100).toFixed(decimalPlaces)
+            finalDiscount = enteredPrice * +(bulkPrice / 100).toFixed(2)
             break
           case 'price':
             finalDiscount = bulkPrice
@@ -675,8 +671,6 @@ const getCalculatedProductPrice = async (
   { optionList, productsSearch, sku, qty }: CalculatedProductPrice,
   calculatedValue?: CustomFieldItems
 ) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
-
   const { variants = [] } = productsSearch
 
   const variantItem = variants.find(
@@ -727,8 +721,8 @@ const getCalculatedProductPrice = async (
         quantity: +qty,
         optionList: JSON.stringify(optionList),
         productId: variantItem.product_id,
-        basePrice: itemPrice.toFixed(decimalPlaces),
-        taxPrice: taxPrice.toFixed(decimalPlaces),
+        basePrice: itemPrice.toFixed(2),
+        taxPrice: taxPrice.toFixed(2),
         calculatedValue: calculatedData[0],
       },
     }
@@ -817,8 +811,6 @@ const calculateProductsPrice = async (
   products: ShoppingListProductItem[],
   calculatedValue: CustomFieldItems[] = []
 ) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
-
   let calculatedPrices = calculatedValue
   const { variants, items } = formatLineItemsToGetPrices(lineItems, products)
 
@@ -864,8 +856,8 @@ const calculateProductsPrice = async (
         quantity,
         optionList: JSON.stringify(optionSelections),
         productId,
-        basePrice: itemPrice.toFixed(decimalPlaces),
-        taxPrice: taxPrice.toFixed(decimalPlaces),
+        basePrice: itemPrice.toFixed(2),
+        taxPrice: taxPrice.toFixed(2),
         calculatedValue: calculatedPrice,
       },
     }
@@ -876,7 +868,6 @@ const calculateProductListPrice = async (
   products: Partial<Product>[],
   type = '1'
 ) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
   try {
     let isError = false
     let i = 0
@@ -966,14 +957,14 @@ const calculateProductListPrice = async (
       const { taxPrice, itemPrice } = getBulkPrice(calculatedData[index], qty)
 
       if (type === '1') {
-        product.basePrice = itemPrice.toFixed(decimalPlaces)
-        product.taxPrice = taxPrice.toFixed(decimalPlaces)
-        product.tax = taxPrice.toFixed(decimalPlaces)
+        product.basePrice = itemPrice.toFixed(2)
+        product.taxPrice = taxPrice.toFixed(2)
+        product.tax = taxPrice.toFixed(2)
         product.calculatedValue = calculatedData[index]
       } else if (type === '2') {
-        product.node.basePrice = itemPrice.toFixed(decimalPlaces)
-        product.node.taxPrice = taxPrice.toFixed(decimalPlaces)
-        product.node.tax = taxPrice.toFixed(decimalPlaces)
+        product.node.basePrice = itemPrice.toFixed(2)
+        product.node.taxPrice = taxPrice.toFixed(2)
+        product.node.tax = taxPrice.toFixed(2)
         product.node.calculatedValue = calculatedData[index]
       }
     })

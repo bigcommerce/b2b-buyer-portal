@@ -14,12 +14,7 @@ import {
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
-import {
-  currencyFormat,
-  getActiveCurrencyInfo,
-  setModifierQtyPrice,
-  snackbar,
-} from '@/utils'
+import { currencyFormat, setModifierQtyPrice, snackbar } from '@/utils'
 import {
   addlineItems,
   getProductOptionsFields,
@@ -177,8 +172,6 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
   const [loading, setLoading] = useState<boolean>(false)
 
   const [isMobile] = useMobile()
-
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
 
   useEffect(() => {
     if (products.length > 0) {
@@ -442,9 +435,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 } = product.node
 
                 const price = +basePrice
-                const total = (price * (quantity ? +quantity : 0)).toFixed(
-                  decimalPlaces
-                )
+                const total = (price * (quantity ? +quantity : 0)).toFixed(2)
 
                 const newProduct: any = {
                   ...productsSearch,

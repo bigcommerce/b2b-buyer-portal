@@ -35,7 +35,6 @@ import {
   addQuoteDraftProducts,
   B3LStorage,
   B3SStorage,
-  getActiveCurrencyInfo,
   getDefaultCurrencyInfo,
   snackbar,
   storeHash,
@@ -130,8 +129,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext)
-
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
 
   const navigate = useNavigate()
 
@@ -503,9 +500,10 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         const items = {
           productId: node.productsSearch.id,
           sku: node.variantSku,
-          basePrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
+          basePrice: (+(node?.basePrice || 0)).toFixed(2),
+          // taxPrice: (+node.taxPrice).toFixed(2),
           discount: '0.00',
-          offeredPrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
+          offeredPrice: (+(node?.basePrice || 0)).toFixed(2),
           quantity: node.quantity,
           variantId: varantsItem.variant_id,
           imageUrl: node.primaryImage,
@@ -525,10 +523,10 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         message: newNote,
         legalTerms: '',
         totalAmount: enteredInclusiveTax
-          ? allPrice.toFixed(decimalPlaces)
-          : (allPrice + allTaxPrice).toFixed(decimalPlaces),
-        grandTotal: allPrice.toFixed(decimalPlaces),
-        subtotal: allPrice.toFixed(decimalPlaces),
+          ? allPrice.toFixed(2)
+          : (allPrice + allTaxPrice).toFixed(2),
+        grandTotal: allPrice.toFixed(2),
+        subtotal: allPrice.toFixed(2),
         companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
         storeHash,
         discount: '0.00',
@@ -539,7 +537,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         contactInfo,
         productList,
         fileList,
-        taxTotal: allTaxPrice.toFixed(decimalPlaces),
+        taxTotal: allTaxPrice.toFixed(2),
         currency: {
           currencyExchangeRate: currency.currency_exchange_rate,
           token: currency.token,
