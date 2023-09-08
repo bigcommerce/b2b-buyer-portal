@@ -54,8 +54,6 @@ interface RegisteredProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
 }
 
-type AlertColor = 'success' | 'info' | 'warning' | 'error'
-
 export default function Login(props: RegisteredProps) {
   const [isLoading, setLoading] = useState(true)
   const [isMobile] = useMobile()
@@ -182,33 +180,11 @@ export default function Login(props: RegisteredProps) {
         case '4':
           str = b3Lang('login.loginTipInfo.accountincorrect')
           break
-        case '5':
-          str = b3Lang('login.loginTipInfo.accountPrelaunch')
-          break
         default:
           str = ''
       }
     }
     return str
-  }
-
-  const setTipType = (flag: string): AlertColor | undefined => {
-    if (!flag) return undefined
-    let tipType: AlertColor = 'success'
-    switch (flag) {
-      case '1':
-        tipType = 'error'
-        break
-      case '4':
-        tipType = 'error'
-        break
-      case '5':
-        tipType = 'warning'
-        break
-      default:
-        tipType = 'success'
-    }
-    return tipType
   }
 
   const getforcePasswordReset = async (email: string) => {
@@ -244,18 +220,8 @@ export default function Login(props: RegisteredProps) {
           pass: data.password,
         }
         const { data: bcData, errors } = await bcLogin(getBCFieldsValue)
+
         if (errors?.length || !bcData) {
-          if (errors?.length) {
-            const { message } = errors[0]
-            if (
-              message ===
-              'Operation cannot be performed as the storefront channel is not live'
-            ) {
-              setLoginFlag('5')
-              setLoading(false)
-              return
-            }
-          }
           getforcePasswordReset(data.emailAddress)
         } else {
           const info = await getCurrentCustomerInfo(dispatch)
@@ -310,7 +276,12 @@ export default function Login(props: RegisteredProps) {
                       margin: '30px 0 0 0',
                     }}
                   >
-                    <Alert severity={setTipType(flag)} variant="filled">
+                    <Alert
+                      severity={
+                        flag === '1' || flag === '4' ? 'error' : 'success'
+                      }
+                      variant="filled"
+                    >
                       {tipInfo(flag, loginAccount?.emailAddress || '')}
                     </Alert>
                   </Box>
