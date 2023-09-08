@@ -23,11 +23,7 @@ import {
   bcLogin,
   // bcLogoutLogin,
 } from '@/shared/service/bc'
-import {
-  B3SStorage,
-  clearCurrentCustomerInfo,
-  getCurrentCustomerInfo,
-} from '@/utils'
+import { clearCurrentCustomerInfo, getCurrentCustomerInfo } from '@/utils'
 
 import LoginWidget from './component/LoginWidget'
 import {
@@ -248,11 +244,6 @@ export default function Login(props: RegisteredProps) {
           pass: data.password,
         }
         const { data: bcData, errors } = await bcLogin(getBCFieldsValue)
-
-        if (bcData?.login?.customer) {
-          B3SStorage.set('loginCustomer', bcData.login.customer)
-        }
-
         if (errors?.length || !bcData) {
           if (errors?.length) {
             const { message } = errors[0]

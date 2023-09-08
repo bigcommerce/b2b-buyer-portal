@@ -21,7 +21,7 @@ import {
   bcLogin,
 } from '@/shared/service/bc'
 import { themeFrameSelector } from '@/store'
-import { B3SStorage, getCurrentCustomerInfo } from '@/utils'
+import { getCurrentCustomerInfo } from '@/utils'
 
 import { loginCheckout, LoginConfig } from '../login/config'
 
@@ -282,11 +282,7 @@ function Registered(props: RegisteredProps) {
           pass: data.password,
         }
 
-        const { data: bcData } = await bcLogin(getBCFieldsValue)
-
-        if (bcData?.login?.customer) {
-          B3SStorage.set('loginCustomer', bcData.login.customer)
-        }
+        await bcLogin(getBCFieldsValue)
 
         await getCurrentCustomerInfo(globalDispatch)
 

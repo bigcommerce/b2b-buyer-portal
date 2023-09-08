@@ -2,15 +2,7 @@ import B3Request from '../../request/b3Fetch'
 
 const getbcLogin = () => `mutation Login($email: String!, $pass: String!) {
   login(email: $email, password: $pass) {
-    result,
-    customer {
-      entityId,
-      phone,
-      firstName,
-      lastName,
-      email,
-      customerGroupId,
-    }
+    result
   }
 }`
 
