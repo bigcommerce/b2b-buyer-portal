@@ -78,14 +78,10 @@ export default function App() {
     currentClickedUrl,
     isRegisterAndLogin,
   } = useSelector(globalStateSelector)
-  const [clickTimeTarget, setClickTimeTarget] = useState<number>(0)
+  const [isClickBtn, setIsClickEnterBtn] = useState<boolean>(false)
 
-  const handleAccountClick = (
-    href: string,
-    isRegisterAndLogin: boolean,
-    timeTarget: number
-  ) => {
-    setClickTimeTarget(timeTarget)
+  const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
+    setIsClickEnterBtn(!isClickBtn)
     showPageMask(dispatch, true)
     storeDispatch(
       setGlabolCommonState({
@@ -280,7 +276,7 @@ export default function App() {
         })
       )
     }
-  }, [isPageComplete, currentClickedUrl, clickTimeTarget])
+  }, [isPageComplete, currentClickedUrl, isClickBtn])
 
   useEffect(() => {
     const handleHashChange = () => {

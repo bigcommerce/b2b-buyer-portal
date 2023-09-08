@@ -16,7 +16,7 @@ export interface OpenPageState {
   isOpen: boolean
   openUrl?: string
   isPageComplete?: boolean
-  handleEnterClick?: (href: string, bool: boolean, timeTarget: number) => void
+  handleEnterClick?: (href: string, bool: boolean) => void
   params?: { [key: string]: string }
   // gotoPageByClick: ({
   //   href,
@@ -54,7 +54,6 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           const isRegisterArrInclude = registerArr.includes(e.target)
           const tagHref = (e.target as HTMLAnchorElement)?.href
           let href = tagHref || '/orders'
-          const timeTarget = Date.now()
           if (!tagHref) {
             const parentNode = (e.target as HTMLAnchorElement)?.parentNode
             const parentNodeOrigin = (e.target as HTMLAnchorElement)?.parentNode
@@ -77,11 +76,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
             }
           }
           if (initOpenState?.handleEnterClick) {
-            initOpenState.handleEnterClick(
-              href,
-              isRegisterArrInclude,
-              timeTarget
-            )
+            initOpenState.handleEnterClick(href, isRegisterArrInclude)
           }
         }
         return false
