@@ -76,13 +76,11 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       B3SStorage.delete('isAgenting')
       B3SStorage.delete('salesRepCompanyId')
       B3SStorage.delete('salesRepCompanyName')
-      B3SStorage.delete('salesRepCustomerGroupId')
       dispatch({
         type: 'common',
         payload: {
           salesRepCompanyId: '',
           salesRepCompanyName: '',
-          salesRepCustomerGroupId: '',
           isAgenting: false,
         },
       })

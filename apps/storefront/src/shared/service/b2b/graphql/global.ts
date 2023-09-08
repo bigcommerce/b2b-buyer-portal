@@ -21,7 +21,6 @@ const getAgentInfoQl = (customerId: string | number) => `{
   superAdminMasquerading(customerId: ${customerId}) {
     companyName,
     bcGroupName,
-    customerGroupId,
     companyStatus,
     id
   }

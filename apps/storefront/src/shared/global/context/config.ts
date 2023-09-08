@@ -86,7 +86,6 @@ export interface GlobalState {
   isAgenting: boolean
   salesRepCompanyId: string
   salesRepCompanyName: string
-  salesRepCustomerGroupId: string
   B3UserId: number | string
   tipMessage: TipMessagesProps
   addressConfig?: {
@@ -145,7 +144,6 @@ export const initState = {
   isAgenting: B3SStorage.get('isAgenting') || false,
   salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
   salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',
-  salesRepCustomerGroupId: B3SStorage.get('salesRepCustomerGroupId') || '',
   customer: B3SStorage.get('B3CustomerInfo') || {
     firstName: '',
     lastName: '',
