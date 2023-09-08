@@ -6,7 +6,7 @@ import {
   getBCGraphqlToken,
   getUserCompany,
 } from '@/shared/service/b2b'
-import { getBcCurrentJWT, getCustomerInfo } from '@/shared/service/bc'
+import { getBcCurrentJWT } from '@/shared/service/bc'
 import { B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
@@ -340,16 +340,10 @@ export const getCurrentCustomerInfo = async (
   b2bToken?: string
 ) => {
   try {
-    let loginCustomer = B3SStorage.get('loginCustomer')
+    const loginCustomer = B3SStorage.get('loginCustomer')
 
     if (!loginCustomer) {
-      const {
-        data: { customer },
-      } = await getCustomerInfo()
-
-      loginCustomer = customer
-
-      if (!customer) return undefined
+      return undefined
     }
 
     const {
