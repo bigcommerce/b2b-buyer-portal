@@ -20,7 +20,6 @@ interface ChannelIdProps {
   type: string
   platform: string
   isEnabled: boolean
-  translationVersion: number
 }
 
 type B2BToken = {
@@ -46,11 +45,11 @@ export interface ChannelStoreSites {
 export const getCurrentStoreInfo = (
   storeSites: Array<ChannelIdProps>,
   multiStorefrontEnabled: boolean
-): ChannelIdProps | undefined => {
-  const enabledStores =
+): Partial<ChannelIdProps> => {
+  const newStoreSites =
     storeSites.filter((site: ChannelIdProps) => !!site.isEnabled) || []
 
-  let store
+  let store: ChannelIdProps | {} = {}
 
   if (VITE_LOCAL_DEBUG) {
     store = {
@@ -62,7 +61,6 @@ export const getCurrentStoreInfo = (
       type: 'storefront',
       platform: 'bigcommerce',
       isEnabled: true,
-      translationVersion: 0,
     }
   }
 
@@ -76,17 +74,15 @@ export const getCurrentStoreInfo = (
       type: 'storefront',
       platform: 'bigcommerce',
       isEnabled: true,
-      translationVersion: 0,
     }
   }
 
   const { origin } = window.location
-  const cleanedOrigin = origin.replace('-1.', '.')
-  const storeItem = enabledStores.find((item: ChannelIdProps) => item.urls
-      .map((url) => url.replace('-1.', '.'))
-      .includes(cleanedOrigin))
+  const storeItem =
+    newStoreSites.find((item: ChannelIdProps) => item.urls.includes(origin)) ||
+    store
 
-  return storeItem || store
+  return storeItem
 }
 
 export const getloginTokenInfo = (channelId: number) => {

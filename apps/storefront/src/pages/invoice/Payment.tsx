@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Dialog, Loading } from '@/components'
@@ -18,8 +17,6 @@ function Payment() {
 
   const navigate = useNavigate()
 
-  const b3Lang = useB3Lang()
-
   useEffect(() => {
     const init = async () => {
       setLoadding(true)
@@ -32,7 +29,7 @@ function Payment() {
       }
 
       if (!params?.id) {
-        snackbar.error(b3Lang('payment.errorInvoiceCantBeBlank'))
+        snackbar.error('The invoice cannot be blank')
       }
 
       if (params?.id) {
@@ -44,7 +41,7 @@ function Payment() {
           } = await getInvoiceDetail(+params.id)
 
           if (!code || !value) {
-            snackbar.error(b3Lang('payment.errorOpenBalanceIsIncorrect'))
+            snackbar.error('The invoice openBalance code or value is incorrect')
           }
 
           const data = {
@@ -58,10 +55,9 @@ function Payment() {
           }
 
           await gotoInvoiceCheckoutUrl(data, true)
-        } catch (error: unknown) {
+        } catch (errer: unknown) {
           snackbar.error(
-            (error as CustomFieldItems)?.message ||
-              b3Lang('payment.invoiceDoesntExist')
+            (errer as CustomFieldItems)?.message || 'Invoice does not exist'
           )
         } finally {
           setLoadding(false)
@@ -102,9 +98,9 @@ function Payment() {
                 mb: '10px',
               }}
             >
-              {b3Lang('payment.firstLoginToPay')}
+              Please log in first and pay the invoice,
             </Box>
-            <Box>{b3Lang('payment.clickToLandingPage')}</Box>
+            <Box>Click ok to go to the landing page</Box>
           </Box>
         </Box>
       </B3Dialog>

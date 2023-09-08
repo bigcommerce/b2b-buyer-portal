@@ -152,7 +152,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
             display: 'inline-block',
           }}
         >
-          {b3Lang('quoteItemCard.view')}
+          VIEW
         </Box>
       </CardContent>
     </Card>

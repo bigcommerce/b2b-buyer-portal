@@ -52,9 +52,12 @@ export default function AddToShoppingList(props: AddToListProps) {
       items,
     })
 
-    snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'), {
-      isClose: true,
-    })
+    snackbar.success(
+      b3Lang('shoppingListDetails.addToShoppingList.productsAdded'),
+      {
+        isClose: true,
+      }
+    )
 
     return res
   }
@@ -72,9 +75,12 @@ export default function AddToShoppingList(props: AddToListProps) {
       items,
     })
 
-    snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'), {
-      isClose: true,
-    })
+    snackbar.success(
+      b3Lang('shoppingListDetails.addToShoppingList.productsAdded'),
+      {
+        isClose: true,
+      }
+    )
 
     return res
   }
@@ -165,7 +171,7 @@ export default function AddToShoppingList(props: AddToListProps) {
 
       if (notAddAble.length > 0) {
         snackbar.error(
-          b3Lang('shoppingList.addToShoppingList.skuNotAddable', {
+          b3Lang('shoppingListDetails.addToShoppingList.skuNotAddable', {
             notAddAble,
           }),
           {
@@ -176,7 +182,7 @@ export default function AddToShoppingList(props: AddToListProps) {
 
       if (notPurchaseSku.length > 0) {
         snackbar.error(
-          b3Lang('shoppingList.addToShoppingList.skuNotPurchasable', {
+          b3Lang('shoppingListDetails.addToShoppingList.skuNotPurchasable', {
             notPurchaseSku,
           }),
           {
@@ -211,7 +217,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       <CardContent>
         <Box>
           <Typography variant="h5">
-            {b3Lang('shoppingList.addToShoppingList.addToList')}
+            {b3Lang('shoppingListDetails.addToShoppingList.addToList')}
           </Typography>
           <SearchProduct
             updateList={updateList}

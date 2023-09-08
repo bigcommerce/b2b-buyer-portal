@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, Typography } from '@mui/material'
 
 import { B3Dialog, B3NoData, B3Sping } from '@/components'
@@ -133,7 +132,6 @@ function PaymentsHistory({
   setOpen,
   currentInvoiceId,
 }: PaymentsHistoryProps) {
-  const b3Lang = useB3Lang()
   const [isMobile] = useMobile()
   const [loadding, setLoadding] = useState<boolean>(false)
 
@@ -160,7 +158,7 @@ function PaymentsHistory({
       isOpen={open}
       leftSizeBtn=""
       rightSizeBtn="ok"
-      title={b3Lang('invoice.paymentHistory.title')}
+      title="Payments history"
       showLeftBtn={false}
       handRightClick={() => setOpen(false)}
     >

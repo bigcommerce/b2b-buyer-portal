@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
-import { LangFormatFunction, useB3Lang } from '@b3/lang'
+import { LangFormatFunction,useB3Lang } from '@b3/lang'
 import { Box, Button } from '@mui/material'
 
 import { GlobaledContext } from '@/shared/global'

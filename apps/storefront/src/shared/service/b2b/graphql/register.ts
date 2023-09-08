@@ -154,6 +154,7 @@ const getStoreChannelId = () => `{
     storeUrl
     multiStorefrontEnabled
     storeSites{
+      translationVersion
       channelId
       urls
       iconUrl
@@ -163,7 +164,6 @@ const getStoreChannelId = () => `{
       b3ChannelId
       type
       platform
-      translationVersion
     }
     timeFormat{
       display

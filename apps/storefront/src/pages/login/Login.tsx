@@ -359,7 +359,9 @@ export default function Login(props: RegisteredProps) {
                           >
                             <img
                               src={`${logo}`}
-                              alt={b3Lang('login.registerLogo')}
+                              alt={b3Lang(
+                                'intl.user.register.tips.registerLogo'
+                              )}
                               loading="lazy"
                             />
                           </ImageListItem>

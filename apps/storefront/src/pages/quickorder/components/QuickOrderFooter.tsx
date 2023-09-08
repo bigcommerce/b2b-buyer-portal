@@ -315,12 +315,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         return !variantSku
       })
       if (noSkuProducts.length > 0) {
-        snackbar.error(
-          b3Lang('purchasedProducts.footer.cantAddProductsNoSku'),
-          {
-            isClose: true,
-          }
-        )
+        snackbar.error('Can not add products without SKU.', {
+          isClose: true,
+        })
       }
       if (noSkuProducts.length === checkedArr.length) return
 
@@ -373,9 +370,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         )
 
         if (!variantItem) {
-          errorMessage = b3Lang('purchasedProducts.footer.notFoundSku', {
-            sku: variantSku,
-          })
+          errorMessage = `${variantSku} not found`
           isFondVariant = false
         }
 

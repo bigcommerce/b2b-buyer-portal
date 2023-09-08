@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LangFormatFunction, useB3Lang } from '@b3/lang'
+import { LangFormatFunction,useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Sping } from '@/components'

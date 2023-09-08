@@ -139,7 +139,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
       if (cantPurchase) {
         snackbar.error(
-          b3Lang('shoppingList.footer.unavailableProducts', {
+          b3Lang('shoppingListDetails.footer.unavailableProducts', {
             skus: cantPurchase.slice(0, -1),
           }),
           {
@@ -152,8 +152,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       if (skus.length === 0) {
         snackbar.error(
           allowJuniorPlaceOrder
-            ? b3Lang('shoppingList.footer.selectItemsToCheckout')
-            : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
+            ? b3Lang('shoppingListDetails.footer.selectItemsToCheckout')
+            : b3Lang('shoppingListDetails.footer.selectItemsToAddToCart'),
           {
             isClose: true,
           }
@@ -208,9 +208,11 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           } else {
             snackbar.success('', {
               jsx: successTip({
-                message: b3Lang('shoppingList.footer.productsAddedToCart'),
+                message: b3Lang(
+                  'shoppingListDetails.footer.productsAddedToCart'
+                ),
                 link: '/cart.php',
-                linkText: b3Lang('shoppingList.footer.viewCart'),
+                linkText: b3Lang('shoppingListDetails.footer.viewCart'),
                 isOutLink: true,
               }),
               isClose: true,
@@ -281,7 +283,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
               fontWeight: '400',
             }}
           >
-            {b3Lang('shoppingList.footer.selectedProducts', {
+            {b3Lang('shoppingListDetails.footer.selectedProducts', {
               quantity: checkedArr.length,
             })}
           </Typography>
@@ -300,7 +302,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                 color: '#000000',
               }}
             >
-              {b3Lang('shoppingList.footer.subtotal', {
+              {b3Lang('shoppingListDetails.footer.subtotal', {
                 subtotal: currencyFormat(selectedSubTotal),
               })}
             </Typography>
@@ -350,8 +352,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                   }}
                 >
                   {allowJuniorPlaceOrder
-                    ? b3Lang('shoppingList.footer.proceedToCheckout')
-                    : b3Lang('shoppingList.footer.addToCart')}
+                    ? b3Lang('shoppingListDetails.footer.proceedToCheckout')
+                    : b3Lang('shoppingListDetails.footer.addToCart')}
                 </CustomButton>
               )}
             </Box>

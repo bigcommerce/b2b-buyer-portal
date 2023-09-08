@@ -1,6 +1,6 @@
 import { lazy, useContext, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { LangFormatFunction, useB3Lang } from '@b3/lang'
+import { LangFormatFunction,useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { GlobaledContext } from '@/shared/global'

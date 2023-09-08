@@ -35,13 +35,13 @@ export default function RegisteredStep(props: RegisteredStepProps) {
   const blockPendingAccountOrderCreation =
     B3SStorage.get('blockPendingAccountOrderCreation') && !isAutoApproval
   const registerCompleteText = blockPendingAccountOrderCreation
-    ? b3Lang('register.title.registerCompleteWarning')
-    : b3Lang('register.title.registerComplete')
+    ? b3Lang('registered.title.registerCompleteWarning')
+    : b3Lang('registered.title.registerComplete')
 
   const newPageTitle =
     accountType === '1'
       ? registerCompleteText
-      : b3Lang('register.title.accountCreated')
+      : b3Lang('registered.title.accountCreated')
 
   const customColor = getContrastColor(backgroundColor)
   return (
@@ -72,7 +72,7 @@ export default function RegisteredStep(props: RegisteredStepProps) {
       >
         {submitSuccess
           ? newPageTitle
-          : b3Lang('register.title.accountRegister')}
+          : b3Lang('registered.title.accountRegister')}
       </Box>
       {!submitSuccess && (
         <Stepper
@@ -92,7 +92,7 @@ export default function RegisteredStep(props: RegisteredStepProps) {
             if (isStepOptional(index)) {
               labelProps.optional = (
                 <Typography variant="caption">
-                  {b3Lang('register.step.optional')}
+                  {b3Lang('registered.step.optional')}
                 </Typography>
               )
             }

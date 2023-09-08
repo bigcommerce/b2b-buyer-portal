@@ -1,5 +1,4 @@
 export * from './reducer'
 export * from './selectors'
 export * from './slices/global'
-export * from './slices/lang'
 export * from './slices/theme'

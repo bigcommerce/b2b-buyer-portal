@@ -8,10 +8,7 @@ enum RequestType {
   BCProxyGraphql = 'BCProxyGraphql',
   B2BRest = 'B2BRest',
   BCRest = 'BCRest',
-  TranslationService = 'TranslationService',
 }
-
-export type RequestTypeKeys = keyof typeof RequestType
 
 const queryParse = <T>(query: T): string => {
   let queryText = ''

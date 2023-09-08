@@ -113,8 +113,8 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
             }}
           >
             {openAPPParams.shoppingListBtn !== 'add'
-              ? b3Lang('shoppingList.header.backToShoppingLists')
-              : b3Lang('shoppingList.header.backToProduct')}
+              ? b3Lang('shoppingListDetails.header.backToShoppingLists')
+              : b3Lang('shoppingListDetails.header.backToProduct')}
           </Box>
         </Box>
       </Box>
@@ -180,7 +180,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                     marginRight: '0.5rem',
                   }}
                 >
-                  {b3Lang('shoppingList.header.createdBy')}
+                  {b3Lang('shoppingListDetails.header.createdBy')}
                 </Typography>
                 <span>{`${customerInfo?.firstName || ''} ${
                   customerInfo?.lastName || ''
@@ -205,7 +205,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                 handleUpdateShoppingList(40)
               }}
             >
-              {b3Lang('shoppingList.header.submitForApproval')}
+              {b3Lang('shoppingListDetails.header.submitForApproval')}
             </CustomButton>
           )}
           {(role === 0 || role === 1 || (role === 3 && isAgenting)) &&
@@ -220,7 +220,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                     handleUpdateShoppingList(20)
                   }}
                 >
-                  {b3Lang('shoppingList.header.reject')}
+                  {b3Lang('shoppingListDetails.header.reject')}
                 </CustomButton>
                 <CustomButton
                   variant="outlined"
@@ -228,7 +228,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                     handleUpdateShoppingList(0)
                   }}
                 >
-                  {b3Lang('shoppingList.header.approve')}
+                  {b3Lang('shoppingListDetails.header.approve')}
                 </CustomButton>
               </Box>
             )}

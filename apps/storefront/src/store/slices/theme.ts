@@ -1,4 +1,5 @@
-import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, Draft } from '@reduxjs/toolkit'
 
 export interface ThemeState {
   themeFrame?: Document

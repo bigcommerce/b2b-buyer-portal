@@ -106,7 +106,7 @@ export default function AddToQuote(props: AddToListProps) {
 
     const noSkuProducts = products.filter(({ sku }) => !sku)
     if (noSkuProducts.length > 0) {
-      snackbar.error(b3Lang('quoteDraft.notification.cantAddProductsNoSku'), {
+      snackbar.error('Can not add products without SKU.', {
         isClose: true,
       })
     }
@@ -252,13 +252,13 @@ export default function AddToQuote(props: AddToListProps) {
         await calculateProductListPrice(newProducts, '2')
 
         addQuoteDraftProducts(newProducts)
-        snackbar.success(b3Lang('quoteDraft.notification.productPlural'), {
+        snackbar.success('Products were added to your quote.', {
           isClose: true,
         })
         updateList()
         setIsOpenBulkLoadCSV(false)
       } else {
-        snackbar.error(b3Lang('quoteDraft.notification.errorRangeProducts'))
+        snackbar.error('The quantity of each product in Quote is 1-1000000.')
       }
     } catch (e) {
       console.log(e)
@@ -271,7 +271,7 @@ export default function AddToQuote(props: AddToListProps) {
     const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
-        b3Lang('quoteDraft.notification.businessAccountPendingActivation')
+        'Your business account is pending approval. This feature is currently disabled.'
       )
     } else {
       setIsOpenBulkLoadCSV(true)

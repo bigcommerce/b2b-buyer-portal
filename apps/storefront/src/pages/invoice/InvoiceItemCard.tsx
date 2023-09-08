@@ -1,6 +1,5 @@
 import { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import {
   Box,
@@ -51,7 +50,6 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     handleGetCorrespondingCurrency,
     addBottom,
   } = props
-  const b3Lang = useB3Lang()
   const navigate = useNavigate()
 
   const { id, status, dueDate, openBalance } = item
@@ -66,7 +64,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
   const columnAllItems: TableColumnItem<InvoiceList>[] = [
     {
       key: 'orderNumber',
-      title: b3Lang('invoice.invoiceItemCardHeader.order'),
+      title: 'Order',
       render: () => (
         <Box
           sx={{
@@ -84,12 +82,12 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     },
     {
       key: 'createdAt',
-      title: b3Lang('invoice.invoiceItemCardHeader.invoiceDate'),
+      title: 'Invoice date',
       render: () => `${item.createdAt ? displayFormat(+item.createdAt) : '–'}`,
     },
     {
       key: 'updatedAt',
-      title: b3Lang('invoice.invoiceItemCardHeader.dueDate'),
+      title: 'Due date',
       render: () => {
         const { dueDate, status } = item
         const isOverdue = currentDate > dueDate * 1000 && status !== 2
@@ -108,7 +106,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     },
     {
       key: 'originalBalance',
-      title: b3Lang('invoice.invoiceItemCardHeader.invoiceTotal'),
+      title: 'Invoice total',
       render: () => {
         const { originalBalance } = item
         const originalAmount = +originalBalance.value
@@ -118,7 +116,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     },
     {
       key: 'openBalance',
-      title: b3Lang('invoice.invoiceItemCardHeader.amountDue'),
+      title: 'Amount due',
       render: () => {
         const { openBalance } = item
 
@@ -129,7 +127,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     },
     {
       key: 'openBalanceToPay',
-      title: b3Lang('invoice.invoiceItemCardHeader.amountToPay'),
+      title: 'Amount to pay',
       render: () => {
         const { openBalance, id } = item
         let valuePrice = openBalance.value

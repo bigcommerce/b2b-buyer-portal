@@ -226,4 +226,3 @@ export {
 }
 
 export { default as getProxyInfo } from './api/proxy'
-export { default as getTranslation } from './api/translation'

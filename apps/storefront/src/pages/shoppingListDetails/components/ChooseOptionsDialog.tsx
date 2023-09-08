@@ -118,7 +118,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
   const b3Lang = useB3Lang()
   const {
-    addButtonText = b3Lang('shoppingList.chooseOptionsDialog.addToList'),
+    addButtonText = b3Lang('shoppingListDetails.chooseOptionsDialog.addToList'),
   } = restProps
 
   const {
@@ -357,7 +357,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
     if (purchasingDisabled === true) {
       snackbar.error(
-        b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale')
+        b3Lang('shoppingListDetails.chooseOptionsDialog.productNoLongerForSale')
       )
       return false
     }
@@ -484,12 +484,12 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       isOpen={isOpen}
       rightSizeBtn={
         isEdit
-          ? b3Lang('shoppingList.chooseOptionsDialog.saveOption')
+          ? b3Lang('shoppingListDetails.chooseOptionsDialog.saveOption')
           : addButtonText
       }
       handleLeftClick={handleCancelClicked}
       handRightClick={handleConfirmClicked}
-      title={b3Lang('shoppingList.chooseOptionsDialog.chooseOptions')}
+      title={b3Lang('shoppingListDetails.chooseOptionsDialog.chooseOptions')}
       loading={isLoading || isRequestLoading}
     >
       <B3Sping isSpinning={isLoading}>
@@ -530,7 +530,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
                   <FlexItem>
                     <span>
-                      {b3Lang('shoppingList.chooseOptionsDialog.price')}
+                      {b3Lang('shoppingListDetails.chooseOptionsDialog.price')}
                     </span>
                     {currencyFormat(
                       newPrice * +quantity || getProductPrice(product)
@@ -542,7 +542,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                       type="number"
                       variant="filled"
                       label={b3Lang(
-                        'shoppingList.chooseOptionsDialog.quantity'
+                        'shoppingListDetails.chooseOptionsDialog.quantity'
                       )}
                       value={quantity}
                       onChange={handleProductQuantityChange}

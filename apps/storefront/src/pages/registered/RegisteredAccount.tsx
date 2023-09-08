@@ -215,7 +215,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         }}
       >
         <InformationFourLabels>
-          {b3Lang('register.registeredAccount.accountType')}
+          {b3Lang('registered.registeredAccount.accountType')}
         </InformationFourLabels>
         <RadioGroup
           aria-labelledby="demo-row-radio-buttons-group-label"
@@ -237,14 +237,14 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
             <FormControlLabel
               value="1"
               control={<Radio />}
-              label={b3Lang('register.registeredAccount.businessAccount')}
+              label={b3Lang('registered.registeredAccount.businessAccount')}
             />
           )}
           {accountLoginRegistration.b2c && (
             <FormControlLabel
               value="2"
               control={<Radio />}
-              label={b3Lang('register.registeredAccount.personalAccount')}
+              label={b3Lang('registered.registeredAccount.personalAccount')}
             />
           )}
         </RadioGroup>

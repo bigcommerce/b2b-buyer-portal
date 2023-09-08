@@ -1,6 +1,5 @@
 import { useContext } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import {
   Badge,
   List,
@@ -30,7 +29,6 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const [isMobile] = useMobile()
   const navigate = useNavigate()
   const location = useLocation()
-  const b3Lang = useB3Lang()
 
   const { dispatch } = useContext(DynamicallyVariableedContext)
 
@@ -172,7 +170,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
                   onClick={() => handleClick(item)}
                   selected={activePath(item.path)}
                 >
-                  <ListItemText primary={b3Lang(item.idLang)} />
+                  <ListItemText primary={item.name} />
                 </ListItemButton>
               </Badge>
             </ListItem>
@@ -184,7 +182,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
               onClick={() => handleClick(item)}
               selected={activePath(item.path)}
             >
-              <ListItemText primary={b3Lang(item.idLang)} />
+              <ListItemText primary={item.name} />
             </ListItemButton>
           </ListItem>
         )
