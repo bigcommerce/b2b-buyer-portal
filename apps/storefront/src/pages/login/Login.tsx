@@ -250,7 +250,11 @@ export default function Login(props: RegisteredProps) {
         const { data: bcData, errors } = await bcLogin(getBCFieldsValue)
 
         if (bcData?.login?.customer) {
-          B3SStorage.set('loginCustomer', bcData.login.customer)
+          B3SStorage.set('loginCustomer', {
+            emailAddress: bcData.login.customer.email,
+            phoneNumber: bcData.login.customer.phone,
+            ...bcData.login.customer,
+          })
         }
 
         if (errors?.length || !bcData) {
