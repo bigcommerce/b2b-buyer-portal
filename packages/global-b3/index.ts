@@ -26,7 +26,7 @@ const themeOtherElementConfig = () => {
   // Camden: '[href="/account.php"] svg, [href="/account.php"] svg use, [href="/account.php"] span, [href="/account.php"], [href="/login.php"] span, [href="/login.php"] svg use, [href="/login.php"] svg, [href="/login.php"]'
   // Vault: '.navUser-item--account a, .navUser-item--account a svg',
   // Fortune: '[href="/login.php?action=create_account"]',
-  // Pinnacle: Theme Pinnacle and NextGen are compatible with the theme LifeStyle;; Artisan、CoventGarden、 Artify and HaloOne: method compatible
+  // Pinnacle: Theme Pinnacle and NextGen are compatible with the theme LifeStyle;; Artisan、CoventGarden、 Artify: method compatible
   const themeElements: ThemeElementsProps = {
     Hera: '[href^="/account.php"] span, .account-item .account-action span svg, .account-item .account-action span svg use, [href^="/login.php?action=logout"], [href="/login.php"] .icon, .account-item .account-action span',
     RightRope:
@@ -35,7 +35,8 @@ const themeOtherElementConfig = () => {
     LifeStyle:
       '.navUser-item--account a, .navUser-item--account a svg, .navUser-section-sub .navUser-item .needsclick, .navUser-section-sub .navUser-item .needsclick svg, .navUser-section-sub .navUser-item .needsclick span, .navUser-section-sub .navUser-item a, .navUser-section-sub .navUser-item a svg, .navUser-section-sub .navUser-item a svg use, .navUser-section-sub .navUser-item a span',
     Chiara:
-      '.navUser-item--more, #navUser-more-toggle, #navUser-more-toggle a, #navUser-more-toggle .navUser-item-icon, #navUser-more-toggle .navUser-item-icon svg, #navUser-more-toggle .navUser-item-icon svg use, #navUser-more-toggle .navUser-item-moreLabel',
+      '.navUser-item--more, #navUser-more-toggle, #navUser-more-toggle .navUser-item-icon, #navUser-more-toggle .navUser-item-icon svg, #navUser-more-toggle .navUser-item-icon svg use, #navUser-more-toggle .navUser-item-moreLabel, .header-top-item--login, .header-top-item--login .header-top-action, .header-top-item--logout, .header-top-item--logout [href^="/login.php?action=logout"]',
+    HaloOne: '[href^="/account.php"] svg, [href^="/account.php"] svg path',
   }
 
   if (window?.B3CustomConfig) {

@@ -165,7 +165,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       {!isOpen && isMobile && (
         <Snackbar
           sx={{
-            zIndex: '110000',
+            zIndex: '99999999993',
             ...getPosition(horizontalPadding, verticalPadding, location),
           }}
           anchorOrigin={getLocation(location) || defaultLocation}
@@ -190,7 +190,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       {!isOpen && !isMobile && (
         <Snackbar
           sx={{
-            zIndex: '110000',
+            zIndex: '9999999999',
             borderRadius: '4px',
             height: '52px',
             fontSize: '16px',
@@ -276,7 +276,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       {isOpen && !isMobile && (
         <Snackbar
           sx={{
-            zIndex: '110000',
+            zIndex: '9999999999',
             borderRadius: '4px',
             height: '52px',
             ...customStyles,
@@ -359,7 +359,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       {isOpen && isMobile && (
         <Snackbar
           sx={{
-            zIndex: '110000',
+            zIndex: '9999999999',
             borderRadius: '4px',
             height: '52px',
             ...sx,

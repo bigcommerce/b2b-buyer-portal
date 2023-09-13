@@ -30,7 +30,7 @@ function CheckoutTip(props: CheckoutTipProps) {
     !isAgenting && (
       <Dialog
         sx={{
-          zIndex: 110000,
+          zIndex: 99999999993,
           padding: '40px 40px 20px 40px',
         }}
         open={open}
