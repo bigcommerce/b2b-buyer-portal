@@ -83,14 +83,16 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
               }
             }
           }
-          const B3Role = sessionStorage.getItem('sf-B3Role') || ''
+
+          const RoleInfo = sessionStorage.getItem('sf-B3Role')
+          const B3Role = RoleInfo ? JSON.parse(RoleInfo || '') : ''
           const isLogin = B3Role === '' ? false : JSON.parse(B3Role) !== 100
           const hrefArr = href.split('/#')
-          if (hrefArr[1] === '' && isLogin) {
-            return false
+          if (hrefArr[1] === '') {
+            href = isLogin ? '/orders' : '/login'
           }
 
-          if (isLogin && href.includes('/login')) {
+          if (isLogin && href === '/login.php') {
             href = '/orders'
           }
           if (initOpenState?.handleEnterClick) {

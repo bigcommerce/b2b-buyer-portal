@@ -87,7 +87,7 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
   return (
     <Snackbar
       sx={{
-        zIndex: '110000',
+        zIndex: '99999999993',
         width: 'auto',
         ...positionStyles,
       }}
