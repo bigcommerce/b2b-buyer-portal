@@ -341,7 +341,7 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
         (config: QuoteConfigProps) =>
           config.key === 'shopping_list_on_product_page'
       )?.extraFields
-      return storefrontConfig.quotes && shoppingListOnProductPage?.b2b
+      return storefrontConfig.shoppingLists && shoppingListOnProductPage?.b2b
     }
 
     if (item.configKey === 'quickOrderPad') {
