@@ -1,0 +1,14 @@
+name: Deploy to Production - All Stores
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+    secrets: inherit
