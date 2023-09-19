@@ -36,7 +36,8 @@ const themeOtherElementConfig = () => {
       '.navUser-item--account a, .navUser-item--account a svg, .navUser-section-sub .navUser-item .needsclick, .navUser-section-sub .navUser-item .needsclick svg, .navUser-section-sub .navUser-item .needsclick span, .navUser-section-sub .navUser-item a, .navUser-section-sub .navUser-item a svg, .navUser-section-sub .navUser-item a svg use, .navUser-section-sub .navUser-item a span',
     Chiara:
       '.navUser-item--more, #navUser-more-toggle, #navUser-more-toggle .navUser-item-icon, #navUser-more-toggle .navUser-item-icon svg, #navUser-more-toggle .navUser-item-icon svg use, #navUser-more-toggle .navUser-item-moreLabel, .header-top-item--login, .header-top-item--login .header-top-action, .header-top-item--logout, .header-top-item--logout [href^="/login.php?action=logout"]',
-    HaloOne: '[href^="/account.php"] svg, [href^="/account.php"] svg path',
+    HaloOne:
+      '[href^="/account.php"] svg, [href^="/account.php"] svg path, [href="/login.php"] svg span',
   }
 
   if (window?.B3CustomConfig) {
