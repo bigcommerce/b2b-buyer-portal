@@ -88,6 +88,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       isAgenting,
       openAPPParams,
       customer: { customerGroupId },
+      productQuoteEnabled = false,
     },
   } = useContext(GlobaledContext)
   const navigate = useNavigate()
@@ -423,6 +424,8 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
                   setDeleteOpen={setDeleteOpen}
                   setDeleteItemId={setDeleteItemId}
                   isB2BUser={isB2BUser}
+                  role={role}
+                  productQuoteEnabled={productQuoteEnabled}
                 />
               </Grid>
             </B3Sping>
@@ -449,21 +452,24 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
           </Grid>
         </Grid>
 
-        {!isReadForApprove && (allowJuniorPlaceOrder || !isJuniorApprove) && (
-          <ShoppingDetailFooter
-            shoppingListInfo={shoppingListInfo}
-            role={role}
-            allowJuniorPlaceOrder={allowJuniorPlaceOrder}
-            checkedArr={checkedArr}
-            selectedSubTotal={selectedSubTotal}
-            setLoading={setIsRequestLoading}
-            setDeleteOpen={setDeleteOpen}
-            setValidateFailureProducts={setValidateFailureProducts}
-            setValidateSuccessProducts={setValidateSuccessProducts}
-            isB2BUser={isB2BUser}
-            customColor={primaryColor}
-          />
-        )}
+        {!isReadForApprove &&
+          (allowJuniorPlaceOrder ||
+            productQuoteEnabled ||
+            !isJuniorApprove) && (
+            <ShoppingDetailFooter
+              shoppingListInfo={shoppingListInfo}
+              role={role}
+              allowJuniorPlaceOrder={allowJuniorPlaceOrder}
+              checkedArr={checkedArr}
+              selectedSubTotal={selectedSubTotal}
+              setLoading={setIsRequestLoading}
+              setDeleteOpen={setDeleteOpen}
+              setValidateFailureProducts={setValidateFailureProducts}
+              setValidateSuccessProducts={setValidateSuccessProducts}
+              isB2BUser={isB2BUser}
+              customColor={primaryColor}
+            />
+          )}
       </Box>
 
       <ReAddToCart
