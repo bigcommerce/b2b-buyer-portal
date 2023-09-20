@@ -37,7 +37,7 @@ const themeOtherElementConfig = () => {
     Chiara:
       '.navUser-item--more, #navUser-more-toggle, #navUser-more-toggle .navUser-item-icon, #navUser-more-toggle .navUser-item-icon svg, #navUser-more-toggle .navUser-item-icon svg use, #navUser-more-toggle .navUser-item-moreLabel, .header-top-item--login, .header-top-item--login .header-top-action, .header-top-item--logout, .header-top-item--logout [href^="/login.php?action=logout"]',
     HaloOne:
-      '[href^="/account.php"] svg, [href^="/account.php"] svg path, [href="/login.php"] svg span',
+      '[href^="/account.php"] svg, [href^="/account.php"] svg path, [href="/login.php"] svg path',
   }
 
   if (window?.B3CustomConfig) {
