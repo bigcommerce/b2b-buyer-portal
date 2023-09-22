@@ -2,7 +2,6 @@ import { DispatchProps } from '@/shared/global/context/config'
 import {
   getAgentInfo,
   getB2BCompanyUserInfo,
-  getB2BToken,
   getBCGraphqlToken,
   getUserCompany,
 } from '@/shared/service/b2b'
@@ -21,15 +20,6 @@ interface ChannelIdProps {
   platform: string
   isEnabled: boolean
   translationVersion: number
-}
-
-type B2BToken = {
-  authorization: {
-    result: {
-      token: string
-      loginType: null | string
-    }
-  }
 }
 
 // B3Role = {
@@ -122,7 +112,6 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('B3EmailAddress', '')
   B3SStorage.set('B3Role', '')
   B3SStorage.set('isB2BUser', false)
-  B3SStorage.set('currentCustomerJWTToken', '')
   B3SStorage.set('B2BToken', false)
   B3SStorage.set('B3UserId', '')
 
@@ -178,25 +167,6 @@ export const getCurrentJwt = async () => {
     console.log(error)
   }
   return undefined
-}
-
-const getB2BTokenWithJWTToken = async (userType: number, jwtToken: string) => {
-  try {
-    const channelId = B3SStorage.get('B3channelId') || 1
-
-    if (userType === 3) {
-      const data = await getB2BToken(jwtToken, channelId)
-      if (data) {
-        const B2BToken = (data as B2BToken).authorization.result.token
-        B3SStorage.set('B2BToken', B2BToken)
-        const { loginType } = (data as B2BToken).authorization.result
-
-        sessionStorage.setItem('loginType', JSON.stringify(loginType || null))
-      }
-    }
-  } catch (error) {
-    console.log(error)
-  }
 }
 
 // companyStatus
@@ -337,21 +307,14 @@ export const getCompanyUserInfo = async (
 
 export const getCurrentCustomerInfo = async (
   dispatch: DispatchProps,
-  jwtToken?: string,
   b2bToken?: string
 ) => {
+  if (!(b2bToken || B3LStorage.get('B2BToken'))) return undefined
   try {
-    let loginCustomer = B3SStorage.get('loginCustomer')
-
-    if (!loginCustomer) {
-      const {
-        data: { customer },
-      } = await getCustomerInfo()
-
-      loginCustomer = customer
-
-      if (!customer) return undefined
-    }
+    const {
+      data: { customer: loginCustomer },
+    } = await getCustomerInfo()
+    if (!loginCustomer) return undefined
 
     const {
       entityId: customerId = '',
@@ -370,13 +333,6 @@ export const getCurrentCustomerInfo = async (
 
     if (companyUserInfo && customerId) {
       const { userType, role, id } = companyUserInfo
-
-      if (!b2bToken) {
-        await getB2BTokenWithJWTToken(
-          userType,
-          jwtToken || (await getCurrentJwt())
-        )
-      }
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(id, role, userType),

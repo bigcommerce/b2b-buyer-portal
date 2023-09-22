@@ -32,9 +32,6 @@ declare interface Window {
         getB2BToken: () => string
         setMasqueradeCompany: (companyId: number) => Promise<void>
         endMasquerade: () => Promise<void>
-        logInWithStorefrontToken: (
-          customerJWTToken: string
-        ) => Promise<{ role: number; userType: string } | undefined>
         graphqlBCProxy: typeof import('@/shared/service/request/b3Fetch').default.graphqlBCProxy
         loginWithB2BStorefrontToken: (
           b2bStorefrontJWTToken: string

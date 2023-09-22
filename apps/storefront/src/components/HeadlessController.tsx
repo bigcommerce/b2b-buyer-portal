@@ -222,18 +222,12 @@ export default function HeadlessController({
               salesRepCompanyId: salesRepCompanyIdRef.current,
               B3UserId: B3UserIdRef.current,
             }),
-          logInWithStorefrontToken: (customerJWTToken: string) =>
-            getCurrentCustomerInfo(dispatch, customerJWTToken),
           graphqlBCProxy: B3Request.graphqlBCProxy,
           loginWithB2BStorefrontToken: async (
             b2bStorefrontJWTToken: string
           ) => {
             B3SStorage.set('B2BToken', b2bStorefrontJWTToken)
-            await getCurrentCustomerInfo(
-              dispatch,
-              undefined,
-              b2bStorefrontJWTToken
-            )
+            await getCurrentCustomerInfo(dispatch, b2bStorefrontJWTToken)
           },
         },
         shoppingList: {
