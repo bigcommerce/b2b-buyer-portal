@@ -39,7 +39,7 @@ const logoutLogin = () => `mutation Logout {
   }
 }`
 
-const getB2bLogin = `mutation Login($loginData: UserLoginType) {
+const getB2bLogin = `mutation Login($loginData: UserLoginType!) {
   login(loginData: $loginData) {
     result{
       storefrontLoginToken
