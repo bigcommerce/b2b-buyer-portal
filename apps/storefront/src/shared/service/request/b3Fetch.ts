@@ -1,15 +1,47 @@
 import { B3SStorage, getCookie } from '@/utils'
 import { bcBaseUrl } from '@/utils/basicConfig'
 
-import { B2B_BASIC_URL, queryParse, RequestType, RequestTypeKeys } from './base'
+import { B2B_BASIC_URL, queryParse, RequestType } from './base'
 import b3Fetch from './fetch'
+
+// /**
+//  * config User-defined configuration items
+//  * @param withoutCheck Do not use the default interface status verification, directly return response
+//  * @param returnOrigin Whether to return the entire Response object, false only response.data
+//  * @param showError Whether to use a unified error reporting method for global errors
+//  * @param canEmpty Whether the transport parameter can be null
+//  * @param timeout Interface request timeout duration. The default value is 10 seconds
+//  */
+
+//  interface configDefaultProps {
+//   showError: Boolean,
+//   canEmpty: Boolean,
+//   returnOrigin: Boolean,
+//   withoutCheck: Boolean,
+//   timeout: Number,
+// }
+
+// interface ConfigValProps {
+//   [key:string]: any
+// }
+
+// type ConfigProps = undefined | ConfigValProps
+
+// const configDefault: configDefaultProps = {
+//   showError: true,
+//   canEmpty: false,
+//   returnOrigin: false,
+//   withoutCheck: false,
+//   timeout: 10000,
+// }
 
 interface Config {
   headers?: {
     [key: string]: string
   }
 }
-const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
+
+const GraphqlEndpointsFn = (type: string): string => {
   const GraphqlEndpoints: CustomFieldStringItems = {
     B2BGraphql: `${B2B_BASIC_URL}/graphql`,
     BCGraphql: `${bcBaseUrl()}/graphql`,
@@ -19,7 +51,7 @@ const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
   return GraphqlEndpoints[type] || ''
 }
 
-function request<T>(path: string, config?: T & Config, type?: RequestTypeKeys) {
+function request<T>(path: string, config?: T & Config, type?: string) {
   const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
   const getToken =
     type === RequestType.BCRest
@@ -47,7 +79,7 @@ function request<T>(path: string, config?: T & Config, type?: RequestTypeKeys) {
 }
 
 function graphqlRequest<T, Y>(
-  type: RequestTypeKeys,
+  type: string,
   data: T,
   config?: Y,
   customMessage = false
@@ -115,7 +147,7 @@ const B3Request = {
   },
   get: function get<T, Y>(
     url: string,
-    type: RequestTypeKeys,
+    type: string,
     data?: T,
     config?: Y
   ): Promise<any> {
@@ -134,11 +166,7 @@ const B3Request = {
       type
     )
   },
-  post: function post<T>(
-    url: string,
-    type: RequestTypeKeys,
-    data: T
-  ): Promise<any> {
+  post: function post<T>(url: string, type: string, data: T): Promise<any> {
     return request(
       url,
       {
@@ -151,11 +179,7 @@ const B3Request = {
       type
     )
   },
-  put: function put<T>(
-    url: string,
-    type: RequestTypeKeys,
-    data: T
-  ): Promise<any> {
+  put: function put<T>(url: string, type: string, data: T): Promise<any> {
     return request(
       url,
       {
@@ -168,7 +192,7 @@ const B3Request = {
       type
     )
   },
-  delete: function deleteFn(url: string, type: RequestTypeKeys): Promise<any> {
+  delete: function deleteFn(url: string, type: string): Promise<any> {
     return request(
       url,
       {

@@ -152,7 +152,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               fontSize: '14px',
             }}
           >
-            {b3Lang('shoppingList.shoppingDetailCard.price', {
+            {b3Lang('shoppingListDetails.shoppingDetailCard.price', {
               price: currencyFormat(price),
             })}
           </Typography>
@@ -161,7 +161,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             size="small"
             type="number"
             variant="filled"
-            label={b3Lang('shoppingList.shoppingDetailCard.quantity')}
+            label={b3Lang('shoppingListDetails.shoppingDetailCard.quantity')}
             disabled={isReadForApprove}
             inputProps={{
               inputMode: 'numeric',
@@ -193,7 +193,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               fontSize: '14px',
             }}
           >
-            {b3Lang('shoppingList.shoppingDetailCard.total', {
+            {b3Lang('shoppingListDetails.shoppingDetailCard.total', {
               total: currencyFormat(total),
             })}
           </Typography>

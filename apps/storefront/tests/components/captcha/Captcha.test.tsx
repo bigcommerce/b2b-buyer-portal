@@ -1,14 +1,14 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { ThemeFrame } from '@/components'
+import { store } from '@/store'
+
+import { ThemeFrame } from '../../../src/components'
 import {
   Captcha,
   loadCaptchaScript,
   loadCaptchaWidgetHandlers,
-} from '@/components/captcha/Captcha'
-import theme from '@/store/slices/theme'
-
-import { renderWithProviders } from '../../test-utils'
+} from '../../../src/components/captcha/Captcha'
+import { renderWithProviders, screen } from '../../test-utils'
 
 declare global {
   interface Window {
@@ -58,17 +58,17 @@ describe('loadCaptchaWidgetHandlers', () => {
 describe('Captcha', () => {
   it('should render the captcha wrapper', () => {
     vi.useFakeTimers()
-    const { store } = renderWithProviders(
+    renderWithProviders(
       <ThemeFrame title="test-frame">
         <Captcha siteKey={TEST_SITE_KEY} theme="dark" size="normal" />
       </ThemeFrame>,
       {
-        reducers: { theme },
+        store,
       }
     )
     vi.advanceTimersToNextTimer()
-
-    const iframeDocument = store.getState().theme.themeFrame
+    const iframe: HTMLIFrameElement = screen.getByTitle('test-frame')
+    const iframeDocument = iframe.contentDocument as Document
     const [captchaWrapper] = iframeDocument.body.getElementsByTagName('div')
 
     expect(captchaWrapper.id).toMatch('widget')

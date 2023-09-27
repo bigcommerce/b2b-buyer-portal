@@ -715,7 +715,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 }}
                 onClick={handleSubmit}
               >
-                {b3Lang('quoteDraft.button.submit')}
+                submit
               </CustomButton>
             </Box>
           )}
