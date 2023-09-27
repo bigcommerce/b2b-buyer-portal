@@ -56,19 +56,12 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           let href = tagHref || '/orders'
           const timeTarget = Date.now()
           if (!tagHref || typeof timeTarget !== 'string') {
-            let parentNode = (e.target as HTMLAnchorElement)?.parentNode
-            let parentHref = (parentNode as HTMLAnchorElement)?.href
-            let number = 0
-            while (number < 3 && !parentHref) {
-              parentNode = (parentNode as HTMLAnchorElement)?.parentNode
-              const newUrl = (parentNode as HTMLAnchorElement)?.href
-              if (newUrl && typeof newUrl === 'string') {
-                parentHref = newUrl
-                number += 3
-              } else {
-                number += 1
-              }
-            }
+            const parentNode = (e.target as HTMLAnchorElement)?.parentNode
+            const parentNodeOrigin = (e.target as HTMLAnchorElement)?.parentNode
+              ?.parentNode
+            const parentHref =
+              (parentNodeOrigin as HTMLAnchorElement)?.href ||
+              (parentNode as HTMLAnchorElement)?.href
             if (parentHref) {
               href = parentHref || '/orders'
             } else {
@@ -82,16 +75,6 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
                 })
               }
             }
-          }
-          const B3Role = sessionStorage.getItem('sf-B3Role') || ''
-          const isLogin = B3Role === '' ? false : JSON.parse(B3Role) !== 100
-          const hrefArr = href.split('/#')
-          if (hrefArr[1] === '' && isLogin) {
-            return false
-          }
-
-          if (isLogin && href.includes('/login')) {
-            href = '/orders'
           }
           if (initOpenState?.handleEnterClick) {
             initOpenState.handleEnterClick(

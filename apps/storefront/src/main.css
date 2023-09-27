@@ -11,7 +11,7 @@
   height: 100%;
   position: fixed;
   overscroll-behavior: contain;
-  z-index: 9999999999;
+  z-index: 100000;
   pointer-events: pointer;
 }
 
