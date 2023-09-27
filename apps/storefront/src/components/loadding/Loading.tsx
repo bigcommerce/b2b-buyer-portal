@@ -14,7 +14,7 @@ function Loading({ backColor }: LoadingProps) {
         top: 0,
         left: 0,
         backgroundColor: backColor || 'background.default',
-        zIndex: 99999999995,
+        zIndex: 120000,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
