@@ -461,48 +461,22 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     }
   }
 
-  const buttons = {
-    adSelectedToCart: {
-      name: b3Lang('shoppingList.footer.addToCart'),
+  const buttonList = [
+    {
+      name: allowJuniorPlaceOrder
+        ? b3Lang('shoppingList.footer.proceedToCheckout')
+        : b3Lang('shoppingList.footer.addToCart'),
       key: 'add-selected-to-cart',
       handleClick: handleAddProductsToCart,
       isDisabled: false,
     },
-    proceedToCheckout: {
-      name: b3Lang('shoppingList.footer.proceedToCheckout'),
-      key: 'add-select-to-checkout',
-      handleClick: handleAddProductsToCart,
-      isDisabled: false,
-    },
-    addSelectedToQuote: {
+    {
       name: b3Lang('shoppingList.footer.addToQuote'),
       key: 'add-selected-to-quote',
       handleClick: handleAddSelectedToQuote,
-      isDisabled: false,
+      isDisabled: !productQuoteEnabled,
     },
-  }
-
-  const allowButtonList = () => {
-    if (!(shoppingListInfo?.status === 0 || !isB2BUser)) return []
-
-    if (role === 2) {
-      if (allowJuniorPlaceOrder && productQuoteEnabled) {
-        return [buttons.proceedToCheckout, buttons.addSelectedToQuote]
-      }
-
-      if (allowJuniorPlaceOrder) return [buttons.proceedToCheckout]
-      if (productQuoteEnabled) {
-        return [buttons.adSelectedToCart, buttons.addSelectedToQuote]
-      }
-      return []
-    }
-
-    return productQuoteEnabled
-      ? [buttons.adSelectedToCart, buttons.addSelectedToQuote]
-      : [buttons.adSelectedToCart]
-  }
-
-  const buttonList = allowButtonList()
+  ]
 
   return (
     <Grid
@@ -612,7 +586,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                   />
                 </CustomButton>
               )}
-              {buttonList.length && (
+              {((role !== 2 && shoppingListInfo?.status === 0) ||
+                !isB2BUser) && (
                 <Box
                   sx={{
                     display: 'flex',
@@ -622,54 +597,42 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                     width: isMobile ? '100%' : 'auto',
                   }}
                 >
-                  {buttonList.length === 1 && (
-                    <CustomButton
-                      variant="contained"
-                      onClick={buttonList[0].handleClick}
-                      sx={{
-                        marginRight: isMobile ? '1rem' : 0,
-                        width: isMobile ? '100%' : 'auto',
-                      }}
-                    >
-                      {buttonList[0].name}
-                    </CustomButton>
-                  )}
-                  {buttonList.length === 2 && (
-                    <>
-                      <CustomButton
-                        variant="contained"
-                        onClick={handleOpenBtnList}
-                        sx={{
-                          marginRight: isMobile ? '1rem' : 0,
-                          width: isMobile ? '100%' : 'auto',
-                        }}
-                        endIcon={<ArrowDropDown />}
-                      >
-                        {b3Lang('shoppingList.footer.addSelectedTo')}
-                      </CustomButton>
-                      <Menu
-                        id="basic-menu"
-                        anchorEl={anchorEl}
-                        open={open}
-                        onClose={handleClose}
-                        MenuListProps={{
-                          'aria-labelledby': 'basic-button',
-                        }}
-                      >
-                        {buttonList.length > 1 &&
-                          buttonList.map((button) => (
-                            <MenuItem
-                              key={button.key}
-                              onClick={() => {
-                                button.handleClick()
-                              }}
-                            >
-                              {button.name}
-                            </MenuItem>
-                          ))}
-                      </Menu>
-                    </>
-                  )}
+                  <CustomButton
+                    variant="contained"
+                    onClick={handleOpenBtnList}
+                    sx={{
+                      marginRight: isMobile ? '1rem' : 0,
+                      width: isMobile ? '100%' : 'auto',
+                    }}
+                    endIcon={<ArrowDropDown />}
+                  >
+                    {b3Lang('shoppingList.footer.addSelectedTo')}
+                  </CustomButton>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    {buttonList.length > 0 &&
+                      buttonList.map((button) => {
+                        if (button.isDisabled) return null
+
+                        return (
+                          <MenuItem
+                            key={button.key}
+                            onClick={() => {
+                              button.handleClick()
+                            }}
+                          >
+                            {button.name}
+                          </MenuItem>
+                        )
+                      })}
+                  </Menu>
                 </Box>
               )}
             </Box>
