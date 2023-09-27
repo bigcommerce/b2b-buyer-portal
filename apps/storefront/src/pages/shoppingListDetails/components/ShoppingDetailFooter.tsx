@@ -183,10 +183,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   // Add Add selected to cart
   const handleAddProductsToCart = async () => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'))
-      return
-    }
     setLoading(true)
     try {
       const skus: string[] = []
@@ -314,10 +310,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   }
 
   const handleAddSelectedToQuote = async () => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'))
-      return
-    }
     setLoading(true)
     handleClose()
     try {
@@ -500,7 +492,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
       if (allowJuniorPlaceOrder) return [buttons.proceedToCheckout]
       if (productQuoteEnabled) {
-        return [buttons.addSelectedToQuote]
+        return [buttons.adSelectedToCart, buttons.addSelectedToQuote]
       }
       return []
     }

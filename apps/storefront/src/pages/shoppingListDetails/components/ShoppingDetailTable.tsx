@@ -74,8 +74,6 @@ interface ShoppingDetailTableProps {
   setDeleteItemId: (itemId: number | string) => void
   setDeleteOpen: (open: boolean) => void
   isB2BUser: boolean
-  productQuoteEnabled: boolean
-  role: number | string
 }
 
 interface SearchProps {
@@ -148,8 +146,6 @@ function ShoppingDetailTable(
     isJuniorApprove,
     isB2BUser,
     allowJuniorPlaceOrder,
-    productQuoteEnabled,
-    role,
   } = props
 
   const {
@@ -618,12 +614,9 @@ function ShoppingDetailTable(
         showCheckbox
         showSelectAllCheckbox
         disableCheckbox={
-          +role === 2
-            ? !(allowJuniorPlaceOrder || productQuoteEnabled)
+          allowJuniorPlaceOrder
+            ? !allowJuniorPlaceOrder
             : isReadForApprove || isJuniorApprove
-          // allowJuniorPlaceOrder
-          //   ? !allowJuniorPlaceOrder
-          //   : isReadForApprove || isJuniorApprove
         }
         hover
         labelRowsPerPage={b3Lang('shoppingListDetails.table.itemsPerPage')}
