@@ -92,12 +92,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
             href = isLogin ? '/orders' : '/login'
           }
 
-          if (
-            isLogin &&
-            href.includes('/login') &&
-            !href.includes('action=create_account') &&
-            !href.includes('action=logout')
-          ) {
+          if (isLogin && href === '/login.php') {
             href = '/orders'
           }
           if (initOpenState?.handleEnterClick) {
