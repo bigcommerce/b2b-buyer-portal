@@ -259,6 +259,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           }))
           setAddressList(list)
         }
+
         if (
           quoteInfo &&
           (!quoteInfo?.contactInfo ||

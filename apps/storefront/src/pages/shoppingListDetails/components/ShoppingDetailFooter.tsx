@@ -1,18 +1,14 @@
-import { MouseEvent, useContext, useState } from 'react'
+import { useContext } from 'react'
 import { useB3Lang } from '@b3/lang'
-import { ArrowDropDown, Delete } from '@mui/icons-material'
-import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material'
-import { v1 as uuid } from 'uuid'
+import { Delete } from '@mui/icons-material'
+import { Box, Grid, Typography } from '@mui/material'
 
 import { CustomButton, successTip } from '@/components'
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
-  searchB2BProducts,
-  searchBcProducts,
 } from '@/shared/service/b2b/graphql/product'
 import {
   addProductToCart,
@@ -20,18 +16,8 @@ import {
   deleteCart,
   getCartInfo,
 } from '@/shared/service/bc'
-import {
-  addQuoteDraftProducts,
-  calculateProductListPrice,
-  currencyFormat,
-  snackbar,
-  validProductQty,
-} from '@/utils'
-import {
-  addlineItems,
-  conversionProductsList,
-  ProductsProps,
-} from '@/utils/b3Product/shared/config'
+import { currencyFormat, snackbar } from '@/utils'
+import { addlineItems, ProductsProps } from '@/utils/b3Product/shared/config'
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any
@@ -47,46 +33,13 @@ interface ShoppingDetailFooterProps {
   customColor: string
 }
 
-interface ProductInfoProps {
-  basePrice: number | string
-  baseSku: string
-  createdAt: number
-  discount: number | string
-  enteredInclusive: boolean
-  id: number | string
-  itemId: number
-  optionList: string
-  primaryImage: string
-  productId: number
-  productName: string
-  productUrl: string
-  quantity: number | string
-  tax: number | string
-  updatedAt: number
-  variantId: number
-  variantSku: string
-  productsSearch: CustomFieldItems
-}
-
-interface ListItemProps {
-  node: ProductInfoProps
-}
-
 function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [isMobile] = useMobile()
   const b3Lang = useB3Lang()
 
   const {
-    state: {
-      isAgenting,
-      productQuoteEnabled = false,
-      companyInfo: { id: companyId },
-      customer: { customerGroupId },
-    },
+    state: { isAgenting },
   } = useContext(GlobaledContext)
-
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
 
   const containerStyle = isMobile
     ? {
@@ -110,20 +63,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     isB2BUser,
     customColor,
   } = props
-
-  const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
-    if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'))
-    } else {
-      setAnchorEl(e.currentTarget)
-      setOpen(true)
-    }
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-    setOpen(false)
-  }
 
   const verifyInventory = (inventoryInfos: ProductsProps[]) => {
     const validateFailureArr: ProductsProps[] = []
@@ -181,7 +120,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     }
   }
 
-  // Add Add selected to cart
   const handleAddProductsToCart = async () => {
     setLoading(true)
     try {
@@ -288,195 +226,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       setLoading(false)
     }
   }
-
-  // Add selected to quote
-  const getOptionsList = (options: []) => {
-    if (options?.length === 0) return []
-
-    const option = options.map(
-      ({
-        option_id: optionId,
-        option_value: optionValue,
-      }: {
-        option_id: string | number
-        option_value: string | number
-      }) => ({
-        optionId,
-        optionValue,
-      })
-    )
-
-    return option
-  }
-
-  const handleAddSelectedToQuote = async () => {
-    setLoading(true)
-    handleClose()
-    try {
-      const productsWithSku = checkedArr.filter(
-        (checkedItem: ListItemProps) => {
-          const {
-            node: { variantSku },
-          } = checkedItem
-
-          return (
-            variantSku !== '' && variantSku !== null && variantSku !== undefined
-          )
-        }
-      )
-
-      const noSkuProducts = checkedArr.filter((checkedItem: ListItemProps) => {
-        const {
-          node: { variantSku },
-        } = checkedItem
-
-        return !variantSku
-      })
-      if (noSkuProducts.length > 0) {
-        snackbar.error(b3Lang('shoppingList.footer.cantAddProductsNoSku'), {
-          isClose: true,
-        })
-      }
-      if (noSkuProducts.length === checkedArr.length) return
-
-      const productIds: number[] = []
-      productsWithSku.forEach((product: ListItemProps) => {
-        const { node } = product
-
-        if (!productIds.includes(+node.productId)) {
-          productIds.push(+node.productId)
-        }
-      })
-
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
-
-      const { productsSearch } = await getProducts({
-        productIds,
-        companyId,
-        customerGroupId,
-      })
-
-      const newProductInfo: CustomFieldItems =
-        conversionProductsList(productsSearch)
-      let isSuccess = false
-      let errorMessage = ''
-      let isFondVariant = true
-
-      const newProducts: CustomFieldItems[] = []
-      productsWithSku.forEach((product: ListItemProps) => {
-        const {
-          node: {
-            basePrice,
-            optionList,
-            variantSku,
-            productId,
-            productName,
-            quantity,
-            variantId,
-            tax,
-          },
-        } = product
-
-        const optionsList = getOptionsList(JSON.parse(optionList))
-
-        const currentProductSearch = newProductInfo.find(
-          (product: CustomFieldItems) => +product.id === +productId
-        )
-
-        const variantItem = currentProductSearch?.variants.find(
-          (item: CustomFieldItems) => item.sku === variantSku
-        )
-
-        if (!variantItem) {
-          errorMessage = b3Lang('shoppingList.footer.notFoundSku', {
-            sku: variantSku,
-          })
-          isFondVariant = false
-        }
-
-        const quoteListitem = {
-          node: {
-            id: uuid(),
-            variantSku: variantItem?.sku || variantSku,
-            variantId,
-            productsSearch: currentProductSearch,
-            primaryImage: variantItem?.image_url || PRODUCT_DEFAULT_IMAGE,
-            productName,
-            quantity: +quantity || 1,
-            optionList: JSON.stringify(optionsList),
-            productId,
-            basePrice,
-            tax,
-          },
-        }
-
-        newProducts.push(quoteListitem)
-
-        isSuccess = true
-      })
-
-      isSuccess = validProductQty(newProducts)
-
-      if (!isFondVariant) {
-        snackbar.error('', {
-          jsx: successTip({
-            message: errorMessage,
-            link: '',
-            linkText: '',
-            isOutLink: false,
-          }),
-          isClose: true,
-        })
-
-        return
-      }
-
-      if (isSuccess) {
-        await calculateProductListPrice(newProducts, '2')
-        addQuoteDraftProducts(newProducts)
-        snackbar.success('', {
-          jsx: successTip({
-            message: b3Lang('shoppingList.footer.productsAddedToQuote'),
-            link: '/quoteDraft',
-            linkText: b3Lang('shoppingList.footer.viewQuote'),
-            isOutLink: false,
-          }),
-          isClose: true,
-        })
-      } else {
-        snackbar.error('', {
-          jsx: successTip({
-            message: b3Lang('shoppingList.footer.productsLimit'),
-            link: '/quoteDraft',
-            linkText: b3Lang('shoppingList.footer.viewQuote'),
-            isOutLink: false,
-          }),
-          isClose: true,
-        })
-      }
-    } catch (e) {
-      console.log(e)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const buttonList = [
-    {
-      name: allowJuniorPlaceOrder
-        ? b3Lang('shoppingList.footer.proceedToCheckout')
-        : b3Lang('shoppingList.footer.addToCart'),
-      key: 'add-selected-to-cart',
-      handleClick: handleAddProductsToCart,
-      isDisabled: false,
-    },
-    {
-      name: b3Lang('shoppingList.footer.addToQuote'),
-      key: 'add-selected-to-quote',
-      handleClick: handleAddSelectedToQuote,
-      isDisabled: !productQuoteEnabled,
-    },
-  ]
 
   return (
     <Grid
@@ -586,54 +335,26 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                   />
                 </CustomButton>
               )}
-              {((role !== 2 && shoppingListInfo?.status === 0) ||
+              {(allowJuniorPlaceOrder ||
+                (role !== 2 && shoppingListInfo?.status === 0) ||
                 !isB2BUser) && (
-                <Box
+                <CustomButton
+                  variant="contained"
+                  onClick={() => {
+                    handleAddProductsToCart()
+                  }}
                   sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginTop: isMobile ? '0.5rem' : 0,
-                    marginLeft: isMobile ? 0 : '20px',
-                    width: isMobile ? '100%' : 'auto',
+                    marginLeft: '0.5rem',
+                    marginRight: '0.25rem',
+                    width: isMobile ? '80%' : '210px',
+                    height: isMobile ? '80%' : '40px',
+                    padding: '8px 22px',
                   }}
                 >
-                  <CustomButton
-                    variant="contained"
-                    onClick={handleOpenBtnList}
-                    sx={{
-                      marginRight: isMobile ? '1rem' : 0,
-                      width: isMobile ? '100%' : 'auto',
-                    }}
-                    endIcon={<ArrowDropDown />}
-                  >
-                    {b3Lang('shoppingList.footer.addSelectedTo')}
-                  </CustomButton>
-                  <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
-                    }}
-                  >
-                    {buttonList.length > 0 &&
-                      buttonList.map((button) => {
-                        if (button.isDisabled) return null
-
-                        return (
-                          <MenuItem
-                            key={button.key}
-                            onClick={() => {
-                              button.handleClick()
-                            }}
-                          >
-                            {button.name}
-                          </MenuItem>
-                        )
-                      })}
-                  </Menu>
-                </Box>
+                  {allowJuniorPlaceOrder
+                    ? b3Lang('shoppingListDetails.footer.proceedToCheckout')
+                    : b3Lang('shoppingListDetails.footer.addToCart')}
+                </CustomButton>
               )}
             </Box>
           </Box>

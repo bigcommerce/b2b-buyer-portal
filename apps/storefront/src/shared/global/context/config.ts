@@ -146,13 +146,12 @@ export const initState = {
   salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
   salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',
   salesRepCustomerGroupId: B3SStorage.get('salesRepCustomerGroupId') || '',
-  customer: B3SStorage.get('loginCustomer') ||
-    B3SStorage.get('B3CustomerInfo') || {
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
-      emailAddress: '',
-    },
+  customer: B3SStorage.get('B3CustomerInfo') || {
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    emailAddress: '',
+  },
   companyInfo: B3SStorage.get('B3CompanyInfo') || {
     id: '',
     companyName: '',
