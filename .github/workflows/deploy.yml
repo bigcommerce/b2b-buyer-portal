@@ -121,7 +121,7 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Send deployment failed message
-        if: ${{ inputs.environment  == 'production' }} && failure()
+        if: ${{ inputs.environment  == 'production' && failure() }}
         uses: slackapi/slack-github-action@v1
         with:
           payload: |
