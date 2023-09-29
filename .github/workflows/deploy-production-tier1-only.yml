@@ -3,7 +3,7 @@ name: Deploy to Production - Tier 1 Only
 on:
   push:
     branches:
-      - pre
+      - main
   workflow_dispatch:
 
 jobs:

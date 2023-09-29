@@ -1,4 +1,4 @@
-name: Storefront deployment
+name: '[Generic] - Storefront deployment'
 
 on:
   workflow_call:
@@ -116,7 +116,7 @@ jobs:
           payload: |
             {
               "channel": "b2b-deployments",
-              "text": "B2B Storefront Deployed\nEnvironment: `${{ inputs.environment }}`\nRevision: `${{ github.sha }}`\nBuild: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              "text": "B2B Buyer Portal Deployed\nEnvironment: `${{ inputs.environment }}`\nRevision: `${{ github.sha }}`\nBuild: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -127,7 +127,7 @@ jobs:
           payload: |
             {
               "channel": "b2b-deployments",
-              "text": "B2B Storefront Deployment Failed\nEnvironment: `${{ inputs.environment }}`\nRevision: `${{ github.sha }}`\nBuild: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              "text": "B2B Buyer Portal Deployment Failed\nEnvironment: `${{ inputs.environment }}`\nRevision: `${{ github.sha }}`\nBuild: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
