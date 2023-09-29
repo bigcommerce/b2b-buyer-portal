@@ -6,7 +6,7 @@
   "global.button.finish": "FINISH",
   "global.validate.required": "{label} is required",
   "global.validate.password.required": "You must enter a password.",
-  "global.fileUpload.defaultText": "Drag & drop file here or click here browse",
+  "global.fileUpload.defaultText": "Drag & drop file here or click here to browse",
   "global.fileUpload.typeNotSupport": "{name} file type not support",
   "global.fileUpload.namedFileSizeExceedsLimit": "{name} exceeds upload limit. Maximum file size is {maxSize}",
   "global.fileUpload.fileNumberExceedsLimit": "The number of files exceeds the limit, with up to {limit} being supported",
