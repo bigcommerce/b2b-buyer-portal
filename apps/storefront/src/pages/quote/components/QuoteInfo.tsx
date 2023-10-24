@@ -150,7 +150,11 @@ function QuoteInfo({
           flexDirection: isMobile ? 'column' : 'row',
         }}
       >
-        <QuoteInfoItem title="Contact" flag="info" info={contactInfo} />
+        <QuoteInfoItem
+          title={b3Lang('quoteDraft.contactInfo.contact')}
+          flag="info"
+          info={contactInfo}
+        />
 
         <QuoteInfoItem
           title={b3Lang('global.quoteInfo.billing')}

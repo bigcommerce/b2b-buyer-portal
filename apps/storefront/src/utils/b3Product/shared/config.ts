@@ -1,3 +1,4 @@
+import { LangFormatFunction } from '@b3/lang'
 import format from 'date-fns/format'
 import isEmpty from 'lodash-es/isEmpty'
 
@@ -569,10 +570,13 @@ export const getOptionRequestData = (
   return requestData
 }
 
-export const getQuickAddRowFields = (name: string | number) => [
+export const getQuickAddRowFields = (
+  name: string | number,
+  b3Lang: LangFormatFunction
+) => [
   {
     name: `sku-${name}`,
-    label: 'SKU#',
+    label: b3Lang('purchasedProducts.quickAdd.sku') || 'SKU#',
     required: false,
     xs: 8,
     variant: 'filled',
@@ -582,7 +586,7 @@ export const getQuickAddRowFields = (name: string | number) => [
   },
   {
     name: `qty-${name}`,
-    label: 'Qty',
+    label: b3Lang('purchasedProducts.quickAdd.qty') || 'Qty',
     required: false,
     xs: 4,
     variant: 'filled',

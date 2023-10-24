@@ -1,4 +1,5 @@
 import { ChangeEvent, KeyboardEvent, useContext } from 'react'
+import { useB3Lang } from '@b3/lang'
 import SearchIcon from '@mui/icons-material/Search'
 import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
@@ -79,6 +80,7 @@ interface ProductListDialogProps {
 const ProductTable = B3ProductList<ShoppingListProductItem>
 
 export default function ProductListDialog(props: ProductListDialogProps) {
+  const b3Lang = useB3Lang()
   const {
     isOpen,
     onCancel,
@@ -90,8 +92,8 @@ export default function ProductListDialog(props: ProductListDialogProps) {
     onAddToListClick,
     onChooseOptionsClick,
     isLoading,
-    searchDialogTitle = 'Add to list',
-    addButtonText = 'Add to list',
+    searchDialogTitle = b3Lang('shoppingLists.title'),
+    addButtonText = b3Lang('shoppingLists.addButtonText'),
   } = props
 
   const [isMobile] = useMobile()
@@ -147,7 +149,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
       showRightBtn={false}
       loading={isLoading}
       maxWidth="md"
-      leftSizeBtn="close"
+      leftSizeBtn={b3Lang('shoppingLists.close')}
     >
       <B3Sping isSpinning={isLoading}>
         <Box

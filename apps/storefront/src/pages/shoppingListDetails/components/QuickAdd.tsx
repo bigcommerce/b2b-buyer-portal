@@ -54,7 +54,7 @@ export default function QuickAdd(props: AddToListContentProps) {
   useEffect(() => {
     let formFields: CustomFieldItems[] = []
     loopRows(rows, (index) => {
-      formFields = [...formFields, ...getQuickAddRowFields(index)]
+      formFields = [...formFields, ...getQuickAddRowFields(index, b3Lang)]
     })
     setFormFields(formFields)
   }, [rows])
@@ -86,7 +86,7 @@ export default function QuickAdd(props: AddToListContentProps) {
       setError(`sku-${index}`, {
         type: 'manual',
         message: b3Lang('global.validate.required', {
-          label: 'SKU#',
+          label: b3Lang('purchasedProducts.quickAdd.sku'),
         }),
       })
       isValid = false
@@ -96,7 +96,7 @@ export default function QuickAdd(props: AddToListContentProps) {
       setError(`qty-${index}`, {
         type: 'manual',
         message: b3Lang('global.validate.required', {
-          label: 'Qty',
+          label: b3Lang('purchasedProducts.quickAdd.qty'),
         }),
       })
       isValid = false

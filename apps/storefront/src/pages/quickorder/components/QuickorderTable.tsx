@@ -478,13 +478,13 @@ function QuickorderTable({
                   fiterMoreInfo={[]}
                   startPicker={{
                     isEnabled: true,
-                    label: b3Lang('ppurchasedProducts.from'),
+                    label: b3Lang('purchasedProducts.from'),
                     defaultValue: search?.beginDateAt || '',
                     pickerKey: 'start',
                   }}
                   endPicker={{
                     isEnabled: true,
-                    label: b3Lang('ppurchasedProducts.to'),
+                    label: b3Lang('purchasedProducts.to'),
                     defaultValue: search?.endDateAt || '',
                     pickerKey: 'end',
                   }}
@@ -504,13 +504,13 @@ function QuickorderTable({
               }}
               startPicker={{
                 isEnabled: true,
-                label: b3Lang('ppurchasedProducts.from'),
+                label: b3Lang('purchasedProducts.from'),
                 defaultValue: distanceDay(90),
                 pickerKey: 'start',
               }}
               endPicker={{
                 isEnabled: true,
-                label: b3Lang('ppurchasedProducts.to'),
+                label: b3Lang('purchasedProducts.to'),
                 defaultValue: distanceDay(),
                 pickerKey: 'end',
               }}

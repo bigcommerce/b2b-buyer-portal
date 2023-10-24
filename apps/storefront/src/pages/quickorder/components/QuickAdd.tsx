@@ -46,7 +46,7 @@ export default function QuickAdd(props: AddToListContentProps) {
   useEffect(() => {
     let formFields: CustomFieldItems[] = []
     loopRows(rows, (index) => {
-      formFields = [...formFields, ...getQuickAddRowFields(index)]
+      formFields = [...formFields, ...getQuickAddRowFields(index, b3Lang)]
     })
     setFormFields(formFields)
   }, [rows])
