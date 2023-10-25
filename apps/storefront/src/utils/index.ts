@@ -34,6 +34,7 @@ import getProxyInfo from './b3Proxy'
 import { removeCartPermissions } from './b3RolePermissions'
 import { B3LStorage, B3SStorage } from './b3Storage'
 import { globalSnackbar, snackbar } from './b3Tip'
+import b3TriggerCartNumber from './b3TriggerCartNumber'
 import getCookie from './b3utils'
 import { storeHash } from './basicConfig'
 import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
@@ -65,6 +66,7 @@ export {
   b2bPrintInvoice,
   B3LStorage,
   B3SStorage,
+  b3TriggerCartNumber,
   clearCurrentCustomerInfo,
   clearInvoiceCart,
   convertArrayToGraphql,

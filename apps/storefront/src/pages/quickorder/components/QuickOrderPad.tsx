@@ -13,7 +13,7 @@ import {
 import { B3Upload, CustomButton, successTip } from '@/components'
 import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
-import { B3SStorage, snackbar } from '@/utils'
+import { B3SStorage, b3TriggerCartNumber, snackbar } from '@/utils'
 
 import SearchProduct from '../../shoppingListDetails/components/SearchProduct'
 
@@ -98,6 +98,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         }),
         isClose: true,
       })
+      b3TriggerCartNumber()
     }
 
     return res
@@ -272,6 +273,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
             }),
             isClose: true,
           })
+          b3TriggerCartNumber()
         }
       }
 

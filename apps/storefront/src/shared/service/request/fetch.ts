@@ -57,6 +57,14 @@ function b3Fetch(
             console.error(e)
           }
         }
+        if (
+          type === RequestType.BCRest &&
+          path.includes('api/storefront/carts')
+        ) {
+          if (res?.detail) {
+            reject(res)
+          }
+        }
         if (type === RequestType.B2BGraphql) {
           const errors = res?.errors?.length ? res.errors[0] : {}
           const { message = '', extensions = {} } = errors

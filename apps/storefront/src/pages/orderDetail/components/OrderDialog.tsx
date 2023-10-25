@@ -12,7 +12,7 @@ import {
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
-import { snackbar } from '@/utils'
+import { b3TriggerCartNumber, snackbar } from '@/utils'
 import { bcBaseUrl } from '@/utils/basicConfig'
 
 import { EditableProductItem, OrderProductItem } from '../../../types'
@@ -256,35 +256,35 @@ export default function OrderDialog({
       }
 
       const cartInfo = await getCartInfo()
-      let res
+
       if (cartInfo.length > 0) {
-        res = await addProductToCart(
+        await addProductToCart(
           {
             lineItems: items,
           },
           cartInfo[0].id
         )
       } else {
-        res = await createCart({
+        await createCart({
           lineItems: items,
         })
       }
-      if (res.status === 422) {
-        snackbar.error(res.detail, {
-          isClose: true,
-        })
-      } else {
-        setOpen(false)
-        snackbar.success('', {
-          jsx: successTip({
-            message: 'Products are added to cart',
-            link: '/cart.php',
-            linkText: 'VIEW CART',
-            isOutLink: true,
-          }),
-          isClose: true,
-        })
-      }
+
+      setOpen(false)
+      snackbar.success('', {
+        jsx: successTip({
+          message: 'Products are added to cart',
+          link: '/cart.php',
+          linkText: 'VIEW CART',
+          isOutLink: true,
+        }),
+        isClose: true,
+      })
+      b3TriggerCartNumber()
+    } catch (err: any) {
+      snackbar.error(err?.detail, {
+        isClose: true,
+      })
     } finally {
       setIsRequestLoading(false)
     }

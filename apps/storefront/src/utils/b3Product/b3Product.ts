@@ -758,7 +758,7 @@ const formatOptionsSelections = (
       } else {
         accumulator.push({
           option_id: matchedOption.id ? +matchedOption.id : 0,
-          value_id: option.optionValue,
+          value_id: +option.optionValue,
         })
       }
     }

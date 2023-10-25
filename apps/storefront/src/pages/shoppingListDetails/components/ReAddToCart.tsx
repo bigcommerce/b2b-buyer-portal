@@ -15,6 +15,7 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import {
+  b3TriggerCartNumber,
   currencyFormat,
   getActiveCurrencyInfo,
   setModifierQtyPrice,
@@ -267,6 +268,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
             }),
             isClose: true,
           })
+          b3TriggerCartNumber()
         }
       }
     } finally {

@@ -35,6 +35,7 @@ import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import {
   addQuoteDraftProducts,
   B3SStorage,
+  b3TriggerCartNumber,
   calculateProductListPrice,
   currencyFormat,
   getProductPriceIncTax,
@@ -265,6 +266,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           }),
           isClose: true,
         })
+        b3TriggerCartNumber()
       }
     } finally {
       setIsRequestLoading(false)

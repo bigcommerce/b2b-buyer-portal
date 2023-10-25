@@ -17,7 +17,7 @@ import cloneDeep from 'lodash-es/cloneDeep'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useMobile } from '@/hooks'
+import { useMobile, useSort } from '@/hooks'
 import {
   updateB2BShoppingListsItem,
   updateBcShoppingListsItem,
@@ -82,6 +82,7 @@ interface SearchProps {
   search: string
   first?: number
   offset?: number
+  orderBy: string
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
@@ -128,6 +129,14 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }))
 
+const defaultSortKey = 'updatedAt'
+
+const sortKeys = {
+  Product: 'productName',
+  updatedAt: 'updatedAt',
+  Qty: 'quantity',
+}
+
 function ShoppingDetailTable(
   props: ShoppingDetailTableProps,
   ref: Ref<unknown>
@@ -163,11 +172,20 @@ function ShoppingDetailTable(
   const [editProductItemId, setEditProductItemId] = useState<
     number | string | null
   >(null)
-  const [search, setSearch] = useState<SearchProps | {}>()
+  const [search, setSearch] = useState<SearchProps | {}>({
+    orderBy: `-${sortKeys[defaultSortKey]}`,
+  })
   const [qtyNotChangeFlag, setQtyNotChangeFlag] = useState<boolean>(true)
   const [originProducts, setOriginProducts] = useState<ListItemProps[]>([])
   const [shoppingListTotalPrice, setShoppingListTotalPrice] =
     useState<number>(0.0)
+
+  const [handleSetOrderBy, order, orderBy] = useSort(
+    sortKeys,
+    defaultSortKey,
+    search,
+    setSearch
+  )
 
   const handleUpdateProductQty = (
     id: number | string,
@@ -210,6 +228,7 @@ function ShoppingDetailTable(
 
   const handleSearchProduct = async (q: string) => {
     setSearch({
+      ...search,
       search: q,
     })
   }
@@ -416,6 +435,7 @@ function ShoppingDetailTable(
         )
       },
       width: '45%',
+      isSortable: true,
     },
     {
       key: 'Price',
@@ -468,6 +488,7 @@ function ShoppingDetailTable(
       style: {
         textAlign: 'right',
       },
+      isSortable: true,
     },
     {
       key: 'Total',
@@ -632,6 +653,9 @@ function ShoppingDetailTable(
         getSelectCheckbox={getSelectCheckbox}
         itemIsMobileSpacing={0}
         noDataText={b3Lang('shoppingList.table.noProductsFound')}
+        sortDirection={order}
+        orderBy={orderBy}
+        sortByFn={handleSetOrderBy}
         renderItem={(
           row: ProductInfoProps,
           index?: number,

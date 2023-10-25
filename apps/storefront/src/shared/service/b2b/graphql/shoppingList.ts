@@ -159,6 +159,7 @@ const getShoppingListDetails = (data: CustomFieldItems) => `{
       offset: ${data.offset || 0}
       first: ${data.first || 100},
       search: "${data.search || ''}",
+      orderBy: "${data?.orderBy || '-updatedAt'}"
     ) {
       totalCount,
       edges {

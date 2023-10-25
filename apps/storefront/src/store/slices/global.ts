@@ -45,6 +45,7 @@ export interface GlabolState {
   showInclusiveTaxPrice?: boolean
   blockPendingAccountViewPrice?: boolean
   bcUrl?: string
+  cartNumber?: number
 }
 
 const initialState: GlabolState = {
@@ -64,6 +65,7 @@ const initialState: GlabolState = {
   showInclusiveTaxPrice: false,
   blockPendingAccountViewPrice: false,
   bcUrl: '',
+  cartNumber: 0,
 }
 
 export const glabolSlice = createSlice({
@@ -104,6 +106,9 @@ export const glabolSlice = createSlice({
     setHeadLessBcUrl: (state, { payload }: PayloadAction<string>) => {
       state.bcUrl = payload as Draft<string>
     },
+    setCartNumber: (state, { payload }: PayloadAction<number>) => {
+      state.cartNumber = payload as Draft<number>
+    },
   },
 })
 
@@ -116,6 +121,7 @@ export const {
   setShowInclusiveTaxPrice,
   setBlockPendingAccountViewPrice,
   setHeadLessBcUrl,
+  setCartNumber,
 } = glabolSlice.actions
 
 export default glabolSlice.reducer

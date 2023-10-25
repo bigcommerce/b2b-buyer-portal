@@ -4,6 +4,7 @@ import getBCGraphqlToken from './api/login'
 import getBCOrders from './api/order'
 import {
   createBCCompanyUser,
+  sendSubscribersState,
   validateBCCompanyExtraFields,
 } from './api/register'
 import {
@@ -207,6 +208,7 @@ export {
   quoteDetailAttachFileDelete,
   searchB2BProducts,
   searchBcProducts,
+  sendSubscribersState,
   setChannelStoreType,
   storeB2BBasicInfo,
   superAdminBeginMasquerade,

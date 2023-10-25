@@ -65,7 +65,15 @@ export default function B3DropDown<T>({
           pr: 0,
         }}
       >
-        <ListItemText primary={title} />
+        <ListItemText
+          primary={title}
+          sx={{
+            '& span': {
+              fontWeight: isMobile ? 400 : 700,
+              color: '#333333',
+            },
+          }}
+        />
         {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
       </ListItemButton>
       <Menu

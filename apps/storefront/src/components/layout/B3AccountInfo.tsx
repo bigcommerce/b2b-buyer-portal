@@ -56,6 +56,8 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
         mr: '-5px',
         fontSize: '16px',
         color: '#333333',
+        textAlign: 'center',
+        alignItems: 'center',
       }}
     >
       <B3DropDown title={name} handleItemClick={handleItemClick} list={list} />

@@ -6,6 +6,7 @@ const getVariantInfoBySkus = ({ skus = [] }) => `{
   variantSku (
     variantSkus: ${convertArrayToGraphql(skus)},
     storeHash: "${storeHash}"
+    channelId: ${B3SStorage.get('B3channelId') || 1}
   ){
     isStock,
     stock,

@@ -19,6 +19,7 @@ import { GlobaledContext } from '@/shared/global'
 import {
   createB2BCompanyUser,
   createBCCompanyUser,
+  sendSubscribersState,
   uploadB2BFile,
 } from '@/shared/service/b2b'
 import { convertLabel, manipulateString, storeHash } from '@/utils'
@@ -348,6 +349,45 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     })
   }
 
+  const handleSendSubscribersState = async () => {
+    if (list && list.length > 0) {
+      const emailMe = list.find(
+        (item: CustomFieldItems) =>
+          item.fieldId === 'field_email_marketing_newsletter' &&
+          item.fieldType === 'checkbox'
+      )
+      const firstName: CustomFieldItems =
+        list.find(
+          (item: RegisterFields) => item.fieldId === 'field_first_name'
+        ) || {}
+      const lastName: CustomFieldItems =
+        list.find(
+          (item: RegisterFields) => item.fieldId === 'field_last_name'
+        ) || {}
+      const isChecked = emailMe?.isChecked || false
+      const defaultValue = emailMe?.default || []
+
+      if (isChecked && (defaultValue as Array<string>).length > 0) {
+        try {
+          await sendSubscribersState({
+            storeHash,
+            method: 'post',
+            url: '/v3/customers/subscribers',
+            proxyType: 'Bigcommerce',
+            data: {
+              email: enterEmail,
+              first_name: firstName.default,
+              last_name: lastName.default,
+              channel_id: currentChannelId || 1,
+            },
+          })
+        } catch (err: any) {
+          setErrorMessage(err?.message || err)
+        }
+      }
+    }
+  }
+
   const handleCompleted = (event: MouseEvent) => {
     // if (captchaMessage !== 'success') return
     handleSubmit(async (completeData: CustomFieldItems) => {
@@ -399,6 +439,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           },
         })
         saveRegisterPassword(completeData)
+        await handleSendSubscribersState()
         handleNext()
       } catch (err: any) {
         setErrorMessage(err?.message || err)

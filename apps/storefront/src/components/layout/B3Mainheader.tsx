@@ -1,8 +1,12 @@
-import { useContext } from 'react'
-import { Box } from '@mui/material'
+import { useContext, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useB3Lang } from '@b3/lang'
+import { Box, Button, Typography } from '@mui/material'
 
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+import { store } from '@/store'
+import { b3TriggerCartNumber } from '@/utils'
 
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 
@@ -13,6 +17,9 @@ export default function B3Mainheader({ title }: { title: string }) {
   const {
     state: { companyInfo, salesRepCompanyName, role },
   } = useContext(GlobaledContext)
+  const { global } = store.getState()
+  const navigate = useNavigate()
+  const b3Lang = useB3Lang()
 
   const {
     state: {
@@ -21,6 +28,10 @@ export default function B3Mainheader({ title }: { title: string }) {
   } = useContext(CustomStyleContext)
 
   const customColor = getContrastColor(backgroundColor)
+
+  useEffect(() => {
+    b3TriggerCartNumber()
+  }, [])
 
   return (
     <Box>
@@ -42,9 +53,79 @@ export default function B3Mainheader({ title }: { title: string }) {
           }}
         >
           {+role === 3 &&
-            (companyInfo?.companyName || salesRepCompanyName || 'Super admin')}
+            (companyInfo?.companyName ||
+              salesRepCompanyName ||
+              b3Lang('global.B3MainHeader.superAdmin'))}
         </Box>
-        {role !== 100 && <B3AccountInfo />}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          {role !== 100 && <B3AccountInfo />}
+          <Box sx={{ marginLeft: '8px' }}>
+            {role === 100 && (
+              <Button
+                sx={{
+                  color: '#333333',
+                  fontWeight: 700,
+                  fontSize: '16px',
+                }}
+                onClick={() => {
+                  navigate('/login')
+                }}
+              >
+                {b3Lang('global.B3MainHeader.signIn')}
+              </Button>
+            )}
+            <Button
+              sx={{
+                color: '#333333',
+                fontWeight: 700,
+                fontSize: '16px',
+              }}
+              onClick={() => {
+                window.location.href = '/'
+              }}
+            >
+              {b3Lang('global.B3MainHeader.home')}
+            </Button>
+            {role !== 2 && (
+              <Button
+                sx={{
+                  color: '#333333',
+                  fontWeight: 700,
+                  fontSize: '16px',
+                }}
+                onClick={() => {
+                  window.location.href = '/cart.php'
+                }}
+              >
+                {b3Lang('global.B3MainHeader.cart')}
+                {global?.cartNumber && global?.cartNumber > 0 ? (
+                  <Typography
+                    id="cart-number-icon"
+                    sx={{
+                      backgroundColor: '#1976D2',
+                      minWidth: '21px',
+                      height: '20px',
+                      color: '#FFFFFF',
+                      borderRadius: '64px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      lineHeight: '20px',
+                      marginLeft: '3px',
+                      padding: '0px 6.5px',
+                    }}
+                  >
+                    {global?.cartNumber}
+                  </Typography>
+                ) : null}
+              </Button>
+            )}
+          </Box>
+        </Box>
       </Box>
       {title && (
         <Box

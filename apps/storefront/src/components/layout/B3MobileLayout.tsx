@@ -1,9 +1,10 @@
 import { ReactNode, useContext, useState } from 'react'
-import { Close, Dehaze } from '@mui/icons-material'
+import { Close, Dehaze, ShoppingBagOutlined } from '@mui/icons-material'
 import { Badge, Box } from '@mui/material'
 
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+import { store } from '@/store'
 
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 
@@ -24,7 +25,7 @@ export default function B3MobileLayout({
   }
 
   const {
-    state: { isAgenting },
+    state: { isAgenting, role },
   } = useContext(GlobaledContext)
 
   const {
@@ -32,6 +33,7 @@ export default function B3MobileLayout({
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext)
+  const { global } = store.getState()
 
   const customColor = getContrastColor(backgroundColor)
 
@@ -54,11 +56,40 @@ export default function B3MobileLayout({
           mb: '4.5vw',
         }}
       >
-        <B3Logo />
-
         <Badge badgeContent={0} color="secondary">
           <Dehaze onClick={openRouteList} sx={{ color: customColor }} />
         </Badge>
+
+        <B3Logo />
+
+        {role === 2 ? (
+          <Box sx={{ width: '24px' }} />
+        ) : (
+          <Badge
+            badgeContent={global?.cartNumber}
+            max={1000}
+            sx={{
+              marginRight: '0.5rem',
+              '& .MuiBadge-badge': {
+                color: '#FFFFFF',
+                backgroundColor: '#1976D2',
+                fontWeight: 500,
+                fontSize: '12px',
+                minWidth: '18px',
+                height: '18px',
+                top: '8px',
+                right: '3px',
+              },
+            }}
+          >
+            <ShoppingBagOutlined
+              sx={{ color: 'rgba(0, 0, 0, 0.54)' }}
+              onClick={() => {
+                window.location.href = '/cart.php'
+              }}
+            />
+          </Badge>
+        )}
       </Box>
 
       <Box
@@ -93,7 +124,7 @@ export default function B3MobileLayout({
             position: 'fixed',
             width: '92vw',
             zIndex: 1000,
-            right: 0,
+            left: 0,
             top: 0,
             p: '4vw',
             backgroundColor: 'white',

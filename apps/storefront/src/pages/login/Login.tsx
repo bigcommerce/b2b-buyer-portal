@@ -156,6 +156,8 @@ export default function Login(props: RegisteredProps) {
 
           clearCurrentCustomerInfo(dispatch)
           await fetch('/login.php?action=logout')
+          // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
+          window.sessionStorage.clear()
         }
 
         setLoginInfo(Info)

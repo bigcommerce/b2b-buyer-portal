@@ -6,6 +6,8 @@ import getProxyInfo from './proxy'
 
 export const createBCCompanyUser = getProxyInfo
 
+export const sendSubscribersState = getProxyInfo
+
 export const validateBCCompanyExtraFields = (
   data: CustomFieldItems
 ): CustomFieldItems =>

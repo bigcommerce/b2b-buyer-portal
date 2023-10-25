@@ -148,7 +148,7 @@ export default function B3Upload(props: B3UploadProps) {
         withModifiers,
       }
 
-      if (!isB2BUser) params.channelId = currentChannelId
+      if (role !== 100) params.channelId = currentChannelId
       const uploadAction = isB2BUser
         ? B2BProductsBulkUploadCSV
         : BcProductsBulkUploadCSV

@@ -22,6 +22,7 @@ import {
 } from '@/shared/service/bc'
 import {
   addQuoteDraftProducts,
+  b3TriggerCartNumber,
   calculateProductListPrice,
   currencyFormat,
   snackbar,
@@ -187,6 +188,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'))
       return
     }
+    handleClose()
     setLoading(true)
     try {
       const skus: string[] = []
@@ -281,6 +283,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
               }),
               isClose: true,
             })
+            b3TriggerCartNumber()
           }
         }
       }

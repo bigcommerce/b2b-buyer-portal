@@ -40,6 +40,7 @@ export default function B3Logo() {
           height: '100%',
           objectFit: 'contain',
         },
+        display: 'contents',
       }}
     >
       <ImageListItem

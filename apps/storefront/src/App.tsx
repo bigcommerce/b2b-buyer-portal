@@ -287,7 +287,7 @@ export default function App() {
       const { hash } = window.location
       if (hash) {
         const url = hash.split('#')[1]
-        if (url && url !== '/') {
+        if (url && url !== '/' && url.includes('/')) {
           setOpenPage({
             isOpen: true,
             openUrl: url,

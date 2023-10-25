@@ -168,6 +168,12 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
 
       const newContactInfo = contactInfo.map((item: RegisterFields) => {
         item.default = data[item.name] || item.default
+        if (
+          item.fieldId === 'field_email_marketing_newsletter' &&
+          item.fieldType === 'checkbox'
+        ) {
+          item.isChecked = data[item.name].length > 0
+        }
         return item
       })
 
