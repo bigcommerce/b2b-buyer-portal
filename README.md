@@ -1,54 +1,79 @@
-# B3-FE-Turbo
+# B2B Buyer Portal
 
-The bundleB2B frontend monorepo with [Turborep](https://turborepo.org/), TypeScript and React are the core technologies.
+A monorepo frontend application designed for the BigCommerce B2B Edition Buyer portal. It's built using Turborepo, TypeScript, and React.
 
-This turborepo uses [Yarn](https://classic.yarnpkg.com/lang/en/) as a package manager. It includes the following packages/apps:
+## Index
 
-## Apps and Packages
+- [Core Technologies](#-core-technologies)
+- [Workspaces](#-workspaces)
+- [Tools and Libraries](#-tools-and-libraries)
+- [System Setup](#-system-setup)
+- [Local Development](#-local-development)
+- [Running Project Locally](#running-project-locally)
+- [Contribution](#-contribution)
+- [Contact & Support](#-contact--support)
 
-- `/apps/storefront`: the new BundleB2B storefront aplication, [React 18](https://reactjs.org/) app using [vite](http://vitejs.dev/) as the building tool.
+## 🚀 Core Technologies
 
-- `/packages/eslint-config-b3`: the shared eslint config.
+- **Monorepo Management:** Turborepo
+- **Type System:** TypeScript
+- **Frontend Library:** React 18
+- **Build Tool:** Vite
 
-- `/packages/tsconfig`: the shared tsconfig.
+## 📦 Workspaces
 
-- `/packages/ui`: to put all the UI which created by B3.
+- **Application:** `/apps/storefront` - A next-gen B2B Edition storefront application.
+  - You can run multiple apps concurrently via turborepo [tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks).
+  
+- **Packages:**
+  - `/packages/eslint-config-b3` - Shared ESLint configurations.
+  - `/packages/tsconfig` - Shared TypeScript configurations.
+  - `/packages/ui` - A collection of UI components built by B3.
+  - `/packages/store` - A collection of shared store logic.
+  - `/packages/b3global` - A collection of shared global logic.
 
-## What's inside?
+## 🛠 Tools and Libraries
 
-This turborepo has the tools and packages already setup:
+- **Linting:** ESLint
+- **Commit Standards:** commitlint
+- **Git Workflow Tools:** Husky, lint-staged
+- **UI Framework:** MUI 5
+- **Routing:** React Router 6
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking.
-- [ESLint](https://eslint.org/) for code linting.
-- [commitlint]([https://commitlint.js.org/#/) for the git commit message linting.
-- ([Husky - Git hooks](https://typicode.github.io/husky/#/)) and [lint-staged](https://github.com/okonet/lint-staged) for git hooks.
-- [MUI 5](https://mui.com/) as the basic UI library.
-- [React Router 6](https://reactrouter.com/) as the frontend router.
+## 🛠 System Setup
 
-## Setup
+- **Node:** Ensure you have Node.js version >=18.0.0.
+- **Package Manager:** This project uses Yarn v1.22.17.
 
-1. Run `yarn install`
-2. Copy `apps/storefront/.env-example` and paste it as `.env`
-3. Update the `VITE_STORE_HASH` value on `.env` file
-4. Update the `VITE_CATPCHA_SETKEY` value on `.env` file
-5. Update the `VITE_B2B_CLIENT_ID`value on `.env`file
-6. Run `yarn dev`
+## ⚙ Local Development 
 
-## How to run project locally
+1. Installation of Node and Yarn. 
+   - For Node, we recommend using [nvm](https://github.com/nvm-sh/nvm).
+   - Once Node is installed, you can install Yarn by using `npm i -g yarn`. If you'd rather use `pnpm`, visit this [guide](https://dev.to/andreychernykh/yarn-npm-to-pnpm-migration-guide-2n04).
+2. Clone the repository.
+3. Install dependencies using `yarn`.
+4. Copy environment variables: `cp apps/storefront/.env-example apps/storefront/.env`.
+5. Update the following values in `.env`:
+  - `VITE_B2B_URL`: The URL of the B2B Edition API.
+  - `VITE_B2B_SOCKET_URL`: The URL of the B2B Edition WebSocket API.
+  - `VITE_TRANSLATION_SERVICE_URL`: The URL of the translation service API.
+  - `VITE_CHANNEL_ID`: The ID of the channel to use for the storefront.
+  - `VITE_STORE_HASH`: The hash of the store to use for the storefront.
+  - `VITE_CATPCHA_SETKEY`: The reCAPTCHA site key (optional).
+  - `VITE_B2B_CLIENT_ID`: The client ID of the BigCommerce App from the [developer portal](https://devtools.bigcommerce.com/).
+  - `VITE_LOCAL_DEBUG`: Set to "FALSE". This is for connecting our local development with the B2B Edition GraphQL API.
+6. Start the development server: `yarn RUN dev`.
 
-1. Activate store channel in the Channels Manager
+## Running Project Locally
 
-2. To have the login feature of the b3-fe-turbo project working we need to add a header and footer scripts to our store using the script manager.
+1. Activate store channel in the Channels Manager.
+2. Configure header and footer scripts:
 
-   - Go to the Channels Manager -> Scripts
+  - Navigate to Channels Manager -> Scripts.
+  - Add two scripts (e.g., B2BEdition-header, B2BEdition-footer). Ensure you set the correct port for your localhost in the script URLs.
+  - Edit the header script:
 
-   - We need to add two scripts to inject our code to storefront, select the names you prefer, e.g. Bundleb2b-header, Bundleb2b-footer
-
-   - Before saving, validate the correct values of the port used for running localhost and modify the urls in the scripts.
-
-   - Header script:
-
-   ```
+   ```html 
    <script>
        {{#if customer.id}}
        {{#contains page_type "account"}}
@@ -69,19 +94,26 @@ This turborepo has the tools and packages already setup:
    <script type="module" src="http://localhost:3001/@vite/client"></script>
    <script type="module" src="http://localhost:3001/index.html?html-proxy&index=0.js"></script>
    ```
+  - Edit the footer script:
 
-   - Footer script:
-
-   ```
+   ```html
    <script type="module" src="http://localhost:3001/src/main.ts"></script>
    ```
 
-3. Make sure you have added the correct values to the env file in the project. Is important to add the client_id of the draft app since it is used in the codebase while retrieving the jwt token. Otherwise there will appear some error messages related to invalid signatures.
+3. Verify correct values in the .env file, especially the client_id for the draft app.
 
-4. In the file `.env` set up the `VITE_LOCAL_DEBUG` to false.
+4. For local debugging, set VITE_LOCAL_DEBUG to false in .env.
 
-5. Go to the storefront and try to sign in.
+5. Visit the storefront and attempt to sign in.
 
-6. If any issue related cross origin change the value of the variables related to urls in the env file with the one set up as the tunnel url using https.
+6. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
 
-> Note: please run `yarn prepare` first if the linters are not working.
+Note: If linters aren't functional, run `yarn prepare` first.
+
+## 🤝 Contribution
+
+For developers wishing to contribute, ensure all PRs meet the linting and commit message standards.
+
+## 📞 Contact & Support
+
+For queries, issues, or support, reach out to us at b2b@bigcommerce.com or open an issue in this repository.
