@@ -4,7 +4,6 @@ import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
 import { setHeadLessBcUrl, store } from '@/store'
 import { B3SStorage, setGlobalTranslation, storeHash } from '@/utils'
-import { getCurrentStoreInfo } from '@/utils/loginInfo'
 
 import B3PageMask from './loadding/B3PageMask'
 import showPageMask from './loadding/B3showPageMask'
@@ -47,11 +46,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
 
       try {
         const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
-
-        const storeInfo = getCurrentStoreInfo(
-          (storeBasicInfo as StoreBasicInfo)?.storeSites || [],
-          storeBasicInfo.multiStorefrontEnabled
-        )
+        const [storeInfo] = storeBasicInfo.storeSites
 
         if (!storeInfo) return
 
@@ -64,7 +59,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         } = storeInfo
 
         const bcUrl =
-          platform === 'next'
+          platform !== 'bigcommerce'
             ? `https://store-${storeHash}-${channelId}.mybigcommerce.com`
             : ''
         const isEnabled = storeBasicInfo?.multiStorefrontEnabled

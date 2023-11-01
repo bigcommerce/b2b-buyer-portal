@@ -12,6 +12,7 @@
         VITE_STORE_HASH,
         VITE_CATPCHA_SETKEY,
         VITE_LOCAL_DEBUG,
+        VITE_CHANNEL_ID,
       } = import.meta.env
 
       window.B3Local = {
@@ -21,6 +22,7 @@
           b2b_socket_url: VITE_B2B_SOCKET_URL,
           captcha_setkey: VITE_CATPCHA_SETKEY,
           is_local_debugging: VITE_LOCAL_DEBUG === 'TRUE',
+          channel_id: VITE_CHANNEL_ID,
         },
         'dom.checkoutRegisterParentElement': '#b2bParent',
         'dom.openB3Checkout': 'childB2b',

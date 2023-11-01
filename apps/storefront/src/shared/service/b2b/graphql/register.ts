@@ -1,4 +1,4 @@
-import { convertArrayToGraphql, storeHash } from '../../../../utils'
+import { channelId,convertArrayToGraphql, storeHash } from '../../../../utils'
 import B3Request from '../../request/b3Fetch'
 
 const getAccountFormFields = (type: number) => `{
@@ -145,8 +145,9 @@ const getForcePasswordReset = (email: string) => `{
   }
 }`
 
-const getStoreChannelId = () => `{
-  storeBasicInfo(storeHash: "${storeHash}"){
+const getStoreChannelId = `
+query getStoreBasicInfo($storeHash: String!, $bcChannelId: Int) {
+  storeBasicInfo(storeHash: $storeHash, bcChannelId: $bcChannelId){
     storeName
     storeAddress
     storeCountry
@@ -232,5 +233,6 @@ export const getBCForcePasswordReset = (email: string): CustomFieldItems =>
 
 export const getBCStoreChannelId = (): CustomFieldItems =>
   B3Request.graphqlB2B({
-    query: getStoreChannelId(),
+    query: getStoreChannelId,
+    variables: { storeHash, bcChannelId: channelId },
   })

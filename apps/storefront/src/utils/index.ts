@@ -36,7 +36,6 @@ import { B3LStorage, B3SStorage } from './b3Storage'
 import { globalSnackbar, snackbar } from './b3Tip'
 import b3TriggerCartNumber from './b3TriggerCartNumber'
 import getCookie from './b3utils'
-import { storeHash } from './basicConfig'
 import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
 import {
   convertArrayToGraphql,
@@ -53,6 +52,7 @@ import {
 import { validatorRules } from './validatorRules'
 
 export * from './b3Product/b3Product'
+export * from './basicConfig'
 export * from './masquerade'
 export * from './setTranslation'
 export {
@@ -109,6 +109,5 @@ export {
   serialize,
   showPageMask,
   snackbar,
-  storeHash,
   validatorRules,
 }

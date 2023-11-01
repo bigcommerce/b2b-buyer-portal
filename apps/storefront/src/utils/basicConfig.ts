@@ -2,9 +2,13 @@ import globalB3 from '@b3/global-b3'
 
 import { store } from '@/store'
 
-const storeHash = globalB3?.setting?.store_hash
+export const storeHash = globalB3?.setting?.store_hash
 
-const bcBaseUrl = () => {
+export const channelId = Number.isInteger(globalB3?.setting?.channel_id)
+  ? globalB3?.setting?.channel_id
+  : Number.parseInt(globalB3?.setting?.channel_id, 10)
+
+export const bcBaseUrl = () => {
   const {
     global: { bcUrl },
   } = store.getState()
@@ -13,5 +17,3 @@ const bcBaseUrl = () => {
 
   return isLocalDebugging ? '/bigcommerce' : bcUrl
 }
-
-export { bcBaseUrl, storeHash }
