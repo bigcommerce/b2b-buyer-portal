@@ -1,4 +1,4 @@
-const mode: string = import.meta.env.MODE
+const { MODE: mode, VITE_LOCAL_GRAPHQL_ORIGIN } = import.meta.env
 
 interface ScriptNodeChildren extends HTMLScriptElement {
   dataSrc?: string
@@ -6,11 +6,13 @@ interface ScriptNodeChildren extends HTMLScriptElement {
 }
 
 interface GraphqlOriginProps {
-  [key: string]: string
+  development: string
+  staging: string
+  production: string
 }
 
 const graphqlOrigin: GraphqlOriginProps = {
-  development: 'https://staging-v2.bundleb2b.net',
+  development: VITE_LOCAL_GRAPHQL_ORIGIN,
   staging: 'https://staging-v2.bundleb2b.net',
   production: 'https://api.bundleb2b.net',
 }
@@ -69,17 +71,13 @@ function init() {
       storehash: '',
       channelId: '',
     }
-    const scriptNodes = document.querySelectorAll('script')
-    if (scriptNodes && scriptNodes.length > 0) {
-      scriptNodes.forEach((node) => {
-        if (node.src.includes('/headless.js')) {
-          if (node.dataset) {
-            const data = node.dataset
-            params.storehash = data.storehash || ''
-            params.channelId = data.channelid || ''
-          }
-        }
-      })
+    const node: HTMLElement | null = document.querySelector(
+      'script[data-storehash][data-channelid]'
+    )
+    if (node?.dataset) {
+      const data = node.dataset
+      params.storehash = data.storehash || ''
+      params.channelId = data.channelid || ''
     }
     const data = {
       query: `
@@ -102,7 +100,7 @@ function init() {
       },
       body: JSON.stringify(data),
     }
-    fetch(`${graphqlOrigin[mode]}/graphql`, init)
+    fetch(`${graphqlOrigin[mode as keyof typeof graphqlOrigin]}/graphql`, init)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok')
