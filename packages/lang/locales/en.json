@@ -157,6 +157,7 @@
   "shoppingLists.deleteShoppingList": "Delete shopping list",
   "shoppingLists.cancel": "Cancel",
   "shoppingLists.delete": "Delete",
+  "shoppingLists.close": "Close",
   "shoppingLists.confirmDelete": "Are you sure you want to delete this shopping list?",
   "shoppingLists.addSuccess": "add shoppingLists successfully",
   "shoppingLists.updateSuccess": "update shoppingLists successfully",
