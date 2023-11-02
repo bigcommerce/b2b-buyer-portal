@@ -1,6 +1,5 @@
 import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
-import { LangProvider } from '@b3/lang'
 
 import { CustomStyleProvider } from '@/shared/customStyleButtton'
 import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable'
@@ -9,6 +8,7 @@ import { GlobalProvider } from '@/shared/global'
 import B3StoreContainer from './components/B3StoreContainer'
 import { createFrameLoading } from './utils/b3PageMask'
 import App from './App'
+import { LangWrapper } from './lang'
 import { store } from './store'
 import B3ThemeProvider from './theme'
 
@@ -33,11 +33,11 @@ ReactDOM.createRoot(container).render(
       <CustomStyleProvider>
         <B3StoreContainer>
           <DynamicallyVariableProvider>
-            <LangProvider>
+            <LangWrapper>
               <B3ThemeProvider>
                 <App />
               </B3ThemeProvider>
-            </LangProvider>
+            </LangWrapper>
           </DynamicallyVariableProvider>
         </B3StoreContainer>
       </CustomStyleProvider>

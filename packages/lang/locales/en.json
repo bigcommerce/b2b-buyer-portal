@@ -522,5 +522,11 @@
   "payment.errorOpenBalanceIsIncorrect": "The invoice openBalance code or value is incorrect",
   "payment.invoiceDoesntExist": "Invoice does not exist",
   "payment.firstLoginToPay": "Please log in first and pay the invoice,",
-  "payment.clickToLandingPage": "Click ok to go to the landing page"
+  "payment.clickToLandingPage": "Click ok to go to the landing page",
+
+  "customStyles.masqueradeButton": "END MASQUERADE",
+  "customStyles.addQuoteBtn": "Add to quote",
+  "customStyles.floatingAction": "Finish quote",
+  "customStyles.addToAllQuoteBtn": "Add All To Quote",
+  "customStyles.shoppingListBtn": "Add to Shopping List"
 }
