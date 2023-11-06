@@ -87,6 +87,7 @@ export default function Login(props: RegisteredProps) {
       salesRepCompanyId = 0,
       isAgenting,
       registerEnabled,
+      customerId,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -143,6 +144,8 @@ export default function Login(props: RegisteredProps) {
 
         if (loginFlag === '3') {
           // await bcLogoutLogin()
+
+          if (!customerId) return
 
           if (isAgenting) {
             await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
