@@ -29,10 +29,10 @@ const useSetOpen = (
         },
       })
       // hot refresh and browser refresh
-      if (openUrl) {
-        const { origin, pathname, search } = window.location
-        window.location.href = `${origin}${pathname}${search}#${openUrl}`
-      }
+      // if (openUrl) {
+      //   const { origin, pathname, search } = window.location
+      //   window.location.href = `${origin}${pathname}${search}#${openUrl}`
+      // }
 
       // close all global tips
       dispatchMsg({

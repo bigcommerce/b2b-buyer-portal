@@ -33,10 +33,11 @@ const B3LayoutTip = lazy(() => import('@/components/layout/B3LayoutTip'))
 interface B3RenderRouterProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
   openUrl?: string
+  isOpen: boolean
 }
 
 export default function B3RenderRouter(props: B3RenderRouterProps) {
-  const { setOpenPage, openUrl } = props
+  const { setOpenPage, openUrl, isOpen } = props
 
   const { state: globaledState } = useContext(GlobaledContext)
 
@@ -55,8 +56,11 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
       })
     } else if (openUrl === '/dashboard') {
       location.state = null
+      navigate(openUrl)
+    } else if (typeof openUrl === 'string') {
+      navigate(openUrl)
     }
-  }, [openUrl])
+  }, [openUrl, isOpen])
 
   useEffect(() => {
     const [, page] = location.pathname.split('/')

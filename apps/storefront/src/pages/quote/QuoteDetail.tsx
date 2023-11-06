@@ -486,6 +486,8 @@ function QuoteDetail() {
               <QuoteDetailSummary
                 quoteSummary={quoteSummary}
                 quoteDetailTax={quoteDetailTax}
+                status={quoteDetail.status}
+                quoteDetail={quoteDetail}
               />
             </Box>
 

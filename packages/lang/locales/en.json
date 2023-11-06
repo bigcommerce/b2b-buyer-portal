@@ -440,6 +440,7 @@
   "accountSettings.notification.emailExists": "Email already exists",
   "accountSettings.notification.updateEmailPassword": "Please type in your current password to update your email address.",
   "accountSettings.notification.noEdits": "You haven't made any edits",
+  "accountSettings.notification.passwordNotMatch": "the current password does not match",
   "accountSettings.button.saveUpdates": "save updates",
 
   "quoteDetail.uploadedByCustomer": "Uploaded by customer: {createdBy}",

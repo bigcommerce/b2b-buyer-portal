@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react'
 import { TextField } from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import format from 'date-fns/format'
+import dayjs from 'dayjs'
 
 interface B3PickerProps {
   onChange: (date: Date | string | number) => void
@@ -21,7 +21,7 @@ export default function B3Picker({
   value,
   label,
   disableOpenPicker = true,
-  formatInput = 'yyyy-MM-dd',
+  formatInput = 'YYYY-MM-DD',
   size = 'small',
 }: B3PickerProps) {
   const pickerRef = useRef(null)
@@ -36,15 +36,15 @@ export default function B3Picker({
 
   const onHandleChange = (value: Date | number | string) => {
     if (typeof value !== 'string') {
-      const pickerValue = format(value, formatInput)
+      const pickerValue = dayjs(value).format(formatInput)
       onChange(pickerValue)
     } else {
       onChange(value)
     }
   }
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <DesktopDatePicker
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DatePicker
         label={label}
         onChange={(val) => val && onHandleChange(val)}
         onClose={() => {

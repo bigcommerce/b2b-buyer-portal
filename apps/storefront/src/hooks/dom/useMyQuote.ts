@@ -42,7 +42,12 @@ const useMyQuote = ({
 }: MutationObserverProps) => {
   useEffect(() => {
     const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
-    if (!B3UserId && +quoteDraftUserId !== +customerId) {
+    const isLogin = role && role !== 100
+    if (
+      isLogin &&
+      +quoteDraftUserId !== 0 &&
+      +quoteDraftUserId !== +customerId
+    ) {
       B3LStorage.set('MyQuoteInfo', {})
       B3LStorage.set('b2bQuoteDraftList', [])
       B3LStorage.set('quoteDraftUserId', B3UserId || customerId || 0)

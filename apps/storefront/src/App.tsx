@@ -337,7 +337,11 @@ export default function App() {
             customStyles={customStyles}
           >
             {isOpen ? (
-              <B3RenderRouter openUrl={openUrl} setOpenPage={setOpenPage} />
+              <B3RenderRouter
+                isOpen={isOpen}
+                openUrl={openUrl}
+                setOpenPage={setOpenPage}
+              />
             ) : null}
           </ThemeFrame>
         </div>

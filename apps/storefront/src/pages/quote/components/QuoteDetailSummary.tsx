@@ -15,6 +15,8 @@ interface Summary {
 interface QuoteDetailSummaryProps {
   quoteSummary: Summary
   quoteDetailTax: number
+  status: string
+  quoteDetail: CustomFieldItems
 }
 
 export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
@@ -22,6 +24,8 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
   const {
     quoteSummary: { originalSubtotal, discount, tax, shipping, totalAmount },
     quoteDetailTax = 0,
+    status,
+    quoteDetail,
   } = props
 
   const {
@@ -107,29 +111,32 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 {priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax))}
               </Typography>
             </Grid>
-
-            <Grid
-              container
-              justifyContent="space-between"
-              sx={{
-                margin: '4px 0',
-              }}
-            >
-              <Typography>{b3Lang('quoteDetail.summary.shipping')}</Typography>
-              <Typography>{priceFormat(+shipping)}</Typography>
-            </Grid>
-
-            <Grid
-              container
-              justifyContent="space-between"
-              sx={{
-                margin: '4px 0',
-              }}
-            >
-              <Typography>{b3Lang('quoteDetail.summary.tax')}</Typography>
-              <Typography>{priceFormat(+tax)}</Typography>
-            </Grid>
-
+            {+status !== 1 || quoteDetail?.shippingMethod?.id ? (
+              <>
+                <Grid
+                  container
+                  justifyContent="space-between"
+                  sx={{
+                    margin: '4px 0',
+                  }}
+                >
+                  <Typography>
+                    {b3Lang('quoteDetail.summary.shipping')}
+                  </Typography>
+                  <Typography>{priceFormat(+shipping)}</Typography>
+                </Grid>
+                <Grid
+                  container
+                  justifyContent="space-between"
+                  sx={{
+                    margin: '4px 0',
+                  }}
+                >
+                  <Typography>{b3Lang('quoteDetail.summary.tax')}</Typography>
+                  <Typography>{priceFormat(+tax)}</Typography>
+                </Grid>
+              </>
+            ) : null}
             <Grid
               container
               justifyContent="space-between"

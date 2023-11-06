@@ -291,6 +291,10 @@ export default function OrderDialog({
   }
 
   const handleSaveClick = () => {
+    if (checkedArr.length === 0) {
+      snackbar.error('Please select at least one item')
+    }
+
     if (type === 'shoppingList') {
       if (checkedArr.length === 0) {
         return
@@ -429,6 +433,7 @@ export default function OrderDialog({
             setCheckedArr={setCheckedArr}
             setReturnArr={setReturnArr}
             textAlign={isMobile ? 'left' : 'right'}
+            type={type}
           />
 
           {type === 'return' && (

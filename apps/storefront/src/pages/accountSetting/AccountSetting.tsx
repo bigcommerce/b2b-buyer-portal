@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { LangFormatFunction, useB3Lang } from '@b3/lang'
+import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 import trim from 'lodash-es/trim'
 
@@ -22,56 +22,18 @@ import {
   updateB2BAccountSettings,
   updateBCAccountSettings,
 } from '@/shared/service/b2b'
-import { B3SStorage, manipulateString, snackbar, validatorRules } from '@/utils'
+import { Fields, ParamProps } from '@/types/accountSetting'
+import { B3SStorage, manipulateString, snackbar } from '@/utils'
 
-import { deCodeField, getAccountFormFields } from '../registered/config'
+import { getAccountFormFields } from '../registered/config'
 
 import { getAccountSettingFiles } from './config'
-
-interface Fields {
-  bcLabel: string
-  custom: boolean
-  default: string | number | CustomFieldItems[]
-  fieldId: string
-  fieldType: string
-  groupId: number
-  groupName: string
-  id: string
-  label: string
-  max: string | number
-  maxLength: string | number
-  min: string | number
-  minlength: string | number
-  name: string
-  required: boolean
-  rows: string | number
-  type: string
-  validate: (val: string, b3lang: LangFormatFunction) => void | string
-  variant: string
-  visible: boolean
-  xs: number
-  muiSelectProps: CustomFieldItems
-  disabled: boolean
-}
-
-interface BcFormFieldsProps {
-  name: string
-  value: any
-}
-
-interface ParamProps {
-  confirmPassword: string
-  currentPassword: string
-  password: string
-  firstName: string
-  lastName: string
-  emailAddress: string
-  email: string
-  companyId: string | number
-  formFields: BcFormFieldsProps[]
-  [key: string]: string | CustomFieldItems[] | BcFormFieldsProps | number
-}
-const emailValidate = validatorRules(['email'])
+import sendEmail, {
+  b2bSubmitDataProcessing,
+  bcSubmitDataProcessing,
+  initB2BInfo,
+  initBcInfo,
+} from './utils'
 
 function AccountSetting() {
   const {
@@ -125,6 +87,8 @@ function AccountSetting() {
 
   const [isVisible, setIsVisible] = useState<boolean>(false)
 
+  const [currentEamil, setCurrentEmail] = useState<string>('')
+
   const companyId =
     role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId
 
@@ -166,85 +130,24 @@ function AccountSetting() {
 
         const { additionalInformation = [] } = accountFormFields
 
-        if (!isBCUser) {
-          contactInformation.forEach((item: Partial<Fields>) => {
-            if (deCodeField(item?.name || '') === 'first_name') {
-              item.default = accountSettings.firstName
-            }
-            if (deCodeField(item?.name || '') === 'last_name') {
-              item.default = accountSettings.lastName
-            }
-            if (deCodeField(item?.name || '') === 'phone') {
-              item.default = accountSettings.phoneNumber
-            }
-            if (deCodeField(item?.name || '') === 'email') {
-              item.default = accountSettings.email
-              item.validate = emailValidate
-            }
-          })
-
-          accountB2BFormFields.forEach((item: Partial<Fields>) => {
-            if (item.name === 'role') {
-              item.default = accountSettings.role
-              item.muiSelectProps = {
-                disabled: true,
-              }
-            } else if (item.name === 'company') {
-              item.default = accountSettings.company
-              item.disabled = true
-            }
-          })
-
-          additionalInformation.forEach((item: Partial<Fields>) => {
-            const formFields = (accountSettings?.formFields || []).find(
-              (field: Partial<Fields>) => field.name === item.bcLabel
+        const fields = !isBCUser
+          ? initB2BInfo(
+              accountSettings,
+              contactInformation,
+              accountB2BFormFields,
+              additionalInformation
             )
-            if (formFields) item.default = formFields.value
-          })
-
-          const all = [
-            ...contactInformation,
-            ...accountB2BFormFields,
-            ...additionalInformation,
-            ...passwordModified,
-          ]
-
-          setAccountInfoFormFields(all)
-        } else {
-          contactInformation.forEach((item: Partial<Fields>) => {
-            if (deCodeField(item?.name || '') === 'first_name') {
-              item.default = accountSettings.firstName
-            }
-            if (deCodeField(item?.name || '') === 'last_name') {
-              item.default = accountSettings.lastName
-            }
-            if (deCodeField(item?.name || '') === 'phone') {
-              item.default = accountSettings.phoneNumber
-            }
-            if (deCodeField(item?.name || '') === 'email') {
-              item.default = accountSettings.email
-              item.validate = emailValidate
-            }
-            if (deCodeField(item?.name || '') === 'company') {
-              item.default = accountSettings.company
-            }
-          })
-
-          additionalInformation.forEach((item: Partial<Fields>) => {
-            const formFields = (accountSettings?.formFields || []).find(
-              (field: Partial<Fields>) => field.name === item.bcLabel
+          : initBcInfo(
+              accountSettings,
+              contactInformation,
+              additionalInformation
             )
-            if (formFields) item.default = formFields.value
-          })
 
-          const all = [
-            ...contactInformation,
-            ...additionalInformation,
-            ...passwordModified,
-          ]
+        const all = [...fields, ...passwordModified]
 
-          setAccountInfoFormFields(all)
-        }
+        setAccountInfoFormFields(all)
+
+        setCurrentEmail(accountSettings.email)
 
         setAccountSettings(accountSettings)
 
@@ -325,156 +228,49 @@ function AccountSetting() {
 
         const passwordFlag = passwordValidation(data)
 
-        let isEdit = true
+        const dataProcessingFn = !isBCUser
+          ? b2bSubmitDataProcessing
+          : bcSubmitDataProcessing
 
         if (isValid && emailFlag && passwordFlag) {
-          const param: Partial<ParamProps> = {}
-          param.formFields = []
-          let flag = true
-          if (!isBCUser) {
-            Object.keys(data).forEach((key: string) => {
-              decryptionFields.forEach((item: Partial<Fields>) => {
-                if (key === item.name) {
-                  flag = false
-                  if (deCodeField(item.name) === 'first_name') {
-                    if (accountSettings.firstName !== data[item.name])
-                      isEdit = false
-                    param.firstName = data[item.name]
-                  }
-                  if (deCodeField(item.name) === 'last_name') {
-                    if (accountSettings.lastName !== data[item.name])
-                      isEdit = false
-                    param.lastName = data[item.name]
-                  }
-                  if (deCodeField(item.name) === 'phone') {
-                    if (accountSettings.phoneNumber !== data[item.name])
-                      isEdit = false
-                    param.phoneNumber = data[item.name]
-                  }
-                  if (deCodeField(item.name) === 'email') {
-                    if (accountSettings.email !== data[item.name])
-                      isEdit = false
-                    param.email = data[item.name]
-                  }
-                }
-              })
+          const { isEdit, param } = dataProcessingFn(
+            data,
+            accountSettings,
+            decryptionFields,
+            extraFields
+          )
 
-              if (flag) {
-                extraFields.forEach((field: Partial<Fields>) => {
-                  if (field.fieldId === key && param?.formFields) {
-                    param.formFields.push({
-                      name: field?.bcLabel || '',
-                      value: data[key],
-                    })
-                    flag = false
-                    const account = (accountSettings?.formFields || []).find(
-                      (formField: Partial<Fields>) =>
-                        formField.name === field.bcLabel
-                    )
-                    if (
-                      account &&
-                      JSON.stringify(account.value) !==
-                        JSON.stringify(data[key])
-                    )
-                      isEdit = false
-                  }
-                })
+          if (isEdit) {
+            if (!isBCUser) param.companyId = companyId
+
+            const requestFn = !isBCUser
+              ? updateB2BAccountSettings
+              : updateBCAccountSettings
+
+            if (
+              (param.newPassword && param.currentPassword) ||
+              currentEamil !== param.email
+            ) {
+              const isUpdateSuccessfully = await sendEmail(param)
+              if (!isUpdateSuccessfully) {
+                snackbar.error(
+                  b3Lang('accountSettings.notification.passwordNotMatch')
+                )
+                return
               }
-              if (flag) {
-                if (key === 'password') {
-                  param.newPassword = data[key]
-                  if (data[key]) isEdit = false
-                } else {
-                  param[key] = data[key]
-                }
-              }
-              flag = true
-            })
-
-            delete param.company
-
-            delete param.role
-
-            param.companyId = companyId
-            if (!isEdit) {
-              await updateB2BAccountSettings(param)
-            } else {
-              snackbar.success(b3Lang('accountSettings.notification.noEdits'))
-              return
             }
+            const newParams = {
+              ...param,
+              newPassword: param.newPassword,
+              currentPassword: param.newPassword,
+              confirmPassword: param.newPassword,
+            }
+            await requestFn(newParams)
           } else {
-            Object.keys(data).forEach((key: string) => {
-              decryptionFields.forEach((item: Partial<Fields>) => {
-                if (key === item.name) {
-                  flag = false
-                  if (deCodeField(item.name) === 'first_name') {
-                    if (accountSettings.firstName !== data[item.name])
-                      isEdit = false
-                    param.firstName = data[item.name]
-                  }
-                  if (deCodeField(item.name) === 'last_name') {
-                    if (accountSettings.lastName !== data[item.name])
-                      isEdit = false
-                    param.lastName = data[item.name]
-                  }
-                  if (deCodeField(item.name) === 'phone') {
-                    if (accountSettings.phoneNumber !== data[item.name])
-                      isEdit = false
-                    param.phoneNumber = data[item.name]
-                  }
-                  if (deCodeField(item.name) === 'email') {
-                    if (accountSettings.email !== data[item.name])
-                      isEdit = false
-                    param.email = data[item.name]
-                  }
-                  if (deCodeField(item.name) === 'company') {
-                    if (accountSettings.company !== data[item.name])
-                      isEdit = false
-                    param.company = data[item.name]
-                  }
-                }
-              })
-
-              if (flag) {
-                extraFields.forEach((field: Partial<Fields>) => {
-                  if (field.fieldId === key && param?.formFields) {
-                    param.formFields.push({
-                      name: field?.bcLabel || '',
-                      value: data[key],
-                    })
-                    flag = false
-                    const account = (accountSettings?.formFields || []).find(
-                      (formField: Partial<Fields>) =>
-                        formField.name === field.bcLabel
-                    )
-                    if (
-                      account &&
-                      JSON.stringify(account.value) !==
-                        JSON.stringify(data[key])
-                    )
-                      isEdit = false
-                  }
-                })
-              }
-
-              if (flag) {
-                if (key === 'password') {
-                  param.newPassword = data[key]
-                  if (data[key]) isEdit = false
-                } else {
-                  param[key] = data[key]
-                }
-              }
-              flag = true
-            })
-
-            if (!isEdit) {
-              await updateBCAccountSettings(param)
-            } else {
-              snackbar.success(b3Lang('accountSettings.notification.noEdits'))
-              return
-            }
+            snackbar.success(b3Lang('accountSettings.notification.noEdits'))
+            return
           }
+
           if (
             (data.password && data.currentPassword) ||
             customer.emailAddress !== trim(data.email)

@@ -9,7 +9,7 @@ import {
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
-import { currencyFormat } from '@/utils'
+import { currencyFormat, snackbar } from '@/utils'
 
 import { EditableProductItem, OrderProductOption } from '../../../types'
 import {
@@ -33,6 +33,7 @@ interface OrderCheckboxProductProps {
   setCheckedArr?: (items: number[]) => void
   setReturnArr?: (items: ReturnListProps[]) => void
   textAlign?: string
+  type?: string
 }
 
 export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
@@ -43,6 +44,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     setCheckedArr = () => {},
     setReturnArr = () => {},
     textAlign = 'left',
+    type,
   } = props
 
   const [isMobile] = useMobile()
@@ -112,18 +114,24 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
 
   const handleProductQuantityChange =
     (product: EditableProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
-      if (
-        !e.target.value ||
-        (parseInt(e.target.value, 10) >= 0 &&
-          parseInt(e.target.value, 10) <= product.quantity)
-      ) {
-        product.editQuantity = e.target.value
-        returnList.forEach((item) => {
-          if (item.returnId === product.id) {
-            item.returnQty = +e.target.value
+      const valueNum = e.target.value
+      if (+valueNum >= 0 && +valueNum <= 1000000) {
+        product.editQuantity = valueNum
+        if (type === 'return') {
+          if (+valueNum > +product.quantity) {
+            product.editQuantity = product.quantity
+            snackbar.error(
+              'The returned quantity should be within the purchased quantity'
+            )
+          } else {
+            returnList.forEach((item) => {
+              if (item.returnId === product.id) {
+                item.returnQty = +valueNum
+              }
+            })
+            setReturnArr(returnList)
           }
-        })
-        setReturnArr(returnList)
+        }
         onProductChange([...products])
       }
     }
@@ -135,7 +143,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   }
 
   const handleNumberInputBlur = (product: EditableProductItem) => () => {
-    if (!product.editQuantity) {
+    if (!product.editQuantity || +product.editQuantity === 0) {
       product.editQuantity = '1'
       onProductChange([...products])
     }

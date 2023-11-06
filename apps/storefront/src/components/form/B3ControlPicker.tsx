@@ -4,10 +4,10 @@
 import { Controller } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { TextField } from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import format from 'date-fns/format'
+import dayjs from 'dayjs'
 
 import { PickerFormControl } from './styled'
 import Form from './ui'
@@ -33,7 +33,7 @@ export default function B3ControlPicker({
 
   const b3Lang = useB3Lang()
 
-  const { inputFormat = 'yyyy-MM-dd' } = muiTextFieldProps
+  const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps
 
   const fieldsProps = {
     type: fieldType,
@@ -55,7 +55,7 @@ export default function B3ControlPicker({
 
   const handleDatePickerChange = (value: Date) => {
     try {
-      setValue(name, format(value, inputFormat))
+      setValue(name, dayjs(value).format(inputFormat))
     } catch (error) {
       setValue(name, value)
     }
@@ -63,7 +63,7 @@ export default function B3ControlPicker({
 
   return ['date'].includes(fieldType) ? (
     <PickerFormControl>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Controller
           {...fieldsProps}
           render={({
@@ -73,7 +73,7 @@ export default function B3ControlPicker({
               ...rest
             },
           }) => (
-            <DesktopDatePicker
+            <DatePicker
               label={label}
               inputFormat={inputFormat}
               {...muixPickerProps}
