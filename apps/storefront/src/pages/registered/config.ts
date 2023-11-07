@@ -378,7 +378,8 @@ export const getAccountFormFields = (
     const filterVisibleAccountFormFields: AccountFormFieldsList =
       accountFormFields
         ? (accountFormFields as any).filter(
-            (item: Partial<AccountFormFieldsItems>) => !!item.visible
+            (item: Partial<AccountFormFieldsItems>) =>
+              !!item.visible || (!!item.custom && !!item.isRequired)
           )
         : []
 

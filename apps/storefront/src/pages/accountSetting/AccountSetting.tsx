@@ -251,7 +251,7 @@ function AccountSetting() {
               (param.newPassword && param.currentPassword) ||
               currentEamil !== param.email
             ) {
-              const isUpdateSuccessfully = await sendEmail(param)
+              const isUpdateSuccessfully = await sendEmail(param, extraFields)
               if (!isUpdateSuccessfully) {
                 snackbar.error(
                   b3Lang('accountSettings.notification.passwordNotMatch')

@@ -45,9 +45,14 @@ const getXsrfToken = (): string | undefined => {
 }
 
 // Password and email Change Send emails
-function sendEmail(data: any) {
+function sendEmail(data: any, extraFields: any) {
   return new Promise<boolean>((resolve, reject) => {
     const { email, confirmPassword, newPassword, currentPassword } = data
+
+    const requiredCustomFields =
+      extraFields.filter(
+        (item: CustomFieldItems) => item.required && item.custom
+      ) || []
     const formData = new URLSearchParams()
     const token = getXsrfToken() || ''
     formData.append('FormField[1][1]', email)
@@ -55,6 +60,22 @@ function sendEmail(data: any) {
     formData.append('FormField[1][2]', newPassword)
     formData.append('FormField[1][3]', confirmPassword)
     formData.append('authenticity_token', token)
+
+    // extra
+    if (requiredCustomFields.length) {
+      requiredCustomFields.forEach((item: Partial<Fields>) => {
+        if (item.name?.includes('_')) {
+          const key = item.name?.split('_')[1]
+          const { formFields } = data
+          const val = formFields.find(
+            (field: Partial<Fields>) => field.name === item.bcLabel
+          ).value
+          formData.append(`FormField[1][${key}]`, val)
+          console.log(key, val)
+        }
+      })
+    }
+
     const requestBody: string = formData.toString()
 
     sendUpdateAccountRequest(requestBody)
