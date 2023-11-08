@@ -12,6 +12,7 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { gotoAllowedAppPage } from '@/shared/routes'
 import { setChannelStoreType } from '@/shared/service/b2b'
+import { getCustomerInfo } from '@/shared/service/bc'
 import {
   B3SStorage,
   clearInvoiceCart,
@@ -184,7 +185,8 @@ export default function App() {
       setChannelStoreType(currentChannelId)
       // await getTaxZoneRates()
 
-      await Promise.all([
+      const getInfo = await Promise.all([
+        getCustomerInfo(),
         getStoreTaxZoneRates(),
         setStorefrontConfig(dispatch, currentChannelId),
         getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
@@ -195,6 +197,8 @@ export default function App() {
         role: +role,
         isAgenting,
       }
+
+      console.log(getInfo, 'info')
       if (!customerId || isRelogin) {
         const info = await getCurrentCustomerInfo(dispatch)
         if (info) {
@@ -260,26 +264,33 @@ export default function App() {
   }, [isOpen])
 
   useEffect(() => {
-    if (isClickEnterBtn && isPageComplete && currentClickedUrl) {
-      const gotoUrl = openPageByClick({
-        href: currentClickedUrl,
-        role,
-        isRegisterAndLogin,
-        isAgenting,
-      })
+    const init = async () => {
+      if (isClickEnterBtn && isPageComplete && currentClickedUrl) {
+        // graphql bc
+        const { customer } = await getCustomerInfo()
 
-      setOpenPage({
-        isOpen: true,
-        openUrl: gotoUrl,
-      })
-
-      showPageMask(dispatch, false)
-      storeDispatch(
-        setGlabolCommonState({
-          isClickEnterBtn: false,
+        const gotoUrl = openPageByClick({
+          href: currentClickedUrl,
+          role,
+          isRegisterAndLogin,
+          isAgenting,
         })
-      )
+
+        setOpenPage({
+          isOpen: true,
+          openUrl: customer ? gotoUrl : '/login',
+        })
+
+        showPageMask(dispatch, false)
+        storeDispatch(
+          setGlabolCommonState({
+            isClickEnterBtn: false,
+          })
+        )
+      }
     }
+
+    init()
   }, [isPageComplete, currentClickedUrl, clickTimeTarget])
 
   useEffect(() => {
