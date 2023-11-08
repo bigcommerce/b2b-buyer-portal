@@ -19,15 +19,8 @@ import {
   getBCForcePasswordReset,
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
-import {
-  bcLogin,
-  // bcLogoutLogin,
-} from '@/shared/service/bc'
-import {
-  B3SStorage,
-  clearCurrentCustomerInfo,
-  getCurrentCustomerInfo,
-} from '@/utils'
+import { bcLogin } from '@/shared/service/bc'
+import { B3SStorage, getCurrentCustomerInfo } from '@/utils'
 
 import LoginWidget from './component/LoginWidget'
 import {
@@ -35,6 +28,7 @@ import {
   loginCheckout,
   LoginConfig,
   LoginInfoInit,
+  logout,
 } from './config'
 import LoginForm from './LoginForm'
 import LoginPanel from './LoginPanel'
@@ -87,7 +81,6 @@ export default function Login(props: RegisteredProps) {
       salesRepCompanyId = 0,
       isAgenting,
       registerEnabled,
-      customerId,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -137,31 +130,38 @@ export default function Login(props: RegisteredProps) {
 
         const loginFlag = getLoginFlag(search, 'loginFlag')
         const showTipInfo = getLoginFlag(search, 'showTip') !== 'false'
+        const closeIsLogout = getLoginFlag(search, 'closeIsLogout') === '1'
 
         setShowTipInfo(showTipInfo)
 
         if (loginFlag) setLoginFlag(loginFlag)
 
-        if (loginFlag === '3') {
-          // await bcLogoutLogin()
+        const isLogout = B3SStorage.get('isLogout') === '1'
+        if (loginFlag === '3' && !isLogout) {
+          const isLogout = await logout()
 
-          if (!customerId) return
+          if (!isLogout) return
 
           if (isAgenting) {
             await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
           }
-          dispatch({
-            type: 'common',
-            payload: {
-              isCloseGotoBCHome: true,
-            },
-          })
 
           // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
           window.sessionStorage.clear()
 
-          clearCurrentCustomerInfo(dispatch)
-          await fetch('/login.php?action=logout')
+          B3SStorage.set('isLogout', '1')
+
+          if (window.location.pathname.includes('login.php')) {
+            window.location.reload()
+          } else {
+            window.location.href = '/login.php/#/login?loginFlag=3'
+          }
+
+          return
+        }
+
+        if (closeIsLogout) {
+          B3SStorage.delete('isLogout')
         }
 
         setLoginInfo(Info)
@@ -172,7 +172,7 @@ export default function Login(props: RegisteredProps) {
     }
 
     init()
-  }, [loginPageButton, loginPageDisplay, loginPageHtml])
+  }, [loginPageButton, loginPageDisplay, loginPageHtml, location])
 
   const tipInfo = (loginFlag: string, email = '') => {
     let str = ''

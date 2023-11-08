@@ -169,3 +169,17 @@ export const getBCChannelId = (storeSitesany: Array<ChannelIdProps>) => {
 
   return channelId
 }
+
+export const logout = () => new Promise<boolean>((resolve, reject) => {
+  fetch('/login.php?action=logout').then((response) => {
+   if (!response.ok) {
+     throw new Error('Network response was not ok')
+   }
+   return response.text()
+ }).then((responseData) => {
+   const isFlag = responseData.includes('alertBox--success')
+   resolve(isFlag)
+ }).catch(e => {
+  reject(e)
+ })
+})

@@ -2,6 +2,7 @@ import { lazy } from 'react'
 import { matchPath } from 'react-router-dom'
 
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
+import { B3SStorage } from '@/utils'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
 
@@ -382,6 +383,10 @@ const gotoAllowedAppPage = (
   gotoPage: (url: string) => void,
   isAccountEnter?: boolean
 ) => {
+  if (B3SStorage.get('isLogout') === '1') {
+    gotoPage('/login?loginFlag=3&&closeIsLogout=1')
+    return
+  }
   const { hash, pathname } = window.location
   let url = hash.split('#')[1] || ''
   if (

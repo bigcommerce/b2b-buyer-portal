@@ -71,7 +71,6 @@ function sendEmail(data: any, extraFields: any) {
             (field: Partial<Fields>) => field.name === item.bcLabel
           ).value
           formData.append(`FormField[1][${key}]`, val)
-          console.log(key, val)
         }
       })
     }
