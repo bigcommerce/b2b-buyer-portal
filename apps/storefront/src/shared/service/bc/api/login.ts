@@ -9,5 +9,8 @@ export const getBCForgotPassword = (data: CustomFieldItems): CustomFieldItems =>
     data
   )
 
-export const getBcCurrentJWT = (data: CustomFieldItems) =>
+export const getCurrentCustomerJWT = (data: CustomFieldItems) =>
   B3Request.get(`${bcBaseUrl()}/customer/current.jwt`, RequestType.BCRest, data)
+
+export const customerLoginAPI = (storefrontLoginToken: string) =>
+  fetch(`${bcBaseUrl()}/login/token/${storefrontLoginToken}`, { method: 'GET' })

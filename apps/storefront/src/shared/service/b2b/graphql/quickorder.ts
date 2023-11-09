@@ -57,6 +57,6 @@ export const getOrderedProducts = (data: CustomFieldItems): CustomFieldItems =>
 export const getBcOrderedProducts = (
   data: CustomFieldItems
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: orderedProducts(data),
   })

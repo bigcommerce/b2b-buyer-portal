@@ -45,7 +45,6 @@ import {
   clearCurrentCustomerInfo,
   getCompanyUserInfo,
   getCurrentCustomerInfo,
-  getCurrentJwt,
   getSearchVal,
   loginInfo,
 } from './loginInfo'
@@ -81,7 +80,6 @@ export {
   getCompanyUserInfo,
   getCookie,
   getCurrentCustomerInfo,
-  getCurrentJwt,
   getDefaultCurrencyInfo,
   getLineNumber,
   getLogo,
