@@ -167,6 +167,8 @@
   "shoppingLists.duplicateShoppingList": "Duplicate shopping list",
   "shoppingLists.save": "Save",
   "shoppingLists.name": "Name",
+  "shoppingLists.title": "Add to list",
+  "shoppingLists.addButtonText": "Add to list",
   "shoppingLists.description": "Description",
   "shoppingLists.card.createdBy": "Created by:",
   "shoppingLists.card.products": "Products:",
