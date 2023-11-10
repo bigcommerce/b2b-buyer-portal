@@ -3,7 +3,7 @@ import { matchPath } from 'react-router-dom'
 
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
 import { getCustomerInfo } from '@/shared/service/bc'
-import { B3SStorage, logoutSession } from '@/utils'
+import { B3SStorage, isB2bTokenPage, logoutSession } from '@/utils'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
 
@@ -393,9 +393,9 @@ const gotoAllowedAppPage = async (
     data: { customer },
   } = await getCustomerInfo()
 
-  if (!customer) {
+  if (!customer || isB2bTokenPage()) {
     logoutSession()
-    gotoPage('/login')
+    gotoPage('/login?loginFlag=6')
   }
 
   const { hash, pathname } = window.location

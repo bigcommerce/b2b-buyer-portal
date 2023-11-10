@@ -204,6 +204,9 @@ export default function Login(props: RegisteredProps) {
         case '5':
           str = b3Lang('login.loginTipInfo.accountPrelaunch')
           break
+        case '6':
+          str = b3Lang('login.loginText.deviceCrowdingLogIn')
+          break
         default:
           str = ''
       }

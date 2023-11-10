@@ -22,6 +22,7 @@ import {
   getStoreTaxZoneRates,
   getTemPlateConfig,
   handleHideRegisterPage,
+  isB2bTokenPage,
   loginInfo,
   logoutSession,
   openPageByClick,
@@ -283,7 +284,7 @@ export default function App() {
 
         setOpenPage({
           isOpen: true,
-          openUrl: customer ? gotoUrl : '/login',
+          openUrl: customer || !isB2bTokenPage() ? gotoUrl : '/login',
         })
 
         showPageMask(dispatch, false)

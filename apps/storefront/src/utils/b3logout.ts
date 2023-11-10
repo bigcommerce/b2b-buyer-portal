@@ -12,4 +12,12 @@ export const logoutSession = () => {
   B3SStorage.delete('B3EmailAddress')
 }
 
+export const isB2bTokenPage = () => {
+  const { hash = '' } = window.location
+
+  const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register']
+
+  return !noB2bTokenPages.some((item: string) => hash.includes(item))
+}
+
 export default {}
