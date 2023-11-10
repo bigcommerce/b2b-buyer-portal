@@ -188,7 +188,6 @@ export default function App() {
       // await getTaxZoneRates()
 
       await Promise.all([
-        getCustomerInfo(),
         getStoreTaxZoneRates(),
         setStorefrontConfig(dispatch, currentChannelId),
         getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
@@ -268,9 +267,8 @@ export default function App() {
     const init = async () => {
       if (isClickEnterBtn && isPageComplete && currentClickedUrl) {
         // graphql bc
-        const {
-          data: { customer },
-        } = await getCustomerInfo()
+
+        const data = await getCustomerInfo()
 
         const gotoUrl = openPageByClick({
           href: currentClickedUrl,
@@ -278,13 +276,13 @@ export default function App() {
           isRegisterAndLogin,
           isAgenting,
         })
-        if (!customer) {
+        if (data?.detail) {
           logoutSession()
         }
 
         setOpenPage({
           isOpen: true,
-          openUrl: customer || !isB2bTokenPage() ? gotoUrl : '/login',
+          openUrl: !data?.detail || !isB2bTokenPage() ? gotoUrl : '/login',
         })
 
         showPageMask(dispatch, false)

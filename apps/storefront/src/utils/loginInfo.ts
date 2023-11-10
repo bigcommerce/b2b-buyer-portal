@@ -323,10 +323,11 @@ export const getCurrentCustomerInfo = async (
     }
   }
   try {
-    const {
-      data: { customer: loginCustomer },
-    } = await getCustomerInfo()
-    if (!loginCustomer) return undefined
+    const data = await getCustomerInfo()
+
+    if (data?.detail) return undefined
+
+    const loginCustomer = data.data.customer
 
     const {
       entityId: customerId = '',

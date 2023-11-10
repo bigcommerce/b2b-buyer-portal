@@ -20,15 +20,7 @@ import {
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
 import { b2bLogin, customerLoginAPI } from '@/shared/service/bc'
-<<<<<<< HEAD
-import {
-  B3SStorage,
-  getCurrentCustomerInfo,
-  storeHash,
-} from '@/utils'
-=======
 import { B3SStorage, getCurrentCustomerInfo, storeHash } from '@/utils'
->>>>>>> dcb8fe8 (fix: login failure verification resolve conflicts)
 
 import LoginWidget from './component/LoginWidget'
 import {

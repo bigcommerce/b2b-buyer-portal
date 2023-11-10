@@ -389,11 +389,9 @@ const gotoAllowedAppPage = async (
     return
   }
 
-  const {
-    data: { customer },
-  } = await getCustomerInfo()
+  const data = await getCustomerInfo()
 
-  if (!customer || isB2bTokenPage()) {
+  if (data?.detail && isB2bTokenPage()) {
     logoutSession()
     gotoPage('/login?loginFlag=6')
   }

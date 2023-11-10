@@ -15,6 +15,10 @@ export const logoutSession = () => {
 export const isB2bTokenPage = () => {
   const { hash = '' } = window.location
 
+  if (!hash.includes('#/')) {
+    return false
+  }
+
   const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register']
 
   return !noB2bTokenPages.some((item: string) => hash.includes(item))
