@@ -50,6 +50,7 @@ import {
 } from './loginInfo'
 import { validatorRules } from './validatorRules'
 
+export { logoutSession } from './b3logout'
 export * from './b3Product/b3Product'
 export * from './basicConfig'
 export * from './masquerade'

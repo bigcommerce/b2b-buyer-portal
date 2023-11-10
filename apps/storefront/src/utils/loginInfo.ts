@@ -253,7 +253,7 @@ export const getCompanyUserInfo = async (
   isB2BUser = false
 ) => {
   try {
-    if (!emailAddress) return undefined
+    if (!emailAddress || !customerId) return undefined
 
     const {
       companyUserInfo: {

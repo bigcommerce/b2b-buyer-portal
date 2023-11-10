@@ -23,6 +23,7 @@ import {
   getTemPlateConfig,
   handleHideRegisterPage,
   loginInfo,
+  logoutSession,
   openPageByClick,
   removeBCMenus,
   setStorefrontConfig,
@@ -185,7 +186,7 @@ export default function App() {
       setChannelStoreType(currentChannelId)
       // await getTaxZoneRates()
 
-      const getInfo = await Promise.all([
+      await Promise.all([
         getCustomerInfo(),
         getStoreTaxZoneRates(),
         setStorefrontConfig(dispatch, currentChannelId),
@@ -198,7 +199,6 @@ export default function App() {
         isAgenting,
       }
 
-      console.log(getInfo, 'info')
       if (!customerId || isRelogin) {
         const info = await getCurrentCustomerInfo(dispatch)
         if (info) {
@@ -211,7 +211,7 @@ export default function App() {
         !href.includes('checkout') &&
         !(customerId && !window.location.hash)
       ) {
-        gotoAllowedAppPage(+userInfo.role, gotoPage)
+        await gotoAllowedAppPage(+userInfo.role, gotoPage)
       }
 
       if (customerId) {
@@ -267,7 +267,9 @@ export default function App() {
     const init = async () => {
       if (isClickEnterBtn && isPageComplete && currentClickedUrl) {
         // graphql bc
-        const { customer } = await getCustomerInfo()
+        const {
+          data: { customer },
+        } = await getCustomerInfo()
 
         const gotoUrl = openPageByClick({
           href: currentClickedUrl,
@@ -275,6 +277,9 @@ export default function App() {
           isRegisterAndLogin,
           isAgenting,
         })
+        if (!customer) {
+          logoutSession()
+        }
 
         setOpenPage({
           isOpen: true,
