@@ -20,11 +20,15 @@ import {
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
 import { b2bLogin, customerLoginAPI } from '@/shared/service/bc'
+<<<<<<< HEAD
 import {
   B3SStorage,
   getCurrentCustomerInfo,
   storeHash,
 } from '@/utils'
+=======
+import { B3SStorage, getCurrentCustomerInfo, storeHash } from '@/utils'
+>>>>>>> dcb8fe8 (fix: login failure verification resolve conflicts)
 
 import LoginWidget from './component/LoginWidget'
 import {
@@ -86,7 +90,6 @@ export default function Login(props: RegisteredProps) {
       salesRepCompanyId = 0,
       isAgenting,
       registerEnabled,
-      customerId,
     },
     dispatch,
   } = useContext(GlobaledContext)
@@ -147,8 +150,6 @@ export default function Login(props: RegisteredProps) {
           const isLogout = await logout()
 
           if (!isLogout) return
-
-          if (!customerId) return
 
           if (isAgenting) {
             await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
