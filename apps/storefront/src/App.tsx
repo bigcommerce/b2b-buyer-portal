@@ -12,7 +12,6 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { gotoAllowedAppPage } from '@/shared/routes'
 import { setChannelStoreType } from '@/shared/service/b2b'
-import { getCustomerInfo } from '@/shared/service/bc'
 import {
   B3SStorage,
   clearInvoiceCart,
@@ -22,9 +21,8 @@ import {
   getStoreTaxZoneRates,
   getTemPlateConfig,
   handleHideRegisterPage,
-  isB2bTokenPage,
+  isUserGotoLogin,
   loginInfo,
-  logoutSession,
   openPageByClick,
   removeBCMenus,
   setStorefrontConfig,
@@ -268,21 +266,18 @@ export default function App() {
       if (isClickEnterBtn && isPageComplete && currentClickedUrl) {
         // graphql bc
 
-        const data = await getCustomerInfo()
-
         const gotoUrl = openPageByClick({
           href: currentClickedUrl,
           role,
           isRegisterAndLogin,
           isAgenting,
         })
-        if (data?.detail) {
-          logoutSession()
-        }
+
+        const isGotoLogin = await isUserGotoLogin(gotoUrl)
 
         setOpenPage({
           isOpen: true,
-          openUrl: !data?.detail || !isB2bTokenPage() ? gotoUrl : '/login',
+          openUrl: isGotoLogin ? '/login' : gotoUrl
         })
 
         showPageMask(dispatch, false)

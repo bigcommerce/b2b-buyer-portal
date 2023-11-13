@@ -16,4 +16,11 @@ const getCustomerInfo = (): CustomFieldItems =>
     query: getCustomer(),
   })
 
-export default getCustomerInfo
+const customerExists = (): CustomFieldItems =>
+  B3Request.graphqlBC({
+    query: getCustomer(),
+  })
+
+export { customerExists, getCustomerInfo }
+
+// export default getCustomerInfo
