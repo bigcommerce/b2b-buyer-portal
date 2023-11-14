@@ -1,0 +1,57 @@
+export const mockActiveCurrency = '{ "node": {"entityId": 2, "isActive": true}}'
+
+export const mockCurrencies = `{ "currencies": [{
+      "auto_update": false,
+      "country_iso2": "CA",
+      "currency_code": "CAD",
+      "currency_exchange_rate": "1.25",
+      "decimal_places": 2,
+      "decimal_token": ".",
+      "default_for_country_codes": ["CA"],
+      "enabled": true,
+      "id": "2",
+      "is_default": true,
+      "is_transactional": true,
+      "last_updated": "2023-01-01",
+      "name": "Canadian Dollar",
+      "thousands_token": ",",
+      "token": "$",
+      "token_location": "left"
+    },
+    {
+      "auto_update": true,
+      "country_iso2": "GB",
+      "currency_code": "GBP",
+      "currency_exchange_rate": "0.75",
+      "decimal_places": 2,
+      "decimal_token": ".",
+      "default_for_country_codes": ["GB"],
+      "enabled": true,
+      "id": "3",
+      "is_default": false,
+      "is_transactional": true,
+      "last_updated": "2023-01-01",
+      "name": "British Pound Sterling",
+      "thousands_token": ",",
+      "token": "£",
+      "token_location": "left"
+    },
+    {
+      "auto_update": true,
+      "country_iso2": "JP",
+      "currency_code": "JPY",
+      "currency_exchange_rate": "110",
+      "decimal_places": 0,
+      "decimal_token": "",
+      "default_for_country_codes": ["JP"],
+      "enabled": true,
+      "id": "4",
+      "is_default": false,
+      "is_transactional": true,
+      "last_updated": "2023-01-01",
+      "name": "Japanese Yen",
+      "thousands_token": ",",
+      "token": "¥",
+      "token_location": "left"
+    }
+]}`

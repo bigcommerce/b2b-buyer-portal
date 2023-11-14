@@ -55,6 +55,9 @@ export default defineConfig(({ mode }) => {
     },
     test: {
       environment: 'jsdom',
+      coverage: {
+        reporter: ['text', 'html', 'clover', 'json'],
+      },
     },
     resolve: {
       alias: {
