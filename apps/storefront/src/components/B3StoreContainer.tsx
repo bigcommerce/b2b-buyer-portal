@@ -57,11 +57,15 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           platform,
           translationVersion,
         } = storeInfo
+        let bcUrl = ''
 
-        const bcUrl =
-          platform !== 'bigcommerce'
-            ? `https://store-${storeHash}-${channelId}.mybigcommerce.com`
-            : ''
+        if (platform !== 'bigcommerce') {
+          if (channelId === 1) {
+            bcUrl = `https://store-${storeHash}.mybigcommerce.com`
+          } else {
+            bcUrl = `https://store-${storeHash}-${channelId}.mybigcommerce.com`
+          }
+        }
         const isEnabled = storeBasicInfo?.multiStorefrontEnabled
           ? storeEnabled
           : true
