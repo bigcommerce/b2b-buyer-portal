@@ -12,6 +12,7 @@ import {
   addProductsToDraftQuote,
 } from '@/hooks/dom/utils'
 import { addProductsToShoppingList } from '@/pages/pdp/PDP'
+import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
 import B3Request from '@/shared/service/request/b3Fetch'
@@ -132,6 +133,9 @@ export default function HeadlessController({
       registerEnabled,
     },
   } = useContext(GlobaledContext)
+  const {
+    state: { addQuoteBtn },
+  } = useContext(CustomStyleContext)
   const { addToQuote: addProductFromPageToQuote } =
     addProductFromProductPageToQuote(setOpenPage)
   const { addToQuote: addProductsFromCart } =
@@ -189,6 +193,7 @@ export default function HeadlessController({
           addProductsFromCart: () => addProductsFromCart(),
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
           getCurrent: getDraftQuote,
+          getButtonInfo: () => addQuoteBtn,
         },
         user: {
           getProfile: () => ({ ...customerRef.current, role }),
@@ -222,18 +227,12 @@ export default function HeadlessController({
               salesRepCompanyId: salesRepCompanyIdRef.current,
               B3UserId: B3UserIdRef.current,
             }),
-          logInWithStorefrontToken: (customerJWTToken: string) =>
-            getCurrentCustomerInfo(dispatch, customerJWTToken),
           graphqlBCProxy: B3Request.graphqlBCProxy,
           loginWithB2BStorefrontToken: async (
             b2bStorefrontJWTToken: string
           ) => {
             B3SStorage.set('B2BToken', b2bStorefrontJWTToken)
-            await getCurrentCustomerInfo(
-              dispatch,
-              undefined,
-              b2bStorefrontJWTToken
-            )
+            await getCurrentCustomerInfo(dispatch, b2bStorefrontJWTToken)
           },
         },
         shoppingList: {

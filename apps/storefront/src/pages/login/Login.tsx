@@ -19,8 +19,8 @@ import {
   getBCForcePasswordReset,
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
-import { bcLogin } from '@/shared/service/bc'
-import { B3SStorage, getCurrentCustomerInfo } from '@/utils'
+import { b2bLogin, customerLoginAPI } from '@/shared/service/bc'
+import { B3SStorage, getCurrentCustomerInfo, storeHash } from '@/utils'
 
 import LoginWidget from './component/LoginWidget'
 import {
@@ -64,6 +64,7 @@ export default function Login(props: RegisteredProps) {
   const [flag, setLoginFlag] = useState<string>('')
   const [loginAccount, setLoginAccount] = useState<LoginConfig>({
     emailAddress: '',
+    password: '',
   })
   const location = useLocation()
 
@@ -195,6 +196,9 @@ export default function Login(props: RegisteredProps) {
         case '5':
           str = b3Lang('login.loginTipInfo.accountPrelaunch')
           break
+        case '6':
+          str = b3Lang('login.loginText.deviceCrowdingLogIn')
+          break
         default:
           str = ''
       }
@@ -249,21 +253,23 @@ export default function Login(props: RegisteredProps) {
       }
     } else {
       try {
-        const getBCFieldsValue = {
+        const loginData = {
           email: data.emailAddress,
-          pass: data.password,
+          password: data.password,
+          storeHash: storeHash as string,
+          channelId: B3SStorage.get('B3channelId'),
         }
-        const { data: bcData, errors } = await bcLogin(getBCFieldsValue)
+        const {
+          login: {
+            result: { token, storefrontLoginToken },
+            errors,
+          },
+        } = await b2bLogin({ loginData })
 
-        if (bcData?.login?.customer) {
-          B3SStorage.set('loginCustomer', {
-            emailAddress: bcData.login.customer.email,
-            phoneNumber: bcData.login.customer.phone,
-            ...bcData.login.customer,
-          })
-        }
+        B3SStorage.set('B2BToken', token)
+        customerLoginAPI(storefrontLoginToken)
 
-        if (errors?.length || !bcData) {
+        if (errors?.length || !token) {
           if (errors?.length) {
             const { message } = errors[0]
             if (
@@ -277,7 +283,7 @@ export default function Login(props: RegisteredProps) {
           }
           getforcePasswordReset(data.emailAddress)
         } else {
-          const info = await getCurrentCustomerInfo(dispatch)
+          const info = await getCurrentCustomerInfo(dispatch, token)
 
           if (info?.userType === 3 && info?.role === 3) {
             navigate('/dashboard')

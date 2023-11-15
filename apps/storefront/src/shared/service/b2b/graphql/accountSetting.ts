@@ -62,7 +62,7 @@ export const updateB2BAccountSettings = (
 export const updateBCAccountSettings = (
   data: CustomFieldItems
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: updateCustomerAccountSettings(data),
   })
 
@@ -74,6 +74,6 @@ export const getB2BAccountSettings = (
   })
 
 export const getBCAccountSettings = (): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: customerAccountSettings(),
   })

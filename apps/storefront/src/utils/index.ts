@@ -45,12 +45,12 @@ import {
   clearCurrentCustomerInfo,
   getCompanyUserInfo,
   getCurrentCustomerInfo,
-  getCurrentJwt,
   getSearchVal,
   loginInfo,
 } from './loginInfo'
 import { validatorRules } from './validatorRules'
 
+export { isB2bTokenPage, isUserGotoLogin,logoutSession } from './b3logout'
 export * from './b3Product/b3Product'
 export * from './basicConfig'
 export * from './masquerade'
@@ -81,7 +81,6 @@ export {
   getCompanyUserInfo,
   getCookie,
   getCurrentCustomerInfo,
-  getCurrentJwt,
   getDefaultCurrencyInfo,
   getLineNumber,
   getLogo,

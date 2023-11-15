@@ -1,4 +1,4 @@
-import { B3SStorage, getCurrentJwt, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
 
 import { RequestType } from './base'
 
@@ -28,34 +28,6 @@ function b3Fetch(
           const message = data.errMsg || res.message || ''
           reject(message)
           return
-        }
-        // jwt 15 minutes expected
-        if (
-          res?.errors?.length &&
-          res.errors[0].message === 'JWT token is expired'
-        ) {
-          try {
-            await getCurrentJwt()
-            const config = {
-              Authorization: `Bearer  ${
-                B3SStorage.get('currentCustomerJWTToken') || ''
-              }`,
-            }
-            const headers = {
-              'content-type': 'application/json',
-              ...config,
-            }
-
-            const reInit = {
-              headers,
-              method: 'POST',
-              body: init.body,
-            }
-            const newRes = await b3Fetch(path, reInit, type)
-            resolve(newRes)
-          } catch (e) {
-            console.error(e)
-          }
         }
         if (
           type === RequestType.BCRest &&

@@ -12,8 +12,15 @@ const getCustomer = () => `query customer {
 }`
 
 const getCustomerInfo = (): CustomFieldItems =>
+  B3Request.graphqlBCProxy({
+    query: getCustomer(),
+  })
+
+const customerExists = (): CustomFieldItems =>
   B3Request.graphqlBC({
     query: getCustomer(),
   })
 
-export default getCustomerInfo
+export { customerExists, getCustomerInfo }
+
+// export default getCustomerInfo

@@ -482,14 +482,14 @@ export const deleteB2BShoppingListItem = (
 export const getBcShoppingList = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: getCustomerShoppingLists(data),
   })
 
 export const createBcShoppingList = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: createOrUpdateCustomerShoppingList(
       'customerShoppingListsCreate',
       data
@@ -499,7 +499,7 @@ export const createBcShoppingList = (
 export const updateBcShoppingList = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: createOrUpdateCustomerShoppingList(
       'customerShoppingListsUpdate',
       data
@@ -509,7 +509,7 @@ export const updateBcShoppingList = (
 export const duplicateBcShoppingList = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: createOrUpdateCustomerShoppingList(
       'customerShoppingListsDuplicate',
       data
@@ -517,35 +517,35 @@ export const duplicateBcShoppingList = (
   })
 
 export const deleteBcShoppingList = (id: number): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: deleteCustomerShoppingList(id),
   })
 
 export const getBcShoppingListDetails = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: getCustomerShoppingListDetails(data),
   })
 
 export const addProductToBcShoppingList = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: addItemsToBcShoppingList(data),
   })
 
 export const updateBcShoppingListsItem = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: updateCustomerShoppingListsItem(data),
   })
 
 export const deleteBcShoppingListItem = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2BWithBCCustomerToken({
+  B3Request.graphqlB2B({
     query: deleteCustomerShoppingListItem(data),
   })
 
