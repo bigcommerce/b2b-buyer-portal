@@ -21,7 +21,6 @@ import {
   getStoreTaxZoneRates,
   getTemPlateConfig,
   handleHideRegisterPage,
-  isUserGotoLogin,
   loginInfo,
   openPageByClick,
   removeBCMenus,
@@ -196,7 +195,6 @@ export default function App() {
         role: +role,
         isAgenting,
       }
-
       if (!customerId || isRelogin) {
         const info = await getCurrentCustomerInfo(dispatch)
         if (info) {
@@ -209,7 +207,7 @@ export default function App() {
         !href.includes('checkout') &&
         !(customerId && !window.location.hash)
       ) {
-        await gotoAllowedAppPage(+userInfo.role, gotoPage)
+        gotoAllowedAppPage(+userInfo.role, gotoPage)
       }
 
       if (customerId) {
@@ -262,34 +260,26 @@ export default function App() {
   }, [isOpen])
 
   useEffect(() => {
-    const init = async () => {
-      if (isClickEnterBtn && isPageComplete && currentClickedUrl) {
-        // graphql bc
+    if (isClickEnterBtn && isPageComplete && currentClickedUrl) {
+      const gotoUrl = openPageByClick({
+        href: currentClickedUrl,
+        role,
+        isRegisterAndLogin,
+        isAgenting,
+      })
 
-        const gotoUrl = openPageByClick({
-          href: currentClickedUrl,
-          role,
-          isRegisterAndLogin,
-          isAgenting,
+      setOpenPage({
+        isOpen: true,
+        openUrl: gotoUrl,
+      })
+
+      showPageMask(dispatch, false)
+      storeDispatch(
+        setGlabolCommonState({
+          isClickEnterBtn: false,
         })
-
-        const isGotoLogin = await isUserGotoLogin(gotoUrl)
-
-        setOpenPage({
-          isOpen: true,
-          openUrl: isGotoLogin ? '/login' : gotoUrl
-        })
-
-        showPageMask(dispatch, false)
-        storeDispatch(
-          setGlabolCommonState({
-            isClickEnterBtn: false,
-          })
-        )
-      }
+      )
     }
-
-    init()
   }, [isPageComplete, currentClickedUrl, clickTimeTarget])
 
   useEffect(() => {

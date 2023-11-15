@@ -9,7 +9,7 @@ export interface QuoteConfig {
 
 export type LoginConfig = {
   emailAddress: string
-  password: string
+  password?: string
 }
 
 export interface LoginInfoInit {

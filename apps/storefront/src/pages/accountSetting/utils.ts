@@ -70,16 +70,7 @@ function sendEmail(data: any, extraFields: any) {
           const val = formFields.find(
             (field: Partial<Fields>) => field.name === item.bcLabel
           ).value
-          if (item.type === 'date') {
-            const time = val.split('-')
-            if (!val && time.length !== 3) return
-            const [year, month, day] = time
-            formData.append(`FormFieldYear[1][${key}]`, year)
-            formData.append(`FormFieldMonth[1][${key}]`, month)
-            formData.append(`FormFieldDay[1][${key}]`, day)
-          } else {
-            formData.append(`FormField[1][${key}]`, val)
-          }
+          formData.append(`FormField[1][${key}]`, val)
         }
       })
     }

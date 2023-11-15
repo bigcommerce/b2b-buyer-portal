@@ -6,7 +6,7 @@ import {
   getBCGraphqlToken,
   getUserCompany,
 } from '@/shared/service/b2b'
-import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc'
+import { getBcCurrentJWT, getCustomerInfo } from '@/shared/service/bc'
 import { B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
@@ -21,6 +21,15 @@ interface ChannelIdProps {
   platform: string
   isEnabled: boolean
   translationVersion: number
+}
+
+type B2BToken = {
+  authorization: {
+    result: {
+      token: string
+      loginType: null | string
+    }
+  }
 }
 
 // B3Role = {
@@ -113,6 +122,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('B3EmailAddress', '')
   B3SStorage.set('B3Role', '')
   B3SStorage.set('isB2BUser', false)
+  B3SStorage.set('currentCustomerJWTToken', '')
   B3SStorage.set('B2BToken', false)
   B3SStorage.set('B3UserId', '')
 
@@ -154,6 +164,39 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       isAgenting: false,
     },
   })
+}
+
+export const getCurrentJwt = async () => {
+  try {
+    const res = await getBcCurrentJWT({
+      app_client_id: VITE_B2B_CLIENT_ID,
+    })
+
+    B3SStorage.set('currentCustomerJWTToken', res)
+    return res
+  } catch (error) {
+    console.log(error)
+  }
+  return undefined
+}
+
+const getB2BTokenWithJWTToken = async (userType: number, jwtToken: string) => {
+  try {
+    const channelId = B3SStorage.get('B3channelId') || 1
+
+    if (userType === 3) {
+      const data = await getB2BToken(jwtToken, channelId)
+      if (data) {
+        const B2BToken = (data as B2BToken).authorization.result.token
+        B3SStorage.set('B2BToken', B2BToken)
+        const { loginType } = (data as B2BToken).authorization.result
+
+        sessionStorage.setItem('loginType', JSON.stringify(loginType || null))
+      }
+    }
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 // companyStatus
@@ -253,7 +296,7 @@ export const getCompanyUserInfo = async (
   isB2BUser = false
 ) => {
   try {
-    if (!emailAddress || !customerId) return undefined
+    if (!emailAddress) return undefined
 
     const {
       companyUserInfo: {
@@ -292,42 +335,23 @@ export const getCompanyUserInfo = async (
   return undefined
 }
 
-const loginWithCurrentCustomerJWT = async () => {
-  const channelId = B3SStorage.get('B3channelId')
-  const prevCurrentCustomerJWT = B3SStorage.get('currentCustomerJWT')
-  const currentCustomerJWT = await getCurrentCustomerJWT({
-    app_client_id: VITE_B2B_CLIENT_ID,
-  })
-
-  if (
-    currentCustomerJWT.includes('errors') ||
-    prevCurrentCustomerJWT === currentCustomerJWT
-  )
-    return undefined
-
-  B3SStorage.set('currentCustomerJWT', currentCustomerJWT)
-  const data = await getB2BToken(currentCustomerJWT, channelId)
-  const B2BToken = data.authorization.result.token
-  B3SStorage.set('B2BToken', B2BToken)
-
-  return B2BToken
-}
-
 export const getCurrentCustomerInfo = async (
   dispatch: DispatchProps,
+  jwtToken?: string,
   b2bToken?: string
 ) => {
-  if (!(b2bToken || B3LStorage.get('B2BToken'))) {
-    if (!(await loginWithCurrentCustomerJWT())) {
-      return undefined
-    }
-  }
   try {
-    const data = await getCustomerInfo()
+    let loginCustomer = B3SStorage.get('loginCustomer')
 
-    if (data?.detail) return undefined
+    if (!loginCustomer) {
+      const {
+        data: { customer },
+      } = await getCustomerInfo()
 
-    const loginCustomer = data.data.customer
+      loginCustomer = customer
+
+      if (!customer) return undefined
+    }
 
     const {
       entityId: customerId = '',
@@ -346,6 +370,13 @@ export const getCurrentCustomerInfo = async (
 
     if (companyUserInfo && customerId) {
       const { userType, role, id } = companyUserInfo
+
+      if (!b2bToken) {
+        await getB2BTokenWithJWTToken(
+          userType,
+          jwtToken || (await getCurrentJwt())
+        )
+      }
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(id, role, userType),

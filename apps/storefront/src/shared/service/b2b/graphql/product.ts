@@ -142,7 +142,7 @@ export const searchBcProducts = (
 export const getBcVariantInfoBySkus = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: getVariantInfoBySkus(data),
   })
 
@@ -156,7 +156,7 @@ export const B2BProductsBulkUploadCSV = (
 export const BcProductsBulkUploadCSV = (
   data: CustomFieldItems = {}
 ): CustomFieldItems =>
-  B3Request.graphqlB2B({
+  B3Request.graphqlB2BWithBCCustomerToken({
     query: productsBulkUploadCSV(data),
   })
 

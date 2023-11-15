@@ -183,7 +183,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
             )}
 
             <IconButton
-              aria-label="duplicate"
+              aria-label="edit"
               size="medium"
               sx={{
                 marginRight: '8px',

@@ -71,7 +71,11 @@ const B3Request = {
    */
   graphqlB2B: function post<T>(data: T, customMessage = false): Promise<any> {
     const config = {
-      Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
+      Authorization: `Bearer  ${
+        B3SStorage.get('B2BToken') ||
+        B3SStorage.get('currentCustomerJWTToken') ||
+        ''
+      }`,
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },

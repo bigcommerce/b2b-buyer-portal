@@ -2,6 +2,7 @@ import { Dispatch, ReactNode } from 'react'
 
 type BtnKeys =
   | 'masqueradeButton'
+  | 'addQuoteBtn'
   | 'floatingAction'
   | 'addToAllQuoteBtn'
   | 'shoppingListBtn'
@@ -41,18 +42,8 @@ interface BtnStyle {
   css?: string
 }
 
-export interface AddQuoteBtnProperties {
-  classSelector: string
-  color: string
-  customCss: string
-  enabled: boolean
-  locationSelector: string
-  text: string
-}
-
 export interface CustomStyleButtonState
   extends Record<BtnKeys, Partial<BtnStyle>> {
-  addQuoteBtn: AddQuoteBtnProperties
   globalButtonBackgroundColor: string
 }
 

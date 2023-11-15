@@ -167,8 +167,6 @@
   "shoppingLists.duplicateShoppingList": "Duplicate shopping list",
   "shoppingLists.save": "Save",
   "shoppingLists.name": "Name",
-  "shoppingLists.title": "Add to list",
-  "shoppingLists.addButtonText": "Add to list",
   "shoppingLists.description": "Description",
   "shoppingLists.card.createdBy": "Created by:",
   "shoppingLists.card.products": "Products:",
@@ -507,7 +505,6 @@
   "login.loginTipInfo.accountincorrect": "Your email address or password is incorrect. Please try again. If you've forgotten your sign in details, just click the 'Forgot your password?' link below.",
   "login.loginTipInfo.accountPrelaunch": "You can not login to the Buyer Portal while the store is in prelaunch or maintenance mode. Please set the store live, or login inside the customer admin panel.",
   "login.loginText.forgotPasswordText": "Forgot your password?",
-  "login.loginText.deviceCrowdingLogIn": "The user has logged out, please log in again",
   "login.loginText.password": "Password",
   "login.registerLogo": "register Logo",
 
