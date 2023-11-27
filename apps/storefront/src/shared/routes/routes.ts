@@ -98,7 +98,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: OrderList,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
+    permissions: [0, 1, 3, 4, 99, 100],
     isTokenLogin: true,
     idLang: 'global.navMenu.orders',
   },
@@ -108,7 +108,7 @@ const routes: RouteItem[] = [
     wsKey: 'router-orders',
     isMenuItem: true,
     component: CompanyOrderList,
-    permissions: [0, 1, 2, 3],
+    permissions: [0, 1, 3],
     isTokenLogin: true,
     idLang: 'global.navMenu.companyOrders',
   },
@@ -409,7 +409,18 @@ const gotoAllowedAppPage = async (
     (!url && role !== 100 && pathname.includes('account.php')) ||
     isAccountEnter
   )
-    url = role === 3 ? '/dashboard' : '/orders'
+    switch (role) {
+      case 2:
+        url = '/accountSettings'
+        break
+      case 3:
+        url = '/dashboard'
+        break
+      default:
+        url = '/orders'
+        break
+    }
+
   const flag = routes.some(
     (item: RouteItem) =>
       (matchPath(item.path, url) || url.includes('invoice?')) &&

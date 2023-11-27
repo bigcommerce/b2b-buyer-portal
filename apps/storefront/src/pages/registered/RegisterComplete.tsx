@@ -496,6 +496,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
                   color: '#000000',
                   marginBottom: '10px',
                   marginTop: '-12px',
+                  wordWrap: 'break-word',
                 }}
               >
                 {`Create password for ${enterEmail}`}
