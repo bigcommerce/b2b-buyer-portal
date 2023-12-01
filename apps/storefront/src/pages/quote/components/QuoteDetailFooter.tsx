@@ -1,9 +1,12 @@
+import { useLocation } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
 import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
+import { getSearchVal } from '@/utils'
+import * as cryptoJs from '@/utils/cryptoJs'
 
 interface QuoteDetailFooterProps {
   quoteId: string
@@ -16,6 +19,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
   const { quoteId, role, isAgenting, status } = props
   const [isMobile] = useMobile()
   const b3Lang = useB3Lang()
+  const location = useLocation()
 
   const containerStyle = isMobile
     ? {
@@ -29,6 +33,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
   const handleQuoteCheckout = async () => {
     try {
       const fn = +role === 99 ? bcQuoteCheckout : b2bQuoteCheckout
+      const date = getSearchVal(location.search, 'date')
 
       const res = await fn({
         id: +quoteId,
@@ -41,6 +46,11 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
       } = res
 
       sessionStorage.setItem('isNewStorefront', JSON.stringify(true))
+      sessionStorage.setItem('quoteCheckoutId', cryptoJs.cipherText(quoteId))
+      sessionStorage.setItem(
+        'quoteDate',
+        cryptoJs.cipherText(date?.toString() || '')
+      )
 
       window.location.href = checkoutUrl
     } catch (err) {
