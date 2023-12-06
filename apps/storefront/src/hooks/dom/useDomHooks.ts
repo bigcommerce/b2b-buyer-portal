@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import { OpenPageState } from '@b3/hooks'
 
 import { GlobaledContext } from '@/shared/global'
-import { removeCartPermissions } from '@/utils/b3RolePermissions'
+import { setCartPermissions } from '@/utils/b3RolePermissions'
 
 import useCartToQuote from './useCartToQuote'
 import useHideGoogleCustomerReviews from './useHideGoogleCustomerReviews'
@@ -28,8 +28,8 @@ const useDomHooks = ({ setOpenPage, isOpen }: MutationObserverProps) => {
   } = useContext(GlobaledContext)
 
   useEffect(() => {
-    if (+role === 2) {
-      removeCartPermissions(role)
+    if (+role !== 2) {
+      setCartPermissions(role)
     }
   }, [role])
 

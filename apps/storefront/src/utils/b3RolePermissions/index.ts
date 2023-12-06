@@ -1,2 +1,2 @@
 // eslint-disable-next-line
-export { default as removeCartPermissions } from './juniorRolePermissions'
+export { default as setCartPermissions } from './juniorRolePermissions'

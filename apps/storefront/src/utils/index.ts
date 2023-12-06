@@ -31,7 +31,7 @@ import distanceDay from './b3Picker'
 import getProductPriceIncTax from './b3Price'
 import b2bPrintInvoice from './b3PrintInvoice'
 import getProxyInfo from './b3Proxy'
-import { removeCartPermissions } from './b3RolePermissions'
+import { setCartPermissions } from './b3RolePermissions'
 import { B3LStorage, B3SStorage } from './b3Storage'
 import { globalSnackbar, snackbar } from './b3Tip'
 import b3TriggerCartNumber from './b3TriggerCartNumber'
@@ -50,7 +50,7 @@ import {
 } from './loginInfo'
 import { validatorRules } from './validatorRules'
 
-export { isB2bTokenPage, isUserGotoLogin,logoutSession } from './b3logout'
+export { isB2bTokenPage, isUserGotoLogin, logoutSession } from './b3logout'
 export * from './b3Product/b3Product'
 export * from './basicConfig'
 export * from './masquerade'
@@ -104,8 +104,8 @@ export {
   ordersCurrencyFormat,
   redirectBcMenus,
   removeBCMenus,
-  removeCartPermissions,
   serialize,
+  setCartPermissions,
   showPageMask,
   snackbar,
   validatorRules,
