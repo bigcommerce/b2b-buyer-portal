@@ -1,5 +1,7 @@
-import { getCartInfo } from '@/shared/service/bc'
+import { getCart } from '@/shared/service/bc/graphql/cart'
 import { setCartNumber, store } from '@/store'
+
+import getCookie from './b3utils'
 
 const productTypeKey = [
   'customItems',
@@ -9,11 +11,19 @@ const productTypeKey = [
 ]
 
 const b3TriggerCartNumber = async () => {
+  const cartId = getCookie('cartId')
   let number = 0
+
+  const {
+    global: { storeInfo },
+  } = store.getState()
+
   try {
-    const cartInfo = await getCartInfo()
-    if (cartInfo.length > 0) {
-      const items = cartInfo[0].lineItems
+    const storePlatform = storeInfo?.platform
+    const cartInfo = await getCart(cartId, storePlatform)
+
+    if (cartInfo.data.site.cart) {
+      const items = cartInfo.data.site.cart.lineItems
       productTypeKey.forEach((key: string) => {
         const productItem = items[key]
         if (productItem && productItem.length > 0) {

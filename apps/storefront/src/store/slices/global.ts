@@ -23,6 +23,19 @@ export interface TaxZoneRatesProps {
   rates: Rates[]
 }
 
+export interface StoreInfoProps {
+  b2bEnabled: boolean
+  b3ChannelId: number
+  channelId: number
+  channelLogo: string
+  iconUrl: string
+  isEnabled: boolean
+  platform: string
+  translationVersion: number
+  type: string
+  urls: Array<string>
+}
+
 interface GlobalMessageDialog {
   open: boolean
   title: string
@@ -46,6 +59,7 @@ export interface GlabolState {
   blockPendingAccountViewPrice?: boolean
   bcUrl?: string
   cartNumber?: number
+  storeInfo?: StoreInfoProps
 }
 
 const initialState: GlabolState = {
@@ -66,6 +80,18 @@ const initialState: GlabolState = {
   blockPendingAccountViewPrice: false,
   bcUrl: '',
   cartNumber: 0,
+  storeInfo: {
+    b2bEnabled: false,
+    b3ChannelId: 0,
+    channelId: 1,
+    channelLogo: '',
+    iconUrl: '',
+    isEnabled: false,
+    platform: '',
+    translationVersion: 0,
+    type: '',
+    urls: [],
+  },
 }
 
 export const glabolSlice = createSlice({
@@ -109,6 +135,9 @@ export const glabolSlice = createSlice({
     setCartNumber: (state, { payload }: PayloadAction<number>) => {
       state.cartNumber = payload as Draft<number>
     },
+    setStoreInfo: (state, { payload }: PayloadAction<StoreInfoProps>) => {
+      state.storeInfo = payload as Draft<StoreInfoProps>
+    },
   },
 })
 
@@ -122,6 +151,7 @@ export const {
   setBlockPendingAccountViewPrice,
   setHeadLessBcUrl,
   setCartNumber,
+  setStoreInfo,
 } = glabolSlice.actions
 
 export default glabolSlice.reducer
