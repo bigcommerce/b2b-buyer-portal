@@ -17,9 +17,8 @@ import {
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { B3LStorage, removeCartPermissions } from '@/utils'
+import { B3LStorage, setCartPermissions } from '@/utils'
 
-// import { removeCartPermissions } from '@/utils/b3RolePermissions'
 import useDomVariation from './useDomVariation'
 import { addProductFromProductPageToQuote, removeElement } from './utils'
 
@@ -73,8 +72,8 @@ const useMyQuote = ({
   }, [])
 
   const cd = () => {
-    if (+role === 2) {
-      removeCartPermissions(role)
+    if (+role !== 2) {
+      setCartPermissions(role)
     }
   }
 

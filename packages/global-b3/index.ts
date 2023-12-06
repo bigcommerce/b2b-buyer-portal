@@ -3,6 +3,7 @@ declare global {
     B3: any
     B3Local: any
     B3CustomConfig: any
+    cartElementId: string
   }
 }
 
@@ -68,6 +69,7 @@ const globalB3 = {
   'dom.cartActions.container': '.cart-actions',
   'dom.openB3Checkout': 'checkout-customer-continue',
   'dom.cartElement':
+    window?.B3['dom.cart'] ||
     '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"], [data-emthemesmodez-cart-item-add]',
   'dom.productView': '.productView',
   'dom.register': '[href^="/login.php?action=create_account"]',
