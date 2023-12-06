@@ -14,7 +14,10 @@ export const validatorRules =
     validateRuleTypes.forEach((item: string) => {
       if (item === 'email' && val && !re.email.test(val)) {
         str = b3lang('global.validatorRules.email')
+      } else if (val.length >= 200) {
+        str = b3lang('global.emailValidate.emailLength')
       }
+
       if (item === 'phone' && val && !re.phone.test(val)) {
         str = b3lang('global.validatorRules.phoneNumber')
       }
