@@ -2,7 +2,7 @@ import { lazy } from 'react'
 import { matchPath } from 'react-router-dom'
 
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
-import { customerExists } from '@/shared/service/bc'
+import { getCustomerInfo } from '@/shared/service/bc'
 import { B3SStorage, isB2bTokenPage, logoutSession } from '@/utils'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
@@ -392,7 +392,7 @@ const gotoAllowedAppPage = async (
   try {
     const {
       data: { customer },
-    } = await customerExists()
+    } = await getCustomerInfo()
 
     if (!customer && isB2bTokenPage()) {
       logoutSession()

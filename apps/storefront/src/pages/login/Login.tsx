@@ -19,8 +19,13 @@ import {
   getBCForcePasswordReset,
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
-import { b2bLogin, customerLoginAPI } from '@/shared/service/bc'
-import { B3SStorage, getCurrentCustomerInfo, storeHash } from '@/utils'
+import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
+import {
+  B3SStorage,
+  getCurrentCustomerInfo,
+  logoutSession,
+  storeHash,
+} from '@/utils'
 
 import LoginWidget from './component/LoginWidget'
 import {
@@ -28,7 +33,6 @@ import {
   loginCheckout,
   LoginConfig,
   LoginInfoInit,
-  logout,
 } from './config'
 import LoginForm from './LoginForm'
 import LoginPanel from './LoginPanel'
@@ -139,9 +143,9 @@ export default function Login(props: RegisteredProps) {
 
         const isLogout = B3SStorage.get('isLogout') === '1'
         if (loginFlag === '3' && !isLogout) {
-          const isLogout = await logout()
+          const { result } = (await bcLogoutLogin()).data.logout
 
-          if (!isLogout) return
+          if (result !== 'success') return
 
           if (isAgenting) {
             await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
@@ -152,12 +156,8 @@ export default function Login(props: RegisteredProps) {
 
           B3SStorage.set('isLogout', '1')
 
-          if (window.location.pathname.includes('login.php')) {
-            window.location.reload()
-          } else {
-            window.location.href = '/login.php/#/login?loginFlag=3'
-          }
-
+          logoutSession()
+          window.location.reload()
           return
         }
 
@@ -268,6 +268,7 @@ export default function Login(props: RegisteredProps) {
 
         B3SStorage.set('B2BToken', token)
         customerLoginAPI(storefrontLoginToken)
+        B3SStorage.delete('isLogout')
 
         if (errors?.length || !token) {
           if (errors?.length) {
