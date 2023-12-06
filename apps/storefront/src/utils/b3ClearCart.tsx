@@ -1,4 +1,3 @@
-import { getBCStoreChannelId } from '@/shared/service/b2b'
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
 import { setCartNumber, store } from '@/store'
 
@@ -9,14 +8,12 @@ const clearInvoiceCart = async () => {
   try {
     const url = window.location.pathname
     const isInvoicePay = localStorage.getItem('invoicePay')
-    const getStoreInfo = async () => {
-      const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
-      const [storeInfo] = storeBasicInfo.storeSites
 
-      return storeInfo?.platform
-    }
-
-    const platform = await getStoreInfo()
+    const {
+      global: {
+        storeInfo: { platform },
+      },
+    } = store.getState()
 
     if (url !== '/checkout' && isInvoicePay === '1') {
       const cartEntityId: string = getCookie('cartId')
