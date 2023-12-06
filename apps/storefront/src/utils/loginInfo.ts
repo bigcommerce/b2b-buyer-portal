@@ -295,9 +295,15 @@ export const getCompanyUserInfo = async (
 const loginWithCurrentCustomerJWT = async () => {
   const channelId = B3SStorage.get('B3channelId')
   const prevCurrentCustomerJWT = B3SStorage.get('currentCustomerJWT')
-  const currentCustomerJWT = await getCurrentCustomerJWT({
-    app_client_id: VITE_B2B_CLIENT_ID,
-  })
+  let currentCustomerJWT
+  try {
+    currentCustomerJWT = await getCurrentCustomerJWT({
+      app_client_id: VITE_B2B_CLIENT_ID,
+    })
+  } catch (error) {
+    console.log(error)
+    return undefined
+  }
 
   if (
     currentCustomerJWT.includes('errors') ||
