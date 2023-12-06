@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Delete } from '@mui/icons-material'
@@ -13,7 +14,7 @@ import {
 } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
-import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
+import { globalStateSelector } from '@/store'
 import {
   b3TriggerCartNumber,
   currencyFormat,
@@ -26,6 +27,7 @@ import {
   getProductOptionsFields,
   ProductsProps,
 } from '@/utils/b3Product/shared/config'
+import { callCart } from '@/utils/cartUtils'
 
 interface ShoppingProductsProps {
   shoppingListInfo: any
@@ -181,6 +183,8 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
 
+  const { storeInfo } = useSelector(globalStateSelector)
+
   useEffect(() => {
     if (products.length > 0) {
       setOpen(true)
@@ -232,25 +236,11 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       setLoading(true)
 
       const lineItems = addlineItems(products)
-      const cartInfo = await getCartInfo()
-      let res
-      if (cartInfo.length > 0) {
-        res = await addProductToCart(
-          {
-            lineItems,
-          },
-          cartInfo[0].id
-        )
-      } else {
-        res = await createCart({
-          lineItems,
-        })
-      }
-      if (res.status === 422) {
-        snackbar.error(res.detail, {
-          isClose: true,
-        })
-      } else {
+      const storePlatform = storeInfo?.platform
+
+      const res = await callCart(lineItems, storePlatform)
+
+      if (!res.errors) {
         handleCancelClicked()
         if (
           allowJuniorPlaceOrder &&
@@ -271,6 +261,14 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
           b3TriggerCartNumber()
         }
       }
+
+      if (res.errors) {
+        snackbar.error(res.message, {
+          isClose: true,
+        })
+      }
+
+      b3TriggerCartNumber()
     } finally {
       setLoading(false)
     }

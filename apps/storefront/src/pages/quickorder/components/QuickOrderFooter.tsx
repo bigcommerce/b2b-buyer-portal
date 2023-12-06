@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { ArrowDropDown } from '@mui/icons-material'
@@ -31,7 +32,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
+import { globalStateSelector } from '@/store'
 import {
   addQuoteDraftProducts,
   B3SStorage,
@@ -43,6 +44,7 @@ import {
   validProductQty,
 } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
+import { callCart } from '@/utils/cartUtils'
 
 import CreateShoppingList from '../../orderDetail/components/CreateShoppingList'
 import OrderShoppingList from '../../orderDetail/components/OrderShoppingList'
@@ -135,6 +137,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const [isShoppingListLoading, setIisShoppingListLoading] =
     useState<boolean>(false)
 
+  const { storeInfo } = useSelector(globalStateSelector)
+
   const navigate = useNavigate()
 
   const containerStyle = isMobile
@@ -162,7 +166,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
   // Add selected to cart
   const handleSetCartLineItems = (inventoryInfos: ProductsProps[]) => {
-    const lineItems: CustomFieldItems = []
+    const lineItems: CustomFieldItems[] = []
 
     checkedArr.forEach((item: ProductsProps) => {
       const { node } = item
@@ -240,23 +244,11 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const lineItems = handleSetCartLineItems(getInventoryInfos || [])
 
-      const cartInfo = await getCartInfo()
-      const res = cartInfo.length
-        ? await addProductToCart(
-            {
-              lineItems,
-            },
-            cartInfo[0].id
-          )
-        : await createCart({
-            lineItems,
-          })
+      const storePlatform = storeInfo?.platform
 
-      if (res.status) {
-        snackbar.error(res.detail, {
-          isClose: true,
-        })
-      } else if (!res.status) {
+      const res = await callCart(lineItems, storePlatform)
+
+      if (res && !res.errors) {
         snackbar.success('', {
           jsx: successTip({
             message: b3Lang('purchasedProducts.footer.productsAdded'),
@@ -266,9 +258,13 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           }),
           isClose: true,
         })
-        b3TriggerCartNumber()
+      } else {
+        snackbar.error('Error has occurred', {
+          isClose: true,
+        })
       }
     } finally {
+      b3TriggerCartNumber()
       setIsRequestLoading(false)
     }
   }

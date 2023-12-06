@@ -103,10 +103,23 @@ const B3Request = {
   /**
    * Request to BC graphql API using B2B token
    */
-  graphqlBCProxy: function post<T>(data: T): Promise<any> {
-    const config = {
-      Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
+  graphqlBCProxy: function post<T>(
+    data: T,
+    useCartHeader?: boolean
+  ): Promise<any> {
+    let config = {}
+
+    if (useCartHeader) {
+      config = {
+        Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
+        'disable-customer-header': 'true',
+      }
+    } else {
+      config = {
+        Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
+      }
     }
+
     return graphqlRequest(RequestType.BCProxyGraphql, data, config)
   },
   get: function get<T, Y>(

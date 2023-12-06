@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
+import { useSelector } from 'react-redux'
 import { Box, Typography } from '@mui/material'
 
 import { B3CustomForm, B3Dialog, successTip } from '@/components'
@@ -11,9 +12,10 @@ import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
-import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
+import { globalStateSelector } from '@/store'
 import { b3TriggerCartNumber, snackbar } from '@/utils'
 import { bcBaseUrl } from '@/utils/basicConfig'
+import { callCart } from '@/utils/cartUtils'
 
 import { EditableProductItem, OrderProductItem } from '../../../types'
 import getReturnFormFields from '../shared/config'
@@ -86,6 +88,8 @@ export default function OrderDialog({
   } = useForm({
     mode: 'all',
   })
+
+  const { storeInfo } = useSelector(globalStateSelector)
 
   const handleClose = () => {
     setOpen(false)
@@ -255,32 +259,30 @@ export default function OrderDialog({
         return
       }
 
-      const cartInfo = await getCartInfo()
+      const storePlatform = storeInfo?.platform
 
-      if (cartInfo.length > 0) {
-        await addProductToCart(
-          {
-            lineItems: items,
-          },
-          cartInfo[0].id
-        )
-      } else {
-        await createCart({
-          lineItems: items,
+      const res = await callCart(items, storePlatform)
+
+      const status =
+        res && (res.data.cart.createCart || res.data.cart.addCartLineItems)
+
+      if (status) {
+        setOpen(false)
+        snackbar.success('', {
+          jsx: successTip({
+            message: 'Products are added to cart',
+            link: '/cart.php',
+            linkText: 'VIEW CART',
+            isOutLink: true,
+          }),
+          isClose: true,
+        })
+        b3TriggerCartNumber()
+      } else if (res.errors) {
+        snackbar.error(res.errors[0].message, {
+          isClose: true,
         })
       }
-
-      setOpen(false)
-      snackbar.success('', {
-        jsx: successTip({
-          message: 'Products are added to cart',
-          link: '/cart.php',
-          linkText: 'VIEW CART',
-          isOutLink: true,
-        }),
-        isClose: true,
-      })
-      b3TriggerCartNumber()
     } catch (err: any) {
       snackbar.error(err?.detail, {
         isClose: true,
