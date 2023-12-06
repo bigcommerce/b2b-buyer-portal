@@ -1,13 +1,11 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
-import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 
 import { HeadlessRoutes } from '@/constants'
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP'
 import {
-  addProductFromProductPageToQuote,
   addProductsFromCartToQuote,
   addProductsToDraftQuote,
 } from '@/hooks/dom/utils'
@@ -81,6 +79,10 @@ const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
     }
   })
 
+export type ProductMappedAttributes = ReturnType<
+  typeof transformOptionSelectionsToAttributes
+>
+
 const getDraftQuote = () => {
   const itemsList: QuoteDraftItem[] = B3LStorage.get('b2bQuoteDraftList')
   let productList: FormatedQuoteItem[] = []
@@ -134,10 +136,8 @@ export default function HeadlessController({
     },
   } = useContext(GlobaledContext)
   const {
-    state: { addQuoteBtn },
+    state: { addQuoteBtn, shoppingListBtn },
   } = useContext(CustomStyleContext)
-  const { addToQuote: addProductFromPageToQuote } =
-    addProductFromProductPageToQuote(setOpenPage)
   const { addToQuote: addProductsFromCart } =
     addProductsFromCartToQuote(setOpenPage)
 
@@ -158,9 +158,6 @@ export default function HeadlessController({
   }
 
   // Keep updated values
-  const addProductFromPageToQuoteRef = useRef(() =>
-    addProductFromPageToQuote(role)
-  )
   const B3UserIdRef = useRef(+B3UserId)
   const salesRepCompanyIdRef = useRef(+salesRepCompanyId)
   const customerIdRef = useRef(customerId)
@@ -169,7 +166,6 @@ export default function HeadlessController({
   const isB2BUserRef = useRef(isB2BUser)
   const currentChannelIdRef = useRef(currentChannelId)
 
-  addProductFromPageToQuoteRef.current = () => addProductFromPageToQuote(role)
   B3UserIdRef.current = +B3UserId
   salesRepCompanyIdRef.current = +salesRepCompanyId
   customerIdRef.current = customerId
@@ -189,7 +185,8 @@ export default function HeadlessController({
           )
         },
         quote: {
-          addProductFromPage: addProductFromPageToQuoteRef.current,
+          addProductFromPage: (item) =>
+            addProductsToDraftQuote([item], setOpenPage),
           addProductsFromCart: () => addProductsFromCart(),
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
           getCurrent: getDraftQuote,
@@ -236,16 +233,10 @@ export default function HeadlessController({
           },
         },
         shoppingList: {
-          addProductFromPage: () => {
-            dispatch({
-              type: 'common',
-              payload: {
-                shoppingListClickNode: document.querySelector(
-                  globalB3['dom.productView']
-                ),
-              },
-            })
-
+          itemFromCurrentPage: [],
+          addProductFromPage: (item) => {
+            window.b2b.utils.shoppingList.itemFromCurrentPage =
+              transformOptionSelectionsToAttributes([item])
             addProductFromPageToShoppingList({
               role: roleRef.current,
               storeDispatch,
@@ -273,6 +264,7 @@ export default function HeadlessController({
 
             return shoppingListsCreate.shoppingList
           },
+          getButtonInfo: () => shoppingListBtn,
         },
       },
     }

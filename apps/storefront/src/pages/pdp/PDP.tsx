@@ -86,7 +86,7 @@ export const serialize = (form: any) => {
   return arr
 }
 
-export const getProductOptionList = (optionMap: CustomFieldItems) => {
+export const getProductOptionList = (optionMap: CustomFieldItems = {}) => {
   const optionList: CustomFieldItems[] = []
   Object.keys(optionMap).forEach((item) => {
     if (item.includes('attribute') && item.match(/\[([0-9]+)\]/g)) {
@@ -216,6 +216,7 @@ function PDP({ setOpenPage }: PDPProps) {
       customer: { customerGroupId },
     },
   } = useContext(GlobaledContext)
+  const platform = useSelector(({ global }) => global.storeInfo.platform)
   const b3Lang = useB3Lang()
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
@@ -251,40 +252,53 @@ function PDP({ setOpenPage }: PDPProps) {
     })
   }
 
-  const handleShoppingConfirm = async (shoppingListId: string) => {
-    if (!shoppingListClickNode) return
+  const getShoppingListItem = () => {
+    if (platform !== 'bigcommerce') {
+      const {
+        itemFromCurrentPage: [product],
+      } = window.b2b.utils.shoppingList
+      return product
+    }
+
+    if (!shoppingListClickNode) return undefined
 
     const productView: HTMLElement | null = shoppingListClickNode.closest(
       globalB3['dom.productView']
     )
-    if (!productView) return
+    if (!productView) return undefined
 
+    const productId = (
+      productView.querySelector('input[name=product_id]') as any
+    )?.value
+    const quantity =
+      (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1
+    const sku = (
+      productView.querySelector('[data-product-sku]')?.innerHTML ?? ''
+    ).trim()
+    const form = productView.querySelector('form[data-cart-item-add]')
+    return {
+      productId: +productId,
+      sku,
+      quantity: +quantity,
+      optionSelections: serialize(form),
+    }
+  }
+
+  const handleShoppingConfirm = async (shoppingListId: string) => {
+    const product = getShoppingListItem()
+
+    if (!product) return
     try {
       setIsRequestLoading(true)
-      const productId = (
-        productView.querySelector('input[name=product_id]') as any
-      )?.value
-      const quantity =
-        (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1
-      const sku = (
-        productView.querySelector('[data-product-sku]')?.innerHTML ?? ''
-      ).trim()
-      const form = productView.querySelector('form[data-cart-item-add]')
       await addProductsToShoppingList({
         isB2BUser,
         customerGroupId,
         shoppingListId,
-        items: [
-          {
-            productId: +productId,
-            sku,
-            quantity: +quantity,
-            optionSelections: serialize(form),
-          },
-        ],
+        items: [product],
         gotoShoppingDetail,
         b3Lang,
       })
+
       handleShoppingClose()
     } finally {
       setIsRequestLoading(false)

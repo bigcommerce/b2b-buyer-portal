@@ -41,7 +41,7 @@ interface BtnStyle {
   css?: string
 }
 
-export interface AddQuoteBtnProperties {
+export interface BtnProperties {
   classSelector: string
   color: string
   customCss: string
@@ -52,7 +52,8 @@ export interface AddQuoteBtnProperties {
 
 export interface CustomStyleButtonState
   extends Record<BtnKeys, Partial<BtnStyle>> {
-  addQuoteBtn: AddQuoteBtnProperties
+  addQuoteBtn: BtnProperties
+  shoppingListBtn: BtnProperties
   globalButtonBackgroundColor: string
 }
 
