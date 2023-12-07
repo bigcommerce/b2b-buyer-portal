@@ -111,7 +111,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 {priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax))}
               </Typography>
             </Grid>
-            {quoteDetail?.shippingMethod?.id ? (
+            {+status !== 1 || quoteDetail?.shippingMethod?.id ? (
               <>
                 <Grid
                   container
@@ -121,9 +121,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   }}
                 >
                   <Typography>
-                    {`${b3Lang('quoteDetail.summary.shipping')}(${
-                      quoteDetail?.shippingMethod?.description || ''
-                    })`}
+                    {b3Lang('quoteDetail.summary.shipping')}
                   </Typography>
                   <Typography>{priceFormat(+shipping)}</Typography>
                 </Grid>
@@ -136,38 +134,6 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 >
                   <Typography>{b3Lang('quoteDetail.summary.tax')}</Typography>
                   <Typography>{priceFormat(+tax)}</Typography>
-                </Grid>
-              </>
-            ) : null}
-
-            {quoteDetail?.salesRepEmail &&
-            !quoteDetail?.shippingMethod?.id &&
-            (+status === 1 || +status === 5) ? (
-              <>
-                <Grid
-                  container
-                  justifyContent="space-between"
-                  sx={{
-                    margin: '4px 0',
-                    flexWrap: 'nowrap',
-                  }}
-                >
-                  <Typography>
-                    {`${b3Lang('quoteDetail.summary.shipping')}(${b3Lang(
-                      'quoteDetail.summary.quoteCheckout'
-                    )})`}
-                  </Typography>
-                  <Typography>TBD</Typography>
-                </Grid>
-                <Grid
-                  container
-                  justifyContent="space-between"
-                  sx={{
-                    margin: '4px 0',
-                  }}
-                >
-                  <Typography>{b3Lang('quoteDetail.summary.tax')}</Typography>
-                  <Typography>TBD</Typography>
                 </Grid>
               </>
             ) : null}

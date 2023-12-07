@@ -467,7 +467,6 @@
   "quoteDetail.header.print": "Print",
   "quoteDetail.header.downloadPDF": "DownLoad pdf",
   "quoteDetail.summary.quoteSummary": "Quote summary",
-  "quoteDetail.summary.quoteCheckout": "Customer choice at checkout",
   "quoteDetail.summary.originalSubtotal": "Original subtotal",
   "quoteDetail.summary.discountAmount": "Discount amount",
   "quoteDetail.summary.quotedSubtotal": "Quoted subtotal",
