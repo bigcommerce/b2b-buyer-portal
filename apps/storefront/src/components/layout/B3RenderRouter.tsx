@@ -66,13 +66,7 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
     const [, page] = location.pathname.split('/')
     if (!page) return
 
-    let channelId = globaledState.currentChannelId
-
-    if (!globaledState.multiStorefrontEnabled) {
-      channelId = 0
-    }
-
-    setTranslation({ channelId, page })
+    setTranslation({ channelId: globaledState.currentChannelId, page })
   }, [location.pathname])
 
   return (
