@@ -16,13 +16,13 @@ declare interface Window {
     utils: {
       openPage: (page: import('./constants').HeadlessRoute) => void
       quote: {
-        addProductFromPage: (item: import('@/utils').LineItems) => void
+        addProductFromPage: () => Promise<void>
         addProductsFromCart: () => Promise<void>
         addProducts: (items: import('@/utils').LineItems[]) => Promise<void>
         getCurrent: () => {
           productList: import('@/components').FormatedQuoteItem[]
         }
-        getButtonInfo: () => import('@/shared/customStyleButtton/context/config').BtnProperties
+        getButtonInfo: () => import('@/shared/customStyleButtton/context/config').AddQuoteBtnProperties
       }
       user: {
         getProfile: () => Record<string, string | number>
@@ -39,17 +39,15 @@ declare interface Window {
         ) => Promise<void>
       }
       shoppingList: {
-        itemFromCurrentPage: import('@/components').ProductMappedAttributes
-        addProductFromPage: (item: import('@/utils').LineItems) => void
+        addProductFromPage: () => void
         addProducts: (
           shoppingListId: number,
           items: import('@/utils').LineItems[]
-        ) => void
+        ) => Promise<void>
         createNewShoppingList: (
           name: string,
           description: string
         ) => Promise<{ id: number; name: string; description: string }>
-        getButtonInfo: () => import('@/shared/customStyleButtton/context/config').BtnProperties
       }
     }
   }
