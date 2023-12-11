@@ -180,8 +180,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
           )
 
           node.productsSearch = productInfo || {}
-          node.productName = productInfo?.name || node.productName
-          node.productUrl = productInfo?.productUrl || node.productUrl
         })
 
         return listProducts
