@@ -6,7 +6,6 @@ const checkoutLogin = `mutation checkoutLogin($cartData: CheckoutLoginType!) {
     ) {
         result {
             redirectUrl
-            checkoutUrl
         }
     }
 }`

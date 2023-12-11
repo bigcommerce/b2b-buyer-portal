@@ -23,7 +23,7 @@ export const attemptCheckoutLoginAndRedirect = async (
       checkoutLogin: { result },
     } = resLogin
 
-    redirect(result.checkoutUrl, isReplaceCurrentUrl)
+    redirect(result.redirectUrl, isReplaceCurrentUrl)
   } catch (e) {
     redirect(defaultCheckoutUrl, isReplaceCurrentUrl)
   }
