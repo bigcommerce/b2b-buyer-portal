@@ -610,7 +610,7 @@ interface DateProps {
   year: string
 }
 
-export interface OptionValueProps {
+interface OptionValueProps {
   optionId: string | number
   optionValue: string | DateProps
 }

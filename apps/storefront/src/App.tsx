@@ -277,7 +277,7 @@ export default function App() {
 
         setOpenPage({
           isOpen: true,
-          openUrl: isGotoLogin ? '/login' : gotoUrl,
+          openUrl: isGotoLogin ? '/login' : gotoUrl
         })
 
         showPageMask(dispatch, false)

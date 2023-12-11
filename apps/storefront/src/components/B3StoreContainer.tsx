@@ -2,7 +2,7 @@ import { ReactNode, useContext, useLayoutEffect } from 'react'
 
 import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
-import { setHeadLessBcUrl, setStoreInfo, store } from '@/store'
+import { setHeadLessBcUrl, store } from '@/store'
 import { B3SStorage, setGlobalTranslation, storeHash } from '@/utils'
 
 import B3PageMask from './loadding/B3PageMask'
@@ -12,7 +12,7 @@ interface B3StoreContainerProps {
   children: ReactNode
 }
 
-export interface StoreItem {
+interface StoreItem {
   channelId: number
   urls: Array<string>
   b2bEnabled: boolean
@@ -49,8 +49,6 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         const [storeInfo] = storeBasicInfo.storeSites
 
         if (!storeInfo) return
-
-        store.dispatch(setStoreInfo(storeInfo))
 
         const {
           channelId,
