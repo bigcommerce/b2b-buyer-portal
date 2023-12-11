@@ -53,7 +53,6 @@
     "@b3/tsconfig": "*",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.5",
-    "@types/crypto-js": "^4.2.1",
     "@types/lodash": "^4.14.190",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
