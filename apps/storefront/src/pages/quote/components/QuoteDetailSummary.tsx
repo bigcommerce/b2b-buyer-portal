@@ -44,6 +44,51 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
 
   const priceFormat = (price: number) => `${currencyFormat(price)}`
 
+  const getShippingAndTax = () => {
+    if (quoteDetail?.shippingMethod?.id) {
+      return {
+        shippingText: `${b3Lang('quoteDetail.summary.shipping')}(${
+          quoteDetail?.shippingMethod?.description || ''
+        })`,
+        shippingVal: priceFormat(+shipping),
+        taxText: b3Lang('quoteDetail.summary.tax'),
+        taxVal: priceFormat(+tax),
+      }
+    }
+
+    if (
+      !quoteDetail?.salesRepEmail &&
+      !quoteDetail?.shippingMethod?.id &&
+      +status === 1
+    ) {
+      return {
+        shippingText: b3Lang('quoteDetail.summary.shipping'),
+        shippingVal: b3Lang('quoteDetail.summary.tbd'),
+        taxText: b3Lang('quoteDetail.summary.estimatedTax'),
+        taxVal: priceFormat(+tax),
+      }
+    }
+
+    if (
+      quoteDetail?.salesRepEmail &&
+      !quoteDetail?.shippingMethod?.id &&
+      (+status === 1 || +status === 5)
+    ) {
+      return {
+        shippingText: `${b3Lang('quoteDetail.summary.shipping')}(${b3Lang(
+          'quoteDetail.summary.quoteCheckout'
+        )})`,
+        shippingVal: b3Lang('quoteDetail.summary.tbd'),
+        taxText: b3Lang('quoteDetail.summary.tax'),
+        taxVal: b3Lang('quoteDetail.summary.tbd'),
+      }
+    }
+
+    return null
+  }
+
+  const shippingAndTax = getShippingAndTax()
+
   return (
     <Card>
       <CardContent>
@@ -71,22 +116,26 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 {priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax))}
               </Typography>
             </Grid>
-            <Grid
-              container
-              justifyContent="space-between"
-              sx={{
-                margin: '4px 0',
-              }}
-            >
-              <Typography>
-                {b3Lang('quoteDetail.summary.discountAmount')}
-              </Typography>
-              <Typography>
-                {+discount > 0
-                  ? `-${priceFormat(+discount)}`
-                  : priceFormat(+discount)}
-              </Typography>
-            </Grid>
+
+            {!quoteDetail?.salesRepEmail && +status === 1 ? null : (
+              <Grid
+                container
+                justifyContent="space-between"
+                sx={{
+                  margin: '4px 0',
+                }}
+              >
+                <Typography>
+                  {b3Lang('quoteDetail.summary.discountAmount')}
+                </Typography>
+                <Typography>
+                  {+discount > 0
+                    ? `-${priceFormat(+discount)}`
+                    : priceFormat(+discount)}
+                </Typography>
+              </Grid>
+            )}
+
             <Grid
               container
               justifyContent="space-between"
@@ -111,7 +160,8 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 {priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax))}
               </Typography>
             </Grid>
-            {quoteDetail?.shippingMethod?.id ? (
+
+            {shippingAndTax && (
               <>
                 <Grid
                   container
@@ -126,11 +176,9 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                       wordBreak: 'break-word',
                     }}
                   >
-                    {`${b3Lang('quoteDetail.summary.shipping')}(${
-                      quoteDetail?.shippingMethod?.description || ''
-                    })`}
+                    {shippingAndTax.shippingText}
                   </Typography>
-                  <Typography>{priceFormat(+shipping)}</Typography>
+                  <Typography>{shippingAndTax.shippingVal}</Typography>
                 </Grid>
                 <Grid
                   container
@@ -139,43 +187,12 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                     margin: '4px 0',
                   }}
                 >
-                  <Typography>{b3Lang('quoteDetail.summary.tax')}</Typography>
-                  <Typography>{priceFormat(+tax)}</Typography>
+                  <Typography>{shippingAndTax.taxText}</Typography>
+                  <Typography>{shippingAndTax.taxVal}</Typography>
                 </Grid>
               </>
-            ) : null}
+            )}
 
-            {quoteDetail?.salesRepEmail &&
-            !quoteDetail?.shippingMethod?.id &&
-            (+status === 1 || +status === 5) ? (
-              <>
-                <Grid
-                  container
-                  justifyContent="space-between"
-                  sx={{
-                    margin: '4px 0',
-                    flexWrap: 'nowrap',
-                  }}
-                >
-                  <Typography>
-                    {`${b3Lang('quoteDetail.summary.shipping')}(${b3Lang(
-                      'quoteDetail.summary.quoteCheckout'
-                    )})`}
-                  </Typography>
-                  <Typography>TBD</Typography>
-                </Grid>
-                <Grid
-                  container
-                  justifyContent="space-between"
-                  sx={{
-                    margin: '4px 0',
-                  }}
-                >
-                  <Typography>{b3Lang('quoteDetail.summary.tax')}</Typography>
-                  <Typography>TBD</Typography>
-                </Grid>
-              </>
-            ) : null}
             <Grid
               container
               justifyContent="space-between"
