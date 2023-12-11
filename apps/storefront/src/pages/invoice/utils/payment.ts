@@ -1,6 +1,5 @@
 import { getInvoiceCheckoutUrl } from '@/shared/service/b2b'
 import { BcCartData } from '@/types/invoice'
-import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout'
 
 export const getCheckouUrlAndCart = async (params: BcCartData) => {
   const {
@@ -19,19 +18,11 @@ export const gotoInvoiceCheckoutUrl = async (
   params: BcCartData,
   isReplaceCurrentUrl?: boolean
 ) => {
-  const { checkoutUrl, cartId } = await getCheckouUrlAndCart(params)
+  const { checkoutUrl } = await getCheckouUrlAndCart(params)
 
-  try {
-    await attemptCheckoutLoginAndRedirect(
-      cartId,
-      checkoutUrl,
-      isReplaceCurrentUrl
-    )
-  } catch (e) {
-    if (isReplaceCurrentUrl) {
-      window.location.replace(checkoutUrl)
-    } else {
-      window.location.href = checkoutUrl
-    }
+  if (isReplaceCurrentUrl) {
+    window.location.replace(checkoutUrl)
+  } else {
+    window.location.href = checkoutUrl
   }
 }
