@@ -110,7 +110,29 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
               <Typography>{priceFormat(quoteSummary.subtotal)}</Typography>
             </Grid>
 
-            {/* Remove the Shipping and Tax lines on a “draft” Quote. --BUN-1550 */}
+            <Grid
+              container
+              justifyContent="space-between"
+              sx={{
+                margin: '4px 0',
+              }}
+            >
+              <Typography>
+                {b3Lang('quoteDraft.quoteSummary.shipping')}
+              </Typography>
+              <Typography>{b3Lang('quoteDraft.quoteSummary.tbd')}</Typography>
+            </Grid>
+
+            <Grid
+              container
+              justifyContent="space-between"
+              sx={{
+                margin: '4px 0',
+              }}
+            >
+              <Typography>{b3Lang('quoteDraft.quoteSummary.tax')}</Typography>
+              <Typography>{priceFormat(quoteSummary.tax)}</Typography>
+            </Grid>
 
             <Grid
               container
