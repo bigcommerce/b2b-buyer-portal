@@ -76,6 +76,11 @@ interface ProductInfo extends Variant {
   optionSelections?: ProductOptionString[]
 }
 
+interface OptionsProps {
+  optionId: string | number
+  optionValue: string | number
+}
+
 export interface LineItems {
   quantity: number
   productId: number
@@ -1196,6 +1201,57 @@ const getBCPrice = (basePrice: number, taxPrice: number) => {
   return price
 }
 
+const getValidOptionsList = (
+  options: OptionsProps[] | CustomFieldItems,
+  originProduct: CustomFieldItems
+) => {
+  const targetType = ['text', 'numbers_only_text', 'multi_line_text']
+  const originOptions = originProduct?.modifiers || originProduct?.allOptions
+  const newOptions: CustomFieldItems = []
+  options.forEach(
+    (option: { optionId: number | string; optionValue: number | string }) => {
+      const currentOption = originOptions.find(
+        (item: { id: string | number }) => {
+          const optionId = option.optionId.toString()
+          const targetId = optionId?.includes('attribute')
+            ? optionId.split('[')[1].split(']')[0]
+            : optionId
+
+          return +targetId === +item.id
+        }
+      )
+
+      if (!option.optionValue || +option.optionValue === 0) {
+        if (currentOption?.type === 'checkbox') {
+          const optionValues = currentOption?.option_values || []
+
+          const checkboxValue = optionValues.find(
+            (value: {
+              value_data: { checked_value: boolean }
+              label: string
+            }) => !value?.value_data?.checked_value || value?.label === 'No'
+          )
+          newOptions.push({
+            optionId: option.optionId,
+            optionValue: checkboxValue.id.toString(),
+          })
+        }
+        if (
+          (targetType.includes(currentOption.type) ||
+            currentOption.type.includes('text')) &&
+          option.optionValue
+        ) {
+          newOptions.push(option)
+        }
+      } else {
+        newOptions.push(option)
+      }
+    }
+  )
+
+  return newOptions
+}
+
 export {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
@@ -1210,6 +1266,7 @@ export {
   getNewProductsList,
   getProductExtraPrice,
   getQuickAddProductExtraPrice,
+  getValidOptionsList,
   setModifierQtyPrice,
   validProductQty,
 }
