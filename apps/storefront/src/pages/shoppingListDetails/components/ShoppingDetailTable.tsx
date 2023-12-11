@@ -23,7 +23,7 @@ import {
   updateBcShoppingListsItem,
 } from '@/shared/service/b2b'
 import { store } from '@/store'
-import { currencyFormat, snackbar } from '@/utils'
+import { currencyFormat, getValidOptionsList, snackbar } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
@@ -256,13 +256,17 @@ function ShoppingDetailTable(
       ? updateB2BShoppingListsItem
       : updateBcShoppingListsItem
     try {
+      const newOptionLists = getValidOptionsList(
+        products[0].newSelectOptionList,
+        products[0]
+      )
       const data = {
         itemId: editProductItemId,
         shoppingListId,
         itemData: {
           variantId: products[0].variantId,
           quantity: products[0].quantity,
-          optionList: products[0].newSelectOptionList || [],
+          optionList: newOptionLists || [],
         },
       }
 
