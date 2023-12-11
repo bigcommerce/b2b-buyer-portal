@@ -284,7 +284,6 @@ export const serialize = (form: any) => {
       case 'checkbox':
       case 'radio':
         if (!file.checked) {
-          if (file.type === 'checkbox') arr[file.name] = ''
           break
         } else {
           if (arr[file.name]) {
