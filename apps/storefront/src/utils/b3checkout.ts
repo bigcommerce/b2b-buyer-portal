@@ -8,7 +8,7 @@ const redirect = (url: string, isReplaceCurrentUrl?: boolean) => {
     window.location.href = url
   }
 }
-
+// comment for deploy
 export const attemptCheckoutLoginAndRedirect = async (
   cartId: any,
   defaultCheckoutUrl: string,
