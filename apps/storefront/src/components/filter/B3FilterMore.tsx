@@ -8,7 +8,7 @@ import {
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import FilterListIcon from '@mui/icons-material/FilterList'
-import { Badge, Box, IconButton, useTheme } from '@mui/material'
+import { Badge, Box, Button, IconButton, useTheme } from '@mui/material'
 
 import { B3CustomForm, B3Dialog, CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
@@ -150,6 +150,32 @@ function B3FilterMore<T, Y>({
     pickerRef.current?.setClearPickerValue()
   }
 
+  const handleClearBtn = () => {
+    const pickerValues = startPicker?.isEnabled
+      ? {
+          startValue: '',
+          endValue: '',
+        }
+      : {}
+
+    handleClearFilters()
+    const data = getValues()
+
+    if (onChange) {
+      const submitData: any = {
+        ...pickerValues,
+        ...data,
+      }
+
+      handleFilterStatus(submitData)
+      onChange(submitData)
+
+      setCacheData({
+        ...data,
+      })
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -159,49 +185,63 @@ function B3FilterMore<T, Y>({
     >
       {((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
         <Box
-          onClick={handleDialogClick}
           sx={{
-            mr: '-10px',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
-          {!isFiltering && (
-            <IconButton
-              aria-label="edit"
-              size="medium"
-              sx={{
-                color: customColor,
-                ':hover': {
-                  backgroundColor: getHoverColor('#FFFFFF', 0.1),
-                },
-              }}
-            >
-              <FilterListIcon />
-            </IconButton>
-          )}
-          {isFiltering && (
-            <IconButton
-              aria-label="edit"
-              size="medium"
-              sx={{
-                color: customColor,
-                ':hover': {
-                  backgroundColor: getHoverColor('#FFFFFF', 0.1),
-                },
-              }}
-            >
-              <Badge
-                badgeContent={filterCounter}
+          <Box onClick={handleDialogClick}>
+            {!isFiltering && (
+              <IconButton
+                aria-label="edit"
+                size="medium"
                 sx={{
-                  '& .MuiBadge-badge.MuiBadge-standard.MuiBadge-anchorOriginTopRight':
-                    {
-                      bgcolor: primaryColor,
-                      borderRadius: '50%',
-                    },
+                  color: customColor,
+                  ':hover': {
+                    backgroundColor: getHoverColor('#FFFFFF', 0.1),
+                  },
                 }}
               >
                 <FilterListIcon />
-              </Badge>
-            </IconButton>
+              </IconButton>
+            )}
+            {isFiltering && (
+              <IconButton
+                aria-label="edit"
+                size="medium"
+                sx={{
+                  color: customColor,
+                  ':hover': {
+                    backgroundColor: getHoverColor('#FFFFFF', 0.1),
+                  },
+                }}
+              >
+                <Badge
+                  badgeContent={filterCounter}
+                  sx={{
+                    '& .MuiBadge-badge.MuiBadge-standard.MuiBadge-anchorOriginTopRight':
+                      {
+                        bgcolor: primaryColor,
+                        borderRadius: '50%',
+                      },
+                  }}
+                >
+                  <FilterListIcon />
+                </Badge>
+              </IconButton>
+            )}
+          </Box>
+          {isFiltering && !isMobile && (
+            <Button
+              aria-label="clear-edit"
+              size="small"
+              sx={{
+                marginLeft: '5px',
+              }}
+              onClick={handleClearBtn}
+            >
+              {b3Lang('global.filter.clearFilters')}
+            </Button>
           )}
         </Box>
       )}
