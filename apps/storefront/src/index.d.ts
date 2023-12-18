@@ -13,6 +13,7 @@ declare interface Window {
   globalTipDispatch: any
   B3Local: any
   b2b: {
+    callbacks: import('@/utils/b3Callbacks').default
     utils: {
       openPage: (page: import('./constants').HeadlessRoute) => void
       quote: {

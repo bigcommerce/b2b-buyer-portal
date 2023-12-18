@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react'
+import useCallbacks from '@b3/hooks/useCustomCallbacks'
 import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
@@ -39,31 +40,48 @@ export default function AddToShoppingList(props: AddToListProps) {
     ? addProductToShoppingList
     : addProductToBcShoppingList
 
-  const addToList = async (products: CustomFieldItems[]) => {
-    const items = products.map((product) => {
-      const newOptionLists = getValidOptionsList(
-        product.newSelectOptionList,
-        product
-      )
-      return {
-        optionList: newOptionLists,
-        productId: product.id,
-        quantity: product.quantity,
-        variantId: product.variantId,
+  const addToList = useCallbacks(
+    'on-add-to-shopping-list',
+    async (products: CustomFieldItems[], handleEvent) => {
+      try {
+        if (!handleEvent(products)) {
+          throw new Error()
+        }
+
+        const items = products.map((product) => {
+          const newOptionLists = getValidOptionsList(
+            product.newSelectOptionList,
+            product
+          )
+          return {
+            optionList: newOptionLists,
+            productId: product.id,
+            quantity: product.quantity,
+            variantId: product.variantId,
+          }
+        })
+
+        const res: CustomFieldItems = await addItemsToShoppingList({
+          shoppingListId: id,
+          items,
+        })
+
+        snackbar.success(
+          b3Lang('shoppingList.addToShoppingList.productsAdded'),
+          {
+            isClose: true,
+          }
+        )
+
+        return res
+      } catch (e: any) {
+        if (e.message.length > 0) {
+          snackbar.error(e.message, { isClose: true })
+        }
       }
-    })
-
-    const res: CustomFieldItems = await addItemsToShoppingList({
-      shoppingListId: id,
-      items,
-    })
-
-    snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'), {
-      isClose: true,
-    })
-
-    return res
-  }
+      return true
+    }
+  )
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
     const items = products.map((product) => {
