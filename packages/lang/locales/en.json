@@ -354,6 +354,7 @@
   "shoppingList.header.approve": "Approve",
   "shoppingList.table.productUpdated": "Product updated successfully",
   "shoppingList.table.quantityUpdated": "Product quantity updated successfully",
+  "shoppingList.table.productNotesUpdated": "Product notes updated successfully",
   "shoppingList.table.product": "Product",
   "shoppingList.table.price": "Price",
   "shoppingList.table.quantity": "Qty",
@@ -364,6 +365,10 @@
   "shoppingList.shoppingDetailCard.price": "Price: {price}",
   "shoppingList.shoppingDetailCard.quantity": "qty",
   "shoppingList.shoppingDetailCard.total": "Total: {total}",
+  "shoppingList.addItemNotes.title": "Add note",
+  "shoppingList.addItemNotes.cancel": "cancel",
+  "shoppingList.addItemNotes.save": "save",
+  "shoppingList.addItemNotes.placeholder": "Add notes to products",
 
   "userManagement.addUser": "Add new user",
   "userManagement.deleteUserSuccessfully": "Delete user successfully",
