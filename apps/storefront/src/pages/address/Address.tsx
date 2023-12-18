@@ -12,7 +12,7 @@ import {
   getB2BCountries,
   getBCCustomerAddress,
 } from '@/shared/service/b2b'
-import { manipulateString, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 import {
@@ -87,14 +87,7 @@ function Address() {
             !isBCPermission,
             countries
           )
-          const newAddressFields =
-            addressFields?.map((field) => {
-              const { label } = field
-              if (label) field.label = manipulateString(label)
-
-              return field
-            }) || []
-          setAddressFields(newAddressFields)
+          setAddressFields(addressFields || [])
         } catch (err) {
           console.log(err)
         } finally {

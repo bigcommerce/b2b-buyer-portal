@@ -22,7 +22,7 @@ import {
   sendSubscribersState,
   uploadB2BFile,
 } from '@/shared/service/b2b'
-import { convertLabel, manipulateString, storeHash } from '@/utils'
+import { storeHash } from '@/utils'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
@@ -85,11 +85,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const list: RegisterCompleteList =
     accountType === '1' ? contactInformation : bcContactInformation
   const passwordInfo: RegisterCompleteList =
-    accountType === '1'
-      ? convertLabel(passwordInformation)
-      : convertLabel(bcPasswordInformation)
+    accountType === '1' ? passwordInformation : bcPasswordInformation
 
-  const passwordName = manipulateString(passwordInfo[0]?.groupName) || ''
+  const passwordName = passwordInfo[0]?.groupName || ''
 
   const additionalInfo: RegisterCompleteList =
     accountType === '1' ? additionalInformation : bcAdditionalInformation

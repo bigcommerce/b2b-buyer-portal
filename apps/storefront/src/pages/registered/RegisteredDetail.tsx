@@ -6,7 +6,6 @@ import { B3CustomForm } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { validateBCCompanyExtraFields } from '@/shared/service/b2b'
-import { convertLabel, manipulateString } from '@/utils'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
@@ -55,18 +54,14 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     mode: 'all',
   })
   const businessDetailsName =
-    accountType === '1'
-      ? manipulateString(companyInformation[0]?.groupName)
-      : ''
+    accountType === '1' ? companyInformation[0]?.groupName : ''
 
   const addressBasicName =
     accountType === '1' ? 'addressBasicFields' : 'bcAddressBasicFields'
   const addressBasicList =
-    accountType === '1'
-      ? convertLabel(addressBasicFields)
-      : convertLabel(bcAddressBasicFields)
+    accountType === '1' ? addressBasicFields : bcAddressBasicFields
 
-  const addressName = manipulateString(addressBasicList[0]?.groupName) || ''
+  const addressName = addressBasicList[0]?.groupName || ''
 
   const handleCountryChange = (countryCode: string, stateCode = '') => {
     const stateList =
@@ -266,7 +261,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         <Box>
           <InformationFourLabels>{businessDetailsName}</InformationFourLabels>
           <B3CustomForm
-            formFields={[...convertLabel(companyInformation)]}
+            formFields={[...companyInformation]}
             errors={errors}
             control={control}
             getValues={getValues}
