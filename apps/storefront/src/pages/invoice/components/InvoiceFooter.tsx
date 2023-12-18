@@ -1,9 +1,11 @@
 import { useContext, useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import { Box, Button, Grid, Typography } from '@mui/material'
 
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
+import { globalStateSelector } from '@/store'
 import {
   BcCartData,
   BcCartDataLineItem,
@@ -19,6 +21,7 @@ interface InvoiceFooterProps {
 }
 
 function InvoiceFooter(props: InvoiceFooterProps) {
+  const globalState = useSelector(globalStateSelector)
   const b3Lang = useB3Lang()
   const allCurrencies = B3SStorage.get('currencies')
   const [isMobile] = useMobile()
@@ -102,7 +105,11 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         currency,
       }
 
-      await gotoInvoiceCheckoutUrl(params)
+      await gotoInvoiceCheckoutUrl(
+        params,
+        globalState.storeInfo.platform,
+        false
+      )
     }
   }
 

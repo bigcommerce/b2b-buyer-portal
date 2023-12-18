@@ -1,10 +1,12 @@
 import { MouseEvent, useContext, useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 import { GlobaledContext } from '@/shared/global'
+import { globalStateSelector } from '@/store'
 import { InvoiceList } from '@/types/invoice'
 import { snackbar } from '@/utils'
 
@@ -32,6 +34,7 @@ function B3Pulldown({
   setInvoiceId,
   handleOpenHistoryModal,
 }: B3PulldownProps) {
+  const globalState = useSelector(globalStateSelector)
   const {
     state: { role, isAgenting },
   } = useContext(GlobaledContext)
@@ -106,7 +109,7 @@ function B3Pulldown({
       return
     }
 
-    await gotoInvoiceCheckoutUrl(params)
+    await gotoInvoiceCheckoutUrl(params, globalState.storeInfo.platform, false)
   }
 
   const viewPaymentHistory = async () => {
