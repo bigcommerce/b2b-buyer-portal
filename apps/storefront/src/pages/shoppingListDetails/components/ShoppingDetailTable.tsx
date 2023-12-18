@@ -10,7 +10,7 @@ import {
   useState,
 } from 'react'
 import { useB3Lang } from '@b3/lang'
-import { Delete, Edit } from '@mui/icons-material'
+import { Delete, Edit, StickyNote2 } from '@mui/icons-material'
 import { Box, Grid, styled, TextField, Typography } from '@mui/material'
 import cloneDeep from 'lodash-es/cloneDeep'
 
@@ -30,6 +30,7 @@ import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
 
 import ChooseOptionsDialog from './ChooseOptionsDialog'
+import ShoppingDetailAddNotes from './ShoppingDetailAddNotes'
 import ShoppingDetailCard from './ShoppingDetailCard'
 
 interface ListItem {
@@ -55,6 +56,7 @@ interface ProductInfoProps {
   variantId: number
   variantSku: string
   productsSearch: CustomFieldItems
+  productNote: string
 }
 
 interface ListItemProps {
@@ -180,6 +182,10 @@ function ShoppingDetailTable(
   const [shoppingListTotalPrice, setShoppingListTotalPrice] =
     useState<number>(0.0)
 
+  const [addNoteOpen, setAddNoteOpen] = useState<boolean>(false)
+  const [addNoteItemId, setAddNoteItemId] = useState<number | string>('')
+  const [notes, setNotes] = useState<string>('')
+
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortKeys,
     defaultSortKey,
@@ -281,8 +287,6 @@ function ShoppingDetailTable(
   }
 
   const handleUpdateShoppingListItem = async (itemId: number | string) => {
-    if (qtyNotChangeFlag) return
-    setIsRequestLoading(true)
     const listItems: ListItemProps[] =
       paginationTableRef.current?.getList() || []
     const currentItem = listItems.find((item: ListItemProps) => {
@@ -308,24 +312,31 @@ function ShoppingDetailTable(
       })
     )
 
-    const itemData = {
+    const itemData: CustomFieldItems = {
       variantId: currentNode?.variantId,
       quantity: currentNode?.quantity,
       optionList: optionsList || [],
+      productNote: notes,
     }
 
+    const data = {
+      itemId,
+      shoppingListId,
+      itemData,
+    }
+
+    const updateShoppingListItem = isB2BUser
+      ? updateB2BShoppingListsItem
+      : updateBcShoppingListsItem
+
+    await updateShoppingListItem(data)
+  }
+
+  const handleUpdateShoppingListItemQty = async (itemId: number | string) => {
+    if (qtyNotChangeFlag) return
+    setIsRequestLoading(true)
     try {
-      const data = {
-        itemId,
-        shoppingListId,
-        itemData,
-      }
-
-      const updateShoppingListItem = isB2BUser
-        ? updateB2BShoppingListsItem
-        : updateBcShoppingListsItem
-
-      await updateShoppingListItem(data)
+      await handleUpdateShoppingListItem(itemId)
       snackbar.success(b3Lang('shoppingList.table.quantityUpdated'))
       setQtyNotChangeFlag(true)
       initSearch()
@@ -350,6 +361,24 @@ function ShoppingDetailTable(
       setCheckedArr([...checkedItems])
     } else {
       setCheckedArr([])
+    }
+  }
+
+  const handleCancelAddNotesClick = () => {
+    setAddNoteOpen(false)
+    setAddNoteItemId('')
+    setNotes('')
+  }
+
+  const handleAddItemNotesClick = async () => {
+    setIsRequestLoading(true)
+    try {
+      handleCancelAddNotesClick()
+      await handleUpdateShoppingListItem(addNoteItemId)
+      snackbar.success(b3Lang('shoppingList.table.productNotesUpdated'))
+      initSearch()
+    } finally {
+      // setIsRequestLoading(false)
     }
   }
 
@@ -434,6 +463,18 @@ function ShoppingDetailTable(
                   ))}
                 </Box>
               )}
+
+              {row?.productNote && row?.productNote.trim().length > 0 && (
+                <Typography
+                  sx={{
+                    fontSize: '0.75rem',
+                    color: '#ED6C02',
+                    marginTop: '0.3rem',
+                  }}
+                >
+                  {row.productNote}
+                </Typography>
+              )}
             </Box>
           </Box>
         )
@@ -484,7 +525,7 @@ function ShoppingDetailTable(
             handleUpdateProductQty(row.id, e.target.value)
           }}
           onBlur={() => {
-            handleUpdateShoppingListItem(row.itemId)
+            handleUpdateShoppingListItemQty(row.itemId)
           }}
         />
       ),
@@ -512,6 +553,9 @@ function ShoppingDetailTable(
 
         const optionList = options || JSON.parse(row.optionList)
 
+        const canChangeOption =
+          optionList.length > 0 && !isReadForApprove && !isJuniorApprove
+
         return (
           <Box>
             <Typography
@@ -538,37 +582,62 @@ function ShoppingDetailTable(
                   minWidth: '32px',
                 }}
               >
-                {optionList.length > 0 &&
-                  !isReadForApprove &&
-                  !isJuniorApprove && (
-                    <Edit
-                      sx={{
-                        cursor: 'pointer',
-                        color: 'rgba(0, 0, 0, 0.54)',
-                      }}
-                      onClick={() => {
-                        const {
-                          productsSearch,
-                          variantId,
-                          itemId,
-                          optionList,
-                          quantity,
-                        } = row
+                <StickyNote2
+                  sx={{
+                    cursor: 'pointer',
+                    color: 'rgba(0, 0, 0, 0.54)',
+                  }}
+                  onClick={() => {
+                    setAddNoteOpen(true)
+                    setAddNoteItemId(+itemId)
 
-                        handleOpenProductEdit(
-                          {
-                            ...productsSearch,
-                            selectOptions: optionList,
-                            quantity,
-                          },
-                          variantId,
-                          itemId
-                        )
-                      }}
-                    />
-                  )}
+                    if (row.productNote) {
+                      setNotes(row.productNote)
+                    }
+                  }}
+                />
               </Grid>
-              <Grid item>
+              <Grid
+                item
+                sx={{
+                  marginRight: canChangeOption ? '0.5rem' : '',
+                  marginLeft: canChangeOption ? '0.3rem' : '',
+                }}
+              >
+                {canChangeOption && (
+                  <Edit
+                    sx={{
+                      cursor: 'pointer',
+                      color: 'rgba(0, 0, 0, 0.54)',
+                    }}
+                    onClick={() => {
+                      const {
+                        productsSearch,
+                        variantId,
+                        itemId,
+                        optionList,
+                        quantity,
+                      } = row
+
+                      handleOpenProductEdit(
+                        {
+                          ...productsSearch,
+                          selectOptions: optionList,
+                          quantity,
+                        },
+                        variantId,
+                        itemId
+                      )
+                    }}
+                  />
+                )}
+              </Grid>
+              <Grid
+                item
+                sx={{
+                  marginLeft: '0.3rem',
+                }}
+              >
                 {!isReadForApprove && !isJuniorApprove && (
                   <Delete
                     sx={{
@@ -673,8 +742,11 @@ function ShoppingDetailTable(
             onDelete={setDeleteItemId}
             checkBox={checkBox}
             setDeleteOpen={setDeleteOpen}
+            setAddNoteOpen={setAddNoteOpen}
+            setAddNoteItemId={setAddNoteItemId}
+            setNotes={setNotes}
             handleUpdateProductQty={handleUpdateProductQty}
-            handleUpdateShoppingListItem={handleUpdateShoppingListItem}
+            handleUpdateShoppingListItem={handleUpdateShoppingListItemQty}
             isReadForApprove={isReadForApprove || isJuniorApprove}
           />
         )}
@@ -689,6 +761,14 @@ function ShoppingDetailTable(
         onConfirm={handleChooseOptionsDialogConfirm}
         isEdit
         isB2BUser={isB2BUser}
+      />
+
+      <ShoppingDetailAddNotes
+        open={addNoteOpen}
+        notes={notes}
+        setNotes={setNotes}
+        handleCancelAddNotesClick={handleCancelAddNotesClick}
+        handleAddItemNotesClick={handleAddItemNotesClick}
       />
     </StyledShoppingListTableContainer>
   )

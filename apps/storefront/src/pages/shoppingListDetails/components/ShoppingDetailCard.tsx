@@ -1,6 +1,6 @@
 import { ReactElement } from 'react'
 import { useB3Lang } from '@b3/lang'
-import { Delete, Edit } from '@mui/icons-material'
+import { Delete, Edit, StickyNote2 } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
@@ -24,6 +24,9 @@ interface ShoppingDetailCardProps {
   len: number
   itemIndex?: number
   setDeleteOpen: (value: boolean) => void
+  setAddNoteItemId: (itemId: number) => void
+  setAddNoteOpen: (open: boolean) => void
+  setNotes: (value: string) => void
 }
 
 const StyledImage = styled('img')(() => ({
@@ -45,6 +48,9 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     len,
     itemIndex,
     setDeleteOpen,
+    setAddNoteOpen,
+    setAddNoteItemId,
+    setNotes,
   } = props
 
   const {
@@ -58,6 +64,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     productsSearch,
     productUrl,
     taxPrice = 0,
+    productNote,
   } = shoppingDetail
 
   const price = getBCPrice(+basePrice, +taxPrice)
@@ -75,6 +82,8 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
   const optionsValue: CustomFieldItems[] = productFields.filter(
     (item) => item.valueText
   )
+
+  const canChangeOption = optionList.length > 0 && !isReadForApprove
 
   return (
     <Box
@@ -146,6 +155,19 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             )}
           </Box>
 
+          {productNote && productNote.trim().length > 0 && (
+            <Typography
+              sx={{
+                fontSize: '0.75rem',
+                color: '#ED6C02',
+                marginTop: '0.3rem',
+                marginBottom: '0.3rem',
+              }}
+            >
+              {productNote}
+            </Typography>
+          )}
+
           <Typography
             sx={{
               color: '#212121',
@@ -204,10 +226,26 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             }}
             id="shoppingList-actionList-mobile"
           >
-            {optionList.length > 0 && !isReadForApprove && (
+            <StickyNote2
+              sx={{
+                marginRight: '0.5rem',
+                cursor: 'pointer',
+                color: 'rgba(0, 0, 0, 0.54)',
+              }}
+              onClick={() => {
+                setAddNoteOpen(true)
+                setAddNoteItemId(+itemId)
+
+                if (productNote) {
+                  setNotes(productNote)
+                }
+              }}
+            />
+            {canChangeOption && (
               <Edit
                 sx={{
-                  marginRight: '0.5rem',
+                  marginRight: canChangeOption ? '0.5rem' : '',
+                  marginLeft: canChangeOption ? '0.3rem' : '',
                   cursor: 'pointer',
                   color: 'rgba(0, 0, 0, 0.54)',
                 }}
@@ -219,6 +257,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             {!isReadForApprove && (
               <Delete
                 sx={{
+                  marginLeft: '0.3rem',
                   cursor: 'pointer',
                   color: 'rgba(0, 0, 0, 0.54)',
                 }}
