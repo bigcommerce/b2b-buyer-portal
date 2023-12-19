@@ -11,6 +11,7 @@ import {
   addProductToShoppingList,
 } from '@/shared/service/b2b'
 import { B3SStorage, getValidOptionsList, snackbar } from '@/utils'
+import { CallbackKey } from '@/utils/b3Callbacks'
 
 import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config'
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'
@@ -41,7 +42,7 @@ export default function AddToShoppingList(props: AddToListProps) {
     : addProductToBcShoppingList
 
   const addToList = useCallbacks(
-    'on-add-to-shopping-list',
+    CallbackKey.onAddToShoppingList,
     async (products: CustomFieldItems[], handleEvent) => {
       try {
         if (!handleEvent(products)) {

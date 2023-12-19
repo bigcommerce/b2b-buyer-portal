@@ -1,4 +1,3 @@
-declare type Callback = (...args: any[]) => any
 declare enum CallbackKey {
   onQuoteCreate = 'on-quote-create',
   onAddToShoppingList = 'on-add-to-shopping-list',
