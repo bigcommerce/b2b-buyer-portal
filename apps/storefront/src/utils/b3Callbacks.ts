@@ -2,7 +2,7 @@ type CallbackEvent = {
   data: CustomFieldItems
   preventDefault: () => void
 }
-enum CallbackKey {
+export enum CallbackKey {
   onQuoteCreate = 'on-quote-create',
   onAddToShoppingList = 'on-add-to-shopping-list',
 }
@@ -21,7 +21,7 @@ export default class CallbackManager {
    * @param callback The callback function to register.
    * @returns A unique hash identifying the registered callback.
    */
-  addEventListener(callbackKey: CallbackKey, callback: Callback): string {
+  addEventListener(callbackKey: CallbackKey, callback: Callback): void {
     if (!this.callbacks.has(callbackKey)) {
       this.callbacks.set(callbackKey, [callback])
     }
