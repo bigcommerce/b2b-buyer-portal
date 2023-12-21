@@ -1,4 +1,5 @@
 import { MouseEvent, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
 import { Box } from '@mui/material'
@@ -32,6 +33,7 @@ export default function B3DropDown<T>({
   handleItemClick,
 }: B3DropDownProps<T>) {
   const [open, setOpen] = useState<null | HTMLElement>(null)
+  const b3Lang = useB3Lang()
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setOpen(event.currentTarget)
@@ -113,7 +115,7 @@ export default function B3DropDown<T>({
                   handleItemClick(item)
                 }}
               >
-                {name}
+                {b3Lang('global.button.logout')}
               </MenuItem>
             )
           })}

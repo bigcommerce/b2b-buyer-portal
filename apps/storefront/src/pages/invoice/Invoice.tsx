@@ -42,6 +42,7 @@ import InvoiceListType, {
   defaultSortKey,
   exportOrderByArr,
   filterFormConfig,
+  filterFormConfigsTranslationVariables,
   sortIdArr,
 } from './utils/config'
 import { handlePrintPDF } from './utils/pdf'
@@ -728,6 +729,20 @@ function Invoice() {
     setExportCsvText(exportCsvTexts)
   }, [checkedArr, filterData])
 
+  const translatedFilterFormConfigs = filterFormConfig.map((element) => {
+    if (element.name === 'status') {
+      element.label = b3Lang(filterFormConfigsTranslationVariables.status)
+    }
+
+    element.options = element.options.map((option) => {
+      option.label = b3Lang(filterFormConfigsTranslationVariables[option.key])
+
+      return option
+    })
+
+    return element
+  })
+
   return (
     <B3Sping isSpinning={isRequestLoading}>
       <Box
@@ -747,7 +762,7 @@ function Invoice() {
           }}
         >
           <B3Filter
-            fiterMoreInfo={filterFormConfig}
+            fiterMoreInfo={translatedFilterFormConfigs}
             handleChange={handleChange}
             handleFilterChange={handleFilterChange}
             startPicker={{

@@ -52,6 +52,15 @@ export const filterFormConfig = [
   },
 ]
 
+export const filterFormConfigsTranslationVariables: { [key: string]: string } =
+  {
+    status: 'invoice.filterStatus.title',
+    open: 'invoice.filterStatus.open',
+    partialPaid: 'invoice.filterStatus.partiallyPaid',
+    paid: 'invoice.filterStatus.paid',
+    overdue: 'invoice.filterStatus.overdue',
+  }
+
 export const defaultSortKey = 'id'
 
 export const sortIdArr: { [key: string]: string } = {

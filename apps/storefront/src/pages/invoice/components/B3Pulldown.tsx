@@ -1,6 +1,7 @@
 import { MouseEvent, useContext, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { useB3Lang } from '@b3/lang'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import { styled } from '@mui/material/styles'
@@ -45,6 +46,8 @@ function B3Pulldown({
   const navigate = useNavigate()
 
   const open = Boolean(anchorEl)
+
+  const b3Lang = useB3Lang()
 
   const handleClose = () => {
     setAnchorEl(null)
@@ -169,7 +172,7 @@ function B3Pulldown({
           }}
           onClick={() => handleViewInvoice(row.status !== 2 && !juniorOrSenior)}
         >
-          View invoice
+          {b3Lang('invoice.actions.viewInvoice')}
         </MenuItem>
         <MenuItem
           key="View-Order"
@@ -178,7 +181,7 @@ function B3Pulldown({
           }}
           onClick={handleViewOrder}
         >
-          View order
+          {b3Lang('invoice.actions.viewOrder')}
         </MenuItem>
         {row.status !== 0 && (
           <MenuItem
@@ -188,7 +191,7 @@ function B3Pulldown({
             }}
             onClick={viewPaymentHistory}
           >
-            View payment history
+            {b3Lang('invoice.actions.viewPaymentHistory')}
           </MenuItem>
         )}
         {isCanPay && (
@@ -199,7 +202,7 @@ function B3Pulldown({
             }}
             onClick={handlePay}
           >
-            Pay
+            {b3Lang('invoice.actions.pay')}
           </MenuItem>
         )}
         <MenuItem
@@ -209,7 +212,7 @@ function B3Pulldown({
           }}
           onClick={() => handleViewInvoice(row.status !== 2 && !juniorOrSenior)}
         >
-          Print
+          {b3Lang('invoice.actions.print')}
         </MenuItem>
         <MenuItem
           key="Download"
@@ -218,7 +221,7 @@ function B3Pulldown({
           }}
           onClick={() => handleDownloadPDF()}
         >
-          Download
+          {b3Lang('invoice.actions.download')}
         </MenuItem>
       </StyledMenu>
     </>

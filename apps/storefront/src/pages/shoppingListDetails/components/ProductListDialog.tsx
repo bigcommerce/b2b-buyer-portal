@@ -31,6 +31,8 @@ function ProductTableAction(props: ProductTableActionProps) {
 
   const [isMobile] = useMobile()
 
+  const b3Lang = useB3Lang()
+
   return productOptions && productOptions.length > 0 ? (
     <CustomButton
       variant="outlined"
@@ -43,7 +45,7 @@ function ProductTableAction(props: ProductTableActionProps) {
       disabled={isLoading}
       fullWidth={isMobile}
     >
-      Choose options
+      {b3Lang('global.searchProduct.chooseOptionsButton')}
     </CustomButton>
   ) : (
     <CustomButton

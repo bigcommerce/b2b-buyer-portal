@@ -11,6 +11,7 @@ export interface ShoppingListSearch {
 interface ShoppingListStatusProps {
   label: string
   value: number | string
+  idLang: string
 }
 
 interface ShoppingListsItemsCustomerInfoProps {
@@ -47,6 +48,7 @@ export interface GetFilterMoreListProps {
   variant: string
   size: string
   maxLength?: number
+  idLang?: string
 }
 
 export const getFilterShoppingListStatus = (
@@ -56,22 +58,27 @@ export const getFilterShoppingListStatus = (
     {
       label: 'All',
       value: 99,
+      idLang: 'global.shoppingLists.status.all',
     },
     {
       label: 'Approved',
       value: 0,
+      idLang: 'global.shoppingLists.status.approved',
     },
     {
       label: 'Draft',
       value: 30,
+      idLang: 'global.shoppingLists.status.draft',
     },
     {
       label: 'Ready for approval',
       value: 40,
+      idLang: 'global.shoppingLists.status.readyForApproval',
     },
     {
       label: 'Rejected',
       value: 20,
+      idLang: 'global.shoppingLists.status.rejected',
     },
   ]
 
@@ -109,6 +116,7 @@ export const getFilterMoreList = (
       xs: 12,
       variant: 'filled',
       size: 'small',
+      idLang: 'global.shoppingLists.filter.createdBy',
     },
     {
       name: 'status',
@@ -120,6 +128,7 @@ export const getFilterMoreList = (
       xs: 12,
       variant: 'filled',
       size: 'small',
+      idLang: 'global.shoppingLists.filter.status',
     },
   ]
 

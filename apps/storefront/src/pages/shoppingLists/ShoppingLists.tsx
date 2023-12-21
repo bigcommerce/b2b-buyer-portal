@@ -69,7 +69,29 @@ function ShoppingLists() {
         createdByUsers = await getShoppingListsCreatedByUser(+companyId, 1)
 
       const filterInfo = getFilterMoreList(createdByUsers, role)
-      setFiterMoreinfo(filterInfo)
+
+      const translatedFilterInfo = JSON.parse(JSON.stringify(filterInfo))
+
+      translatedFilterInfo.forEach(
+        (element: {
+          label: string
+          idLang: any
+          name: string
+          options: any[]
+        }) => {
+          element.label = b3Lang(element.idLang)
+          if (element.name === 'status') {
+            element.options?.map((option) => {
+              option.label = b3Lang(option.idLang)
+              return option
+            })
+          }
+
+          return element
+        }
+      )
+
+      setFiterMoreinfo(translatedFilterInfo)
     }
 
     initFilter()

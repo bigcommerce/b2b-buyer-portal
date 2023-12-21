@@ -16,6 +16,7 @@ const list: Array<ListProps> = [
     name: 'Log out',
     key: 'logout',
     type: 'button',
+    idLang: 'global.button.logout',
   },
 ]
 

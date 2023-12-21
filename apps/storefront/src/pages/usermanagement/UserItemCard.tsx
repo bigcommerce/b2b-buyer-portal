@@ -1,3 +1,4 @@
+import { LangFormatFunction, useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
@@ -16,6 +17,7 @@ interface RoleListProps {
   value: string | number
   color: string
   textColor: string
+  idLang: string
 }
 
 export interface OrderItemCardProps {
@@ -33,6 +35,7 @@ const Flex = styled('div')(() => ({
 
 export function UserItemCard(props: OrderItemCardProps) {
   const { item: userInfo, onEdit, onDelete, isPermissions } = props
+  const b3Lang = useB3Lang()
 
   const getNewRoleList = () => {
     const userRole = getUserRole()
@@ -61,7 +64,7 @@ export function UserItemCard(props: OrderItemCardProps) {
     return newRoleList
   }
 
-  const statusRender = (role: number) => {
+  const statusRender = (role: number, b3Lang: LangFormatFunction) => {
     const newRoleList = getNewRoleList()
     const roleItem = newRoleList.find(
       (item: RoleListProps) => +item.value === +role
@@ -70,7 +73,7 @@ export function UserItemCard(props: OrderItemCardProps) {
     if (!roleItem) return null
     return (
       <B3Tag color={roleItem.color} textColor={roleItem.textColor}>
-        {roleItem.label}
+        {b3Lang(roleItem.idLang)}
       </B3Tag>
     )
   }
@@ -100,7 +103,7 @@ export function UserItemCard(props: OrderItemCardProps) {
           {userInfo.email}
         </Typography>
         <Flex>
-          {statusRender(userInfo.role)}
+          {statusRender(userInfo.role, b3Lang)}
           <Box
             sx={{
               display: `${isPermissions ? 'block' : 'none'}`,

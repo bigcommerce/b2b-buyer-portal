@@ -239,6 +239,16 @@ function Address() {
     customLabel: b3Lang('addresses.addNewAddress'),
   }
 
+  const translatedFilterFormConfig = JSON.parse(
+    JSON.stringify(filterFormConfig)
+  )
+
+  translatedFilterFormConfig.map((element: { label: string; idLang: any }) => {
+    element.label = b3Lang(element.idLang)
+
+    return element
+  })
+
   return (
     <B3Sping isSpinning={isRequestLoading}>
       <Box
@@ -249,7 +259,7 @@ function Address() {
         }}
       >
         <B3Filter
-          fiterMoreInfo={filterFormConfig}
+          fiterMoreInfo={translatedFilterFormConfig}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
           customButtomConfig={AddButtonConfig}

@@ -58,7 +58,7 @@ const orderStatusTextColor: OrderStatusConfig = {
 // i18n
 const orderStatusText: OrderStatusConfig = {
   'Partially Refunded': 'Partially Refunded',
-  'Manual Verification Required': 'Manual Verification Required',
+  'Manual Verification Required': 'Manual Verification Required here',
   Disputed: 'Disputed',
   Refunded: 'Refunded',
   Declined: 'Declined',
@@ -72,6 +72,24 @@ const orderStatusText: OrderStatusConfig = {
   'Awaiting Payment': 'Awaiting Payment',
   Pending: 'Pending',
   Incomplete: 'Incomplete',
+}
+
+export const orderStatusTranslationVariables: OrderStatusConfig = {
+  Incomplete: 'orders.status.incomplete',
+  Pending: 'orders.status.pending',
+  Shipped: 'orders.status.shipped',
+  'Partially Shipped': 'orders.status.partiallyShipped',
+  Refunded: 'orders.status.refunded',
+  Cancelled: 'orders.status.cancelled',
+  Declined: 'orders.status.declined',
+  'Awaiting Payment': 'orders.status.awaitingPayment',
+  'Awaiting Pickup': 'orders.status.awaitingPickup',
+  'Awaiting Shipment': 'orders.status.awaitingShipment',
+  Completed: 'orders.status.completed',
+  'Awaiting Fulfillment': 'orders.status.awaitingFulfillment',
+  'Manual Verification Required': 'orders.status.manualVerificationRequired',
+  Disputed: 'orders.status.disputed',
+  'Partially Refunded': 'orders.status.partiallyRefunded',
 }
 
 export const getOrderStatusOptions = () =>

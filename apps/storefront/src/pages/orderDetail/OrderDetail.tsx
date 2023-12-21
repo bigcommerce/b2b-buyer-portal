@@ -106,8 +106,8 @@ function OrderDetail() {
 
       if (order) {
         const data = isB2BUser
-          ? convertB2BOrderDetails(order)
-          : convertBCOrderDetails(order)
+          ? convertB2BOrderDetails(order, b3Lang)
+          : convertBCOrderDetails(order, b3Lang)
         dispatch({
           type: 'all',
           payload: data,
@@ -326,6 +326,7 @@ function OrderDetail() {
             {JSON.stringify(orderSummary) === '{}' ? null : (
               <OrderAction detailsData={detailsData} />
             )}
+            <OrderAction detailsData={detailsData} />
           </Grid>
         </Grid>
       </Box>
