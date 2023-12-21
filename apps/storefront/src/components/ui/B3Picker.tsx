@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react'
-import { TextField } from '@mui/material'
+import { Box, TextField } from '@mui/material'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import dayjs from 'dayjs'
+
+import { useMobile } from '@/hooks'
 
 interface B3PickerProps {
   onChange: (date: Date | string | number) => void
@@ -25,6 +27,8 @@ export default function B3Picker({
   size = 'small',
 }: B3PickerProps) {
   const pickerRef = useRef(null)
+  const container = useRef<HTMLInputElement | null>(null)
+  const [isMobile] = useMobile()
 
   const [open, setOpen] = useState(false)
   const openPickerClick = () => {
@@ -43,26 +47,43 @@ export default function B3Picker({
     }
   }
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker
-        label={label}
-        onChange={(val) => val && onHandleChange(val)}
-        onClose={() => {
-          setOpen(false)
-        }}
-        value={value || null}
-        open={open}
-        inputRef={pickerRef}
-        disableOpenPicker={disableOpenPicker}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            size={size}
-            onClick={() => openPickerClick()}
-            variant={variant}
-          />
-        )}
-      />
-    </LocalizationProvider>
+    <>
+      <Box ref={container} />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DatePicker
+          label={label}
+          DialogProps={{
+            container: container.current,
+          }}
+          onChange={(val) => val && onHandleChange(val)}
+          onClose={() => {
+            setOpen(false)
+          }}
+          value={value || null}
+          open={open}
+          inputRef={pickerRef}
+          disableOpenPicker={disableOpenPicker}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              size={size}
+              onClick={() => {
+                if (!isMobile) {
+                  openPickerClick()
+                }
+              }}
+              onTouchEnd={() => {
+                if (isMobile) {
+                  if (!open) {
+                    openPickerClick()
+                  }
+                }
+              }}
+              variant={variant}
+            />
+          )}
+        />
+      </LocalizationProvider>
+    </>
   )
 }
