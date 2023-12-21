@@ -92,24 +92,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   const cartEntityId = getCookie('cartId')
 
-  const getSnackbarMessage = (res: any) => {
-    if (!res.errors) {
-      snackbar.success('', {
-        jsx: successTip({
-          message: b3Lang('shoppingList.footer.productsAddedToCart'),
-          link: '/cart.php',
-          linkText: b3Lang('shoppingList.footer.viewCart'),
-          isOutLink: true,
-        }),
-        isClose: true,
-      })
-    } else {
-      snackbar.error('Error has occurred', {
-        isClose: true,
-      })
-    }
-  }
-
   const containerStyle = isMobile
     ? {
         alignItems: 'flex-start',
@@ -274,7 +256,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           res = await updateCart(cartInfo, lineItems, storePlatform)
         } else {
           res = await callCart(lineItems, storePlatform)
-          getSnackbarMessage(res)
           b3TriggerCartNumber()
         }
         if (res && res.errors) {
