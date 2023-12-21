@@ -5,12 +5,14 @@ export interface B2bShippingBillingChildProps {
   label: string
   default: string
   parent: string
+  idLang: string
 }
 export interface B2bShippingBillingProps {
   name: string
   label: string
   default: string
   child: B2bShippingBillingChildProps
+  idLang: string
 }
 
 export const filterFormConfig = [
@@ -23,6 +25,7 @@ export const filterFormConfig = [
     xs: 12,
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.filter.city',
   },
   {
     name: 'state',
@@ -33,6 +36,7 @@ export const filterFormConfig = [
     xs: 12,
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.filter.state',
   },
   {
     name: 'country',
@@ -43,6 +47,7 @@ export const filterFormConfig = [
     xs: 12,
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.filter.country',
   },
 ]
 
@@ -51,22 +56,26 @@ export const b2bShippingBilling = [
     name: 'isShipping',
     label: 'Shipping',
     default: '',
+    idLang: 'addresses.editAddress.shipping',
     child: {
       name: 'isDefaultShipping',
       label: 'Default Shipping Address',
       default: '',
       parent: 'isShipping',
+      idLang: 'addresses.editAddress.defaultShippingAddress',
     },
   },
   {
     name: 'isBilling',
     label: 'Billing',
     default: '',
+    idLang: 'addresses.editAddress.billing',
     child: {
       name: 'isDefaultBilling',
       label: 'Default Billing Address',
       default: '',
       parent: 'isBilling',
+      idLang: 'addresses.editAddress.defaultBillingAddress',
     },
   },
 ]
@@ -81,6 +90,7 @@ export const b2bAddressFields = [
     default: '',
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.editAddress.addressLabel',
   },
   {
     name: 'firstName',
@@ -91,6 +101,7 @@ export const b2bAddressFields = [
     xs: 6,
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.editAddress.firstName',
   },
   {
     name: 'lastName',
@@ -101,6 +112,7 @@ export const b2bAddressFields = [
     default: '',
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.editAddress.lastName',
   },
   {
     name: 'company',
@@ -111,6 +123,7 @@ export const b2bAddressFields = [
     default: '',
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.editAddress.company',
   },
   {
     name: 'country',
@@ -126,6 +139,7 @@ export const b2bAddressFields = [
       value: 'countryCode',
     },
     options: [],
+    idLang: 'addresses.editAddress.country',
   },
   {
     name: 'addressLine1',
@@ -136,6 +150,7 @@ export const b2bAddressFields = [
     default: '',
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.editAddress.addressLine1',
   },
   {
     name: 'addressLine2',
@@ -146,6 +161,7 @@ export const b2bAddressFields = [
     default: '',
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.editAddress.addressLine2',
   },
   {
     name: 'city',
@@ -156,6 +172,7 @@ export const b2bAddressFields = [
     default: '',
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.editAddress.city',
   },
   {
     name: 'state',
@@ -170,6 +187,7 @@ export const b2bAddressFields = [
       label: 'stateName',
       value: 'stateCode',
     },
+    idLang: 'addresses.editAddress.state',
   },
   {
     name: 'zipCode',
@@ -180,6 +198,7 @@ export const b2bAddressFields = [
     default: '',
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.editAddress.zipCode',
   },
   {
     name: 'phoneNumber',
@@ -190,6 +209,7 @@ export const b2bAddressFields = [
     default: '',
     variant: 'filled',
     size: 'small',
+    idLang: 'addresses.editAddress.phoneNumber',
   },
 ]
 

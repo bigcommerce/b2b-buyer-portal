@@ -576,7 +576,7 @@ export const getQuickAddRowFields = (
 ) => [
   {
     name: `sku-${name}`,
-    label: b3Lang('purchasedProducts.quickAdd.sku') || 'SKU#',
+    label: b3Lang('global.searchProductAddProduct.sku') || 'SKU#',
     required: false,
     xs: 8,
     variant: 'filled',
@@ -586,7 +586,7 @@ export const getQuickAddRowFields = (
   },
   {
     name: `qty-${name}`,
-    label: b3Lang('purchasedProducts.quickAdd.qty') || 'Qty',
+    label: b3Lang('global.searchProductAddProduct.qty') || 'Qty',
     required: false,
     xs: 4,
     variant: 'filled',

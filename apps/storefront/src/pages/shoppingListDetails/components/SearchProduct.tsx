@@ -54,7 +54,7 @@ export default function SearchProduct({
     const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
-        'Your business account is pending approval. This feature is currently disabled.'
+        b3Lang('global.searchProductAddProduct.businessAccountPendingApproval')
       )
       return
     }
@@ -171,7 +171,7 @@ export default function SearchProduct({
       }}
     >
       <Typography>
-        {b3Lang('shoppingList.searchProduct.searchBySkuOrName')}
+        {b3Lang('global.searchProductAddProduct.searchBySkuOrName')}
       </Typography>
       <TextField
         hiddenLabel
@@ -209,7 +209,7 @@ export default function SearchProduct({
               textAlign: 'center',
             }}
           >
-            {b3Lang('shoppingList.searchProduct.searchProduct')}
+            {b3Lang('global.searchProductAddProduct.searchProduct')}
           </Box>
         </B3Sping>
       </CustomButton>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, Typography } from '@mui/material'
 
 import { B3CollapseContainer } from '@/components'
@@ -13,6 +14,8 @@ export default function QuoteTermsAndConditions(
   const { quoteLegalTerms = '' } = props
 
   const [isOpen, setIsOpen] = useState(false)
+
+  const b3Lang = useB3Lang()
 
   const handleOnChange = (open: boolean) => {
     setIsOpen(open)
@@ -32,7 +35,7 @@ export default function QuoteTermsAndConditions(
         }}
       >
         <B3CollapseContainer
-          title="Terms and conditions"
+          title={b3Lang('quoteDetail.termsAndConditions')}
           handleOnChange={handleOnChange}
         >
           <Box>

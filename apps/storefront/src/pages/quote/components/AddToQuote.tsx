@@ -115,7 +115,7 @@ export default function AddToQuote(props: AddToListProps) {
 
     addToQuote(newProducts)
 
-    snackbar.success(b3Lang('quoteDraft.notification.productSingular.'), {
+    snackbar.success(b3Lang('quoteDraft.notification.productSingular'), {
       isClose: true,
     })
 
@@ -292,7 +292,7 @@ export default function AddToQuote(props: AddToListProps) {
             updateList={updateList}
             addToList={addToList}
             searchDialogTitle={b3Lang('quoteDraft.modalTitle.addToQuote')}
-            addButtonText="Add to Quote"
+            addButtonText={b3Lang('quoteDraft.searchProduct.addToQuoteButton')}
             isB2BUser={isB2BUser}
           />
 

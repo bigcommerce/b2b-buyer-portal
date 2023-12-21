@@ -49,6 +49,7 @@ interface CustomerMessageProps {
 }
 
 function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
+  const b3Lang = useB3Lang()
   return (
     <Box
       sx={{
@@ -109,7 +110,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
                 color: 'rgba(0, 0, 0, 0.38)',
               }}
             >
-              {`Sent ${formatDistanceStrict(
+              {`${b3Lang('quoteDetail.message.sent')} ${formatDistanceStrict(
                 new Date((msg.sendTime || 0) * 1000),
                 new Date(),
                 {

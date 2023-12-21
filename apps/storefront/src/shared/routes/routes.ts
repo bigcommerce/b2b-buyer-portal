@@ -155,7 +155,7 @@ const routes: RouteItem[] = [
     configKey: 'quickOrderPad',
     permissions: [0, 1, 2, 3, 99],
     isTokenLogin: true,
-    idLang: 'global.navMenu.purchasedProducts',
+    idLang: 'global.navMenu.quickOrder',
   },
   {
     path: '/orderDetail/:id',

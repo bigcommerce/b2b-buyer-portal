@@ -86,6 +86,17 @@ function Usermanagement() {
 
   const fiterMoreInfo = getFilterMoreList(b3Lang)
 
+  const translatedFilterInfo = fiterMoreInfo.map((element) => {
+    const translatedOptions = element.options?.map((option) => {
+      option.label = b3Lang(option.idLang)
+      return option
+    })
+
+    element.options = translatedOptions
+
+    return element
+  })
+
   const handleChange = (key: string, value: string) => {
     const search = {
       ...filterSearch,
@@ -146,7 +157,7 @@ function Usermanagement() {
         }}
       >
         <B3Filter
-          fiterMoreInfo={fiterMoreInfo}
+          fiterMoreInfo={translatedFilterInfo}
           handleChange={handleChange}
           handleFilterChange={handleFirterChange}
           customButtomConfig={customItem}

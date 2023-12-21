@@ -1,3 +1,4 @@
+import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 
 interface LoadingProps {
@@ -5,6 +6,8 @@ interface LoadingProps {
 }
 
 function Loading({ backColor }: LoadingProps) {
+  const b3Lang = useB3Lang()
+
   return (
     <Box
       sx={{
@@ -29,7 +32,7 @@ function Loading({ backColor }: LoadingProps) {
           color: 'black',
         }}
       >
-        Loading...
+        {b3Lang('global.tips.loading')}
       </Typography>
     </Box>
   )

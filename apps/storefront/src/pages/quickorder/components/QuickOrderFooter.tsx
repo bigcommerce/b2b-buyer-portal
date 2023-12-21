@@ -153,7 +153,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
   const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
     if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('purchasedProducts.footer.selectOneItem'))
+      snackbar.error(b3Lang('purchasedProducts.error.selectOneItem'))
     } else {
       setAnchorEl(e.currentTarget)
       setOpen(true)

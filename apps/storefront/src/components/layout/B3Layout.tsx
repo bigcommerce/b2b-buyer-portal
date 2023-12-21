@@ -1,5 +1,6 @@
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useB3Lang } from '@b3/lang'
 import { Box, useMediaQuery } from '@mui/material'
 
 import useMobile from '@/hooks/useMobile'
@@ -15,6 +16,12 @@ import B3Mainheader from './B3Mainheader'
 import B3MobileLayout from './B3MobileLayout'
 import B3Nav from './B3Nav'
 
+const SPECIAL_PATH_TEXTS = {
+  '/purchased-products': 'global.purchasedProducts.title',
+  '/orders': 'global.orders.title',
+  '/company-orders': 'global.companyOrders.title',
+} as const
+
 export default function B3Layout({ children }: { children: ReactNode }) {
   const [isMobile] = useMobile()
   const isDesktopLimit = useMediaQuery('(min-width:1775px)')
@@ -22,6 +29,8 @@ export default function B3Layout({ children }: { children: ReactNode }) {
   const location = useLocation()
 
   const [title, setTitle] = useState<string>('')
+
+  const b3Lang = useB3Lang()
 
   const {
     state: {
@@ -49,11 +58,18 @@ export default function B3Layout({ children }: { children: ReactNode }) {
   }, [emailAddress, customerId, location])
 
   useEffect(() => {
-    const itemsRoutes = routes.filter(
+    const itemsRoutes = routes.find(
       (item: RouteItem) => item.path === location.pathname
     )
-    if (itemsRoutes.length && location.pathname !== '/quoteDraft') {
-      setTitle(itemsRoutes[0].pageTitle || itemsRoutes[0].name)
+    if (itemsRoutes && location.pathname !== '/quoteDraft') {
+      const foundPath = Object.entries(SPECIAL_PATH_TEXTS).find(
+        ([specialPath]) => specialPath === location.pathname
+      )
+      if (foundPath) {
+        setTitle(b3Lang(foundPath[1]))
+      } else {
+        setTitle(b3Lang(itemsRoutes.idLang))
+      }
     } else {
       setTitle('')
     }

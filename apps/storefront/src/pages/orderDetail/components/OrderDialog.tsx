@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
+import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 
 import { B3CustomForm, B3Dialog, successTip } from '@/components'
@@ -90,6 +91,7 @@ export default function OrderDialog({
   })
 
   const { storeInfo } = useSelector(globalStateSelector)
+  const b3Lang = useB3Lang()
 
   const handleClose = () => {
     setOpen(false)
@@ -116,7 +118,7 @@ export default function OrderDialog({
     orderId: number
   ) => {
     if (!Object.keys(returnReason).length || !returnArr.length) {
-      snackbar.error('Please select at least one item')
+      snackbar.error(b3Lang('purchasedProducts.error.selectOneItem'))
       return
     }
     const transformedData = returnArr.reduce((result, item) => {
@@ -150,10 +152,10 @@ export default function OrderDialog({
         returnResult.url.includes('saved_new_return')
       ) {
         snackbar.success(
-          "The application is successful, please wait for the merchant's review."
+          b3Lang('purchasedProducts.success.successfulApplication')
         )
       } else {
-        snackbar.error('Application failed, please contact the merchant.')
+        snackbar.error('purchasedProducts.error.failedApplication')
       }
       setIsRequestLoading(false)
       handleClose()
@@ -208,13 +210,17 @@ export default function OrderDialog({
       const quantity = product?.editQuantity || 1
 
       if (isStock === '1' && quantity > stock) {
-        product.helperText = 'Out of stock'
+        product.helperText = b3Lang('purchasedProducts.outOfStock')
         isValid = false
       } else if (minQuantity !== 0 && quantity < minQuantity) {
-        product.helperText = `Min Quantity ${minQuantity}`
+        product.helperText = b3Lang('purchasedProducts.minQuantity', {
+          minQuantity,
+        })
         isValid = false
       } else if (maxQuantity !== 0 && quantity > maxQuantity) {
-        product.helperText = `Max Quantity ${maxQuantity}`
+        product.helperText = b3Lang('purchasedProducts.maxQuantity', {
+          maxQuantity,
+        })
         isValid = false
       } else {
         product.helperText = ''
@@ -255,7 +261,7 @@ export default function OrderDialog({
       }
 
       if (!validateProductNumber(variantInfoList, skus)) {
-        snackbar.error('Please fill in the correct quantity')
+        snackbar.error(b3Lang('purchasedProducts.error.fillCorrectQuantity'))
         return
       }
 
@@ -270,9 +276,9 @@ export default function OrderDialog({
         setOpen(false)
         snackbar.success('', {
           jsx: successTip({
-            message: 'Products are added to cart',
+            message: b3Lang('orderDetail.reorder.productsAdded'),
             link: '/cart.php',
-            linkText: 'VIEW CART',
+            linkText: b3Lang('orderDetail.viewCart'),
             isOutLink: true,
           }),
           isClose: true,
@@ -294,7 +300,7 @@ export default function OrderDialog({
 
   const handleSaveClick = () => {
     if (checkedArr.length === 0) {
-      snackbar.error('Please select at least one item')
+      snackbar.error(b3Lang('purchasedProducts.error.selectOneItem'))
     }
 
     if (type === 'shoppingList') {
@@ -363,9 +369,9 @@ export default function OrderDialog({
 
       snackbar.success('', {
         jsx: successTip({
-          message: 'Products were added to your shopping list',
+          message: b3Lang('orderDetail.addToShoppingList.productsAdded'),
           link: `/shoppingList/${id}`,
-          linkText: 'VIEW SHOPPING LIST',
+          linkText: b3Lang('orderDetail.viewShoppingList'),
         }),
         isClose: true,
       })
@@ -446,7 +452,7 @@ export default function OrderDialog({
                   margin: '20px 0',
                 }}
               >
-                Additional Information
+                {b3Lang('purchasedProducts.orderDialog.aditionalInformation')}
               </Typography>
               <B3CustomForm
                 formFields={returnFormFields}
@@ -462,7 +468,9 @@ export default function OrderDialog({
       {itemKey === 'order-summary' && (
         <OrderShoppingList
           isOpen={openShoppingList}
-          dialogTitle="Add to shopping list"
+          dialogTitle={b3Lang(
+            'purchasedProducts.orderDialog.addToShoppingList'
+          )}
           onClose={handleShoppingClose}
           onConfirm={handleShoppingConfirm}
           onCreate={handleOpenCreateDialog}

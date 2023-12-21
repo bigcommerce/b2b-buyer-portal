@@ -1,4 +1,5 @@
 import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import {
   Box,
   Checkbox,
@@ -46,6 +47,8 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     textAlign = 'left',
     type,
   } = props
+
+  const b3Lang = useB3Lang()
 
   const [isMobile] = useMobile()
 
@@ -121,7 +124,9 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
           if (+valueNum > +product.quantity) {
             product.editQuantity = product.quantity
             snackbar.error(
-              'The returned quantity should be within the purchased quantity'
+              b3Lang(
+                'purchasedProducts.error.returnedQuantityShouldBeWithinThePurchase'
+              )
             )
           } else {
             returnList.forEach((item) => {
@@ -166,16 +171,16 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             onChange={handleSelectAllChange}
           />
           <FlexItem>
-            <ProductHead>Product</ProductHead>
+            <ProductHead>{b3Lang('purchasedProducts.product')}</ProductHead>
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
-            <ProductHead>Price</ProductHead>
+            <ProductHead>{b3Lang('purchasedProducts.price')}</ProductHead>
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
-            <ProductHead>Qty</ProductHead>
+            <ProductHead>{b3Lang('purchasedProducts.qty')}</ProductHead>
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
-            <ProductHead>Total</ProductHead>
+            <ProductHead>{b3Lang('purchasedProducts.total')}</ProductHead>
           </FlexItem>
         </Flex>
       )}
@@ -234,7 +239,11 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             padding="10px 0 0"
             {...itemStyle.default}
           >
-            {isMobile && <span>Price: </span>}
+            {isMobile && (
+              <span>
+                {b3Lang('purchasedProducts.orderCheckboxProduct.price')}{' '}
+              </span>
+            )}
             {`${currencyFormat(product.base_price)}`}
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
@@ -242,7 +251,11 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
               type="number"
               variant="filled"
               hiddenLabel={!isMobile}
-              label={isMobile ? 'Qty' : ''}
+              label={
+                isMobile
+                  ? b3Lang('purchasedProducts.orderCheckboxProduct.qty')
+                  : ''
+              }
               value={getProductQuantity(product)}
               onChange={handleProductQuantityChange(product)}
               onKeyDown={handleNumberInputKeyDown}
@@ -264,7 +277,11 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             padding="10px 0 0"
             {...itemStyle.default}
           >
-            {isMobile && <span>Total: </span>}
+            {isMobile && (
+              <span>
+                {b3Lang('purchasedProducts.orderCheckboxProduct.total')}{' '}
+              </span>
+            )}
             {`${currencyFormat(
               getProductTotals(getProductQuantity(product), product.base_price)
             )}`}

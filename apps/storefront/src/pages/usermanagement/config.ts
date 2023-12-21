@@ -32,6 +32,7 @@ interface UsersFilesProps {
 interface UserRoleProps {
   label: string
   value: number
+  idLang: string
 }
 
 const getUserRole = () => {
@@ -39,14 +40,17 @@ const getUserRole = () => {
     {
       label: 'Admin',
       value: 0,
+      idLang: 'userManagement.userRole.admin',
     },
     {
       label: 'Senior buyer',
       value: 1,
+      idLang: 'userManagement.userRole.seniorBuyer',
     },
     {
       label: 'Junior buyer',
       value: 2,
+      idLang: 'userManagement.userRole.juniorBuyer',
     },
   ]
 

@@ -1,4 +1,5 @@
 import { Fragment, useContext, useEffect, useState } from 'react'
+import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material'
 import format from 'date-fns/format'
@@ -21,6 +22,8 @@ export default function OrderShipping() {
   } = useContext(OrderDetailsContext)
 
   const [isMobile] = useMobile()
+
+  const b3Lang = useB3Lang()
 
   const [shippingsDetail, setShippingsDetail] = useState<OrderShippingsItem[]>(
     []
@@ -128,7 +131,9 @@ export default function OrderShipping() {
                   >
                     <Typography variant="body1">
                       <>
-                        <ShipmentTitle>{`Shipment ${getShipmentIndex()} – `}</ShipmentTitle>
+                        <ShipmentTitle>{`${b3Lang(
+                          'orderDetail.shipment.shipment'
+                        )} ${getShipmentIndex()} – `}</ShipmentTitle>
                         {getShipmentText(shipment)}
                       </>
                     </Typography>
@@ -162,7 +167,9 @@ export default function OrderShipping() {
                   }}
                 >
                   <Typography variant="body1">
-                    <ShipmentTitle>Not Shipped yet</ShipmentTitle>
+                    <ShipmentTitle>
+                      {b3Lang('orderDetail.shipment.notShippedYet')}
+                    </ShipmentTitle>
                   </Typography>
                 </Box>
 
