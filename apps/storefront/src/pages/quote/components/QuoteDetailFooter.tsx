@@ -52,7 +52,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
         },
       } = res
 
-      if (globalState.storeInfo.platfom === 'bigcommerce') {
+      if (globalState.storeInfo.platform === 'bigcommerce') {
         window.location.href = checkoutUrl
         return
       }
