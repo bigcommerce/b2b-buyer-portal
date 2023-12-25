@@ -224,6 +224,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
               state: shippingDefautAddress?.node?.state || '',
               zipCode: shippingDefautAddress?.node?.zipCode || '',
               phoneNumber: shippingDefautAddress?.node?.phoneNumber || '',
+              addressId: shippingDefautAddress?.node?.id
+                ? +shippingDefautAddress.node.id
+                : 0,
             }
 
             quoteInfo.shippingAddress = addressItem
@@ -245,6 +248,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
               state: billingDefautAddress?.node?.state || '',
               zipCode: billingDefautAddress?.node?.zipCode || '',
               phoneNumber: billingDefautAddress?.node?.phoneNumber || '',
+              addressId: billingDefautAddress?.node?.id
+                ? +billingDefautAddress.node.id
+                : 0,
             }
 
             quoteInfo.billingAddress = addressItem
