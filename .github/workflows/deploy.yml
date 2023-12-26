@@ -45,7 +45,7 @@ jobs:
         run: yarn build:${{ inputs.environment }}
 
       - name: Calculate revision
-        run: echo "REVISION_TITLE=$(git rev-parse --short HEAD)-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}" >> $GITHUB_ENV
+        run: echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -76,7 +76,7 @@ jobs:
               "<script nomodule crossorigin src=\"https://cdn.bundleb2b.net/b2b/${{ inputs.environment }}/storefront/${poly_js}\"></script>",
               "<script nomodule crossorigin src=\"https://cdn.bundleb2b.net/b2b/${{ inputs.environment }}/storefront/${indexLegacy_js}\"></script>"
             ],
-            "revisionTitle": "${REVISION_TITLE}"
+            "revisionTitle": "${GITHUB_SHA_SHORT}"
           }
           EOF
 
@@ -91,7 +91,7 @@ jobs:
           {
             "deploy_all": false,
             "store_hashes": $(cat ${{ inputs.store_list }}),
-            "revision": "${REVISION_TITLE}"
+            "revision": "${GITHUB_SHA_SHORT}"
           }
           EOF
 
@@ -105,7 +105,7 @@ jobs:
           --data-binary @- << EOF
           {
             "deploy_all": true,
-            "revision": "${REVISION_TITLE}"
+            "revision": "${GITHUB_SHA_SHORT}"
           }
           EOF
 
