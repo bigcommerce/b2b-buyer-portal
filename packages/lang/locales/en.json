@@ -57,7 +57,6 @@
   "global.emailValidate.companyUsed": "This email is used by a customer within another company ({companyName}).",
   "global.emailValidate.alreadyExits": "This user already exists in this company.",
   "global.emailValidate.usedSuperAdmin": "This email is used by a super admin.",
-  "global.emailValidate.emailLength": "Email length cannot exceed 200 characters",
   "global.filter.search": "Search",
   "global.table.noData": "No data",
   "global.quoteStatusCode.draft": "Draft",
