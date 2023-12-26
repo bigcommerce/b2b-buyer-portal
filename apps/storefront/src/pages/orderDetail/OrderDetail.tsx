@@ -326,7 +326,6 @@ function OrderDetail() {
             {JSON.stringify(orderSummary) === '{}' ? null : (
               <OrderAction detailsData={detailsData} />
             )}
-            <OrderAction detailsData={detailsData} />
           </Grid>
         </Grid>
       </Box>
