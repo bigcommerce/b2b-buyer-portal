@@ -331,7 +331,6 @@ const getCustomerShoppingListDetails = (data: CustomFieldItems) => `{
           enteredInclusive,
           productUrl,
           primaryImage,
-          productNote,
         }
       }
     }
