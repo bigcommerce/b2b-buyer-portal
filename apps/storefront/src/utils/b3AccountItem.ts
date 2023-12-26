@@ -44,15 +44,8 @@ const redirectBcMenus = (
   isAgenting: boolean
 ): string => {
   // Supermarket theme
-  if (key.includes('/account.php') && !key.includes('?')) {
-    switch (role) {
-      case 2:
-        return '/accountSettings'
-      case 3:
-        return '/dashboard'
-      default:
-        return '/orders'
-    }
+  if (key === '/account.php') {
+    return +role !== 3 ? '/orders' : '/dashboard'
   }
 
   // Vault theme
@@ -66,10 +59,6 @@ const redirectBcMenus = (
     return superAdminExistUrl.includes(currentItem.newTargetUrl) || isAgenting
       ? currentItem.newTargetUrl
       : '/dashboard'
-  }
-
-  if (+role === 2 && currentItem?.newTargetUrl.includes('order_status')) {
-    return '/accountSettings'
   }
 
   if (currentItem?.newTargetUrl) {
