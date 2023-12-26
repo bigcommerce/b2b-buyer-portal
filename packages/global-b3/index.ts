@@ -68,7 +68,8 @@ const globalB3 = {
   'dom.setToShoppingListParentEl': '#add-to-cart-wrapper',
   'dom.cartActions.container': '.cart-actions',
   'dom.openB3Checkout': 'checkout-customer-continue',
-  'dom.cart':
+  'dom.cartElement':
+    window?.B3['dom.cart'] ||
     '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"], [data-emthemesmodez-cart-item-add]',
   'dom.productView': '.productView',
   'dom.register': '[href^="/login.php?action=create_account"]',
