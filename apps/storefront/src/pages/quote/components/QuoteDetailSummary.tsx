@@ -120,12 +120,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                     margin: '4px 0',
                   }}
                 >
-                  <Typography
-                    sx={{
-                      maxWidth: '70%',
-                      wordBreak: 'break-word',
-                    }}
-                  >
+                  <Typography>
                     {`${b3Lang('quoteDetail.summary.shipping')}(${
                       quoteDetail?.shippingMethod?.description || ''
                     })`}
