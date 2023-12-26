@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import { useB3Lang } from '@b3/lang'
 import { CircularProgress, useTheme } from '@mui/material'
 
 import useMobile from '@/hooks/useMobile'
@@ -38,7 +37,6 @@ export default function B3Sping(props: B3SpingProps) {
   const primaryColor = theme.palette.primary.main
 
   const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
 
   return (
     <SpinContext isFlex={isFlex} height={spinningHeight}>
@@ -57,7 +55,7 @@ export default function B3Sping(props: B3SpingProps) {
                 color: primaryColor,
               }}
             >
-              {b3Lang('global.tips.loading')}
+              {tip}
             </SpinTip>
           )}
         </SpinCenter>

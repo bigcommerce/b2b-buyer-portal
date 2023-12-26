@@ -1,5 +1,3 @@
-import { LangFormatFunction } from '@b3/lang'
-
 import { getActiveCurrencyInfo } from '@/utils'
 
 import {
@@ -90,7 +88,7 @@ const formatPrice = (price: string | number) => {
   }
 }
 
-const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
+const getOrderSummary = (data: B2BOrderData) => {
   const {
     dateCreated,
     firstName,
@@ -104,25 +102,15 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     shippingCostExTax,
   } = data
 
-  const labels = {
-    subTotal: b3Lang('orderDetail.summary.subTotal'),
-    shipping: b3Lang('orderDetail.summary.shipping'),
-    handingFee: b3Lang('orderDetail.summary.handingFee'),
-    tax: b3Lang('orderDetail.summary.tax'),
-    grandTotal: b3Lang('orderDetail.summary.grandTotal'),
-  }
-
   const orderSummary: OrderSummary = {
     createAt: dateCreated,
     name: `${firstName} ${lastName}`,
     priceData: {
-      [labels.subTotal]: formatPrice(subtotalExTax || ''),
-      [labels.shipping]: formatPrice(shippingCostExTax || ''),
-      [labels.handingFee]: formatPrice(
-        handlingCostIncTax || handlingCostExTax || ''
-      ),
-      [labels.tax]: formatPrice(totalTax || ''),
-      [labels.grandTotal]: formatPrice(totalIncTax || totalExTax || ''),
+      'Sub total': formatPrice(subtotalExTax || ''),
+      Shipping: formatPrice(shippingCostExTax || ''),
+      'Handing fee': formatPrice(handlingCostIncTax || handlingCostExTax || ''),
+      Tax: formatPrice(totalTax || ''),
+      'Grand total': formatPrice(totalIncTax || totalExTax || ''),
     },
   }
 
@@ -164,10 +152,7 @@ const handleProductQuantity = (data: B2BOrderData) => {
   return newProducts
 }
 
-const convertB2BOrderDetails = (
-  data: B2BOrderData,
-  b3Lang: LangFormatFunction
-) => ({
+const convertB2BOrderDetails = (data: B2BOrderData) => ({
   shippings: data.orderIsDigital ? [] : getOrderShipping(data),
   billings: data.orderIsDigital ? getOrderBilling(data) : [],
   history: data.orderHistoryEvent || [],
@@ -177,7 +162,7 @@ const convertB2BOrderDetails = (
   currencyCode: data.currencyCode,
   currency: data.money?.currency_token || '$',
   money: data.money,
-  orderSummary: getOrderSummary(data, b3Lang),
+  orderSummary: getOrderSummary(data),
   payment: getPaymentData(data),
   orderComments: data.customerMessage,
   products: handleProductQuantity(data),

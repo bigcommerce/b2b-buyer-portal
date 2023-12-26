@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import { Box, Button, Typography } from '@mui/material'
 
 import { B3Dialog, B3NoData, B3Sping } from '@/components'
@@ -16,7 +15,6 @@ interface PaymentSuccessKeysProps {
   label: string
   type: string
   isRow: boolean
-  idLang: string
 }
 
 function Title({
@@ -88,50 +86,42 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
 
   const comment = details?.paymentDetails?.comment || ''
 
-  const b3Lang = useB3Lang()
-
   const paymentSuccessKeys = [
     {
       key: 'paymentId',
       label: 'Payment#',
       type: '',
       isRow: true,
-      idLang: 'payment.paymentNumber',
     },
     {
       key: 'createdAt',
       label: 'Payment received on',
       type: 'time',
       isRow: true,
-      idLang: 'payment.paymentReceivedOn',
     },
     {
       key: 'transactionType',
       label: 'Transaction type',
       type: '',
       isRow: true,
-      idLang: 'payment.transactionType',
     },
     {
       key: 'paymentType',
       label: 'Payment type',
       type: 'paymentType',
       isRow: true,
-      idLang: 'payment.paymentType',
     },
     {
       key: 'totalAmount',
       label: 'Payment total',
       type: 'currency',
       isRow: true,
-      idLang: 'payment.paymentTotal',
     },
     {
       key: 'referenceNumber',
       label: 'Reference',
       type: '',
       isRow: true,
-      idLang: 'payment.reference',
     },
   ]
 
@@ -143,7 +133,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
           type={item.type}
           value={(list as CustomFieldItems)[item.key]}
           code={(list as CustomFieldItems)?.totalCode || 'SGD'}
-          label={b3Lang(item.idLang)}
+          label={item.label}
         />
       ))}
       <Box
@@ -153,7 +143,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
           mb: '30px',
         }}
       >
-        <Title title={b3Lang('payment.paymentComment')} />
+        <Title title="Payment comment" />
         <Typography
           sx={{
             maxHeight: '50px',
@@ -169,9 +159,9 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
           flexDirection: 'column',
         }}
       >
-        <Title title={b3Lang('payment.invoicesPaid')} withColon={false} />
+        <Title title="Invoices paid" withColon={false} />
         <Typography variant="body1">
-          {b3Lang('payment.paymentTowardsInvoices')}{' '}
+          You made payments towards the invoices shown below{' '}
         </Typography>
       </Box>
 
@@ -192,7 +182,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
               color: '#000000',
             }}
           >
-            {b3Lang('payment.invoiceNumber')}
+            Invoice#
           </Typography>
           <Typography
             sx={{
@@ -201,7 +191,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
               color: '#000000',
             }}
           >
-            {b3Lang('payment.amountPaid')}
+            Amount paid
           </Typography>
         </Box>
         {edges.map((item: ReceiptLineSet) => {
@@ -246,8 +236,6 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
 
   const navigate = useNavigate()
 
-  const b3Lang = useB3Lang()
-
   useEffect(() => {
     const init = async () => {
       setLoadding(true)
@@ -269,7 +257,7 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
   }
   const customActions = () => (
     <Button onClick={handleCloseClick} variant="text">
-      {b3Lang('payment.okButton')}
+      ok
     </Button>
   )
 
@@ -278,7 +266,7 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
       isOpen={open}
       leftSizeBtn=""
       customActions={customActions}
-      title={b3Lang('payment.paymentSuccess')}
+      title="Thank you for your payment"
       showLeftBtn={false}
     >
       <Box

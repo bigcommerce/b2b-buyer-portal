@@ -429,7 +429,9 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
             searchDialogTitle={b3Lang(
               'purchasedProducts.quickOrderPad.quickOrderPad'
             )}
-            addButtonText={b3Lang('purchasedProducts.quickOrderPad.addToCart')}
+            addButtonText={b3Lang(
+              'purchasedProducts.quickOrderPad.quickOrderPad'
+            )}
             isB2BUser={isB2BUser}
           />
 

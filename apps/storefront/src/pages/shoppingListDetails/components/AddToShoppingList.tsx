@@ -268,7 +268,7 @@ export default function AddToShoppingList(props: AddToListProps) {
                   marginRight: '8px',
                 }}
               />
-              {b3Lang('shoppingList.addToShoppingList.bulkUploadCsv')}
+              Bulk upload CSV
             </CustomButton>
           </Box>
 

@@ -1,7 +1,6 @@
 import { MouseEvent, useContext, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import { styled } from '@mui/material/styles'
@@ -46,8 +45,6 @@ function B3Pulldown({
   const navigate = useNavigate()
 
   const open = Boolean(anchorEl)
-
-  const b3Lang = useB3Lang()
 
   const handleClose = () => {
     setAnchorEl(null)
@@ -172,7 +169,7 @@ function B3Pulldown({
           }}
           onClick={() => handleViewInvoice(row.status !== 2 && !juniorOrSenior)}
         >
-          {b3Lang('invoice.actions.viewInvoice')}
+          View invoice
         </MenuItem>
         <MenuItem
           key="View-Order"
@@ -181,7 +178,7 @@ function B3Pulldown({
           }}
           onClick={handleViewOrder}
         >
-          {b3Lang('invoice.actions.viewOrder')}
+          View order
         </MenuItem>
         {row.status !== 0 && (
           <MenuItem
@@ -191,7 +188,7 @@ function B3Pulldown({
             }}
             onClick={viewPaymentHistory}
           >
-            {b3Lang('invoice.actions.viewPaymentHistory')}
+            View payment history
           </MenuItem>
         )}
         {isCanPay && (
@@ -202,7 +199,7 @@ function B3Pulldown({
             }}
             onClick={handlePay}
           >
-            {b3Lang('invoice.actions.pay')}
+            Pay
           </MenuItem>
         )}
         <MenuItem
@@ -212,7 +209,7 @@ function B3Pulldown({
           }}
           onClick={() => handleViewInvoice(row.status !== 2 && !juniorOrSenior)}
         >
-          {b3Lang('invoice.actions.print')}
+          Print
         </MenuItem>
         <MenuItem
           key="Download"
@@ -221,7 +218,7 @@ function B3Pulldown({
           }}
           onClick={() => handleDownloadPDF()}
         >
-          {b3Lang('invoice.actions.download')}
+          Download
         </MenuItem>
       </StyledMenu>
     </>

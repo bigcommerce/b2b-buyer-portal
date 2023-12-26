@@ -1,5 +1,3 @@
-import { LangFormatFunction } from '@b3/lang'
-
 interface ShippingListStatusProps {
   label: string
   value: number
@@ -26,35 +24,30 @@ interface GetAccountSettingFilesReturnProps {
 interface PasswordKeysProps {
   name: string
   label: string
-  idLang: string
 }
 
 export const getPasswordKeys = (): PasswordKeysProps[] => [
   {
     name: 'currentPassword',
     label: 'Current Password',
-    idLang: 'accountSettings.form.currentPassword',
   },
   {
     name: 'password',
     label: 'Password',
-    idLang: 'accountSettings.form.password',
   },
   {
     name: 'confirmPassword',
     label: 'Confirm Password',
-    idLang: 'accountSettings.form.confirmPassword',
   },
 ]
 
 export const getAccountSettingFiles = (
-  xs: number,
-  b3Lang: LangFormatFunction
+  xs: number
 ): GetAccountSettingFilesReturnProps => {
   const accountB2BFormFields = [
     {
       name: 'company',
-      label: b3Lang('accountSettings.form.company'),
+      label: 'Company',
       required: false,
       default: '',
       fieldType: 'text',
@@ -64,25 +57,25 @@ export const getAccountSettingFiles = (
     },
     {
       name: 'role',
-      label: b3Lang('accountSettings.form.role'),
+      label: 'Role',
       required: false,
       default: '',
       fieldType: 'dropdown',
       options: [
         {
-          label: b3Lang('accountSettings.form.admin'),
+          label: 'Admin',
           value: 0,
         },
         {
-          label: b3Lang('accountSettings.form.seniorBuyer'),
+          label: 'Senior buyer',
           value: 1,
         },
         {
-          label: b3Lang('accountSettings.form.juniorBuyer'),
+          label: 'Junior buyer',
           value: 2,
         },
         {
-          label: b3Lang('accountSettings.form.superAdmin'),
+          label: 'Super admin',
           value: 3,
         },
       ],
@@ -101,7 +94,6 @@ export const getAccountSettingFiles = (
     xs,
     variant: 'filled',
     size: 'small',
-    idLang: item.idLang,
   }))
 
   return {

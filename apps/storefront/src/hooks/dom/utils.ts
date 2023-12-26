@@ -345,7 +345,7 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
           jsx: () =>
             B3AddToQuoteTip({
               gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
-              msg: 'global.notification.addProductSingular',
+              msg: 'Product was added to your quote.',
             }),
           isClose: true,
         })
@@ -354,7 +354,7 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
           jsx: () =>
             B3AddToQuoteTip({
               gotoQuoteDraft: () => gotoQuoteDraft(setOpenPage),
-              msg: 'global.notification.maximumPurchaseExceed',
+              msg: 'The maximum purchase quantity does not exceed 1,000,000.',
             }),
           isClose: true,
         })

@@ -1,4 +1,3 @@
-import { useB3Lang } from '@b3/lang'
 import { Box, Button } from '@mui/material'
 
 interface B3AddToQuoteTipProps {
@@ -8,7 +7,7 @@ interface B3AddToQuoteTipProps {
 
 export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
   const { gotoQuoteDraft, msg } = props
-  const b3Lang = useB3Lang()
+
   return (
     <Box
       sx={{
@@ -21,7 +20,7 @@ export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
           mr: '15px',
         }}
       >
-        {b3Lang(msg)}
+        {msg}
       </Box>
       <Button
         onClick={() => gotoQuoteDraft()}
@@ -31,7 +30,7 @@ export default function B3AddToQuoteTip(props: B3AddToQuoteTipProps) {
           padding: 0,
         }}
       >
-        {b3Lang('quoteDraft.notification.openQuote')}
+        OPEN QUOTE
       </Button>
     </Box>
   )

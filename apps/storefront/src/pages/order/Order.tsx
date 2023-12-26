@@ -20,7 +20,6 @@ import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils'
 import B3Filter from '../../components/filter/B3Filter'
 
 import OrderStatus from './components/OrderStatus'
-import { orderStatusTranslationVariables } from './shared/getOrderStatus'
 import {
   defaultSortKey,
   FilterSearchProps,
@@ -106,26 +105,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         orderStatuses[orderStatusesName]
       )
       setOrderStatuses(orderStatuses[orderStatusesName])
-
-      const filterInfoWithTranslatedLabel = filterInfo.map((element) => {
-        element.label = b3Lang(element.idLang)
-
-        if (element.name === 'orderStatus') {
-          element.options = element.options.map(
-            (option: { customLabel: string; systemLabel: string }) => {
-              const optionLabel =
-                orderStatusTranslationVariables[option.systemLabel]
-              option.customLabel = b3Lang(optionLabel)
-
-              return option
-            }
-          )
-        }
-
-        return element
-      })
-
-      setFilterInfo(filterInfoWithTranslatedLabel)
+      setFilterInfo(filterInfo)
     }
 
     initFilter()

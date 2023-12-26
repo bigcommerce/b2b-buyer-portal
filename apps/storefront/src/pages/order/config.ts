@@ -76,7 +76,6 @@ export const getFilterMoreData = (
       xs: 12,
       variant: 'filled',
       size: 'small',
-      idLang: 'orders.company',
     },
     {
       name: 'orderStatus',
@@ -92,7 +91,6 @@ export const getFilterMoreData = (
       xs: 12,
       variant: 'filled',
       size: 'small',
-      idLang: 'orders.orderStatus',
     },
     {
       name: 'PlacedBy',
@@ -108,7 +106,6 @@ export const getFilterMoreData = (
       xs: 12,
       variant: 'filled',
       size: 'small',
-      idLang: 'orders.placedBy',
     },
   ]
 

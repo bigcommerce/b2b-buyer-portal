@@ -119,7 +119,7 @@ function AccountSetting() {
           accountFormAllFields.accountFormFields || []
         )
         const { accountB2BFormFields, passwordModified } =
-          getAccountSettingFiles(12, b3Lang)
+          getAccountSettingFiles(12)
 
         const contactInformation = (
           accountFormFields?.contactInformation || []
@@ -128,51 +128,22 @@ function AccountSetting() {
             item.fieldId !== 'field_email_marketing_newsletter'
         )
 
-        const contactInformationTranslatedLabels = JSON.parse(
-          JSON.stringify(contactInformation)
-        )
-
-        contactInformationTranslatedLabels.forEach(
-          (element: { fieldId: string; label: string }) => {
-            if (element.fieldId === 'field_first_name') {
-              element.label = b3Lang('accountSettings.form.firstName')
-            }
-            if (element.fieldId === 'field_last_name') {
-              element.label = b3Lang('accountSettings.form.lastName')
-            }
-            if (element.fieldId === 'field_email') {
-              element.label = b3Lang('accountSettings.form.email')
-            }
-            if (element.fieldId === 'field_phone_number') {
-              element.label = b3Lang('accountSettings.form.phoneNumber')
-            }
-          }
-        )
-
         const { additionalInformation = [] } = accountFormFields
 
         const fields = !isBCUser
           ? initB2BInfo(
               accountSettings,
-              contactInformationTranslatedLabels,
+              contactInformation,
               accountB2BFormFields,
               additionalInformation
             )
           : initBcInfo(
               accountSettings,
-              contactInformationTranslatedLabels,
+              contactInformation,
               additionalInformation
             )
 
-        const passwordModifiedTranslatedFields = JSON.parse(
-          JSON.stringify(passwordModified)
-        ).map((element: { label: string; idLang: string }) => {
-          element.label = b3Lang(element.idLang)
-
-          return element
-        })
-
-        const all = [...fields, ...passwordModifiedTranslatedFields]
+        const all = [...fields, ...passwordModified]
 
         setAccountInfoFormFields(all)
 

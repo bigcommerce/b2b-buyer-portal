@@ -1,5 +1,4 @@
 import { ReactElement, ReactNode, useContext, useRef } from 'react'
-import { useB3Lang } from '@b3/lang'
 import {
   Box,
   Dialog,
@@ -80,8 +79,6 @@ export default function B3Dialog<T>({
 
   useScrollBar(isOpen)
 
-  const b3Lang = useB3Lang()
-
   return (
     <Box>
       <Box ref={container} />
@@ -141,7 +138,7 @@ export default function B3Dialog<T>({
                   }}
                   onClick={() => handleCloseClick('')}
                 >
-                  {leftSizeBtn || b3Lang('global.dialog.cancel')}
+                  {leftSizeBtn || 'cancel'}
                 </CustomButton>
               )}
 
@@ -155,7 +152,7 @@ export default function B3Dialog<T>({
                   disabled={disabledSaveBtn || loading}
                 >
                   <B3Sping isSpinning={loading} tip="" size={16}>
-                    {rightSizeBtn || b3Lang('global.dialog.save')}
+                    {rightSizeBtn || 'save'}
                   </B3Sping>
                 </CustomButton>
               )}

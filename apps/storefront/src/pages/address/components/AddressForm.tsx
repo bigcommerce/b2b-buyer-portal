@@ -485,17 +485,7 @@ function AddressForm(
   }
 
   useEffect(() => {
-    const translatedAddressFields = JSON.parse(JSON.stringify(addressFields))
-
-    translatedAddressFields.forEach(
-      (element: { label: string; idLang: string }) => {
-        element.label = b3Lang(element.idLang)
-
-        return element
-      }
-    )
-
-    setAllAddressFields(translatedAddressFields)
+    setAllAddressFields(addressFields)
     const extraFields = addressFields.filter(
       (field: CustomFieldItems) => field.custom
     )
@@ -525,8 +515,6 @@ function AddressForm(
     return () => subscription.unsubscribe()
   }, [allAddressFields])
 
-  // here modify the b2bShippingBilling to translate it
-
   return (
     <B3Dialog
       isOpen={open}
@@ -548,7 +536,7 @@ function AddressForm(
 
           <StyledCheckbox>
             {b2bShippingBilling.map((item: B2bShippingBillingProps) => {
-              const { child, name, idLang } = item
+              const { child, name, label } = item
 
               return (
                 <div key={name}>
@@ -561,7 +549,7 @@ function AddressForm(
                         }}
                       />
                     }
-                    label={b3Lang(idLang)}
+                    label={label}
                   />
                   {child && (
                     <FormControlLabel
@@ -576,7 +564,7 @@ function AddressForm(
                           }}
                         />
                       }
-                      label={b3Lang(child.idLang)}
+                      label={child.label}
                       sx={{
                         display: shippingBilling[name] ? '' : 'none',
                       }}

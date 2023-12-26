@@ -5,7 +5,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import {
   Box,
@@ -158,8 +157,6 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
   const [isMobile] = useMobile()
 
-  const b3Lang = useB3Lang()
-
   const {
     global: { showInclusiveTaxPrice },
   } = store.getState()
@@ -240,16 +237,16 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
             />
           )}
           <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
-            <ProductHead>{b3Lang('global.searchProduct.product')}</ProductHead>
+            <ProductHead>Product</ProductHead>
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
-            <ProductHead>{b3Lang('global.searchProduct.price')}</ProductHead>
+            <ProductHead>Price</ProductHead>
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.qty}>
-            <ProductHead>{b3Lang('global.searchProduct.qty')}</ProductHead>
+            <ProductHead>Qty</ProductHead>
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
-            <ProductHead>{b3Lang('global.searchProduct.total')}</ProductHead>
+            <ProductHead>{totalText}</ProductHead>
           </FlexItem>
           {renderAction && (
             <FlexItem

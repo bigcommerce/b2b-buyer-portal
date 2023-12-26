@@ -1,23 +1,21 @@
 import { useContext } from 'react'
-import { useB3Lang } from '@b3/lang'
 
 import { B3Tag } from '@/components'
 import { GlobaledContext } from '@/shared/global'
 
 import { getFilterShoppingListStatus } from './config'
 
-interface NewStatusProps {
+interface NewStatuProps {
   label: string
   value: string | number
   color: string
   textColor: string
-  idLang: string
 }
 
 export const getStatus = (role: number | string) => {
   const statusArr = getFilterShoppingListStatus(role)
 
-  const newStatus: Array<NewStatusProps> = statusArr.map((item) => {
+  const newStatus: Array<NewStatuProps> = statusArr.map((item) => {
     if (+item.value === 0) {
       return {
         color: '#C4DD6C',
@@ -59,16 +57,15 @@ export function ShoppingStatus({ status }: ShoppingStatusProps) {
   const {
     state: { role },
   } = useContext(GlobaledContext)
-  const b3Lang = useB3Lang()
   const statusList = getStatus(role)
   const statusItem = statusList.find(
-    (item: NewStatusProps) => +item.value === +status
+    (item: NewStatuProps) => +item.value === +status
   )
 
   if (statusItem) {
     return (
       <B3Tag color={statusItem.color} textColor={statusItem.textColor}>
-        {b3Lang(statusItem.idLang)}
+        {statusItem.label}
       </B3Tag>
     )
   }
