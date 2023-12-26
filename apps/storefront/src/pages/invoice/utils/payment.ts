@@ -31,6 +31,7 @@ export const gotoInvoiceCheckoutUrl = async (
 
   if (platform === 'bigcommerce') {
     handleStencil()
+    return
   }
 
   try {
