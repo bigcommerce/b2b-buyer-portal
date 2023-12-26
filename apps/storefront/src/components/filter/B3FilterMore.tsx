@@ -237,7 +237,6 @@ function B3FilterMore<T, Y>({
               size="small"
               sx={{
                 marginLeft: '5px',
-                color: '#1976D2',
               }}
               onClick={handleClearBtn}
             >

@@ -88,14 +88,6 @@ function B3FilterSearch({
             <ClearIcon
               sx={{
                 marginRight: '8px',
-                cursor: 'pointer',
-                padding: '4px',
-                fontSize: '1.8rem',
-                color: 'rgba(0, 0, 0, 0.54)',
-                ':hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                  borderRadius: '48px',
-                },
               }}
               onClick={handleClearSearchValue}
             />
