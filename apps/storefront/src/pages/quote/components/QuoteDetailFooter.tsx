@@ -1,12 +1,17 @@
+import { useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
 import { getSearchVal } from '@/utils'
-import * as cryptoJs from '@/utils/cryptoJs'
+import {
+  attemptCheckoutLoginAndRedirect,
+  setQuoteToStorage,
+} from '@/utils/b3checkout'
 
 interface QuoteDetailFooterProps {
   quoteId: string
@@ -17,6 +22,7 @@ interface QuoteDetailFooterProps {
 
 function QuoteDetailFooter(props: QuoteDetailFooterProps) {
   const { quoteId, role, isAgenting, status } = props
+  const globalStore = useContext(GlobaledContext)
   const [isMobile] = useMobile()
   const b3Lang = useB3Lang()
   const location = useLocation()
@@ -39,20 +45,19 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
         id: +quoteId,
       })
 
+      setQuoteToStorage(quoteId, date)
       const {
         quoteCheckout: {
-          quoteCheckout: { checkoutUrl },
+          quoteCheckout: { checkoutUrl, cartId },
         },
       } = res
 
-      sessionStorage.setItem('isNewStorefront', JSON.stringify(true))
-      sessionStorage.setItem('quoteCheckoutId', cryptoJs.cipherText(quoteId))
-      sessionStorage.setItem(
-        'quoteDate',
-        cryptoJs.cipherText(date?.toString() || '')
-      )
+      if (!globalStore.state.customer) {
+        window.location.href = checkoutUrl
+        return
+      }
 
-      window.location.href = checkoutUrl
+      await attemptCheckoutLoginAndRedirect(cartId, checkoutUrl as string)
     } catch (err) {
       console.error(err)
     }
