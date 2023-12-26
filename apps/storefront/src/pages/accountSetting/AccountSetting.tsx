@@ -23,7 +23,7 @@ import {
   updateBCAccountSettings,
 } from '@/shared/service/b2b'
 import { Fields, ParamProps } from '@/types/accountSetting'
-import { B3SStorage, snackbar } from '@/utils'
+import { B3SStorage, manipulateString, snackbar } from '@/utils'
 
 import { getAccountFormFields } from '../registered/config'
 
@@ -288,6 +288,16 @@ function AccountSetting() {
     })()
   }
 
+  const convertLabel = (infos: Partial<Fields>[]) =>
+    infos.map((info: Partial<Fields>) => {
+      const { label } = info
+      if (label) {
+        info.label = manipulateString(label)
+      }
+
+      return info
+    }) || []
+
   return (
     <B3Sping isSpinning={isloadding} background={backgroundColor}>
       <Box
@@ -315,7 +325,7 @@ function AccountSetting() {
         }}
       >
         <B3CustomForm
-          formFields={accountInfoFormFields}
+          formFields={convertLabel(accountInfoFormFields)}
           errors={errors}
           control={control}
           getValues={getValues}

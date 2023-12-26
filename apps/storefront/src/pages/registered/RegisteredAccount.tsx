@@ -20,6 +20,7 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
 import { themeFrameSelector } from '@/store'
+import { convertLabel, manipulateString } from '@/utils'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
@@ -78,8 +79,8 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation'
   const additionalInfo: any =
     accountType === '1'
-      ? additionalInformation || []
-      : bcAdditionalInformation || []
+      ? convertLabel(additionalInformation || [])
+      : convertLabel(bcAdditionalInformation || [])
 
   const newContactInformation = contactInformation?.map(
     (info: CustomFieldItems) => {
@@ -87,22 +88,28 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         info.isTip = true
         info.tipText = 'This email will be used to sign in to your account'
       }
+      const { label } = info
+      if (label) {
+        info.label = manipulateString(label)
+      }
 
       return info
     }
   )
 
   const contactInfo: any =
-    accountType === '1' ? newContactInformation : bcContactInformation || []
+    accountType === '1'
+      ? newContactInformation
+      : convertLabel(bcContactInformation || [])
   const contactName =
     accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
 
   const contactInformationLabel = contactInfo.length
-    ? contactInfo[0]?.groupName
+    ? manipulateString(contactInfo[0]?.groupName)
     : ''
 
   const additionalInformationLabel = additionalInfo.length
-    ? additionalInfo[0]?.groupName
+    ? manipulateString(additionalInfo[0]?.groupName)
     : ''
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {

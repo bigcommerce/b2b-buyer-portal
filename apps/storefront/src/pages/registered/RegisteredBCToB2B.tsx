@@ -18,7 +18,12 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { getCurrentCustomerInfo, storeHash } from '@/utils'
+import {
+  convertLabel,
+  getCurrentCustomerInfo,
+  manipulateString,
+  storeHash,
+} from '@/utils'
 
 import {
   createB2BCompanyUser,
@@ -590,11 +595,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 >
                   <InformationFourLabels>
                     {bcTob2bContactInformation?.length
-                      ? bcTob2bContactInformation[0]?.groupName
+                      ? manipulateString(
+                          bcTob2bContactInformation[0]?.groupName
+                        )
                       : ''}
                   </InformationFourLabels>
                   <B3CustomForm
-                    formFields={bcTob2bContactInformation || []}
+                    formFields={convertLabel(bcTob2bContactInformation || [])}
                     errors={errors}
                     control={control}
                     getValues={getValues}
@@ -609,13 +616,15 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 >
                   <InformationFourLabels>
                     {bcTob2bCompanyInformation?.length
-                      ? bcTob2bCompanyInformation[0]?.groupName
+                      ? manipulateString(
+                          bcTob2bCompanyInformation[0]?.groupName
+                        )
                       : ''}
                   </InformationFourLabels>
                   <B3CustomForm
                     formFields={[
-                      ...bcTob2bCompanyInformation,
-                      ...bcTob2bCompanyExtraFields,
+                      ...convertLabel(bcTob2bCompanyInformation),
+                      ...convertLabel(bcTob2bCompanyExtraFields),
                     ]}
                     errors={errors}
                     control={control}
@@ -631,12 +640,14 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 >
                   <InformationFourLabels>
                     {bcTob2bAddressBasicFields?.length
-                      ? bcTob2bAddressBasicFields[0]?.groupName
+                      ? manipulateString(
+                          bcTob2bAddressBasicFields[0]?.groupName
+                        )
                       : ''}
                   </InformationFourLabels>
 
                   <B3CustomForm
-                    formFields={bcTob2bAddressBasicFields}
+                    formFields={convertLabel(bcTob2bAddressBasicFields)}
                     errors={errors}
                     control={control}
                     getValues={getValues}
