@@ -78,7 +78,6 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
             b2bChannelId,
             storeName: storeBasicInfo.storeName,
             timeFormat: storeBasicInfo.timeFormat,
-            multiStorefrontEnabled: storeBasicInfo.multiStorefrontEnabled,
           },
         })
 
@@ -87,10 +86,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         }
 
         if (translationVersion > 0) {
-          setGlobalTranslation({
-            translationVersion,
-            channelId: storeBasicInfo.multiStorefrontEnabled ? channelId : 0,
-          })
+          setGlobalTranslation({ translationVersion, channelId })
         }
 
         store.dispatch(setHeadLessBcUrl(bcUrl))

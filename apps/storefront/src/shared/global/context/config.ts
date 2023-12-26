@@ -125,7 +125,6 @@ export interface GlobalState {
   blockPendingAccountOrderCreation: boolean
   quoteDetailHasNewMessages: boolean
   shoppingListClickNode: HTMLElement | null
-  multiStorefrontEnabled: boolean
 }
 
 export const initState = {
@@ -184,7 +183,6 @@ export const initState = {
   quoteDetailHasNewMessages: false,
   shoppingListClickNode: null,
   tipMessage: {},
-  multiStorefrontEnabled: false,
 }
 
 export interface GlobalAction {
