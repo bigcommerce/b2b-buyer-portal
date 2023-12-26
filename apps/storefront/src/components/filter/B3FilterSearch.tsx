@@ -1,6 +1,5 @@
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
-import ClearIcon from '@mui/icons-material/Clear'
 import SearchIcon from '@mui/icons-material/Search'
 import { InputBase, Paper } from '@mui/material'
 
@@ -30,10 +29,6 @@ function B3FilterSearch({
 
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value)
-  }
-
-  const handleClearSearchValue = () => {
-    setSearch('')
   }
 
   // debounce
@@ -83,16 +78,6 @@ function B3FilterSearch({
         value={search}
         placeholder={placeholder}
         onChange={handleOnChange}
-        endAdornment={
-          search.length > 0 && (
-            <ClearIcon
-              sx={{
-                marginRight: '8px',
-              }}
-              onClick={handleClearSearchValue}
-            />
-          )
-        }
       />
     </Paper>
   )

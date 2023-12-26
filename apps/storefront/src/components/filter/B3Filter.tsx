@@ -109,7 +109,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
         >
           <Box
             sx={{
-              maxWidth: '29rem',
+              maxWidth: '24rem',
               flexBasis: '100%',
               display: 'flex',
               alignItems: 'center',
@@ -117,7 +117,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
           >
             <B3FilterSearch
               handleChange={handleSearchChange}
-              w="60%"
+              w="70%"
               searchValue={searchValue}
             />
             {showB3FilterMoreIcon && (
