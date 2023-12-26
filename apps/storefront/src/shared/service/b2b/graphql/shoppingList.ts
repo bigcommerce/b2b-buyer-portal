@@ -126,7 +126,6 @@ const updateShoppingListsItem = (data: CustomFieldItems) => `mutation {
       enteredInclusive,
       productUrl,
       primaryImage,
-      productNote,
     }
   }
 }`
@@ -182,7 +181,6 @@ const getShoppingListDetails = (data: CustomFieldItems) => `{
           enteredInclusive,
           productUrl,
           primaryImage,
-          productNote,
         }
       }
     }
