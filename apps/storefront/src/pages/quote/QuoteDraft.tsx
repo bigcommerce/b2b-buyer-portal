@@ -7,7 +7,6 @@ import {
   useState,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import useCallbacks from '@b3/hooks/useCustomCallbacks'
 import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import {
@@ -402,203 +401,192 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     }))
   }
 
-  const handleSubmit = useCallbacks(
-    'on-quote-create',
-    async (_e, handleEvent) => {
-      setLoading(true)
-      try {
-        const info = B3LStorage.get('MyQuoteInfo')
-        const contactInfo = info?.contactInfo || {}
+  const handleSubmit = async () => {
+    setLoading(true)
+    try {
+      const info = B3LStorage.get('MyQuoteInfo')
+      const contactInfo = info?.contactInfo || {}
 
-        const isComplete = Object.keys(contactInfo).every((key: string) => {
-          if (key === 'phoneNumber' || key === 'companyName') {
-            return true
-          }
-          return !!contactInfo[key]
-        })
+      const isComplete = Object.keys(contactInfo).every((key: string) => {
+        if (key === 'phoneNumber' || key === 'companyName') {
+          return true
+        }
+        return !!contactInfo[key]
+      })
 
-        if (JSON.stringify(contactInfo) === '{}' || !isComplete) {
-          snackbar.error(b3Lang('quoteDraft.addQuoteInfo'))
-          return
+      if (JSON.stringify(contactInfo) === '{}' || !isComplete) {
+        snackbar.error(b3Lang('quoteDraft.addQuoteInfo'))
+        return
+      }
+
+      const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
+
+      if (!b2bQuoteDraftList || b2bQuoteDraftList.length === 0) {
+        snackbar.error(b3Lang('quoteDraft.submit'))
+        return
+      }
+
+      const emailAddress = B3SStorage.get('B3EmailAddress')
+
+      const note = info?.note || ''
+      const newNote = note.trim().replace(/[\r\n]/g, '\\n')
+
+      const perfectAddress = (address: CustomFieldStringItems) => {
+        const newAddress = {
+          ...address,
         }
 
-        const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
-
-        if (!b2bQuoteDraftList || b2bQuoteDraftList.length === 0) {
-          snackbar.error(b3Lang('quoteDraft.submit'))
-          return
-        }
-
-        const emailAddress = B3SStorage.get('B3EmailAddress')
-
-        const note = info?.note || ''
-        const newNote = note.trim().replace(/[\r\n]/g, '\\n')
-
-        const perfectAddress = (address: CustomFieldStringItems) => {
-          const newAddress = {
-            ...address,
-          }
-
-          const countryItem = countriesList?.find(
-            (item: Country) => item.countryCode === newAddress.country
-          )
-
-          if (countryItem) {
-            newAddress.country = countryItem.countryName
-          }
-
-          newAddress.addressLine1 = address?.address || ''
-          newAddress.addressLine2 = address?.apartment || ''
-
-          return newAddress
-        }
-
-        const {
-          shippingAddress: editShippingAddress,
-          billingAddress: editBillingAddress,
-        } = billingRef?.current ? getAddress() : info
-
-        const shippingAddress = editShippingAddress
-          ? perfectAddress(editShippingAddress)
-          : {}
-
-        const billingAddress = editBillingAddress
-          ? perfectAddress(editBillingAddress)
-          : {}
-
-        let allPrice = 0
-        let allTaxPrice = 0
-
-        const calculationTime = (value: string | number) => {
-          if (typeof value === 'string' && value.includes('-')) {
-            return `${new Date(value).getTime() / 1000}`
-          }
-          return value
-        }
-
-        const productList = b2bQuoteDraftList.map(
-          (item: QuoteListitemProps) => {
-            const { node } = item
-            const product: any = {
-              ...node.productsSearch,
-              selectOptions: node?.optionList || '',
-            }
-
-            const productFields = getProductOptionsFields(product, {})
-            const optionsList: CustomFieldItems[] =
-              productFields
-                .map((item) => ({
-                  optionId: item.optionId,
-                  optionValue:
-                    item.fieldType === 'date'
-                      ? calculationTime(item.optionValue)
-                      : item.optionValue,
-                  optionLabel: `${item.valueText}`,
-                  optionName: item.valueLabel,
-                }))
-                .filter((list: CustomFieldItems) => !!list.optionName) || []
-
-            const varants = node.productsSearch.variants
-            const varantsItem = varants.find(
-              (item: CustomFieldItems) => item.sku === node.variantSku
-            )
-
-            // const salePrice = getBCPrice(+(node?.basePrice || 0), +(node?.taxPrice || 0))
-
-            allPrice += +(node?.basePrice || 0) * +(node?.quantity || 0)
-
-            allTaxPrice += +(node?.taxPrice || 0) * +(node?.quantity || 0)
-
-            const items = {
-              productId: node.productsSearch.id,
-              sku: node.variantSku,
-              basePrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
-              discount: '0.00',
-              offeredPrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
-              quantity: node.quantity,
-              variantId: varantsItem.variant_id,
-              imageUrl: node.primaryImage,
-              productName: node.productName,
-              options: optionsList,
-            }
-
-            return items
-          }
+        const countryItem = countriesList?.find(
+          (item: Country) => item.countryCode === newAddress.country
         )
 
-        const currency = getDefaultCurrencyInfo()
-
-        const fileList = getFileList(info.fileInfo || [])
-
-        const data = {
-          // notes: note,
-          message: newNote,
-          legalTerms: '',
-          totalAmount: enteredInclusiveTax
-            ? allPrice.toFixed(decimalPlaces)
-            : (allPrice + allTaxPrice).toFixed(decimalPlaces),
-          grandTotal: allPrice.toFixed(decimalPlaces),
-          subtotal: allPrice.toFixed(decimalPlaces),
-          companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
-          storeHash,
-          discount: '0.00',
-          channelId,
-          userEmail: emailAddress,
-          shippingAddress,
-          billingAddress,
-          contactInfo,
-          productList,
-          fileList,
-          taxTotal: allTaxPrice.toFixed(decimalPlaces),
-          currency: {
-            currencyExchangeRate: currency.currency_exchange_rate,
-            token: currency.token,
-            location: currency.token_location,
-            decimalToken: currency.decimal_token,
-            decimalPlaces: currency.decimal_places,
-            thousandsToken: currency.thousands_token,
-            currencyCode: currency.currency_code,
-          },
+        if (countryItem) {
+          newAddress.country = countryItem.countryName
         }
 
-        const fn = +role === 99 ? createBCQuote : createQuote
+        newAddress.addressLine1 = address?.address || ''
+        newAddress.addressLine2 = address?.apartment || ''
 
-        if (!handleEvent(data)) {
-          throw new Error()
-        }
-
-        const {
-          quoteCreate: {
-            quote: { id, createdAt },
-          },
-        } = await fn(data)
-
-        if (id) {
-          const cartId = B3LStorage.get('cartToQuoteId')
-
-          await deleteCart(cartId)
-        }
-
-        navigate(`/quoteDetail/${id}?date=${createdAt}`, {
-          state: {
-            to: 'draft',
-          },
-        })
-
-        B3LStorage.delete('b2bQuoteDraftList')
-        B3LStorage.delete('MyQuoteInfo')
-        B3LStorage.delete('cartToQuoteId')
-      } catch (error: any) {
-        if (error.message.length > 0) {
-          snackbar.error(error.message, {
-            isClose: true,
-          })
-        }
-      } finally {
-        setLoading(false)
+        return newAddress
       }
+
+      const {
+        shippingAddress: editShippingAddress,
+        billingAddress: editBillingAddress,
+      } = billingRef?.current ? getAddress() : info
+
+      const shippingAddress = editShippingAddress
+        ? perfectAddress(editShippingAddress)
+        : {}
+
+      const billingAddress = editBillingAddress
+        ? perfectAddress(editBillingAddress)
+        : {}
+
+      let allPrice = 0
+      let allTaxPrice = 0
+
+      const calculationTime = (value: string | number) => {
+        if (typeof value === 'string' && value.includes('-')) {
+          return `${new Date(value).getTime() / 1000}`
+        }
+        return value
+      }
+
+      const productList = b2bQuoteDraftList.map((item: QuoteListitemProps) => {
+        const { node } = item
+        const product: any = {
+          ...node.productsSearch,
+          selectOptions: node?.optionList || '',
+        }
+
+        const productFields = getProductOptionsFields(product, {})
+        const optionsList: CustomFieldItems[] =
+          productFields
+            .map((item) => ({
+              optionId: item.optionId,
+              optionValue:
+                item.fieldType === 'date'
+                  ? calculationTime(item.optionValue)
+                  : item.optionValue,
+              optionLabel: `${item.valueText}`,
+              optionName: item.valueLabel,
+            }))
+            .filter((list: CustomFieldItems) => !!list.optionName) || []
+
+        const varants = node.productsSearch.variants
+        const varantsItem = varants.find(
+          (item: CustomFieldItems) => item.sku === node.variantSku
+        )
+
+        // const salePrice = getBCPrice(+(node?.basePrice || 0), +(node?.taxPrice || 0))
+
+        allPrice += +(node?.basePrice || 0) * +(node?.quantity || 0)
+
+        allTaxPrice += +(node?.taxPrice || 0) * +(node?.quantity || 0)
+
+        const items = {
+          productId: node.productsSearch.id,
+          sku: node.variantSku,
+          basePrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
+          discount: '0.00',
+          offeredPrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
+          quantity: node.quantity,
+          variantId: varantsItem.variant_id,
+          imageUrl: node.primaryImage,
+          productName: node.productName,
+          options: optionsList,
+        }
+
+        return items
+      })
+
+      const currency = getDefaultCurrencyInfo()
+
+      const fileList = getFileList(info.fileInfo || [])
+
+      const data = {
+        // notes: note,
+        message: newNote,
+        legalTerms: '',
+        totalAmount: enteredInclusiveTax
+          ? allPrice.toFixed(decimalPlaces)
+          : (allPrice + allTaxPrice).toFixed(decimalPlaces),
+        grandTotal: allPrice.toFixed(decimalPlaces),
+        subtotal: allPrice.toFixed(decimalPlaces),
+        companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
+        storeHash,
+        discount: '0.00',
+        channelId,
+        userEmail: emailAddress,
+        shippingAddress,
+        billingAddress,
+        contactInfo,
+        productList,
+        fileList,
+        taxTotal: allTaxPrice.toFixed(decimalPlaces),
+        currency: {
+          currencyExchangeRate: currency.currency_exchange_rate,
+          token: currency.token,
+          location: currency.token_location,
+          decimalToken: currency.decimal_token,
+          decimalPlaces: currency.decimal_places,
+          thousandsToken: currency.thousands_token,
+          currencyCode: currency.currency_code,
+        },
+      }
+
+      const fn = +role === 99 ? createBCQuote : createQuote
+
+      const {
+        quoteCreate: {
+          quote: { id, createdAt },
+        },
+      } = await fn(data)
+
+      if (id) {
+        const cartId = B3LStorage.get('cartToQuoteId')
+
+        await deleteCart(cartId)
+      }
+
+      navigate(`/quoteDetail/${id}?date=${createdAt}`, {
+        state: {
+          to: 'draft',
+        },
+      })
+
+      B3LStorage.delete('b2bQuoteDraftList')
+      B3LStorage.delete('MyQuoteInfo')
+      B3LStorage.delete('cartToQuoteId')
+    } catch (error: any) {
+      snackbar.error(error, {
+        isClose: true,
+      })
+    } finally {
+      setLoading(false)
     }
-  )
+  }
 
   const backText = () => {
     let text =

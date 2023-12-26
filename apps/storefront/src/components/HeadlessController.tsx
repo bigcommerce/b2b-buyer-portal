@@ -22,7 +22,6 @@ import {
   LineItems,
   startMasquerade,
 } from '@/utils'
-import CallbackManager from '@/utils/b3Callbacks'
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
 
 interface QuoteDraftItem {
@@ -177,7 +176,6 @@ export default function HeadlessController({
 
   useEffect(() => {
     window.b2b = {
-      callbacks: new CallbackManager(),
       utils: {
         openPage: (page) => {
           setOpenPage({ isOpen: false })
