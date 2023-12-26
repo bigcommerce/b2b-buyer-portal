@@ -57,7 +57,6 @@ export * from './masquerade'
 export * from './setTranslation'
 export {
   getQuoteConfig,
-  getStoreInfo,
   getStoreTaxZoneRates,
   getTemPlateConfig,
   setStorefrontConfig,

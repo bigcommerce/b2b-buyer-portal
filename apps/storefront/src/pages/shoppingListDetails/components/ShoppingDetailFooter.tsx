@@ -1,5 +1,4 @@
 import { MouseEvent, useContext, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import { ArrowDropDown, Delete } from '@mui/icons-material'
 import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material'
@@ -15,14 +14,17 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b/graphql/product'
-import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
-import { globalStateSelector } from '@/store'
+import {
+  addProductToCart,
+  createCart,
+  deleteCart,
+  getCartInfo,
+} from '@/shared/service/bc'
 import {
   addQuoteDraftProducts,
   b3TriggerCartNumber,
   calculateProductListPrice,
   currencyFormat,
-  getCookie,
   snackbar,
   validProductQty,
 } from '@/utils'
@@ -31,7 +33,6 @@ import {
   conversionProductsList,
   ProductsProps,
 } from '@/utils/b3Product/shared/config'
-import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils'
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any
@@ -87,28 +88,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
-
-  const { storeInfo } = useSelector(globalStateSelector)
-
-  const cartEntityId = getCookie('cartId')
-
-  const getSnackbarMessage = (res: any) => {
-    if (!res.errors) {
-      snackbar.success('', {
-        jsx: successTip({
-          message: b3Lang('shoppingList.footer.productsAddedToCart'),
-          link: '/cart.php',
-          linkText: b3Lang('shoppingList.footer.viewCart'),
-          isOutLink: true,
-        }),
-        isClose: true,
-      })
-    } else {
-      snackbar.error('Error has occurred', {
-        isClose: true,
-      })
-    }
-  }
 
   const containerStyle = isMobile
     ? {
@@ -203,7 +182,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     }
   }
 
-  // Add selected product to cart
+  // Add Add selected to cart
   const handleAddProductsToCart = async () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'))
@@ -262,23 +241,29 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         getInventoryInfos?.variantSku || []
       )
 
-      const storePlatform = storeInfo?.platform
-
       if (validateSuccessArr.length !== 0) {
         const lineItems = addlineItems(validateSuccessArr)
-        const deleteCartObject = deleteCartData(cartEntityId)
-        const cartInfo = await getCart(cartEntityId || '', storePlatform)
+        const cartInfo = await getCartInfo()
         let res = null
         if (allowJuniorPlaceOrder && cartInfo.length) {
-          await deleteCart(deleteCartObject)
-          res = await updateCart(cartInfo, lineItems, storePlatform)
+          await deleteCart(cartInfo[0].id)
+          res = await createCart({
+            lineItems,
+          })
         } else {
-          res = await callCart(lineItems, storePlatform)
-          getSnackbarMessage(res)
-          b3TriggerCartNumber()
+          res = cartInfo.length
+            ? await addProductToCart(
+                {
+                  lineItems,
+                },
+                cartInfo[0].id
+              )
+            : await createCart({
+                lineItems,
+              })
         }
-        if (res && res.errors) {
-          snackbar.error(res.errors[0].message, {
+        if (res.status === 422) {
+          snackbar.error(res.detail, {
             isClose: true,
           })
         } else if (validateFailureArr.length === 0) {
@@ -302,7 +287,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           }
         }
       }
-
       setValidateFailureProducts(validateFailureArr)
       setValidateSuccessProducts(validateSuccessArr)
     } finally {

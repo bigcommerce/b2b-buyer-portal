@@ -1,32 +1,15 @@
-import { getBCStoreChannelId } from '@/shared/service/b2b'
-import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
+import { deleteCart, getCartInfo } from '@/shared/service/bc'
 import { setCartNumber, store } from '@/store'
-
-import getCookie from './b3utils'
-import { deleteCartData } from './cartUtils'
 
 const clearInvoiceCart = async () => {
   try {
     const url = window.location.pathname
     const isInvoicePay = localStorage.getItem('invoicePay')
-    const getStoreInfo = async () => {
-      const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
-      const [storeInfo] = storeBasicInfo.storeSites
-
-      return storeInfo?.platform
-    }
-
-    const platform = await getStoreInfo()
 
     if (url !== '/checkout' && isInvoicePay === '1') {
-      const cartEntityId: string = getCookie('cartId')
-
-      const cartInfo = cartEntityId
-        ? await getCart(cartEntityId, platform)
-        : null
+      const cartInfo = await getCartInfo()
       if (cartInfo) {
-        const deleteQuery = deleteCartData(cartEntityId)
-        await deleteCart(deleteQuery)
+        await deleteCart(cartInfo[0].id)
         localStorage.removeItem('invoicePay')
         store.dispatch(setCartNumber(0))
       }

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import {
@@ -13,9 +12,8 @@ import {
 
 import { B3Upload, CustomButton, successTip } from '@/components'
 import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
-import { globalStateSelector } from '@/store'
+import { addProductToCart, createCart, getCartInfo } from '@/shared/service/bc'
 import { B3SStorage, b3TriggerCartNumber, snackbar } from '@/utils'
-import { callCart } from '@/utils/cartUtils'
 
 import SearchProduct from '../../shoppingListDetails/components/SearchProduct'
 
@@ -37,35 +35,60 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
 
-  const { storeInfo } = useSelector(globalStateSelector)
-  const storePlatform = storeInfo?.platform
+  const handleSplitOptionId = (id: string | number) => {
+    if (typeof id === 'string' && id.includes('attribute')) {
+      const idRight = id.split('[')[1]
 
-  const getSnackbarMessage = (res: any) => {
-    if (res && !res.errors) {
-      snackbar.success('', {
-        jsx: successTip({
-          message: b3Lang('purchasedProducts.quickOrderPad.productsAdded'),
-          link: '/cart.php',
-          linkText: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
-          isOutLink: true,
-        }),
-        isClose: true,
-      })
-    } else {
-      snackbar.error('Error has occurred', {
-        isClose: true,
-      })
+      const optionId = idRight.split(']')[0]
+      return +optionId
     }
+
+    if (typeof id === 'number') {
+      return id
+    }
+
+    return undefined
   }
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
-    const res = await callCart(products, storePlatform)
+    const lineItems = products.map((product) => {
+      const { newSelectOptionList, quantity } = product
+      const optionSelections = newSelectOptionList.map(
+        (option: CustomFieldItems) => {
+          const splitOptionId = handleSplitOptionId(option.optionId)
 
-    if (res && res.errors) {
-      snackbar.error(res.errors[0].message, {
+          return {
+            optionId: splitOptionId,
+            optionValue: option.optionValue,
+          }
+        }
+      )
+
+      return {
+        optionSelections,
+        productId: parseInt(product.productId || product.id, 10) || 0,
+        quantity,
+        variantId: parseInt(product.variantId, 10) || 0,
+      }
+    })
+
+    const cartInfo = await getCartInfo()
+    const res = cartInfo.length
+      ? await addProductToCart(
+          {
+            lineItems,
+          },
+          cartInfo[0].id
+        )
+      : await createCart({
+          lineItems,
+        })
+
+    if (res.status) {
+      snackbar.error(res.detail, {
         isClose: true,
       })
-    } else {
+    } else if (!res.status) {
       snackbar.success('', {
         jsx: successTip({
           message: b3Lang('purchasedProducts.quickOrderPad.productsAdded'),
@@ -75,9 +98,8 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         }),
         isClose: true,
       })
+      b3TriggerCartNumber()
     }
-
-    b3TriggerCartNumber()
 
     return res
   }
@@ -226,10 +248,33 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       } = getValidProducts(validProduct)
 
       if (productItems.length > 0) {
-        const res = await callCart(productItems, storePlatform)
-
-        getSnackbarMessage(res)
-        b3TriggerCartNumber()
+        const cartInfo = await getCartInfo()
+        const res = cartInfo.length
+          ? await addProductToCart(
+              {
+                lineItems: productItems,
+              },
+              cartInfo[0].id
+            )
+          : await createCart({
+              lineItems: productItems,
+            })
+        if (res.status) {
+          snackbar.error(res.detail, {
+            isClose: true,
+          })
+        } else if (!res.status) {
+          snackbar.success('', {
+            jsx: successTip({
+              message: b3Lang('purchasedProducts.quickOrderPad.productsAdded'),
+              link: '/cart.php',
+              linkText: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
+              isOutLink: true,
+            }),
+            isClose: true,
+          })
+          b3TriggerCartNumber()
+        }
       }
 
       if (limitProduct.length > 0) {

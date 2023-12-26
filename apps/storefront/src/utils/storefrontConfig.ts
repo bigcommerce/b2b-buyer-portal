@@ -4,7 +4,6 @@ import { CustomStyleButtonState } from '@/shared/customStyleButtton/context/conf
 import { DispatchProps } from '@/shared/global/context/config'
 import {
   getB2BRegisterLogo,
-  getBCStoreChannelId,
   getCurrencies,
   getStorefrontConfig,
   getStorefrontConfigs,
@@ -15,7 +14,6 @@ import {
   setBlockPendingAccountViewPrice,
   setEnteredInclusive,
   setShowInclusiveTaxPrice,
-  setStoreInfo,
   setTaxZoneRates,
   store,
 } from '@/store'
@@ -329,16 +327,8 @@ const getStoreTaxZoneRates = async () => {
   store.dispatch(setTaxZoneRates(taxZoneRates))
 }
 
-const getStoreInfo = async () => {
-  const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
-  const [storeInfo] = storeBasicInfo.storeSites
-
-  store.dispatch(setStoreInfo(storeInfo))
-}
-
 export {
   getQuoteConfig,
-  getStoreInfo,
   getStoreTaxZoneRates,
   getTemPlateConfig,
   setStorefrontConfig,
