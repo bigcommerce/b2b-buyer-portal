@@ -72,10 +72,6 @@ const StyledQuoteTableContainer = styled('div')(() => ({
   backgroundColor: '#FFFFFF',
   padding: '1rem',
   width: '100%',
-  border: '1px solid #E0E0E0',
-  boxShadow:
-    '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 1px 3px rgba(0, 0, 0, 0.12)',
-  borderRadius: '4px',
 
   '& tbody': {
     '& tr': {
@@ -347,6 +343,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           {b3Lang('quoteDetail.table.totalProducts', { total: total || 0 })}
         </Typography>
       </Box>
+
       <B3PaginationTable
         ref={paginationTableRef}
         columnItems={columnItems}
