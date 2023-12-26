@@ -24,7 +24,6 @@ import { globalStateSelector } from '@/store'
 import {
   B3SStorage,
   getDefaultCurrencyInfo,
-  getValidOptionsList,
   globalSnackbar,
   isAllRequiredOptionFilled,
 } from '@/utils'
@@ -67,8 +66,6 @@ export const serialize = (form: any) => {
       case 'checkbox':
         if (file.checked) {
           arr[file.name] = file.value
-        } else {
-          arr[file.name] = ''
         }
         break
       case 'radio':
@@ -186,12 +183,11 @@ export const addProductsToShoppingList = async ({
       break
     }
 
-    const newOptionLists = getValidOptionsList(optionList, productsInfo[index])
     products.push({
       productId,
       variantId,
       quantity,
-      optionList: newOptionLists,
+      optionList,
     })
   }
 

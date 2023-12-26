@@ -40,7 +40,6 @@ import {
   calculateProductListPrice,
   currencyFormat,
   getProductPriceIncTax,
-  getValidOptionsList,
   snackbar,
   validProductQty,
 } from '@/utils'
@@ -521,17 +520,16 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       checkedArr.forEach((product: ListItemProps) => {
         const {
-          node: { optionList, productId, quantity, variantId, productsSearch },
+          node: { optionList, productId, quantity, variantId },
         } = product
 
         const optionsList = getOptionsList(optionList)
 
-        const newOptionLists = getValidOptionsList(optionsList, productsSearch)
         items.push({
           productId: +productId,
           variantId: +variantId,
           quantity: +quantity,
-          optionList: newOptionLists,
+          optionList: optionsList,
         })
       })
 

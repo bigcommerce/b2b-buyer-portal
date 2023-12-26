@@ -9,7 +9,7 @@ import {
   addProductToBcShoppingList,
   addProductToShoppingList,
 } from '@/shared/service/b2b'
-import { B3SStorage, getValidOptionsList, snackbar } from '@/utils'
+import { B3SStorage, snackbar } from '@/utils'
 
 import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config'
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'
@@ -40,18 +40,12 @@ export default function AddToShoppingList(props: AddToListProps) {
     : addProductToBcShoppingList
 
   const addToList = async (products: CustomFieldItems[]) => {
-    const items = products.map((product) => {
-      const newOptionLists = getValidOptionsList(
-        product.newSelectOptionList,
-        product
-      )
-      return {
-        optionList: newOptionLists,
-        productId: product.id,
-        quantity: product.quantity,
-        variantId: product.variantId,
-      }
-    })
+    const items = products.map((product) => ({
+      optionList: product.newSelectOptionList,
+      productId: product.id,
+      quantity: product.quantity,
+      variantId: product.variantId,
+    }))
 
     const res: CustomFieldItems = await addItemsToShoppingList({
       shoppingListId: id,
@@ -66,18 +60,12 @@ export default function AddToShoppingList(props: AddToListProps) {
   }
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
-    const items = products.map((product) => {
-      const newOptionLists = getValidOptionsList(
-        product.newSelectOptionList || product.optionList,
-        product?.products || product
-      )
-      return {
-        optionList: newOptionLists || [],
-        productId: parseInt(product.productId, 10) || 0,
-        quantity: product.quantity,
-        variantId: parseInt(product.variantId, 10) || 0,
-      }
-    })
+    const items = products.map((product) => ({
+      optionList: product.newSelectOptionList || product.optionList,
+      productId: parseInt(product.productId, 10) || 0,
+      quantity: product.quantity,
+      variantId: parseInt(product.variantId, 10) || 0,
+    }))
 
     const res: CustomFieldItems = await addItemsToShoppingList({
       shoppingListId: id,
@@ -151,7 +139,6 @@ export default function AddToShoppingList(props: AddToListProps) {
         variantId: parseInt(variantId, 10) || 0,
         quantity: +qty,
         optionList: optionsList,
-        products: item.products,
       })
     })
 

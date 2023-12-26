@@ -460,9 +460,9 @@ export const getAllModifierDefaultValue = (modifiers: CustomFieldItems) => {
         const day = date.getDate()
 
         modifierInfo.defaultValue = {
+          year,
           month,
           day,
-          year,
         }
       }
 
@@ -558,9 +558,9 @@ export const getOptionRequestData = (
       const month = date.getMonth() + 1
       const day = date.getDate()
 
+      requestData[`${decodeName}[year]`] = year
       requestData[`${decodeName}[month]`] = month
       requestData[`${decodeName}[day]`] = day
-      requestData[`${decodeName}[year]`] = year
       return
     }
 
