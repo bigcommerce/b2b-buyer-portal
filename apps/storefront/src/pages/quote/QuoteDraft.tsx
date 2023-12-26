@@ -41,7 +41,6 @@ import {
   snackbar,
   storeHash,
 } from '@/utils'
-import { CallbackKey } from '@/utils/b3Callbacks'
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config'
 import { convertBCToB2BAddress } from '../address/shared/config'
@@ -404,7 +403,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   }
 
   const handleSubmit = useCallbacks(
-    CallbackKey.onQuoteCreate,
+    'on-quote-create',
     async (_e, handleEvent) => {
       setLoading(true)
       try {

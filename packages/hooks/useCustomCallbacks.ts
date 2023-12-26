@@ -1,8 +1,3 @@
-enum CallbackKey {
-  onQuoteCreate = 'on-quote-create',
-  onAddToShoppingList = 'on-add-to-shopping-list',
-}
-
 const useCallbacks = (
   callbacks: CallbackKey[] | CallbackKey,
   fn: (...args: any[]) => Promise<any> | any
