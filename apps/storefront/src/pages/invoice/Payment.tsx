@@ -1,19 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Dialog, Loading } from '@/components'
 import { getInvoiceDetail } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
 import { B3SStorage, snackbar } from '@/utils'
 
 import { gotoInvoiceCheckoutUrl } from './utils/payment'
 
 function Payment() {
-  const globalState = useSelector(globalStateSelector)
-
   const [loadding, setLoadding] = useState<boolean>(false)
 
   const [open, setOpen] = useState<boolean>(false)
@@ -61,11 +57,7 @@ function Payment() {
             currency: code,
           }
 
-          await gotoInvoiceCheckoutUrl(
-            data,
-            globalState.storeInfo.platform,
-            true
-          )
+          await gotoInvoiceCheckoutUrl(data, true)
         } catch (error: unknown) {
           snackbar.error(
             (error as CustomFieldItems)?.message ||

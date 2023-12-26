@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
@@ -6,12 +5,8 @@ import { Box } from '@mui/material'
 import { CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
 import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
 import { getSearchVal } from '@/utils'
-import {
-  attemptCheckoutLoginAndRedirect,
-  setQuoteToStorage,
-} from '@/utils/b3checkout'
+import * as cryptoJs from '@/utils/cryptoJs'
 
 interface QuoteDetailFooterProps {
   quoteId: string
@@ -22,7 +17,6 @@ interface QuoteDetailFooterProps {
 
 function QuoteDetailFooter(props: QuoteDetailFooterProps) {
   const { quoteId, role, isAgenting, status } = props
-  const globalState = useSelector(globalStateSelector)
   const [isMobile] = useMobile()
   const b3Lang = useB3Lang()
   const location = useLocation()
@@ -45,19 +39,20 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
         id: +quoteId,
       })
 
-      setQuoteToStorage(quoteId, date)
       const {
         quoteCheckout: {
-          quoteCheckout: { checkoutUrl, cartId },
+          quoteCheckout: { checkoutUrl },
         },
       } = res
 
-      if (globalState.storeInfo.platfom === 'bigcommerce') {
-        window.location.href = checkoutUrl
-        return
-      }
+      sessionStorage.setItem('isNewStorefront', JSON.stringify(true))
+      sessionStorage.setItem('quoteCheckoutId', cryptoJs.cipherText(quoteId))
+      sessionStorage.setItem(
+        'quoteDate',
+        cryptoJs.cipherText(date?.toString() || '')
+      )
 
-      await attemptCheckoutLoginAndRedirect(cartId, checkoutUrl as string)
+      window.location.href = checkoutUrl
     } catch (err) {
       console.error(err)
     }
