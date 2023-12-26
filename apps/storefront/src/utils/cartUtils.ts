@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie'
+
 import {
   addNewLineToCart,
   createNewCart,
@@ -79,7 +81,7 @@ export const deleteCartData = (entityId: any) => ({
   },
 })
 
-const getLineItemsData = (cartInfo: any, productData: any) => {
+export const getLineItemsData = (cartInfo: any, productData: any) => {
   const lineItems = cartLineItems(productData)
 
   return {
@@ -95,7 +97,9 @@ const getLineItemsData = (cartInfo: any, productData: any) => {
 export const createNewShoppingCart = async (products: any) => {
   const cartData = newDataCart(products)
   const res = await createNewCart(cartData)
+  const { entityId } = res.data.cart.createCart.cart
 
+  Cookies.set('cartId', entityId)
   return res
 }
 
