@@ -147,6 +147,7 @@ function Row({
         hover={hover}
         onClick={() => onClickRow?.(node, index)}
         sx={clickableRowStyles}
+        data-testId="tableBody-Row"
       >
         {showCheckbox && selectedSymbol && (
           <TableCell
@@ -193,6 +194,7 @@ function Row({
                 ? '1px solid rgba(224, 224, 224, 1)'
                 : lastItemBorderBottom,
             }}
+            data-testId={column?.key ? `tableBody-${column?.key}` : ''}
           >
             {column.render ? column.render(node, index) : node[column.key]}
           </TableCell>
@@ -435,7 +437,7 @@ export function B3Table<T>({
             >
               {!tableHeaderHide && (
                 <TableHead>
-                  <TableRow>
+                  <TableRow data-testId="tableHead-Row">
                     {showSelectAllCheckbox && (
                       <TableCell key="showSelectAllCheckbox">
                         <Checkbox
@@ -464,6 +466,9 @@ export function B3Table<T>({
                         }
                         sortDirection={
                           column.key === orderBy ? sortDirection : false
+                        }
+                        data-testId={
+                          column?.key ? `tableHead-${column?.key}` : ''
                         }
                       >
                         {column?.isSortable ? (
