@@ -68,7 +68,7 @@ const redirectBcMenus = (
       : '/dashboard'
   }
 
-  if (+role === 2 && currentItem?.newTargetUrl.includes('order_status')) {
+  if (+role === 2 && currentItem?.newTargetUrl?.includes('order_status')) {
     return '/accountSettings'
   }
 
@@ -76,7 +76,7 @@ const redirectBcMenus = (
     return currentItem.newTargetUrl
   }
 
-  return '/orders'
+  return +role === 2 ? '/accountSettings' : '/orders'
 }
 
 const getCurrentLoginUrl = (href: string): string => {
@@ -100,6 +100,17 @@ const openPageByClick = ({
 }: OpenPageByClickProps) => {
   if (href?.includes('/orders')) {
     return role !== 100 ? '/orders' : '/login'
+  }
+
+  if (
+    +role === 2 &&
+    (href?.includes('/orders') ||
+      href?.includes('/accountSettings') ||
+      href?.includes('/login') ||
+      href?.includes('/account')) &&
+    !href?.includes('logout')
+  ) {
+    return '/accountSettings'
   }
   // register and login click
   if (href?.includes('/login') || isRegisterAndLogin || role === 100) {

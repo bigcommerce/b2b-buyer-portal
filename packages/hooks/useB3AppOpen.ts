@@ -98,8 +98,9 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
             !href.includes('action=create_account') &&
             !href.includes('action=logout')
           ) {
-            href = '/orders'
+            href = +B3Role === 2 ? '/accountSettings' : '/orders'
           }
+
           if (initOpenState?.handleEnterClick) {
             initOpenState.handleEnterClick(
               href,
