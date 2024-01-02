@@ -62,23 +62,6 @@ function DashboardCard({
               fontWeight: 500,
             }}
           >
-            Admin:
-          </Typography>
-          <Typography variant="body1">{row.companyAdminName}</Typography>
-        </Box>
-
-        <Box
-          sx={{
-            display: 'flex',
-            fontSize: '16px',
-            mt: '15px',
-          }}
-        >
-          <Typography
-            sx={{
-              fontWeight: 500,
-            }}
-          >
             Email:
           </Typography>
           <Typography variant="body1">{row.companyEmail}</Typography>

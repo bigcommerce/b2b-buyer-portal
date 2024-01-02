@@ -246,11 +246,6 @@ function Dashboard(props: DashboardProps) {
       isSortable: true,
     },
     {
-      key: 'companyAdminName',
-      title: b3Lang('dashboard.admin'),
-      isSortable: true,
-    },
-    {
       key: 'companyEmail',
       title: b3Lang('dashboard.email'),
       isSortable: true,
