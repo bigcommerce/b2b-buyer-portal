@@ -233,19 +233,15 @@ function QuoteDetail() {
     }
   }
 
-  const fetchPdfUrl = async () => {
+  const fetchPdfUrl = async (bool: boolean) => {
     setIsRequestLoading(true)
-    const {
-      id,
-      currency: { currencyExchangeRate, token },
-    } = quoteDetail
+    const { id, createdAt } = quoteDetail
     try {
       const data = {
         quoteId: +id,
-        currency: {
-          currencyExchangeRate,
-          token,
-        },
+        createdAt,
+        isPreview: bool,
+        lang: 'en',
       }
 
       const fn = +role === 99 ? exportBcQuotePdf : exportB2BQuotePdf
@@ -253,17 +249,23 @@ function QuoteDetail() {
       const quotePdf = await fn(data)
 
       if (quotePdf) {
-        return quotePdf.quotePdfExport.url
+        return {
+          url: quotePdf.quoteFrontendPdf.url,
+          content: quotePdf.quoteFrontendPdf.content,
+        }
       }
     } catch (err: any) {
       snackbar.error(err)
     }
-    return undefined
+    return {
+      url: '',
+      content: '',
+    }
   }
 
   const exportPdf = async () => {
     try {
-      const quotePdfUrl = await fetchPdfUrl()
+      const { url: quotePdfUrl } = await fetchPdfUrl(false)
       if (quotePdfUrl) {
         window.open(`${quotePdfUrl}`, '_blank')
       }
@@ -276,30 +278,16 @@ function QuoteDetail() {
 
   const printQuote = async () => {
     try {
-      const quotePdfUrl = await fetchPdfUrl()
+      const { content } = await fetchPdfUrl(true)
 
-      if (quotePdfUrl) {
-        const xhr = new XMLHttpRequest()
-        xhr.open('GET', quotePdfUrl, true)
-        xhr.responseType = 'arraybuffer'
-        xhr.onload = () => {
-          if (xhr.status === 200) {
-            const pdfData = new Uint8Array(xhr.response)
-            const pdfBlob = new Blob([pdfData], {
-              type: 'application/pdf',
-            })
-            const pdfUrl = URL.createObjectURL(pdfBlob)
-            const iframe = document.createElement('iframe')
-            iframe.setAttribute('src', pdfUrl)
-            iframe.setAttribute('style', 'display:none;')
-            document.getElementById('bundle-container')?.appendChild(iframe)
-            setIsRequestLoading(false)
-            iframe?.contentWindow?.print()
-          }
-        }
-
-        xhr.send()
-      }
+      const iframe = document.createElement('iframe')
+      iframe.setAttribute('style', 'display:none;')
+      document.getElementById('bundle-container')?.appendChild(iframe)
+      iframe.contentDocument?.open()
+      iframe.contentDocument?.write(content)
+      iframe.contentDocument?.close()
+      setIsRequestLoading(false)
+      iframe.contentWindow?.print()
     } catch (err: any) {
       snackbar.error(err)
     }
