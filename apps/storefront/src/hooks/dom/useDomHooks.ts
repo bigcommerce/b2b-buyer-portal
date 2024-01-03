@@ -6,6 +6,7 @@ import { setCartPermissions } from '@/utils/b3RolePermissions'
 
 import useCartToQuote from './useCartToQuote'
 import useHideGoogleCustomerReviews from './useHideGoogleCustomerReviews'
+import useMonitorBrowserBack from './useMonitorBrowserBack'
 import useMyQuote from './useMyQuote'
 import { useOpenPDP } from './useOpenPDP'
 import useRegisteredbctob2b from './useRegisteredbctob2b'
@@ -27,6 +28,7 @@ const useDomHooks = ({ setOpenPage, isOpen }: MutationObserverProps) => {
     },
   } = useContext(GlobaledContext)
 
+  useMonitorBrowserBack({ isOpen, role })
   useEffect(() => {
     if (+role !== 2) {
       setCartPermissions(role)
