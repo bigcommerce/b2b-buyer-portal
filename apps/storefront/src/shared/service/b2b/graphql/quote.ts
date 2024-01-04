@@ -292,15 +292,13 @@ const exportQuotePdf = (data: {
   createdAt: number
   isPreview: boolean
   lang: string
-  currency: object
 }) => `mutation{
   quoteFrontendPdf(
     quoteId: ${data.quoteId},
     storeHash: "${storeHash}",
     createdAt: ${data.createdAt},
     lang: "${data.lang}",
-    isPreview: ${data.isPreview},
-    currency: ${convertObjectToGraphql(data.currency || {})},
+    isPreview: ${data.isPreview}
   ) {
     url,
     content,
@@ -418,7 +416,6 @@ export const exportB2BQuotePdf = (data: {
   createdAt: number
   isPreview: boolean
   lang: string
-  currency: object
 }): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: exportQuotePdf(data),
@@ -429,7 +426,6 @@ export const exportBcQuotePdf = (data: {
   createdAt: number
   isPreview: boolean
   lang: string
-  currency: object
 }): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: exportQuotePdf(data),

@@ -235,22 +235,13 @@ function QuoteDetail() {
 
   const fetchPdfUrl = async (bool: boolean) => {
     setIsRequestLoading(true)
-    const {
-      id,
-      createdAt,
-      currency: { currencyExchangeRate, token, decimalPlaces },
-    } = quoteDetail
+    const { id, createdAt } = quoteDetail
     try {
       const data = {
         quoteId: +id,
         createdAt,
         isPreview: bool,
         lang: 'en',
-        currency: {
-          currencyExchangeRate,
-          token,
-          decimalPlaces,
-        },
       }
 
       const fn = +role === 99 ? exportBcQuotePdf : exportB2BQuotePdf
