@@ -41,7 +41,6 @@ const superAdminCompaniesQl = (id: number, params: CustomFieldItems) => `{
         id,
         companyName,
         companyEmail,
-        companyAdminName,
       }
     },
     totalCount
