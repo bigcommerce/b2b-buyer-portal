@@ -103,6 +103,7 @@ export interface GlobalState {
     shoppingLists: boolean
     tradeProfessionalApplication: boolean
   }
+  bcLanguage: string
   storeEnabled: boolean
   storeName: string
   currentChannelId: number
@@ -160,6 +161,7 @@ export const initState = {
     companyStatus: '',
   },
   logo: '',
+  bcLanguage: 'en',
   isCompanyAccount: false,
   storeEnabled: false,
   storeName: '',

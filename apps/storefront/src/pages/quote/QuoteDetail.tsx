@@ -41,6 +41,7 @@ function QuoteDetail() {
       customer: { emailAddress, customerGroupId },
       isB2BUser,
       isAgenting,
+      bcLanguage,
     },
   } = useContext(GlobaledContext)
   const [isMobile] = useMobile()
@@ -241,7 +242,7 @@ function QuoteDetail() {
         quoteId: +id,
         createdAt,
         isPreview: bool,
-        lang: 'en',
+        lang: bcLanguage,
       }
 
       const fn = +role === 99 ? exportBcQuotePdf : exportB2BQuotePdf

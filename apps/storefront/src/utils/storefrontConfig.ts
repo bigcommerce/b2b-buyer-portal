@@ -8,6 +8,7 @@ import {
   getCurrencies,
   getStorefrontConfig,
   getStorefrontConfigs,
+  getStorefrontDefaultLanguages,
   getTaxZoneRates,
 } from '@/shared/service/b2b'
 import { getActiveBcCurrency } from '@/shared/service/bc'
@@ -287,6 +288,17 @@ const setStorefrontConfig = async (
   store.dispatch(setEnteredInclusive(currencies.enteredInclusiveTax))
 
   const {
+    storefrontDefaultLanguage: { language },
+  } = await getStorefrontDefaultLanguages(+currentChannelId)
+
+  let langCode: string = language || 'en'
+
+  if (language && language.includes('-')) {
+    const [lang] = language.split('-')
+    langCode = lang
+  }
+
+  const {
     data: {
       site: {
         currencies: { edges },
@@ -295,6 +307,8 @@ const setStorefrontConfig = async (
   } = await getActiveBcCurrency()
 
   B3SStorage.set('currencies', currencies)
+  B3SStorage.set('bcLanguage', langCode)
+
   B3SStorage.set('enteredInclusiveTax', currencies.enteredInclusiveTax || false)
   B3SStorage.set(
     'activeCurrency',
@@ -305,6 +319,7 @@ const setStorefrontConfig = async (
     payload: {
       storefrontConfig,
       currencies,
+      bcLanguage: langCode,
       enteredInclusiveTax: currencies.enteredInclusiveTax || false,
     },
   })
