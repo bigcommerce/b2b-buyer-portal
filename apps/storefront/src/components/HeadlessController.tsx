@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 
@@ -65,13 +65,16 @@ interface HeadlessControllerProps {
 
 const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
   items.map((product) => {
-    const { optionSelections } = product
+    const { selectedOptions } = product
 
     return {
       ...product,
-      optionSelections: optionSelections?.reduce(
-        (accumulator: Record<string, number>, { optionId, optionValue }) => {
-          accumulator[`attribute[${optionId}]`] = optionValue
+      selectedOptions: selectedOptions?.reduce(
+        (
+          accumulator: Record<string, number>,
+          { optionEntityId, optionValueEntityId }
+        ) => {
+          accumulator[`attribute[${optionEntityId}]`] = optionValueEntityId
 
           return accumulator
         },
@@ -136,11 +139,14 @@ export default function HeadlessController({
       registerEnabled,
     },
   } = useContext(GlobaledContext)
+  const platform = useSelector(({ global }) => global.storeInfo.platform)
   const {
     state: { addQuoteBtn, shoppingListBtn },
   } = useContext(CustomStyleContext)
-  const { addToQuote: addProductsFromCart } =
-    addProductsFromCartToQuote(setOpenPage)
+  const { addToQuote: addProductsFromCart } = addProductsFromCartToQuote(
+    setOpenPage,
+    platform
+  )
 
   const saveFn = () => {
     setOpenPage({
@@ -203,6 +209,7 @@ export default function HeadlessController({
             } = await superAdminCompanies(B3UserIdRef.current, {
               first: 50,
               offset: 0,
+              orderBy: 'companyId',
             })
 
             return {

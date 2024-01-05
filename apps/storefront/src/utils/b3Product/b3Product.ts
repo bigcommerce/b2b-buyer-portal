@@ -61,8 +61,8 @@ interface NewOptionProps {
 }
 
 interface ProductOption {
-  optionId: number
-  optionValue: number
+  optionEntityId: number
+  optionValueEntityId: number
 }
 
 interface ProductOptionString {
@@ -83,10 +83,10 @@ interface OptionsProps {
 
 export interface LineItems {
   quantity: number
-  productId: number
-  optionSelections?: ProductOption[]
+  productEntityId: number
+  selectedOptions?: ProductOption[]
   sku?: string
-  variantId?: number
+  variantEntityId?: number
 }
 
 const getModifiersPrice = (
@@ -745,10 +745,10 @@ const formatOptionsSelections = (
 ) =>
   options.reduce((accumulator: CalculatedOptions[], option) => {
     const matchedOption = allOptions.find(({ id, type, option_values }) => {
-      if (option.optionId === id) {
+      if (option.optionEntityId === id) {
         if (
           (type !== 'text' && option_values?.length) ||
-          (type === 'date' && option.optionValue)
+          (type === 'date' && option.optionValueEntityId)
         ) {
           return true
         }
@@ -759,11 +759,11 @@ const formatOptionsSelections = (
     if (matchedOption) {
       if (matchedOption.type === 'date') {
         const id = matchedOption.id ? +matchedOption.id : 0
-        accumulator.push(...getDateValuesArray(id, option.optionValue))
+        accumulator.push(...getDateValuesArray(id, option.optionValueEntityId))
       } else {
         accumulator.push({
           option_id: matchedOption.id ? +matchedOption.id : 0,
-          value_id: +option.optionValue,
+          value_id: +option.optionValueEntityId,
         })
       }
     }
@@ -780,12 +780,14 @@ const formatLineItemsToGetPrices = (
         items: Calculateditems[]
         variants: ProductInfo[]
       },
-      { optionSelections = [], productId, sku, variantId, quantity }
+      { selectedOptions = [], productEntityId, sku, variantEntityId, quantity }
     ) => {
-      const selectedProduct = productsSearch.find(({ id }) => id === productId)
+      const selectedProduct = productsSearch.find(
+        ({ id }) => id === productEntityId
+      )
       const variantItem = selectedProduct?.variants?.find(
         ({ sku: skuResult, variant_id: variantIdResult }) =>
-          sku === skuResult || variantIdResult === variantId
+          sku === skuResult || variantIdResult === variantEntityId
       )
 
       if (!variantItem || !selectedProduct) {
@@ -793,7 +795,7 @@ const formatLineItemsToGetPrices = (
       }
       const { allOptions = [] } = selectedProduct
 
-      const options = formatOptionsSelections(optionSelections, allOptions)
+      const options = formatOptionsSelections(selectedOptions, allOptions)
 
       formatedLineItems.items.push({
         product_id: variantItem.product_id,
@@ -804,10 +806,12 @@ const formatLineItemsToGetPrices = (
         ...variantItem,
         quantity,
         productsSearch: selectedProduct,
-        optionSelections: optionSelections.map(({ optionId, optionValue }) => ({
-          optionId: `attribute[${optionId}]`,
-          optionValue: `${optionValue}`,
-        })),
+        optionSelections: selectedOptions.map(
+          ({ optionEntityId, optionValueEntityId }) => ({
+            optionId: `attribute[${optionEntityId}]`,
+            optionValue: `${optionValueEntityId}`,
+          })
+        ),
       })
       return formatedLineItems
     },

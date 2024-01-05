@@ -4,7 +4,7 @@ import type { OpenPageState } from '@b3/hooks'
 
 import B3AddToQuoteTip from '@/components/B3AddToQuoteTip'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { getCartInfoWithOptions } from '@/shared/service/bc'
+import { getCart } from '@/shared/service/bc/graphql/cart'
 import {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
@@ -12,6 +12,7 @@ import {
   B3SStorage,
   calculateProductsPrice,
   getCalculatedProductPrice,
+  getCookie,
   globalSnackbar,
   isAllRequiredOptionFilled,
   LineItems,
@@ -175,7 +176,7 @@ const addProductsToDraftQuote = async (
 ) => {
   // filter products with SKU
   const productsWithSKUOrVariantId = products.filter(
-    ({ sku, variantId }) => sku || variantId
+    ({ sku, variantEntityId }) => sku || variantEntityId
   )
 
   const companyId =
@@ -185,7 +186,11 @@ const addProductsToDraftQuote = async (
   // fetch data with products IDs
   const { productsSearch } = await searchB2BProducts({
     productIds: Array.from(
-      new Set(productsWithSKUOrVariantId.map(({ productId }) => +productId))
+      new Set(
+        productsWithSKUOrVariantId.map(
+          ({ productEntityId }) => +productEntityId
+        )
+      )
     ),
     companyId,
     customerGroupId,
@@ -228,20 +233,25 @@ const addProductsToDraftQuote = async (
   })
 }
 
-const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
+const addProductsFromCartToQuote = (
+  setOpenPage: DispatchProps,
+  platform?: string
+) => {
   const addToQuote = async () => {
+    const entityCartId = platform === 'bigcommerce' ? null : getCookie('cartId')
     try {
       const cartInfoWithOptions: CartInfoProps | any =
-        await getCartInfoWithOptions()
+        // we should get the platform parameter from wherever this function is used
+        await getCart(entityCartId, platform ?? '')
 
-      if (!cartInfoWithOptions[0]) {
+      if (!cartInfoWithOptions.data.site.cart) {
         globalSnackbar.error('No products in Cart.', {
           isClose: true,
         })
         return
       }
 
-      const { lineItems, id: cartId } = cartInfoWithOptions[0]
+      const { lineItems, entityId } = cartInfoWithOptions.data.site.cart
 
       const { cartProductsList, noSkuProducts } = getCartProducts(lineItems)
 
@@ -258,7 +268,7 @@ const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
       }
       if (noSkuProducts.length === cartProductsList.length) return
 
-      await addProductsToDraftQuote(cartProductsList, setOpenPage, cartId)
+      await addProductsToDraftQuote(cartProductsList, setOpenPage, entityId)
     } catch (e) {
       console.log(e)
     } finally {

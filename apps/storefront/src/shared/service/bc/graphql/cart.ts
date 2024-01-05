@@ -199,7 +199,6 @@ const lineItemsFragment = `lineItems {
       value
     }
   }
-  totalQuantity
 }`
 
 const getCartInfoForHeadless = `query getCart($entityId: String!) {
@@ -320,7 +319,7 @@ const deleteCartQuery = `mutation deleteCart($deleteCartInput: DeleteCartInput!)
   }
 }`
 
-export const getCart = (entityId: string, platform: string): any =>
+export const getCart = (entityId: string | null, platform: string): any =>
   platform === 'bigcommerce'
     ? B3Request.graphqlBC({
         // for stencil not using proxy

@@ -29,7 +29,7 @@ import {
   getB2BCustomerAddresses,
   getBCCustomerAddresses,
 } from '@/shared/service/b2b'
-import { deleteCart } from '@/shared/service/bc'
+import { deleteCart } from '@/shared/service/bc/graphql/cart'
 import { store } from '@/store'
 import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
@@ -42,6 +42,7 @@ import {
   storeHash,
 } from '@/utils'
 import { CallbackKey } from '@/utils/b3Callbacks'
+import { deleteCartData } from '@/utils/cartUtils'
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config'
 import { convertBCToB2BAddress } from '../address/shared/config'
@@ -576,8 +577,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
         if (id) {
           const cartId = B3LStorage.get('cartToQuoteId')
+          const deleteCartObject = deleteCartData(cartId)
 
-          await deleteCart(cartId)
+          await deleteCart(deleteCartObject)
         }
 
         navigate(`/quoteDetail/${id}?date=${createdAt}`, {
