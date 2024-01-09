@@ -1,5 +1,6 @@
 import { LangFormatFunction } from '@b3/lang'
 
+import { store } from '@/store'
 import { getActiveCurrencyInfo } from '@/utils'
 
 import {
@@ -97,12 +98,18 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     lastName,
     totalTax,
     subtotalExTax,
+    subtotalIncTax,
     totalExTax,
     totalIncTax,
     handlingCostExTax,
     handlingCostIncTax,
     shippingCostExTax,
+    shippingCostIncTax,
   } = data
+
+  const {
+    global: { showInclusiveTaxPrice },
+  } = store.getState()
 
   const labels = {
     subTotal: b3Lang('orderDetail.summary.subTotal'),
@@ -116,8 +123,12 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     createAt: dateCreated,
     name: `${firstName} ${lastName}`,
     priceData: {
-      [labels.subTotal]: formatPrice(subtotalExTax || ''),
-      [labels.shipping]: formatPrice(shippingCostExTax || ''),
+      [labels.subTotal]: formatPrice(
+        showInclusiveTaxPrice ? subtotalIncTax : subtotalExTax
+      ),
+      [labels.shipping]: formatPrice(
+        showInclusiveTaxPrice ? shippingCostIncTax : shippingCostExTax
+      ),
       [labels.handingFee]: formatPrice(
         handlingCostIncTax || handlingCostExTax || ''
       ),
