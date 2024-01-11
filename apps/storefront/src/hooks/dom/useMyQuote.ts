@@ -16,6 +16,11 @@ import {
   setMediaStyle,
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
+import {
+  ADD_TO_QUOTE_DEFAULT_VALUE,
+  TRANSLATION_ADD_TO_QUOTE_VARIABLE,
+} from '@/constants'
+import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { B3LStorage, setCartPermissions } from '@/utils'
 
@@ -53,7 +58,6 @@ const useMyQuote = ({
     }
   }, [B3UserId])
   const cache = useRef({})
-
   const {
     state: { addQuoteBtn },
   } = useContext(CustomStyleContext)
@@ -87,6 +91,11 @@ const useMyQuote = ({
     locationSelector = '',
     enabled = false,
   } = addQuoteBtn
+  const myQuoteBtnLabel = useGetButtonText(
+    TRANSLATION_ADD_TO_QUOTE_VARIABLE,
+    text,
+    ADD_TO_QUOTE_DEFAULT_VALUE
+  )
 
   const cssInfo = splitCustomCssValue(customCss)
   const {
@@ -121,7 +130,7 @@ const useMyQuote = ({
       if (!isAddStyle) {
         const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote')
         myQuoteBtn.forEach((myQuote: CustomFieldItems) => {
-          myQuote.innerHTML = text || 'Add to Quote'
+          myQuote.innerHTML = myQuoteBtnLabel
           myQuote.setAttribute('style', customCss)
           myQuote.style.backgroundColor = color
           myQuote.style.color = customTextColor
@@ -142,7 +151,7 @@ const useMyQuote = ({
         if (!children.length) {
           let myQuote: CustomFieldItems | null = null
           myQuote = document.createElement('div')
-          myQuote.innerHTML = text || 'Add to Quote'
+          myQuote.innerHTML = myQuoteBtnLabel
           myQuote.setAttribute('style', customCss)
           myQuote.style.backgroundColor = color
           myQuote.style.color = customTextColor

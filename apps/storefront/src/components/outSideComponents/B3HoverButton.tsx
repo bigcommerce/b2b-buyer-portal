@@ -8,6 +8,11 @@ import {
 import type { OpenPageState } from '@b3/hooks'
 import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material'
 
+import {
+  FINISH_QUOTE_DEFUALT_VALUE,
+  TRANSLATION_FINISH_QUOTE_VARIABLE,
+} from '@/constants'
+import { useGetButtonText } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { B3LStorage } from '@/utils'
@@ -57,6 +62,12 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
     verticalPadding = '',
     enabled = false,
   } = floatingAction
+
+  const buttonText = useGetButtonText(
+    TRANSLATION_FINISH_QUOTE_VARIABLE,
+    text,
+    FINISH_QUOTE_DEFUALT_VALUE
+  )
 
   const defaultLocation: SnackbarOrigin = {
     vertical: 'bottom',
@@ -126,7 +137,7 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
               }}
               variant="contained"
             >
-              {text || 'Finish quote'}
+              {buttonText}
             </Button>
           )}
       </Box>

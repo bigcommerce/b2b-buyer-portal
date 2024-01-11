@@ -15,6 +15,7 @@ import {
   setMediaStyle,
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { B3SStorage, globalSnackbar } from '@/utils'
@@ -41,6 +42,9 @@ const useCartToQuote = ({
     setOpenPage,
     platform
   )
+
+  const translationVarName = 'global.customStyles.addToAllQuoteBtn'
+  const defaultButtonText = 'Add All To Quote'
 
   const {
     state: { addToAllQuoteBtn },
@@ -132,6 +136,12 @@ const useCartToQuote = ({
     enabled = false,
   } = addToAllQuoteBtn
 
+  const cartToQuoteBtnLabel = useGetButtonText(
+    translationVarName,
+    text,
+    defaultButtonText
+  )
+
   const cssInfo = splitCustomCssValue(customCss)
   const {
     cssValue,
@@ -161,7 +171,7 @@ const useCartToQuote = ({
     if (document.querySelectorAll('.b2b-cart-to-quote')?.length) {
       const cartToQuoteBtn = document.querySelectorAll('.b2b-cart-to-quote')
       cartToQuoteBtn.forEach((cartToQuoteBtn: CustomFieldItems) => {
-        cartToQuoteBtn.innerHTML = text || 'Add All to Quote'
+        cartToQuoteBtn.innerHTML = cartToQuoteBtnLabel
         cartToQuoteBtn.setAttribute('style', customCss)
         cartToQuoteBtn.style.backgroundColor = color
         cartToQuoteBtn.style.color = customTextColor
@@ -181,7 +191,7 @@ const useCartToQuote = ({
         : addToQuoteAll
       ).forEach((node: CustomFieldItems) => {
         cartQuoteBtnDom = document.createElement('div')
-        cartQuoteBtnDom.innerHTML = text || 'Add All to Quote'
+        cartQuoteBtnDom.innerHTML = cartToQuoteBtnLabel
         cartQuoteBtnDom.setAttribute('style', customCss)
         cartQuoteBtnDom.style.backgroundColor = color
         cartQuoteBtnDom.style.color = customTextColor

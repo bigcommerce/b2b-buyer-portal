@@ -59,3 +59,16 @@ export const StatusNotifications = {
   rejectedTip:
     'Your business account has been rejected. Check your email inbox, we sent you a letter with all details. You can resubmit your application.',
 }
+
+export const ADD_TO_QUOTE_DEFAULT_VALUE = 'Add to quote'
+export const ADD_TO_SHOPPING_LIST_DEFUALT_VALUE = 'Add to Shopping List'
+export const END_MASQUERADE_DEFAULT_VALUE = 'END MASQUERADE'
+export const FINISH_QUOTE_DEFUALT_VALUE = 'Finish quote'
+export const TRANSLATION_ADD_TO_QUOTE_VARIABLE =
+  'global.customStyles.addQuoteBtn'
+export const TRANSLATION_FINISH_QUOTE_VARIABLE =
+  'global.customStyles.floatingAction'
+export const TRANSLATION_MASQUERADE_BUTTON_VARIABLE =
+  'global.customStyles.masqueradeButton'
+export const TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE =
+  'global.customStyles.shoppingListBtn'

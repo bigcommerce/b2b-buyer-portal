@@ -18,6 +18,11 @@ import {
   setMediaStyle,
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
+import {
+  ADD_TO_SHOPPING_LIST_DEFUALT_VALUE,
+  TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
+} from '@/constants'
+import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { setGlabolCommonState } from '@/store'
@@ -122,6 +127,11 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     locationSelector = '',
     enabled = false,
   } = shoppingListBtn
+  const myShoppingListBtnLabel = useGetButtonText(
+    TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
+    text,
+    ADD_TO_SHOPPING_LIST_DEFUALT_VALUE
+  )
 
   const cssInfo = splitCustomCssValue(customCss)
   const {
@@ -155,7 +165,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
       if (!isAddStyle) {
         const myShoppingListBtn = document.querySelectorAll('.b2b-add-to-list')
         myShoppingListBtn.forEach((myShoppingListBtn: CustomFieldItems) => {
-          myShoppingListBtn.innerHTML = text || 'Add to Shopping List'
+          myShoppingListBtn.innerHTML = myShoppingListBtnLabel
           myShoppingListBtn.setAttribute('style', customCss)
           myShoppingListBtn.style.backgroundColor = color
           myShoppingListBtn.style.color = customTextColor
@@ -183,7 +193,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         if (!children.length) {
           let shoppingBtnDom: CustomFieldItems | null = null
           shoppingBtnDom = document.createElement('div')
-          shoppingBtnDom.innerHTML = text || 'Add to Shopping List'
+          shoppingBtnDom.innerHTML = myShoppingListBtnLabel
           shoppingBtnDom.setAttribute('style', customCss)
           shoppingBtnDom.style.backgroundColor = color
           shoppingBtnDom.style.color = customTextColor

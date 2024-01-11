@@ -65,6 +65,7 @@ function B3Mean({
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
   const open = Boolean(anchorEl)
+  const b3Lang = useB3Lang()
 
   const handleClose = () => {
     setAnchorEl(null)
@@ -75,7 +76,9 @@ function B3Mean({
     setAnchorEl(event.currentTarget)
   }
 
-  const menuItemText = isMasquerade ? 'End Masquerade' : 'Masquerade'
+  const menuItemText = isMasquerade
+    ? b3Lang('dashboard.endMasqueradeAction')
+    : b3Lang('dashboard.masqueradeAction')
 
   return (
     <>

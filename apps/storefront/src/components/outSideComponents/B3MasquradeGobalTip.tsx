@@ -1,11 +1,17 @@
 import { Dispatch, SetStateAction, useContext, useState } from 'react'
 import type { OpenPageState } from '@b3/hooks'
+import { useB3Lang } from '@b3/lang'
 import GroupIcon from '@mui/icons-material/Group'
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import { Box, Button, SnackbarOrigin, SxProps } from '@mui/material'
 import Snackbar from '@mui/material/Snackbar'
 
+import {
+  END_MASQUERADE_DEFAULT_VALUE,
+  TRANSLATION_MASQUERADE_BUTTON_VARIABLE,
+} from '@/constants'
+import { useGetButtonText } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
@@ -43,9 +49,26 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
 
   const { hash, href } = window.location
 
+  const b3Lang = useB3Lang()
+
   const {
     state: { masqueradeButton },
   } = useContext(CustomStyleContext)
+
+  const {
+    text = '',
+    color = '',
+    customCss = '',
+    location = 'bottomLeft',
+    horizontalPadding = '',
+    verticalPadding = '',
+  } = masqueradeButton
+
+  const buttonLabel = useGetButtonText(
+    TRANSLATION_MASQUERADE_BUTTON_VARIABLE,
+    text,
+    END_MASQUERADE_DEFAULT_VALUE
+  )
 
   const isAddBottom = bottomHeightPage.some((item: string) =>
     hash.includes(item)
@@ -101,15 +124,6 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
   if (href.includes('/checkout') || !customerId) return null
 
   if (!isAgenting) return null
-
-  const {
-    text = '',
-    color = '',
-    customCss = '',
-    location = 'bottomLeft',
-    horizontalPadding = '',
-    verticalPadding = '',
-  } = masqueradeButton
 
   const defaultLocation: SnackbarOrigin = {
     vertical: 'bottom',
@@ -226,7 +240,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                       fontWeight: 400,
                     }}
                   >
-                    You are masqueraded as
+                    {b3Lang('global.masquerade.youAreMasqueradeAs')}
                   </Box>
                 )}
                 <Box
@@ -246,7 +260,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                     }}
                     onClick={() => endActing()}
                   >
-                    {text}
+                    {buttonLabel}
                   </Box>
                 )}
 
@@ -310,7 +324,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                     fontWeight: 400,
                   }}
                 >
-                  You are masqueraded as
+                  {b3Lang('global.masquerade.youAreMasqueradeAs')}
                 </Box>
               )}
               <Box
@@ -330,7 +344,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                   }}
                   onClick={() => endActing()}
                 >
-                  {text}
+                  {buttonLabel}
                 </Box>
               )}
 
@@ -413,7 +427,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                 }}
                 onClick={() => endActing()}
               >
-                END MASQUERADE
+                {buttonLabel}
               </Box>
             </Box>
           </Box>

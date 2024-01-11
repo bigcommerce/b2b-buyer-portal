@@ -103,12 +103,20 @@
   "global.searchProductAddProduct.businessAccountPendingApproval": "Your business account is pending approval. This feature is currently disabled.",
   "global.searchProductAddProduct.sku": "SKU#",
   "global.searchProductAddProduct.qty": "Qty",
+  "global.customStyles.masqueradeButton": "END MASQUERADE",
+  "global.customStyles.addQuoteBtn": "Add to quote",
+  "global.customStyles.floatingAction": "Finish quote",
+  "global.customStyles.addToAllQuoteBtn": "Add All To Quote",
+  "global.customStyles.shoppingListBtn": "Add to Shopping List",
+  "global.masquerade.youAreMasqueradeAs": "You are masquerade as",
 
   "dashboard.company": "Company",
   "dashboard.admin": "Admin",
   "dashboard.email": "Email",
   "dashboard.action": "Action",
   "dashboard.selected": "Selected",
+  "dashboard.masqueradeAction": "Masquerade",
+  "dashboard.endMasqueradeAction": "End Masquerade",
 
   "orders.order": "Order",
   "orders.poReference": "PO / Reference",
@@ -659,11 +667,5 @@
   "payment.paymentTowardsInvoices": "You made payments towards the invoices shown below",
   "payment.invoiceNumber": "Invoice#",
   "payment.amountPaid": "Amount paid",
-  "payment.okButton": "Ok",
-
-  "customStyles.masqueradeButton": "END MASQUERADE",
-  "customStyles.addQuoteBtn": "Add to quote",
-  "customStyles.floatingAction": "Finish quote",
-  "customStyles.addToAllQuoteBtn": "Add All To Quote",
-  "customStyles.shoppingListBtn": "Add to Shopping List"
+  "payment.okButton": "Ok"
 }
