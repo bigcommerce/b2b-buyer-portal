@@ -24,6 +24,7 @@ import {
   B3SStorage,
   getCurrentCustomerInfo,
   logoutSession,
+  snackbar,
   storeHash,
 } from '@/utils'
 
@@ -295,7 +296,7 @@ export default function Login(props: RegisteredProps) {
           }
         }
       } catch (error) {
-        console.log(error)
+        snackbar.error(b3Lang('login.loginTipInfo.accountincorrect'))
       }
     }
     setLoading(false)
