@@ -109,6 +109,7 @@
   "global.customStyles.addToAllQuoteBtn": "Add All To Quote",
   "global.customStyles.shoppingListBtn": "Add to Shopping List",
   "global.masquerade.youAreMasqueradeAs": "You are masquerade as",
+  "global.companyCredit.alert": "Your account does not currently allow purchasing due to a credit hold. Please contact us to reconcile.",
 
   "dashboard.company": "Company",
   "dashboard.admin": "Admin",

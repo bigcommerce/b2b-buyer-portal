@@ -10,6 +10,7 @@ import { routes } from '@/shared/routes'
 import { getIsTokenGotoPage, RouteItem } from '@/shared/routes/routes'
 
 import B3Dialog from '../B3Dialog'
+import CompanyCredit from '../CompanyCredit'
 
 import B3Logo from './B3Logo'
 import B3Mainheader from './B3Mainheader'
@@ -152,6 +153,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
             }}
           >
             <B3Mainheader title={title} />
+            <CompanyCredit />
             <Box
               component="main"
               sx={

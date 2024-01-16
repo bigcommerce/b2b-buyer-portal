@@ -187,6 +187,17 @@ const storefrontDefaultLanguage = (channelId: number) => `{
 	}
 }`
 
+const companyCreditConfig = () => `{
+	companyCreditConfig{
+    limitPurchases
+    creditCurrency
+    creditHold
+    creditEnabled
+    availableCredit
+    currency
+  }
+}`
+
 export const getB2BToken = (
   currentCustomerJWTToken: string,
   channelId = 1
@@ -261,4 +272,9 @@ export const getStorefrontDefaultLanguages = (
 ): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: storefrontDefaultLanguage(channelId),
+  })
+
+export const getCompanyCreditConfig = (): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: companyCreditConfig(),
   })

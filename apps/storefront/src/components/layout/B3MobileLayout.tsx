@@ -6,6 +6,7 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { store } from '@/store'
 
+import CompanyCredit from '../CompanyCredit'
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 
 import B3AccountInfo from './B3AccountInfo'
@@ -105,6 +106,7 @@ export default function B3MobileLayout({
       >
         {title}
       </Box>
+      <CompanyCredit />
       <Box
         sx={{
           flex: 1,
