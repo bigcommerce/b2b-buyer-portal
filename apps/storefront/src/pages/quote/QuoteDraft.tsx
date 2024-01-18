@@ -497,6 +497,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                       : item.optionValue,
                   optionLabel: `${item.valueText}`,
                   optionName: item.valueLabel,
+                  type: item?.fieldOriginType || item.fieldType,
                 }))
                 .filter((list: CustomFieldItems) => !!list.optionName) || []
 

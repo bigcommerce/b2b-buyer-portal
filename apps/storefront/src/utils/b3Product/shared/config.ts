@@ -375,6 +375,7 @@ export const getProductOptionsFields = (
       valueText: getValueText(fieldType, value, option),
       optionId: id,
       optionValue: value ? value.toString() : '',
+      fieldOriginType: type,
     })
   })
 
