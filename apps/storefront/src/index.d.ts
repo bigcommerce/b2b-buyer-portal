@@ -9,10 +9,10 @@ declare interface CustomFieldStringItems {
 declare interface Window {
   tipDispatch: import('@/shared/global/context/config.ts').DispatchProps
   b3Tipmessage: any
-  b2bStorefrontApp: any
   globalTipDispatch: any
   B3Local: any
   b2b: {
+    initializationEnvironment: import('./load-functions').InitializationEnvironment
     callbacks: import('@/utils/b3Callbacks').default
     utils: {
       openPage: (page: import('./constants').HeadlessRoute) => void
@@ -24,6 +24,7 @@ declare interface Window {
           productList: import('@/components').FormatedQuoteItem[]
         }
         getButtonInfo: () => import('@/shared/customStyleButtton/context/config').BtnProperties
+        getButtonInfoAddAllFromCartToQuote: () => import('@/shared/customStyleButtton/context/config').BtnProperties
       }
       user: {
         getProfile: () => Record<string, string | number>

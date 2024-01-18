@@ -252,6 +252,9 @@ export default function App() {
           registerEnabled,
         },
       })
+      setTimeout(() => {
+        window.b2b.initializationEnvironment.isInit = true
+      })
     }
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
 

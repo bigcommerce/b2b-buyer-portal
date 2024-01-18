@@ -15,8 +15,11 @@ if (window.location.hash.startsWith('#/')) {
   bindLinks()
   window.addEventListener('beforeunload', unbindLinks)
   // and observe global flag to simulate click
-  window.b2bStorefrontApp.registerIsInitListener(() => {
+  window.b2b.initializationEnvironment.isInitListener = () => {
     unbindLinks()
-    setTimeout(() => window.b2bStorefrontApp.clickedLinkElement?.click(), 0)
-  })
+    setTimeout(
+      () => window.b2b.initializationEnvironment.clickedLinkElement?.click(),
+      0
+    )
+  }
 }

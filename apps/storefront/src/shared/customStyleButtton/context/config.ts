@@ -54,6 +54,7 @@ export interface CustomStyleButtonState
   extends Record<BtnKeys, Partial<BtnStyle>> {
   addQuoteBtn: BtnProperties
   shoppingListBtn: BtnProperties
+  addToAllQuoteBtn: BtnProperties
   globalButtonBackgroundColor: string
 }
 

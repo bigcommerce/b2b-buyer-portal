@@ -137,11 +137,14 @@ export default function HeadlessController({
       isB2BUser,
       currentChannelId,
       registerEnabled,
+      productQuoteEnabled,
+      cartQuoteEnabled,
+      shoppingListEnabled,
     },
   } = useContext(GlobaledContext)
   const platform = useSelector(({ global }) => global.storeInfo.platform)
   const {
-    state: { addQuoteBtn, shoppingListBtn },
+    state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
   } = useContext(CustomStyleContext)
   const { addToQuote: addProductsFromCart } = addProductsFromCartToQuote(
     setOpenPage,
@@ -172,6 +175,12 @@ export default function HeadlessController({
   const roleRef = useRef(+role)
   const isB2BUserRef = useRef(isB2BUser)
   const currentChannelIdRef = useRef(currentChannelId)
+  const productQuoteEnabledRef = useRef(productQuoteEnabled)
+  const shoppingListEnabledRef = useRef(shoppingListEnabled)
+  const cartQuoteEnabledRef = useRef(cartQuoteEnabled)
+  const addQuoteBtnRef = useRef(addQuoteBtn)
+  const shoppingListBtnRef = useRef(shoppingListBtn)
+  const addToAllQuoteBtnRef = useRef(addToAllQuoteBtn)
 
   B3UserIdRef.current = +B3UserId
   salesRepCompanyIdRef.current = +salesRepCompanyId
@@ -180,9 +189,16 @@ export default function HeadlessController({
   roleRef.current = +role
   isB2BUserRef.current = isB2BUser
   currentChannelIdRef.current = currentChannelId
+  productQuoteEnabledRef.current = productQuoteEnabled
+  shoppingListEnabledRef.current = shoppingListEnabled
+  cartQuoteEnabledRef.current = cartQuoteEnabled
+  addQuoteBtnRef.current = addQuoteBtn
+  shoppingListBtnRef.current = shoppingListBtn
+  addToAllQuoteBtnRef.current = addToAllQuoteBtn
 
   useEffect(() => {
     window.b2b = {
+      ...window.b2b,
       callbacks: new CallbackManager(),
       utils: {
         openPage: (page) => {
@@ -198,7 +214,14 @@ export default function HeadlessController({
           addProductsFromCart: () => addProductsFromCart(),
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
           getCurrent: getDraftQuote,
-          getButtonInfo: () => addQuoteBtn,
+          getButtonInfo: () => ({
+            ...addQuoteBtnRef.current,
+            enabled: productQuoteEnabledRef.current,
+          }),
+          getButtonInfoAddAllFromCartToQuote: () => ({
+            ...addToAllQuoteBtnRef.current,
+            enabled: cartQuoteEnabledRef.current,
+          }),
         },
         user: {
           getProfile: () => ({ ...customerRef.current, role }),
@@ -273,7 +296,10 @@ export default function HeadlessController({
 
             return shoppingListsCreate.shoppingList
           },
-          getButtonInfo: () => shoppingListBtn,
+          getButtonInfo: () => ({
+            ...shoppingListBtnRef.current,
+            enabled: shoppingListEnabledRef.current,
+          }),
         },
       },
     }

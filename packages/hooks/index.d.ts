@@ -9,7 +9,7 @@ declare interface Window {
       dispatchEvent: (callbackKey: CallbackKey, data: any) => boolean
     }
   }
-  b2bStorefrontApp: {
+  b2b: {
     isInit: boolean
   }
 }
