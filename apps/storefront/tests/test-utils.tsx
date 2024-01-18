@@ -39,10 +39,12 @@ export const renderWithProviders = (
   }
   return {
     store,
-    ...render(ui, {
-      wrapper: Wrapper,
-      ...renderOptions,
-    }),
+    result: {
+      ...render(ui, {
+        wrapper: Wrapper,
+        ...renderOptions,
+      }),
+    },
   }
 }
 

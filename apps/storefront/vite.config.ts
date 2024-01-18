@@ -58,6 +58,9 @@ export default defineConfig(({ mode }) => {
       coverage: {
         reporter: ['text', 'html', 'clover', 'json'],
       },
+      deps: {
+        inline: ['react-intl'],
+      },
     },
     resolve: {
       alias: {

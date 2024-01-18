@@ -343,7 +343,6 @@ export function B3Table<T>({
               )
             })}
           </Grid>
-
           {showPagination && (
             <TablePagination
               rowsPerPageOptions={
@@ -370,6 +369,7 @@ export function B3Table<T>({
               count={count}
               rowsPerPage={first}
               page={first === 0 ? 0 : offset / first}
+              of={b3Lang('global.pagination.of')}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
@@ -414,6 +414,7 @@ export function B3Table<T>({
               count={count}
               rowsPerPage={first}
               page={first === 0 ? 0 : offset / first}
+              of={b3Lang('global.pagination.of')}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
@@ -542,6 +543,7 @@ export function B3Table<T>({
               count={count}
               rowsPerPage={first}
               page={first === 0 ? 0 : offset / first}
+              of={b3Lang('global.pagination.of')}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />

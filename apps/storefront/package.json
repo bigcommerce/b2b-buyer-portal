@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest --coverage",
-    "start": "http-server ./dist --cors"
+    "start": "http-server ./dist --cors",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@b3/global-b3": "*",
@@ -37,6 +38,7 @@
     "dayjs": "^1.11.10",
     "js-cookie": "^3.0.5",
     "lodash-es": "^4.17.21",
+    "patch-package": "^8.0.0",
     "pdfobject": "^2.2.12",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -54,8 +56,8 @@
     "@b3/tsconfig": "*",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.5",
-    "@types/js-cookie": "^3.0.6",
     "@types/crypto-js": "^4.2.1",
+    "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.14.190",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
