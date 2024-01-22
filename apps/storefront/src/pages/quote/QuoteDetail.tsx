@@ -534,14 +534,17 @@ function QuoteDetail() {
           </Grid>
         </Grid>
 
-        {+role !== 2 && +quoteDetail.status !== 4 && isShowFooter && (
-          <QuoteDetailFooter
-            quoteId={quoteDetail.id}
-            role={role}
-            isAgenting={isAgenting}
-            status={quoteDetail.status}
-          />
-        )}
+        {+role !== 2 &&
+          +quoteDetail.status !== 4 &&
+          isShowFooter &&
+          quoteDetail?.allowCheckout && (
+            <QuoteDetailFooter
+              quoteId={quoteDetail.id}
+              role={role}
+              isAgenting={isAgenting}
+              status={quoteDetail.status}
+            />
+          )}
       </Box>
     </B3Sping>
   )

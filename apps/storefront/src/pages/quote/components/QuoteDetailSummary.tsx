@@ -123,6 +123,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 justifyContent="space-between"
                 sx={{
                   margin: '4px 0',
+                  display: quoteDetail?.displayDiscount ? '' : 'none',
                 }}
               >
                 <Typography>

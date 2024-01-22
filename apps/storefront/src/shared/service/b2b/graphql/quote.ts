@@ -284,6 +284,8 @@ const getQuoteInfo = (data: { id: number; date: string }) => `{
     quoteUrl,
     channelId,
     channelName,
+    allowCheckout,
+    displayDiscount,
   }
 }`
 
