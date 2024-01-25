@@ -256,6 +256,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
             link: '/cart.php',
             linkText: b3Lang('purchasedProducts.footer.viewCart'),
             isOutLink: true,
+            isCustomEvent: true,
           }),
           isClose: true,
         })

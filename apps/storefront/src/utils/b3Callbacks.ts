@@ -1,11 +1,10 @@
+import { CallbackKey } from '@b3/hooks'
+
 type CallbackEvent = {
   data: CustomFieldItems
   preventDefault: () => void
 }
-export enum CallbackKey {
-  onQuoteCreate = 'on-quote-create',
-  onAddToShoppingList = 'on-add-to-shopping-list',
-}
+
 type Callback = (event: CallbackEvent) => any
 
 export default class CallbackManager {

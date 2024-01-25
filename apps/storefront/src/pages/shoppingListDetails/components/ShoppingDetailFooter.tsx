@@ -276,6 +276,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                 link: '/cart.php',
                 linkText: b3Lang('shoppingList.footer.viewCart'),
                 isOutLink: true,
+                isCustomEvent: true,
               }),
               isClose: true,
             })

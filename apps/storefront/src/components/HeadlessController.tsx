@@ -201,13 +201,14 @@ export default function HeadlessController({
       ...window.b2b,
       callbacks: new CallbackManager(),
       utils: {
-        openPage: (page) => {
-          setOpenPage({ isOpen: false })
-          setTimeout(
-            () => setOpenPage({ isOpen: true, openUrl: HeadlessRoutes[page] }),
-            0
-          )
-        },
+        openPage: (page) =>
+          setTimeout(() => {
+            if (page === 'CLOSE') {
+              setOpenPage({ isOpen: false })
+              return
+            }
+            setOpenPage({ isOpen: true, openUrl: HeadlessRoutes[page] })
+          }, 0),
         quote: {
           addProductFromPage: (item) =>
             addProductsToDraftQuote([item], setOpenPage),

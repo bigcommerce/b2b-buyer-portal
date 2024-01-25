@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react'
-import useCallbacks from '@b3/hooks/useCustomCallbacks'
+import { CallbackKey,useCallbacks } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
@@ -11,7 +11,6 @@ import {
   addProductToShoppingList,
 } from '@/shared/service/b2b'
 import { B3SStorage, getValidOptionsList, snackbar } from '@/utils'
-import { CallbackKey } from '@/utils/b3Callbacks'
 
 import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config'
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'

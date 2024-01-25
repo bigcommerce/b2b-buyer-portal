@@ -280,6 +280,7 @@ export default function OrderDialog({
             link: '/cart.php',
             linkText: b3Lang('orderDetail.viewCart'),
             isOutLink: true,
+            isCustomEvent: true,
           }),
           isClose: true,
         })

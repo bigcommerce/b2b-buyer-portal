@@ -48,6 +48,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
           link: '/cart.php',
           linkText: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           isOutLink: true,
+          isCustomEvent: true,
         }),
         isClose: true,
       })
@@ -72,6 +73,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
           link: '/cart.php',
           linkText: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           isOutLink: true,
+          isCustomEvent: true,
         }),
         isClose: true,
       })

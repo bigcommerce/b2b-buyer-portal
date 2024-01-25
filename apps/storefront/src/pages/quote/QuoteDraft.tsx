@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import useCallbacks from '@b3/hooks/useCustomCallbacks'
+import { CallbackKey,useCallbacks } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import {
@@ -41,7 +41,6 @@ import {
   snackbar,
   storeHash,
 } from '@/utils'
-import { CallbackKey } from '@/utils/b3Callbacks'
 import { deleteCartData } from '@/utils/cartUtils'
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config'

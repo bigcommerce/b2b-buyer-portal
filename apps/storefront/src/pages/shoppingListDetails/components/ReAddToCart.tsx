@@ -255,6 +255,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
               link: '/cart.php',
               linkText: b3Lang('shoppingList.reAddToCart.viewCart'),
               isOutLink: true,
+              isCustomEvent: true,
             }),
             isClose: true,
           })

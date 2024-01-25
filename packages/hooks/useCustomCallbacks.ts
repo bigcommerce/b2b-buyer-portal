@@ -1,9 +1,10 @@
-enum CallbackKey {
+export enum CallbackKey {
   onQuoteCreate = 'on-quote-create',
   onAddToShoppingList = 'on-add-to-shopping-list',
+  onClickCartButton = 'on-click-cart-button',
 }
 
-const useCallbacks = (
+export const useCallbacks = (
   callbacks: CallbackKey[] | CallbackKey,
   fn: (...args: any[]) => Promise<any> | any
 ) => {
@@ -20,5 +21,3 @@ const useCallbacks = (
 
   return (...args: any[]) => fn(...args, handleEvent)
 }
-
-export default useCallbacks

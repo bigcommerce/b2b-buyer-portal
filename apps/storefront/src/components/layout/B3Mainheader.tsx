@@ -1,5 +1,6 @@
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { CallbackKey, useCallbacks } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import { Box, Button, Typography } from '@mui/material'
 
@@ -28,6 +29,18 @@ export default function B3Mainheader({ title }: { title: string }) {
   } = useContext(CustomStyleContext)
 
   const customColor = getContrastColor(backgroundColor)
+
+  const onCartClick = useCallbacks(
+    CallbackKey.onClickCartButton,
+    (_, handleEvent) => {
+      const isNotPreventDefaultExecuted = handleEvent()
+      if (!isNotPreventDefaultExecuted) {
+        return
+      }
+
+      window.location.href = '/cart.php'
+    }
+  )
 
   useEffect(() => {
     b3TriggerCartNumber()
@@ -98,9 +111,7 @@ export default function B3Mainheader({ title }: { title: string }) {
                   fontWeight: 700,
                   fontSize: '16px',
                 }}
-                onClick={() => {
-                  window.location.href = '/cart.php'
-                }}
+                onClick={onCartClick}
               >
                 {b3Lang('global.B3MainHeader.cart')}
                 {global?.cartNumber && global?.cartNumber > 0 ? (

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { CallbackKey, useCallbacks } from '@b3/hooks'
 import { Box } from '@mui/material'
 
 export interface B3SuccessTipContentProps {
@@ -6,6 +7,7 @@ export interface B3SuccessTipContentProps {
   link?: string
   linkText?: string
   isOutLink?: boolean
+  isCustomEvent?: boolean
 }
 
 export function B3LinkTipContent({
@@ -13,16 +15,26 @@ export function B3LinkTipContent({
   link = '',
   linkText = 'View',
   isOutLink = false,
+  isCustomEvent = false,
 }: B3SuccessTipContentProps) {
   const navigate = useNavigate()
 
-  const handleLink = () => {
-    if (isOutLink) {
-      window.location.href = link
-    } else {
-      navigate(link)
+  const handleLink = useCallbacks(
+    CallbackKey.onClickCartButton,
+    (_, handleEvent) => {
+      if (isCustomEvent) {
+        const isNotPreventDefaultExecuted = handleEvent()
+        if (!isNotPreventDefaultExecuted) {
+          return
+        }
+      }
+      if (isOutLink) {
+        window.location.href = link
+      } else {
+        navigate(link)
+      }
     }
-  }
+  )
 
   return (
     <Box>
@@ -56,6 +68,7 @@ export const successTip = ({
   link = '',
   linkText = 'View',
   isOutLink = false,
+  isCustomEvent = false,
 }: B3SuccessTipContentProps) =>
   function componentTip() {
     return (
@@ -64,6 +77,7 @@ export const successTip = ({
         link={link}
         linkText={linkText}
         isOutLink={isOutLink}
+        isCustomEvent={isCustomEvent}
       />
     )
   }

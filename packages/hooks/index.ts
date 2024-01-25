@@ -1,4 +1,4 @@
 export * from './useB3AppOpen'
-export { default as useCustomCallbacks } from './useCustomCallbacks'
+export * from './useCustomCallbacks'
 export { default as useMutationObservable } from './useMutationObservable'
 export { default as useWindowSize } from './useWindowSize'
