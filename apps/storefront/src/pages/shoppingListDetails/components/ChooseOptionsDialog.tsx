@@ -4,12 +4,14 @@ import {
   KeyboardEvent,
   SetStateAction,
   useEffect,
+  useRef,
   useState,
 } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Box, Divider, TextField, Typography } from '@mui/material'
+import isEqual from 'lodash-es/isEqual'
 
 import { B3CustomForm, B3Dialog, B3Sping } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
@@ -295,6 +297,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   })
 
   const formValues = watch()
+  const cache = useRef(formValues)
 
   const getProductVariantId = async (
     value: CustomFieldItems,
@@ -374,6 +377,12 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   }
 
   useEffect(() => {
+    if (cache?.current && isEqual(cache?.current, formValues)) {
+      return
+    }
+
+    cache.current = formValues
+
     if (
       Object.keys(formValues).length &&
       formFields.length &&
