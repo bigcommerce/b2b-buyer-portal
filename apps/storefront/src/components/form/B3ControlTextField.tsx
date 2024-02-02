@@ -2,6 +2,7 @@ import { KeyboardEvent, WheelEvent } from 'react'
 import { Controller } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { Box, TextField } from '@mui/material'
+import debounce from 'lodash-es/debounce'
 
 import { StyleNumberTextField } from './styled'
 import Form from './ui'
@@ -36,6 +37,8 @@ export default function B3ControlTextField({
     tipText = '',
     extraPadding,
     fieldId,
+    isEnterTrigger,
+    handleEnterClick,
   } = rest
 
   const b3Lang = useB3Lang()
@@ -101,6 +104,14 @@ export default function B3ControlTextField({
     }
   }
 
+  const handleKeyDown = debounce((event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && handleEnterClick) {
+      handleEnterClick()
+    } else {
+      event.preventDefault()
+    }
+  }, 300)
+
   const handleNumberInputWheel = (event: WheelEvent<HTMLInputElement>) => {
     ;(event.target as HTMLElement).blur()
   }
@@ -162,6 +173,7 @@ export default function B3ControlTextField({
               helperText={
                 (errors as any)[name] ? (errors as any)[name].message : null
               }
+              onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
               autoComplete={fieldType === 'password' ? 'new-password' : 'off'}
             />
           )

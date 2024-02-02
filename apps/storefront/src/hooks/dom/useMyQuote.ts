@@ -34,7 +34,7 @@ interface MutationObserverProps {
   productQuoteEnabled: boolean
   B3UserId: number | string
   role: number | string
-  customerId: number | string
+  customerId?: number | string
 }
 
 const useMyQuote = ({
@@ -42,19 +42,16 @@ const useMyQuote = ({
   productQuoteEnabled,
   B3UserId,
   role,
-  customerId,
 }: MutationObserverProps) => {
   useEffect(() => {
     const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
-    const isLogin = role && role !== 100
-    if (
-      isLogin &&
-      +quoteDraftUserId !== 0 &&
-      +quoteDraftUserId !== +customerId
-    ) {
+    const roles = [0, 1, 2, 3, 99]
+    const isLogin = roles.includes(+role)
+
+    if (isLogin && +quoteDraftUserId !== 0 && +quoteDraftUserId !== +B3UserId) {
       B3LStorage.set('MyQuoteInfo', {})
       B3LStorage.set('b2bQuoteDraftList', [])
-      B3LStorage.set('quoteDraftUserId', B3UserId || customerId || 0)
+      B3LStorage.set('quoteDraftUserId', B3UserId || 0)
     }
   }, [B3UserId])
   const cache = useRef({})

@@ -63,7 +63,10 @@ export const getForgotPasswordFields = (b3Lang: LangFormatFunction) => [
   },
 ]
 
-export const getLoginFields = (b3Lang: LangFormatFunction) => [
+export const getLoginFields = (
+  b3Lang: LangFormatFunction,
+  submitLoginFn: () => void
+) => [
   {
     name: 'emailAddress',
     label: b3Lang('global.loginText.emailAddress'),
@@ -82,6 +85,8 @@ export const getLoginFields = (b3Lang: LangFormatFunction) => [
     fieldType: 'password',
     xs: 12,
     variant: 'filled',
+    isEnterTrigger: true,
+    handleEnterClick: submitLoginFn,
   },
 ]
 
@@ -170,16 +175,20 @@ export const getBCChannelId = (storeSitesany: Array<ChannelIdProps>) => {
   return channelId
 }
 
-export const logout = () => new Promise<boolean>((resolve, reject) => {
-  fetch('/login.php?action=logout').then((response) => {
-   if (!response.ok) {
-     throw new Error('Network response was not ok')
-   }
-   return response.text()
- }).then((responseData) => {
-   const isFlag = responseData.includes('alertBox--success')
-   resolve(isFlag)
- }).catch(e => {
-  reject(e)
- })
-})
+export const logout = () =>
+  new Promise<boolean>((resolve, reject) => {
+    fetch('/login.php?action=logout')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+        return response.text()
+      })
+      .then((responseData) => {
+        const isFlag = responseData.includes('alertBox--success')
+        resolve(isFlag)
+      })
+      .catch((e) => {
+        reject(e)
+      })
+  })

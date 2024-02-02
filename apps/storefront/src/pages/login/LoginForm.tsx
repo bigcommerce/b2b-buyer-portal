@@ -21,8 +21,6 @@ function LoginForm(props: LoginFormProps) {
   const b3Lang = useB3Lang()
   const theme = useTheme()
 
-  const loginFields = getLoginFields(b3Lang)
-
   const { loginBtn } = loginInfo
 
   const {
@@ -38,6 +36,8 @@ function LoginForm(props: LoginFormProps) {
   const handleLoginClick: SubmitHandler<LoginConfig> = (data) => {
     handleLoginSubmit(data)
   }
+
+  const loginFields = getLoginFields(b3Lang, handleSubmit(handleLoginClick))
 
   return (
     <Box
