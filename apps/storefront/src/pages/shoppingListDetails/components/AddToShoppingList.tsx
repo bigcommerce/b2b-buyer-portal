@@ -21,6 +21,7 @@ import SearchProduct from './SearchProduct'
 interface AddToListProps {
   updateList: () => void
   isB2BUser: boolean
+  type?: string
 }
 
 export default function AddToShoppingList(props: AddToListProps) {
@@ -28,7 +29,7 @@ export default function AddToShoppingList(props: AddToListProps) {
     state: { id },
   } = useContext(ShoppingListDetailsContext)
 
-  const { updateList, isB2BUser } = props
+  const { updateList, isB2BUser, type: pageType = '' } = props
   const b3Lang = useB3Lang()
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
@@ -126,7 +127,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       } = currentProduct
 
       const defaultModifiers = getAllModifierDefaultValue(modifiers)
-      if (purchasingDisabled) {
+      if (purchasingDisabled && pageType !== 'shoppingList') {
         notPurchaseSku.push(variantSku)
         return
       }
@@ -194,7 +195,7 @@ export default function AddToShoppingList(props: AddToListProps) {
         updateList()
       }
 
-      if (notAddAble.length > 0) {
+      if (notAddAble.length > 0 && pageType !== 'shoppingList') {
         snackbar.error(
           b3Lang('shoppingList.addToShoppingList.skuNotAddable', {
             notAddAble,
@@ -205,7 +206,7 @@ export default function AddToShoppingList(props: AddToListProps) {
         )
       }
 
-      if (notPurchaseSku.length > 0) {
+      if (notPurchaseSku.length > 0 && pageType !== 'shoppingList') {
         snackbar.error(
           b3Lang('shoppingList.addToShoppingList.skuNotPurchasable', {
             notPurchaseSku,
@@ -253,7 +254,11 @@ export default function AddToShoppingList(props: AddToListProps) {
 
           <Divider />
 
-          <QuickAdd updateList={updateList} quickAddToList={quickAddToList} />
+          <QuickAdd
+            type="shoppingList"
+            updateList={updateList}
+            quickAddToList={quickAddToList}
+          />
 
           <Divider />
 

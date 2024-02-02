@@ -25,6 +25,7 @@ interface AddToListContentProps {
   level?: number
   buttonText?: string
   buttonLoading?: boolean
+  type?: string
 }
 
 export default function QuickAdd(props: AddToListContentProps) {
@@ -35,6 +36,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     level = 3,
     buttonText = b3Lang('shoppingList.quickAdd.addToShoppingList'),
     buttonLoading = false,
+    type,
   } = props
 
   const {
@@ -170,7 +172,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
       const quantity = (skuValue[sku] as number) || 0
 
-      if (purchasingDisabled === '1') {
+      if (purchasingDisabled === '1' && type !== 'shoppingList') {
         notPurchaseSku.push(sku)
         return
       }

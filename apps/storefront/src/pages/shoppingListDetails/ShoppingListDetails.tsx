@@ -448,6 +448,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
             {!isReadForApprove && !isJuniorApprove && (
               <AddToShoppingList
                 updateList={updateList}
+                type="shoppingList"
                 isB2BUser={isB2BUser}
               />
             )}
