@@ -46,6 +46,7 @@ import {
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
+  getB2BSkusInfo,
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
   guestProductsBulkUploadCSV,
@@ -178,6 +179,7 @@ export {
   getB2BRegisterLogo,
   getB2BShoppingList,
   getB2BShoppingListDetails,
+  getB2BSkusInfo,
   getB2BToken,
   getB2BVariantInfoBySkus,
   getBCAllOrders,

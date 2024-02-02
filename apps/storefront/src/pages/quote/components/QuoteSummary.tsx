@@ -12,6 +12,8 @@ import { store } from '@/store'
 import { B3LStorage, currencyFormat } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
 
+import getQuoteDraftShowPriceTBD from '../shared/utils'
+
 interface Summary {
   subtotal: number
   shipping: number
@@ -33,6 +35,8 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     ...defaultSummary,
   })
 
+  const [isHideQuoteDraftPrice, setHideQuoteDraftPrice] =
+    useState<boolean>(false)
   const {
     global: { showInclusiveTaxPrice },
   } = store.getState()
@@ -41,6 +45,10 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
 
   const getSummary = () => {
     const productList = B3LStorage.get('b2bQuoteDraftList') || []
+
+    const isHidePrice = getQuoteDraftShowPriceTBD(productList)
+
+    setHideQuoteDraftPrice(isHidePrice)
 
     const newQuoteSummary = productList.reduce(
       (summary: Summary, product: CustomFieldItems) => {
@@ -84,6 +92,12 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
 
   const priceFormat = (price: number) => `${currencyFormat(price)}`
 
+  const showPrice = (price: string | number): string | number => {
+    if (isHideQuoteDraftPrice) return b3Lang('quoteDraft.quoteSummary.tbd')
+
+    return price
+  }
+
   return (
     <Card>
       <CardContent>
@@ -107,7 +121,9 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
               <Typography>
                 {b3Lang('quoteDraft.quoteSummary.subTotal')}
               </Typography>
-              <Typography>{priceFormat(quoteSummary.subtotal)}</Typography>
+              <Typography>
+                {showPrice(priceFormat(quoteSummary.subtotal))}
+              </Typography>
             </Grid>
 
             <Grid
@@ -131,7 +147,9 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
               }}
             >
               <Typography>{b3Lang('quoteDraft.quoteSummary.tax')}</Typography>
-              <Typography>{priceFormat(quoteSummary.tax)}</Typography>
+              <Typography>
+                {showPrice(priceFormat(quoteSummary.tax))}
+              </Typography>
             </Grid>
 
             <Grid
@@ -153,7 +171,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                   fontWeight: 'bold',
                 }}
               >
-                {priceFormat(quoteSummary.grandTotal)}
+                {showPrice(priceFormat(quoteSummary.grandTotal))}
               </Typography>
             </Grid>
           </Box>

@@ -20,6 +20,10 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { store } from '@/store'
 import { currencyFormat, ordersCurrencyFormat } from '@/utils'
+import {
+  getDisplayPrice,
+  judgmentBuyerProduct,
+} from '@/utils/b3Product/b3Product'
 
 import { MoneyFormat, ProductItem } from '../types'
 
@@ -135,6 +139,7 @@ interface ProductProps<T> {
   totalText?: string
   canToProduct?: boolean
   textAlign?: string
+  type?: string
 }
 
 export default function B3ProductList<T>(props: ProductProps<T>) {
@@ -152,6 +157,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
     canToProduct = false,
     textAlign = 'left',
     money,
+    type,
   } = props
 
   const [list, setList] = useState<ProductItem[]>([])
@@ -229,6 +235,32 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
 
+  const showTypePrice = (
+    newMoney: string | number,
+    product: CustomFieldItems
+  ): string | number => {
+    if (type === 'quote') {
+      return getDisplayPrice({
+        price: newMoney,
+        productInfo: product,
+        isProduct: true,
+      })
+    }
+    if (type === 'shoppingList') {
+      const { isPriceHidden } = product
+      const isBuyerProduct = judgmentBuyerProduct({
+        price: newMoney,
+        productInfo: product,
+        isProduct: true,
+      })
+      return isPriceHidden && !isBuyerProduct ? '' : newMoney
+    }
+    if (type === 'quickOrder') {
+      return newMoney
+    }
+    return newMoney
+  }
+
   return products.length > 0 ? (
     <Box>
       {!isMobile && (
@@ -277,6 +309,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
       )}
 
       {products.map((product) => {
+        console.log(product, 'product')
         const { variants = [] } = product
         const currentVariant = variants[0]
         let productPrice = +product.base_price
@@ -299,6 +332,22 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
           getQuantity(product) || 0,
           productPrice
         )
+
+        const getPrice = () => {
+          const newMoney = money
+            ? `${ordersCurrencyFormat(money, productPrice)}`
+            : `${currencyFormat(productPrice)}`
+
+          return showTypePrice(newMoney, product)
+        }
+
+        const getTotalPrice = () => {
+          const newMoney = money
+            ? `${ordersCurrencyFormat(money, totalPrice)}`
+            : `${currencyFormat(totalPrice)}`
+
+          return showTypePrice(newMoney, product)
+        }
 
         return (
           <Flex isMobile={isMobile} key={product.id}>
@@ -358,9 +407,8 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               }
             >
               {isMobile && <span>Price:</span>}
-              {money
-                ? `${ordersCurrencyFormat(money, productPrice)}`
-                : `${currencyFormat(productPrice)}`}
+
+              {getPrice()}
             </FlexItem>
 
             <FlexItem
@@ -416,9 +464,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               }
             >
               {isMobile && <span>{totalText}:</span>}
-              {money
-                ? `${ordersCurrencyFormat(money, totalPrice)}`
-                : `${currencyFormat(totalPrice)}`}
+              {getTotalPrice()}
             </FlexItem>
 
             {renderAction && (

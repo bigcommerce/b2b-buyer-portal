@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CallbackKey,useCallbacks } from '@b3/hooks'
+import { CallbackKey, useCallbacks } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import {
@@ -89,6 +89,7 @@ interface InfoProps {
 
 interface QuoteTableRef extends HTMLInputElement {
   refreshList: () => void
+  getList: () => CustomFieldItems[]
 }
 
 interface QuoteSummaryRef extends HTMLInputElement {

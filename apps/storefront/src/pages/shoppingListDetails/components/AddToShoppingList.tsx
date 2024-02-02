@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react'
-import { CallbackKey,useCallbacks } from '@b3/hooks'
+import { CallbackKey, useCallbacks } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
@@ -248,6 +248,7 @@ export default function AddToShoppingList(props: AddToListProps) {
             updateList={updateList}
             addToList={addToList}
             isB2BUser={isB2BUser}
+            type="shoppingList"
           />
 
           <Divider />

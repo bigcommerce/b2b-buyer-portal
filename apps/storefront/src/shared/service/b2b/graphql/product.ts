@@ -2,6 +2,12 @@ import { B3SStorage, convertArrayToGraphql, storeHash } from '@/utils'
 
 import B3Request from '../../request/b3Fetch'
 
+interface ProductPurchasable {
+  productId: number
+  isProduct: boolean
+  sku: string
+}
+
 const getVariantInfoBySkus = ({ skus = [] }) => `{
   variantSku (
     variantSkus: ${convertArrayToGraphql(skus)},
@@ -23,6 +29,36 @@ const getVariantInfoBySkus = ({ skus = [] }) => `{
     modifiers,
     purchasingDisabled,
     variantSku,
+  }
+}`
+
+const getSkusInfo = ({ skus = [] }) => `{
+  variantSku (
+    variantSkus: ${convertArrayToGraphql(skus)},
+    storeHash: "${storeHash}"
+    channelId: ${B3SStorage.get('B3channelId') || 1}
+  ){
+    isStock,
+    stock,
+    purchasingDisabled,
+  }
+}`
+
+const getProductPurchasable = ({
+  sku = '',
+  isProduct = true,
+  productId,
+}: ProductPurchasable) => `{
+  productPurchasable(
+    storeHash: "${storeHash}"
+    productId: ${+productId},
+    sku:"${sku}",
+    isProduct: ${isProduct}
+    ){
+    availability
+    inventoryLevel
+    inventoryTracking
+    purchasingDisabled
   }
 }`
 
@@ -63,6 +99,7 @@ const searchProducts = (data: CustomFieldItems) => `{
     channelId,
     productUrl,
     taxClassId,
+    isPriceHidden,
   }
 }`
 
@@ -117,6 +154,18 @@ export const getB2BVariantInfoBySkus = (
     },
     customMessage
   )
+
+export const getB2BSkusInfo = (data: CustomFieldItems): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getSkusInfo(data),
+  })
+
+export const getB2BProductPurchasable = (
+  data: ProductPurchasable
+): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getProductPurchasable(data),
+  })
 
 export const getB2BVariantSkuByProductId = (
   productId: string

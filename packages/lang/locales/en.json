@@ -110,6 +110,7 @@
   "global.customStyles.addToAllQuoteBtn": "Add All To Quote",
   "global.customStyles.shoppingListBtn": "Add to Shopping List",
   "global.masquerade.youAreMasqueradeAs": "You are masquerade as",
+  "global.addtoCart.purchasableAbdoosTip": "Products are out of stock or there are products that cannot be purchased.",
   "global.companyCredit.alert": "Your account does not currently allow purchasing due to a credit hold. Please contact us to reconcile.",
 
   "dashboard.company": "Company",
@@ -582,6 +583,7 @@
   "quoteDetail.message.message": "Message",
   "quoteDetail.message.merchantAnswers": "Merchant typically answers within 1 day",
   "quoteDetail.message.typeMessage": "Type a message...",
+  "quoteDetail.message.insufficientStock": "{ProductName} does not have sufficient stock. Please contact your Sales Rep to have it re-issued.",
   "quoteDetail.message.sent": "Sent",
   "quoteDetail.footer.proceedToCheckout": "Proceed to checkout",
   "quoteDetail.header.backToQuoteLists": "Back to quote lists",

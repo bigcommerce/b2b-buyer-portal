@@ -14,6 +14,7 @@ import {
 import { getActiveBcCurrency } from '@/shared/service/bc'
 import {
   setBlockPendingAccountViewPrice,
+  setBlockPendingQuoteNonPurchasableOOS,
   setEnteredInclusive,
   setShowInclusiveTaxPrice,
   setStoreInfo,
@@ -151,6 +152,18 @@ const storeforntKeys: StoreforntKeysProps[] = [
     key: 'css_override',
     name: 'cssOverride',
   },
+  {
+    key: 'non_purchasable_quote',
+    name: 'nonPurchasableQuote',
+  },
+  {
+    key: 'buyer_non_purchasable_quote',
+    name: 'buyerNonPurchasableQuote',
+  },
+  {
+    key: 'quote_on_non_purchasable_product_page',
+    name: 'quoteOnNonPurchasableProductPageBtn',
+  },
 ]
 
 const getTemPlateConfig = async (
@@ -238,6 +251,33 @@ const getTemPlateConfig = async (
         )
         store.dispatch(
           setBlockPendingAccountViewPrice(blockPendingAccountViewPrice)
+        )
+      }
+
+      if (storeforntKey.key === 'non_purchasable_quote') {
+        store.dispatch(
+          setBlockPendingQuoteNonPurchasableOOS({
+            isEnableProduct: item.value === '1',
+            // isEnableRequest: false
+          })
+        )
+      }
+
+      if (storeforntKey.key === 'quote_on_non_purchasable_product_page') {
+        item.extraFields = {
+          ...item.extraFields,
+          locationSelector:
+            item.extraFields?.locationSelector || '.add-to-cart-buttons',
+          classSelector: item.extraFields?.classSelector || 'button',
+          customCss: item.extraFields?.customCss || '',
+        }
+      }
+
+      if (storeforntKey.key === 'buyer_non_purchasable_quote') {
+        store.dispatch(
+          setBlockPendingQuoteNonPurchasableOOS({
+            isEnableRequest: item.value === '1',
+          })
         )
       }
 

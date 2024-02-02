@@ -18,10 +18,11 @@ interface QuoteDetailFooterProps {
   role: string | number
   isAgenting: boolean
   status: number
+  proceedingCheckoutFn: () => boolean
 }
 
 function QuoteDetailFooter(props: QuoteDetailFooterProps) {
-  const { quoteId, role, isAgenting, status } = props
+  const { quoteId, role, isAgenting, status, proceedingCheckoutFn } = props
   const globalState = useSelector(globalStateSelector)
   const [isMobile] = useMobile()
   const b3Lang = useB3Lang()
@@ -38,6 +39,9 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
 
   const handleQuoteCheckout = async () => {
     try {
+      const isHideQuoteCheckout = proceedingCheckoutFn()
+      if (isHideQuoteCheckout) return
+
       const fn = +role === 99 ? bcQuoteCheckout : b2bQuoteCheckout
       const date = getSearchVal(location.search, 'date')
 

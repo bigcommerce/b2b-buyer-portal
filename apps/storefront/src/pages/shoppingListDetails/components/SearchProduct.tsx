@@ -20,6 +20,7 @@ interface SearchProductProps {
   searchDialogTitle?: string
   addButtonText?: string
   isB2BUser: boolean
+  type?: string
 }
 
 export default function SearchProduct({
@@ -28,6 +29,7 @@ export default function SearchProduct({
   searchDialogTitle,
   addButtonText,
   isB2BUser,
+  type,
 }: SearchProductProps) {
   const b3Lang = useB3Lang()
   const [isLoading, setIsLoading] = useState(false)
@@ -219,6 +221,7 @@ export default function SearchProduct({
         isLoading={isLoading}
         productList={productList}
         searchText={searchText}
+        type={type}
         onSearchTextChange={handleSearchTextChange}
         onSearch={handleSearchButtonClicked}
         onCancel={handleProductListDialogCancel}
@@ -232,6 +235,7 @@ export default function SearchProduct({
       <ChooseOptionsDialog
         isOpen={chooseOptionsOpen}
         isLoading={isLoading}
+        type={type}
         setIsLoading={setIsLoading}
         product={optionsProduct}
         onCancel={handleChooseOptionsDialogCancel}

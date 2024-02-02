@@ -17,6 +17,7 @@ interface QuoteDetailSummaryProps {
   quoteDetailTax: number
   status: string
   quoteDetail: CustomFieldItems
+  isHideQuoteCheckout: boolean
 }
 
 export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
@@ -26,6 +27,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
     quoteDetailTax = 0,
     status,
     quoteDetail,
+    isHideQuoteCheckout,
   } = props
 
   const {
@@ -89,6 +91,12 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
 
   const shippingAndTax = getShippingAndTax()
 
+  const showPrice = (price: string | number): string | number => {
+    if (isHideQuoteCheckout) return b3Lang('quoteDraft.quoteSummary.tbd')
+
+    return price
+  }
+
   return (
     <Card>
       <CardContent>
@@ -113,7 +121,9 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                 {b3Lang('quoteDetail.summary.originalSubtotal')}
               </Typography>
               <Typography>
-                {priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax))}
+                {showPrice(
+                  priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax))
+                )}
               </Typography>
             </Grid>
 
@@ -158,7 +168,9 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   color: '#212121',
                 }}
               >
-                {priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax))}
+                {showPrice(
+                  priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax))
+                )}
               </Typography>
             </Grid>
 
@@ -179,7 +191,9 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   >
                     {shippingAndTax.shippingText}
                   </Typography>
-                  <Typography>{shippingAndTax.shippingVal}</Typography>
+                  <Typography>
+                    {showPrice(shippingAndTax.shippingVal)}
+                  </Typography>
                 </Grid>
                 <Grid
                   container
@@ -189,7 +203,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   }}
                 >
                   <Typography>{shippingAndTax.taxText}</Typography>
-                  <Typography>{shippingAndTax.taxVal}</Typography>
+                  <Typography>{showPrice(shippingAndTax.taxVal)}</Typography>
                 </Grid>
               </>
             )}
@@ -215,7 +229,7 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
                   color: '#212121',
                 }}
               >
-                {priceFormat(+totalAmount)}
+                {showPrice(priceFormat(+totalAmount))}
               </Typography>
             </Grid>
           </Box>

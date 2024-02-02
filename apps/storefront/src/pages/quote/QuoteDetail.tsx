@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box, Button, Grid } from '@mui/material'
@@ -16,7 +16,12 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b'
 import { store, TaxZoneRates, TaxZoneRatesProps } from '@/store'
-import { getDefaultCurrencyInfo, getSearchVal, snackbar } from '@/utils'
+import {
+  getDefaultCurrencyInfo,
+  getSearchVal,
+  getVariantInfoDisplayPrice,
+  snackbar,
+} from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import Message from './components/Message'
@@ -51,6 +56,9 @@ function QuoteDetail() {
   const [quoteDetail, setQuoteDetail] = useState<any>({})
   const [productList, setProductList] = useState<any>([])
   const [fileList, setFileList] = useState<any>([])
+  const [isHandleApprove, setHandleApprove] = useState<boolean>(false)
+
+  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(false)
 
   const [quoteSummary, setQuoteSummary] = useState<any>({
     originalSubtotal: 0,
@@ -65,11 +73,60 @@ function QuoteDetail() {
 
   const [quoteDetailTax, setQuoteDetailTax] = useState(0)
 
+  const [noBuyerProductName, setNoBuyerProductName] = useState('')
+
   const location = useLocation()
 
   const {
-    global: { taxZoneRates, enteredInclusive: enteredInclusiveTax },
+    global: {
+      taxZoneRates,
+      enteredInclusive: enteredInclusiveTax,
+      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
+    },
   } = store.getState()
+
+  useEffect(() => {
+    let productName = ''
+
+    const isHideCheckout = productList.some((item: CustomFieldItems) => {
+      if (!getVariantInfoDisplayPrice(item.basePrice, item)) {
+        if (isEnableProduct && !item?.purchaseHandled) {
+          productName += `${item.productName}${productName ? ',' : ''}`
+          return true
+        }
+
+        if (!isEnableProduct) {
+          productName += `${item.productName}${productName ? ',' : ''}`
+          return true
+        }
+      }
+
+      return false
+    })
+
+    if (isEnableProduct && isHandleApprove && isHideCheckout) {
+      snackbar.error(
+        b3Lang('quoteDetail.message.insufficientStock', {
+          ProductName: productName,
+        })
+      )
+    }
+
+    setIsHideQuoteCheckout(isHideCheckout)
+
+    setNoBuyerProductName(productName)
+  }, [isEnableProduct, isHandleApprove, productList])
+
+  const proceedingCheckoutFn = useCallback(() => {
+    if (isHideQuoteCheckout) {
+      snackbar.error(
+        b3Lang('quoteDetail.message.insufficientStock', {
+          ProductName: noBuyerProductName,
+        })
+      )
+    }
+    return isHideQuoteCheckout
+  }, [isHideQuoteCheckout, noBuyerProductName])
 
   const classRates: TaxZoneRates[] = []
   if (taxZoneRates.length) {
@@ -194,7 +251,14 @@ function QuoteDetail() {
         setQuoteDetailTax(taxPrice)
       }
 
-      const { backendAttachFiles = [], storefrontAttachFiles = [] } = quote
+      const {
+        backendAttachFiles = [],
+        storefrontAttachFiles = [],
+        salesRep,
+        salesRepEmail,
+      } = quote
+
+      setHandleApprove(!!salesRep || !!salesRepEmail)
 
       const newFileList: CustomFieldItems[] = []
       storefrontAttachFiles.forEach((file: CustomFieldItems) => {
@@ -373,6 +437,17 @@ function QuoteDetail() {
     }
   }, [])
 
+  const isEnableProductShowCheckout = () => {
+    if (isEnableProduct) {
+      if (isHandleApprove && isHideQuoteCheckout) return true
+      if (!isHideQuoteCheckout) return true
+
+      return false
+    }
+
+    return true
+  }
+
   return (
     <B3Sping isSpinning={isRequestLoading}>
       <Box
@@ -447,6 +522,7 @@ function QuoteDetail() {
             >
               <QuoteDetailTable
                 total={productList.length}
+                isHandleApprove={isHandleApprove}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
               />
@@ -473,6 +549,7 @@ function QuoteDetail() {
               }}
             >
               <QuoteDetailSummary
+                isHideQuoteCheckout={isHideQuoteCheckout}
                 quoteSummary={quoteSummary}
                 quoteDetailTax={quoteDetailTax}
                 status={quoteDetail.status}
@@ -537,12 +614,14 @@ function QuoteDetail() {
         {+role !== 2 &&
           +quoteDetail.status !== 4 &&
           isShowFooter &&
-          quoteDetail?.allowCheckout && (
+          quoteDetail?.allowCheckout &&
+          isEnableProductShowCheckout() && (
             <QuoteDetailFooter
               quoteId={quoteDetail.id}
               role={role}
               isAgenting={isAgenting}
               status={quoteDetail.status}
+              proceedingCheckoutFn={proceedingCheckoutFn}
             />
           )}
       </Box>

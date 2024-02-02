@@ -1256,6 +1256,113 @@ const getValidOptionsList = (
   return newOptions
 }
 
+interface DisplayPriceProps {
+  price: string | number
+  productInfo: CustomFieldItems
+  isProduct?: boolean
+  showText?: string
+  forcedSkip?: boolean
+}
+
+const getProductInfoDisplayPrice = (
+  price: string | number,
+  productInfo: CustomFieldItems
+) => {
+  const { availability, inventoryLevel, inventoryTracking, quantity } =
+    productInfo
+
+  if (availability === 'disabled') {
+    return ''
+  }
+
+  if (inventoryTracking === 'none') {
+    return price
+  }
+  if (+quantity > +inventoryLevel) {
+    return ''
+  }
+
+  return price
+}
+
+export const getVariantInfoDisplayPrice = (
+  price: string | number,
+  productInfo: CustomFieldItems
+) => {
+  const newProductInfo = productInfo?.node ? productInfo.node : productInfo
+
+  const inventoryTracking: string = newProductInfo?.productsSearch
+    ? newProductInfo.productsSearch.inventoryTracking
+    : newProductInfo.inventoryTracking
+
+  const { quantity } = newProductInfo
+
+  const variantSku = newProductInfo?.variantSku || newProductInfo?.sku
+
+  const variants = newProductInfo?.productsSearch
+    ? newProductInfo.productsSearch.variants
+    : newProductInfo.variants
+
+  const variant = variants.find((item: Variant) => item.sku === variantSku)
+
+  if (variant?.sku) {
+    const {
+      purchasing_disabled: purchasingDisabled,
+      inventory_level: inventoryLevel,
+    } = variant
+
+    if (purchasingDisabled) return ''
+
+    if (inventoryTracking === 'none') return price
+
+    if (+quantity > inventoryLevel) return ''
+  }
+
+  return price
+}
+
+const getDisplayPrice = ({
+  price,
+  productInfo,
+  isProduct,
+  showText = '',
+  forcedSkip = false,
+}: DisplayPriceProps): string | number => {
+  const {
+    global: {
+      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
+    },
+  } = store.getState()
+
+  if (!isEnableProduct && !forcedSkip) return price
+
+  const newProductInfo = productInfo?.node ? productInfo.node : productInfo
+
+  if (newProductInfo?.purchaseHandled) return price
+
+  const newPrice = isProduct
+    ? getProductInfoDisplayPrice(price, newProductInfo)
+    : getVariantInfoDisplayPrice(price, newProductInfo)
+
+  return newPrice || showText || ''
+}
+
+const judgmentBuyerProduct = ({
+  productInfo,
+  isProduct,
+  price,
+}: DisplayPriceProps): boolean => {
+  const newProductInfo = productInfo?.node ? productInfo.node : productInfo
+
+  if (newProductInfo?.purchaseHandled) return true
+
+  const newPrice = isProduct
+    ? getProductInfoDisplayPrice(price, newProductInfo)
+    : getVariantInfoDisplayPrice(price, newProductInfo)
+
+  return !!newPrice
+}
+
 export {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
@@ -1266,11 +1373,13 @@ export {
   getBCPrice,
   getCalculatedParams,
   getCalculatedProductPrice,
+  getDisplayPrice,
   getModifiersPrice,
   getNewProductsList,
   getProductExtraPrice,
   getQuickAddProductExtraPrice,
   getValidOptionsList,
+  judgmentBuyerProduct,
   setModifierQtyPrice,
   validProductQty,
 }

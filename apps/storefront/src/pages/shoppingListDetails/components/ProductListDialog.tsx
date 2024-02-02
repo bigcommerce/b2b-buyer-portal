@@ -5,6 +5,7 @@ import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
 import { B3Dialog, B3ProductList, B3Sping, CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
+import { store } from '@/store'
 import { snackbar } from '@/utils'
 
 import { ShoppingListProductItem } from '../../../types'
@@ -77,6 +78,7 @@ interface ProductListDialogProps {
   isLoading: boolean
   searchDialogTitle?: string
   addButtonText?: string
+  type?: string
 }
 
 const ProductTable = B3ProductList<ShoppingListProductItem>
@@ -94,6 +96,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
     onAddToListClick,
     onChooseOptionsClick,
     isLoading,
+    type,
     searchDialogTitle = b3Lang('shoppingLists.title'),
     addButtonText = b3Lang('shoppingLists.addButtonText'),
   } = props
@@ -115,8 +118,19 @@ export default function ProductListDialog(props: ProductListDialogProps) {
 
     const { purchasing_disabled: purchasingDisabled = true } = variants[0] || {}
 
-    if (purchasingDisabled === true) {
-      snackbar.error('This product is no longer for sale')
+    const {
+      global: {
+        blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
+      },
+    } = store.getState()
+    if (
+      type !== 'shoppingList' &&
+      purchasingDisabled === true &&
+      !isEnableProduct
+    ) {
+      snackbar.error(
+        b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale')
+      )
       return false
     }
 
@@ -188,6 +202,7 @@ export default function ProductListDialog(props: ProductListDialogProps) {
             <ProductTable
               products={productList}
               quantityEditable
+              type={type}
               textAlign={isMobile ? 'left' : 'right'}
               canToProduct
               onProductQuantityChange={onProductQuantityChange}

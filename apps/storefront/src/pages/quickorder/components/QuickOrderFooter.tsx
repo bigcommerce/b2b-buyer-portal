@@ -260,6 +260,10 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
           }),
           isClose: true,
         })
+      } else if (res && res.errors) {
+        snackbar.error(res.errors[0].message, {
+          isClose: true,
+        })
       } else {
         snackbar.error('Error has occurred', {
           isClose: true,

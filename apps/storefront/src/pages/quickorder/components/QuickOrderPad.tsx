@@ -13,7 +13,7 @@ import {
 
 import { B3Upload, CustomButton, successTip } from '@/components'
 import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
-import { globalStateSelector } from '@/store'
+import { globalStateSelector, store } from '@/store'
 import { B3SStorage, b3TriggerCartNumber, snackbar } from '@/utils'
 import { callCart } from '@/utils/cartUtils'
 
@@ -39,6 +39,12 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
   const { storeInfo } = useSelector(globalStateSelector)
   const storePlatform = storeInfo?.platform
+
+  const {
+    global: {
+      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
+    },
+  } = store.getState()
 
   const getSnackbarMessage = (res: any) => {
     if (res && !res.errors) {
@@ -320,7 +326,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       productSku = currentVariant.sku || sku
     }
 
-    if (purchasingDisabled) {
+    if (purchasingDisabled && !isEnableProduct) {
       snackbar.error(
         b3Lang('purchasedProducts.quickOrderPad.notPurchaseableSku', {
           notPurchaseSku: productSku,
@@ -431,6 +437,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
             searchDialogTitle={b3Lang(
               'purchasedProducts.quickOrderPad.quickOrderPad'
             )}
+            type="quickOrder"
             addButtonText={b3Lang('purchasedProducts.quickOrderPad.addToCart')}
             isB2BUser={isB2BUser}
           />

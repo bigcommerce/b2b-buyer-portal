@@ -14,7 +14,7 @@ import {
   setModifierQtyPrice,
   snackbar,
 } from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import ChooseOptionsDialog from '../../shoppingListDetails/components/ChooseOptionsDialog'
@@ -155,6 +155,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
     paginationTableRef.current?.setList([...newListItems])
     updateList()
+    updateSummary()
   }
 
   const handleCheckProductQty = async (row: any, value: number | string) => {
@@ -395,7 +396,11 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
               padding: '12px 0',
             }}
           >
-            {`${currencyFormat(inTaxPrice)}`}
+            {getDisplayPrice({
+              price: `${currencyFormat(inTaxPrice)}`,
+              productInfo: row,
+              showText: b3Lang('quoteDraft.quoteSummary.tbd'),
+            })}
           </Typography>
         )
       },
@@ -451,7 +456,11 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 padding: '12px 0',
               }}
             >
-              {`${currencyFormat(total)}`}
+              {getDisplayPrice({
+                price: `${currencyFormat(total)}`,
+                productInfo: row,
+                showText: b3Lang('quoteDraft.quoteSummary.tbd'),
+              })}
             </Typography>
             <Box
               sx={{

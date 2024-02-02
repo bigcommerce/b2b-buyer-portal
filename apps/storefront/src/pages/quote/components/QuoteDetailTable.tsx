@@ -7,7 +7,7 @@ import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { store } from '@/store'
 import { currencyFormat } from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
 
 import QuoteDetailTableCard from './QuoteDetailTableCard'
 
@@ -47,6 +47,7 @@ interface ShoppingDetailTableProps {
     edges: any[]
     totalCount: number
   }>
+  isHandleApprove: boolean
   getTaxRate: (taxClassId: number, variants: any) => number
 }
 
@@ -102,10 +103,13 @@ const StyledImage = styled('img')(() => ({
 
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const b3Lang = useB3Lang()
-  const { total, getQuoteTableDetails, getTaxRate } = props
+  const { total, getQuoteTableDetails, getTaxRate, isHandleApprove } = props
 
   const {
-    global: { enteredInclusive: enteredInclusiveTax },
+    global: {
+      enteredInclusive: enteredInclusiveTax,
+      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
+    },
   } = store.getState()
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -124,6 +128,17 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     },
   }))
 
+  const showPrice = (price: string, row: CustomFieldItems): string | number => {
+    if (isEnableProduct) {
+      if (isHandleApprove) return price
+      return getDisplayPrice({
+        price,
+        productInfo: row,
+        showText: b3Lang('quoteDraft.quoteSummary.tbd'),
+      })
+    }
+    return price
+  }
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'Product',
@@ -236,7 +251,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(price)}`}
+                {showPrice(`${currencyFormat(price)}`, row)}
               </Typography>
             )}
 
@@ -246,7 +261,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(discountPrice)}`}
+              {showPrice(`${currencyFormat(discountPrice)}`, row)}
             </Typography>
           </>
         )
@@ -308,7 +323,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${currencyFormat(total)}`}
+                {showPrice(`${currencyFormat(total)}`, row)}
               </Typography>
             )}
             <Typography
@@ -317,7 +332,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${currencyFormat(totalWithDiscount)}`}
+              {showPrice(`${currencyFormat(totalWithDiscount)}`, row)}
             </Typography>
           </Box>
         )
@@ -364,6 +379,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           <QuoteDetailTableCard
             len={total || 0}
             item={row}
+            showPrice={showPrice}
             itemIndex={index}
             getTaxRate={getTaxRate}
           />

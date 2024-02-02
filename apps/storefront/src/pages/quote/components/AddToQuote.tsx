@@ -291,6 +291,7 @@ export default function AddToQuote(props: AddToListProps) {
           <SearchProduct
             updateList={updateList}
             addToList={addToList}
+            type="quote"
             searchDialogTitle={b3Lang('quoteDraft.modalTitle.addToQuote')}
             addButtonText={b3Lang('quoteDraft.searchProduct.addToQuoteButton')}
             isB2BUser={isB2BUser}

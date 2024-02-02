@@ -191,6 +191,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'))
       return
     }
+
     handleClose()
     setLoading(true)
     try {

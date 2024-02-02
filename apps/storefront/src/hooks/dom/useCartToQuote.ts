@@ -163,7 +163,7 @@ const useCartToQuote = ({
     let cartQuoteBtnDom: CustomFieldItems | null = null
     if (!addToQuoteAll.length && !CustomAddToQuoteAll.length) return
 
-    if (!cartQuoteEnabled) {
+    if (!cartQuoteEnabled || window?.location?.pathname?.includes('checkout')) {
       document.querySelector('.b2b-cart-to-quote')?.remove()
       return
     }

@@ -1,9 +1,10 @@
+import { useB3Lang } from '@b3/lang'
 import { Delete, Edit } from '@mui/icons-material'
 import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { currencyFormat } from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
 
@@ -45,6 +46,8 @@ function QuoteTableCard(props: QuoteTableCardProps) {
     taxPrice = 0,
   } = quoteTableItem
 
+  const b3Lang = useB3Lang()
+
   const price = getBCPrice(+basePrice, +taxPrice)
 
   const total = price * +quantity
@@ -62,6 +65,18 @@ function QuoteTableCard(props: QuoteTableCardProps) {
   )
 
   const { productUrl } = productsSearch
+
+  const siglePrice = getDisplayPrice({
+    price: `${currencyFormat(price)}`,
+    productInfo: quoteTableItem,
+    showText: b3Lang('quoteDraft.quoteSummary.tbd'),
+  })
+
+  const totalPrice = getDisplayPrice({
+    price: `${currencyFormat(total)}`,
+    productInfo: quoteTableItem,
+    showText: b3Lang('quoteDraft.quoteSummary.tbd'),
+  })
 
   return (
     <Box
@@ -135,9 +150,9 @@ function QuoteTableCard(props: QuoteTableCardProps) {
             )}
           </Box>
 
-          <Typography sx={{ fontSize: '14px' }}>{`Price: ${currencyFormat(
-            price
-          )}`}</Typography>
+          <Typography
+            sx={{ fontSize: '14px' }}
+          >{`Price: ${siglePrice}`}</Typography>
 
           <TextField
             size="small"
@@ -165,9 +180,9 @@ function QuoteTableCard(props: QuoteTableCardProps) {
               handleUpdateProductQty(quoteTableItem, e.target.value)
             }}
           />
-          <Typography sx={{ fontSize: '14px' }}>{`Total: ${currencyFormat(
-            total
-          )}`}</Typography>
+          <Typography
+            sx={{ fontSize: '14px' }}
+          >{`Total: ${totalPrice}`}</Typography>
           <Box
             sx={{
               marginTop: '1rem',

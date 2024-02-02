@@ -46,6 +46,10 @@ interface GlobalMessageDialog {
   saveFn?: () => void
 }
 
+interface GlobalBlockPendingQuoteNonPurchasableOOS {
+  isEnableProduct?: boolean
+  isEnableRequest?: boolean
+}
 export interface GlabolState {
   taxZoneRates?: TaxZoneRatesProps[]
   isClickEnterBtn?: boolean
@@ -60,6 +64,7 @@ export interface GlabolState {
   bcUrl?: string
   cartNumber?: number
   storeInfo?: StoreInfoProps
+  blockPendingQuoteNonPurchasableOOS?: GlobalBlockPendingQuoteNonPurchasableOOS
 }
 
 const initialState: GlabolState = {
@@ -91,6 +96,10 @@ const initialState: GlabolState = {
     translationVersion: 0,
     type: '',
     urls: [],
+  },
+  blockPendingQuoteNonPurchasableOOS: {
+    isEnableProduct: false,
+    isEnableRequest: false,
   },
 }
 
@@ -129,6 +138,15 @@ export const glabolSlice = createSlice({
     ) => {
       state.blockPendingAccountViewPrice = payload as Draft<boolean>
     },
+    setBlockPendingQuoteNonPurchasableOOS: (
+      state,
+      { payload }: PayloadAction<GlobalBlockPendingQuoteNonPurchasableOOS>
+    ) => {
+      state.blockPendingQuoteNonPurchasableOOS = {
+        ...state.blockPendingQuoteNonPurchasableOOS,
+        ...(payload as GlobalBlockPendingQuoteNonPurchasableOOS),
+      }
+    },
     setHeadLessBcUrl: (state, { payload }: PayloadAction<string>) => {
       state.bcUrl = payload as Draft<string>
     },
@@ -149,6 +167,7 @@ export const {
   setOpenPageReducer,
   setShowInclusiveTaxPrice,
   setBlockPendingAccountViewPrice,
+  setBlockPendingQuoteNonPurchasableOOS,
   setHeadLessBcUrl,
   setCartNumber,
   setStoreInfo,

@@ -36,6 +36,9 @@ export interface ProductItem {
   variants?: VariantsProps[]
   price_inc_tax?: string | number
   price_ex_tax?: string | number
+  availability?: string
+  inventoryLevel?: number
+  isPriceHidden?: boolean
 }
 
 export interface ProductVariantSkuInfo {

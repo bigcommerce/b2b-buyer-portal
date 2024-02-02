@@ -24,7 +24,7 @@ import {
 } from '@/shared/service/b2b'
 import { store } from '@/store'
 import { currencyFormat, getValidOptionsList, snackbar } from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
@@ -399,6 +399,18 @@ function ShoppingDetailTable(
     }
   }, [shoppingListInfo])
 
+  const showPrice = (price: string, row: CustomFieldItems): string | number => {
+    const {
+      productsSearch: { isPriceHidden },
+    } = row
+    return getDisplayPrice({
+      price,
+      productInfo: row,
+      showText: isPriceHidden ? '' : price,
+      forcedSkip: true,
+    })
+  }
+
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'Product',
@@ -495,7 +507,7 @@ function ShoppingDetailTable(
               padding: '12px 0',
             }}
           >
-            {currencyFormat(inTaxPrice)}
+            {showPrice(currencyFormat(inTaxPrice), row)}
           </Typography>
         )
       },
@@ -563,7 +575,7 @@ function ShoppingDetailTable(
                 padding: '12px 0',
               }}
             >
-              {currencyFormat(totalPrice)}
+              {showPrice(currencyFormat(totalPrice), row)}
             </Typography>
             <Box
               sx={{
@@ -738,6 +750,7 @@ function ShoppingDetailTable(
             len={shoppingListInfo?.products?.edges.length || 0}
             item={row}
             itemIndex={index}
+            showPrice={showPrice}
             onEdit={handleOpenProductEdit}
             onDelete={setDeleteItemId}
             checkBox={checkBox}
@@ -757,6 +770,7 @@ function ShoppingDetailTable(
         isLoading={isRequestLoading}
         setIsLoading={setIsRequestLoading}
         product={optionsProduct}
+        type="shoppingList"
         onCancel={handleChooseOptionsDialogCancel}
         onConfirm={handleChooseOptionsDialogConfirm}
         isEdit

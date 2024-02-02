@@ -238,6 +238,7 @@ const getQuoteInfo = (data: { id: number; date: string }) => `{
       orderQuantityMaximum,
       orderQuantityMinimum,
       productName,
+      purchaseHandled,
       options,
       notes,
       costPrice,
@@ -372,20 +373,14 @@ export const getBCQuotesList = (data: CustomFieldItems): CustomFieldItems =>
   })
 
 export const createQuote = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2B(
-    {
-      query: quoteCreate(data),
-    },
-    true
-  )
+  B3Request.graphqlB2B({
+    query: quoteCreate(data),
+  })
 
 export const createBCQuote = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlB2B(
-    {
-      query: quoteCreate(data),
-    },
-    true
-  )
+  B3Request.graphqlB2B({
+    query: quoteCreate(data),
+  })
 
 export const updateB2BQuote = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({

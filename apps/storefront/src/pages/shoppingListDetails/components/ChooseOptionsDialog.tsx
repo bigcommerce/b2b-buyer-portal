@@ -92,6 +92,7 @@ interface ChooseOptionsDialogProps {
   setIsLoading: Dispatch<SetStateAction<boolean>>
   addButtonText?: string
   isB2BUser: boolean
+  type?: string
 }
 
 interface ChooseOptionsProductProps extends ShoppingListProductItem {
@@ -115,6 +116,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     isLoading,
     setIsLoading,
     isB2BUser,
+    type,
     ...restProps
   } = props
 
@@ -124,7 +126,10 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   } = restProps
 
   const {
-    global: { showInclusiveTaxPrice },
+    global: {
+      showInclusiveTaxPrice,
+      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
+    },
   } = store.getState()
 
   const [quantity, setQuantity] = useState<number | string>(1)
@@ -358,7 +363,11 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const validateQuantityNumber = () => {
     const { purchasing_disabled: purchasingDisabled = true } = variantInfo || {}
 
-    if (purchasingDisabled === true) {
+    if (
+      type !== 'shoppingList' &&
+      purchasingDisabled === true &&
+      !isEnableProduct
+    ) {
       snackbar.error(
         b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale')
       )
@@ -382,7 +391,6 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     }
 
     cache.current = formValues
-
     if (
       Object.keys(formValues).length &&
       formFields.length &&

@@ -12,6 +12,7 @@ type BtnKeys =
   | 'accountLoginRegistration'
   | 'companyAutoApproval'
   | 'cssOverride'
+  | 'quoteOnNonPurchasableProductPageBtn'
 
 interface BtnStyle {
   color: string
@@ -55,6 +56,7 @@ export interface CustomStyleButtonState
   addQuoteBtn: BtnProperties
   shoppingListBtn: BtnProperties
   addToAllQuoteBtn: BtnProperties
+  quoteOnNonPurchasableProductPageBtn: BtnProperties
   globalButtonBackgroundColor: string
 }
 
@@ -92,6 +94,14 @@ export const initState = {
   addQuoteBtn: {
     color: '#fff',
     text: 'Add to Quote',
+    customCss: '',
+    classSelector: '',
+    locationSelector: '',
+    enabled: true,
+  },
+  quoteOnNonPurchasableProductPageBtn: {
+    color: '#fff',
+    text: 'Add to 1 Quote',
     customCss: '',
     classSelector: '',
     locationSelector: '',

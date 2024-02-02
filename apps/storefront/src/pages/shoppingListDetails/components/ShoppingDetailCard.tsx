@@ -27,6 +27,7 @@ interface ShoppingDetailCardProps {
   setAddNoteItemId: (itemId: number) => void
   setAddNoteOpen: (open: boolean) => void
   setNotes: (value: string) => void
+  showPrice: (price: string, row: CustomFieldItems) => string | number
 }
 
 const StyledImage = styled('img')(() => ({
@@ -51,6 +52,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     setAddNoteOpen,
     setAddNoteItemId,
     setNotes,
+    showPrice,
   } = props
 
   const {
@@ -175,7 +177,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             }}
           >
             {b3Lang('shoppingList.shoppingDetailCard.price', {
-              price: currencyFormat(price),
+              price: showPrice(currencyFormat(price), shoppingDetail),
             })}
           </Typography>
 
@@ -216,7 +218,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             }}
           >
             {b3Lang('shoppingList.shoppingDetailCard.total', {
-              total: currencyFormat(total),
+              total: showPrice(currencyFormat(total), shoppingDetail),
             })}
           </Typography>
           <Box

@@ -40,7 +40,6 @@ function b3Fetch(
         if (type === RequestType.B2BGraphql) {
           const errors = res?.errors?.length ? res.errors[0] : {}
           const { message = '', extensions = {} } = errors
-
           if (extensions.code === 40101) {
             window.location.href = '#/login?loginFlag=3&showTip=false'
             snackbar.error(message)
