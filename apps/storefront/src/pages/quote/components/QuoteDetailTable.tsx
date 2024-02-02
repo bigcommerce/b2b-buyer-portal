@@ -49,6 +49,7 @@ interface ShoppingDetailTableProps {
   }>
   isHandleApprove: boolean
   getTaxRate: (taxClassId: number, variants: any) => number
+  displayDiscount: boolean
 }
 
 interface SearchProps {
@@ -103,7 +104,13 @@ const StyledImage = styled('img')(() => ({
 
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   const b3Lang = useB3Lang()
-  const { total, getQuoteTableDetails, getTaxRate, isHandleApprove } = props
+  const {
+    total,
+    getQuoteTableDetails,
+    getTaxRate,
+    isHandleApprove,
+    displayDiscount,
+  } = props
 
   const {
     global: {
@@ -240,7 +247,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         const price = getBCPrice(+basePrice, taxPrice)
         const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
 
-        const isDiscount = +basePrice - +offeredPrice > 0
+        const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount
 
         return (
           <>
@@ -309,7 +316,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
         const price = getBCPrice(+basePrice, taxPrice)
         const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
-        const isDiscount = +basePrice - +offeredPrice > 0
+        const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount
 
         const total = price * +quantity
         const totalWithDiscount = discountPrice * +quantity
@@ -381,6 +388,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             item={row}
             showPrice={showPrice}
             itemIndex={index}
+            displayDiscount={displayDiscount}
             getTaxRate={getTaxRate}
           />
         )}

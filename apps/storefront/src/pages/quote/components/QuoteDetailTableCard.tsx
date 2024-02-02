@@ -12,6 +12,7 @@ interface QuoteTableCardProps {
   getTaxRate: (taxClassId: number, variants: any) => number
   itemIndex?: number
   showPrice: (price: string, row: CustomFieldItems) => string | number
+  displayDiscount: boolean
 }
 
 const StyledImage = styled('img')(() => ({
@@ -21,7 +22,14 @@ const StyledImage = styled('img')(() => ({
 }))
 
 function QuoteDetailTableCard(props: QuoteTableCardProps) {
-  const { item: quoteTableItem, len, itemIndex, getTaxRate, showPrice } = props
+  const {
+    item: quoteTableItem,
+    len,
+    itemIndex,
+    getTaxRate,
+    showPrice,
+    displayDiscount,
+  } = props
   const b3Lang = useB3Lang()
 
   const {
@@ -51,7 +59,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   const price = getBCPrice(+basePrice, taxPrice)
   const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
 
-  const isDiscount = +basePrice - +offeredPrice > 0
+  const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount
 
   const total = +price * +quantity
   const totalWithDiscount = discountPrice * +quantity

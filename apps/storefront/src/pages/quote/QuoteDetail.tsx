@@ -525,6 +525,7 @@ function QuoteDetail() {
                 isHandleApprove={isHandleApprove}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}
+                displayDiscount={quoteDetail.displayDiscount}
               />
             </Box>
           </Grid>

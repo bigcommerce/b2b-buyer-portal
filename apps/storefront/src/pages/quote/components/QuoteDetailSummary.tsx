@@ -110,22 +110,24 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
               color: '#212121',
             }}
           >
-            <Grid
-              container
-              justifyContent="space-between"
-              sx={{
-                margin: '4px 0',
-              }}
-            >
-              <Typography>
-                {b3Lang('quoteDetail.summary.originalSubtotal')}
-              </Typography>
-              <Typography>
-                {showPrice(
-                  priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax))
-                )}
-              </Typography>
-            </Grid>
+            {quoteDetail?.displayDiscount && (
+              <Grid
+                container
+                justifyContent="space-between"
+                sx={{
+                  margin: '4px 0',
+                }}
+              >
+                <Typography>
+                  {b3Lang('quoteDetail.summary.originalSubtotal')}
+                </Typography>
+                <Typography>
+                  {showPrice(
+                    priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax))
+                  )}
+                </Typography>
+              </Grid>
+            )}
 
             {!quoteDetail?.salesRepEmail && +status === 1 ? null : (
               <Grid
