@@ -290,7 +290,7 @@ export default function Login(props: RegisteredProps) {
           if (info?.userType === 3 && info?.role === 3) {
             navigate('/dashboard')
           } else if (info?.role === 2) {
-            navigate('/accountSettings')
+            navigate('/shoppingLists')
           } else {
             navigate('/orders')
           }

@@ -47,7 +47,7 @@ const redirectBcMenus = (
   if (key.includes('/account.php') && !key.includes('?')) {
     switch (role) {
       case 2:
-        return '/accountSettings'
+        return '/shoppingLists'
       case 3:
         return '/dashboard'
       default:
@@ -69,14 +69,14 @@ const redirectBcMenus = (
   }
 
   if (+role === 2 && currentItem?.newTargetUrl?.includes('order_status')) {
-    return '/accountSettings'
+    return '/shoppingLists'
   }
 
   if (currentItem?.newTargetUrl) {
     return currentItem.newTargetUrl
   }
 
-  return +role === 2 ? '/accountSettings' : '/orders'
+  return +role === 2 ? '/shoppingLists' : '/orders'
 }
 
 const getCurrentLoginUrl = (href: string): string => {
@@ -105,12 +105,12 @@ const openPageByClick = ({
   if (
     +role === 2 &&
     (href?.includes('/orders') ||
-      href?.includes('/accountSettings') ||
+      href?.includes('/shoppingLists') ||
       href?.includes('/login') ||
       href?.includes('/account')) &&
     !href?.includes('logout')
   ) {
-    return '/accountSettings'
+    return '/shoppingLists'
   }
   // register and login click
   if (href?.includes('/login') || isRegisterAndLogin || role === 100) {

@@ -411,7 +411,7 @@ const gotoAllowedAppPage = async (
   )
     switch (role) {
       case 2:
-        url = '/accountSettings'
+        url = '/shoppingLists'
         break
       case 3:
         url = '/dashboard'
