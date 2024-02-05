@@ -318,6 +318,26 @@ function QuickorderTable({
     })
   }
 
+  const handleSetCheckedQty = (row: CustomFieldItems) => {
+    const cacheProductList: CustomFieldItems =
+      paginationTableRef.current?.getCacheList() || []
+
+    let qty = row.quantity
+    if (cacheProductList.length > 0) {
+      const currentProduct = cacheProductList.find(
+        (item: CustomFieldItems) =>
+          item.node.variantId === row.variantId &&
+          item.node.productId === row.productId
+      )
+
+      if (currentProduct && currentProduct.node) {
+        qty = currentProduct.node.quantity || qty
+      }
+    }
+
+    return qty
+  }
+
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'product',
@@ -374,7 +394,6 @@ function QuickorderTable({
           productsSearch: { variants },
           variantId,
           basePrice,
-          quantity,
         } = row
         let priceIncTax = +basePrice
         if (variants?.length) {
@@ -382,8 +401,9 @@ function QuickorderTable({
             getProductPriceIncTax(variants, +variantId) || +basePrice
         }
 
+        const qty = handleSetCheckedQty(row)
         const withTaxPrice = priceIncTax || +basePrice
-        const price = withTaxPrice * +quantity
+        const price = withTaxPrice * +qty
 
         return (
           <Typography
@@ -403,21 +423,25 @@ function QuickorderTable({
     {
       key: 'qty',
       title: b3Lang('purchasedProducts.qty'),
-      render: (row) => (
-        <StyledTextField
-          size="small"
-          type="number"
-          variant="filled"
-          value={row.quantity}
-          inputProps={{
-            inputMode: 'numeric',
-            pattern: '[0-9]*',
-          }}
-          onChange={(e) => {
-            handleUpdateProductQty(row.id, e.target.value)
-          }}
-        />
-      ),
+      render: (row) => {
+        const qty = handleSetCheckedQty(row)
+
+        return (
+          <StyledTextField
+            size="small"
+            type="number"
+            variant="filled"
+            value={qty}
+            inputProps={{
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
+            }}
+            onChange={(e) => {
+              handleUpdateProductQty(row.id, e.target.value)
+            }}
+          />
+        )
+      },
       width: '15%',
       style: {
         textAlign: 'right',
