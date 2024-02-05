@@ -3,6 +3,7 @@ import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent } from '@mui/material'
 
 import { B3CollapseContainer } from '@/components'
+import { useRole } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   quoteDetailAttachFileCreate,
@@ -32,6 +33,8 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
       customer: { firstName = '', lastName = '' },
     },
   } = useContext(GlobaledContext)
+
+  const [roleText] = useRole()
 
   const [fileList, setFileList] = useState<FileObjects[]>([])
 
@@ -153,6 +156,11 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
           <Box>
             <FileUpload
               ref={uploadRef}
+              requestType={
+                roleText !== 'b2b'
+                  ? 'customerQuoteAttachedFile'
+                  : 'quoteAttachedFile'
+              }
               isEndLoadding
               fileList={fileList}
               limitUploadFn={limitUploadFn}

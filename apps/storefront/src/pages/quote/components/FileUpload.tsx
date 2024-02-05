@@ -94,6 +94,7 @@ interface FileUploadProps {
   onDelete?: (id: string) => void
   limitUploadFn?: () => boolean
   isEndLoadding?: boolean
+  requestType?: string
 }
 
 const AttachFile = styled(AttachFileIcon)(() => ({
@@ -115,6 +116,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
     allowUpload = true,
     onDelete = noop,
     isEndLoadding = false,
+    requestType = 'quoteAttachedFile',
   } = props
 
   const theme = useTheme()
@@ -198,7 +200,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
           message,
         } = await uploadB2BFile({
           file,
-          type: 'quoteAttachedFile',
+          type: requestType,
         })
         if (code === 200) {
           onchange({
