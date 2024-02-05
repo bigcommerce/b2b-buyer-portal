@@ -141,12 +141,14 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
 }
 
 const getPaymentData = (data: B2BOrderData) => {
-  const { updatedAt, billingAddress, paymentMethod } = data
+  const { updatedAt, billingAddress, paymentMethod, dateCreated } = data
+  const dateCreateAt = new Date(dateCreated).getTime() / 1000
 
   return {
     updatedAt,
     billingAddress,
     paymentMethod,
+    dateCreateAt: JSON.stringify(dateCreateAt),
   }
 }
 

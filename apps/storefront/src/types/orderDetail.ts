@@ -155,6 +155,7 @@ export interface OrderPayment {
   updatedAt?: string
   billingAddress?: Address
   paymentMethod?: string
+  dateCreateAt?: string | number
 }
 
 export interface OrderBillings {

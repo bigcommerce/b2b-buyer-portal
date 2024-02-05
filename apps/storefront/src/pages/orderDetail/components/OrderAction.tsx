@@ -287,7 +287,7 @@ export default function OrderAction(props: OrderActionProps) {
   const {
     money,
     orderSummary: { createAt, name, priceData } = {},
-    payment: { updatedAt, billingAddress, paymentMethod } = {},
+    payment: { billingAddress, paymentMethod, dateCreateAt } = {},
     orderComments = '',
     products,
     orderId,
@@ -398,10 +398,10 @@ export default function OrderAction(props: OrderActionProps) {
       header: b3Lang('orderDetail.summary'),
       key: 'order-summary',
       subtitle:
-        updatedAt && name
+        dateCreateAt && name
           ? b3Lang('orderDetail.purchaseDetails', {
               name,
-              updatedAt: displayFormat(+updatedAt),
+              updatedAt: displayFormat(+dateCreateAt),
             })
           : '',
       buttons,
