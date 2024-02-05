@@ -93,6 +93,13 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           }
 
           if (
+            window?.location?.pathname === '/checkout' &&
+            (e.target as HTMLAnchorElement)?.getAttribute('href') === '#'
+          ) {
+            href = '/register'
+          }
+
+          if (
             isLogin &&
             href.includes('/login') &&
             !href.includes('action=create_account') &&

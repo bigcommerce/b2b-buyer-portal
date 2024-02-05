@@ -61,7 +61,7 @@ const themeOtherElementConfig = () => {
 
 const globalB3 = {
   'dom.registerElement':
-    '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel',
+    '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel, #checkout-customer-returning .form-legend-container [href="#"]',
   'dom.registerUrl': '/register',
   'dom.checkoutRegisterParentElement': '#checkout-app',
   'dom.navUserLoginElement': '.navUser-item.navUser-item--account',

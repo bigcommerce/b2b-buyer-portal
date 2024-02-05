@@ -98,6 +98,9 @@ const openPageByClick = ({
   isRegisterAndLogin,
   isAgenting,
 }: OpenPageByClickProps) => {
+  if (href?.includes('register')) {
+    return '/register'
+  }
   if (href?.includes('/orders')) {
     return role !== 100 ? '/orders' : '/login'
   }
