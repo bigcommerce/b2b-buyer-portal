@@ -44,7 +44,7 @@ const initialLoginInfo = {
   isShowWidgetHead: false,
   isShowWidgetBody: false,
   isShowWidgetFooter: false,
-  loginBtn: 'Sing in',
+  loginBtn: 'Sign in',
   createAccountPanelTittle: 'Create Account Panel Title',
   CreateAccountButtonText: 'Create Account',
   btnColor: 'red',
