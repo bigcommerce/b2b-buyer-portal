@@ -199,7 +199,6 @@ function ShoppingDetailTable(
     id: number | string,
     value: number | string
   ) => {
-    if (value !== '' && +value <= 0) return
     const currentItem = originProducts.find((item: ListItemProps) => {
       const { node } = item
 
@@ -214,7 +213,7 @@ function ShoppingDetailTable(
     const newListItems = listItems?.map((item: ListItemProps) => {
       const { node } = item
       if (node?.id === id) {
-        node.quantity = +value || ''
+        node.quantity = `${+value}`
       }
 
       return item
@@ -284,7 +283,7 @@ function ShoppingDetailTable(
       snackbar.success(b3Lang('shoppingList.table.productUpdated'))
       initSearch()
     } finally {
-      // setIsRequestLoading(false)
+      setIsRequestLoading(false)
     }
   }
 
@@ -343,7 +342,7 @@ function ShoppingDetailTable(
       setQtyNotChangeFlag(true)
       initSearch()
     } finally {
-      // setIsRequestLoading(false)
+      setIsRequestLoading(false)
     }
   }
 
@@ -380,7 +379,7 @@ function ShoppingDetailTable(
       snackbar.success(b3Lang('shoppingList.table.productNotesUpdated'))
       initSearch()
     } finally {
-      // setIsRequestLoading(false)
+      setIsRequestLoading(false)
     }
   }
 
