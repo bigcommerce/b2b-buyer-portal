@@ -56,3 +56,13 @@ declare interface Window {
     }
   }
 }
+
+declare interface CurrencyProps {
+  token: string
+  location: string
+  currencyCode: string
+  decimalToken: string
+  decimalPlaces: number
+  thousandsToken: string
+  currencyExchangeRate: string
+}

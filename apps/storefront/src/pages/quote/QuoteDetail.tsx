@@ -19,7 +19,7 @@ import { store, TaxZoneRates, TaxZoneRatesProps } from '@/store'
 import {
   getDefaultCurrencyInfo,
   getSearchVal,
-  getVariantInfoDisplayPrice,
+  getVariantInfoOOSAndPurchase,
   snackbar,
 } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
@@ -73,7 +73,10 @@ function QuoteDetail() {
 
   const [quoteDetailTax, setQuoteDetailTax] = useState(0)
 
-  const [noBuyerProductName, setNoBuyerProductName] = useState('')
+  const [noBuyerProductName, setNoBuyerProductName] = useState({
+    oos: '',
+    nonPurchasable: '',
+  })
 
   const location = useLocation()
 
@@ -86,44 +89,66 @@ function QuoteDetail() {
   } = store.getState()
 
   useEffect(() => {
-    let productName = ''
+    let oosErrorList = ''
+    let nonPurchasableErrorList = ''
 
-    const isHideCheckout = productList.some((item: CustomFieldItems) => {
-      if (!getVariantInfoDisplayPrice(item.basePrice, item)) {
-        if (isEnableProduct && !item?.purchaseHandled) {
-          productName += `${item.productName}${productName ? ',' : ''}`
-          return true
+    productList.forEach((item: CustomFieldItems) => {
+      const buyerInfo = getVariantInfoOOSAndPurchase(item)
+
+      if (buyerInfo?.type && isEnableProduct && !item?.purchaseHandled) {
+        if (buyerInfo.type === 'oos') {
+          oosErrorList += `${item.productName}${oosErrorList ? ',' : ''}`
         }
 
-        if (!isEnableProduct) {
-          productName += `${item.productName}${productName ? ',' : ''}`
-          return true
+        if (buyerInfo.type === 'non-purchasable') {
+          nonPurchasableErrorList += `${item.productName}${
+            nonPurchasableErrorList ? ',' : ''
+          }`
         }
       }
-
-      return false
     })
 
+    const isHideCheckout = !!oosErrorList || !!nonPurchasableErrorList
     if (isEnableProduct && isHandleApprove && isHideCheckout) {
-      snackbar.error(
-        b3Lang('quoteDetail.message.insufficientStock', {
-          ProductName: productName,
-        })
-      )
+      if (oosErrorList)
+        snackbar.error(
+          b3Lang('quoteDetail.message.insufficientStock', {
+            ProductName: oosErrorList,
+          })
+        )
+
+      if (nonPurchasableErrorList)
+        snackbar.error(
+          b3Lang('quoteDetail.message.nonPurchasable', {
+            ProductName: nonPurchasableErrorList,
+          })
+        )
     }
 
     setIsHideQuoteCheckout(isHideCheckout)
 
-    setNoBuyerProductName(productName)
+    setNoBuyerProductName({
+      oos: oosErrorList,
+      nonPurchasable: nonPurchasableErrorList,
+    })
   }, [isEnableProduct, isHandleApprove, productList])
 
   const proceedingCheckoutFn = useCallback(() => {
     if (isHideQuoteCheckout) {
-      snackbar.error(
-        b3Lang('quoteDetail.message.insufficientStock', {
-          ProductName: noBuyerProductName,
-        })
-      )
+      const { oos, nonPurchasable } = noBuyerProductName
+      if (oos)
+        snackbar.error(
+          b3Lang('quoteDetail.message.insufficientStock', {
+            ProductName: oos,
+          })
+        )
+
+      if (nonPurchasable)
+        snackbar.error(
+          b3Lang('quoteDetail.message.nonPurchasable', {
+            ProductName: nonPurchasable,
+          })
+        )
     }
     return isHideQuoteCheckout
   }, [isHideQuoteCheckout, noBuyerProductName])
@@ -522,6 +547,7 @@ function QuoteDetail() {
             >
               <QuoteDetailTable
                 total={productList.length}
+                currency={quoteDetail.currency}
                 isHandleApprove={isHandleApprove}
                 getQuoteTableDetails={getQuoteTableDetails}
                 getTaxRate={getTaxRate}

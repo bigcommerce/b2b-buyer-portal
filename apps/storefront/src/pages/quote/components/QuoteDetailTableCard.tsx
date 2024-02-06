@@ -3,7 +3,7 @@ import { Box, CardContent, styled, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { store } from '@/store'
-import { currencyFormat } from '@/utils'
+import { currencyFormatConvert } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 interface QuoteTableCardProps {
@@ -13,6 +13,7 @@ interface QuoteTableCardProps {
   itemIndex?: number
   showPrice: (price: string, row: CustomFieldItems) => string | number
   displayDiscount: boolean
+  currency: CurrencyProps
 }
 
 const StyledImage = styled('img')(() => ({
@@ -28,6 +29,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     itemIndex,
     getTaxRate,
     showPrice,
+    currency,
     displayDiscount,
   } = props
   const b3Lang = useB3Lang()
@@ -152,7 +154,12 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${showPrice(currencyFormat(price), quoteTableItem)}`}
+                {`${showPrice(
+                  currencyFormatConvert(price, {
+                    currency,
+                  }),
+                  quoteTableItem
+                )}`}
               </span>
             )}
             <span
@@ -161,7 +168,12 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {`${showPrice(currencyFormat(offeredPrice), quoteTableItem)}`}
+              {`${showPrice(
+                currencyFormatConvert(offeredPrice, {
+                  currency,
+                }),
+                quoteTableItem
+              )}`}
             </span>
           </Typography>
 
@@ -187,7 +199,12 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   textDecoration: 'line-through',
                 }}
               >
-                {`${showPrice(currencyFormat(total), quoteTableItem)}`}
+                {`${showPrice(
+                  currencyFormatConvert(total, {
+                    currency,
+                  }),
+                  quoteTableItem
+                )}`}
               </span>
             )}
             <span
@@ -197,7 +214,9 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
               }}
             >
               {`${showPrice(
-                currencyFormat(totalWithDiscount),
+                currencyFormatConvert(totalWithDiscount, {
+                  currency,
+                }),
                 quoteTableItem
               )}`}
             </span>

@@ -74,9 +74,58 @@ export const ordersCurrencyFormat = (
   }
 }
 
-const currencyFormat = (price: string | number, showCurrencyToken = true) => {
+interface CurrencyOption {
+  currency: CurrencyProps
+  showCurrencyToken?: boolean
+}
+
+export const currencyFormatConvert = (
+  price: string | number,
+  { currency, showCurrencyToken = true }: CurrencyOption
+) => {
   const moneyFormat: MoneyFormat = currencyFormatInfo()
 
+  // const {
+  //   currencyExchangeRate
+  // } = currency
+  try {
+    if (currency?.currencyExchangeRate) {
+      const [integerPart, decimalPart] = (
+        +price *
+        (+moneyFormat.currency_exchange_rate / +currency.currencyExchangeRate)
+      )
+        .toFixed(moneyFormat.decimal_places)
+        .split('.')
+      const newPrice = `${integerPart.replace(
+        /\B(?=(\d{3})+(?!\d))/g,
+        moneyFormat.thousands_token
+      )}${decimalPart ? `${moneyFormat.decimal_token}${decimalPart}` : ''}`
+      const priceStr =
+        moneyFormat.currency_location === 'left'
+          ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
+          : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
+      return priceStr
+    }
+    const [integerPart, decimalPart] = (+price)
+      .toFixed(moneyFormat.decimal_places)
+      .split('.')
+    const newPrice = `${integerPart.replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      moneyFormat.thousands_token
+    )}${decimalPart ? `${moneyFormat.decimal_token}${decimalPart}` : ''}`
+    const priceStr =
+      moneyFormat.currency_location === 'left'
+        ? `${showCurrencyToken ? moneyFormat.currency_token : ''}${newPrice}`
+        : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
+    return priceStr
+  } catch (e) {
+    console.error(e)
+    return ''
+  }
+}
+
+const currencyFormat = (price: string | number, showCurrencyToken = true) => {
+  const moneyFormat: MoneyFormat = currencyFormatInfo()
   try {
     const [integerPart, decimalPart] = (
       +price * +moneyFormat.currency_exchange_rate

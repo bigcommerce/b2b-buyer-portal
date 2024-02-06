@@ -13,6 +13,7 @@ import {
 } from './b3AddToShoppingList'
 import clearInvoiceCart from './b3ClearCart'
 import currencyFormat, {
+  currencyFormatConvert,
   currencyFormatInfo,
   handleGetCorrespondingCurrency,
   ordersCurrencyFormat,
@@ -74,6 +75,7 @@ export {
   convertLabel,
   convertObjectToGraphql,
   currencyFormat,
+  currencyFormatConvert,
   currencyFormatInfo,
   displayExtendedFormat,
   displayFormat,

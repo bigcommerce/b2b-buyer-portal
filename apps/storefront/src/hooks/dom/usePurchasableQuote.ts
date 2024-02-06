@@ -50,7 +50,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
 
     const dom = isDetailOpen ? document : modal
     const productViewQty =
-      (dom.querySelector('[name="qty[]"]') as CustomFieldItems).value ?? 1
+      (dom.querySelector('[name="qty[]"]') as CustomFieldItems)?.value || 1
 
     const productId = (
       dom.querySelector('input[name=product_id]') as CustomFieldItems

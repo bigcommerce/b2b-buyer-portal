@@ -6,7 +6,7 @@ import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { store } from '@/store'
-import { currencyFormat } from '@/utils'
+import { currencyFormatConvert } from '@/utils'
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
 
 import QuoteDetailTableCard from './QuoteDetailTableCard'
@@ -50,6 +50,7 @@ interface ShoppingDetailTableProps {
   isHandleApprove: boolean
   getTaxRate: (taxClassId: number, variants: any) => number
   displayDiscount: boolean
+  currency: CurrencyProps
 }
 
 interface SearchProps {
@@ -110,6 +111,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     getTaxRate,
     isHandleApprove,
     displayDiscount,
+    currency,
   } = props
 
   const {
@@ -248,7 +250,6 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
 
         const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount
-
         return (
           <>
             {isDiscount && (
@@ -258,7 +259,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {showPrice(`${currencyFormat(price)}`, row)}
+                {showPrice(
+                  `${currencyFormatConvert(price, {
+                    currency,
+                  })}`,
+                  row
+                )}
               </Typography>
             )}
 
@@ -268,7 +274,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {showPrice(`${currencyFormat(discountPrice)}`, row)}
+              {showPrice(
+                `${currencyFormatConvert(discountPrice, {
+                  currency,
+                })}`,
+                row
+              )}
             </Typography>
           </>
         )
@@ -330,7 +341,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   textDecoration: 'line-through',
                 }}
               >
-                {showPrice(`${currencyFormat(total)}`, row)}
+                {showPrice(
+                  `${currencyFormatConvert(total, {
+                    currency,
+                  })}`,
+                  row
+                )}
               </Typography>
             )}
             <Typography
@@ -339,7 +355,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 color: isDiscount ? '#2E7D32' : '#212121',
               }}
             >
-              {showPrice(`${currencyFormat(totalWithDiscount)}`, row)}
+              {showPrice(
+                `${currencyFormatConvert(totalWithDiscount, {
+                  currency,
+                })}`,
+                row
+              )}
             </Typography>
           </Box>
         )
@@ -388,6 +409,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             item={row}
             showPrice={showPrice}
             itemIndex={index}
+            currency={currency}
             displayDiscount={displayDiscount}
             getTaxRate={getTaxRate}
           />

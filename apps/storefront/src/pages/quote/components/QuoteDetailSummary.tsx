@@ -2,7 +2,7 @@ import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
 import { store } from '@/store'
-import { currencyFormat } from '@/utils'
+import { currencyFormatConvert } from '@/utils'
 
 interface Summary {
   originalSubtotal: string | number
@@ -44,7 +44,10 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
     return showInclusiveTaxPrice ? price + quoteDetailTax : price
   }
 
-  const priceFormat = (price: number) => `${currencyFormat(price)}`
+  const priceFormat = (price: number) =>
+    `${currencyFormatConvert(price, {
+      currency: quoteDetail.currency,
+    })}`
 
   const getShippingAndTax = () => {
     if (quoteDetail?.shippingMethod?.id) {

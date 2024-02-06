@@ -23,7 +23,12 @@ import {
   currencyFormat,
   snackbar,
 } from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+// import {  } from '@/utils/b3Product/b3Product'
+import {
+  getBCPrice,
+  getProductInfoDisplayPrice,
+  getVariantInfoDisplayPrice,
+} from '@/utils/b3Product/b3Product'
 
 import {
   AllOptionProps,
@@ -136,6 +141,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [variantInfo, setVariantInfo] = useState<Partial<Variant> | null>(null)
   const [variantSku, setVariantSku] = useState('')
+  const [isShowPrice, setShowPrice] = useState<boolean>(true)
   const [additionalProducts, setAdditionalProducts] =
     useState<CustomFieldItems>({})
   const [productPriceChangeOptions, setProductPriceChangeOptions] = useState<
@@ -146,6 +152,35 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     ChooseOptionsProductProps[]
   >([])
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (type === 'quote' && product) {
+      if (variantSku) {
+        const newProduct = product as CustomFieldItems
+        newProduct.quantity = quantity
+        const isPrice = !!getVariantInfoDisplayPrice(
+          newProduct.base_price,
+          newProduct,
+          {
+            sku: variantSku,
+          }
+        )
+        setShowPrice(isPrice)
+      } else {
+        const newProduct = product as CustomFieldItems
+        newProduct.quantity = quantity
+        const isPrice = !!getProductInfoDisplayPrice(
+          newProduct.base_price,
+          newProduct
+        )
+        if (!isPrice) {
+          setShowPrice(false)
+        }
+      }
+    } else if (type === 'shoppingList' && product) {
+      setShowPrice(!product?.isPriceHidden)
+    }
+  }, [variantSku, quantity, product])
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
@@ -549,9 +584,11 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                     <span>
                       {b3Lang('shoppingList.chooseOptionsDialog.price')}
                     </span>
-                    {currencyFormat(
-                      newPrice * +quantity || getProductPrice(product)
-                    )}
+                    {!isShowPrice
+                      ? ''
+                      : currencyFormat(
+                          newPrice * +quantity || getProductPrice(product)
+                        )}
                   </FlexItem>
 
                   <FlexItem>

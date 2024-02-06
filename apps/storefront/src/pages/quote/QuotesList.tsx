@@ -13,7 +13,7 @@ import {
   getBCQuotesList,
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
-import { B3LStorage, currencyFormat, displayFormat } from '@/utils'
+import { B3LStorage, currencyFormatConvert, displayFormat } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 
@@ -329,9 +329,11 @@ function QuotesList() {
       key: 'totalAmount',
       title: b3Lang('quotes.subtotal'),
       render: (item: ListItem) => {
-        const { totalAmount } = item
-
-        return `${currencyFormat(+totalAmount)}`
+        const { totalAmount, currency } = item
+        const newCurrency = currency as CurrencyProps
+        return `${currencyFormatConvert(+totalAmount, {
+          currency: newCurrency,
+        })}`
       },
       style: {
         textAlign: 'right',

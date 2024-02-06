@@ -309,7 +309,6 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
       )}
 
       {products.map((product) => {
-        console.log(product, 'product')
         const { variants = [] } = product
         const currentVariant = variants[0]
         let productPrice = +product.base_price

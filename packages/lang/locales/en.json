@@ -584,6 +584,7 @@
   "quoteDetail.message.merchantAnswers": "Merchant typically answers within 1 day",
   "quoteDetail.message.typeMessage": "Type a message...",
   "quoteDetail.message.insufficientStock": "{ProductName} does not have sufficient stock. Please contact your Sales Rep to have it re-issued.",
+  "quoteDetail.message.nonPurchasable": "{ProductName} is not purchasable. Please contact your Sales Rep to have it re-issued.",
   "quoteDetail.message.sent": "Sent",
   "quoteDetail.footer.proceedToCheckout": "Proceed to checkout",
   "quoteDetail.header.backToQuoteLists": "Back to quote lists",

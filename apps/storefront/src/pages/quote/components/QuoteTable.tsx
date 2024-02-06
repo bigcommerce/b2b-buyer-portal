@@ -389,7 +389,6 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         const { basePrice, taxPrice } = row
 
         const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
-
         return (
           <Typography
             sx={{

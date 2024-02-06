@@ -1264,7 +1264,7 @@ interface DisplayPriceProps {
   forcedSkip?: boolean
 }
 
-const getProductInfoDisplayPrice = (
+export const getProductInfoDisplayPrice = (
   price: string | number,
   productInfo: CustomFieldItems
 ) => {
@@ -1285,17 +1285,25 @@ const getProductInfoDisplayPrice = (
   return price
 }
 
-export const getVariantInfoDisplayPrice = (
-  price: string | number,
-  productInfo: CustomFieldItems
-) => {
+export const getVariantInfoOOSAndPurchase = (productInfo: CustomFieldItems) => {
   const newProductInfo = productInfo?.node ? productInfo.node : productInfo
 
   const inventoryTracking: string = newProductInfo?.productsSearch
     ? newProductInfo.productsSearch.inventoryTracking
     : newProductInfo.inventoryTracking
 
-  const { quantity } = newProductInfo
+  const {
+    quantity,
+    inventoryLevel: productInventoryLevel,
+    availability,
+  } = newProductInfo
+
+  if (availability === 'disabled') {
+    return {
+      type: 'non-purchasable',
+      name: newProductInfo?.productName || '',
+    }
+  }
 
   const variantSku = newProductInfo?.variantSku || newProductInfo?.sku
 
@@ -1311,11 +1319,81 @@ export const getVariantInfoDisplayPrice = (
       inventory_level: inventoryLevel,
     } = variant
 
+    if (purchasingDisabled)
+      return {
+        type: 'non-purchasable',
+        name: newProductInfo?.productName || '',
+      }
+
+    if (inventoryTracking === 'product' && +quantity > productInventoryLevel) {
+      return {
+        type: 'oos',
+        name: newProductInfo?.productName || '',
+      }
+    }
+
+    if (inventoryTracking === 'variant' && +quantity > inventoryLevel) {
+      return {
+        type: 'oos',
+        name: newProductInfo?.productName || '',
+      }
+    }
+  }
+
+  return {}
+}
+
+export const getVariantInfoDisplayPrice = (
+  price: string | number,
+  productInfo: CustomFieldItems,
+  option?: {
+    sku?: string
+  }
+) => {
+  const newProductInfo = productInfo?.node ? productInfo.node : productInfo
+
+  const inventoryTracking: string = newProductInfo?.productsSearch
+    ? newProductInfo.productsSearch.inventoryTracking
+    : newProductInfo.inventoryTracking
+
+  const { quantity } = newProductInfo
+
+  const productInventoryLevel = newProductInfo?.productsSearch
+    ? newProductInfo.productsSearch.inventoryLevel
+    : newProductInfo.inventoryLevel
+  const availability = newProductInfo?.productsSearch
+    ? newProductInfo.productsSearch.availability
+    : newProductInfo.availability
+
+  if (availability === 'disabled') {
+    return ''
+  }
+
+  const variantSku =
+    option?.sku || newProductInfo?.variantSku || newProductInfo?.sku
+
+  const newVariants = newProductInfo?.productsSearch
+    ? newProductInfo.productsSearch.variants
+    : newProductInfo.variants
+
+  const variant = newVariants.find((item: Variant) => item.sku === variantSku)
+  if (variant?.sku) {
+    const {
+      purchasing_disabled: purchasingDisabled,
+      inventory_level: inventoryLevel,
+    } = variant
+
     if (purchasingDisabled) return ''
 
     if (inventoryTracking === 'none') return price
 
-    if (+quantity > inventoryLevel) return ''
+    if (inventoryTracking === 'product' && +quantity > +productInventoryLevel) {
+      return ''
+    }
+
+    if (inventoryTracking === 'variant' && +quantity > +inventoryLevel) {
+      return ''
+    }
   }
 
   return price

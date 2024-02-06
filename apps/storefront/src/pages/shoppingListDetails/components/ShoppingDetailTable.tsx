@@ -186,6 +186,8 @@ function ShoppingDetailTable(
   const [addNoteItemId, setAddNoteItemId] = useState<number | string>('')
   const [notes, setNotes] = useState<string>('')
 
+  const [priceHidden, setPriceHidden] = useState<boolean>(false)
+
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortKeys,
     defaultSortKey,
@@ -394,6 +396,15 @@ function ShoppingDetailTable(
         ? +grandTotal
         : +grandTotal - +totalTax || 0.0
 
+      const isPriceHidden = edges.some((item: CustomFieldItems) => {
+        if (item?.node?.productsSearch) {
+          return item.node.productsSearch?.isPriceHidden || false
+        }
+
+        return false
+      })
+
+      setPriceHidden(isPriceHidden)
       setOriginProducts(cloneDeep(edges))
       setShoppingListTotalPrice(NewShoppingListTotalPrice)
     }
@@ -403,6 +414,7 @@ function ShoppingDetailTable(
     const {
       productsSearch: { isPriceHidden },
     } = row
+    if (isPriceHidden) return ''
     return getDisplayPrice({
       price,
       productInfo: row,
@@ -698,7 +710,9 @@ function ShoppingDetailTable(
             fontSize: '24px',
           }}
         >
-          {`${currencyFormat(shoppingListTotalPrice || 0.0)}`}
+          {priceHidden
+            ? ''
+            : `${currencyFormat(shoppingListTotalPrice || 0.0)}`}
         </Typography>
       </Box>
       <Box
