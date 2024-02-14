@@ -23,7 +23,6 @@
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
-    "@types/js-cookie": "^3.0.6",
     "eslint": "^7.32.0 || ^8.2.0",
     "eslint-config-b2b": "*",
     "husky": "^8.0.1",
@@ -40,8 +39,5 @@
     "*.{ts,tsx}": [
       "eslint --fix"
     ]
-  },
-  "dependencies": {
-    "js-cookie": "^3.0.5"
   }
 }
