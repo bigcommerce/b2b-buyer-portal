@@ -1,8 +1,17 @@
 {
   "extends": ["b2b"],
-  "rules": {
-    // TODO: make a soft update removing one by one
-    "react-hooks/exhaustive-deps": 0,
-    "import/no-extraneous-dependencies": 0
-  }
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "rules": { "@typescript-eslint/no-explicit-any": 0 }
+    },
+    {
+      "files": ["*.ts"],
+      "rules": { "react-hooks/exhaustive-deps": 0 }
+    },
+    {
+      "files": ["*.ts"],
+      "rules": { "import/no-extraneous-dependencies": 0 }
+    }
+  ]
 }

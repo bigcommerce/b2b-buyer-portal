@@ -17,6 +17,7 @@
     "airbnb",
     "airbnb/hooks",
     "airbnb-typescript",
+    "plugin:@bigcommerce/recommended",
     "prettier"
   ],
   "settings": {
@@ -79,9 +80,6 @@
     "import/no-extraneous-dependencies": [
       "error",
       { "devDependencies": ["**/tests/**/*.ts", "**/tests/**/*.tsx"] }
-    ],
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
-    "import/extensions": 0
+    ]
   }
 }

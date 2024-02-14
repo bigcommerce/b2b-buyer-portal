@@ -1,17 +1,158 @@
 {
   "extends": ["b2b"],
-  "rules": {
-    // TODO: make a soft update removing one by one
-    "import/no-cycle": 0,
-    "react-hooks/exhaustive-deps": 0,
-    "react/jsx-props-no-spreading": 0,
-    "@typescript-eslint/no-shadow": 0,
-    "no-param-reassign": 0,
-    "@typescript-eslint/no-explicit-any": 0,
-    "no-console": 0,
-    "@typescript-eslint/ban-types": 0,
-    "@typescript-eslint/no-namespace": 0,
-    "react/destructuring-assignment": 0,
-    "@typescript-eslint/no-non-null-assertion": 0
-  }
+  "overrides": [
+    {
+      "files": [
+        "src/pages/**/*.{ts,tsx}",
+        "src/utils/**/*.{ts,tsx}",
+        "src/components/**/*.{ts,tsx}",
+        "src/hooks/dom/*.ts",
+        "src/shared/**/**.*ts"
+      ],
+      "rules": {
+        "no-param-reassign": 0
+      }
+    },
+    {
+      "files": [
+        "src/pages/**/*.{ts,tsx}",
+        "src/utils/**/*.{ts,tsx}",
+        "src/components/**/*.{ts,tsx}",
+        "src/hooks/dom/*.ts",
+        "src/hooks/*.ts",
+        "src/shared/**/**/**/*.ts",
+        "src/types/*.ts"
+      ],
+      "rules": {
+        "import/no-cycle": 0
+      }
+    },
+    {
+      "files": [
+        "src/components/**/*.{ts,tsx}",
+        "src/App.tsx",
+        "src/pages/**/*.{ts,tsx}",
+        "src/hooks/dom/*.ts",
+        "src/hooks/*.ts"
+      ],
+      "rules": {
+        "react-hooks/exhaustive-deps": 0
+      }
+    },
+    {
+      "files": ["src/components/**/*.{ts,tsx}", "src/pages/**/*.{ts,tsx}"],
+      "rules": {
+        "react/jsx-props-no-spreading": 0
+      }
+    },
+    {
+      "files": [
+        "src/*.{ts,tsx}",
+        "src/components/**/*.{ts,tsx}",
+        "src/pages/**/*.{ts,tsx}",
+        "src/hooks/**/*.ts",
+        "src/hooks/*.ts",
+        "src/utils/**/*.ts",
+        "src/utils/*.ts",
+        "**.**.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-shadow": 0
+      }
+    },
+    {
+      "files": [
+        "src/components/*.tsx",
+        "src/components/button/*.tsx",
+        "src/components/filter/*.tsx",
+        "src/components/form/*.{ts,tsx}",
+        "src/components/table/*.tsx",
+        "src/components/ui/*.tsx",
+        "src/components/upload/*.tsx",
+        "src/hooks/**/*.ts",
+        "src/hooks/*.ts",
+        "src/pages/accountSetting/*.{ts,tsx}",
+        "src/pages/address/*.{ts,tsx}",
+        "src/pages/address/**/*.tsx",
+        "src/pages/address/*.tsx",
+        "src/pages/dashboard/**/*.tsx",
+        "src/pages/invoice/**/*.tsx",
+        "src/pages/login/**/*.ts",
+        "src/pages/order/*.{ts,tsx}",
+        "src/pages/orderDetail/**/*.{ts,tsx}",
+        "src/pages/pdp/*.tsx",
+        "src/pages/quickorder/**/*.tsx",
+        "src/pages/quote/*.tsx",
+        "src/pages/quote/**/*.tsx",
+        "src/pages/registered/*.tsx",
+        "src/pages/registered/**/*.{ts,tsx}",
+        "src/pages/seleRep/*.tsx",
+        "src/pages/shoppingLists/*.{ts,tsx}",
+        "src/pages/shoppingListDetails/*.{ts,tsx}",
+        "src/pages/shoppingListDetails/**/*.tsx",
+        "src/pages/usermanagement/*.ts",
+        "src/shared/service/**/graphql/*.ts",
+        "src/shared/service/request/*.ts",
+        "src/types/*.ts",
+        "src/utils/b3Product/shared/*.ts",
+        "src/utils/b3AddToShoppingList.ts",
+        "src/utils/b3Product/*.ts",
+        "src/utils/*.ts",
+        "src/**.d.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": 0
+      }
+    },
+    {
+      "files": [
+        "src/*.ts",
+        "src/components/*.tsx",
+        "src/components/**/*.tsx",
+        "src/hooks/dom/*.ts",
+        "src/pages/**/*.{ts,tsx}",
+        "src/shared/*.ts",
+        "src/shared/**/*.ts",
+        "src/utils/*.{ts,tsx}",
+        "src/utils/b3Product/*.ts",
+        "src/utils/b3Product/shared/*.ts"
+      ],
+      "rules": {
+        "no-console": 0
+      }
+    },
+    {
+      "files": [
+        "src/components/form/*.ts",
+        "src/pages/quote/*.tsx",
+        "src/pages/quote/components/*.tsx",
+        "src/pages/shoppingListDetails/components/*.tsx",
+        "src/utils/*.ts",
+        "tests/components/captcha/*.*.tsx"
+      ],
+      "rules": {
+        "@typescript-eslint/ban-types": 0
+      }
+    },
+    {
+      "files": ["src/components/form/ui.ts"],
+      "rules": { "@typescript-eslint/no-namespace": 0 }
+    },
+    {
+      "files": ["src/components/upload/*.tsx"],
+      "rules": { "react/destructuring-assignment": 0 }
+    },
+    {
+      "files": ["src/pages/**/*.{ts,tsx}"],
+      "rules": { "@typescript-eslint/no-non-null-assertion": 0 }
+    },
+    {
+      "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
+      "rules": { "react/jsx-wrap-multilines": 0 }
+    },
+    {
+      "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
+      "rules": { "@bigcommerce/jsx-short-circuit-conditionals": 0 }
+    }
+  ]
 }
