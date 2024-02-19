@@ -199,6 +199,7 @@ function ShoppingDetailTable(
     id: number | string,
     value: number | string
   ) => {
+    if (+value < 0) return
     const currentItem = originProducts.find((item: ListItemProps) => {
       const { node } = item
 
