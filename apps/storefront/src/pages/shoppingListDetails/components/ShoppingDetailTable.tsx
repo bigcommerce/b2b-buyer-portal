@@ -315,7 +315,7 @@ function ShoppingDetailTable(
 
     const itemData: CustomFieldItems = {
       variantId: currentNode?.variantId,
-      quantity: currentNode?.quantity,
+      quantity: currentNode?.quantity ? +currentNode.quantity : 0,
       optionList: optionsList || [],
       productNote: notes,
     }
