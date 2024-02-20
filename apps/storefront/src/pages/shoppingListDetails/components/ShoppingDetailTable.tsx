@@ -57,6 +57,7 @@ interface ProductInfoProps {
   variantSku: string
   productsSearch: CustomFieldItems
   productNote: string
+  disableCurrentCheckbox?: boolean
 }
 
 interface ListItemProps {
@@ -185,6 +186,7 @@ function ShoppingDetailTable(
   const [addNoteOpen, setAddNoteOpen] = useState<boolean>(false)
   const [addNoteItemId, setAddNoteItemId] = useState<number | string>('')
   const [notes, setNotes] = useState<string>('')
+  const [disabledSelectAll, setDisabledSelectAll] = useState<boolean>(false)
 
   const [priceHidden, setPriceHidden] = useState<boolean>(false)
 
@@ -215,6 +217,8 @@ function ShoppingDetailTable(
       const { node } = item
       if (node?.id === id) {
         node.quantity = `${+value}`
+        node.disableCurrentCheckbox = +value === 0
+        setDisabledSelectAll(+value === 0)
       }
 
       return item
@@ -407,6 +411,18 @@ function ShoppingDetailTable(
       setPriceHidden(isPriceHidden)
       setOriginProducts(cloneDeep(edges))
       setShoppingListTotalPrice(NewShoppingListTotalPrice)
+    }
+  }, [shoppingListInfo])
+
+  useEffect(() => {
+    if (shoppingListInfo) {
+      const {
+        products: { edges },
+      } = shoppingListInfo
+      const nonNumberProducts = edges.filter(
+        (item: ListItemProps) => item.node.quantity === 0
+      )
+      setDisabledSelectAll(nonNumberProducts.length > 0)
     }
   }, [shoppingListInfo])
 
@@ -737,10 +753,12 @@ function ShoppingDetailTable(
         isCustomRender={false}
         showCheckbox
         showSelectAllCheckbox
+        applyAllDisableCheckbox={false}
         disableCheckbox={
-          +role === 2
+          disabledSelectAll ||
+          (+role === 2
             ? !(allowJuniorPlaceOrder || productQuoteEnabled)
-            : isReadForApprove || isJuniorApprove
+            : isReadForApprove || isJuniorApprove)
           // allowJuniorPlaceOrder
           //   ? !allowJuniorPlaceOrder
           //   : isReadForApprove || isJuniorApprove

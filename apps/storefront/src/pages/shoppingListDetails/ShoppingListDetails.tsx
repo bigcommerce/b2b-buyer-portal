@@ -182,6 +182,11 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
           node.productsSearch = productInfo || {}
           node.productName = productInfo?.name || node.productName
           node.productUrl = productInfo?.productUrl || node.productUrl
+
+          node.disableCurrentCheckbox = false
+          if (node.quantity === 0) {
+            node.disableCurrentCheckbox = true
+          }
         })
 
         return listProducts
