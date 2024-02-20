@@ -63,6 +63,7 @@ interface B3PaginationTableProps {
   sortDirection?: 'asc' | 'desc'
   sortByFn?: (e: { key: string }) => void
   orderBy?: string
+  pageType?: string
 }
 
 function PaginationTable(
@@ -98,6 +99,7 @@ function PaginationTable(
     sortDirection = 'asc',
     sortByFn = () => {},
     orderBy = '',
+    pageType = '',
   }: B3PaginationTableProps,
   ref?: Ref<unknown>
 ) {
@@ -273,7 +275,15 @@ function PaginationTable(
         list.forEach((item: CustomFieldItems) => {
           const option = item?.node || item
           if (option) {
-            selects.push(option[selectedSymbol])
+            if (pageType === 'shoppingListDetailsTable') {
+              selects.push(
+                option.quantity > 0 || !option.disableCurrentCheckbox
+                  ? option[selectedSymbol]
+                  : ''
+              )
+            } else {
+              selects.push(option[selectedSymbol])
+            }
           }
         })
         setSelectCheckbox(selects)

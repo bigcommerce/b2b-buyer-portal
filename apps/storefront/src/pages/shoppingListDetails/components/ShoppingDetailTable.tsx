@@ -218,12 +218,15 @@ function ShoppingDetailTable(
       if (node?.id === id) {
         node.quantity = `${+value}`
         node.disableCurrentCheckbox = +value === 0
-        setDisabledSelectAll(+value === 0)
       }
 
       return item
     })
 
+    const nonNumberProducts = newListItems.filter(
+      (item: ListItemProps) => +item.node.quantity === 0
+    )
+    setDisabledSelectAll(nonNumberProducts.length === newListItems.length)
     paginationTableRef.current?.setList([...newListItems])
   }
 
@@ -354,14 +357,15 @@ function ShoppingDetailTable(
   const getSelectCheckbox = (selectCheckbox: Array<string | number>) => {
     if (selectCheckbox.length > 0) {
       const productList = paginationTableRef.current?.getList() || []
-      const checkedItems = selectCheckbox.map((item: number | string) => {
+      const checkedItems: CustomFieldItems[] = []
+      selectCheckbox.forEach((item: number | string) => {
         const newItems = productList.find((product: ListItemProps) => {
           const { node } = product
 
           return node.id === item
         })
 
-        return newItems
+        if (newItems) checkedItems.push(newItems)
       })
 
       setCheckedArr([...checkedItems])
@@ -422,7 +426,7 @@ function ShoppingDetailTable(
       const nonNumberProducts = edges.filter(
         (item: ListItemProps) => item.node.quantity === 0
       )
-      setDisabledSelectAll(nonNumberProducts.length > 0)
+      setDisabledSelectAll(nonNumberProducts.length === edges.length)
     }
   }, [shoppingListInfo])
 
@@ -773,6 +777,7 @@ function ShoppingDetailTable(
         sortDirection={order}
         orderBy={orderBy}
         sortByFn={handleSetOrderBy}
+        pageType="shoppingListDetailsTable"
         renderItem={(
           row: ProductInfoProps,
           index?: number,
