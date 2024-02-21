@@ -152,6 +152,10 @@
     },
     {
       "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
+      "rules": { "import/extensions": 0 }
+    },
+    {
+      "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
       "rules": { "@bigcommerce/jsx-short-circuit-conditionals": 0 }
     }
   ]
