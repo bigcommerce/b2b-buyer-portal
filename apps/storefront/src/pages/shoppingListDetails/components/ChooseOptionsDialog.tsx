@@ -177,7 +177,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
           setShowPrice(false)
         }
       }
-    } else if (type === 'shoppingList' && product) {
+    } else if ((type === 'shoppingList' || type === 'quickOrder') && product) {
       setShowPrice(!product?.isPriceHidden)
     }
   }, [variantSku, quantity, product])

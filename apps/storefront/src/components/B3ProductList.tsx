@@ -246,7 +246,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
         isProduct: true,
       })
     }
-    if (type === 'shoppingList') {
+    if (type === 'shoppingList' || type === 'quickOrder') {
       const { isPriceHidden } = product
       const isBuyerProduct = judgmentBuyerProduct({
         price: newMoney,
@@ -255,9 +255,9 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
       })
       return isPriceHidden && !isBuyerProduct ? '' : newMoney
     }
-    if (type === 'quickOrder') {
-      return newMoney
-    }
+    // if (type === 'quickOrder') {
+    //   return newMoney
+    // }
     return newMoney
   }
 

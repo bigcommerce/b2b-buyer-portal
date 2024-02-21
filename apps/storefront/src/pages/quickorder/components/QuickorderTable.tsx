@@ -29,6 +29,7 @@ import {
   getProductPriceIncTax,
   snackbar,
 } from '@/utils'
+import { getDisplayPrice } from '@/utils/b3Product/b3Product'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import B3FilterMore from '../../../components/filter/B3FilterMore'
@@ -304,6 +305,19 @@ function QuickorderTable({
     paginationTableRef.current?.setCacheAllList([...newListCacheItems])
   }
 
+  const showPrice = (price: string, row: CustomFieldItems): string | number => {
+    const {
+      productsSearch: { isPriceHidden },
+    } = row
+    if (isPriceHidden) return ''
+    return getDisplayPrice({
+      price,
+      productInfo: row,
+      showText: isPriceHidden ? '' : price,
+      forcedSkip: true,
+    })
+  }
+
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'product',
@@ -377,7 +391,7 @@ function QuickorderTable({
               padding: '12px 0',
             }}
           >
-            {`${currencyFormat(price)}`}
+            {`${showPrice(currencyFormat(price), row)}`}
           </Typography>
         )
       },
