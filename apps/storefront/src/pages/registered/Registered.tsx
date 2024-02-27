@@ -159,6 +159,12 @@ function Registered(props: RegisteredProps) {
             ): Partial<RegisterFieldsItems> => {
               if (addressFields.name === 'country') {
                 addressFields.options = countries
+                const countryDefaultValue = countries.find(
+                  (country: CustomFieldItems) =>
+                    country.countryName === addressFields.default
+                )
+                addressFields.default =
+                  countryDefaultValue?.countryCode || addressFields.default
               }
               return addressFields
             }

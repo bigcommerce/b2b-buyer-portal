@@ -189,6 +189,10 @@ const classificationType = (item: CustomFieldItems) => {
     })
   }
 
+  if (item.fieldId === 'field_country') {
+    optionItems.default = item.valueConfigs?.default || optionItems.default
+  }
+
   return optionItems
 }
 

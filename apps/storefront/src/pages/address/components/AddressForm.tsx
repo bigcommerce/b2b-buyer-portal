@@ -488,8 +488,17 @@ function AddressForm(
     const translatedAddressFields = JSON.parse(JSON.stringify(addressFields))
 
     translatedAddressFields.forEach(
-      (element: { label: string; idLang: string }) => {
+      (element: {
+        label: string
+        idLang: string
+        fieldId: string
+        default: string
+      }) => {
         element.label = b3Lang(element.idLang)
+
+        if (!isB2BUser && element.fieldId === 'field_21') {
+          element.default = ''
+        }
 
         return element
       }
