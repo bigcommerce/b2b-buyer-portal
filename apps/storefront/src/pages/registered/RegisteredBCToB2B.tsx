@@ -12,6 +12,7 @@ import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Alert, Box, ImageListItem } from '@mui/material'
+import isEmpty from 'lodash-es/isEmpty'
 
 import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
@@ -209,6 +210,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                   deCodeField(contactInformationField.name as string)
                 ] || contactInformationField.default
 
+              if (
+                contactInformationField.required &&
+                !contactInformationField?.default
+              ) {
+                contactInformationField.disabled = false
+              }
+
               return contactInformationField
             }
           )
@@ -320,7 +328,11 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
         if (res.code === 200) {
-          fileList = [...fileList, res.data]
+          const newData = {
+            ...res.data,
+          }
+          newData.fileSize = newData.fileSize ? `${newData.fileSize}` : ''
+          fileList = [...fileList, newData]
         } else {
           throw (
             res.data.errMsg ||
@@ -457,8 +469,35 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     }
   }
 
+  const handleValidateAttachmentFiles = () => {
+    const formData = getValues()
+    const attachmentsFilesFiled = bcTob2bCompanyInformation.find(
+      (info) => info.fieldId === 'field_attachments'
+    )
+    if (
+      !isEmpty(attachmentsFilesFiled) &&
+      attachmentsFilesFiled.required &&
+      formData[attachmentsFilesFiled.name].length === 0
+    ) {
+      setError(attachmentsFilesFiled.name, {
+        type: 'required',
+        message: b3Lang('global.validate.required', {
+          label: attachmentsFilesFiled.label,
+        }),
+      })
+
+      showLoading(false)
+      return true
+    }
+
+    return false
+  }
+
   const handleNext = (event: MouseEvent) => {
+    const hasAttachmentsFilesError = handleValidateAttachmentFiles()
+
     handleSubmit(async (data: CustomFieldItems) => {
+      if (hasAttachmentsFilesError) return
       showLoading(true)
 
       try {
@@ -471,7 +510,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           (list) => list.fieldType === 'files'
         )
         const fileList = await getFileUrl(attachmentsList || [], data)
-
         await getB2BFieldsValue(data, customerId, fileList)
 
         const isAuto = companyAutoApproval.enabled
@@ -621,6 +659,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                     control={control}
                     getValues={getValues}
                     setValue={setValue}
+                    setError={setError}
                   />
                 </Box>
 
