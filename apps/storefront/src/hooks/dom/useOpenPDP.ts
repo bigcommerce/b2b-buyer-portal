@@ -163,8 +163,9 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
           (shoppingListBtn as CustomFieldItems)[key]
       )
       if (!isAddStyle) {
-        const myShoppingListBtn = document.querySelectorAll('.b2b-add-to-list')
-        myShoppingListBtn.forEach((myShoppingListBtn: CustomFieldItems) => {
+        const myShoppingListBtns = document.querySelectorAll('.b2b-add-to-list')
+        myShoppingListBtns.forEach((button: CustomFieldItems) => {
+          const myShoppingListBtn = button
           myShoppingListBtn.innerHTML = myShoppingListBtnLabel
           myShoppingListBtn.setAttribute('style', customCss)
           myShoppingListBtn.style.backgroundColor = color

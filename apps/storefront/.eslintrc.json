@@ -6,7 +6,6 @@
         "src/pages/**/*.{ts,tsx}",
         "src/utils/**/*.{ts,tsx}",
         "src/components/**/*.{ts,tsx}",
-        "src/hooks/dom/*.ts",
         "src/shared/**/**.*ts"
       ],
       "rules": {
@@ -151,7 +150,12 @@
       "rules": { "react/jsx-wrap-multilines": 0 }
     },
     {
-      "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
+      "files": [
+        "src/components/**/*.tsx",
+        "src/pages/**/*.{ts,tsx}",
+        "src/hooks/**/*.ts",
+        "src/hooks/*.ts"
+      ],
       "rules": { "import/extensions": 0 }
     },
     {

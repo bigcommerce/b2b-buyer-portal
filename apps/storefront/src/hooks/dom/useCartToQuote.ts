@@ -169,8 +169,9 @@ const useCartToQuote = ({
     }
 
     if (document.querySelectorAll('.b2b-cart-to-quote')?.length) {
-      const cartToQuoteBtn = document.querySelectorAll('.b2b-cart-to-quote')
-      cartToQuoteBtn.forEach((cartToQuoteBtn: CustomFieldItems) => {
+      const cartToQuoteBtns = document.querySelectorAll('.b2b-cart-to-quote')
+      cartToQuoteBtns.forEach((button: CustomFieldItems) => {
+        const cartToQuoteBtn = button
         cartToQuoteBtn.innerHTML = cartToQuoteBtnLabel
         cartToQuoteBtn.setAttribute('style', customCss)
         cartToQuoteBtn.style.backgroundColor = color
