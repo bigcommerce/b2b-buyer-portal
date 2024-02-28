@@ -344,26 +344,44 @@ export default function Login(props: RegisteredProps) {
                     </Alert>
                   </Box>
                 )}
+                {logo && loginInfo?.displayStoreLogo && (
+                  <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
+                    <LoginImage>
+                      <ImageListItem
+                        sx={{
+                          maxWidth: isMobile ? '70%' : '250px',
+                        }}
+                        onClick={() => {
+                          window.location.href = '/'
+                        }}
+                      >
+                        <img
+                          src={`${logo}`}
+                          alt={b3Lang('login.registerLogo')}
+                          loading="lazy"
+                        />
+                      </ImageListItem>
+                    </LoginImage>
+                  </Box>
+                )}
+                {loginInfo.widgetHeadText && (
+                  <LoginWidget
+                    sx={{
+                      minHeight: '48px',
+                      width: registerEnabled || isMobile ? '100%' : '50%',
+                    }}
+                    isVisible={loginInfo.isShowWidgetHead}
+                    html={loginInfo.widgetHeadText}
+                  />
+                )}
                 <Box
                   sx={{
-                    padding: isMobile ? 0 : '0 5%',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     flexDirection: 'column',
                   }}
                 >
-                  {loginInfo.widgetHeadText && (
-                    <LoginWidget
-                      sx={{
-                        mt: isMobile ? '20px' : '32px',
-                        minHeight: '48px',
-                        width: registerEnabled || isMobile ? '100%' : '50%',
-                      }}
-                      isVisible={loginInfo.isShowWidgetHead}
-                      html={loginInfo.widgetHeadText}
-                    />
-                  )}
                   <Box
                     sx={{
                       bgcolor: '#FFFFFF',
@@ -375,26 +393,6 @@ export default function Login(props: RegisteredProps) {
                       width: isMobile ? 'auto' : loginAndRegisterContainerWidth,
                     }}
                   >
-                    {logo && loginInfo?.displayStoreLogo && (
-                      <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
-                        <LoginImage>
-                          <ImageListItem
-                            sx={{
-                              maxWidth: isMobile ? '70%' : '250px',
-                            }}
-                            onClick={() => {
-                              window.location.href = '/'
-                            }}
-                          >
-                            <img
-                              src={`${logo}`}
-                              alt={b3Lang('login.registerLogo')}
-                              loading="lazy"
-                            />
-                          </ImageListItem>
-                        </LoginImage>
-                      </Box>
-                    )}
                     <Box
                       sx={{
                         mb: '20px',
@@ -436,19 +434,17 @@ export default function Login(props: RegisteredProps) {
                       )}
                     </Box>
                   </Box>
-
-                  {loginInfo.widgetFooterText && (
-                    <LoginWidget
-                      sx={{
-                        mt: '20px',
-                        minHeight: '48px',
-                        width: registerEnabled || isMobile ? '100%' : '50%',
-                      }}
-                      isVisible={loginInfo.isShowWidgetFooter}
-                      html={loginInfo.widgetFooterText}
-                    />
-                  )}
                 </Box>
+                {loginInfo.widgetFooterText && (
+                  <LoginWidget
+                    sx={{
+                      minHeight: '48px',
+                      width: registerEnabled || isMobile ? '100%' : '50%',
+                    }}
+                    isVisible={loginInfo.isShowWidgetFooter}
+                    html={loginInfo.widgetFooterText}
+                  />
+                )}
               </>
             )}
           </Box>
