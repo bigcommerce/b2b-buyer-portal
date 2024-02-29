@@ -31,17 +31,29 @@ export default function B3Logo() {
 
   return (
     <Box
-      sx={{
-        flexShrink: '0',
-        height: 'auto',
-        width: `${isMobile ? '45%' : '100%'}`,
-        '& img': {
-          width: '100%',
-          height: '100%',
-          objectFit: 'contain',
-        },
-        display: 'contents',
-      }}
+      sx={
+        isMobile
+          ? {
+              flexShrink: '0',
+              height: 'auto',
+              width: '45%',
+              display: 'contents',
+              '& img': {
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              },
+            }
+          : {
+              width: '100%',
+              height: '64px',
+              '& img': {
+                width: '100%',
+                maxHeight: '64px',
+                objectFit: 'contain',
+              },
+            }
+      }
     >
       <ImageListItem
         sx={{

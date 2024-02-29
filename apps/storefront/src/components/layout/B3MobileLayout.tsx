@@ -98,7 +98,7 @@ export default function B3MobileLayout({
         sx={{
           p: 0,
           m: 0,
-          mb: '2vw',
+          mb: '6vw',
           fontSize: '34px',
           fontWeight: '400',
           color: customColor || '#263238',

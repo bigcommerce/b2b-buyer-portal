@@ -156,11 +156,9 @@ export default function B3Layout({ children }: { children: ReactNode }) {
             <CompanyCredit />
             <Box
               component="main"
-              sx={
-                {
-                  // flexGrow: 1,
-                }
-              }
+              sx={{
+                mt: !isMobile && !title ? '24px' : '0',
+              }}
             >
               {children}
             </Box>

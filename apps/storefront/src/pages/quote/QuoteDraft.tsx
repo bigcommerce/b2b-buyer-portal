@@ -671,7 +671,13 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 marginRight: '0.5rem',
               }}
             />
-            <p>{backText()}</p>
+            <p
+              style={{
+                margin: '0',
+              }}
+            >
+              {backText()}
+            </p>
           </Box>
         </Box>
         <Box
