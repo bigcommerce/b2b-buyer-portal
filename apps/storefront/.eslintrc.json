@@ -151,7 +151,7 @@
       "rules": { "react/jsx-wrap-multilines": 0 }
     },
     {
-      "files": ["src/components/**/*.tsx", "src/pages/**/*.{ts,tsx}"],
+      "files": ["src/**/*.{ts,tsx}"],
       "rules": { "import/extensions": 0 }
     },
     {

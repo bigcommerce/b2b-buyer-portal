@@ -23,6 +23,7 @@ import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
 import {
   B3SStorage,
   getCurrentCustomerInfo,
+  loginjump,
   logoutSession,
   snackbar,
   storeHash,
@@ -289,7 +290,13 @@ export default function Login(props: RegisteredProps) {
 
           if (info?.userType === 3 && info?.role === 3) {
             navigate('/dashboard')
-          } else if (info?.role === 2) {
+            return
+          }
+          const isLoginLandLocation = loginjump(navigate)
+
+          if (!isLoginLandLocation) return
+
+          if (info?.role === 2) {
             navigate('/shoppingLists')
           } else {
             navigate('/orders')

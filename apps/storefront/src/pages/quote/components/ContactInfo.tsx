@@ -58,6 +58,16 @@ const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
       variant: 'filled',
       size: 'small',
     },
+    {
+      name: 'quoteTitle',
+      label: b3Lang('quoteDraft.contactInfo.quoteTitle'),
+      required: false,
+      default: '',
+      fieldType: 'text',
+      xs: isMobile ? 12 : 6,
+      variant: 'filled',
+      size: 'small',
+    },
   ]
 
   return contactInfo

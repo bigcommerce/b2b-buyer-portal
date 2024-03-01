@@ -19,7 +19,7 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { getCurrentCustomerInfo, storeHash } from '@/utils'
+import { getCurrentCustomerInfo, loginjump, storeHash } from '@/utils'
 
 import {
   createB2BCompanyUser,
@@ -542,6 +542,10 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   }
 
   const handleFinish = () => {
+    const isLoginLandLocation = loginjump(navigate, true)
+
+    if (!isLoginLandLocation) return
+
     if (companyAutoApproval.enabled) {
       navigate('/orders')
     } else {

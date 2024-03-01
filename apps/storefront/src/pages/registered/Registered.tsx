@@ -21,7 +21,7 @@ import {
   bcLogin,
 } from '@/shared/service/bc'
 import { themeFrameSelector } from '@/store'
-import { B3SStorage, getCurrentCustomerInfo } from '@/utils'
+import { B3SStorage, getCurrentCustomerInfo, loginjump } from '@/utils'
 
 import { loginCheckout, LoginConfig } from '../login/config'
 
@@ -300,12 +300,17 @@ function Registered(props: RegisteredProps) {
 
         await getCurrentCustomerInfo(globalDispatch)
 
+        clearRegisterInfo()
+
+        const isLoginLandLocation = loginjump(navigate)
+
+        if (!isLoginLandLocation) return
+
         if (isCloseGotoBCHome) {
           window.location.href = '/'
         } else {
           navigate('/orders')
         }
-        clearRegisterInfo()
       } catch (error) {
         console.log(error)
       }

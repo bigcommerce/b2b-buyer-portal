@@ -76,6 +76,7 @@ export const getLoginFields = (
     xs: 12,
     variant: 'filled',
     validate: validatorRules(['email']),
+    isAutoComplete: true,
   },
   {
     name: 'password',
@@ -87,6 +88,7 @@ export const getLoginFields = (
     variant: 'filled',
     isEnterTrigger: true,
     handleEnterClick: submitLoginFn,
+    isAutoComplete: true,
   },
 ]
 

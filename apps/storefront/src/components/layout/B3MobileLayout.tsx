@@ -10,6 +10,7 @@ import CompanyCredit from '../CompanyCredit'
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 
 import B3AccountInfo from './B3AccountInfo'
+import B3CloseAppButton from './B3CloseAppButton'
 import B3Logo from './B3Logo'
 import B3Nav from './B3Nav'
 
@@ -70,7 +71,6 @@ export default function B3MobileLayout({
             badgeContent={global?.cartNumber}
             max={1000}
             sx={{
-              marginRight: '0.5rem',
               '& .MuiBadge-badge': {
                 color: '#FFFFFF',
                 backgroundColor: '#1976D2',
@@ -89,6 +89,7 @@ export default function B3MobileLayout({
                 window.location.href = '/cart.php'
               }}
             />
+            <B3CloseAppButton />
           </Badge>
         )}
       </Box>

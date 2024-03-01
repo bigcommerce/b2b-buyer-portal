@@ -64,6 +64,8 @@ export {
   setStorefrontConfig,
 } from './storefrontConfig'
 
+export { loginjump } from './b3Login'
+
 export {
   b2bPrintInvoice,
   B3LStorage,

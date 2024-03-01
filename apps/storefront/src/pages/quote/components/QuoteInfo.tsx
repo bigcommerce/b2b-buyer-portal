@@ -25,6 +25,7 @@ const contactInfoKeys: string[] = [
   'email',
   'companyName',
   'phoneNumber',
+  'quoteTitle',
 ]
 
 const addressVerifyKeys: string[] = [
@@ -61,6 +62,7 @@ interface QuoteInfoItemProps {
 function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
   const keyTable = flag === 'info' ? contactInfoKeys : addressKeys
   const [isMobile] = useMobile()
+  const b3Lang = useB3Lang()
 
   const noAddresssText =
     status === 'Draft'
@@ -97,6 +99,24 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
         {(isComplete || flag === 'info') &&
           JSON.stringify(info) !== '{}' &&
           keyTable.map((list: Keys) => {
+            if (list === 'quoteTitle') {
+              return status === 'Draft' ? (
+                <Typography
+                  sx={{
+                    wordBreak: 'break-all',
+                  }}
+                  key={list}
+                  variant="body1"
+                >
+                  {`${b3Lang('quoteDraft.quoteInfo.quoteTitle')}${
+                    info[list] || ''
+                  }`}
+                </Typography>
+              ) : (
+                ''
+              )
+            }
+
             if (typeof list === 'string') {
               return (
                 <Typography key={list} variant="body1">
@@ -133,6 +153,7 @@ function QuoteInfo({
 }: InfoProps) {
   const b3Lang = useB3Lang()
   const [isMobile] = useMobile()
+
   return (
     <Container
       flexDirection="column"
@@ -153,6 +174,7 @@ function QuoteInfo({
         <QuoteInfoItem
           title={b3Lang('quoteDraft.contactInfo.contact')}
           flag="info"
+          status={status}
           info={contactInfo}
         />
 

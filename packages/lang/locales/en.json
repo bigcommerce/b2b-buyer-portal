@@ -518,6 +518,8 @@
   "quoteDraft.contactInfo.email": "Email",
   "quoteDraft.contactInfo.companyName": "Company name",
   "quoteDraft.contactInfo.phone": "Phone",
+  "quoteDraft.contactInfo.quoteTitle": "Quote Title",
+  "quoteDraft.quoteInfo.quoteTitle": "Quote title:",
   "quoteDraft.contactInfo.emailExists": "Email already exists",
   "quoteDraft.contactInfo.contact": "Contact",
   "quoteDraft.quoteAddress.chooseFromSaved": "Choose from saved",

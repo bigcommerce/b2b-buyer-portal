@@ -16,6 +16,7 @@ import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
   setEnteredInclusive,
+  setLoginLandingLocation,
   setShowInclusiveTaxPrice,
   setStoreInfo,
   setTaxZoneRates,
@@ -164,6 +165,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
     key: 'quote_on_non_purchasable_product_page',
     name: 'quoteOnNonPurchasableProductPageBtn',
   },
+  {
+    key: 'login_landing_location',
+    name: 'loginLandingLocation',
+  },
 ]
 
 const getTemPlateConfig = async (
@@ -278,6 +283,12 @@ const getTemPlateConfig = async (
           setBlockPendingQuoteNonPurchasableOOS({
             isEnableRequest: item.value === '1',
           })
+        )
+      }
+
+      if (storeforntKey.key === 'login_landing_location') {
+        store.dispatch(
+          setLoginLandingLocation(item?.extraFields?.location || '0')
         )
       }
 

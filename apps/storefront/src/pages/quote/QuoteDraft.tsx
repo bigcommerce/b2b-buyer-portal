@@ -320,7 +320,11 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
     const isComplete = Object.keys(saveInfo.contactInfo).every(
       (key: string) => {
-        if (key === 'phoneNumber' || key === 'companyName') {
+        if (
+          key === 'phoneNumber' ||
+          key === 'companyName' ||
+          key === 'quoteTitle'
+        ) {
           return true
         }
         return !!saveInfo.contactInfo[key]
@@ -411,6 +415,10 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       try {
         const info = B3LStorage.get('MyQuoteInfo')
         const contactInfo = info?.contactInfo || {}
+
+        const quoteTitle = contactInfo?.quoteTitle || ''
+
+        if ('quoteTitle' in contactInfo) delete contactInfo.quoteTitle
 
         const isComplete = Object.keys(contactInfo).every((key: string) => {
           if (key === 'phoneNumber' || key === 'companyName') {
@@ -544,6 +552,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           subtotal: allPrice.toFixed(decimalPlaces),
           companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
           storeHash,
+          quoteTitle,
           discount: '0.00',
           channelId,
           userEmail: emailAddress,

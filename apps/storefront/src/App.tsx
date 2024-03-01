@@ -324,6 +324,15 @@ export default function App() {
   useEffect(() => {
     const { hash } = window.location
 
+    if (!hash.includes('login') && !hash.includes('register')) {
+      const recordOpenHash = isOpen ? hash : ''
+      storeDispatch(
+        setGlabolCommonState({
+          recordOpenHash,
+        })
+      )
+    }
+
     if (isOpen && hash === '#/') {
       setOpenPage({
         isOpen: false,
