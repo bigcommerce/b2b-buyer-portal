@@ -5,8 +5,7 @@
       "files": [
         "src/pages/**/*.{ts,tsx}",
         "src/utils/**/*.{ts,tsx}",
-        "src/components/**/*.{ts,tsx}",
-        "src/shared/**/**.*ts"
+        "src/components/**/*.{ts,tsx}"
       ],
       "rules": {
         "no-param-reassign": 0
