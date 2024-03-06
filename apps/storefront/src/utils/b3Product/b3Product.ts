@@ -1,3 +1,4 @@
+import isEmpty from 'lodash-es/isEmpty'
 import { v1 as uuid } from 'uuid'
 
 import {
@@ -1307,13 +1308,14 @@ export const getVariantInfoOOSAndPurchase = (productInfo: CustomFieldItems) => {
 
   const variantSku = newProductInfo?.variantSku || newProductInfo?.sku
 
-  const variants = newProductInfo?.productsSearch
+  const variants = !isEmpty(newProductInfo?.productsSearch)
     ? newProductInfo.productsSearch.variants
     : newProductInfo.variants
 
-  const variant = variants.find((item: Variant) => item.sku === variantSku)
-
-  if (variant?.sku) {
+  const variant = variants
+    ? variants.find((item: Variant) => item.sku === variantSku)
+    : {}
+  if (variant && variant?.sku) {
     const {
       purchasing_disabled: purchasingDisabled,
       inventory_level: inventoryLevel,
@@ -1372,12 +1374,15 @@ export const getVariantInfoDisplayPrice = (
   const variantSku =
     option?.sku || newProductInfo?.variantSku || newProductInfo?.sku
 
-  const newVariants = newProductInfo?.productsSearch
+  const newVariants = !isEmpty(newProductInfo?.productsSearch)
     ? newProductInfo.productsSearch.variants
     : newProductInfo.variants
 
-  const variant = newVariants.find((item: Variant) => item.sku === variantSku)
-  if (variant?.sku) {
+  const variant = newVariants
+    ? newVariants.find((item: Variant) => item.sku === variantSku)
+    : {}
+
+  if (variant && variant?.sku) {
     const {
       purchasing_disabled: purchasingDisabled,
       inventory_level: inventoryLevel,
