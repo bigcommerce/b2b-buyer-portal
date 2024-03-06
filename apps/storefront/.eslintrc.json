@@ -4,7 +4,6 @@
     {
       "files": [
         "src/pages/**/*.{ts,tsx}",
-        "src/utils/**/*.{ts,tsx}",
         "src/components/**/*.{ts,tsx}"
       ],
       "rules": {
@@ -149,12 +148,7 @@
       "rules": { "react/jsx-wrap-multilines": 0 }
     },
     {
-      "files": [
-        "src/components/**/*.tsx",
-        "src/pages/**/*.{ts,tsx}",
-        "src/hooks/**/*.ts",
-        "src/hooks/*.ts"
-      ],
+      "files": ["src/**/*.{ts,tsx}"],
       "rules": { "import/extensions": 0 }
     },
     {

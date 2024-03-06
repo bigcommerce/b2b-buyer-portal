@@ -35,13 +35,14 @@ export const setGlobalTranslation = async ({
 
 export const setTranslation = async ({
   channelId,
-  page,
+  page: pageKey,
 }: SetTranslationParams) => {
+  const page =
+    pageKey in REPEATED_PAGES
+      ? REPEATED_PAGES[pageKey as keyof typeof REPEATED_PAGES]
+      : pageKey
   const translationVersion = B3LStorage.get('translationVersion')
   const fetchedPages = B3LStorage.get('fetchedPages')
-  if (page in REPEATED_PAGES) {
-    page = REPEATED_PAGES[page as keyof typeof REPEATED_PAGES]
-  }
 
   if (fetchedPages?.includes(page) || !(translationVersion > 0)) return
 

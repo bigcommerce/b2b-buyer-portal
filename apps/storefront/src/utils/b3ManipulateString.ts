@@ -18,9 +18,10 @@ const manipulateString = (input: string): string => {
 
 const convertLabel = (infos: RegisterFields[]) =>
   infos.map((info: RegisterFields) => {
-    const { label } = info
+    const node = info
+    const { label } = node
     if (label) {
-      info.label = manipulateString(label)
+      node.label = manipulateString(label)
     }
 
     return info

@@ -310,8 +310,9 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
       singleCurrentPrice * ((100 + rate) / 100) + singleextraProductPrice
     const productTax = singleCurrentPrice * (rate / 100) + singleAllTax
 
-    item.node.baseAllPrice = productPrice.toFixed(decimalPlaces)
-    item.node.baseAllPricetax = productTax.toFixed(decimalPlaces)
+    const { node } = item ?? { node: {} }
+    node.baseAllPrice = productPrice.toFixed(decimalPlaces)
+    node.baseAllPricetax = productTax.toFixed(decimalPlaces)
   })
 }
 
@@ -960,6 +961,7 @@ const calculateProductListPrice = async (
     const { data: calculatedData } = res
 
     products.forEach((product: Partial<Product>, index: number) => {
+      const productNode = product
       let qty = 0
 
       if (type === '1') {
@@ -971,15 +973,15 @@ const calculateProductListPrice = async (
       const { taxPrice, itemPrice } = getBulkPrice(calculatedData[index], qty)
 
       if (type === '1') {
-        product.basePrice = itemPrice.toFixed(decimalPlaces)
-        product.taxPrice = taxPrice.toFixed(decimalPlaces)
-        product.tax = taxPrice.toFixed(decimalPlaces)
-        product.calculatedValue = calculatedData[index]
+        productNode.basePrice = itemPrice.toFixed(decimalPlaces)
+        productNode.taxPrice = taxPrice.toFixed(decimalPlaces)
+        productNode.tax = taxPrice.toFixed(decimalPlaces)
+        productNode.calculatedValue = calculatedData[index]
       } else if (type === '2') {
-        product.node.basePrice = itemPrice.toFixed(decimalPlaces)
-        product.node.taxPrice = taxPrice.toFixed(decimalPlaces)
-        product.node.tax = taxPrice.toFixed(decimalPlaces)
-        product.node.calculatedValue = calculatedData[index]
+        productNode.node.basePrice = itemPrice.toFixed(decimalPlaces)
+        productNode.node.taxPrice = taxPrice.toFixed(decimalPlaces)
+        productNode.node.tax = taxPrice.toFixed(decimalPlaces)
+        productNode.node.calculatedValue = calculatedData[index]
       }
     })
     return products

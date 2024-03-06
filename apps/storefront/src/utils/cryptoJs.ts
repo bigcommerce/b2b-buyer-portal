@@ -5,11 +5,11 @@ const encryptedStr = 'B3Info'
 
 export const cipherText = (text: any) => {
   if (!text) return ''
-  text =
+  const stringifiedText =
     typeof text === 'boolean' || typeof text === 'number'
       ? text.toString()
       : text
-  return tripledes.encrypt(text, encryptedStr).toString()
+  return tripledes.encrypt(stringifiedText, encryptedStr).toString()
 }
 
 export const plainText = (text: any) => {

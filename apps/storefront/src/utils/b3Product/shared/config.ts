@@ -517,9 +517,10 @@ export const conversionProductsList = (
 
 export const getOptionRequestData = (
   formFields: CustomFieldItems[],
-  requestData: CustomFieldItems,
+  data: CustomFieldItems,
   value: CustomFieldItems
 ) => {
+  const requestData = data
   formFields.forEach((item: CustomFieldItems) => {
     const { fieldType, name } = item
 
