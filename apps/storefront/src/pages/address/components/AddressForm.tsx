@@ -494,7 +494,7 @@ function AddressForm(
         fieldId: string
         default: string
       }) => {
-        element.label = b3Lang(element.idLang)
+        element.label = b3Lang(element.idLang) || element.label
 
         if (!isB2BUser && element.fieldId === 'field_21') {
           element.default = ''
