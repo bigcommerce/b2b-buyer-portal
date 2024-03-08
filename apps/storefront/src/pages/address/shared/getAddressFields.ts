@@ -11,8 +11,6 @@ import {
 
 import { b2bAddressFields } from './config'
 
-// const addressExtraFieldsType = ['text', 'multiline', 'number', 'dropdown']
-
 export interface StateProps {
   stateCode: string
   stateName: string
@@ -97,10 +95,11 @@ const convertExtraFields = (
 
   const convertB2BExtraFields = getAccountFormFields(b2bExtraFields).address
 
-  convertB2BExtraFields.map((field: ExtraFieldsProp) => {
+  convertB2BExtraFields.map((extraField: ExtraFieldsProp) => {
+    const field = extraField
     field.custom = true
 
-    return field
+    return extraField
   })
 
   return convertB2BExtraFields
@@ -151,16 +150,17 @@ export const getAddressFields = async (
       allAddressFields = bcAddressFields
     }
 
-    allAddressFields.map((field: CustomFieldItems) => {
-      if (field.name === 'country') {
+    allAddressFields.map((addressField: CustomFieldItems) => {
+      const field = addressField
+      if (addressField.name === 'country') {
         field.options = countries
       }
 
-      if (field.name === 'state') {
+      if (addressField.name === 'state') {
         field.fieldType = 'text'
       }
 
-      return field
+      return addressField
     })
 
     return allAddressFields

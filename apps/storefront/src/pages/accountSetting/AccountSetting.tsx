@@ -134,17 +134,18 @@ function AccountSetting() {
 
         contactInformationTranslatedLabels.forEach(
           (element: { fieldId: string; label: string }) => {
-            if (element.fieldId === 'field_first_name') {
-              element.label = b3Lang('accountSettings.form.firstName')
+            const currentElement = element
+            if (currentElement.fieldId === 'field_first_name') {
+              currentElement.label = b3Lang('accountSettings.form.firstName')
             }
-            if (element.fieldId === 'field_last_name') {
-              element.label = b3Lang('accountSettings.form.lastName')
+            if (currentElement.fieldId === 'field_last_name') {
+              currentElement.label = b3Lang('accountSettings.form.lastName')
             }
-            if (element.fieldId === 'field_email') {
-              element.label = b3Lang('accountSettings.form.email')
+            if (currentElement.fieldId === 'field_email') {
+              currentElement.label = b3Lang('accountSettings.form.email')
             }
-            if (element.fieldId === 'field_phone_number') {
-              element.label = b3Lang('accountSettings.form.phoneNumber')
+            if (currentElement.fieldId === 'field_phone_number') {
+              currentElement.label = b3Lang('accountSettings.form.phoneNumber')
             }
           }
         )
@@ -167,7 +168,8 @@ function AccountSetting() {
         const passwordModifiedTranslatedFields = JSON.parse(
           JSON.stringify(passwordModified)
         ).map((element: { label: string; idLang: string }) => {
-          element.label = b3Lang(element.idLang)
+          const passwordField = element
+          passwordField.label = b3Lang(element.idLang)
 
           return element
         })

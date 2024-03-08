@@ -279,7 +279,6 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
         taxClassId,
       },
     } = item
-
     const rate = getTaxRate(taxClassId)
 
     let singleCurrentPrice = currentProductPrices?.tax_exclusive || 0
@@ -311,8 +310,9 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
       singleCurrentPrice * ((100 + rate) / 100) + singleextraProductPrice
     const productTax = singleCurrentPrice * (rate / 100) + singleAllTax
 
-    item.node.baseAllPrice = productPrice.toFixed(decimalPlaces)
-    item.node.baseAllPricetax = productTax.toFixed(decimalPlaces)
+    const { node } = item ?? { node: {} }
+    node.baseAllPrice = productPrice.toFixed(decimalPlaces)
+    node.baseAllPricetax = productTax.toFixed(decimalPlaces)
   })
 }
 

@@ -281,6 +281,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     )
     const requestArr: Promise<any>[] = []
     newProduct.forEach((product) => {
+      const item = product
       const {
         node: { quantity },
         minQuantity = 0,
@@ -291,15 +292,15 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
       const quantityNumber = parseInt(`${quantity}`, 10) || 0
       if (minQuantity !== 0 && quantityNumber < minQuantity) {
-        product.node.quantity = minQuantity
+        item.node.quantity = minQuantity
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
-        product.node.quantity = maxQuantity
+        item.node.quantity = maxQuantity
       }
       if (isStock !== '0' && stock && (quantity ? +quantity : 0) > stock) {
-        product.node.quantity = stock
+        item.node.quantity = stock
       }
 
-      product.isValid = true
+      item.isValid = true
 
       const qty = product?.node?.quantity ? +product.node.quantity : 0
 

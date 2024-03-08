@@ -5,9 +5,6 @@ import { getLineNumber, validatorRules } from '@/utils'
 
 const inputFormat = 'yyyy-MM-dd'
 
-// export interface CustomFieldItems {
-//   [key: string]: any
-// }
 export interface QuoteConfig {
   [key: string]: string
 }
@@ -183,8 +180,9 @@ const classificationType = (item: CustomFieldItems) => {
 
   if (optionItems?.options) {
     optionItems?.options.forEach((option: any) => {
+      const optionValue = option
       if (option.value) {
-        option.value = option.label
+        optionValue.value = option.label
       }
     })
   }
@@ -255,8 +253,10 @@ export const conversionSigleItem = (
     type: item.type || '',
   }
 
+  const customFieldItem = item
+
   if (typeof item.fieldType === 'number') {
-    item.fieldType = companyExtraFieldsType[item.fieldType]
+    customFieldItem.fieldType = companyExtraFieldsType[item.fieldType]
     requiredItems.fieldType = item.fieldType
   }
 

@@ -159,12 +159,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         const newAccountFormFields: AccountFormFieldsItems[] = (
           accountFormAllFields?.accountFormFields || []
         ).map((fields: AccountFormFieldsItems) => {
+          const accountFields = fields
           if (
             b2bAddressRequiredFields.includes(fields?.fieldId || '') &&
             fields.groupId === 4
           ) {
-            fields.isRequired = true
-            fields.visible = true
+            accountFields.isRequired = true
+            accountFields.visible = true
           }
 
           return fields
@@ -180,9 +181,10 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             (
               addressFields: Partial<RegisterFieldsItems>
             ): Partial<RegisterFieldsItems> => {
+              const fields = addressFields
               if (addressFields.name === 'country') {
-                addressFields.options = countries
-                addressFields.replaceOptions = {
+                fields.options = countries
+                fields.replaceOptions = {
                   label: 'countryName',
                   value: 'countryName',
                 }
@@ -203,9 +205,10 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             (
               contactInformationField: Partial<RegisterFieldsItems>
             ): Partial<RegisterFieldsItems> => {
-              contactInformationField.disabled = true
+              const field = contactInformationField
+              field.disabled = true
 
-              contactInformationField.default =
+              field.default =
                 customerInfo[
                   deCodeField(contactInformationField.name as string)
                 ] || contactInformationField.default
@@ -214,7 +217,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                 contactInformationField.required &&
                 !contactInformationField?.default
               ) {
-                contactInformationField.disabled = false
+                field.disabled = false
               }
 
               return contactInformationField
@@ -327,12 +330,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       )
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
+        let list = fileList
         if (res.code === 200) {
           const newData = {
             ...res.data,
           }
           newData.fileSize = newData.fileSize ? `${newData.fileSize}` : ''
-          fileList = [...fileList, newData]
+          list = [...fileList, newData]
         } else {
           throw (
             res.data.errMsg ||
@@ -340,7 +344,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             b3Lang('intl.global.fileUpload.fileUploadFailure')
           )
         }
-        return fileList
+        return list
       }, [])
 
       return fileList
@@ -383,8 +387,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       })
       b2bFields.extraFields = extraFields
     }
-
-    // b2bFields.companyEmail = data.email
 
     // address Field
     const addressBasicInfo = bcTob2bAddressBasicFields.filter(

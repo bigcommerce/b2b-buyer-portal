@@ -55,7 +55,8 @@ const getOrderShipping = (data: B2BOrderData) => {
       ],
       notShip: {
         itemsInfo: products.filter((product: OrderProductItem) => {
-          product.not_shipping_number =
+          const orderProduct = product
+          orderProduct.not_shipping_number =
             product.quantity - product.quantity_shipped
           return (
             product.quantity > product.quantity_shipped &&

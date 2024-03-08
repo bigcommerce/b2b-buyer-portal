@@ -360,6 +360,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     list.forEach((item: any) => {
       let additionalCalculatedPriceTax = 0
       let additionalCalculatedPrice = 0
+      const listItem = item
 
       if (item.node.additionalCalculatedPrices?.length) {
         item.node.additionalCalculatedPrices.forEach((item: any) => {
@@ -368,8 +369,8 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         })
       }
 
-      item.node.basePrice = +item.node.basePrice + additionalCalculatedPrice
-      item.node.tax = +item.node.tax + additionalCalculatedPriceTax
+      listItem.node.basePrice = +item.node.basePrice + additionalCalculatedPrice
+      listItem.node.tax = +item.node.tax + additionalCalculatedPriceTax
     })
 
     return {

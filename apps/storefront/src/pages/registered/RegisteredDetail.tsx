@@ -139,7 +139,8 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     formData: CustomFieldItems
   ) =>
     formFields.map((field) => {
-      field.default = formData[field.name] || field.default
+      const item = field
+      item.default = formData[field.name] || field.default
       return field
     })
 
@@ -153,7 +154,8 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       ...companyAttachment,
       ...addressBasicList,
     ].reduce((formValues: DetailsFormValues, field: RegisterFields) => {
-      formValues[field.name] = getValues(field.name) || field.default
+      const values = formValues
+      values[field.name] = getValues(field.name) || field.default
 
       return formValues
     }, {})

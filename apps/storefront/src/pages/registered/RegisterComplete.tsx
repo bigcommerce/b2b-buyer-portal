@@ -1,17 +1,8 @@
-import {
-  MouseEvent,
-  useContext,
-  useEffect,
-  useState,
-  // useMemo,
-} from 'react'
+import { MouseEvent, useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { Alert, Box } from '@mui/material'
 
-// import {
-//   Captcha,
-// } from '@/components/form'
 import { B3CustomForm } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
@@ -233,8 +224,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         b2bFields.extraFields = extraFields
       }
 
-      // b2bFields.companyEmail = data.email || enterEmail
-
       // address Field
       const addressBasicInfo =
         addressBasicList.filter((list) => !list.custom) || []
@@ -295,12 +284,13 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       )
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
+        let list = fileList
         if (res.code === 200) {
           const newData = {
             ...res.data,
           }
           newData.fileSize = newData.fileSize ? `${newData.fileSize}` : ''
-          fileList = [...fileList, newData]
+          list = [...fileList, newData]
         } else {
           throw (
             res.data.errMsg ||
@@ -308,7 +298,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             b3Lang('intl.global.fileUpload.fileUploadFailure')
           )
         }
-        return fileList
+        return list
       }, [])
 
       return fileList
@@ -321,8 +311,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const saveRegisterPassword = (data: CustomFieldItems) => {
     const newPasswordInformation = passwordInformation.map(
       (field: RegisterFields) => {
+        const registerField = field
         if (accountType === '1') {
-          field.default = data[field.name] || field.default
+          registerField.default = data[field.name] || field.default
         }
         return field
       }
@@ -330,8 +321,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
     const newBcPasswordInformation = bcPasswordInformation.map(
       (field: RegisterFields) => {
+        const registerField = field
         if (accountType === '2') {
-          field.default = data[field.name] || field.default
+          registerField.default = data[field.name] || field.default
         }
 
         return field

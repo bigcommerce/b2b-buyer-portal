@@ -436,15 +436,17 @@ function Invoice() {
     const invoicesList: InvoiceListNode[] = edges
 
     if (type === InvoiceListType.DETAIL && invoicesList.length) {
-      invoicesList.forEach((item: InvoiceListNode) => {
+      invoicesList.forEach((invoice: InvoiceListNode) => {
+        const item = invoice
         item.node.isCollapse = true
       })
     }
 
-    invoicesList.forEach((item: InvoiceListNode) => {
+    invoicesList.forEach((invoiceNode: InvoiceListNode) => {
       const {
         node: { openBalance },
-      } = item
+      } = invoiceNode
+      const item = invoiceNode
       item.node.disableCurrentCheckbox = false
 
       openBalance.value = (+openBalance.value).toFixed(decimalPlaces)
@@ -730,12 +732,16 @@ function Invoice() {
   }, [checkedArr, filterData])
 
   const translatedFilterFormConfigs = filterFormConfig.map((element) => {
+    const config = element
     if (element.name === 'status') {
-      element.label = b3Lang(filterFormConfigsTranslationVariables.status)
+      config.label = b3Lang(filterFormConfigsTranslationVariables.status)
     }
 
-    element.options = element.options.map((option) => {
-      option.label = b3Lang(filterFormConfigsTranslationVariables[option.key])
+    config.options = element.options.map((option) => {
+      const elementOption = option
+      elementOption.label = b3Lang(
+        filterFormConfigsTranslationVariables[option.key]
+      )
 
       return option
     })

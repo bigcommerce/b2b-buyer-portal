@@ -326,18 +326,19 @@ function AddressForm(
   ) => {
     if (type === 'add' && originAddressFields.length > 0) {
       allAddressFields.forEach((field: CustomFieldItems) => {
+        const addressField = field
         if (field.custom) {
           if (isB2BUser) {
             const originFields = originAddressFields.filter(
               (item: CustomFieldItems) => item.name === field.name
             )[0]
-            field.default = originFields.default || ''
+            addressField.default = originFields.default || ''
           } else {
             const originFields = originAddressFields.filter(
               (item: CustomFieldItems) =>
                 item.name === field.name || item.bcLabel === field.bcLabel
             )[0]
-            field.default = originFields.default || ''
+            addressField.default = originFields.default || ''
           }
         }
       })
@@ -378,6 +379,7 @@ function AddressForm(
       })
 
       allAddressFields.forEach((field: CustomFieldItems) => {
+        const currentField = field
         if (field.custom && extraFields.length > 0) {
           if (isB2BUser) {
             const name = deCodeField(field.name)
@@ -391,10 +393,10 @@ function AddressForm(
             if (currentExtraField) {
               setValue(field.name, currentExtraField.fieldValue || '')
 
-              field.default = currentExtraField.fieldValue || ''
+              currentField.default = currentExtraField.fieldValue || ''
             } else {
               setValue(field.name, '')
-              field.default = originFields.default
+              currentField.default = originFields.default
             }
           } else {
             const currentExtraField = extraFields.filter(
@@ -410,11 +412,11 @@ function AddressForm(
             if (currentExtraField) {
               setValue(field.name, currentExtraField.fieldValue || '')
 
-              field.default =
+              currentField.default =
                 currentExtraField.fieldValue || originFields.default
             } else {
               setValue(field.name, '')
-              field.default = originFields.default
+              currentField.default = originFields.default
             }
           }
         } else if (field.name === 'country') {
@@ -425,11 +427,11 @@ function AddressForm(
             const { states } = currentCountry[0]
 
             if (states.length > 0) {
-              field.options = states
-              field.fieldType = 'dropdown'
+              currentField.options = states
+              currentField.fieldType = 'dropdown'
             } else {
-              field.options = []
-              field.fieldType = 'text'
+              currentField.options = []
+              currentField.fieldType = 'text'
             }
           }
         } else {
@@ -494,10 +496,11 @@ function AddressForm(
         fieldId: string
         default: string
       }) => {
-        element.label = b3Lang(element.idLang) || element.label
+        const translatedFieldElement = element
+        translatedFieldElement.label = b3Lang(element.idLang) || element.label
 
         if (!isB2BUser && element.fieldId === 'field_21') {
-          element.default = ''
+          translatedFieldElement.default = ''
         }
 
         return element

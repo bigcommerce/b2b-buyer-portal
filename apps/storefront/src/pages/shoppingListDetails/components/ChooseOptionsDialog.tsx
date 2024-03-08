@@ -23,7 +23,6 @@ import {
   currencyFormat,
   snackbar,
 } from '@/utils'
-// import {  } from '@/utils/b3Product/b3Product'
 import {
   getBCPrice,
   getProductInfoDisplayPrice,
@@ -383,7 +382,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     if (formFields.length > 0) {
       const defaultValues: SimpleObject = formFields.reduce(
         (value: SimpleObject, fields) => {
-          value[fields.name] = fields.default
+          const formFieldValue = value
+          formFieldValue[fields.name] = fields.default
           setValue(fields.name, fields.default)
           return value
         },

@@ -207,6 +207,7 @@ function QuoteDetail() {
         const newProductsSearch = conversionProductsList(productsSearch)
 
         listProducts.forEach((item) => {
+          const listProduct = item
           const productInfo = newProductsSearch.find(
             (search: CustomFieldItems) => {
               const { id: productId } = search
@@ -215,7 +216,7 @@ function QuoteDetail() {
             }
           )
 
-          item.productsSearch = productInfo || {}
+          listProduct.productsSearch = productInfo || {}
         })
 
         return listProducts

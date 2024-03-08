@@ -108,14 +108,16 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       setOrderStatuses(orderStatuses[orderStatusesName])
 
       const filterInfoWithTranslatedLabel = filterInfo.map((element) => {
-        element.label = b3Lang(element.idLang)
+        const translatedElement = element
+        translatedElement.label = b3Lang(element.idLang)
 
         if (element.name === 'orderStatus') {
-          element.options = element.options.map(
+          translatedElement.options = element.options.map(
             (option: { customLabel: string; systemLabel: string }) => {
               const optionLabel =
                 orderStatusTranslationVariables[option.systemLabel]
-              option.customLabel = b3Lang(optionLabel)
+              const elementOption = option
+              elementOption.customLabel = b3Lang(optionLabel)
 
               return option
             }

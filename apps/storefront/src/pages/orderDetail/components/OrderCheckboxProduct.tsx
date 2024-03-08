@@ -117,19 +117,21 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
 
   const handleProductQuantityChange =
     (product: EditableProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
+      const element = product
       const valueNum = e.target.value
       if (+valueNum >= 0 && +valueNum <= 1000000) {
-        product.editQuantity = valueNum
+        element.editQuantity = valueNum
         if (type === 'return') {
           if (+valueNum > +product.quantity) {
-            product.editQuantity = product.quantity
+            element.editQuantity = product.quantity
             snackbar.error(
               b3Lang(
                 'purchasedProducts.error.returnedQuantityShouldBeWithinThePurchase'
               )
             )
           } else {
-            returnList.forEach((item) => {
+            returnList.forEach((listItem) => {
+              const item = listItem
               if (item.returnId === product.id) {
                 item.returnQty = +valueNum
               }
@@ -148,8 +150,9 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   }
 
   const handleNumberInputBlur = (product: EditableProductItem) => () => {
+    const editableProduct = product
     if (!product.editQuantity || +product.editQuantity === 0) {
-      product.editQuantity = '1'
+      editableProduct.editQuantity = '1'
       onProductChange([...products])
     }
   }

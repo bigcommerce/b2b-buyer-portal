@@ -39,7 +39,8 @@ export default function OrderShipping() {
             const tracking = getTracking(trackingNumber)
             if (tracking) {
               const { trackingUrl = '' } = tracking
-              if (trackingUrl) item.tracking_link = trackingUrl
+              const shippingItem = item
+              if (trackingUrl) shippingItem.tracking_link = trackingUrl
             }
           })
         }

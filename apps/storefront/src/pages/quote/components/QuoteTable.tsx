@@ -135,8 +135,9 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     const listItems = paginationTableRef.current?.getList() || []
     const newListItems = listItems?.map((item: ListItemProps) => {
       const { node } = item
+      const listItem = item
       if (node?.id === (product as CustomFieldItems).id) {
-        ;(item as CustomFieldItems).node = product
+        ;(listItem as CustomFieldItems).node = product
       }
 
       return item
@@ -277,14 +278,15 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         productsSearch: { variants },
         basePrice,
       } = product.node
+      const newProduct = product
       const variantItem = variants.find(
         (item: CustomFieldItems) => item.sku === variantSku
       )
 
-      product.node.id = optionsProductId
+      newProduct.node.id = optionsProductId
 
-      product.node.basePrice = basePrice
-      product.node.tax =
+      newProduct.node.basePrice = basePrice
+      newProduct.node.tax =
         variantItem.bc_calculated_price.tax_inclusive -
         variantItem.bc_calculated_price.tax_exclusive
     })
@@ -294,8 +296,9 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
 
     b2bQuoteDraftList.forEach((item: CustomFieldItems) => {
+      const listItem = item
       if (item.node.id === optionsProductId) {
-        item.node = newProducts[0]?.node || {}
+        listItem.node = newProducts[0]?.node || {}
       }
     })
 
