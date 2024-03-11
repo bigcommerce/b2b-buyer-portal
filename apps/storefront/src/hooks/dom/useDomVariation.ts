@@ -27,7 +27,8 @@ const useDomVariation = (dom: string, quoteCallBbck?: () => void) => {
     if (doms.length) {
       doms.forEach((dom: CustomFieldItems) => {
         if (!dom?.ready) {
-          dom.ready = true
+          const d = dom
+          d.ready = true
           changeQuickview()
         }
       })

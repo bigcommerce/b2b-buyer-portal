@@ -21,8 +21,8 @@ const useHideGoogleCustomerReviews = (
     const newVisibilityStyle = isOpen ? 'none' : 'inline-block'
 
     googleCustomerReviewsDoms.forEach((dom) => {
-      if (dom?.parentElement)
-        dom.parentElement.style.display = newVisibilityStyle
+      const parentElement = dom?.parentElement
+      if (parentElement) parentElement.style.display = newVisibilityStyle
     })
   }, [isOpen])
 }

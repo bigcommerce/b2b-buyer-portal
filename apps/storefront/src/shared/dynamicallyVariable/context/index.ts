@@ -17,27 +17,31 @@ export const reducer = (
   state: DynamicallyVariableState,
   action: Partial<DynamicallyVariableAction>
 ) => {
+  const currentAction = action
   const setMulTip = () => {
-    if (action.type === 'tip' && action.payload?.tipMessage) {
+    if (currentAction.type === 'tip' && currentAction.payload?.tipMessage) {
       const msgs = state?.tipMessage?.msgs || []
 
       const {
         tipMessage: { msgs: newMsgs = [] },
-      } = action.payload
+      } = currentAction.payload
 
-      action.payload.tipMessage.msgs = [...msgs, ...newMsgs]
+      currentAction.payload.tipMessage.msgs = [...msgs, ...newMsgs]
 
-      return action.payload
+      return currentAction.payload
     }
 
-    if (action.type === 'globalTip' && action.payload?.globalTipMessage) {
+    if (
+      currentAction.type === 'globalTip' &&
+      currentAction.payload?.globalTipMessage
+    ) {
       const msgs = state?.globalTipMessage?.msgs || []
 
       const {
         globalTipMessage: { msgs: newMsgs = [] },
-      } = action.payload
+      } = currentAction.payload
 
-      action.payload.globalTipMessage.msgs = [...msgs, ...newMsgs]
+      currentAction.payload.globalTipMessage.msgs = [...msgs, ...newMsgs]
 
       return action.payload
     }

@@ -24,25 +24,6 @@ import {
 } from '@/store'
 import { B3SStorage } from '@/utils'
 
-// import {
-//   storeHash,
-// } from '@/utils'
-
-// interface Rates {
-//   enabled: boolean,
-//   id: number,
-//   name: string,
-//   priority: number,
-//   classRates: TaxZoneRates[],
-// }
-
-// interface TaxZoneRatesProps {
-//   enabled: boolean,
-//   id: number,
-//   name: string,
-//   rates: Rates[]
-// }
-
 interface StoreforntKeysProps {
   key: string
   name: string
@@ -184,7 +165,8 @@ const getTemPlateConfig = async (
   const obj: Partial<CustomStyleButtonState> | {} = {}
   let blockPendingAccountOrderCreation = true
   let blockPendingAccountViewPrice = true
-  storefrontConfigs.forEach((item: any) => {
+  storefrontConfigs.forEach((currentItem: CustomFieldItems) => {
+    const item = currentItem
     const storeforntKey: StoreforntKeysProps | undefined = storeforntKeys.find(
       (option) => option.key === item.key
     )
@@ -264,7 +246,6 @@ const getTemPlateConfig = async (
         store.dispatch(
           setBlockPendingQuoteNonPurchasableOOS({
             isEnableProduct: item.value === '1',
-            // isEnableRequest: false
           })
         )
       }

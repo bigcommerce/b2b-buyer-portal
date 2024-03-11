@@ -13,16 +13,18 @@ export function IFrameSetContent(
   forceWrite = false
 ) {
   if (el) {
+    const element = el
     if ('srcdoc' in HTMLIFrameElement.prototype && !forceWrite) {
-      el.srcdoc = content
+      element.srcdoc = content
     } else {
-      const iframeDoc = el.contentDocument
+      const iframeDoc = element.contentDocument
       iframeDoc?.open('text/html', 'replace')
       iframeDoc?.write(content)
       iframeDoc?.close()
     }
   }
 }
+
 const handleLoad = (_iframeRef: RefObject<HTMLIFrameElement>) => {
   // resolve iframe use document mousedown no effect
   if (_iframeRef.current?.contentDocument?.addEventListener) {

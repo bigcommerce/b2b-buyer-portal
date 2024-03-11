@@ -142,7 +142,8 @@ const useMyQuote = ({
 
   const addBtnStyle = () => {
     const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote')
-    myQuoteBtn.forEach((myQuote: CustomFieldItems) => {
+    myQuoteBtn.forEach((quote: CustomFieldItems) => {
+      const myQuote = quote
       myQuote.innerHTML = myQuoteBtnLabel
       myQuote.setAttribute(
         'style',

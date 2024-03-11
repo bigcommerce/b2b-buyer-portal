@@ -3,17 +3,6 @@
   "overrides": [
     {
       "files": [
-        "src/components/**/*.{ts,tsx}",
-        "src/shared/**/**.*ts",
-        "src/utils/**/*.{ts,tsx}",
-        "src/hooks/dom/*.ts"
-      ],
-      "rules": {
-        "no-param-reassign": 0
-      }
-    },
-    {
-      "files": [
         "src/pages/**/*.{ts,tsx}",
         "src/utils/**/*.{ts,tsx}",
         "src/components/**/*.{ts,tsx}",
