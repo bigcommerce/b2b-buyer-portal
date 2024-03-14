@@ -98,7 +98,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         }}
       >
         {b3Lang('purchasedProducts.quickOrderPad.notEnoughStock', {
-          sku: data.variantSku,
+          variantSku: data.variantSku,
         })}
       </p>
       <p
@@ -124,7 +124,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         }}
       >
         {b3Lang('purchasedProducts.quickOrderPad.outOfStockSku', {
-          sku: outOfStock,
+          outOfStock,
         })}
       </p>
       <Link
@@ -286,7 +286,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         maxLimitQuantity.forEach((data: CustomFieldItems) => {
           snackbar.error(
             b3Lang('purchasedProducts.quickOrderPad.maxQuantityMessage', {
-              minQuantity: data.maxQuantity,
+              maxQuantity: data.maxQuantity,
               sku: data.variantSku,
             }),
             {
@@ -367,7 +367,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
     if (+orderQuantityMaximum > 0 && +quantity > +orderQuantityMaximum) {
       snackbar.error(
-        b3Lang('purchasedProducts.quickOrderPad.minQuantityMessage', {
+        b3Lang('purchasedProducts.quickOrderPad.maxQuantityMessage', {
           maxQuantity: orderQuantityMaximum,
           sku: productSku,
         }),
