@@ -144,6 +144,9 @@ export default function Login(props: RegisteredProps) {
         if (loginFlag) setLoginFlag(loginFlag)
 
         const isLogout = B3SStorage.get('isLogout') === '1'
+        if (loginFlag === '7') {
+          snackbar.error(b3Lang('login.loginText.invoiceErrorTip'))
+        }
         if (loginFlag === '3' && !isLogout) {
           const { result } = (await bcLogoutLogin()).data.logout
 
@@ -346,9 +349,11 @@ export default function Login(props: RegisteredProps) {
                       margin: '30px 0 0 0',
                     }}
                   >
-                    <Alert severity={setTipType(flag)} variant="filled">
-                      {tipInfo(flag, loginAccount?.emailAddress || '')}
-                    </Alert>
+                    {tipInfo(flag, loginAccount?.emailAddress) && (
+                      <Alert severity={setTipType(flag)} variant="filled">
+                        {tipInfo(flag, loginAccount?.emailAddress || '')}
+                      </Alert>
+                    )}
                   </Box>
                 )}
                 {logo && loginInfo?.displayStoreLogo && (

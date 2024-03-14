@@ -1311,7 +1311,7 @@ export const getVariantInfoOOSAndPurchase = (productInfo: CustomFieldItems) => {
 
   const variants = !isEmpty(newProductInfo?.productsSearch)
     ? newProductInfo.productsSearch.variants
-    : newProductInfo.variants
+    : newProductInfo?.variants || []
 
   const variant = variants
     ? variants.find((item: Variant) => item.sku === variantSku)
@@ -1377,7 +1377,7 @@ export const getVariantInfoDisplayPrice = (
 
   const newVariants = !isEmpty(newProductInfo?.productsSearch)
     ? newProductInfo.productsSearch.variants
-    : newProductInfo.variants
+    : newProductInfo?.variants || []
 
   const variant = newVariants
     ? newVariants.find((item: Variant) => item.sku === variantSku)

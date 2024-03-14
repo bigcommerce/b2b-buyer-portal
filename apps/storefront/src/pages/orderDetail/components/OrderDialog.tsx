@@ -251,6 +251,7 @@ export default function OrderDialog({
               optionId: option.product_option_id,
               optionValue: option.value,
             })),
+            allOptions: product.product_options,
           })
 
           skus.push(product.sku)

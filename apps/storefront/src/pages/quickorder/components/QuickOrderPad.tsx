@@ -158,6 +158,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         variantSku,
         variantId,
         productId,
+        modifiers,
       } = currentProduct
 
       if (purchasingDisabled === '1') {
@@ -206,6 +207,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         variantId: parseInt(variantId, 10) || 0,
         quantity: +qty,
         optionSelections: optionsList,
+        allOptions: modifiers,
       })
     })
 

@@ -687,6 +687,7 @@ export const addlineItems = (products: ProductsProps[]) => {
       productId: node.productId,
       variantId: node.variantId,
       optionSelections: optionValue,
+      allOptions,
     }
   })
 
