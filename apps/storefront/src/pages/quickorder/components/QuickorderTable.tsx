@@ -327,7 +327,8 @@ function QuickorderTable({
       const currentProduct = cacheProductList.find(
         (item: CustomFieldItems) =>
           item.node.variantId === row.variantId &&
-          item.node.productId === row.productId
+          item.node.productId === row.productId &&
+          item.node.id === row.id
       )
 
       if (currentProduct && currentProduct.node) {
