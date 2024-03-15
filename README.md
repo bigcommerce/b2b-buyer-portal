@@ -1,23 +1,27 @@
-
 A monorepo frontend application designed for the BigCommerce B2B Edition Buyer portal. It's built using Turborepo, TypeScript, and React.
 
 ## Index
 
-- [Prerequisites](#-prerequisites)
-- [Core Technologies](#-core-technologies)
-- [Workspaces](#-workspaces)
-- [Tools and Libraries](#-tools-and-libraries)
-- [System Setup](#-system-setup)
-- [Local Development](#-local-development)
+- [Index](#index)
+- [☑ Prerequisites](#-prerequisites)
+  - [Step 1: Access the Storefronts Manager](#step-1-access-the-storefronts-manager)
+  - [Step 2: Enable B2B on Your Channel](#step-2-enable-b2b-on-your-channel)
+  - [Step 3: Contact Us for Additional Support](#step-3-contact-us-for-additional-support)
+- [🚀 Core Technologies](#-core-technologies)
+- [📦 Workspaces](#-workspaces)
+- [🛠 Tools and Libraries](#-tools-and-libraries)
+- [🛠 System Setup](#-system-setup)
+- [⚙ Local Development](#-local-development)
 - [Running Project Locally](#running-project-locally)
-- [Contribution](#-contribution)
-- [Contact & Support](#-contact--support)
+- [🤝 Contribution](#-contribution)
+- [📞 Contact \& Support](#-contact--support)
 
 ## ☑ Prerequisites
 
 Before you begin, ensure you have the BigCommerce B2B Edition App installed. To set up your storefront with B2B capabilities, follow the steps below:
 
 ### Step 1: Access the Storefronts Manager
+
 After installing the B2B Edition App, go to the app's dashboard and select the 'Storefronts' section.
 
 <img width="200" alt="image" src="https://github.com/B3BC/b2b-buyer-portal/assets/140021227/0d733ddb-e59c-4e5a-8801-4a744940d66b">
@@ -28,6 +32,7 @@ Choose the channel where you wish to enable B2B functionality. Initially, B2B fe
 <img width="480" alt="image" src="https://github.com/B3BC/b2b-buyer-portal/assets/140021227/b425115c-54d9-4382-9371-4e81888eb0af">
 
 ### Step 3: Contact Us for Additional Support
+
 For assistance with activating the remote buyer portal or to inquire about multi-storefront support, which allows you to utilize B2B features across multiple channels, please reach out to our team at b2b@bigcommerce.com, or raise an issue right here in this repository.
 
 ## 🚀 Core Technologies
@@ -79,6 +84,8 @@ For assistance with activating the remote buyer portal or to inquire about multi
 - `VITE_CATPCHA_SETKEY`: The reCAPTCHA site key (optional).
 - `VITE_B2B_CLIENT_ID`: The client ID of the BigCommerce App from the [developer portal](https://devtools.bigcommerce.com/).
 - `VITE_LOCAL_DEBUG`: Set to "FALSE". This is for connecting our local development with the B2B Edition GraphQL API.
+
+Environment variables have been updated so you can run your UI directly into production storefronts.
 
 6. Start the development server: `yarn RUN dev`.
 
