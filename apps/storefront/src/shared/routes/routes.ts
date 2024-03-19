@@ -297,6 +297,8 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
 
 const denyInvoiceRoles = [4, 99, 100]
 
+const invoiceFlag = 'invoice?invoiceId'
+
 const { hash, pathname, href } = window.location
 
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
@@ -393,7 +395,7 @@ const gotoAllowedAppPage = async (
     gotoPage('/login?loginFlag=3&&closeIsLogout=1')
     return
   }
-  if (denyInvoiceRoles.includes(role) && href.includes('invoice?invoiceId')) {
+  if (denyInvoiceRoles.includes(role) && href.includes(invoiceFlag)) {
     gotoPage('/login?loginFlag=7')
     return
   }
@@ -429,8 +431,8 @@ const gotoAllowedAppPage = async (
     }
 
   const flag = routes.some((item: RouteItem) => {
-    if (url.includes(item.path)) {
-      return matchPath(item.path, url) || item.permissions.includes(role)
+    if (matchPath(item.path, url) || url.includes(invoiceFlag)) {
+      return item.permissions.includes(role)
     }
     return false
   })
