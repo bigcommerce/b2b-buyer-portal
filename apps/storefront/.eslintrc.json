@@ -27,7 +27,6 @@
     {
       "files": [
         "src/components/**/*.{ts,tsx}",
-        "src/App.tsx",
         "src/pages/**/*.{ts,tsx}",
         "src/hooks/dom/*.ts",
         "src/hooks/*.ts"

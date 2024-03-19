@@ -15,13 +15,8 @@ interface ChildNodeListProps extends ChildNode {
 export interface OpenPageState {
   isOpen: boolean
   openUrl?: string
-  isPageComplete?: boolean
-  handleEnterClick?: (href: string, bool: boolean, timeTarget: number) => void
+  handleEnterClick?: (href: string, bool: boolean) => void
   params?: { [key: string]: string }
-  // gotoPageByClick: ({
-  //   href,
-  //   isRegisterArrInclude,
-  // }: GotoPageByClickProps) => string
 }
 
 export const useB3AppOpen = (initOpenState: OpenPageState) => {
@@ -54,8 +49,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           const isRegisterArrInclude = registerArr.includes(e.target)
           const tagHref = (e.target as HTMLAnchorElement)?.href
           let href = tagHref || '/orders'
-          const timeTarget = Date.now()
-          if (!tagHref || typeof timeTarget !== 'string') {
+          if (!tagHref) {
             let parentNode = (e.target as HTMLAnchorElement)?.parentNode
             let parentHref = (parentNode as HTMLAnchorElement)?.href
             let number = 0
@@ -109,11 +103,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           }
 
           if (initOpenState?.handleEnterClick) {
-            initOpenState.handleEnterClick(
-              href,
-              isRegisterArrInclude,
-              timeTarget
-            )
+            initOpenState.handleEnterClick(href, isRegisterArrInclude)
           }
         }
         return false
@@ -127,7 +117,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
       }
     }
     return () => {}
-  }, [checkoutRegisterNumber, initOpenState?.isPageComplete])
+  }, [checkoutRegisterNumber])
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback)
 

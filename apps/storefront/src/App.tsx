@@ -1,4 +1,4 @@
-import { lazy, useCallback, useContext, useEffect, useState } from 'react'
+import { lazy, useContext, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { useB3AppOpen } from '@b3/hooks'
@@ -58,7 +58,6 @@ export default function App() {
       isB2BUser,
       customerId,
       role,
-      realRole,
       B3UserId,
       currentChannelId,
       isAgenting,
@@ -79,14 +78,8 @@ export default function App() {
     currentClickedUrl,
     isRegisterAndLogin,
   } = useSelector(globalStateSelector)
-  const [clickTimeTarget, setClickTimeTarget] = useState<number>(0)
 
-  const handleAccountClick = (
-    href: string,
-    isRegisterAndLogin: boolean,
-    timeTarget: number
-  ) => {
-    setClickTimeTarget(timeTarget)
+  const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
     showPageMask(dispatch, true)
     storeDispatch(
       setGlabolCommonState({
@@ -99,7 +92,6 @@ export default function App() {
 
   const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
     isOpen: false,
-    isPageComplete,
     handleEnterClick: handleAccountClick,
   })
 
@@ -126,7 +118,7 @@ export default function App() {
 
   const { pathname, href, search } = window.location
 
-  const loginAndRegister = useCallback(() => {
+  const loginAndRegister = () => {
     dispatch({
       type: 'common',
       payload: {
@@ -155,22 +147,22 @@ export default function App() {
         openUrl,
       })
     }
-  }, [])
+  }
 
-  const gotoPage = useCallback((url: string) => {
+  const gotoPage = (url: string) => {
     setOpenPage({
       isOpen: true,
       openUrl: url,
     })
-  }, [])
+  }
 
   useEffect(() => {
     handleHideRegisterPage(registerEnabled)
-  }, [registerEnabled, storefrontConfig, window.location.pathname])
+  }, [registerEnabled])
 
   useEffect(() => {
     removeBCMenus()
-  }, [window.location.pathname, role])
+  }, [])
 
   useEffect(() => {
     const isRelogin = sessionStorage.getItem('isReLogin') === 'true'
@@ -190,7 +182,7 @@ export default function App() {
         setStorefrontConfig(dispatch, currentChannelId),
         getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
         getCompanyUserInfo(emailAddress, dispatch, customerId, isB2BUser),
-        getCompanyInfo(B3UserId, realRole),
+        getCompanyInfo(B3UserId, role),
       ])
       const userInfo = {
         role: +role,
@@ -226,7 +218,19 @@ export default function App() {
     }
 
     init()
-  }, [])
+    // ignore dispatch, gotoPage, loginAndRegister, setOpenPage, storeDispatch, styleDispatch
+    // due they are funtions that do not depend on any reactive value
+    // ignore href because is not a reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    B3UserId,
+    currentChannelId,
+    customerId,
+    emailAddress,
+    isAgenting,
+    isB2BUser,
+    role,
+  ])
 
   useEffect(() => {
     if (quoteConfig.length > 0 && storefrontConfig) {
@@ -256,12 +260,16 @@ export default function App() {
         window.b2b.initializationEnvironment.isInit = true
       })
     }
+    // ignore dispatch due it's funtion that doesn't not depend on any reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
 
   useEffect(() => {
     if (isOpen) {
       showPageMask(dispatch, false)
     }
+    // ignore dispatch due it's funtion that doesn't not depend on any reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   useEffect(() => {
@@ -293,33 +301,17 @@ export default function App() {
     }
 
     init()
-  }, [isPageComplete, currentClickedUrl, clickTimeTarget])
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      const { hash } = window.location
-      if (hash) {
-        const url = hash.split('#')[1]
-        if (url && url !== '/' && url.includes('/')) {
-          setOpenPage({
-            isOpen: true,
-            openUrl: url,
-          })
-          return
-        }
-      }
-
-      setOpenPage({
-        isOpen: false,
-        openUrl: '',
-      })
-    }
-    window.addEventListener('hashchange', handleHashChange)
-
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange)
-    }
-  }, [])
+    // ignore dispatch, setOpenPage, and storeDispatch
+    // due they are funtions that do not depend on any reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    currentClickedUrl,
+    isAgenting,
+    isClickEnterBtn,
+    isPageComplete,
+    isRegisterAndLogin,
+    role,
+  ])
 
   useEffect(() => {
     const { hash } = window.location
@@ -330,6 +322,9 @@ export default function App() {
         openUrl: '',
       })
     }
+    // ignore setOpenPage ad storeDispatch
+    // due they are funtions that do not depend on any reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   useEffect(() => {
@@ -338,7 +333,7 @@ export default function App() {
     const newStyle = `${CUSTOM_STYLES}\n${cssValue}`
 
     setCustomStyle(newStyle)
-  }, [cssOverride, window.location.href])
+  }, [cssOverride?.css, CUSTOM_STYLES])
 
   return (
     <>
