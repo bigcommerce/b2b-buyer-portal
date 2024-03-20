@@ -90,7 +90,13 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
         setBcColor('#ED6C02')
       }
     }
-  }, [blockPendingAccountViewPrice])
+  }, [
+    blockPendingAccountOrderCreation,
+    blockPendingAccountViewPrice,
+    companyStatus,
+    loginType,
+    role,
+  ])
 
   return isShow ? (
     <B3StatusNotificationContainer

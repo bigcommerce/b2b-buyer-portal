@@ -2,10 +2,7 @@
   "extends": ["b2b"],
   "overrides": [
     {
-      "files": [
-        "src/pages/**/*.{ts,tsx}",
-        "src/components/**/*.{ts,tsx}"
-      ],
+      "files": ["src/pages/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
       "rules": {
         "no-param-reassign": 0
       }
@@ -26,7 +23,6 @@
     },
     {
       "files": [
-        "src/components/**/*.{ts,tsx}",
         "src/pages/**/*.{ts,tsx}",
         "src/hooks/dom/*.ts",
         "src/hooks/*.ts"

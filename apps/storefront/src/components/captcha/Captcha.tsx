@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
 import { themeFrameSelector } from '@/store'
@@ -58,34 +58,38 @@ export function loadCaptchaWidgetHandlers(
 export function generateWidgetId() {
   return `widget_${Date.now()}`
 }
+
 export function Captcha(props: CaptchaProps) {
   const { siteKey, theme, size, onSuccess, onError, onExpired } = props
   const iframeDocument = useSelector(themeFrameSelector)
-  const widgetId = generateWidgetId()
+  const widgetId = useMemo(() => generateWidgetId(), [])
   const initialized = useRef(false)
 
-  const onMessage = (event: MessageEvent) => {
-    if (event?.data?.startsWith(widgetId)) {
-      const message = event.data.slice(widgetId.length)
-      const data = JSON.parse(message)
-      switch (data.type) {
-        case CAPTCHA_VARIABLES.CAPTCHA_SUCCESS:
-          onSuccess?.()
-          break
+  const onMessage = useCallback(
+    (event: MessageEvent) => {
+      if (event?.data?.startsWith(widgetId)) {
+        const message = event.data.slice(widgetId.length)
+        const data = JSON.parse(message)
+        switch (data.type) {
+          case CAPTCHA_VARIABLES.CAPTCHA_SUCCESS:
+            onSuccess?.()
+            break
 
-        case CAPTCHA_VARIABLES.CAPTCHA_ERROR:
-          onError?.()
-          break
+          case CAPTCHA_VARIABLES.CAPTCHA_ERROR:
+            onError?.()
+            break
 
-        case CAPTCHA_VARIABLES.CAPTCHA_EXPIRED:
-          onExpired?.()
-          break
+          case CAPTCHA_VARIABLES.CAPTCHA_EXPIRED:
+            onExpired?.()
+            break
 
-        default:
-          break
+          default:
+            break
+        }
       }
-    }
-  }
+    },
+    [onError, onExpired, onSuccess, widgetId]
+  )
 
   useEffect(() => {
     if (iframeDocument === undefined || initialized.current) {
@@ -104,7 +108,7 @@ export function Captcha(props: CaptchaProps) {
         window.removeEventListener('message', onMessage)
       }
     }
-  }, [iframeDocument])
+  }, [iframeDocument, onMessage, widgetId])
 
   return (
     <div

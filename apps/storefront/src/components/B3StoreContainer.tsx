@@ -105,6 +105,8 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
       }
     }
     getStoreBasicInfo()
+    // disabling because dispatchers are not supposed to be here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const { children } = props

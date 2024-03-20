@@ -60,6 +60,8 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
     } else if (typeof openUrl === 'string') {
       navigate(openUrl)
     }
+    //
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openUrl, isOpen])
 
   useEffect(() => {
@@ -73,7 +75,11 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
     }
 
     setTranslation({ channelId, page })
-  }, [location.pathname])
+  }, [
+    globaledState.currentChannelId,
+    globaledState.multiStorefrontEnabled,
+    location.pathname,
+  ])
 
   return (
     <Suspense fallback={<Loading />}>

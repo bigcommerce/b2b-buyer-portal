@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useMobile } from '@/hooks'
 
@@ -41,25 +41,28 @@ export default function B3QuantityTextField(props: B3NumberTextFieldProps) {
 
   const [validMessage, setValidMessage] = useState('')
 
-  const validateQuantity = (value: number | string) => {
-    const quantity = parseInt(`${value}`, 10) || 0
+  const validateQuantity = useCallback(
+    (value: number | string) => {
+      const quantity = parseInt(`${value}`, 10) || 0
 
-    let validMessage = ''
+      let validMessage = ''
 
-    if (isStock === '1' && stock === 0) {
-      validMessage = 'Out of stock'
-    } else if (isStock === '1' && quantity > stock) {
-      validMessage = `${stock} in stock`
-    } else if (minQuantity !== 0 && quantity < minQuantity) {
-      validMessage = `Min is ${minQuantity}`
-    } else if (maxQuantity !== 0 && quantity > maxQuantity) {
-      validMessage = `Max is ${maxQuantity}`
-    }
+      if (isStock === '1' && stock === 0) {
+        validMessage = 'Out of stock'
+      } else if (isStock === '1' && quantity > stock) {
+        validMessage = `${stock} in stock`
+      } else if (minQuantity !== 0 && quantity < minQuantity) {
+        validMessage = `Min is ${minQuantity}`
+      } else if (maxQuantity !== 0 && quantity > maxQuantity) {
+        validMessage = `Max is ${maxQuantity}`
+      }
 
-    setValidMessage(validMessage)
+      setValidMessage(validMessage)
 
-    return validMessage
-  }
+      return validMessage
+    },
+    [isStock, maxQuantity, minQuantity, stock]
+  )
 
   const handleChange = (value: string) => {
     onChange(value, !!validMessage)
@@ -73,7 +76,7 @@ export default function B3QuantityTextField(props: B3NumberTextFieldProps) {
 
   useEffect(() => {
     validateQuantity(value)
-  }, [value])
+  }, [validateQuantity, value])
 
   return (
     <StyledNumberNoTopTextField

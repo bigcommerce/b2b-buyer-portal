@@ -16,6 +16,8 @@ function B3LayoutTip() {
 
   useEffect(() => {
     window.tipDispatch = dispatch
+    // disabling as dispatch does not need to be in the deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // useEffect(() => {

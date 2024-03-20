@@ -6,12 +6,12 @@ import { GlobaledContext } from '@/shared/global'
 import { getCompanyCreditConfig } from '@/shared/service/b2b'
 import { B3SStorage } from '@/utils'
 
+const permissionRoles = [0, 1, 2]
+
 function CompanyCredit() {
   const {
     state: { role, isAgenting },
   } = useContext(GlobaledContext)
-
-  const permissionRoles = [0, 1, 2]
 
   const [isEnabled, setEnabled] = useState<boolean>(false)
 

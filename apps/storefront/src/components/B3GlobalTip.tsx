@@ -14,6 +14,8 @@ export default function B3GlobalTip() {
 
   useEffect(() => {
     window.globalTipDispatch = dispatch
+    // disabling cause it is not necessary to run this effect on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const setMsgs = (msgs: [] | Array<MsgsProps> = []) => {

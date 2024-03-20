@@ -79,6 +79,8 @@ function ThemeFramePortal(props: ThemeFramePortalProps) {
         dispatch(clearThemeFrame())
       }
     }
+    // disabling because dispatch is not needed in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [iframeDocument])
 
   if (!isSetupComplete || !emotionCache || !iframeDocument) {
@@ -147,14 +149,16 @@ export default function ThemeFrame(props: ThemeFrameProps) {
     }
 
     setIsSetupComplete(true)
+    const currentFrame = iframeRef.current
     // eslint-disable-next-line
     return () => {
       setIsSetupComplete(false)
-      iframeRef.current?.removeEventListener('load', () =>
+      currentFrame?.removeEventListener('load', () => {
         handleLoad(iframeRef)
-      )
+      })
     }
-  }, [])
+    // disabling cause it needs to be run once
+  }, [customStyles, fontUrl])
 
   useEffect(() => {
     const doc = iframeRef.current?.contentDocument

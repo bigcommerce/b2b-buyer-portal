@@ -57,6 +57,8 @@ export default function B3Layout({ children }: { children: ReactNode }) {
     ) {
       navigate('/login')
     }
+    // disabling cause navigate dispatcher is not necessary here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emailAddress, customerId, location])
 
   useEffect(() => {
@@ -83,6 +85,8 @@ export default function B3Layout({ children }: { children: ReactNode }) {
         },
       },
     })
+    // disabling as dispatch is not necessary in the deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location])
 
   const messageDialogClose = () => {

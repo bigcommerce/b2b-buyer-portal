@@ -94,7 +94,9 @@ function B3FilterMore<T, Y>({
         setValue(item, cacheData[item])
       })
     }
-  }, [open])
+    // disabling because setValue is a dispatcher
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cacheData, open])
 
   const handleDialogClick = () => {
     setOpen(true)

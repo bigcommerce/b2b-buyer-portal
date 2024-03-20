@@ -304,6 +304,8 @@ export default function HeadlessController({
         },
       },
     }
+    // disabling because we don't want to run this effect on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return null

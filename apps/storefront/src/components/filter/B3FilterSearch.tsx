@@ -39,6 +39,8 @@ function B3FilterSearch({
   // debounce
   useEffect(() => {
     handleChange(search)
+    // disabling this rule as we need to wait for debounceValue change, to search
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue])
   useEffect(() => {
     if (searchValue.length > 0) {

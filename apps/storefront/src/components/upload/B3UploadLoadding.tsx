@@ -57,7 +57,7 @@ export default function B3UploadLoadding(props: B3UploadLoaddingProps) {
     return () => {
       if (timer) clearInterval(timer)
     }
-  }, [])
+  }, [step])
   return (
     <Box
       sx={{

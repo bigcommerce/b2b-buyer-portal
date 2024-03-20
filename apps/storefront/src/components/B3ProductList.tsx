@@ -227,6 +227,8 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
   useEffect(() => {
     setCheckedArr(list)
+    // disabling because dispatchers are not supposed to be here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list])
 
   useEffect(() => {
