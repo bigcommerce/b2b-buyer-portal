@@ -1,6 +1,8 @@
 import { MouseEvent, useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
 import { Alert, Box } from '@mui/material'
+import isEmpty from 'lodash-es/isEmpty'
 
 import { B3CustomForm } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
@@ -19,6 +21,7 @@ interface RegisteredDetailProps {
 }
 
 export default function RegisteredDetail(props: RegisteredDetailProps) {
+  const b3Lang = useB3Lang()
   const { handleBack, handleNext, activeStep } = props
 
   const { state, dispatch } = useContext(RegisteredContext)
@@ -136,7 +139,8 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     formData: CustomFieldItems
   ) =>
     formFields.map((field) => {
-      field.default = formData[field.name] || field.default
+      const item = field
+      item.default = formData[field.name] || field.default
       return field
     })
 
@@ -150,7 +154,8 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       ...companyAttachment,
       ...addressBasicList,
     ].reduce((formValues: DetailsFormValues, field: RegisterFields) => {
-      formValues[field.name] = getValues(field.name) || field.default
+      const values = formValues
+      values[field.name] = getValues(field.name) || field.default
 
       return formValues
     }, {})
@@ -172,8 +177,37 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     })
   }
 
+  const handleValidateAttachmentFiles = () => {
+    if (accountType === '1') {
+      const formData = getValues()
+      const attachmentsFilesFiled = companyInformation.find(
+        (info) => info.fieldId === 'field_attachments'
+      )
+      if (
+        !isEmpty(attachmentsFilesFiled) &&
+        attachmentsFilesFiled.required &&
+        formData[attachmentsFilesFiled.name].length === 0
+      ) {
+        setError(attachmentsFilesFiled.name, {
+          type: 'required',
+          message: b3Lang('global.validate.required', {
+            label: attachmentsFilesFiled.label,
+          }),
+        })
+
+        showLoading(false)
+        return true
+      }
+    }
+
+    return false
+  }
+
   const handleAccountToFinish = (event: MouseEvent) => {
+    const hasAttachmentsFilesError = handleValidateAttachmentFiles()
+
     handleSubmit(async (data: CustomFieldItems) => {
+      if (hasAttachmentsFilesError) return
       showLoading(true)
 
       try {
@@ -266,6 +300,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
             control={control}
             getValues={getValues}
             setValue={setValue}
+            setError={setError}
           />
         </Box>
       ) : null}

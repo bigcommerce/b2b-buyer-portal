@@ -14,6 +14,7 @@ export default function B3ControlTextField({
 }: Form.B3UIProps) {
   const {
     fieldType,
+    isAutoComplete = false,
     name,
     default: defaultValue,
     required,
@@ -115,7 +116,14 @@ export default function B3ControlTextField({
   const handleNumberInputWheel = (event: WheelEvent<HTMLInputElement>) => {
     ;(event.target as HTMLElement).blur()
   }
-
+  const autoCompleteFn = () => {
+    if (!isAutoComplete) {
+      return {
+        autoComplete: 'off',
+      }
+    }
+    return {}
+  }
   const newExtraPadding =
     fieldId === 'field_state' && extraPadding.paddingTop === '0px'
       ? {}
@@ -174,7 +182,8 @@ export default function B3ControlTextField({
                 (errors as any)[name] ? (errors as any)[name].message : null
               }
               onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
-              autoComplete={fieldType === 'password' ? 'new-password' : 'off'}
+              {...autoCompleteFn()}
+              // autoComplete={fieldType === 'password' ? 'current-password' : 'email'}
             />
           )
         }

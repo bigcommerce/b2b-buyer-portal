@@ -196,6 +196,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
             lineItems.push({
               optionSelections: options,
+              allOptions: optionList,
               productId: parseInt(currentInventoryInfo.product_id, 10) || 0,
               quantity,
               variantId: parseInt(currentInventoryInfo.variant_id, 10) || 0,

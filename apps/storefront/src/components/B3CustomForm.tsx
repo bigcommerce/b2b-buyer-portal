@@ -14,7 +14,7 @@ import {
 } from './form'
 
 export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
-  const { formFields, errors, control, getValues, setValue } = props
+  const { formFields, errors, control, getValues, setValue, setError } = props
 
   const renderFormFields = (fields: any) =>
     fields.map((field: B3UI.B3CustomFormValue) => {
@@ -75,6 +75,7 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
                 errors={errors}
                 control={control}
                 setValue={setValue}
+                setError={setError}
               />
             )}
             {['rectangle'].includes(fieldType) && (

@@ -68,45 +68,45 @@ function LoginForm(props: LoginFormProps) {
           },
         }}
       >
-        <B3CustomForm
-          formFields={loginFields}
-          errors={errors}
-          control={control}
-          getValues={getValues}
-          setValue={setValue}
-        />
-
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-start ',
-            alignItems: 'center',
-            mt: 2,
-          }}
-        >
-          <CustomButton
-            type="submit"
-            onClick={handleSubmit(handleLoginClick)}
-            variant="contained"
-            sx={{
-              backgroundColor: theme.palette.primary.main,
-            }}
-          >
-            {loginBtn}
-          </CustomButton>
+        <form onSubmit={handleSubmit(handleLoginClick)}>
+          <B3CustomForm
+            formFields={loginFields}
+            errors={errors}
+            control={control}
+            getValues={getValues}
+            setValue={setValue}
+          />
           <Box
             sx={{
-              cursor: 'pointer',
-              ml: 2,
-              textDecoration: 'underline',
-              textUnderlineOffset: '4px',
-              color: getContrastColor(backgroundColor),
+              display: 'flex',
+              justifyContent: 'flex-start ',
+              alignItems: 'center',
+              mt: 2,
             }}
-            onClick={() => gotoForgotPassword()}
           >
-            {b3Lang('login.loginText.forgotPasswordText')}
+            <CustomButton
+              type="submit"
+              variant="contained"
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+              }}
+            >
+              {loginBtn}
+            </CustomButton>
+            <Box
+              sx={{
+                cursor: 'pointer',
+                ml: 2,
+                textDecoration: 'underline',
+                textUnderlineOffset: '4px',
+                color: getContrastColor(backgroundColor),
+              }}
+              onClick={() => gotoForgotPassword()}
+            >
+              {b3Lang('login.loginText.forgotPasswordText')}
+            </Box>
           </Box>
-        </Box>
+        </form>
       </Box>
     </Box>
   )

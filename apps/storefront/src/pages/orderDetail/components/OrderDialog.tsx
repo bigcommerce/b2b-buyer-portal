@@ -122,8 +122,9 @@ export default function OrderDialog({
       return
     }
     const transformedData = returnArr.reduce((result, item) => {
+      const resultedData = result
       const key = `return_qty[${item.returnId}]`
-      result[key] = item.returnQty
+      resultedData[key] = item.returnQty
       return result
     }, returnReason)
     transformedData.authenticity_token = getXsrfToken()
@@ -250,6 +251,7 @@ export default function OrderDialog({
               optionId: option.product_option_id,
               optionValue: option.value,
             })),
+            allOptions: product.product_options,
           })
 
           skus.push(product.sku)

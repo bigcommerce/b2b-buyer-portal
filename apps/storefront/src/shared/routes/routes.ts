@@ -294,6 +294,13 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
     isProvider: false,
   },
 ]
+
+const denyInvoiceRoles = [4, 99, 100]
+
+const invoiceFlag = 'invoice?invoiceId'
+
+const { hash, pathname, href } = window.location
+
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   const { isB2BUser, role, isAgenting, storefrontConfig, quoteConfig } =
     globalState
@@ -388,7 +395,10 @@ const gotoAllowedAppPage = async (
     gotoPage('/login?loginFlag=3&&closeIsLogout=1')
     return
   }
-
+  if (denyInvoiceRoles.includes(role) && href.includes(invoiceFlag)) {
+    gotoPage('/login?loginFlag=7')
+    return
+  }
   try {
     const {
       data: { customer },
@@ -403,7 +413,6 @@ const gotoAllowedAppPage = async (
     console.log(err)
   }
 
-  const { hash, pathname } = window.location
   let url = hash.split('#')[1] || ''
   if (
     (!url && role !== 100 && pathname.includes('account.php')) ||
@@ -421,11 +430,12 @@ const gotoAllowedAppPage = async (
         break
     }
 
-  const flag = routes.some(
-    (item: RouteItem) =>
-      (matchPath(item.path, url) || url.includes('invoice?')) &&
-      item.permissions.includes(role)
-  )
+  const flag = routes.some((item: RouteItem) => {
+    if (matchPath(item.path, url) || url.includes(invoiceFlag)) {
+      return item.permissions.includes(role)
+    }
+    return false
+  })
 
   const isFirstLevelFlag = firstLevelRouting.some(
     (item: RouteFirstLevelItem) => {

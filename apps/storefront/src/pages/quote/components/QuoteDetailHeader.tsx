@@ -101,6 +101,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
             <p
               style={{
                 color: primaryColor,
+                margin: '0',
               }}
             >
               {b3Lang('quoteDetail.header.backToQuoteLists')}

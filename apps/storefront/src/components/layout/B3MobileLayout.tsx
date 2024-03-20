@@ -10,6 +10,7 @@ import CompanyCredit from '../CompanyCredit'
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 
 import B3AccountInfo from './B3AccountInfo'
+import B3CloseAppButton from './B3CloseAppButton'
 import B3Logo from './B3Logo'
 import B3Nav from './B3Nav'
 
@@ -66,30 +67,39 @@ export default function B3MobileLayout({
         {role === 2 ? (
           <Box sx={{ width: '24px' }} />
         ) : (
-          <Badge
-            badgeContent={global?.cartNumber}
-            max={1000}
-            sx={{
-              marginRight: '0.5rem',
-              '& .MuiBadge-badge': {
-                color: '#FFFFFF',
-                backgroundColor: '#1976D2',
-                fontWeight: 500,
-                fontSize: '12px',
-                minWidth: '18px',
-                height: '18px',
-                top: '8px',
-                right: '3px',
-              },
-            }}
-          >
-            <ShoppingBagOutlined
-              sx={{ color: 'rgba(0, 0, 0, 0.54)' }}
-              onClick={() => {
-                window.location.href = '/cart.php'
+          <>
+            <Badge
+              badgeContent={global?.cartNumber}
+              max={1000}
+              sx={{
+                '& .MuiBadge-badge': {
+                  color: '#FFFFFF',
+                  backgroundColor: '#1976D2',
+                  fontWeight: 500,
+                  fontSize: '12px',
+                  minWidth: '18px',
+                  height: '18px',
+                  top: '8px',
+                  right: '3px',
+                },
               }}
-            />
-          </Badge>
+            >
+              <ShoppingBagOutlined
+                sx={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                onClick={() => {
+                  window.location.href = '/cart.php'
+                }}
+              />
+            </Badge>
+            <Box
+              sx={{
+                marginLeft: '2px',
+                height: '24px',
+              }}
+            >
+              <B3CloseAppButton />
+            </Box>
+          </>
         )}
       </Box>
 
@@ -98,7 +108,7 @@ export default function B3MobileLayout({
         sx={{
           p: 0,
           m: 0,
-          mb: '2vw',
+          mb: '6vw',
           fontSize: '34px',
           fontWeight: '400',
           color: customColor || '#263238',

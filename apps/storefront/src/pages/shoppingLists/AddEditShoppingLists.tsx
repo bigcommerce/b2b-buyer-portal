@@ -80,8 +80,9 @@ function AddEditShoppingLists(
       setAddUpdateLoading(true)
       try {
         const { description } = data
+        const submitData = data
         if (description.indexOf('\n') > -1) {
-          data.description = description.split('\n').join('\\n')
+          submitData.description = description.split('\n').join('\\n')
         }
         const params: Partial<ShoppingListsItemsProps> = {
           ...data,
@@ -105,8 +106,6 @@ function AddEditShoppingLists(
           fn = isB2BUser ? duplicateB2BShoppingList : duplicateBcShoppingList
           params.sampleShoppingListId = editData?.id || 0
           successTip = b3Lang('shoppingLists.duplicateSuccess')
-
-          // params.status = +role === 2 ? 30 : editData?.status
         } else if (type === 'add') {
           if (isB2BUser) {
             params.status = +role === 2 ? 30 : 0

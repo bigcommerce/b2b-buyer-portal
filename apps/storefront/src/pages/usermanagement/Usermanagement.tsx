@@ -87,12 +87,14 @@ function Usermanagement() {
   const fiterMoreInfo = getFilterMoreList(b3Lang)
 
   const translatedFilterInfo = fiterMoreInfo.map((element) => {
+    const translatedItem = element
     const translatedOptions = element.options?.map((option) => {
-      option.label = b3Lang(option.idLang)
+      const elementOption = option
+      elementOption.label = b3Lang(option.idLang)
       return option
     })
 
-    element.options = translatedOptions
+    translatedItem.options = translatedOptions
 
     return element
   })

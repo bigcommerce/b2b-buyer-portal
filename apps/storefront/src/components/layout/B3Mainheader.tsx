@@ -4,6 +4,7 @@ import { CallbackKey, useCallbacks } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import { Box, Button, Typography } from '@mui/material'
 
+import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { store } from '@/store'
@@ -21,6 +22,7 @@ export default function B3Mainheader({ title }: { title: string }) {
   const { global } = store.getState()
   const navigate = useNavigate()
   const b3Lang = useB3Lang()
+  const [isMobile] = useMobile()
 
   const {
     state: {
@@ -149,7 +151,8 @@ export default function B3Mainheader({ title }: { title: string }) {
             lineHeight: '42px',
             display: 'flex',
             alignItems: 'end',
-            mb: '8px',
+            mb: '24px',
+            mt: isMobile ? 0 : '24px',
             color: customColor,
           }}
         >

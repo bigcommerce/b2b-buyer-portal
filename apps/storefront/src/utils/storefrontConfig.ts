@@ -16,6 +16,7 @@ import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
   setEnteredInclusive,
+  setLoginLandingLocation,
   setShowInclusiveTaxPrice,
   setStoreInfo,
   setTaxZoneRates,
@@ -145,6 +146,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
     key: 'quote_on_non_purchasable_product_page',
     name: 'quoteOnNonPurchasableProductPageBtn',
   },
+  {
+    key: 'login_landing_location',
+    name: 'loginLandingLocation',
+  },
 ]
 
 const getTemPlateConfig = async (
@@ -165,12 +170,13 @@ const getTemPlateConfig = async (
     const storeforntKey: StoreforntKeysProps | undefined = storeforntKeys.find(
       (option) => option.key === item.key
     )
+    const storefrontConfig = item
     if (!isEmpty(storeforntKey)) {
       if (storeforntKey.key === 'quote_logo') {
         logo = item.value
       }
       if (storeforntKey.key === 'quote_on_product_page') {
-        item.extraFields = {
+        storefrontConfig.extraFields = {
           ...item.extraFields,
           locationSelector:
             item.extraFields?.locationSelector || '.add-to-cart-buttons',
@@ -180,13 +186,13 @@ const getTemPlateConfig = async (
       }
 
       if (storeforntKey.key === 'quote_on_cart_page') {
-        item.extraFields = {
+        storefrontConfig.extraFields = {
           ...item.extraFields,
           classSelector: item.extraFields?.classSelector || 'button',
         }
       }
       if (storeforntKey.key === 'masquerade_button') {
-        item.extraFields = {
+        storefrontConfig.extraFields = {
           ...item.extraFields,
           color: item.extraFields?.color || '#ED6C02',
           location: item.extraFields?.location || ' bottomLeft',
@@ -196,7 +202,7 @@ const getTemPlateConfig = async (
       }
 
       if (storeforntKey.key === 'quote_floating_action_button') {
-        item.extraFields = {
+        storefrontConfig.extraFields = {
           ...item.extraFields,
           color: item.extraFields?.color || '#E00F36',
           location: item.extraFields?.location || ' bottomRight',
@@ -206,7 +212,7 @@ const getTemPlateConfig = async (
       }
 
       if (storeforntKey.key === 'shopping_list_on_product_page') {
-        item.extraFields = {
+        storefrontConfig.extraFields = {
           ...item.extraFields,
           locationSelector:
             item.extraFields?.locationSelector || '.add-to-cart-buttons',
@@ -245,7 +251,7 @@ const getTemPlateConfig = async (
       }
 
       if (storeforntKey.key === 'quote_on_non_purchasable_product_page') {
-        item.extraFields = {
+        storefrontConfig.extraFields = {
           ...item.extraFields,
           locationSelector:
             item.extraFields?.locationSelector || '.add-to-cart-buttons',
@@ -259,6 +265,12 @@ const getTemPlateConfig = async (
           setBlockPendingQuoteNonPurchasableOOS({
             isEnableRequest: item.value === '1',
           })
+        )
+      }
+
+      if (storeforntKey.key === 'login_landing_location') {
+        store.dispatch(
+          setLoginLandingLocation(item?.extraFields?.location || '0')
         )
       }
 

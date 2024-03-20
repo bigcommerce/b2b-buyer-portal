@@ -1,5 +1,5 @@
 import { Close } from '@mui/icons-material'
-import { TextField } from '@mui/material'
+import { Box, TextField } from '@mui/material'
 import { createTheme, styled } from '@mui/material/styles'
 
 const theme = createTheme({
@@ -17,6 +17,14 @@ const theme = createTheme({
 export const CloseButton = styled(Close)(() => ({
   cursor: 'pointer',
 }))
+
+export const CloseBox = styled(Box)(() => ({
+  position: 'absolute',
+  top: 15,
+  right: 20,
+}))
+
+export const CloseBoxMobile = styled(Box)(() => ({}))
 
 export const CardContainer = styled('div')(() => ({
   padding: '20px 20px',

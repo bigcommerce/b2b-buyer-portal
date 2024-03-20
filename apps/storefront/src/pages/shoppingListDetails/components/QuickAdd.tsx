@@ -390,7 +390,7 @@ export default function QuickAdd(props: AddToListContentProps) {
           })
 
           snackbar.error(
-            b3Lang('shoppingList.quickAdd.skuNotAddable', {
+            b3Lang('shoppingList.quickAdd.skuLimitQuantity', {
               numberLimit,
             }),
             {

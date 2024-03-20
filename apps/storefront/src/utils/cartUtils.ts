@@ -24,16 +24,27 @@ export const handleSplitOptionId = (id: string | number) => {
 
 const cartLineItems = (products: any) => {
   const items = products.map((product: any) => {
-    const { newSelectOptionList, quantity, optionSelections } = product
+    const {
+      newSelectOptionList,
+      quantity,
+      optionSelections,
+      allOptions = [],
+    } = product
     let options = []
     options = newSelectOptionList || optionSelections
-
     const selectedOptions = options.reduce(
       (a: any, c: any) => {
         const optionValue = parseInt(c.optionValue, 10)
         const splitOptionId = handleSplitOptionId(c.optionId)
-
-        if (Number.isNaN(optionValue)) {
+        const productOption = allOptions.find((option: CustomFieldItems) => {
+          const id = option?.product_option_id || option?.id || ''
+          return id === splitOptionId
+        })
+        if (
+          Number.isNaN(optionValue) ||
+          productOption?.type === 'text' ||
+          productOption?.type === 'Text field'
+        ) {
           a.textFields.push({
             optionEntityId: splitOptionId,
             text: c.optionValue,
@@ -121,7 +132,7 @@ export const callCart = async (
     : null
 
   const res =
-    cartInfo && cartInfo.data.site.cart
+    cartInfo && cartInfo?.data?.site?.cart
       ? await updateCart(cartInfo, lineItems, storePlatform)
       : await createNewShoppingCart(lineItems)
 

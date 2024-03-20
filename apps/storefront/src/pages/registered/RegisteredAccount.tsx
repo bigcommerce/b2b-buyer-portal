@@ -82,13 +82,14 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       : bcAdditionalInformation || []
 
   const newContactInformation = contactInformation?.map(
-    (info: CustomFieldItems) => {
-      if (info.fieldId === 'field_email' && accountType === '1') {
+    (contactInfo: CustomFieldItems) => {
+      const info = contactInfo
+      if (contactInfo.fieldId === 'field_email' && accountType === '1') {
         info.isTip = true
         info.tipText = 'This email will be used to sign in to your account'
       }
 
-      return info
+      return contactInfo
     }
   )
 
@@ -160,12 +161,13 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       }
 
       const newContactInfo = contactInfo.map((item: RegisterFields) => {
-        item.default = data[item.name] || item.default
+        const newContactItem = item
+        newContactItem.default = data[item.name] || item.default
         if (
           item.fieldId === 'field_email_marketing_newsletter' &&
           item.fieldType === 'checkbox'
         ) {
-          item.isChecked = data[item.name].length > 0
+          newContactItem.isChecked = data[item.name].length > 0
         }
         return item
       })
@@ -175,7 +177,8 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         newAdditionalInformation = (
           additionalInfo as Array<RegisterFields>
         ).map((item: RegisterFields) => {
-          item.default = data[item.name] || item.default
+          const additionalInfoItem = item
+          additionalInfoItem.default = data[item.name] || item.default
           return item
         })
       }

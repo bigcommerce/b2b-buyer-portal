@@ -79,6 +79,9 @@ const globalB3 = {
   setting: {
     b2b_url: 'https://staging-v2.bundleb2b.net',
     b2b_socket_url: 'https://staging-v2.bundleb2b.net',
+    store_hash: `1l3zp8c753`,
+    channel_id: 1,
+    b2b_client_id: 'r2x8j3tn54wduq47b4efct5tqxio5z2',
   },
   ...localConfig(),
   ...(window?.B3CustomConfig || {}),

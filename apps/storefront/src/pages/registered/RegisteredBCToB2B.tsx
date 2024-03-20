@@ -12,13 +12,14 @@ import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Alert, Box, ImageListItem } from '@mui/material'
+import isEmpty from 'lodash-es/isEmpty'
 
 import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { getCurrentCustomerInfo, storeHash } from '@/utils'
+import { getCurrentCustomerInfo, loginjump, storeHash } from '@/utils'
 
 import {
   createB2BCompanyUser,
@@ -158,12 +159,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
         const newAccountFormFields: AccountFormFieldsItems[] = (
           accountFormAllFields?.accountFormFields || []
         ).map((fields: AccountFormFieldsItems) => {
+          const accountFields = fields
           if (
             b2bAddressRequiredFields.includes(fields?.fieldId || '') &&
             fields.groupId === 4
           ) {
-            fields.isRequired = true
-            fields.visible = true
+            accountFields.isRequired = true
+            accountFields.visible = true
           }
 
           return fields
@@ -179,9 +181,10 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             (
               addressFields: Partial<RegisterFieldsItems>
             ): Partial<RegisterFieldsItems> => {
+              const fields = addressFields
               if (addressFields.name === 'country') {
-                addressFields.options = countries
-                addressFields.replaceOptions = {
+                fields.options = countries
+                fields.replaceOptions = {
                   label: 'countryName',
                   value: 'countryName',
                 }
@@ -202,12 +205,20 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             (
               contactInformationField: Partial<RegisterFieldsItems>
             ): Partial<RegisterFieldsItems> => {
-              contactInformationField.disabled = true
+              const field = contactInformationField
+              field.disabled = true
 
-              contactInformationField.default =
+              field.default =
                 customerInfo[
                   deCodeField(contactInformationField.name as string)
                 ] || contactInformationField.default
+
+              if (
+                contactInformationField.required &&
+                !contactInformationField?.default
+              ) {
+                field.disabled = false
+              }
 
               return contactInformationField
             }
@@ -319,8 +330,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       )
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
+        let list = fileList
         if (res.code === 200) {
-          fileList = [...fileList, res.data]
+          const newData = {
+            ...res.data,
+          }
+          newData.fileSize = newData.fileSize ? `${newData.fileSize}` : ''
+          list = [...fileList, newData]
         } else {
           throw (
             res.data.errMsg ||
@@ -328,7 +344,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
             b3Lang('intl.global.fileUpload.fileUploadFailure')
           )
         }
-        return fileList
+        return list
       }, [])
 
       return fileList
@@ -371,8 +387,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       })
       b2bFields.extraFields = extraFields
     }
-
-    // b2bFields.companyEmail = data.email
 
     // address Field
     const addressBasicInfo = bcTob2bAddressBasicFields.filter(
@@ -457,8 +471,35 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     }
   }
 
+  const handleValidateAttachmentFiles = () => {
+    const formData = getValues()
+    const attachmentsFilesFiled = bcTob2bCompanyInformation.find(
+      (info) => info.fieldId === 'field_attachments'
+    )
+    if (
+      !isEmpty(attachmentsFilesFiled) &&
+      attachmentsFilesFiled.required &&
+      formData[attachmentsFilesFiled.name].length === 0
+    ) {
+      setError(attachmentsFilesFiled.name, {
+        type: 'required',
+        message: b3Lang('global.validate.required', {
+          label: attachmentsFilesFiled.label,
+        }),
+      })
+
+      showLoading(false)
+      return true
+    }
+
+    return false
+  }
+
   const handleNext = (event: MouseEvent) => {
+    const hasAttachmentsFilesError = handleValidateAttachmentFiles()
+
     handleSubmit(async (data: CustomFieldItems) => {
+      if (hasAttachmentsFilesError) return
       showLoading(true)
 
       try {
@@ -471,7 +512,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           (list) => list.fieldType === 'files'
         )
         const fileList = await getFileUrl(attachmentsList || [], data)
-
         await getB2BFieldsValue(data, customerId, fileList)
 
         const isAuto = companyAutoApproval.enabled
@@ -504,6 +544,10 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   }
 
   const handleFinish = () => {
+    const isLoginLandLocation = loginjump(navigate, true)
+
+    if (!isLoginLandLocation) return
+
     if (companyAutoApproval.enabled) {
       navigate('/orders')
     } else {
@@ -621,6 +665,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
                     control={control}
                     getValues={getValues}
                     setValue={setValue}
+                    setError={setError}
                   />
                 </Box>
 

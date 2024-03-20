@@ -79,10 +79,12 @@ function ShoppingLists() {
           name: string
           options: any[]
         }) => {
-          element.label = b3Lang(element.idLang)
+          const translatedInfo = element
+          translatedInfo.label = b3Lang(element.idLang)
           if (element.name === 'status') {
             element.options?.map((option) => {
-              option.label = b3Lang(option.idLang)
+              const elementOption = option
+              elementOption.label = b3Lang(option.idLang)
               return option
             })
           }

@@ -107,30 +107,32 @@ export const initB2BInfo = (
   additionalInformation: Partial<Fields>[]
 ) => {
   contactInformation.forEach((item: Partial<Fields>) => {
+    const contactItem = item
     if (deCodeField(item?.name || '') === 'first_name') {
-      item.default = accountSettings.firstName
+      contactItem.default = accountSettings.firstName
     }
     if (deCodeField(item?.name || '') === 'last_name') {
-      item.default = accountSettings.lastName
+      contactItem.default = accountSettings.lastName
     }
     if (deCodeField(item?.name || '') === 'phone') {
-      item.default = accountSettings.phoneNumber
+      contactItem.default = accountSettings.phoneNumber
     }
     if (deCodeField(item?.name || '') === 'email') {
-      item.default = accountSettings.email
-      item.validate = emailValidate
+      contactItem.default = accountSettings.email
+      contactItem.validate = emailValidate
     }
   })
 
   accountB2BFormFields.forEach((item: Partial<Fields>) => {
+    const formField = item
     if (item.name === 'role') {
-      item.default = accountSettings.role
-      item.muiSelectProps = {
+      formField.default = accountSettings.role
+      formField.muiSelectProps = {
         disabled: true,
       }
     } else if (item.name === 'company') {
-      item.default = accountSettings.company
-      item.disabled = true
+      formField.default = accountSettings.company
+      formField.disabled = true
     }
   })
 
@@ -138,7 +140,8 @@ export const initB2BInfo = (
     const formFields = (accountSettings?.formFields || []).find(
       (field: Partial<Fields>) => field.name === item.bcLabel
     )
-    if (formFields) item.default = formFields.value
+    const infoItem = item
+    if (formFields) infoItem.default = formFields.value
   })
 
   return [
@@ -154,21 +157,22 @@ export const initBcInfo = (
   additionalInformation: Partial<Fields>[]
 ) => {
   contactInformation.forEach((item: Partial<Fields>) => {
+    const contactInfoItem = item
     if (deCodeField(item?.name || '') === 'first_name') {
-      item.default = accountSettings.firstName
+      contactInfoItem.default = accountSettings.firstName
     }
     if (deCodeField(item?.name || '') === 'last_name') {
-      item.default = accountSettings.lastName
+      contactInfoItem.default = accountSettings.lastName
     }
     if (deCodeField(item?.name || '') === 'phone') {
-      item.default = accountSettings.phoneNumber
+      contactInfoItem.default = accountSettings.phoneNumber
     }
     if (deCodeField(item?.name || '') === 'email') {
-      item.default = accountSettings.email
-      item.validate = emailValidate
+      contactInfoItem.default = accountSettings.email
+      contactInfoItem.validate = emailValidate
     }
     if (deCodeField(item?.name || '') === 'company') {
-      item.default = accountSettings.company
+      contactInfoItem.default = accountSettings.company
     }
   })
 
@@ -176,7 +180,8 @@ export const initBcInfo = (
     const formFields = (accountSettings?.formFields || []).find(
       (field: Partial<Fields>) => field.name === item.bcLabel
     )
-    if (formFields) item.default = formFields.value
+    const infoItem = item
+    if (formFields) infoItem.default = formFields.value
   })
 
   return [...contactInformation, ...additionalInformation]

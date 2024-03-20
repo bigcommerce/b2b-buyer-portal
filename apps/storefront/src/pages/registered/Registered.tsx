@@ -21,7 +21,7 @@ import {
   bcLogin,
 } from '@/shared/service/bc'
 import { themeFrameSelector } from '@/store'
-import { B3SStorage, getCurrentCustomerInfo } from '@/utils'
+import { B3SStorage, getCurrentCustomerInfo, loginjump } from '@/utils'
 
 import { loginCheckout, LoginConfig } from '../login/config'
 
@@ -105,8 +105,6 @@ function Registered(props: RegisteredProps) {
           })
         }
 
-        // await getBCRegisterCustomFields()
-
         const accountFormAllFields = formType.map((item: number) =>
           getB2BAccountFormFields(item)
         )
@@ -116,12 +114,13 @@ function Registered(props: RegisteredProps) {
         const newB2bAccountFormFields: AccountFormFieldsItems[] = (
           accountFormFields[1]?.accountFormFields || []
         ).map((fields: AccountFormFieldsItems) => {
+          const formFields = fields
           if (
             b2bAddressRequiredFields.includes(fields?.fieldId || '') &&
             fields.groupId === 4
           ) {
-            fields.isRequired = true
-            fields.visible = true
+            formFields.isRequired = true
+            formFields.visible = true
           }
 
           return fields
@@ -141,9 +140,10 @@ function Registered(props: RegisteredProps) {
             (
               addressFields: Partial<RegisterFieldsItems>
             ): Partial<RegisterFieldsItems> => {
+              const fields = addressFields
               if (addressFields.name === 'country') {
-                addressFields.options = countries
-                addressFields.replaceOptions = {
+                fields.options = countries
+                fields.replaceOptions = {
                   label: 'countryName',
                   value: 'countryName',
                 }
@@ -157,8 +157,15 @@ function Registered(props: RegisteredProps) {
             (
               addressFields: Partial<RegisterFieldsItems>
             ): Partial<RegisterFieldsItems> => {
+              const addressFormFields = addressFields
               if (addressFields.name === 'country') {
-                addressFields.options = countries
+                addressFormFields.options = countries
+                const countryDefaultValue = countries.find(
+                  (country: CustomFieldItems) =>
+                    country.countryName === addressFields.default
+                )
+                addressFormFields.default =
+                  countryDefaultValue?.countryCode || addressFields.default
               }
               return addressFields
             }
@@ -294,12 +301,17 @@ function Registered(props: RegisteredProps) {
 
         await getCurrentCustomerInfo(globalDispatch)
 
+        clearRegisterInfo()
+
+        const isLoginLandLocation = loginjump(navigate)
+
+        if (!isLoginLandLocation) return
+
         if (isCloseGotoBCHome) {
           window.location.href = '/'
         } else {
           navigate('/orders')
         }
-        clearRegisterInfo()
       } catch (error) {
         console.log(error)
       }

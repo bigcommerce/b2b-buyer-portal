@@ -64,6 +64,8 @@ export interface GlabolState {
   bcUrl?: string
   cartNumber?: number
   storeInfo?: StoreInfoProps
+  loginLandingLocation?: string
+  recordOpenHash?: string
   blockPendingQuoteNonPurchasableOOS?: GlobalBlockPendingQuoteNonPurchasableOOS
 }
 
@@ -101,6 +103,8 @@ const initialState: GlabolState = {
     isEnableProduct: false,
     isEnableRequest: false,
   },
+  loginLandingLocation: '0',
+  recordOpenHash: '',
 }
 
 export const glabolSlice = createSlice({
@@ -147,6 +151,9 @@ export const glabolSlice = createSlice({
         ...(payload as GlobalBlockPendingQuoteNonPurchasableOOS),
       }
     },
+    setLoginLandingLocation: (state, { payload }: PayloadAction<string>) => {
+      state.loginLandingLocation = payload as Draft<string>
+    },
     setHeadLessBcUrl: (state, { payload }: PayloadAction<string>) => {
       state.bcUrl = payload as Draft<string>
     },
@@ -171,6 +178,7 @@ export const {
   setHeadLessBcUrl,
   setCartNumber,
   setStoreInfo,
+  setLoginLandingLocation,
 } = glabolSlice.actions
 
 export default glabolSlice.reducer

@@ -244,7 +244,8 @@ function Address() {
   )
 
   translatedFilterFormConfig.map((element: { label: string; idLang: any }) => {
-    element.label = b3Lang(element.idLang)
+    const item = element
+    item.label = b3Lang(element.idLang)
 
     return element
   })

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone'
 import { useB3Lang } from '@b3/lang'
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined'
@@ -5,7 +6,8 @@ import DescriptionRounded from '@mui/icons-material/DescriptionRounded'
 import ImageRoundedIcon from '@mui/icons-material/ImageRounded'
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded'
 import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded'
-import { FormLabel } from '@mui/material'
+import { FormLabel, Typography } from '@mui/material'
+import isEmpty from 'lodash-es/isEmpty'
 
 import { FILE_UPLOAD_ACCEPT_TYPE } from '../../constants'
 
@@ -43,6 +45,8 @@ interface FileUploadProps extends B3UI.B3UIProps {
   previewText?: string
   default?: File[]
   labelColor?: string
+  errors?: CustomFieldItems
+  required?: boolean
 }
 
 const getMaxFileSizeLabel = (maxSize: number) => {
@@ -70,7 +74,12 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
     setValue,
     label,
     labelColor = 'text.primary',
+    required,
+    errors = {},
+    setError,
+    control,
   } = props
+  const [deleteCount, setDeleteCount] = useState(0)
 
   const getRejectMessage = (
     rejectedFile: File,
@@ -107,6 +116,23 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
     })
 
   const handleFilesChange = (files: File[]) => {
+    if (deleteCount > 0 && files.length === 0 && required) {
+      setError(name, {
+        type: 'required',
+        message: b3Lang('global.validate.required', {
+          label,
+        }),
+      })
+      setDeleteCount(0)
+    }
+    if (files.length > 0 && !isEmpty(errors)) {
+      const cError = errors[name]
+      if (!isEmpty(cError)) {
+        delete errors[name]
+        // eslint-disable-next-line no-underscore-dangle
+        control?._setErrors(errors)
+      }
+    }
     if (setValue) {
       setValue(name, files)
     }
@@ -119,10 +145,10 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
           sx={{
             marginBottom: '5px',
             display: 'block',
-            color: labelColor,
+            color: (errors as any)[name] ? '#d32f2f' : labelColor,
           }}
         >
-          {label}
+          {`${label} ${required ? '*' : ''}`}
         </FormLabel>
       )}
       <DropzoneBox>
@@ -142,8 +168,22 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
           dropzoneText={dropzoneText}
           previewText={previewText}
           onChange={handleFilesChange}
+          onDelete={() => setDeleteCount(deleteCount + 1)}
         />
       </DropzoneBox>
+      {(errors as any)[name] ? (
+        <Typography
+          sx={{
+            color: '#d32f2f',
+            fontSize: '12px',
+            fontWeight: 400,
+            lineHeight: 1.66,
+            margin: '3px 14px 0 14px',
+          }}
+        >
+          {(errors as any)[name].message}
+        </Typography>
+      ) : null}
     </>
   ) : null
 }

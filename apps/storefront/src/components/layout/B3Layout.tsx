@@ -12,6 +12,7 @@ import { getIsTokenGotoPage, RouteItem } from '@/shared/routes/routes'
 import B3Dialog from '../B3Dialog'
 import CompanyCredit from '../CompanyCredit'
 
+import B3CloseAppButton from './B3CloseAppButton'
 import B3Logo from './B3Logo'
 import B3Mainheader from './B3Mainheader'
 import B3MobileLayout from './B3MobileLayout'
@@ -124,6 +125,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
             p: '32px 63px 70px 63px',
           }}
         >
+          <B3CloseAppButton />
           <Box
             sx={{
               display: 'flex',
@@ -156,11 +158,9 @@ export default function B3Layout({ children }: { children: ReactNode }) {
             <CompanyCredit />
             <Box
               component="main"
-              sx={
-                {
-                  // flexGrow: 1,
-                }
-              }
+              sx={{
+                mt: !isMobile && !title ? '24px' : '0',
+              }}
             >
               {children}
             </Box>
