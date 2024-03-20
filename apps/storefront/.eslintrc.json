@@ -97,18 +97,7 @@
       }
     },
     {
-      "files": [
-        "src/*.ts",
-        "src/components/*.tsx",
-        "src/components/**/*.tsx",
-        "src/hooks/dom/*.ts",
-        "src/pages/**/*.{ts,tsx}",
-        "src/shared/*.ts",
-        "src/shared/**/*.ts",
-        "src/utils/*.{ts,tsx}",
-        "src/utils/b3Product/*.ts",
-        "src/utils/b3Product/shared/*.ts"
-      ],
+      "files": ["src/utils/b3Logger.ts"],
       "rules": {
         "no-console": 0
       }

@@ -1,5 +1,6 @@
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
 import { setCartNumber, store } from '@/store'
+import { b2bLogger } from '@/utils'
 
 import getCookie from './b3utils'
 import { deleteCartData } from './cartUtils'
@@ -42,7 +43,7 @@ const clearInvoiceCart = async () => {
       }
     }
   } catch (err) {
-    console.error(err)
+    b2bLogger.error(err)
   }
 }
 

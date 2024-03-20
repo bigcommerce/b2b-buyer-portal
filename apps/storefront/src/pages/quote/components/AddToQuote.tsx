@@ -11,6 +11,7 @@ import { GlobaledContext } from '@/shared/global'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import {
   addQuoteDraftProducts,
+  b2bLogger,
   B3SStorage,
   calculateProductListPrice,
   snackbar,
@@ -261,7 +262,7 @@ export default function AddToQuote(props: AddToListProps) {
         snackbar.error(b3Lang('quoteDraft.notification.errorRangeProducts'))
       }
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       setIsLoading(false)
     }

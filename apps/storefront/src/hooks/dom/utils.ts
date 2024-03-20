@@ -8,6 +8,7 @@ import { getCart } from '@/shared/service/bc/graphql/cart'
 import {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
+  b2bLogger,
   B3LStorage,
   B3SStorage,
   calculateProductsPrice,
@@ -270,7 +271,7 @@ const addProductsFromCartToQuote = (
 
       await addProductsToDraftQuote(cartProductsList, setOpenPage, entityId)
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       removeLoadding()
     }
@@ -374,7 +375,7 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
         })
       }
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       removeLoadding()
     }

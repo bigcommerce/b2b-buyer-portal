@@ -19,6 +19,7 @@ import {
   getBcOrderStatusType,
   getOrderStatusType,
 } from '@/shared/service/b2b'
+import { b2bLogger } from '@/utils'
 
 import {
   AddressConfigItem,
@@ -185,7 +186,7 @@ function OrderDetail() {
         },
       })
     } catch (error) {
-      console.error(error)
+      b2bLogger.error(error)
     }
   }
 

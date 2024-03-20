@@ -1,5 +1,7 @@
 import globalB3 from '@b3/global-b3'
 
+import { b2bLogger } from '@/utils'
+
 import { B3SStorage } from './b3Storage'
 import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
 
@@ -69,7 +71,7 @@ export const ordersCurrencyFormat = (
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
     return priceStr
   } catch (e) {
-    console.error(e)
+    b2bLogger.error(e)
     return ''
   }
 }
@@ -119,7 +121,7 @@ export const currencyFormatConvert = (
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
     return priceStr
   } catch (e) {
-    console.error(e)
+    b2bLogger.error(e)
     return ''
   }
 }
@@ -142,7 +144,7 @@ const currencyFormat = (price: string | number, showCurrencyToken = true) => {
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
     return priceStr
   } catch (e) {
-    console.error(e)
+    b2bLogger.error(e)
     return ''
   }
 }

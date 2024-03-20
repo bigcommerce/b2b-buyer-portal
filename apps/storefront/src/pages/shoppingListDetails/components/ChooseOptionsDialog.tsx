@@ -18,6 +18,7 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { store } from '@/store'
 import {
+  b2bLogger,
   B3SStorage,
   calculateProductListPrice,
   currencyFormat,
@@ -488,7 +489,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
           }
         }
       } catch (err) {
-        console.error(err)
+        b2bLogger.error(err)
       } finally {
         setIsRequestLoading(false)
       }

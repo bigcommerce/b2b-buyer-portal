@@ -21,7 +21,7 @@ import {
   BcProductsBulkUploadCSV,
   guestProductsBulkUploadCSV,
 } from '@/shared/service/b2b'
-import { getDefaultCurrencyInfo } from '@/utils'
+import { b2bLogger, getDefaultCurrencyInfo } from '@/utils'
 
 import B3Dialog from '../B3Dialog'
 
@@ -170,7 +170,7 @@ export default function B3Upload(props: B3UploadProps) {
       }
     } catch (e) {
       setStep('init')
-      console.error(e)
+      b2bLogger.error(e)
     }
   }
 

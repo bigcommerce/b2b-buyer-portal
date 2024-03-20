@@ -1,6 +1,6 @@
 import { LangFormatFunction } from '@b3/lang'
 
-import { storeHash, validatorRules } from '@/utils'
+import { b2bLogger, storeHash, validatorRules } from '@/utils'
 import { bcBaseUrl } from '@/utils/basicConfig'
 
 export interface QuoteConfig {
@@ -109,7 +109,7 @@ export const loginCheckout = (data: LoginConfig) => {
     requestOptions
   )
     .then((response) => response.text())
-    .catch((error) => console.log('error', error))
+    .catch((error) => b2bLogger.error('error', error))
 }
 
 export const sendEmail = (emailAddress: string) => {
@@ -130,7 +130,7 @@ export const sendEmail = (emailAddress: string) => {
     requestOptions
   )
     .then((response) => response.text())
-    .catch((error) => console.log('error', error))
+    .catch((error) => b2bLogger.error('error', error))
 }
 
 export const getloginTokenInfo = (channelId: number) => {

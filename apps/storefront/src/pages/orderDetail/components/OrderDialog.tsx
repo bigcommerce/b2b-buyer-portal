@@ -14,7 +14,7 @@ import {
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
 import { globalStateSelector } from '@/store'
-import { b3TriggerCartNumber, snackbar } from '@/utils'
+import { b2bLogger, b3TriggerCartNumber, snackbar } from '@/utils'
 import { bcBaseUrl } from '@/utils/basicConfig'
 import { callCart } from '@/utils/cartUtils'
 
@@ -161,7 +161,7 @@ export default function OrderDialog({
       setIsRequestLoading(false)
       handleClose()
     } catch (err) {
-      console.log(err)
+      b2bLogger.error(err)
     }
   }
 

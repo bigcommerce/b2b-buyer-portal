@@ -3,19 +3,11 @@ import { Box } from '@mui/material'
 
 import { GlobaledContext } from '@/shared/global'
 import { getAgentInfo } from '@/shared/service/b2b'
-import {
-  B3SStorage,
-  // storeHash,
-} from '@/utils'
+import { b2bLogger, B3SStorage } from '@/utils'
 
 function SeleRep() {
   const {
-    state: {
-      // isB2BUser,
-      // isAgenting,
-      role,
-      customerId,
-    },
+    state: { role, customerId },
     dispatch,
   } = useContext(GlobaledContext)
 
@@ -44,7 +36,7 @@ function SeleRep() {
             })
           }
         } catch (error) {
-          console.log(error)
+          b2bLogger.error(error)
         }
       }
     }

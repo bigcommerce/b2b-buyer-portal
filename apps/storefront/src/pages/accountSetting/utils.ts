@@ -1,5 +1,5 @@
 import { Fields, ParamProps } from '@/types/accountSetting'
-import { validatorRules } from '@/utils'
+import { b2bLogger, validatorRules } from '@/utils'
 import { bcBaseUrl } from '@/utils/basicConfig'
 
 import { deCodeField } from '../registered/config'
@@ -92,7 +92,7 @@ function sendEmail(data: any, extraFields: any) {
         resolve(!isFlag)
       })
       .catch((error) => {
-        console.error('Error:', error)
+        b2bLogger.error('Error:', error)
         reject()
       })
   })

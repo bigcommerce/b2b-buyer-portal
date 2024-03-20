@@ -22,6 +22,7 @@ import {
 } from '@/shared/service/b2b'
 import { InvoiceList, InvoiceListNode } from '@/types/invoice'
 import {
+  b2bLogger,
   B3SStorage,
   currencyFormat,
   currencyFormatInfo,
@@ -179,7 +180,7 @@ function Invoice() {
         setOverdueAmount(+overDueBalance.toFixed(decimalPlaces))
       }
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     } finally {
       setIsRequestLoading(false)
     }
@@ -263,7 +264,7 @@ function Invoice() {
 
       window.open(pdfUrl, '_blank', 'fullscreen=yes')
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     } finally {
       setIsRequestLoading(false)
     }
@@ -345,7 +346,7 @@ function Invoice() {
         window.open(invoicesExport?.url, '_blank')
       }
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     } finally {
       setIsRequestLoading(false)
     }

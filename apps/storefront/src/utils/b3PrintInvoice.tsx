@@ -1,3 +1,5 @@
+import { b2bLogger } from '@/utils'
+
 const bindDom = (html: string, domId: string) => {
   let iframeDom = document.getElementById(domId) as HTMLIFrameElement | null
   if (!iframeDom) {
@@ -28,7 +30,7 @@ const b2bPrintInvoice = async (orderId: string, domId: string) => {
       bindDom(html, domId)
     })
     .catch((error: Error) => {
-      console.error('Error Invoice:', error)
+      b2bLogger.error('Error Invoice:', error)
     })
 }
 export default b2bPrintInvoice

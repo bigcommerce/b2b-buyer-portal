@@ -16,12 +16,9 @@ import { useMobile, useScrollBar } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b'
-import {
-  // getBCRegisterCustomFields,
-  bcLogin,
-} from '@/shared/service/bc'
+import { bcLogin } from '@/shared/service/bc'
 import { themeFrameSelector } from '@/store'
-import { B3SStorage, getCurrentCustomerInfo, loginjump } from '@/utils'
+import { b2bLogger, B3SStorage, getCurrentCustomerInfo, loginjump } from '@/utils'
 
 import { loginCheckout, LoginConfig } from '../login/config'
 
@@ -209,7 +206,7 @@ function Registered(props: RegisteredProps) {
           })
         }
       } catch (e) {
-        console.log(e)
+        b2bLogger.error(e)
       }
     }
 
@@ -280,7 +277,7 @@ function Registered(props: RegisteredProps) {
         await loginCheckout(data)
         window.location.reload()
       } catch (error) {
-        console.log(error)
+        b2bLogger.error(error)
       }
     } else {
       try {
@@ -313,7 +310,7 @@ function Registered(props: RegisteredProps) {
           navigate('/orders')
         }
       } catch (error) {
-        console.log(error)
+        b2bLogger.error(error)
       }
     }
 

@@ -35,6 +35,7 @@ import {
 import { globalStateSelector } from '@/store'
 import {
   addQuoteDraftProducts,
+  b2bLogger,
   B3SStorage,
   b3TriggerCartNumber,
   calculateProductListPrice,
@@ -445,7 +446,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         })
       }
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       setIsRequestLoading(false)
     }
@@ -559,7 +560,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       )
       handleShoppingClose(true)
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     } finally {
       setIisShoppingListLoading(false)
     }

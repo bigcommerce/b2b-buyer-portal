@@ -2,6 +2,7 @@ import {
   getB2BAccountFormFields,
   getB2BAddressExtraFields,
 } from '@/shared/service/b2b'
+import { b2bLogger } from '@/utils'
 
 import {
   AccountFormFieldsItems,
@@ -41,36 +42,6 @@ interface ExtraFieldsProp extends RegisterFieldsItems {
   visible: boolean
   xs: number
 }
-
-// interface B2bExtraFields {
-//   name: string;
-//   label: string;
-//   required: boolean;
-//   fieldType: string,
-//   xs: number,
-//   default: string | number | null,
-//   variant: string,
-//   size?: string,
-//   bcLabel?: string,
-//   custom?: boolean,
-//   fieldId?: string | null,
-//   groupId?: number,
-//   groupName?: string,
-//   id?: string,
-//   max?: string | number | null,
-//   maxLength?: string | number | null,
-//   min?: string | number | null,
-//   minlength?: string | number | null,
-//   rows?: string | number | null,
-//   type?: string | null,
-//   visible?: boolean,
-//   replaceOptions?: {
-//     [k: string]: string
-//   },
-//   options?: {
-//     [k: string]: any
-//   }
-// }
 
 const convertExtraFields = (
   extraFields: B2bExtraFieldsProps[]
@@ -117,7 +88,7 @@ const getBcAddressFields = async () => {
 
     return bcAddressFields
   } catch (e) {
-    console.log(e)
+    b2bLogger.error(e)
   }
   return undefined
 }
@@ -129,7 +100,7 @@ const getB2BAddressFields = async () => {
     const addressFields = [...b2bAddressFields, ...b2bExtraFields]
     return addressFields
   } catch (e) {
-    console.log(e)
+    b2bLogger.error(e)
   }
   return []
 }
@@ -165,7 +136,7 @@ export const getAddressFields = async (
 
     return allAddressFields
   } catch (e) {
-    console.log(e)
+    b2bLogger.error(e)
   }
   return []
 }

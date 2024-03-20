@@ -13,7 +13,7 @@ import {
   sendSubscribersState,
   uploadB2BFile,
 } from '@/shared/service/b2b'
-import { storeHash } from '@/utils'
+import { b2bLogger, storeHash } from '@/utils'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
@@ -259,7 +259,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       return createB2BCompanyUser(b2bFields)
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
     }
     return undefined
   }
@@ -303,7 +303,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       return fileList
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
       throw error
     }
   }

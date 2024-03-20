@@ -12,7 +12,7 @@ import {
   getB2BCountries,
   getBCCustomerAddress,
 } from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
+import { b2bLogger, snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 import {
@@ -89,7 +89,7 @@ function Address() {
           )
           setAddressFields(addressFields || [])
         } catch (err) {
-          console.log(err)
+          b2bLogger.error(err)
         } finally {
           setIsRequestLoading(false)
         }
@@ -191,7 +191,7 @@ function Address() {
 
         setEditPermission(editPermission)
       } catch (error) {
-        console.error(error)
+        b2bLogger.error(error)
       }
     }
   }

@@ -19,6 +19,7 @@ import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
 import { globalStateSelector } from '@/store'
 import {
   addQuoteDraftProducts,
+  b2bLogger,
   b3TriggerCartNumber,
   calculateProductListPrice,
   currencyFormat,
@@ -463,7 +464,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         })
       }
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       setLoading(false)
     }

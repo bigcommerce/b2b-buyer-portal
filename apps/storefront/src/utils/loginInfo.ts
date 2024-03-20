@@ -7,7 +7,7 @@ import {
   getUserCompany,
 } from '@/shared/service/b2b'
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc'
-import { B3LStorage, B3SStorage, storeHash } from '@/utils'
+import { b2bLogger, B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
 
@@ -241,7 +241,7 @@ export const agentInfo = async (
         })
       }
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
     }
   }
 }
@@ -287,7 +287,7 @@ export const getCompanyUserInfo = async (
       id,
     }
   } catch (error) {
-    console.log(error)
+    b2bLogger.error(error)
   }
   return undefined
 }
@@ -301,7 +301,7 @@ const loginWithCurrentCustomerJWT = async () => {
       app_client_id: VITE_B2B_CLIENT_ID,
     })
   } catch (error) {
-    console.log(error)
+    b2bLogger.error(error)
     return undefined
   }
 
@@ -407,7 +407,7 @@ export const getCurrentCustomerInfo = async (
       }
     }
   } catch (error) {
-    console.log(error)
+    b2bLogger.error(error)
     clearCurrentCustomerInfo(dispatch)
   }
   return undefined

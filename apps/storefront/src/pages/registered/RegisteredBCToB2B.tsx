@@ -19,7 +19,7 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { getCurrentCustomerInfo, loginjump, storeHash } from '@/utils'
+import { b2bLogger, getCurrentCustomerInfo, loginjump, storeHash } from '@/utils'
 
 import {
   createB2BCompanyUser,
@@ -241,7 +241,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           })
         }
       } catch (e) {
-        console.error(e)
+        b2bLogger.error(e)
       }
     }
 
@@ -349,7 +349,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
       return fileList
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
       throw error
     }
   }
@@ -466,7 +466,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       setErrorMessage('')
       return true
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
       throw error
     }
   }
@@ -535,7 +535,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           setShowFinishPage(true)
         }
       } catch (err: any) {
-        console.log(err)
+        b2bLogger.error(err)
         setErrorMessage(err?.message || err)
       } finally {
         showLoading(false)

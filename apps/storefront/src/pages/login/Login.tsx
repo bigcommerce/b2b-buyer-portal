@@ -21,6 +21,7 @@ import {
 } from '@/shared/service/b2b'
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
 import {
+  b2bLogger,
   B3SStorage,
   getCurrentCustomerInfo,
   loginjump,
@@ -253,7 +254,7 @@ export default function Login(props: RegisteredProps) {
         await loginCheckout(data)
         window.location.reload()
       } catch (error) {
-        console.log(error)
+        b2bLogger.error(error)
         getforcePasswordReset(data.emailAddress)
       }
     } else {

@@ -14,7 +14,7 @@ import {
 import { B3Upload, CustomButton, successTip } from '@/components'
 import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
 import { globalStateSelector, store } from '@/store'
-import { B3SStorage, b3TriggerCartNumber, snackbar } from '@/utils'
+import { b2bLogger, B3SStorage, b3TriggerCartNumber, snackbar } from '@/utils'
 import { callCart } from '@/utils/cartUtils'
 
 import SearchProduct from '../../shoppingListDetails/components/SearchProduct'
@@ -390,7 +390,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         await quickAddToList(productData)
       }
     } catch (error) {
-      console.error(error)
+      b2bLogger.error(error)
     }
 
     return productData

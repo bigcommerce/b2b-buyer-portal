@@ -1,3 +1,5 @@
+import { b2bLogger } from '@/utils'
+
 const { MODE: mode, VITE_LOCAL_GRAPHQL_ORIGIN } = import.meta.env
 
 interface ScriptNodeChildren extends HTMLScriptElement {
@@ -114,7 +116,7 @@ function init() {
         insertScript(storefrontScript.script)
       })
       .catch((error) => {
-        console.error('There was a problem with the fetch operation:', error)
+        b2bLogger.error('There was a problem with the fetch operation:', error)
       })
   }
 
@@ -124,7 +126,7 @@ function init() {
 
       await getScriptContent(origin)
     } catch (error) {
-      console.error('Interface error')
+      b2bLogger.error('Interface error')
     }
   }
 

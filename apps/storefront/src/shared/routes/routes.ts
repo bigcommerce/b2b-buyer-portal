@@ -3,7 +3,7 @@ import { matchPath } from 'react-router-dom'
 
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
 import { getCustomerInfo } from '@/shared/service/bc'
-import { B3SStorage, isB2bTokenPage, logoutSession } from '@/utils'
+import { b2bLogger, B3SStorage, isB2bTokenPage, logoutSession } from '@/utils'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
 
@@ -410,7 +410,7 @@ const gotoAllowedAppPage = async (
       return
     }
   } catch (err: unknown) {
-    console.log(err)
+    b2bLogger.error(err)
   }
 
   let url = hash.split('#')[1] || ''

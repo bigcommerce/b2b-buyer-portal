@@ -23,6 +23,7 @@ import {
   ShoppingListProductItemModifiers,
 } from '@/types/shoppingList'
 import {
+  b2bLogger,
   B3LStorage,
   B3SStorage,
   getActiveCurrencyInfo,
@@ -468,7 +469,7 @@ const getNewProductsList = async (
       return newListProducts
     }
   } catch (error) {
-    console.log(error, 'error')
+    b2bLogger.error(error, 'error')
   }
   return undefined
 }
@@ -986,7 +987,7 @@ const calculateProductListPrice = async (
     })
     return products
   } catch (error) {
-    console.log(error)
+    b2bLogger.error(error)
     return []
   }
 }
@@ -1031,7 +1032,7 @@ const setModifierQtyPrice = async (
 
     return product
   } catch (e) {
-    console.log(e)
+    b2bLogger.error(e)
     return product
   }
 }

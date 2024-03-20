@@ -3,6 +3,7 @@ import format from 'date-fns/format'
 import isEmpty from 'lodash-es/isEmpty'
 
 import { AllOptionProps, ALlOptionValue, Product } from '@/types/products'
+import { b2bLogger } from '@/utils'
 
 import {
   BcCalculatedPrice,
@@ -77,27 +78,6 @@ export interface SearchProps {
   first?: number
   offset?: number
 }
-
-// interface NodeProps {
-//   basePrice: number | string
-//   baseSku: string
-//   createdAt: number
-//   discount: number | string
-//   enteredInclusive: boolean
-//   id: number | string
-//   itemId: number
-//   optionList: string
-//   primaryImage: string
-//   productId: number
-//   productName: string
-//   productUrl: string
-//   quantity: number | string
-//   tax: number | string
-//   updatedAt: number
-//   variantId: number
-//   variantSku: string
-//   productsSearch: CustomFieldItems
-// }
 
 export interface ProductsProps {
   maxQuantity?: number
@@ -353,7 +333,7 @@ export const getProductOptionsFields = (
         value = date ? format(new Date(date), 'yyyy-MM-dd') || value : value
       }
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     }
 
     if (fieldType === 'files') {

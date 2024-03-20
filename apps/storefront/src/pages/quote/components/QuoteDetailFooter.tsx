@@ -7,7 +7,7 @@ import { CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
 import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
 import { globalStateSelector } from '@/store'
-import { getSearchVal } from '@/utils'
+import { b2bLogger, getSearchVal } from '@/utils'
 import {
   attemptCheckoutLoginAndRedirect,
   setQuoteToStorage,
@@ -63,7 +63,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
 
       await attemptCheckoutLoginAndRedirect(cartId, checkoutUrl as string)
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     }
   }
 

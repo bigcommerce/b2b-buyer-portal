@@ -9,6 +9,7 @@ import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+import { b2bLogger } from '@/utils'
 
 import { getForgotPasswordFields, LoginConfig, sendEmail } from './config'
 import { B3ResetPassWordButton, LoginImage } from './styled'
@@ -55,7 +56,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
       setLoading(false)
       navigate('/login?loginFlag=2')
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     }
   }
 
