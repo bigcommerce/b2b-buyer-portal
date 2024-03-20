@@ -124,7 +124,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         }}
       >
         {b3Lang('purchasedProducts.quickOrderPad.outOfStockSku', {
-          outOfStock,
+          outOfStock: outOfStock.join(','),
         })}
       </p>
       <Link

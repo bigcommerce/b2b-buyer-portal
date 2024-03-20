@@ -321,7 +321,9 @@ export default function QuickAdd(props: AddToListContentProps) {
         if (notFoundSku.length > 0) {
           showErrors(value, notFoundSku, 'sku', '')
           snackbar.error(
-            b3Lang('purchasedProducts.quickAdd.notFoundSku', { notFoundSku }),
+            b3Lang('purchasedProducts.quickAdd.notFoundSku', {
+              notFoundSku: notFoundSku.join(','),
+            }),
             {
               isClose: true,
             }
@@ -332,7 +334,7 @@ export default function QuickAdd(props: AddToListContentProps) {
           showErrors(value, notPurchaseSku, 'sku', '')
           snackbar.error(
             b3Lang('purchasedProducts.quickAdd.notPurchaseableSku', {
-              notPurchaseSku,
+              notPurchaseSku: notPurchaseSku.join(','),
             }),
             {
               isClose: true,
@@ -351,7 +353,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
           snackbar.error(
             b3Lang('purchasedProducts.quickAdd.insufficientStockSku', {
-              stockSku,
+              stockSku: stockSku.join(','),
             }),
             {
               isClose: true,
