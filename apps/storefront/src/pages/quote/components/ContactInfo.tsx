@@ -107,6 +107,8 @@ function ContactInfo(
         setValue(item, info[item])
       })
     }
+    // Disable eslint exhaustive-deps rule for setValue dispatcher
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [info])
 
   const validateEmailValue = async (emailValue: string) => {

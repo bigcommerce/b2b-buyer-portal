@@ -164,6 +164,8 @@ function QuoteAddress(
         setValue(item, info[item])
       })
     }
+    // Disabling this rule as dispatcher dep setValue is the same between renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [info])
 
   return (

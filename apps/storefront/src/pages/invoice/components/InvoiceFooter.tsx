@@ -43,34 +43,6 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
   const { selectedPay, decimalPlaces } = props
 
-  const handleGetCorrespondingCurrency = (code: string) => {
-    const { currencies: currencyArr } = allCurrencies
-    let token = '$'
-    const correspondingCurrency =
-      currencyArr.find(
-        (currency: CustomFieldItems) => currency.currency_code === code
-      ) || {}
-
-    if (correspondingCurrency) {
-      token = correspondingCurrency.token
-    }
-
-    return token
-  }
-
-  const handleStatisticsInvoiceAmount = (checkedArr: CustomFieldItems) => {
-    let amount = 0
-
-    checkedArr.forEach((item: InvoiceListNode) => {
-      const {
-        node: { openBalance },
-      } = item
-      amount += openBalance.value === '.' ? 0 : +openBalance.value
-    })
-
-    setSelectedAccount(amount.toFixed(decimalPlaces))
-  }
-
   const handlePay = async () => {
     const lineItems: BcCartDataLineItem[] = []
     let currency = 'SGD'
@@ -115,6 +87,33 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
   useEffect(() => {
     if (selectedPay.length > 0) {
+      const handleGetCorrespondingCurrency = (code: string) => {
+        const { currencies: currencyArr } = allCurrencies
+        let token = '$'
+        const correspondingCurrency =
+          currencyArr.find(
+            (currency: CustomFieldItems) => currency.currency_code === code
+          ) || {}
+
+        if (correspondingCurrency) {
+          token = correspondingCurrency.token
+        }
+
+        return token
+      }
+
+      const handleStatisticsInvoiceAmount = (checkedArr: CustomFieldItems) => {
+        let amount = 0
+
+        checkedArr.forEach((item: InvoiceListNode) => {
+          const {
+            node: { openBalance },
+          } = item
+          amount += openBalance.value === '.' ? 0 : +openBalance.value
+        })
+
+        setSelectedAccount(amount.toFixed(decimalPlaces))
+      }
       const {
         node: { openBalance },
       } = selectedPay[0]
@@ -123,7 +122,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
       setCurrentToken(token)
       handleStatisticsInvoiceAmount(selectedPay)
     }
-  }, [selectedPay])
+  }, [allCurrencies, decimalPlaces, selectedPay])
 
   return (
     <Grid

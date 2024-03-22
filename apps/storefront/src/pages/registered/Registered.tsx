@@ -82,6 +82,8 @@ function Registered(props: RegisteredProps) {
     if (!registerEnabled) {
       navigate('/login')
     }
+    // disabling as we dont need to check for any changes in the navigate function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registerEnabled])
 
   useEffect(() => {
@@ -211,6 +213,8 @@ function Registered(props: RegisteredProps) {
     }
 
     getBCAdditionalFields()
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const isStepOptional = (step: number) => step === -1
@@ -324,6 +328,8 @@ function Registered(props: RegisteredProps) {
 
   useEffect(() => {
     IframeDocument?.body.scrollIntoView(true)
+    // disabling as we only need to run this when activeStep changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStep])
 
   useScrollBar(false)

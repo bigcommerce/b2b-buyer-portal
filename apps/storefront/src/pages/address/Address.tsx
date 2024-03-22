@@ -75,28 +75,24 @@ function Address() {
   const isBCPermission = !isB2BUser || (role === 3 && !isAgenting)
 
   useEffect(() => {
-    if (addressFields.length === 0) {
-      const handleGetAddressFields = async () => {
-        const { countries } = await getB2BCountries()
+    const handleGetAddressFields = async () => {
+      const { countries } = await getB2BCountries()
 
-        setCountries(countries)
-
-        setIsRequestLoading(true)
-        try {
-          const addressFields = await getAddressFields(
-            !isBCPermission,
-            countries
-          )
-          setAddressFields(addressFields || [])
-        } catch (err) {
-          b2bLogger.error(err)
-        } finally {
-          setIsRequestLoading(false)
-        }
+      setCountries(countries)
+      setIsRequestLoading(true)
+      try {
+        const addressFields = await getAddressFields(!isBCPermission, countries)
+        setAddressFields(addressFields || [])
+      } catch (err) {
+        b2bLogger.error(err)    
+      } finally {
+        setIsRequestLoading(false)
       }
-
-      handleGetAddressFields()
     }
+
+    handleGetAddressFields()
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getAddressList = async (params = {}) => {
@@ -158,47 +154,48 @@ function Address() {
   const [isOpenDelete, setIsOpenDelete] = useState(false)
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>()
 
-  const getEditPermission = async () => {
-    if (isBCPermission) {
-      setEditPermission(true)
-      return
-    }
-    if (hasAdminPermission) {
-      try {
-        let configList = addressConfig
-        if (!configList) {
-          const { addressConfig: newConfig }: CustomFieldItems =
-            await getB2BAddressConfig()
-          configList = newConfig
+  useEffect(() => {
+    const getEditPermission = async () => {
+      if (isBCPermission) {
+        setEditPermission(true)
+        return
+      }
+      if (hasAdminPermission) {
+        try {
+          let configList = addressConfig
+          if (!configList) {
+            const { addressConfig: newConfig }: CustomFieldItems =
+              await getB2BAddressConfig()
+            configList = newConfig
 
-          dispatch({
-            type: 'common',
-            payload: {
-              addressConfig: configList,
-            },
-          })
+            dispatch({
+              type: 'common',
+              payload: {
+                addressConfig: configList,
+              },
+            })
+          }
+
+          const key = role === 3 ? 'address_sales_rep' : 'address_admin'
+
+          const editPermission =
+            (configList || []).find(
+              (config: AddressConfigItem) => config.key === 'address_book'
+            )?.isEnabled === '1' &&
+            (configList || []).find(
+              (config: AddressConfigItem) => config.key === key
+            )?.isEnabled === '1'
+
+          setEditPermission(editPermission)
+        } catch (error) {
+          b2bLogger.error(error)
         }
-
-        const key = role === 3 ? 'address_sales_rep' : 'address_admin'
-
-        const editPermission =
-          (configList || []).find(
-            (config: AddressConfigItem) => config.key === 'address_book'
-          )?.isEnabled === '1' &&
-          (configList || []).find(
-            (config: AddressConfigItem) => config.key === key
-          )?.isEnabled === '1'
-
-        setEditPermission(editPermission)
-      } catch (error) {
-        b2bLogger.error(error)
       }
     }
-  }
-
-  useEffect(() => {
     getEditPermission()
-  }, [])
+    // Disabling the next line as dispatch is not required to be in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addressConfig, hasAdminPermission, isBCPermission, role])
 
   const handleCreate = () => {
     if (!editPermission) {

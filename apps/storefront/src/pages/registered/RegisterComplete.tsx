@@ -96,7 +96,13 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     }
 
     setPersonalInfo(passwordInfo)
-  }, [contactInformation, bcContactInformation, accountType])
+  }, [
+    contactInformation,
+    bcContactInformation,
+    accountType,
+    list,
+    passwordInfo,
+  ])
 
   const getBCFieldsValue = (data: CustomFieldItems) => {
     const bcFields: CustomFieldItems = {}

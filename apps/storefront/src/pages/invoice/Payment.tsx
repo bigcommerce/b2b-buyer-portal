@@ -78,7 +78,9 @@ function Payment() {
     }
 
     init()
-  }, [params.id])
+    // disabling b3Lang due to rendering issues within b3Lang
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalState.storeInfo.platform, params.id])
 
   const handleConfirm = () => {
     navigate('/login')

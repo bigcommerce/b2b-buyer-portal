@@ -131,6 +131,8 @@ function QuoteDetail() {
       oos: oosErrorList,
       nonPurchasable: nonPurchasableErrorList,
     })
+    // disabling since b3Lang is a dependency that will trigger rendering issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEnableProduct, isHandleApprove, productList])
 
   const proceedingCheckoutFn = useCallback(() => {
@@ -151,6 +153,8 @@ function QuoteDetail() {
         )
     }
     return isHideQuoteCheckout
+    // disabling as b3Lang is a dependency that will trigger rendering issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHideQuoteCheckout, noBuyerProductName])
 
   const classRates: TaxZoneRates[] = []
@@ -409,59 +413,59 @@ function QuoteDetail() {
     }
   }
 
-  const tip = () => (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      <Box
-        sx={{
-          mr: '15px',
-        }}
-      >
-        {+role === 100
-          ? b3Lang('quoteDetail.submittedQuote')
-          : b3Lang('quoteDetail.quoteSubmitted')}
-      </Box>
-      <Button
-        onClick={() => {
-          if (+role === 100) {
-            copy(window.location.href)
-            snackbar.success(b3Lang('quoteDetail.copySuccessful'))
-          } else {
-            navigate('/quotes')
-          }
-        }}
-        variant="text"
-        sx={{
-          color: '#ffffff',
-          textAlign: 'left',
-          padding: 0,
-        }}
-      >
-        {+role === 100
-          ? b3Lang('quoteDetail.copyQuoteLink')
-          : b3Lang('quoteDetail.reviewAllQuotes')}
-      </Button>
-    </Box>
-  )
-
   useEffect(() => {
     const { state } = location
 
-    if (state) {
-      setTimeout(() => {
-        snackbar.success('', {
-          jsx: () => tip(),
-          isClose: true,
-          duration: 30000,
-        })
-      }, 10)
-      location.state = null
-    }
-  }, [])
+    if (!state) return
+    const tip = () => (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            mr: '15px',
+          }}
+        >
+          {+role === 100
+            ? b3Lang('quoteDetail.submittedQuote')
+            : b3Lang('quoteDetail.quoteSubmitted')}
+        </Box>
+        <Button
+          onClick={() => {
+            if (+role === 100) {
+              copy(window.location.href)
+              snackbar.success(b3Lang('quoteDetail.copySuccessful'))
+            } else {
+              navigate('/quotes')
+            }
+          }}
+          variant="text"
+          sx={{
+            color: '#ffffff',
+            textAlign: 'left',
+            padding: 0,
+          }}
+        >
+          {+role === 100
+            ? b3Lang('quoteDetail.copyQuoteLink')
+            : b3Lang('quoteDetail.reviewAllQuotes')}
+        </Button>
+      </Box>
+    )
+
+    setTimeout(() => {
+      snackbar.success('', {
+        jsx: () => tip(),
+        isClose: true,
+        duration: 30000,
+      })
+    }, 10)
+    location.state = null
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, navigate, role])
 
   const isEnableProductShowCheckout = () => {
     if (isEnableProduct) {

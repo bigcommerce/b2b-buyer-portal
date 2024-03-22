@@ -109,6 +109,8 @@ function ShoppingLists() {
         },
       })
     }
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const isExtraLarge = useCardListColumn()

@@ -416,7 +416,7 @@ function ShoppingDetailTable(
       setOriginProducts(cloneDeep(edges))
       setShoppingListTotalPrice(NewShoppingListTotalPrice)
     }
-  }, [shoppingListInfo])
+  }, [shoppingListInfo, showInclusiveTaxPrice])
 
   useEffect(() => {
     if (shoppingListInfo) {

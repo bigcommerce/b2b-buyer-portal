@@ -52,42 +52,43 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
   const [list, setList] = useState([])
   const [activeId, setActiveId] = useState('')
 
-  const getList = async () => {
-    setLoading(true)
-    setList([])
-
-    const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList
-    const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
-    const params = isB2BUser
-      ? {}
-      : {
-          channelId: currentChannelId,
-        }
-
-    try {
-      const {
-        [infoKey]: { edges: list = [] },
-      }: CustomFieldItems = await getShoppingList(params)
-
-      if (!isB2BUser) {
-        setList(list)
-      } else {
-        const newList = list.filter(
-          (item: CustomFieldItems) =>
-            item.node.status === +(role === 2 ? 30 : 0)
-        )
-        setList(newList)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    if (isOpen) {
-      getList()
+    if (!isOpen) return
+    const getList = async () => {
+      setLoading(true)
+      setList([])
+
+      const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList
+      const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
+      const params = isB2BUser
+        ? {}
+        : {
+            channelId: currentChannelId,
+          }
+
+      try {
+        const {
+          [infoKey]: { edges: list = [] },
+        }: CustomFieldItems = await getShoppingList(params)
+
+        if (!isB2BUser) {
+          setList(list)
+        } else {
+          const newList = list.filter(
+            (item: CustomFieldItems) =>
+              item.node.status === +(role === 2 ? 30 : 0)
+          )
+          setList(newList)
+        }
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [isOpen])
+
+    getList()
+    // Disabling as the setLoading dispatcher does not need to be here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChannelId, isB2BUser, isOpen, role])
 
   const handleClose = () => {
     onClose()

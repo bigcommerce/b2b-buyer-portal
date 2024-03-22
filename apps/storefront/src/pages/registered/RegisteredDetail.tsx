@@ -1,4 +1,4 @@
-import { MouseEvent, useContext, useEffect, useState } from 'react'
+import { MouseEvent, useCallback, useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { Alert, Box } from '@mui/material'
@@ -66,52 +66,65 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
 
   const addressName = addressBasicList[0]?.groupName || ''
 
-  const handleCountryChange = (countryCode: string, stateCode = '') => {
-    const stateList =
-      countryList.find(
-        (country: Country) =>
-          country.countryCode === countryCode ||
-          country.countryName === countryCode
-      )?.states || []
-    const stateFields = addressBasicList.find(
-      (formFields: RegisterFields) => formFields.name === 'state'
-    )
+  const handleCountryChange = useCallback(
+    (countryCode: string, stateCode = '') => {
+      const stateList =
+        countryList.find(
+          (country: Country) =>
+            country.countryCode === countryCode ||
+            country.countryName === countryCode
+        )?.states || []
+      const stateFields = addressBasicList.find(
+        (formFields: RegisterFields) => formFields.name === 'state'
+      )
 
-    if (stateFields) {
-      if (stateList.length > 0) {
-        stateFields.fieldType = 'dropdown'
-        stateFields.options = stateList
-      } else {
-        stateFields.fieldType = 'text'
-        stateFields.options = []
+      if (stateFields) {
+        if (stateList.length > 0) {
+          stateFields.fieldType = 'dropdown'
+          stateFields.options = stateList
+        } else {
+          stateFields.fieldType = 'text'
+          stateFields.options = []
+        }
       }
-    }
 
-    setValue(
-      'state',
-      stateCode &&
-        countryCode &&
-        (stateList.find((state: State) => state.stateName === stateCode) ||
-          stateList.length === 0)
-        ? stateCode
-        : ''
-    )
+      setValue(
+        'state',
+        stateCode &&
+          countryCode &&
+          (stateList.find((state: State) => state.stateName === stateCode) ||
+            stateList.length === 0)
+          ? stateCode
+          : ''
+      )
 
-    dispatch({
-      type: 'stateList',
-      payload: {
-        stateList,
-        addressBasicFields,
-        bcAddressBasicFields,
-        [addressBasicName]: [...addressBasicList],
-      },
-    })
-  }
+      dispatch({
+        type: 'stateList',
+        payload: {
+          stateList,
+          addressBasicFields,
+          bcAddressBasicFields,
+          [addressBasicName]: [...addressBasicList],
+        },
+      })
+    },
+    // disabling as we don't need dispatchers here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      addressBasicFields,
+      addressBasicList,
+      addressBasicName,
+      bcAddressBasicFields,
+      countryList,
+    ]
+  )
 
   useEffect(() => {
     const countryValue = getValues('country')
     const stateValue = getValues('state')
     handleCountryChange(countryValue, stateValue)
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -123,7 +136,9 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
       }
     })
     return () => subscription.unsubscribe()
-  }, [countryList])
+    // disabling as we don't need watch in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countryList, handleCountryChange])
 
   const showLoading = (isShow = false) => {
     dispatch({

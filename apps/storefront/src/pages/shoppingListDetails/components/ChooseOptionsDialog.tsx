@@ -3,6 +3,7 @@ import {
   Dispatch,
   KeyboardEvent,
   SetStateAction,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -180,7 +181,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     } else if ((type === 'shoppingList' || type === 'quickOrder') && product) {
       setShowPrice(!product?.isPriceHidden)
     }
-  }, [variantSku, quantity, product])
+  }, [variantSku, quantity, product, type])
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
@@ -274,6 +275,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setQuantity(1)
       setFormFields([])
     }
+    // disabling as we don't need dispatchers here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product])
 
   const getProductPrice = (product: ShoppingListProductItem) => {
@@ -394,9 +397,11 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     }
 
     return () => subscription.unsubscribe()
-  }, [formFields])
+    // disabling as we don't need dispatchers or subscribers in the dep array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formFields, getProductVariantId])
 
-  const validateQuantityNumber = () => {
+  const validateQuantityNumber = useCallback(() => {
     const { purchasing_disabled: purchasingDisabled = true } = variantInfo || {}
 
     if (
@@ -411,15 +416,20 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     }
 
     return true
-  }
+    // disabling as b3Lang will render errors
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEnableProduct, type, variantInfo])
 
-  const getOptionList = (value: FieldValues) => {
-    const optionsData = getOptionRequestData(formFields, {}, value)
-    return Object.keys(optionsData).map((optionId) => ({
-      optionId,
-      optionValue: optionsData[optionId]?.toString(),
-    }))
-  }
+  const getOptionList = useCallback(
+    (value: FieldValues) => {
+      const optionsData = getOptionRequestData(formFields, {}, value)
+      return Object.keys(optionsData).map((optionId) => ({
+        optionId,
+        optionValue: optionsData[optionId]?.toString(),
+      }))
+    },
+    [formFields]
+  )
 
   useEffect(() => {
     if (cache?.current && isEqual(cache?.current, formValues)) {
@@ -473,7 +483,18 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         setChooseOptionsProduct(newChooseOptionsProduct)
       }
     }
-  }, [formValues, productPriceChangeOptions])
+  }, [
+    additionalProducts,
+    chooseOptionsProduct,
+    formFields.length,
+    formValues,
+    getOptionList,
+    product,
+    productPriceChangeOptions,
+    quantity,
+    validateQuantityNumber,
+    variantInfo,
+  ])
 
   useEffect(() => {
     const getNewProductPrice = async () => {
@@ -530,6 +551,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     if (!isOpen) {
       reset()
     }
+    // disabling as reset does not change between renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   return (

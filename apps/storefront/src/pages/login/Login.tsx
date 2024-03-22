@@ -179,6 +179,8 @@ export default function Login(props: RegisteredProps) {
     }
 
     init()
+    // disabling the next line as we do not need to run this effect more than once and consumes b3Lang
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loginPageButton, loginPageDisplay, loginPageHtml, location])
 
   const tipInfo = (loginFlag: string, email = '') => {

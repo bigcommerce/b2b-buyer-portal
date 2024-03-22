@@ -427,7 +427,7 @@ function Invoice() {
     } else {
       setSelectedPay([])
     }
-  }, [checkedArr])
+  }, [checkedArr, selectedPay])
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
     const {
@@ -730,7 +730,9 @@ function Invoice() {
     }
 
     setExportCsvText(exportCsvTexts)
-  }, [checkedArr, filterData])
+    // disabling because of b3lang rendering errors
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkedArr, filterData, filterLists])
 
   const translatedFilterFormConfigs = filterFormConfig.map((element) => {
     const config = element

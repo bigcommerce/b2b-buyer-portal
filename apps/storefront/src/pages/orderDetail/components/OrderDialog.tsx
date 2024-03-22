@@ -171,20 +171,6 @@ export default function OrderDialog({
     })()
   }
 
-  const getVariantInfoByList = async () => {
-    const skus = products.map((product) => product.sku)
-    const getVariantInfoBySku = isB2BUser
-      ? getB2BVariantInfoBySkus
-      : getBcVariantInfoBySkus
-
-    const { variantSku: variantInfoList = [] }: CustomFieldItems =
-      await getVariantInfoBySku({
-        skus,
-      })
-
-    setVariantInfoList(variantInfoList)
-  }
-
   const validateProductNumber = (
     variantInfoList: CustomFieldItems,
     skus: string[]
@@ -396,17 +382,30 @@ export default function OrderDialog({
   }
 
   useEffect(() => {
-    if (open) {
-      setEditableProducts(
-        products.map((item: OrderProductItem) => ({
-          ...item,
-          editQuantity: item.quantity,
-        }))
-      )
+    if (!open) return
+    setEditableProducts(
+      products.map((item: OrderProductItem) => ({
+        ...item,
+        editQuantity: item.quantity,
+      }))
+    )
 
-      getVariantInfoByList()
+    const getVariantInfoByList = async () => {
+      const skus = products.map((product) => product.sku)
+      const getVariantInfoBySku = isB2BUser
+        ? getB2BVariantInfoBySkus
+        : getBcVariantInfoBySkus
+
+      const { variantSku: variantInfoList = [] }: CustomFieldItems =
+        await getVariantInfoBySku({
+          skus,
+        })
+
+      setVariantInfoList(variantInfoList)
     }
-  }, [open])
+
+    getVariantInfoByList()
+  }, [isB2BUser, open, products])
 
   const handleProductChange = (products: EditableProductItem[]) => {
     setEditableProducts(products)

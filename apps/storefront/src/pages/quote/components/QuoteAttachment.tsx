@@ -49,7 +49,9 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
     } else if (defaultFileList.length) {
       setFileList(defaultFileList)
     }
-  }, [status])
+    // disabling as it throws render errors
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultFileList.length, status])
 
   const saveQuoteInfo = (newFileInfo: FileObjects[]) => {
     const quoteInfo = B3LStorage.get('MyQuoteInfo') || {}

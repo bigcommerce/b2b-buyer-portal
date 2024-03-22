@@ -65,7 +65,7 @@ function AddEditShoppingLists(
         setValue(item.name, (editData as CustomFieldItems)[item.name])
       })
     }
-  }, [open, type])
+  }, [editData, open, setValue, type, usersFiles])
 
   const handleCancelClick = () => {
     usersFiles.forEach((item: GetFilterMoreListProps) => {

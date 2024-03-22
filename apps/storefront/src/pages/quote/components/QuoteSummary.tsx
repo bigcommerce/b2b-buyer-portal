@@ -1,6 +1,7 @@
 import {
   forwardRef,
   Ref,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useState,
@@ -43,7 +44,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
 
   const priceCalc = (price: number) => parseFloat(String(price))
 
-  const getSummary = () => {
+  const getSummary = useCallback(() => {
     const productList = B3LStorage.get('b2bQuoteDraftList') || []
 
     const isHidePrice = getQuoteDraftShowPriceTBD(productList)
@@ -80,11 +81,11 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     )
 
     setQuoteSummary(newQuoteSummary)
-  }
+  }, [showInclusiveTaxPrice])
 
   useEffect(() => {
     getSummary()
-  }, [])
+  }, [getSummary])
 
   useImperativeHandle(ref, () => ({
     refreshSummary: () => getSummary(),

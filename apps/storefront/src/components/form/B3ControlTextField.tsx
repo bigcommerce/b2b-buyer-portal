@@ -183,7 +183,6 @@ export default function B3ControlTextField({
               }
               onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
               {...autoCompleteFn()}
-              // autoComplete={fieldType === 'password' ? 'current-password' : 'email'}
             />
           )
         }

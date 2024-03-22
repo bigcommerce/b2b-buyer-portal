@@ -2,6 +2,7 @@ import {
   Dispatch,
   MouseEvent,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -185,7 +186,7 @@ function Dashboard(props: DashboardProps) {
     }
   }
 
-  const endActing = async () => {
+  const endActing = useCallback(async () => {
     try {
       showPageMask(dispatch, true)
       await endMasquerade({
@@ -199,7 +200,9 @@ function Dashboard(props: DashboardProps) {
     } finally {
       showPageMask(dispatch, false)
     }
-  }
+    // Disabling this line as dispatch is not a required dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [B3UserId, filterData, salesRepCompanyId])
 
   useEffect(() => {
     const params = {
@@ -208,7 +211,7 @@ function Dashboard(props: DashboardProps) {
     if (params?.state) {
       endActing()
     }
-  }, [location])
+  }, [endActing, location])
 
   const handleChange = async (q: string) => {
     setFilterData({

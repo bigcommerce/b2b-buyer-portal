@@ -50,7 +50,7 @@ function ChooseAddress({
       recordList.current.copyList = newList
       setList(newList)
     }
-  }, [addressList])
+  }, [addressList, type])
 
   const keys = [
     'address',

@@ -14,6 +14,8 @@ import { FILE_UPLOAD_ACCEPT_TYPE } from '../../constants'
 import { DropzoneBox } from './styled'
 import B3UI from './ui'
 
+const defaultLabelColor = '#d32f2f'
+
 const getPreviewIcon = (fileObject: FileObject, classes: PreviewIconProps) => {
   const { type } = fileObject.file
   const iconProps = {
@@ -145,7 +147,7 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
           sx={{
             marginBottom: '5px',
             display: 'block',
-            color: (errors as any)[name] ? '#d32f2f' : labelColor,
+            color: errors[name] ? defaultLabelColor : labelColor,
           }}
         >
           {`${label} ${required ? '*' : ''}`}
@@ -171,17 +173,17 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
           onDelete={() => setDeleteCount(deleteCount + 1)}
         />
       </DropzoneBox>
-      {(errors as any)[name] ? (
+      {errors[name] ? (
         <Typography
           sx={{
-            color: '#d32f2f',
+            color: defaultLabelColor,
             fontSize: '12px',
             fontWeight: 400,
             lineHeight: 1.66,
             margin: '3px 14px 0 14px',
           }}
         >
-          {(errors as any)[name].message}
+          {errors[name].message}
         </Typography>
       ) : null}
     </>

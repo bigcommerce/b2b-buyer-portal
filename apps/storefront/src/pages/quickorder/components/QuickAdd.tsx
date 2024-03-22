@@ -49,6 +49,8 @@ export default function QuickAdd(props: AddToListContentProps) {
       formFields = [...formFields, ...getQuickAddRowFields(index, b3Lang)]
     })
     setFormFields(formFields)
+    // disabling since b3Lang since it has rendering issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows])
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()

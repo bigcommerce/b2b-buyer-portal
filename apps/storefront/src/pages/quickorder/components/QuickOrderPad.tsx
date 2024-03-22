@@ -415,6 +415,8 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         })
       )
     }
+    // disabling this rule as b3Lang has rendering issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productData])
 
   return (

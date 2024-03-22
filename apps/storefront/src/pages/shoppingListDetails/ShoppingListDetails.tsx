@@ -145,6 +145,8 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
         id: parseInt(id, 10) || 0,
       },
     })
+    // disabling as we dont need a dispatcher here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {

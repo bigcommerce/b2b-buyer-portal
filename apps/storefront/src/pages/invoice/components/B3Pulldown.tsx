@@ -141,6 +141,8 @@ function B3Pulldown({
     const payPermissions = +openBalance.value > 0 && (role === 0 || isAgenting)
 
     setIsCanPay(payPermissions)
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

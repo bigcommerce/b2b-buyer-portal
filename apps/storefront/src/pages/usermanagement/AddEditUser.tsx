@@ -64,7 +64,7 @@ function AddEditUser(
         setValue(item.name, editData[item.name])
       })
     }
-  }, [open, type])
+  }, [editData, open, setValue, type, usersFiles])
 
   const handleCancelClick = () => {
     usersFiles.forEach((item: UsersFilesProps) => {

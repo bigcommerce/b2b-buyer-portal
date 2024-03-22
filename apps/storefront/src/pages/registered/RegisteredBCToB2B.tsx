@@ -139,6 +139,8 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     if (!registerEnabled) {
       navigate('/login')
     }
+    // disabling this rule as we don't need to add showLoading dispatcher and navigate fn into the dep array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registerEnabled])
 
   useEffect(() => {
@@ -246,6 +248,8 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     }
 
     getBCAdditionalFields()
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const {
@@ -257,47 +261,47 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     bcTob2bCompanyExtraFields = [],
   } = state
 
-  const handleCountryChange = (countryCode: string, stateCode = '') => {
-    const stateList =
-      countryList.find(
-        (country: Country) =>
-          country.countryCode === countryCode ||
-          country.countryName === countryCode
-      )?.states || []
-    const stateFields = bcTob2bAddressBasicFields.find(
-      (formFields: RegisterFields) => formFields.name === 'state'
-    )
+  useEffect(() => {
+    const handleCountryChange = (countryCode: string, stateCode = '') => {
+      const stateList =
+        countryList.find(
+          (country: Country) =>
+            country.countryCode === countryCode ||
+            country.countryName === countryCode
+        )?.states || []
+      const stateFields = bcTob2bAddressBasicFields.find(
+        (formFields: RegisterFields) => formFields.name === 'state'
+      )
 
-    if (stateFields) {
-      if (stateList.length > 0) {
-        stateFields.fieldType = 'dropdown'
-        stateFields.options = stateList
-      } else {
-        stateFields.fieldType = 'text'
-        stateFields.options = []
+      if (stateFields) {
+        if (stateList.length > 0) {
+          stateFields.fieldType = 'dropdown'
+          stateFields.options = stateList
+        } else {
+          stateFields.fieldType = 'text'
+          stateFields.options = []
+        }
       }
+
+      setValue(
+        'state',
+        stateCode &&
+          countryCode &&
+          (stateList.find((state: State) => state.stateCode === stateCode) ||
+            stateList.length === 0)
+          ? stateCode
+          : ''
+      )
+
+      dispatch({
+        type: 'stateList',
+        payload: {
+          stateList,
+          bcTob2bAddressBasicFields: [...bcTob2bAddressBasicFields],
+        },
+      })
     }
 
-    setValue(
-      'state',
-      stateCode &&
-        countryCode &&
-        (stateList.find((state: State) => state.stateCode === stateCode) ||
-          stateList.length === 0)
-        ? stateCode
-        : ''
-    )
-
-    dispatch({
-      type: 'stateList',
-      payload: {
-        stateList,
-        bcTob2bAddressBasicFields: [...bcTob2bAddressBasicFields],
-      },
-    })
-  }
-
-  useEffect(() => {
     const subscription = watch((value, { name, type }) => {
       const { country, state } = value
       if (name === 'country' && type === 'change') {
@@ -305,6 +309,8 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       }
     })
     return () => subscription.unsubscribe()
+    // disabling as we only need to run this when countryList changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryList])
 
   const getFileUrl = async (

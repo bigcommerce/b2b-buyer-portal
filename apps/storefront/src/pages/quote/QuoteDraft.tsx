@@ -169,23 +169,23 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const billingRef = useRef<InfoRefProps | null>(null)
   const shippingRef = useRef<InfoRefProps | null>(null)
 
-  const setCustomInfo = (quoteInfo: any) => {
-    const newInfo = {
-      ...quoteInfo,
-    }
-    newInfo.contactInfo = {
-      name: `${customer.firstName} ${customer.lastName}`,
-      email: customer.emailAddress,
-      companyName: companyName || salesRepCompanyName || '',
-      phoneNumber: customer.phoneNumber,
-    }
-    setInfo(newInfo)
-    B3LStorage.set('MyQuoteInfo', newInfo)
-  }
-
   useEffect(() => {
     const init = async () => {
       setLoading(true)
+      const setCustomInfo = (quoteInfo: any) => {
+        const newInfo = {
+          ...quoteInfo,
+        }
+        newInfo.contactInfo = {
+          name: `${customer.firstName} ${customer.lastName}`,
+          email: customer.emailAddress,
+          companyName: companyName || salesRepCompanyName || '',
+          phoneNumber: customer.phoneNumber,
+        }
+        setInfo(newInfo)
+        B3LStorage.set('MyQuoteInfo', newInfo)
+      }
+
       try {
         const MyQuoteInfo = B3LStorage.get('MyQuoteInfo') || {}
 
@@ -285,6 +285,8 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     }
 
     init()
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getAddress = () => {
@@ -638,7 +640,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         }
       }
     }
-  }, [billingChange])
+  }, [billingChange, shippingSameAsBilling])
 
   return (
     <B3Sping isSpinning={loading}>

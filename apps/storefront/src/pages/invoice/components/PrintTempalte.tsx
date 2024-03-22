@@ -36,25 +36,26 @@ function PrintTempalte({ row }: PrintTempalteProps) {
   ) => {
     setHeight(size.height)
   }
-  const viewPrint = async () => {
-    setLoadding(true)
-    const { id: invoiceId } = row
-
-    const invoicePDFUrl = await handlePrintPDF(invoiceId)
-
-    if (!invoicePDFUrl) {
-      snackbar.error('pdf url resolution error')
-      return
-    }
-
-    if (!container?.current) return
-
-    PDFObject.embed(invoicePDFUrl, container.current)
-
-    setLoadding(false)
-  }
 
   useEffect(() => {
+    const viewPrint = async () => {
+      setLoadding(true)
+      const { id: invoiceId } = row
+
+      const invoicePDFUrl = await handlePrintPDF(invoiceId)
+
+      if (!invoicePDFUrl) {
+        snackbar.error('pdf url resolution error')
+        return
+      }
+
+      if (!container?.current) return
+
+      PDFObject.embed(invoicePDFUrl, container.current)
+
+      setLoadding(false)
+    }
+
     viewPrint()
 
     return () => {

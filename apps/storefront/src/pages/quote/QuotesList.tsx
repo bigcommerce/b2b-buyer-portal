@@ -210,6 +210,8 @@ function QuotesList() {
         },
       })
     }
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const goToDetail = (item: ListItem, status: number) => {
