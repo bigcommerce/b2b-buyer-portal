@@ -8,8 +8,8 @@
         "src/components/**/*.{ts,tsx}",
         "src/hooks/dom/*.ts",
         "src/hooks/*.ts",
-        "src/shared/**/**/**/*.ts",
-        "src/types/*.ts"
+        "src/shared/**/**/**/*.ts"
+        // "src/types/*.ts"
       ],
       "rules": {
         "import/no-cycle": 0

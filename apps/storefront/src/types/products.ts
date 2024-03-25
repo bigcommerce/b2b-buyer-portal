@@ -1,7 +1,15 @@
-import {
-  ShoppingListProductItemModifiers,
-  ShoppingListProductItemOption,
-} from '@/types/shoppingList'
+import { Modifiers, ProductItemOption } from './common'
+
+interface DateProps {
+  day: string
+  month: string
+  year: string
+}
+
+export interface OptionValueProps {
+  optionId: string | number
+  optionValue: string | DateProps
+}
 
 export interface ProductOptionsItem {
   option_id: number
@@ -166,9 +174,9 @@ export interface Product {
   variants?: Partial<Variant>[]
   currencyCode: string
   imageUrl: string
-  modifiers: ShoppingListProductItemModifiers[]
-  options?: ShoppingListProductItemOption[]
-  optionsV3?: ShoppingListProductItemModifiers[]
+  modifiers: Modifiers[]
+  options?: ProductItemOption[]
+  optionsV3?: Modifiers[]
   allOptions?: Partial<AllOptionProps>[]
   productUrl: string
   quantity: number | string

@@ -6,6 +6,7 @@ import { AllOptionProps, ALlOptionValue, Product } from '@/types/products'
 
 import {
   BcCalculatedPrice,
+  OptionValueProps,
   ShoppingListProductItem,
   ShoppingListSelectProductOption,
   SimpleObject,
@@ -604,17 +605,6 @@ export const getQuickAddRowFields = (
 interface OptionListProps {
   option_id: string
   option_value: string
-}
-
-interface DateProps {
-  day: string
-  month: string
-  year: string
-}
-
-export interface OptionValueProps {
-  optionId: string | number
-  optionValue: string | DateProps
 }
 
 interface AllOptionsProps {

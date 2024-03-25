@@ -14,14 +14,12 @@ import {
   BcCalculatedPrice,
   Calculateditems,
   CalculatedOptions,
+  Modifiers,
   OptionValue,
   Product,
-  Variant,
-} from '@/types/products'
-import {
   ShoppingListProductItem,
-  ShoppingListProductItemModifiers,
-} from '@/types/shoppingList'
+  Variant,
+} from '@/types'
 import {
   B3LStorage,
   B3SStorage,
@@ -892,8 +890,8 @@ const calculateProductListPrice = async (
       let allOptions: Partial<AllOptionProps>[] = []
       let variants: Partial<Variant>[] = []
       let variantId = 0
-      let modifiers: Partial<ShoppingListProductItemModifiers>[] = []
-      let optionsV3: Partial<ShoppingListProductItemModifiers>[] = []
+      let modifiers: Partial<Modifiers>[] = []
+      let optionsV3: Partial<Modifiers>[] = []
 
       if (type === '1') {
         newSelectOptionList = products[i].newSelectOptionList
