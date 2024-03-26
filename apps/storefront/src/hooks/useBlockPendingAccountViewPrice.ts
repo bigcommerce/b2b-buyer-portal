@@ -1,9 +1,9 @@
-import { useSelector } from 'react-redux'
-
-import { globalStateSelector } from '../store'
+import { useAppSelector } from '@/store'
 
 const useBlockPendingAccountViewPrice = () => {
-  const { blockPendingAccountViewPrice } = useSelector(globalStateSelector)
+  const blockPendingAccountViewPrice = useAppSelector(
+    ({ global }) => global.blockPendingAccountViewPrice
+  )
 
   return [blockPendingAccountViewPrice]
 }

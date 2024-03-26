@@ -11,7 +11,7 @@ export const loginjump = (
   } = store.getState()
   if (loginLandingLocation === '1' && !recordOpenHash) {
     navigate('/')
-    setOpenPageFn({
+    setOpenPageFn?.({
       isOpen: false,
       openUrl: '',
     })

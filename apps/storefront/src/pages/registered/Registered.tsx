@@ -5,7 +5,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
@@ -17,8 +16,13 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b'
 import { bcLogin } from '@/shared/service/bc'
-import { themeFrameSelector } from '@/store'
-import { b2bLogger, B3SStorage, getCurrentCustomerInfo, loginjump } from '@/utils'
+import { themeFrameSelector, useAppSelector } from '@/store'
+import {
+  b2bLogger,
+  B3SStorage,
+  getCurrentCustomerInfo,
+  loginjump,
+} from '@/utils'
 
 import { loginCheckout, LoginConfig } from '../login/config'
 
@@ -52,7 +56,7 @@ function Registered(props: RegisteredProps) {
 
   const navigate = useNavigate()
 
-  const IframeDocument = useSelector(themeFrameSelector)
+  const IframeDocument = useAppSelector(themeFrameSelector)
 
   const {
     state: { isCheckout, isCloseGotoBCHome, logo, storeName, registerEnabled },

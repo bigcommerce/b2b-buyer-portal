@@ -6,7 +6,6 @@ import {
   useEffect,
   useRef,
 } from 'react'
-import { useDispatch } from 'react-redux'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit'
@@ -25,7 +24,7 @@ import {
 import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { setGlabolCommonState } from '@/store'
+import { setGlabolCommonState, useAppDispatch } from '@/store'
 
 import useRole from '../useRole'
 
@@ -80,7 +79,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
 
   const cache = useRef({})
 
-  const storeDispatch = useDispatch()
+  const storeDispatch = useAppDispatch()
   const {
     dispatch,
     state: { isB2BUser, shoppingListEnabled, registerEnabled },

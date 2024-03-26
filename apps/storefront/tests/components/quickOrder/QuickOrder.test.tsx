@@ -37,7 +37,7 @@ describe('Quickorder component', () => {
         </ThemeFrame>
       </GlobalProvider>,
       {
-        reducers: { global, theme },
+        reducer: { global, theme },
       }
     )
   })

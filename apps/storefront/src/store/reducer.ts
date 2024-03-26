@@ -1,4 +1,5 @@
-import { setupStore } from '@b3/store'
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
+import { configureStore } from '@reduxjs/toolkit'
 
 import global from './slices/global'
 import lang from './slices/lang'
@@ -19,15 +20,17 @@ export const middlewareOptions = {
   },
 }
 
-export const store = setupStore({
-  reducers: {
+export const store = configureStore({
+  reducer: {
     global,
-    theme,
     lang,
+    theme,
   },
-  middlewareOptions,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware(middlewareOptions),
 })
 
 export type AppStore = typeof store
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
+export const useAppDispatch: () => AppDispatch = useDispatch
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector

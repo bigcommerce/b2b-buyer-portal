@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 
@@ -13,7 +12,7 @@ import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
 import { b2bLogger, b3TriggerCartNumber, snackbar } from '@/utils'
 import { bcBaseUrl } from '@/utils/basicConfig'
 import { callCart } from '@/utils/cartUtils'
@@ -90,7 +89,7 @@ export default function OrderDialog({
     mode: 'all',
   })
 
-  const { storeInfo } = useSelector(globalStateSelector)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const b3Lang = useB3Lang()
 
   const handleClose = () => {
@@ -252,10 +251,7 @@ export default function OrderDialog({
         snackbar.error(b3Lang('purchasedProducts.error.fillCorrectQuantity'))
         return
       }
-
-      const storePlatform = storeInfo?.platform
-
-      const res = await callCart(items, storePlatform)
+      const res = await callCart(items, platform)
 
       const status =
         res && (res.data.cart.createCart || res.data.cart.addCartLineItems)

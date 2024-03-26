@@ -4,7 +4,7 @@ import { Badge, Box } from '@mui/material'
 
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 
 import CompanyCredit from '../CompanyCredit'
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
@@ -35,7 +35,7 @@ export default function B3MobileLayout({
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext)
-  const { global } = store.getState()
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber)
 
   const customColor = getContrastColor(backgroundColor)
 
@@ -69,7 +69,7 @@ export default function B3MobileLayout({
         ) : (
           <>
             <Badge
-              badgeContent={global?.cartNumber}
+              badgeContent={cartNumber}
               max={1000}
               sx={{
                 '& .MuiBadge-badge': {

@@ -1,13 +1,12 @@
 import { useContext } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Card, CardContent, Typography } from '@mui/material'
 import intlFormatDistance from 'date-fns/intlFormatDistance'
 
 import { B3Table, TableColumnItem } from '@/components/table/B3Table'
+import { BROWSER_LANG } from '@/constants'
 import { useMobile } from '@/hooks'
-import { RootState } from '@/store'
 
 import { OrderHistoryItem, OrderStatusItem } from '../../../types'
 import OrderStatus from '../../order/components/OrderStatus'
@@ -32,13 +31,11 @@ export default function OrderHistory() {
   const {
     state: { history = [], orderStatus: orderStatusLabel = [] },
   } = useContext(OrderDetailsContext)
-
-  const lang = useSelector(({ lang }: RootState) => lang)
   const [isMobile] = useMobile()
 
   const getTime = (time: number) =>
     intlFormatDistance(new Date(time * 1000), new Date(), {
-      locale: lang,
+      locale: BROWSER_LANG,
     })
 
   const getOrderStatusLabel = (status: string) =>

@@ -15,7 +15,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { store, TaxZoneRates, TaxZoneRatesProps } from '@/store'
+import { TaxZoneRates, useAppSelector } from '@/store'
 import {
   getDefaultCurrencyInfo,
   getSearchVal,
@@ -79,14 +79,13 @@ function QuoteDetail() {
   })
 
   const location = useLocation()
-
-  const {
-    global: {
-      taxZoneRates,
-      enteredInclusive: enteredInclusiveTax,
-      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-    },
-  } = store.getState()
+  const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates)
+  const enteredInclusiveTax = useAppSelector(
+    ({ global }) => global.enteredInclusive
+  )
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct
+  )
 
   useEffect(() => {
     let oosErrorList = ''
@@ -158,8 +157,8 @@ function QuoteDetail() {
   }, [isHideQuoteCheckout, noBuyerProductName])
 
   const classRates: TaxZoneRates[] = []
-  if (taxZoneRates.length) {
-    const defaultTaxZone: TaxZoneRatesProps = taxZoneRates.find(
+  if (taxZoneRates?.length) {
+    const defaultTaxZone = taxZoneRates?.find(
       (taxZone: { id: number }) => taxZone.id === 1
     )
     if (defaultTaxZone) {

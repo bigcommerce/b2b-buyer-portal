@@ -22,7 +22,7 @@ import {
   updateB2BShoppingListsItem,
   updateBcShoppingListsItem,
 } from '@/shared/service/b2b'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import { currencyFormat, getValidOptionsList, snackbar } from '@/utils'
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
@@ -163,10 +163,9 @@ function ShoppingDetailTable(
     productQuoteEnabled,
     role,
   } = props
-
-  const {
-    global: { showInclusiveTaxPrice },
-  } = store.getState()
+  const showInclusiveTaxPrice = useAppSelector(
+    ({ global }) => global.showInclusiveTaxPrice
+  )
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 

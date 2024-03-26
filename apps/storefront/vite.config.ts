@@ -97,7 +97,6 @@ export default defineConfig(({ mode }) => {
           toolkit: ['@reduxjs/toolkit'],
           form: ['react-hook-form'],
           router: ['react-router-dom'],
-          store: ['@b3/store'],
           lodashEs: ['lodash-es'],
           dropzone: ['react-dropzone'],
           draggable: ['react-draggable'],

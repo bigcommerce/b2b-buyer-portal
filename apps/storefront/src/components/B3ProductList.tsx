@@ -18,7 +18,7 @@ import noop from 'lodash-es/noop'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import { currencyFormat, ordersCurrencyFormat } from '@/utils'
 import {
   getDisplayPrice,
@@ -161,14 +161,11 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
   } = props
 
   const [list, setList] = useState<ProductItem[]>([])
-
   const [isMobile] = useMobile()
-
   const b3Lang = useB3Lang()
-
-  const {
-    global: { showInclusiveTaxPrice },
-  } = store.getState()
+  const showInclusiveTaxPrice = useAppSelector(
+    ({ global }) => global.showInclusiveTaxPrice
+  )
 
   const getQuantity = (product: any) =>
     parseInt(product[quantityKey]?.toString() || '', 10) || ''

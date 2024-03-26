@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import { Box, Grid } from '@mui/material'
 
 import { useMobile } from '@/hooks'
@@ -9,7 +9,6 @@ import QuickOrderPad from './components/QuickOrderPad'
 import QuickorderTable from './components/QuickorderTable'
 
 function Quickorder() {
-  useEffect(() => {}, [])
   const {
     state: { role, isAgenting, isB2BUser },
   } = useContext(GlobaledContext)

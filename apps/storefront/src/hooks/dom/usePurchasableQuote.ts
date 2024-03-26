@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { getB2BProductPurchasable } from '@/shared/service/b2b/graphql/product'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 
 interface MyMutationRecord extends MutationRecord {
   target: HTMLElement
@@ -23,12 +23,9 @@ const usePurchasableQuote = (openQuickView: boolean) => {
     inventoryTracking: false,
     purchasingDisabled: false,
   })
-
-  const {
-    global: {
-      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-    },
-  } = store.getState()
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
+  )
 
   const isOOStockPurchaseQuantity = (
     qty: number,

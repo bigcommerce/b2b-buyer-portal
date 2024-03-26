@@ -6,7 +6,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
@@ -20,7 +19,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
 import {
   B3SStorage,
   getDefaultCurrencyInfo,
@@ -220,7 +219,8 @@ function PDP({ setOpenPage }: PDPProps) {
       customer: { customerGroupId },
     },
   } = useContext(GlobaledContext)
-  const platform = useSelector(({ global }) => global.storeInfo.platform)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn)
   const b3Lang = useB3Lang()
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
@@ -230,7 +230,6 @@ function PDP({ setOpenPage }: PDPProps) {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
   const navigate = useNavigate()
-  const { setOpenPageFn } = useSelector(globalStateSelector)
 
   useEffect(() => {
     setOpenShoppingList(true)
@@ -240,7 +239,7 @@ function PDP({ setOpenPage }: PDPProps) {
     setOpenShoppingList(false)
     setIsOpenCreateShopping(false)
     navigate('/')
-    setOpenPageFn({
+    setOpenPageFn?.({
       isOpen: false,
       openUrl: '',
     })

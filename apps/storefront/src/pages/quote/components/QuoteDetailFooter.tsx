@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
@@ -6,7 +5,7 @@ import { Box } from '@mui/material'
 import { CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
 import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
 import { b2bLogger, getSearchVal } from '@/utils'
 import {
   attemptCheckoutLoginAndRedirect,
@@ -23,7 +22,7 @@ interface QuoteDetailFooterProps {
 
 function QuoteDetailFooter(props: QuoteDetailFooterProps) {
   const { quoteId, role, isAgenting, status, proceedingCheckoutFn } = props
-  const globalState = useSelector(globalStateSelector)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const [isMobile] = useMobile()
   const b3Lang = useB3Lang()
   const location = useLocation()
@@ -56,7 +55,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
         },
       } = res
 
-      if (globalState.storeInfo.platform === 'bigcommerce') {
+      if (platform === 'bigcommerce') {
         window.location.href = checkoutUrl
         return
       }

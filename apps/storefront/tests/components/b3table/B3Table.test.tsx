@@ -39,7 +39,7 @@ describe('B3Table component', async () => {
         />
       </LangProvider>,
       {
-        reducers: { lang },
+        reducer: { lang },
       }
     )
   })
@@ -64,7 +64,7 @@ describe('B3Table component', async () => {
         />
       </LangProvider>,
       {
-        reducers: { lang },
+        reducer: { lang },
       }
     )
     expect(result).toMatchSnapshot()

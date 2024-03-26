@@ -5,7 +5,6 @@ import {
   useContext,
   useEffect,
 } from 'react'
-import { useSelector } from 'react-redux'
 import globalB3 from '@b3/global-b3'
 import type { OpenPageState } from '@b3/hooks'
 
@@ -18,6 +17,7 @@ import {
 import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 import { B3SStorage, globalSnackbar } from '@/utils'
 
 import { addProductsFromCartToQuote } from './utils'
@@ -37,7 +37,7 @@ const useCartToQuote = ({
   setOpenPage,
   cartQuoteEnabled,
 }: MutationObserverProps) => {
-  const platform = useSelector(({ global }) => global.storeInfo.platform)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const { addToQuote, addLoadding } = addProductsFromCartToQuote(
     setOpenPage,
     platform

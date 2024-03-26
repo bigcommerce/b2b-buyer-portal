@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 
@@ -14,6 +13,7 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
 import B3Request from '@/shared/service/request/b3Fetch'
+import { useAppDispatch, useAppSelector } from '@/store'
 import {
   B3LStorage,
   B3SStorage,
@@ -123,7 +123,7 @@ const getDraftQuote = () => {
 export default function HeadlessController({
   setOpenPage,
 }: HeadlessControllerProps) {
-  const storeDispatch = useDispatch()
+  const storeDispatch = useAppDispatch()
   const b3Lang = useB3Lang()
 
   const {
@@ -142,7 +142,7 @@ export default function HeadlessController({
       shoppingListEnabled,
     },
   } = useContext(GlobaledContext)
-  const platform = useSelector(({ global }) => global.storeInfo.platform)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
   } = useContext(CustomStyleContext)

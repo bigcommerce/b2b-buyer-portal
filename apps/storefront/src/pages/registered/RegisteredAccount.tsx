@@ -1,6 +1,5 @@
 import { ChangeEvent, MouseEvent, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import {
   Alert,
@@ -19,7 +18,7 @@ import {
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
-import { themeFrameSelector } from '@/store'
+import { themeFrameSelector, useAppSelector } from '@/store'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
@@ -40,7 +39,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   } = useContext(GlobaledContext)
 
   const { state, dispatch } = useContext(RegisteredContext)
-  const IframeDocument = useSelector(themeFrameSelector)
+  const IframeDocument = useAppSelector(themeFrameSelector)
 
   const {
     state: {

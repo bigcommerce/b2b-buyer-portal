@@ -8,7 +8,7 @@ const initialState: LangState = {
   translations: JSON.parse(localStorage.getItem('sf-translations') || '{}'),
 }
 
-const langSlice = createSlice({
+export const langSlice = createSlice({
   name: 'lang',
   initialState,
   reducers: {

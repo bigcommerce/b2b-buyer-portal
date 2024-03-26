@@ -6,7 +6,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { ArrowDropDown } from '@mui/icons-material'
@@ -32,7 +31,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
 import {
   addQuoteDraftProducts,
   b2bLogger,
@@ -139,7 +138,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const [isShoppingListLoading, setIisShoppingListLoading] =
     useState<boolean>(false)
 
-  const { storeInfo } = useSelector(globalStateSelector)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   const navigate = useNavigate()
 
@@ -247,9 +246,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const lineItems = handleSetCartLineItems(getInventoryInfos || [])
 
-      const storePlatform = storeInfo?.platform
-
-      const res = await callCart(lineItems, storePlatform)
+      const res = await callCart(lineItems, platform)
 
       if (res && !res.errors) {
         snackbar.success('', {

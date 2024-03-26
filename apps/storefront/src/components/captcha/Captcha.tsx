@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useSelector } from 'react-redux'
 
-import { themeFrameSelector } from '@/store'
+import { themeFrameSelector, useAppSelector } from '@/store'
 
 // eslint-disable-next-line
 import FRAME_HANDLER_CODE from './frameCaptchaCode.js?raw'
@@ -61,7 +60,7 @@ export function generateWidgetId() {
 
 export function Captcha(props: CaptchaProps) {
   const { siteKey, theme, size, onSuccess, onError, onExpired } = props
-  const iframeDocument = useSelector(themeFrameSelector)
+  const iframeDocument = useAppSelector(themeFrameSelector)
   const widgetId = useMemo(() => generateWidgetId(), [])
   const initialized = useRef(false)
 

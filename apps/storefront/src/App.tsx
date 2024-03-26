@@ -1,5 +1,4 @@
 import { lazy, useContext, useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { useB3AppOpen } from '@b3/hooks'
 
@@ -30,9 +29,10 @@ import {
 
 import { getCompanyInfo } from './utils/loginInfo'
 import {
-  globalStateSelector,
   setGlabolCommonState,
   setOpenPageReducer,
+  useAppDispatch,
+  useAppSelector,
 } from './store'
 
 const B3GlobalTip = lazy(() => import('@/components/B3GlobalTip'))
@@ -70,14 +70,16 @@ export default function App() {
     dispatch,
   } = useContext(GlobaledContext)
 
-  const storeDispatch = useDispatch()
+  const storeDispatch = useAppDispatch()
 
-  const {
-    isClickEnterBtn,
-    isPageComplete,
-    currentClickedUrl,
-    isRegisterAndLogin,
-  } = useSelector(globalStateSelector)
+  const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn)
+  const isPageComplete = useAppSelector(({ global }) => global.isPageComplete)
+  const currentClickedUrl = useAppSelector(
+    ({ global }) => global.currentClickedUrl
+  )
+  const isRegisterAndLogin = useAppSelector(
+    ({ global }) => global.isRegisterAndLogin
+  )
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
     showPageMask(dispatch, true)

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import {
@@ -13,7 +12,7 @@ import {
 
 import { B3Upload, CustomButton, successTip } from '@/components'
 import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
-import { globalStateSelector, store } from '@/store'
+import { useAppSelector } from '@/store'
 import { b2bLogger, B3SStorage, b3TriggerCartNumber, snackbar } from '@/utils'
 import { callCart } from '@/utils/cartUtils'
 
@@ -37,14 +36,11 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
 
-  const { storeInfo } = useSelector(globalStateSelector)
+  const storeInfo = useAppSelector(({ global }) => global.storeInfo)
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
+  )
   const storePlatform = storeInfo?.platform
-
-  const {
-    global: {
-      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-    },
-  } = store.getState()
 
   const getSnackbarMessage = (res: any) => {
     if (res && !res.errors) {

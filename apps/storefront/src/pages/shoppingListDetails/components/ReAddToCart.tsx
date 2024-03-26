@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Delete } from '@mui/icons-material'
@@ -14,7 +13,7 @@ import {
 } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
 import {
   b3TriggerCartNumber,
   currencyFormat,
@@ -183,7 +182,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
 
-  const { storeInfo } = useSelector(globalStateSelector)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   useEffect(() => {
     if (products.length > 0) {
@@ -236,9 +235,8 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       setLoading(true)
 
       const lineItems = addlineItems(products)
-      const storePlatform = storeInfo?.platform
 
-      const res = await callCart(lineItems, storePlatform)
+      const res = await callCart(lineItems, platform)
 
       if (!res.errors) {
         handleCancelClicked()

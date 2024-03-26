@@ -13,7 +13,7 @@ export const themeSlice = createSlice({
   initialState,
   reducers: {
     clearThemeFrame: () => initialState,
-    setThemeFrame: (state, { payload }: PayloadAction<Document>) => {
+    setThemeFrame: (state, { payload }: PayloadAction<unknown>) => {
       state.themeFrame = payload as Draft<Document>
     },
   },

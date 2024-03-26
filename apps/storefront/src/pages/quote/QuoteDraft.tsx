@@ -30,7 +30,7 @@ import {
   getBCCustomerAddresses,
 } from '@/shared/service/b2b'
 import { deleteCart } from '@/shared/service/bc/graphql/cart'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
   addQuoteDraftProducts,
@@ -123,10 +123,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       openAPPParams,
     },
   } = useContext(GlobaledContext)
-
-  const {
-    global: { enteredInclusive: enteredInclusiveTax },
-  } = store.getState()
+  const enteredInclusiveTax = useAppSelector(
+    ({ global }) => global.enteredInclusive
+  )
 
   const {
     state: {

@@ -191,7 +191,6 @@ function OrderDetail() {
           },
         })
       } catch (error) {
-        console.error(error)
         b2bLogger.error(error)
       }
     }

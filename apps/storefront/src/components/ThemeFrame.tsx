@@ -1,11 +1,10 @@
 import { ReactNode, RefObject, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useDispatch } from 'react-redux'
 import createCache, { EmotionCache } from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
 import { CssBaseline } from '@mui/material'
 
-import { clearThemeFrame, setThemeFrame } from '@/store'
+import { clearThemeFrame, setThemeFrame, useAppDispatch } from '@/store'
 
 export function IFrameSetContent(
   el: HTMLIFrameElement | null,
@@ -66,7 +65,7 @@ const DefaultIframeContent =
   '<!DOCTYPE html><html><head></head><body></body></html>'
 
 function ThemeFramePortal(props: ThemeFramePortalProps) {
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const { isSetupComplete, emotionCache, iframeDocument, bodyRef, children } =
     props
 

@@ -9,7 +9,7 @@ import {
 import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import { B3LStorage, currencyFormat } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
 
@@ -38,9 +38,9 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
 
   const [isHideQuoteDraftPrice, setHideQuoteDraftPrice] =
     useState<boolean>(false)
-  const {
-    global: { showInclusiveTaxPrice },
-  } = store.getState()
+  const showInclusiveTaxPrice = useAppSelector(
+    ({ global }) => global.showInclusiveTaxPrice
+  )
 
   const priceCalc = (price: number) => parseFloat(String(price))
 

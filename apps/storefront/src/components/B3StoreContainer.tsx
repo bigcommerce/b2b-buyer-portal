@@ -2,7 +2,7 @@ import { ReactNode, useContext, useLayoutEffect } from 'react'
 
 import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
-import { setHeadLessBcUrl, setStoreInfo, store } from '@/store'
+import { setHeadLessBcUrl, setStoreInfo, useAppDispatch } from '@/store'
 import { B3SStorage, setGlobalTranslation, storeHash } from '@/utils'
 
 import B3PageMask from './loadding/B3PageMask'
@@ -34,6 +34,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
     state: { storeEnabled },
     dispatch,
   } = useContext(GlobaledContext)
+  const storeDispatch = useAppDispatch()
 
   useLayoutEffect(() => {
     const getStoreBasicInfo = async () => {
@@ -50,7 +51,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
 
         if (!storeInfo) return
 
-        store.dispatch(setStoreInfo(storeInfo))
+        storeDispatch(setStoreInfo(storeInfo))
 
         const {
           channelId,
@@ -95,7 +96,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           })
         }
 
-        store.dispatch(setHeadLessBcUrl(bcUrl))
+        storeDispatch(setHeadLessBcUrl(bcUrl))
         B3SStorage.set('timeFormat', storeBasicInfo.timeFormat)
         B3SStorage.set('B3channelId', channelId)
         B3SStorage.set('bcUrl', bcUrl)

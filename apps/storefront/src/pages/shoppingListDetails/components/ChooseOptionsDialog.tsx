@@ -17,7 +17,7 @@ import isEqual from 'lodash-es/isEqual'
 import { B3CustomForm, B3Dialog, B3Sping } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import {
   b2bLogger,
   B3SStorage,
@@ -131,12 +131,12 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     addButtonText = b3Lang('shoppingList.chooseOptionsDialog.addToList'),
   } = restProps
 
-  const {
-    global: {
-      showInclusiveTaxPrice,
-      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-    },
-  } = store.getState()
+  const showInclusiveTaxPrice = useAppSelector(
+    ({ global }) => global.showInclusiveTaxPrice
+  )
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
+  )
 
   const [quantity, setQuantity] = useState<number | string>(1)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
@@ -342,41 +342,41 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const formValues = watch()
   const cache = useRef(formValues)
 
-  const getProductVariantId = async (
-    value: CustomFieldItems,
-    changeName = ''
-  ) => {
-    const isVariantOptionChange =
-      formFields.find((item: CustomFieldItems) => item.name === changeName)
-        ?.isVariantOption || false
+  const getProductVariantId = useCallback(
+    async (value: CustomFieldItems, changeName = '') => {
+      const isVariantOptionChange =
+        formFields.find((item: CustomFieldItems) => item.name === changeName)
+          ?.isVariantOption || false
 
-    if (!isVariantOptionChange || !product || !changeName) {
-      return
-    }
+      if (!isVariantOptionChange || !product || !changeName) {
+        return
+      }
 
-    const { variants = [] } = product || {}
+      const { variants = [] } = product || {}
 
-    const variantInfo =
-      variants.find((variant) => {
-        const { option_values: optionValues = [] } = variant
+      const variantInfo =
+        variants.find((variant) => {
+          const { option_values: optionValues = [] } = variant
 
-        const isSelectVariant = optionValues.reduce((isSelect, option) => {
-          if (
-            value[
-              Base64.encode(`attribute[${option.option_id}]`)
-            ].toString() !== (option.id || '').toString()
-          ) {
-            return false
-          }
-          return isSelect
-        }, true)
+          const isSelectVariant = optionValues.reduce((isSelect, option) => {
+            if (
+              value[
+                Base64.encode(`attribute[${option.option_id}]`)
+              ].toString() !== (option.id || '').toString()
+            ) {
+              return false
+            }
+            return isSelect
+          }, true)
 
-        return isSelectVariant
-      }) || null
+          return isSelectVariant
+        }) || null
 
-    setVariantSku(variantInfo ? variantInfo.sku : '')
-    setVariantInfo(variantInfo)
-  }
+      setVariantSku(variantInfo ? variantInfo.sku : '')
+      setVariantInfo(variantInfo)
+    },
+    [formFields, product]
+  )
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {

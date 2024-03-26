@@ -13,7 +13,7 @@ describe('ThemeFrame', () => {
     const { store } = renderWithProviders(
       <ThemeFrame title="test-frame">{null}</ThemeFrame>,
       {
-        reducers: { theme },
+        reducer: { theme },
       }
     )
 
@@ -27,7 +27,7 @@ describe('ThemeFrame', () => {
         <Button id="test-button">Test Button</Button>
       </ThemeFrame>,
       {
-        reducers: { theme },
+        reducer: { theme },
       }
     )
 

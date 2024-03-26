@@ -1,5 +1,4 @@
 import { MouseEvent, useContext, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import { ArrowDropDown, Delete } from '@mui/icons-material'
 import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material'
@@ -16,7 +15,7 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b/graphql/product'
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
 import {
   addQuoteDraftProducts,
   b2bLogger,
@@ -89,7 +88,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
 
-  const { storeInfo } = useSelector(globalStateSelector)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   const cartEntityId = getCookie('cartId')
 
@@ -246,18 +245,16 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         getInventoryInfos?.variantSku || []
       )
 
-      const storePlatform = storeInfo?.platform
-
       if (validateSuccessArr.length !== 0) {
         const lineItems = addlineItems(validateSuccessArr)
         const deleteCartObject = deleteCartData(cartEntityId)
-        const cartInfo = await getCart(cartEntityId || '', storePlatform)
+        const cartInfo = await getCart(cartEntityId || '', platform)
         let res = null
         if (allowJuniorPlaceOrder && cartInfo.length) {
           await deleteCart(deleteCartObject)
-          res = await updateCart(cartInfo, lineItems, storePlatform)
+          res = await updateCart(cartInfo, lineItems, platform)
         } else {
-          res = await callCart(lineItems, storePlatform)
+          res = await callCart(lineItems, platform)
           b3TriggerCartNumber()
         }
         if (res && res.errors) {

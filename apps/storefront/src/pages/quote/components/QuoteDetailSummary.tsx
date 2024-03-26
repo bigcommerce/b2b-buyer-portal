@@ -1,7 +1,7 @@
 import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import { currencyFormatConvert } from '@/utils'
 
 interface Summary {
@@ -29,10 +29,12 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
     quoteDetail,
     isHideQuoteCheckout,
   } = props
-
-  const {
-    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
-  } = store.getState()
+  const enteredInclusiveTax = useAppSelector(
+    ({ global }) => global.enteredInclusive
+  )
+  const showInclusiveTaxPrice = useAppSelector(
+    ({ global }) => global.showInclusiveTaxPrice
+  )
 
   const subtotalPrice = +originalSubtotal
   const quotedSubtotal = +originalSubtotal - +discount

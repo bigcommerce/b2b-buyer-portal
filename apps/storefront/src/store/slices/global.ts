@@ -51,22 +51,22 @@ interface GlobalBlockPendingQuoteNonPurchasableOOS {
   isEnableRequest?: boolean
 }
 export interface GlabolState {
-  taxZoneRates?: TaxZoneRatesProps[]
-  isClickEnterBtn?: boolean
-  currentClickedUrl?: string
-  isRegisterAndLogin?: boolean
-  isPageComplete?: boolean
-  globalMessage?: GlobalMessageDialog
-  enteredInclusive?: boolean
+  taxZoneRates: TaxZoneRatesProps[]
+  isClickEnterBtn: boolean
+  currentClickedUrl: string
+  isRegisterAndLogin: boolean
+  isPageComplete: boolean
+  globalMessage: GlobalMessageDialog
+  enteredInclusive: boolean
   setOpenPageFn?: Dispatch<SetStateAction<OpenPageState>>
-  showInclusiveTaxPrice?: boolean
-  blockPendingAccountViewPrice?: boolean
-  bcUrl?: string
-  cartNumber?: number
-  storeInfo?: StoreInfoProps
-  loginLandingLocation?: string
-  recordOpenHash?: string
-  blockPendingQuoteNonPurchasableOOS?: GlobalBlockPendingQuoteNonPurchasableOOS
+  showInclusiveTaxPrice: boolean
+  blockPendingAccountViewPrice: boolean
+  bcUrl: string
+  cartNumber: number
+  storeInfo: StoreInfoProps
+  loginLandingLocation: string
+  recordOpenHash: string
+  blockPendingQuoteNonPurchasableOOS: GlobalBlockPendingQuoteNonPurchasableOOS
 }
 
 const initialState: GlabolState = {
@@ -118,7 +118,10 @@ export const glabolSlice = createSlice({
     ) => {
       state.taxZoneRates = payload as Draft<TaxZoneRatesProps[]>
     },
-    setGlabolCommonState: (state, { payload }: PayloadAction<GlabolState>) => ({
+    setGlabolCommonState: (
+      state,
+      { payload }: PayloadAction<Partial<GlabolState>>
+    ) => ({
       ...state,
       ...payload,
     }),
