@@ -23,11 +23,11 @@ import {
 import { InvoiceList, InvoiceListNode } from '@/types/invoice'
 import {
   b2bLogger,
-  B3SStorage,
   currencyFormat,
   currencyFormatInfo,
   displayFormat,
   getUTCTimestamp,
+  handleGetCorrespondingCurrencyToken,
   snackbar,
 } from '@/utils'
 
@@ -80,7 +80,6 @@ function Invoice() {
   const [isMobile] = useMobile()
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
-  const allCurrencies = B3SStorage.get('currencies')
   const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo()
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
@@ -150,21 +149,6 @@ function Invoice() {
     })
 
     setFilterLists(copyCacheFilterList)
-  }
-
-  const handleGetCorrespondingCurrency = (code: string) => {
-    const { currencies: currencyArr } = allCurrencies
-    let token = '$'
-    const correspondingCurrency =
-      currencyArr.find(
-        (currency: CustomFieldItems) => currency.currency_code === code
-      ) || {}
-
-    if (correspondingCurrency) {
-      token = correspondingCurrency.token
-    }
-
-    return token
   }
 
   const handleStatisticsInvoiceAmount = async () => {
@@ -569,7 +553,7 @@ function Invoice() {
         const { originalBalance } = item
         const originalAmount = (+originalBalance.value).toFixed(decimalPlaces)
 
-        const token = handleGetCorrespondingCurrency(originalBalance.code)
+        const token = handleGetCorrespondingCurrencyToken(originalBalance.code)
 
         return `${token}${originalAmount || 0}`
       },
@@ -583,7 +567,7 @@ function Invoice() {
         const { openBalance } = item
 
         const openAmount = (+openBalance.value).toFixed(decimalPlaces)
-        const token = handleGetCorrespondingCurrency(openBalance.code)
+        const token = handleGetCorrespondingCurrencyToken(openBalance.code)
 
         return `${token}${openAmount || 0}`
       },
@@ -632,7 +616,7 @@ function Invoice() {
                   position="start"
                   sx={{ padding: '8px 0', marginTop: '0 !important' }}
                 >
-                  {handleGetCorrespondingCurrency(currentCode)}
+                  {handleGetCorrespondingCurrencyToken(currentCode)}
                 </InputAdornment>
               ),
             }}
@@ -870,7 +854,9 @@ function Invoice() {
               setInvoiceId={setCurrentInvoiceId}
               handleOpenHistoryModal={setIsOpenHistorys}
               selectedPay={selectedPay}
-              handleGetCorrespondingCurrency={handleGetCorrespondingCurrency}
+              handleGetCorrespondingCurrency={
+                handleGetCorrespondingCurrencyToken
+              }
               addBottom={list.length - 1 === index}
             />
           )}

@@ -6,7 +6,8 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { setEnteredInclusive, store } from '@/store'
+import { store } from '@/store'
+import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs'
 import {
   AdjustersPrice,
   AllOptionProps,
@@ -590,8 +591,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   const calculatedNoTaxPrice = calculatedPrice.tax_exclusive
   let enteredPrice = calculatedPrice.as_entered
   const enteredInclusive = calculatedPrice.entered_inclusive
-  store.dispatch(setEnteredInclusive(enteredInclusive))
-  B3SStorage.set('enteredInclusiveTax', enteredInclusive)
+  store.dispatch(setEnteredInclusiveTax(enteredInclusive))
 
   const tax = calculatedTaxPrice - calculatedNoTaxPrice
 
@@ -678,7 +678,8 @@ const getCalculatedProductPrice = async (
   { optionList, productsSearch, sku, qty }: CalculatedProductPrice,
   calculatedValue?: CustomFieldItems
 ) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
+  const { decimal_places: decimalPlaces = 2, currency_code: currencyCode } =
+    getActiveCurrencyInfo()
 
   const { variants = [] } = productsSearch
 
@@ -697,7 +698,7 @@ const getCalculatedProductPrice = async (
 
     const data = {
       channel_id: channelId,
-      currency_code: getDefaultCurrencyInfo().currency_code,
+      currency_code: currencyCode,
       items,
       customer_group_id: customerGroupId,
     }
@@ -824,7 +825,8 @@ const calculateProductsPrice = async (
   products: ShoppingListProductItem[],
   calculatedValue: CustomFieldItems[] = []
 ) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
+  const { decimal_places: decimalPlaces = 2, currency_code: currencyCode } =
+    getActiveCurrencyInfo()
 
   let calculatedPrices = calculatedValue
   const { variants, items } = formatLineItemsToGetPrices(lineItems, products)
@@ -835,8 +837,8 @@ const calculateProductsPrice = async (
   if (calculatedValue.length === 0) {
     const data = {
       channel_id: B3SStorage.get('B3channelId'),
-      currency_code: getDefaultCurrencyInfo().currency_code,
       customer_group_id: getCustomerGroupId(),
+      currency_code: currencyCode,
       items,
     }
     const res = await getProxyInfo({
@@ -883,7 +885,8 @@ const calculateProductListPrice = async (
   products: Partial<Product>[],
   type = '1'
 ) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
+  const { decimal_places: decimalPlaces = 2, currency_code: currencyCode } =
+    getActiveCurrencyInfo()
   try {
     let isError = false
     let i = 0
@@ -947,7 +950,7 @@ const calculateProductListPrice = async (
 
     const data = {
       channel_id: channelId,
-      currency_code: getDefaultCurrencyInfo().currency_code,
+      currency_code: currencyCode,
       items: itemsOptions,
       customer_group_id: customerGroupId,
     }
@@ -1195,7 +1198,10 @@ const calculateIsInclude = (price: number | string, tax: number | string) => {
 
 const getBCPrice = (basePrice: number, taxPrice: number) => {
   const {
-    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
+    global: { showInclusiveTaxPrice },
+    storeConfigs: {
+      currencies: { enteredInclusiveTax },
+    },
   } = store.getState()
 
   let price: number

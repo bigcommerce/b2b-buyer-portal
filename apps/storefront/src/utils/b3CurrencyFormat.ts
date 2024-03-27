@@ -1,8 +1,9 @@
 import globalB3 from '@b3/global-b3'
 
+import { store } from '@/store'
+
 import { b2bLogger } from '@/utils'
 
-import { B3SStorage } from './b3Storage'
 import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
 
 interface MoneyFormat {
@@ -35,8 +36,8 @@ export const currencyFormatInfo = () => {
 
 export const handleGetCorrespondingCurrency = (code: string, value: number) => {
   const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo()
-  const allCurrencies = B3SStorage.get('currencies')
-  const { currencies: currencyArr } = allCurrencies
+  const { currencies } = store.getState().storeConfigs
+  const { currencies: currencyArr } = currencies
   let token = '$'
   const correspondingCurrency =
     currencyArr.find(
@@ -85,11 +86,8 @@ export const currencyFormatConvert = (
   price: string | number,
   { currency, showCurrencyToken = true }: CurrencyOption
 ) => {
-  const moneyFormat: MoneyFormat = currencyFormatInfo()
+  const moneyFormat = currencyFormatInfo()
 
-  // const {
-  //   currencyExchangeRate
-  // } = currency
   try {
     if (currency?.currencyExchangeRate) {
       const [integerPart, decimalPart] = (
@@ -127,7 +125,7 @@ export const currencyFormatConvert = (
 }
 
 const currencyFormat = (price: string | number, showCurrencyToken = true) => {
-  const moneyFormat: MoneyFormat = currencyFormatInfo()
+  const moneyFormat = currencyFormatInfo()
   try {
     const [integerPart, decimalPart] = (
       +price * +moneyFormat.currency_exchange_rate

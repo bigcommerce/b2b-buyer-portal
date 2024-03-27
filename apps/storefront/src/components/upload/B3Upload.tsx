@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react'
 import { DropzoneArea } from 'react-mui-dropzone'
+import { useSelector } from 'react-redux'
 import styled from '@emotion/styled'
 import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
 import { Alert, Box, Link, useTheme } from '@mui/material'
@@ -21,7 +22,8 @@ import {
   BcProductsBulkUploadCSV,
   guestProductsBulkUploadCSV,
 } from '@/shared/service/b2b'
-import { b2bLogger, getDefaultCurrencyInfo } from '@/utils'
+import { defaultCurrencyCodeSelector } from '@/store'
+import { b2bLogger } from '@/utils'
 
 import B3Dialog from '../B3Dialog'
 
@@ -91,7 +93,8 @@ export default function B3Upload(props: B3UploadProps) {
   const [fileName, setFileName] = useState('')
   const [fileErrorText, setFileErrorText] = useState('')
 
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+  const currency = useSelector(defaultCurrencyCodeSelector)
+  const { currency_code: currencyCode } = currency
 
   const getRejectMessage = (
     rejectedFile: File,

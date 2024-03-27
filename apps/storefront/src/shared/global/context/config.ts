@@ -173,14 +173,14 @@ export const initState = {
   shoppingListEnabled: false,
   registerEnabled: true,
   quoteConfig: [],
-  currencies: B3SStorage.get('currencies') || {},
+  currencies: {},
   openAPPParams: {
     quoteBtn: '',
     shoppingListBtn: '',
   },
   showPageMask: false,
   timeFormat: B3SStorage.get('timeFormat') || {},
-  enteredInclusiveTax: B3SStorage.get('enteredInclusiveTax') || false,
+  enteredInclusiveTax: false,
   blockPendingAccountOrderCreation:
     B3SStorage.get('blockPendingAccountOrderCreation') || true,
   quoteDetailHasNewMessages: false,

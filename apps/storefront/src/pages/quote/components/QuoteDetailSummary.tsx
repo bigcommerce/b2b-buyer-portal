@@ -20,24 +20,20 @@ interface QuoteDetailSummaryProps {
   isHideQuoteCheckout: boolean
 }
 
-export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
+export default function QuoteDetailSummary({
+  quoteSummary: { originalSubtotal, discount, tax, shipping, totalAmount },
+  quoteDetailTax = 0,
+  status,
+  quoteDetail,
+  isHideQuoteCheckout,
+}: QuoteDetailSummaryProps) {
   const b3Lang = useB3Lang()
-  const {
-    quoteSummary: { originalSubtotal, discount, tax, shipping, totalAmount },
-    quoteDetailTax = 0,
-    status,
-    quoteDetail,
-    isHideQuoteCheckout,
-  } = props
   const enteredInclusiveTax = useAppSelector(
     ({ global }) => global.enteredInclusive
   )
   const showInclusiveTaxPrice = useAppSelector(
     ({ global }) => global.showInclusiveTaxPrice
   )
-
-  const subtotalPrice = +originalSubtotal
-  const quotedSubtotal = +originalSubtotal - +discount
 
   const getCurrentPrice = (price: number, quoteDetailTax: number) => {
     if (enteredInclusiveTax) {
@@ -102,6 +98,8 @@ export default function QuoteDetailSummary(props: QuoteDetailSummaryProps) {
     return price
   }
 
+  const subtotalPrice = +originalSubtotal
+  const quotedSubtotal = +originalSubtotal - +discount
   return (
     <Card>
       <CardContent>

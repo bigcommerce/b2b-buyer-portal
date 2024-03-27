@@ -37,7 +37,11 @@ import { B3LStorage, B3SStorage } from './b3Storage'
 import { globalSnackbar, snackbar } from './b3Tip'
 import b3TriggerCartNumber from './b3TriggerCartNumber'
 import getCookie from './b3utils'
-import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
+import {
+  getActiveCurrencyInfo,
+  getDefaultCurrencyInfo,
+  handleGetCorrespondingCurrencyToken,
+} from './currencyUtils'
 import {
   convertArrayToGraphql,
   convertObjectToGraphql,
@@ -67,6 +71,7 @@ export {
 
 export { loginjump } from './b3Login'
 
+// TODO: Clean this up
 export {
   b2bPrintInvoice,
   B3LStorage,
@@ -115,4 +120,5 @@ export {
   showPageMask,
   snackbar,
   validatorRules,
+  handleGetCorrespondingCurrencyToken,
 }

@@ -15,13 +15,13 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { TaxZoneRates, useAppSelector } from '@/store'
 import {
-  getDefaultCurrencyInfo,
-  getSearchVal,
-  getVariantInfoOOSAndPurchase,
-  snackbar,
-} from '@/utils'
+  defaultCurrencyCodeSelector,
+  TaxZoneRates,
+  useAppSelector,
+} from '@/store'
+import { Currency } from '@/types'
+import { getSearchVal, getVariantInfoOOSAndPurchase, snackbar } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import Message from './components/Message'
@@ -69,16 +69,14 @@ function QuoteDetail() {
   })
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [isShowFooter, setIsShowFooter] = useState(false)
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
-
   const [quoteDetailTax, setQuoteDetailTax] = useState(0)
-
   const [noBuyerProductName, setNoBuyerProductName] = useState({
     oos: '',
     nonPurchasable: '',
   })
 
   const location = useLocation()
+  const currency = useAppSelector(defaultCurrencyCodeSelector)
   const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates)
   const enteredInclusiveTax = useAppSelector(
     ({ global }) => global.enteredInclusive
@@ -200,6 +198,7 @@ function QuoteDetail() {
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
       try {
+        const { currency_code: currencyCode } = currency as Currency
         const { productsSearch } = await getProducts({
           productIds,
           currencyCode,

@@ -10,7 +10,7 @@ import {
   BcCartDataLineItem,
   InvoiceListNode,
 } from '@/types/invoice'
-import { B3SStorage, snackbar } from '@/utils'
+import { handleGetCorrespondingCurrencyToken, snackbar } from '@/utils'
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment'
 
@@ -22,7 +22,6 @@ interface InvoiceFooterProps {
 function InvoiceFooter(props: InvoiceFooterProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const b3Lang = useB3Lang()
-  const allCurrencies = B3SStorage.get('currencies')
   const [isMobile] = useMobile()
   const [selectedAccount, setSelectedAccount] = useState<number | string>(0)
   const [currentToken, setCurrentToken] = useState<string>('$')
@@ -82,21 +81,6 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
   useEffect(() => {
     if (selectedPay.length > 0) {
-      const handleGetCorrespondingCurrency = (code: string) => {
-        const { currencies: currencyArr } = allCurrencies
-        let token = '$'
-        const correspondingCurrency =
-          currencyArr.find(
-            (currency: CustomFieldItems) => currency.currency_code === code
-          ) || {}
-
-        if (correspondingCurrency) {
-          token = correspondingCurrency.token
-        }
-
-        return token
-      }
-
       const handleStatisticsInvoiceAmount = (checkedArr: CustomFieldItems) => {
         let amount = 0
 
@@ -113,11 +97,11 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         node: { openBalance },
       } = selectedPay[0]
 
-      const token = handleGetCorrespondingCurrency(openBalance.code)
+      const token = handleGetCorrespondingCurrencyToken(openBalance.code)
       setCurrentToken(token)
       handleStatisticsInvoiceAmount(selectedPay)
     }
-  }, [allCurrencies, decimalPlaces, selectedPay])
+  }, [decimalPlaces, selectedPay])
 
   return (
     <Grid

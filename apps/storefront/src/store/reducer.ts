@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit'
 
 import global from './slices/global'
 import lang from './slices/lang'
+import storeConfigs from './slices/storeConfigs'
 import theme from './slices/theme'
 
 export const middlewareOptions = {
@@ -24,6 +25,7 @@ export const store = configureStore({
   reducer: {
     global,
     lang,
+    storeConfigs,
     theme,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware(middlewareOptions),

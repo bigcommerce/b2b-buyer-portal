@@ -19,8 +19,8 @@ const customRender = (ui: React.ReactElement, options = {}) =>
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-  reducer: ConfigureStoreOptions["reducer"]
-  preloadedState?: ConfigureStoreOptions["preloadedState"]
+  reducer: ConfigureStoreOptions['reducer']
+  preloadedState?: ConfigureStoreOptions['preloadedState']
 }
 
 export const renderWithProviders = (
@@ -31,7 +31,7 @@ export const renderWithProviders = (
     reducer,
     preloadedState,
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware(middlewareOptions),
+      getDefaultMiddleware(middlewareOptions),
   })
 
   function Wrapper({ children }: PropsWithChildren) {
