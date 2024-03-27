@@ -1,5 +1,6 @@
 export * from './reducer'
 export * from './selectors'
+export * from './appAsyncThunks'
 export * from './slices/global'
 export * from './slices/lang'
 export * from './slices/theme'

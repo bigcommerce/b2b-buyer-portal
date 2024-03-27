@@ -12,6 +12,7 @@ import {
   getTaxZoneRates,
 } from '@/shared/service/b2b'
 import { getActiveBcCurrency } from '@/shared/service/bc'
+import { store } from '@/store/reducer'
 import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
@@ -19,8 +20,7 @@ import {
   setShowInclusiveTaxPrice,
   setStoreInfo,
   setTaxZoneRates,
-  store,
-} from '@/store'
+} from '@/store/slices/global'
 import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs'
 import { B3SStorage } from '@/utils'
 

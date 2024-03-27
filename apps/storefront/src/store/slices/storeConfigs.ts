@@ -47,10 +47,10 @@ export const storeConfigSlice = createSlice({
   reducers: {
     clearState: () => initialState,
     setCurrencies: (state, { payload }: PayloadAction<Currencies>) => {
-      state.currencies = payload as Currencies
+      state.currencies = payload
     },
     setActiveCurrency: (state, { payload }: PayloadAction<ActiveCurrency>) => {
-      state.activeCurrency = payload as ActiveCurrency
+      state.activeCurrency = payload
     },
     setEnteredInclusiveTax: (state, { payload }: PayloadAction<boolean>) => {
       state.currencies.enteredInclusiveTax = payload

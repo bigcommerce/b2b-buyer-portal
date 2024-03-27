@@ -1,5 +1,5 @@
+import { store } from '@/store/reducer'
 import { B3SStorage, getCookie } from '@/utils'
-import { bcBaseUrl } from '@/utils/basicConfig'
 
 import { B2B_BASIC_URL, queryParse, RequestType, RequestTypeKeys } from './base'
 import b3Fetch from './fetch'
@@ -12,7 +12,7 @@ interface Config {
 const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
   const GraphqlEndpoints: CustomFieldStringItems = {
     B2BGraphql: `${B2B_BASIC_URL}/graphql`,
-    BCGraphql: `${bcBaseUrl()}/graphql`,
+    BCGraphql: `${store.getState().global.bcUrl}/graphql`,
     BCProxyGraphql: `${B2B_BASIC_URL}/api/v3/proxy/bc-storefront/graphql`,
   }
 

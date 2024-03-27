@@ -1,6 +1,6 @@
+import { store } from '@/store/reducer'
 import { Fields, ParamProps } from '@/types/accountSetting'
 import { b2bLogger, validatorRules } from '@/utils'
-import { bcBaseUrl } from '@/utils/basicConfig'
 
 import { deCodeField } from '../registered/config'
 
@@ -16,7 +16,7 @@ function sendUpdateAccountRequest(data: string): Promise<string> {
   }
 
   return fetch(
-    `${bcBaseUrl()}/account.php?action=update_account`,
+    `${store.getState().global.bcUrl}/account.php?action=update_account`,
     requestOptions
   )
     .then((response) => {

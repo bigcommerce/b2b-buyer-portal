@@ -6,7 +6,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { store } from '@/store'
+import { store } from '@/store/reducer'
 import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs'
 import {
   AdjustersPrice,

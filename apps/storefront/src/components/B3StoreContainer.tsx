@@ -1,9 +1,15 @@
 import { ReactNode, useContext, useLayoutEffect } from 'react'
+import globalB3 from '@b3/global-b3'
 
 import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
-import { setHeadLessBcUrl, setStoreInfo, useAppDispatch } from '@/store'
-import { B3SStorage, setGlobalTranslation, storeHash } from '@/utils'
+import {
+  getGlobalTranslations,
+  setHeadLessBcUrl,
+  setStoreInfo,
+  useAppDispatch,
+} from '@/store'
+import { B3SStorage, storeHash } from '@/utils'
 
 import B3PageMask from './loadding/B3PageMask'
 import showPageMask from './loadding/B3showPageMask'
@@ -89,14 +95,18 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           showPageMask(dispatch, false)
         }
 
-        if (translationVersion > 0) {
-          setGlobalTranslation({
-            translationVersion,
+        storeDispatch(
+          getGlobalTranslations({
+            newVersion: translationVersion,
             channelId: storeBasicInfo.multiStorefrontEnabled ? channelId : 0,
           })
-        }
+        )
 
-        storeDispatch(setHeadLessBcUrl(bcUrl))
+        storeDispatch(
+          setHeadLessBcUrl(
+            globalB3?.setting?.is_local_debugging ? '/bigcommerce' : bcUrl
+          )
+        )
         B3SStorage.set('timeFormat', storeBasicInfo.timeFormat)
         B3SStorage.set('B3channelId', channelId)
         B3SStorage.set('bcUrl', bcUrl)

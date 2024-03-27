@@ -24,7 +24,7 @@ import {
   RouteFirstLevelItem,
   RouteItem,
 } from '@/shared/routes/routes'
-import { setTranslation } from '@/utils'
+import { getPageTranslations, useAppDispatch } from '@/store'
 
 const B3Layout = lazy(() => import('@/components/layout/B3Layout'))
 
@@ -38,14 +38,11 @@ interface B3RenderRouterProps {
 
 export default function B3RenderRouter(props: B3RenderRouterProps) {
   const { setOpenPage, openUrl, isOpen } = props
-
   const { state: globaledState } = useContext(GlobaledContext)
-
   const newRoutes = () => getAllowedRoutes(globaledState)
-
   const location = useLocation()
-
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     if (openUrl && openUrl === '/dashboard?closeMasqurade=1') {
@@ -64,22 +61,28 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openUrl, isOpen])
 
-  useEffect(() => {
-    const [, page] = location.pathname.split('/')
-    if (!page) return
+  useEffect(
+    () => {
+      const [, page] = location.pathname.split('/')
+      if (!page) return
 
-    let channelId = globaledState.currentChannelId
-
-    if (!globaledState.multiStorefrontEnabled) {
-      channelId = 0
-    }
-
-    setTranslation({ channelId, page })
-  }, [
-    globaledState.currentChannelId,
-    globaledState.multiStorefrontEnabled,
-    location.pathname,
-  ])
+      dispatch(
+        getPageTranslations({
+          channelId: globaledState.multiStorefrontEnabled
+            ? globaledState.currentChannelId
+            : 0,
+          page,
+        })
+      )
+    },
+    // ignore dispatch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      globaledState.currentChannelId,
+      globaledState.multiStorefrontEnabled,
+      location.pathname,
+    ]
+  )
 
   return (
     <Suspense fallback={<Loading />}>

@@ -1,4 +1,5 @@
-import { storeHash } from '../../../../utils'
+import { storeHash } from '@/utils'
+
 import B3Request from '../../request/b3Fetch'
 
 const getUsersQl = (data: CustomFieldItems) => `{

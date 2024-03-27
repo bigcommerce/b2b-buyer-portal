@@ -1,7 +1,6 @@
-import { storeHash } from '@/utils'
+import { storeHash } from '@/utils/basicConfig'
 
-import B3Request from '../../request/b3Fetch'
-import { B2B_BASIC_URL, RequestType } from '../../request/base'
+import { B2B_BASIC_URL } from '../../request/base'
 
 interface GetTranslationParams {
   channelId: number
@@ -15,10 +14,10 @@ const { VITE_TRANSLATION_SERVICE_URL } = import.meta.env
 
 const BASE_URL = VITE_TRANSLATION_SERVICE_URL || B2B_BASIC_URL
 
-const getTranslation = ({ channelId, page }: GetTranslationParams) =>
-  B3Request.get(
-    `${BASE_URL}/storefront/translation/${storeHash}/${channelId}/${page}`,
-    RequestType.TranslationService
-  ) as Promise<GetTranslationResponse>
-
+const getTranslation = async ({ channelId, page }: GetTranslationParams) => {
+  const response = await fetch(
+    `${BASE_URL}/storefront/translation/${storeHash}/${channelId}/${page}`
+  )
+  return response.json() as Promise<GetTranslationResponse>
+}
 export default getTranslation

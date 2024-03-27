@@ -116,7 +116,7 @@ export const glabolSlice = createSlice({
       state,
       { payload }: PayloadAction<TaxZoneRatesProps[]>
     ) => {
-      state.taxZoneRates = payload as Draft<TaxZoneRatesProps[]>
+      state.taxZoneRates = payload
     },
     setGlabolCommonState: (
       state,
@@ -126,7 +126,7 @@ export const glabolSlice = createSlice({
       ...payload,
     }),
     setEnteredInclusive: (state, { payload }: PayloadAction<boolean>) => {
-      state.enteredInclusive = payload as Draft<boolean>
+      state.enteredInclusive = payload
     },
     setOpenPageReducer: (
       state,
@@ -137,13 +137,13 @@ export const glabolSlice = createSlice({
       >
     },
     setShowInclusiveTaxPrice: (state, { payload }: PayloadAction<boolean>) => {
-      state.showInclusiveTaxPrice = payload as Draft<boolean>
+      state.showInclusiveTaxPrice = payload
     },
     setBlockPendingAccountViewPrice: (
       state,
       { payload }: PayloadAction<boolean>
     ) => {
-      state.blockPendingAccountViewPrice = payload as Draft<boolean>
+      state.blockPendingAccountViewPrice = payload
     },
     setBlockPendingQuoteNonPurchasableOOS: (
       state,
@@ -151,20 +151,20 @@ export const glabolSlice = createSlice({
     ) => {
       state.blockPendingQuoteNonPurchasableOOS = {
         ...state.blockPendingQuoteNonPurchasableOOS,
-        ...(payload as GlobalBlockPendingQuoteNonPurchasableOOS),
+        ...payload,
       }
     },
     setLoginLandingLocation: (state, { payload }: PayloadAction<string>) => {
-      state.loginLandingLocation = payload as Draft<string>
+      state.loginLandingLocation = payload
     },
     setHeadLessBcUrl: (state, { payload }: PayloadAction<string>) => {
-      state.bcUrl = payload as Draft<string>
+      state.bcUrl = payload
     },
     setCartNumber: (state, { payload }: PayloadAction<number>) => {
-      state.cartNumber = payload as Draft<number>
+      state.cartNumber = payload
     },
     setStoreInfo: (state, { payload }: PayloadAction<StoreInfoProps>) => {
-      state.storeInfo = payload as Draft<StoreInfoProps>
+      state.storeInfo = payload
     },
   },
 })

@@ -411,7 +411,9 @@ function Invoice() {
     } else {
       setSelectedPay([])
     }
-  }, [checkedArr, selectedPay])
+    // ignore selectedPay cause it will trigger an useEffect loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkedArr])
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
     const {

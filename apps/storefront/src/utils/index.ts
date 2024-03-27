@@ -59,7 +59,6 @@ export { isB2bTokenPage, isUserGotoLogin, logoutSession } from './b3logout'
 export * from './b3Product/b3Product'
 export * from './basicConfig'
 export * from './masquerade'
-export * from './setTranslation'
 export { b2bLogger } from './b3Logger'
 export {
   getQuoteConfig,

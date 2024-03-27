@@ -1,6 +1,6 @@
 import { NavigateFunction } from 'react-router-dom'
 
-import { store } from '@/store'
+import { store } from '@/store/reducer'
 
 export const loginjump = (
   navigate: NavigateFunction,

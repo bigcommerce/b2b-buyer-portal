@@ -1,7 +1,8 @@
 import Cookies from 'js-cookie'
 
 import { getCart } from '@/shared/service/bc/graphql/cart'
-import { setCartNumber, store } from '@/store'
+import { store } from '@/store/reducer'
+import { setCartNumber } from '@/store/slices/global'
 import { b2bLogger } from '@/utils'
 
 import getCookie from './b3utils'

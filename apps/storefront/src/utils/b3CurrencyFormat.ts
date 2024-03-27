@@ -1,7 +1,6 @@
 import globalB3 from '@b3/global-b3'
 
 import { store } from '@/store'
-
 import { b2bLogger } from '@/utils'
 
 import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
@@ -39,10 +38,9 @@ export const handleGetCorrespondingCurrency = (code: string, value: number) => {
   const { currencies } = store.getState().storeConfigs
   const { currencies: currencyArr } = currencies
   let token = '$'
-  const correspondingCurrency =
-    currencyArr.find(
-      (currency: CustomFieldItems) => currency.currency_code === code
-    ) || {}
+  const correspondingCurrency = currencyArr.find(
+    (currency) => currency.currency_code === code
+  )
 
   if (correspondingCurrency) {
     token = correspondingCurrency.token

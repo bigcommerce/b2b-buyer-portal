@@ -1,5 +1,5 @@
-import { convertArrayToGraphql } from '../../../../utils'
-import { storeHash } from '../../../../utils/basicConfig'
+import { convertArrayToGraphql, storeHash } from '@/utils'
+
 import B3Request from '../../request/b3Fetch'
 
 const getAddressConfig = () => `{

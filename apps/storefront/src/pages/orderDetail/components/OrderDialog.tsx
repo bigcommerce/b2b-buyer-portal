@@ -12,9 +12,8 @@ import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
+import { store, useAppSelector } from '@/store'
 import { b2bLogger, b3TriggerCartNumber, snackbar } from '@/utils'
-import { bcBaseUrl } from '@/utils/basicConfig'
 import { callCart } from '@/utils/cartUtils'
 
 import { EditableProductItem, OrderProductItem } from '../../../types'
@@ -136,7 +135,9 @@ export default function OrderDialog({
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
       },
-      referrer: `${bcBaseUrl()}/account.php?action=new_return&order_id=${orderId}`,
+      referrer: `${
+        store.getState().global.bcUrl
+      }/account.php?action=new_return&order_id=${orderId}`,
       body: urlencoded,
       mode: 'no-cors',
     }
@@ -144,7 +145,7 @@ export default function OrderDialog({
     try {
       setIsRequestLoading(true)
       const returnResult = await fetch(
-        `${bcBaseUrl()}/account.php?action=save_new_return`,
+        `${store.getState().global.bcUrl}/account.php?action=save_new_return`,
         requestOptions
       )
       if (

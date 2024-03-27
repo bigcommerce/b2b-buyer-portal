@@ -114,11 +114,6 @@ export interface GlobalState {
   shoppingListEnabled: boolean
   registerEnabled: boolean
   quoteConfig: QuoteConfigProps[]
-  currencies: {
-    channelCurrencies: ChannelCurrenciesProps
-    currencies: CurrencyProps
-    enteredInclusiveTax: boolean
-  }
   openAPPParams: OpenAPPParamsProps
   showPageMask: boolean
   timeFormat: TimeFormatProps
@@ -173,7 +168,6 @@ export const initState = {
   shoppingListEnabled: false,
   registerEnabled: true,
   quoteConfig: [],
-  currencies: {},
   openAPPParams: {
     quoteBtn: '',
     shoppingListBtn: '',

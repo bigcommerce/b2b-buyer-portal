@@ -297,16 +297,14 @@ const loginWithCurrentCustomerJWT = async () => {
   const prevCurrentCustomerJWT = B3SStorage.get('currentCustomerJWT')
   let currentCustomerJWT
   try {
-    currentCustomerJWT = await getCurrentCustomerJWT({
-      app_client_id: VITE_B2B_CLIENT_ID,
-    })
+    currentCustomerJWT = await getCurrentCustomerJWT(VITE_B2B_CLIENT_ID)
   } catch (error) {
     b2bLogger.error(error)
     return undefined
   }
 
   if (
-    currentCustomerJWT.includes('errors') ||
+    currentCustomerJWT?.includes('errors') ||
     prevCurrentCustomerJWT === currentCustomerJWT
   )
     return undefined

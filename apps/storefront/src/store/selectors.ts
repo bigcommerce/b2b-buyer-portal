@@ -1,7 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
 
-import { Currency } from '@/types'
-
 import { RootState } from './reducer'
 
 const themeSelector = (state: RootState) => state.theme
@@ -15,7 +13,5 @@ export const themeFrameSelector = createSelector(
 export const defaultCurrencyCodeSelector = createSelector(
   storeConfigSelector,
   (storeConfigs) =>
-    storeConfigs.currencies?.currencies.find(
-      (currency: Currency) => currency.is_default
-    )
+    storeConfigs.currencies.currencies.find((currency) => currency.is_default)
 )

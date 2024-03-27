@@ -23,6 +23,7 @@ import {
   guestProductsBulkUploadCSV,
 } from '@/shared/service/b2b'
 import { defaultCurrencyCodeSelector } from '@/store'
+import { defaultCurrenciesState } from '@/store/slices/storeConfigs'
 import { b2bLogger } from '@/utils'
 
 import B3Dialog from '../B3Dialog'
@@ -94,7 +95,9 @@ export default function B3Upload(props: B3UploadProps) {
   const [fileErrorText, setFileErrorText] = useState('')
 
   const currency = useSelector(defaultCurrencyCodeSelector)
-  const { currency_code: currencyCode } = currency
+  const currencyCode =
+    currency?.currency_code ??
+    defaultCurrenciesState.currencies[0].currency_code
 
   const getRejectMessage = (
     rejectedFile: File,
