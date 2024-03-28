@@ -92,7 +92,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
       isOpen: true,
       openUrl: '/register',
     })
-  }, [])
+  }, [setOpenPage])
 
   const pdpCallBack = useCallback(
     ({ target }: { target: HTMLElement }) => {
@@ -111,6 +111,8 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         registerEnabled,
       })
     },
+    // Disabling the next line as dispatch is not required to be in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [role, registerEnabled]
   )
 
@@ -237,5 +239,14 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     shoppingListBtn,
     roleText,
     registerEnabled,
+    classSelector,
+    color,
+    customCss,
+    customTextColor,
+    enabled,
+    locationSelector,
+    mediaBlocks,
+    myShoppingListBtnLabel,
+    pdpCallBack,
   ])
 }

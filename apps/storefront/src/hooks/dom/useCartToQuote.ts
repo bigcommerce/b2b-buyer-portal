@@ -57,65 +57,66 @@ const useCartToQuote = ({
     'blockPendingAccountOrderCreation'
   )
 
-  const urlArr = ['/cart.php', '/checkout']
-
   const checkIsInPage = (url: string) => window.location.href.includes(url)
 
   const { pathname } = window.location
 
-  const showPendingAccountTip = () => {
-    const isShowBlockPendingAccountOrderCreationTip: IsShowBlockPendingAccountOrderCreationTipProps =
-      B3SStorage.get('isShowBlockPendingAccountOrderCreationTip') || {
-        cartTip: 0,
-        checkoutTip: 0,
+  useEffect(() => {
+    const urlArr = ['/cart.php', '/checkout']
+
+    const showPendingAccountTip = () => {
+      const isShowBlockPendingAccountOrderCreationTip: IsShowBlockPendingAccountOrderCreationTipProps =
+        B3SStorage.get('isShowBlockPendingAccountOrderCreationTip') || {
+          cartTip: 0,
+          checkoutTip: 0,
+        }
+
+      if (!urlArr.includes(pathname)) return
+
+      if (companyInfo.companyStatus === '') return
+
+      if (+companyInfo.companyStatus || !blockPendingAccountOrderCreation)
+        return
+
+      if (
+        isShowBlockPendingAccountOrderCreationTip.cartTip &&
+        checkIsInPage(urlArr[0])
+      )
+        return
+
+      if (
+        isShowBlockPendingAccountOrderCreationTip.checkoutTip &&
+        checkIsInPage(urlArr[1])
+      )
+        return
+
+      if (checkIsInPage(urlArr[0])) {
+        globalSnackbar.warning(
+          'Your account is pending approval. Ordering will be enabled after account approval',
+          {
+            isClose: true,
+          }
+        )
       }
 
-    if (!urlArr.includes(pathname)) return
+      if (checkIsInPage(urlArr[1])) {
+        globalSnackbar.error(
+          'Your account is pending approval. Ordering will be enabled after account approval'
+        )
+      }
 
-    if (companyInfo.companyStatus === '') return
-
-    if (+companyInfo.companyStatus || !blockPendingAccountOrderCreation) return
-
-    if (
-      isShowBlockPendingAccountOrderCreationTip.cartTip &&
-      checkIsInPage(urlArr[0])
-    )
-      return
-
-    if (
-      isShowBlockPendingAccountOrderCreationTip.checkoutTip &&
-      checkIsInPage(urlArr[1])
-    )
-      return
-
-    if (checkIsInPage(urlArr[0])) {
-      globalSnackbar.warning(
-        'Your account is pending approval. Ordering will be enabled after account approval',
-        {
-          isClose: true,
-        }
-      )
+      B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
+        cartTip:
+          +checkIsInPage(urlArr[0]) +
+          isShowBlockPendingAccountOrderCreationTip.cartTip,
+        checkoutTip:
+          +checkIsInPage(urlArr[1]) +
+          isShowBlockPendingAccountOrderCreationTip.checkoutTip,
+      })
     }
 
-    if (checkIsInPage(urlArr[1])) {
-      globalSnackbar.error(
-        'Your account is pending approval. Ordering will be enabled after account approval'
-      )
-    }
-
-    B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
-      cartTip:
-        +checkIsInPage(urlArr[0]) +
-        isShowBlockPendingAccountOrderCreationTip.cartTip,
-      checkoutTip:
-        +checkIsInPage(urlArr[1]) +
-        isShowBlockPendingAccountOrderCreationTip.checkoutTip,
-    })
-  }
-
-  useEffect(() => {
     showPendingAccountTip()
-  }, [pathname, blockPendingAccountOrderCreation])
+  }, [pathname, blockPendingAccountOrderCreation, companyInfo.companyStatus])
 
   const quoteCallBbck = useCallback(() => {
     const b3CartToQuote = document.querySelector('.b2b-cart-to-quote')
@@ -125,7 +126,7 @@ const useCartToQuote = ({
       addLoadding(b3CartToQuote)
       addToQuote()
     }
-  }, [])
+  }, [addLoadding, addToQuote])
 
   const {
     color = '',
@@ -215,7 +216,19 @@ const useCartToQuote = ({
         cartQuoteBtnDom.removeEventListener('click', quoteCallBbck)
       }
     }
-  }, [cartQuoteEnabled, addToAllQuoteBtn])
+  }, [
+    cartQuoteEnabled,
+    addToAllQuoteBtn,
+    cartToQuoteBtnLabel,
+    classSelector,
+    color,
+    customCss,
+    customTextColor,
+    enabled,
+    locationSelector,
+    mediaBlocks,
+    quoteCallBbck,
+  ])
 }
 
 export default useCartToQuote

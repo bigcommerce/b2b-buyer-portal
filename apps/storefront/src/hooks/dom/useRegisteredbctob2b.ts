@@ -23,20 +23,20 @@ const useRegisteredbctob2b = (
     },
   } = useContext(CustomStyleContext)
 
-  const createConvertB2BNavNode = () => {
-    const convertB2BNavNode = document.createElement('li')
-    convertB2BNavNode.className = 'navUser-item navUser-convert-b2b'
-    convertB2BNavNode.innerHTML = `
-      <a class="navUser-action" href="javascript:;" aria-label="Gift Certificates">
-        ${b3Lang('global.registerB2B.linkText')}
-      </a>
-    `
-    return convertB2BNavNode
-  }
-
   const [openQuickView] = useDomVariation(globalB3['dom.navUserLoginElement'])
 
   useEffect(() => {
+    const createConvertB2BNavNode = () => {
+      const convertB2BNavNode = document.createElement('li')
+      convertB2BNavNode.className = 'navUser-item navUser-convert-b2b'
+      convertB2BNavNode.innerHTML = `
+        <a class="navUser-action" href="javascript:;" aria-label="Gift Certificates">
+          ${b3Lang('global.registerB2B.linkText')}
+        </a>
+      `
+      return convertB2BNavNode
+    }
+
     if (
       b2b &&
       !isB2BUser &&
@@ -76,7 +76,16 @@ const useRegisteredbctob2b = (
     } else {
       document.querySelector('.navUser-item.navUser-convert-b2b')?.remove()
     }
-  }, [isB2BUser, customerId, openQuickView, b2b, registerEnabled])
+    // ignoring to not add b3Lang to the dependencies array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isB2BUser,
+    customerId,
+    openQuickView,
+    b2b,
+    registerEnabled,
+    companyInfo.companyStatus,
+  ])
 }
 
 export default useRegisteredbctob2b

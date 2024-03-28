@@ -25,6 +25,8 @@ const useMonitorBrowserBack = ({
       window.location.reload()
       B3SStorage.set('isEnterB2BBuyerPortal', false)
     }
+    // disabling to avoid unnecessary renders when adding the missing dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history.href])
 }
 

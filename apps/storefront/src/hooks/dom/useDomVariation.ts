@@ -33,7 +33,7 @@ const useDomVariation = (dom: string, quoteCallBbck?: () => void) => {
         }
       })
     }
-  }, [])
+  }, [dom, quoteCallBbck])
 
   useMutationObservable(document.documentElement, cd)
 

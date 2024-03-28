@@ -22,7 +22,9 @@
       }
     },
     {
-      "files": ["src/hooks/dom/*.ts", "src/hooks/*.ts"],
+      "files": [
+        "src/hooks/*.ts"
+      ],
       "rules": {
         "react-hooks/exhaustive-deps": 0
       }
