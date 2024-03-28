@@ -1,11 +1,11 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 
 export interface ThemeState {
-  themeFrame?: Document
+  themeFrame: HTMLIFrameElement['contentDocument']
 }
 
 const initialState: ThemeState = {
-  themeFrame: undefined,
+  themeFrame: null,
 }
 
 export const themeSlice = createSlice({
@@ -16,9 +16,15 @@ export const themeSlice = createSlice({
     setThemeFrame: (state, { payload }: PayloadAction<unknown>) => {
       state.themeFrame = payload as Draft<Document>
     },
+    updateOverflowStyle: (state, { payload }: PayloadAction<string>) => {
+      if (!state.themeFrame) return
+
+      state.themeFrame.body.style.overflow = payload
+    },
   },
 })
 
-export const { clearThemeFrame, setThemeFrame } = themeSlice.actions
+export const { clearThemeFrame, setThemeFrame, updateOverflowStyle } =
+  themeSlice.actions
 
 export default themeSlice.reducer

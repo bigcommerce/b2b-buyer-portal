@@ -19,7 +19,12 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { b2bLogger, getCurrentCustomerInfo, loginjump, storeHash } from '@/utils'
+import {
+  b2bLogger,
+  getCurrentCustomerInfo,
+  loginjump,
+  storeHash,
+} from '@/utils'
 
 import {
   createB2BCompanyUser,

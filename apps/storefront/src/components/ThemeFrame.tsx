@@ -57,7 +57,7 @@ interface ThemeFramePortalProps {
   children: ReactNode
   isSetupComplete: boolean
   emotionCache?: EmotionCache
-  iframeDocument?: Document | null
+  iframeDocument?: HTMLIFrameElement['contentDocument']
   bodyRef?: RefObject<HTMLBodyElement>
 }
 

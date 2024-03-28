@@ -22,14 +22,6 @@
       }
     },
     {
-      "files": [
-        "src/hooks/*.ts"
-      ],
-      "rules": {
-        "react-hooks/exhaustive-deps": 0
-      }
-    },
-    {
       "files": ["src/components/**/*.{ts,tsx}", "src/pages/**/*.{ts,tsx}"],
       "rules": {
         "react/jsx-props-no-spreading": 0

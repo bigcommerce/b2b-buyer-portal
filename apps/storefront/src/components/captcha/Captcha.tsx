@@ -23,9 +23,11 @@ export interface CaptchaProps {
   onExpired?: () => void
 }
 
-export function loadCaptchaScript(iframeDocument: Document) {
+export function loadCaptchaScript(
+  iframeDocument: HTMLIFrameElement['contentDocument']
+) {
   if (
-    iframeDocument.head.querySelector(`script[src="${CAPTCHA_URL}"]`) === null
+    iframeDocument?.head.querySelector(`script[src="${CAPTCHA_URL}"]`) === null
   ) {
     const captchaScript = iframeDocument.createElement('script')
     captchaScript.src = CAPTCHA_URL
@@ -34,9 +36,11 @@ export function loadCaptchaScript(iframeDocument: Document) {
 }
 
 export function loadCaptchaWidgetHandlers(
-  iframeDocument: Document,
+  iframeDocument: HTMLIFrameElement['contentDocument'],
   widgetId: string
 ) {
+  if (!iframeDocument) return
+
   let code = FRAME_HANDLER_CODE
 
   CAPTCHA_VARIABLES.PREFIX = widgetId

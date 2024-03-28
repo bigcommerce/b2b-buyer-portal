@@ -84,7 +84,7 @@ function Address() {
         const addressFields = await getAddressFields(!isBCPermission, countries)
         setAddressFields(addressFields || [])
       } catch (err) {
-        b2bLogger.error(err)    
+        b2bLogger.error(err)
       } finally {
         setIsRequestLoading(false)
       }

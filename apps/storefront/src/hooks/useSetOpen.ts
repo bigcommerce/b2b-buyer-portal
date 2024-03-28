@@ -28,11 +28,6 @@ const useSetOpen = (
           },
         },
       })
-      // hot refresh and browser refresh
-      // if (openUrl) {
-      //   const { origin, pathname, search } = window.location
-      //   window.location.href = `${origin}${pathname}${search}#${openUrl}`
-      // }
 
       // close all global tips
       dispatchMsg({
@@ -60,14 +55,9 @@ const useSetOpen = (
         },
       })
     }
-  }, [isOpen])
-
-  // useEffect(() => {
-  //   if (openUrl === '/') {
-  //     const { origin, pathname, search } = window.location
-  //     window.location.href = `${origin}${pathname}${search}`
-  //   }
-  // }, [openUrl])
+    // ignore dispatch and dispatchMsg as they are not reactive values
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, params?.quoteBtn, params?.shoppingListBtn])
 }
 
 export default useSetOpen
