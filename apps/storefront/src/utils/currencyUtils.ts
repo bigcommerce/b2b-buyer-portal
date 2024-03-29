@@ -1,40 +1,36 @@
 import { store } from '@/store'
 import { defaultCurrenciesState } from '@/store/slices/storeConfigs'
-import { ActiveCurrency, Currencies, Currency } from '@/types'
 
 const defaultCurrency = defaultCurrenciesState.currencies[0]
 
 const getActiveCurrencyInfo = () => {
-  const { currencies } = store.getState().storeConfigs.currencies as Currencies
-  const { node: activeCurrencyObj }: ActiveCurrency = store.getState()
-    .storeConfigs.activeCurrency as ActiveCurrency
-  const activeCurrency: Currency | undefined = currencies.find(
-    (currency: Currency) => +currency.id === activeCurrencyObj.entityId
+  const { currencies } = store.getState().storeConfigs.currencies
+  const activeCurrencyObj = store.getState().storeConfigs.activeCurrency?.node
+  const activeCurrency = currencies.find(
+    (currency) => +currency.id === activeCurrencyObj?.entityId
   )
 
   return activeCurrency || defaultCurrency
 }
 
 const getDefaultCurrencyInfo = () => {
-  const currencies = store.getState().storeConfigs.currencies as Currencies
-  const { currencies: currencyArr } = currencies
+  const { currencies } = store.getState().storeConfigs.currencies
 
-  const defaultFoundCurrency: Currency | undefined = currencyArr.find(
-    (currency: Currency) => currency.is_default
+  const defaultFoundCurrency = currencies.find(
+    (currency) => currency.is_default
   )
   return defaultFoundCurrency || defaultCurrency
 }
 
 const handleGetCorrespondingCurrencyToken = (code: string) => {
-  const allCurrencies = store.getState().storeConfigs.currencies as Currencies
-  if (!allCurrencies) return '$'
-  const { currencies: currencyArr } = allCurrencies
+  const correspondingCurrency = store
+    .getState()
+    .storeConfigs.currencies.currencies.find(
+      (currency) => currency.currency_code === code
+    )
   let token = '$'
-  const correspondingCurrency = currencyArr.find(
-    (currency: CustomFieldItems) => currency.currency_code === code
-  ) || { token: '$' }
 
-  if (correspondingCurrency) {
+  if (correspondingCurrency?.token) {
     token = correspondingCurrency.token
   }
 

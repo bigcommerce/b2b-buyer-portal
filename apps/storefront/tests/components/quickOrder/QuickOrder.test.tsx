@@ -4,6 +4,7 @@ import { ThemeFrame } from '@/components'
 import Quickorder from '@/pages/quickorder/Quickorder'
 import { GlobalProvider } from '@/shared/global'
 import global from '@/store/slices/global'
+import storeConfigs from '@/store/slices/storeConfigs'
 import theme from '@/store/slices/theme'
 
 import { renderWithProviders } from '../../test-utils'
@@ -37,7 +38,7 @@ describe('Quickorder component', () => {
         </ThemeFrame>
       </GlobalProvider>,
       {
-        reducer: { global, theme },
+        reducer: { global, theme, storeConfigs },
       }
     )
   })

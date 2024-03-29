@@ -9,10 +9,7 @@ interface LangProviderProps {
   customText?: Record<string, string>
 }
 
-export default function LangProvider({
-  children,
-  customText = {},
-}: LangProviderProps) {
+function LangProvider({ children, customText = {} }: LangProviderProps) {
   const translations = useSelector(({ lang }) => lang.translations)
   return (
     <IntlProvider
@@ -24,3 +21,4 @@ export default function LangProvider({
     </IntlProvider>
   )
 }
+export default LangProvider

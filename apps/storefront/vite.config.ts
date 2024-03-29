@@ -2,7 +2,7 @@
 /// <reference types="vitest" />
 import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
-import path from 'path' // eslint-disable-line
+import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig, loadEnv } from 'vite'
 
@@ -56,10 +56,16 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'jsdom',
       coverage: {
+        provider: 'istanbul',
         reporter: ['text', 'html', 'clover', 'json'],
       },
       deps: {
         inline: ['react-intl'],
+      },
+      poolOptions: {
+        threads: {
+          singleThread: true,
+        },
       },
     },
     resolve: {
@@ -104,13 +110,12 @@ export default defineConfig(({ mode }) => {
           eReact: ['@emotion/react'],
           eStyled: ['@emotion/styled'],
         },
-        plugins: [
-          env.VITE_VISUALIZER === '1' &&
-            visualizer({
-              open: true,
-              gzipSize: true,
-              brotliSize: true,
-            }),
+        plugins: env.VITE_VISUALIZER === '1' && [
+          visualizer({
+            open: true,
+            gzipSize: true,
+            brotliSize: true,
+          }),
         ],
       },
     },

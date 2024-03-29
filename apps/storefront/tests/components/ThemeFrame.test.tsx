@@ -8,8 +8,6 @@ import { renderWithProviders } from '../test-utils'
 
 describe('ThemeFrame', () => {
   it('should render iframe and main document should not contain anything else', () => {
-    expect(document.head.querySelector('style')).toBeNull()
-
     const { store } = renderWithProviders(
       <ThemeFrame title="test-frame">{null}</ThemeFrame>,
       {

@@ -5,7 +5,7 @@ import storage from 'redux-persist/lib/storage'
 import { getGlobalTranslations, getPageTranslations } from '../appAsyncThunks'
 
 export interface LangState {
-  translations: Record<string, Record<string, string>>
+  translations: Record<string, string>
   fetchedPages: string[]
   translationVersion: number
 }
@@ -22,12 +22,18 @@ export const langSlice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder.addCase(getGlobalTranslations.fulfilled, (state, { payload }) => {
-      state.translations = { global: payload.globalTranslations }
+      Object.entries(payload.globalTranslations).forEach(
+        ([key, translation]) => {
+          state.translations[key] = translation
+        }
+      )
       state.translationVersion = payload.newVersion
       state.fetchedPages = ['global']
     })
     builder.addCase(getPageTranslations.fulfilled, (state, { payload }) => {
-      state.translations[payload.page] = payload.pageTranslations
+      Object.entries(payload.pageTranslations).forEach(([key, translation]) => {
+        state.translations[key] = translation
+      })
       state.fetchedPages.push(payload.page)
     })
   },
