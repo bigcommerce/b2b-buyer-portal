@@ -205,8 +205,11 @@ const getFieldOptions = (
         value: item.id,
         label: item.label,
         image: {
-          data: productImages[item.value_data?.product_id || ''] || '',
-          alt: '',
+          data:
+            fieldType === 'swatch'
+              ? item.value_data?.image_url
+              : productImages[item.value_data?.product_id || ''] || '',
+          alt: fieldType === 'swatch' ? item.label : '',
         },
         colors: item.value_data?.colors || [],
       })

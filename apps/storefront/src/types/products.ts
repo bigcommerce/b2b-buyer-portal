@@ -103,6 +103,7 @@ export interface ALlOptionValue {
     colors?: string[]
     product_id?: number
     checked_value?: boolean
+    image_url?: string
   } | null
   is_default: boolean
   adjusters?: {

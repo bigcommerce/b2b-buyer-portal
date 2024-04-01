@@ -37,6 +37,10 @@ namespace Form {
     value: string
     label: string
     colors?: string[]
+    image?: {
+      alt?: string
+      data?: string
+    }
   }
 }
 
