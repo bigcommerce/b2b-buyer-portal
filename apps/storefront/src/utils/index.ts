@@ -9,7 +9,6 @@ import {
   isAllRequiredOptionFilled,
   isModifierNumberTextValid,
   isModifierTextValid,
-  serialize,
 } from './b3AddToShoppingList'
 import clearInvoiceCart from './b3ClearCart'
 import currencyFormat, {
@@ -33,6 +32,7 @@ import getProductPriceIncTax from './b3Price'
 import b2bPrintInvoice from './b3PrintInvoice'
 import getProxyInfo from './b3Proxy'
 import { setCartPermissions } from './b3RolePermissions'
+import { serialize } from './b3Serialize'
 import { B3LStorage, B3SStorage } from './b3Storage'
 import { globalSnackbar, snackbar } from './b3Tip'
 import b3TriggerCartNumber from './b3TriggerCartNumber'

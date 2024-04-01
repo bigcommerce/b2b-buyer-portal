@@ -270,42 +270,6 @@ export const isAllRequiredOptionFilled = (
   }
 }
 
-export const serialize = (form: any) => {
-  const arr: any = {}
-  for (let i = 0; i < form.elements.length; i += 1) {
-    const file: any = form.elements[i]
-    switch (file.type) {
-      case undefined:
-      case 'button':
-      case 'file':
-      case 'reset':
-      case 'submit':
-        break
-      case 'checkbox':
-      case 'radio':
-        if (!file.checked) {
-          if (file.type === 'checkbox') arr[file.name] = ''
-          break
-        } else {
-          if (arr[file.name]) {
-            arr[file.name] = `${arr[file.name]},${file.value}`
-          } else {
-            arr[file.name] = file.value
-          }
-          break
-        }
-      default:
-        if (arr[file.name]) {
-          arr[file.name] = `${arr[file.name]},${file.value}`
-        } else {
-          arr[file.name] = file.value
-        }
-    }
-  }
-
-  return arr
-}
-
 export const getProductOptionList = (optionMap: any) => {
   const optionList: any = []
   Object.keys(optionMap).forEach((item) => {

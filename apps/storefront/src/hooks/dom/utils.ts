@@ -16,10 +16,11 @@ import {
   globalSnackbar,
   isAllRequiredOptionFilled,
   LineItems,
+  serialize,
   validProductQty,
 } from '@/utils'
 
-import { getProductOptionList, serialize } from '../../pages/pdp/PDP'
+import { getProductOptionList } from '../../pages/pdp/PDP'
 import { conversionProductsList } from '../../utils/b3Product/shared/config'
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
@@ -298,7 +299,9 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
       const sku = (
         productView.querySelector('[data-product-sku]')?.innerHTML ?? ''
       ).trim()
-      const form = productView.querySelector('form[data-cart-item-add]')
+      const form = productView.querySelector(
+        'form[data-cart-item-add]'
+      ) as HTMLFormElement
 
       if (!sku) {
         globalSnackbar.error('Can not add products without SKU.', {
