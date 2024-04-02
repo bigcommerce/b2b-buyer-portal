@@ -81,11 +81,12 @@ export default function B3MobileLayout({
                   height: '18px',
                   top: '8px',
                   right: '3px',
+                  marginRight: '-0.5rem',
                 },
               }}
             >
               <ShoppingBagOutlined
-                sx={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                sx={{ color: 'rgba(0, 0, 0, 0.54)', marginRight: '-0.5rem' }}
                 onClick={() => {
                   window.location.href = '/cart.php'
                 }}
