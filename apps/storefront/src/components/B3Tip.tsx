@@ -36,8 +36,10 @@ export default function B3Tip({
               }}
               sx={{
                 top: `${
-                  24 + index * 8 + index * (isMobile ? 70 : 60)
+                  24 + index * 10 + index * (isMobile ? 80 : 85)
                 }px !important`,
+                width: '320px',
+                height: 'auto',
               }}
             >
               <Box
@@ -47,7 +49,7 @@ export default function B3Tip({
               >
                 <Alert
                   sx={{
-                    width: '100%',
+                    width: '320px',
                     alignItems: 'center',
                     '& button[title="Close"]': {
                       display: `${msg.isClose ? 'block' : 'none'}`,
