@@ -24,6 +24,7 @@ import { globalStateSelector } from '@/store'
 import {
   B3SStorage,
   getDefaultCurrencyInfo,
+  getProductOptionList,
   getValidOptionsList,
   globalSnackbar,
   isAllRequiredOptionFilled,
@@ -50,19 +51,6 @@ interface AddProductsToShoppingListParams {
   gotoShoppingDetail: (id: number | string) => void
   customerGroupId?: number
   b3Lang: LangFormatFunction
-}
-
-export const getProductOptionList = (optionMap: CustomFieldItems = {}) => {
-  const optionList: CustomFieldItems[] = []
-  Object.keys(optionMap).forEach((item) => {
-    if (item.includes('attribute') && item.match(/\[([0-9]+)\]/g)) {
-      optionList.push({
-        optionId: item,
-        optionValue: optionMap[item],
-      })
-    }
-  })
-  return optionList
 }
 
 const tip = (

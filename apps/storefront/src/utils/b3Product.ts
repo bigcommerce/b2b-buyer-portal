@@ -214,7 +214,6 @@ const getQuickAddProductExtraPrice = (
 }
 
 export {
-  // getProductPrice,
   addQuoteDraftProduce,
   getModifiersPrice,
   getProductExtraPrice,

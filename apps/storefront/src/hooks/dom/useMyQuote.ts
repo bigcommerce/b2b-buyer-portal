@@ -20,9 +20,10 @@ import {
   ADD_TO_QUOTE_DEFAULT_VALUE,
   TRANSLATION_ADD_TO_QUOTE_VARIABLE,
 } from '@/constants'
-import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { B3LStorage, setCartPermissions } from '@/utils'
+
+import useGetButtonText from '../useGetButtonText'
 
 import useDomVariation from './useDomVariation'
 import usePurchasableQuote from './usePurchasableQuote'

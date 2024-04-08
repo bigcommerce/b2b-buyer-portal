@@ -13,6 +13,7 @@ import {
   calculateProductsPrice,
   getCalculatedProductPrice,
   getCookie,
+  getProductOptionList,
   globalSnackbar,
   isAllRequiredOptionFilled,
   LineItems,
@@ -20,7 +21,6 @@ import {
   validProductQty,
 } from '@/utils'
 
-import { getProductOptionList } from '../../pages/pdp/PDP'
 import { conversionProductsList } from '../../utils/b3Product/shared/config'
 
 type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
