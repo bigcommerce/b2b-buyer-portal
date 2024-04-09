@@ -3,6 +3,7 @@ import { Box, Grid } from '@mui/material'
 
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 
 import QuickOrderFooter from './components/QuickOrderFooter'
 import QuickOrderPad from './components/QuickOrderPad'
@@ -10,8 +11,9 @@ import QuickorderTable from './components/QuickorderTable'
 
 function Quickorder() {
   const {
-    state: { role, isAgenting, isB2BUser },
+    state: { isAgenting, isB2BUser },
   } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const [isMobile] = useMobile()
 

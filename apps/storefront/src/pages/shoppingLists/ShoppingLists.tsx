@@ -13,6 +13,7 @@ import {
   getBcShoppingList,
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -50,16 +51,12 @@ function ShoppingLists() {
   const b3Lang = useB3Lang()
 
   const {
-    state: {
-      role,
-      isB2BUser,
-      currentChannelId,
-      companyInfo: { id: companyB2BId },
-      salesRepCompanyId,
-      openAPPParams,
-    },
+    state: { isB2BUser, currentChannelId, salesRepCompanyId, openAPPParams },
     dispatch,
   } = useContext(GlobaledContext)
+
+  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   useEffect(() => {
     const initFilter = async () => {

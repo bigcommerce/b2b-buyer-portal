@@ -7,13 +7,14 @@ import { conversionProductsList } from './b3Product/shared/config'
 export const handleGetCurrentProductInfo = async (
   productId: number | string
 ) => {
-  const { currencies } = store.getState().storeConfigs
+  const currentState = store.getState()
+  const { currencies } = currentState.storeConfigs
+  const { customerGroupId } = currentState.company.customer
+  const companyInfoId = currentState.company.companyInfo.id
+  const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
   const defaultCurrency = currencies.currencies.find(
     (currency) => currency.is_default
   )
-  const companyId =
-    B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
-  const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
 
   let currencyCode = '$'
   if (defaultCurrency?.currency_code) {

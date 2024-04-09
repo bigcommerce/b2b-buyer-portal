@@ -1,15 +1,13 @@
-import { useContext, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Box } from '@mui/material'
 
-import { GlobaledContext } from '@/shared/global'
 import { getAgentInfo } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { b2bLogger, B3SStorage } from '@/utils'
 
 function SeleRep() {
-  const {
-    state: { role, customerId },
-    dispatch,
-  } = useContext(GlobaledContext)
+  const customerId = useAppSelector(({ company }) => company.customer.id)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   useEffect(() => {
     const init = async () => {

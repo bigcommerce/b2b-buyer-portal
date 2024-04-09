@@ -116,14 +116,10 @@ interface QuickOrderFooterProps {
 
 function QuickOrderFooter(props: QuickOrderFooterProps) {
   const {
-    state: {
-      companyInfo: { id: companyId },
-      customer: { customerGroupId },
-      productQuoteEnabled = false,
-      shoppingListEnabled = false,
-    },
+    state: { productQuoteEnabled = false, shoppingListEnabled = false },
   } = useContext(GlobaledContext)
   const b3Lang = useB3Lang()
+  const companyInfoId = useAppSelector((state) => state.company.companyInfo.id)
 
   const { role, checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props
 
@@ -138,6 +134,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const [isShoppingListLoading, setIisShoppingListLoading] =
     useState<boolean>(false)
 
+  const customerGroupId = useAppSelector(
+    (state) => state.company.customer.customerGroupId
+  )
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   const navigate = useNavigate()
@@ -232,10 +231,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         return
       }
 
-      const companyId =
-        B3SStorage.get('B3CompanyInfo')?.id ||
-        B3SStorage.get('salesRepCompanyId')
-      const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+      const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
 
       const { productsSearch: getInventoryInfos } =
         await getVariantInfoByProductId({
@@ -340,7 +336,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const { productsSearch } = await getProducts({
         productIds,
-        companyId,
+        companyId: companyInfoId,
         customerGroupId,
       })
 

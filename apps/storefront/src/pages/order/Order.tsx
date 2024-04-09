@@ -15,6 +15,7 @@ import {
   getOrdersCreatedByUser,
   getOrderStatusType,
 } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -54,14 +55,10 @@ interface OrderProps {
 
 function Order({ isCompanyOrder = false }: OrderProps) {
   const {
-    state: {
-      isB2BUser,
-      isAgenting,
-      role,
-      companyInfo: { id: companyB2BId },
-      salesRepCompanyId,
-    },
+    state: { isB2BUser, isAgenting, salesRepCompanyId },
   } = useContext(GlobaledContext)
+  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
+  const role = useAppSelector(({ company }) => company.customer.role)
   const b3Lang = useB3Lang()
 
   const [isRequestLoading, setIsRequestLoading] = useState(false)

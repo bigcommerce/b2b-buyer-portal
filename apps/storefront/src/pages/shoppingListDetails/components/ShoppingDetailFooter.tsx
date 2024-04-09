@@ -77,18 +77,17 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const b3Lang = useB3Lang()
 
   const {
-    state: {
-      isAgenting,
-      productQuoteEnabled = false,
-      companyInfo: { id: companyId },
-      customer: { customerGroupId },
-    },
+    state: { isAgenting, productQuoteEnabled = false },
   } = useContext(GlobaledContext)
+
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const companyId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
-
-  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   const cartEntityId = getCookie('cartId')
 

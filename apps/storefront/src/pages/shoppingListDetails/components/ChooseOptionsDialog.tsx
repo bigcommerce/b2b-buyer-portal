@@ -138,6 +138,10 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
   )
 
+  const customerGroupId = useAppSelector(
+    (state) => state.company.customer.customerGroupId
+  )
+  const companyInfoId = useAppSelector((state) => state.company.companyInfo.id)
   const [quantity, setQuantity] = useState<number | string>(1)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [variantInfo, setVariantInfo] = useState<Partial<Variant> | null>(null)
@@ -209,11 +213,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         if (productIds.length > 0) {
           const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
-          const companyId =
-            B3SStorage.get('B3CompanyInfo')?.id ||
-            B3SStorage.get('salesRepCompanyId')
-          const customerGroupId =
-            B3SStorage.get('B3CustomerInfo')?.customerGroupId
+          const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
           const { productsSearch }: CustomFieldItems = await getProducts({
             productIds,
             companyId,

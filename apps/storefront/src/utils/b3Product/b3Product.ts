@@ -155,10 +155,10 @@ const getProductExtraPrice = async (
   if (productIds.length) {
     const fn =
       +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
-
-    const companyId =
-      B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
-    const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+    const currentState = store.getState()
+    const companyInfoId = currentState.company.companyInfo.id
+    const { customerGroupId } = currentState.company.customer
+    const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
     const { productsSearch: additionalProductsSearch } = await fn({
       productIds,
       companyId,
@@ -432,10 +432,10 @@ const getNewProductsList = async (
           productIds.push(node.productId)
         }
       })
-      const companyId =
-        B3SStorage.get('B3CompanyInfo')?.id ||
-        B3SStorage.get('salesRepCompanyId')
-      const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+      const currentState = store.getState()
+      const companyInfoId = currentState.company.companyInfo.id
+      const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+      const { customerGroupId } = currentState.company.customer
 
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
@@ -658,10 +658,11 @@ interface CalculatedProductPrice {
 
 const getCustomerGroupId = () => {
   let customerGroupId = 0
+  const currentState = store.getState()
   const isAgenting = B3SStorage.get('isAgenting') || false
-  const B3CustomerInfo = B3SStorage.get('B3CustomerInfo')
-  if (B3CustomerInfo && Object.keys(B3CustomerInfo).length !== 0) {
-    customerGroupId = B3CustomerInfo.customerGroupId
+  const customerInfo = currentState.company.customer
+  if (customerInfo && Object.keys(customerInfo).length !== 0) {
+    customerGroupId = customerInfo.customerGroupId
   }
   const salesRepCustomerGroupId = B3SStorage.get('salesRepCustomerGroupId') || 0
   if (isAgenting) return +salesRepCustomerGroupId || customerGroupId

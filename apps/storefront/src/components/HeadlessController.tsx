@@ -129,9 +129,6 @@ export default function HeadlessController({
   const {
     dispatch,
     state: {
-      customerId,
-      role,
-      customer,
       B3UserId,
       salesRepCompanyId = 0,
       isB2BUser,
@@ -142,6 +139,8 @@ export default function HeadlessController({
       shoppingListEnabled,
     },
   } = useContext(GlobaledContext)
+  const customer = useAppSelector(({ company }) => company.customer)
+  const role = useAppSelector(({ company }) => company.customer.role)
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
@@ -167,6 +166,7 @@ export default function HeadlessController({
     })
   }
 
+  const customerId = customer.id
   // Keep updated values
   const B3UserIdRef = useRef(+B3UserId)
   const salesRepCompanyIdRef = useRef(+salesRepCompanyId)

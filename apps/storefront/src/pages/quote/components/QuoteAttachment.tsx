@@ -1,14 +1,14 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent } from '@mui/material'
 
 import { B3CollapseContainer } from '@/components'
 import { useRole } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import {
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
 } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { B3LStorage, snackbar } from '@/utils'
 
 import FileUpload, { FileObjects } from './FileUpload'
@@ -28,11 +28,8 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
   const { allowUpload = true, defaultFileList = [], status, quoteId } = props
   const b3Lang = useB3Lang()
 
-  const {
-    state: {
-      customer: { firstName = '', lastName = '' },
-    },
-  } = useContext(GlobaledContext)
+  const firstName = useAppSelector(({ company }) => company.customer.firstName)
+  const lastName = useAppSelector(({ company }) => company.customer.lastName)
 
   const [roleText] = useRole()
 

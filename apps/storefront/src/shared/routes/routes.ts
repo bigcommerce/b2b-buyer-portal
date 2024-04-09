@@ -3,6 +3,7 @@ import { matchPath } from 'react-router-dom'
 
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
 import { getCustomerInfo } from '@/shared/service/bc'
+import { store } from '@/store'
 import { b2bLogger, B3SStorage, isB2bTokenPage, logoutSession } from '@/utils'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
@@ -302,8 +303,8 @@ const invoiceFlag = 'invoice?invoiceId'
 const { hash, pathname, href } = window.location
 
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
-  const { isB2BUser, role, isAgenting, storefrontConfig, quoteConfig } =
-    globalState
+  const { isB2BUser, isAgenting, storefrontConfig, quoteConfig } = globalState
+  const { role } = store.getState().company.customer
   return routes.filter((item: RouteItem) => {
     const { permissions = [] } = item
 

@@ -5,6 +5,7 @@ import { useB3Lang } from '@b3/lang'
 
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 
 import useDomVariation from './useDomVariation'
 
@@ -14,8 +15,12 @@ const useRegisteredbctob2b = (
   const b3Lang = useB3Lang()
 
   const {
-    state: { isB2BUser, customerId, companyInfo, registerEnabled },
+    state: { isB2BUser, registerEnabled },
   } = useContext(GlobaledContext)
+  const customerId = useAppSelector(({ company }) => company.customer.id)
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
 
   const {
     state: {
@@ -40,7 +45,7 @@ const useRegisteredbctob2b = (
     if (
       b2b &&
       !isB2BUser &&
-      +companyInfo.companyStatus === 99 &&
+      +companyStatus === 99 &&
       customerId &&
       document.querySelector(globalB3['dom.navUserLoginElement'])
     ) {
@@ -84,7 +89,7 @@ const useRegisteredbctob2b = (
     openQuickView,
     b2b,
     registerEnabled,
-    companyInfo.companyStatus,
+    companyStatus,
   ])
 }
 

@@ -40,15 +40,16 @@ function QuoteDetail() {
   const navigate = useNavigate()
 
   const {
-    state: {
-      companyInfo: { id: companyInfoId },
-      role,
-      customer: { emailAddress, customerGroupId },
-      isB2BUser,
-      isAgenting,
-      bcLanguage,
-    },
+    state: { isB2BUser, isAgenting, bcLanguage },
   } = useContext(GlobaledContext)
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const emailAddress = useAppSelector(
+    ({ company }) => company.customer.emailAddress
+  )
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
+  const role = useAppSelector(({ company }) => company.customer.role)
   const [isMobile] = useMobile()
 
   const b3Lang = useB3Lang()

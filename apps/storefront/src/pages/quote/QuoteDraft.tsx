@@ -35,7 +35,6 @@ import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
   addQuoteDraftProducts,
   B3LStorage,
-  B3SStorage,
   getActiveCurrencyInfo,
   getDefaultCurrencyInfo,
   snackbar,
@@ -108,25 +107,30 @@ interface QuoteDraftProps {
 function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const {
     state: {
-      role,
       isB2BUser,
-      customerId,
       B3UserId,
       currentChannelId,
       salesRepCompanyId,
       salesRepCompanyName,
-      companyInfo: { id: companyB2BId, companyName },
       countriesList,
-      customer,
-      emailAddress,
       currentChannelId: channelId,
       openAPPParams,
     },
   } = useContext(GlobaledContext)
+  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
+  const companyName = useAppSelector(
+    ({ company }) => company.companyInfo.companyName
+  )
+  const customer = useAppSelector(({ company }) => company.customer)
+  const { emailAddress, id: customerId } = customer
+  const role = useAppSelector(({ company }) => company.customer.role)
   const enteredInclusiveTax = useAppSelector(
     ({ global }) => global.enteredInclusive
   )
 
+  const customerEmailAddress = useAppSelector(
+    (state) => state.company.customer.emailAddress
+  )
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
@@ -441,8 +445,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           return
         }
 
-        const emailAddress = B3SStorage.get('B3EmailAddress')
-
         const note = info?.note || ''
         const newNote = note.trim().replace(/[\r\n]/g, '\\n')
 
@@ -557,7 +559,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           quoteTitle,
           discount: '0.00',
           channelId,
-          userEmail: emailAddress,
+          userEmail: customerEmailAddress,
           shippingAddress,
           billingAddress,
           contactInfo,

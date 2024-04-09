@@ -20,6 +20,7 @@ import { TableColumnItem } from '@/components/table/B3Table'
 import { useSort } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { endMasquerade, startMasquerade } from '@/utils'
 
 import B3FilterSearch from '../../components/filter/B3FilterSearch'
@@ -125,9 +126,10 @@ function B3Mean({
 
 function Dashboard(props: DashboardProps) {
   const {
-    state: { customerId, B3UserId, salesRepCompanyId = 0 },
+    state: { B3UserId, salesRepCompanyId = 0 },
     dispatch,
   } = useContext(GlobaledContext)
+  const customerId = useAppSelector(({ company }) => company.customer.id)
 
   const { setOpenPage } = props
   const b3Lang = useB3Lang()

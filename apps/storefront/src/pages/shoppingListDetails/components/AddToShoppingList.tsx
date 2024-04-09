@@ -10,7 +10,8 @@ import {
   addProductToBcShoppingList,
   addProductToShoppingList,
 } from '@/shared/service/b2b'
-import { B3SStorage, getValidOptionsList, snackbar } from '@/utils'
+import { useAppSelector } from '@/store'
+import { getValidOptionsList, snackbar } from '@/utils'
 
 import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config'
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'
@@ -29,6 +30,9 @@ export default function AddToShoppingList(props: AddToListProps) {
     state: { id },
   } = useContext(ShoppingListDetailsContext)
 
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
   const { updateList, isB2BUser, type: pageType = '' } = props
   const b3Lang = useB3Lang()
 
@@ -224,7 +228,6 @@ export default function AddToShoppingList(props: AddToListProps) {
   }
 
   const handleOpenUploadDiag = () => {
-    const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.'

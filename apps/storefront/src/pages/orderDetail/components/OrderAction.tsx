@@ -7,6 +7,7 @@ import throttle from 'lodash-es/throttle'
 
 import { CustomButton } from '@/components'
 import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 import {
   b2bPrintInvoice,
   currencyFormat,
@@ -277,8 +278,12 @@ export default function OrderAction(props: OrderActionProps) {
   const { detailsData } = props
   const b3Lang = useB3Lang()
   const {
-    state: { isB2BUser, role, emailAddress },
+    state: { isB2BUser },
   } = useContext(GlobaledContext)
+  const emailAddress = useAppSelector(
+    ({ company }) => company.customer.emailAddress
+  )
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const {
     state: { addressLabelPermission, createdEmail },

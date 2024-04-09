@@ -8,7 +8,6 @@ import {
   useState,
 } from 'react'
 import { DropzoneArea } from 'react-mui-dropzone'
-import { useSelector } from 'react-redux'
 import styled from '@emotion/styled'
 import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
 import { Alert, Box, Link, useTheme } from '@mui/material'
@@ -22,8 +21,8 @@ import {
   BcProductsBulkUploadCSV,
   guestProductsBulkUploadCSV,
 } from '@/shared/service/b2b'
-import { defaultCurrencyCodeSelector } from '@/store'
-import { defaultCurrenciesState } from '@/store/slices/storeConfigs'
+import { defaultCurrencyCodeSelector, useAppSelector } from '@/store'
+import { Currency } from '@/types'
 import { b2bLogger } from '@/utils'
 
 import B3Dialog from '../B3Dialog'
@@ -82,8 +81,9 @@ export default function B3Upload(props: B3UploadProps) {
   const uploadRef = useRef<HTMLInputElement>(null)
 
   const {
-    state: { isB2BUser, currentChannelId, role },
+    state: { isB2BUser, currentChannelId },
   } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const theme = useTheme()
 
@@ -94,10 +94,8 @@ export default function B3Upload(props: B3UploadProps) {
   const [fileName, setFileName] = useState('')
   const [fileErrorText, setFileErrorText] = useState('')
 
-  const currency = useSelector(defaultCurrencyCodeSelector)
-  const currencyCode =
-    currency?.currency_code ??
-    defaultCurrenciesState.currencies[0].currency_code
+  const currency = useAppSelector(defaultCurrencyCodeSelector)
+  const { currency_code: currencyCode } = currency as Currency
 
   const getRejectMessage = (
     rejectedFile: File,

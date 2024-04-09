@@ -128,33 +128,12 @@ export const initState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
   isB2BUser: B3SStorage.get('isB2BUser') || false,
-  customerId: B3SStorage.get('B3CustomerId') || '',
   B3UserId: B3SStorage.get('B3UserId') || '',
-  emailAddress: B3SStorage.get('B3EmailAddress') || '',
-  /* role:
-   * 0: admin, 1: senior 2: buyer, 3: super admin, 99: bc user, 100: guest
-   */
-  role:
-    B3SStorage.get('B3Role') || B3SStorage.get('B3Role') === 0
-      ? B3SStorage.get('B3Role')
-      : 100,
   realRole: B3SStorage.get('realRole') || 100,
   isAgenting: B3SStorage.get('isAgenting') || false,
   salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
   salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',
   salesRepCustomerGroupId: B3SStorage.get('salesRepCustomerGroupId') || '',
-  customer: B3SStorage.get('loginCustomer') ||
-    B3SStorage.get('B3CustomerInfo') || {
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
-      emailAddress: '',
-    },
-  companyInfo: B3SStorage.get('B3CompanyInfo') || {
-    id: '',
-    companyName: '',
-    companyStatus: '',
-  },
   logo: '',
   bcLanguage: 'en',
   isCompanyAccount: false,

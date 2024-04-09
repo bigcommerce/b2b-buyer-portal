@@ -5,6 +5,7 @@ import type { OpenPageState } from '@b3/hooks'
 import B3AddToQuoteTip from '@/components/B3AddToQuoteTip'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { getCart } from '@/shared/service/bc/graphql/cart'
+import { store } from '@/store'
 import {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
@@ -180,9 +181,9 @@ const addProductsToDraftQuote = async (
     ({ sku, variantEntityId }) => sku || variantEntityId
   )
 
-  const companyId =
-    B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
-  const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+  const companyInfoId = store.getState().company.companyInfo.id
+  const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+  const { customerGroupId } = store.getState().company.customer
 
   // fetch data with products IDs
   const { productsSearch } = await searchB2BProducts({
@@ -308,11 +309,9 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
 
         return
       }
-
-      const companyId =
-        B3SStorage.get('B3CompanyInfo')?.id ||
-        B3SStorage.get('salesRepCompanyId')
-      const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+      const companyInfoId = store.getState().company.companyInfo.id
+      const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+      const { customerGroupId } = store.getState().company.customer
       const fn =
         +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
 

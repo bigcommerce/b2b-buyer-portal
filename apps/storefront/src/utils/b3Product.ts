@@ -1,4 +1,5 @@
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
+import { store } from '@/store'
 import { B3LStorage, B3SStorage } from '@/utils'
 
 interface QuoteListitemProps {
@@ -132,12 +133,12 @@ const getProductExtraPrice = async (
   }
 
   if (productIds.length) {
+    const currentState = store.getState()
     const fn =
       +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
-
-    const companyId =
-      B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
-    const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+    const companyInfoId = currentState.company.companyInfo.id
+    const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+    const { customerGroupId } = currentState.company.customer
 
     const { productsSearch: additionalProductsSearch } = await fn({
       productIds,

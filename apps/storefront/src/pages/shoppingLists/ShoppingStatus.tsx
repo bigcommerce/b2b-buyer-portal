@@ -1,8 +1,7 @@
-import { useContext } from 'react'
 import { useB3Lang } from '@b3/lang'
 
 import { B3Tag } from '@/components'
-import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 
 import { getFilterShoppingListStatus } from './config'
 
@@ -56,9 +55,7 @@ interface ShoppingStatusProps {
 }
 
 export function ShoppingStatus({ status }: ShoppingStatusProps) {
-  const {
-    state: { role },
-  } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
   const b3Lang = useB3Lang()
   const statusList = getStatus(role)
   const statusItem = statusList.find(

@@ -10,6 +10,7 @@ import {
   REHYDRATE,
 } from 'redux-persist'
 
+import company from './slices/company'
 import global from './slices/global'
 import lang from './slices/lang'
 import storeConfigs from './slices/storeConfigs'
@@ -40,6 +41,7 @@ export const store = configureStore({
   reducer: {
     global,
     lang,
+    company,
     storeConfigs,
     theme,
   },

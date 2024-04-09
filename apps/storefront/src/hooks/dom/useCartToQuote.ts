@@ -16,7 +16,6 @@ import {
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
 import { B3SStorage, globalSnackbar } from '@/utils'
 
@@ -50,9 +49,9 @@ const useCartToQuote = ({
     state: { addToAllQuoteBtn },
   } = useContext(CustomStyleContext)
 
-  const {
-    state: { companyInfo },
-  } = useContext(GlobaledContext)
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
   const blockPendingAccountOrderCreation = B3SStorage.get(
     'blockPendingAccountOrderCreation'
   )
@@ -73,10 +72,7 @@ const useCartToQuote = ({
 
       if (!urlArr.includes(pathname)) return
 
-      if (companyInfo.companyStatus === '') return
-
-      if (+companyInfo.companyStatus || !blockPendingAccountOrderCreation)
-        return
+      if (companyStatus || !blockPendingAccountOrderCreation) return
 
       if (
         isShowBlockPendingAccountOrderCreationTip.cartTip &&
@@ -116,7 +112,7 @@ const useCartToQuote = ({
     }
 
     showPendingAccountTip()
-  }, [pathname, blockPendingAccountOrderCreation, companyInfo.companyStatus])
+  }, [pathname, blockPendingAccountOrderCreation, companyStatus])
 
   const quoteCallBbck = useCallback(() => {
     const b3CartToQuote = document.querySelector('.b2b-cart-to-quote')

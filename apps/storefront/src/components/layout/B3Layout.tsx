@@ -5,9 +5,9 @@ import { Box, useMediaQuery } from '@mui/material'
 
 import useMobile from '@/hooks/useMobile'
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
-import { GlobaledContext } from '@/shared/global'
 import { routes } from '@/shared/routes'
 import { getIsTokenGotoPage, RouteItem } from '@/shared/routes/routes'
+import { useAppSelector } from '@/store'
 
 import B3Dialog from '../B3Dialog'
 import CompanyCredit from '../CompanyCredit'
@@ -34,14 +34,10 @@ export default function B3Layout({ children }: { children: ReactNode }) {
 
   const b3Lang = useB3Lang()
 
-  const {
-    state: {
-      emailAddress,
-      customerId,
-      // globalMessageDialog,
-    },
-    // dispatch,
-  } = useContext(GlobaledContext)
+  const emailAddress = useAppSelector(
+    ({ company }) => company.customer.emailAddress
+  )
+  const customerId = useAppSelector(({ company }) => company.customer.id)
 
   const {
     state: { globalMessageDialog },

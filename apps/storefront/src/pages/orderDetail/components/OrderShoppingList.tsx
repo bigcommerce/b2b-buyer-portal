@@ -8,6 +8,7 @@ import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 
 import { ShoppingListItem } from '../../../types'
 
@@ -42,8 +43,9 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
   } = props
 
   const {
-    state: { isB2BUser, currentChannelId, role },
+    state: { isB2BUser, currentChannelId },
   } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const theme = useTheme()
   const [isMobile] = useMobile()

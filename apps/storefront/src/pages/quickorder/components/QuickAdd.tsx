@@ -6,7 +6,8 @@ import { Box, Grid, Typography } from '@mui/material'
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
-import { B3SStorage, snackbar } from '@/utils'
+import { useAppSelector } from '@/store'
+import { snackbar } from '@/utils'
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config'
 
 import {
@@ -35,6 +36,9 @@ export default function QuickAdd(props: AddToListContentProps) {
     state: { isB2BUser },
   } = useContext(GlobaledContext)
 
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
   const [rows, setRows] = useState(level)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -292,7 +296,6 @@ export default function QuickAdd(props: AddToListContentProps) {
   }
 
   const handleAddToList = () => {
-    const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.'

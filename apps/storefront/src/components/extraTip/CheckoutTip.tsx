@@ -4,6 +4,7 @@ import { Dialog, DialogActions, DialogContent } from '@mui/material'
 
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 
 import { CustomButton } from '..'
 
@@ -18,8 +19,9 @@ function CheckoutTip(props: CheckoutTipProps) {
   const [isMobile] = useMobile()
 
   const {
-    state: { role, isAgenting },
+    state: { isAgenting },
   } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const { href } = window.location
 

@@ -1,16 +1,14 @@
 import { useEffect } from 'react'
 
+import { useAppSelector } from '@/store'
 import { B3SStorage } from '@/utils'
 
 interface UseMonitorBrowserBackProps {
   isOpen: boolean
-  role: number | string
 }
 
-const useMonitorBrowserBack = ({
-  isOpen,
-  role,
-}: UseMonitorBrowserBackProps) => {
+const useMonitorBrowserBack = ({ isOpen }: UseMonitorBrowserBackProps) => {
+  const role = useAppSelector(({ company }) => company.customer.role)
   const history = window.location
   const isLogin = role !== 100
 

@@ -22,6 +22,7 @@ import {
   updateB2BAccountSettings,
   updateBCAccountSettings,
 } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { Fields, ParamProps } from '@/types/accountSetting'
 import { B3SStorage, snackbar } from '@/utils'
 
@@ -48,16 +49,12 @@ function AccountSetting() {
   })
 
   const {
-    state: {
-      role,
-      isB2BUser,
-      isAgenting,
-      customer,
-      currentChannelId,
-      salesRepCompanyId,
-      companyInfo: { id: companyInfoId },
-    },
+    state: { isB2BUser, isAgenting, currentChannelId, salesRepCompanyId },
   } = useContext(GlobaledContext)
+
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customer = useAppSelector(({ company }) => company.customer)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const {
     state: {

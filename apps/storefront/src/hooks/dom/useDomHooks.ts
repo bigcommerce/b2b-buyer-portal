@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import { OpenPageState } from '@b3/hooks'
 
 import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 import { setCartPermissions } from '@/utils/b3RolePermissions'
 
 import useCartToQuote from './useCartToQuote'
@@ -19,16 +20,12 @@ interface MutationObserverProps {
 
 const useDomHooks = ({ setOpenPage, isOpen }: MutationObserverProps) => {
   const {
-    state: {
-      customerId,
-      role,
-      productQuoteEnabled,
-      cartQuoteEnabled,
-      B3UserId,
-    },
+    state: { productQuoteEnabled, cartQuoteEnabled, B3UserId },
   } = useContext(GlobaledContext)
+  const customerId = useAppSelector(({ company }) => company.customer.id)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
-  useMonitorBrowserBack({ isOpen, role })
+  useMonitorBrowserBack({ isOpen })
   useEffect(() => {
     if (+role !== 2) {
       setCartPermissions(role)

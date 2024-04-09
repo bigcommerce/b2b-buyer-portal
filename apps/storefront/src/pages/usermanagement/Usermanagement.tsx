@@ -7,6 +7,7 @@ import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { deleteUsers, getUsers } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -44,8 +45,11 @@ function Usermanagement() {
   const isExtraLarge = useCardListColumn()
 
   const {
-    state: { companyInfo, role, salesRepCompanyId },
+    state: { salesRepCompanyId },
   } = useContext(GlobaledContext)
+
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const companyInfo = useAppSelector(({ company }) => company.companyInfo)
 
   const companyId = +role === 3 ? salesRepCompanyId : companyInfo?.id
   const isEnableBtnPermissions = role === 0 || role === 3

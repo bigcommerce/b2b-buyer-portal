@@ -8,6 +8,7 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 
 import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 import { currencyFormat, displayFormat } from '@/utils'
 
 import OrderStatus from './components/OrderStatus'
@@ -38,9 +39,10 @@ export function OrderItemCard(props: OrderItemCardProps) {
   const theme = useTheme()
 
   const {
-    state: { customer, isB2BUser },
+    state: { isB2BUser },
   } = useContext(GlobaledContext)
 
+  const customer = useAppSelector(({ company }) => company.customer)
   const navigate = useNavigate()
 
   const goToDetail = (item: ListItem) => {

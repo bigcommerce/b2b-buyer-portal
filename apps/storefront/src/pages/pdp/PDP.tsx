@@ -19,7 +19,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
+import { store, useAppSelector } from '@/store'
 import {
   B3SStorage,
   getDefaultCurrencyInfo,
@@ -141,8 +141,8 @@ export const addProductsToShoppingList = async ({
   b3Lang,
 }: AddProductsToShoppingListParams) => {
   const { currency_code: currencyCode } = getDefaultCurrencyInfo()
-  const companyId =
-    B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+  const companyInfoId = store.getState().company.companyInfo.id
+  const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
   const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
   const { productsSearch } = await getProducts({
@@ -213,12 +213,11 @@ export const addProductsToShoppingList = async ({
 function PDP({ setOpenPage }: PDPProps) {
   const isPromission = true
   const {
-    state: {
-      isB2BUser,
-      shoppingListClickNode,
-      customer: { customerGroupId },
-    },
+    state: { isB2BUser, shoppingListClickNode },
   } = useContext(GlobaledContext)
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn)
   const b3Lang = useB3Lang()

@@ -27,8 +27,9 @@ export default function B3MobileLayout({
   }
 
   const {
-    state: { isAgenting, role },
+    state: { isAgenting },
   } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const {
     state: {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useMutationObservable } from '@b3/hooks'
+
+import useMutationObservable from '../useMutationObservable'
 
 const useDomVariation = (dom: string, quoteCallBbck?: () => void) => {
   const [openQuickView, setOpenQuickView] = useState<boolean>(true)

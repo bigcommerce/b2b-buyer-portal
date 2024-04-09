@@ -35,8 +35,9 @@ function B3Pulldown({
   handleOpenHistoryModal,
 }: B3PulldownProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const role = useAppSelector(({ company }) => company.customer.role)
   const {
-    state: { role, isAgenting },
+    state: { isAgenting },
   } = useContext(GlobaledContext)
   const juniorOrSenior = +role === 1 || role === 2
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)

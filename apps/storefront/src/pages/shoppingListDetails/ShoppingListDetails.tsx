@@ -24,6 +24,7 @@ import {
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import {
   calculateProductListPrice,
   getDefaultCurrencyInfo,
@@ -81,16 +82,18 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const { id = '' } = useParams()
   const {
     state: {
-      role,
-      companyInfo: { id: companyInfoId },
       isB2BUser,
       currentChannelId,
       isAgenting,
       openAPPParams,
-      customer: { customerGroupId },
       productQuoteEnabled = false,
     },
   } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
   const navigate = useNavigate()
   const [isMobile] = useMobile()
   const { dispatch } = useContext(ShoppingListDetailsContext)

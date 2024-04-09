@@ -1,6 +1,5 @@
 import { lazy, useContext, useEffect, useState } from 'react'
 import { HashRouter } from 'react-router-dom'
-import { useB3AppOpen } from '@b3/hooks'
 
 import GlobalDialog from '@/components/extraTip/GlobalDialog'
 import B3RenderRouter from '@/components/layout/B3RenderRouter'
@@ -27,6 +26,7 @@ import {
   setStorefrontConfig,
 } from '@/utils'
 
+import { useB3AppOpen } from './hooks/useB3AppOpen'
 import { getCompanyInfo } from './utils/loginInfo'
 import {
   setGlabolCommonState,
@@ -56,15 +56,12 @@ export default function App() {
   const {
     state: {
       isB2BUser,
-      customerId,
-      role,
       B3UserId,
       currentChannelId,
       isAgenting,
       quoteConfig,
       storefrontConfig,
       productQuoteEnabled,
-      emailAddress,
       registerEnabled,
     },
     dispatch,
@@ -72,6 +69,11 @@ export default function App() {
 
   const storeDispatch = useAppDispatch()
 
+  const customerId = useAppSelector(({ company }) => company.customer.id)
+  const emailAddress = useAppSelector(
+    ({ company }) => company.customer.emailAddress
+  )
+  const role = useAppSelector((state) => state.company.customer.role)
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn)
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete)
   const currentClickedUrl = useAppSelector(

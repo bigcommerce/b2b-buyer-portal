@@ -7,6 +7,13 @@ import {
   getUserCompany,
 } from '@/shared/service/b2b'
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc'
+import { store } from '@/store'
+import {
+  clearCompanyInfo,
+  setCompanyInfo,
+  setCompanyStatus,
+  setCustomerInfo,
+} from '@/store/slices/company'
 import { b2bLogger, B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
@@ -22,13 +29,6 @@ interface ChannelIdProps {
   isEnabled: boolean
   translationVersion: number
 }
-
-// B3Role = {
-//   ADMIN: '0',
-//   SENIOR: '1',
-//   JUNIOR: '2',
-//   SALESREP: '3',
-// }
 
 export interface ChannelStoreSites {
   storeSites?: Array<ChannelIdProps> | []
@@ -108,10 +108,6 @@ export const loginInfo = async () => {
 }
 
 export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
-  B3SStorage.set('B3CustomerInfo', {})
-  B3SStorage.set('B3CustomerId', '')
-  B3SStorage.set('B3EmailAddress', '')
-  B3SStorage.set('B3Role', '')
   B3SStorage.set('isB2BUser', false)
   B3SStorage.set('B2BToken', false)
   B3SStorage.set('B3UserId', '')
@@ -129,12 +125,9 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('blockPendingAccountOrderCreation', false)
   B3SStorage.set('realRole', 100)
   B3SStorage.set('loginCustomer', '')
-  B3SStorage.set('B3CompanyInfo', {
-    id: '',
-    companyName: '',
-    companyStatus: '',
-  })
   sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
+
+  store.dispatch(clearCompanyInfo())
 
   dispatch({
     type: 'common',
@@ -191,7 +184,7 @@ export const getCompanyInfo = async (
     }
   }
 
-  B3SStorage.set('companyStatus', companyInfo.companyStatus)
+  store.dispatch(setCompanyStatus(companyInfo.companyStatus))
 
   const blockPendingAccountOrderCreation = B3SStorage.get(
     'blockPendingAccountOrderCreation'
@@ -271,8 +264,6 @@ export const getCompanyUserInfo = async (
     })
 
     if (isB2BUser) {
-      B3SStorage.set('B3Role', role)
-
       dispatch({
         type: 'common',
         payload: {
@@ -356,29 +347,35 @@ export const getCurrentCustomerInfo = async (
         agentInfo(customerId, role, id, dispatch),
       ])
 
+      const isB2BUser =
+        (userType === 3 && companyInfo?.companyStatus === 1) || +role === 3
+
       const customerInfo = {
+        id: customerId,
         phoneNumber,
         firstName,
         lastName,
         emailAddress,
         customerGroupId,
+        role: isB2BUser ? role : 99,
       }
 
-      const isB2BUser =
-        (userType === 3 && companyInfo?.companyStatus === 1) || +role === 3
-
-      B3SStorage.set('B3CustomerInfo', customerInfo)
-      B3SStorage.set('B3CompanyInfo', companyInfo)
-      B3SStorage.set('B3CustomerId', customerId)
-      B3SStorage.set('B3EmailAddress', emailAddress)
       B3SStorage.set('B3UserId', id)
-      B3SStorage.set('B3Role', isB2BUser ? role : 99)
       B3SStorage.set('isB2BUser', isB2BUser)
 
       B3LStorage.set('MyQuoteInfo', {})
       B3LStorage.set('b2bQuoteDraftList', [])
       B3LStorage.set('quoteDraftUserId', id || customerId || 0)
       B3LStorage.set('cartToQuoteId', '')
+
+      const companyPayload = {
+        id: companyInfo.id,
+        status: companyInfo.companyStatus,
+        companyName: companyInfo.companyName,
+      }
+
+      store.dispatch(setCompanyInfo(companyPayload))
+      store.dispatch(setCustomerInfo(customerInfo))
 
       dispatch({
         type: 'common',

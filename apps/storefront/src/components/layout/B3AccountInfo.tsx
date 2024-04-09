@@ -1,9 +1,8 @@
-import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 
 import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 
 import B3DropDown from '../B3DropDown'
 
@@ -27,11 +26,8 @@ interface B3AccountInfoProps {
 export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
   const [isMobile] = useMobile()
 
-  const {
-    state: {
-      customer: { firstName = '', lastName = '' },
-    },
-  } = useContext(GlobaledContext)
+  const firstName = useAppSelector(({ company }) => company.customer.firstName)
+  const lastName = useAppSelector(({ company }) => company.customer.lastName)
 
   const navigate = useNavigate()
 

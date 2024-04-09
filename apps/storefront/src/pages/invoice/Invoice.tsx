@@ -20,6 +20,7 @@ import {
   getInvoiceList,
   getInvoiceStats,
 } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { InvoiceList, InvoiceListNode } from '@/types/invoice'
 import {
   b2bLogger,
@@ -73,8 +74,9 @@ function Invoice() {
   const currentDate = new Date().getTime()
   const b3Lang = useB3Lang()
   const {
-    state: { role, isAgenting },
+    state: { isAgenting },
   } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
   const juniorOrSenior = +role === 1 || role === 2
   const navigate = useNavigate()
   const [isMobile] = useMobile()

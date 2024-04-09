@@ -22,7 +22,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { defaultCurrencyCodeSelector } from '@/store'
+import { defaultCurrencyCodeSelector, useAppSelector } from '@/store'
 import { defaultCurrenciesState } from '@/store/slices/storeConfigs'
 import {
   currencyFormat,
@@ -137,12 +137,13 @@ function QuickorderTable({
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
   const {
-    state: {
-      isB2BUser,
-      companyInfo: { id: companyInfoId },
-      customer: { customerGroupId },
-    },
+    state: { isB2BUser },
   } = useContext(GlobaledContext)
+
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
 
   const [search, setSearch] = useState<SearchProps>({
     q: '',

@@ -19,6 +19,7 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 import {
   b2bLogger,
   getCurrentCustomerInfo,
@@ -101,13 +102,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
   const {
     state: {
-      customerId,
-      customer: {
-        phoneNumber = '',
-        firstName = '',
-        lastName = '',
-        emailAddress = '',
-      } = {},
       storeName,
       logo,
       currentChannelId: channelId,
@@ -119,6 +113,14 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
   const navigate = useNavigate()
 
+  const customer = useAppSelector(({ company }) => company.customer)
+  const {
+    id: customerId,
+    firstName,
+    lastName,
+    emailAddress,
+    phoneNumber,
+  } = customer
   const { state, dispatch } = useContext(RegisteredContext)
 
   const {

@@ -17,8 +17,10 @@ import B3StatusNotification from './B3StatusNotification'
 
 export default function B3Mainheader({ title }: { title: string }) {
   const {
-    state: { companyInfo, salesRepCompanyName, role },
+    state: { salesRepCompanyName },
   } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const companyInfo = useAppSelector(({ company }) => company.companyInfo)
   const cartNumber = useAppSelector(({ global }) => global.cartNumber)
   const navigate = useNavigate()
   const b3Lang = useB3Lang()

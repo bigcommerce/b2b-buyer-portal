@@ -1,12 +1,11 @@
 import { useCallback, useLayoutEffect, useState } from 'react'
 import globalB3 from '@b3/global-b3'
 
+import { useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
+
 import useMutationObservable from './useMutationObservable'
 
-// interface GotoPageByClickProps {
-//   href: string
-//   isRegisterArrInclude: boolean
-// }
 interface ChildNodeListProps extends ChildNode {
   href?: string
   localName?: string
@@ -26,6 +25,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
   const callback = useCallback(() => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1)
   }, [checkoutRegisterNumber])
+  const role = useAppSelector((state) => state.company.customer.role)
 
   const [openPage, setOpenPage] = useState<OpenPageState>({
     isOpen: initOpenState.isOpen,
@@ -78,9 +78,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
             }
           }
 
-          const RoleInfo = sessionStorage.getItem('sf-B3Role')
-          const B3Role = RoleInfo ? JSON.parse(RoleInfo || '') : ''
-          const isLogin = B3Role === '' ? false : JSON.parse(B3Role) !== 100
+          const isLogin = role !== CustomerRole.GUEST
           const hrefArr = href.split('/#')
           if (hrefArr[1] === '') {
             href = isLogin ? '/orders' : '/login'
@@ -99,7 +97,8 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
             !href.includes('action=create_account') &&
             !href.includes('action=logout')
           ) {
-            href = +B3Role === 2 ? '/shoppingLists' : '/orders'
+            href =
+              +role === CustomerRole.JUNIOR_BUYER ? '/shoppingLists' : '/orders'
           }
 
           if (initOpenState?.handleEnterClick) {
@@ -117,7 +116,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
       }
     }
     return () => {}
-  }, [checkoutRegisterNumber])
+  }, [checkoutRegisterNumber, initOpenState, role])
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback)
 

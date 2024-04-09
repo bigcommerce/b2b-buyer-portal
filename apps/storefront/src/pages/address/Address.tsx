@@ -12,6 +12,7 @@ import {
   getB2BCountries,
   getBCCustomerAddress,
 } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { b2bLogger, snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -45,17 +46,12 @@ interface FilterSearchProps {
 
 function Address() {
   const {
-    state: {
-      role,
-      isB2BUser,
-      isAgenting,
-      salesRepCompanyId,
-      companyInfo: { id: companyInfoId },
-      addressConfig,
-    },
+    state: { isB2BUser, isAgenting, salesRepCompanyId, addressConfig },
     dispatch,
   } = useContext(GlobaledContext)
 
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const role = useAppSelector(({ company }) => company.customer.role)
   const b3Lang = useB3Lang()
 
   const isExtraLarge = useCardListColumn()

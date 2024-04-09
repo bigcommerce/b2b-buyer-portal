@@ -13,7 +13,7 @@ import {
 import { B3Upload, CustomButton, successTip } from '@/components'
 import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
 import { useAppSelector } from '@/store'
-import { b2bLogger, B3SStorage, b3TriggerCartNumber, snackbar } from '@/utils'
+import { b2bLogger, b3TriggerCartNumber, snackbar } from '@/utils'
 import { callCart } from '@/utils/cartUtils'
 
 import SearchProduct from '../../shoppingListDetails/components/SearchProduct'
@@ -36,6 +36,9 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
 
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
   const storeInfo = useAppSelector(({ global }) => global.storeInfo)
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
@@ -393,7 +396,6 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
   }
 
   const handleOpenUploadDiag = () => {
-    const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         b3Lang('purchasedProducts.quickOrderPad.addNProductsToCart')
