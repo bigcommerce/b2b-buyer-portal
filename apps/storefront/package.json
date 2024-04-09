@@ -11,6 +11,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest --coverage",
+    "generate": "graphql-codegen",
+    "generate:local": "CODEGEN_ENV=local graphql-codegen",
     "start": "http-server ./dist --cors"
   },
   "dependencies": {
@@ -52,6 +54,8 @@
   },
   "devDependencies": {
     "@b3/tsconfig": "*",
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/client-preset": "^4.2.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.5",
     "@types/crypto-js": "^4.2.1",
