@@ -1,4 +1,4 @@
-import { Avatar, Box } from '@mui/material'
+import { Box } from '@mui/material'
 
 import B3ControlRectangle from './B3ControlRectangle'
 import { ColorContainer } from './styled'
@@ -11,20 +11,23 @@ export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
     ...option,
     label:
       option?.image && option?.image.data ? (
-        <Avatar
-          variant="square"
+        <Box
           sx={{
             width: '22px',
             height: '22px',
 
-            '& img': {
+            '& .swatch-image-item': {
               width: '22px',
               height: '22px',
+              background: `url(${option?.image.data})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'contain',
+              backgroundPosition: 'center',
             },
           }}
         >
-          <img src={option?.image.data} alt={option?.image.alt} />
-        </Avatar>
+          <div className="swatch-image-item" />
+        </Box>
       ) : (
         <ColorContainer>
           {(option.colors || []).map((color: string) => (
