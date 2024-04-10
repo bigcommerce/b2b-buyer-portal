@@ -459,7 +459,7 @@ export const getAllModifierDefaultValue = (modifiers: CustomFieldItems) => {
 }
 
 export const conversionProductsList = (
-  products: ShoppingListProductItem[],
+  products: Product[],
   listProduct: ListItemProps[] = []
 ) =>
   products.map((product) => {

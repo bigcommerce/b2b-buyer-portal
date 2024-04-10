@@ -163,7 +163,7 @@ export interface Product {
   availability: string
   orderQuantityMinimum: number
   orderQuantityMaximum: number
-  variants?: Partial<Variant>[]
+  variants?: Variant[]
   currencyCode: string
   imageUrl: string
   modifiers: ShoppingListProductItemModifiers[]
@@ -171,7 +171,8 @@ export interface Product {
   optionsV3?: ShoppingListProductItemModifiers[]
   allOptions?: Partial<AllOptionProps>[]
   productUrl: string
-  quantity: number | string
+  quantity: number
+  product_options?: ProductOptionsItem[]
   [key: string]: any
 }
 

@@ -58,7 +58,7 @@ interface ProductInfoProps {
   productName: string
   productUrl: string
   quantity: number | string
-  tax: number | string
+  taxPrice: number
   updatedAt: number
   variantId: number
   variantSku: string

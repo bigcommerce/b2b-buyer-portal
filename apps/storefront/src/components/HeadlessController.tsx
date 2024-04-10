@@ -13,9 +13,13 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
 import B3Request from '@/shared/service/request/b3Fetch'
-import { useAppDispatch, useAppSelector } from '@/store'
 import {
-  B3LStorage,
+  formatedQuoteDraftListSelector,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store'
+import { QuoteItem } from '@/types/quotes'
+import {
   B3SStorage,
   endMasquerade,
   getCurrentCustomerInfo,
@@ -25,32 +29,9 @@ import {
 import CallbackManager from '@/utils/b3Callbacks'
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
 
-interface QuoteDraftItem {
-  node: {
-    basePrice: string
-    id: string
-    optionList: string
-    primaryImage: string
-    productId: number
-    productName: string
-    quantity: number
-    taxPrice: string
-    variantId: number
-    variantSku: string
-    calculatedValue: Record<
-      string,
-      string | number | Array<string | number> | Record<string, string | number>
-    >
-    productsSearch: Record<
-      string,
-      string | number | Array<string | number> | Record<string, string | number>
-    >
-  }
-}
-
 export interface FormatedQuoteItem
   extends Omit<
-    QuoteDraftItem['node'],
+    QuoteItem['node'],
     'optionList' | 'calculatedValue' | 'productsSearch'
   > {
   optionSelections: {
@@ -87,39 +68,6 @@ export type ProductMappedAttributes = ReturnType<
   typeof transformOptionSelectionsToAttributes
 >
 
-const getDraftQuote = () => {
-  const itemsList: QuoteDraftItem[] = B3LStorage.get('b2bQuoteDraftList')
-  let productList: FormatedQuoteItem[] = []
-
-  if (itemsList.length) {
-    productList = itemsList.map(
-      ({
-        node: { optionList, calculatedValue, productsSearch, ...restItem },
-      }) => {
-        const parsedOptionList: Record<string, string>[] =
-          JSON.parse(optionList)
-        const optionSelections = parsedOptionList.map(
-          ({ optionId, optionValue }) => {
-            const optionIdFormated = optionId.match(/\d+/)
-            return {
-              optionId: optionIdFormated?.length
-                ? +optionIdFormated[0]
-                : optionId,
-              optionValue: +optionValue,
-            }
-          }
-        )
-        return {
-          ...restItem,
-          optionSelections,
-        }
-      }
-    )
-  }
-
-  return { productList }
-}
-
 export default function HeadlessController({
   setOpenPage,
 }: HeadlessControllerProps) {
@@ -142,6 +90,8 @@ export default function HeadlessController({
   const customer = useAppSelector(({ company }) => company.customer)
   const role = useAppSelector(({ company }) => company.customer.role)
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const productList = useAppSelector(formatedQuoteDraftListSelector)
+
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
   } = useContext(CustomStyleContext)
@@ -214,7 +164,7 @@ export default function HeadlessController({
             addProductsToDraftQuote([item], setOpenPage),
           addProductsFromCart: () => addProductsFromCart(),
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
-          getCurrent: getDraftQuote,
+          getCurrent: () => ({ productList }),
           getButtonInfo: () => ({
             ...addQuoteBtnRef.current,
             enabled: productQuoteEnabledRef.current,
@@ -306,7 +256,7 @@ export default function HeadlessController({
     }
     // disabling because we don't want to run this effect on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [productList])
 
   return null
 }

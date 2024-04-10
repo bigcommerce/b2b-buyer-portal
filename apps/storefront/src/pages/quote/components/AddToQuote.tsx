@@ -238,7 +238,7 @@ export default function AddToQuote(props: AddToListProps) {
             optionList: JSON.stringify(optionsList),
             productId,
             basePrice: variantItem.bc_calculated_price.as_entered,
-            tax:
+            taxPrice:
               variantItem.bc_calculated_price.tax_inclusive -
               variantItem.bc_calculated_price.tax_exclusive,
           },

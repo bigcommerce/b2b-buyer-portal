@@ -15,7 +15,7 @@ import {
 import { useGetButtonText } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { B3LStorage } from '@/utils'
+import { useAppSelector } from '@/store'
 
 import {
   getHoverColor,
@@ -36,14 +36,15 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
   const { isOpen, setOpenPage, productQuoteEnabled } = props
 
   const [showFinishQuote, setShowFinishQuote] = useState<boolean>(false)
-
-  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
+  const draftQuoteListLength = useAppSelector(
+    ({ quoteInfo }) => quoteInfo.draftQuoteList.length
+  )
 
   useEffect(() => {
-    if (b2bQuoteDraftList?.length) {
+    if (draftQuoteListLength) {
       setShowFinishQuote(true)
     } else setShowFinishQuote(false)
-  }, [isOpen, b2bQuoteDraftList])
+  }, [isOpen, draftQuoteListLength])
 
   const { href } = window.location
 

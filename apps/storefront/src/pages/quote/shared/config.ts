@@ -1,30 +1,6 @@
 import { store } from '@/store'
-import { B3LStorage, getActiveCurrencyInfo } from '@/utils'
+import { getActiveCurrencyInfo } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
-
-interface AdditionalCalculatedPricesProps {
-  additionalCalculatedPrice: number
-  additionalCalculatedPriceTax: number
-}
-
-export interface QuoteListitemProps {
-  node: {
-    variantSku: number | string
-    variantId: number | string
-    primaryImage: string
-    productName: string
-    optionList: string
-    productId: number | string
-    basePrice: number
-    productsSearch: CustomFieldItems
-    quantity: number
-    tax: number
-    taxPrice: number
-    additionalCalculatedPrices: AdditionalCalculatedPricesProps[]
-    // additionalCalculatedPrice?: number
-    // additionalCalculatedPriceTax?: number
-  }
-}
 
 export interface ProductInfoProps {
   basePrice: number | string
@@ -83,13 +59,10 @@ const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
 const priceCalc = (price: number) => parseFloat(price.toFixed(decimalPlaces))
 
 export const addPrice = () => {
-  const productList = B3LStorage.get('b2bQuoteDraftList') || []
+  const { draftQuoteList } = store.getState().quoteInfo
+  const { showInclusiveTaxPrice } = store.getState().global
 
-  const {
-    global: { showInclusiveTaxPrice },
-  } = store.getState()
-
-  const newQuoteSummary = productList.reduce(
+  const newQuoteSummary = draftQuoteList.reduce(
     (summary: Summary, product: CustomFieldItems) => {
       const {
         basePrice,

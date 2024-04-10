@@ -1,3 +1,4 @@
+import cloneDeep from 'lodash-es/cloneDeep'
 import isEmpty from 'lodash-es/isEmpty'
 import { v1 as uuid } from 'uuid'
 
@@ -6,7 +7,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { store } from '@/store/reducer'
+import { setDraftQuoteList, store } from '@/store'
 import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs'
 import {
   AdjustersPrice,
@@ -19,13 +20,13 @@ import {
   Product,
   Variant,
 } from '@/types/products'
+import { QuoteItem } from '@/types/quotes'
 import {
   ShoppingListProductItem,
   ShoppingListProductItemModifiers,
 } from '@/types/shoppingList'
 import {
   b2bLogger,
-  B3LStorage,
   B3SStorage,
   getActiveCurrencyInfo,
   getDefaultCurrencyInfo,
@@ -38,21 +39,6 @@ import {
   ProductInfoProps,
 } from './shared/config'
 import getTaxRate from './b3TaxRate'
-
-interface QuoteListitemProps {
-  node: {
-    id: number
-    quantity?: number
-    variantSku: number | string
-    variantId: number | string
-    primaryImage: number | string
-    productName: number | string
-    optionList: number | string
-    productId: number | string
-    basePrice: number | string
-    productsSearch: CustomFieldItems
-  }
-}
 
 interface AdditionalCalculatedPricesProps {
   [key: string]: number
@@ -594,7 +580,6 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   store.dispatch(setEnteredInclusiveTax(enteredInclusive))
 
   const tax = calculatedTaxPrice - calculatedNoTaxPrice
-
   const taxRate = +tax / calculatedNoTaxPrice
 
   let finalDiscount = 0
@@ -651,7 +636,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
 
 interface CalculatedProductPrice {
   optionList: CustomFieldItems[]
-  productsSearch: Partial<Product>
+  productsSearch: Product
   sku: string
   qty: number
 }
@@ -689,7 +674,7 @@ const getCalculatedProductPrice = async (
   const { variants = [] } = productsSearch
 
   const variantItem = variants.find(
-    (item: Partial<Variant>) => item.sku?.toUpperCase() === sku.toUpperCase()
+    (item) => item.sku?.toUpperCase() === sku.toUpperCase()
   )
 
   if (variantItem) {
@@ -736,8 +721,8 @@ const getCalculatedProductPrice = async (
         quantity: +qty,
         optionList: JSON.stringify(optionList),
         productId: variantItem.product_id,
-        basePrice: itemPrice.toFixed(decimalPlaces),
-        taxPrice: taxPrice.toFixed(decimalPlaces),
+        basePrice: +itemPrice.toFixed(decimalPlaces),
+        taxPrice: +taxPrice.toFixed(decimalPlaces),
         calculatedValue: calculatedData[0],
       },
     }
@@ -1062,15 +1047,18 @@ const compareOption = (
 }
 
 const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
-  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
-  if (b2bQuoteDraftList.length === 0) {
-    B3LStorage.set('b2bQuoteDraftList', products)
+  const { draftQuoteList } = store.getState().quoteInfo
+
+  if (draftQuoteList.length === 0) {
+    store.dispatch(setDraftQuoteList(products as QuoteItem[]))
     return
   }
+
+  const draftQuote = cloneDeep(draftQuoteList)
   if (products.length) {
     products.forEach((quoteProduct: CustomFieldItems) => {
       const optionList = JSON.parse(quoteProduct.node.optionList)
-      const productIndex = b2bQuoteDraftList.findIndex(
+      const productIndex = draftQuoteList.findIndex(
         (item: CustomFieldItems) => {
           const oldOptionList = JSON.parse(item.node.optionList)
           const isAdd =
@@ -1083,44 +1071,43 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
       )
 
       if (productIndex !== -1) {
-        b2bQuoteDraftList[productIndex].node.quantity +=
-          quoteProduct.node.quantity
+        draftQuote[productIndex].node.quantity += quoteProduct.node.quantity
         if (quoteProduct.node?.calculatedValue) {
-          b2bQuoteDraftList[productIndex].node.calculatedValue =
+          draftQuote[productIndex].node.calculatedValue =
             quoteProduct.node.calculatedValue
         }
       } else {
-        b2bQuoteDraftList.push(quoteProduct)
+        draftQuote.push(quoteProduct as QuoteItem)
       }
     })
   }
 
-  B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
+  store.dispatch(setDraftQuoteList(draftQuote))
 }
 
 const validProductQty = (products: CustomFieldItems) => {
-  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
+  const { draftQuoteList } = store.getState().quoteInfo
 
   let canAdd = true
   products.forEach((product: CustomFieldItems) => {
-    const index = b2bQuoteDraftList.findIndex(
-      (item: QuoteListitemProps) =>
-        item?.node?.variantSku === product.node.variantSku
+    const index = draftQuoteList.findIndex(
+      (item) => item.node.variantSku === product.node.variantSku
     )
     const optionList = JSON.parse(product.node.optionList) || []
 
     if (index !== -1) {
-      const oldOptionList = JSON.parse(b2bQuoteDraftList[index].node.optionList)
-
+      const oldOptionList = JSON.parse(draftQuoteList[index].node.optionList)
+      let quantityFromStore = draftQuoteList[index].node.quantity
       const isAdd =
         oldOptionList.length > optionList.length
           ? compareOption(oldOptionList, optionList)
           : compareOption(optionList, oldOptionList)
 
       if (isAdd) {
-        b2bQuoteDraftList[index].node.quantity += +product.node.quantity
+        quantityFromStore += +product.node.quantity
       }
-      if (+b2bQuoteDraftList[index].node.quantity > 1000000) {
+
+      if (+quantityFromStore > 1000000) {
         canAdd = false
       }
     } else if (+product.node.quantity > 1000000) {
@@ -1136,16 +1123,16 @@ const addQuoteDraftProduce = async (
   qty: number,
   optionList: CustomFieldItems[]
 ) => {
-  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
+  const draftList = cloneDeep(store.getState().quoteInfo.draftQuoteList)
 
-  const index = b2bQuoteDraftList.findIndex(
-    (item: QuoteListitemProps) =>
+  const index = draftList.findIndex(
+    (item: QuoteItem) =>
       item?.node?.variantSku === quoteListitem.node.variantSku
   )
 
   if (index !== -1) {
     // TODO optionList compare
-    const oldOptionList = JSON.parse(b2bQuoteDraftList[index].node.optionList)
+    const oldOptionList = JSON.parse(draftList[index].node.optionList)
 
     const isAdd =
       oldOptionList.length > optionList.length
@@ -1153,7 +1140,7 @@ const addQuoteDraftProduce = async (
         : compareOption(optionList, oldOptionList)
 
     if (isAdd) {
-      b2bQuoteDraftList[index].node.quantity += +qty
+      draftList[index].node.quantity += +qty
 
       const {
         optionList,
@@ -1161,7 +1148,7 @@ const addQuoteDraftProduce = async (
         variantSku,
         quantity,
         calculatedValue,
-      } = b2bQuoteDraftList[index].node
+      } = draftList[index].node
 
       const product = await getCalculatedProductPrice(
         {
@@ -1170,25 +1157,23 @@ const addQuoteDraftProduce = async (
               ? JSON.parse(optionList)
               : optionList,
           productsSearch,
-          sku: variantSku,
+          sku: variantSku || '',
           qty: quantity,
         },
         calculatedValue
       )
 
       if (product) {
-        b2bQuoteDraftList[index].node = product.node
+        draftList[index].node = product.node
       }
     } else {
-      // const productList = await getProductPrice(optionList, quoteListitem)
-      b2bQuoteDraftList.push(quoteListitem)
+      draftList.push(quoteListitem as QuoteItem)
     }
   } else {
-    // const productList = await getProductPrice(optionList, quoteListitem)
-    b2bQuoteDraftList.push(quoteListitem)
+    draftList.push(quoteListitem as QuoteItem)
   }
 
-  B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
+  store.dispatch(setDraftQuoteList(draftList))
 }
 
 const calculateIsInclude = (price: number | string, tax: number | string) => {

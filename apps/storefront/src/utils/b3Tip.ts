@@ -38,7 +38,7 @@ variants.forEach((variant) => {
       },
     ]
 
-    window.tipDispatch({
+    window.tipDispatch?.({
       type: 'tip',
       payload: {
         tipMessage: {

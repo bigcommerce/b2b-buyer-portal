@@ -14,6 +14,7 @@ import company from './slices/company'
 import b2bFeatures from './slices/b2bFeatures'
 import global from './slices/global'
 import lang from './slices/lang'
+import quoteInfo from './slices/quoteInfo'
 import storeConfigs from './slices/storeConfigs'
 import theme from './slices/theme'
 
@@ -46,6 +47,7 @@ export const store = configureStore({
     storeConfigs,
     theme,
     b2bFeatures,
+    quoteInfo,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware(middlewareOptions),
 })

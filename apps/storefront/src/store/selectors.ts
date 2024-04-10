@@ -5,6 +5,7 @@ import { RootState } from './reducer'
 const themeSelector = (state: RootState) => state.theme
 const storeConfigSelector = (state: RootState) => state.storeConfigs
 const b2bFeaturesSelector = (state: RootState) => state.b2bFeatures
+const quoteInfoSelector = (state: RootState) => state.quoteInfo
 
 export const themeFrameSelector = createSelector(
   themeSelector,
@@ -20,4 +21,32 @@ export const defaultCurrencyCodeSelector = createSelector(
 export const isAgentingSelector = createSelector(
   b2bFeaturesSelector,
   (b2bFeatures) => b2bFeatures.isAgenting
+)
+
+export const formatedQuoteDraftListSelector = createSelector(
+  quoteInfoSelector,
+  (quoteInfo) =>
+    quoteInfo.draftQuoteList.map(
+      ({
+        node: { optionList, calculatedValue, productsSearch, ...restItem },
+      }) => {
+        const parsedOptionList: Record<string, string>[] =
+          JSON.parse(optionList)
+        const optionSelections = parsedOptionList.map(
+          ({ optionId, optionValue }) => {
+            const optionIdFormated = optionId.match(/\d+/)
+            return {
+              optionId: optionIdFormated?.length
+                ? +optionIdFormated[0]
+                : optionId,
+              optionValue: +optionValue,
+            }
+          }
+        )
+        return {
+          ...restItem,
+          optionSelections,
+        }
+      }
+    )
 )

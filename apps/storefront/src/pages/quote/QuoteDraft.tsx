@@ -30,7 +30,7 @@ import {
   getBCCustomerAddresses,
 } from '@/shared/service/b2b'
 import { deleteCart } from '@/shared/service/bc/graphql/cart'
-import { useAppSelector } from '@/store'
+import { resetDraftQuoteList, useAppDispatch, useAppSelector } from '@/store'
 import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
   addQuoteDraftProducts,
@@ -54,7 +54,6 @@ import QuoteNote from './components/QuoteNote'
 import QuoteStatus from './components/QuoteStatus'
 import QuoteSummary from './components/QuoteSummary'
 import QuoteTable from './components/QuoteTable'
-import { QuoteListitemProps } from './shared/config'
 import getAccountFormFields from './config'
 import Container from './style'
 
@@ -84,11 +83,6 @@ interface InfoProps {
   contactInfo: GetValue
   shippingAddress: GetValue
   billingAddress: GetValue
-}
-
-interface QuoteTableRef extends HTMLInputElement {
-  refreshList: () => void
-  getList: () => CustomFieldItems[]
 }
 
 interface QuoteSummaryRef extends HTMLInputElement {
@@ -122,15 +116,15 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     ({ company }) => company.companyInfo.companyName
   )
   const customer = useAppSelector(({ company }) => company.customer)
-  const { emailAddress, id: customerId } = customer
   const role = useAppSelector(({ company }) => company.customer.role)
+  const dispatch = useAppDispatch()
   const enteredInclusiveTax = useAppSelector(
     ({ global }) => global.enteredInclusive
   )
-
-  const customerEmailAddress = useAppSelector(
-    (state) => state.company.customer.emailAddress
+  const draftQuoteList = useAppSelector(
+    ({ quoteInfo }) => quoteInfo.draftQuoteList
   )
+
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
@@ -151,8 +145,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
   const [addressList, setAddressList] = useState<B2BAddress[]>([])
 
-  const [total, setTotal] = useState<number>(0)
-
   const [info, setInfo] = useState<InfoProps>({
     contactInfo: {},
     shippingAddress: {},
@@ -161,9 +153,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const [shippingSameAsBilling, setShippingSameAsBilling] =
     useState<boolean>(false)
   const [billingChange, setBillingChange] = useState<boolean>(false)
-
-  const quoteTableRef = useRef<QuoteTableRef | null>(null)
-
   const quoteSummaryRef = useRef<QuoteSummaryRef | null>(null)
 
   useSetCountry()
@@ -282,7 +271,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           setInfo(quoteInfo)
         }
       } finally {
-        B3LStorage.set('quoteDraftUserId', B3UserId || customerId || 0)
+        B3LStorage.set('quoteDraftUserId', B3UserId || customer.id || 0)
         setLoading(false)
       }
     }
@@ -347,58 +336,14 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     setEdit(true)
   }
 
-  const getQuoteTableDetails = async (params: CustomFieldItems) => {
-    const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
-
-    const startIndex = +params.offset
-    const endIndex = +params.first + startIndex
-
-    setTotal(quoteDraftAllList.length)
-    if (!quoteDraftAllList.length) {
-      return {
-        edges: [],
-        totalCount: 0,
-      }
-    }
-    const list = quoteDraftAllList.slice(startIndex, endIndex)
-
-    list.forEach((item: any) => {
-      let additionalCalculatedPriceTax = 0
-      let additionalCalculatedPrice = 0
-      const listItem = item
-
-      if (item.node.additionalCalculatedPrices?.length) {
-        item.node.additionalCalculatedPrices.forEach((item: any) => {
-          additionalCalculatedPriceTax += item.additionalCalculatedPriceTax
-          additionalCalculatedPrice += item.additionalCalculatedPrice
-        })
-      }
-
-      listItem.node.basePrice = +item.node.basePrice + additionalCalculatedPrice
-      listItem.node.tax = +item.node.tax + additionalCalculatedPriceTax
-    })
-
-    return {
-      edges: list,
-      totalCount: quoteDraftAllList.length,
-    }
-  }
-
   const accountFormFields = getAccountFormFields(isMobile, b3Lang)
 
   const updateSummary = () => {
     quoteSummaryRef.current?.refreshSummary()
   }
 
-  const updateList = () => {
-    quoteTableRef.current?.refreshList()
-    updateSummary()
-  }
-
   const addToQuote = (products: CustomFieldItems[]) => {
     addQuoteDraftProducts(products)
-
-    quoteTableRef.current?.refreshList()
   }
 
   const getFileList = (files: CustomFieldItems[]) => {
@@ -438,9 +383,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           return
         }
 
-        const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList')
-
-        if (!b2bQuoteDraftList || b2bQuoteDraftList.length === 0) {
+        if (!draftQuoteList || draftQuoteList.length === 0) {
           snackbar.error(b3Lang('quoteDraft.submit'))
           return
         }
@@ -490,56 +433,53 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           return value
         }
 
-        const productList = b2bQuoteDraftList.map(
-          (item: QuoteListitemProps) => {
-            const { node } = item
-            const product: any = {
-              ...node.productsSearch,
-              selectOptions: node?.optionList || '',
-            }
-
-            const productFields = getProductOptionsFields(product, {})
-            const optionsList: CustomFieldItems[] =
-              productFields
-                .map((item) => ({
-                  optionId: item.optionId,
-                  optionValue:
-                    item.fieldType === 'date'
-                      ? calculationTime(item.optionValue)
-                      : item.optionValue,
-                  optionLabel: `${item.valueText}`,
-                  optionName: item.valueLabel,
-                  type: item?.fieldOriginType || item.fieldType,
-                }))
-                .filter((list: CustomFieldItems) => !!list.optionName) || []
-
-            const varants = node.productsSearch.variants
-            const varantsItem = varants.find(
-              (item: CustomFieldItems) => item.sku === node.variantSku
-            )
-
-            // const salePrice = getBCPrice(+(node?.basePrice || 0), +(node?.taxPrice || 0))
-
-            allPrice += +(node?.basePrice || 0) * +(node?.quantity || 0)
-
-            allTaxPrice += +(node?.taxPrice || 0) * +(node?.quantity || 0)
-
-            const items = {
-              productId: node.productsSearch.id,
-              sku: node.variantSku,
-              basePrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
-              discount: '0.00',
-              offeredPrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
-              quantity: node.quantity,
-              variantId: varantsItem.variant_id,
-              imageUrl: node.primaryImage,
-              productName: node.productName,
-              options: optionsList,
-            }
-
-            return items
+        const productList = draftQuoteList.map((item) => {
+          const { node } = item
+          const product = {
+            ...node.productsSearch,
+            selectOptions: node?.optionList || '',
           }
-        )
+
+          const productFields = getProductOptionsFields(product, {})
+          const optionsList =
+            productFields
+              .map((item) => ({
+                optionId: item.optionId,
+                optionValue:
+                  item.fieldType === 'date'
+                    ? calculationTime(item.optionValue)
+                    : item.optionValue,
+                optionLabel: `${item.valueText}`,
+                optionName: item.valueLabel,
+                type: item?.fieldOriginType || item.fieldType,
+              }))
+              .filter((list: CustomFieldItems) => !!list.optionName) || []
+
+          const variants = node?.productsSearch?.variants
+          let varantsItem
+          if (Array.isArray(variants)) {
+            varantsItem = variants.find((item) => item.sku === node.variantSku)
+          }
+
+          allPrice += +(node?.basePrice || 0) * +(node?.quantity || 0)
+
+          allTaxPrice += +(node?.taxPrice || 0) * +(node?.quantity || 0)
+
+          const items = {
+            productId: node?.productsSearch?.id,
+            sku: node.variantSku,
+            basePrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
+            discount: '0.00',
+            offeredPrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
+            quantity: node.quantity,
+            variantId: varantsItem?.variant_id,
+            imageUrl: node.primaryImage,
+            productName: node.productName,
+            options: optionsList,
+          }
+
+          return items
+        })
 
         const currency = getDefaultCurrencyInfo()
 
@@ -559,7 +499,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           quoteTitle,
           discount: '0.00',
           channelId,
-          userEmail: customerEmailAddress,
+          userEmail: customer.emailAddress,
           shippingAddress,
           billingAddress,
           contactInfo,
@@ -601,8 +541,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             to: 'draft',
           },
         })
-
-        B3LStorage.delete('b2bQuoteDraftList')
+        dispatch(resetDraftQuoteList())
         B3LStorage.delete('MyQuoteInfo')
         B3LStorage.delete('cartToQuoteId')
       } catch (error: any) {
@@ -776,7 +715,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             <Container flexDirection="column">
               <ContactInfo
                 isB2BUser={isB2BUser}
-                emailAddress={emailAddress}
+                emailAddress={customer.emailAddress}
                 currentChannelId={currentChannelId}
                 info={info.contactInfo}
                 ref={contactInfoRef}
@@ -873,11 +812,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             }}
           >
             <QuoteTable
-              ref={quoteTableRef}
-              updateList={updateList}
               updateSummary={updateSummary}
-              total={total}
-              getQuoteTableDetails={getQuoteTableDetails}
+              total={draftQuoteList.length}
+              items={draftQuoteList}
               isB2BUser={isB2BUser}
             />
           </Container>
@@ -900,7 +837,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             >
               <QuoteSummary ref={quoteSummaryRef} />
               <AddToQuote
-                updateList={updateList}
+                updateList={updateSummary}
                 addToQuote={addToQuote}
                 isB2BUser={isB2BUser}
               />

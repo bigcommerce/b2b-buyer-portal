@@ -22,6 +22,7 @@ import {
 } from '@/constants'
 import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { resetDraftQuoteList, store } from '@/store'
 import { B3LStorage, setCartPermissions } from '@/utils'
 
 import useDomVariation from './useDomVariation'
@@ -51,8 +52,9 @@ const useMyQuote = ({
 
     if (isLogin && +quoteDraftUserId !== 0 && +quoteDraftUserId !== +B3UserId) {
       B3LStorage.set('MyQuoteInfo', {})
-      B3LStorage.set('b2bQuoteDraftList', [])
       B3LStorage.set('quoteDraftUserId', B3UserId || 0)
+
+      store.dispatch(resetDraftQuoteList())
     }
   }, [B3UserId, role])
   const cache = useRef({})
@@ -60,7 +62,7 @@ const useMyQuote = ({
     state: { addQuoteBtn, quoteOnNonPurchasableProductPageBtn },
   } = useContext(CustomStyleContext)
 
-  // quote method and goto draft
+  // quote method and go to draft
   const { addToQuote, addLoadding } =
     addProductFromProductPageToQuote(setOpenPage)
 

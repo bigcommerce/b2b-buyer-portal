@@ -1,14 +1,19 @@
-import { KeyboardEventHandler, useContext, useEffect, useState } from 'react'
+import {
+  KeyboardEventHandler,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { Box, Grid, Typography } from '@mui/material'
 
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
-import { QuoteListitemProps } from '@/pages/quote/shared/config'
 import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
-import { B3LStorage, compareOption, snackbar } from '@/utils'
+import { compareOption, snackbar } from '@/utils'
 import {
   getAllModifierDefaultValue,
   getQuickAddRowFields,
@@ -45,6 +50,9 @@ export default function QuickAdd(props: AddToListContentProps) {
   } = useContext(GlobaledContext)
   const companyStatus = useAppSelector(
     ({ company }) => company.companyInfo.status
+  )
+  const draftQuoteList = useAppSelector(
+    ({ quoteInfo }) => quoteInfo.draftQuoteList
   )
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
@@ -143,139 +151,144 @@ export default function QuickAdd(props: AddToListContentProps) {
     }
   }
 
-  const getProductItems = (
-    variantInfoList: CustomFieldItems,
-    skuValue: SimpleObject,
-    skus: string[]
-  ) => {
-    const notFoundSku: string[] = []
-    const notPurchaseSku: string[] = []
-    const productItems: CustomFieldItems[] = []
-    const passSku: string[] = []
-    const notAddAble: string[] = []
-    const numberLimit: string[] = []
+  const getProductItems = useCallback(
+    (
+      variantInfoList: CustomFieldItems,
+      skuValue: SimpleObject,
+      skus: string[]
+    ) => {
+      const notFoundSku: string[] = []
+      const notPurchaseSku: string[] = []
+      const productItems: CustomFieldItems[] = []
+      const passSku: string[] = []
+      const notAddAble: string[] = []
+      const numberLimit: string[] = []
 
-    skus.forEach((sku) => {
-      const variantInfo: CustomFieldItems | null = (variantInfoList || []).find(
-        (variant: CustomFieldItems) =>
-          variant.variantSku.toUpperCase() === sku.toUpperCase()
-      )
-
-      if (!variantInfo) {
-        notFoundSku.push(sku)
-        return
-      }
-
-      const {
-        productId,
-        variantId,
-        option: options,
-        purchasingDisabled = '1',
-        modifiers,
-        variantSku,
-      } = variantInfo
-      const defaultModifiers = getAllModifierDefaultValue(modifiers)
-
-      const quantity = (skuValue[sku] as number) || 0
-
-      if (purchasingDisabled === '1' && type !== 'shoppingList') {
-        notPurchaseSku.push(sku)
-        return
-      }
-
-      const notPassedModifier = defaultModifiers.filter(
-        (modifier: CustomFieldItems) => !modifier.isVerified
-      )
-      if (notPassedModifier.length > 0) {
-        notAddAble.push(sku)
-
-        return
-      }
-
-      if (+quantity < 1 || +quantity > 1000000) {
-        numberLimit.push(sku)
-        return
-      }
-
-      const optionList = (options || []).reduce(
-        (arr: ShoppingListAddProductOption[], optionStr: string) => {
-          try {
-            const option =
-              typeof optionStr === 'string' ? JSON.parse(optionStr) : optionStr
-            arr.push({
-              optionId: `attribute[${option.option_id}]`,
-              optionValue: `${option.id}`,
-            })
-            return arr
-          } catch (error) {
-            return arr
-          }
-        },
-        []
-      )
-
-      defaultModifiers.forEach((modifier: CustomFieldItems) => {
-        const { type } = modifier
-
-        if (type === 'date') {
-          const { defaultValue } = modifier
-          Object.keys(defaultValue).forEach((key) => {
-            optionList.push({
-              optionId: `attribute[${modifier.option_id}][${key}]`,
-              optionValue: `${modifier.defaultValue[key]}`,
-            })
-          })
-        } else {
-          optionList.push({
-            optionId: `attribute[${modifier.option_id}]`,
-            optionValue: `${modifier.defaultValue}`,
-          })
-        }
-      })
-
-      passSku.push(sku)
-
-      const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
-      const index = b2bQuoteDraftList.findIndex(
-        (item: QuoteListitemProps) => item?.node?.variantSku === variantSku
-      )
-      if (index !== -1) {
-        const oldOptionList = JSON.parse(
-          b2bQuoteDraftList[index].node.optionList
+      skus.forEach((sku) => {
+        const variantInfo: CustomFieldItems | null = (
+          variantInfoList || []
+        ).find(
+          (variant: CustomFieldItems) =>
+            variant.variantSku.toUpperCase() === sku.toUpperCase()
         )
 
-        const isAdd =
-          oldOptionList.length > optionList.length
-            ? compareOption(oldOptionList, optionList)
-            : compareOption(optionList, oldOptionList)
-
-        if (isAdd) {
-          b2bQuoteDraftList[index].node.quantity += +quantity
+        if (!variantInfo) {
+          notFoundSku.push(sku)
+          return
         }
-        if (+b2bQuoteDraftList[index].node.quantity > 1000000) {
+
+        const {
+          productId,
+          variantId,
+          option: options,
+          purchasingDisabled = '1',
+          modifiers,
+          variantSku,
+        } = variantInfo
+        const defaultModifiers = getAllModifierDefaultValue(modifiers)
+
+        const quantity = (skuValue[sku] as number) || 0
+
+        if (purchasingDisabled === '1' && type !== 'shoppingList') {
+          notPurchaseSku.push(sku)
+          return
+        }
+
+        const notPassedModifier = defaultModifiers.filter(
+          (modifier: CustomFieldItems) => !modifier.isVerified
+        )
+        if (notPassedModifier.length > 0) {
+          notAddAble.push(sku)
+
+          return
+        }
+
+        if (+quantity < 1 || +quantity > 1000000) {
           numberLimit.push(sku)
           return
         }
-      }
 
-      productItems.push({
-        ...variantInfo,
-        newSelectOptionList: optionList,
-        productId: parseInt(productId, 10) || 0,
-        quantity,
-        variantId: parseInt(variantId, 10) || 0,
+        const optionList = (options || []).reduce(
+          (arr: ShoppingListAddProductOption[], optionStr: string) => {
+            try {
+              const option =
+                typeof optionStr === 'string'
+                  ? JSON.parse(optionStr)
+                  : optionStr
+              arr.push({
+                optionId: `attribute[${option.option_id}]`,
+                optionValue: `${option.id}`,
+              })
+              return arr
+            } catch (error) {
+              return arr
+            }
+          },
+          []
+        )
+
+        defaultModifiers.forEach((modifier: CustomFieldItems) => {
+          const { type } = modifier
+
+          if (type === 'date') {
+            const { defaultValue } = modifier
+            Object.keys(defaultValue).forEach((key) => {
+              optionList.push({
+                optionId: `attribute[${modifier.option_id}][${key}]`,
+                optionValue: `${modifier.defaultValue[key]}`,
+              })
+            })
+          } else {
+            optionList.push({
+              optionId: `attribute[${modifier.option_id}]`,
+              optionValue: `${modifier.defaultValue}`,
+            })
+          }
+        })
+
+        passSku.push(sku)
+
+        const quoteDraftItem = draftQuoteList.find(
+          (item) => item.node.variantSku === variantSku
+        )
+        if (quoteDraftItem) {
+          const oldOptionList = JSON.parse(quoteDraftItem.node.optionList)
+          let { quantity: quoteDraftItemQuantity } = quoteDraftItem.node
+
+          const isAdd =
+            oldOptionList.length > optionList.length
+              ? compareOption(oldOptionList, optionList)
+              : compareOption(optionList, oldOptionList)
+
+          if (isAdd) {
+            quoteDraftItemQuantity += quantity
+          }
+          if (quoteDraftItemQuantity > 1000000) {
+            numberLimit.push(sku)
+            return
+          }
+        }
+
+        productItems.push({
+          ...variantInfo,
+          newSelectOptionList: optionList,
+          productId: parseInt(productId, 10) || 0,
+          quantity,
+          variantId: parseInt(variantId, 10) || 0,
+        })
       })
-    })
 
-    return {
-      notFoundSku,
-      notPurchaseSku,
-      productItems,
-      passSku,
-      notAddAble,
-      numberLimit,
-    }
-  }
+      return {
+        notFoundSku,
+        notPurchaseSku,
+        productItems,
+        passSku,
+        notAddAble,
+        numberLimit,
+      }
+    },
+    [draftQuoteList, type]
+  )
 
   const showErrors = (
     value: CustomFieldItems,

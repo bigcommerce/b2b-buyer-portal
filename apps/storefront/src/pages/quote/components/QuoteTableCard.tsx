@@ -10,7 +10,7 @@ import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
 
 interface QuoteTableCardProps {
   item: any
-  onEdit: (item: any, itemId: number | string) => void
+  onEdit: (item: any, itemId: string) => void
   onDelete: (id: string) => void
   handleUpdateProductQty: (id: number | string, value: number | string) => void
   idEdit: boolean

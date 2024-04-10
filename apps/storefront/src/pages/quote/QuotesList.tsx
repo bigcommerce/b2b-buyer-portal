@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LangFormatFunction, useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
@@ -14,7 +14,7 @@ import {
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
-import { B3LStorage, currencyFormatConvert, displayFormat } from '@/utils'
+import { currencyFormatConvert, displayFormat } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 
@@ -182,6 +182,9 @@ function QuotesList() {
 
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
   const customer = useAppSelector(({ company }) => company.customer)
+  const draftQuoteListLength = useAppSelector(
+    ({ quoteInfo }) => quoteInfo.draftQuoteList.length
+  )
 
   useEffect(() => {
     const initFilter = async () => {
@@ -219,61 +222,70 @@ function QuotesList() {
     }
   }
 
-  const fetchList = async (params: Partial<FilterSearchProps>) => {
-    const fn = isB2BUser ? getB2BQuotesList : getBCQuotesList
-    const key = isB2BUser ? 'quotes' : 'customerQuotes'
-    const {
-      [key]: { edges = [], totalCount },
-    } = await fn({ ...params, currentChannelId })
-
-    const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
-    if (params.offset === 0 && quoteDraftAllList.length) {
-      const summaryPrice = addPrice()
-
-      const quoteDraft = {
-        node: {
-          quoteNumber: '—',
-          quoteTitle: '—',
-          createdAt: '—',
-          salesRepEmail: '—',
-          createdBy: `${customer.firstName} ${customer.lastName}`,
-          updatedAt: '—',
-          expiredAt: '—',
-          totalAmount: summaryPrice?.grandTotal,
-          status: 0,
-          taxTotal: summaryPrice?.tax,
-        },
-      }
-
+  const fetchList = useCallback(
+    async (params: Partial<FilterSearchProps>) => {
+      const fn = isB2BUser ? getB2BQuotesList : getBCQuotesList
+      const key = isB2BUser ? 'quotes' : 'customerQuotes'
       const {
-        status,
-        createdBy,
-        salesRep,
-        dateCreatedBeginAt,
-        dateCreatedEndAt,
-      } = filterData
+        [key]: { edges = [], totalCount },
+      } = await fn({ ...params, currentChannelId })
 
-      const showDraft =
-        !status && !salesRep && !dateCreatedBeginAt && !dateCreatedEndAt
+      if (params.offset === 0 && draftQuoteListLength) {
+        const summaryPrice = addPrice()
 
-      if (createdBy && showDraft) {
-        const getCreatedByReg = /^[^(]+/
-        const createdByUserRegArr = getCreatedByReg.exec(createdBy)
-        const createdByUser = createdByUserRegArr?.length
-          ? createdByUserRegArr[0].trim()
-          : ''
-        if (createdByUser === quoteDraft.node.createdBy)
+        const quoteDraft = {
+          node: {
+            quoteNumber: '—',
+            quoteTitle: '—',
+            createdAt: '—',
+            salesRepEmail: '—',
+            createdBy: `${customer.firstName} ${customer.lastName}`,
+            updatedAt: '—',
+            expiredAt: '—',
+            totalAmount: summaryPrice?.grandTotal,
+            status: 0,
+            taxTotal: summaryPrice?.tax,
+          },
+        }
+
+        const {
+          status,
+          createdBy,
+          salesRep,
+          dateCreatedBeginAt,
+          dateCreatedEndAt,
+        } = filterData
+
+        const showDraft =
+          !status && !salesRep && !dateCreatedBeginAt && !dateCreatedEndAt
+
+        if (createdBy && showDraft) {
+          const getCreatedByReg = /^[^(]+/
+          const createdByUserRegArr = getCreatedByReg.exec(createdBy)
+          const createdByUser = createdByUserRegArr?.length
+            ? createdByUserRegArr[0].trim()
+            : ''
+          if (createdByUser === quoteDraft.node.createdBy)
+            edges.unshift(quoteDraft)
+        } else if (showDraft) {
           edges.unshift(quoteDraft)
-      } else if (showDraft) {
-        edges.unshift(quoteDraft)
+        }
       }
-    }
 
-    return {
-      edges,
-      totalCount,
-    }
-  }
+      return {
+        edges,
+        totalCount,
+      }
+    },
+    [
+      draftQuoteListLength,
+      currentChannelId,
+      customer.firstName,
+      customer.lastName,
+      filterData,
+      isB2BUser,
+    ]
+  )
 
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {

@@ -10,7 +10,7 @@ import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 
 import { useAppSelector } from '@/store'
-import { B3LStorage, currencyFormat } from '@/utils'
+import { currencyFormat } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
 
 import getQuoteDraftShowPriceTBD from '../shared/utils'
@@ -41,17 +41,18 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
   const showInclusiveTaxPrice = useAppSelector(
     ({ global }) => global.showInclusiveTaxPrice
   )
+  const draftQuoteList = useAppSelector(
+    ({ quoteInfo }) => quoteInfo.draftQuoteList
+  )
 
   const priceCalc = (price: number) => parseFloat(String(price))
 
   const getSummary = useCallback(() => {
-    const productList = B3LStorage.get('b2bQuoteDraftList') || []
-
-    const isHidePrice = getQuoteDraftShowPriceTBD(productList)
+    const isHidePrice = getQuoteDraftShowPriceTBD(draftQuoteList)
 
     setHideQuoteDraftPrice(isHidePrice)
 
-    const newQuoteSummary = productList.reduce(
+    const newQuoteSummary = draftQuoteList.reduce(
       (summary: Summary, product: CustomFieldItems) => {
         const { basePrice, taxPrice: productTax = 0, quantity } = product.node
 
@@ -81,7 +82,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     )
 
     setQuoteSummary(newQuoteSummary)
-  }, [showInclusiveTaxPrice])
+  }, [showInclusiveTaxPrice, draftQuoteList])
 
   useEffect(() => {
     getSummary()
