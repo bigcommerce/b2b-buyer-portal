@@ -1,8 +1,7 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Alert, Box } from '@mui/material'
 
-import { GlobaledContext } from '@/shared/global'
 import { getCompanyCreditConfig } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
 import { B3SStorage } from '@/utils'
@@ -10,10 +9,9 @@ import { B3SStorage } from '@/utils'
 const permissionRoles = [0, 1, 2]
 
 function CompanyCredit() {
-  const {
-    state: { isAgenting },
-  } = useContext(GlobaledContext)
   const role = useAppSelector(({ company }) => company.customer.role)
+
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const [isEnabled, setEnabled] = useState<boolean>(false)
 

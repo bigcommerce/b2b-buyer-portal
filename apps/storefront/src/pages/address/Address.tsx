@@ -45,13 +45,19 @@ interface FilterSearchProps {
 }
 
 function Address() {
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const role = useAppSelector(({ company }) => company.customer.role)
   const {
-    state: { isB2BUser, isAgenting, salesRepCompanyId, addressConfig },
+    state: {
+      isB2BUser,
+      salesRepCompanyId,
+      addressConfig,
+    },
     dispatch,
   } = useContext(GlobaledContext)
 
-  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
-  const role = useAppSelector(({ company }) => company.customer.role)
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+
   const b3Lang = useB3Lang()
 
   const isExtraLarge = useCardListColumn()

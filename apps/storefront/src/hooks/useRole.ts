@@ -6,9 +6,11 @@ import { CustomerRole } from '@/types'
 
 const useRole = () => {
   const {
-    state: { isB2BUser, isAgenting },
+    state: { isB2BUser },
   } = useContext(GlobaledContext)
   const role = useAppSelector(({ company }) => company.customer.role)
+
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const [roleText, setRoleText] = useState('')
 

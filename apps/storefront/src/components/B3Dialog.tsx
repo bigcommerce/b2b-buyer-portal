@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode, useContext, useRef } from 'react'
+import { ReactElement, ReactNode, useRef } from 'react'
 import { useB3Lang } from '@b3/lang'
 import {
   Box,
@@ -10,7 +10,7 @@ import {
 
 import useMobile from '@/hooks/useMobile'
 import useScrollBar from '@/hooks/useScrollBar'
-import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
 
 import CustomButton from './button/CustomButton'
 import B3Sping from './spin/B3Sping'
@@ -62,9 +62,7 @@ export default function B3Dialog<T>({
 
   const [isMobile] = useMobile()
 
-  const {
-    state: { isAgenting },
-  } = useContext(GlobaledContext)
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const handleSaveClick = () => {
     if (handRightClick) {

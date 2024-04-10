@@ -11,9 +11,11 @@ import QuickorderTable from './components/QuickorderTable'
 
 function Quickorder() {
   const {
-    state: { isAgenting, isB2BUser },
+    state: { isB2BUser },
   } = useContext(GlobaledContext)
   const role = useAppSelector(({ company }) => company.customer.role)
+
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const [isMobile] = useMobile()
 

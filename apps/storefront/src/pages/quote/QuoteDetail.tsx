@@ -40,7 +40,7 @@ function QuoteDetail() {
   const navigate = useNavigate()
 
   const {
-    state: { isB2BUser, isAgenting, bcLanguage },
+    state: { isB2BUser, bcLanguage },
   } = useContext(GlobaledContext)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const emailAddress = useAppSelector(
@@ -50,6 +50,7 @@ function QuoteDetail() {
     ({ company }) => company.customer.customerGroupId
   )
   const role = useAppSelector(({ company }) => company.customer.role)
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
   const [isMobile] = useMobile()
 
   const b3Lang = useB3Lang()

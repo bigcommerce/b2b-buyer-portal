@@ -84,7 +84,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
     state: {
       isB2BUser,
       currentChannelId,
-      isAgenting,
       openAPPParams,
       productQuoteEnabled = false,
     },
@@ -92,8 +91,8 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const role = useAppSelector(({ company }) => company.customer.role)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const customerGroupId = useAppSelector(
-    ({ company }) => company.customer.customerGroupId
-  )
+    ({ company }) => company.customer.customerGroupId)
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
   const navigate = useNavigate()
   const [isMobile] = useMobile()
   const { dispatch } = useContext(ShoppingListDetailsContext)

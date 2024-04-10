@@ -1,4 +1,4 @@
-import { ReactElement, useContext, useEffect, useRef, useState } from 'react'
+import { ReactElement, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import {
@@ -14,7 +14,6 @@ import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { useMobile, useSort } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import {
   exportInvoicesAsCSV,
   getInvoiceList,
@@ -73,10 +72,8 @@ const initFilter = {
 function Invoice() {
   const currentDate = new Date().getTime()
   const b3Lang = useB3Lang()
-  const {
-    state: { isAgenting },
-  } = useContext(GlobaledContext)
   const role = useAppSelector(({ company }) => company.customer.role)
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
   const juniorOrSenior = +role === 1 || role === 2
   const navigate = useNavigate()
   const [isMobile] = useMobile()

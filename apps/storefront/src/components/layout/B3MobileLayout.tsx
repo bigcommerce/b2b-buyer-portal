@@ -3,7 +3,6 @@ import { Close, Dehaze, ShoppingBagOutlined } from '@mui/icons-material'
 import { Badge, Box } from '@mui/material'
 
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
 
 import CompanyCredit from '../CompanyCredit'
@@ -26,10 +25,9 @@ export default function B3MobileLayout({
     setOpenMobileSidebar(true)
   }
 
-  const {
-    state: { isAgenting },
-  } = useContext(GlobaledContext)
   const role = useAppSelector(({ company }) => company.customer.role)
+
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const {
     state: {

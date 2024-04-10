@@ -659,10 +659,14 @@ interface CalculatedProductPrice {
 const getCustomerGroupId = () => {
   let customerGroupId = 0
   const currentState = store.getState()
-  const isAgenting = B3SStorage.get('isAgenting') || false
   const customerInfo = currentState.company.customer
   if (customerInfo && Object.keys(customerInfo).length !== 0) {
     customerGroupId = customerInfo.customerGroupId
+  }
+  const {isAgenting} = store.getState().b2bFeatures
+  const B3CustomerInfo = B3SStorage.get('B3CustomerInfo')
+  if (B3CustomerInfo && Object.keys(B3CustomerInfo).length !== 0) {
+    customerGroupId = B3CustomerInfo.customerGroupId
   }
   const salesRepCustomerGroupId = B3SStorage.get('salesRepCustomerGroupId') || 0
   if (isAgenting) return +salesRepCustomerGroupId || customerGroupId

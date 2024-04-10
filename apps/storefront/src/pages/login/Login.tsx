@@ -20,6 +20,7 @@ import {
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
+import { useAppSelector } from '@/store'
 import {
   b2bLogger,
   B3SStorage,
@@ -87,11 +88,12 @@ export default function Login(props: RegisteredProps) {
       logo,
       B3UserId,
       salesRepCompanyId = 0,
-      isAgenting,
       registerEnabled,
     },
     dispatch,
   } = useContext(GlobaledContext)
+
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const {
     state: {

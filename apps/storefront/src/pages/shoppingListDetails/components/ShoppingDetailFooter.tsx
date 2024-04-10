@@ -77,8 +77,11 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const b3Lang = useB3Lang()
 
   const {
-    state: { isAgenting, productQuoteEnabled = false },
+    state: {
+      productQuoteEnabled = false,
+    },
   } = useContext(GlobaledContext)
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const companyId = useAppSelector(({ company }) => company.companyInfo.id)

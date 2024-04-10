@@ -48,13 +48,18 @@ function AccountSetting() {
     mode: 'onSubmit',
   })
 
-  const {
-    state: { isB2BUser, isAgenting, currentChannelId, salesRepCompanyId },
-  } = useContext(GlobaledContext)
-
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const customer = useAppSelector(({ company }) => company.customer)
   const role = useAppSelector(({ company }) => company.customer.role)
+  const {
+    state: {
+      isB2BUser,
+      currentChannelId,
+      salesRepCompanyId,
+    },
+  } = useContext(GlobaledContext)
+
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const {
     state: {

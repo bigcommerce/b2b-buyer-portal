@@ -4,6 +4,8 @@ import {
   superAdminBeginMasquerade,
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
+import { store } from '@/store'
+import { setIsAgenting } from '@/store/slices/b2bFeatures'
 
 import { B3SStorage } from './b3Storage'
 
@@ -34,7 +36,7 @@ export const startMasquerade = async ({
   if (!data?.superAdminMasquerading) return
   const { id, companyName, customerGroupId = 0 } = data.superAdminMasquerading
 
-  B3SStorage.set('isAgenting', true)
+  store.dispatch(setIsAgenting({ isAgenting: true }))
   B3SStorage.set('salesRepCompanyId', id)
   B3SStorage.set('salesRepCompanyName', companyName)
   B3SStorage.set('salesRepCustomerGroupId', customerGroupId)
@@ -45,7 +47,6 @@ export const startMasquerade = async ({
       salesRepCompanyId: id,
       salesRepCompanyName: companyName,
       salesRepCustomerGroupId: customerGroupId,
-      isAgenting: true,
       isB2BUser: true,
     },
   })
@@ -59,7 +60,7 @@ export const endMasquerade = async ({
   // change group in bc throug b2b api
   await superAdminEndMasquerade(salesRepCompanyId, B3UserId)
 
-  B3SStorage.delete('isAgenting')
+  store.dispatch(setIsAgenting({ isAgenting: false }))
   B3SStorage.delete('salesRepCompanyId')
   B3SStorage.delete('salesRepCompanyName')
   B3SStorage.delete('salesRepCustomerGroupId')
@@ -70,7 +71,6 @@ export const endMasquerade = async ({
       salesRepCompanyId: '',
       salesRepCompanyName: '',
       salesRepCustomerGroupId: '',
-      isAgenting: false,
     },
   })
 }

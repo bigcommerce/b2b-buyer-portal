@@ -1,9 +1,8 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Box, Button, Grid, Typography } from '@mui/material'
 
 import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
 import {
   BcCartData,
@@ -26,9 +25,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
   const [selectedAccount, setSelectedAccount] = useState<number | string>(0)
   const [currentToken, setCurrentToken] = useState<string>('$')
 
-  const {
-    state: { isAgenting },
-  } = useContext(GlobaledContext)
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const containerStyle = isMobile
     ? {

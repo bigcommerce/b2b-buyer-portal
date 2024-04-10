@@ -14,6 +14,7 @@ import {
   setCompanyStatus,
   setCustomerInfo,
 } from '@/store/slices/company'
+import { setIsAgenting } from '@/store/slices/b2bFeatures'
 import { b2bLogger, B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
@@ -116,7 +117,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('nextPath', '')
   B3SStorage.set('salesRepCompanyId', '')
   B3SStorage.set('salesRepCustomerGroupId', '')
-  B3SStorage.set('isAgenting', '')
+  store.dispatch(setIsAgenting({ isAgenting: false }))
 
   B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
     cartTip: 0,
@@ -144,7 +145,6 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
       emailAddress: '',
       salesRepCompanyId: '',
       salesRepCompanyName: '',
-      isAgenting: false,
     },
   })
 }
@@ -219,14 +219,13 @@ export const agentInfo = async (
           customerGroupId = 0,
         } = data.superAdminMasquerading
 
-        B3SStorage.set('isAgenting', true)
+        dispatch(setIsAgenting({ isAgenting: true }))
         B3SStorage.set('salesRepCompanyId', id)
         B3SStorage.set('salesRepCompanyName', companyName)
         B3SStorage.set('salesRepCustomerGroupId', customerGroupId)
         dispatch({
           type: 'common',
           payload: {
-            isAgenting: true,
             salesRepCompanyId: id,
             salesRepCompanyName: companyName,
             salesRepCustomerGroupId: customerGroupId,

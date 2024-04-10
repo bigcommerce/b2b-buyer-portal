@@ -1,9 +1,8 @@
-import { Dispatch, SetStateAction, useContext, useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import type { OpenPageState } from '@b3/hooks'
 import { Dialog, DialogActions, DialogContent } from '@mui/material'
 
 import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
 
 import { CustomButton } from '..'
@@ -17,11 +16,9 @@ function CheckoutTip(props: CheckoutTipProps) {
   const [open, setOpen] = useState<boolean>(true)
 
   const [isMobile] = useMobile()
-
-  const {
-    state: { isAgenting },
-  } = useContext(GlobaledContext)
   const role = useAppSelector(({ company }) => company.customer.role)
+
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const { href } = window.location
 

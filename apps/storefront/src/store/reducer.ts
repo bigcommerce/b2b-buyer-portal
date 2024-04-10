@@ -11,6 +11,7 @@ import {
 } from 'redux-persist'
 
 import company from './slices/company'
+import b2bFeatures from './slices/b2bFeatures'
 import global from './slices/global'
 import lang from './slices/lang'
 import storeConfigs from './slices/storeConfigs'
@@ -44,6 +45,7 @@ export const store = configureStore({
     company,
     storeConfigs,
     theme,
+    b2bFeatures,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware(middlewareOptions),
 })

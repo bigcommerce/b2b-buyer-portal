@@ -58,7 +58,6 @@ export default function App() {
       isB2BUser,
       B3UserId,
       currentChannelId,
-      isAgenting,
       quoteConfig,
       storefrontConfig,
       productQuoteEnabled,
@@ -68,6 +67,7 @@ export default function App() {
   } = useContext(GlobaledContext)
 
   const storeDispatch = useAppDispatch()
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
 
   const customerId = useAppSelector(({ company }) => company.customer.id)
   const emailAddress = useAppSelector(

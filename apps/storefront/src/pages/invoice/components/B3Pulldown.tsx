@@ -1,11 +1,10 @@
-import { MouseEvent, useContext, useEffect, useState } from 'react'
+import { MouseEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
-import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
 import { InvoiceList } from '@/types/invoice'
 import { snackbar } from '@/utils'
@@ -36,9 +35,7 @@ function B3Pulldown({
 }: B3PulldownProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const role = useAppSelector(({ company }) => company.customer.role)
-  const {
-    state: { isAgenting },
-  } = useContext(GlobaledContext)
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
   const juniorOrSenior = +role === 1 || role === 2
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [isCanPay, setIsCanPay] = useState<boolean>(true)
