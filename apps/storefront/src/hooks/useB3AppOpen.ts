@@ -33,6 +33,51 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
     params: {},
   })
 
+  const handleJudgeSearchNode = (element: MouseEvent) => {
+    let isSearchNode = false
+    const target = element.target as HTMLAnchorElement
+    const searchNodeKey = ['alt', 'title', 'name']
+
+    searchNodeKey.forEach((key) => {
+      if (
+        target.getAttribute(key) &&
+        target.getAttribute(key)?.includes('search')
+      ) {
+        isSearchNode = true
+      }
+    })
+
+    if (
+      !isSearchNode &&
+      typeof target.className === 'string' &&
+      target.className?.includes('search')
+    ) {
+      const parentNode = target?.parentNode as HTMLAnchorElement
+      const childNodeList = target?.childNodes
+
+      if (
+        parentNode &&
+        (parentNode?.title === 'search' || parentNode?.name === 'search')
+      ) {
+        isSearchNode = true
+      }
+
+      if (childNodeList && childNodeList.length > 0) {
+        childNodeList.forEach((childNode) => {
+          const child = childNode as HTMLAnchorElement
+          if (
+            child &&
+            (child?.title === 'search' || child?.name === 'search')
+          ) {
+            isSearchNode = true
+          }
+        })
+      }
+    }
+
+    return isSearchNode
+  }
+
   useLayoutEffect(() => {
     const registerArr = Array.from(
       document.querySelectorAll(globalB3['dom.registerElement'])
@@ -44,6 +89,8 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
     if (registerArr.length || allOtherArr.length) {
       const handleTriggerClick = (e: MouseEvent) => {
         if (registerArr.includes(e.target) || allOtherArr.includes(e.target)) {
+          const isSearchNode = handleJudgeSearchNode(e)
+          if (isSearchNode) return false
           e.preventDefault()
           e.stopPropagation()
           const isRegisterArrInclude = registerArr.includes(e.target)

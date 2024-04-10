@@ -26,6 +26,7 @@ import {
   getValidOptionsList,
   globalSnackbar,
   isAllRequiredOptionFilled,
+  serialize,
 } from '@/utils'
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config'
@@ -48,44 +49,6 @@ interface AddProductsToShoppingListParams {
   gotoShoppingDetail: (id: number | string) => void
   customerGroupId?: number
   b3Lang: LangFormatFunction
-}
-
-export const serialize = (form: any) => {
-  const arr: any = {}
-  for (let i = 0; i < form.elements.length; i += 1) {
-    const file: any = form.elements[i]
-    switch (file.type) {
-      case undefined:
-      case 'button':
-      case 'file':
-      case 'reset':
-      case 'hidden':
-        break
-      case 'submit':
-        break
-      case 'checkbox':
-        if (file.checked) {
-          arr[file.name] = file.value
-        } else {
-          arr[file.name] = ''
-        }
-        break
-      case 'radio':
-        if (!file.checked) {
-          break
-        } else {
-          arr[file.name] = file.value
-          break
-        }
-      default:
-        if (arr[file.name]) {
-          arr[file.name] = `${arr[file.name]},${file.value}`
-        } else {
-          arr[file.name] = file.value
-        }
-    }
-  }
-  return arr
 }
 
 export const getProductOptionList = (optionMap: CustomFieldItems = {}) => {
@@ -277,7 +240,9 @@ function PDP({ setOpenPage }: PDPProps) {
     const sku = (
       productView.querySelector('[data-product-sku]')?.innerHTML ?? ''
     ).trim()
-    const form = productView.querySelector('form[data-cart-item-add]')
+    const form = productView.querySelector(
+      'form[data-cart-item-add]'
+    ) as HTMLFormElement
     return {
       productId: +productId,
       sku,
