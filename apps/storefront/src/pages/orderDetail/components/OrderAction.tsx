@@ -114,7 +114,9 @@ function OrderCard(props: OrderCardProps) {
 
   const b3Lang = useB3Lang()
 
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const dialogData = [
     {

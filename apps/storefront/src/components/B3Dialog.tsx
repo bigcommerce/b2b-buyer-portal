@@ -62,7 +62,9 @@ export default function B3Dialog<T>({
 
   const [isMobile] = useMobile()
 
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const handleSaveClick = () => {
     if (handRightClick) {

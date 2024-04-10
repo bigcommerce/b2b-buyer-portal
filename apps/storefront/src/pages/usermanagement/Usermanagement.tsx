@@ -1,11 +1,10 @@
-import { useContext, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { B3Dialog, B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import { deleteUsers, getUsers } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
 import { snackbar } from '@/utils'
@@ -44,9 +43,9 @@ function Usermanagement() {
 
   const isExtraLarge = useCardListColumn()
 
-  const {
-    state: { salesRepCompanyId },
-  } = useContext(GlobaledContext)
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
 
   const role = useAppSelector(({ company }) => company.customer.role)
   const companyInfo = useAppSelector(({ company }) => company.companyInfo)

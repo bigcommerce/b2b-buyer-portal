@@ -7,7 +7,7 @@ import { B3Sping, CustomButton } from '@/components'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { store, useAppSelector } from '@/store'
-import { B3SStorage, calculateProductListPrice, snackbar } from '@/utils'
+import { calculateProductListPrice, snackbar } from '@/utils'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import { ShoppingListProductItem } from '../../../types'
@@ -36,9 +36,8 @@ export default function SearchProduct({
   const customerGroupId = useAppSelector(
     (state) => state.company.customer.customerGroupId
   )
-  const companyStatus = useAppSelector(
-    ({ company }) => company.companyInfo.status
-  )
+  const companyStatus = useAppSelector(({ company }) => company.companyInfo.status)
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id)
   const [isLoading, setIsLoading] = useState(false)
   const [productListOpen, setProductListOpen] = useState(false)
   const [isAdded, setIsAdded] = useState(false)
@@ -67,7 +66,7 @@ export default function SearchProduct({
     }
 
     const companyInfoId = store.getState().company.companyInfo.id
-    const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+    const companyId = companyInfoId || salesRepCompanyId
     const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
     setIsLoading(true)

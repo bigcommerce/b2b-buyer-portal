@@ -125,13 +125,17 @@ function B3Mean({
 
 function Dashboard(props: DashboardProps) {
   const {
-    state: { B3UserId, salesRepCompanyId = 0 },
+    state: { B3UserId = 0 },
     dispatch,
   } = useContext(GlobaledContext)
   const customerId = useAppSelector(({ company }) => company.customer.id)
 
   const { setOpenPage } = props
   const b3Lang = useB3Lang()
+
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
 
   const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] =
     useState<number>(+salesRepCompanyId)

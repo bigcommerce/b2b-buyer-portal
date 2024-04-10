@@ -73,7 +73,9 @@ function Invoice() {
   const currentDate = new Date().getTime()
   const b3Lang = useB3Lang()
   const role = useAppSelector(({ company }) => company.customer.role)
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const juniorOrSenior = +role === 1 || role === 2
   const navigate = useNavigate()
   const [isMobile] = useMobile()

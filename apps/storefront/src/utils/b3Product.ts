@@ -4,7 +4,6 @@ import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { store } from '@/store'
 import { setDraftQuoteList } from '@/store/slices/quoteInfo'
 import { QuoteItem } from '@/types/quotes'
-import { B3SStorage } from '@/utils'
 
 interface AdditionalCalculatedPricesProps {
   [key: string]: number
@@ -117,12 +116,14 @@ const getProductExtraPrice = async (
     })
   }
 
+  const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany
+
   if (productIds.length) {
     const currentState = store.getState()
     const fn =
       +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
     const companyInfoId = currentState.company.companyInfo.id
-    const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+    const companyId = companyInfoId || salesRepCompanyId
     const { customerGroupId } = currentState.company.customer
 
     const { productsSearch: additionalProductsSearch } = await fn({

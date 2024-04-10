@@ -104,8 +104,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
       isB2BUser,
       B3UserId,
       currentChannelId,
-      salesRepCompanyId,
-      salesRepCompanyName,
       countriesList,
       currentChannelId: channelId,
       openAPPParams,
@@ -123,6 +121,12 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   )
   const draftQuoteList = useAppSelector(
     ({ quoteInfo }) => quoteInfo.draftQuoteList
+  )
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const salesRepCompanyName = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName
   )
 
   const {

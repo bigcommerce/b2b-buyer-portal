@@ -175,15 +175,18 @@ function QuotesList() {
 
   const [isMobile] = useMobile()
 
+  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customer = useAppSelector(({ company }) => company.customer)
   const {
-    state: { isB2BUser, salesRepCompanyId, openAPPParams, currentChannelId },
+    state: { isB2BUser, openAPPParams, currentChannelId },
     dispatch,
   } = useContext(GlobaledContext)
 
-  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
-  const customer = useAppSelector(({ company }) => company.customer)
   const draftQuoteListLength = useAppSelector(
     ({ quoteInfo }) => quoteInfo.draftQuoteList.length
+  )
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )
 
   useEffect(() => {

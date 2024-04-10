@@ -2,25 +2,71 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 
-export interface MasqueradeCompany {
+export interface Masquerade {
+  id: number
   isAgenting: boolean
+  companyName: string
+  companyStatus: string
+}
+
+export interface MasqueradeCompany {
+  masqueradeCompany: Masquerade
 }
 
 const initialState: MasqueradeCompany = {
-  isAgenting: false,
+  masqueradeCompany: {
+    id: 0,
+    isAgenting: false,
+    companyName: '',
+    companyStatus: '',
+  },
 }
 
 export const b2bFeaturesSlice = createSlice({
   name: 'b2bFeatures',
   initialState,
   reducers: {
+    clearMasqueradeCompany: () => initialState,
     setIsAgenting: (state, { payload }: PayloadAction<MasqueradeCompany>) => {
-      state.isAgenting = payload.isAgenting
+      state.masqueradeCompany.isAgenting = payload.masqueradeCompany.isAgenting
+    },
+    setMasqueradeCompany: (
+      state,
+      { payload }: PayloadAction<MasqueradeCompany>
+    ) => {
+      state.masqueradeCompany = payload.masqueradeCompany
+    },
+    setIsMasqueradeCompanyId: (
+      state,
+      { payload }: PayloadAction<MasqueradeCompany>
+    ) => {
+      state.masqueradeCompany.id = payload.masqueradeCompany.id
+    },
+    setIsMasqueradeCompanyName: (
+      state,
+      { payload }: PayloadAction<MasqueradeCompany>
+    ) => {
+      state.masqueradeCompany.companyName =
+        payload.masqueradeCompany.companyName
+    },
+    setIsMasqueradeCompanyStatus: (
+      state,
+      { payload }: PayloadAction<MasqueradeCompany>
+    ) => {
+      state.masqueradeCompany.companyStatus =
+        payload.masqueradeCompany.companyStatus
     },
   },
 })
 
-export const { setIsAgenting } = b2bFeaturesSlice.actions
+export const {
+  clearMasqueradeCompany,
+  setIsAgenting,
+  setMasqueradeCompany,
+  setIsMasqueradeCompanyId,
+  setIsMasqueradeCompanyName,
+  setIsMasqueradeCompanyStatus,
+} = b2bFeaturesSlice.actions
 
 export default persistReducer(
   { key: 'b2bFeatures', storage },

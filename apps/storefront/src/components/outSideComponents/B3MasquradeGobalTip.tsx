@@ -16,7 +16,7 @@ import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminEndMasquerade } from '@/shared/service/b2b'
-import { setIsAgenting, useAppDispatch, useAppSelector } from '@/store'
+import { clearMasqueradeCompany, useAppDispatch,useAppSelector } from '@/store'
 import { B3SStorage } from '@/utils'
 
 import {
@@ -39,12 +39,20 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
   const { isOpen, setOpenPage } = props
   const customerId = useAppSelector(({ company }) => company.customer.id)
   const {
-    state: { salesRepCompanyName, salesRepCompanyId, B3UserId },
+    state: { B3UserId },
     dispatch,
   } = useContext(GlobaledContext)
-
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
   const appDispatch = useAppDispatch()
+
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const salesRepCompanyName = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName
+  )
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const { hash, href } = window.location
 
@@ -95,16 +103,20 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       })
     } else {
       await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
-      appDispatch(setIsAgenting({ isAgenting: false }))
-      B3SStorage.delete('salesRepCompanyId')
-      B3SStorage.delete('salesRepCompanyName')
-      B3SStorage.delete('salesRepCustomerGroupId')
       dispatch({
         type: 'common',
         payload: {
           salesRepCompanyId: '',
           salesRepCompanyName: '',
           salesRepCustomerGroupId: '',
+        },
+      })
+
+      appDispatch(clearMasqueradeCompany())
+      dispatch({
+        type: 'common',
+        payload: {
+          isAgenting: false,
         },
       })
       setOpenPage({

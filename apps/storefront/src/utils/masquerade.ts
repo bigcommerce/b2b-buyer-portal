@@ -4,10 +4,12 @@ import {
   superAdminBeginMasquerade,
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
-import { store } from '@/store'
-import { setIsAgenting } from '@/store/slices/b2bFeatures'
-
-import { B3SStorage } from './b3Storage'
+import {
+  clearMasqueradeCompany,
+  MasqueradeCompany,
+  setMasqueradeCompany,
+  store,
+} from '@/store'
 
 interface StartMasqueradeParams {
   dispatch: DispatchProps
@@ -36,39 +38,40 @@ export const startMasquerade = async ({
   if (!data?.superAdminMasquerading) return
   const { id, companyName, customerGroupId = 0 } = data.superAdminMasquerading
 
-  store.dispatch(setIsAgenting({ isAgenting: true }))
-  B3SStorage.set('salesRepCompanyId', id)
-  B3SStorage.set('salesRepCompanyName', companyName)
-  B3SStorage.set('salesRepCustomerGroupId', customerGroupId)
+  const masqueradeCompany: MasqueradeCompany = {
+    masqueradeCompany: {
+      id,
+      isAgenting: true,
+      companyName,
+      companyStatus: customerGroupId,
+    },
+  }
+
+  store.dispatch(setMasqueradeCompany(masqueradeCompany))
 
   dispatch({
     type: 'common',
     payload: {
-      salesRepCompanyId: id,
-      salesRepCompanyName: companyName,
-      salesRepCustomerGroupId: customerGroupId,
       isB2BUser: true,
     },
   })
 }
 
 export const endMasquerade = async ({
-  salesRepCompanyId,
   B3UserId,
   dispatch,
 }: EndMasqueradeParams) => {
+  const {masqueradeCompany} = store.getState().b2bFeatures
+  const salesRepCompanyId = masqueradeCompany.id
+
   // change group in bc throug b2b api
   await superAdminEndMasquerade(salesRepCompanyId, B3UserId)
 
-  store.dispatch(setIsAgenting({ isAgenting: false }))
-  B3SStorage.delete('salesRepCompanyId')
-  B3SStorage.delete('salesRepCompanyName')
-  B3SStorage.delete('salesRepCustomerGroupId')
+  store.dispatch(clearMasqueradeCompany())
 
   dispatch({
     type: 'common',
     payload: {
-      salesRepCompanyId: '',
       salesRepCompanyName: '',
       salesRepCustomerGroupId: '',
     },

@@ -15,7 +15,9 @@ function Quickorder() {
   } = useContext(GlobaledContext)
   const role = useAppSelector(({ company }) => company.customer.role)
 
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const [isMobile] = useMobile()
 

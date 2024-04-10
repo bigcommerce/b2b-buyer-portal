@@ -27,7 +27,9 @@ export default function B3MobileLayout({
 
   const role = useAppSelector(({ company }) => company.customer.role)
 
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const {
     state: {

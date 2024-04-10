@@ -91,8 +91,11 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const role = useAppSelector(({ company }) => company.customer.role)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const customerGroupId = useAppSelector(
-    ({ company }) => company.customer.customerGroupId)
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+    ({ company }) => company.customer.customerGroupId
+  )
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const navigate = useNavigate()
   const [isMobile] = useMobile()
   const { dispatch } = useContext(ShoppingListDetailsContext)

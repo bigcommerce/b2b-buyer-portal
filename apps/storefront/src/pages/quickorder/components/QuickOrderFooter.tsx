@@ -35,7 +35,6 @@ import { useAppSelector } from '@/store'
 import {
   addQuoteDraftProducts,
   b2bLogger,
-  B3SStorage,
   b3TriggerCartNumber,
   calculateProductListPrice,
   currencyFormat,
@@ -231,7 +230,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         return
       }
 
-      const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+      const companyId = companyInfoId
 
       const { productsSearch: getInventoryInfos } =
         await getVariantInfoByProductId({

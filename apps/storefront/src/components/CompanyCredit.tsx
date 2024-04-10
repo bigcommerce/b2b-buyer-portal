@@ -11,7 +11,9 @@ const permissionRoles = [0, 1, 2]
 function CompanyCredit() {
   const role = useAppSelector(({ company }) => company.customer.role)
 
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const [isEnabled, setEnabled] = useState<boolean>(false)
 

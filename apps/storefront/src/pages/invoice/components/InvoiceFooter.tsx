@@ -25,7 +25,9 @@ function InvoiceFooter(props: InvoiceFooterProps) {
   const [selectedAccount, setSelectedAccount] = useState<number | string>(0)
   const [currentToken, setCurrentToken] = useState<string>('$')
 
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const containerStyle = isMobile
     ? {

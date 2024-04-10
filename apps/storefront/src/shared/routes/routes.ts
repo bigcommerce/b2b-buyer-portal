@@ -307,7 +307,7 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   return routes.filter((item: RouteItem) => {
     const { permissions = [] } = item
     const isAgenting = useAppSelector(
-      ({ b2bFeatures }) => b2bFeatures.isAgenting
+      ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
     )
 
     if (role === 3 && !isAgenting) {

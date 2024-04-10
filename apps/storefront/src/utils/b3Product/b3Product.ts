@@ -139,12 +139,14 @@ const getProductExtraPrice = async (
   }
 
   if (productIds.length) {
+    const {masqueradeCompany} = store.getState().b2bFeatures
+    const salesRepCompanyId = masqueradeCompany.id
     const fn =
       +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
     const currentState = store.getState()
     const companyInfoId = currentState.company.companyInfo.id
     const { customerGroupId } = currentState.company.customer
-    const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+    const companyId = companyInfoId || salesRepCompanyId
     const { productsSearch: additionalProductsSearch } = await fn({
       productIds,
       companyId,

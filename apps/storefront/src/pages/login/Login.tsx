@@ -83,18 +83,16 @@ export default function Login(props: RegisteredProps) {
   const b3Lang = useB3Lang()
 
   const {
-    state: {
-      isCheckout,
-      logo,
-      B3UserId,
-      salesRepCompanyId = 0,
-      registerEnabled,
-    },
+    state: { isCheckout, logo, B3UserId, registerEnabled },
     dispatch,
   } = useContext(GlobaledContext)
 
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
-
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const {
     state: {
       loginPageButton,

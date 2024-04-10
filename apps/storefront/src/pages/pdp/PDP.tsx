@@ -21,7 +21,6 @@ import {
 } from '@/shared/service/b2b'
 import { store, useAppSelector } from '@/store'
 import {
-  B3SStorage,
   getDefaultCurrencyInfo,
   getValidOptionsList,
   globalSnackbar,
@@ -104,8 +103,7 @@ export const addProductsToShoppingList = async ({
   b3Lang,
 }: AddProductsToShoppingListParams) => {
   const { currency_code: currencyCode } = getDefaultCurrencyInfo()
-  const companyInfoId = store.getState().company.companyInfo.id
-  const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+  const { id: companyId } = store.getState().company.companyInfo
   const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
   const { productsSearch } = await getProducts({

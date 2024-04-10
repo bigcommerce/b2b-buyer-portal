@@ -52,14 +52,16 @@ function AccountSetting() {
   const customer = useAppSelector(({ company }) => company.customer)
   const role = useAppSelector(({ company }) => company.customer.role)
   const {
-    state: {
-      isB2BUser,
-      currentChannelId,
-      salesRepCompanyId,
-    },
+    state: { isB2BUser, currentChannelId },
   } = useContext(GlobaledContext)
 
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const {
     state: {

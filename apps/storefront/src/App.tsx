@@ -67,8 +67,9 @@ export default function App() {
   } = useContext(GlobaledContext)
 
   const storeDispatch = useAppDispatch()
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
-
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const customerId = useAppSelector(({ company }) => company.customer.id)
   const emailAddress = useAppSelector(
     ({ company }) => company.customer.emailAddress

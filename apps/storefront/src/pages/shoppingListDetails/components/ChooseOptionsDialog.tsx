@@ -137,7 +137,9 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
   )
-
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
   const customerGroupId = useAppSelector(
     (state) => state.company.customer.customerGroupId
   )
@@ -213,7 +215,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         if (productIds.length > 0) {
           const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
-          const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+          const companyId = companyInfoId || salesRepCompanyId
           const { productsSearch }: CustomFieldItems = await getProducts({
             productIds,
             companyId,

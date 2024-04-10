@@ -50,8 +50,16 @@ function ShoppingLists() {
 
   const b3Lang = useB3Lang()
 
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+
   const {
-    state: { isB2BUser, currentChannelId, salesRepCompanyId, openAPPParams },
+    state: {
+      isB2BUser,
+      currentChannelId,
+      openAPPParams,
+    },
     dispatch,
   } = useContext(GlobaledContext)
 

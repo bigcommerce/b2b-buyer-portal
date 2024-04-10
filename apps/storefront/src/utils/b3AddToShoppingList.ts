@@ -1,6 +1,5 @@
 import { searchB2BProducts } from '@/shared/service/b2b'
 import { store } from '@/store'
-import { B3SStorage } from '@/utils'
 
 import { conversionProductsList } from './b3Product/shared/config'
 
@@ -8,10 +7,11 @@ export const handleGetCurrentProductInfo = async (
   productId: number | string
 ) => {
   const currentState = store.getState()
+  const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany
   const { currencies } = currentState.storeConfigs
   const { customerGroupId } = currentState.company.customer
   const companyInfoId = currentState.company.companyInfo.id
-  const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+  const companyId = companyInfoId || salesRepCompanyId
   const defaultCurrency = currencies.currencies.find(
     (currency) => currency.is_default
   )

@@ -55,12 +55,18 @@ interface OrderProps {
 
 function Order({ isCompanyOrder = false }: OrderProps) {
   const {
-    state: { isB2BUser, salesRepCompanyId },
+    state: { isB2BUser },
   } = useContext(GlobaledContext)
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
   const role = useAppSelector(({ company }) => company.customer.role)
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
   const b3Lang = useB3Lang()
+
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const [isRequestLoading, setIsRequestLoading] = useState(false)
 

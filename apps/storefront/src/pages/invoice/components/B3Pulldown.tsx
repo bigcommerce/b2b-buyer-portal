@@ -35,7 +35,9 @@ function B3Pulldown({
 }: B3PulldownProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const role = useAppSelector(({ company }) => company.customer.role)
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.isAgenting)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const juniorOrSenior = +role === 1 || role === 2
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [isCanPay, setIsCanPay] = useState<boolean>(true)

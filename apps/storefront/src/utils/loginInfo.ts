@@ -7,15 +7,19 @@ import {
   getUserCompany,
 } from '@/shared/service/b2b'
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc'
-import { store } from '@/store'
 import {
   clearCompanyInfo,
   setCompanyInfo,
   setCompanyStatus,
   setCustomerInfo,
 } from '@/store/slices/company'
-import { setIsAgenting } from '@/store/slices/b2bFeatures'
 import { resetDraftQuoteList } from '@/store/slices/quoteInfo'
+import {
+  clearMasqueradeCompany,
+  MasqueradeCompany,
+  setMasqueradeCompany,
+  store,
+} from '@/store'
 import { b2bLogger, B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
@@ -113,12 +117,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   B3SStorage.set('isB2BUser', false)
   B3SStorage.set('B2BToken', false)
   B3SStorage.set('B3UserId', '')
-
-  B3SStorage.set('salesRepCompanyName', '')
   B3SStorage.set('nextPath', '')
-  B3SStorage.set('salesRepCompanyId', '')
-  B3SStorage.set('salesRepCustomerGroupId', '')
-  store.dispatch(setIsAgenting({ isAgenting: false }))
 
   B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
     cartTip: 0,
@@ -130,6 +129,7 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
 
   store.dispatch(clearCompanyInfo())
+  store.dispatch(clearMasqueradeCompany())
 
   dispatch({
     type: 'common',
@@ -220,18 +220,16 @@ export const agentInfo = async (
           customerGroupId = 0,
         } = data.superAdminMasquerading
 
-        dispatch(setIsAgenting({ isAgenting: true }))
-        B3SStorage.set('salesRepCompanyId', id)
-        B3SStorage.set('salesRepCompanyName', companyName)
-        B3SStorage.set('salesRepCustomerGroupId', customerGroupId)
-        dispatch({
-          type: 'common',
-          payload: {
-            salesRepCompanyId: id,
-            salesRepCompanyName: companyName,
-            salesRepCustomerGroupId: customerGroupId,
+        const masqueradeCompany: MasqueradeCompany = {
+          masqueradeCompany: {
+            id,
+            isAgenting: true,
+            companyName,
+            companyStatus: customerGroupId,
           },
-        })
+        }
+
+        store.dispatch(setMasqueradeCompany(masqueradeCompany))
       }
     } catch (error) {
       b2bLogger.error(error)
