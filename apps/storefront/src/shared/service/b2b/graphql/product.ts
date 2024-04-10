@@ -80,6 +80,7 @@ const searchProducts = (data: CustomFieldItems) => `{
     storeHash: "${storeHash}"
     channelId: ${B3SStorage.get('B3channelId') || 1}
     customerGroupId: ${data.customerGroupId || 0}
+    ${data?.categoryFilter ? `categoryFilter: ${data?.categoryFilter}` : ''}
   ){
     id,
     name,

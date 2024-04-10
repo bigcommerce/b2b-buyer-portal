@@ -72,6 +72,7 @@ export default function SearchProduct({
         search: searchText,
         companyId,
         customerGroupId,
+        categoryFilter: true,
       })
 
       const product = conversionProductsList(productsSearch)
