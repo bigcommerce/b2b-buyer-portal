@@ -36,7 +36,7 @@ export default function B3Tip({
               }}
               sx={{
                 top: `${
-                  24 + index * 10 + index * (isMobile ? 80 : 85)
+                  24 + index * 10 + index * (isMobile ? 80 : 90)
                 }px !important`,
                 width: '320px',
                 height: 'auto',
@@ -55,6 +55,10 @@ export default function B3Tip({
                       display: `${msg.isClose ? 'block' : 'none'}`,
                     },
                     mb: '5px',
+
+                    '& .MuiAlert-message': {
+                      overflow: 'unset',
+                    },
                   }}
                   variant="filled"
                   key={msg.id}
