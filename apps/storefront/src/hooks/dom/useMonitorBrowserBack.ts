@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 
 import { useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
 import { B3SStorage } from '@/utils'
 
 interface UseMonitorBrowserBackProps {
@@ -10,7 +11,7 @@ interface UseMonitorBrowserBackProps {
 const useMonitorBrowserBack = ({ isOpen }: UseMonitorBrowserBackProps) => {
   const role = useAppSelector(({ company }) => company.customer.role)
   const history = window.location
-  const isLogin = role !== 100
+  const isLogin = role !== CustomerRole.GUEST
 
   useEffect(() => {
     const isEnterB2BBuyerPortal = B3SStorage.get('isEnterB2BBuyerPortal')

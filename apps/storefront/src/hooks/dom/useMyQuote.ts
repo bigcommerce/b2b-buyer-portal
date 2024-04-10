@@ -22,6 +22,7 @@ import {
 } from '@/constants'
 import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { CustomerRole } from '@/types'
 import { resetDraftQuoteList, store } from '@/store'
 import { B3LStorage, setCartPermissions } from '@/utils'
 
@@ -47,9 +48,7 @@ const useMyQuote = ({
 }: MutationObserverProps) => {
   useEffect(() => {
     const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
-    const roles = [0, 1, 2, 3, 99]
-    const isLogin = roles.includes(+role)
-
+    const isLogin = role !== CustomerRole.GUEST
     if (isLogin && +quoteDraftUserId !== 0 && +quoteDraftUserId !== +B3UserId) {
       B3LStorage.set('MyQuoteInfo', {})
       B3LStorage.set('quoteDraftUserId', B3UserId || 0)

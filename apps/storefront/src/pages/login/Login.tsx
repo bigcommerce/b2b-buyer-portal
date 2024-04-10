@@ -20,7 +20,8 @@ import {
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
-import { useAppSelector } from '@/store'
+import { isLoggedInSelector, useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
 import {
   b2bLogger,
   B3SStorage,
@@ -63,6 +64,7 @@ interface RegisteredProps {
 type AlertColor = 'success' | 'info' | 'warning' | 'error'
 
 export default function Login(props: RegisteredProps) {
+  const isLoggedIn = useAppSelector(isLoggedInSelector)
   const [isLoading, setLoading] = useState(true)
   const [isMobile] = useMobile()
 
@@ -138,17 +140,15 @@ export default function Login(props: RegisteredProps) {
 
         const loginFlag = getLoginFlag(search, 'loginFlag')
         const showTipInfo = getLoginFlag(search, 'showTip') !== 'false'
-        const closeIsLogout = getLoginFlag(search, 'closeIsLogout') === '1'
 
         setShowTipInfo(showTipInfo)
 
         if (loginFlag) setLoginFlag(loginFlag)
 
-        const isLogout = B3SStorage.get('isLogout') === '1'
         if (loginFlag === '7') {
           snackbar.error(b3Lang('login.loginText.invoiceErrorTip'))
         }
-        if (loginFlag === '3' && !isLogout) {
+        if (loginFlag === '3' && !isLoggedIn) {
           const { result } = (await bcLogoutLogin()).data.logout
 
           if (result !== 'success') return
@@ -160,15 +160,11 @@ export default function Login(props: RegisteredProps) {
           // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
           window.sessionStorage.clear()
 
-          B3SStorage.set('isLogout', '1')
-
           logoutSession()
+          setLoading(false)
+          window.location.href = '/#/login'
           window.location.reload()
           return
-        }
-
-        if (closeIsLogout) {
-          B3SStorage.delete('isLogout')
         }
 
         setLoginInfo(Info)
@@ -276,7 +272,6 @@ export default function Login(props: RegisteredProps) {
 
         B3SStorage.set('B2BToken', token)
         customerLoginAPI(storefrontLoginToken)
-        B3SStorage.delete('isLogout')
 
         if (errors?.length || !token) {
           if (errors?.length) {
@@ -294,7 +289,10 @@ export default function Login(props: RegisteredProps) {
         } else {
           const info = await getCurrentCustomerInfo(dispatch, token)
 
-          if (info?.userType === 3 && info?.role === 3) {
+          if (
+            info?.userType === 3 &&
+            info?.role === CustomerRole.JUNIOR_BUYER
+          ) {
             navigate('/dashboard')
             return
           }
@@ -302,7 +300,7 @@ export default function Login(props: RegisteredProps) {
 
           if (!isLoginLandLocation) return
 
-          if (info?.role === 2) {
+          if (info?.role === CustomerRole.JUNIOR_BUYER) {
             navigate('/shoppingLists')
           } else {
             navigate('/orders')
@@ -310,9 +308,10 @@ export default function Login(props: RegisteredProps) {
         }
       } catch (error) {
         snackbar.error(b3Lang('login.loginTipInfo.accountincorrect'))
+      } finally {
+        setLoading(false)
       }
     }
-    setLoading(false)
   }
 
   const handleCreateAccountSubmit = () => {

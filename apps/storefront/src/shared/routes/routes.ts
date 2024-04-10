@@ -3,8 +3,9 @@ import { matchPath } from 'react-router-dom'
 
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
 import { getCustomerInfo } from '@/shared/service/bc'
-import { useAppSelector } from '@/store'
-import { b2bLogger, B3SStorage, isB2bTokenPage, logoutSession } from '@/utils'
+import { store, useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
+import { b2bLogger, isB2bTokenPage, logoutSession } from '@/utils'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
 
@@ -390,11 +391,14 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
 }
 
 const gotoAllowedAppPage = async (
-  role: number,
+  role: CustomerRole,
   gotoPage: (url: string) => void,
   isAccountEnter?: boolean
 ) => {
-  if (B3SStorage.get('isLogout') === '1') {
+  const currentState = store.getState()
+  const isLoggedIn =
+    currentState.company.customer || role !== CustomerRole.GUEST
+  if (!isLoggedIn) {
     gotoPage('/login?loginFlag=3&&closeIsLogout=1')
     return
   }
@@ -418,14 +422,14 @@ const gotoAllowedAppPage = async (
 
   let url = hash.split('#')[1] || ''
   if (
-    (!url && role !== 100 && pathname.includes('account.php')) ||
+    (!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) ||
     isAccountEnter
   )
     switch (role) {
-      case 2:
+      case CustomerRole.JUNIOR_BUYER:
         url = '/shoppingLists'
         break
-      case 3:
+      case CustomerRole.SUPER_ADMIN:
         url = '/dashboard'
         break
       default:
