@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
-import { OpenPageState } from '@b3/hooks'
 
+import { OpenPageState } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
 import { setCartPermissions } from '@/utils/b3RolePermissions'

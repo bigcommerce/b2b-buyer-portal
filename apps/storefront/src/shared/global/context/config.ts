@@ -71,15 +71,6 @@ export interface GlobalState {
   isCheckout: boolean
   isCloseGotoBCHome: boolean
   isB2BUser: boolean
-  customerId: number | string
-  customer: CustomerInfo
-  companyInfo: {
-    id: string | number
-    companyName: string | number
-    companyStatus: string | number
-  }
-  emailAddress: string
-  role: number | string
   realRole: number | string
   logo: string
   isCompanyAccount: boolean
@@ -124,7 +115,7 @@ export interface GlobalState {
   multiStorefrontEnabled: boolean
 }
 
-export const initState = {
+export const initState: GlobalState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
   isB2BUser: B3SStorage.get('isB2BUser') || false,

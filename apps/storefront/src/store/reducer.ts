@@ -10,8 +10,8 @@ import {
   REHYDRATE,
 } from 'redux-persist'
 
-import company from './slices/company'
 import b2bFeatures from './slices/b2bFeatures'
+import company from './slices/company'
 import global from './slices/global'
 import lang from './slices/lang'
 import quoteInfo from './slices/quoteInfo'

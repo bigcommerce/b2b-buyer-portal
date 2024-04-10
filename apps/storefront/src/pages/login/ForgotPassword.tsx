@@ -1,12 +1,11 @@
 import { Dispatch, SetStateAction, useContext, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import { Box, ImageListItem, Typography } from '@mui/material'
 
 import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
-import { useMobile } from '@/hooks'
+import { OpenPageState,useMobile  } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { b2bLogger } from '@/utils'

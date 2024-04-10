@@ -139,7 +139,7 @@ const getProductExtraPrice = async (
   }
 
   if (productIds.length) {
-    const {masqueradeCompany} = store.getState().b2bFeatures
+    const { masqueradeCompany } = store.getState().b2bFeatures
     const salesRepCompanyId = masqueradeCompany.id
     const fn =
       +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
@@ -650,7 +650,7 @@ const getCustomerGroupId = () => {
   if (customerInfo && Object.keys(customerInfo).length !== 0) {
     customerGroupId = customerInfo.customerGroupId
   }
-  const {isAgenting} = store.getState().b2bFeatures
+  const { isAgenting } = store.getState().b2bFeatures.masqueradeCompany
   const B3CustomerInfo = B3SStorage.get('B3CustomerInfo')
   if (B3CustomerInfo && Object.keys(B3CustomerInfo).length !== 0) {
     customerGroupId = B3CustomerInfo.customerGroupId

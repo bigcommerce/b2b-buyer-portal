@@ -7,7 +7,6 @@ import {
   useRef,
 } from 'react'
 import globalB3 from '@b3/global-b3'
-import type { OpenPageState } from '@b3/hooks'
 import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit'
 import cloneDeep from 'lodash-es/cloneDeep'
 
@@ -21,7 +20,7 @@ import {
   ADD_TO_SHOPPING_LIST_DEFUALT_VALUE,
   TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
 } from '@/constants'
-import { useGetButtonText } from '@/hooks'
+import { OpenPageState,useGetButtonText  } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { setGlabolCommonState, useAppDispatch } from '@/store'

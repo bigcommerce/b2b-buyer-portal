@@ -304,14 +304,15 @@ const invoiceFlag = 'invoice?invoiceId'
 const { hash, pathname, href } = window.location
 
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
-  const { isB2BUser, role, storefrontConfig, quoteConfig } = globalState
+  const { isB2BUser, storefrontConfig, quoteConfig } = globalState
+  const { role } = store.getState().company.customer
   return routes.filter((item: RouteItem) => {
     const { permissions = [] } = item
     const isAgenting = useAppSelector(
       ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
     )
 
-    if (role === 3 && !isAgenting) {
+    if (role === CustomerRole.SUPER_ADMIN && !isAgenting) {
       return permissions.includes(4)
     }
 
@@ -321,14 +322,14 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
         storefrontConfig && storefrontConfig[item.configKey || '']
 
       if (item.configKey === 'quotes') {
-        if (role === 100) {
+        if (role === CustomerRole.GUEST) {
           const quoteGuest =
             quoteConfig.find(
               (config: QuoteConfigProps) => config.key === 'quote_for_guest'
             )?.value || '0'
           return quoteGuest === '1' && navListKey
         }
-        if (role === 99) {
+        if (role === CustomerRole.B2C) {
           const quoteIndividualCustomer =
             quoteConfig.find(
               (config: QuoteConfigProps) =>
@@ -342,18 +343,21 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
           (config: QuoteConfigProps) =>
             config.key === 'shopping_list_on_product_page'
         )?.extraFields
-        if (role === 100) {
+        if (role === CustomerRole.GUEST) {
           return shoppingListOnProductPage?.guest && navListKey
         }
-        if (role === 99) {
+        if (role === CustomerRole.B2C) {
           return shoppingListOnProductPage?.b2c && navListKey
         }
       }
       if (typeof navListKey === 'boolean') return navListKey
-      return permissions.includes(99)
+      return permissions.includes(CustomerRole.B2C)
     }
 
-    if (!permissions.includes(+role || 0) || !storefrontConfig) {
+    if (
+      !permissions.includes(+role || CustomerRole.ADMIN) ||
+      !storefrontConfig
+    ) {
       return false
     }
 

@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 
 import { HeadlessRoutes } from '@/constants'
+import { OpenPageState } from '@/hooks'
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP'
 import {
   addProductsFromCartToQuote,

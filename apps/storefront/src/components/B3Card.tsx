@@ -1,5 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react'
-import type { OpenPageState } from '@b3/hooks'
+
+import { OpenPageState } from '@/hooks'
 
 import RegisteredCloseButton from './RegisteredCloseButton'
 import { CardContainer } from './styled'

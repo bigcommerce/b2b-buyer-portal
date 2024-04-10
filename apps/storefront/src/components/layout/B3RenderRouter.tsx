@@ -13,9 +13,9 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom'
-import type { OpenPageState } from '@b3/hooks'
 
 import Loading from '@/components/loadding/Loading'
+import { OpenPageState } from '@/hooks'
 import { RegisteredProvider } from '@/pages/registered/context/RegisteredContext'
 import { GlobaledContext } from '@/shared/global'
 import {

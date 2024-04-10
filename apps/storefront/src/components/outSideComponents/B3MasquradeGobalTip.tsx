@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, useContext, useState } from 'react'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import GroupIcon from '@mui/icons-material/Group'
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft'
@@ -11,12 +10,12 @@ import {
   END_MASQUERADE_DEFAULT_VALUE,
   TRANSLATION_MASQUERADE_BUTTON_VARIABLE,
 } from '@/constants'
-import { useGetButtonText } from '@/hooks'
+import { OpenPageState,useGetButtonText  } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminEndMasquerade } from '@/shared/service/b2b'
-import { clearMasqueradeCompany, useAppDispatch,useAppSelector } from '@/store'
+import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store'
 import { B3SStorage } from '@/utils'
 
 import {

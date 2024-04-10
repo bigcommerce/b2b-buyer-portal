@@ -4,7 +4,7 @@ import { HashRouter } from 'react-router-dom'
 import GlobalDialog from '@/components/extraTip/GlobalDialog'
 import B3RenderRouter from '@/components/layout/B3RenderRouter'
 import showPageMask from '@/components/loadding/B3showPageMask'
-import { useSetOpen } from '@/hooks'
+import { useB3AppOpen, useSetOpen } from '@/hooks'
 import useDomHooks from '@/hooks/dom/useDomHooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
@@ -26,7 +26,6 @@ import {
   setStorefrontConfig,
 } from '@/utils'
 
-import { useB3AppOpen } from './hooks/useB3AppOpen'
 import { getCompanyInfo } from './utils/loginInfo'
 import {
   setGlabolCommonState,
@@ -186,7 +185,7 @@ export default function App() {
         getStoreTaxZoneRates(),
         setStorefrontConfig(dispatch, currentChannelId),
         getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
-        getCompanyUserInfo(emailAddress, dispatch, customerId, isB2BUser),
+        getCompanyUserInfo(emailAddress, dispatch, customerId),
         getCompanyInfo(B3UserId, role),
       ])
       const userInfo = {

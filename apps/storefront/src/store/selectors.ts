@@ -28,7 +28,7 @@ export const isLoggedInSelector = createSelector(
 
 export const isAgentingSelector = createSelector(
   b2bFeaturesSelector,
-  (b2bFeatures) => b2bFeatures.isAgenting
+  (b2bFeatures) => b2bFeatures.masqueradeCompany.isAgenting
 )
 
 export const formatedQuoteDraftListSelector = createSelector(

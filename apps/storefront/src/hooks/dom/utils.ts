@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction } from 'react'
 import globalB3 from '@b3/global-b3'
-import type { OpenPageState } from '@b3/hooks'
 
 import B3AddToQuoteTip from '@/components/B3AddToQuoteTip'
+import { OpenPageState } from '@/hooks'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { getCart } from '@/shared/service/bc/graphql/cart'
 import { store } from '@/store'

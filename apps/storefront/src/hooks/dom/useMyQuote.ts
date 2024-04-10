@@ -7,7 +7,6 @@ import {
   useRef,
 } from 'react'
 import globalB3 from '@b3/global-b3'
-import type { OpenPageState } from '@b3/hooks'
 import cloneDeep from 'lodash-es/cloneDeep'
 
 import {
@@ -20,10 +19,10 @@ import {
   ADD_TO_QUOTE_DEFAULT_VALUE,
   TRANSLATION_ADD_TO_QUOTE_VARIABLE,
 } from '@/constants'
-import { useGetButtonText } from '@/hooks'
+import { OpenPageState,useGetButtonText  } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { CustomerRole } from '@/types'
 import { resetDraftQuoteList, store } from '@/store'
+import { CustomerRole } from '@/types'
 import { B3LStorage, setCartPermissions } from '@/utils'
 
 import useDomVariation from './useDomVariation'

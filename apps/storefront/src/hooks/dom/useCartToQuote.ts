@@ -6,7 +6,6 @@ import {
   useEffect,
 } from 'react'
 import globalB3 from '@b3/global-b3'
-import type { OpenPageState } from '@b3/hooks'
 
 import {
   getContrastColor,
@@ -14,7 +13,7 @@ import {
   setMediaStyle,
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { useGetButtonText } from '@/hooks'
+import { OpenPageState,useGetButtonText  } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { useAppSelector } from '@/store'
 import { B3SStorage, globalSnackbar } from '@/utils'

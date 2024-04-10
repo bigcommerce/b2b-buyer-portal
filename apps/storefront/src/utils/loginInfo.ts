@@ -8,18 +8,19 @@ import {
 } from '@/shared/service/b2b'
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc'
 import {
+  clearMasqueradeCompany,
+  MasqueradeCompany,
+  setMasqueradeCompany,
+  store,
+} from '@/store'
+import {
   clearCompanyInfo,
   setCompanyInfo,
   setCompanyStatus,
   setCustomerInfo,
 } from '@/store/slices/company'
 import { resetDraftQuoteList } from '@/store/slices/quoteInfo'
-import {
-  clearMasqueradeCompany,
-  MasqueradeCompany,
-  setMasqueradeCompany,
-  store,
-} from '@/store'
+import { CustomerRole } from '@/types'
 import { b2bLogger, B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
@@ -135,15 +136,6 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     type: 'common',
     payload: {
       isB2BUser: false,
-      role: 100,
-      customerId: '',
-      customer: {
-        phoneNumber: '',
-        firstName: '',
-        lastName: '',
-        emailAddress: '',
-      },
-      emailAddress: '',
       salesRepCompanyId: '',
       salesRepCompanyName: '',
     },
@@ -204,13 +196,8 @@ export const getCompanyInfo = async (
   return companyInfo
 }
 
-export const agentInfo = async (
-  customerId: number | string,
-  role: number,
-  b3UserId: number | string,
-  dispatch: any
-) => {
-  if (+role === 3) {
+export const agentInfo = async (customerId: number | string, role: number) => {
+  if (+role === CustomerRole.SUPER_ADMIN) {
     try {
       const data: any = await getAgentInfo(customerId)
       if (data?.superAdminMasquerading) {
@@ -240,8 +227,7 @@ export const agentInfo = async (
 export const getCompanyUserInfo = async (
   emailAddress: string,
   dispatch: DispatchProps,
-  customerId: string | number,
-  isB2BUser = false
+  customerId: string | number
 ) => {
   try {
     if (!emailAddress || !customerId) return undefined
@@ -260,15 +246,6 @@ export const getCompanyUserInfo = async (
         realRole: role,
       },
     })
-
-    if (isB2BUser) {
-      dispatch({
-        type: 'common',
-        payload: {
-          role,
-        },
-      })
-    }
 
     return {
       userType,
@@ -342,7 +319,7 @@ export const getCurrentCustomerInfo = async (
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(id, role, userType),
-        agentInfo(customerId, role, id, dispatch),
+        agentInfo(customerId, role),
       ])
 
       const isB2BUser =
@@ -379,18 +356,8 @@ export const getCurrentCustomerInfo = async (
         type: 'common',
         payload: {
           isB2BUser,
-          role: isB2BUser ? role : 99,
           realRole: role,
-          customerId,
           B3UserId: id,
-          companyInfo,
-          customer: {
-            phoneNumber,
-            firstName,
-            lastName,
-            emailAddress,
-          },
-          emailAddress,
         },
       })
 

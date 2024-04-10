@@ -6,12 +6,11 @@ import {
   useState,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import { Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
-import { useMobile, useScrollBar } from '@/hooks'
+import { OpenPageState,useMobile, useScrollBar  } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b'

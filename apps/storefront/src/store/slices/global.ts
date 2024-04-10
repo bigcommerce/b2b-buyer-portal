@@ -1,7 +1,8 @@
 import { Dispatch, SetStateAction } from 'react'
-import type { OpenPageState } from '@b3/hooks'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice, Draft } from '@reduxjs/toolkit'
+
+import { OpenPageState } from '@/hooks'
 
 export interface TaxZoneRates {
   rate?: number

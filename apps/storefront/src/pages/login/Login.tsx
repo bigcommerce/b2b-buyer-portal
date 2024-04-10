@@ -6,12 +6,11 @@ import {
   useState,
 } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
-import { useMobile } from '@/hooks'
+import { OpenPageState,useMobile  } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { defaultCreateAccountPanel } from '@/shared/customStyleButtton/context/config'
 import { GlobaledContext } from '@/shared/global'

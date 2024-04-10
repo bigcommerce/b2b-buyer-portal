@@ -5,14 +5,13 @@ import {
   useEffect,
   useState,
 } from 'react'
-import type { OpenPageState } from '@b3/hooks'
 import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material'
 
 import {
   FINISH_QUOTE_DEFUALT_VALUE,
   TRANSLATION_FINISH_QUOTE_VARIABLE,
 } from '@/constants'
-import { useGetButtonText } from '@/hooks'
+import { OpenPageState,useGetButtonText  } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { useAppSelector } from '@/store'
