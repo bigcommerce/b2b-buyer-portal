@@ -177,7 +177,7 @@ export default function SearchProduct({
       </Typography>
       <TextField
         hiddenLabel
-        placeholder="eg Towel"
+        placeholder={b3Lang(`global.searchProduct.placeholder.${type}`)}
         variant="filled"
         fullWidth
         size="small"
