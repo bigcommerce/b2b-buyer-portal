@@ -5,10 +5,13 @@ on:
     branches:
       - dev
       - main
+      - feat/open-source-buyer-portal
   pull_request:
     branches:
       - dev
       - main
+      - feat/open-source-buyer-portal
+  workflow_dispatch:
 
 jobs:
   test:
