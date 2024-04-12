@@ -3,6 +3,8 @@ import { beforeEach, describe, it, vi } from 'vitest'
 import { ThemeFrame } from '@/components'
 import Quickorder from '@/pages/quickorder/Quickorder'
 import { GlobalProvider } from '@/shared/global'
+import b2bFeatures from '@/store/slices/b2bFeatures'
+import company from '@/store/slices/company'
 import global from '@/store/slices/global'
 import storeConfigs from '@/store/slices/storeConfigs'
 import theme from '@/store/slices/theme'
@@ -38,7 +40,7 @@ describe('Quickorder component', () => {
         </ThemeFrame>
       </GlobalProvider>,
       {
-        reducer: { global, theme, storeConfigs },
+        reducer: { global, theme, storeConfigs, company, b2bFeatures },
       }
     )
   })

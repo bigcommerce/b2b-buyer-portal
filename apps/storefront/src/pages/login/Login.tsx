@@ -5,12 +5,12 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
-import { OpenPageState,useMobile  } from '@/hooks'
+import { OpenPageState, useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { defaultCreateAccountPanel } from '@/shared/customStyleButtton/context/config'
 import { GlobaledContext } from '@/shared/global'
@@ -32,12 +32,7 @@ import {
 } from '@/utils'
 
 import LoginWidget from './component/LoginWidget'
-import {
-  getLoginFlag,
-  loginCheckout,
-  LoginConfig,
-  LoginInfoInit,
-} from './config'
+import { loginCheckout, LoginConfig, LoginInfoInit } from './config'
 import LoginForm from './LoginForm'
 import LoginPanel from './LoginPanel'
 import { LoginContainer, LoginImage } from './styled'
@@ -63,37 +58,34 @@ interface RegisteredProps {
 type AlertColor = 'success' | 'info' | 'warning' | 'error'
 
 export default function Login(props: RegisteredProps) {
-  const isLoggedIn = useAppSelector(isLoggedInSelector)
-  const [isLoading, setLoading] = useState(true)
-  const [isMobile] = useMobile()
-
   const { setOpenPage } = props
 
-  const [showTipInfo, setShowTipInfo] = useState<boolean>(true)
-  const [flag, setLoginFlag] = useState<string>('')
-  const [loginAccount, setLoginAccount] = useState<LoginConfig>({
-    emailAddress: '',
-    password: '',
-  })
-  const location = useLocation()
-
-  const [loginInfo, setLoginInfo] = useState<LoginInfoInit | null>(null)
-
-  const navigate = useNavigate()
-
-  const b3Lang = useB3Lang()
-
-  const {
-    state: { isCheckout, logo, B3UserId, registerEnabled },
-    dispatch,
-  } = useContext(GlobaledContext)
-
+  const isLoggedIn = useAppSelector(isLoggedInSelector)
   const salesRepCompanyId = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )
   const isAgenting = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
   )
+  const [isLoading, setLoading] = useState(true)
+  const [isMobile] = useMobile()
+
+  const [showTipInfo, setShowTipInfo] = useState<boolean>(true)
+  const [flag, setLoginFlag] = useState<string>('')
+  const [loginInfo, setLoginInfo] = useState<LoginInfoInit | null>(null)
+  const [loginAccount, setLoginAccount] = useState<LoginConfig>({
+    emailAddress: '',
+    password: '',
+  })
+  const navigate = useNavigate()
+  const b3Lang = useB3Lang()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const {
+    state: { isCheckout, logo, B3UserId, registerEnabled },
+    dispatch,
+  } = useContext(GlobaledContext)
+
   const {
     state: {
       loginPageButton,
@@ -135,10 +127,8 @@ export default function Login(props: RegisteredProps) {
           displayStoreLogo: displayStoreLogo || false,
         }
 
-        const { search } = location
-
-        const loginFlag = getLoginFlag(search, 'loginFlag')
-        const showTipInfo = getLoginFlag(search, 'showTip') !== 'false'
+        const loginFlag = searchParams.get('loginFlag')
+        const showTipInfo = searchParams.get('showTip') !== 'false'
 
         setShowTipInfo(showTipInfo)
 
@@ -147,7 +137,7 @@ export default function Login(props: RegisteredProps) {
         if (loginFlag === '7') {
           snackbar.error(b3Lang('login.loginText.invoiceErrorTip'))
         }
-        if (loginFlag === '3' && !isLoggedIn) {
+        if (loginFlag === '3' && isLoggedIn) {
           const { result } = (await bcLogoutLogin()).data.logout
 
           if (result !== 'success') return
@@ -161,7 +151,6 @@ export default function Login(props: RegisteredProps) {
 
           logoutSession()
           setLoading(false)
-          window.location.href = '/#/login'
           window.location.reload()
           return
         }
@@ -245,6 +234,10 @@ export default function Login(props: RegisteredProps) {
   const handleLoginSubmit = async (data: LoginConfig) => {
     setLoading(true)
     setLoginAccount(data)
+    setSearchParams((prevURLSearchParams) => {
+      prevURLSearchParams.delete('loginFlag')
+      return prevURLSearchParams
+    })
 
     if (isCheckout) {
       try {
