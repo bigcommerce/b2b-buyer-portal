@@ -1,23 +1,29 @@
-
 A monorepo frontend application designed for the BigCommerce B2B Edition Buyer portal. It's built using Turborepo, TypeScript, and React.
 
 ## Index
 
-- [Prerequisites](#-prerequisites)
-- [Core Technologies](#-core-technologies)
-- [Workspaces](#-workspaces)
-- [Tools and Libraries](#-tools-and-libraries)
-- [System Setup](#-system-setup)
-- [Local Development](#-local-development)
+- [Index](#index)
+- [☑ Prerequisites](#-prerequisites)
+  - [Step 1: Access the Storefronts Manager](#step-1-access-the-storefronts-manager)
+  - [Step 2: Enable B2B on Your Channel](#step-2-enable-b2b-on-your-channel)
+  - [Step 3: Contact Us for Additional Support](#step-3-contact-us-for-additional-support)
+- [🚀 Core Technologies](#-core-technologies)
+- [📦 Workspaces](#-workspaces)
+- [🛠 Tools and Libraries](#-tools-and-libraries)
+- [🛠 System Setup](#-system-setup)
+- [⚙ Local Development](#-local-development)
 - [Running Project Locally](#running-project-locally)
-- [Contribution](#-contribution)
-- [Contact & Support](#-contact--support)
+- [Deploying the project](#deploying-the-project)
+  - [Common issues:](#common-issues)
+- [🤝 Contribution](#-contribution)
+- [📞 Contact \& Support](#-contact--support)
 
 ## ☑ Prerequisites
 
 Before you begin, ensure you have the BigCommerce B2B Edition App installed. To set up your storefront with B2B capabilities, follow the steps below:
 
 ### Step 1: Access the Storefronts Manager
+
 After installing the B2B Edition App, go to the app's dashboard and select the 'Storefronts' section.
 
 <img width="200" alt="image" src="https://github.com/B3BC/b2b-buyer-portal/assets/140021227/0d733ddb-e59c-4e5a-8801-4a744940d66b">
@@ -28,6 +34,7 @@ Choose the channel where you wish to enable B2B functionality. Initially, B2B fe
 <img width="480" alt="image" src="https://github.com/B3BC/b2b-buyer-portal/assets/140021227/b425115c-54d9-4382-9371-4e81888eb0af">
 
 ### Step 3: Contact Us for Additional Support
+
 For assistance with activating the remote buyer portal or to inquire about multi-storefront support, which allows you to utilize B2B features across multiple channels, please reach out to our team at b2b@bigcommerce.com, or raise an issue right here in this repository.
 
 ## 🚀 Core Technologies
@@ -71,16 +78,13 @@ For assistance with activating the remote buyer portal or to inquire about multi
 4. Copy environment variables: `cp apps/storefront/.env-example apps/storefront/.env`.
 5. Update the following values in `.env`:
 
-- `VITE_B2B_URL`: The URL of the B2B Edition API.
-- `VITE_B2B_SOCKET_URL`: The URL of the B2B Edition WebSocket API.
-- `VITE_TRANSLATION_SERVICE_URL`: The URL of the translation service API.
 - `VITE_CHANNEL_ID`: The ID of the channel to use for the storefront.
 - `VITE_STORE_HASH`: The hash of the store to use for the storefront.
-- `VITE_CATPCHA_SETKEY`: The reCAPTCHA site key (optional).
-- `VITE_B2B_CLIENT_ID`: The client ID of the BigCommerce App from the [developer portal](https://devtools.bigcommerce.com/).
-- `VITE_LOCAL_DEBUG`: Set to "FALSE". This is for connecting our local development with the B2B Edition GraphQL API.
+- `VITE_ASSETS_ABSOLUTE_PATH`: For deployment, set this to the absolute path of the hosted compiled assets.
 
-6. Start the development server: `yarn RUN dev`.
+Environment variables have been updated so you can run your UI directly into production storefronts.
+
+1. Start the development server: `yarn run dev`.
 
 ## Running Project Locally
 
@@ -131,6 +135,81 @@ For assistance with activating the remote buyer portal or to inquire about multi
 6. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
 
 Note: If linters aren't functional, run `yarn prepare` first.
+
+## Deploying the project
+
+Building your buyer portal application requires you to run the `yarn build:production` command. This command will generate a `dist` folder in the `apps/storefront` directory and inside an `assets` folder containing the compiled assets.
+
+**_Before building, make sure you have updated your `VITE_ASSETS_ABSOLUTE_PATH` variable pointing to where the assets folder is hosted as we'll be using this to generate the correct asset paths for the application when its mounted._**
+
+Once you have uploaded the contents of the `dist` folder to your hosting provider, you'll have to create a footer script in your BigCommerce storefront that points to the built files generated in the `dist` folder. The contents of the script are the same as the footer script B2B Edition installs in your store, but with the updated paths. It should look something like this:
+
+```html
+<script>
+  window.b3CheckoutConfig = {
+    routes: {
+      dashboard: '/account.php?action=order_status',
+    },
+  }
+  window.B3 = {
+    setting: {
+      store_hash: '<YOUR_STORE_HASH>',
+      channel_id: '<YOUR_CHANNEL_ID>',
+      b2b_url: 'https://api.bundleb2b.net',
+      captcha_setkey: '6LdGN_sgAAAAAGYFg1lmVoakQ8QXxbhWqZ1GpYaJ',
+    },
+    'dom.checkoutRegisterParentElement': '#checkout-app',
+    'dom.registerElement':
+      '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel, #checkout-customer-returning .form-legend-container [href="#"]',
+    'dom.openB3Checkout': 'checkout-customer-continue',
+    before_login_goto_page: '/account.php?action=order_status',
+    checkout_super_clear_session: 'true',
+    'dom.navUserLoginElement': '.navUser-item.navUser-item--account',
+  }
+</script>
+<script
+  type="module"
+  crossorigin=""
+  src="<YOUR_APP_URL_HERE>/index.*.js"
+></script>
+<script
+  nomodule=""
+  crossorigin=""
+  src="<YOUR_APP_URL_HERE>/polyfills-legacy.*.js"
+></script>
+<script
+  nomodule=""
+  crossorigin=""
+  src="<YOUR_APP_URL_HERE>/index-legacy.*.js"
+></script>
+```
+
+Replace `<YOUR_APP_URL_HERE>` with the URL where your build is hosted, `<YOUR_STORE_HASH>` and `<YOUR_CHANNEL_ID>` with its respective values. Replace the `*` in the file names with the generated hash from the build step.
+
+Also, you'll have to input the following header script:
+
+```html
+<script>
+  var b2bHideBodyStyle = document.createElement('style')
+  b2bHideBodyStyle.id = 'b2b-account-page-hide-body'
+  const removeCart = () => {
+    const style = document.createElement('style')
+    style.type = 'text/css'
+    style.id = 'b2bPermissions-cartElement-id'
+    style.innerHTML =
+      '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"], .button--cardAdd, .card-figcaption-button, [data-emthemesmodez-cart-item-add], .add-to-cart-button { display: none !important }'
+    document.getElementsByTagName('head').item(0).appendChild(style)
+  }
+  removeCart()
+</script>
+```
+
+### Common issues:
+
+- **Cross-Origin Issues:** If you encounter cross-origin issues, ensure you have the correct URLs in your `.env` file and verify that your store's origin URL is allowed. You can use a tunnel service like [ngrok](https://ngrok.com/) to expose your local server to the internet.
+- **Environment Variables:** Ensure you have the correct environment variables set in your `.env` file. These variables are used to configure your application for different environments.
+- **Header and Footer Scripts:** Ensure you have the correct header and footer scripts set in your BigCommerce store. These scripts are used to load your application into the storefront.
+- **Build Errors:** If you encounter build errors, ensure you have the correct dependencies installed and that your project is set up correctly. You can run `yarn prepare` to ensure all dependencies are installed and up to date.
 
 ## 🤝 Contribution
 

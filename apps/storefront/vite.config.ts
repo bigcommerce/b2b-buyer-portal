@@ -34,8 +34,11 @@ export default defineConfig(({ mode }) => {
         }
       ) {
         if (type === 'asset') {
+          const isCustom = env.VITE_ASSETS_ABSOLUTE_PATH !== undefined
           const name = filename.split('assets/')[1]
-          return `${assetsAbsolutePath[mode]}${name}`
+          return isCustom
+            ? `${env.VITE_ASSETS_ABSOLUTE_PATH}${name}`
+            : `${assetsAbsolutePath[mode]}${name}`
         }
 
         return undefined
