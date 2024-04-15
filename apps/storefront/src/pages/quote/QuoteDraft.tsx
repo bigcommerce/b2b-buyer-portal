@@ -30,7 +30,12 @@ import {
   getBCCustomerAddresses,
 } from '@/shared/service/b2b'
 import { deleteCart } from '@/shared/service/bc/graphql/cart'
-import { resetDraftQuoteList, useAppDispatch, useAppSelector } from '@/store'
+import {
+  resetDraftQuoteList,
+  setQuoteUserId,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store'
 import { AddressItemType, BCAddressItemType } from '@/types/address'
 import {
   addQuoteDraftProducts,
@@ -275,7 +280,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           setInfo(quoteInfo)
         }
       } finally {
-        B3LStorage.set('quoteDraftUserId', B3UserId || customer.id || 0)
+        const quoteUserId = B3UserId || customer.id || 0
+        dispatch(setQuoteUserId(+quoteUserId))
+
         setLoading(false)
       }
     }

@@ -7,7 +7,6 @@ import { RootState } from './reducer'
 const themeSelector = (state: RootState) => state.theme
 const storeConfigSelector = (state: RootState) => state.storeConfigs
 const companySelector = (state: RootState) => state.company
-const b2bFeaturesSelector = (state: RootState) => state.b2bFeatures
 const quoteInfoSelector = (state: RootState) => state.quoteInfo
 
 export const themeFrameSelector = createSelector(
@@ -24,11 +23,6 @@ export const defaultCurrencyCodeSelector = createSelector(
 export const isLoggedInSelector = createSelector(
   companySelector,
   (company) => company.customer.role !== CustomerRole.GUEST
-)
-
-export const isAgentingSelector = createSelector(
-  b2bFeaturesSelector,
-  (b2bFeatures) => b2bFeatures.masqueradeCompany.isAgenting
 )
 
 export const formatedQuoteDraftListSelector = createSelector(

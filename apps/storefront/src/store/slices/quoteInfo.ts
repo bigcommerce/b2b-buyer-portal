@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 
-import { CalculatedValue, QuoteItem } from '@/types/quotes'
+import { CalculatedValue, QuoteInfo, QuoteItem } from '@/types/quotes'
 
 interface SetDraftProductQuantityParams {
   id: string
@@ -18,13 +18,16 @@ interface SetDraftProductCalculatedValueParams {
   index: number
   calculatedValue: CalculatedValue
 }
-
 export interface QuoteInfoState {
   draftQuoteList: QuoteItem[]
+  draftQuoteInfo: QuoteInfo
 }
 
 const initialState: QuoteInfoState = {
   draftQuoteList: [],
+  draftQuoteInfo: {
+    userId: 0,
+  },
 }
 
 const draftQuoteListSlice = createSlice({
@@ -91,6 +94,9 @@ const draftQuoteListSlice = createSlice({
           }
         })
     },
+    setQuoteUserId: (state, { payload }: PayloadAction<number>) => {
+      state.draftQuoteInfo.userId = payload
+    },
   },
 })
 
@@ -102,6 +108,7 @@ export const {
   setDraftProduct,
   setDraftProductCalculatedValue,
   setDraftQuoteCalculatedPrices,
+  setQuoteUserId,
 } = draftQuoteListSlice.actions
 
 export default persistReducer(

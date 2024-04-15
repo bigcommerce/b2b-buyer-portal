@@ -34,3 +34,7 @@ export interface QuoteItem {
     additionalCalculatedPrices?: AdditionalCalculatedPricesProps
   }
 }
+
+export interface QuoteInfo {
+  userId: number
+}

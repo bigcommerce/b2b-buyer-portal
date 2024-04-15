@@ -11,6 +11,7 @@ import {
   clearMasqueradeCompany,
   MasqueradeCompany,
   setMasqueradeCompany,
+  setQuoteUserId,
   store,
 } from '@/store'
 import {
@@ -339,7 +340,8 @@ export const getCurrentCustomerInfo = async (
       B3SStorage.set('isB2BUser', isB2BUser)
 
       B3LStorage.set('MyQuoteInfo', {})
-      B3LStorage.set('quoteDraftUserId', id || customerId || 0)
+      const quoteUserId = id || customerId || 0
+      store.dispatch(setQuoteUserId(quoteUserId))
       B3LStorage.set('cartToQuoteId', '')
 
       const companyPayload = {

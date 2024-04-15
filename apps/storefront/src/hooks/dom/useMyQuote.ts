@@ -19,9 +19,14 @@ import {
   ADD_TO_QUOTE_DEFAULT_VALUE,
   TRANSLATION_ADD_TO_QUOTE_VARIABLE,
 } from '@/constants'
-import { OpenPageState,useGetButtonText  } from '@/hooks'
+import { OpenPageState, useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { resetDraftQuoteList, store } from '@/store'
+import {
+  resetDraftQuoteList,
+  setQuoteUserId,
+  store,
+  useAppSelector,
+} from '@/store'
 import { CustomerRole } from '@/types'
 import { B3LStorage, setCartPermissions } from '@/utils'
 
@@ -45,16 +50,19 @@ const useMyQuote = ({
   B3UserId,
   role,
 }: MutationObserverProps) => {
+  const quoteDraftUserId = useAppSelector(
+    ({ quoteInfo }) => quoteInfo.draftQuoteInfo.userId
+  )
   useEffect(() => {
-    const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
     const isLogin = role !== CustomerRole.GUEST
+
     if (isLogin && +quoteDraftUserId !== 0 && +quoteDraftUserId !== +B3UserId) {
       B3LStorage.set('MyQuoteInfo', {})
-      B3LStorage.set('quoteDraftUserId', B3UserId || 0)
 
       store.dispatch(resetDraftQuoteList())
+      store.dispatch(setQuoteUserId(+B3UserId))
     }
-  }, [B3UserId, role])
+  }, [B3UserId, role, quoteDraftUserId])
   const cache = useRef({})
   const {
     state: { addQuoteBtn, quoteOnNonPurchasableProductPageBtn },
