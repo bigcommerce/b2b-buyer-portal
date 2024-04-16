@@ -11,10 +11,11 @@ import {
   FINISH_QUOTE_DEFUALT_VALUE,
   TRANSLATION_FINISH_QUOTE_VARIABLE,
 } from '@/constants'
-import { OpenPageState,useGetButtonText  } from '@/hooks'
+import { useGetButtonText } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 
 import {
   getHoverColor,

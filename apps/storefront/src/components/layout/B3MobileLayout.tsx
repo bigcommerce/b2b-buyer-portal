@@ -47,7 +47,6 @@ export default function B3MobileLayout({
         p: '4vw',
         display: 'flex',
         flexDirection: 'column',
-        // marginBottom: isAgenting ? '52px' : '0',
       }}
     >
       <Box
@@ -123,9 +122,6 @@ export default function B3MobileLayout({
           flex: 1,
           display: 'flex',
           paddingBottom: isAgenting ? '52px' : '0',
-          // marginBottom: isAgenting ? '-52px' : '0',
-          // position: 'relative',
-          // overflow: 'hidden',
         }}
       >
         {children}

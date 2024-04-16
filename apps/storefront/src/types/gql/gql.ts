@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core'
 
 const documents: never[] = []

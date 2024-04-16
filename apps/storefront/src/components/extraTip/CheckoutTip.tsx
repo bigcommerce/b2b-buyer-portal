@@ -1,8 +1,9 @@
 import { Dispatch, SetStateAction, useState } from 'react'
 import { Dialog, DialogActions, DialogContent } from '@mui/material'
 
-import { OpenPageState,useMobile  } from '@/hooks'
+import { useMobile } from '@/hooks'
 import { useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 
 import { CustomButton } from '..'
 

@@ -11,7 +11,6 @@ import globalB3 from '@b3/global-b3'
 import { LangFormatFunction, useB3Lang } from '@b3/lang'
 import { Box, Button } from '@mui/material'
 
-import { OpenPageState } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
   addProductToBcShoppingList,
@@ -20,6 +19,7 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b'
 import { store, useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 import {
   getDefaultCurrencyInfo,
   getValidOptionsList,

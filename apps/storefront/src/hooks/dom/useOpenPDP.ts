@@ -20,10 +20,11 @@ import {
   ADD_TO_SHOPPING_LIST_DEFUALT_VALUE,
   TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
 } from '@/constants'
-import { OpenPageState,useGetButtonText  } from '@/hooks'
+import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { setGlabolCommonState, useAppDispatch } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 
 import useRole from '../useRole'
 

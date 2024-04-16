@@ -10,12 +10,13 @@ import { useB3Lang } from '@b3/lang'
 import { Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
-import { OpenPageState,useMobile, useScrollBar  } from '@/hooks'
+import { useMobile, useScrollBar } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b'
 import { bcLogin } from '@/shared/service/bc'
 import { themeFrameSelector, useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 import {
   b2bLogger,
   B3SStorage,

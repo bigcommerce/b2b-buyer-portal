@@ -15,10 +15,11 @@ import isEmpty from 'lodash-es/isEmpty'
 
 import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { OpenPageState,useMobile  } from '@/hooks'
+import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 import {
   b2bLogger,
   getCurrentCustomerInfo,

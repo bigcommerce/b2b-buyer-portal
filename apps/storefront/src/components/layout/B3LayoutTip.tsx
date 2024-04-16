@@ -20,10 +20,6 @@ function B3LayoutTip() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // useEffect(() => {
-  //   window.b3Tipmessage = tipMessage?.msgs || []
-  // }, [tipMessage])
-
   const setMsgs = (msgs: [] | Array<MsgsProps> = []) => {
     dispatch({
       type: 'common',

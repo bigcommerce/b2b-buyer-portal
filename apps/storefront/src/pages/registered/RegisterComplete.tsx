@@ -450,14 +450,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     })(event)
   }
 
-  // const captcha = useMemo(() => (
-  //   <Captcha
-  //     size="normal"
-  //     siteKey={captchaSetkey}
-  //     onSuccess={() => setCaptchaMessage('success')}
-  //   />
-  // ), [])
-
   return (
     <Box
       sx={{

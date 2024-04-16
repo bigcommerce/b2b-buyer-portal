@@ -3,6 +3,7 @@ import globalB3 from '@b3/global-b3'
 
 import { useAppSelector } from '@/store'
 import { CustomerRole } from '@/types'
+import { OpenPageState } from '@/types/hooks'
 
 import useMutationObservable from './useMutationObservable'
 
@@ -11,14 +12,7 @@ interface ChildNodeListProps extends ChildNode {
   localName?: string
 }
 
-export interface OpenPageState {
-  isOpen: boolean
-  openUrl?: string
-  handleEnterClick?: (href: string, bool: boolean) => void
-  params?: { [key: string]: string }
-}
-
-export const useB3AppOpen = (initOpenState: OpenPageState) => {
+const useB3AppOpen = (initOpenState: OpenPageState) => {
   const [checkoutRegisterNumber, setCheckoutRegisterNumber] =
     useState<number>(0)
 
@@ -169,3 +163,5 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
 
   return [openPage, setOpenPage] as const
 }
+
+export default useB3AppOpen

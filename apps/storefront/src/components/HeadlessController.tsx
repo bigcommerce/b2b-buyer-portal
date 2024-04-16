@@ -2,7 +2,6 @@ import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
 import { useB3Lang } from '@b3/lang'
 
 import { HeadlessRoutes } from '@/constants'
-import { OpenPageState } from '@/hooks'
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP'
 import {
   addProductsFromCartToQuote,
@@ -18,6 +17,7 @@ import {
   useAppDispatch,
   useAppSelector,
 } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 import { QuoteItem } from '@/types/quotes'
 import {
   B3SStorage,

@@ -10,7 +10,7 @@ import { useB3Lang } from '@b3/lang'
 import { Alert, Box, ImageListItem } from '@mui/material'
 
 import { B3Card, B3Sping } from '@/components'
-import { OpenPageState, useMobile } from '@/hooks'
+import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { defaultCreateAccountPanel } from '@/shared/customStyleButtton/context/config'
 import { GlobaledContext } from '@/shared/global'
@@ -21,6 +21,7 @@ import {
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
 import { isLoggedInSelector, useAppSelector } from '@/store'
 import { CustomerRole } from '@/types'
+import { OpenPageState } from '@/types/hooks'
 import {
   b2bLogger,
   B3SStorage,

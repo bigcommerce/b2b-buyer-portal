@@ -13,9 +13,10 @@ import {
   setMediaStyle,
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { OpenPageState,useGetButtonText  } from '@/hooks'
+import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 import { B3SStorage, globalSnackbar } from '@/utils'
 
 import { addProductsFromCartToQuote } from './utils'

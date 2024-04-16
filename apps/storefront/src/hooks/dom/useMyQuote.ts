@@ -19,7 +19,7 @@ import {
   ADD_TO_QUOTE_DEFAULT_VALUE,
   TRANSLATION_ADD_TO_QUOTE_VARIABLE,
 } from '@/constants'
-import { OpenPageState, useGetButtonText } from '@/hooks'
+import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import {
   resetDraftQuoteList,
@@ -28,6 +28,7 @@ import {
   useAppSelector,
 } from '@/store'
 import { CustomerRole } from '@/types'
+import { OpenPageState } from '@/types/hooks'
 import { B3LStorage, setCartPermissions } from '@/utils'
 
 import useDomVariation from './useDomVariation'

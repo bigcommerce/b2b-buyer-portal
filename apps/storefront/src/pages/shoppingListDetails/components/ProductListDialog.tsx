@@ -37,9 +37,6 @@ function ProductTableAction(props: ProductTableActionProps) {
   return productOptions && productOptions.length > 0 ? (
     <CustomButton
       variant="outlined"
-      // sx={{
-      //   marginLeft: '9%',
-      // }}
       onClick={() => {
         onChooseOptionsClick(id)
       }}
@@ -51,9 +48,6 @@ function ProductTableAction(props: ProductTableActionProps) {
   ) : (
     <CustomButton
       variant="outlined"
-      // sx={{
-      //   marginLeft: '9%',
-      // }}
       onClick={() => {
         onAddToListClick(id)
       }}

@@ -5,9 +5,10 @@ import { useB3Lang } from '@b3/lang'
 import { Box, ImageListItem, Typography } from '@mui/material'
 
 import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
-import { OpenPageState,useMobile  } from '@/hooks'
+import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+import { OpenPageState } from '@/types/hooks'
 import { b2bLogger } from '@/utils'
 
 import { getForgotPasswordFields, LoginConfig, sendEmail } from './config'

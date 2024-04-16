@@ -10,12 +10,13 @@ import {
   END_MASQUERADE_DEFAULT_VALUE,
   TRANSLATION_MASQUERADE_BUTTON_VARIABLE,
 } from '@/constants'
-import { OpenPageState,useGetButtonText  } from '@/hooks'
+import { useGetButtonText } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminEndMasquerade } from '@/shared/service/b2b'
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 import { B3SStorage } from '@/utils'
 
 import {

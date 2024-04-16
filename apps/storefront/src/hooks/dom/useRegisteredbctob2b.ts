@@ -2,10 +2,10 @@ import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import globalB3 from '@b3/global-b3'
 import { useB3Lang } from '@b3/lang'
 
-import { OpenPageState } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 
 import useDomVariation from './useDomVariation'
 

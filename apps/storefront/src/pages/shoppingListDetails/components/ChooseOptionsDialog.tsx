@@ -20,7 +20,6 @@ import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
 import {
   b2bLogger,
-  B3SStorage,
   calculateProductListPrice,
   currencyFormat,
   snackbar,

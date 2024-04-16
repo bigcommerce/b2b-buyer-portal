@@ -2,8 +2,8 @@ import { Dispatch, SetStateAction, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 
-import { OpenPageState } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
+import { OpenPageState } from '@/types/hooks'
 
 import { CloseButton } from './styled'
 
