@@ -14,6 +14,7 @@ import { superAdminCompanies } from '@/shared/service/b2b'
 import B3Request from '@/shared/service/request/b3Fetch'
 import {
   formatedQuoteDraftListSelector,
+  isB2BUserSelector,
   useAppDispatch,
   useAppSelector,
 } from '@/store'
@@ -79,7 +80,6 @@ export default function HeadlessController({
     state: {
       B3UserId,
       salesRepCompanyId = 0,
-      isB2BUser,
       currentChannelId,
       registerEnabled,
       productQuoteEnabled,
@@ -87,6 +87,7 @@ export default function HeadlessController({
       shoppingListEnabled,
     },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const customer = useAppSelector(({ company }) => company.customer)
   const role = useAppSelector(({ company }) => company.customer.role)
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
@@ -196,7 +197,6 @@ export default function HeadlessController({
           getB2BToken: () => B3SStorage.get('B2BToken') || '',
           setMasqueradeCompany: (companyId) =>
             startMasquerade({
-              dispatch,
               companyId,
               B3UserId: B3UserIdRef.current,
               customerId: customerIdRef.current,

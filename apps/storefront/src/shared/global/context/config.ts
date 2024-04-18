@@ -70,7 +70,6 @@ export interface TimeFormatProps {
 export interface GlobalState {
   isCheckout: boolean
   isCloseGotoBCHome: boolean
-  isB2BUser: boolean
   realRole: number | string
   logo: string
   isCompanyAccount: boolean
@@ -118,7 +117,6 @@ export interface GlobalState {
 export const initState: GlobalState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
-  isB2BUser: B3SStorage.get('isB2BUser') || false,
   B3UserId: B3SStorage.get('B3UserId') || '',
   realRole: B3SStorage.get('realRole') || 100,
   isAgenting: B3SStorage.get('isAgenting') || false,

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
@@ -7,7 +7,6 @@ import { B3Sping } from '@/components'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { useSort } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import {
   getB2BAllOrders,
   getBCAllOrders,
@@ -15,7 +14,7 @@ import {
   getOrdersCreatedByUser,
   getOrderStatusType,
 } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -54,13 +53,10 @@ interface OrderProps {
 }
 
 function Order({ isCompanyOrder = false }: OrderProps) {
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
+  const b3Lang = useB3Lang()
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
   const role = useAppSelector(({ company }) => company.customer.role)
-  const b3Lang = useB3Lang()
-
   const salesRepCompanyId = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )

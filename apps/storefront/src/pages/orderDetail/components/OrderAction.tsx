@@ -6,8 +6,7 @@ import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 import throttle from 'lodash-es/throttle'
 
 import { CustomButton } from '@/components'
-import { GlobaledContext } from '@/shared/global'
-import { useAppSelector } from '@/store'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import {
   b2bPrintInvoice,
   currencyFormat,
@@ -277,9 +276,7 @@ interface OrderData {
 export default function OrderAction(props: OrderActionProps) {
   const { detailsData } = props
   const b3Lang = useB3Lang()
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const emailAddress = useAppSelector(
     ({ company }) => company.customer.emailAddress
   )

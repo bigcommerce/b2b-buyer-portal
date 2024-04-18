@@ -19,6 +19,7 @@ import {
   getBcOrderStatusType,
   getOrderStatusType,
 } from '@/shared/service/b2b'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import { b2bLogger } from '@/utils'
 
 import {
@@ -49,6 +50,8 @@ interface LocationState {
 }
 
 function OrderDetail() {
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+
   const params = useParams()
 
   const navigate = useNavigate()
@@ -56,7 +59,7 @@ function OrderDetail() {
   const b3Lang = useB3Lang()
 
   const {
-    state: { isB2BUser, addressConfig },
+    state: { addressConfig },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 

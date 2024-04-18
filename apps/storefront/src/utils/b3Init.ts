@@ -1,3 +1,5 @@
+import { CustomerRole } from '@/types'
+
 export interface QuoteConfigItem {
   [key: string]: string
 }
@@ -86,7 +88,7 @@ export const getQuoteEnabled = (
     quoteEnabled && customerEnabled === '1' && cartEnabled === '1'
   let productShoppingListEnabled = shoppingListEnabled
 
-  if (`${role}` === '100') {
+  if (role === CustomerRole.GUEST) {
     // guest
     productQuoteEnabled = productQuoteEnabled && guestEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && guestEnabled === '1'
@@ -95,7 +97,7 @@ export const getQuoteEnabled = (
     productQuoteEnabled = productQuoteEnabled && b2bUserEnabled === '1'
     cartQuoteEnabled = cartQuoteEnabled && b2bUserEnabled === '1'
     productShoppingListEnabled = shoppingListEnabled && slB2bUserEnabled
-    if (`${role}` === '3' && !isAgenting) {
+    if (role === CustomerRole.SUPER_ADMIN && !isAgenting) {
       productQuoteEnabled = false
       cartQuoteEnabled = false
       productShoppingListEnabled = false

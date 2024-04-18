@@ -12,7 +12,8 @@ import {
   getB2BCountries,
   getBCCustomerAddress,
 } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
+import { isB2BUserSelector, useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
 import { b2bLogger, snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -45,10 +46,11 @@ interface FilterSearchProps {
 }
 
 function Address() {
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const role = useAppSelector(({ company }) => company.customer.role)
   const {
-    state: { isB2BUser, addressConfig },
+    state: { addressConfig },
     dispatch,
   } = useContext(GlobaledContext)
 
@@ -72,9 +74,23 @@ function Address() {
     search: '',
   })
 
-  const companyId = role === 3 && isAgenting ? salesRepCompanyId : companyInfoId
-  const hasAdminPermission = isB2BUser && (!role || (role === 3 && isAgenting))
-  const isBCPermission = !isB2BUser || (role === 3 && !isAgenting)
+  const companyId =
+    role === CustomerRole.SUPER_ADMIN && isAgenting
+      ? salesRepCompanyId
+      : companyInfoId
+  let hasAdminPermission = false
+  let isBCPermission = false
+
+  if (
+    isB2BUser &&
+    (!role || (role === CustomerRole.SUPER_ADMIN && isAgenting))
+  ) {
+    hasAdminPermission = true
+  }
+
+  if (!isB2BUser || (role === CustomerRole.SUPER_ADMIN && !isAgenting)) {
+    isBCPermission = true
+  }
 
   useEffect(() => {
     const handleGetAddressFields = async () => {

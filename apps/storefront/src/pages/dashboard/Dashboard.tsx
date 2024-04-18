@@ -172,7 +172,6 @@ function Dashboard(props: DashboardProps) {
     try {
       setIsRequestLoading(true)
       await startMasquerade({
-        dispatch,
         customerId,
         companyId: id || currentSalesRepCompanyId,
         B3UserId: +B3UserId,

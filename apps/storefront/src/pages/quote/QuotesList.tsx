@@ -13,7 +13,7 @@ import {
   getBCQuotesList,
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import { currencyFormatConvert, displayFormat } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -178,10 +178,11 @@ function QuotesList() {
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
   const customer = useAppSelector(({ company }) => company.customer)
   const {
-    state: { isB2BUser, openAPPParams, currentChannelId },
+    state: { openAPPParams, currentChannelId },
     dispatch,
   } = useContext(GlobaledContext)
 
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const draftQuoteListLength = useAppSelector(
     ({ quoteInfo }) => quoteInfo.draftQuoteList.length
   )

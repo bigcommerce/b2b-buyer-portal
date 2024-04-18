@@ -28,6 +28,7 @@ import {
 
 import { getCompanyInfo } from './utils/loginInfo'
 import {
+  isB2BUserSelector,
   setGlabolCommonState,
   setOpenPageReducer,
   useAppDispatch,
@@ -54,7 +55,6 @@ const FONT_URL =
 export default function App() {
   const {
     state: {
-      isB2BUser,
       B3UserId,
       currentChannelId,
       quoteConfig,
@@ -65,6 +65,7 @@ export default function App() {
     dispatch,
   } = useContext(GlobaledContext)
 
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const storeDispatch = useAppDispatch()
   const isAgenting = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting

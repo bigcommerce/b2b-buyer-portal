@@ -18,7 +18,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { store, useAppSelector } from '@/store'
+import { isB2BUserSelector, store, useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
 import {
   getDefaultCurrencyInfo,
@@ -174,13 +174,14 @@ export const addProductsToShoppingList = async ({
 function PDP({ setOpenPage }: PDPProps) {
   const isPromission = true
   const {
-    state: { isB2BUser, shoppingListClickNode },
+    state: { shoppingListClickNode },
   } = useContext(GlobaledContext)
   const customerGroupId = useAppSelector(
     ({ company }) => company.customer.customerGroupId
   )
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const b3Lang = useB3Lang()
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)

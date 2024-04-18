@@ -1,18 +1,11 @@
-import {
-  KeyboardEventHandler,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { KeyboardEventHandler, useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { Box, Grid, Typography } from '@mui/material'
 
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
-import { useAppSelector } from '@/store'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import { compareOption, snackbar } from '@/utils'
 import {
   getAllModifierDefaultValue,
@@ -45,9 +38,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     type,
   } = props
 
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyStatus = useAppSelector(
     ({ company }) => company.companyInfo.status
   )

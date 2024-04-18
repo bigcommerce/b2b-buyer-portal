@@ -21,7 +21,11 @@ import {
   BcProductsBulkUploadCSV,
   guestProductsBulkUploadCSV,
 } from '@/shared/service/b2b'
-import { defaultCurrencyCodeSelector, useAppSelector } from '@/store'
+import {
+  defaultCurrencyCodeSelector,
+  isB2BUserSelector,
+  useAppSelector,
+} from '@/store'
 import { Currency } from '@/types'
 import { b2bLogger } from '@/utils'
 
@@ -81,8 +85,9 @@ export default function B3Upload(props: B3UploadProps) {
   const uploadRef = useRef<HTMLInputElement>(null)
 
   const {
-    state: { isB2BUser, currentChannelId },
+    state: { currentChannelId },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const role = useAppSelector(({ company }) => company.customer.role)
 
   const theme = useTheme()

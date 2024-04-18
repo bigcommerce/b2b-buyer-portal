@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
@@ -7,8 +7,8 @@ import { Box, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 
 import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import { getB2BAllOrders, getBCAllOrders } from '@/shared/service/b2b'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 
 interface SearchParamsProps {
   [key: string]: number | string | undefined
@@ -37,6 +37,7 @@ const initListIndex = 100000000
 
 function DetailPagination({ onChange, color }: DetailPageProps) {
   const b3Lang = useB3Lang()
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const [listIndex, setListIndex] = useState<number>(initListIndex)
   const [arrived, setArrived] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
@@ -44,9 +45,6 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
     rightId: '',
     leftId: '',
   })
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
 
   const localtion = useLocation()
   const [isMobile] = useMobile()

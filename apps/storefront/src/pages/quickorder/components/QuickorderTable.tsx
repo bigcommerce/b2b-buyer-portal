@@ -1,11 +1,4 @@
-import {
-  Dispatch,
-  ReactElement,
-  SetStateAction,
-  useContext,
-  useRef,
-  useState,
-} from 'react'
+import { Dispatch, ReactElement, SetStateAction, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import { Box, styled, TextField, Typography } from '@mui/material'
@@ -15,14 +8,17 @@ import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile, useSort } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import {
   getBcOrderedProducts,
   getOrderedProducts,
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { defaultCurrencyCodeSelector, useAppSelector } from '@/store'
+import {
+  defaultCurrencyCodeSelector,
+  isB2BUserSelector,
+  useAppSelector,
+} from '@/store'
 import { defaultCurrenciesState } from '@/store/slices/storeConfigs'
 import {
   currencyFormat,
@@ -136,10 +132,7 @@ function QuickorderTable({
 }: QuickorderTableProps) {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
-
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const customerGroupId = useAppSelector(
     ({ company }) => company.customer.customerGroupId

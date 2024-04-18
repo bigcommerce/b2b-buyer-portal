@@ -4,7 +4,7 @@ import { matchPath } from 'react-router-dom'
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
 import { getCustomerInfo } from '@/shared/service/bc'
 import { store, useAppSelector } from '@/store'
-import { CustomerRole } from '@/types'
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
 import { b2bLogger, isB2bTokenPage, logoutSession } from '@/utils'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
@@ -304,8 +304,20 @@ const invoiceFlag = 'invoice?invoiceId'
 const { hash, pathname, href } = window.location
 
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
-  const { isB2BUser, storefrontConfig, quoteConfig } = globalState
-  const { role } = store.getState().company.customer
+  const { storefrontConfig, quoteConfig } = globalState
+  const { company } = store.getState()
+  const { role } = company.customer
+  let isB2BUser = false
+
+  if (
+    company.customer.userType === UserTypes.MULTIPLE_B2C &&
+    company.companyInfo.status === CompanyStatus.APPROVED
+  ) {
+    isB2BUser = true
+  } else if (+company.customer.role === CustomerRole.SUPER_ADMIN) {
+    isB2BUser = true
+  }
+
   return routes.filter((item: RouteItem) => {
     const { permissions = [] } = item
     const isAgenting = useAppSelector(

@@ -4,7 +4,7 @@ import { useB3Lang } from '@b3/lang'
 
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { useAppSelector } from '@/store'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
 
 import useDomVariation from './useDomVariation'
@@ -15,8 +15,9 @@ const useRegisteredbctob2b = (
   const b3Lang = useB3Lang()
 
   const {
-    state: { isB2BUser, registerEnabled },
+    state: { registerEnabled },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const customerId = useAppSelector(({ company }) => company.customer.id)
   const companyStatus = useAppSelector(
     ({ company }) => company.companyInfo.status

@@ -12,6 +12,7 @@ import { useB3Lang } from '@b3/lang'
 import { B3CustomForm, B3Dialog } from '@/components'
 import { GlobaledContext } from '@/shared/global'
 import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b'
+import { UserTypes } from '@/types'
 import { snackbar } from '@/utils'
 
 import {
@@ -86,7 +87,11 @@ function AddEditUser(
       channelId: currentChannelId,
     })
 
-    const isValid = [1, 2, 7].includes(userType)
+    const isValid = [
+      UserTypes.DOESNT_EXIST,
+      UserTypes.B2C,
+      UserTypes.CURRENT_B2B_COMPANY_DIFFERENT_CHANNEL,
+    ].includes(userType)
 
     if (!isValid) {
       setError('email', {
@@ -124,11 +129,8 @@ function AddEditUser(
             return
           }
 
-          if (userType === 7) {
+          if (userType === UserTypes.CURRENT_B2B_COMPANY_DIFFERENT_CHANNEL) {
             params.addChannel = true
-          }
-
-          if (userType === 7) {
             message = b3Lang('userManagement.userDetected', {
               email: data.email,
             })

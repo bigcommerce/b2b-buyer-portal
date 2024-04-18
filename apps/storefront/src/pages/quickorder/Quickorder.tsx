@@ -1,18 +1,15 @@
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { Box, Grid } from '@mui/material'
 
 import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
-import { useAppSelector } from '@/store'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 
 import QuickOrderFooter from './components/QuickOrderFooter'
 import QuickOrderPad from './components/QuickOrderPad'
 import QuickorderTable from './components/QuickorderTable'
 
 function Quickorder() {
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const role = useAppSelector(({ company }) => company.customer.role)
 
   const isAgenting = useAppSelector(

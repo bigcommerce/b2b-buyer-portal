@@ -6,12 +6,8 @@ import trim from 'lodash-es/trim'
 
 import { B3CustomForm } from '@/components'
 import { useMobile } from '@/hooks'
-import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
+import { isValidUserTypeSelector, useAppSelector } from '@/store'
 import { validatorRules } from '@/utils'
-
-// import {
-//   CustomerInfo,
-// } from '@/shared/global/context/config'
 
 const emailValidate = validatorRules(['email'])
 
@@ -77,15 +73,10 @@ interface ContactInfoProps {
   info: {
     [key: string]: string
   }
-  isB2BUser: boolean
-  currentChannelId: string | number
   emailAddress?: string
 }
 
-function ContactInfo(
-  { info = {}, isB2BUser, currentChannelId, emailAddress }: ContactInfoProps,
-  ref: any
-) {
+function ContactInfo({ info = {}, emailAddress }: ContactInfoProps, ref: any) {
   const {
     control,
     getValues,
@@ -96,6 +87,8 @@ function ContactInfo(
   } = useForm({
     mode: 'onSubmit',
   })
+
+  const isValidUserType = useAppSelector(isValidUserTypeSelector)
 
   const [isMobile] = useMobile()
 
@@ -113,26 +106,15 @@ function ContactInfo(
 
   const validateEmailValue = async (emailValue: string) => {
     if (emailAddress === trim(emailValue)) return true
-    const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
-    const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
 
-    const {
-      [key]: { userType },
-    }: CustomFieldItems = await fn({
-      email: emailValue,
-      channelId: currentChannelId,
-    })
-
-    const isValid = isB2BUser ? [1].includes(userType) : ![2].includes(userType)
-
-    if (!isValid) {
+    if (!isValidUserType) {
       setError('email', {
         type: 'custom',
         message: b3Lang('quoteDraft.contactInfo.emailExists'),
       })
     }
 
-    return isValid
+    return isValidUserType
   }
 
   const getContactInfoValue = async () => {

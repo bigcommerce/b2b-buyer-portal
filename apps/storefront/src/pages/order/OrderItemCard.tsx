@@ -1,4 +1,3 @@
-import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { useTheme } from '@mui/material'
@@ -7,8 +6,7 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 
-import { GlobaledContext } from '@/shared/global'
-import { useAppSelector } from '@/store'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import { currencyFormat, displayFormat } from '@/utils'
 
 import OrderStatus from './components/OrderStatus'
@@ -33,15 +31,15 @@ const Flex = styled('div')(() => ({
   },
 }))
 
-export function OrderItemCard(props: OrderItemCardProps) {
-  const { item, allTotal, filterData, index = 0, isCompanyOrder } = props
-
+export function OrderItemCard({
+  item,
+  allTotal,
+  filterData,
+  index = 0,
+  isCompanyOrder,
+}: OrderItemCardProps) {
   const theme = useTheme()
-
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
-
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const customer = useAppSelector(({ company }) => company.customer)
   const navigate = useNavigate()
 

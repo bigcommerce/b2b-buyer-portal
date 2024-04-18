@@ -17,6 +17,7 @@ import {
 } from '@/shared/service/b2b'
 import {
   defaultCurrencyCodeSelector,
+  isB2BUserSelector,
   TaxZoneRates,
   useAppSelector,
 } from '@/store'
@@ -40,8 +41,9 @@ function QuoteDetail() {
   const navigate = useNavigate()
 
   const {
-    state: { isB2BUser, bcLanguage },
+    state: { bcLanguage },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const emailAddress = useAppSelector(
     ({ company }) => company.customer.emailAddress

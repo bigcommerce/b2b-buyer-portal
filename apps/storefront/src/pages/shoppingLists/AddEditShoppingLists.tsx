@@ -17,6 +17,7 @@ import {
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b'
+import { CustomerRole } from '@/types'
 import { snackbar } from '@/utils'
 
 import {
@@ -108,7 +109,7 @@ function AddEditShoppingLists(
           successTip = b3Lang('shoppingLists.duplicateSuccess')
         } else if (type === 'add') {
           if (isB2BUser) {
-            params.status = +role === 2 ? 30 : 0
+            params.status = +role === CustomerRole.JUNIOR_BUYER ? 30 : 0
           } else {
             params.channelId = channelId
           }

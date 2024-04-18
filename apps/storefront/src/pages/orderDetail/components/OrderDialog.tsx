@@ -1,18 +1,17 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 
 import { B3CustomForm, B3Dialog, successTip } from '@/components'
 import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
-import { store, useAppSelector } from '@/store'
+import { isB2BUserSelector, store, useAppSelector } from '@/store'
 import { b2bLogger, b3TriggerCartNumber, snackbar } from '@/utils'
 import { callCart } from '@/utils/cartUtils'
 
@@ -59,12 +58,10 @@ export default function OrderDialog({
   itemKey,
   orderId,
 }: OrderDialogProps) {
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false)
-
   const [openShoppingList, setOpenShoppingList] = useState(false)
   const [editableProducts, setEditableProducts] = useState<
     EditableProductItem[]
@@ -88,7 +85,6 @@ export default function OrderDialog({
     mode: 'all',
   })
 
-  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const b3Lang = useB3Lang()
 
   const handleClose = () => {

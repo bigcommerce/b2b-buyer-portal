@@ -12,17 +12,18 @@ import {
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
 import {
-  checkUserBCEmail,
-  checkUserEmail,
   getB2BAccountFormFields,
   getB2BAccountSettings,
   getBCAccountSettings,
   updateB2BAccountSettings,
   updateBCAccountSettings,
 } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
+import {
+  isB2BUserSelector,
+  isValidUserTypeSelector,
+  useAppSelector,
+} from '@/store'
 import { Fields, ParamProps } from '@/types/accountSetting'
 import { B3SStorage, snackbar } from '@/utils'
 
@@ -48,17 +49,14 @@ function AccountSetting() {
     mode: 'onSubmit',
   })
 
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const customer = useAppSelector(({ company }) => company.customer)
   const role = useAppSelector(({ company }) => company.customer.role)
-  const {
-    state: { isB2BUser, currentChannelId },
-  } = useContext(GlobaledContext)
-
+  const isValidUserType = useAppSelector(isValidUserTypeSelector)
   const salesRepCompanyId = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )
-
   const isAgenting = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
   )
@@ -208,26 +206,15 @@ function AccountSetting() {
 
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true
-    const fn = !isBCUser ? checkUserEmail : checkUserBCEmail
-    const key = !isBCUser ? 'userEmailCheck' : 'customerEmailCheck'
 
-    const {
-      [key]: { userType },
-    }: CustomFieldItems = await fn({
-      email: emailValue,
-      channelId: currentChannelId,
-    })
-
-    const isValid = !isBCUser ? [1].includes(userType) : ![2].includes(userType)
-
-    if (!isValid) {
+    if (!isValidUserType) {
       setError('email', {
         type: 'custom',
         message: b3Lang('accountSettings.notification.emailExists'),
       })
     }
 
-    return isValid
+    return isValidUserType
   }
 
   const passwordValidation = (data: Partial<ParamProps>) => {

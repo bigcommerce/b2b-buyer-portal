@@ -1,3 +1,5 @@
+import { CustomerRole } from '@/types'
+
 export interface FilterSearchProps {
   [key: string]: string | number | null
   beginDateAt: string | null
@@ -122,7 +124,7 @@ export const getFilterMoreData = (
       return false
     if (+role === 3 && !isAgenting && item.name === 'PlacedBy') return false
     if (
-      (isB2BUser || (+role === 3 && isAgenting)) &&
+      (isB2BUser || (+role === CustomerRole.SUPER_ADMIN && isAgenting)) &&
       isCompanyOrder &&
       item.name === 'company'
     )

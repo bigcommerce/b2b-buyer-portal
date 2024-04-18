@@ -20,7 +20,7 @@ import {
 } from '@/shared/service/b2b'
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
 import { isLoggedInSelector, useAppSelector } from '@/store'
-import { CustomerRole } from '@/types'
+import { CustomerRole, UserTypes } from '@/types'
 import { OpenPageState } from '@/types/hooks'
 import {
   b2bLogger,
@@ -283,7 +283,7 @@ export default function Login(props: RegisteredProps) {
           const info = await getCurrentCustomerInfo(dispatch, token)
 
           if (
-            info?.userType === 3 &&
+            info?.userType === UserTypes.MULTIPLE_B2C &&
             info?.role === CustomerRole.JUNIOR_BUYER
           ) {
             navigate('/dashboard')

@@ -12,7 +12,6 @@ import {
 } from '@/store'
 
 interface StartMasqueradeParams {
-  dispatch: DispatchProps
   companyId: number
   B3UserId: number
   customerId: string | number
@@ -25,7 +24,6 @@ interface EndMasqueradeParams {
 }
 
 export const startMasquerade = async ({
-  dispatch,
   companyId,
   B3UserId,
   customerId,
@@ -48,20 +46,13 @@ export const startMasquerade = async ({
   }
 
   store.dispatch(setMasqueradeCompany(masqueradeCompany))
-
-  dispatch({
-    type: 'common',
-    payload: {
-      isB2BUser: true,
-    },
-  })
 }
 
 export const endMasquerade = async ({
   B3UserId,
   dispatch,
 }: EndMasqueradeParams) => {
-  const {masqueradeCompany} = store.getState().b2bFeatures
+  const { masqueradeCompany } = store.getState().b2bFeatures
   const salesRepCompanyId = masqueradeCompany.id
 
   // change group in bc throug b2b api

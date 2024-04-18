@@ -2,7 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import persistReducer from 'redux-persist/es/persistReducer'
 import storage from 'redux-persist/lib/storage'
 
-import { CompanyInfo, CompanyStatus, Customer, CustomerRole } from '@/types'
+import {
+  CompanyInfo,
+  CompanyStatus,
+  Customer,
+  CustomerRole,
+  UserTypes,
+} from '@/types'
 
 export interface CompanyState {
   companyInfo: CompanyInfo
@@ -23,6 +29,7 @@ const initialState: CompanyState = {
     emailAddress: '',
     customerGroupId: 1,
     role: CustomerRole.GUEST,
+    userType: UserTypes.DOESNT_EXIST,
   },
 }
 

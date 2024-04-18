@@ -23,7 +23,12 @@ import {
 import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { setGlabolCommonState, useAppDispatch } from '@/store'
+import {
+  isB2BUserSelector,
+  setGlabolCommonState,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store'
 import { OpenPageState } from '@/types/hooks'
 
 import useRole from '../useRole'
@@ -82,8 +87,9 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   const storeDispatch = useAppDispatch()
   const {
     dispatch,
-    state: { isB2BUser, shoppingListEnabled, registerEnabled },
+    state: { shoppingListEnabled, registerEnabled },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
 
   const [roleText] = useRole()
 

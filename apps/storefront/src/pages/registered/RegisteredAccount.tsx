@@ -18,7 +18,12 @@ import {
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
-import { themeFrameSelector, useAppSelector } from '@/store'
+import {
+  isB2BUserSelector,
+  isValidUserTypeSelector,
+  themeFrameSelector,
+  useAppSelector,
+} from '@/store'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
@@ -39,7 +44,9 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   } = useContext(GlobaledContext)
 
   const { state, dispatch } = useContext(RegisteredContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const IframeDocument = useAppSelector(themeFrameSelector)
+  const isValidUserType = useAppSelector(isValidUserTypeSelector)
 
   const {
     state: {
@@ -120,7 +127,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     )?.name || 'email'
 
   const validateEmailValue = async (emailValue: string) => {
-    const isB2BUser = accountType === '1'
     const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
     const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
 
@@ -131,9 +137,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       channelId: currentChannelId,
     })
 
-    const isValid = isB2BUser ? [1].includes(userType) : ![2].includes(userType)
-
-    if (!isValid) {
+    if (!isValidUserType) {
       setErrorTips(
         b3Lang(emailError[userType], {
           companyName: companyName || '',
@@ -150,7 +154,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       setErrorTips('')
     }
 
-    return isValid
+    return isValidUserType
   }
 
   const handleAccountToDetail = async (event: MouseEvent) => {

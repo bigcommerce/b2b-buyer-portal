@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 
-import { CustomerRole } from '@/types'
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
 
 import { RootState } from './reducer'
 
@@ -8,6 +8,7 @@ const themeSelector = (state: RootState) => state.theme
 const storeConfigSelector = (state: RootState) => state.storeConfigs
 const companySelector = (state: RootState) => state.company
 const quoteInfoSelector = (state: RootState) => state.quoteInfo
+const b2bFeaturesSelector = (state: RootState) => state.b2bFeatures
 
 export const themeFrameSelector = createSelector(
   themeSelector,
@@ -23,6 +24,19 @@ export const defaultCurrencyCodeSelector = createSelector(
 export const isLoggedInSelector = createSelector(
   companySelector,
   (company) => company.customer.role !== CustomerRole.GUEST
+)
+
+export const isAgentingSelector = createSelector(
+  b2bFeaturesSelector,
+  (b2bFeatures) => b2bFeatures.masqueradeCompany.isAgenting
+)
+
+export const isB2BUserSelector = createSelector(
+  companySelector,
+  (company) =>
+    (company.customer.userType === UserTypes.MULTIPLE_B2C &&
+      company.companyInfo.status === CompanyStatus.APPROVED) ||
+    +company.customer.role === CustomerRole.SUPER_ADMIN
 )
 
 export const formatedQuoteDraftListSelector = createSelector(
@@ -51,4 +65,21 @@ export const formatedQuoteDraftListSelector = createSelector(
         }
       }
     )
+)
+
+export const isValidUserTypeSelector = createSelector(
+  companySelector,
+  ({ customer, companyInfo }) => {
+    const { userType } = customer
+    const isB2BUser =
+      (customer.userType === UserTypes.MULTIPLE_B2C &&
+        companyInfo.status === CompanyStatus.APPROVED) ||
+      +customer.role === CustomerRole.SUPER_ADMIN
+
+    if (isB2BUser) {
+      return userType === UserTypes.DOESNT_EXIST
+    }
+
+    return userType !== UserTypes.B2C
+  }
 )

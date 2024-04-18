@@ -31,6 +31,7 @@ import {
 } from '@/shared/service/b2b'
 import { deleteCart } from '@/shared/service/bc/graphql/cart'
 import {
+  isB2BUserSelector,
   resetDraftQuoteList,
   setQuoteUserId,
   useAppDispatch,
@@ -106,14 +107,13 @@ interface QuoteDraftProps {
 function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const {
     state: {
-      isB2BUser,
       B3UserId,
-      currentChannelId,
       countriesList,
       currentChannelId: channelId,
       openAPPParams,
     },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
   const companyName = useAppSelector(
     ({ company }) => company.companyInfo.companyName
@@ -725,9 +725,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           {isEdit && (
             <Container flexDirection="column">
               <ContactInfo
-                isB2BUser={isB2BUser}
                 emailAddress={customer.emailAddress}
-                currentChannelId={currentChannelId}
                 info={info.contactInfo}
                 ref={contactInfoRef}
               />

@@ -21,7 +21,7 @@ import {
   setCustomerInfo,
 } from '@/store/slices/company'
 import { resetDraftQuoteList } from '@/store/slices/quoteInfo'
-import { CustomerRole } from '@/types'
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
 import { b2bLogger, B3LStorage, B3SStorage, storeHash } from '@/utils'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
@@ -116,7 +116,6 @@ export const loginInfo = async () => {
 }
 
 export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
-  B3SStorage.set('isB2BUser', false)
   B3SStorage.set('B2BToken', false)
   B3SStorage.set('B3UserId', '')
   B3SStorage.set('nextPath', '')
@@ -136,7 +135,6 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
   dispatch({
     type: 'common',
     payload: {
-      isB2BUser: false,
       salesRepCompanyId: '',
       salesRepCompanyName: '',
     },
@@ -151,24 +149,34 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
 // 3: inactive
 // 4: deleted
 
+const VALID_ROLES = [
+  CustomerRole.ADMIN,
+  CustomerRole.SENIOR_BUYER,
+  CustomerRole.JUNIOR_BUYER,
+]
+
 export const getCompanyInfo = async (
   id: number | string,
   role: number | string,
-  userType = 3
+  userType = UserTypes.MULTIPLE_B2C
 ) => {
   let companyInfo = {
     id: '',
     companyName: '',
-    companyStatus: 99,
+    companyStatus: CompanyStatus.DEFAULT,
   }
   const realRole =
-    B3SStorage.get('realRole') === 0 ? 0 : B3SStorage.get('realRole') || role
+    B3SStorage.get('realRole') === CustomerRole.ADMIN
+      ? CustomerRole.ADMIN
+      : B3SStorage.get('realRole') || role
 
   const B2BToken = B3SStorage.get('B2BToken')
-  const roles = [0, 1, 2]
-  if (!B2BToken || !roles.includes(+realRole)) return companyInfo
+  if (!B2BToken || !VALID_ROLES.includes(+realRole)) return companyInfo
 
-  if (userType === 3 && +realRole !== 3) {
+  if (
+    userType === UserTypes.MULTIPLE_B2C &&
+    +realRole !== CustomerRole.SUPER_ADMIN
+  ) {
     const { userCompany } = await getUserCompany(+id)
 
     if (userCompany) {
@@ -184,7 +192,8 @@ export const getCompanyInfo = async (
     'blockPendingAccountOrderCreation'
   )
   const noNewSFPlaceOrders =
-    blockPendingAccountOrderCreation && companyInfo.companyStatus === 0
+    blockPendingAccountOrderCreation &&
+    companyInfo.companyStatus === CompanyStatus.PENDING
   if (noNewSFPlaceOrders) {
     sessionStorage.setItem(
       'b2b-blockPendingAccountOrderCreation',
@@ -324,20 +333,22 @@ export const getCurrentCustomerInfo = async (
       ])
 
       const isB2BUser =
-        (userType === 3 && companyInfo?.companyStatus === 1) || +role === 3
+        (userType === UserTypes.MULTIPLE_B2C &&
+          companyInfo?.companyStatus === CompanyStatus.APPROVED) ||
+        +role === CustomerRole.SUPER_ADMIN
 
       const customerInfo = {
         id: customerId,
+        userType,
         phoneNumber,
         firstName,
         lastName,
         emailAddress,
         customerGroupId,
-        role: isB2BUser ? role : 99,
+        role: isB2BUser ? role : CustomerRole.B2C,
       }
 
       B3SStorage.set('B3UserId', id)
-      B3SStorage.set('isB2BUser', isB2BUser)
 
       B3LStorage.set('MyQuoteInfo', {})
       const quoteUserId = id || customerId || 0
@@ -357,7 +368,6 @@ export const getCurrentCustomerInfo = async (
       dispatch({
         type: 'common',
         payload: {
-          isB2BUser,
           realRole: role,
           B3UserId: id,
         },
