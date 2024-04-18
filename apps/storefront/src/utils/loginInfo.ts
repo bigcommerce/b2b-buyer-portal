@@ -16,8 +16,11 @@ import {
 } from '@/store'
 import {
   clearCompanyInfo,
+  setB2BToken,
+  setbcGraphqlToken,
   setCompanyInfo,
   setCompanyStatus,
+  setCurrentCustomerJWT,
   setCustomerInfo,
 } from '@/store/slices/company'
 import { resetDraftQuoteList } from '@/store/slices/quoteInfo'
@@ -112,11 +115,12 @@ export const loginInfo = async () => {
     data: { token },
   } = await getBCGraphqlToken(loginTokenInfo)
 
-  B3SStorage.set('bcGraphqlToken', token)
+  store.dispatch(setbcGraphqlToken(token))
 }
 
 export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
-  B3SStorage.set('B2BToken', false)
+  B3SStorage.set('isB2BUser', false)
+  store.dispatch(setB2BToken(''))
   B3SStorage.set('B3UserId', '')
   B3SStorage.set('nextPath', '')
 
@@ -170,7 +174,8 @@ export const getCompanyInfo = async (
       ? CustomerRole.ADMIN
       : B3SStorage.get('realRole') || role
 
-  const B2BToken = B3SStorage.get('B2BToken')
+  
+  const { B2BToken } = store.getState().company.tokens
   if (!B2BToken || !VALID_ROLES.includes(+realRole)) return companyInfo
 
   if (
@@ -270,7 +275,8 @@ export const getCompanyUserInfo = async (
 
 const loginWithCurrentCustomerJWT = async () => {
   const channelId = B3SStorage.get('B3channelId')
-  const prevCurrentCustomerJWT = B3SStorage.get('currentCustomerJWT')
+  const prevCurrentCustomerJWT =
+    store.getState().company.tokens.currentCustomerJWT
   let currentCustomerJWT
   try {
     currentCustomerJWT = await getCurrentCustomerJWT(VITE_B2B_CLIENT_ID)
@@ -285,10 +291,10 @@ const loginWithCurrentCustomerJWT = async () => {
   )
     return undefined
 
-  B3SStorage.set('currentCustomerJWT', currentCustomerJWT)
+  store.dispatch(setCurrentCustomerJWT(currentCustomerJWT))
   const data = await getB2BToken(currentCustomerJWT, channelId)
   const B2BToken = data.authorization.result.token
-  B3SStorage.set('B2BToken', B2BToken)
+  store.dispatch(setB2BToken(B2BToken))
 
   return B2BToken
 }
@@ -297,7 +303,8 @@ export const getCurrentCustomerInfo = async (
   dispatch: DispatchProps,
   b2bToken?: string
 ) => {
-  if (!(b2bToken || B3LStorage.get('B2BToken'))) {
+  const { B2BToken } = store.getState().company.tokens
+  if (!(b2bToken || B2BToken)) {
     if (!(await loginWithCurrentCustomerJWT())) {
       return undefined
     }

@@ -19,8 +19,9 @@ import {
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
-import { isLoggedInSelector, useAppSelector } from '@/store'
 import { CustomerRole, UserTypes } from '@/types'
+import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store'
+import { setB2BToken } from '@/store/slices/company'
 import { OpenPageState } from '@/types/hooks'
 import {
   b2bLogger,
@@ -68,6 +69,8 @@ export default function Login(props: RegisteredProps) {
   const isAgenting = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
   )
+
+  const storeDispatch = useAppDispatch()
   const [isLoading, setLoading] = useState(true)
   const [isMobile] = useMobile()
 
@@ -263,7 +266,7 @@ export default function Login(props: RegisteredProps) {
           },
         } = await b2bLogin({ loginData })
 
-        B3SStorage.set('B2BToken', token)
+        storeDispatch(setB2BToken(token))
         customerLoginAPI(storefrontLoginToken)
 
         if (errors?.length || !token) {

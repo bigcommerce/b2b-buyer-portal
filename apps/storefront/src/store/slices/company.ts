@@ -10,9 +10,15 @@ import {
   UserTypes,
 } from '@/types'
 
+interface Tokens {
+  B2BToken: string
+  bcGraphqlToken: string
+  currentCustomerJWT: string
+}
 export interface CompanyState {
   companyInfo: CompanyInfo
   customer: Customer
+  tokens: Tokens
 }
 
 const initialState: CompanyState = {
@@ -30,6 +36,11 @@ const initialState: CompanyState = {
     customerGroupId: 1,
     role: CustomerRole.GUEST,
     userType: UserTypes.DOESNT_EXIST,
+  },
+  tokens: {
+    B2BToken: '',
+    bcGraphqlToken: '',
+    currentCustomerJWT: '',
   },
 }
 
@@ -53,6 +64,18 @@ const companySlice = createSlice({
     setCompanyStatus: (state, { payload }: PayloadAction<CompanyStatus>) => {
       state.companyInfo.status = payload
     },
+    setTokens: (state, { payload }: PayloadAction<Tokens>) => {
+      state.tokens = payload
+    },
+    setB2BToken: (state, { payload }: PayloadAction<string>) => {
+      state.tokens.B2BToken = payload
+    },
+    setbcGraphqlToken: (state, { payload }: PayloadAction<string>) => {
+      state.tokens.bcGraphqlToken = payload
+    },
+    setCurrentCustomerJWT: (state, { payload }: PayloadAction<string>) => {
+      state.tokens.currentCustomerJWT = payload
+    },
   },
 })
 
@@ -63,6 +86,10 @@ export const {
   setCompanyStatus,
   setCustomerInfo,
   clearCustomer,
+  setTokens,
+  setB2BToken,
+  setbcGraphqlToken,
+  setCurrentCustomerJWT,
 } = companySlice.actions
 
 export default persistReducer({ key: 'company', storage }, companySlice.reducer)

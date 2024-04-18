@@ -6,12 +6,13 @@ import { Box } from '@mui/material'
 import { B3Dialog, Loading } from '@/components'
 import { getInvoiceDetail } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
-import { B3SStorage, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
 
 import { gotoInvoiceCheckoutUrl } from './utils/payment'
 
 function Payment() {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken)
 
   const [loadding, setLoadding] = useState<boolean>(false)
 
@@ -26,7 +27,6 @@ function Payment() {
   useEffect(() => {
     const init = async () => {
       setLoadding(true)
-      const B2BToken = B3SStorage.get('B2BToken')
 
       if (!B2BToken) {
         setOpen(true)

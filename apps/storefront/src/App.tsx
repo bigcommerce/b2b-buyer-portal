@@ -11,7 +11,6 @@ import { GlobaledContext } from '@/shared/global'
 import { gotoAllowedAppPage } from '@/shared/routes'
 import { setChannelStoreType } from '@/shared/service/b2b'
 import {
-  B3SStorage,
   clearInvoiceCart,
   getCompanyUserInfo,
   getCurrentCustomerInfo,
@@ -82,6 +81,9 @@ export default function App() {
   )
   const isRegisterAndLogin = useAppSelector(
     ({ global }) => global.isRegisterAndLogin
+  )
+  const bcGraphqlToken = useAppSelector(
+    ({ company }) => company.tokens.bcGraphqlToken
   )
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
@@ -175,12 +177,10 @@ export default function App() {
     loginAndRegister()
     const init = async () => {
       // bc graphql token
-      const bcGraphqlToken = B3SStorage.get('bcGraphqlToken')
       if (!bcGraphqlToken || isRelogin) {
         await loginInfo()
       }
       setChannelStoreType(currentChannelId)
-      // await getTaxZoneRates()
 
       await Promise.all([
         getStoreTaxZoneRates(),

@@ -15,13 +15,14 @@ import B3Request from '@/shared/service/request/b3Fetch'
 import {
   formatedQuoteDraftListSelector,
   isB2BUserSelector,
+  store,
   useAppDispatch,
   useAppSelector,
 } from '@/store'
+import { setB2BToken } from '@/store/slices/company'
 import { OpenPageState } from '@/types/hooks'
 import { QuoteItem } from '@/types/quotes'
 import {
-  B3SStorage,
   endMasquerade,
   getCurrentCustomerInfo,
   LineItems,
@@ -194,7 +195,7 @@ export default function HeadlessController({
               ),
             }
           },
-          getB2BToken: () => B3SStorage.get('B2BToken') || '',
+          getB2BToken: () => store.getState().company.tokens.B2BToken,
           setMasqueradeCompany: (companyId) =>
             startMasquerade({
               companyId,
@@ -211,7 +212,7 @@ export default function HeadlessController({
           loginWithB2BStorefrontToken: async (
             b2bStorefrontJWTToken: string
           ) => {
-            B3SStorage.set('B2BToken', b2bStorefrontJWTToken)
+            store.dispatch(setB2BToken(b2bStorefrontJWTToken))
             await getCurrentCustomerInfo(dispatch, b2bStorefrontJWTToken)
           },
         },
