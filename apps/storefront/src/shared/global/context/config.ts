@@ -63,7 +63,6 @@ export interface OpenAPPParamsProps {
 export interface GlobalState {
   isCheckout: boolean
   isCloseGotoBCHome: boolean
-  realRole: number | string
   logo: string
   isCompanyAccount: boolean
   isAgenting: boolean
@@ -110,7 +109,6 @@ export const initState: GlobalState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
   B3UserId: B3SStorage.get('B3UserId') || '',
-  realRole: B3SStorage.get('realRole') || 100,
   isAgenting: B3SStorage.get('isAgenting') || false,
   salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
   salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',

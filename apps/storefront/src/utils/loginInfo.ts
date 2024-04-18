@@ -15,7 +15,7 @@ import {
   store,
 } from '@/store'
 import {
-  clearCompanyInfo,
+  clearCompanySlice,
   setB2BToken,
   setbcGraphqlToken,
   setCompanyInfo,
@@ -129,11 +129,10 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
     checkoutTip: 0,
   })
   B3SStorage.set('blockPendingAccountOrderCreation', false)
-  B3SStorage.set('realRole', 100)
   B3SStorage.set('loginCustomer', '')
   sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
 
-  store.dispatch(clearCompanyInfo())
+  store.dispatch(clearCompanySlice())
   store.dispatch(clearMasqueradeCompany())
 
   dispatch({
@@ -169,18 +168,13 @@ export const getCompanyInfo = async (
     companyName: '',
     companyStatus: CompanyStatus.DEFAULT,
   }
-  const realRole =
-    B3SStorage.get('realRole') === CustomerRole.ADMIN
-      ? CustomerRole.ADMIN
-      : B3SStorage.get('realRole') || role
 
-  
   const { B2BToken } = store.getState().company.tokens
-  if (!B2BToken || !VALID_ROLES.includes(+realRole)) return companyInfo
+  if (!B2BToken || !VALID_ROLES.includes(+role)) return companyInfo
 
   if (
     userType === UserTypes.MULTIPLE_B2C &&
-    +realRole !== CustomerRole.SUPER_ADMIN
+    +role !== CustomerRole.SUPER_ADMIN
   ) {
     const { userCompany } = await getUserCompany(+id)
 
@@ -241,7 +235,6 @@ export const agentInfo = async (customerId: number | string, role: number) => {
 
 export const getCompanyUserInfo = async (
   emailAddress: string,
-  dispatch: DispatchProps,
   customerId: string | number
 ) => {
   try {
@@ -253,14 +246,6 @@ export const getCompanyUserInfo = async (
         userInfo: { role = '', id },
       },
     } = await getB2BCompanyUserInfo(emailAddress, customerId)
-
-    B3SStorage.set('realRole', role)
-    dispatch({
-      type: 'common',
-      payload: {
-        realRole: role,
-      },
-    })
 
     return {
       userType,
@@ -325,11 +310,7 @@ export const getCurrentCustomerInfo = async (
       customerGroupId,
     } = loginCustomer
 
-    const companyUserInfo = await getCompanyUserInfo(
-      emailAddress,
-      dispatch,
-      customerId
-    )
+    const companyUserInfo = await getCompanyUserInfo(emailAddress, customerId)
 
     if (companyUserInfo && customerId) {
       const { userType, role, id } = companyUserInfo
@@ -375,7 +356,6 @@ export const getCurrentCustomerInfo = async (
       dispatch({
         type: 'common',
         payload: {
-          realRole: role,
           B3UserId: id,
         },
       })

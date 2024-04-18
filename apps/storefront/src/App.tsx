@@ -186,7 +186,7 @@ export default function App() {
         getStoreTaxZoneRates(),
         setStorefrontConfig(dispatch, currentChannelId),
         getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
-        getCompanyUserInfo(emailAddress, dispatch, customerId),
+        getCompanyUserInfo(emailAddress, customerId),
         getCompanyInfo(B3UserId, role),
       ])
       const userInfo = {
