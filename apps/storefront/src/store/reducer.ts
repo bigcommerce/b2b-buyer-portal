@@ -16,6 +16,7 @@ import global from './slices/global'
 import lang from './slices/lang'
 import quoteInfo from './slices/quoteInfo'
 import storeConfigs from './slices/storeConfigs'
+import storeInfo from './slices/storeInfo'
 import theme from './slices/theme'
 
 export const middlewareOptions = {
@@ -48,6 +49,7 @@ export const store = configureStore({
     theme,
     b2bFeatures,
     quoteInfo,
+    storeInfo,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware(middlewareOptions),
 })

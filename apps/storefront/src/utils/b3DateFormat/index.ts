@@ -1,14 +1,17 @@
 import merge from 'lodash-es/merge'
 
-import { B3SStorage } from '../b3Storage.js'
+import { store } from '@/store/reducer.js'
 
 import DateFormatter from './php-date-format.js'
+
+type DisplatyType = 'display' | 'extendedDisplay'
 
 const fmt = new DateFormatter()
 
 const formatCreator =
-  (displayType: string, handler: string, useOffset = true) =>
+  (displayType: DisplatyType, handler: string, useOffset = true) =>
   (timestamp: string | number, isDateStr = false) => {
+    const { timeFormat } = store.getState().storeInfo
     const dateFormat = merge(
       {
         display: 'j M Y',
@@ -16,7 +19,7 @@ const formatCreator =
         extendedDisplay: 'M j Y @ g:i A',
         offset: 0,
       },
-      B3SStorage.get('timeFormat')
+      timeFormat
     )
     const display = dateFormat[displayType]
 
@@ -51,6 +54,7 @@ const getUTCTimestamp = (
   adjustment?: boolean,
   isDateStr = false
 ) => {
+  const { timeFormat } = store.getState().storeInfo
   const dateFormat = merge(
     {
       display: 'j M Y',
@@ -58,7 +62,7 @@ const getUTCTimestamp = (
       extendedDisplay: 'M j Y @ g:i A',
       offset: 0,
     },
-    B3SStorage.get('timeFormat')
+    timeFormat
   )
 
   if (!timestamp) return ''

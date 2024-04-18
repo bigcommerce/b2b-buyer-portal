@@ -60,13 +60,6 @@ export interface OpenAPPParamsProps {
   shoppingListBtn: string
 }
 
-export interface TimeFormatProps {
-  display: string
-  export: string
-  extendedDisplay: string
-  offset: number
-}
-
 export interface GlobalState {
   isCheckout: boolean
   isCloseGotoBCHome: boolean
@@ -106,7 +99,6 @@ export interface GlobalState {
   quoteConfig: QuoteConfigProps[]
   openAPPParams: OpenAPPParamsProps
   showPageMask: boolean
-  timeFormat: TimeFormatProps
   enteredInclusiveTax: boolean
   blockPendingAccountOrderCreation: boolean
   quoteDetailHasNewMessages: boolean
@@ -141,7 +133,6 @@ export const initState: GlobalState = {
     shoppingListBtn: '',
   },
   showPageMask: false,
-  timeFormat: B3SStorage.get('timeFormat') || {},
   enteredInclusiveTax: false,
   blockPendingAccountOrderCreation:
     B3SStorage.get('blockPendingAccountOrderCreation') || true,

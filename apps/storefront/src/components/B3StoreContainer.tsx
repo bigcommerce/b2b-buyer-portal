@@ -9,6 +9,7 @@ import {
   setStoreInfo,
   useAppDispatch,
 } from '@/store'
+import { setTimeFormat } from '@/store/slices/storeInfo'
 import { B3SStorage, storeHash } from '@/utils'
 
 import B3PageMask from './loadding/B3PageMask'
@@ -86,7 +87,6 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
             currentChannelId: channelId,
             b2bChannelId,
             storeName: storeBasicInfo.storeName,
-            timeFormat: storeBasicInfo.timeFormat,
             multiStorefrontEnabled: storeBasicInfo.multiStorefrontEnabled,
           },
         })
@@ -107,7 +107,8 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
             globalB3?.setting?.is_local_debugging ? '/bigcommerce' : bcUrl
           )
         )
-        B3SStorage.set('timeFormat', storeBasicInfo.timeFormat)
+
+        storeDispatch(setTimeFormat(storeBasicInfo.timeFormat))
         B3SStorage.set('B3channelId', channelId)
         B3SStorage.set('bcUrl', bcUrl)
         sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled))
