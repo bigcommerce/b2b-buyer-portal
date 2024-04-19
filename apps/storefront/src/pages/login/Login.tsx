@@ -61,8 +61,10 @@ type AlertColor = 'success' | 'info' | 'warning' | 'error'
 
 export default function Login(props: RegisteredProps) {
   const { setOpenPage } = props
+  const storeDispatch = useAppDispatch()
 
   const isLoggedIn = useAppSelector(isLoggedInSelector)
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
   const salesRepCompanyId = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )
@@ -70,7 +72,6 @@ export default function Login(props: RegisteredProps) {
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
   )
 
-  const storeDispatch = useAppDispatch()
   const [isLoading, setLoading] = useState(true)
   const [isMobile] = useMobile()
 
@@ -86,7 +87,7 @@ export default function Login(props: RegisteredProps) {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const {
-    state: { isCheckout, logo, B3UserId, registerEnabled },
+    state: { isCheckout, logo, registerEnabled },
     dispatch,
   } = useContext(GlobaledContext)
 
@@ -146,8 +147,8 @@ export default function Login(props: RegisteredProps) {
 
           if (result !== 'success') return
 
-          if (isAgenting) {
-            await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
+          if (isAgenting && typeof b2bId === 'number') {
+            await superAdminEndMasquerade(+salesRepCompanyId, b2bId)
           }
 
           // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page

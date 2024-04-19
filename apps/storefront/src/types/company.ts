@@ -3,9 +3,17 @@ export interface CompanyInfo {
   companyName: string
   status: number
 }
-
 export interface Customer {
-  id: number | string
+  /**
+   * The unique identifier of the customer provided by the BigCommerce backend API.
+   */
+  id: number
+  /**
+   * The unique identifier of the customer provided by the B2B backend API.
+   *
+   * This is distinct from the `id` property.
+   */
+  b2bId?: number
   userType: UserTypes
   phoneNumber: string
   firstName: string

@@ -15,7 +15,6 @@ import B3Request from '@/shared/service/request/b3Fetch'
 import {
   formatedQuoteDraftListSelector,
   isB2BUserSelector,
-  store,
   useAppDispatch,
   useAppSelector,
 } from '@/store'
@@ -79,7 +78,6 @@ export default function HeadlessController({
   const {
     dispatch,
     state: {
-      B3UserId,
       salesRepCompanyId = 0,
       currentChannelId,
       registerEnabled,
@@ -93,6 +91,7 @@ export default function HeadlessController({
   const role = useAppSelector(({ company }) => company.customer.role)
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const productList = useAppSelector(formatedQuoteDraftListSelector)
+  const B2BToken = useAppSelector(({company}) => company.tokens.B2BToken);
 
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
@@ -120,7 +119,6 @@ export default function HeadlessController({
 
   const customerId = customer.id
   // Keep updated values
-  const B3UserIdRef = useRef(+B3UserId)
   const salesRepCompanyIdRef = useRef(+salesRepCompanyId)
   const customerIdRef = useRef(customerId)
   const customerRef = useRef(customer)
@@ -134,7 +132,6 @@ export default function HeadlessController({
   const shoppingListBtnRef = useRef(shoppingListBtn)
   const addToAllQuoteBtnRef = useRef(addToAllQuoteBtn)
 
-  B3UserIdRef.current = +B3UserId
   salesRepCompanyIdRef.current = +salesRepCompanyId
   customerIdRef.current = customerId
   customerRef.current = customer
@@ -179,10 +176,16 @@ export default function HeadlessController({
         user: {
           getProfile: () => ({ ...customerRef.current, role }),
           getMasqueradeState: async () => {
+            if (typeof customerRef.current.b2bId !== 'number') {
+              return {
+                current_company_id: salesRepCompanyIdRef.current,
+                companies: [],
+              }
+            }
             // get companies list
             const {
               superAdminCompanies: { edges: companies = [] },
-            } = await superAdminCompanies(B3UserIdRef.current, {
+            } = await superAdminCompanies(customerRef.current.b2bId, {
               first: 50,
               offset: 0,
               orderBy: 'companyId',
@@ -195,24 +198,28 @@ export default function HeadlessController({
               ),
             }
           },
-          getB2BToken: () => store.getState().company.tokens.B2BToken,
-          setMasqueradeCompany: (companyId) =>
+          getB2BToken: () => B2BToken,
+          setMasqueradeCompany: (companyId) => {
+            if (typeof customerRef.current.b2bId !== 'number') return
             startMasquerade({
               companyId,
-              B3UserId: B3UserIdRef.current,
+              b2bId: customerRef.current.b2bId,
               customerId: customerIdRef.current,
-            }),
-          endMasquerade: () =>
+            })
+          },
+          endMasquerade: () => {
+            if (typeof customerRef.current.b2bId !== 'number') return
             endMasquerade({
               dispatch,
               salesRepCompanyId: salesRepCompanyIdRef.current,
-              B3UserId: B3UserIdRef.current,
-            }),
+              b2bId: customerRef.current.b2bId,
+            })
+          },
           graphqlBCProxy: B3Request.graphqlBCProxy,
           loginWithB2BStorefrontToken: async (
             b2bStorefrontJWTToken: string
           ) => {
-            store.dispatch(setB2BToken(b2bStorefrontJWTToken))
+            storeDispatch(setB2BToken(b2bStorefrontJWTToken))
             await getCurrentCustomerInfo(dispatch, b2bStorefrontJWTToken)
           },
         },
@@ -257,7 +264,7 @@ export default function HeadlessController({
     }
     // disabling because we don't want to run this effect on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productList])
+  }, [productList, B2BToken])
 
   return null
 }

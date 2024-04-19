@@ -13,23 +13,23 @@ import {
 
 interface StartMasqueradeParams {
   companyId: number
-  B3UserId: number
+  b2bId: number
   customerId: string | number
 }
 
 interface EndMasqueradeParams {
   dispatch: DispatchProps
   salesRepCompanyId: number
-  B3UserId: number
+  b2bId: number
 }
 
 export const startMasquerade = async ({
   companyId,
-  B3UserId,
+  b2bId,
   customerId,
 }: StartMasqueradeParams) => {
   // change group in bc throug b2b api
-  await superAdminBeginMasquerade(companyId, B3UserId)
+  await superAdminBeginMasquerade(companyId, b2bId)
 
   // get data to be saved on global
   const data = await getAgentInfo(customerId)
@@ -49,14 +49,14 @@ export const startMasquerade = async ({
 }
 
 export const endMasquerade = async ({
-  B3UserId,
+  b2bId,
   dispatch,
 }: EndMasqueradeParams) => {
   const { masqueradeCompany } = store.getState().b2bFeatures
   const salesRepCompanyId = masqueradeCompany.id
 
   // change group in bc throug b2b api
-  await superAdminEndMasquerade(salesRepCompanyId, B3UserId)
+  await superAdminEndMasquerade(salesRepCompanyId, b2bId)
 
   store.dispatch(clearMasqueradeCompany())
 

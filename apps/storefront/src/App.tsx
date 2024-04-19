@@ -54,7 +54,6 @@ const FONT_URL =
 export default function App() {
   const {
     state: {
-      B3UserId,
       currentChannelId,
       quoteConfig,
       storefrontConfig,
@@ -74,6 +73,7 @@ export default function App() {
     ({ company }) => company.customer.emailAddress
   )
   const role = useAppSelector((state) => state.company.customer.role)
+  const b2bId = useAppSelector((state) => state.company.customer.b2bId)
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn)
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete)
   const currentClickedUrl = useAppSelector(
@@ -187,7 +187,7 @@ export default function App() {
         setStorefrontConfig(dispatch, currentChannelId),
         getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
         getCompanyUserInfo(emailAddress, customerId),
-        getCompanyInfo(B3UserId, role),
+        getCompanyInfo(role, b2bId),
       ])
       const userInfo = {
         role: +role,
@@ -228,7 +228,7 @@ export default function App() {
     // ignore href because is not a reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    B3UserId,
+    b2bId,
     currentChannelId,
     customerId,
     emailAddress,

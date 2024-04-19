@@ -3,7 +3,6 @@ import { Box } from '@mui/material'
 
 import { useMobile } from '@/hooks'
 import { useAppSelector } from '@/store'
-import { logoutSession } from '@/utils'
 
 import B3DropDown from '../B3DropDown'
 
@@ -34,7 +33,6 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
 
   const handleItemClick = async (item: ListProps) => {
     if (item.key === 'logout') {
-      logoutSession()
       navigate('/login?loginFlag=3')
     } else if (item.type === 'path') {
       navigate(item.key)

@@ -119,9 +119,7 @@ export const loginInfo = async () => {
 }
 
 export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
-  B3SStorage.set('isB2BUser', false)
   store.dispatch(setB2BToken(''))
-  B3SStorage.set('B3UserId', '')
   B3SStorage.set('nextPath', '')
 
   B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
@@ -159,8 +157,8 @@ const VALID_ROLES = [
 ]
 
 export const getCompanyInfo = async (
-  id: number | string,
   role: number | string,
+  id?: number,
   userType = UserTypes.MULTIPLE_B2C
 ) => {
   let companyInfo = {
@@ -173,10 +171,11 @@ export const getCompanyInfo = async (
   if (!B2BToken || !VALID_ROLES.includes(+role)) return companyInfo
 
   if (
+    id &&
     userType === UserTypes.MULTIPLE_B2C &&
     +role !== CustomerRole.SUPER_ADMIN
   ) {
-    const { userCompany } = await getUserCompany(+id)
+    const { userCompany } = await getUserCompany(id)
 
     if (userCompany) {
       companyInfo = {
@@ -316,7 +315,7 @@ export const getCurrentCustomerInfo = async (
       const { userType, role, id } = companyUserInfo
 
       const [companyInfo] = await Promise.all([
-        getCompanyInfo(id, role, userType),
+        getCompanyInfo(role, id, userType),
         agentInfo(customerId, role),
       ])
 
@@ -334,15 +333,9 @@ export const getCurrentCustomerInfo = async (
         emailAddress,
         customerGroupId,
         role: isB2BUser ? role : CustomerRole.B2C,
+        b2bId: id,
       }
-
-      B3SStorage.set('B3UserId', id)
-
-      B3LStorage.set('MyQuoteInfo', {})
       const quoteUserId = id || customerId || 0
-      store.dispatch(setQuoteUserId(quoteUserId))
-      B3LStorage.set('cartToQuoteId', '')
-
       const companyPayload = {
         id: companyInfo.id,
         status: companyInfo.companyStatus,
@@ -352,13 +345,10 @@ export const getCurrentCustomerInfo = async (
       store.dispatch(setCompanyInfo(companyPayload))
       store.dispatch(setCustomerInfo(customerInfo))
       store.dispatch(resetDraftQuoteList())
-
-      dispatch({
-        type: 'common',
-        payload: {
-          B3UserId: id,
-        },
-      })
+      store.dispatch(setQuoteUserId(quoteUserId))
+      B3SStorage.set('isB2BUser', isB2BUser)
+      B3LStorage.set('MyQuoteInfo', {})
+      B3LStorage.set('cartToQuoteId', '')
 
       return {
         role,

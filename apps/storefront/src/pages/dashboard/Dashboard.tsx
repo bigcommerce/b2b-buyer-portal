@@ -124,11 +124,9 @@ function B3Mean({
 }
 
 function Dashboard(props: DashboardProps) {
-  const {
-    state: { B3UserId = 0 },
-    dispatch,
-  } = useContext(GlobaledContext)
+  const { dispatch } = useContext(GlobaledContext)
   const customerId = useAppSelector(({ company }) => company.customer.id)
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
 
   const { setOpenPage } = props
   const b3Lang = useB3Lang()
@@ -158,24 +156,24 @@ function Dashboard(props: DashboardProps) {
   const location = useLocation()
 
   const getSuperAdminCompaniesList = async (params: ListItem) => {
-    const {
-      superAdminCompanies: { edges = [], totalCount },
-    }: any = await superAdminCompanies(+B3UserId, params)
-
-    return {
-      edges,
-      totalCount,
+    let list = { edges: [], totalCount: 0 }
+    if (typeof b2bId === 'number') {
+      list = (await superAdminCompanies(b2bId, params)).superAdminCompanies
     }
+
+    return list
   }
 
   const startActing = async (id?: number) => {
     try {
       setIsRequestLoading(true)
-      await startMasquerade({
-        customerId,
-        companyId: id || currentSalesRepCompanyId,
-        B3UserId: +B3UserId,
-      })
+      if (typeof b2bId === 'number') {
+        await startMasquerade({
+          customerId,
+          companyId: id || currentSalesRepCompanyId,
+          b2bId,
+        })
+      }
 
       setOpenPage({
         isOpen: true,
@@ -193,11 +191,13 @@ function Dashboard(props: DashboardProps) {
   const endActing = async () => {
     try {
       showPageMask(dispatch, true)
-      await endMasquerade({
-        dispatch,
-        salesRepCompanyId: +salesRepCompanyId,
-        B3UserId: +B3UserId,
-      })
+      if (typeof b2bId === 'number') {
+        await endMasquerade({
+          dispatch,
+          salesRepCompanyId: +salesRepCompanyId,
+          b2bId,
+        })
+      }
       setFilterData({
         ...filterData,
       })

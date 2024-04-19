@@ -20,7 +20,7 @@ interface MutationObserverProps {
 
 const useDomHooks = ({ setOpenPage, isOpen }: MutationObserverProps) => {
   const {
-    state: { productQuoteEnabled, cartQuoteEnabled, B3UserId },
+    state: { productQuoteEnabled, cartQuoteEnabled },
   } = useContext(GlobaledContext)
   const customerId = useAppSelector(({ company }) => company.customer.id)
   const role = useAppSelector(({ company }) => company.customer.role)
@@ -42,7 +42,6 @@ const useDomHooks = ({ setOpenPage, isOpen }: MutationObserverProps) => {
   useMyQuote({
     setOpenPage,
     productQuoteEnabled,
-    B3UserId,
     role,
     customerId,
   })

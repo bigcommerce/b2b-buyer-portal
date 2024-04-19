@@ -7,7 +7,6 @@ import { B3SStorage } from './b3Storage'
 
 export const logoutSession = () => {
   store.dispatch(clearCompanySlice())
-  B3SStorage.delete('B3UserId')
   B3SStorage.delete('nextPath')
 }
 

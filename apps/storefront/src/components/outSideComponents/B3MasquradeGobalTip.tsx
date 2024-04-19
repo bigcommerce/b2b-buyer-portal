@@ -13,7 +13,6 @@ import {
 import { useGetButtonText } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
 import { superAdminEndMasquerade } from '@/shared/service/b2b'
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
@@ -37,13 +36,9 @@ const bottomHeightPage = ['shoppingList/', 'purchased-products']
 
 export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
   const { isOpen, setOpenPage } = props
+  const dispatch = useAppDispatch()
   const customerId = useAppSelector(({ company }) => company.customer.id)
-  const {
-    state: { B3UserId },
-    dispatch,
-  } = useContext(GlobaledContext)
-  const appDispatch = useAppDispatch()
-
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
   const salesRepCompanyId = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )
@@ -102,7 +97,9 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         openUrl: '/dashboard?closeMasqurade=1',
       })
     } else {
-      await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
+      if (typeof b2bId === 'number') {
+        await superAdminEndMasquerade(+salesRepCompanyId, b2bId)
+      }
       dispatch({
         type: 'common',
         payload: {
@@ -112,7 +109,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         },
       })
 
-      appDispatch(clearMasqueradeCompany())
+      dispatch(clearMasqueradeCompany())
       dispatch({
         type: 'common',
         payload: {

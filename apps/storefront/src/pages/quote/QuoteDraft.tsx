@@ -107,7 +107,6 @@ interface QuoteDraftProps {
 function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const {
     state: {
-      B3UserId,
       countriesList,
       currentChannelId: channelId,
       openAPPParams,
@@ -280,7 +279,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           setInfo(quoteInfo)
         }
       } finally {
-        const quoteUserId = B3UserId || customer.id || 0
+        const quoteUserId = customer.b2bId || customer.id || 0
         dispatch(setQuoteUserId(+quoteUserId))
 
         setLoading(false)

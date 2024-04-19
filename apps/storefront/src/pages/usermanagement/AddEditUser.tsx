@@ -12,6 +12,7 @@ import { useB3Lang } from '@b3/lang'
 import { B3CustomForm, B3Dialog } from '@/components'
 import { GlobaledContext } from '@/shared/global'
 import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { UserTypes } from '@/types'
 import { snackbar } from '@/utils'
 
@@ -33,8 +34,9 @@ function AddEditUser(
   ref: Ref<unknown> | undefined
 ) {
   const {
-    state: { currentChannelId, B3UserId },
+    state: { currentChannelId },
   } = useContext(GlobaledContext)
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
 
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
@@ -161,7 +163,7 @@ function AddEditUser(
     const usersFiles = getUsersFiles(
       type,
       b3Lang,
-      type === 'edit' ? +B3UserId === +data.id : false
+      type === 'edit' ? b2bId === +data.id : false
     )
     setUsersFiles(usersFiles)
     setType(type)

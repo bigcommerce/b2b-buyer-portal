@@ -24,7 +24,7 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import {
   resetDraftQuoteList,
   setQuoteUserId,
-  store,
+  useAppDispatch,
   useAppSelector,
 } from '@/store'
 import { CustomerRole } from '@/types'
@@ -40,7 +40,6 @@ type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 interface MutationObserverProps {
   setOpenPage: DispatchProps
   productQuoteEnabled: boolean
-  B3UserId: number | string
   role: number | string
   customerId?: number | string
 }
@@ -48,22 +47,27 @@ interface MutationObserverProps {
 const useMyQuote = ({
   setOpenPage,
   productQuoteEnabled,
-  B3UserId,
   role,
 }: MutationObserverProps) => {
+  const dispatch = useAppDispatch()
   const quoteDraftUserId = useAppSelector(
     ({ quoteInfo }) => quoteInfo.draftQuoteInfo.userId
   )
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
   useEffect(() => {
     const isLogin = role !== CustomerRole.GUEST
 
-    if (isLogin && +quoteDraftUserId !== 0 && +quoteDraftUserId !== +B3UserId) {
+    if (isLogin && +quoteDraftUserId !== 0 && +quoteDraftUserId !== b2bId) {
       B3LStorage.set('MyQuoteInfo', {})
 
-      store.dispatch(resetDraftQuoteList())
-      store.dispatch(setQuoteUserId(+B3UserId))
+      dispatch(resetDraftQuoteList())
+      if (typeof b2bId === 'number') {
+        dispatch(setQuoteUserId(b2bId))
+      }
     }
-  }, [B3UserId, role, quoteDraftUserId])
+    // ignore dispatch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [b2bId, role, quoteDraftUserId])
   const cache = useRef({})
   const {
     state: { addQuoteBtn, quoteOnNonPurchasableProductPageBtn },
