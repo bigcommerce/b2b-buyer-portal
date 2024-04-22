@@ -23,7 +23,10 @@ import {
   setCurrentCustomerJWT,
   setCustomerInfo,
 } from '@/store/slices/company'
-import { resetDraftQuoteList } from '@/store/slices/quoteInfo'
+import {
+  resetDraftQuoteInfo,
+  resetDraftQuoteList,
+} from '@/store/slices/quoteInfo'
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
 import { b2bLogger, B3LStorage, B3SStorage, storeHash } from '@/utils'
 
@@ -347,7 +350,7 @@ export const getCurrentCustomerInfo = async (
       store.dispatch(resetDraftQuoteList())
       store.dispatch(setQuoteUserId(quoteUserId))
       B3SStorage.set('isB2BUser', isB2BUser)
-      B3LStorage.set('MyQuoteInfo', {})
+      store.dispatch(resetDraftQuoteInfo())
       B3LStorage.set('cartToQuoteId', '')
 
       return {

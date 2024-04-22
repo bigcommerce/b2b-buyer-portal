@@ -2,7 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 
-import { CalculatedValue, QuoteInfo, QuoteItem } from '@/types/quotes'
+import {
+  BillingAddress,
+  CalculatedValue,
+  QuoteInfo,
+  QuoteItem,
+  ShippingAddress,
+} from '@/types/quotes'
 
 interface SetDraftProductQuantityParams {
   id: string
@@ -27,6 +33,43 @@ const initialState: QuoteInfoState = {
   draftQuoteList: [],
   draftQuoteInfo: {
     userId: 0,
+    contactInfo: {
+      name: '',
+      email: '',
+      companyName: '',
+      phoneNumber: '',
+      quoteTitle: '',
+    },
+    shippingAddress: {
+      address: '',
+      addressId: 0,
+      apartment: '',
+      companyName: '',
+      city: '',
+      country: '',
+      firstName: '',
+      label: '',
+      lastName: '',
+      phoneNumber: '',
+      state: '',
+      zipCode: '',
+    },
+    billingAddress: {
+      address: '',
+      addressId: 0,
+      apartment: '',
+      companyName: '',
+      city: '',
+      country: '',
+      firstName: '',
+      label: '',
+      lastName: '',
+      phoneNumber: '',
+      state: '',
+      zipCode: '',
+    },
+    fileInfo: [],
+    note: '',
   },
 }
 
@@ -36,6 +79,9 @@ const draftQuoteListSlice = createSlice({
   reducers: {
     resetDraftQuoteList: (state) => {
       state.draftQuoteList = initialState.draftQuoteList
+    },
+    resetDraftQuoteInfo: (state) => {
+      state.draftQuoteInfo = initialState.draftQuoteInfo
     },
     setDraftQuoteList: (state, { payload }: PayloadAction<QuoteItem[]>) => {
       state.draftQuoteList = payload
@@ -97,11 +143,30 @@ const draftQuoteListSlice = createSlice({
     setQuoteUserId: (state, { payload }: PayloadAction<number>) => {
       state.draftQuoteInfo.userId = payload
     },
+    setDraftQuoteInfo: (state, { payload }: PayloadAction<QuoteInfo>) => {
+      state.draftQuoteInfo = payload
+    },
+    setDraftQuoteInfoNote: (state, { payload }: PayloadAction<string>) => {
+      state.draftQuoteInfo.note = payload
+    },
+    setDraftQuoteShippingAddress: (
+      state,
+      { payload }: PayloadAction<ShippingAddress>
+    ) => {
+      state.draftQuoteInfo.shippingAddress = payload
+    },
+    setDraftQuoteBillingAddress: (
+      state,
+      { payload }: PayloadAction<BillingAddress>
+    ) => {
+      state.draftQuoteInfo.billingAddress = payload
+    },
   },
 })
 
 export const {
   resetDraftQuoteList,
+  resetDraftQuoteInfo,
   setDraftQuoteList,
   deleteProductFromDraftQuoteList,
   setDraftProductQuantity,
@@ -109,6 +174,10 @@ export const {
   setDraftProductCalculatedValue,
   setDraftQuoteCalculatedPrices,
   setQuoteUserId,
+  setDraftQuoteInfo,
+  setDraftQuoteInfoNote,
+  setDraftQuoteShippingAddress,
+  setDraftQuoteBillingAddress,
 } = draftQuoteListSlice.actions
 
 export default persistReducer(

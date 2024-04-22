@@ -7,6 +7,7 @@ import trim from 'lodash-es/trim'
 import { B3CustomForm } from '@/components'
 import { useMobile } from '@/hooks'
 import { isValidUserTypeSelector, useAppSelector } from '@/store'
+import { ContactInfo as ContactInfoType } from '@/types/quotes'
 import { validatorRules } from '@/utils'
 
 const emailValidate = validatorRules(['email'])
@@ -70,13 +71,14 @@ const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
 }
 
 interface ContactInfoProps {
-  info: {
-    [key: string]: string
-  }
+  info: ContactInfoType
   emailAddress?: string
 }
 
-function ContactInfo({ info = {}, emailAddress }: ContactInfoProps, ref: any) {
+function ContactInfo(
+  { info, emailAddress }: ContactInfoProps,
+  ref: any
+) {
   const {
     control,
     getValues,
@@ -97,7 +99,7 @@ function ContactInfo({ info = {}, emailAddress }: ContactInfoProps, ref: any) {
   useEffect(() => {
     if (info && JSON.stringify(info) !== '{}') {
       Object.keys(info).forEach((item: string) => {
-        setValue(item, info[item])
+        setValue(item, info && info[item as keyof ContactInfoType])
       })
     }
     // Disable eslint exhaustive-deps rule for setValue dispatcher

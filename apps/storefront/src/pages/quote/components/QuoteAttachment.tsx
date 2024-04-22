@@ -8,8 +8,8 @@ import {
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
 } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
-import { B3LStorage, snackbar } from '@/utils'
+import { setDraftQuoteInfo, useAppDispatch, useAppSelector } from '@/store'
+import { snackbar } from '@/utils'
 
 import FileUpload, { FileObjects } from './FileUpload'
 
@@ -27,9 +27,13 @@ interface QuoteAttachmentProps {
 export default function QuoteAttachment(props: QuoteAttachmentProps) {
   const { allowUpload = true, defaultFileList = [], status, quoteId } = props
   const b3Lang = useB3Lang()
+  const dispatch = useAppDispatch()
 
   const firstName = useAppSelector(({ company }) => company.customer.firstName)
   const lastName = useAppSelector(({ company }) => company.customer.lastName)
+  const draftQuoteInfo = useAppSelector(
+    ({ quoteInfo }) => quoteInfo.draftQuoteInfo
+  )
 
   const [roleText] = useRole()
 
@@ -39,8 +43,7 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
 
   useEffect(() => {
     if (status === 0) {
-      const { fileInfo = [] }: CustomFieldItems =
-        B3LStorage.get('MyQuoteInfo') || {}
+      const { fileInfo = [] }: CustomFieldItems = draftQuoteInfo || {}
 
       setFileList(typeof fileInfo !== 'object' ? [] : fileInfo)
     } else if (defaultFileList.length) {
@@ -51,13 +54,12 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
   }, [defaultFileList.length, status])
 
   const saveQuoteInfo = (newFileInfo: FileObjects[]) => {
-    const quoteInfo = B3LStorage.get('MyQuoteInfo') || {}
-
-    if (quoteInfo) {
-      B3LStorage.set('MyQuoteInfo', {
-        ...quoteInfo,
+    if (draftQuoteInfo) {
+      const newQuoteInfo = {
+        ...draftQuoteInfo,
         fileInfo: newFileInfo,
-      })
+      }
+      dispatch(setDraftQuoteInfo(newQuoteInfo))
     }
   }
 

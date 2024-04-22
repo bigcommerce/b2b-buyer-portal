@@ -22,6 +22,7 @@ import {
 import { useGetButtonText } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import {
+  resetDraftQuoteInfo,
   resetDraftQuoteList,
   setQuoteUserId,
   useAppDispatch,
@@ -29,7 +30,7 @@ import {
 } from '@/store'
 import { CustomerRole } from '@/types'
 import { OpenPageState } from '@/types/hooks'
-import { B3LStorage, setCartPermissions } from '@/utils'
+import { setCartPermissions } from '@/utils'
 
 import useDomVariation from './useDomVariation'
 import usePurchasableQuote from './usePurchasableQuote'
@@ -57,9 +58,13 @@ const useMyQuote = ({
   useEffect(() => {
     const isLogin = role !== CustomerRole.GUEST
 
-    if (isLogin && +quoteDraftUserId !== 0 && +quoteDraftUserId !== b2bId) {
-      B3LStorage.set('MyQuoteInfo', {})
-
+    if (
+      quoteDraftUserId &&
+      isLogin &&
+      +quoteDraftUserId !== 0 &&
+      +quoteDraftUserId !== b2bId
+    ) {
+      dispatch(resetDraftQuoteInfo())
       dispatch(resetDraftQuoteList())
       if (typeof b2bId === 'number') {
         dispatch(setQuoteUserId(b2bId))

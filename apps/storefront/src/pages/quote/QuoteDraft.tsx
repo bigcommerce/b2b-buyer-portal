@@ -17,6 +17,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
+import cloneDeep from 'lodash-es/cloneDeep'
 
 import { B3Sping, CustomButton } from '@/components'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
@@ -32,12 +33,19 @@ import {
 import { deleteCart } from '@/shared/service/bc/graphql/cart'
 import {
   isB2BUserSelector,
+  resetDraftQuoteInfo,
   resetDraftQuoteList,
+  setDraftQuoteInfo,
   setQuoteUserId,
   useAppDispatch,
   useAppSelector,
 } from '@/store'
 import { AddressItemType, BCAddressItemType } from '@/types/address'
+import {
+  BillingAddress,
+  ContactInfoKeys,
+  ShippingAddress,
+} from '@/types/quotes'
 import {
   addQuoteDraftProducts,
   B3LStorage,
@@ -47,6 +55,7 @@ import {
   storeHash,
 } from '@/utils'
 import { deleteCartData } from '@/utils/cartUtils'
+import validateObject from '@/utils/quoteUtils'
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config'
 import { convertBCToB2BAddress } from '../address/shared/config'
@@ -77,18 +86,9 @@ export interface Country {
   id?: string
 }
 
-interface GetValue {
-  [key: string]: string
-}
 interface InfoRefProps extends HTMLInputElement {
-  getContactInfoValue: () => GetValue
+  getContactInfoValue: () => any
   setShippingInfoValue: (address: any) => void
-}
-
-interface InfoProps {
-  contactInfo: GetValue
-  shippingAddress: GetValue
-  billingAddress: GetValue
 }
 
 interface QuoteSummaryRef extends HTMLInputElement {
@@ -102,6 +102,36 @@ interface OpenPageState {
 
 interface QuoteDraftProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+}
+
+const shippingAddress = {
+  address: '',
+  addressId: 0,
+  apartment: '',
+  city: '',
+  country: '',
+  firstName: '',
+  label: '',
+  lastName: '',
+  phoneNumber: '',
+  state: '',
+  zipCode: '',
+  companyName: '',
+}
+
+const billingAddress = {
+  address: '',
+  addressId: 0,
+  apartment: '',
+  city: '',
+  country: '',
+  firstName: '',
+  label: '',
+  lastName: '',
+  phoneNumber: '',
+  state: '',
+  zipCode: '',
+  companyName: '',
 }
 
 function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
@@ -132,6 +162,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const salesRepCompanyName = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName
   )
+  const quoteinfo = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo)
 
   const {
     state: {
@@ -153,11 +184,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
   const [addressList, setAddressList] = useState<B2BAddress[]>([])
 
-  const [info, setInfo] = useState<InfoProps>({
-    contactInfo: {},
-    shippingAddress: {},
-    billingAddress: {},
-  })
   const [shippingSameAsBilling, setShippingSameAsBilling] =
     useState<boolean>(false)
   const [billingChange, setBillingChange] = useState<boolean>(false)
@@ -182,19 +208,11 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           companyName: companyName || salesRepCompanyName || '',
           phoneNumber: customer.phoneNumber,
         }
-        setInfo(newInfo)
-        B3LStorage.set('MyQuoteInfo', newInfo)
+        dispatch(setDraftQuoteInfo(newInfo))
       }
 
       try {
-        const MyQuoteInfo = B3LStorage.get('MyQuoteInfo') || {}
-
-        const quoteInfo = {
-          contactInfo: {},
-          shippingAddress: {},
-          billingAddress: {},
-          ...MyQuoteInfo,
-        }
+        const quoteInfo = cloneDeep(quoteinfo)
 
         if (isB2BUser) {
           const companyId = companyB2BId || salesRepCompanyId
@@ -208,10 +226,10 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           const billingDefautAddress = addressB2BList.find(
             (item: B2BAddress) => item?.node?.isDefaultBilling === 1
           )
+
           if (
             shippingDefautAddress &&
-            (!quoteInfo?.shippingAddress ||
-              JSON.stringify(quoteInfo.shippingAddress) === '{}')
+            validateObject(quoteInfo, 'shippingAddress')
           ) {
             const addressItem = {
               label: shippingDefautAddress?.node?.label || '',
@@ -230,12 +248,12 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 : 0,
             }
 
-            quoteInfo.shippingAddress = addressItem
+            quoteInfo.shippingAddress = addressItem as ShippingAddress
           }
           if (
             billingDefautAddress &&
             (!quoteInfo?.billingAddress ||
-              JSON.stringify(quoteInfo.billingAddress) === '{}')
+              validateObject(quoteInfo, 'billingAddress'))
           ) {
             const addressItem = {
               label: billingDefautAddress?.node?.label || '',
@@ -254,7 +272,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 : 0,
             }
 
-            quoteInfo.billingAddress = addressItem
+            quoteInfo.billingAddress = addressItem as BillingAddress
           }
 
           setAddressList(addressB2BList)
@@ -271,12 +289,12 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         if (
           quoteInfo &&
           (!quoteInfo?.contactInfo ||
-            JSON.stringify(quoteInfo.contactInfo) === '{}') &&
+            validateObject(quoteInfo, 'contactInfo')) &&
           +role !== 100
         ) {
           setCustomInfo(quoteInfo)
         } else if (quoteInfo) {
-          setInfo(quoteInfo)
+          dispatch(setDraftQuoteInfo(quoteInfo))
         }
       } finally {
         const quoteUserId = customer.b2bId || customer.id || 0
@@ -293,9 +311,10 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
   const getAddress = () => {
     const addresssaveInfo = {
-      shippingAddress: {},
-      billingAddress: {},
+      shippingAddress,
+      billingAddress,
     }
+
     if (billingRef?.current) {
       addresssaveInfo.billingAddress = billingRef.current.getContactInfoValue()
     }
@@ -308,9 +327,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   }
 
   const handleSaveInfoClick = async () => {
-    const saveInfo = {
-      ...info,
-    }
+    const saveInfo = cloneDeep(quoteinfo)
     if (contactInfoRef?.current) {
       const contactInfo = await contactInfoRef.current.getContactInfoValue()
       if (!contactInfo) return
@@ -331,13 +348,12 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         ) {
           return true
         }
-        return !!saveInfo.contactInfo[key]
+        return !!saveInfo.contactInfo[key as ContactInfoKeys]
       }
     )
 
     if (isComplete) {
-      B3LStorage.set('MyQuoteInfo', saveInfo)
-      setInfo(saveInfo)
+      dispatch(setDraftQuoteInfo(saveInfo))
       setEdit(false)
     }
   }
@@ -374,7 +390,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     async (_e, handleEvent) => {
       setLoading(true)
       try {
-        const info = B3LStorage.get('MyQuoteInfo')
+        const info = cloneDeep(quoteinfo)
         const contactInfo = info?.contactInfo || {}
 
         const quoteTitle = contactInfo?.quoteTitle || ''
@@ -385,10 +401,11 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           if (key === 'phoneNumber' || key === 'companyName') {
             return true
           }
-          return !!contactInfo[key]
+
+          return contactInfo && !!contactInfo[key as ContactInfoKeys]
         })
 
-        if (JSON.stringify(contactInfo) === '{}' || !isComplete) {
+        if (validateObject(quoteinfo, 'contactInfo') || !isComplete) {
           snackbar.error(b3Lang('quoteDraft.addQuoteInfo'))
           return
         }
@@ -401,10 +418,8 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
         const note = info?.note || ''
         const newNote = note.trim().replace(/[\r\n]/g, '\\n')
 
-        const perfectAddress = (address: CustomFieldStringItems) => {
-          const newAddress = {
-            ...address,
-          }
+        const perfectAddress = (address: ShippingAddress | BillingAddress) => {
+          const newAddress = cloneDeep(address)
 
           const countryItem = countriesList?.find(
             (item: Country) => item.countryCode === newAddress.country
@@ -414,8 +429,8 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             newAddress.country = countryItem.countryName
           }
 
-          newAddress.addressLine1 = address?.address || ''
-          newAddress.addressLine2 = address?.apartment || ''
+          newAddress.address = address?.address || ''
+          newAddress.apartment = address?.apartment || ''
 
           return newAddress
         }
@@ -493,10 +508,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
 
         const currency = getDefaultCurrencyInfo()
 
-        const fileList = getFileList(info.fileInfo || [])
+        const fileList = getFileList(quoteinfo?.fileInfo || [])
 
         const data = {
-          // notes: note,
           message: newNote,
           legalTerms: '',
           totalAmount: enteredInclusiveTax
@@ -551,11 +565,12 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             to: 'draft',
           },
         })
+
+        dispatch(resetDraftQuoteInfo())
         dispatch(resetDraftQuoteList())
-        B3LStorage.delete('MyQuoteInfo')
         B3LStorage.delete('cartToQuoteId')
       } catch (error: any) {
-        if (error.message.length > 0) {
+        if (error.message && error.message.length > 0) {
           snackbar.error(error.message, {
             isClose: true,
           })
@@ -715,9 +730,9 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           {!isEdit && (
             <QuoteInfo
               status="Draft"
-              contactInfo={info?.contactInfo || {}}
-              shippingAddress={info?.shippingAddress || {}}
-              billingAddress={info?.billingAddress || {}}
+              contactInfo={quoteinfo?.contactInfo}
+              shippingAddress={quoteinfo?.shippingAddress}
+              billingAddress={quoteinfo?.billingAddress || {}}
               handleEditInfoClick={handleEditInfoClick}
             />
           )}
@@ -725,7 +740,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             <Container flexDirection="column">
               <ContactInfo
                 emailAddress={customer.emailAddress}
-                info={info.contactInfo}
+                info={quoteinfo?.contactInfo}
                 ref={contactInfoRef}
               />
               <Box
@@ -737,7 +752,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
               >
                 <QuoteAddress
                   title={b3Lang('quoteDraft.section.billing')}
-                  info={info?.billingAddress || {}}
+                  info={quoteinfo?.billingAddress}
                   addressList={addressList}
                   pr={isMobile ? 0 : '8px'}
                   ref={billingRef}
@@ -749,7 +764,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
                 />
                 <QuoteAddress
                   title={b3Lang('quoteDraft.section.shipping')}
-                  info={info?.shippingAddress || {}}
+                  info={quoteinfo?.shippingAddress}
                   addressList={addressList}
                   pl={isMobile ? 0 : '8px'}
                   ref={shippingRef}

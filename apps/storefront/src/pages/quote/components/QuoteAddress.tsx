@@ -7,6 +7,7 @@ import cloneDeep from 'lodash-es/cloneDeep'
 import { B3CustomForm } from '@/components'
 import { useGetCountry, useMobile } from '@/hooks'
 import { AddressItemType } from '@/types/address'
+import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes'
 
 import ChooseAddress from './ChooseAddress'
 
@@ -31,9 +32,7 @@ interface AddressProps {
   pr?: string | number
   pl?: string | number
   addressList?: AddressItemProps[]
-  info: {
-    [key: string]: string
-  }
+  info: ContactInfo | ShippingAddress | BillingAddress
   role: string | number
   accountFormFields: AccountFormFieldsProps[]
   shippingSameAsBilling: boolean
@@ -75,7 +74,7 @@ function QuoteAddress(
     addressList = [],
     pr = 0,
     pl = 0,
-    info = {},
+    info,
     role,
     accountFormFields = [],
     shippingSameAsBilling = false,
@@ -95,6 +94,8 @@ function QuoteAddress(
 
   const [isMobile] = useMobile()
   const b3Lang = useB3Lang()
+
+  type InfoKeys = keyof typeof info
 
   const [isOpen, setOpen] = useState<boolean>(false)
   const [quoteAddress, setQuoteAddress] = useState<AccountFormFieldsProps[]>(
@@ -161,7 +162,7 @@ function QuoteAddress(
   useEffect(() => {
     if (JSON.stringify(info) !== '{}') {
       Object.keys(info).forEach((item: string) => {
-        setValue(item, info[item])
+        setValue(item, info[item as InfoKeys])
       })
     }
     // Disabling this rule as dispatcher dep setValue is the same between renders
