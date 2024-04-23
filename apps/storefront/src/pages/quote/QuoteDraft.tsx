@@ -47,13 +47,13 @@ import {
   ShippingAddress,
 } from '@/types/quotes'
 import {
-  addQuoteDraftProducts,
   B3LStorage,
   getActiveCurrencyInfo,
   getDefaultCurrencyInfo,
   snackbar,
   storeHash,
 } from '@/utils'
+import { addQuoteDraftProducts } from '@/utils/b3Product/b3Product'
 import { deleteCartData } from '@/utils/cartUtils'
 import validateObject from '@/utils/quoteUtils'
 
@@ -136,11 +136,7 @@ const billingAddress = {
 
 function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const {
-    state: {
-      countriesList,
-      currentChannelId: channelId,
-      openAPPParams,
-    },
+    state: { countriesList, currentChannelId: channelId, openAPPParams },
   } = useContext(GlobaledContext)
   const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)

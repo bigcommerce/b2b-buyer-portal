@@ -12,7 +12,9 @@ import {
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
 import { isB2BUserSelector, store, useAppSelector } from '@/store'
-import { b2bLogger, b3TriggerCartNumber, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart } from '@/utils/cartUtils'
 
 import { EditableProductItem, OrderProductItem } from '../../../types'

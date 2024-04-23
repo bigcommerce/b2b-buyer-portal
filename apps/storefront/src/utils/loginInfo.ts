@@ -28,7 +28,10 @@ import {
   resetDraftQuoteList,
 } from '@/store/slices/quoteInfo'
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
-import { b2bLogger, B3LStorage, B3SStorage, storeHash } from '@/utils'
+
+import b2bLogger from './b3Logger'
+import { B3LStorage, B3SStorage } from './b3Storage'
+import { storeHash } from './basicConfig'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
 
@@ -345,12 +348,12 @@ export const getCurrentCustomerInfo = async (
         companyName: companyInfo.companyName,
       }
 
+      store.dispatch(resetDraftQuoteList())
+      store.dispatch(resetDraftQuoteInfo())
       store.dispatch(setCompanyInfo(companyPayload))
       store.dispatch(setCustomerInfo(customerInfo))
-      store.dispatch(resetDraftQuoteList())
       store.dispatch(setQuoteUserId(quoteUserId))
       B3SStorage.set('isB2BUser', isB2BUser)
-      store.dispatch(resetDraftQuoteInfo())
       B3LStorage.set('cartToQuoteId', '')
 
       return {

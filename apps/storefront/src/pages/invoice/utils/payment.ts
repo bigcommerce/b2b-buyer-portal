@@ -1,7 +1,7 @@
 import { getInvoiceCheckoutUrl } from '@/shared/service/b2b'
 import { BcCartData } from '@/types/invoice'
-import { b2bLogger } from '@/utils'
 import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout'
+import b2bLogger from '@/utils/b3Logger'
 
 export const getCheckouUrlAndCart = async (params: BcCartData) => {
   const {

@@ -27,7 +27,7 @@ import {
   useAppSelector,
 } from '@/store'
 import { Currency } from '@/types'
-import { b2bLogger } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import B3Dialog from '../B3Dialog'
 

@@ -9,7 +9,7 @@ import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { OpenPageState } from '@/types/hooks'
-import { b2bLogger } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import { getForgotPasswordFields, LoginConfig, sendEmail } from './config'
 import { B3ResetPassWordButton, LoginImage } from './styled'

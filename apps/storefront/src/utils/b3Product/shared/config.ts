@@ -3,7 +3,7 @@ import format from 'date-fns/format'
 import isEmpty from 'lodash-es/isEmpty'
 
 import { AllOptionProps, ALlOptionValue, Product } from '@/types/products'
-import { b2bLogger } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import {
   BcCalculatedPrice,

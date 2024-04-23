@@ -1,8 +1,8 @@
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
 import { store } from '@/store/reducer'
 import { setCartNumber } from '@/store/slices/global'
-import { b2bLogger } from '@/utils'
 
+import b2bLogger from './b3Logger'
 import getCookie from './b3utils'
 import { deleteCartData } from './cartUtils'
 

@@ -25,12 +25,11 @@ import {
   updateBcShoppingList,
 } from '@/shared/service/b2b'
 import { isB2BUserSelector, useAppSelector } from '@/store'
+import { getDefaultCurrencyInfo, snackbar } from '@/utils'
 import {
   calculateProductListPrice,
-  getDefaultCurrencyInfo,
-  snackbar,
-} from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+  getBCPrice,
+} from '@/utils/b3Product/b3Product'
 import {
   conversionProductsList,
   CustomerInfoProps,

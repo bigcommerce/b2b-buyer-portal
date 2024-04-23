@@ -11,21 +11,25 @@ import { GlobaledContext } from '@/shared/global'
 import { gotoAllowedAppPage } from '@/shared/routes'
 import { setChannelStoreType } from '@/shared/service/b2b'
 import {
-  clearInvoiceCart,
-  getCompanyUserInfo,
-  getCurrentCustomerInfo,
   getQuoteEnabled,
-  getStoreTaxZoneRates,
-  getTemPlateConfig,
   handleHideRegisterPage,
-  isUserGotoLogin,
-  loginInfo,
   openPageByClick,
   removeBCMenus,
-  setStorefrontConfig,
 } from '@/utils'
 
-import { getCompanyInfo } from './utils/loginInfo'
+import clearInvoiceCart from './utils/b3ClearCart'
+import { isUserGotoLogin } from './utils/b3logout'
+import {
+  getCompanyInfo,
+  getCompanyUserInfo,
+  getCurrentCustomerInfo,
+  loginInfo,
+} from './utils/loginInfo'
+import {
+  getStoreTaxZoneRates,
+  getTemPlateConfig,
+  setStorefrontConfig,
+} from './utils/storefrontConfig'
 import {
   isB2BUserSelector,
   setGlabolCommonState,

@@ -20,7 +20,7 @@ import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
-import { endMasquerade, startMasquerade } from '@/utils'
+import { endMasquerade, startMasquerade } from '@/utils/masquerade'
 
 import B3FilterSearch from '../../components/filter/B3FilterSearch'
 

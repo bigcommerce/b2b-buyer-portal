@@ -1,8 +1,8 @@
 import globalB3 from '@b3/global-b3'
 
 import { store } from '@/store'
-import { b2bLogger } from '@/utils'
 
+import b2bLogger from './b3Logger'
 import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
 
 interface MoneyFormat {

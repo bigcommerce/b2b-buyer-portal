@@ -1,8 +1,8 @@
 import { customerExists } from '@/shared/service/bc'
 import { store } from '@/store'
 import { clearCompanySlice } from '@/store/slices/company'
-import { b2bLogger } from '@/utils'
 
+import b2bLogger from './b3Logger'
 import { B3SStorage } from './b3Storage'
 
 export const logoutSession = () => {

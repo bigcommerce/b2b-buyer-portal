@@ -32,18 +32,16 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
+import { currencyFormat, getProductPriceIncTax, snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 import {
   addQuoteDraftProducts,
-  b2bLogger,
-  b3TriggerCartNumber,
   calculateProductListPrice,
-  currencyFormat,
-  getProductPriceIncTax,
   getValidOptionsList,
-  snackbar,
   validProductQty,
-} from '@/utils'
+} from '@/utils/b3Product/b3Product'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart } from '@/utils/cartUtils'
 
 import CreateShoppingList from '../../orderDetail/components/CreateShoppingList'

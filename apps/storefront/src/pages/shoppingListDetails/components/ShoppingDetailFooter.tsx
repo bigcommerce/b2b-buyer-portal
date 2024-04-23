@@ -16,21 +16,19 @@ import {
 } from '@/shared/service/b2b/graphql/product'
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
 import { useAppSelector } from '@/store'
+import { currencyFormat, getCookie, snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 import {
   addQuoteDraftProducts,
-  b2bLogger,
-  b3TriggerCartNumber,
   calculateProductListPrice,
-  currencyFormat,
-  getCookie,
-  snackbar,
   validProductQty,
-} from '@/utils'
+} from '@/utils/b3Product/b3Product'
 import {
   addlineItems,
   conversionProductsList,
   ProductsProps,
 } from '@/utils/b3Product/shared/config'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils'
 
 interface ShoppingDetailFooterProps {

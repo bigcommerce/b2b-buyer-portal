@@ -21,14 +21,11 @@ import {
 import { setB2BToken } from '@/store/slices/company'
 import { OpenPageState } from '@/types/hooks'
 import { QuoteItem } from '@/types/quotes'
-import {
-  endMasquerade,
-  getCurrentCustomerInfo,
-  LineItems,
-  startMasquerade,
-} from '@/utils'
 import CallbackManager from '@/utils/b3Callbacks'
+import { LineItems } from '@/utils/b3Product/b3Product'
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
+import { getCurrentCustomerInfo } from '@/utils/loginInfo'
+import { endMasquerade, startMasquerade } from '@/utils/masquerade'
 
 export interface FormatedQuoteItem
   extends Omit<
@@ -91,7 +88,7 @@ export default function HeadlessController({
   const role = useAppSelector(({ company }) => company.customer.role)
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const productList = useAppSelector(formatedQuoteDraftListSelector)
-  const B2BToken = useAppSelector(({company}) => company.tokens.B2BToken);
+  const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken)
 
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },

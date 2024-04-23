@@ -10,7 +10,6 @@
     {
       "files": [
         "src/pages/**/*.{ts,tsx}",
-        "src/utils/**/*.{ts,tsx}",
         "src/components/**/*.{ts,tsx}",
         "src/hooks/dom/*.ts",
         "src/hooks/*.ts",

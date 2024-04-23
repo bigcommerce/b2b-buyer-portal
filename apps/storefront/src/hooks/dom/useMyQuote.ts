@@ -57,11 +57,12 @@ const useMyQuote = ({
   )
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
   useEffect(() => {
-    const isLogin = role !== CustomerRole.GUEST
+    const isLoginAndNotB2CAccount =
+      role !== CustomerRole.GUEST && role !== CustomerRole.B2C
 
     if (
       quoteDraftUserId &&
-      isLogin &&
+      isLoginAndNotB2CAccount &&
       +quoteDraftUserId !== 0 &&
       +quoteDraftUserId !== b2bId
     ) {

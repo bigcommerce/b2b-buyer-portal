@@ -1,4 +1,4 @@
-import { b2bLogger } from '@/utils'
+import b2bLogger from './utils/b3Logger'
 
 const { MODE: mode, VITE_LOCAL_GRAPHQL_ORIGIN } = import.meta.env
 

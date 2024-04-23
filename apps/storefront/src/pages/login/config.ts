@@ -1,7 +1,8 @@
 import { LangFormatFunction } from '@b3/lang'
 
 import { store } from '@/store/reducer'
-import { b2bLogger, storeHash, validatorRules } from '@/utils'
+import { storeHash, validatorRules } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 export interface QuoteConfig {
   [key: string]: string

@@ -14,18 +14,14 @@ import {
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { useAppSelector } from '@/store'
-import {
-  b3TriggerCartNumber,
-  currencyFormat,
-  getActiveCurrencyInfo,
-  setModifierQtyPrice,
-  snackbar,
-} from '@/utils'
+import { currencyFormat, getActiveCurrencyInfo, snackbar } from '@/utils'
+import { setModifierQtyPrice } from '@/utils/b3Product/b3Product'
 import {
   addlineItems,
   getProductOptionsFields,
   ProductsProps,
 } from '@/utils/b3Product/shared/config'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart } from '@/utils/cartUtils'
 
 interface ShoppingProductsProps {

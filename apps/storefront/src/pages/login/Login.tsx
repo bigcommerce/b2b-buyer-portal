@@ -23,15 +23,10 @@ import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store'
 import { setB2BToken } from '@/store/slices/company'
 import { CustomerRole, UserTypes } from '@/types'
 import { OpenPageState } from '@/types/hooks'
-import {
-  b2bLogger,
-  B3SStorage,
-  getCurrentCustomerInfo,
-  loginjump,
-  logoutSession,
-  snackbar,
-  storeHash,
-} from '@/utils'
+import { B3SStorage, loginjump, snackbar, storeHash } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
+import { logoutSession } from '@/utils/b3logout'
+import { getCurrentCustomerInfo } from '@/utils/loginInfo'
 
 import LoginWidget from './component/LoginWidget'
 import { loginCheckout, LoginConfig, LoginInfoInit } from './config'

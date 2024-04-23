@@ -13,7 +13,8 @@ import {
   sendSubscribersState,
   uploadB2BFile,
 } from '@/shared/service/b2b'
-import { b2bLogger, storeHash } from '@/utils'
+import { storeHash } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'

@@ -11,7 +11,8 @@ import {
   addProductToShoppingList,
 } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
-import { getValidOptionsList, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
+import { getValidOptionsList } from '@/utils/b3Product/b3Product'
 
 import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config'
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'

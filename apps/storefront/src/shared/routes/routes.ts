@@ -5,7 +5,8 @@ import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
 import { getCustomerInfo } from '@/shared/service/bc'
 import { store, useAppSelector } from '@/store'
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
-import { b2bLogger, isB2bTokenPage, logoutSession } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
+import { isB2bTokenPage, logoutSession } from '@/utils/b3logout'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
 

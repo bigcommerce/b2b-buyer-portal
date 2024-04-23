@@ -9,13 +9,13 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
+import { snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 import {
   addQuoteDraftProducts,
-  b2bLogger,
   calculateProductListPrice,
-  snackbar,
   validProductQty,
-} from '@/utils'
+} from '@/utils/b3Product/b3Product'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import QuickAdd from '../../shoppingListDetails/components/QuickAdd'

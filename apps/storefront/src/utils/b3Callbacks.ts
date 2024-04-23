@@ -1,6 +1,6 @@
 import { CallbackKey } from '@b3/hooks'
 
-import { b2bLogger } from '@/utils'
+import b2bLogger from './b3Logger'
 
 type CallbackEvent = {
   data: CustomFieldItems

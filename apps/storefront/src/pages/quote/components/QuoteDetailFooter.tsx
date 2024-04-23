@@ -6,11 +6,12 @@ import { CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
 import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
-import { b2bLogger, getSearchVal } from '@/utils'
 import {
   attemptCheckoutLoginAndRedirect,
   setQuoteToStorage,
 } from '@/utils/b3checkout'
+import b2bLogger from '@/utils/b3Logger'
+import { getSearchVal } from '@/utils/loginInfo'
 
 interface QuoteDetailFooterProps {
   quoteId: string

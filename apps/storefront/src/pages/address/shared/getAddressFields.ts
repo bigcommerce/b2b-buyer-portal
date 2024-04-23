@@ -2,7 +2,7 @@ import {
   getB2BAccountFormFields,
   getB2BAddressExtraFields,
 } from '@/shared/service/b2b'
-import { b2bLogger } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import {
   AccountFormFieldsItems,

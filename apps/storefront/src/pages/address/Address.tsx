@@ -14,7 +14,8 @@ import {
 } from '@/shared/service/b2b'
 import { isB2BUserSelector, useAppSelector } from '@/store'
 import { CustomerRole } from '@/types'
-import { b2bLogger, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import B3Filter from '../../components/filter/B3Filter'
 import {

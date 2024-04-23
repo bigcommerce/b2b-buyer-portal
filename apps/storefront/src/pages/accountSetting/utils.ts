@@ -1,6 +1,7 @@
 import { store } from '@/store/reducer'
 import { Fields, ParamProps } from '@/types/accountSetting'
-import { b2bLogger, validatorRules } from '@/utils'
+import { validatorRules } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import { deCodeField } from '../registered/config'
 

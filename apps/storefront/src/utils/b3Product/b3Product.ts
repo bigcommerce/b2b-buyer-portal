@@ -23,12 +23,13 @@ import {
 } from '@/types/products'
 import { QuoteItem } from '@/types/quotes'
 import {
-  b2bLogger,
   B3SStorage,
   getActiveCurrencyInfo,
   getDefaultCurrencyInfo,
   storeHash,
 } from '@/utils'
+
+import b2bLogger from '../b3Logger'
 
 import {
   conversionProductsList,

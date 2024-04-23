@@ -13,7 +13,9 @@ import {
 import { B3Upload, CustomButton, successTip } from '@/components'
 import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
 import { useAppSelector } from '@/store'
-import { b2bLogger, b3TriggerCartNumber, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart } from '@/utils/cartUtils'
 
 import SearchProduct from '../../shoppingListDetails/components/SearchProduct'

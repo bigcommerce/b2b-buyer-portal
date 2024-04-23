@@ -23,8 +23,12 @@ import {
   updateBcShoppingListsItem,
 } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
-import { currencyFormat, getValidOptionsList, snackbar } from '@/utils'
-import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
+import { currencyFormat, snackbar } from '@/utils'
+import {
+  getBCPrice,
+  getDisplayPrice,
+  getValidOptionsList,
+} from '@/utils/b3Product/b3Product'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'

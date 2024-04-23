@@ -22,8 +22,10 @@ import {
   useAppSelector,
 } from '@/store'
 import { Currency } from '@/types'
-import { getSearchVal, getVariantInfoOOSAndPurchase, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
+import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
+import { getSearchVal } from '@/utils/loginInfo'
 
 import Message from './components/Message'
 import QuoteAttachment from './components/QuoteAttachment'

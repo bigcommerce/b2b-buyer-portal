@@ -8,7 +8,7 @@ import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
-import { b3TriggerCartNumber } from '@/utils'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 

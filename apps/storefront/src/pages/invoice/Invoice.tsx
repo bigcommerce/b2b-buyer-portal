@@ -22,7 +22,6 @@ import {
 import { useAppSelector } from '@/store'
 import { InvoiceList, InvoiceListNode } from '@/types/invoice'
 import {
-  b2bLogger,
   currencyFormat,
   currencyFormatInfo,
   displayFormat,
@@ -30,6 +29,7 @@ import {
   handleGetCorrespondingCurrencyToken,
   snackbar,
 } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import B3Filter from '../../components/filter/B3Filter'
 

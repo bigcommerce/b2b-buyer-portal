@@ -15,13 +15,13 @@ import {
 } from '@/store'
 import { Product } from '@/types'
 import { QuoteItem } from '@/types/quotes'
+import { currencyFormat, snackbar } from '@/utils'
 import {
   calculateProductListPrice,
-  currencyFormat,
+  getBCPrice,
+  getDisplayPrice,
   setModifierQtyPrice,
-  snackbar,
-} from '@/utils'
-import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
+} from '@/utils/b3Product/b3Product'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import ChooseOptionsDialog from '../../shoppingListDetails/components/ChooseOptionsDialog'

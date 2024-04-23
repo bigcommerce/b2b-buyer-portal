@@ -7,21 +7,22 @@ import { getCart } from '@/shared/service/bc/graphql/cart'
 import { store } from '@/store'
 import { OpenPageState } from '@/types/hooks'
 import {
-  addQuoteDraftProduce,
-  addQuoteDraftProducts,
-  b2bLogger,
   B3LStorage,
   B3SStorage,
+  getCookie,
+  globalSnackbar,
+  serialize,
+} from '@/utils'
+import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList'
+import b2bLogger from '@/utils/b3Logger'
+import {
+  addQuoteDraftProduce,
+  addQuoteDraftProducts,
   calculateProductsPrice,
   getCalculatedProductPrice,
-  getCookie,
-  getProductOptionList,
-  globalSnackbar,
-  isAllRequiredOptionFilled,
   LineItems,
-  serialize,
   validProductQty,
-} from '@/utils'
+} from '@/utils/b3Product/b3Product'
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config'
 

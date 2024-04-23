@@ -18,13 +18,10 @@ import { B3CustomForm, B3Dialog, B3Sping } from '@/components'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
+import { currencyFormat, snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 import {
-  b2bLogger,
   calculateProductListPrice,
-  currencyFormat,
-  snackbar,
-} from '@/utils'
-import {
   getBCPrice,
   getProductInfoDisplayPrice,
   getVariantInfoDisplayPrice,

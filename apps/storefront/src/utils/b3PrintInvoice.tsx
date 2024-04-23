@@ -1,4 +1,4 @@
-import { b2bLogger } from '@/utils'
+import b2bLogger from './b3Logger'
 
 const bindDom = (html: string, domId: string) => {
   let iframeDom = document.getElementById(domId) as HTMLIFrameElement | null

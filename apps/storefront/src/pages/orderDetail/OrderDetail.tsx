@@ -20,7 +20,7 @@ import {
   getOrderStatusType,
 } from '@/shared/service/b2b'
 import { isB2BUserSelector, useAppSelector } from '@/store'
-import { b2bLogger } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import {
   AddressConfigItem,

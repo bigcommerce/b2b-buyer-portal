@@ -6,7 +6,8 @@ import { Box, Grid, Typography } from '@mui/material'
 import { B3CustomForm, B3Sping, CustomButton } from '@/components'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
 import { isB2BUserSelector, useAppSelector } from '@/store'
-import { compareOption, snackbar } from '@/utils'
+import { snackbar } from '@/utils'
+import { compareOption } from '@/utils/b3Product/b3Product'
 import {
   getAllModifierDefaultValue,
   getQuickAddRowFields,
