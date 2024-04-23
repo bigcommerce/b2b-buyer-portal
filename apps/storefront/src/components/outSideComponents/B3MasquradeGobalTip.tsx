@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useState } from 'react'
+import { Dispatch, SetStateAction, useContext } from 'react'
 import { useB3Lang } from '@b3/lang'
 import GroupIcon from '@mui/icons-material/Group'
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft'
@@ -12,11 +12,11 @@ import {
 } from '@/constants'
 import { useGetButtonText } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
+import useStorageState from '@/hooks/useStorageState'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { superAdminEndMasquerade } from '@/shared/service/b2b'
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
-import { B3SStorage } from '@/utils'
 
 import {
   getContrastColor,
@@ -76,18 +76,11 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
     hash.includes(item)
   )
 
-  const initExpansion = () => {
-    const isMasqueradeTipExpansion = B3SStorage.get('isMasqueradeTipExpansion')
-
-    if (typeof isMasqueradeTipExpansion === 'boolean') {
-      return isMasqueradeTipExpansion
-    }
-
-    return true
-  }
-
-  const [isExpansion, setExpansion] = useState<boolean>(initExpansion())
-
+  const [isExpansion, setExpansion] = useStorageState<boolean>(
+    'sf-isMasqueradeTipExpansion',
+    true,
+    sessionStorage
+  )
   const [isMobile] = useMobile()
 
   const endActing = async () => {
@@ -121,11 +114,6 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         openUrl: '/dashboard',
       })
     }
-  }
-
-  const isMasqueradeTipExpansion = (isExpansion: boolean) => {
-    setExpansion(isExpansion)
-    B3SStorage.set('isMasqueradeTipExpansion', isExpansion)
   }
 
   if (href.includes('/checkout') || !customerId) return null
@@ -273,7 +261,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
 
                 {isExpansion ? (
                   <KeyboardArrowLeftIcon
-                    onClick={() => isMasqueradeTipExpansion(false)}
+                    onClick={() => setExpansion(false)}
                     sx={{
                       ml: '10px',
                       cursor: 'pointer',
@@ -281,7 +269,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                   />
                 ) : (
                   <KeyboardArrowRightIcon
-                    onClick={() => isMasqueradeTipExpansion(true)}
+                    onClick={() => setExpansion(true)}
                     sx={{
                       ml: '10px',
                       cursor: 'pointer',
@@ -357,7 +345,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
 
               {isExpansion ? (
                 <KeyboardArrowLeftIcon
-                  onClick={() => isMasqueradeTipExpansion(false)}
+                  onClick={() => setExpansion(false)}
                   sx={{
                     ml: '10px',
                     cursor: 'pointer',
@@ -365,7 +353,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                 />
               ) : (
                 <KeyboardArrowRightIcon
-                  onClick={() => isMasqueradeTipExpansion(true)}
+                  onClick={() => setExpansion(true)}
                   sx={{
                     ml: '10px',
                     cursor: 'pointer',
