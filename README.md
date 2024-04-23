@@ -84,7 +84,7 @@ For assistance with activating the remote buyer portal or to inquire about multi
 
 Environment variables have been updated so you can run your UI directly into production storefronts.
 
-1. Start the development server: `yarn run dev`.
+6. Start the development server: `yarn RUN dev`.
 
 ## Running Project Locally
 

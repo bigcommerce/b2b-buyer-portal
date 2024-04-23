@@ -9,6 +9,7 @@ import {
 } from '@/shared/service/b2b'
 import { setDraftQuoteList, store } from '@/store'
 import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs'
+import { Modifiers, ShoppingListProductItem } from '@/types'
 import {
   AdjustersPrice,
   AllOptionProps,
@@ -21,10 +22,6 @@ import {
   Variant,
 } from '@/types/products'
 import { QuoteItem } from '@/types/quotes'
-import {
-  ShoppingListProductItem,
-  ShoppingListProductItemModifiers,
-} from '@/types/shoppingList'
 import {
   b2bLogger,
   B3SStorage,
@@ -888,8 +885,8 @@ const calculateProductListPrice = async (
       let allOptions: Partial<AllOptionProps>[] = []
       let variants: Partial<Variant>[] = []
       let variantId = 0
-      let modifiers: Partial<ShoppingListProductItemModifiers>[] = []
-      let optionsV3: Partial<ShoppingListProductItemModifiers>[] = []
+      let modifiers: Partial<Modifiers>[] = []
+      let optionsV3: Partial<Modifiers>[] = []
 
       if (type === '1') {
         newSelectOptionList = products[i].newSelectOptionList

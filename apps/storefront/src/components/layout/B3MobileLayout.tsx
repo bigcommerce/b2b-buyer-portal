@@ -21,12 +21,8 @@ export default function B3MobileLayout({
   title: string
 }) {
   const [isOpenMobileSidebar, setOpenMobileSidebar] = useState<boolean>(false)
-  const openRouteList = () => {
-    setOpenMobileSidebar(true)
-  }
-
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber)
   const role = useAppSelector(({ company }) => company.customer.role)
-
   const isAgenting = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
   )
@@ -36,7 +32,10 @@ export default function B3MobileLayout({
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext)
-  const cartNumber = useAppSelector(({ global }) => global.cartNumber)
+
+  const openRouteList = () => {
+    setOpenMobileSidebar(true)
+  }
 
   const customColor = getContrastColor(backgroundColor)
 
@@ -81,11 +80,12 @@ export default function B3MobileLayout({
                   height: '18px',
                   top: '8px',
                   right: '3px',
+                  marginRight: '-0.5rem',
                 },
               }}
             >
               <ShoppingBagOutlined
-                sx={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                sx={{ color: 'rgba(0, 0, 0, 0.54)', marginRight: '-0.5rem' }}
                 onClick={() => {
                   window.location.href = '/cart.php'
                 }}

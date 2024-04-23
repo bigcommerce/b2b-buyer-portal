@@ -1,4 +1,4 @@
-import { OptionValueProps } from '@/utils/b3Product/shared/config'
+import { OptionValueProps } from './products'
 
 export interface LineItems {
   quantity: number

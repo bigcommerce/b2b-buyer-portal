@@ -31,13 +31,14 @@ export const handlePrintPDF = async (
   invoiceId: string,
   isPayNow = false
 ): Promise<string> => {
+  let url = ''
   try {
-    const url = await getInvoiceDownloadPDFUrl(invoiceId, isPayNow)
+    url = await getInvoiceDownloadPDFUrl(invoiceId, isPayNow)
     const pdfUrl = await analyzePDFUrl(url)
 
     return pdfUrl
   } catch (error) {
-    return ''
+    return url
   }
 }
 

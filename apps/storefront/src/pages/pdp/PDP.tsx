@@ -22,6 +22,7 @@ import { isB2BUserSelector, store, useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
 import {
   getDefaultCurrencyInfo,
+  getProductOptionList,
   getValidOptionsList,
   globalSnackbar,
   isAllRequiredOptionFilled,
@@ -48,19 +49,6 @@ interface AddProductsToShoppingListParams {
   gotoShoppingDetail: (id: number | string) => void
   customerGroupId?: number
   b3Lang: LangFormatFunction
-}
-
-export const getProductOptionList = (optionMap: CustomFieldItems = {}) => {
-  const optionList: CustomFieldItems[] = []
-  Object.keys(optionMap).forEach((item) => {
-    if (item.includes('attribute') && item.match(/\[([0-9]+)\]/g)) {
-      optionList.push({
-        optionId: item,
-        optionValue: optionMap[item],
-      })
-    }
-  })
-  return optionList
 }
 
 const tip = (

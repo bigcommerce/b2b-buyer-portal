@@ -9,19 +9,38 @@ export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
 
   const newOptions = options.map((option: Form.SwatchRadioGroupListProps) => ({
     ...option,
-    label: (
-      <ColorContainer>
-        {(option.colors || []).map((color: string) => (
-          <Box
-            className="swatch-color-item"
-            sx={{
-              background: `${color}`,
-            }}
-            key={color}
-          />
-        ))}
-      </ColorContainer>
-    ),
+    label:
+      option?.image && option?.image.data ? (
+        <Box
+          sx={{
+            width: '22px',
+            height: '22px',
+
+            '& .swatch-image-item': {
+              width: '22px',
+              height: '22px',
+              background: `url(${option?.image.data})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'contain',
+              backgroundPosition: 'center',
+            },
+          }}
+        >
+          <div className="swatch-image-item" />
+        </Box>
+      ) : (
+        <ColorContainer>
+          {(option.colors || []).map((color: string) => (
+            <Box
+              className="swatch-color-item"
+              sx={{
+                background: `${color}`,
+              }}
+              key={color}
+            />
+          ))}
+        </ColorContainer>
+      ),
   }))
 
   const labelStyle = {

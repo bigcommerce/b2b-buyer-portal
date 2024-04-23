@@ -159,8 +159,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         productId,
         modifiers,
       } = currentProduct
-
-      if (purchasingDisabled === '1') {
+      if (purchasingDisabled === '1' || purchasingDisabled) {
         notPurchaseSku.push(variantSku)
         return
       }

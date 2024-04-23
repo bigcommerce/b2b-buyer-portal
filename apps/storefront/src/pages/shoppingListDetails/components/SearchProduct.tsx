@@ -36,8 +36,12 @@ export default function SearchProduct({
   const customerGroupId = useAppSelector(
     (state) => state.company.customer.customerGroupId
   )
-  const companyStatus = useAppSelector(({ company }) => company.companyInfo.status)
-  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id)
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
   const [isLoading, setIsLoading] = useState(false)
   const [productListOpen, setProductListOpen] = useState(false)
   const [isAdded, setIsAdded] = useState(false)
@@ -75,6 +79,7 @@ export default function SearchProduct({
         search: searchText,
         companyId,
         customerGroupId,
+        categoryFilter: true,
       })
 
       const product = conversionProductsList(productsSearch)
@@ -180,7 +185,7 @@ export default function SearchProduct({
       </Typography>
       <TextField
         hiddenLabel
-        placeholder="eg Towel"
+        placeholder={b3Lang(`global.searchProduct.placeholder.${type}`)}
         variant="filled"
         fullWidth
         size="small"
