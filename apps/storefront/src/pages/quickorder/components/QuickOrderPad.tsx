@@ -10,8 +10,10 @@ import {
   Typography,
 } from '@mui/material'
 
-import { B3Upload, CustomButton, successTip } from '@/components'
-import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
+import { B3Upload, successTip } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
+import { useBlockPendingAccountViewPrice } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import { useAppSelector } from '@/store'
 import { snackbar } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'

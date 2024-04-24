@@ -21,7 +21,8 @@ import {
 } from '@mui/material'
 import { v1 as uuid } from 'uuid'
 
-import { CustomButton, successTip } from '@/components'
+import { successTip } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'

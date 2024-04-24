@@ -4,7 +4,8 @@ import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 
-import { B3Upload, CustomButton } from '@/components'
+import { B3Upload } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
 import {
   addProductToBcShoppingList,

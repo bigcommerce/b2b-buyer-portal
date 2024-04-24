@@ -3,7 +3,8 @@ import { FieldValues, useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 
-import { B3CustomForm, B3Dialog, successTip } from '@/components'
+import { B3CustomForm, successTip } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
 import { useMobile } from '@/hooks'
 import {
   addProductToBcShoppingList,

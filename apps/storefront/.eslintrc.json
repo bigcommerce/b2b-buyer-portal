@@ -8,19 +8,6 @@
       }
     },
     {
-      "files": [
-        "src/pages/**/*.{ts,tsx}",
-        "src/components/**/*.{ts,tsx}",
-        "src/hooks/dom/*.ts",
-        "src/hooks/*.ts",
-        "src/shared/**/**/**/*.ts",
-        "src/types/*.ts"
-      ],
-      "rules": {
-        "import/no-cycle": 0
-      }
-    },
-    {
       "files": ["src/components/**/*.{ts,tsx}", "src/pages/**/*.{ts,tsx}"],
       "rules": {
         "react/jsx-props-no-spreading": 0

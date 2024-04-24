@@ -4,13 +4,10 @@ import styled from '@emotion/styled'
 import { Delete } from '@mui/icons-material'
 import { Alert, Box, Grid, Typography } from '@mui/material'
 
-import {
-  B3Dialog,
-  B3QuantityTextField,
-  B3Sping,
-  CustomButton,
-  successTip,
-} from '@/components'
+import { B3QuantityTextField, successTip } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
+import CustomButton from '@/components/button/CustomButton'
+import B3Sping from '@/components/spin/B3Sping'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { useAppSelector } from '@/store'

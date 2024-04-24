@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
-import { CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { useMobile } from '@/hooks'
 import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'

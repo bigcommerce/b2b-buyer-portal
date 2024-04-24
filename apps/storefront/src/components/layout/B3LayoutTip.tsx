@@ -1,10 +1,11 @@
 import { useContext, useEffect } from 'react'
 import { flushSync } from 'react-dom'
 
-import { B3Tip } from '@/components'
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
 import { MsgsProps } from '@/shared/dynamicallyVariable/context/config'
+
+import B3Tip from '../B3Tip'
 
 function B3LayoutTip() {
   const {

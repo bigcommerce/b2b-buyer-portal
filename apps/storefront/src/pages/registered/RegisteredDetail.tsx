@@ -11,8 +11,9 @@ import { validateBCCompanyExtraFields } from '@/shared/service/b2b'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
-import { Base64, Country, RegisterFields, State } from './config'
+import { Base64, Country, State } from './config'
 import { InformationFourLabels, TipContent } from './styled'
+import { RegisterFields } from './types'
 
 interface RegisteredDetailProps {
   handleBack: () => void

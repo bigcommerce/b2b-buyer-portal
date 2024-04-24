@@ -19,7 +19,8 @@ import {
 } from '@mui/material'
 import { format, formatDistanceStrict } from 'date-fns'
 
-import { B3CollapseContainer, B3Sping } from '@/components'
+import { B3CollapseContainer } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { GlobaledContext } from '@/shared/global'
 import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b'
 import { displayExtendedFormat, storeHash } from '@/utils'

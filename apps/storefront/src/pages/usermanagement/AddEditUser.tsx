@@ -9,7 +9,8 @@ import {
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 
-import { B3CustomForm, B3Dialog } from '@/components'
+import { B3CustomForm } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
 import { GlobaledContext } from '@/shared/global'
 import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'

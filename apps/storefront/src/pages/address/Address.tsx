@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { useCardListColumn, useTableRef } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'

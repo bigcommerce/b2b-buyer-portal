@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { LangFormatFunction, useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { useMobile, useSort } from '@/hooks'

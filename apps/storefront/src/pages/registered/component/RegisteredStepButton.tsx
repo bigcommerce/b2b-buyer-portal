@@ -1,7 +1,7 @@
 import { useB3Lang } from '@b3/lang'
 import { Box, useTheme } from '@mui/material'
 
-import { CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 
 import { steps } from '../config'
 

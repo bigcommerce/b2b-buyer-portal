@@ -4,11 +4,11 @@ import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, Stack, Typography } from '@mui/material'
 
-import { B3Sping } from '@/components'
 import {
   b3HexToRgb,
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'

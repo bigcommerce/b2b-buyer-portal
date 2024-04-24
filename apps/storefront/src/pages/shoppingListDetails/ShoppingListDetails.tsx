@@ -10,7 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box, Grid, useTheme } from '@mui/material'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {

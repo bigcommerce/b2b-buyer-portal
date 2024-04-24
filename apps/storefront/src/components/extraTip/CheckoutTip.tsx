@@ -1,11 +1,11 @@
 import { Dispatch, SetStateAction, useState } from 'react'
 import { Dialog, DialogActions, DialogContent } from '@mui/material'
 
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import { useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
 
-import { CustomButton } from '..'
+import CustomButton from '../button/CustomButton'
 
 interface CheckoutTipProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>

@@ -1,7 +1,7 @@
 import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 
-import { CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { useMobile } from '@/hooks'
 import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes'
 

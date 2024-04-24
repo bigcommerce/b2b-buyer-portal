@@ -5,7 +5,8 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 
-import { B3Tag, CustomButton } from '@/components'
+import { B3Tag } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 
 import { AddressItemType } from '../../../types/address'
 

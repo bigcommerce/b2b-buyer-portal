@@ -27,8 +27,9 @@ import {
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
-import { emailError, RegisterFields } from './config'
+import { emailError } from './config'
 import { InformationFourLabels, TipContent } from './styled'
+import { RegisterFields } from './types'
 
 interface RegisteredAccountProps {
   handleBack: () => void

@@ -1,6 +1,6 @@
 import { Box, useTheme } from '@mui/material'
 
-import { CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { useMobile } from '@/hooks'
 
 import LoginWidget from './component/LoginWidget'

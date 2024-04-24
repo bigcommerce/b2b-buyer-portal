@@ -18,8 +18,9 @@ import b2bLogger from '@/utils/b3Logger'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
-import { deCodeField, RegisterFields, toHump } from './config'
+import { deCodeField, toHump } from './config'
 import { InformationFourLabels, TipContent } from './styled'
+import { RegisterFields } from './types'
 
 interface RegisterCompleteProps {
   handleBack: () => void

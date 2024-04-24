@@ -13,8 +13,7 @@ import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
 import { Alert, Box, Link, useTheme } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 
-import { B3Sping, CustomButton } from '@/components'
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import { GlobaledContext } from '@/shared/global'
 import {
   B2BProductsBulkUploadCSV,
@@ -30,6 +29,8 @@ import { Currency } from '@/types'
 import b2bLogger from '@/utils/b3Logger'
 
 import B3Dialog from '../B3Dialog'
+import CustomButton from '../button/CustomButton'
+import B3Sping from '../spin/B3Sping'
 
 import B3UploadLoadding from './B3UploadLoadding'
 import BulkUploadTable from './BulkUploadTable'

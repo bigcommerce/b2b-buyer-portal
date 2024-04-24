@@ -5,7 +5,7 @@ import styled from '@emotion/styled'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 import throttle from 'lodash-es/throttle'
 
-import { CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { isB2BUserSelector, useAppSelector } from '@/store'
 import {
   b2bPrintInvoice,

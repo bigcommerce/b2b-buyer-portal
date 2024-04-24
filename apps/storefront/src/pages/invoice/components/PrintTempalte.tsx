@@ -3,7 +3,7 @@ import { Resizable } from 'react-resizable'
 import { Box } from '@mui/material'
 import PDFObject from 'pdfobject'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { snackbar } from '@/utils'
 
 import { handlePrintPDF } from '../utils/pdf'

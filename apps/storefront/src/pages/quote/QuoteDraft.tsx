@@ -19,8 +19,9 @@ import {
 } from '@mui/material'
 import cloneDeep from 'lodash-es/cloneDeep'
 
-import { B3Sping, CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile, useSetCountry } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'

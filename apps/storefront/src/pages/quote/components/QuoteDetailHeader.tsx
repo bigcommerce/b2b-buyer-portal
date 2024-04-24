@@ -4,7 +4,7 @@ import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, styled, Typography, useTheme } from '@mui/material'
 
-import { CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import {
   b3HexToRgb,
   getContrastColor,

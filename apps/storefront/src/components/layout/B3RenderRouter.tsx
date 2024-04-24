@@ -14,7 +14,6 @@ import {
   useNavigate,
 } from 'react-router-dom'
 
-import Loading from '@/components/loadding/Loading'
 import { RegisteredProvider } from '@/pages/registered/context/RegisteredContext'
 import { GlobaledContext } from '@/shared/global'
 import {
@@ -25,6 +24,8 @@ import {
 } from '@/shared/routes/routes'
 import { getPageTranslations, useAppDispatch } from '@/store'
 import { OpenPageState } from '@/types/hooks'
+
+import Loading from '../loadding/Loading'
 
 const B3Layout = lazy(() => import('@/components/layout/B3Layout'))
 

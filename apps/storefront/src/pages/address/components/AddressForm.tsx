@@ -10,7 +10,8 @@ import { useB3Lang } from '@b3/lang'
 import { Checkbox, FormControlLabel, styled } from '@mui/material'
 import cloneDeep from 'lodash-es/cloneDeep'
 
-import { B3CustomForm, B3Dialog } from '@/components'
+import { B3CustomForm } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
 import {
   createB2BAddress,
   createBcAddress,

@@ -4,7 +4,7 @@ import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, styled, Typography } from '@mui/material'
 
-import { CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
@@ -14,7 +14,6 @@ import { ShoppingStatus } from '../../shoppingLists/ShoppingStatus'
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
   alignItems: 'center',
-  // marginTop: '0.5rem',
 }))
 
 interface OpenPageState {

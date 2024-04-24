@@ -8,7 +8,7 @@ import {
 import { useB3Lang } from '@b3/lang'
 import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material'
 
-import { B3Dialog } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
 import { useMobile } from '@/hooks'
 import { updateB2BAddress } from '@/shared/service/b2b'
 import { snackbar } from '@/utils'

@@ -10,7 +10,7 @@ import CardContent from '@mui/material/CardContent'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
-import { CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { displayFormat } from '@/utils'
 
 import { ShoppingListsItemsProps } from './config'

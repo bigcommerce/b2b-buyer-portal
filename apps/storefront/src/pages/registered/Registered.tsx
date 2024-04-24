@@ -9,7 +9,8 @@ import { useNavigate } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box, ImageListItem } from '@mui/material'
 
-import { B3Card, B3Sping } from '@/components'
+import { B3Card } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile, useScrollBar } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
@@ -29,12 +30,12 @@ import {
   b2bAddressRequiredFields,
   companyAttachmentsFields,
   getAccountFormFields,
-  RegisterFields,
   RegisterFieldsItems,
 } from './config'
 import RegisterContent from './RegisterContent'
 import RegisteredStep from './RegisteredStep'
 import { RegisteredContainer, RegisteredImage } from './styled'
+import { RegisterFields } from './types'
 
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2]
