@@ -15,8 +15,8 @@ interface GraphqlOriginProps {
 
 const graphqlOrigin: GraphqlOriginProps = {
   development: VITE_LOCAL_GRAPHQL_ORIGIN,
-  staging: 'https://staging-v2.bundleb2b.net',
-  production: 'https://api.bundleb2b.net',
+  staging: 'https://api-b2b.staging.zone',
+  production: 'https://api-b2b.bigcommerce.com',
 }
 
 function init() {

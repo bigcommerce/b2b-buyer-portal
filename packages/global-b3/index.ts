@@ -77,8 +77,8 @@ const globalB3 = {
   before_login_goto_page: '/account.php?action=order_status',
   checkout_super_clear_session: 'true',
   setting: {
-    b2b_url: 'https://staging-v2.bundleb2b.net',
-    b2b_socket_url: 'https://staging-v2.bundleb2b.net',
+    b2b_url: 'https://api-b2b.staging.zone',
+    b2b_socket_url: 'https://api-b2b.staging.zone',
     store_hash: `1l3zp8c753`,
     channel_id: 1,
     b2b_client_id: 'r2x8j3tn54wduq47b4efct5tqxio5z2',

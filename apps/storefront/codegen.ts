@@ -7,7 +7,7 @@ const envs: Record<string, { schema: string }> = {
     schema: 'http://localhost:9000/graphql',
   },
   production: {
-    schema: 'https://api.bundleb2b.net/graphql',
+    schema: 'https://api-b2b.bigcommerce.com/graphql',
   },
 }
 
