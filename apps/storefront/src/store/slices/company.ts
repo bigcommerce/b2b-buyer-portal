@@ -28,7 +28,7 @@ const initialState: CompanyState = {
     status: CompanyStatus.DEFAULT,
   },
   customer: {
-    id: 1,
+    id: 0,
     phoneNumber: '',
     firstName: '',
     lastName: '',

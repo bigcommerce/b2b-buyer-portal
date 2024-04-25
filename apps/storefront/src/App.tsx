@@ -176,12 +176,11 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const isRelogin = sessionStorage.getItem('isReLogin') === 'true'
     storeDispatch(setOpenPageReducer(setOpenPage))
     loginAndRegister()
     const init = async () => {
       // bc graphql token
-      if (!bcGraphqlToken || isRelogin) {
+      if (!bcGraphqlToken) {
         await loginInfo()
       }
       setChannelStoreType(currentChannelId)
@@ -198,7 +197,7 @@ export default function App() {
         isAgenting,
       }
 
-      if (!customerId || isRelogin) {
+      if (!customerId) {
         const info = await getCurrentCustomerInfo(dispatch)
         if (info) {
           userInfo.role = info?.role
@@ -217,7 +216,6 @@ export default function App() {
         clearInvoiceCart()
       }
 
-      sessionStorage.removeItem('isReLogin')
       showPageMask(dispatch, false)
       storeDispatch(
         setGlabolCommonState({
