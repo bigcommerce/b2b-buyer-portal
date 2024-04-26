@@ -13,6 +13,7 @@ import {
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
+import useStorageState from '@/hooks/useStorageState'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import {
   getB2BAccountFormFields,
@@ -51,6 +52,11 @@ function AccountSetting() {
     mode: 'onSubmit',
   })
 
+  const [isFinshUpdate, setIsFinshUpdate] = useStorageState<boolean>(
+    'sf-isFinshUpdate',
+    false,
+    sessionStorage
+  )
   const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const customer = useAppSelector(({ company }) => company.customer)
@@ -190,11 +196,11 @@ function AccountSetting() {
 
         setExtraFields(additionalInformation)
       } finally {
-        if (B3SStorage.get('isFinshUpdate') === '1') {
+        if (isFinshUpdate) {
           snackbar.success(
             b3Lang('accountSettings.notification.detailsUpdated')
           )
-          B3SStorage.delete('isFinshUpdate')
+          setIsFinshUpdate(false)
         }
         setLoadding(false)
         setIsVisible(true)
@@ -304,7 +310,7 @@ function AccountSetting() {
             navigate('/login?loginFlag=3')
           } else {
             B3SStorage.clear()
-            B3SStorage.set('isFinshUpdate', '1')
+            setIsFinshUpdate(true)
             window.location.reload()
           }
         }
