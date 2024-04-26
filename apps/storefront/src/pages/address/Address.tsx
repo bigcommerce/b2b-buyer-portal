@@ -50,19 +50,18 @@ function Address() {
   const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const role = useAppSelector(({ company }) => company.customer.role)
-  const {
-    state: { addressConfig },
-    dispatch,
-  } = useContext(GlobaledContext)
-
-  const b3Lang = useB3Lang()
-
   const salesRepCompanyId = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )
   const isAgenting = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
   )
+  const {
+    state: { addressConfig },
+    dispatch,
+  } = useContext(GlobaledContext)
+
+  const b3Lang = useB3Lang()
   const isExtraLarge = useCardListColumn()
   const [paginationTableRef] = useTableRef()
 

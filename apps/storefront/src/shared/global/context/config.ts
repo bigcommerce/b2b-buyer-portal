@@ -66,9 +66,6 @@ export interface GlobalState {
   logo: string
   isCompanyAccount: boolean
   isAgenting: boolean
-  salesRepCompanyId: string
-  salesRepCompanyName: string
-  salesRepCustomerGroupId: string
   tipMessage: TipMessagesProps
   addressConfig?: {
     key: string
@@ -108,9 +105,6 @@ export const initState: GlobalState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
   isAgenting: B3SStorage.get('isAgenting') || false,
-  salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
-  salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',
-  salesRepCustomerGroupId: B3SStorage.get('salesRepCustomerGroupId') || '',
   logo: '',
   bcLanguage: 'en',
   isCompanyAccount: false,

@@ -73,9 +73,7 @@ export default function HeadlessController({
   const b3Lang = useB3Lang()
 
   const {
-    dispatch,
     state: {
-      salesRepCompanyId = 0,
       currentChannelId,
       registerEnabled,
       productQuoteEnabled,
@@ -84,6 +82,9 @@ export default function HeadlessController({
     },
   } = useContext(GlobaledContext)
   const isB2BUser = useAppSelector(isB2BUserSelector)
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
   const customer = useAppSelector(({ company }) => company.customer)
   const role = useAppSelector(({ company }) => company.customer.role)
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
@@ -207,8 +208,6 @@ export default function HeadlessController({
           endMasquerade: () => {
             if (typeof customerRef.current.b2bId !== 'number') return
             endMasquerade({
-              dispatch,
-              salesRepCompanyId: salesRepCompanyIdRef.current,
               b2bId: customerRef.current.b2bId,
             })
           },
@@ -217,7 +216,7 @@ export default function HeadlessController({
             b2bStorefrontJWTToken: string
           ) => {
             storeDispatch(setB2BToken(b2bStorefrontJWTToken))
-            await getCurrentCustomerInfo(dispatch, b2bStorefrontJWTToken)
+            await getCurrentCustomerInfo(b2bStorefrontJWTToken)
           },
         },
         shoppingList: {

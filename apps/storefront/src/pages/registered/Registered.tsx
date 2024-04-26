@@ -58,7 +58,6 @@ function Registered(props: RegisteredProps) {
 
   const {
     state: { isCheckout, isCloseGotoBCHome, logo, storeName, registerEnabled },
-    dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 
   const {
@@ -302,7 +301,7 @@ function Registered(props: RegisteredProps) {
           })
         }
 
-        await getCurrentCustomerInfo(globalDispatch)
+        await getCurrentCustomerInfo()
 
         clearRegisterInfo()
 

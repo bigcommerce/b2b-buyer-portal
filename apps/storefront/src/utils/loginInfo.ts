@@ -1,4 +1,3 @@
-import { DispatchProps } from '@/shared/global/context/config'
 import {
   getAgentInfo,
   getB2BCompanyUserInfo,
@@ -124,7 +123,7 @@ export const loginInfo = async () => {
   store.dispatch(setbcGraphqlToken(token))
 }
 
-export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
+export const clearCurrentCustomerInfo = async () => {
   store.dispatch(setB2BToken(''))
   B3SStorage.set('nextPath', '')
 
@@ -138,14 +137,6 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
 
   store.dispatch(clearCompanySlice())
   store.dispatch(clearMasqueradeCompany())
-
-  dispatch({
-    type: 'common',
-    payload: {
-      salesRepCompanyId: '',
-      salesRepCompanyName: '',
-    },
-  })
 }
 
 // companyStatus
@@ -290,7 +281,6 @@ const loginWithCurrentCustomerJWT = async () => {
 }
 
 export const getCurrentCustomerInfo = async (
-  dispatch: DispatchProps,
   b2bToken?: string
 ) => {
   const { B2BToken } = store.getState().company.tokens
@@ -363,7 +353,7 @@ export const getCurrentCustomerInfo = async (
     }
   } catch (error) {
     b2bLogger.error(error)
-    clearCurrentCustomerInfo(dispatch)
+    clearCurrentCustomerInfo()
   }
   return undefined
 }

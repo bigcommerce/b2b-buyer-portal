@@ -1,4 +1,3 @@
-import { DispatchProps } from '@/shared/global/context/config'
 import {
   getAgentInfo,
   superAdminBeginMasquerade,
@@ -18,8 +17,6 @@ interface StartMasqueradeParams {
 }
 
 interface EndMasqueradeParams {
-  dispatch: DispatchProps
-  salesRepCompanyId: number
   b2bId: number
 }
 
@@ -48,10 +45,7 @@ export const startMasquerade = async ({
   store.dispatch(setMasqueradeCompany(masqueradeCompany))
 }
 
-export const endMasquerade = async ({
-  b2bId,
-  dispatch,
-}: EndMasqueradeParams) => {
+export const endMasquerade = async ({ b2bId }: EndMasqueradeParams) => {
   const { masqueradeCompany } = store.getState().b2bFeatures
   const salesRepCompanyId = masqueradeCompany.id
 
@@ -59,12 +53,4 @@ export const endMasquerade = async ({
   await superAdminEndMasquerade(salesRepCompanyId, b2bId)
 
   store.dispatch(clearMasqueradeCompany())
-
-  dispatch({
-    type: 'common',
-    payload: {
-      salesRepCompanyName: '',
-      salesRepCustomerGroupId: '',
-    },
-  })
 }

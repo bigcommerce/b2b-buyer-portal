@@ -93,22 +93,8 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       if (typeof b2bId === 'number') {
         await superAdminEndMasquerade(+salesRepCompanyId, b2bId)
       }
-      dispatch({
-        type: 'common',
-        payload: {
-          salesRepCompanyId: '',
-          salesRepCompanyName: '',
-          salesRepCustomerGroupId: '',
-        },
-      })
 
       dispatch(clearMasqueradeCompany())
-      dispatch({
-        type: 'common',
-        payload: {
-          isAgenting: false,
-        },
-      })
       setOpenPage({
         isOpen: true,
         openUrl: '/dashboard',

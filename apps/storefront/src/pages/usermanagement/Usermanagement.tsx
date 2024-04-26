@@ -48,7 +48,6 @@ function Usermanagement() {
   const salesRepCompanyId = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )
-
   const role = useAppSelector(({ company }) => company.customer.role)
   const companyInfo = useAppSelector(({ company }) => company.companyInfo)
 

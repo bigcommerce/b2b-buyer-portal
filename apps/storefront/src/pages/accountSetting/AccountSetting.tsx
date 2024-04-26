@@ -94,7 +94,7 @@ function AccountSetting() {
   const [currentEamil, setCurrentEmail] = useState<string>('')
 
   const companyId =
-    role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId
+    role === 3 && isAgenting ? salesRepCompanyId : +companyInfoId
 
   const isBCUser = !isB2BUser || (role === 3 && !isAgenting)
 

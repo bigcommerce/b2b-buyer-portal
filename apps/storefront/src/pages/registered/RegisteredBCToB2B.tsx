@@ -107,7 +107,6 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       blockPendingAccountOrderCreation,
       registerEnabled,
     },
-    dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 
   const navigate = useNavigate()
@@ -543,7 +542,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               accountType: '1',
             },
           })
-          await getCurrentCustomerInfo(globalDispatch)
+          await getCurrentCustomerInfo()
           setShowFinishPage(true)
         }
       } catch (err: any) {

@@ -194,8 +194,6 @@ function Dashboard(props: DashboardProps) {
       showPageMask(dispatch, true)
       if (typeof b2bId === 'number') {
         await endMasquerade({
-          dispatch,
-          salesRepCompanyId: +salesRepCompanyId,
           b2bId,
         })
       }

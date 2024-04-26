@@ -197,7 +197,7 @@ export default function App() {
       }
 
       if (!customerId) {
-        const info = await getCurrentCustomerInfo(dispatch)
+        const info = await getCurrentCustomerInfo()
         if (info) {
           userInfo.role = info?.role
         }

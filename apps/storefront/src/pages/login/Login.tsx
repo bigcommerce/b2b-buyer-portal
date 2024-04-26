@@ -84,7 +84,6 @@ export default function Login(props: RegisteredProps) {
 
   const {
     state: { isCheckout, logo, registerEnabled },
-    dispatch,
   } = useContext(GlobaledContext)
 
   const {
@@ -280,7 +279,7 @@ export default function Login(props: RegisteredProps) {
           }
           getforcePasswordReset(data.emailAddress)
         } else {
-          const info = await getCurrentCustomerInfo(dispatch, token)
+          const info = await getCurrentCustomerInfo(token)
 
           if (
             info?.userType === UserTypes.MULTIPLE_B2C &&
