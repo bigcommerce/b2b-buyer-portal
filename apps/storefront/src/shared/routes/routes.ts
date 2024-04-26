@@ -302,8 +302,6 @@ const denyInvoiceRoles = [4, 99, 100]
 
 const invoiceFlag = 'invoice?invoiceId'
 
-const { hash, pathname, href } = window.location
-
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   const { storefrontConfig, quoteConfig } = globalState
   const { company } = store.getState()
@@ -412,6 +410,7 @@ const gotoAllowedAppPage = async (
   gotoPage: (url: string) => void,
   isAccountEnter?: boolean
 ) => {
+  const { hash, pathname, href } = window.location
   const currentState = store.getState()
   const isLoggedIn =
     currentState.company.customer || role !== CustomerRole.GUEST
