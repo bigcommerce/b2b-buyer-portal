@@ -36,6 +36,7 @@ function Usermanagement() {
     phone: '',
     role: 0,
     updatedAt: 0,
+    extraFields: [],
   })
   const b3Lang = useB3Lang()
 

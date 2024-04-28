@@ -49,7 +49,6 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     const isHidePrice = getQuoteDraftShowPriceTBD(productList)
 
     setHideQuoteDraftPrice(isHidePrice)
-
     const newQuoteSummary = productList.reduce(
       (summary: Summary, product: CustomFieldItems) => {
         const { basePrice, taxPrice: productTax = 0, quantity } = product.node

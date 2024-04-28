@@ -110,7 +110,7 @@ const getBcAddressFields = async () => {
     const { accountFormFields } = await getB2BAccountFormFields(1)
 
     const addressFields = accountFormFields.filter(
-      (field: AccountFormFieldsItems) => field.groupName === 'Address'
+      (field: AccountFormFieldsItems) => field.groupId === 4
     )
 
     const bcAddressFields = getAccountFormFields(addressFields).address

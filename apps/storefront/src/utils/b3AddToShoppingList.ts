@@ -6,27 +6,12 @@ import { conversionProductsList } from './b3Product/shared/config'
 export const handleGetCurrentProductInfo = async (
   productId: number | string
 ) => {
-  const currencies = B3SStorage.get('currencies')
   const companyId =
     B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
   const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
 
-  let currencyCode = '$'
-  if (currencies) {
-    const { currencies: currencyArr } = currencies
-
-    const defaultCurrency = currencyArr.find(
-      (currency: any) => currency.is_default
-    )
-
-    const { currency_code: Code } = defaultCurrency
-
-    currencyCode = Code
-  }
-
   const { productsSearch } = await searchB2BProducts({
     productIds: [+productId],
-    currencyCode,
     companyId,
     customerGroupId,
   })

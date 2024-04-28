@@ -23,7 +23,7 @@ import {
 import { globalStateSelector } from '@/store'
 import {
   B3SStorage,
-  getDefaultCurrencyInfo,
+  getActiveCurrencyInfo,
   getProductOptionList,
   getValidOptionsList,
   globalSnackbar,
@@ -92,7 +92,7 @@ export const addProductsToShoppingList = async ({
   gotoShoppingDetail,
   b3Lang,
 }: AddProductsToShoppingListParams) => {
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
   const companyId =
     B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
   const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts

@@ -1,4 +1,4 @@
-import { storeHash } from '../../../../utils'
+import { convertArrayToGraphql, storeHash } from '../../../../utils'
 import B3Request from '../../request/b3Fetch'
 
 const getUsersQl = (data: CustomFieldItems) => `{
@@ -26,6 +26,10 @@ const getUsersQl = (data: CustomFieldItems) => `{
         bcId,
         role,
         uuid,
+        extraFields{
+          fieldName
+          fieldValue
+        }
       }
     }
   }
@@ -42,6 +46,7 @@ const addOrUpdateUsersQl = (data: CustomFieldItems) => `mutation{
       role: ${data.role}
       ${data?.userId ? `userId: ${data.userId}` : ''}
       ${data?.addChannel ? `addChannel: ${data.addChannel}` : ''}
+      extraFields: ${convertArrayToGraphql(data?.extraFields || [])}
     }
   ){
     user{
@@ -92,9 +97,29 @@ const checkCustomerBCEmail = (data: CustomFieldItems) => `{
   }
 }`
 
+const getUserExtraFields = () => `{
+  userExtraFields {
+    fieldName
+    fieldType
+    isRequired
+    defaultValue
+    maximumLength
+    numberOfRows
+    maximumValue
+    listOfValue
+    visibleToEnduser
+    labelName
+  }
+}`
+
 export const getUsers = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getUsersQl(data),
+  })
+
+export const getUsersExtraFieldsInfo = (): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getUserExtraFields(),
   })
 
 export const addOrUpdateUsers = (data: CustomFieldItems): CustomFieldItems =>

@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
+import concat from 'lodash-es/concat'
 
 import { B3CustomForm, B3Dialog } from '@/components'
 import { GlobaledContext } from '@/shared/global'
@@ -16,15 +17,21 @@ import { snackbar } from '@/utils'
 
 import {
   emailError,
+  ExtraFieldsProps,
   FilterProps,
   getUsersFiles,
   UsersFilesProps,
   UsersList,
 } from './config'
+import getB2BUserExtraFields from './getUserExtraFields'
 
 interface AddEditUserProps {
   companyId: string | number
   renderList: () => void
+}
+
+interface SelectedDataProps {
+  [key: string]: string | number
 }
 
 function AddEditUser(
@@ -43,6 +50,9 @@ function AddEditUser(
   const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false)
 
   const [usersFiles, setUsersFiles] = useState<Array<UsersFilesProps>>([])
+  const [userExtrafields, setUserExtrafields] = useState<
+    UsersFilesProps[] | []
+  >([])
 
   const b3Lang = useB3Lang()
 
@@ -58,6 +68,35 @@ function AddEditUser(
     mode: 'onSubmit',
   })
 
+  const handleGetUsersFiles = async () => {
+    const userExtrafields = await getB2BUserExtraFields()
+    setUserExtrafields(userExtrafields)
+  }
+
+  useEffect(() => {
+    if (userExtrafields.length === 0) {
+      handleGetUsersFiles()
+    }
+  }, [])
+
+  const handleGetExtrafieldsInfo = (selectedData: SelectedDataProps) => {
+    const keyValue = Object.keys(selectedData)
+
+    const extrafields: ExtraFieldsProps[] = []
+    userExtrafields.forEach((item: UsersFilesProps) => {
+      if (keyValue.includes(item.name)) {
+        const extraField = {
+          fieldName: item.name || '',
+          fieldValue: selectedData[item.name] || '',
+        }
+
+        extrafields.push(extraField)
+      }
+    })
+
+    return extrafields
+  }
+
   useEffect(() => {
     if (open && type === 'edit' && editData) {
       usersFiles.forEach((item: UsersFilesProps) => {
@@ -69,6 +108,9 @@ function AddEditUser(
   const handleCancelClick = () => {
     usersFiles.forEach((item: UsersFilesProps) => {
       setValue(item.name, '')
+      if (item.isExtraFields) {
+        setValue(item.name, item.default || '')
+      }
     })
     clearErrors()
     setOpen(false)
@@ -92,7 +134,7 @@ function AddEditUser(
       setError('email', {
         type: 'custom',
         message: b3Lang(emailError[userType], {
-          companyName,
+          companyName: companyName ? `(${companyName})` : '',
           email: emailValue,
         }),
       })
@@ -107,13 +149,14 @@ function AddEditUser(
   const handleAddUserClick = () => {
     handleSubmit(async (data) => {
       setAddUpdateLoading(true)
-
+      const extraFieldsInfo = handleGetExtrafieldsInfo(data)
       let message = b3Lang('userManagement.addUserSuccessfully')
 
       try {
         const params: Partial<FilterProps> = {
           companyId,
           ...data,
+          extraFields: extraFieldsInfo,
         }
 
         if (type !== 'edit') {
@@ -154,14 +197,31 @@ function AddEditUser(
 
   const handleOpenAddEditUserClick = (type: string, data: UsersList) => {
     if (type === 'edit') {
-      setEditData(data)
+      const extrafieldsInfo: ExtraFieldsProps[] = data.extraFields || []
+      let newData = data
+      if (extrafieldsInfo && extrafieldsInfo.length > 0) {
+        const extrafieldsData: CustomFieldItems = {}
+
+        extrafieldsInfo.forEach((item) => {
+          extrafieldsData[item.fieldName] = item.fieldValue
+        })
+
+        newData = {
+          ...data,
+          ...extrafieldsData,
+        }
+      }
+
+      setEditData(newData)
     }
     const usersFiles = getUsersFiles(
       type,
       b3Lang,
       type === 'edit' ? +B3UserId === +data.id : false
     )
-    setUsersFiles(usersFiles)
+
+    const allUsersFiles = concat(usersFiles, userExtrafields)
+    setUsersFiles(allUsersFiles)
     setType(type)
     setOpen(true)
   }

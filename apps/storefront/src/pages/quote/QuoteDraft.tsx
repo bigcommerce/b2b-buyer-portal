@@ -37,7 +37,6 @@ import {
   B3LStorage,
   B3SStorage,
   getActiveCurrencyInfo,
-  getDefaultCurrencyInfo,
   snackbar,
   storeHash,
 } from '@/utils'
@@ -515,8 +514,6 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
               (item: CustomFieldItems) => item.sku === node.variantSku
             )
 
-            // const salePrice = getBCPrice(+(node?.basePrice || 0), +(node?.taxPrice || 0))
-
             allPrice += +(node?.basePrice || 0) * +(node?.quantity || 0)
 
             allTaxPrice += +(node?.taxPrice || 0) * +(node?.quantity || 0)
@@ -538,7 +535,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           }
         )
 
-        const currency = getDefaultCurrencyInfo()
+        const currency = getActiveCurrencyInfo()
 
         const fileList = getFileList(info.fileInfo || [])
 

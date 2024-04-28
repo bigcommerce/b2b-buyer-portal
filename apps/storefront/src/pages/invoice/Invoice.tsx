@@ -504,7 +504,7 @@ function Invoice() {
             handleViewInvoice(item.id, item.status)
           }}
         >
-          {item?.id || '-'}
+          {item?.invoiceNumber ? item?.invoiceNumber : item?.id}
         </Box>
       ),
       width: '8%',

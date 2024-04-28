@@ -27,6 +27,7 @@ import {
   OrderStatusResponse,
 } from '../../types'
 import OrderStatus from '../order/components/OrderStatus'
+import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus'
 
 import {
   OrderDetailsContext,
@@ -193,9 +194,21 @@ function OrderDetail() {
     getAddressLabelPermission()
   }, [])
 
-  const getOrderStatusLabel = (status: string) =>
-    orderStatus.find((item: OrderStatusItem) => item.systemLabel === status)
-      ?.customLabel || customStatus
+  const getOrderStatusLabel = (status: string) => {
+    const currentOrderStatus = orderStatus.find(
+      (item: OrderStatusItem) => item.systemLabel === status
+    )
+    let activeStatusLabel = currentOrderStatus?.customLabel || customStatus
+    if (currentOrderStatus) {
+      const optionLabel =
+        orderStatusTranslationVariables[currentOrderStatus.systemLabel]
+      activeStatusLabel =
+        optionLabel && b3Lang(optionLabel) !== currentOrderStatus.systemLabel
+          ? b3Lang(optionLabel)
+          : activeStatusLabel
+    }
+    return activeStatusLabel
+  }
 
   return (
     <B3Sping isSpinning={isRequestLoading} background="rgba(255,255,255,0.2)">

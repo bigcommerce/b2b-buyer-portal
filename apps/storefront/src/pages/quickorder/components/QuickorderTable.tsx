@@ -25,7 +25,7 @@ import {
   currencyFormat,
   displayFormat,
   distanceDay,
-  getDefaultCurrencyInfo,
+  getActiveCurrencyInfo,
   getProductPriceIncTax,
   snackbar,
 } from '@/utils'
@@ -162,7 +162,7 @@ function QuickorderTable({
 
   const b3Lang = useB3Lang()
 
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {

@@ -24,7 +24,6 @@ import {
   B3LStorage,
   B3SStorage,
   getActiveCurrencyInfo,
-  getDefaultCurrencyInfo,
   storeHash,
 } from '@/utils'
 
@@ -320,7 +319,7 @@ const getExtraProductPricesProducts = async (
   picklistIds: number[]
 ) => {
   const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
   const { productsSearch: picklistProductsSearch } = await getProducts({
     productIds: picklistIds,
     currencyCode,
@@ -419,7 +418,7 @@ const getNewProductsList = async (
   isB2BUser: boolean
 ) => {
   try {
-    const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+    const { currency_code: currencyCode } = getActiveCurrencyInfo()
     if (listProducts.length > 0) {
       const productIds: number[] = []
       listProducts.forEach((item) => {
@@ -675,7 +674,8 @@ const getCalculatedProductPrice = async (
   { optionList, productsSearch, sku, qty }: CalculatedProductPrice,
   calculatedValue?: CustomFieldItems
 ) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
+  const { decimal_places: decimalPlaces = 2, currency_code: currencyCode } =
+    getActiveCurrencyInfo()
 
   const { variants = [] } = productsSearch
 
@@ -694,7 +694,7 @@ const getCalculatedProductPrice = async (
 
     const data = {
       channel_id: channelId,
-      currency_code: getDefaultCurrencyInfo().currency_code,
+      currency_code: currencyCode,
       items,
       customer_group_id: customerGroupId,
     }
@@ -821,7 +821,8 @@ const calculateProductsPrice = async (
   products: ShoppingListProductItem[],
   calculatedValue: CustomFieldItems[] = []
 ) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
+  const { decimal_places: decimalPlaces = 2, currency_code: currencyCode } =
+    getActiveCurrencyInfo()
 
   let calculatedPrices = calculatedValue
   const { variants, items } = formatLineItemsToGetPrices(lineItems, products)
@@ -832,7 +833,7 @@ const calculateProductsPrice = async (
   if (calculatedValue.length === 0) {
     const data = {
       channel_id: B3SStorage.get('B3channelId'),
-      currency_code: getDefaultCurrencyInfo().currency_code,
+      currency_code: currencyCode,
       customer_group_id: getCustomerGroupId(),
       items,
     }
@@ -880,7 +881,8 @@ const calculateProductListPrice = async (
   products: Partial<Product>[],
   type = '1'
 ) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
+  const { decimal_places: decimalPlaces = 2, currency_code: currencyCode } =
+    getActiveCurrencyInfo()
   try {
     let isError = false
     let i = 0
@@ -944,7 +946,7 @@ const calculateProductListPrice = async (
 
     const data = {
       channel_id: channelId,
-      currency_code: getDefaultCurrencyInfo().currency_code,
+      currency_code: currencyCode,
       items: itemsOptions,
       customer_group_id: customerGroupId,
     }

@@ -39,6 +39,7 @@ import {
   b3TriggerCartNumber,
   calculateProductListPrice,
   currencyFormat,
+  getActiveCurrencyInfo,
   getProductPriceIncTax,
   getValidOptionsList,
   snackbar,
@@ -340,10 +341,13 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
+      const { currency_code: currencyCode } = getActiveCurrencyInfo()
+
       const { productsSearch } = await getProducts({
         productIds,
         companyId,
         customerGroupId,
+        currencyCode,
       })
 
       const newProductInfo: CustomFieldItems =

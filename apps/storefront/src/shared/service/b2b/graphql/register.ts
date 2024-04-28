@@ -1,4 +1,4 @@
-import { channelId,convertArrayToGraphql, storeHash } from '../../../../utils'
+import { channelId, convertArrayToGraphql, storeHash } from '../../../../utils'
 import B3Request from '../../request/b3Fetch'
 
 const getAccountFormFields = (type: number) => `{
@@ -108,6 +108,11 @@ const createCompanyUser = (data: any) => `mutation{
         ? `addressExtraFields: ${convertArrayToGraphql(
             data.addressExtraFields
           )}`
+        : ''
+    }
+    ${
+      data?.userExtraFields
+        ? `userExtraFields: ${convertArrayToGraphql(data.userExtraFields)}`
         : ''
     }
   }) {

@@ -1,4 +1,9 @@
-import { B3SStorage, convertArrayToGraphql, storeHash } from '@/utils'
+import {
+  B3SStorage,
+  convertArrayToGraphql,
+  getActiveCurrencyInfo,
+  storeHash,
+} from '@/utils'
 
 import B3Request from '../../request/b3Fetch'
 
@@ -177,17 +182,29 @@ export const getB2BVariantSkuByProductId = (
 
 export const searchB2BProducts = (
   data: CustomFieldItems = {}
-): CustomFieldItems =>
-  B3Request.graphqlB2B({
-    query: searchProducts(data),
+): CustomFieldItems => {
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
+
+  return B3Request.graphqlB2B({
+    query: searchProducts({
+      ...data,
+      currencyCode: data?.currencyCode || currencyCode,
+    }),
   })
+}
 
 export const searchBcProducts = (
   data: CustomFieldItems = {}
-): CustomFieldItems =>
-  B3Request.graphqlB2B({
-    query: searchProducts(data),
+): CustomFieldItems => {
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
+
+  return B3Request.graphqlB2B({
+    query: searchProducts({
+      ...data,
+      currencyCode: data?.currencyCode || currencyCode,
+    }),
   })
+}
 
 export const getBcVariantInfoBySkus = (
   data: CustomFieldItems = {}

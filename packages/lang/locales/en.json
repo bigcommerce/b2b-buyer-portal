@@ -56,7 +56,7 @@
   "global.registerFinish.blockPendingAccountOrderCreation.tip": "Your business account is pending approval. Ordering will be enabled after account approval",
   "global.loginText.emailAddress": "Email address",
   "global.emailValidate.multipleCustomer": "This email is used by multiple customers in your store. Please use another email.",
-  "global.emailValidate.companyUsed": "This email is used by a customer within another company ({companyName}).",
+  "global.emailValidate.companyUsed": "This email is used by a customer within another company. {companyName}",
   "global.emailValidate.alreadyExits": "This user already exists in this company.",
   "global.emailValidate.usedSuperAdmin": "This email is used by a super admin.",
   "global.emailValidate.emailLength": "Email length cannot exceed 200 characters",

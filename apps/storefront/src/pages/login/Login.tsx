@@ -20,14 +20,18 @@ import {
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
+import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
+import { store } from '@/store'
 import {
   B3SStorage,
+  getCookie,
   getCurrentCustomerInfo,
   loginjump,
   logoutSession,
   snackbar,
   storeHash,
 } from '@/utils'
+import { deleteCartData } from '@/utils/cartUtils'
 
 import LoginWidget from './component/LoginWidget'
 import {
@@ -148,6 +152,28 @@ export default function Login(props: RegisteredProps) {
           snackbar.error(b3Lang('login.loginText.invoiceErrorTip'))
         }
         if (loginFlag === '3' && !isLogout) {
+          const cartEntityId: string = getCookie('cartId')
+
+          const {
+            global: {
+              storeInfo: { platform },
+            },
+          } = store.getState()
+
+          const cartInfo = cartEntityId
+            ? await getCart(cartEntityId, platform)
+            : null
+
+          if (cartInfo) {
+            let newCartId = cartEntityId
+            if (cartInfo?.data && cartInfo?.data?.site) {
+              const { cart } = cartInfo.data.site
+              newCartId = cart?.entityId || cartEntityId
+            }
+            const deleteQuery = deleteCartData(newCartId)
+            await deleteCart(deleteQuery)
+          }
+
           const { result } = (await bcLogoutLogin()).data.logout
 
           if (result !== 'success') return

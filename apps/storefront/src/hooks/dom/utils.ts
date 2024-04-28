@@ -11,6 +11,7 @@ import {
   B3LStorage,
   B3SStorage,
   calculateProductsPrice,
+  getActiveCurrencyInfo,
   getCalculatedProductPrice,
   getCookie,
   getProductOptionList,
@@ -184,6 +185,8 @@ const addProductsToDraftQuote = async (
     B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
   const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
 
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
+
   // fetch data with products IDs
   const { productsSearch } = await searchB2BProducts({
     productIds: Array.from(
@@ -193,6 +196,7 @@ const addProductsToDraftQuote = async (
         )
       )
     ),
+    currencyCode,
     companyId,
     customerGroupId,
   })
@@ -318,10 +322,13 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
       const fn =
         +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
 
+      const { currency_code: currencyCode } = getActiveCurrencyInfo()
+
       const { productsSearch } = await fn({
         productIds: [+productId],
         companyId,
         customerGroupId,
+        currencyCode,
       })
 
       const newProductInfo: CustomFieldItems =

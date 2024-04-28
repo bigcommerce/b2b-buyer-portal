@@ -1,5 +1,10 @@
 import { LangFormatFunction } from '@b3/lang'
 
+interface ExtraFieldsProps {
+  fieldName: string
+  fieldValue: string | number
+}
+
 interface UsersListItems {
   createdAt: number
   email: string
@@ -9,7 +14,8 @@ interface UsersListItems {
   phone: string
   role: number
   updatedAt: number
-  [key: string]: string | null | number
+  extraFields: ExtraFieldsProps[]
+  [key: string]: string | null | number | ExtraFieldsProps[]
 }
 
 interface FilterProps {
@@ -19,7 +25,7 @@ interface FilterProps {
   role: number | string
   companyId: number | string
   addChannel: boolean
-  [key: string]: string | null | number | boolean
+  [key: string]: string | null | number | boolean | ExtraFieldsProps[]
 }
 
 type UsersList = UsersListItems
@@ -145,4 +151,10 @@ const emailError: EmailError = {
 
 export { emailError, getFilterMoreList, getUserRole, getUsersFiles }
 
-export type { FilterProps, UserRoleProps, UsersFilesProps, UsersList }
+export type {
+  FilterProps,
+  UserRoleProps,
+  UsersFilesProps,
+  UsersList,
+  ExtraFieldsProps,
+}

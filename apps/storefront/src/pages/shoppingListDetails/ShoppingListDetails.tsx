@@ -26,7 +26,7 @@ import {
 } from '@/shared/service/b2b'
 import {
   calculateProductListPrice,
-  getDefaultCurrencyInfo,
+  getActiveCurrencyInfo,
   snackbar,
 } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
@@ -133,10 +133,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
     navigate('/shoppingLists')
   }
 
-  const {
-    currency_code: currencyCode,
-    // token: currencyToken,
-  } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
 
   useEffect(() => {
     dispatch({

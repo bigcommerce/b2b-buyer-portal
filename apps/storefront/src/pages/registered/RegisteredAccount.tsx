@@ -18,12 +18,16 @@ import {
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
+import {
+  checkUserBCEmail,
+  checkUserEmail,
+  validateBCCompanyUserExtraFields,
+} from '@/shared/service/b2b'
 import { themeFrameSelector } from '@/store'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
-import { emailError, RegisterFields } from './config'
+import { Base64, emailError, RegisterFields } from './config'
 import { InformationFourLabels, TipContent } from './styled'
 
 interface RegisteredAccountProps {
@@ -106,6 +110,15 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     ? additionalInfo[0]?.groupName
     : ''
 
+  const showLoading = (isShow = false) => {
+    dispatch({
+      type: 'loading',
+      payload: {
+        isLoading: isShow,
+      },
+    })
+  }
+
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     dispatch({
       type: 'accountType',
@@ -121,37 +134,46 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     )?.name || 'email'
 
   const validateEmailValue = async (emailValue: string) => {
-    const isB2BUser = accountType === '1'
-    const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
-    const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
+    try {
+      showLoading(true)
+      const isB2BUser = accountType === '1'
+      const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
+      const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
 
-    const {
-      [key]: { userType, userInfo: { companyName = '' } = {} },
-    }: CustomFieldItems = await fn({
-      email: emailValue,
-      channelId: currentChannelId,
-    })
-
-    const isValid = isB2BUser ? [1].includes(userType) : ![2].includes(userType)
-
-    if (!isValid) {
-      setErrorTips(
-        b3Lang(emailError[userType], {
-          companyName: companyName || '',
-          email: emailValue,
-        })
-      )
-      setError(emailName, {
-        type: 'custom',
-        message: '',
+      const {
+        [key]: { userType, userInfo: { companyName = '' } = {} },
+      }: CustomFieldItems = await fn({
+        email: emailValue,
+        channelId: currentChannelId,
       })
 
-      IframeDocument?.body.scrollIntoView(true)
-    } else {
-      setErrorTips('')
-    }
+      const isValid = isB2BUser
+        ? [1].includes(userType)
+        : ![2].includes(userType)
 
-    return isValid
+      if (!isValid) {
+        setErrorTips(
+          b3Lang(emailError[userType], {
+            companyName: companyName ? `(${companyName})` : '',
+            email: emailValue,
+          })
+        )
+        setError(emailName, {
+          type: 'custom',
+          message: '',
+        })
+
+        IframeDocument?.body.scrollIntoView(true)
+      } else {
+        setErrorTips('')
+      }
+
+      return isValid
+    } catch (error) {
+      return false
+    } finally {
+      showLoading(false)
+    }
   }
 
   const handleAccountToDetail = async (event: MouseEvent) => {
@@ -171,6 +193,54 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         }
         return item
       })
+
+      try {
+        showLoading(true)
+        if (accountType === '1') {
+          const extraCompanyUserInformation = newContactInfo.filter(
+            (item: RegisterFields) => !!item.custom
+          )
+          const extraFields = extraCompanyUserInformation.map(
+            (field: RegisterFields) => ({
+              fieldName: Base64.decode(field.name),
+              fieldValue: data[field.name] || field.default,
+            })
+          )
+
+          const res = await validateBCCompanyUserExtraFields({
+            extraFields,
+          })
+
+          if (res.code !== 200) {
+            const message = res.data?.errMsg || res.message || ''
+
+            const messageArr = message.split(':')
+
+            if (messageArr.length >= 2) {
+              const field = extraCompanyUserInformation.find(
+                (field: RegisterFields) =>
+                  Base64.decode(field.name) === messageArr[0]
+              )
+              if (field) {
+                setError(field.name, {
+                  type: 'manual',
+                  message: messageArr[1],
+                })
+                showLoading(false)
+                return
+              }
+            }
+            setErrorTips(message)
+            showLoading(false)
+            return
+          }
+          setErrorTips('')
+        }
+      } catch (error) {
+        console.log(error)
+      } finally {
+        showLoading(false)
+      }
 
       let newAdditionalInformation: Array<RegisterFields> = []
       if (additionalInfo) {

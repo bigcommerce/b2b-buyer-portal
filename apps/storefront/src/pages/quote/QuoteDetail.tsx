@@ -17,7 +17,7 @@ import {
 } from '@/shared/service/b2b'
 import { store, TaxZoneRates, TaxZoneRatesProps } from '@/store'
 import {
-  getDefaultCurrencyInfo,
+  getActiveCurrencyInfo,
   getSearchVal,
   getVariantInfoOOSAndPurchase,
   snackbar,
@@ -69,7 +69,7 @@ function QuoteDetail() {
   })
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [isShowFooter, setIsShowFooter] = useState(false)
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
 
   const [quoteDetailTax, setQuoteDetailTax] = useState(0)
 

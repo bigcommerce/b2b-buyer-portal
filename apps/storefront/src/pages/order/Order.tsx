@@ -117,7 +117,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
               const optionLabel =
                 orderStatusTranslationVariables[option.systemLabel]
               const elementOption = option
-              elementOption.customLabel = b3Lang(optionLabel)
+              elementOption.customLabel =
+                b3Lang(optionLabel) === elementOption.systemLabel
+                  ? elementOption.customLabel
+                  : b3Lang(optionLabel)
 
               return option
             }
@@ -259,11 +262,22 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   }
 
   const handleFirterChange = (value: SearchChangeProps) => {
+    let currentStatus = value?.orderStatus || ''
+    if (currentStatus) {
+      const originStatus = getOrderStatuses.find(
+        (status) =>
+          status.customLabel === currentStatus ||
+          status.systemLabel === currentStatus
+      )
+
+      currentStatus = originStatus?.systemLabel || currentStatus
+    }
+
     const search: Partial<FilterSearchProps> = {
       beginDateAt: value?.startValue || null,
       endDateAt: value?.endValue || null,
       createdBy: value?.PlacedBy || '',
-      statusCode: value?.orderStatus || '',
+      statusCode: currentStatus,
       companyName: value?.company || '',
     }
     setFilterData({
