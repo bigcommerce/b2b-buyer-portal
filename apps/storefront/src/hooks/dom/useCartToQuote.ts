@@ -19,6 +19,7 @@ import { OpenPageState } from '@/types/hooks'
 import { B3SStorage, globalSnackbar } from '@/utils'
 
 import useGetButtonText from '../useGetButtonText'
+import useStorageState from '../useStorageState'
 
 import { addProductsFromCartToQuote } from './utils'
 
@@ -46,6 +47,20 @@ const useCartToQuote = ({
   const translationVarName = 'global.customStyles.addToAllQuoteBtn'
   const defaultButtonText = 'Add All To Quote'
 
+  const isShowBlockPendingAccountOrderCreationTipInit = {
+    cartTip: 0,
+    checkoutTip: 0,
+  }
+
+  const [
+    isShowBlockPendingAccountOrderCreationTip,
+    setIsShowBlockPendingAccountOrderCreationTip,
+  ] = useStorageState<IsShowBlockPendingAccountOrderCreationTipProps>(
+    'sf-isShowBlockPendingAccountOrderCreationTip',
+    isShowBlockPendingAccountOrderCreationTipInit,
+    sessionStorage
+  )
+
   const {
     state: { addToAllQuoteBtn },
   } = useContext(CustomStyleContext)
@@ -65,12 +80,6 @@ const useCartToQuote = ({
     const urlArr = ['/cart.php', '/checkout']
 
     const showPendingAccountTip = () => {
-      const isShowBlockPendingAccountOrderCreationTip: IsShowBlockPendingAccountOrderCreationTipProps =
-        B3SStorage.get('isShowBlockPendingAccountOrderCreationTip') || {
-          cartTip: 0,
-          checkoutTip: 0,
-        }
-
       if (!urlArr.includes(pathname)) return
 
       if (companyStatus || !blockPendingAccountOrderCreation) return
@@ -102,7 +111,7 @@ const useCartToQuote = ({
         )
       }
 
-      B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
+      setIsShowBlockPendingAccountOrderCreationTip({
         cartTip:
           +checkIsInPage(urlArr[0]) +
           isShowBlockPendingAccountOrderCreationTip.cartTip,
@@ -113,6 +122,8 @@ const useCartToQuote = ({
     }
 
     showPendingAccountTip()
+    // ignore to avoid adding state function otherwirse it will cause many renders of tip
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, blockPendingAccountOrderCreation, companyStatus])
 
   const quoteCallBbck = useCallback(() => {
