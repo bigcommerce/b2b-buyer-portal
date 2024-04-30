@@ -206,33 +206,34 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
               fieldValue: data[field.name] || field.default,
             })
           )
+          if (extraFields.length > 0) {
+            const res = await validateBCCompanyUserExtraFields({
+              extraFields,
+            })
 
-          const res = await validateBCCompanyUserExtraFields({
-            extraFields,
-          })
+            if (res.code !== 200) {
+              const message = res.data?.errMsg || res.message || ''
 
-          if (res.code !== 200) {
-            const message = res.data?.errMsg || res.message || ''
+              const messageArr = message.split(':')
 
-            const messageArr = message.split(':')
-
-            if (messageArr.length >= 2) {
-              const field = extraCompanyUserInformation.find(
-                (field: RegisterFields) =>
-                  Base64.decode(field.name) === messageArr[0]
-              )
-              if (field) {
-                setError(field.name, {
-                  type: 'manual',
-                  message: messageArr[1],
-                })
-                showLoading(false)
-                return
+              if (messageArr.length >= 2) {
+                const field = extraCompanyUserInformation.find(
+                  (field: RegisterFields) =>
+                    Base64.decode(field.name) === messageArr[0]
+                )
+                if (field) {
+                  setError(field.name, {
+                    type: 'manual',
+                    message: messageArr[1],
+                  })
+                  showLoading(false)
+                  return
+                }
               }
+              setErrorTips(message)
+              showLoading(false)
+              return
             }
-            setErrorTips(message)
-            showLoading(false)
-            return
           }
           setErrorTips('')
         }

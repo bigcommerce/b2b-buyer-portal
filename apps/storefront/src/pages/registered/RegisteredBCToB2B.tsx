@@ -600,8 +600,12 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           })
         }
 
-        const isCompanyUserValidate =
-          await handleValidateCompanyUserExtraFields(companyUserExtraFields)
+        let isCompanyUserValidate = true
+        if (companyUserExtraFields.length > 0) {
+          isCompanyUserValidate = await handleValidateCompanyUserExtraFields(
+            companyUserExtraFields
+          )
+        }
         if (!isCompanyUserValidate) {
           return
         }

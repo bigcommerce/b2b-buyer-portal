@@ -34,6 +34,10 @@ const getAccountSettings = (data: CustomFieldItems) => `{
       name,
       value
     },
+    extraFields {
+      fieldName,
+      fieldValue,
+    }
     role,
   }
 }`
