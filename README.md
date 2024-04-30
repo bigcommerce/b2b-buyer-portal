@@ -17,6 +17,7 @@ A monorepo frontend application designed for the BigCommerce B2B Edition Buyer p
   - [Common issues:](#common-issues)
 - [🤝 Contribution](#-contribution)
 - [📞 Contact \& Support](#-contact--support)
+- [License](#license)
 
 ## ☑ Prerequisites
 
@@ -218,3 +219,7 @@ For developers wishing to contribute, ensure all PRs meet the linting and commit
 ## 📞 Contact & Support
 
 For queries, issues, or support, reach out to us at b2b@bigcommerce.com or open an issue in this repository.
+
+## License
+
+MIT
