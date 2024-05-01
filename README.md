@@ -106,6 +106,9 @@ Environment variables have been updated so you can run your UI directly into pro
   document.head.appendChild(b2bHideBodyStyle);
   {{/contains}}
   {{/if}}
+
+  // preload the vite server for local development
+  fetch("http://localhost:3001/");
 </script>
 <script type="module">
   import RefreshRuntime from 'http://localhost:3001/@react-refresh'
