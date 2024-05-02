@@ -37,7 +37,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [enterEmail, setEnterEmail] = useState<string>('')
-  // const [captchaMessage, setCaptchaMessage] = useState<string>('')
 
   const {
     control,
@@ -149,10 +148,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       const addresses: CustomFieldItems = {}
 
       const getBCAddressField = addressBasicList.filter(
-        (field: any) => !field.custom
+        (field: any) => !field.custom,
       )
       const getBCExtraAddressField = addressBasicList.filter(
-        (field: any) => field.custom
+        (field: any) => field.custom,
       )
 
       if (getBCAddressField) {
@@ -201,17 +200,17 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const getB2BFieldsValue = async (
     data: CustomFieldItems,
     customerId: number | string,
-    fileList: any
+    fileList: any,
   ) => {
     try {
       const b2bFields: CustomFieldItems = {}
       b2bFields.customerId = customerId || ''
       b2bFields.storeHash = storeHash
       const companyInfo = companyInformation.filter(
-        (list) => !list.custom && list.fieldType !== 'files'
+        (list) => !list.custom && list.fieldType !== 'files',
       )
       const companyExtraInfo = companyInformation.filter(
-        (list) => !!list.custom
+        (list) => !!list.custom,
       )
       // company field
       if (companyInfo.length) {
@@ -287,8 +286,8 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           uploadB2BFile({
             file,
             type: 'companyAttachedFile',
-          })
-        )
+          }),
+        ),
       )
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
@@ -324,7 +323,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           registerField.default = data[field.name] || field.default
         }
         return field
-      }
+      },
     )
 
     const newBcPasswordInformation = bcPasswordInformation.map(
@@ -335,7 +334,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         }
 
         return field
-      }
+      },
     )
 
     dispatch({
@@ -352,15 +351,15 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       const emailMe = list.find(
         (item: CustomFieldItems) =>
           item.fieldId === 'field_email_marketing_newsletter' &&
-          item.fieldType === 'checkbox'
+          item.fieldType === 'checkbox',
       )
       const firstName: CustomFieldItems =
         list.find(
-          (item: RegisterFields) => item.fieldId === 'field_first_name'
+          (item: RegisterFields) => item.fieldId === 'field_first_name',
         ) || {}
       const lastName: CustomFieldItems =
         list.find(
-          (item: RegisterFields) => item.fieldId === 'field_last_name'
+          (item: RegisterFields) => item.fieldId === 'field_last_name',
         ) || {}
       const isChecked = emailMe?.isChecked || false
       const defaultValue = emailMe?.default || []
@@ -387,7 +386,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   }
 
   const handleCompleted = (event: MouseEvent) => {
-    // if (captchaMessage !== 'success') return
     handleSubmit(async (completeData: CustomFieldItems) => {
       if (completeData.password !== completeData.confirmPassword) {
         setError('confirmPassword', {
@@ -413,7 +411,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           await getBCFieldsValue(completeData)
         } else {
           const attachmentsList = companyInformation.filter(
-            (list) => list.fieldType === 'files'
+            (list) => list.fieldType === 'files',
           )
           const fileList = await getFileUrl(attachmentsList || [])
           const res = await getBCFieldsValue(completeData)
@@ -421,7 +419,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           const accountInfo = await getB2BFieldsValue(
             completeData,
             (data as any)[0].id,
-            fileList
+            fileList,
           )
 
           const companyStatus =
@@ -500,15 +498,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           </>
         )}
       </Box>
-
-      {/* <Box
-        sx={{
-          mt: 4,
-        }}
-      >
-        {captcha}
-      </Box> */}
-
       <RegisteredStepButton
         handleBack={handleBack}
         activeStep={activeStep}

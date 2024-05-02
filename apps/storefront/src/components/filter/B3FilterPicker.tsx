@@ -36,14 +36,13 @@ function B3FilterPickers(
     xs = {},
     customWidth,
   }: B3FilterPickerProps,
-  ref: Ref<unknown> | undefined
+  ref: Ref<unknown> | undefined,
 ) {
-  // const [isMobile] = useMobile()
   const [startValue, setStartValue] = useState<Date | number | string>(
-    startPicker?.defaultValue || ''
+    startPicker?.defaultValue || '',
   )
   const [endValue, setEndValue] = useState<Date | number | string>(
-    endPicker?.defaultValue || ''
+    endPicker?.defaultValue || '',
   )
 
   const setClearPickerValue = () => {

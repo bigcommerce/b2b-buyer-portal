@@ -12,8 +12,8 @@ import {
 import { setTimeFormat } from '@/store/slices/storeInfo'
 import { B3SStorage, storeHash } from '@/utils'
 
-import B3PageMask from './loadding/B3PageMask'
-import showPageMask from './loadding/B3showPageMask'
+import B3PageMask from './loading/B3PageMask'
+import showPageMask from './loading/B3showPageMask'
 
 interface B3StoreContainerProps {
   children: ReactNode
@@ -99,13 +99,13 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           getGlobalTranslations({
             newVersion: translationVersion,
             channelId: storeBasicInfo.multiStorefrontEnabled ? channelId : 0,
-          })
+          }),
         )
 
         storeDispatch(
           setHeadLessBcUrl(
-            globalB3?.setting?.is_local_debugging ? '/bigcommerce' : bcUrl
-          )
+            globalB3?.setting?.is_local_debugging ? '/bigcommerce' : bcUrl,
+          ),
         )
 
         storeDispatch(setTimeFormat(storeBasicInfo.timeFormat))

@@ -146,7 +146,7 @@ const sortKeys = {
 
 function ShoppingDetailTable(
   props: ShoppingDetailTableProps,
-  ref: Ref<unknown>
+  ref: Ref<unknown>,
 ) {
   const [isMobile] = useMobile()
   const b3Lang = useB3Lang()
@@ -168,7 +168,7 @@ function ShoppingDetailTable(
     role,
   } = props
   const showInclusiveTaxPrice = useAppSelector(
-    ({ global }) => global.showInclusiveTaxPrice
+    ({ global }) => global.showInclusiveTaxPrice,
   )
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
@@ -197,12 +197,12 @@ function ShoppingDetailTable(
     sortKeys,
     defaultSortKey,
     search,
-    setSearch
+    setSearch,
   )
 
   const handleUpdateProductQty = (
     id: number | string,
-    value: number | string
+    value: number | string,
   ) => {
     if (+value < 0) return
     const currentItem = originProducts.find((item: ListItemProps) => {
@@ -227,7 +227,7 @@ function ShoppingDetailTable(
     })
 
     const nonNumberProducts = newListItems.filter(
-      (item: ListItemProps) => +item.node.quantity === 0
+      (item: ListItemProps) => +item.node.quantity === 0,
     )
     setDisabledSelectAll(nonNumberProducts.length === newListItems.length)
     paginationTableRef.current?.setList([...newListItems])
@@ -259,7 +259,7 @@ function ShoppingDetailTable(
   const handleOpenProductEdit = (
     product: any,
     variantId: number | string,
-    itemId: number | string
+    itemId: number | string,
   ) => {
     setEditProductItemId(itemId)
     setOptionsProduct(product)
@@ -267,7 +267,7 @@ function ShoppingDetailTable(
   }
 
   const handleChooseOptionsDialogConfirm = async (
-    products: CustomFieldItems[]
+    products: CustomFieldItems[],
   ) => {
     setIsRequestLoading(true)
     const updateShoppingListItem = isB2BUser
@@ -276,7 +276,7 @@ function ShoppingDetailTable(
     try {
       const newOptionLists = getValidOptionsList(
         products[0].newSelectOptionList,
-        products[0]
+        products[0],
       )
       const data = {
         itemId: editProductItemId,
@@ -321,7 +321,7 @@ function ShoppingDetailTable(
       }) => ({
         optionId: option.option_id,
         optionValue: option.option_value,
-      })
+      }),
     )
 
     const itemData: CustomFieldItems = {
@@ -427,7 +427,7 @@ function ShoppingDetailTable(
         products: { edges },
       } = shoppingListInfo
       const nonNumberProducts = edges.filter(
-        (item: ListItemProps) => item.node.quantity === 0
+        (item: ListItemProps) => item.node.quantity === 0,
       )
       setDisabledSelectAll(nonNumberProducts.length === edges.length)
     }
@@ -459,7 +459,7 @@ function ShoppingDetailTable(
 
         const optionList = JSON.parse(row.optionList)
         const optionsValue: CustomFieldItems[] = productFields.filter(
-          (item) => item.valueText
+          (item) => item.valueText,
         )
 
         return (
@@ -673,7 +673,7 @@ function ShoppingDetailTable(
                           quantity,
                         },
                         variantId,
-                        itemId
+                        itemId,
                       )
                     }}
                   />
@@ -766,9 +766,6 @@ function ShoppingDetailTable(
           (+role === 2
             ? !(allowJuniorPlaceOrder || productQuoteEnabled)
             : isReadForApprove || isJuniorApprove)
-          // allowJuniorPlaceOrder
-          //   ? !allowJuniorPlaceOrder
-          //   : isReadForApprove || isJuniorApprove
         }
         hover
         labelRowsPerPage={b3Lang('shoppingList.table.itemsPerPage')}
@@ -784,7 +781,7 @@ function ShoppingDetailTable(
         renderItem={(
           row: ProductInfoProps,
           index?: number,
-          checkBox?: () => ReactElement
+          checkBox?: () => ReactElement,
         ) => (
           <ShoppingDetailCard
             len={shoppingListInfo?.products?.edges.length || 0}

@@ -157,7 +157,7 @@ const classificationType = (item: CustomFieldItems) => {
         options.push({
           label: value,
           value,
-        })
+        }),
       )
     }
 
@@ -232,7 +232,7 @@ const bcFieldName = (fieldName: string) => {
 }
 
 export const conversionSigleItem = (
-  item: CustomFieldItems
+  item: CustomFieldItems,
 ): Partial<RegisterFieldsItems> => {
   const requiredItems = {
     id: item.id || item.fieldName,
@@ -371,14 +371,14 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
 }
 
 export const getAccountFormFields = (
-  accountFormFields: AccountFormFieldsList
+  accountFormFields: AccountFormFieldsList,
 ) => {
   if (accountFormFields?.length) {
     const filterVisibleAccountFormFields: AccountFormFieldsList =
       accountFormFields
         ? (accountFormFields as any).filter(
             (item: Partial<AccountFormFieldsItems>) =>
-              !!item.visible || (!!item.custom && !!item.isRequired)
+              !!item.visible || (!!item.custom && !!item.isRequired),
           )
         : []
 
@@ -391,10 +391,8 @@ export const getAccountFormFields = (
   return {}
 }
 
-// todo
-
 export const companyAttachmentsFields = (
-  b3lang: LangFormatFunction
+  b3lang: LangFormatFunction,
 ): ContactInformationItems => [
   {
     name: 'companyAttachments',
@@ -421,7 +419,7 @@ export interface State {
 
 export const getRegisterLogo = (quoteConfig: Array<QuoteConfig>): string => {
   const item: Array<QuoteConfig> = quoteConfig.filter(
-    (list: QuoteConfig) => list.key === 'quote_logo'
+    (list: QuoteConfig) => list.key === 'quote_logo',
   )
 
   return item[0].isEnabled

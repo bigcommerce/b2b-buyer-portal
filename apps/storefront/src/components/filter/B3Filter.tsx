@@ -37,8 +37,8 @@ type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
-    ? ReadonlyArray<DeepPartial<U>>
-    : DeepPartial<T[P]>
+      ? ReadonlyArray<DeepPartial<U>>
+      : DeepPartial<T[P]>
 }
 
 interface CustomButtomProps {
@@ -77,7 +77,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
   const [isMobile] = useMobile()
 
   const [sortByValue, setSortBy] = useState<string>(
-    sortByConfig?.defaultValue || ''
+    sortByConfig?.defaultValue || '',
   )
 
   const handleSortByChange = (value: string) => {
@@ -88,10 +88,6 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
   const handleSearchChange = (value: string) => {
     handleChange('search', value)
   }
-
-  // const handleFilterMoreChange = (filterItems) => {
-  //   handleFilterChange(filterItems)
-  // }
 
   const handleCustomBtnClick = () => {
     if (handleFilterCustomButtomClick) handleFilterCustomButtomClick()

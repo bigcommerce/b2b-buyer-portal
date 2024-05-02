@@ -25,7 +25,7 @@ import {
 import { getPageTranslations, useAppDispatch } from '@/store'
 import { OpenPageState } from '@/types/hooks'
 
-import Loading from '../loadding/Loading'
+import Loading from '../loading/Loading'
 
 const B3Layout = lazy(() => import('@/components/layout/B3Layout'))
 
@@ -73,7 +73,7 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
             ? globaledState.currentChannelId
             : 0,
           page,
-        })
+        }),
       )
     },
     // ignore dispatch
@@ -82,7 +82,7 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
       globaledState.currentChannelId,
       globaledState.multiStorefrontEnabled,
       location.pathname,
-    ]
+    ],
   )
 
   return (

@@ -3,7 +3,7 @@ import { HashRouter } from 'react-router-dom'
 
 import GlobalDialog from '@/components/extraTip/GlobalDialog'
 import B3RenderRouter from '@/components/layout/B3RenderRouter'
-import showPageMask from '@/components/loadding/B3showPageMask'
+import showPageMask from '@/components/loading/B3showPageMask'
 import { useB3AppOpen, useSetOpen } from '@/hooks'
 import useDomHooks from '@/hooks/dom/useDomHooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
@@ -40,11 +40,11 @@ import {
 const B3GlobalTip = lazy(() => import('@/components/B3GlobalTip'))
 
 const B3HoverButton = lazy(
-  () => import('@/components/outSideComponents/B3HoverButton')
+  () => import('@/components/outSideComponents/B3HoverButton'),
 )
 
 const B3MasquradeGobalTip = lazy(
-  () => import('@/components/outSideComponents/B3MasquradeGobalTip')
+  () => import('@/components/outSideComponents/B3MasquradeGobalTip'),
 )
 
 const HeadlessController = lazy(() => import('@/components/HeadlessController'))
@@ -69,24 +69,24 @@ export default function App() {
   const isB2BUser = useAppSelector(isB2BUserSelector)
   const storeDispatch = useAppDispatch()
   const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting,
   )
   const customerId = useAppSelector(({ company }) => company.customer.id)
   const emailAddress = useAppSelector(
-    ({ company }) => company.customer.emailAddress
+    ({ company }) => company.customer.emailAddress,
   )
   const role = useAppSelector((state) => state.company.customer.role)
   const b2bId = useAppSelector((state) => state.company.customer.b2bId)
   const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn)
   const isPageComplete = useAppSelector(({ global }) => global.isPageComplete)
   const currentClickedUrl = useAppSelector(
-    ({ global }) => global.currentClickedUrl
+    ({ global }) => global.currentClickedUrl,
   )
   const isRegisterAndLogin = useAppSelector(
-    ({ global }) => global.isRegisterAndLogin
+    ({ global }) => global.isRegisterAndLogin,
   )
   const bcGraphqlToken = useAppSelector(
-    ({ company }) => company.tokens.bcGraphqlToken
+    ({ company }) => company.tokens.bcGraphqlToken,
   )
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
@@ -96,7 +96,7 @@ export default function App() {
         isClickEnterBtn: true,
         currentClickedUrl: href,
         isRegisterAndLogin,
-      })
+      }),
     )
   }
 
@@ -215,7 +215,7 @@ export default function App() {
       storeDispatch(
         setGlabolCommonState({
           isPageComplete: true,
-        })
+        }),
       )
     }
 
@@ -246,7 +246,7 @@ export default function App() {
         storefrontConfig,
         role,
         isB2BUser,
-        isAgenting
+        isAgenting,
       )
 
       dispatch({
@@ -297,7 +297,7 @@ export default function App() {
         storeDispatch(
           setGlabolCommonState({
             isClickEnterBtn: false,
-          })
+          }),
         )
       }
     }
@@ -323,7 +323,7 @@ export default function App() {
       storeDispatch(
         setGlabolCommonState({
           recordOpenHash,
-        })
+        }),
       )
     }
 
