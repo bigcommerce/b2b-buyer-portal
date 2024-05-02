@@ -20,7 +20,8 @@ export interface Customer {
   lastName: string
   emailAddress: string
   customerGroupId: number
-  role: number
+  loginType: LoginTypes
+  role: CustomerRole
 }
 // @Brian.Jiang2021: b5a4803db1bfe87cd85c9116e657d92d210335bd
 // 99: default, Distinguish between bc and b2b;
@@ -52,4 +53,10 @@ export enum UserTypes {
   CURRENT_B2B_COMPANY = 5,
   B2B_SUPER_ADMIN = 6,
   CURRENT_B2B_COMPANY_DIFFERENT_CHANNEL = 7,
+}
+
+export enum LoginTypes {
+  WAITING_LOGIN = 0,
+  FIRST_LOGIN = 1,
+  GENERAL_LOGIN = 2,
 }

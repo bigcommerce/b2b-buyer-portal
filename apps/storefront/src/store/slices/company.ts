@@ -7,6 +7,7 @@ import {
   CompanyStatus,
   Customer,
   CustomerRole,
+  LoginTypes,
   UserTypes,
 } from '@/types'
 
@@ -36,6 +37,7 @@ const initialState: CompanyState = {
     customerGroupId: 1,
     role: CustomerRole.GUEST,
     userType: UserTypes.DOESNT_EXIST,
+    loginType: LoginTypes.WAITING_LOGIN,
   },
   tokens: {
     B2BToken: '',
@@ -76,6 +78,9 @@ const companySlice = createSlice({
     setCurrentCustomerJWT: (state, { payload }: PayloadAction<string>) => {
       state.tokens.currentCustomerJWT = payload
     },
+    setLoginType: (state, { payload }: PayloadAction<LoginTypes>) => {
+      state.customer.loginType = payload
+    },
   },
 })
 
@@ -90,6 +95,7 @@ export const {
   setB2BToken,
   setbcGraphqlToken,
   setCurrentCustomerJWT,
+  setLoginType,
 } = companySlice.actions
 
 export default persistReducer({ key: 'company', storage }, companySlice.reducer)

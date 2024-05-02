@@ -21,12 +21,13 @@ import {
   setCompanyStatus,
   setCurrentCustomerJWT,
   setCustomerInfo,
+  setLoginType,
 } from '@/store/slices/company'
 import {
   resetDraftQuoteInfo,
   resetDraftQuoteList,
 } from '@/store/slices/quoteInfo'
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
+import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types'
 
 import b2bLogger from './b3Logger'
 import { B3LStorage, B3SStorage } from './b3Storage'
@@ -272,22 +273,30 @@ const loginWithCurrentCustomerJWT = async () => {
   )
     return undefined
 
-  store.dispatch(setCurrentCustomerJWT(currentCustomerJWT))
   const data = await getB2BToken(currentCustomerJWT, channelId)
-  const B2BToken = data.authorization.result.token
+  const B2BToken = data.authorization.result.token as string
+  const newLoginType = data.authorization.result.loginType as LoginTypes
+
+  store.dispatch(setCurrentCustomerJWT(currentCustomerJWT))
+  store.dispatch(setLoginType(newLoginType))
   store.dispatch(setB2BToken(B2BToken))
 
-  return B2BToken
+  return { B2BToken, newLoginType }
 }
 
-export const getCurrentCustomerInfo = async (
-  b2bToken?: string
-) => {
-  const { B2BToken } = store.getState().company.tokens
-  if (!(b2bToken || B2BToken)) {
-    if (!(await loginWithCurrentCustomerJWT())) {
-      return undefined
+export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
+  | {
+      role: any
+      userType: any
     }
+  | undefined
+> = async (b2bToken?: string) => {
+  const { B2BToken } = store.getState().company.tokens
+  let loginType = LoginTypes.GENERAL_LOGIN
+  if (!(b2bToken || B2BToken)) {
+    const data = await loginWithCurrentCustomerJWT()
+    if (!data) return undefined
+    loginType = data.newLoginType
   }
   try {
     const data = await getCustomerInfo()
@@ -330,6 +339,7 @@ export const getCurrentCustomerInfo = async (
         customerGroupId,
         role: isB2BUser ? role : CustomerRole.B2C,
         b2bId: id,
+        loginType,
       }
       const quoteUserId = id || customerId || 0
       const companyPayload = {

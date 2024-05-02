@@ -4,7 +4,9 @@ import { Alert, Box } from '@mui/material'
 
 import { StatusNotifications } from '@/constants'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
-import { useAppSelector } from '@/store'
+import { useAppDispatch, useAppSelector } from '@/store'
+import { setLoginType } from '@/store/slices/company'
+import { LoginTypes } from '@/types'
 import { B3SStorage } from '@/utils'
 
 export type AlertColor = 'success' | 'info' | 'warning' | 'error'
@@ -22,6 +24,8 @@ const B3StatusNotificationContainer = styled(Box)(() => ({
 export default function B3StatusNotification(props: B3StatusNotificationProps) {
   const { title } = props
 
+  const loginType = useAppSelector(({ company }) => company.customer.loginType)
+  const dispatch = useAppDispatch()
   const role = useAppSelector(({ company }) => company.customer.role)
   const companyStatus = useAppSelector(
     ({ company }) => company.companyInfo.status
@@ -30,15 +34,13 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
     'blockPendingAccountOrderCreation'
   )
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
-  const loginType = JSON.parse(sessionStorage.getItem('loginType') || 'false')
-
   const [tip, setTip] = useState<string>('')
   const [isShow, setIsShow] = useState<boolean>(false)
   const [type, setType] = useState<AlertColor>('success')
   const [bcColor, setBcColor] = useState<string>('#2E7D32')
 
   const handleCloseTip = () => {
-    sessionStorage.setItem('loginType', JSON.stringify(null))
+    dispatch(setLoginType(LoginTypes.WAITING_LOGIN))
     setIsShow(false)
   }
 
