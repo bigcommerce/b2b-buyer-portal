@@ -1,5 +1,4 @@
 import { b2bCheckoutLogin } from '@/shared/service/b2b/graphql/checkout'
-import { cipherText } from '@/utils/cryptoJs'
 
 const redirect = (url: string, isReplaceCurrentUrl?: boolean) => {
   if (isReplaceCurrentUrl) {
@@ -31,6 +30,6 @@ export const attemptCheckoutLoginAndRedirect = async (
 
 export const setQuoteToStorage = (quoteId: string, date: any) => {
   sessionStorage.setItem('isNewStorefront', JSON.stringify(true))
-  sessionStorage.setItem('quoteCheckoutId', cipherText(quoteId))
-  sessionStorage.setItem('quoteDate', cipherText(date?.toString() || ''))
+  sessionStorage.setItem('quoteCheckoutId', quoteId)
+  sessionStorage.setItem('quoteDate', date?.toString())
 }
