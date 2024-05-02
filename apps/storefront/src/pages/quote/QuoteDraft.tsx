@@ -148,7 +148,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   const role = useAppSelector(({ company }) => company.customer.role)
   const dispatch = useAppDispatch()
   const enteredInclusiveTax = useAppSelector(
-    ({ global }) => global.enteredInclusive
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax
   )
   const draftQuoteList = useAppSelector(
     ({ quoteInfo }) => quoteInfo.draftQuoteList
