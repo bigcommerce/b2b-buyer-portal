@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "lint": "eslint \"**/*.{ts,tsx}\""
+    "lint": "eslint . --ext .ts,.tsx,.js --max-warnings 0 .",
+    "format": "yarn lint --fix"
   },
   "dependencies": {
     "react": "^18.0.0",

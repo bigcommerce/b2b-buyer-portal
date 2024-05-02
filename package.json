@@ -12,9 +12,8 @@
     "build:production": "turbo run build",
     "build:staging": "turbo run build:staging",
     "dev": "turbo run dev --parallel",
-    "lint": "turbo run lint --parallel",
-    "lint:fix": "turbo run lint -- --fix",
-    "format": "prettier --write --ignore-unknown .",
+    "lint": "turbo run lint --parallel --continue",
+    "format": "turbo run format --parallel --continue",
     "test": "turbo run test",
     "prepare": "husky install",
     "clean": "yarn run clean:node-modules",
@@ -29,17 +28,11 @@
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "patch-package": "^8.0.0",
-    "prettier": "^2",
-    "turbo": "^1.13.3"
+    "turbo": "^1.13.3",
+    "prettier": "^2.8.8"
   },
   "engines": {
     "node": ">=14.0.0"
   },
-  "packageManager": "yarn@1.22.17",
-  "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown",
-    "*.{ts,tsx}": [
-      "eslint --fix"
-    ]
-  }
+  "packageManager": "yarn@1.22.17"
 }
