@@ -35,7 +35,7 @@ export default function QuickAdd(props: AddToListContentProps) {
 
   const isB2BUser = useAppSelector(isB2BUserSelector)
   const companyStatus = useAppSelector(
-    ({ company }) => company.companyInfo.status,
+    ({ company }) => company.companyInfo.status
   )
   const [rows, setRows] = useState(level)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
@@ -136,7 +136,7 @@ export default function QuickAdd(props: AddToListContentProps) {
   const getProductItems = (
     variantInfoList: CustomFieldItems,
     skuValue: SimpleObject,
-    skus: string[],
+    skus: string[]
   ) => {
     const notFoundSku: string[] = []
     const notPurchaseSku: string[] = []
@@ -155,7 +155,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     skus.forEach((sku) => {
       const variantInfo: CustomFieldItems | null = (variantInfoList || []).find(
         (variant: CustomFieldItems) =>
-          variant.variantSku.toUpperCase() === sku.toUpperCase(),
+          variant.variantSku.toUpperCase() === sku.toUpperCase()
       )
 
       if (!variantInfo) {
@@ -219,7 +219,7 @@ export default function QuickAdd(props: AddToListContentProps) {
             return arr
           }
         },
-        [],
+        []
       )
 
       passSku.push(sku)
@@ -247,7 +247,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     value: CustomFieldItems,
     skus: string[],
     inputType: 'sku' | 'qty',
-    message: string,
+    message: string
   ) => {
     skus.forEach((sku) => {
       const skuFieldName =
@@ -284,7 +284,7 @@ export default function QuickAdd(props: AddToListContentProps) {
           {
             skus,
           },
-          true,
+          true
         )
 
       return variantInfoList
@@ -296,7 +296,7 @@ export default function QuickAdd(props: AddToListContentProps) {
   const handleAddToList = () => {
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
-        'Your business account is pending approval. This feature is currently disabled.',
+        'Your business account is pending approval. This feature is currently disabled.'
       )
       return
     }
@@ -329,7 +329,7 @@ export default function QuickAdd(props: AddToListContentProps) {
             }),
             {
               isClose: true,
-            },
+            }
           )
         }
 
@@ -341,7 +341,7 @@ export default function QuickAdd(props: AddToListContentProps) {
             }),
             {
               isClose: true,
-            },
+            }
           )
         }
 
@@ -360,7 +360,7 @@ export default function QuickAdd(props: AddToListContentProps) {
             }),
             {
               isClose: true,
-            },
+            }
           )
         }
 
@@ -376,11 +376,11 @@ export default function QuickAdd(props: AddToListContentProps) {
             snackbar.error(
               b3Lang(
                 'purchasedProducts.quickAdd.purchaseQuantityLimitMessage',
-                { typeText, limit, sku },
+                { typeText, limit, sku }
               ),
               {
                 isClose: true,
-              },
+              }
             )
           })
         }

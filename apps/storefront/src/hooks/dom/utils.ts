@@ -13,7 +13,10 @@ import {
   globalSnackbar,
   serialize,
 } from '@/utils'
-import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList'
+import {
+  getProductOptionList,
+  isAllRequiredOptionFilled,
+} from '@/utils/b3AddToShoppingList'
 import b2bLogger from '@/utils/b3Logger'
 import {
   addQuoteDraftProduce,

@@ -21,7 +21,10 @@ import {
 import { isB2BUserSelector, store, useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
 import { getDefaultCurrencyInfo, globalSnackbar, serialize } from '@/utils'
-import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList'
+import {
+  getProductOptionList,
+  isAllRequiredOptionFilled,
+} from '@/utils/b3AddToShoppingList'
 import { getValidOptionsList } from '@/utils/b3Product/b3Product'
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config'

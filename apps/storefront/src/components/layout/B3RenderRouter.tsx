@@ -73,7 +73,7 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
             ? globaledState.currentChannelId
             : 0,
           page,
-        }),
+        })
       )
     },
     // ignore dispatch
@@ -82,7 +82,7 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
       globaledState.currentChannelId,
       globaledState.multiStorefrontEnabled,
       location.pathname,
-    ],
+    ]
   )
 
   return (

@@ -99,13 +99,13 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           getGlobalTranslations({
             newVersion: translationVersion,
             channelId: storeBasicInfo.multiStorefrontEnabled ? channelId : 0,
-          }),
+          })
         )
 
         storeDispatch(
           setHeadLessBcUrl(
-            globalB3?.setting?.is_local_debugging ? '/bigcommerce' : bcUrl,
-          ),
+            globalB3?.setting?.is_local_debugging ? '/bigcommerce' : bcUrl
+          )
         )
 
         storeDispatch(setTimeFormat(storeBasicInfo.timeFormat))

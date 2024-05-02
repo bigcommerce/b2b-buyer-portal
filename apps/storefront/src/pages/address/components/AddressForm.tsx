@@ -64,7 +64,7 @@ function AddressForm(
     isBCPermission,
     countries,
   }: AddressFormProps,
-  ref: Ref<unknown> | undefined,
+  ref: Ref<unknown> | undefined
 ) {
   const b3Lang = useB3Lang()
   const [open, setOpen] = useState<boolean>(false)
@@ -118,7 +118,7 @@ function AddressForm(
         if (messageArr.length >= 2) {
           const field = addressExtraFields.find(
             (field: CustomFieldItems) =>
-              deCodeField(field.name) === messageArr[0],
+              deCodeField(field.name) === messageArr[0]
           )
           if (field) {
             setError(field.name, {
@@ -165,7 +165,7 @@ function AddressForm(
           (field: CustomFieldItems) => ({
             fieldName: deCodeField(field.name),
             fieldValue: data[field.name] || field.default,
-          }),
+          })
         )
         const { country: currentCountryCode, state: stateCode } = data
 
@@ -182,7 +182,7 @@ function AddressForm(
               const state = states.filter(
                 (item: StateProps) =>
                   item.stateCode === currentStateCode ||
-                  item.stateName === currentStateCode,
+                  item.stateName === currentStateCode
               )[0]
 
               currentStateName = state.stateName || currentStateCode
@@ -247,7 +247,7 @@ function AddressForm(
           (field: CustomFieldItems) => ({
             name: field.bcLabel,
             value: data[field.name] || field.default,
-          }),
+          })
         )
 
         const { country: currentCountryCode, state: stateCode } = data
@@ -265,7 +265,7 @@ function AddressForm(
               const state = states.filter(
                 (item: StateProps) =>
                   item.stateCode === currentStateCode ||
-                  item.stateName === currentStateCode,
+                  item.stateName === currentStateCode
               )[0]
 
               currentStateName = state.stateName || currentStateCode
@@ -322,7 +322,7 @@ function AddressForm(
 
   const handleOpenAddEditAddressClick = (
     type: string,
-    data: AddressItemType,
+    data: AddressItemType
   ) => {
     if (type === 'add' && originAddressFields.length > 0) {
       allAddressFields.forEach((field: CustomFieldItems) => {
@@ -330,13 +330,13 @@ function AddressForm(
         if (field.custom) {
           if (isB2BUser) {
             const originFields = originAddressFields.filter(
-              (item: CustomFieldItems) => item.name === field.name,
+              (item: CustomFieldItems) => item.name === field.name
             )[0]
             addressField.default = originFields.default || ''
           } else {
             const originFields = originAddressFields.filter(
               (item: CustomFieldItems) =>
-                item.name === field.name || item.bcLabel === field.bcLabel,
+                item.name === field.name || item.bcLabel === field.bcLabel
             )[0]
             addressField.default = originFields.default || ''
           }
@@ -388,12 +388,12 @@ function AddressForm(
         }
 
         return element
-      },
+      }
     )
 
     setAllAddressFields(translatedAddressFields)
     const extraFields = addressFields.filter(
-      (field: CustomFieldItems) => field.custom,
+      (field: CustomFieldItems) => field.custom
     )
 
     setAddressExtraFields(extraFields)
@@ -421,7 +421,7 @@ function AddressForm(
         } = addressData
 
         const currentCountry = countries.filter(
-          (country: CountryProps) => country.countryCode === countryCode,
+          (country: CountryProps) => country.countryCode === countryCode
         )
 
         setShippingBilling({
@@ -437,10 +437,10 @@ function AddressForm(
             if (isB2BUser) {
               const name = deCodeField(field.name)
               const currentExtraField = extraFields.filter(
-                (item: CustomFieldItems) => item.fieldName === name,
+                (item: CustomFieldItems) => item.fieldName === name
               )[0]
               const originFields = originAddressFields.filter(
-                (item: CustomFieldItems) => item.name === name,
+                (item: CustomFieldItems) => item.name === name
               )[0]
 
               if (currentExtraField) {
@@ -455,11 +455,11 @@ function AddressForm(
               const currentExtraField = extraFields.filter(
                 (item: CustomFieldItems) =>
                   item.fieldName === field.name ||
-                  item.fieldName === field.bcLabel,
+                  item.fieldName === field.bcLabel
               )[0]
               const originFields = originAddressFields.filter(
                 (item: CustomFieldItems) =>
-                  item.name === field.name || item.bcLabel === field.bcLabel,
+                  item.name === field.name || item.bcLabel === field.bcLabel
               )[0]
 
               if (currentExtraField) {
@@ -492,7 +492,7 @@ function AddressForm(
               field.name,
               addressData[field.name] === 'undefined'
                 ? ''
-                : addressData[field.name],
+                : addressData[field.name]
             )
           }
         })
@@ -517,10 +517,10 @@ function AddressForm(
     const handleCountryChange = (countryCode: string) => {
       const stateList =
         countries.find(
-          (country: CountryProps) => country.countryCode === countryCode,
+          (country: CountryProps) => country.countryCode === countryCode
         )?.states || []
       const stateFields = allAddressFields.find(
-        (formFields: CustomFieldItems) => formFields.name === 'state',
+        (formFields: CustomFieldItems) => formFields.name === 'state'
       )
 
       if (stateFields) {

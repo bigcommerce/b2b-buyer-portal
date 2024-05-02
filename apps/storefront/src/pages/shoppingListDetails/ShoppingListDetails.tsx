@@ -86,10 +86,10 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const role = useAppSelector(({ company }) => company.customer.role)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const customerGroupId = useAppSelector(
-    ({ company }) => company.customer.customerGroupId,
+    ({ company }) => company.customer.customerGroupId
   )
   const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting,
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
   )
   const navigate = useNavigate()
   const [isMobile] = useMobile()
@@ -107,7 +107,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const [shoppingListInfo, setShoppingListInfo] =
     useState<null | ShoppingListInfoProps>(null)
   const [customerInfo, setCustomerInfo] = useState<null | CustomerInfoProps>(
-    null,
+    null
   )
   const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.0)
   const [isRequestLoading, setIsRequestLoading] = useState(false)
@@ -175,7 +175,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
               const { id: productId } = search
 
               return node.productId === productId
-            },
+            }
           )
 
           node.productsSearch = productInfo || {}

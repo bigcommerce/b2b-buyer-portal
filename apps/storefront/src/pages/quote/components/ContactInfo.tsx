@@ -75,10 +75,7 @@ interface ContactInfoProps {
   emailAddress?: string
 }
 
-function ContactInfo(
-  { info, emailAddress }: ContactInfoProps,
-  ref: any
-) {
+function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
   const {
     control,
     getValues,
