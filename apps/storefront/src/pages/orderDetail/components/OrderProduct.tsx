@@ -2,7 +2,7 @@ import styled from '@emotion/styled'
 import { Box, Typography } from '@mui/material'
 
 import { useMobile } from '@/hooks'
-import { getActiveCurrencyInfo } from '@/utils'
+import { activeCurrencyInfoSelector, useAppSelector } from '@/store'
 
 import { OrderProductItem, OrderProductOption } from '../../../types'
 
@@ -109,7 +109,9 @@ export default function OrderProduct(props: OrderProductProps) {
 
   const [isMobile] = useMobile()
 
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
+  const { decimal_places: decimalPlaces = 2 } = useAppSelector(
+    activeCurrencyInfoSelector
+  )
 
   const getProductPrice = (price: string | number) => {
     const priceNumber = parseFloat(price.toString()) || 0

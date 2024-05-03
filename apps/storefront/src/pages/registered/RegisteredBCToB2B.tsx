@@ -32,12 +32,14 @@ import {
   getB2BCountries,
   uploadB2BFile,
   validateBCCompanyExtraFields,
+  validateBCCompanyUserExtraFields,
 } from '../../shared/service/b2b'
 
 import { RegisteredContext } from './context/RegisteredContext'
 import {
   AccountFormFieldsItems,
   b2bAddressRequiredFields,
+  Base64,
   Country,
   deCodeField,
   getAccountFormFields,
@@ -307,6 +309,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       })
     }
 
+    const handleInitCountryAndState = () => {
+      const countryValue = getValues('country')
+      const stateValue = getValues('state')
+      handleCountryChange(countryValue, stateValue)
+    }
+    handleInitCountryAndState()
+
     const subscription = watch((value, { name, type }) => {
       const { country, state } = value
       if (name === 'country' && type === 'change') {
@@ -368,12 +377,14 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   const getB2BFieldsValue = async (
     data: CustomFieldItems,
     customerId: number | string,
-    fileList: any
+    fileList: any,
+    companyUserExtraFields: CustomFieldItems[]
   ) => {
     const b2bFields: CustomFieldItems = {}
 
     b2bFields.customerId = customerId || ''
     b2bFields.storeHash = storeHash
+    b2bFields.userExtraFields = companyUserExtraFields
     const companyInfo = bcTob2bCompanyInformation.filter(
       (list) => !list.custom && list.fieldType !== 'files'
     )
@@ -506,6 +517,70 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     return false
   }
 
+  const handleResetBcTob2bContactInformation = (FieldName: string) => {
+    if (bcTob2bContactInformation) {
+      const newBcTob2bContactInformation = bcTob2bContactInformation.map(
+        (contactInformationField) => {
+          if (contactInformationField.name === FieldName) {
+            return {
+              ...contactInformationField,
+              disabled: false,
+            }
+          }
+          return contactInformationField
+        }
+      )
+
+      if (dispatch) {
+        dispatch({
+          type: 'all',
+          payload: {
+            bcTob2bContactInformation: [...newBcTob2bContactInformation],
+          },
+        })
+      }
+    }
+  }
+
+  const handleValidateCompanyUserExtraFields = async (
+    extraFields: CustomFieldItems[]
+  ) => {
+    try {
+      const res = await validateBCCompanyUserExtraFields({
+        extraFields,
+      })
+
+      if (res.code !== 200) {
+        const message = res.data?.errMsg || res.message || ''
+
+        const messageArr = message.split(':')
+
+        if (messageArr.length >= 2) {
+          const field = bcTob2bContactInformation?.find(
+            (field: RegisterFields) =>
+              field.custom && Base64.decode(field.name) === messageArr[0]
+          )
+          if (field) {
+            setError(field.name, {
+              type: 'manual',
+              message: messageArr[1],
+            })
+            handleResetBcTob2bContactInformation(field.name)
+            showLoading(false)
+            return false
+          }
+        }
+        setErrorMessage(message)
+        showLoading(false)
+        return false
+      }
+      setErrorMessage('')
+      return true
+    } catch (error) {
+      return false
+    }
+  }
+
   const handleNext = (event: MouseEvent) => {
     const hasAttachmentsFilesError = handleValidateAttachmentFiles()
 
@@ -519,11 +594,42 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           return
         }
 
+        // get company user extra field
+        const b2bContactInformationList = bcTob2bContactInformation || []
+        const companyUserExtraFieldsList = b2bContactInformationList.filter(
+          (item) => !!item.custom
+        )
+
+        const companyUserExtraFields: Array<CustomFieldItems> = []
+        if (companyUserExtraFieldsList.length) {
+          companyUserExtraFieldsList.forEach((item: CustomFieldItems) => {
+            const itemExtraField: CustomFieldItems = {}
+            itemExtraField.fieldName = deCodeField(item.name)
+            itemExtraField.fieldValue = data[item.name] || item?.default || ''
+            companyUserExtraFields.push(itemExtraField)
+          })
+        }
+
+        let isCompanyUserValidate = true
+        if (companyUserExtraFields.length > 0) {
+          isCompanyUserValidate = await handleValidateCompanyUserExtraFields(
+            companyUserExtraFields
+          )
+        }
+        if (!isCompanyUserValidate) {
+          return
+        }
+
         const attachmentsList = bcTob2bCompanyInformation.filter(
           (list) => list.fieldType === 'files'
         )
         const fileList = await getFileUrl(attachmentsList || [], data)
-        await getB2BFieldsValue(data, customerId, fileList)
+        await getB2BFieldsValue(
+          data,
+          customerId,
+          fileList,
+          companyUserExtraFields
+        )
 
         const isAuto = companyAutoApproval.enabled
 

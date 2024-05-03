@@ -109,7 +109,7 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
                   variant="body1"
                 >
                   {`${b3Lang('quoteDraft.quoteInfo.quoteTitle')}${
-                    (info && info[list]) || ''
+                    info[list] || ''
                   }`}
                 </Typography>
               ) : (

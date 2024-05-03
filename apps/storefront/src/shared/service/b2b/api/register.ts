@@ -16,3 +16,11 @@ export const validateBCCompanyExtraFields = (
     ...data,
     storeHash,
   })
+
+export const validateBCCompanyUserExtraFields = (
+  data: CustomFieldItems
+): CustomFieldItems =>
+  B3Request.post('/api/v2/extra-fields/user/validate', RequestType.B2BRest, {
+    ...data,
+    storeHash,
+  })

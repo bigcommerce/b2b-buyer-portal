@@ -9,6 +9,7 @@ import { OpenPageState } from '@/types/hooks'
 import {
   B3LStorage,
   B3SStorage,
+  getActiveCurrencyInfo,
   getCookie,
   globalSnackbar,
   serialize,
@@ -187,8 +188,11 @@ const addProductsToDraftQuote = async (
   )
 
   const companyInfoId = store.getState().company.companyInfo.id
-  const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+  const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany.id
+  const companyId = companyInfoId || salesRepCompanyId
   const { customerGroupId } = store.getState().company.customer
+
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
 
   // fetch data with products IDs
   const { productsSearch } = await searchB2BProducts({
@@ -199,6 +203,7 @@ const addProductsToDraftQuote = async (
         )
       )
     ),
+    currencyCode,
     companyId,
     customerGroupId,
   })
@@ -322,10 +327,13 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
       const fn =
         +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
 
+      const { currency_code: currencyCode } = getActiveCurrencyInfo()
+
       const { productsSearch } = await fn({
         productIds: [+productId],
         companyId,
         customerGroupId,
+        currencyCode,
       })
 
       const newProductInfo: CustomFieldItems =

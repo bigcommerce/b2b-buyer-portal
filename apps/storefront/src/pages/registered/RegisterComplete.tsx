@@ -122,7 +122,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         if (name === 'accepts_marketing_emails') {
           bcFields.accepts_product_review_abandoned_cart_emails =
             !!item?.default?.length
-        } else {
+        } else if (!item.custom) {
           bcFields[name] = item?.default || ''
         }
       })
@@ -206,6 +206,24 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       const b2bFields: CustomFieldItems = {}
       b2bFields.customerId = customerId || ''
       b2bFields.storeHash = storeHash
+
+      // company user extra field
+      const b2bContactInformationList = list || []
+      const companyUserExtraFieldsList = b2bContactInformationList.filter(
+        (item) => !!item.custom
+      )
+
+      if (companyUserExtraFieldsList.length) {
+        const companyUserExtraFields: Array<CustomFieldItems> = []
+        companyUserExtraFieldsList.forEach((item: CustomFieldItems) => {
+          const itemExtraField: CustomFieldItems = {}
+          itemExtraField.fieldName = deCodeField(item.name)
+          itemExtraField.fieldValue = item?.default || ''
+          companyUserExtraFields.push(itemExtraField)
+        })
+        b2bFields.userExtraFields = companyUserExtraFields
+      }
+
       const companyInfo = companyInformation.filter(
         (list) => !list.custom && list.fieldType !== 'files'
       )

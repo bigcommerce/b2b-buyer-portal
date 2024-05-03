@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
 
+import { defaultCurrenciesState } from './slices/storeConfigs'
 import { RootState } from './reducer'
 
 const themeSelector = (state: RootState) => state.theme
@@ -15,10 +16,26 @@ export const themeFrameSelector = createSelector(
   (theme) => theme.themeFrame
 )
 
-export const defaultCurrencyCodeSelector = createSelector(
+export const defaultCurrencyInfoSelector = createSelector(
   storeConfigSelector,
-  (storeConfigs) =>
-    storeConfigs.currencies.currencies.find((currency) => currency.is_default)
+  (storeConfigs) => {
+    const defaultCurrency = storeConfigs.currencies.currencies.find(
+      (currency) => currency.is_default
+    )
+
+    return defaultCurrency || defaultCurrenciesState.currencies[0]
+  }
+)
+export const activeCurrencyInfoSelector = createSelector(
+  storeConfigSelector,
+  (storeConfigs) => {
+    const entityId = storeConfigs.activeCurrency?.node.entityId || ''
+    const activeCurrency = storeConfigs.currencies.currencies.find(
+      (currency) => currency.id === entityId
+    )
+
+    return activeCurrency || defaultCurrenciesState.currencies[0]
+  }
 )
 
 export const isLoggedInSelector = createSelector(

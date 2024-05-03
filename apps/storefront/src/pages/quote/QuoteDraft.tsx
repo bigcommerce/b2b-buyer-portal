@@ -33,6 +33,7 @@ import {
 } from '@/shared/service/b2b'
 import { deleteCart } from '@/shared/service/bc/graphql/cart'
 import {
+  activeCurrencyInfoSelector,
   isB2BUserSelector,
   resetDraftQuoteInfo,
   resetDraftQuoteList,
@@ -47,13 +48,7 @@ import {
   ContactInfoKeys,
   ShippingAddress,
 } from '@/types/quotes'
-import {
-  B3LStorage,
-  getActiveCurrencyInfo,
-  getDefaultCurrencyInfo,
-  snackbar,
-  storeHash,
-} from '@/utils'
+import { B3LStorage, snackbar, storeHash } from '@/utils'
 import { addQuoteDraftProducts } from '@/utils/b3Product/b3Product'
 import { deleteCartData } from '@/utils/cartUtils'
 import validateObject from '@/utils/quoteUtils'
@@ -160,14 +155,13 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName
   )
   const quoteinfo = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo)
+  const currency = useAppSelector(activeCurrencyInfoSelector)
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext)
-
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
 
   const navigate = useNavigate()
 
@@ -490,9 +484,13 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           const items = {
             productId: node?.productsSearch?.id,
             sku: node.variantSku,
-            basePrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
+            basePrice: (+(node?.basePrice || 0)).toFixed(
+              currency.decimal_places
+            ),
             discount: '0.00',
-            offeredPrice: (+(node?.basePrice || 0)).toFixed(decimalPlaces),
+            offeredPrice: (+(node?.basePrice || 0)).toFixed(
+              currency.decimal_places
+            ),
             quantity: node.quantity,
             variantId: varantsItem?.variant_id,
             imageUrl: node.primaryImage,
@@ -503,18 +501,16 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           return items
         })
 
-        const currency = getDefaultCurrencyInfo()
-
         const fileList = getFileList(quoteinfo?.fileInfo || [])
 
         const data = {
           message: newNote,
           legalTerms: '',
           totalAmount: enteredInclusiveTax
-            ? allPrice.toFixed(decimalPlaces)
-            : (allPrice + allTaxPrice).toFixed(decimalPlaces),
-          grandTotal: allPrice.toFixed(decimalPlaces),
-          subtotal: allPrice.toFixed(decimalPlaces),
+            ? allPrice.toFixed(currency.decimal_places)
+            : (allPrice + allTaxPrice).toFixed(currency.decimal_places),
+          grandTotal: allPrice.toFixed(currency.decimal_places),
+          subtotal: allPrice.toFixed(currency.decimal_places),
           companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
           storeHash,
           quoteTitle,
@@ -526,7 +522,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
           contactInfo,
           productList,
           fileList,
-          taxTotal: allTaxPrice.toFixed(decimalPlaces),
+          taxTotal: allTaxPrice.toFixed(currency.decimal_places),
           currency: {
             currencyExchangeRate: currency.currency_exchange_rate,
             token: currency.token,

@@ -32,7 +32,7 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
+import { activeCurrencyInfoSelector, useAppSelector } from '@/store'
 import { currencyFormat, getProductPriceIncTax, snackbar } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
 import {
@@ -113,13 +113,15 @@ interface QuickOrderFooterProps {
 }
 
 function QuickOrderFooter(props: QuickOrderFooterProps) {
+  const { role, checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props
   const {
     state: { productQuoteEnabled = false, shoppingListEnabled = false },
   } = useContext(GlobaledContext)
   const b3Lang = useB3Lang()
   const companyInfoId = useAppSelector((state) => state.company.companyInfo.id)
-
-  const { role, checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props
+  const { currency_code: currencyCode } = useAppSelector(
+    activeCurrencyInfoSelector
+  )
 
   const isDesktopLimit = useMediaQuery('(min-width:1775px)')
   const [isMobile] = useMobile()
@@ -336,6 +338,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         productIds,
         companyId: companyInfoId,
         customerGroupId,
+        currencyCode,
       })
 
       const newProductInfo: CustomFieldItems =

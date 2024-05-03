@@ -105,8 +105,16 @@ export default function AddToQuote(props: AddToListProps) {
 
   const addToList = async (products: CustomFieldItems[]) => {
     const newProducts = getNewQuoteProduct(products)
+    const noSkuProducts = products.filter(({ sku, variantId, variants }) => {
+      const currentProduct = variants.find(
+        (item: CustomFieldItems) =>
+          item.variant_id === variantId || item.variantId === variantId
+      )
 
-    const noSkuProducts = products.filter(({ sku }) => !sku)
+      const variantSku = currentProduct.sku
+
+      return !(sku || variantSku)
+    })
     if (noSkuProducts.length > 0) {
       snackbar.error(b3Lang('quoteDraft.notification.cantAddProductsNoSku'), {
         isClose: true,
@@ -156,7 +164,7 @@ export default function AddToQuote(props: AddToListProps) {
 
     addToQuote(newProducts)
 
-    snackbar.success(b3Lang('quoteDraft.notification.productPlural.'), {
+    snackbar.success(b3Lang('quoteDraft.notification.productPlural'), {
       isClose: true,
     })
 

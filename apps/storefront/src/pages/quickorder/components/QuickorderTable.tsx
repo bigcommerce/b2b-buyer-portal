@@ -1,5 +1,4 @@
 import { Dispatch, ReactElement, SetStateAction, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import { Box, styled, TextField, Typography } from '@mui/material'
 
@@ -15,11 +14,10 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b'
 import {
-  defaultCurrencyCodeSelector,
+  activeCurrencyInfoSelector,
   isB2BUserSelector,
   useAppSelector,
 } from '@/store'
-import { defaultCurrenciesState } from '@/store/slices/storeConfigs'
 import {
   currencyFormat,
   displayFormat,
@@ -158,10 +156,9 @@ function QuickorderTable({
 
   const b3Lang = useB3Lang()
 
-  const currency = useSelector(defaultCurrencyCodeSelector)
-  const currencyCode =
-    currency?.currency_code ??
-    defaultCurrenciesState.currencies[0].currency_code
+  const { currency_code: currencyCode } = useAppSelector(
+    activeCurrencyInfoSelector
+  )
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {

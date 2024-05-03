@@ -107,6 +107,7 @@ export const initB2BInfo = (
   accountB2BFormFields: Partial<Fields>[],
   additionalInformation: Partial<Fields>[]
 ) => {
+  const extraFields = accountSettings?.extraFields || []
   contactInformation.forEach((item: Partial<Fields>) => {
     const contactItem = item
     if (deCodeField(item?.name || '') === 'first_name') {
@@ -123,6 +124,20 @@ export const initB2BInfo = (
       contactItem.validate = emailValidate
     }
   })
+
+  if (extraFields.length > 0) {
+    extraFields.forEach((field: CustomFieldItems) => {
+      const extraField = field
+
+      const currentField = contactInformation.find(
+        (item) => deCodeField(item?.name || '') === extraField.fieldName
+      )
+
+      if (currentField) {
+        currentField.default = extraField.fieldValue
+      }
+    })
+  }
 
   accountB2BFormFields.forEach((item: Partial<Fields>) => {
     const formField = item
@@ -194,10 +209,14 @@ export const b2bSubmitDataProcessing = (
   decryptionFields: Partial<Fields>[],
   extraFields: Partial<Fields>[]
 ) => {
+  const userExtraFields = accountSettings?.extraFields || []
+
   const param: Partial<ParamProps> = {}
   param.formFields = []
   let isEdit = true
   let flag = true
+  let useExtraFieldsFlag = false
+
   Object.keys(data).forEach((key: string) => {
     decryptionFields.forEach((item: Partial<Fields>) => {
       if (key === item.name) {
@@ -218,12 +237,24 @@ export const b2bSubmitDataProcessing = (
           if (accountSettings.email !== data[item.name]) isEdit = false
           param.email = data[item.name]
         }
+        if (item.custom) {
+          const currentField = userExtraFields.find(
+            (field: CustomFieldItems) =>
+              field.fieldName === deCodeField(item?.name || '')
+          )
+          if (currentField?.fieldValue !== data[item.name])
+            useExtraFieldsFlag = true
+        }
       }
     })
+    if (useExtraFieldsFlag) {
+      isEdit = false
+    }
 
     if (flag) {
       extraFields.forEach((field: Partial<Fields>) => {
         if (field.fieldId === key && param?.formFields) {
+          const { name } = field
           param.formFields.push({
             name: field?.bcLabel || '',
             value: data[key],
@@ -235,8 +266,13 @@ export const b2bSubmitDataProcessing = (
           if (
             account &&
             JSON.stringify(account.value) !== JSON.stringify(data[key])
-          )
+          ) {
             isEdit = false
+          }
+
+          if (!accountSettings?.formFields?.length && name && !!data[name]) {
+            isEdit = false
+          }
         }
       })
     }

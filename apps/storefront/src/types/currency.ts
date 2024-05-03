@@ -25,7 +25,7 @@ export interface Currency {
   decimal_places: number
   enabled: boolean
   is_transactional: boolean
-  token_location: string
+  token_location: 'left' | 'right'
   thousands_token: string
 }
 

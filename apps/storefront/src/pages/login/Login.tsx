@@ -20,13 +20,15 @@ import {
   superAdminEndMasquerade,
 } from '@/shared/service/b2b'
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
+import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
 import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store'
 import { setB2BToken } from '@/store/slices/company'
 import { CustomerRole, UserTypes } from '@/types'
 import { OpenPageState } from '@/types/hooks'
-import { B3SStorage, loginjump, snackbar, storeHash } from '@/utils'
+import { B3SStorage, getCookie, loginjump, snackbar, storeHash } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
 import { logoutSession } from '@/utils/b3logout'
+import { deleteCartData } from '@/utils/cartUtils'
 import { getCurrentCustomerInfo } from '@/utils/loginInfo'
 
 import LoginWidget from './component/LoginWidget'
@@ -61,6 +63,7 @@ export default function Login(props: RegisteredProps) {
 
   const isLoggedIn = useAppSelector(isLoggedInSelector)
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const salesRepCompanyId = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )
@@ -138,6 +141,22 @@ export default function Login(props: RegisteredProps) {
           snackbar.error(b3Lang('login.loginText.invoiceErrorTip'))
         }
         if (loginFlag === '3' && isLoggedIn) {
+          const cartEntityId: string = getCookie('cartId')
+
+          const cartInfo = cartEntityId
+            ? await getCart(cartEntityId, platform)
+            : null
+
+          if (cartInfo) {
+            let newCartId = cartEntityId
+            if (cartInfo?.data && cartInfo?.data?.site) {
+              const { cart } = cartInfo.data.site
+              newCartId = cart?.entityId || cartEntityId
+            }
+            const deleteQuery = deleteCartData(newCartId)
+            await deleteCart(deleteQuery)
+          }
+
           const { result } = (await bcLogoutLogin()).data.logout
 
           if (result !== 'success') return

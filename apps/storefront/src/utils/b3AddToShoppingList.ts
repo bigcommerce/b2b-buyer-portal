@@ -7,23 +7,13 @@ export const handleGetCurrentProductInfo = async (
   productId: number | string
 ) => {
   const currentState = store.getState()
-  const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany
-  const { currencies } = currentState.storeConfigs
   const { customerGroupId } = currentState.company.customer
-  const companyInfoId = currentState.company.companyInfo.id
+  const { id: salesRepCompanyId } = currentState.b2bFeatures.masqueradeCompany
+  const { id: companyInfoId } = currentState.company.companyInfo
   const companyId = companyInfoId || salesRepCompanyId
-  const defaultCurrency = currencies.currencies.find(
-    (currency) => currency.is_default
-  )
-
-  let currencyCode = '$'
-  if (defaultCurrency?.currency_code) {
-    currencyCode = defaultCurrency?.currency_code
-  }
 
   const { productsSearch } = await searchB2BProducts({
     productIds: [+productId],
-    currencyCode,
     companyId,
     customerGroupId,
   })

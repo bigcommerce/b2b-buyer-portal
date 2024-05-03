@@ -16,7 +16,7 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b'
 import {
-  defaultCurrencyCodeSelector,
+  activeCurrencyInfoSelector,
   isB2BUserSelector,
   TaxZoneRates,
   useAppSelector,
@@ -84,7 +84,7 @@ function QuoteDetail() {
   })
 
   const location = useLocation()
-  const currency = useAppSelector(defaultCurrencyCodeSelector)
+  const currency = useAppSelector(activeCurrencyInfoSelector)
   const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates)
   const enteredInclusiveTax = useAppSelector(
     ({ global }) => global.enteredInclusive

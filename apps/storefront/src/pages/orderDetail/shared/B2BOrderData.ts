@@ -15,8 +15,6 @@ import {
   OrderSummary,
 } from '../../../types'
 
-const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
-
 const getOrderShipping = (data: B2BOrderData) => {
   const { shipments, shippingAddress = [], products = [] } = data
 
@@ -84,6 +82,7 @@ const getOrderBilling = (data: B2BOrderData) => {
 }
 
 const formatPrice = (price: string | number) => {
+  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
   try {
     const priceNumer = parseFloat(price.toString()) || 0
     return priceNumer.toFixed(decimalPlaces)

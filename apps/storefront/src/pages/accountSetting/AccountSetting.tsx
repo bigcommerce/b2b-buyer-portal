@@ -30,7 +30,7 @@ import {
 import { Fields, ParamProps } from '@/types/accountSetting'
 import { B3SStorage, snackbar } from '@/utils'
 
-import { getAccountFormFields } from '../registered/config'
+import { deCodeField, getAccountFormFields } from '../registered/config'
 
 import { getAccountSettingFiles } from './config'
 import sendEmail, {
@@ -249,6 +249,21 @@ function AccountSetting() {
     return true
   }
 
+  const handleGetUserExtraFields = (data: CustomFieldItems) => {
+    let userExtraFieldsInfo: CustomFieldItems[] = []
+    const userExtraFields = accountInfoFormFields.filter(
+      (item: CustomFieldItems) => item.custom && item.groupId === 1
+    )
+    if (userExtraFields.length > 0) {
+      userExtraFieldsInfo = userExtraFields.map((item: CustomFieldItems) => ({
+        fieldName: deCodeField(item?.name || ''),
+        fieldValue: data[item.name],
+      }))
+    }
+
+    return userExtraFieldsInfo
+  }
+
   const handleAddUserClick = () => {
     handleSubmit(async (data: CustomFieldItems) => {
       setLoadding(true)
@@ -259,6 +274,11 @@ function AccountSetting() {
         const emailFlag = emailValidation(data)
 
         const passwordFlag = passwordValidation(data)
+
+        let userExtraFields: CustomFieldItems[] = []
+        if (!isBCUser) {
+          userExtraFields = handleGetUserExtraFields(data)
+        }
 
         const dataProcessingFn = !isBCUser
           ? b2bSubmitDataProcessing
@@ -273,7 +293,10 @@ function AccountSetting() {
           )
 
           if (isEdit) {
-            if (!isBCUser) param.companyId = companyId
+            if (!isBCUser) {
+              param.companyId = companyId
+              param.extraFields = userExtraFields
+            }
 
             const requestFn = !isBCUser
               ? updateB2BAccountSettings

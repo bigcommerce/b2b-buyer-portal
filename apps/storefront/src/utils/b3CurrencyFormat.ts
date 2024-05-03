@@ -122,11 +122,15 @@ export const currencyFormatConvert = (
   }
 }
 
-const currencyFormat = (price: string | number, showCurrencyToken = true) => {
+const currencyFormat = (
+  price: string | number,
+  showCurrencyToken = true,
+  isConversionRate = false
+) => {
   const moneyFormat = currencyFormatInfo()
   try {
     const [integerPart, decimalPart] = (
-      +price * +moneyFormat.currency_exchange_rate
+      isConversionRate ? +price * +moneyFormat.currency_exchange_rate : +price
     )
       .toFixed(moneyFormat.decimal_places)
       .split('.')

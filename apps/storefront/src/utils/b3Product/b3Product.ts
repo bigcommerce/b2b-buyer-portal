@@ -22,12 +22,7 @@ import {
   Variant,
 } from '@/types/products'
 import { QuoteItem } from '@/types/quotes'
-import {
-  B3SStorage,
-  getActiveCurrencyInfo,
-  getDefaultCurrencyInfo,
-  storeHash,
-} from '@/utils'
+import { B3SStorage, getActiveCurrencyInfo, storeHash } from '@/utils'
 
 import b2bLogger from '../b3Logger'
 
@@ -310,7 +305,7 @@ const getExtraProductPricesProducts = async (
   picklistIds: number[]
 ) => {
   const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
   const { productsSearch: picklistProductsSearch } = await getProducts({
     productIds: picklistIds,
     currencyCode,
@@ -409,7 +404,7 @@ const getNewProductsList = async (
   isB2BUser: boolean
 ) => {
   try {
-    const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+    const { currency_code: currencyCode } = getActiveCurrencyInfo()
     if (listProducts.length > 0) {
       const productIds: number[] = []
       listProducts.forEach((item) => {

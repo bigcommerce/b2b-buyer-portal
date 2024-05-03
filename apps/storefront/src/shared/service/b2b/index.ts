@@ -6,6 +6,7 @@ import {
   createBCCompanyUser,
   sendSubscribersState,
   validateBCCompanyExtraFields,
+  validateBCCompanyUserExtraFields,
 } from './api/register'
 import {
   createB2BAddress,
@@ -112,6 +113,7 @@ import {
   checkUserEmail,
   deleteUsers,
   getUsers,
+  getUsersExtraFieldsInfo,
 } from './graphql/users'
 
 export {
@@ -209,6 +211,7 @@ export {
   getTaxZoneRates,
   getUserCompany,
   getUsers,
+  getUsersExtraFieldsInfo,
   guestProductsBulkUploadCSV,
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
@@ -231,6 +234,7 @@ export {
   uploadB2BFile,
   validateAddressExtraFields,
   validateBCCompanyExtraFields,
+  validateBCCompanyUserExtraFields,
 }
 
 export { default as getProxyInfo } from './api/proxy'

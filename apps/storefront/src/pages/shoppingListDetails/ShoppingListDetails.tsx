@@ -24,8 +24,12 @@ import {
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b'
-import { isB2BUserSelector, useAppSelector } from '@/store'
-import { getDefaultCurrencyInfo, snackbar } from '@/utils'
+import {
+  activeCurrencyInfoSelector,
+  isB2BUserSelector,
+  useAppSelector,
+} from '@/store'
+import { snackbar } from '@/utils'
 import {
   calculateProductListPrice,
   getBCPrice,
@@ -83,6 +87,9 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
     state: { currentChannelId, openAPPParams, productQuoteEnabled = false },
   } = useContext(GlobaledContext)
   const isB2BUser = useAppSelector(isB2BUserSelector)
+  const { currency_code: currencyCode } = useAppSelector(
+    activeCurrencyInfoSelector
+  )
   const role = useAppSelector(({ company }) => company.customer.role)
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
   const customerGroupId = useAppSelector(
@@ -132,8 +139,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const goToShoppingLists = () => {
     navigate('/shoppingLists')
   }
-
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
 
   useEffect(() => {
     dispatch({

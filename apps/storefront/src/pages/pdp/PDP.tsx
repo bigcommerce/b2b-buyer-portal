@@ -20,7 +20,7 @@ import {
 } from '@/shared/service/b2b'
 import { isB2BUserSelector, store, useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
-import { getDefaultCurrencyInfo, globalSnackbar, serialize } from '@/utils'
+import { getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils'
 import {
   getProductOptionList,
   isAllRequiredOptionFilled,
@@ -88,7 +88,7 @@ export const addProductsToShoppingList = async ({
   gotoShoppingDetail,
   b3Lang,
 }: AddProductsToShoppingListParams) => {
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+  const { currency_code: currencyCode } = getActiveCurrencyInfo()
   const { id: companyId } = store.getState().company.companyInfo
   const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 

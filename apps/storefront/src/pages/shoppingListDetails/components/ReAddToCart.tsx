@@ -10,8 +10,8 @@ import CustomButton from '@/components/button/CustomButton'
 import B3Sping from '@/components/spin/B3Sping'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
-import { useAppSelector } from '@/store'
-import { currencyFormat, getActiveCurrencyInfo, snackbar } from '@/utils'
+import { activeCurrencyInfoSelector, useAppSelector } from '@/store'
+import { currencyFormat, snackbar } from '@/utils'
 import { setModifierQtyPrice } from '@/utils/b3Product/b3Product'
 import {
   addlineItems,
@@ -173,8 +173,9 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   const [isMobile] = useMobile()
 
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
-
+  const { decimal_places: decimalPlaces = 2 } = useAppSelector(
+    activeCurrencyInfoSelector
+  )
   const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   useEffect(() => {

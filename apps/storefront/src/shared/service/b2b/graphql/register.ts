@@ -111,6 +111,11 @@ const createCompanyUser = (data: any) => `mutation{
           )}`
         : ''
     }
+    ${
+      data?.userExtraFields
+        ? `userExtraFields: ${convertArrayToGraphql(data.userExtraFields)}`
+        : ''
+    }
   }) {
     company {
       id,
