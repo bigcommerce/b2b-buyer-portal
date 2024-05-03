@@ -41,7 +41,7 @@ interface FlexItemProps {
   }
 }
 
-const Flex = styled('div')(({ isHeader, isMobile }: FlexProps) => {
+const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
   const headerStyle = isHeader
     ? {
         borderBottom: '1px solid #D9DCE9',

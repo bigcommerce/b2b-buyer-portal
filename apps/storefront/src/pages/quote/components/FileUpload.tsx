@@ -62,14 +62,14 @@ const FileListItem = styled(Box)((props: CustomFieldItems) => ({
   },
 }))
 
-const FileUserTitle = styled(Typography)(() => ({
+const FileUserTitle = styled(Typography)({
   marginBottom: '16px',
   fontSize: '10px',
   color: 'rgba(0, 0, 0, 0.38)',
   padding: '0 12px',
   textAlign: 'right',
   wordBreak: 'break-word',
-}))
+})
 
 export interface FileObjects {
   id?: string

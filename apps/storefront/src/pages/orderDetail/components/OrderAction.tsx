@@ -29,7 +29,7 @@ interface StyledCardActionsProps {
   isShowButtons: boolean
 }
 
-const StyledCardActions = styled('div')((props: StyledCardActionsProps) => ({
+const StyledCardActions = styled('div')<StyledCardActionsProps>((props) => ({
   flexWrap: 'wrap',
   padding: props.isShowButtons ? '0 1rem 1rem 1rem' : 0,
 

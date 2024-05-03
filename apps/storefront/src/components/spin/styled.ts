@@ -6,8 +6,8 @@ interface SpinCenterProps {
   transparency?: string
 }
 
-const SpinCenter = styled('div')(
-  ({ background, isMobile, transparency }: SpinCenterProps) => ({
+const SpinCenter = styled('div')<SpinCenterProps>(
+  ({ background, isMobile, transparency }) => ({
     position: isMobile ? 'fixed' : 'absolute',
     zIndex: 100,
     left: 0,
@@ -27,20 +27,13 @@ const SpinTip = styled.div({
   marginTop: '12px',
 })
 
-styled('div')(() => ({
-  position: 'relative',
-  height: '100%',
-  width: '100%',
-  display: 'flex',
-}))
-
 interface SpinContextProps {
   height?: number | string
   isFlex?: boolean
 }
 
-const SpinContext = styled('div')(
-  ({ height, isFlex = true }: SpinContextProps) => ({
+const SpinContext = styled('div')<SpinContextProps>(
+  ({ height, isFlex = true }) => ({
     position: 'relative',
     height: height || '100%',
     width: '100%',

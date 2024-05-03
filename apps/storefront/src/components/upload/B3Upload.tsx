@@ -56,7 +56,7 @@ interface BulkUploadCSVProps {
   withModifiers?: boolean
 }
 
-const FileUploadContainer = styled(Box)(() => ({
+const FileUploadContainer = styled(Box)({
   width: '100%',
   borderRadius: '5px',
   position: 'relative',
@@ -66,7 +66,7 @@ const FileUploadContainer = styled(Box)(() => ({
       display: 'none',
     },
   },
-}))
+})
 
 export default function B3Upload(props: B3UploadProps) {
   const {

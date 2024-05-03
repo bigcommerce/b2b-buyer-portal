@@ -16,11 +16,11 @@ export const InformationFourLabels = styled('h4')(() => ({
   marginBottom: '20px',
 }))
 
-export const TipContent = styled('div')(() => ({
+export const TipContent = styled('div')({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-}))
+})
 
 export const TipLogin = styled('div')(() => ({
   cursor: 'pointer',

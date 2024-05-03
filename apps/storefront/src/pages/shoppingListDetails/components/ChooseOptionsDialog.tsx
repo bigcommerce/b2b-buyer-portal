@@ -41,7 +41,7 @@ import {
   getProductOptionsFields,
 } from '../../../utils/b3Product/shared/config'
 
-const Flex = styled('div')(() => ({
+const Flex = styled('div')({
   display: 'flex',
   wordBreak: 'break-word',
   gap: '8px',
@@ -50,7 +50,7 @@ const Flex = styled('div')(() => ({
   '&:first-of-type': {
     marginTop: '12px',
   },
-}))
+})
 
 interface FlexItemProps {
   padding?: string
