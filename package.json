@@ -30,7 +30,7 @@
     "lint-staged": "^13.0.3",
     "patch-package": "^8.0.0",
     "prettier": "^2",
-    "turbo": "latest"
+    "turbo": "^1.13.3"
   },
   "engines": {
     "node": ">=14.0.0"
