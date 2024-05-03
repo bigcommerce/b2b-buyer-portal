@@ -1,18 +1,4 @@
 {
   "root": true,
-  "extends": ["b2b"],
-  "overrides": [
-    {
-      "files": ["*.ts"],
-      "rules": { "@typescript-eslint/no-explicit-any": 0 }
-    },
-    {
-      "files": ["*.ts"],
-      "rules": { "react-hooks/exhaustive-deps": 0 }
-    },
-    {
-      "files": ["*.ts"],
-      "rules": { "import/no-extraneous-dependencies": 0 }
-    }
-  ]
+  "extends": ["bc"]
 }

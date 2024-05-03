@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "main": "index.ts",
+  "prettier": "@bigcommerce/eslint-config/prettier",
   "scripts": {
     "lint": "eslint . --ext .ts,.tsx,.js --max-warnings 0 .",
     "format": "yarn lint --fix"
@@ -15,8 +16,8 @@
   "devDependencies": {
     "@b3/tsconfig": "*",
     "@types/react": "^18.0.0",
-    "eslint": "^7.32.0 || ^8.2.0",
-    "eslint-config-b2b": "*",
+    "eslint": "^8.2.0",
+    "eslint-config-bc": "*",
     "typescript": "^4.7.4"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "name": "eslint-config-bc",
+  "version": "0.0.0",
+  "license": "UNLICENSED",
+  "main": ".eslintrc.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "prettier": "@bigcommerce/eslint-config/prettier",
+  "scripts": {
+    "lint": "eslint . --ext .ts,.tsx,.js --max-warnings 0 .",
+    "format": "yarn lint --fix"
+  },
+  "dependencies": {
+    "@bigcommerce/eslint-config": "^2.8.1",
+    "eslint": "^8.2.0",
+    "eslint-plugin-testing-library": "^5.10.3"
+  }
+}

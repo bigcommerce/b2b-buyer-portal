@@ -1,4 +1,4 @@
 {
   "root": true,
-  "extends": ["b2b"]
+  "extends": ["bc"]
 }
