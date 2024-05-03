@@ -1,2 +1,2 @@
-export { default as LangProvider } from './LangProvider'
-export * from './useB3Lang'
+export { default as LangProvider } from './LangProvider';
+export * from './useB3Lang';

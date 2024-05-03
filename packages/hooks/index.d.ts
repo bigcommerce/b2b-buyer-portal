@@ -3,11 +3,11 @@ declare interface Window {
     callbacks: {
       dispatchEvent: (
         callbackKey: import('./useCustomCallbacks').CallbackKey,
-        data: any
-      ) => boolean
-    }
-  }
+        data: any,
+      ) => boolean;
+    };
+  };
   b2b: {
-    isInit: boolean
-  }
+    isInit: boolean;
+  };
 }

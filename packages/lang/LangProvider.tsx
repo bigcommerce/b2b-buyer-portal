@@ -1,24 +1,26 @@
-import { ReactNode } from 'react'
-import { IntlProvider } from 'react-intl'
-import { useSelector } from 'react-redux'
+import { ReactNode } from 'react';
+import { IntlProvider } from 'react-intl';
+import { useSelector } from 'react-redux';
 
-import locales from './locales'
+import locales from './locales';
 
 interface LangProviderProps {
-  children: ReactNode
-  customText?: Record<string, string>
+  readonly children: ReactNode;
+  readonly customText?: Record<string, string>;
 }
 
 function LangProvider({ children, customText = {} }: LangProviderProps) {
-  const translations = useSelector(({ lang }) => lang.translations)
+  const translations = useSelector(({ lang }) => lang.translations);
+
   return (
     <IntlProvider
-      messages={{ ...locales.en, ...customText, ...translations }}
-      locale="en"
       defaultLocale="en"
+      locale="en"
+      messages={{ ...locales.en, ...customText, ...translations }}
     >
       {children}
     </IntlProvider>
-  )
+  );
 }
-export default LangProvider
+
+export default LangProvider;

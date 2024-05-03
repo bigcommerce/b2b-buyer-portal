@@ -1,2 +1,2 @@
-export * from './useCustomCallbacks'
-export { default as useWindowSize } from './useWindowSize'
+export * from './useCustomCallbacks';
+export { default as useWindowSize } from './useWindowSize';

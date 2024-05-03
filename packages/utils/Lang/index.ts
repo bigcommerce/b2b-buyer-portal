@@ -1,8 +1,9 @@
 const Lang = {
   getBrowserLanguage: () => {
-    const lang = navigator.language
-    return lang.substring(0, 2)
-  },
-}
+    const lang = navigator.language;
 
-export default Lang
+    return lang.substring(0, 2);
+  },
+};
+
+export default Lang;
