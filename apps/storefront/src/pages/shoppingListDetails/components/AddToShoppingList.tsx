@@ -48,7 +48,7 @@ export default function AddToShoppingList(props: AddToListProps) {
     : addProductToBcShoppingList
 
   const addToList = useCallbacks(
-    CallbackKey.onAddToShoppingList,
+    CallbackKey.OnAddToShoppingList,
     async (products: CustomFieldItems[], handleEvent) => {
       try {
         if (!handleEvent(products)) {
@@ -204,7 +204,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       if (notAddAble.length > 0 && pageType !== 'shoppingList') {
         snackbar.error(
           b3Lang('shoppingList.addToShoppingList.skuNotAddable', {
-            notAddAble,
+            notAddAble: notAddAble.join(', '),
           }),
           {
             isClose: true,
@@ -215,7 +215,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       if (notPurchaseSku.length > 0 && pageType !== 'shoppingList') {
         snackbar.error(
           b3Lang('shoppingList.addToShoppingList.skuNotPurchasable', {
-            notPurchaseSku,
+            notPurchaseSku: notPurchaseSku.join(', '),
           }),
           {
             isClose: true,

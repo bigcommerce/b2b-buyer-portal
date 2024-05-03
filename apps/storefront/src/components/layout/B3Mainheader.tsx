@@ -34,7 +34,7 @@ export default function B3Mainheader({ title }: { title: string }) {
   const customColor = getContrastColor(backgroundColor)
 
   const onCartClick = useCallbacks(
-    CallbackKey.onClickCartButton,
+    CallbackKey.OnClickCartButton,
     (_, handleEvent) => {
       const isNotPreventDefaultExecuted = handleEvent()
       if (!isNotPreventDefaultExecuted) {

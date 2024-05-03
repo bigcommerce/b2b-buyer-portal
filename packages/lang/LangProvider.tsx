@@ -9,8 +9,16 @@ interface LangProviderProps {
   readonly customText?: Record<string, string>;
 }
 
+type Translations = Record<string, string>;
+
+interface RootState {
+  lang: {
+    translations: Translations;
+  };
+}
+
 function LangProvider({ children, customText = {} }: LangProviderProps) {
-  const translations = useSelector(({ lang }) => lang.translations);
+  const translations = useSelector<RootState, Translations>(({ lang }) => lang.translations);
 
   return (
     <IntlProvider

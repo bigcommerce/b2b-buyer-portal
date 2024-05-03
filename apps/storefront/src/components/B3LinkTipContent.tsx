@@ -20,7 +20,7 @@ export function B3LinkTipContent({
   const navigate = useNavigate()
 
   const handleLink = useCallbacks(
-    CallbackKey.onClickCartButton,
+    CallbackKey.OnClickCartButton,
     (_, handleEvent) => {
       if (isCustomEvent) {
         const isNotPreventDefaultExecuted = handleEvent()

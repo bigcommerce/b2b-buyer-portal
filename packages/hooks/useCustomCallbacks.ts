@@ -1,23 +1,16 @@
 export enum CallbackKey {
-  onQuoteCreate = 'on-quote-create',
-  onAddToShoppingList = 'on-add-to-shopping-list',
-  onClickCartButton = 'on-click-cart-button',
+  OnQuoteCreate = 'on-quote-create',
+  OnAddToShoppingList = 'on-add-to-shopping-list',
+  OnClickCartButton = 'on-click-cart-button',
 }
 
-export const useCallbacks = (
-  callbacks: CallbackKey[] | CallbackKey,
-  fn: (...args: any[]) => Promise<any> | any,
+export const useCallbacks = <T, Q>(
+  callbacks: CallbackKey,
+  fn: (tParam: T, b: (data?: unknown) => boolean) => Promise<Q> | Q,
 ) => {
-  const handleEvent = (data: any) => {
-    if (Array.isArray(callbacks)) {
-      return callbacks.reduce(
-        (acc, callback) => (!acc ? false : window.b2b.callbacks.dispatchEvent(callback, data)),
-        true,
-      );
-    }
-
+  const handleEvent = (data: unknown) => {
     return window.b2b.callbacks.dispatchEvent(callbacks, data);
   };
 
-  return (...args: any[]) => fn(...args, handleEvent);
+  return (tParam: T) => fn(tParam, handleEvent);
 };

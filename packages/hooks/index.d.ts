@@ -3,7 +3,7 @@ declare interface Window {
     callbacks: {
       dispatchEvent: (
         callbackKey: import('./useCustomCallbacks').CallbackKey,
-        data: any,
+        data: unknown,
       ) => boolean;
     };
   };

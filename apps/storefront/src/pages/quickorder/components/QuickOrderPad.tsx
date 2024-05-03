@@ -255,7 +255,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       if (notPurchaseSku.length > 0) {
         snackbar.error(
           b3Lang('purchasedProducts.quickOrderPad.notPurchaseableSku', {
-            notPurchaseSku,
+            notPurchaseSku: notPurchaseSku.join(','),
           }),
           {
             isClose: true,

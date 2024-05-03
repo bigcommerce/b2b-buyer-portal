@@ -19,7 +19,7 @@ import ProductListDialog from './ProductListDialog'
 
 interface SearchProductProps {
   updateList?: () => void
-  addToList: (products: CustomFieldItems[]) => CustomFieldItems
+  addToList: (products: CustomFieldItems[]) => void
   searchDialogTitle?: string
   addButtonText?: string
   isB2BUser: boolean
