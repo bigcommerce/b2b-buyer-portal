@@ -1,11 +1,14 @@
-import { ChangeEvent, KeyboardEvent, useContext } from 'react'
+import { ChangeEvent, KeyboardEvent, useCallback, useContext } from 'react'
 import { useB3Lang } from '@b3/lang'
 import SearchIcon from '@mui/icons-material/Search'
 import { Box, InputAdornment, TextField, Typography } from '@mui/material'
 
-import { B3Dialog, B3ProductList, B3Sping, CustomButton } from '@/components'
+import { B3ProductList } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
+import CustomButton from '@/components/button/CustomButton'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import { snackbar } from '@/utils'
 
 import { ShoppingListProductItem } from '../../../types'
@@ -37,9 +40,6 @@ function ProductTableAction(props: ProductTableActionProps) {
   return productOptions && productOptions.length > 0 ? (
     <CustomButton
       variant="outlined"
-      // sx={{
-      //   marginLeft: '9%',
-      // }}
       onClick={() => {
         onChooseOptionsClick(id)
       }}
@@ -51,9 +51,6 @@ function ProductTableAction(props: ProductTableActionProps) {
   ) : (
     <CustomButton
       variant="outlined"
-      // sx={{
-      //   marginLeft: '9%',
-      // }}
       onClick={() => {
         onAddToListClick(id)
       }}
@@ -101,6 +98,10 @@ export default function ProductListDialog(props: ProductListDialogProps) {
     addButtonText = b3Lang('shoppingLists.addButtonText'),
   } = props
 
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
+  )
+
   const [isMobile] = useMobile()
 
   const handleCancelClicked = () => {
@@ -113,29 +114,29 @@ export default function ProductListDialog(props: ProductListDialogProps) {
     }
   }
 
-  const validateQuantityNumber = (product: ShoppingListProductItem) => {
-    const { variants = [] } = product || {}
+  const validateQuantityNumber = useCallback(
+    (product: ShoppingListProductItem) => {
+      const { variants = [] } = product || {}
+      const { purchasing_disabled: purchasingDisabled = true } =
+        variants[0] || {}
 
-    const { purchasing_disabled: purchasingDisabled = true } = variants[0] || {}
+      if (
+        type !== 'shoppingList' &&
+        purchasingDisabled === true &&
+        !isEnableProduct
+      ) {
+        snackbar.error(
+          b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale')
+        )
+        return false
+      }
 
-    const {
-      global: {
-        blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-      },
-    } = store.getState()
-    if (
-      type !== 'shoppingList' &&
-      purchasingDisabled === true &&
-      !isEnableProduct
-    ) {
-      snackbar.error(
-        b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale')
-      )
-      return false
-    }
-
-    return true
-  }
+      return true
+    },
+    // ignore b3Lang it's not reactive
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isEnableProduct, type]
+  )
 
   const handleAddToList = (id: number) => {
     const product = productList.find((product) => product.id === id)

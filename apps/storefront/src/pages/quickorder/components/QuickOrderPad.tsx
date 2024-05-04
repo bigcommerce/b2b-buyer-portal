@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import {
@@ -11,10 +10,14 @@ import {
   Typography,
 } from '@mui/material'
 
-import { B3Upload, CustomButton, successTip } from '@/components'
-import { useBlockPendingAccountViewPrice, useMobile } from '@/hooks'
-import { globalStateSelector, store } from '@/store'
-import { B3SStorage, b3TriggerCartNumber, snackbar } from '@/utils'
+import { B3Upload, successTip } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
+import { useBlockPendingAccountViewPrice } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
+import { useAppSelector } from '@/store'
+import { snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart } from '@/utils/cartUtils'
 
 import SearchProduct from '../../shoppingListDetails/components/SearchProduct'
@@ -37,14 +40,14 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
 
-  const { storeInfo } = useSelector(globalStateSelector)
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
+  const storeInfo = useAppSelector(({ global }) => global.storeInfo)
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
+  )
   const storePlatform = storeInfo?.platform
-
-  const {
-    global: {
-      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-    },
-  } = store.getState()
 
   const getSnackbarMessage = (res: any) => {
     if (res && !res.errors) {
@@ -389,14 +392,13 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         await quickAddToList(productData)
       }
     } catch (error) {
-      console.error(error)
+      b2bLogger.error(error)
     }
 
     return productData
   }
 
   const handleOpenUploadDiag = () => {
-    const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         b3Lang('purchasedProducts.quickOrderPad.addNProductsToCart')
@@ -414,6 +416,8 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         })
       )
     }
+    // disabling this rule as b3Lang has rendering issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productData])
 
   return (

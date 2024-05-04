@@ -1,36 +1,25 @@
 import { useCallback, useLayoutEffect, useState } from 'react'
 import globalB3 from '@b3/global-b3'
 
+import { useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
+import { OpenPageState } from '@/types/hooks'
+
 import useMutationObservable from './useMutationObservable'
 
-// interface GotoPageByClickProps {
-//   href: string
-//   isRegisterArrInclude: boolean
-// }
 interface ChildNodeListProps extends ChildNode {
   href?: string
   localName?: string
 }
 
-export interface OpenPageState {
-  isOpen: boolean
-  openUrl?: string
-  isPageComplete?: boolean
-  handleEnterClick?: (href: string, bool: boolean, timeTarget: number) => void
-  params?: { [key: string]: string }
-  // gotoPageByClick: ({
-  //   href,
-  //   isRegisterArrInclude,
-  // }: GotoPageByClickProps) => string
-}
-
-export const useB3AppOpen = (initOpenState: OpenPageState) => {
+const useB3AppOpen = (initOpenState: OpenPageState) => {
   const [checkoutRegisterNumber, setCheckoutRegisterNumber] =
     useState<number>(0)
 
   const callback = useCallback(() => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1)
   }, [checkoutRegisterNumber])
+  const role = useAppSelector((state) => state.company.customer.role)
 
   const [openPage, setOpenPage] = useState<OpenPageState>({
     isOpen: initOpenState.isOpen,
@@ -101,8 +90,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
           const isRegisterArrInclude = registerArr.includes(e.target)
           const tagHref = (e.target as HTMLAnchorElement)?.href
           let href = tagHref || '/orders'
-          const timeTarget = Date.now()
-          if (!tagHref || typeof timeTarget !== 'string') {
+          if (!tagHref) {
             let parentNode = (e.target as HTMLAnchorElement)?.parentNode
             let parentHref = (parentNode as HTMLAnchorElement)?.href
             let number = 0
@@ -131,9 +119,7 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
             }
           }
 
-          const RoleInfo = sessionStorage.getItem('sf-B3Role')
-          const B3Role = RoleInfo ? JSON.parse(RoleInfo || '') : ''
-          const isLogin = B3Role === '' ? false : JSON.parse(B3Role) !== 100
+          const isLogin = role !== CustomerRole.GUEST
           const hrefArr = href.split('/#')
           if (hrefArr[1] === '') {
             href = isLogin ? '/orders' : '/login'
@@ -152,15 +138,12 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
             !href.includes('action=create_account') &&
             !href.includes('action=logout')
           ) {
-            href = +B3Role === 2 ? '/shoppingLists' : '/orders'
+            href =
+              +role === CustomerRole.JUNIOR_BUYER ? '/shoppingLists' : '/orders'
           }
 
           if (initOpenState?.handleEnterClick) {
-            initOpenState.handleEnterClick(
-              href,
-              isRegisterArrInclude,
-              timeTarget
-            )
+            initOpenState.handleEnterClick(href, isRegisterArrInclude)
           }
         }
         return false
@@ -174,9 +157,11 @@ export const useB3AppOpen = (initOpenState: OpenPageState) => {
       }
     }
     return () => {}
-  }, [checkoutRegisterNumber, initOpenState?.isPageComplete])
+  }, [checkoutRegisterNumber, initOpenState, role])
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback)
 
   return [openPage, setOpenPage] as const
 }
+
+export default useB3AppOpen

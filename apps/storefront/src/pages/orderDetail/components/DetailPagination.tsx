@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
@@ -7,8 +7,8 @@ import { Box, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 
 import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import { getB2BAllOrders, getBCAllOrders } from '@/shared/service/b2b'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 
 interface SearchParamsProps {
   [key: string]: number | string | undefined
@@ -37,6 +37,7 @@ const initListIndex = 100000000
 
 function DetailPagination({ onChange, color }: DetailPageProps) {
   const b3Lang = useB3Lang()
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const [listIndex, setListIndex] = useState<number>(initListIndex)
   const [arrived, setArrived] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
@@ -44,9 +45,6 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
     rightId: '',
     leftId: '',
   })
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
 
   const localtion = useLocation()
   const [isMobile] = useMobile()
@@ -70,69 +68,74 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
     }
   }
 
-  const fetchList = async () => {
-    setLoading(true)
-
-    const index = () => {
-      if (listIndex) return listIndex - 1
-      return 0
-    }
-
-    const searchDetailParams = {
-      ...searchParams,
-      first: 3,
-      offset: index(),
-      beginDateAt: beginDateAt || null,
-      endDateAt: endDateAt || null,
-      orderBy: '-createdAt',
-    }
-
-    const fn = isB2BUser ? getB2BAllOrders : getBCAllOrders
-
-    const orders = isB2BUser ? 'allOrders' : 'customerOrders'
-
-    const {
-      [orders]: { edges: list, totalCount },
-    }: CustomFieldItems = await fn(searchDetailParams)
-
-    let flag = ''
-
-    let rightId = ''
-
-    let leftId = ''
-
-    if (listIndex === totalCount - 1) {
-      flag = 'toRight'
-      leftId = list[list.length - 2]?.node.orderId || 0
-    } else if (listIndex === 0) {
-      flag = 'toLeft'
-      rightId = list[1]?.node.orderId || 0
-    } else {
-      leftId = list[0]?.node.orderId || 0
-      rightId = list[2]?.node.orderId || 0
-    }
-
-    setRightLeftSide({
-      leftId,
-      rightId,
-    })
-
-    setArrived(flag)
-
-    setLoading(false)
-  }
-
   useEffect(() => {
     if (totalCount > 0) setListIndex(currentIndex)
     if (listIndex === initListIndex) return
     const searchPageStart = currentIndex + searchParams.offset
     setListIndex(searchPageStart)
-  }, [searchParams])
+    // disabling this rule as searchParams is the same value on each render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, listIndex, totalCount])
 
   useEffect(() => {
     if (listIndex === initListIndex) return
+
+    const fetchList = async () => {
+      setLoading(true)
+
+      const index = () => {
+        if (listIndex) return listIndex - 1
+        return 0
+      }
+
+      const searchDetailParams = {
+        ...searchParams,
+        first: 3,
+        offset: index(),
+        beginDateAt: beginDateAt || null,
+        endDateAt: endDateAt || null,
+        orderBy: '-createdAt',
+      }
+
+      const fn = isB2BUser ? getB2BAllOrders : getBCAllOrders
+
+      const orders = isB2BUser ? 'allOrders' : 'customerOrders'
+
+      const {
+        [orders]: { edges: list, totalCount },
+      }: CustomFieldItems = await fn(searchDetailParams)
+
+      let flag = ''
+
+      let rightId = ''
+
+      let leftId = ''
+
+      if (listIndex === totalCount - 1) {
+        flag = 'toRight'
+        leftId = list[list.length - 2]?.node.orderId || 0
+      } else if (listIndex === 0) {
+        flag = 'toLeft'
+        rightId = list[1]?.node.orderId || 0
+      } else {
+        leftId = list[0]?.node.orderId || 0
+        rightId = list[2]?.node.orderId || 0
+      }
+
+      setRightLeftSide({
+        leftId,
+        rightId,
+      })
+
+      setArrived(flag)
+
+      setLoading(false)
+    }
+
     fetchList()
-  }, [listIndex])
+    // Disabling rule as searchParams is the same value on each render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [beginDateAt, endDateAt, isB2BUser, listIndex])
 
   if (JSON.stringify(searchParams) === '{}') return null
 

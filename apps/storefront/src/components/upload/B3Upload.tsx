@@ -13,17 +13,24 @@ import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
 import { Alert, Box, Link, useTheme } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 
-import { B3Sping, CustomButton } from '@/components'
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import { GlobaledContext } from '@/shared/global'
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
   guestProductsBulkUploadCSV,
 } from '@/shared/service/b2b'
-import { getDefaultCurrencyInfo } from '@/utils'
+import {
+  defaultCurrencyInfoSelector,
+  isB2BUserSelector,
+  useAppSelector,
+} from '@/store'
+import { Currency } from '@/types'
+import b2bLogger from '@/utils/b3Logger'
 
 import B3Dialog from '../B3Dialog'
+import CustomButton from '../button/CustomButton'
+import B3Sping from '../spin/B3Sping'
 
 import B3UploadLoadding from './B3UploadLoadding'
 import BulkUploadTable from './BulkUploadTable'
@@ -49,7 +56,7 @@ interface BulkUploadCSVProps {
   withModifiers?: boolean
 }
 
-const FileUploadContainer = styled(Box)(() => ({
+const FileUploadContainer = styled(Box)({
   width: '100%',
   borderRadius: '5px',
   position: 'relative',
@@ -59,7 +66,7 @@ const FileUploadContainer = styled(Box)(() => ({
       display: 'none',
     },
   },
-}))
+})
 
 export default function B3Upload(props: B3UploadProps) {
   const {
@@ -79,8 +86,10 @@ export default function B3Upload(props: B3UploadProps) {
   const uploadRef = useRef<HTMLInputElement>(null)
 
   const {
-    state: { isB2BUser, currentChannelId, role },
+    state: { currentChannelId },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const theme = useTheme()
 
@@ -91,7 +100,8 @@ export default function B3Upload(props: B3UploadProps) {
   const [fileName, setFileName] = useState('')
   const [fileErrorText, setFileErrorText] = useState('')
 
-  const { currency_code: currencyCode } = getDefaultCurrencyInfo()
+  const currency = useAppSelector(defaultCurrencyInfoSelector)
+  const { currency_code: currencyCode } = currency as Currency
 
   const getRejectMessage = (
     rejectedFile: File,
@@ -170,7 +180,7 @@ export default function B3Upload(props: B3UploadProps) {
       }
     } catch (e) {
       setStep('init')
-      console.error(e)
+      b2bLogger.error(e)
     }
   }
 

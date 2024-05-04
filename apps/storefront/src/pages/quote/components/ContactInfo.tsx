@@ -6,12 +6,9 @@ import trim from 'lodash-es/trim'
 
 import { B3CustomForm } from '@/components'
 import { useMobile } from '@/hooks'
-import { checkUserBCEmail, checkUserEmail } from '@/shared/service/b2b'
+import { isValidUserTypeSelector, useAppSelector } from '@/store'
+import { ContactInfo as ContactInfoType } from '@/types/quotes'
 import { validatorRules } from '@/utils'
-
-// import {
-//   CustomerInfo,
-// } from '@/shared/global/context/config'
 
 const emailValidate = validatorRules(['email'])
 
@@ -74,18 +71,11 @@ const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
 }
 
 interface ContactInfoProps {
-  info: {
-    [key: string]: string
-  }
-  isB2BUser: boolean
-  currentChannelId: string | number
+  info: ContactInfoType
   emailAddress?: string
 }
 
-function ContactInfo(
-  { info = {}, isB2BUser, currentChannelId, emailAddress }: ContactInfoProps,
-  ref: any
-) {
+function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
   const {
     control,
     getValues,
@@ -97,6 +87,8 @@ function ContactInfo(
     mode: 'onSubmit',
   })
 
+  const isValidUserType = useAppSelector(isValidUserTypeSelector)
+
   const [isMobile] = useMobile()
 
   const b3Lang = useB3Lang()
@@ -104,33 +96,24 @@ function ContactInfo(
   useEffect(() => {
     if (info && JSON.stringify(info) !== '{}') {
       Object.keys(info).forEach((item: string) => {
-        setValue(item, info[item])
+        setValue(item, info && info[item as keyof ContactInfoType])
       })
     }
+    // Disable eslint exhaustive-deps rule for setValue dispatcher
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [info])
 
   const validateEmailValue = async (emailValue: string) => {
     if (emailAddress === trim(emailValue)) return true
-    const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
-    const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
 
-    const {
-      [key]: { userType },
-    }: CustomFieldItems = await fn({
-      email: emailValue,
-      channelId: currentChannelId,
-    })
-
-    const isValid = isB2BUser ? [1].includes(userType) : ![2].includes(userType)
-
-    if (!isValid) {
+    if (!isValidUserType) {
       setError('email', {
         type: 'custom',
         message: b3Lang('quoteDraft.contactInfo.emailExists'),
       })
     }
 
-    return isValid
+    return isValidUserType
   }
 
   const getContactInfoValue = async () => {

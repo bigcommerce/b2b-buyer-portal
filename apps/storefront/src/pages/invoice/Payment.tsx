@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
-import { B3Dialog, Loading } from '@/components'
+import { Loading } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
 import { getInvoiceDetail } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
-import { B3SStorage, snackbar } from '@/utils'
+import { useAppSelector } from '@/store'
+import { snackbar } from '@/utils'
 
 import { gotoInvoiceCheckoutUrl } from './utils/payment'
 
 function Payment() {
-  const globalState = useSelector(globalStateSelector)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken)
 
   const [loadding, setLoadding] = useState<boolean>(false)
 
@@ -27,7 +28,6 @@ function Payment() {
   useEffect(() => {
     const init = async () => {
       setLoadding(true)
-      const B2BToken = B3SStorage.get('B2BToken')
 
       if (!B2BToken) {
         setOpen(true)
@@ -61,11 +61,7 @@ function Payment() {
             currency: code,
           }
 
-          await gotoInvoiceCheckoutUrl(
-            data,
-            globalState.storeInfo.platform,
-            true
-          )
+          await gotoInvoiceCheckoutUrl(data, platform, true)
         } catch (error: unknown) {
           snackbar.error(
             (error as CustomFieldItems)?.message ||
@@ -78,7 +74,9 @@ function Payment() {
     }
 
     init()
-  }, [params.id])
+    // disabling b3Lang due to rendering issues within b3Lang
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platform, params.id])
 
   const handleConfirm = () => {
     navigate('/login')

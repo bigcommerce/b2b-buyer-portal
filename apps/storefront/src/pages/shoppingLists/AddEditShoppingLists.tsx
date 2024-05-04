@@ -8,7 +8,8 @@ import {
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 
-import { B3CustomForm, B3Dialog } from '@/components'
+import { B3CustomForm } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
 import {
   createB2BShoppingList,
   createBcShoppingList,
@@ -17,6 +18,7 @@ import {
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b'
+import { CustomerRole } from '@/types'
 import { snackbar } from '@/utils'
 
 import {
@@ -65,7 +67,7 @@ function AddEditShoppingLists(
         setValue(item.name, (editData as CustomFieldItems)[item.name])
       })
     }
-  }, [open, type])
+  }, [editData, open, setValue, type, usersFiles])
 
   const handleCancelClick = () => {
     usersFiles.forEach((item: GetFilterMoreListProps) => {
@@ -108,7 +110,7 @@ function AddEditShoppingLists(
           successTip = b3Lang('shoppingLists.duplicateSuccess')
         } else if (type === 'add') {
           if (isB2BUser) {
-            params.status = +role === 2 ? 30 : 0
+            params.status = +role === CustomerRole.JUNIOR_BUYER ? 30 : 0
           } else {
             params.channelId = channelId
           }

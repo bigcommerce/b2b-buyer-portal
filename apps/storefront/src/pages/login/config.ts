@@ -1,7 +1,8 @@
 import { LangFormatFunction } from '@b3/lang'
 
+import { store } from '@/store/reducer'
 import { storeHash, validatorRules } from '@/utils'
-import { bcBaseUrl } from '@/utils/basicConfig'
+import b2bLogger from '@/utils/b3Logger'
 
 export interface QuoteConfig {
   [key: string]: string
@@ -105,11 +106,11 @@ export const loginCheckout = (data: LoginConfig) => {
   }
 
   return fetch(
-    `${bcBaseUrl()}/internalapi/v1/checkout/customer`,
+    `${store.getState().global.bcUrl}/internalapi/v1/checkout/customer`,
     requestOptions
   )
     .then((response) => response.text())
-    .catch((error) => console.log('error', error))
+    .catch((error) => b2bLogger.error('error', error))
 }
 
 export const sendEmail = (emailAddress: string) => {
@@ -126,11 +127,11 @@ export const sendEmail = (emailAddress: string) => {
   }
 
   return fetch(
-    `${bcBaseUrl()}/login.php?action=send_password_email`,
+    `${store.getState().global.bcUrl}/login.php?action=send_password_email`,
     requestOptions
   )
     .then((response) => response.text())
-    .catch((error) => console.log('error', error))
+    .catch((error) => b2bLogger.error('error', error))
 }
 
 export const getloginTokenInfo = (channelId: number) => {

@@ -1,17 +1,16 @@
 import { useContext } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 import useMobile from '@/hooks/useMobile'
 import { GlobaledContext } from '@/shared/global'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
 
 import { CloseBox, CloseBoxMobile, CloseButton } from '../styled'
 
 export default function B3CloseAppButton() {
   const [isMobile] = useMobile()
 
-  const { setOpenPageFn } = useSelector(globalStateSelector)
+  const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn)
 
   const {
     state: { isCloseGotoBCHome },
@@ -23,7 +22,7 @@ export default function B3CloseAppButton() {
       window.location.href = '/'
     } else {
       navigate('/')
-      setOpenPageFn({
+      setOpenPageFn?.({
         isOpen: false,
         openUrl: '',
       })

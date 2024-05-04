@@ -1,7 +1,3 @@
-// import {
-//   ReactNode,
-// } from 'react'
-
 import { B3Tag } from '@/components'
 
 import getOrderStatus from '../shared/getOrderStatus'

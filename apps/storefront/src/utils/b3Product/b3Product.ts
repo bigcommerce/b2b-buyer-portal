@@ -1,3 +1,4 @@
+import cloneDeep from 'lodash-es/cloneDeep'
 import isEmpty from 'lodash-es/isEmpty'
 import { v1 as uuid } from 'uuid'
 
@@ -6,7 +7,9 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { setEnteredInclusive, store } from '@/store'
+import { setDraftQuoteList, store } from '@/store'
+import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs'
+import { Modifiers, ShoppingListProductItem } from '@/types'
 import {
   AdjustersPrice,
   AllOptionProps,
@@ -14,18 +17,14 @@ import {
   BcCalculatedPrice,
   Calculateditems,
   CalculatedOptions,
-  Modifiers,
   OptionValue,
   Product,
-  ShoppingListProductItem,
   Variant,
-} from '@/types'
-import {
-  B3LStorage,
-  B3SStorage,
-  getActiveCurrencyInfo,
-  storeHash,
-} from '@/utils'
+} from '@/types/products'
+import { QuoteItem } from '@/types/quotes'
+import { B3SStorage, getActiveCurrencyInfo, storeHash } from '@/utils'
+
+import b2bLogger from '../b3Logger'
 
 import {
   conversionProductsList,
@@ -33,21 +32,6 @@ import {
   ProductInfoProps,
 } from './shared/config'
 import getTaxRate from './b3TaxRate'
-
-interface QuoteListitemProps {
-  node: {
-    id: number
-    quantity?: number
-    variantSku: number | string
-    variantId: number | string
-    primaryImage: number | string
-    productName: number | string
-    optionList: number | string
-    productId: number | string
-    basePrice: number | string
-    productsSearch: CustomFieldItems
-  }
-}
 
 interface AdditionalCalculatedPricesProps {
   [key: string]: number
@@ -148,12 +132,14 @@ const getProductExtraPrice = async (
   }
 
   if (productIds.length) {
+    const { masqueradeCompany } = store.getState().b2bFeatures
+    const salesRepCompanyId = masqueradeCompany.id
     const fn =
       +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
-
-    const companyId =
-      B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
-    const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+    const currentState = store.getState()
+    const companyInfoId = currentState.company.companyInfo.id
+    const { customerGroupId } = currentState.company.customer
+    const companyId = companyInfoId || salesRepCompanyId
     const { productsSearch: additionalProductsSearch } = await fn({
       productIds,
       companyId,
@@ -427,10 +413,10 @@ const getNewProductsList = async (
           productIds.push(node.productId)
         }
       })
-      const companyId =
-        B3SStorage.get('B3CompanyInfo')?.id ||
-        B3SStorage.get('salesRepCompanyId')
-      const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+      const currentState = store.getState()
+      const companyInfoId = currentState.company.companyInfo.id
+      const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+      const { customerGroupId } = currentState.company.customer
 
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
@@ -465,7 +451,7 @@ const getNewProductsList = async (
       return newListProducts
     }
   } catch (error) {
-    console.log(error, 'error')
+    b2bLogger.error(error, 'error')
   }
   return undefined
 }
@@ -586,11 +572,9 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   const calculatedNoTaxPrice = calculatedPrice.tax_exclusive
   let enteredPrice = calculatedPrice.as_entered
   const enteredInclusive = calculatedPrice.entered_inclusive
-  store.dispatch(setEnteredInclusive(enteredInclusive))
-  B3SStorage.set('enteredInclusiveTax', enteredInclusive)
+  store.dispatch(setEnteredInclusiveTax(enteredInclusive))
 
   const tax = calculatedTaxPrice - calculatedNoTaxPrice
-
   const taxRate = +tax / calculatedNoTaxPrice
 
   let finalDiscount = 0
@@ -647,14 +631,19 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
 
 interface CalculatedProductPrice {
   optionList: CustomFieldItems[]
-  productsSearch: Partial<Product>
+  productsSearch: Product
   sku: string
   qty: number
 }
 
 const getCustomerGroupId = () => {
   let customerGroupId = 0
-  const isAgenting = B3SStorage.get('isAgenting') || false
+  const currentState = store.getState()
+  const customerInfo = currentState.company.customer
+  if (customerInfo && Object.keys(customerInfo).length !== 0) {
+    customerGroupId = customerInfo.customerGroupId
+  }
+  const { isAgenting } = store.getState().b2bFeatures.masqueradeCompany
   const B3CustomerInfo = B3SStorage.get('B3CustomerInfo')
   if (B3CustomerInfo && Object.keys(B3CustomerInfo).length !== 0) {
     customerGroupId = B3CustomerInfo.customerGroupId
@@ -680,7 +669,7 @@ const getCalculatedProductPrice = async (
   const { variants = [] } = productsSearch
 
   const variantItem = variants.find(
-    (item: Partial<Variant>) => item.sku?.toUpperCase() === sku.toUpperCase()
+    (item) => item.sku?.toUpperCase() === sku.toUpperCase()
   )
 
   if (variantItem) {
@@ -727,8 +716,8 @@ const getCalculatedProductPrice = async (
         quantity: +qty,
         optionList: JSON.stringify(optionList),
         productId: variantItem.product_id,
-        basePrice: itemPrice.toFixed(decimalPlaces),
-        taxPrice: taxPrice.toFixed(decimalPlaces),
+        basePrice: +itemPrice.toFixed(decimalPlaces),
+        taxPrice: +taxPrice.toFixed(decimalPlaces),
         calculatedValue: calculatedData[0],
       },
     }
@@ -833,8 +822,8 @@ const calculateProductsPrice = async (
   if (calculatedValue.length === 0) {
     const data = {
       channel_id: B3SStorage.get('B3channelId'),
-      currency_code: currencyCode,
       customer_group_id: getCustomerGroupId(),
+      currency_code: currencyCode,
       items,
     }
     const res = await getProxyInfo({
@@ -986,7 +975,7 @@ const calculateProductListPrice = async (
     })
     return products
   } catch (error) {
-    console.log(error)
+    b2bLogger.error(error)
     return []
   }
 }
@@ -1031,7 +1020,7 @@ const setModifierQtyPrice = async (
 
     return product
   } catch (e) {
-    console.log(e)
+    b2bLogger.error(e)
     return product
   }
 }
@@ -1053,15 +1042,18 @@ const compareOption = (
 }
 
 const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
-  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
-  if (b2bQuoteDraftList.length === 0) {
-    B3LStorage.set('b2bQuoteDraftList', products)
+  const { draftQuoteList } = store.getState().quoteInfo
+
+  if (draftQuoteList.length === 0) {
+    store.dispatch(setDraftQuoteList(products as QuoteItem[]))
     return
   }
+
+  const draftQuote = cloneDeep(draftQuoteList)
   if (products.length) {
     products.forEach((quoteProduct: CustomFieldItems) => {
       const optionList = JSON.parse(quoteProduct.node.optionList)
-      const productIndex = b2bQuoteDraftList.findIndex(
+      const productIndex = draftQuoteList.findIndex(
         (item: CustomFieldItems) => {
           const oldOptionList = JSON.parse(item.node.optionList)
           const isAdd =
@@ -1074,44 +1066,43 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
       )
 
       if (productIndex !== -1) {
-        b2bQuoteDraftList[productIndex].node.quantity +=
-          quoteProduct.node.quantity
+        draftQuote[productIndex].node.quantity += quoteProduct.node.quantity
         if (quoteProduct.node?.calculatedValue) {
-          b2bQuoteDraftList[productIndex].node.calculatedValue =
+          draftQuote[productIndex].node.calculatedValue =
             quoteProduct.node.calculatedValue
         }
       } else {
-        b2bQuoteDraftList.push(quoteProduct)
+        draftQuote.push(quoteProduct as QuoteItem)
       }
     })
   }
 
-  B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
+  store.dispatch(setDraftQuoteList(draftQuote))
 }
 
 const validProductQty = (products: CustomFieldItems) => {
-  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
+  const { draftQuoteList } = store.getState().quoteInfo
 
   let canAdd = true
   products.forEach((product: CustomFieldItems) => {
-    const index = b2bQuoteDraftList.findIndex(
-      (item: QuoteListitemProps) =>
-        item?.node?.variantSku === product.node.variantSku
+    const index = draftQuoteList.findIndex(
+      (item) => item.node.variantSku === product.node.variantSku
     )
     const optionList = JSON.parse(product.node.optionList) || []
 
     if (index !== -1) {
-      const oldOptionList = JSON.parse(b2bQuoteDraftList[index].node.optionList)
-
+      const oldOptionList = JSON.parse(draftQuoteList[index].node.optionList)
+      let quantityFromStore = draftQuoteList[index].node.quantity
       const isAdd =
         oldOptionList.length > optionList.length
           ? compareOption(oldOptionList, optionList)
           : compareOption(optionList, oldOptionList)
 
       if (isAdd) {
-        b2bQuoteDraftList[index].node.quantity += +product.node.quantity
+        quantityFromStore += +product.node.quantity
       }
-      if (+b2bQuoteDraftList[index].node.quantity > 1000000) {
+
+      if (+quantityFromStore > 1000000) {
         canAdd = false
       }
     } else if (+product.node.quantity > 1000000) {
@@ -1127,16 +1118,16 @@ const addQuoteDraftProduce = async (
   qty: number,
   optionList: CustomFieldItems[]
 ) => {
-  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
+  const draftList = cloneDeep(store.getState().quoteInfo.draftQuoteList)
 
-  const index = b2bQuoteDraftList.findIndex(
-    (item: QuoteListitemProps) =>
+  const index = draftList.findIndex(
+    (item: QuoteItem) =>
       item?.node?.variantSku === quoteListitem.node.variantSku
   )
 
   if (index !== -1) {
     // TODO optionList compare
-    const oldOptionList = JSON.parse(b2bQuoteDraftList[index].node.optionList)
+    const oldOptionList = JSON.parse(draftList[index].node.optionList)
 
     const isAdd =
       oldOptionList.length > optionList.length
@@ -1144,7 +1135,7 @@ const addQuoteDraftProduce = async (
         : compareOption(optionList, oldOptionList)
 
     if (isAdd) {
-      b2bQuoteDraftList[index].node.quantity += +qty
+      draftList[index].node.quantity += +qty
 
       const {
         optionList,
@@ -1152,7 +1143,7 @@ const addQuoteDraftProduce = async (
         variantSku,
         quantity,
         calculatedValue,
-      } = b2bQuoteDraftList[index].node
+      } = draftList[index].node
 
       const product = await getCalculatedProductPrice(
         {
@@ -1161,25 +1152,23 @@ const addQuoteDraftProduce = async (
               ? JSON.parse(optionList)
               : optionList,
           productsSearch,
-          sku: variantSku,
+          sku: variantSku || '',
           qty: quantity,
         },
         calculatedValue
       )
 
       if (product) {
-        b2bQuoteDraftList[index].node = product.node
+        draftList[index].node = product.node
       }
     } else {
-      // const productList = await getProductPrice(optionList, quoteListitem)
-      b2bQuoteDraftList.push(quoteListitem)
+      draftList.push(quoteListitem as QuoteItem)
     }
   } else {
-    // const productList = await getProductPrice(optionList, quoteListitem)
-    b2bQuoteDraftList.push(quoteListitem)
+    draftList.push(quoteListitem as QuoteItem)
   }
 
-  B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
+  store.dispatch(setDraftQuoteList(draftList))
 }
 
 const calculateIsInclude = (price: number | string, tax: number | string) => {
@@ -1194,7 +1183,10 @@ const calculateIsInclude = (price: number | string, tax: number | string) => {
 
 const getBCPrice = (basePrice: number, taxPrice: number) => {
   const {
-    global: { enteredInclusive: enteredInclusiveTax, showInclusiveTaxPrice },
+    global: { showInclusiveTaxPrice },
+    storeConfigs: {
+      currencies: { enteredInclusiveTax },
+    },
   } = store.getState()
 
   let price: number

@@ -1,7 +1,5 @@
-import {
-  convertArrayToGraphql,
-  convertObjectToGraphql,
-} from '../../../../utils'
+import { convertArrayToGraphql, convertObjectToGraphql } from '@/utils'
+
 import B3Request from '../../request/b3Fetch'
 
 const getStatus = (status: any): string => {

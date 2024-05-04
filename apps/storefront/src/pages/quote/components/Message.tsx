@@ -19,7 +19,8 @@ import {
 } from '@mui/material'
 import { format, formatDistanceStrict } from 'date-fns'
 
-import { B3CollapseContainer, B3Sping } from '@/components'
+import { B3CollapseContainer } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { GlobaledContext } from '@/shared/global'
 import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b'
 import { displayExtendedFormat, storeHash } from '@/utils'
@@ -251,7 +252,9 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
         )}
       </Box>
     ),
-    [read]
+    // disabling this rule as b3Lang will cause rendering issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [primaryColor, read]
   )
 
   useEffect(() => {
@@ -316,7 +319,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
         changeReadRef.current += 1
       }
     },
-    [msgs]
+    [email, id, isB2BUser, msgs]
   )
 
   useEffect(() => {
@@ -326,6 +329,8 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
         quoteDetailHasNewMessages: read !== 0,
       },
     })
+    // Disabling this rule as dispatcher dep globalDispatch is the same between renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [read])
 
   return (

@@ -3,6 +3,7 @@ import {
   Dispatch,
   KeyboardEvent,
   SetStateAction,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -13,17 +14,16 @@ import styled from '@emotion/styled'
 import { Box, Divider, TextField, Typography } from '@mui/material'
 import isEqual from 'lodash-es/isEqual'
 
-import { B3CustomForm, B3Dialog, B3Sping } from '@/components'
+import { B3CustomForm } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
+import B3Sping from '@/components/spin/B3Sping'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
+import { currencyFormat, snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 import {
-  B3SStorage,
   calculateProductListPrice,
-  currencyFormat,
-  snackbar,
-} from '@/utils'
-import {
   getBCPrice,
   getProductInfoDisplayPrice,
   getVariantInfoDisplayPrice,
@@ -41,7 +41,7 @@ import {
   getProductOptionsFields,
 } from '../../../utils/b3Product/shared/config'
 
-const Flex = styled('div')(() => ({
+const Flex = styled('div')({
   display: 'flex',
   wordBreak: 'break-word',
   gap: '8px',
@@ -50,7 +50,7 @@ const Flex = styled('div')(() => ({
   '&:first-of-type': {
     marginTop: '12px',
   },
-}))
+})
 
 interface FlexItemProps {
   padding?: string
@@ -129,13 +129,19 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     addButtonText = b3Lang('shoppingList.chooseOptionsDialog.addToList'),
   } = restProps
 
-  const {
-    global: {
-      showInclusiveTaxPrice,
-      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-    },
-  } = store.getState()
-
+  const showInclusiveTaxPrice = useAppSelector(
+    ({ global }) => global.showInclusiveTaxPrice
+  )
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
+  )
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const customerGroupId = useAppSelector(
+    (state) => state.company.customer.customerGroupId
+  )
+  const companyInfoId = useAppSelector((state) => state.company.companyInfo.id)
   const [quantity, setQuantity] = useState<number | string>(1)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [variantInfo, setVariantInfo] = useState<Partial<Variant> | null>(null)
@@ -179,7 +185,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     } else if ((type === 'shoppingList' || type === 'quickOrder') && product) {
       setShowPrice(!product?.isPriceHidden)
     }
-  }, [variantSku, quantity, product])
+  }, [variantSku, quantity, product, type])
 
   const setChooseOptionsForm = async (product: ShoppingListProductItem) => {
     try {
@@ -207,11 +213,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         if (productIds.length > 0) {
           const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
-          const companyId =
-            B3SStorage.get('B3CompanyInfo')?.id ||
-            B3SStorage.get('salesRepCompanyId')
-          const customerGroupId =
-            B3SStorage.get('B3CustomerInfo')?.customerGroupId
+          const companyId = companyInfoId || salesRepCompanyId
           const { productsSearch }: CustomFieldItems = await getProducts({
             productIds,
             companyId,
@@ -273,6 +275,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setQuantity(1)
       setFormFields([])
     }
+    // disabling as we don't need dispatchers here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product])
 
   const getProductPrice = (product: ShoppingListProductItem) => {
@@ -338,41 +342,41 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const formValues = watch()
   const cache = useRef(formValues)
 
-  const getProductVariantId = async (
-    value: CustomFieldItems,
-    changeName = ''
-  ) => {
-    const isVariantOptionChange =
-      formFields.find((item: CustomFieldItems) => item.name === changeName)
-        ?.isVariantOption || false
+  const getProductVariantId = useCallback(
+    async (value: CustomFieldItems, changeName = '') => {
+      const isVariantOptionChange =
+        formFields.find((item: CustomFieldItems) => item.name === changeName)
+          ?.isVariantOption || false
 
-    if (!isVariantOptionChange || !product || !changeName) {
-      return
-    }
+      if (!isVariantOptionChange || !product || !changeName) {
+        return
+      }
 
-    const { variants = [] } = product || {}
+      const { variants = [] } = product || {}
 
-    const variantInfo =
-      variants.find((variant) => {
-        const { option_values: optionValues = [] } = variant
+      const variantInfo =
+        variants.find((variant) => {
+          const { option_values: optionValues = [] } = variant
 
-        const isSelectVariant = optionValues.reduce((isSelect, option) => {
-          if (
-            value[
-              Base64.encode(`attribute[${option.option_id}]`)
-            ].toString() !== (option.id || '').toString()
-          ) {
-            return false
-          }
-          return isSelect
-        }, true)
+          const isSelectVariant = optionValues.reduce((isSelect, option) => {
+            if (
+              value[
+                Base64.encode(`attribute[${option.option_id}]`)
+              ].toString() !== (option.id || '').toString()
+            ) {
+              return false
+            }
+            return isSelect
+          }, true)
 
-        return isSelectVariant
-      }) || null
+          return isSelectVariant
+        }) || null
 
-    setVariantSku(variantInfo ? variantInfo.sku : '')
-    setVariantInfo(variantInfo)
-  }
+      setVariantSku(variantInfo ? variantInfo.sku : '')
+      setVariantInfo(variantInfo)
+    },
+    [formFields, product]
+  )
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
@@ -393,9 +397,11 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     }
 
     return () => subscription.unsubscribe()
-  }, [formFields])
+    // disabling as we don't need dispatchers or subscribers in the dep array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formFields, getProductVariantId])
 
-  const validateQuantityNumber = () => {
+  const validateQuantityNumber = useCallback(() => {
     const { purchasing_disabled: purchasingDisabled = true } = variantInfo || {}
 
     if (
@@ -410,15 +416,20 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     }
 
     return true
-  }
+    // disabling as b3Lang will render errors
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEnableProduct, type, variantInfo])
 
-  const getOptionList = (value: FieldValues) => {
-    const optionsData = getOptionRequestData(formFields, {}, value)
-    return Object.keys(optionsData).map((optionId) => ({
-      optionId,
-      optionValue: optionsData[optionId]?.toString(),
-    }))
-  }
+  const getOptionList = useCallback(
+    (value: FieldValues) => {
+      const optionsData = getOptionRequestData(formFields, {}, value)
+      return Object.keys(optionsData).map((optionId) => ({
+        optionId,
+        optionValue: optionsData[optionId]?.toString(),
+      }))
+    },
+    [formFields]
+  )
 
   useEffect(() => {
     if (cache?.current && isEqual(cache?.current, formValues)) {
@@ -472,7 +483,18 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         setChooseOptionsProduct(newChooseOptionsProduct)
       }
     }
-  }, [formValues, productPriceChangeOptions])
+  }, [
+    additionalProducts,
+    chooseOptionsProduct,
+    formFields.length,
+    formValues,
+    getOptionList,
+    product,
+    productPriceChangeOptions,
+    quantity,
+    validateQuantityNumber,
+    variantInfo,
+  ])
 
   useEffect(() => {
     const getNewProductPrice = async () => {
@@ -488,7 +510,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
           }
         }
       } catch (err) {
-        console.error(err)
+        b2bLogger.error(err)
       } finally {
         setIsRequestLoading(false)
       }
@@ -529,6 +551,8 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
     if (!isOpen) {
       reset()
     }
+    // disabling as reset does not change between renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   return (

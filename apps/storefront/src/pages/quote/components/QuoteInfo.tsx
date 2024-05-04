@@ -1,19 +1,19 @@
 import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 
-import { CustomButton } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { useMobile } from '@/hooks'
+import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes'
 
 import Container from '../style'
 
-interface GetValue {
+interface QuoteInfoItemType {
   [key: string]: string
 }
-
 interface InfoProps {
-  contactInfo: GetValue
-  shippingAddress: GetValue
-  billingAddress: GetValue
+  contactInfo: ContactInfo
+  shippingAddress: ShippingAddress
+  billingAddress: BillingAddress
   handleEditInfoClick?: () => void
   status?: string
 }
@@ -55,7 +55,7 @@ const addressKeys: Keys[] = [
 interface QuoteInfoItemProps {
   flag?: string
   title: string
-  info: GetValue
+  info: QuoteInfoItemType
   status?: string
 }
 
@@ -71,7 +71,7 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
 
   const isComplete =
     flag !== 'info'
-      ? addressVerifyKeys.some((item: string) => !!info[item])
+      ? addressVerifyKeys.some((item: string) => info && !!info[item])
       : false
 
   const infoPaddingLeft = flag === 'info' || isMobile ? 0 : '10px'
@@ -120,7 +120,7 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
             if (typeof list === 'string') {
               return (
                 <Typography key={list} variant="body1">
-                  {info[list] || ''}
+                  {(info && info[list]) || ''}
                 </Typography>
               )
             }
@@ -145,9 +145,9 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
 }
 
 function QuoteInfo({
-  contactInfo = {},
-  shippingAddress = {},
-  billingAddress = {},
+  contactInfo,
+  shippingAddress,
+  billingAddress,
   handleEditInfoClick,
   status,
 }: InfoProps) {
@@ -175,21 +175,21 @@ function QuoteInfo({
           title={b3Lang('quoteDraft.contactInfo.contact')}
           flag="info"
           status={status}
-          info={contactInfo}
+          info={contactInfo as unknown as QuoteInfoItemType}
         />
 
         <QuoteInfoItem
           title={b3Lang('global.quoteInfo.billing')}
           flag="Billing"
           status={status}
-          info={billingAddress}
+          info={billingAddress as unknown as QuoteInfoItemType}
         />
 
         <QuoteInfoItem
           title={b3Lang('global.quoteInfo.shipping')}
           flag="Shipping"
           status={status}
-          info={shippingAddress}
+          info={shippingAddress as unknown as QuoteInfoItemType}
         />
       </Box>
       {handleEditInfoClick && (

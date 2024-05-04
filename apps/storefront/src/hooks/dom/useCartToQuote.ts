@@ -5,9 +5,7 @@ import {
   useContext,
   useEffect,
 } from 'react'
-import { useSelector } from 'react-redux'
 import globalB3 from '@b3/global-b3'
-import type { OpenPageState } from '@b3/hooks'
 
 import {
   getContrastColor,
@@ -16,10 +14,12 @@ import {
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
+import { useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 import { B3SStorage, globalSnackbar } from '@/utils'
 
 import useGetButtonText from '../useGetButtonText'
+import useStorageState from '../useStorageState'
 
 import { addProductsFromCartToQuote } from './utils'
 
@@ -38,7 +38,7 @@ const useCartToQuote = ({
   setOpenPage,
   cartQuoteEnabled,
 }: MutationObserverProps) => {
-  const platform = useSelector(({ global }) => global.storeInfo.platform)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const { addToQuote, addLoadding } = addProductsFromCartToQuote(
     setOpenPage,
     platform
@@ -47,76 +47,84 @@ const useCartToQuote = ({
   const translationVarName = 'global.customStyles.addToAllQuoteBtn'
   const defaultButtonText = 'Add All To Quote'
 
+  const isShowBlockPendingAccountOrderCreationTipInit = {
+    cartTip: 0,
+    checkoutTip: 0,
+  }
+
+  const [
+    isShowBlockPendingAccountOrderCreationTip,
+    setIsShowBlockPendingAccountOrderCreationTip,
+  ] = useStorageState<IsShowBlockPendingAccountOrderCreationTipProps>(
+    'sf-isShowBlockPendingAccountOrderCreationTip',
+    isShowBlockPendingAccountOrderCreationTipInit,
+    sessionStorage
+  )
+
   const {
     state: { addToAllQuoteBtn },
   } = useContext(CustomStyleContext)
 
-  const {
-    state: { companyInfo },
-  } = useContext(GlobaledContext)
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
   const blockPendingAccountOrderCreation = B3SStorage.get(
     'blockPendingAccountOrderCreation'
   )
-
-  const urlArr = ['/cart.php', '/checkout']
 
   const checkIsInPage = (url: string) => window.location.href.includes(url)
 
   const { pathname } = window.location
 
-  const showPendingAccountTip = () => {
-    const isShowBlockPendingAccountOrderCreationTip: IsShowBlockPendingAccountOrderCreationTipProps =
-      B3SStorage.get('isShowBlockPendingAccountOrderCreationTip') || {
-        cartTip: 0,
-        checkoutTip: 0,
+  useEffect(() => {
+    const urlArr = ['/cart.php', '/checkout']
+
+    const showPendingAccountTip = () => {
+      if (!urlArr.includes(pathname)) return
+
+      if (companyStatus || !blockPendingAccountOrderCreation) return
+
+      if (
+        isShowBlockPendingAccountOrderCreationTip.cartTip &&
+        checkIsInPage(urlArr[0])
+      )
+        return
+
+      if (
+        isShowBlockPendingAccountOrderCreationTip.checkoutTip &&
+        checkIsInPage(urlArr[1])
+      )
+        return
+
+      if (checkIsInPage(urlArr[0])) {
+        globalSnackbar.warning(
+          'Your account is pending approval. Ordering will be enabled after account approval',
+          {
+            isClose: true,
+          }
+        )
       }
 
-    if (!urlArr.includes(pathname)) return
+      if (checkIsInPage(urlArr[1])) {
+        globalSnackbar.error(
+          'Your account is pending approval. Ordering will be enabled after account approval'
+        )
+      }
 
-    if (companyInfo.companyStatus === '') return
-
-    if (+companyInfo.companyStatus || !blockPendingAccountOrderCreation) return
-
-    if (
-      isShowBlockPendingAccountOrderCreationTip.cartTip &&
-      checkIsInPage(urlArr[0])
-    )
-      return
-
-    if (
-      isShowBlockPendingAccountOrderCreationTip.checkoutTip &&
-      checkIsInPage(urlArr[1])
-    )
-      return
-
-    if (checkIsInPage(urlArr[0])) {
-      globalSnackbar.warning(
-        'Your account is pending approval. Ordering will be enabled after account approval',
-        {
-          isClose: true,
-        }
-      )
+      setIsShowBlockPendingAccountOrderCreationTip({
+        cartTip:
+          +checkIsInPage(urlArr[0]) +
+          isShowBlockPendingAccountOrderCreationTip.cartTip,
+        checkoutTip:
+          +checkIsInPage(urlArr[1]) +
+          isShowBlockPendingAccountOrderCreationTip.checkoutTip,
+      })
     }
 
-    if (checkIsInPage(urlArr[1])) {
-      globalSnackbar.error(
-        'Your account is pending approval. Ordering will be enabled after account approval'
-      )
-    }
-
-    B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
-      cartTip:
-        +checkIsInPage(urlArr[0]) +
-        isShowBlockPendingAccountOrderCreationTip.cartTip,
-      checkoutTip:
-        +checkIsInPage(urlArr[1]) +
-        isShowBlockPendingAccountOrderCreationTip.checkoutTip,
-    })
-  }
-
-  useEffect(() => {
     showPendingAccountTip()
-  }, [pathname, blockPendingAccountOrderCreation])
+    // ignore to avoid adding state function otherwirse it will cause many renders of tip
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, blockPendingAccountOrderCreation, companyStatus])
 
   const quoteCallBbck = useCallback(() => {
     const b3CartToQuote = document.querySelector('.b2b-cart-to-quote')
@@ -126,7 +134,7 @@ const useCartToQuote = ({
       addLoadding(b3CartToQuote)
       addToQuote()
     }
-  }, [])
+  }, [addLoadding, addToQuote])
 
   const {
     color = '',
@@ -216,7 +224,19 @@ const useCartToQuote = ({
         cartQuoteBtnDom.removeEventListener('click', quoteCallBbck)
       }
     }
-  }, [cartQuoteEnabled, addToAllQuoteBtn])
+  }, [
+    cartQuoteEnabled,
+    addToAllQuoteBtn,
+    cartToQuoteBtnLabel,
+    classSelector,
+    color,
+    customCss,
+    customTextColor,
+    enabled,
+    locationSelector,
+    mediaBlocks,
+    quoteCallBbck,
+  ])
 }
 
 export default useCartToQuote

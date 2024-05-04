@@ -10,9 +10,12 @@ import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import concat from 'lodash-es/concat'
 
-import { B3CustomForm, B3Dialog } from '@/components'
+import { B3CustomForm } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
 import { GlobaledContext } from '@/shared/global'
 import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
+import { UserTypes } from '@/types'
 import { snackbar } from '@/utils'
 
 import {
@@ -39,8 +42,9 @@ function AddEditUser(
   ref: Ref<unknown> | undefined
 ) {
   const {
-    state: { currentChannelId, B3UserId },
+    state: { currentChannelId },
   } = useContext(GlobaledContext)
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
 
   const [open, setOpen] = useState<boolean>(false)
   const [type, setType] = useState<string>('')
@@ -77,7 +81,7 @@ function AddEditUser(
     if (userExtrafields.length === 0) {
       handleGetUsersFiles()
     }
-  }, [])
+  }, [userExtrafields.length])
 
   const handleGetExtrafieldsInfo = (selectedData: SelectedDataProps) => {
     const keyValue = Object.keys(selectedData)
@@ -103,7 +107,7 @@ function AddEditUser(
         setValue(item.name, editData[item.name])
       })
     }
-  }, [open, type])
+  }, [editData, open, setValue, type, usersFiles])
 
   const handleCancelClick = () => {
     usersFiles.forEach((item: UsersFilesProps) => {
@@ -128,7 +132,11 @@ function AddEditUser(
       channelId: currentChannelId,
     })
 
-    const isValid = [1, 2, 7].includes(userType)
+    const isValid = [
+      UserTypes.DOESNT_EXIST,
+      UserTypes.B2C,
+      UserTypes.CURRENT_B2B_COMPANY_DIFFERENT_CHANNEL,
+    ].includes(userType)
 
     if (!isValid) {
       setError('email', {
@@ -167,11 +175,8 @@ function AddEditUser(
             return
           }
 
-          if (userType === 7) {
+          if (userType === UserTypes.CURRENT_B2B_COMPANY_DIFFERENT_CHANNEL) {
             params.addChannel = true
-          }
-
-          if (userType === 7) {
             message = b3Lang('userManagement.userDetected', {
               email: data.email,
             })
@@ -217,7 +222,7 @@ function AddEditUser(
     const usersFiles = getUsersFiles(
       type,
       b3Lang,
-      type === 'edit' ? +B3UserId === +data.id : false
+      type === 'edit' ? b2bId === +data.id : false
     )
 
     const allUsersFiles = concat(usersFiles, userExtrafields)

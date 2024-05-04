@@ -18,7 +18,7 @@ import noop from 'lodash-es/noop'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import { currencyFormat, ordersCurrencyFormat } from '@/utils'
 import {
   getDisplayPrice,
@@ -41,7 +41,7 @@ interface FlexItemProps {
   }
 }
 
-const Flex = styled('div')(({ isHeader, isMobile }: FlexProps) => {
+const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
   const headerStyle = isHeader
     ? {
         borderBottom: '1px solid #D9DCE9',
@@ -161,14 +161,11 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
   } = props
 
   const [list, setList] = useState<ProductItem[]>([])
-
   const [isMobile] = useMobile()
-
   const b3Lang = useB3Lang()
-
-  const {
-    global: { showInclusiveTaxPrice },
-  } = store.getState()
+  const showInclusiveTaxPrice = useAppSelector(
+    ({ global }) => global.showInclusiveTaxPrice
+  )
 
   const getQuantity = (product: any) =>
     parseInt(product[quantityKey]?.toString() || '', 10) || ''
@@ -227,6 +224,8 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
   useEffect(() => {
     setCheckedArr(list)
+    // disabling because dispatchers are not supposed to be here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list])
 
   useEffect(() => {

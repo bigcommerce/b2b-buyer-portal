@@ -3,7 +3,10 @@ import { matchPath } from 'react-router-dom'
 
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
 import { getCustomerInfo } from '@/shared/service/bc'
-import { B3SStorage, isB2bTokenPage, logoutSession } from '@/utils'
+import { store, useAppSelector } from '@/store'
+import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
+import b2bLogger from '@/utils/b3Logger'
+import { isB2bTokenPage, logoutSession } from '@/utils/b3logout'
 
 const OrderList = lazy(() => import('../../pages/order/MyOrder'))
 
@@ -299,15 +302,28 @@ const denyInvoiceRoles = [4, 99, 100]
 
 const invoiceTypes = ['invoice?invoiceId', 'invoice?receiptId']
 
-const { hash, pathname, href } = window.location
-
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
-  const { isB2BUser, role, isAgenting, storefrontConfig, quoteConfig } =
-    globalState
+  const { storefrontConfig, quoteConfig } = globalState
+  const { company } = store.getState()
+  const { role } = company.customer
+  let isB2BUser = false
+
+  if (
+    company.customer.userType === UserTypes.MULTIPLE_B2C &&
+    company.companyInfo.status === CompanyStatus.APPROVED
+  ) {
+    isB2BUser = true
+  } else if (+company.customer.role === CustomerRole.SUPER_ADMIN) {
+    isB2BUser = true
+  }
+
   return routes.filter((item: RouteItem) => {
     const { permissions = [] } = item
+    const isAgenting = useAppSelector(
+      ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+    )
 
-    if (role === 3 && !isAgenting) {
+    if (role === CustomerRole.SUPER_ADMIN && !isAgenting) {
       return permissions.includes(4)
     }
 
@@ -317,14 +333,14 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
         storefrontConfig && storefrontConfig[item.configKey || '']
 
       if (item.configKey === 'quotes') {
-        if (role === 100) {
+        if (role === CustomerRole.GUEST) {
           const quoteGuest =
             quoteConfig.find(
               (config: QuoteConfigProps) => config.key === 'quote_for_guest'
             )?.value || '0'
           return quoteGuest === '1' && navListKey
         }
-        if (role === 99) {
+        if (role === CustomerRole.B2C) {
           const quoteIndividualCustomer =
             quoteConfig.find(
               (config: QuoteConfigProps) =>
@@ -338,18 +354,21 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
           (config: QuoteConfigProps) =>
             config.key === 'shopping_list_on_product_page'
         )?.extraFields
-        if (role === 100) {
+        if (role === CustomerRole.GUEST) {
           return shoppingListOnProductPage?.guest && navListKey
         }
-        if (role === 99) {
+        if (role === CustomerRole.B2C) {
           return shoppingListOnProductPage?.b2c && navListKey
         }
       }
       if (typeof navListKey === 'boolean') return navListKey
-      return permissions.includes(99)
+      return permissions.includes(CustomerRole.B2C)
     }
 
-    if (!permissions.includes(+role || 0) || !storefrontConfig) {
+    if (
+      !permissions.includes(+role || CustomerRole.ADMIN) ||
+      !storefrontConfig
+    ) {
       return false
     }
 
@@ -387,11 +406,15 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
 }
 
 const gotoAllowedAppPage = async (
-  role: number,
+  role: CustomerRole,
   gotoPage: (url: string) => void,
   isAccountEnter?: boolean
 ) => {
-  if (B3SStorage.get('isLogout') === '1') {
+  const { hash, pathname, href } = window.location
+  const currentState = store.getState()
+  const isLoggedIn =
+    currentState.company.customer || role !== CustomerRole.GUEST
+  if (!isLoggedIn) {
     gotoPage('/login?loginFlag=3&&closeIsLogout=1')
     return
   }
@@ -414,19 +437,19 @@ const gotoAllowedAppPage = async (
       return
     }
   } catch (err: unknown) {
-    console.log(err)
+    b2bLogger.error(err)
   }
 
   let url = hash.split('#')[1] || ''
   if (
-    (!url && role !== 100 && pathname.includes('account.php')) ||
+    (!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) ||
     isAccountEnter
   )
     switch (role) {
-      case 2:
+      case CustomerRole.JUNIOR_BUYER:
         url = '/shoppingLists'
         break
-      case 3:
+      case CustomerRole.SUPER_ADMIN:
         url = '/dashboard'
         break
       default:

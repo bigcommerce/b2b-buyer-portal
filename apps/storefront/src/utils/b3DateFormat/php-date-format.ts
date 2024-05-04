@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 interface DateSettings {
   days: string[]
   daysShort: string[]

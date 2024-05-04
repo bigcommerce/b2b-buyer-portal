@@ -1,30 +1,30 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
-import { B3SStorage } from '@/utils'
+import { useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
 
 interface UseMonitorBrowserBackProps {
   isOpen: boolean
-  role: number | string
 }
 
-const useMonitorBrowserBack = ({
-  isOpen,
-  role,
-}: UseMonitorBrowserBackProps) => {
+const useMonitorBrowserBack = ({ isOpen }: UseMonitorBrowserBackProps) => {
+  const role = useAppSelector(({ company }) => company.customer.role)
   const history = window.location
-  const isLogin = role !== 100
+  const isLogin = role !== CustomerRole.GUEST
+
+  const [isEnterB2BBuyerPortal, setIsEnterB2BBuyerPortal] = useState(false)
 
   useEffect(() => {
-    const isEnterB2BBuyerPortal = B3SStorage.get('isEnterB2BBuyerPortal')
-
     if (isOpen && !history.hash.includes('/pdp')) {
-      B3SStorage.set('isEnterB2BBuyerPortal', true)
+      setIsEnterB2BBuyerPortal(true)
     }
 
     if (!isOpen && isLogin && isEnterB2BBuyerPortal) {
       window.location.reload()
-      B3SStorage.set('isEnterB2BBuyerPortal', false)
+      setIsEnterB2BBuyerPortal(false)
     }
+    // disabling to avoid unnecessary renders when adding the missing dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history.href])
 }
 

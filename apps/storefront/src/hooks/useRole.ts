@@ -1,24 +1,26 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { GlobaledContext } from '@/shared/global'
+import { isB2BUserSelector, useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
 
 const useRole = () => {
-  const {
-    state: { isB2BUser, role, isAgenting },
-  } = useContext(GlobaledContext)
-
   const [roleText, setRoleText] = useState('')
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const getRole = (role: number, isAgenting: boolean) => {
     let roleStr = ''
     switch (role) {
-      case 100:
+      case CustomerRole.GUEST:
         roleStr = 'guest'
         break
-      case 99:
+      case CustomerRole.B2C:
         roleStr = 'b2c'
         break
-      case 3:
+      case CustomerRole.SUPER_ADMIN:
         roleStr = isAgenting ? 'b2b' : 'b2c'
         break
       default:

@@ -1,12 +1,14 @@
-import { useContext, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
-import { B3Dialog, B3Sping } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
+import B3Sping from '@/components/spin/B3Sping'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import { deleteUsers, getUsers } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
 import { snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -44,11 +46,14 @@ function Usermanagement() {
 
   const isExtraLarge = useCardListColumn()
 
-  const {
-    state: { companyInfo, role, salesRepCompanyId },
-  } = useContext(GlobaledContext)
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const companyInfo = useAppSelector(({ company }) => company.companyInfo)
 
-  const companyId = +role === 3 ? salesRepCompanyId : companyInfo?.id
+  const companyId =
+    +role === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id
   const isEnableBtnPermissions = role === 0 || role === 3
 
   const addEditUserRef = useRef<RefCurrntProps | null>(null)

@@ -1,26 +1,32 @@
 import { Dispatch, SetStateAction } from 'react'
 import globalB3 from '@b3/global-b3'
-import type { OpenPageState } from '@b3/hooks'
 
 import B3AddToQuoteTip from '@/components/B3AddToQuoteTip'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
 import { getCart } from '@/shared/service/bc/graphql/cart'
+import { store } from '@/store'
+import { OpenPageState } from '@/types/hooks'
+import {
+  B3LStorage,
+  B3SStorage,
+  getActiveCurrencyInfo,
+  getCookie,
+  globalSnackbar,
+  serialize,
+} from '@/utils'
+import {
+  getProductOptionList,
+  isAllRequiredOptionFilled,
+} from '@/utils/b3AddToShoppingList'
+import b2bLogger from '@/utils/b3Logger'
 import {
   addQuoteDraftProduce,
   addQuoteDraftProducts,
-  B3LStorage,
-  B3SStorage,
   calculateProductsPrice,
-  getActiveCurrencyInfo,
   getCalculatedProductPrice,
-  getCookie,
-  getProductOptionList,
-  globalSnackbar,
-  isAllRequiredOptionFilled,
   LineItems,
-  serialize,
   validProductQty,
-} from '@/utils'
+} from '@/utils/b3Product/b3Product'
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config'
 
@@ -181,9 +187,10 @@ const addProductsToDraftQuote = async (
     ({ sku, variantEntityId }) => sku || variantEntityId
   )
 
-  const companyId =
-    B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
-  const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+  const companyInfoId = store.getState().company.companyInfo.id
+  const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany.id
+  const companyId = companyInfoId || salesRepCompanyId
+  const { customerGroupId } = store.getState().company.customer
 
   const { currency_code: currencyCode } = getActiveCurrencyInfo()
 
@@ -275,7 +282,7 @@ const addProductsFromCartToQuote = (
 
       await addProductsToDraftQuote(cartProductsList, setOpenPage, entityId)
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       removeLoadding()
     }
@@ -314,11 +321,9 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
 
         return
       }
-
-      const companyId =
-        B3SStorage.get('B3CompanyInfo')?.id ||
-        B3SStorage.get('salesRepCompanyId')
-      const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+      const companyInfoId = store.getState().company.companyInfo.id
+      const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+      const { customerGroupId } = store.getState().company.customer
       const fn =
         +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
 
@@ -384,7 +389,7 @@ const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
         })
       }
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       removeLoadding()
     }

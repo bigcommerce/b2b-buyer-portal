@@ -172,7 +172,7 @@ export interface Product {
   availability: string
   orderQuantityMinimum: number
   orderQuantityMaximum: number
-  variants?: Partial<Variant>[]
+  variants?: Variant[]
   currencyCode: string
   imageUrl: string
   modifiers: Modifiers[]
@@ -180,7 +180,8 @@ export interface Product {
   optionsV3?: Modifiers[]
   allOptions?: Partial<AllOptionProps>[]
   productUrl: string
-  quantity: number | string
+  quantity: number
+  product_options?: ProductOptionsItem[]
   [key: string]: any
 }
 

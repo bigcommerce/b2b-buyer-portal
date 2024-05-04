@@ -12,16 +12,16 @@ import {
   getTaxZoneRates,
 } from '@/shared/service/b2b'
 import { getActiveBcCurrency } from '@/shared/service/bc'
+import { store } from '@/store/reducer'
 import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
-  setEnteredInclusive,
   setLoginLandingLocation,
   setShowInclusiveTaxPrice,
   setStoreInfo,
   setTaxZoneRates,
-  store,
-} from '@/store'
+} from '@/store/slices/global'
+import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs'
 import { B3SStorage } from '@/utils'
 
 interface StoreforntKeysProps {
@@ -318,7 +318,7 @@ const setStorefrontConfig = async (
     storefrontConfig: { config: storefrontConfig },
   } = await getStorefrontConfig()
   const { currencies } = await getCurrencies(currentChannelId)
-  store.dispatch(setEnteredInclusive(currencies.enteredInclusiveTax))
+  store.dispatch(setCurrencies(currencies))
 
   const {
     storefrontDefaultLanguage: { language },
@@ -339,21 +339,18 @@ const setStorefrontConfig = async (
     },
   } = await getActiveBcCurrency()
 
-  B3SStorage.set('currencies', currencies)
+  store.dispatch(
+    setActiveCurrency(
+      edges.find((item: CurrencyNodeProps) => item.node.isActive)
+    )
+  )
   B3SStorage.set('bcLanguage', langCode)
 
-  B3SStorage.set('enteredInclusiveTax', currencies.enteredInclusiveTax || false)
-  B3SStorage.set(
-    'activeCurrency',
-    edges.find((item: CurrencyNodeProps) => item.node.isActive)
-  )
   dispatch({
     type: 'common',
     payload: {
       storefrontConfig,
-      currencies,
       bcLanguage: langCode,
-      enteredInclusiveTax: currencies.enteredInclusiveTax || false,
     },
   })
 }

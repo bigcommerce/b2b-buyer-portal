@@ -3,7 +3,7 @@ import { useB3Lang } from '@b3/lang'
 import { Box, Card, CardContent, TextField, Typography } from '@mui/material'
 
 import { B3CollapseContainer } from '@/components'
-import { B3LStorage } from '@/utils'
+import { setDraftQuoteInfoNote, store } from '@/store'
 
 interface QuoteNoteProps {
   quoteStatus?: string | number
@@ -19,21 +19,17 @@ export default function QuoteNote(props: QuoteNoteProps) {
 
   const handleNoteTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     setNoteText(event?.target.value || '')
+    store.dispatch(setDraftQuoteInfoNote(event?.target.value || ''))
   }
 
   useEffect(() => {
-    const { note = '' } = B3LStorage.get('MyQuoteInfo') || {}
+    const note = store.getState().quoteInfo.draftQuoteInfo.note || ''
 
     setNoteText(note)
   }, [])
 
   useEffect(() => {
-    const quoteInfo = B3LStorage.get('MyQuoteInfo') || {}
-
-    B3LStorage.set('MyQuoteInfo', {
-      ...quoteInfo,
-      note: noteText,
-    })
+    store.dispatch(setDraftQuoteInfoNote(noteText || ''))
   }, [noteText])
 
   useEffect(() => {

@@ -1,26 +1,21 @@
 import { customerExists } from '@/shared/service/bc'
+import { store } from '@/store'
+import { clearCompanySlice } from '@/store/slices/company'
 
+import b2bLogger from './b3Logger'
 import { B3SStorage } from './b3Storage'
 
 export const logoutSession = () => {
-  B3SStorage.delete('B3UserId')
-  B3SStorage.delete('companyStatus')
-  B3SStorage.delete('B3Role')
-  B3SStorage.delete('B3CustomerInfo')
-  B3SStorage.delete('realRole')
-  B3SStorage.delete('B3CustomerInfo')
-  B3SStorage.delete('B3CustomerId')
+  store.dispatch(clearCompanySlice())
   B3SStorage.delete('nextPath')
-  B3SStorage.delete('B3EmailAddress')
 }
 
 export const isB2bTokenPage = (gotoUrl?: string) => {
-
   const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register', 'login']
 
   if (gotoUrl) {
     return !noB2bTokenPages.some((item: string) => gotoUrl.includes(item))
-  } 
+  }
 
   const { hash = '' } = window.location
 
@@ -36,9 +31,7 @@ export const isUserGotoLogin = async (gotoUrl: string) => {
   let isGotoLogin = false
   try {
     const {
-      data: {
-        customer
-      }
+      data: { customer },
     } = await customerExists()
 
     if (!customer && isB2bPage) {
@@ -46,7 +39,7 @@ export const isUserGotoLogin = async (gotoUrl: string) => {
       isGotoLogin = true
     }
   } catch (err: unknown) {
-    console.log(err)
+    b2bLogger.error(err)
   }
 
   return isGotoLogin

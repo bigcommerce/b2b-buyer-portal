@@ -2,7 +2,7 @@ import { useB3Lang } from '@b3/lang'
 import { Box, CardContent, styled, Typography } from '@mui/material'
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import { currencyFormatConvert } from '@/utils'
 import { getBCPrice } from '@/utils/b3Product/b3Product'
 
@@ -33,10 +33,9 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     displayDiscount,
   } = props
   const b3Lang = useB3Lang()
-
-  const {
-    global: { enteredInclusive: enteredInclusiveTax },
-  } = store.getState()
+  const enteredInclusiveTax = useAppSelector(
+    ({ global }) => global.enteredInclusive
+  )
 
   const {
     basePrice,

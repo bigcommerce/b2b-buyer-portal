@@ -1,11 +1,11 @@
-import { Dispatch, SetStateAction, useContext, useState } from 'react'
-import type { OpenPageState } from '@b3/hooks'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { Dialog, DialogActions, DialogContent } from '@mui/material'
 
-import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
+import useMobile from '@/hooks/useMobile'
+import { useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 
-import { CustomButton } from '..'
+import CustomButton from '../button/CustomButton'
 
 interface CheckoutTipProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>
@@ -16,10 +16,11 @@ function CheckoutTip(props: CheckoutTipProps) {
   const [open, setOpen] = useState<boolean>(true)
 
   const [isMobile] = useMobile()
+  const role = useAppSelector(({ company }) => company.customer.role)
 
-  const {
-    state: { role, isAgenting },
-  } = useContext(GlobaledContext)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const { href } = window.location
 

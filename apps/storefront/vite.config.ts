@@ -2,7 +2,7 @@
 /// <reference types="vitest" />
 import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
-import path from 'path' // eslint-disable-line
+import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig, loadEnv } from 'vite'
 
@@ -33,9 +33,13 @@ export default defineConfig(({ mode }) => {
           type: 'public' | 'asset'
         }
       ) {
+        const isCustom = env.VITE_ASSETS_ABSOLUTE_PATH !== undefined
+
         if (type === 'asset') {
           const name = filename.split('assets/')[1]
-          return `${assetsAbsolutePath[mode]}${name}`
+          return isCustom
+            ? `${env.VITE_ASSETS_ABSOLUTE_PATH}${name}`
+            : `${assetsAbsolutePath[mode]}${name}`
         }
 
         return undefined
@@ -56,10 +60,16 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'jsdom',
       coverage: {
+        provider: 'istanbul',
         reporter: ['text', 'html', 'clover', 'json'],
       },
       deps: {
         inline: ['react-intl'],
+      },
+      poolOptions: {
+        threads: {
+          singleThread: true,
+        },
       },
     },
     resolve: {
@@ -97,7 +107,6 @@ export default defineConfig(({ mode }) => {
           toolkit: ['@reduxjs/toolkit'],
           form: ['react-hook-form'],
           router: ['react-router-dom'],
-          store: ['@b3/store'],
           lodashEs: ['lodash-es'],
           dropzone: ['react-dropzone'],
           draggable: ['react-draggable'],
@@ -105,13 +114,12 @@ export default defineConfig(({ mode }) => {
           eReact: ['@emotion/react'],
           eStyled: ['@emotion/styled'],
         },
-        plugins: [
-          env.VITE_VISUALIZER === '1' &&
-            visualizer({
-              open: true,
-              gzipSize: true,
-              brotliSize: true,
-            }),
+        plugins: env.VITE_VISUALIZER === '1' && [
+          visualizer({
+            open: true,
+            gzipSize: true,
+            brotliSize: true,
+          }),
         ],
       },
     },

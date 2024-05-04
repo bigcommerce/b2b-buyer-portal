@@ -3,7 +3,7 @@ import { Resizable } from 'react-resizable'
 import { Box } from '@mui/material'
 import PDFObject from 'pdfobject'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { snackbar } from '@/utils'
 
 import { handlePrintPDF } from '../utils/pdf'
@@ -36,25 +36,26 @@ function PrintTempalte({ row }: PrintTempalteProps) {
   ) => {
     setHeight(size.height)
   }
-  const viewPrint = async () => {
-    setLoadding(true)
-    const { id: invoiceId } = row
-
-    const invoicePDFUrl = await handlePrintPDF(invoiceId)
-
-    if (!invoicePDFUrl) {
-      snackbar.error('pdf url resolution error')
-      return
-    }
-
-    if (!container?.current) return
-
-    PDFObject.embed(invoicePDFUrl, container.current)
-
-    setLoadding(false)
-  }
 
   useEffect(() => {
+    const viewPrint = async () => {
+      setLoadding(true)
+      const { id: invoiceId } = row
+
+      const invoicePDFUrl = await handlePrintPDF(invoiceId)
+
+      if (!invoicePDFUrl) {
+        snackbar.error('pdf url resolution error')
+        return
+      }
+
+      if (!container?.current) return
+
+      PDFObject.embed(invoicePDFUrl, container.current)
+
+      setLoadding(false)
+    }
+
     viewPrint()
 
     return () => {

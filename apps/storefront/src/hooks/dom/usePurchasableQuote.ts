@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { getB2BProductPurchasable } from '@/shared/service/b2b/graphql/product'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 
 interface MyMutationRecord extends MutationRecord {
   target: HTMLElement
@@ -23,12 +23,9 @@ const usePurchasableQuote = (openQuickView: boolean) => {
     inventoryTracking: false,
     purchasingDisabled: false,
   })
-
-  const {
-    global: {
-      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-    },
-  } = store.getState()
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
+  )
 
   const isOOStockPurchaseQuantity = (
     qty: number,
@@ -41,61 +38,61 @@ const usePurchasableQuote = (openQuickView: boolean) => {
     return false
   }
 
-  const callback = async (
-    newSkuValue: string,
-    isDetailOpen: boolean,
-    isInit?: boolean
-  ): Promise<void> => {
-    const modal = document.getElementById('modal') as HTMLElement
-
-    const dom = isDetailOpen ? document : modal
-    const productViewQty =
-      (dom.querySelector('[name="qty[]"]') as CustomFieldItems)?.value || 1
-
-    const productId = (
-      dom.querySelector('input[name=product_id]') as CustomFieldItems
-    )?.value
-
-    const {
-      productPurchasable: {
-        availability,
-        inventoryLevel,
-        inventoryTracking,
-        purchasingDisabled,
-      },
-    } = await getB2BProductPurchasable({
-      productId,
-      sku: newSkuValue || '',
-      isProduct: !!isInit,
-    })
-
-    const productPurchasable = {
-      availability: availability === 'available',
-      inventoryLevel,
-      inventoryTracking:
-        inventoryTracking === 'product' || inventoryTracking === 'variant',
-      purchasingDisabled,
-    }
-    if (productInfoRef?.current) {
-      productInfoRef.current = productPurchasable
-    }
-
-    const isOOStock = isOOStockPurchaseQuantity(
-      +productViewQty,
-      productPurchasable
-    )
-    if (
-      purchasingDisabled === '1' ||
-      isOOStock ||
-      availability !== 'available'
-    ) {
-      setBuyPurchasable(false)
-    } else {
-      setBuyPurchasable(true)
-    }
-  }
-
   useEffect(() => {
+    const callback = async (
+      newSkuValue: string,
+      isDetailOpen: boolean,
+      isInit?: boolean
+    ): Promise<void> => {
+      const modal = document.getElementById('modal') as HTMLElement
+
+      const dom = isDetailOpen ? document : modal
+      const productViewQty =
+        (dom.querySelector('[name="qty[]"]') as CustomFieldItems)?.value || 1
+
+      const productId = (
+        dom.querySelector('input[name=product_id]') as CustomFieldItems
+      )?.value
+
+      const {
+        productPurchasable: {
+          availability,
+          inventoryLevel,
+          inventoryTracking,
+          purchasingDisabled,
+        },
+      } = await getB2BProductPurchasable({
+        productId,
+        sku: newSkuValue || '',
+        isProduct: !!isInit,
+      })
+
+      const productPurchasable = {
+        availability: availability === 'available',
+        inventoryLevel,
+        inventoryTracking:
+          inventoryTracking === 'product' || inventoryTracking === 'variant',
+        purchasingDisabled,
+      }
+      if (productInfoRef?.current) {
+        productInfoRef.current = productPurchasable
+      }
+
+      const isOOStock = isOOStockPurchaseQuantity(
+        +productViewQty,
+        productPurchasable
+      )
+      if (
+        purchasingDisabled === '1' ||
+        isOOStock ||
+        availability !== 'available'
+      ) {
+        setBuyPurchasable(false)
+      } else {
+        setBuyPurchasable(true)
+      }
+    }
+
     const modal = document.getElementById('modal') as HTMLElement
 
     let productViewSku: Element | null =

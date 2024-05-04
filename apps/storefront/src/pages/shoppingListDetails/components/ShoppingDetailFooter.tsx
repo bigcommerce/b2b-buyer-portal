@@ -1,11 +1,11 @@
 import { MouseEvent, useContext, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import { ArrowDropDown, Delete } from '@mui/icons-material'
 import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material'
 import { v1 as uuid } from 'uuid'
 
-import { CustomButton, successTip } from '@/components'
+import { successTip } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
@@ -16,21 +16,20 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b/graphql/product'
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
+import { currencyFormat, getCookie, snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 import {
   addQuoteDraftProducts,
-  b3TriggerCartNumber,
   calculateProductListPrice,
-  currencyFormat,
-  getCookie,
-  snackbar,
   validProductQty,
-} from '@/utils'
+} from '@/utils/b3Product/b3Product'
 import {
   addlineItems,
   conversionProductsList,
   ProductsProps,
 } from '@/utils/b3Product/shared/config'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils'
 
 interface ShoppingDetailFooterProps {
@@ -77,18 +76,19 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const b3Lang = useB3Lang()
 
   const {
-    state: {
-      isAgenting,
-      productQuoteEnabled = false,
-      companyInfo: { id: companyId },
-      customer: { customerGroupId },
-    },
+    state: { productQuoteEnabled = false },
   } = useContext(GlobaledContext)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const companyId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
-
-  const { storeInfo } = useSelector(globalStateSelector)
 
   const cartEntityId = getCookie('cartId')
 
@@ -245,18 +245,16 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         getInventoryInfos?.variantSku || []
       )
 
-      const storePlatform = storeInfo?.platform
-
       if (validateSuccessArr.length !== 0) {
         const lineItems = addlineItems(validateSuccessArr)
         const deleteCartObject = deleteCartData(cartEntityId)
-        const cartInfo = await getCart(cartEntityId || '', storePlatform)
+        const cartInfo = await getCart(cartEntityId || '', platform)
         let res = null
         if (allowJuniorPlaceOrder && cartInfo.length) {
           await deleteCart(deleteCartObject)
-          res = await updateCart(cartInfo, lineItems, storePlatform)
+          res = await updateCart(cartInfo, lineItems, platform)
         } else {
-          res = await callCart(lineItems, storePlatform)
+          res = await callCart(lineItems, platform)
           b3TriggerCartNumber()
         }
         if (res && res.errors) {
@@ -463,7 +461,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         })
       }
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       setLoading(false)
     }

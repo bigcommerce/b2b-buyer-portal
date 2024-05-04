@@ -1,21 +1,22 @@
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider } from '@mui/material'
 import { v1 as uuid } from 'uuid'
 
-import { B3CollapseContainer, B3Upload, CustomButton } from '@/components'
+import { B3CollapseContainer, B3Upload } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
+import { snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 import {
   addQuoteDraftProducts,
-  B3SStorage,
   calculateProductListPrice,
-  snackbar,
   validProductQty,
-} from '@/utils'
+} from '@/utils/b3Product/b3Product'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
 
 import QuickAdd from '../../shoppingListDetails/components/QuickAdd'
@@ -30,12 +31,13 @@ interface AddToListProps {
 export default function AddToQuote(props: AddToListProps) {
   const { updateList, addToQuote, isB2BUser } = props
 
-  const {
-    state: {
-      companyInfo: { id: companyId },
-      customer: { customerGroupId },
-    },
-  } = useContext(GlobaledContext)
+  const companyId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
 
   const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -245,7 +247,7 @@ export default function AddToQuote(props: AddToListProps) {
             optionList: JSON.stringify(optionsList),
             productId,
             basePrice: variantItem.bc_calculated_price.as_entered,
-            tax:
+            taxPrice:
               variantItem.bc_calculated_price.tax_inclusive -
               variantItem.bc_calculated_price.tax_exclusive,
           },
@@ -269,14 +271,13 @@ export default function AddToQuote(props: AddToListProps) {
         snackbar.error(b3Lang('quoteDraft.notification.errorRangeProducts'))
       }
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleOpenUploadDiag = () => {
-    const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         b3Lang('quoteDraft.notification.businessAccountPendingActivation')

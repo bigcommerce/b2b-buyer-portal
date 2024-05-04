@@ -8,18 +8,23 @@ import {
 } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Alert, Box, ImageListItem } from '@mui/material'
 import isEmpty from 'lodash-es/isEmpty'
 
-import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
+import { B3Card, B3CustomForm } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { getCurrentCustomerInfo, loginjump, storeHash } from '@/utils'
+import { useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
+import { loginjump, storeHash } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
+import { getCurrentCustomerInfo } from '@/utils/loginInfo'
 
 import {
   createB2BCompanyUser,
@@ -38,7 +43,6 @@ import {
   Country,
   deCodeField,
   getAccountFormFields,
-  RegisterFields,
   RegisterFieldsItems,
   State,
   steps,
@@ -52,6 +56,7 @@ import {
   RegisteredImage,
   TipContent,
 } from './styled'
+import { RegisterFields } from './types'
 
 interface CustomerInfo {
   [k: string]: string
@@ -98,24 +103,24 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
   const {
     state: {
-      customerId,
-      customer: {
-        phoneNumber = '',
-        firstName = '',
-        lastName = '',
-        emailAddress = '',
-      } = {},
       storeName,
       logo,
       currentChannelId: channelId,
       blockPendingAccountOrderCreation,
       registerEnabled,
     },
-    dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 
   const navigate = useNavigate()
 
+  const customer = useAppSelector(({ company }) => company.customer)
+  const {
+    id: customerId,
+    firstName,
+    lastName,
+    emailAddress,
+    phoneNumber,
+  } = customer
   const { state, dispatch } = useContext(RegisteredContext)
 
   const {
@@ -141,6 +146,8 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     if (!registerEnabled) {
       navigate('/login')
     }
+    // disabling this rule as we don't need to add showLoading dispatcher and navigate fn into the dep array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registerEnabled])
 
   useEffect(() => {
@@ -243,11 +250,13 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
           })
         }
       } catch (e) {
-        console.error(e)
+        b2bLogger.error(e)
       }
     }
 
     getBCAdditionalFields()
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const {
@@ -259,53 +268,52 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     bcTob2bCompanyExtraFields = [],
   } = state
 
-  const handleCountryChange = (countryCode: string, stateCode = '') => {
-    const stateList =
-      countryList.find(
-        (country: Country) =>
-          country.countryCode === countryCode ||
-          country.countryName === countryCode
-      )?.states || []
-    const stateFields = bcTob2bAddressBasicFields.find(
-      (formFields: RegisterFields) => formFields.name === 'state'
-    )
+  useEffect(() => {
+    const handleCountryChange = (countryCode: string, stateCode = '') => {
+      const stateList =
+        countryList.find(
+          (country: Country) =>
+            country.countryCode === countryCode ||
+            country.countryName === countryCode
+        )?.states || []
+      const stateFields = bcTob2bAddressBasicFields.find(
+        (formFields: RegisterFields) => formFields.name === 'state'
+      )
 
-    if (stateFields) {
-      if (stateList.length > 0) {
-        stateFields.fieldType = 'dropdown'
-        stateFields.options = stateList
-      } else {
-        stateFields.fieldType = 'text'
-        stateFields.options = []
+      if (stateFields) {
+        if (stateList.length > 0) {
+          stateFields.fieldType = 'dropdown'
+          stateFields.options = stateList
+        } else {
+          stateFields.fieldType = 'text'
+          stateFields.options = []
+        }
       }
+
+      setValue(
+        'state',
+        stateCode &&
+          countryCode &&
+          (stateList.find((state: State) => state.stateCode === stateCode) ||
+            stateList.length === 0)
+          ? stateCode
+          : ''
+      )
+
+      dispatch({
+        type: 'stateList',
+        payload: {
+          stateList,
+          bcTob2bAddressBasicFields: [...bcTob2bAddressBasicFields],
+        },
+      })
     }
 
-    setValue(
-      'state',
-      stateCode &&
-        countryCode &&
-        (stateList.find((state: State) => state.stateCode === stateCode) ||
-          stateList.length === 0)
-        ? stateCode
-        : ''
-    )
-
-    dispatch({
-      type: 'stateList',
-      payload: {
-        stateList,
-        bcTob2bAddressBasicFields: [...bcTob2bAddressBasicFields],
-      },
-    })
-  }
-
-  const handleInitCountryAndState = () => {
-    const countryValue = getValues('country')
-    const stateValue = getValues('state')
-    handleCountryChange(countryValue, stateValue)
-  }
-
-  useEffect(() => {
+    const handleInitCountryAndState = () => {
+      const countryValue = getValues('country')
+      const stateValue = getValues('state')
+      handleCountryChange(countryValue, stateValue)
+    }
     handleInitCountryAndState()
 
     const subscription = watch((value, { name, type }) => {
@@ -315,6 +323,8 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       }
     })
     return () => subscription.unsubscribe()
+    // disabling as we only need to run this when countryList changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryList])
 
   const getFileUrl = async (
@@ -359,7 +369,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
 
       return fileList
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
       throw error
     }
   }
@@ -478,7 +488,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       setErrorMessage('')
       return true
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
       throw error
     }
   }
@@ -638,11 +648,11 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
               accountType: '1',
             },
           })
-          await getCurrentCustomerInfo(globalDispatch)
+          await getCurrentCustomerInfo()
           setShowFinishPage(true)
         }
       } catch (err: any) {
-        console.log(err)
+        b2bLogger.error(err)
         setErrorMessage(err?.message || err)
       } finally {
         showLoading(false)

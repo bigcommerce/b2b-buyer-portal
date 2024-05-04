@@ -6,7 +6,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { ArrowDropDown } from '@mui/icons-material'
@@ -22,7 +21,8 @@ import {
 } from '@mui/material'
 import { v1 as uuid } from 'uuid'
 
-import { CustomButton, successTip } from '@/components'
+import { successTip } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
@@ -32,20 +32,17 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
+import { activeCurrencyInfoSelector, useAppSelector } from '@/store'
+import { currencyFormat, getProductPriceIncTax, snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 import {
   addQuoteDraftProducts,
-  B3SStorage,
-  b3TriggerCartNumber,
   calculateProductListPrice,
-  currencyFormat,
-  getActiveCurrencyInfo,
-  getProductPriceIncTax,
   getValidOptionsList,
-  snackbar,
   validProductQty,
-} from '@/utils'
+} from '@/utils/b3Product/b3Product'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart } from '@/utils/cartUtils'
 
 import CreateShoppingList from '../../orderDetail/components/CreateShoppingList'
@@ -116,17 +113,15 @@ interface QuickOrderFooterProps {
 }
 
 function QuickOrderFooter(props: QuickOrderFooterProps) {
+  const { role, checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props
   const {
-    state: {
-      companyInfo: { id: companyId },
-      customer: { customerGroupId },
-      productQuoteEnabled = false,
-      shoppingListEnabled = false,
-    },
+    state: { productQuoteEnabled = false, shoppingListEnabled = false },
   } = useContext(GlobaledContext)
   const b3Lang = useB3Lang()
-
-  const { role, checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props
+  const companyInfoId = useAppSelector((state) => state.company.companyInfo.id)
+  const { currency_code: currencyCode } = useAppSelector(
+    activeCurrencyInfoSelector
+  )
 
   const isDesktopLimit = useMediaQuery('(min-width:1775px)')
   const [isMobile] = useMobile()
@@ -139,7 +134,10 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const [isShoppingListLoading, setIisShoppingListLoading] =
     useState<boolean>(false)
 
-  const { storeInfo } = useSelector(globalStateSelector)
+  const customerGroupId = useAppSelector(
+    (state) => state.company.customer.customerGroupId
+  )
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   const navigate = useNavigate()
 
@@ -233,10 +231,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         return
       }
 
-      const companyId =
-        B3SStorage.get('B3CompanyInfo')?.id ||
-        B3SStorage.get('salesRepCompanyId')
-      const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+      const companyId = companyInfoId
 
       const { productsSearch: getInventoryInfos } =
         await getVariantInfoByProductId({
@@ -247,9 +242,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const lineItems = handleSetCartLineItems(getInventoryInfos || [])
 
-      const storePlatform = storeInfo?.platform
-
-      const res = await callCart(lineItems, storePlatform)
+      const res = await callCart(lineItems, platform)
 
       if (res && !res.errors) {
         snackbar.success('', {
@@ -341,11 +334,9 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
-      const { currency_code: currencyCode } = getActiveCurrencyInfo()
-
       const { productsSearch } = await getProducts({
         productIds,
-        companyId,
+        companyId: companyInfoId,
         customerGroupId,
         currencyCode,
       })
@@ -449,7 +440,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         })
       }
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     } finally {
       setIsRequestLoading(false)
     }
@@ -563,7 +554,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       )
       handleShoppingClose(true)
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     } finally {
       setIisShoppingListLoading(false)
     }

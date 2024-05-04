@@ -1,74 +1,39 @@
-import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Delete, Edit } from '@mui/icons-material'
 import { Box, styled, TextField, Typography } from '@mui/material'
 import ceil from 'lodash-es/ceil'
 
-import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
+import PaginationTable from '@/components/table/PaginationTable'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import {
-  B3LStorage,
+  deleteProductFromDraftQuoteList,
+  setDraftProduct,
+  setDraftProductQuantity,
+  useAppDispatch,
+} from '@/store'
+import { Product } from '@/types'
+import { QuoteItem } from '@/types/quotes'
+import { currencyFormat, snackbar } from '@/utils'
+import {
   calculateProductListPrice,
-  currencyFormat,
+  getBCPrice,
+  getDisplayPrice,
   setModifierQtyPrice,
-  snackbar,
-} from '@/utils'
-import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
+} from '@/utils/b3Product/b3Product'
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
 
 import ChooseOptionsDialog from '../../shoppingListDetails/components/ChooseOptionsDialog'
 
 import QuoteTableCard from './QuoteTableCard'
 
-interface ListItem {
-  [key: string]: string
-}
-
-interface ProductInfoProps {
-  basePrice: number | string
-  baseSku: string
-  createdAt: number
-  discount: number | string
-  enteredInclusive: boolean
-  id: number | string
-  itemId: number
-  optionList: string
-  primaryImage: string
-  productId: number
-  productName: string
-  productUrl: string
-  quantity: number | string
-  tax: number | string
-  updatedAt: number
-  variantId: number
-  variantSku: string
-  productsSearch: CustomFieldItems
-}
-
-interface ListItemProps {
-  node: ProductInfoProps
-}
-
 interface ShoppingDetailTableProps {
   total: number
-  getQuoteTableDetails: any
+  items: any[]
   idEdit?: boolean
   isB2BUser: boolean
   updateSummary: () => void
-  updateList: () => void
-}
-
-interface SearchProps {
-  first?: number
-  offset?: number
-}
-
-interface PaginationTableRefProps extends HTMLInputElement {
-  getList: () => void
-  setList: (items?: ListItemProps[]) => void
-  getSelectedValue: () => void
-  refresh: () => void
 }
 
 const StyledQuoteTableContainer = styled('div')(() => ({
@@ -105,108 +70,58 @@ const StyledTextField = styled(TextField)(() => ({
     paddingRight: '6px',
   },
 }))
+const QUOTE_PRODUCT_QTY_MAX = 1000000
 
-function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
-  const {
-    total,
-    getQuoteTableDetails,
-    idEdit = true,
-    isB2BUser,
-    updateSummary,
-    updateList,
-  } = props
+function QuoteTable(props: ShoppingDetailTableProps) {
+  const { total, items, idEdit = true, isB2BUser, updateSummary } = props
   const b3Lang = useB3Lang()
-  const quoteProductQtyMaxLimit = 1000000
-
-  const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
-
+  const dispatch = useAppDispatch()
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false)
   const [optionsProduct, setOptionsProduct] = useState<any>(null)
-  const [optionsProductId, setOptionsProductId] = useState<number | string>('')
-  const [search, setSearch] = useState<SearchProps>({
-    first: 12,
-    offset: 0,
-  })
+  const [optionsProductId, setOptionsProductId] = useState<string>('')
 
   const handleUpdateProductQty = async (row: any, value: number | string) => {
     const product = await setModifierQtyPrice(row, +value)
 
-    const listItems = paginationTableRef.current?.getList() || []
-    const newListItems = listItems?.map((item: ListItemProps) => {
-      const { node } = item
-      const listItem = item
-      if (node?.id === (product as CustomFieldItems).id) {
-        ;(listItem as CustomFieldItems).node = product
-      }
-
-      return item
-    })
-
-    const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
-
-    const index = quoteDraftAllList.findIndex(
-      (item: CustomFieldItems) =>
-        item.node.id === (product as CustomFieldItems).id
+    dispatch(
+      setDraftProductQuantity({ id: product.id, quantity: product.quantity })
     )
-
-    quoteDraftAllList[index].node = product
-
-    B3LStorage.set('b2bQuoteDraftList', quoteDraftAllList)
-
-    paginationTableRef.current?.setList([...newListItems])
-    updateList()
     updateSummary()
   }
 
   const handleCheckProductQty = async (row: any, value: number | string) => {
     let newQty = ceil(+value)
-    if (newQty === +value && newQty >= 1 && newQty <= quoteProductQtyMaxLimit)
+    if (newQty === +value && newQty >= 1 && newQty <= QUOTE_PRODUCT_QTY_MAX)
       return
 
     if (+value < 1) {
       newQty = 1
     }
 
-    if (+value > quoteProductQtyMaxLimit) {
-      newQty = quoteProductQtyMaxLimit
+    if (+value > QUOTE_PRODUCT_QTY_MAX) {
+      newQty = QUOTE_PRODUCT_QTY_MAX
     }
 
     handleUpdateProductQty(row, newQty)
   }
 
-  const handleDeleteClick = (id: number | string) => {
-    const quoteDraftAllList = B3LStorage.get('b2bQuoteDraftList') || []
-
-    const index = quoteDraftAllList.findIndex(
-      (item: CustomFieldItems) => item.node.id === id
-    )
-
-    quoteDraftAllList.splice(index, 1)
-
-    B3LStorage.set('b2bQuoteDraftList', quoteDraftAllList)
-
-    paginationTableRef.current?.refresh()
-
+  const handleDeleteClick = (id: string) => {
+    dispatch(deleteProductFromDraftQuoteList(id))
     updateSummary()
   }
-
-  useImperativeHandle(ref, () => ({
-    getList: () => paginationTableRef.current?.getList(),
-    refreshList: () => paginationTableRef.current?.refresh(),
-  }))
 
   const handleChooseOptionsDialogCancel = () => {
     setSelectedOptionsOpen(false)
   }
 
-  const handleOpenProductEdit = (product: any, itemId: number | string) => {
+  const handleOpenProductEdit = (product: Product, itemId: string) => {
     setOptionsProduct(product)
     setOptionsProductId(itemId)
     setSelectedOptionsOpen(true)
   }
 
-  const getNewQuoteProduct = (products: CustomFieldItems[]) =>
+  const getNewQuoteProduct = (products: Product[]): QuoteItem[] =>
     products.map((product) => {
       const {
         variantId,
@@ -222,12 +137,11 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         calculatedTaxPrice = 0,
       } = product
 
-      const variantInfo =
-        variants.length === 1
-          ? variants[0]
-          : variants.find(
-              (item: CustomFieldItems) => item.variant_id === variantId
-            )
+      let [variantInfo] = variants
+      if (variants.length > 1) {
+        variantInfo =
+          variants.find((item) => item.variant_id === variantId) ?? variantInfo
+      }
 
       const { image_url: primaryImage = '', sku: variantSku } = variantInfo
 
@@ -238,8 +152,8 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         selectOptions = '[]'
       }
 
-      const taxExclusive = variantInfo.bc_calculated_price.tax_exclusive
-      const taxInclusive = variantInfo.bc_calculated_price.tax_inclusive
+      const taxExclusive = variantInfo.bc_calculated_price?.tax_exclusive || 0
+      const taxInclusive = variantInfo.bc_calculated_price?.tax_inclusive || 0
 
       const basePriceExclusiveTax = basePrice || taxExclusive
 
@@ -250,7 +164,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           basePrice: basePriceExclusiveTax,
           taxPrice: tax,
           optionList: selectOptions,
-          id,
+          id: id.toString(),
           primaryImage,
           productId,
           productName,
@@ -258,62 +172,46 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
             ...product,
             selectOptions,
           },
-          quantity,
+          quantity: +quantity,
           variantSku,
           calculatedTaxPrice,
           calculatedNoTaxPrice,
+          calculatedValue: {},
         },
       }
     })
 
-  const handleChooseOptionsDialogConfirm = async (
-    products: CustomFieldItems[]
-  ) => {
+  const handleChooseOptionsDialogConfirm = async (products: Product[]) => {
     await calculateProductListPrice(products)
     const newProducts = getNewQuoteProduct(products)
 
-    newProducts.forEach((product: CustomFieldItems) => {
+    newProducts.forEach((product) => {
       const {
         variantSku,
         productsSearch: { variants },
         basePrice,
       } = product.node
       const newProduct = product
-      const variantItem = variants.find(
-        (item: CustomFieldItems) => item.sku === variantSku
-      )
-
+      const variantItem = variants?.find((item) => item.sku === variantSku)
+      if (variantItem) {
+        newProduct.node.taxPrice =
+          variantItem.bc_calculated_price.tax_inclusive -
+          variantItem.bc_calculated_price.tax_exclusive
+      }
       newProduct.node.id = optionsProductId
 
       newProduct.node.basePrice = basePrice
-      newProduct.node.tax =
-        variantItem.bc_calculated_price.tax_inclusive -
-        variantItem.bc_calculated_price.tax_exclusive
     })
 
     setSelectedOptionsOpen(false)
 
-    const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
-
-    b2bQuoteDraftList.forEach((item: CustomFieldItems) => {
-      const listItem = item
-      if (item.node.id === optionsProductId) {
-        listItem.node = newProducts[0]?.node || {}
-      }
-    })
-
-    B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
-
-    updateList()
-
-    setSearch({
-      offset: 0,
-    })
+    dispatch(setDraftProduct({ id: optionsProductId, product: newProducts[0] }))
+    updateSummary()
 
     snackbar.success(b3Lang('quoteDraft.quoteTable.productUpdated'))
   }
 
-  const columnItems: TableColumnItem<ListItem>[] = [
+  const columnItems: TableColumnItem<QuoteItem['node']>[] = [
     {
       key: 'Product',
       title: b3Lang('quoteDraft.quoteTable.product'),
@@ -444,7 +342,7 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     {
       key: 'Total',
       title: b3Lang('quoteDraft.quoteTable.total'),
-      render: (row: CustomFieldItems) => {
+      render: (row) => {
         const { basePrice, quantity, taxPrice } = row
 
         const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
@@ -535,19 +433,17 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         </Typography>
       </Box>
 
-      <B3PaginationTable
-        ref={paginationTableRef}
+      <PaginationTable
         columnItems={columnItems}
         rowsPerPageOptions={[12, 24, 36]}
-        getRequestList={getQuoteTableDetails}
+        items={items}
         isCustomRender={false}
         hover
-        searchParams={search}
         labelRowsPerPage={b3Lang('quoteDraft.quoteTable.perPage')}
         showBorder={false}
         itemIsMobileSpacing={0}
         noDataText={b3Lang('quoteDraft.quoteTable.noProducts')}
-        renderItem={(row: ProductInfoProps, index?: number) => (
+        renderItem={(row: QuoteItem, index?: number) => (
           <QuoteTableCard
             len={total || 0}
             item={row}
@@ -566,7 +462,11 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         setIsLoading={setIsRequestLoading}
         product={optionsProduct}
         onCancel={handleChooseOptionsDialogCancel}
-        onConfirm={handleChooseOptionsDialogConfirm}
+        onConfirm={
+          handleChooseOptionsDialogConfirm as unknown as (
+            products: CustomFieldItems[]
+          ) => void
+        }
         isEdit
         isB2BUser={isB2BUser}
       />
@@ -574,4 +474,4 @@ function QuoteTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
   )
 }
 
-export default forwardRef(QuoteTable)
+export default QuoteTable

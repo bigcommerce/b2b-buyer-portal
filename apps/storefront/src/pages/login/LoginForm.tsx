@@ -2,7 +2,8 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { Box, Typography, useTheme } from '@mui/material'
 
-import { B3CustomForm, CustomButton } from '@/components'
+import { B3CustomForm } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
 
 import { getLoginFields, LoginConfig, LoginInfoInit } from './config'

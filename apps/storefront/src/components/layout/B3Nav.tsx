@@ -15,6 +15,7 @@ import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
 import { GlobaledContext } from '@/shared/global'
 import { getAllowedRoutes } from '@/shared/routes'
 import { RouteItem } from '@/shared/routes/routes'
+import { useAppSelector } from '@/store'
 import { B3SStorage } from '@/utils'
 
 import {
@@ -33,6 +34,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const b3Lang = useB3Lang()
 
   const { dispatch } = useContext(DynamicallyVariableedContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const { state: globalState } = useContext(GlobaledContext)
   const { quoteDetailHasNewMessages, registerEnabled } = globalState
@@ -56,8 +58,6 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   }
 
   const handleClick = (item: RouteItem) => {
-    const { role } = globalState
-
     if (role === 100) {
       dispatch({
         type: 'common',

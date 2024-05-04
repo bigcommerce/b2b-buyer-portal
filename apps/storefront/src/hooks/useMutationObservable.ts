@@ -22,6 +22,6 @@ const useMutationObservable = (
       return () => observer.disconnect()
     }
     return undefined
-  }, [cb, options])
+  }, [cb, element, options])
 }
 export default useMutationObservable

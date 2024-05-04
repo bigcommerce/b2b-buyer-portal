@@ -6,9 +6,7 @@ import {
   useEffect,
   useRef,
 } from 'react'
-import { useDispatch } from 'react-redux'
 import globalB3 from '@b3/global-b3'
-import type { OpenPageState } from '@b3/hooks'
 import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit'
 import cloneDeep from 'lodash-es/cloneDeep'
 
@@ -24,7 +22,13 @@ import {
 } from '@/constants'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
-import { setGlabolCommonState } from '@/store'
+import {
+  isB2BUserSelector,
+  setGlabolCommonState,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store'
+import { OpenPageState } from '@/types/hooks'
 
 import useGetButtonText from '../useGetButtonText'
 import useRole from '../useRole'
@@ -80,11 +84,12 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
 
   const cache = useRef({})
 
-  const storeDispatch = useDispatch()
+  const storeDispatch = useAppDispatch()
   const {
     dispatch,
-    state: { isB2BUser, shoppingListEnabled, registerEnabled },
+    state: { shoppingListEnabled, registerEnabled },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
 
   const [roleText] = useRole()
 
@@ -93,7 +98,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
       isOpen: true,
       openUrl: '/register',
     })
-  }, [])
+  }, [setOpenPage])
 
   const pdpCallBack = useCallback(
     ({ target }: { target: HTMLElement }) => {
@@ -112,6 +117,8 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         registerEnabled,
       })
     },
+    // Disabling the next line as dispatch is not required to be in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [role, registerEnabled]
   )
 
@@ -238,5 +245,14 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     shoppingListBtn,
     roleText,
     registerEnabled,
+    classSelector,
+    color,
+    customCss,
+    customTextColor,
+    enabled,
+    locationSelector,
+    mediaBlocks,
+    myShoppingListBtnLabel,
+    pdpCallBack,
   ])
 }

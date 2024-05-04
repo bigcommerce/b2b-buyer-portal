@@ -1,4 +1,4 @@
-import { ReactElement, useContext, useEffect, useRef, useState } from 'react'
+import { ReactElement, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import {
@@ -10,25 +10,26 @@ import {
 } from '@mui/material'
 import cloneDeep from 'lodash-es/cloneDeep'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { useMobile, useSort } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import {
   exportInvoicesAsCSV,
   getInvoiceList,
   getInvoiceStats,
 } from '@/shared/service/b2b'
+import { useAppSelector } from '@/store'
 import { InvoiceList, InvoiceListNode } from '@/types/invoice'
 import {
-  B3SStorage,
   currencyFormat,
   currencyFormatInfo,
   displayFormat,
   getUTCTimestamp,
+  handleGetCorrespondingCurrencyToken,
   snackbar,
 } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import B3Filter from '../../components/filter/B3Filter'
 
@@ -71,15 +72,15 @@ const initFilter = {
 function Invoice() {
   const currentDate = new Date().getTime()
   const b3Lang = useB3Lang()
-  const {
-    state: { role, isAgenting },
-  } = useContext(GlobaledContext)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const juniorOrSenior = +role === 1 || role === 2
   const navigate = useNavigate()
   const [isMobile] = useMobile()
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
-  const allCurrencies = B3SStorage.get('currencies')
   const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo()
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
@@ -151,21 +152,6 @@ function Invoice() {
     setFilterLists(copyCacheFilterList)
   }
 
-  const handleGetCorrespondingCurrency = (code: string) => {
-    const { currencies: currencyArr } = allCurrencies
-    let token = '$'
-    const correspondingCurrency =
-      currencyArr.find(
-        (currency: CustomFieldItems) => currency.currency_code === code
-      ) || {}
-
-    if (correspondingCurrency) {
-      token = correspondingCurrency.token
-    }
-
-    return token
-  }
-
   const handleStatisticsInvoiceAmount = async () => {
     try {
       setIsRequestLoading(true)
@@ -179,7 +165,7 @@ function Invoice() {
         setOverdueAmount(+overDueBalance.toFixed(decimalPlaces))
       }
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     } finally {
       setIsRequestLoading(false)
     }
@@ -263,7 +249,7 @@ function Invoice() {
 
       window.open(pdfUrl, '_blank', 'fullscreen=yes')
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     } finally {
       setIsRequestLoading(false)
     }
@@ -345,7 +331,7 @@ function Invoice() {
         window.open(invoicesExport?.url, '_blank')
       }
     } catch (err) {
-      console.error(err)
+      b2bLogger.error(err)
     } finally {
       setIsRequestLoading(false)
     }
@@ -426,6 +412,8 @@ function Invoice() {
     } else {
       setSelectedPay([])
     }
+    // ignore selectedPay cause it will trigger an useEffect loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkedArr])
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
@@ -568,7 +556,7 @@ function Invoice() {
         const { originalBalance } = item
         const originalAmount = (+originalBalance.value).toFixed(decimalPlaces)
 
-        const token = handleGetCorrespondingCurrency(originalBalance.code)
+        const token = handleGetCorrespondingCurrencyToken(originalBalance.code)
 
         return `${token}${originalAmount || 0}`
       },
@@ -582,7 +570,7 @@ function Invoice() {
         const { openBalance } = item
 
         const openAmount = (+openBalance.value).toFixed(decimalPlaces)
-        const token = handleGetCorrespondingCurrency(openBalance.code)
+        const token = handleGetCorrespondingCurrencyToken(openBalance.code)
 
         return `${token}${openAmount || 0}`
       },
@@ -631,7 +619,7 @@ function Invoice() {
                   position="start"
                   sx={{ padding: '8px 0', marginTop: '0 !important' }}
                 >
-                  {handleGetCorrespondingCurrency(currentCode)}
+                  {handleGetCorrespondingCurrencyToken(currentCode)}
                 </InputAdornment>
               ),
             }}
@@ -729,7 +717,9 @@ function Invoice() {
     }
 
     setExportCsvText(exportCsvTexts)
-  }, [checkedArr, filterData])
+    // disabling because of b3lang rendering errors
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkedArr, filterData, filterLists])
 
   const translatedFilterFormConfigs = filterFormConfig.map((element) => {
     const config = element
@@ -867,7 +857,9 @@ function Invoice() {
               setInvoiceId={setCurrentInvoiceId}
               handleOpenHistoryModal={setIsOpenHistorys}
               selectedPay={selectedPay}
-              handleGetCorrespondingCurrency={handleGetCorrespondingCurrency}
+              handleGetCorrespondingCurrency={
+                handleGetCorrespondingCurrencyToken
+              }
               addBottom={list.length - 1 === index}
             />
           )}

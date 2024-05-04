@@ -1,26 +1,9 @@
 import { useContext } from 'react'
-// import {
-//   styled,
-// } from '@mui/material/styles'
 import { Box, ImageListItem } from '@mui/material'
 
 import { STORE_DEFAULT_LOGO } from '@/constants'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
-
-// interface LogoProps {
-//   logoUrl: string,
-//   isMobile: boolean,
-// }
-
-// const Logo = styled('div')((props: LogoProps) => ({
-//   width: '100%',
-//   height: '100%',
-//   backgroundImage: `url(${props?.logoUrl || ''})`,
-//   backgroundSize: '100% 100%',
-//   backgroundRepeat: 'no-repeat',
-//   backgroundPosition: 'center',
-// }))
 
 export default function B3Logo() {
   const {

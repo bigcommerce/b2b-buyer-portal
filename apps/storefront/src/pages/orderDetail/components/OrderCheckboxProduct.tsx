@@ -159,10 +159,14 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
 
   useEffect(() => {
     setCheckedArr(list)
+    // Disabling this line as this dispatcher does not need to be in the dep array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list])
 
   useEffect(() => {
     setReturnArr(returnList)
+    // Disabling this line as this dispatcher does not need to be in the dep array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [returnList])
 
   return products.length > 0 ? (

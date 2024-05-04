@@ -24,7 +24,7 @@ const useHideGoogleCustomerReviews = (
       const parentElement = dom?.parentElement
       if (parentElement) parentElement.style.display = newVisibilityStyle
     })
-  }, [isOpen])
+  }, [isOpen, isMobile])
 }
 
 export default useHideGoogleCustomerReviews

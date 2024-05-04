@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react'
 import { Provider } from 'react-redux'
-import { setupStore } from '@b3/store'
+import { configureStore, ConfigureStoreOptions } from '@reduxjs/toolkit'
 import { cleanup, render, RenderOptions } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
@@ -16,22 +16,22 @@ const customRender = (ui: React.ReactElement, options = {}) =>
     wrapper: ({ children }) => children,
     ...options,
   })
-type SetupStoreParams = Parameters<typeof setupStore>[0]
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-  reducers: SetupStoreParams['reducers']
-  preloadedState?: SetupStoreParams['preloadedState']
+  reducer: ConfigureStoreOptions['reducer']
+  preloadedState?: ConfigureStoreOptions['preloadedState']
 }
 
 export const renderWithProviders = (
   ui: React.ReactElement,
-  { reducers, preloadedState, ...renderOptions }: ExtendedRenderOptions
+  { reducer, preloadedState, ...renderOptions }: ExtendedRenderOptions
 ) => {
-  const store = setupStore({
-    reducers,
+  const store = configureStore({
+    reducer,
     preloadedState,
-    middlewareOptions,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware(middlewareOptions),
   })
 
   function Wrapper({ children }: PropsWithChildren) {

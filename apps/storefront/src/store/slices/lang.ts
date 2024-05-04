@@ -1,32 +1,42 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
+import { persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
+
+import { getGlobalTranslations, getPageTranslations } from '../appAsyncThunks'
 
 export interface LangState {
   translations: Record<string, string>
+  fetchedPages: string[]
+  translationVersion: number
 }
 
 const initialState: LangState = {
-  translations: JSON.parse(localStorage.getItem('sf-translations') || '{}'),
+  translations: {},
+  fetchedPages: [],
+  translationVersion: 0,
 }
 
-const langSlice = createSlice({
+export const langSlice = createSlice({
   name: 'lang',
   initialState,
-  reducers: {
-    setTranslations: (
-      state,
-      { payload }: PayloadAction<LangState['translations']>
-    ) => {
-      state.translations = payload
-    },
-    updateTranslations: (
-      state,
-      { payload }: PayloadAction<LangState['translations']>
-    ) => {
-      state.translations = { ...state.translations, ...payload }
-    },
+  reducers: {},
+  extraReducers(builder) {
+    builder.addCase(getGlobalTranslations.fulfilled, (state, { payload }) => {
+      Object.entries(payload.globalTranslations).forEach(
+        ([key, translation]) => {
+          state.translations[key] = translation
+        }
+      )
+      state.translationVersion = payload.newVersion
+      state.fetchedPages = ['global']
+    })
+    builder.addCase(getPageTranslations.fulfilled, (state, { payload }) => {
+      Object.entries(payload.pageTranslations).forEach(([key, translation]) => {
+        state.translations[key] = translation
+      })
+      state.fetchedPages.push(payload.page)
+    })
   },
 })
 
-export const { setTranslations, updateTranslations } = langSlice.actions
-
-export default langSlice.reducer
+export default persistReducer({ key: 'lang', storage }, langSlice.reducer)

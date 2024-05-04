@@ -60,34 +60,12 @@ export interface OpenAPPParamsProps {
   shoppingListBtn: string
 }
 
-export interface TimeFormatProps {
-  display: string
-  export: string
-  extendedDisplay: string
-  offset: number
-}
-
 export interface GlobalState {
   isCheckout: boolean
   isCloseGotoBCHome: boolean
-  isB2BUser: boolean
-  customerId: number | string
-  customer: CustomerInfo
-  companyInfo: {
-    id: string | number
-    companyName: string | number
-    companyStatus: string | number
-  }
-  emailAddress: string
-  role: number | string
-  realRole: number | string
   logo: string
   isCompanyAccount: boolean
   isAgenting: boolean
-  salesRepCompanyId: string
-  salesRepCompanyName: string
-  salesRepCustomerGroupId: string
-  B3UserId: number | string
   tipMessage: TipMessagesProps
   addressConfig?: {
     key: string
@@ -114,14 +92,8 @@ export interface GlobalState {
   shoppingListEnabled: boolean
   registerEnabled: boolean
   quoteConfig: QuoteConfigProps[]
-  currencies: {
-    channelCurrencies: ChannelCurrenciesProps
-    currencies: CurrencyProps
-    enteredInclusiveTax: boolean
-  }
   openAPPParams: OpenAPPParamsProps
   showPageMask: boolean
-  timeFormat: TimeFormatProps
   enteredInclusiveTax: boolean
   blockPendingAccountOrderCreation: boolean
   quoteDetailHasNewMessages: boolean
@@ -129,37 +101,10 @@ export interface GlobalState {
   multiStorefrontEnabled: boolean
 }
 
-export const initState = {
+export const initState: GlobalState = {
   isCheckout: false,
   isCloseGotoBCHome: false,
-  isB2BUser: B3SStorage.get('isB2BUser') || false,
-  customerId: B3SStorage.get('B3CustomerId') || '',
-  B3UserId: B3SStorage.get('B3UserId') || '',
-  emailAddress: B3SStorage.get('B3EmailAddress') || '',
-  /* role:
-   * 0: admin, 1: senior 2: buyer, 3: super admin, 99: bc user, 100: guest
-   */
-  role:
-    B3SStorage.get('B3Role') || B3SStorage.get('B3Role') === 0
-      ? B3SStorage.get('B3Role')
-      : 100,
-  realRole: B3SStorage.get('realRole') || 100,
   isAgenting: B3SStorage.get('isAgenting') || false,
-  salesRepCompanyId: B3SStorage.get('salesRepCompanyId') || '',
-  salesRepCompanyName: B3SStorage.get('salesRepCompanyName') || '',
-  salesRepCustomerGroupId: B3SStorage.get('salesRepCustomerGroupId') || '',
-  customer: B3SStorage.get('loginCustomer') ||
-    B3SStorage.get('B3CustomerInfo') || {
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
-      emailAddress: '',
-    },
-  companyInfo: B3SStorage.get('B3CompanyInfo') || {
-    id: '',
-    companyName: '',
-    companyStatus: '',
-  },
   logo: '',
   bcLanguage: 'en',
   isCompanyAccount: false,
@@ -173,14 +118,12 @@ export const initState = {
   shoppingListEnabled: false,
   registerEnabled: true,
   quoteConfig: [],
-  currencies: B3SStorage.get('currencies') || {},
   openAPPParams: {
     quoteBtn: '',
     shoppingListBtn: '',
   },
   showPageMask: false,
-  timeFormat: B3SStorage.get('timeFormat') || {},
-  enteredInclusiveTax: B3SStorage.get('enteredInclusiveTax') || false,
+  enteredInclusiveTax: false,
   blockPendingAccountOrderCreation:
     B3SStorage.get('blockPendingAccountOrderCreation') || true,
   quoteDetailHasNewMessages: false,

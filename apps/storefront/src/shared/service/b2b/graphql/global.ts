@@ -3,11 +3,11 @@ import { convertArrayToGraphql, storeHash } from '@/utils'
 import B3Request from '../../request/b3Fetch'
 
 const getB2BTokenQl = (
-  currentCustomerJWTToken: string,
+  currentCustomerJWT: string,
   channelId: number
 ) => `mutation {
 	authorization(authData: {
-		bcToken: "${currentCustomerJWTToken}"
+		bcToken: "${currentCustomerJWT}"
 		channelId: ${channelId}
 	}) {
 		result {
@@ -199,11 +199,11 @@ const companyCreditConfig = () => `{
 }`
 
 export const getB2BToken = (
-  currentCustomerJWTToken: string,
+  currentCustomerJWT: string,
   channelId = 1
 ): CustomFieldItems =>
   B3Request.graphqlB2B({
-    query: getB2BTokenQl(currentCustomerJWTToken, channelId),
+    query: getB2BTokenQl(currentCustomerJWT, channelId),
   })
 
 export const getAgentInfo = (customerId: string | number): CustomFieldItems =>

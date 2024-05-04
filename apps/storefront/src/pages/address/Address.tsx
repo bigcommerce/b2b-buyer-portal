@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { useCardListColumn, useTableRef } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
@@ -12,7 +12,10 @@ import {
   getB2BCountries,
   getBCCustomerAddress,
 } from '@/shared/service/b2b'
+import { isB2BUserSelector, useAppSelector } from '@/store'
+import { CustomerRole } from '@/types'
 import { snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import B3Filter from '../../components/filter/B3Filter'
 import {
@@ -44,20 +47,21 @@ interface FilterSearchProps {
 }
 
 function Address() {
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const {
-    state: {
-      role,
-      isB2BUser,
-      isAgenting,
-      salesRepCompanyId,
-      companyInfo: { id: companyInfoId },
-      addressConfig,
-    },
+    state: { addressConfig },
     dispatch,
   } = useContext(GlobaledContext)
 
   const b3Lang = useB3Lang()
-
   const isExtraLarge = useCardListColumn()
   const [paginationTableRef] = useTableRef()
 
@@ -70,33 +74,43 @@ function Address() {
     search: '',
   })
 
-  const companyId = role === 3 && isAgenting ? salesRepCompanyId : companyInfoId
-  const hasAdminPermission = isB2BUser && (!role || (role === 3 && isAgenting))
-  const isBCPermission = !isB2BUser || (role === 3 && !isAgenting)
+  const companyId =
+    role === CustomerRole.SUPER_ADMIN && isAgenting
+      ? salesRepCompanyId
+      : companyInfoId
+  let hasAdminPermission = false
+  let isBCPermission = false
+
+  if (
+    isB2BUser &&
+    (!role || (role === CustomerRole.SUPER_ADMIN && isAgenting))
+  ) {
+    hasAdminPermission = true
+  }
+
+  if (!isB2BUser || (role === CustomerRole.SUPER_ADMIN && !isAgenting)) {
+    isBCPermission = true
+  }
 
   useEffect(() => {
-    if (addressFields.length === 0) {
-      const handleGetAddressFields = async () => {
-        const { countries } = await getB2BCountries()
+    const handleGetAddressFields = async () => {
+      const { countries } = await getB2BCountries()
 
-        setCountries(countries)
-
-        setIsRequestLoading(true)
-        try {
-          const addressFields = await getAddressFields(
-            !isBCPermission,
-            countries
-          )
-          setAddressFields(addressFields || [])
-        } catch (err) {
-          console.log(err)
-        } finally {
-          setIsRequestLoading(false)
-        }
+      setCountries(countries)
+      setIsRequestLoading(true)
+      try {
+        const addressFields = await getAddressFields(!isBCPermission, countries)
+        setAddressFields(addressFields || [])
+      } catch (err) {
+        b2bLogger.error(err)
+      } finally {
+        setIsRequestLoading(false)
       }
-
-      handleGetAddressFields()
     }
+
+    handleGetAddressFields()
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getAddressList = async (params = {}) => {
@@ -158,47 +172,48 @@ function Address() {
   const [isOpenDelete, setIsOpenDelete] = useState(false)
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>()
 
-  const getEditPermission = async () => {
-    if (isBCPermission) {
-      setEditPermission(true)
-      return
-    }
-    if (hasAdminPermission) {
-      try {
-        let configList = addressConfig
-        if (!configList) {
-          const { addressConfig: newConfig }: CustomFieldItems =
-            await getB2BAddressConfig()
-          configList = newConfig
+  useEffect(() => {
+    const getEditPermission = async () => {
+      if (isBCPermission) {
+        setEditPermission(true)
+        return
+      }
+      if (hasAdminPermission) {
+        try {
+          let configList = addressConfig
+          if (!configList) {
+            const { addressConfig: newConfig }: CustomFieldItems =
+              await getB2BAddressConfig()
+            configList = newConfig
 
-          dispatch({
-            type: 'common',
-            payload: {
-              addressConfig: configList,
-            },
-          })
+            dispatch({
+              type: 'common',
+              payload: {
+                addressConfig: configList,
+              },
+            })
+          }
+
+          const key = role === 3 ? 'address_sales_rep' : 'address_admin'
+
+          const editPermission =
+            (configList || []).find(
+              (config: AddressConfigItem) => config.key === 'address_book'
+            )?.isEnabled === '1' &&
+            (configList || []).find(
+              (config: AddressConfigItem) => config.key === key
+            )?.isEnabled === '1'
+
+          setEditPermission(editPermission)
+        } catch (error) {
+          b2bLogger.error(error)
         }
-
-        const key = role === 3 ? 'address_sales_rep' : 'address_admin'
-
-        const editPermission =
-          (configList || []).find(
-            (config: AddressConfigItem) => config.key === 'address_book'
-          )?.isEnabled === '1' &&
-          (configList || []).find(
-            (config: AddressConfigItem) => config.key === key
-          )?.isEnabled === '1'
-
-        setEditPermission(editPermission)
-      } catch (error) {
-        console.error(error)
       }
     }
-  }
-
-  useEffect(() => {
     getEditPermission()
-  }, [])
+    // Disabling the next line as dispatch is not required to be in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addressConfig, hasAdminPermission, isBCPermission, role])
 
   const handleCreate = () => {
     if (!editPermission) {

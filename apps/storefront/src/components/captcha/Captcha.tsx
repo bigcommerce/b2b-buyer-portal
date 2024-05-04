@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react'
-import { useSelector } from 'react-redux'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { themeFrameSelector } from '@/store'
+import { themeFrameSelector, useAppSelector } from '@/store'
 
 // eslint-disable-next-line
 import FRAME_HANDLER_CODE from './frameCaptchaCode.js?raw'
@@ -24,9 +23,11 @@ export interface CaptchaProps {
   onExpired?: () => void
 }
 
-export function loadCaptchaScript(iframeDocument: Document) {
+export function loadCaptchaScript(
+  iframeDocument: HTMLIFrameElement['contentDocument']
+) {
   if (
-    iframeDocument.head.querySelector(`script[src="${CAPTCHA_URL}"]`) === null
+    iframeDocument?.head.querySelector(`script[src="${CAPTCHA_URL}"]`) === null
   ) {
     const captchaScript = iframeDocument.createElement('script')
     captchaScript.src = CAPTCHA_URL
@@ -35,9 +36,11 @@ export function loadCaptchaScript(iframeDocument: Document) {
 }
 
 export function loadCaptchaWidgetHandlers(
-  iframeDocument: Document,
+  iframeDocument: HTMLIFrameElement['contentDocument'],
   widgetId: string
 ) {
+  if (!iframeDocument) return
+
   let code = FRAME_HANDLER_CODE
 
   CAPTCHA_VARIABLES.PREFIX = widgetId
@@ -58,34 +61,38 @@ export function loadCaptchaWidgetHandlers(
 export function generateWidgetId() {
   return `widget_${Date.now()}`
 }
+
 export function Captcha(props: CaptchaProps) {
   const { siteKey, theme, size, onSuccess, onError, onExpired } = props
-  const iframeDocument = useSelector(themeFrameSelector)
-  const widgetId = generateWidgetId()
+  const iframeDocument = useAppSelector(themeFrameSelector)
+  const widgetId = useMemo(() => generateWidgetId(), [])
   const initialized = useRef(false)
 
-  const onMessage = (event: MessageEvent) => {
-    if (event?.data?.startsWith(widgetId)) {
-      const message = event.data.slice(widgetId.length)
-      const data = JSON.parse(message)
-      switch (data.type) {
-        case CAPTCHA_VARIABLES.CAPTCHA_SUCCESS:
-          onSuccess?.()
-          break
+  const onMessage = useCallback(
+    (event: MessageEvent) => {
+      if (event?.data?.startsWith(widgetId)) {
+        const message = event.data.slice(widgetId.length)
+        const data = JSON.parse(message)
+        switch (data.type) {
+          case CAPTCHA_VARIABLES.CAPTCHA_SUCCESS:
+            onSuccess?.()
+            break
 
-        case CAPTCHA_VARIABLES.CAPTCHA_ERROR:
-          onError?.()
-          break
+          case CAPTCHA_VARIABLES.CAPTCHA_ERROR:
+            onError?.()
+            break
 
-        case CAPTCHA_VARIABLES.CAPTCHA_EXPIRED:
-          onExpired?.()
-          break
+          case CAPTCHA_VARIABLES.CAPTCHA_EXPIRED:
+            onExpired?.()
+            break
 
-        default:
-          break
+          default:
+            break
+        }
       }
-    }
-  }
+    },
+    [onError, onExpired, onSuccess, widgetId]
+  )
 
   useEffect(() => {
     if (iframeDocument === undefined || initialized.current) {
@@ -104,7 +111,7 @@ export function Captcha(props: CaptchaProps) {
         window.removeEventListener('message', onMessage)
       }
     }
-  }, [iframeDocument])
+  }, [iframeDocument, onMessage, widgetId])
 
   return (
     <div

@@ -1,6 +1,6 @@
 import { NavigateFunction } from 'react-router-dom'
 
-import { store } from '@/store'
+import { store } from '@/store/reducer'
 
 export const loginjump = (
   navigate: NavigateFunction,
@@ -11,7 +11,7 @@ export const loginjump = (
   } = store.getState()
   if (loginLandingLocation === '1' && !recordOpenHash) {
     navigate('/')
-    setOpenPageFn({
+    setOpenPageFn?.({
       isOpen: false,
       openUrl: '',
     })

@@ -7,7 +7,6 @@ import {
   useRef,
 } from 'react'
 import globalB3 from '@b3/global-b3'
-import type { OpenPageState } from '@b3/hooks'
 import cloneDeep from 'lodash-es/cloneDeep'
 
 import {
@@ -21,7 +20,16 @@ import {
   TRANSLATION_ADD_TO_QUOTE_VARIABLE,
 } from '@/constants'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { B3LStorage, setCartPermissions } from '@/utils'
+import {
+  resetDraftQuoteInfo,
+  resetDraftQuoteList,
+  setQuoteUserId,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store'
+import { CustomerRole } from '@/types'
+import { OpenPageState } from '@/types/hooks'
+import { setCartPermissions } from '@/utils'
 
 import useGetButtonText from '../useGetButtonText'
 
@@ -34,7 +42,6 @@ type DispatchProps = Dispatch<SetStateAction<OpenPageState>>
 interface MutationObserverProps {
   setOpenPage: DispatchProps
   productQuoteEnabled: boolean
-  B3UserId: number | string
   role: number | string
   customerId?: number | string
 }
@@ -42,39 +49,52 @@ interface MutationObserverProps {
 const useMyQuote = ({
   setOpenPage,
   productQuoteEnabled,
-  B3UserId,
   role,
 }: MutationObserverProps) => {
+  const dispatch = useAppDispatch()
+  const quoteDraftUserId = useAppSelector(
+    ({ quoteInfo }) => quoteInfo.draftQuoteInfo.userId
+  )
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
   useEffect(() => {
-    const quoteDraftUserId = B3LStorage.get('quoteDraftUserId')
-    const roles = [0, 1, 2, 3, 99]
-    const isLogin = roles.includes(+role)
+    const isLoginAndNotB2CAccount =
+      role !== CustomerRole.GUEST && role !== CustomerRole.B2C
 
-    if (isLogin && +quoteDraftUserId !== 0 && +quoteDraftUserId !== +B3UserId) {
-      B3LStorage.set('MyQuoteInfo', {})
-      B3LStorage.set('b2bQuoteDraftList', [])
-      B3LStorage.set('quoteDraftUserId', B3UserId || 0)
+    if (
+      quoteDraftUserId &&
+      isLoginAndNotB2CAccount &&
+      +quoteDraftUserId !== 0 &&
+      +quoteDraftUserId !== b2bId
+    ) {
+      dispatch(resetDraftQuoteInfo())
+      dispatch(resetDraftQuoteList())
+      if (typeof b2bId === 'number') {
+        dispatch(setQuoteUserId(b2bId))
+      }
     }
-  }, [B3UserId])
+    // ignore dispatch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [b2bId, role, quoteDraftUserId])
   const cache = useRef({})
   const {
     state: { addQuoteBtn, quoteOnNonPurchasableProductPageBtn },
   } = useContext(CustomStyleContext)
 
-  // const [isPurchasable, setPurchasable] = useState<boolean>(true)
-
-  // quote method and goto draft
+  // quote method and go to draft
   const { addToQuote, addLoadding } =
     addProductFromProductPageToQuote(setOpenPage)
 
-  const quoteCallBack = useCallback((e: React.MouseEvent) => {
-    const b3MyQuote = e.target as HTMLElement
-    const b2bLoading = document.querySelector('#b2b-div-loading')
-    if (b3MyQuote && !b2bLoading) {
-      addLoadding(b3MyQuote)
-      addToQuote(role, b3MyQuote)
-    }
-  }, [])
+  const quoteCallBack = useCallback(
+    (e: React.MouseEvent) => {
+      const b3MyQuote = e.target as HTMLElement
+      const b2bLoading = document.querySelector('#b2b-div-loading')
+      if (b3MyQuote && !b2bLoading) {
+        addLoadding(b3MyQuote)
+        addToQuote(role, b3MyQuote)
+      }
+    },
+    [role, addLoadding, addToQuote]
+  )
 
   const cd = () => {
     if (+role !== 2) {
@@ -141,7 +161,7 @@ const useMyQuote = ({
     })
   }
 
-  const addBtnStyle = () => {
+  const addBtnStyle = useCallback(() => {
     const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote')
     myQuoteBtn.forEach((quote: CustomFieldItems) => {
       const myQuote = quote
@@ -168,82 +188,97 @@ const useMyQuote = ({
         }`
       )
     })
-  }
+  }, [
+    classSelector,
+    color,
+    customCss,
+    customTextColor,
+    isBuyPurchasable,
+    mediaBlocks,
+    myQuoteBtnLabel,
+    noPuchasableQuoteClassSelector,
+    noPuchasableQuoteColor,
+    noPuchasableQuoteCustomCss,
+  ])
 
-  const purchasableQuote = (
-    CustomAddToQuoteAll: NodeListOf<Element> | never[],
-    addToQuoteAll: NodeListOf<Element>,
-    isBuyer: boolean
-  ) => {
-    const quoteNode = isBuyer
-      ? '.b2b-add-to-quote'
-      : '.b2b-add-to-no-puchasable-quote'
-    const quoteNodeStyle = isBuyer
-      ? 'b2b-add-to-quote'
-      : 'b2b-add-to-no-puchasable-quote'
+  useEffect(() => {
+    const purchasableQuote = (
+      CustomAddToQuoteAll: NodeListOf<Element> | never[],
+      addToQuoteAll: NodeListOf<Element>,
+      isBuyer: boolean
+    ) => {
+      const quoteNode = isBuyer
+        ? '.b2b-add-to-quote'
+        : '.b2b-add-to-no-puchasable-quote'
+      const quoteNodeStyle = isBuyer
+        ? 'b2b-add-to-quote'
+        : 'b2b-add-to-no-puchasable-quote'
 
-    if (document.querySelectorAll(quoteNode)?.length) {
-      const cacheQuoteDom = cache.current
+      if (document.querySelectorAll(quoteNode)?.length) {
+        const cacheQuoteDom = cache.current
 
-      const isAddStyle = Object.keys(cacheQuoteDom).every(
-        (key: string) =>
-          (cacheQuoteDom as CustomFieldItems)[key] ===
-          (addQuoteBtn as CustomFieldItems)[key]
-      )
-      if (!isAddStyle) {
-        addBtnStyle()
+        const isAddStyle = Object.keys(cacheQuoteDom).every(
+          (key: string) =>
+            (cacheQuoteDom as CustomFieldItems)[key] ===
+            (addQuoteBtn as CustomFieldItems)[key]
+        )
+        if (!isAddStyle) {
+          addBtnStyle()
+          cache.current = cloneDeep(addQuoteBtn)
+        }
+      }
+
+      if (isBuyPurchasable ? enabled : noPuchasableQuoteEnabled) {
+        ;(CustomAddToQuoteAll.length
+          ? CustomAddToQuoteAll
+          : addToQuoteAll
+        ).forEach((node: CustomFieldItems) => {
+          const children = node.parentNode.querySelectorAll(quoteNode)
+          if (!children.length) {
+            let myQuote: CustomFieldItems | null = null
+            myQuote = document.createElement('div')
+            myQuote.innerHTML = myQuoteBtnLabel
+            myQuote.setAttribute(
+              'style',
+              isBuyPurchasable ? customCss : noPuchasableQuoteCustomCss
+            )
+            myQuote.style.backgroundColor = isBuyPurchasable
+              ? color
+              : noPuchasableQuoteColor
+            myQuote.style.color = customTextColor
+            myQuote.setAttribute(
+              'class',
+              `${quoteNodeStyle} ${
+                isBuyPurchasable
+                  ? classSelector
+                  : noPuchasableQuoteClassSelector
+              }`
+            )
+
+            setMediaStyle(
+              mediaBlocks,
+              `${quoteNodeStyle} ${
+                isBuyPurchasable
+                  ? classSelector
+                  : noPuchasableQuoteClassSelector
+              }`
+            )
+            if (CustomAddToQuoteAll.length) {
+              node.appendChild(myQuote)
+            } else {
+              node.parentNode.appendChild(myQuote)
+            }
+            myQuote.addEventListener('click', quoteCallBack, {
+              capture: true,
+            })
+          }
+        })
         cache.current = cloneDeep(addQuoteBtn)
+      } else {
+        clearQuoteDom()
       }
     }
 
-    if (isBuyPurchasable ? enabled : noPuchasableQuoteEnabled) {
-      ;(CustomAddToQuoteAll.length
-        ? CustomAddToQuoteAll
-        : addToQuoteAll
-      ).forEach((node: CustomFieldItems) => {
-        const children = node.parentNode.querySelectorAll(quoteNode)
-        if (!children.length) {
-          let myQuote: CustomFieldItems | null = null
-          myQuote = document.createElement('div')
-          myQuote.innerHTML = myQuoteBtnLabel
-          myQuote.setAttribute(
-            'style',
-            isBuyPurchasable ? customCss : noPuchasableQuoteCustomCss
-          )
-          myQuote.style.backgroundColor = isBuyPurchasable
-            ? color
-            : noPuchasableQuoteColor
-          myQuote.style.color = customTextColor
-          myQuote.setAttribute(
-            'class',
-            `${quoteNodeStyle} ${
-              isBuyPurchasable ? classSelector : noPuchasableQuoteClassSelector
-            }`
-          )
-
-          setMediaStyle(
-            mediaBlocks,
-            `${quoteNodeStyle} ${
-              isBuyPurchasable ? classSelector : noPuchasableQuoteClassSelector
-            }`
-          )
-          if (CustomAddToQuoteAll.length) {
-            node.appendChild(myQuote)
-          } else {
-            node.parentNode.appendChild(myQuote)
-          }
-          myQuote.addEventListener('click', quoteCallBack, {
-            capture: true,
-          })
-        }
-      })
-      cache.current = cloneDeep(addQuoteBtn)
-    } else {
-      clearQuoteDom()
-    }
-  }
-
-  useEffect(() => {
     if (!productQuoteEnabled) {
       clearQuoteDom()
       clearNoPuchasableQuoteDom()
@@ -285,7 +320,27 @@ const useMyQuote = ({
         item.removeEventListener('click', quoteCallBack)
       })
     }
-  }, [openQuickView, productQuoteEnabled, addQuoteBtn, isBuyPurchasable])
+  }, [
+    openQuickView,
+    productQuoteEnabled,
+    addQuoteBtn,
+    isBuyPurchasable,
+    locationSelector,
+    noPuchasableQuoteLocationSelector,
+    quoteCallBack,
+    addBtnStyle,
+    classSelector,
+    color,
+    customCss,
+    customTextColor,
+    enabled,
+    mediaBlocks,
+    myQuoteBtnLabel,
+    noPuchasableQuoteClassSelector,
+    noPuchasableQuoteColor,
+    noPuchasableQuoteCustomCss,
+    noPuchasableQuoteEnabled,
+  ])
 }
 
 export default useMyQuote

@@ -1,4 +1,5 @@
 import { getUsersExtraFieldsInfo } from '@/shared/service/b2b'
+import b2bLogger from '@/utils/b3Logger'
 
 interface B2bExtraFieldsProps {
   defaultValue: string
@@ -97,7 +98,7 @@ const getB2BUserExtraFields = async () => {
 
     userExtraFieldsList = formattedUserExtraFields
   } catch (err) {
-    console.error(err)
+    b2bLogger.error(err)
   }
 
   return userExtraFieldsList

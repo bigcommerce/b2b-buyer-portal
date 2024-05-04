@@ -1,6 +1,4 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 
 import { HeadlessRoutes } from '@/constants'
@@ -15,42 +13,23 @@ import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
 import B3Request from '@/shared/service/request/b3Fetch'
 import {
-  B3LStorage,
-  B3SStorage,
-  endMasquerade,
-  getCurrentCustomerInfo,
-  LineItems,
-  startMasquerade,
-} from '@/utils'
+  formatedQuoteDraftListSelector,
+  isB2BUserSelector,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store'
+import { setB2BToken } from '@/store/slices/company'
+import { OpenPageState } from '@/types/hooks'
+import { QuoteItem } from '@/types/quotes'
 import CallbackManager from '@/utils/b3Callbacks'
+import { LineItems } from '@/utils/b3Product/b3Product'
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
-
-interface QuoteDraftItem {
-  node: {
-    basePrice: string
-    id: string
-    optionList: string
-    primaryImage: string
-    productId: number
-    productName: string
-    quantity: number
-    taxPrice: string
-    variantId: number
-    variantSku: string
-    calculatedValue: Record<
-      string,
-      string | number | Array<string | number> | Record<string, string | number>
-    >
-    productsSearch: Record<
-      string,
-      string | number | Array<string | number> | Record<string, string | number>
-    >
-  }
-}
+import { getCurrentCustomerInfo } from '@/utils/loginInfo'
+import { endMasquerade, startMasquerade } from '@/utils/masquerade'
 
 export interface FormatedQuoteItem
   extends Omit<
-    QuoteDraftItem['node'],
+    QuoteItem['node'],
     'optionList' | 'calculatedValue' | 'productsSearch'
   > {
   optionSelections: {
@@ -87,54 +66,14 @@ export type ProductMappedAttributes = ReturnType<
   typeof transformOptionSelectionsToAttributes
 >
 
-const getDraftQuote = () => {
-  const itemsList: QuoteDraftItem[] = B3LStorage.get('b2bQuoteDraftList')
-  let productList: FormatedQuoteItem[] = []
-
-  if (itemsList.length) {
-    productList = itemsList.map(
-      ({
-        node: { optionList, calculatedValue, productsSearch, ...restItem },
-      }) => {
-        const parsedOptionList: Record<string, string>[] =
-          JSON.parse(optionList)
-        const optionSelections = parsedOptionList.map(
-          ({ optionId, optionValue }) => {
-            const optionIdFormated = optionId.match(/\d+/)
-            return {
-              optionId: optionIdFormated?.length
-                ? +optionIdFormated[0]
-                : optionId,
-              optionValue: +optionValue,
-            }
-          }
-        )
-        return {
-          ...restItem,
-          optionSelections,
-        }
-      }
-    )
-  }
-
-  return { productList }
-}
-
 export default function HeadlessController({
   setOpenPage,
 }: HeadlessControllerProps) {
-  const storeDispatch = useDispatch()
+  const storeDispatch = useAppDispatch()
   const b3Lang = useB3Lang()
 
   const {
-    dispatch,
     state: {
-      customerId,
-      role,
-      customer,
-      B3UserId,
-      salesRepCompanyId = 0,
-      isB2BUser,
       currentChannelId,
       registerEnabled,
       productQuoteEnabled,
@@ -142,7 +81,16 @@ export default function HeadlessController({
       shoppingListEnabled,
     },
   } = useContext(GlobaledContext)
-  const platform = useSelector(({ global }) => global.storeInfo.platform)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const customer = useAppSelector(({ company }) => company.customer)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const productList = useAppSelector(formatedQuoteDraftListSelector)
+  const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken)
+
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
   } = useContext(CustomStyleContext)
@@ -167,8 +115,8 @@ export default function HeadlessController({
     })
   }
 
+  const customerId = customer.id
   // Keep updated values
-  const B3UserIdRef = useRef(+B3UserId)
   const salesRepCompanyIdRef = useRef(+salesRepCompanyId)
   const customerIdRef = useRef(customerId)
   const customerRef = useRef(customer)
@@ -182,7 +130,6 @@ export default function HeadlessController({
   const shoppingListBtnRef = useRef(shoppingListBtn)
   const addToAllQuoteBtnRef = useRef(addToAllQuoteBtn)
 
-  B3UserIdRef.current = +B3UserId
   salesRepCompanyIdRef.current = +salesRepCompanyId
   customerIdRef.current = customerId
   customerRef.current = customer
@@ -214,7 +161,7 @@ export default function HeadlessController({
             addProductsToDraftQuote([item], setOpenPage),
           addProductsFromCart: () => addProductsFromCart(),
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
-          getCurrent: getDraftQuote,
+          getCurrent: () => ({ productList }),
           getButtonInfo: () => ({
             ...addQuoteBtnRef.current,
             enabled: productQuoteEnabledRef.current,
@@ -227,10 +174,16 @@ export default function HeadlessController({
         user: {
           getProfile: () => ({ ...customerRef.current, role }),
           getMasqueradeState: async () => {
+            if (typeof customerRef.current.b2bId !== 'number') {
+              return {
+                current_company_id: salesRepCompanyIdRef.current,
+                companies: [],
+              }
+            }
             // get companies list
             const {
               superAdminCompanies: { edges: companies = [] },
-            } = await superAdminCompanies(B3UserIdRef.current, {
+            } = await superAdminCompanies(customerRef.current.b2bId, {
               first: 50,
               offset: 0,
               orderBy: 'companyId',
@@ -243,26 +196,27 @@ export default function HeadlessController({
               ),
             }
           },
-          getB2BToken: () => B3SStorage.get('B2BToken') || '',
-          setMasqueradeCompany: (companyId) =>
+          getB2BToken: () => B2BToken,
+          setMasqueradeCompany: (companyId) => {
+            if (typeof customerRef.current.b2bId !== 'number') return
             startMasquerade({
-              dispatch,
               companyId,
-              B3UserId: B3UserIdRef.current,
+              b2bId: customerRef.current.b2bId,
               customerId: customerIdRef.current,
-            }),
-          endMasquerade: () =>
+            })
+          },
+          endMasquerade: () => {
+            if (typeof customerRef.current.b2bId !== 'number') return
             endMasquerade({
-              dispatch,
-              salesRepCompanyId: salesRepCompanyIdRef.current,
-              B3UserId: B3UserIdRef.current,
-            }),
+              b2bId: customerRef.current.b2bId,
+            })
+          },
           graphqlBCProxy: B3Request.graphqlBCProxy,
           loginWithB2BStorefrontToken: async (
             b2bStorefrontJWTToken: string
           ) => {
-            B3SStorage.set('B2BToken', b2bStorefrontJWTToken)
-            await getCurrentCustomerInfo(dispatch, b2bStorefrontJWTToken)
+            storeDispatch(setB2BToken(b2bStorefrontJWTToken))
+            await getCurrentCustomerInfo(b2bStorefrontJWTToken)
           },
         },
         shoppingList: {
@@ -304,7 +258,9 @@ export default function HeadlessController({
         },
       },
     }
-  }, [])
+    // disabling because we don't want to run this effect on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productList, B2BToken])
 
   return null
 }

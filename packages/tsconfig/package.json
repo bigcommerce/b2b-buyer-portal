@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "main": "index.js",
+  "scripts": {
+    "lint": "prettier --check .",
+    "format": "yarn lint --write"
+  },
   "files": [
     "base.json",
     "react-library.json"

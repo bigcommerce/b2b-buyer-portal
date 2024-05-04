@@ -3,6 +3,8 @@ import format from 'date-fns/format'
 
 import { getLineNumber, validatorRules } from '@/utils'
 
+import { RegisterFields } from './types'
+
 const inputFormat = 'yyyy-MM-dd'
 
 export interface QuoteConfig {
@@ -12,13 +14,6 @@ export interface QuoteConfig {
 export interface ValidateOptions extends Record<string, any> {
   max?: string | number
   min?: string | number
-}
-export interface RegisterFields extends Record<string, any> {
-  name: string
-  label?: string
-  required?: boolean
-  fieldType?: string
-  default?: string | Array<any> | number
 }
 
 interface ValidateOptionItems extends Record<string, any> {
@@ -395,8 +390,6 @@ export const getAccountFormFields = (
   }
   return {}
 }
-
-// todo
 
 export const companyAttachmentsFields = (
   b3lang: LangFormatFunction

@@ -1,8 +1,9 @@
 import {
   convertArrayToGraphql,
   convertObjectToGraphql,
-} from '../../../../utils'
-import { storeHash } from '../../../../utils/basicConfig'
+  storeHash,
+} from '@/utils'
+
 import B3Request from '../../request/b3Fetch'
 
 const getQuotesList = (data: CustomFieldItems, type: string) => `{

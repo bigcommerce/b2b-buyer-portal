@@ -10,7 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box, Grid, useTheme } from '@mui/material'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
@@ -25,11 +25,15 @@ import {
   updateBcShoppingList,
 } from '@/shared/service/b2b'
 import {
+  activeCurrencyInfoSelector,
+  isB2BUserSelector,
+  useAppSelector,
+} from '@/store'
+import { snackbar } from '@/utils'
+import {
   calculateProductListPrice,
-  getActiveCurrencyInfo,
-  snackbar,
-} from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+  getBCPrice,
+} from '@/utils/b3Product/b3Product'
 import {
   conversionProductsList,
   CustomerInfoProps,
@@ -80,17 +84,20 @@ interface ShoppingListDetailsContentProps {
 function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const { id = '' } = useParams()
   const {
-    state: {
-      role,
-      companyInfo: { id: companyInfoId },
-      isB2BUser,
-      currentChannelId,
-      isAgenting,
-      openAPPParams,
-      customer: { customerGroupId },
-      productQuoteEnabled = false,
-    },
+    state: { currentChannelId, openAPPParams, productQuoteEnabled = false },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const { currency_code: currencyCode } = useAppSelector(
+    activeCurrencyInfoSelector
+  )
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const navigate = useNavigate()
   const [isMobile] = useMobile()
   const { dispatch } = useContext(ShoppingListDetailsContext)
@@ -133,8 +140,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
     navigate('/shoppingLists')
   }
 
-  const { currency_code: currencyCode } = getActiveCurrencyInfo()
-
   useEffect(() => {
     dispatch({
       type: 'init',
@@ -142,6 +147,8 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
         id: parseInt(id, 10) || 0,
       },
     })
+    // disabling as we dont need a dispatcher here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
@@ -215,8 +222,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
     const listProducts = await handleGetProductsById(edges)
 
     await calculateProductListPrice(listProducts, '2')
-
-    // const listProducts = await getNewProductsList(edges, isB2BUser)
 
     if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo)
     setShoppingListInfo(shoppingListDetailInfo)

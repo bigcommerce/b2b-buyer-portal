@@ -63,7 +63,7 @@ describe('Captcha', () => {
         <Captcha siteKey={TEST_SITE_KEY} theme="dark" size="normal" />
       </ThemeFrame>,
       {
-        reducers: { theme },
+        reducer: { theme },
       }
     )
     vi.advanceTimersToNextTimer()

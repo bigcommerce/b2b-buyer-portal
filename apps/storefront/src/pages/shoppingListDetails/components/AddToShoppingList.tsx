@@ -4,13 +4,16 @@ import { useB3Lang } from '@b3/lang'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 
-import { B3Upload, CustomButton } from '@/components'
+import { B3Upload } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
 } from '@/shared/service/b2b'
-import { B3SStorage, getValidOptionsList, snackbar } from '@/utils'
+import { useAppSelector } from '@/store'
+import { snackbar } from '@/utils'
+import { getValidOptionsList } from '@/utils/b3Product/b3Product'
 
 import { getAllModifierDefaultValue } from '../../../utils/b3Product/shared/config'
 import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'
@@ -29,6 +32,9 @@ export default function AddToShoppingList(props: AddToListProps) {
     state: { id },
   } = useContext(ShoppingListDetailsContext)
 
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
   const { updateList, isB2BUser, type: pageType = '' } = props
   const b3Lang = useB3Lang()
 
@@ -224,7 +230,6 @@ export default function AddToShoppingList(props: AddToListProps) {
   }
 
   const handleOpenUploadDiag = () => {
-    const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.'

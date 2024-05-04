@@ -4,7 +4,7 @@ import { useB3Lang } from '@b3/lang'
 import { Box, Button, Grid } from '@mui/material'
 import copy from 'copy-to-clipboard'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import {
@@ -15,14 +15,17 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { store, TaxZoneRates, TaxZoneRatesProps } from '@/store'
 import {
-  getActiveCurrencyInfo,
-  getSearchVal,
-  getVariantInfoOOSAndPurchase,
-  snackbar,
-} from '@/utils'
+  activeCurrencyInfoSelector,
+  isB2BUserSelector,
+  TaxZoneRates,
+  useAppSelector,
+} from '@/store'
+import { Currency } from '@/types'
+import { snackbar } from '@/utils'
+import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product'
 import { conversionProductsList } from '@/utils/b3Product/shared/config'
+import { getSearchVal } from '@/utils/loginInfo'
 
 import Message from './components/Message'
 import QuoteAttachment from './components/QuoteAttachment'
@@ -40,15 +43,20 @@ function QuoteDetail() {
   const navigate = useNavigate()
 
   const {
-    state: {
-      companyInfo: { id: companyInfoId },
-      role,
-      customer: { emailAddress, customerGroupId },
-      isB2BUser,
-      isAgenting,
-      bcLanguage,
-    },
+    state: { bcLanguage },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const emailAddress = useAppSelector(
+    ({ company }) => company.customer.emailAddress
+  )
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const [isMobile] = useMobile()
 
   const b3Lang = useB3Lang()
@@ -69,24 +77,21 @@ function QuoteDetail() {
   })
   const [isRequestLoading, setIsRequestLoading] = useState(false)
   const [isShowFooter, setIsShowFooter] = useState(false)
-  const { currency_code: currencyCode } = getActiveCurrencyInfo()
-
   const [quoteDetailTax, setQuoteDetailTax] = useState(0)
-
   const [noBuyerProductName, setNoBuyerProductName] = useState({
     oos: '',
     nonPurchasable: '',
   })
 
   const location = useLocation()
-
-  const {
-    global: {
-      taxZoneRates,
-      enteredInclusive: enteredInclusiveTax,
-      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-    },
-  } = store.getState()
+  const currency = useAppSelector(activeCurrencyInfoSelector)
+  const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates)
+  const enteredInclusiveTax = useAppSelector(
+    ({ global }) => global.enteredInclusive
+  )
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct
+  )
 
   useEffect(() => {
     let oosErrorList = ''
@@ -131,6 +136,8 @@ function QuoteDetail() {
       oos: oosErrorList,
       nonPurchasable: nonPurchasableErrorList,
     })
+    // disabling since b3Lang is a dependency that will trigger rendering issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEnableProduct, isHandleApprove, productList])
 
   const proceedingCheckoutFn = useCallback(() => {
@@ -151,11 +158,13 @@ function QuoteDetail() {
         )
     }
     return isHideQuoteCheckout
+    // disabling as b3Lang is a dependency that will trigger rendering issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHideQuoteCheckout, noBuyerProductName])
 
   const classRates: TaxZoneRates[] = []
-  if (taxZoneRates.length) {
-    const defaultTaxZone: TaxZoneRatesProps = taxZoneRates.find(
+  if (taxZoneRates?.length) {
+    const defaultTaxZone = taxZoneRates?.find(
       (taxZone: { id: number }) => taxZone.id === 1
     )
     if (defaultTaxZone) {
@@ -197,6 +206,7 @@ function QuoteDetail() {
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
       try {
+        const { currency_code: currencyCode } = currency as Currency
         const { productsSearch } = await getProducts({
           productIds,
           currencyCode,
@@ -409,59 +419,59 @@ function QuoteDetail() {
     }
   }
 
-  const tip = () => (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      <Box
-        sx={{
-          mr: '15px',
-        }}
-      >
-        {+role === 100
-          ? b3Lang('quoteDetail.submittedQuote')
-          : b3Lang('quoteDetail.quoteSubmitted')}
-      </Box>
-      <Button
-        onClick={() => {
-          if (+role === 100) {
-            copy(window.location.href)
-            snackbar.success(b3Lang('quoteDetail.copySuccessful'))
-          } else {
-            navigate('/quotes')
-          }
-        }}
-        variant="text"
-        sx={{
-          color: '#ffffff',
-          textAlign: 'left',
-          padding: 0,
-        }}
-      >
-        {+role === 100
-          ? b3Lang('quoteDetail.copyQuoteLink')
-          : b3Lang('quoteDetail.reviewAllQuotes')}
-      </Button>
-    </Box>
-  )
-
   useEffect(() => {
     const { state } = location
 
-    if (state) {
-      setTimeout(() => {
-        snackbar.success('', {
-          jsx: () => tip(),
-          isClose: true,
-          duration: 30000,
-        })
-      }, 10)
-      location.state = null
-    }
-  }, [])
+    if (!state) return
+    const tip = () => (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            mr: '15px',
+          }}
+        >
+          {+role === 100
+            ? b3Lang('quoteDetail.submittedQuote')
+            : b3Lang('quoteDetail.quoteSubmitted')}
+        </Box>
+        <Button
+          onClick={() => {
+            if (+role === 100) {
+              copy(window.location.href)
+              snackbar.success(b3Lang('quoteDetail.copySuccessful'))
+            } else {
+              navigate('/quotes')
+            }
+          }}
+          variant="text"
+          sx={{
+            color: '#ffffff',
+            textAlign: 'left',
+            padding: 0,
+          }}
+        >
+          {+role === 100
+            ? b3Lang('quoteDetail.copyQuoteLink')
+            : b3Lang('quoteDetail.reviewAllQuotes')}
+        </Button>
+      </Box>
+    )
+
+    setTimeout(() => {
+      snackbar.success('', {
+        jsx: () => tip(),
+        isClose: true,
+        duration: 30000,
+      })
+    }, 10)
+    location.state = null
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, navigate, role])
 
   const isEnableProductShowCheckout = () => {
     if (isEnableProduct) {

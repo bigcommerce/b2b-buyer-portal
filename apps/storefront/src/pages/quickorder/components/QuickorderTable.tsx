@@ -1,20 +1,12 @@
-import {
-  Dispatch,
-  ReactElement,
-  SetStateAction,
-  useContext,
-  useRef,
-  useState,
-} from 'react'
+import { Dispatch, ReactElement, SetStateAction, useRef, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Box, styled, TextField, Typography } from '@mui/material'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile, useSort } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import {
   getBcOrderedProducts,
   getOrderedProducts,
@@ -22,10 +14,14 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b'
 import {
+  activeCurrencyInfoSelector,
+  isB2BUserSelector,
+  useAppSelector,
+} from '@/store'
+import {
   currencyFormat,
   displayFormat,
   distanceDay,
-  getActiveCurrencyInfo,
   getProductPriceIncTax,
   snackbar,
 } from '@/utils'
@@ -56,7 +52,7 @@ interface ProductInfoProps {
   productName: string
   productUrl: string
   quantity: number | string
-  tax: number | string
+  taxPrice: number
   updatedAt: number
   variantId: number
   variantSku: string
@@ -134,13 +130,11 @@ function QuickorderTable({
 }: QuickorderTableProps) {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 
-  const {
-    state: {
-      isB2BUser,
-      companyInfo: { id: companyInfoId },
-      customer: { customerGroupId },
-    },
-  } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
 
   const [search, setSearch] = useState<SearchProps>({
     q: '',
@@ -162,7 +156,9 @@ function QuickorderTable({
 
   const b3Lang = useB3Lang()
 
-  const { currency_code: currencyCode } = getActiveCurrencyInfo()
+  const { currency_code: currencyCode } = useAppSelector(
+    activeCurrencyInfoSelector
+  )
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {

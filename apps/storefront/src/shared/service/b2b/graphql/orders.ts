@@ -1,10 +1,5 @@
 import B3Request from '../../request/b3Fetch'
 
-// import {
-//   convertArrayToGraphql,
-//   storeHash,
-// } from '../../../../utils'
-
 const allOrders = (data: CustomFieldItems, fn: string) => `{
   ${fn}(
     search: "${data.q || ''}"

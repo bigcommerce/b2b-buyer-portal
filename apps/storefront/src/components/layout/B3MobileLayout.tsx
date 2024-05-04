@@ -3,8 +3,7 @@ import { Close, Dehaze, ShoppingBagOutlined } from '@mui/icons-material'
 import { Badge, Box } from '@mui/material'
 
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 
 import CompanyCredit from '../CompanyCredit'
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
@@ -22,20 +21,21 @@ export default function B3MobileLayout({
   title: string
 }) {
   const [isOpenMobileSidebar, setOpenMobileSidebar] = useState<boolean>(false)
-  const openRouteList = () => {
-    setOpenMobileSidebar(true)
-  }
-
-  const {
-    state: { isAgenting, role },
-  } = useContext(GlobaledContext)
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext)
-  const { global } = store.getState()
+
+  const openRouteList = () => {
+    setOpenMobileSidebar(true)
+  }
 
   const customColor = getContrastColor(backgroundColor)
 
@@ -46,7 +46,6 @@ export default function B3MobileLayout({
         p: '4vw',
         display: 'flex',
         flexDirection: 'column',
-        // marginBottom: isAgenting ? '52px' : '0',
       }}
     >
       <Box
@@ -69,7 +68,7 @@ export default function B3MobileLayout({
         ) : (
           <>
             <Badge
-              badgeContent={global?.cartNumber}
+              badgeContent={cartNumber}
               max={1000}
               sx={{
                 '& .MuiBadge-badge': {
@@ -123,9 +122,6 @@ export default function B3MobileLayout({
           flex: 1,
           display: 'flex',
           paddingBottom: isAgenting ? '52px' : '0',
-          // marginBottom: isAgenting ? '-52px' : '0',
-          // position: 'relative',
-          // overflow: 'hidden',
         }}
       >
         {children}

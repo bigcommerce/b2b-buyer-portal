@@ -1,6 +1,7 @@
 import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react'
 
-import { Country, RegisterFields, State } from '../config'
+import { Country, State } from '../config'
+import { RegisterFields } from '../types'
 
 interface RegisterState {
   contactInformation?: Array<RegisterFields>

@@ -4,11 +4,11 @@ import { useB3Lang } from '@b3/lang'
 import { ArrowBackIosNew } from '@mui/icons-material'
 import { Box, Grid, Stack, Typography } from '@mui/material'
 
-import { B3Sping } from '@/components'
 import {
   b3HexToRgb,
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
@@ -19,6 +19,8 @@ import {
   getBcOrderStatusType,
   getOrderStatusType,
 } from '@/shared/service/b2b'
+import { isB2BUserSelector, useAppSelector } from '@/store'
+import b2bLogger from '@/utils/b3Logger'
 
 import {
   AddressConfigItem,
@@ -49,6 +51,8 @@ interface LocationState {
 }
 
 function OrderDetail() {
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+
   const params = useParams()
 
   const navigate = useNavigate()
@@ -56,7 +60,7 @@ function OrderDetail() {
   const b3Lang = useB3Lang()
 
   const {
-    state: { isB2BUser, addressConfig },
+    state: { addressConfig },
     dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 
@@ -91,41 +95,6 @@ function OrderDetail() {
     setOrderId(params.id || '')
   }, [params])
 
-  const getOrderDetails = async () => {
-    const id = parseInt(orderId, 10)
-    if (!id) {
-      return
-    }
-
-    setIsRequestLoading(true)
-
-    try {
-      const req = isB2BUser ? getB2BOrderDetails : getBCOrderDetails
-      const res: OrderDetailsResponse = await req(id)
-
-      const order = res[isB2BUser ? 'order' : 'customerOrder']
-
-      if (order) {
-        const data = isB2BUser
-          ? convertB2BOrderDetails(order, b3Lang)
-          : convertBCOrderDetails(order, b3Lang)
-        dispatch({
-          type: 'all',
-          payload: data,
-        })
-        setPreOrderId(orderId)
-      }
-    } catch (err) {
-      if (err === 'order does not exist') {
-        setTimeout(() => {
-          window.location.hash = `/orderDetail/${preOrderId}`
-        }, 1000)
-      }
-    } finally {
-      setIsRequestLoading(false)
-    }
-  }
-
   const goToOrders = () => {
     navigate(
       `${
@@ -136,62 +105,102 @@ function OrderDetail() {
     )
   }
 
-  const getOrderStatus = async () => {
-    const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
-    const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses'
-    const orderStatuses: OrderStatusResponse = await fn()
-    dispatch({
-      type: 'statusType',
-      payload: {
-        orderStatus: orderStatuses[orderStatusesName],
-      },
-    })
-  }
-
   useEffect(() => {
     if (orderId) {
+      const getOrderDetails = async () => {
+        const id = parseInt(orderId, 10)
+        if (!id) {
+          return
+        }
+
+        setIsRequestLoading(true)
+
+        try {
+          const req = isB2BUser ? getB2BOrderDetails : getBCOrderDetails
+          const res: OrderDetailsResponse = await req(id)
+
+          const order = res[isB2BUser ? 'order' : 'customerOrder']
+
+          if (order) {
+            const data = isB2BUser
+              ? convertB2BOrderDetails(order, b3Lang)
+              : convertBCOrderDetails(order, b3Lang)
+            dispatch({
+              type: 'all',
+              payload: data,
+            })
+            setPreOrderId(orderId)
+          }
+        } catch (err) {
+          if (err === 'order does not exist') {
+            setTimeout(() => {
+              window.location.hash = `/orderDetail/${preOrderId}`
+            }, 1000)
+          }
+        } finally {
+          setIsRequestLoading(false)
+        }
+      }
+
+      const getOrderStatus = async () => {
+        const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
+        const orderStatusesName = isB2BUser
+          ? 'orderStatuses'
+          : 'bcOrderStatuses'
+        const orderStatuses: OrderStatusResponse = await fn()
+        dispatch({
+          type: 'statusType',
+          payload: {
+            orderStatus: orderStatuses[orderStatusesName],
+          },
+        })
+      }
+
       getOrderDetails()
       getOrderStatus()
     }
-  }, [orderId])
+    // Disabling rule since dispatch does not need to be in the dep array and b3Lang has rendering errors
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isB2BUser, orderId, preOrderId])
 
   const handlePageChange = (orderId: string | number) => {
     setOrderId(orderId.toString())
   }
 
-  const getAddressLabelPermission = async () => {
-    try {
-      let configList = addressConfig
-      if (!configList) {
-        const { addressConfig: newConfig }: CustomFieldItems =
-          await getB2BAddressConfig()
-        configList = newConfig
+  useEffect(() => {
+    const getAddressLabelPermission = async () => {
+      try {
+        let configList = addressConfig
+        if (!configList) {
+          const { addressConfig: newConfig }: CustomFieldItems =
+            await getB2BAddressConfig()
+          configList = newConfig
 
-        globalDispatch({
-          type: 'common',
+          globalDispatch({
+            type: 'common',
+            payload: {
+              addressConfig: configList,
+            },
+          })
+        }
+
+        const permission =
+          (configList || []).find(
+            (config: AddressConfigItem) => config.key === 'address_label'
+          )?.isEnabled === '1'
+        dispatch({
+          type: 'addressLabel',
           payload: {
-            addressConfig: configList,
+            addressLabelPermission: permission,
           },
         })
+      } catch (error) {
+        b2bLogger.error(error)
       }
-
-      const permission =
-        (configList || []).find(
-          (config: AddressConfigItem) => config.key === 'address_label'
-        )?.isEnabled === '1'
-      dispatch({
-        type: 'addressLabel',
-        payload: {
-          addressLabelPermission: permission,
-        },
-      })
-    } catch (error) {
-      console.error(error)
     }
-  }
-
-  useEffect(() => {
     getAddressLabelPermission()
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getOrderStatusLabel = (status: string) => {

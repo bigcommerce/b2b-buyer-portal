@@ -1,7 +1,8 @@
 {
   "name": "b2b-buyer-portal",
-  "version": "0.0.0",
+  "version": "2.0.0",
   "private": true,
+  "license": "MIT",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -11,33 +12,30 @@
     "build:production": "turbo run build",
     "build:staging": "turbo run build:staging",
     "dev": "turbo run dev --parallel",
-    "lint": "turbo run lint",
-    "lint:fix": "turbo run lint -- --fix",
-    "format": "prettier --write --ignore-unknown .",
+    "lint": "turbo run lint --parallel --continue",
+    "format": "turbo run format --parallel --continue",
     "test": "turbo run test",
     "prepare": "husky install",
     "clean": "yarn run clean:node-modules",
     "clean:node-modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "release": "release-it"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
+    "@release-it/conventional-changelog": "^8.0.1",
     "eslint": "^7.32.0 || ^8.2.0",
     "eslint-config-b2b": "*",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
-    "prettier": "^2",
-    "turbo": "latest"
+    "patch-package": "^8.0.0",
+    "turbo": "^1.13.3",
+    "release-it": "^17.2.1",
+    "prettier": "^2.8.8"
   },
   "engines": {
     "node": ">=14.0.0"
   },
-  "packageManager": "yarn@1.22.17",
-  "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown",
-    "*.{ts,tsx}": [
-      "eslint --fix"
-    ]
-  }
+  "packageManager": "yarn@1.22.17"
 }

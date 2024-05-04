@@ -6,10 +6,8 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import globalB3 from '@b3/global-b3'
-import type { OpenPageState } from '@b3/hooks'
 import { LangFormatFunction, useB3Lang } from '@b3/lang'
 import { Box, Button } from '@mui/material'
 
@@ -20,16 +18,14 @@ import {
   searchB2BProducts,
   searchBcProducts,
 } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
+import { isB2BUserSelector, store, useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
+import { getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils'
 import {
-  B3SStorage,
-  getActiveCurrencyInfo,
   getProductOptionList,
-  getValidOptionsList,
-  globalSnackbar,
   isAllRequiredOptionFilled,
-  serialize,
-} from '@/utils'
+} from '@/utils/b3AddToShoppingList'
+import { getValidOptionsList } from '@/utils/b3Product/b3Product'
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config'
 
@@ -93,8 +89,7 @@ export const addProductsToShoppingList = async ({
   b3Lang,
 }: AddProductsToShoppingListParams) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo()
-  const companyId =
-    B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
+  const { id: companyId } = store.getState().company.companyInfo
   const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
 
   const { productsSearch } = await getProducts({
@@ -165,13 +160,14 @@ export const addProductsToShoppingList = async ({
 function PDP({ setOpenPage }: PDPProps) {
   const isPromission = true
   const {
-    state: {
-      isB2BUser,
-      shoppingListClickNode,
-      customer: { customerGroupId },
-    },
+    state: { shoppingListClickNode },
   } = useContext(GlobaledContext)
-  const platform = useSelector(({ global }) => global.storeInfo.platform)
+  const customerGroupId = useAppSelector(
+    ({ company }) => company.customer.customerGroupId
+  )
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
   const b3Lang = useB3Lang()
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false)
@@ -181,7 +177,6 @@ function PDP({ setOpenPage }: PDPProps) {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
 
   const navigate = useNavigate()
-  const { setOpenPageFn } = useSelector(globalStateSelector)
 
   useEffect(() => {
     setOpenShoppingList(true)
@@ -191,7 +186,7 @@ function PDP({ setOpenPage }: PDPProps) {
     setOpenShoppingList(false)
     setIsOpenCreateShopping(false)
     navigate('/')
-    setOpenPageFn({
+    setOpenPageFn?.({
       isOpen: false,
       openUrl: '',
     })

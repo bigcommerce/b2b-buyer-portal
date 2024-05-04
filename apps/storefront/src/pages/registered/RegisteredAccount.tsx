@@ -1,6 +1,5 @@
 import { ChangeEvent, MouseEvent, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import {
   Alert,
@@ -23,12 +22,19 @@ import {
   checkUserEmail,
   validateBCCompanyUserExtraFields,
 } from '@/shared/service/b2b'
-import { themeFrameSelector } from '@/store'
+import {
+  isB2BUserSelector,
+  isValidUserTypeSelector,
+  themeFrameSelector,
+  useAppSelector,
+} from '@/store'
+import b2bLogger from '@/utils/b3Logger'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
-import { Base64, emailError, RegisterFields } from './config'
+import { Base64, emailError } from './config'
 import { InformationFourLabels, TipContent } from './styled'
+import { RegisterFields } from './types'
 
 interface RegisteredAccountProps {
   handleBack: () => void
@@ -44,7 +50,9 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   } = useContext(GlobaledContext)
 
   const { state, dispatch } = useContext(RegisteredContext)
-  const IframeDocument = useSelector(themeFrameSelector)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const IframeDocument = useAppSelector(themeFrameSelector)
+  const isValidUserType = useAppSelector(isValidUserTypeSelector)
 
   const {
     state: {
@@ -136,7 +144,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const validateEmailValue = async (emailValue: string) => {
     try {
       showLoading(true)
-      const isB2BUser = accountType === '1'
       const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
       const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
 
@@ -147,14 +154,10 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         channelId: currentChannelId,
       })
 
-      const isValid = isB2BUser
-        ? [1].includes(userType)
-        : ![2].includes(userType)
-
-      if (!isValid) {
+      if (!isValidUserType) {
         setErrorTips(
           b3Lang(emailError[userType], {
-            companyName: companyName ? `(${companyName})` : '',
+            companyName: companyName || '',
             email: emailValue,
           })
         )
@@ -168,7 +171,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         setErrorTips('')
       }
 
-      return isValid
+      return isValidUserType
     } catch (error) {
       return false
     } finally {
@@ -238,7 +241,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           setErrorTips('')
         }
       } catch (error) {
-        console.log(error)
+        b2bLogger.error(error)
       } finally {
         showLoading(false)
       }

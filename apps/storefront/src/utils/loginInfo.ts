@@ -1,4 +1,3 @@
-import { DispatchProps } from '@/shared/global/context/config'
 import {
   getAgentInfo,
   getB2BCompanyUserInfo,
@@ -7,7 +6,32 @@ import {
   getUserCompany,
 } from '@/shared/service/b2b'
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc'
-import { B3LStorage, B3SStorage, storeHash } from '@/utils'
+import {
+  clearMasqueradeCompany,
+  MasqueradeCompany,
+  setMasqueradeCompany,
+  setQuoteUserId,
+  store,
+} from '@/store'
+import {
+  clearCompanySlice,
+  setB2BToken,
+  setbcGraphqlToken,
+  setCompanyInfo,
+  setCompanyStatus,
+  setCurrentCustomerJWT,
+  setCustomerInfo,
+  setLoginType,
+} from '@/store/slices/company'
+import {
+  resetDraftQuoteInfo,
+  resetDraftQuoteList,
+} from '@/store/slices/quoteInfo'
+import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types'
+
+import b2bLogger from './b3Logger'
+import { B3LStorage, B3SStorage } from './b3Storage'
+import { storeHash } from './basicConfig'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
 
@@ -22,13 +46,6 @@ interface ChannelIdProps {
   isEnabled: boolean
   translationVersion: number
 }
-
-// B3Role = {
-//   ADMIN: '0',
-//   SENIOR: '1',
-//   JUNIOR: '2',
-//   SALESREP: '3',
-// }
 
 export interface ChannelStoreSites {
   storeSites?: Array<ChannelIdProps> | []
@@ -104,56 +121,23 @@ export const loginInfo = async () => {
     data: { token },
   } = await getBCGraphqlToken(loginTokenInfo)
 
-  B3SStorage.set('bcGraphqlToken', token)
+  store.dispatch(setbcGraphqlToken(token))
 }
 
-export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
-  B3SStorage.set('B3CustomerInfo', {})
-  B3SStorage.set('B3CustomerId', '')
-  B3SStorage.set('B3EmailAddress', '')
-  B3SStorage.set('B3Role', '')
-  B3SStorage.set('isB2BUser', false)
-  B3SStorage.set('B2BToken', false)
-  B3SStorage.set('B3UserId', '')
-
-  B3SStorage.set('salesRepCompanyName', '')
+export const clearCurrentCustomerInfo = async () => {
+  store.dispatch(setB2BToken(''))
   B3SStorage.set('nextPath', '')
-  B3SStorage.set('salesRepCompanyId', '')
-  B3SStorage.set('salesRepCustomerGroupId', '')
-  B3SStorage.set('isAgenting', '')
 
   B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
     cartTip: 0,
     checkoutTip: 0,
   })
   B3SStorage.set('blockPendingAccountOrderCreation', false)
-  B3SStorage.set('realRole', 100)
   B3SStorage.set('loginCustomer', '')
-  B3SStorage.set('B3CompanyInfo', {
-    id: '',
-    companyName: '',
-    companyStatus: '',
-  })
   sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
 
-  dispatch({
-    type: 'common',
-    payload: {
-      isB2BUser: false,
-      role: 100,
-      customerId: '',
-      customer: {
-        phoneNumber: '',
-        firstName: '',
-        lastName: '',
-        emailAddress: '',
-      },
-      emailAddress: '',
-      salesRepCompanyId: '',
-      salesRepCompanyName: '',
-      isAgenting: false,
-    },
-  })
+  store.dispatch(clearCompanySlice())
+  store.dispatch(clearMasqueradeCompany())
 }
 
 // companyStatus
@@ -164,25 +148,32 @@ export const clearCurrentCustomerInfo = async (dispatch: DispatchProps) => {
 // 3: inactive
 // 4: deleted
 
+const VALID_ROLES = [
+  CustomerRole.ADMIN,
+  CustomerRole.SENIOR_BUYER,
+  CustomerRole.JUNIOR_BUYER,
+]
+
 export const getCompanyInfo = async (
-  id: number | string,
   role: number | string,
-  userType = 3
+  id?: number,
+  userType = UserTypes.MULTIPLE_B2C
 ) => {
   let companyInfo = {
     id: '',
     companyName: '',
-    companyStatus: 99,
+    companyStatus: CompanyStatus.DEFAULT,
   }
-  const realRole =
-    B3SStorage.get('realRole') === 0 ? 0 : B3SStorage.get('realRole') || role
 
-  const B2BToken = B3SStorage.get('B2BToken')
-  const roles = [0, 1, 2]
-  if (!B2BToken || !roles.includes(+realRole)) return companyInfo
+  const { B2BToken } = store.getState().company.tokens
+  if (!B2BToken || !VALID_ROLES.includes(+role)) return companyInfo
 
-  if (userType === 3 && +realRole !== 3) {
-    const { userCompany } = await getUserCompany(+id)
+  if (
+    id &&
+    userType === UserTypes.MULTIPLE_B2C &&
+    +role !== CustomerRole.SUPER_ADMIN
+  ) {
+    const { userCompany } = await getUserCompany(id)
 
     if (userCompany) {
       companyInfo = {
@@ -191,13 +182,14 @@ export const getCompanyInfo = async (
     }
   }
 
-  B3SStorage.set('companyStatus', companyInfo.companyStatus)
+  store.dispatch(setCompanyStatus(companyInfo.companyStatus))
 
   const blockPendingAccountOrderCreation = B3SStorage.get(
     'blockPendingAccountOrderCreation'
   )
   const noNewSFPlaceOrders =
-    blockPendingAccountOrderCreation && companyInfo.companyStatus === 0
+    blockPendingAccountOrderCreation &&
+    companyInfo.companyStatus === CompanyStatus.PENDING
   if (noNewSFPlaceOrders) {
     sessionStorage.setItem(
       'b2b-blockPendingAccountOrderCreation',
@@ -210,13 +202,8 @@ export const getCompanyInfo = async (
   return companyInfo
 }
 
-export const agentInfo = async (
-  customerId: number | string,
-  role: number,
-  b3UserId: number | string,
-  dispatch: any
-) => {
-  if (+role === 3) {
+export const agentInfo = async (customerId: number | string, role: number) => {
+  if (+role === CustomerRole.SUPER_ADMIN) {
     try {
       const data: any = await getAgentInfo(customerId)
       if (data?.superAdminMasquerading) {
@@ -226,31 +213,26 @@ export const agentInfo = async (
           customerGroupId = 0,
         } = data.superAdminMasquerading
 
-        B3SStorage.set('isAgenting', true)
-        B3SStorage.set('salesRepCompanyId', id)
-        B3SStorage.set('salesRepCompanyName', companyName)
-        B3SStorage.set('salesRepCustomerGroupId', customerGroupId)
-        dispatch({
-          type: 'common',
-          payload: {
+        const masqueradeCompany: MasqueradeCompany = {
+          masqueradeCompany: {
+            id,
             isAgenting: true,
-            salesRepCompanyId: id,
-            salesRepCompanyName: companyName,
-            salesRepCustomerGroupId: customerGroupId,
+            companyName,
+            companyStatus: customerGroupId,
           },
-        })
+        }
+
+        store.dispatch(setMasqueradeCompany(masqueradeCompany))
       }
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
     }
   }
 }
 
 export const getCompanyUserInfo = async (
   emailAddress: string,
-  dispatch: DispatchProps,
-  customerId: string | number,
-  isB2BUser = false
+  customerId: string | number
 ) => {
   try {
     if (!emailAddress || !customerId) return undefined
@@ -262,71 +244,59 @@ export const getCompanyUserInfo = async (
       },
     } = await getB2BCompanyUserInfo(emailAddress, customerId)
 
-    B3SStorage.set('realRole', role)
-    dispatch({
-      type: 'common',
-      payload: {
-        realRole: role,
-      },
-    })
-
-    if (isB2BUser) {
-      B3SStorage.set('B3Role', role)
-
-      dispatch({
-        type: 'common',
-        payload: {
-          role,
-        },
-      })
-    }
-
     return {
       userType,
       role,
       id,
     }
   } catch (error) {
-    console.log(error)
+    b2bLogger.error(error)
   }
   return undefined
 }
 
 const loginWithCurrentCustomerJWT = async () => {
   const channelId = B3SStorage.get('B3channelId')
-  const prevCurrentCustomerJWT = B3SStorage.get('currentCustomerJWT')
+  const prevCurrentCustomerJWT =
+    store.getState().company.tokens.currentCustomerJWT
   let currentCustomerJWT
   try {
-    currentCustomerJWT = await getCurrentCustomerJWT({
-      app_client_id: VITE_B2B_CLIENT_ID,
-    })
+    currentCustomerJWT = await getCurrentCustomerJWT(VITE_B2B_CLIENT_ID)
   } catch (error) {
-    console.log(error)
+    b2bLogger.error(error)
     return undefined
   }
 
   if (
-    currentCustomerJWT.includes('errors') ||
+    currentCustomerJWT?.includes('errors') ||
     prevCurrentCustomerJWT === currentCustomerJWT
   )
     return undefined
 
-  B3SStorage.set('currentCustomerJWT', currentCustomerJWT)
   const data = await getB2BToken(currentCustomerJWT, channelId)
-  const B2BToken = data.authorization.result.token
-  B3SStorage.set('B2BToken', B2BToken)
+  const B2BToken = data.authorization.result.token as string
+  const newLoginType = data.authorization.result.loginType as LoginTypes
 
-  return B2BToken
+  store.dispatch(setCurrentCustomerJWT(currentCustomerJWT))
+  store.dispatch(setLoginType(newLoginType))
+  store.dispatch(setB2BToken(B2BToken))
+
+  return { B2BToken, newLoginType }
 }
 
-export const getCurrentCustomerInfo = async (
-  dispatch: DispatchProps,
-  b2bToken?: string
-) => {
-  if (!(b2bToken || B3LStorage.get('B2BToken'))) {
-    if (!(await loginWithCurrentCustomerJWT())) {
-      return undefined
+export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
+  | {
+      role: any
+      userType: any
     }
+  | undefined
+> = async (b2bToken?: string) => {
+  const { B2BToken } = store.getState().company.tokens
+  let loginType = LoginTypes.GENERAL_LOGIN
+  if (!(b2bToken || B2BToken)) {
+    const data = await loginWithCurrentCustomerJWT()
+    if (!data) return undefined
+    loginType = data.newLoginType
   }
   try {
     const data = await getCustomerInfo()
@@ -344,62 +314,47 @@ export const getCurrentCustomerInfo = async (
       customerGroupId,
     } = loginCustomer
 
-    const companyUserInfo = await getCompanyUserInfo(
-      emailAddress,
-      dispatch,
-      customerId
-    )
+    const companyUserInfo = await getCompanyUserInfo(emailAddress, customerId)
 
     if (companyUserInfo && customerId) {
       const { userType, role, id } = companyUserInfo
 
       const [companyInfo] = await Promise.all([
-        getCompanyInfo(id, role, userType),
-        agentInfo(customerId, role, id, dispatch),
+        getCompanyInfo(role, id, userType),
+        agentInfo(customerId, role),
       ])
 
+      const isB2BUser =
+        (userType === UserTypes.MULTIPLE_B2C &&
+          companyInfo?.companyStatus === CompanyStatus.APPROVED) ||
+        +role === CustomerRole.SUPER_ADMIN
+
       const customerInfo = {
+        id: customerId,
+        userType,
         phoneNumber,
         firstName,
         lastName,
         emailAddress,
         customerGroupId,
+        role: isB2BUser ? role : CustomerRole.B2C,
+        b2bId: id,
+        loginType,
+      }
+      const quoteUserId = id || customerId || 0
+      const companyPayload = {
+        id: companyInfo.id,
+        status: companyInfo.companyStatus,
+        companyName: companyInfo.companyName,
       }
 
-      const isB2BUser =
-        (userType === 3 && companyInfo?.companyStatus === 1) || +role === 3
-
-      B3SStorage.set('B3CustomerInfo', customerInfo)
-      B3SStorage.set('B3CompanyInfo', companyInfo)
-      B3SStorage.set('B3CustomerId', customerId)
-      B3SStorage.set('B3EmailAddress', emailAddress)
-      B3SStorage.set('B3UserId', id)
-      B3SStorage.set('B3Role', isB2BUser ? role : 99)
+      store.dispatch(resetDraftQuoteList())
+      store.dispatch(resetDraftQuoteInfo())
+      store.dispatch(setCompanyInfo(companyPayload))
+      store.dispatch(setCustomerInfo(customerInfo))
+      store.dispatch(setQuoteUserId(quoteUserId))
       B3SStorage.set('isB2BUser', isB2BUser)
-
-      B3LStorage.set('MyQuoteInfo', {})
-      B3LStorage.set('b2bQuoteDraftList', [])
-      B3LStorage.set('quoteDraftUserId', id || customerId || 0)
       B3LStorage.set('cartToQuoteId', '')
-
-      dispatch({
-        type: 'common',
-        payload: {
-          isB2BUser,
-          role: isB2BUser ? role : 99,
-          realRole: role,
-          customerId,
-          B3UserId: id,
-          companyInfo,
-          customer: {
-            phoneNumber,
-            firstName,
-            lastName,
-            emailAddress,
-          },
-          emailAddress,
-        },
-      })
 
       return {
         role,
@@ -407,8 +362,8 @@ export const getCurrentCustomerInfo = async (
       }
     }
   } catch (error) {
-    console.log(error)
-    clearCurrentCustomerInfo(dispatch)
+    b2bLogger.error(error)
+    clearCurrentCustomerInfo()
   }
   return undefined
 }

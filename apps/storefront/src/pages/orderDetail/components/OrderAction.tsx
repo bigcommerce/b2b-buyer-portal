@@ -5,8 +5,8 @@ import styled from '@emotion/styled'
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
 import throttle from 'lodash-es/throttle'
 
-import { CustomButton } from '@/components'
-import { GlobaledContext } from '@/shared/global'
+import CustomButton from '@/components/button/CustomButton'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import {
   b2bPrintInvoice,
   currencyFormat,
@@ -29,7 +29,7 @@ interface StyledCardActionsProps {
   isShowButtons: boolean
 }
 
-const StyledCardActions = styled('div')((props: StyledCardActionsProps) => ({
+const StyledCardActions = styled('div')<StyledCardActionsProps>((props) => ({
   flexWrap: 'wrap',
   padding: props.isShowButtons ? '0 1rem 1rem 1rem' : 0,
 
@@ -113,9 +113,9 @@ function OrderCard(props: OrderCardProps) {
 
   const b3Lang = useB3Lang()
 
-  const {
-    state: { isAgenting },
-  } = useContext(GlobaledContext)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const dialogData = [
     {
@@ -276,9 +276,11 @@ interface OrderData {
 export default function OrderAction(props: OrderActionProps) {
   const { detailsData } = props
   const b3Lang = useB3Lang()
-  const {
-    state: { isB2BUser, role, emailAddress },
-  } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const emailAddress = useAppSelector(
+    ({ company }) => company.customer.emailAddress
+  )
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const {
     state: { addressLabelPermission, createdEmail },

@@ -1,16 +1,15 @@
 import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
-import { themeFrameSelector } from '@/store'
+import { updateOverflowStyle } from '@/store'
 
 const useScrollBar = (open: boolean) => {
-  const IframeDocument = useSelector(themeFrameSelector)
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    if (IframeDocument) {
-      IframeDocument.body.style.overflow = open ? 'hidden' : 'initial'
-      // IframeDocument.body.style.paddingRight = open ? '16px' : '0'
-    }
+    dispatch(updateOverflowStyle(open ? 'hidden' : 'initial'))
+    // ignore dispatch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 }
 

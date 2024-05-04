@@ -13,8 +13,11 @@ A monorepo frontend application designed for the BigCommerce B2B Edition Buyer p
 - [🛠 System Setup](#-system-setup)
 - [⚙ Local Development](#-local-development)
 - [Running Project Locally](#running-project-locally)
+- [Deploying the project](#deploying-the-project)
+  - [Common issues:](#common-issues)
 - [🤝 Contribution](#-contribution)
 - [📞 Contact \& Support](#-contact--support)
+- [License](#license)
 
 ## ☑ Prerequisites
 
@@ -76,14 +79,9 @@ For assistance with activating the remote buyer portal or to inquire about multi
 4. Copy environment variables: `cp apps/storefront/.env-example apps/storefront/.env`.
 5. Update the following values in `.env`:
 
-- `VITE_B2B_URL`: The URL of the B2B Edition API.
-- `VITE_B2B_SOCKET_URL`: The URL of the B2B Edition WebSocket API.
-- `VITE_TRANSLATION_SERVICE_URL`: The URL of the translation service API.
 - `VITE_CHANNEL_ID`: The ID of the channel to use for the storefront.
 - `VITE_STORE_HASH`: The hash of the store to use for the storefront.
-- `VITE_CATPCHA_SETKEY`: The reCAPTCHA site key (optional).
-- `VITE_B2B_CLIENT_ID`: The client ID of the BigCommerce App from the [developer portal](https://devtools.bigcommerce.com/).
-- `VITE_LOCAL_DEBUG`: Set to "FALSE". This is for connecting our local development with the B2B Edition GraphQL API.
+- `VITE_ASSETS_ABSOLUTE_PATH`: For deployment, set this to the absolute path of the hosted compiled assets.
 
 Environment variables have been updated so you can run your UI directly into production storefronts.
 
@@ -108,6 +106,9 @@ Environment variables have been updated so you can run your UI directly into pro
   document.head.appendChild(b2bHideBodyStyle);
   {{/contains}}
   {{/if}}
+
+  // preload the vite server for local development
+  fetch("http://localhost:3001/");
 </script>
 <script type="module">
   import RefreshRuntime from 'http://localhost:3001/@react-refresh'
@@ -139,6 +140,81 @@ Environment variables have been updated so you can run your UI directly into pro
 
 Note: If linters aren't functional, run `yarn prepare` first.
 
+## Deploying the project
+
+Building your buyer portal application requires you to run the `yarn build:production` command. This command will generate a `dist` folder in the `apps/storefront` directory and inside an `assets` folder containing the compiled assets.
+
+**_Before building, make sure you have updated your `VITE_ASSETS_ABSOLUTE_PATH` variable pointing to where the assets folder is hosted as we'll be using this to generate the correct asset paths for the application when its mounted._**
+
+Once you have uploaded the contents of the `dist` folder to your hosting provider, you'll have to create a footer script in your BigCommerce storefront that points to the built files generated in the `dist` folder. The contents of the script are the same as the footer script B2B Edition installs in your store, but with the updated paths. It should look something like this:
+
+```html
+<script>
+  window.b3CheckoutConfig = {
+    routes: {
+      dashboard: '/account.php?action=order_status',
+    },
+  }
+  window.B3 = {
+    setting: {
+      store_hash: '<YOUR_STORE_HASH>',
+      channel_id: '<YOUR_CHANNEL_ID>',
+      b2b_url: 'https://api-b2b.bigcommerce.com',
+      captcha_setkey: '6LdGN_sgAAAAAGYFg1lmVoakQ8QXxbhWqZ1GpYaJ',
+    },
+    'dom.checkoutRegisterParentElement': '#checkout-app',
+    'dom.registerElement':
+      '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel, #checkout-customer-returning .form-legend-container [href="#"]',
+    'dom.openB3Checkout': 'checkout-customer-continue',
+    before_login_goto_page: '/account.php?action=order_status',
+    checkout_super_clear_session: 'true',
+    'dom.navUserLoginElement': '.navUser-item.navUser-item--account',
+  }
+</script>
+<script
+  type="module"
+  crossorigin=""
+  src="<YOUR_APP_URL_HERE>/index.*.js"
+></script>
+<script
+  nomodule=""
+  crossorigin=""
+  src="<YOUR_APP_URL_HERE>/polyfills-legacy.*.js"
+></script>
+<script
+  nomodule=""
+  crossorigin=""
+  src="<YOUR_APP_URL_HERE>/index-legacy.*.js"
+></script>
+```
+
+Replace `<YOUR_APP_URL_HERE>` with the URL where your build is hosted, `<YOUR_STORE_HASH>` and `<YOUR_CHANNEL_ID>` with its respective values. Replace the `*` in the file names with the generated hash from the build step.
+
+Also, you'll have to input the following header script:
+
+```html
+<script>
+  var b2bHideBodyStyle = document.createElement('style')
+  b2bHideBodyStyle.id = 'b2b-account-page-hide-body'
+  const removeCart = () => {
+    const style = document.createElement('style')
+    style.type = 'text/css'
+    style.id = 'b2bPermissions-cartElement-id'
+    style.innerHTML =
+      '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"], .button--cardAdd, .card-figcaption-button, [data-emthemesmodez-cart-item-add], .add-to-cart-button { display: none !important }'
+    document.getElementsByTagName('head').item(0).appendChild(style)
+  }
+  removeCart()
+</script>
+```
+
+### Common issues:
+
+- **Cross-Origin Issues:** If you encounter cross-origin issues, ensure you have the correct URLs in your `.env` file and verify that your store's origin URL is allowed. You can use a tunnel service like [ngrok](https://ngrok.com/) to expose your local server to the internet.
+- **Environment Variables:** Ensure you have the correct environment variables set in your `.env` file. These variables are used to configure your application for different environments.
+- **Header and Footer Scripts:** Ensure you have the correct header and footer scripts set in your BigCommerce store. These scripts are used to load your application into the storefront.
+- **Build Errors:** If you encounter build errors, ensure you have the correct dependencies installed and that your project is set up correctly. You can run `yarn prepare` to ensure all dependencies are installed and up to date.
+
 ## 🤝 Contribution
 
 For developers wishing to contribute, ensure all PRs meet the linting and commit message standards.
@@ -146,3 +222,7 @@ For developers wishing to contribute, ensure all PRs meet the linting and commit
 ## 📞 Contact & Support
 
 For queries, issues, or support, reach out to us at b2b@bigcommerce.com or open an issue in this repository.
+
+## License
+
+MIT

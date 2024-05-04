@@ -1,6 +1,8 @@
 import globalB3 from '@b3/global-b3'
 
-import { B3SStorage } from './b3Storage'
+import { store } from '@/store'
+
+import b2bLogger from './b3Logger'
 import { getActiveCurrencyInfo, getDefaultCurrencyInfo } from './currencyUtils'
 
 interface MoneyFormat {
@@ -33,13 +35,12 @@ export const currencyFormatInfo = () => {
 
 export const handleGetCorrespondingCurrency = (code: string, value: number) => {
   const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo()
-  const allCurrencies = B3SStorage.get('currencies')
-  const { currencies: currencyArr } = allCurrencies
+  const { currencies } = store.getState().storeConfigs
+  const { currencies: currencyArr } = currencies
   let token = '$'
-  const correspondingCurrency =
-    currencyArr.find(
-      (currency: CustomFieldItems) => currency.currency_code === code
-    ) || {}
+  const correspondingCurrency = currencyArr.find(
+    (currency) => currency.currency_code === code
+  )
 
   if (correspondingCurrency) {
     token = correspondingCurrency.token
@@ -69,7 +70,7 @@ export const ordersCurrencyFormat = (
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
     return priceStr
   } catch (e) {
-    console.error(e)
+    b2bLogger.error(e)
     return ''
   }
 }
@@ -83,11 +84,8 @@ export const currencyFormatConvert = (
   price: string | number,
   { currency, showCurrencyToken = true }: CurrencyOption
 ) => {
-  const moneyFormat: MoneyFormat = currencyFormatInfo()
+  const moneyFormat = currencyFormatInfo()
 
-  // const {
-  //   currencyExchangeRate
-  // } = currency
   try {
     if (currency?.currencyExchangeRate) {
       const [integerPart, decimalPart] = (
@@ -119,7 +117,7 @@ export const currencyFormatConvert = (
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
     return priceStr
   } catch (e) {
-    console.error(e)
+    b2bLogger.error(e)
     return ''
   }
 }
@@ -129,7 +127,7 @@ const currencyFormat = (
   showCurrencyToken = true,
   isConversionRate = false
 ) => {
-  const moneyFormat: MoneyFormat = currencyFormatInfo()
+  const moneyFormat = currencyFormatInfo()
   try {
     const [integerPart, decimalPart] = (
       isConversionRate ? +price * +moneyFormat.currency_exchange_rate : +price
@@ -146,7 +144,7 @@ const currencyFormat = (
         : `${newPrice}${showCurrencyToken ? moneyFormat.currency_token : ''}`
     return priceStr
   } catch (e) {
-    console.error(e)
+    b2bLogger.error(e)
     return ''
   }
 }

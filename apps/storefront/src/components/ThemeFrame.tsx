@@ -1,11 +1,10 @@
 import { ReactNode, RefObject, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useDispatch } from 'react-redux'
 import createCache, { EmotionCache } from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
 import { CssBaseline } from '@mui/material'
 
-import { clearThemeFrame, setThemeFrame } from '@/store'
+import { clearThemeFrame, setThemeFrame, useAppDispatch } from '@/store'
 
 export function IFrameSetContent(
   el: HTMLIFrameElement | null,
@@ -58,7 +57,7 @@ interface ThemeFramePortalProps {
   children: ReactNode
   isSetupComplete: boolean
   emotionCache?: EmotionCache
-  iframeDocument?: Document | null
+  iframeDocument?: HTMLIFrameElement['contentDocument']
   bodyRef?: RefObject<HTMLBodyElement>
 }
 
@@ -66,7 +65,7 @@ const DefaultIframeContent =
   '<!DOCTYPE html><html><head></head><body></body></html>'
 
 function ThemeFramePortal(props: ThemeFramePortalProps) {
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const { isSetupComplete, emotionCache, iframeDocument, bodyRef, children } =
     props
 
@@ -79,6 +78,8 @@ function ThemeFramePortal(props: ThemeFramePortalProps) {
         dispatch(clearThemeFrame())
       }
     }
+    // disabling because dispatch is not needed in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [iframeDocument])
 
   if (!isSetupComplete || !emotionCache || !iframeDocument) {
@@ -147,14 +148,16 @@ export default function ThemeFrame(props: ThemeFrameProps) {
     }
 
     setIsSetupComplete(true)
+    const currentFrame = iframeRef.current
     // eslint-disable-next-line
     return () => {
       setIsSetupComplete(false)
-      iframeRef.current?.removeEventListener('load', () =>
+      currentFrame?.removeEventListener('load', () => {
         handleLoad(iframeRef)
-      )
+      })
     }
-  }, [])
+    // disabling cause it needs to be run once
+  }, [customStyles, fontUrl])
 
   useEffect(() => {
     const doc = iframeRef.current?.contentDocument

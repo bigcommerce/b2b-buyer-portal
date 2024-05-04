@@ -33,8 +33,8 @@ declare interface Window {
           companies: CustomFieldStringItems[]
         }>
         getB2BToken: () => string
-        setMasqueradeCompany: (companyId: number) => Promise<void>
-        endMasquerade: () => Promise<void>
+        setMasqueradeCompany: (companyId: number) => void
+        endMasquerade: () => void
         graphqlBCProxy: typeof import('@/shared/service/request/b3Fetch').default.graphqlBCProxy
         loginWithB2BStorefrontToken: (
           b2bStorefrontJWTToken: string

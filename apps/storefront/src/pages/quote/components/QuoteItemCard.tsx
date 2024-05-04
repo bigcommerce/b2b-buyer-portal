@@ -22,12 +22,12 @@ export interface QuoteItemCardProps {
   item: ListItem
 }
 
-const Flex = styled('div')(() => ({
+const Flex = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'start',
   marginBottom: '1rem',
-}))
+})
 
 export function QuoteItemCard(props: QuoteItemCardProps) {
   const { item, goToDetail } = props

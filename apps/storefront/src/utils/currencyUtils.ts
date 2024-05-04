@@ -1,50 +1,44 @@
-import { B3SStorage } from '@/utils'
+import { store } from '@/store'
+import { defaultCurrenciesState } from '@/store/slices/storeConfigs'
 
-interface CurrencyProps {
-  auto_update: boolean
-  country_iso2: string
-  currency_code: string
-  currency_exchange_rate: string
-  decimal_places: number
-  decimal_token: string
-  default_for_country_codes: Array<string>
-  enabled: boolean
-  id: string
-  is_default: boolean
-  is_transactional: boolean
-  last_updated: string
-  name: string
-  thousands_token: string
-  token: string
-  token_location: 'left' | 'right'
-}
-
-interface ActiveCurrencyProps {
-  node: {
-    entityId: number
-    isActive: boolean
-  }
-}
+const defaultCurrency = defaultCurrenciesState.currencies[0]
 
 const getActiveCurrencyInfo = () => {
-  const { currencies } = B3SStorage.get('currencies')
-  const { node: activeCurrencyObj }: ActiveCurrencyProps =
-    B3SStorage.get('activeCurrency')
-  const activeCurrency: CurrencyProps = currencies.find(
-    (currency: CurrencyProps) => +currency.id === activeCurrencyObj.entityId
+  const { currencies } = store.getState().storeConfigs.currencies
+  const activeCurrencyObj = store.getState().storeConfigs.activeCurrency?.node
+  const activeCurrency = currencies.find(
+    (currency) => +currency.id === activeCurrencyObj?.entityId
   )
 
-  return activeCurrency
+  return activeCurrency || defaultCurrency
 }
 
 const getDefaultCurrencyInfo = () => {
-  const currencies = B3SStorage.get('currencies')
-  const { currencies: currencyArr } = currencies
+  const { currencies } = store.getState().storeConfigs.currencies
 
-  const defaultCurrency: CurrencyProps = currencyArr.find(
-    (currency: CurrencyProps) => currency.is_default
+  const defaultFoundCurrency = currencies.find(
+    (currency) => currency.is_default
   )
-  return defaultCurrency
+  return defaultFoundCurrency || defaultCurrency
 }
 
-export { getActiveCurrencyInfo, getDefaultCurrencyInfo }
+const handleGetCorrespondingCurrencyToken = (code: string) => {
+  const correspondingCurrency = store
+    .getState()
+    .storeConfigs.currencies.currencies.find(
+      (currency) => currency.currency_code === code
+    )
+  let token = '$'
+
+  if (correspondingCurrency?.token) {
+    token = correspondingCurrency.token
+  }
+
+  return token
+}
+
+export {
+  getActiveCurrencyInfo,
+  getDefaultCurrencyInfo,
+  handleGetCorrespondingCurrencyToken,
+}

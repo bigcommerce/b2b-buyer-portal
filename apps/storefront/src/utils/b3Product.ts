@@ -1,23 +1,25 @@
-import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
-import { B3LStorage, B3SStorage } from '@/utils'
+import cloneDeep from 'lodash-es/cloneDeep'
 
-interface QuoteListitemProps {
-  node: {
-    id: number
-    quantity?: number
-    variantSku: number | string
-    variantId: number | string
-    primaryImage: number | string
-    productName: number | string
-    optionList: number | string
-    productId: number | string
-    basePrice: number | string
-    productsSearch: CustomFieldItems
-  }
-}
+import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b'
+import { store } from '@/store'
+import { setDraftQuoteList } from '@/store/slices/quoteInfo'
+import { QuoteItem } from '@/types/quotes'
 
 interface AdditionalCalculatedPricesProps {
   [key: string]: number
+}
+const compareOption = (
+  langList: CustomFieldItems[],
+  shortList: CustomFieldItems[]
+) => {
+  let flag = true
+  langList.forEach((item) => {
+    const option = shortList.find((list) => list.optionId === item.optionId)
+    if (!option) {
+      if (item?.optionValue) flag = false
+    } else if (item.optionValue !== option.optionValue) flag = false
+  })
+  return flag
 }
 
 const addQuoteDraftProduce = async (
@@ -25,32 +27,17 @@ const addQuoteDraftProduce = async (
   qty: number,
   optionList: CustomFieldItems[]
 ) => {
-  const b2bQuoteDraftList = B3LStorage.get('b2bQuoteDraftList') || []
+  const { draftQuoteList } = store.getState().quoteInfo
+  const quoteDraft = cloneDeep(draftQuoteList)
 
-  const compareOption = (
-    langList: CustomFieldItems[],
-    shortList: CustomFieldItems[]
-  ) => {
-    let flag = true
-    langList.forEach((item: CustomFieldItems) => {
-      const option = shortList.find(
-        (list: CustomFieldItems) => list.optionId === item.optionId
-      )
-      if (!option) {
-        if (item?.optionValue) flag = false
-      } else if (item.optionValue !== option.optionValue) flag = false
-    })
-    return flag
-  }
-
-  const index = b2bQuoteDraftList.findIndex(
-    (item: QuoteListitemProps) =>
+  const index = draftQuoteList.findIndex(
+    (item: QuoteItem) =>
       item?.node?.variantSku === quoteListitem.node.variantSku
   )
 
   if (index !== -1) {
     // TODO optionList compare
-    const oldOptionList = JSON.parse(b2bQuoteDraftList[index].node.optionList)
+    const oldOptionList = JSON.parse(draftQuoteList[index].node.optionList)
 
     const isAdd =
       oldOptionList.length > optionList.length
@@ -58,17 +45,15 @@ const addQuoteDraftProduce = async (
         : compareOption(optionList, oldOptionList)
 
     if (isAdd) {
-      b2bQuoteDraftList[index].node.quantity += +qty
+      quoteDraft[index].node.quantity += +qty
     } else {
-      // const productList = await getProductPrice(optionList, quoteListitem)
-      b2bQuoteDraftList.push(quoteListitem)
+      quoteDraft.push(quoteListitem as QuoteItem)
     }
   } else {
-    // const productList = await getProductPrice(optionList, quoteListitem)
-    b2bQuoteDraftList.push(quoteListitem)
+    quoteDraft.push(quoteListitem as QuoteItem)
   }
 
-  B3LStorage.set('b2bQuoteDraftList', b2bQuoteDraftList)
+  store.dispatch(setDraftQuoteList(quoteDraft))
 }
 
 const getModifiersPrice = (
@@ -131,13 +116,15 @@ const getProductExtraPrice = async (
     })
   }
 
+  const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany
+
   if (productIds.length) {
+    const currentState = store.getState()
     const fn =
       +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts
-
-    const companyId =
-      B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
-    const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+    const companyInfoId = currentState.company.companyInfo.id
+    const companyId = companyInfoId || salesRepCompanyId
+    const { customerGroupId } = currentState.company.customer
 
     const { productsSearch: additionalProductsSearch } = await fn({
       productIds,

@@ -1,3 +1,5 @@
+import b2bLogger from './utils/b3Logger'
+
 const { MODE: mode, VITE_LOCAL_GRAPHQL_ORIGIN } = import.meta.env
 
 interface ScriptNodeChildren extends HTMLScriptElement {
@@ -13,8 +15,8 @@ interface GraphqlOriginProps {
 
 const graphqlOrigin: GraphqlOriginProps = {
   development: VITE_LOCAL_GRAPHQL_ORIGIN,
-  staging: 'https://staging-v2.bundleb2b.net',
-  production: 'https://api.bundleb2b.net',
+  staging: 'https://api-b2b.staging.zone',
+  production: 'https://api-b2b.bigcommerce.com',
 }
 
 function init() {
@@ -114,7 +116,7 @@ function init() {
         insertScript(storefrontScript.script)
       })
       .catch((error) => {
-        console.error('There was a problem with the fetch operation:', error)
+        b2bLogger.error('There was a problem with the fetch operation:', error)
       })
   }
 
@@ -124,7 +126,7 @@ function init() {
 
       await getScriptContent(origin)
     } catch (error) {
-      console.error('Interface error')
+      b2bLogger.error('Interface error')
     }
   }
 

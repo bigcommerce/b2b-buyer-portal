@@ -1,21 +1,21 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import { Box, Typography } from '@mui/material'
 
-import { B3CustomForm, B3Dialog, successTip } from '@/components'
+import { B3CustomForm, successTip } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
 import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
-import { globalStateSelector } from '@/store'
-import { b3TriggerCartNumber, snackbar } from '@/utils'
-import { bcBaseUrl } from '@/utils/basicConfig'
+import { isB2BUserSelector, store, useAppSelector } from '@/store'
+import { snackbar } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart } from '@/utils/cartUtils'
 
 import { EditableProductItem, OrderProductItem } from '../../../types'
@@ -61,12 +61,10 @@ export default function OrderDialog({
   itemKey,
   orderId,
 }: OrderDialogProps) {
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false)
-
   const [openShoppingList, setOpenShoppingList] = useState(false)
   const [editableProducts, setEditableProducts] = useState<
     EditableProductItem[]
@@ -90,7 +88,6 @@ export default function OrderDialog({
     mode: 'all',
   })
 
-  const { storeInfo } = useSelector(globalStateSelector)
   const b3Lang = useB3Lang()
 
   const handleClose = () => {
@@ -137,7 +134,9 @@ export default function OrderDialog({
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
       },
-      referrer: `${bcBaseUrl()}/account.php?action=new_return&order_id=${orderId}`,
+      referrer: `${
+        store.getState().global.bcUrl
+      }/account.php?action=new_return&order_id=${orderId}`,
       body: urlencoded,
       mode: 'no-cors',
     }
@@ -145,7 +144,7 @@ export default function OrderDialog({
     try {
       setIsRequestLoading(true)
       const returnResult = await fetch(
-        `${bcBaseUrl()}/account.php?action=save_new_return`,
+        `${store.getState().global.bcUrl}/account.php?action=save_new_return`,
         requestOptions
       )
       if (
@@ -161,7 +160,7 @@ export default function OrderDialog({
       setIsRequestLoading(false)
       handleClose()
     } catch (err) {
-      console.log(err)
+      b2bLogger.error(err)
     }
   }
 
@@ -169,20 +168,6 @@ export default function OrderDialog({
     handleSubmit((data) => {
       sendReturnRequest(data, returnArr, orderId)
     })()
-  }
-
-  const getVariantInfoByList = async () => {
-    const skus = products.map((product) => product.sku)
-    const getVariantInfoBySku = isB2BUser
-      ? getB2BVariantInfoBySkus
-      : getBcVariantInfoBySkus
-
-    const { variantSku: variantInfoList = [] }: CustomFieldItems =
-      await getVariantInfoBySku({
-        skus,
-      })
-
-    setVariantInfoList(variantInfoList)
   }
 
   const validateProductNumber = (
@@ -266,10 +251,7 @@ export default function OrderDialog({
         snackbar.error(b3Lang('purchasedProducts.error.fillCorrectQuantity'))
         return
       }
-
-      const storePlatform = storeInfo?.platform
-
-      const res = await callCart(items, storePlatform)
+      const res = await callCart(items, platform)
 
       const status =
         res && (res.data.cart.createCart || res.data.cart.addCartLineItems)
@@ -396,17 +378,30 @@ export default function OrderDialog({
   }
 
   useEffect(() => {
-    if (open) {
-      setEditableProducts(
-        products.map((item: OrderProductItem) => ({
-          ...item,
-          editQuantity: item.quantity,
-        }))
-      )
+    if (!open) return
+    setEditableProducts(
+      products.map((item: OrderProductItem) => ({
+        ...item,
+        editQuantity: item.quantity,
+      }))
+    )
 
-      getVariantInfoByList()
+    const getVariantInfoByList = async () => {
+      const skus = products.map((product) => product.sku)
+      const getVariantInfoBySku = isB2BUser
+        ? getB2BVariantInfoBySkus
+        : getBcVariantInfoBySkus
+
+      const { variantSku: variantInfoList = [] }: CustomFieldItems =
+        await getVariantInfoBySku({
+          skus,
+        })
+
+      setVariantInfoList(variantInfoList)
     }
-  }, [open])
+
+    getVariantInfoByList()
+  }, [isB2BUser, open, products])
 
   const handleProductChange = (products: EditableProductItem[]) => {
     setEditableProducts(products)

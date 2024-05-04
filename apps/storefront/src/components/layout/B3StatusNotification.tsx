@@ -1,10 +1,12 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from '@emotion/styled'
 import { Alert, Box } from '@mui/material'
 
 import { StatusNotifications } from '@/constants'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
+import { useAppDispatch, useAppSelector } from '@/store'
+import { setLoginType } from '@/store/slices/company'
+import { LoginTypes } from '@/types'
 import { B3SStorage } from '@/utils'
 
 export type AlertColor = 'success' | 'info' | 'warning' | 'error'
@@ -22,25 +24,23 @@ const B3StatusNotificationContainer = styled(Box)(() => ({
 export default function B3StatusNotification(props: B3StatusNotificationProps) {
   const { title } = props
 
-  const {
-    state: { companyInfo, role },
-  } = useContext(GlobaledContext)
-  // companyStatus
-  // 99: default, Distinguish between bc and b2b; 0: pending; 1: approved; 2: rejected; 3: inactive; 4: deleted
-  const { companyStatus } = companyInfo
+  const loginType = useAppSelector(({ company }) => company.customer.loginType)
+  const dispatch = useAppDispatch()
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
   const blockPendingAccountOrderCreation = B3SStorage.get(
     'blockPendingAccountOrderCreation'
   )
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
-  const loginType = JSON.parse(sessionStorage.getItem('loginType') || 'false')
-
   const [tip, setTip] = useState<string>('')
   const [isShow, setIsShow] = useState<boolean>(false)
   const [type, setType] = useState<AlertColor>('success')
   const [bcColor, setBcColor] = useState<string>('#2E7D32')
 
   const handleCloseTip = () => {
-    sessionStorage.setItem('loginType', JSON.stringify(null))
+    dispatch(setLoginType(LoginTypes.WAITING_LOGIN))
     setIsShow(false)
   }
 
@@ -90,7 +90,13 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
         setBcColor('#ED6C02')
       }
     }
-  }, [blockPendingAccountViewPrice])
+  }, [
+    blockPendingAccountOrderCreation,
+    blockPendingAccountViewPrice,
+    companyStatus,
+    loginType,
+    role,
+  ])
 
   return isShow ? (
     <B3StatusNotificationContainer

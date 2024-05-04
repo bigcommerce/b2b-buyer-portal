@@ -1,5 +1,7 @@
 import { CallbackKey } from '@b3/hooks'
 
+import b2bLogger from './b3Logger'
+
 type CallbackEvent = {
   data: CustomFieldItems
   preventDefault: () => void
@@ -75,7 +77,7 @@ export default class CallbackManager {
       } catch (e) {
         success = false
         if (e instanceof Error) {
-          console.error(e.message)
+          b2bLogger.error(e.message)
         }
       }
     })

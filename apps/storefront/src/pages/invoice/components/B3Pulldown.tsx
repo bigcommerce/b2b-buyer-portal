@@ -1,13 +1,11 @@
-import { MouseEvent, useContext, useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { MouseEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
-import { GlobaledContext } from '@/shared/global'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
 import { InvoiceList } from '@/types/invoice'
 import { snackbar } from '@/utils'
 
@@ -35,10 +33,11 @@ function B3Pulldown({
   setInvoiceId,
   handleOpenHistoryModal,
 }: B3PulldownProps) {
-  const globalState = useSelector(globalStateSelector)
-  const {
-    state: { role, isAgenting },
-  } = useContext(GlobaledContext)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
   const juniorOrSenior = +role === 1 || role === 2
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [isCanPay, setIsCanPay] = useState<boolean>(true)
@@ -112,7 +111,7 @@ function B3Pulldown({
       return
     }
 
-    await gotoInvoiceCheckoutUrl(params, globalState.storeInfo.platform, false)
+    await gotoInvoiceCheckoutUrl(params, platform, false)
   }
 
   const viewPaymentHistory = async () => {
@@ -141,6 +140,8 @@ function B3Pulldown({
     const payPermissions = +openBalance.value > 0 && (role === 0 || isAgenting)
 
     setIsCanPay(payPermissions)
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

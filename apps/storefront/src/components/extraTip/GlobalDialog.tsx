@@ -1,18 +1,16 @@
-import { useDispatch, useSelector } from 'react-redux'
 import { Box } from '@mui/material'
 
 import useMobile from '@/hooks/useMobile'
+import { setGlabolCommonState, useAppDispatch, useAppSelector } from '@/store'
 
-import { globalStateSelector, setGlabolCommonState } from '../../store'
-// const B3Dialog = lazy(() => import('../B3Dialog'))
 import B3Dialog from '../B3Dialog'
 
 function GlobalDialog() {
-  const { globalMessage } = useSelector(globalStateSelector)
+  const globalMessage = useAppSelector(({ global }) => global.globalMessage)
 
   const [isMobile] = useMobile()
 
-  const storeDispatch = useDispatch()
+  const storeDispatch = useAppDispatch()
 
   const messageDialogClose = () => {
     storeDispatch(

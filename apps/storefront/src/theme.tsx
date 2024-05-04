@@ -1,10 +1,9 @@
 import { ReactNode, useContext } from 'react'
-import { useSelector } from 'react-redux'
 import * as materialMultiLanguages from '@mui/material/locale'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 
 import { CustomStyleContext } from './shared/customStyleButtton'
-import { RootState } from './store'
+import { BROWSER_LANG } from './constants'
 
 type LangMapType = {
   [index: string]: string
@@ -29,8 +28,6 @@ type Props = {
 }
 
 function B3ThemeProvider({ children }: Props) {
-  const lang = useSelector(({ lang }: RootState) => lang)
-
   const {
     state: {
       portalStyle: { backgroundColor = '', primaryColor = '' },
@@ -54,7 +51,7 @@ function B3ThemeProvider({ children }: Props) {
       ]
     )
 
-  return <ThemeProvider theme={theme(lang)}>{children}</ThemeProvider>
+  return <ThemeProvider theme={theme(BROWSER_LANG)}>{children}</ThemeProvider>
 }
 
 export default B3ThemeProvider

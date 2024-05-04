@@ -10,10 +10,12 @@ import { useB3Lang } from '@b3/lang'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import { Badge, Box, Button, IconButton, useTheme } from '@mui/material'
 
-import { B3CustomForm, B3Dialog, CustomButton } from '@/components'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 
+import B3CustomForm from '../B3CustomForm'
+import B3Dialog from '../B3Dialog'
+import CustomButton from '../button/CustomButton'
 import {
   getContrastColor,
   getHoverColor,
@@ -94,7 +96,9 @@ function B3FilterMore<T, Y>({
         setValue(item, cacheData[item])
       })
     }
-  }, [open])
+    // disabling because setValue is a dispatcher
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cacheData, open])
 
   const handleDialogClick = () => {
     setOpen(true)

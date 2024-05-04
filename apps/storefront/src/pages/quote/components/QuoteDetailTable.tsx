@@ -5,7 +5,7 @@ import { Box, styled, Typography } from '@mui/material'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { store } from '@/store'
+import { useAppSelector } from '@/store'
 import { currencyFormatConvert } from '@/utils'
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
 
@@ -114,12 +114,12 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     currency,
   } = props
 
-  const {
-    global: {
-      enteredInclusive: enteredInclusiveTax,
-      blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
-    },
-  } = store.getState()
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
+  )
+  const enteredInclusiveTax = useAppSelector(
+    ({ global }) => global.enteredInclusive
+  )
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
 

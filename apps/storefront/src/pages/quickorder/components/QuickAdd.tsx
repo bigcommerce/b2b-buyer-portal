@@ -1,12 +1,14 @@
-import { KeyboardEventHandler, useContext, useEffect, useState } from 'react'
+import { KeyboardEventHandler, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useB3Lang } from '@b3/lang'
 import { Box, Grid, Typography } from '@mui/material'
 
-import { B3CustomForm, B3Sping, CustomButton } from '@/components'
+import { B3CustomForm } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
+import B3Sping from '@/components/spin/B3Sping'
 import { useBlockPendingAccountViewPrice } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
-import { B3SStorage, snackbar } from '@/utils'
+import { isB2BUserSelector, useAppSelector } from '@/store'
+import { snackbar } from '@/utils'
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config'
 
 import {
@@ -31,10 +33,10 @@ export default function QuickAdd(props: AddToListContentProps) {
     buttonText = b3Lang('purchasedProducts.quickAdd.addProductToList'),
   } = props
 
-  const {
-    state: { isB2BUser },
-  } = useContext(GlobaledContext)
-
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const companyStatus = useAppSelector(
+    ({ company }) => company.companyInfo.status
+  )
   const [rows, setRows] = useState(level)
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -49,6 +51,8 @@ export default function QuickAdd(props: AddToListContentProps) {
       formFields = [...formFields, ...getQuickAddRowFields(index, b3Lang)]
     })
     setFormFields(formFields)
+    // disabling since b3Lang since it has rendering issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows])
 
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
@@ -290,7 +294,6 @@ export default function QuickAdd(props: AddToListContentProps) {
   }
 
   const handleAddToList = () => {
-    const companyStatus = B3SStorage.get('companyStatus')
     if (blockPendingAccountViewPrice && companyStatus === 0) {
       snackbar.info(
         'Your business account is pending approval. This feature is currently disabled.'
@@ -362,7 +365,6 @@ export default function QuickAdd(props: AddToListContentProps) {
         }
 
         if (orderLimitSku.length > 0) {
-          // const stockSku = orderLimitSku.map((item) => item.sku)
           orderLimitSku.forEach((item) => {
             const { min, max, sku } = item
 

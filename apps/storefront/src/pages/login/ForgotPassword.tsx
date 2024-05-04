@@ -1,14 +1,17 @@
 import { Dispatch, SetStateAction, useContext, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import { Box, ImageListItem, Typography } from '@mui/material'
 
-import { B3Card, B3CustomForm, B3Sping, CustomButton } from '@/components'
+import { B3Card, B3CustomForm } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
+import { OpenPageState } from '@/types/hooks'
+import b2bLogger from '@/utils/b3Logger'
 
 import { getForgotPasswordFields, LoginConfig, sendEmail } from './config'
 import { B3ResetPassWordButton, LoginImage } from './styled'
@@ -55,7 +58,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
       setLoading(false)
       navigate('/login?loginFlag=2')
     } catch (e) {
-      console.log(e)
+      b2bLogger.error(e)
     }
   }
 

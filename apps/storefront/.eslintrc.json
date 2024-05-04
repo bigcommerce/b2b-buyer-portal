@@ -2,26 +2,9 @@
   "extends": ["b2b"],
   "overrides": [
     {
-      "files": [
-        "src/pages/**/*.{ts,tsx}",
-        "src/utils/**/*.{ts,tsx}",
-        "src/components/**/*.{ts,tsx}",
-        "src/shared/**/**/**/*.ts"
-      ],
+      "files": ["src/pages/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
       "rules": {
-        "import/no-cycle": 0
-      }
-    },
-    {
-      "files": [
-        "src/components/**/*.{ts,tsx}",
-        "src/App.tsx",
-        "src/pages/**/*.{ts,tsx}",
-        "src/hooks/dom/*.ts",
-        "src/hooks/*.ts"
-      ],
-      "rules": {
-        "react-hooks/exhaustive-deps": 0
+        "no-param-reassign": 0
       }
     },
     {
@@ -90,18 +73,7 @@
       }
     },
     {
-      "files": [
-        "src/*.ts",
-        "src/components/*.tsx",
-        "src/components/**/*.tsx",
-        "src/hooks/dom/*.ts",
-        "src/pages/**/*.{ts,tsx}",
-        "src/shared/*.ts",
-        "src/shared/**/*.ts",
-        "src/utils/*.{ts,tsx}",
-        "src/utils/b3Product/*.ts",
-        "src/utils/b3Product/shared/*.ts"
-      ],
+      "files": ["src/utils/b3Logger.ts"],
       "rules": {
         "no-console": 0
       }
@@ -136,7 +108,7 @@
       "rules": { "react/jsx-wrap-multilines": 0 }
     },
     {
-      "files": ["src/**/*.{ts,tsx}"],
+      "files": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
       "rules": { "import/extensions": 0 }
     },
     {

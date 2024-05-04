@@ -1,26 +1,25 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Alert, Box } from '@mui/material'
 
-import { GlobaledContext } from '@/shared/global'
+import useStorageState from '@/hooks/useStorageState'
 import { getCompanyCreditConfig } from '@/shared/service/b2b'
-import { B3SStorage } from '@/utils'
+import { useAppSelector } from '@/store'
+
+const permissionRoles = [0, 1, 2]
 
 function CompanyCredit() {
-  const {
-    state: { role, isAgenting },
-  } = useContext(GlobaledContext)
-
-  const permissionRoles = [0, 1, 2]
-
-  const [isEnabled, setEnabled] = useState<boolean>(false)
-
   const b3Lang = useB3Lang()
+  const [isEnabled, setEnabled] = useState<boolean>(false)
+  const [isCloseCompanyCredit, setIsCloseCompanyCredit] =
+    useStorageState<boolean>('sf-isCloseCompanyCredit', false, sessionStorage)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   useEffect(() => {
     const init = async () => {
-      const isCloseCompanyCredit = B3SStorage.get('isCloseCompanyCredit')
-
       if (isCloseCompanyCredit) return
 
       if (permissionRoles.includes(+role) || (+role === 3 && isAgenting)) {
@@ -33,10 +32,10 @@ function CompanyCredit() {
     }
 
     init()
-  }, [role, isAgenting])
+  }, [role, isAgenting, isCloseCompanyCredit])
 
   const handleCompanyCreditCloseClick = () => {
-    B3SStorage.set('isCloseCompanyCredit', true)
+    setIsCloseCompanyCredit(true)
     setEnabled(false)
   }
 

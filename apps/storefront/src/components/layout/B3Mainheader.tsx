@@ -6,9 +6,8 @@ import { Box, Button, Typography } from '@mui/material'
 
 import useMobile from '@/hooks/useMobile'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
-import { store } from '@/store'
-import { b3TriggerCartNumber } from '@/utils'
+import { useAppSelector } from '@/store'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
 
@@ -16,10 +15,12 @@ import B3AccountInfo from './B3AccountInfo'
 import B3StatusNotification from './B3StatusNotification'
 
 export default function B3Mainheader({ title }: { title: string }) {
-  const {
-    state: { companyInfo, salesRepCompanyName, role },
-  } = useContext(GlobaledContext)
-  const { global } = store.getState()
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const companyInfo = useAppSelector(({ company }) => company.companyInfo)
+  const salesRepCompanyName = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName
+  )
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber)
   const navigate = useNavigate()
   const b3Lang = useB3Lang()
   const [isMobile] = useMobile()
@@ -116,7 +117,7 @@ export default function B3Mainheader({ title }: { title: string }) {
                 onClick={onCartClick}
               >
                 {b3Lang('global.B3MainHeader.cart')}
-                {global?.cartNumber && global?.cartNumber > 0 ? (
+                {cartNumber > 0 ? (
                   <Typography
                     id="cart-number-icon"
                     sx={{
@@ -132,7 +133,7 @@ export default function B3Mainheader({ title }: { title: string }) {
                       padding: '0px 6.5px',
                     }}
                   >
-                    {global?.cartNumber}
+                    {cartNumber}
                   </Typography>
                 ) : null}
               </Button>

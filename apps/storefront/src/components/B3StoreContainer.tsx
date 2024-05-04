@@ -1,12 +1,19 @@
 import { ReactNode, useContext, useLayoutEffect } from 'react'
+import globalB3 from '@b3/global-b3'
 
 import { GlobaledContext } from '@/shared/global'
 import { getBCStoreChannelId } from '@/shared/service/b2b'
-import { setHeadLessBcUrl, setStoreInfo, store } from '@/store'
-import { B3SStorage, setGlobalTranslation, storeHash } from '@/utils'
+import {
+  getGlobalTranslations,
+  setHeadLessBcUrl,
+  setStoreInfo,
+  useAppDispatch,
+} from '@/store'
+import { setTimeFormat } from '@/store/slices/storeInfo'
+import { B3SStorage, storeHash } from '@/utils'
 
-import B3PageMask from './loadding/B3PageMask'
-import showPageMask from './loadding/B3showPageMask'
+import B3PageMask from './loading/B3PageMask'
+import showPageMask from './loading/B3showPageMask'
 
 interface B3StoreContainerProps {
   children: ReactNode
@@ -34,6 +41,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
     state: { storeEnabled },
     dispatch,
   } = useContext(GlobaledContext)
+  const storeDispatch = useAppDispatch()
 
   useLayoutEffect(() => {
     const getStoreBasicInfo = async () => {
@@ -50,7 +58,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
 
         if (!storeInfo) return
 
-        store.dispatch(setStoreInfo(storeInfo))
+        storeDispatch(setStoreInfo(storeInfo))
 
         const {
           channelId,
@@ -79,7 +87,6 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
             currentChannelId: channelId,
             b2bChannelId,
             storeName: storeBasicInfo.storeName,
-            timeFormat: storeBasicInfo.timeFormat,
             multiStorefrontEnabled: storeBasicInfo.multiStorefrontEnabled,
           },
         })
@@ -88,15 +95,20 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           showPageMask(dispatch, false)
         }
 
-        if (translationVersion > 0) {
-          setGlobalTranslation({
-            translationVersion,
+        storeDispatch(
+          getGlobalTranslations({
+            newVersion: translationVersion,
             channelId: storeBasicInfo.multiStorefrontEnabled ? channelId : 0,
           })
-        }
+        )
 
-        store.dispatch(setHeadLessBcUrl(bcUrl))
-        B3SStorage.set('timeFormat', storeBasicInfo.timeFormat)
+        storeDispatch(
+          setHeadLessBcUrl(
+            globalB3?.setting?.is_local_debugging ? '/bigcommerce' : bcUrl
+          )
+        )
+
+        storeDispatch(setTimeFormat(storeBasicInfo.timeFormat))
         B3SStorage.set('B3channelId', channelId)
         B3SStorage.set('bcUrl', bcUrl)
         sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled))
@@ -105,6 +117,8 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
       }
     }
     getStoreBasicInfo()
+    // disabling because dispatchers are not supposed to be here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const { children } = props

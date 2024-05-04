@@ -14,11 +14,13 @@ import {
   uploadB2BFile,
 } from '@/shared/service/b2b'
 import { storeHash } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
 import { RegisteredContext } from './context/RegisteredContext'
-import { deCodeField, RegisterFields, toHump } from './config'
+import { deCodeField, toHump } from './config'
 import { InformationFourLabels, TipContent } from './styled'
+import { RegisterFields } from './types'
 
 interface RegisterCompleteProps {
   handleBack: () => void
@@ -35,7 +37,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [enterEmail, setEnterEmail] = useState<string>('')
-  // const [captchaMessage, setCaptchaMessage] = useState<string>('')
 
   const {
     control,
@@ -96,7 +97,13 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     }
 
     setPersonalInfo(passwordInfo)
-  }, [contactInformation, bcContactInformation, accountType])
+  }, [
+    contactInformation,
+    bcContactInformation,
+    accountType,
+    list,
+    passwordInfo,
+  ])
 
   const getBCFieldsValue = (data: CustomFieldItems) => {
     const bcFields: CustomFieldItems = {}
@@ -277,7 +284,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       return createB2BCompanyUser(b2bFields)
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
     }
     return undefined
   }
@@ -321,7 +328,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
       return fileList
     } catch (error) {
-      console.log(error)
+      b2bLogger.error(error)
       throw error
     }
   }
@@ -397,7 +404,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   }
 
   const handleCompleted = (event: MouseEvent) => {
-    // if (captchaMessage !== 'success') return
     handleSubmit(async (completeData: CustomFieldItems) => {
       if (completeData.password !== completeData.confirmPassword) {
         setError('confirmPassword', {
@@ -462,14 +468,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     })(event)
   }
 
-  // const captcha = useMemo(() => (
-  //   <Captcha
-  //     size="normal"
-  //     siteKey={captchaSetkey}
-  //     onSuccess={() => setCaptchaMessage('success')}
-  //   />
-  // ), [])
-
   return (
     <Box
       sx={{
@@ -518,15 +516,6 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           </>
         )}
       </Box>
-
-      {/* <Box
-        sx={{
-          mt: 4,
-        }}
-      >
-        {captcha}
-      </Box> */}
-
       <RegisteredStepButton
         handleBack={handleBack}
         activeStep={activeStep}

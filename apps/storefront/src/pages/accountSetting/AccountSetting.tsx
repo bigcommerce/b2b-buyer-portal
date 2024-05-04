@@ -5,23 +5,28 @@ import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 import trim from 'lodash-es/trim'
 
-import { B3CustomForm, B3Sping, CustomButton } from '@/components'
+import { B3CustomForm } from '@/components'
+import CustomButton from '@/components/button/CustomButton'
 import {
   b3HexToRgb,
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
+import useStorageState from '@/hooks/useStorageState'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
 import {
-  checkUserBCEmail,
-  checkUserEmail,
   getB2BAccountFormFields,
   getB2BAccountSettings,
   getBCAccountSettings,
   updateB2BAccountSettings,
   updateBCAccountSettings,
 } from '@/shared/service/b2b'
+import {
+  isB2BUserSelector,
+  isValidUserTypeSelector,
+  useAppSelector,
+} from '@/store'
 import { Fields, ParamProps } from '@/types/accountSetting'
 import { B3SStorage, snackbar } from '@/utils'
 
@@ -47,17 +52,22 @@ function AccountSetting() {
     mode: 'onSubmit',
   })
 
-  const {
-    state: {
-      role,
-      isB2BUser,
-      isAgenting,
-      customer,
-      currentChannelId,
-      salesRepCompanyId,
-      companyInfo: { id: companyInfoId },
-    },
-  } = useContext(GlobaledContext)
+  const [isFinshUpdate, setIsFinshUpdate] = useStorageState<boolean>(
+    'sf-isFinshUpdate',
+    false,
+    sessionStorage
+  )
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
+  const customer = useAppSelector(({ company }) => company.customer)
+  const role = useAppSelector(({ company }) => company.customer.role)
+  const isValidUserType = useAppSelector(isValidUserTypeSelector)
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const {
     state: {
@@ -90,7 +100,7 @@ function AccountSetting() {
   const [currentEamil, setCurrentEmail] = useState<string>('')
 
   const companyId =
-    role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId
+    role === 3 && isAgenting ? salesRepCompanyId : +companyInfoId
 
   const isBCUser = !isB2BUser || (role === 3 && !isAgenting)
 
@@ -186,11 +196,11 @@ function AccountSetting() {
 
         setExtraFields(additionalInformation)
       } finally {
-        if (B3SStorage.get('isFinshUpdate') === '1') {
+        if (isFinshUpdate) {
           snackbar.success(
             b3Lang('accountSettings.notification.detailsUpdated')
           )
-          B3SStorage.delete('isFinshUpdate')
+          setIsFinshUpdate(false)
         }
         setLoadding(false)
         setIsVisible(true)
@@ -198,30 +208,21 @@ function AccountSetting() {
     }
 
     init()
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true
-    const fn = !isBCUser ? checkUserEmail : checkUserBCEmail
-    const key = !isBCUser ? 'userEmailCheck' : 'customerEmailCheck'
 
-    const {
-      [key]: { userType },
-    }: CustomFieldItems = await fn({
-      email: emailValue,
-      channelId: currentChannelId,
-    })
-
-    const isValid = !isBCUser ? [1].includes(userType) : ![2].includes(userType)
-
-    if (!isValid) {
+    if (!isValidUserType) {
       setError('email', {
         type: 'custom',
         message: b3Lang('accountSettings.notification.emailExists'),
       })
     }
 
-    return isValid
+    return isValidUserType
   }
 
   const passwordValidation = (data: Partial<ParamProps>) => {
@@ -332,7 +333,7 @@ function AccountSetting() {
             navigate('/login?loginFlag=3')
           } else {
             B3SStorage.clear()
-            B3SStorage.set('isFinshUpdate', '1')
+            setIsFinshUpdate(true)
             window.location.reload()
           }
         }

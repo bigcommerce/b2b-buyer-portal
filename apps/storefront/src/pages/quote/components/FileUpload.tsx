@@ -9,7 +9,7 @@ import { Box, Tooltip, Typography, useTheme } from '@mui/material'
 import noop from 'lodash-es/noop'
 import { v1 as uuid } from 'uuid'
 
-import { B3Sping } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { uploadB2BFile } from '@/shared/service/b2b'
 import { snackbar } from '@/utils'
 
@@ -62,14 +62,14 @@ const FileListItem = styled(Box)((props: CustomFieldItems) => ({
   },
 }))
 
-const FileUserTitle = styled(Typography)(() => ({
+const FileUserTitle = styled(Typography)({
   marginBottom: '16px',
   fontSize: '10px',
   color: 'rgba(0, 0, 0, 0.38)',
   padding: '0 12px',
   textAlign: 'right',
   wordBreak: 'break-word',
-}))
+})
 
 export interface FileObjects {
   id?: string

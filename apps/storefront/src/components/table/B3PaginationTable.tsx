@@ -3,6 +3,7 @@ import {
   memo,
   ReactElement,
   Ref,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -19,14 +20,6 @@ export interface TablePagination {
   offset: number
   first: number
 }
-
-// export interface TableColumnItem {
-//   key: string,
-//   title: string,
-//   width?: string,
-//   render?: (item: CustomFieldItems, index: number) => ReactNode,
-// }
-
 interface B3PaginationTableProps {
   tableFixed?: boolean
   tableHeaderHide?: boolean
@@ -128,99 +121,111 @@ function PaginationTable(
 
   const [isMobile] = useMobile()
 
-  const cacheList = (edges: Array<CustomFieldItems>) => {
-    if (!cacheAllList.length) setCacheAllList(edges)
+  const cacheList = useCallback(
+    (edges: Array<CustomFieldItems>) => {
+      if (!cacheAllList.length) setCacheAllList(edges)
 
-    const copyCacheAllList = [...cacheAllList]
+      const copyCacheAllList = [...cacheAllList]
 
-    edges.forEach((item: CustomFieldItems) => {
-      const option = item?.node || item
-      const isExist = cacheAllList.some((cache: CustomFieldItems) => {
-        const cacheOption = cache?.node || cache
-        return cacheOption[selectedSymbol] === option[selectedSymbol]
+      edges.forEach((item: CustomFieldItems) => {
+        const option = item?.node || item
+        const isExist = cacheAllList.some((cache: CustomFieldItems) => {
+          const cacheOption = cache?.node || cache
+          return cacheOption[selectedSymbol] === option[selectedSymbol]
+        })
+
+        if (!isExist) {
+          copyCacheAllList.push(item)
+        }
       })
 
-      if (!isExist) {
-        copyCacheAllList.push(item)
+      setCacheAllList(copyCacheAllList)
+    },
+    [cacheAllList, selectedSymbol]
+  )
+
+  const fetchList = useCallback(
+    async (b3Pagination?: TablePagination, isRefresh?: boolean) => {
+      try {
+        if (
+          cache?.current &&
+          isEqual(cache.current, searchParams) &&
+          !isRefresh &&
+          !b3Pagination
+        ) {
+          return
+        }
+        cache.current = searchParams
+
+        setLoading(true)
+        if (requestLoading) requestLoading(true)
+        const { createdBy } = searchParams
+
+        const getEmailReg = /\((.+)\)/g
+        const getCreatedByReg = /^[^(]+/
+        const emailRegArr = getEmailReg.exec(createdBy)
+        const createdByUserRegArr = getCreatedByReg.exec(createdBy)
+        const createdByUser = createdByUserRegArr?.length
+          ? createdByUserRegArr[0].trim()
+          : ''
+        const newSearchParams = {
+          ...searchParams,
+          createdBy: createdByUser,
+          email: emailRegArr?.length ? emailRegArr[1] : '',
+        }
+        const params = {
+          ...newSearchParams,
+          first: b3Pagination?.first || pagination.first,
+          offset: b3Pagination?.offset || 0,
+        }
+        const requestList = await getRequestList(params)
+        const { edges, totalCount }: CustomFieldItems = requestList
+
+        setList(edges)
+
+        cacheList(edges)
+
+        if (!isSelectOtherPageCheckbox) setSelectCheckbox([])
+
+        if (!b3Pagination) {
+          setPagination({
+            first: pagination.first,
+            offset: 0,
+          })
+        }
+
+        setAllCount(totalCount)
+        setLoading(false)
+        if (requestLoading) requestLoading(false)
+      } catch (e) {
+        setLoading(false)
+        if (requestLoading) requestLoading(false)
       }
-    })
+    },
+    [
+      cacheList,
+      getRequestList,
+      isSelectOtherPageCheckbox,
+      pagination.first,
+      requestLoading,
+      searchParams,
+    ]
+  )
 
-    setCacheAllList(copyCacheAllList)
-  }
-
-  const fetchList = async (
-    b3Pagination?: TablePagination,
-    isRefresh?: boolean
-  ) => {
-    try {
-      if (
-        cache?.current &&
-        isEqual(cache.current, searchParams) &&
-        !isRefresh &&
-        !b3Pagination
-      ) {
-        return
-      }
-      cache.current = searchParams
-
-      setLoading(true)
-      if (requestLoading) requestLoading(true)
-      const { createdBy } = searchParams
-
-      const getEmailReg = /\((.+)\)/g
-      const getCreatedByReg = /^[^(]+/
-      const emailRegArr = getEmailReg.exec(createdBy)
-      const createdByUserRegArr = getCreatedByReg.exec(createdBy)
-      const createdByUser = createdByUserRegArr?.length
-        ? createdByUserRegArr[0].trim()
-        : ''
-      const newSearchParams = {
-        ...searchParams,
-        createdBy: createdByUser,
-        email: emailRegArr?.length ? emailRegArr[1] : '',
-      }
-      const params = {
-        ...newSearchParams,
-        first: b3Pagination?.first || pagination.first,
-        offset: b3Pagination?.offset || 0,
-      }
-      const requestList = await getRequestList(params)
-      const { edges, totalCount }: CustomFieldItems = requestList
-
-      setList(edges)
-
-      cacheList(edges)
-
-      if (!isSelectOtherPageCheckbox) setSelectCheckbox([])
-
-      if (!b3Pagination) {
-        setPagination({
-          first: pagination.first,
-          offset: 0,
-        })
-      }
-
-      setAllCount(totalCount)
-      setLoading(false)
-      if (requestLoading) requestLoading(false)
-    } catch (e) {
-      setLoading(false)
-      if (requestLoading) requestLoading(false)
-    }
-  }
-
-  const refresh = () => {
+  const refresh = useCallback(() => {
     fetchList(pagination, true)
-  }
+  }, [fetchList, pagination])
 
   useEffect(() => {
     if (!isEmpty(searchParams)) {
       fetchList()
     }
-  }, [searchParams])
+  }, [fetchList, searchParams])
 
   useEffect(() => {
     if (getSelectCheckbox) getSelectCheckbox(selectCheckbox)
+    // disabling as getSelectCheckbox will trigger rerenders if the user passes a function that is not memoized
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectCheckbox, list])
 
   const handlePaginationChange = async (pagination: TablePagination) => {
@@ -233,38 +238,50 @@ function PaginationTable(
     count,
   }
 
-  const getSelectedValue = () => ({
-    selectCheckbox,
-  })
+  const getSelectedValue = useCallback(
+    () => ({
+      selectCheckbox,
+    }),
+    [selectCheckbox]
+  )
 
-  const getList = () => list
+  const getList = useCallback(() => list, [list])
 
-  const getCacheList = () => cacheAllList
+  const getCacheList = useCallback(() => cacheAllList, [cacheAllList])
 
-  useImperativeHandle(ref, () => ({
-    getSelectedValue,
-    setList,
-    setCacheAllList,
-    getList,
-    getCacheList,
-    refresh,
-  }))
+  useImperativeHandle(
+    ref,
+    () => ({
+      getSelectedValue,
+      setList,
+      setCacheAllList,
+      getList,
+      getCacheList,
+      refresh,
+    }),
+    [getList, getCacheList, getSelectedValue, refresh]
+  )
 
-  const getCurrentAllItemsSelect = () => {
+  const getCurrentAllItemsSelect = useCallback(() => {
     if (!selectCheckbox.length) return false
     return list.every((item: CustomFieldItems) => {
       const option = item?.node || item
 
       return selectCheckbox.includes(option[selectedSymbol])
     })
-  }
+  }, [list, selectCheckbox, selectedSymbol])
 
   useEffect(() => {
     if (isSelectOtherPageCheckbox) {
       const flag = getCurrentAllItemsSelect()
       setAllSelect(flag)
     }
-  }, [selectCheckbox, pagination])
+  }, [
+    selectCheckbox,
+    pagination,
+    isSelectOtherPageCheckbox,
+    getCurrentAllItemsSelect,
+  ])
 
   const handleSelectAllItems = () => {
     const singlePageCheckbox = () => {

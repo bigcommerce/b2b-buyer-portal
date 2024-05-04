@@ -1,6 +1,7 @@
 import { getInvoiceCheckoutUrl } from '@/shared/service/b2b'
 import { BcCartData } from '@/types/invoice'
 import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout'
+import b2bLogger from '@/utils/b3Logger'
 
 export const getCheckouUrlAndCart = async (params: BcCartData) => {
   const {
@@ -41,7 +42,7 @@ export const gotoInvoiceCheckoutUrl = async (
       isReplaceCurrentUrl
     )
   } catch (e) {
-    console.error(e)
+    b2bLogger.error(e)
     handleStencil()
   }
 }

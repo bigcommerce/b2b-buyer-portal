@@ -1,32 +1,24 @@
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useB3Lang } from '@b3/lang'
 import styled from '@emotion/styled'
 import { Delete } from '@mui/icons-material'
 import { Alert, Box, Grid, Typography } from '@mui/material'
 
-import {
-  B3Dialog,
-  B3QuantityTextField,
-  B3Sping,
-  CustomButton,
-  successTip,
-} from '@/components'
+import { B3QuantityTextField, successTip } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
+import CustomButton from '@/components/button/CustomButton'
+import B3Sping from '@/components/spin/B3Sping'
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
 import { useMobile } from '@/hooks'
-import { globalStateSelector } from '@/store'
-import {
-  b3TriggerCartNumber,
-  currencyFormat,
-  getActiveCurrencyInfo,
-  setModifierQtyPrice,
-  snackbar,
-} from '@/utils'
+import { activeCurrencyInfoSelector, useAppSelector } from '@/store'
+import { currencyFormat, snackbar } from '@/utils'
+import { setModifierQtyPrice } from '@/utils/b3Product/b3Product'
 import {
   addlineItems,
   getProductOptionsFields,
   ProductsProps,
 } from '@/utils/b3Product/shared/config'
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart } from '@/utils/cartUtils'
 
 interface ShoppingProductsProps {
@@ -65,7 +57,7 @@ interface FlexItemProps {
   textAlignLocation?: string
 }
 
-const Flex = styled('div')(({ isHeader, isMobile }: FlexProps) => {
+const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
   const headerStyle = isHeader
     ? {
         borderBottom: '1px solid #D9DCE9',
@@ -181,9 +173,10 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
   const [isMobile] = useMobile()
 
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
-
-  const { storeInfo } = useSelector(globalStateSelector)
+  const { decimal_places: decimalPlaces = 2 } = useAppSelector(
+    activeCurrencyInfoSelector
+  )
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   useEffect(() => {
     if (products.length > 0) {
@@ -236,9 +229,8 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       setLoading(true)
 
       const lineItems = addlineItems(products)
-      const storePlatform = storeInfo?.platform
 
-      const res = await callCart(lineItems, storePlatform)
+      const res = await callCart(lineItems, platform)
 
       if (!res.errors) {
         handleCancelClicked()

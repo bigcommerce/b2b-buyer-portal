@@ -1,10 +1,11 @@
 import { useContext, useEffect } from 'react'
 import { flushSync } from 'react-dom'
 
-import { B3Tip } from '@/components'
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
 import { MsgsProps } from '@/shared/dynamicallyVariable/context/config'
+
+import B3Tip from '../B3Tip'
 
 function B3LayoutTip() {
   const {
@@ -16,11 +17,9 @@ function B3LayoutTip() {
 
   useEffect(() => {
     window.tipDispatch = dispatch
+    // disabling as dispatch does not need to be in the deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  // useEffect(() => {
-  //   window.b3Tipmessage = tipMessage?.msgs || []
-  // }, [tipMessage])
 
   const setMsgs = (msgs: [] | Array<MsgsProps> = []) => {
     dispatch({

@@ -1,4 +1,5 @@
 {
+  "root": true,
   "env": {
     "browser": true,
     "es2021": true
@@ -18,7 +19,7 @@
     "airbnb/hooks",
     "airbnb-typescript",
     "plugin:@bigcommerce/recommended",
-    "prettier"
+    "plugin:prettier/recommended"
   ],
   "settings": {
     "import/parsers": {
@@ -75,6 +76,7 @@
     "project": true
   },
   "rules": {
+    "prettier/prettier": ["warn"],
     "react/react-in-jsx-scope": 0,
     "react/require-default-props": 0,
     "import/no-extraneous-dependencies": [

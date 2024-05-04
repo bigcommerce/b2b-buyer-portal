@@ -1,14 +1,16 @@
 import { searchB2BProducts } from '@/shared/service/b2b'
-import { B3SStorage } from '@/utils'
+import { store } from '@/store'
 
 import { conversionProductsList } from './b3Product/shared/config'
 
 export const handleGetCurrentProductInfo = async (
   productId: number | string
 ) => {
-  const companyId =
-    B3SStorage.get('B3CompanyInfo')?.id || B3SStorage.get('salesRepCompanyId')
-  const customerGroupId = B3SStorage.get('B3CustomerInfo')?.customerGroupId
+  const currentState = store.getState()
+  const { customerGroupId } = currentState.company.customer
+  const { id: salesRepCompanyId } = currentState.b2bFeatures.masqueradeCompany
+  const { id: companyInfoId } = currentState.company.companyInfo
+  const companyId = companyInfoId || salesRepCompanyId
 
   const { productsSearch } = await searchB2BProducts({
     productIds: [+productId],
@@ -18,7 +20,6 @@ export const handleGetCurrentProductInfo = async (
 
   const currentProductInfo = conversionProductsList(productsSearch)
 
-  // B3SStorage.set('currentProductToSL', currentProductInfo)
   return currentProductInfo
 }
 

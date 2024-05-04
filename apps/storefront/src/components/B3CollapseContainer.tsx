@@ -27,7 +27,7 @@ export default function B3CollapseContainer(props: CollapseContainerProps) {
   }
   useEffect(() => {
     if (handleOnChange) handleOnChange(open)
-  }, [open])
+  }, [handleOnChange, open])
 
   useEffect(() => {
     if (defaultOpen) {

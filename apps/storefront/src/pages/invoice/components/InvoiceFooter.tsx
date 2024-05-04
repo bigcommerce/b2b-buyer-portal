@@ -1,17 +1,15 @@
-import { useContext, useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Box, Button, Grid, Typography } from '@mui/material'
 
 import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
-import { globalStateSelector } from '@/store'
+import { useAppSelector } from '@/store'
 import {
   BcCartData,
   BcCartDataLineItem,
   InvoiceListNode,
 } from '@/types/invoice'
-import { B3SStorage, snackbar } from '@/utils'
+import { handleGetCorrespondingCurrencyToken, snackbar } from '@/utils'
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment'
 
@@ -21,16 +19,15 @@ interface InvoiceFooterProps {
 }
 
 function InvoiceFooter(props: InvoiceFooterProps) {
-  const globalState = useSelector(globalStateSelector)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const b3Lang = useB3Lang()
-  const allCurrencies = B3SStorage.get('currencies')
   const [isMobile] = useMobile()
   const [selectedAccount, setSelectedAccount] = useState<number | string>(0)
   const [currentToken, setCurrentToken] = useState<string>('$')
 
-  const {
-    state: { isAgenting },
-  } = useContext(GlobaledContext)
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const containerStyle = isMobile
     ? {
@@ -42,34 +39,6 @@ function InvoiceFooter(props: InvoiceFooterProps) {
       }
 
   const { selectedPay, decimalPlaces } = props
-
-  const handleGetCorrespondingCurrency = (code: string) => {
-    const { currencies: currencyArr } = allCurrencies
-    let token = '$'
-    const correspondingCurrency =
-      currencyArr.find(
-        (currency: CustomFieldItems) => currency.currency_code === code
-      ) || {}
-
-    if (correspondingCurrency) {
-      token = correspondingCurrency.token
-    }
-
-    return token
-  }
-
-  const handleStatisticsInvoiceAmount = (checkedArr: CustomFieldItems) => {
-    let amount = 0
-
-    checkedArr.forEach((item: InvoiceListNode) => {
-      const {
-        node: { openBalance },
-      } = item
-      amount += openBalance.value === '.' ? 0 : +openBalance.value
-    })
-
-    setSelectedAccount(amount.toFixed(decimalPlaces))
-  }
 
   const handlePay = async () => {
     const lineItems: BcCartDataLineItem[] = []
@@ -105,25 +74,33 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         currency,
       }
 
-      await gotoInvoiceCheckoutUrl(
-        params,
-        globalState.storeInfo.platform,
-        false
-      )
+      await gotoInvoiceCheckoutUrl(params, platform, false)
     }
   }
 
   useEffect(() => {
     if (selectedPay.length > 0) {
+      const handleStatisticsInvoiceAmount = (checkedArr: CustomFieldItems) => {
+        let amount = 0
+
+        checkedArr.forEach((item: InvoiceListNode) => {
+          const {
+            node: { openBalance },
+          } = item
+          amount += openBalance.value === '.' ? 0 : +openBalance.value
+        })
+
+        setSelectedAccount(amount.toFixed(decimalPlaces))
+      }
       const {
         node: { openBalance },
       } = selectedPay[0]
 
-      const token = handleGetCorrespondingCurrency(openBalance.code)
+      const token = handleGetCorrespondingCurrencyToken(openBalance.code)
       setCurrentToken(token)
       handleStatisticsInvoiceAmount(selectedPay)
     }
-  }, [selectedPay])
+  }, [decimalPlaces, selectedPay])
 
   return (
     <Grid

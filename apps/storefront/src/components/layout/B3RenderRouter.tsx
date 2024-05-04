@@ -13,9 +13,7 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom'
-import type { OpenPageState } from '@b3/hooks'
 
-import Loading from '@/components/loadding/Loading'
 import { RegisteredProvider } from '@/pages/registered/context/RegisteredContext'
 import { GlobaledContext } from '@/shared/global'
 import {
@@ -24,7 +22,10 @@ import {
   RouteFirstLevelItem,
   RouteItem,
 } from '@/shared/routes/routes'
-import { setTranslation } from '@/utils'
+import { getPageTranslations, useAppDispatch } from '@/store'
+import { OpenPageState } from '@/types/hooks'
+
+import Loading from '../loading/Loading'
 
 const B3Layout = lazy(() => import('@/components/layout/B3Layout'))
 
@@ -38,14 +39,11 @@ interface B3RenderRouterProps {
 
 export default function B3RenderRouter(props: B3RenderRouterProps) {
   const { setOpenPage, openUrl, isOpen } = props
-
   const { state: globaledState } = useContext(GlobaledContext)
-
   const newRoutes = () => getAllowedRoutes(globaledState)
-
   const location = useLocation()
-
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     if (openUrl && openUrl === '/dashboard?closeMasqurade=1') {
@@ -60,20 +58,32 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
     } else if (typeof openUrl === 'string') {
       navigate(openUrl)
     }
+    //
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openUrl, isOpen])
 
-  useEffect(() => {
-    const [, page] = location.pathname.split('/')
-    if (!page) return
+  useEffect(
+    () => {
+      const [, page] = location.pathname.split('/')
+      if (!page) return
 
-    let channelId = globaledState.currentChannelId
-
-    if (!globaledState.multiStorefrontEnabled) {
-      channelId = 0
-    }
-
-    setTranslation({ channelId, page })
-  }, [location.pathname])
+      dispatch(
+        getPageTranslations({
+          channelId: globaledState.multiStorefrontEnabled
+            ? globaledState.currentChannelId
+            : 0,
+          page,
+        })
+      )
+    },
+    // ignore dispatch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      globaledState.currentChannelId,
+      globaledState.multiStorefrontEnabled,
+      location.pathname,
+    ]
+  )
 
   return (
     <Suspense fallback={<Loading />}>

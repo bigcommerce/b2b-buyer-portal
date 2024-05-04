@@ -1,6 +1,7 @@
+import { store } from '@/store/reducer'
 import { Fields, ParamProps } from '@/types/accountSetting'
 import { validatorRules } from '@/utils'
-import { bcBaseUrl } from '@/utils/basicConfig'
+import b2bLogger from '@/utils/b3Logger'
 
 import { deCodeField } from '../registered/config'
 
@@ -16,7 +17,7 @@ function sendUpdateAccountRequest(data: string): Promise<string> {
   }
 
   return fetch(
-    `${bcBaseUrl()}/account.php?action=update_account`,
+    `${store.getState().global.bcUrl}/account.php?action=update_account`,
     requestOptions
   )
     .then((response) => {
@@ -92,7 +93,7 @@ function sendEmail(data: any, extraFields: any) {
         resolve(!isFlag)
       })
       .catch((error) => {
-        console.error('Error:', error)
+        b2bLogger.error('Error:', error)
         reject()
       })
   })

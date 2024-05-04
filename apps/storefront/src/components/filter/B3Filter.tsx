@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Box } from '@mui/material'
 
-import { useMobile } from '@/hooks'
+import useMobile from '@/hooks/useMobile'
 
 import CustomButton from '../button/CustomButton'
 import { B3Select } from '../ui'
@@ -88,10 +88,6 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
   const handleSearchChange = (value: string) => {
     handleChange('search', value)
   }
-
-  // const handleFilterMoreChange = (filterItems) => {
-  //   handleFilterChange(filterItems)
-  // }
 
   const handleCustomBtnClick = () => {
     if (handleFilterCustomButtomClick) handleFilterCustomButtomClick()

@@ -31,7 +31,9 @@ const useSetCountry = () => {
       }
     }
     init()
-  }, [])
+    // ignore dispatch, it's not affecting any value from this
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countriesList])
 }
 
 interface FormFieldsProps extends Record<string, any> {
@@ -65,65 +67,74 @@ const useGetCountry = ({
     state: { countriesList },
   } = useContext(GlobaledContext)
 
-  const country = useWatch({
+  const countryCode = useWatch({
     control,
     name: 'country',
   })
 
-  const handleCountryChange = (countryCode: string) => {
-    if (countriesList && countriesList.length && countryCode) {
-      const stateList =
-        countriesList.find(
-          (country: Country) => country.countryCode === countryCode
-        )?.states || []
-      const stateFields = addresses.find(
-        (formFields: FormFieldsProps) => formFields.name === 'state'
-      )
-      if (stateFields) {
-        if (stateList.length > 0) {
-          stateFields.fieldType = 'dropdown'
-          stateFields.options = stateList
-        } else {
-          stateFields.fieldType = 'text'
-          stateFields.options = []
-        }
-      }
-
-      const stateVal = getValues('state')
-
-      setValue(
-        'state',
-        stateVal &&
-          countryCode &&
-          (stateList.find((state: State) => state.stateName === stateVal) ||
-            stateList.length === 0)
-          ? stateVal
-          : ''
-      )
-
-      setAddress([...addresses])
-    }
-  }
-
+  // Populate country array
   useEffect(() => {
-    const countryFields = addresses.find(
+    const countriesFieldIndex = addresses.findIndex(
       (formFields: FormFieldsProps) => formFields.name === 'country'
     )
-    if (
-      countriesList?.length &&
-      countryFields &&
-      !countryFields?.options?.length
-    ) {
-      countryFields.options = countriesList
-      setAddress([...addresses])
+    if (countriesList?.length && countriesFieldIndex !== -1) {
+      setAddress(
+        addresses.map((addressField, addressFieldIndex) => {
+          if (countriesFieldIndex === addressFieldIndex) {
+            return { ...addressField, options: countriesList }
+          }
+          return addressField
+        })
+      )
     }
+    // ignore addresses cause it will trigger loop array
+    // ignore setAddress due it's no affecting any logic
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countriesList])
 
+  // Populate state array when the user change selected country
   useEffect(() => {
-    if (countriesList && countriesList.length) {
-      handleCountryChange(country)
+    if (!countryCode || !countriesList?.length) return
+    const stateList =
+      countriesList.find(
+        (country: Country) => country.countryCode === countryCode
+      )?.states || []
+    const stateFieldIndex = addresses.findIndex(
+      (formFields: FormFieldsProps) => formFields.name === 'state'
+    )
+    if (stateFieldIndex !== -1) {
+      setAddress(
+        addresses.map((addressField, addressFieldIndex) => {
+          if (stateFieldIndex === addressFieldIndex) {
+            if (stateList.length > 0) {
+              return {
+                ...addressField,
+                fieldType: 'dropdown',
+                options: stateList,
+              }
+            }
+            return { ...addressField, fieldType: 'text', options: [] }
+          }
+          return addressField
+        })
+      )
     }
-  }, [country])
+
+    const stateVal = getValues('state')
+
+    setValue(
+      'state',
+      stateVal &&
+        countryCode &&
+        (stateList.find((state: State) => state.stateName === stateVal) ||
+          stateList.length === 0)
+        ? stateVal
+        : ''
+    )
+    // ignore addresses cause it will trigger loop array
+    // ignore setAddress, getValues and setValue due they're not affecting any value from this
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countryCode, countriesList])
 }
 
 export { useGetCountry, useSetCountry }

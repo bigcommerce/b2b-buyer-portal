@@ -1,5 +1,5 @@
-import { B3SStorage, getCookie } from '@/utils'
-import { bcBaseUrl } from '@/utils/basicConfig'
+import { store } from '@/store/reducer'
+import { getCookie } from '@/utils'
 
 import { B2B_BASIC_URL, queryParse, RequestType, RequestTypeKeys } from './base'
 import b3Fetch from './fetch'
@@ -9,10 +9,11 @@ interface Config {
     [key: string]: string
   }
 }
+
 const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
   const GraphqlEndpoints: CustomFieldStringItems = {
     B2BGraphql: `${B2B_BASIC_URL}/graphql`,
-    BCGraphql: `${bcBaseUrl()}/graphql`,
+    BCGraphql: `${store.getState().global.bcUrl}/graphql`,
     BCProxyGraphql: `${B2B_BASIC_URL}/api/v3/proxy/bc-storefront/graphql`,
   }
 
@@ -21,13 +22,14 @@ const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
 
 function request<T>(path: string, config?: T & Config, type?: RequestTypeKeys) {
   const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
+  const { B2BToken } = store.getState().company.tokens
   const getToken =
     type === RequestType.BCRest
       ? {
           'x-xsrf-token': getCookie('XSRF-TOKEN'),
         }
       : {
-          authToken: `${B3SStorage.get('B2BToken') || ''}`,
+          authToken: `${B2BToken}`,
         }
 
   const {
@@ -70,23 +72,9 @@ const B3Request = {
    * Request to B2B graphql API using B2B token
    */
   graphqlB2B: function post<T>(data: T, customMessage = false): Promise<any> {
+    const { B2BToken } = store.getState().company.tokens
     const config = {
-      Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
-    }
-    return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
-  },
-  /**
-   * super admin / pending company
-   * Request to B2B graphql API using BC JWT Token
-   */
-  graphqlB2BWithBCCustomerToken: function post<T>(
-    data: T,
-    customMessage = false
-  ): Promise<any> {
-    const config = {
-      Authorization: `Bearer  ${
-        B3SStorage.get('currentCustomerJWTToken') || ''
-      }`,
+      Authorization: `Bearer  ${B2BToken}`,
     }
     return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
   },
@@ -95,8 +83,9 @@ const B3Request = {
    * Request to BC graphql API using BC graphql token
    */
   graphqlBC: function post<T>(data: T): Promise<any> {
+    const { bcGraphqlToken } = store.getState().company.tokens
     const config = {
-      Authorization: `Bearer  ${B3SStorage.get('bcGraphqlToken') || ''}`,
+      Authorization: `Bearer  ${bcGraphqlToken}`,
     }
     return graphqlRequest(RequestType.BCGraphql, data, config)
   },
@@ -108,15 +97,16 @@ const B3Request = {
     useCartHeader?: boolean
   ): Promise<any> {
     let config = {}
+    const { B2BToken } = store.getState().company.tokens
 
     if (useCartHeader) {
       config = {
-        Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
+        Authorization: `Bearer  ${B2BToken}`,
         'disable-customer-header': 'true',
       }
     } else {
       config = {
-        Authorization: `Bearer  ${B3SStorage.get('B2BToken') || ''}`,
+        Authorization: `Bearer  ${B2BToken}`,
       }
     }
 

@@ -4,6 +4,7 @@ import { LangFormatFunction, useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
 import { GlobaledContext } from '@/shared/global'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
 
 const B3Dialog = lazy(() => import('../../../components/B3Dialog'))
@@ -52,8 +53,11 @@ function CreateShoppingList({
   const [loading, setLoading] = useState<boolean>(false)
 
   const {
-    state: { role, isB2BUser, currentChannelId },
+    state: { currentChannelId },
   } = useContext(GlobaledContext)
+
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const {
     control,

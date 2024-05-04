@@ -73,3 +73,5 @@ export const TRANSLATION_MASQUERADE_BUTTON_VARIABLE =
   'global.customStyles.masqueradeButton'
 export const TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE =
   'global.customStyles.shoppingListBtn'
+
+export const BROWSER_LANG = navigator.language.substring(0, 2)

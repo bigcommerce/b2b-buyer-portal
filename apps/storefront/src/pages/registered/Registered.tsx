@@ -5,23 +5,22 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import { Box, ImageListItem } from '@mui/material'
 
-import { B3Card, B3Sping } from '@/components'
+import { B3Card } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile, useScrollBar } from '@/hooks'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b'
-import {
-  // getBCRegisterCustomFields,
-  bcLogin,
-} from '@/shared/service/bc'
-import { themeFrameSelector } from '@/store'
-import { B3SStorage, getCurrentCustomerInfo, loginjump } from '@/utils'
+import { bcLogin } from '@/shared/service/bc'
+import { themeFrameSelector, useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
+import { B3SStorage, loginjump } from '@/utils'
+import b2bLogger from '@/utils/b3Logger'
+import { getCurrentCustomerInfo } from '@/utils/loginInfo'
 
 import { loginCheckout, LoginConfig } from '../login/config'
 
@@ -31,12 +30,12 @@ import {
   b2bAddressRequiredFields,
   companyAttachmentsFields,
   getAccountFormFields,
-  RegisterFields,
   RegisterFieldsItems,
 } from './config'
 import RegisterContent from './RegisterContent'
 import RegisteredStep from './RegisteredStep'
 import { RegisteredContainer, RegisteredImage } from './styled'
+import { RegisterFields } from './types'
 
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2]
@@ -55,11 +54,10 @@ function Registered(props: RegisteredProps) {
 
   const navigate = useNavigate()
 
-  const IframeDocument = useSelector(themeFrameSelector)
+  const IframeDocument = useAppSelector(themeFrameSelector)
 
   const {
     state: { isCheckout, isCloseGotoBCHome, logo, storeName, registerEnabled },
-    dispatch: globalDispatch,
   } = useContext(GlobaledContext)
 
   const {
@@ -85,6 +83,8 @@ function Registered(props: RegisteredProps) {
     if (!registerEnabled) {
       navigate('/login')
     }
+    // disabling as we dont need to check for any changes in the navigate function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registerEnabled])
 
   useEffect(() => {
@@ -209,11 +209,13 @@ function Registered(props: RegisteredProps) {
           })
         }
       } catch (e) {
-        console.log(e)
+        b2bLogger.error(e)
       }
     }
 
     getBCAdditionalFields()
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const isStepOptional = (step: number) => step === -1
@@ -280,7 +282,7 @@ function Registered(props: RegisteredProps) {
         await loginCheckout(data)
         window.location.reload()
       } catch (error) {
-        console.log(error)
+        b2bLogger.error(error)
       }
     } else {
       try {
@@ -299,7 +301,7 @@ function Registered(props: RegisteredProps) {
           })
         }
 
-        await getCurrentCustomerInfo(globalDispatch)
+        await getCurrentCustomerInfo()
 
         clearRegisterInfo()
 
@@ -313,7 +315,7 @@ function Registered(props: RegisteredProps) {
           navigate('/orders')
         }
       } catch (error) {
-        console.log(error)
+        b2bLogger.error(error)
       }
     }
 
@@ -327,6 +329,8 @@ function Registered(props: RegisteredProps) {
 
   useEffect(() => {
     IframeDocument?.body.scrollIntoView(true)
+    // disabling as we only need to run this when activeStep changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStep])
 
   useScrollBar(false)

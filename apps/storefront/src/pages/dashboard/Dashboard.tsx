@@ -7,19 +7,21 @@ import {
   useState,
 } from 'react'
 import { useLocation } from 'react-router-dom'
-import type { OpenPageState } from '@b3/hooks'
 import { useB3Lang } from '@b3/lang'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { Box, IconButton, Menu, MenuItem } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
-import { B3Sping, showPageMask } from '@/components'
+import { showPageMask } from '@/components'
+import B3Sping from '@/components/spin/B3Sping'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { TableColumnItem } from '@/components/table/B3Table'
 import { useSort } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { superAdminCompanies } from '@/shared/service/b2b'
-import { endMasquerade, startMasquerade } from '@/utils'
+import { useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
+import { endMasquerade, startMasquerade } from '@/utils/masquerade'
 
 import B3FilterSearch from '../../components/filter/B3FilterSearch'
 
@@ -123,13 +125,16 @@ function B3Mean({
 }
 
 function Dashboard(props: DashboardProps) {
-  const {
-    state: { customerId, B3UserId, salesRepCompanyId = 0 },
-    dispatch,
-  } = useContext(GlobaledContext)
+  const { dispatch } = useContext(GlobaledContext)
+  const customerId = useAppSelector(({ company }) => company.customer.id)
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
 
   const { setOpenPage } = props
   const b3Lang = useB3Lang()
+
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
 
   const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] =
     useState<number>(+salesRepCompanyId)
@@ -152,25 +157,24 @@ function Dashboard(props: DashboardProps) {
   const location = useLocation()
 
   const getSuperAdminCompaniesList = async (params: ListItem) => {
-    const {
-      superAdminCompanies: { edges = [], totalCount },
-    }: any = await superAdminCompanies(+B3UserId, params)
-
-    return {
-      edges,
-      totalCount,
+    let list = { edges: [], totalCount: 0 }
+    if (typeof b2bId === 'number') {
+      list = (await superAdminCompanies(b2bId, params)).superAdminCompanies
     }
+
+    return list
   }
 
   const startActing = async (id?: number) => {
     try {
       setIsRequestLoading(true)
-      await startMasquerade({
-        dispatch,
-        customerId,
-        companyId: id || currentSalesRepCompanyId,
-        B3UserId: +B3UserId,
-      })
+      if (typeof b2bId === 'number') {
+        await startMasquerade({
+          customerId,
+          companyId: id || currentSalesRepCompanyId,
+          b2bId,
+        })
+      }
 
       setOpenPage({
         isOpen: true,
@@ -188,11 +192,11 @@ function Dashboard(props: DashboardProps) {
   const endActing = async () => {
     try {
       showPageMask(dispatch, true)
-      await endMasquerade({
-        dispatch,
-        salesRepCompanyId: +salesRepCompanyId,
-        B3UserId: +B3UserId,
-      })
+      if (typeof b2bId === 'number') {
+        await endMasquerade({
+          b2bId,
+        })
+      }
       setFilterData({
         ...filterData,
       })
@@ -208,6 +212,7 @@ function Dashboard(props: DashboardProps) {
     if (params?.state) {
       endActing()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location])
 
   const handleChange = async (q: string) => {

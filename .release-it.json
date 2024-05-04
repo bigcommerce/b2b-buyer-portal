@@ -1,0 +1,16 @@
+{
+  "git": {
+    "requireCleanWorkingDir": false,
+    "commit": false,
+    "push": false
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "infile": "CHANGELOG.md",
+      "preset": {
+        "requireBranch": "main",
+        "name": "conventionalcommits"
+      }
+    }
+  }
+}

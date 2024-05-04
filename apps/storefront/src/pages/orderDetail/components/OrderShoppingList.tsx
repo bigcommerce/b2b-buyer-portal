@@ -3,11 +3,14 @@ import { useB3Lang } from '@b3/lang'
 import AddIcon from '@mui/icons-material/Add'
 import { Box, ListItemText, MenuItem, MenuList, useTheme } from '@mui/material'
 
-import { B3Dialog, B3Sping, CustomButton } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
+import CustomButton from '@/components/button/CustomButton'
 import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
+import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
 import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 
 import { ShoppingListItem } from '../../../types'
 
@@ -42,8 +45,10 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
   } = props
 
   const {
-    state: { isB2BUser, currentChannelId, role },
+    state: { currentChannelId },
   } = useContext(GlobaledContext)
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   const theme = useTheme()
   const [isMobile] = useMobile()
@@ -52,42 +57,43 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
   const [list, setList] = useState([])
   const [activeId, setActiveId] = useState('')
 
-  const getList = async () => {
-    setLoading(true)
-    setList([])
-
-    const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList
-    const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
-    const params = isB2BUser
-      ? {}
-      : {
-          channelId: currentChannelId,
-        }
-
-    try {
-      const {
-        [infoKey]: { edges: list = [] },
-      }: CustomFieldItems = await getShoppingList(params)
-
-      if (!isB2BUser) {
-        setList(list)
-      } else {
-        const newList = list.filter(
-          (item: CustomFieldItems) =>
-            item.node.status === +(role === 2 ? 30 : 0)
-        )
-        setList(newList)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    if (isOpen) {
-      getList()
+    if (!isOpen) return
+    const getList = async () => {
+      setLoading(true)
+      setList([])
+
+      const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList
+      const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
+      const params = isB2BUser
+        ? {}
+        : {
+            channelId: currentChannelId,
+          }
+
+      try {
+        const {
+          [infoKey]: { edges: list = [] },
+        }: CustomFieldItems = await getShoppingList(params)
+
+        if (!isB2BUser) {
+          setList(list)
+        } else {
+          const newList = list.filter(
+            (item: CustomFieldItems) =>
+              item.node.status === +(role === 2 ? 30 : 0)
+          )
+          setList(newList)
+        }
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [isOpen])
+
+    getList()
+    // Disabling as the setLoading dispatcher does not need to be here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChannelId, isB2BUser, isOpen, role])
 
   const handleClose = () => {
     onClose()

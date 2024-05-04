@@ -2,7 +2,8 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
-import { B3Dialog, B3Sping } from '@/components'
+import B3Dialog from '@/components/B3Dialog'
+import B3Sping from '@/components/spin/B3Sping'
 import { B3PaginationTable } from '@/components/table/B3PaginationTable'
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks'
 import { GlobaledContext } from '@/shared/global'
@@ -13,6 +14,7 @@ import {
   getBcShoppingList,
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
+import { isB2BUserSelector, useAppSelector } from '@/store'
 import { snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
@@ -49,17 +51,18 @@ function ShoppingLists() {
 
   const b3Lang = useB3Lang()
 
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+
   const {
-    state: {
-      role,
-      isB2BUser,
-      currentChannelId,
-      companyInfo: { id: companyB2BId },
-      salesRepCompanyId,
-      openAPPParams,
-    },
+    state: { currentChannelId, openAPPParams },
     dispatch,
   } = useContext(GlobaledContext)
+
+  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id)
+  const role = useAppSelector(({ company }) => company.customer.role)
 
   useEffect(() => {
     const initFilter = async () => {
@@ -109,6 +112,8 @@ function ShoppingLists() {
         },
       })
     }
+    // disabling as we only need to run this once and values at starting render are good enough
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const isExtraLarge = useCardListColumn()

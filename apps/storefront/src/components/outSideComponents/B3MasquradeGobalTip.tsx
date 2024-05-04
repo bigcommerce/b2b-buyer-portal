@@ -1,5 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useState } from 'react'
-import type { OpenPageState } from '@b3/hooks'
+import { Dispatch, SetStateAction, useContext } from 'react'
 import { useB3Lang } from '@b3/lang'
 import GroupIcon from '@mui/icons-material/Group'
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft'
@@ -13,10 +12,11 @@ import {
 } from '@/constants'
 import { useGetButtonText } from '@/hooks'
 import useMobile from '@/hooks/useMobile'
+import useStorageState from '@/hooks/useStorageState'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
 import { superAdminEndMasquerade } from '@/shared/service/b2b'
-import { B3SStorage } from '@/utils'
+import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store'
+import { OpenPageState } from '@/types/hooks'
 
 import {
   getContrastColor,
@@ -36,16 +36,18 @@ const bottomHeightPage = ['shoppingList/', 'purchased-products']
 
 export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
   const { isOpen, setOpenPage } = props
-  const {
-    state: {
-      isAgenting,
-      salesRepCompanyName,
-      salesRepCompanyId,
-      B3UserId,
-      customerId,
-    },
-    dispatch,
-  } = useContext(GlobaledContext)
+  const dispatch = useAppDispatch()
+  const customerId = useAppSelector(({ company }) => company.customer.id)
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
+  const salesRepCompanyId = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
+  )
+  const salesRepCompanyName = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName
+  )
+  const isAgenting = useAppSelector(
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
+  )
 
   const { hash, href } = window.location
 
@@ -74,18 +76,11 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
     hash.includes(item)
   )
 
-  const initExpansion = () => {
-    const isMasqueradeTipExpansion = B3SStorage.get('isMasqueradeTipExpansion')
-
-    if (typeof isMasqueradeTipExpansion === 'boolean') {
-      return isMasqueradeTipExpansion
-    }
-
-    return true
-  }
-
-  const [isExpansion, setExpansion] = useState<boolean>(initExpansion())
-
+  const [isExpansion, setExpansion] = useStorageState<boolean>(
+    'sf-isMasqueradeTipExpansion',
+    true,
+    sessionStorage
+  )
   const [isMobile] = useMobile()
 
   const endActing = async () => {
@@ -95,30 +90,16 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         openUrl: '/dashboard?closeMasqurade=1',
       })
     } else {
-      await superAdminEndMasquerade(+salesRepCompanyId, +B3UserId)
-      B3SStorage.delete('isAgenting')
-      B3SStorage.delete('salesRepCompanyId')
-      B3SStorage.delete('salesRepCompanyName')
-      B3SStorage.delete('salesRepCustomerGroupId')
-      dispatch({
-        type: 'common',
-        payload: {
-          salesRepCompanyId: '',
-          salesRepCompanyName: '',
-          salesRepCustomerGroupId: '',
-          isAgenting: false,
-        },
-      })
+      if (typeof b2bId === 'number') {
+        await superAdminEndMasquerade(+salesRepCompanyId, b2bId)
+      }
+
+      dispatch(clearMasqueradeCompany())
       setOpenPage({
         isOpen: true,
         openUrl: '/dashboard',
       })
     }
-  }
-
-  const isMasqueradeTipExpansion = (isExpansion: boolean) => {
-    setExpansion(isExpansion)
-    B3SStorage.set('isMasqueradeTipExpansion', isExpansion)
   }
 
   if (href.includes('/checkout') || !customerId) return null
@@ -266,7 +247,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
 
                 {isExpansion ? (
                   <KeyboardArrowLeftIcon
-                    onClick={() => isMasqueradeTipExpansion(false)}
+                    onClick={() => setExpansion(false)}
                     sx={{
                       ml: '10px',
                       cursor: 'pointer',
@@ -274,7 +255,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                   />
                 ) : (
                   <KeyboardArrowRightIcon
-                    onClick={() => isMasqueradeTipExpansion(true)}
+                    onClick={() => setExpansion(true)}
                     sx={{
                       ml: '10px',
                       cursor: 'pointer',
@@ -350,7 +331,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
 
               {isExpansion ? (
                 <KeyboardArrowLeftIcon
-                  onClick={() => isMasqueradeTipExpansion(false)}
+                  onClick={() => setExpansion(false)}
                   sx={{
                     ml: '10px',
                     cursor: 'pointer',
@@ -358,7 +339,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
                 />
               ) : (
                 <KeyboardArrowRightIcon
-                  onClick={() => isMasqueradeTipExpansion(true)}
+                  onClick={() => setExpansion(true)}
                   sx={{
                     ml: '10px',
                     cursor: 'pointer',

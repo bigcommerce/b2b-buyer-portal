@@ -38,7 +38,6 @@ function B3FilterPickers(
   }: B3FilterPickerProps,
   ref: Ref<unknown> | undefined
 ) {
-  // const [isMobile] = useMobile()
   const [startValue, setStartValue] = useState<Date | number | string>(
     startPicker?.defaultValue || ''
   )
