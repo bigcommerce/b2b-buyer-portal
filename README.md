@@ -1,3 +1,11 @@
+<a href="https://bundleb2b.stoplight.io/docs/openapi/quick-start" target="_blank" rel="noopener norerrer">
+  <img src="https://storage.googleapis.com/bigcommerce-developers/images/B2B-edition-1024x683.jpg" alt="B2B Editions Open Source Buyer Portal" title="B2B Editions Open Source Buyer Portal">
+</a>
+
+<br />
+<br />
+
+<div align="center">
 
 [![MIT License](https://img.shields.io/github/license/bigcommerce/catalyst)](LICENSE.md)
 [![Lighthouse Report](https://github.com/bigcommerce/catalyst/actions/workflows/lighthouse.yml/badge.svg)](https://github.com/bigcommerce/catalyst/actions/workflows/lighthouse.yml) [![Lint, Typecheck, gql.tada](https://github.com/bigcommerce/catalyst/actions/workflows/basic.yml/badge.svg)](https://github.com/bigcommerce/catalyst/actions/workflows/basic.yml)
