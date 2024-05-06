@@ -1,102 +1,98 @@
-import { LangFormatFunction } from '@b3/lang'
-import format from 'date-fns/format'
+import { LangFormatFunction } from '@b3/lang';
+import format from 'date-fns/format';
 
-import { getLineNumber, validatorRules } from '@/utils'
+import { getLineNumber, validatorRules } from '@/utils';
 
-import { RegisterFields } from './types'
+import { RegisterFields } from './types';
 
-const inputFormat = 'yyyy-MM-dd'
+const inputFormat = 'yyyy-MM-dd';
 
 export interface QuoteConfig {
-  [key: string]: string
+  [key: string]: string;
 }
 
 export interface ValidateOptions extends Record<string, any> {
-  max?: string | number
-  min?: string | number
+  max?: string | number;
+  min?: string | number;
 }
 
 interface ValidateOptionItems extends Record<string, any> {
-  max?: number
-  min?: number
+  max?: number;
+  min?: number;
 }
 
-export type ContactInformationItems = Array<RegisterFields>
+export type ContactInformationItems = Array<RegisterFields>;
 export interface FieldSXConfigs {
-  [key: string]: string | number
+  [key: string]: string | number;
 }
 
 interface AccountFormFieldsItemsValueConfigs {
-  defaultValue?: string
-  fieldName?: string
-  isRequired?: boolean
-  labelName?: string
-  maximumLength?: string
-  maxLength?: string
-  name?: string
-  required?: string
-  type?: string
-  custom?: boolean
-  id: string | number
+  defaultValue?: string;
+  fieldName?: string;
+  isRequired?: boolean;
+  labelName?: string;
+  maximumLength?: string;
+  maxLength?: string;
+  name?: string;
+  required?: string;
+  type?: string;
+  custom?: boolean;
+  id: string | number;
 }
 
 export interface AccountFormFieldsItems {
-  fieldId?: string
-  fieldName?: string
-  fieldType?: string | number
-  groupId: number | string
-  groupName?: string
-  id?: string
-  isRequired?: boolean
-  labelName?: string
-  visible?: boolean
-  custom?: boolean
-  valueConfigs?: AccountFormFieldsItemsValueConfigs
-  sx?: FieldSXConfigs
+  fieldId?: string;
+  fieldName?: string;
+  fieldType?: string | number;
+  groupId: number | string;
+  groupName?: string;
+  id?: string;
+  isRequired?: boolean;
+  labelName?: string;
+  visible?: boolean;
+  custom?: boolean;
+  valueConfigs?: AccountFormFieldsItemsValueConfigs;
+  sx?: FieldSXConfigs;
 }
 
-type AccountFormFieldsList = Array<[]> | Array<AccountFormFieldsItems>
+type AccountFormFieldsList = Array<[]> | Array<AccountFormFieldsItems>;
 
 interface ReplaceOptionsProps {
-  label: string
-  value: string
+  label: string;
+  value: string;
 }
 
 export interface RegisterFieldsItems {
-  id?: string | number
-  name: string
-  label: string
-  required: boolean
-  default: string | number | Array<string>
-  fieldType: string | number
-  xs: number
-  visible: boolean
-  custom: boolean
-  bcLabel?: string
-  fieldId: string
-  groupId: string | number
-  groupName: string
-  options?: any
-  disabled: boolean
-  replaceOptions?: ReplaceOptionsProps
+  id?: string | number;
+  name: string;
+  label: string;
+  required: boolean;
+  default: string | number | Array<string>;
+  fieldType: string | number;
+  xs: number;
+  visible: boolean;
+  custom: boolean;
+  bcLabel?: string;
+  fieldId: string;
+  groupId: string | number;
+  groupName: string;
+  options?: any;
+  disabled: boolean;
+  replaceOptions?: ReplaceOptionsProps;
 }
 
-export const steps = [
-  'register.step.account',
-  'register.step.details',
-  'register.step.finish',
-]
+export const steps = ['register.step.account', 'register.step.details', 'register.step.finish'];
 
-const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown']
+const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown'];
 
 export const Base64 = {
   encode(str: string | number | boolean) {
-    return window.btoa(encodeURIComponent(str))
+    return window.btoa(encodeURIComponent(str));
   },
   decode(str: string) {
-    return decodeURIComponent(window.atob(str))
+    return decodeURIComponent(window.atob(str));
   },
-}
+};
 
 const fieldsType = {
   text: ['text', 'number', 'password', 'multiline'],
@@ -104,10 +100,10 @@ const fieldsType = {
   dropdown: ['dropdown'],
   radio: ['radio'],
   date: ['date'],
-}
+};
 
 const classificationType = (item: CustomFieldItems) => {
-  let optionItems: ValidateOptionItems = {}
+  let optionItems: ValidateOptionItems = {};
   if (fieldsType.text.includes(item.fieldType)) {
     optionItems = {
       minlength: item.minlength || null,
@@ -115,88 +111,85 @@ const classificationType = (item: CustomFieldItems) => {
       min: item.min || null,
       max: item.max || +item.maximumValue || null,
       rows: item?.options?.rows || item.numberOfRows || null,
-    }
+    };
     if (optionItems?.max) {
       optionItems.validate = validatorRules(['max'], {
         max: optionItems?.max,
-      })
+      });
     }
 
     if (item.fieldType === 'password') {
-      optionItems.validate = validatorRules(['password'])
+      optionItems.validate = validatorRules(['password']);
     }
 
     if (item?.fieldName === 'email' || item?.fieldName === 'phone') {
-      optionItems.validate = validatorRules([item.fieldName])
+      optionItems.validate = validatorRules([item.fieldName]);
     }
-    if (
-      item.fieldType === 'number' ||
-      (item.fieldType === 'text' && item.type === 'integer')
-    ) {
-      optionItems.validate = validatorRules(['number'])
+    if (item.fieldType === 'number' || (item.fieldType === 'text' && item.type === 'integer')) {
+      optionItems.validate = validatorRules(['number']);
     }
   }
   if (fieldsType.checkbox.includes(item.fieldType)) {
     optionItems = {
       default: item.default || [],
       options: item.options?.items || null,
-    }
+    };
   }
   if (fieldsType.dropdown.includes(item.fieldType)) {
-    const items = []
+    const items = [];
     if (item.options?.helperLabel) {
       items.push({
         label: item.options.helperLabel,
         value: '',
-      })
+      });
     }
-    const options = [...items, ...(item.options?.items || [])]
+    const options = [...items, ...(item.options?.items || [])];
 
     if (item.listOfValue) {
       item.listOfValue.forEach((value: any) =>
         options.push({
           label: value,
           value,
-        })
-      )
+        }),
+      );
     }
 
     optionItems = {
       default: item.default || '',
       options: options || null,
-    }
+    };
   }
   if (fieldsType.radio.includes(item.fieldType)) {
     optionItems = {
       default: item.default || '',
       options: item.options?.items || [],
-    }
+    };
   }
 
   if (optionItems?.options) {
     optionItems?.options.forEach((option: any) => {
-      const optionValue = option
+      const optionValue = option;
       if (option.value) {
-        optionValue.value = option.label
+        optionValue.value = option.label;
       }
-    })
+    });
   }
 
   if (item.fieldId === 'field_country') {
-    optionItems.default = item.valueConfigs?.default || optionItems.default
+    optionItems.default = item.valueConfigs?.default || optionItems.default;
   }
 
-  return optionItems
-}
+  return optionItems;
+};
 
-const noEncryptFieldList = ['country', 'state', 'email']
+const noEncryptFieldList = ['country', 'state', 'email'];
 export const b2bAddressRequiredFields = [
   'field_country',
   'field_address_1',
   'field_city',
   'field_state',
   'field_zip_code',
-]
+];
 
 const groupItems = {
   1: 'contactInformation',
@@ -204,36 +197,34 @@ const groupItems = {
   3: 'businessDetails',
   4: 'address',
   5: 'password',
-}
+};
 
 export const deCodeField = (fieldName: string) => {
   if (noEncryptFieldList.includes(fieldName)) {
-    return fieldName
+    return fieldName;
   }
-  return Base64.decode(fieldName)
-}
+  return Base64.decode(fieldName);
+};
 
 export const enCodeFieldName = (fieldName: string) => {
   if (noEncryptFieldList.includes(fieldName)) {
-    return fieldName
+    return fieldName;
   }
 
-  return Base64.encode(fieldName)
-}
+  return Base64.encode(fieldName);
+};
 
 const bcFieldName = (fieldName: string) => {
   if (fieldName === 'countryCode') {
-    return 'country'
+    return 'country';
   }
   if (fieldName === 'stateOrProvince') {
-    return 'state'
+    return 'state';
   }
-  return fieldName
-}
+  return fieldName;
+};
 
-export const conversionSigleItem = (
-  item: CustomFieldItems
-): Partial<RegisterFieldsItems> => {
+export const conversionSigleItem = (item: CustomFieldItems): Partial<RegisterFieldsItems> => {
   const requiredItems = {
     id: item.id || item.fieldName,
     name: bcFieldName(item.name) || enCodeFieldName(item.fieldName),
@@ -246,154 +237,149 @@ export const conversionSigleItem = (
     custom: item?.custom || false,
     bcLabel: item.label || '',
     type: item.type || '',
-  }
+  };
 
-  const customFieldItem = item
+  const customFieldItem = item;
 
   if (typeof item.fieldType === 'number') {
-    customFieldItem.fieldType = companyExtraFieldsType[item.fieldType]
-    requiredItems.fieldType = item.fieldType
+    customFieldItem.fieldType = companyExtraFieldsType[item.fieldType];
+    requiredItems.fieldType = item.fieldType;
   }
 
-  const optionItems = classificationType(item)
+  const optionItems = classificationType(item);
 
   return {
     ...requiredItems,
     ...optionItems,
-  }
-}
+  };
+};
 
 export const toHump = (name: string) =>
-  name.replace(/_(\w)/g, (all, letter) => letter.toUpperCase())
+  name.replace(/_(\w)/g, (all, letter) => letter.toUpperCase());
 
 export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
-  const getFormFields: any = {}
+  const getFormFields: any = {};
 
   FormFields.forEach((item: CustomFieldItems) => {
-    const key: string = (groupItems as CustomFieldItems)[item.groupId]
+    const key: string = (groupItems as CustomFieldItems)[item.groupId];
 
     if (!getFormFields[key]?.length) {
-      getFormFields[key] = []
+      getFormFields[key] = [];
     }
 
-    let obj: CustomFieldItems = {}
+    let obj: CustomFieldItems = {};
     if (item.valueConfigs?.id) {
-      obj = conversionSigleItem(item.valueConfigs)
+      obj = conversionSigleItem(item.valueConfigs);
     } else {
-      obj = conversionSigleItem(item)
+      obj = conversionSigleItem(item);
     }
 
-    obj.required = item.isRequired
-    obj.id = item.id
-    obj.fieldId = item.fieldId
-    obj.groupId = item.groupId
-    obj.groupName = item.groupName
-    obj.visible = item.visible
-    obj.label = item.labelName
-    obj.custom = obj.custom || item?.custom
-    obj.variant = 'filled'
+    obj.required = item.isRequired;
+    obj.id = item.id;
+    obj.fieldId = item.fieldId;
+    obj.groupId = item.groupId;
+    obj.groupName = item.groupName;
+    obj.visible = item.visible;
+    obj.label = item.labelName;
+    obj.custom = obj.custom || item?.custom;
+    obj.variant = 'filled';
 
     if (obj.fieldType === 'date' && !obj.default) {
-      obj.default = format(new Date(), inputFormat)
+      obj.default = format(new Date(), inputFormat);
     }
 
     if (obj.name === 'country') {
       obj.replaceOptions = {
         label: 'countryName',
         value: 'countryCode',
-      }
+      };
     }
 
     if (obj.name === 'state') {
       obj.replaceOptions = {
         label: 'stateName',
         value: 'stateName',
-      }
+      };
     }
 
     if (item.fieldId === 'field_confirm_password') {
-      obj.name = 'confirmPassword'
+      obj.name = 'confirmPassword';
     }
     if (obj.fieldType === 'files') {
-      obj.filesLimit = 3
-      obj.maxFileSize = 10485760
-      obj.default = []
+      obj.filesLimit = 3;
+      obj.maxFileSize = 10485760;
+      obj.default = [];
     }
 
     if (obj.fieldType === 'checkbox' && !obj.options) {
-      obj.label = ''
+      obj.label = '';
       obj.options = [
         {
           label: item.labelName,
           value: item.labelName,
         },
-      ]
+      ];
     }
 
     if (obj.fieldType === 'text' && obj.type === 'integer') {
-      obj.fieldType = 'number'
+      obj.fieldType = 'number';
     }
 
     if (obj.label.length > 0) {
-      let originPaddingTop = 25
-      const isMobile = document.body.clientWidth <= 750
-      let lineNumber = getLineNumber(obj.label, 16)
+      let originPaddingTop = 25;
+      const isMobile = document.body.clientWidth <= 750;
+      let lineNumber = getLineNumber(obj.label, 16);
 
       if (obj.fieldType === 'multiline') {
-        originPaddingTop = 0
+        originPaddingTop = 0;
       }
       if (obj.fieldType === 'dropdown') {
-        originPaddingTop = 0
+        originPaddingTop = 0;
         if (lineNumber > 1) {
-          lineNumber += isMobile ? 1.4 : 2
+          lineNumber += isMobile ? 1.4 : 2;
         }
 
         if (obj.fieldId === 'field_state') {
-          lineNumber -= isMobile ? 0 : 0.8
+          lineNumber -= isMobile ? 0 : 0.8;
         }
       }
 
       const paddingTopVal =
         lineNumber === 1
           ? `${originPaddingTop}px`
-          : `${originPaddingTop / 16 + (lineNumber - 1)}rem`
+          : `${originPaddingTop / 16 + (lineNumber - 1)}rem`;
       if (lineNumber > 0) {
         obj.extraPadding = {
           paddingTop: paddingTopVal,
-        }
+        };
       }
     }
 
-    getFormFields[key].push(obj)
-  })
+    getFormFields[key].push(obj);
+  });
 
-  return getFormFields
-}
+  return getFormFields;
+};
 
-export const getAccountFormFields = (
-  accountFormFields: AccountFormFieldsList
-) => {
+export const getAccountFormFields = (accountFormFields: AccountFormFieldsList) => {
   if (accountFormFields?.length) {
-    const filterVisibleAccountFormFields: AccountFormFieldsList =
-      accountFormFields
-        ? (accountFormFields as any).filter(
-            (item: Partial<AccountFormFieldsItems>) =>
-              !!item.visible || (!!item.custom && !!item.isRequired)
-          )
-        : []
+    const filterVisibleAccountFormFields: AccountFormFieldsList = accountFormFields
+      ? (accountFormFields as any).filter(
+          (item: Partial<AccountFormFieldsItems>) =>
+            !!item.visible || (!!item.custom && !!item.isRequired),
+        )
+      : [];
 
     const getAccountFormItems = filterVisibleAccountFormFields
       ? conversionItemFormat(filterVisibleAccountFormFields)
-      : {}
+      : {};
 
-    return getAccountFormItems
+    return getAccountFormItems;
   }
-  return {}
-}
+  return {};
+};
 
-export const companyAttachmentsFields = (
-  b3lang: LangFormatFunction
-): ContactInformationItems => [
+export const companyAttachmentsFields = (b3lang: LangFormatFunction): ContactInformationItems => [
   {
     name: 'companyAttachments',
     label: b3lang('register.label.companyAttachments'),
@@ -404,30 +390,30 @@ export const companyAttachmentsFields = (
     filesLimit: 3,
     maxFileSize: 10485760, // 10M
   },
-]
+];
 export interface Country {
-  countryCode: string
-  countryName: string
-  id?: string
-  states: []
+  countryCode: string;
+  countryName: string;
+  id?: string;
+  states: [];
 }
 export interface State {
-  stateCode?: string
-  stateName?: string
-  id?: string
+  stateCode?: string;
+  stateName?: string;
+  id?: string;
 }
 
 export const getRegisterLogo = (quoteConfig: Array<QuoteConfig>): string => {
   const item: Array<QuoteConfig> = quoteConfig.filter(
-    (list: QuoteConfig) => list.key === 'quote_logo'
-  )
+    (list: QuoteConfig) => list.key === 'quote_logo',
+  );
 
-  return item[0].isEnabled
-}
+  return item[0].isEnabled;
+};
 
 type EmailError = {
-  [k: number]: string
-}
+  [k: number]: string;
+};
 
 export const emailError: EmailError = {
   2: 'register.emailValidate.alreadyExitsBC',
@@ -435,4 +421,4 @@ export const emailError: EmailError = {
   4: 'global.emailValidate.companyUsed',
   5: 'global.emailValidate.alreadyExits',
   6: 'global.emailValidate.usedSuperAdmin',
-}
+};

@@ -1,24 +1,24 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useContext } from 'react'
-import { useB3Lang } from '@b3/lang'
-import SearchIcon from '@mui/icons-material/Search'
-import { Box, InputAdornment, TextField, Typography } from '@mui/material'
+import { ChangeEvent, KeyboardEvent, useCallback, useContext } from 'react';
+import { useB3Lang } from '@b3/lang';
+import SearchIcon from '@mui/icons-material/Search';
+import { Box, InputAdornment, TextField, Typography } from '@mui/material';
 
-import { B3ProductList } from '@/components'
-import B3Dialog from '@/components/B3Dialog'
-import CustomButton from '@/components/button/CustomButton'
-import B3Sping from '@/components/spin/B3Sping'
-import { useMobile } from '@/hooks'
-import { useAppSelector } from '@/store'
-import { snackbar } from '@/utils'
+import { B3ProductList } from '@/components';
+import B3Dialog from '@/components/B3Dialog';
+import CustomButton from '@/components/button/CustomButton';
+import B3Sping from '@/components/spin/B3Sping';
+import { useMobile } from '@/hooks';
+import { useAppSelector } from '@/store';
+import { snackbar } from '@/utils';
 
-import { ShoppingListProductItem } from '../../../types'
-import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext'
+import { ShoppingListProductItem } from '../../../types';
+import { ShoppingListDetailsContext } from '../context/ShoppingListDetailsContext';
 
 interface ProductTableActionProps {
-  product: ShoppingListProductItem
-  onAddToListClick: (id: number) => void
-  onChooseOptionsClick: (id: number) => void
-  addButtonText: string
+  product: ShoppingListProductItem;
+  onAddToListClick: (id: number) => void;
+  onChooseOptionsClick: (id: number) => void;
+  addButtonText: string;
 }
 
 function ProductTableAction(props: ProductTableActionProps) {
@@ -27,21 +27,21 @@ function ProductTableAction(props: ProductTableActionProps) {
     onAddToListClick,
     onChooseOptionsClick,
     addButtonText,
-  } = props
+  } = props;
 
   const {
     state: { isLoading = false },
-  } = useContext(ShoppingListDetailsContext)
+  } = useContext(ShoppingListDetailsContext);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   return productOptions && productOptions.length > 0 ? (
     <CustomButton
       variant="outlined"
       onClick={() => {
-        onChooseOptionsClick(id)
+        onChooseOptionsClick(id);
       }}
       disabled={isLoading}
       fullWidth={isMobile}
@@ -52,36 +52,36 @@ function ProductTableAction(props: ProductTableActionProps) {
     <CustomButton
       variant="outlined"
       onClick={() => {
-        onAddToListClick(id)
+        onAddToListClick(id);
       }}
       disabled={isLoading}
       fullWidth={isMobile}
     >
       {addButtonText}
     </CustomButton>
-  )
+  );
 }
 
 interface ProductListDialogProps {
-  isOpen: boolean
-  searchText: string
-  productList: ShoppingListProductItem[]
-  onCancel: () => void
-  onSearchTextChange: (e: ChangeEvent<HTMLInputElement>) => void
-  onSearch: () => void
-  onProductQuantityChange: (id: number, newQuantity: number) => void
-  onAddToListClick: (products: CustomFieldItems[]) => void
-  onChooseOptionsClick: (id: number) => void
-  isLoading: boolean
-  searchDialogTitle?: string
-  addButtonText?: string
-  type?: string
+  isOpen: boolean;
+  searchText: string;
+  productList: ShoppingListProductItem[];
+  onCancel: () => void;
+  onSearchTextChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onSearch: () => void;
+  onProductQuantityChange: (id: number, newQuantity: number) => void;
+  onAddToListClick: (products: CustomFieldItems[]) => void;
+  onChooseOptionsClick: (id: number) => void;
+  isLoading: boolean;
+  searchDialogTitle?: string;
+  addButtonText?: string;
+  type?: string;
 }
 
-const ProductTable = B3ProductList<ShoppingListProductItem>
+const ProductTable = B3ProductList<ShoppingListProductItem>;
 
 export default function ProductListDialog(props: ProductListDialogProps) {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
   const {
     isOpen,
     onCancel,
@@ -96,55 +96,48 @@ export default function ProductListDialog(props: ProductListDialogProps) {
     type,
     searchDialogTitle = b3Lang('shoppingLists.title'),
     addButtonText = b3Lang('shoppingLists.addButtonText'),
-  } = props
+  } = props;
 
   const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
-  )
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
+  );
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
   const handleCancelClicked = () => {
-    onCancel()
-  }
+    onCancel();
+  };
 
   const handleSearchKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
-      onSearch()
+      onSearch();
     }
-  }
+  };
 
   const validateQuantityNumber = useCallback(
     (product: ShoppingListProductItem) => {
-      const { variants = [] } = product || {}
-      const { purchasing_disabled: purchasingDisabled = true } =
-        variants[0] || {}
+      const { variants = [] } = product || {};
+      const { purchasing_disabled: purchasingDisabled = true } = variants[0] || {};
 
-      if (
-        type !== 'shoppingList' &&
-        purchasingDisabled === true &&
-        !isEnableProduct
-      ) {
-        snackbar.error(
-          b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale')
-        )
-        return false
+      if (type !== 'shoppingList' && purchasingDisabled === true && !isEnableProduct) {
+        snackbar.error(b3Lang('shoppingList.chooseOptionsDialog.productNoLongerForSale'));
+        return false;
       }
 
-      return true
+      return true;
     },
     // ignore b3Lang it's not reactive
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isEnableProduct, type]
-  )
+    [isEnableProduct, type],
+  );
 
   const handleAddToList = (id: number) => {
-    const product = productList.find((product) => product.id === id)
+    const product = productList.find((product) => product.id === id);
 
     if (product && validateQuantityNumber(product || {})) {
-      let variantId: number | string = product?.variantId || 0
+      let variantId: number | string = product?.variantId || 0;
       if (!product?.variantId && product?.variants?.length) {
-        variantId = product.variants[0].variant_id
+        variantId = product.variants[0].variant_id;
       }
       onAddToListClick([
         {
@@ -153,9 +146,9 @@ export default function ProductListDialog(props: ProductListDialogProps) {
           quantity: parseInt(product.quantity.toString(), 10) || 1,
           variantId,
         },
-      ])
+      ]);
     }
-  }
+  };
 
   return (
     <B3Dialog
@@ -223,5 +216,5 @@ export default function ProductListDialog(props: ProductListDialogProps) {
         </Box>
       </B3Sping>
     </B3Dialog>
-  )
+  );
 }

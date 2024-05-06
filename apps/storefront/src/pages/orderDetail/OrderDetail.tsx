@@ -1,223 +1,202 @@
-import { useContext, useEffect, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import { ArrowBackIosNew } from '@mui/icons-material'
-import { Box, Grid, Stack, Typography } from '@mui/material'
+import { useContext, useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { ArrowBackIosNew } from '@mui/icons-material';
+import { Box, Grid, Stack, Typography } from '@mui/material';
 
-import {
-  b3HexToRgb,
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
-import B3Sping from '@/components/spin/B3Sping'
-import { useMobile } from '@/hooks'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
+import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import B3Sping from '@/components/spin/B3Sping';
+import { useMobile } from '@/hooks';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { GlobaledContext } from '@/shared/global';
 import {
   getB2BAddressConfig,
   getB2BOrderDetails,
   getBCOrderDetails,
   getBcOrderStatusType,
   getOrderStatusType,
-} from '@/shared/service/b2b'
-import { isB2BUserSelector, useAppSelector } from '@/store'
-import b2bLogger from '@/utils/b3Logger'
+} from '@/shared/service/b2b';
+import { isB2BUserSelector, useAppSelector } from '@/store';
+import b2bLogger from '@/utils/b3Logger';
 
 import {
   AddressConfigItem,
   OrderDetailsResponse,
   OrderStatusItem,
   OrderStatusResponse,
-} from '../../types'
-import OrderStatus from '../order/components/OrderStatus'
-import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus'
+} from '../../types';
+import OrderStatus from '../order/components/OrderStatus';
+import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
 
-import {
-  OrderDetailsContext,
-  OrderDetailsProvider,
-} from './context/OrderDetailsContext'
-import convertB2BOrderDetails from './shared/B2BOrderData'
+import { OrderDetailsContext, OrderDetailsProvider } from './context/OrderDetailsContext';
+import convertB2BOrderDetails from './shared/B2BOrderData';
 import {
   DetailPagination,
   OrderAction,
   OrderBilling,
   OrderHistory,
   OrderShipping,
-} from './components'
+} from './components';
 
-const convertBCOrderDetails = convertB2BOrderDetails
+const convertBCOrderDetails = convertB2BOrderDetails;
 
 interface LocationState {
-  isCompanyOrder: boolean
+  isCompanyOrder: boolean;
 }
 
 function OrderDetail() {
-  const isB2BUser = useAppSelector(isB2BUserSelector)
+  const isB2BUser = useAppSelector(isB2BUserSelector);
 
-  const params = useParams()
+  const params = useParams();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   const {
     state: { addressConfig },
     dispatch: globalDispatch,
-  } = useContext(GlobaledContext)
+  } = useContext(GlobaledContext);
 
   const {
-    state: {
-      poNumber,
-      status = '',
-      customStatus,
-      orderSummary,
-      orderStatus = [],
-    },
+    state: { poNumber, status = '', customStatus, orderSummary, orderStatus = [] },
     state: detailsData,
     dispatch,
-  } = useContext(OrderDetailsContext)
+  } = useContext(OrderDetailsContext);
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
-  const customColor = getContrastColor(backgroundColor)
+  const customColor = getContrastColor(backgroundColor);
 
-  const localtion = useLocation()
+  const localtion = useLocation();
 
-  const [isMobile] = useMobile()
-  const [preOrderId, setPreOrderId] = useState('')
-  const [orderId, setOrderId] = useState('')
-  const [isRequestLoading, setIsRequestLoading] = useState(false)
+  const [isMobile] = useMobile();
+  const [preOrderId, setPreOrderId] = useState('');
+  const [orderId, setOrderId] = useState('');
+  const [isRequestLoading, setIsRequestLoading] = useState(false);
 
   useEffect(() => {
-    setOrderId(params.id || '')
-  }, [params])
+    setOrderId(params.id || '');
+  }, [params]);
 
   const goToOrders = () => {
     navigate(
-      `${
-        (localtion.state as LocationState).isCompanyOrder
-          ? '/company-orders'
-          : '/orders'
-      }`
-    )
-  }
+      `${(localtion.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders'}`,
+    );
+  };
 
   useEffect(() => {
     if (orderId) {
       const getOrderDetails = async () => {
-        const id = parseInt(orderId, 10)
+        const id = parseInt(orderId, 10);
         if (!id) {
-          return
+          return;
         }
 
-        setIsRequestLoading(true)
+        setIsRequestLoading(true);
 
         try {
-          const req = isB2BUser ? getB2BOrderDetails : getBCOrderDetails
-          const res: OrderDetailsResponse = await req(id)
+          const req = isB2BUser ? getB2BOrderDetails : getBCOrderDetails;
+          const res: OrderDetailsResponse = await req(id);
 
-          const order = res[isB2BUser ? 'order' : 'customerOrder']
+          const order = res[isB2BUser ? 'order' : 'customerOrder'];
 
           if (order) {
             const data = isB2BUser
               ? convertB2BOrderDetails(order, b3Lang)
-              : convertBCOrderDetails(order, b3Lang)
+              : convertBCOrderDetails(order, b3Lang);
             dispatch({
               type: 'all',
               payload: data,
-            })
-            setPreOrderId(orderId)
+            });
+            setPreOrderId(orderId);
           }
         } catch (err) {
           if (err === 'order does not exist') {
             setTimeout(() => {
-              window.location.hash = `/orderDetail/${preOrderId}`
-            }, 1000)
+              window.location.hash = `/orderDetail/${preOrderId}`;
+            }, 1000);
           }
         } finally {
-          setIsRequestLoading(false)
+          setIsRequestLoading(false);
         }
-      }
+      };
 
       const getOrderStatus = async () => {
-        const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType
-        const orderStatusesName = isB2BUser
-          ? 'orderStatuses'
-          : 'bcOrderStatuses'
-        const orderStatuses: OrderStatusResponse = await fn()
+        const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType;
+        const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses';
+        const orderStatuses: OrderStatusResponse = await fn();
         dispatch({
           type: 'statusType',
           payload: {
             orderStatus: orderStatuses[orderStatusesName],
           },
-        })
-      }
+        });
+      };
 
-      getOrderDetails()
-      getOrderStatus()
+      getOrderDetails();
+      getOrderStatus();
     }
     // Disabling rule since dispatch does not need to be in the dep array and b3Lang has rendering errors
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, orderId, preOrderId])
+  }, [isB2BUser, orderId, preOrderId]);
 
   const handlePageChange = (orderId: string | number) => {
-    setOrderId(orderId.toString())
-  }
+    setOrderId(orderId.toString());
+  };
 
   useEffect(() => {
     const getAddressLabelPermission = async () => {
       try {
-        let configList = addressConfig
+        let configList = addressConfig;
         if (!configList) {
-          const { addressConfig: newConfig }: CustomFieldItems =
-            await getB2BAddressConfig()
-          configList = newConfig
+          const { addressConfig: newConfig }: CustomFieldItems = await getB2BAddressConfig();
+          configList = newConfig;
 
           globalDispatch({
             type: 'common',
             payload: {
               addressConfig: configList,
             },
-          })
+          });
         }
 
         const permission =
-          (configList || []).find(
-            (config: AddressConfigItem) => config.key === 'address_label'
-          )?.isEnabled === '1'
+          (configList || []).find((config: AddressConfigItem) => config.key === 'address_label')
+            ?.isEnabled === '1';
         dispatch({
           type: 'addressLabel',
           payload: {
             addressLabelPermission: permission,
           },
-        })
+        });
       } catch (error) {
-        b2bLogger.error(error)
+        b2bLogger.error(error);
       }
-    }
-    getAddressLabelPermission()
+    };
+    getAddressLabelPermission();
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const getOrderStatusLabel = (status: string) => {
     const currentOrderStatus = orderStatus.find(
-      (item: OrderStatusItem) => item.systemLabel === status
-    )
-    let activeStatusLabel = currentOrderStatus?.customLabel || customStatus
+      (item: OrderStatusItem) => item.systemLabel === status,
+    );
+    let activeStatusLabel = currentOrderStatus?.customLabel || customStatus;
     if (currentOrderStatus) {
-      const optionLabel =
-        orderStatusTranslationVariables[currentOrderStatus.systemLabel]
+      const optionLabel = orderStatusTranslationVariables[currentOrderStatus.systemLabel];
       activeStatusLabel =
         optionLabel && b3Lang(optionLabel) !== currentOrderStatus.systemLabel
           ? b3Lang(optionLabel)
-          : activeStatusLabel
+          : activeStatusLabel;
     }
-    return activeStatusLabel
-  }
+    return activeStatusLabel;
+  };
 
   return (
     <B3Sping isSpinning={isRequestLoading} background="rgba(255,255,255,0.2)">
@@ -352,7 +331,7 @@ function OrderDetail() {
         </Grid>
       </Box>
     </B3Sping>
-  )
+  );
 }
 
 function OrderDetailsContent() {
@@ -360,7 +339,7 @@ function OrderDetailsContent() {
     <OrderDetailsProvider>
       <OrderDetail />
     </OrderDetailsProvider>
-  )
+  );
 }
 
-export default OrderDetailsContent
+export default OrderDetailsContent;

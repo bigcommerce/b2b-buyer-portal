@@ -1,14 +1,14 @@
-import styled from '@emotion/styled'
+import styled from '@emotion/styled';
 
 interface ContainerProps {
-  padding?: string
-  flexBasis?: string
-  alignItems?: string
-  backgroundColor?: string
-  width?: string
+  padding?: string;
+  flexBasis?: string;
+  alignItems?: string;
+  backgroundColor?: string;
+  width?: string;
   xs?: {
-    [key: string]: string | number
-  }
+    [key: string]: string | number;
+  };
   flexDirection?:
     | 'column'
     | 'inherit'
@@ -18,7 +18,7 @@ interface ContainerProps {
     | 'unset'
     | 'column-reverse'
     | 'row'
-    | 'row-reverse'
+    | 'row-reverse';
 }
 
 const Container = styled('div')(
@@ -37,7 +37,7 @@ const Container = styled('div')(
     width,
     backgroundColor,
     ...xs,
-  })
-)
+  }),
+);
 
-export default Container
+export default Container;

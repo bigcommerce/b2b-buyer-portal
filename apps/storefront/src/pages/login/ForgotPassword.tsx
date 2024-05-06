@@ -1,42 +1,42 @@
-import { Dispatch, SetStateAction, useContext, useState } from 'react'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import { Box, ImageListItem, Typography } from '@mui/material'
+import { Dispatch, SetStateAction, useContext, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { Box, ImageListItem, Typography } from '@mui/material';
 
-import { B3Card, B3CustomForm } from '@/components'
-import CustomButton from '@/components/button/CustomButton'
-import B3Sping from '@/components/spin/B3Sping'
-import { useMobile } from '@/hooks'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
-import { OpenPageState } from '@/types/hooks'
-import b2bLogger from '@/utils/b3Logger'
+import { B3Card, B3CustomForm } from '@/components';
+import CustomButton from '@/components/button/CustomButton';
+import B3Sping from '@/components/spin/B3Sping';
+import { useMobile } from '@/hooks';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { GlobaledContext } from '@/shared/global';
+import { OpenPageState } from '@/types/hooks';
+import b2bLogger from '@/utils/b3Logger';
 
-import { getForgotPasswordFields, LoginConfig, sendEmail } from './config'
-import { B3ResetPassWordButton, LoginImage } from './styled'
+import { getForgotPasswordFields, LoginConfig, sendEmail } from './config';
+import { B3ResetPassWordButton, LoginImage } from './styled';
 
 interface ForgotPasswordProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 
 function ForgotPassword(props: ForgotPasswordProps) {
   const {
     state: { logo },
-  } = useContext(GlobaledContext)
+  } = useContext(GlobaledContext);
 
   const {
     state: {
       loginPageDisplay: { displayStoreLogo },
     },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
-  const [isMobile] = useMobile()
-  const [isLoading, setLoading] = useState<boolean>(false)
-  const b3Lang = useB3Lang()
-  const forgotPasswordFields = getForgotPasswordFields(b3Lang)
+  const [isMobile] = useMobile();
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const b3Lang = useB3Lang();
+  const forgotPasswordFields = getForgotPasswordFields(b3Lang);
 
-  const { setOpenPage } = props
+  const { setOpenPage } = props;
 
   const {
     control,
@@ -46,21 +46,21 @@ function ForgotPassword(props: ForgotPasswordProps) {
     setValue,
   } = useForm<LoginConfig>({
     mode: 'onSubmit',
-  })
+  });
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleLoginClick: SubmitHandler<LoginConfig> = async (data) => {
-    setLoading(true)
-    const { emailAddress } = data
+    setLoading(true);
+    const { emailAddress } = data;
     try {
-      await sendEmail(emailAddress)
-      setLoading(false)
-      navigate('/login?loginFlag=2')
+      await sendEmail(emailAddress);
+      setLoading(false);
+      navigate('/login?loginFlag=2');
     } catch (e) {
-      b2bLogger.error(e)
+      b2bLogger.error(e);
     }
-  }
+  };
 
   return (
     <B3Card setOpenPage={setOpenPage}>
@@ -83,14 +83,10 @@ function ForgotPassword(props: ForgotPasswordProps) {
                   maxWidth: isMobile ? '175px' : '250px',
                 }}
                 onClick={() => {
-                  window.location.href = '/'
+                  window.location.href = '/';
                 }}
               >
-                <img
-                  src={`${logo}`}
-                  alt={b3Lang('global.tips.registerLogo')}
-                  loading="lazy"
-                />
+                <img src={`${logo}`} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
               </ImageListItem>
             </LoginImage>
           )}
@@ -143,7 +139,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
         </Box>
       </Box>
     </B3Card>
-  )
+  );
 }
 
-export default ForgotPassword
+export default ForgotPassword;

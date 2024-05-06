@@ -1,35 +1,35 @@
-import { useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, Card, CardContent, Typography } from '@mui/material'
+import { useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Card, CardContent, Typography } from '@mui/material';
 
-import { B3NoData } from '@/components'
-import B3Dialog from '@/components/B3Dialog'
-import B3Sping from '@/components/spin/B3Sping'
-import { useMobile } from '@/hooks'
-import { getInvoicePaymentHistory } from '@/shared/service/b2b'
-import { displayFormat, handleGetCorrespondingCurrency } from '@/utils'
+import { B3NoData } from '@/components';
+import B3Dialog from '@/components/B3Dialog';
+import B3Sping from '@/components/spin/B3Sping';
+import { useMobile } from '@/hooks';
+import { getInvoicePaymentHistory } from '@/shared/service/b2b';
+import { displayFormat, handleGetCorrespondingCurrency } from '@/utils';
 
 interface PaymentsHistoryProps {
-  open: boolean
-  setOpen: (bool: boolean) => void
-  currentInvoiceId: string
+  open: boolean;
+  setOpen: (bool: boolean) => void;
+  currentInvoiceId: string;
 }
 
 interface PaymentsHistoryList {
-  node: InvoiceData
+  node: InvoiceData;
 }
 
 interface InvoiceData {
-  id: string
-  paymentType: string
-  invoiceId: number
+  id: string;
+  paymentType: string;
+  invoiceId: number;
   amount: {
-    code: string
-    value: string
-  }
-  transactionType: string
-  referenceNumber: string
-  createdAt: number
+    code: string;
+    value: string;
+  };
+  transactionType: string;
+  referenceNumber: string;
+  createdAt: number;
 }
 
 function Title({ title }: { title: string }) {
@@ -42,7 +42,7 @@ function Title({ title }: { title: string }) {
     >
       {title}:
     </Typography>
-  )
+  );
 }
 
 function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
@@ -50,15 +50,8 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
     <>
       {list.map((item: PaymentsHistoryList) => {
         const {
-          node: {
-            createdAt,
-            amount,
-            paymentType,
-            transactionType,
-            referenceNumber,
-            id,
-          },
-        } = item
+          node: { createdAt, amount, paymentType, transactionType, referenceNumber, id },
+        } = item;
 
         return (
           <Card
@@ -79,9 +72,7 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
                 }}
               >
                 <Title title="Date received" />
-                <Typography variant="body1">{`${displayFormat(
-                  +createdAt
-                )}`}</Typography>
+                <Typography variant="body1">{`${displayFormat(+createdAt)}`}</Typography>
               </Box>
               <Box
                 sx={{
@@ -90,10 +81,7 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
               >
                 <Title title="Amount" />
                 <Typography variant="body1">
-                  {`${handleGetCorrespondingCurrency(
-                    amount.code,
-                    +(amount?.value || 0)
-                  )}`}
+                  {`${handleGetCorrespondingCurrency(amount.code, +(amount?.value || 0))}`}
                 </Typography>
               </Box>
               <Box
@@ -118,44 +106,38 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
                 }}
               >
                 <Title title="Reference" />
-                <Typography variant="body1">
-                  {referenceNumber || '–'}
-                </Typography>
+                <Typography variant="body1">{referenceNumber || '–'}</Typography>
               </Box>
             </CardContent>
           </Card>
-        )
+        );
       })}
     </>
-  )
+  );
 }
 
-function PaymentsHistory({
-  open,
-  setOpen,
-  currentInvoiceId,
-}: PaymentsHistoryProps) {
-  const b3Lang = useB3Lang()
-  const [isMobile] = useMobile()
-  const [loadding, setLoadding] = useState<boolean>(false)
+function PaymentsHistory({ open, setOpen, currentInvoiceId }: PaymentsHistoryProps) {
+  const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
+  const [loadding, setLoadding] = useState<boolean>(false);
 
-  const [list, setList] = useState<PaymentsHistoryList[] | []>([])
+  const [list, setList] = useState<PaymentsHistoryList[] | []>([]);
 
   useEffect(() => {
     const init = async () => {
-      setLoadding(true)
+      setLoadding(true);
       const {
         allReceiptLines: { edges = [] },
-      } = await getInvoicePaymentHistory(+currentInvoiceId)
+      } = await getInvoicePaymentHistory(+currentInvoiceId);
 
-      setList(edges)
-      setLoadding(false)
-    }
+      setList(edges);
+      setLoadding(false);
+    };
 
     if (open && currentInvoiceId) {
-      init()
+      init();
     }
-  }, [open, currentInvoiceId])
+  }, [open, currentInvoiceId]);
 
   return (
     <B3Dialog
@@ -185,7 +167,7 @@ function PaymentsHistory({
         </B3Sping>
       </Box>
     </B3Dialog>
-  )
+  );
 }
 
-export default PaymentsHistory
+export default PaymentsHistory;

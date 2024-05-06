@@ -1,41 +1,38 @@
-import { useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import { ArrowBackIosNew } from '@mui/icons-material'
-import { Box, Grid, styled, Typography, useTheme } from '@mui/material'
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { ArrowBackIosNew } from '@mui/icons-material';
+import { Box, Grid, styled, Typography, useTheme } from '@mui/material';
 
-import CustomButton from '@/components/button/CustomButton'
-import {
-  b3HexToRgb,
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
-import { useMobile } from '@/hooks'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { displayFormat } from '@/utils'
+import CustomButton from '@/components/button/CustomButton';
+import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { useMobile } from '@/hooks';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { displayFormat } from '@/utils';
 
-import QuoteStatus from './QuoteStatus'
+import QuoteStatus from './QuoteStatus';
 
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
   alignItems: 'center',
   marginTop: '0.5rem',
-}))
+}));
 
 interface QuoteDetailHeaderProps {
-  status: string
-  quoteNumber: string
-  issuedAt: number
-  expirationDate: number
-  exportPdf: () => void
-  printQuote: () => Promise<void>
-  role: string | number
-  quoteTitle: string
-  salesRepInfo: { [key: string]: string }
+  status: string;
+  quoteNumber: string;
+  issuedAt: number;
+  expirationDate: number;
+  exportPdf: () => void;
+  printQuote: () => Promise<void>;
+  role: string | number;
+  quoteTitle: string;
+  salesRepInfo: { [key: string]: string };
 }
 
 function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
   const {
     status,
@@ -47,27 +44,27 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
     role,
     quoteTitle,
     salesRepInfo,
-  } = props
+  } = props;
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
-  const customColor = getContrastColor(backgroundColor)
+  const customColor = getContrastColor(backgroundColor);
 
-  const theme = useTheme()
+  const theme = useTheme();
 
-  const primaryColor = theme.palette.primary.main
+  const primaryColor = theme.palette.primary.main;
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const gridOptions = (xs: number) =>
     isMobile
       ? {}
       : {
           xs,
-        }
+        };
 
   return (
     <>
@@ -87,7 +84,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
               alignItems: 'center',
             }}
             onClick={() => {
-              navigate('/quotes')
+              navigate('/quotes');
             }}
           >
             <ArrowBackIosNew
@@ -203,9 +200,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
               >
                 {b3Lang('quoteDetail.header.expirationDate')}
               </Typography>
-              <span>{`${
-                expirationDate ? displayFormat(+expirationDate) : ''
-              }`}</span>
+              <span>{`${expirationDate ? displayFormat(+expirationDate) : ''}`}</span>
             </StyledCreateName>
           </Box>
         </Grid>
@@ -237,7 +232,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
         )}
       </Grid>
     </>
-  )
+  );
 }
 
-export default QuoteDetailHeader
+export default QuoteDetailHeader;

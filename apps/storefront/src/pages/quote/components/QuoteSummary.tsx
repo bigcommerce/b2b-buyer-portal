@@ -1,25 +1,18 @@
-import {
-  forwardRef,
-  Ref,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
+import { forwardRef, Ref, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
-import { useAppSelector } from '@/store'
-import { currencyFormat } from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+import { useAppSelector } from '@/store';
+import { currencyFormat } from '@/utils';
+import { getBCPrice } from '@/utils/b3Product/b3Product';
 
-import getQuoteDraftShowPriceTBD from '../shared/utils'
+import getQuoteDraftShowPriceTBD from '../shared/utils';
 
 interface Summary {
-  subtotal: number
-  shipping: number
-  tax: number
-  grandTotal: number
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  grandTotal: number;
 }
 
 const defaultSummary: Summary = {
@@ -27,86 +20,79 @@ const defaultSummary: Summary = {
   shipping: 0,
   tax: 0,
   grandTotal: 0,
-}
+};
 
 const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   const [quoteSummary, setQuoteSummary] = useState<Summary>({
     ...defaultSummary,
-  })
+  });
 
-  const [isHideQuoteDraftPrice, setHideQuoteDraftPrice] =
-    useState<boolean>(false)
-  const showInclusiveTaxPrice = useAppSelector(
-    ({ global }) => global.showInclusiveTaxPrice
-  )
-  const draftQuoteList = useAppSelector(
-    ({ quoteInfo }) => quoteInfo.draftQuoteList
-  )
+  const [isHideQuoteDraftPrice, setHideQuoteDraftPrice] = useState<boolean>(false);
+  const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
+  const draftQuoteList = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList);
 
-  const priceCalc = (price: number) => parseFloat(String(price))
+  const priceCalc = (price: number) => parseFloat(String(price));
 
   const getSummary = useCallback(() => {
-    const isHidePrice = getQuoteDraftShowPriceTBD(draftQuoteList)
+    const isHidePrice = getQuoteDraftShowPriceTBD(draftQuoteList);
 
-    setHideQuoteDraftPrice(isHidePrice)
+    setHideQuoteDraftPrice(isHidePrice);
 
     const newQuoteSummary = draftQuoteList.reduce(
       (summary: Summary, product: CustomFieldItems) => {
-        const { basePrice, taxPrice: productTax = 0, quantity } = product.node
+        const { basePrice, taxPrice: productTax = 0, quantity } = product.node;
 
-        let { subtotal, grandTotal, tax } = summary
+        let { subtotal, grandTotal, tax } = summary;
 
-        const { shipping } = summary
+        const { shipping } = summary;
 
-        const price = getBCPrice(+basePrice, +productTax)
+        const price = getBCPrice(+basePrice, +productTax);
 
-        subtotal += priceCalc(price * quantity)
-        tax += priceCalc(+productTax * +quantity)
+        subtotal += priceCalc(price * quantity);
+        tax += priceCalc(+productTax * +quantity);
 
-        const totalPrice = showInclusiveTaxPrice ? subtotal : subtotal + tax
+        const totalPrice = showInclusiveTaxPrice ? subtotal : subtotal + tax;
 
-        grandTotal = totalPrice + shipping
+        grandTotal = totalPrice + shipping;
 
         return {
           grandTotal,
           shipping,
           tax,
           subtotal,
-        }
+        };
       },
       {
         ...defaultSummary,
-      }
-    )
+      },
+    );
 
-    setQuoteSummary(newQuoteSummary)
-  }, [showInclusiveTaxPrice, draftQuoteList])
+    setQuoteSummary(newQuoteSummary);
+  }, [showInclusiveTaxPrice, draftQuoteList]);
 
   useEffect(() => {
-    getSummary()
-  }, [getSummary])
+    getSummary();
+  }, [getSummary]);
 
   useImperativeHandle(ref, () => ({
     refreshSummary: () => getSummary(),
-  }))
+  }));
 
-  const priceFormat = (price: number) => `${currencyFormat(price)}`
+  const priceFormat = (price: number) => `${currencyFormat(price)}`;
 
   const showPrice = (price: string | number): string | number => {
-    if (isHideQuoteDraftPrice) return b3Lang('quoteDraft.quoteSummary.tbd')
+    if (isHideQuoteDraftPrice) return b3Lang('quoteDraft.quoteSummary.tbd');
 
-    return price
-  }
+    return price;
+  };
 
   return (
     <Card>
       <CardContent>
         <Box>
-          <Typography variant="h5">
-            {b3Lang('quoteDraft.quoteSummary.summary')}
-          </Typography>
+          <Typography variant="h5">{b3Lang('quoteDraft.quoteSummary.summary')}</Typography>
           <Box
             sx={{
               marginTop: '20px',
@@ -120,12 +106,8 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 margin: '4px 0',
               }}
             >
-              <Typography>
-                {b3Lang('quoteDraft.quoteSummary.subTotal')}
-              </Typography>
-              <Typography>
-                {showPrice(priceFormat(quoteSummary.subtotal))}
-              </Typography>
+              <Typography>{b3Lang('quoteDraft.quoteSummary.subTotal')}</Typography>
+              <Typography>{showPrice(priceFormat(quoteSummary.subtotal))}</Typography>
             </Grid>
 
             <Grid
@@ -135,9 +117,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
                 margin: '4px 0',
               }}
             >
-              <Typography>
-                {b3Lang('quoteDraft.quoteSummary.shipping')}
-              </Typography>
+              <Typography>{b3Lang('quoteDraft.quoteSummary.shipping')}</Typography>
               <Typography>{b3Lang('quoteDraft.quoteSummary.tbd')}</Typography>
             </Grid>
 
@@ -149,9 +129,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
               }}
             >
               <Typography>{b3Lang('quoteDraft.quoteSummary.tax')}</Typography>
-              <Typography>
-                {showPrice(priceFormat(quoteSummary.tax))}
-              </Typography>
+              <Typography>{showPrice(priceFormat(quoteSummary.tax))}</Typography>
             </Grid>
 
             <Grid
@@ -180,6 +158,6 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
         </Box>
       </CardContent>
     </Card>
-  )
-})
-export default QuoteSummary
+  );
+});
+export default QuoteSummary;

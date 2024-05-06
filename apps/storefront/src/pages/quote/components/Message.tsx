@@ -6,51 +6,44 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react'
-import { useB3Lang } from '@b3/lang'
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
-import {
-  Box,
-  Card,
-  CardContent,
-  TextField,
-  Tooltip,
-  useTheme,
-} from '@mui/material'
-import { format, formatDistanceStrict } from 'date-fns'
+} from 'react';
+import { useB3Lang } from '@b3/lang';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { Box, Card, CardContent, TextField, Tooltip, useTheme } from '@mui/material';
+import { format, formatDistanceStrict } from 'date-fns';
 
-import { B3CollapseContainer } from '@/components'
-import B3Sping from '@/components/spin/B3Sping'
-import { GlobaledContext } from '@/shared/global'
-import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b'
-import { displayExtendedFormat, storeHash } from '@/utils'
+import { B3CollapseContainer } from '@/components';
+import B3Sping from '@/components/spin/B3Sping';
+import { GlobaledContext } from '@/shared/global';
+import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b';
+import { displayExtendedFormat, storeHash } from '@/utils';
 
 interface MessageProps {
-  date?: number
-  message?: string
-  role?: string
-  isCustomer?: boolean
-  key?: number | string
-  read?: number
-  sendTime?: number
+  date?: number;
+  message?: string;
+  role?: string;
+  isCustomer?: boolean;
+  key?: number | string;
+  read?: number;
+  sendTime?: number;
 }
 
 interface MsgsProps {
-  msgs: MessageProps[]
-  id: string | number
-  email: string
-  isB2BUser: boolean
-  status: number
+  msgs: MessageProps[];
+  id: string | number;
+  email: string;
+  isB2BUser: boolean;
+  status: number;
 }
 
 interface CustomerMessageProps {
-  msg: MessageProps
-  isEndMessage?: boolean
-  isCustomer?: boolean
+  msg: MessageProps;
+  isEndMessage?: boolean;
+  isCustomer?: boolean;
 }
 
 function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
   return (
     <Box
       sx={{
@@ -80,18 +73,12 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
             display: 'inline-block',
             lineHeight: '34px',
             padding: '0 10px',
-            background: `${
-              isCustomer ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)'
-            }`,
+            background: `${isCustomer ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)'}`,
             borderRadius: '18px',
             m: '1px',
           }}
         >
-          <Tooltip
-            title={format((msg.sendTime || 0) * 1000, 'K:m aa')}
-            placement="top"
-            arrow
-          >
+          <Tooltip title={format((msg.sendTime || 0) * 1000, 'K:m aa')} placement="top" arrow>
             <Box
               sx={{
                 wordBreak: 'break-word',
@@ -116,18 +103,18 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
                 new Date(),
                 {
                   addSuffix: true,
-                }
+                },
               )}`}
             </Box>
           )}
         </Box>
       )}
     </Box>
-  )
+  );
 }
 
 interface DateMessageProps {
-  msg: MessageProps
+  msg: MessageProps;
 }
 
 function DateMessage({ msg }: DateMessageProps) {
@@ -142,54 +129,54 @@ function DateMessage({ msg }: DateMessageProps) {
     >
       {`${displayExtendedFormat(msg?.date || 0)}`}
     </Box>
-  )
+  );
 }
 
 function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
-  const { dispatch: globalDispatch } = useContext(GlobaledContext)
+  const { dispatch: globalDispatch } = useContext(GlobaledContext);
 
-  const theme = useTheme()
-  const primaryColor = theme.palette.primary.main
-  const b3Lang = useB3Lang()
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
+  const b3Lang = useB3Lang();
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const changeReadRef = useRef(0)
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const changeReadRef = useRef(0);
 
-  const [messages, setMessages] = useState<MessageProps[]>([])
+  const [messages, setMessages] = useState<MessageProps[]>([]);
 
-  const [read, setRead] = useState<number>(0)
+  const [read, setRead] = useState<number>(0);
 
-  const [message, setMessage] = useState<string>('')
+  const [message, setMessage] = useState<string>('');
 
-  const [loadding, setLoadding] = useState<boolean>(false)
+  const [loadding, setLoadding] = useState<boolean>(false);
 
   const convertedMsgs = (msgs: MessageProps[]) => {
-    let nextMsg: MessageProps = {}
-    const getNewMsgs: MessageProps[] = []
-    let readNum = 0
+    let nextMsg: MessageProps = {};
+    const getNewMsgs: MessageProps[] = [];
+    let readNum = 0;
     msgs.forEach((msg: MessageProps, index: number) => {
       if (index === 0) {
         getNewMsgs.push({
           isCustomer: !msg.role?.includes('Sales rep:'),
           date: msg?.date,
           key: `${msg?.date}date`,
-        })
+        });
         getNewMsgs.push({
           isCustomer: !msg.role?.includes('Sales rep:'),
           message: msg.message,
           sendTime: msg.date,
           role: msg.role,
           key: msg?.date,
-        })
-        nextMsg = msg
-        nextMsg.isCustomer = !msg.role?.includes('Sales rep:')
+        });
+        nextMsg = msg;
+        nextMsg.isCustomer = !msg.role?.includes('Sales rep:');
       } else {
         if ((msg?.date || 0) - (nextMsg?.date || 0) > 60 * 60) {
           getNewMsgs.push({
             isCustomer: !msg.role?.includes('Sales rep:'),
             date: msg?.date,
             key: `${msg?.date}date`,
-          })
+          });
         }
 
         if (nextMsg.isCustomer === !msg.role?.includes('Sales rep:')) {
@@ -198,7 +185,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             message: msg.message,
             sendTime: msg.date,
             key: msg?.date,
-          })
+          });
         } else {
           getNewMsgs.push({
             isCustomer: !msg.role?.includes('Sales rep:'),
@@ -206,21 +193,21 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             role: msg.role,
             sendTime: msg.date,
             key: msg?.date,
-          })
+          });
         }
-        nextMsg = msg
-        nextMsg.isCustomer = !msg.role?.includes('Sales rep:')
+        nextMsg = msg;
+        nextMsg.isCustomer = !msg.role?.includes('Sales rep:');
       }
 
       if (msg.role?.includes('Sales rep:') && !msg.read) {
-        readNum += 1
+        readNum += 1;
       }
-    })
+    });
 
-    setRead(readNum)
+    setRead(readNum);
 
-    setMessages(getNewMsgs)
-  }
+    setMessages(getNewMsgs);
+  };
 
   const title = useMemo(
     () => (
@@ -254,23 +241,23 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
     ),
     // disabling this rule as b3Lang will cause rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [primaryColor, read]
-  )
+    [primaryColor, read],
+  );
 
   useEffect(() => {
-    convertedMsgs(msgs)
-  }, [msgs])
+    convertedMsgs(msgs);
+  }, [msgs]);
 
   useEffect(() => {
     if (messagesEndRef.current && messages.length) {
-      messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight
+      messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
     }
-  }, [messages])
+  }, [messages]);
 
   const updateMsgs = async (msg: string) => {
     try {
-      const fn = isB2BUser ? updateB2BQuote : updateBCQuote
-      setLoadding(true)
+      const fn = isB2BUser ? updateB2BQuote : updateBCQuote;
+      setLoadding(true);
       const {
         quoteUpdate: {
           quote: { trackingHistory },
@@ -283,25 +270,25 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
           userEmail: email || '',
           storeHash,
         },
-      })
-      setMessage('')
-      setRead(0)
-      convertedMsgs(trackingHistory)
+      });
+      setMessage('');
+      setRead(0);
+      convertedMsgs(trackingHistory);
     } finally {
-      setLoadding(false)
+      setLoadding(false);
     }
-  }
+  };
 
   const updateMessage = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
-      updateMsgs((e.target as HTMLInputElement).value || '')
+      updateMsgs((e.target as HTMLInputElement).value || '');
     }
-  }
+  };
 
   const handleOnChange = useCallback(
     (open: boolean) => {
       if (open) {
-        const fn = isB2BUser ? updateB2BQuote : updateBCQuote
+        const fn = isB2BUser ? updateB2BQuote : updateBCQuote;
         if (changeReadRef.current === 0 && msgs.length) {
           fn({
             id: +id,
@@ -310,17 +297,17 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
               userEmail: email || '',
               storeHash,
             },
-          })
+          });
         }
-        setRead(0)
+        setRead(0);
         if (messagesEndRef.current) {
-          messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight
+          messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
         }
-        changeReadRef.current += 1
+        changeReadRef.current += 1;
       }
     },
-    [email, id, isB2BUser, msgs]
-  )
+    [email, id, isB2BUser, msgs],
+  );
 
   useEffect(() => {
     globalDispatch({
@@ -328,10 +315,10 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
       payload: {
         quoteDetailHasNewMessages: read !== 0,
       },
-    })
+    });
     // Disabling this rule as dispatcher dep globalDispatch is the same between renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [read])
+  }, [read]);
 
   return (
     <Card>
@@ -409,7 +396,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                   }}
                   value={message}
                   onChange={(event) => {
-                    setMessage(event.target.value)
+                    setMessage(event.target.value);
                   }}
                   size="small"
                   label={b3Lang('quoteDetail.message.typeMessage')}
@@ -441,7 +428,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
         </B3CollapseContainer>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default Message
+export default Message;

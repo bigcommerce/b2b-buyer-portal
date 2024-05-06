@@ -1,54 +1,47 @@
-import {
-  Dispatch,
-  MouseEvent,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
-import { useLocation } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-import { Box, IconButton, Menu, MenuItem } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { Dispatch, MouseEvent, SetStateAction, useContext, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { Box, IconButton, Menu, MenuItem } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-import { showPageMask } from '@/components'
-import B3Sping from '@/components/spin/B3Sping'
-import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { TableColumnItem } from '@/components/table/B3Table'
-import { useSort } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
-import { superAdminCompanies } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
-import { OpenPageState } from '@/types/hooks'
-import { endMasquerade, startMasquerade } from '@/utils/masquerade'
+import { showPageMask } from '@/components';
+import B3Sping from '@/components/spin/B3Sping';
+import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { TableColumnItem } from '@/components/table/B3Table';
+import { useSort } from '@/hooks';
+import { GlobaledContext } from '@/shared/global';
+import { superAdminCompanies } from '@/shared/service/b2b';
+import { useAppSelector } from '@/store';
+import { OpenPageState } from '@/types/hooks';
+import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
-import B3FilterSearch from '../../components/filter/B3FilterSearch'
+import B3FilterSearch from '../../components/filter/B3FilterSearch';
 
-import DashboardCard from './components/DashboardCard'
+import DashboardCard from './components/DashboardCard';
 
 interface ListItem {
-  [key: string]: string
+  [key: string]: string;
 }
 
 interface B3MeanProps {
-  isMasquerade: boolean
-  handleSelect: () => void
-  startActing: () => void
-  endActing: () => void
+  isMasquerade: boolean;
+  handleSelect: () => void;
+  startActing: () => void;
+  endActing: () => void;
 }
 
 interface DashboardProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 
-export const defaultSortKey = 'companyName'
+export const defaultSortKey = 'companyName';
 
 export const sortKeys = {
   companyName: 'companyName',
   companyAdminName: 'companyAdminName',
   companyEmail: 'companyEmail',
-}
+};
 
 const StyledMenu = styled(Menu)(() => ({
   '& .MuiPaper-elevation': {
@@ -56,31 +49,26 @@ const StyledMenu = styled(Menu)(() => ({
       '0px 1px 0px -1px rgba(0, 0, 0, 0.1), 0px 1px 6px rgba(0, 0, 0, 0.07), 0px 1px 4px rgba(0, 0, 0, 0.06)',
     borderRadius: '4px',
   },
-}))
+}));
 
-function B3Mean({
-  isMasquerade,
-  handleSelect,
-  startActing,
-  endActing,
-}: B3MeanProps) {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+function B3Mean({ isMasquerade, handleSelect, startActing, endActing }: B3MeanProps) {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
-  const open = Boolean(anchorEl)
-  const b3Lang = useB3Lang()
+  const open = Boolean(anchorEl);
+  const b3Lang = useB3Lang();
 
   const handleClose = () => {
-    setAnchorEl(null)
-  }
+    setAnchorEl(null);
+  };
 
   const handleMoreActionsClick = (event: MouseEvent<HTMLButtonElement>) => {
-    handleSelect()
-    setAnchorEl(event.currentTarget)
-  }
+    handleSelect();
+    setAnchorEl(event.currentTarget);
+  };
 
   const menuItemText = isMasquerade
     ? b3Lang('dashboard.endMasqueradeAction')
-    : b3Lang('dashboard.masqueradeAction')
+    : b3Lang('dashboard.masqueradeAction');
 
   return (
     <>
@@ -110,10 +98,10 @@ function B3Mean({
           }}
           onClick={() => {
             if (isMasquerade) {
-              endActing()
+              endActing();
             } else {
-              setAnchorEl(null)
-              startActing()
+              setAnchorEl(null);
+              startActing();
             }
           }}
         >
@@ -121,106 +109,105 @@ function B3Mean({
         </MenuItem>
       </StyledMenu>
     </>
-  )
+  );
 }
 
 function Dashboard(props: DashboardProps) {
-  const { dispatch } = useContext(GlobaledContext)
-  const customerId = useAppSelector(({ company }) => company.customer.id)
-  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
+  const { dispatch } = useContext(GlobaledContext);
+  const customerId = useAppSelector(({ company }) => company.customer.id);
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
 
-  const { setOpenPage } = props
-  const b3Lang = useB3Lang()
+  const { setOpenPage } = props;
+  const b3Lang = useB3Lang();
 
-  const salesRepCompanyId = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
-  )
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
 
-  const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] =
-    useState<number>(+salesRepCompanyId)
+  const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] = useState<number>(
+    +salesRepCompanyId,
+  );
 
-  const [isRequestLoading, setIsRequestLoading] = useState(false)
+  const [isRequestLoading, setIsRequestLoading] = useState(false);
 
   const [filterData, setFilterData] = useState<ListItem>({
     q: '',
     orderBy: sortKeys[defaultSortKey],
-  })
+  });
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortKeys,
     defaultSortKey,
     filterData,
     setFilterData,
-    'asc'
-  )
+    'asc',
+  );
 
-  const location = useLocation()
+  const location = useLocation();
 
   const getSuperAdminCompaniesList = async (params: ListItem) => {
-    let list = { edges: [], totalCount: 0 }
+    let list = { edges: [], totalCount: 0 };
     if (typeof b2bId === 'number') {
-      list = (await superAdminCompanies(b2bId, params)).superAdminCompanies
+      list = (await superAdminCompanies(b2bId, params)).superAdminCompanies;
     }
 
-    return list
-  }
+    return list;
+  };
 
   const startActing = async (id?: number) => {
     try {
-      setIsRequestLoading(true)
+      setIsRequestLoading(true);
       if (typeof b2bId === 'number') {
         await startMasquerade({
           customerId,
           companyId: id || currentSalesRepCompanyId,
           b2bId,
-        })
+        });
       }
 
       setOpenPage({
         isOpen: true,
         openUrl: '/dashboard',
-      })
+      });
 
       setFilterData({
         ...filterData,
-      })
+      });
     } finally {
-      setIsRequestLoading(false)
+      setIsRequestLoading(false);
     }
-  }
+  };
 
   const endActing = async () => {
     try {
-      showPageMask(dispatch, true)
+      showPageMask(dispatch, true);
       if (typeof b2bId === 'number') {
         await endMasquerade({
           b2bId,
-        })
+        });
       }
       setFilterData({
         ...filterData,
-      })
+      });
     } finally {
-      showPageMask(dispatch, false)
+      showPageMask(dispatch, false);
     }
-  }
+  };
 
   useEffect(() => {
     const params = {
       ...location,
-    }
+    };
     if (params?.state) {
-      endActing()
+      endActing();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location])
+  }, [location]);
 
   const handleChange = async (q: string) => {
     setFilterData({
       ...filterData,
       q,
-    })
-  }
+    });
+  };
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
@@ -262,22 +249,22 @@ function Dashboard(props: DashboardProps) {
       key: 'companyName',
       title: b3Lang('dashboard.action'),
       render: (row: CustomFieldItems) => {
-        const { companyId } = row
-        const isMasquerade = +companyId === +salesRepCompanyId
+        const { companyId } = row;
+        const isMasquerade = +companyId === +salesRepCompanyId;
 
         return (
           <B3Mean
             isMasquerade={isMasquerade}
             handleSelect={() => {
-              setCurrentSalesRepCompanyId(companyId)
+              setCurrentSalesRepCompanyId(companyId);
             }}
             startActing={startActing}
             endActing={endActing}
           />
-        )
+        );
       },
     },
-  ]
+  ];
 
   return (
     <B3Sping isSpinning={isRequestLoading}>
@@ -317,7 +304,7 @@ function Dashboard(props: DashboardProps) {
         />
       </Box>
     </B3Sping>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;

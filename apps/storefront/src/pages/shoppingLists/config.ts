@@ -1,58 +1,58 @@
-import { LangFormatFunction } from '@b3/lang'
+import { LangFormatFunction } from '@b3/lang';
 
 export interface ShoppingListSearch {
-  search?: string
-  createdBy?: string
-  status?: string | number | number[]
-  offset?: number
-  first?: number
+  search?: string;
+  createdBy?: string;
+  status?: string | number | number[];
+  offset?: number;
+  first?: number;
 }
 
 interface ShoppingListStatusProps {
-  label: string
-  value: number | string
-  idLang: string
+  label: string;
+  value: number | string;
+  idLang: string;
 }
 
 interface ShoppingListsItemsCustomerInfoProps {
-  firstName: string
-  lastName: string
-  userId: number
-  email: string
-  role: string
+  firstName: string;
+  lastName: string;
+  userId: number;
+  email: string;
+  role: string;
 }
 
 export interface ShoppingListsItemsProps {
-  id?: number
-  name: string
-  description: string
-  status: number
-  customerInfo: ShoppingListsItemsCustomerInfoProps
+  id?: number;
+  name: string;
+  description: string;
+  status: number;
+  customerInfo: ShoppingListsItemsCustomerInfoProps;
   products: {
-    totalCount: number
-  }
-  updatedAt: string | number
-  sampleShoppingListId?: number | string
-  channelId: number
+    totalCount: number;
+  };
+  updatedAt: string | number;
+  sampleShoppingListId?: number | string;
+  channelId: number;
 }
 
 export interface GetFilterMoreListProps {
-  options?: Array<ShoppingListStatusProps>
-  rows?: string | number
-  name: string
-  label: string
-  required: boolean
-  default: string
-  fieldType: string
-  xs: number
-  variant: string
-  size: string
-  maxLength?: number
-  idLang?: string
+  options?: Array<ShoppingListStatusProps>;
+  rows?: string | number;
+  name: string;
+  label: string;
+  required: boolean;
+  default: string;
+  fieldType: string;
+  xs: number;
+  variant: string;
+  size: string;
+  maxLength?: number;
+  idLang?: string;
 }
 
 export const getFilterShoppingListStatus = (
-  role?: number | string
+  role?: number | string,
 ): Array<ShoppingListStatusProps> => {
   const shoppingListStatus: Array<ShoppingListStatusProps> = [
     {
@@ -80,27 +80,26 @@ export const getFilterShoppingListStatus = (
       value: 20,
       idLang: 'global.shoppingLists.status.rejected',
     },
-  ]
+  ];
 
   const getShoppingListStatus =
     role !== 2
       ? shoppingListStatus.filter(
-          (item: ShoppingListStatusProps) =>
-            item.value !== 30 && item.value !== 20
+          (item: ShoppingListStatusProps) => item.value !== 30 && item.value !== 20,
         )
-      : shoppingListStatus
+      : shoppingListStatus;
 
-  return getShoppingListStatus
-}
+  return getShoppingListStatus;
+};
 
 export const getFilterMoreList = (
   createdByUsers: any,
-  role: number | string
+  role: number | string,
 ): GetFilterMoreListProps[] => {
   const newCreatedByUsers =
     createdByUsers?.createdByUser?.results.map((item: any) => ({
       createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
-    })) || []
+    })) || [];
   const filterMoreList = [
     {
       name: 'createdBy',
@@ -130,13 +129,13 @@ export const getFilterMoreList = (
       size: 'small',
       idLang: 'global.shoppingLists.filter.status',
     },
-  ]
+  ];
 
-  return filterMoreList
-}
+  return filterMoreList;
+};
 
 export const getCreatedShoppingListFiles = (
-  b3Lang: LangFormatFunction
+  b3Lang: LangFormatFunction,
 ): GetFilterMoreListProps[] => [
   {
     name: 'name',
@@ -161,4 +160,4 @@ export const getCreatedShoppingListFiles = (
     rows: 4,
     maxLength: 200,
   },
-]
+];

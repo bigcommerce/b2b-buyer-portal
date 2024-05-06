@@ -1,96 +1,92 @@
-import { MouseEvent, useContext, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { ArrowDropDown, Delete } from '@mui/icons-material'
-import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material'
-import Cookies from 'js-cookie'
-import { v1 as uuid } from 'uuid'
+import { MouseEvent, useContext, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { ArrowDropDown, Delete } from '@mui/icons-material';
+import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material';
+import Cookies from 'js-cookie';
+import { v1 as uuid } from 'uuid';
 
-import { successTip } from '@/components'
-import CustomButton from '@/components/button/CustomButton'
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
+import { successTip } from '@/components';
+import CustomButton from '@/components/button/CustomButton';
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useMobile } from '@/hooks';
+import { GlobaledContext } from '@/shared/global';
 import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
   searchB2BProducts,
   searchBcProducts,
-} from '@/shared/service/b2b/graphql/product'
-import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
-import { useAppSelector } from '@/store'
-import { currencyFormat, snackbar } from '@/utils'
-import b2bLogger from '@/utils/b3Logger'
+} from '@/shared/service/b2b/graphql/product';
+import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
+import { useAppSelector } from '@/store';
+import { currencyFormat, snackbar } from '@/utils';
+import b2bLogger from '@/utils/b3Logger';
 import {
   addQuoteDraftProducts,
   calculateProductListPrice,
   validProductQty,
-} from '@/utils/b3Product/b3Product'
+} from '@/utils/b3Product/b3Product';
 import {
   addlineItems,
   conversionProductsList,
   ProductsProps,
-} from '@/utils/b3Product/shared/config'
-import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
-import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils'
+} from '@/utils/b3Product/shared/config';
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
+import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
 
 interface ShoppingDetailFooterProps {
-  shoppingListInfo: any
-  role: string | number
-  allowJuniorPlaceOrder: boolean
-  checkedArr: any
-  selectedSubTotal: number
-  setLoading: (val: boolean) => void
-  setDeleteOpen: (val: boolean) => void
-  setValidateFailureProducts: (arr: ProductsProps[]) => void
-  setValidateSuccessProducts: (arr: ProductsProps[]) => void
-  isB2BUser: boolean
-  customColor: string
+  shoppingListInfo: any;
+  role: string | number;
+  allowJuniorPlaceOrder: boolean;
+  checkedArr: any;
+  selectedSubTotal: number;
+  setLoading: (val: boolean) => void;
+  setDeleteOpen: (val: boolean) => void;
+  setValidateFailureProducts: (arr: ProductsProps[]) => void;
+  setValidateSuccessProducts: (arr: ProductsProps[]) => void;
+  isB2BUser: boolean;
+  customColor: string;
 }
 
 interface ProductInfoProps {
-  basePrice: number | string
-  baseSku: string
-  createdAt: number
-  discount: number | string
-  enteredInclusive: boolean
-  id: number | string
-  itemId: number
-  optionList: string
-  primaryImage: string
-  productId: number
-  productName: string
-  productUrl: string
-  quantity: number | string
-  tax: number | string
-  updatedAt: number
-  variantId: number
-  variantSku: string
-  productsSearch: CustomFieldItems
+  basePrice: number | string;
+  baseSku: string;
+  createdAt: number;
+  discount: number | string;
+  enteredInclusive: boolean;
+  id: number | string;
+  itemId: number;
+  optionList: string;
+  primaryImage: string;
+  productId: number;
+  productName: string;
+  productUrl: string;
+  quantity: number | string;
+  tax: number | string;
+  updatedAt: number;
+  variantId: number;
+  variantSku: string;
+  productsSearch: CustomFieldItems;
 }
 
 interface ListItemProps {
-  node: ProductInfoProps
+  node: ProductInfoProps;
 }
 
 function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
   const {
     state: { productQuoteEnabled = false },
-  } = useContext(GlobaledContext)
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
-  const companyId = useAppSelector(({ company }) => company.companyInfo.id)
-  const customerGroupId = useAppSelector(
-    ({ company }) => company.customer.customerGroupId
-  )
+  } = useContext(GlobaledContext);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const companyId = useAppSelector(({ company }) => company.companyInfo.id);
+  const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [open, setOpen] = useState<boolean>(Boolean(anchorEl));
 
-  const cartEntityId = Cookies.get('cartId')
+  const cartEntityId = Cookies.get('cartId');
 
   const containerStyle = isMobile
     ? {
@@ -99,7 +95,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       }
     : {
         alignItems: 'center',
-      }
+      };
 
   const {
     shoppingListInfo,
@@ -113,58 +109,57 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     setValidateSuccessProducts,
     isB2BUser,
     customColor,
-  } = props
+  } = props;
 
   const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
     if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'))
+      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
     } else {
-      setAnchorEl(e.currentTarget)
-      setOpen(true)
+      setAnchorEl(e.currentTarget);
+      setOpen(true);
     }
-  }
+  };
 
   const handleClose = () => {
-    setAnchorEl(null)
-    setOpen(false)
-  }
+    setAnchorEl(null);
+    setOpen(false);
+  };
 
   const verifyInventory = (inventoryInfos: ProductsProps[]) => {
-    const validateFailureArr: ProductsProps[] = []
-    const validateSuccessArr: ProductsProps[] = []
+    const validateFailureArr: ProductsProps[] = [];
+    const validateSuccessArr: ProductsProps[] = [];
 
     checkedArr.forEach((item: ProductsProps) => {
-      const { node } = item
+      const { node } = item;
 
       const inventoryInfo: CustomFieldItems =
-        inventoryInfos.find(
-          (option: CustomFieldItems) => option.variantSku === node.variantSku
-        ) || {}
+        inventoryInfos.find((option: CustomFieldItems) => option.variantSku === node.variantSku) ||
+        {};
 
       if (inventoryInfo) {
-        let isPassVerify = true
+        let isPassVerify = true;
         if (
           inventoryInfo.isStock === '1' &&
           (node?.quantity ? +node.quantity : 0) > inventoryInfo.stock
         )
-          isPassVerify = false
+          isPassVerify = false;
 
         if (
           inventoryInfo.minQuantity !== 0 &&
           (node?.quantity ? +node.quantity : 0) < inventoryInfo.minQuantity
         )
-          isPassVerify = false
+          isPassVerify = false;
 
         if (
           inventoryInfo.maxQuantity !== 0 &&
           (node?.quantity ? +node.quantity : 0) > inventoryInfo.maxQuantity
         )
-          isPassVerify = false
+          isPassVerify = false;
 
         if (isPassVerify) {
           validateSuccessArr.push({
             node,
-          })
+          });
         } else {
           validateFailureArr.push({
             node: {
@@ -174,40 +169,40 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             isStock: inventoryInfo.isStock,
             maxQuantity: inventoryInfo.maxQuantity,
             minQuantity: inventoryInfo.minQuantity,
-          })
+          });
         }
       }
-    })
+    });
 
     return {
       validateFailureArr,
       validateSuccessArr,
-    }
-  }
+    };
+  };
 
   // Add selected product to cart
   const handleAddProductsToCart = async () => {
     if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'))
-      return
+      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+      return;
     }
 
-    handleClose()
-    setLoading(true)
+    handleClose();
+    setLoading(true);
     try {
-      const skus: string[] = []
+      const skus: string[] = [];
 
-      let cantPurchase = ''
+      let cantPurchase = '';
 
       checkedArr.forEach((item: ProductsProps) => {
-        const { node } = item
+        const { node } = item;
 
         if (node.productsSearch.availability === 'disabled') {
-          cantPurchase += `${node.variantSku},`
+          cantPurchase += `${node.variantSku},`;
         }
 
-        skus.push(node.variantSku)
-      })
+        skus.push(node.variantSku);
+      });
 
       if (cantPurchase) {
         snackbar.error(
@@ -216,9 +211,9 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           }),
           {
             isClose: true,
-          }
-        )
-        return
+          },
+        );
+        return;
       }
 
       if (skus.length === 0) {
@@ -228,46 +223,40 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             : b3Lang('shoppingList.footer.selectItemsToAddToCart'),
           {
             isClose: true,
-          }
-        )
-        return
+          },
+        );
+        return;
       }
 
-      const getVariantInfoBySku = isB2BUser
-        ? getB2BVariantInfoBySkus
-        : getBcVariantInfoBySkus
+      const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus;
 
       const getInventoryInfos = await getVariantInfoBySku({
         skus,
-      })
+      });
 
       const { validateFailureArr, validateSuccessArr } = verifyInventory(
-        getInventoryInfos?.variantSku || []
-      )
+        getInventoryInfos?.variantSku || [],
+      );
 
       if (validateSuccessArr.length !== 0) {
-        const lineItems = addlineItems(validateSuccessArr)
-        const deleteCartObject = deleteCartData(cartEntityId)
-        const cartInfo = await getCart()
-        let res = null
+        const lineItems = addlineItems(validateSuccessArr);
+        const deleteCartObject = deleteCartData(cartEntityId);
+        const cartInfo = await getCart();
+        let res = null;
         if (allowJuniorPlaceOrder && cartInfo.length) {
-          await deleteCart(deleteCartObject)
-          res = await updateCart(cartInfo, lineItems)
+          await deleteCart(deleteCartObject);
+          res = await updateCart(cartInfo, lineItems);
         } else {
-          res = await callCart(lineItems)
-          b3TriggerCartNumber()
+          res = await callCart(lineItems);
+          b3TriggerCartNumber();
         }
         if (res && res.errors) {
           snackbar.error(res.errors[0].message, {
             isClose: true,
-          })
+          });
         } else if (validateFailureArr.length === 0) {
-          if (
-            allowJuniorPlaceOrder &&
-            +role === 2 &&
-            shoppingListInfo?.status === 0
-          ) {
-            window.location.href = '/checkout'
+          if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
+            window.location.href = '/checkout';
           } else {
             snackbar.success('', {
               jsx: successTip({
@@ -278,97 +267,92 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                 isCustomEvent: true,
               }),
               isClose: true,
-            })
-            b3TriggerCartNumber()
+            });
+            b3TriggerCartNumber();
           }
         }
       }
 
-      setValidateFailureProducts(validateFailureArr)
-      setValidateSuccessProducts(validateSuccessArr)
+      setValidateFailureProducts(validateFailureArr);
+      setValidateSuccessProducts(validateSuccessArr);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Add selected to quote
   const getOptionsList = (options: []) => {
-    if (options?.length === 0) return []
+    if (options?.length === 0) return [];
 
     const option = options.map(
       ({
         option_id: optionId,
         option_value: optionValue,
       }: {
-        option_id: string | number
-        option_value: string | number
+        option_id: string | number;
+        option_value: string | number;
       }) => ({
         optionId,
         optionValue,
-      })
-    )
+      }),
+    );
 
-    return option
-  }
+    return option;
+  };
 
   const handleAddSelectedToQuote = async () => {
     if (checkedArr.length === 0) {
-      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'))
-      return
+      snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
+      return;
     }
-    setLoading(true)
-    handleClose()
+    setLoading(true);
+    handleClose();
     try {
-      const productsWithSku = checkedArr.filter(
-        (checkedItem: ListItemProps) => {
-          const {
-            node: { variantSku },
-          } = checkedItem
+      const productsWithSku = checkedArr.filter((checkedItem: ListItemProps) => {
+        const {
+          node: { variantSku },
+        } = checkedItem;
 
-          return (
-            variantSku !== '' && variantSku !== null && variantSku !== undefined
-          )
-        }
-      )
+        return variantSku !== '' && variantSku !== null && variantSku !== undefined;
+      });
 
       const noSkuProducts = checkedArr.filter((checkedItem: ListItemProps) => {
         const {
           node: { variantSku },
-        } = checkedItem
+        } = checkedItem;
 
-        return !variantSku
-      })
+        return !variantSku;
+      });
       if (noSkuProducts.length > 0) {
         snackbar.error(b3Lang('shoppingList.footer.cantAddProductsNoSku'), {
           isClose: true,
-        })
+        });
       }
-      if (noSkuProducts.length === checkedArr.length) return
+      if (noSkuProducts.length === checkedArr.length) return;
 
-      const productIds: number[] = []
+      const productIds: number[] = [];
       productsWithSku.forEach((product: ListItemProps) => {
-        const { node } = product
+        const { node } = product;
 
         if (!productIds.includes(+node.productId)) {
-          productIds.push(+node.productId)
+          productIds.push(+node.productId);
         }
-      })
+      });
 
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
       const { productsSearch } = await getProducts({
         productIds,
         companyId,
         customerGroupId,
-      })
+      });
 
-      const newProductInfo: CustomFieldItems =
-        conversionProductsList(productsSearch)
-      let isSuccess = false
-      let errorMessage = ''
-      let isFondVariant = true
+      const newProductInfo: CustomFieldItems = conversionProductsList(productsSearch);
+      let isSuccess = false;
+      let errorMessage = '';
+      let isFondVariant = true;
 
-      const newProducts: CustomFieldItems[] = []
+      const newProducts: CustomFieldItems[] = [];
       productsWithSku.forEach((product: ListItemProps) => {
         const {
           node: {
@@ -381,23 +365,23 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             variantId,
             tax,
           },
-        } = product
+        } = product;
 
-        const optionsList = getOptionsList(JSON.parse(optionList))
+        const optionsList = getOptionsList(JSON.parse(optionList));
 
         const currentProductSearch = newProductInfo.find(
-          (product: CustomFieldItems) => +product.id === +productId
-        )
+          (product: CustomFieldItems) => +product.id === +productId,
+        );
 
         const variantItem = currentProductSearch?.variants.find(
-          (item: CustomFieldItems) => item.sku === variantSku
-        )
+          (item: CustomFieldItems) => item.sku === variantSku,
+        );
 
         if (!variantItem) {
           errorMessage = b3Lang('shoppingList.footer.notFoundSku', {
             sku: variantSku,
-          })
-          isFondVariant = false
+          });
+          isFondVariant = false;
         }
 
         const quoteListitem = {
@@ -414,14 +398,14 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             basePrice,
             tax,
           },
-        }
+        };
 
-        newProducts.push(quoteListitem)
+        newProducts.push(quoteListitem);
 
-        isSuccess = true
-      })
+        isSuccess = true;
+      });
 
-      isSuccess = validProductQty(newProducts)
+      isSuccess = validProductQty(newProducts);
 
       if (!isFondVariant) {
         snackbar.error('', {
@@ -432,14 +416,14 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             isOutLink: false,
           }),
           isClose: true,
-        })
+        });
 
-        return
+        return;
       }
 
       if (isSuccess) {
-        await calculateProductListPrice(newProducts, '2')
-        addQuoteDraftProducts(newProducts)
+        await calculateProductListPrice(newProducts, '2');
+        addQuoteDraftProducts(newProducts);
         snackbar.success('', {
           jsx: successTip({
             message: b3Lang('shoppingList.footer.productsAddedToQuote'),
@@ -448,7 +432,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             isOutLink: false,
           }),
           isClose: true,
-        })
+        });
       } else {
         snackbar.error('', {
           jsx: successTip({
@@ -458,14 +442,14 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             isOutLink: false,
           }),
           isClose: true,
-        })
+        });
       }
     } catch (e) {
-      b2bLogger.error(e)
+      b2bLogger.error(e);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const buttons = {
     adSelectedToCart: {
@@ -486,29 +470,29 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       handleClick: handleAddSelectedToQuote,
       isDisabled: false,
     },
-  }
+  };
 
   const allowButtonList = () => {
-    if (!(shoppingListInfo?.status === 0 || !isB2BUser)) return []
+    if (!(shoppingListInfo?.status === 0 || !isB2BUser)) return [];
 
     if (role === 2) {
       if (allowJuniorPlaceOrder && productQuoteEnabled) {
-        return [buttons.proceedToCheckout, buttons.addSelectedToQuote]
+        return [buttons.proceedToCheckout, buttons.addSelectedToQuote];
       }
 
-      if (allowJuniorPlaceOrder) return [buttons.proceedToCheckout]
+      if (allowJuniorPlaceOrder) return [buttons.proceedToCheckout];
       if (productQuoteEnabled) {
-        return [buttons.addSelectedToQuote]
+        return [buttons.addSelectedToQuote];
       }
-      return []
+      return [];
     }
 
     return productQuoteEnabled
       ? [buttons.adSelectedToCart, buttons.addSelectedToQuote]
-      : [buttons.adSelectedToCart]
-  }
+      : [buttons.adSelectedToCart];
+  };
 
-  const buttonList = allowButtonList()
+  const buttonList = allowButtonList();
 
   return (
     <Grid
@@ -613,7 +597,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                       color: customColor,
                     }}
                     onClick={() => {
-                      setDeleteOpen(true)
+                      setDeleteOpen(true);
                     }}
                   />
                 </CustomButton>
@@ -667,7 +651,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                             <MenuItem
                               key={button.key}
                               onClick={() => {
-                                button.handleClick()
+                                button.handleClick();
                               }}
                             >
                               {button.name}
@@ -697,7 +681,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         }
       />
     </Grid>
-  )
+  );
 }
 
-export default ShoppingDetailFooter
+export default ShoppingDetailFooter;

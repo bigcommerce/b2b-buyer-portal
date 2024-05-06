@@ -1,49 +1,40 @@
-import { ReactNode, useContext } from 'react'
-import { useB3Lang } from '@b3/lang'
-import {
-  Box,
-  Step,
-  StepLabel,
-  Stepper,
-  Typography,
-  useTheme,
-} from '@mui/material'
+import { ReactNode, useContext } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Step, StepLabel, Stepper, Typography, useTheme } from '@mui/material';
 
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { useMobile } from '@/hooks'
-import { B3SStorage } from '@/utils'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { useMobile } from '@/hooks';
+import { B3SStorage } from '@/utils';
 
-import { RegisteredContext } from './context/RegisteredContext'
-import { steps } from './config'
+import { RegisteredContext } from './context/RegisteredContext';
+import { steps } from './config';
 
 interface RegisteredStepProps {
-  children: ReactNode
-  isStepOptional: (index: number) => boolean
-  activeStep: number
-  backgroundColor: string
+  children: ReactNode;
+  isStepOptional: (index: number) => boolean;
+  activeStep: number;
+  backgroundColor: string;
 }
 
 export default function RegisteredStep(props: RegisteredStepProps) {
-  const { children, isStepOptional, activeStep, backgroundColor } = props
+  const { children, isStepOptional, activeStep, backgroundColor } = props;
 
-  const b3Lang = useB3Lang()
-  const [isMobile] = useMobile()
-  const theme = useTheme()
+  const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
+  const theme = useTheme();
 
-  const { state } = useContext(RegisteredContext)
-  const { accountType, submitSuccess, isAutoApproval } = state
+  const { state } = useContext(RegisteredContext);
+  const { accountType, submitSuccess, isAutoApproval } = state;
   const blockPendingAccountOrderCreation =
-    B3SStorage.get('blockPendingAccountOrderCreation') && !isAutoApproval
+    B3SStorage.get('blockPendingAccountOrderCreation') && !isAutoApproval;
   const registerCompleteText = blockPendingAccountOrderCreation
     ? b3Lang('register.title.registerCompleteWarning')
-    : b3Lang('register.title.registerComplete')
+    : b3Lang('register.title.registerComplete');
 
   const newPageTitle =
-    accountType === '1'
-      ? registerCompleteText
-      : b3Lang('register.title.accountCreated')
+    accountType === '1' ? registerCompleteText : b3Lang('register.title.accountCreated');
 
-  const customColor = getContrastColor(backgroundColor)
+  const customColor = getContrastColor(backgroundColor);
   return (
     <Box
       component="div"
@@ -70,9 +61,7 @@ export default function RegisteredStep(props: RegisteredStepProps) {
           color: customColor,
         }}
       >
-        {submitSuccess
-          ? newPageTitle
-          : b3Lang('register.title.accountRegister')}
+        {submitSuccess ? newPageTitle : b3Lang('register.title.accountRegister')}
       </Box>
       {!submitSuccess && (
         <Stepper
@@ -87,25 +76,23 @@ export default function RegisteredStep(props: RegisteredStepProps) {
           }}
         >
           {steps.map((label, index) => {
-            const stepProps = {}
-            const labelProps: any = {}
+            const stepProps = {};
+            const labelProps: any = {};
             if (isStepOptional(index)) {
               labelProps.optional = (
-                <Typography variant="caption">
-                  {b3Lang('register.step.optional')}
-                </Typography>
-              )
+                <Typography variant="caption">{b3Lang('register.step.optional')}</Typography>
+              );
             }
             return (
               <Step key={label} {...stepProps}>
                 <StepLabel {...labelProps}>{b3Lang(label)}</StepLabel>
               </Step>
-            )
+            );
           })}
         </Stepper>
       )}
 
       {children}
     </Box>
-  )
+  );
 }

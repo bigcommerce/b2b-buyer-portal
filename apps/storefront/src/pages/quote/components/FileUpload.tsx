@@ -1,19 +1,19 @@
-import { forwardRef, Ref, useImperativeHandle, useState } from 'react'
-import { DropzoneArea } from 'react-mui-dropzone'
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import AttachFileIcon from '@mui/icons-material/AttachFile'
-import DeleteIcon from '@mui/icons-material/Delete'
-import HelpIcon from '@mui/icons-material/Help'
-import { Box, Tooltip, Typography, useTheme } from '@mui/material'
-import noop from 'lodash-es/noop'
-import { v1 as uuid } from 'uuid'
+import { forwardRef, Ref, useImperativeHandle, useState } from 'react';
+import { DropzoneArea } from 'react-mui-dropzone';
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import DeleteIcon from '@mui/icons-material/Delete';
+import HelpIcon from '@mui/icons-material/Help';
+import { Box, Tooltip, Typography, useTheme } from '@mui/material';
+import noop from 'lodash-es/noop';
+import { v1 as uuid } from 'uuid';
 
-import B3Sping from '@/components/spin/B3Sping'
-import { uploadB2BFile } from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
+import B3Sping from '@/components/spin/B3Sping';
+import { uploadB2BFile } from '@/shared/service/b2b';
+import { snackbar } from '@/utils';
 
-import { FILE_UPLOAD_ACCEPT_TYPE } from '../../../constants'
+import { FILE_UPLOAD_ACCEPT_TYPE } from '../../../constants';
 
 const FileUploadContainer = styled(Box)(({ style }) => ({
   '& .file-upload-area': {
@@ -31,14 +31,11 @@ const FileUploadContainer = styled(Box)(({ style }) => ({
       lineHeight: '24px',
     },
   },
-}))
+}));
 
 const FileListItem = styled(Box)((props: CustomFieldItems) => ({
   display: 'flex',
-  background:
-    props.hasdelete === 'true'
-      ? 'rgba(25, 118, 210, 0.3)'
-      : 'rgba(0, 0, 0, 0.12)',
+  background: props.hasdelete === 'true' ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)',
   borderRadius: '18px',
   padding: '6px 8px',
   alignItems: 'center',
@@ -60,7 +57,7 @@ const FileListItem = styled(Box)((props: CustomFieldItems) => ({
     fontSize: '14px',
     cursor: 'pointer',
   },
-}))
+}));
 
 const FileUserTitle = styled(Typography)({
   marginBottom: '16px',
@@ -69,41 +66,41 @@ const FileUserTitle = styled(Typography)({
   padding: '0 12px',
   textAlign: 'right',
   wordBreak: 'break-word',
-})
+});
 
 export interface FileObjects {
-  id?: string
-  fileName: string
-  fileType: string
-  fileUrl: string
-  fileSize?: number
-  title?: string
-  hasDelete?: boolean
-  isCustomer?: boolean
+  id?: string;
+  fileName: string;
+  fileType: string;
+  fileUrl: string;
+  fileSize?: number;
+  title?: string;
+  hasDelete?: boolean;
+  isCustomer?: boolean;
 }
 
 interface FileUploadProps {
-  title?: string
-  tips?: string
-  maxFileSize?: number
-  fileNumber?: number
-  acceptedFiles?: string[]
-  onchange?: (file: FileObjects) => void
-  fileList: FileObjects[]
-  allowUpload?: boolean
-  onDelete?: (id: string) => void
-  limitUploadFn?: () => boolean
-  isEndLoadding?: boolean
-  requestType?: string
+  title?: string;
+  tips?: string;
+  maxFileSize?: number;
+  fileNumber?: number;
+  acceptedFiles?: string[];
+  onchange?: (file: FileObjects) => void;
+  fileList: FileObjects[];
+  allowUpload?: boolean;
+  onDelete?: (id: string) => void;
+  limitUploadFn?: () => boolean;
+  isEndLoadding?: boolean;
+  requestType?: string;
 }
 
 const AttachFile = styled(AttachFileIcon)(() => ({
   transform: 'rotate(45deg)',
   marginRight: '5px',
-}))
+}));
 
 function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
   const {
     title = b3Lang('global.fileUpload.addAttachment'),
     tips = b3Lang('global.fileUpload.maxFileSizeMessage'),
@@ -117,83 +114,78 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
     onDelete = noop,
     isEndLoadding = false,
     requestType = 'quoteAttachedFile',
-  } = props
+  } = props;
 
-  const theme = useTheme()
+  const theme = useTheme();
 
-  const primaryColor = theme.palette.primary.main
+  const primaryColor = theme.palette.primary.main;
 
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
 
   useImperativeHandle(ref, () => ({
     setUploadLoadding: (flag: boolean) => setLoading(flag),
-  }))
+  }));
 
   const getMaxFileSizeLabel = (maxSize: number) => {
     if (maxSize / 1048576 > 1) {
-      return `${(maxSize / 1048576).toFixed(1)}MB`
+      return `${(maxSize / 1048576).toFixed(1)}MB`;
     }
     if (maxSize / 1024 > 1) {
-      return `${(maxSize / 1024).toFixed(1)}KB`
+      return `${(maxSize / 1024).toFixed(1)}KB`;
     }
-    return `${maxSize}B`
-  }
+    return `${maxSize}B`;
+  };
 
-  const getRejectMessage = (
-    rejectedFile: File,
-    acceptedFiles: string[],
-    maxFileSize: number
-  ) => {
-    const { size, type } = rejectedFile
+  const getRejectMessage = (rejectedFile: File, acceptedFiles: string[], maxFileSize: number) => {
+    const { size, type } = rejectedFile;
 
-    let isAcceptFileType = false
+    let isAcceptFileType = false;
     acceptedFiles.forEach((acceptedFileType: string) => {
-      isAcceptFileType =
-        new RegExp(acceptedFileType).test(type) || isAcceptFileType
-    })
+      isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType;
+    });
 
-    let message = ''
+    let message = '';
     if (!isAcceptFileType) {
-      message = b3Lang('global.fileUpload.fileTypeNotSupported')
+      message = b3Lang('global.fileUpload.fileTypeNotSupported');
     }
 
     if (size > maxFileSize) {
       message = b3Lang('global.fileUpload.fileSizeExceedsLimit', {
         maxFileSize: getMaxFileSizeLabel(maxFileSize),
-      })
+      });
     }
 
     if (message) {
-      snackbar.error(message)
+      snackbar.error(message);
     }
 
-    return message
-  }
+    return message;
+  };
 
   const getFileLimitExceedMessage = () => {
     snackbar.error(
       b3Lang('global.fileUpload.fileSizeExceedsLimit', {
         maxFileSize: getMaxFileSizeLabel(maxFileSize),
-      })
-    )
-    return ''
-  }
+      }),
+    );
+    return '';
+  };
 
   const handleChange = async (files: File[]) => {
-    const file = files.length > 0 ? files[0] : null
+    const file = files.length > 0 ? files[0] : null;
 
     if (file && limitUploadFn && limitUploadFn()) {
-      return
+      return;
     }
 
     if (!limitUploadFn && file && fileList.length >= fileNumber) {
-      snackbar.error(b3Lang('global.fileUpload.maxFileNumber', { fileNumber }))
-      return
+      snackbar.error(b3Lang('global.fileUpload.maxFileNumber', { fileNumber }));
+      return;
     }
 
     if (file) {
       try {
-        setLoading(true)
+        setLoading(true);
         const {
           code,
           data: fileInfo,
@@ -201,32 +193,32 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
         } = await uploadB2BFile({
           file,
           type: requestType,
-        })
+        });
         if (code === 200) {
           onchange({
             ...fileInfo,
             id: uuid(),
-          })
+          });
         } else {
-          snackbar.error(message)
+          snackbar.error(message);
         }
       } finally {
         if (!isEndLoadding) {
-          setLoading(false)
+          setLoading(false);
         }
       }
     }
-  }
+  };
 
   const handleDelete = (id: string) => {
-    onDelete(id)
-  }
+    onDelete(id);
+  };
 
   const downloadFile = (fileUrl: string) => {
     if (fileUrl) {
-      window.open(fileUrl, '_blank')
+      window.open(fileUrl, '_blank');
     }
-  }
+  };
 
   return (
     <B3Sping isSpinning={loading}>
@@ -245,7 +237,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
                   <Typography
                     className="fileList-name"
                     onClick={() => {
-                      downloadFile(file.fileUrl)
+                      downloadFile(file.fileUrl);
                     }}
                   >
                     {file.fileName}
@@ -257,7 +249,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
                       cursor: 'pointer',
                     }}
                     onClick={() => {
-                      handleDelete(file?.id || '')
+                      handleDelete(file?.id || '');
                     }}
                   />
                 )}
@@ -308,7 +300,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
         )}
       </Box>
     </B3Sping>
-  )
+  );
 }
 
-export default forwardRef(FileUpload)
+export default forwardRef(FileUpload);

@@ -1,13 +1,13 @@
-import { Box, SxProps } from '@mui/material'
+import { Box, SxProps } from '@mui/material';
 
 interface LoginWidgetProps {
-  isVisible: boolean
-  sx: SxProps
-  html: string
+  isVisible: boolean;
+  sx: SxProps;
+  html: string;
 }
 
 function LoginWidget(props: LoginWidgetProps) {
-  const { isVisible, html, sx } = props
+  const { isVisible, html, sx } = props;
 
   return isVisible ? (
     <Box
@@ -18,7 +18,7 @@ function LoginWidget(props: LoginWidgetProps) {
         __html: html,
       }}
     />
-  ) : null
+  ) : null;
 }
 
-export default LoginWidget
+export default LoginWidget;

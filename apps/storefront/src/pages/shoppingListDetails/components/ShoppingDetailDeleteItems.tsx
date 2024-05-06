@@ -1,19 +1,19 @@
-import { useB3Lang } from '@b3/lang'
-import { Box } from '@mui/material'
+import { useB3Lang } from '@b3/lang';
+import { Box } from '@mui/material';
 
-import B3Dialog from '@/components/B3Dialog'
-import { useMobile } from '@/hooks'
+import B3Dialog from '@/components/B3Dialog';
+import { useMobile } from '@/hooks';
 
 interface ShoppingDetailDeleteItemsProps {
-  open: boolean
-  handleCancelClick: () => void
-  handleDeleteProductClick: () => void
+  open: boolean;
+  handleCancelClick: () => void;
+  handleDeleteProductClick: () => void;
 }
 
 function ShoppingDetailDeleteItems(props: ShoppingDetailDeleteItemsProps) {
-  const b3Lang = useB3Lang()
-  const [isMobile] = useMobile()
-  const { open, handleCancelClick, handleDeleteProductClick } = props
+  const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
+  const { open, handleCancelClick, handleDeleteProductClick } = props;
 
   return (
     <B3Dialog
@@ -38,7 +38,7 @@ function ShoppingDetailDeleteItems(props: ShoppingDetailDeleteItemsProps) {
         {b3Lang('shoppingList.deleteItems.confirmDelete')}
       </Box>
     </B3Dialog>
-  )
+  );
 }
 
-export default ShoppingDetailDeleteItems
+export default ShoppingDetailDeleteItems;

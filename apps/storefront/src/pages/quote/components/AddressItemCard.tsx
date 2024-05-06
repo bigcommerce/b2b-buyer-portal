@@ -1,22 +1,22 @@
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import { Theme, useTheme } from '@mui/material'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import { Theme, useTheme } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
-import { B3Tag } from '@/components'
-import CustomButton from '@/components/button/CustomButton'
+import { B3Tag } from '@/components';
+import CustomButton from '@/components/button/CustomButton';
 
-import { AddressItemType } from '../../../types/address'
+import { AddressItemType } from '../../../types/address';
 
 export interface OrderItemCardProps {
-  item: AddressItemType
-  onSetAddress: (data: AddressItemType) => void
+  item: AddressItemType;
+  onSetAddress: (data: AddressItemType) => void;
 }
 
 interface TagBoxProps {
-  marginBottom: number | string
+  marginBottom: number | string;
 }
 
 const TagBox = styled('div')(({ marginBottom }: TagBoxProps) => ({
@@ -24,10 +24,10 @@ const TagBox = styled('div')(({ marginBottom }: TagBoxProps) => ({
   '& > span:not(:last-child)': {
     marginRight: '4px',
   },
-}))
+}));
 
 interface FlexProps {
-  theme?: Theme
+  theme?: Theme;
 }
 
 const Flex = styled('div')(({ theme }: FlexProps) => ({
@@ -35,14 +35,14 @@ const Flex = styled('div')(({ theme }: FlexProps) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   marginTop: theme!.spacing(3),
-}))
+}));
 
 export function AddressItemCard(props: OrderItemCardProps) {
-  const { item: addressInfo, onSetAddress } = props
+  const { item: addressInfo, onSetAddress } = props;
 
-  const theme = useTheme()
+  const theme = useTheme();
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   return (
     <Card key={addressInfo.id}>
@@ -57,8 +57,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
             variant="h5"
             sx={{
               marginBottom:
-                addressInfo.isDefaultShipping === 1 ||
-                addressInfo.isDefaultBilling === 1
+                addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1
                   ? theme.spacing(1)
                   : theme.spacing(3),
               color: 'rgba(0, 0, 0, 0.87)',
@@ -70,8 +69,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
 
         <TagBox
           marginBottom={
-            addressInfo.isDefaultShipping === 1 ||
-            addressInfo.isDefaultBilling === 1
+            addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1
               ? theme.spacing(3)
               : 0
           }
@@ -99,7 +97,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
           <CustomButton
             variant="text"
             onClick={() => {
-              onSetAddress(addressInfo)
+              onSetAddress(addressInfo);
             }}
           >
             {b3Lang('quoteDraft.addressItemCard.chooseAddress')}
@@ -107,5 +105,5 @@ export function AddressItemCard(props: OrderItemCardProps) {
         </Flex>
       </CardContent>
     </Card>
-  )
+  );
 }

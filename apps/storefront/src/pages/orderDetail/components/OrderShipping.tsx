@@ -1,93 +1,91 @@
-import { Fragment, useContext, useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material'
-import format from 'date-fns/format'
-import { getTracking } from 'ts-tracking-number'
+import { Fragment, useContext, useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
+import format from 'date-fns/format';
+import { getTracking } from 'ts-tracking-number';
 
-import { B3ProductList } from '@/components'
-import { useMobile } from '@/hooks'
+import { B3ProductList } from '@/components';
+import { useMobile } from '@/hooks';
 
-import { OrderShippedItem, OrderShippingsItem } from '../../../types'
-import { OrderDetailsContext } from '../context/OrderDetailsContext'
+import { OrderShippedItem, OrderShippingsItem } from '../../../types';
+import { OrderDetailsContext } from '../context/OrderDetailsContext';
 
 const ShipmentTitle = styled('span')(() => ({
   fontWeight: 'bold',
   color: '#313440',
-}))
+}));
 
 export default function OrderShipping() {
   const {
     state: { shippings = [], addressLabelPermission, orderIsDigital, money },
-  } = useContext(OrderDetailsContext)
+  } = useContext(OrderDetailsContext);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const [shippingsDetail, setShippingsDetail] = useState<OrderShippingsItem[]>(
-    []
-  )
+  const [shippingsDetail, setShippingsDetail] = useState<OrderShippingsItem[]>([]);
 
   useEffect(() => {
     if (shippings.length) {
       shippings.forEach((list: OrderShippingsItem) => {
         if (list.shipmentItems.length) {
-          const { shipmentItems } = list
+          const { shipmentItems } = list;
           shipmentItems.forEach((item: OrderShippedItem) => {
-            const trackingNumber = item.tracking_number
-            const tracking = getTracking(trackingNumber)
+            const trackingNumber = item.tracking_number;
+            const tracking = getTracking(trackingNumber);
             if (tracking) {
-              const { trackingUrl = '' } = tracking
-              const shippingItem = item
-              if (trackingUrl) shippingItem.tracking_link = trackingUrl
+              const { trackingUrl = '' } = tracking;
+              const shippingItem = item;
+              if (trackingUrl) shippingItem.tracking_link = trackingUrl;
             }
-          })
+          });
         }
-      })
-      setShippingsDetail(shippings)
+      });
+      setShippingsDetail(shippings);
     }
-  }, [shippings])
+  }, [shippings]);
 
   const getFullName = (shipping: OrderShippingsItem) => {
-    const { first_name: firstName, last_name: lastName } = shipping
+    const { first_name: firstName, last_name: lastName } = shipping;
 
-    return `${firstName} ${lastName}`
-  }
+    return `${firstName} ${lastName}`;
+  };
 
   const getFullAddress = (shipping: OrderShippingsItem) => {
-    const { street_1: street1, city, state, zip, country } = shipping
+    const { street_1: street1, city, state, zip, country } = shipping;
 
-    return `${street1}, ${city}, ${state} ${zip}, ${country}`
-  }
+    return `${street1}, ${city}, ${state} ${zip}, ${country}`;
+  };
 
-  let shipmentIndex = 0
+  let shipmentIndex = 0;
   const getShipmentIndex = () => {
-    shipmentIndex += 1
-    return shipmentIndex
-  }
+    shipmentIndex += 1;
+    return shipmentIndex;
+  };
 
   const getShipmentText = (shipment: OrderShippedItem) => {
     const {
       date_created: createdDate,
       shipping_method: shippingMethod,
       shipping_provider: shippingProvider,
-    } = shipment
+    } = shipment;
 
-    const time = format(new Date(createdDate), 'LLLL, d')
+    const time = format(new Date(createdDate), 'LLLL, d');
 
-    return `shipped on ${time}, by ${shippingProvider}, ${shippingMethod}`
-  }
+    return `shipped on ${time}, by ${shippingProvider}, ${shippingMethod}`;
+  };
 
   const getCompanyName = (company: string) => {
     if (addressLabelPermission) {
-      return company
+      return company;
     }
 
-    const index = company.indexOf('/')
+    const index = company.indexOf('/');
 
-    return company.substring(index + 1, company.length)
-  }
+    return company.substring(index + 1, company.length);
+  };
 
   return orderIsDigital ? null : (
     <Stack spacing={2}>
@@ -133,7 +131,7 @@ export default function OrderShipping() {
                     <Typography variant="body1">
                       <>
                         <ShipmentTitle>{`${b3Lang(
-                          'orderDetail.shipment.shipment'
+                          'orderDetail.shipment.shipment',
                         )} ${getShipmentIndex()} – `}</ShipmentTitle>
                         {getShipmentText(shipment)}
                       </>
@@ -143,9 +141,7 @@ export default function OrderShipping() {
                         {shipment.tracking_number}
                       </Link>
                     ) : (
-                      <Typography variant="body1">
-                        {shipment.tracking_number}
-                      </Typography>
+                      <Typography variant="body1">{shipment.tracking_number}</Typography>
                     )}
                   </Box>
                   <B3ProductList
@@ -157,7 +153,7 @@ export default function OrderShipping() {
                     textAlign="right"
                   />
                 </Fragment>
-              ) : null
+              ) : null,
             )}
 
             {shipping.notShip.itemsInfo.length > 0 ? (
@@ -168,9 +164,7 @@ export default function OrderShipping() {
                   }}
                 >
                   <Typography variant="body1">
-                    <ShipmentTitle>
-                      {b3Lang('orderDetail.shipment.notShippedYet')}
-                    </ShipmentTitle>
+                    <ShipmentTitle>{b3Lang('orderDetail.shipment.notShippedYet')}</ShipmentTitle>
                   </Typography>
                 </Box>
 
@@ -188,5 +182,5 @@ export default function OrderShipping() {
         </Card>
       ))}
     </Stack>
-  )
+  );
 }

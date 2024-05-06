@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Typography,
-} from '@mui/material'
+import { Box, Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 
 const bull = (
   <Box
@@ -18,7 +11,7 @@ const bull = (
   >
     •
   </Box>
-)
+);
 
 export default function Home() {
   return (
@@ -61,5 +54,5 @@ export default function Home() {
         <Button size="small">Learn More</Button>
       </CardActions>
     </Card>
-  )
+  );
 }

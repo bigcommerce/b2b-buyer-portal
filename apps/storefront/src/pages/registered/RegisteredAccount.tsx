@@ -1,67 +1,57 @@
-import { ChangeEvent, MouseEvent, useContext, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import {
-  Alert,
-  Box,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-} from '@mui/material'
+import { ChangeEvent, MouseEvent, useContext, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useB3Lang } from '@b3/lang';
+import { Alert, Box, FormControl, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
-import { B3CustomForm } from '@/components'
-import {
-  b3HexToRgb,
-  getContrastColor,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
+import { B3CustomForm } from '@/components';
+import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
 import {
   checkUserBCEmail,
   checkUserEmail,
   validateBCCompanyUserExtraFields,
-} from '@/shared/service/b2b'
+} from '@/shared/service/b2b';
 import {
   isB2BUserSelector,
   isValidUserTypeSelector,
   themeFrameSelector,
   useAppSelector,
-} from '@/store'
-import { channelId } from '@/utils'
-import b2bLogger from '@/utils/b3Logger'
+} from '@/store';
+import { channelId } from '@/utils';
+import b2bLogger from '@/utils/b3Logger';
 
-import RegisteredStepButton from './component/RegisteredStepButton'
-import { RegisteredContext } from './context/RegisteredContext'
-import { Base64, emailError } from './config'
-import { InformationFourLabels, TipContent } from './styled'
-import { RegisterFields } from './types'
+import RegisteredStepButton from './component/RegisteredStepButton';
+import { RegisteredContext } from './context/RegisteredContext';
+import { Base64, emailError } from './config';
+import { InformationFourLabels, TipContent } from './styled';
+import { RegisterFields } from './types';
 
 interface RegisteredAccountProps {
-  handleBack: () => void
-  handleNext: () => void
-  activeStep: number
+  handleBack: () => void;
+  handleNext: () => void;
+  activeStep: number;
 }
 
 export default function RegisteredAccount(props: RegisteredAccountProps) {
-  const { handleBack, handleNext, activeStep } = props
+  const { handleBack, handleNext, activeStep } = props;
 
-  const { state, dispatch } = useContext(RegisteredContext)
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const IframeDocument = useAppSelector(themeFrameSelector)
-  const isValidUserType = useAppSelector(isValidUserTypeSelector)
+  const { state, dispatch } = useContext(RegisteredContext);
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const IframeDocument = useAppSelector(themeFrameSelector);
+  const isValidUserType = useAppSelector(isValidUserTypeSelector);
 
   const {
     state: {
       accountLoginRegistration,
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
-  const customColor = getContrastColor(backgroundColor)
+  const customColor = getContrastColor(backgroundColor);
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const [errorTips, setErrorTips] = useState<string>('')
+  const [errorTips, setErrorTips] = useState<string>('');
 
   const {
     contactInformation,
@@ -69,7 +59,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     additionalInformation,
     bcContactInformation,
     bcAdditionalInformation,
-  } = state
+  } = state;
 
   const {
     control,
@@ -80,39 +70,28 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     setValue,
   } = useForm({
     mode: 'onSubmit',
-  })
+  });
 
-  const additionName =
-    accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation'
+  const additionName = accountType === '1' ? 'additionalInformation' : 'bcAdditionalInformation';
   const additionalInfo: any =
-    accountType === '1'
-      ? additionalInformation || []
-      : bcAdditionalInformation || []
+    accountType === '1' ? additionalInformation || [] : bcAdditionalInformation || [];
 
-  const newContactInformation = contactInformation?.map(
-    (contactInfo: CustomFieldItems) => {
-      const info = contactInfo
-      if (contactInfo.fieldId === 'field_email' && accountType === '1') {
-        info.isTip = true
-        info.tipText = 'This email will be used to sign in to your account'
-      }
-
-      return contactInfo
+  const newContactInformation = contactInformation?.map((contactInfo: CustomFieldItems) => {
+    const info = contactInfo;
+    if (contactInfo.fieldId === 'field_email' && accountType === '1') {
+      info.isTip = true;
+      info.tipText = 'This email will be used to sign in to your account';
     }
-  )
 
-  const contactInfo: any =
-    accountType === '1' ? newContactInformation : bcContactInformation || []
-  const contactName =
-    accountType === '1' ? 'contactInformation' : 'bcContactInformationFields'
+    return contactInfo;
+  });
 
-  const contactInformationLabel = contactInfo.length
-    ? contactInfo[0]?.groupName
-    : ''
+  const contactInfo: any = accountType === '1' ? newContactInformation : bcContactInformation || [];
+  const contactName = accountType === '1' ? 'contactInformation' : 'bcContactInformationFields';
 
-  const additionalInformationLabel = additionalInfo.length
-    ? additionalInfo[0]?.groupName
-    : ''
+  const contactInformationLabel = contactInfo.length ? contactInfo[0]?.groupName : '';
+
+  const additionalInformationLabel = additionalInfo.length ? additionalInfo[0]?.groupName : '';
 
   const showLoading = (isShow = false) => {
     dispatch({
@@ -120,8 +99,8 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       payload: {
         isLoading: isShow,
       },
-    })
-  }
+    });
+  };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     dispatch({
@@ -129,128 +108,121 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
       payload: {
         accountType: event.target.value,
       },
-    })
-  }
+    });
+  };
 
   const emailName =
-    contactInformation?.find(
-      (item: CustomFieldItems) => item.fieldId === 'field_email'
-    )?.name || 'email'
+    contactInformation?.find((item: CustomFieldItems) => item.fieldId === 'field_email')?.name ||
+    'email';
 
   const validateEmailValue = async (emailValue: string) => {
     try {
-      showLoading(true)
-      const fn = isB2BUser ? checkUserEmail : checkUserBCEmail
-      const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck'
+      showLoading(true);
+      const fn = isB2BUser ? checkUserEmail : checkUserBCEmail;
+      const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck';
 
       const {
         [key]: { userType, userInfo: { companyName = '' } = {} },
       }: CustomFieldItems = await fn({
         email: emailValue,
         channelId,
-      })
+      });
 
       if (!isValidUserType) {
         setErrorTips(
           b3Lang(emailError[userType], {
             companyName: companyName || '',
             email: emailValue,
-          })
-        )
+          }),
+        );
         setError(emailName, {
           type: 'custom',
           message: '',
-        })
+        });
 
-        IframeDocument?.body.scrollIntoView(true)
+        IframeDocument?.body.scrollIntoView(true);
       } else {
-        setErrorTips('')
+        setErrorTips('');
       }
 
-      return isValidUserType
+      return isValidUserType;
     } catch (error) {
-      return false
+      return false;
     } finally {
-      showLoading(false)
+      showLoading(false);
     }
-  }
+  };
 
   const handleAccountToDetail = async (event: MouseEvent) => {
     handleSubmit(async (data: CustomFieldItems) => {
       if (!(await validateEmailValue(data[emailName]))) {
-        return
+        return;
       }
 
       const newContactInfo = contactInfo.map((item: RegisterFields) => {
-        const newContactItem = item
-        newContactItem.default = data[item.name] || item.default
-        if (
-          item.fieldId === 'field_email_marketing_newsletter' &&
-          item.fieldType === 'checkbox'
-        ) {
-          newContactItem.isChecked = data[item.name].length > 0
+        const newContactItem = item;
+        newContactItem.default = data[item.name] || item.default;
+        if (item.fieldId === 'field_email_marketing_newsletter' && item.fieldType === 'checkbox') {
+          newContactItem.isChecked = data[item.name].length > 0;
         }
-        return item
-      })
+        return item;
+      });
 
       try {
-        showLoading(true)
+        showLoading(true);
         if (accountType === '1') {
           const extraCompanyUserInformation = newContactInfo.filter(
-            (item: RegisterFields) => !!item.custom
-          )
-          const extraFields = extraCompanyUserInformation.map(
-            (field: RegisterFields) => ({
-              fieldName: Base64.decode(field.name),
-              fieldValue: data[field.name] || field.default,
-            })
-          )
+            (item: RegisterFields) => !!item.custom,
+          );
+          const extraFields = extraCompanyUserInformation.map((field: RegisterFields) => ({
+            fieldName: Base64.decode(field.name),
+            fieldValue: data[field.name] || field.default,
+          }));
           if (extraFields.length > 0) {
             const res = await validateBCCompanyUserExtraFields({
               extraFields,
-            })
+            });
 
             if (res.code !== 200) {
-              const message = res.data?.errMsg || res.message || ''
+              const message = res.data?.errMsg || res.message || '';
 
-              const messageArr = message.split(':')
+              const messageArr = message.split(':');
 
               if (messageArr.length >= 2) {
                 const field = extraCompanyUserInformation.find(
-                  (field: RegisterFields) =>
-                    Base64.decode(field.name) === messageArr[0]
-                )
+                  (field: RegisterFields) => Base64.decode(field.name) === messageArr[0],
+                );
                 if (field) {
                   setError(field.name, {
                     type: 'manual',
                     message: messageArr[1],
-                  })
-                  showLoading(false)
-                  return
+                  });
+                  showLoading(false);
+                  return;
                 }
               }
-              setErrorTips(message)
-              showLoading(false)
-              return
+              setErrorTips(message);
+              showLoading(false);
+              return;
             }
           }
-          setErrorTips('')
+          setErrorTips('');
         }
       } catch (error) {
-        b2bLogger.error(error)
+        b2bLogger.error(error);
       } finally {
-        showLoading(false)
+        showLoading(false);
       }
 
-      let newAdditionalInformation: Array<RegisterFields> = []
+      let newAdditionalInformation: Array<RegisterFields> = [];
       if (additionalInfo) {
-        newAdditionalInformation = (
-          additionalInfo as Array<RegisterFields>
-        ).map((item: RegisterFields) => {
-          const additionalInfoItem = item
-          additionalInfoItem.default = data[item.name] || item.default
-          return item
-        })
+        newAdditionalInformation = (additionalInfo as Array<RegisterFields>).map(
+          (item: RegisterFields) => {
+            const additionalInfoItem = item;
+            additionalInfoItem.default = data[item.name] || item.default;
+            return item;
+          },
+        );
       }
 
       dispatch({
@@ -259,10 +231,10 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           [additionName]: [...newAdditionalInformation],
           [contactName]: [...newContactInfo],
         },
-      })
-      handleNext()
-    })(event)
-  }
+      });
+      handleNext();
+    })(event);
+  };
 
   return (
     <Box
@@ -295,14 +267,12 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           value={accountType}
           onChange={handleChange}
           sx={{
-            '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label':
-              {
-                color: b3HexToRgb(customColor, 0.87),
-              },
-            '& .MuiButtonBase-root.MuiRadio-root.MuiRadio-colorPrimary:not(.Mui-checked)':
-              {
-                color: b3HexToRgb(customColor, 0.6),
-              },
+            '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label': {
+              color: b3HexToRgb(customColor, 0.87),
+            },
+            '& .MuiButtonBase-root.MuiRadio-root.MuiRadio-colorPrimary:not(.Mui-checked)': {
+              color: b3HexToRgb(customColor, 0.6),
+            },
           }}
         >
           {accountLoginRegistration.b2b && (
@@ -333,14 +303,12 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
               borderBottomLeftRadius: '0',
               borderBottomRightRadius: '0',
             },
-          '& .MuiButtonBase-root.MuiCheckbox-root.MuiCheckbox-colorPrimary:not(.Mui-checked)':
-            {
-              color: b3HexToRgb(customColor, 0.6),
-            },
-          '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label':
-            {
-              color: b3HexToRgb(customColor, 0.87),
-            },
+          '& .MuiButtonBase-root.MuiCheckbox-root.MuiCheckbox-colorPrimary:not(.Mui-checked)': {
+            color: b3HexToRgb(customColor, 0.6),
+          },
+          '& .MuiTypography-root.MuiTypography-body1.MuiFormControlLabel-label': {
+            color: b3HexToRgb(customColor, 0.87),
+          },
         }}
       >
         <InformationFourLabels>{contactInformationLabel}</InformationFourLabels>
@@ -369,9 +337,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
             },
           }}
         >
-          <InformationFourLabels>
-            {additionalInformationLabel}
-          </InformationFourLabels>
+          <InformationFourLabels>{additionalInformationLabel}</InformationFourLabels>
           <B3CustomForm
             formFields={additionalInfo}
             errors={errors}
@@ -390,5 +356,5 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         handleNext={handleAccountToDetail}
       />
     </Box>
-  )
+  );
 }

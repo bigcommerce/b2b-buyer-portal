@@ -1,29 +1,29 @@
-import { useEffect, useRef, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, Grid } from '@mui/material'
+import { useEffect, useRef, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Grid } from '@mui/material';
 
-import B3Dialog from '@/components/B3Dialog'
-import { isB2BUserSelector, useAppSelector } from '@/store'
-import { AddressItemType } from '@/types/address'
+import B3Dialog from '@/components/B3Dialog';
+import { isB2BUserSelector, useAppSelector } from '@/store';
+import { AddressItemType } from '@/types/address';
 
-import B3FilterSearch from '../../../components/filter/B3FilterSearch'
+import B3FilterSearch from '../../../components/filter/B3FilterSearch';
 
-import { AddressItemCard } from './AddressItemCard'
+import { AddressItemCard } from './AddressItemCard';
 
 type AddressItemProps = {
-  node: AddressItemType
-}
+  node: AddressItemType;
+};
 
 interface ChooseAddressProps {
-  isOpen: boolean
-  addressList: AddressItemProps[]
-  closeModal: () => void
-  handleChangeAddress: (address: AddressItemType) => void
-  type: string
+  isOpen: boolean;
+  addressList: AddressItemProps[];
+  closeModal: () => void;
+  handleChangeAddress: (address: AddressItemType) => void;
+  type: string;
 }
 
 interface RefProps {
-  copyList: AddressItemType[]
+  copyList: AddressItemType[];
 }
 
 function ChooseAddress({
@@ -35,23 +35,23 @@ function ChooseAddress({
 }: ChooseAddressProps) {
   const recordList = useRef<RefProps>({
     copyList: [],
-  })
-  const b3Lang = useB3Lang()
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const [list, setList] = useState<AddressItemType[]>([])
+  });
+  const b3Lang = useB3Lang();
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const [list, setList] = useState<AddressItemType[]>([]);
 
   useEffect(() => {
     if (addressList.length) {
-      const allList = addressList.map((item: AddressItemProps) => item.node)
+      const allList = addressList.map((item: AddressItemProps) => item.node);
       const newList = allList.filter(
         (item) =>
           (item.isShipping === 1 && type === 'shipping') ||
-          (item.isBilling === 1 && type === 'billing')
-      )
-      recordList.current.copyList = isB2BUser ? newList : allList
-      setList(newList)
+          (item.isBilling === 1 && type === 'billing'),
+      );
+      recordList.current.copyList = isB2BUser ? newList : allList;
+      setList(newList);
     }
-  }, [addressList, type, isB2BUser])
+  }, [addressList, type, isB2BUser]);
 
   const keys = [
     'address',
@@ -64,29 +64,29 @@ function ChooseAddress({
     'label',
     'address',
     'addressLine1',
-  ]
+  ];
 
   const handleSearchProduct = (q: string) => {
     if (!q && recordList?.current) {
-      setList(recordList.current.copyList)
-      return
+      setList(recordList.current.copyList);
+      return;
     }
-    const newList: AddressItemType[] = []
+    const newList: AddressItemType[] = [];
     keys.forEach((key: string) => {
-      let flag = true
+      let flag = true;
       list.forEach((item: AddressItemType) => {
         if (item[key].includes(q) && flag) {
-          newList.push(item)
-          flag = false
+          newList.push(item);
+          flag = false;
         }
-      })
-    })
-    setList(newList)
-  }
+      });
+    });
+    setList(newList);
+  };
 
   const handleCancelClicked = () => {
-    closeModal()
-  }
+    closeModal();
+  };
 
   return (
     <B3Dialog
@@ -102,7 +102,7 @@ function ChooseAddress({
           searchBGColor="rgba(0, 0, 0, 0.06)"
           placeholder={b3Lang('quoteDraft.chooseAddress.searchAddress')}
           handleChange={(e) => {
-            handleSearchProduct(e)
+            handleSearchProduct(e);
           }}
         />
       </Box>
@@ -114,16 +114,13 @@ function ChooseAddress({
         <Grid container spacing={2}>
           {list.map((addressItem: AddressItemType) => (
             <Grid item key={addressItem.id} xs={4}>
-              <AddressItemCard
-                item={addressItem}
-                onSetAddress={handleChangeAddress}
-              />
+              <AddressItemCard item={addressItem} onSetAddress={handleChangeAddress} />
             </Grid>
           ))}
         </Grid>
       </Box>
     </B3Dialog>
-  )
+  );
 }
 
-export default ChooseAddress
+export default ChooseAddress;

@@ -1,17 +1,17 @@
-import { ReactNode } from 'react'
-import styled from '@emotion/styled'
-import { Box } from '@mui/material'
+import { ReactNode } from 'react';
+import styled from '@emotion/styled';
+import { Box } from '@mui/material';
 
-import RegisterComplete from './RegisterComplete'
-import RegisteredAccount from './RegisteredAccount'
-import RegisteredDetail from './RegisteredDetail'
-import RegisteredFinish from './RegisteredFinish'
+import RegisterComplete from './RegisterComplete';
+import RegisteredAccount from './RegisteredAccount';
+import RegisteredDetail from './RegisteredDetail';
+import RegisteredFinish from './RegisteredFinish';
 
 interface RegisterContentProps {
-  activeStep: number
-  handleBack: () => void
-  handleNext: () => void
-  handleFinish: () => void
+  activeStep: number;
+  handleBack: () => void;
+  handleNext: () => void;
+  handleFinish: () => void;
 }
 
 export const StyledRegisterContent = styled(Box)({
@@ -26,10 +26,10 @@ export const StyledRegisterContent = styled(Box)({
       whiteSpace: 'break-spaces',
     },
   },
-})
+});
 
 export default function RegisterContent(props: RegisterContentProps) {
-  const { activeStep, handleBack, handleNext, handleFinish } = props
+  const { activeStep, handleBack, handleNext, handleFinish } = props;
 
   const renderStep = (step: number): ReactNode => {
     switch (step) {
@@ -40,7 +40,7 @@ export default function RegisterContent(props: RegisterContentProps) {
             handleBack={handleBack}
             handleNext={handleNext}
           />
-        )
+        );
 
       case 1:
         return (
@@ -49,7 +49,7 @@ export default function RegisterContent(props: RegisterContentProps) {
             handleBack={handleBack}
             handleNext={handleNext}
           />
-        )
+        );
 
       case 2:
         return (
@@ -58,23 +58,14 @@ export default function RegisterContent(props: RegisterContentProps) {
             handleBack={handleBack}
             handleNext={handleNext}
           />
-        )
+        );
 
       case 3:
-        return (
-          <RegisteredFinish
-            activeStep={activeStep}
-            handleFinish={handleFinish}
-          />
-        )
+        return <RegisteredFinish activeStep={activeStep} handleFinish={handleFinish} />;
 
       default:
-        return null
+        return null;
     }
-  }
-  return (
-    <StyledRegisterContent component="div">
-      {renderStep(activeStep)}
-    </StyledRegisterContent>
-  )
+  };
+  return <StyledRegisterContent component="div">{renderStep(activeStep)}</StyledRegisterContent>;
 }

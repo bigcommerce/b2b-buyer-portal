@@ -1,26 +1,26 @@
-import { useNavigate } from 'react-router-dom'
-import styled from '@emotion/styled'
-import { useTheme } from '@mui/material'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
+import { useNavigate } from 'react-router-dom';
+import styled from '@emotion/styled';
+import { useTheme } from '@mui/material';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
-import { isB2BUserSelector, useAppSelector } from '@/store'
-import { currencyFormat, displayFormat } from '@/utils'
+import { isB2BUserSelector, useAppSelector } from '@/store';
+import { currencyFormat, displayFormat } from '@/utils';
 
-import OrderStatus from './components/OrderStatus'
+import OrderStatus from './components/OrderStatus';
 
 interface ListItem {
-  [key: string]: string
+  [key: string]: string;
 }
 
 export interface OrderItemCardProps {
-  allTotal: number
-  filterData: any
-  index?: number
-  item: ListItem
-  isCompanyOrder: boolean
+  allTotal: number;
+  filterData: any;
+  index?: number;
+  item: ListItem;
+  isCompanyOrder: boolean;
 }
 
 const Flex = styled('div')(() => ({
@@ -29,7 +29,7 @@ const Flex = styled('div')(() => ({
   '&.between-flex': {
     justifyContent: 'space-between',
   },
-}))
+}));
 
 export function OrderItemCard({
   item,
@@ -38,10 +38,10 @@ export function OrderItemCard({
   index = 0,
   isCompanyOrder,
 }: OrderItemCardProps) {
-  const theme = useTheme()
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const customer = useAppSelector(({ company }) => company.customer)
-  const navigate = useNavigate()
+  const theme = useTheme();
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const customer = useAppSelector(({ company }) => company.customer);
+  const navigate = useNavigate();
 
   const goToDetail = (item: ListItem) => {
     navigate(`/orderDetail/${item.orderId}`, {
@@ -51,15 +51,15 @@ export function OrderItemCard({
         totalCount: allTotal,
         isCompanyOrder,
       },
-    })
-  }
+    });
+  };
 
   const getName = (item: ListItem) => {
     if (isB2BUser) {
-      return `by ${item.firstName} ${item.lastName}`
+      return `by ${item.firstName} ${item.lastName}`;
     }
-    return `by ${customer.firstName} ${customer.lastName}`
-  }
+    return `by ${customer.firstName} ${customer.lastName}`;
+  };
 
   return (
     <Card key={item.orderId}>
@@ -128,5 +128,5 @@ export function OrderItemCard({
         </Box>
       </CardContent>
     </Card>
-  )
+  );
 }

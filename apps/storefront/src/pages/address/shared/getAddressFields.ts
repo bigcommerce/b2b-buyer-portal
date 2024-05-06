@@ -1,142 +1,132 @@
-import {
-  getB2BAccountFormFields,
-  getB2BAddressExtraFields,
-} from '@/shared/service/b2b'
-import b2bLogger from '@/utils/b3Logger'
+import { getB2BAccountFormFields, getB2BAddressExtraFields } from '@/shared/service/b2b';
+import b2bLogger from '@/utils/b3Logger';
 
 import {
   AccountFormFieldsItems,
   getAccountFormFields,
   RegisterFieldsItems,
-} from '../../registered/config'
+} from '../../registered/config';
 
-import { b2bAddressFields } from './config'
+import { b2bAddressFields } from './config';
 
 export interface StateProps {
-  stateCode: string
-  stateName: string
+  stateCode: string;
+  stateName: string;
 }
 
 export interface CountryProps {
-  countryCode: string
-  countryName: string
-  id: string | number
-  states: StateProps[]
+  countryCode: string;
+  countryName: string;
+  id: string | number;
+  states: StateProps[];
 }
 interface B2bExtraFieldsProps {
-  defaultValue: string
-  fieldName: string
-  fieldType: string | number
-  isRequired: boolean
-  labelName: string
-  listOfValue: null | Array<string>
-  maximumLength: string | number | null
-  maximumValue: string | number | null
-  numberOfRows: string | number | null
-  visibleToEnduser: boolean
+  defaultValue: string;
+  fieldName: string;
+  fieldType: string | number;
+  isRequired: boolean;
+  labelName: string;
+  listOfValue: null | Array<string>;
+  maximumLength: string | number | null;
+  maximumValue: string | number | null;
+  numberOfRows: string | number | null;
+  visibleToEnduser: boolean;
 }
 
 interface ExtraFieldsProp extends RegisterFieldsItems {
-  type: string
-  variant: string
-  visible: boolean
-  xs: number
+  type: string;
+  variant: string;
+  visible: boolean;
+  xs: number;
 }
 
-const convertExtraFields = (
-  extraFields: B2bExtraFieldsProps[]
-): [] | ExtraFieldsProp[] => {
-  if (extraFields.length === 0) return []
+const convertExtraFields = (extraFields: B2bExtraFieldsProps[]): [] | ExtraFieldsProp[] => {
+  if (extraFields.length === 0) return [];
   const visibleFields =
-    extraFields.filter(
-      (field: B2bExtraFieldsProps) => field.visibleToEnduser
-    ) || []
+    extraFields.filter((field: B2bExtraFieldsProps) => field.visibleToEnduser) || [];
 
-  if (visibleFields?.length === 0) return []
+  if (visibleFields?.length === 0) return [];
 
   const b2bExtraFields = visibleFields.map((field: B2bExtraFieldsProps) => {
     const fields = {
       ...field,
       groupId: 4,
       visible: field.visibleToEnduser,
-    }
+    };
 
-    return fields
-  })
+    return fields;
+  });
 
-  const convertB2BExtraFields = getAccountFormFields(b2bExtraFields).address
+  const convertB2BExtraFields = getAccountFormFields(b2bExtraFields).address;
 
   convertB2BExtraFields.map((extraField: ExtraFieldsProp) => {
-    const field = extraField
-    field.custom = true
+    const field = extraField;
+    field.custom = true;
 
-    return extraField
-  })
+    return extraField;
+  });
 
-  return convertB2BExtraFields
-}
+  return convertB2BExtraFields;
+};
 
 const getBcAddressFields = async () => {
   try {
-    const { accountFormFields } = await getB2BAccountFormFields(1)
+    const { accountFormFields } = await getB2BAccountFormFields(1);
 
     const addressFields = accountFormFields.filter(
-      (field: AccountFormFieldsItems) => field.groupId === 4
-    )
+      (field: AccountFormFieldsItems) => field.groupId === 4,
+    );
 
-    const bcAddressFields = getAccountFormFields(addressFields).address
+    const bcAddressFields = getAccountFormFields(addressFields).address;
 
-    return bcAddressFields
+    return bcAddressFields;
   } catch (e) {
-    b2bLogger.error(e)
+    b2bLogger.error(e);
   }
-  return undefined
-}
+  return undefined;
+};
 
 const getB2BAddressFields = async () => {
   try {
-    const res = await getB2BAddressExtraFields()
-    const b2bExtraFields = convertExtraFields(res.addressExtraFields)
-    const addressFields = [...b2bAddressFields, ...b2bExtraFields]
-    return addressFields
+    const res = await getB2BAddressExtraFields();
+    const b2bExtraFields = convertExtraFields(res.addressExtraFields);
+    const addressFields = [...b2bAddressFields, ...b2bExtraFields];
+    return addressFields;
   } catch (e) {
-    b2bLogger.error(e)
+    b2bLogger.error(e);
   }
-  return []
-}
+  return [];
+};
 
-export const getAddressFields = async (
-  isB2BUser: boolean,
-  countries: CountryProps
-) => {
-  let allAddressFields: CustomFieldItems[] = []
+export const getAddressFields = async (isB2BUser: boolean, countries: CountryProps) => {
+  let allAddressFields: CustomFieldItems[] = [];
 
   try {
     if (isB2BUser) {
-      const addressFields = await getB2BAddressFields()
+      const addressFields = await getB2BAddressFields();
 
-      if (addressFields) allAddressFields = addressFields
+      if (addressFields) allAddressFields = addressFields;
     } else {
-      const bcAddressFields = await getBcAddressFields()
-      allAddressFields = bcAddressFields
+      const bcAddressFields = await getBcAddressFields();
+      allAddressFields = bcAddressFields;
     }
 
     allAddressFields.map((addressField: CustomFieldItems) => {
-      const field = addressField
+      const field = addressField;
       if (addressField.name === 'country') {
-        field.options = countries
+        field.options = countries;
       }
 
       if (addressField.name === 'state') {
-        field.fieldType = 'text'
+        field.fieldType = 'text';
       }
 
-      return addressField
-    })
+      return addressField;
+    });
 
-    return allAddressFields
+    return allAddressFields;
   } catch (e) {
-    b2bLogger.error(e)
+    b2bLogger.error(e);
   }
-  return []
-}
+  return [];
+};

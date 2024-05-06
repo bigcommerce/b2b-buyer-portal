@@ -1,30 +1,30 @@
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
-import { Theme, useTheme } from '@mui/material'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { Theme, useTheme } from '@mui/material';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 
-import { B3Tag } from '@/components'
-import CustomButton from '@/components/button/CustomButton'
+import { B3Tag } from '@/components';
+import CustomButton from '@/components/button/CustomButton';
 
-import { AddressItemType } from '../../../types/address'
+import { AddressItemType } from '../../../types/address';
 
 export interface OrderItemCardProps {
-  item: AddressItemType
-  onEdit: (data: AddressItemType) => void
-  onDelete: (data: AddressItemType) => void
-  onSetDefault: (data: AddressItemType) => void
-  editPermission: boolean
-  isBCPermission: boolean
+  item: AddressItemType;
+  onEdit: (data: AddressItemType) => void;
+  onDelete: (data: AddressItemType) => void;
+  onSetDefault: (data: AddressItemType) => void;
+  editPermission: boolean;
+  isBCPermission: boolean;
 }
 
 interface TagBoxProps {
-  marginBottom: number | string
+  marginBottom: number | string;
 }
 
 const TagBox = styled('div')(({ marginBottom }: TagBoxProps) => ({
@@ -32,10 +32,10 @@ const TagBox = styled('div')(({ marginBottom }: TagBoxProps) => ({
   '& > span:not(:last-child)': {
     marginRight: '4px',
   },
-}))
+}));
 
 interface FlexProps {
-  theme?: Theme
+  theme?: Theme;
 }
 
 const Flex = styled('div')(({ theme }: FlexProps) => ({
@@ -43,7 +43,7 @@ const Flex = styled('div')(({ theme }: FlexProps) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   marginTop: theme!.spacing(3),
-}))
+}));
 
 export function AddressItemCard(props: OrderItemCardProps) {
   const {
@@ -53,10 +53,10 @@ export function AddressItemCard(props: OrderItemCardProps) {
     onSetDefault,
     editPermission: hasPermission,
     isBCPermission,
-  } = props
+  } = props;
 
-  const theme = useTheme()
-  const b3Lang = useB3Lang()
+  const theme = useTheme();
+  const b3Lang = useB3Lang();
 
   return (
     <Card key={addressInfo.id}>
@@ -71,8 +71,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
             variant="h5"
             sx={{
               marginBottom:
-                addressInfo.isDefaultShipping === 1 ||
-                addressInfo.isDefaultBilling === 1
+                addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1
                   ? theme.spacing(1)
                   : theme.spacing(3),
               color: 'rgba(0, 0, 0, 0.87)',
@@ -84,8 +83,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
 
         <TagBox
           marginBottom={
-            addressInfo.isDefaultShipping === 1 ||
-            addressInfo.isDefaultBilling === 1
+            addressInfo.isDefaultShipping === 1 || addressInfo.isDefaultBilling === 1
               ? theme.spacing(3)
               : 0
           }
@@ -106,9 +104,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
         <Typography variant="body1">{addressInfo.company || ''}</Typography>
         <Typography variant="body1">{addressInfo.addressLine1}</Typography>
         <Typography variant="body1">
-          {addressInfo.addressLine2 === 'undefined'
-            ? ''
-            : addressInfo.addressLine2}
+          {addressInfo.addressLine2 === 'undefined' ? '' : addressInfo.addressLine2}
         </Typography>
         <Typography variant="body1">{`${addressInfo.city}, ${addressInfo.state} ${addressInfo.zipCode}, ${addressInfo.country}`}</Typography>
         <Typography variant="body1">{addressInfo.phoneNumber}</Typography>
@@ -122,7 +118,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
                   ml: '-8px',
                 }}
                 onClick={() => {
-                  onSetDefault(addressInfo)
+                  onSetDefault(addressInfo);
                 }}
               >
                 {b3Lang('addresses.addressItemCard.setAsDefault')}
@@ -142,7 +138,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
                   marginRight: '8px',
                 }}
                 onClick={() => {
-                  onEdit(addressInfo)
+                  onEdit(addressInfo);
                 }}
               >
                 <EditIcon fontSize="inherit" />
@@ -151,7 +147,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
                 aria-label="delete"
                 size="small"
                 onClick={() => {
-                  onDelete(addressInfo)
+                  onDelete(addressInfo);
                 }}
               >
                 <DeleteIcon fontSize="inherit" />
@@ -161,5 +157,5 @@ export function AddressItemCard(props: OrderItemCardProps) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

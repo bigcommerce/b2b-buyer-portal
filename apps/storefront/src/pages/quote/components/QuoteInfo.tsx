@@ -1,32 +1,26 @@
-import { useB3Lang } from '@b3/lang'
-import { Box, Typography } from '@mui/material'
+import { useB3Lang } from '@b3/lang';
+import { Box, Typography } from '@mui/material';
 
-import CustomButton from '@/components/button/CustomButton'
-import { useMobile } from '@/hooks'
-import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes'
+import CustomButton from '@/components/button/CustomButton';
+import { useMobile } from '@/hooks';
+import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes';
 
-import Container from '../style'
+import Container from '../style';
 
 interface QuoteInfoItemType {
-  [key: string]: string
+  [key: string]: string;
 }
 interface InfoProps {
-  contactInfo: ContactInfo
-  shippingAddress: ShippingAddress
-  billingAddress: BillingAddress
-  handleEditInfoClick?: () => void
-  status?: string
+  contactInfo: ContactInfo;
+  shippingAddress: ShippingAddress;
+  billingAddress: BillingAddress;
+  handleEditInfoClick?: () => void;
+  status?: string;
 }
 
-type Keys = string | string[]
+type Keys = string | string[];
 
-const contactInfoKeys: string[] = [
-  'name',
-  'email',
-  'companyName',
-  'phoneNumber',
-  'quoteTitle',
-]
+const contactInfoKeys: string[] = ['name', 'email', 'companyName', 'phoneNumber', 'quoteTitle'];
 
 const addressVerifyKeys: string[] = [
   'label',
@@ -40,7 +34,7 @@ const addressVerifyKeys: string[] = [
   'zipCode',
   'country',
   'phoneNumber',
-]
+];
 
 const addressKeys: Keys[] = [
   'label',
@@ -50,31 +44,29 @@ const addressKeys: Keys[] = [
   'apartment',
   ['city', 'state', 'zipCode', 'country'],
   'phoneNumber',
-]
+];
 
 interface QuoteInfoItemProps {
-  flag?: string
-  title: string
-  info: QuoteInfoItemType
-  status?: string
+  flag?: string;
+  title: string;
+  info: QuoteInfoItemType;
+  status?: string;
 }
 
 function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
-  const keyTable = flag === 'info' ? contactInfoKeys : addressKeys
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
+  const keyTable = flag === 'info' ? contactInfoKeys : addressKeys;
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
   const noAddresssText =
     status === 'Draft'
       ? `Please add ${flag === 'Billing' ? 'billing' : 'shipping'} address `
-      : `No ${flag === 'Billing' ? 'billing' : 'shipping'} address`
+      : `No ${flag === 'Billing' ? 'billing' : 'shipping'} address`;
 
   const isComplete =
-    flag !== 'info'
-      ? addressVerifyKeys.some((item: string) => info && !!info[item])
-      : false
+    flag !== 'info' ? addressVerifyKeys.some((item: string) => info && !!info[item]) : false;
 
-  const infoPaddingLeft = flag === 'info' || isMobile ? 0 : '10px'
+  const infoPaddingLeft = flag === 'info' || isMobile ? 0 : '10px';
   return (
     <Box
       sx={{
@@ -108,13 +100,11 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
                   key={list}
                   variant="body1"
                 >
-                  {`${b3Lang('quoteDraft.quoteInfo.quoteTitle')}${
-                    info[list] || ''
-                  }`}
+                  {`${b3Lang('quoteDraft.quoteInfo.quoteTitle')}${info[list] || ''}`}
                 </Typography>
               ) : (
                 ''
-              )
+              );
             }
 
             if (typeof list === 'string') {
@@ -122,26 +112,26 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
                 <Typography key={list} variant="body1">
                   {(info && info[list]) || ''}
                 </Typography>
-              )
+              );
             }
 
             return (
               <Typography key={`${list}`} variant="body1">
                 {list.map((item: string, index: number) => {
                   if (index === list.length - 1) {
-                    return info[item] || ''
+                    return info[item] || '';
                   }
-                  if (item === 'firstName') return `${info[item] || ''} `
-                  return info[item] ? `${info[item] || ''}, ` : ''
+                  if (item === 'firstName') return `${info[item] || ''} `;
+                  return info[item] ? `${info[item] || ''}, ` : '';
                 })}
               </Typography>
-            )
+            );
           })}
 
         {!isComplete && flag !== 'info' && <Box>{noAddresssText}</Box>}
       </Box>
     </Box>
-  )
+  );
 }
 
 function QuoteInfo({
@@ -151,8 +141,8 @@ function QuoteInfo({
   handleEditInfoClick,
   status,
 }: InfoProps) {
-  const b3Lang = useB3Lang()
-  const [isMobile] = useMobile()
+  const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
 
   return (
     <Container
@@ -205,7 +195,7 @@ function QuoteInfo({
         </CustomButton>
       )}
     </Container>
-  )
+  );
 }
 
-export default QuoteInfo
+export default QuoteInfo;

@@ -1,25 +1,25 @@
-import styled from '@emotion/styled'
-import { Box, Typography } from '@mui/material'
+import styled from '@emotion/styled';
+import { Box, Typography } from '@mui/material';
 
-import { useMobile } from '@/hooks'
-import { activeCurrencyInfoSelector, useAppSelector } from '@/store'
+import { useMobile } from '@/hooks';
+import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 
-import { OrderProductItem, OrderProductOption } from '../../../types'
+import { OrderProductItem, OrderProductOption } from '../../../types';
 
 interface OrderProductProps {
-  products: OrderProductItem[]
-  currency?: string
-  getProductQuantity?: (item: OrderProductItem) => number
+  products: OrderProductItem[];
+  currency?: string;
+  getProductQuantity?: (item: OrderProductItem) => number;
 }
 
 interface FlexProps {
-  isHeader?: boolean
-  isMobile?: boolean
+  isHeader?: boolean;
+  isMobile?: boolean;
 }
 
 interface FlexItemProps {
-  width?: string
-  padding?: string
+  width?: string;
+  padding?: string;
 }
 
 const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
@@ -28,7 +28,7 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
         borderBottom: '1px solid #D9DCE9',
         paddingBottom: '8px',
       }
-    : {}
+    : {};
 
   const mobileStyle = isMobile
     ? {
@@ -38,9 +38,9 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
           marginTop: '12px',
         },
       }
-    : {}
+    : {};
 
-  const flexWrap = isMobile ? 'wrap' : 'initial'
+  const flexWrap = isMobile ? 'wrap' : 'initial';
 
   return {
     display: 'flex',
@@ -50,8 +50,8 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
     flexWrap,
     ...headerStyle,
     ...mobileStyle,
-  }
-})
+  };
+});
 
 const FlexItem = styled('div')(({ width, padding = '0' }: FlexItemProps) => ({
   display: 'flex',
@@ -60,25 +60,25 @@ const FlexItem = styled('div')(({ width, padding = '0' }: FlexItemProps) => ({
   alignItems: 'flex-start',
   width,
   padding,
-}))
+}));
 
 const ProductHead = styled('div')(() => ({
   fontSize: '0.875rem',
   lineHeight: '1.5',
   color: '#263238',
-}))
+}));
 
 const ProductImage = styled('img')(() => ({
   width: '60px',
   borderRadius: '4px',
   flexShrink: 0,
-}))
+}));
 
 const ProductOptionText = styled('div')(() => ({
   fontSize: '0.75rem',
   lineHeight: '1.5',
   color: '#455A64',
-}))
+}));
 
 const defaultItemStyle = {
   default: {
@@ -87,7 +87,7 @@ const defaultItemStyle = {
   qty: {
     width: '80px',
   },
-}
+};
 
 const mobileItemStyle = {
   default: {
@@ -98,34 +98,28 @@ const mobileItemStyle = {
     width: '100%',
     padding: '0 0 0 76px',
   },
-}
+};
 
 export default function OrderProduct(props: OrderProductProps) {
-  const {
-    products,
-    currency = '$',
-    getProductQuantity = (item) => item.quantity,
-  } = props
+  const { products, currency = '$', getProductQuantity = (item) => item.quantity } = props;
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const { decimal_places: decimalPlaces = 2 } = useAppSelector(
-    activeCurrencyInfoSelector
-  )
+  const { decimal_places: decimalPlaces = 2 } = useAppSelector(activeCurrencyInfoSelector);
 
   const getProductPrice = (price: string | number) => {
-    const priceNumber = parseFloat(price.toString()) || 0
+    const priceNumber = parseFloat(price.toString()) || 0;
 
-    return priceNumber.toFixed(decimalPlaces)
-  }
+    return priceNumber.toFixed(decimalPlaces);
+  };
 
   const getProductTotals = (quantity: number, price: string | number) => {
-    const priceNumber = parseFloat(price.toString()) || 0
+    const priceNumber = parseFloat(price.toString()) || 0;
 
-    return (quantity * priceNumber).toFixed(decimalPlaces)
-  }
+    return (quantity * priceNumber).toFixed(decimalPlaces);
+  };
 
-  const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
+  const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
 
   return products.length > 0 ? (
     <Box>
@@ -161,13 +155,11 @@ export default function OrderProduct(props: OrderProductProps) {
               <Typography variant="body1" color="#616161">
                 {product.sku}
               </Typography>
-              {(product.product_options || []).map(
-                (option: OrderProductOption) => (
-                  <ProductOptionText
-                    key={`${option.option_id}`}
-                  >{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
-                )
-              )}
+              {(product.product_options || []).map((option: OrderProductOption) => (
+                <ProductOptionText
+                  key={`${option.option_id}`}
+                >{`${option.display_name}: ${option.display_value}`}</ProductOptionText>
+              ))}
             </Box>
           </FlexItem>
           <FlexItem {...itemStyle.default}>
@@ -180,13 +172,10 @@ export default function OrderProduct(props: OrderProductProps) {
           </FlexItem>
           <FlexItem {...itemStyle.default}>
             {isMobile && <span>Total:</span>}
-            {`${currency} ${getProductTotals(
-              getProductQuantity(product),
-              product.base_price
-            )}`}
+            {`${currency} ${getProductTotals(getProductQuantity(product), product.base_price)}`}
           </FlexItem>
         </Flex>
       ))}
     </Box>
-  ) : null
+  ) : null;
 }

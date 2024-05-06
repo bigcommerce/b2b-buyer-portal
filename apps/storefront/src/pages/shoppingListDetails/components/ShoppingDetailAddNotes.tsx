@@ -1,28 +1,22 @@
-import { useB3Lang } from '@b3/lang'
-import { Box, TextField } from '@mui/material'
+import { useB3Lang } from '@b3/lang';
+import { Box, TextField } from '@mui/material';
 
-import B3Dialog from '@/components/B3Dialog'
-import { useMobile } from '@/hooks'
+import B3Dialog from '@/components/B3Dialog';
+import { useMobile } from '@/hooks';
 
 interface ShoppingDetailAddNotesProps {
-  open: boolean
-  notes: string
-  setNotes: (value: string) => void
-  handleCancelAddNotesClick: () => void
-  handleAddItemNotesClick: () => void
+  open: boolean;
+  notes: string;
+  setNotes: (value: string) => void;
+  handleCancelAddNotesClick: () => void;
+  handleAddItemNotesClick: () => void;
 }
 
 function ShoppingDetailAddNotes(props: ShoppingDetailAddNotesProps) {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const [isMobile] = useMobile()
-  const {
-    open,
-    notes,
-    setNotes,
-    handleCancelAddNotesClick,
-    handleAddItemNotesClick,
-  } = props
+  const [isMobile] = useMobile();
+  const { open, notes, setNotes, handleCancelAddNotesClick, handleAddItemNotesClick } = props;
 
   return (
     <B3Dialog
@@ -53,7 +47,7 @@ function ShoppingDetailAddNotes(props: ShoppingDetailAddNotesProps) {
         />
       </Box>
     </B3Dialog>
-  )
+  );
 }
 
-export default ShoppingDetailAddNotes
+export default ShoppingDetailAddNotes;

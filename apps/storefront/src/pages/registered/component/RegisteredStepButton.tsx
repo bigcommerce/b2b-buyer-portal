@@ -1,15 +1,15 @@
-import { useB3Lang } from '@b3/lang'
-import { Box, useTheme } from '@mui/material'
+import { useB3Lang } from '@b3/lang';
+import { Box, useTheme } from '@mui/material';
 
-import CustomButton from '@/components/button/CustomButton'
+import CustomButton from '@/components/button/CustomButton';
 
-import { steps } from '../config'
+import { steps } from '../config';
 
 function RegisteredStepButton(props: any) {
-  const { activeStep, handleBack, handleNext, handleFinish } = props
+  const { activeStep, handleBack, handleNext, handleFinish } = props;
 
-  const b3Lang = useB3Lang()
-  const theme = useTheme()
+  const b3Lang = useB3Lang();
+  const theme = useTheme();
 
   return (
     <Box>
@@ -59,7 +59,7 @@ function RegisteredStepButton(props: any) {
         </Box>
       )}
     </Box>
-  )
+  );
 }
 
-export default RegisteredStepButton
+export default RegisteredStepButton;

@@ -1,42 +1,42 @@
-import { MouseEvent, useContext, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import { Alert, Box } from '@mui/material'
+import { MouseEvent, useContext, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useB3Lang } from '@b3/lang';
+import { Alert, Box } from '@mui/material';
 
-import { B3CustomForm } from '@/components'
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
+import { B3CustomForm } from '@/components';
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { GlobaledContext } from '@/shared/global';
 import {
   createB2BCompanyUser,
   createBCCompanyUser,
   sendSubscribersState,
   uploadB2BFile,
-} from '@/shared/service/b2b'
-import { channelId, storeHash } from '@/utils'
-import b2bLogger from '@/utils/b3Logger'
+} from '@/shared/service/b2b';
+import { channelId, storeHash } from '@/utils';
+import b2bLogger from '@/utils/b3Logger';
 
-import RegisteredStepButton from './component/RegisteredStepButton'
-import { RegisteredContext } from './context/RegisteredContext'
-import { deCodeField, toHump } from './config'
-import { InformationFourLabels, TipContent } from './styled'
-import { RegisterFields } from './types'
+import RegisteredStepButton from './component/RegisteredStepButton';
+import { RegisteredContext } from './context/RegisteredContext';
+import { deCodeField, toHump } from './config';
+import { InformationFourLabels, TipContent } from './styled';
+import { RegisterFields } from './types';
 
 interface RegisterCompleteProps {
-  handleBack: () => void
-  handleNext: () => void
-  activeStep: number
+  handleBack: () => void;
+  handleNext: () => void;
+  activeStep: number;
 }
 
-type RegisterCompleteList = Array<RegisterFields> | undefined
+type RegisterCompleteList = Array<RegisterFields> | undefined;
 
 export default function RegisterComplete(props: RegisterCompleteProps) {
-  const b3Lang = useB3Lang()
-  const { handleBack, activeStep, handleNext } = props
+  const b3Lang = useB3Lang();
+  const { handleBack, activeStep, handleNext } = props;
 
-  const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([])
-  const [errorMessage, setErrorMessage] = useState<string>('')
-  const [enterEmail, setEnterEmail] = useState<string>('')
+  const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([]);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [enterEmail, setEnterEmail] = useState<string>('');
 
   const {
     control,
@@ -45,20 +45,20 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     formState: { errors },
   } = useForm({
     mode: 'all',
-  })
-  const { state, dispatch } = useContext(RegisteredContext)
+  });
+  const { state, dispatch } = useContext(RegisteredContext);
 
   const {
     state: { blockPendingAccountOrderCreation },
-  } = useContext(GlobaledContext)
+  } = useContext(GlobaledContext);
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
-  const customColor = getContrastColor(backgroundColor)
+  const customColor = getContrastColor(backgroundColor);
 
   const {
     contactInformation,
@@ -72,119 +72,103 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     bcAddressBasicFields = [],
     companyInformation = [],
     emailMarketingNewsletter,
-  } = state
+  } = state;
 
   const list: RegisterCompleteList =
-    accountType === '1' ? contactInformation : bcContactInformation
+    accountType === '1' ? contactInformation : bcContactInformation;
   const passwordInfo: RegisterCompleteList =
-    accountType === '1' ? passwordInformation : bcPasswordInformation
+    accountType === '1' ? passwordInformation : bcPasswordInformation;
 
-  const passwordName = passwordInfo[0]?.groupName || ''
+  const passwordName = passwordInfo[0]?.groupName || '';
 
   const additionalInfo: RegisterCompleteList =
-    accountType === '1' ? additionalInformation : bcAdditionalInformation
+    accountType === '1' ? additionalInformation : bcAdditionalInformation;
 
-  const addressBasicList =
-    accountType === '1' ? addressBasicFields : bcAddressBasicFields
+  const addressBasicList = accountType === '1' ? addressBasicFields : bcAddressBasicFields;
 
   useEffect(() => {
-    if (!accountType) return
+    if (!accountType) return;
     if (list && list.length) {
       const emailFields: CustomFieldItems =
-        list.find((item: RegisterFields) => item.name === 'email') || {}
+        list.find((item: RegisterFields) => item.name === 'email') || {};
 
-      setEnterEmail(emailFields?.default || '')
+      setEnterEmail(emailFields?.default || '');
     }
 
-    setPersonalInfo(passwordInfo)
-  }, [
-    contactInformation,
-    bcContactInformation,
-    accountType,
-    list,
-    passwordInfo,
-  ])
+    setPersonalInfo(passwordInfo);
+  }, [contactInformation, bcContactInformation, accountType, list, passwordInfo]);
 
   const getBCFieldsValue = (data: CustomFieldItems) => {
-    const bcFields: CustomFieldItems = {}
+    const bcFields: CustomFieldItems = {};
 
     bcFields.authentication = {
       force_password_reset: false,
       new_password: data.password,
-    }
+    };
 
-    bcFields.accepts_product_review_abandoned_cart_emails =
-      emailMarketingNewsletter
+    bcFields.accepts_product_review_abandoned_cart_emails = emailMarketingNewsletter;
 
     if (list) {
       list.forEach((item: any) => {
-        const name = deCodeField(item.name)
+        const name = deCodeField(item.name);
         if (name === 'accepts_marketing_emails') {
-          bcFields.accepts_product_review_abandoned_cart_emails =
-            !!item?.default?.length
+          bcFields.accepts_product_review_abandoned_cart_emails = !!item?.default?.length;
         } else if (!item.custom) {
-          bcFields[name] = item?.default || ''
+          bcFields[name] = item?.default || '';
         }
-      })
+      });
 
-      bcFields.form_fields = []
-      if (
-        additionalInfo &&
-        (additionalInfo as Array<CustomFieldItems>).length
-      ) {
+      bcFields.form_fields = [];
+      if (additionalInfo && (additionalInfo as Array<CustomFieldItems>).length) {
         additionalInfo.forEach((field: CustomFieldItems) => {
           bcFields.form_fields.push({
             name: field.bcLabel,
             value: field.default,
-          })
-        })
+          });
+        });
       }
     }
 
-    bcFields.addresses = []
-    bcFields.origin_channel_id = channelId
+    bcFields.addresses = [];
+    bcFields.origin_channel_id = channelId;
 
     if (accountType === '2') {
-      const addresses: CustomFieldItems = {}
+      const addresses: CustomFieldItems = {};
 
-      const getBCAddressField = addressBasicList.filter(
-        (field: any) => !field.custom
-      )
-      const getBCExtraAddressField = addressBasicList.filter(
-        (field: any) => field.custom
-      )
+      const getBCAddressField = addressBasicList.filter((field: any) => !field.custom);
+      const getBCExtraAddressField = addressBasicList.filter((field: any) => field.custom);
 
       if (getBCAddressField) {
-        bcFields.addresses = {}
+        bcFields.addresses = {};
         getBCAddressField.forEach((field: any) => {
           if (field.name === 'country') {
-            addresses.country_code = field.default
+            addresses.country_code = field.default;
           } else if (field.name === 'state') {
-            addresses.state_or_province = field.default
+            addresses.state_or_province = field.default;
           } else if (field.name === 'postalCode') {
-            addresses.postal_code = field.default
+            addresses.postal_code = field.default;
           } else if (field.name === 'firstName') {
-            addresses.first_name = field.default
+            addresses.first_name = field.default;
           } else if (field.name === 'lastName') {
-            addresses.last_name = field.default
+            addresses.last_name = field.default;
           } else {
-            addresses[field.name] = field.default
+            addresses[field.name] = field.default;
           }
-        })
+        });
       }
 
-      addresses.form_fields = []
+      addresses.form_fields = [];
       // BC Extra field
       if (getBCExtraAddressField && getBCExtraAddressField.length) {
         getBCExtraAddressField.forEach((field: any) => {
           addresses.form_fields.push({
             name: field.bcLabel,
             value: field.default,
-          })
-        })
+          });
+        });
       }
 
-      bcFields.addresses = [addresses]
+      bcFields.addresses = [addresses];
     }
 
     const userItem: any = {
@@ -192,111 +176,105 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       method: 'post',
       url: '/v3/customers',
       data: [bcFields],
-    }
+    };
 
-    return createBCCompanyUser(userItem)
-  }
+    return createBCCompanyUser(userItem);
+  };
 
   const getB2BFieldsValue = async (
     data: CustomFieldItems,
     customerId: number | string,
-    fileList: any
+    fileList: any,
   ) => {
     try {
-      const b2bFields: CustomFieldItems = {}
-      b2bFields.customerId = customerId || ''
-      b2bFields.storeHash = storeHash
+      const b2bFields: CustomFieldItems = {};
+      b2bFields.customerId = customerId || '';
+      b2bFields.storeHash = storeHash;
 
       // company user extra field
-      const b2bContactInformationList = list || []
-      const companyUserExtraFieldsList = b2bContactInformationList.filter(
-        (item) => !!item.custom
-      )
+      const b2bContactInformationList = list || [];
+      const companyUserExtraFieldsList = b2bContactInformationList.filter((item) => !!item.custom);
 
       if (companyUserExtraFieldsList.length) {
-        const companyUserExtraFields: Array<CustomFieldItems> = []
+        const companyUserExtraFields: Array<CustomFieldItems> = [];
         companyUserExtraFieldsList.forEach((item: CustomFieldItems) => {
-          const itemExtraField: CustomFieldItems = {}
-          itemExtraField.fieldName = deCodeField(item.name)
-          itemExtraField.fieldValue = item?.default || ''
-          companyUserExtraFields.push(itemExtraField)
-        })
-        b2bFields.userExtraFields = companyUserExtraFields
+          const itemExtraField: CustomFieldItems = {};
+          itemExtraField.fieldName = deCodeField(item.name);
+          itemExtraField.fieldValue = item?.default || '';
+          companyUserExtraFields.push(itemExtraField);
+        });
+        b2bFields.userExtraFields = companyUserExtraFields;
       }
 
       const companyInfo = companyInformation.filter(
-        (list) => !list.custom && list.fieldType !== 'files'
-      )
-      const companyExtraInfo = companyInformation.filter(
-        (list) => !!list.custom
-      )
+        (list) => !list.custom && list.fieldType !== 'files',
+      );
+      const companyExtraInfo = companyInformation.filter((list) => !!list.custom);
       // company field
       if (companyInfo.length) {
         companyInfo.forEach((item: any) => {
-          b2bFields[toHump(deCodeField(item.name))] = item?.default || ''
-        })
+          b2bFields[toHump(deCodeField(item.name))] = item?.default || '';
+        });
       }
 
       // Company Additional Field
       if (companyExtraInfo.length) {
-        const extraFields: Array<CustomFieldItems> = []
+        const extraFields: Array<CustomFieldItems> = [];
         companyExtraInfo.forEach((item: CustomFieldItems) => {
-          const itemExtraField: CustomFieldItems = {}
-          itemExtraField.fieldName = deCodeField(item.name)
-          itemExtraField.fieldValue = item?.default || ''
-          extraFields.push(itemExtraField)
-        })
-        b2bFields.extraFields = extraFields
+          const itemExtraField: CustomFieldItems = {};
+          itemExtraField.fieldName = deCodeField(item.name);
+          itemExtraField.fieldValue = item?.default || '';
+          extraFields.push(itemExtraField);
+        });
+        b2bFields.extraFields = extraFields;
       }
 
       // address Field
-      const addressBasicInfo =
-        addressBasicList.filter((list) => !list.custom) || []
-      const addressExtraBasicInfo =
-        addressBasicList.filter((list) => !!list.custom) || []
+      const addressBasicInfo = addressBasicList.filter((list) => !list.custom) || [];
+      const addressExtraBasicInfo = addressBasicList.filter((list) => !!list.custom) || [];
 
       if (addressBasicInfo.length) {
         addressBasicInfo.forEach((field: CustomFieldItems) => {
-          const name = deCodeField(field.name)
+          const name = deCodeField(field.name);
           if (name === 'address1') {
-            b2bFields.addressLine1 = field.default
+            b2bFields.addressLine1 = field.default;
           }
           if (name === 'address2') {
-            b2bFields.addressLine2 = field.default
+            b2bFields.addressLine2 = field.default;
           }
-          b2bFields[name] = field.default
-        })
+          b2bFields[name] = field.default;
+        });
       }
 
       // address Additional Field
       if (addressExtraBasicInfo.length) {
-        const extraFields: Array<CustomFieldItems> = []
+        const extraFields: Array<CustomFieldItems> = [];
         addressExtraBasicInfo.forEach((item: CustomFieldItems) => {
-          const itemExtraField: CustomFieldItems = {}
-          itemExtraField.fieldName = deCodeField(item.name)
-          itemExtraField.fieldValue = item?.default || ''
-          extraFields.push(itemExtraField)
-        })
-        b2bFields.addressExtraFields = extraFields
+          const itemExtraField: CustomFieldItems = {};
+          itemExtraField.fieldName = deCodeField(item.name);
+          itemExtraField.fieldValue = item?.default || '';
+          extraFields.push(itemExtraField);
+        });
+        b2bFields.addressExtraFields = extraFields;
       }
-      b2bFields.fileList = fileList
-      b2bFields.channelId = channelId
+      b2bFields.fileList = fileList;
+      b2bFields.channelId = channelId;
 
-      return createB2BCompanyUser(b2bFields)
+      return createB2BCompanyUser(b2bFields);
     } catch (error) {
-      b2bLogger.error(error)
+      b2bLogger.error(error);
     }
-    return undefined
-  }
+    return undefined;
+  };
 
   const getFileUrl = async (attachmentsList: RegisterFields[]) => {
-    let attachments: File[] = []
+    let attachments: File[] = [];
 
-    if (!attachmentsList.length) return undefined
+    if (!attachmentsList.length) return undefined;
 
     attachmentsList.forEach((field: any) => {
-      attachments = field.default
-    })
+      attachments = field.default;
+    });
 
     try {
       const fileResponse = await Promise.all(
@@ -304,56 +282,50 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           uploadB2BFile({
             file,
             type: 'companyAttachedFile',
-          })
-        )
-      )
+          }),
+        ),
+      );
 
       const fileList = fileResponse.reduce((fileList: any, res: any) => {
-        let list = fileList
+        let list = fileList;
         if (res.code === 200) {
           const newData = {
             ...res.data,
-          }
-          newData.fileSize = newData.fileSize ? `${newData.fileSize}` : ''
-          list = [...fileList, newData]
+          };
+          newData.fileSize = newData.fileSize ? `${newData.fileSize}` : '';
+          list = [...fileList, newData];
         } else {
           throw (
-            res.data.errMsg ||
-            res.message ||
-            b3Lang('intl.global.fileUpload.fileUploadFailure')
-          )
+            res.data.errMsg || res.message || b3Lang('intl.global.fileUpload.fileUploadFailure')
+          );
         }
-        return list
-      }, [])
+        return list;
+      }, []);
 
-      return fileList
+      return fileList;
     } catch (error) {
-      b2bLogger.error(error)
-      throw error
+      b2bLogger.error(error);
+      throw error;
     }
-  }
+  };
 
   const saveRegisterPassword = (data: CustomFieldItems) => {
-    const newPasswordInformation = passwordInformation.map(
-      (field: RegisterFields) => {
-        const registerField = field
-        if (accountType === '1') {
-          registerField.default = data[field.name] || field.default
-        }
-        return field
+    const newPasswordInformation = passwordInformation.map((field: RegisterFields) => {
+      const registerField = field;
+      if (accountType === '1') {
+        registerField.default = data[field.name] || field.default;
       }
-    )
+      return field;
+    });
 
-    const newBcPasswordInformation = bcPasswordInformation.map(
-      (field: RegisterFields) => {
-        const registerField = field
-        if (accountType === '2') {
-          registerField.default = data[field.name] || field.default
-        }
-
-        return field
+    const newBcPasswordInformation = bcPasswordInformation.map((field: RegisterFields) => {
+      const registerField = field;
+      if (accountType === '2') {
+        registerField.default = data[field.name] || field.default;
       }
-    )
+
+      return field;
+    });
 
     dispatch({
       type: 'all',
@@ -361,26 +333,21 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         passwordInformation: newPasswordInformation,
         bcPasswordInformation: newBcPasswordInformation,
       },
-    })
-  }
+    });
+  };
 
   const handleSendSubscribersState = async () => {
     if (list && list.length > 0) {
       const emailMe = list.find(
         (item: CustomFieldItems) =>
-          item.fieldId === 'field_email_marketing_newsletter' &&
-          item.fieldType === 'checkbox'
-      )
+          item.fieldId === 'field_email_marketing_newsletter' && item.fieldType === 'checkbox',
+      );
       const firstName: CustomFieldItems =
-        list.find(
-          (item: RegisterFields) => item.fieldId === 'field_first_name'
-        ) || {}
+        list.find((item: RegisterFields) => item.fieldId === 'field_first_name') || {};
       const lastName: CustomFieldItems =
-        list.find(
-          (item: RegisterFields) => item.fieldId === 'field_last_name'
-        ) || {}
-      const isChecked = emailMe?.isChecked || false
-      const defaultValue = emailMe?.default || []
+        list.find((item: RegisterFields) => item.fieldId === 'field_last_name') || {};
+      const isChecked = emailMe?.isChecked || false;
+      const defaultValue = emailMe?.default || [];
 
       if (isChecked && (defaultValue as Array<string>).length > 0) {
         try {
@@ -395,13 +362,13 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
               last_name: lastName.default,
               channel_id: channelId || 1,
             },
-          })
+          });
         } catch (err: any) {
-          setErrorMessage(err?.message || err)
+          setErrorMessage(err?.message || err);
         }
       }
     }
-  }
+  };
 
   const handleCompleted = (event: MouseEvent) => {
     handleSubmit(async (completeData: CustomFieldItems) => {
@@ -409,12 +376,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         setError('confirmPassword', {
           type: 'manual',
           message: b3Lang('global.registerComplete.passwordMatchPrompt'),
-        })
+        });
         setError('password', {
           type: 'manual',
           message: b3Lang('global.registerComplete.passwordMatchPrompt'),
-        })
-        return
+        });
+        return;
       }
       try {
         dispatch({
@@ -422,27 +389,20 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           payload: {
             isLoading: true,
           },
-        })
+        });
 
-        let isAuto = true
+        let isAuto = true;
         if (accountType === '2') {
-          await getBCFieldsValue(completeData)
+          await getBCFieldsValue(completeData);
         } else {
-          const attachmentsList = companyInformation.filter(
-            (list) => list.fieldType === 'files'
-          )
-          const fileList = await getFileUrl(attachmentsList || [])
-          const res = await getBCFieldsValue(completeData)
-          const { data } = res
-          const accountInfo = await getB2BFieldsValue(
-            completeData,
-            (data as any)[0].id,
-            fileList
-          )
+          const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files');
+          const fileList = await getFileUrl(attachmentsList || []);
+          const res = await getBCFieldsValue(completeData);
+          const { data } = res;
+          const accountInfo = await getB2BFieldsValue(completeData, (data as any)[0].id, fileList);
 
-          const companyStatus =
-            accountInfo?.companyCreate?.company?.companyStatus || ''
-          isAuto = +companyStatus === 1
+          const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
+          isAuto = +companyStatus === 1;
         }
         dispatch({
           type: 'finishInfo',
@@ -451,22 +411,22 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             isAutoApproval: isAuto,
             blockPendingAccountOrderCreation,
           },
-        })
-        saveRegisterPassword(completeData)
-        await handleSendSubscribersState()
-        handleNext()
+        });
+        saveRegisterPassword(completeData);
+        await handleSendSubscribersState();
+        handleNext();
       } catch (err: any) {
-        setErrorMessage(err?.message || err)
+        setErrorMessage(err?.message || err);
       } finally {
         dispatch({
           type: 'loading',
           payload: {
             isLoading: false,
           },
-        })
+        });
       }
-    })(event)
-  }
+    })(event);
+  };
 
   return (
     <Box
@@ -508,11 +468,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
                 {`Create password for ${enterEmail}`}
               </Box>
             )}
-            <B3CustomForm
-              formFields={personalInfo}
-              errors={errors}
-              control={control}
-            />
+            <B3CustomForm formFields={personalInfo} errors={errors} control={control} />
           </>
         )}
       </Box>
@@ -522,5 +478,5 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         handleNext={handleCompleted}
       />
     </Box>
-  )
+  );
 }

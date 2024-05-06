@@ -1,14 +1,14 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import { Box, Button, Grid } from '@mui/material'
-import copy from 'copy-to-clipboard'
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { Box, Button, Grid } from '@mui/material';
+import copy from 'copy-to-clipboard';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { get } from 'lodash'
+import { get } from 'lodash';
 
-import B3Sping from '@/components/spin/B3Sping'
-import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
+import B3Sping from '@/components/spin/B3Sping';
+import { useMobile } from '@/hooks';
+import { GlobaledContext } from '@/shared/global';
 import {
   exportB2BQuotePdf,
   exportBcQuotePdf,
@@ -16,59 +16,53 @@ import {
   getBcQuoteDetail,
   searchB2BProducts,
   searchBcProducts,
-} from '@/shared/service/b2b'
+} from '@/shared/service/b2b';
 import {
   activeCurrencyInfoSelector,
   isB2BUserSelector,
   TaxZoneRates,
   useAppSelector,
-} from '@/store'
-import { Currency } from '@/types'
-import { snackbar } from '@/utils'
-import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product'
-import { conversionProductsList } from '@/utils/b3Product/shared/config'
-import { getSearchVal } from '@/utils/loginInfo'
+} from '@/store';
+import { Currency } from '@/types';
+import { snackbar } from '@/utils';
+import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
+import { conversionProductsList } from '@/utils/b3Product/shared/config';
+import { getSearchVal } from '@/utils/loginInfo';
 
-import Message from './components/Message'
-import QuoteAttachment from './components/QuoteAttachment'
-import QuoteDetailFooter from './components/QuoteDetailFooter'
-import QuoteDetailHeader from './components/QuoteDetailHeader'
-import QuoteDetailSummary from './components/QuoteDetailSummary'
-import QuoteDetailTable from './components/QuoteDetailTable'
-import QuoteInfo from './components/QuoteInfo'
-import QuoteNote from './components/QuoteNote'
-import QuoteTermsAndConditions from './components/QuoteTermsAndConditions'
-import { ProductInfoProps } from './shared/config'
+import Message from './components/Message';
+import QuoteAttachment from './components/QuoteAttachment';
+import QuoteDetailFooter from './components/QuoteDetailFooter';
+import QuoteDetailHeader from './components/QuoteDetailHeader';
+import QuoteDetailSummary from './components/QuoteDetailSummary';
+import QuoteDetailTable from './components/QuoteDetailTable';
+import QuoteInfo from './components/QuoteInfo';
+import QuoteNote from './components/QuoteNote';
+import QuoteTermsAndConditions from './components/QuoteTermsAndConditions';
+import { ProductInfoProps } from './shared/config';
 
 function QuoteDetail() {
-  const { id = '' } = useParams()
-  const navigate = useNavigate()
+  const { id = '' } = useParams();
+  const navigate = useNavigate();
 
   const {
     state: { bcLanguage },
-  } = useContext(GlobaledContext)
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
-  const emailAddress = useAppSelector(
-    ({ company }) => company.customer.emailAddress
-  )
-  const customerGroupId = useAppSelector(
-    ({ company }) => company.customer.customerGroupId
-  )
-  const role = useAppSelector(({ company }) => company.customer.role)
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
-  const [isMobile] = useMobile()
+  } = useContext(GlobaledContext);
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
+  const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const [isMobile] = useMobile();
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const [quoteDetail, setQuoteDetail] = useState<any>({})
-  const [productList, setProductList] = useState<any>([])
-  const [fileList, setFileList] = useState<any>([])
-  const [isHandleApprove, setHandleApprove] = useState<boolean>(false)
+  const [quoteDetail, setQuoteDetail] = useState<any>({});
+  const [productList, setProductList] = useState<any>([]);
+  const [fileList, setFileList] = useState<any>([]);
+  const [isHandleApprove, setHandleApprove] = useState<boolean>(false);
 
-  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(false)
+  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(false);
 
   const [quoteSummary, setQuoteSummary] = useState<any>({
     originalSubtotal: 0,
@@ -76,221 +70,202 @@ function QuoteDetail() {
     tax: 0,
     shipping: 0,
     totalAmount: 0,
-  })
-  const [isRequestLoading, setIsRequestLoading] = useState(false)
-  const [isShowFooter, setIsShowFooter] = useState(false)
-  const [quoteDetailTax, setQuoteDetailTax] = useState(0)
+  });
+  const [isRequestLoading, setIsRequestLoading] = useState(false);
+  const [isShowFooter, setIsShowFooter] = useState(false);
+  const [quoteDetailTax, setQuoteDetailTax] = useState(0);
   const [noBuyerProductName, setNoBuyerProductName] = useState({
     oos: '',
     nonPurchasable: '',
-  })
+  });
 
-  const location = useLocation()
-  const currency = useAppSelector(activeCurrencyInfoSelector)
-  const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates)
+  const location = useLocation();
+  const currency = useAppSelector(activeCurrencyInfoSelector);
+  const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates);
   const enteredInclusiveTax = useAppSelector(
-    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax
-  )
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
+  );
   const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct
-  )
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
+  );
 
   useEffect(() => {
-    let oosErrorList = ''
-    let nonPurchasableErrorList = ''
+    let oosErrorList = '';
+    let nonPurchasableErrorList = '';
 
     productList.forEach((item: CustomFieldItems) => {
-      const buyerInfo = getVariantInfoOOSAndPurchase(item)
+      const buyerInfo = getVariantInfoOOSAndPurchase(item);
 
       if (buyerInfo?.type && isEnableProduct && !item?.purchaseHandled) {
         if (buyerInfo.type === 'oos') {
-          oosErrorList += `${item.productName}${oosErrorList ? ',' : ''}`
+          oosErrorList += `${item.productName}${oosErrorList ? ',' : ''}`;
         }
 
         if (buyerInfo.type === 'non-purchasable') {
-          nonPurchasableErrorList += `${item.productName}${
-            nonPurchasableErrorList ? ',' : ''
-          }`
+          nonPurchasableErrorList += `${item.productName}${nonPurchasableErrorList ? ',' : ''}`;
         }
       }
-    })
+    });
 
-    const isHideCheckout = !!oosErrorList || !!nonPurchasableErrorList
+    const isHideCheckout = !!oosErrorList || !!nonPurchasableErrorList;
     if (isEnableProduct && isHandleApprove && isHideCheckout) {
       if (oosErrorList)
         snackbar.error(
           b3Lang('quoteDetail.message.insufficientStock', {
             ProductName: oosErrorList,
-          })
-        )
+          }),
+        );
 
       if (nonPurchasableErrorList)
         snackbar.error(
           b3Lang('quoteDetail.message.nonPurchasable', {
             ProductName: nonPurchasableErrorList,
-          })
-        )
+          }),
+        );
     }
 
-    setIsHideQuoteCheckout(isHideCheckout)
+    setIsHideQuoteCheckout(isHideCheckout);
 
     setNoBuyerProductName({
       oos: oosErrorList,
       nonPurchasable: nonPurchasableErrorList,
-    })
+    });
     // disabling since b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEnableProduct, isHandleApprove, productList])
+  }, [isEnableProduct, isHandleApprove, productList]);
 
   const proceedingCheckoutFn = useCallback(() => {
     if (isHideQuoteCheckout) {
-      const { oos, nonPurchasable } = noBuyerProductName
+      const { oos, nonPurchasable } = noBuyerProductName;
       if (oos)
         snackbar.error(
           b3Lang('quoteDetail.message.insufficientStock', {
             ProductName: oos,
-          })
-        )
+          }),
+        );
 
       if (nonPurchasable)
         snackbar.error(
           b3Lang('quoteDetail.message.nonPurchasable', {
             ProductName: nonPurchasable,
-          })
-        )
+          }),
+        );
     }
-    return isHideQuoteCheckout
+    return isHideQuoteCheckout;
     // disabling as b3Lang is a dependency that will trigger rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHideQuoteCheckout, noBuyerProductName])
+  }, [isHideQuoteCheckout, noBuyerProductName]);
 
-  const classRates: TaxZoneRates[] = []
+  const classRates: TaxZoneRates[] = [];
   if (taxZoneRates?.length) {
-    const defaultTaxZone = taxZoneRates?.find(
-      (taxZone: { id: number }) => taxZone.id === 1
-    )
+    const defaultTaxZone = taxZoneRates?.find((taxZone: { id: number }) => taxZone.id === 1);
     if (defaultTaxZone) {
-      const { rates = [] } = defaultTaxZone
+      const { rates = [] } = defaultTaxZone;
       if (rates.length && rates[0].enabled && rates[0].classRates.length) {
-        rates[0].classRates.forEach((rate) => classRates.push(rate))
+        rates[0].classRates.forEach((rate) => classRates.push(rate));
       }
     }
   }
 
   const getTaxRate = (taxClassId: number, variants: any) => {
     if (variants.length) {
-      const taxExclusive = get(
-        variants,
-        '[0].bc_calculated_price.tax_exclusive',
-        0
-      )
-      const taxInclusive = get(
-        variants,
-        '[0].bc_calculated_price.tax_inclusive',
-        0
-      )
-      return taxExclusive > 0 ? (taxInclusive - taxExclusive) / taxExclusive : 0
+      const taxExclusive = get(variants, '[0].bc_calculated_price.tax_exclusive', 0);
+      const taxInclusive = get(variants, '[0].bc_calculated_price.tax_inclusive', 0);
+      return taxExclusive > 0 ? (taxInclusive - taxExclusive) / taxExclusive : 0;
     }
     if (classRates.length) {
-      return (
-        (classRates.find((rate) => rate.taxClassId === taxClassId)?.rate || 0) /
-        100
-      )
+      return (classRates.find((rate) => rate.taxClassId === taxClassId)?.rate || 0) / 100;
     }
-    return 0
-  }
+    return 0;
+  };
 
   const handleGetProductsById = async (listProducts: ProductInfoProps[]) => {
     if (listProducts.length > 0) {
-      const productIds: number[] = []
+      const productIds: number[] = [];
 
       listProducts.forEach((item) => {
         if (!productIds.includes(item.productId)) {
-          productIds.push(item.productId)
+          productIds.push(item.productId);
         }
-      })
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+      });
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
       try {
-        const { currency_code: currencyCode } = currency as Currency
+        const { currency_code: currencyCode } = currency as Currency;
         const { productsSearch } = await getProducts({
           productIds,
           currencyCode,
           companyId: companyInfoId,
           customerGroupId,
-        })
+        });
 
-        const newProductsSearch = conversionProductsList(productsSearch)
+        const newProductsSearch = conversionProductsList(productsSearch);
 
         listProducts.forEach((item) => {
-          const listProduct = item
-          const productInfo = newProductsSearch.find(
-            (search: CustomFieldItems) => {
-              const { id: productId } = search
+          const listProduct = item;
+          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
+            const { id: productId } = search;
 
-              return +item.productId === +productId
-            }
-          )
+            return +item.productId === +productId;
+          });
 
-          listProduct.productsSearch = productInfo || {}
-        })
+          listProduct.productsSearch = productInfo || {};
+        });
 
-        return listProducts
+        return listProducts;
       } catch (err: any) {
-        snackbar.error(err)
+        snackbar.error(err);
       }
     }
-    return undefined
-  }
+    return undefined;
+  };
 
   const getQuoteDetail = async () => {
-    setIsRequestLoading(true)
-    setIsShowFooter(false)
+    setIsRequestLoading(true);
+    setIsShowFooter(false);
 
     try {
-      const { search } = location
+      const { search } = location;
 
-      const date = getSearchVal(search, 'date') || ''
+      const date = getSearchVal(search, 'date') || '';
       const data = {
         id: +id,
         date: date.toString(),
-      }
+      };
 
-      const fn = +role === 99 ? getBcQuoteDetail : getB2BQuoteDetail
+      const fn = +role === 99 ? getBcQuoteDetail : getB2BQuoteDetail;
 
-      const { quote } = await fn(data)
-      const productsWithMoreInfo = await handleGetProductsById(
-        quote.productsList
-      )
+      const { quote } = await fn(data);
+      const productsWithMoreInfo = await handleGetProductsById(quote.productsList);
 
-      setQuoteDetail(quote)
+      setQuoteDetail(quote);
       setQuoteSummary({
         originalSubtotal: quote.subtotal,
         discount: quote.discount,
         tax: quote.taxTotal,
         shipping: quote.shippingTotal,
         totalAmount: quote.totalAmount,
-      })
-      setProductList(productsWithMoreInfo)
+      });
+      setProductList(productsWithMoreInfo);
 
       if (+quote.shippingTotal === 0) {
-        setQuoteDetailTax(+quote.taxTotal)
+        setQuoteDetailTax(+quote.taxTotal);
       } else {
-        let taxPrice = 0
+        let taxPrice = 0;
         productsWithMoreInfo?.forEach((product) => {
           const {
             quantity,
             offeredPrice,
             productsSearch: { variants = [], taxClassId },
-          } = product
+          } = product;
 
-          const taxRate = getTaxRate(taxClassId, variants)
+          const taxRate = getTaxRate(taxClassId, variants);
           taxPrice += enteredInclusiveTax
             ? ((+offeredPrice * taxRate) / (1 + taxRate)) * +quantity
-            : +offeredPrice * taxRate * +quantity
-        })
+            : +offeredPrice * taxRate * +quantity;
+        });
 
-        setQuoteDetailTax(taxPrice)
+        setQuoteDetailTax(taxPrice);
       }
 
       const {
@@ -298,11 +273,11 @@ function QuoteDetail() {
         storefrontAttachFiles = [],
         salesRep,
         salesRepEmail,
-      } = quote
+      } = quote;
 
-      setHandleApprove(!!salesRep || !!salesRepEmail)
+      setHandleApprove(!!salesRep || !!salesRepEmail);
 
-      const newFileList: CustomFieldItems[] = []
+      const newFileList: CustomFieldItems[] = [];
       storefrontAttachFiles.forEach((file: CustomFieldItems) => {
         newFileList.push({
           fileName: file.fileName,
@@ -313,8 +288,8 @@ function QuoteDetail() {
           title: b3Lang('quoteDetail.uploadedByCustomer', {
             createdBy: file.createdBy,
           }),
-        })
-      })
+        });
+      });
 
       backendAttachFiles.forEach((file: CustomFieldItems) => {
         newFileList.push({
@@ -325,110 +300,110 @@ function QuoteDetail() {
           title: b3Lang('quoteDetail.uploadedBySalesRep', {
             createdBy: file.createdBy,
           }),
-        })
-      })
+        });
+      });
 
-      setFileList(newFileList)
+      setFileList(newFileList);
 
-      return quote
+      return quote;
     } catch (err: any) {
-      snackbar.error(err)
-      throw err
+      snackbar.error(err);
+      throw err;
     } finally {
-      setIsRequestLoading(false)
-      setIsShowFooter(true)
+      setIsRequestLoading(false);
+      setIsShowFooter(true);
     }
-  }
+  };
 
   const fetchPdfUrl = async (bool: boolean) => {
-    setIsRequestLoading(true)
-    const { id, createdAt } = quoteDetail
+    setIsRequestLoading(true);
+    const { id, createdAt } = quoteDetail;
     try {
       const data = {
         quoteId: +id,
         createdAt,
         isPreview: bool,
         lang: bcLanguage,
-      }
+      };
 
-      const fn = +role === 99 ? exportBcQuotePdf : exportB2BQuotePdf
+      const fn = +role === 99 ? exportBcQuotePdf : exportB2BQuotePdf;
 
-      const quotePdf = await fn(data)
+      const quotePdf = await fn(data);
 
       if (quotePdf) {
         return {
           url: quotePdf.quoteFrontendPdf.url,
           content: quotePdf.quoteFrontendPdf.content,
-        }
+        };
       }
     } catch (err: any) {
-      snackbar.error(err)
+      snackbar.error(err);
     }
     return {
       url: '',
       content: '',
-    }
-  }
+    };
+  };
 
   const exportPdf = async () => {
     try {
-      const { url: quotePdfUrl } = await fetchPdfUrl(false)
+      const { url: quotePdfUrl } = await fetchPdfUrl(false);
       if (quotePdfUrl) {
-        window.open(`${quotePdfUrl}`, '_blank')
+        window.open(`${quotePdfUrl}`, '_blank');
       }
     } catch (err: any) {
-      snackbar.error(err)
+      snackbar.error(err);
     } finally {
-      setIsRequestLoading(false)
+      setIsRequestLoading(false);
     }
-  }
+  };
 
   const printQuote = async () => {
     try {
-      const { content } = await fetchPdfUrl(true)
+      const { content } = await fetchPdfUrl(true);
 
-      const iframe = document.createElement('iframe')
-      iframe.setAttribute('style', 'display:none;')
-      document.getElementById('bundle-container')?.appendChild(iframe)
-      iframe.contentDocument?.open()
-      iframe.contentDocument?.write(content)
-      iframe.contentDocument?.close()
-      setIsRequestLoading(false)
-      iframe.contentWindow?.print()
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('style', 'display:none;');
+      document.getElementById('bundle-container')?.appendChild(iframe);
+      iframe.contentDocument?.open();
+      iframe.contentDocument?.write(content);
+      iframe.contentDocument?.close();
+      setIsRequestLoading(false);
+      iframe.contentWindow?.print();
     } catch (err: any) {
-      snackbar.error(err)
+      snackbar.error(err);
     }
-  }
+  };
 
   const getQuoteTableDetails = async (params: any) => {
-    let allProductsList: any[] = productList
+    let allProductsList: any[] = productList;
 
     if (allProductsList.length === 0) {
-      const quote = await getQuoteDetail()
-      allProductsList = quote?.productsList || []
+      const quote = await getQuoteDetail();
+      allProductsList = quote?.productsList || [];
     }
 
-    const startIndex = +params.offset
-    const endIndex = +params.first + startIndex
+    const startIndex = +params.offset;
+    const endIndex = +params.first + startIndex;
 
     if (!allProductsList.length) {
       return {
         edges: [],
         totalCount: 0,
-      }
+      };
     }
-    const list = allProductsList.slice(startIndex, endIndex)
+    const list = allProductsList.slice(startIndex, endIndex);
 
     return {
       edges: list,
       totalCount: allProductsList.length,
-    }
-  }
+    };
+  };
 
   useEffect(() => {
-    const { state } = location
+    const { state } = location;
 
-    if (!state) return
+    if (!state) return;
     const tip = () => (
       <Box
         sx={{
@@ -448,10 +423,10 @@ function QuoteDetail() {
         <Button
           onClick={() => {
             if (+role === 100) {
-              copy(window.location.href)
-              snackbar.success(b3Lang('quoteDetail.copySuccessful'))
+              copy(window.location.href);
+              snackbar.success(b3Lang('quoteDetail.copySuccessful'));
             } else {
-              navigate('/quotes')
+              navigate('/quotes');
             }
           }}
           variant="text"
@@ -466,29 +441,29 @@ function QuoteDetail() {
             : b3Lang('quoteDetail.reviewAllQuotes')}
         </Button>
       </Box>
-    )
+    );
 
     setTimeout(() => {
       snackbar.success('', {
         jsx: () => tip(),
         isClose: true,
         duration: 30000,
-      })
-    }, 10)
-    location.state = null
+      });
+    }, 10);
+    location.state = null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, navigate, role])
+  }, [location, navigate, role]);
 
   const isEnableProductShowCheckout = () => {
     if (isEnableProduct) {
-      if (isHandleApprove && isHideQuoteCheckout) return true
-      if (!isHideQuoteCheckout) return true
+      if (isHandleApprove && isHideQuoteCheckout) return true;
+      if (!isHideQuoteCheckout) return true;
 
-      return false
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   return (
     <B3Sping isSpinning={isRequestLoading}>
@@ -647,9 +622,7 @@ function QuoteDetail() {
                   displayPrint: 'none',
                 }}
               >
-                <QuoteTermsAndConditions
-                  quoteLegalTerms={quoteDetail.legalTerms}
-                />
+                <QuoteTermsAndConditions quoteLegalTerms={quoteDetail.legalTerms} />
               </Box>
             )}
           </Grid>
@@ -670,7 +643,7 @@ function QuoteDetail() {
           )}
       </Box>
     </B3Sping>
-  )
+  );
 }
 
-export default QuoteDetail
+export default QuoteDetail;

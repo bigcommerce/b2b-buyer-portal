@@ -1,44 +1,44 @@
-import { LangFormatFunction } from '@b3/lang'
+import { LangFormatFunction } from '@b3/lang';
 
 interface ExtraFieldsProps {
-  fieldName: string
-  fieldValue: string | number
+  fieldName: string;
+  fieldValue: string | number;
 }
 
 interface UsersListItems {
-  createdAt: number
-  email: string
-  firstName: string
-  id: string
-  lastName: string
-  phone: string
-  role: number
-  updatedAt: number
-  extraFields: ExtraFieldsProps[]
-  [key: string]: string | null | number | ExtraFieldsProps[]
+  createdAt: number;
+  email: string;
+  firstName: string;
+  id: string;
+  lastName: string;
+  phone: string;
+  role: number;
+  updatedAt: number;
+  extraFields: ExtraFieldsProps[];
+  [key: string]: string | null | number | ExtraFieldsProps[];
 }
 
 interface FilterProps {
-  first: number
-  offset: number
-  search: string
-  role: number | string
-  companyId: number | string
-  addChannel: boolean
-  [key: string]: string | null | number | boolean | ExtraFieldsProps[]
+  first: number;
+  offset: number;
+  search: string;
+  role: number | string;
+  companyId: number | string;
+  addChannel: boolean;
+  [key: string]: string | null | number | boolean | ExtraFieldsProps[];
 }
 
-type UsersList = UsersListItems
+type UsersList = UsersListItems;
 
 interface UsersFilesProps {
-  [key: string]: string | boolean | number | Array<any> | boolean | undefined
-  name: string
+  [key: string]: string | boolean | number | Array<any> | boolean | undefined;
+  name: string;
 }
 
 interface UserRoleProps {
-  label: string
-  value: number
-  idLang: string
+  label: string;
+  value: number;
+  idLang: string;
 }
 
 const getUserRole = () => {
@@ -58,10 +58,10 @@ const getUserRole = () => {
       value: 2,
       idLang: 'userManagement.userRole.juniorBuyer',
     },
-  ]
+  ];
 
-  return userRole
-}
+  return userRole;
+};
 
 const getFilterMoreList = (b3Lang: LangFormatFunction) => {
   const filterMoreList = [
@@ -77,19 +77,15 @@ const getFilterMoreList = (b3Lang: LangFormatFunction) => {
       variant: 'filled',
       size: 'small',
     },
-  ]
+  ];
 
-  return filterMoreList
-}
+  return filterMoreList;
+};
 
-const getUsersFiles = (
-  type: string,
-  b3Lang: LangFormatFunction,
-  disabledUserRole = false
-) => {
-  const roleArr = [...getFilterMoreList(b3Lang)]
-  roleArr[0].required = true
-  roleArr[0].disabled = disabledUserRole
+const getUsersFiles = (type: string, b3Lang: LangFormatFunction, disabledUserRole = false) => {
+  const roleArr = [...getFilterMoreList(b3Lang)];
+  roleArr[0].required = true;
+  roleArr[0].disabled = disabledUserRole;
   const usersFiles = [
     ...roleArr,
     {
@@ -133,28 +129,22 @@ const getUsersFiles = (
       variant: 'filled',
       size: 'small',
     },
-  ]
+  ];
 
-  return usersFiles
-}
+  return usersFiles;
+};
 
 type EmailError = {
-  [k: number]: string
-}
+  [k: number]: string;
+};
 
 const emailError: EmailError = {
   3: 'global.emailValidate.multipleCustomer',
   4: 'global.emailValidate.companyUsed',
   5: 'global.emailValidate.alreadyExits',
   6: 'global.emailValidate.usedSuperAdmin',
-}
+};
 
-export { emailError, getFilterMoreList, getUserRole, getUsersFiles }
+export { emailError, getFilterMoreList, getUserRole, getUsersFiles };
 
-export type {
-  FilterProps,
-  UserRoleProps,
-  UsersFilesProps,
-  UsersList,
-  ExtraFieldsProps,
-}
+export type { FilterProps, UserRoleProps, UsersFilesProps, UsersList, ExtraFieldsProps };

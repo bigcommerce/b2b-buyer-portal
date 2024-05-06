@@ -1,40 +1,40 @@
-import { ChangeEvent, useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, Card, CardContent, TextField, Typography } from '@mui/material'
+import { ChangeEvent, useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Card, CardContent, TextField, Typography } from '@mui/material';
 
-import { B3CollapseContainer } from '@/components'
-import { setDraftQuoteInfoNote, store } from '@/store'
+import { B3CollapseContainer } from '@/components';
+import { setDraftQuoteInfoNote, store } from '@/store';
 
 interface QuoteNoteProps {
-  quoteStatus?: string | number
-  quoteNotes?: string
+  quoteStatus?: string | number;
+  quoteNotes?: string;
 }
 
 export default function QuoteNote(props: QuoteNoteProps) {
-  const b3Lang = useB3Lang()
-  const { quoteStatus, quoteNotes = '' } = props
+  const b3Lang = useB3Lang();
+  const { quoteStatus, quoteNotes = '' } = props;
 
-  const [noteText, setNoteText] = useState('')
-  const [defaultOpen, setDefaultOpen] = useState(false)
+  const [noteText, setNoteText] = useState('');
+  const [defaultOpen, setDefaultOpen] = useState(false);
 
   const handleNoteTextChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setNoteText(event?.target.value || '')
-    store.dispatch(setDraftQuoteInfoNote(event?.target.value || ''))
-  }
+    setNoteText(event?.target.value || '');
+    store.dispatch(setDraftQuoteInfoNote(event?.target.value || ''));
+  };
 
   useEffect(() => {
-    const note = store.getState().quoteInfo.draftQuoteInfo.note || ''
+    const note = store.getState().quoteInfo.draftQuoteInfo.note || '';
 
-    setNoteText(note)
-  }, [])
-
-  useEffect(() => {
-    store.dispatch(setDraftQuoteInfoNote(noteText || ''))
-  }, [noteText])
+    setNoteText(note);
+  }, []);
 
   useEffect(() => {
-    if (quoteNotes) setDefaultOpen(true)
-  }, [quoteNotes])
+    store.dispatch(setDraftQuoteInfoNote(noteText || ''));
+  }, [noteText]);
+
+  useEffect(() => {
+    if (quoteNotes) setDefaultOpen(true);
+  }, [quoteNotes]);
 
   return (
     <Card>
@@ -99,5 +99,5 @@ export default function QuoteNote(props: QuoteNoteProps) {
         </B3CollapseContainer>
       </CardContent>
     </Card>
-  )
+  );
 }

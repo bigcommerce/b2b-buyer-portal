@@ -1,38 +1,38 @@
-import { useContext } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Alert, Box } from '@mui/material'
+import { useContext } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Alert, Box } from '@mui/material';
 
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { useMobile } from '@/hooks'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { B3SStorage } from '@/utils'
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { useMobile } from '@/hooks';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { B3SStorage } from '@/utils';
 
-import RegisteredStepButton from './component/RegisteredStepButton'
-import { RegisteredContext } from './context/RegisteredContext'
-import { StyleTipContainer } from './styled'
+import RegisteredStepButton from './component/RegisteredStepButton';
+import { RegisteredContext } from './context/RegisteredContext';
+import { StyleTipContainer } from './styled';
 
 export default function RegisteredFinish(props: {
-  activeStep: number
-  handleFinish: () => void
-  isBCToB2B?: boolean
+  activeStep: number;
+  handleFinish: () => void;
+  isBCToB2B?: boolean;
 }) {
-  const { activeStep, handleFinish, isBCToB2B = false } = props
-  const { state } = useContext(RegisteredContext)
-  const b3Lang = useB3Lang()
+  const { activeStep, handleFinish, isBCToB2B = false } = props;
+  const { state } = useContext(RegisteredContext);
+  const b3Lang = useB3Lang();
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
-  } = useContext(CustomStyleContext)
-  const [isMobile] = useMobile()
+  } = useContext(CustomStyleContext);
+  const [isMobile] = useMobile();
 
-  const customColor = getContrastColor(backgroundColor)
+  const customColor = getContrastColor(backgroundColor);
 
-  const { accountType, submitSuccess, isAutoApproval, storeName } = state
+  const { accountType, submitSuccess, isAutoApproval, storeName } = state;
 
   const blockPendingAccountOrderCreation =
-    B3SStorage.get('blockPendingAccountOrderCreation') && !isAutoApproval
+    B3SStorage.get('blockPendingAccountOrderCreation') && !isAutoApproval;
 
   const renderB2BSuccessPage = () => {
     if (accountType === '1') {
@@ -55,9 +55,7 @@ export default function RegisteredFinish(props: {
                 maxWidth: '820px',
               }}
             >
-              {b3Lang(
-                'global.registerFinish.blockPendingAccountOrderCreation.tip'
-              )}
+              {b3Lang('global.registerFinish.blockPendingAccountOrderCreation.tip')}
             </Alert>
           )}
           <StyleTipContainer>
@@ -66,7 +64,7 @@ export default function RegisteredFinish(props: {
               : b3Lang('global.registerFinish.notAutoApproved.tip')}
           </StyleTipContainer>
         </>
-      )
+      );
     }
 
     if (accountType === '2') {
@@ -76,10 +74,10 @@ export default function RegisteredFinish(props: {
             storeName,
           })}
         </StyleTipContainer>
-      )
+      );
     }
-    return undefined
-  }
+    return undefined;
+  };
 
   return (
     <Box
@@ -110,12 +108,9 @@ export default function RegisteredFinish(props: {
       {submitSuccess && (
         <>
           {renderB2BSuccessPage()}
-          <RegisteredStepButton
-            activeStep={activeStep}
-            handleFinish={handleFinish}
-          />
+          <RegisteredStepButton activeStep={activeStep} handleFinish={handleFinish} />
         </>
       )}
     </Box>
-  )
+  );
 }

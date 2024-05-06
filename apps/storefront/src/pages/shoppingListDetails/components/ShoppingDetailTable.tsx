@@ -8,95 +8,88 @@ import {
   useImperativeHandle,
   useRef,
   useState,
-} from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Delete, Edit, StickyNote2 } from '@mui/icons-material'
-import { Box, Grid, styled, TextField, Typography } from '@mui/material'
-import cloneDeep from 'lodash-es/cloneDeep'
+} from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Delete, Edit, StickyNote2 } from '@mui/icons-material';
+import { Box, Grid, styled, TextField, Typography } from '@mui/material';
+import cloneDeep from 'lodash-es/cloneDeep';
 
-import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { TableColumnItem } from '@/components/table/B3Table'
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useMobile, useSort } from '@/hooks'
-import {
-  updateB2BShoppingListsItem,
-  updateBcShoppingListsItem,
-} from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
-import { currencyFormat, snackbar } from '@/utils'
-import {
-  getBCPrice,
-  getDisplayPrice,
-  getValidOptionsList,
-} from '@/utils/b3Product/b3Product'
-import { getProductOptionsFields } from '@/utils/b3Product/shared/config'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { TableColumnItem } from '@/components/table/B3Table';
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useMobile, useSort } from '@/hooks';
+import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
+import { useAppSelector } from '@/store';
+import { currencyFormat, snackbar } from '@/utils';
+import { getBCPrice, getDisplayPrice, getValidOptionsList } from '@/utils/b3Product/b3Product';
+import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 
-import B3FilterSearch from '../../../components/filter/B3FilterSearch'
+import B3FilterSearch from '../../../components/filter/B3FilterSearch';
 
-import ChooseOptionsDialog from './ChooseOptionsDialog'
-import ShoppingDetailAddNotes from './ShoppingDetailAddNotes'
-import ShoppingDetailCard from './ShoppingDetailCard'
+import ChooseOptionsDialog from './ChooseOptionsDialog';
+import ShoppingDetailAddNotes from './ShoppingDetailAddNotes';
+import ShoppingDetailCard from './ShoppingDetailCard';
 
 interface ListItem {
-  [key: string]: string
+  [key: string]: string;
 }
 
 interface ProductInfoProps {
-  basePrice: number | string
-  baseSku: string
-  createdAt: number
-  discount: number | string
-  enteredInclusive: boolean
-  id: number | string
-  itemId: number
-  optionList: string
-  primaryImage: string
-  productId: number
-  productName: string
-  productUrl: string
-  quantity: number | string
-  tax: number | string
-  updatedAt: number
-  variantId: number
-  variantSku: string
-  productsSearch: CustomFieldItems
-  productNote: string
-  disableCurrentCheckbox?: boolean
+  basePrice: number | string;
+  baseSku: string;
+  createdAt: number;
+  discount: number | string;
+  enteredInclusive: boolean;
+  id: number | string;
+  itemId: number;
+  optionList: string;
+  primaryImage: string;
+  productId: number;
+  productName: string;
+  productUrl: string;
+  quantity: number | string;
+  tax: number | string;
+  updatedAt: number;
+  variantId: number;
+  variantSku: string;
+  productsSearch: CustomFieldItems;
+  productNote: string;
+  disableCurrentCheckbox?: boolean;
 }
 
 interface ListItemProps {
-  node: ProductInfoProps
+  node: ProductInfoProps;
 }
 
 interface ShoppingDetailTableProps {
-  shoppingListInfo: any
-  isRequestLoading: boolean
-  setIsRequestLoading: Dispatch<SetStateAction<boolean>>
-  shoppingListId: number | string
-  getShoppingListDetails: CustomFieldItems
-  setCheckedArr: (values: CustomFieldItems) => void
-  isReadForApprove: boolean
-  isJuniorApprove: boolean
-  allowJuniorPlaceOrder: boolean
-  setDeleteItemId: (itemId: number | string) => void
-  setDeleteOpen: (open: boolean) => void
-  isB2BUser: boolean
-  productQuoteEnabled: boolean
-  role: number | string
+  shoppingListInfo: any;
+  isRequestLoading: boolean;
+  setIsRequestLoading: Dispatch<SetStateAction<boolean>>;
+  shoppingListId: number | string;
+  getShoppingListDetails: CustomFieldItems;
+  setCheckedArr: (values: CustomFieldItems) => void;
+  isReadForApprove: boolean;
+  isJuniorApprove: boolean;
+  allowJuniorPlaceOrder: boolean;
+  setDeleteItemId: (itemId: number | string) => void;
+  setDeleteOpen: (open: boolean) => void;
+  isB2BUser: boolean;
+  productQuoteEnabled: boolean;
+  role: number | string;
 }
 
 interface SearchProps {
-  search: string
-  first?: number
-  offset?: number
-  orderBy: string
+  search: string;
+  first?: number;
+  offset?: number;
+  orderBy: string;
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
-  getList: () => void
-  setList: (items?: ListItemProps[]) => void
-  getSelectedValue: () => void
-  refresh: () => void
+  getList: () => void;
+  setList: (items?: ListItemProps[]) => void;
+  getSelectedValue: () => void;
+  refresh: () => void;
 }
 
 const StyledShoppingListTableContainer = styled('div')(() => ({
@@ -121,35 +114,32 @@ const StyledShoppingListTableContainer = styled('div')(() => ({
       },
     },
   },
-}))
+}));
 
 const StyledImage = styled('img')(() => ({
   maxWidth: '60px',
   height: 'auto',
   marginRight: '0.5rem',
-}))
+}));
 
 const StyledTextField = styled(TextField)(() => ({
   '& input': {
     paddingTop: '12px',
     paddingRight: '6px',
   },
-}))
+}));
 
-const defaultSortKey = 'updatedAt'
+const defaultSortKey = 'updatedAt';
 
 const sortKeys = {
   Product: 'productName',
   updatedAt: 'updatedAt',
   Qty: 'quantity',
-}
+};
 
-function ShoppingDetailTable(
-  props: ShoppingDetailTableProps,
-  ref: Ref<unknown>
-) {
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
+function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
   const {
     shoppingListInfo,
@@ -166,118 +156,99 @@ function ShoppingDetailTable(
     allowJuniorPlaceOrder,
     productQuoteEnabled,
     role,
-  } = props
-  const showInclusiveTaxPrice = useAppSelector(
-    ({ global }) => global.showInclusiveTaxPrice
-  )
+  } = props;
+  const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
 
-  const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
+  const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
-  const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false)
-  const [optionsProduct, setOptionsProduct] = useState<any>(null)
-  const [editProductItemId, setEditProductItemId] = useState<
-    number | string | null
-  >(null)
+  const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false);
+  const [optionsProduct, setOptionsProduct] = useState<any>(null);
+  const [editProductItemId, setEditProductItemId] = useState<number | string | null>(null);
   const [search, setSearch] = useState<SearchProps | {}>({
     orderBy: `-${sortKeys[defaultSortKey]}`,
-  })
-  const [qtyNotChangeFlag, setQtyNotChangeFlag] = useState<boolean>(true)
-  const [originProducts, setOriginProducts] = useState<ListItemProps[]>([])
-  const [shoppingListTotalPrice, setShoppingListTotalPrice] =
-    useState<number>(0.0)
+  });
+  const [qtyNotChangeFlag, setQtyNotChangeFlag] = useState<boolean>(true);
+  const [originProducts, setOriginProducts] = useState<ListItemProps[]>([]);
+  const [shoppingListTotalPrice, setShoppingListTotalPrice] = useState<number>(0.0);
 
-  const [addNoteOpen, setAddNoteOpen] = useState<boolean>(false)
-  const [addNoteItemId, setAddNoteItemId] = useState<number | string>('')
-  const [notes, setNotes] = useState<string>('')
-  const [disabledSelectAll, setDisabledSelectAll] = useState<boolean>(false)
+  const [addNoteOpen, setAddNoteOpen] = useState<boolean>(false);
+  const [addNoteItemId, setAddNoteItemId] = useState<number | string>('');
+  const [notes, setNotes] = useState<string>('');
+  const [disabledSelectAll, setDisabledSelectAll] = useState<boolean>(false);
 
-  const [priceHidden, setPriceHidden] = useState<boolean>(false)
+  const [priceHidden, setPriceHidden] = useState<boolean>(false);
 
-  const [handleSetOrderBy, order, orderBy] = useSort(
-    sortKeys,
-    defaultSortKey,
-    search,
-    setSearch
-  )
+  const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
 
-  const handleUpdateProductQty = (
-    id: number | string,
-    value: number | string
-  ) => {
-    if (+value < 0) return
+  const handleUpdateProductQty = (id: number | string, value: number | string) => {
+    if (+value < 0) return;
     const currentItem = originProducts.find((item: ListItemProps) => {
-      const { node } = item
+      const { node } = item;
 
-      return node.id === id
-    })
+      return node.id === id;
+    });
 
-    const currentQty = currentItem?.node?.quantity || ''
-    setQtyNotChangeFlag(+currentQty === +value)
+    const currentQty = currentItem?.node?.quantity || '';
+    setQtyNotChangeFlag(+currentQty === +value);
 
-    const listItems: ListItemProps[] =
-      paginationTableRef.current?.getList() || []
+    const listItems: ListItemProps[] = paginationTableRef.current?.getList() || [];
     const newListItems = listItems?.map((item: ListItemProps) => {
-      const { node } = item
+      const { node } = item;
       if (node?.id === id) {
-        node.quantity = `${+value}`
-        node.disableCurrentCheckbox = +value === 0
+        node.quantity = `${+value}`;
+        node.disableCurrentCheckbox = +value === 0;
       }
 
-      return item
-    })
+      return item;
+    });
 
     const nonNumberProducts = newListItems.filter(
-      (item: ListItemProps) => +item.node.quantity === 0
-    )
-    setDisabledSelectAll(nonNumberProducts.length === newListItems.length)
-    paginationTableRef.current?.setList([...newListItems])
-  }
+      (item: ListItemProps) => +item.node.quantity === 0,
+    );
+    setDisabledSelectAll(nonNumberProducts.length === newListItems.length);
+    paginationTableRef.current?.setList([...newListItems]);
+  };
 
   const initSearch = () => {
-    paginationTableRef.current?.refresh()
-  }
+    paginationTableRef.current?.refresh();
+  };
 
   useImperativeHandle(ref, () => ({
     initSearch,
     getList: () => paginationTableRef.current?.getList(),
     setList: () => paginationTableRef.current?.setList(),
     getSelectedValue: () => paginationTableRef.current?.getSelectedValue(),
-  }))
+  }));
 
   const handleSearchProduct = async (q: string) => {
     setSearch({
       ...search,
       search: q,
-    })
-  }
+    });
+  };
 
   const handleChooseOptionsDialogCancel = () => {
-    setEditProductItemId('')
-    setSelectedOptionsOpen(false)
-  }
+    setEditProductItemId('');
+    setSelectedOptionsOpen(false);
+  };
 
   const handleOpenProductEdit = (
     product: any,
     variantId: number | string,
-    itemId: number | string
+    itemId: number | string,
   ) => {
-    setEditProductItemId(itemId)
-    setOptionsProduct(product)
-    setSelectedOptionsOpen(true)
-  }
+    setEditProductItemId(itemId);
+    setOptionsProduct(product);
+    setSelectedOptionsOpen(true);
+  };
 
-  const handleChooseOptionsDialogConfirm = async (
-    products: CustomFieldItems[]
-  ) => {
-    setIsRequestLoading(true)
+  const handleChooseOptionsDialogConfirm = async (products: CustomFieldItems[]) => {
+    setIsRequestLoading(true);
     const updateShoppingListItem = isB2BUser
       ? updateB2BShoppingListsItem
-      : updateBcShoppingListsItem
+      : updateBcShoppingListsItem;
     try {
-      const newOptionLists = getValidOptionsList(
-        products[0].newSelectOptionList,
-        products[0]
-      )
+      const newOptionLists = getValidOptionsList(products[0].newSelectOptionList, products[0]);
       const data = {
         itemId: editProductItemId,
         shoppingListId,
@@ -286,114 +257,110 @@ function ShoppingDetailTable(
           quantity: products[0].quantity,
           optionList: newOptionLists || [],
         },
-      }
+      };
 
-      await updateShoppingListItem(data)
-      setSelectedOptionsOpen(false)
-      setEditProductItemId('')
-      snackbar.success(b3Lang('shoppingList.table.productUpdated'))
-      initSearch()
+      await updateShoppingListItem(data);
+      setSelectedOptionsOpen(false);
+      setEditProductItemId('');
+      snackbar.success(b3Lang('shoppingList.table.productUpdated'));
+      initSearch();
     } finally {
-      setIsRequestLoading(false)
+      setIsRequestLoading(false);
     }
-  }
+  };
 
   const handleUpdateShoppingListItem = async (itemId: number | string) => {
-    const listItems: ListItemProps[] =
-      paginationTableRef.current?.getList() || []
+    const listItems: ListItemProps[] = paginationTableRef.current?.getList() || [];
     const currentItem = listItems.find((item: ListItemProps) => {
-      const { node } = item
+      const { node } = item;
 
-      return node.itemId === itemId
-    })
-    let currentNode
+      return node.itemId === itemId;
+    });
+    let currentNode;
 
     if (currentItem) {
-      currentNode = currentItem.node
+      currentNode = currentItem.node;
     }
 
-    const options = JSON.parse(currentNode?.optionList || '[]')
+    const options = JSON.parse(currentNode?.optionList || '[]');
 
     const optionsList = options.map(
-      (option: {
-        option_id: number | string
-        option_value: number | string
-      }) => ({
+      (option: { option_id: number | string; option_value: number | string }) => ({
         optionId: option.option_id,
         optionValue: option.option_value,
-      })
-    )
+      }),
+    );
 
     const itemData: CustomFieldItems = {
       variantId: currentNode?.variantId,
       quantity: currentNode?.quantity ? +currentNode.quantity : 0,
       optionList: optionsList || [],
       productNote: notes,
-    }
+    };
 
     const data = {
       itemId,
       shoppingListId,
       itemData,
-    }
+    };
 
     const updateShoppingListItem = isB2BUser
       ? updateB2BShoppingListsItem
-      : updateBcShoppingListsItem
+      : updateBcShoppingListsItem;
 
-    await updateShoppingListItem(data)
-  }
+    await updateShoppingListItem(data);
+  };
 
   const handleUpdateShoppingListItemQty = async (itemId: number | string) => {
-    if (qtyNotChangeFlag) return
-    setIsRequestLoading(true)
+    if (qtyNotChangeFlag) return;
+    setIsRequestLoading(true);
     try {
-      await handleUpdateShoppingListItem(itemId)
-      snackbar.success(b3Lang('shoppingList.table.quantityUpdated'))
-      setQtyNotChangeFlag(true)
-      initSearch()
+      await handleUpdateShoppingListItem(itemId);
+      snackbar.success(b3Lang('shoppingList.table.quantityUpdated'));
+      setQtyNotChangeFlag(true);
+      initSearch();
     } finally {
-      setIsRequestLoading(false)
+      setIsRequestLoading(false);
     }
-  }
+  };
 
   const getSelectCheckbox = (selectCheckbox: Array<string | number>) => {
     if (selectCheckbox.length > 0) {
-      const productList = paginationTableRef.current?.getList() || []
-      const checkedItems: CustomFieldItems[] = []
+      const productList = paginationTableRef.current?.getList() || [];
+      const checkedItems: CustomFieldItems[] = [];
       selectCheckbox.forEach((item: number | string) => {
         const newItems = productList.find((product: ListItemProps) => {
-          const { node } = product
+          const { node } = product;
 
-          return node.id === item
-        })
+          return node.id === item;
+        });
 
-        if (newItems) checkedItems.push(newItems)
-      })
+        if (newItems) checkedItems.push(newItems);
+      });
 
-      setCheckedArr([...checkedItems])
+      setCheckedArr([...checkedItems]);
     } else {
-      setCheckedArr([])
+      setCheckedArr([]);
     }
-  }
+  };
 
   const handleCancelAddNotesClick = () => {
-    setAddNoteOpen(false)
-    setAddNoteItemId('')
-    setNotes('')
-  }
+    setAddNoteOpen(false);
+    setAddNoteItemId('');
+    setNotes('');
+  };
 
   const handleAddItemNotesClick = async () => {
-    setIsRequestLoading(true)
+    setIsRequestLoading(true);
     try {
-      handleCancelAddNotesClick()
-      await handleUpdateShoppingListItem(addNoteItemId)
-      snackbar.success(b3Lang('shoppingList.table.productNotesUpdated'))
-      initSearch()
+      handleCancelAddNotesClick();
+      await handleUpdateShoppingListItem(addNoteItemId);
+      snackbar.success(b3Lang('shoppingList.table.productNotesUpdated'));
+      initSearch();
     } finally {
-      setIsRequestLoading(false)
+      setIsRequestLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (shoppingListInfo) {
@@ -401,50 +368,48 @@ function ShoppingDetailTable(
         products: { edges },
         grandTotal,
         totalTax,
-      } = shoppingListInfo
+      } = shoppingListInfo;
 
       const NewShoppingListTotalPrice = showInclusiveTaxPrice
         ? +grandTotal
-        : +grandTotal - +totalTax || 0.0
+        : +grandTotal - +totalTax || 0.0;
 
       const isPriceHidden = edges.some((item: CustomFieldItems) => {
         if (item?.node?.productsSearch) {
-          return item.node.productsSearch?.isPriceHidden || false
+          return item.node.productsSearch?.isPriceHidden || false;
         }
 
-        return false
-      })
+        return false;
+      });
 
-      setPriceHidden(isPriceHidden)
-      setOriginProducts(cloneDeep(edges))
-      setShoppingListTotalPrice(NewShoppingListTotalPrice)
+      setPriceHidden(isPriceHidden);
+      setOriginProducts(cloneDeep(edges));
+      setShoppingListTotalPrice(NewShoppingListTotalPrice);
     }
-  }, [shoppingListInfo, showInclusiveTaxPrice])
+  }, [shoppingListInfo, showInclusiveTaxPrice]);
 
   useEffect(() => {
     if (shoppingListInfo) {
       const {
         products: { edges },
-      } = shoppingListInfo
-      const nonNumberProducts = edges.filter(
-        (item: ListItemProps) => item.node.quantity === 0
-      )
-      setDisabledSelectAll(nonNumberProducts.length === edges.length)
+      } = shoppingListInfo;
+      const nonNumberProducts = edges.filter((item: ListItemProps) => item.node.quantity === 0);
+      setDisabledSelectAll(nonNumberProducts.length === edges.length);
     }
-  }, [shoppingListInfo])
+  }, [shoppingListInfo]);
 
   const showPrice = (price: string, row: CustomFieldItems): string | number => {
     const {
       productsSearch: { isPriceHidden },
-    } = row
-    if (isPriceHidden) return ''
+    } = row;
+    if (isPriceHidden) return '';
     return getDisplayPrice({
       price,
       productInfo: row,
       showText: isPriceHidden ? '' : price,
       forcedSkip: true,
-    })
-  }
+    });
+  };
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
@@ -454,13 +419,11 @@ function ShoppingDetailTable(
         const product: any = {
           ...row.productsSearch,
           selectOptions: row.optionList,
-        }
-        const productFields = getProductOptionsFields(product, {})
+        };
+        const productFields = getProductOptionsFields(product, {});
 
-        const optionList = JSON.parse(row.optionList)
-        const optionsValue: CustomFieldItems[] = productFields.filter(
-          (item) => item.valueText
-        )
+        const optionList = JSON.parse(row.optionList);
+        const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
 
         return (
           <Box
@@ -481,9 +444,9 @@ function ShoppingDetailTable(
                 onClick={() => {
                   const {
                     location: { origin },
-                  } = window
+                  } = window;
 
-                  window.location.href = `${origin}${row.productUrl}`
+                  window.location.href = `${origin}${row.productUrl}`;
                 }}
                 sx={{
                   cursor: 'pointer',
@@ -524,7 +487,7 @@ function ShoppingDetailTable(
               )}
             </Box>
           </Box>
-        )
+        );
       },
       width: '45%',
       isSortable: true,
@@ -533,8 +496,8 @@ function ShoppingDetailTable(
       key: 'Price',
       title: b3Lang('shoppingList.table.price'),
       render: (row: CustomFieldItems) => {
-        const { basePrice, taxPrice = 0 } = row
-        const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
+        const { basePrice, taxPrice = 0 } = row;
+        const inTaxPrice = getBCPrice(+basePrice, +taxPrice);
 
         return (
           <Typography
@@ -544,7 +507,7 @@ function ShoppingDetailTable(
           >
             {showPrice(currencyFormat(inTaxPrice), row)}
           </Typography>
-        )
+        );
       },
       width: '15%',
       style: {
@@ -569,10 +532,10 @@ function ShoppingDetailTable(
             pattern: '[0-9]*',
           }}
           onChange={(e) => {
-            handleUpdateProductQty(row.id, e.target.value)
+            handleUpdateProductQty(row.id, e.target.value);
           }}
           onBlur={() => {
-            handleUpdateShoppingListItemQty(row.itemId)
+            handleUpdateShoppingListItemQty(row.itemId);
           }}
         />
       ),
@@ -592,16 +555,15 @@ function ShoppingDetailTable(
           itemId,
           productsSearch: { options },
           taxPrice = 0,
-        } = row
+        } = row;
 
-        const inTaxPrice = getBCPrice(+basePrice, +taxPrice)
+        const inTaxPrice = getBCPrice(+basePrice, +taxPrice);
 
-        const totalPrice = inTaxPrice * +quantity
+        const totalPrice = inTaxPrice * +quantity;
 
-        const optionList = options || JSON.parse(row.optionList)
+        const optionList = options || JSON.parse(row.optionList);
 
-        const canChangeOption =
-          optionList.length > 0 && !isReadForApprove && !isJuniorApprove
+        const canChangeOption = optionList.length > 0 && !isReadForApprove && !isJuniorApprove;
 
         return (
           <Box>
@@ -635,11 +597,11 @@ function ShoppingDetailTable(
                     color: 'rgba(0, 0, 0, 0.54)',
                   }}
                   onClick={() => {
-                    setAddNoteOpen(true)
-                    setAddNoteItemId(+itemId)
+                    setAddNoteOpen(true);
+                    setAddNoteItemId(+itemId);
 
                     if (row.productNote) {
-                      setNotes(row.productNote)
+                      setNotes(row.productNote);
                     }
                   }}
                 />
@@ -658,13 +620,7 @@ function ShoppingDetailTable(
                       color: 'rgba(0, 0, 0, 0.54)',
                     }}
                     onClick={() => {
-                      const {
-                        productsSearch,
-                        variantId,
-                        itemId,
-                        optionList,
-                        quantity,
-                      } = row
+                      const { productsSearch, variantId, itemId, optionList, quantity } = row;
 
                       handleOpenProductEdit(
                         {
@@ -673,8 +629,8 @@ function ShoppingDetailTable(
                           quantity,
                         },
                         variantId,
-                        itemId
-                      )
+                        itemId,
+                      );
                     }}
                   />
                 )}
@@ -692,22 +648,22 @@ function ShoppingDetailTable(
                       color: 'rgba(0, 0, 0, 0.54)',
                     }}
                     onClick={() => {
-                      setDeleteOpen(true)
-                      setDeleteItemId(+itemId)
+                      setDeleteOpen(true);
+                      setDeleteItemId(+itemId);
                     }}
                   />
                 )}
               </Grid>
             </Box>
           </Box>
-        )
+        );
       },
       width: '15%',
       style: {
         textAlign: 'right',
       },
     },
-  ]
+  ];
 
   return (
     <StyledShoppingListTableContainer>
@@ -733,9 +689,7 @@ function ShoppingDetailTable(
             fontSize: '24px',
           }}
         >
-          {priceHidden
-            ? ''
-            : `${currencyFormat(shoppingListTotalPrice || 0.0)}`}
+          {priceHidden ? '' : `${currencyFormat(shoppingListTotalPrice || 0.0)}`}
         </Typography>
       </Box>
       <Box
@@ -746,7 +700,7 @@ function ShoppingDetailTable(
         <B3FilterSearch
           searchBGColor="rgba(0, 0, 0, 0.06)"
           handleChange={(e) => {
-            handleSearchProduct(e)
+            handleSearchProduct(e);
           }}
         />
       </Box>
@@ -778,11 +732,7 @@ function ShoppingDetailTable(
         orderBy={orderBy}
         sortByFn={handleSetOrderBy}
         pageType="shoppingListDetailsTable"
-        renderItem={(
-          row: ProductInfoProps,
-          index?: number,
-          checkBox?: () => ReactElement
-        ) => (
+        renderItem={(row: ProductInfoProps, index?: number, checkBox?: () => ReactElement) => (
           <ShoppingDetailCard
             len={shoppingListInfo?.products?.edges.length || 0}
             item={row}
@@ -822,7 +772,7 @@ function ShoppingDetailTable(
         handleAddItemNotesClick={handleAddItemNotesClick}
       />
     </StyledShoppingListTableContainer>
-  )
+  );
 }
 
-export default forwardRef(ShoppingDetailTable)
+export default forwardRef(ShoppingDetailTable);

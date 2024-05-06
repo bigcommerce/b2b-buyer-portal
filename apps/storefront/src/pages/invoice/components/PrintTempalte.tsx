@@ -1,67 +1,67 @@
-import { SyntheticEvent, useEffect, useRef, useState } from 'react'
-import { Resizable } from 'react-resizable'
-import { Box } from '@mui/material'
-import PDFObject from 'pdfobject'
+import { SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { Resizable } from 'react-resizable';
+import { Box } from '@mui/material';
+import PDFObject from 'pdfobject';
 
-import B3Sping from '@/components/spin/B3Sping'
-import { snackbar } from '@/utils'
+import B3Sping from '@/components/spin/B3Sping';
+import { snackbar } from '@/utils';
 
-import { handlePrintPDF } from '../utils/pdf'
+import { handlePrintPDF } from '../utils/pdf';
 
 interface RowList {
-  [key: string]: CustomFieldItems | string | number
-  id: string
-  createdAt: number
-  updatedAt: number
+  [key: string]: CustomFieldItems | string | number;
+  id: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
-const templateMinHeight = 300
+const templateMinHeight = 300;
 
 interface PrintTempalteProps {
-  row: RowList
+  row: RowList;
 }
 
 function PrintTempalte({ row }: PrintTempalteProps) {
-  const container = useRef<HTMLInputElement | null>(null)
+  const container = useRef<HTMLInputElement | null>(null);
 
-  const dom = useRef<HTMLInputElement | null>(null)
+  const dom = useRef<HTMLInputElement | null>(null);
 
-  const [loadding, setLoadding] = useState<boolean>(false)
+  const [loadding, setLoadding] = useState<boolean>(false);
 
-  const [height, setHeight] = useState<number>(templateMinHeight)
+  const [height, setHeight] = useState<number>(templateMinHeight);
 
   const onFirstBoxResize = (
     event: SyntheticEvent<Element, Event>,
-    { size }: { size: { height: number } }
+    { size }: { size: { height: number } },
   ) => {
-    setHeight(size.height)
-  }
+    setHeight(size.height);
+  };
 
   useEffect(() => {
     const viewPrint = async () => {
-      setLoadding(true)
-      const { id: invoiceId } = row
+      setLoadding(true);
+      const { id: invoiceId } = row;
 
-      const invoicePDFUrl = await handlePrintPDF(invoiceId)
+      const invoicePDFUrl = await handlePrintPDF(invoiceId);
 
       if (!invoicePDFUrl) {
-        snackbar.error('pdf url resolution error')
-        return
+        snackbar.error('pdf url resolution error');
+        return;
       }
 
-      if (!container?.current) return
+      if (!container?.current) return;
 
-      PDFObject.embed(invoicePDFUrl, container.current)
+      PDFObject.embed(invoicePDFUrl, container.current);
 
-      setLoadding(false)
-    }
+      setLoadding(false);
+    };
 
-    viewPrint()
+    viewPrint();
 
     return () => {
-      container.current = null
-    }
-  }, [row])
+      container.current = null;
+    };
+  }, [row]);
 
   return (
     <B3Sping isSpinning={loadding}>
@@ -109,7 +109,7 @@ function PrintTempalte({ row }: PrintTempalteProps) {
         </Resizable>
       </Box>
     </B3Sping>
-  )
+  );
 }
 
-export default PrintTempalte
+export default PrintTempalte;

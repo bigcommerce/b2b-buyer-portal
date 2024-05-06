@@ -1,18 +1,12 @@
-import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
 
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useMobile } from '@/hooks'
-import { currencyFormat, snackbar } from '@/utils'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useMobile } from '@/hooks';
+import { currencyFormat, snackbar } from '@/utils';
 
-import { EditableProductItem, OrderProductOption } from '../../../types'
+import { EditableProductItem, OrderProductOption } from '../../../types';
 import {
   defaultItemStyle,
   Flex,
@@ -21,20 +15,20 @@ import {
   ProductHead,
   ProductImage,
   ProductOptionText,
-} from '../styled'
+} from '../styled';
 
 interface ReturnListProps {
-  returnId: number
-  returnQty: number
+  returnId: number;
+  returnQty: number;
 }
 interface OrderCheckboxProductProps {
-  products: EditableProductItem[]
-  getProductQuantity?: (item: EditableProductItem) => number
-  onProductChange?: (products: EditableProductItem[]) => void
-  setCheckedArr?: (items: number[]) => void
-  setReturnArr?: (items: ReturnListProps[]) => void
-  textAlign?: string
-  type?: string
+  products: EditableProductItem[];
+  getProductQuantity?: (item: EditableProductItem) => number;
+  onProductChange?: (products: EditableProductItem[]) => void;
+  setCheckedArr?: (items: number[]) => void;
+  setReturnArr?: (items: ReturnListProps[]) => void;
+  textAlign?: string;
+  type?: string;
 }
 
 export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
@@ -46,137 +40,123 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     setReturnArr = () => {},
     textAlign = 'left',
     type,
-  } = props
+  } = props;
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const [list, setList] = useState<number[]>([])
+  const [list, setList] = useState<number[]>([]);
 
-  const [returnList, setReturnList] = useState<ReturnListProps[]>([])
+  const [returnList, setReturnList] = useState<ReturnListProps[]>([]);
 
-  const getProductTotals = (
-    quantity: string | number,
-    price: string | number
-  ) => {
-    const priceNumber = parseFloat(price.toString()) || 0
-    const quantityNumber = parseInt(quantity.toString(), 10) || 0
+  const getProductTotals = (quantity: string | number, price: string | number) => {
+    const priceNumber = parseFloat(price.toString()) || 0;
+    const quantityNumber = parseInt(quantity.toString(), 10) || 0;
 
-    return quantityNumber * priceNumber
-  }
+    return quantityNumber * priceNumber;
+  };
 
-  const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
+  const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
 
   const handleSelectAllChange = () => {
-    const newlist = [...list]
+    const newlist = [...list];
     if (newlist.length === products.length) {
-      setList([])
-      setReturnList([])
+      setList([]);
+      setReturnList([]);
     } else {
-      const variantIds = products.map((item) => item.variant_id)
-      const returnIds: ReturnListProps[] = []
+      const variantIds = products.map((item) => item.variant_id);
+      const returnIds: ReturnListProps[] = [];
       products.forEach((item, index) => {
         returnIds[index] = {
           returnId: item.id,
           returnQty: +item.editQuantity,
-        }
-      })
+        };
+      });
 
-      setList(variantIds)
-      setReturnList(returnIds)
+      setList(variantIds);
+      setReturnList(returnIds);
     }
-  }
+  };
 
-  const handleSelectChange = (
-    variantId: number,
-    returnId: number,
-    returnQty: number
-  ) => {
-    const newlist = [...list]
-    const newReturnList = [...returnList]
-    const index = newlist.findIndex((item) => item === variantId)
-    const returnIndex = newReturnList.findIndex(
-      (item) => item.returnId === returnId
-    )
+  const handleSelectChange = (variantId: number, returnId: number, returnQty: number) => {
+    const newlist = [...list];
+    const newReturnList = [...returnList];
+    const index = newlist.findIndex((item) => item === variantId);
+    const returnIndex = newReturnList.findIndex((item) => item.returnId === returnId);
     if (index !== -1) {
-      newlist.splice(index, 1)
-      newReturnList.splice(returnIndex, 1)
+      newlist.splice(index, 1);
+      newReturnList.splice(returnIndex, 1);
     } else {
-      newlist.push(variantId)
+      newlist.push(variantId);
       newReturnList.push({
         returnId,
         returnQty,
-      })
+      });
     }
-    setList(newlist)
-    setReturnList(newReturnList)
-  }
+    setList(newlist);
+    setReturnList(newReturnList);
+  };
 
-  const isChecked = (variantId: number) => list.includes(variantId)
+  const isChecked = (variantId: number) => list.includes(variantId);
 
   const handleProductQuantityChange =
     (product: EditableProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
-      const element = product
-      const valueNum = e.target.value
+      const element = product;
+      const valueNum = e.target.value;
       if (+valueNum >= 0 && +valueNum <= 1000000) {
-        element.editQuantity = valueNum
+        element.editQuantity = valueNum;
         if (type === 'return') {
           if (+valueNum > +product.quantity) {
-            element.editQuantity = product.quantity
+            element.editQuantity = product.quantity;
             snackbar.error(
-              b3Lang(
-                'purchasedProducts.error.returnedQuantityShouldBeWithinThePurchase'
-              )
-            )
+              b3Lang('purchasedProducts.error.returnedQuantityShouldBeWithinThePurchase'),
+            );
           } else {
             returnList.forEach((listItem) => {
-              const item = listItem
+              const item = listItem;
               if (item.returnId === product.id) {
-                item.returnQty = +valueNum
+                item.returnQty = +valueNum;
               }
-            })
-            setReturnArr(returnList)
+            });
+            setReturnArr(returnList);
           }
         }
-        onProductChange([...products])
+        onProductChange([...products]);
       }
-    }
+    };
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (['KeyE', 'Equal', 'Minus'].indexOf(event.code) > -1) {
-      event.preventDefault()
+      event.preventDefault();
     }
-  }
+  };
 
   const handleNumberInputBlur = (product: EditableProductItem) => () => {
-    const editableProduct = product
+    const editableProduct = product;
     if (!product.editQuantity || +product.editQuantity === 0) {
-      editableProduct.editQuantity = '1'
-      onProductChange([...products])
+      editableProduct.editQuantity = '1';
+      onProductChange([...products]);
     }
-  }
+  };
 
   useEffect(() => {
-    setCheckedArr(list)
+    setCheckedArr(list);
     // Disabling this line as this dispatcher does not need to be in the dep array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [list])
+  }, [list]);
 
   useEffect(() => {
-    setReturnArr(returnList)
+    setReturnArr(returnList);
     // Disabling this line as this dispatcher does not need to be in the dep array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [returnList])
+  }, [returnList]);
 
   return products.length > 0 ? (
     <Box>
       {!isMobile && (
         <Flex isHeader isMobile={isMobile}>
-          <Checkbox
-            checked={list.length === products.length}
-            onChange={handleSelectAllChange}
-          />
+          <Checkbox checked={list.length === products.length} onChange={handleSelectAllChange} />
           <FlexItem>
             <ProductHead>{b3Lang('purchasedProducts.product')}</ProductHead>
           </FlexItem>
@@ -196,10 +176,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
         <FormControlLabel
           label="Select all products"
           control={
-            <Checkbox
-              checked={list.length === products.length}
-              onChange={handleSelectAllChange}
-            />
+            <Checkbox checked={list.length === products.length} onChange={handleSelectAllChange} />
           }
           sx={{
             paddingLeft: '0.6rem',
@@ -212,11 +189,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
           <Checkbox
             checked={isChecked(product.variant_id)}
             onChange={() =>
-              handleSelectChange(
-                product.variant_id,
-                product.id,
-                +product.editQuantity
-              )
+              handleSelectChange(product.variant_id, product.id, +product.editQuantity)
             }
           />
           <FlexItem>
@@ -232,25 +205,15 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
               <Typography variant="body1" color="#616161">
                 {product.sku}
               </Typography>
-              {(product.product_options || []).map(
-                (option: OrderProductOption) => (
-                  <ProductOptionText key={option.display_name}>
-                    {`${option.display_name}: ${option.display_value}`}
-                  </ProductOptionText>
-                )
-              )}
+              {(product.product_options || []).map((option: OrderProductOption) => (
+                <ProductOptionText key={option.display_name}>
+                  {`${option.display_name}: ${option.display_value}`}
+                </ProductOptionText>
+              ))}
             </Box>
           </FlexItem>
-          <FlexItem
-            textAlignLocation={textAlign}
-            padding="10px 0 0"
-            {...itemStyle.default}
-          >
-            {isMobile && (
-              <span>
-                {b3Lang('purchasedProducts.orderCheckboxProduct.price')}{' '}
-              </span>
-            )}
+          <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
+            {isMobile && <span>{b3Lang('purchasedProducts.orderCheckboxProduct.price')} </span>}
             {`${currencyFormat(product.base_price)}`}
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
@@ -258,11 +221,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
               type="number"
               variant="filled"
               hiddenLabel={!isMobile}
-              label={
-                isMobile
-                  ? b3Lang('purchasedProducts.orderCheckboxProduct.qty')
-                  : ''
-              }
+              label={isMobile ? b3Lang('purchasedProducts.orderCheckboxProduct.qty') : ''}
               value={getProductQuantity(product)}
               onChange={handleProductQuantityChange(product)}
               onKeyDown={handleNumberInputKeyDown}
@@ -279,22 +238,12 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
               helperText={product.helperText}
             />
           </FlexItem>
-          <FlexItem
-            textAlignLocation={textAlign}
-            padding="10px 0 0"
-            {...itemStyle.default}
-          >
-            {isMobile && (
-              <span>
-                {b3Lang('purchasedProducts.orderCheckboxProduct.total')}{' '}
-              </span>
-            )}
-            {`${currencyFormat(
-              getProductTotals(getProductQuantity(product), product.base_price)
-            )}`}
+          <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
+            {isMobile && <span>{b3Lang('purchasedProducts.orderCheckboxProduct.total')} </span>}
+            {`${currencyFormat(getProductTotals(getProductQuantity(product), product.base_price))}`}
           </FlexItem>
         </Flex>
       ))}
     </Box>
-  ) : null
+  ) : null;
 }

@@ -1,22 +1,22 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /// <reference types="vitest" />
-import legacy from '@vitejs/plugin-legacy'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-import { visualizer } from 'rollup-plugin-visualizer'
-import { defineConfig, loadEnv } from 'vite'
+import legacy from '@vitejs/plugin-legacy';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig, loadEnv } from 'vite';
 
 interface AssetsAbsolutePathProps {
-  [key: string]: string
+  [key: string]: string;
 }
 
 const assetsAbsolutePath: AssetsAbsolutePathProps = {
   staging: 'https://cdn.bundleb2b.net/b2b/staging/storefront/assets/',
   production: 'https://cdn.bundleb2b.net/b2b/production/storefront/assets/',
-}
+};
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd())
+  const env = loadEnv(mode, process.cwd());
   return {
     plugins: [
       legacy({
@@ -30,19 +30,19 @@ export default defineConfig(({ mode }) => {
         {
           type,
         }: {
-          type: 'public' | 'asset'
-        }
+          type: 'public' | 'asset';
+        },
       ) {
-        const isCustom = env.VITE_ASSETS_ABSOLUTE_PATH !== undefined
+        const isCustom = env.VITE_ASSETS_ABSOLUTE_PATH !== undefined;
 
         if (type === 'asset') {
-          const name = filename.split('assets/')[1]
+          const name = filename.split('assets/')[1];
           return isCustom
             ? `${env.VITE_ASSETS_ABSOLUTE_PATH}${name}`
-            : `${assetsAbsolutePath[mode]}${name}`
+            : `${assetsAbsolutePath[mode]}${name}`;
         }
 
-        return undefined
+        return undefined;
       },
     },
     server: {
@@ -50,8 +50,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/bigcommerce': {
           target:
-            env?.VITE_PROXY_SHOPPING_URL ||
-            'https://msfremote-frontend-demo.mybigcommerce.com/',
+            env?.VITE_PROXY_SHOPPING_URL || 'https://msfremote-frontend-demo.mybigcommerce.com/',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/bigcommerce/, ''),
         },
@@ -88,15 +87,15 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           entryFileNames(info) {
-            const { name } = info
-            return name.includes('headless') ? '[name].js' : '[name].[hash].js'
+            const { name } = info;
+            return name.includes('headless') ? '[name].js' : '[name].[hash].js';
           },
         },
         onwarn(warning, warn) {
           if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
-            return
+            return;
           }
-          warn(warning)
+          warn(warning);
         },
         manualChunks: {
           intl: ['react-intl'],
@@ -125,5 +124,5 @@ export default defineConfig(({ mode }) => {
         ],
       },
     },
-  }
-})
+  };
+});

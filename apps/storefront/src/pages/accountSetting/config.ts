@@ -1,32 +1,32 @@
-import { LangFormatFunction } from '@b3/lang'
+import { LangFormatFunction } from '@b3/lang';
 
 interface ShippingListStatusProps {
-  label: string
-  value: number
+  label: string;
+  value: number;
 }
 
 export interface GetFilterMoreListProps {
-  options?: Array<ShippingListStatusProps>
-  rows?: string | number
-  name: string
-  label: string
-  required: boolean
-  default: string
-  fieldType: string
-  xs: number
-  variant: string
-  size: string
+  options?: Array<ShippingListStatusProps>;
+  rows?: string | number;
+  name: string;
+  label: string;
+  required: boolean;
+  default: string;
+  fieldType: string;
+  xs: number;
+  variant: string;
+  size: string;
 }
 
 interface GetAccountSettingFilesReturnProps {
-  accountB2BFormFields: GetFilterMoreListProps[]
-  passwordModified: GetFilterMoreListProps[]
+  accountB2BFormFields: GetFilterMoreListProps[];
+  passwordModified: GetFilterMoreListProps[];
 }
 
 interface PasswordKeysProps {
-  name: string
-  label: string
-  idLang: string
+  name: string;
+  label: string;
+  idLang: string;
 }
 
 export const getPasswordKeys = (): PasswordKeysProps[] => [
@@ -45,11 +45,11 @@ export const getPasswordKeys = (): PasswordKeysProps[] => [
     label: 'Confirm Password',
     idLang: 'accountSettings.form.confirmPassword',
   },
-]
+];
 
 export const getAccountSettingFiles = (
   xs: number,
-  b3Lang: LangFormatFunction
+  b3Lang: LangFormatFunction,
 ): GetAccountSettingFilesReturnProps => {
   const accountB2BFormFields = [
     {
@@ -90,7 +90,7 @@ export const getAccountSettingFiles = (
       variant: 'filled',
       size: 'small',
     },
-  ]
+  ];
 
   const passwordModified = getPasswordKeys().map((item: PasswordKeysProps) => ({
     name: item.name,
@@ -102,10 +102,10 @@ export const getAccountSettingFiles = (
     variant: 'filled',
     size: 'small',
     idLang: item.idLang,
-  }))
+  }));
 
   return {
     accountB2BFormFields,
     passwordModified,
-  }
-}
+  };
+};

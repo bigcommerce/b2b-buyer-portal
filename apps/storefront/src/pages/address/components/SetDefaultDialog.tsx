@@ -1,87 +1,73 @@
-import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-} from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material'
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 
-import B3Dialog from '@/components/B3Dialog'
-import { useMobile } from '@/hooks'
-import { updateB2BAddress } from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
+import B3Dialog from '@/components/B3Dialog';
+import { useMobile } from '@/hooks';
+import { updateB2BAddress } from '@/shared/service/b2b';
+import { snackbar } from '@/utils';
 
-import { AddressItemType } from '../../../types/address'
+import { AddressItemType } from '../../../types/address';
 
 interface SetDefaultDialogProps {
-  isOpen: boolean
-  setIsOpen: Dispatch<SetStateAction<boolean>>
-  setIsLoading: Dispatch<SetStateAction<boolean>>
-  addressData?: AddressItemType
-  updateAddressList: (isFirst?: boolean) => void
-  companyId: string | number
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  addressData?: AddressItemType;
+  updateAddressList: (isFirst?: boolean) => void;
+  companyId: string | number;
 }
 
 export default function SetDefaultDialog(props: SetDefaultDialogProps) {
-  const {
-    isOpen,
-    setIsOpen,
-    setIsLoading,
-    addressData,
-    updateAddressList,
-    companyId,
-  } = props
+  const { isOpen, setIsOpen, setIsLoading, addressData, updateAddressList, companyId } = props;
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const [address, setAddress] = useState<AddressItemType>()
+  const [address, setAddress] = useState<AddressItemType>();
 
   useEffect(() => {
-    setAddress(addressData)
-  }, [addressData])
+    setAddress(addressData);
+  }, [addressData]);
 
   const handleChange =
-    (key: 'isDefaultShipping' | 'isDefaultBilling') =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const { checked } = e.target
+    (key: 'isDefaultShipping' | 'isDefaultBilling') => (e: ChangeEvent<HTMLInputElement>) => {
+      const { checked } = e.target;
 
       if (address) {
         const newAddress = {
           ...address,
-        }
+        };
         if (key === 'isDefaultShipping') {
-          newAddress.isDefaultShipping = checked ? 1 : 0
-          newAddress.isShipping = checked ? 1 : newAddress.isShipping
+          newAddress.isDefaultShipping = checked ? 1 : 0;
+          newAddress.isShipping = checked ? 1 : newAddress.isShipping;
         }
         if (key === 'isDefaultBilling') {
-          newAddress.isDefaultBilling = checked ? 1 : 0
-          newAddress.isBilling = checked ? 1 : newAddress.isShipping
+          newAddress.isDefaultBilling = checked ? 1 : 0;
+          newAddress.isBilling = checked ? 1 : newAddress.isShipping;
         }
-        setAddress(newAddress)
+        setAddress(newAddress);
       }
-    }
+    };
 
   const handleSetDefault = async () => {
     try {
-      setIsLoading(true)
-      setIsOpen(false)
+      setIsLoading(true);
+      setIsOpen(false);
 
       await updateB2BAddress({
         ...address,
         companyId,
-      })
+      });
 
-      snackbar.success(b3Lang('addresses.setDefaultDialog.successfullySet'))
+      snackbar.success(b3Lang('addresses.setDefaultDialog.successfullySet'));
 
-      updateAddressList()
+      updateAddressList();
     } catch (e) {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <B3Dialog
@@ -90,7 +76,7 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
       leftSizeBtn={b3Lang('addresses.setDefaultDialog.cancel')}
       rightSizeBtn="set"
       handleLeftClick={() => {
-        setIsOpen(false)
+        setIsOpen(false);
       }}
       handRightClick={handleSetDefault}
     >
@@ -117,9 +103,7 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
                     onChange={handleChange('isDefaultShipping')}
                   />
                 }
-                label={b3Lang(
-                  'addresses.setDefaultDialog.setDefaultShippingAddress'
-                )}
+                label={b3Lang('addresses.setDefaultDialog.setDefaultShippingAddress')}
               />
               <FormControlLabel
                 control={
@@ -128,14 +112,12 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
                     onChange={handleChange('isDefaultBilling')}
                   />
                 }
-                label={b3Lang(
-                  'addresses.setDefaultDialog.setDefaultBillingAddress'
-                )}
+                label={b3Lang('addresses.setDefaultDialog.setDefaultBillingAddress')}
               />
             </FormGroup>
           </Box>
         )}
       </Box>
     </B3Dialog>
-  )
+  );
 }

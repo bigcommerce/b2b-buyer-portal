@@ -1,26 +1,26 @@
-import { CustomerRole } from '@/types'
+import { CustomerRole } from '@/types';
 
 export interface FilterSearchProps {
-  [key: string]: string | number | null
-  beginDateAt: string | null
-  endDateAt: string | null
-  orderBy: string
-  createdBy: string
-  q: string
-  companyName: string
-  isShowMy: number
-  companyId: string
+  [key: string]: string | number | null;
+  beginDateAt: string | null;
+  endDateAt: string | null;
+  orderBy: string;
+  createdBy: string;
+  q: string;
+  companyName: string;
+  isShowMy: number;
+  companyId: string;
 }
 
 export interface FilterMoreProps {
-  startValue?: string
-  endValue?: string
-  PlacedBy?: string
-  company?: string
-  orderStatus?: string | number
+  startValue?: string;
+  endValue?: string;
+  PlacedBy?: string;
+  company?: string;
+  orderStatus?: string | number;
 }
 
-export const defaultSortKey = 'orderId'
+export const defaultSortKey = 'orderId';
 
 export const sortKeys = {
   orderId: 'bcOrderId',
@@ -29,7 +29,7 @@ export const sortKeys = {
   status: 'status',
   placedby: 'placedBy',
   createdAt: 'createdAt',
-}
+};
 
 const b2bFilterSearch: FilterSearchProps = {
   q: '',
@@ -42,7 +42,7 @@ const b2bFilterSearch: FilterSearchProps = {
   orderNumber: '',
   poNumber: '',
   isShowMy: 0,
-}
+};
 
 const bcFilterSearch = {
   beginDateAt: null,
@@ -50,7 +50,7 @@ const bcFilterSearch = {
   orderBy: `-${sortKeys[defaultSortKey]}`,
   createdBy: '',
   q: '',
-}
+};
 
 export const getFilterMoreData = (
   isB2BUser: boolean,
@@ -58,16 +58,15 @@ export const getFilterMoreData = (
   isCompanyOrder: boolean,
   isAgenting: boolean,
   createdByUsers: any,
-  orderStatuses = []
+  orderStatuses = [],
 ) => {
   const newOrderStatuses = orderStatuses.filter(
-    (item: CustomFieldStringItems) =>
-      item.statusCode !== '0' && item.statusCode !== '1'
-  )
+    (item: CustomFieldStringItems) => item.statusCode !== '0' && item.statusCode !== '1',
+  );
   const newCreatedByUsers =
     createdByUsers?.createdByUser?.results.map((item: any) => ({
       createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
-    })) || []
+    })) || [];
   const filterMoreList = [
     {
       name: 'company',
@@ -112,56 +111,51 @@ export const getFilterMoreData = (
       size: 'small',
       idLang: 'orders.placedBy',
     },
-  ]
+  ];
 
-  const filterCondition = isB2BUser && !(+role === 3 && !isAgenting)
+  const filterCondition = isB2BUser && !(+role === 3 && !isAgenting);
   const filterCurrentMoreList = filterMoreList.filter((item) => {
     if (
       (!isB2BUser || filterCondition) &&
       !isCompanyOrder &&
       (item.name === 'company' || item.name === 'PlacedBy')
     )
-      return false
-    if (+role === 3 && !isAgenting && item.name === 'PlacedBy') return false
+      return false;
+    if (+role === 3 && !isAgenting && item.name === 'PlacedBy') return false;
     if (
       (isB2BUser || (+role === CustomerRole.SUPER_ADMIN && isAgenting)) &&
       isCompanyOrder &&
       item.name === 'company'
     )
-      return false
-    return true
-  })
+      return false;
+    return true;
+  });
 
-  return filterCurrentMoreList
-}
+  return filterCurrentMoreList;
+};
 
 export const getInitFilter = (
   isCompanyOrder: boolean,
-  isB2BUser: boolean
+  isB2BUser: boolean,
 ): Partial<FilterSearchProps> => {
-  if (isB2BUser) b2bFilterSearch.isShowMy = isCompanyOrder ? 0 : 1
+  if (isB2BUser) b2bFilterSearch.isShowMy = isCompanyOrder ? 0 : 1;
 
-  return isB2BUser ? b2bFilterSearch : bcFilterSearch
-}
+  return isB2BUser ? b2bFilterSearch : bcFilterSearch;
+};
 
 export const currencySymbol = (currencyItem: string) => {
   try {
     if (currencyItem) {
-      const currencyToken =
-        JSON.parse(JSON.parse(currencyItem))?.currency_token || ''
+      const currencyToken = JSON.parse(JSON.parse(currencyItem))?.currency_token || '';
 
-      return currencyToken
+      return currencyToken;
     }
 
-    return ''
+    return '';
   } catch (e) {
-    return ''
+    return '';
   }
-}
+};
 
-export const getOrderStatusText = (
-  status: number | string,
-  getOrderStatuses: any
-) =>
-  getOrderStatuses.find((item: any) => item.systemLabel === status)
-    ?.customLabel || ''
+export const getOrderStatusText = (status: number | string, getOrderStatuses: any) =>
+  getOrderStatuses.find((item: any) => item.systemLabel === status)?.customLabel || '';

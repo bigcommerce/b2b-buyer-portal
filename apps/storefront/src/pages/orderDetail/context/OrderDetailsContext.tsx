@@ -1,4 +1,4 @@
-import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react'
+import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react';
 
 import {
   MoneyFormat,
@@ -9,43 +9,43 @@ import {
   OrderShippingsItem,
   OrderStatusItem,
   OrderSummary,
-} from '../../../types'
+} from '../../../types';
 
 export interface OrderDetailsState {
-  shippings?: OrderShippingsItem[]
-  billings?: OrderBillings[]
-  history?: OrderHistoryItem[]
-  poNumber?: string
-  status?: string
-  statusCode?: string | number
-  currencyCode?: string
-  currency?: string
-  orderSummary?: OrderSummary
-  customStatus?: string
-  money?: MoneyFormat
-  payment?: OrderPayment
-  orderComments?: string
-  products?: OrderProductItem[]
-  orderId?: number | string
-  orderStatus?: OrderStatusItem[]
-  ipStatus?: number
-  invoiceId?: number
-  addressLabelPermission?: boolean
-  canReturn?: boolean
-  createdEmail?: string
-  orderIsDigital?: boolean
+  shippings?: OrderShippingsItem[];
+  billings?: OrderBillings[];
+  history?: OrderHistoryItem[];
+  poNumber?: string;
+  status?: string;
+  statusCode?: string | number;
+  currencyCode?: string;
+  currency?: string;
+  orderSummary?: OrderSummary;
+  customStatus?: string;
+  money?: MoneyFormat;
+  payment?: OrderPayment;
+  orderComments?: string;
+  products?: OrderProductItem[];
+  orderId?: number | string;
+  orderStatus?: OrderStatusItem[];
+  ipStatus?: number;
+  invoiceId?: number;
+  addressLabelPermission?: boolean;
+  canReturn?: boolean;
+  createdEmail?: string;
+  orderIsDigital?: boolean;
 }
 interface OrderDetailsAction {
-  type: string
-  payload: OrderDetailsState
+  type: string;
+  payload: OrderDetailsState;
 }
 export interface OrderDetailsContextType {
-  state: OrderDetailsState
-  dispatch: Dispatch<OrderDetailsAction>
+  state: OrderDetailsState;
+  dispatch: Dispatch<OrderDetailsAction>;
 }
 
 interface OrderDetailsProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 const defaultMoneyFormat: MoneyFormat = {
@@ -55,7 +55,7 @@ const defaultMoneyFormat: MoneyFormat = {
   decimal_places: 2,
   thousands_token: ',',
   currency_exchange_rate: '1.0000000000',
-}
+};
 
 const initState = {
   shippings: [],
@@ -86,12 +86,12 @@ const initState = {
   canReturn: false,
   createdEmail: '',
   orderIsDigital: false,
-}
+};
 
 export const OrderDetailsContext = createContext<OrderDetailsContextType>({
   state: initState,
   dispatch: () => {},
-})
+});
 
 const reducer = (state: OrderDetailsState, action: OrderDetailsAction) => {
   switch (action.type) {
@@ -99,38 +99,38 @@ const reducer = (state: OrderDetailsState, action: OrderDetailsAction) => {
       return {
         ...state,
         ...action.payload,
-      }
+      };
     case 'statusType':
       return {
         ...state,
         orderStatus: action.payload.orderStatus,
-      }
+      };
     case 'addressLabel':
       return {
         ...state,
         addressLabelPermission: action.payload.addressLabelPermission,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};
 
 export function OrderDetailsProvider(props: OrderDetailsProviderProps) {
-  const [state, dispatch] = useReducer(reducer, initState)
+  const [state, dispatch] = useReducer(reducer, initState);
 
-  const { children } = props
+  const { children } = props;
 
   const OrderDetailsValue = useMemo(
     () => ({
       state,
       dispatch,
     }),
-    [state]
-  )
+    [state],
+  );
 
   return (
     <OrderDetailsContext.Provider value={OrderDetailsValue}>
       {children}
     </OrderDetailsContext.Provider>
-  )
+  );
 }

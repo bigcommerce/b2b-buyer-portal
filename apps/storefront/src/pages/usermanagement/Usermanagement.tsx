@@ -1,33 +1,33 @@
-import { useRef, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box } from '@mui/material'
+import { useRef, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box } from '@mui/material';
 
-import B3Dialog from '@/components/B3Dialog'
-import B3Sping from '@/components/spin/B3Sping'
-import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { useCardListColumn, useMobile, useTableRef } from '@/hooks'
-import { deleteUsers, getUsers } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
-import { CustomerRole } from '@/types'
-import { snackbar } from '@/utils'
+import B3Dialog from '@/components/B3Dialog';
+import B3Sping from '@/components/spin/B3Sping';
+import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
+import { deleteUsers, getUsers } from '@/shared/service/b2b';
+import { useAppSelector } from '@/store';
+import { CustomerRole } from '@/types';
+import { snackbar } from '@/utils';
 
-import B3Filter from '../../components/filter/B3Filter'
+import B3Filter from '../../components/filter/B3Filter';
 
-import B3AddEditUser from './AddEditUser'
-import { FilterProps, getFilterMoreList, UsersList } from './config'
-import { UserItemCard } from './UserItemCard'
+import B3AddEditUser from './AddEditUser';
+import { FilterProps, getFilterMoreList, UsersList } from './config';
+import { UserItemCard } from './UserItemCard';
 
 interface RefCurrntProps extends HTMLInputElement {
-  handleOpenAddEditUserClick: (type: string, data?: UsersList) => void
+  handleOpenAddEditUserClick: (type: string, data?: UsersList) => void;
 }
 
 interface RoleProps {
-  role: string
+  role: string;
 }
 function Usermanagement() {
-  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
+  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
-  const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
+  const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
 
   const [userItem, setUserItem] = useState<UsersList>({
     createdAt: 0,
@@ -39,121 +39,117 @@ function Usermanagement() {
     role: 0,
     updatedAt: 0,
     extraFields: [],
-  })
-  const b3Lang = useB3Lang()
+  });
+  const b3Lang = useB3Lang();
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const isExtraLarge = useCardListColumn()
+  const isExtraLarge = useCardListColumn();
 
-  const salesRepCompanyId = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
-  )
-  const role = useAppSelector(({ company }) => company.customer.role)
-  const companyInfo = useAppSelector(({ company }) => company.companyInfo)
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const companyInfo = useAppSelector(({ company }) => company.companyInfo);
 
-  const companyId =
-    +role === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id
-  const isEnableBtnPermissions = role === 0 || role === 3
+  const companyId = +role === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id;
+  const isEnableBtnPermissions = role === 0 || role === 3;
 
-  const addEditUserRef = useRef<RefCurrntProps | null>(null)
-  const [paginationTableRef] = useTableRef()
+  const addEditUserRef = useRef<RefCurrntProps | null>(null);
+  const [paginationTableRef] = useTableRef();
 
   const customItem = {
     isEnabled: isEnableBtnPermissions,
     customLabel: b3Lang('userManagement.addUser'),
-  }
+  };
 
   const initSearch = {
     search: '',
     role: '',
     companyId,
-  }
+  };
 
-  const [filterSearch, setFilterSearch] =
-    useState<Partial<FilterProps>>(initSearch)
+  const [filterSearch, setFilterSearch] = useState<Partial<FilterProps>>(initSearch);
 
   const fetchList = async (params: Partial<FilterProps>) => {
-    const data = await getUsers(params)
+    const data = await getUsers(params);
 
     const {
       users: { edges, totalCount },
-    } = data
+    } = data;
 
     return {
       edges,
       totalCount,
-    }
-  }
+    };
+  };
 
   const initSearchList = () => {
-    paginationTableRef.current?.refresh()
-  }
+    paginationTableRef.current?.refresh();
+  };
 
-  const fiterMoreInfo = getFilterMoreList(b3Lang)
+  const fiterMoreInfo = getFilterMoreList(b3Lang);
 
   const translatedFilterInfo = fiterMoreInfo.map((element) => {
-    const translatedItem = element
+    const translatedItem = element;
     const translatedOptions = element.options?.map((option) => {
-      const elementOption = option
-      elementOption.label = b3Lang(option.idLang)
-      return option
-    })
+      const elementOption = option;
+      elementOption.label = b3Lang(option.idLang);
+      return option;
+    });
 
-    translatedItem.options = translatedOptions
+    translatedItem.options = translatedOptions;
 
-    return element
-  })
+    return element;
+  });
 
   const handleChange = (key: string, value: string) => {
     const search = {
       ...filterSearch,
       q: value,
-    }
-    setFilterSearch(search)
-  }
+    };
+    setFilterSearch(search);
+  };
 
   const handleFirterChange = (value: RoleProps) => {
     const search = {
       ...filterSearch,
       role: value.role,
       offset: 0,
-    }
-    setFilterSearch(search)
-  }
+    };
+    setFilterSearch(search);
+  };
 
   const handleAddUserClick = () => {
-    addEditUserRef.current?.handleOpenAddEditUserClick('add')
-  }
+    addEditUserRef.current?.handleOpenAddEditUserClick('add');
+  };
 
   const handleEdit = (userInfo: UsersList) => {
-    addEditUserRef.current?.handleOpenAddEditUserClick('edit', userInfo)
-  }
+    addEditUserRef.current?.handleOpenAddEditUserClick('edit', userInfo);
+  };
 
   const handleDelete = (row: UsersList) => {
-    setUserItem(row)
-    setDeleteOpen(true)
-  }
+    setUserItem(row);
+    setDeleteOpen(true);
+  };
 
   const handleCancelClick = () => {
-    setDeleteOpen(false)
-  }
+    setDeleteOpen(false);
+  };
 
   const handleDeleteUserClick = async (row: UsersList | undefined) => {
-    if (!row) return
+    if (!row) return;
     try {
-      setIsRequestLoading(true)
-      handleCancelClick()
+      setIsRequestLoading(true);
+      handleCancelClick();
       await deleteUsers({
         userId: row.id || '',
         companyId,
-      })
-      snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'))
+      });
+      snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'));
     } finally {
-      setIsRequestLoading(false)
-      initSearchList()
+      setIsRequestLoading(false);
+      initSearchList();
     }
-  }
+  };
 
   return (
     <B3Sping isSpinning={isRequestLoading}>
@@ -190,11 +186,7 @@ function Usermanagement() {
             />
           )}
         />
-        <B3AddEditUser
-          companyId={companyId}
-          renderList={initSearchList}
-          ref={addEditUserRef}
-        />
+        <B3AddEditUser companyId={companyId} renderList={initSearchList} ref={addEditUserRef} />
         <B3Dialog
           isOpen={deleteOpen}
           title={b3Lang('userManagement.deleteUser')}
@@ -221,7 +213,7 @@ function Usermanagement() {
         </B3Dialog>
       </Box>
     </B3Sping>
-  )
+  );
 }
 
-export default Usermanagement
+export default Usermanagement;

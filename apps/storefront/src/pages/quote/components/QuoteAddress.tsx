@@ -1,71 +1,71 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import { Box, Typography } from '@mui/material'
-import cloneDeep from 'lodash-es/cloneDeep'
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useB3Lang } from '@b3/lang';
+import { Box, Typography } from '@mui/material';
+import cloneDeep from 'lodash-es/cloneDeep';
 
-import { B3CustomForm } from '@/components'
-import { useGetCountry, useMobile } from '@/hooks'
-import { AddressItemType } from '@/types/address'
-import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes'
+import { B3CustomForm } from '@/components';
+import { useGetCountry, useMobile } from '@/hooks';
+import { AddressItemType } from '@/types/address';
+import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes';
 
-import ChooseAddress from './ChooseAddress'
+import ChooseAddress from './ChooseAddress';
 
 type AddressItemProps = {
-  node: AddressItemType
-}
+  node: AddressItemType;
+};
 
 interface AccountFormFieldsProps extends Record<string, any> {
-  name: string
-  label?: string
-  required?: boolean
-  fieldType?: string
-  default?: string | Array<any> | number
-  xs: number
-  variant: string
-  size: string
-  options?: any[]
+  name: string;
+  label?: string;
+  required?: boolean;
+  fieldType?: string;
+  default?: string | Array<any> | number;
+  xs: number;
+  variant: string;
+  size: string;
+  options?: any[];
 }
 
 interface AddressProps {
-  title: string
-  pr?: string | number
-  pl?: string | number
-  addressList?: AddressItemProps[]
-  info: ContactInfo | ShippingAddress | BillingAddress
-  role: string | number
-  accountFormFields: AccountFormFieldsProps[]
-  shippingSameAsBilling: boolean
-  type: string
-  setBillingChange: (value: boolean) => void
+  title: string;
+  pr?: string | number;
+  pl?: string | number;
+  addressList?: AddressItemProps[];
+  info: ContactInfo | ShippingAddress | BillingAddress;
+  role: string | number;
+  accountFormFields: AccountFormFieldsProps[];
+  shippingSameAsBilling: boolean;
+  type: string;
+  setBillingChange: (value: boolean) => void;
 }
 
 export interface FormFieldsProps extends Record<string, any> {
-  name: string
-  label?: string
-  required?: boolean
-  fieldType?: string
-  default?: string | Array<any> | number
-  xs: number
-  variant: string
-  size: string
-  options?: any[]
+  name: string;
+  label?: string;
+  required?: boolean;
+  fieldType?: string;
+  default?: string | Array<any> | number;
+  xs: number;
+  variant: string;
+  size: string;
+  options?: any[];
   replaceOptions?: {
-    label: string
-    value: string
-  }
+    label: string;
+    value: string;
+  };
 }
 
 export interface Country {
-  countryCode: string
-  countryName: string
-  id?: string
-  states: []
+  countryCode: string;
+  countryName: string;
+  id?: string;
+  states: [];
 }
 export interface State {
-  stateCode?: string
-  stateName?: string
-  id?: string
+  stateCode?: string;
+  stateName?: string;
+  id?: string;
 }
 
 function QuoteAddress(
@@ -81,7 +81,7 @@ function QuoteAddress(
     type,
     setBillingChange,
   }: AddressProps,
-  ref: any
+  ref: any,
 ) {
   const {
     control,
@@ -90,17 +90,17 @@ function QuoteAddress(
     setValue,
   } = useForm({
     mode: 'onSubmit',
-  })
+  });
 
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
-  type InfoKeys = keyof typeof info
+  type InfoKeys = keyof typeof info;
 
-  const [isOpen, setOpen] = useState<boolean>(false)
+  const [isOpen, setOpen] = useState<boolean>(false);
   const [quoteAddress, setQuoteAddress] = useState<AccountFormFieldsProps[]>(
-    cloneDeep(accountFormFields)
-  )
+    cloneDeep(accountFormFields),
+  );
 
   useGetCountry({
     control,
@@ -108,30 +108,30 @@ function QuoteAddress(
     getValues,
     setAddress: setQuoteAddress,
     addresses: quoteAddress,
-  })
+  });
 
-  const getContactInfoValue = () => getValues()
+  const getContactInfoValue = () => getValues();
   const setShippingInfoValue = (address: any) => {
-    const addressKey = Object.keys(address)
+    const addressKey = Object.keys(address);
 
     addressKey.forEach((item: string) => {
-      if (item === 'company') return
-      setValue(item, address[item])
-    })
-  }
+      if (item === 'company') return;
+      setValue(item, address[item]);
+    });
+  };
 
   useImperativeHandle(ref, () => ({
     getContactInfoValue,
     setShippingInfoValue,
-  }))
+  }));
 
   const handleAddressChoose = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
 
   const handleCloseAddressChoose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   const handleChangeAddress = (address: AddressItemType) => {
     const addressItem: any = {
@@ -146,36 +146,31 @@ function QuoteAddress(
       state: address?.state || '',
       zipCode: address?.zipCode || '',
       phoneNumber: address?.phoneNumber || '',
-    }
+    };
 
     Object.keys(addressItem).forEach((item: string) => {
-      if (item === 'company') return
-      setValue(item, addressItem[item])
-    })
+      if (item === 'company') return;
+      setValue(item, addressItem[item]);
+    });
     if (type === 'billing' && shippingSameAsBilling) {
-      setBillingChange(true)
+      setBillingChange(true);
     }
 
-    handleCloseAddressChoose()
-  }
+    handleCloseAddressChoose();
+  };
 
   useEffect(() => {
     if (JSON.stringify(info) !== '{}') {
       Object.keys(info).forEach((item: string) => {
-        setValue(item, info[item as InfoKeys])
-      })
+        setValue(item, info[item as InfoKeys]);
+      });
     }
     // Disabling this rule as dispatcher dep setValue is the same between renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [info])
+  }, [info]);
 
   return (
-    <Box
-      width={isMobile ? '100%' : '50%'}
-      mt={isMobile ? '2rem' : '0'}
-      pr={pr}
-      pl={pl}
-    >
+    <Box width={isMobile ? '100%' : '50%'} mt={isMobile ? '2rem' : '0'} pr={pr} pl={pl}>
       <Box
         sx={{
           display: 'flex',
@@ -226,7 +221,7 @@ function QuoteAddress(
         type={type}
       />
     </Box>
-  )
+  );
 }
 
-export default forwardRef(QuoteAddress)
+export default forwardRef(QuoteAddress);

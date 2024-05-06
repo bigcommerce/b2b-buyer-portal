@@ -1,16 +1,16 @@
-import { forwardRef, useEffect, useImperativeHandle } from 'react'
-import { useForm } from 'react-hook-form'
-import { LangFormatFunction, useB3Lang } from '@b3/lang'
-import { Box } from '@mui/material'
-import trim from 'lodash-es/trim'
+import { forwardRef, useEffect, useImperativeHandle } from 'react';
+import { useForm } from 'react-hook-form';
+import { LangFormatFunction, useB3Lang } from '@b3/lang';
+import { Box } from '@mui/material';
+import trim from 'lodash-es/trim';
 
-import { B3CustomForm } from '@/components'
-import { useMobile } from '@/hooks'
-import { isValidUserTypeSelector, useAppSelector } from '@/store'
-import { ContactInfo as ContactInfoType } from '@/types/quotes'
-import { validatorRules } from '@/utils'
+import { B3CustomForm } from '@/components';
+import { useMobile } from '@/hooks';
+import { isValidUserTypeSelector, useAppSelector } from '@/store';
+import { ContactInfo as ContactInfoType } from '@/types/quotes';
+import { validatorRules } from '@/utils';
 
-const emailValidate = validatorRules(['email'])
+const emailValidate = validatorRules(['email']);
 
 const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
   const contactInfo = [
@@ -65,14 +65,14 @@ const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
       variant: 'filled',
       size: 'small',
     },
-  ]
+  ];
 
-  return contactInfo
-}
+  return contactInfo;
+};
 
 interface ContactInfoProps {
-  info: ContactInfoType
-  emailAddress?: string
+  info: ContactInfoType;
+  emailAddress?: string;
 }
 
 function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
@@ -85,56 +85,56 @@ function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
     handleSubmit,
   } = useForm({
     mode: 'onSubmit',
-  })
+  });
 
-  const isValidUserType = useAppSelector(isValidUserTypeSelector)
+  const isValidUserType = useAppSelector(isValidUserTypeSelector);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   useEffect(() => {
     if (info && JSON.stringify(info) !== '{}') {
       Object.keys(info).forEach((item: string) => {
-        setValue(item, info && info[item as keyof ContactInfoType])
-      })
+        setValue(item, info && info[item as keyof ContactInfoType]);
+      });
     }
     // Disable eslint exhaustive-deps rule for setValue dispatcher
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [info])
+  }, [info]);
 
   const validateEmailValue = async (emailValue: string) => {
-    if (emailAddress === trim(emailValue)) return true
+    if (emailAddress === trim(emailValue)) return true;
 
     if (!isValidUserType) {
       setError('email', {
         type: 'custom',
         message: b3Lang('quoteDraft.contactInfo.emailExists'),
-      })
+      });
     }
 
-    return isValidUserType
-  }
+    return isValidUserType;
+  };
 
   const getContactInfoValue = async () => {
-    let isValid = true
+    let isValid = true;
     await handleSubmit(
       async (data) => {
-        isValid = await validateEmailValue(data.email)
+        isValid = await validateEmailValue(data.email);
       },
       () => {
-        isValid = false
-      }
-    )()
+        isValid = false;
+      },
+    )();
 
-    return isValid ? getValues() : isValid
-  }
+    return isValid ? getValues() : isValid;
+  };
 
   useImperativeHandle(ref, () => ({
     getContactInfoValue,
-  }))
+  }));
 
-  const contactInfo = getContactInfo(isMobile, b3Lang)
+  const contactInfo = getContactInfo(isMobile, b3Lang);
 
   return (
     <Box width="100%">
@@ -157,7 +157,7 @@ function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
         setValue={setValue}
       />
     </Box>
-  )
+  );
 }
 
-export default forwardRef(ContactInfo)
+export default forwardRef(ContactInfo);

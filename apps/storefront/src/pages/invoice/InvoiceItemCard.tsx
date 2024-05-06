@@ -1,44 +1,37 @@
-import { ReactElement } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import {
-  Box,
-  Card,
-  CardContent,
-  InputAdornment,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { ReactElement } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import { Box, Card, CardContent, InputAdornment, TextField, Typography } from '@mui/material';
 
-import { TableColumnItem } from '@/components/table/B3Table'
-import { InvoiceList, InvoiceListNode } from '@/types/invoice'
-import { currencyFormat, displayFormat } from '@/utils'
+import { TableColumnItem } from '@/components/table/B3Table';
+import { InvoiceList, InvoiceListNode } from '@/types/invoice';
+import { currencyFormat, displayFormat } from '@/utils';
 
-import B3Pulldown from './components/B3Pulldown'
-import InvoiceStatus from './components/InvoiceStatus'
+import B3Pulldown from './components/B3Pulldown';
+import InvoiceStatus from './components/InvoiceStatus';
 
 export interface InvoiceItemCardProps {
-  item: any
-  checkBox?: (disable: boolean) => ReactElement
-  handleSetSelectedInvoiceAccount: (value: string, id: string) => void
-  handleViewInvoice: (id: string, status: string | number) => void
-  setIsRequestLoading: (bool: boolean) => void
-  setInvoiceId: (id: string) => void
-  handleOpenHistoryModal: (bool: boolean) => void
-  selectedPay: CustomFieldItems | InvoiceListNode[]
-  handleGetCorrespondingCurrency: (code: string) => string
-  addBottom: boolean
+  item: any;
+  checkBox?: (disable: boolean) => ReactElement;
+  handleSetSelectedInvoiceAccount: (value: string, id: string) => void;
+  handleViewInvoice: (id: string, status: string | number) => void;
+  setIsRequestLoading: (bool: boolean) => void;
+  setInvoiceId: (id: string) => void;
+  handleOpenHistoryModal: (bool: boolean) => void;
+  selectedPay: CustomFieldItems | InvoiceListNode[];
+  handleGetCorrespondingCurrency: (code: string) => string;
+  addBottom: boolean;
 }
 
 const StyleCheckoutContainer = styled(Box)(() => ({
   '& > span': {
     padding: '0 9px 0 0',
   },
-}))
+}));
 
 export function InvoiceItemCard(props: InvoiceItemCardProps) {
-  const currentDate = new Date().getTime()
+  const currentDate = new Date().getTime();
   const {
     item,
     checkBox,
@@ -50,17 +43,17 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     selectedPay = [],
     handleGetCorrespondingCurrency,
     addBottom,
-  } = props
-  const b3Lang = useB3Lang()
-  const navigate = useNavigate()
+  } = props;
+  const b3Lang = useB3Lang();
+  const navigate = useNavigate();
 
-  const { id, status, dueDate, openBalance } = item
-  const currentCode = openBalance.code || 'USD'
-  const currentCurrencyToken = handleGetCorrespondingCurrency(currentCode)
+  const { id, status, dueDate, openBalance } = item;
+  const currentCode = openBalance.code || 'USD';
+  const currentCurrencyToken = handleGetCorrespondingCurrency(currentCode);
 
-  let statusCode = item.status
+  let statusCode = item.status;
   if (status === 0 && currentDate > dueDate * 1000) {
-    statusCode = 3
+    statusCode = 3;
   }
 
   const columnAllItems: TableColumnItem<InvoiceList>[] = [
@@ -75,7 +68,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
             textDecoration: 'underline',
           }}
           onClick={() => {
-            navigate(`/orderDetail/${item.orderNumber}`)
+            navigate(`/orderDetail/${item.orderNumber}`);
           }}
         >
           {item?.orderNumber || '-'}
@@ -91,8 +84,8 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
       key: 'updatedAt',
       title: b3Lang('invoice.invoiceItemCardHeader.dueDate'),
       render: () => {
-        const { dueDate, status } = item
-        const isOverdue = currentDate > dueDate * 1000 && status !== 2
+        const { dueDate, status } = item;
+        const isOverdue = currentDate > dueDate * 1000 && status !== 2;
 
         return (
           <Typography
@@ -103,57 +96,57 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
           >
             {`${item.dueDate ? displayFormat(+item.dueDate) : '–'}`}
           </Typography>
-        )
+        );
       },
     },
     {
       key: 'originalBalance',
       title: b3Lang('invoice.invoiceItemCardHeader.invoiceTotal'),
       render: () => {
-        const { originalBalance } = item
-        const originalAmount = +originalBalance.value
+        const { originalBalance } = item;
+        const originalAmount = +originalBalance.value;
 
-        return currencyFormat(originalAmount || 0)
+        return currencyFormat(originalAmount || 0);
       },
     },
     {
       key: 'openBalance',
       title: b3Lang('invoice.invoiceItemCardHeader.amountDue'),
       render: () => {
-        const { openBalance } = item
+        const { openBalance } = item;
 
-        const openAmount = +openBalance.value
+        const openAmount = +openBalance.value;
 
-        return currencyFormat(openAmount || 0)
+        return currencyFormat(openAmount || 0);
       },
     },
     {
       key: 'openBalanceToPay',
       title: b3Lang('invoice.invoiceItemCardHeader.amountToPay'),
       render: () => {
-        const { openBalance, id } = item
-        let valuePrice = openBalance.value
-        let disabled = true
+        const { openBalance, id } = item;
+        let valuePrice = openBalance.value;
+        let disabled = true;
 
         if (selectedPay.length > 0) {
           const currentSelected = selectedPay.find((item: InvoiceListNode) => {
             const {
               node: { id: selectedId },
-            } = item
+            } = item;
 
-            return +selectedId === +id
-          })
+            return +selectedId === +id;
+          });
 
           if (currentSelected) {
             const {
               node: { openBalance: selectedOpenBalance },
-            } = currentSelected
+            } = currentSelected;
 
-            disabled = false
-            valuePrice = selectedOpenBalance.value
+            disabled = false;
+            valuePrice = selectedOpenBalance.value;
 
             if (+openBalance.value === 0) {
-              disabled = true
+              disabled = true;
             }
           }
         }
@@ -179,15 +172,15 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
               },
             }}
             onChange={(e: CustomFieldItems) => {
-              const val = e.target?.value
-              handleSetSelectedInvoiceAccount(val, id)
+              const val = e.target?.value;
+              handleSetSelectedInvoiceAccount(val, id);
             }}
             type="number"
           />
-        )
+        );
       },
     },
-  ]
+  ];
 
   return (
     <Card
@@ -230,7 +223,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
                   textDecoration: 'underline',
                 }}
                 onClick={() => {
-                  handleViewInvoice(id, status)
+                  handleViewInvoice(id, status);
                 }}
               >
                 {id || '-'}
@@ -281,5 +274,5 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }

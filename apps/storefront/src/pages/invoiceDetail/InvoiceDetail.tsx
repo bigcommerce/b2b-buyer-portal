@@ -1,5 +1,5 @@
 function InvoiceDetail() {
-  return <div>InvoiceDetail</div>
+  return <div>InvoiceDetail</div>;
 }
 
-export default InvoiceDetail
+export default InvoiceDetail;

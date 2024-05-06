@@ -1,7 +1,7 @@
-import Order from './Order'
+import Order from './Order';
 
 function CompanyOrder() {
-  return <Order isCompanyOrder />
+  return <Order isCompanyOrder />;
 }
 
-export default CompanyOrder
+export default CompanyOrder;

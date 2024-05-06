@@ -1,33 +1,27 @@
-import { useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, Button, Grid, Typography } from '@mui/material'
+import { useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Button, Grid, Typography } from '@mui/material';
 
-import { useMobile } from '@/hooks'
-import { useAppSelector } from '@/store'
-import {
-  BcCartData,
-  BcCartDataLineItem,
-  InvoiceListNode,
-} from '@/types/invoice'
-import { handleGetCorrespondingCurrencyToken, snackbar } from '@/utils'
+import { useMobile } from '@/hooks';
+import { useAppSelector } from '@/store';
+import { BcCartData, BcCartDataLineItem, InvoiceListNode } from '@/types/invoice';
+import { handleGetCorrespondingCurrencyToken, snackbar } from '@/utils';
 
-import { gotoInvoiceCheckoutUrl } from '../utils/payment'
+import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 
 interface InvoiceFooterProps {
-  selectedPay: CustomFieldItems
-  decimalPlaces: number
+  selectedPay: CustomFieldItems;
+  decimalPlaces: number;
 }
 
 function InvoiceFooter(props: InvoiceFooterProps) {
-  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
-  const b3Lang = useB3Lang()
-  const [isMobile] = useMobile()
-  const [selectedAccount, setSelectedAccount] = useState<number | string>(0)
-  const [currentToken, setCurrentToken] = useState<string>('$')
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform);
+  const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
+  const [selectedAccount, setSelectedAccount] = useState<number | string>(0);
+  const [currentToken, setCurrentToken] = useState<string>('$');
 
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const containerStyle = isMobile
     ? {
@@ -36,71 +30,71 @@ function InvoiceFooter(props: InvoiceFooterProps) {
       }
     : {
         alignItems: 'center',
-      }
+      };
 
-  const { selectedPay, decimalPlaces } = props
+  const { selectedPay, decimalPlaces } = props;
 
   const handlePay = async () => {
-    const lineItems: BcCartDataLineItem[] = []
-    let currency = 'SGD'
+    const lineItems: BcCartDataLineItem[] = [];
+    let currency = 'SGD';
 
     if (selectedPay.length > 0) {
       selectedPay.forEach((item: InvoiceListNode) => {
         const {
           node: { id, openBalance, originalBalance },
-        } = item
+        } = item;
 
         lineItems.push({
           invoiceId: +id,
           amount: openBalance.value === '.' ? '0' : `${+openBalance.value}`,
-        })
+        });
 
-        currency = openBalance?.code || originalBalance.code
-      })
+        currency = openBalance?.code || originalBalance.code;
+      });
 
       const badItem = lineItems.find(
-        (item: CustomFieldItems) => item.amount === '.' || +item.amount === 0
-      )
+        (item: CustomFieldItems) => item.amount === '.' || +item.amount === 0,
+      );
       if (badItem) {
         snackbar.error(b3Lang('invoice.footer.invalidNameError'), {
           isClose: true,
-        })
+        });
 
-        return
+        return;
       }
 
       const params: BcCartData = {
         lineItems,
         currency,
-      }
+      };
 
-      await gotoInvoiceCheckoutUrl(params, platform, false)
+      await gotoInvoiceCheckoutUrl(params, platform, false);
     }
-  }
+  };
 
   useEffect(() => {
     if (selectedPay.length > 0) {
       const handleStatisticsInvoiceAmount = (checkedArr: CustomFieldItems) => {
-        let amount = 0
+        let amount = 0;
 
         checkedArr.forEach((item: InvoiceListNode) => {
           const {
             node: { openBalance },
-          } = item
-          amount += openBalance.value === '.' ? 0 : +openBalance.value
-        })
+          } = item;
+          amount += openBalance.value === '.' ? 0 : +openBalance.value;
+        });
 
-        setSelectedAccount(amount.toFixed(decimalPlaces))
-      }
+        setSelectedAccount(amount.toFixed(decimalPlaces));
+      };
       const {
         node: { openBalance },
-      } = selectedPay[0]
+      } = selectedPay[0];
 
-      const token = handleGetCorrespondingCurrencyToken(openBalance.code)
-      setCurrentToken(token)
-      handleStatisticsInvoiceAmount(selectedPay)
+      const token = handleGetCorrespondingCurrencyToken(openBalance.code);
+      setCurrentToken(token);
+      handleStatisticsInvoiceAmount(selectedPay);
     }
-  }, [decimalPlaces, selectedPay])
+  }, [decimalPlaces, selectedPay]);
 
   return (
     <Grid
@@ -197,7 +191,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
                   width: isMobile ? '100%' : 'auto',
                 }}
                 onClick={() => {
-                  handlePay()
+                  handlePay();
                 }}
               >
                 {b3Lang('invoice.footer.payInvoices')}
@@ -221,7 +215,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         }
       />
     </Grid>
-  )
+  );
 }
 
-export default InvoiceFooter
+export default InvoiceFooter;

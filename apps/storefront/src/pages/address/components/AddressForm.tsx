@@ -1,45 +1,39 @@
-import {
-  forwardRef,
-  Ref,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from 'react'
-import { useForm } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import { Checkbox, FormControlLabel, styled } from '@mui/material'
-import cloneDeep from 'lodash-es/cloneDeep'
+import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useB3Lang } from '@b3/lang';
+import { Checkbox, FormControlLabel, styled } from '@mui/material';
+import cloneDeep from 'lodash-es/cloneDeep';
 
-import { B3CustomForm } from '@/components'
-import B3Dialog from '@/components/B3Dialog'
+import { B3CustomForm } from '@/components';
+import B3Dialog from '@/components/B3Dialog';
 import {
   createB2BAddress,
   createBcAddress,
   updateB2BAddress,
   updateBcAddress,
   validateAddressExtraFields,
-} from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
+} from '@/shared/service/b2b';
+import { snackbar } from '@/utils';
 
-import { AddressItemType } from '../../../types/address'
-import { deCodeField } from '../../registered/config'
-import { b2bShippingBilling, B2bShippingBillingProps } from '../shared/config'
-import { CountryProps, StateProps } from '../shared/getAddressFields'
+import { AddressItemType } from '../../../types/address';
+import { deCodeField } from '../../registered/config';
+import { b2bShippingBilling, B2bShippingBillingProps } from '../shared/config';
+import { CountryProps, StateProps } from '../shared/getAddressFields';
 
 interface AddressFormProps {
-  addressFields: CustomFieldItems[]
-  updateAddressList: (isFirst?: boolean) => void
-  companyId: string | number
-  isBCPermission: boolean
-  countries: CountryProps[]
+  addressFields: CustomFieldItems[];
+  updateAddressList: (isFirst?: boolean) => void;
+  companyId: string | number;
+  isBCPermission: boolean;
+  countries: CountryProps[];
 }
 
 interface ShippingBillingProps {
-  isShipping: boolean
-  isBilling: boolean
-  isDefaultShipping: boolean
-  isDefaultBilling: boolean
-  [key: string]: boolean
+  isShipping: boolean;
+  isBilling: boolean;
+  isDefaultShipping: boolean;
+  isDefaultBilling: boolean;
+  [key: string]: boolean;
 }
 
 const StyledCheckbox = styled('div')(() => ({
@@ -54,37 +48,28 @@ const StyledCheckbox = styled('div')(() => ({
     display: 'flex',
     flexDirection: 'column',
   },
-}))
+}));
 
 function AddressForm(
-  {
-    addressFields,
-    updateAddressList,
-    companyId,
-    isBCPermission,
-    countries,
-  }: AddressFormProps,
-  ref: Ref<unknown> | undefined
+  { addressFields, updateAddressList, companyId, isBCPermission, countries }: AddressFormProps,
+  ref: Ref<unknown> | undefined,
 ) {
-  const b3Lang = useB3Lang()
-  const [open, setOpen] = useState<boolean>(false)
-  const [type, setType] = useState<string>('')
-  const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false)
-  const [allAddressFields, setAllAddressFields] =
-    useState<CustomFieldItems[]>(addressFields)
-  const [addressExtraFields, setAddressExtraFields] =
-    useState<CustomFieldItems>([])
-  const [originAddressFields, setOriginAddressFields] =
-    useState<CustomFieldItems>([])
-  const [addressData, setAddressData] = useState<AddressItemType | null>(null)
+  const b3Lang = useB3Lang();
+  const [open, setOpen] = useState<boolean>(false);
+  const [type, setType] = useState<string>('');
+  const [addUpdateLoading, setAddUpdateLoading] = useState<boolean>(false);
+  const [allAddressFields, setAllAddressFields] = useState<CustomFieldItems[]>(addressFields);
+  const [addressExtraFields, setAddressExtraFields] = useState<CustomFieldItems>([]);
+  const [originAddressFields, setOriginAddressFields] = useState<CustomFieldItems>([]);
+  const [addressData, setAddressData] = useState<AddressItemType | null>(null);
   const [shippingBilling, setShippingBilling] = useState<ShippingBillingProps>({
     isShipping: false,
     isBilling: false,
     isDefaultShipping: false,
     isDefaultBilling: false,
-  })
+  });
 
-  const isB2BUser = !isBCPermission
+  const isB2BUser = !isBCPermission;
 
   const {
     control,
@@ -97,102 +82,98 @@ function AddressForm(
     reset,
   } = useForm({
     mode: 'all',
-  })
+  });
 
   const validateCompanyExtraFieldsUnique = async (data: CustomFieldItems) => {
     try {
       const extraFields = addressExtraFields.map((field: CustomFieldItems) => ({
         fieldName: deCodeField(field.name),
         fieldValue: data[field.name] || field.default,
-      }))
+      }));
 
       const res = await validateAddressExtraFields({
         extraFields,
-      })
+      });
 
       if (res.code !== 200) {
-        const message = res.data?.errMsg || res.message || ''
+        const message = res.data?.errMsg || res.message || '';
 
-        const messageArr = message.split(':')
+        const messageArr = message.split(':');
 
         if (messageArr.length >= 2) {
           const field = addressExtraFields.find(
-            (field: CustomFieldItems) =>
-              deCodeField(field.name) === messageArr[0]
-          )
+            (field: CustomFieldItems) => deCodeField(field.name) === messageArr[0],
+          );
           if (field) {
             setError(field.name, {
               type: 'manual',
               message: messageArr[1],
-            })
-            setAddUpdateLoading(false)
-            return false
+            });
+            setAddUpdateLoading(false);
+            return false;
           }
         }
-        throw message
+        throw message;
       }
 
-      return true
+      return true;
     } catch (error: any) {
-      snackbar.error(error)
-      throw error
+      snackbar.error(error);
+      throw error;
     }
-  }
+  };
 
   const handleCancelClick = () => {
-    reset()
+    reset();
     setShippingBilling({
       isShipping: false,
       isBilling: false,
       isDefaultShipping: false,
       isDefaultBilling: false,
-    })
-    setOpen(false)
-    setType('')
-  }
+    });
+    setOpen(false);
+    setType('');
+  };
 
   const handleSaveB2BAddress = () => {
     handleSubmit(async (data) => {
-      setAddUpdateLoading(true)
+      setAddUpdateLoading(true);
 
       try {
-        const isValidate = await validateCompanyExtraFieldsUnique(data)
+        const isValidate = await validateCompanyExtraFieldsUnique(data);
         if (!isValidate) {
-          return
+          return;
         }
 
-        const extraFields = addressExtraFields.map(
-          (field: CustomFieldItems) => ({
-            fieldName: deCodeField(field.name),
-            fieldValue: data[field.name] || field.default,
-          })
-        )
-        const { country: currentCountryCode, state: stateCode } = data
+        const extraFields = addressExtraFields.map((field: CustomFieldItems) => ({
+          fieldName: deCodeField(field.name),
+          fieldValue: data[field.name] || field.default,
+        }));
+        const { country: currentCountryCode, state: stateCode } = data;
 
-        let currentCountryName = ''
-        let currentStateName = ''
-        let currentStateCode = stateCode
+        let currentCountryName = '';
+        let currentStateName = '';
+        let currentStateCode = stateCode;
 
         countries.forEach((country: CountryProps) => {
-          const { countryName, countryCode, states } = country
+          const { countryName, countryCode, states } = country;
           if (countryCode === currentCountryCode) {
-            currentCountryName = countryName
+            currentCountryName = countryName;
 
             if (states.length > 0) {
               const state = states.filter(
                 (item: StateProps) =>
-                  item.stateCode === currentStateCode ||
-                  item.stateName === currentStateCode
-              )[0]
+                  item.stateCode === currentStateCode || item.stateName === currentStateCode,
+              )[0];
 
-              currentStateName = state.stateName || currentStateCode
-              currentStateCode = state.stateCode || currentStateCode
+              currentStateName = state.stateName || currentStateCode;
+              currentStateCode = state.stateCode || currentStateCode;
             } else {
-              currentStateCode = ''
-              currentStateName = stateCode
+              currentStateCode = '';
+              currentStateName = stateCode;
             }
           }
-        })
+        });
 
         const params = {
           ...data,
@@ -206,76 +187,73 @@ function AddressForm(
           countryCode: currentCountryCode,
           state: currentStateName,
           stateCode: currentStateCode,
-        }
+        };
 
         if (type === 'add') {
-          await createB2BAddress(params)
-          snackbar.success(b3Lang('addresses.addressForm.newAddressAdded'))
+          await createB2BAddress(params);
+          snackbar.success(b3Lang('addresses.addressForm.newAddressAdded'));
         } else if (type === 'edit' && addressData) {
-          const { id } = addressData
+          const { id } = addressData;
 
           await updateB2BAddress({
             ...params,
             id: +id,
-          })
+          });
 
-          snackbar.success(b3Lang('addresses.addressForm.addressUpdated'))
+          snackbar.success(b3Lang('addresses.addressForm.addressUpdated'));
         }
         setShippingBilling({
           isShipping: false,
           isBilling: false,
           isDefaultShipping: false,
           isDefaultBilling: false,
-        })
-        setOpen(false)
+        });
+        setOpen(false);
 
-        await updateAddressList(true)
+        await updateAddressList(true);
       } catch (err: any) {
-        snackbar.error(err)
+        snackbar.error(err);
       } finally {
-        setAddUpdateLoading(false)
+        setAddUpdateLoading(false);
       }
-    })()
-  }
+    })();
+  };
 
   const handleSaveBcAddress = () => {
     handleSubmit(async (data) => {
-      setAddUpdateLoading(true)
+      setAddUpdateLoading(true);
 
       try {
-        const extraFields = addressExtraFields.map(
-          (field: CustomFieldItems) => ({
-            name: field.bcLabel,
-            value: data[field.name] || field.default,
-          })
-        )
+        const extraFields = addressExtraFields.map((field: CustomFieldItems) => ({
+          name: field.bcLabel,
+          value: data[field.name] || field.default,
+        }));
 
-        const { country: currentCountryCode, state: stateCode } = data
+        const { country: currentCountryCode, state: stateCode } = data;
 
-        let currentCountryName = ''
-        let currentStateName = ''
-        let currentStateCode = stateCode
+        let currentCountryName = '';
+        let currentStateName = '';
+        let currentStateCode = stateCode;
 
         countries.forEach((country: CountryProps) => {
-          const { countryName, countryCode, states } = country
+          const { countryName, countryCode, states } = country;
           if (countryCode === currentCountryCode) {
-            currentCountryName = countryName
+            currentCountryName = countryName;
 
             if (states.length > 0) {
               const state = states.filter(
                 (item: StateProps) =>
-                  item.stateCode === currentStateCode ||
-                  item.stateName === currentStateCode
-              )[0]
+                  item.stateCode === currentStateCode || item.stateName === currentStateCode,
+              )[0];
 
-              currentStateName = state.stateName || currentStateCode
-              currentStateCode = state.stateCode || currentStateCode
+              currentStateName = state.stateName || currentStateCode;
+              currentStateCode = state.stateCode || currentStateCode;
             } else {
-              currentStateCode = ''
-              currentStateName = stateCode
+              currentStateCode = '';
+              currentStateName = stateCode;
             }
           }
-        })
+        });
 
         const params = {
           ...data,
@@ -285,74 +263,71 @@ function AddressForm(
           state: currentStateName,
           stateCode: currentStateCode,
           addressType: '',
-        }
+        };
 
         if (type === 'add') {
-          await createBcAddress(params)
-          snackbar.success(b3Lang('addresses.addressForm.newAddressAdded'))
+          await createBcAddress(params);
+          snackbar.success(b3Lang('addresses.addressForm.newAddressAdded'));
         } else if (type === 'edit' && addressData) {
-          const { bcAddressId } = addressData
+          const { bcAddressId } = addressData;
 
           if (bcAddressId) {
             await updateBcAddress({
               ...params,
               id: +bcAddressId,
-            })
+            });
           }
-          snackbar.success(b3Lang('addresses.addressForm.addressUpdated'))
+          snackbar.success(b3Lang('addresses.addressForm.addressUpdated'));
         }
-        setOpen(false)
+        setOpen(false);
 
-        await updateAddressList(true)
+        await updateAddressList(true);
       } catch (err: any) {
-        snackbar.error(err)
+        snackbar.error(err);
       } finally {
-        setAddUpdateLoading(false)
+        setAddUpdateLoading(false);
       }
-    })()
-  }
+    })();
+  };
 
   const handleSaveAddress = () => {
     if (isB2BUser) {
-      handleSaveB2BAddress()
+      handleSaveB2BAddress();
     } else {
-      handleSaveBcAddress()
+      handleSaveBcAddress();
     }
-  }
+  };
 
-  const handleOpenAddEditAddressClick = (
-    type: string,
-    data: AddressItemType
-  ) => {
+  const handleOpenAddEditAddressClick = (type: string, data: AddressItemType) => {
     if (type === 'add' && originAddressFields.length > 0) {
       allAddressFields.forEach((field: CustomFieldItems) => {
-        const addressField = field
+        const addressField = field;
         if (field.custom) {
           if (isB2BUser) {
             const originFields = originAddressFields.filter(
-              (item: CustomFieldItems) => item.name === field.name
-            )[0]
-            addressField.default = originFields.default || ''
+              (item: CustomFieldItems) => item.name === field.name,
+            )[0];
+            addressField.default = originFields.default || '';
           } else {
             const originFields = originAddressFields.filter(
               (item: CustomFieldItems) =>
-                item.name === field.name || item.bcLabel === field.bcLabel
-            )[0]
-            addressField.default = originFields.default || ''
+                item.name === field.name || item.bcLabel === field.bcLabel,
+            )[0];
+            addressField.default = originFields.default || '';
           }
         }
-      })
+      });
     }
 
-    reset()
-    setAddressData(data)
-    setType(type)
-    setOpen(true)
-  }
+    reset();
+    setAddressData(data);
+    setType(type);
+    setOpen(true);
+  };
 
   useImperativeHandle(ref, () => ({
     handleOpenAddEditAddressClick,
-  }))
+  }));
 
   const handleChangeAddressType = (check: boolean, name: string) => {
     if (name === 'isShipping') {
@@ -360,51 +335,44 @@ function AddressForm(
         ...shippingBilling,
         [name]: check,
         isDefaultShipping: false,
-      })
+      });
     } else {
       setShippingBilling({
         ...shippingBilling,
         [name]: check,
         isDefaultBilling: false,
-      })
+      });
     }
-  }
+  };
 
   useEffect(() => {
-    const translatedAddressFields = JSON.parse(JSON.stringify(addressFields))
+    const translatedAddressFields = JSON.parse(JSON.stringify(addressFields));
 
     translatedAddressFields.forEach(
-      (element: {
-        label: string
-        idLang: string
-        fieldId: string
-        default: string
-      }) => {
-        const translatedFieldElement = element
-        translatedFieldElement.label = b3Lang(element.idLang) || element.label
+      (element: { label: string; idLang: string; fieldId: string; default: string }) => {
+        const translatedFieldElement = element;
+        translatedFieldElement.label = b3Lang(element.idLang) || element.label;
 
         if (!isB2BUser && element.fieldId === 'field_21') {
-          translatedFieldElement.default = ''
+          translatedFieldElement.default = '';
         }
 
-        return element
-      }
-    )
+        return element;
+      },
+    );
 
-    setAllAddressFields(translatedAddressFields)
-    const extraFields = addressFields.filter(
-      (field: CustomFieldItems) => field.custom
-    )
+    setAllAddressFields(translatedAddressFields);
+    const extraFields = addressFields.filter((field: CustomFieldItems) => field.custom);
 
-    setAddressExtraFields(extraFields)
+    setAddressExtraFields(extraFields);
 
     if (originAddressFields.length === 0) {
-      const fields = cloneDeep(addressFields)
-      setOriginAddressFields(fields)
+      const fields = cloneDeep(addressFields);
+      setOriginAddressFields(fields);
     }
     // disabling due to errors withing b3Lang
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addressFields, originAddressFields.length, isB2BUser])
+  }, [addressFields, originAddressFields.length, isB2BUser]);
 
   useEffect(() => {
     const handleBackFillData = () => {
@@ -418,89 +386,85 @@ function AddressForm(
           stateCode,
           countryCode,
           extraFields,
-        } = addressData
+        } = addressData;
 
         const currentCountry = countries.filter(
-          (country: CountryProps) => country.countryCode === countryCode
-        )
+          (country: CountryProps) => country.countryCode === countryCode,
+        );
 
         setShippingBilling({
           isShipping: isShipping === 1,
           isBilling: isBilling === 1,
           isDefaultShipping: isDefaultShipping === 1,
           isDefaultBilling: isDefaultBilling === 1,
-        })
+        });
 
         allAddressFields.forEach((currentField: CustomFieldItems) => {
-          const field = currentField
+          const field = currentField;
           if (field.custom && extraFields.length > 0) {
             if (isB2BUser) {
-              const name = deCodeField(field.name)
+              const name = deCodeField(field.name);
               const currentExtraField = extraFields.filter(
-                (item: CustomFieldItems) => item.fieldName === name
-              )[0]
+                (item: CustomFieldItems) => item.fieldName === name,
+              )[0];
               const originFields = originAddressFields.filter(
-                (item: CustomFieldItems) => item.name === name
-              )[0]
+                (item: CustomFieldItems) => item.name === name,
+              )[0];
 
               if (currentExtraField) {
-                setValue(field.name, currentExtraField.fieldValue || '')
+                setValue(field.name, currentExtraField.fieldValue || '');
 
-                field.default = currentExtraField.fieldValue || ''
+                field.default = currentExtraField.fieldValue || '';
               } else {
-                setValue(field.name, '')
-                field.default = originFields.default
+                setValue(field.name, '');
+                field.default = originFields.default;
               }
             } else {
               const currentExtraField = extraFields.filter(
                 (item: CustomFieldItems) =>
-                  item.fieldName === field.name ||
-                  item.fieldName === field.bcLabel
-              )[0]
+                  item.fieldName === field.name || item.fieldName === field.bcLabel,
+              )[0];
               const originFields = originAddressFields.filter(
                 (item: CustomFieldItems) =>
-                  item.name === field.name || item.bcLabel === field.bcLabel
-              )[0]
+                  item.name === field.name || item.bcLabel === field.bcLabel,
+              )[0];
 
               if (currentExtraField) {
-                setValue(field.name, currentExtraField.fieldValue || '')
+                setValue(field.name, currentExtraField.fieldValue || '');
 
-                field.default =
-                  currentExtraField.fieldValue || originFields.default
+                field.default = currentExtraField.fieldValue || originFields.default;
               } else {
-                setValue(field.name, '')
-                field.default = originFields.default
+                setValue(field.name, '');
+                field.default = originFields.default;
               }
             }
           } else if (field.name === 'country') {
-            setValue(field.name, countryCode)
+            setValue(field.name, countryCode);
           } else if (field.name === 'state') {
-            setValue(field.name, stateCode || state)
+            setValue(field.name, stateCode || state);
             if (currentCountry.length > 0) {
-              const { states } = currentCountry[0]
+              const { states } = currentCountry[0];
 
               if (states.length > 0) {
-                field.options = states
-                field.fieldType = 'dropdown'
+                field.options = states;
+                field.fieldType = 'dropdown';
               } else {
-                field.options = []
-                field.fieldType = 'text'
+                field.options = [];
+                field.fieldType = 'text';
               }
             }
           } else {
             setValue(
               field.name,
-              addressData[field.name] === 'undefined'
-                ? ''
-                : addressData[field.name]
-            )
+              addressData[field.name] === 'undefined' ? '' : addressData[field.name],
+            );
           }
-        })
+        });
       }
-    }
+    };
 
     if (open && type === 'edit' && addressData) {
-      handleBackFillData()
+      handleBackFillData();
     }
   }, [
     addressData,
@@ -511,45 +475,44 @@ function AddressForm(
     originAddressFields,
     setValue,
     type,
-  ])
+  ]);
 
   useEffect(() => {
     const handleCountryChange = (countryCode: string) => {
       const stateList =
-        countries.find(
-          (country: CountryProps) => country.countryCode === countryCode
-        )?.states || []
+        countries.find((country: CountryProps) => country.countryCode === countryCode)?.states ||
+        [];
       const stateFields = allAddressFields.find(
-        (formFields: CustomFieldItems) => formFields.name === 'state'
-      )
+        (formFields: CustomFieldItems) => formFields.name === 'state',
+      );
 
       if (stateFields) {
         if (stateList.length > 0) {
-          stateFields.fieldType = 'dropdown'
-          stateFields.options = stateList
+          stateFields.fieldType = 'dropdown';
+          stateFields.options = stateList;
         } else {
-          stateFields.fieldType = 'text'
-          stateFields.options = []
+          stateFields.fieldType = 'text';
+          stateFields.options = [];
         }
       }
 
-      setValue('state', '')
+      setValue('state', '');
 
-      setAllAddressFields([...allAddressFields])
-    }
+      setAllAddressFields([...allAddressFields]);
+    };
 
     const subscription = watch((value, { name, type }) => {
-      const { country } = value
+      const { country } = value;
 
       if (name === 'country' && type === 'change') {
-        handleCountryChange(country)
+        handleCountryChange(country);
       }
-    })
-    return () => subscription.unsubscribe()
+    });
+    return () => subscription.unsubscribe();
     // disabling the next eslint rule
     // setValue -> not needed as is a dispatcher
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allAddressFields, countries, watch])
+  }, [allAddressFields, countries, watch]);
 
   return (
     <B3Dialog
@@ -572,7 +535,7 @@ function AddressForm(
 
           <StyledCheckbox>
             {b2bShippingBilling.map((item: B2bShippingBillingProps) => {
-              const { child, name, idLang } = item
+              const { child, name, idLang } = item;
 
               return (
                 <div key={name}>
@@ -581,7 +544,7 @@ function AddressForm(
                       <Checkbox
                         checked={shippingBilling[name]}
                         onChange={(e) => {
-                          handleChangeAddressType(e.target.checked, name)
+                          handleChangeAddressType(e.target.checked, name);
                         }}
                       />
                     }
@@ -596,7 +559,7 @@ function AddressForm(
                             setShippingBilling({
                               ...shippingBilling,
                               [child.name]: !shippingBilling[child.name],
-                            })
+                            });
                           }}
                         />
                       }
@@ -607,7 +570,7 @@ function AddressForm(
                     />
                   )}
                 </div>
-              )
+              );
             })}
           </StyledCheckbox>
         </>
@@ -620,9 +583,9 @@ function AddressForm(
         setValue={setValue}
       />
     </B3Dialog>
-  )
+  );
 }
 
-const B3AddressForm = forwardRef(AddressForm)
+const B3AddressForm = forwardRef(AddressForm);
 
-export default B3AddressForm
+export default B3AddressForm;

@@ -1,18 +1,11 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import { Box, Grid, useTheme } from '@mui/material'
+import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { Box, Grid, useTheme } from '@mui/material';
 
-import B3Sping from '@/components/spin/B3Sping'
-import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
+import B3Sping from '@/components/spin/B3Sping';
+import { useMobile } from '@/hooks';
+import { GlobaledContext } from '@/shared/global';
 import {
   deleteB2BShoppingListItem,
   deleteBcShoppingListItem,
@@ -23,17 +16,10 @@ import {
   searchBcProducts,
   updateB2BShoppingList,
   updateBcShoppingList,
-} from '@/shared/service/b2b'
-import {
-  activeCurrencyInfoSelector,
-  isB2BUserSelector,
-  useAppSelector,
-} from '@/store'
-import { channelId, snackbar } from '@/utils'
-import {
-  calculateProductListPrice,
-  getBCPrice,
-} from '@/utils/b3Product/b3Product'
+} from '@/shared/service/b2b';
+import { activeCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
+import { channelId, snackbar } from '@/utils';
+import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {
   conversionProductsList,
   CustomerInfoProps,
@@ -41,104 +27,89 @@ import {
   ProductsProps,
   SearchProps,
   ShoppingListInfoProps,
-} from '@/utils/b3Product/shared/config'
+} from '@/utils/b3Product/shared/config';
 
-import AddToShoppingList from './components/AddToShoppingList'
-import ReAddToCart from './components/ReAddToCart'
-import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems'
-import ShoppingDetailFooter from './components/ShoppingDetailFooter'
-import ShoppingDetailHeader from './components/ShoppingDetailHeader'
-import ShoppingDetailTable from './components/ShoppingDetailTable'
+import AddToShoppingList from './components/AddToShoppingList';
+import ReAddToCart from './components/ReAddToCart';
+import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems';
+import ShoppingDetailFooter from './components/ShoppingDetailFooter';
+import ShoppingDetailHeader from './components/ShoppingDetailHeader';
+import ShoppingDetailTable from './components/ShoppingDetailTable';
 import {
   ShoppingListDetailsContext,
   ShoppingListDetailsProvider,
-} from './context/ShoppingListDetailsContext'
+} from './context/ShoppingListDetailsContext';
 
 interface TableRefProps extends HTMLInputElement {
-  initSearch: () => void
+  initSearch: () => void;
 }
 
 interface OpenPageState {
-  isOpen: boolean
-  openUrl?: string
+  isOpen: boolean;
+  openUrl?: string;
 }
 
 interface UpdateShoppingListParamsProps {
-  id: number
-  name: string
-  description: string
-  status?: number
-  channelId?: number
+  id: number;
+  name: string;
+  description: string;
+  status?: number;
+  channelId?: number;
 }
 
 interface ShoppingListDetailsProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 interface ShoppingListDetailsContentProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
 
 function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
-  const { id = '' } = useParams()
+  const { id = '' } = useParams();
   const {
     state: { openAPPParams, productQuoteEnabled = false },
-  } = useContext(GlobaledContext)
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const { currency_code: currencyCode } = useAppSelector(
-    activeCurrencyInfoSelector
-  )
-  const role = useAppSelector(({ company }) => company.customer.role)
-  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
-  const customerGroupId = useAppSelector(
-    ({ company }) => company.customer.customerGroupId
-  )
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
-  const navigate = useNavigate()
-  const [isMobile] = useMobile()
-  const { dispatch } = useContext(ShoppingListDetailsContext)
+  } = useContext(GlobaledContext);
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const navigate = useNavigate();
+  const [isMobile] = useMobile();
+  const { dispatch } = useContext(ShoppingListDetailsContext);
 
-  const theme = useTheme()
+  const theme = useTheme();
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const primaryColor = theme.palette.primary.main
+  const primaryColor = theme.palette.primary.main;
 
-  const tableRef = useRef<TableRefProps | null>(null)
+  const tableRef = useRef<TableRefProps | null>(null);
 
-  const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
-  const [shoppingListInfo, setShoppingListInfo] =
-    useState<null | ShoppingListInfoProps>(null)
-  const [customerInfo, setCustomerInfo] = useState<null | CustomerInfoProps>(
-    null
-  )
-  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.0)
-  const [isRequestLoading, setIsRequestLoading] = useState(false)
+  const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
+  const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null);
+  const [customerInfo, setCustomerInfo] = useState<null | CustomerInfoProps>(null);
+  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.0);
+  const [isRequestLoading, setIsRequestLoading] = useState(false);
 
-  const [deleteOpen, setDeleteOpen] = useState<boolean>(false)
-  const [deleteItemId, setDeleteItemId] = useState<number | string>('')
+  const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
+  const [deleteItemId, setDeleteItemId] = useState<number | string>('');
 
-  const [validateSuccessProducts, setValidateSuccessProducts] = useState<
-    ProductsProps[]
-  >([])
-  const [validateFailureProducts, setValidateFailureProducts] = useState<
-    ProductsProps[]
-  >([])
+  const [validateSuccessProducts, setValidateSuccessProducts] = useState<ProductsProps[]>([]);
+  const [validateFailureProducts, setValidateFailureProducts] = useState<ProductsProps[]>([]);
 
-  const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] =
-    useState<boolean>(false)
+  const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false);
 
-  const isJuniorApprove = shoppingListInfo?.status === 0 && role === 2
-  const isReadForApprove =
-    shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20
+  const isJuniorApprove = shoppingListInfo?.status === 0 && role === 2;
+  const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20;
 
   const goToShoppingLists = () => {
-    navigate('/shoppingLists')
-  }
+    navigate('/shoppingLists');
+  };
 
   useEffect(() => {
     dispatch({
@@ -146,216 +117,208 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       payload: {
         id: parseInt(id, 10) || 0,
       },
-    })
+    });
     // disabling as we dont need a dispatcher here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [id]);
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
       try {
-        const productIds: number[] = []
+        const productIds: number[] = [];
         listProducts.forEach((item) => {
-          const { node } = item
+          const { node } = item;
           if (!productIds.includes(node.productId)) {
-            productIds.push(node.productId)
+            productIds.push(node.productId);
           }
-        })
-        const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+        });
+        const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
         const { productsSearch } = await getProducts({
           productIds,
           currencyCode,
           companyId: companyInfoId,
           customerGroupId,
-        })
+        });
 
-        const newProductsSearch = conversionProductsList(productsSearch)
+        const newProductsSearch = conversionProductsList(productsSearch);
 
         listProducts.forEach((item) => {
-          const { node } = item
+          const { node } = item;
 
-          const productInfo = newProductsSearch.find(
-            (search: CustomFieldItems) => {
-              const { id: productId } = search
+          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
+            const { id: productId } = search;
 
-              return node.productId === productId
-            }
-          )
+            return node.productId === productId;
+          });
 
-          node.productsSearch = productInfo || {}
-          node.productName = productInfo?.name || node.productName
-          node.productUrl = productInfo?.productUrl || node.productUrl
+          node.productsSearch = productInfo || {};
+          node.productName = productInfo?.name || node.productName;
+          node.productUrl = productInfo?.productUrl || node.productUrl;
 
-          node.disableCurrentCheckbox = false
+          node.disableCurrentCheckbox = false;
           if (node.quantity === 0) {
-            node.disableCurrentCheckbox = true
+            node.disableCurrentCheckbox = true;
           }
-        })
+        });
 
-        return listProducts
+        return listProducts;
       } catch (err: any) {
-        snackbar.error(err)
+        snackbar.error(err);
       }
     }
 
-    return []
-  }
+    return [];
+  };
 
   const getShoppingListDetails = async (params: SearchProps) => {
-    const getSLDetail = isB2BUser
-      ? getB2BShoppingListDetails
-      : getBcShoppingListDetails
-    const infoKey = isB2BUser ? 'shoppingList' : 'customerShoppingList'
+    const getSLDetail = isB2BUser ? getB2BShoppingListDetails : getBcShoppingListDetails;
+    const infoKey = isB2BUser ? 'shoppingList' : 'customerShoppingList';
 
     const shoppingListInfos = await getSLDetail({
       id,
       ...params,
-    })
+    });
 
-    const shoppingListDetailInfo = shoppingListInfos[infoKey]
+    const shoppingListDetailInfo = shoppingListInfos[infoKey];
 
     const {
       products: { edges, totalCount },
-    } = shoppingListDetailInfo
+    } = shoppingListDetailInfo;
 
-    const listProducts = await handleGetProductsById(edges)
+    const listProducts = await handleGetProductsById(edges);
 
-    await calculateProductListPrice(listProducts, '2')
+    await calculateProductListPrice(listProducts, '2');
 
-    if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo)
-    setShoppingListInfo(shoppingListDetailInfo)
+    if (isB2BUser) setCustomerInfo(shoppingListDetailInfo.customerInfo);
+    setShoppingListInfo(shoppingListDetailInfo);
 
     if (!listProducts) {
       return {
         edges: [],
         totalCount: 0,
-      }
+      };
     }
 
     return {
       edges: listProducts,
       totalCount,
-    }
-  }
+    };
+  };
 
   const handleUpdateShoppingList = async (status: number) => {
-    setIsRequestLoading(true)
+    setIsRequestLoading(true);
     try {
-      const updateShoppingList = isB2BUser
-        ? updateB2BShoppingList
-        : updateBcShoppingList
+      const updateShoppingList = isB2BUser ? updateB2BShoppingList : updateBcShoppingList;
       const params: UpdateShoppingListParamsProps = {
         id: +id,
         name: shoppingListInfo?.name || '',
         description: shoppingListInfo?.description || '',
-      }
+      };
 
       if (isB2BUser) {
-        params.status = status
+        params.status = status;
       } else {
-        params.channelId = channelId
+        params.channelId = channelId;
       }
 
-      await updateShoppingList(params)
+      await updateShoppingList(params);
 
       snackbar.success(b3Lang('shoppingList.shoppingListStatusUpdated'), {
         isClose: true,
-      })
-      tableRef.current?.initSearch()
+      });
+      tableRef.current?.initSearch();
     } finally {
-      setIsRequestLoading(false)
+      setIsRequestLoading(false);
     }
-  }
+  };
 
   const updateList = () => {
-    tableRef.current?.initSearch()
-  }
+    tableRef.current?.initSearch();
+  };
 
   const handleCancelClick = () => {
-    setDeleteOpen(false)
-    setDeleteItemId('')
-  }
+    setDeleteOpen(false);
+    setDeleteItemId('');
+  };
 
   const handleDeleteItems = async (itemId: number | string = '') => {
-    setIsRequestLoading(true)
-    const deleteShoppingListItem = isB2BUser
-      ? deleteB2BShoppingListItem
-      : deleteBcShoppingListItem
+    setIsRequestLoading(true);
+    const deleteShoppingListItem = isB2BUser ? deleteB2BShoppingListItem : deleteBcShoppingListItem;
 
     try {
       if (itemId) {
         await deleteShoppingListItem({
           itemId,
           shoppingListId: id,
-        })
+        });
 
         if (checkedArr.length > 0) {
           const newCheckedArr = checkedArr.filter((item: ListItemProps) => {
-            const { itemId: checkedItemId } = item.node
+            const { itemId: checkedItemId } = item.node;
 
-            return itemId !== checkedItemId
-          })
+            return itemId !== checkedItemId;
+          });
 
-          setCheckedArr([...newCheckedArr])
+          setCheckedArr([...newCheckedArr]);
         }
       } else {
-        if (checkedArr.length === 0) return
+        if (checkedArr.length === 0) return;
         checkedArr.forEach(async (item: ListItemProps) => {
-          const { node } = item
+          const { node } = item;
 
           await deleteShoppingListItem({
             itemId: node.itemId,
             shoppingListId: id,
-          })
-        })
+          });
+        });
 
-        setCheckedArr([])
+        setCheckedArr([]);
       }
 
-      snackbar.success(b3Lang('shoppingList.productRemoved'))
+      snackbar.success(b3Lang('shoppingList.productRemoved'));
     } finally {
-      setIsRequestLoading(false)
-      updateList()
+      setIsRequestLoading(false);
+      updateList();
     }
-  }
+  };
 
   useEffect(() => {
     if (checkedArr.length > 0) {
-      let total = 0.0
+      let total = 0.0;
 
       checkedArr.forEach((item: ListItemProps) => {
         const {
           node: { quantity, basePrice, taxPrice },
-        } = item
+        } = item;
 
-        const price = getBCPrice(+basePrice, +taxPrice)
+        const price = getBCPrice(+basePrice, +taxPrice);
 
-        total += price * +quantity
-      })
+        total += price * +quantity;
+      });
 
-      setSelectedSubTotal((1000 * total) / 1000)
+      setSelectedSubTotal((1000 * total) / 1000);
     } else {
-      setSelectedSubTotal(0.0)
+      setSelectedSubTotal(0.0);
     }
-  }, [checkedArr])
+  }, [checkedArr]);
 
   const handleDeleteProductClick = async () => {
-    await handleDeleteItems(+deleteItemId)
-    await handleCancelClick()
-  }
+    await handleDeleteItems(+deleteItemId);
+    await handleCancelClick();
+  };
 
   const getJuniorPlaceOrder = async () => {
     const {
       storeConfigSwitchStatus: { isEnabled },
-    } = await getB2BJuniorPlaceOrder()
+    } = await getB2BJuniorPlaceOrder();
 
-    setAllowJuniorPlaceOrder(isEnabled === '1')
-  }
+    setAllowJuniorPlaceOrder(isEnabled === '1');
+  };
 
   useEffect(() => {
-    if (isJuniorApprove) getJuniorPlaceOrder()
-  }, [isJuniorApprove])
+    if (isJuniorApprove) getJuniorPlaceOrder();
+  }, [isJuniorApprove]);
 
   return (
     <>
@@ -463,9 +426,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
         </Grid>
 
         {!isReadForApprove &&
-          (allowJuniorPlaceOrder ||
-            productQuoteEnabled ||
-            !isJuniorApprove) && (
+          (allowJuniorPlaceOrder || productQuoteEnabled || !isJuniorApprove) && (
             <ShoppingDetailFooter
               shoppingListInfo={shoppingListInfo}
               role={role}
@@ -499,17 +460,15 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
         handleDeleteProductClick={handleDeleteProductClick}
       />
     </>
-  )
+  );
 }
 
-function ShoppingListDetailsContent({
-  setOpenPage,
-}: ShoppingListDetailsContentProps) {
+function ShoppingListDetailsContent({ setOpenPage }: ShoppingListDetailsContentProps) {
   return (
     <ShoppingListDetailsProvider>
       <ShoppingListDetails setOpenPage={setOpenPage} />
     </ShoppingListDetailsProvider>
-  )
+  );
 }
 
-export default ShoppingListDetailsContent
+export default ShoppingListDetailsContent;

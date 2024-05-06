@@ -1,85 +1,83 @@
-import b2bLogger from './utils/b3Logger'
+import b2bLogger from './utils/b3Logger';
 
-const { MODE: mode, VITE_LOCAL_GRAPHQL_ORIGIN } = import.meta.env
+const { MODE: mode, VITE_LOCAL_GRAPHQL_ORIGIN } = import.meta.env;
 
 interface ScriptNodeChildren extends HTMLScriptElement {
-  dataSrc?: string
-  crossorigin?: string | boolean
+  dataSrc?: string;
+  crossorigin?: string | boolean;
 }
 
 interface GraphqlOriginProps {
-  development: string
-  staging: string
-  production: string
+  development: string;
+  staging: string;
+  production: string;
 }
 
 const graphqlOrigin: GraphqlOriginProps = {
   development: VITE_LOCAL_GRAPHQL_ORIGIN,
   staging: 'https://api-b2b.staging.zone',
   production: 'https://api-b2b.bigcommerce.com',
-}
+};
 
 function init() {
   const insertScript = (scriptString: string) => {
-    const doc = new DOMParser().parseFromString(scriptString, 'text/html')
-    const scriptNodes = doc.querySelectorAll('script')
+    const doc = new DOMParser().parseFromString(scriptString, 'text/html');
+    const scriptNodes = doc.querySelectorAll('script');
 
     if (scriptNodes.length) {
-      const body: HTMLBodyElement | null = document.querySelector('body')
+      const body: HTMLBodyElement | null = document.querySelector('body');
 
-      const oldScriptNodes = document.querySelectorAll(
-        '.headless-buyerPortal-id'
-      )
+      const oldScriptNodes = document.querySelectorAll('.headless-buyerPortal-id');
       if (oldScriptNodes.length > 0) {
         oldScriptNodes.forEach((oldNode) => {
-          oldNode.parentNode?.removeChild(oldNode)
-        })
+          oldNode.parentNode?.removeChild(oldNode);
+        });
       }
       scriptNodes.forEach((node: ScriptNodeChildren, index: number) => {
-        const nodeInnerHTML = node?.innerHTML || ''
-        const nodeSrc = node?.src || ''
-        const dataSrc = node?.dataSrc || ''
-        const type = node?.type || ''
-        const crossorigin = node?.crossorigin || ''
-        const id = node?.id || ''
-        const scriptElement = document.createElement('script')
-        scriptElement.innerHTML = nodeInnerHTML
-        scriptElement.className = 'headless-buyerPortal-id'
-        if (nodeSrc) scriptElement.setAttribute('src', nodeSrc)
-        if (dataSrc) scriptElement.setAttribute('data-src', dataSrc)
+        const nodeInnerHTML = node?.innerHTML || '';
+        const nodeSrc = node?.src || '';
+        const dataSrc = node?.dataSrc || '';
+        const type = node?.type || '';
+        const crossorigin = node?.crossorigin || '';
+        const id = node?.id || '';
+        const scriptElement = document.createElement('script');
+        scriptElement.innerHTML = nodeInnerHTML;
+        scriptElement.className = 'headless-buyerPortal-id';
+        if (nodeSrc) scriptElement.setAttribute('src', nodeSrc);
+        if (dataSrc) scriptElement.setAttribute('data-src', dataSrc);
         if (type) {
-          scriptElement.setAttribute('type', 'module')
+          scriptElement.setAttribute('type', 'module');
         } else if (index !== 0) {
-          scriptElement.noModule = true
+          scriptElement.noModule = true;
         }
-        if (id) scriptElement.setAttribute('id', id)
+        if (id) scriptElement.setAttribute('id', id);
 
-        if (crossorigin) scriptElement.setAttribute('crossorigin', 'true')
+        if (crossorigin) scriptElement.setAttribute('crossorigin', 'true');
 
         if (body) {
-          body.appendChild(scriptElement)
+          body.appendChild(scriptElement);
         }
-      })
+      });
     }
-  }
+  };
 
   async function getScriptContent(originUrl: string) {
     const params: {
-      siteUrl: string
-      storehash: string
-      channelId: string | number
+      siteUrl: string;
+      storehash: string;
+      channelId: string | number;
     } = {
       siteUrl: originUrl,
       storehash: '',
       channelId: '',
-    }
+    };
     const node: HTMLElement | null = document.querySelector(
-      'script[data-storehash][data-channelid]'
-    )
+      'script[data-storehash][data-channelid]',
+    );
     if (node?.dataset) {
-      const data = node.dataset
-      params.storehash = data.storehash || ''
-      params.channelId = data.channelid || ''
+      const data = node.dataset;
+      params.storehash = data.storehash || '';
+      params.channelId = data.channelid || '';
     }
     const data = {
       query: `
@@ -94,45 +92,45 @@ function init() {
             channelId
           }
         }`,
-    }
+    };
     const init = {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
       },
       body: JSON.stringify(data),
-    }
+    };
     fetch(`${graphqlOrigin[mode as keyof typeof graphqlOrigin]}/graphql`, init)
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok')
+          throw new Error('Network response was not ok');
         }
-        return response.json()
+        return response.json();
       })
       .then((data) => {
         const {
           data: { storefrontScript },
-        } = data
-        insertScript(storefrontScript.script)
+        } = data;
+        insertScript(storefrontScript.script);
       })
       .catch((error) => {
-        b2bLogger.error('There was a problem with the fetch operation:', error)
-      })
+        b2bLogger.error('There was a problem with the fetch operation:', error);
+      });
   }
 
   async function analyzeScript() {
     try {
-      const { origin } = window.location
+      const { origin } = window.location;
 
-      await getScriptContent(origin)
+      await getScriptContent(origin);
     } catch (error) {
-      b2bLogger.error('Interface error')
+      b2bLogger.error('Interface error');
     }
   }
 
-  analyzeScript()
+  analyzeScript();
 }
 
-init()
+init();
 
-export {}
+export {};

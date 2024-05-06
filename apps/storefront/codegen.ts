@@ -1,6 +1,6 @@
-import type { CodegenConfig } from '@graphql-codegen/cli'
+import type { CodegenConfig } from '@graphql-codegen/cli';
 
-const { CODEGEN_ENV } = process.env
+const { CODEGEN_ENV } = process.env;
 
 const envs: Record<string, { schema: string }> = {
   local: {
@@ -9,7 +9,7 @@ const envs: Record<string, { schema: string }> = {
   production: {
     schema: 'https://api-b2b.bigcommerce.com/graphql',
   },
-}
+};
 
 const config: CodegenConfig = {
   schema: !CODEGEN_ENV ? envs.production.schema : envs[CODEGEN_ENV].schema,
@@ -23,5 +23,5 @@ const config: CodegenConfig = {
     },
   },
   ignoreNoDocuments: true,
-}
-export default config
+};
+export default config;

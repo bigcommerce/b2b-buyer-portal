@@ -1,74 +1,74 @@
-import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, styled, Typography } from '@mui/material'
+import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, styled, Typography } from '@mui/material';
 
-import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { TableColumnItem } from '@/components/table/B3Table'
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useAppSelector } from '@/store'
-import { currencyFormatConvert } from '@/utils'
-import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { TableColumnItem } from '@/components/table/B3Table';
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useAppSelector } from '@/store';
+import { currencyFormatConvert } from '@/utils';
+import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
 
-import QuoteDetailTableCard from './QuoteDetailTableCard'
+import QuoteDetailTableCard from './QuoteDetailTableCard';
 
 interface ListItem {
-  [key: string]: string
+  [key: string]: string;
 }
 
 interface ProductInfoProps {
-  basePrice: number | string
-  baseSku: string
-  createdAt: number
-  discount: number | string
-  enteredInclusive: boolean
-  id: number | string
-  itemId: number
-  optionList: string
-  primaryImage: string
-  productId: number
-  productName: string
-  productUrl: string
-  quantity: number | string
-  tax: number | string
-  updatedAt: number
-  variantId: number
-  variantSku: string
-  productsSearch: CustomFieldItems
-  offeredPrice: number | string
+  basePrice: number | string;
+  baseSku: string;
+  createdAt: number;
+  discount: number | string;
+  enteredInclusive: boolean;
+  id: number | string;
+  itemId: number;
+  optionList: string;
+  primaryImage: string;
+  productId: number;
+  productName: string;
+  productUrl: string;
+  quantity: number | string;
+  tax: number | string;
+  updatedAt: number;
+  variantId: number;
+  variantSku: string;
+  productsSearch: CustomFieldItems;
+  offeredPrice: number | string;
 }
 
 interface ListItemProps {
-  node: ProductInfoProps
+  node: ProductInfoProps;
 }
 
 interface ShoppingDetailTableProps {
-  total: number
+  total: number;
   getQuoteTableDetails: (params: any) => Promise<{
-    edges: any[]
-    totalCount: number
-  }>
-  isHandleApprove: boolean
-  getTaxRate: (taxClassId: number, variants: any) => number
-  displayDiscount: boolean
-  currency: CurrencyProps
+    edges: any[];
+    totalCount: number;
+  }>;
+  isHandleApprove: boolean;
+  getTaxRate: (taxClassId: number, variants: any) => number;
+  displayDiscount: boolean;
+  currency: CurrencyProps;
 }
 
 interface SearchProps {
-  first?: number
-  offset?: number
+  first?: number;
+  offset?: number;
 }
 
 interface OptionProps {
-  optionId: number
-  optionLabel: string
-  optionName: string
-  optionValue: string | number
+  optionId: number;
+  optionLabel: string;
+  optionName: string;
+  optionValue: string | number;
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
-  getList: () => void
-  setList: (items?: ListItemProps[]) => void
-  getSelectedValue: () => void
+  getList: () => void;
+  setList: (items?: ListItemProps[]) => void;
+  getSelectedValue: () => void;
 }
 
 const StyledQuoteTableContainer = styled('div')(() => ({
@@ -95,66 +95,60 @@ const StyledQuoteTableContainer = styled('div')(() => ({
       },
     },
   },
-}))
+}));
 
 const StyledImage = styled('img')(() => ({
   maxWidth: '60px',
   height: 'auto',
   marginRight: '0.5rem',
-}))
+}));
 
 function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
-  const b3Lang = useB3Lang()
-  const {
-    total,
-    getQuoteTableDetails,
-    getTaxRate,
-    isHandleApprove,
-    displayDiscount,
-    currency,
-  } = props
+  const b3Lang = useB3Lang();
+  const { total, getQuoteTableDetails, getTaxRate, isHandleApprove, displayDiscount, currency } =
+    props;
 
   const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
-  )
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
+  );
   const enteredInclusiveTax = useAppSelector(
-    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax
-  )
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
+  );
 
-  const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
+  const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
   const [search, setSearch] = useState<SearchProps>({
     first: 12,
     offset: 0,
-  })
+  });
 
   useImperativeHandle(ref, () => ({
     getList: () => paginationTableRef.current?.getList(),
     refreshList: () => {
       setSearch({
         offset: 0,
-      })
+      });
     },
-  }))
+  }));
 
   const showPrice = (price: string, row: CustomFieldItems): string | number => {
     if (isEnableProduct) {
-      if (isHandleApprove) return price
+      if (isHandleApprove) return price;
       return getDisplayPrice({
         price,
         productInfo: row,
         showText: b3Lang('quoteDraft.quoteSummary.tbd'),
-      })
+      });
     }
-    return price
-  }
+    return price;
+  };
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'Product',
       title: b3Lang('quoteDetail.table.product'),
       render: (row: CustomFieldItems) => {
-        const optionsValue = row.options
-        const productUrl = row.productsSearch?.productUrl
+        const optionsValue = row.options;
+        const productUrl = row.productsSearch?.productUrl;
 
         return (
           <Box
@@ -175,9 +169,9 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 onClick={() => {
                   const {
                     location: { origin },
-                  } = window
+                  } = window;
                   if (productUrl) {
-                    window.location.href = `${origin}${productUrl}`
+                    window.location.href = `${origin}${productUrl}`;
                   }
                 }}
                 sx={{
@@ -204,7 +198,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                         >
                           {`${option.optionName}: ${option.optionLabel}`}
                         </Typography>
-                      )
+                      ),
                   )}
                 </Box>
               )}
@@ -224,7 +218,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
               )}
             </Box>
           </Box>
-        )
+        );
       },
       width: '40%',
     },
@@ -236,20 +230,20 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           basePrice,
           offeredPrice,
           productsSearch: { variants = [], taxClassId },
-        } = row
+        } = row;
 
-        const taxRate = getTaxRate(taxClassId, variants)
+        const taxRate = getTaxRate(taxClassId, variants);
         const taxPrice = enteredInclusiveTax
           ? (+basePrice * taxRate) / (1 + taxRate)
-          : +basePrice * taxRate
+          : +basePrice * taxRate;
         const discountTaxPrice = enteredInclusiveTax
           ? (+offeredPrice * taxRate) / (1 + taxRate)
-          : +offeredPrice * taxRate
+          : +offeredPrice * taxRate;
 
-        const price = getBCPrice(+basePrice, taxPrice)
-        const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
+        const price = getBCPrice(+basePrice, taxPrice);
+        const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice);
 
-        const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount
+        const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount;
         return (
           <>
             {isDiscount && (
@@ -263,7 +257,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   `${currencyFormatConvert(price, {
                     currency,
                   })}`,
-                  row
+                  row,
                 )}
               </Typography>
             )}
@@ -278,11 +272,11 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 `${currencyFormatConvert(discountPrice, {
                   currency,
                 })}`,
-                row
+                row,
               )}
             </Typography>
           </>
-        )
+        );
       },
       width: '15%',
       style: {
@@ -315,22 +309,22 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
           quantity,
           offeredPrice,
           productsSearch: { variants = [], taxClassId },
-        } = row
+        } = row;
 
-        const taxRate = getTaxRate(taxClassId, variants)
+        const taxRate = getTaxRate(taxClassId, variants);
         const taxPrice = enteredInclusiveTax
           ? (+basePrice * taxRate) / (1 + taxRate)
-          : +basePrice * taxRate
+          : +basePrice * taxRate;
         const discountTaxPrice = enteredInclusiveTax
           ? (+offeredPrice * taxRate) / (1 + taxRate)
-          : +offeredPrice * taxRate
+          : +offeredPrice * taxRate;
 
-        const price = getBCPrice(+basePrice, taxPrice)
-        const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
-        const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount
+        const price = getBCPrice(+basePrice, taxPrice);
+        const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice);
+        const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount;
 
-        const total = price * +quantity
-        const totalWithDiscount = discountPrice * +quantity
+        const total = price * +quantity;
+        const totalWithDiscount = discountPrice * +quantity;
 
         return (
           <Box>
@@ -345,7 +339,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                   `${currencyFormatConvert(total, {
                     currency,
                   })}`,
-                  row
+                  row,
                 )}
               </Typography>
             )}
@@ -359,18 +353,18 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 `${currencyFormatConvert(totalWithDiscount, {
                   currency,
                 })}`,
-                row
+                row,
               )}
             </Typography>
           </Box>
-        )
+        );
       },
       width: '20%',
       style: {
         textAlign: 'right',
       },
     },
-  ]
+  ];
 
   return (
     <StyledQuoteTableContainer>
@@ -416,7 +410,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         )}
       />
     </StyledQuoteTableContainer>
-  )
+  );
 }
 
-export default forwardRef(QuoteDetailTable)
+export default forwardRef(QuoteDetailTable);

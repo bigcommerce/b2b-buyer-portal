@@ -1,17 +1,17 @@
-import { B3Tag } from '@/components'
+import { B3Tag } from '@/components';
 
 interface StatusProps {
-  code: number
+  code: number;
 }
 
 interface InvoiceStatusProps {
   [key: string]: {
-    [key: string]: string
-  }
+    [key: string]: string;
+  };
 }
 
 export default function InvoiceStatus(props: StatusProps) {
-  const { code } = props
+  const { code } = props;
 
   const getInvoiceStatus = (code: number) => {
     const invoiceStatus: InvoiceStatusProps = {
@@ -35,18 +35,18 @@ export default function InvoiceStatus(props: StatusProps) {
         name: 'Overdue',
         color: '#D32F2F',
       },
-    }
+    };
 
-    const statusInfo = invoiceStatus[code] || {}
+    const statusInfo = invoiceStatus[code] || {};
 
-    return statusInfo
-  }
+    return statusInfo;
+  };
 
-  const status = getInvoiceStatus(code)
+  const status = getInvoiceStatus(code);
 
   return status.name ? (
     <B3Tag color={status.color} textColor={status.textColor}>
       {status.name}
     </B3Tag>
-  ) : null
+  ) : null;
 }

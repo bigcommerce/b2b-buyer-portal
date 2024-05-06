@@ -1,5 +1,5 @@
-import { cleanup } from '@testing-library/react'
-import { afterEach, beforeEach } from 'vitest'
+import { cleanup } from '@testing-library/react';
+import { afterEach, beforeEach } from 'vitest';
 
 window.B3 = {
   setting: {
@@ -9,7 +9,7 @@ window.B3 = {
     b2b_url: '',
     captcha_setkey: '',
   },
-}
+};
 beforeEach(() => {
   window.B3 = {
     setting: {
@@ -19,8 +19,8 @@ beforeEach(() => {
       b2b_url: '',
       captcha_setkey: '',
     },
-  }
-})
+  };
+});
 afterEach(() => {
-  cleanup()
-})
+  cleanup();
+});

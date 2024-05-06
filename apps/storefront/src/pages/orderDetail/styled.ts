@@ -1,16 +1,16 @@
-import styled from '@emotion/styled'
+import styled from '@emotion/styled';
 
 interface FlexProps {
-  isHeader?: boolean
-  isMobile?: boolean
+  isHeader?: boolean;
+  isMobile?: boolean;
 }
 
 interface FlexItemProps {
-  width?: string
-  padding?: string
-  flexBasis?: string
-  minHeight?: string
-  textAlignLocation?: string
+  width?: string;
+  padding?: string;
+  flexBasis?: string;
+  minHeight?: string;
+  textAlignLocation?: string;
 }
 
 const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
@@ -22,7 +22,7 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
       }
     : {
         alignItems: 'flex-start',
-      }
+      };
 
   const mobileStyle = isMobile
     ? {
@@ -32,9 +32,9 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
           marginTop: '12px',
         },
       }
-    : {}
+    : {};
 
-  const flexWrap = isMobile ? 'wrap' : 'initial'
+  const flexWrap = isMobile ? 'wrap' : 'initial';
 
   return {
     display: 'flex',
@@ -44,8 +44,8 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
     flexWrap,
     ...headerStyle,
     ...mobileStyle,
-  }
-})
+  };
+});
 
 const FlexItem = styled('div')(
   ({ width, padding = '0', flexBasis, textAlignLocation }: FlexItemProps) => ({
@@ -57,26 +57,26 @@ const FlexItem = styled('div')(
     flexBasis,
     width,
     padding,
-  })
-)
+  }),
+);
 
 const ProductHead = styled('div')(() => ({
   fontSize: '0.875rem',
   lineHeight: '1.5',
   color: '#263238',
-}))
+}));
 
 const ProductImage = styled('img')(() => ({
   width: '60px',
   borderRadius: '4px',
   flexShrink: 0,
-}))
+}));
 
 const ProductOptionText = styled('div')(() => ({
   fontSize: '0.75rem',
   lineHeight: '1.5',
   color: '#455A64',
-}))
+}));
 
 const defaultItemStyle = {
   default: {
@@ -85,7 +85,7 @@ const defaultItemStyle = {
   qty: {
     width: '80px',
   },
-}
+};
 
 const mobileItemStyle = {
   default: {
@@ -96,7 +96,7 @@ const mobileItemStyle = {
     width: '100%',
     padding: '0 0 0 128px',
   },
-}
+};
 
 export {
   defaultItemStyle,
@@ -106,4 +106,4 @@ export {
   ProductHead,
   ProductImage,
   ProductOptionText,
-}
+};

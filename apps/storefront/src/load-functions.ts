@@ -1,69 +1,66 @@
-import globalB3 from '@b3/global-b3'
+import globalB3 from '@b3/global-b3';
 
 export const requestIdleCallbackFunction: typeof window.requestIdleCallback =
   window.requestIdleCallback
     ? window.requestIdleCallback
     : (cb: IdleRequestCallback) => {
-        const start = Date.now()
+        const start = Date.now();
         return window.setTimeout(() => {
           cb({
             didTimeout: false,
             timeRemaining() {
-              return Math.max(0, 50 - (Date.now() - start))
+              return Math.max(0, 50 - (Date.now() - start));
             },
-          })
-        }, 1)
-      }
+          });
+        }, 1);
+      };
 
 export class InitializationEnvironment {
-  clickedLinkElement?: HTMLElement
+  clickedLinkElement?: HTMLElement;
 
-  #isInitVariable = false
+  #isInitVariable = false;
 
-  isInitListener?: () => void
+  isInitListener?: () => void;
 
   set isInit(value: boolean) {
-    this.#isInitVariable = value
-    this.isInitListener?.()
+    this.#isInitVariable = value;
+    this.isInitListener?.();
   }
 
   get isInit() {
-    return this.#isInitVariable
+    return this.#isInitVariable;
   }
 }
 
 window.b2b = {
   ...window.b2b,
   initializationEnvironment: new InitializationEnvironment(),
-}
+};
 
 export const initApp = async () => {
-  if (window.b2b.initializationEnvironment.isInit) return
+  if (window.b2b.initializationEnvironment.isInit) return;
 
-  await import('./react-setup')
-}
+  await import('./react-setup');
+};
 
 const clickLink = async (e: MouseEvent) => {
-  window.b2b.initializationEnvironment.clickedLinkElement =
-    e.target as HTMLElement
-  e.preventDefault()
-  e.stopPropagation()
-  await initApp()
-}
+  window.b2b.initializationEnvironment.clickedLinkElement = e.target as HTMLElement;
+  e.preventDefault();
+  e.stopPropagation();
+  await initApp();
+};
 
 export const bindLinks = () => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
-    `${globalB3['dom.registerElement']}, ${globalB3['dom.allOtherElement']}`
-  )
+    `${globalB3['dom.registerElement']}, ${globalB3['dom.allOtherElement']}`,
+  );
 
-  links.forEach((accessLink) => accessLink.addEventListener('click', clickLink))
-}
+  links.forEach((accessLink) => accessLink.addEventListener('click', clickLink));
+};
 export const unbindLinks = () => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
-    `${globalB3['dom.registerElement']}, ${globalB3['dom.allOtherElement']}`
-  )
+    `${globalB3['dom.registerElement']}, ${globalB3['dom.allOtherElement']}`,
+  );
 
-  links.forEach((accessLink) =>
-    accessLink.removeEventListener('click', clickLink)
-  )
-}
+  links.forEach((accessLink) => accessLink.removeEventListener('click', clickLink));
+};

@@ -1,18 +1,18 @@
-import { AddressItemType, BCAddressItemType } from '../../../types/address'
+import { AddressItemType, BCAddressItemType } from '../../../types/address';
 
 export interface B2bShippingBillingChildProps {
-  name: string
-  label: string
-  default: string
-  parent: string
-  idLang: string
+  name: string;
+  label: string;
+  default: string;
+  parent: string;
+  idLang: string;
 }
 export interface B2bShippingBillingProps {
-  name: string
-  label: string
-  default: string
-  child: B2bShippingBillingChildProps
-  idLang: string
+  name: string;
+  label: string;
+  default: string;
+  child: B2bShippingBillingChildProps;
+  idLang: string;
 }
 
 export const filterFormConfig = [
@@ -49,7 +49,7 @@ export const filterFormConfig = [
     size: 'small',
     idLang: 'addresses.filter.country',
   },
-]
+];
 
 export const b2bShippingBilling = [
   {
@@ -78,7 +78,7 @@ export const b2bShippingBilling = [
       idLang: 'addresses.editAddress.defaultBillingAddress',
     },
   },
-]
+];
 
 export const b2bAddressFields = [
   {
@@ -211,15 +211,13 @@ export const b2bAddressFields = [
     size: 'small',
     idLang: 'addresses.editAddress.phoneNumber',
   },
-]
+];
 
-export const convertBCToB2BAddress: (
-  data: BCAddressItemType
-) => AddressItemType = (data) => {
+export const convertBCToB2BAddress: (data: BCAddressItemType) => AddressItemType = (data) => {
   const extraFields = (data.formFields || []).map((item) => ({
     fieldName: item.name,
     fieldValue: item.value,
-  }))
+  }));
 
   return {
     id: data.id,
@@ -246,5 +244,5 @@ export const convertBCToB2BAddress: (
     extraFields,
     company: data.company,
     bcAddressId: data.bcAddressId,
-  }
-}
+  };
+};

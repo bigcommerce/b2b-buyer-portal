@@ -1,38 +1,38 @@
-import { useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import AddIcon from '@mui/icons-material/Add'
-import { Box, ListItemText, MenuItem, MenuList, useTheme } from '@mui/material'
+import { useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import AddIcon from '@mui/icons-material/Add';
+import { Box, ListItemText, MenuItem, MenuList, useTheme } from '@mui/material';
 
-import B3Dialog from '@/components/B3Dialog'
-import CustomButton from '@/components/button/CustomButton'
-import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
-import B3Sping from '@/components/spin/B3Sping'
-import { useMobile } from '@/hooks'
-import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b'
-import { isB2BUserSelector, useAppSelector } from '@/store'
-import { channelId } from '@/utils'
+import B3Dialog from '@/components/B3Dialog';
+import CustomButton from '@/components/button/CustomButton';
+import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles';
+import B3Sping from '@/components/spin/B3Sping';
+import { useMobile } from '@/hooks';
+import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b';
+import { isB2BUserSelector, useAppSelector } from '@/store';
+import { channelId } from '@/utils';
 
-import { ShoppingListItem } from '../../../types'
+import { ShoppingListItem } from '../../../types';
 
 interface OrderShoppingListProps {
-  isOpen: boolean
-  dialogTitle?: string
-  confirmText?: string
-  onClose?: () => void
-  onCreate?: () => void
-  onConfirm?: (id: string) => void
-  isLoading?: boolean
-  setLoading?: (val: boolean) => void
+  isOpen: boolean;
+  dialogTitle?: string;
+  confirmText?: string;
+  onClose?: () => void;
+  onCreate?: () => void;
+  onConfirm?: (id: string) => void;
+  isLoading?: boolean;
+  setLoading?: (val: boolean) => void;
 }
 
 interface ListItem {
-  node: ShoppingListItem
+  node: ShoppingListItem;
 }
 
-const noop = () => {}
+const noop = () => {};
 
 export default function OrderShoppingList(props: OrderShoppingListProps) {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
   const {
     isOpen,
     dialogTitle = b3Lang('global.orderShoppingList.confirm'),
@@ -42,67 +42,66 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
     onCreate = noop,
     isLoading = false,
     setLoading = noop,
-  } = props
+  } = props;
 
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const role = useAppSelector(({ company }) => company.customer.role)
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const role = useAppSelector(({ company }) => company.customer.role);
 
-  const theme = useTheme()
-  const [isMobile] = useMobile()
-  const primaryColor = theme.palette.primary.main
+  const theme = useTheme();
+  const [isMobile] = useMobile();
+  const primaryColor = theme.palette.primary.main;
 
-  const [list, setList] = useState([])
-  const [activeId, setActiveId] = useState('')
+  const [list, setList] = useState([]);
+  const [activeId, setActiveId] = useState('');
 
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) return;
     const getList = async () => {
-      setLoading(true)
-      setList([])
+      setLoading(true);
+      setList([]);
 
-      const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList
-      const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
-      const params = isB2BUser ? {} : { channelId }
+      const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList;
+      const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists';
+      const params = isB2BUser ? {} : { channelId };
 
       try {
         const {
           [infoKey]: { edges: list = [] },
-        }: CustomFieldItems = await getShoppingList(params)
+        }: CustomFieldItems = await getShoppingList(params);
 
         if (!isB2BUser) {
-          setList(list)
+          setList(list);
         } else {
           const newList = list.filter(
-            (item: CustomFieldItems) =>
-              item.node.status === +(role === 2 ? 30 : 0)
-          )
-          setList(newList)
+            (item: CustomFieldItems) => item.node.status === +(role === 2 ? 30 : 0),
+          );
+          setList(newList);
         }
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    getList()
+    getList();
     // Disabling as the setLoading dispatcher does not need to be here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, isOpen, role])
+  }, [isB2BUser, isOpen, role]);
 
   const handleClose = () => {
-    onClose()
-  }
+    onClose();
+  };
 
   const handleConfirm = () => {
-    onConfirm(activeId)
-  }
+    onConfirm(activeId);
+  };
 
   const handleCreate = () => {
-    onCreate()
-  }
+    onCreate();
+  };
 
   const handleListItemClicked = (item: ListItem) => () => {
-    setActiveId(item.node.id)
-  }
+    setActiveId(item.node.id);
+  };
 
   return (
     <B3Dialog
@@ -170,5 +169,5 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
         </CustomButton>
       </B3Sping>
     </B3Dialog>
-  )
+  );
 }

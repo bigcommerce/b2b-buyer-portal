@@ -1,111 +1,93 @@
-import { lazy, useContext, useEffect, useState } from 'react'
-import { HashRouter } from 'react-router-dom'
+import { lazy, useContext, useEffect, useState } from 'react';
+import { HashRouter } from 'react-router-dom';
 
-import GlobalDialog from '@/components/extraTip/GlobalDialog'
-import B3RenderRouter from '@/components/layout/B3RenderRouter'
-import showPageMask from '@/components/loading/B3showPageMask'
-import { useB3AppOpen, useSetOpen } from '@/hooks'
-import useDomHooks from '@/hooks/dom/useDomHooks'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
-import { gotoAllowedAppPage } from '@/shared/routes'
-import { setChannelStoreType } from '@/shared/service/b2b'
+import GlobalDialog from '@/components/extraTip/GlobalDialog';
+import B3RenderRouter from '@/components/layout/B3RenderRouter';
+import showPageMask from '@/components/loading/B3showPageMask';
+import { useB3AppOpen, useSetOpen } from '@/hooks';
+import useDomHooks from '@/hooks/dom/useDomHooks';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { GlobaledContext } from '@/shared/global';
+import { gotoAllowedAppPage } from '@/shared/routes';
+import { setChannelStoreType } from '@/shared/service/b2b';
 import {
   getQuoteEnabled,
   handleHideRegisterPage,
   hideStorefrontElement,
   openPageByClick,
   removeBCMenus,
-} from '@/utils'
+} from '@/utils';
 
-import clearInvoiceCart from './utils/b3ClearCart'
-import b2bLogger from './utils/b3Logger'
-import { isUserGotoLogin } from './utils/b3logout'
+import clearInvoiceCart from './utils/b3ClearCart';
+import b2bLogger from './utils/b3Logger';
+import { isUserGotoLogin } from './utils/b3logout';
 import {
   getCompanyInfo,
   getCompanyUserInfo,
   getCurrentCustomerInfo,
   loginInfo,
-} from './utils/loginInfo'
+} from './utils/loginInfo';
 import {
   getStoreTaxZoneRates,
   getTemPlateConfig,
   setStorefrontConfig,
-} from './utils/storefrontConfig'
+} from './utils/storefrontConfig';
 import {
   isB2BUserSelector,
   setGlabolCommonState,
   setOpenPageReducer,
   useAppDispatch,
   useAppSelector,
-} from './store'
+} from './store';
 
-const B3GlobalTip = lazy(() => import('@/components/B3GlobalTip'))
+const B3GlobalTip = lazy(() => import('@/components/B3GlobalTip'));
 
-const B3HoverButton = lazy(
-  () => import('@/components/outSideComponents/B3HoverButton')
-)
+const B3HoverButton = lazy(() => import('@/components/outSideComponents/B3HoverButton'));
 
 const B3MasquradeGobalTip = lazy(
-  () => import('@/components/outSideComponents/B3MasquradeGobalTip')
-)
+  () => import('@/components/outSideComponents/B3MasquradeGobalTip'),
+);
 
-const HeadlessController = lazy(() => import('@/components/HeadlessController'))
+const HeadlessController = lazy(() => import('@/components/HeadlessController'));
 
-const ThemeFrame = lazy(() => import('@/components/ThemeFrame'))
+const ThemeFrame = lazy(() => import('@/components/ThemeFrame'));
 
-const FONT_URL =
-  'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
+const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap';
 
 export default function App() {
   const {
-    state: {
-      quoteConfig,
-      storefrontConfig,
-      productQuoteEnabled,
-      registerEnabled,
-    },
+    state: { quoteConfig, storefrontConfig, productQuoteEnabled, registerEnabled },
     dispatch,
-  } = useContext(GlobaledContext)
+  } = useContext(GlobaledContext);
 
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const storeDispatch = useAppDispatch()
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
-  const customerId = useAppSelector(({ company }) => company.customer.id)
-  const emailAddress = useAppSelector(
-    ({ company }) => company.customer.emailAddress
-  )
-  const role = useAppSelector((state) => state.company.customer.role)
-  const b2bId = useAppSelector((state) => state.company.customer.b2bId)
-  const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn)
-  const isPageComplete = useAppSelector(({ global }) => global.isPageComplete)
-  const currentClickedUrl = useAppSelector(
-    ({ global }) => global.currentClickedUrl
-  )
-  const isRegisterAndLogin = useAppSelector(
-    ({ global }) => global.isRegisterAndLogin
-  )
-  const bcGraphqlToken = useAppSelector(
-    ({ company }) => company.tokens.bcGraphqlToken
-  )
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const storeDispatch = useAppDispatch();
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const customerId = useAppSelector(({ company }) => company.customer.id);
+  const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
+  const role = useAppSelector((state) => state.company.customer.role);
+  const b2bId = useAppSelector((state) => state.company.customer.b2bId);
+  const isClickEnterBtn = useAppSelector(({ global }) => global.isClickEnterBtn);
+  const isPageComplete = useAppSelector(({ global }) => global.isPageComplete);
+  const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
+  const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
+  const bcGraphqlToken = useAppSelector(({ company }) => company.tokens.bcGraphqlToken);
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
-    showPageMask(dispatch, true)
+    showPageMask(dispatch, true);
     storeDispatch(
       setGlabolCommonState({
         isClickEnterBtn: true,
         currentClickedUrl: href,
         isRegisterAndLogin,
-      })
-    )
-  }
+      }),
+    );
+  };
 
   const [{ isOpen, openUrl, params }, setOpenPage] = useB3AppOpen({
     isOpen: false,
     handleEnterClick: handleAccountClick,
-  })
+  });
 
   const {
     state: {
@@ -113,22 +95,22 @@ export default function App() {
       cssOverride,
     },
     dispatch: styleDispatch,
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
   const CUSTOM_STYLES = `
   body {
     background: ${backgroundColor};
     font-family: Roboto;
-  }`
+  }`;
 
-  const [customStyles, setCustomStyle] = useState<string>(CUSTOM_STYLES)
+  const [customStyles, setCustomStyle] = useState<string>(CUSTOM_STYLES);
 
-  useDomHooks({ setOpenPage, isOpen })
+  useDomHooks({ setOpenPage, isOpen });
 
   // open storefront
-  useSetOpen(isOpen, openUrl, params)
+  useSetOpen(isOpen, openUrl, params);
 
-  const { pathname, href, search } = window.location
+  const { pathname, href, search } = window.location;
 
   const loginAndRegister = () => {
     dispatch({
@@ -136,7 +118,7 @@ export default function App() {
       payload: {
         isCheckout: pathname === '/checkout',
       },
-    })
+    });
 
     if (/login.php/.test(pathname) && !href.includes('change_password')) {
       dispatch({
@@ -144,47 +126,47 @@ export default function App() {
         payload: {
           isCloseGotoBCHome: true,
         },
-      })
+      });
 
-      let openUrl = '/login'
+      let openUrl = '/login';
       if (/action=create_account/.test(search)) {
-        openUrl = '/register'
+        openUrl = '/register';
       }
       if (/action=reset_password/.test(search)) {
-        openUrl = '/forgotpassword'
+        openUrl = '/forgotpassword';
       }
 
       setOpenPage({
         isOpen: true,
         openUrl,
-      })
+      });
     }
-  }
+  };
 
   const gotoPage = (url: string) => {
     setOpenPage({
       isOpen: true,
       openUrl: url,
-    })
-  }
+    });
+  };
 
   useEffect(() => {
-    handleHideRegisterPage(registerEnabled)
-  }, [registerEnabled])
+    handleHideRegisterPage(registerEnabled);
+  }, [registerEnabled]);
 
   useEffect(() => {
-    removeBCMenus()
-  }, [])
+    removeBCMenus();
+  }, []);
 
   useEffect(() => {
-    storeDispatch(setOpenPageReducer(setOpenPage))
-    loginAndRegister()
+    storeDispatch(setOpenPageReducer(setOpenPage));
+    loginAndRegister();
     const init = async () => {
       // bc graphql token
       if (!bcGraphqlToken) {
-        await loginInfo()
+        await loginInfo();
       }
-      setChannelStoreType()
+      setChannelStoreType();
 
       try {
         await Promise.allSettled([
@@ -193,64 +175,51 @@ export default function App() {
           getTemPlateConfig(styleDispatch, dispatch),
           getCompanyUserInfo(emailAddress, customerId),
           getCompanyInfo(role, b2bId),
-        ])
+        ]);
       } catch (e) {
-        b2bLogger.error(e)
+        b2bLogger.error(e);
       }
 
       const userInfo = {
         role: +role,
         isAgenting,
-      }
+      };
 
       if (!customerId) {
-        const info = await getCurrentCustomerInfo()
+        const info = await getCurrentCustomerInfo();
         if (info) {
-          userInfo.role = info?.role
+          userInfo.role = info?.role;
         }
       }
 
       // background login enter judgment and refresh
-      if (
-        !href.includes('checkout') &&
-        !(customerId && !window.location.hash)
-      ) {
-        await gotoAllowedAppPage(+userInfo.role, gotoPage)
+      if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
+        await gotoAllowedAppPage(+userInfo.role, gotoPage);
       }
 
       if (customerId) {
-        clearInvoiceCart()
+        clearInvoiceCart();
       }
 
-      showPageMask(dispatch, false)
+      showPageMask(dispatch, false);
       storeDispatch(
         setGlabolCommonState({
           isPageComplete: true,
-        })
-      )
-    }
+        }),
+      );
+    };
 
-    init()
+    init();
     // ignore dispatch, gotoPage, loginAndRegister, setOpenPage, storeDispatch, styleDispatch
     // due they are funtions that do not depend on any reactive value
     // ignore href because is not a reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role])
+  }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role]);
 
   useEffect(() => {
     if (quoteConfig.length > 0 && storefrontConfig) {
-      const {
-        productQuoteEnabled,
-        cartQuoteEnabled,
-        shoppingListEnabled,
-        registerEnabled,
-      } = getQuoteEnabled(
-        quoteConfig,
-        storefrontConfig,
-        role,
-        isB2BUser,
-        isAgenting
-      )
+      const { productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled, registerEnabled } =
+        getQuoteEnabled(quoteConfig, storefrontConfig, role, isB2BUser, isAgenting);
 
       dispatch({
         type: 'common',
@@ -260,24 +229,24 @@ export default function App() {
           shoppingListEnabled,
           registerEnabled,
         },
-      })
+      });
       setTimeout(() => {
-        window.b2b.initializationEnvironment.isInit = true
-      })
+        window.b2b.initializationEnvironment.isInit = true;
+      });
     }
-    if (isB2BUser) hideStorefrontElement('dom.hideThemePayments')
+    if (isB2BUser) hideStorefrontElement('dom.hideThemePayments');
 
     // ignore dispatch due it's funtion that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
+  }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig]);
 
   useEffect(() => {
     if (isOpen) {
-      showPageMask(dispatch, false)
+      showPageMask(dispatch, false);
     }
     // ignore dispatch due it's funtion that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen])
+  }, [isOpen]);
 
   useEffect(() => {
     const init = async () => {
@@ -289,67 +258,60 @@ export default function App() {
           role,
           isRegisterAndLogin,
           isAgenting,
-        })
+        });
 
-        const isGotoLogin = await isUserGotoLogin(gotoUrl)
+        const isGotoLogin = await isUserGotoLogin(gotoUrl);
 
         setOpenPage({
           isOpen: true,
           openUrl: isGotoLogin ? '/login' : gotoUrl,
-        })
+        });
 
-        showPageMask(dispatch, false)
+        showPageMask(dispatch, false);
         storeDispatch(
           setGlabolCommonState({
             isClickEnterBtn: false,
-          })
-        )
+          }),
+        );
       }
-    }
+    };
 
-    init()
+    init();
     // ignore dispatch, setOpenPage, and storeDispatch
     // due they are funtions that do not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    currentClickedUrl,
-    isAgenting,
-    isClickEnterBtn,
-    isPageComplete,
-    isRegisterAndLogin,
-    role,
-  ])
+  }, [currentClickedUrl, isAgenting, isClickEnterBtn, isPageComplete, isRegisterAndLogin, role]);
 
   useEffect(() => {
-    const { hash } = window.location
+    const { hash } = window.location;
 
     if (!hash.includes('login') && !hash.includes('register')) {
-      const recordOpenHash = isOpen ? hash : ''
+      const recordOpenHash = isOpen ? hash : '';
       storeDispatch(
         setGlabolCommonState({
           recordOpenHash,
-        })
-      )
+        }),
+      );
     }
 
     if (isOpen && hash === '#/') {
       setOpenPage({
         isOpen: false,
         openUrl: '',
-      })
+      });
     }
     // ignore setOpenPage ad storeDispatch
     // due they are funtions that do not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen])
+  }, [isOpen]);
 
   useEffect(() => {
-    const cssValue = (cssOverride.css || '').replace(/\};/g, '}')
+    const cssValue = (cssOverride.css || '').replace(/\};/g, '}');
 
-    const newStyle = `${CUSTOM_STYLES}\n${cssValue}`
+    const newStyle = `${CUSTOM_STYLES}\n${cssValue}`;
 
-    setCustomStyle(newStyle)
-  }, [cssOverride?.css, CUSTOM_STYLES])
+    setCustomStyle(newStyle);
+  }, [cssOverride?.css, CUSTOM_STYLES]);
 
   return (
     <>
@@ -361,11 +323,7 @@ export default function App() {
             customStyles={customStyles}
           >
             {isOpen ? (
-              <B3RenderRouter
-                isOpen={isOpen}
-                openUrl={openUrl}
-                setOpenPage={setOpenPage}
-              />
+              <B3RenderRouter isOpen={isOpen} openUrl={openUrl} setOpenPage={setOpenPage} />
             ) : null}
           </ThemeFrame>
         </div>
@@ -380,5 +338,5 @@ export default function App() {
       <B3GlobalTip />
       <GlobalDialog />
     </>
-  )
+  );
 }

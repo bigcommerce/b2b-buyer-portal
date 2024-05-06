@@ -1,50 +1,41 @@
-import { useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import UploadFileIcon from '@mui/icons-material/UploadFile'
-import {
-  Box,
-  Card,
-  CardContent,
-  Divider,
-  Link,
-  Typography,
-} from '@mui/material'
+import { useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { Box, Card, CardContent, Divider, Link, Typography } from '@mui/material';
 
-import { B3Upload, successTip } from '@/components'
-import CustomButton from '@/components/button/CustomButton'
-import { useBlockPendingAccountViewPrice } from '@/hooks'
-import useMobile from '@/hooks/useMobile'
-import { useAppSelector } from '@/store'
-import { snackbar } from '@/utils'
-import b2bLogger from '@/utils/b3Logger'
-import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
-import { callCart } from '@/utils/cartUtils'
+import { B3Upload, successTip } from '@/components';
+import CustomButton from '@/components/button/CustomButton';
+import { useBlockPendingAccountViewPrice } from '@/hooks';
+import useMobile from '@/hooks/useMobile';
+import { useAppSelector } from '@/store';
+import { snackbar } from '@/utils';
+import b2bLogger from '@/utils/b3Logger';
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
+import { callCart } from '@/utils/cartUtils';
 
-import SearchProduct from '../../shoppingListDetails/components/SearchProduct'
+import SearchProduct from '../../shoppingListDetails/components/SearchProduct';
 
-import QuickAdd from './QuickAdd'
+import QuickAdd from './QuickAdd';
 
 interface QuickOrderPadProps {
-  isB2BUser: boolean
+  isB2BUser: boolean;
 }
 
 export default function QuickOrderPad(props: QuickOrderPadProps) {
-  const { isB2BUser } = props
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
+  const { isB2BUser } = props;
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
-  const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false)
-  const [productData, setProductData] = useState<CustomFieldItems>([])
-  const [addBtnText, setAddBtnText] = useState<string>('Add to cart')
-  const [isLoading, setIsLoading] = useState(false)
-  const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
+  const [isOpenBulkLoadCSV, setIsOpenBulkLoadCSV] = useState(false);
+  const [productData, setProductData] = useState<CustomFieldItems>([]);
+  const [addBtnText, setAddBtnText] = useState<string>('Add to cart');
+  const [isLoading, setIsLoading] = useState(false);
+  const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
 
-  const companyStatus = useAppSelector(
-    ({ company }) => company.companyInfo.status
-  )
+  const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
   const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
-  )
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
+  );
 
   const getSnackbarMessage = (res: any) => {
     if (res && !res.errors) {
@@ -57,21 +48,21 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
           isCustomEvent: true,
         }),
         isClose: true,
-      })
+      });
     } else {
       snackbar.error('Error has occurred', {
         isClose: true,
-      })
+      });
     }
-  }
+  };
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
-    const res = await callCart(products)
+    const res = await callCart(products);
 
     if (res && res.errors) {
       snackbar.error(res.errors[0].message, {
         isClose: true,
-      })
+      });
     } else {
       snackbar.success('', {
         jsx: successTip({
@@ -82,13 +73,13 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
           isCustomEvent: true,
         }),
         isClose: true,
-      })
+      });
     }
 
-    b3TriggerCartNumber()
+    b3TriggerCartNumber();
 
-    return res
-  }
+    return res;
+  };
 
   const limitProductTips = (data: CustomFieldItems) => (
     <>
@@ -111,12 +102,9 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         })}
       </p>
     </>
-  )
+  );
 
-  const outOfStockProductTips = (
-    outOfStock: string[],
-    fileErrorsCSV: string
-  ) => (
+  const outOfStockProductTips = (outOfStock: string[], fileErrorsCSV: string) => (
     <>
       <p
         style={{
@@ -136,18 +124,18 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         {b3Lang('purchasedProducts.quickOrderPad.downloadErrorsCSV')}
       </Link>
     </>
-  )
+  );
 
   const getValidProducts = (products: CustomFieldItems) => {
-    const notPurchaseSku: string[] = []
-    const productItems: CustomFieldItems[] = []
-    const limitProduct: CustomFieldItems[] = []
-    const minLimitQuantity: CustomFieldItems[] = []
-    const maxLimitQuantity: CustomFieldItems[] = []
-    const outOfStock: string[] = []
+    const notPurchaseSku: string[] = [];
+    const productItems: CustomFieldItems[] = [];
+    const limitProduct: CustomFieldItems[] = [];
+    const minLimitQuantity: CustomFieldItems[] = [];
+    const maxLimitQuantity: CustomFieldItems[] = [];
+    const outOfStock: string[] = [];
 
     products.forEach((item: CustomFieldItems) => {
-      const { products: currentProduct, qty } = item
+      const { products: currentProduct, qty } = item;
       const {
         option,
         isStock,
@@ -159,47 +147,47 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         variantId,
         productId,
         modifiers,
-      } = currentProduct
+      } = currentProduct;
       if (purchasingDisabled === '1' || purchasingDisabled) {
-        notPurchaseSku.push(variantSku)
-        return
+        notPurchaseSku.push(variantSku);
+        return;
       }
 
       if (isStock === '1' && stock === 0) {
-        outOfStock.push(variantSku)
-        return
+        outOfStock.push(variantSku);
+        return;
       }
 
       if (isStock === '1' && stock > 0 && stock < +qty) {
         limitProduct.push({
           variantSku,
           AvailableAmount: stock,
-        })
-        return
+        });
+        return;
       }
 
       if (+minQuantity > 0 && +qty < +minQuantity) {
         minLimitQuantity.push({
           variantSku,
           minQuantity,
-        })
+        });
 
-        return
+        return;
       }
 
       if (+maxQuantity > 0 && +qty > +maxQuantity) {
         maxLimitQuantity.push({
           variantSku,
           maxQuantity,
-        })
+        });
 
-        return
+        return;
       }
 
       const optionsList = option.map((item: CustomFieldItems) => ({
         optionId: item.option_id,
         optionValue: item.id,
-      }))
+      }));
 
       productItems.push({
         productId: parseInt(productId, 10) || 0,
@@ -207,8 +195,8 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         quantity: +qty,
         optionSelections: optionsList,
         allOptions: modifiers,
-      })
-    })
+      });
+    });
 
     return {
       notPurchaseSku,
@@ -217,13 +205,13 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       minLimitQuantity,
       maxLimitQuantity,
       outOfStock,
-    }
-  }
+    };
+  };
 
   const handleAddToCart = async (productsData: CustomFieldItems) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const { stockErrorFile, validProduct } = productsData
+      const { stockErrorFile, validProduct } = productsData;
 
       const {
         notPurchaseSku,
@@ -232,21 +220,21 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         minLimitQuantity,
         maxLimitQuantity,
         outOfStock,
-      } = getValidProducts(validProduct)
+      } = getValidProducts(validProduct);
 
       if (productItems.length > 0) {
-        const res = await callCart(productItems)
+        const res = await callCart(productItems);
 
-        getSnackbarMessage(res)
-        b3TriggerCartNumber()
+        getSnackbarMessage(res);
+        b3TriggerCartNumber();
       }
 
       if (limitProduct.length > 0) {
         limitProduct.forEach((data: CustomFieldItems) => {
           snackbar.warning('', {
             jsx: () => limitProductTips(data),
-          })
-        })
+          });
+        });
       }
 
       if (notPurchaseSku.length > 0) {
@@ -256,15 +244,15 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
           }),
           {
             isClose: true,
-          }
-        )
+          },
+        );
       }
 
       if (outOfStock.length > 0 && stockErrorFile) {
         snackbar.error('', {
           jsx: () => outOfStockProductTips(outOfStock, stockErrorFile),
           isClose: true,
-        })
+        });
       }
 
       if (minLimitQuantity.length > 0) {
@@ -276,9 +264,9 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
             }),
             {
               isClose: true,
-            }
-          )
-        })
+            },
+          );
+        });
       }
 
       if (maxLimitQuantity.length > 0) {
@@ -290,16 +278,16 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
             }),
             {
               isClose: true,
-            }
-          )
-        })
+            },
+          );
+        });
       }
 
-      setIsOpenBulkLoadCSV(false)
+      setIsOpenBulkLoadCSV(false);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleVerifyProduct = (products: CustomFieldItems) => {
     const {
@@ -311,30 +299,29 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       orderQuantityMinimum,
       quantity,
       sku,
-    } = products
-    const isStock = inventoryTracking !== 'none'
-    let purchasingDisabled = false
-    let stock = inventoryLevel
-    let productSku = sku
+    } = products;
+    const isStock = inventoryTracking !== 'none';
+    let purchasingDisabled = false;
+    let stock = inventoryLevel;
+    let productSku = sku;
 
     const currentVariant = variants.find(
-      (variant: CustomFieldItems) => +variant.variant_id === +variantId
-    )
+      (variant: CustomFieldItems) => +variant.variant_id === +variantId,
+    );
     if (currentVariant) {
-      purchasingDisabled = currentVariant.purchasing_disabled
-      stock =
-        inventoryTracking === 'variant' ? currentVariant.inventory_level : stock
-      productSku = currentVariant.sku || sku
+      purchasingDisabled = currentVariant.purchasing_disabled;
+      stock = inventoryTracking === 'variant' ? currentVariant.inventory_level : stock;
+      productSku = currentVariant.sku || sku;
     }
 
     if (purchasingDisabled && !isEnableProduct) {
       snackbar.error(
         b3Lang('purchasedProducts.quickOrderPad.notPurchaseableSku', {
           notPurchaseSku: productSku,
-        })
-      )
+        }),
+      );
 
-      return false
+      return false;
     }
 
     if (isStock && +quantity > +stock) {
@@ -344,10 +331,10 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         }),
         {
           isClose: true,
-        }
-      )
+        },
+      );
 
-      return false
+      return false;
     }
 
     if (+orderQuantityMinimum > 0 && +quantity < orderQuantityMinimum) {
@@ -358,10 +345,10 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         }),
         {
           isClose: true,
-        }
-      )
+        },
+      );
 
-      return false
+      return false;
     }
 
     if (+orderQuantityMaximum > 0 && +quantity > +orderQuantityMaximum) {
@@ -372,50 +359,48 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         }),
         {
           isClose: true,
-        }
-      )
+        },
+      );
 
-      return false
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   const handleQuickSearchAddCart = async (productData: CustomFieldItems[]) => {
-    const currentProduct = productData[0]
-    const isPassVerify = handleVerifyProduct(currentProduct)
+    const currentProduct = productData[0];
+    const isPassVerify = handleVerifyProduct(currentProduct);
     try {
       if (isPassVerify) {
-        await quickAddToList(productData)
+        await quickAddToList(productData);
       }
     } catch (error) {
-      b2bLogger.error(error)
+      b2bLogger.error(error);
     }
 
-    return productData
-  }
+    return productData;
+  };
 
   const handleOpenUploadDiag = () => {
     if (blockPendingAccountViewPrice && companyStatus === 0) {
-      snackbar.info(
-        b3Lang('purchasedProducts.quickOrderPad.addNProductsToCart')
-      )
+      snackbar.info(b3Lang('purchasedProducts.quickOrderPad.addNProductsToCart'));
     } else {
-      setIsOpenBulkLoadCSV(true)
+      setIsOpenBulkLoadCSV(true);
     }
-  }
+  };
 
   useEffect(() => {
     if (productData?.length > 0) {
       setAddBtnText(
         b3Lang('purchasedProducts.quickOrderPad.addNProductsToCart', {
           quantity: productData.length,
-        })
-      )
+        }),
+      );
     }
     // disabling this rule as b3Lang has rendering issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productData])
+  }, [productData]);
 
   return (
     <Card
@@ -436,9 +421,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
           <SearchProduct
             addToList={handleQuickSearchAddCart}
-            searchDialogTitle={b3Lang(
-              'purchasedProducts.quickOrderPad.quickOrderPad'
-            )}
+            searchDialogTitle={b3Lang('purchasedProducts.quickOrderPad.quickOrderPad')}
             type="quickOrder"
             addButtonText={b3Lang('purchasedProducts.quickOrderPad.addToCart')}
             isB2BUser={isB2BUser}
@@ -448,9 +431,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
 
           <QuickAdd
             quickAddToList={quickAddToList}
-            buttonText={b3Lang(
-              'purchasedProducts.quickOrderPad.addProductsToCart'
-            )}
+            buttonText={b3Lang('purchasedProducts.quickOrderPad.addProductsToCart')}
           />
 
           <Divider />
@@ -482,5 +463,5 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         isToCart
       />
     </Card>
-  )
+  );
 }

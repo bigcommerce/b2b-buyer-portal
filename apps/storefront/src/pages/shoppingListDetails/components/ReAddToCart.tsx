@@ -1,49 +1,49 @@
-import { useEffect, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import { Delete } from '@mui/icons-material'
-import { Alert, Box, Grid, Typography } from '@mui/material'
+import { useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import { Delete } from '@mui/icons-material';
+import { Alert, Box, Grid, Typography } from '@mui/material';
 
-import { B3QuantityTextField, successTip } from '@/components'
-import B3Dialog from '@/components/B3Dialog'
-import CustomButton from '@/components/button/CustomButton'
-import B3Sping from '@/components/spin/B3Sping'
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useMobile } from '@/hooks'
-import { activeCurrencyInfoSelector, useAppSelector } from '@/store'
-import { currencyFormat, snackbar } from '@/utils'
-import { setModifierQtyPrice } from '@/utils/b3Product/b3Product'
+import { B3QuantityTextField, successTip } from '@/components';
+import B3Dialog from '@/components/B3Dialog';
+import CustomButton from '@/components/button/CustomButton';
+import B3Sping from '@/components/spin/B3Sping';
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useMobile } from '@/hooks';
+import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
+import { currencyFormat, snackbar } from '@/utils';
+import { setModifierQtyPrice } from '@/utils/b3Product/b3Product';
 import {
   addlineItems,
   getProductOptionsFields,
   ProductsProps,
-} from '@/utils/b3Product/shared/config'
-import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
-import { callCart } from '@/utils/cartUtils'
+} from '@/utils/b3Product/shared/config';
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
+import { callCart } from '@/utils/cartUtils';
 
 interface ShoppingProductsProps {
-  shoppingListInfo: any
-  role: string | number
-  products: ProductsProps[]
-  successProducts: number
-  allowJuniorPlaceOrder: boolean
-  getProductQuantity?: (item: ProductsProps) => number
-  onProductChange?: (products: ProductsProps[]) => void
-  setValidateFailureProducts: (arr: ProductsProps[]) => void
-  setValidateSuccessProducts: (arr: ProductsProps[]) => void
-  textAlign?: string
+  shoppingListInfo: any;
+  role: string | number;
+  products: ProductsProps[];
+  successProducts: number;
+  allowJuniorPlaceOrder: boolean;
+  getProductQuantity?: (item: ProductsProps) => number;
+  onProductChange?: (products: ProductsProps[]) => void;
+  setValidateFailureProducts: (arr: ProductsProps[]) => void;
+  setValidateSuccessProducts: (arr: ProductsProps[]) => void;
+  textAlign?: string;
 }
 
 interface FlexProps {
-  isHeader?: boolean
-  isMobile?: boolean
+  isHeader?: boolean;
+  isMobile?: boolean;
 }
 
 interface FlexItemProps {
-  width?: string
-  padding?: string
-  flexBasis?: string
-  alignItems?: string
+  width?: string;
+  padding?: string;
+  flexBasis?: string;
+  alignItems?: string;
   flexDirection?:
     | 'column'
     | 'inherit'
@@ -53,8 +53,8 @@ interface FlexItemProps {
     | 'unset'
     | 'column-reverse'
     | 'row'
-    | 'row-reverse'
-  textAlignLocation?: string
+    | 'row-reverse';
+  textAlignLocation?: string;
 }
 
 const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
@@ -66,7 +66,7 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
       }
     : {
         alignItems: 'flex-start',
-      }
+      };
 
   const mobileStyle = isMobile
     ? {
@@ -76,9 +76,9 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
           marginTop: '12px',
         },
       }
-    : {}
+    : {};
 
-  const flexWrap = isMobile ? 'wrap' : 'initial'
+  const flexWrap = isMobile ? 'wrap' : 'initial';
 
   return {
     display: 'flex',
@@ -88,8 +88,8 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
     flexWrap,
     ...headerStyle,
     ...mobileStyle,
-  }
-})
+  };
+});
 
 const FlexItem = styled(Box)(
   ({
@@ -109,20 +109,20 @@ const FlexItem = styled(Box)(
     flexBasis,
     width,
     padding,
-  })
-)
+  }),
+);
 
 const ProductHead = styled('div')(() => ({
   fontSize: '0.875rem',
   lineHeight: '1.5',
   color: '#263238',
-}))
+}));
 
 const ProductImage = styled('img')(() => ({
   width: '60px',
   borderRadius: '4px',
   flexShrink: 0,
-}))
+}));
 
 const defaultItemStyle = {
   default: {
@@ -134,7 +134,7 @@ const defaultItemStyle = {
   delete: {
     width: '30px',
   },
-}
+};
 
 const mobileItemStyle = {
   default: {
@@ -151,7 +151,7 @@ const mobileItemStyle = {
     display: 'flex',
     flexDirection: 'row-reverse',
   },
-}
+};
 
 export default function ReAddToCart(props: ShoppingProductsProps) {
   const {
@@ -163,79 +163,70 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     setValidateFailureProducts,
     setValidateSuccessProducts,
     textAlign = 'left',
-  } = props
+  } = props;
 
-  const b3Lang = useB3Lang()
-  const [isOpen, setOpen] = useState<boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [isMobile] = useMobile()
+  const b3Lang = useB3Lang();
+  const [isOpen, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isMobile] = useMobile();
 
-  const { decimal_places: decimalPlaces = 2 } = useAppSelector(
-    activeCurrencyInfoSelector
-  )
+  const { decimal_places: decimalPlaces = 2 } = useAppSelector(activeCurrencyInfoSelector);
 
   useEffect(() => {
     if (products.length > 0) {
-      setOpen(true)
+      setOpen(true);
     } else {
-      setOpen(false)
+      setOpen(false);
     }
-  }, [products])
+  }, [products]);
 
-  const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
+  const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
 
   const handleUpdateProductQty = async (
     index: number,
     value: number | string,
-    isValid: boolean
+    isValid: boolean,
   ) => {
-    const newProduct: ProductsProps[] = [...products]
-    newProduct[index].node.quantity = +value
-    newProduct[index].isValid = isValid
-    const caculateProduct = await setModifierQtyPrice(
-      newProduct[index].node,
-      +value
-    )
+    const newProduct: ProductsProps[] = [...products];
+    newProduct[index].node.quantity = +value;
+    newProduct[index].isValid = isValid;
+    const caculateProduct = await setModifierQtyPrice(newProduct[index].node, +value);
     if (caculateProduct) {
-      ;(newProduct[index] as CustomFieldItems).node = caculateProduct
-      setValidateFailureProducts(newProduct)
+      (newProduct[index] as CustomFieldItems).node = caculateProduct;
+      setValidateFailureProducts(newProduct);
     }
-  }
+  };
 
   const handleCancelClicked = () => {
-    setOpen(false)
-    setValidateFailureProducts([])
-    setValidateSuccessProducts([])
-  }
+    setOpen(false);
+    setValidateFailureProducts([]);
+    setValidateSuccessProducts([]);
+  };
 
   const deleteProduct = (index: number) => {
-    const newProduct: ProductsProps[] = [...products]
-    newProduct.splice(index, 1)
-    setValidateFailureProducts(newProduct)
-  }
+    const newProduct: ProductsProps[] = [...products];
+    newProduct.splice(index, 1);
+    setValidateFailureProducts(newProduct);
+  };
 
   const handRightClick = async () => {
-    const isValidate = products.every((item: ProductsProps) => item.isValid)
+    const isValidate = products.every((item: ProductsProps) => item.isValid);
 
     if (!isValidate) {
-      snackbar.error(b3Lang('shoppingList.reAddToCart.fillCorrectQuantity'))
-      return
+      snackbar.error(b3Lang('shoppingList.reAddToCart.fillCorrectQuantity'));
+      return;
     }
     try {
-      setLoading(true)
+      setLoading(true);
 
-      const lineItems = addlineItems(products)
+      const lineItems = addlineItems(products);
 
-      const res = await callCart(lineItems)
+      const res = await callCart(lineItems);
 
       if (!res.errors) {
-        handleCancelClicked()
-        if (
-          allowJuniorPlaceOrder &&
-          +role === 2 &&
-          shoppingListInfo?.status === 0
-        ) {
-          window.location.href = '/checkout'
+        handleCancelClicked();
+        if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
+          window.location.href = '/checkout';
         } else {
           snackbar.success('', {
             jsx: successTip({
@@ -246,62 +237,62 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
               isCustomEvent: true,
             }),
             isClose: true,
-          })
-          b3TriggerCartNumber()
+          });
+          b3TriggerCartNumber();
         }
       }
 
       if (res.errors) {
         snackbar.error(res.message, {
           isClose: true,
-        })
+        });
       }
 
-      b3TriggerCartNumber()
+      b3TriggerCartNumber();
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleClearNoStock = async () => {
     const newProduct = products.filter(
-      (item: ProductsProps) => item.isStock === '0' || item.stock !== 0
-    )
-    const requestArr: Promise<any>[] = []
+      (item: ProductsProps) => item.isStock === '0' || item.stock !== 0,
+    );
+    const requestArr: Promise<any>[] = [];
     newProduct.forEach((product) => {
-      const item = product
+      const item = product;
       const {
         node: { quantity },
         minQuantity = 0,
         maxQuantity = 0,
         isStock,
         stock,
-      } = product
+      } = product;
 
-      const quantityNumber = parseInt(`${quantity}`, 10) || 0
+      const quantityNumber = parseInt(`${quantity}`, 10) || 0;
       if (minQuantity !== 0 && quantityNumber < minQuantity) {
-        item.node.quantity = minQuantity
+        item.node.quantity = minQuantity;
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
-        item.node.quantity = maxQuantity
+        item.node.quantity = maxQuantity;
       }
       if (isStock !== '0' && stock && (quantity ? +quantity : 0) > stock) {
-        item.node.quantity = stock
+        item.node.quantity = stock;
       }
 
-      item.isValid = true
+      item.isValid = true;
 
-      const qty = product?.node?.quantity ? +product.node.quantity : 0
+      const qty = product?.node?.quantity ? +product.node.quantity : 0;
 
-      requestArr.push(setModifierQtyPrice(product.node, qty))
-    })
+      requestArr.push(setModifierQtyPrice(product.node, qty));
+    });
 
-    const productArr = await Promise.all(requestArr)
+    const productArr = await Promise.all(requestArr);
 
     productArr.forEach((item, index) => {
-      newProduct[index].node = item
-    })
-    setValidateFailureProducts(newProduct)
-  }
+      newProduct[index].node = item;
+    });
+    setValidateFailureProducts(newProduct);
+  };
 
   return (
     <B3Dialog
@@ -379,17 +370,10 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
               {!isMobile && (
                 <Flex isHeader isMobile={isMobile}>
                   <FlexItem>
-                    <ProductHead>
-                      {b3Lang('shoppingList.reAddToCart.product')}
-                    </ProductHead>
+                    <ProductHead>{b3Lang('shoppingList.reAddToCart.product')}</ProductHead>
                   </FlexItem>
-                  <FlexItem
-                    {...itemStyle.default}
-                    textAlignLocation={textAlign}
-                  >
-                    <ProductHead>
-                      {b3Lang('shoppingList.reAddToCart.price')}
-                    </ProductHead>
+                  <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                    <ProductHead>{b3Lang('shoppingList.reAddToCart.price')}</ProductHead>
                   </FlexItem>
                   <FlexItem
                     sx={{
@@ -398,17 +382,10 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                     {...itemStyle.default}
                     textAlignLocation={textAlign}
                   >
-                    <ProductHead>
-                      {b3Lang('shoppingList.reAddToCart.quantity')}
-                    </ProductHead>
+                    <ProductHead>{b3Lang('shoppingList.reAddToCart.quantity')}</ProductHead>
                   </FlexItem>
-                  <FlexItem
-                    {...itemStyle.default}
-                    textAlignLocation={textAlign}
-                  >
-                    <ProductHead>
-                      {b3Lang('shoppingList.reAddToCart.total')}
-                    </ProductHead>
+                  <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
+                    <ProductHead>{b3Lang('shoppingList.reAddToCart.total')}</ProductHead>
                   </FlexItem>
                   <FlexItem {...itemStyle.delete}>
                     <ProductHead> </ProductHead>
@@ -416,7 +393,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                 </Flex>
               )}
               {products.map((product: ProductsProps, index: number) => {
-                const { isStock, maxQuantity, minQuantity, stock } = product
+                const { isStock, maxQuantity, minQuantity, stock } = product;
 
                 const {
                   quantity = 1,
@@ -426,31 +403,27 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                   optionList,
                   productsSearch,
                   basePrice,
-                } = product.node
+                } = product.node;
 
-                const price = +basePrice
-                const total = (price * (quantity ? +quantity : 0)).toFixed(
-                  decimalPlaces
-                )
+                const price = +basePrice;
+                const total = (price * (quantity ? +quantity : 0)).toFixed(decimalPlaces);
 
                 const newProduct: any = {
                   ...productsSearch,
                   selectOptions: optionList,
-                }
+                };
 
-                const productFields = getProductOptionsFields(newProduct, {})
+                const productFields = getProductOptionsFields(newProduct, {});
 
-                const newOptionList = JSON.parse(optionList)
+                const newOptionList = JSON.parse(optionList);
                 const optionsValue: CustomFieldItems[] = productFields.filter(
-                  (item) => item.valueText
-                )
+                  (item) => item.valueText,
+                );
 
                 return (
                   <Flex isMobile={isMobile} key={variantSku}>
                     <FlexItem>
-                      <ProductImage
-                        src={primaryImage || PRODUCT_DEFAULT_IMAGE}
-                      />
+                      <ProductImage src={primaryImage || PRODUCT_DEFAULT_IMAGE} />
                       <Box
                         sx={{
                           marginLeft: '16px',
@@ -478,17 +451,11 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                           ))}
                       </Box>
                     </FlexItem>
-                    <FlexItem
-                      {...itemStyle.default}
-                      textAlignLocation={textAlign}
-                    >
+                    <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
                       {isMobile && <span>Price: </span>}
                       {`${currencyFormat(price)}`}
                     </FlexItem>
-                    <FlexItem
-                      {...itemStyle.default}
-                      textAlignLocation={textAlign}
-                    >
+                    <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
                       <B3QuantityTextField
                         isStock={isStock}
                         maxQuantity={maxQuantity}
@@ -496,14 +463,11 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                         stock={stock}
                         value={quantity}
                         onChange={(value, isValid) => {
-                          handleUpdateProductQty(index, value, isValid)
+                          handleUpdateProductQty(index, value, isValid);
                         }}
                       />
                     </FlexItem>
-                    <FlexItem
-                      {...itemStyle.default}
-                      textAlignLocation={textAlign}
-                    >
+                    <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
                       {isMobile && <div>Total: </div>}
                       {`${currencyFormat(total)}`}
                     </FlexItem>
@@ -515,17 +479,17 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                           color: 'rgba(0, 0, 0, 0.54)',
                         }}
                         onClick={() => {
-                          deleteProduct(index)
+                          deleteProduct(index);
                         }}
                       />
                     </FlexItem>
                   </Flex>
-                )
+                );
               })}
             </Box>
           ) : null}
         </B3Sping>
       </Grid>
     </B3Dialog>
-  )
+  );
 }

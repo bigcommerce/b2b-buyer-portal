@@ -1,25 +1,23 @@
-import { useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, Card, CardContent, Typography } from '@mui/material'
+import { useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Card, CardContent, Typography } from '@mui/material';
 
-import { B3CollapseContainer } from '@/components'
+import { B3CollapseContainer } from '@/components';
 
 interface QuoteTermsAndConditionsProps {
-  quoteLegalTerms: string
+  quoteLegalTerms: string;
 }
 
-export default function QuoteTermsAndConditions(
-  props: QuoteTermsAndConditionsProps
-) {
-  const { quoteLegalTerms = '' } = props
+export default function QuoteTermsAndConditions(props: QuoteTermsAndConditionsProps) {
+  const { quoteLegalTerms = '' } = props;
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   const handleOnChange = (open: boolean) => {
-    setIsOpen(open)
-  }
+    setIsOpen(open);
+  };
 
   return (
     <Card
@@ -54,5 +52,5 @@ export default function QuoteTermsAndConditions(
         </B3CollapseContainer>
       </CardContent>
     </Card>
-  )
+  );
 }

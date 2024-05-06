@@ -1,43 +1,43 @@
-import { Dispatch, SetStateAction, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import { ArrowBackIosNew } from '@mui/icons-material'
-import { Box, Grid, styled, Typography } from '@mui/material'
+import { Dispatch, SetStateAction, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { ArrowBackIosNew } from '@mui/icons-material';
+import { Box, Grid, styled, Typography } from '@mui/material';
 
-import CustomButton from '@/components/button/CustomButton'
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
-import { useMobile } from '@/hooks'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
+import CustomButton from '@/components/button/CustomButton';
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { useMobile } from '@/hooks';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
 
-import { ShoppingStatus } from '../../shoppingLists/ShoppingStatus'
+import { ShoppingStatus } from '../../shoppingLists/ShoppingStatus';
 
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
   alignItems: 'center',
-}))
+}));
 
 interface OpenPageState {
-  isOpen: boolean
-  openUrl?: string
+  isOpen: boolean;
+  openUrl?: string;
 }
 interface ShoppingDetailHeaderProps {
-  shoppingListInfo: any
-  role: string | number
-  customerInfo: any
-  goToShoppingLists: () => void
-  handleUpdateShoppingList: (status: number) => void
-  isB2BUser: boolean
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
-  isAgenting: boolean
+  shoppingListInfo: any;
+  role: string | number;
+  customerInfo: any;
+  goToShoppingLists: () => void;
+  handleUpdateShoppingList: (status: number) => void;
+  isB2BUser: boolean;
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
+  isAgenting: boolean;
   openAPPParams: {
-    shoppingListBtn: string
-  }
-  customColor: string
+    shoppingListBtn: string;
+  };
+  customColor: string;
 }
 
 function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
-  const b3Lang = useB3Lang()
-  const [isMobile] = useMobile()
+  const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
 
   const {
     shoppingListInfo,
@@ -50,25 +50,25 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
     isAgenting,
     openAPPParams,
     customColor,
-  } = props
+  } = props;
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
-  } = useContext(CustomStyleContext)
-  const navigate = useNavigate()
+  } = useContext(CustomStyleContext);
+  const navigate = useNavigate();
 
-  const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0
+  const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0;
 
-  const currentSLCreateRole = shoppingListInfo?.customerInfo?.role
+  const currentSLCreateRole = shoppingListInfo?.customerInfo?.role;
 
   const gridOptions = (xs: number) =>
     isMobile
       ? {}
       : {
           xs,
-        }
+        };
   return (
     <>
       <Box
@@ -86,13 +86,13 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
           }}
           onClick={() => {
             if (openAPPParams.shoppingListBtn !== 'add') {
-              goToShoppingLists()
+              goToShoppingLists();
             } else {
-              navigate('/')
+              navigate('/');
               setOpenPage({
                 isOpen: false,
                 openUrl: '',
-              })
+              });
             }
           }}
         >
@@ -156,9 +156,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                   m: `${isMobile ? '10px 0' : '0'}`,
                 }}
               >
-                {shoppingListInfo && (
-                  <ShoppingStatus status={shoppingListInfo?.status} />
-                )}
+                {shoppingListInfo && <ShoppingStatus status={shoppingListInfo?.status} />}
               </Typography>
             )}
           </Box>
@@ -181,9 +179,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                 >
                   {b3Lang('shoppingList.header.createdBy')}
                 </Typography>
-                <span>{`${customerInfo?.firstName || ''} ${
-                  customerInfo?.lastName || ''
-                }`}</span>
+                <span>{`${customerInfo?.firstName || ''} ${customerInfo?.lastName || ''}`}</span>
               </StyledCreateName>
             )}
           </Box>
@@ -201,7 +197,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
               variant="outlined"
               disabled={isDisabledBtn}
               onClick={() => {
-                handleUpdateShoppingList(40)
+                handleUpdateShoppingList(40);
               }}
             >
               {b3Lang('shoppingList.header.submitForApproval')}
@@ -216,7 +212,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                     marginRight: '1rem',
                   }}
                   onClick={() => {
-                    handleUpdateShoppingList(20)
+                    handleUpdateShoppingList(20);
                   }}
                 >
                   {b3Lang('shoppingList.header.reject')}
@@ -224,7 +220,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                 <CustomButton
                   variant="outlined"
                   onClick={() => {
-                    handleUpdateShoppingList(0)
+                    handleUpdateShoppingList(0);
                   }}
                 >
                   {b3Lang('shoppingList.header.approve')}
@@ -234,7 +230,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
         </Grid>
       </Grid>
     </>
-  )
+  );
 }
 
-export default ShoppingDetailHeader
+export default ShoppingDetailHeader;

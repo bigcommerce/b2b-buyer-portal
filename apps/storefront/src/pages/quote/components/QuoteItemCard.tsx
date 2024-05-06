@@ -1,25 +1,25 @@
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import { useTheme } from '@mui/material'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import { useTheme } from '@mui/material';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
-import { TableColumnItem } from '@/components/table/B3Table'
-import { currencyFormat, displayFormat } from '@/utils'
+import { TableColumnItem } from '@/components/table/B3Table';
+import { currencyFormat, displayFormat } from '@/utils';
 
-import QuoteStatus from './QuoteStatus'
+import QuoteStatus from './QuoteStatus';
 
 interface ListItem {
-  [key: string]: string | Object
-  status: string
-  quoteNumber: string
+  [key: string]: string | Object;
+  status: string;
+  quoteNumber: string;
 }
 
 export interface QuoteItemCardProps {
-  goToDetail: (val: ListItem, status: number) => void
-  item: ListItem
+  goToDetail: (val: ListItem, status: number) => void;
+  item: ListItem;
 }
 
 const Flex = styled('div')({
@@ -27,14 +27,14 @@ const Flex = styled('div')({
   flexDirection: 'column',
   alignItems: 'start',
   marginBottom: '1rem',
-})
+});
 
 export function QuoteItemCard(props: QuoteItemCardProps) {
-  const { item, goToDetail } = props
-  const theme = useTheme()
-  const b3Lang = useB3Lang()
+  const { item, goToDetail } = props;
+  const theme = useTheme();
+  const b3Lang = useB3Lang();
 
-  const primaryColor = theme.palette.primary.main
+  const primaryColor = theme.palette.primary.main;
 
   const columnAllItems: TableColumnItem<ListItem>[] = [
     {
@@ -52,37 +52,28 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
     {
       key: 'createdAt',
       title: b3Lang('quotes.quoteItemCard.dateCreated'),
-      render: () =>
-        `${
-          +item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt
-        }`,
+      render: () => `${+item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt}`,
     },
     {
       key: 'updatedAt',
       title: b3Lang('quotes.quoteItemCard.lastUpdate'),
-      render: () =>
-        `${
-          +item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt
-        }`,
+      render: () => `${+item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt}`,
     },
     {
       key: 'expiredAt',
       title: b3Lang('quotes.quoteItemCard.expirationDate'),
-      render: () =>
-        `${
-          +item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt
-        }`,
+      render: () => `${+item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt}`,
     },
     {
       key: 'totalAmount',
       title: b3Lang('quotes.quoteItemCard.subtotal'),
       render: () => {
-        const { totalAmount } = item
+        const { totalAmount } = item;
 
-        return `${currencyFormat(+totalAmount)}`
+        return `${currencyFormat(+totalAmount)}`;
       },
     },
-  ]
+  ];
 
   return (
     <Card>
@@ -156,5 +147,5 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
         </Box>
       </CardContent>
     </Card>
-  )
+  );
 }

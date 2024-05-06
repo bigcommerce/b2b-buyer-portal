@@ -1,37 +1,30 @@
-import { ReactElement } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
+import { ReactElement } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { currencyFormat, displayFormat } from '@/utils'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { currencyFormat, displayFormat } from '@/utils';
 
 interface QuickOrderCardProps {
-  item: any
-  checkBox?: () => ReactElement
-  handleUpdateProductQty: (id: number, val: string) => void
+  item: any;
+  checkBox?: () => ReactElement;
+  handleUpdateProductQty: (id: number, val: string) => void;
 }
 
 const StyledImage = styled('img')(() => ({
   maxWidth: '60px',
   height: 'auto',
   marginRight: '0.5rem',
-}))
+}));
 
 function QuickOrderCard(props: QuickOrderCardProps) {
-  const { item: shoppingDetail, checkBox, handleUpdateProductQty } = props
-  const b3Lang = useB3Lang()
+  const { item: shoppingDetail, checkBox, handleUpdateProductQty } = props;
+  const b3Lang = useB3Lang();
 
-  const {
-    quantity,
-    imageUrl,
-    productName,
-    variantSku,
-    optionList,
-    basePrice,
-    lastOrderedAt,
-  } = shoppingDetail
+  const { quantity, imageUrl, productName, variantSku, optionList, basePrice, lastOrderedAt } =
+    shoppingDetail;
 
-  const price = +basePrice * +quantity
+  const price = +basePrice * +quantity;
   return (
     <Box
       key={shoppingDetail.id}
@@ -48,11 +41,7 @@ function QuickOrderCard(props: QuickOrderCardProps) {
       >
         <Box>{checkBox && checkBox()}</Box>
         <Box>
-          <StyledImage
-            src={imageUrl || PRODUCT_DEFAULT_IMAGE}
-            alt="Product-img"
-            loading="lazy"
-          />
+          <StyledImage src={imageUrl || PRODUCT_DEFAULT_IMAGE} alt="Product-img" loading="lazy" />
         </Box>
         <Box
           sx={{
@@ -122,7 +111,7 @@ function QuickOrderCard(props: QuickOrderCardProps) {
                 },
               }}
               onChange={(e) => {
-                handleUpdateProductQty(shoppingDetail.id, e.target.value)
+                handleUpdateProductQty(shoppingDetail.id, e.target.value);
               }}
             />
           </Box>
@@ -135,7 +124,7 @@ function QuickOrderCard(props: QuickOrderCardProps) {
         </Box>
       </CardContent>
     </Box>
-  )
+  );
 }
 
-export default QuickOrderCard
+export default QuickOrderCard;

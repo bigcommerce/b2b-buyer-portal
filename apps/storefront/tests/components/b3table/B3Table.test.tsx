@@ -1,16 +1,16 @@
-import { LangProvider } from '@b3/lang'
-import { describe, expect, it } from 'vitest'
+import { LangProvider } from '@b3/lang';
+import { describe, expect, it } from 'vitest';
 
-import { B3Table } from '@/components'
-import { TableColumnItem } from '@/components/table/B3Table'
-import lang from '@/store/slices/lang'
+import { B3Table } from '@/components';
+import { TableColumnItem } from '@/components/table/B3Table';
+import lang from '@/store/slices/lang';
 
-import { renderWithProviders } from '../../test-utils'
+import { renderWithProviders } from '../../test-utils';
 
 const columnItems: TableColumnItem<1> = {
   key: 'key test1',
   title: 'title test',
-}
+};
 
 const listItems = [
   {
@@ -18,7 +18,7 @@ const listItems = [
       id: 1,
     },
   },
-]
+];
 
 describe('B3Table component', async () => {
   it('renders correctly', () => {
@@ -40,9 +40,9 @@ describe('B3Table component', async () => {
       </LangProvider>,
       {
         reducer: { lang },
-      }
-    )
-  })
+      },
+    );
+  });
 
   it('matching b3table with snapshot', () => {
     const { result } = renderWithProviders(
@@ -65,8 +65,8 @@ describe('B3Table component', async () => {
       </LangProvider>,
       {
         reducer: { lang },
-      }
-    )
-    expect(result).toMatchSnapshot()
-  })
-})
+      },
+    );
+    expect(result).toMatchSnapshot();
+  });
+});

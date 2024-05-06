@@ -1,26 +1,16 @@
-import { ReactElement, useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import {
-  Box,
-  Button,
-  InputAdornment,
-  TextField,
-  Typography,
-} from '@mui/material'
-import cloneDeep from 'lodash-es/cloneDeep'
+import { ReactElement, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { Box, Button, InputAdornment, TextField, Typography } from '@mui/material';
+import cloneDeep from 'lodash-es/cloneDeep';
 
-import B3Sping from '@/components/spin/B3Sping'
-import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { TableColumnItem } from '@/components/table/B3Table'
-import { useMobile, useSort } from '@/hooks'
-import {
-  exportInvoicesAsCSV,
-  getInvoiceList,
-  getInvoiceStats,
-} from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
-import { InvoiceList, InvoiceListNode } from '@/types/invoice'
+import B3Sping from '@/components/spin/B3Sping';
+import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { TableColumnItem } from '@/components/table/B3Table';
+import { useMobile, useSort } from '@/hooks';
+import { exportInvoicesAsCSV, getInvoiceList, getInvoiceStats } from '@/shared/service/b2b';
+import { useAppSelector } from '@/store';
+import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import {
   currencyFormat,
   currencyFormatInfo,
@@ -28,38 +18,38 @@ import {
   getUTCTimestamp,
   handleGetCorrespondingCurrencyToken,
   snackbar,
-} from '@/utils'
-import b2bLogger from '@/utils/b3Logger'
+} from '@/utils';
+import b2bLogger from '@/utils/b3Logger';
 
-import B3Filter from '../../components/filter/B3Filter'
+import B3Filter from '../../components/filter/B3Filter';
 
-import B3Pulldown from './components/B3Pulldown'
-import InvoiceFooter from './components/InvoiceFooter'
-import InvoiceStatus from './components/InvoiceStatus'
-import PaymentsHistory from './components/PaymentsHistory'
-import PaymentSuccess from './components/PaymentSuccess'
-import PrintTempalte from './components/PrintTempalte'
+import B3Pulldown from './components/B3Pulldown';
+import InvoiceFooter from './components/InvoiceFooter';
+import InvoiceStatus from './components/InvoiceStatus';
+import PaymentsHistory from './components/PaymentsHistory';
+import PaymentSuccess from './components/PaymentSuccess';
+import PrintTempalte from './components/PrintTempalte';
 import InvoiceListType, {
   defaultSortKey,
   exportOrderByArr,
   filterFormConfig,
   filterFormConfigsTranslationVariables,
   sortIdArr,
-} from './utils/config'
-import { handlePrintPDF } from './utils/pdf'
-import { InvoiceItemCard } from './InvoiceItemCard'
+} from './utils/config';
+import { handlePrintPDF } from './utils/pdf';
+import { InvoiceItemCard } from './InvoiceItemCard';
 
 export interface FilterSearchProps {
-  [key: string]: string | number | null
-  q: string
+  [key: string]: string | number | null;
+  q: string;
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
-  getList: () => void
-  getCacheList: () => void
-  setCacheAllList: (items?: InvoiceList[]) => void
-  setList: (items?: InvoiceListNode[]) => void
-  getSelectedValue: () => void
+  getList: () => void;
+  getCacheList: () => void;
+  setCacheAllList: (items?: InvoiceList[]) => void;
+  setList: (items?: InvoiceListNode[]) => void;
+  getSelectedValue: () => void;
 }
 
 const initFilter = {
@@ -67,252 +57,226 @@ const initFilter = {
   first: 10,
   offset: 0,
   orderBy: `-${sortIdArr[defaultSortKey]}`,
-}
+};
 
 function Invoice() {
-  const currentDate = new Date().getTime()
-  const b3Lang = useB3Lang()
-  const role = useAppSelector(({ company }) => company.customer.role)
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
-  const juniorOrSenior = +role === 1 || role === 2
-  const navigate = useNavigate()
-  const [isMobile] = useMobile()
-  const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
+  const currentDate = new Date().getTime();
+  const b3Lang = useB3Lang();
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const juniorOrSenior = +role === 1 || role === 2;
+  const navigate = useNavigate();
+  const [isMobile] = useMobile();
+  const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
-  const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo()
+  const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo();
 
-  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
-  const [isOpenHistorys, setIsOpenHistorys] = useState<boolean>(false)
-  const [currentInvoiceId, setCurrentInvoiceId] = useState<string>('')
-  const [receiptId, setReceiptId] = useState<string>('')
-  const [type, setType] = useState<string>('')
-  const [unpaidAmount, setUnpaidAmount] = useState<number>(0)
-  const [overdueAmount, setOverdueAmount] = useState<number>(0)
-  const [checkedArr, setCheckedArr] = useState<
-    CustomFieldItems | InvoiceListNode[]
-  >([])
-  const [selectedPay, setSelectedPay] = useState<
-    CustomFieldItems | InvoiceListNode[]
-  >([])
-  const [list, setList] = useState<InvoiceListNode[]>([])
+  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
+  const [isOpenHistorys, setIsOpenHistorys] = useState<boolean>(false);
+  const [currentInvoiceId, setCurrentInvoiceId] = useState<string>('');
+  const [receiptId, setReceiptId] = useState<string>('');
+  const [type, setType] = useState<string>('');
+  const [unpaidAmount, setUnpaidAmount] = useState<number>(0);
+  const [overdueAmount, setOverdueAmount] = useState<number>(0);
+  const [checkedArr, setCheckedArr] = useState<CustomFieldItems | InvoiceListNode[]>([]);
+  const [selectedPay, setSelectedPay] = useState<CustomFieldItems | InvoiceListNode[]>([]);
+  const [list, setList] = useState<InvoiceListNode[]>([]);
 
-  const [filterData, setFilterData] =
-    useState<Partial<FilterSearchProps> | null>()
+  const [filterData, setFilterData] = useState<Partial<FilterSearchProps> | null>();
 
-  const [exportCsvText, setExportCsvText] = useState<string>(
-    b3Lang('invoice.exportCsvText')
-  )
+  const [exportCsvText, setExportCsvText] = useState<string>(b3Lang('invoice.exportCsvText'));
 
-  const [filterChangeFlag, setFilterChangeFlag] = useState(false)
-  const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([])
+  const [filterChangeFlag, setFilterChangeFlag] = useState(false);
+  const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([]);
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortIdArr,
     defaultSortKey,
     filterData,
-    setFilterData
-  )
+    setFilterData,
+  );
 
-  const location = useLocation()
+  const location = useLocation();
 
   const isFiltering = (filterData: Partial<FilterSearchProps>) =>
     Object.keys(filterData).some(
-      (key) =>
-        key !== 'first' &&
-        key !== 'offset' &&
-        key !== 'orderBy' &&
-        filterData[key]
-    )
+      (key) => key !== 'first' && key !== 'offset' && key !== 'orderBy' && filterData[key],
+    );
 
   const cacheFilterLists = (edges: InvoiceListNode[]) => {
     if (filterChangeFlag) {
-      setFilterLists(edges)
-      setFilterChangeFlag(false)
-      return
+      setFilterLists(edges);
+      setFilterChangeFlag(false);
+      return;
     }
 
-    if (!filterLists.length) setFilterLists(edges)
+    if (!filterLists.length) setFilterLists(edges);
 
-    const copyCacheFilterList = [...filterLists]
+    const copyCacheFilterList = [...filterLists];
 
     edges.forEach((item: InvoiceListNode) => {
-      const option = item?.node || item
+      const option = item?.node || item;
       const isExist = filterLists.some((cache: InvoiceListNode) => {
-        const cacheOption = cache.node
-        return cacheOption.id === option.id
-      })
+        const cacheOption = cache.node;
+        return cacheOption.id === option.id;
+      });
 
       if (!isExist) {
-        copyCacheFilterList.push(item)
+        copyCacheFilterList.push(item);
       }
-    })
+    });
 
-    setFilterLists(copyCacheFilterList)
-  }
+    setFilterLists(copyCacheFilterList);
+  };
 
   const handleStatisticsInvoiceAmount = async () => {
     try {
-      setIsRequestLoading(true)
-      const { invoiceStats } = await getInvoiceStats(
-        filterData?.status ? +filterData.status : 0
-      )
+      setIsRequestLoading(true);
+      const { invoiceStats } = await getInvoiceStats(filterData?.status ? +filterData.status : 0);
 
       if (invoiceStats) {
-        const { overDueBalance, totalBalance } = invoiceStats
-        setUnpaidAmount(+totalBalance.toFixed(decimalPlaces))
-        setOverdueAmount(+overDueBalance.toFixed(decimalPlaces))
+        const { overDueBalance, totalBalance } = invoiceStats;
+        setUnpaidAmount(+totalBalance.toFixed(decimalPlaces));
+        setOverdueAmount(+overDueBalance.toFixed(decimalPlaces));
       }
     } catch (err) {
-      b2bLogger.error(err)
+      b2bLogger.error(err);
     } finally {
-      setIsRequestLoading(false)
+      setIsRequestLoading(false);
     }
-  }
+  };
 
   const handleChange = (key: string, value: string) => {
     if (key === 'search') {
       setFilterData({
         ...filterData,
         q: value,
-      })
-      setFilterChangeFlag(true)
-      setType(InvoiceListType.NORMAL)
+      });
+      setFilterChangeFlag(true);
+      setType(InvoiceListType.NORMAL);
     }
-  }
+  };
 
   const handleFilterChange = (value: Partial<FilterSearchProps>) => {
     const startValue = value?.startValue
       ? getUTCTimestamp(new Date(value?.startValue).getTime() / 1000)
-      : ''
+      : '';
 
     const endValue = value?.endValue
       ? getUTCTimestamp(new Date(value?.endValue).getTime() / 1000, true)
-      : ''
+      : '';
 
-    const status = value?.status === 3 ? 0 : value?.status
+    const status = value?.status === 3 ? 0 : value?.status;
 
     const search: Partial<FilterSearchProps> = {
       status: `${status}` || '',
       beginDateAt: startValue,
       endDateAt: endValue,
-      beginDueDateAt:
-        value?.status === 0 ? parseInt(`${currentDate / 1000}`, 10) : '',
-      endDueDateAt:
-        value?.status === 3 ? parseInt(`${currentDate / 1000}`, 10) : '',
-    }
+      beginDueDateAt: value?.status === 0 ? parseInt(`${currentDate / 1000}`, 10) : '',
+      endDueDateAt: value?.status === 3 ? parseInt(`${currentDate / 1000}`, 10) : '',
+    };
 
     setFilterData({
       ...filterData,
       ...search,
-    })
-    setFilterChangeFlag(true)
-    setType(InvoiceListType.NORMAL)
-  }
+    });
+    setFilterChangeFlag(true);
+    setType(InvoiceListType.NORMAL);
+  };
 
   const getSelectCheckbox = (selectCheckbox: Array<string | number>) => {
     if (selectCheckbox.length > 0) {
-      const productList = paginationTableRef.current?.getCacheList() || []
+      const productList = paginationTableRef.current?.getCacheList() || [];
 
       const checkedItems = selectCheckbox.map((item: number | string) => {
         const newItems = productList.find((product: InvoiceListNode) => {
-          const { node } = product
+          const { node } = product;
 
-          return +node.id === +item
-        })
+          return +node.id === +item;
+        });
 
-        return newItems
-      })
+        return newItems;
+      });
 
-      setCheckedArr([...checkedItems])
+      setCheckedArr([...checkedItems]);
     } else {
-      setCheckedArr([])
+      setCheckedArr([]);
     }
-  }
+  };
 
   const handleViewInvoice = async (id: string, status: string | number) => {
     try {
-      setIsRequestLoading(true)
-      const isPayNow = !juniorOrSenior && status !== 2
-      const pdfUrl = await handlePrintPDF(id, isPayNow)
+      setIsRequestLoading(true);
+      const isPayNow = !juniorOrSenior && status !== 2;
+      const pdfUrl = await handlePrintPDF(id, isPayNow);
 
       if (!pdfUrl) {
-        snackbar.error(b3Lang('invoice.pdfUrlResolutionError'))
-        return
+        snackbar.error(b3Lang('invoice.pdfUrlResolutionError'));
+        return;
       }
 
-      const { href } = window.location
+      const { href } = window.location;
       if (!href.includes('invoice')) {
-        return
+        return;
       }
 
-      window.open(pdfUrl, '_blank', 'fullscreen=yes')
+      window.open(pdfUrl, '_blank', 'fullscreen=yes');
     } catch (err) {
-      b2bLogger.error(err)
+      b2bLogger.error(err);
     } finally {
-      setIsRequestLoading(false)
+      setIsRequestLoading(false);
     }
-  }
+  };
 
-  const handleSetSelectedInvoiceAccount = (
-    newPrice: number | string,
-    invoiceId: string
-  ) => {
+  const handleSetSelectedInvoiceAccount = (newPrice: number | string, invoiceId: string) => {
     const currentOriginInvoice = checkedArr.find((invoice: InvoiceListNode) => {
       const {
         node: { id },
-      } = invoice
+      } = invoice;
 
-      return +id === +invoiceId
-    })
+      return +id === +invoiceId;
+    });
 
     if (selectedPay.length > 0) {
       const newInvoices = selectedPay.map((selectedItem: InvoiceListNode) => {
         const {
           node: { id, openBalance },
-        } = selectedItem
+        } = selectedItem;
         const {
           node: { openBalance: currentOriginOpenBalance },
-        } = currentOriginInvoice
+        } = currentOriginInvoice;
 
         if (+id === +invoiceId) {
           openBalance.value =
-            +currentOriginOpenBalance.value < +newPrice
-              ? currentOriginOpenBalance.value
-              : newPrice
+            +currentOriginOpenBalance.value < +newPrice ? currentOriginOpenBalance.value : newPrice;
         }
 
-        return selectedItem
-      })
+        return selectedItem;
+      });
 
-      setSelectedPay(newInvoices)
+      setSelectedPay(newInvoices);
     }
-  }
+  };
 
   const handleExportInvoiceAsCSV = async () => {
     try {
-      setIsRequestLoading(true)
-      const filtering = filterData ? isFiltering(filterData) : false
+      setIsRequestLoading(true);
+      const filtering = filterData ? isFiltering(filterData) : false;
       const currentCheckedArr = filtering
         ? filterLists.filter((item: InvoiceListNode) =>
-            checkedArr.some(
-              (item2: InvoiceListNode) => item?.node?.id === item2?.node?.id
-            )
+            checkedArr.some((item2: InvoiceListNode) => item?.node?.id === item2?.node?.id),
           )
-        : checkedArr
+        : checkedArr;
 
-      const invoiceNumber = currentCheckedArr.map(
-        (item: InvoiceListNode) => item.node.id
-      )
-      const invoiceStatus = filterData?.status ? [+filterData.status] : []
+      const invoiceNumber = currentCheckedArr.map((item: InvoiceListNode) => item.node.id);
+      const invoiceStatus = filterData?.status ? [+filterData.status] : [];
 
-      let orderByFiled = '-invoice_number'
+      let orderByFiled = '-invoice_number';
       if (filterData?.orderBy) {
-        const orderByStr = String(filterData.orderBy)
+        const orderByStr = String(filterData.orderBy);
         orderByFiled = orderByStr.includes('-')
           ? `-${exportOrderByArr[orderByStr.split('-')[1]]}`
-          : exportOrderByArr[orderByStr]
+          : exportOrderByArr[orderByStr];
       }
 
       const params = {
@@ -323,156 +287,152 @@ function Invoice() {
         endDateAt: filterData?.endDateAt || '',
         status: invoiceStatus,
         orderBy: orderByFiled,
-      }
+      };
 
-      const { invoicesExport } = await exportInvoicesAsCSV(params)
+      const { invoicesExport } = await exportInvoicesAsCSV(params);
 
       if (invoicesExport?.url) {
-        window.open(invoicesExport?.url, '_blank')
+        window.open(invoicesExport?.url, '_blank');
       }
     } catch (err) {
-      b2bLogger.error(err)
+      b2bLogger.error(err);
     } finally {
-      setIsRequestLoading(false)
+      setIsRequestLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (location?.search) {
-      const params = new URLSearchParams(location.search)
-      const getInvoiceId = params.get('invoiceId') || ''
-      const getReceiptId = params.get('receiptId') || ''
+      const params = new URLSearchParams(location.search);
+      const getInvoiceId = params.get('invoiceId') || '';
+      const getReceiptId = params.get('receiptId') || '';
 
       if (getInvoiceId) {
         setFilterData({
           ...initFilter,
           q: getInvoiceId,
-        })
-        setType(InvoiceListType.DETAIL)
+        });
+        setType(InvoiceListType.DETAIL);
       }
 
       if (getReceiptId) {
         // open Successful page
-        setType(InvoiceListType.CHECKOUT)
+        setType(InvoiceListType.CHECKOUT);
         setFilterData({
           ...initFilter,
-        })
-        setReceiptId(getReceiptId)
+        });
+        setReceiptId(getReceiptId);
       }
     } else {
-      setType(InvoiceListType.NORMAL)
+      setType(InvoiceListType.NORMAL);
       setFilterData({
         ...initFilter,
-      })
+      });
     }
-  }, [location])
+  }, [location]);
 
   useEffect(() => {
     const selectedInvoice =
       checkedArr.filter((item: InvoiceListNode) => {
         const {
           node: { openBalance },
-        } = item
+        } = item;
 
-        return +openBalance.value !== 0
-      }) || []
+        return +openBalance.value !== 0;
+      }) || [];
 
     if (selectedInvoice.length > 0) {
       if (selectedPay.length === 0) {
-        setSelectedPay(cloneDeep(selectedInvoice))
+        setSelectedPay(cloneDeep(selectedInvoice));
       } else {
         const newArr = selectedInvoice.map((checkedItem: InvoiceListNode) => {
           const {
             node: { id, openBalance },
-          } = checkedItem
+          } = checkedItem;
 
-          const currentSelectedItem = selectedPay.find(
-            (item: InvoiceListNode) => {
-              const {
-                node: { id: selectedId },
-              } = item
+          const currentSelectedItem = selectedPay.find((item: InvoiceListNode) => {
+            const {
+              node: { id: selectedId },
+            } = item;
 
-              return +id === +selectedId
-            }
-          )
+            return +id === +selectedId;
+          });
 
           if (currentSelectedItem) {
             const {
               node: { openBalance: currentOpenBalance },
-            } = currentSelectedItem
+            } = currentSelectedItem;
 
-            openBalance.value = currentOpenBalance.value
+            openBalance.value = currentOpenBalance.value;
           }
 
-          return checkedItem
-        })
+          return checkedItem;
+        });
 
-        setSelectedPay(cloneDeep(newArr))
+        setSelectedPay(cloneDeep(newArr));
       }
     } else {
-      setSelectedPay([])
+      setSelectedPay([]);
     }
     // ignore selectedPay cause it will trigger an useEffect loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkedArr])
+  }, [checkedArr]);
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
     const {
       invoices: { edges, totalCount },
-    } = await getInvoiceList(params)
+    } = await getInvoiceList(params);
 
-    const invoicesList: InvoiceListNode[] = edges
+    const invoicesList: InvoiceListNode[] = edges;
 
     if (type === InvoiceListType.DETAIL && invoicesList.length) {
       invoicesList.forEach((invoice: InvoiceListNode) => {
-        const item = invoice
-        item.node.isCollapse = true
-      })
+        const item = invoice;
+        item.node.isCollapse = true;
+      });
     }
 
     invoicesList.forEach((invoiceNode: InvoiceListNode) => {
       const {
         node: { openBalance },
-      } = invoiceNode
-      const item = invoiceNode
-      item.node.disableCurrentCheckbox = false
+      } = invoiceNode;
+      const item = invoiceNode;
+      item.node.disableCurrentCheckbox = false;
 
-      openBalance.value = (+openBalance.value).toFixed(decimalPlaces)
-    })
-    setList(invoicesList)
-    handleStatisticsInvoiceAmount()
+      openBalance.value = (+openBalance.value).toFixed(decimalPlaces);
+    });
+    setList(invoicesList);
+    handleStatisticsInvoiceAmount();
 
     if (filterData && isFiltering(filterData) && invoicesList.length) {
-      cacheFilterLists(invoicesList)
+      cacheFilterLists(invoicesList);
     } else {
-      setFilterLists([])
+      setFilterLists([]);
     }
 
     return {
       edges: invoicesList,
       totalCount,
-    }
-  }
+    };
+  };
 
   const handleSetSelectedInvoiceAccountNumber = (val: string, id: string) => {
-    let result = val
+    let result = val;
     if (val.includes('.')) {
-      const wholeDecimalNumber = val.split('.')
-      const movePoint = wholeDecimalNumber[1].length - +decimalPlaces
+      const wholeDecimalNumber = val.split('.');
+      const movePoint = wholeDecimalNumber[1].length - +decimalPlaces;
       if (wholeDecimalNumber[1] && movePoint > 0) {
-        const newVal = wholeDecimalNumber[0] + wholeDecimalNumber[1]
-        result = `${newVal.slice(0, -decimalPlaces)}.${newVal.slice(
-          -decimalPlaces
-        )}`
+        const newVal = wholeDecimalNumber[0] + wholeDecimalNumber[1];
+        result = `${newVal.slice(0, -decimalPlaces)}.${newVal.slice(-decimalPlaces)}`;
       }
     } else if (result.length > 1) {
-      result = `${val.slice(0, 1)}.${val.slice(-1)}`
+      result = `${val.slice(0, 1)}.${val.slice(-1)}`;
     } else {
-      result = `${val}`
+      result = `${val}`;
     }
 
-    handleSetSelectedInvoiceAccount(result, id)
-  }
+    handleSetSelectedInvoiceAccount(result, id);
+  };
 
   const columnAllItems: TableColumnItem<InvoiceList>[] = [
     {
@@ -489,7 +449,7 @@ function Invoice() {
             },
           }}
           onClick={() => {
-            handleViewInvoice(item.id, item.status)
+            handleViewInvoice(item.id, item.status);
           }}
         >
           {item?.invoiceNumber ? item?.invoiceNumber : item?.id}
@@ -511,7 +471,7 @@ function Invoice() {
             },
           }}
           onClick={() => {
-            navigate(`/orderDetail/${item.orderNumber}`)
+            navigate(`/orderDetail/${item.orderNumber}`);
           }}
         >
           {item?.orderNumber || '-'}
@@ -523,8 +483,7 @@ function Invoice() {
       key: 'createdAt',
       title: b3Lang('invoice.headers.invoiceDate'),
       isSortable: true,
-      render: (item: InvoiceList) =>
-        `${item.createdAt ? displayFormat(+item.createdAt) : '–'}`,
+      render: (item: InvoiceList) => `${item.createdAt ? displayFormat(+item.createdAt) : '–'}`,
       width: '10%',
     },
     {
@@ -532,8 +491,8 @@ function Invoice() {
       title: b3Lang('invoice.headers.dueDate'),
       isSortable: true,
       render: (item: InvoiceList) => {
-        const { dueDate, status } = item
-        const isOverdue = currentDate > dueDate * 1000 && status !== 2
+        const { dueDate, status } = item;
+        const isOverdue = currentDate > dueDate * 1000 && status !== 2;
 
         return (
           <Typography
@@ -544,7 +503,7 @@ function Invoice() {
           >
             {`${item.dueDate ? displayFormat(+item.dueDate) : '–'}`}
           </Typography>
-        )
+        );
       },
       width: '10%',
     },
@@ -553,12 +512,12 @@ function Invoice() {
       title: b3Lang('invoice.headers.invoiceTotal'),
       isSortable: true,
       render: (item: InvoiceList) => {
-        const { originalBalance } = item
-        const originalAmount = (+originalBalance.value).toFixed(decimalPlaces)
+        const { originalBalance } = item;
+        const originalAmount = (+originalBalance.value).toFixed(decimalPlaces);
 
-        const token = handleGetCorrespondingCurrencyToken(originalBalance.code)
+        const token = handleGetCorrespondingCurrencyToken(originalBalance.code);
 
-        return `${token}${originalAmount || 0}`
+        return `${token}${originalAmount || 0}`;
       },
       width: '10%',
     },
@@ -567,12 +526,12 @@ function Invoice() {
       title: b3Lang('invoice.headers.amountDue'),
       isSortable: true,
       render: (item: InvoiceList) => {
-        const { openBalance } = item
+        const { openBalance } = item;
 
-        const openAmount = (+openBalance.value).toFixed(decimalPlaces)
-        const token = handleGetCorrespondingCurrencyToken(openBalance.code)
+        const openAmount = (+openBalance.value).toFixed(decimalPlaces);
+        const token = handleGetCorrespondingCurrencyToken(openBalance.code);
 
-        return `${token}${openAmount || 0}`
+        return `${token}${openAmount || 0}`;
       },
       width: '10%',
     },
@@ -580,30 +539,30 @@ function Invoice() {
       key: 'openBalanceToPay',
       title: b3Lang('invoice.headers.amountToPay'),
       render: (item: InvoiceList) => {
-        const { openBalance, id } = item
-        const currentCode = openBalance.code || 'USD'
-        let valuePrice = openBalance.value
-        let disabled = true
+        const { openBalance, id } = item;
+        const currentCode = openBalance.code || 'USD';
+        let valuePrice = openBalance.value;
+        let disabled = true;
 
         if (selectedPay.length > 0) {
           const currentSelected = selectedPay.find((item: InvoiceListNode) => {
             const {
               node: { id: selectedId },
-            } = item
+            } = item;
 
-            return +selectedId === +id
-          })
+            return +selectedId === +id;
+          });
 
           if (currentSelected) {
             const {
               node: { openBalance: selectedOpenBalance },
-            } = currentSelected
+            } = currentSelected;
 
-            disabled = false
-            valuePrice = selectedOpenBalance.value
+            disabled = false;
+            valuePrice = selectedOpenBalance.value;
 
             if (+openBalance.value === 0) {
-              disabled = true
+              disabled = true;
             }
           }
         }
@@ -634,12 +593,12 @@ function Invoice() {
                 },
             }}
             onChange={(e: CustomFieldItems) => {
-              const val = e.target?.value
-              handleSetSelectedInvoiceAccountNumber(val, id)
+              const val = e.target?.value;
+              handleSetSelectedInvoiceAccountNumber(val, id);
             }}
             type="number"
           />
-        )
+        );
       },
       width: '15%',
     },
@@ -648,34 +607,34 @@ function Invoice() {
       title: b3Lang('invoice.headers.status'),
       isSortable: true,
       render: (item: InvoiceList) => {
-        const { status, dueDate } = item
-        let code = item.status
+        const { status, dueDate } = item;
+        let code = item.status;
 
         // (3, "Overdue")-【Display status when invoice exceeds due date. For front-end display only】
         if (status === 0 && currentDate > dueDate * 1000) {
-          code = 3
+          code = 3;
         }
 
-        return <InvoiceStatus code={code} />
+        return <InvoiceStatus code={code} />;
       },
     },
     {
       key: 'companyName',
       title: b3Lang('invoice.headers.action'),
       render: (row: InvoiceList) => {
-        const { id } = row
-        let actionRow = row
+        const { id } = row;
+        let actionRow = row;
         if (selectedPay.length > 0) {
           const currentSelected = selectedPay.find((item: InvoiceListNode) => {
             const {
               node: { id: selectedId },
-            } = item
+            } = item;
 
-            return +selectedId === +id
-          })
+            return +selectedId === +id;
+          });
 
           if (currentSelected) {
-            actionRow = currentSelected.node
+            actionRow = currentSelected.node;
           }
         }
 
@@ -686,58 +645,54 @@ function Invoice() {
             handleOpenHistoryModal={setIsOpenHistorys}
             setIsRequestLoading={setIsRequestLoading}
           />
-        )
+        );
       },
       width: '10%',
     },
-  ]
+  ];
 
   useEffect(() => {
-    let exportCsvTexts = b3Lang('invoice.exportCsvText')
+    let exportCsvTexts = b3Lang('invoice.exportCsvText');
 
-    const filtering = filterData ? isFiltering(filterData) : false
+    const filtering = filterData ? isFiltering(filterData) : false;
     const currentCheckedArr = filtering
       ? filterLists.filter((item: InvoiceListNode) =>
-          checkedArr.some(
-            (item2: InvoiceListNode) => item?.node?.id === item2?.node?.id
-          )
+          checkedArr.some((item2: InvoiceListNode) => item?.node?.id === item2?.node?.id),
         )
-      : checkedArr
+      : checkedArr;
 
     if (filtering) {
       exportCsvTexts =
         currentCheckedArr.length > 0
           ? b3Lang('invoice.exportSelectedAsCsv')
-          : b3Lang('invoice.exportFilteredAsCsv')
+          : b3Lang('invoice.exportFilteredAsCsv');
     } else {
       exportCsvTexts =
         currentCheckedArr.length > 0
           ? b3Lang('invoice.exportSelectedAsCsv')
-          : b3Lang('invoice.exportCsvText')
+          : b3Lang('invoice.exportCsvText');
     }
 
-    setExportCsvText(exportCsvTexts)
+    setExportCsvText(exportCsvTexts);
     // disabling because of b3lang rendering errors
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkedArr, filterData, filterLists])
+  }, [checkedArr, filterData, filterLists]);
 
   const translatedFilterFormConfigs = filterFormConfig.map((element) => {
-    const config = element
+    const config = element;
     if (element.name === 'status') {
-      config.label = b3Lang(filterFormConfigsTranslationVariables.status)
+      config.label = b3Lang(filterFormConfigsTranslationVariables.status);
     }
 
     config.options = element.options.map((option) => {
-      const elementOption = option
-      elementOption.label = b3Lang(
-        filterFormConfigsTranslationVariables[option.key]
-      )
+      const elementOption = option;
+      elementOption.label = b3Lang(filterFormConfigsTranslationVariables[option.key]);
 
-      return option
-    })
+      return option;
+    });
 
-    return element
-  })
+    return element;
+  });
 
   return (
     <B3Sping isSpinning={isRequestLoading}>
@@ -765,18 +720,14 @@ function Invoice() {
               isEnabled: true,
               label: b3Lang('invoice.filter.from'),
               defaultValue:
-                typeof filterData?.beginDateAt === 'number'
-                  ? +filterData.beginDateAt * 1000
-                  : '',
+                typeof filterData?.beginDateAt === 'number' ? +filterData.beginDateAt * 1000 : '',
               pickerKey: 'start',
             }}
             endPicker={{
               isEnabled: true,
               label: b3Lang('invoice.filter.to'),
               defaultValue:
-                typeof filterData?.endDateAt === 'number'
-                  ? +filterData.endDateAt * 1000
-                  : '',
+                typeof filterData?.endDateAt === 'number' ? +filterData.endDateAt * 1000 : '',
               pickerKey: 'end',
             }}
             searchValue={filterData?.q || ''}
@@ -785,8 +736,7 @@ function Invoice() {
             sx={{
               display: 'flex',
               marginBottom: '30px',
-              flexDirection:
-                document.body.clientWidth <= 465 ? 'column' : 'row',
+              flexDirection: document.body.clientWidth <= 465 ? 'column' : 'row',
             }}
           >
             <Typography
@@ -844,22 +794,18 @@ function Invoice() {
           renderItem={(
             row: InvoiceList,
             index?: number,
-            checkBox?: (disable?: boolean) => ReactElement
+            checkBox?: (disable?: boolean) => ReactElement,
           ) => (
             <InvoiceItemCard
               item={row}
               checkBox={checkBox}
-              handleSetSelectedInvoiceAccount={
-                handleSetSelectedInvoiceAccountNumber
-              }
+              handleSetSelectedInvoiceAccount={handleSetSelectedInvoiceAccountNumber}
               handleViewInvoice={handleViewInvoice}
               setIsRequestLoading={setIsRequestLoading}
               setInvoiceId={setCurrentInvoiceId}
               handleOpenHistoryModal={setIsOpenHistorys}
               selectedPay={selectedPay}
-              handleGetCorrespondingCurrency={
-                handleGetCorrespondingCurrencyToken
-              }
+              handleGetCorrespondingCurrency={handleGetCorrespondingCurrencyToken}
               addBottom={list.length - 1 === index}
             />
           )}
@@ -879,10 +825,7 @@ function Invoice() {
         )}
       </Box>
       {selectedPay.length > 0 && (role === 0 || isAgenting) && (
-        <InvoiceFooter
-          selectedPay={selectedPay}
-          decimalPlaces={decimalPlaces}
-        />
+        <InvoiceFooter selectedPay={selectedPay} decimalPlaces={decimalPlaces} />
       )}
       <PaymentsHistory
         open={isOpenHistorys}
@@ -891,7 +834,7 @@ function Invoice() {
       />
       <PaymentSuccess receiptId={+receiptId} type={type} />
     </B3Sping>
-  )
+  );
 }
 
-export default Invoice
+export default Invoice;

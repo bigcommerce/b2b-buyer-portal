@@ -1,90 +1,86 @@
-import { Dispatch, ReactElement, SetStateAction, useRef, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, styled, TextField, Typography } from '@mui/material'
+import { Dispatch, ReactElement, SetStateAction, useRef, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, styled, TextField, Typography } from '@mui/material';
 
-import B3Sping from '@/components/spin/B3Sping'
-import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { TableColumnItem } from '@/components/table/B3Table'
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useMobile, useSort } from '@/hooks'
+import B3Sping from '@/components/spin/B3Sping';
+import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { TableColumnItem } from '@/components/table/B3Table';
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useMobile, useSort } from '@/hooks';
 import {
   getBcOrderedProducts,
   getOrderedProducts,
   searchB2BProducts,
   searchBcProducts,
-} from '@/shared/service/b2b'
-import {
-  activeCurrencyInfoSelector,
-  isB2BUserSelector,
-  useAppSelector,
-} from '@/store'
+} from '@/shared/service/b2b';
+import { activeCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
 import {
   currencyFormat,
   displayFormat,
   distanceDay,
   getProductPriceIncTax,
   snackbar,
-} from '@/utils'
-import { getDisplayPrice } from '@/utils/b3Product/b3Product'
-import { conversionProductsList } from '@/utils/b3Product/shared/config'
+} from '@/utils';
+import { getDisplayPrice } from '@/utils/b3Product/b3Product';
+import { conversionProductsList } from '@/utils/b3Product/shared/config';
 
-import B3FilterMore from '../../../components/filter/B3FilterMore'
-import B3FilterPicker from '../../../components/filter/B3FilterPicker'
-import B3FilterSearch from '../../../components/filter/B3FilterSearch'
+import B3FilterMore from '../../../components/filter/B3FilterMore';
+import B3FilterPicker from '../../../components/filter/B3FilterPicker';
+import B3FilterSearch from '../../../components/filter/B3FilterSearch';
 
-import QuickOrderCard from './QuickOrderCard'
+import QuickOrderCard from './QuickOrderCard';
 
 interface ListItem {
-  [key: string]: string
+  [key: string]: string;
 }
 
 interface ProductInfoProps {
-  basePrice: number | string
-  baseSku: string
-  createdAt: number
-  discount: number | string
-  enteredInclusive: boolean
-  id: number | string
-  itemId: number
-  optionList: string
-  primaryImage: string
-  productId: number
-  productName: string
-  productUrl: string
-  quantity: number | string
-  taxPrice: number
-  updatedAt: number
-  variantId: number
-  variantSku: string
-  productsSearch: CustomFieldItems
+  basePrice: number | string;
+  baseSku: string;
+  createdAt: number;
+  discount: number | string;
+  enteredInclusive: boolean;
+  id: number | string;
+  itemId: number;
+  optionList: string;
+  primaryImage: string;
+  productId: number;
+  productName: string;
+  productUrl: string;
+  quantity: number | string;
+  taxPrice: number;
+  updatedAt: number;
+  variantId: number;
+  variantSku: string;
+  productsSearch: CustomFieldItems;
 }
 
 interface ListItemProps {
-  node: ProductInfoProps
+  node: ProductInfoProps;
 }
 
 interface SearchProps {
-  q: string
-  first?: number
-  offset?: number
-  beginDateAt?: Date | string | number
-  endDateAt?: Date | string | number
-  orderBy: string
+  q: string;
+  first?: number;
+  offset?: number;
+  beginDateAt?: Date | string | number;
+  endDateAt?: Date | string | number;
+  orderBy: string;
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
-  getList: () => void
-  getCacheList: () => void
-  setCacheAllList: (items?: ListItemProps[]) => void
-  setList: (items?: ListItemProps[]) => void
-  getSelectedValue: () => void
+  getList: () => void;
+  getCacheList: () => void;
+  setCacheAllList: (items?: ListItemProps[]) => void;
+  setList: (items?: ListItemProps[]) => void;
+  getSelectedValue: () => void;
 }
 
 const StyledImage = styled('img')(() => ({
   maxWidth: '60px',
   height: 'auto',
   marginRight: '0.5rem',
-}))
+}));
 
 const StyleQuickOrderTable = styled(Box)(() => ({
   display: 'flex',
@@ -101,12 +97,12 @@ const StyleQuickOrderTable = styled(Box)(() => ({
       },
     },
   },
-}))
+}));
 
 interface QuickorderTableProps {
-  setIsRequestLoading: Dispatch<SetStateAction<boolean>>
-  setCheckedArr: (values: CustomFieldItems) => void
-  isRequestLoading: boolean
+  setIsRequestLoading: Dispatch<SetStateAction<boolean>>;
+  setCheckedArr: (values: CustomFieldItems) => void;
+  isRequestLoading: boolean;
 }
 
 const StyledTextField = styled(TextField)(() => ({
@@ -114,64 +110,55 @@ const StyledTextField = styled(TextField)(() => ({
     paddingTop: '12px',
     paddingRight: '6px',
   },
-}))
+}));
 
-export const defaultSortKey = 'lastOrderedAt'
+export const defaultSortKey = 'lastOrderedAt';
 
 export const sortKeys = {
   product: 'productName',
   lastOrderedAt: 'lastOrderedAt',
-}
+};
 
 function QuickorderTable({
   setIsRequestLoading,
   setCheckedArr,
   isRequestLoading,
 }: QuickorderTableProps) {
-  const paginationTableRef = useRef<PaginationTableRefProps | null>(null)
+  const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id)
-  const customerGroupId = useAppSelector(
-    ({ company }) => company.customer.customerGroupId
-  )
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
 
   const [search, setSearch] = useState<SearchProps>({
     q: '',
     beginDateAt: distanceDay(90),
     endDateAt: distanceDay(0),
     orderBy: `-${sortKeys[defaultSortKey]}`,
-  })
+  });
 
-  const [handleSetOrderBy, order, orderBy] = useSort(
-    sortKeys,
-    defaultSortKey,
-    search,
-    setSearch
-  )
+  const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
 
-  const [total, setTotalCount] = useState<number>(0)
+  const [total, setTotalCount] = useState<number>(0);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const { currency_code: currencyCode } = useAppSelector(
-    activeCurrencyInfoSelector
-  )
+  const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
 
   const handleGetProductsById = async (listProducts: ListItemProps[]) => {
     if (listProducts.length > 0) {
-      const productIds: number[] = []
+      const productIds: number[] = [];
       listProducts.forEach((item) => {
-        const { node } = item
-        node.quantity = 1
+        const { node } = item;
+        node.quantity = 1;
         if (!productIds.includes(node.productId)) {
-          productIds.push(node.productId)
+          productIds.push(node.productId);
         }
-      })
+      });
 
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
+      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
       try {
         const { productsSearch } = await getProducts({
@@ -179,168 +166,162 @@ function QuickorderTable({
           currencyCode,
           companyId: companyInfoId,
           customerGroupId,
-        })
+        });
 
-        const newProductsSearch = conversionProductsList(productsSearch)
+        const newProductsSearch = conversionProductsList(productsSearch);
 
         listProducts.forEach((item) => {
-          const { node } = item
+          const { node } = item;
 
-          const productInfo = newProductsSearch.find(
-            (search: CustomFieldItems) => {
-              const { id: productId } = search
+          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
+            const { id: productId } = search;
 
-              return +node.productId === +productId
-            }
-          )
+            return +node.productId === +productId;
+          });
 
-          node.productsSearch = productInfo || {}
-        })
+          node.productsSearch = productInfo || {};
+        });
 
-        return listProducts
+        return listProducts;
       } catch (err: any) {
-        snackbar.error(err)
+        snackbar.error(err);
       }
     }
-    return []
-  }
+    return [];
+  };
 
   const getList = async (params: SearchProps) => {
-    const fn = isB2BUser ? getOrderedProducts : getBcOrderedProducts
+    const fn = isB2BUser ? getOrderedProducts : getBcOrderedProducts;
 
     const {
       orderedProducts: { edges, totalCount },
-    } = await fn(params)
+    } = await fn(params);
 
-    const listProducts = await handleGetProductsById(edges)
+    const listProducts = await handleGetProductsById(edges);
 
-    setTotalCount(totalCount)
+    setTotalCount(totalCount);
 
     return {
       edges: listProducts,
       totalCount,
-    }
-  }
+    };
+  };
 
   const handleSearchProduct = async (q: string) => {
     setSearch({
       ...search,
       q,
-    })
-  }
+    });
+  };
 
   const getSelectCheckbox = (selectCheckbox: Array<string | number>) => {
     if (selectCheckbox.length > 0) {
-      const productList = paginationTableRef.current?.getCacheList() || []
+      const productList = paginationTableRef.current?.getCacheList() || [];
       const checkedItems = selectCheckbox.map((item: number | string) => {
         const newItems = productList.find((product: ListItemProps) => {
-          const { node } = product
+          const { node } = product;
 
-          return node.id === item
-        })
+          return node.id === item;
+        });
 
-        return newItems
-      })
+        return newItems;
+      });
 
-      setCheckedArr([...checkedItems])
+      setCheckedArr([...checkedItems]);
     } else {
-      setCheckedArr([])
+      setCheckedArr([]);
     }
-  }
+  };
 
   const handlePickerChange = (key: string, value: Date | string | number) => {
     const params = {
       ...search,
-    }
+    };
     if (key === 'start') {
-      params.beginDateAt = value || distanceDay(90)
+      params.beginDateAt = value || distanceDay(90);
     } else {
-      params.endDateAt = value || distanceDay(0)
+      params.endDateAt = value || distanceDay(0);
     }
 
-    setSearch(params)
-  }
+    setSearch(params);
+  };
 
   const handleFilterChange = (data: any) => {
     const params = {
       ...search,
-    }
+    };
 
-    params.beginDateAt = data.startValue
+    params.beginDateAt = data.startValue;
 
-    params.endDateAt = data.endValue
+    params.endDateAt = data.endValue;
 
-    setSearch(params)
-  }
+    setSearch(params);
+  };
 
-  const handleUpdateProductQty = (
-    id: number | string,
-    value: number | string
-  ) => {
-    if (value !== '' && +value <= 0) return
-    const listItems = paginationTableRef.current?.getList() || []
-    const listCacheItems = paginationTableRef.current?.getCacheList() || []
+  const handleUpdateProductQty = (id: number | string, value: number | string) => {
+    if (value !== '' && +value <= 0) return;
+    const listItems = paginationTableRef.current?.getList() || [];
+    const listCacheItems = paginationTableRef.current?.getCacheList() || [];
 
     const newListItems = listItems?.map((item: ListItemProps) => {
-      const { node } = item
+      const { node } = item;
       if (node?.id === id) {
-        node.quantity = +value || ''
+        node.quantity = +value || '';
       }
 
-      return item
-    })
+      return item;
+    });
     const newListCacheItems = listCacheItems?.map((item: ListItemProps) => {
-      const { node } = item
+      const { node } = item;
       if (node?.id === id) {
-        node.quantity = +value || ''
+        node.quantity = +value || '';
       }
 
-      return item
-    })
-    paginationTableRef.current?.setList([...newListItems])
-    paginationTableRef.current?.setCacheAllList([...newListCacheItems])
-  }
+      return item;
+    });
+    paginationTableRef.current?.setList([...newListItems]);
+    paginationTableRef.current?.setCacheAllList([...newListCacheItems]);
+  };
 
   const showPrice = (price: string, row: CustomFieldItems): string | number => {
     const {
       productsSearch: { isPriceHidden },
-    } = row
-    if (isPriceHidden) return ''
+    } = row;
+    if (isPriceHidden) return '';
     return getDisplayPrice({
       price,
       productInfo: row,
       showText: isPriceHidden ? '' : price,
       forcedSkip: true,
-    })
-  }
+    });
+  };
 
   const handleSetCheckedQty = (row: CustomFieldItems) => {
-    const cacheProductList: CustomFieldItems =
-      paginationTableRef.current?.getCacheList() || []
+    const cacheProductList: CustomFieldItems = paginationTableRef.current?.getCacheList() || [];
 
-    let qty = row.quantity
+    let qty = row.quantity;
     if (cacheProductList.length > 0) {
       const currentProduct = cacheProductList.find(
         (item: CustomFieldItems) =>
           item.node.variantId === row.variantId &&
           item.node.productId === row.productId &&
-          item.node.id === row.id
-      )
+          item.node.id === row.id,
+      );
 
       if (currentProduct && currentProduct.node) {
-        qty = currentProduct.node.quantity || qty
+        qty = currentProduct.node.quantity || qty;
       }
     }
 
-    return qty
-  }
+    return qty;
+  };
 
   const columnItems: TableColumnItem<ListItem>[] = [
     {
       key: 'product',
       title: b3Lang('purchasedProducts.product'),
       render: (row: CustomFieldItems) => {
-        const { optionList } = row
+        const { optionList } = row;
         return (
           <Box
             sx={{
@@ -378,7 +359,7 @@ function QuickorderTable({
               )}
             </Box>
           </Box>
-        )
+        );
       },
       width: '40%',
       isSortable: true,
@@ -391,16 +372,15 @@ function QuickorderTable({
           productsSearch: { variants },
           variantId,
           basePrice,
-        } = row
-        let priceIncTax = +basePrice
+        } = row;
+        let priceIncTax = +basePrice;
         if (variants?.length) {
-          priceIncTax =
-            getProductPriceIncTax(variants, +variantId) || +basePrice
+          priceIncTax = getProductPriceIncTax(variants, +variantId) || +basePrice;
         }
 
-        const qty = handleSetCheckedQty(row)
-        const withTaxPrice = priceIncTax || +basePrice
-        const price = withTaxPrice * +qty
+        const qty = handleSetCheckedQty(row);
+        const withTaxPrice = priceIncTax || +basePrice;
+        const price = withTaxPrice * +qty;
 
         return (
           <Typography
@@ -410,7 +390,7 @@ function QuickorderTable({
           >
             {`${showPrice(currencyFormat(price), row)}`}
           </Typography>
-        )
+        );
       },
       width: '15%',
       style: {
@@ -421,7 +401,7 @@ function QuickorderTable({
       key: 'qty',
       title: b3Lang('purchasedProducts.qty'),
       render: (row) => {
-        const qty = handleSetCheckedQty(row)
+        const qty = handleSetCheckedQty(row);
 
         return (
           <StyledTextField
@@ -434,10 +414,10 @@ function QuickorderTable({
               pattern: '[0-9]*',
             }}
             onChange={(e) => {
-              handleUpdateProductQty(row.id, e.target.value)
+              handleUpdateProductQty(row.id, e.target.value);
             }}
           />
-        )
+        );
       },
       width: '15%',
       style: {
@@ -464,7 +444,7 @@ function QuickorderTable({
       },
       isSortable: true,
     },
-  ]
+  ];
 
   return (
     <B3Sping isSpinning={isRequestLoading}>
@@ -498,7 +478,7 @@ function QuickorderTable({
               h="48px"
               searchBGColor="rgba(0, 0, 0, 0.06)"
               handleChange={(e) => {
-                handleSearchProduct(e)
+                handleSearchProduct(e);
               }}
             />
 
@@ -575,11 +555,7 @@ function QuickorderTable({
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
-          renderItem={(
-            row: ProductInfoProps,
-            index?: number,
-            checkBox?: () => ReactElement
-          ) => (
+          renderItem={(row: ProductInfoProps, index?: number, checkBox?: () => ReactElement) => (
             <QuickOrderCard
               item={row}
               checkBox={checkBox}
@@ -589,7 +565,7 @@ function QuickorderTable({
         />
       </StyleQuickOrderTable>
     </B3Sping>
-  )
+  );
 }
 
-export default QuickorderTable
+export default QuickorderTable;

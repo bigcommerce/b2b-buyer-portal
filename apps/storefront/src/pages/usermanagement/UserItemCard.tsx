@@ -1,82 +1,80 @@
-import { LangFormatFunction, useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
+import { LangFormatFunction, useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 
-import { B3Tag } from '@/components'
+import { B3Tag } from '@/components';
 
-import { getUserRole, UsersList } from './config'
+import { getUserRole, UsersList } from './config';
 
 interface RoleListProps {
-  label: string
-  value: string | number
-  color: string
-  textColor: string
-  idLang: string
+  label: string;
+  value: string | number;
+  color: string;
+  textColor: string;
+  idLang: string;
 }
 
 export interface OrderItemCardProps {
-  item: UsersList
-  onEdit: (data: UsersList) => void
-  onDelete: (data: UsersList) => void
-  isPermissions: boolean
+  item: UsersList;
+  onEdit: (data: UsersList) => void;
+  onDelete: (data: UsersList) => void;
+  isPermissions: boolean;
 }
 
 const Flex = styled('div')(() => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-}))
+}));
 
 export function UserItemCard(props: OrderItemCardProps) {
-  const { item: userInfo, onEdit, onDelete, isPermissions } = props
-  const b3Lang = useB3Lang()
+  const { item: userInfo, onEdit, onDelete, isPermissions } = props;
+  const b3Lang = useB3Lang();
 
   const getNewRoleList = () => {
-    const userRole = getUserRole()
+    const userRole = getUserRole();
     const newRoleList: Array<RoleListProps> = userRole.map((item) => {
       if (+item.value === 0) {
         return {
           color: '#C4DD6C',
           textColor: 'black',
           ...item,
-        }
+        };
       }
       if (+item.value === 1) {
         return {
           color: 'rgba(237, 108, 2, 0.3)',
           textColor: 'black',
           ...item,
-        }
+        };
       }
       return {
         color: '#D9DCE9',
         textColor: 'black',
         ...item,
-      }
-    })
+      };
+    });
 
-    return newRoleList
-  }
+    return newRoleList;
+  };
 
   const statusRender = (role: number, b3Lang: LangFormatFunction) => {
-    const newRoleList = getNewRoleList()
-    const roleItem = newRoleList.find(
-      (item: RoleListProps) => +item.value === +role
-    )
+    const newRoleList = getNewRoleList();
+    const roleItem = newRoleList.find((item: RoleListProps) => +item.value === +role);
 
-    if (!roleItem) return null
+    if (!roleItem) return null;
     return (
       <B3Tag color={roleItem.color} textColor={roleItem.textColor}>
         {b3Lang(roleItem.idLang)}
       </B3Tag>
-    )
-  }
+    );
+  };
 
   return (
     <Card key={userInfo.id}>
@@ -116,7 +114,7 @@ export function UserItemCard(props: OrderItemCardProps) {
                 marginRight: '8px',
               }}
               onClick={() => {
-                onEdit(userInfo)
+                onEdit(userInfo);
               }}
             >
               <EditIcon fontSize="inherit" />
@@ -125,7 +123,7 @@ export function UserItemCard(props: OrderItemCardProps) {
               aria-label="delete"
               size="small"
               onClick={() => {
-                onDelete(userInfo)
+                onDelete(userInfo);
               }}
             >
               <DeleteIcon fontSize="inherit" />
@@ -134,5 +132,5 @@ export function UserItemCard(props: OrderItemCardProps) {
         </Flex>
       </CardContent>
     </Card>
-  )
+  );
 }

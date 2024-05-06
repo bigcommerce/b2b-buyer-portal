@@ -1,4 +1,4 @@
-export const mockActiveCurrency = '{ "node": {"entityId": 2, "isActive": true}}'
+export const mockActiveCurrency = '{ "node": {"entityId": 2, "isActive": true}}';
 
 export const mockCurrencies = `{ "currencies": [{
       "auto_update": false,
@@ -54,4 +54,4 @@ export const mockCurrencies = `{ "currencies": [{
       "token": "¥",
       "token_location": "left"
     }
-]}`
+]}`;

@@ -1,23 +1,23 @@
-import { Box, useTheme } from '@mui/material'
+import { Box, useTheme } from '@mui/material';
 
-import CustomButton from '@/components/button/CustomButton'
-import { useMobile } from '@/hooks'
+import CustomButton from '@/components/button/CustomButton';
+import { useMobile } from '@/hooks';
 
-import LoginWidget from './component/LoginWidget'
-import { LoginInfoInit } from './config'
+import LoginWidget from './component/LoginWidget';
+import { LoginInfoInit } from './config';
 
 interface LoginPanelProps {
-  loginInfo: Partial<LoginInfoInit>
-  handleSubmit?: () => void
+  loginInfo: Partial<LoginInfoInit>;
+  handleSubmit?: () => void;
 }
 
 function LoginPanel(props: LoginPanelProps) {
-  const { loginInfo, handleSubmit } = props
+  const { loginInfo, handleSubmit } = props;
 
-  const theme = useTheme()
-  const [isMobile] = useMobile()
+  const theme = useTheme();
+  const [isMobile] = useMobile();
 
-  const { widgetBodyText = '', CreateAccountButtonText } = loginInfo
+  const { widgetBodyText = '', CreateAccountButtonText } = loginInfo;
 
   return (
     <Box
@@ -62,7 +62,7 @@ function LoginPanel(props: LoginPanelProps) {
         </CustomButton>
       </Box>
     </Box>
-  )
+  );
 }
 
-export default LoginPanel
+export default LoginPanel;

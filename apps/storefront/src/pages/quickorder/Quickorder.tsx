@@ -1,25 +1,23 @@
-import { useState } from 'react'
-import { Box, Grid } from '@mui/material'
+import { useState } from 'react';
+import { Box, Grid } from '@mui/material';
 
-import { useMobile } from '@/hooks'
-import { isB2BUserSelector, useAppSelector } from '@/store'
+import { useMobile } from '@/hooks';
+import { isB2BUserSelector, useAppSelector } from '@/store';
 
-import QuickOrderFooter from './components/QuickOrderFooter'
-import QuickOrderPad from './components/QuickOrderPad'
-import QuickorderTable from './components/QuickorderTable'
+import QuickOrderFooter from './components/QuickOrderFooter';
+import QuickOrderPad from './components/QuickOrderPad';
+import QuickorderTable from './components/QuickorderTable';
 
 function Quickorder() {
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const role = useAppSelector(({ company }) => company.customer.role)
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const role = useAppSelector(({ company }) => company.customer.role);
 
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false)
-  const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([])
+  const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
+  const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
 
   return (
     <Box
@@ -88,7 +86,7 @@ function Quickorder() {
         />
       </Box>
     </Box>
-  )
+  );
 }
 
-export default Quickorder
+export default Quickorder;

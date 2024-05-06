@@ -1,25 +1,18 @@
-import { useState } from 'react'
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  TextField,
-} from '@mui/material'
+import { useState } from 'react';
+import { Box, Button, Checkbox, FormControlLabel, Grid, TextField } from '@mui/material';
 
-import { Captcha } from '@/components/form'
+import { Captcha } from '@/components/form';
 
-const Variant = 'filled'
-const TEST_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+const Variant = 'filled';
+const TEST_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 
 export default function Form() {
-  const [state, setState] = useState<'success' | 'error' | 'expired'>('error')
+  const [state, setState] = useState<'success' | 'error' | 'expired'>('error');
 
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault()
+        event.preventDefault();
         if (state === 'success') {
           // proceed
         }
@@ -113,9 +106,7 @@ export default function Form() {
         </Grid>
         <Grid item xs={12}>
           <FormControlLabel
-            control={
-              <Checkbox color="secondary" name="saveAddress" value="yes" />
-            }
+            control={<Checkbox color="secondary" name="saveAddress" value="yes" />}
             label="Use this address for payment details"
           />
         </Grid>
@@ -147,5 +138,5 @@ export default function Form() {
         </Button>
       </Box>
     </form>
-  )
+  );
 }

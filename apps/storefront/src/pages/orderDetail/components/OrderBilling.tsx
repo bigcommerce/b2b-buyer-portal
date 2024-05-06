@@ -1,52 +1,52 @@
-import { useContext } from 'react'
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material'
+import { useContext } from 'react';
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 
-import { B3ProductList } from '@/components'
-import { useMobile } from '@/hooks'
+import { B3ProductList } from '@/components';
+import { useMobile } from '@/hooks';
 
-import { OrderBillings } from '../../../types'
-import { OrderDetailsContext } from '../context/OrderDetailsContext'
+import { OrderBillings } from '../../../types';
+import { OrderDetailsContext } from '../context/OrderDetailsContext';
 
 export default function OrderBilling() {
   const {
     state: { billings = [], addressLabelPermission, orderId, orderIsDigital },
-  } = useContext(OrderDetailsContext)
+  } = useContext(OrderDetailsContext);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
   const getFullName = (billing: OrderBillings) => {
-    const { billingAddress } = billing
+    const { billingAddress } = billing;
 
     if (billingAddress) {
-      const { first_name: firstName, last_name: lastName } = billingAddress
+      const { first_name: firstName, last_name: lastName } = billingAddress;
 
-      return `${firstName} ${lastName}`
+      return `${firstName} ${lastName}`;
     }
 
-    return ''
-  }
+    return '';
+  };
 
   const getFullAddress = (billing: OrderBillings) => {
-    const { billingAddress } = billing
+    const { billingAddress } = billing;
 
     if (billingAddress) {
-      const { street_1: street1, city, state, zip, country } = billingAddress
+      const { street_1: street1, city, state, zip, country } = billingAddress;
 
-      return `${street1}, ${city}, ${state} ${zip}, ${country}`
+      return `${street1}, ${city}, ${state} ${zip}, ${country}`;
     }
 
-    return ''
-  }
+    return '';
+  };
 
   const getCompanyName = (company: string) => {
     if (addressLabelPermission) {
-      return company
+      return company;
     }
 
-    const index = company.indexOf('/')
+    const index = company.indexOf('/');
 
-    return company.substring(index + 1, company.length)
-  }
+    return company.substring(index + 1, company.length);
+  };
 
   return orderIsDigital ? (
     <Stack spacing={2}>
@@ -91,5 +91,5 @@ export default function OrderBilling() {
         </Card>
       ))}
     </Stack>
-  ) : null
+  ) : null;
 }

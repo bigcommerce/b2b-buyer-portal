@@ -1,32 +1,29 @@
-import { Fragment, ReactNode, useContext, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import { Box, Card, CardContent, Divider, Typography } from '@mui/material'
-import throttle from 'lodash-es/throttle'
+import { Fragment, ReactNode, useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
+import throttle from 'lodash-es/throttle';
 
-import CustomButton from '@/components/button/CustomButton'
-import { isB2BUserSelector, useAppSelector } from '@/store'
+import CustomButton from '@/components/button/CustomButton';
+import { isB2BUserSelector, useAppSelector } from '@/store';
 import {
   b2bPrintInvoice,
   currencyFormat,
   displayFormat,
   ordersCurrencyFormat,
   snackbar,
-} from '@/utils'
+} from '@/utils';
 
-import { Address, MoneyFormat, OrderProductItem } from '../../../types'
-import {
-  OrderDetailsContext,
-  OrderDetailsState,
-} from '../context/OrderDetailsContext'
+import { Address, MoneyFormat, OrderProductItem } from '../../../types';
+import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';
 
-import OrderDialog from './OrderDialog'
+import OrderDialog from './OrderDialog';
 
-const OrderActionContainer = styled('div')(() => ({}))
+const OrderActionContainer = styled('div')(() => ({}));
 
 interface StyledCardActionsProps {
-  isShowButtons: boolean
+  isShowButtons: boolean;
 }
 
 const StyledCardActions = styled('div')<StyledCardActionsProps>((props) => ({
@@ -38,10 +35,10 @@ const StyledCardActions = styled('div')<StyledCardActionsProps>((props) => ({
     marginRight: '8px',
     margin: '8px 8px 0 0',
   },
-}))
+}));
 
 interface ItemContainerProps {
-  nameKey: string
+  nameKey: string;
 }
 
 const ItemContainer = styled('div')((props: ItemContainerProps) => ({
@@ -54,47 +51,47 @@ const ItemContainer = styled('div')((props: ItemContainerProps) => ({
     marginBottom: props.nameKey === 'Grand total' ? '0' : '12px',
     lineHeight: 1,
   },
-}))
+}));
 
 const PaymentItemContainer = styled('div')(() => ({
   display: 'flex',
   justifyContent: 'space-between',
   fontWeight: 400,
-}))
+}));
 
 interface Infos {
   info: {
-    [k: string]: string
-  }
-  money?: MoneyFormat
+    [k: string]: string;
+  };
+  money?: MoneyFormat;
 }
 
 interface Buttons {
-  value: string
-  key: string
-  name: string
-  variant?: 'text' | 'contained' | 'outlined'
-  isCanShow: boolean
+  value: string;
+  key: string;
+  name: string;
+  variant?: 'text' | 'contained' | 'outlined';
+  isCanShow: boolean;
 }
 
 interface OrderCardProps {
-  header: string
-  subtitle: string
-  buttons: Buttons[]
-  infos: Infos | string
-  products: OrderProductItem[]
-  itemKey: string
-  orderId: string
-  role: number | string
-  ipStatus: number
-  invoiceId?: number | string | undefined | null
+  header: string;
+  subtitle: string;
+  buttons: Buttons[];
+  infos: Infos | string;
+  products: OrderProductItem[];
+  itemKey: string;
+  orderId: string;
+  role: number | string;
+  ipStatus: number;
+  invoiceId?: number | string | undefined | null;
 }
 
 interface DialogData {
-  dialogTitle: string
-  type: string
-  description: string
-  confirmText: string
+  dialogTitle: string;
+  type: string;
+  description: string;
+  confirmText: string;
 }
 
 function OrderCard(props: OrderCardProps) {
@@ -109,13 +106,11 @@ function OrderCard(props: OrderCardProps) {
     role,
     invoiceId,
     ipStatus,
-  } = props
+  } = props;
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const dialogData = [
     {
@@ -136,56 +131,52 @@ function OrderCard(props: OrderCardProps) {
       description: b3Lang('orderDetail.orderCard.addToShoppingListDescription'),
       confirmText: b3Lang('orderDetail.orderCard.addToShoppingListConfirmText'),
     },
-  ]
+  ];
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [open, setOpen] = useState<boolean>(false)
-  const [type, setType] = useState<string>('')
-  const [currentDialogData, setCurrentDialogData] = useState<DialogData>()
-  const isShowButtons = buttons.filter((btn) => btn.isCanShow).length > 0
+  const [open, setOpen] = useState<boolean>(false);
+  const [type, setType] = useState<string>('');
+  const [currentDialogData, setCurrentDialogData] = useState<DialogData>();
+  const isShowButtons = buttons.filter((btn) => btn.isCanShow).length > 0;
 
-  let infoKey: string[] = []
-  let infoValue: string[] = []
+  let infoKey: string[] = [];
+  let infoValue: string[] = [];
   if (typeof infos !== 'string') {
-    const { info } = infos
+    const { info } = infos;
 
-    infoKey = Object.keys(info)
-    infoValue = Object.values(info)
+    infoKey = Object.keys(info);
+    infoValue = Object.values(info);
   }
 
   const handleOpenDialog = (name: string) => {
     if (name === 'viewInvoice') {
       if (ipStatus !== 0) {
-        navigate(`/invoice?invoiceId=${invoiceId}`)
+        navigate(`/invoice?invoiceId=${invoiceId}`);
       } else {
-        b2bPrintInvoice(orderId, 'b2b_print_invoice')
+        b2bPrintInvoice(orderId, 'b2b_print_invoice');
       }
     } else if (name === 'printInvoice') {
-      window.open(`/account.php?action=print_invoice&order_id=${orderId}`)
+      window.open(`/account.php?action=print_invoice&order_id=${orderId}`);
     } else {
       if (!isAgenting && +role === 3) {
-        snackbar.error(b3Lang('orderDetail.orderCard.errorMasquerade'))
-        return
+        snackbar.error(b3Lang('orderDetail.orderCard.errorMasquerade'));
+        return;
       }
-      setOpen(true)
-      setType(name)
+      setOpen(true);
+      setType(name);
 
-      const newDialogData = dialogData.find(
-        (data: DialogData) => data.type === name
-      )
-      setCurrentDialogData(newDialogData)
+      const newDialogData = dialogData.find((data: DialogData) => data.type === name);
+      setCurrentDialogData(newDialogData);
     }
-  }
+  };
 
-  let showedInformation: ReactNode[] | string = infoValue?.map(
-    (value: string) => (
-      <PaymentItemContainer key={value}>{value}</PaymentItemContainer>
-    )
-  )
+  let showedInformation: ReactNode[] | string = infoValue?.map((value: string) => (
+    <PaymentItemContainer key={value}>{value}</PaymentItemContainer>
+  ));
 
   if (typeof infos === 'string') {
-    showedInformation = infos
+    showedInformation = infos;
   } else if (infos?.money) {
     showedInformation = infoKey?.map((key: string, index: number) => (
       <Fragment key={key}>
@@ -207,7 +198,7 @@ function OrderCard(props: OrderCardProps) {
           </p>
         </ItemContainer>
       </Fragment>
-    ))
+    ));
   }
 
   return (
@@ -238,7 +229,7 @@ function OrderCard(props: OrderCardProps) {
                   name={button.name}
                   variant={button.variant}
                   onClick={throttle(() => {
-                    handleOpenDialog(button.name)
+                    handleOpenDialog(button.name);
                   }, 2000)}
                 >
                   {button.value}
@@ -258,33 +249,31 @@ function OrderCard(props: OrderCardProps) {
         orderId={+orderId}
       />
     </Card>
-  )
+  );
 }
 
 interface OrderActionProps {
-  detailsData: OrderDetailsState
+  detailsData: OrderDetailsState;
 }
 
 interface OrderData {
-  header: string
-  key: string
-  subtitle: string
-  buttons: Buttons[]
-  infos: Infos | string
+  header: string;
+  key: string;
+  subtitle: string;
+  buttons: Buttons[];
+  infos: Infos | string;
 }
 
 export default function OrderAction(props: OrderActionProps) {
-  const { detailsData } = props
-  const b3Lang = useB3Lang()
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const emailAddress = useAppSelector(
-    ({ company }) => company.customer.emailAddress
-  )
-  const role = useAppSelector(({ company }) => company.customer.role)
+  const { detailsData } = props;
+  const b3Lang = useB3Lang();
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
+  const role = useAppSelector(({ company }) => company.customer.role);
 
   const {
     state: { addressLabelPermission, createdEmail },
-  } = useContext(OrderDetailsContext)
+  } = useContext(OrderDetailsContext);
 
   const {
     money,
@@ -295,25 +284,25 @@ export default function OrderAction(props: OrderActionProps) {
     orderId,
     ipStatus = 0,
     invoiceId,
-  } = detailsData
+  } = detailsData;
 
   if (!orderId) {
-    return null
+    return null;
   }
 
   const getCompanyName = (company: string) => {
     if (addressLabelPermission) {
-      return company
+      return company;
     }
 
-    const index = company.indexOf('/')
+    const index = company.indexOf('/');
 
-    return company.substring(index + 1, company.length)
-  }
+    return company.substring(index + 1, company.length);
+  };
 
   const getFullPaymentAddress = (billingAddress?: Address) => {
     if (!billingAddress) {
-      return {}
+      return {};
     }
     const {
       first_name: firstName,
@@ -324,7 +313,7 @@ export default function OrderAction(props: OrderActionProps) {
       zip,
       country,
       city,
-    } = billingAddress || {}
+    } = billingAddress || {};
     const paymentAddress = {
       paymentMethod: b3Lang('orderDetail.paymentMethod', { paymentMethod }),
       name: b3Lang('orderDetail.customerName', { firstName, lastName }),
@@ -336,37 +325,35 @@ export default function OrderAction(props: OrderActionProps) {
         zip,
         country,
       }),
-    }
+    };
 
-    return paymentAddress
-  }
+    return paymentAddress;
+  };
 
   const handleOrderComments = (value: string) => {
-    const commentsArr = value.split(/\n/g)
+    const commentsArr = value.split(/\n/g);
 
     const comments: {
-      [k: string]: string
-    } = {}
+      [k: string]: string;
+    } = {};
 
-    const dividingLine = ['-------------------------------------']
+    const dividingLine = ['-------------------------------------'];
 
     commentsArr.forEach((item, index) => {
       if (item.trim().length > 0) {
-        const isHaveTitle = item.trim().includes(':')
+        const isHaveTitle = item.trim().includes(':');
 
-        let message = isHaveTitle
-          ? item
-          : b3Lang('orderDetail.itemComments', { item })
+        let message = isHaveTitle ? item : b3Lang('orderDetail.itemComments', { item });
         if (dividingLine.includes(item)) {
-          message = item
+          message = item;
         }
 
-        comments[`mes${index}`] = message
+        comments[`mes${index}`] = message;
       }
-    })
+    });
 
-    return comments
-  }
+    return comments;
+  };
 
   const buttons: Buttons[] = [
     {
@@ -393,7 +380,7 @@ export default function OrderAction(props: OrderActionProps) {
       variant: 'outlined',
       isCanShow: true,
     },
-  ]
+  ];
 
   const orderData: OrderData[] = [
     {
@@ -422,9 +409,7 @@ export default function OrderAction(props: OrderActionProps) {
         : '',
       buttons: [
         {
-          value: isB2BUser
-            ? b3Lang('orderDetail.viewInvoice')
-            : b3Lang('orderDetail.printInvoice'),
+          value: isB2BUser ? b3Lang('orderDetail.viewInvoice') : b3Lang('orderDetail.printInvoice'),
           key: 'aboutInvoice',
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
@@ -444,7 +429,7 @@ export default function OrderAction(props: OrderActionProps) {
         info: handleOrderComments(orderComments),
       },
     },
-  ]
+  ];
 
   return (
     <OrderActionContainer>
@@ -461,5 +446,5 @@ export default function OrderAction(props: OrderActionProps) {
           />
         ))}
     </OrderActionContainer>
-  )
+  );
 }

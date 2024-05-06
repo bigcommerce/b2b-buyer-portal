@@ -1,22 +1,22 @@
-import { Dispatch, SetStateAction } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box } from '@mui/material'
+import { Dispatch, SetStateAction } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box } from '@mui/material';
 
-import B3Dialog from '@/components/B3Dialog'
-import { useMobile } from '@/hooks'
-import { deleteB2BAddress, deleteBCCustomerAddress } from '@/shared/service/b2b'
-import { snackbar } from '@/utils'
+import B3Dialog from '@/components/B3Dialog';
+import { useMobile } from '@/hooks';
+import { deleteB2BAddress, deleteBCCustomerAddress } from '@/shared/service/b2b';
+import { snackbar } from '@/utils';
 
-import { AddressItemType } from '../../../types/address'
+import { AddressItemType } from '../../../types/address';
 
 interface DeleteAddressDialogProps {
-  isOpen: boolean
-  setIsOpen: Dispatch<SetStateAction<boolean>>
-  setIsLoading: Dispatch<SetStateAction<boolean>>
-  addressData?: AddressItemType
-  updateAddressList: (isFirst?: boolean) => void
-  companyId: string | number
-  isBCPermission: boolean
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  addressData?: AddressItemType;
+  updateAddressList: (isFirst?: boolean) => void;
+  companyId: string | number;
+  isBCPermission: boolean;
 }
 
 export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
@@ -28,42 +28,40 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
     setIsLoading,
     companyId,
     isBCPermission,
-  } = props
+  } = props;
 
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
   const handleDelete = async () => {
     if (!addressData) {
-      return
+      return;
     }
 
     try {
-      setIsLoading(true)
-      setIsOpen(false)
+      setIsLoading(true);
+      setIsOpen(false);
 
-      const { id = '', bcAddressId = '' } = addressData
+      const { id = '', bcAddressId = '' } = addressData;
 
       if (!isBCPermission) {
         await deleteB2BAddress({
           addressId: id,
           companyId,
-        })
+        });
       } else {
         await deleteBCCustomerAddress({
           bcAddressId,
-        })
+        });
       }
 
-      snackbar.success(
-        b3Lang('addresses.deleteAddressDialog.successfullyDeleted')
-      )
+      snackbar.success(b3Lang('addresses.deleteAddressDialog.successfullyDeleted'));
 
-      updateAddressList()
+      updateAddressList();
     } catch (e) {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <B3Dialog
@@ -72,7 +70,7 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
       leftSizeBtn={b3Lang('addresses.deleteAddressDialog.cancel')}
       rightSizeBtn={b3Lang('addresses.deleteAddressDialog.delete')}
       handleLeftClick={() => {
-        setIsOpen(false)
+        setIsOpen(false);
       }}
       handRightClick={handleDelete}
       rightStyleBtn={{
@@ -92,5 +90,5 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
         ={b3Lang('addresses.deleteAddressDialog.confirmDelete')}
       </Box>
     </B3Dialog>
-  )
+  );
 }

@@ -1,5 +1,5 @@
 function HomePage() {
-  return null
+  return null;
 }
 
-export default HomePage
+export default HomePage;

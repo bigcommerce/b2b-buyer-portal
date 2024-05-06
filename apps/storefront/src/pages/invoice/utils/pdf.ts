@@ -1,45 +1,39 @@
-import { invoiceDownloadPDF } from '@/shared/service/b2b'
+import { invoiceDownloadPDF } from '@/shared/service/b2b';
 
 const analyzePDFUrl = (url: string): Promise<string> =>
   new Promise((resolve, reject) => {
     fetch(url)
       .then((res) => res.blob())
       .then((response) => {
-        const blob = new Blob([response], { type: 'application/pdf' })
+        const blob = new Blob([response], { type: 'application/pdf' });
 
-        const invoicePDFUrl = window.URL.createObjectURL(blob)
+        const invoicePDFUrl = window.URL.createObjectURL(blob);
 
-        resolve(invoicePDFUrl)
+        resolve(invoicePDFUrl);
       })
       .catch((e) => {
-        reject(e)
-      })
-  })
+        reject(e);
+      });
+  });
 
-export const getInvoiceDownloadPDFUrl = async (
-  invoiceId: string,
-  isPayNow = false
-) => {
+export const getInvoiceDownloadPDFUrl = async (invoiceId: string, isPayNow = false) => {
   const {
     invoicePdf: { url },
-  } = await invoiceDownloadPDF(+invoiceId, isPayNow)
+  } = await invoiceDownloadPDF(+invoiceId, isPayNow);
 
-  return url
-}
+  return url;
+};
 
-export const handlePrintPDF = async (
-  invoiceId: string,
-  isPayNow = false
-): Promise<string> => {
-  let url = ''
+export const handlePrintPDF = async (invoiceId: string, isPayNow = false): Promise<string> => {
+  let url = '';
   try {
-    url = await getInvoiceDownloadPDFUrl(invoiceId, isPayNow)
-    const pdfUrl = await analyzePDFUrl(url)
+    url = await getInvoiceDownloadPDFUrl(invoiceId, isPayNow);
+    const pdfUrl = await analyzePDFUrl(url);
 
-    return pdfUrl
+    return pdfUrl;
   } catch (error) {
-    return url
+    return url;
   }
-}
+};
 
-export default handlePrintPDF
+export default handlePrintPDF;

@@ -1,7 +1,7 @@
-import { LangFormatFunction } from '@b3/lang'
+import { LangFormatFunction } from '@b3/lang';
 
-import { store } from '@/store'
-import { getActiveCurrencyInfo } from '@/utils'
+import { store } from '@/store';
+import { getActiveCurrencyInfo } from '@/utils';
 
 import {
   B2BOrderData,
@@ -13,83 +13,80 @@ import {
   OrderShippingAddressItem,
   OrderShippingsItem,
   OrderSummary,
-} from '../../../types'
+} from '../../../types';
 
 const getOrderShipping = (data: B2BOrderData) => {
-  const { shipments, shippingAddress = [], products = [] } = data
+  const { shipments, shippingAddress = [], products = [] } = data;
 
-  const shipmentsInfo = shipments || []
+  const shipmentsInfo = shipments || [];
   const shippedItems = shipmentsInfo.map((shipment: OrderShipmentItem) => {
-    const { items } = shipment
+    const { items } = shipment;
 
-    const itemsInfo: OrderProductItem[] = []
+    const itemsInfo: OrderProductItem[] = [];
     items.forEach((item: OrderShipmentProductItem) => {
       const product = products.find(
-        (product: OrderProductItem) => product.id === item.order_product_id
-      )
+        (product: OrderProductItem) => product.id === item.order_product_id,
+      );
       if (product) {
         itemsInfo.push({
           ...product,
           current_quantity_shipped: item.quantity,
           not_shipping_number: product.quantity - product.quantity_shipped,
-        })
+        });
       }
-    })
+    });
 
     return {
       ...shipment,
       itemsInfo,
-    }
-  })
+    };
+  });
 
   const shippings: OrderShippingsItem[] = shippingAddress.map(
     (address: OrderShippingAddressItem) => ({
       ...address,
       shipmentItems: [
         ...shippedItems.filter(
-          (shippedItem: OrderShippedItem) =>
-            shippedItem.order_address_id === address.id
+          (shippedItem: OrderShippedItem) => shippedItem.order_address_id === address.id,
         ),
       ],
       notShip: {
         itemsInfo: products.filter((product: OrderProductItem) => {
-          const orderProduct = product
-          orderProduct.not_shipping_number =
-            product.quantity - product.quantity_shipped
+          const orderProduct = product;
+          orderProduct.not_shipping_number = product.quantity - product.quantity_shipped;
           return (
-            product.quantity > product.quantity_shipped &&
-            address.id === product.order_address_id
-          )
+            product.quantity > product.quantity_shipped && address.id === product.order_address_id
+          );
         }),
       },
-    })
-  )
+    }),
+  );
 
-  return shippings
-}
+  return shippings;
+};
 
 const getOrderBilling = (data: B2BOrderData) => {
-  const { billingAddress, products } = data
+  const { billingAddress, products } = data;
 
   const billings: OrderBillings[] = [
     {
       billingAddress,
       products,
     },
-  ]
+  ];
 
-  return billings
-}
+  return billings;
+};
 
 const formatPrice = (price: string | number) => {
-  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo()
+  const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
   try {
-    const priceNumer = parseFloat(price.toString()) || 0
-    return priceNumer.toFixed(decimalPlaces)
+    const priceNumer = parseFloat(price.toString()) || 0;
+    return priceNumer.toFixed(decimalPlaces);
   } catch (error) {
-    return '0.00'
+    return '0.00';
   }
-}
+};
 
 const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
   const {
@@ -105,11 +102,11 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     handlingCostIncTax,
     shippingCostExTax,
     shippingCostIncTax,
-  } = data
+  } = data;
 
   const {
     global: { showInclusiveTaxPrice },
-  } = store.getState()
+  } = store.getState();
 
   const labels = {
     subTotal: b3Lang('orderDetail.summary.subTotal'),
@@ -117,70 +114,61 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     handingFee: b3Lang('orderDetail.summary.handingFee'),
     tax: b3Lang('orderDetail.summary.tax'),
     grandTotal: b3Lang('orderDetail.summary.grandTotal'),
-  }
+  };
 
   const orderSummary: OrderSummary = {
     createAt: dateCreated,
     name: `${firstName} ${lastName}`,
     priceData: {
-      [labels.subTotal]: formatPrice(
-        showInclusiveTaxPrice ? subtotalIncTax : subtotalExTax
-      ),
+      [labels.subTotal]: formatPrice(showInclusiveTaxPrice ? subtotalIncTax : subtotalExTax),
       [labels.shipping]: formatPrice(
-        showInclusiveTaxPrice ? shippingCostIncTax : shippingCostExTax
+        showInclusiveTaxPrice ? shippingCostIncTax : shippingCostExTax,
       ),
-      [labels.handingFee]: formatPrice(
-        handlingCostIncTax || handlingCostExTax || ''
-      ),
+      [labels.handingFee]: formatPrice(handlingCostIncTax || handlingCostExTax || ''),
       [labels.tax]: formatPrice(totalTax || ''),
       [labels.grandTotal]: formatPrice(totalIncTax || totalExTax || ''),
     },
-  }
+  };
 
-  return orderSummary
-}
+  return orderSummary;
+};
 
 const getPaymentData = (data: B2BOrderData) => {
-  const { updatedAt, billingAddress, paymentMethod, dateCreated } = data
-  const dateCreateAt = new Date(dateCreated).getTime() / 1000
+  const { updatedAt, billingAddress, paymentMethod, dateCreated } = data;
+  const dateCreateAt = new Date(dateCreated).getTime() / 1000;
 
   return {
     updatedAt,
     billingAddress,
     paymentMethod,
     dateCreateAt: JSON.stringify(dateCreateAt),
-  }
-}
+  };
+};
 
 const handleProductQuantity = (data: B2BOrderData) => {
-  const { products } = data
+  const { products } = data;
 
-  const newProducts: OrderProductItem[] = []
+  const newProducts: OrderProductItem[] = [];
 
   products.forEach((product: OrderProductItem) => {
-    const productIndex = newProducts.findIndex(
-      (item) => +item.variant_id === +product.variant_id
-    )
+    const productIndex = newProducts.findIndex((item) => +item.variant_id === +product.variant_id);
 
     if (productIndex === -1) {
-      newProducts.push(product)
+      newProducts.push(product);
     } else {
-      const existedProduct = newProducts[productIndex]
+      const existedProduct = newProducts[productIndex];
 
       newProducts[productIndex] = {
         ...existedProduct,
         quantity: +existedProduct.quantity + +product.quantity,
-      }
+      };
     }
-  })
+  });
 
-  return newProducts
-}
+  return newProducts;
+};
 
-const convertB2BOrderDetails = (
-  data: B2BOrderData,
-  b3Lang: LangFormatFunction
-) => ({
+const convertB2BOrderDetails = (data: B2BOrderData, b3Lang: LangFormatFunction) => ({
   shippings: data.orderIsDigital ? [] : getOrderShipping(data),
   billings: data.orderIsDigital ? getOrderBilling(data) : [],
   history: data.orderHistoryEvent || [],
@@ -201,6 +189,6 @@ const convertB2BOrderDetails = (
   canReturn: data.canReturn,
   createdEmail: data.createdEmail,
   orderIsDigital: data.orderIsDigital,
-})
+});
 
-export default convertB2BOrderDetails
+export default convertB2BOrderDetails;

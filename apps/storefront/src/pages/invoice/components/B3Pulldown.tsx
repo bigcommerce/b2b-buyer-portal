@@ -1,16 +1,16 @@
-import { MouseEvent, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-import { IconButton, Menu, MenuItem } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { MouseEvent, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { IconButton, Menu, MenuItem } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-import { useAppSelector } from '@/store'
-import { InvoiceList } from '@/types/invoice'
-import { snackbar } from '@/utils'
+import { useAppSelector } from '@/store';
+import { InvoiceList } from '@/types/invoice';
+import { snackbar } from '@/utils';
 
-import { gotoInvoiceCheckoutUrl } from '../utils/payment'
-import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf'
+import { gotoInvoiceCheckoutUrl } from '../utils/payment';
+import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';
 
 const StyledMenu = styled(Menu)(() => ({
   '& .MuiPaper-elevation': {
@@ -18,13 +18,13 @@ const StyledMenu = styled(Menu)(() => ({
       '0px 1px 0px -1px rgba(0, 0, 0, 0.1), 0px 1px 6px rgba(0, 0, 0, 0.07), 0px 1px 4px rgba(0, 0, 0, 0.06)',
     borderRadius: '4px',
   },
-}))
+}));
 
 interface B3PulldownProps {
-  row: InvoiceList
-  setIsRequestLoading: (bool: boolean) => void
-  setInvoiceId: (id: string) => void
-  handleOpenHistoryModal: (bool: boolean) => void
+  row: InvoiceList;
+  setIsRequestLoading: (bool: boolean) => void;
+  setInvoiceId: (id: string) => void;
+  handleOpenHistoryModal: (bool: boolean) => void;
 }
 
 function B3Pulldown({
@@ -33,65 +33,63 @@ function B3Pulldown({
   setInvoiceId,
   handleOpenHistoryModal,
 }: B3PulldownProps) {
-  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
-  const role = useAppSelector(({ company }) => company.customer.role)
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
-  const juniorOrSenior = +role === 1 || role === 2
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const [isCanPay, setIsCanPay] = useState<boolean>(true)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform);
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const juniorOrSenior = +role === 1 || role === 2;
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [isCanPay, setIsCanPay] = useState<boolean>(true);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const open = Boolean(anchorEl)
+  const open = Boolean(anchorEl);
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   const handleClose = () => {
-    setAnchorEl(null)
-  }
+    setAnchorEl(null);
+  };
 
   const handleMoreActionsClick = (event: MouseEvent<HTMLButtonElement>) => {
-    const { id } = row
-    setInvoiceId(id)
-    setAnchorEl(event.currentTarget)
-  }
+    const { id } = row;
+    setInvoiceId(id);
+    setAnchorEl(event.currentTarget);
+  };
 
   const handleViewInvoice = async (isPayNow: boolean) => {
-    const { id } = row
+    const { id } = row;
 
-    setAnchorEl(null)
+    setAnchorEl(null);
 
-    setIsRequestLoading(true)
+    setIsRequestLoading(true);
 
-    const pdfUrl = await handlePrintPDF(id, isPayNow)
+    const pdfUrl = await handlePrintPDF(id, isPayNow);
 
-    setIsRequestLoading(false)
+    setIsRequestLoading(false);
 
     if (!pdfUrl) {
-      snackbar.error('pdf url resolution error')
-      return
+      snackbar.error('pdf url resolution error');
+      return;
     }
 
-    const { href } = window.location
+    const { href } = window.location;
     if (!href.includes('invoice')) {
-      return
+      return;
     }
 
-    window.open(pdfUrl, '_blank', 'fullscreen=yes')
-  }
+    window.open(pdfUrl, '_blank', 'fullscreen=yes');
+  };
 
   const handleViewOrder = () => {
-    const { orderNumber } = row
-    setAnchorEl(null)
-    navigate(`/orderDetail/${orderNumber}`)
-  }
+    const { orderNumber } = row;
+    setAnchorEl(null);
+    navigate(`/orderDetail/${orderNumber}`);
+  };
 
   const handlePay = async () => {
-    setAnchorEl(null)
+    setAnchorEl(null);
 
-    const { openBalance, originalBalance, id } = row
+    const { openBalance, originalBalance, id } = row;
 
     const params = {
       lineItems: [
@@ -101,48 +99,48 @@ function B3Pulldown({
         },
       ],
       currency: openBalance?.code || originalBalance.code,
-    }
+    };
 
     if (openBalance.value === '.' || +openBalance.value === 0) {
       snackbar.error('The payment amount entered has an invalid value.', {
         isClose: true,
-      })
+      });
 
-      return
+      return;
     }
 
-    await gotoInvoiceCheckoutUrl(params, platform, false)
-  }
+    await gotoInvoiceCheckoutUrl(params, platform, false);
+  };
 
   const viewPaymentHistory = async () => {
-    setAnchorEl(null)
-    handleOpenHistoryModal(true)
-  }
+    setAnchorEl(null);
+    handleOpenHistoryModal(true);
+  };
 
   const handleDownloadPDF = async () => {
-    const { id } = row
+    const { id } = row;
 
-    setAnchorEl(null)
-    setIsRequestLoading(true)
-    const url = await getInvoiceDownloadPDFUrl(id)
+    setAnchorEl(null);
+    setIsRequestLoading(true);
+    const url = await getInvoiceDownloadPDFUrl(id);
 
-    setIsRequestLoading(false)
+    setIsRequestLoading(false);
 
-    const a = document.createElement('a')
-    a.href = url
-    a.target = '_blank'
-    a.download = 'file.pdf'
-    a.click()
-  }
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.download = 'file.pdf';
+    a.click();
+  };
 
   useEffect(() => {
-    const { openBalance } = row
-    const payPermissions = +openBalance.value > 0 && (role === 0 || isAgenting)
+    const { openBalance } = row;
+    const payPermissions = +openBalance.value > 0 && (role === 0 || isAgenting);
 
-    setIsCanPay(payPermissions)
+    setIsCanPay(payPermissions);
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   return (
     <>
@@ -226,7 +224,7 @@ function B3Pulldown({
         </MenuItem>
       </StyledMenu>
     </>
-  )
+  );
 }
 
-export default B3Pulldown
+export default B3Pulldown;

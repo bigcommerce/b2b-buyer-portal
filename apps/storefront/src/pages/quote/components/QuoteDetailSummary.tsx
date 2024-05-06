@@ -1,23 +1,23 @@
-import { useB3Lang } from '@b3/lang'
-import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
+import { useB3Lang } from '@b3/lang';
+import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 
-import { useAppSelector } from '@/store'
-import { currencyFormatConvert } from '@/utils'
+import { useAppSelector } from '@/store';
+import { currencyFormatConvert } from '@/utils';
 
 interface Summary {
-  originalSubtotal: string | number
-  discount: string | number
-  tax: string | number
-  shipping: string | number
-  totalAmount: string | number
+  originalSubtotal: string | number;
+  discount: string | number;
+  tax: string | number;
+  shipping: string | number;
+  totalAmount: string | number;
 }
 
 interface QuoteDetailSummaryProps {
-  quoteSummary: Summary
-  quoteDetailTax: number
-  status: string
-  quoteDetail: CustomFieldItems
-  isHideQuoteCheckout: boolean
+  quoteSummary: Summary;
+  quoteDetailTax: number;
+  status: string;
+  quoteDetail: CustomFieldItems;
+  isHideQuoteCheckout: boolean;
 }
 
 export default function QuoteDetailSummary({
@@ -27,25 +27,23 @@ export default function QuoteDetailSummary({
   quoteDetail,
   isHideQuoteCheckout,
 }: QuoteDetailSummaryProps) {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
-    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax
-  )
-  const showInclusiveTaxPrice = useAppSelector(
-    ({ global }) => global.showInclusiveTaxPrice
-  )
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
+  );
+  const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
 
   const getCurrentPrice = (price: number, quoteDetailTax: number) => {
     if (enteredInclusiveTax) {
-      return showInclusiveTaxPrice ? price : price - quoteDetailTax
+      return showInclusiveTaxPrice ? price : price - quoteDetailTax;
     }
-    return showInclusiveTaxPrice ? price + quoteDetailTax : price
-  }
+    return showInclusiveTaxPrice ? price + quoteDetailTax : price;
+  };
 
   const priceFormat = (price: number) =>
     `${currencyFormatConvert(price, {
       currency: quoteDetail.currency,
-    })}`
+    })}`;
 
   const getShippingAndTax = () => {
     if (quoteDetail?.shippingMethod?.id) {
@@ -56,20 +54,16 @@ export default function QuoteDetailSummary({
         shippingVal: priceFormat(+shipping),
         taxText: b3Lang('quoteDetail.summary.tax'),
         taxVal: priceFormat(+tax),
-      }
+      };
     }
 
-    if (
-      !quoteDetail?.salesRepEmail &&
-      !quoteDetail?.shippingMethod?.id &&
-      +status === 1
-    ) {
+    if (!quoteDetail?.salesRepEmail && !quoteDetail?.shippingMethod?.id && +status === 1) {
       return {
         shippingText: b3Lang('quoteDetail.summary.shipping'),
         shippingVal: b3Lang('quoteDetail.summary.tbd'),
         taxText: b3Lang('quoteDetail.summary.estimatedTax'),
         taxVal: priceFormat(+tax),
-      }
+      };
     }
 
     if (
@@ -79,34 +73,32 @@ export default function QuoteDetailSummary({
     ) {
       return {
         shippingText: `${b3Lang('quoteDetail.summary.shipping')}(${b3Lang(
-          'quoteDetail.summary.quoteCheckout'
+          'quoteDetail.summary.quoteCheckout',
         )})`,
         shippingVal: b3Lang('quoteDetail.summary.tbd'),
         taxText: b3Lang('quoteDetail.summary.tax'),
         taxVal: b3Lang('quoteDetail.summary.tbd'),
-      }
+      };
     }
 
-    return null
-  }
+    return null;
+  };
 
-  const shippingAndTax = getShippingAndTax()
+  const shippingAndTax = getShippingAndTax();
 
   const showPrice = (price: string | number): string | number => {
-    if (isHideQuoteCheckout) return b3Lang('quoteDraft.quoteSummary.tbd')
+    if (isHideQuoteCheckout) return b3Lang('quoteDraft.quoteSummary.tbd');
 
-    return price
-  }
+    return price;
+  };
 
-  const subtotalPrice = +originalSubtotal
-  const quotedSubtotal = +originalSubtotal - +discount
+  const subtotalPrice = +originalSubtotal;
+  const quotedSubtotal = +originalSubtotal - +discount;
   return (
     <Card>
       <CardContent>
         <Box>
-          <Typography variant="h5">
-            {b3Lang('quoteDetail.summary.quoteSummary')}
-          </Typography>
+          <Typography variant="h5">{b3Lang('quoteDetail.summary.quoteSummary')}</Typography>
           <Box
             sx={{
               marginTop: '20px',
@@ -121,13 +113,9 @@ export default function QuoteDetailSummary({
                   margin: '4px 0',
                 }}
               >
+                <Typography>{b3Lang('quoteDetail.summary.originalSubtotal')}</Typography>
                 <Typography>
-                  {b3Lang('quoteDetail.summary.originalSubtotal')}
-                </Typography>
-                <Typography>
-                  {showPrice(
-                    priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax))
-                  )}
+                  {showPrice(priceFormat(getCurrentPrice(subtotalPrice, quoteDetailTax)))}
                 </Typography>
               </Grid>
             )}
@@ -141,13 +129,9 @@ export default function QuoteDetailSummary({
                   display: quoteDetail?.displayDiscount ? '' : 'none',
                 }}
               >
+                <Typography>{b3Lang('quoteDetail.summary.discountAmount')}</Typography>
                 <Typography>
-                  {b3Lang('quoteDetail.summary.discountAmount')}
-                </Typography>
-                <Typography>
-                  {+discount > 0
-                    ? `-${priceFormat(+discount)}`
-                    : priceFormat(+discount)}
+                  {+discount > 0 ? `-${priceFormat(+discount)}` : priceFormat(+discount)}
                 </Typography>
               </Grid>
             )}
@@ -173,9 +157,7 @@ export default function QuoteDetailSummary({
                   color: '#212121',
                 }}
               >
-                {showPrice(
-                  priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax))
-                )}
+                {showPrice(priceFormat(getCurrentPrice(quotedSubtotal, quoteDetailTax)))}
               </Typography>
             </Grid>
 
@@ -196,9 +178,7 @@ export default function QuoteDetailSummary({
                   >
                     {shippingAndTax.shippingText}
                   </Typography>
-                  <Typography>
-                    {showPrice(shippingAndTax.shippingVal)}
-                  </Typography>
+                  <Typography>{showPrice(shippingAndTax.shippingVal)}</Typography>
                 </Grid>
                 <Grid
                   container
@@ -241,5 +221,5 @@ export default function QuoteDetailSummary({
         </Box>
       </CardContent>
     </Card>
-  )
+  );
 }

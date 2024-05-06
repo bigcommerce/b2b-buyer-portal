@@ -1,78 +1,73 @@
-import { useEffect, useRef, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Box, Card, CardContent } from '@mui/material'
+import { useEffect, useRef, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Card, CardContent } from '@mui/material';
 
-import { B3CollapseContainer } from '@/components'
-import { useRole } from '@/hooks'
-import {
-  quoteDetailAttachFileCreate,
-  quoteDetailAttachFileDelete,
-} from '@/shared/service/b2b'
-import { setDraftQuoteInfo, useAppDispatch, useAppSelector } from '@/store'
-import { snackbar } from '@/utils'
+import { B3CollapseContainer } from '@/components';
+import { useRole } from '@/hooks';
+import { quoteDetailAttachFileCreate, quoteDetailAttachFileDelete } from '@/shared/service/b2b';
+import { setDraftQuoteInfo, useAppDispatch, useAppSelector } from '@/store';
+import { snackbar } from '@/utils';
 
-import FileUpload, { FileObjects } from './FileUpload'
+import FileUpload, { FileObjects } from './FileUpload';
 
 interface UpLoaddingProps extends HTMLInputElement {
-  setUploadLoadding: (flag: boolean) => void
+  setUploadLoadding: (flag: boolean) => void;
 }
 
 interface QuoteAttachmentProps {
-  allowUpload?: boolean
-  defaultFileList?: FileObjects[]
-  status?: number
-  quoteId?: number
+  allowUpload?: boolean;
+  defaultFileList?: FileObjects[];
+  status?: number;
+  quoteId?: number;
 }
 
 export default function QuoteAttachment(props: QuoteAttachmentProps) {
-  const { allowUpload = true, defaultFileList = [], status, quoteId } = props
-  const b3Lang = useB3Lang()
-  const dispatch = useAppDispatch()
+  const { allowUpload = true, defaultFileList = [], status, quoteId } = props;
+  const b3Lang = useB3Lang();
+  const dispatch = useAppDispatch();
 
-  const firstName = useAppSelector(({ company }) => company.customer.firstName)
-  const lastName = useAppSelector(({ company }) => company.customer.lastName)
-  const draftQuoteInfo = useAppSelector(
-    ({ quoteInfo }) => quoteInfo.draftQuoteInfo
-  )
+  const firstName = useAppSelector(({ company }) => company.customer.firstName);
+  const lastName = useAppSelector(({ company }) => company.customer.lastName);
+  const draftQuoteInfo = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo);
 
-  const [roleText] = useRole()
+  const [roleText] = useRole();
 
-  const [fileList, setFileList] = useState<FileObjects[]>([])
+  const [fileList, setFileList] = useState<FileObjects[]>([]);
 
-  const uploadRef = useRef<UpLoaddingProps | null>(null)
+  const uploadRef = useRef<UpLoaddingProps | null>(null);
 
   useEffect(() => {
     if (status === 0) {
-      const { fileInfo = [] }: CustomFieldItems = draftQuoteInfo || {}
+      const { fileInfo = [] }: CustomFieldItems = draftQuoteInfo || {};
 
-      setFileList(typeof fileInfo !== 'object' ? [] : fileInfo)
+      setFileList(typeof fileInfo !== 'object' ? [] : fileInfo);
     } else if (defaultFileList.length) {
-      setFileList(defaultFileList)
+      setFileList(defaultFileList);
     }
     // disabling as it throws render errors
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultFileList.length, status])
+  }, [defaultFileList.length, status]);
 
   const saveQuoteInfo = (newFileInfo: FileObjects[]) => {
     if (draftQuoteInfo) {
       const newQuoteInfo = {
         ...draftQuoteInfo,
         fileInfo: newFileInfo,
-      }
-      dispatch(setDraftQuoteInfo(newQuoteInfo))
+      };
+      dispatch(setDraftQuoteInfo(newQuoteInfo));
     }
-  }
+  };
 
   const handleChange = async (file: FileObjects) => {
     try {
-      let newFileList: FileObjects[] = []
+      let newFileList: FileObjects[] = [];
       if (status !== 0) {
         const createFile: FileObjects = {
           fileName: file.fileName,
           fileType: file.fileType,
           fileUrl: file.fileUrl,
           fileSize: file.fileSize,
-        }
+        };
         const {
           quoteAttachFileCreate: { attachFiles },
         } = await quoteDetailAttachFileCreate({
@@ -82,9 +77,9 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
             },
           ],
           quoteId,
-        })
+        });
 
-        createFile.id = attachFiles[0].id
+        createFile.id = attachFiles[0].id;
         newFileList = [
           {
             ...createFile,
@@ -94,7 +89,7 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
             hasDelete: true,
           },
           ...fileList,
-        ]
+        ];
       } else {
         newFileList = [
           {
@@ -106,45 +101,45 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
             hasDelete: true,
           },
           ...fileList,
-        ]
+        ];
 
-        saveQuoteInfo(newFileList)
+        saveQuoteInfo(newFileList);
       }
-      setFileList(newFileList)
+      setFileList(newFileList);
     } finally {
-      uploadRef.current?.setUploadLoadding(false)
+      uploadRef.current?.setUploadLoadding(false);
     }
-  }
+  };
 
   const handleDelete = async (id: string) => {
     try {
-      uploadRef.current?.setUploadLoadding(true)
-      const deleteFile = fileList.find((file) => file.id === id)
-      const newFileList = fileList.filter((file) => file.id !== id)
+      uploadRef.current?.setUploadLoadding(true);
+      const deleteFile = fileList.find((file) => file.id === id);
+      const newFileList = fileList.filter((file) => file.id !== id);
       if (status !== 0 && deleteFile) {
         await quoteDetailAttachFileDelete({
           fileId: deleteFile?.id || '',
           quoteId,
-        })
+        });
       } else {
-        saveQuoteInfo(newFileList)
+        saveQuoteInfo(newFileList);
       }
-      setFileList(newFileList)
+      setFileList(newFileList);
     } finally {
-      uploadRef.current?.setUploadLoadding(false)
+      uploadRef.current?.setUploadLoadding(false);
     }
-  }
+  };
 
   const limitUploadFn = () => {
     const customerFiles = fileList.filter(
-      (file: FileObjects) => file?.title && file.title.includes('by customer')
-    )
+      (file: FileObjects) => file?.title && file.title.includes('by customer'),
+    );
     if (customerFiles.length >= 3) {
-      snackbar.error(b3Lang('global.quoteAttachment.maxFilesMessage'))
-      return true
+      snackbar.error(b3Lang('global.quoteAttachment.maxFilesMessage'));
+      return true;
     }
-    return false
-  }
+    return false;
+  };
 
   return (
     <Card>
@@ -157,11 +152,7 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
           <Box>
             <FileUpload
               ref={uploadRef}
-              requestType={
-                roleText !== 'b2b'
-                  ? 'customerQuoteAttachedFile'
-                  : 'quoteAttachedFile'
-              }
+              requestType={roleText !== 'b2b' ? 'customerQuoteAttachedFile' : 'quoteAttachedFile'}
               isEndLoadding
               fileList={fileList}
               limitUploadFn={limitUploadFn}
@@ -173,5 +164,5 @@ export default function QuoteAttachment(props: QuoteAttachmentProps) {
         </B3CollapseContainer>
       </CardContent>
     </Card>
-  )
+  );
 }

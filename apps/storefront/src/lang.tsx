@@ -1,7 +1,7 @@
-import { useContext, useState } from 'react'
-import { LangProvider } from '@b3/lang'
+import { useContext, useState } from 'react';
+import { LangProvider } from '@b3/lang';
 
-import { CustomStyleContext } from './shared/customStyleButtton'
+import { CustomStyleContext } from './shared/customStyleButtton';
 
 export function LangWrapper({ children }: { children: React.ReactNode }) {
   const {
@@ -14,7 +14,7 @@ export function LangWrapper({ children }: { children: React.ReactNode }) {
       addToAllQuoteBtn,
       shoppingListBtn,
     },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
   const [customText] = useState<Record<string, string>>(
     Object.entries({
       'login.button.createAccount': createAccountButtonText,
@@ -32,13 +32,13 @@ export function LangWrapper({ children }: { children: React.ReactNode }) {
           ...acc,
           [translationKey]: customizedText,
         }),
-        {}
-      )
-  )
+        {},
+      ),
+  );
 
-  return <LangProvider customText={customText}>{children}</LangProvider>
+  return <LangProvider customText={customText}>{children}</LangProvider>;
 }
 
 export default {
   LangWrapper,
-}
+};

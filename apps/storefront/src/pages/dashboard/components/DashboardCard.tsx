@@ -1,22 +1,17 @@
-import { Box, Button, Card, CardContent, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, Typography } from '@mui/material';
 
 interface CustomField {
-  [key: string]: string | number
+  [key: string]: string | number;
 }
 
 interface DashboardCardProps {
-  row: CustomField
-  startActing: (id: number) => void
-  endActing: () => void
-  salesRepCompanyId?: number
+  row: CustomField;
+  startActing: (id: number) => void;
+  endActing: () => void;
+  salesRepCompanyId?: number;
 }
 
-function DashboardCard({
-  row,
-  startActing,
-  endActing,
-  salesRepCompanyId = 0,
-}: DashboardCardProps) {
+function DashboardCard({ row, startActing, endActing, salesRepCompanyId = 0 }: DashboardCardProps) {
   return (
     <Card>
       <CardContent
@@ -92,7 +87,7 @@ function DashboardCard({
         </Button>
       )}
     </Card>
-  )
+  );
 }
 
-export default DashboardCard
+export default DashboardCard;

@@ -1,43 +1,39 @@
-import { ReactElement } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { Delete, Edit, StickyNote2 } from '@mui/icons-material'
-import { Box, CardContent, styled, TextField, Typography } from '@mui/material'
+import { ReactElement } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Delete, Edit, StickyNote2 } from '@mui/icons-material';
+import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { currencyFormat } from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { currencyFormat } from '@/utils';
+import { getBCPrice } from '@/utils/b3Product/b3Product';
 
-import { getProductOptionsFields } from '../../../utils/b3Product/shared/config'
+import { getProductOptionsFields } from '../../../utils/b3Product/shared/config';
 
 interface ShoppingDetailCardProps {
-  item: any
-  onEdit: (
-    item: any,
-    variantId: number | string,
-    itemId: number | string
-  ) => void
-  onDelete: (itemId: number) => void
-  handleUpdateProductQty: (id: number | string, value: number | string) => void
-  handleUpdateShoppingListItem: (itemId: number | string) => void
-  checkBox?: () => ReactElement
-  isReadForApprove: boolean
-  len: number
-  itemIndex?: number
-  setDeleteOpen: (value: boolean) => void
-  setAddNoteItemId: (itemId: number) => void
-  setAddNoteOpen: (open: boolean) => void
-  setNotes: (value: string) => void
-  showPrice: (price: string, row: CustomFieldItems) => string | number
+  item: any;
+  onEdit: (item: any, variantId: number | string, itemId: number | string) => void;
+  onDelete: (itemId: number) => void;
+  handleUpdateProductQty: (id: number | string, value: number | string) => void;
+  handleUpdateShoppingListItem: (itemId: number | string) => void;
+  checkBox?: () => ReactElement;
+  isReadForApprove: boolean;
+  len: number;
+  itemIndex?: number;
+  setDeleteOpen: (value: boolean) => void;
+  setAddNoteItemId: (itemId: number) => void;
+  setAddNoteOpen: (open: boolean) => void;
+  setNotes: (value: string) => void;
+  showPrice: (price: string, row: CustomFieldItems) => string | number;
 }
 
 const StyledImage = styled('img')(() => ({
   maxWidth: '60px',
   height: 'auto',
   marginRight: '0.5rem',
-}))
+}));
 
 function ShoppingDetailCard(props: ShoppingDetailCardProps) {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
   const {
     item: shoppingDetail,
     onEdit,
@@ -53,7 +49,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     setAddNoteItemId,
     setNotes,
     showPrice,
-  } = props
+  } = props;
 
   const {
     basePrice,
@@ -67,25 +63,23 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     productUrl,
     taxPrice = 0,
     productNote,
-  } = shoppingDetail
+  } = shoppingDetail;
 
-  const price = getBCPrice(+basePrice, +taxPrice)
+  const price = getBCPrice(+basePrice, +taxPrice);
 
-  const total = price * +quantity
+  const total = price * +quantity;
 
   const product: any = {
     ...shoppingDetail.productsSearch,
     selectOptions: shoppingDetail.optionList,
-  }
+  };
 
-  const productFields = getProductOptionsFields(product, {})
+  const productFields = getProductOptionsFields(product, {});
 
-  const optionList = JSON.parse(shoppingDetail.optionList)
-  const optionsValue: CustomFieldItems[] = productFields.filter(
-    (item) => item.valueText
-  )
+  const optionList = JSON.parse(shoppingDetail.optionList);
+  const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
 
-  const canChangeOption = optionList.length > 0 && !isReadForApprove
+  const canChangeOption = optionList.length > 0 && !isReadForApprove;
 
   return (
     <Box
@@ -121,9 +115,9 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             onClick={() => {
               const {
                 location: { origin },
-              } = window
+              } = window;
 
-              window.location.href = `${origin}${productUrl}`
+              window.location.href = `${origin}${productUrl}`;
             }}
             sx={{
               cursor: 'pointer',
@@ -205,10 +199,10 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
               },
             }}
             onChange={(e) => {
-              handleUpdateProductQty(shoppingDetail.id, e.target.value)
+              handleUpdateProductQty(shoppingDetail.id, e.target.value);
             }}
             onBlur={() => {
-              handleUpdateShoppingListItem(itemId)
+              handleUpdateShoppingListItem(itemId);
             }}
           />
           <Typography
@@ -235,11 +229,11 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                 color: 'rgba(0, 0, 0, 0.54)',
               }}
               onClick={() => {
-                setAddNoteOpen(true)
-                setAddNoteItemId(+itemId)
+                setAddNoteOpen(true);
+                setAddNoteItemId(+itemId);
 
                 if (productNote) {
-                  setNotes(productNote)
+                  setNotes(productNote);
                 }
               }}
             />
@@ -252,7 +246,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                   color: 'rgba(0, 0, 0, 0.54)',
                 }}
                 onClick={() => {
-                  onEdit(productsSearch, variantId, itemId)
+                  onEdit(productsSearch, variantId, itemId);
                 }}
               />
             )}
@@ -264,8 +258,8 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                   color: 'rgba(0, 0, 0, 0.54)',
                 }}
                 onClick={() => {
-                  setDeleteOpen(true)
-                  onDelete(+itemId)
+                  setDeleteOpen(true);
+                  onDelete(+itemId);
                 }}
               />
             )}
@@ -273,7 +267,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
         </Box>
       </CardContent>
     </Box>
-  )
+  );
 }
 
-export default ShoppingDetailCard
+export default ShoppingDetailCard;

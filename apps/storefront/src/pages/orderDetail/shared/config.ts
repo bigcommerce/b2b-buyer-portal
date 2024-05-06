@@ -62,6 +62,6 @@ const getReturnFormFields = () => [
     fieldType: 'multiline',
     default: '',
   },
-]
+];
 
-export default getReturnFormFields
+export default getReturnFormFields;

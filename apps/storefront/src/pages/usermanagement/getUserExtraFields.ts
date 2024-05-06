@@ -1,27 +1,27 @@
-import { getUsersExtraFieldsInfo } from '@/shared/service/b2b'
-import b2bLogger from '@/utils/b3Logger'
+import { getUsersExtraFieldsInfo } from '@/shared/service/b2b';
+import b2bLogger from '@/utils/b3Logger';
 
 interface B2bExtraFieldsProps {
-  defaultValue: string
-  fieldName: string
-  fieldType: 0 | 1 | 2 | 3
-  isRequired: boolean
-  labelName: string
-  listOfValue: null | Array<string>
-  maximumLength: string | number | null
-  maximumValue: string | number | null
-  numberOfRows: string | number | null
-  visibleToEnduser: boolean
+  defaultValue: string;
+  fieldName: string;
+  fieldType: 0 | 1 | 2 | 3;
+  isRequired: boolean;
+  labelName: string;
+  listOfValue: null | Array<string>;
+  maximumLength: string | number | null;
+  maximumValue: string | number | null;
+  numberOfRows: string | number | null;
+  visibleToEnduser: boolean;
 }
 
 interface FieldsOptionProps {
-  label: string
-  value: string | number
+  label: string;
+  value: string | number;
 }
 
 interface FormattedItemsProps {
-  [key: string]: string | boolean | number | Array<any> | boolean | undefined
-  name: string
+  [key: string]: string | boolean | number | Array<any> | boolean | undefined;
+  name: string;
 }
 
 const FIELD_TYPE = {
@@ -29,15 +29,13 @@ const FIELD_TYPE = {
   1: 'multiline',
   2: 'number',
   3: 'dropdown',
-}
+};
 
-const handleConversionExtraItemFormat = (
-  userExtraFields: B2bExtraFieldsProps[]
-) => {
+const handleConversionExtraItemFormat = (userExtraFields: B2bExtraFieldsProps[]) => {
   const formattedUserExtraFields: FormattedItemsProps[] = userExtraFields.map(
     (item: B2bExtraFieldsProps) => {
-      const { listOfValue } = item
-      const type = FIELD_TYPE[item.fieldType]
+      const { listOfValue } = item;
+      const type = FIELD_TYPE[item.fieldType];
 
       const currentItems: FormattedItemsProps = {
         isExtraFields: true,
@@ -49,59 +47,56 @@ const handleConversionExtraItemFormat = (
         xs: 12,
         variant: 'filled',
         size: 'small',
-      }
+      };
 
       switch (type) {
         case 'dropdown':
           if (listOfValue) {
-            const options: FieldsOptionProps[] = listOfValue?.map(
-              (option: string) => ({
-                label: option,
-                value: option,
-              })
-            )
+            const options: FieldsOptionProps[] = listOfValue?.map((option: string) => ({
+              label: option,
+              value: option,
+            }));
 
             if (options.length > 0) {
-              currentItems.options = options
+              currentItems.options = options;
             }
           }
 
-          break
+          break;
         case 'number':
-          currentItems.max = item.maximumValue || ''
-          break
+          currentItems.max = item.maximumValue || '';
+          break;
         case 'mutiline':
-          currentItems.rows = item.numberOfRows || ''
-          break
+          currentItems.rows = item.numberOfRows || '';
+          break;
         default:
-          currentItems.maxLength = item.maximumLength || ''
-          break
+          currentItems.maxLength = item.maximumLength || '';
+          break;
       }
 
-      return currentItems
-    }
-  )
+      return currentItems;
+    },
+  );
 
-  return formattedUserExtraFields
-}
+  return formattedUserExtraFields;
+};
 
 const getB2BUserExtraFields = async () => {
-  let userExtraFieldsList: FormattedItemsProps[] = []
+  let userExtraFieldsList: FormattedItemsProps[] = [];
   try {
-    const { userExtraFields } = await getUsersExtraFieldsInfo()
+    const { userExtraFields } = await getUsersExtraFieldsInfo();
     const visibleFields = userExtraFields.filter(
-      (item: B2bExtraFieldsProps) => item.visibleToEnduser
-    )
+      (item: B2bExtraFieldsProps) => item.visibleToEnduser,
+    );
 
-    const formattedUserExtraFields =
-      handleConversionExtraItemFormat(visibleFields)
+    const formattedUserExtraFields = handleConversionExtraItemFormat(visibleFields);
 
-    userExtraFieldsList = formattedUserExtraFields
+    userExtraFieldsList = formattedUserExtraFields;
   } catch (err) {
-    b2bLogger.error(err)
+    b2bLogger.error(err);
   }
 
-  return userExtraFieldsList
-}
+  return userExtraFieldsList;
+};
 
-export default getB2BUserExtraFields
+export default getB2BUserExtraFields;

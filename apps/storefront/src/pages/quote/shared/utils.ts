@@ -1,23 +1,22 @@
-import { store } from '@/store'
-import { getVariantInfoDisplayPrice } from '@/utils/b3Product/b3Product'
+import { store } from '@/store';
+import { getVariantInfoDisplayPrice } from '@/utils/b3Product/b3Product';
 
 const getQuoteDraftShowPriceTBD = (products: CustomFieldItems[]) => {
   const {
     global: {
       blockPendingQuoteNonPurchasableOOS: { isEnableProduct },
     },
-  } = store.getState()
+  } = store.getState();
 
-  if (!isEnableProduct) return false
+  if (!isEnableProduct) return false;
 
   const isHidePrice = products.some((product) => {
-    if (!getVariantInfoDisplayPrice(product.node.basePrice, product))
-      return true
+    if (!getVariantInfoDisplayPrice(product.node.basePrice, product)) return true;
 
-    return false
-  })
+    return false;
+  });
 
-  return isHidePrice
-}
+  return isHidePrice;
+};
 
-export default getQuoteDraftShowPriceTBD
+export default getQuoteDraftShowPriceTBD;

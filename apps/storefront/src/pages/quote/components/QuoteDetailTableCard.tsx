@@ -1,26 +1,26 @@
-import { useB3Lang } from '@b3/lang'
-import { Box, CardContent, styled, Typography } from '@mui/material'
+import { useB3Lang } from '@b3/lang';
+import { Box, CardContent, styled, Typography } from '@mui/material';
 
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useAppSelector } from '@/store'
-import { currencyFormatConvert } from '@/utils'
-import { getBCPrice } from '@/utils/b3Product/b3Product'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useAppSelector } from '@/store';
+import { currencyFormatConvert } from '@/utils';
+import { getBCPrice } from '@/utils/b3Product/b3Product';
 
 interface QuoteTableCardProps {
-  item: any
-  len: number
-  getTaxRate: (taxClassId: number, variants: any) => number
-  itemIndex?: number
-  showPrice: (price: string, row: CustomFieldItems) => string | number
-  displayDiscount: boolean
-  currency: CurrencyProps
+  item: any;
+  len: number;
+  getTaxRate: (taxClassId: number, variants: any) => number;
+  itemIndex?: number;
+  showPrice: (price: string, row: CustomFieldItems) => string | number;
+  displayDiscount: boolean;
+  currency: CurrencyProps;
 }
 
 const StyledImage = styled('img')(() => ({
   maxWidth: '60px',
   height: 'auto',
   marginRight: '0.5rem',
-}))
+}));
 
 function QuoteDetailTableCard(props: QuoteTableCardProps) {
   const {
@@ -31,11 +31,11 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     showPrice,
     currency,
     displayDiscount,
-  } = props
-  const b3Lang = useB3Lang()
+  } = props;
+  const b3Lang = useB3Lang();
   const enteredInclusiveTax = useAppSelector(
-    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax
-  )
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
+  );
 
   const {
     basePrice,
@@ -47,23 +47,23 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
     notes,
     offeredPrice,
     productsSearch: { productUrl, variants = [], taxClassId },
-  } = quoteTableItem
+  } = quoteTableItem;
 
-  const taxRate = getTaxRate(taxClassId, variants)
+  const taxRate = getTaxRate(taxClassId, variants);
   const taxPrice = enteredInclusiveTax
     ? (+basePrice * taxRate) / (1 + taxRate)
-    : +basePrice * taxRate
+    : +basePrice * taxRate;
   const discountTaxPrice = enteredInclusiveTax
     ? (+offeredPrice * taxRate) / (1 + taxRate)
-    : +offeredPrice * taxRate
+    : +offeredPrice * taxRate;
 
-  const price = getBCPrice(+basePrice, taxPrice)
-  const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice)
+  const price = getBCPrice(+basePrice, taxPrice);
+  const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice);
 
-  const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount
+  const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount;
 
-  const total = +price * +quantity
-  const totalWithDiscount = discountPrice * +quantity
+  const total = +price * +quantity;
+  const totalWithDiscount = discountPrice * +quantity;
 
   return (
     <Box
@@ -82,11 +82,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
         }}
       >
         <Box>
-          <StyledImage
-            src={imageUrl || PRODUCT_DEFAULT_IMAGE}
-            alt="Product-img"
-            loading="lazy"
-          />
+          <StyledImage src={imageUrl || PRODUCT_DEFAULT_IMAGE} alt="Product-img" loading="lazy" />
         </Box>
         <Box
           sx={{
@@ -99,10 +95,10 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
             onClick={() => {
               const {
                 location: { origin },
-              } = window
+              } = window;
 
               if (productUrl) {
-                window.location.href = `${origin}${productUrl}`
+                window.location.href = `${origin}${productUrl}`;
               }
             }}
             sx={{
@@ -157,7 +153,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   currencyFormatConvert(price, {
                     currency,
                   }),
-                  quoteTableItem
+                  quoteTableItem,
                 )}`}
               </span>
             )}
@@ -171,7 +167,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 currencyFormatConvert(offeredPrice, {
                   currency,
                 }),
-                quoteTableItem
+                quoteTableItem,
               )}`}
             </span>
           </Typography>
@@ -202,7 +198,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                   currencyFormatConvert(total, {
                     currency,
                   }),
-                  quoteTableItem
+                  quoteTableItem,
                 )}`}
               </span>
             )}
@@ -216,14 +212,14 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
                 currencyFormatConvert(totalWithDiscount, {
                   currency,
                 }),
-                quoteTableItem
+                quoteTableItem,
               )}`}
             </span>
           </Typography>
         </Box>
       </CardContent>
     </Box>
-  )
+  );
 }
 
-export default QuoteDetailTableCard
+export default QuoteDetailTableCard;

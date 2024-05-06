@@ -1,28 +1,27 @@
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import { Box, Typography, useTheme } from '@mui/material'
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useB3Lang } from '@b3/lang';
+import { Box, Typography, useTheme } from '@mui/material';
 
-import { B3CustomForm } from '@/components'
-import CustomButton from '@/components/button/CustomButton'
-import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles'
+import { B3CustomForm } from '@/components';
+import CustomButton from '@/components/button/CustomButton';
+import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 
-import { getLoginFields, LoginConfig, LoginInfoInit } from './config'
+import { getLoginFields, LoginConfig, LoginInfoInit } from './config';
 
 interface LoginFormProps {
-  loginInfo: Partial<LoginInfoInit>
-  handleLoginSubmit: (data: LoginConfig) => void
-  gotoForgotPassword: () => void
-  backgroundColor: string
+  loginInfo: Partial<LoginInfoInit>;
+  handleLoginSubmit: (data: LoginConfig) => void;
+  gotoForgotPassword: () => void;
+  backgroundColor: string;
 }
 
 function LoginForm(props: LoginFormProps) {
-  const { loginInfo, handleLoginSubmit, gotoForgotPassword, backgroundColor } =
-    props
+  const { loginInfo, handleLoginSubmit, gotoForgotPassword, backgroundColor } = props;
 
-  const b3Lang = useB3Lang()
-  const theme = useTheme()
+  const b3Lang = useB3Lang();
+  const theme = useTheme();
 
-  const { loginBtn } = loginInfo
+  const { loginBtn } = loginInfo;
 
   const {
     control,
@@ -32,13 +31,13 @@ function LoginForm(props: LoginFormProps) {
     setValue,
   } = useForm<LoginConfig>({
     mode: 'onSubmit',
-  })
+  });
 
   const handleLoginClick: SubmitHandler<LoginConfig> = (data) => {
-    handleLoginSubmit(data)
-  }
+    handleLoginSubmit(data);
+  };
 
-  const loginFields = getLoginFields(b3Lang, handleSubmit(handleLoginClick))
+  const loginFields = getLoginFields(b3Lang, handleSubmit(handleLoginClick));
 
   return (
     <Box
@@ -110,7 +109,7 @@ function LoginForm(props: LoginFormProps) {
         </form>
       </Box>
     </Box>
-  )
+  );
 }
 
-export default LoginForm
+export default LoginForm;

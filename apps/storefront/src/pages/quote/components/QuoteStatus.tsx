@@ -1,16 +1,16 @@
-import { LangFormatFunction, useB3Lang } from '@b3/lang'
+import { LangFormatFunction, useB3Lang } from '@b3/lang';
 
-import { B3Tag } from '@/components'
+import { B3Tag } from '@/components';
 
 interface OrderStatusProps {
-  code: string
+  code: string;
 }
 interface QuoteStatusObj {
   [x: string]: {
-    textColor: string
-    idLang: string
-    color: string
-  }
+    textColor: string;
+    idLang: string;
+    color: string;
+  };
 }
 
 const quoteStatus: QuoteStatusObj = {
@@ -34,29 +34,29 @@ const quoteStatus: QuoteStatusObj = {
     idLang: 'global.quoteStatusCode.expired',
     color: '#BD3E1E',
   },
-}
+};
 const getOrderStatus = (code: string, b3Lang: LangFormatFunction) => {
   if (code in quoteStatus) {
-    const { idLang, ...restQuoteStatus } = quoteStatus[code]
+    const { idLang, ...restQuoteStatus } = quoteStatus[code];
 
-    return { ...restQuoteStatus, name: b3Lang(idLang) }
+    return { ...restQuoteStatus, name: b3Lang(idLang) };
   }
-  return undefined
-}
+  return undefined;
+};
 
 export default function QuoteStatus(props: OrderStatusProps) {
-  const b3Lang = useB3Lang()
-  const { code } = props
+  const b3Lang = useB3Lang();
+  const { code } = props;
 
-  const status = getOrderStatus(code, b3Lang)
+  const status = getOrderStatus(code, b3Lang);
 
   if (!status?.name) {
-    return null
+    return null;
   }
 
   return (
     <B3Tag color={status.color} textColor={status.textColor}>
       {status.name}
     </B3Tag>
-  )
+  );
 }

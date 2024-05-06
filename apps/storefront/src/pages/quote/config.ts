@@ -1,9 +1,6 @@
-import { LangFormatFunction } from '@b3/lang'
+import { LangFormatFunction } from '@b3/lang';
 
-const getAccountFormFields = (
-  isMobile: boolean,
-  b3Lang: LangFormatFunction
-) => {
+const getAccountFormFields = (isMobile: boolean, b3Lang: LangFormatFunction) => {
   const accountFormFields = [
     {
       name: 'label',
@@ -127,9 +124,9 @@ const getAccountFormFields = (
       variant: 'filled',
       size: 'small',
     },
-  ]
+  ];
 
-  return accountFormFields
-}
+  return accountFormFields;
+};
 
-export default getAccountFormFields
+export default getAccountFormFields;

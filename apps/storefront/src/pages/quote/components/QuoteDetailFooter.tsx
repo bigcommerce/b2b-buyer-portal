@@ -1,32 +1,29 @@
-import { useLocation } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import { Box } from '@mui/material'
+import { useLocation } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { Box } from '@mui/material';
 
-import CustomButton from '@/components/button/CustomButton'
-import { useMobile } from '@/hooks'
-import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b'
-import { useAppSelector } from '@/store'
-import {
-  attemptCheckoutLoginAndRedirect,
-  setQuoteToStorage,
-} from '@/utils/b3checkout'
-import b2bLogger from '@/utils/b3Logger'
-import { getSearchVal } from '@/utils/loginInfo'
+import CustomButton from '@/components/button/CustomButton';
+import { useMobile } from '@/hooks';
+import { b2bQuoteCheckout, bcQuoteCheckout } from '@/shared/service/b2b';
+import { useAppSelector } from '@/store';
+import { attemptCheckoutLoginAndRedirect, setQuoteToStorage } from '@/utils/b3checkout';
+import b2bLogger from '@/utils/b3Logger';
+import { getSearchVal } from '@/utils/loginInfo';
 
 interface QuoteDetailFooterProps {
-  quoteId: string
-  role: string | number
-  isAgenting: boolean
-  status: number
-  proceedingCheckoutFn: () => boolean
+  quoteId: string;
+  role: string | number;
+  isAgenting: boolean;
+  status: number;
+  proceedingCheckoutFn: () => boolean;
 }
 
 function QuoteDetailFooter(props: QuoteDetailFooterProps) {
-  const { quoteId, role, isAgenting, status, proceedingCheckoutFn } = props
-  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
-  const location = useLocation()
+  const { quoteId, role, isAgenting, status, proceedingCheckoutFn } = props;
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform);
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
+  const location = useLocation();
 
   const containerStyle = isMobile
     ? {
@@ -35,37 +32,37 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
       }
     : {
         alignItems: 'center',
-      }
+      };
 
   const handleQuoteCheckout = async () => {
     try {
-      const isHideQuoteCheckout = proceedingCheckoutFn()
-      if (isHideQuoteCheckout) return
+      const isHideQuoteCheckout = proceedingCheckoutFn();
+      if (isHideQuoteCheckout) return;
 
-      const fn = +role === 99 ? bcQuoteCheckout : b2bQuoteCheckout
-      const date = getSearchVal(location.search, 'date')
+      const fn = +role === 99 ? bcQuoteCheckout : b2bQuoteCheckout;
+      const date = getSearchVal(location.search, 'date');
 
       const res = await fn({
         id: +quoteId,
-      })
+      });
 
-      setQuoteToStorage(quoteId, date)
+      setQuoteToStorage(quoteId, date);
       const {
         quoteCheckout: {
           quoteCheckout: { checkoutUrl, cartId },
         },
-      } = res
+      } = res;
 
       if (platform === 'bigcommerce') {
-        window.location.href = checkoutUrl
-        return
+        window.location.href = checkoutUrl;
+        return;
       }
 
-      await attemptCheckoutLoginAndRedirect(cartId, checkoutUrl as string)
+      await attemptCheckoutLoginAndRedirect(cartId, checkoutUrl as string);
     } catch (err) {
-      b2bLogger.error(err)
+      b2bLogger.error(err);
     }
-  }
+  };
 
   return status !== 5 ? (
     <Box
@@ -87,7 +84,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
       <CustomButton
         variant="contained"
         onClick={() => {
-          handleQuoteCheckout()
+          handleQuoteCheckout();
         }}
         sx={{
           width: isMobile ? '100%' : 'auto',
@@ -96,7 +93,7 @@ function QuoteDetailFooter(props: QuoteDetailFooterProps) {
         {b3Lang('quoteDetail.footer.proceedToCheckout')}
       </CustomButton>
     </Box>
-  ) : null
+  ) : null;
 }
 
-export default QuoteDetailFooter
+export default QuoteDetailFooter;
