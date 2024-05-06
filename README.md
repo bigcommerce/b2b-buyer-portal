@@ -14,7 +14,7 @@ You can get straight to work building for your unique B2B business cases.
 <p align="center">
  <a href="https://www.bigcommerce.com/solutions/b2b-ecommerce-platform/">🚀 B2B Editions</a> •
  <a href="https://developer.bigcommerce.com/community">🤗 BigCommerce Developer Community</a> •
- <a href="https://bundleb2b.stoplight.io/">📝 B2B Edition API Reference</a> •
+ <a href="https://bundleb2b.stoplight.io/docs/openapi/quick-start">📝 B2B Edition API Reference</a> •
 </p>
 
 ![-----------------------------------------------------](https://storage.googleapis.com/bigcommerce-developers/images/catalyst_readme_hr.png)
