@@ -1,209 +1,184 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react';
 
-import { getB2BProductPurchasable } from '@/shared/service/b2b/graphql/product'
-import { useAppSelector } from '@/store'
+import { getB2BProductPurchasable } from '@/shared/service/b2b/graphql/product';
+import { useAppSelector } from '@/store';
 
 interface MyMutationRecord extends MutationRecord {
-  target: HTMLElement
+  target: HTMLElement;
 }
 
 interface ProductInfoProps {
-  availability: boolean
-  inventoryLevel: number
-  inventoryTracking: boolean
-  purchasingDisabled: boolean
+  availability: boolean;
+  inventoryLevel: number;
+  inventoryTracking: boolean;
+  purchasingDisabled: boolean;
 }
 
 const usePurchasableQuote = (openQuickView: boolean) => {
-  const [isBuyPurchasable, setBuyPurchasable] = useState<boolean>(true)
+  const [isBuyPurchasable, setBuyPurchasable] = useState<boolean>(true);
 
   const productInfoRef = useRef<ProductInfoProps>({
     availability: false,
     inventoryLevel: 0,
     inventoryTracking: false,
     purchasingDisabled: false,
-  })
+  });
   const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
-  )
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
+  );
 
   const isOOStockPurchaseQuantity = (
     qty: number,
-    productPurchasable: ProductInfoProps
+    productPurchasable: ProductInfoProps,
   ): boolean => {
-    const { inventoryLevel, inventoryTracking } = productPurchasable
+    const { inventoryLevel, inventoryTracking } = productPurchasable;
 
-    if (inventoryTracking && qty > inventoryLevel) return true
+    if (inventoryTracking && qty > inventoryLevel) return true;
 
-    return false
-  }
+    return false;
+  };
 
   useEffect(() => {
     const callback = async (
       newSkuValue: string,
       isDetailOpen: boolean,
-      isInit?: boolean
+      isInit?: boolean,
     ): Promise<void> => {
-      const modal = document.getElementById('modal') as HTMLElement
+      const modal = document.getElementById('modal') as HTMLElement;
 
-      const dom = isDetailOpen ? document : modal
-      const productViewQty =
-        (dom.querySelector('[name="qty[]"]') as CustomFieldItems)?.value || 1
+      const dom = isDetailOpen ? document : modal;
+      const productViewQty = (dom.querySelector('[name="qty[]"]') as CustomFieldItems)?.value || 1;
 
-      const productId = (
-        dom.querySelector('input[name=product_id]') as CustomFieldItems
-      )?.value
+      const productId = (dom.querySelector('input[name=product_id]') as CustomFieldItems)?.value;
 
       const {
-        productPurchasable: {
-          availability,
-          inventoryLevel,
-          inventoryTracking,
-          purchasingDisabled,
-        },
+        productPurchasable: { availability, inventoryLevel, inventoryTracking, purchasingDisabled },
       } = await getB2BProductPurchasable({
         productId,
         sku: newSkuValue || '',
         isProduct: !!isInit,
-      })
+      });
 
       const productPurchasable = {
         availability: availability === 'available',
         inventoryLevel,
-        inventoryTracking:
-          inventoryTracking === 'product' || inventoryTracking === 'variant',
+        inventoryTracking: inventoryTracking === 'product' || inventoryTracking === 'variant',
         purchasingDisabled,
-      }
+      };
       if (productInfoRef?.current) {
-        productInfoRef.current = productPurchasable
+        productInfoRef.current = productPurchasable;
       }
 
-      const isOOStock = isOOStockPurchaseQuantity(
-        +productViewQty,
-        productPurchasable
-      )
-      if (
-        purchasingDisabled === '1' ||
-        isOOStock ||
-        availability !== 'available'
-      ) {
-        setBuyPurchasable(false)
+      const isOOStock = isOOStockPurchaseQuantity(+productViewQty, productPurchasable);
+      if (purchasingDisabled === '1' || isOOStock || availability !== 'available') {
+        setBuyPurchasable(false);
       } else {
-        setBuyPurchasable(true)
+        setBuyPurchasable(true);
       }
-    }
+    };
 
-    const modal = document.getElementById('modal') as HTMLElement
+    const modal = document.getElementById('modal') as HTMLElement;
 
-    let productViewSku: Element | null =
-      document.querySelector('[data-product-sku]') || null
-    let qtyDom: HTMLInputElement | null =
-      document.querySelector('[name="qty[]"]') || null
-    let isDetailOpen = true
-    let dataQuantityChangeDom =
-      document.querySelector('[data-quantity-change]') || null
+    let productViewSku: Element | null = document.querySelector('[data-product-sku]') || null;
+    let qtyDom: HTMLInputElement | null = document.querySelector('[name="qty[]"]') || null;
+    let isDetailOpen = true;
+    let dataQuantityChangeDom = document.querySelector('[data-quantity-change]') || null;
     // information about multiple products exists
     if (modal && modal.classList.contains('open')) {
-      productViewSku = modal.querySelector('[data-product-sku]')
-      qtyDom = modal.querySelector('[name="qty[]"]')
-      dataQuantityChangeDom = modal.querySelector('[data-quantity-change]')
-      isDetailOpen = false
+      productViewSku = modal.querySelector('[data-product-sku]');
+      qtyDom = modal.querySelector('[name="qty[]"]');
+      dataQuantityChangeDom = modal.querySelector('[data-quantity-change]');
+      isDetailOpen = false;
     }
 
     if (productViewSku && isEnableProduct) {
-      const sku = productViewSku.innerHTML.trim()
-      callback(sku, isDetailOpen, true)
+      const sku = productViewSku.innerHTML.trim();
+      callback(sku, isDetailOpen, true);
     }
 
     const observer = new MutationObserver((mutations: MutationRecord[]) => {
-      let sku = ''
+      let sku = '';
       mutations.forEach((mutation) => {
-        const myMutation: MyMutationRecord = mutation as MyMutationRecord
-        if (
-          myMutation.type === 'childList' &&
-          myMutation.target.hasAttribute('data-product-sku')
-        ) {
-          const newSkuValue = myMutation.target.innerHTML.trim()
-          sku = newSkuValue
+        const myMutation: MyMutationRecord = mutation as MyMutationRecord;
+        if (myMutation.type === 'childList' && myMutation.target.hasAttribute('data-product-sku')) {
+          const newSkuValue = myMutation.target.innerHTML.trim();
+          sku = newSkuValue;
         }
-      })
-      if (sku) callback(sku, isDetailOpen, false)
-    })
+      });
+      if (sku) callback(sku, isDetailOpen, false);
+    });
 
-    const config: MutationObserverInit = { childList: true, subtree: true }
+    const config: MutationObserverInit = { childList: true, subtree: true };
 
     if (productViewSku && isEnableProduct) {
-      observer.observe(productViewSku, config)
+      observer.observe(productViewSku, config);
     }
 
     const judgmentBuyPurchasable = (newQuantity: number | string) => {
-      const isOOStock = isOOStockPurchaseQuantity(
-        +newQuantity,
-        productInfoRef.current
-      )
+      const isOOStock = isOOStockPurchaseQuantity(+newQuantity, productInfoRef.current);
 
       if (isOOStock) {
-        setBuyPurchasable(false)
+        setBuyPurchasable(false);
       } else {
-        setBuyPurchasable(true)
+        setBuyPurchasable(true);
       }
-    }
+    };
 
     const handleQuantityChange = () => {
-      const newQuantity = qtyDom ? qtyDom.value : 0
+      const newQuantity = qtyDom ? qtyDom.value : 0;
 
-      judgmentBuyPurchasable(newQuantity)
-    }
+      judgmentBuyPurchasable(newQuantity);
+    };
 
     if (qtyDom && isEnableProduct) {
-      qtyDom.addEventListener('input', handleQuantityChange)
+      qtyDom.addEventListener('input', handleQuantityChange);
     }
 
     const handleBtnQuantityChange = (button: Element) => {
       if (qtyDom) {
-        const action = button.getAttribute('data-action')
-        const val = qtyDom?.value || '1'
+        const action = button.getAttribute('data-action');
+        const val = qtyDom?.value || '1';
 
-        const isNumber = (str: string) => /^\d+$/.test(str)
+        const isNumber = (str: string) => /^\d+$/.test(str);
 
         if (!isNumber(val)) {
-          judgmentBuyPurchasable(action === 'dec' ? 0 : 1)
+          judgmentBuyPurchasable(action === 'dec' ? 0 : 1);
 
-          return
+          return;
         }
 
         if (action === 'dec' && (val === '0' || val === '1')) {
-          judgmentBuyPurchasable(val)
-          return
+          judgmentBuyPurchasable(val);
+          return;
         }
 
-        const newNum = action === 'dec' ? +val - 1 : +val + 1
+        const newNum = action === 'dec' ? +val - 1 : +val + 1;
 
-        judgmentBuyPurchasable(newNum)
+        judgmentBuyPurchasable(newNum);
       }
-    }
+    };
 
     if (dataQuantityChangeDom && isEnableProduct) {
-      const buttons = dataQuantityChangeDom.querySelectorAll('button')
+      const buttons = dataQuantityChangeDom.querySelectorAll('button');
       buttons.forEach((button) => {
         button.addEventListener('click', () => {
-          handleBtnQuantityChange(button)
-        })
+          handleBtnQuantityChange(button);
+        });
         return () => {
           button.removeEventListener('click', () => {
-            handleBtnQuantityChange(button)
-          })
-        }
-      })
+            handleBtnQuantityChange(button);
+          });
+        };
+      });
     }
 
     return () => {
-      if (observer) observer.disconnect()
-      if (qtyDom) qtyDom.removeEventListener('input', handleQuantityChange)
-    }
-  }, [openQuickView, isEnableProduct])
+      if (observer) observer.disconnect();
+      if (qtyDom) qtyDom.removeEventListener('input', handleQuantityChange);
+    };
+  }, [openQuickView, isEnableProduct]);
 
-  return [isBuyPurchasable]
-}
+  return [isBuyPurchasable];
+};
 
-export default usePurchasableQuote
+export default usePurchasableQuote;

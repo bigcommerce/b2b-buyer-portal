@@ -1,103 +1,103 @@
-import { Dispatch, ReactNode } from 'react'
+import { Dispatch, ReactNode } from 'react';
 
-import { TipMessagesProps } from '@/shared/dynamicallyVariable/context/config'
-import { B3SStorage } from '@/utils'
+import { TipMessagesProps } from '@/shared/dynamicallyVariable/context/config';
+import { B3SStorage } from '@/utils';
 
 export interface CustomerInfo {
-  phoneNumber: string
-  firstName: string
-  lastName: string
-  emailAddress: string
-  customerGroupId?: number
+  phoneNumber: string;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  customerGroupId?: number;
 }
 
-export type AlertTip = 'error' | 'info' | 'success' | 'warning'
+export type AlertTip = 'error' | 'info' | 'success' | 'warning';
 export interface State {
-  stateCode?: string
-  stateName?: string
-  id?: string
+  stateCode?: string;
+  stateName?: string;
+  id?: string;
 }
 export interface Country {
-  countryCode: string
-  countryName: string
-  id?: string
-  states: State[]
+  countryCode: string;
+  countryName: string;
+  id?: string;
+  states: State[];
 }
 
 export interface ChannelCurrenciesProps {
-  channel_id: number
-  default_currency: string
-  enabled_currencies: Array<string>
+  channel_id: number;
+  default_currency: string;
+  enabled_currencies: Array<string>;
 }
 
 export interface QuoteConfigProps {
-  key: string
-  value: string
-  extraFields: CustomFieldItems
+  key: string;
+  value: string;
+  extraFields: CustomFieldItems;
 }
 
 export interface CurrencyProps {
-  auto_update: boolean
-  country_iso2: string
-  currency_code: string
-  currency_exchange_rate: string
-  decimal_places: number
-  decimal_token: string
-  default_for_country_codes: Array<string>
-  enabled: boolean
-  id: string
-  is_default: boolean
-  is_transactional: boolean
-  last_updated: string
-  name: string
-  thousands_token: string
-  token: string
-  token_location: 'left' | 'right'
+  auto_update: boolean;
+  country_iso2: string;
+  currency_code: string;
+  currency_exchange_rate: string;
+  decimal_places: number;
+  decimal_token: string;
+  default_for_country_codes: Array<string>;
+  enabled: boolean;
+  id: string;
+  is_default: boolean;
+  is_transactional: boolean;
+  last_updated: string;
+  name: string;
+  thousands_token: string;
+  token: string;
+  token_location: 'left' | 'right';
 }
 
 export interface OpenAPPParamsProps {
-  quoteBtn: string
-  shoppingListBtn: string
+  quoteBtn: string;
+  shoppingListBtn: string;
 }
 
 export interface GlobalState {
-  isCheckout: boolean
-  isCloseGotoBCHome: boolean
-  logo: string
-  isCompanyAccount: boolean
-  isAgenting: boolean
-  tipMessage: TipMessagesProps
+  isCheckout: boolean;
+  isCloseGotoBCHome: boolean;
+  logo: string;
+  isCompanyAccount: boolean;
+  isAgenting: boolean;
+  tipMessage: TipMessagesProps;
   addressConfig?: {
-    key: string
-    isEnabled: string
-  }[]
+    key: string;
+    isEnabled: string;
+  }[];
   storefrontConfig?: {
     [k: string]:
       | boolean
       | {
-          value: boolean
-          enabledStatus: boolean
-        }
-    shoppingLists: boolean
-    tradeProfessionalApplication: boolean
-  }
-  bcLanguage: string
-  storeEnabled: boolean
-  storeName: string
-  b2bChannelId: number
-  countriesList?: Country[]
-  productQuoteEnabled: boolean
-  cartQuoteEnabled: boolean
-  shoppingListEnabled: boolean
-  registerEnabled: boolean
-  quoteConfig: QuoteConfigProps[]
-  openAPPParams: OpenAPPParamsProps
-  showPageMask: boolean
-  enteredInclusiveTax: boolean
-  blockPendingAccountOrderCreation: boolean
-  quoteDetailHasNewMessages: boolean
-  shoppingListClickNode: HTMLElement | null
-  multiStorefrontEnabled: boolean
+          value: boolean;
+          enabledStatus: boolean;
+        };
+    shoppingLists: boolean;
+    tradeProfessionalApplication: boolean;
+  };
+  bcLanguage: string;
+  storeEnabled: boolean;
+  storeName: string;
+  b2bChannelId: number;
+  countriesList?: Country[];
+  productQuoteEnabled: boolean;
+  cartQuoteEnabled: boolean;
+  shoppingListEnabled: boolean;
+  registerEnabled: boolean;
+  quoteConfig: QuoteConfigProps[];
+  openAPPParams: OpenAPPParamsProps;
+  showPageMask: boolean;
+  enteredInclusiveTax: boolean;
+  blockPendingAccountOrderCreation: boolean;
+  quoteDetailHasNewMessages: boolean;
+  shoppingListClickNode: HTMLElement | null;
+  multiStorefrontEnabled: boolean;
 }
 
 export const initState: GlobalState = {
@@ -122,25 +122,24 @@ export const initState: GlobalState = {
   },
   showPageMask: false,
   enteredInclusiveTax: false,
-  blockPendingAccountOrderCreation:
-    B3SStorage.get('blockPendingAccountOrderCreation') || true,
+  blockPendingAccountOrderCreation: B3SStorage.get('blockPendingAccountOrderCreation') || true,
   quoteDetailHasNewMessages: false,
   shoppingListClickNode: null,
   tipMessage: {},
   multiStorefrontEnabled: false,
-}
+};
 
 export interface GlobalAction {
-  type: string
-  payload: Partial<GlobalState>
+  type: string;
+  payload: Partial<GlobalState>;
 }
 
-export type DispatchProps = Dispatch<Partial<GlobalAction>>
+export type DispatchProps = Dispatch<Partial<GlobalAction>>;
 export interface GlobalContext {
-  state: GlobalState
-  dispatch: DispatchProps
+  state: GlobalState;
+  dispatch: DispatchProps;
 }
 
 export interface GlobaledProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }

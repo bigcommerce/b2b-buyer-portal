@@ -1,11 +1,11 @@
-import { createContext } from 'react'
+import { createContext } from 'react';
 
-import { GlobalAction, GlobalContext, GlobalState, initState } from './config'
+import { GlobalAction, GlobalContext, GlobalState, initState } from './config';
 
 export const GlobaledContext = createContext<GlobalContext>({
   state: initState,
   dispatch: () => {},
-})
+});
 
 export const reducer = (state: GlobalState, action: Partial<GlobalAction>) => {
   switch (action.type) {
@@ -13,8 +13,8 @@ export const reducer = (state: GlobalState, action: Partial<GlobalAction>) => {
       return {
         ...state,
         ...action.payload,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};

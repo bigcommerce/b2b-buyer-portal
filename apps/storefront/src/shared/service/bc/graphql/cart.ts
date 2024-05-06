@@ -1,9 +1,9 @@
-import Cookies from 'js-cookie'
+import Cookies from 'js-cookie';
 
-import { CreateCartInput, DeleteCartInput } from '@/types/cart'
-import { platform } from '@/utils'
+import { CreateCartInput, DeleteCartInput } from '@/types/cart';
+import { platform } from '@/utils';
 
-import B3Request from '../../request/b3Fetch'
+import B3Request from '../../request/b3Fetch';
 
 const lineItemsFragment = `lineItems {
   physicalItems {
@@ -202,7 +202,7 @@ const lineItemsFragment = `lineItems {
       value
     }
   }
-}`
+}`;
 
 const getCartInfo = `query getCart($entityId: String) {
   site {
@@ -240,7 +240,7 @@ const getCartInfo = `query getCart($entityId: String) {
     }
   }
 }
-`
+`;
 
 const createCart = `mutation createCartSimple($createCartInput: CreateCartInput!) {
   cart {
@@ -267,14 +267,14 @@ const createCart = `mutation createCartSimple($createCartInput: CreateCartInput!
       }
     }
   }
-}`
+}`;
 
 const addLineItemToCart = `mutation addCartLineItemsTwo($addCartLineItemsInput: AddCartLineItemsInput!) {
   cart {
       addCartLineItems(input: $addCartLineItemsInput) {
         cart {
           entityId
-        }}}}`
+        }}}}`;
 
 const deleteCartQuery = `mutation deleteCart($deleteCartInput: DeleteCartInput!) {
   cart {
@@ -282,32 +282,32 @@ const deleteCartQuery = `mutation deleteCart($deleteCartInput: DeleteCartInput!)
       deletedCartEntityId
     }
   }
-}`
+}`;
 
 export const getCart = async (): Promise<any> => {
   if (platform === 'bigcommerce') {
     const cartInfo = await B3Request.graphqlBC({
       query: getCartInfo,
-    })
+    });
 
     if (cartInfo.data.site.cart?.entityId) {
-      Cookies.set('cartId', cartInfo.data.site.cart.entityId)
+      Cookies.set('cartId', cartInfo.data.site.cart.entityId);
     }
 
-    return cartInfo
+    return cartInfo;
   }
 
-  const entityId = Cookies.get('cartId')
+  const entityId = Cookies.get('cartId');
   const cartInfo = await B3Request.graphqlBCProxy({
     query: getCartInfo,
     variables: { entityId },
-  })
+  });
   if (cartInfo.data.site.cart?.entityId) {
-    Cookies.set('cartId', cartInfo.data.site.cart.entityId)
+    Cookies.set('cartId', cartInfo.data.site.cart.entityId);
   }
 
-  return cartInfo
-}
+  return cartInfo;
+};
 
 export const createNewCart = (data: CreateCartInput): any =>
   platform === 'bigcommerce'
@@ -318,7 +318,7 @@ export const createNewCart = (data: CreateCartInput): any =>
     : B3Request.graphqlBCProxy({
         query: createCart,
         variables: data,
-      })
+      });
 
 export const addNewLineToCart = (data: any): any =>
   platform === 'bigcommerce'
@@ -329,7 +329,7 @@ export const addNewLineToCart = (data: any): any =>
     : B3Request.graphqlBCProxy({
         query: addLineItemToCart,
         variables: data,
-      })
+      });
 
 export const deleteCart = (data: DeleteCartInput): any =>
   platform === 'bigcommerce'
@@ -340,4 +340,4 @@ export const deleteCart = (data: DeleteCartInput): any =>
     : B3Request.graphqlBCProxy({
         query: deleteCartQuery,
         variables: data,
-      })
+      });

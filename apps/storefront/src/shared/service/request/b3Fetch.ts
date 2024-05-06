@@ -1,13 +1,13 @@
-import { store } from '@/store'
-import { baseUrl, channelId, getCookie, storeHash } from '@/utils'
+import { store } from '@/store';
+import { baseUrl, channelId, getCookie, storeHash } from '@/utils';
 
-import { B2B_BASIC_URL, queryParse, RequestType, RequestTypeKeys } from './base'
-import b3Fetch from './fetch'
+import { B2B_BASIC_URL, queryParse, RequestType, RequestTypeKeys } from './base';
+import b3Fetch from './fetch';
 
 interface Config {
   headers?: {
-    [key: string]: string
-  }
+    [key: string]: string;
+  };
 }
 
 const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
@@ -15,14 +15,14 @@ const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
     B2BGraphql: `${B2B_BASIC_URL}/graphql`,
     BCGraphql: `${baseUrl}/graphql`,
     BCProxyGraphql: `${B2B_BASIC_URL}/api/v3/proxy/bc-storefront/graphql`,
-  }
+  };
 
-  return GraphqlEndpoints[type] || ''
-}
+  return GraphqlEndpoints[type] || '';
+};
 
 function request<T>(path: string, config?: T & Config, type?: RequestTypeKeys) {
-  const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path
-  const { B2BToken } = store.getState().company.tokens
+  const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path;
+  const { B2BToken } = store.getState().company.tokens;
   const getToken =
     type === RequestType.BCRest
       ? {
@@ -30,13 +30,13 @@ function request<T>(path: string, config?: T & Config, type?: RequestTypeKeys) {
         }
       : {
           authToken: `${B2BToken}`,
-        }
+        };
 
   const {
     headers = {
       'content-type': 'application/json',
     },
-  } = config || {}
+  } = config || {};
 
   const init = {
     ...config,
@@ -44,16 +44,11 @@ function request<T>(path: string, config?: T & Config, type?: RequestTypeKeys) {
       ...headers,
       ...getToken,
     },
-  }
-  return b3Fetch(url, init, type)
+  };
+  return b3Fetch(url, init, type);
 }
 
-function graphqlRequest<T, Y>(
-  type: RequestTypeKeys,
-  data: T,
-  config?: Y,
-  customMessage = false
-) {
+function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y, customMessage = false) {
   const init = {
     method: 'POST',
     headers: {
@@ -61,10 +56,10 @@ function graphqlRequest<T, Y>(
       ...config,
     },
     body: JSON.stringify(data),
-  }
+  };
 
-  const url = GraphqlEndpointsFn(type)
-  return b3Fetch(url, init, type, customMessage)
+  const url = GraphqlEndpointsFn(type);
+  return b3Fetch(url, init, type, customMessage);
 }
 
 const B3Request = {
@@ -72,69 +67,60 @@ const B3Request = {
    * Request to B2B graphql API using B2B token
    */
   graphqlB2B: function post<T>(data: T, customMessage = false): Promise<any> {
-    const { B2BToken } = store.getState().company.tokens
+    const { B2BToken } = store.getState().company.tokens;
     const config = {
       Authorization: `Bearer  ${B2BToken}`,
-    }
-    return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage)
+    };
+    return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage);
   },
   /**
    * @deprecated use {@link B3Request.graphqlBCProxy} instead
    * Request to BC graphql API using BC graphql token
    */
   graphqlBC: function post<T>(data: T): Promise<any> {
-    const { bcGraphqlToken } = store.getState().company.tokens
+    const { bcGraphqlToken } = store.getState().company.tokens;
     const config = {
       Authorization: `Bearer  ${bcGraphqlToken}`,
-    }
-    return graphqlRequest(RequestType.BCGraphql, data, config)
+    };
+    return graphqlRequest(RequestType.BCGraphql, data, config);
   },
   /**
    * Request to BC graphql API using B2B token
    */
   graphqlBCProxy: function post<T>(data: T): Promise<any> {
-    let config = {}
-    const { B2BToken } = store.getState().company.tokens
+    let config = {};
+    const { B2BToken } = store.getState().company.tokens;
 
     if (B2BToken) {
       config = {
         Authorization: `Bearer  ${B2BToken}`,
-      }
+      };
     } else {
       config = {
         'Store-Hash': storeHash,
         'BC-Channel-Id': channelId,
-      }
+      };
     }
 
-    return graphqlRequest(RequestType.BCProxyGraphql, data, config)
+    return graphqlRequest(RequestType.BCProxyGraphql, data, config);
   },
-  get: function get<T, Y>(
-    url: string,
-    type: RequestTypeKeys,
-    data?: T,
-    config?: Y
-  ): Promise<any> {
+  get: function get<T, Y>(url: string, type: RequestTypeKeys, data?: T, config?: Y): Promise<any> {
     if (data) {
-      const params = queryParse(data)
+      const params = queryParse(data);
       return request(`${url}?${params}`, {
         method: 'GET',
         ...config,
-      })
+      });
     }
     return request(
       url,
       {
         method: 'GET',
       },
-      type
-    )
+      type,
+    );
   },
-  post: function post<T>(
-    url: string,
-    type: RequestTypeKeys,
-    data: T
-  ): Promise<any> {
+  post: function post<T>(url: string, type: RequestTypeKeys, data: T): Promise<any> {
     return request(
       url,
       {
@@ -144,14 +130,10 @@ const B3Request = {
           'content-type': 'application/json',
         },
       },
-      type
-    )
+      type,
+    );
   },
-  put: function put<T>(
-    url: string,
-    type: RequestTypeKeys,
-    data: T
-  ): Promise<any> {
+  put: function put<T>(url: string, type: RequestTypeKeys, data: T): Promise<any> {
     return request(
       url,
       {
@@ -161,8 +143,8 @@ const B3Request = {
           'content-type': 'application/json',
         },
       },
-      type
-    )
+      type,
+    );
   },
   delete: function deleteFn(url: string, type: RequestTypeKeys): Promise<any> {
     return request(
@@ -170,21 +152,17 @@ const B3Request = {
       {
         method: 'DELETE',
       },
-      type
-    )
+      type,
+    );
   },
-  fileUpload: function fileUpload<T, Y>(
-    url: string,
-    formData: T,
-    config?: Y
-  ): Promise<any> {
+  fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y): Promise<any> {
     return request(`${B2B_BASIC_URL}${url}`, {
       method: 'POST',
       body: formData,
       headers: {},
       ...config,
-    })
+    });
   },
-}
+};
 
-export default B3Request
+export default B3Request;

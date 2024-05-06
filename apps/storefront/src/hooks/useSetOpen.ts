@@ -1,23 +1,19 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect } from 'react';
 
-import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
-import { GlobaledContext } from '@/shared/global'
+import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
+import { GlobaledContext } from '@/shared/global';
 
-const { height: defaultHeight, overflow: defaultOverflow } = document.body.style
+const { height: defaultHeight, overflow: defaultOverflow } = document.body.style;
 
-const useSetOpen = (
-  isOpen: boolean,
-  openUrl?: string,
-  params?: CustomFieldItems
-) => {
-  const { dispatch } = useContext(GlobaledContext)
+const useSetOpen = (isOpen: boolean, openUrl?: string, params?: CustomFieldItems) => {
+  const { dispatch } = useContext(GlobaledContext);
 
-  const { dispatch: dispatchMsg } = useContext(DynamicallyVariableedContext)
+  const { dispatch: dispatchMsg } = useContext(DynamicallyVariableedContext);
   useEffect(() => {
     if (isOpen) {
       // The iframe screen is removed
-      document.body.style.height = '100%'
-      document.body.style.overflow = 'hidden'
+      document.body.style.height = '100%';
+      document.body.style.overflow = 'hidden';
       // The iframe button opens and assigns the url
       dispatch({
         type: 'common',
@@ -27,7 +23,7 @@ const useSetOpen = (
             shoppingListBtn: params?.shoppingListBtn || '',
           },
         },
-      })
+      });
 
       // close all global tips
       dispatchMsg({
@@ -40,10 +36,10 @@ const useSetOpen = (
             msgs: [],
           },
         },
-      })
+      });
     } else {
-      document.body.style.height = defaultHeight
-      document.body.style.overflow = defaultOverflow
+      document.body.style.height = defaultHeight;
+      document.body.style.overflow = defaultOverflow;
 
       // close all tips
       dispatchMsg({
@@ -53,11 +49,11 @@ const useSetOpen = (
             msgs: [],
           },
         },
-      })
+      });
     }
     // ignore dispatch and dispatchMsg as they are not reactive values
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, params?.quoteBtn, params?.shoppingListBtn])
-}
+  }, [isOpen, params?.quoteBtn, params?.shoppingListBtn]);
+};
 
-export default useSetOpen
+export default useSetOpen;

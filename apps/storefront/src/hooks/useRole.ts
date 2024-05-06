@@ -1,39 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
-import { isB2BUserSelector, useAppSelector } from '@/store'
-import { CustomerRole } from '@/types'
+import { isB2BUserSelector, useAppSelector } from '@/store';
+import { CustomerRole } from '@/types';
 
 const useRole = () => {
-  const [roleText, setRoleText] = useState('')
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const role = useAppSelector(({ company }) => company.customer.role)
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
+  const [roleText, setRoleText] = useState('');
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const getRole = (role: number, isAgenting: boolean) => {
-    let roleStr = ''
+    let roleStr = '';
     switch (role) {
       case CustomerRole.GUEST:
-        roleStr = 'guest'
-        break
+        roleStr = 'guest';
+        break;
       case CustomerRole.B2C:
-        roleStr = 'b2c'
-        break
+        roleStr = 'b2c';
+        break;
       case CustomerRole.SUPER_ADMIN:
-        roleStr = isAgenting ? 'b2b' : 'b2c'
-        break
+        roleStr = isAgenting ? 'b2b' : 'b2c';
+        break;
       default:
-        roleStr = 'b2b'
+        roleStr = 'b2b';
     }
-    setRoleText(roleStr)
-  }
+    setRoleText(roleStr);
+  };
 
   useEffect(() => {
-    getRole(+role, isAgenting)
-  }, [isB2BUser, role, isAgenting])
+    getRole(+role, isAgenting);
+  }, [isB2BUser, role, isAgenting]);
 
-  return [roleText]
-}
+  return [roleText];
+};
 
-export default useRole
+export default useRole;

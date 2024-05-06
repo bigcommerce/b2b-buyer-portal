@@ -1,24 +1,24 @@
-import { platform } from '@/utils'
+import { platform } from '@/utils';
 
-import B3Request from '../../request/b3Fetch'
+import B3Request from '../../request/b3Fetch';
 
 interface LoginData {
   loginData: {
-    storeHash: string
-    email: string
-    password: string
-    channelId: number
-  }
+    storeHash: string;
+    email: string;
+    password: string;
+    channelId: number;
+  };
 }
 
 interface UserLoginResult {
   login: {
     result: {
-      token: string
-      storefrontLoginToken: string
-    }
-    errors?: { message: string }[]
-  }
+      token: string;
+      storefrontLoginToken: string;
+    };
+    errors?: { message: string }[];
+  };
 }
 
 const getbcLogin = () => `mutation Login($email: String!, $pass: String!) {
@@ -33,13 +33,13 @@ const getbcLogin = () => `mutation Login($email: String!, $pass: String!) {
       customerGroupId,
     }
   }
-}`
+}`;
 
 const logoutLogin = () => `mutation Logout {
   logout {
     result
   }
-}`
+}`;
 
 const getB2bLogin = `mutation Login($loginData: UserLoginType!) {
   login(loginData: $loginData) {
@@ -48,19 +48,16 @@ const getB2bLogin = `mutation Login($loginData: UserLoginType!) {
       token
     }
   }
-}`
+}`;
 // customMessage: field used to determine whether to use a custom message
-export const b2bLogin = (
-  variables: LoginData,
-  customMessage = true
-): Promise<UserLoginResult> =>
+export const b2bLogin = (variables: LoginData, customMessage = true): Promise<UserLoginResult> =>
   B3Request.graphqlB2B(
     {
       query: getB2bLogin,
       variables,
     },
-    customMessage
-  )
+    customMessage,
+  );
 
 export const bcLogin = (data: CustomFieldItems): CustomFieldItems =>
   platform === 'bigcommerce'
@@ -71,7 +68,7 @@ export const bcLogin = (data: CustomFieldItems): CustomFieldItems =>
     : B3Request.graphqlBCProxy({
         query: getbcLogin(),
         variables: data,
-      })
+      });
 
 export const bcLogoutLogin = (): CustomFieldItems =>
   platform === 'bigcommerce'
@@ -80,4 +77,4 @@ export const bcLogoutLogin = (): CustomFieldItems =>
       })
     : B3Request.graphqlBCProxy({
         query: logoutLogin(),
-      })
+      });

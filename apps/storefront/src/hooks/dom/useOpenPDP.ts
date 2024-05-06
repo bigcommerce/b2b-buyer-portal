@@ -1,51 +1,39 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react'
-import globalB3 from '@b3/global-b3'
-import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit'
-import cloneDeep from 'lodash-es/cloneDeep'
+import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useRef } from 'react';
+import globalB3 from '@b3/global-b3';
+import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit';
+import cloneDeep from 'lodash-es/cloneDeep';
 
 import {
   getContrastColor,
   getStyles,
   setMediaStyle,
   splitCustomCssValue,
-} from '@/components/outSideComponents/utils/b3CustomStyles'
+} from '@/components/outSideComponents/utils/b3CustomStyles';
 import {
   ADD_TO_SHOPPING_LIST_DEFUALT_VALUE,
   TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
-} from '@/constants'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
-import {
-  isB2BUserSelector,
-  setGlabolCommonState,
-  useAppDispatch,
-  useAppSelector,
-} from '@/store'
-import { OpenPageState } from '@/types/hooks'
+} from '@/constants';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { GlobaledContext } from '@/shared/global';
+import { isB2BUserSelector, setGlabolCommonState, useAppDispatch, useAppSelector } from '@/store';
+import { OpenPageState } from '@/types/hooks';
 
-import useGetButtonText from '../useGetButtonText'
-import useRole from '../useRole'
+import useGetButtonText from '../useGetButtonText';
+import useRole from '../useRole';
 
-import useDomVariation from './useDomVariation'
-import { removeElement } from './utils'
+import useDomVariation from './useDomVariation';
+import { removeElement } from './utils';
 
 interface MutationObserverProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
-  role: number | string
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
+  role: number | string;
 }
 interface AddProductFromPageParams {
-  role: number
-  storeDispatch: DispatchRedux<AnyAction>
-  saveFn: () => void
-  setOpenPage: (value: SetStateAction<OpenPageState>) => void
-  registerEnabled: boolean
+  role: number;
+  storeDispatch: DispatchRedux<AnyAction>;
+  saveFn: () => void;
+  setOpenPage: (value: SetStateAction<OpenPageState>) => void;
+  registerEnabled: boolean;
 }
 
 export const addProductFromPage = ({
@@ -61,44 +49,43 @@ export const addProductFromPage = ({
         globalMessage: {
           open: true,
           title: 'Registration',
-          message:
-            'Please create an account, or login to create a shopping list.',
+          message: 'Please create an account, or login to create a shopping list.',
           cancelText: 'Cancel',
           saveText: registerEnabled ? 'Register' : '',
           saveFn,
         },
-      })
-    )
+      }),
+    );
   } else {
     setOpenPage({
       isOpen: true,
       openUrl: '/pdp',
-    })
+    });
   }
-}
+};
 
 export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   const {
     state: { shoppingListBtn },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
-  const cache = useRef({})
+  const cache = useRef({});
 
-  const storeDispatch = useAppDispatch()
+  const storeDispatch = useAppDispatch();
   const {
     dispatch,
     state: { shoppingListEnabled, registerEnabled },
-  } = useContext(GlobaledContext)
-  const isB2BUser = useAppSelector(isB2BUserSelector)
+  } = useContext(GlobaledContext);
+  const isB2BUser = useAppSelector(isB2BUserSelector);
 
-  const [roleText] = useRole()
+  const [roleText] = useRole();
 
   const jumpRegister = useCallback(() => {
     setOpenPage({
       isOpen: true,
       openUrl: '/register',
-    })
-  }, [setOpenPage])
+    });
+  }, [setOpenPage]);
 
   const pdpCallBack = useCallback(
     ({ target }: { target: HTMLElement }) => {
@@ -107,7 +94,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         payload: {
           shoppingListClickNode: target,
         },
-      })
+      });
 
       addProductFromPage({
         role: +role,
@@ -115,16 +102,14 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
         saveFn: jumpRegister,
         setOpenPage,
         registerEnabled,
-      })
+      });
     },
     // Disabling the next line as dispatch is not required to be in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [role, registerEnabled]
-  )
+    [role, registerEnabled],
+  );
 
-  const [openQuickView] = useDomVariation(
-    globalB3['dom.setToShoppingListParentEl']
-  )
+  const [openQuickView] = useDomVariation(globalB3['dom.setToShoppingListParentEl']);
 
   const {
     color = '#74685c',
@@ -133,111 +118,102 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     classSelector = '',
     locationSelector = '',
     enabled = false,
-  } = shoppingListBtn
+  } = shoppingListBtn;
   const myShoppingListBtnLabel = useGetButtonText(
     TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
     text,
-    ADD_TO_SHOPPING_LIST_DEFUALT_VALUE
-  )
+    ADD_TO_SHOPPING_LIST_DEFUALT_VALUE,
+  );
 
-  const cssInfo = splitCustomCssValue(customCss)
+  const cssInfo = splitCustomCssValue(customCss);
   const {
     cssValue,
     mediaBlocks,
   }: {
-    cssValue: string
-    mediaBlocks: string[]
-  } = cssInfo
-  const customTextColor = getStyles(cssValue).color || getContrastColor(color)
+    cssValue: string;
+    mediaBlocks: string[];
+  } = cssInfo;
+  const customTextColor = getStyles(cssValue).color || getContrastColor(color);
 
   useEffect(() => {
     // if (role === 100) return
     const addToShoppingListAll = document.querySelectorAll(
-      globalB3['dom.setToShoppingListParentEl']
-    )
+      globalB3['dom.setToShoppingListParentEl'],
+    );
     const CustomAddToShoppingListAll = locationSelector
       ? document.querySelectorAll(locationSelector)
-      : []
+      : [];
 
-    const wishlistSdd = document.querySelector('form[data-wishlist-add]')
-    if (!addToShoppingListAll.length && !CustomAddToShoppingListAll.length)
-      return
+    const wishlistSdd = document.querySelector('form[data-wishlist-add]');
+    if (!addToShoppingListAll.length && !CustomAddToShoppingListAll.length) return;
     if (document.querySelectorAll('.b2b-add-to-list').length) {
-      const cacheShoppingListDom = cache.current
+      const cacheShoppingListDom = cache.current;
       const isAddStyle = Object.keys(cacheShoppingListDom).every(
         (key: string) =>
           (cacheShoppingListDom as CustomFieldItems)[key] ===
-          (shoppingListBtn as CustomFieldItems)[key]
-      )
+          (shoppingListBtn as CustomFieldItems)[key],
+      );
       if (!isAddStyle) {
-        const myShoppingListBtns = document.querySelectorAll('.b2b-add-to-list')
+        const myShoppingListBtns = document.querySelectorAll('.b2b-add-to-list');
         myShoppingListBtns.forEach((button: CustomFieldItems) => {
-          const myShoppingListBtn = button
-          myShoppingListBtn.innerHTML = myShoppingListBtnLabel
-          myShoppingListBtn.setAttribute('style', customCss)
-          myShoppingListBtn.style.backgroundColor = color
-          myShoppingListBtn.style.color = customTextColor
-          myShoppingListBtn.setAttribute(
-            'class',
-            `b2b-add-to-list ${classSelector}`
-          )
-          setMediaStyle(mediaBlocks, `b2b-add-to-list ${classSelector}`)
-        })
-        cache.current = cloneDeep(shoppingListBtn)
+          const myShoppingListBtn = button;
+          myShoppingListBtn.innerHTML = myShoppingListBtnLabel;
+          myShoppingListBtn.setAttribute('style', customCss);
+          myShoppingListBtn.style.backgroundColor = color;
+          myShoppingListBtn.style.color = customTextColor;
+          myShoppingListBtn.setAttribute('class', `b2b-add-to-list ${classSelector}`);
+          setMediaStyle(mediaBlocks, `b2b-add-to-list ${classSelector}`);
+        });
+        cache.current = cloneDeep(shoppingListBtn);
       }
     }
 
-    const isCurrentUserEnabled = roleText
-      ? (shoppingListBtn as CustomFieldItems)[roleText]
-      : ''
+    const isCurrentUserEnabled = roleText ? (shoppingListBtn as CustomFieldItems)[roleText] : '';
 
     if (shoppingListEnabled && enabled && isCurrentUserEnabled) {
-      ;(CustomAddToShoppingListAll.length
+      (CustomAddToShoppingListAll.length
         ? CustomAddToShoppingListAll
         : addToShoppingListAll
       ).forEach((node: CustomFieldItems) => {
-        const children = node.parentNode.querySelectorAll('.b2b-add-to-list')
+        const children = node.parentNode.querySelectorAll('.b2b-add-to-list');
 
         if (!children.length) {
-          let shoppingBtnDom: CustomFieldItems | null = null
-          shoppingBtnDom = document.createElement('div')
-          shoppingBtnDom.innerHTML = myShoppingListBtnLabel
-          shoppingBtnDom.setAttribute('style', customCss)
-          shoppingBtnDom.style.backgroundColor = color
-          shoppingBtnDom.style.color = customTextColor
-          shoppingBtnDom.setAttribute(
-            'class',
-            `b2b-add-to-list ${classSelector}`
-          )
+          let shoppingBtnDom: CustomFieldItems | null = null;
+          shoppingBtnDom = document.createElement('div');
+          shoppingBtnDom.innerHTML = myShoppingListBtnLabel;
+          shoppingBtnDom.setAttribute('style', customCss);
+          shoppingBtnDom.style.backgroundColor = color;
+          shoppingBtnDom.style.color = customTextColor;
+          shoppingBtnDom.setAttribute('class', `b2b-add-to-list ${classSelector}`);
 
-          setMediaStyle(mediaBlocks, `b2b-add-to-list ${classSelector}`)
+          setMediaStyle(mediaBlocks, `b2b-add-to-list ${classSelector}`);
           if (CustomAddToShoppingListAll.length) {
-            node.appendChild(shoppingBtnDom)
+            node.appendChild(shoppingBtnDom);
           } else {
-            node.parentNode.appendChild(shoppingBtnDom)
+            node.parentNode.appendChild(shoppingBtnDom);
           }
           shoppingBtnDom.addEventListener('click', pdpCallBack, {
             capture: true,
-          })
+          });
         }
-      })
-      cache.current = cloneDeep(shoppingListBtn)
-      if (wishlistSdd) (wishlistSdd as CustomFieldItems).style.display = 'none'
+      });
+      cache.current = cloneDeep(shoppingListBtn);
+      if (wishlistSdd) (wishlistSdd as CustomFieldItems).style.display = 'none';
     } else {
-      const shoppingListBtn = document.querySelectorAll('.b2b-add-to-list')
+      const shoppingListBtn = document.querySelectorAll('.b2b-add-to-list');
       shoppingListBtn.forEach((item: CustomFieldItems) => {
-        removeElement(item)
-      })
-      if (wishlistSdd) (wishlistSdd as CustomFieldItems).style.display = 'block'
+        removeElement(item);
+      });
+      if (wishlistSdd) (wishlistSdd as CustomFieldItems).style.display = 'block';
     }
 
     // eslint-disable-next-line
     return () => {
-      const shoppingListBtn = document.querySelectorAll('.b2b-add-to-list')
+      const shoppingListBtn = document.querySelectorAll('.b2b-add-to-list');
       shoppingListBtn.forEach((item: CustomFieldItems) => {
-        item.removeEventListener('click', pdpCallBack)
-      })
-    }
+        item.removeEventListener('click', pdpCallBack);
+      });
+    };
   }, [
     isB2BUser,
     shoppingListEnabled,
@@ -254,5 +230,5 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     mediaBlocks,
     myShoppingListBtnLabel,
     pdpCallBack,
-  ])
-}
+  ]);
+};

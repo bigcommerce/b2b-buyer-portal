@@ -1,5 +1,5 @@
-import { convertObjectToGraphql } from '../../../../utils'
-import B3Request from '../../request/b3Fetch'
+import { convertObjectToGraphql } from '../../../../utils';
+import B3Request from '../../request/b3Fetch';
 
 const updateAccountSettings = (data: CustomFieldItems) => `mutation{
   updateAccountSettings (
@@ -9,7 +9,7 @@ const updateAccountSettings = (data: CustomFieldItems) => `mutation{
       email
     },
   }
-}`
+}`;
 
 const updateCustomerAccountSettings = (data: CustomFieldItems) => `mutation{
   updateCustomerAccountSettings (
@@ -19,7 +19,7 @@ const updateCustomerAccountSettings = (data: CustomFieldItems) => `mutation{
       email
     },
   }
-}`
+}`;
 
 const getAccountSettings = (data: CustomFieldItems) => `{
   accountSettings (
@@ -40,7 +40,7 @@ const getAccountSettings = (data: CustomFieldItems) => `{
     }
     role,
   }
-}`
+}`;
 
 const customerAccountSettings = () => `{
   customerAccountSettings {
@@ -54,30 +54,24 @@ const customerAccountSettings = () => `{
       value
     },
   }
-}`
+}`;
 
-export const updateB2BAccountSettings = (
-  data: CustomFieldItems
-): CustomFieldItems =>
+export const updateB2BAccountSettings = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: updateAccountSettings(data),
-  })
+  });
 
-export const updateBCAccountSettings = (
-  data: CustomFieldItems
-): CustomFieldItems =>
+export const updateBCAccountSettings = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: updateCustomerAccountSettings(data),
-  })
+  });
 
-export const getB2BAccountSettings = (
-  data: CustomFieldItems
-): CustomFieldItems =>
+export const getB2BAccountSettings = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getAccountSettings(data),
-  })
+  });
 
 export const getBCAccountSettings = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: customerAccountSettings(),
-  })
+  });

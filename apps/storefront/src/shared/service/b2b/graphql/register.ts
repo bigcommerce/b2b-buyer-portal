@@ -1,6 +1,6 @@
-import { channelId, convertArrayToGraphql, storeHash } from '@/utils'
+import { channelId, convertArrayToGraphql, storeHash } from '@/utils';
 
-import B3Request from '../../request/b3Fetch'
+import B3Request from '../../request/b3Fetch';
 
 const getAccountFormFields = (type: number) => `{
   accountFormFields(storeHash: "${storeHash}", formType: ${type}){
@@ -21,7 +21,7 @@ const getAccountFormFields = (type: number) => `{
     createdAt
     updatedAt
     }
-}`
+}`;
 
 const getCompanyExtraFields = () => `{
   companyExtraFields(storeHash: "${storeHash}") {
@@ -37,7 +37,7 @@ const getCompanyExtraFields = () => `{
     labelName,
     numberOfRows,
   }
-}`
+}`;
 
 const getRegisterLogo = () => `{
   quoteConfig(storeHash: "${storeHash}") {
@@ -50,7 +50,7 @@ const getRegisterLogo = () => `{
       value
     }
   }
-}`
+}`;
 
 const getCompanyUserInfo = <T>(email: T, customerId: string | number) => `{
   companyUserInfo(storeHash:"${storeHash}", email:"${email}", ${`customerId: ${customerId}`}) {
@@ -64,7 +64,7 @@ const getCompanyUserInfo = <T>(email: T, customerId: string | number) => `{
       role
     }
   }
-}`
+}`;
 
 const getCountries = () => `{
   countries(storeHash:"${storeHash}") {
@@ -76,13 +76,13 @@ const getCountries = () => `{
       stateCode
     }
   }
-}`
+}`;
 
 const storeBasicInfo = () => `{
   storeBasicInfo(storeHash:"${storeHash}") {
     storeName
   }
-}`
+}`;
 
 const createCompanyUser = (data: any) => `mutation{
   companyCreate(companyData: {
@@ -97,24 +97,16 @@ const createCompanyUser = (data: any) => `mutation{
     city: "${data.city}",
     state: "${data.state}",
     zipCode: "${data.zip_code}",
-    ${
-      data?.extraFields
-        ? `extraFields: ${convertArrayToGraphql(data.extraFields)}`
-        : ''
-    }
+    ${data?.extraFields ? `extraFields: ${convertArrayToGraphql(data.extraFields)}` : ''}
     ${data?.fileList ? `fileList: ${convertArrayToGraphql(data.fileList)}` : ''}
     channelId: ${data.channelId || 1}
     ${
       data?.addressExtraFields
-        ? `addressExtraFields: ${convertArrayToGraphql(
-            data.addressExtraFields
-          )}`
+        ? `addressExtraFields: ${convertArrayToGraphql(data.addressExtraFields)}`
         : ''
     }
     ${
-      data?.userExtraFields
-        ? `userExtraFields: ${convertArrayToGraphql(data.userExtraFields)}`
-        : ''
+      data?.userExtraFields ? `userExtraFields: ${convertArrayToGraphql(data.userExtraFields)}` : ''
     }
   }) {
     company {
@@ -122,7 +114,7 @@ const createCompanyUser = (data: any) => `mutation{
       companyStatus,
     }
   }
-}`
+}`;
 
 const getLoginPageConfig = () => `{
   loginPageConfig(storeHash: "${storeHash}") {
@@ -140,7 +132,7 @@ const getLoginPageConfig = () => `{
       bottomHtmlRegionEnabled
     }
   }
-}`
+}`;
 
 const getForcePasswordReset = (email: string) => `{
   companyUserInfo(storeHash: "${storeHash}", email: "${email}"){
@@ -149,7 +141,7 @@ const getForcePasswordReset = (email: string) => `{
         forcePasswordReset
     }
   }
-}`
+}`;
 
 const getStoreChannelId = `
 query getStoreBasicInfo($storeHash: String!, $bcChannelId: Int) {
@@ -179,60 +171,58 @@ query getStoreBasicInfo($storeHash: String!, $bcChannelId: Int) {
       offset
     }
   }
-}`
+}`;
 
 export const getB2BAccountFormFields = (type: number): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getAccountFormFields(type),
-  })
+  });
 
 export const getB2BCompanyUserInfo = (
   email: string,
-  customerId: string | number
+  customerId: string | number,
 ): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getCompanyUserInfo(email, customerId),
-  })
+  });
 
 export const getB2BRegisterLogo = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getRegisterLogo(),
-  })
+  });
 
 export const getB2BRegisterCustomFields = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getCompanyExtraFields(),
-  })
+  });
 
 export const getB2BCountries = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getCountries(),
-  })
+  });
 
-export const createB2BCompanyUser = (
-  data: CustomFieldItems
-): CustomFieldItems =>
+export const createB2BCompanyUser = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: createCompanyUser(data),
-  })
+  });
 
 export const storeB2BBasicInfo = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: storeBasicInfo(),
-  })
+  });
 
 export const getB2BLoginPageConfig = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getLoginPageConfig(),
-  })
+  });
 
 export const getBCForcePasswordReset = (email: string): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getForcePasswordReset(email),
-  })
+  });
 
 export const getBCStoreChannelId = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getStoreChannelId,
     variables: { storeHash, bcChannelId: channelId },
-  })
+  });

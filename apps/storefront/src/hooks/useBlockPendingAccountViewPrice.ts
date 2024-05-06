@@ -1,11 +1,11 @@
-import { useAppSelector } from '@/store'
+import { useAppSelector } from '@/store';
 
 const useBlockPendingAccountViewPrice = () => {
   const blockPendingAccountViewPrice = useAppSelector(
-    ({ global }) => global.blockPendingAccountViewPrice
-  )
+    ({ global }) => global.blockPendingAccountViewPrice,
+  );
 
-  return [blockPendingAccountViewPrice]
-}
+  return [blockPendingAccountViewPrice];
+};
 
-export default useBlockPendingAccountViewPrice
+export default useBlockPendingAccountViewPrice;

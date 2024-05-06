@@ -1,5 +1,5 @@
-import getProxyInfo from './proxy'
+import getProxyInfo from './proxy';
 
-const getBCOrders = getProxyInfo
+const getBCOrders = getProxyInfo;
 
-export default getBCOrders
+export default getBCOrders;

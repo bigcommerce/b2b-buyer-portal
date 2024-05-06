@@ -1,73 +1,69 @@
-import { createContext } from 'react'
+import { createContext } from 'react';
 
 import {
   DynamicallyVariableAction,
   DynamicallyVariableContext,
   DynamicallyVariableState,
   initState,
-} from './config'
+} from './config';
 
-export const DynamicallyVariableedContext =
-  createContext<DynamicallyVariableContext>({
-    state: initState,
-    dispatch: () => {},
-  })
+export const DynamicallyVariableedContext = createContext<DynamicallyVariableContext>({
+  state: initState,
+  dispatch: () => {},
+});
 
 export const reducer = (
   state: DynamicallyVariableState,
-  action: Partial<DynamicallyVariableAction>
+  action: Partial<DynamicallyVariableAction>,
 ) => {
-  const currentAction = action
+  const currentAction = action;
   const setMulTip = () => {
     if (currentAction.type === 'tip' && currentAction.payload?.tipMessage) {
-      const msgs = state?.tipMessage?.msgs || []
+      const msgs = state?.tipMessage?.msgs || [];
 
       const {
         tipMessage: { msgs: newMsgs = [] },
-      } = currentAction.payload
+      } = currentAction.payload;
 
-      currentAction.payload.tipMessage.msgs = [...msgs, ...newMsgs]
+      currentAction.payload.tipMessage.msgs = [...msgs, ...newMsgs];
 
-      return currentAction.payload
+      return currentAction.payload;
     }
 
-    if (
-      currentAction.type === 'globalTip' &&
-      currentAction.payload?.globalTipMessage
-    ) {
-      const msgs = state?.globalTipMessage?.msgs || []
+    if (currentAction.type === 'globalTip' && currentAction.payload?.globalTipMessage) {
+      const msgs = state?.globalTipMessage?.msgs || [];
 
       const {
         globalTipMessage: { msgs: newMsgs = [] },
-      } = currentAction.payload
+      } = currentAction.payload;
 
-      currentAction.payload.globalTipMessage.msgs = [...msgs, ...newMsgs]
+      currentAction.payload.globalTipMessage.msgs = [...msgs, ...newMsgs];
 
-      return action.payload
+      return action.payload;
     }
 
-    return {}
-  }
+    return {};
+  };
 
-  const mulTip = setMulTip()
+  const mulTip = setMulTip();
 
   switch (action.type) {
     case 'common':
       return {
         ...state,
         ...action.payload,
-      }
+      };
     case 'tip':
       return {
         ...state,
         ...mulTip,
-      }
+      };
     case 'globalTip':
       return {
         ...state,
         ...mulTip,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};

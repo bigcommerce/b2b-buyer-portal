@@ -1,4 +1,4 @@
-import B3Request from '../../request/b3Fetch'
+import B3Request from '../../request/b3Fetch';
 
 const allOrders = (data: CustomFieldItems, fn: string) => `{
   ${fn}(
@@ -68,7 +68,7 @@ const allOrders = (data: CustomFieldItems, fn: string) => `{
       }
     }
   }
-}`
+}`;
 
 const orderDetail = (id: number, fn: string) => `{
   ${fn}(
@@ -168,7 +168,7 @@ const orderDetail = (id: number, fn: string) => `{
       createdAt,
     },
   }
-}`
+}`;
 
 const getOrderStatusTypeQl = (fn: string) => `{
   ${fn} {
@@ -176,7 +176,7 @@ const getOrderStatusTypeQl = (fn: string) => `{
     customLabel,
     statusCode,
   }
-}`
+}`;
 
 const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
   ${fn}(
@@ -185,39 +185,39 @@ const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
   ){
     results,
   }
-}`
+}`;
 
 export const getB2BAllOrders = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: allOrders(data, 'allOrders'),
-  })
+  });
 
 export const getBCAllOrders = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: allOrders(data, 'customerOrders'),
-  })
+  });
 
 export const getB2BOrderDetails = (id: number): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: orderDetail(id, 'order'),
-  })
+  });
 
 export const getBCOrderDetails = (id: number): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: orderDetail(id, 'customerOrder'),
-  })
+  });
 
 export const getOrderStatusType = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('orderStatuses'),
-  })
+  });
 
 export const getBcOrderStatusType = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('bcOrderStatuses'),
-  })
+  });
 
 export const getOrdersCreatedByUser = (companyId: number, module: number) =>
   B3Request.graphqlB2B({
     query: getCreatedByUser(companyId, module, 'createdByUser'),
-  })
+  });

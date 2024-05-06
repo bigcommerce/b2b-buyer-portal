@@ -1,44 +1,44 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react';
 
-import useMutationObservable from '../useMutationObservable'
+import useMutationObservable from '../useMutationObservable';
 
 const useDomVariation = (dom: string, quoteCallBbck?: () => void) => {
-  const [openQuickView, setOpenQuickView] = useState<boolean>(true)
+  const [openQuickView, setOpenQuickView] = useState<boolean>(true);
 
   const changeQuickview = () => {
-    setOpenQuickView((openQuickView) => !openQuickView)
-  }
+    setOpenQuickView((openQuickView) => !openQuickView);
+  };
 
   useEffect(() => {
-    const quickview = document.querySelectorAll('.quickview')
+    const quickview = document.querySelectorAll('.quickview');
     quickview.forEach((dom: CustomFieldItems) => {
-      dom.addEventListener('click', () => changeQuickview())
-    })
+      dom.addEventListener('click', () => changeQuickview());
+    });
 
     return () => {
       quickview.forEach((dom: CustomFieldItems) => {
-        dom.removeEventListener('click', () => changeQuickview())
-      })
-    }
-  }, [])
+        dom.removeEventListener('click', () => changeQuickview());
+      });
+    };
+  }, []);
 
   const cd = useCallback(() => {
-    if (quoteCallBbck) quoteCallBbck()
-    const doms = document.querySelectorAll(dom)
+    if (quoteCallBbck) quoteCallBbck();
+    const doms = document.querySelectorAll(dom);
     if (doms.length) {
       doms.forEach((dom: CustomFieldItems) => {
         if (!dom?.ready) {
-          const d = dom
-          d.ready = true
-          changeQuickview()
+          const d = dom;
+          d.ready = true;
+          changeQuickview();
         }
-      })
+      });
     }
-  }, [dom, quoteCallBbck])
+  }, [dom, quoteCallBbck]);
 
-  useMutationObservable(document.documentElement, cd)
+  useMutationObservable(document.documentElement, cd);
 
-  return [openQuickView]
-}
+  return [openQuickView];
+};
 
-export default useDomVariation
+export default useDomVariation;

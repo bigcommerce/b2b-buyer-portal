@@ -1,4 +1,4 @@
-import { Dispatch, ReactNode } from 'react'
+import { Dispatch, ReactNode } from 'react';
 
 type BtnKeys =
   | 'masqueradeButton'
@@ -12,52 +12,51 @@ type BtnKeys =
   | 'accountLoginRegistration'
   | 'companyAutoApproval'
   | 'cssOverride'
-  | 'quoteOnNonPurchasableProductPageBtn'
+  | 'quoteOnNonPurchasableProductPageBtn';
 
 interface BtnStyle {
-  color: string
-  text: string
-  buttonText: string
-  location: string
-  customCss: string
-  horizontalPadding: string
-  verticalPadding: string
-  classSelector: string
-  locationSelector: string
-  backgroundColor: string
-  primaryColor: string
-  enabled: boolean
-  b2b: boolean
-  b2c: boolean
-  createAccountButtonText?: string
-  primaryButtonColor?: string
-  signInButtonText?: string
-  displayStoreLogo?: boolean
-  pageTitle?: string
-  bottomHtmlRegionEnabled?: boolean
-  bottomHtmlRegionHtml?: string
-  createAccountPanelHtml?: string
-  topHtmlRegionEnabled?: boolean
-  topHtmlRegionHtml?: string
-  css?: string
+  color: string;
+  text: string;
+  buttonText: string;
+  location: string;
+  customCss: string;
+  horizontalPadding: string;
+  verticalPadding: string;
+  classSelector: string;
+  locationSelector: string;
+  backgroundColor: string;
+  primaryColor: string;
+  enabled: boolean;
+  b2b: boolean;
+  b2c: boolean;
+  createAccountButtonText?: string;
+  primaryButtonColor?: string;
+  signInButtonText?: string;
+  displayStoreLogo?: boolean;
+  pageTitle?: string;
+  bottomHtmlRegionEnabled?: boolean;
+  bottomHtmlRegionHtml?: string;
+  createAccountPanelHtml?: string;
+  topHtmlRegionEnabled?: boolean;
+  topHtmlRegionHtml?: string;
+  css?: string;
 }
 
 export interface BtnProperties {
-  classSelector: string
-  color: string
-  customCss: string
-  enabled: boolean
-  locationSelector: string
-  text: string
+  classSelector: string;
+  color: string;
+  customCss: string;
+  enabled: boolean;
+  locationSelector: string;
+  text: string;
 }
 
-export interface CustomStyleButtonState
-  extends Record<BtnKeys, Partial<BtnStyle>> {
-  addQuoteBtn: BtnProperties
-  shoppingListBtn: BtnProperties
-  addToAllQuoteBtn: BtnProperties
-  quoteOnNonPurchasableProductPageBtn: BtnProperties
-  globalButtonBackgroundColor: string
+export interface CustomStyleButtonState extends Record<BtnKeys, Partial<BtnStyle>> {
+  addQuoteBtn: BtnProperties;
+  shoppingListBtn: BtnProperties;
+  addToAllQuoteBtn: BtnProperties;
+  quoteOnNonPurchasableProductPageBtn: BtnProperties;
+  globalButtonBackgroundColor: string;
 }
 
 export const defaultCreateAccountPanel = `<div class="panel">
@@ -75,7 +74,7 @@ export const defaultCreateAccountPanel = `<div class="panel">
     </ul>
 </div>
 </div>
-`
+`;
 
 export const initState = {
   globalButtonBackgroundColor: '#3385D6',
@@ -162,19 +161,19 @@ export const initState = {
   cssOverride: {
     css: '',
   },
-}
+};
 
 export interface CustomStyleButtonAction {
-  type: string
-  payload: Partial<CustomStyleButtonState>
+  type: string;
+  payload: Partial<CustomStyleButtonState>;
 }
 
-export type DispatchProps = Dispatch<Partial<CustomStyleButtonAction>>
+export type DispatchProps = Dispatch<Partial<CustomStyleButtonAction>>;
 export interface CustomStyleButtonContext {
-  state: CustomStyleButtonState
-  dispatch: DispatchProps
+  state: CustomStyleButtonState;
+  dispatch: DispatchProps;
 }
 
 export interface CustomStyleButtonProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }

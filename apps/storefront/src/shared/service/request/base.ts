@@ -1,6 +1,6 @@
-const { VITE_B2B_URL } = import.meta.env
+const { VITE_B2B_URL } = import.meta.env;
 
-const B2B_BASIC_URL = VITE_B2B_URL
+const B2B_BASIC_URL = VITE_B2B_URL;
 
 enum RequestType {
   B2BGraphql = 'B2BGraphql',
@@ -11,15 +11,15 @@ enum RequestType {
   TranslationService = 'TranslationService',
 }
 
-export type RequestTypeKeys = keyof typeof RequestType
+export type RequestTypeKeys = keyof typeof RequestType;
 
 const queryParse = <T>(query: T): string => {
-  let queryText = ''
+  let queryText = '';
 
   Object.keys(query || {}).forEach((key: string) => {
-    queryText += `${key}=${(query as any)[key]}&`
-  })
-  return queryText.slice(0, -1)
-}
+    queryText += `${key}=${(query as any)[key]}&`;
+  });
+  return queryText.slice(0, -1);
+};
 
-export { B2B_BASIC_URL, queryParse, RequestType }
+export { B2B_BASIC_URL, queryParse, RequestType };

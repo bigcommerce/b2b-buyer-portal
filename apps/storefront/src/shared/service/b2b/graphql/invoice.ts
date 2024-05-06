@@ -1,16 +1,12 @@
-import { convertArrayToGraphql } from '../../../../utils'
-import B3Request from '../../request/b3Fetch'
+import { convertArrayToGraphql } from '../../../../utils';
+import B3Request from '../../request/b3Fetch';
 
 const invoiceList = (data: CustomFieldItems) => `{
   invoices (
     search: "${data.q || ''}"
     first: ${data.first}
     offset: ${data.offset} 
-    ${
-      data?.status
-        ? `status: ${convertArrayToGraphql(data.status ? [data.status] : [])}`
-        : ''
-    }
+    ${data?.status ? `status: ${convertArrayToGraphql(data.status ? [data.status] : [])}` : ''}
     ${data?.beginDateAt ? `beginDateAt: "${data.beginDateAt}"` : ''}
     ${data?.endDateAt ? `endDateAt: "${data.endDateAt}"` : ''}
     orderBy: "${data?.orderBy}"
@@ -50,7 +46,7 @@ const invoiceList = (data: CustomFieldItems) => `{
       }
     }
   }
-}`
+}`;
 
 const invoiceStats = (status: number | string) => `{
   invoiceStats (
@@ -59,19 +55,16 @@ const invoiceStats = (status: number | string) => `{
     totalBalance,
     overDueBalance,
   }
-}`
+}`;
 
-const getInvoiceDownloadPDF = (
-  invoiceId: number,
-  isPayNow: boolean
-) => `mutation {
+const getInvoiceDownloadPDF = (invoiceId: number, isPayNow: boolean) => `mutation {
   invoicePdf (
     invoiceId: ${invoiceId}
     ${isPayNow ? `isPayNow: ${isPayNow}` : ''}
   ){
     url,
   }
-}`
+}`;
 
 const invoiceCreateBcCart = (data: any) => `mutation {
   invoiceCreateBcCart (
@@ -88,7 +81,7 @@ const invoiceCreateBcCart = (data: any) => `mutation {
       cartId
     }
   }
-}`
+}`;
 
 const receiptLine = (id: number) => `{
   allReceiptLines (
@@ -109,7 +102,7 @@ const receiptLine = (id: number) => `{
     }
     totalCount
   }
-}`
+}`;
 
 const invoiceDetail = (invoiceId: number) => `{
   invoice (
@@ -139,7 +132,7 @@ const invoiceDetail = (invoiceId: number) => `{
       value,
     },
   }
-}`
+}`;
 
 const invoiceReceipt = (id: number) => `{
   receipt (
@@ -185,7 +178,7 @@ const invoiceReceipt = (id: number) => `{
       }
     }
   }
-}`
+}`;
 
 const exportInvoices = (data: CustomFieldItems) => `mutation {
   invoicesExport (
@@ -201,49 +194,44 @@ const exportInvoices = (data: CustomFieldItems) => `mutation {
   ) {
     url
   }
-}`
+}`;
 
 export const getInvoiceList = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: invoiceList(data),
-  })
+  });
 
-export const invoiceDownloadPDF = (
-  invoiceId: number,
-  isPayNow: boolean
-): CustomFieldItems =>
+export const invoiceDownloadPDF = (invoiceId: number, isPayNow: boolean): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getInvoiceDownloadPDF(invoiceId, isPayNow),
-  })
+  });
 
-export const getInvoiceCheckoutUrl = (
-  data: CustomFieldItems
-): CustomFieldItems =>
+export const getInvoiceCheckoutUrl = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: invoiceCreateBcCart(data),
-  })
+  });
 
 export const getInvoicePaymentHistory = (id: number): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: receiptLine(id),
-  })
+  });
 
 export const getInvoiceDetail = (id: number): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: invoiceDetail(id),
-  })
+  });
 
 export const getInvoicePaymentInfo = (id: number): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: invoiceReceipt(id),
-  })
+  });
 
 export const exportInvoicesAsCSV = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: exportInvoices(data),
-  })
+  });
 
 export const getInvoiceStats = (status: number | string): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: invoiceStats(status),
-  })
+  });

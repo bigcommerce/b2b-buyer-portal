@@ -1,2 +1,2 @@
-export { GlobaledContext } from './context'
-export { default as GlobalProvider } from './context/Provider'
+export { GlobaledContext } from './context';
+export { default as GlobalProvider } from './context/Provider';
