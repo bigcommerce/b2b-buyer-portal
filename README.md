@@ -27,12 +27,13 @@ Before you begin, ensure you have the BigCommerce B2B Edition App installed. To 
 
 After installing the B2B Edition App, go to the app's dashboard and select the 'Storefronts' section.
 
-<img width="200" alt="image" src="https://github.com/B3BC/b2b-buyer-portal/assets/140021227/0d733ddb-e59c-4e5a-8801-4a744940d66b">
+<img width="200" alt="b2bNav" src="public/images/b2bNav.png">
   
 ### Step 2: Enable B2B on Your Channel
+
 Choose the channel where you wish to enable B2B functionality. Initially, B2B features can be activated on a single channel only.
 
-<img width="480" alt="image" src="https://github.com/B3BC/b2b-buyer-portal/assets/140021227/b425115c-54d9-4382-9371-4e81888eb0af">
+<img width="480" alt="storefront-settings-b2b" src="public/images/storefront-settings.png">
 
 ### Step 3: Contact Us for Additional Support
 
