@@ -3,7 +3,7 @@ import { matchPath } from 'react-router-dom'
 
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config'
 import { getCustomerInfo } from '@/shared/service/bc'
-import { store, useAppSelector } from '@/store'
+import { store } from '@/store'
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types'
 import b2bLogger from '@/utils/b3Logger'
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout'
@@ -304,7 +304,8 @@ const invoiceTypes = ['invoice?invoiceId', 'invoice?receiptId']
 
 const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   const { storefrontConfig, quoteConfig } = globalState
-  const { company } = store.getState()
+  const { company, b2bFeatures } = store.getState()
+  const { isAgenting } = b2bFeatures.masqueradeCompany
   const { role } = company.customer
   let isB2BUser = false
 
@@ -319,9 +320,6 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
 
   return routes.filter((item: RouteItem) => {
     const { permissions = [] } = item
-    const isAgenting = useAppSelector(
-      ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-    )
 
     if (role === CustomerRole.SUPER_ADMIN && !isAgenting) {
       return permissions.includes(4)

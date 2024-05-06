@@ -350,6 +350,7 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
 
       store.dispatch(resetDraftQuoteList())
       store.dispatch(resetDraftQuoteInfo())
+      store.dispatch(clearMasqueradeCompany())
       store.dispatch(setCompanyInfo(companyPayload))
       store.dispatch(setCustomerInfo(customerInfo))
       store.dispatch(setQuoteUserId(quoteUserId))

@@ -21,7 +21,12 @@ import {
 } from '@/shared/service/b2b'
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc'
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
-import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store'
+import {
+  clearMasqueradeCompany,
+  isLoggedInSelector,
+  useAppDispatch,
+  useAppSelector,
+} from '@/store'
 import { setB2BToken } from '@/store/slices/company'
 import { CustomerRole, UserTypes } from '@/types'
 import { OpenPageState } from '@/types/hooks'
@@ -163,6 +168,7 @@ export default function Login(props: RegisteredProps) {
 
           if (isAgenting && typeof b2bId === 'number') {
             await superAdminEndMasquerade(+salesRepCompanyId, b2bId)
+            storeDispatch(clearMasqueradeCompany())
           }
 
           // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
