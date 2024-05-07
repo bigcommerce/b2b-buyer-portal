@@ -10,6 +10,10 @@ const getB2BTokenQl = (currentCustomerJWT: string, channelId: number) => `mutati
 		result {
 			token
 			loginType
+			permissions {
+				code
+				permissionLevel
+			}
 		}
 	}
 }`;

@@ -52,6 +52,11 @@ interface GlobalBlockPendingQuoteNonPurchasableOOS {
   isEnableRequest?: boolean;
 }
 
+interface PermissionsProps {
+  code: string;
+  permissionLevel: number;
+}
+
 export interface GlabolState {
   taxZoneRates: TaxZoneRatesProps[];
   isClickEnterBtn: boolean;
@@ -67,6 +72,7 @@ export interface GlabolState {
   loginLandingLocation: string;
   recordOpenHash: string;
   blockPendingQuoteNonPurchasableOOS: GlobalBlockPendingQuoteNonPurchasableOOS;
+  permissions?: PermissionsProps[];
 }
 
 const initialState: GlabolState = {
@@ -103,6 +109,7 @@ const initialState: GlabolState = {
   },
   loginLandingLocation: '0',
   recordOpenHash: '',
+  permissions: JSON.parse(sessionStorage.getItem('sf-B2BPermissions') || '[]'),
 };
 
 export const glabolSlice = createSlice({
@@ -147,6 +154,9 @@ export const glabolSlice = createSlice({
     setStoreInfo: (state, { payload }: PayloadAction<StoreInfoProps>) => {
       state.storeInfo = payload;
     },
+    setPermissionModules: (state, { payload }: PayloadAction<PermissionsProps[]>) => {
+      state.permissions = payload;
+    },
   },
 });
 
@@ -161,6 +171,7 @@ export const {
   setCartNumber,
   setStoreInfo,
   setLoginLandingLocation,
+  setPermissionModules,
 } = glabolSlice.actions;
 
 export default glabolSlice.reducer;

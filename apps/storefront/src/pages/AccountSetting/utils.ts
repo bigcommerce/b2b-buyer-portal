@@ -133,10 +133,8 @@ export const initB2BInfo = (
   accountB2BFormFields.forEach((item: Partial<Fields>) => {
     const formField = item;
     if (item.name === 'role') {
-      formField.default = accountSettings.role;
-      formField.muiSelectProps = {
-        disabled: true,
-      };
+      formField.default = accountSettings.RoleCompanyName;
+      formField.disabled = true;
     } else if (item.name === 'company') {
       formField.default = accountSettings.company;
       formField.disabled = true;

@@ -62,6 +62,8 @@ const getCompanyUserInfo = <T>(email: T, customerId: string | number) => `{
       email
       firstName
       role
+      companyRoleId
+      companyRoleName
     }
   }
 }`;

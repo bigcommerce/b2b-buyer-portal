@@ -87,6 +87,11 @@ import {
   storeB2BBasicInfo,
 } from './graphql/register';
 import {
+  getB2BCompanyRoleAndPermissionsDetails,
+  getB2BPermissions,
+  getB2BRoleList,
+} from './graphql/roleAndPermissions';
+import {
   addProductToBcShoppingList,
   addProductToShoppingList,
   createB2BShoppingList,
@@ -185,6 +190,9 @@ export {
   getB2BShoppingListDetails,
   getB2BSkusInfo,
   getB2BToken,
+  getB2BCompanyRoleAndPermissionsDetails,
+  getB2BPermissions,
+  getB2BRoleList,
   getB2BVariantInfoBySkus,
   getBCAllOrders,
   getBcCurrencies,

@@ -1,4 +1,9 @@
 import { openPageByClick, redirectBcMenus, removeBCMenus } from './b3AccountItem';
+import {
+  checkEveryPermissionsCode,
+  checkOneOfPermissionsCode,
+  checkPermissionCode,
+} from './b3CheckPermissions';
 import currencyFormat, {
   currencyFormatConvert,
   currencyFormatInfo,
@@ -36,6 +41,9 @@ export {
   b2bPrintInvoice,
   B3LStorage,
   B3SStorage,
+  checkEveryPermissionsCode,
+  checkOneOfPermissionsCode,
+  checkPermissionCode,
   convertArrayToGraphql,
   convertObjectToGraphql,
   currencyFormat,

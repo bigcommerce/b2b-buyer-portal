@@ -13,6 +13,8 @@ interface UsersListItems {
   lastName: string;
   phone: string;
   role: number;
+  companyRoleName: string;
+  companyRoleId: number | string;
   updatedAt: number;
   extraFields: ExtraFieldsProps[];
   [key: string]: string | null | number | ExtraFieldsProps[];
@@ -39,22 +41,43 @@ interface UserRoleProps {
   label: string;
   value: number;
   idLang: string;
+  name: string;
+}
+
+interface RoleCompanyInfoProps {
+  id: number;
+  name: string;
+}
+
+interface RoleProps {
+  id: string;
+  name: string;
+  roleLevel: number;
+  roleType: number;
+  companyInfo: RoleCompanyInfoProps;
+}
+
+interface UserRoleListProps {
+  node: RoleProps;
 }
 
 const getUserRole = () => {
   const userRole: Array<UserRoleProps> = [
     {
       label: 'Admin',
+      name: 'Admin',
       value: 0,
       idLang: 'userManagement.userRole.admin',
     },
     {
       label: 'Senior buyer',
+      name: 'Senior Buyer',
       value: 1,
       idLang: 'userManagement.userRole.seniorBuyer',
     },
     {
       label: 'Junior buyer',
+      name: 'Junior Buyer',
       value: 2,
       idLang: 'userManagement.userRole.juniorBuyer',
     },
@@ -66,12 +89,12 @@ const getUserRole = () => {
 const getFilterMoreList = (b3Lang: LangFormatFunction) => {
   return [
     {
-      name: 'role',
+      name: 'companyRoleId',
       label: b3Lang('userManagement.config.userRole'),
       required: false,
       default: '',
-      fieldType: 'dropdown',
-      options: getUserRole(),
+      defaultName: '',
+      fieldType: 'roleAutocomplete',
       xs: 12,
       disabled: false,
       variant: 'filled',
@@ -146,4 +169,13 @@ const emailError: EmailError = {
 
 export { emailError, getFilterMoreList, getUserRole, getUsersFiles };
 
-export type { FilterProps, UserRoleProps, UsersFilesProps, UsersList, ExtraFieldsProps };
+export type {
+  FilterProps,
+  UserRoleProps,
+  UsersFilesProps,
+  UsersList,
+  ExtraFieldsProps,
+  UserRoleListProps,
+  RoleCompanyInfoProps,
+  RoleProps,
+};

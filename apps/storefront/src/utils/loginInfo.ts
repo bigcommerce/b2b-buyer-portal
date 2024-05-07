@@ -10,6 +10,7 @@ import {
   clearMasqueradeCompany,
   MasqueradeCompany,
   setMasqueradeCompany,
+  setPermissionModules,
   setQuoteUserId,
   store,
 } from '@/store';
@@ -247,6 +248,9 @@ const loginWithCurrentCustomerJWT = async () => {
   const data = await getB2BToken(currentCustomerJWT, channelId);
   const B2BToken = data.authorization.result.token as string;
   const newLoginType = data.authorization.result.loginType as LoginTypes;
+
+  const B2BPermissions = data.authorization.result.permissions;
+  store.dispatch(setPermissionModules(B2BPermissions));
 
   store.dispatch(setCurrentCustomerJWT(currentCustomerJWT));
   store.dispatch(setLoginType(newLoginType));

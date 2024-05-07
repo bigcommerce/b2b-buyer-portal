@@ -4,6 +4,7 @@ export interface Fields {
   bcLabel: string;
   custom: boolean;
   default: string | number | CustomFieldItems[];
+  defaultName?: string;
   fieldId: string;
   fieldType: string;
   groupId: number;
