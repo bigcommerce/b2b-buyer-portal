@@ -38,7 +38,7 @@ export const startMasquerade = async ({
       id,
       isAgenting: true,
       companyName,
-      companyStatus: customerGroupId,
+      customerGroupId,
     },
   }
 

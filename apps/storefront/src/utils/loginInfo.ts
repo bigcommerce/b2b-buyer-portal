@@ -218,7 +218,7 @@ export const agentInfo = async (customerId: number | string, role: number) => {
             id,
             isAgenting: true,
             companyName,
-            companyStatus: customerGroupId,
+            customerGroupId,
           },
         }
 

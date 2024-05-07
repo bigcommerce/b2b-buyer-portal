@@ -640,16 +640,14 @@ const getCustomerGroupId = () => {
   let customerGroupId = 0
   const currentState = store.getState()
   const customerInfo = currentState.company.customer
-  if (customerInfo && Object.keys(customerInfo).length !== 0) {
+
+  if (customerInfo.customerGroupId)
     customerGroupId = customerInfo.customerGroupId
-  }
-  const { isAgenting } = store.getState().b2bFeatures.masqueradeCompany
-  const B3CustomerInfo = B3SStorage.get('B3CustomerInfo')
-  if (B3CustomerInfo && Object.keys(B3CustomerInfo).length !== 0) {
-    customerGroupId = B3CustomerInfo.customerGroupId
-  }
-  const salesRepCustomerGroupId = B3SStorage.get('salesRepCustomerGroupId') || 0
-  if (isAgenting) return +salesRepCustomerGroupId || customerGroupId
+
+  const { isAgenting, customerGroupId: salesRepCustomerGroupId } =
+    currentState.b2bFeatures.masqueradeCompany
+
+  if (isAgenting) return salesRepCustomerGroupId || customerGroupId
 
   return customerGroupId
 }

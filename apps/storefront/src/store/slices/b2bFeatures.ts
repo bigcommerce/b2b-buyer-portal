@@ -6,7 +6,7 @@ export interface Masquerade {
   id: number
   isAgenting: boolean
   companyName: string
-  companyStatus: string
+  customerGroupId: number
 }
 
 export interface MasqueradeCompany {
@@ -18,7 +18,7 @@ const initialState: MasqueradeCompany = {
     id: 0,
     isAgenting: false,
     companyName: '',
-    companyStatus: '',
+    customerGroupId: 0,
   },
 }
 
@@ -36,37 +36,11 @@ export const b2bFeaturesSlice = createSlice({
     ) => {
       state.masqueradeCompany = payload.masqueradeCompany
     },
-    setIsMasqueradeCompanyId: (
-      state,
-      { payload }: PayloadAction<MasqueradeCompany>
-    ) => {
-      state.masqueradeCompany.id = payload.masqueradeCompany.id
-    },
-    setIsMasqueradeCompanyName: (
-      state,
-      { payload }: PayloadAction<MasqueradeCompany>
-    ) => {
-      state.masqueradeCompany.companyName =
-        payload.masqueradeCompany.companyName
-    },
-    setIsMasqueradeCompanyStatus: (
-      state,
-      { payload }: PayloadAction<MasqueradeCompany>
-    ) => {
-      state.masqueradeCompany.companyStatus =
-        payload.masqueradeCompany.companyStatus
-    },
   },
 })
 
-export const {
-  clearMasqueradeCompany,
-  setIsAgenting,
-  setMasqueradeCompany,
-  setIsMasqueradeCompanyId,
-  setIsMasqueradeCompanyName,
-  setIsMasqueradeCompanyStatus,
-} = b2bFeaturesSlice.actions
+export const { clearMasqueradeCompany, setIsAgenting, setMasqueradeCompany } =
+  b2bFeaturesSlice.actions
 
 export default persistReducer(
   { key: 'b2bFeatures', storage },
