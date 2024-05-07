@@ -34,7 +34,7 @@ function QuoteDetailTableCard(props: QuoteTableCardProps) {
   } = props
   const b3Lang = useB3Lang()
   const enteredInclusiveTax = useAppSelector(
-    ({ global }) => global.enteredInclusive
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax
   )
 
   const {

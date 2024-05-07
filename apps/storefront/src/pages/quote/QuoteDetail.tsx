@@ -3,6 +3,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useB3Lang } from '@b3/lang'
 import { Box, Button, Grid } from '@mui/material'
 import copy from 'copy-to-clipboard'
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { get } from 'lodash'
 
 import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
@@ -87,7 +89,7 @@ function QuoteDetail() {
   const currency = useAppSelector(activeCurrencyInfoSelector)
   const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates)
   const enteredInclusiveTax = useAppSelector(
-    ({ global }) => global.enteredInclusive
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax
   )
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct
@@ -177,13 +179,17 @@ function QuoteDetail() {
 
   const getTaxRate = (taxClassId: number, variants: any) => {
     if (variants.length) {
-      const {
-        bc_calculated_price: {
-          tax_exclusive: taxExclusive,
-          tax_inclusive: taxInclusive,
-        },
-      } = variants[0]
-      return (taxInclusive - taxExclusive) / taxExclusive
+      const taxExclusive = get(
+        variants,
+        '[0].bc_calculated_price.tax_exclusive',
+        0
+      )
+      const taxInclusive = get(
+        variants,
+        '[0].bc_calculated_price.tax_inclusive',
+        0
+      )
+      return taxExclusive > 0 ? (taxInclusive - taxExclusive) / taxExclusive : 0
     }
     if (classRates.length) {
       return (

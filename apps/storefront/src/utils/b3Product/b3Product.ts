@@ -1173,10 +1173,12 @@ const addQuoteDraftProduce = async (
 
 const calculateIsInclude = (price: number | string, tax: number | string) => {
   const {
-    global: { enteredInclusive },
+    storeConfigs: {
+      currencies: { enteredInclusiveTax },
+    },
   } = store.getState()
 
-  if (enteredInclusive) return +price
+  if (enteredInclusiveTax) return +price
 
   return +price + +tax
 }

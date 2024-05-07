@@ -118,7 +118,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
   )
   const enteredInclusiveTax = useAppSelector(
-    ({ global }) => global.enteredInclusive
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax
   )
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null)

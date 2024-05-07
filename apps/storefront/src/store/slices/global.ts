@@ -58,7 +58,6 @@ export interface GlabolState {
   isRegisterAndLogin: boolean
   isPageComplete: boolean
   globalMessage: GlobalMessageDialog
-  enteredInclusive: boolean
   setOpenPageFn?: Dispatch<SetStateAction<OpenPageState>>
   showInclusiveTaxPrice: boolean
   blockPendingAccountViewPrice: boolean
@@ -82,7 +81,6 @@ const initialState: GlabolState = {
     message: '',
     cancelText: 'Cancel',
   },
-  enteredInclusive: false,
   setOpenPageFn: undefined,
   showInclusiveTaxPrice: false,
   blockPendingAccountViewPrice: false,
@@ -126,9 +124,6 @@ export const glabolSlice = createSlice({
       ...state,
       ...payload,
     }),
-    setEnteredInclusive: (state, { payload }: PayloadAction<boolean>) => {
-      state.enteredInclusive = payload
-    },
     setOpenPageReducer: (
       state,
       { payload }: PayloadAction<Dispatch<SetStateAction<OpenPageState>>>
@@ -174,7 +169,6 @@ export const {
   clearglabol,
   setTaxZoneRates,
   setGlabolCommonState,
-  setEnteredInclusive,
   setOpenPageReducer,
   setShowInclusiveTaxPrice,
   setBlockPendingAccountViewPrice,

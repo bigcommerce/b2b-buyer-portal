@@ -29,7 +29,7 @@ export default function QuoteDetailSummary({
 }: QuoteDetailSummaryProps) {
   const b3Lang = useB3Lang()
   const enteredInclusiveTax = useAppSelector(
-    ({ global }) => global.enteredInclusive
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax
   )
   const showInclusiveTaxPrice = useAppSelector(
     ({ global }) => global.showInclusiveTaxPrice
