@@ -1,20 +1,21 @@
-// import {
-//   useState,
-// } from 'react'
-import { Controller } from 'react-hook-form';
-import { useB3Lang } from '@b3/lang';
-import { TextField } from '@mui/material';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import dayjs from 'dayjs';
+import { useContext } from 'react'
+import { Controller } from 'react-hook-form'
+import { useB3Lang } from '@b3/lang'
+import { TextField } from '@mui/material'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import dayjs from 'dayjs'
 
-import { PickerFormControl } from './styled';
-import Form from './ui';
+import { GlobaledContext } from '@/shared/global'
+
+import setDayjsLocale from '../ui/setDayjsLocale'
+
+import { PickerFormControl } from './styled'
+import Form from './ui'
 
 export default function B3ControlPicker({
   control,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   errors,
   ...rest
 }: Form.B3UIProps) {
@@ -31,7 +32,12 @@ export default function B3ControlPicker({
     getValues,
   } = rest;
 
-  const b3Lang = useB3Lang();
+  const {
+    state: { bcLanguage },
+  } = useContext(GlobaledContext)
+
+  const b3Lang = useB3Lang()
+  const activeLang = setDayjsLocale(bcLanguage || 'en')
 
   const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps;
 
@@ -63,16 +69,13 @@ export default function B3ControlPicker({
 
   return ['date'].includes(fieldType) ? (
     <PickerFormControl>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <LocalizationProvider
+        dateAdapter={AdapterDayjs}
+        adapterLocale={activeLang}
+      >
         <Controller
           {...fieldsProps}
-          render={({
-            field: {
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              ref,
-              ...rest
-            },
-          }) => (
+          render={({ field: { ref, ...rest } }) => (
             <DatePicker
               label={label}
               inputFormat={inputFormat}

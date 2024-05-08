@@ -74,6 +74,8 @@ const globalB3 = {
     '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"], [data-emthemesmodez-cart-item-add]',
   'dom.productView': '.productView',
   'dom.register': '[href^="/login.php?action=create_account"]',
+  'dom.hideThemePayments':
+    '.cart-additionalCheckoutButtons, .previewCart-additionalCheckoutButtons, .previewCartCheckout-additionalCheckoutButtons, [data-content-region="cart_below_totals"], .add-to-cart-wallet-buttons, [data-content-region="product_below_price"]',
   before_login_goto_page: '/account.php?action=order_status',
   checkout_super_clear_session: 'true',
   setting: {

@@ -292,8 +292,10 @@ export default function B3Upload(props: B3UploadProps) {
         sx={{
           marginTop: '12px',
         }}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
       >
-        <div onDragOver={handleDragOver} onDrop={handleDrop}>
+        <div>
           <Grid display="flex" justifyContent="center" xs={12}>
             <InsertDriveFile
               sx={{

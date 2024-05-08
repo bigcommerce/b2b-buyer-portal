@@ -13,6 +13,7 @@ import { setChannelStoreType } from '@/shared/service/b2b'
 import {
   getQuoteEnabled,
   handleHideRegisterPage,
+  hideStorefrontElement,
   openPageByClick,
   removeBCMenus,
 } from '@/utils'
@@ -273,6 +274,8 @@ export default function App() {
         window.b2b.initializationEnvironment.isInit = true
       })
     }
+    if (isB2BUser) hideStorefrontElement('dom.hideThemePayments')
+
     // ignore dispatch due it's funtion that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])
