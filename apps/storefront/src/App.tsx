@@ -17,6 +17,7 @@ import {
   removeBCMenus,
 } from '@/utils'
 
+import clearInvoiceCart from './utils/b3ClearCart'
 import { isUserGotoLogin } from './utils/b3logout'
 import {
   getCompanyInfo,
@@ -209,6 +210,10 @@ export default function App() {
         !(customerId && !window.location.hash)
       ) {
         await gotoAllowedAppPage(+userInfo.role, gotoPage)
+      }
+
+      if (customerId) {
+        clearInvoiceCart()
       }
 
       showPageMask(dispatch, false)
