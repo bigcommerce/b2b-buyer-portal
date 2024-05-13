@@ -87,7 +87,7 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
           height: '100%',
         }}
       >
-        ={b3Lang('addresses.deleteAddressDialog.confirmDelete')}
+        {b3Lang('addresses.deleteAddressDialog.confirmDelete')}
       </Box>
     </B3Dialog>
   );
