@@ -1,5 +1,5 @@
 <a href="https://bundleb2b.stoplight.io/docs/openapi/quick-start" target="_blank" rel="noopener norerrer">
-  <img src="https://storage.googleapis.com/bigcommerce-developers/images/B2B-edition-1024x683.jpg" alt="B2B Editions Open Source Buyer Portal" title="B2B Editions Open Source Buyer Portal">
+  <img src="https://storage.googleapis.com/bigcommerce-developers/images/B2B-edition-1024x683.jpg" alt="B2B Edition Open Source Buyer Portal" title="B2B Edition Open Source Buyer Portal">
 </a>
 
 <br />
