@@ -18,6 +18,7 @@ import {
 } from '@/utils'
 
 import clearInvoiceCart from './utils/b3ClearCart'
+import b2bLogger from './utils/b3Logger'
 import { isUserGotoLogin } from './utils/b3logout'
 import {
   getCompanyInfo,
@@ -185,13 +186,18 @@ export default function App() {
       }
       setChannelStoreType(currentChannelId)
 
-      await Promise.all([
-        getStoreTaxZoneRates(),
-        setStorefrontConfig(dispatch, currentChannelId),
-        getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
-        getCompanyUserInfo(emailAddress, customerId),
-        getCompanyInfo(role, b2bId),
-      ])
+      try {
+        await Promise.allSettled([
+          getStoreTaxZoneRates(),
+          setStorefrontConfig(dispatch, currentChannelId),
+          getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
+          getCompanyUserInfo(emailAddress, customerId),
+          getCompanyInfo(role, b2bId),
+        ])
+      } catch (e) {
+        b2bLogger.error(e)
+      }
+
       const userInfo = {
         role: +role,
         isAgenting,

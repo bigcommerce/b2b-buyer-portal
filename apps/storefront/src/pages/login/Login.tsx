@@ -184,6 +184,8 @@ export default function Login(props: RegisteredProps) {
         setLoading(false)
       } catch (e) {
         setLoginInfo(initialLoginInfo)
+      } finally {
+        setLoading(false)
       }
     }
 
