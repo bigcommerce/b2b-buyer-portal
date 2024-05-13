@@ -1,28 +1,22 @@
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from '@mui/material'
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
-import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
+import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
 interface ConfigProps {
-  labelName: string
-  valueName: string
+  labelName: string;
+  valueName: string;
 }
 
 interface B3SelectProps<T> {
-  value: T
-  handleChange: (value: string) => void
-  label: string
-  config?: ConfigProps | undefined
-  list: Array<any>
-  isFirstSelect?: boolean
-  firstSelectText?: string
-  w?: number
-  size?: 'small' | 'medium' | undefined
+  value: T;
+  handleChange: (value: string) => void;
+  label: string;
+  config?: ConfigProps | undefined;
+  list: Array<any>;
+  isFirstSelect?: boolean;
+  firstSelectText?: string;
+  w?: number;
+  size?: 'small' | 'medium' | undefined;
 }
 
 export default function B3Select<T extends string | undefined>({
@@ -40,13 +34,13 @@ export default function B3Select<T extends string | undefined>({
   w,
 }: B3SelectProps<T>) {
   const handleSelectChange = (event: SelectChangeEvent) => {
-    handleChange(event.target.value)
-  }
+    handleChange(event.target.value);
+  };
 
-  const labelName: string = config?.labelName || 'name'
-  const valueName: string = config?.valueName || 'id'
+  const labelName: string = config?.labelName || 'name';
+  const valueName: string = config?.valueName || 'id';
 
-  if (list.length === 0) return null
+  if (list.length === 0) return null;
 
   return (
     <FormControl
@@ -96,5 +90,5 @@ export default function B3Select<T extends string | undefined>({
         ))}
       </Select>
     </FormControl>
-  )
+  );
 }

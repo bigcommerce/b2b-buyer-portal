@@ -1,11 +1,11 @@
-import { Box } from '@mui/material'
+import { Box } from '@mui/material';
 
-import B3ControlRectangle from './B3ControlRectangle'
-import { ColorContainer } from './styled'
-import Form from './ui'
+import B3ControlRectangle from './B3ControlRectangle';
+import { ColorContainer } from './styled';
+import Form from './ui';
 
 export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
-  const { options } = props
+  const { options } = props;
 
   const newOptions = options.map((option: Form.SwatchRadioGroupListProps) => ({
     ...option,
@@ -41,13 +41,13 @@ export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
           ))}
         </ColorContainer>
       ),
-  }))
+  }));
 
   const labelStyle = {
     padding: '1px',
     height: '26px',
     minWidth: 'initial',
-  }
+  };
 
   return (
     <B3ControlRectangle
@@ -56,5 +56,5 @@ export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
       fieldType="rectangle"
       labelStyle={labelStyle}
     />
-  )
+  );
 }

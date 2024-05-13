@@ -1,21 +1,12 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
-import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material'
+import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material';
 
-import {
-  FINISH_QUOTE_DEFUALT_VALUE,
-  TRANSLATION_FINISH_QUOTE_VARIABLE,
-} from '@/constants'
-import { useGetButtonText } from '@/hooks'
-import useMobile from '@/hooks/useMobile'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { useAppSelector } from '@/store'
-import { OpenPageState } from '@/types/hooks'
+import { FINISH_QUOTE_DEFUALT_VALUE, TRANSLATION_FINISH_QUOTE_VARIABLE } from '@/constants';
+import { useGetButtonText } from '@/hooks';
+import useMobile from '@/hooks/useMobile';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { useAppSelector } from '@/store';
+import { OpenPageState } from '@/types/hooks';
 
 import {
   getHoverColor,
@@ -24,35 +15,33 @@ import {
   getStyles,
   setMUIMediaStyle,
   splitCustomCssValue,
-} from './utils/b3CustomStyles'
+} from './utils/b3CustomStyles';
 
 interface B3HoverButtonProps {
-  isOpen: boolean
-  productQuoteEnabled: boolean
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+  isOpen: boolean;
+  productQuoteEnabled: boolean;
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 
 export default function B3HoverButton(props: B3HoverButtonProps) {
-  const { isOpen, setOpenPage, productQuoteEnabled } = props
+  const { isOpen, setOpenPage, productQuoteEnabled } = props;
 
-  const [showFinishQuote, setShowFinishQuote] = useState<boolean>(false)
-  const draftQuoteListLength = useAppSelector(
-    ({ quoteInfo }) => quoteInfo.draftQuoteList.length
-  )
+  const [showFinishQuote, setShowFinishQuote] = useState<boolean>(false);
+  const draftQuoteListLength = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList.length);
 
   useEffect(() => {
     if (draftQuoteListLength) {
-      setShowFinishQuote(true)
-    } else setShowFinishQuote(false)
-  }, [isOpen, draftQuoteListLength])
+      setShowFinishQuote(true);
+    } else setShowFinishQuote(false);
+  }, [isOpen, draftQuoteListLength]);
 
-  const { href } = window.location
+  const { href } = window.location;
 
   const {
     state: { floatingAction },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
   const {
     text = '',
@@ -62,40 +51,38 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
     horizontalPadding = '',
     verticalPadding = '',
     enabled = false,
-  } = floatingAction
+  } = floatingAction;
 
   const buttonText = useGetButtonText(
     TRANSLATION_FINISH_QUOTE_VARIABLE,
     text,
-    FINISH_QUOTE_DEFUALT_VALUE
-  )
+    FINISH_QUOTE_DEFUALT_VALUE,
+  );
 
   const defaultLocation: SnackbarOrigin = {
     vertical: 'bottom',
     horizontal: 'right',
-  }
+  };
 
-  const cssInfo = splitCustomCssValue(customCss)
+  const cssInfo = splitCustomCssValue(customCss);
   const {
     cssValue,
     mediaBlocks,
   }: {
-    cssValue: string
-    mediaBlocks: string[]
-  } = cssInfo
-  const MUIMediaStyle = setMUIMediaStyle(mediaBlocks)
+    cssValue: string;
+    mediaBlocks: string[];
+  } = cssInfo;
+  const MUIMediaStyle = setMUIMediaStyle(mediaBlocks);
 
   const defaultSx: SxProps = {
     backgroundColor: color,
     padding: '6px 16px',
     ...getStyles(cssValue),
-  }
+  };
 
-  const positionStyles = isMobile
-    ? {}
-    : getPosition(horizontalPadding, verticalPadding, location)
+  const positionStyles = isMobile ? {} : getPosition(horizontalPadding, verticalPadding, location);
 
-  if (href.includes('/checkout')) return null
+  if (href.includes('/checkout')) return null;
   return (
     <Snackbar
       sx={{
@@ -134,7 +121,7 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
                   params: {
                     quoteBtn: 'open',
                   },
-                })
+                });
               }}
               variant="contained"
             >
@@ -143,5 +130,5 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
           )}
       </Box>
     </Snackbar>
-  )
+  );
 }

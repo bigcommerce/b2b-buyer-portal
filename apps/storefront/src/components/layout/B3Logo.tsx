@@ -1,16 +1,16 @@
-import { useContext } from 'react'
-import { Box, ImageListItem } from '@mui/material'
+import { useContext } from 'react';
+import { Box, ImageListItem } from '@mui/material';
 
-import { STORE_DEFAULT_LOGO } from '@/constants'
-import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
+import { STORE_DEFAULT_LOGO } from '@/constants';
+import { useMobile } from '@/hooks';
+import { GlobaledContext } from '@/shared/global';
 
 export default function B3Logo() {
   const {
     state: { logo },
-  } = useContext(GlobaledContext)
+  } = useContext(GlobaledContext);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
   return (
     <Box
@@ -44,11 +44,11 @@ export default function B3Logo() {
           cursor: 'pointer',
         }}
         onClick={() => {
-          window.location.href = '/'
+          window.location.href = '/';
         }}
       >
         <img src={logo || STORE_DEFAULT_LOGO} alt="logo" />
       </ImageListItem>
     </Box>
-  )
+  );
 }

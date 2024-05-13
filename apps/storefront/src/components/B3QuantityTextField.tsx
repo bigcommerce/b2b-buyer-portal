@@ -1,24 +1,24 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react';
 
-import { useMobile } from '@/hooks'
+import { useMobile } from '@/hooks';
 
-import { StyledNumberNoTopTextField } from './styled'
+import { StyledNumberNoTopTextField } from './styled';
 
 interface B3NumberTextFieldProps {
-  disabled?: boolean
-  label?: string
-  value?: number | string
-  maxQuantity?: number
-  minQuantity?: number
-  isStock?: string
-  stock?: number
-  hiddenLabel?: boolean
-  onChange?: (value: number | string, isValid: boolean) => void
-  sx?: CustomFieldItems
+  disabled?: boolean;
+  label?: string;
+  value?: number | string;
+  maxQuantity?: number;
+  minQuantity?: number;
+  isStock?: string;
+  stock?: number;
+  hiddenLabel?: boolean;
+  onChange?: (value: number | string, isValid: boolean) => void;
+  sx?: CustomFieldItems;
 }
 
 export default function B3QuantityTextField(props: B3NumberTextFieldProps) {
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
   const {
     disabled = false,
@@ -37,46 +37,46 @@ export default function B3QuantityTextField(props: B3NumberTextFieldProps) {
         marginRight: '0',
       },
     },
-  } = props
+  } = props;
 
-  const [validMessage, setValidMessage] = useState('')
+  const [validMessage, setValidMessage] = useState('');
 
   const validateQuantity = useCallback(
     (value: number | string) => {
-      const quantity = parseInt(`${value}`, 10) || 0
+      const quantity = parseInt(`${value}`, 10) || 0;
 
-      let validMessage = ''
+      let validMessage = '';
 
       if (isStock === '1' && stock === 0) {
-        validMessage = 'Out of stock'
+        validMessage = 'Out of stock';
       } else if (isStock === '1' && quantity > stock) {
-        validMessage = `${stock} in stock`
+        validMessage = `${stock} in stock`;
       } else if (minQuantity !== 0 && quantity < minQuantity) {
-        validMessage = `Min is ${minQuantity}`
+        validMessage = `Min is ${minQuantity}`;
       } else if (maxQuantity !== 0 && quantity > maxQuantity) {
-        validMessage = `Max is ${maxQuantity}`
+        validMessage = `Max is ${maxQuantity}`;
       }
 
-      setValidMessage(validMessage)
+      setValidMessage(validMessage);
 
-      return validMessage
+      return validMessage;
     },
-    [isStock, maxQuantity, minQuantity, stock]
-  )
+    [isStock, maxQuantity, minQuantity, stock],
+  );
 
   const handleChange = (value: string) => {
-    onChange(value, !!validMessage)
-  }
+    onChange(value, !!validMessage);
+  };
 
   const handleBlur = () => {
-    const quantity = parseInt(`${value}`, 10) || 0
+    const quantity = parseInt(`${value}`, 10) || 0;
 
-    onChange(quantity, !validateQuantity(quantity))
-  }
+    onChange(quantity, !validateQuantity(quantity));
+  };
 
   useEffect(() => {
-    validateQuantity(value)
-  }, [validateQuantity, value])
+    validateQuantity(value);
+  }, [validateQuantity, value]);
 
   return (
     <StyledNumberNoTopTextField
@@ -94,12 +94,12 @@ export default function B3QuantityTextField(props: B3NumberTextFieldProps) {
         pattern: '[0-9]*',
       }}
       onChange={(e) => {
-        handleChange(e.target.value)
+        handleChange(e.target.value);
       }}
       onBlur={() => {
-        handleBlur()
+        handleBlur();
       }}
       sx={sx}
     />
-  )
+  );
 }

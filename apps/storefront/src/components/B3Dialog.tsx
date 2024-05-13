@@ -1,40 +1,34 @@
-import { ReactElement, ReactNode, useRef } from 'react'
-import { useB3Lang } from '@b3/lang'
-import {
-  Box,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material'
+import { ReactElement, ReactNode, useRef } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { Box, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile'
-import useScrollBar from '@/hooks/useScrollBar'
-import { useAppSelector } from '@/store'
+import useMobile from '@/hooks/useMobile';
+import useScrollBar from '@/hooks/useScrollBar';
+import { useAppSelector } from '@/store';
 
-import CustomButton from './button/CustomButton'
-import B3Sping from './spin/B3Sping'
+import CustomButton from './button/CustomButton';
+import B3Sping from './spin/B3Sping';
 
 interface B3DialogProps<T> {
-  customActions?: () => ReactElement
-  isOpen: boolean
-  leftStyleBtn?: { [key: string]: string }
-  rightStyleBtn?: { [key: string]: string }
-  leftSizeBtn?: string
-  rightSizeBtn?: string
-  title?: string
-  handleLeftClick?: () => void
-  handRightClick?: (row?: T) => Promise<void> | void | undefined
-  children: ReactNode
-  loading?: boolean
-  row?: T
-  isShowBordered?: boolean
-  showRightBtn?: boolean
-  showLeftBtn?: boolean
-  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false
-  fullWidth?: boolean
-  disabledSaveBtn?: boolean
-  dialogContentSx?: { [key: string]: string }
+  customActions?: () => ReactElement;
+  isOpen: boolean;
+  leftStyleBtn?: { [key: string]: string };
+  rightStyleBtn?: { [key: string]: string };
+  leftSizeBtn?: string;
+  rightSizeBtn?: string;
+  title?: string;
+  handleLeftClick?: () => void;
+  handRightClick?: (row?: T) => Promise<void> | void | undefined;
+  children: ReactNode;
+  loading?: boolean;
+  row?: T;
+  isShowBordered?: boolean;
+  showRightBtn?: boolean;
+  showLeftBtn?: boolean;
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false;
+  fullWidth?: boolean;
+  disabledSaveBtn?: boolean;
+  dialogContentSx?: { [key: string]: string };
 }
 
 export default function B3Dialog<T>({
@@ -58,29 +52,27 @@ export default function B3Dialog<T>({
   fullWidth = false,
   disabledSaveBtn = false,
 }: B3DialogProps<T>) {
-  const container = useRef<HTMLInputElement | null>(null)
+  const container = useRef<HTMLInputElement | null>(null);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const handleSaveClick = () => {
     if (handRightClick) {
-      if (row) handRightClick(row)
-      if (!row) handRightClick()
+      if (row) handRightClick(row);
+      if (!row) handRightClick();
     }
-  }
+  };
 
   const handleCloseClick = (reason?: string) => {
-    if (reason === 'backdropClick') return
-    if (handleLeftClick) handleLeftClick()
-  }
+    if (reason === 'backdropClick') return;
+    if (handleLeftClick) handleLeftClick();
+  };
 
-  useScrollBar(isOpen)
+  useScrollBar(isOpen);
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   return (
     <Box>
@@ -164,5 +156,5 @@ export default function B3Dialog<T>({
         </DialogActions>
       </Dialog>
     </Box>
-  )
+  );
 }

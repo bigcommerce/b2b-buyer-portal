@@ -1,68 +1,68 @@
-import { useState } from 'react'
-import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone'
-import { useB3Lang } from '@b3/lang'
-import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined'
-import DescriptionRounded from '@mui/icons-material/DescriptionRounded'
-import ImageRoundedIcon from '@mui/icons-material/ImageRounded'
-import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded'
-import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded'
-import { FormLabel, Typography } from '@mui/material'
-import isEmpty from 'lodash-es/isEmpty'
+import { useState } from 'react';
+import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone';
+import { useB3Lang } from '@b3/lang';
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import DescriptionRounded from '@mui/icons-material/DescriptionRounded';
+import ImageRoundedIcon from '@mui/icons-material/ImageRounded';
+import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
+import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded';
+import { FormLabel, Typography } from '@mui/material';
+import isEmpty from 'lodash-es/isEmpty';
 
-import { FILE_UPLOAD_ACCEPT_TYPE } from '../../constants'
+import { FILE_UPLOAD_ACCEPT_TYPE } from '../../constants';
 
-import { DropzoneBox } from './styled'
-import B3UI from './ui'
+import { DropzoneBox } from './styled';
+import B3UI from './ui';
 
-const defaultLabelColor = '#d32f2f'
+const defaultLabelColor = '#d32f2f';
 
 const getPreviewIcon = (fileObject: FileObject, classes: PreviewIconProps) => {
-  const { type } = fileObject.file
+  const { type } = fileObject.file;
   const iconProps = {
     className: classes.classes,
-  }
+  };
 
-  if (type.startsWith('image/')) return <ImageRoundedIcon {...iconProps} />
+  if (type.startsWith('image/')) return <ImageRoundedIcon {...iconProps} />;
 
   switch (type) {
     case 'application/pdf':
-      return <PictureAsPdfRoundedIcon {...iconProps} />
+      return <PictureAsPdfRoundedIcon {...iconProps} />;
     // doc docx xls xlsx csv
     case 'application/msword':
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
     case 'application/vnd.ms-excel':
     case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
     case 'text/csv':
-      return <DescriptionRounded {...iconProps} />
+      return <DescriptionRounded {...iconProps} />;
     default:
-      return <InsertDriveFileRoundedIcon {...iconProps} />
+      return <InsertDriveFileRoundedIcon {...iconProps} />;
   }
-}
+};
 
 interface FileUploadProps extends B3UI.B3UIProps {
-  acceptedFiles?: string[]
-  filesLimit?: number
-  maxFileSize?: number
-  dropzoneText?: string
-  previewText?: string
-  default?: File[]
-  labelColor?: string
-  errors?: CustomFieldItems
-  required?: boolean
+  acceptedFiles?: string[];
+  filesLimit?: number;
+  maxFileSize?: number;
+  dropzoneText?: string;
+  previewText?: string;
+  default?: File[];
+  labelColor?: string;
+  errors?: CustomFieldItems;
+  required?: boolean;
 }
 
 const getMaxFileSizeLabel = (maxSize: number) => {
   if (maxSize / 1048576 > 1) {
-    return `${(maxSize / 1048576).toFixed(1)}MB`
+    return `${(maxSize / 1048576).toFixed(1)}MB`;
   }
   if (maxSize / 1024 > 1) {
-    return `${(maxSize / 1024).toFixed(1)}KB`
+    return `${(maxSize / 1024).toFixed(1)}KB`;
   }
-  return `${maxSize}B`
-}
+  return `${maxSize}B`;
+};
 
 export default function B3ControlFileUpload(props: FileUploadProps) {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   const {
     acceptedFiles = FILE_UPLOAD_ACCEPT_TYPE,
@@ -80,42 +80,37 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
     errors = {},
     setError,
     control,
-  } = props
-  const [deleteCount, setDeleteCount] = useState(0)
+  } = props;
+  const [deleteCount, setDeleteCount] = useState(0);
 
-  const getRejectMessage = (
-    rejectedFile: File,
-    acceptedFiles: string[],
-    maxFileSize: number
-  ) => {
-    const { name, size, type } = rejectedFile
+  const getRejectMessage = (rejectedFile: File, acceptedFiles: string[], maxFileSize: number) => {
+    const { name, size, type } = rejectedFile;
 
-    let isAcceptFileType = false
+    let isAcceptFileType = false;
     acceptedFiles.forEach((acceptedFileType) => {
-      isAcceptFileType =
-        new RegExp(acceptedFileType).test(type) || isAcceptFileType
-    })
+      isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType;
+    });
 
     if (!isAcceptFileType) {
       return b3Lang('global.fileUpload.typeNotSupport', {
         name,
-      })
+      });
     }
 
     if (size > maxFileSize) {
       return b3Lang('global.fileUpload.namedFileSizeExceedsLimit', {
         name,
         maxSize: getMaxFileSizeLabel(maxFileSize),
-      })
+      });
     }
 
-    return ''
-  }
+    return '';
+  };
 
   const getFileLimitExceedMessage = () =>
     b3Lang('global.fileUpload.fileNumberExceedsLimit', {
       limit: filesLimit,
-    })
+    });
 
   const handleFilesChange = (files: File[]) => {
     if (deleteCount > 0 && files.length === 0 && required) {
@@ -124,21 +119,21 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
         message: b3Lang('global.validate.required', {
           label,
         }),
-      })
-      setDeleteCount(0)
+      });
+      setDeleteCount(0);
     }
     if (files.length > 0 && !isEmpty(errors)) {
-      const cError = errors[name]
+      const cError = errors[name];
       if (!isEmpty(cError)) {
-        delete errors[name]
+        delete errors[name];
         // eslint-disable-next-line no-underscore-dangle
-        control?._setErrors(errors)
+        control?._setErrors(errors);
       }
     }
     if (setValue) {
-      setValue(name, files)
+      setValue(name, files);
     }
-  }
+  };
 
   return ['files'].includes(fieldType) ? (
     <>
@@ -187,5 +182,5 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
         </Typography>
       ) : null}
     </>
-  ) : null
+  ) : null;
 }

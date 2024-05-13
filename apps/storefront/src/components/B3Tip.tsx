@@ -1,14 +1,11 @@
-import { Alert, AlertTitle, Box, Snackbar } from '@mui/material'
+import { Alert, AlertTitle, Box, Snackbar } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile'
-import {
-  MsgsProps,
-  TipMessagesProps,
-} from '@/shared/dynamicallyVariable/context/config'
+import useMobile from '@/hooks/useMobile';
+import { MsgsProps, TipMessagesProps } from '@/shared/dynamicallyVariable/context/config';
 
 interface B3TipProps extends TipMessagesProps {
-  handleItemClose: (id: number | string) => void
-  handleAllClose: (id: string | number, reason: string) => void
+  handleItemClose: (id: number | string) => void;
+  handleAllClose: (id: string | number, reason: string) => void;
 }
 
 export default function B3Tip({
@@ -18,8 +15,8 @@ export default function B3Tip({
   msgs = [],
   handleAllClose,
 }: B3TipProps) {
-  const [isMobile] = useMobile()
-  if (!msgs || !msgs.length) return null
+  const [isMobile] = useMobile();
+  if (!msgs || !msgs.length) return null;
   return (
     <Box>
       {msgs.length > 0
@@ -35,9 +32,7 @@ export default function B3Tip({
                 horizontal,
               }}
               sx={{
-                top: `${
-                  24 + index * 10 + index * (isMobile ? 80 : 90)
-                }px !important`,
+                top: `${24 + index * 10 + index * (isMobile ? 80 : 90)}px !important`,
                 width: '320px',
                 height: 'auto',
               }}
@@ -73,5 +68,5 @@ export default function B3Tip({
           ))
         : null}
     </Box>
-  )
+  );
 }

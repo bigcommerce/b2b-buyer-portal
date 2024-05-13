@@ -1,13 +1,9 @@
-import { useEffect, useState } from 'react'
-import { Box } from '@mui/material'
-import CircularProgress, {
-  CircularProgressProps,
-} from '@mui/material/CircularProgress'
-import Typography from '@mui/material/Typography'
+import { useEffect, useState } from 'react';
+import { Box } from '@mui/material';
+import CircularProgress, { CircularProgressProps } from '@mui/material/CircularProgress';
+import Typography from '@mui/material/Typography';
 
-function CircularProgressWithLabel(
-  props: CircularProgressProps & { value: number }
-) {
+function CircularProgressWithLabel(props: CircularProgressProps & { value: number }) {
   return (
     <Box
       sx={{
@@ -33,31 +29,29 @@ function CircularProgressWithLabel(
         </Typography>
       </Box>
     </Box>
-  )
+  );
 }
 
 interface B3UploadLoaddingProps {
-  step: string
+  step: string;
 }
 
 export default function B3UploadLoadding(props: B3UploadLoaddingProps) {
-  const { step } = props
-  const [progress, setProgress] = useState<number>(0)
+  const { step } = props;
+  const [progress, setProgress] = useState<number>(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setProgress((prevProgress) =>
-        prevProgress === 95 ? 95 : prevProgress + 1
-      )
+      setProgress((prevProgress) => (prevProgress === 95 ? 95 : prevProgress + 1));
       if (step === 'end') {
-        setProgress(100)
-        clearInterval(timer)
+        setProgress(100);
+        clearInterval(timer);
       }
-    }, 100)
+    }, 100);
     return () => {
-      if (timer) clearInterval(timer)
-    }
-  }, [step])
+      if (timer) clearInterval(timer);
+    };
+  }, [step]);
   return (
     <Box
       sx={{
@@ -81,5 +75,5 @@ export default function B3UploadLoadding(props: B3UploadLoaddingProps) {
         Uploading file...
       </Box>
     </Box>
-  )
+  );
 }

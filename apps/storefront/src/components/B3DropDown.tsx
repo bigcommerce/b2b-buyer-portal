@@ -1,27 +1,27 @@
-import { MouseEvent, useState } from 'react'
-import { useB3Lang } from '@b3/lang'
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
-import { Box } from '@mui/material'
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemText from '@mui/material/ListItemText'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
+import { MouseEvent, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import { Box } from '@mui/material';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
-import { useMobile } from '@/hooks'
+import { useMobile } from '@/hooks';
 
 type ConfigProps = {
-  name: string
-  key: string | number
-}
+  name: string;
+  key: string | number;
+};
 
 interface B3DropDownProps<T> {
-  width?: string
-  list: Array<T>
-  config?: ConfigProps
-  title: string
-  handleItemClick: (arg0: T) => void
-  value?: string
+  width?: string;
+  list: Array<T>;
+  config?: ConfigProps;
+  title: string;
+  handleItemClick: (arg0: T) => void;
+  value?: string;
 }
 
 export default function B3DropDown<T>({
@@ -32,20 +32,20 @@ export default function B3DropDown<T>({
   value,
   handleItemClick,
 }: B3DropDownProps<T>) {
-  const [open, setOpen] = useState<null | HTMLElement>(null)
-  const b3Lang = useB3Lang()
+  const [open, setOpen] = useState<null | HTMLElement>(null);
+  const b3Lang = useB3Lang();
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
-    setOpen(event.currentTarget)
-  }
+    setOpen(event.currentTarget);
+  };
 
   const handleCloseMenuClick = () => {
-    setOpen(null)
-  }
+    setOpen(null);
+  };
 
-  const keyName = config?.name || 'name'
+  const keyName = config?.name || 'name';
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
   const sx = isMobile
     ? {
@@ -53,7 +53,7 @@ export default function B3DropDown<T>({
       }
     : {
         width: width || '155px',
-      }
+      };
 
   return (
     <Box
@@ -101,8 +101,8 @@ export default function B3DropDown<T>({
       >
         {list.length &&
           list.map((item: any) => {
-            const name = item[keyName]
-            const color = value === item.key ? '#3385d6' : 'black'
+            const name = item[keyName];
+            const color = value === item.key ? '#3385d6' : 'black';
             return (
               <MenuItem
                 sx={{
@@ -111,15 +111,15 @@ export default function B3DropDown<T>({
                 }}
                 key={name}
                 onClick={() => {
-                  handleCloseMenuClick()
-                  handleItemClick(item)
+                  handleCloseMenuClick();
+                  handleItemClick(item);
                 }}
               >
                 {b3Lang('global.button.logout')}
               </MenuItem>
-            )
+            );
           })}
       </Menu>
     </Box>
-  )
+  );
 }

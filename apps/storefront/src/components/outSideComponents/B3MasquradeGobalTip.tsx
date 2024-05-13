@@ -1,22 +1,19 @@
-import { Dispatch, SetStateAction, useContext } from 'react'
-import { useB3Lang } from '@b3/lang'
-import GroupIcon from '@mui/icons-material/Group'
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft'
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
-import { Box, Button, SnackbarOrigin, SxProps } from '@mui/material'
-import Snackbar from '@mui/material/Snackbar'
+import { Dispatch, SetStateAction, useContext } from 'react';
+import { useB3Lang } from '@b3/lang';
+import GroupIcon from '@mui/icons-material/Group';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { Box, Button, SnackbarOrigin, SxProps } from '@mui/material';
+import Snackbar from '@mui/material/Snackbar';
 
-import {
-  END_MASQUERADE_DEFAULT_VALUE,
-  TRANSLATION_MASQUERADE_BUTTON_VARIABLE,
-} from '@/constants'
-import { useGetButtonText } from '@/hooks'
-import useMobile from '@/hooks/useMobile'
-import useStorageState from '@/hooks/useStorageState'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { superAdminEndMasquerade } from '@/shared/service/b2b'
-import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store'
-import { OpenPageState } from '@/types/hooks'
+import { END_MASQUERADE_DEFAULT_VALUE, TRANSLATION_MASQUERADE_BUTTON_VARIABLE } from '@/constants';
+import { useGetButtonText } from '@/hooks';
+import useMobile from '@/hooks/useMobile';
+import useStorageState from '@/hooks/useStorageState';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { superAdminEndMasquerade } from '@/shared/service/b2b';
+import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';
+import { OpenPageState } from '@/types/hooks';
 
 import {
   getContrastColor,
@@ -25,37 +22,33 @@ import {
   getStyles,
   setMUIMediaStyle,
   splitCustomCssValue,
-} from './utils/b3CustomStyles'
+} from './utils/b3CustomStyles';
 
 interface B3MasquradeGobalTipProps {
-  isOpen: boolean
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>
+  isOpen: boolean;
+  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 
-const bottomHeightPage = ['shoppingList/', 'purchased-products']
+const bottomHeightPage = ['shoppingList/', 'purchased-products'];
 
 export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
-  const { isOpen, setOpenPage } = props
-  const dispatch = useAppDispatch()
-  const customerId = useAppSelector(({ company }) => company.customer.id)
-  const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
-  const salesRepCompanyId = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
-  )
+  const { isOpen, setOpenPage } = props;
+  const dispatch = useAppDispatch();
+  const customerId = useAppSelector(({ company }) => company.customer.id);
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const salesRepCompanyName = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName
-  )
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName,
+  );
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
-  const { hash, href } = window.location
+  const { hash, href } = window.location;
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   const {
     state: { masqueradeButton },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
   const {
     text = '',
@@ -64,54 +57,52 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
     location = 'bottomLeft',
     horizontalPadding = '',
     verticalPadding = '',
-  } = masqueradeButton
+  } = masqueradeButton;
 
   const buttonLabel = useGetButtonText(
     TRANSLATION_MASQUERADE_BUTTON_VARIABLE,
     text,
-    END_MASQUERADE_DEFAULT_VALUE
-  )
+    END_MASQUERADE_DEFAULT_VALUE,
+  );
 
-  const isAddBottom = bottomHeightPage.some((item: string) =>
-    hash.includes(item)
-  )
+  const isAddBottom = bottomHeightPage.some((item: string) => hash.includes(item));
 
   const [isExpansion, setExpansion] = useStorageState<boolean>(
     'sf-isMasqueradeTipExpansion',
     true,
-    sessionStorage
-  )
-  const [isMobile] = useMobile()
+    sessionStorage,
+  );
+  const [isMobile] = useMobile();
 
   const endActing = async () => {
     if (isOpen) {
       setOpenPage({
         isOpen: true,
         openUrl: '/dashboard?closeMasqurade=1',
-      })
+      });
     } else {
       if (typeof b2bId === 'number') {
-        await superAdminEndMasquerade(+salesRepCompanyId, b2bId)
+        await superAdminEndMasquerade(+salesRepCompanyId, b2bId);
       }
 
-      dispatch(clearMasqueradeCompany())
+      dispatch(clearMasqueradeCompany());
       setOpenPage({
         isOpen: true,
         openUrl: '/dashboard',
-      })
+      });
     }
-  }
+  };
 
-  if (href.includes('/checkout') || !customerId) return null
+  if (href.includes('/checkout') || !customerId) return null;
 
-  if (!isAgenting) return null
+  if (!isAgenting) return null;
 
   const defaultLocation: SnackbarOrigin = {
     vertical: 'bottom',
     horizontal: 'left',
-  }
+  };
 
-  let sx: SxProps = {}
+  let sx: SxProps = {};
 
   if (isMobile && isOpen) {
     sx = {
@@ -119,41 +110,41 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       bottom: 0,
       left: 0,
       borderRadius: '0px',
-    }
+    };
   } else if (!isMobile && isAddBottom) {
     sx = {
       bottom: '90px !important',
-    }
+    };
   }
 
-  const cssInfo = splitCustomCssValue(customCss)
+  const cssInfo = splitCustomCssValue(customCss);
   const {
     cssValue,
     mediaBlocks,
   }: {
-    cssValue: string
-    mediaBlocks: string[]
-  } = cssInfo
-  const MUIMediaStyle = setMUIMediaStyle(mediaBlocks)
+    cssValue: string;
+    mediaBlocks: string[];
+  } = cssInfo;
+  const MUIMediaStyle = setMUIMediaStyle(mediaBlocks);
 
   const customStyles: SxProps = {
     backgroundColor: `${color || '#ED6C02'}`,
     color: getContrastColor(color || '#FFFFFF'),
     padding: '0',
     ...getStyles(cssValue),
-  }
+  };
 
   const isMobileCustomStyles: SxProps = {
     backgroundColor: `${color || '#ED6C02'}`,
     color: getContrastColor(color || '#FFFFFF'),
-  }
+  };
 
   const customBuyerPortalPagesStyles: SxProps = {
     bottom: '24px',
     left: '24px',
     right: 'auto',
     top: 'unset',
-  }
+  };
 
   return (
     <>
@@ -415,5 +406,5 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
         </Snackbar>
       )}
     </>
-  )
+  );
 }

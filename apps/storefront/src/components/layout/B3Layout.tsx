@@ -1,77 +1,70 @@
-import { ReactNode, useContext, useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import { Box, useMediaQuery } from '@mui/material'
+import { ReactNode, useContext, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { Box, useMediaQuery } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile'
-import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
-import { routes } from '@/shared/routes'
-import { getIsTokenGotoPage, RouteItem } from '@/shared/routes/routes'
-import { useAppSelector } from '@/store'
+import useMobile from '@/hooks/useMobile';
+import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
+import { routes } from '@/shared/routes';
+import { getIsTokenGotoPage, RouteItem } from '@/shared/routes/routes';
+import { useAppSelector } from '@/store';
 
-import B3Dialog from '../B3Dialog'
-import CompanyCredit from '../CompanyCredit'
+import B3Dialog from '../B3Dialog';
+import CompanyCredit from '../CompanyCredit';
 
-import B3CloseAppButton from './B3CloseAppButton'
-import B3Logo from './B3Logo'
-import B3Mainheader from './B3Mainheader'
-import B3MobileLayout from './B3MobileLayout'
-import B3Nav from './B3Nav'
+import B3CloseAppButton from './B3CloseAppButton';
+import B3Logo from './B3Logo';
+import B3Mainheader from './B3Mainheader';
+import B3MobileLayout from './B3MobileLayout';
+import B3Nav from './B3Nav';
 
 const SPECIAL_PATH_TEXTS = {
   '/purchased-products': 'global.purchasedProducts.title',
   '/orders': 'global.orders.title',
   '/company-orders': 'global.companyOrders.title',
-} as const
+} as const;
 
 export default function B3Layout({ children }: { children: ReactNode }) {
-  const [isMobile] = useMobile()
-  const isDesktopLimit = useMediaQuery('(min-width:1775px)')
+  const [isMobile] = useMobile();
+  const isDesktopLimit = useMediaQuery('(min-width:1775px)');
 
-  const location = useLocation()
+  const location = useLocation();
 
-  const [title, setTitle] = useState<string>('')
+  const [title, setTitle] = useState<string>('');
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const emailAddress = useAppSelector(
-    ({ company }) => company.customer.emailAddress
-  )
-  const customerId = useAppSelector(({ company }) => company.customer.id)
+  const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
+  const customerId = useAppSelector(({ company }) => company.customer.id);
 
   const {
     state: { globalMessageDialog },
     dispatch,
-  } = useContext(DynamicallyVariableedContext)
+  } = useContext(DynamicallyVariableedContext);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (
-      (!emailAddress || !customerId) &&
-      !getIsTokenGotoPage(location.pathname)
-    ) {
-      navigate('/login')
+    if ((!emailAddress || !customerId) && !getIsTokenGotoPage(location.pathname)) {
+      navigate('/login');
     }
     // disabling cause navigate dispatcher is not necessary here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emailAddress, customerId, location])
+  }, [emailAddress, customerId, location]);
 
   useEffect(() => {
-    const itemsRoutes = routes.find(
-      (item: RouteItem) => item.path === location.pathname
-    )
+    const itemsRoutes = routes.find((item: RouteItem) => item.path === location.pathname);
     if (itemsRoutes && location.pathname !== '/quoteDraft') {
       const foundPath = Object.entries(SPECIAL_PATH_TEXTS).find(
-        ([specialPath]) => specialPath === location.pathname
-      )
+        ([specialPath]) => specialPath === location.pathname,
+      );
       if (foundPath) {
-        setTitle(b3Lang(foundPath[1]))
+        setTitle(b3Lang(foundPath[1]));
       } else {
-        setTitle(b3Lang(itemsRoutes.idLang))
+        setTitle(b3Lang(itemsRoutes.idLang));
       }
     } else {
-      setTitle('')
+      setTitle('');
     }
     dispatch({
       type: 'common',
@@ -80,10 +73,10 @@ export default function B3Layout({ children }: { children: ReactNode }) {
           msgs: [],
         },
       },
-    })
+    });
     // disabling as dispatch is not necessary in the deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location])
+  }, [location]);
 
   const messageDialogClose = () => {
     dispatch({
@@ -96,8 +89,8 @@ export default function B3Layout({ children }: { children: ReactNode }) {
           cancelText: 'Cancel',
         },
       },
-    })
-  }
+    });
+  };
 
   return (
     <Box>
@@ -191,5 +184,5 @@ export default function B3Layout({ children }: { children: ReactNode }) {
         </Box>
       </B3Dialog>
     </Box>
-  )
+  );
 }

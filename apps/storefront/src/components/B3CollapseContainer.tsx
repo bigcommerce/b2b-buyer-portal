@@ -1,39 +1,33 @@
-import { ReactElement, ReactNode, useEffect, useState } from 'react'
-import ExpandLess from '@mui/icons-material/ExpandLess'
-import ExpandMore from '@mui/icons-material/ExpandMore'
-import { Box, Collapse, Typography } from '@mui/material'
+import { ReactElement, ReactNode, useEffect, useState } from 'react';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import { Box, Collapse, Typography } from '@mui/material';
 
 interface CollapseContainerProps {
-  title?: string | ReactElement
-  header?: ReactNode
-  defaultOpen?: boolean
-  children: ReactNode
-  handleOnChange?: (open: boolean) => void
+  title?: string | ReactElement;
+  header?: ReactNode;
+  defaultOpen?: boolean;
+  children: ReactNode;
+  handleOnChange?: (open: boolean) => void;
 }
 
 export default function B3CollapseContainer(props: CollapseContainerProps) {
-  const {
-    children,
-    title = '',
-    header,
-    defaultOpen = false,
-    handleOnChange,
-  } = props
+  const { children, title = '', header, defaultOpen = false, handleOnChange } = props;
 
-  const [open, setOpen] = useState(defaultOpen)
+  const [open, setOpen] = useState(defaultOpen);
 
   const handleClick = () => {
-    setOpen(!open)
-  }
+    setOpen(!open);
+  };
   useEffect(() => {
-    if (handleOnChange) handleOnChange(open)
-  }, [handleOnChange, open])
+    if (handleOnChange) handleOnChange(open);
+  }, [handleOnChange, open]);
 
   useEffect(() => {
     if (defaultOpen) {
-      setOpen(defaultOpen)
+      setOpen(defaultOpen);
     }
-  }, [defaultOpen])
+  }, [defaultOpen]);
 
   return (
     <Box>
@@ -53,5 +47,5 @@ export default function B3CollapseContainer(props: CollapseContainerProps) {
         {children}
       </Collapse>
     </Box>
-  )
+  );
 }

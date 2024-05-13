@@ -1,20 +1,20 @@
-import { ReactElement, ReactNode } from 'react'
-import InfiniteScroll from 'react-infinite-scroller'
+import { ReactElement, ReactNode } from 'react';
+import InfiniteScroll from 'react-infinite-scroller';
 
 interface Pagination {
-  offset: number
-  first: number
-  count: number
+  offset: number;
+  first: number;
+  count: number;
 }
 
 interface InfiniteScrollProps {
-  onPaginationChange?: (pagination: Pagination) => void
-  pagination?: Pagination
-  children: ReactNode
-  threshold?: number
-  scrollNode?: HTMLElement
-  loader?: ReactElement
-  isLoading: boolean
+  onPaginationChange?: (pagination: Pagination) => void;
+  pagination?: Pagination;
+  children: ReactNode;
+  threshold?: number;
+  scrollNode?: HTMLElement;
+  loader?: ReactElement;
+  isLoading: boolean;
 }
 
 export default function B3InfiniteScroll(props: InfiniteScrollProps) {
@@ -26,7 +26,7 @@ export default function B3InfiniteScroll(props: InfiniteScrollProps) {
     scrollNode,
     loader,
     isLoading,
-  } = props
+  } = props;
 
   const handleLoadMore = () => {
     if (!isLoading) {
@@ -34,11 +34,11 @@ export default function B3InfiniteScroll(props: InfiniteScrollProps) {
         offset: offset + first,
         first,
         count,
-      })
+      });
     }
-  }
-  const page = Math.floor(offset / first + 1)
-  const getScrollParent = scrollNode ? () => scrollNode : undefined
+  };
+  const page = Math.floor(offset / first + 1);
+  const getScrollParent = scrollNode ? () => scrollNode : undefined;
 
   return (
     <div
@@ -63,5 +63,5 @@ export default function B3InfiniteScroll(props: InfiniteScrollProps) {
         {children}
       </InfiniteScroll>
     </div>
-  )
+  );
 }

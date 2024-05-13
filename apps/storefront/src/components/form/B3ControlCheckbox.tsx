@@ -1,38 +1,19 @@
-import { Controller } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import {
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  FormLabel,
-} from '@mui/material'
+import { Controller } from 'react-hook-form';
+import { useB3Lang } from '@b3/lang';
+import { Checkbox, FormControl, FormControlLabel, FormHelperText, FormLabel } from '@mui/material';
 
-import Form from './ui'
+import Form from './ui';
 
 interface CheckboxListProps {
-  value: string
-  label: string
-  [key: string]: string
+  value: string;
+  label: string;
+  [key: string]: string;
 }
 
-export default function B3ControlCheckbox({
-  control,
-  errors,
-  getValues,
-  ...rest
-}: Form.B3UIProps) {
-  const {
-    default: defaultValue,
-    fieldType,
-    name,
-    required,
-    label,
-    validate,
-    options,
-  } = rest
+export default function B3ControlCheckbox({ control, errors, getValues, ...rest }: Form.B3UIProps) {
+  const { default: defaultValue, fieldType, name, required, label, validate, options } = rest;
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
   const fieldsProps = {
     type: fieldType,
@@ -48,20 +29,18 @@ export default function B3ControlCheckbox({
       validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,
-  }
+  };
 
   const handleCheck = (value: number | string, name: string) => {
-    const getAllValue = getValues()[name] || []
-    const valueString = `${value}`
+    const getAllValue = getValues()[name] || [];
+    const valueString = `${value}`;
 
-    const newValue = getAllValue?.find(
-      (id: number | string) => `${id}` === valueString
-    )
+    const newValue = getAllValue?.find((id: number | string) => `${id}` === valueString)
       ? getAllValue?.filter((id: string) => id !== value)
-      : [...(getAllValue ?? []), value]
+      : [...(getAllValue ?? []), value];
 
-    return newValue
-  }
+    return newValue;
+  };
 
   return ['checkbox'].includes(fieldType) ? (
     <FormControl>
@@ -93,5 +72,5 @@ export default function B3ControlCheckbox({
         </FormHelperText>
       )}
     </FormControl>
-  ) : null
+  ) : null;
 }

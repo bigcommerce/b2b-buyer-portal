@@ -1,5 +1,5 @@
-import { Box } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 const NavMessage = styled(Box)(() => ({
   borderRadius: '50%',
@@ -10,6 +10,6 @@ const NavMessage = styled(Box)(() => ({
   alignItems: 'center',
   backgroundColor: '#3385d6',
   color: 'white',
-}))
+}));
 
-export default NavMessage
+export default NavMessage;

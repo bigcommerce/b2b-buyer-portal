@@ -1,50 +1,41 @@
-import { MouseEvent, useState } from 'react'
-import { InsertDriveFile, MoreHoriz } from '@mui/icons-material'
-import {
-  Box,
-  Button,
-  Link,
-  Menu,
-  MenuItem,
-  Tab,
-  Tabs,
-  Typography,
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { MouseEvent, useState } from 'react';
+import { InsertDriveFile, MoreHoriz } from '@mui/icons-material';
+import { Box, Button, Link, Menu, MenuItem, Tab, Tabs, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-import { B3PaginationTable } from '@/components/table/B3PaginationTable'
-import { TableColumnItem } from '@/components/table/B3Table'
-import { useMobile } from '@/hooks'
+import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { TableColumnItem } from '@/components/table/B3Table';
+import { useMobile } from '@/hooks';
 
-import BulkUploadTableCard from './BulkUploadTableCard'
+import BulkUploadTableCard from './BulkUploadTableCard';
 
 interface BulkUploadTableProps {
-  setStep: (step: string) => void
-  fileDatas: CustomFieldItems | null
-  fileName: string
+  setStep: (step: string) => void;
+  fileDatas: CustomFieldItems | null;
+  fileName: string;
 }
 
 interface ListItem {
-  [key: string]: string
+  [key: string]: string;
 }
 
 const StyledTableContainer = styled(Box)(() => {
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
   const style = {
     boxShadow: 'none',
-  }
+  };
 
   const mobileStyle = {
     marginTop: '0.5rem',
-  }
+  };
   return {
     '& div': isMobile ? mobileStyle : style,
-  }
-})
+  };
+});
 
 function BulkUploadTable(props: BulkUploadTableProps) {
-  const { setStep, fileDatas, fileName } = props
-  const [isMobile] = useMobile()
+  const { setStep, fileDatas, fileName } = props;
+  const [isMobile] = useMobile();
 
   const columnErrorsItems: TableColumnItem<ListItem>[] = [
     {
@@ -103,7 +94,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
         </Typography>
       ),
     },
-  ]
+  ];
 
   const columnValidItems: TableColumnItem<ListItem>[] = [
     {
@@ -134,49 +125,47 @@ function BulkUploadTable(props: BulkUploadTableProps) {
         </Typography>
       ),
     },
-  ]
+  ];
 
-  const errorProduct = fileDatas?.errorProduct || []
-  const validProduct = fileDatas?.validProduct || []
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
-  const [activeTab, setActiveTab] = useState<string>(
-    errorProduct.length > 0 ? 'error' : 'valid'
-  )
+  const errorProduct = fileDatas?.errorProduct || [];
+  const validProduct = fileDatas?.validProduct || [];
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [open, setOpen] = useState<boolean>(Boolean(anchorEl));
+  const [activeTab, setActiveTab] = useState<string>(errorProduct.length > 0 ? 'error' : 'valid');
 
   const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(e.currentTarget)
-    setOpen(true)
-  }
+    setAnchorEl(e.currentTarget);
+    setOpen(true);
+  };
 
   const handleClose = () => {
-    setAnchorEl(null)
-    setOpen(false)
-  }
+    setAnchorEl(null);
+    setOpen(false);
+  };
 
   const handleRemoveCsv = () => {
-    handleClose()
-    setStep('init')
-  }
+    handleClose();
+    setStep('init');
+  };
 
   const handleChangeTab = (e: CustomFieldItems, selectedTabValue: any) => {
-    setActiveTab(selectedTabValue)
-  }
+    setActiveTab(selectedTabValue);
+  };
 
   const getProductInfo = (params: CustomFieldItems) => {
-    const products = activeTab === 'error' ? errorProduct : validProduct
+    const products = activeTab === 'error' ? errorProduct : validProduct;
 
-    const { first, offset } = params
+    const { first, offset } = params;
 
-    const start = offset
-    const limit = first + start
-    const currentPageProduct = products.slice(start, limit)
+    const start = offset;
+    const limit = first + start;
+    const currentPageProduct = products.slice(start, limit);
 
     return {
       edges: currentPageProduct,
       totalCount: products.length || 0,
-    }
-  }
+    };
+  };
 
   return (
     <Box
@@ -215,7 +204,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
             color: 'rgba(0, 0, 0, 0.54)',
           }}
           onClick={(e) => {
-            handleOpenBtnList(e)
+            handleOpenBtnList(e);
           }}
         >
           <MoreHoriz
@@ -228,7 +217,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
         <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
           <MenuItem
             onClick={() => {
-              handleRemoveCsv()
+              handleRemoveCsv();
             }}
             sx={{
               color: '#D32F2F',
@@ -250,29 +239,17 @@ function BulkUploadTable(props: BulkUploadTableProps) {
         }}
       >
         <Box>
-          <Tabs
-            value={activeTab}
-            onChange={handleChangeTab}
-            aria-label="basic tabs example"
-          >
+          <Tabs value={activeTab} onChange={handleChangeTab} aria-label="basic tabs example">
             {errorProduct.length > 0 && (
               <Tab
                 value="error"
-                label={
-                  errorProduct.length
-                    ? `Errors (${errorProduct.length})`
-                    : 'Errors'
-                }
+                label={errorProduct.length ? `Errors (${errorProduct.length})` : 'Errors'}
               />
             )}
             {validProduct.length > 0 && (
               <Tab
                 value="valid"
-                label={
-                  validProduct.length
-                    ? `Valid (${validProduct.length})`
-                    : 'Valid'
-                }
+                label={validProduct.length ? `Valid (${validProduct.length})` : 'Valid'}
               />
             )}
           </Tabs>
@@ -280,9 +257,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
 
         <StyledTableContainer>
           <B3PaginationTable
-            columnItems={
-              activeTab === 'error' ? columnErrorsItems : columnValidItems
-            }
+            columnItems={activeTab === 'error' ? columnErrorsItems : columnValidItems}
             rowsPerPageOptions={[10, 20, 50]}
             showBorder={!isMobile}
             getRequestList={getProductInfo}
@@ -312,7 +287,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
         )}
       </Box>
     </Box>
-  )
+  );
 }
 
-export default BulkUploadTable
+export default BulkUploadTable;

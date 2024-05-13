@@ -1,13 +1,13 @@
-import { useNavigate } from 'react-router-dom'
-import { CallbackKey, useCallbacks } from '@b3/hooks'
-import { Box } from '@mui/material'
+import { useNavigate } from 'react-router-dom';
+import { CallbackKey, useCallbacks } from '@b3/hooks';
+import { Box } from '@mui/material';
 
 export interface B3SuccessTipContentProps {
-  message: string
-  link?: string
-  linkText?: string
-  isOutLink?: boolean
-  isCustomEvent?: boolean
+  message: string;
+  link?: string;
+  linkText?: string;
+  isOutLink?: boolean;
+  isCustomEvent?: boolean;
 }
 
 export function B3LinkTipContent({
@@ -17,24 +17,21 @@ export function B3LinkTipContent({
   isOutLink = false,
   isCustomEvent = false,
 }: B3SuccessTipContentProps) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const handleLink = useCallbacks(
-    CallbackKey.OnClickCartButton,
-    (_, handleEvent) => {
-      if (isCustomEvent) {
-        const isNotPreventDefaultExecuted = handleEvent()
-        if (!isNotPreventDefaultExecuted) {
-          return
-        }
-      }
-      if (isOutLink) {
-        window.location.href = link
-      } else {
-        navigate(link)
+  const handleLink = useCallbacks(CallbackKey.OnClickCartButton, (_, handleEvent) => {
+    if (isCustomEvent) {
+      const isNotPreventDefaultExecuted = handleEvent();
+      if (!isNotPreventDefaultExecuted) {
+        return;
       }
     }
-  )
+    if (isOutLink) {
+      window.location.href = link;
+    } else {
+      navigate(link);
+    }
+  });
 
   return (
     <Box>
@@ -60,7 +57,7 @@ export function B3LinkTipContent({
         </Box>
       )}
     </Box>
-  )
+  );
 }
 
 export const successTip = ({
@@ -79,5 +76,5 @@ export const successTip = ({
         isOutLink={isOutLink}
         isCustomEvent={isCustomEvent}
       />
-    )
-  }
+    );
+  };

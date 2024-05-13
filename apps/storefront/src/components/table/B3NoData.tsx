@@ -1,12 +1,12 @@
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import { DataUsageRounded } from '@mui/icons-material'
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import { DataUsageRounded } from '@mui/icons-material';
 
 interface B3NoDataProps {
-  text?: string
-  backgroundColor?: string
-  minHeight?: string
-  isLoading?: boolean
+  text?: string;
+  backgroundColor?: string;
+  minHeight?: string;
+  isLoading?: boolean;
 }
 
 const NoDataContainer = styled('div')(
@@ -19,12 +19,12 @@ const NoDataContainer = styled('div')(
     alignItems: 'center',
     color: '#aaa',
     fontSize: '18px',
-  })
-)
+  }),
+);
 
 const NoDataText = styled('span')(() => ({
   marginLeft: '10px',
-}))
+}));
 
 export default function B3NoData({
   text,
@@ -32,13 +32,11 @@ export default function B3NoData({
   minHeight,
   isLoading = false,
 }: B3NoDataProps) {
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
   return (
     <NoDataContainer backgroundColor={backgroundColor} minHeight={minHeight}>
       {!isLoading && <DataUsageRounded fontSize="large" />}
-      <NoDataText>
-        {isLoading ? '' : text || b3Lang('global.table.noData')}
-      </NoDataText>
+      <NoDataText>{isLoading ? '' : text || b3Lang('global.table.noData')}</NoDataText>
     </NoDataContainer>
-  )
+  );
 }

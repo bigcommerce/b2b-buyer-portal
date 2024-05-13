@@ -1,6 +1,6 @@
-import { Close } from '@mui/icons-material'
-import { Box, TextField } from '@mui/material'
-import { createTheme, styled } from '@mui/material/styles'
+import { Close } from '@mui/icons-material';
+import { Box, TextField } from '@mui/material';
+import { createTheme, styled } from '@mui/material/styles';
 
 const theme = createTheme({
   breakpoints: {
@@ -12,19 +12,19 @@ const theme = createTheme({
       xl: 1920,
     },
   },
-})
+});
 
 export const CloseButton = styled(Close)(() => ({
   cursor: 'pointer',
-}))
+}));
 
 export const CloseBox = styled(Box)(() => ({
   position: 'absolute',
   top: 15,
   right: 20,
-}))
+}));
 
-export const CloseBoxMobile = styled(Box)(() => ({}))
+export const CloseBoxMobile = styled(Box)(() => ({}));
 
 export const CardContainer = styled('div')(() => ({
   padding: '20px 20px',
@@ -36,16 +36,16 @@ export const CardContainer = styled('div')(() => ({
   [theme.breakpoints.down('sm')]: {
     padding: '16px 16px',
   },
-}))
+}));
 
 export const StyledNumberTextField = styled(TextField)(() => ({
   '& input': {
     paddingTop: '12px',
     paddingRight: '6px',
   },
-}))
+}));
 export const StyledNumberNoTopTextField = styled(TextField)(() => ({
   '& input': {
     paddingRight: '6px',
   },
-}))
+}));

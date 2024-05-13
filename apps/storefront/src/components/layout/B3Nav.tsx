@@ -1,49 +1,39 @@
-import { useContext } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { useB3Lang } from '@b3/lang'
-import {
-  Badge,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  useTheme,
-} from '@mui/material'
+import { useContext } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
+import { Badge, List, ListItem, ListItemButton, ListItemText, useTheme } from '@mui/material';
 
-import { useMobile } from '@/hooks'
-import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable'
-import { GlobaledContext } from '@/shared/global'
-import { getAllowedRoutes } from '@/shared/routes'
-import { RouteItem } from '@/shared/routes/routes'
-import { useAppSelector } from '@/store'
-import { B3SStorage } from '@/utils'
+import { useMobile } from '@/hooks';
+import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
+import { GlobaledContext } from '@/shared/global';
+import { getAllowedRoutes } from '@/shared/routes';
+import { RouteItem } from '@/shared/routes/routes';
+import { useAppSelector } from '@/store';
+import { B3SStorage } from '@/utils';
 
-import {
-  b3HexToRgb,
-  getContrastColor,
-} from '../outSideComponents/utils/b3CustomStyles'
+import { b3HexToRgb, getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
 interface B3NavProps {
-  closeSidebar?: (x: boolean) => void
+  closeSidebar?: (x: boolean) => void;
 }
 
 export default function B3Nav({ closeSidebar }: B3NavProps) {
-  const [isMobile] = useMobile()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const b3Lang = useB3Lang()
+  const [isMobile] = useMobile();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const b3Lang = useB3Lang();
 
-  const { dispatch } = useContext(DynamicallyVariableedContext)
-  const role = useAppSelector(({ company }) => company.customer.role)
+  const { dispatch } = useContext(DynamicallyVariableedContext);
+  const role = useAppSelector(({ company }) => company.customer.role);
 
-  const { state: globalState } = useContext(GlobaledContext)
-  const { quoteDetailHasNewMessages, registerEnabled } = globalState
+  const { state: globalState } = useContext(GlobaledContext);
+  const { quoteDetailHasNewMessages, registerEnabled } = globalState;
 
-  const theme = useTheme()
-  const primaryColor = theme.palette.primary.main
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
 
   const jumpRegister = () => {
-    navigate('/register')
+    navigate('/register');
     dispatch({
       type: 'common',
       payload: {
@@ -54,8 +44,8 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
           cancelText: 'Cancel',
         },
       },
-    })
-  }
+    });
+  };
 
   const handleClick = (item: RouteItem) => {
     if (role === 100) {
@@ -74,54 +64,44 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
             saveFn: jumpRegister,
           },
         },
-      })
+      });
 
-      return
+      return;
     }
 
-    navigate(item.path)
+    navigate(item.path);
     if (isMobile && closeSidebar) {
-      closeSidebar(false)
+      closeSidebar(false);
     }
-  }
+  };
   const menuItems = () => {
-    const newRoutes = getAllowedRoutes(globalState).filter(
-      (route: RouteItem) => route.isMenuItem
-    )
+    const newRoutes = getAllowedRoutes(globalState).filter((route: RouteItem) => route.isMenuItem);
 
-    return newRoutes
-  }
-  const newRoutes = menuItems()
+    return newRoutes;
+  };
+  const newRoutes = menuItems();
   const activePath = (path: string) => {
     if (location.pathname === path) {
-      B3SStorage.set('nextPath', path)
-      return true
+      B3SStorage.set('nextPath', path);
+      return true;
     }
 
     if (location.pathname.includes('orderDetail')) {
       const gotoOrderPath =
-        B3SStorage.get('nextPath') === '/company-orders'
-          ? '/company-orders'
-          : '/orders'
-      if (path === gotoOrderPath) return true
+        B3SStorage.get('nextPath') === '/company-orders' ? '/company-orders' : '/orders';
+      if (path === gotoOrderPath) return true;
     }
 
-    if (
-      location.pathname.includes('shoppingList') &&
-      path === '/shoppingLists'
-    ) {
-      return true
+    if (location.pathname.includes('shoppingList') && path === '/shoppingLists') {
+      return true;
     }
 
-    if (
-      location.pathname.includes('/quoteDetail') ||
-      location.pathname.includes('/quoteDraft')
-    ) {
-      if (path === '/quotes') return true
+    if (location.pathname.includes('/quoteDetail') || location.pathname.includes('/quoteDraft')) {
+      if (path === '/quotes') return true;
     }
 
-    return false
-  }
+    return false;
+  };
 
   return (
     <List
@@ -147,14 +127,12 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
     >
       {newRoutes.map((item: RouteItem) => {
         if (item.name === 'Quotes') {
-          const { pathname } = location
+          const { pathname } = location;
           return (
             <ListItem key={item.path} disablePadding>
               <Badge
                 badgeContent={
-                  quoteDetailHasNewMessages && pathname.includes('quoteDetail')
-                    ? ''
-                    : 0
+                  quoteDetailHasNewMessages && pathname.includes('quoteDetail') ? '' : 0
                 }
                 variant="dot"
                 sx={{
@@ -168,27 +146,21 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
                   },
                 }}
               >
-                <ListItemButton
-                  onClick={() => handleClick(item)}
-                  selected={activePath(item.path)}
-                >
+                <ListItemButton onClick={() => handleClick(item)} selected={activePath(item.path)}>
                   <ListItemText primary={b3Lang(item.idLang)} />
                 </ListItemButton>
               </Badge>
             </ListItem>
-          )
+          );
         }
         return (
           <ListItem key={item.path} disablePadding>
-            <ListItemButton
-              onClick={() => handleClick(item)}
-              selected={activePath(item.path)}
-            >
+            <ListItemButton onClick={() => handleClick(item)} selected={activePath(item.path)}>
               <ListItemText primary={b3Lang(item.idLang)} />
             </ListItemButton>
           </ListItem>
-        )
+        );
       })}
     </List>
-  )
+  );
 }

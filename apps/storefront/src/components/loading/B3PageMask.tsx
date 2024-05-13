@@ -1,15 +1,15 @@
-import { useContext } from 'react'
+import { useContext } from 'react';
 
-import { GlobaledContext } from '@/shared/global'
+import { GlobaledContext } from '@/shared/global';
 
-import Loading from './Loading'
+import Loading from './Loading';
 
 function B3PageMask() {
   const {
     state: { showPageMask },
-  } = useContext(GlobaledContext)
+  } = useContext(GlobaledContext);
 
-  return showPageMask ? <Loading /> : null
+  return showPageMask ? <Loading /> : null;
 }
 
-export default B3PageMask
+export default B3PageMask;

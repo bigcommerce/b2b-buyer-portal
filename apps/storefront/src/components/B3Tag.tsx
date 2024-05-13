@@ -1,10 +1,10 @@
-import styled from '@emotion/styled'
+import styled from '@emotion/styled';
 
 interface TagContainerProps {
-  color?: string
-  textColor?: string
-  padding?: string
-  fontSize?: string
+  color?: string;
+  textColor?: string;
+  padding?: string;
+  fontSize?: string;
 }
 
 const B3Tag = styled('span')(
@@ -22,6 +22,6 @@ const B3Tag = styled('span')(
     fontSize,
     // whiteSpace: 'nowrap',
     display: 'inline-block',
-  })
-)
-export default B3Tag
+  }),
+);
+export default B3Tag;

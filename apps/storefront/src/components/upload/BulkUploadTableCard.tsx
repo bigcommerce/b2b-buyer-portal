@@ -1,16 +1,16 @@
-import { Box, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material';
 
 interface BulkUploadTableCardProps {
-  products: CustomFieldItems
-  activeTab: string
+  products: CustomFieldItems;
+  activeTab: string;
 }
 
 function BulkUploadTableCard(props: BulkUploadTableCardProps) {
-  const { products, activeTab } = props
+  const { products, activeTab } = props;
 
   const lineItemStyle = {
     display: 'flex',
-  }
+  };
 
   return (
     <Box
@@ -81,7 +81,7 @@ function BulkUploadTableCard(props: BulkUploadTableCardProps) {
         </>
       )}
     </Box>
-  )
+  );
 }
 
-export default BulkUploadTableCard
+export default BulkUploadTableCard;

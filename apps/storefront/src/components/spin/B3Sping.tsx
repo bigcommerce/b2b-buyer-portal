@@ -1,22 +1,22 @@
-import { ReactNode } from 'react'
-import { useB3Lang } from '@b3/lang'
-import { CircularProgress, useTheme } from '@mui/material'
+import { ReactNode } from 'react';
+import { useB3Lang } from '@b3/lang';
+import { CircularProgress, useTheme } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile'
+import useMobile from '@/hooks/useMobile';
 
-import { SpinCenter, SpinContext, SpinTip } from './styled'
+import { SpinCenter, SpinContext, SpinTip } from './styled';
 
 interface B3SpingProps {
-  isSpinning: boolean | undefined
-  children: ReactNode
-  tip?: string
-  size?: number
-  thickness?: number & undefined
-  isCloseLoading?: boolean
-  background?: string
-  spinningHeight?: number | string
-  isFlex?: boolean
-  transparency?: string
+  isSpinning: boolean | undefined;
+  children: ReactNode;
+  tip?: string;
+  size?: number;
+  thickness?: number & undefined;
+  isCloseLoading?: boolean;
+  background?: string;
+  spinningHeight?: number | string;
+  isFlex?: boolean;
+  transparency?: string;
 }
 
 export default function B3Sping(props: B3SpingProps) {
@@ -31,26 +31,20 @@ export default function B3Sping(props: B3SpingProps) {
     spinningHeight,
     isFlex,
     transparency = '1',
-  } = props
+  } = props;
 
-  const theme = useTheme()
+  const theme = useTheme();
 
-  const primaryColor = theme.palette.primary.main
+  const primaryColor = theme.palette.primary.main;
 
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
   return (
     <SpinContext isFlex={isFlex} height={spinningHeight}>
       {isSpinning && (
-        <SpinCenter
-          background={background}
-          isMobile={isMobile}
-          transparency={transparency}
-        >
-          {!isCloseLoading && (
-            <CircularProgress size={size || 40} thickness={thickness || 2} />
-          )}
+        <SpinCenter background={background} isMobile={isMobile} transparency={transparency}>
+          {!isCloseLoading && <CircularProgress size={size || 40} thickness={thickness || 2} />}
           {tip && (
             <SpinTip
               style={{
@@ -64,5 +58,5 @@ export default function B3Sping(props: B3SpingProps) {
       )}
       {children}
     </SpinContext>
-  )
+  );
 }

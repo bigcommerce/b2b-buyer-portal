@@ -1,36 +1,36 @@
-import { useState } from 'react'
-import { Box } from '@mui/material'
+import { useState } from 'react';
+import { Box } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile'
+import useMobile from '@/hooks/useMobile';
 
-import CustomButton from '../button/CustomButton'
-import { B3Select } from '../ui'
+import CustomButton from '../button/CustomButton';
+import { B3Select } from '../ui';
 
-import B3FilterMore from './B3FilterMore'
-import B3FilterSearch from './B3FilterSearch'
+import B3FilterMore from './B3FilterMore';
+import B3FilterSearch from './B3FilterSearch';
 
 interface SortByItemNameProps {
-  valueName: string
-  labelName: string
+  valueName: string;
+  labelName: string;
 }
 
 interface PickerProps {
-  isEnabled: boolean
-  defaultValue?: Date | number | string | null
-  label: string
-  w?: number
-  pickerKey?: string
+  isEnabled: boolean;
+  defaultValue?: Date | number | string | null;
+  label: string;
+  w?: number;
+  pickerKey?: string;
 }
 
 interface SortByConfigProps {
-  isEnabled: boolean
-  sortByList?: any[]
-  sortByItemName?: SortByItemNameProps | undefined
-  sortByLabel: string
-  defaultValue?: string | undefined
-  isFirstSelect?: boolean
-  firstSelectText?: string
-  w?: number
+  isEnabled: boolean;
+  sortByList?: any[];
+  sortByItemName?: SortByItemNameProps | undefined;
+  sortByLabel: string;
+  defaultValue?: string | undefined;
+  isFirstSelect?: boolean;
+  firstSelectText?: string;
+  w?: number;
 }
 
 type DeepPartial<T> = {
@@ -38,26 +38,26 @@ type DeepPartial<T> = {
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
     ? ReadonlyArray<DeepPartial<U>>
-    : DeepPartial<T[P]>
-}
+    : DeepPartial<T[P]>;
+};
 
 interface CustomButtomProps {
-  isEnabled: boolean
-  customLabel: string
-  customButtomStyle?: { [key: string]: string }
+  isEnabled: boolean;
+  customLabel: string;
+  customButtomStyle?: { [key: string]: string };
 }
 
 interface B3FilterProps<T, Y> {
-  sortByConfig?: SortByConfigProps
-  customButtomConfig?: CustomButtomProps
-  startPicker?: PickerProps
-  endPicker?: PickerProps
-  fiterMoreInfo: Array<DeepPartial<T>>
-  handleChange: (key: string, value: string) => void
-  handleFilterChange: (value: Y) => void
-  handleFilterCustomButtomClick?: () => void
-  showB3FilterMoreIcon?: boolean
-  searchValue?: string
+  sortByConfig?: SortByConfigProps;
+  customButtomConfig?: CustomButtomProps;
+  startPicker?: PickerProps;
+  endPicker?: PickerProps;
+  fiterMoreInfo: Array<DeepPartial<T>>;
+  handleChange: (key: string, value: string) => void;
+  handleFilterChange: (value: Y) => void;
+  handleFilterCustomButtomClick?: () => void;
+  showB3FilterMoreIcon?: boolean;
+  searchValue?: string;
 }
 
 function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
@@ -72,26 +72,24 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
     handleFilterCustomButtomClick,
     showB3FilterMoreIcon = true,
     searchValue = '',
-  } = props
+  } = props;
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const [sortByValue, setSortBy] = useState<string>(
-    sortByConfig?.defaultValue || ''
-  )
+  const [sortByValue, setSortBy] = useState<string>(sortByConfig?.defaultValue || '');
 
   const handleSortByChange = (value: string) => {
-    setSortBy(value)
-    handleChange('sortBy', value)
-  }
+    setSortBy(value);
+    handleChange('sortBy', value);
+  };
 
   const handleSearchChange = (value: string) => {
-    handleChange('search', value)
-  }
+    handleChange('search', value);
+  };
 
   const handleCustomBtnClick = () => {
-    if (handleFilterCustomButtomClick) handleFilterCustomButtomClick()
-  }
+    if (handleFilterCustomButtomClick) handleFilterCustomButtomClick();
+  };
 
   return (
     <>
@@ -111,11 +109,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
               alignItems: 'center',
             }}
           >
-            <B3FilterSearch
-              handleChange={handleSearchChange}
-              w="60%"
-              searchValue={searchValue}
-            />
+            <B3FilterSearch handleChange={handleSearchChange} w="60%" searchValue={searchValue} />
             {showB3FilterMoreIcon && (
               <B3FilterMore
                 startPicker={startPicker}
@@ -185,11 +179,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
               justifyContent: 'space-between',
             }}
           >
-            <B3FilterSearch
-              handleChange={handleSearchChange}
-              w="90%"
-              searchValue={searchValue}
-            />
+            <B3FilterSearch handleChange={handleSearchChange} w="90%" searchValue={searchValue} />
             <B3FilterMore
               startPicker={startPicker}
               endPicker={endPicker}
@@ -215,7 +205,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
         </Box>
       )}
     </>
-  )
+  );
 }
 
-export default B3Filter
+export default B3Filter;

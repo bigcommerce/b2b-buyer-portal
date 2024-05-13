@@ -1,17 +1,13 @@
-import { KeyboardEvent, WheelEvent } from 'react'
-import { Controller } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import { Box, TextField } from '@mui/material'
-import debounce from 'lodash-es/debounce'
+import { KeyboardEvent, WheelEvent } from 'react';
+import { Controller } from 'react-hook-form';
+import { useB3Lang } from '@b3/lang';
+import { Box, TextField } from '@mui/material';
+import debounce from 'lodash-es/debounce';
 
-import { StyleNumberTextField } from './styled'
-import Form from './ui'
+import { StyleNumberTextField } from './styled';
+import Form from './ui';
 
-export default function B3ControlTextField({
-  control,
-  errors,
-  ...rest
-}: Form.B3UIProps) {
+export default function B3ControlTextField({ control, errors, ...rest }: Form.B3UIProps) {
   const {
     fieldType,
     isAutoComplete = false,
@@ -40,17 +36,17 @@ export default function B3ControlTextField({
     fieldId,
     isEnterTrigger,
     handleEnterClick,
-  } = rest
+  } = rest;
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  let requiredText = ''
+  let requiredText = '';
   if (fieldType === 'password') {
-    requiredText = b3Lang('global.validate.password.required')
+    requiredText = b3Lang('global.validate.password.required');
   } else {
     requiredText = b3Lang('global.validate.required', {
       label: labelName || label,
-    })
+    });
   }
 
   const fieldsProps = {
@@ -63,7 +59,7 @@ export default function B3ControlTextField({
       validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,
-  }
+  };
 
   const textField = {
     type: fieldType,
@@ -77,7 +73,7 @@ export default function B3ControlTextField({
     fullWidth: fullWidth || true,
     required,
     size,
-  }
+  };
 
   const inputProps = {
     min,
@@ -85,7 +81,7 @@ export default function B3ControlTextField({
     maxLength,
     minLength,
     readOnly,
-  }
+  };
 
   const muiAttributeProps = muiTextFieldProps
     ? {
@@ -94,40 +90,36 @@ export default function B3ControlTextField({
       }
     : {
         ...inputProps,
-      }
+      };
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    const keys = allowArrow
-      ? ['KeyE', 'Period']
-      : ['ArrowUp', 'ArrowDown', 'KeyE', 'Period']
+    const keys = allowArrow ? ['KeyE', 'Period'] : ['ArrowUp', 'ArrowDown', 'KeyE', 'Period'];
     if (keys.indexOf(event.code) > -1) {
-      event.preventDefault()
+      event.preventDefault();
     }
-  }
+  };
 
   const handleKeyDown = debounce((event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && handleEnterClick) {
-      handleEnterClick()
+      handleEnterClick();
     } else {
-      event.preventDefault()
+      event.preventDefault();
     }
-  }, 300)
+  }, 300);
 
   const handleNumberInputWheel = (event: WheelEvent<HTMLInputElement>) => {
-    ;(event.target as HTMLElement).blur()
-  }
+    (event.target as HTMLElement).blur();
+  };
   const autoCompleteFn = () => {
     if (!isAutoComplete) {
       return {
         autoComplete: 'off',
-      }
+      };
     }
-    return {}
-  }
+    return {};
+  };
   const newExtraPadding =
-    fieldId === 'field_state' && extraPadding.paddingTop === '0px'
-      ? {}
-      : extraPadding
+    fieldId === 'field_state' && extraPadding.paddingTop === '0px' ? {} : extraPadding;
 
   return ['text', 'number', 'password', 'multiline'].includes(fieldType) ? (
     <>
@@ -156,9 +148,7 @@ export default function B3ControlTextField({
               allowarrow={allowArrow ? 1 : 0}
               inputProps={muiAttributeProps}
               error={!!errors[name]}
-              helperText={
-                (errors as any)[name] ? (errors as any)[name].message : null
-              }
+              helperText={(errors as any)[name] ? (errors as any)[name].message : null}
               onKeyDown={handleNumberInputKeyDown}
               onWheel={handleNumberInputWheel}
             />
@@ -178,9 +168,7 @@ export default function B3ControlTextField({
               }}
               inputProps={muiAttributeProps}
               error={!!errors[name]}
-              helperText={
-                (errors as any)[name] ? (errors as any)[name].message : null
-              }
+              helperText={(errors as any)[name] ? (errors as any)[name].message : null}
               onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
               {...autoCompleteFn()}
             />
@@ -199,5 +187,5 @@ export default function B3ControlTextField({
         </Box>
       )}
     </>
-  ) : null
+  ) : null;
 }

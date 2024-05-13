@@ -1,53 +1,50 @@
-import { useContext, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { CallbackKey, useCallbacks } from '@b3/hooks'
-import { useB3Lang } from '@b3/lang'
-import { Box, Button, Typography } from '@mui/material'
+import { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CallbackKey, useCallbacks } from '@b3/hooks';
+import { useB3Lang } from '@b3/lang';
+import { Box, Button, Typography } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile'
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { useAppSelector } from '@/store'
-import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
+import useMobile from '@/hooks/useMobile';
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { useAppSelector } from '@/store';
+import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 
-import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
+import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
-import B3AccountInfo from './B3AccountInfo'
-import B3StatusNotification from './B3StatusNotification'
+import B3AccountInfo from './B3AccountInfo';
+import B3StatusNotification from './B3StatusNotification';
 
 export default function B3Mainheader({ title }: { title: string }) {
-  const role = useAppSelector(({ company }) => company.customer.role)
-  const companyInfo = useAppSelector(({ company }) => company.companyInfo)
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const companyInfo = useAppSelector(({ company }) => company.companyInfo);
   const salesRepCompanyName = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName
-  )
-  const cartNumber = useAppSelector(({ global }) => global.cartNumber)
-  const navigate = useNavigate()
-  const b3Lang = useB3Lang()
-  const [isMobile] = useMobile()
+    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName,
+  );
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
+  const navigate = useNavigate();
+  const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
-  const customColor = getContrastColor(backgroundColor)
+  const customColor = getContrastColor(backgroundColor);
 
-  const onCartClick = useCallbacks(
-    CallbackKey.OnClickCartButton,
-    (_, handleEvent) => {
-      const isNotPreventDefaultExecuted = handleEvent()
-      if (!isNotPreventDefaultExecuted) {
-        return
-      }
-
-      window.location.href = '/cart.php'
+  const onCartClick = useCallbacks(CallbackKey.OnClickCartButton, (_, handleEvent) => {
+    const isNotPreventDefaultExecuted = handleEvent();
+    if (!isNotPreventDefaultExecuted) {
+      return;
     }
-  )
+
+    window.location.href = '/cart.php';
+  });
 
   useEffect(() => {
-    b3TriggerCartNumber()
-  }, [])
+    b3TriggerCartNumber();
+  }, []);
 
   return (
     <Box>
@@ -89,7 +86,7 @@ export default function B3Mainheader({ title }: { title: string }) {
                   fontSize: '16px',
                 }}
                 onClick={() => {
-                  navigate('/login')
+                  navigate('/login');
                 }}
               >
                 {b3Lang('global.B3MainHeader.signIn')}
@@ -102,7 +99,7 @@ export default function B3Mainheader({ title }: { title: string }) {
                 fontSize: '16px',
               }}
               onClick={() => {
-                window.location.href = '/'
+                window.location.href = '/';
               }}
             >
               {b3Lang('global.B3MainHeader.home')}
@@ -162,5 +159,5 @@ export default function B3Mainheader({ title }: { title: string }) {
       )}
       <B3StatusNotification title={title} />
     </Box>
-  )
+  );
 }

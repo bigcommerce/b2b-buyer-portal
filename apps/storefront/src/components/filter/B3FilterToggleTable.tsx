@@ -1,15 +1,15 @@
-import { MouseEvent, useState } from 'react'
-import DensitySmallIcon from '@mui/icons-material/DensitySmall'
-import QrCodeIcon from '@mui/icons-material/QrCode'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import { MouseEvent, useState } from 'react';
+import DensitySmallIcon from '@mui/icons-material/DensitySmall';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 function B3FilterToggleTable() {
-  const [tableValue, setTableValue] = useState('bold')
+  const [tableValue, setTableValue] = useState('bold');
 
   const handleFormat = (event: MouseEvent<HTMLElement>, value: string) => {
-    setTableValue(value)
-  }
+    setTableValue(value);
+  };
   return (
     <ToggleButtonGroup value={tableValue} exclusive onChange={handleFormat}>
       <ToggleButton value="bold">
@@ -19,7 +19,7 @@ function B3FilterToggleTable() {
         <QrCodeIcon />
       </ToggleButton>
     </ToggleButtonGroup>
-  )
+  );
 }
 
-export default B3FilterToggleTable
+export default B3FilterToggleTable;

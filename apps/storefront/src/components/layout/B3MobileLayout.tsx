@@ -1,43 +1,41 @@
-import { ReactNode, useContext, useState } from 'react'
-import { Close, Dehaze, ShoppingBagOutlined } from '@mui/icons-material'
-import { Badge, Box } from '@mui/material'
+import { ReactNode, useContext, useState } from 'react';
+import { Close, Dehaze, ShoppingBagOutlined } from '@mui/icons-material';
+import { Badge, Box } from '@mui/material';
 
-import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { useAppSelector } from '@/store'
+import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { useAppSelector } from '@/store';
 
-import CompanyCredit from '../CompanyCredit'
-import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles'
+import CompanyCredit from '../CompanyCredit';
+import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
-import B3AccountInfo from './B3AccountInfo'
-import B3CloseAppButton from './B3CloseAppButton'
-import B3Logo from './B3Logo'
-import B3Nav from './B3Nav'
+import B3AccountInfo from './B3AccountInfo';
+import B3CloseAppButton from './B3CloseAppButton';
+import B3Logo from './B3Logo';
+import B3Nav from './B3Nav';
 
 export default function B3MobileLayout({
   children,
   title,
 }: {
-  children: ReactNode
-  title: string
+  children: ReactNode;
+  title: string;
 }) {
-  const [isOpenMobileSidebar, setOpenMobileSidebar] = useState<boolean>(false)
-  const cartNumber = useAppSelector(({ global }) => global.cartNumber)
-  const role = useAppSelector(({ company }) => company.customer.role)
-  const isAgenting = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
-  )
+  const [isOpenMobileSidebar, setOpenMobileSidebar] = useState<boolean>(false);
+  const cartNumber = useAppSelector(({ global }) => global.cartNumber);
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
-  } = useContext(CustomStyleContext)
+  } = useContext(CustomStyleContext);
 
   const openRouteList = () => {
-    setOpenMobileSidebar(true)
-  }
+    setOpenMobileSidebar(true);
+  };
 
-  const customColor = getContrastColor(backgroundColor)
+  const customColor = getContrastColor(backgroundColor);
 
   return (
     <Box
@@ -87,7 +85,7 @@ export default function B3MobileLayout({
               <ShoppingBagOutlined
                 sx={{ color: 'rgba(0, 0, 0, 0.54)', marginRight: '-0.5rem' }}
                 onClick={() => {
-                  window.location.href = '/cart.php'
+                  window.location.href = '/cart.php';
                 }}
               />
             </Badge>
@@ -157,5 +155,5 @@ export default function B3MobileLayout({
         </Box>
       )}
     </Box>
-  )
+  );
 }

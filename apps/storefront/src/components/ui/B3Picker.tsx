@@ -1,20 +1,20 @@
-import { useRef, useState } from 'react'
-import { Box, TextField } from '@mui/material'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import dayjs from 'dayjs'
+import { useRef, useState } from 'react';
+import { Box, TextField } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 
-import { useMobile } from '@/hooks'
+import { useMobile } from '@/hooks';
 
 interface B3PickerProps {
-  onChange: (date: Date | string | number) => void
-  variant?: 'filled' | 'outlined' | 'standard'
-  value: Date | string | number | undefined
-  label: string
-  disableOpenPicker?: boolean
-  formatInput?: string
-  size?: 'small' | 'medium' | undefined
+  onChange: (date: Date | string | number) => void;
+  variant?: 'filled' | 'outlined' | 'standard';
+  value: Date | string | number | undefined;
+  label: string;
+  disableOpenPicker?: boolean;
+  formatInput?: string;
+  size?: 'small' | 'medium' | undefined;
 }
 
 export default function B3Picker({
@@ -26,26 +26,26 @@ export default function B3Picker({
   formatInput = 'YYYY-MM-DD',
   size = 'small',
 }: B3PickerProps) {
-  const pickerRef = useRef(null)
-  const container = useRef<HTMLInputElement | null>(null)
-  const [isMobile] = useMobile()
+  const pickerRef = useRef(null);
+  const container = useRef<HTMLInputElement | null>(null);
+  const [isMobile] = useMobile();
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const openPickerClick = () => {
-    setOpen(!open)
+    setOpen(!open);
     if (pickerRef && pickerRef?.current && (pickerRef.current as any)?.blur) {
-      ;(pickerRef.current as any).blur()
+      (pickerRef.current as any).blur();
     }
-  }
+  };
 
   const onHandleChange = (value: Date | number | string) => {
     if (typeof value !== 'string') {
-      const pickerValue = dayjs(value).format(formatInput)
-      onChange(pickerValue)
+      const pickerValue = dayjs(value).format(formatInput);
+      onChange(pickerValue);
     } else {
-      onChange(value)
+      onChange(value);
     }
-  }
+  };
   return (
     <>
       <Box ref={container} />
@@ -57,7 +57,7 @@ export default function B3Picker({
           }}
           onChange={(val) => val && onHandleChange(val)}
           onClose={() => {
-            setOpen(false)
+            setOpen(false);
           }}
           value={value || null}
           open={open}
@@ -69,13 +69,13 @@ export default function B3Picker({
               size={size}
               onClick={() => {
                 if (!isMobile) {
-                  openPickerClick()
+                  openPickerClick();
                 }
               }}
               onTouchEnd={() => {
                 if (isMobile) {
                   if (!open) {
-                    openPickerClick()
+                    openPickerClick();
                   }
                 }
               }}
@@ -85,5 +85,5 @@ export default function B3Picker({
         />
       </LocalizationProvider>
     </>
-  )
+  );
 }

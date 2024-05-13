@@ -1,16 +1,16 @@
 // import {
 //   useState,
 // } from 'react'
-import { Controller } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import { TextField } from '@mui/material'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import dayjs from 'dayjs'
+import { Controller } from 'react-hook-form';
+import { useB3Lang } from '@b3/lang';
+import { TextField } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 
-import { PickerFormControl } from './styled'
-import Form from './ui'
+import { PickerFormControl } from './styled';
+import Form from './ui';
 
 export default function B3ControlPicker({
   control,
@@ -29,11 +29,11 @@ export default function B3ControlPicker({
     setValue,
     variant,
     getValues,
-  } = rest
+  } = rest;
 
-  const b3Lang = useB3Lang()
+  const b3Lang = useB3Lang();
 
-  const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps
+  const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps;
 
   const fieldsProps = {
     type: fieldType,
@@ -49,17 +49,17 @@ export default function B3ControlPicker({
       validate: validate && ((v: string) => validate(v, b3Lang)),
     },
     control,
-  }
+  };
 
-  const muixPickerProps = muiTextFieldProps || {}
+  const muixPickerProps = muiTextFieldProps || {};
 
   const handleDatePickerChange = (value: Date) => {
     try {
-      setValue(name, dayjs(value).format(inputFormat))
+      setValue(name, dayjs(value).format(inputFormat));
     } catch (error) {
-      setValue(name, value)
+      setValue(name, value);
     }
-  }
+  };
 
   return ['date'].includes(fieldType) ? (
     <PickerFormControl>
@@ -87,9 +87,7 @@ export default function B3ControlPicker({
                   }}
                   value={getValues(name) || defaultValue}
                   error={!!errors[name]}
-                  helperText={
-                    (errors as any)[name] ? (errors as any)[name].message : null
-                  }
+                  helperText={(errors as any)[name] ? (errors as any)[name].message : null}
                 />
               )}
               {...rest}
@@ -99,5 +97,5 @@ export default function B3ControlPicker({
         />
       </LocalizationProvider>
     </PickerFormControl>
-  ) : null
+  ) : null;
 }

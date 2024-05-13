@@ -1,36 +1,36 @@
-import { useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import useMobile from '@/hooks/useMobile'
-import { GlobaledContext } from '@/shared/global'
-import { useAppSelector } from '@/store'
+import useMobile from '@/hooks/useMobile';
+import { GlobaledContext } from '@/shared/global';
+import { useAppSelector } from '@/store';
 
-import { CloseBox, CloseBoxMobile, CloseButton } from '../styled'
+import { CloseBox, CloseBoxMobile, CloseButton } from '../styled';
 
 export default function B3CloseAppButton() {
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn)
+  const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn);
 
   const {
     state: { isCloseGotoBCHome },
-  } = useContext(GlobaledContext)
-  const navigate = useNavigate()
+  } = useContext(GlobaledContext);
+  const navigate = useNavigate();
 
   const handleCloseForm = () => {
     if (isCloseGotoBCHome) {
-      window.location.href = '/'
+      window.location.href = '/';
     } else {
-      navigate('/')
+      navigate('/');
       setOpenPageFn?.({
         isOpen: false,
         openUrl: '',
-      })
+      });
     }
-    window.history.replaceState(null, '', window.location.pathname || '/')
-  }
+    window.history.replaceState(null, '', window.location.pathname || '/');
+  };
 
-  const Box = isMobile ? CloseBoxMobile : CloseBox
+  const Box = isMobile ? CloseBoxMobile : CloseBox;
 
   return (
     <Box>
@@ -41,5 +41,5 @@ export default function B3CloseAppButton() {
         onClick={handleCloseForm}
       />
     </Box>
-  )
+  );
 }

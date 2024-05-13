@@ -1,44 +1,29 @@
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  ReactElement,
-  useEffect,
-  useState,
-} from 'react'
-import { useB3Lang } from '@b3/lang'
-import styled from '@emotion/styled'
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  TextField,
-  Typography,
-} from '@mui/material'
-import noop from 'lodash-es/noop'
+import { ChangeEvent, KeyboardEvent, ReactElement, useEffect, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
+import styled from '@emotion/styled';
+import { Box, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
+import noop from 'lodash-es/noop';
 
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants'
-import { useMobile } from '@/hooks'
-import { useAppSelector } from '@/store'
-import { currencyFormat, ordersCurrencyFormat } from '@/utils'
-import {
-  getDisplayPrice,
-  judgmentBuyerProduct,
-} from '@/utils/b3Product/b3Product'
+import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { useMobile } from '@/hooks';
+import { useAppSelector } from '@/store';
+import { currencyFormat, ordersCurrencyFormat } from '@/utils';
+import { getDisplayPrice, judgmentBuyerProduct } from '@/utils/b3Product/b3Product';
 
-import { MoneyFormat, ProductItem } from '../types'
+import { MoneyFormat, ProductItem } from '../types';
 
 interface FlexProps {
-  isHeader?: boolean
-  isMobile?: boolean
+  isHeader?: boolean;
+  isMobile?: boolean;
 }
 
 interface FlexItemProps {
-  width?: string
-  padding?: string
-  textAlignLocation?: string
+  width?: string;
+  padding?: string;
+  textAlignLocation?: string;
   sx?: {
-    [key: string]: string | number
-  }
+    [key: string]: string | number;
+  };
 }
 
 const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
@@ -47,7 +32,7 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
         borderBottom: '1px solid #D9DCE9',
         paddingBottom: '8px',
       }
-    : {}
+    : {};
 
   const mobileStyle = isMobile
     ? {
@@ -57,9 +42,9 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
           marginTop: '12px',
         },
       }
-    : {}
+    : {};
 
-  const flexWrap = isMobile ? 'wrap' : 'initial'
+  const flexWrap = isMobile ? 'wrap' : 'initial';
 
   return {
     color: '#212121',
@@ -71,8 +56,8 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
     alignItems: ' flex-start',
     ...headerStyle,
     ...mobileStyle,
-  }
-})
+  };
+});
 
 const FlexItem = styled('div')(
   ({ width, textAlignLocation, padding = '0', sx }: FlexItemProps) => ({
@@ -84,26 +69,26 @@ const FlexItem = styled('div')(
     width,
     padding,
     ...sx,
-  })
-)
+  }),
+);
 
 const ProductHead = styled('div')(() => ({
   fontSize: '0.875rem',
   lineHeight: '1.5',
   color: '#263238',
-}))
+}));
 
 const ProductImage = styled('img')(() => ({
   width: '60px',
   borderRadius: '4px',
   flexShrink: 0,
-}))
+}));
 
 const ProductOptionText = styled('div')(() => ({
   fontSize: '0.75rem',
   lineHeight: '1.5',
   color: '#455A64',
-}))
+}));
 
 const defaultItemStyle = {
   default: {
@@ -112,7 +97,7 @@ const defaultItemStyle = {
   qty: {
     width: '12%',
   },
-}
+};
 
 const mobileItemStyle = {
   default: {
@@ -123,23 +108,23 @@ const mobileItemStyle = {
     width: '100%',
     padding: '0 0 0 76px',
   },
-}
+};
 
 interface ProductProps<T> {
-  products: Array<T & ProductItem>
-  money?: MoneyFormat
-  renderAction?: (item: T & ProductItem) => ReactElement
-  actionWidth?: string
-  quantityKey?: string
-  quantityEditable?: boolean
-  onProductQuantityChange?: (id: number, newQuantity: number) => void
-  showCheckbox?: boolean
-  setCheckedArr?: (items: Array<T & ProductItem>) => void
-  selectAllText?: string
-  totalText?: string
-  canToProduct?: boolean
-  textAlign?: string
-  type?: string
+  products: Array<T & ProductItem>;
+  money?: MoneyFormat;
+  renderAction?: (item: T & ProductItem) => ReactElement;
+  actionWidth?: string;
+  quantityKey?: string;
+  quantityEditable?: boolean;
+  onProductQuantityChange?: (id: number, newQuantity: number) => void;
+  showCheckbox?: boolean;
+  setCheckedArr?: (items: Array<T & ProductItem>) => void;
+  selectAllText?: string;
+  totalText?: string;
+  canToProduct?: boolean;
+  textAlign?: string;
+  type?: string;
 }
 
 export default function B3ProductList<T>(props: ProductProps<T>) {
@@ -158,117 +143,107 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
     textAlign = 'left',
     money,
     type,
-  } = props
+  } = props;
 
-  const [list, setList] = useState<ProductItem[]>([])
-  const [isMobile] = useMobile()
-  const b3Lang = useB3Lang()
-  const showInclusiveTaxPrice = useAppSelector(
-    ({ global }) => global.showInclusiveTaxPrice
-  )
+  const [list, setList] = useState<ProductItem[]>([]);
+  const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
+  const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
 
-  const getQuantity = (product: any) =>
-    parseInt(product[quantityKey]?.toString() || '', 10) || ''
+  const getQuantity = (product: any) => parseInt(product[quantityKey]?.toString() || '', 10) || '';
 
   const getProductTotals = (quantity: number, price: string | number) => {
-    const priceNumber = parseFloat(price.toString()) || 0
+    const priceNumber = parseFloat(price.toString()) || 0;
 
-    return quantity * priceNumber
-  }
+    return quantity * priceNumber;
+  };
 
-  const handleProductQuantityChange =
-    (id: number) => (e: ChangeEvent<HTMLInputElement>) => {
-      if (!e.target.value || parseInt(e.target.value, 10) > 0) {
-        onProductQuantityChange(id, e.target.value)
-      }
+  const handleProductQuantityChange = (id: number) => (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.value || parseInt(e.target.value, 10) > 0) {
+      onProductQuantityChange(id, e.target.value);
     }
+  };
 
   const handleNumberInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (['KeyE', 'Equal', 'Minus'].indexOf(event.code) > -1) {
-      event.preventDefault()
+      event.preventDefault();
     }
-  }
+  };
 
   const handleNumberInputBlur = (product: CustomFieldItems) => () => {
     if (!product[quantityKey]) {
-      onProductQuantityChange(product.id, 1)
+      onProductQuantityChange(product.id, 1);
     }
 
     if (+product[quantityKey] > 1000000) {
-      onProductQuantityChange(product.id, 1000000)
+      onProductQuantityChange(product.id, 1000000);
     }
-  }
+  };
 
   const handleSelectAllChange = () => {
-    const newList = [...list]
+    const newList = [...list];
     if (newList.length === products.length) {
-      setList([])
+      setList([]);
     } else {
-      setList([...products])
+      setList([...products]);
     }
-  }
+  };
 
   const handleSelectChange = (product: ProductItem) => {
-    const newList = [...list]
-    const index = newList.findIndex((item) => item.id === product.id)
+    const newList = [...list];
+    const index = newList.findIndex((item) => item.id === product.id);
     if (index !== -1) {
-      newList.splice(index, 1)
+      newList.splice(index, 1);
     } else {
-      newList.push(product)
+      newList.push(product);
     }
-    setList(newList)
-  }
+    setList(newList);
+  };
 
   const isChecked = (product: ProductItem) =>
-    list.findIndex((item) => item.id === product.id) !== -1
+    list.findIndex((item) => item.id === product.id) !== -1;
 
   useEffect(() => {
-    setCheckedArr(list)
+    setCheckedArr(list);
     // disabling because dispatchers are not supposed to be here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [list])
+  }, [list]);
 
   useEffect(() => {
-    setList([])
-  }, [products])
+    setList([]);
+  }, [products]);
 
-  const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle
+  const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
 
-  const showTypePrice = (
-    newMoney: string | number,
-    product: CustomFieldItems
-  ): string | number => {
+  const showTypePrice = (newMoney: string | number, product: CustomFieldItems): string | number => {
     if (type === 'quote') {
       return getDisplayPrice({
         price: newMoney,
         productInfo: product,
         isProduct: true,
-      })
+      });
     }
     if (type === 'shoppingList' || type === 'quickOrder') {
-      const { isPriceHidden } = product
+      const { isPriceHidden } = product;
       const isBuyerProduct = judgmentBuyerProduct({
         price: newMoney,
         productInfo: product,
         isProduct: true,
-      })
-      return isPriceHidden && !isBuyerProduct ? '' : newMoney
+      });
+      return isPriceHidden && !isBuyerProduct ? '' : newMoney;
     }
     // if (type === 'quickOrder') {
     //   return newMoney
     // }
-    return newMoney
-  }
+    return newMoney;
+  };
 
   return products.length > 0 ? (
     <Box>
       {!isMobile && (
         <Flex isHeader isMobile={isMobile}>
           {showCheckbox && (
-            <Checkbox
-              checked={list.length === products.length}
-              onChange={handleSelectAllChange}
-            />
+            <Checkbox checked={list.length === products.length} onChange={handleSelectAllChange} />
           )}
           <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
             <ProductHead>{b3Lang('global.searchProduct.product')}</ProductHead>
@@ -296,10 +271,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
         <FormControlLabel
           label={selectAllText}
           control={
-            <Checkbox
-              checked={list.length === products.length}
-              onChange={handleSelectAllChange}
-            />
+            <Checkbox checked={list.length === products.length} onChange={handleSelectAllChange} />
           }
           sx={{
             paddingLeft: '0.6rem',
@@ -308,52 +280,46 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
       )}
 
       {products.map((product) => {
-        const { variants = [] } = product
-        const currentVariant = variants[0]
-        let productPrice = +product.base_price
+        const { variants = [] } = product;
+        const currentVariant = variants[0];
+        let productPrice = +product.base_price;
         if (currentVariant) {
-          const bcCalculatedPrice = currentVariant.bc_calculated_price
+          const bcCalculatedPrice = currentVariant.bc_calculated_price;
 
           productPrice = showInclusiveTaxPrice
             ? +bcCalculatedPrice.tax_inclusive
-            : +bcCalculatedPrice.tax_exclusive
+            : +bcCalculatedPrice.tax_exclusive;
         }
 
         if (!currentVariant) {
-          const priceIncTax = product?.price_inc_tax || product.base_price
-          const priceExTax = product?.price_ex_tax || product.base_price
+          const priceIncTax = product?.price_inc_tax || product.base_price;
+          const priceExTax = product?.price_ex_tax || product.base_price;
 
-          productPrice = showInclusiveTaxPrice ? +priceIncTax : +priceExTax
+          productPrice = showInclusiveTaxPrice ? +priceIncTax : +priceExTax;
         }
 
-        const totalPrice = getProductTotals(
-          getQuantity(product) || 0,
-          productPrice
-        )
+        const totalPrice = getProductTotals(getQuantity(product) || 0, productPrice);
 
         const getPrice = () => {
           const newMoney = money
             ? `${ordersCurrencyFormat(money, productPrice)}`
-            : `${currencyFormat(productPrice)}`
+            : `${currencyFormat(productPrice)}`;
 
-          return showTypePrice(newMoney, product)
-        }
+          return showTypePrice(newMoney, product);
+        };
 
         const getTotalPrice = () => {
           const newMoney = money
             ? `${ordersCurrencyFormat(money, totalPrice)}`
-            : `${currencyFormat(totalPrice)}`
+            : `${currencyFormat(totalPrice)}`;
 
-          return showTypePrice(newMoney, product)
-        }
+          return showTypePrice(newMoney, product);
+        };
 
         return (
           <Flex isMobile={isMobile} key={product.id}>
             {showCheckbox && (
-              <Checkbox
-                checked={isChecked(product)}
-                onChange={() => handleSelectChange(product)}
-              />
+              <Checkbox checked={isChecked(product)} onChange={() => handleSelectChange(product)} />
             )}
             <FlexItem padding={isMobile ? '0' : '0 6% 0 0'}>
               <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
@@ -369,10 +335,10 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                     if (canToProduct) {
                       const {
                         location: { origin },
-                      } = window
+                      } = window;
 
                       if (product?.productUrl)
-                        window.location.href = `${origin}${product?.productUrl}`
+                        window.location.href = `${origin}${product?.productUrl}`;
                     }
                   }}
                   sx={{
@@ -475,8 +441,8 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               </FlexItem>
             )}
           </Flex>
-        )
+        );
       })}
     </Box>
-  ) : null
+  ) : null;
 }

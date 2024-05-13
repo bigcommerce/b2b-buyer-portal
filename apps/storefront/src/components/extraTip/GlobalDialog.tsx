@@ -1,16 +1,16 @@
-import { Box } from '@mui/material'
+import { Box } from '@mui/material';
 
-import useMobile from '@/hooks/useMobile'
-import { setGlabolCommonState, useAppDispatch, useAppSelector } from '@/store'
+import useMobile from '@/hooks/useMobile';
+import { setGlabolCommonState, useAppDispatch, useAppSelector } from '@/store';
 
-import B3Dialog from '../B3Dialog'
+import B3Dialog from '../B3Dialog';
 
 function GlobalDialog() {
-  const globalMessage = useAppSelector(({ global }) => global.globalMessage)
+  const globalMessage = useAppSelector(({ global }) => global.globalMessage);
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const storeDispatch = useAppDispatch()
+  const storeDispatch = useAppDispatch();
 
   const messageDialogClose = () => {
     storeDispatch(
@@ -21,14 +21,14 @@ function GlobalDialog() {
           message: '',
           cancelText: 'Cancel',
         },
-      })
-    )
-  }
+      }),
+    );
+  };
 
   const handleSaveMessage = () => {
-    if (globalMessage?.saveFn) globalMessage.saveFn()
-    messageDialogClose()
-  }
+    if (globalMessage?.saveFn) globalMessage.saveFn();
+    messageDialogClose();
+  };
 
   return (
     <Box
@@ -59,7 +59,7 @@ function GlobalDialog() {
         </Box>
       </B3Dialog>
     </Box>
-  )
+  );
 }
 
-export default GlobalDialog
+export default GlobalDialog;

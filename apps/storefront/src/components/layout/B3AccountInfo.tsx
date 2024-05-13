@@ -1,13 +1,13 @@
-import { useNavigate } from 'react-router-dom'
-import { Box } from '@mui/material'
+import { useNavigate } from 'react-router-dom';
+import { Box } from '@mui/material';
 
-import { useMobile } from '@/hooks'
-import { useAppSelector } from '@/store'
+import { useMobile } from '@/hooks';
+import { useAppSelector } from '@/store';
 
-import B3DropDown from '../B3DropDown'
+import B3DropDown from '../B3DropDown';
 
 interface ListProps {
-  [key: string]: string
+  [key: string]: string;
 }
 
 const list: Array<ListProps> = [
@@ -17,32 +17,32 @@ const list: Array<ListProps> = [
     type: 'button',
     idLang: 'global.button.logout',
   },
-]
+];
 
 interface B3AccountInfoProps {
-  closeSidebar?: (x: boolean) => void
+  closeSidebar?: (x: boolean) => void;
 }
 
 export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const firstName = useAppSelector(({ company }) => company.customer.firstName)
-  const lastName = useAppSelector(({ company }) => company.customer.lastName)
+  const firstName = useAppSelector(({ company }) => company.customer.firstName);
+  const lastName = useAppSelector(({ company }) => company.customer.lastName);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleItemClick = async (item: ListProps) => {
     if (item.key === 'logout') {
-      navigate('/login?loginFlag=3')
+      navigate('/login?loginFlag=3');
     } else if (item.type === 'path') {
-      navigate(item.key)
+      navigate(item.key);
     }
     if (closeSidebar) {
-      closeSidebar(false)
+      closeSidebar(false);
     }
-  }
+  };
 
-  const name = `${firstName}  ${lastName}`
+  const name = `${firstName}  ${lastName}`;
 
   return (
     <Box
@@ -59,5 +59,5 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
     >
       <B3DropDown title={name} handleItemClick={handleItemClick} list={list} />
     </Box>
-  )
+  );
 }

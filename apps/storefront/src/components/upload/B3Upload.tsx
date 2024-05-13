@@ -6,54 +6,50 @@ import {
   useEffect,
   useRef,
   useState,
-} from 'react'
-import { DropzoneArea } from 'react-mui-dropzone'
-import styled from '@emotion/styled'
-import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
-import { Alert, Box, Link, useTheme } from '@mui/material'
-import Grid from '@mui/material/Unstable_Grid2'
+} from 'react';
+import { DropzoneArea } from 'react-mui-dropzone';
+import styled from '@emotion/styled';
+import InsertDriveFile from '@mui/icons-material/InsertDriveFile';
+import { Alert, Box, Link, useTheme } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 
-import useMobile from '@/hooks/useMobile'
-import { GlobaledContext } from '@/shared/global'
+import useMobile from '@/hooks/useMobile';
+import { GlobaledContext } from '@/shared/global';
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
   guestProductsBulkUploadCSV,
-} from '@/shared/service/b2b'
-import {
-  defaultCurrencyInfoSelector,
-  isB2BUserSelector,
-  useAppSelector,
-} from '@/store'
-import { Currency } from '@/types'
-import b2bLogger from '@/utils/b3Logger'
+} from '@/shared/service/b2b';
+import { defaultCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
+import { Currency } from '@/types';
+import b2bLogger from '@/utils/b3Logger';
 
-import B3Dialog from '../B3Dialog'
-import CustomButton from '../button/CustomButton'
-import B3Sping from '../spin/B3Sping'
+import B3Dialog from '../B3Dialog';
+import CustomButton from '../button/CustomButton';
+import B3Sping from '../spin/B3Sping';
 
-import B3UploadLoadding from './B3UploadLoadding'
-import BulkUploadTable from './BulkUploadTable'
-import { parseEmptyData, ParseEmptyDataProps, removeEmptyRow } from './utils'
+import B3UploadLoadding from './B3UploadLoadding';
+import BulkUploadTable from './BulkUploadTable';
+import { parseEmptyData, ParseEmptyDataProps, removeEmptyRow } from './utils';
 
 interface B3UploadProps {
-  isOpen: boolean
-  setIsOpen: Dispatch<SetStateAction<boolean>>
-  bulkUploadTitle?: string
-  addBtnText?: string
-  handleAddToList: (validProduct: CustomFieldItems) => void
-  setProductData?: (product: CustomFieldItems) => void
-  isLoading?: boolean
-  isToCart?: boolean
-  withModifiers?: boolean
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  bulkUploadTitle?: string;
+  addBtnText?: string;
+  handleAddToList: (validProduct: CustomFieldItems) => void;
+  setProductData?: (product: CustomFieldItems) => void;
+  isLoading?: boolean;
+  isToCart?: boolean;
+  withModifiers?: boolean;
 }
 
 interface BulkUploadCSVProps {
-  currencyCode: string
-  productList: CustomFieldItems
-  channelId?: number
-  isToCart: boolean
-  withModifiers?: boolean
+  currencyCode: string;
+  productList: CustomFieldItems;
+  channelId?: number;
+  isToCart: boolean;
+  withModifiers?: boolean;
 }
 
 const FileUploadContainer = styled(Box)({
@@ -66,7 +62,7 @@ const FileUploadContainer = styled(Box)({
       display: 'none',
     },
   },
-})
+});
 
 export default function B3Upload(props: B3UploadProps) {
   const {
@@ -79,75 +75,69 @@ export default function B3Upload(props: B3UploadProps) {
     isLoading = false,
     isToCart = false,
     withModifiers = false,
-  } = props
+  } = props;
 
-  const [isMobile] = useMobile()
+  const [isMobile] = useMobile();
 
-  const uploadRef = useRef<HTMLInputElement>(null)
+  const uploadRef = useRef<HTMLInputElement>(null);
 
   const {
     state: { currentChannelId },
-  } = useContext(GlobaledContext)
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const role = useAppSelector(({ company }) => company.customer.role)
+  } = useContext(GlobaledContext);
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const role = useAppSelector(({ company }) => company.customer.role);
 
-  const theme = useTheme()
+  const theme = useTheme();
 
-  const primaryColor = theme.palette.primary.main
+  const primaryColor = theme.palette.primary.main;
 
-  const [step, setStep] = useState<string>('init')
-  const [fileDatas, setFileDatas] = useState<CustomFieldItems>({})
-  const [fileName, setFileName] = useState('')
-  const [fileErrorText, setFileErrorText] = useState('')
+  const [step, setStep] = useState<string>('init');
+  const [fileDatas, setFileDatas] = useState<CustomFieldItems>({});
+  const [fileName, setFileName] = useState('');
+  const [fileErrorText, setFileErrorText] = useState('');
 
-  const currency = useAppSelector(defaultCurrencyInfoSelector)
-  const { currency_code: currencyCode } = currency as Currency
+  const currency = useAppSelector(defaultCurrencyInfoSelector);
+  const { currency_code: currencyCode } = currency as Currency;
 
-  const getRejectMessage = (
-    rejectedFile: File,
-    acceptedFiles: string[],
-    maxFileSize: number
-  ) => {
-    const { size, type } = rejectedFile
+  const getRejectMessage = (rejectedFile: File, acceptedFiles: string[], maxFileSize: number) => {
+    const { size, type } = rejectedFile;
 
-    let isAcceptFileType = false
+    let isAcceptFileType = false;
     acceptedFiles.forEach((acceptedFileType: string) => {
-      isAcceptFileType =
-        new RegExp(acceptedFileType).test(type) || isAcceptFileType
-    })
+      isAcceptFileType = new RegExp(acceptedFileType).test(type) || isAcceptFileType;
+    });
 
-    let message = ''
+    let message = '';
     if (!isAcceptFileType) {
-      message =
-        "Table structure is wrong. Please download sample and follow it's structure."
-      setFileErrorText(message)
-      return message
+      message = "Table structure is wrong. Please download sample and follow it's structure.";
+      setFileErrorText(message);
+      return message;
     }
 
     if (size > maxFileSize) {
-      message = 'Maximum file size 50MB'
-      setFileErrorText(message)
-      return message
+      message = 'Maximum file size 50MB';
+      setFileErrorText(message);
+      return message;
     }
 
-    return message
-  }
+    return message;
+  };
 
   const getFileLimitExceedMessage = () => {
-    setFileErrorText('Maximum file size 50MB')
-    return ''
-  }
+    setFileErrorText('Maximum file size 50MB');
+    return '';
+  };
 
   const handleVerificationFile = (size: number, type: string): string => {
     if (type !== 'text/csv') {
-      return "Table structure is wrong. Please download sample and follow it's structure."
+      return "Table structure is wrong. Please download sample and follow it's structure.";
     }
 
     if (size > 1024 * 1024 * 50) {
-      return 'Maximum file size 50MB'
+      return 'Maximum file size 50MB';
     }
-    return ''
-  }
+    return '';
+  };
 
   const handleBulkUploadCSV = async (parseData: ParseEmptyDataProps[]) => {
     try {
@@ -156,135 +146,131 @@ export default function B3Upload(props: B3UploadProps) {
         productList: parseData,
         isToCart,
         withModifiers,
-      }
+      };
 
-      if (role !== 100) params.channelId = currentChannelId
-      const uploadAction = isB2BUser
-        ? B2BProductsBulkUploadCSV
-        : BcProductsBulkUploadCSV
+      if (role !== 100) params.channelId = currentChannelId;
+      const uploadAction = isB2BUser ? B2BProductsBulkUploadCSV : BcProductsBulkUploadCSV;
 
-      const BulkUploadCSV =
-        role === 100 ? guestProductsBulkUploadCSV : uploadAction
+      const BulkUploadCSV = role === 100 ? guestProductsBulkUploadCSV : uploadAction;
 
-      const resp = await BulkUploadCSV(params)
-      const productUpload =
-        role === 100 ? resp.productAnonUpload : resp.productUpload
+      const resp = await BulkUploadCSV(params);
+      const productUpload = role === 100 ? resp.productAnonUpload : resp.productUpload;
 
       if (productUpload) {
-        const { result } = productUpload
-        const validProduct = result?.validProduct || []
+        const { result } = productUpload;
+        const validProduct = result?.validProduct || [];
 
-        setProductData(validProduct)
-        setFileDatas(result)
-        setStep('end')
+        setProductData(validProduct);
+        setFileDatas(result);
+        setStep('end');
       }
     } catch (e) {
-      setStep('init')
-      b2bLogger.error(e)
+      setStep('init');
+      b2bLogger.error(e);
     }
-  }
+  };
 
   const parseFile: (file: File) => Promise<ParseEmptyDataProps[]> = (file) =>
     new Promise((resolve, reject) => {
-      const errorText = handleVerificationFile(file?.size, file?.type)
+      const errorText = handleVerificationFile(file?.size, file?.type);
 
       if (errorText) {
-        reject(new Error(errorText))
-        return
+        reject(new Error(errorText));
+        return;
       }
-      const reader = new FileReader()
+      const reader = new FileReader();
 
       reader.addEventListener('load', async (b: any) => {
-        const csvdata = b.target.result
+        const csvdata = b.target.result;
 
         if (csvdata) {
-          const content = csvdata.split('\n')
-          const headerRow = content.slice(0, 1)[0]
-          const columns = headerRow.split(',').length
-          const EmptyData = removeEmptyRow(content)
+          const content = csvdata.split('\n');
+          const headerRow = content.slice(0, 1)[0];
+          const columns = headerRow.split(',').length;
+          const EmptyData = removeEmptyRow(content);
 
-          let error = ''
+          let error = '';
 
           if (EmptyData.length > 1) {
             for (let i = 1; i < EmptyData.length; i += 1) {
-              const signleRow = EmptyData[i].split(',')
+              const signleRow = EmptyData[i].split(',');
               if (signleRow.length > columns) {
-                error = 'Please use the template file provided.'
+                error = 'Please use the template file provided.';
               }
             }
           }
 
           if (error) {
-            reject(new Error(error))
-            return
+            reject(new Error(error));
+            return;
           }
-          const parseData: ParseEmptyDataProps[] = parseEmptyData(EmptyData)
-          resolve(parseData)
+          const parseData: ParseEmptyDataProps[] = parseEmptyData(EmptyData);
+          resolve(parseData);
         }
-      })
+      });
 
-      reader.readAsBinaryString(file)
-    })
+      reader.readAsBinaryString(file);
+    });
 
   const handleChange = async (files: File[]) => {
     // init loadding end
-    const file = files.length > 0 ? files[0] : null
+    const file = files.length > 0 ? files[0] : null;
 
     if (file) {
       try {
-        const parseData = await parseFile(file)
+        const parseData = await parseFile(file);
         if (parseData.length) {
-          setFileErrorText('')
-          setStep('loadding')
-          setFileName(file.name)
-          await handleBulkUploadCSV(parseData)
+          setFileErrorText('');
+          setStep('loadding');
+          setFileName(file.name);
+          await handleBulkUploadCSV(parseData);
         }
       } catch (error) {
         if ((error as Error)?.message) {
-          setFileErrorText((error as Error)?.message)
+          setFileErrorText((error as Error)?.message);
         }
       }
     }
-  }
+  };
 
   const handleConfirmToList = async () => {
-    const validProduct = fileDatas?.validProduct || []
-    const stockErrorFile = fileDatas?.stockErrorFile || ''
-    const stockErrorSkus = fileDatas?.stockErrorSkus || []
-    if (validProduct?.length === 0) return
+    const validProduct = fileDatas?.validProduct || [];
+    const stockErrorFile = fileDatas?.stockErrorFile || '';
+    const stockErrorSkus = fileDatas?.stockErrorSkus || [];
+    if (validProduct?.length === 0) return;
 
     if (validProduct) {
       const productsData: CustomFieldItems = {
         validProduct,
-      }
+      };
 
       if (stockErrorSkus.length > 0) {
-        productsData.stockErrorFile = stockErrorFile
+        productsData.stockErrorFile = stockErrorFile;
       }
 
-      await handleAddToList(productsData)
+      await handleAddToList(productsData);
 
-      setStep('init')
+      setStep('init');
     }
-  }
+  };
 
   const openFile = () => {
     if (uploadRef.current) {
-      ;(uploadRef.current.children[1] as HTMLElement).click()
+      (uploadRef.current.children[1] as HTMLElement).click();
     }
-  }
+  };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const files = [...e.dataTransfer.files]
-    handleChange(files)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    const files = [...e.dataTransfer.files];
+    handleChange(files);
+  };
 
   const content = (
     <Box
@@ -370,22 +356,18 @@ export default function B3Upload(props: B3UploadProps) {
         </Grid>
 
         <Grid display="flex" justifyContent="center" xs={12}>
-          <CustomButton
-            variant="outlined"
-            onClick={openFile}
-            className="test-buttomn"
-          >
+          <CustomButton variant="outlined" onClick={openFile} className="test-buttomn">
             Upload file
           </CustomButton>
         </Grid>
       </Grid>
     </Box>
-  )
+  );
 
   useEffect(() => {
-    setFileErrorText('')
-    setStep('init')
-  }, [isOpen])
+    setFileErrorText('');
+    setStep('init');
+  }, [isOpen]);
 
   return (
     <B3Dialog
@@ -395,11 +377,11 @@ export default function B3Upload(props: B3UploadProps) {
       rightSizeBtn={addBtnText}
       leftSizeBtn="cancel"
       handleLeftClick={() => {
-        setStep('init')
-        setIsOpen(false)
+        setStep('init');
+        setIsOpen(false);
       }}
       handRightClick={() => {
-        handleConfirmToList()
+        handleConfirmToList();
       }}
       showRightBtn={step === 'end'}
       isShowBordered={false}
@@ -455,14 +437,10 @@ export default function B3Upload(props: B3UploadProps) {
         {step === 'loadding' && <B3UploadLoadding step={step} />}
         <B3Sping isSpinning={isLoading} spinningHeight="auto">
           {step === 'end' && (
-            <BulkUploadTable
-              setStep={setStep}
-              fileDatas={fileDatas}
-              fileName={fileName}
-            />
+            <BulkUploadTable setStep={setStep} fileDatas={fileDatas} fileName={fileName} />
           )}
         </B3Sping>
       </Box>
     </B3Dialog>
-  )
+  );
 }

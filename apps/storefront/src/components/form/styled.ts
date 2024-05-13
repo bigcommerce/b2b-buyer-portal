@@ -1,5 +1,5 @@
-import { FormControl, FormControlLabel, TextField } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { FormControl, FormControlLabel, TextField } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 export const DropzoneBox = styled('div')(() => ({
   cursor: 'pointer',
@@ -71,32 +71,29 @@ export const DropzoneBox = styled('div')(() => ({
       marginRight: '4px',
     },
   },
-}))
+}));
 
 export const PickerFormControl = styled(FormControl)(() => ({
   width: '100%',
-}))
+}));
 
 interface StyleNumberTextFieldProps {
-  allowarrow?: number
+  allowarrow?: number;
 }
 
-export const StyleNumberTextField = styled(TextField)(
-  (props: StyleNumberTextFieldProps) => {
-    const { allowarrow = 0 } = props
-    return allowarrow
-      ? {}
-      : {
-          '& input[type="number"]': {
-            MozAppearance: 'textfield',
-          },
-          '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
-            {
-              WebkitAppearance: 'none',
-            },
-        }
-  }
-)
+export const StyleNumberTextField = styled(TextField)((props: StyleNumberTextFieldProps) => {
+  const { allowarrow = 0 } = props;
+  return allowarrow
+    ? {}
+    : {
+        '& input[type="number"]': {
+          MozAppearance: 'textfield',
+        },
+        '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+          WebkitAppearance: 'none',
+        },
+      };
+});
 
 export const StyleRectangleFormControlLabel = styled(FormControlLabel)(() => ({
   marginLeft: '0',
@@ -111,7 +108,7 @@ export const StyleRectangleFormControlLabel = styled(FormControlLabel)(() => ({
     overflow: 'hidden',
     padding: '0',
   },
-}))
+}));
 
 export const ProductImageContainer = styled('div')(() => ({
   display: 'flex',
@@ -122,7 +119,7 @@ export const ProductImageContainer = styled('div')(() => ({
     margin: '5px 0 6px',
     borderRadius: '4px',
   },
-}))
+}));
 
 export const ColorContainer = styled('div')(() => ({
   display: 'flex',
@@ -130,4 +127,4 @@ export const ColorContainer = styled('div')(() => ({
     width: '22px',
     height: '22px',
   },
-}))
+}));
