@@ -1,4 +1,4 @@
-import { channelId, storeHash } from '@/utils'
+import { channelId, storeHash } from '@/utils';
 
 const getProxyInfo = (url: string, data = {}) => {
   const params = {
@@ -10,8 +10,8 @@ const getProxyInfo = (url: string, data = {}) => {
       channel_id: channelId,
       ...data,
     },
-  }
+  };
 
-  return params
-}
-export default getProxyInfo
+  return params;
+};
+export default getProxyInfo;

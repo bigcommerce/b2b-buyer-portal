@@ -1,48 +1,48 @@
-import { customerExists } from '@/shared/service/bc'
-import { store } from '@/store'
-import { clearCompanySlice } from '@/store/slices/company'
+import { customerExists } from '@/shared/service/bc';
+import { store } from '@/store';
+import { clearCompanySlice } from '@/store/slices/company';
 
-import b2bLogger from './b3Logger'
-import { B3SStorage } from './b3Storage'
+import b2bLogger from './b3Logger';
+import { B3SStorage } from './b3Storage';
 
 export const logoutSession = () => {
-  store.dispatch(clearCompanySlice())
-  B3SStorage.delete('nextPath')
-}
+  store.dispatch(clearCompanySlice());
+  B3SStorage.delete('nextPath');
+};
 
 export const isB2bTokenPage = (gotoUrl?: string) => {
-  const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register', 'login']
+  const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register', 'login'];
 
   if (gotoUrl) {
-    return !noB2bTokenPages.some((item: string) => gotoUrl.includes(item))
+    return !noB2bTokenPages.some((item: string) => gotoUrl.includes(item));
   }
 
-  const { hash = '' } = window.location
+  const { hash = '' } = window.location;
 
   if (!hash.includes('#/')) {
-    return false
+    return false;
   }
 
-  return !noB2bTokenPages.some((item: string) => hash.includes(item))
-}
+  return !noB2bTokenPages.some((item: string) => hash.includes(item));
+};
 
 export const isUserGotoLogin = async (gotoUrl: string) => {
-  const isB2bPage = isB2bTokenPage(gotoUrl)
-  let isGotoLogin = false
+  const isB2bPage = isB2bTokenPage(gotoUrl);
+  let isGotoLogin = false;
   try {
     const {
       data: { customer },
-    } = await customerExists()
+    } = await customerExists();
 
     if (!customer && isB2bPage) {
-      logoutSession()
-      isGotoLogin = true
+      logoutSession();
+      isGotoLogin = true;
     }
   } catch (err: unknown) {
-    b2bLogger.error(err)
+    b2bLogger.error(err);
   }
 
-  return isGotoLogin
-}
+  return isGotoLogin;
+};
 
-export default {}
+export default {};

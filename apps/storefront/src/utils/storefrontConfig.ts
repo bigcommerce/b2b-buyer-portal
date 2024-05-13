@@ -1,7 +1,7 @@
-import isEmpty from 'lodash-es/isEmpty'
+import isEmpty from 'lodash-es/isEmpty';
 
-import { CustomStyleButtonState } from '@/shared/customStyleButtton/context/config'
-import { DispatchProps } from '@/shared/global/context/config'
+import { CustomStyleButtonState } from '@/shared/customStyleButtton/context/config';
+import { DispatchProps } from '@/shared/global/context/config';
 import {
   getB2BRegisterLogo,
   getBCStoreChannelId,
@@ -10,9 +10,9 @@ import {
   getStorefrontConfigs,
   getStorefrontDefaultLanguages,
   getTaxZoneRates,
-} from '@/shared/service/b2b'
-import { getActiveBcCurrency } from '@/shared/service/bc'
-import { store } from '@/store/reducer'
+} from '@/shared/service/b2b';
+import { getActiveBcCurrency } from '@/shared/service/bc';
+import { store } from '@/store/reducer';
 import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
@@ -20,41 +20,41 @@ import {
   setShowInclusiveTaxPrice,
   setStoreInfo,
   setTaxZoneRates,
-} from '@/store/slices/global'
-import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs'
-import { B3SStorage, channelId } from '@/utils'
+} from '@/store/slices/global';
+import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs';
+import { B3SStorage, channelId } from '@/utils';
 
 interface StoreforntKeysProps {
-  key: string
-  name: string
+  key: string;
+  name: string;
 }
 
 interface CurrencyNodeProps {
   node: {
-    entityId: number
-    isActive: boolean
-  }
+    entityId: number;
+    isActive: boolean;
+  };
 }
 
 interface TaxZoneRatesProps {
   rates: {
-    id: number
-    name: string
-    enabled: boolean
-    priority: number
+    id: number;
+    name: string;
+    enabled: boolean;
+    priority: number;
     classRates: {
-      rate: number
-      taxClassId: number
-    }[]
-  }[]
+      rate: number;
+      taxClassId: number;
+    }[];
+  }[];
   priceDisplaySettings: {
-    showInclusive: boolean
-    showBothOnDetailView: boolean
-    showBothOnListView: boolean
-  }
-  enabled: boolean
-  id: number
-  name: string
+    showInclusive: boolean;
+    showBothOnDetailView: boolean;
+    showBothOnListView: boolean;
+  };
+  enabled: boolean;
+  id: number;
+  name: string;
 }
 
 const storeforntKeys: StoreforntKeysProps[] = [
@@ -150,42 +150,41 @@ const storeforntKeys: StoreforntKeysProps[] = [
     key: 'login_landing_location',
     name: 'loginLandingLocation',
   },
-]
+];
 
 const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
-  const keys = storeforntKeys.map((item: StoreforntKeysProps) => item.key)
-  const { storefrontConfigs } = await getStorefrontConfigs(channelId, keys)
+  const keys = storeforntKeys.map((item: StoreforntKeysProps) => item.key);
+  const { storefrontConfigs } = await getStorefrontConfigs(channelId, keys);
 
-  let logo = ''
+  let logo = '';
 
-  const obj: Partial<CustomStyleButtonState> | {} = {}
-  let blockPendingAccountOrderCreation = true
-  let blockPendingAccountViewPrice = true
+  const obj: Partial<CustomStyleButtonState> | {} = {};
+  let blockPendingAccountOrderCreation = true;
+  let blockPendingAccountViewPrice = true;
   storefrontConfigs.forEach((currentItem: CustomFieldItems) => {
-    const item = currentItem
+    const item = currentItem;
     const storeforntKey: StoreforntKeysProps | undefined = storeforntKeys.find(
-      (option) => option.key === item.key
-    )
-    const storefrontConfig = item
+      (option) => option.key === item.key,
+    );
+    const storefrontConfig = item;
     if (!isEmpty(storeforntKey)) {
       if (storeforntKey.key === 'quote_logo') {
-        logo = item.value
+        logo = item.value;
       }
       if (storeforntKey.key === 'quote_on_product_page') {
         storefrontConfig.extraFields = {
           ...item.extraFields,
-          locationSelector:
-            item.extraFields?.locationSelector || '.add-to-cart-buttons',
+          locationSelector: item.extraFields?.locationSelector || '.add-to-cart-buttons',
           classSelector: item.extraFields?.classSelector || 'button',
           customCss: item.extraFields?.customCss || 'margin-top: 0.5rem',
-        }
+        };
       }
 
       if (storeforntKey.key === 'quote_on_cart_page') {
         storefrontConfig.extraFields = {
           ...item.extraFields,
           classSelector: item.extraFields?.classSelector || 'button',
-        }
+        };
       }
       if (storeforntKey.key === 'masquerade_button') {
         storefrontConfig.extraFields = {
@@ -194,7 +193,7 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
           location: item.extraFields?.location || ' bottomLeft',
           horizontalPadding: item.extraFields?.horizontalPadding || '',
           verticalPadding: item.extraFields?.verticalPadding || '',
-        }
+        };
       }
 
       if (storeforntKey.key === 'quote_floating_action_button') {
@@ -204,79 +203,64 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
           location: item.extraFields?.location || ' bottomRight',
           horizontalPadding: item.extraFields?.horizontalPadding || '',
           verticalPadding: item.extraFields?.verticalPadding || '',
-        }
+        };
       }
 
       if (storeforntKey.key === 'shopping_list_on_product_page') {
         storefrontConfig.extraFields = {
           ...item.extraFields,
-          locationSelector:
-            item.extraFields?.locationSelector || '.add-to-cart-buttons',
+          locationSelector: item.extraFields?.locationSelector || '.add-to-cart-buttons',
           classSelector: item.extraFields?.classSelector || 'button',
           customCss: item.extraFields?.customCss || 'margin-top: 0.5rem',
-        }
+        };
       }
 
       if (storeforntKey.key === 'block_pending_account_order_creation') {
-        blockPendingAccountOrderCreation = item.value === '1'
-        B3SStorage.set(
-          'blockPendingAccountOrderCreation',
-          blockPendingAccountOrderCreation
-        )
+        blockPendingAccountOrderCreation = item.value === '1';
+        B3SStorage.set('blockPendingAccountOrderCreation', blockPendingAccountOrderCreation);
       }
 
-      if (
-        storeforntKey.key === 'block_pending_account_seeing_products_pricing'
-      ) {
-        blockPendingAccountViewPrice = item.value === '1'
-        B3SStorage.set(
-          'blockPendingAccountViewPrice',
-          blockPendingAccountViewPrice
-        )
-        store.dispatch(
-          setBlockPendingAccountViewPrice(blockPendingAccountViewPrice)
-        )
+      if (storeforntKey.key === 'block_pending_account_seeing_products_pricing') {
+        blockPendingAccountViewPrice = item.value === '1';
+        B3SStorage.set('blockPendingAccountViewPrice', blockPendingAccountViewPrice);
+        store.dispatch(setBlockPendingAccountViewPrice(blockPendingAccountViewPrice));
       }
 
       if (storeforntKey.key === 'non_purchasable_quote') {
         store.dispatch(
           setBlockPendingQuoteNonPurchasableOOS({
             isEnableProduct: item.value === '1',
-          })
-        )
+          }),
+        );
       }
 
       if (storeforntKey.key === 'quote_on_non_purchasable_product_page') {
         storefrontConfig.extraFields = {
           ...item.extraFields,
-          locationSelector:
-            item.extraFields?.locationSelector || '.add-to-cart-buttons',
+          locationSelector: item.extraFields?.locationSelector || '.add-to-cart-buttons',
           classSelector: item.extraFields?.classSelector || 'button',
           customCss: item.extraFields?.customCss || '',
-        }
+        };
       }
 
       if (storeforntKey.key === 'buyer_non_purchasable_quote') {
         store.dispatch(
           setBlockPendingQuoteNonPurchasableOOS({
             isEnableRequest: item.value === '1',
-          })
-        )
+          }),
+        );
       }
 
       if (storeforntKey.key === 'login_landing_location') {
-        store.dispatch(
-          setLoginLandingLocation(item?.extraFields?.location || '0')
-        )
+        store.dispatch(setLoginLandingLocation(item?.extraFields?.location || '0'));
       }
 
-      ;(obj as CustomFieldItems)[(storeforntKey as StoreforntKeysProps).name] =
-        {
-          ...item.extraFields,
-          enabled: item.value === '1',
-        }
+      (obj as CustomFieldItems)[(storeforntKey as StoreforntKeysProps).name] = {
+        ...item.extraFields,
+        enabled: item.value === '1',
+      };
     }
-  })
+  });
 
   dispatchGlobal({
     type: 'common',
@@ -285,43 +269,43 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
       quoteConfig: storefrontConfigs,
       blockPendingAccountOrderCreation,
     },
-  })
+  });
 
   dispatch({
     type: 'merge',
     payload: {
       ...obj,
     },
-  })
-}
+  });
+};
 
 const getQuoteConfig = async (dispatch: DispatchProps) => {
-  const { quoteConfig } = await getB2BRegisterLogo()
+  const { quoteConfig } = await getB2BRegisterLogo();
 
   dispatch({
     type: 'common',
     payload: {
       quoteConfig,
     },
-  })
-}
+  });
+};
 
 const setStorefrontConfig = async (dispatch: DispatchProps) => {
   const {
     storefrontConfig: { config: storefrontConfig },
-  } = await getStorefrontConfig()
-  const { currencies } = await getCurrencies(channelId)
-  store.dispatch(setCurrencies(currencies))
+  } = await getStorefrontConfig();
+  const { currencies } = await getCurrencies(channelId);
+  store.dispatch(setCurrencies(currencies));
 
   const {
     storefrontDefaultLanguage: { language },
-  } = await getStorefrontDefaultLanguages(channelId)
+  } = await getStorefrontDefaultLanguages(channelId);
 
-  let langCode: string = language || 'en'
+  let langCode: string = language || 'en';
 
   if (language && language.includes('-')) {
-    const [lang] = language.split('-')
-    langCode = lang
+    const [lang] = language.split('-');
+    langCode = lang;
   }
 
   const {
@@ -330,14 +314,10 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
         currencies: { edges },
       },
     },
-  } = await getActiveBcCurrency()
+  } = await getActiveBcCurrency();
 
-  store.dispatch(
-    setActiveCurrency(
-      edges.find((item: CurrencyNodeProps) => item.node.isActive)
-    )
-  )
-  B3SStorage.set('bcLanguage', langCode)
+  store.dispatch(setActiveCurrency(edges.find((item: CurrencyNodeProps) => item.node.isActive)));
+  B3SStorage.set('bcLanguage', langCode);
 
   dispatch({
     type: 'common',
@@ -345,34 +325,34 @@ const setStorefrontConfig = async (dispatch: DispatchProps) => {
       storefrontConfig,
       bcLanguage: langCode,
     },
-  })
-}
+  });
+};
 
 const getStoreTaxZoneRates = async () => {
-  const { taxZoneRates = [] } = await getTaxZoneRates()
+  const { taxZoneRates = [] } = await getTaxZoneRates();
 
   if (taxZoneRates.length) {
     const defaultTaxZone: TaxZoneRatesProps = taxZoneRates.find(
-      (taxZone: { id: number }) => taxZone.id === 1
-    )
+      (taxZone: { id: number }) => taxZone.id === 1,
+    );
     if (defaultTaxZone) {
       const {
         priceDisplaySettings: { showInclusive },
-      } = defaultTaxZone
-      B3SStorage.set('showInclusiveTaxPrice', showInclusive)
-      store.dispatch(setShowInclusiveTaxPrice(showInclusive))
+      } = defaultTaxZone;
+      B3SStorage.set('showInclusiveTaxPrice', showInclusive);
+      store.dispatch(setShowInclusiveTaxPrice(showInclusive));
     }
   }
 
-  store.dispatch(setTaxZoneRates(taxZoneRates))
-}
+  store.dispatch(setTaxZoneRates(taxZoneRates));
+};
 
 const getStoreInfo = async () => {
-  const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId()
-  const [storeInfo] = storeBasicInfo.storeSites
+  const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId();
+  const [storeInfo] = storeBasicInfo.storeSites;
 
-  store.dispatch(setStoreInfo(storeInfo))
-}
+  store.dispatch(setStoreInfo(storeInfo));
+};
 
 export {
   getQuoteConfig,
@@ -380,4 +360,4 @@ export {
   getStoreTaxZoneRates,
   getTemPlateConfig,
   setStorefrontConfig,
-}
+};

@@ -1,71 +1,71 @@
-import { Dispatch, SetStateAction } from 'react'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import { createSlice, Draft } from '@reduxjs/toolkit'
+import { Dispatch, SetStateAction } from 'react';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, Draft } from '@reduxjs/toolkit';
 
-import { OpenPageState } from '@/types/hooks'
+import { OpenPageState } from '@/types/hooks';
 
 export interface TaxZoneRates {
-  rate?: number
-  taxClassId?: number
+  rate?: number;
+  taxClassId?: number;
 }
 
 interface Rates {
-  enabled: boolean
-  id: number
-  name: string
-  priority: number
-  classRates: TaxZoneRates[]
+  enabled: boolean;
+  id: number;
+  name: string;
+  priority: number;
+  classRates: TaxZoneRates[];
 }
 
 export interface TaxZoneRatesProps {
-  enabled: boolean
-  id: number
-  name: string
-  rates: Rates[]
+  enabled: boolean;
+  id: number;
+  name: string;
+  rates: Rates[];
 }
 
 export interface StoreInfoProps {
-  b2bEnabled: boolean
-  b3ChannelId: number
-  channelId: number
-  channelLogo: string
-  iconUrl: string
-  isEnabled: boolean
-  platform: string
-  translationVersion: number
-  type: string
-  urls: Array<string>
+  b2bEnabled: boolean;
+  b3ChannelId: number;
+  channelId: number;
+  channelLogo: string;
+  iconUrl: string;
+  isEnabled: boolean;
+  platform: string;
+  translationVersion: number;
+  type: string;
+  urls: Array<string>;
 }
 
 interface GlobalMessageDialog {
-  open: boolean
-  title: string
-  message: string
-  cancelText?: string
-  cancelFn?: () => void
-  saveText?: string
-  saveFn?: () => void
+  open: boolean;
+  title: string;
+  message: string;
+  cancelText?: string;
+  cancelFn?: () => void;
+  saveText?: string;
+  saveFn?: () => void;
 }
 
 interface GlobalBlockPendingQuoteNonPurchasableOOS {
-  isEnableProduct?: boolean
-  isEnableRequest?: boolean
+  isEnableProduct?: boolean;
+  isEnableRequest?: boolean;
 }
 export interface GlabolState {
-  taxZoneRates: TaxZoneRatesProps[]
-  isClickEnterBtn: boolean
-  currentClickedUrl: string
-  isRegisterAndLogin: boolean
-  isPageComplete: boolean
-  globalMessage: GlobalMessageDialog
-  setOpenPageFn?: Dispatch<SetStateAction<OpenPageState>>
-  showInclusiveTaxPrice: boolean
-  blockPendingAccountViewPrice: boolean
-  cartNumber: number
-  storeInfo: StoreInfoProps
-  loginLandingLocation: string
-  recordOpenHash: string
-  blockPendingQuoteNonPurchasableOOS: GlobalBlockPendingQuoteNonPurchasableOOS
+  taxZoneRates: TaxZoneRatesProps[];
+  isClickEnterBtn: boolean;
+  currentClickedUrl: string;
+  isRegisterAndLogin: boolean;
+  isPageComplete: boolean;
+  globalMessage: GlobalMessageDialog;
+  setOpenPageFn?: Dispatch<SetStateAction<OpenPageState>>;
+  showInclusiveTaxPrice: boolean;
+  blockPendingAccountViewPrice: boolean;
+  cartNumber: number;
+  storeInfo: StoreInfoProps;
+  loginLandingLocation: string;
+  recordOpenHash: string;
+  blockPendingQuoteNonPurchasableOOS: GlobalBlockPendingQuoteNonPurchasableOOS;
 }
 
 const initialState: GlabolState = {
@@ -102,63 +102,52 @@ const initialState: GlabolState = {
   },
   loginLandingLocation: '0',
   recordOpenHash: '',
-}
+};
 
 export const glabolSlice = createSlice({
   name: 'global',
   initialState,
   reducers: {
     clearglabol: () => initialState,
-    setTaxZoneRates: (
-      state,
-      { payload }: PayloadAction<TaxZoneRatesProps[]>
-    ) => {
-      state.taxZoneRates = payload
+    setTaxZoneRates: (state, { payload }: PayloadAction<TaxZoneRatesProps[]>) => {
+      state.taxZoneRates = payload;
     },
-    setGlabolCommonState: (
-      state,
-      { payload }: PayloadAction<Partial<GlabolState>>
-    ) => ({
+    setGlabolCommonState: (state, { payload }: PayloadAction<Partial<GlabolState>>) => ({
       ...state,
       ...payload,
     }),
     setOpenPageReducer: (
       state,
-      { payload }: PayloadAction<Dispatch<SetStateAction<OpenPageState>>>
+      { payload }: PayloadAction<Dispatch<SetStateAction<OpenPageState>>>,
     ) => {
-      state.setOpenPageFn = payload as Draft<
-        Dispatch<SetStateAction<OpenPageState>>
-      >
+      state.setOpenPageFn = payload as Draft<Dispatch<SetStateAction<OpenPageState>>>;
     },
     setShowInclusiveTaxPrice: (state, { payload }: PayloadAction<boolean>) => {
-      state.showInclusiveTaxPrice = payload
+      state.showInclusiveTaxPrice = payload;
     },
-    setBlockPendingAccountViewPrice: (
-      state,
-      { payload }: PayloadAction<boolean>
-    ) => {
-      state.blockPendingAccountViewPrice = payload
+    setBlockPendingAccountViewPrice: (state, { payload }: PayloadAction<boolean>) => {
+      state.blockPendingAccountViewPrice = payload;
     },
     setBlockPendingQuoteNonPurchasableOOS: (
       state,
-      { payload }: PayloadAction<GlobalBlockPendingQuoteNonPurchasableOOS>
+      { payload }: PayloadAction<GlobalBlockPendingQuoteNonPurchasableOOS>,
     ) => {
       state.blockPendingQuoteNonPurchasableOOS = {
         ...state.blockPendingQuoteNonPurchasableOOS,
         ...payload,
-      }
+      };
     },
     setLoginLandingLocation: (state, { payload }: PayloadAction<string>) => {
-      state.loginLandingLocation = payload
+      state.loginLandingLocation = payload;
     },
     setCartNumber: (state, { payload }: PayloadAction<number>) => {
-      state.cartNumber = payload
+      state.cartNumber = payload;
     },
     setStoreInfo: (state, { payload }: PayloadAction<StoreInfoProps>) => {
-      state.storeInfo = payload
+      state.storeInfo = payload;
     },
   },
-})
+});
 
 export const {
   clearglabol,
@@ -171,6 +160,6 @@ export const {
   setCartNumber,
   setStoreInfo,
   setLoginLandingLocation,
-} = glabolSlice.actions
+} = glabolSlice.actions;
 
-export default glabolSlice.reducer
+export default glabolSlice.reducer;

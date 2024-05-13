@@ -1,19 +1,19 @@
-import { CallbackKey } from '@b3/hooks'
+import { CallbackKey } from '@b3/hooks';
 
-import b2bLogger from './b3Logger'
+import b2bLogger from './b3Logger';
 
 type CallbackEvent = {
-  data: CustomFieldItems
-  preventDefault: () => void
-}
+  data: CustomFieldItems;
+  preventDefault: () => void;
+};
 
-type Callback = (event: CallbackEvent) => any
+type Callback = (event: CallbackEvent) => any;
 
 export default class CallbackManager {
-  private callbacks: Map<CallbackKey, Callback[]>
+  private callbacks: Map<CallbackKey, Callback[]>;
 
   constructor() {
-    this.callbacks = new Map<CallbackKey, Callback[]>()
+    this.callbacks = new Map<CallbackKey, Callback[]>();
   }
 
   /**
@@ -24,13 +24,13 @@ export default class CallbackManager {
    */
   addEventListener(callbackKey: CallbackKey, callback: Callback): void {
     if (!this.callbacks.has(callbackKey)) {
-      this.callbacks.set(callbackKey, [callback])
+      this.callbacks.set(callbackKey, [callback]);
     }
-    const list = this.callbacks.get(callbackKey) ?? []
-    const inList = list.find((cb) => cb === callback)
+    const list = this.callbacks.get(callbackKey) ?? [];
+    const inList = list.find((cb) => cb === callback);
 
     if (!inList) {
-      list.push(callback)
+      list.push(callback);
     }
   }
 
@@ -42,15 +42,15 @@ export default class CallbackManager {
    */
   removeEventListener(callbackKey: CallbackKey, callback: Callback): boolean {
     if (!this.callbacks.has(callbackKey)) {
-      return false
+      return false;
     }
-    const list = this.callbacks.get(callbackKey) ?? []
-    const index = list.findIndex((cb) => cb === callback)
+    const list = this.callbacks.get(callbackKey) ?? [];
+    const index = list.findIndex((cb) => cb === callback);
     if (index === -1) {
-      return false
+      return false;
     }
-    list.splice(index, 1)
-    return true
+    list.splice(index, 1);
+    return true;
   }
 
   /**
@@ -60,27 +60,27 @@ export default class CallbackManager {
    * @returns True if all callbacks were successfully executed, false otherwise.
    */
   dispatchEvent(callbackKey: CallbackKey, data: any): boolean {
-    let success = true
+    let success = true;
     const event = {
       data,
       preventDefault: () => {
-        success = false
+        success = false;
       },
-    }
+    };
     if (!this.callbacks.has(callbackKey)) {
-      return true
+      return true;
     }
-    const list = this.callbacks.get(callbackKey) ?? []
+    const list = this.callbacks.get(callbackKey) ?? [];
     list.forEach((callback) => {
       try {
-        callback(event)
+        callback(event);
       } catch (e) {
-        success = false
+        success = false;
         if (e instanceof Error) {
-          b2bLogger.error(e.message)
+          b2bLogger.error(e.message);
         }
       }
-    })
-    return success
+    });
+    return success;
   }
 }

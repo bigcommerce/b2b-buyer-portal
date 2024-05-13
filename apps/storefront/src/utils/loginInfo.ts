@@ -4,15 +4,15 @@ import {
   getB2BToken,
   getBCGraphqlToken,
   getUserCompany,
-} from '@/shared/service/b2b'
-import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc'
+} from '@/shared/service/b2b';
+import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
 import {
   clearMasqueradeCompany,
   MasqueradeCompany,
   setMasqueradeCompany,
   setQuoteUserId,
   store,
-} from '@/store'
+} from '@/store';
 import {
   clearCompanySlice,
   setB2BToken,
@@ -22,43 +22,39 @@ import {
   setCurrentCustomerJWT,
   setCustomerInfo,
   setLoginType,
-} from '@/store/slices/company'
-import {
-  resetDraftQuoteInfo,
-  resetDraftQuoteList,
-} from '@/store/slices/quoteInfo'
-import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types'
+} from '@/store/slices/company';
+import { resetDraftQuoteInfo, resetDraftQuoteList } from '@/store/slices/quoteInfo';
+import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
 
-import b2bLogger from './b3Logger'
-import { B3LStorage, B3SStorage } from './b3Storage'
-import { channelId, storeHash } from './basicConfig'
+import b2bLogger from './b3Logger';
+import { B3LStorage, B3SStorage } from './b3Storage';
+import { channelId, storeHash } from './basicConfig';
 
-const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
+const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env;
 
 interface ChannelIdProps {
-  channelId: number
-  urls: Array<string>
-  b2bEnabled: boolean
-  channelLogo: string
-  b3ChannelId?: number
-  type: string
-  platform: string
-  isEnabled: boolean
-  translationVersion: number
+  channelId: number;
+  urls: Array<string>;
+  b2bEnabled: boolean;
+  channelLogo: string;
+  b3ChannelId?: number;
+  type: string;
+  platform: string;
+  isEnabled: boolean;
+  translationVersion: number;
 }
 
 export interface ChannelStoreSites {
-  storeSites?: Array<ChannelIdProps> | []
+  storeSites?: Array<ChannelIdProps> | [];
 }
 
 export const getCurrentStoreInfo = (
   storeSites: Array<ChannelIdProps>,
-  multiStorefrontEnabled: boolean
+  multiStorefrontEnabled: boolean,
 ): ChannelIdProps | undefined => {
-  const enabledStores =
-    storeSites.filter((site: ChannelIdProps) => !!site.isEnabled) || []
+  const enabledStores = storeSites.filter((site: ChannelIdProps) => !!site.isEnabled) || [];
 
-  let store
+  let store;
 
   if (VITE_LOCAL_DEBUG) {
     store = {
@@ -71,7 +67,7 @@ export const getCurrentStoreInfo = (
       platform: 'bigcommerce',
       isEnabled: true,
       translationVersion: 0,
-    }
+    };
   }
 
   if (!multiStorefrontEnabled) {
@@ -85,20 +81,20 @@ export const getCurrentStoreInfo = (
       platform: 'bigcommerce',
       isEnabled: true,
       translationVersion: 0,
-    }
+    };
   }
 
-  const { origin } = window.location
-  const cleanedOrigin = origin.replace('-1.', '.')
+  const { origin } = window.location;
+  const cleanedOrigin = origin.replace('-1.', '.');
   const storeItem = enabledStores.find((item: ChannelIdProps) =>
-    item.urls.map((url) => url.replace('-1.', '.')).includes(cleanedOrigin)
-  )
+    item.urls.map((url) => url.replace('-1.', '.')).includes(cleanedOrigin),
+  );
 
-  return storeItem || store
-}
+  return storeItem || store;
+};
 
 export const getloginTokenInfo = () => {
-  const { origin } = window.location
+  const { origin } = window.location;
   const data = {
     storeHash,
     method: 'post',
@@ -109,35 +105,35 @@ export const getloginTokenInfo = () => {
       expires_at: 1866896353,
       allowed_cors_origins: [origin],
     },
-  }
+  };
 
-  return data
-}
+  return data;
+};
 
 export const loginInfo = async () => {
-  const loginTokenInfo = getloginTokenInfo()
+  const loginTokenInfo = getloginTokenInfo();
   const {
     data: { token },
-  } = await getBCGraphqlToken(loginTokenInfo)
+  } = await getBCGraphqlToken(loginTokenInfo);
 
-  store.dispatch(setbcGraphqlToken(token))
-}
+  store.dispatch(setbcGraphqlToken(token));
+};
 
 export const clearCurrentCustomerInfo = async () => {
-  store.dispatch(setB2BToken(''))
-  B3SStorage.set('nextPath', '')
+  store.dispatch(setB2BToken(''));
+  B3SStorage.set('nextPath', '');
 
   B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
     cartTip: 0,
     checkoutTip: 0,
-  })
-  B3SStorage.set('blockPendingAccountOrderCreation', false)
-  B3SStorage.set('loginCustomer', '')
-  sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
+  });
+  B3SStorage.set('blockPendingAccountOrderCreation', false);
+  B3SStorage.set('loginCustomer', '');
+  sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation');
 
-  store.dispatch(clearCompanySlice())
-  store.dispatch(clearMasqueradeCompany())
-}
+  store.dispatch(clearCompanySlice());
+  store.dispatch(clearMasqueradeCompany());
+};
 
 // companyStatus
 // 99: default, Distinguish between bc and b2b
@@ -147,70 +143,55 @@ export const clearCurrentCustomerInfo = async () => {
 // 3: inactive
 // 4: deleted
 
-const VALID_ROLES = [
-  CustomerRole.ADMIN,
-  CustomerRole.SENIOR_BUYER,
-  CustomerRole.JUNIOR_BUYER,
-]
+const VALID_ROLES = [CustomerRole.ADMIN, CustomerRole.SENIOR_BUYER, CustomerRole.JUNIOR_BUYER];
 
 export const getCompanyInfo = async (
   role: number | string,
   id?: number,
-  userType = UserTypes.MULTIPLE_B2C
+  userType = UserTypes.MULTIPLE_B2C,
 ) => {
   let companyInfo = {
     id: '',
     companyName: '',
     companyStatus: CompanyStatus.DEFAULT,
-  }
+  };
 
-  const { B2BToken } = store.getState().company.tokens
-  if (!B2BToken || !VALID_ROLES.includes(+role)) return companyInfo
+  const { B2BToken } = store.getState().company.tokens;
+  if (!B2BToken || !VALID_ROLES.includes(+role)) return companyInfo;
 
-  if (
-    id &&
-    userType === UserTypes.MULTIPLE_B2C &&
-    +role !== CustomerRole.SUPER_ADMIN
-  ) {
-    const { userCompany } = await getUserCompany(id)
+  if (id && userType === UserTypes.MULTIPLE_B2C && +role !== CustomerRole.SUPER_ADMIN) {
+    const { userCompany } = await getUserCompany(id);
 
     if (userCompany) {
       companyInfo = {
         ...userCompany,
-      }
+      };
     }
   }
 
-  store.dispatch(setCompanyStatus(companyInfo.companyStatus))
+  store.dispatch(setCompanyStatus(companyInfo.companyStatus));
 
-  const blockPendingAccountOrderCreation = B3SStorage.get(
-    'blockPendingAccountOrderCreation'
-  )
+  const blockPendingAccountOrderCreation = B3SStorage.get('blockPendingAccountOrderCreation');
   const noNewSFPlaceOrders =
-    blockPendingAccountOrderCreation &&
-    companyInfo.companyStatus === CompanyStatus.PENDING
+    blockPendingAccountOrderCreation && companyInfo.companyStatus === CompanyStatus.PENDING;
   if (noNewSFPlaceOrders) {
     sessionStorage.setItem(
       'b2b-blockPendingAccountOrderCreation',
-      JSON.stringify(noNewSFPlaceOrders)
-    )
+      JSON.stringify(noNewSFPlaceOrders),
+    );
   } else {
-    sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation')
+    sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation');
   }
 
-  return companyInfo
-}
+  return companyInfo;
+};
 
 export const agentInfo = async (customerId: number | string, role: number) => {
   if (+role === CustomerRole.SUPER_ADMIN) {
     try {
-      const data: any = await getAgentInfo(customerId)
+      const data: any = await getAgentInfo(customerId);
       if (data?.superAdminMasquerading) {
-        const {
-          id,
-          companyName,
-          customerGroupId = 0,
-        } = data.superAdminMasquerading
+        const { id, companyName, customerGroupId = 0 } = data.superAdminMasquerading;
 
         const masqueradeCompany: MasqueradeCompany = {
           masqueradeCompany: {
@@ -219,89 +200,82 @@ export const agentInfo = async (customerId: number | string, role: number) => {
             companyName,
             customerGroupId,
           },
-        }
+        };
 
-        store.dispatch(setMasqueradeCompany(masqueradeCompany))
+        store.dispatch(setMasqueradeCompany(masqueradeCompany));
       }
     } catch (error) {
-      b2bLogger.error(error)
+      b2bLogger.error(error);
     }
   }
-}
+};
 
-export const getCompanyUserInfo = async (
-  emailAddress: string,
-  customerId: string | number
-) => {
+export const getCompanyUserInfo = async (emailAddress: string, customerId: string | number) => {
   try {
-    if (!emailAddress || !customerId) return undefined
+    if (!emailAddress || !customerId) return undefined;
 
     const {
       companyUserInfo: {
         userType,
         userInfo: { role = '', id },
       },
-    } = await getB2BCompanyUserInfo(emailAddress, customerId)
+    } = await getB2BCompanyUserInfo(emailAddress, customerId);
 
     return {
       userType,
       role,
       id,
-    }
+    };
   } catch (error) {
-    b2bLogger.error(error)
+    b2bLogger.error(error);
   }
-  return undefined
-}
+  return undefined;
+};
 
 const loginWithCurrentCustomerJWT = async () => {
-  const prevCurrentCustomerJWT =
-    store.getState().company.tokens.currentCustomerJWT
-  let currentCustomerJWT
+  const prevCurrentCustomerJWT = store.getState().company.tokens.currentCustomerJWT;
+  let currentCustomerJWT;
   try {
-    currentCustomerJWT = await getCurrentCustomerJWT(VITE_B2B_CLIENT_ID)
+    currentCustomerJWT = await getCurrentCustomerJWT(VITE_B2B_CLIENT_ID);
   } catch (error) {
-    b2bLogger.error(error)
-    return undefined
+    b2bLogger.error(error);
+    return undefined;
   }
 
-  if (
-    currentCustomerJWT?.includes('errors') ||
-    prevCurrentCustomerJWT === currentCustomerJWT
-  )
-    return undefined
+  if (currentCustomerJWT?.includes('errors') || prevCurrentCustomerJWT === currentCustomerJWT)
+    return undefined;
 
-  const data = await getB2BToken(currentCustomerJWT, channelId)
-  const B2BToken = data.authorization.result.token as string
-  const newLoginType = data.authorization.result.loginType as LoginTypes
+  const data = await getB2BToken(currentCustomerJWT, channelId);
+  const B2BToken = data.authorization.result.token as string;
+  const newLoginType = data.authorization.result.loginType as LoginTypes;
 
-  store.dispatch(setCurrentCustomerJWT(currentCustomerJWT))
-  store.dispatch(setLoginType(newLoginType))
-  store.dispatch(setB2BToken(B2BToken))
+  store.dispatch(setCurrentCustomerJWT(currentCustomerJWT));
+  store.dispatch(setLoginType(newLoginType));
+  store.dispatch(setB2BToken(B2BToken));
 
-  return { B2BToken, newLoginType }
-}
+  return { B2BToken, newLoginType };
+};
 
 export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
   | {
-      role: any
-      userType: any
+      role: any;
+      userType: any;
     }
   | undefined
 > = async (b2bToken?: string) => {
-  const { B2BToken } = store.getState().company.tokens
-  let loginType = LoginTypes.GENERAL_LOGIN
+  const { B2BToken } = store.getState().company.tokens;
+  let loginType = LoginTypes.GENERAL_LOGIN;
   if (!(b2bToken || B2BToken)) {
-    const data = await loginWithCurrentCustomerJWT()
-    if (!data) return undefined
-    loginType = data.newLoginType
+    const data = await loginWithCurrentCustomerJWT();
+    if (!data) return undefined;
+    loginType = data.newLoginType;
   }
   try {
-    const data = await getCustomerInfo()
+    const data = await getCustomerInfo();
 
-    if (data?.detail) return undefined
+    if (data?.detail) return undefined;
 
-    const loginCustomer = data.data.customer
+    const loginCustomer = data.data.customer;
 
     const {
       entityId: customerId = '',
@@ -310,22 +284,22 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
       lastName,
       email: emailAddress = '',
       customerGroupId,
-    } = loginCustomer
+    } = loginCustomer;
 
-    const companyUserInfo = await getCompanyUserInfo(emailAddress, customerId)
+    const companyUserInfo = await getCompanyUserInfo(emailAddress, customerId);
 
     if (companyUserInfo && customerId) {
-      const { userType, role, id } = companyUserInfo
+      const { userType, role, id } = companyUserInfo;
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(role, id, userType),
         agentInfo(customerId, role),
-      ])
+      ]);
 
       const isB2BUser =
         (userType === UserTypes.MULTIPLE_B2C &&
           companyInfo?.companyStatus === CompanyStatus.APPROVED) ||
-        +role === CustomerRole.SUPER_ADMIN
+        +role === CustomerRole.SUPER_ADMIN;
 
       const customerInfo = {
         id: customerId,
@@ -338,40 +312,40 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
         role: isB2BUser ? role : CustomerRole.B2C,
         b2bId: id,
         loginType,
-      }
-      const quoteUserId = id || customerId || 0
+      };
+      const quoteUserId = id || customerId || 0;
       const companyPayload = {
         id: companyInfo.id,
         status: companyInfo.companyStatus,
         companyName: companyInfo.companyName,
-      }
+      };
 
-      store.dispatch(resetDraftQuoteList())
-      store.dispatch(resetDraftQuoteInfo())
-      store.dispatch(clearMasqueradeCompany())
-      store.dispatch(setCompanyInfo(companyPayload))
-      store.dispatch(setCustomerInfo(customerInfo))
-      store.dispatch(setQuoteUserId(quoteUserId))
-      B3SStorage.set('isB2BUser', isB2BUser)
-      B3LStorage.set('cartToQuoteId', '')
+      store.dispatch(resetDraftQuoteList());
+      store.dispatch(resetDraftQuoteInfo());
+      store.dispatch(clearMasqueradeCompany());
+      store.dispatch(setCompanyInfo(companyPayload));
+      store.dispatch(setCustomerInfo(customerInfo));
+      store.dispatch(setQuoteUserId(quoteUserId));
+      B3SStorage.set('isB2BUser', isB2BUser);
+      B3LStorage.set('cartToQuoteId', '');
 
       return {
         role,
         userType,
-      }
+      };
     }
   } catch (error) {
-    b2bLogger.error(error)
-    clearCurrentCustomerInfo()
+    b2bLogger.error(error);
+    clearCurrentCustomerInfo();
   }
-  return undefined
-}
+  return undefined;
+};
 
 export const getSearchVal = (search: string, key: string) => {
   if (!search) {
-    return ''
+    return '';
   }
-  const searchParams = new URLSearchParams(search)
+  const searchParams = new URLSearchParams(search);
 
-  return searchParams.get(key)
-}
+  return searchParams.get(key);
+};

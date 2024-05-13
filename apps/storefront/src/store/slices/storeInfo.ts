@@ -1,14 +1,14 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface TimeFormat {
-  display: string
-  export: string
-  extendedDisplay: string
-  offset: number
+  display: string;
+  export: string;
+  extendedDisplay: string;
+  offset: number;
 }
 
 export interface StoreInfo {
-  timeFormat: TimeFormat
+  timeFormat: TimeFormat;
 }
 
 const initialState: StoreInfo = {
@@ -18,7 +18,7 @@ const initialState: StoreInfo = {
     extendedDisplay: '',
     offset: 0,
   },
-}
+};
 
 export const storeInfoSlice = createSlice({
   name: 'storeInfo',
@@ -26,11 +26,11 @@ export const storeInfoSlice = createSlice({
   reducers: {
     clearStoreInfo: () => initialState,
     setTimeFormat: (state, { payload }: PayloadAction<TimeFormat>) => {
-      state.timeFormat = payload
+      state.timeFormat = payload;
     },
   },
-})
+});
 
-export const { clearStoreInfo, setTimeFormat } = storeInfoSlice.actions
+export const { clearStoreInfo, setTimeFormat } = storeInfoSlice.actions;
 
-export default storeInfoSlice.reducer
+export default storeInfoSlice.reducer;

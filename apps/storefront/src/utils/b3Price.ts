@@ -1,27 +1,26 @@
-import isEmpty from 'lodash-es/isEmpty'
+import isEmpty from 'lodash-es/isEmpty';
 
 const getProductPriceIncTax = (
   variants: CustomFieldItems,
   variantId?: number,
-  variantSku?: string
+  variantSku?: string,
 ) => {
   const currentVariantInfo =
     variants.find(
-      (item: CustomFieldItems) =>
-        +item.variant_id === variantId || variantSku === item.sku
-    ) || {}
+      (item: CustomFieldItems) => +item.variant_id === variantId || variantSku === item.sku,
+    ) || {};
 
   if (!isEmpty(currentVariantInfo)) {
     const bcCalculatedPrice: {
-      tax_inclusive: number | string
-    } = currentVariantInfo.bc_calculated_price
+      tax_inclusive: number | string;
+    } = currentVariantInfo.bc_calculated_price;
 
-    const priceIncTax = +bcCalculatedPrice.tax_inclusive
+    const priceIncTax = +bcCalculatedPrice.tax_inclusive;
 
-    return priceIncTax
+    return priceIncTax;
   }
 
-  return false
-}
+  return false;
+};
 
-export default getProductPriceIncTax
+export default getProductPriceIncTax;

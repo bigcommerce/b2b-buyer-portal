@@ -1,27 +1,27 @@
 export interface CompanyInfo {
-  id: string
-  companyName: string
-  status: number
+  id: string;
+  companyName: string;
+  status: number;
 }
 export interface Customer {
   /**
    * The unique identifier of the customer provided by the BigCommerce backend API.
    */
-  id: number
+  id: number;
   /**
    * The unique identifier of the customer provided by the B2B backend API.
    *
    * This is distinct from the `id` property.
    */
-  b2bId?: number
-  userType: UserTypes
-  phoneNumber: string
-  firstName: string
-  lastName: string
-  emailAddress: string
-  customerGroupId: number
-  loginType: LoginTypes
-  role: CustomerRole
+  b2bId?: number;
+  userType: UserTypes;
+  phoneNumber: string;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  customerGroupId: number;
+  loginType: LoginTypes;
+  role: CustomerRole;
 }
 // @Brian.Jiang2021: b5a4803db1bfe87cd85c9116e657d92d210335bd
 // 99: default, Distinguish between bc and b2b;

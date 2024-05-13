@@ -4,39 +4,38 @@ enum StorageType {
 }
 
 class MyStorage {
-  storage: Storage
+  storage: Storage;
 
-  prefix: string
+  prefix: string;
 
   constructor(type: StorageType) {
-    this.storage =
-      type === StorageType.l ? window.localStorage : window.sessionStorage
-    this.prefix = 'sf-'
+    this.storage = type === StorageType.l ? window.localStorage : window.sessionStorage;
+    this.prefix = 'sf-';
   }
 
   set(key: string, value: any) {
-    const data = JSON.stringify(value)
-    this.storage.setItem(this.prefix + key, data)
+    const data = JSON.stringify(value);
+    this.storage.setItem(this.prefix + key, data);
   }
 
   get(key: string) {
-    const value = this.storage.getItem(this.prefix + key)
+    const value = this.storage.getItem(this.prefix + key);
     if (value) {
-      return JSON.parse(value)
+      return JSON.parse(value);
     }
-    return undefined
+    return undefined;
   }
 
   delete(key: string) {
-    this.storage.removeItem(this.prefix + key)
+    this.storage.removeItem(this.prefix + key);
   }
 
   clear() {
-    this.storage.clear()
+    this.storage.clear();
   }
 }
 
-const B3LStorage = new MyStorage(StorageType.l)
-const B3SStorage = new MyStorage(StorageType.s)
+const B3LStorage = new MyStorage(StorageType.l);
+const B3SStorage = new MyStorage(StorageType.s);
 
-export { B3LStorage, B3SStorage }
+export { B3LStorage, B3SStorage };

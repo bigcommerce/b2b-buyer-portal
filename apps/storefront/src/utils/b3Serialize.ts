@@ -1,34 +1,31 @@
 interface FromArrValues {
-  [key: string]: string | number
+  [key: string]: string | number;
 }
 
-type Serializer = (
-  file: HTMLInputElement,
-  formObjVal: FromArrValues
-) => FromArrValues
+type Serializer = (file: HTMLInputElement, formObjVal: FromArrValues) => FromArrValues;
 
-const denyInputType = ['button', 'file', 'reset', 'hidden', 'submit']
-const serializeType = ['checkbox', 'radio']
+const denyInputType = ['button', 'file', 'reset', 'hidden', 'submit'];
+const serializeType = ['checkbox', 'radio'];
 
 const serializeAction: Serializer = (file, formObjVal) => {
-  const { name, type, checked } = file
-  let { value } = file
+  const { name, type, checked } = file;
+  let { value } = file;
 
   if (serializeType.includes(type)) {
-    if (type === 'radio' && !checked) return {}
+    if (type === 'radio' && !checked) return {};
 
-    return { [name]: `${checked ? value : ''}` }
+    return { [name]: `${checked ? value : ''}` };
   }
 
   if (formObjVal[name]) {
-    value = `${formObjVal[name]}, ${value}`
+    value = `${formObjVal[name]}, ${value}`;
   }
 
-  return { [name]: value }
-}
+  return { [name]: value };
+};
 
 export const serialize = (form: HTMLFormElement) => {
-  const formElement = [...form.elements] as HTMLInputElement[]
+  const formElement = [...form.elements] as HTMLInputElement[];
   const formValue = formElement.reduce(
     (previousValue: FromArrValues, currentValue: HTMLInputElement) => {
       if (
@@ -36,15 +33,15 @@ export const serialize = (form: HTMLFormElement) => {
         !denyInputType.includes(currentValue.type) &&
         !currentValue.disabled
       ) {
-        const result = serializeAction(currentValue, previousValue)
-        return { ...previousValue, ...result }
+        const result = serializeAction(currentValue, previousValue);
+        return { ...previousValue, ...result };
       }
-      return previousValue
+      return previousValue;
     },
-    {}
-  )
+    {},
+  );
 
-  return formValue
-}
+  return formValue;
+};
 
-export default serialize
+export default serialize;

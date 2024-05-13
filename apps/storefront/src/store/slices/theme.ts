@@ -1,12 +1,12 @@
-import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit';
 
 export interface ThemeState {
-  themeFrame: HTMLIFrameElement['contentDocument']
+  themeFrame: HTMLIFrameElement['contentDocument'];
 }
 
 const initialState: ThemeState = {
   themeFrame: null,
-}
+};
 
 export const themeSlice = createSlice({
   name: 'theme',
@@ -14,17 +14,16 @@ export const themeSlice = createSlice({
   reducers: {
     clearThemeFrame: () => initialState,
     setThemeFrame: (state, { payload }: PayloadAction<unknown>) => {
-      state.themeFrame = payload as Draft<Document>
+      state.themeFrame = payload as Draft<Document>;
     },
     updateOverflowStyle: (state, { payload }: PayloadAction<string>) => {
-      if (!state.themeFrame) return
+      if (!state.themeFrame) return;
 
-      state.themeFrame.body.style.overflow = payload
+      state.themeFrame.body.style.overflow = payload;
     },
   },
-})
+});
 
-export const { clearThemeFrame, setThemeFrame, updateOverflowStyle } =
-  themeSlice.actions
+export const { clearThemeFrame, setThemeFrame, updateOverflowStyle } = themeSlice.actions;
 
-export default themeSlice.reducer
+export default themeSlice.reducer;

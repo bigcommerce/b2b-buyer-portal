@@ -1,15 +1,12 @@
-import { ReactElement } from 'react'
-import { v1 as uuid } from 'uuid'
+import { ReactElement } from 'react';
+import { v1 as uuid } from 'uuid';
 
-import {
-  AlertTip,
-  MsgsProps,
-} from '@/shared/dynamicallyVariable/context/config'
+import { AlertTip, MsgsProps } from '@/shared/dynamicallyVariable/context/config';
 
 interface SnackbarItemProps {
-  duration?: number
-  jsx?: () => ReactElement
-  isClose?: boolean
+  duration?: number;
+  jsx?: () => ReactElement;
+  isClose?: boolean;
 }
 
 // interface SnackbarMessageProps extends SnackbarItemProps {
@@ -17,13 +14,13 @@ interface SnackbarItemProps {
 // }
 
 interface SnackbarProps {
-  [key: string]: (message: string, options?: SnackbarItemProps) => void
+  [key: string]: (message: string, options?: SnackbarItemProps) => void;
 }
 
-const snackbar: SnackbarProps = {}
-const globalSnackbar: SnackbarProps = {}
+const snackbar: SnackbarProps = {};
+const globalSnackbar: SnackbarProps = {};
 
-const variants: AlertTip[] = ['error', 'success', 'info', 'warning']
+const variants: AlertTip[] = ['error', 'success', 'info', 'warning'];
 
 variants.forEach((variant) => {
   snackbar[variant] = (message, options) => {
@@ -36,7 +33,7 @@ variants.forEach((variant) => {
         jsx: options?.jsx,
         time: 5000,
       },
-    ]
+    ];
 
     window.tipDispatch?.({
       type: 'tip',
@@ -46,8 +43,8 @@ variants.forEach((variant) => {
           msgs,
         },
       },
-    })
-  }
+    });
+  };
 
   globalSnackbar[variant] = (message, options) => {
     const msgs = [
@@ -59,7 +56,7 @@ variants.forEach((variant) => {
         jsx: options?.jsx,
         time: 5000,
       },
-    ]
+    ];
 
     window.globalTipDispatch({
       type: 'globalTip',
@@ -69,8 +66,8 @@ variants.forEach((variant) => {
           msgs,
         },
       },
-    })
-  }
-})
+    });
+  };
+});
 
-export { globalSnackbar, snackbar }
+export { globalSnackbar, snackbar };

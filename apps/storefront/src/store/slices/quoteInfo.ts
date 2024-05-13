@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { persistReducer } from 'redux-persist'
-import storage from 'redux-persist/lib/storage'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 import {
   BillingAddress,
@@ -8,25 +8,25 @@ import {
   QuoteInfo,
   QuoteItem,
   ShippingAddress,
-} from '@/types/quotes'
+} from '@/types/quotes';
 
 interface SetDraftProductQuantityParams {
-  id: string
-  quantity: number
+  id: string;
+  quantity: number;
 }
 
 interface SetDraftProductParams {
-  id: string
-  product: QuoteItem
+  id: string;
+  product: QuoteItem;
 }
 
 interface SetDraftProductCalculatedValueParams {
-  index: number
-  calculatedValue: CalculatedValue
+  index: number;
+  calculatedValue: CalculatedValue;
 }
 export interface QuoteInfoState {
-  draftQuoteList: QuoteItem[]
-  draftQuoteInfo: QuoteInfo
+  draftQuoteList: QuoteItem[];
+  draftQuoteInfo: QuoteInfo;
 }
 
 const initialState: QuoteInfoState = {
@@ -71,98 +71,72 @@ const initialState: QuoteInfoState = {
     fileInfo: [],
     note: '',
   },
-}
+};
 
 const draftQuoteListSlice = createSlice({
   name: 'quoteInfo',
   initialState,
   reducers: {
     resetDraftQuoteList: (state) => {
-      state.draftQuoteList = initialState.draftQuoteList
+      state.draftQuoteList = initialState.draftQuoteList;
     },
     resetDraftQuoteInfo: (state) => {
-      state.draftQuoteInfo = initialState.draftQuoteInfo
+      state.draftQuoteInfo = initialState.draftQuoteInfo;
     },
     setDraftQuoteList: (state, { payload }: PayloadAction<QuoteItem[]>) => {
-      state.draftQuoteList = payload
+      state.draftQuoteList = payload;
     },
-    deleteProductFromDraftQuoteList: (
-      state,
-      { payload }: PayloadAction<string>
-    ) => {
-      const index = state.draftQuoteList.findIndex(
-        (item) => item.node.id === payload
-      )
-      state.draftQuoteList.splice(index, 1)
+    deleteProductFromDraftQuoteList: (state, { payload }: PayloadAction<string>) => {
+      const index = state.draftQuoteList.findIndex((item) => item.node.id === payload);
+      state.draftQuoteList.splice(index, 1);
     },
-    setDraftProductQuantity: (
-      state,
-      { payload }: PayloadAction<SetDraftProductQuantityParams>
-    ) => {
-      const index = state.draftQuoteList.findIndex(
-        (item) => item.node.id === payload.id
-      )
-      state.draftQuoteList[index].node.quantity = payload.quantity
+    setDraftProductQuantity: (state, { payload }: PayloadAction<SetDraftProductQuantityParams>) => {
+      const index = state.draftQuoteList.findIndex((item) => item.node.id === payload.id);
+      state.draftQuoteList[index].node.quantity = payload.quantity;
     },
-    setDraftProduct: (
-      state,
-      { payload }: PayloadAction<SetDraftProductParams>
-    ) => {
+    setDraftProduct: (state, { payload }: PayloadAction<SetDraftProductParams>) => {
       state.draftQuoteList.forEach((item) => {
         if (item.node.id === payload.id) {
-          item.node = payload.product.node
+          item.node = payload.product.node;
         }
-      })
+      });
     },
     setDraftProductCalculatedValue: (
       state,
-      { payload }: PayloadAction<SetDraftProductCalculatedValueParams>
+      { payload }: PayloadAction<SetDraftProductCalculatedValueParams>,
     ) => {
-      state.draftQuoteList[payload.index].node.calculatedValue =
-        payload.calculatedValue
+      state.draftQuoteList[payload.index].node.calculatedValue = payload.calculatedValue;
     },
     setDraftQuoteCalculatedPrices: (
       state,
-      { payload }: PayloadAction<{ startIndex: number; endIndex: number }>
+      { payload }: PayloadAction<{ startIndex: number; endIndex: number }>,
     ) => {
-      state.draftQuoteList
-        .slice(payload.startIndex, payload.endIndex)
-        .forEach((item) => {
-          if (Array.isArray(item.node.additionalCalculatedPrices)) {
-            item.node.additionalCalculatedPrices.forEach(
-              (additionalCalculatedPrice) => {
-                item.node.basePrice +=
-                  additionalCalculatedPrice.additionalCalculatedPriceTax
-                item.node.taxPrice +=
-                  additionalCalculatedPrice.additionalCalculatedPrice
-              }
-            )
-          }
-        })
+      state.draftQuoteList.slice(payload.startIndex, payload.endIndex).forEach((item) => {
+        if (Array.isArray(item.node.additionalCalculatedPrices)) {
+          item.node.additionalCalculatedPrices.forEach((additionalCalculatedPrice) => {
+            item.node.basePrice += additionalCalculatedPrice.additionalCalculatedPriceTax;
+            item.node.taxPrice += additionalCalculatedPrice.additionalCalculatedPrice;
+          });
+        }
+      });
     },
     setQuoteUserId: (state, { payload }: PayloadAction<number>) => {
-      state.draftQuoteInfo.userId = payload
+      state.draftQuoteInfo.userId = payload;
     },
     setDraftQuoteInfo: (state, { payload }: PayloadAction<QuoteInfo>) => {
-      state.draftQuoteInfo = payload
+      state.draftQuoteInfo = payload;
     },
     setDraftQuoteInfoNote: (state, { payload }: PayloadAction<string>) => {
-      state.draftQuoteInfo.note = payload
+      state.draftQuoteInfo.note = payload;
     },
-    setDraftQuoteShippingAddress: (
-      state,
-      { payload }: PayloadAction<ShippingAddress>
-    ) => {
-      state.draftQuoteInfo.shippingAddress = payload
+    setDraftQuoteShippingAddress: (state, { payload }: PayloadAction<ShippingAddress>) => {
+      state.draftQuoteInfo.shippingAddress = payload;
     },
-    setDraftQuoteBillingAddress: (
-      state,
-      { payload }: PayloadAction<BillingAddress>
-    ) => {
-      state.draftQuoteInfo.billingAddress = payload
+    setDraftQuoteBillingAddress: (state, { payload }: PayloadAction<BillingAddress>) => {
+      state.draftQuoteInfo.billingAddress = payload;
     },
   },
-})
+});
 
 export const {
   resetDraftQuoteList,
@@ -178,9 +152,6 @@ export const {
   setDraftQuoteInfoNote,
   setDraftQuoteShippingAddress,
   setDraftQuoteBillingAddress,
-} = draftQuoteListSlice.actions
+} = draftQuoteListSlice.actions;
 
-export default persistReducer(
-  { key: 'quoteInfo', storage },
-  draftQuoteListSlice.reducer
-)
+export default persistReducer({ key: 'quoteInfo', storage }, draftQuoteListSlice.reducer);

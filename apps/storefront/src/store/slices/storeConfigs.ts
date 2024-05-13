@@ -1,10 +1,10 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { ActiveCurrency, Currencies } from '@/types'
+import { ActiveCurrency, Currencies } from '@/types';
 
 export interface StoreConfigState {
-  currencies: Currencies
-  activeCurrency?: ActiveCurrency
+  currencies: Currencies;
+  activeCurrency?: ActiveCurrency;
 }
 
 export const defaultCurrenciesState: Currencies = {
@@ -34,12 +34,12 @@ export const defaultCurrenciesState: Currencies = {
     default_currency: 'USD',
   },
   enteredInclusiveTax: false,
-}
+};
 
 const initialState: StoreConfigState = {
   currencies: defaultCurrenciesState,
   activeCurrency: undefined,
-}
+};
 
 export const storeConfigSlice = createSlice({
   name: 'storeConfigs',
@@ -47,22 +47,18 @@ export const storeConfigSlice = createSlice({
   reducers: {
     clearState: () => initialState,
     setCurrencies: (state, { payload }: PayloadAction<Currencies>) => {
-      state.currencies = payload
+      state.currencies = payload;
     },
     setActiveCurrency: (state, { payload }: PayloadAction<ActiveCurrency>) => {
-      state.activeCurrency = payload
+      state.activeCurrency = payload;
     },
     setEnteredInclusiveTax: (state, { payload }: PayloadAction<boolean>) => {
-      state.currencies.enteredInclusiveTax = payload
+      state.currencies.enteredInclusiveTax = payload;
     },
   },
-})
+});
 
-export const {
-  clearState,
-  setCurrencies,
-  setActiveCurrency,
-  setEnteredInclusiveTax,
-} = storeConfigSlice.actions
+export const { clearState, setCurrencies, setActiveCurrency, setEnteredInclusiveTax } =
+  storeConfigSlice.actions;
 
-export default storeConfigSlice.reducer
+export default storeConfigSlice.reducer;
