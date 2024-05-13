@@ -1,4 +1,31 @@
-A monorepo frontend application designed for the BigCommerce B2B Edition Buyer portal. It's built using Turborepo, TypeScript, and React.
+<a href="https://bundleb2b.stoplight.io/docs/openapi/quick-start" target="_blank" rel="noopener norerrer">
+  <img src="https://storage.googleapis.com/bigcommerce-developers/images/B2B-edition-1024x683.jpg" alt="B2B Edition Open Source Buyer Portal" title="B2B Edition Open Source Buyer Portal">
+</a>
+
+<br />
+<br />
+
+<div align="center">
+
+[![MIT License](https://img.shields.io/github/license/bigcommerce/catalyst)](LICENSE.md)
+[![Lighthouse Report](https://github.com/bigcommerce/catalyst/actions/workflows/lighthouse.yml/badge.svg)](https://github.com/bigcommerce/catalyst/actions/workflows/lighthouse.yml) [![Lint, Typecheck, gql.tada](https://github.com/bigcommerce/catalyst/actions/workflows/basic.yml/badge.svg)](https://github.com/bigcommerce/catalyst/actions/workflows/basic.yml)
+
+</div>
+
+**B2B Buyer Portal** is a monorepo frontend application designed for the BigCommerce B2B Edition Buyer portal. The B2B Buyer Portal is built using [Turborepo](https://turbo.build/), [TypeScript](https://www.typescriptlang.org/), and [React](https://react.dev/).
+
+By choosing to build on top of our Open Source B2B Buyer Portal, you'll have access to build on our B2B buyer portal application backed by a robust set of SaaS APIs. 
+You can get straight to work building for your unique B2B business cases.
+
+![-----------------------------------------------------](https://storage.googleapis.com/bigcommerce-developers/images/catalyst_readme_hr.png)
+
+<p align="center">
+ <a href="https://www.bigcommerce.com/solutions/b2b-ecommerce-platform/">🚀 B2B Edition</a> •
+ <a href="https://developer.bigcommerce.com/community">🤗 BigCommerce Developer Community</a> •
+ <a href="https://bundleb2b.stoplight.io/docs/openapi/quick-start">📝 B2B Edition API Reference</a> •
+</p>
+
+![-----------------------------------------------------](https://storage.googleapis.com/bigcommerce-developers/images/catalyst_readme_hr.png)
 
 ## Index
 
