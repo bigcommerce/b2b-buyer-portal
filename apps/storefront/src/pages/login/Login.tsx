@@ -310,7 +310,7 @@ export default function Login(props: RegisteredProps) {
 
           if (
             info?.userType === UserTypes.MULTIPLE_B2C &&
-            info?.role === CustomerRole.JUNIOR_BUYER
+            info?.role === CustomerRole.SUPER_ADMIN
           ) {
             navigate('/dashboard')
             return
