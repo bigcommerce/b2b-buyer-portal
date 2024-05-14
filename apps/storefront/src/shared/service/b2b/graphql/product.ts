@@ -1,5 +1,5 @@
 import {
-  B3SStorage,
+  channelId,
   convertArrayToGraphql,
   getActiveCurrencyInfo,
   storeHash,
@@ -17,7 +17,7 @@ const getVariantInfoBySkus = ({ skus = [] }) => `{
   variantSku (
     variantSkus: ${convertArrayToGraphql(skus)},
     storeHash: "${storeHash}"
-    channelId: ${B3SStorage.get('B3channelId') || 1}
+    channelId: ${channelId}
   ){
     isStock,
     stock,
@@ -41,7 +41,7 @@ const getSkusInfo = ({ skus = [] }) => `{
   variantSku (
     variantSkus: ${convertArrayToGraphql(skus)},
     storeHash: "${storeHash}"
-    channelId: ${B3SStorage.get('B3channelId') || 1}
+    channelId: ${channelId}
   ){
     isStock,
     stock,
@@ -83,7 +83,7 @@ const searchProducts = (data: CustomFieldItems) => `{
     currencyCode: "${data.currencyCode || ''}"
     companyId: "${data.companyId || ''}"
     storeHash: "${storeHash}"
-    channelId: ${B3SStorage.get('B3channelId') || 1}
+    channelId: ${channelId}
     customerGroupId: ${data.customerGroupId || 0}
     ${data?.categoryFilter ? `categoryFilter: ${data?.categoryFilter}` : ''}
   ){

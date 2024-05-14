@@ -1,7 +1,6 @@
 import { LangFormatFunction } from '@b3/lang'
 
-import { store } from '@/store/reducer'
-import { storeHash, validatorRules } from '@/utils'
+import { baseUrl, channelId, storeHash, validatorRules } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
 
 export interface QuoteConfig {
@@ -105,10 +104,7 @@ export const loginCheckout = (data: LoginConfig) => {
     }),
   }
 
-  return fetch(
-    `${store.getState().global.bcUrl}/internalapi/v1/checkout/customer`,
-    requestOptions
-  )
+  return fetch(`${baseUrl}/internalapi/v1/checkout/customer`, requestOptions)
     .then((response) => response.text())
     .catch((error) => b2bLogger.error('error', error))
 }
@@ -127,14 +123,14 @@ export const sendEmail = (emailAddress: string) => {
   }
 
   return fetch(
-    `${store.getState().global.bcUrl}/login.php?action=send_password_email`,
+    `${baseUrl}/login.php?action=send_password_email`,
     requestOptions
   )
     .then((response) => response.text())
     .catch((error) => b2bLogger.error('error', error))
 }
 
-export const getloginTokenInfo = (channelId: number) => {
+export const getloginTokenInfo = () => {
   const { origin } = window.location
   const data = {
     storeHash,

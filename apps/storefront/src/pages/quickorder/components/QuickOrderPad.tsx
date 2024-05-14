@@ -37,17 +37,14 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
   const [productData, setProductData] = useState<CustomFieldItems>([])
   const [addBtnText, setAddBtnText] = useState<string>('Add to cart')
   const [isLoading, setIsLoading] = useState(false)
-
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice()
 
   const companyStatus = useAppSelector(
     ({ company }) => company.companyInfo.status
   )
-  const storeInfo = useAppSelector(({ global }) => global.storeInfo)
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct
   )
-  const storePlatform = storeInfo?.platform
 
   const getSnackbarMessage = (res: any) => {
     if (res && !res.errors) {
@@ -69,7 +66,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
   }
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
-    const res = await callCart(products, storePlatform)
+    const res = await callCart(products)
 
     if (res && res.errors) {
       snackbar.error(res.errors[0].message, {
@@ -238,7 +235,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       } = getValidProducts(validProduct)
 
       if (productItems.length > 0) {
-        const res = await callCart(productItems, storePlatform)
+        const res = await callCart(productItems)
 
         getSnackbarMessage(res)
         b3TriggerCartNumber()

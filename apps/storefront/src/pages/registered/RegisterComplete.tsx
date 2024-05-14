@@ -13,7 +13,7 @@ import {
   sendSubscribersState,
   uploadB2BFile,
 } from '@/shared/service/b2b'
-import { storeHash } from '@/utils'
+import { channelId, storeHash } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
@@ -49,7 +49,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const { state, dispatch } = useContext(RegisteredContext)
 
   const {
-    state: { currentChannelId, blockPendingAccountOrderCreation },
+    state: { blockPendingAccountOrderCreation },
   } = useContext(GlobaledContext)
 
   const {
@@ -142,7 +142,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
     }
 
     bcFields.addresses = []
-    bcFields.origin_channel_id = currentChannelId
+    bcFields.origin_channel_id = channelId
 
     if (accountType === '2') {
       const addresses: CustomFieldItems = {}
@@ -280,7 +280,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         b2bFields.addressExtraFields = extraFields
       }
       b2bFields.fileList = fileList
-      b2bFields.channelId = currentChannelId
+      b2bFields.channelId = channelId
 
       return createB2BCompanyUser(b2bFields)
     } catch (error) {
@@ -393,7 +393,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
               email: enterEmail,
               first_name: firstName.default,
               last_name: lastName.default,
-              channel_id: currentChannelId || 1,
+              channel_id: channelId || 1,
             },
           })
         } catch (err: any) {

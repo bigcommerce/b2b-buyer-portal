@@ -16,7 +16,6 @@ import {
   getContrastColor,
 } from '@/components/outSideComponents/utils/b3CustomStyles'
 import { CustomStyleContext } from '@/shared/customStyleButtton'
-import { GlobaledContext } from '@/shared/global'
 import {
   checkUserBCEmail,
   checkUserEmail,
@@ -28,6 +27,7 @@ import {
   themeFrameSelector,
   useAppSelector,
 } from '@/store'
+import { channelId } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
 
 import RegisteredStepButton from './component/RegisteredStepButton'
@@ -44,10 +44,6 @@ interface RegisteredAccountProps {
 
 export default function RegisteredAccount(props: RegisteredAccountProps) {
   const { handleBack, handleNext, activeStep } = props
-
-  const {
-    state: { currentChannelId },
-  } = useContext(GlobaledContext)
 
   const { state, dispatch } = useContext(RegisteredContext)
   const isB2BUser = useAppSelector(isB2BUserSelector)
@@ -151,7 +147,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         [key]: { userType, userInfo: { companyName = '' } = {} },
       }: CustomFieldItems = await fn({
         email: emailValue,
-        channelId: currentChannelId,
+        channelId,
       })
 
       if (!isValidUserType) {

@@ -12,8 +12,8 @@ import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b'
-import { isB2BUserSelector, store, useAppSelector } from '@/store'
-import { snackbar } from '@/utils'
+import { isB2BUserSelector, useAppSelector } from '@/store'
+import { baseUrl, snackbar } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber'
 import { callCart } from '@/utils/cartUtils'
@@ -62,7 +62,6 @@ export default function OrderDialog({
   orderId,
 }: OrderDialogProps) {
   const isB2BUser = useAppSelector(isB2BUserSelector)
-  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false)
   const [openShoppingList, setOpenShoppingList] = useState(false)
@@ -87,7 +86,6 @@ export default function OrderDialog({
   } = useForm({
     mode: 'all',
   })
-
   const b3Lang = useB3Lang()
 
   const handleClose = () => {
@@ -134,9 +132,7 @@ export default function OrderDialog({
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
       },
-      referrer: `${
-        store.getState().global.bcUrl
-      }/account.php?action=new_return&order_id=${orderId}`,
+      referrer: `${baseUrl}/account.php?action=new_return&order_id=${orderId}`,
       body: urlencoded,
       mode: 'no-cors',
     }
@@ -144,7 +140,7 @@ export default function OrderDialog({
     try {
       setIsRequestLoading(true)
       const returnResult = await fetch(
-        `${store.getState().global.bcUrl}/account.php?action=save_new_return`,
+        `${baseUrl}/account.php?action=save_new_return`,
         requestOptions
       )
       if (
@@ -251,7 +247,7 @@ export default function OrderDialog({
         snackbar.error(b3Lang('purchasedProducts.error.fillCorrectQuantity'))
         return
       }
-      const res = await callCart(items, platform)
+      const res = await callCart(items)
 
       const status =
         res && (res.data.cart.createCart || res.data.cart.addCartLineItems)

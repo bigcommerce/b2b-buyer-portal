@@ -31,7 +31,7 @@ import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types'
 
 import b2bLogger from './b3Logger'
 import { B3LStorage, B3SStorage } from './b3Storage'
-import { storeHash } from './basicConfig'
+import { channelId, storeHash } from './basicConfig'
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env
 
@@ -97,7 +97,7 @@ export const getCurrentStoreInfo = (
   return storeItem || store
 }
 
-export const getloginTokenInfo = (channelId: number) => {
+export const getloginTokenInfo = () => {
   const { origin } = window.location
   const data = {
     storeHash,
@@ -105,9 +105,9 @@ export const getloginTokenInfo = (channelId: number) => {
     url: '/v3/storefront/api-token',
     params: {},
     data: {
-      channel_id: channelId || 1,
+      channel_id: channelId,
       expires_at: 1866896353,
-      allowed_cors_origins: [`${origin}`],
+      allowed_cors_origins: [origin],
     },
   }
 
@@ -115,8 +115,7 @@ export const getloginTokenInfo = (channelId: number) => {
 }
 
 export const loginInfo = async () => {
-  const channelId = B3SStorage.get('B3channelId')
-  const loginTokenInfo = getloginTokenInfo(channelId)
+  const loginTokenInfo = getloginTokenInfo()
   const {
     data: { token },
   } = await getBCGraphqlToken(loginTokenInfo)
@@ -256,7 +255,6 @@ export const getCompanyUserInfo = async (
 }
 
 const loginWithCurrentCustomerJWT = async () => {
-  const channelId = B3SStorage.get('B3channelId')
   const prevCurrentCustomerJWT =
     store.getState().company.tokens.currentCustomerJWT
   let currentCustomerJWT

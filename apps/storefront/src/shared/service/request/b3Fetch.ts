@@ -1,5 +1,5 @@
-import { store } from '@/store/reducer'
-import { getCookie } from '@/utils'
+import { store } from '@/store'
+import { baseUrl, channelId, getCookie, storeHash } from '@/utils'
 
 import { B2B_BASIC_URL, queryParse, RequestType, RequestTypeKeys } from './base'
 import b3Fetch from './fetch'
@@ -13,7 +13,7 @@ interface Config {
 const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
   const GraphqlEndpoints: CustomFieldStringItems = {
     B2BGraphql: `${B2B_BASIC_URL}/graphql`,
-    BCGraphql: `${store.getState().global.bcUrl}/graphql`,
+    BCGraphql: `${baseUrl}/graphql`,
     BCProxyGraphql: `${B2B_BASIC_URL}/api/v3/proxy/bc-storefront/graphql`,
   }
 
@@ -92,21 +92,18 @@ const B3Request = {
   /**
    * Request to BC graphql API using B2B token
    */
-  graphqlBCProxy: function post<T>(
-    data: T,
-    useCartHeader?: boolean
-  ): Promise<any> {
+  graphqlBCProxy: function post<T>(data: T): Promise<any> {
     let config = {}
     const { B2BToken } = store.getState().company.tokens
 
-    if (useCartHeader) {
+    if (B2BToken) {
       config = {
         Authorization: `Bearer  ${B2BToken}`,
-        'disable-customer-header': 'true',
       }
     } else {
       config = {
-        Authorization: `Bearer  ${B2BToken}`,
+        'Store-Hash': storeHash,
+        'BC-Channel-Id': channelId,
       }
     }
 

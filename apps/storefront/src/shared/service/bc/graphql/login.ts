@@ -1,3 +1,5 @@
+import { platform } from '@/utils'
+
 import B3Request from '../../request/b3Fetch'
 
 interface LoginData {
@@ -61,12 +63,21 @@ export const b2bLogin = (
   )
 
 export const bcLogin = (data: CustomFieldItems): CustomFieldItems =>
-  B3Request.graphqlBC({
-    query: getbcLogin(),
-    variables: data,
-  })
+  platform === 'bigcommerce'
+    ? B3Request.graphqlBC({
+        query: getbcLogin(),
+        variables: data,
+      })
+    : B3Request.graphqlBCProxy({
+        query: getbcLogin(),
+        variables: data,
+      })
 
 export const bcLogoutLogin = (): CustomFieldItems =>
-  B3Request.graphqlBC({
-    query: logoutLogin(),
-  })
+  platform === 'bigcommerce'
+    ? B3Request.graphqlBC({
+        query: logoutLogin(),
+      })
+    : B3Request.graphqlBCProxy({
+        query: logoutLogin(),
+      })

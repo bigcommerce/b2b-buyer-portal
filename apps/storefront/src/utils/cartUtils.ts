@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie'
+
 import {
   addNewLineToCart,
   createNewCart,
@@ -5,7 +7,6 @@ import {
 } from '@/shared/service/bc/graphql/cart'
 
 import { LineItems } from './b3Product/b3Product'
-import getCookie from './b3utils'
 
 export const handleSplitOptionId = (id: string | number) => {
   if (typeof id === 'string' && id.includes('attribute')) {
@@ -107,34 +108,25 @@ export const createNewShoppingCart = async (products: any) => {
   const cartData = newDataCart(products)
   const res = await createNewCart(cartData)
 
+  const { entityId } = res.data.cart.createCart.cart
+  Cookies.set('cartId', entityId)
+
   return res
 }
 
-export const updateCart = async (
-  cartInfo: any,
-  productData: any,
-  platform: string
-) => {
+export const updateCart = async (cartInfo: any, productData: any) => {
   const newItems = getLineItemsData(cartInfo, productData)
-  const res = await addNewLineToCart(newItems, platform)
+  const res = await addNewLineToCart(newItems)
 
   return res
 }
 
-export const callCart = async (
-  lineItems: LineItems[] | CustomFieldItems[],
-  storePlatform: string
-) => {
-  const cartEntityId: string = getCookie('cartId')
+export const callCart = async (lineItems: LineItems[] | CustomFieldItems[]) => {
+  const cartInfo = await getCart()
 
-  const cartInfo = cartEntityId
-    ? await getCart(cartEntityId, storePlatform)
-    : null
-
-  const res =
-    cartInfo && cartInfo?.data?.site?.cart
-      ? await updateCart(cartInfo, lineItems, storePlatform)
-      : await createNewShoppingCart(lineItems)
+  const res = cartInfo?.data?.site?.cart
+    ? await updateCart(cartInfo, lineItems)
+    : await createNewShoppingCart(lineItems)
 
   return res
 }

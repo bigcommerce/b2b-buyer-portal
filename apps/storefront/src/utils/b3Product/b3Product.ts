@@ -22,7 +22,7 @@ import {
   Variant,
 } from '@/types/products'
 import { QuoteItem } from '@/types/quotes'
-import { B3SStorage, getActiveCurrencyInfo, storeHash } from '@/utils'
+import { channelId, getActiveCurrencyInfo, storeHash } from '@/utils'
 
 import b2bLogger from '../b3Logger'
 
@@ -414,8 +414,10 @@ const getNewProductsList = async (
         }
       })
       const currentState = store.getState()
-      const companyInfoId = currentState.company.companyInfo.id
-      const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId')
+      const { id: companyInfoId } = currentState.company.companyInfo
+      const { id: salesRepCompanyId } =
+        currentState.b2bFeatures.masqueradeCompany
+      const companyId = companyInfoId || salesRepCompanyId
       const { customerGroupId } = currentState.company.customer
 
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts
@@ -676,7 +678,6 @@ const getCalculatedProductPrice = async (
       variantItem,
       productsSearch?.allOptions || []
     )
-    const channelId = B3SStorage.get('B3channelId')
     const customerGroupId = getCustomerGroupId()
 
     const data = {
@@ -819,7 +820,7 @@ const calculateProductsPrice = async (
   // then fetch them
   if (calculatedValue.length === 0) {
     const data = {
-      channel_id: B3SStorage.get('B3channelId'),
+      channel_id: channelId,
       customer_group_id: getCustomerGroupId(),
       currency_code: currencyCode,
       items,
@@ -926,8 +927,6 @@ const calculateProductListPrice = async (
     if (isError) {
       return products
     }
-
-    const channelId = B3SStorage.get('B3channelId')
 
     const customerGroupId = getCustomerGroupId()
 

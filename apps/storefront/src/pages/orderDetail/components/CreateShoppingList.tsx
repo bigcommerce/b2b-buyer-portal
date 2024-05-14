@@ -1,9 +1,8 @@
-import { lazy, useContext, useRef, useState } from 'react'
+import { lazy, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { LangFormatFunction, useB3Lang } from '@b3/lang'
 import { Box } from '@mui/material'
 
-import { GlobaledContext } from '@/shared/global'
 import { isB2BUserSelector, useAppSelector } from '@/store'
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList'
 
@@ -52,10 +51,6 @@ function CreateShoppingList({
 
   const [loading, setLoading] = useState<boolean>(false)
 
-  const {
-    state: { currentChannelId },
-  } = useContext(GlobaledContext)
-
   const isB2BUser = useAppSelector(isB2BUserSelector)
   const role = useAppSelector(({ company }) => company.customer.role)
 
@@ -82,7 +77,6 @@ function CreateShoppingList({
         data: { name, description },
         isB2BUser,
         role: +role,
-        currentChannelId,
       })
       setLoading(false)
       onChange()

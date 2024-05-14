@@ -61,7 +61,6 @@ export interface GlabolState {
   setOpenPageFn?: Dispatch<SetStateAction<OpenPageState>>
   showInclusiveTaxPrice: boolean
   blockPendingAccountViewPrice: boolean
-  bcUrl: string
   cartNumber: number
   storeInfo: StoreInfoProps
   loginLandingLocation: string
@@ -84,7 +83,6 @@ const initialState: GlabolState = {
   setOpenPageFn: undefined,
   showInclusiveTaxPrice: false,
   blockPendingAccountViewPrice: false,
-  bcUrl: '',
   cartNumber: 0,
   storeInfo: {
     b2bEnabled: false,
@@ -153,9 +151,6 @@ export const glabolSlice = createSlice({
     setLoginLandingLocation: (state, { payload }: PayloadAction<string>) => {
       state.loginLandingLocation = payload
     },
-    setHeadLessBcUrl: (state, { payload }: PayloadAction<string>) => {
-      state.bcUrl = payload
-    },
     setCartNumber: (state, { payload }: PayloadAction<number>) => {
       state.cartNumber = payload
     },
@@ -173,7 +168,6 @@ export const {
   setShowInclusiveTaxPrice,
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
-  setHeadLessBcUrl,
   setCartNumber,
   setStoreInfo,
   setLoginLandingLocation,

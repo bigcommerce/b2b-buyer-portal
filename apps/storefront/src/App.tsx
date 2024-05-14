@@ -60,7 +60,6 @@ const FONT_URL =
 export default function App() {
   const {
     state: {
-      currentChannelId,
       quoteConfig,
       storefrontConfig,
       productQuoteEnabled,
@@ -185,20 +184,15 @@ export default function App() {
       if (!bcGraphqlToken) {
         await loginInfo()
       }
-      setChannelStoreType(currentChannelId)
+      setChannelStoreType()
 
-      try {
-        await Promise.allSettled([
-          getStoreTaxZoneRates(),
-          setStorefrontConfig(dispatch, currentChannelId),
-          getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
-          getCompanyUserInfo(emailAddress, customerId),
-          getCompanyInfo(role, b2bId),
-        ])
-      } catch (e) {
-        b2bLogger.error(e)
-      }
-
+      await Promise.all([
+        getStoreTaxZoneRates(),
+        setStorefrontConfig(dispatch),
+        getTemPlateConfig(styleDispatch, dispatch),
+        getCompanyUserInfo(emailAddress, customerId),
+        getCompanyInfo(role, b2bId),
+      ])
       const userInfo = {
         role: +role,
         isAgenting,
@@ -236,15 +230,7 @@ export default function App() {
     // due they are funtions that do not depend on any reactive value
     // ignore href because is not a reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    b2bId,
-    currentChannelId,
-    customerId,
-    emailAddress,
-    isAgenting,
-    isB2BUser,
-    role,
-  ])
+  }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role])
 
   useEffect(() => {
     if (quoteConfig.length > 0 && storefrontConfig) {

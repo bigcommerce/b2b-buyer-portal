@@ -8,9 +8,10 @@ import {
   getAllowedRoutes,
   RouteFirstLevelItem,
   RouteItem,
-} from '@/shared/routes/routes';
-import { getPageTranslations, useAppDispatch } from '@/store';
-import { OpenPageState } from '@/types/hooks';
+} from '@/shared/routes/routes'
+import { getPageTranslations, useAppDispatch } from '@/store'
+import { OpenPageState } from '@/types/hooks'
+import { channelId } from '@/utils'
 
 import Loading from '../loading/Loading';
 
@@ -56,15 +57,15 @@ export default function B3RenderRouter(props: B3RenderRouterProps) {
 
       dispatch(
         getPageTranslations({
-          channelId: globaledState.multiStorefrontEnabled ? globaledState.currentChannelId : 0,
+          channelId: globaledState.multiStorefrontEnabled ? channelId : 0,
           page,
         }),
       );
     },
     // ignore dispatch
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [globaledState.currentChannelId, globaledState.multiStorefrontEnabled, location.pathname],
-  );
+    [globaledState.multiStorefrontEnabled, location.pathname]
+  )
 
   return (
     <Suspense fallback={<Loading />}>
