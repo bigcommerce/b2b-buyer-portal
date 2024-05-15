@@ -1,24 +1,20 @@
-import { useContext } from 'react'
-import { Controller } from 'react-hook-form'
-import { useB3Lang } from '@b3/lang'
-import { TextField } from '@mui/material'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import dayjs from 'dayjs'
+import { useContext } from 'react';
+import { Controller } from 'react-hook-form';
+import { useB3Lang } from '@b3/lang';
+import { TextField } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 
-import { GlobaledContext } from '@/shared/global'
+import { GlobaledContext } from '@/shared/global';
 
-import setDayjsLocale from '../ui/setDayjsLocale'
+import setDayjsLocale from '../ui/setDayjsLocale';
 
-import { PickerFormControl } from './styled'
-import Form from './ui'
+import { PickerFormControl } from './styled';
+import Form from './ui';
 
-export default function B3ControlPicker({
-  control,
-  errors,
-  ...rest
-}: Form.B3UIProps) {
+export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
   const {
     fieldType,
     name,
@@ -34,10 +30,10 @@ export default function B3ControlPicker({
 
   const {
     state: { bcLanguage },
-  } = useContext(GlobaledContext)
+  } = useContext(GlobaledContext);
 
-  const b3Lang = useB3Lang()
-  const activeLang = setDayjsLocale(bcLanguage || 'en')
+  const b3Lang = useB3Lang();
+  const activeLang = setDayjsLocale(bcLanguage || 'en');
 
   const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps;
 
@@ -69,10 +65,7 @@ export default function B3ControlPicker({
 
   return ['date'].includes(fieldType) ? (
     <PickerFormControl>
-      <LocalizationProvider
-        dateAdapter={AdapterDayjs}
-        adapterLocale={activeLang}
-      >
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={activeLang}>
         <Controller
           {...fieldsProps}
           render={({ field: { ref, ...rest } }) => (

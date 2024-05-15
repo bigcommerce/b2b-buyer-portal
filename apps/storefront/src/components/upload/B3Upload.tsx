@@ -1,31 +1,20 @@
-import {
-  Dispatch,
-  DragEvent,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Dispatch, DragEvent, SetStateAction, useEffect, useRef, useState } from 'react';
 import { DropzoneArea } from 'react-mui-dropzone';
 import styled from '@emotion/styled';
 import InsertDriveFile from '@mui/icons-material/InsertDriveFile';
 import { Alert, Box, Link, useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import useMobile from '@/hooks/useMobile'
+import useMobile from '@/hooks/useMobile';
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
   guestProductsBulkUploadCSV,
-} from '@/shared/service/b2b'
-import {
-  defaultCurrencyInfoSelector,
-  isB2BUserSelector,
-  useAppSelector,
-} from '@/store'
-import { Currency } from '@/types'
-import { channelId } from '@/utils'
-import b2bLogger from '@/utils/b3Logger'
+} from '@/shared/service/b2b';
+import { defaultCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
+import { Currency } from '@/types';
+import { channelId } from '@/utils';
+import b2bLogger from '@/utils/b3Logger';
 
 import B3Dialog from '../B3Dialog';
 import CustomButton from '../button/CustomButton';
@@ -84,8 +73,8 @@ export default function B3Upload(props: B3UploadProps) {
 
   const uploadRef = useRef<HTMLInputElement>(null);
 
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const role = useAppSelector(({ company }) => company.customer.role)
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const role = useAppSelector(({ company }) => company.customer.role);
 
   const theme = useTheme();
 
@@ -148,10 +137,8 @@ export default function B3Upload(props: B3UploadProps) {
         withModifiers,
       };
 
-      if (role !== 100) params.channelId = channelId
-      const uploadAction = isB2BUser
-        ? B2BProductsBulkUploadCSV
-        : BcProductsBulkUploadCSV
+      if (role !== 100) params.channelId = channelId;
+      const uploadAction = isB2BUser ? B2BProductsBulkUploadCSV : BcProductsBulkUploadCSV;
 
       const BulkUploadCSV = role === 100 ? guestProductsBulkUploadCSV : uploadAction;
 

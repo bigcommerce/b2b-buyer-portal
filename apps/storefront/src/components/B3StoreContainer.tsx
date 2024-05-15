@@ -1,13 +1,8 @@
-import { ReactNode, useContext, useLayoutEffect } from 'react'
+import { ReactNode, useContext, useLayoutEffect } from 'react';
 
-import { GlobaledContext } from '@/shared/global'
-import { getBCStoreChannelId } from '@/shared/service/b2b'
-import {
-  getGlobalTranslations,
-  setStoreInfo,
-  setTimeFormat,
-  useAppDispatch,
-} from '@/store'
+import { GlobaledContext } from '@/shared/global';
+import { getBCStoreChannelId } from '@/shared/service/b2b';
+import { getGlobalTranslations, setStoreInfo, setTimeFormat, useAppDispatch } from '@/store';
 
 import B3PageMask from './loading/B3PageMask';
 import showPageMask from './loading/B3showPageMask';
@@ -62,11 +57,9 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           b3ChannelId: b2bChannelId,
           b2bEnabled: storeEnabled,
           translationVersion,
-        } = storeInfo
+        } = storeInfo;
 
-        const isEnabled = storeBasicInfo?.multiStorefrontEnabled
-          ? storeEnabled
-          : true
+        const isEnabled = storeBasicInfo?.multiStorefrontEnabled ? storeEnabled : true;
 
         dispatch({
           type: 'common',
@@ -89,8 +82,8 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           }),
         );
 
-        storeDispatch(setTimeFormat(storeBasicInfo.timeFormat))
-        sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled))
+        storeDispatch(setTimeFormat(storeBasicInfo.timeFormat));
+        sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled));
       } catch (error) {
         showPageMask(dispatch, false);
       }

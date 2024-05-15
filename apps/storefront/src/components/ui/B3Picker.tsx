@@ -1,14 +1,14 @@
-import { useContext, useRef, useState } from 'react'
-import { Box, TextField } from '@mui/material'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import dayjs from 'dayjs'
+import { useContext, useRef, useState } from 'react';
+import { Box, TextField } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 
-import { useMobile } from '@/hooks'
-import { GlobaledContext } from '@/shared/global'
+import { useMobile } from '@/hooks';
+import { GlobaledContext } from '@/shared/global';
 
-import setDayjsLocale from './setDayjsLocale'
+import setDayjsLocale from './setDayjsLocale';
 
 interface B3PickerProps {
   onChange: (date: Date | string | number) => void;
@@ -35,11 +35,11 @@ export default function B3Picker({
 
   const {
     state: { bcLanguage },
-  } = useContext(GlobaledContext)
+  } = useContext(GlobaledContext);
 
-  const activeLang = setDayjsLocale(bcLanguage || 'en')
+  const activeLang = setDayjsLocale(bcLanguage || 'en');
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const openPickerClick = () => {
     setOpen(!open);
     if (pickerRef && pickerRef?.current && (pickerRef.current as any)?.blur) {
@@ -58,10 +58,7 @@ export default function B3Picker({
   return (
     <>
       <Box ref={container} />
-      <LocalizationProvider
-        dateAdapter={AdapterDayjs}
-        adapterLocale={activeLang}
-      >
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={activeLang}>
         <DatePicker
           label={label}
           DialogProps={{
