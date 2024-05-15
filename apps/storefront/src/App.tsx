@@ -186,13 +186,18 @@ export default function App() {
       }
       setChannelStoreType()
 
-      await Promise.all([
-        getStoreTaxZoneRates(),
-        setStorefrontConfig(dispatch),
-        getTemPlateConfig(styleDispatch, dispatch),
-        getCompanyUserInfo(emailAddress, customerId),
-        getCompanyInfo(role, b2bId),
-      ])
+      try {
+        await Promise.allSettled([
+          getStoreTaxZoneRates(),
+          setStorefrontConfig(dispatch),
+          getTemPlateConfig(styleDispatch, dispatch),
+          getCompanyUserInfo(emailAddress, customerId),
+          getCompanyInfo(role, b2bId),
+        ])
+      } catch (e) {
+        b2bLogger.error(e)
+      }
+
       const userInfo = {
         role: +role,
         isAgenting,
