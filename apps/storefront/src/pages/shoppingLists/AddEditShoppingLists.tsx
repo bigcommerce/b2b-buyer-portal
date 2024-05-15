@@ -19,7 +19,7 @@ import {
   updateBcShoppingList,
 } from '@/shared/service/b2b'
 import { CustomerRole } from '@/types'
-import { snackbar } from '@/utils'
+import { channelId, snackbar } from '@/utils'
 
 import {
   getCreatedShoppingListFiles,
@@ -31,11 +31,10 @@ interface AddEditUserProps {
   renderList: () => void
   role: number | string
   isB2BUser: boolean
-  channelId: number
 }
 
 function AddEditShoppingLists(
-  { renderList, role, isB2BUser, channelId }: AddEditUserProps,
+  { renderList, role, isB2BUser }: AddEditUserProps,
   ref: Ref<unknown> | undefined
 ) {
   const [open, setOpen] = useState<boolean>(false)

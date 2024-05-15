@@ -1,5 +1,4 @@
-import { store } from '@/store/reducer'
-
+import { baseUrl } from '../../../../utils/basicConfig'
 import B3Request from '../../request/b3Fetch'
 import { RequestType } from '../../request/base'
 
@@ -8,9 +7,7 @@ const getBCProductVariantId = (
   data: CustomFieldItems
 ): CustomFieldItems =>
   B3Request.post(
-    `${
-      store.getState().global.bcUrl
-    }/remote/v1/product-attributes/${productId}`,
+    `${baseUrl}/remote/v1/product-attributes/${productId}`,
     RequestType.BCRest,
     data
   )

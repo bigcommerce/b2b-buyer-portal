@@ -1,4 +1,5 @@
 {
   "exclude": ["node_modules"],
-  "extends": "@b3/tsconfig/base.json"
+  "extends": "@b3/tsconfig/base.json",
+  "files": ["./index.d.ts"]
 }

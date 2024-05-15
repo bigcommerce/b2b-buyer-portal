@@ -6,23 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BundleB2B</title>
     <script type="module">
-      const {
-        VITE_B2B_URL,
-        VITE_B2B_SOCKET_URL,
-        VITE_STORE_HASH,
-        VITE_CATPCHA_SETKEY,
-        VITE_LOCAL_DEBUG,
-        VITE_CHANNEL_ID,
-      } = import.meta.env
+      const { VITE_B2B_URL, VITE_B2B_SOCKET_URL, VITE_CATPCHA_SETKEY } =
+        import.meta.env
 
       window.B3Local = {
         setting: {
-          store_hash: VITE_STORE_HASH,
           b2b_url: VITE_B2B_URL,
           b2b_socket_url: VITE_B2B_SOCKET_URL,
           captcha_setkey: VITE_CATPCHA_SETKEY,
-          is_local_debugging: VITE_LOCAL_DEBUG === 'TRUE',
-          channel_id: VITE_CHANNEL_ID,
         },
         'dom.checkoutRegisterParentElement': '#b2bParent',
         'dom.openB3Checkout': 'childB2b',

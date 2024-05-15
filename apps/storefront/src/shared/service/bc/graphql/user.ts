@@ -17,7 +17,7 @@ const getCustomerInfo = (): CustomFieldItems =>
   })
 
 const customerExists = (): CustomFieldItems =>
-  B3Request.graphqlBC({
+  B3Request.graphqlBCProxy({
     query: getCustomer(),
   })
 

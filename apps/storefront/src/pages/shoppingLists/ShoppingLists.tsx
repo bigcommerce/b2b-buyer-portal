@@ -15,7 +15,7 @@ import {
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b'
 import { isB2BUserSelector, useAppSelector } from '@/store'
-import { snackbar } from '@/utils'
+import { channelId, snackbar } from '@/utils'
 
 import B3Filter from '../../components/filter/B3Filter'
 
@@ -56,7 +56,7 @@ function ShoppingLists() {
   )
 
   const {
-    state: { currentChannelId, openAPPParams },
+    state: { openAPPParams },
     dispatch,
   } = useContext(GlobaledContext)
 
@@ -181,7 +181,7 @@ function ShoppingLists() {
           offset: params.offset,
           first: params.first,
           search: params.search,
-          channelId: currentChannelId,
+          channelId,
         }
     const getShoppingLists = isB2BUser ? getB2BShoppingList : getBcShoppingList
     const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
@@ -285,7 +285,6 @@ function ShoppingLists() {
           renderList={initSearchList}
           ref={addEditShoppingListsRef}
           isB2BUser={isB2BUser}
-          channelId={currentChannelId}
         />
         <B3Dialog
           isOpen={deleteOpen}

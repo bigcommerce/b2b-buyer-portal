@@ -1,5 +1,3 @@
-import globalB3 from '@b3/global-b3'
-
 import { store } from '@/store'
 
 import b2bLogger from './b3Logger'
@@ -15,9 +13,10 @@ interface MoneyFormat {
 }
 
 export const currencyFormatInfo = () => {
-  const currentCurrency = globalB3?.setting?.is_local_debugging
-    ? getDefaultCurrencyInfo()
-    : getActiveCurrencyInfo()
+  const currentCurrency =
+    import.meta.env.VITE_LOCAL_DEBUG === 'TRUE'
+      ? getDefaultCurrencyInfo()
+      : getActiveCurrencyInfo()
 
   return {
     currency_location: currentCurrency.token_location || 'left',

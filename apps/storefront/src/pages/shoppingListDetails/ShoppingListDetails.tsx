@@ -29,7 +29,7 @@ import {
   isB2BUserSelector,
   useAppSelector,
 } from '@/store'
-import { snackbar } from '@/utils'
+import { channelId, snackbar } from '@/utils'
 import {
   calculateProductListPrice,
   getBCPrice,
@@ -84,7 +84,7 @@ interface ShoppingListDetailsContentProps {
 function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const { id = '' } = useParams()
   const {
-    state: { currentChannelId, openAPPParams, productQuoteEnabled = false },
+    state: { openAPPParams, productQuoteEnabled = false },
   } = useContext(GlobaledContext)
   const isB2BUser = useAppSelector(isB2BUserSelector)
   const { currency_code: currencyCode } = useAppSelector(
@@ -254,7 +254,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       if (isB2BUser) {
         params.status = status
       } else {
-        params.channelId = currentChannelId
+        params.channelId = channelId
       }
 
       await updateShoppingList(params)

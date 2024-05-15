@@ -1,7 +1,6 @@
 import {
   forwardRef,
   Ref,
-  useContext,
   useEffect,
   useImperativeHandle,
   useState,
@@ -12,11 +11,10 @@ import concat from 'lodash-es/concat'
 
 import { B3CustomForm } from '@/components'
 import B3Dialog from '@/components/B3Dialog'
-import { GlobaledContext } from '@/shared/global'
 import { addOrUpdateUsers, checkUserEmail } from '@/shared/service/b2b'
 import { useAppSelector } from '@/store'
 import { UserTypes } from '@/types'
-import { snackbar } from '@/utils'
+import { channelId, snackbar } from '@/utils'
 
 import {
   emailError,
@@ -41,9 +39,6 @@ function AddEditUser(
   { companyId, renderList }: AddEditUserProps,
   ref: Ref<unknown> | undefined
 ) {
-  const {
-    state: { currentChannelId },
-  } = useContext(GlobaledContext)
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
 
   const [open, setOpen] = useState<boolean>(false)
@@ -129,7 +124,7 @@ function AddEditUser(
     }: CustomFieldItems = await checkUserEmail({
       email: emailValue,
       companyId,
-      channelId: currentChannelId,
+      channelId,
     })
 
     const isValid = [
