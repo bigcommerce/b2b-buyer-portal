@@ -58,9 +58,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     test: {
-      threads: false,
       environment: 'jsdom',
-      setupFiles: './tests/setup-test-environment.ts',
       coverage: {
         provider: 'istanbul',
         reporter: ['text', 'html', 'clover', 'json'],

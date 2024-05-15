@@ -42,8 +42,6 @@ export * from './basicConfig'
 export { loginjump } from './b3Login'
 
 // TODO: Clean this up
-export { default as hideStorefrontElement } from './b3HideStorefrontElement'
-
 export {
   b2bPrintInvoice,
   B3LStorage,

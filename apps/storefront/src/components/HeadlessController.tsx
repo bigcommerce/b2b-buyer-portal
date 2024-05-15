@@ -61,26 +61,25 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
 
   const {
     state: {
+      currentChannelId,
       registerEnabled,
       productQuoteEnabled,
       cartQuoteEnabled,
       shoppingListEnabled,
     },
-  } = useContext(GlobaledContext)
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const salesRepCompanyId = useAppSelector(
-    ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
-  )
-  const customer = useAppSelector(({ company }) => company.customer)
-  const role = useAppSelector(({ company }) => company.customer.role)
-  const productList = useAppSelector(formatedQuoteDraftListSelector)
-  const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken)
+  } = useContext(GlobaledContext);
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const customer = useAppSelector(({ company }) => company.customer);
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform);
+  const productList = useAppSelector(formatedQuoteDraftListSelector);
+  const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
 
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
-  } = useContext(CustomStyleContext)
-  const { addToQuote: addProductsFromCart } =
-    addProductsFromCartToQuote(setOpenPage)
+  } = useContext(CustomStyleContext);
+  const { addToQuote: addProductsFromCart } = addProductsFromCartToQuote(setOpenPage, platform);
 
   const saveFn = () => {
     setOpenPage({
@@ -100,29 +99,31 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
 
   const customerId = customer.id;
   // Keep updated values
-  const salesRepCompanyIdRef = useRef(+salesRepCompanyId)
-  const customerIdRef = useRef(customerId)
-  const customerRef = useRef(customer)
-  const roleRef = useRef(+role)
-  const isB2BUserRef = useRef(isB2BUser)
-  const productQuoteEnabledRef = useRef(productQuoteEnabled)
-  const shoppingListEnabledRef = useRef(shoppingListEnabled)
-  const cartQuoteEnabledRef = useRef(cartQuoteEnabled)
-  const addQuoteBtnRef = useRef(addQuoteBtn)
-  const shoppingListBtnRef = useRef(shoppingListBtn)
-  const addToAllQuoteBtnRef = useRef(addToAllQuoteBtn)
+  const salesRepCompanyIdRef = useRef(+salesRepCompanyId);
+  const customerIdRef = useRef(customerId);
+  const customerRef = useRef(customer);
+  const roleRef = useRef(+role);
+  const isB2BUserRef = useRef(isB2BUser);
+  const currentChannelIdRef = useRef(currentChannelId);
+  const productQuoteEnabledRef = useRef(productQuoteEnabled);
+  const shoppingListEnabledRef = useRef(shoppingListEnabled);
+  const cartQuoteEnabledRef = useRef(cartQuoteEnabled);
+  const addQuoteBtnRef = useRef(addQuoteBtn);
+  const shoppingListBtnRef = useRef(shoppingListBtn);
+  const addToAllQuoteBtnRef = useRef(addToAllQuoteBtn);
 
-  salesRepCompanyIdRef.current = +salesRepCompanyId
-  customerIdRef.current = customerId
-  customerRef.current = customer
-  roleRef.current = +role
-  isB2BUserRef.current = isB2BUser
-  productQuoteEnabledRef.current = productQuoteEnabled
-  shoppingListEnabledRef.current = shoppingListEnabled
-  cartQuoteEnabledRef.current = cartQuoteEnabled
-  addQuoteBtnRef.current = addQuoteBtn
-  shoppingListBtnRef.current = shoppingListBtn
-  addToAllQuoteBtnRef.current = addToAllQuoteBtn
+  salesRepCompanyIdRef.current = +salesRepCompanyId;
+  customerIdRef.current = customerId;
+  customerRef.current = customer;
+  roleRef.current = +role;
+  isB2BUserRef.current = isB2BUser;
+  currentChannelIdRef.current = currentChannelId;
+  productQuoteEnabledRef.current = productQuoteEnabled;
+  shoppingListEnabledRef.current = shoppingListEnabled;
+  cartQuoteEnabledRef.current = cartQuoteEnabled;
+  addQuoteBtnRef.current = addQuoteBtn;
+  shoppingListBtnRef.current = shoppingListBtn;
+  addToAllQuoteBtnRef.current = addToAllQuoteBtn;
 
   useEffect(() => {
     window.b2b = {
@@ -222,7 +223,8 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               data: { name, description },
               isB2BUser: isB2BUserRef.current,
               role: roleRef.current,
-            })
+              currentChannelId: currentChannelIdRef.current,
+            });
 
             return shoppingListsCreate.shoppingList;
           },

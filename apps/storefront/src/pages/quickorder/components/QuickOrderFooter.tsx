@@ -137,6 +137,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const customerGroupId = useAppSelector(
     (state) => state.company.customer.customerGroupId
   )
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   const navigate = useNavigate()
 
@@ -241,7 +242,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const lineItems = handleSetCartLineItems(getInventoryInfos || [])
 
-      const res = await callCart(lineItems)
+      const res = await callCart(lineItems, platform)
 
       if (res && !res.errors) {
         snackbar.success('', {

@@ -1,7 +1,4 @@
-import Cookies from 'js-cookie'
-
 import { CreateCartInput, DeleteCartInput } from '@/types/cart'
-import { platform } from '@/utils'
 
 import B3Request from '../../request/b3Fetch'
 
@@ -204,9 +201,47 @@ const lineItemsFragment = `lineItems {
   }
 }`
 
-const getCartInfo = `query getCart($entityId: String) {
+const getCartInfoForHeadless = `query getCart($entityId: String!) {
   site {
     cart(entityId: $entityId) {
+      entityId
+      currencyCode
+      isTaxIncluded
+      baseAmount {
+        currencyCode
+        value
+      }
+      discountedAmount {
+        currencyCode
+        value
+      }
+      amount {
+        currencyCode
+        value
+      }
+      discounts {
+        entityId
+        discountedAmount {
+          currencyCode
+          value
+        }
+      }
+      ${lineItemsFragment}
+      createdAt {
+        utc
+      }
+      updatedAt {
+        utc
+      }
+      locale
+    }
+  }
+}
+`
+
+const getCartInfo = `query getCart {
+  site {
+    cart {
       entityId
       currencyCode
       isTaxIncluded
@@ -284,60 +319,45 @@ const deleteCartQuery = `mutation deleteCart($deleteCartInput: DeleteCartInput!)
   }
 }`
 
-export const getCart = async (): Promise<any> => {
-  if (platform === 'bigcommerce') {
-    const cartInfo = await B3Request.graphqlBC({
-      query: getCartInfo,
-    })
-
-    if (cartInfo.data.site.cart?.entityId) {
-      Cookies.set('cartId', cartInfo.data.site.cart.entityId)
-    }
-
-    return cartInfo
-  }
-
-  const entityId = Cookies.get('cartId')
-  const cartInfo = await B3Request.graphqlBCProxy({
-    query: getCartInfo,
-    variables: { entityId },
-  })
-  if (cartInfo.data.site.cart?.entityId) {
-    Cookies.set('cartId', cartInfo.data.site.cart.entityId)
-  }
-
-  return cartInfo
-}
+export const getCart = (entityId: string | null, platform: string): any =>
+  platform === 'bigcommerce'
+    ? B3Request.graphqlBC({
+        // for stencil not using proxy
+        query: getCartInfo,
+      })
+    : B3Request.graphqlBCProxy(
+        {
+          // for headless using proxy
+          query: getCartInfoForHeadless,
+          variables: { entityId },
+        },
+        true
+      )
 
 export const createNewCart = (data: CreateCartInput): any =>
-  platform === 'bigcommerce'
-    ? B3Request.graphqlBC({
-        query: createCart,
-        variables: data,
-      })
-    : B3Request.graphqlBCProxy({
-        query: createCart,
-        variables: data,
-      })
+  B3Request.graphqlBC({
+    query: createCart,
+    variables: data,
+  })
 
-export const addNewLineToCart = (data: any): any =>
+export const addNewLineToCart = (data: any, platform: string): any =>
   platform === 'bigcommerce'
     ? B3Request.graphqlBC({
+        // for stencil not using proxy
         query: addLineItemToCart,
         variables: data,
       })
-    : B3Request.graphqlBCProxy({
-        query: addLineItemToCart,
-        variables: data,
-      })
+    : B3Request.graphqlBCProxy(
+        {
+          // for headless using proxy
+          query: addLineItemToCart,
+          variables: data,
+        },
+        true
+      )
 
 export const deleteCart = (data: DeleteCartInput): any =>
-  platform === 'bigcommerce'
-    ? B3Request.graphqlBC({
-        query: deleteCartQuery,
-        variables: data,
-      })
-    : B3Request.graphqlBCProxy({
-        query: deleteCartQuery,
-        variables: data,
-      })
+  B3Request.graphqlBC({
+    query: deleteCartQuery,
+    variables: data,
+  })

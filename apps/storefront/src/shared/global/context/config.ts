@@ -84,6 +84,7 @@ export interface GlobalState {
   bcLanguage: string
   storeEnabled: boolean
   storeName: string
+  currentChannelId: number
   b2bChannelId: number
   countriesList?: Country[]
   productQuoteEnabled: boolean
@@ -109,6 +110,7 @@ export const initState: GlobalState = {
   isCompanyAccount: false,
   storeEnabled: false,
   storeName: '',
+  currentChannelId: 1,
   b2bChannelId: 1,
   countriesList: [],
   productQuoteEnabled: false,

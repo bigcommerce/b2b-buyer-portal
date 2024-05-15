@@ -13,7 +13,6 @@ import { setChannelStoreType } from '@/shared/service/b2b'
 import {
   getQuoteEnabled,
   handleHideRegisterPage,
-  hideStorefrontElement,
   openPageByClick,
   removeBCMenus,
 } from '@/utils'
@@ -60,6 +59,7 @@ const FONT_URL =
 export default function App() {
   const {
     state: {
+      currentChannelId,
       quoteConfig,
       storefrontConfig,
       productQuoteEnabled,
@@ -184,13 +184,13 @@ export default function App() {
       if (!bcGraphqlToken) {
         await loginInfo()
       }
-      setChannelStoreType()
+      setChannelStoreType(currentChannelId)
 
       try {
         await Promise.allSettled([
           getStoreTaxZoneRates(),
-          setStorefrontConfig(dispatch),
-          getTemPlateConfig(styleDispatch, dispatch),
+          setStorefrontConfig(dispatch, currentChannelId),
+          getTemPlateConfig(currentChannelId, styleDispatch, dispatch),
           getCompanyUserInfo(emailAddress, customerId),
           getCompanyInfo(role, b2bId),
         ])
@@ -235,7 +235,15 @@ export default function App() {
     // due they are funtions that do not depend on any reactive value
     // ignore href because is not a reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role])
+  }, [
+    b2bId,
+    currentChannelId,
+    customerId,
+    emailAddress,
+    isAgenting,
+    isB2BUser,
+    role,
+  ])
 
   useEffect(() => {
     if (quoteConfig.length > 0 && storefrontConfig) {
@@ -265,8 +273,6 @@ export default function App() {
         window.b2b.initializationEnvironment.isInit = true
       })
     }
-    if (isB2BUser) hideStorefrontElement('dom.hideThemePayments')
-
     // ignore dispatch due it's funtion that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig])

@@ -2,7 +2,6 @@ import { MouseEvent, useContext, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import { ArrowDropDown, Delete } from '@mui/icons-material'
 import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material'
-import Cookies from 'js-cookie'
 import { v1 as uuid } from 'uuid'
 
 import { successTip } from '@/components'
@@ -18,7 +17,7 @@ import {
 } from '@/shared/service/b2b/graphql/product'
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart'
 import { useAppSelector } from '@/store'
-import { currencyFormat, snackbar } from '@/utils'
+import { currencyFormat, getCookie, snackbar } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
 import {
   addQuoteDraftProducts,
@@ -82,6 +81,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const isAgenting = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting
   )
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const companyId = useAppSelector(({ company }) => company.companyInfo.id)
   const customerGroupId = useAppSelector(
     ({ company }) => company.customer.customerGroupId
@@ -90,7 +90,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [open, setOpen] = useState<boolean>(Boolean(anchorEl))
 
-  const cartEntityId = Cookies.get('cartId')
+  const cartEntityId = getCookie('cartId')
 
   const containerStyle = isMobile
     ? {
@@ -248,13 +248,13 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       if (validateSuccessArr.length !== 0) {
         const lineItems = addlineItems(validateSuccessArr)
         const deleteCartObject = deleteCartData(cartEntityId)
-        const cartInfo = await getCart()
+        const cartInfo = await getCart(cartEntityId || '', platform)
         let res = null
         if (allowJuniorPlaceOrder && cartInfo.length) {
           await deleteCart(deleteCartObject)
-          res = await updateCart(cartInfo, lineItems)
+          res = await updateCart(cartInfo, lineItems, platform)
         } else {
-          res = await callCart(lineItems)
+          res = await callCart(lineItems, platform)
           b3TriggerCartNumber()
         }
         if (res && res.errors) {

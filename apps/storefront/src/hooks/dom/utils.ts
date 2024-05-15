@@ -10,6 +10,7 @@ import {
   B3LStorage,
   B3SStorage,
   getActiveCurrencyInfo,
+  getCookie,
   globalSnackbar,
   serialize,
 } from '@/utils'
@@ -244,10 +245,16 @@ const addProductsToDraftQuote = async (
   })
 }
 
-const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
+const addProductsFromCartToQuote = (
+  setOpenPage: DispatchProps,
+  platform?: string
+) => {
   const addToQuote = async () => {
+    const entityCartId = platform === 'bigcommerce' ? null : getCookie('cartId')
     try {
-      const cartInfoWithOptions: CartInfoProps | any = await getCart()
+      const cartInfoWithOptions: CartInfoProps | any =
+        // we should get the platform parameter from wherever this function is used
+        await getCart(entityCartId, platform ?? '')
 
       if (!cartInfoWithOptions.data.site.cart) {
         globalSnackbar.error('No products in Cart.', {
@@ -290,7 +297,7 @@ const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
 const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
   const addToQuote = async (role: string | number, node?: HTMLElement) => {
     try {
-      const productView = node
+      const productView: HTMLElement | null = node
         ? node.closest(globalB3['dom.productView'])
         : document
       if (!productView) return

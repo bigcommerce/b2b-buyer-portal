@@ -1,19 +1,22 @@
-/**
- * B3Local will be removed soon, this is just to TS warns you if you add more variables to it
- */
-export interface B3Local {
-  setting: {
-    b2b_url: string
-    b2b_socket_url: string
-    captcha_setkey: string
+declare global {
+  interface Window {
+    B3: any
+    B3Local: any
+    B3CustomConfig: any
+    cartElementId: string
   }
-  'dom.checkoutRegisterParentElement': '#b2bParent'
-  'dom.openB3Checkout': 'childB2b'
-  'dom.navUserLoginElement': '#headless-container'
-  before_login_goto_page: '/'
 }
+
 interface ThemeElementsProps {
   [key: string]: string
+}
+
+const localConfig = () => {
+  if (window?.B3) {
+    return window.B3
+  }
+
+  return window.B3Local
 }
 
 const themeOtherElementConfig = () => {
@@ -37,6 +40,12 @@ const themeOtherElementConfig = () => {
     HaloOne:
       '[href^="/account.php"] svg, [href^="/account.php"] svg path, [href="/login.php"] svg path',
     FinchUS: '[href^="/account.php"] img',
+  }
+
+  if (window?.B3CustomConfig) {
+    const customConfig = window.B3CustomConfig['dom.allOtherElement']
+
+    allOtherElement = allOtherElement.concat(',', customConfig)
   }
 
   const keys: string[] = Object.keys(themeElements)
@@ -65,17 +74,18 @@ const globalB3 = {
     '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"], [data-emthemesmodez-cart-item-add]',
   'dom.productView': '.productView',
   'dom.register': '[href^="/login.php?action=create_account"]',
-  'dom.hideThemePayments':
-    '.cart-additionalCheckoutButtons, .previewCart-additionalCheckoutButtons, .previewCartCheckout-additionalCheckoutButtons, [data-content-region="cart_below_totals"], .add-to-cart-wallet-buttons, [data-content-region="product_below_price"]',
   before_login_goto_page: '/account.php?action=order_status',
   checkout_super_clear_session: 'true',
-  ...themeOtherElementConfig(),
-  ...window.B3Local,
   setting: {
     b2b_url: 'https://api-b2b.staging.zone',
     b2b_socket_url: 'https://api-b2b.staging.zone',
-    ...window.B3Local?.setting,
+    store_hash: `1l3zp8c753`,
+    channel_id: 1,
+    b2b_client_id: 'r2x8j3tn54wduq47b4efct5tqxio5z2',
   },
+  ...localConfig(),
+  ...(window?.B3CustomConfig || {}),
+  ...themeOtherElementConfig(),
 }
 
 export default globalB3

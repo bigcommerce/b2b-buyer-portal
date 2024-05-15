@@ -166,13 +166,17 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
   } = props
 
   const b3Lang = useB3Lang()
+
   const [isOpen, setOpen] = useState<boolean>(false)
+
   const [loading, setLoading] = useState<boolean>(false)
+
   const [isMobile] = useMobile()
 
   const { decimal_places: decimalPlaces = 2 } = useAppSelector(
     activeCurrencyInfoSelector
   )
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
 
   useEffect(() => {
     if (products.length > 0) {
@@ -226,7 +230,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
       const lineItems = addlineItems(products)
 
-      const res = await callCart(lineItems)
+      const res = await callCart(lineItems, platform)
 
       if (!res.errors) {
         handleCancelClicked()

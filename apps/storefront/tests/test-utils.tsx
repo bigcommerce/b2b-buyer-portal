@@ -1,9 +1,14 @@
 import { PropsWithChildren } from 'react'
 import { Provider } from 'react-redux'
 import { configureStore, ConfigureStoreOptions } from '@reduxjs/toolkit'
-import { render, RenderOptions } from '@testing-library/react'
+import { cleanup, render, RenderOptions } from '@testing-library/react'
+import { afterEach } from 'vitest'
 
 import { middlewareOptions } from '@/store'
+
+afterEach(() => {
+  cleanup()
+})
 
 const customRender = (ui: React.ReactElement, options = {}) =>
   render(ui, {

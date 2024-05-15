@@ -22,7 +22,7 @@ import { CustomStyleContext } from '@/shared/customStyleButtton'
 import { GlobaledContext } from '@/shared/global'
 import { useAppSelector } from '@/store'
 import { OpenPageState } from '@/types/hooks'
-import { channelId, loginjump, storeHash } from '@/utils'
+import { loginjump, storeHash } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
 import { getCurrentCustomerInfo } from '@/utils/loginInfo'
 
@@ -105,6 +105,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
     state: {
       storeName,
       logo,
+      currentChannelId: channelId,
       blockPendingAccountOrderCreation,
       registerEnabled,
     },

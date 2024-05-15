@@ -22,7 +22,7 @@ import {
   setTaxZoneRates,
 } from '@/store/slices/global'
 import { setActiveCurrency, setCurrencies } from '@/store/slices/storeConfigs'
-import { B3SStorage, channelId } from '@/utils'
+import { B3SStorage } from '@/utils'
 
 interface StoreforntKeysProps {
   key: string
@@ -152,7 +152,11 @@ const storeforntKeys: StoreforntKeysProps[] = [
   },
 ]
 
-const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
+const getTemPlateConfig = async (
+  channelId: number,
+  dispatch: any,
+  dispatchGlobal: any
+) => {
   const keys = storeforntKeys.map((item: StoreforntKeysProps) => item.key)
   const { storefrontConfigs } = await getStorefrontConfigs(channelId, keys)
 
@@ -306,16 +310,19 @@ const getQuoteConfig = async (dispatch: DispatchProps) => {
   })
 }
 
-const setStorefrontConfig = async (dispatch: DispatchProps) => {
+const setStorefrontConfig = async (
+  dispatch: DispatchProps,
+  currentChannelId: string | number
+) => {
   const {
     storefrontConfig: { config: storefrontConfig },
   } = await getStorefrontConfig()
-  const { currencies } = await getCurrencies(channelId)
+  const { currencies } = await getCurrencies(currentChannelId)
   store.dispatch(setCurrencies(currencies))
 
   const {
     storefrontDefaultLanguage: { language },
-  } = await getStorefrontDefaultLanguages(channelId)
+  } = await getStorefrontDefaultLanguages(+currentChannelId)
 
   let langCode: string = language || 'en'
 

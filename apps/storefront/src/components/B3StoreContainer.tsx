@@ -1,13 +1,11 @@
-import { ReactNode, useContext, useLayoutEffect } from 'react'
+import { ReactNode, useContext, useLayoutEffect } from 'react';
+import globalB3 from '@b3/global-b3';
 
-import { GlobaledContext } from '@/shared/global'
-import { getBCStoreChannelId } from '@/shared/service/b2b'
-import {
-  getGlobalTranslations,
-  setStoreInfo,
-  setTimeFormat,
-  useAppDispatch,
-} from '@/store'
+import { GlobaledContext } from '@/shared/global';
+import { getBCStoreChannelId } from '@/shared/service/b2b';
+import { getGlobalTranslations, setHeadLessBcUrl, setStoreInfo, useAppDispatch } from '@/store';
+import { setTimeFormat } from '@/store/slices/storeInfo';
+import { B3SStorage, storeHash } from '@/utils';
 
 import B3PageMask from './loading/B3PageMask';
 import showPageMask from './loading/B3showPageMask';
@@ -61,17 +59,25 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           channelId,
           b3ChannelId: b2bChannelId,
           b2bEnabled: storeEnabled,
+          platform,
           translationVersion,
-        } = storeInfo
+        } = storeInfo;
+        let bcUrl = '';
 
-        const isEnabled = storeBasicInfo?.multiStorefrontEnabled
-          ? storeEnabled
-          : true
+        if (platform !== 'bigcommerce') {
+          if (channelId === 1) {
+            bcUrl = `https://store-${storeHash}.mybigcommerce.com`;
+          } else {
+            bcUrl = `https://store-${storeHash}-${channelId}.mybigcommerce.com`;
+          }
+        }
+        const isEnabled = storeBasicInfo?.multiStorefrontEnabled ? storeEnabled : true;
 
         dispatch({
           type: 'common',
           payload: {
             storeEnabled: isEnabled,
+            currentChannelId: channelId,
             b2bChannelId,
             storeName: storeBasicInfo.storeName,
             multiStorefrontEnabled: storeBasicInfo.multiStorefrontEnabled,
@@ -89,8 +95,14 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
           }),
         );
 
-        storeDispatch(setTimeFormat(storeBasicInfo.timeFormat))
-        sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled))
+        storeDispatch(
+          setHeadLessBcUrl(globalB3?.setting?.is_local_debugging ? '/bigcommerce' : bcUrl),
+        );
+
+        storeDispatch(setTimeFormat(storeBasicInfo.timeFormat));
+        B3SStorage.set('B3channelId', channelId);
+        B3SStorage.set('bcUrl', bcUrl);
+        sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled));
       } catch (error) {
         showPageMask(dispatch, false);
       }

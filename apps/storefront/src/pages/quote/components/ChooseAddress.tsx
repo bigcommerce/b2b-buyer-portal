@@ -3,7 +3,6 @@ import { useB3Lang } from '@b3/lang'
 import { Box, Grid } from '@mui/material'
 
 import B3Dialog from '@/components/B3Dialog'
-import { isB2BUserSelector, useAppSelector } from '@/store'
 import { AddressItemType } from '@/types/address'
 
 import B3FilterSearch from '../../../components/filter/B3FilterSearch'
@@ -37,7 +36,7 @@ function ChooseAddress({
     copyList: [],
   })
   const b3Lang = useB3Lang()
-  const isB2BUser = useAppSelector(isB2BUserSelector)
+
   const [list, setList] = useState<AddressItemType[]>([])
 
   useEffect(() => {
@@ -48,10 +47,10 @@ function ChooseAddress({
           (item.isShipping === 1 && type === 'shipping') ||
           (item.isBilling === 1 && type === 'billing')
       )
-      recordList.current.copyList = isB2BUser ? newList : allList
+      recordList.current.copyList = newList
       setList(newList)
     }
-  }, [addressList, type, isB2BUser])
+  }, [addressList, type])
 
   const keys = [
     'address',

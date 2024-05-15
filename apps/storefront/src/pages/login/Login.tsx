@@ -30,7 +30,7 @@ import {
 import { setB2BToken } from '@/store/slices/company'
 import { CustomerRole, UserTypes } from '@/types'
 import { OpenPageState } from '@/types/hooks'
-import { channelId, loginjump, snackbar, storeHash } from '@/utils'
+import { B3SStorage, getCookie, loginjump, snackbar, storeHash } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
 import { logoutSession } from '@/utils/b3logout'
 import { deleteCartData } from '@/utils/cartUtils'
@@ -68,6 +68,7 @@ export default function Login(props: RegisteredProps) {
 
   const isLoggedIn = useAppSelector(isLoggedInSelector)
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
   const salesRepCompanyId = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id
   )
@@ -145,10 +146,19 @@ export default function Login(props: RegisteredProps) {
           snackbar.error(b3Lang('login.loginText.invoiceErrorTip'))
         }
         if (loginFlag === '3' && isLoggedIn) {
-          const cartInfo = await getCart()
+          const cartEntityId: string = getCookie('cartId')
 
-          if (cartInfo.data.site.cart?.entityId) {
-            const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId)
+          const cartInfo = cartEntityId
+            ? await getCart(cartEntityId, platform)
+            : null
+
+          if (cartInfo) {
+            let newCartId = cartEntityId
+            if (cartInfo?.data && cartInfo?.data?.site) {
+              const { cart } = cartInfo.data.site
+              newCartId = cart?.entityId || cartEntityId
+            }
+            const deleteQuery = deleteCartData(newCartId)
             await deleteCart(deleteQuery)
           }
 
@@ -269,8 +279,8 @@ export default function Login(props: RegisteredProps) {
         const loginData = {
           email: data.emailAddress,
           password: data.password,
-          storeHash,
-          channelId,
+          storeHash: storeHash as string,
+          channelId: B3SStorage.get('B3channelId'),
         }
         const {
           login: {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useB3Lang } from '@b3/lang'
 import AddIcon from '@mui/icons-material/Add'
 import { Box, ListItemText, MenuItem, MenuList, useTheme } from '@mui/material'
@@ -8,9 +8,9 @@ import CustomButton from '@/components/button/CustomButton'
 import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
 import B3Sping from '@/components/spin/B3Sping'
 import { useMobile } from '@/hooks'
+import { GlobaledContext } from '@/shared/global'
 import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b'
 import { isB2BUserSelector, useAppSelector } from '@/store'
-import { channelId } from '@/utils'
 
 import { ShoppingListItem } from '../../../types'
 
@@ -44,6 +44,9 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
     setLoading = noop,
   } = props
 
+  const {
+    state: { currentChannelId },
+  } = useContext(GlobaledContext)
   const isB2BUser = useAppSelector(isB2BUserSelector)
   const role = useAppSelector(({ company }) => company.customer.role)
 
@@ -62,7 +65,11 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
       const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList
       const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists'
-      const params = isB2BUser ? {} : { channelId }
+      const params = isB2BUser
+        ? {}
+        : {
+            channelId: currentChannelId,
+          }
 
       try {
         const {
@@ -86,7 +93,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
     getList()
     // Disabling as the setLoading dispatcher does not need to be here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, isOpen, role])
+  }, [currentChannelId, isB2BUser, isOpen, role])
 
   const handleClose = () => {
     onClose()

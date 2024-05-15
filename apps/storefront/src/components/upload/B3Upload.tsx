@@ -2,6 +2,7 @@ import {
   Dispatch,
   DragEvent,
   SetStateAction,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -12,20 +13,16 @@ import InsertDriveFile from '@mui/icons-material/InsertDriveFile';
 import { Alert, Box, Link, useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import useMobile from '@/hooks/useMobile'
+import useMobile from '@/hooks/useMobile';
+import { GlobaledContext } from '@/shared/global';
 import {
   B2BProductsBulkUploadCSV,
   BcProductsBulkUploadCSV,
   guestProductsBulkUploadCSV,
-} from '@/shared/service/b2b'
-import {
-  defaultCurrencyInfoSelector,
-  isB2BUserSelector,
-  useAppSelector,
-} from '@/store'
-import { Currency } from '@/types'
-import { channelId } from '@/utils'
-import b2bLogger from '@/utils/b3Logger'
+} from '@/shared/service/b2b';
+import { defaultCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
+import { Currency } from '@/types';
+import b2bLogger from '@/utils/b3Logger';
 
 import B3Dialog from '../B3Dialog';
 import CustomButton from '../button/CustomButton';
@@ -84,8 +81,11 @@ export default function B3Upload(props: B3UploadProps) {
 
   const uploadRef = useRef<HTMLInputElement>(null);
 
-  const isB2BUser = useAppSelector(isB2BUserSelector)
-  const role = useAppSelector(({ company }) => company.customer.role)
+  const {
+    state: { currentChannelId },
+  } = useContext(GlobaledContext);
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const role = useAppSelector(({ company }) => company.customer.role);
 
   const theme = useTheme();
 
@@ -148,10 +148,8 @@ export default function B3Upload(props: B3UploadProps) {
         withModifiers,
       };
 
-      if (role !== 100) params.channelId = channelId
-      const uploadAction = isB2BUser
-        ? B2BProductsBulkUploadCSV
-        : BcProductsBulkUploadCSV
+      if (role !== 100) params.channelId = currentChannelId;
+      const uploadAction = isB2BUser ? B2BProductsBulkUploadCSV : BcProductsBulkUploadCSV;
 
       const BulkUploadCSV = role === 100 ? guestProductsBulkUploadCSV : uploadAction;
 
@@ -294,10 +292,8 @@ export default function B3Upload(props: B3UploadProps) {
         sx={{
           marginTop: '12px',
         }}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
       >
-        <div>
+        <div onDragOver={handleDragOver} onDrop={handleDrop}>
           <Grid display="flex" justifyContent="center" xs={12}>
             <InsertDriveFile
               sx={{

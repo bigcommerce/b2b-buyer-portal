@@ -14,7 +14,7 @@ const BcCurrencies = () => `{
 }`
 
 const getActiveBcCurrency = (): CustomFieldItems =>
-  B3Request.graphqlBCProxy({
+  B3Request.graphqlBC({
     query: BcCurrencies(),
   })
 

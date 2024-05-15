@@ -1,10 +1,11 @@
-import { baseUrl } from '../../../../utils/basicConfig'
+import { store } from '@/store/reducer'
+
 import B3Request from '../../request/b3Fetch'
 import { RequestType } from '../../request/base'
 
 export const getBCForgotPassword = (data: CustomFieldItems): CustomFieldItems =>
   B3Request.post(
-    `${baseUrl}/login.php?action=send_password_email`,
+    `${store.getState().global.bcUrl}/login.php?action=send_password_email`,
     RequestType.BCRest,
     data
   )
@@ -14,7 +15,9 @@ export const getBCForgotPassword = (data: CustomFieldItems): CustomFieldItems =>
  */
 export const getCurrentCustomerJWT = async (app_client_id: string) => {
   const response = await fetch(
-    `${baseUrl}/customer/current.jwt?app_client_id=${app_client_id}`
+    `${
+      store.getState().global.bcUrl
+    }/customer/current.jwt?app_client_id={${app_client_id}}`
   )
   return response.text() as Promise<string>
 }
@@ -24,4 +27,7 @@ export const getCurrentCustomerJWT = async (app_client_id: string) => {
  * it makes the stencil channel recognize the user who log in the channel
  */
 export const customerLoginAPI = (storefrontLoginToken: string) =>
-  fetch(`${baseUrl}/login/token/${storefrontLoginToken}`, { method: 'GET' })
+  fetch(
+    `${store.getState().global.bcUrl}/login/token/${storefrontLoginToken}`,
+    { method: 'GET' }
+  )

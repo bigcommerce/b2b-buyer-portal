@@ -1,4 +1,6 @@
-import { channelId, storeHash } from '@/utils'
+import { storeHash } from '@/utils'
+
+import { B3SStorage } from './b3Storage'
 
 const getProxyInfo = (url: string, data = {}) => {
   const params = {
@@ -7,7 +9,7 @@ const getProxyInfo = (url: string, data = {}) => {
     url,
     params: {},
     data: {
-      channel_id: channelId,
+      channel_id: B3SStorage.get('B3channelId') || 1,
       ...data,
     },
   }

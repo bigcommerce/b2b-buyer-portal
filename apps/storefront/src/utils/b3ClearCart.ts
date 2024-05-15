@@ -11,10 +11,18 @@ const clearInvoiceCart = async () => {
     const url = window.location.pathname
     const isInvoicePay = localStorage.getItem('invoicePay')
 
+    const {
+      global: {
+        storeInfo: { platform },
+      },
+    } = store.getState()
+
     if (url !== '/checkout' && isInvoicePay === '1') {
       const cartEntityId: string = getCookie('cartId')
 
-      const cartInfo = cartEntityId ? await getCart() : null
+      const cartInfo = cartEntityId
+        ? await getCart(cartEntityId, platform)
+        : null
 
       if (cartInfo) {
         let newCartId = cartEntityId

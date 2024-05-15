@@ -38,7 +38,11 @@ const useCartToQuote = ({
   setOpenPage,
   cartQuoteEnabled,
 }: MutationObserverProps) => {
-  const { addToQuote, addLoadding } = addProductsFromCartToQuote(setOpenPage)
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform)
+  const { addToQuote, addLoadding } = addProductsFromCartToQuote(
+    setOpenPage,
+    platform
+  )
 
   const translationVarName = 'global.customStyles.addToAllQuoteBtn'
   const defaultButtonText = 'Add All To Quote'

@@ -1,7 +1,7 @@
+import { store } from '@/store/reducer'
 import { Fields, ParamProps } from '@/types/accountSetting'
 import { validatorRules } from '@/utils'
 import b2bLogger from '@/utils/b3Logger'
-import { baseUrl } from '@/utils/basicConfig'
 
 import { deCodeField } from '../registered/config'
 
@@ -16,7 +16,10 @@ function sendUpdateAccountRequest(data: string): Promise<string> {
     credentials: 'include',
   }
 
-  return fetch(`${baseUrl}/account.php?action=update_account`, requestOptions)
+  return fetch(
+    `${store.getState().global.bcUrl}/account.php?action=update_account`,
+    requestOptions
+  )
     .then((response) => {
       if (!response.ok) {
         throw new Error('Network response was not ok')
