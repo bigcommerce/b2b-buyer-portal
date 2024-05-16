@@ -9,21 +9,8 @@ interface SnackbarItemProps {
   isClose?: boolean;
 }
 
-// interface SnackbarMessageProps extends SnackbarItemProps {
-//   message: string
-// }
-
-interface SnackbarProps {
-  [key: string]: (message: string, options?: SnackbarItemProps) => void;
-}
-
-const snackbar: SnackbarProps = {};
-const globalSnackbar: SnackbarProps = {};
-
-const variants: AlertTip[] = ['error', 'success', 'info', 'warning'];
-
-variants.forEach((variant) => {
-  snackbar[variant] = (message, options) => {
+const getLocalHandler = (variant: AlertTip) => {
+  return (message: string, options?: SnackbarItemProps) => {
     const msgs: Array<MsgsProps> = [
       {
         isClose: options?.isClose || false,
@@ -45,8 +32,17 @@ variants.forEach((variant) => {
       },
     });
   };
+};
 
-  globalSnackbar[variant] = (message, options) => {
+export const snackbar = {
+  error: getLocalHandler('error'),
+  success: getLocalHandler('success'),
+  info: getLocalHandler('info'),
+  warning: getLocalHandler('warning'),
+};
+
+const getGlobalHandler = (variant: AlertTip) => {
+  return (message: string, options?: SnackbarItemProps) => {
     const msgs = [
       {
         isClose: options?.isClose || false,
@@ -68,6 +64,11 @@ variants.forEach((variant) => {
       },
     });
   };
-});
+};
 
-export { globalSnackbar, snackbar };
+export const globalSnackbar = {
+  error: getGlobalHandler('error'),
+  success: getGlobalHandler('success'),
+  info: getGlobalHandler('info'),
+  warning: getGlobalHandler('warning'),
+};
