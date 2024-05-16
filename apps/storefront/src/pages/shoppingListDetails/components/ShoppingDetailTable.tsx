@@ -232,11 +232,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     setSelectedOptionsOpen(false);
   };
 
-  const handleOpenProductEdit = (
-    product: any,
-    variantId: number | string,
-    itemId: number | string,
-  ) => {
+  const handleOpenProductEdit = (product: any, _: number | string, itemId: number | string) => {
     setEditProductItemId(itemId);
     setOptionsProduct(product);
     setSelectedOptionsOpen(true);

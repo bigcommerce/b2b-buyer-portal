@@ -82,7 +82,7 @@ export default function B3Dialog<T>({
         fullWidth={fullWidth}
         open={isOpen}
         container={container.current}
-        onClose={(event: object, reason: string) => handleCloseClick(reason)}
+        onClose={(_: object, reason: string) => handleCloseClick(reason)}
         fullScreen={isMobile}
         maxWidth={maxWidth}
         aria-labelledby="alert-dialog-title"

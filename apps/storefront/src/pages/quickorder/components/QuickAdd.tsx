@@ -37,7 +37,7 @@ export default function QuickAdd(props: AddToListContentProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const loopRows = (rows: number, fn: (index: number) => void) => {
-    new Array(rows).fill(1).forEach((item, index) => fn(index));
+    new Array(rows).fill(1).forEach((_, index) => fn(index));
   };
 
   useEffect(() => {

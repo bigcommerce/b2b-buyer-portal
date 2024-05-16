@@ -59,7 +59,7 @@ export const splitCustomCssValue = (customCss: string) => {
   // media block
   const mediaBlocks: string[] = [];
   // Blocks that do not contain media
-  cssValue = cssValue.replace(mediaRegex, (match, mediaBlock) => {
+  cssValue = cssValue.replace(mediaRegex, (_, mediaBlock) => {
     mediaBlocks.push(mediaBlock);
     return '';
   });

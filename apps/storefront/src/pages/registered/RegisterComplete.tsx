@@ -182,7 +182,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   };
 
   const getB2BFieldsValue = async (
-    data: CustomFieldItems,
+    _: CustomFieldItems,
     customerId: number | string,
     fileList: any,
   ) => {

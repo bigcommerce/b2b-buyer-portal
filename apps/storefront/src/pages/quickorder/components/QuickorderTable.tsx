@@ -555,7 +555,7 @@ function QuickorderTable({
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
-          renderItem={(row: ProductInfoProps, index?: number, checkBox?: () => ReactElement) => (
+          renderItem={(row: ProductInfoProps, _?: number, checkBox?: () => ReactElement) => (
             <QuickOrderCard
               item={row}
               checkBox={checkBox}

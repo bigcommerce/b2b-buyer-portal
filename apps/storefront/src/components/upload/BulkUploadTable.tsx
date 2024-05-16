@@ -148,7 +148,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
     setStep('init');
   };
 
-  const handleChangeTab = (e: CustomFieldItems, selectedTabValue: any) => {
+  const handleChangeTab = (_: CustomFieldItems, selectedTabValue: any) => {
     setActiveTab(selectedTabValue);
   };
 

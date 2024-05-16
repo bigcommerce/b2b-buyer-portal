@@ -254,8 +254,7 @@ export const conversionSigleItem = (item: CustomFieldItems): Partial<RegisterFie
   };
 };
 
-export const toHump = (name: string) =>
-  name.replace(/_(\w)/g, (all, letter) => letter.toUpperCase());
+export const toHump = (name: string) => name.replace(/_(\w)/g, (_, letter) => letter.toUpperCase());
 
 export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
   const getFormFields: any = {};

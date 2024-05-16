@@ -31,7 +31,7 @@ function PrintTempalte({ row }: PrintTempalteProps) {
   const [height, setHeight] = useState<number>(templateMinHeight);
 
   const onFirstBoxResize = (
-    event: SyntheticEvent<Element, Event>,
+    _: SyntheticEvent<Element, Event>,
     { size }: { size: { height: number } },
   ) => {
     setHeight(size.height);

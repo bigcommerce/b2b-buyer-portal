@@ -25,7 +25,7 @@ export default function B3Tip({
               key={msg.id}
               open={!!msg?.id}
               autoHideDuration={msg?.time || 5000}
-              onClose={(e, reason: string) => handleAllClose(msg.id, reason)}
+              onClose={(_, reason: string) => handleAllClose(msg.id, reason)}
               disableWindowBlurListener
               anchorOrigin={{
                 vertical,

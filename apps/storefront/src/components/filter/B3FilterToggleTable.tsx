@@ -7,7 +7,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 function B3FilterToggleTable() {
   const [tableValue, setTableValue] = useState('bold');
 
-  const handleFormat = (event: MouseEvent<HTMLElement>, value: string) => {
+  const handleFormat = (_: MouseEvent<HTMLElement>, value: string) => {
     setTableValue(value);
   };
   return (

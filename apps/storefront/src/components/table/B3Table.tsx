@@ -254,7 +254,7 @@ export function B3Table<T>({
     }
   };
 
-  const handleChangePage = (event: MouseEvent<HTMLButtonElement> | null, page: number) => {
+  const handleChangePage = (_: MouseEvent<HTMLButtonElement> | null, page: number) => {
     handlePaginationChange({
       ...pagination,
       offset: page * first,

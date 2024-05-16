@@ -101,7 +101,7 @@ function Usermanagement() {
     return element;
   });
 
-  const handleChange = (key: string, value: string) => {
+  const handleChange = (_: string, value: string) => {
     const search = {
       ...filterSearch,
       q: value,
