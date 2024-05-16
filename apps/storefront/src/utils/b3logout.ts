@@ -3,11 +3,9 @@ import { store } from '@/store';
 import { clearCompanySlice } from '@/store/slices/company';
 
 import b2bLogger from './b3Logger';
-import { B3SStorage } from './b3Storage';
 
 export const logoutSession = () => {
   store.dispatch(clearCompanySlice());
-  B3SStorage.delete('nextPath');
 };
 
 export const isB2bTokenPage = (gotoUrl?: string) => {

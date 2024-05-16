@@ -121,7 +121,6 @@ export const loginInfo = async () => {
 
 export const clearCurrentCustomerInfo = async () => {
   store.dispatch(setB2BToken(''));
-  B3SStorage.set('nextPath', '');
 
   B3SStorage.set('isShowBlockPendingAccountOrderCreationTip', {
     cartTip: 0,

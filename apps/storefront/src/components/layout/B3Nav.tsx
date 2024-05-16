@@ -9,7 +9,6 @@ import { GlobaledContext } from '@/shared/global';
 import { getAllowedRoutes } from '@/shared/routes';
 import { RouteItem } from '@/shared/routes/routes';
 import { useAppSelector } from '@/store';
-import { B3SStorage } from '@/utils';
 
 import { b3HexToRgb, getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
@@ -81,14 +80,10 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   };
   const newRoutes = menuItems();
   const activePath = (path: string) => {
-    if (location.pathname === path) {
-      B3SStorage.set('nextPath', path);
-      return true;
-    }
+    if (location.pathname === path) return true;
 
     if (location.pathname.includes('orderDetail')) {
-      const gotoOrderPath =
-        B3SStorage.get('nextPath') === '/company-orders' ? '/company-orders' : '/orders';
+      const gotoOrderPath = path === '/company-orders' ? '/company-orders' : '/orders';
       if (path === gotoOrderPath) return true;
     }
 
