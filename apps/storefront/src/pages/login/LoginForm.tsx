@@ -55,7 +55,7 @@ function LoginForm(props: LoginFormProps) {
           alignItems: 'center',
         }}
       >
-        Sign in
+        {b3Lang('login.loginText.signInHeader')}
       </Typography>
       <Box
         sx={{

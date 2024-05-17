@@ -649,6 +649,7 @@
   "login.loginText.invoiceErrorTip": "Please log in to view your invoice",
   "login.loginText.deviceCrowdingLogIn": "The user has logged out, please log in again",
   "login.loginText.password": "Password",
+  "login.loginText.signInHeader": "Sign in",
   "login.registerLogo": "register Logo",
   "login.loginText.quoteDetailToCheckoutUrl": "The button to Hide Product's Price from Guests has been turned on. Please log in before continuing to checkout",
 
