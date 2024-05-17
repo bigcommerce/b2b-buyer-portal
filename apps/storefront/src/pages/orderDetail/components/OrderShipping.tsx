@@ -36,9 +36,13 @@ export default function OrderShipping() {
             const trackingNumber = item.tracking_number;
             const tracking = getTracking(trackingNumber);
             if (tracking) {
-              const { trackingUrl = '' } = tracking;
+              const { trackingUrl = '', trackingNumber } = tracking;
               const shippingItem = item;
-              if (trackingUrl) shippingItem.tracking_link = trackingUrl;
+              if (trackingUrl) {
+                shippingItem.tracking_link = trackingUrl.includes('=%s')
+                  ? trackingUrl.replace('=%s', `=${trackingNumber}`)
+                  : trackingUrl;
+              }
             }
           });
         }
