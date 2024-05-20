@@ -69,3 +69,6 @@ export const TRANSLATION_MASQUERADE_BUTTON_VARIABLE = 'global.customStyles.masqu
 export const TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE = 'global.customStyles.shoppingListBtn';
 
 export const BROWSER_LANG = navigator.language.substring(0, 2);
+
+export const CART_URL = '/cart.php';
+export const CHECKOUT_URL = '/checkout';

@@ -32,6 +32,7 @@ import {
   getTemPlateConfig,
   setStorefrontConfig,
 } from './utils/storefrontConfig';
+import { CHECKOUT_URL } from './constants';
 import {
   isB2BUserSelector,
   setGlabolCommonState,
@@ -116,7 +117,7 @@ export default function App() {
     dispatch({
       type: 'common',
       payload: {
-        isCheckout: pathname === '/checkout',
+        isCheckout: pathname === CHECKOUT_URL,
       },
     });
 

@@ -16,7 +16,7 @@ import { v1 as uuid } from 'uuid';
 
 import { successTip } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { CART_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
 import { GlobaledContext } from '@/shared/global';
 import {
@@ -229,7 +229,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         snackbar.success('', {
           jsx: successTip({
             message: b3Lang('purchasedProducts.footer.productsAdded'),
-            link: '/cart.php',
+            link: CART_URL,
             linkText: b3Lang('purchasedProducts.footer.viewCart'),
             isOutLink: true,
             isCustomEvent: true,

@@ -1,7 +1,11 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material';
 
-import { FINISH_QUOTE_DEFUALT_VALUE, TRANSLATION_FINISH_QUOTE_VARIABLE } from '@/constants';
+import {
+  CHECKOUT_URL,
+  FINISH_QUOTE_DEFUALT_VALUE,
+  TRANSLATION_FINISH_QUOTE_VARIABLE,
+} from '@/constants';
 import { useGetButtonText } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import { CustomStyleContext } from '@/shared/customStyleButtton';
@@ -82,7 +86,7 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
 
   const positionStyles = isMobile ? {} : getPosition(horizontalPadding, verticalPadding, location);
 
-  if (href.includes('/checkout')) return null;
+  if (href.includes(CHECKOUT_URL)) return null;
   return (
     <Snackbar
       sx={{

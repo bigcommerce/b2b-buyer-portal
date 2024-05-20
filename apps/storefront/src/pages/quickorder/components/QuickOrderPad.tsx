@@ -5,6 +5,7 @@ import { Box, Card, CardContent, Divider, Link, Typography } from '@mui/material
 
 import { B3Upload, successTip } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
+import { CART_URL } from '@/constants';
 import { useBlockPendingAccountViewPrice } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import { useAppSelector } from '@/store';
@@ -42,7 +43,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       snackbar.success('', {
         jsx: successTip({
           message: b3Lang('purchasedProducts.quickOrderPad.productsAdded'),
-          link: '/cart.php',
+          link: CART_URL,
           linkText: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           isOutLink: true,
           isCustomEvent: true,
@@ -67,7 +68,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       snackbar.success('', {
         jsx: successTip({
           message: b3Lang('purchasedProducts.quickOrderPad.productsAdded'),
-          link: '/cart.php',
+          link: CART_URL,
           linkText: b3Lang('purchasedProducts.quickOrderPad.viewCart'),
           isOutLink: true,
           isCustomEvent: true,

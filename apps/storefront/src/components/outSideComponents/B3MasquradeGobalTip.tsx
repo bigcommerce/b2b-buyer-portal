@@ -6,7 +6,11 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { Box, Button, SnackbarOrigin, SxProps } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 
-import { END_MASQUERADE_DEFAULT_VALUE, TRANSLATION_MASQUERADE_BUTTON_VARIABLE } from '@/constants';
+import {
+  CHECKOUT_URL,
+  END_MASQUERADE_DEFAULT_VALUE,
+  TRANSLATION_MASQUERADE_BUTTON_VARIABLE,
+} from '@/constants';
 import { useGetButtonText } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
@@ -93,7 +97,7 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
     }
   };
 
-  if (href.includes('/checkout') || !customerId) return null;
+  if (href.includes(CHECKOUT_URL) || !customerId) return null;
 
   if (!isAgenting) return null;
 

@@ -7,6 +7,7 @@ import {
   setMediaStyle,
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles';
+import { CART_URL, CHECKOUT_URL } from '@/constants';
 import { CustomStyleContext } from '@/shared/customStyleButtton';
 import { useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';
@@ -58,22 +59,17 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
   const { pathname } = window.location;
 
   useEffect(() => {
-    const cartUrl = '/cart.php';
-    const checkoutUrl = '/checkout';
-
-    const urls = [cartUrl, checkoutUrl];
-
     const showPendingAccountTip = () => {
-      if (!urls.includes(pathname)) return;
+      if (![CART_URL, CHECKOUT_URL].includes(pathname)) return;
 
       if (companyStatus || !blockPendingAccountOrderCreation) return;
 
-      if (isShowBlockPendingAccountOrderCreationTip.cartTip && checkIsInPage(cartUrl)) return;
+      if (isShowBlockPendingAccountOrderCreationTip.cartTip && checkIsInPage(CART_URL)) return;
 
-      if (isShowBlockPendingAccountOrderCreationTip.checkoutTip && checkIsInPage(checkoutUrl))
+      if (isShowBlockPendingAccountOrderCreationTip.checkoutTip && checkIsInPage(CHECKOUT_URL))
         return;
 
-      if (checkIsInPage(cartUrl)) {
+      if (checkIsInPage(CART_URL)) {
         globalSnackbar.warning(
           'Your account is pending approval. Ordering will be enabled after account approval',
           {
@@ -82,16 +78,16 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
         );
       }
 
-      if (checkIsInPage(checkoutUrl)) {
+      if (checkIsInPage(CHECKOUT_URL)) {
         globalSnackbar.error(
           'Your account is pending approval. Ordering will be enabled after account approval',
         );
       }
 
       setIsShowBlockPendingAccountOrderCreationTip({
-        cartTip: +checkIsInPage(cartUrl) + isShowBlockPendingAccountOrderCreationTip.cartTip,
+        cartTip: +checkIsInPage(CART_URL) + isShowBlockPendingAccountOrderCreationTip.cartTip,
         checkoutTip:
-          +checkIsInPage(checkoutUrl) + isShowBlockPendingAccountOrderCreationTip.checkoutTip,
+          +checkIsInPage(CHECKOUT_URL) + isShowBlockPendingAccountOrderCreationTip.checkoutTip,
       });
     };
 

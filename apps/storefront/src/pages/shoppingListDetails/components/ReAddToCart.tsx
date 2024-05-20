@@ -8,7 +8,7 @@ import { B3QuantityTextField, successTip } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
 import CustomButton from '@/components/button/CustomButton';
 import B3Sping from '@/components/spin/B3Sping';
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
 import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
 import { currencyFormat, snackbar } from '@/utils';
@@ -226,12 +226,12 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       if (!res.errors) {
         handleCancelClicked();
         if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
-          window.location.href = '/checkout';
+          window.location.href = CHECKOUT_URL;
         } else {
           snackbar.success('', {
             jsx: successTip({
               message: b3Lang('shoppingList.reAddToCart.productsAdded'),
-              link: '/cart.php',
+              link: CART_URL,
               linkText: b3Lang('shoppingList.reAddToCart.viewCart'),
               isOutLink: true,
               isCustomEvent: true,

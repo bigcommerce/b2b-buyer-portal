@@ -4,6 +4,7 @@ import { CallbackKey, useCallbacks } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, Typography } from '@mui/material';
 
+import { CART_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
 import { CustomStyleContext } from '@/shared/customStyleButtton';
 import { useAppSelector } from '@/store';
@@ -39,7 +40,7 @@ export default function B3Mainheader({ title }: { title: string }) {
       return;
     }
 
-    window.location.href = '/cart.php';
+    window.location.href = CART_URL;
   });
 
   useEffect(() => {

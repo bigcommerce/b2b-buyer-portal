@@ -5,6 +5,7 @@ import { Box, Typography } from '@mui/material';
 
 import { B3CustomForm, successTip } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
+import { CART_URL } from '@/constants';
 import { useMobile } from '@/hooks';
 import {
   addProductToBcShoppingList,
@@ -235,7 +236,7 @@ export default function OrderDialog({
         snackbar.success('', {
           jsx: successTip({
             message: b3Lang('orderDetail.reorder.productsAdded'),
-            link: '/cart.php',
+            link: CART_URL,
             linkText: b3Lang('orderDetail.viewCart'),
             isOutLink: true,
             isCustomEvent: true,

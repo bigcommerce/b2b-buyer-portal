@@ -7,7 +7,7 @@ import { v1 as uuid } from 'uuid';
 
 import { successTip } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
-import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
+import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
 import { GlobaledContext } from '@/shared/global';
 import {
@@ -256,12 +256,12 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           });
         } else if (validateFailureArr.length === 0) {
           if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
-            window.location.href = '/checkout';
+            window.location.href = CHECKOUT_URL;
           } else {
             snackbar.success('', {
               jsx: successTip({
                 message: b3Lang('shoppingList.footer.productsAddedToCart'),
-                link: '/cart.php',
+                link: CART_URL,
                 linkText: b3Lang('shoppingList.footer.viewCart'),
                 isOutLink: true,
                 isCustomEvent: true,

@@ -1,6 +1,7 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
 import globalB3 from '@b3/global-b3';
 
+import { CHECKOUT_URL } from '@/constants';
 import { useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
@@ -115,7 +116,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
           }
 
           if (
-            window?.location?.pathname === '/checkout' &&
+            window?.location?.pathname === CHECKOUT_URL &&
             (e.target as HTMLAnchorElement)?.getAttribute('href') === '#'
           ) {
             href = '/register';

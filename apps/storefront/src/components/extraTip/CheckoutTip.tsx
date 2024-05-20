@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { Dialog, DialogActions, DialogContent } from '@mui/material';
 
+import { CHECKOUT_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
 import { useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';
@@ -22,7 +23,7 @@ function CheckoutTip(props: CheckoutTipProps) {
 
   const { href } = window.location;
 
-  if (!href.includes('/checkout')) return null;
+  if (!href.includes(CHECKOUT_URL)) return null;
 
   return (
     role === 3 &&

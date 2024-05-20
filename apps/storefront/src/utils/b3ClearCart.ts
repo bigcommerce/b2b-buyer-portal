@@ -1,3 +1,4 @@
+import { CHECKOUT_URL } from '@/constants';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store/reducer';
 import { setCartNumber } from '@/store/slices/global';
@@ -11,7 +12,7 @@ const clearInvoiceCart = async () => {
     const url = window.location.pathname;
     const isInvoicePay = localStorage.getItem('invoicePay');
 
-    if (url !== '/checkout' && isInvoicePay === '1') {
+    if (url !== CHECKOUT_URL && isInvoicePay === '1') {
       const cartEntityId = getCookie('cartId');
 
       const cartInfo = cartEntityId ? await getCart() : null;
