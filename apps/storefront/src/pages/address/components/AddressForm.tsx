@@ -166,7 +166,7 @@ function AddressForm(
                   item.stateCode === currentStateCode || item.stateName === currentStateCode,
               );
 
-              currentStateName = state?.stateName || currentStateCode;
+              currentStateName = state?.stateName || currentStateName;
               currentStateCode = state?.stateCode || currentStateCode;
             } else {
               currentStateCode = '';
@@ -246,7 +246,7 @@ function AddressForm(
                   item.stateCode === currentStateCode || item.stateName === currentStateCode,
               );
 
-              currentStateName = state?.stateName || currentStateCode;
+              currentStateName = state?.stateName || currentStateName;
               currentStateCode = state?.stateCode || currentStateCode;
             } else {
               currentStateCode = '';
