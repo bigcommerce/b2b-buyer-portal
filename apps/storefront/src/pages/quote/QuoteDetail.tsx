@@ -39,6 +39,7 @@ import QuoteInfo from './components/QuoteInfo';
 import QuoteNote from './components/QuoteNote';
 import QuoteTermsAndConditions from './components/QuoteTermsAndConditions';
 import { ProductInfoProps } from './shared/config';
+import { handleQuoteCheckout } from './utils/quoteCheckout';
 
 function QuoteDetail() {
   const { id = '' } = useParams();
@@ -52,6 +53,7 @@ function QuoteDetail() {
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
   const role = useAppSelector(({ company }) => company.customer.role);
+
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const [isMobile] = useMobile();
 
@@ -62,7 +64,7 @@ function QuoteDetail() {
   const [fileList, setFileList] = useState<any>([]);
   const [isHandleApprove, setHandleApprove] = useState<boolean>(false);
 
-  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(false);
+  const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(true);
 
   const [quoteSummary, setQuoteSummary] = useState<any>({
     originalSubtotal: 0,
@@ -78,6 +80,8 @@ function QuoteDetail() {
     oos: '',
     nonPurchasable: '',
   });
+
+  const [quoteCheckoutLoadding, setQuoteCheckoutLoadding] = useState<boolean>(false);
 
   const location = useLocation();
   const currency = useAppSelector(activeCurrencyInfoSelector);
@@ -455,6 +459,27 @@ function QuoteDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, navigate, role]);
 
+  const quoteGotoCheckout = async () => {
+    try {
+      setQuoteCheckoutLoadding(true);
+      await handleQuoteCheckout({
+        quoteId: id,
+        proceedingCheckoutFn,
+        role,
+        location,
+        navigate,
+      });
+    } finally {
+      setQuoteCheckoutLoadding(false);
+    }
+  };
+  useEffect(() => {
+    if (location.search.includes('isCheckout') && id) {
+      quoteGotoCheckout();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, location, proceedingCheckoutFn]);
+
   const isEnableProductShowCheckout = () => {
     if (isEnableProduct) {
       if (isHandleApprove && isHideQuoteCheckout) return true;
@@ -467,7 +492,7 @@ function QuoteDetail() {
   };
 
   return (
-    <B3Sping isSpinning={isRequestLoading}>
+    <B3Sping isSpinning={isRequestLoading || quoteCheckoutLoadding}>
       <Box
         sx={{
           display: 'flex',

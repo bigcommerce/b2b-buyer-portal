@@ -1,4 +1,4 @@
-import { convertArrayToGraphql, convertObjectToGraphql, storeHash } from '@/utils';
+import { channelId, convertArrayToGraphql, convertObjectToGraphql, storeHash } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
 
@@ -342,6 +342,14 @@ const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
   }
 }`;
 
+const getStorefrontProductSettings = `
+query getStorefrontProductSettings($storeHash: String!, $channelId: Int) {
+  storefrontProductSettings(storeHash: $storeHash, channelId: $channelId) {
+    hidePriceFromGuests
+  }
+}
+`;
+
 export const getBCCustomerAddresses = (): CustomFieldItems =>
   B3Request.graphqlB2B({
     query: getCustomerAddresses(),
@@ -435,4 +443,10 @@ export const quoteDetailAttachFileDelete = (data: CustomFieldItems): CustomField
 export const getQuoteCreatedByUsers = (companyId: number, module: number) =>
   B3Request.graphqlB2B({
     query: getCreatedByUser(companyId, module, 'createdByUser'),
+  });
+
+export const getBCStorefrontProductSettings = (): CustomFieldItems =>
+  B3Request.graphqlB2B({
+    query: getStorefrontProductSettings,
+    variables: { storeHash, channelId },
   });

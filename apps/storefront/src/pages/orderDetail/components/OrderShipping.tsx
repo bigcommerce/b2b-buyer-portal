@@ -34,6 +34,11 @@ export default function OrderShipping() {
           const { shipmentItems } = list;
           shipmentItems.forEach((item: OrderShippedItem) => {
             const trackingNumber = item.tracking_number;
+            if (item?.generated_tracking_link && trackingNumber) {
+              item.tracking_link = item.generated_tracking_link;
+              return;
+            }
+
             const tracking = getTracking(trackingNumber);
             if (tracking) {
               const { trackingUrl = '', trackingNumber } = tracking;

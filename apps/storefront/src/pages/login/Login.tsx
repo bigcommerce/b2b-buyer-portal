@@ -62,6 +62,10 @@ export default function Login(props: RegisteredProps) {
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
+  const quoteDetailToCheckoutUrl = useAppSelector(
+    ({ quoteInfo }) => quoteInfo.quoteDetailToCheckoutUrl,
+  );
+
   const [isLoading, setLoading] = useState(true);
   const [isMobile] = useMobile();
 
@@ -277,6 +281,11 @@ export default function Login(props: RegisteredProps) {
         } else {
           const info = await getCurrentCustomerInfo(token);
 
+          if (quoteDetailToCheckoutUrl) {
+            navigate(quoteDetailToCheckoutUrl);
+            return;
+          }
+
           if (
             info?.userType === UserTypes.MULTIPLE_B2C &&
             info?.role === CustomerRole.SUPER_ADMIN
@@ -345,6 +354,11 @@ export default function Login(props: RegisteredProps) {
                       </Alert>
                     )}
                   </Box>
+                )}
+                {quoteDetailToCheckoutUrl && (
+                  <Alert severity="error" variant="filled">
+                    {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
+                  </Alert>
                 )}
                 {logo && loginInfo?.displayStoreLogo && (
                   <Box sx={{ margin: '20px 0', minHeight: '150px' }}>

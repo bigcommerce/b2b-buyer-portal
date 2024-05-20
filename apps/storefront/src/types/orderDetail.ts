@@ -92,6 +92,7 @@ export interface OrderShipmentItem {
   shipping_provider: string;
   tracking_carrier: string;
   tracking_link: string;
+  generated_tracking_link?: string;
   tracking_number: string;
 }
 

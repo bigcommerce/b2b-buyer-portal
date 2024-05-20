@@ -27,6 +27,7 @@ interface SetDraftProductCalculatedValueParams {
 export interface QuoteInfoState {
   draftQuoteList: QuoteItem[];
   draftQuoteInfo: QuoteInfo;
+  quoteDetailToCheckoutUrl: string;
 }
 
 const initialState: QuoteInfoState = {
@@ -71,6 +72,7 @@ const initialState: QuoteInfoState = {
     fileInfo: [],
     note: '',
   },
+  quoteDetailToCheckoutUrl: '',
 };
 
 const draftQuoteListSlice = createSlice({
@@ -135,6 +137,9 @@ const draftQuoteListSlice = createSlice({
     setDraftQuoteBillingAddress: (state, { payload }: PayloadAction<BillingAddress>) => {
       state.draftQuoteInfo.billingAddress = payload;
     },
+    setQuoteDetailToCheckoutUrl: (state, { payload }: PayloadAction<string>) => {
+      state.quoteDetailToCheckoutUrl = payload;
+    },
   },
 });
 
@@ -152,6 +157,7 @@ export const {
   setDraftQuoteInfoNote,
   setDraftQuoteShippingAddress,
   setDraftQuoteBillingAddress,
+  setQuoteDetailToCheckoutUrl,
 } = draftQuoteListSlice.actions;
 
 export default persistReducer({ key: 'quoteInfo', storage }, draftQuoteListSlice.reducer);
