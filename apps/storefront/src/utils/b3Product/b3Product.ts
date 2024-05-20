@@ -952,7 +952,7 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
   if (products.length) {
     products.forEach((quoteProduct: CustomFieldItems) => {
       const optionList = JSON.parse(quoteProduct.node.optionList);
-      const draftQuoteProduct = draftQuoteList.find((item: CustomFieldItems) => {
+      const draftQuoteProduct = draftQuote.find((item: CustomFieldItems) => {
         const oldOptionList = JSON.parse(item.node.optionList);
         const isAdd =
           oldOptionList.length > optionList.length
