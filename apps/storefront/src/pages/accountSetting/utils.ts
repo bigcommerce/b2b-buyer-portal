@@ -1,5 +1,7 @@
+import Cookies from 'js-cookie';
+
 import { Fields, ParamProps } from '@/types/accountSetting';
-import { getCookie, validatorRules } from '@/utils';
+import { validatorRules } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { baseUrl } from '@/utils/basicConfig';
 
@@ -27,7 +29,7 @@ function sendUpdateAccountRequest(data: string): Promise<string> {
 }
 
 const getXsrfToken = (): string | undefined => {
-  const token = getCookie('XSRF-TOKEN');
+  const token = Cookies.get('XSRF-TOKEN');
 
   if (!token) {
     return undefined;

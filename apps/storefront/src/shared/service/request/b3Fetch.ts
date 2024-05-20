@@ -1,5 +1,7 @@
+import Cookies from 'js-cookie';
+
 import { store } from '@/store';
-import { baseUrl, channelId, getCookie, storeHash } from '@/utils';
+import { baseUrl, channelId, storeHash } from '@/utils';
 
 import { B2B_BASIC_URL, queryParse, RequestType, RequestTypeKeys } from './base';
 import b3Fetch from './fetch';
@@ -26,7 +28,7 @@ function request<T>(path: string, config?: T & Config, type?: RequestTypeKeys) {
   const getToken =
     type === RequestType.BCRest
       ? {
-          'x-xsrf-token': getCookie('XSRF-TOKEN'),
+          'x-xsrf-token': Cookies.get('XSRF-TOKEN'),
         }
       : {
           authToken: `${B2BToken}`,

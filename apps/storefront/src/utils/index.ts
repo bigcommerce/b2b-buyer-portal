@@ -17,7 +17,6 @@ import { setCartPermissions } from './b3RolePermissions';
 import { serialize } from './b3Serialize';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { globalSnackbar, snackbar } from './b3Tip';
-import getCookie from './b3utils';
 import {
   getActiveCurrencyInfo,
   getDefaultCurrencyInfo,
@@ -46,7 +45,6 @@ export {
   displayFormat,
   distanceDay,
   getActiveCurrencyInfo,
-  getCookie,
   getDefaultCurrencyInfo,
   getLineNumber,
   getLogo,

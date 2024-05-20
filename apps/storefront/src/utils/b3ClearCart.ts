@@ -1,10 +1,11 @@
+import Cookies from 'js-cookie';
+
 import { CHECKOUT_URL } from '@/constants';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store/reducer';
 import { setCartNumber } from '@/store/slices/global';
 
 import b2bLogger from './b3Logger';
-import getCookie from './b3utils';
 import { deleteCartData } from './cartUtils';
 
 const clearInvoiceCart = async () => {
@@ -13,7 +14,7 @@ const clearInvoiceCart = async () => {
     const isInvoicePay = localStorage.getItem('invoicePay');
 
     if (url !== CHECKOUT_URL && isInvoicePay === '1') {
-      const cartEntityId = getCookie('cartId');
+      const cartEntityId = Cookies.get('cartId');
 
       const cartInfo = cartEntityId ? await getCart() : null;
 

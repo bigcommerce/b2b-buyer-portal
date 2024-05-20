@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
+import Cookies from 'js-cookie';
 
 import { B3CustomForm, successTip } from '@/components';
 import B3Dialog from '@/components/B3Dialog';
@@ -14,7 +15,7 @@ import {
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { baseUrl, getCookie, snackbar } from '@/utils';
+import { baseUrl, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
@@ -54,7 +55,7 @@ interface ReturnListProps {
 }
 
 const getXsrfToken = (): string | undefined => {
-  const token = getCookie('XSRF-TOKEN');
+  const token = Cookies.get('XSRF-TOKEN');
 
   if (!token) {
     return undefined;
