@@ -148,8 +148,8 @@ function QuoteTable(props: ShoppingDetailTableProps) {
         selectOptions = '[]';
       }
 
-      const taxExclusive = variantInfo.bc_calculated_price?.tax_exclusive || 0;
-      const taxInclusive = variantInfo.bc_calculated_price?.tax_inclusive || 0;
+      const taxExclusive = variantInfo!.bc_calculated_price?.tax_exclusive || 0;
+      const taxInclusive = variantInfo!.bc_calculated_price?.tax_inclusive || 0;
 
       const basePriceExclusiveTax = basePrice || taxExclusive;
 

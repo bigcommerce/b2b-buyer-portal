@@ -34,7 +34,7 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
   const handleItemClick = async (item: ListProps) => {
     if (item.key === 'logout') {
       navigate('/login?loginFlag=3');
-    } else if (item.type === 'path') {
+    } else if (item.type === 'path' && item.key) {
       navigate(item.key);
     }
     if (closeSidebar) {

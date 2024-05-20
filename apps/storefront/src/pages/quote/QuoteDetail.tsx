@@ -161,7 +161,8 @@ function QuoteDetail() {
     const defaultTaxZone = taxZoneRates?.find((taxZone: { id: number }) => taxZone.id === 1);
     if (defaultTaxZone) {
       const { rates = [] } = defaultTaxZone;
-      if (rates.length && rates[0].enabled && rates[0].classRates.length) {
+
+      if (rates[0] && rates[0].enabled && rates[0].classRates.length) {
         rates[0].classRates.forEach((rate) => classRates.push(rate));
       }
     }

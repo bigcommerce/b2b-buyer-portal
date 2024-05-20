@@ -5,9 +5,9 @@ export interface QuoteConfigItem {
 }
 
 export const getLogo = (quoteConfig: CustomFieldItems[]): string => {
-  const logoItem = quoteConfig.find((list: QuoteConfigItem) => list.key === 'quote_logo') || {};
+  const logoItem = quoteConfig.find((list: QuoteConfigItem) => list.key === 'quote_logo');
 
-  return logoItem.isEnabled || '';
+  return logoItem?.isEnabled || '';
 };
 
 export const getQuoteEnabled = (

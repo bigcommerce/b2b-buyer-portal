@@ -429,7 +429,7 @@ const getDateValuesArray = (id: number, value: number) => {
 
 const calculatedDate = (newOption: NewOptionProps, itemOption: Partial<AllOptionProps>) => {
   let date = [];
-  const dateTypes = ['year', 'month', 'day'];
+  const dateTypes = ['year', 'month', 'day'] as const;
   const isIncludeDate = (date: string) => newOption.optionId.includes(date);
   if (isIncludeDate(dateTypes[0]) || isIncludeDate(dateTypes[1]) || isIncludeDate(dateTypes[2])) {
     date = [
@@ -687,7 +687,7 @@ const formatLineItemsToGetPrices = (
 ) =>
   items.reduce(
     (
-      formatedLineItems: {
+      formattedLineItems: {
         items: Calculateditems[];
         variants: ProductInfo[];
       },
@@ -700,18 +700,18 @@ const formatLineItemsToGetPrices = (
       );
 
       if (!variantItem || !selectedProduct) {
-        return formatedLineItems;
+        return formattedLineItems;
       }
       const { allOptions = [] } = selectedProduct;
 
       const options = formatOptionsSelections(selectedOptions, allOptions);
 
-      formatedLineItems.items.push({
+      formattedLineItems.items.push({
         product_id: variantItem.product_id,
         variant_id: variantItem.variant_id,
         options,
       });
-      formatedLineItems.variants.push({
+      formattedLineItems.variants.push({
         ...variantItem,
         quantity,
         productsSearch: selectedProduct,
@@ -720,7 +720,7 @@ const formatLineItemsToGetPrices = (
           optionValue: `${optionValueEntityId}`,
         })),
       });
-      return formatedLineItems;
+      return formattedLineItems;
     },
     { items: [], variants: [] },
   );
@@ -952,7 +952,7 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
   if (products.length) {
     products.forEach((quoteProduct: CustomFieldItems) => {
       const optionList = JSON.parse(quoteProduct.node.optionList);
-      const productIndex = draftQuoteList.findIndex((item: CustomFieldItems) => {
+      const draftQuoteProduct = draftQuoteList.find((item: CustomFieldItems) => {
         const oldOptionList = JSON.parse(item.node.optionList);
         const isAdd =
           oldOptionList.length > optionList.length
@@ -962,10 +962,10 @@ const addQuoteDraftProducts = (products: CustomFieldItems[]) => {
         return item.node.variantSku === quoteProduct.node.variantSku && isAdd;
       });
 
-      if (productIndex !== -1) {
-        draftQuote[productIndex].node.quantity += quoteProduct.node.quantity;
+      if (draftQuoteProduct) {
+        draftQuoteProduct.node.quantity += quoteProduct.node.quantity;
         if (quoteProduct.node?.calculatedValue) {
-          draftQuote[productIndex].node.calculatedValue = quoteProduct.node.calculatedValue;
+          draftQuoteProduct.node.calculatedValue = quoteProduct.node.calculatedValue;
         }
       } else {
         draftQuote.push(quoteProduct as QuoteItem);
@@ -981,14 +981,14 @@ const validProductQty = (products: CustomFieldItems) => {
 
   let canAdd = true;
   products.forEach((product: CustomFieldItems) => {
-    const index = draftQuoteList.findIndex(
+    const draftQuote = draftQuoteList.find(
       (item) => item.node.variantSku === product.node.variantSku,
     );
     const optionList = JSON.parse(product.node.optionList) || [];
 
-    if (index !== -1) {
-      const oldOptionList = JSON.parse(draftQuoteList[index].node.optionList);
-      let quantityFromStore = draftQuoteList[index].node.quantity;
+    if (draftQuote) {
+      const oldOptionList = JSON.parse(draftQuote.node.optionList);
+      let quantityFromStore = draftQuote.node.quantity;
       const isAdd =
         oldOptionList.length > optionList.length
           ? compareOption(oldOptionList, optionList)
@@ -1016,13 +1016,13 @@ const addQuoteDraftProduce = async (
 ) => {
   const draftList = cloneDeep(store.getState().quoteInfo.draftQuoteList);
 
-  const index = draftList.findIndex(
+  const draft = draftList.find(
     (item: QuoteItem) => item?.node?.variantSku === quoteListitem.node.variantSku,
   );
 
-  if (index !== -1) {
+  if (draft) {
     // TODO optionList compare
-    const oldOptionList = JSON.parse(draftList[index].node.optionList);
+    const oldOptionList = JSON.parse(draft.node.optionList);
 
     const isAdd =
       oldOptionList.length > optionList.length
@@ -1030,10 +1030,9 @@ const addQuoteDraftProduce = async (
         : compareOption(optionList, oldOptionList);
 
     if (isAdd) {
-      draftList[index].node.quantity += +qty;
+      draft.node.quantity += +qty;
 
-      const { optionList, productsSearch, variantSku, quantity, calculatedValue } =
-        draftList[index].node;
+      const { optionList, productsSearch, variantSku, quantity, calculatedValue } = draft.node;
 
       const product = await getCalculatedProductPrice(
         {
@@ -1046,7 +1045,7 @@ const addQuoteDraftProduce = async (
       );
 
       if (product) {
-        draftList[index].node = product.node;
+        draft.node = product.node;
       }
     } else {
       draftList.push(quoteListitem as QuoteItem);

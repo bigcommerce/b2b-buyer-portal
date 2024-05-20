@@ -58,18 +58,22 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
   const { pathname } = window.location;
 
   useEffect(() => {
-    const urlArr = ['/cart.php', '/checkout'];
+    const cartUrl = '/cart.php';
+    const checkoutUrl = '/checkout';
+
+    const urls = [cartUrl, checkoutUrl];
 
     const showPendingAccountTip = () => {
-      if (!urlArr.includes(pathname)) return;
+      if (!urls.includes(pathname)) return;
 
       if (companyStatus || !blockPendingAccountOrderCreation) return;
 
-      if (isShowBlockPendingAccountOrderCreationTip.cartTip && checkIsInPage(urlArr[0])) return;
+      if (isShowBlockPendingAccountOrderCreationTip.cartTip && checkIsInPage(cartUrl)) return;
 
-      if (isShowBlockPendingAccountOrderCreationTip.checkoutTip && checkIsInPage(urlArr[1])) return;
+      if (isShowBlockPendingAccountOrderCreationTip.checkoutTip && checkIsInPage(checkoutUrl))
+        return;
 
-      if (checkIsInPage(urlArr[0])) {
+      if (checkIsInPage(cartUrl)) {
         globalSnackbar.warning(
           'Your account is pending approval. Ordering will be enabled after account approval',
           {
@@ -78,16 +82,16 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
         );
       }
 
-      if (checkIsInPage(urlArr[1])) {
+      if (checkIsInPage(checkoutUrl)) {
         globalSnackbar.error(
           'Your account is pending approval. Ordering will be enabled after account approval',
         );
       }
 
       setIsShowBlockPendingAccountOrderCreationTip({
-        cartTip: +checkIsInPage(urlArr[0]) + isShowBlockPendingAccountOrderCreationTip.cartTip,
+        cartTip: +checkIsInPage(cartUrl) + isShowBlockPendingAccountOrderCreationTip.cartTip,
         checkoutTip:
-          +checkIsInPage(urlArr[1]) + isShowBlockPendingAccountOrderCreationTip.checkoutTip,
+          +checkIsInPage(checkoutUrl) + isShowBlockPendingAccountOrderCreationTip.checkoutTip,
       });
     };
 

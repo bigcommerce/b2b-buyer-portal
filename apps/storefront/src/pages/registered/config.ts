@@ -224,7 +224,7 @@ const bcFieldName = (fieldName: string) => {
   return fieldName;
 };
 
-export const conversionSigleItem = (item: CustomFieldItems): Partial<RegisterFieldsItems> => {
+export const conversionSingleItem = (item: CustomFieldItems): Partial<RegisterFieldsItems> => {
   const requiredItems = {
     id: item.id || item.fieldName,
     name: bcFieldName(item.name) || enCodeFieldName(item.fieldName),
@@ -268,9 +268,9 @@ export const conversionItemFormat = (FormFields: AccountFormFieldsList) => {
 
     let obj: CustomFieldItems = {};
     if (item.valueConfigs?.id) {
-      obj = conversionSigleItem(item.valueConfigs);
+      obj = conversionSingleItem(item.valueConfigs);
     } else {
-      obj = conversionSigleItem(item);
+      obj = conversionSingleItem(item);
     }
 
     obj.required = item.isRequired;
@@ -401,14 +401,6 @@ export interface State {
   stateName?: string;
   id?: string;
 }
-
-export const getRegisterLogo = (quoteConfig: Array<QuoteConfig>): string => {
-  const item: Array<QuoteConfig> = quoteConfig.filter(
-    (list: QuoteConfig) => list.key === 'quote_logo',
-  );
-
-  return item[0].isEnabled;
-};
 
 type EmailError = {
   [k: number]: string;

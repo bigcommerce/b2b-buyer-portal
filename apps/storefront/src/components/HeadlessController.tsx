@@ -10,7 +10,7 @@ import { GlobaledContext } from '@/shared/global';
 import { superAdminCompanies } from '@/shared/service/b2b';
 import B3Request from '@/shared/service/request/b3Fetch';
 import {
-  formatedQuoteDraftListSelector,
+  formattedQuoteDraftListSelector,
   isB2BUserSelector,
   useAppDispatch,
   useAppSelector,
@@ -24,7 +24,7 @@ import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
-export interface FormatedQuoteItem
+export interface FormattedQuoteItem
   extends Omit<QuoteItem['node'], 'optionList' | 'calculatedValue' | 'productsSearch'> {
   optionSelections: {
     optionId: string | number;
@@ -66,7 +66,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const customer = useAppSelector(({ company }) => company.customer);
   const role = useAppSelector(({ company }) => company.customer.role);
-  const productList = useAppSelector(formatedQuoteDraftListSelector);
+  const productList = useAppSelector(formattedQuoteDraftListSelector);
   const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
 
   const {

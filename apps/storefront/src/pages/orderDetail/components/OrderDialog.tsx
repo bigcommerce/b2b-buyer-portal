@@ -13,7 +13,7 @@ import {
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { baseUrl, snackbar } from '@/utils';
+import { baseUrl, getCookie, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
@@ -52,6 +52,16 @@ interface ReturnListProps {
   returnQty: number;
 }
 
+const getXsrfToken = (): string | undefined => {
+  const token = getCookie('XSRF-TOKEN');
+
+  if (!token) {
+    return undefined;
+  }
+
+  return decodeURIComponent(token);
+};
+
 export default function OrderDialog({
   open,
   products = [],
@@ -88,19 +98,6 @@ export default function OrderDialog({
 
   const handleClose = () => {
     setOpen(false);
-  };
-  const getXsrfToken = (): string | undefined => {
-    const cookies = document.cookie;
-    const cookieArray = cookies.split(';').map((cookie) => cookie.trim());
-
-    const xsrfCookie = cookieArray.find((cookie) => cookie.startsWith('XSRF-TOKEN='));
-
-    if (xsrfCookie) {
-      const xsrfToken = xsrfCookie.split('=')[1];
-      return decodeURIComponent(xsrfToken);
-    }
-
-    return undefined;
   };
 
   const sendReturnRequest = async (

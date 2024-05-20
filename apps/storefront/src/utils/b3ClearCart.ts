@@ -12,7 +12,7 @@ const clearInvoiceCart = async () => {
     const isInvoicePay = localStorage.getItem('invoicePay');
 
     if (url !== '/checkout' && isInvoicePay === '1') {
-      const cartEntityId: string = getCookie('cartId');
+      const cartEntityId = getCookie('cartId');
 
       const cartInfo = cartEntityId ? await getCart() : null;
 

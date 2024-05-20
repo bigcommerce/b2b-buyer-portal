@@ -1,5 +1,5 @@
 import { Fields, ParamProps } from '@/types/accountSetting';
-import { validatorRules } from '@/utils';
+import { getCookie, validatorRules } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { baseUrl } from '@/utils/basicConfig';
 
@@ -27,17 +27,13 @@ function sendUpdateAccountRequest(data: string): Promise<string> {
 }
 
 const getXsrfToken = (): string | undefined => {
-  const cookies = document.cookie;
-  const cookieArray = cookies.split(';').map((cookie) => cookie.trim());
+  const token = getCookie('XSRF-TOKEN');
 
-  const xsrfCookie = cookieArray.find((cookie) => cookie.startsWith('XSRF-TOKEN='));
-
-  if (xsrfCookie) {
-    const xsrfToken = xsrfCookie.split('=')[1];
-    return decodeURIComponent(xsrfToken);
+  if (!token) {
+    return undefined;
   }
 
-  return undefined;
+  return decodeURIComponent(token);
 };
 
 // Password and email Change Send emails

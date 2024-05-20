@@ -40,11 +40,10 @@ export function loadCaptchaWidgetHandlers(
   let code = FRAME_HANDLER_CODE;
 
   CAPTCHA_VARIABLES.PREFIX = widgetId;
-  const variableNames = Object.keys(CAPTCHA_VARIABLES);
-  for (let i = 0; i < variableNames.length; i += 1) {
-    const variableName = variableNames[i];
-    code = code.replace(RegExp(variableName, 'g'), CAPTCHA_VARIABLES[variableName]);
-  }
+
+  Object.entries(CAPTCHA_VARIABLES).forEach(([key, value]) => {
+    code = code.replace(RegExp(key, 'g'), value);
+  });
 
   const handlerScript = iframeDocument.createElement('script');
   handlerScript.innerHTML = code;

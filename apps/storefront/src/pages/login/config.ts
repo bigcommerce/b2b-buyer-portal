@@ -27,14 +27,6 @@ export interface LoginInfoInit {
   displayStoreLogo: boolean;
 }
 
-export const getLogo = (quoteConfig: Array<QuoteConfig>): string => {
-  const item: Array<QuoteConfig> = quoteConfig.filter(
-    (list: QuoteConfig) => list.key === 'quote_logo',
-  );
-
-  return item[0].isEnabled;
-};
-
 export interface ValidateOptions extends Record<string, any> {
   max?: string | number;
   min?: string | number;

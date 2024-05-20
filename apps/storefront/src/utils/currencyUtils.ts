@@ -1,7 +1,8 @@
 import { store } from '@/store';
 import { defaultCurrenciesState } from '@/store/slices/storeConfigs';
+import { Currency } from '@/types';
 
-const defaultCurrency = defaultCurrenciesState.currencies[0];
+const defaultCurrency: Currency = defaultCurrenciesState.currencies[0];
 
 const getActiveCurrencyInfo = () => {
   const { currencies } = store.getState().storeConfigs.currencies;

@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 
-import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
+import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
 
 import { defaultCurrenciesState } from './slices/storeConfigs';
 import { RootState } from './reducer';
@@ -20,14 +20,17 @@ export const defaultCurrencyInfoSelector = createSelector(storeConfigSelector, (
 
   return defaultCurrency || defaultCurrenciesState.currencies[0];
 });
-export const activeCurrencyInfoSelector = createSelector(storeConfigSelector, (storeConfigs) => {
-  const entityId = storeConfigs.activeCurrency?.node.entityId || '';
-  const activeCurrency = storeConfigs.currencies.currencies.find(
-    (currency) => currency.id === entityId,
-  );
+export const activeCurrencyInfoSelector = createSelector(
+  storeConfigSelector,
+  (storeConfigs): Currency => {
+    const entityId = storeConfigs.activeCurrency?.node.entityId || '';
+    const activeCurrency = storeConfigs.currencies.currencies.find(
+      (currency) => currency.id === entityId,
+    );
 
-  return activeCurrency || defaultCurrenciesState.currencies[0];
-});
+    return activeCurrency || defaultCurrenciesState.currencies[0];
+  },
+);
 
 export const isLoggedInSelector = createSelector(
   companySelector,
@@ -47,14 +50,20 @@ export const isB2BUserSelector = createSelector(
     +company.customer.role === CustomerRole.SUPER_ADMIN,
 );
 
-export const formatedQuoteDraftListSelector = createSelector(quoteInfoSelector, (quoteInfo) =>
+interface OptionList {
+  optionId: string;
+  optionValue: string;
+}
+
+export const formattedQuoteDraftListSelector = createSelector(quoteInfoSelector, (quoteInfo) =>
   quoteInfo.draftQuoteList.map(
     ({ node: { optionList, calculatedValue, productsSearch, ...restItem } }) => {
-      const parsedOptionList: Record<string, string>[] = JSON.parse(optionList);
+      const parsedOptionList: OptionList[] = JSON.parse(optionList);
+
       const optionSelections = parsedOptionList.map(({ optionId, optionValue }) => {
-        const optionIdFormated = optionId.match(/\d+/);
+        const optionIdFormatted = optionId.match(/\d+/);
         return {
-          optionId: optionIdFormated?.length ? +optionIdFormated[0] : optionId,
+          optionId: optionIdFormatted?.[0] ? +optionIdFormatted[0] : optionId,
           optionValue: +optionValue,
         };
       });

@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { ActiveCurrency, Currencies } from '@/types';
+import { ActiveCurrency, Currencies, Currency } from '@/types';
 
 export interface StoreConfigState {
   currencies: Currencies;
   activeCurrency?: ActiveCurrency;
 }
 
-export const defaultCurrenciesState: Currencies = {
+export const defaultCurrenciesState = {
   currencies: [
     {
       id: '1',
@@ -27,7 +27,7 @@ export const defaultCurrenciesState: Currencies = {
       token_location: 'left',
       thousands_token: ',',
     },
-  ],
+  ] satisfies [Currency],
   channelCurrencies: {
     channel_id: 1,
     enabled_currencies: ['USD'],

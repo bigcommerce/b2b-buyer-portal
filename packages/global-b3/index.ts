@@ -39,9 +39,8 @@ const themeOtherElementConfig = () => {
     FinchUS: '[href^="/account.php"] img',
   }
 
-  const keys: string[] = Object.keys(themeElements)
-  keys.forEach((key: string) => {
-    allOtherElement = allOtherElement.concat(themeElements[key], ',')
+  Object.values(themeElements).forEach((value) => {
+    allOtherElement = allOtherElement.concat(value, ',')
   })
   allOtherElement = allOtherElement.slice(0, -1)
 

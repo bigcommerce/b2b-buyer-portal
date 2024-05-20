@@ -160,9 +160,7 @@ const getFieldOptions = (
     const { checkbox_label: label, checked_by_default: checked } = config || {};
 
     const checkedId: number | string =
-      optionValues.find((values) => values.label === 'Yes')?.id ||
-      (optionValues.length > 0 ? optionValues[0].id : '') ||
-      '';
+      optionValues.find((values) => values.label === 'Yes')?.id || optionValues[0]?.id || '';
 
     return {
       options: [
@@ -292,9 +290,7 @@ export const getProductOptionsFields = (
         const optionValue = (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || '';
 
         const checkedId: number | string =
-          optionValues.find((values) => values.label === 'Yes')?.id ||
-          (optionValues.length > 0 ? optionValues[0].id : '') ||
-          '';
+          optionValues.find((values) => values.label === 'Yes')?.id || optionValues[0]?.id || '';
         value = optionValue === '1' || optionValue.includes(`${checkedId}`) ? [checkedId] : value;
       } else if (fieldType !== 'date') {
         value = (selectOptionsJSON[`attribute[${id}]`] || {})[optionValueKey] || value || '';

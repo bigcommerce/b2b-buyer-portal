@@ -161,13 +161,13 @@ function AddressForm(
             currentCountryName = countryName;
 
             if (states.length > 0) {
-              const state = states.filter(
+              const state = states.find(
                 (item: StateProps) =>
                   item.stateCode === currentStateCode || item.stateName === currentStateCode,
-              )[0];
+              );
 
-              currentStateName = state.stateName || currentStateCode;
-              currentStateCode = state.stateCode || currentStateCode;
+              currentStateName = state?.stateName || currentStateCode;
+              currentStateCode = state?.stateCode || currentStateCode;
             } else {
               currentStateCode = '';
               currentStateName = stateCode;
@@ -241,13 +241,13 @@ function AddressForm(
             currentCountryName = countryName;
 
             if (states.length > 0) {
-              const state = states.filter(
+              const state = states.find(
                 (item: StateProps) =>
                   item.stateCode === currentStateCode || item.stateName === currentStateCode,
-              )[0];
+              );
 
-              currentStateName = state.stateName || currentStateCode;
-              currentStateCode = state.stateCode || currentStateCode;
+              currentStateName = state?.stateName || currentStateCode;
+              currentStateCode = state?.stateCode || currentStateCode;
             } else {
               currentStateCode = '';
               currentStateName = stateCode;
@@ -404,12 +404,13 @@ function AddressForm(
           if (field.custom && extraFields.length > 0) {
             if (isB2BUser) {
               const name = deCodeField(field.name);
-              const currentExtraField = extraFields.filter(
+              const currentExtraField = extraFields.find(
                 (item: CustomFieldItems) => item.fieldName === name,
-              )[0];
-              const originFields = originAddressFields.filter(
+              );
+
+              const originFields = originAddressFields.find(
                 (item: CustomFieldItems) => item.name === name,
-              )[0];
+              );
 
               if (currentExtraField) {
                 setValue(field.name, currentExtraField.fieldValue || '');
@@ -420,10 +421,11 @@ function AddressForm(
                 field.default = originFields.default;
               }
             } else {
-              const currentExtraField = extraFields.filter(
+              const currentExtraField = extraFields.find(
                 (item: CustomFieldItems) =>
                   item.fieldName === field.name || item.fieldName === field.bcLabel,
-              )[0];
+              );
+
               const originFields = originAddressFields.filter(
                 (item: CustomFieldItems) =>
                   item.name === field.name || item.bcLabel === field.bcLabel,
@@ -442,7 +444,7 @@ function AddressForm(
             setValue(field.name, countryCode);
           } else if (field.name === 'state') {
             setValue(field.name, stateCode || state);
-            if (currentCountry.length > 0) {
+            if (currentCountry[0]) {
               const { states } = currentCountry[0];
 
               if (states.length > 0) {

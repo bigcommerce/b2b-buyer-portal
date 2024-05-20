@@ -12,7 +12,13 @@ import { currencyFormat, displayFormat } from '@/utils';
 import OrderStatus from './components/OrderStatus';
 
 interface ListItem {
-  [key: string]: string;
+  orderId: string;
+  firstName: string;
+  lastName: string;
+  poNumber?: string;
+  status: string;
+  totalIncTax: string;
+  createdAt: string;
 }
 
 export interface OrderItemCardProps {

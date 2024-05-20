@@ -64,7 +64,7 @@ const getUserRole = () => {
 };
 
 const getFilterMoreList = (b3Lang: LangFormatFunction) => {
-  const filterMoreList = [
+  return [
     {
       name: 'role',
       label: b3Lang('userManagement.config.userRole'),
@@ -77,15 +77,14 @@ const getFilterMoreList = (b3Lang: LangFormatFunction) => {
       variant: 'filled',
       size: 'small',
     },
-  ];
-
-  return filterMoreList;
+  ] satisfies [unknown];
 };
 
 const getUsersFiles = (type: string, b3Lang: LangFormatFunction, disabledUserRole = false) => {
-  const roleArr = [...getFilterMoreList(b3Lang)];
+  const roleArr = getFilterMoreList(b3Lang);
   roleArr[0].required = true;
   roleArr[0].disabled = disabledUserRole;
+
   const usersFiles = [
     ...roleArr,
     {

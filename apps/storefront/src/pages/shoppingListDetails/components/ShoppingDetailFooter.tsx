@@ -612,7 +612,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                     width: isMobile ? '100%' : 'auto',
                   }}
                 >
-                  {buttonList.length === 1 && (
+                  {buttonList.length === 1 && buttonList[0] && (
                     <CustomButton
                       variant="contained"
                       onClick={buttonList[0].handleClick}

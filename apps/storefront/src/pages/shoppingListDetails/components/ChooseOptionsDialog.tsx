@@ -206,7 +206,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setAdditionalProducts(additionalProductsParams);
 
       setQuantity(product.quantity);
-      if (product.variants?.length === 1) {
+      if (product.variants?.length === 1 && product.variants[0]) {
         setVariantInfo(product.variants[0]);
       }
 
@@ -355,7 +355,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       getProductVariantId(value, name);
     });
 
-    if (formFields.length > 0) {
+    if (formFields[0]) {
       const defaultValues: SimpleObject = formFields.reduce((value: SimpleObject, fields) => {
         const formFieldValue = value;
         formFieldValue[fields.name] = fields.default;
@@ -418,7 +418,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
         },
       ];
 
-      if (chooseOptionsProduct.length) {
+      if (chooseOptionsProduct[0]) {
         let optionChangeFlag = false;
         const { newSelectOptionList } = chooseOptionsProduct[0];
         newSelectOptionList.forEach((option) => {
@@ -462,7 +462,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
           setIsRequestLoading(true);
           const products = await calculateProductListPrice(chooseOptionsProduct);
 
-          if (products.length) {
+          if (products[0]) {
             const { basePrice, taxPrice } = products[0];
             const price = getBCPrice(+basePrice, +taxPrice);
             setNewPrice(price);

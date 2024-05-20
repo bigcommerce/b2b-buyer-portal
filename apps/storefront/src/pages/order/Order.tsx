@@ -32,7 +32,14 @@ import {
 import { OrderItemCard } from './OrderItemCard';
 
 interface ListItem {
-  [key: string]: string;
+  firstName: string;
+  lastName: string;
+  orderId: string;
+  poNumber?: string;
+  money: string;
+  totalIncTax: string;
+  status: string;
+  createdAt: string;
 }
 
 interface ListCompanyItem {

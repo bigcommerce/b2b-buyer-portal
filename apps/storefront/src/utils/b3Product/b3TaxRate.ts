@@ -18,7 +18,7 @@ const getTaxRate = (taxClassId: number) => {
       const currentTaxZoneRate =
         withValueTaxZoneRates.find(
           (taxZoneRate: TaxZoneRatesProps) =>
-            taxZoneRate.rates[0].priority === 0 && taxZoneRate.rates[0].enabled,
+            taxZoneRate.rates[0]?.priority === 0 && taxZoneRate.rates[0].enabled,
         ) || withValueTaxZoneRates[0];
 
       taxRates = currentTaxZoneRate?.rates[0]?.classRates || [];

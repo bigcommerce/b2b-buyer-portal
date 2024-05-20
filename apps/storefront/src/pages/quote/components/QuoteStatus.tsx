@@ -5,6 +5,7 @@ import { B3Tag } from '@/components';
 interface OrderStatusProps {
   code: string;
 }
+
 interface QuoteStatusObj {
   [x: string]: {
     textColor: string;
@@ -35,13 +36,17 @@ const quoteStatus: QuoteStatusObj = {
     color: '#BD3E1E',
   },
 };
-const getOrderStatus = (code: string, b3Lang: LangFormatFunction) => {
-  if (code in quoteStatus) {
-    const { idLang, ...restQuoteStatus } = quoteStatus[code];
 
-    return { ...restQuoteStatus, name: b3Lang(idLang) };
+const getOrderStatus = (code: string, b3Lang: LangFormatFunction) => {
+  const status = quoteStatus[code];
+
+  if (!status) {
+    return undefined;
   }
-  return undefined;
+
+  const { idLang, ...restQuoteStatus } = status;
+
+  return { ...restQuoteStatus, name: b3Lang(idLang) };
 };
 
 export default function QuoteStatus(props: OrderStatusProps) {

@@ -264,8 +264,8 @@ export default function Login(props: RegisteredProps) {
         storeDispatch(setB2BToken(token));
         customerLoginAPI(storefrontLoginToken);
 
-        if (errors?.length || !token) {
-          if (errors?.length) {
+        if (errors?.[0] || !token) {
+          if (errors?.[0]) {
             const { message } = errors[0];
             if (message === 'Operation cannot be performed as the storefront channel is not live') {
               setLoginFlag('5');

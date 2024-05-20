@@ -38,7 +38,9 @@ describe('loadCaptchaScript', () => {
   it('should inject recaptcha script to Document', () => {
     loadCaptchaScript(document);
     const [recaptchaScript] = document.getElementsByTagName('script');
-    expect(recaptchaScript.src).toBe(CAPTCHA_URL);
+    expect(recaptchaScript).toMatchObject({
+      src: CAPTCHA_URL,
+    });
   });
 });
 
@@ -46,12 +48,19 @@ describe('loadCaptchaWidgetHandlers', () => {
   it('should inject script', () => {
     loadCaptchaWidgetHandlers(document, 'testid');
     const [recaptchaHandlersScript] = document.getElementsByTagName('script');
-    expect(recaptchaHandlersScript.innerHTML.length).toBeGreaterThan(0);
+
+    expect(recaptchaHandlersScript).not.toMatchObject({
+      innerHTML: '',
+    });
   });
+
   it('should replace text by id', () => {
     loadCaptchaWidgetHandlers(document, 'testid');
     const [recaptchaHandlersScript] = document.getElementsByTagName('script');
-    expect(recaptchaHandlersScript.innerHTML).toMatch('testid');
+
+    expect(recaptchaHandlersScript).toMatchObject({
+      innerHTML: expect.stringContaining('testid'),
+    });
   });
 });
 

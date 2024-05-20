@@ -46,7 +46,7 @@ declare interface Window {
         addProductsFromCart: () => Promise<void>;
         addProducts: (items: import('@/utils').LineItems[]) => Promise<void>;
         getCurrent: () => {
-          productList: import('@/components').FormatedQuoteItem[];
+          productList: import('@/components').FormattedQuoteItem[];
         };
         getButtonInfo: () => import('@/shared/customStyleButtton/context/config').BtnProperties;
         getButtonInfoAddAllFromCartToQuote: () => import('@/shared/customStyleButtton/context/config').BtnProperties;
