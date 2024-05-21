@@ -20,7 +20,7 @@ import IconButton from '@mui/material/IconButton';
 import TableSortLabel from '@mui/material/TableSortLabel';
 
 import { useMobile } from '@/hooks';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 
 import { b3HexToRgb, getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 

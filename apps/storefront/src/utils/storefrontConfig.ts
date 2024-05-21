@@ -1,6 +1,6 @@
 import isEmpty from 'lodash-es/isEmpty';
 
-import { CustomStyleButtonState } from '@/shared/customStyleButtton/context/config';
+import { CustomStyleButtonState } from '@/shared/customStyleButton/context/config';
 import { DispatchProps } from '@/shared/global/context/config';
 import {
   getB2BRegisterLogo,

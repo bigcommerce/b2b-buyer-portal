@@ -7,7 +7,7 @@ import { Box, Grid, styled, Typography } from '@mui/material';
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 
 import { ShoppingStatus } from '../../shoppingLists/ShoppingStatus';
 

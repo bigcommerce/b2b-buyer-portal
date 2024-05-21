@@ -7,7 +7,7 @@ import { Box, Grid, Stack, Typography } from '@mui/material';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Sping from '@/components/spin/B3Sping';
 import { useMobile } from '@/hooks';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import {
   getB2BAddressConfig,

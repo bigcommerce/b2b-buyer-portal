@@ -5,7 +5,7 @@ import { Alert, Box } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import {
   createB2BCompanyUser,

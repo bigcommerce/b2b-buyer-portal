@@ -13,7 +13,7 @@ import {
   ADD_TO_SHOPPING_LIST_DEFUALT_VALUE,
   TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
 } from '@/constants';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { isB2BUserSelector, setGlabolCommonState, useAppDispatch, useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';

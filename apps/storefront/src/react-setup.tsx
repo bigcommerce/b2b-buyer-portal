@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import { CustomStyleProvider } from '@/shared/customStyleButtton';
+import { CustomStyleProvider } from '@/shared/customStyleButton';
 import { DynamicallyVariableProvider } from '@/shared/dynamicallyVariable';
 import { GlobalProvider } from '@/shared/global';
 

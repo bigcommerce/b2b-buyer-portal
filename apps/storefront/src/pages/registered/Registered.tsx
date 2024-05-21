@@ -6,7 +6,7 @@ import { Box, ImageListItem } from '@mui/material';
 import { B3Card } from '@/components';
 import B3Sping from '@/components/spin/B3Sping';
 import { useMobile, useScrollBar } from '@/hooks';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b';
 import { bcLogin } from '@/shared/service/bc';

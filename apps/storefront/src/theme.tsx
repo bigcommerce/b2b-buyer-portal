@@ -2,7 +2,7 @@ import { ReactNode, useContext } from 'react';
 import * as materialMultiLanguages from '@mui/material/locale';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import { CustomStyleContext } from './shared/customStyleButtton';
+import { CustomStyleContext } from './shared/customStyleButton';
 import { BROWSER_LANG } from './constants';
 
 type LangMapType = {

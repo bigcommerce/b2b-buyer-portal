@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect } from 'react';
 import globalB3 from '@b3/global-b3';
 import { useB3Lang } from '@b3/lang';
 
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';

@@ -6,7 +6,7 @@ import isEmpty from 'lodash-es/isEmpty';
 
 import { B3CustomForm } from '@/components';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { validateBCCompanyExtraFields } from '@/shared/service/b2b';
 
 import RegisteredStepButton from './component/RegisteredStepButton';

@@ -8,7 +8,7 @@ import {
 } from '@/constants';
 import { useGetButtonText } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';
 

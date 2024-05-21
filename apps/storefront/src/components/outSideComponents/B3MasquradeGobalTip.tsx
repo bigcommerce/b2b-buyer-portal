@@ -14,7 +14,7 @@ import {
 import { useGetButtonText } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';

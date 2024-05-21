@@ -48,8 +48,8 @@ declare interface Window {
         getCurrent: () => {
           productList: import('@/components').FormattedQuoteItem[];
         };
-        getButtonInfo: () => import('@/shared/customStyleButtton/context/config').BtnProperties;
-        getButtonInfoAddAllFromCartToQuote: () => import('@/shared/customStyleButtton/context/config').BtnProperties;
+        getButtonInfo: () => import('@/shared/customStyleButton/context/config').BtnProperties;
+        getButtonInfoAddAllFromCartToQuote: () => import('@/shared/customStyleButton/context/config').BtnProperties;
       };
       user: {
         getProfile: () => Record<string, string | number>;
@@ -71,7 +71,7 @@ declare interface Window {
           name: string,
           description: string,
         ) => Promise<{ id: number; name: string; description: string }>;
-        getButtonInfo: () => import('@/shared/customStyleButtton/context/config').BtnProperties;
+        getButtonInfo: () => import('@/shared/customStyleButton/context/config').BtnProperties;
       };
     };
   };

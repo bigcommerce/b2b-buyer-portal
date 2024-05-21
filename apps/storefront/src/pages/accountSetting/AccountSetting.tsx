@@ -11,7 +11,7 @@ import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/uti
 import B3Sping from '@/components/spin/B3Sping';
 import { useMobile } from '@/hooks';
 import useStorageState from '@/hooks/useStorageState';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
   getB2BAccountFormFields,
   getB2BAccountSettings,

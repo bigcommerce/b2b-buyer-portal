@@ -4,7 +4,7 @@ import { Alert, Box } from '@mui/material';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { B3SStorage } from '@/utils';
 
 import RegisteredStepButton from './component/RegisteredStepButton';

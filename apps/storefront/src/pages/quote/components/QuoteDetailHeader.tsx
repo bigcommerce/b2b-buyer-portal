@@ -7,7 +7,7 @@ import { Box, Grid, styled, Typography, useTheme } from '@mui/material';
 import CustomButton from '@/components/button/CustomButton';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { displayFormat } from '@/utils';
 
 import QuoteStatus from './QuoteStatus';

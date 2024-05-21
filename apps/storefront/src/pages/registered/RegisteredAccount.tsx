@@ -5,7 +5,7 @@ import { Alert, Box, FormControl, FormControlLabel, Radio, RadioGroup } from '@m
 
 import { B3CustomForm } from '@/components';
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
   checkUserBCEmail,
   checkUserEmail,

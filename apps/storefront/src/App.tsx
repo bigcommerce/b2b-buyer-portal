@@ -6,7 +6,7 @@ import B3RenderRouter from '@/components/layout/B3RenderRouter';
 import showPageMask from '@/components/loading/B3showPageMask';
 import { useB3AppOpen, useSetOpen } from '@/hooks';
 import useDomHooks from '@/hooks/dom/useDomHooks';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { gotoAllowedAppPage } from '@/shared/routes';
 import { setChannelStoreType } from '@/shared/service/b2b';

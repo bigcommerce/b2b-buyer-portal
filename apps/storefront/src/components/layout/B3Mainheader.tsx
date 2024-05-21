@@ -6,7 +6,7 @@ import { Box, Button, Typography } from '@mui/material';
 
 import { CART_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { useAppSelector } from '@/store';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 

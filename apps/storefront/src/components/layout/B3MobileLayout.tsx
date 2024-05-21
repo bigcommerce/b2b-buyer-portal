@@ -3,7 +3,7 @@ import { Close, Dehaze, ShoppingBagOutlined } from '@mui/icons-material';
 import { Badge, Box } from '@mui/material';
 
 import { CART_URL } from '@/constants';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { useAppSelector } from '@/store';
 
 import CompanyCredit from '../CompanyCredit';

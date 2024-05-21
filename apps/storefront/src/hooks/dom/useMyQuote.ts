@@ -9,7 +9,7 @@ import {
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { ADD_TO_QUOTE_DEFAULT_VALUE, TRANSLATION_ADD_TO_QUOTE_VARIABLE } from '@/constants';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
   resetDraftQuoteInfo,
   resetDraftQuoteList,

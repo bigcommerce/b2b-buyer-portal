@@ -8,7 +8,7 @@ import {
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { CART_URL, CHECKOUT_URL } from '@/constants';
-import { CustomStyleContext } from '@/shared/customStyleButtton';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';
 import { B3SStorage, globalSnackbar } from '@/utils';
