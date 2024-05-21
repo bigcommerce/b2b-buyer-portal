@@ -17,8 +17,13 @@ import {
   updateB2BShoppingList,
   updateBcShoppingList,
 } from '@/shared/service/b2b';
-import { activeCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
-import { channelId, snackbar } from '@/utils';
+import {
+  activeCurrencyInfoSelector,
+  isB2BUserSelector,
+  rolePermissionSelector,
+  useAppSelector,
+} from '@/store';
+import { channelId, getB3PermissionsList, snackbar } from '@/utils';
 import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {
   conversionProductsList,
@@ -64,6 +69,11 @@ interface ShoppingListDetailsContentProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 
+interface PermissionLevelInfoProps {
+  permissionLevel: number | string;
+  permissionType: string;
+}
+
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
 
@@ -77,6 +87,8 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
+  const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
+
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const navigate = useNavigate();
   const [isMobile] = useMobile();
@@ -103,8 +115,16 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const [validateFailureProducts, setValidateFailureProducts] = useState<ProductsProps[]>([]);
 
   const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false);
+  const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
 
-  const isJuniorApprove = shoppingListInfo?.status === 0 && role === 2;
+  const { shoppingListActionsPermission, purchasabilityPermission, submitShoppingListPermission } =
+    useAppSelector(rolePermissionSelector);
+  const b2bAndBcShoppingListActionsPermissions = isB2BUser
+    ? shoppingListActionsPermission && isCanEditShoppingList
+    : true;
+
+  const isJuniorApprove = shoppingListInfo?.status === 0 && submitShoppingListPermission;
+
   const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20;
 
   const goToShoppingLists = () => {
@@ -310,12 +330,30 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       storeConfigSwitchStatus: { isEnabled },
     } = await getB2BJuniorPlaceOrder();
 
-    setAllowJuniorPlaceOrder(isEnabled === '1');
+    setAllowJuniorPlaceOrder(isEnabled === '1' && purchasabilityPermission);
   };
 
   useEffect(() => {
     if (isJuniorApprove) getJuniorPlaceOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isJuniorApprove]);
+
+  useEffect(() => {
+    if (isB2BUser && shoppingListInfo) {
+      const customerInfo = shoppingListInfo?.customerInfo;
+      const param: PermissionLevelInfoProps[] = [];
+      param.push({
+        permissionLevel: customerInfo.email === emailAddress ? 1 : 2,
+        permissionType: 'shoppingListActionsPermission',
+      });
+
+      const { shoppingListActionsPermission } = getB3PermissionsList(param);
+
+      setIsCanEditShoppingList(shoppingListActionsPermission);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shoppingListInfo, isB2BUser]);
 
   return (
     <>
@@ -393,8 +431,8 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
                   setDeleteOpen={setDeleteOpen}
                   setDeleteItemId={setDeleteItemId}
                   isB2BUser={isB2BUser}
-                  role={role}
                   productQuoteEnabled={productQuoteEnabled}
+                  isCanEditShoppingList={isCanEditShoppingList}
                 />
               </Grid>
             </B3Spin>
@@ -412,7 +450,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
                   }
             }
           >
-            {!isReadForApprove && !isJuniorApprove && (
+            {b2bAndBcShoppingListActionsPermissions && !isReadForApprove && !isJuniorApprove && (
               <AddToShoppingList
                 updateList={updateList}
                 type="shoppingList"
@@ -426,7 +464,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
           (allowJuniorPlaceOrder || productQuoteEnabled || !isJuniorApprove) && (
             <ShoppingDetailFooter
               shoppingListInfo={shoppingListInfo}
-              role={role}
               allowJuniorPlaceOrder={allowJuniorPlaceOrder}
               checkedArr={checkedArr}
               selectedSubTotal={selectedSubTotal}
@@ -436,6 +473,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
               setValidateSuccessProducts={setValidateSuccessProducts}
               isB2BUser={isB2BUser}
               customColor={primaryColor}
+              isCanEditShoppingList={isCanEditShoppingList}
             />
           )}
       </Box>

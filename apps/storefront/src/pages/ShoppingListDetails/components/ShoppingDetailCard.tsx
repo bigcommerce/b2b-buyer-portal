@@ -24,6 +24,7 @@ interface ShoppingDetailCardProps {
   setAddNoteOpen: (open: boolean) => void;
   setNotes: (value: string) => void;
   showPrice: (price: string, row: CustomFieldItems) => string | number;
+  b2bAndBcShoppingListActionsPermissions: boolean;
 }
 
 const StyledImage = styled('img')(() => ({
@@ -49,6 +50,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     setAddNoteItemId,
     setNotes,
     showPrice,
+    b2bAndBcShoppingListActionsPermissions,
   } = props;
 
   const {
@@ -79,7 +81,8 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
   const optionList = JSON.parse(shoppingDetail.optionList);
   const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
 
-  const canChangeOption = optionList.length > 0 && !isReadForApprove;
+  const canChangeOption =
+    optionList.length > 0 && !isReadForApprove && b2bAndBcShoppingListActionsPermissions;
 
   return (
     <Box
@@ -180,7 +183,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             type="number"
             variant="filled"
             label={b3Lang('shoppingList.shoppingDetailCard.quantity')}
-            disabled={isReadForApprove}
+            disabled={b2bAndBcShoppingListActionsPermissions ? isReadForApprove : true}
             inputProps={{
               inputMode: 'numeric',
               pattern: '[0-9]*',
@@ -222,21 +225,24 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
             }}
             id="shoppingList-actionList-mobile"
           >
-            <StickyNote2
-              sx={{
-                marginRight: '0.5rem',
-                cursor: 'pointer',
-                color: 'rgba(0, 0, 0, 0.54)',
-              }}
-              onClick={() => {
-                setAddNoteOpen(true);
-                setAddNoteItemId(+itemId);
+            {b2bAndBcShoppingListActionsPermissions && (
+              <StickyNote2
+                sx={{
+                  marginRight: '0.5rem',
+                  cursor: 'pointer',
+                  color: 'rgba(0, 0, 0, 0.54)',
+                }}
+                onClick={() => {
+                  setAddNoteOpen(true);
+                  setAddNoteItemId(+itemId);
 
-                if (productNote) {
-                  setNotes(productNote);
-                }
-              }}
-            />
+                  if (productNote) {
+                    setNotes(productNote);
+                  }
+                }}
+              />
+            )}
+
             {canChangeOption && (
               <Edit
                 sx={{
@@ -250,7 +256,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                 }}
               />
             )}
-            {!isReadForApprove && (
+            {b2bAndBcShoppingListActionsPermissions && !isReadForApprove && (
               <Delete
                 sx={{
                   marginLeft: '0.3rem',

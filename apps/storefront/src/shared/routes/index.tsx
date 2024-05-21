@@ -218,7 +218,13 @@ const routes: RouteItem[] = [
     component: QuoteDraft,
     configKey: 'quoteDraft',
     permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes: ['create_quote', 'update_quote_message'],
+    permissionCodes: [
+      'get_quotes',
+      'get_quote_detail',
+      'get_quote_pdf',
+      'create_quote',
+      'update_quote_message',
+    ],
     isTokenLogin: false,
     idLang: 'global.navMenu.quoteDraft',
   },
@@ -320,7 +326,7 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
   }
 
   return routes.filter((item: RouteItem) => {
-    const { permissions = [], permissionCodes } = item;
+    const { permissions = [], permissionCodes, path } = item;
 
     if (role === CustomerRole.SUPER_ADMIN && !isAgenting) {
       return permissions.includes(4);
@@ -362,10 +368,24 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
 
     // b2b user
     if (isB2BUser && permissionCodes && permissionCodes.length > 0) {
-      const permissionsInfo = {
+      const permissionsInfo: {
+        code: string;
+        permissionLevel?: number | string;
+      } = {
         code: permissionCodes.join(','),
       };
       const isHasPermission = checkEveryPermissionsCode(permissionsInfo);
+
+      if (path === '/company-orders' && isHasPermission) {
+        let companyOrdersPermissions: boolean = isHasPermission;
+
+        const myOrdersLevel = 1;
+        permissionsInfo.permissionLevel = myOrdersLevel;
+
+        companyOrdersPermissions = !checkEveryPermissionsCode(permissionsInfo);
+
+        return companyOrdersPermissions;
+      }
 
       return isHasPermission;
     }

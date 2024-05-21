@@ -10,12 +10,13 @@ interface B3PermissionContainerProps {
   type: string;
   no?: null | React.ReactNode;
   children: React.ReactNode;
+  permissionsList: PermissionCodesProps[];
 }
 
 const B3PermissionContainer = (props: B3PermissionContainerProps) => {
-  const { permissions, children, no = null, type } = props;
+  const { permissions, children, no = null, type, permissionsList } = props;
 
-  const isAllowed = checkPermissionCode(permissions, type);
+  const isAllowed = checkPermissionCode(permissions, type, permissionsList);
 
   return isAllowed ? children : no;
 };

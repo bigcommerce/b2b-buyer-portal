@@ -48,7 +48,6 @@ function CreateShoppingList({ open, onChange, onClose }: CreateShoppingListProps
   const [loading, setLoading] = useState<boolean>(false);
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
-  const role = useAppSelector(({ company }) => company.customer.role);
 
   const {
     control,
@@ -72,7 +71,6 @@ function CreateShoppingList({ open, onChange, onClose }: CreateShoppingListProps
       await createShoppingList({
         data: { name, description },
         isB2BUser,
-        role: +role,
       });
       setLoading(false);
       onChange();

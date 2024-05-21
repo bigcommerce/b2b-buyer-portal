@@ -8,9 +8,9 @@ import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
 import { deleteUsers, getUsers } from '@/shared/service/b2b';
-import { useAppSelector } from '@/store';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
-import { checkEveryPermissionsCode, snackbar } from '@/utils';
+import { snackbar } from '@/utils';
 
 import B3AddEditUser from './AddEditUser';
 import { FilterProps, getFilterMoreList, UsersList } from './config';
@@ -53,10 +53,10 @@ function Usermanagement() {
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
 
   const companyId = +role === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id;
-  const isEnableBtnPermissions =
-    role === 0 ||
-    role === 3 ||
-    checkEveryPermissionsCode({ code: 'create_user, update_user, delete_user' });
+
+  const b3Permissions = useAppSelector(rolePermissionSelector);
+
+  const isEnableBtnPermissions = b3Permissions.userActionsPermission;
 
   const addEditUserRef = useRef<RefCurrntProps | null>(null);
   const [paginationTableRef] = useTableRef();

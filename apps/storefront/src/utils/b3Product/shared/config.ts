@@ -22,6 +22,7 @@ export interface ShoppingListInfoProps {
   products: {
     totalCount: number | string;
   };
+  customerInfo: CustomerInfoProps;
 }
 
 export interface CustomerInfoProps {

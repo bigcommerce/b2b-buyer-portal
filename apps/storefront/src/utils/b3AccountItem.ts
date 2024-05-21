@@ -1,8 +1,12 @@
+import { CustomerRole } from '@/types';
+
 interface OpenPageByClickProps {
   href: string;
   role: number | string;
   isRegisterAndLogin: boolean;
   isAgenting: boolean;
+  IsRealJuniorBuyer: boolean;
+  authorizedPages: string;
 }
 
 const hideAccountItems = [
@@ -38,16 +42,21 @@ const removeBCMenus = () => {
   });
 };
 
-const redirectBcMenus = (key: string, role: number, isAgenting: boolean): string => {
+const redirectBcMenus = (
+  key: string,
+  role: number,
+  isAgenting: boolean,
+  authorizedPages: string,
+): string => {
   // Supermarket theme
   if (key.includes('/account.php') && !key.includes('?')) {
     switch (role) {
-      case 2:
-        return '/shoppingLists';
-      case 3:
+      case CustomerRole.JUNIOR_BUYER:
+        return authorizedPages;
+      case CustomerRole.SUPER_ADMIN:
         return '/dashboard';
       default:
-        return '/orders';
+        return authorizedPages;
     }
   }
 
@@ -58,21 +67,21 @@ const redirectBcMenus = (key: string, role: number, isAgenting: boolean): string
     accountTarget.find((item) => key?.includes(item.originUrl)) || {};
 
   // super admin
-  if (currentItem?.newTargetUrl && +role === 3) {
+  if (currentItem?.newTargetUrl && +role === CustomerRole.SUPER_ADMIN) {
     return superAdminExistUrl.includes(currentItem.newTargetUrl) || isAgenting
       ? currentItem.newTargetUrl
       : '/dashboard';
   }
 
-  if (+role === 2 && currentItem?.newTargetUrl?.includes('order_status')) {
-    return '/shoppingLists';
+  if (+role === CustomerRole.JUNIOR_BUYER && currentItem?.newTargetUrl?.includes('order_status')) {
+    return authorizedPages;
   }
 
   if (currentItem?.newTargetUrl) {
     return currentItem.newTargetUrl;
   }
 
-  return +role === 2 ? '/shoppingLists' : '/orders';
+  return authorizedPages;
 };
 
 const getCurrentLoginUrl = (href: string): string => {
@@ -88,31 +97,40 @@ const getCurrentLoginUrl = (href: string): string => {
   return '/login';
 };
 
-const openPageByClick = ({ href, role, isRegisterAndLogin, isAgenting }: OpenPageByClickProps) => {
+const openPageByClick = ({
+  href,
+  role,
+  isRegisterAndLogin,
+  isAgenting,
+  IsRealJuniorBuyer,
+  authorizedPages,
+}: OpenPageByClickProps) => {
+  const currentRole = !IsRealJuniorBuyer && +role === CustomerRole.JUNIOR_BUYER ? 1 : role;
+
   if (href?.includes('register')) {
     return '/register';
   }
   if (href?.includes('/orders')) {
-    return role !== 100 ? '/orders' : '/login';
+    return currentRole !== CustomerRole.GUEST ? authorizedPages : '/login';
   }
 
   if (
-    +role === 2 &&
+    +currentRole === CustomerRole.JUNIOR_BUYER &&
     (href?.includes('/orders') ||
       href?.includes('/shoppingLists') ||
       href?.includes('/login') ||
       href?.includes('/account')) &&
     !href?.includes('logout')
   ) {
-    return '/shoppingLists';
+    return authorizedPages;
   }
   // register and login click
-  if (href?.includes('/login') || isRegisterAndLogin || role === 100) {
+  if (href?.includes('/login') || isRegisterAndLogin || currentRole === CustomerRole.GUEST) {
     return getCurrentLoginUrl(href);
   }
 
   // other click
-  return redirectBcMenus(href, +role, isAgenting);
+  return redirectBcMenus(href, +currentRole, isAgenting, authorizedPages);
 };
 
 export { getCurrentLoginUrl, openPageByClick, redirectBcMenus, removeBCMenus };

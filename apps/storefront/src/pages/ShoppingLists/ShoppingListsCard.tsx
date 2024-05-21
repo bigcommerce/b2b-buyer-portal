@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
@@ -11,7 +12,8 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import CustomButton from '@/components/button/CustomButton';
-import { displayFormat } from '@/utils';
+import { rolePermissionSelector, useAppSelector } from '@/store';
+import { displayFormat, getB3PermissionsList } from '@/utils';
 
 import { ShoppingListsItemsProps } from './config';
 import { ShoppingStatus } from './ShoppingStatus';
@@ -22,8 +24,12 @@ export interface OrderItemCardProps {
   onDelete: (data: ShoppingListsItemsProps) => void;
   onCopy: (data: ShoppingListsItemsProps) => void;
   isPermissions: boolean;
-  role: number | string;
   isB2BUser: boolean;
+}
+
+interface PermissionLevelInfoProps {
+  permissionLevel: number | string;
+  permissionType: string;
 }
 
 const Flex = styled('div')(() => ({
@@ -44,13 +50,17 @@ const FlexItem = styled(Box)(() => ({
 }));
 
 function ShoppingListsCard(props: OrderItemCardProps) {
-  const { item: shoppingList, onEdit, onDelete, onCopy, isPermissions, role, isB2BUser } = props;
+  const { item: shoppingList, onEdit, onDelete, onCopy, isPermissions, isB2BUser } = props;
   const b3Lang = useB3Lang();
+  const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
 
-  const currentSLCreateRole = shoppingList?.customerInfo?.role;
+  const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
+
+  const { submitShoppingListPermission, approveShoppingListPermission } =
+    useAppSelector(rolePermissionSelector);
 
   const getEditPermissions = (status: number) => {
-    if (+role === 2) {
+    if (submitShoppingListPermission) {
       if (status === 30 || status === 0) return false;
       return true;
     }
@@ -61,7 +71,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
   };
 
   const getDeletePermissions = (status: number) => {
-    if (+role === 2) {
+    if (submitShoppingListPermission) {
       if (status === 20 || status === 30) return false;
       return true;
     }
@@ -77,6 +87,23 @@ function ShoppingListsCard(props: OrderItemCardProps) {
         from: 'shoppingList',
       },
     });
+
+  useEffect(() => {
+    if (isB2BUser) {
+      const { customerInfo } = shoppingList;
+      const param: PermissionLevelInfoProps[] = [];
+      param.push({
+        permissionLevel: customerInfo.email === emailAddress ? 1 : 2,
+        permissionType: 'shoppingListActionsPermission',
+      });
+
+      const { shoppingListActionsPermission } = getB3PermissionsList(param);
+
+      setIsCanEditShoppingList(shoppingListActionsPermission);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shoppingList, isB2BUser]);
 
   return (
     <Card
@@ -109,15 +136,17 @@ function ShoppingListsCard(props: OrderItemCardProps) {
             pb: '20px',
           }}
         >
-          {isB2BUser && +currentSLCreateRole === 2 && (
-            <Box
-              sx={{
-                pb: '25px',
-              }}
-            >
-              <ShoppingStatus status={shoppingList.status} />
-            </Box>
-          )}
+          {isB2BUser &&
+            (submitShoppingListPermission ||
+              (approveShoppingListPermission && shoppingList.approvedFlag)) && (
+              <Box
+                sx={{
+                  pb: '25px',
+                }}
+              >
+                <ShoppingStatus status={shoppingList.status} />
+              </Box>
+            )}
           <Box
             sx={{
               width: '100%',
@@ -158,7 +187,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
               display: `${isPermissions ? 'block' : 'none'}`,
             }}
           >
-            {!getEditPermissions(shoppingList.status) && (
+            {!getEditPermissions(shoppingList.status) && isCanEditShoppingList && (
               <IconButton
                 aria-label="edit"
                 size="medium"
@@ -185,7 +214,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
             >
               <ContentCopyIcon fontSize="inherit" />
             </IconButton>
-            {!getDeletePermissions(shoppingList.status) && (
+            {!getDeletePermissions(shoppingList.status) && isCanEditShoppingList && (
               <IconButton
                 aria-label="delete"
                 size="medium"

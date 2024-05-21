@@ -19,6 +19,7 @@ import {
 import {
   activeCurrencyInfoSelector,
   isB2BUserSelector,
+  rolePermissionSelector,
   TaxZoneRates,
   useAppSelector,
 } from '@/store';
@@ -55,6 +56,16 @@ function QuoteDetail() {
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const [isMobile] = useMobile();
+
+  const {
+    quoteConvertToOrderPermission: quoteConvertToOrderPermissionRename,
+    purchasabilityPermission,
+  } = useAppSelector(rolePermissionSelector);
+
+  const quoteConvertToOrderPermission = isB2BUser
+    ? quoteConvertToOrderPermissionRename
+    : +role !== 2;
+  const quotePurchasabilityPermission = isB2BUser ? purchasabilityPermission : +role !== 2;
 
   const b3Lang = useB3Lang();
 
@@ -653,7 +664,8 @@ function QuoteDetail() {
           </Grid>
         </Grid>
 
-        {+role !== 2 &&
+        {quoteConvertToOrderPermission &&
+          quotePurchasabilityPermission &&
           +quoteDetail.status !== 4 &&
           isShowFooter &&
           quoteDetail?.allowCheckout &&

@@ -1,4 +1,4 @@
-import { SyntheticEvent, useCallback, useEffect, useState } from 'react';
+import { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
@@ -26,14 +26,11 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     validate,
     muiSelectProps,
     setValue,
-    getValues,
     setValueName,
     size = 'small',
     disabled = false,
     extraPadding,
   } = rest;
-
-  const values = getValues();
 
   const b3Lang = useB3Lang();
 
@@ -43,10 +40,15 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
 
   const [inputValue, setInputValue] = useState<string>('');
 
-  const [selectValue, setSelectValue] = useState<string>('');
-
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [isSearchKeyEmpty, setIsSearchKeyEmpty] = useState<boolean>(true);
+
+  const cache = useRef({
+    selectValue: '',
+    inputValue: '',
+    preSelectValue: '',
+  });
 
   const muiAttributeProps = muiSelectProps || {};
 
@@ -103,20 +105,21 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
   useEffect(() => {
     if (!!defaultValue && !!defaultName) {
       setInputValue(defaultName || '');
-      setSelectValue(defaultValue);
-      fetchData({
-        value: defaultName,
-      });
-    } else {
-      fetchData({});
+      cache.current.selectValue = defaultValue;
+      cache.current.preSelectValue = defaultValue;
+      cache.current.inputValue = defaultName;
     }
     // disabling because we don't want to run this effect on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultName]);
 
   const handleSelectChange = (event: SyntheticEvent, value: Option) => {
-    setSelectValue(value.id);
     setInputValue(value.name);
+
+    cache.current.selectValue = value.id;
+
+    cache.current.inputValue = value.name;
+
     setValue(name, value.id);
 
     if (setValueName) {
@@ -140,31 +143,39 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
       if (reason === 'input') {
         const val = value === 'undefined' ? '' : value;
         setInputValue(val);
+        setIsSearchKeyEmpty(false);
         handleFilterRoleChange(val);
       }
     },
     [handleFilterRoleChange],
   );
 
+  const handleOpenSelect = () => {
+    fetchData({});
+  };
+
   const handleScroll = (event: SyntheticEvent) => {
     const listboxNode = event.currentTarget;
     const { scrollTop, clientHeight, scrollHeight } = listboxNode;
-    if (scrollTop + clientHeight >= scrollHeight) {
+    if (scrollTop + clientHeight + 1 >= scrollHeight) {
       fetchData({
         type: 'scroll',
-        value: inputValue,
+        value: isSearchKeyEmpty ? '' : inputValue,
       });
     }
   };
 
-  useEffect(() => {
-    if (!values[name]) {
-      setInputValue('');
-      setSelectValue('');
+  const handleClose = () => {
+    setPage(1);
+    setOptions([]);
+    setIsSearchKeyEmpty(true);
+    const { preSelectValue, selectValue, inputValue } = cache.current;
+    if (preSelectValue === selectValue) {
+      setInputValue(inputValue || '');
+    } else {
+      cache.current.preSelectValue = cache.current.selectValue;
     }
-    // disabling because we don't want to run this effect on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values]);
+  };
 
   return (
     <FormControl
@@ -182,19 +193,17 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
             {...field}
             {...muiAttributeProps}
             loading={loading}
-            autoSelect
             disableClearable
             options={options || []}
-            isOptionEqualToValue={(option: Option, selectedValue: string) =>
-              option.id === selectedValue
-            }
             inputValue={inputValue}
-            value={selectValue || ''}
+            value={inputValue || ''}
             loadingText="Loading..."
             getOptionLabel={(option: Option) => option.name ?? option}
             openOnFocus
             onChange={handleSelectChange}
             onInputChange={handleInputChange}
+            onOpen={handleOpenSelect}
+            onClose={handleClose}
             size={size}
             sx={{
               ...extraPadding,

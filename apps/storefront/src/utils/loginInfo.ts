@@ -10,7 +10,6 @@ import {
   clearMasqueradeCompany,
   MasqueradeCompany,
   setMasqueradeCompany,
-  setPermissionModules,
   setQuoteUserId,
   store,
 } from '@/store';
@@ -23,6 +22,7 @@ import {
   setCurrentCustomerJWT,
   setCustomerInfo,
   setLoginType,
+  setPermissionModules,
 } from '@/store/slices/company';
 import { resetDraftQuoteInfo, resetDraftQuoteList } from '@/store/slices/quoteInfo';
 import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
@@ -217,7 +217,7 @@ export const getCompanyUserInfo = async (emailAddress: string, customerId: strin
     const {
       companyUserInfo: {
         userType,
-        userInfo: { role = '', id },
+        userInfo: { role = '', id, companyRoleName = '' },
       },
     } = await getB2BCompanyUserInfo(emailAddress, customerId);
 
@@ -225,6 +225,7 @@ export const getCompanyUserInfo = async (emailAddress: string, customerId: strin
       userType,
       role,
       id,
+      companyRoleName,
     };
   } catch (error) {
     b2bLogger.error(error);
@@ -263,6 +264,7 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
   | {
       role: any;
       userType: any;
+      companyRoleName: string | any;
     }
   | undefined
 > = async (b2bToken?: string) => {
@@ -292,7 +294,7 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
     const companyUserInfo = await getCompanyUserInfo(emailAddress, customerId);
 
     if (companyUserInfo && customerId) {
-      const { userType, role, id } = companyUserInfo;
+      const { userType, role, id, companyRoleName } = companyUserInfo;
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(role, id, userType),
@@ -315,6 +317,7 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
         role: isB2BUser ? role : CustomerRole.B2C,
         b2bId: id,
         loginType,
+        companyRoleName,
       };
       const quoteUserId = id || customerId || 0;
       const companyPayload = {
@@ -335,6 +338,7 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
       return {
         role,
         userType,
+        companyRoleName,
       };
     }
   } catch (error) {
