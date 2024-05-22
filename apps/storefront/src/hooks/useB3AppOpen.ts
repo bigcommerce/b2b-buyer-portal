@@ -70,12 +70,15 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
 
     if (registerArr.length || allOtherArr.length) {
       const handleTriggerClick = (e: MouseEvent) => {
-        if (registerArr.includes(e.target) || allOtherArr.includes(e.target)) {
+        if (
+          registerArr.includes(e.target as Element) ||
+          allOtherArr.includes(e.target as Element)
+        ) {
           const isSearchNode = handleJudgeSearchNode(e);
           if (isSearchNode) return false;
           e.preventDefault();
           e.stopPropagation();
-          const isRegisterArrInclude = registerArr.includes(e.target);
+          const isRegisterArrInclude = registerArr.includes(e.target as Element);
           const tagHref = (e.target as HTMLAnchorElement)?.href;
           let href = tagHref || authorizedPages;
           if (!tagHref) {

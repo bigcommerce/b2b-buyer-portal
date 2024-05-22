@@ -113,7 +113,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultName]);
 
-  const handleSelectChange = (event: SyntheticEvent, value: Option) => {
+  const handleSelectChange = (_: SyntheticEvent, value: Option) => {
     setInputValue(value.name);
 
     cache.current.selectValue = value.id;
@@ -139,7 +139,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
   );
 
   const handleInputChange = useCallback(
-    (event: SyntheticEvent, value: string, reason: string) => {
+    (_: SyntheticEvent, value: string, reason: string) => {
       if (reason === 'input') {
         const val = value === 'undefined' ? '' : value;
         setInputValue(val);
