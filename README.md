@@ -91,7 +91,7 @@ Environment variables have been updated so you can run your UI directly into pro
 2. Configure header and footer scripts:
 
 - Navigate to Channels Manager -> Scripts.
-- Add two scripts (e.g., B2BEdition-header, B2BEdition-footer). Ensure you set the correct port for your localhost in the script URLs.
+- Add two scripts (e.g., B2BEdition-header, B2BEdition-footer). Ensure you set the correct port for your localhost in the script URLs. In the "Location" section make sure you check on "All pages".
 - Edit the header script:
 
 ```html
@@ -130,13 +130,13 @@ Environment variables have been updated so you can run your UI directly into pro
 </script>
 ```
 
-3. Verify correct values in the .env file, especially the client_id for the draft app.
+1. Verify correct values in the .env file, for internal devs, specially the value `VITE_B2B_CLIENT_ID` for the draft application you created for the BC App Marketplace.
 
-4. For local debugging, set VITE_LOCAL_DEBUG to false in .env.
+2. For local debugging, set VITE_LOCAL_DEBUG to false in .env.
 
-5. Visit the storefront and attempt to sign in.
+3. Visit the storefront and attempt to sign in.
 
-6. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
+4. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
 
 Note: If linters aren't functional, run `yarn prepare` first.
 
