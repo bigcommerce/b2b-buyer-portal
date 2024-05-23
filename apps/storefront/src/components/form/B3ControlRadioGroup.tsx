@@ -19,7 +19,6 @@ export default function B3ControlRadioGroup({ control, errors, ...rest }: Form.B
   const fieldsProps = {
     type: fieldType,
     name,
-    key: name,
     defaultValue,
     rules: {
       required:
@@ -40,6 +39,7 @@ export default function B3ControlRadioGroup({ control, errors, ...rest }: Form.B
         </FormLabel>
       )}
       <Controller
+        key={fieldsProps.name}
         {...fieldsProps}
         render={({ field }) => (
           <RadioGroup {...field}>

@@ -30,7 +30,6 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
   const fieldsProps = {
     type: fieldType,
     name,
-    key: name,
     defaultValue,
     rules: {
       required:
@@ -75,6 +74,7 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
         </InputLabel>
       )}
       <Controller
+        key={fieldsProps.name}
         {...fieldsProps}
         render={({ field }) => (
           <Select

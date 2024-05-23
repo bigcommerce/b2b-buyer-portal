@@ -40,7 +40,6 @@ export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIP
   const fieldsProps = {
     type: fieldType,
     name,
-    key: name,
     defaultValue,
     rules: {
       required:
@@ -67,6 +66,7 @@ export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIP
     <PickerFormControl>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={activeLang}>
         <Controller
+          key={fieldsProps.name}
           {...fieldsProps}
           render={({ field: { ref, ...rest } }) => (
             <DatePicker

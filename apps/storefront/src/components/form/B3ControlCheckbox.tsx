@@ -18,7 +18,6 @@ export default function B3ControlCheckbox({ control, errors, getValues, ...rest 
   const fieldsProps = {
     type: fieldType,
     name,
-    key: name,
     defaultValue,
     rules: {
       required:
@@ -50,6 +49,7 @@ export default function B3ControlCheckbox({ control, errors, getValues, ...rest 
         </FormLabel>
       )}
       <Controller
+        key={fieldsProps.name}
         {...fieldsProps}
         render={({ field: { onChange, value } }) =>
           options?.map((list: CheckboxListProps) => (

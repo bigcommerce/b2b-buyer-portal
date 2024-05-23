@@ -52,7 +52,6 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
   const fieldsProps = {
     type: fieldType,
     name,
-    key: name,
     defaultValue,
     rules: {
       required: required && requiredText,
@@ -65,7 +64,6 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
     type: fieldType,
     name,
     label,
-    key: name,
     rows,
     disabled,
     multiline: fieldType === 'multiline',
@@ -133,10 +131,12 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
         </Box>
       )}
       <Controller
+        key={fieldsProps.name}
         {...fieldsProps}
         render={({ field: { ...rest } }) =>
           fieldType === 'number' ? (
             <StyleNumberTextField
+              key={textField.name}
               {...textField}
               {...rest}
               sx={{
@@ -154,6 +154,7 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
             />
           ) : (
             <TextField
+              key={textField.name}
               {...textField}
               {...rest}
               sx={{

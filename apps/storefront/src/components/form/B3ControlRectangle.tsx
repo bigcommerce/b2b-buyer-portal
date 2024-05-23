@@ -25,7 +25,6 @@ export default function B3ControlRectangle({ control, errors, ...rest }: Form.B3
   const fieldsProps = {
     type: fieldType,
     name,
-    key: name,
     defaultValue,
     rules: {
       required:
@@ -46,6 +45,7 @@ export default function B3ControlRectangle({ control, errors, ...rest }: Form.B3
         </FormLabel>
       )}
       <Controller
+        key={fieldsProps.name}
         {...fieldsProps}
         render={({ field }) => (
           <RadioGroup
