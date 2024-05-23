@@ -1,7 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 
-import useMobile from '@/hooks/useMobile';
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
 import { MsgsProps } from '@/shared/dynamicallyVariable/context/config';
 
@@ -12,8 +11,6 @@ function B3LayoutTip() {
     state: { tipMessage },
     dispatch,
   } = useContext(DynamicallyVariableedContext);
-
-  const [isMobile] = useMobile();
 
   useEffect(() => {
     window.tipDispatch = dispatch;
@@ -33,12 +30,7 @@ function B3LayoutTip() {
     });
   };
 
-  const {
-    msgs = [],
-    autoHideDuration = 5000,
-    vertical = `${isMobile ? 'top' : 'top'}`,
-    horizontal = 'right',
-  } = tipMessage;
+  const { msgs = [], autoHideDuration = 5000, vertical = 'top', horizontal = 'right' } = tipMessage;
 
   const handleClose = (id: number | string) => {
     const newMsgs = msgs.filter((msg) => msg.id !== id);

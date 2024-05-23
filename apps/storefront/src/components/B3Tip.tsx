@@ -8,6 +8,40 @@ interface B3TipProps extends TipMessagesProps {
   handleAllClose: (id: string | number, reason: string) => void;
 }
 
+function MessageAlert({
+  msg,
+  onClose,
+}: {
+  msg: MsgsProps;
+  onClose: (id: string | number) => void;
+}) {
+  const Body = msg.jsx ? msg.jsx : () => <span>{msg.msg}</span>;
+
+  return (
+    <Alert
+      sx={{
+        width: '320px',
+        alignItems: 'center',
+        '& button[title="Close"]': {
+          display: `${msg.isClose ? 'block' : 'none'}`,
+        },
+        mb: '5px',
+
+        '& .MuiAlert-message': {
+          overflow: 'unset',
+        },
+      }}
+      variant="filled"
+      key={msg.id}
+      severity={msg.type}
+      onClose={() => msg.isClose && onClose(msg.id)}
+    >
+      {msg.title && <AlertTitle>{msg.title}</AlertTitle>}
+      <Body />
+    </Alert>
+  );
+}
+
 export default function B3Tip({
   handleItemClose,
   vertical = 'bottom',
@@ -42,27 +76,7 @@ export default function B3Tip({
                   display: 'flex',
                 }}
               >
-                <Alert
-                  sx={{
-                    width: '320px',
-                    alignItems: 'center',
-                    '& button[title="Close"]': {
-                      display: `${msg.isClose ? 'block' : 'none'}`,
-                    },
-                    mb: '5px',
-
-                    '& .MuiAlert-message': {
-                      overflow: 'unset',
-                    },
-                  }}
-                  variant="filled"
-                  key={msg.id}
-                  severity={msg.type}
-                  onClose={() => msg.isClose && handleItemClose(msg.id)}
-                >
-                  {msg?.title && <AlertTitle>{msg.title}</AlertTitle>}
-                  {msg.jsx ? msg.jsx() : msg.msg}
-                </Alert>
+                <MessageAlert msg={msg} onClose={handleItemClose} />
               </Box>
             </Snackbar>
           ))
