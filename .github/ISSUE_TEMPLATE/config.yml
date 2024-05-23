@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Have questions?
+    url: https://bundleb2b.stoplight.io/docs/openapi/quick-start
+    about: Explore the B2B Buyer Portal API Reference.
+  - name: Need help with B2B Buyer Portal?
+    url: https://github.com/bigcommerce/b2b-buyer-portal/discussions 
+    about: If you can't get something to work the way you expect, join us in Discussions to browse existing topics or to share a new post.
+  - name: Feature Request
+    url: https://github.com/bigcommerce/b2b-buyer-portal/discussions/categories/feature-requests 
+    about: Join us in Discussions to share your idea on improving Catalyst. Thanks for your contribution!
+  - name: Official BigCommerce Support
+    url: https://support.bigcommerce.com/contact
+    about: To report a platform bug, outage or greater platform issue, contact our Technical Support team. If you're a partner, please do so via your Partner Portal.
+  - name: 💙 Join the BigCommerceDevs Community
+    url: https://developer.bigcommerce.com/community
+    about: Connect with other devs building on BigCommerce!
