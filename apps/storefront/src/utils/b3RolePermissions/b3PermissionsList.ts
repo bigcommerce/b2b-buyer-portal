@@ -3,8 +3,8 @@ import { checkEveryPermissionsCode } from '../b3CheckPermissions';
 import { b3PermissionsList, B3Permissionsparms } from './config';
 
 interface PermissionLevelInfoProps {
-  permissionLevel: number | string;
   permissionType: string;
+  permissionLevel?: number | string;
 }
 
 const getB3PermissionsList = (

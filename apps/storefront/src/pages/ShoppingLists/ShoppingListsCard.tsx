@@ -28,8 +28,8 @@ export interface OrderItemCardProps {
 }
 
 interface PermissionLevelInfoProps {
-  permissionLevel: number | string;
   permissionType: string;
+  permissionLevel?: number | string;
 }
 
 const Flex = styled('div')(() => ({
@@ -52,7 +52,6 @@ const FlexItem = styled(Box)(() => ({
 function ShoppingListsCard(props: OrderItemCardProps) {
   const { item: shoppingList, onEdit, onDelete, onCopy, isPermissions, isB2BUser } = props;
   const b3Lang = useB3Lang();
-  const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
 
   const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
 
@@ -90,10 +89,8 @@ function ShoppingListsCard(props: OrderItemCardProps) {
 
   useEffect(() => {
     if (isB2BUser) {
-      const { customerInfo } = shoppingList;
       const param: PermissionLevelInfoProps[] = [];
       param.push({
-        permissionLevel: customerInfo.email === emailAddress ? 1 : 2,
         permissionType: 'shoppingListActionsPermission',
       });
 

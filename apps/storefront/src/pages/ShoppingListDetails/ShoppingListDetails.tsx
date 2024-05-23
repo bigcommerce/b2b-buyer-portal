@@ -70,8 +70,8 @@ interface ShoppingListDetailsContentProps {
 }
 
 interface PermissionLevelInfoProps {
-  permissionLevel: number | string;
   permissionType: string;
+  permissionLevel?: number | string;
 }
 
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
@@ -87,7 +87,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
-  const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const navigate = useNavigate();
@@ -340,10 +339,8 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
 
   useEffect(() => {
     if (isB2BUser && shoppingListInfo) {
-      const customerInfo = shoppingListInfo?.customerInfo;
       const param: PermissionLevelInfoProps[] = [];
       param.push({
-        permissionLevel: customerInfo.email === emailAddress ? 1 : 2,
         permissionType: 'shoppingListActionsPermission',
       });
 
