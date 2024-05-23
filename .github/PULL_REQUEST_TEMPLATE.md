@@ -19,4 +19,4 @@ payloads or other output to show the expected behaviour. For more details refer 
 
 Provide experiments, feature flags or other mechanisms which used to reduce the risk of changes introduced in this PR. For more details refer to [contributing guideline](https://github.com/bigcommerce/bigcommerce/blob/master/CONTRIBUTING.md#how-can-this-change-be-undone-in-case-of-failure)
 
-ping {suggested reviewers}
+@bigcommerce/b2b-buyer-portal
