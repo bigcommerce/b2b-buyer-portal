@@ -595,30 +595,28 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
             >
               {canShoppingListActions && (
                 <>
-                  {canShoppingListActions && (
-                    <Grid
-                      item
+                  <Grid
+                    item
+                    sx={{
+                      marginRight: '0.5rem',
+                      minWidth: '32px',
+                    }}
+                  >
+                    <StickyNote2
                       sx={{
-                        marginRight: '0.5rem',
-                        minWidth: '32px',
+                        cursor: 'pointer',
+                        color: 'rgba(0, 0, 0, 0.54)',
                       }}
-                    >
-                      <StickyNote2
-                        sx={{
-                          cursor: 'pointer',
-                          color: 'rgba(0, 0, 0, 0.54)',
-                        }}
-                        onClick={() => {
-                          setAddNoteOpen(true);
-                          setAddNoteItemId(+itemId);
+                      onClick={() => {
+                        setAddNoteOpen(true);
+                        setAddNoteItemId(+itemId);
 
-                          if (row.productNote) {
-                            setNotes(row.productNote);
-                          }
-                        }}
-                      />
-                    </Grid>
-                  )}
+                        if (row.productNote) {
+                          setNotes(row.productNote);
+                        }
+                      }}
+                    />
+                  </Grid>
 
                   <Grid
                     item
