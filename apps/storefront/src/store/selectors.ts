@@ -2,8 +2,8 @@ import { createSelector } from '@reduxjs/toolkit';
 
 import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
 
-import { defaultCurrenciesState } from './slices/storeConfigs';
 import { RootState } from './reducer';
+import { defaultCurrenciesState } from './slices/storeConfigs';
 
 const themeSelector = (state: RootState) => state.theme;
 const storeConfigSelector = (state: RootState) => state.storeConfigs;
@@ -62,11 +62,13 @@ export const formattedQuoteDraftListSelector = createSelector(quoteInfoSelector,
 
       const optionSelections = parsedOptionList.map(({ optionId, optionValue }) => {
         const optionIdFormatted = optionId.match(/\d+/);
+
         return {
           optionId: optionIdFormatted?.[0] ? +optionIdFormatted[0] : optionId,
           optionValue: +optionValue,
         };
       });
+
       return {
         ...restItem,
         optionSelections,

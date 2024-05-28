@@ -17,7 +17,9 @@ export const themeSlice = createSlice({
       state.themeFrame = payload as Draft<Document>;
     },
     updateOverflowStyle: (state, { payload }: PayloadAction<string>) => {
-      if (!state.themeFrame) return;
+      if (!state.themeFrame) {
+        return;
+      }
 
       state.themeFrame.body.style.overflow = payload;
     },

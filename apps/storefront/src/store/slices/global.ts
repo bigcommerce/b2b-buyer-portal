@@ -1,6 +1,6 @@
-import { Dispatch, SetStateAction } from 'react';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice, Draft } from '@reduxjs/toolkit';
+import { Dispatch, SetStateAction } from 'react';
 
 import { OpenPageState } from '@/types/hooks';
 
@@ -34,7 +34,7 @@ export interface StoreInfoProps {
   platform: string;
   translationVersion: number;
   type: string;
-  urls: Array<string>;
+  urls: string[];
 }
 
 interface GlobalMessageDialog {
@@ -51,6 +51,7 @@ interface GlobalBlockPendingQuoteNonPurchasableOOS {
   isEnableProduct?: boolean;
   isEnableRequest?: boolean;
 }
+
 export interface GlabolState {
   taxZoneRates: TaxZoneRatesProps[];
   isClickEnterBtn: boolean;
@@ -120,7 +121,7 @@ export const glabolSlice = createSlice({
       state,
       { payload }: PayloadAction<Dispatch<SetStateAction<OpenPageState>>>,
     ) => {
-      state.setOpenPageFn = payload as Draft<Dispatch<SetStateAction<OpenPageState>>>;
+      state.setOpenPageFn = payload;
     },
     setShowInclusiveTaxPrice: (state, { payload }: PayloadAction<boolean>) => {
       state.showInclusiveTaxPrice = payload;

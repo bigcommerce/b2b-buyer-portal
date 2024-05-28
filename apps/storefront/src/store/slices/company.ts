@@ -9,6 +9,7 @@ interface Tokens {
   bcGraphqlToken: string;
   currentCustomerJWT: string;
 }
+
 export interface CompanyState {
   companyInfo: CompanyInfo;
   customer: Customer;

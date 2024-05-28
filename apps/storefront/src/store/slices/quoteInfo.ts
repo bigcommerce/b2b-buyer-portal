@@ -24,6 +24,7 @@ interface SetDraftProductCalculatedValueParams {
   index: number;
   calculatedValue: CalculatedValue;
 }
+
 export interface QuoteInfoState {
   draftQuoteList: QuoteItem[];
   draftQuoteInfo: QuoteInfo;
@@ -90,10 +91,12 @@ const draftQuoteListSlice = createSlice({
     },
     deleteProductFromDraftQuoteList: (state, { payload }: PayloadAction<string>) => {
       const index = state.draftQuoteList.findIndex((item) => item.node.id === payload);
+
       state.draftQuoteList.splice(index, 1);
     },
     setDraftProductQuantity: (state, { payload }: PayloadAction<SetDraftProductQuantityParams>) => {
       const index = state.draftQuoteList.findIndex((item) => item.node.id === payload.id);
+
       state.draftQuoteList[index].node.quantity = payload.quantity;
     },
     setDraftProduct: (state, { payload }: PayloadAction<SetDraftProductParams>) => {

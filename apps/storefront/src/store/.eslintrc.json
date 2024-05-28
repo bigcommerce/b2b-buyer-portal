@@ -1,0 +1,4 @@
+{
+  "extends": ["bc"],
+  "root": true
+}

@@ -6,14 +6,17 @@ interface GetGlobalTranslationsParams {
   channelId: number;
   newVersion: number;
 }
+
 interface GetGlobalTranslationResponse {
   globalTranslations: Record<string, string>;
   newVersion: number;
 }
+
 interface GetPageTranslationsParams {
   channelId: number;
   page: string;
 }
+
 interface GetPageTranslationResponse {
   pageTranslations: Record<string, string>;
   page: string;
@@ -22,6 +25,7 @@ interface GetPageTranslationResponse {
 const REPEATED_PAGES = {
   'company-orders': 'orders',
 };
+
 export const getGlobalTranslations = createAppAsyncThunk<
   GetGlobalTranslationResponse,
   GetGlobalTranslationsParams
@@ -29,13 +33,17 @@ export const getGlobalTranslations = createAppAsyncThunk<
   'lang/getGlobalTranslations',
   async ({ channelId, newVersion }, { rejectWithValue }) => {
     const { message } = await getTranslation({ channelId, page: 'global' });
-    if (typeof message === 'string') return rejectWithValue(message);
+
+    if (typeof message === 'string') {
+      return rejectWithValue(message);
+    }
 
     return { globalTranslations: message, newVersion };
   },
   {
     condition: ({ newVersion }, { getState }) => {
       const { translationVersion } = getState().lang;
+
       // cancel request if new version it's 0 or similar to previous value
       if (newVersion === 0 || translationVersion === newVersion) {
         return false;
@@ -54,7 +62,10 @@ export const getPageTranslations = createAppAsyncThunk<
     const page =
       pageKey in REPEATED_PAGES ? REPEATED_PAGES[pageKey as keyof typeof REPEATED_PAGES] : pageKey;
     const { message } = await getTranslation({ channelId, page });
-    if (typeof message === 'string') return rejectWithValue(message);
+
+    if (typeof message === 'string') {
+      return rejectWithValue(message);
+    }
 
     return { pageTranslations: message, page };
   },
@@ -65,10 +76,12 @@ export const getPageTranslations = createAppAsyncThunk<
           ? REPEATED_PAGES[pageKey as keyof typeof REPEATED_PAGES]
           : pageKey;
       const { fetchedPages, translationVersion } = getState().lang;
+
       // cancel request if page it's already fetched or translation version it's 0
       if (fetchedPages.includes(page) || translationVersion === 0) {
         return false;
       }
+
       return true;
     },
   },
