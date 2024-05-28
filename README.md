@@ -120,9 +120,9 @@ Environment variables have been updated so you can run your UI directly into pro
 1. Activate store channel in the Channels Manager.
 2. Configure header and footer scripts:
 
-- Navigate to Channels Manager -> Scripts.
+- Navigate to the Script Manager via Channel Manager > “Edit Storefront Settings” on the Channel you’re selecting > Script Manager. 
 - Add two scripts (e.g., B2BEdition-header, B2BEdition-footer). Ensure you set the correct port for your localhost in the script URLs.
-- Edit the header script:
+- Select "Script" as your Script Type and edit the header script:
 
 ```html
 <script>
