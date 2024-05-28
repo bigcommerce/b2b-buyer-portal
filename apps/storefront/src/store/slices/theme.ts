@@ -14,6 +14,7 @@ export const themeSlice = createSlice({
   reducers: {
     clearThemeFrame: () => initialState,
     setThemeFrame: (state, { payload }: PayloadAction<unknown>) => {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       state.themeFrame = payload as Draft<Document>;
     },
     updateOverflowStyle: (state, { payload }: PayloadAction<string>) => {

@@ -1,5 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice, Draft } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { Dispatch, SetStateAction } from 'react';
 
 import { OpenPageState } from '@/types/hooks';

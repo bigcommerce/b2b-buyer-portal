@@ -82,7 +82,9 @@ export interface QuoteItem {
     variantSku?: string;
     calculatedValue: CalculatedValue;
     productsSearch: Product;
-    additionalCalculatedPrices?: AdditionalCalculatedPricesProps;
+    additionalCalculatedPrices?:
+      | AdditionalCalculatedPricesProps
+      | AdditionalCalculatedPricesProps[];
   };
 }
 

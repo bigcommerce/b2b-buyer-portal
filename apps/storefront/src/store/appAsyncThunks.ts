@@ -22,7 +22,7 @@ interface GetPageTranslationResponse {
   page: string;
 }
 
-const REPEATED_PAGES = {
+const REPEATED_PAGES: Partial<Record<string, string>> = {
   'company-orders': 'orders',
 };
 
@@ -59,8 +59,7 @@ export const getPageTranslations = createAppAsyncThunk<
 >(
   'lang/getPageTranslations',
   async ({ channelId, page: pageKey }, { rejectWithValue }) => {
-    const page =
-      pageKey in REPEATED_PAGES ? REPEATED_PAGES[pageKey as keyof typeof REPEATED_PAGES] : pageKey;
+    const page = REPEATED_PAGES[pageKey] ?? pageKey;
     const { message } = await getTranslation({ channelId, page });
 
     if (typeof message === 'string') {
@@ -71,10 +70,7 @@ export const getPageTranslations = createAppAsyncThunk<
   },
   {
     condition: ({ page: pageKey }, { getState }) => {
-      const page =
-        pageKey in REPEATED_PAGES
-          ? REPEATED_PAGES[pageKey as keyof typeof REPEATED_PAGES]
-          : pageKey;
+      const page = REPEATED_PAGES[pageKey] ?? pageKey;
       const { fetchedPages, translationVersion } = getState().lang;
 
       // cancel request if page it's already fetched or translation version it's 0
