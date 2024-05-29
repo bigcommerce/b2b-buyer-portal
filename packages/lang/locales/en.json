@@ -651,7 +651,7 @@
   "login.loginText.password": "Password",
   "login.loginText.signInHeader": "Sign in",
   "login.registerLogo": "register Logo",
-  "login.loginText.quoteDetailToCheckoutUrl": "The button to Hide Product's Price from Guests has been turned on. Please log in before continuing to checkout",
+  "login.loginText.quoteDetailToCheckoutUrl": "Please log in to purchase this quote",
 
   "pdp.notification.productsAdded": "Products were added to your shopping list",
   "pdp.notification.viewShoppingList": "view shopping list",
