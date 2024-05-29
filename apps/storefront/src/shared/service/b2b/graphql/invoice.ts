@@ -196,42 +196,42 @@ const exportInvoices = (data: CustomFieldItems) => `mutation {
   }
 }`;
 
-export const getInvoiceList = (data: CustomFieldItems): CustomFieldItems =>
+export const getInvoiceList = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: invoiceList(data),
   });
 
-export const invoiceDownloadPDF = (invoiceId: number, isPayNow: boolean): CustomFieldItems =>
+export const invoiceDownloadPDF = (invoiceId: number, isPayNow: boolean) =>
   B3Request.graphqlB2B({
     query: getInvoiceDownloadPDF(invoiceId, isPayNow),
   });
 
-export const getInvoiceCheckoutUrl = (data: CustomFieldItems): CustomFieldItems =>
+export const getInvoiceCheckoutUrl = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: invoiceCreateBcCart(data),
   });
 
-export const getInvoicePaymentHistory = (id: number): CustomFieldItems =>
+export const getInvoicePaymentHistory = (id: number) =>
   B3Request.graphqlB2B({
     query: receiptLine(id),
   });
 
-export const getInvoiceDetail = (id: number): CustomFieldItems =>
+export const getInvoiceDetail = (id: number) =>
   B3Request.graphqlB2B({
     query: invoiceDetail(id),
   });
 
-export const getInvoicePaymentInfo = (id: number): CustomFieldItems =>
+export const getInvoicePaymentInfo = (id: number) =>
   B3Request.graphqlB2B({
     query: invoiceReceipt(id),
   });
 
-export const exportInvoicesAsCSV = (data: CustomFieldItems): CustomFieldItems =>
+export const exportInvoicesAsCSV = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: exportInvoices(data),
   });
 
-export const getInvoiceStats = (status: number | string): CustomFieldItems =>
+export const getInvoiceStats = (status: number | string) =>
   B3Request.graphqlB2B({
     query: invoiceStats(status),
   });

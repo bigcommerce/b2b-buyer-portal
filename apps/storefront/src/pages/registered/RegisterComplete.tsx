@@ -260,6 +260,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       b2bFields.fileList = fileList;
       b2bFields.channelId = channelId;
 
+      // This is a bit problematic, we could add `await` here, but the behavior will change.
+      // Currently, errors in the `createB2BCompanyUser` won't be reported at this level.
+      // Since I'm not sure what the intend of the code is, I'll respect current behavior.
+      // eslint-disable-next-line @typescript-eslint/return-await
       return createB2BCompanyUser(b2bFields);
     } catch (error) {
       b2bLogger.error(error);

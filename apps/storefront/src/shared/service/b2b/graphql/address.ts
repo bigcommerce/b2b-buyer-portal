@@ -243,7 +243,7 @@ const getAddressExtraFields = () => `{
   }
 }`;
 
-export const getB2BAddressExtraFields = (): CustomFieldItems =>
+export const getB2BAddressExtraFields = () =>
   B3Request.graphqlB2B({
     query: getAddressExtraFields(),
   });
@@ -256,46 +256,46 @@ const deleteCustomerAddress = (data: CustomFieldItems) => `mutation{
   }
 }`;
 
-export const getB2BAddress = (data: CustomFieldItems = {}): CustomFieldItems =>
+export const getB2BAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: getAddress(data),
   });
 
-export const getB2BAddressConfig = (): CustomFieldItems =>
+export const getB2BAddressConfig = () =>
   B3Request.graphqlB2B({
     query: getAddressConfig(),
   });
 
-export const getBCCustomerAddress = (data: CustomFieldItems = {}): CustomFieldItems =>
+export const getBCCustomerAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: getCustomerAddress(data),
   });
 
-export const deleteB2BAddress = (data: CustomFieldItems = {}): CustomFieldItems =>
+export const deleteB2BAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: deleteAddress(data),
   });
 
-export const deleteBCCustomerAddress = (data: CustomFieldItems = {}): CustomFieldItems =>
+export const deleteBCCustomerAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: deleteCustomerAddress(data),
   });
 
-export const updateB2BAddress = (data: CustomFieldItems = {}): CustomFieldItems =>
+export const updateB2BAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: updateAddress(data),
   });
 
-export const createB2BAddress = (data: CustomFieldItems = {}): CustomFieldItems =>
+export const createB2BAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: createAddress(data),
   });
 
-export const createBcAddress = (data: CustomFieldItems = {}): CustomFieldItems =>
+export const createBcAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: createCustomerAddress(data),
   });
-export const updateBcAddress = (data: CustomFieldItems = {}): CustomFieldItems =>
+export const updateBcAddress = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: updateCustomerAddress(data),
   });

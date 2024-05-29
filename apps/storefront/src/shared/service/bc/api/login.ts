@@ -2,7 +2,7 @@ import { baseUrl } from '../../../../utils/basicConfig';
 import B3Request from '../../request/b3Fetch';
 import { RequestType } from '../../request/base';
 
-export const getBCForgotPassword = (data: CustomFieldItems): CustomFieldItems =>
+export const getBCForgotPassword = (data: CustomFieldItems) =>
   B3Request.post(`${baseUrl}/login.php?action=send_password_email`, RequestType.BCRest, data);
 /**
  * This function it's still present due the merchant can logs in as a client and stencil channels trade the current customer jwt to recognize

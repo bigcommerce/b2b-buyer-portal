@@ -18,7 +18,7 @@ export const uploadB2BFile = (data: UploadFileData) => {
   return B3Request.fileUpload('/api/v2/media/upload', formData);
 };
 
-export const setChannelStoreType = (): CustomFieldItems =>
+export const setChannelStoreType = () =>
   B3Request.put('/api/v2/store-configs/channel-storefront-type', RequestType.B2BRest, {
     bcChannelId: channelId,
     storefrontType: 1,

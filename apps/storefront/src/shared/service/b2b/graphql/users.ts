@@ -112,31 +112,31 @@ const getUserExtraFields = () => `{
   }
 }`;
 
-export const getUsers = (data: CustomFieldItems): CustomFieldItems =>
+export const getUsers = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: getUsersQl(data),
   });
 
-export const getUsersExtraFieldsInfo = (): CustomFieldItems =>
+export const getUsersExtraFieldsInfo = () =>
   B3Request.graphqlB2B({
     query: getUserExtraFields(),
   });
 
-export const addOrUpdateUsers = (data: CustomFieldItems): CustomFieldItems =>
+export const addOrUpdateUsers = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: addOrUpdateUsersQl(data),
   });
 
-export const deleteUsers = (data: CustomFieldItems): CustomFieldItems =>
+export const deleteUsers = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: deleteUsersQl(data),
   });
 
-export const checkUserEmail = (data: CustomFieldItems): CustomFieldItems =>
+export const checkUserEmail = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: checkUserB2BEmail(data),
   });
-export const checkUserBCEmail = (data: CustomFieldItems): CustomFieldItems =>
+export const checkUserBCEmail = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: checkCustomerBCEmail(data),
   });

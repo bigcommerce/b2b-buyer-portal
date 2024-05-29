@@ -189,66 +189,66 @@ const companyCreditConfig = () => `{
   }
 }`;
 
-export const getB2BToken = (currentCustomerJWT: string, channelId = 1): CustomFieldItems =>
+export const getB2BToken = (currentCustomerJWT: string, channelId = 1) =>
   B3Request.graphqlB2B({
     query: getB2BTokenQl(currentCustomerJWT, channelId),
   });
 
-export const getAgentInfo = (customerId: string | number): CustomFieldItems =>
+export const getAgentInfo = (customerId: string | number) =>
   B3Request.graphqlB2B({
     query: getAgentInfoQl(customerId),
   });
 
-export const superAdminCompanies = (id: number, params: CustomFieldItems): CustomFieldItems =>
+export const superAdminCompanies = (id: number, params: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: superAdminCompaniesQl(id, params),
   });
 
-export const superAdminBeginMasquerade = (companyId: number, userId: number): CustomFieldItems =>
+export const superAdminBeginMasquerade = (companyId: number, userId: number) =>
   B3Request.graphqlB2B({
     query: superAdminBeginMasqueradeQl(companyId, userId),
   });
 
-export const superAdminEndMasquerade = (companyId: number, userId: number): CustomFieldItems =>
+export const superAdminEndMasquerade = (companyId: number, userId: number) =>
   B3Request.graphqlB2B({
     query: superAdminEndMasqueradeQl(companyId, userId),
   });
 
-export const getUserCompany = (userId: number): CustomFieldItems =>
+export const getUserCompany = (userId: number) =>
   B3Request.graphqlB2B({
     query: userCompanyQl(userId),
   });
 
-export const getStorefrontConfig = (): CustomFieldItems =>
+export const getStorefrontConfig = () =>
   B3Request.graphqlB2B({
     query: storefrontConfig(),
   });
 
-export const getCurrencies = (channelId: string | number): CustomFieldItems =>
+export const getCurrencies = (channelId: string | number) =>
   B3Request.graphqlB2B({
     query: currencies(channelId),
   });
-export const getBcCurrencies = (channelId: string): CustomFieldItems =>
+export const getBcCurrencies = (channelId: string) =>
   B3Request.graphqlB2B({
     query: currencies(channelId),
   });
 
-export const getStorefrontConfigs = (channelId: number, keys: string[]): CustomFieldItems =>
+export const getStorefrontConfigs = (channelId: number, keys: string[]) =>
   B3Request.graphqlB2B({
     query: storefrontConfigs(channelId, keys),
   });
 
-export const getTaxZoneRates = (): CustomFieldItems =>
+export const getTaxZoneRates = () =>
   B3Request.graphqlB2B({
     query: taxZoneRates(),
   });
 
-export const getStorefrontDefaultLanguages = (channelId: number): CustomFieldItems =>
+export const getStorefrontDefaultLanguages = (channelId: number) =>
   B3Request.graphqlB2B({
     query: storefrontDefaultLanguage(channelId),
   });
 
-export const getCompanyCreditConfig = (): CustomFieldItems =>
+export const getCompanyCreditConfig = () =>
   B3Request.graphqlB2B({
     query: companyCreditConfig(),
   });

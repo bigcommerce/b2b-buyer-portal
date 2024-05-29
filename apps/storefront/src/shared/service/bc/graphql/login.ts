@@ -59,7 +59,7 @@ export const b2bLogin = (variables: LoginData, customMessage = true): Promise<Us
     customMessage,
   );
 
-export const bcLogin = (data: CustomFieldItems): CustomFieldItems =>
+export const bcLogin = (data: CustomFieldItems) =>
   platform === 'bigcommerce'
     ? B3Request.graphqlBC({
         query: getbcLogin(),
@@ -70,7 +70,7 @@ export const bcLogin = (data: CustomFieldItems): CustomFieldItems =>
         variables: data,
       });
 
-export const bcLogoutLogin = (): CustomFieldItems =>
+export const bcLogoutLogin = () =>
   platform === 'bigcommerce'
     ? B3Request.graphqlBC({
         query: logoutLogin(),

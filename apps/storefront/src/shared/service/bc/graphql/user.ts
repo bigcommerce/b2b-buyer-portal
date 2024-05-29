@@ -11,12 +11,12 @@ const getCustomer = () => `query customer {
   }
 }`;
 
-const getCustomerInfo = (): CustomFieldItems =>
+const getCustomerInfo = () =>
   B3Request.graphqlBCProxy({
     query: getCustomer(),
   });
 
-const customerExists = (): CustomFieldItems =>
+const customerExists = () =>
   B3Request.graphqlBCProxy({
     query: getCustomer(),
   });

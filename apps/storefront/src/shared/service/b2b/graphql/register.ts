@@ -173,55 +173,52 @@ query getStoreBasicInfo($storeHash: String!, $bcChannelId: Int) {
   }
 }`;
 
-export const getB2BAccountFormFields = (type: number): CustomFieldItems =>
+export const getB2BAccountFormFields = (type: number) =>
   B3Request.graphqlB2B({
     query: getAccountFormFields(type),
   });
 
-export const getB2BCompanyUserInfo = (
-  email: string,
-  customerId: string | number,
-): CustomFieldItems =>
+export const getB2BCompanyUserInfo = (email: string, customerId: string | number) =>
   B3Request.graphqlB2B({
     query: getCompanyUserInfo(email, customerId),
   });
 
-export const getB2BRegisterLogo = (): CustomFieldItems =>
+export const getB2BRegisterLogo = () =>
   B3Request.graphqlB2B({
     query: getRegisterLogo(),
   });
 
-export const getB2BRegisterCustomFields = (): CustomFieldItems =>
+export const getB2BRegisterCustomFields = () =>
   B3Request.graphqlB2B({
     query: getCompanyExtraFields(),
   });
 
-export const getB2BCountries = (): CustomFieldItems =>
+export const getB2BCountries = () =>
   B3Request.graphqlB2B({
     query: getCountries(),
   });
 
-export const createB2BCompanyUser = (data: CustomFieldItems): CustomFieldItems =>
+export const createB2BCompanyUser = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: createCompanyUser(data),
   });
 
-export const storeB2BBasicInfo = (): CustomFieldItems =>
+export const storeB2BBasicInfo = () =>
   B3Request.graphqlB2B({
     query: storeBasicInfo(),
   });
 
-export const getB2BLoginPageConfig = (): CustomFieldItems =>
+export const getB2BLoginPageConfig = () =>
   B3Request.graphqlB2B({
     query: getLoginPageConfig(),
   });
 
-export const getBCForcePasswordReset = (email: string): CustomFieldItems =>
+export const getBCForcePasswordReset = (email: string) =>
   B3Request.graphqlB2B({
     query: getForcePasswordReset(email),
   });
 
-export const getBCStoreChannelId = (): CustomFieldItems =>
+export const getBCStoreChannelId = () =>
   B3Request.graphqlB2B({
     query: getStoreChannelId,
     variables: { storeHash, bcChannelId: channelId },

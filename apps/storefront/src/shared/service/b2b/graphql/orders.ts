@@ -187,32 +187,32 @@ const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
   }
 }`;
 
-export const getB2BAllOrders = (data: CustomFieldItems): CustomFieldItems =>
+export const getB2BAllOrders = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: allOrders(data, 'allOrders'),
   });
 
-export const getBCAllOrders = (data: CustomFieldItems): CustomFieldItems =>
+export const getBCAllOrders = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: allOrders(data, 'customerOrders'),
   });
 
-export const getB2BOrderDetails = (id: number): CustomFieldItems =>
+export const getB2BOrderDetails = (id: number) =>
   B3Request.graphqlB2B({
     query: orderDetail(id, 'order'),
   });
 
-export const getBCOrderDetails = (id: number): CustomFieldItems =>
+export const getBCOrderDetails = (id: number) =>
   B3Request.graphqlB2B({
     query: orderDetail(id, 'customerOrder'),
   });
 
-export const getOrderStatusType = (): CustomFieldItems =>
+export const getOrderStatusType = () =>
   B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('orderStatuses'),
   });
 
-export const getBcOrderStatusType = (): CustomFieldItems =>
+export const getBcOrderStatusType = () =>
   B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('bcOrderStatuses'),
   });

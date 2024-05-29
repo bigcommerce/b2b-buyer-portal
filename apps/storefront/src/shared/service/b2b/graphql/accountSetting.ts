@@ -56,22 +56,22 @@ const customerAccountSettings = () => `{
   }
 }`;
 
-export const updateB2BAccountSettings = (data: CustomFieldItems): CustomFieldItems =>
+export const updateB2BAccountSettings = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: updateAccountSettings(data),
   });
 
-export const updateBCAccountSettings = (data: CustomFieldItems): CustomFieldItems =>
+export const updateBCAccountSettings = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: updateCustomerAccountSettings(data),
   });
 
-export const getB2BAccountSettings = (data: CustomFieldItems): CustomFieldItems =>
+export const getB2BAccountSettings = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: getAccountSettings(data),
   });
 
-export const getBCAccountSettings = (): CustomFieldItems =>
+export const getBCAccountSettings = () =>
   B3Request.graphqlB2B({
     query: customerAccountSettings(),
   });
