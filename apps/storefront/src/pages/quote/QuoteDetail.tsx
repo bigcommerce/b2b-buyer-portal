@@ -3,8 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, Grid } from '@mui/material';
 import copy from 'copy-to-clipboard';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 
 import B3Sping from '@/components/spin/B3Sping';
 import { useMobile } from '@/hooks';
