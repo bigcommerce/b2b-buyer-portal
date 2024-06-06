@@ -163,7 +163,7 @@ Environment variables have been updated so you can run your UI directly into pro
 
 3. For local debugging, set `VITE_LOCAL_DEBUG` to `false` in .env.
 
-4. Enable `Custom (use for your self-hosted buyer portal)`
+4. Enable `Custom (use for your self-hosted buyer portal)`, this will avoid the scripts mentioned on step 2 -> 2nd point
 - In B2B Edition App dashboard -> Settings -> Buyer Portal for global config
 ![Buyer portal type global settings](public/images/buyer-portal-type-settings-global.png)
 - Or B2B Edition App dashboard -> Storefront -> Desired channel -> Buyer Portal for specific channel config
