@@ -169,9 +169,9 @@ Environment variables have been updated so you can run your UI directly into pro
 - Or B2B Edition App dashboard -> Storefront -> Desired channel -> Buyer Portal for specific channel config
 ![Buyer portal type channel settings](public/images/buyer-portal-type-settings-channel.png) [alt text](README.md)
 
-4. Visit the storefront and attempt to sign in.
+5. Visit the storefront and attempt to sign in.
 
-5. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
+6. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
 
 Note: If linters aren't functional, run `yarn prepare` first.
 
