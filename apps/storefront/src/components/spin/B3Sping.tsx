@@ -44,9 +44,12 @@ export default function B3Sping(props: B3SpingProps) {
     <SpinContext isFlex={isFlex} height={spinningHeight}>
       {isSpinning && (
         <SpinCenter background={background} isMobile={isMobile} transparency={transparency}>
-          {!isCloseLoading && <CircularProgress size={size || 40} thickness={thickness || 2} />}
+          {!isCloseLoading && (
+            <CircularProgress role="progressbar" size={size || 40} thickness={thickness || 2} />
+          )}
           {tip && (
             <SpinTip
+              role="progressbar"
               style={{
                 color: primaryColor,
               }}

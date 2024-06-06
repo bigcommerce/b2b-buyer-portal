@@ -24,6 +24,7 @@ function Loading({ backColor }: LoadingProps) {
       }}
     >
       <Typography
+        role="progressbar"
         sx={{
           position: 'absolute',
           top: '50%',
