@@ -107,7 +107,9 @@ For assistance with activating the remote buyer portal or to inquire about multi
 4. Copy environment variables: `cp apps/storefront/.env-example apps/storefront/.env`.
 5. Update the following values in `.env`:
 
-- `VITE_ASSETS_ABSOLUTE_PATH`: For deployment, set this to the absolute path of the hosted compiled assets.
+- `VITE_ASSETS_ABSOLUTE_PATH`(Optional): For custom host, set this if you want to host by yourself the compiled assets after your run `yarn build`command. ie. https://my.custom.cdn/generated/b2b/assets
+
+  It will point to the absolute path where will be hosted
 
 Environment variables have been updated so you can run your UI directly into production storefronts.
 
@@ -119,6 +121,7 @@ Environment variables have been updated so you can run your UI directly into pro
 2. Configure header and footer scripts:
 
 - Navigate to Channels Manager -> Scripts.
+- Delete first scripts: `B2BEdition Header Script` and `B2BEdition Footer Script`, then
 - Add two scripts (e.g., B2BEdition-header, B2BEdition-footer). Ensure you set the correct port for your localhost in the script URLs. In the "Location" section make sure you check on "All pages".
 - Edit the header script:
 
@@ -151,20 +154,24 @@ Environment variables have been updated so you can run your UI directly into pro
   window.B3 = {
     setting: {
       store_hash: '{{settings.store_hash}}',
-      channel_id: 1, // this will vary depending on your store channel id
+      channel_id: <your-channel-id>>, // override this depending on your store channel id, you can check this on Channel Manager -> select the desired channel, and the url will show: https://store-<storehash>.mybigcommerce.com/manage/channel/<your-channel-id>/overview
       platform: 'bigcommerce',
     },
   }
 </script>
 ```
 
-1. Verify correct values in the .env file, for internal devs, specially the value `VITE_B2B_CLIENT_ID` for the draft application you created for the BC App Marketplace.
+3. For local debugging, set `VITE_LOCAL_DEBUG` to `false` in .env.
 
-2. For local debugging, set VITE_LOCAL_DEBUG to false in .env.
+4. Enable `Custom (use for your self-hosted buyer portal)`
+- In B2B Edition App dashboard -> Settings -> Buyer Portal for global config
+![Buyer portal type global settings](public/images/buyer-portal-type-settings-global.png)
+- Or B2B Edition App dashboard -> Storefront -> Desired channel -> Buyer Portal for specific channel config
+![Buyer portal type channel settings](public/images/buyer-portal-type-settings-channel.png) [alt text](README.md)
 
-3. Visit the storefront and attempt to sign in.
+4. Visit the storefront and attempt to sign in.
 
-4. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
+5. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
 
 Note: If linters aren't functional, run `yarn prepare` first.
 
