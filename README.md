@@ -113,7 +113,9 @@ For assistance with activating the remote buyer portal or to inquire about multi
 
 Environment variables have been updated so you can run your UI directly into production storefronts.
 
-6. Start the development server: `yarn RUN dev`.
+6. Start the development server: `yarn dev`.
+7. **Access to the store through the url i.e: https://my-store.mybigcommerce.com/ or https://my-store.com/ not http://localhost:3001**
+
 
 ## Running Project Locally
 
