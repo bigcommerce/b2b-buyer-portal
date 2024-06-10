@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 window.INITIALIZE_CAPTCHA_PREFIX = function () {
-  if (window.grecaptcha === undefined) {
+  if (window.grecaptcha?.render === undefined) {
     return
   }
 

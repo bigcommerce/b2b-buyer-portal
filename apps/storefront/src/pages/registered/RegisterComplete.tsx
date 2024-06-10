@@ -1,11 +1,12 @@
 import { MouseEvent, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
-import { Alert, Box } from '@mui/material';
+import { Alert, Box, Typography } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
+import { Captcha } from '@/components/form';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
-import { CustomStyleContext } from '@/shared/customStyleButton';
+import { CustomStyleContext } from '@/shared/customStyleButton/context';
 import { GlobaledContext } from '@/shared/global';
 import {
   createB2BCompanyUser,
@@ -13,6 +14,7 @@ import {
   sendSubscribersState,
   uploadB2BFile,
 } from '@/shared/service/b2b';
+import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
 import { channelId, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
@@ -37,6 +39,35 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [enterEmail, setEnterEmail] = useState<string>('');
+
+  const [captchaKey, setCaptchaKey] = useState('');
+  const [isEnabledOnStorefront, setIsEnabledOnStorefront] = useState(false);
+  const [storefrontSiteKey, setStorefrontSiteKey] = useState('');
+
+  const [isCaptchaMissing, setIsCaptchaMissing] = useState(false);
+
+  const handleGetCaptchaKey = (key: string) => setCaptchaKey(key);
+
+  useEffect(() => {
+    const getIsEnabledOnStorefront = async () => {
+      try {
+        const response = await getStorefrontToken();
+
+        if (response.data) {
+          setIsEnabledOnStorefront(response.data.site.settings.reCaptcha.isEnabledOnStorefront);
+          setStorefrontSiteKey(response.data.site.settings.reCaptcha.siteKey);
+        }
+      } catch (e) {
+        b2bLogger.error(e);
+      }
+    };
+
+    getIsEnabledOnStorefront();
+  }, []);
+
+  useEffect(() => {
+    if (captchaKey) setIsCaptchaMissing(false);
+  }, [captchaKey]);
 
   const {
     control,
@@ -260,11 +291,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       b2bFields.fileList = fileList;
       b2bFields.channelId = channelId;
 
-      // This is a bit problematic, we could add `await` here, but the behavior will change.
-      // Currently, errors in the `createB2BCompanyUser` won't be reported at this level.
-      // Since I'm not sure what the intend of the code is, I'll respect current behavior.
-      // eslint-disable-next-line @typescript-eslint/return-await
-      return createB2BCompanyUser(b2bFields);
+      return await createB2BCompanyUser(b2bFields);
     } catch (error) {
       b2bLogger.error(error);
     }
@@ -387,47 +414,59 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         });
         return;
       }
-      try {
-        dispatch({
-          type: 'loading',
-          payload: {
-            isLoading: true,
-          },
-        });
 
-        let isAuto = true;
-        if (accountType === '2') {
-          await getBCFieldsValue(completeData);
-        } else {
-          const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files');
-          const fileList = await getFileUrl(attachmentsList || []);
-          const res = await getBCFieldsValue(completeData);
-          const { data } = res;
-          const accountInfo = await getB2BFieldsValue(completeData, (data as any)[0].id, fileList);
+      if (isEnabledOnStorefront && !captchaKey) {
+        setIsCaptchaMissing(true);
+        return;
+      }
 
-          const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
-          isAuto = +companyStatus === 1;
+      if (!isCaptchaMissing) {
+        try {
+          dispatch({
+            type: 'loading',
+            payload: {
+              isLoading: true,
+            },
+          });
+
+          let isAuto = true;
+          if (accountType === '2') {
+            await getBCFieldsValue(completeData);
+          } else {
+            const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files');
+            const fileList = await getFileUrl(attachmentsList || []);
+            const res = await getBCFieldsValue(completeData);
+            const { data } = res;
+            const accountInfo = await getB2BFieldsValue(
+              completeData,
+              (data as any)[0].id,
+              fileList,
+            );
+
+            const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
+            isAuto = +companyStatus === 1;
+          }
+          dispatch({
+            type: 'finishInfo',
+            payload: {
+              submitSuccess: true,
+              isAutoApproval: isAuto,
+              blockPendingAccountOrderCreation,
+            },
+          });
+          saveRegisterPassword(completeData);
+          await handleSendSubscribersState();
+          handleNext();
+        } catch (err: any) {
+          setErrorMessage(err?.message || err);
+        } finally {
+          dispatch({
+            type: 'loading',
+            payload: {
+              isLoading: false,
+            },
+          });
         }
-        dispatch({
-          type: 'finishInfo',
-          payload: {
-            submitSuccess: true,
-            isAutoApproval: isAuto,
-            blockPendingAccountOrderCreation,
-          },
-        });
-        saveRegisterPassword(completeData);
-        await handleSendSubscribersState();
-        handleNext();
-      } catch (err: any) {
-        setErrorMessage(err?.message || err);
-      } finally {
-        dispatch({
-          type: 'loading',
-          payload: {
-            isLoading: false,
-          },
-        });
       }
     })(event);
   };
@@ -475,11 +514,42 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             <B3CustomForm formFields={personalInfo} errors={errors} control={control} />
           </>
         )}
+        {isCaptchaMissing ? (
+          <Typography
+            variant="body1"
+            sx={{
+              color: 'red',
+              display: 'flex',
+              alignSelf: 'flex-start',
+              marginLeft: '8px',
+              marginTop: '2px',
+              fontSize: '13px',
+            }}
+          >
+            {b3Lang('login.loginText.missingCaptcha')}
+          </Typography>
+        ) : (
+          ''
+        )}
+        {isEnabledOnStorefront ? (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: '20px',
+            }}
+          >
+            <Captcha siteKey={storefrontSiteKey} size="normal" handleGetKey={handleGetCaptchaKey} />
+          </Box>
+        ) : (
+          ''
+        )}
       </Box>
       <RegisteredStepButton
         handleBack={handleBack}
         activeStep={activeStep}
         handleNext={handleCompleted}
+        email={enterEmail}
       />
     </Box>
   );
