@@ -1,16 +1,10 @@
 import Cookies from 'js-cookie';
 
 import { store } from '@/store';
-import { baseUrl, channelId, storeHash } from '@/utils';
+import { baseUrl, channelId, snackbar, storeHash } from '@/utils';
 
 import { B2B_BASIC_URL, queryParse, RequestType, RequestTypeKeys } from './base';
 import b3Fetch from './fetch';
-
-interface Config {
-  headers?: {
-    [key: string]: string;
-  };
-}
 
 const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
   const GraphqlEndpoints: CustomFieldStringItems = {
@@ -22,13 +16,13 @@ const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
   return GraphqlEndpoints[type] || '';
 };
 
-function request<T>(path: string, config?: T & Config, type?: RequestTypeKeys) {
+function request(path: string, config?: RequestInit, type?: RequestTypeKeys) {
   const url = RequestType.B2BRest === type ? `${B2B_BASIC_URL}${path}` : path;
   const { B2BToken } = store.getState().company.tokens;
-  const getToken =
+  const getToken: HeadersInit =
     type === RequestType.BCRest
       ? {
-          'x-xsrf-token': Cookies.get('XSRF-TOKEN'),
+          'x-xsrf-token': Cookies.get('XSRF-TOKEN') ?? '',
         }
       : {
           authToken: `${B2BToken}`,
@@ -47,10 +41,10 @@ function request<T>(path: string, config?: T & Config, type?: RequestTypeKeys) {
       ...getToken,
     },
   };
-  return b3Fetch(url, init, type);
+  return b3Fetch(url, init);
 }
 
-function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y, customMessage = false) {
+function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y) {
   const init = {
     method: 'POST',
     headers: {
@@ -61,7 +55,17 @@ function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y, custom
   };
 
   const url = GraphqlEndpointsFn(type);
-  return b3Fetch(url, init, type, customMessage);
+  return b3Fetch(url, init);
+}
+
+interface B2bGQLResponse {
+  data: any;
+  errors?: Array<{
+    message: string;
+    extensions: {
+      code: number;
+    };
+  }>;
 }
 
 const B3Request = {
@@ -73,7 +77,33 @@ const B3Request = {
     const config = {
       Authorization: `Bearer  ${B2BToken}`,
     };
-    return graphqlRequest(RequestType.B2BGraphql, data, config, customMessage);
+
+    return graphqlRequest(RequestType.B2BGraphql, data, config).then((value: B2bGQLResponse) => {
+      const error = value.errors?.[0];
+
+      const message = error?.message;
+      const extensions = error?.extensions;
+
+      if (extensions?.code === 40101) {
+        window.location.href = '#/login?loginFlag=3&showTip=false';
+
+        if (message) {
+          snackbar.error(message);
+        }
+
+        return new Promise(() => {});
+      }
+
+      if (message) {
+        if (!customMessage) {
+          snackbar.error(message);
+        }
+
+        throw new Error(message);
+      }
+
+      return value.data;
+    });
   },
   /**
    * @deprecated use {@link B3Request.graphqlBCProxy} instead
@@ -157,7 +187,11 @@ const B3Request = {
       type,
     );
   },
-  fileUpload: function fileUpload<T, Y>(url: string, formData: T, config?: Y): Promise<any> {
+  fileUpload: function fileUpload<T extends FormData, Y>(
+    url: string,
+    formData: T,
+    config?: Y,
+  ): Promise<any> {
     return request(`${B2B_BASIC_URL}${url}`, {
       method: 'POST',
       body: formData,
