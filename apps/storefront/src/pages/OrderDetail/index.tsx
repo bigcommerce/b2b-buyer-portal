@@ -12,8 +12,10 @@ import { GlobaledContext } from '@/shared/global';
 import {
   getB2BAddressConfig,
   getB2BOrderDetails,
+  getB2BVariantInfoBySkus,
   getBCOrderDetails,
   getBcOrderStatusType,
+  getBcVariantInfoBySkus,
   getOrderStatusType,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
@@ -54,7 +56,14 @@ function OrderDetail() {
   } = useContext(GlobaledContext);
 
   const {
-    state: { poNumber, status = '', customStatus, orderSummary, orderStatus = [] },
+    state: {
+      poNumber,
+      status = '',
+      customStatus,
+      orderSummary,
+      orderStatus = [],
+      variantImages = [],
+    },
     state: detailsData,
     dispatch,
   } = useContext(OrderDetailsContext);
@@ -73,6 +82,7 @@ function OrderDetail() {
   const [preOrderId, setPreOrderId] = useState('');
   const [orderId, setOrderId] = useState('');
   const [isRequestLoading, setIsRequestLoading] = useState(false);
+  const [canGetVariantImages, setCanGetVariantImages] = useState(false);
 
   useEffect(() => {
     setOrderId(params.id || '');
@@ -106,6 +116,13 @@ function OrderDetail() {
               payload: data,
             });
             setPreOrderId(orderId);
+            dispatch({
+              type: 'variantImages',
+              payload: {
+                variantImages: [],
+              },
+            });
+            setCanGetVariantImages(true);
           }
         } catch (err) {
           if (err === 'order does not exist') {
@@ -188,6 +205,40 @@ function OrderDetail() {
     }
     return activeStatusLabel;
   };
+
+  useEffect(() => {
+    const getVariantImage = async () => {
+      const products = detailsData.products || [];
+
+      const skus = products.map((product) => product.sku);
+      if (skus.length > 0) {
+        const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus;
+
+        const { variantSku: variantInfoList = [] }: CustomFieldItems = await getVariantInfoBySku({
+          skus,
+        });
+
+        const newVariantImages = variantInfoList.map((variantInfo: CustomFieldItems) => ({
+          variantId: variantInfo.variantId,
+          variantSku: variantInfo.variantSku,
+          variantImage: variantInfo.imageUrl,
+        }));
+
+        dispatch({
+          type: 'variantImages',
+          payload: {
+            variantImages: newVariantImages,
+          },
+        });
+        setCanGetVariantImages(false);
+      }
+    };
+
+    if (variantImages.length === 0 && canGetVariantImages) {
+      getVariantImage();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canGetVariantImages]);
 
   return (
     <B3Spin isSpinning={isRequestLoading} background="rgba(255,255,255,0.2)">

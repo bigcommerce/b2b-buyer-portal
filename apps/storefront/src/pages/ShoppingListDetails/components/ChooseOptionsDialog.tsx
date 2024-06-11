@@ -133,6 +133,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
   const [formFields, setFormFields] = useState<CustomFieldItems[]>([]);
   const [variantInfo, setVariantInfo] = useState<Partial<Variant> | null>(null);
   const [variantSku, setVariantSku] = useState('');
+  const [currentImage, setCurrentImage] = useState<string>(product?.imageUrl || '');
   const [isShowPrice, setShowPrice] = useState<boolean>(true);
   const [additionalProducts, setAdditionalProducts] = useState<CustomFieldItems>({});
   const [productPriceChangeOptions, setProductPriceChangeOptions] = useState<
@@ -346,6 +347,15 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
       setVariantSku(variantInfo ? variantInfo.sku : '');
       setVariantInfo(variantInfo);
+
+      if (variantInfo && (variantInfo.sku || variantInfo.variant_id)) {
+        const currentVariant = variants.find(
+          (variant) =>
+            variant.sku === variantInfo.sku || variant.variant_id === variantInfo.variant_id,
+        );
+
+        setCurrentImage(currentVariant?.image_url || product.imageUrl || '');
+      }
     },
     [formFields, product],
   );
@@ -537,7 +547,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                   display: 'flex',
                 }}
               >
-                <ProductImage src={product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
+                <ProductImage src={currentImage || product.imageUrl || PRODUCT_DEFAULT_IMAGE} />
                 <Flex>
                   <FlexItem padding="0">
                     <Box

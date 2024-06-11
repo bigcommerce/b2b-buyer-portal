@@ -1,5 +1,6 @@
 import { checkPermissionCode } from './b3CheckPermissions/base';
 import { checkEveryPermissionsCode, checkOneOfPermissionsCode } from './b3CheckPermissions/index';
+import b2bGetVariantImageByVariantInfo from './b2bGetVariantImageByVariantInfo';
 import { openPageByClick, redirectBcMenus, removeBCMenus } from './b3AccountItem';
 import currencyFormat, {
   currencyFormatConvert,
@@ -36,6 +37,7 @@ export { default as hideStorefrontElement } from './b3HideStorefrontElement';
 
 export {
   b2bPrintInvoice,
+  b2bGetVariantImageByVariantInfo,
   B3LStorage,
   B3SStorage,
   checkEveryPermissionsCode,

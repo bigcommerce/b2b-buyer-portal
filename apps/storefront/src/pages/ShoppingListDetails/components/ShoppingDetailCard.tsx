@@ -5,6 +5,7 @@ import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { currencyFormat } from '@/utils';
+import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { getBCPrice } from '@/utils/b3Product/b3Product';
 
 import { getProductOptionsFields } from '../../../utils/b3Product/shared/config';
@@ -84,6 +85,11 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
   const canChangeOption =
     optionList.length > 0 && !isReadForApprove && b2bAndBcShoppingListActionsPermissions;
 
+  const currentVariants = product.variants || [];
+
+  const currentImage =
+    b2bGetVariantImageByVariantInfo(currentVariants, { variantId, variantSku }) || primaryImage;
+
   return (
     <Box
       key={shoppingDetail.id}
@@ -102,7 +108,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
         <Box>{checkBox && checkBox()}</Box>
         <Box>
           <StyledImage
-            src={primaryImage || PRODUCT_DEFAULT_IMAGE}
+            src={currentImage || PRODUCT_DEFAULT_IMAGE}
             alt="Product-img"
             loading="lazy"
           />
@@ -252,7 +258,15 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                   color: 'rgba(0, 0, 0, 0.54)',
                 }}
                 onClick={() => {
-                  onEdit(productsSearch, variantId, itemId);
+                  onEdit(
+                    {
+                      ...productsSearch,
+                      selectOptions: optionList,
+                      quantity,
+                    },
+                    variantId,
+                    itemId,
+                  );
                 }}
               />
             )}

@@ -272,7 +272,10 @@ export const getProductOptionsFields = (
     let value = fieldOption?.default || defaultValue || '';
 
     try {
-      const selectOptions = JSON.parse(product.selectOptions || '');
+      const selectOptions =
+        typeof product.selectOptions === 'string'
+          ? JSON.parse(product.selectOptions || '')
+          : product.selectOptions;
 
       let optionIdKey: 'option_id' | 'optionId' = 'option_id';
       let optionValueKey: 'option_value' | 'optionValue' = 'option_value';
