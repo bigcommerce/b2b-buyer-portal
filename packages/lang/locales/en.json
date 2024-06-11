@@ -281,6 +281,8 @@
   "purchasedProducts.quickAdd.addProductToList": "Add product to list",
   "purchasedProducts.quickAdd.title": "Quick add",
   "purchasedProducts.quickAdd.showMoreRowsButton": "Show more rows",
+  "purchasedProducts.quickAdd.sku": "SKU#",
+  "purchasedProducts.quickAdd.qty": "Qty",
   "purchasedProducts.quickAdd.incorrectNumber": "Incorrect number",
   "purchasedProducts.quickAdd.notFoundSku": "SKU {notFoundSku} were not found, please check entered values",
   "purchasedProducts.quickAdd.notPurchaseableSku": "SKU {notPurchaseSku} no longer for sale",
@@ -652,6 +654,7 @@
   "login.loginText.signInHeader": "Sign in",
   "login.registerLogo": "register Logo",
   "login.loginText.quoteDetailToCheckoutUrl": "Please log in to purchase this quote",
+  "login.loginText.missingCaptcha": "The captcha you entered is incorrect. Please try again.",
 
   "pdp.notification.productsAdded": "Products were added to your shopping list",
   "pdp.notification.viewShoppingList": "view shopping list",

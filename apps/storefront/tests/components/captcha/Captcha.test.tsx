@@ -67,9 +67,10 @@ describe('loadCaptchaWidgetHandlers', () => {
 describe('Captcha', () => {
   it('should render the captcha wrapper', () => {
     vi.useFakeTimers();
+    const fn = vi.fn();
     const { store } = renderWithProviders(
       <ThemeFrame title="test-frame">
-        <Captcha siteKey={TEST_SITE_KEY} theme="dark" size="normal" />
+        <Captcha siteKey={TEST_SITE_KEY} theme="dark" size="normal" handleGetKey={fn} />
       </ThemeFrame>,
       {
         reducer: { theme },

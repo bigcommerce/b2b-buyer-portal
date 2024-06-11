@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { themeFrameSelector, useAppSelector } from '@/store';
 
@@ -18,9 +18,8 @@ export interface CaptchaProps {
   siteKey: string;
   size?: 'compact' | 'normal';
   theme?: 'dark' | 'light';
-  onSuccess?: () => void;
-  onError?: () => void;
-  onExpired?: () => void;
+  email?: string;
+  handleGetKey: (arg: string) => void;
 }
 
 export function loadCaptchaScript(iframeDocument: HTMLIFrameElement['contentDocument']) {
@@ -46,7 +45,7 @@ export function loadCaptchaWidgetHandlers(
   });
 
   const handlerScript = iframeDocument.createElement('script');
-  handlerScript.innerHTML = code;
+  handlerScript.textContent = code;
   iframeDocument.head.appendChild(handlerScript);
 }
 
@@ -55,36 +54,39 @@ export function generateWidgetId() {
 }
 
 export function Captcha(props: CaptchaProps) {
-  const { siteKey, theme, size, onSuccess, onError, onExpired } = props;
+  const { theme, size, email, handleGetKey, siteKey } = props;
   const iframeDocument = useAppSelector(themeFrameSelector);
   const widgetId = useMemo(() => generateWidgetId(), []);
   const initialized = useRef(false);
 
-  const onMessage = useCallback(
-    (event: MessageEvent) => {
-      if (event?.data?.startsWith(widgetId)) {
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event?.data?.startsWith?.(widgetId)) {
         const message = event.data.slice(widgetId.length);
         const data = JSON.parse(message);
+
+        const key = data.payload;
         switch (data.type) {
           case CAPTCHA_VARIABLES.CAPTCHA_SUCCESS:
-            onSuccess?.();
-            break;
-
-          case CAPTCHA_VARIABLES.CAPTCHA_ERROR:
-            onError?.();
-            break;
-
-          case CAPTCHA_VARIABLES.CAPTCHA_EXPIRED:
-            onExpired?.();
+            if (key) {
+              handleGetKey(key);
+            }
             break;
 
           default:
             break;
         }
       }
-    },
-    [onError, onExpired, onSuccess, widgetId],
-  );
+    };
+
+    window.addEventListener('message', onMessage, false);
+
+    return () => {
+      if (initialized.current) {
+        window.removeEventListener('message', onMessage);
+      }
+    };
+  }, [email, widgetId, handleGetKey]);
 
   useEffect(() => {
     if (iframeDocument === undefined || initialized.current) {
@@ -93,17 +95,10 @@ export function Captcha(props: CaptchaProps) {
 
     loadCaptchaScript(iframeDocument);
     loadCaptchaWidgetHandlers(iframeDocument, widgetId);
-    window.addEventListener('message', onMessage, false);
-
     initialized.current = true;
 
     // eslint-disable-next-line
-    return () => {
-      if (initialized.current) {
-        window.removeEventListener('message', onMessage);
-      }
-    };
-  }, [iframeDocument, onMessage, widgetId]);
+  }, [iframeDocument, widgetId]);
 
   return <div id={widgetId} data-sitekey={siteKey} data-theme={theme} data-size={size} />;
 }
