@@ -111,9 +111,9 @@ For assistance with activating the remote buyer portal or to inquire about multi
 4. Copy environment variables: `cp apps/storefront/.env-example apps/storefront/.env`.
 5. Update the following values in `.env`:
 
-- `VITE_ASSETS_ABSOLUTE_PATH`(Optional): For custom host, set this if you want to host by yourself the compiled assets after your run `yarn build`command. ie. https://my.custom.cdn/generated/b2b/assets
+- `VITE_ASSETS_ABSOLUTE_PATH`: For building for deployment, set this to the URL where the assets folder is hosted. **Note that this refers to the absolute URL to the `/assets` folder, NOT the root/base URL of the build. Remember to also include the trailing slash**.
 
-  It will point to the absolute path where will be hosted
+  For example, if you deploy the contents of the `dist` folder built by running `yarn build` and hosted it at https://my.custom.cdn/generated/b2b, the value you should put is https://my.custom.cdn/generated/b2b/assets/.
 
 Environment variables have been updated so you can run your UI directly into production storefronts.
 
