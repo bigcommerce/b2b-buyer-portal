@@ -160,8 +160,8 @@ Environment variables have been updated so you can run your UI directly into pro
   window.B3 = {
     setting: {
       store_hash: '{{settings.store_hash}}',
-      channel_id: <your-channel-id>>, // override this depending on your store channel id, you can check this on Channel Manager -> select the desired channel, and the url will show: https://store-<storehash>.mybigcommerce.com/manage/channel/<your-channel-id>/overview
-      platform: 'bigcommerce',
+      channel_id: {{settings.channel_id}},
+      platform: 'bigcommerce', // override this depending on your store channel platform: https://developer.bigcommerce.com/docs/rest-management/channels#platform
     },
   }
 </script>
