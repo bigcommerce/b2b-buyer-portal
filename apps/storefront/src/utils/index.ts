@@ -27,7 +27,7 @@ import { validatorRules } from './validatorRules';
 
 export * from './basicConfig';
 
-export { loginjump } from './b3Login';
+export { loginJump } from './b3Login';
 
 // TODO: Clean this up
 export { default as hideStorefrontElement } from './b3HideStorefrontElement';

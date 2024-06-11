@@ -1,4 +1,5 @@
 import { CustomerRole } from '@/types';
+import { OrderStatusType } from '@/types/gql/graphql';
 
 export interface FilterSearchProps {
   [key: string]: string | number | null;
@@ -58,10 +59,10 @@ export const getFilterMoreData = (
   isCompanyOrder: boolean,
   isAgenting: boolean,
   createdByUsers: any,
-  orderStatuses = [],
+  orderStatuses: OrderStatusType[] = [],
 ) => {
   const newOrderStatuses = orderStatuses.filter(
-    (item: CustomFieldStringItems) => item.statusCode !== '0' && item.statusCode !== '1',
+    (item) => item.statusCode !== '0' && item.statusCode !== '1',
   );
   const newCreatedByUsers =
     createdByUsers?.createdByUser?.results.map((item: any) => ({

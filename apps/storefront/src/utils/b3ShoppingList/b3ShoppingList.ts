@@ -13,15 +13,15 @@ const createShoppingList = ({ data, isB2BUser, role }: CreateShoppingListParams)
   if (data.description.indexOf('\n') > -1) {
     createShoppingData.description = data.description.split('\n').join('\\n');
   }
-  const createSL = isB2BUser ? createB2BShoppingList : createBcShoppingList;
 
   if (isB2BUser) {
-    createShoppingData.status = +role === 2 ? 30 : 0;
-  } else {
-    createShoppingData.channelId = channelId;
+    return createB2BShoppingList({
+      ...createShoppingData,
+      status: +role === 2 ? 30 : 0,
+    });
   }
 
-  return createSL(createShoppingData);
+  return createBcShoppingList({ ...createShoppingData, channelId });
 };
 
 export default createShoppingList;

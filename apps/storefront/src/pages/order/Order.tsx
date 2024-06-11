@@ -93,9 +93,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       let createdByUsers: CustomFieldItems = {};
       if (isB2BUser && isCompanyOrder) createdByUsers = await getOrdersCreatedByUser(+companyId, 0);
 
-      const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType;
-      const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses';
-      const orderStatuses: CustomFieldItems = await fn();
+      const orderStatuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
 
       const filterInfo = getFilterMoreData(
         isB2BUser,
@@ -103,9 +101,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         isCompanyOrder,
         isAgenting,
         createdByUsers,
-        orderStatuses[orderStatusesName],
+        orderStatuses,
       );
-      setOrderStatuses(orderStatuses[orderStatusesName]);
+      setOrderStatuses(orderStatuses);
 
       const filterInfoWithTranslatedLabel = filterInfo.map((element) => {
         const translatedElement = element;
@@ -138,11 +136,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   }, []);
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
-    const fn = isB2BUser ? getB2BAllOrders : getBCAllOrders;
-    const orders = isB2BUser ? 'allOrders' : 'customerOrders';
-    const {
-      [orders]: { edges = [], totalCount },
-    } = await fn(params);
+    const { edges = [], totalCount } = isB2BUser
+      ? await getB2BAllOrders(params)
+      : await getBCAllOrders(params);
 
     setAllTotal(totalCount);
 

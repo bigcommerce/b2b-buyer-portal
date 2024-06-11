@@ -139,11 +139,9 @@ export default function B3Upload(props: B3UploadProps) {
 
       if (role !== 100) params.channelId = channelId;
       const uploadAction = isB2BUser ? B2BProductsBulkUploadCSV : BcProductsBulkUploadCSV;
-
       const BulkUploadCSV = role === 100 ? guestProductsBulkUploadCSV : uploadAction;
 
-      const resp = await BulkUploadCSV(params);
-      const productUpload = role === 100 ? resp.productAnonUpload : resp.productUpload;
+      const productUpload = await BulkUploadCSV(params);
 
       if (productUpload) {
         const { result } = productUpload;

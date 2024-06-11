@@ -21,7 +21,7 @@ import {
 import { setB2BToken } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
 import { OpenPageState } from '@/types/hooks';
-import { channelId, loginjump, snackbar, storeHash } from '@/utils';
+import { channelId, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
 import { deleteCartData } from '@/utils/cartUtils';
@@ -293,7 +293,7 @@ export default function Login(props: RegisteredProps) {
             navigate('/dashboard');
             return;
           }
-          const isLoginLandLocation = loginjump(navigate);
+          const isLoginLandLocation = loginJump(navigate);
 
           if (!isLoginLandLocation) return;
 

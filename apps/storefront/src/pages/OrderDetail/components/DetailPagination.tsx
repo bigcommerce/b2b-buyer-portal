@@ -85,13 +85,9 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
       orderBy: '-createdAt',
     };
 
-    const fn = isB2BUser ? getB2BAllOrders : getBCAllOrders;
-
-    const orders = isB2BUser ? 'allOrders' : 'customerOrders';
-
-    const {
-      [orders]: { edges: list, totalCount },
-    }: CustomFieldItems = await fn(searchDetailParams);
+    const { edges: list, totalCount } = isB2BUser
+      ? await getB2BAllOrders(searchDetailParams)
+      : await getBCAllOrders(searchDetailParams);
 
     let flag = '';
 

@@ -115,24 +115,18 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     contactInformation?.find((item: CustomFieldItems) => item.fieldId === 'field_email')?.name ||
     'email';
 
-  const validateEmailValue = async (emailValue: string) => {
+  const validateEmailValue = async (email: string) => {
     try {
       showLoading(true);
-      const fn = isB2BUser ? checkUserEmail : checkUserBCEmail;
-      const key = isB2BUser ? 'userEmailCheck' : 'customerEmailCheck';
-
-      const {
-        [key]: { userType, userInfo: { companyName = '' } = {} },
-      }: CustomFieldItems = await fn({
-        email: emailValue,
-        channelId,
-      });
+      const { userType, userInfo: { companyName = '' } = {} } = isB2BUser
+        ? await checkUserEmail({ email, channelId })
+        : await checkUserBCEmail({ email, channelId });
 
       if (!isValidUserType) {
         setErrorTips(
           b3Lang(emailError[userType], {
             companyName: companyName || '',
-            email: emailValue,
+            email,
           }),
         );
         setError(emailName, {

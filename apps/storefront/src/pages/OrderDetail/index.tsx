@@ -19,12 +19,7 @@ import {
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import b2bLogger from '@/utils/b3Logger';
 
-import {
-  AddressConfigItem,
-  OrderDetailsResponse,
-  OrderStatusItem,
-  OrderStatusResponse,
-} from '../../types';
+import { AddressConfigItem, OrderStatusItem } from '../../types';
 import OrderStatus from '../order/components/OrderStatus';
 import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
 
@@ -100,10 +95,7 @@ function OrderDetail() {
         setIsRequestLoading(true);
 
         try {
-          const req = isB2BUser ? getB2BOrderDetails : getBCOrderDetails;
-          const res: OrderDetailsResponse = await req(id);
-
-          const order = res[isB2BUser ? 'order' : 'customerOrder'];
+          const order = isB2BUser ? await getB2BOrderDetails(id) : await getBCOrderDetails(id);
 
           if (order) {
             const data = isB2BUser
@@ -127,13 +119,12 @@ function OrderDetail() {
       };
 
       const getOrderStatus = async () => {
-        const fn = isB2BUser ? getOrderStatusType : getBcOrderStatusType;
-        const orderStatusesName = isB2BUser ? 'orderStatuses' : 'bcOrderStatuses';
-        const orderStatuses: OrderStatusResponse = await fn();
+        const orderStatus = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
+
         dispatch({
           type: 'statusType',
           payload: {
-            orderStatus: orderStatuses[orderStatusesName],
+            orderStatus,
           },
         });
       };

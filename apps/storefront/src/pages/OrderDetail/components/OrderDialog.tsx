@@ -360,11 +360,10 @@ export default function OrderDialog({
 
     const getVariantInfoByList = async () => {
       const skus = products.map((product) => product.sku);
-      const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus;
 
-      const { variantSku: variantInfoList = [] }: CustomFieldItems = await getVariantInfoBySku({
-        skus,
-      });
+      const { variantSku: variantInfoList = [] } = isB2BUser
+        ? await getB2BVariantInfoBySkus({ skus })
+        : await getBcVariantInfoBySkus({ skus });
 
       setVariantInfoList(variantInfoList);
     };

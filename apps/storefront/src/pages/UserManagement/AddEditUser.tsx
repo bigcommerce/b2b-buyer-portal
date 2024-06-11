@@ -106,11 +106,9 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
 
   const validateEmailValue = async (emailValue: string) => {
     const {
-      userEmailCheck: {
-        userType,
-        userInfo: { companyName },
-      },
-    }: CustomFieldItems = await checkUserEmail({
+      userType,
+      userInfo: { companyName },
+    } = await checkUserEmail({
       email: emailValue,
       companyId,
       channelId,

@@ -155,20 +155,14 @@ function ShoppingLists() {
   };
 
   const fetchList = async (params: ShoppingListSearch) => {
-    const newParams = isB2BUser
-      ? params
-      : {
+    const { edges, totalCount } = isB2BUser
+      ? await getB2BShoppingList(params)
+      : await getBcShoppingList({
           offset: params.offset,
           first: params.first,
           search: params.search,
           channelId,
-        };
-    const getShoppingLists = isB2BUser ? getB2BShoppingList : getBcShoppingList;
-    const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists';
-
-    const {
-      [infoKey]: { edges, totalCount },
-    } = await getShoppingLists(newParams);
+        });
 
     return {
       edges,
@@ -204,8 +198,12 @@ function ShoppingLists() {
       handleCancelClick();
       const id: number = deleteItem?.id || 0;
 
-      const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteBcShoppingList;
-      await deleteShoppingList(id);
+      if (isB2BUser) {
+        await deleteB2BShoppingList(id);
+      } else {
+        await deleteBcShoppingList(id);
+      }
+
       snackbar.success(b3Lang('shoppingLists.deleteSuccess'));
     } finally {
       setIsRequestLoading(false);
