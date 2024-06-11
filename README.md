@@ -250,7 +250,7 @@ Also, you'll have to input the following header script:
 
 ### Common issues:
 
-- **Stencil CLI** Currently we're working to bring full support to integrate buyer portal into that tool, there are issues on loging out and cart management, if you find other problems feel free to open an issue report.
+- **Stencil CLI** We're working to bring full support to integrate buyer portal into [stencil-cli](https://developer.bigcommerce.com/docs/storefront/stencil), there are issues on logging out and cart management, if you find other problems feel free to open an issue report.
 - **Cross-Origin Issues:** If you encounter cross-origin issues, ensure you have the correct URLs in your `.env` file and verify that your store's origin URL is allowed. You can use a tunnel service like [ngrok](https://ngrok.com/) to expose your local server to the internet.
 - **Environment Variables:** Ensure you have the correct environment variables set in your `.env` file. These variables are used to configure your application for different environments.
 - **Header and Footer Scripts:** Ensure you have the correct header and footer scripts set in your BigCommerce store. These scripts are used to load your application into the storefront.
