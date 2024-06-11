@@ -363,12 +363,12 @@ export const getB2BCustomerAddresses = (companyId: number) =>
 export const getB2BQuotesList = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: getQuotesList(data, 'b2b'),
-  });
+  }).then((res) => res.quotes);
 
 export const getBCQuotesList = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: getQuotesList(data, 'bc'),
-  });
+  }).then((res) => res.customerQuotes);
 
 export const createQuote = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({

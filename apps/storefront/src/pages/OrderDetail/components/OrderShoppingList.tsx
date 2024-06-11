@@ -60,14 +60,10 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
       setLoading(true);
       setList([]);
 
-      const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList;
-      const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists';
-      const params = isB2BUser ? {} : { channelId };
-
       try {
-        const {
-          [infoKey]: { edges: list = [] },
-        }: CustomFieldItems = await getShoppingList(params);
+        const { edges: list = [] } = isB2BUser
+          ? await getB2BShoppingList()
+          : await getBcShoppingList({ channelId });
 
         if (!isB2BUser) {
           setList(list);

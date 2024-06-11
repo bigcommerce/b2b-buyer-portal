@@ -15,7 +15,7 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';
-import { channelId, loginjump, storeHash } from '@/utils';
+import { channelId, loginJump, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -602,7 +602,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
   };
 
   const handleFinish = () => {
-    const isLoginLandLocation = loginjump(navigate, true);
+    const isLoginLandLocation = loginJump(navigate, true);
 
     if (!isLoginLandLocation) return;
 

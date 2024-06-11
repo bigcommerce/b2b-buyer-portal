@@ -204,8 +204,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         }
       });
 
-      const getVariantInfoByProductId = isB2BUser ? searchB2BProducts : searchBcProducts;
-
       if (productIds.length === 0) {
         snackbar.error(b3Lang('purchasedProducts.footer.selectOneItemToAdd'));
         return;
@@ -213,6 +211,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
       const companyId = companyInfoId;
 
+      const getVariantInfoByProductId = isB2BUser ? searchB2BProducts : searchBcProducts;
       const { productsSearch: getInventoryInfos } = await getVariantInfoByProductId({
         productIds,
         companyId,
@@ -305,7 +304,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       });
 
       const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
-
       const { productsSearch } = await getProducts({
         productIds,
         companyId: companyInfoId,
@@ -506,7 +504,6 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       });
 
       const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
-
       await addToShoppingList({
         shoppingListId: +shoppingListId,
         items,

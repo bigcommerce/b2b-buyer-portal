@@ -172,15 +172,9 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   };
 
   const getShoppingListDetails = async (params: SearchProps) => {
-    const getSLDetail = isB2BUser ? getB2BShoppingListDetails : getBcShoppingListDetails;
-    const infoKey = isB2BUser ? 'shoppingList' : 'customerShoppingList';
-
-    const shoppingListInfos = await getSLDetail({
-      id,
-      ...params,
-    });
-
-    const shoppingListDetailInfo = shoppingListInfos[infoKey];
+    const shoppingListDetailInfo = isB2BUser
+      ? await getB2BShoppingListDetails({ id, ...params })
+      : await getBcShoppingListDetails({ id, ...params });
 
     const {
       products: { edges, totalCount },
@@ -209,7 +203,6 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const handleUpdateShoppingList = async (status: number) => {
     setIsRequestLoading(true);
     try {
-      const updateShoppingList = isB2BUser ? updateB2BShoppingList : updateBcShoppingList;
       const params: UpdateShoppingListParamsProps = {
         id: +id,
         name: shoppingListInfo?.name || '',
@@ -217,12 +210,16 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       };
 
       if (isB2BUser) {
-        params.status = status;
+        await updateB2BShoppingList({
+          ...params,
+          status,
+        });
       } else {
-        params.channelId = channelId;
+        await updateBcShoppingList({
+          ...params,
+          channelId,
+        });
       }
-
-      await updateShoppingList(params);
 
       snackbar.success(b3Lang('shoppingList.shoppingListStatusUpdated'), {
         isClose: true,

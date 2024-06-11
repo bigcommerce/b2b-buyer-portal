@@ -194,14 +194,14 @@ export const getBcVariantInfoBySkus = (data: CustomFieldItems = {}) =>
 export const B2BProductsBulkUploadCSV = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: productsBulkUploadCSV(data),
-  });
+  }).then((res) => res.productUpload);
 
 export const BcProductsBulkUploadCSV = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: productsBulkUploadCSV(data),
-  });
+  }).then((res) => res.productUpload);
 
 export const guestProductsBulkUploadCSV = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: productAnonUploadBulkUploadCSV(data),
-  });
+  }).then((res) => res.productAnonUpload);

@@ -1,3 +1,5 @@
+import { B2BOrderData, OrderStatusItem } from '@/types';
+
 import B3Request from '../../request/b3Fetch';
 
 const allOrders = (data: CustomFieldItems, fn: string) => `{
@@ -190,32 +192,32 @@ const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
 export const getB2BAllOrders = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: allOrders(data, 'allOrders'),
-  });
+  }).then((res) => res.allOrders);
 
 export const getBCAllOrders = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: allOrders(data, 'customerOrders'),
-  });
+  }).then((res) => res.customerOrders);
 
-export const getB2BOrderDetails = (id: number) =>
+export const getB2BOrderDetails = (id: number): Promise<B2BOrderData> =>
   B3Request.graphqlB2B({
     query: orderDetail(id, 'order'),
-  });
+  }).then((res) => res.order);
 
-export const getBCOrderDetails = (id: number) =>
+export const getBCOrderDetails = (id: number): Promise<B2BOrderData> =>
   B3Request.graphqlB2B({
     query: orderDetail(id, 'customerOrder'),
-  });
+  }).then((res) => res.customerOrder);
 
-export const getOrderStatusType = () =>
+export const getOrderStatusType = (): Promise<OrderStatusItem[]> =>
   B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('orderStatuses'),
-  });
+  }).then((res) => res.orderStatuses);
 
-export const getBcOrderStatusType = () =>
+export const getBcOrderStatusType = (): Promise<OrderStatusItem[]> =>
   B3Request.graphqlB2B({
     query: getOrderStatusTypeQl('bcOrderStatuses'),
-  });
+  }).then((res) => res.bcOrderStatuses);
 
 export const getOrdersCreatedByUser = (companyId: number, module: number) =>
   B3Request.graphqlB2B({
