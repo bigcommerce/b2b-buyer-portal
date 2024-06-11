@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -32,28 +32,16 @@ export default function B3DropDown<T>({
   value,
   handleItemClick,
 }: B3DropDownProps<T>) {
-  const [open, setOpen] = useState<null | HTMLElement>(null);
+  const [isMobile] = useMobile();
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
   const b3Lang = useB3Lang();
 
-  const handleClick = (event: MouseEvent<HTMLElement>) => {
-    setOpen(event.currentTarget);
-  };
-
-  const handleCloseMenuClick = () => {
-    setOpen(null);
+  const close = () => {
+    setIsOpen(false);
   };
 
   const keyName = config?.name || 'name';
-
-  const [isMobile] = useMobile();
-
-  const sx = isMobile
-    ? {
-        width: 'auto',
-      }
-    : {
-        width: width || '155px',
-      };
 
   return (
     <Box
@@ -62,7 +50,8 @@ export default function B3DropDown<T>({
       }}
     >
       <ListItemButton
-        onClick={handleClick}
+        ref={ref}
+        onClick={() => setIsOpen(true)}
         sx={{
           pr: 0,
         }}
@@ -76,11 +65,11 @@ export default function B3DropDown<T>({
             },
           }}
         />
-        {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+        {isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
       </ListItemButton>
       <Menu
-        anchorEl={open}
-        open={Boolean(open)}
+        anchorEl={ref.current}
+        open={isOpen}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',
@@ -91,7 +80,7 @@ export default function B3DropDown<T>({
         }}
         id="customized-menu"
         keepMounted
-        onClose={handleCloseMenuClick}
+        onClose={close}
         sx={{
           '& .MuiList-root.MuiList-padding.MuiMenu-list': {
             pt: isMobile ? 0 : '8px',
@@ -107,11 +96,11 @@ export default function B3DropDown<T>({
               <MenuItem
                 sx={{
                   color,
-                  ...sx,
+                  width: isMobile ? 'auto' : width || '155px',
                 }}
                 key={name}
                 onClick={() => {
-                  handleCloseMenuClick();
+                  close();
                   handleItemClick(item);
                 }}
               >

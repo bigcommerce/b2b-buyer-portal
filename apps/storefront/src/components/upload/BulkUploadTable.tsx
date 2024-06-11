@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from 'react';
+import { useRef, useState } from 'react';
 import { InsertDriveFile, MoreHoriz } from '@mui/icons-material';
 import { Box, Button, Link, Menu, MenuItem, Tab, Tabs, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -129,18 +129,16 @@ function BulkUploadTable(props: BulkUploadTableProps) {
 
   const errorProduct = fileDatas?.errorProduct || [];
   const validProduct = fileDatas?.validProduct || [];
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [open, setOpen] = useState<boolean>(Boolean(anchorEl));
+  const ref = useRef<HTMLButtonElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(errorProduct.length > 0 ? 'error' : 'valid');
 
-  const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(e.currentTarget);
-    setOpen(true);
+  const handleOpenBtnList = () => {
+    setIsOpen(true);
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
-    setOpen(false);
+    setIsOpen(false);
   };
 
   const handleRemoveCsv = () => {
@@ -203,8 +201,9 @@ function BulkUploadTable(props: BulkUploadTableProps) {
           sx={{
             color: 'rgba(0, 0, 0, 0.54)',
           }}
-          onClick={(e) => {
-            handleOpenBtnList(e);
+          ref={ref}
+          onClick={() => {
+            handleOpenBtnList();
           }}
         >
           <MoreHoriz
@@ -214,7 +213,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
           />
         </Button>
 
-        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <Menu anchorEl={ref.current} open={isOpen} onClose={handleClose}>
           <MenuItem
             onClick={() => {
               handleRemoveCsv();

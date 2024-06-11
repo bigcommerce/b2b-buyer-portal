@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -37,29 +37,28 @@ function B3Pulldown({
   const role = useAppSelector(({ company }) => company.customer.role);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const juniorOrSenior = +role === 1 || role === 2;
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const ref = useRef<HTMLButtonElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [isCanPay, setIsCanPay] = useState<boolean>(true);
 
   const navigate = useNavigate();
 
-  const open = Boolean(anchorEl);
-
   const b3Lang = useB3Lang();
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const close = () => {
+    setIsOpen(false);
   };
 
-  const handleMoreActionsClick = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleMoreActionsClick = () => {
     const { id } = row;
     setInvoiceId(id);
-    setAnchorEl(event.currentTarget);
+    setIsOpen(true);
   };
 
   const handleViewInvoice = async (isPayNow: boolean) => {
     const { id } = row;
 
-    setAnchorEl(null);
+    close();
 
     setIsRequestLoading(true);
 
@@ -82,12 +81,12 @@ function B3Pulldown({
 
   const handleViewOrder = () => {
     const { orderNumber } = row;
-    setAnchorEl(null);
+    close();
     navigate(`/orderDetail/${orderNumber}`);
   };
 
   const handlePay = async () => {
-    setAnchorEl(null);
+    close();
 
     const { openBalance, originalBalance, id } = row;
 
@@ -113,14 +112,14 @@ function B3Pulldown({
   };
 
   const viewPaymentHistory = async () => {
-    setAnchorEl(null);
+    close();
     handleOpenHistoryModal(true);
   };
 
   const handleDownloadPDF = async () => {
     const { id } = row;
 
-    setAnchorEl(null);
+    close();
     setIsRequestLoading(true);
     const url = await getInvoiceDownloadPDFUrl(id);
 
@@ -144,14 +143,14 @@ function B3Pulldown({
 
   return (
     <>
-      <IconButton onClick={(e) => handleMoreActionsClick(e)}>
+      <IconButton onClick={handleMoreActionsClick} ref={ref}>
         <MoreHorizIcon />
       </IconButton>
       <StyledMenu
         id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
+        anchorEl={ref.current}
+        open={isOpen}
+        onClose={close}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}

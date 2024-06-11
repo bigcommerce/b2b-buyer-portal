@@ -1,4 +1,4 @@
-import { MouseEvent, useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { ArrowDropDown, Delete } from '@mui/icons-material';
 import { Box, Grid, Menu, MenuItem, Typography } from '@mui/material';
@@ -82,9 +82,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
-
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [open, setOpen] = useState<boolean>(Boolean(anchorEl));
+  const ref = useRef<HTMLButtonElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const cartEntityId = Cookies.get('cartId');
 
@@ -111,18 +110,16 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     customColor,
   } = props;
 
-  const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleOpenBtnList = () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('shoppingList.footer.selectOneItem'));
     } else {
-      setAnchorEl(e.currentTarget);
-      setOpen(true);
+      setIsOpen(true);
     }
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
-    setOpen(false);
+    setIsOpen(false);
   };
 
   const verifyInventory = (inventoryInfos: ProductsProps[]) => {
@@ -629,6 +626,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                       <CustomButton
                         variant="contained"
                         onClick={handleOpenBtnList}
+                        ref={ref}
                         sx={{
                           marginRight: isMobile ? '1rem' : 0,
                           width: isMobile ? '100%' : 'auto',
@@ -639,8 +637,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                       </CustomButton>
                       <Menu
                         id="basic-menu"
-                        anchorEl={anchorEl}
-                        open={open}
+                        anchorEl={ref.current}
+                        open={isOpen}
                         onClose={handleClose}
                         MenuListProps={{
                           'aria-labelledby': 'basic-button',
