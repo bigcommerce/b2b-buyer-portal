@@ -5,7 +5,7 @@ import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
 import { getCustomerInfo } from '@/shared/service/bc';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { checkEveryPermissionsCode } from '@/utils';
+import { checkEveryPermissionsCode, getB3PermissionsList } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
 
@@ -432,7 +432,10 @@ const gotoAllowedAppPage = async (
 ) => {
   const { hash, pathname, href } = window.location;
   const currentState = store.getState();
-  const isLoggedIn = currentState.company.customer || role !== CustomerRole.GUEST;
+
+  const { company } = currentState;
+  const { companyRoleName } = company.customer;
+  const isLoggedIn = company.customer || role !== CustomerRole.GUEST;
   if (!isLoggedIn) {
     gotoPage('/login?loginFlag=3&&closeIsLogout=1');
     return;
@@ -459,22 +462,45 @@ const gotoAllowedAppPage = async (
   }
 
   let url = hash.split('#')[1] || '';
-  if ((!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) || isAccountEnter)
-    switch (role) {
+  const IsRealJuniorBuyer =
+    +role === CustomerRole.JUNIOR_BUYER && companyRoleName === 'Junior Buyer';
+  const currentRole = !IsRealJuniorBuyer && +role === CustomerRole.JUNIOR_BUYER ? 1 : role;
+  if ((!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) || isAccountEnter) {
+    let isB2BUser = false;
+    if (
+      company.customer.userType === UserTypes.MULTIPLE_B2C &&
+      company.companyInfo.status === CompanyStatus.APPROVED
+    ) {
+      isB2BUser = true;
+    } else if (+company.customer.role === CustomerRole.SUPER_ADMIN) {
+      isB2BUser = true;
+    }
+
+    const { getShoppingListPermission, getOrderPermission } = getB3PermissionsList();
+    let currentAuthorizedPages = '/orders';
+
+    if (isB2BUser) {
+      currentAuthorizedPages = getShoppingListPermission ? '/shoppingLists' : '/accountSettings';
+      if (getOrderPermission)
+        currentAuthorizedPages = IsRealJuniorBuyer ? currentAuthorizedPages : '/orders';
+    }
+
+    switch (currentRole) {
       case CustomerRole.JUNIOR_BUYER:
-        url = '/shoppingLists';
+        url = currentAuthorizedPages;
         break;
       case CustomerRole.SUPER_ADMIN:
         url = '/dashboard';
         break;
       default:
-        url = '/orders';
+        url = currentAuthorizedPages;
         break;
     }
+  }
 
   const flag = routes.some((item: RouteItem) => {
     if (matchPath(item.path, url) || isInvoicePage()) {
-      return item.permissions.includes(role);
+      return item.permissions.includes(currentRole);
     }
     return false;
   });

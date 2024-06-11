@@ -25,7 +25,6 @@ const getRoles = (data: CustomFieldItems) => `{
         name
         roleLevel
         roleType
-        companyInfo
       }
     },
     totalCount

@@ -73,6 +73,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
   const companyId = isAgenting ? +salesRepCompanyId : +companyInfoId;
 
   const fetchData = async ({ type = '', value = '' }) => {
+    if (loading) return;
     setLoading(true);
 
     try {
@@ -150,8 +151,8 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     [handleFilterRoleChange],
   );
 
-  const handleOpenSelect = () => {
-    fetchData({});
+  const handleOpenSelect = (event: SyntheticEvent) => {
+    if (event.type === 'click' || event.type === 'mousedown') fetchData({});
   };
 
   const handleScroll = (event: SyntheticEvent) => {
@@ -219,6 +220,10 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
             )}
             ListboxProps={{
               onScroll: handleScroll,
+              style: {
+                maxHeight: '35vh',
+                overflow: 'auto',
+              },
             }}
           />
         )}
