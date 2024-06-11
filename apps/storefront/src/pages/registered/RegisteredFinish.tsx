@@ -39,7 +39,7 @@ export default function RegisteredFinish(props: {
       return isAutoApproval ? (
         <StyleTipContainer>
           {b3Lang('global.registerFinish.autoApproved.tip', {
-            storeName,
+            storeName: storeName ?? '',
           })}
         </StyleTipContainer>
       ) : (
@@ -71,7 +71,7 @@ export default function RegisteredFinish(props: {
       return (
         <StyleTipContainer>
           {b3Lang('global.registerFinish.bcSuccess.tip', {
-            storeName,
+            storeName: storeName ?? '',
           })}
         </StyleTipContainer>
       );

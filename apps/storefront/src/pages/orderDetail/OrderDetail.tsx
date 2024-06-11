@@ -257,7 +257,7 @@ function OrderDetail() {
             >
               {b3Lang('orderDetail.orderId', { orderId })}
               {b3Lang('orderDetail.purchaseOrderNumber', {
-                purchaseOrderNumber: poNumber,
+                purchaseOrderNumber: poNumber ?? '',
               })}
             </Typography>
             <OrderStatus code={status} text={getOrderStatusLabel(status)} />

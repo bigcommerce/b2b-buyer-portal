@@ -4,13 +4,15 @@ import { store } from '@/store/reducer.js';
 
 import DateFormatter from './php-date-format.js';
 
-type DisplatyType = 'display' | 'extendedDisplay';
+type DisplayType = 'display' | 'extendedDisplay';
 
 const fmt = new DateFormatter();
 
+type Handler = 'formatDate' | 'parseDate';
+
 const formatCreator =
-  (displayType: DisplatyType, handler: string, useOffset = true) =>
-  (timestamp: string | number, isDateStr = false) => {
+  (displayType: DisplayType, handler: Handler, useOffset = true) =>
+  (timestamp: string | number, isDateStr = false): string | number | Date => {
     const { timeFormat } = store.getState().storeInfo;
     const dateFormat = merge(
       {
@@ -21,6 +23,7 @@ const formatCreator =
       },
       timeFormat,
     );
+
     const display = dateFormat[displayType];
 
     if (!timestamp) return '';
@@ -38,7 +41,7 @@ const formatCreator =
       case 'parseDate':
         return fmt.parseDate(dateObject, display) || '';
       default:
-        return null;
+        throw new Error('Invalid value');
     }
   };
 
