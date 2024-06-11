@@ -1,4 +1,4 @@
-import { Dispatch, MouseEvent, SetStateAction, useContext, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { ArrowDropDown } from '@mui/icons-material';
@@ -116,12 +116,12 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
   const isDesktopLimit = useMediaQuery('(min-width:1775px)');
   const [isMobile] = useMobile();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [open, setOpen] = useState<boolean>(Boolean(anchorEl));
-  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.0);
-  const [openShoppingList, setOpenShoppingList] = useState<boolean>(false);
-  const [isOpenCreateShopping, setIsOpenCreateShopping] = useState<boolean>(false);
-  const [isShoppingListLoading, setIisShoppingListLoading] = useState<boolean>(false);
+  const ref = useRef<HTMLButtonElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedSubTotal, setSelectedSubTotal] = useState(0.0);
+  const [openShoppingList, setOpenShoppingList] = useState(false);
+  const [isOpenCreateShopping, setIsOpenCreateShopping] = useState(false);
+  const [isShoppingListLoading, setIisShoppingListLoading] = useState(false);
 
   const customerGroupId = useAppSelector((state) => state.company.customer.customerGroupId);
 
@@ -136,18 +136,16 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         alignItems: 'center',
       };
 
-  const handleOpenBtnList = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleOpenBtnList = () => {
     if (checkedArr.length === 0) {
       snackbar.error(b3Lang('purchasedProducts.error.selectOneItem'));
     } else {
-      setAnchorEl(e.currentTarget);
-      setOpen(true);
+      setIsOpen(true);
     }
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
-    setOpen(false);
+    setIsOpen(false);
   };
 
   // Add selected to cart
@@ -675,6 +673,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                 >
                   <CustomButton
                     variant="contained"
+                    ref={ref}
                     onClick={handleOpenBtnList}
                     sx={{
                       marginRight: isMobile ? '1rem' : 0,
@@ -687,8 +686,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
                   <Menu
                     id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
+                    anchorEl={ref.current}
+                    open={isOpen}
                     onClose={handleClose}
                     MenuListProps={{
                       'aria-labelledby': 'basic-button',

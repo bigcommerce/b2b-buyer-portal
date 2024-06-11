@@ -1,4 +1,4 @@
-import { Dispatch, MouseEvent, SetStateAction, useContext, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -52,18 +52,14 @@ const StyledMenu = styled(Menu)(() => ({
 }));
 
 function B3Mean({ isMasquerade, handleSelect, startActing, endActing }: B3MeanProps) {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const ref = useRef<HTMLButtonElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const open = Boolean(anchorEl);
   const b3Lang = useB3Lang();
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleMoreActionsClick = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleOpen = () => {
     handleSelect();
-    setAnchorEl(event.currentTarget);
+    setIsOpen(true);
   };
 
   const menuItemText = isMasquerade
@@ -72,14 +68,14 @@ function B3Mean({ isMasquerade, handleSelect, startActing, endActing }: B3MeanPr
 
   return (
     <>
-      <IconButton onClick={(e) => handleMoreActionsClick(e)}>
+      <IconButton onClick={handleOpen} ref={ref}>
         <MoreHorizIcon />
       </IconButton>
       <StyledMenu
         id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
+        anchorEl={ref.current}
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
@@ -100,9 +96,10 @@ function B3Mean({ isMasquerade, handleSelect, startActing, endActing }: B3MeanPr
             if (isMasquerade) {
               endActing();
             } else {
-              setAnchorEl(null);
               startActing();
             }
+
+            setIsOpen(false);
           }}
         >
           {menuItemText}

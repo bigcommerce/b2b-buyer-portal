@@ -443,6 +443,7 @@ export default function OrderAction(props: OrderActionProps) {
             role={role}
             ipStatus={ipStatus}
             invoiceId={invoiceId}
+            key={item.key}
           />
         ))}
     </OrderActionContainer>
