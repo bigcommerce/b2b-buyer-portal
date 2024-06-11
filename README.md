@@ -48,13 +48,11 @@ You can get straight to work building for your unique B2B business cases.
 
 ## ☑ Prerequisites
 
-### Step 1: Install B2B Edition Bigcommerce app (if you don't have the app installed yet)
+### Step 1: Ensure you have access to the B2B edition app
 
-Go to [B2B Edtion App](https://www.bigcommerce.com/apps/b2b-edition/) and install it
+If you do not have access to the B2B edition app please reach out to your account or partner manager
 
-And that's it!
-
-### Step 2 (optional, for multistorefront channels enabled): Access the Storefronts Manager
+### Step 2 (optional): Access storefront manager (Only for B2B Multi-storefront and headless stores)
 
 After installing the B2B Edition App, go to the app's dashboard and select the 'Storefronts' section.
 
