@@ -48,21 +48,25 @@ You can get straight to work building for your unique B2B business cases.
 
 ## ☑ Prerequisites
 
-Before you begin, ensure you have the BigCommerce B2B Edition App installed. To set up your storefront with B2B capabilities, follow the steps below:
+### Step 1: Install B2B Edition Bigcommerce app (if you don't have the app installed yet)
 
-### Step 1: Access the Storefronts Manager
+Go to [B2B Edtion App](https://www.bigcommerce.com/apps/b2b-edition/) and install it
+
+And that's it!
+
+### Step 2 (optional, for multistorefront channels enabled): Access the Storefronts Manager
 
 After installing the B2B Edition App, go to the app's dashboard and select the 'Storefronts' section.
 
 <img width="200" alt="b2bNav" src="public/images/b2bNav.png">
   
-### Step 2: Enable B2B on Your Channel
+### Step 3: Enable B2B on Your Channel
 
 Choose the channel where you wish to enable B2B functionality. Initially, B2B features can be activated on a single channel only.
 
 <img width="480" alt="storefront-settings-b2b" src="public/images/storefront-settings.png">
 
-### Step 3: Contact Us for Additional Support
+### Step 4: Contact Us for Additional Support
 
 For assistance with activating the remote buyer portal or to inquire about multi-storefront support, which allows you to utilize B2B features across multiple channels, please reach out to our team at b2b@bigcommerce.com, or raise an issue right here in this repository.
 
@@ -101,7 +105,7 @@ For assistance with activating the remote buyer portal or to inquire about multi
 
 1. Installation of Node and Yarn.
    - For Node, we recommend using [nvm](https://github.com/nvm-sh/nvm).
-   - Once Node is installed, you can install Yarn by using `npm i -g yarn`. If you'd rather use `pnpm`, visit this [guide](https://dev.to/andreychernykh/yarn-npm-to-pnpm-migration-guide-2n04).
+   - Once Node is installed, you can install Yarn by using `npm i -g yarn`.
 2. Clone the repository.
 3. Install dependencies using `yarn`.
 4. Copy environment variables: `cp apps/storefront/.env-example apps/storefront/.env`.
@@ -248,6 +252,7 @@ Also, you'll have to input the following header script:
 
 ### Common issues:
 
+- **Stencil CLI** Currently we're working to bring full support to integrate buyer portal into that tool, there are issues on loging out and cart management, if you find other problems feel free to open an issue report.
 - **Cross-Origin Issues:** If you encounter cross-origin issues, ensure you have the correct URLs in your `.env` file and verify that your store's origin URL is allowed. You can use a tunnel service like [ngrok](https://ngrok.com/) to expose your local server to the internet.
 - **Environment Variables:** Ensure you have the correct environment variables set in your `.env` file. These variables are used to configure your application for different environments.
 - **Header and Footer Scripts:** Ensure you have the correct header and footer scripts set in your BigCommerce store. These scripts are used to load your application into the storefront.
