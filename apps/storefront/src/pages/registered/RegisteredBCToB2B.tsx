@@ -456,7 +456,7 @@ export default function RegisteredBCToB2B(props: RegisteredProps) {
       setError(attachmentsFilesFiled.name, {
         type: 'required',
         message: b3Lang('global.validate.required', {
-          label: attachmentsFilesFiled.label,
+          label: attachmentsFilesFiled.label ?? '',
         }),
       });
 

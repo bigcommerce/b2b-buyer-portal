@@ -315,7 +315,7 @@ export default function OrderAction(props: OrderActionProps) {
       city,
     } = billingAddress || {};
     const paymentAddress = {
-      paymentMethod: b3Lang('orderDetail.paymentMethod', { paymentMethod }),
+      paymentMethod: b3Lang('orderDetail.paymentMethod', { paymentMethod: paymentMethod ?? '' }),
       name: b3Lang('orderDetail.customerName', { firstName, lastName }),
       company: getCompanyName(company),
       street: street1,
