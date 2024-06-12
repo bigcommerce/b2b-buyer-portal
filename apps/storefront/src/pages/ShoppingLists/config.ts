@@ -35,6 +35,7 @@ export interface ShoppingListsItemsProps {
   sampleShoppingListId?: number | string;
   channelId: number;
   approvedFlag: boolean;
+  isOwner: boolean;
 }
 
 export interface GetFilterMoreListProps {

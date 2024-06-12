@@ -693,7 +693,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                     >
                       {buttonList.length > 0 &&
                         buttonList.map((button) => {
-                        if (button.isDisabled) return null;
+                          if (button.isDisabled) return null;
 
                           return (
                             <MenuItem
@@ -705,8 +705,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
                               {button.name}
                             </MenuItem>
                           );
-                        })
-                      }
+                        })}
                     </Menu>
                   </Box>
                 </Box>

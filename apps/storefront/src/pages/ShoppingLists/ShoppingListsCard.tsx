@@ -10,6 +10,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import isEmpty from 'lodash-es/isEmpty';
 
 import CustomButton from '@/components/button/CustomButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
@@ -54,6 +55,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
   const b3Lang = useB3Lang();
 
   const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
+  const permissions = useAppSelector(({ company }) => company.permissions);
 
   const { submitShoppingListPermission, approveShoppingListPermission } =
     useAppSelector(rolePermissionSelector);
@@ -89,11 +91,18 @@ function ShoppingListsCard(props: OrderItemCardProps) {
 
   useEffect(() => {
     if (isB2BUser) {
+      const editShoppingListPermission = permissions.find(
+        (item) => item.code === 'deplicate_shopping_list',
+      );
       const param: PermissionLevelInfoProps[] = [];
-      param.push({
-        permissionType: 'shoppingListActionsPermission',
-      });
-
+      if (editShoppingListPermission && !isEmpty(editShoppingListPermission)) {
+        const currentLevel = editShoppingListPermission.permissionLevel;
+        const isOwner = shoppingList?.isOwner || false;
+        param.push({
+          permissionType: 'shoppingListActionsPermission',
+          permissionLevel: currentLevel === 1 && isOwner ? currentLevel : 2,
+        });
+      }
       const { shoppingListActionsPermission } = getB3PermissionsList(param);
 
       setIsCanEditShoppingList(shoppingListActionsPermission);

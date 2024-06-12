@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } fro
 import { useNavigate, useParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Grid, useTheme } from '@mui/material';
+import isEmpty from 'lodash-es/isEmpty';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
@@ -87,6 +88,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
+  const permissions = useAppSelector(({ company }) => company.permissions);
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const navigate = useNavigate();
@@ -339,10 +341,19 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
 
   useEffect(() => {
     if (isB2BUser && shoppingListInfo) {
+      const editShoppingListPermission = permissions.find(
+        (item) => item.code === 'deplicate_shopping_list',
+      );
       const param: PermissionLevelInfoProps[] = [];
-      param.push({
-        permissionType: 'shoppingListActionsPermission',
-      });
+
+      if (editShoppingListPermission && !isEmpty(editShoppingListPermission)) {
+        const currentLevel = editShoppingListPermission.permissionLevel;
+        const isOwner = shoppingListInfo?.isOwner || false;
+        param.push({
+          permissionType: 'shoppingListActionsPermission',
+          permissionLevel: currentLevel === 1 && isOwner ? currentLevel : 2,
+        });
+      }
 
       const { shoppingListActionsPermission } = getB3PermissionsList(param);
 

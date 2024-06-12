@@ -42,7 +42,8 @@ function B3Pulldown({
 
   const b3Lang = useB3Lang();
 
-  const { getOrderPermission, invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+  const { getOrderPermission, invoicePayPermission, purchasabilityPermission } =
+    useAppSelector(rolePermissionSelector);
   const close = () => {
     setIsOpen(false);
   };

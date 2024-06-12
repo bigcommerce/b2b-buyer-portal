@@ -23,6 +23,7 @@ export interface ShoppingListInfoProps {
     totalCount: number | string;
   };
   customerInfo: CustomerInfoProps;
+  isOwner: boolean;
 }
 
 export interface CustomerInfoProps {

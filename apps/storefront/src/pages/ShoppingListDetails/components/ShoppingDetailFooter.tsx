@@ -82,7 +82,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
-  const { shoppingListActionsPermission, purchasabilityPermission, submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
+  const { shoppingListActionsPermission, purchasabilityPermission, submitShoppingListPermission } =
+    useAppSelector(rolePermissionSelector);
   const ref = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
