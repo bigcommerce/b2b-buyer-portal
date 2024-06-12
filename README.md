@@ -48,21 +48,23 @@ You can get straight to work building for your unique B2B business cases.
 
 ## ☑ Prerequisites
 
-Before you begin, ensure you have the BigCommerce B2B Edition App installed. To set up your storefront with B2B capabilities, follow the steps below:
+### Step 1: Ensure you have access to the B2B edition app
 
-### Step 1: Access the Storefronts Manager
+If you do not have access to the B2B edition app please reach out to your account or partner manager
+
+### Step 2 (optional): Access storefront manager (Only for B2B Multi-storefront and headless stores)
 
 After installing the B2B Edition App, go to the app's dashboard and select the 'Storefronts' section.
 
 <img width="200" alt="b2bNav" src="public/images/b2bNav.png">
   
-### Step 2: Enable B2B on Your Channel
+### Step 3: Enable B2B on Your Channel
 
 Choose the channel where you wish to enable B2B functionality. Initially, B2B features can be activated on a single channel only.
 
 <img width="480" alt="storefront-settings-b2b" src="public/images/storefront-settings.png">
 
-### Step 3: Contact Us for Additional Support
+### Step 4: Contact Us for Additional Support
 
 For assistance with activating the remote buyer portal or to inquire about multi-storefront support, which allows you to utilize B2B features across multiple channels, please reach out to our team at b2b@bigcommerce.com, or raise an issue right here in this repository.
 
@@ -101,17 +103,21 @@ For assistance with activating the remote buyer portal or to inquire about multi
 
 1. Installation of Node and Yarn.
    - For Node, we recommend using [nvm](https://github.com/nvm-sh/nvm).
-   - Once Node is installed, you can install Yarn by using `npm i -g yarn`. If you'd rather use `pnpm`, visit this [guide](https://dev.to/andreychernykh/yarn-npm-to-pnpm-migration-guide-2n04).
+   - Once Node is installed, you can install Yarn by using `npm i -g yarn`.
 2. Clone the repository.
 3. Install dependencies using `yarn`.
 4. Copy environment variables: `cp apps/storefront/.env-example apps/storefront/.env`.
 5. Update the following values in `.env`:
 
-- `VITE_ASSETS_ABSOLUTE_PATH`: For deployment, set this to the absolute path of the hosted compiled assets.
+- `VITE_ASSETS_ABSOLUTE_PATH`: For building for deployment, set this to the URL where the assets folder is hosted. **Note that this refers to the absolute URL to the `/assets` folder, NOT the root/base URL of the build. Remember to also include the trailing slash**.
+
+  For example, if you deploy the contents of the `dist` folder built by running `yarn build` and hosted it at https://my.custom.cdn/generated/b2b, the value you should put is https://my.custom.cdn/generated/b2b/assets/.
 
 Environment variables have been updated so you can run your UI directly into production storefronts.
 
-6. Start the development server: `yarn RUN dev`.
+6. Start the development server: `yarn dev`.
+7. **Access to the store through the url i.e: https://my-store.mybigcommerce.com/ or https://my-store.com/ not http://localhost:3001**
+
 
 ## Running Project Locally
 
@@ -119,6 +125,7 @@ Environment variables have been updated so you can run your UI directly into pro
 2. Configure header and footer scripts:
 
 - Navigate to Channels Manager -> Scripts.
+- Delete first scripts: `B2BEdition Header Script` and `B2BEdition Footer Script`, then
 - Add two scripts (e.g., B2BEdition-header, B2BEdition-footer). Ensure you set the correct port for your localhost in the script URLs. In the "Location" section make sure you check on "All pages".
 - Edit the header script:
 
@@ -151,20 +158,24 @@ Environment variables have been updated so you can run your UI directly into pro
   window.B3 = {
     setting: {
       store_hash: '{{settings.store_hash}}',
-      channel_id: 1, // this will vary depending on your store channel id
-      platform: 'bigcommerce',
+      channel_id: {{settings.channel_id}},
+      platform: 'bigcommerce', // override this depending on your store channel platform: https://developer.bigcommerce.com/docs/rest-management/channels#platform
     },
   }
 </script>
 ```
 
-1. Verify correct values in the .env file, for internal devs, specially the value `VITE_B2B_CLIENT_ID` for the draft application you created for the BC App Marketplace.
+3. For local debugging, set `VITE_LOCAL_DEBUG` to `false` in .env.
 
-2. For local debugging, set VITE_LOCAL_DEBUG to false in .env.
+4. Enable `Custom (use for your self-hosted buyer portal)`, this will avoid the scripts mentioned on step 2 -> 2nd point
+- In B2B Edition App dashboard -> Settings -> Buyer Portal for global config
+![Buyer portal type global settings](public/images/buyer-portal-type-settings-global.png)
+- Or B2B Edition App dashboard -> Storefront -> Desired channel -> Buyer Portal for specific channel config
+![Buyer portal type channel settings](public/images/buyer-portal-type-settings-channel.png) [alt text](README.md)
 
-3. Visit the storefront and attempt to sign in.
+5. Visit the storefront and attempt to sign in.
 
-4. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
+6. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
 
 Note: If linters aren't functional, run `yarn prepare` first.
 
@@ -239,6 +250,7 @@ Also, you'll have to input the following header script:
 
 ### Common issues:
 
+- **Stencil CLI** We're working to bring full support to integrate buyer portal into [stencil-cli](https://developer.bigcommerce.com/docs/storefront/stencil), there are issues on logging out and cart management, if you find other problems feel free to open an issue report.
 - **Cross-Origin Issues:** If you encounter cross-origin issues, ensure you have the correct URLs in your `.env` file and verify that your store's origin URL is allowed. You can use a tunnel service like [ngrok](https://ngrok.com/) to expose your local server to the internet.
 - **Environment Variables:** Ensure you have the correct environment variables set in your `.env` file. These variables are used to configure your application for different environments.
 - **Header and Footer Scripts:** Ensure you have the correct header and footer scripts set in your BigCommerce store. These scripts are used to load your application into the storefront.
