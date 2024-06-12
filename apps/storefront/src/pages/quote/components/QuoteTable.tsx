@@ -24,7 +24,7 @@ import {
 } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 
-import ChooseOptionsDialog from '../../shoppingListDetails/components/ChooseOptionsDialog';
+import ChooseOptionsDialog from '../../ShoppingListDetails/components/ChooseOptionsDialog';
 
 import QuoteTableCard from './QuoteTableCard';
 

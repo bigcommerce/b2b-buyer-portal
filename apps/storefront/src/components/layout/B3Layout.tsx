@@ -5,8 +5,7 @@ import { Box, useMediaQuery } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
-import { routes } from '@/shared/routes';
-import { getIsTokenGotoPage, RouteItem } from '@/shared/routes/routes';
+import { getIsTokenGotoPage, routes } from '@/shared/routes';
 import { useAppSelector } from '@/store';
 
 import B3Dialog from '../B3Dialog';
@@ -53,7 +52,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
   }, [emailAddress, customerId, location]);
 
   useEffect(() => {
-    const itemsRoutes = routes.find((item: RouteItem) => item.path === location.pathname);
+    const itemsRoutes = routes.find((item) => item.path === location.pathname);
     if (itemsRoutes && location.pathname !== '/quoteDraft') {
       const foundPath = Object.entries(SPECIAL_PATH_TEXTS).find(
         ([specialPath]) => specialPath === location.pathname,

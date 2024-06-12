@@ -4,7 +4,7 @@ import { useB3Lang } from '@b3/lang';
 import { HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
-import { addProductsToShoppingList } from '@/pages/pdp/PDP';
+import { addProductsToShoppingList } from '@/pages/PDP';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { superAdminCompanies } from '@/shared/service/b2b';

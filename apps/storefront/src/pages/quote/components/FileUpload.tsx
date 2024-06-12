@@ -9,7 +9,7 @@ import { Box, Tooltip, Typography, useTheme } from '@mui/material';
 import noop from 'lodash-es/noop';
 import { v1 as uuid } from 'uuid';
 
-import B3Sping from '@/components/spin/B3Sping';
+import B3Spin from '@/components/spin/B3Spin';
 import { uploadB2BFile } from '@/shared/service/b2b';
 import { snackbar } from '@/utils';
 
@@ -221,7 +221,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
   };
 
   return (
-    <B3Sping isSpinning={loading}>
+    <B3Spin isSpinning={loading}>
       <Box
         sx={{
           padding: '12px 0 0',
@@ -299,7 +299,7 @@ function FileUpload(props: FileUploadProps, ref: Ref<unknown>) {
           </Box>
         )}
       </Box>
-    </B3Sping>
+    </B3Spin>
   );
 }
 

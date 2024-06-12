@@ -19,8 +19,8 @@ import {
 } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 
-import QuickAdd from '../../shoppingListDetails/components/QuickAdd';
-import SearchProduct from '../../shoppingListDetails/components/SearchProduct';
+import QuickAdd from '../../ShoppingListDetails/components/QuickAdd';
+import SearchProduct from '../../ShoppingListDetails/components/SearchProduct';
 
 interface AddToListProps {
   updateList: () => void;

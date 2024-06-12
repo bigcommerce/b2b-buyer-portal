@@ -1,14 +1,14 @@
 import { Dispatch, lazy, SetStateAction, Suspense, useContext, useEffect } from 'react';
 import { Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
-import { RegisteredProvider } from '@/pages/registered/context/RegisteredContext';
+import { RegisteredProvider } from '@/pages/Registered/context/RegisteredContext';
 import { GlobaledContext } from '@/shared/global';
 import {
   firstLevelRouting,
   getAllowedRoutes,
   RouteFirstLevelItem,
   RouteItem,
-} from '@/shared/routes/routes';
+} from '@/shared/routes';
 import { getPageTranslations, useAppDispatch } from '@/store';
 import { OpenPageState } from '@/types/hooks';
 import { channelId } from '@/utils';
