@@ -256,6 +256,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 {showPrice(
                   `${currencyFormatConvert(price, {
                     currency,
+                    isConversionRate: false,
+                    useCurrentCurrency: !!currency,
                   })}`,
                   row,
                 )}
@@ -271,6 +273,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
               {showPrice(
                 `${currencyFormatConvert(discountPrice, {
                   currency,
+                  isConversionRate: false,
+                  useCurrentCurrency: !!currency,
                 })}`,
                 row,
               )}
@@ -338,6 +342,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
                 {showPrice(
                   `${currencyFormatConvert(total, {
                     currency,
+                    isConversionRate: false,
+                    useCurrentCurrency: !!currency,
                   })}`,
                   row,
                 )}
@@ -352,6 +358,8 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
               {showPrice(
                 `${currencyFormatConvert(totalWithDiscount, {
                   currency,
+                  isConversionRate: false,
+                  useCurrentCurrency: !!currency,
                 })}`,
                 row,
               )}

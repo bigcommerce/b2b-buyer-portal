@@ -68,19 +68,36 @@ export const ordersCurrencyFormat = (
 interface CurrencyOption {
   currency: CurrencyProps;
   showCurrencyToken?: boolean;
+  isConversionRate?: boolean;
+  useCurrentCurrency?: boolean;
 }
 
 export const currencyFormatConvert = (
   price: string | number,
-  { currency, showCurrencyToken = true }: CurrencyOption,
+  {
+    currency,
+    showCurrencyToken = true,
+    isConversionRate = true,
+    useCurrentCurrency = false,
+  }: CurrencyOption,
 ) => {
-  const moneyFormat = currencyFormatInfo();
+  const currentCurrency = {
+    currency_location: currency?.location || 'left',
+    currency_token: currency?.token || '$',
+    decimal_token: currency?.decimalToken || '.',
+    decimal_places: currency?.decimalPlaces === 0 ? 0 : currency?.decimalPlaces || 2,
+    thousands_token: currency?.thousandsToken || ',',
+    currency_exchange_rate: currency?.currencyExchangeRate || '1.0000000000',
+  };
+
+  const moneyFormat = useCurrentCurrency ? currentCurrency : currencyFormatInfo();
 
   try {
     if (currency?.currencyExchangeRate) {
       const [integerPart, decimalPart] = (
-        +price *
-        (+moneyFormat.currency_exchange_rate / +currency.currencyExchangeRate)
+        isConversionRate
+          ? +price * (+moneyFormat.currency_exchange_rate / +currency.currencyExchangeRate)
+          : +price
       )
         .toFixed(moneyFormat.decimal_places)
         .split('.');
