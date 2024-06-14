@@ -7,6 +7,7 @@
     "apps/*",
     "packages/*"
   ],
+  "packageManager": "yarn@1.22.22",
   "scripts": {
     "build": "turbo run build",
     "build:production": "turbo run build",
@@ -30,12 +31,11 @@
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "patch-package": "^8.0.0",
-    "turbo": "^1.13.3",
+    "prettier": "^2.8.8",
     "release-it": "^17.2.1",
-    "prettier": "^2.8.8"
+    "turbo": "^2.0.3"
   },
   "engines": {
     "node": ">=14.0.0"
-  },
-  "packageManager": "yarn@1.22.17"
+  }
 }
