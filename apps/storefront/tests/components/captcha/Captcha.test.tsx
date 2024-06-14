@@ -1,5 +1,3 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-
 import { ThemeFrame } from '@/components';
 import {
   Captcha,
@@ -79,11 +77,11 @@ describe('Captcha', () => {
     vi.advanceTimersToNextTimer();
 
     const iframeDocument = store.getState().theme.themeFrame;
-    const [captchaWrapper] = iframeDocument.body.getElementsByTagName('div');
+    const captchaWrapper = iframeDocument?.body.getElementsByTagName('div')?.[0];
 
-    expect(captchaWrapper.id).toMatch('widget');
-    expect(captchaWrapper.dataset.sitekey).toBe(TEST_SITE_KEY);
-    expect(captchaWrapper.dataset.theme).toBe('dark');
-    expect(captchaWrapper.dataset.size).toBe('normal');
+    expect(captchaWrapper?.id).toMatch('widget');
+    expect(captchaWrapper?.dataset.sitekey).toBe(TEST_SITE_KEY);
+    expect(captchaWrapper?.dataset.theme).toBe('dark');
+    expect(captchaWrapper?.dataset.size).toBe('normal');
   });
 });

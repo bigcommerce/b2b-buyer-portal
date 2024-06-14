@@ -1,5 +1,3 @@
-import { beforeEach, describe, it, vi } from 'vitest';
-
 import { ThemeFrame } from '@/components';
 import Quickorder from '@/pages/QuickOrder';
 import { GlobalProvider } from '@/shared/global';

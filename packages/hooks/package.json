@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@b3/tsconfig": "*",
-    "@types/react": "^18.0.0",
+    "@types/react": "^18.3.3",
     "eslint": "^8.2.0",
     "eslint-config-bc": "*",
     "typescript": "^4.7.4"

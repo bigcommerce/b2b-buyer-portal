@@ -57,7 +57,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     test: {
-      threads: false,
+      globals: true,
       environment: 'jsdom',
       setupFiles: './tests/setup-test-environment.ts',
       coverage: {
@@ -65,7 +65,11 @@ export default defineConfig(({ mode }) => {
         reporter: ['text', 'html', 'clover', 'json'],
       },
       deps: {
-        inline: ['react-intl'],
+        optimizer: {
+          web: {
+            include: ['react-intl'],
+          },
+        },
       },
       poolOptions: {
         threads: {

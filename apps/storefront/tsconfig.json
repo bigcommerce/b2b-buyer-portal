@@ -6,7 +6,8 @@
     "outDir": "dist",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["vitest/globals"]
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.js"]
 }
