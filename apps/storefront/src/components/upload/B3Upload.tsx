@@ -18,7 +18,7 @@ import b2bLogger from '@/utils/b3Logger';
 
 import B3Dialog from '../B3Dialog';
 import CustomButton from '../button/CustomButton';
-import B3Sping from '../spin/B3Sping';
+import B3Spin from '../spin/B3Spin';
 
 import B3UploadLoadding from './B3UploadLoadding';
 import BulkUploadTable from './BulkUploadTable';
@@ -426,11 +426,11 @@ export default function B3Upload(props: B3UploadProps) {
         )}
 
         {step === 'loadding' && <B3UploadLoadding step={step} />}
-        <B3Sping isSpinning={isLoading} spinningHeight="auto">
+        <B3Spin isSpinning={isLoading} spinningHeight="auto">
           {step === 'end' && (
             <BulkUploadTable setStep={setStep} fileDatas={fileDatas} fileName={fileName} />
           )}
-        </B3Sping>
+        </B3Spin>
       </Box>
     </B3Dialog>
   );

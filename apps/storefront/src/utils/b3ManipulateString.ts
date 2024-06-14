@@ -1,4 +1,4 @@
-import { RegisterFields } from '@/pages/registered/types';
+import { RegisterFields } from '@/pages/Registered/types';
 
 const manipulateString = (input: string): string => {
   if (!input) return '';

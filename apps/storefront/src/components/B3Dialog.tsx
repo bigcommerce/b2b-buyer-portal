@@ -7,7 +7,7 @@ import useScrollBar from '@/hooks/useScrollBar';
 import { useAppSelector } from '@/store';
 
 import CustomButton from './button/CustomButton';
-import B3Sping from './spin/B3Sping';
+import B3Spin from './spin/B3Spin';
 
 interface B3DialogProps<T> {
   customActions?: () => ReactElement;
@@ -146,9 +146,9 @@ export default function B3Dialog<T>({
                   autoFocus
                   disabled={disabledSaveBtn || loading}
                 >
-                  <B3Sping isSpinning={loading} tip="" size={16}>
+                  <B3Spin isSpinning={loading} tip="" size={16}>
                     {rightSizeBtn || b3Lang('global.dialog.save')}
-                  </B3Sping>
+                  </B3Spin>
                 </CustomButton>
               )}
             </>

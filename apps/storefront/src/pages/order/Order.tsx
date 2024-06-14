@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
-import B3Sping from '@/components/spin/B3Sping';
+import B3Filter from '@/components/filter/B3Filter';
+import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
@@ -16,8 +17,6 @@ import {
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
-
-import B3Filter from '../../components/filter/B3Filter';
 
 import OrderStatus from './components/OrderStatus';
 import { orderStatusTranslationVariables } from './shared/getOrderStatus';
@@ -278,7 +277,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const columnItems = getColumnItems();
 
   return (
-    <B3Sping isSpinning={isRequestLoading}>
+    <B3Spin isSpinning={isRequestLoading}>
       <Box
         sx={{
           display: 'flex',
@@ -333,7 +332,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           hover
         />
       </Box>
-    </B3Sping>
+    </B3Spin>
   );
 }
 

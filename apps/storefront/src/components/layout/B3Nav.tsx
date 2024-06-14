@@ -7,7 +7,6 @@ import { useMobile } from '@/hooks';
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
 import { GlobaledContext } from '@/shared/global';
 import { getAllowedRoutes } from '@/shared/routes';
-import { RouteItem } from '@/shared/routes/routes';
 import { useAppSelector } from '@/store';
 
 import { b3HexToRgb, getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
@@ -46,7 +45,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
     });
   };
 
-  const handleClick = (item: RouteItem) => {
+  const handleClick = (item: { configKey?: string; path: string }) => {
     if (role === 100) {
       dispatch({
         type: 'common',
@@ -74,7 +73,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
     }
   };
   const menuItems = () => {
-    const newRoutes = getAllowedRoutes(globalState).filter((route: RouteItem) => route.isMenuItem);
+    const newRoutes = getAllowedRoutes(globalState).filter((route) => route.isMenuItem);
 
     return newRoutes;
   };
@@ -120,7 +119,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
       component="nav"
       aria-labelledby="nested-list-subheader"
     >
-      {newRoutes.map((item: RouteItem) => {
+      {newRoutes.map((item) => {
         if (item.name === 'Quotes') {
           const { pathname } = location;
           return (

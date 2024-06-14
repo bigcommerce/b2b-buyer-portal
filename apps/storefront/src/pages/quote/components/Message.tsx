@@ -13,7 +13,7 @@ import { Box, Card, CardContent, TextField, Tooltip, useTheme } from '@mui/mater
 import { format, formatDistanceStrict } from 'date-fns';
 
 import { B3CollapseContainer } from '@/components';
-import B3Sping from '@/components/spin/B3Sping';
+import B3Spin from '@/components/spin/B3Spin';
 import { GlobaledContext } from '@/shared/global';
 import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b';
 import { displayExtendedFormat, storeHash } from '@/utils';
@@ -370,7 +370,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
           </Box>
 
           {status !== 4 && (
-            <B3Sping
+            <B3Spin
               isSpinning={loadding}
               spinningHeight={50}
               size={10}
@@ -423,7 +423,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                   />
                 </Box>
               </Box>
-            </B3Sping>
+            </B3Spin>
           )}
         </B3CollapseContainer>
       </CardContent>

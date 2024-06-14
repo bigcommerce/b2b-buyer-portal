@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, vi } from 'vitest';
 
 import { ThemeFrame } from '@/components';
-import Quickorder from '@/pages/quickorder/Quickorder';
+import Quickorder from '@/pages/QuickOrder';
 import { GlobalProvider } from '@/shared/global';
 import b2bFeatures from '@/store/slices/b2bFeatures';
 import company from '@/store/slices/company';
