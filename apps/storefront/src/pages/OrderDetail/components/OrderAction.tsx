@@ -270,7 +270,7 @@ export default function OrderAction(props: OrderActionProps) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
   const role = useAppSelector(({ company }) => company.customer.role);
-  const b3Permissions = useAppSelector(rolePermissionSelector);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
 
   const {
     state: { addressLabelPermission, createdEmail },
@@ -292,7 +292,7 @@ export default function OrderAction(props: OrderActionProps) {
   }
 
   const { purchasabilityPermission, shoppingListActionsPermission, getInvoicesPermission } =
-    b3Permissions;
+    b2bPermissions;
 
   const getCompanyName = (company: string) => {
     if (addressLabelPermission) {

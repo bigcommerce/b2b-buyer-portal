@@ -30,7 +30,7 @@ function AddEditShoppingLists(
   { renderList, isB2BUser }: AddEditUserProps,
   ref: Ref<unknown> | undefined,
 ) {
-  const b3Permissions = useAppSelector(rolePermissionSelector);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
   const [open, setOpen] = useState<boolean>(false);
   const [type, setType] = useState<string>('');
 
@@ -101,7 +101,7 @@ function AddEditShoppingLists(
           successTip = b3Lang('shoppingLists.duplicateSuccess');
         } else if (type === 'add') {
           if (isB2BUser) {
-            const { submitShoppingListPermission } = b3Permissions;
+            const { submitShoppingListPermission } = b2bPermissions;
             params.status = submitShoppingListPermission ? 30 : 0;
           } else {
             params.channelId = channelId;

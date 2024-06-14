@@ -5,7 +5,7 @@ interface PermissionCodesProps {
   permissionLevel?: number | string;
 }
 
-interface B3PermissionContainerProps {
+interface B2BPermissionContainerProps {
   permissions: PermissionCodesProps;
   type: string;
   no?: null | React.ReactNode;
@@ -13,7 +13,7 @@ interface B3PermissionContainerProps {
   permissionsList: PermissionCodesProps[];
 }
 
-const B3PermissionContainer = (props: B3PermissionContainerProps) => {
+const B2BPermissionContainer = (props: B2BPermissionContainerProps) => {
   const { permissions, children, no = null, type, permissionsList } = props;
 
   const isAllowed = checkPermissionCode(permissions, type, permissionsList);
@@ -21,4 +21,4 @@ const B3PermissionContainer = (props: B3PermissionContainerProps) => {
   return isAllowed ? children : no;
 };
 
-export default B3PermissionContainer;
+export default B2BPermissionContainer;

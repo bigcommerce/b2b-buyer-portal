@@ -1,4 +1,4 @@
-export const b3PermissionsList = {
+export const b2bPermissionsList = {
   getUserPermissionCode: 'get_users, get_user_detail',
   userActionsPermission: 'create_user, update_user, delete_user',
   getShoppingListPermission: 'get_shopping_lists, get_shopping_list_detail',
@@ -19,10 +19,10 @@ export const b3PermissionsList = {
   purchasabilityPermission: 'purchase_enable',
 };
 
-type B3PermissionsList = typeof b3PermissionsList;
+type B3PermissionsList = typeof b2bPermissionsList;
 
-export type B3Permissionsparms = {
+export type B2BPermissionsparms = {
   [Key in keyof B3PermissionsList]: boolean;
 };
 
-export default b3PermissionsList;
+export default b2bPermissionsList;

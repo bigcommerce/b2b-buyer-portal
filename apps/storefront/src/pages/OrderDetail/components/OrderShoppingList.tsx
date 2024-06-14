@@ -46,7 +46,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
-  const b3Permissions = useAppSelector(rolePermissionSelector);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
 
   const theme = useTheme();
   const [isMobile] = useMobile();
@@ -69,7 +69,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
         if (!isB2BUser) {
           setList(list);
         } else {
-          const { submitShoppingListPermission } = b3Permissions;
+          const { submitShoppingListPermission } = b2bPermissions;
 
           const newList = list.filter(
             (item: CustomFieldItems) =>

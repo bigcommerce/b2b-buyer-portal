@@ -2,7 +2,7 @@ import { createSelector } from '@reduxjs/toolkit';
 
 import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
 import { checkEveryPermissionsCode } from '@/utils/b3CheckPermissions/permission';
-import { b3PermissionsList, B3Permissionsparms } from '@/utils/b3RolePermissions/config';
+import { b2bPermissionsList, B2BPermissionsparms } from '@/utils/b3RolePermissions/config';
 
 import { RootState } from './reducer';
 import { defaultCurrenciesState } from './slices/storeConfigs';
@@ -59,10 +59,10 @@ interface OptionList {
 
 export const rolePermissionSelector = createSelector(
   companySelector,
-  ({ permissions }): B3Permissionsparms => {
-    const keys = Object.keys(b3PermissionsList);
+  ({ permissions }): B2BPermissionsparms => {
+    const keys = Object.keys(b2bPermissionsList);
 
-    const newB3PermissionsList: Record<string, string> = b3PermissionsList;
+    const newB3PermissionsList: Record<string, string> = b2bPermissionsList;
 
     return keys.reduce((acc, cur: string) => {
       const param = {
@@ -76,7 +76,7 @@ export const rolePermissionSelector = createSelector(
         [cur]: item,
       };
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    }, {} as B3Permissionsparms);
+    }, {} as B2BPermissionsparms);
   },
 );
 

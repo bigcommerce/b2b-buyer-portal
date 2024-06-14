@@ -133,7 +133,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   );
   const quoteinfo = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo);
   const currency = useAppSelector(activeCurrencyInfoSelector);
-  const b3Permissions = useAppSelector(rolePermissionSelector);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
 
   const {
     state: {
@@ -141,7 +141,7 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
     },
   } = useContext(CustomStyleContext);
 
-  const quotesActionsPermission = isB2BUser ? b3Permissions.quotesActionsPermission : true;
+  const quotesActionsPermission = isB2BUser ? b2bPermissions.quotesActionsPermission : true;
 
   const navigate = useNavigate();
 

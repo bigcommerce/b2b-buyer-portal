@@ -24,9 +24,9 @@ export default function QuoteNote(props: QuoteNoteProps) {
   const [defaultOpen, setDefaultOpen] = useState(false);
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
-  const b3Permissions = useAppSelector(rolePermissionSelector);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
 
-  const quotesActionsPermission = isB2BUser ? b3Permissions.quotesActionsPermission : true;
+  const quotesActionsPermission = isB2BUser ? b2bPermissions.quotesActionsPermission : true;
 
   const handleNoteTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     setNoteText(event?.target.value || '');

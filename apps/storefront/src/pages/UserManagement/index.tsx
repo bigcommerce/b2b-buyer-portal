@@ -54,9 +54,9 @@ function Usermanagement() {
 
   const companyId = +role === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id;
 
-  const b3Permissions = useAppSelector(rolePermissionSelector);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
 
-  const isEnableBtnPermissions = b3Permissions.userActionsPermission;
+  const isEnableBtnPermissions = b2bPermissions.userActionsPermission;
 
   const addEditUserRef = useRef<RefCurrntProps | null>(null);
   const [paginationTableRef] = useTableRef();

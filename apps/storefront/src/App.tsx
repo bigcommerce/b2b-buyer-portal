@@ -77,9 +77,9 @@ export default function App() {
   const bcGraphqlToken = useAppSelector(({ company }) => company.tokens.bcGraphqlToken);
   const companyRoleName = useAppSelector((state) => state.company.customer.companyRoleName);
 
-  const b3Permissions = useAppSelector(rolePermissionSelector);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
 
-  const { getShoppingListPermission, getOrderPermission } = b3Permissions;
+  const { getShoppingListPermission, getOrderPermission } = b2bPermissions;
   const [authorizedPages, setAuthorizedPages] = useState<string>('/orders');
   const IsRealJuniorBuyer =
     +role === CustomerRole.JUNIOR_BUYER && companyRoleName === 'Junior Buyer';

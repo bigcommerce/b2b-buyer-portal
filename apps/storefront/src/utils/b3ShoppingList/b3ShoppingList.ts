@@ -18,6 +18,8 @@ CreateShoppingListParams) => {
     createShoppingData.description = data.description.split('\n').join('\\n');
   }
 
+  const createSL = isB2BUser ? createB2BShoppingList : createBcShoppingList;
+
   if (isB2BUser) {
     const { submitShoppingListPermission } = getB3PermissionsList();
     createShoppingData.status = submitShoppingListPermission ? 30 : 0;
@@ -25,7 +27,7 @@ CreateShoppingListParams) => {
     createShoppingData.channelId = channelId;
   }
 
-  return createBcShoppingList({ ...createShoppingData, channelId });
+  return createSL({ ...createShoppingData, channelId });
 };
 
 export default createShoppingList;
