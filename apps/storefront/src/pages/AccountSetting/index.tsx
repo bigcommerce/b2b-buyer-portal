@@ -13,6 +13,8 @@ import { useMobile } from '@/hooks';
 import useStorageState from '@/hooks/useStorageState';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import {
+  checkUserBCEmail,
+  checkUserEmail,
   getB2BAccountFormFields,
   getB2BAccountSettings,
   getBCAccountSettings,
@@ -21,7 +23,7 @@ import {
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, isValidUserTypeSelector, useAppSelector } from '@/store';
 import { Fields, ParamProps } from '@/types/accountSetting';
-import { B3SStorage, snackbar } from '@/utils';
+import { B3SStorage, channelId, snackbar } from '@/utils';
 
 import { deCodeField, getAccountFormFields } from '../Registered/config';
 
@@ -185,7 +187,19 @@ function AccountSetting() {
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true;
 
-    if (!isValidUserType) {
+    const fn = !isBCUser ? checkUserEmail : checkUserBCEmail;
+    const key = !isBCUser ? 'userEmailCheck' : 'customerEmailCheck';
+
+    const {
+      [key]: { userType },
+    }: CustomFieldItems = await fn({
+      email: emailValue,
+      channelId,
+    });
+
+    const isValid = !isBCUser ? [1].includes(userType) : ![2].includes(userType);
+
+    if (!isValid) {
       setError('email', {
         type: 'custom',
         message: b3Lang('accountSettings.notification.emailExists'),
