@@ -9,7 +9,7 @@ export const logoutSession = () => {
 };
 
 export const isB2bTokenPage = (gotoUrl?: string) => {
-  const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register', 'login'];
+  const noB2bTokenPages = ['quoteDraft', 'quoteDetail', 'register', 'login', 'forgotpassword'];
 
   if (gotoUrl) {
     return !noB2bTokenPages.some((item: string) => gotoUrl.includes(item));
