@@ -79,9 +79,9 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
   );
 
   const cd = () => {
-    if (+role !== 2) {
-      setCartPermissions(role);
-    }
+    const isLoggedInAndB2BAccount = role !== CustomerRole.GUEST && role !== CustomerRole.B2C;
+
+    setCartPermissions(isLoggedInAndB2BAccount);
   };
 
   const [openQuickView] = useDomVariation(globalB3['dom.setToQuote'], cd);

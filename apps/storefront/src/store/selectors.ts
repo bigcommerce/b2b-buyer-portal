@@ -1,6 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit';
 
 import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
+import { checkEveryPermissionsCode } from '@/utils/b3CheckPermissions/permission';
+import { b2bPermissionsList, B2BPermissionsparms } from '@/utils/b3RolePermissions/config';
 
 import { RootState } from './reducer';
 import { defaultCurrenciesState } from './slices/storeConfigs';
@@ -54,6 +56,29 @@ interface OptionList {
   optionId: string;
   optionValue: string;
 }
+
+export const rolePermissionSelector = createSelector(
+  companySelector,
+  ({ permissions }): B2BPermissionsparms => {
+    const keys = Object.keys(b2bPermissionsList);
+
+    const newB3PermissionsList: Record<string, string> = b2bPermissionsList;
+
+    return keys.reduce((acc, cur: string) => {
+      const param = {
+        code: newB3PermissionsList[cur],
+      };
+
+      const item = checkEveryPermissionsCode(param, permissions);
+
+      return {
+        ...acc,
+        [cur]: item,
+      };
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    }, {} as B2BPermissionsparms);
+  },
+);
 
 export const formattedQuoteDraftListSelector = createSelector(quoteInfoSelector, (quoteInfo) =>
   quoteInfo.draftQuoteList.map(

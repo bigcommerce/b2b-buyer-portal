@@ -3,4 +3,5 @@ export interface OpenPageState {
   openUrl?: string;
   handleEnterClick?: (href: string, bool: boolean) => void;
   params?: { [key: string]: string };
+  authorizedPages?: string;
 }

@@ -1,4 +1,3 @@
-import { LangFormatFunction, useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -18,6 +17,7 @@ interface RoleListProps {
   color: string;
   textColor: string;
   idLang: string;
+  name: string;
 }
 
 export interface OrderItemCardProps {
@@ -35,14 +35,22 @@ const Flex = styled('div')(() => ({
 
 export function UserItemCard(props: OrderItemCardProps) {
   const { item: userInfo, onEdit, onDelete, isPermissions } = props;
-  const b3Lang = useB3Lang();
 
   const getNewRoleList = () => {
     const userRole = getUserRole();
     const newRoleList: Array<RoleListProps> = userRole.map((item) => {
-      if (+item.value === 0) {
+      if (+item.value === 2) {
+        if (userInfo.companyRoleName !== 'Junior Buyer') {
+          return {
+            color: '#ce93d8',
+            textColor: 'black',
+            ...item,
+            label: userInfo.companyRoleName,
+            name: userInfo.companyRoleName,
+          };
+        }
         return {
-          color: '#C4DD6C',
+          color: '#D9DCE9',
           textColor: 'black',
           ...item,
         };
@@ -55,7 +63,7 @@ export function UserItemCard(props: OrderItemCardProps) {
         };
       }
       return {
-        color: '#D9DCE9',
+        color: '#C4DD6C',
         textColor: 'black',
         ...item,
       };
@@ -64,14 +72,14 @@ export function UserItemCard(props: OrderItemCardProps) {
     return newRoleList;
   };
 
-  const statusRender = (role: number, b3Lang: LangFormatFunction) => {
+  const statusRender = (name: string) => {
     const newRoleList = getNewRoleList();
-    const roleItem = newRoleList.find((item: RoleListProps) => +item.value === +role);
+    const roleItem = newRoleList.find((item: RoleListProps) => item.name === name);
 
     if (!roleItem) return null;
     return (
       <B3Tag color={roleItem.color} textColor={roleItem.textColor}>
-        {b3Lang(roleItem.idLang)}
+        {roleItem.label}
       </B3Tag>
     );
   };
@@ -101,7 +109,7 @@ export function UserItemCard(props: OrderItemCardProps) {
           {userInfo.email}
         </Typography>
         <Flex>
-          {statusRender(userInfo.role, b3Lang)}
+          {statusRender(userInfo.companyRoleName)}
           <Box
             sx={{
               display: `${isPermissions ? 'block' : 'none'}`,

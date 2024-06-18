@@ -9,7 +9,7 @@ import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile, useSort } from '@/hooks';
 import { exportInvoicesAsCSV, getInvoiceList, getInvoiceStats } from '@/shared/service/b2b';
-import { useAppSelector } from '@/store';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import {
   currencyFormat,
@@ -64,7 +64,8 @@ function Invoice() {
   const b3Lang = useB3Lang();
   const role = useAppSelector(({ company }) => company.customer.role);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-  const juniorOrSenior = +role === 1 || role === 2;
+
+  const { invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
   const navigate = useNavigate();
   const [isMobile] = useMobile();
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
@@ -207,7 +208,7 @@ function Invoice() {
   const handleViewInvoice = async (id: string, status: string | number) => {
     try {
       setIsRequestLoading(true);
-      const isPayNow = !juniorOrSenior && status !== 2;
+      const isPayNow = purchasabilityPermission && invoicePayPermission && status !== 2;
       const pdfUrl = await handlePrintPDF(id, isPayNow);
 
       if (!pdfUrl) {
@@ -780,8 +781,8 @@ function Invoice() {
           isCustomRender={false}
           requestLoading={setIsRequestLoading}
           tableKey="id"
-          showCheckbox={!juniorOrSenior}
-          showSelectAllCheckbox={!isMobile && !juniorOrSenior}
+          showCheckbox={invoicePayPermission && purchasabilityPermission}
+          showSelectAllCheckbox={!isMobile && invoicePayPermission && purchasabilityPermission}
           disableCheckbox={false}
           applyAllDisableCheckbox={false}
           getSelectCheckbox={getSelectCheckbox}

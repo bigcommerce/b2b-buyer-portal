@@ -5,7 +5,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-import { useAppSelector } from '@/store';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList } from '@/types/invoice';
 import { snackbar } from '@/utils';
 
@@ -34,9 +34,6 @@ function B3Pulldown({
   handleOpenHistoryModal,
 }: B3PulldownProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform);
-  const role = useAppSelector(({ company }) => company.customer.role);
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-  const juniorOrSenior = +role === 1 || role === 2;
   const ref = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isCanPay, setIsCanPay] = useState<boolean>(true);
@@ -45,6 +42,8 @@ function B3Pulldown({
 
   const b3Lang = useB3Lang();
 
+  const { getOrderPermission, invoicePayPermission, purchasabilityPermission } =
+    useAppSelector(rolePermissionSelector);
   const close = () => {
     setIsOpen(false);
   };
@@ -134,7 +133,8 @@ function B3Pulldown({
 
   useEffect(() => {
     const { openBalance } = row;
-    const payPermissions = +openBalance.value > 0 && (role === 0 || isAgenting);
+    const payPermissions =
+      +openBalance.value > 0 && invoicePayPermission && purchasabilityPermission;
 
     setIsCanPay(payPermissions);
     // disabling as we only need to run this once and values at starting render are good enough
@@ -168,19 +168,24 @@ function B3Pulldown({
           sx={{
             color: 'primary.main',
           }}
-          onClick={() => handleViewInvoice(row.status !== 2 && !juniorOrSenior)}
+          onClick={() =>
+            handleViewInvoice(row.status !== 2 && invoicePayPermission && purchasabilityPermission)
+          }
         >
           {b3Lang('invoice.actions.viewInvoice')}
         </MenuItem>
-        <MenuItem
-          key="View-Order"
-          sx={{
-            color: 'primary.main',
-          }}
-          onClick={handleViewOrder}
-        >
-          {b3Lang('invoice.actions.viewOrder')}
-        </MenuItem>
+        {getOrderPermission && (
+          <MenuItem
+            key="View-Order"
+            sx={{
+              color: 'primary.main',
+            }}
+            onClick={handleViewOrder}
+          >
+            {b3Lang('invoice.actions.viewOrder')}
+          </MenuItem>
+        )}
+
         {row.status !== 0 && (
           <MenuItem
             key="View-payment-history"
@@ -208,7 +213,9 @@ function B3Pulldown({
           sx={{
             color: 'primary.main',
           }}
-          onClick={() => handleViewInvoice(row.status !== 2 && !juniorOrSenior)}
+          onClick={() =>
+            handleViewInvoice(row.status !== 2 && invoicePayPermission && purchasabilityPermission)
+          }
         >
           {b3Lang('invoice.actions.print')}
         </MenuItem>

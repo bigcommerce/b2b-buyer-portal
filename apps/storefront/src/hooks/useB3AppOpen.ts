@@ -20,6 +20,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     setCheckoutRegisterNumber(() => checkoutRegisterNumber + 1);
   }, [checkoutRegisterNumber]);
   const role = useAppSelector((state) => state.company.customer.role);
+  const authorizedPages = initOpenState?.authorizedPages || '/orders';
 
   const [openPage, setOpenPage] = useState<OpenPageState>({
     isOpen: initOpenState.isOpen,
@@ -79,7 +80,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
           e.stopPropagation();
           const isRegisterArrInclude = registerArr.includes(e.target as Element);
           const tagHref = (e.target as HTMLAnchorElement)?.href;
-          let href = tagHref || '/orders';
+          let href = tagHref || authorizedPages;
           if (!tagHref) {
             let parentNode = (e.target as HTMLAnchorElement)?.parentNode;
             let parentHref = (parentNode as HTMLAnchorElement)?.href;
@@ -95,14 +96,14 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
               }
             }
             if (parentHref) {
-              href = parentHref || '/orders';
+              href = parentHref || authorizedPages;
             } else {
               const childNodeList = (e.target as HTMLAnchorElement)?.childNodes;
               if (childNodeList.length > 0) {
                 childNodeList.forEach((node: ChildNodeListProps) => {
                   const nodeHref = node?.href;
                   if (nodeHref && node.localName === 'a') {
-                    href = nodeHref || '/orders';
+                    href = nodeHref || authorizedPages;
                   }
                 });
               }
@@ -112,7 +113,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
           const isLogin = role !== CustomerRole.GUEST;
           const hrefArr = href.split('/#');
           if (hrefArr[1] === '') {
-            href = isLogin ? '/orders' : '/login';
+            href = isLogin ? authorizedPages : '/login';
           }
 
           if (
@@ -128,7 +129,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
             !href.includes('action=create_account') &&
             !href.includes('action=logout')
           ) {
-            href = +role === CustomerRole.JUNIOR_BUYER ? '/shoppingLists' : '/orders';
+            href = authorizedPages;
           }
 
           if (initOpenState?.handleEnterClick) {
@@ -146,6 +147,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
       };
     }
     return () => {};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkoutRegisterNumber, initOpenState, role]);
 
   useMutationObservable(globalB3['dom.checkoutRegisterParentElement'], callback);

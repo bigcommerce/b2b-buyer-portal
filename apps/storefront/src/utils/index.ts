@@ -1,3 +1,5 @@
+import { checkPermissionCode } from './b3CheckPermissions/base';
+import { checkEveryPermissionsCode, checkOneOfPermissionsCode } from './b3CheckPermissions/index';
 import { openPageByClick, redirectBcMenus, removeBCMenus } from './b3AccountItem';
 import currencyFormat, {
   currencyFormatConvert,
@@ -13,7 +15,7 @@ import { showPageMask } from './b3PageMask';
 import distanceDay from './b3Picker';
 import getProductPriceIncTax from './b3Price';
 import b2bPrintInvoice from './b3PrintInvoice';
-import { setCartPermissions } from './b3RolePermissions';
+import { getB3PermissionsList, setCartPermissions } from './b3RolePermissions';
 import { serialize } from './b3Serialize';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { globalSnackbar, snackbar } from './b3Tip';
@@ -36,6 +38,9 @@ export {
   b2bPrintInvoice,
   B3LStorage,
   B3SStorage,
+  checkEveryPermissionsCode,
+  checkOneOfPermissionsCode,
+  checkPermissionCode,
   convertArrayToGraphql,
   convertObjectToGraphql,
   currencyFormat,
@@ -61,6 +66,7 @@ export {
   removeBCMenus,
   serialize,
   setCartPermissions,
+  getB3PermissionsList,
   showPageMask,
   snackbar,
   validatorRules,

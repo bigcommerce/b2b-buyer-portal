@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
@@ -8,7 +8,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
 import { deleteUsers, getUsers } from '@/shared/service/b2b';
-import { useAppSelector } from '@/store';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
 
@@ -22,6 +22,7 @@ interface RefCurrntProps extends HTMLInputElement {
 
 interface RoleProps {
   role: string;
+  companyRoleId: string | number;
 }
 function Usermanagement() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
@@ -38,6 +39,8 @@ function Usermanagement() {
     role: 0,
     updatedAt: 0,
     extraFields: [],
+    companyRoleName: '',
+    companyRoleId: '',
   });
   const b3Lang = useB3Lang();
 
@@ -50,7 +53,10 @@ function Usermanagement() {
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
 
   const companyId = +role === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id;
-  const isEnableBtnPermissions = role === 0 || role === 3;
+
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
+
+  const isEnableBtnPermissions = b2bPermissions.userActionsPermission;
 
   const addEditUserRef = useRef<RefCurrntProps | null>(null);
   const [paginationTableRef] = useTableRef();
@@ -62,11 +68,16 @@ function Usermanagement() {
 
   const initSearch = {
     search: '',
-    role: '',
+    companyRoleId: '',
     companyId,
   };
+  const fiterMoreInfo = getFilterMoreList(b3Lang);
 
   const [filterSearch, setFilterSearch] = useState<Partial<FilterProps>>(initSearch);
+
+  const [translatedFilterInfo, setTranslatedFilterInfo] =
+    useState<CustomFieldItems[]>(fiterMoreInfo);
+  const [valueName, setValueName] = useState<string>('');
 
   const fetchList = async (params: Partial<FilterProps>) => {
     const data = await getUsers(params);
@@ -85,20 +96,27 @@ function Usermanagement() {
     paginationTableRef.current?.refresh();
   };
 
-  const fiterMoreInfo = getFilterMoreList(b3Lang);
+  const handleGetTranslatedFilterInfo = () => {
+    const translatedFilterInfo = fiterMoreInfo.map((element: CustomFieldItems) => {
+      const translatedItem = element;
+      const translatedOptions = element.options?.map((option: CustomFieldItems) => {
+        const elementOption = option;
+        elementOption.label = b3Lang(option.idLang);
+        return option;
+      });
 
-  const translatedFilterInfo = fiterMoreInfo.map((element) => {
-    const translatedItem = element;
-    const translatedOptions = element.options?.map((option) => {
-      const elementOption = option;
-      elementOption.label = b3Lang(option.idLang);
-      return option;
+      translatedItem.options = translatedOptions;
+      translatedItem.setValueName = setValueName;
+      translatedItem.default = filterSearch.companyRoleId;
+      translatedItem.defaultName = filterSearch.companyRoleId ? valueName : '';
+
+      return element;
     });
 
-    translatedItem.options = translatedOptions;
+    setTranslatedFilterInfo(translatedFilterInfo);
 
-    return element;
-  });
+    return translatedFilterInfo;
+  };
 
   const handleChange = (_: string, value: string) => {
     const search = {
@@ -111,7 +129,7 @@ function Usermanagement() {
   const handleFirterChange = (value: RoleProps) => {
     const search = {
       ...filterSearch,
-      role: value.role,
+      companyRoleId: value.companyRoleId,
       offset: 0,
     };
     setFilterSearch(search);
@@ -150,6 +168,27 @@ function Usermanagement() {
     }
   };
 
+  const resetFilterInfo = () => {
+    const newTranslatedFilterInfo = translatedFilterInfo.map((element: CustomFieldItems) => {
+      const translatedItem = element;
+
+      translatedItem.setValueName = setValueName;
+      translatedItem.defaultName = '';
+
+      return element;
+    });
+
+    setValueName('');
+    setTranslatedFilterInfo(newTranslatedFilterInfo);
+  };
+
+  useEffect(() => {
+    handleGetTranslatedFilterInfo();
+
+    // disabling because we don't want to run this effect on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterSearch, filterSearch.companyRoleId]);
+
   return (
     <B3Spin isSpinning={isRequestLoading}>
       <Box
@@ -165,6 +204,7 @@ function Usermanagement() {
           handleFilterChange={handleFirterChange}
           customButtomConfig={customItem}
           handleFilterCustomButtomClick={handleAddUserClick}
+          resetFilterInfo={resetFilterInfo}
         />
         <B3PaginationTable
           ref={paginationTableRef}

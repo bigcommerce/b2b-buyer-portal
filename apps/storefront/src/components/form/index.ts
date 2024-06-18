@@ -8,3 +8,4 @@ export { default as B3ControlRectangle } from './B3ControlRectangle';
 export { default as B3ControlSelect } from './B3ControlSelect';
 export { default as B3ControlSwatchRadio } from './B3ControlSwatchRadio';
 export { default as B3ControlTextField } from './B3ControlTextField';
+export { default as B3ControlAutocomplete } from './B3ControlAutocomplete';

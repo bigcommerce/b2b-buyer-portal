@@ -35,6 +35,7 @@ interface B3FilterMoreProps<T, Y> {
   fiterMoreInfo: Array<DeepPartial<T>>;
   onChange?: (val: Y) => void;
   isShowMore?: boolean;
+  resetFilterInfo?: () => void;
 }
 
 interface PickerRefProps extends HTMLInputElement {
@@ -48,6 +49,7 @@ function B3FilterMore<T, Y>({
   fiterMoreInfo,
   onChange,
   isShowMore = false,
+  resetFilterInfo,
 }: B3FilterMoreProps<T, Y>) {
   const {
     state: {
@@ -138,6 +140,10 @@ function B3FilterMore<T, Y>({
     Object.keys(getValues()).forEach((item: string) => {
       setValue(item, '');
     });
+
+    if (resetFilterInfo) {
+      resetFilterInfo();
+    }
     pickerRef.current?.setClearPickerValue();
   };
 

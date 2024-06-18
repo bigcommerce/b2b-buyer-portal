@@ -16,6 +16,7 @@ import { B3CollapseContainer } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { GlobaledContext } from '@/shared/global';
 import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 import { displayExtendedFormat, storeHash } from '@/utils';
 
 interface MessageProps {
@@ -149,6 +150,10 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
   const [message, setMessage] = useState<string>('');
 
   const [loadding, setLoadding] = useState<boolean>(false);
+
+  const { quotesActionsPermission: quotesActionsPermissionRename } =
+    useAppSelector(rolePermissionSelector);
+  const quotesActionsPermission = isB2BUser ? quotesActionsPermissionRename : true;
 
   const convertedMsgs = (msgs: MessageProps[]) => {
     let nextMsg: MessageProps = {};
@@ -288,6 +293,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
   const handleOnChange = useCallback(
     (open: boolean) => {
       if (open) {
+        if (!quotesActionsPermission && isB2BUser) return;
         const fn = isB2BUser ? updateB2BQuote : updateBCQuote;
         if (changeReadRef.current === 0 && msgs.length) {
           fn({
@@ -306,7 +312,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
         changeReadRef.current += 1;
       }
     },
-    [email, id, isB2BUser, msgs],
+    [email, id, isB2BUser, msgs, quotesActionsPermission],
   );
 
   useEffect(() => {
@@ -369,7 +375,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             </Box>
           </Box>
 
-          {status !== 4 && (
+          {status !== 4 && quotesActionsPermission && (
             <B3Spin
               isSpinning={loadding}
               spinningHeight={50}

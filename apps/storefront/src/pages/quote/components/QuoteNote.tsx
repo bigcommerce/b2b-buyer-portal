@@ -3,7 +3,13 @@ import { useB3Lang } from '@b3/lang';
 import { Box, Card, CardContent, TextField, Typography } from '@mui/material';
 
 import { B3CollapseContainer } from '@/components';
-import { setDraftQuoteInfoNote, store } from '@/store';
+import {
+  isB2BUserSelector,
+  rolePermissionSelector,
+  setDraftQuoteInfoNote,
+  store,
+  useAppSelector,
+} from '@/store';
 
 interface QuoteNoteProps {
   quoteStatus?: string | number;
@@ -16,6 +22,11 @@ export default function QuoteNote(props: QuoteNoteProps) {
 
   const [noteText, setNoteText] = useState('');
   const [defaultOpen, setDefaultOpen] = useState(false);
+
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
+
+  const quotesActionsPermission = isB2BUser ? b2bPermissions.quotesActionsPermission : true;
 
   const handleNoteTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     setNoteText(event?.target.value || '');
@@ -79,21 +90,25 @@ export default function QuoteNote(props: QuoteNoteProps) {
                 {quoteNotes}
               </Typography>
             ) : (
-              <TextField
-                multiline
-                fullWidth
-                rows={5}
-                value={noteText}
-                onChange={handleNoteTextChange}
-                label={b3Lang('global.quoteNote.typeMessage')}
-                size="small"
-                variant="filled"
-                sx={{
-                  '& .MuiFormLabel-root': {
-                    color: 'rgba(0, 0, 0, 0.38)',
-                  },
-                }}
-              />
+              <Box>
+                {quotesActionsPermission ? (
+                  <TextField
+                    multiline
+                    fullWidth
+                    rows={5}
+                    value={noteText}
+                    onChange={handleNoteTextChange}
+                    label={b3Lang('global.quoteNote.typeMessage')}
+                    size="small"
+                    variant="filled"
+                    sx={{
+                      '& .MuiFormLabel-root': {
+                        color: 'rgba(0, 0, 0, 0.38)',
+                      },
+                    }}
+                  />
+                ) : null}
+              </Box>
             )}
           </Box>
         </B3CollapseContainer>

@@ -15,13 +15,14 @@ import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import {
   clearMasqueradeCompany,
   isLoggedInSelector,
+  store,
   useAppDispatch,
   useAppSelector,
 } from '@/store';
-import { setB2BToken } from '@/store/slices/company';
+import { setB2BToken, setPermissionModules } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
 import { OpenPageState } from '@/types/hooks';
-import { channelId, loginJump, snackbar, storeHash } from '@/utils';
+import { channelId, getB3PermissionsList, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
 import { deleteCartData } from '@/utils/cartUtils';
@@ -260,12 +261,13 @@ export default function Login(props: RegisteredProps) {
         };
         const {
           login: {
-            result: { token, storefrontLoginToken },
+            result: { token, storefrontLoginToken, permissions },
             errors,
           },
         } = await b2bLogin({ loginData });
 
         storeDispatch(setB2BToken(token));
+        store.dispatch(setPermissionModules(permissions));
         customerLoginAPI(storefrontLoginToken);
 
         if (errors?.[0] || !token) {
@@ -297,10 +299,26 @@ export default function Login(props: RegisteredProps) {
 
           if (!isLoginLandLocation) return;
 
-          if (info?.role === CustomerRole.JUNIOR_BUYER) {
-            navigate('/shoppingLists');
+          const { getShoppingListPermission, getOrderPermission } = getB3PermissionsList();
+          if (
+            info?.role === CustomerRole.JUNIOR_BUYER &&
+            info?.companyRoleName === 'Junior Buyer'
+          ) {
+            const currentJuniorActivePage = getShoppingListPermission
+              ? '/shoppingLists'
+              : '/accountSettings';
+
+            navigate(currentJuniorActivePage);
           } else {
-            navigate('/orders');
+            let currentActivePage = getOrderPermission ? '/orders' : '/shoppingLists';
+
+            currentActivePage =
+              getShoppingListPermission || getOrderPermission
+                ? currentActivePage
+                : '/accountSettings';
+
+            currentActivePage = info?.userType === UserTypes.B2C ? '/orders' : currentActivePage;
+            navigate(currentActivePage);
           }
         }
       } catch (error) {

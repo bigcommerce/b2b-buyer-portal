@@ -53,6 +53,7 @@ const getShoppingList = ({
         products {
           totalCount,
         }
+        approvedFlag
       }
     }
   }
@@ -72,6 +73,7 @@ const createOrUpdateShoppingList = (fn: string, data: CustomFieldItems) => `muta
       name,
       description,
       status,
+      approvedFlag,
       customerInfo{
         firstName,
         lastName,
@@ -147,6 +149,7 @@ const getShoppingListDetails = (data: CustomFieldItems) => `{
     isShowGrandTotal,
     channelId,
     channelName,
+    approvedFlag,
     products (
       offset: ${data.offset || 0}
       first: ${data.first || 100},

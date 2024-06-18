@@ -8,6 +8,7 @@ import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 
 import { ShoppingStatus } from '../../ShoppingLists/ShoppingStatus';
 
@@ -41,13 +42,11 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
 
   const {
     shoppingListInfo,
-    role,
     customerInfo,
     handleUpdateShoppingList,
     goToShoppingLists,
     isB2BUser,
     setOpenPage,
-    isAgenting,
     openAPPParams,
     customColor,
   } = props;
@@ -61,7 +60,8 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
 
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0;
 
-  const currentSLCreateRole = shoppingListInfo?.customerInfo?.role;
+  const { submitShoppingListPermission, approveShoppingListPermission } =
+    useAppSelector(rolePermissionSelector);
 
   const gridOptions = (xs: number) =>
     isMobile
@@ -150,15 +150,17 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
             >
               {`${shoppingListInfo?.name || ''}`}
             </Typography>
-            {isB2BUser && +currentSLCreateRole === 2 && (
-              <Typography
-                sx={{
-                  m: `${isMobile ? '10px 0' : '0'}`,
-                }}
-              >
-                {shoppingListInfo && <ShoppingStatus status={shoppingListInfo?.status} />}
-              </Typography>
-            )}
+            {isB2BUser &&
+              (submitShoppingListPermission ||
+                (approveShoppingListPermission && shoppingListInfo?.approvedFlag)) && (
+                <Typography
+                  sx={{
+                    m: `${isMobile ? '10px 0' : '0'}`,
+                  }}
+                >
+                  {shoppingListInfo && <ShoppingStatus status={shoppingListInfo?.status} />}
+                </Typography>
+              )}
           </Box>
           <Box>
             <Typography
@@ -192,7 +194,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
           }}
           {...gridOptions(4)}
         >
-          {role === 2 && shoppingListInfo?.status === 30 && (
+          {submitShoppingListPermission && shoppingListInfo?.status === 30 && (
             <CustomButton
               variant="outlined"
               disabled={isDisabledBtn}
@@ -203,20 +205,20 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
               {b3Lang('shoppingList.header.submitForApproval')}
             </CustomButton>
           )}
-          {(role === 0 || role === 1 || (role === 3 && isAgenting)) &&
-            shoppingListInfo?.status === 40 && (
-              <Box>
-                <CustomButton
-                  variant="outlined"
-                  sx={{
-                    marginRight: '1rem',
-                  }}
-                  onClick={() => {
-                    handleUpdateShoppingList(20);
-                  }}
-                >
-                  {b3Lang('shoppingList.header.reject')}
-                </CustomButton>
+          {approveShoppingListPermission && shoppingListInfo?.status === 40 && (
+            <Box>
+              <CustomButton
+                variant="outlined"
+                sx={{
+                  marginRight: '1rem',
+                }}
+                onClick={() => {
+                  handleUpdateShoppingList(20);
+                }}
+              >
+                {b3Lang('shoppingList.header.reject')}
+              </CustomButton>
+              {approveShoppingListPermission && (
                 <CustomButton
                   variant="outlined"
                   onClick={() => {
@@ -225,8 +227,9 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                 >
                   {b3Lang('shoppingList.header.approve')}
                 </CustomButton>
-              </Box>
-            )}
+              )}
+            </Box>
+          )}
         </Grid>
       </Grid>
     </>

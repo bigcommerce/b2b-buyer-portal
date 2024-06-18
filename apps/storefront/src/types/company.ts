@@ -22,6 +22,7 @@ export interface Customer {
   customerGroupId: number;
   loginType: LoginTypes;
   role: CustomerRole;
+  companyRoleName: string;
 }
 // @Brian.Jiang2021: b5a4803db1bfe87cd85c9116e657d92d210335bd
 // 99: default, Distinguish between bc and b2b;
@@ -59,4 +60,9 @@ export enum LoginTypes {
   WAITING_LOGIN = 0,
   FIRST_LOGIN = 1,
   GENERAL_LOGIN = 2,
+}
+
+export enum FeatureEnabled {
+  DISABLED = '0',
+  ENABLED = '1',
 }

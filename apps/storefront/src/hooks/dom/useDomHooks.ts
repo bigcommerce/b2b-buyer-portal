@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect } from 'react';
 
 import { GlobaledContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
+import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
 import { setCartPermissions } from '@/utils/b3RolePermissions';
 
@@ -27,9 +28,9 @@ const useDomHooks = ({ setOpenPage, isOpen }: MutationObserverProps) => {
 
   useMonitorBrowserBack({ isOpen });
   useEffect(() => {
-    if (+role !== 2) {
-      setCartPermissions(role);
-    }
+    const isLoggedInAndB2BAccount = role !== CustomerRole.GUEST && role !== CustomerRole.B2C;
+
+    setCartPermissions(isLoggedInAndB2BAccount);
   }, [role]);
 
   useOpenPDP({

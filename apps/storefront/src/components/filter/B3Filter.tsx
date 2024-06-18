@@ -58,6 +58,7 @@ interface B3FilterProps<T, Y> {
   handleFilterCustomButtomClick?: () => void;
   showB3FilterMoreIcon?: boolean;
   searchValue?: string;
+  resetFilterInfo?: () => void;
 }
 
 function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
@@ -72,6 +73,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
     handleFilterCustomButtomClick,
     showB3FilterMoreIcon = true,
     searchValue = '',
+    resetFilterInfo,
   } = props;
 
   const [isMobile] = useMobile();
@@ -116,6 +118,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
                 endPicker={endPicker}
                 fiterMoreInfo={fiterMoreInfo}
                 onChange={handleFilterChange}
+                resetFilterInfo={resetFilterInfo}
               />
             )}
           </Box>
@@ -185,6 +188,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
               endPicker={endPicker}
               fiterMoreInfo={fiterMoreInfo}
               onChange={handleFilterChange}
+              resetFilterInfo={resetFilterInfo}
             />
           </Box>
           {customButtomConfig?.isEnabled && (

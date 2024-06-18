@@ -10,7 +10,7 @@ import CustomButton from '@/components/button/CustomButton';
 import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
-import { activeCurrencyInfoSelector, useAppSelector } from '@/store';
+import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { currencyFormat, snackbar } from '@/utils';
 import { setModifierQtyPrice } from '@/utils/b3Product/b3Product';
 import {
@@ -156,7 +156,6 @@ const mobileItemStyle = {
 export default function ReAddToCart(props: ShoppingProductsProps) {
   const {
     shoppingListInfo,
-    role,
     products,
     successProducts,
     allowJuniorPlaceOrder,
@@ -164,6 +163,8 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     setValidateSuccessProducts,
     textAlign = 'left',
   } = props;
+
+  const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
 
   const b3Lang = useB3Lang();
   const [isOpen, setOpen] = useState<boolean>(false);
@@ -225,7 +226,11 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
 
       if (!res.errors) {
         handleCancelClicked();
-        if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
+        if (
+          allowJuniorPlaceOrder &&
+          submitShoppingListPermission &&
+          shoppingListInfo?.status === 0
+        ) {
           window.location.href = CHECKOUT_URL;
         } else {
           snackbar.success('', {
