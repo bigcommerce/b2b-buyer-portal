@@ -135,8 +135,8 @@ export const deleteUsers = (data: CustomFieldItems) =>
 export const checkUserEmail = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: checkUserB2BEmail(data),
-  });
+  }).then((res) => res.userEmailCheck);
 export const checkUserBCEmail = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: checkCustomerBCEmail(data),
-  });
+  }).then((res) => res.customerEmailCheck);
