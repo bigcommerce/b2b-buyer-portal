@@ -36,18 +36,14 @@ import { LoginContainer, LoginImage } from './styled';
 
 const initialLoginInfo = {
   loginTitle: 'Sign In',
-  isShowWidgetHead: false,
-  isShowWidgetBody: false,
-  isShowWidgetFooter: false,
   loginBtn: 'Sign in',
   createAccountPanelTittle: 'Create Account Panel Title',
   CreateAccountButtonText: 'Create Account',
   btnColor: 'red',
-  widgetHeadText: '',
   widgetBodyText: '',
-  widgetFooterText: '',
   displayStoreLogo: false,
 };
+
 interface RegisteredProps {
   setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
@@ -113,11 +109,9 @@ export default function Login(props: RegisteredProps) {
           loginBtn: signInButtonText || b3Lang('login.button.signInUppercase'),
           CreateAccountButtonText: createAccountButtonText || b3Lang('login.button.createAccount'),
           btnColor: primaryButtonColor || '',
-          isShowWidgetHead: topHtmlRegionEnabled || false,
-          widgetHeadText: topHtmlRegionHtml || '',
+          widgetHeadText: topHtmlRegionEnabled ? topHtmlRegionHtml : undefined,
           widgetBodyText: createAccountPanelHtml || defaultCreateAccountPanel,
-          isShowWidgetFooter: bottomHtmlRegionEnabled || false,
-          widgetFooterText: bottomHtmlRegionHtml || '',
+          widgetFooterText: bottomHtmlRegionEnabled ? bottomHtmlRegionHtml : undefined,
           displayStoreLogo: displayStoreLogo || false,
         };
 
@@ -396,7 +390,6 @@ export default function Login(props: RegisteredProps) {
                       minHeight: '48px',
                       width: registerEnabled || isMobile ? '100%' : '50%',
                     }}
-                    isVisible={loginInfo.isShowWidgetHead}
                     html={loginInfo.widgetHeadText}
                   />
                 )}
@@ -467,7 +460,6 @@ export default function Login(props: RegisteredProps) {
                       minHeight: '48px',
                       width: registerEnabled || isMobile ? '100%' : '50%',
                     }}
-                    isVisible={loginInfo.isShowWidgetFooter}
                     html={loginInfo.widgetFooterText}
                   />
                 )}

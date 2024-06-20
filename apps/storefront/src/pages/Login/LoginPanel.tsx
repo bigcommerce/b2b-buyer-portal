@@ -41,7 +41,6 @@ function LoginPanel(props: LoginPanelProps) {
             },
           },
         }}
-        isVisible
         html={widgetBodyText}
       />
       <Box
