@@ -24,6 +24,7 @@ import {
   isB2BUserSelector,
   resetDraftQuoteInfo,
   resetDraftQuoteList,
+  rolePermissionSelector,
   setDraftQuoteInfo,
   setQuoteUserId,
   useAppDispatch,
@@ -132,12 +133,15 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
   );
   const quoteinfo = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo);
   const currency = useAppSelector(activeCurrencyInfoSelector);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
 
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext);
+
+  const quotesActionsPermission = isB2BUser ? b2bPermissions.quotesActionsPermission : true;
 
   const navigate = useNavigate();
 
@@ -621,44 +625,48 @@ function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
             </Typography>
             <QuoteStatus code="0" />
           </Box>
-          {!isMobile ? (
-            <CustomButton
-              variant="contained"
-              size="small"
-              sx={{
-                padding: '8px 22px',
-                alignSelf: 'center',
-                marginBottom: '24px',
-              }}
-              onClick={handleSubmit}
-            >
-              {b3Lang('quoteDraft.button.submit')}
-            </CustomButton>
-          ) : (
-            <Box
-              sx={{
-                position: 'fixed',
-                left: 0,
-                bottom: 0,
-                background: '#FFF',
-                width: '100%',
-                display: 'flex',
-                p: '8px 0',
-                zIndex: 100,
-                justifyContent: 'center',
-              }}
-            >
-              <CustomButton
-                variant="contained"
-                size="small"
-                sx={{
-                  height: '38px',
-                  width: '90%',
-                }}
-                onClick={handleSubmit}
-              >
-                {b3Lang('quoteDraft.button.submit')}
-              </CustomButton>
+          {quotesActionsPermission && (
+            <Box>
+              {!isMobile ? (
+                <CustomButton
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    padding: '8px 22px',
+                    alignSelf: 'center',
+                    marginBottom: '24px',
+                  }}
+                  onClick={handleSubmit}
+                >
+                  {b3Lang('quoteDraft.button.submit')}
+                </CustomButton>
+              ) : (
+                <Box
+                  sx={{
+                    position: 'fixed',
+                    left: 0,
+                    bottom: 0,
+                    background: '#FFF',
+                    width: '100%',
+                    display: 'flex',
+                    p: '8px 0',
+                    zIndex: 100,
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CustomButton
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      height: '38px',
+                      width: '90%',
+                    }}
+                    onClick={handleSubmit}
+                  >
+                    {b3Lang('quoteDraft.button.submit')}
+                  </CustomButton>
+                </Box>
+              )}
             </Box>
           )}
         </Box>

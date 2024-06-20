@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Grid } from '@mui/material';
 
 import { useMobile } from '@/hooks';
-import { isB2BUserSelector, useAppSelector } from '@/store';
+import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 
 import QuickOrderFooter from './components/QuickOrderFooter';
 import QuickOrderPad from './components/QuickOrderPad';
@@ -10,7 +10,6 @@ import QuickorderTable from './components/QuickorderTable';
 
 function Quickorder() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
-  const role = useAppSelector(({ company }) => company.customer.role);
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
@@ -18,6 +17,7 @@ function Quickorder() {
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
+  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
   return (
     <Box
@@ -64,7 +64,7 @@ function Quickorder() {
               pl: isMobile ? '0px !important' : '16px',
             }}
           >
-            {role !== 2 && <QuickOrderPad isB2BUser={isB2BUser} />}
+            {purchasabilityPermission && <QuickOrderPad isB2BUser={isB2BUser} />}
           </Grid>
         </Grid>
       </Box>
@@ -78,7 +78,6 @@ function Quickorder() {
         }}
       >
         <QuickOrderFooter
-          role={role}
           checkedArr={checkedArr}
           isAgenting={isAgenting}
           setIsRequestLoading={setIsRequestLoading}

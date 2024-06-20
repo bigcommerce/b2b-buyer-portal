@@ -16,6 +16,12 @@ interface UserLoginResult {
     result: {
       token: string;
       storefrontLoginToken: string;
+      permissions: [
+        {
+          code: string;
+          permissionLevel: number;
+        },
+      ];
     };
     errors?: { message: string }[];
   };
@@ -46,6 +52,10 @@ const getB2bLogin = `mutation Login($loginData: UserLoginType!) {
     result{
       storefrontLoginToken
       token
+      permissions {
+        code
+        permissionLevel
+      }
     }
   }
 }`;

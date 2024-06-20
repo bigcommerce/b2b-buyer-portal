@@ -15,7 +15,7 @@ import {
   getBcShoppingList,
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b';
-import { isB2BUserSelector, useAppSelector } from '@/store';
+import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { channelId, snackbar } from '@/utils';
 
 import AddEditShoppingLists from './AddEditShoppingLists';
@@ -50,7 +50,9 @@ function ShoppingLists() {
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
-  const role = useAppSelector(({ company }) => company.customer.role);
+
+  const { shoppingListActionsPermission, submitShoppingListPermission } =
+    useAppSelector(rolePermissionSelector);
 
   useEffect(() => {
     const initFilter = async () => {
@@ -58,7 +60,7 @@ function ShoppingLists() {
       let createdByUsers: CustomFieldItems = {};
       if (isB2BUser) createdByUsers = await getShoppingListsCreatedByUser(+companyId, 1);
 
-      const filterInfo = getFilterMoreList(createdByUsers, role);
+      const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
 
       const translatedFilterInfo = JSON.parse(JSON.stringify(filterInfo));
 
@@ -100,10 +102,8 @@ function ShoppingLists() {
 
   const isExtraLarge = useCardListColumn();
 
-  const isEnableBtnPermissions = true;
-
   const customItem = {
-    isEnabled: isEnableBtnPermissions,
+    isEnabled: isB2BUser ? shoppingListActionsPermission : true,
     customLabel: b3Lang('shoppingLists.createNew'),
     customButtomStyle: {
       fontSize: '15px',
@@ -112,7 +112,7 @@ function ShoppingLists() {
       padding: '0',
     },
   };
-  const statusPermissions = +role !== 2 ? [0, 40] : '';
+  const statusPermissions = !submitShoppingListPermission ? [0, 40] : '';
 
   const initSearch = {
     search: '',
@@ -155,20 +155,14 @@ function ShoppingLists() {
   };
 
   const fetchList = async (params: ShoppingListSearch) => {
-    const newParams = isB2BUser
-      ? params
-      : {
+    const { edges, totalCount } = isB2BUser
+      ? await getB2BShoppingList(params)
+      : await getBcShoppingList({
           offset: params.offset,
           first: params.first,
           search: params.search,
           channelId,
-        };
-    const getShoppingLists = isB2BUser ? getB2BShoppingList : getBcShoppingList;
-    const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists';
-
-    const {
-      [infoKey]: { edges, totalCount },
-    } = await getShoppingLists(newParams);
+        });
 
     return {
       edges,
@@ -204,8 +198,12 @@ function ShoppingLists() {
       handleCancelClick();
       const id: number = deleteItem?.id || 0;
 
-      const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteBcShoppingList;
-      await deleteShoppingList(id);
+      if (isB2BUser) {
+        await deleteB2BShoppingList(id);
+      } else {
+        await deleteBcShoppingList(id);
+      }
+
       snackbar.success(b3Lang('shoppingLists.deleteSuccess'));
     } finally {
       setIsRequestLoading(false);
@@ -243,8 +241,7 @@ function ShoppingLists() {
             <ShoppingListsCard
               key={row.id || ''}
               item={row}
-              role={role}
-              isPermissions={isEnableBtnPermissions}
+              isPermissions={isB2BUser ? shoppingListActionsPermission : true}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onCopy={handleCopy}
@@ -253,7 +250,6 @@ function ShoppingLists() {
           )}
         />
         <AddEditShoppingLists
-          role={role}
           renderList={initSearchList}
           ref={addEditShoppingListsRef}
           isB2BUser={isB2BUser}

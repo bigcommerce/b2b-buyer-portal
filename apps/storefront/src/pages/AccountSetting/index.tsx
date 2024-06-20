@@ -160,6 +160,10 @@ function AccountSetting() {
 
         const all = [...fields, ...passwordModifiedTranslatedFields];
 
+        const roleItem = all.find((item) => item.name === 'role');
+
+        if (roleItem?.fieldType) roleItem.fieldType = 'text';
+
         setAccountInfoFormFields(all);
 
         setCurrentEmail(accountSettings.email);

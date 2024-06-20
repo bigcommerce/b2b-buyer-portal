@@ -1,22 +1,27 @@
-## What?
+Jira: [JIRA_TOKEN](https://bigcommercecloud.atlassian.net/browse/JIRA_TOKEN)
 
-Write a description of the changes you're making here, and decisions that you made
-along the way. Provide enough context that the reviewer(s) can understand your
-changes, and the intent behind them. For more details refer to [contributing guideline](https://github.com/bigcommerce/bigcommerce/blob/master/CONTRIBUTING.md#what)
+## What/Why?
+<!--
+  A description about what this pull request implements and its purpose.
+  Try to be detailed and describe any technical details to simplify the job
+  of the reviewer and the individual on production support.
+-->
 
-## Why?
+## Rollout/Rollback
+<!--
+Detail how this change will be rolled out. Include reference to any
+experiments and how the success will be measured as the experiment is
+ramped.
 
-Describe the underlying driver or intent behind this change. Provide some context
-on why it's needed or what is the intended use. For more details refer to [contributing guideline](https://github.com/bigcommerce/bigcommerce/blob/master/CONTRIBUTING.md#why)
+Document rollback procedures. Is rolling back the change as simple as
+rolling back an experiment or does it require reverting code? Are there
+database migrations that may change our decision to roll forward instead of
+back?
+-->
 
-## Testing / Proof
-
-Explain what you did to test and ensure that these changes work the way you expect.
-You must provide evidence in the form of unit tests, screenshots, logs, API
-payloads or other output to show the expected behaviour. For more details refer to [contributing guideline](https://github.com/bigcommerce/bigcommerce/blob/master/CONTRIBUTING.md#testing--proof)
-
-## How can this change be undone in case of failure?
-
-Provide experiments, feature flags or other mechanisms which used to reduce the risk of changes introduced in this PR. For more details refer to [contributing guideline](https://github.com/bigcommerce/bigcommerce/blob/master/CONTRIBUTING.md#how-can-this-change-be-undone-in-case-of-failure)
-
-@bigcommerce/b2b-buyer-portal
+## Testing
+<!--
+Provide as much information as you can about how you tested and how another
+Engineer can test your change. Include screenshots, or test run output
+where appropriate.
+-->

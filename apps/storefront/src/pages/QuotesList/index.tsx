@@ -215,11 +215,9 @@ function QuotesList() {
 
   const fetchList = useCallback(
     async (params: Partial<FilterSearchProps>) => {
-      const fn = isB2BUser ? getB2BQuotesList : getBCQuotesList;
-      const key = isB2BUser ? 'quotes' : 'customerQuotes';
-      const {
-        [key]: { edges = [], totalCount },
-      } = await fn({ ...params, channelId });
+      const { edges = [], totalCount } = isB2BUser
+        ? await getB2BQuotesList({ ...params, channelId })
+        : await getBCQuotesList({ ...params, channelId });
 
       if (params.offset === 0 && draftQuoteListLength) {
         const summaryPrice = addPrice();

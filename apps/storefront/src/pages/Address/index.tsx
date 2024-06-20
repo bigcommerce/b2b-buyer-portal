@@ -13,7 +13,7 @@ import {
   getB2BCountries,
   getBCCustomerAddress,
 } from '@/shared/service/b2b';
-import { isB2BUserSelector, useAppSelector } from '@/store';
+import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
@@ -52,6 +52,8 @@ function Address() {
     state: { addressConfig },
     dispatch,
   } = useContext(GlobaledContext);
+
+  const { addressesActionsPermission } = useAppSelector(rolePermissionSelector);
 
   const b3Lang = useB3Lang();
   const isExtraLarge = useCardListColumn();
@@ -154,7 +156,9 @@ function Address() {
     paginationTableRef.current?.refresh();
   };
 
-  const [editPermission, setEditPermission] = useState(false);
+  const [editPermission, setEditPermission] = useState(
+    isB2BUser ? addressesActionsPermission : false,
+  );
   const [isOpenSetDefault, setIsOpenSetDefault] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>();
@@ -186,7 +190,8 @@ function Address() {
             (configList || []).find((config: AddressConfigItem) => config.key === 'address_book')
               ?.isEnabled === '1' &&
             (configList || []).find((config: AddressConfigItem) => config.key === key)
-              ?.isEnabled === '1';
+              ?.isEnabled === '1' &&
+            addressesActionsPermission;
 
           setEditPermission(editPermission);
         } catch (error) {

@@ -1,4 +1,6 @@
-import { CustomerRole } from '@/types';
+import { CustomerRole, FeatureEnabled } from '@/types';
+
+import { getB3PermissionsList } from './b3RolePermissions';
 
 export interface QuoteConfigItem {
   [key: string]: string;
@@ -42,6 +44,8 @@ export const getQuoteEnabled = (
   const shoppingListEnabled = storefrontConfig.shoppingLists;
   const registerEnabled = storefrontConfig.tradeProfessionalApplication;
 
+  const { shoppingListActionsPermission, quotesActionsPermission } = getB3PermissionsList();
+
   quoteConfig.forEach((config) => {
     switch (config.key) {
       case 'quote_customer':
@@ -81,19 +85,29 @@ export const getQuoteEnabled = (
     }
   });
 
-  let productQuoteEnabled = quoteEnabled && customerEnabled === '1' && productEnabled === '1';
-  let cartQuoteEnabled = quoteEnabled && customerEnabled === '1' && cartEnabled === '1';
+  let productQuoteEnabled =
+    quoteEnabled &&
+    customerEnabled === FeatureEnabled.ENABLED &&
+    productEnabled === FeatureEnabled.ENABLED;
+  let cartQuoteEnabled =
+    quoteEnabled &&
+    customerEnabled === FeatureEnabled.ENABLED &&
+    cartEnabled === FeatureEnabled.ENABLED;
   let productShoppingListEnabled = shoppingListEnabled;
 
   if (role === CustomerRole.GUEST) {
     // guest
-    productQuoteEnabled = productQuoteEnabled && guestEnabled === '1';
-    cartQuoteEnabled = cartQuoteEnabled && guestEnabled === '1';
+    productQuoteEnabled = productQuoteEnabled && guestEnabled === FeatureEnabled.ENABLED;
+    cartQuoteEnabled = cartQuoteEnabled && guestEnabled === FeatureEnabled.ENABLED;
     productShoppingListEnabled = shoppingListEnabled && slGuestEnabled;
   } else if (isB2BUser) {
-    productQuoteEnabled = productQuoteEnabled && b2bUserEnabled === '1';
-    cartQuoteEnabled = cartQuoteEnabled && b2bUserEnabled === '1';
-    productShoppingListEnabled = shoppingListEnabled && slB2bUserEnabled;
+    productQuoteEnabled =
+      productQuoteEnabled && b2bUserEnabled === FeatureEnabled.ENABLED && quotesActionsPermission;
+    cartQuoteEnabled =
+      cartQuoteEnabled && b2bUserEnabled === FeatureEnabled.ENABLED && quotesActionsPermission;
+    productShoppingListEnabled =
+      shoppingListEnabled && slB2bUserEnabled && shoppingListActionsPermission;
+
     if (role === CustomerRole.SUPER_ADMIN && !isAgenting) {
       productQuoteEnabled = false;
       cartQuoteEnabled = false;
@@ -101,8 +115,8 @@ export const getQuoteEnabled = (
     }
   } else if (!isB2BUser) {
     // BCUser
-    productQuoteEnabled = productQuoteEnabled && bcUserEnabled === '1';
-    cartQuoteEnabled = cartQuoteEnabled && bcUserEnabled === '1';
+    productQuoteEnabled = productQuoteEnabled && bcUserEnabled === FeatureEnabled.ENABLED;
+    cartQuoteEnabled = cartQuoteEnabled && bcUserEnabled === FeatureEnabled.ENABLED;
     productShoppingListEnabled = shoppingListEnabled && slBcUserEnabled;
   }
 

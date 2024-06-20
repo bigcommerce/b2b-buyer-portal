@@ -85,13 +85,9 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
       orderBy: '-createdAt',
     };
 
-    const fn = isB2BUser ? getB2BAllOrders : getBCAllOrders;
-
-    const orders = isB2BUser ? 'allOrders' : 'customerOrders';
-
-    const {
-      [orders]: { edges: list, totalCount },
-    }: CustomFieldItems = await fn(searchDetailParams);
+    const { edges: list, totalCount } = isB2BUser
+      ? await getB2BAllOrders(searchDetailParams)
+      : await getBCAllOrders(searchDetailParams);
 
     let flag = '';
 
@@ -123,7 +119,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
   useEffect(() => {
     if (totalCount > 0) setListIndex(currentIndex);
     if (listIndex === initListIndex) return;
-    const searchPageStart = currentIndex + searchParams.offset;
+    const searchPageStart = currentIndex + (searchParams.offset || 0);
     setListIndex(searchPageStart);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);

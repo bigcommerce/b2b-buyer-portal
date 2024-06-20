@@ -34,6 +34,8 @@ export interface ShoppingListsItemsProps {
   updatedAt: string | number;
   sampleShoppingListId?: number | string;
   channelId: number;
+  approvedFlag: boolean;
+  isOwner: boolean;
 }
 
 export interface GetFilterMoreListProps {
@@ -52,7 +54,7 @@ export interface GetFilterMoreListProps {
 }
 
 export const getFilterShoppingListStatus = (
-  role?: number | string,
+  submitShoppingListPermission: boolean,
 ): Array<ShoppingListStatusProps> => {
   const shoppingListStatus: Array<ShoppingListStatusProps> = [
     {
@@ -82,19 +84,18 @@ export const getFilterShoppingListStatus = (
     },
   ];
 
-  const getShoppingListStatus =
-    role !== 2
-      ? shoppingListStatus.filter(
-          (item: ShoppingListStatusProps) => item.value !== 30 && item.value !== 20,
-        )
-      : shoppingListStatus;
+  const getShoppingListStatus = !submitShoppingListPermission
+    ? shoppingListStatus.filter(
+        (item: ShoppingListStatusProps) => item.value !== 30 && item.value !== 20,
+      )
+    : shoppingListStatus;
 
   return getShoppingListStatus;
 };
 
 export const getFilterMoreList = (
   createdByUsers: any,
-  role: number | string,
+  submitShoppingListPermission: boolean,
 ): GetFilterMoreListProps[] => {
   const newCreatedByUsers =
     createdByUsers?.createdByUser?.results.map((item: any) => ({
@@ -123,7 +124,7 @@ export const getFilterMoreList = (
       required: false,
       default: '',
       fieldType: 'dropdown',
-      options: getFilterShoppingListStatus(role),
+      options: getFilterShoppingListStatus(submitShoppingListPermission),
       xs: 12,
       variant: 'filled',
       size: 'small',

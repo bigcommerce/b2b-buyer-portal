@@ -53,6 +53,7 @@ const getShoppingList = ({
         products {
           totalCount,
         }
+        approvedFlag
       }
     }
   }
@@ -72,6 +73,7 @@ const createOrUpdateShoppingList = (fn: string, data: CustomFieldItems) => `muta
       name,
       description,
       status,
+      approvedFlag,
       customerInfo{
         firstName,
         lastName,
@@ -147,6 +149,7 @@ const getShoppingListDetails = (data: CustomFieldItems) => `{
     isShowGrandTotal,
     channelId,
     channelName,
+    approvedFlag,
     products (
       offset: ${data.offset || 0}
       first: ${data.first || 100},
@@ -403,7 +406,7 @@ const getCreatedByUser = (companyId: number, module: number, fn: string) => `{
 export const getB2BShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: getShoppingList(data),
-  });
+  }).then((res) => res.shoppingLists);
 
 export const createB2BShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
@@ -428,7 +431,7 @@ export const deleteB2BShoppingList = (id: number) =>
 export const getB2BShoppingListDetails = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: getShoppingListDetails(data),
-  });
+  }).then((res) => res.shoppingList);
 
 export const addProductToShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
@@ -448,7 +451,7 @@ export const deleteB2BShoppingListItem = (data: CustomFieldItems = {}) =>
 export const getBcShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: getCustomerShoppingLists(data),
-  });
+  }).then((res) => res.customerShoppingLists);
 
 export const createBcShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
@@ -473,7 +476,7 @@ export const deleteBcShoppingList = (id: number) =>
 export const getBcShoppingListDetails = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({
     query: getCustomerShoppingListDetails(data),
-  });
+  }).then((res) => res.customerShoppingList);
 
 export const addProductToBcShoppingList = (data: CustomFieldItems = {}) =>
   B3Request.graphqlB2B({

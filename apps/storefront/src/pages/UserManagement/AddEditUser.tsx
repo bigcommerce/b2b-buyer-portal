@@ -86,12 +86,22 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
   };
 
   useEffect(() => {
-    if (open && type === 'edit' && editData) {
-      usersFiles.forEach((item: UsersFilesProps) => {
-        setValue(item.name, editData[item.name]);
+    if (open) {
+      const newUsersFiles = usersFiles.map((item: UsersFilesProps) => {
+        const newItem = item;
+
+        if (type === 'edit' && editData) {
+          setValue(item.name, editData[item.name]);
+        }
+
+        return newItem;
       });
+
+      setUsersFiles(newUsersFiles);
     }
-  }, [editData, open, setValue, type, usersFiles]);
+    // disabling because we don't want to run this effect on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editData, open, type]);
 
   const handleCancelClick = () => {
     usersFiles.forEach((item: UsersFilesProps) => {
@@ -106,11 +116,9 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
 
   const validateEmailValue = async (emailValue: string) => {
     const {
-      userEmailCheck: {
-        userType,
-        userInfo: { companyName },
-      },
-    }: CustomFieldItems = await checkUserEmail({
+      userType,
+      userInfo: { companyName },
+    } = await checkUserEmail({
       email: emailValue,
       companyId,
       channelId,
@@ -147,6 +155,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
       try {
         const params: Partial<FilterProps> = {
           companyId,
+          companyRoleId: +data.companyRoleId,
           ...data,
           extraFields: extraFieldsInfo,
         };
@@ -172,6 +181,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
           message = b3Lang('userManagement.updateUserSuccessfully');
           delete params.email;
         }
+
         await addOrUpdateUsers(params);
         handleCancelClick();
 
@@ -185,6 +195,8 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
   };
 
   const handleOpenAddEditUserClick = (type: string, data: UsersList) => {
+    const usersFiles = getUsersFiles(type, b3Lang, type === 'edit' ? b2bId === +data.id : false);
+
     if (type === 'edit') {
       const extrafieldsInfo: ExtraFieldsProps[] = data.extraFields || [];
       let newData = data;
@@ -202,11 +214,17 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
       }
 
       setEditData(newData);
-    }
-    const usersFiles = getUsersFiles(type, b3Lang, type === 'edit' ? b2bId === +data.id : false);
 
+      const companyRoleItem: UsersFilesProps | null =
+        usersFiles.find((item) => item.name === 'companyRoleId') || null;
+      if (companyRoleItem) {
+        companyRoleItem.defaultName = data?.companyRoleName || '';
+        companyRoleItem.default = data?.companyRoleId || '';
+      }
+    }
     const allUsersFiles = concat(usersFiles, userExtrafields);
     setUsersFiles(allUsersFiles);
+
     setType(type);
     setOpen(true);
   };

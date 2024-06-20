@@ -9,7 +9,7 @@ import { b3HexToRgb } from '@/components/outSideComponents/utils/b3CustomStyles'
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
 import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b';
-import { isB2BUserSelector, useAppSelector } from '@/store';
+import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { channelId } from '@/utils';
 
 import { ShoppingListItem } from '../../../types';
@@ -46,6 +46,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
 
   const theme = useTheme();
   const [isMobile] = useMobile();
@@ -60,20 +61,19 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
       setLoading(true);
       setList([]);
 
-      const getShoppingList = isB2BUser ? getB2BShoppingList : getBcShoppingList;
-      const infoKey = isB2BUser ? 'shoppingLists' : 'customerShoppingLists';
-      const params = isB2BUser ? {} : { channelId };
-
       try {
-        const {
-          [infoKey]: { edges: list = [] },
-        }: CustomFieldItems = await getShoppingList(params);
+        const { edges: list = [] } = isB2BUser
+          ? await getB2BShoppingList()
+          : await getBcShoppingList({ channelId });
 
         if (!isB2BUser) {
           setList(list);
         } else {
+          const { submitShoppingListPermission } = b2bPermissions;
+
           const newList = list.filter(
-            (item: CustomFieldItems) => item.node.status === +(role === 2 ? 30 : 0),
+            (item: CustomFieldItems) =>
+              item.node.status === +(submitShoppingListPermission ? 30 : 0),
           );
           setList(newList);
         }

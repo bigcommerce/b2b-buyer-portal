@@ -7,7 +7,7 @@ import { Box, Button, Typography } from '@mui/material';
 import { CART_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { useAppSelector } from '@/store';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
@@ -31,6 +31,8 @@ export default function B3Mainheader({ title }: { title: string }) {
       portalStyle: { backgroundColor = '#FEF9F5' },
     },
   } = useContext(CustomStyleContext);
+
+  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
   const customColor = getContrastColor(backgroundColor);
 
@@ -105,7 +107,7 @@ export default function B3Mainheader({ title }: { title: string }) {
             >
               {b3Lang('global.B3MainHeader.home')}
             </Button>
-            {role !== 2 && (
+            {purchasabilityPermission && (
               <Button
                 sx={{
                   color: '#333333',

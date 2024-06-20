@@ -6,7 +6,7 @@ import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import throttle from 'lodash-es/throttle';
 
 import CustomButton from '@/components/button/CustomButton';
-import { isB2BUserSelector, useAppSelector } from '@/store';
+import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import {
   b2bPrintInvoice,
   currencyFormat,
@@ -270,6 +270,7 @@ export default function OrderAction(props: OrderActionProps) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
   const role = useAppSelector(({ company }) => company.customer.role);
+  const b2bPermissions = useAppSelector(rolePermissionSelector);
 
   const {
     state: { addressLabelPermission, createdEmail },
@@ -289,6 +290,9 @@ export default function OrderAction(props: OrderActionProps) {
   if (!orderId) {
     return null;
   }
+
+  const { purchasabilityPermission, shoppingListActionsPermission, getInvoicesPermission } =
+    b2bPermissions;
 
   const getCompanyName = (company: string) => {
     if (addressLabelPermission) {
@@ -361,7 +365,7 @@ export default function OrderAction(props: OrderActionProps) {
       key: 'Re-Order',
       name: 'reOrder',
       variant: 'outlined',
-      isCanShow: +role !== 2,
+      isCanShow: isB2BUser ? purchasabilityPermission : true,
     },
     {
       value: b3Lang('orderDetail.return'),
@@ -378,10 +382,11 @@ export default function OrderAction(props: OrderActionProps) {
       key: 'add-to-shopping-list',
       name: 'shoppingList',
       variant: 'outlined',
-      isCanShow: true,
+      isCanShow: isB2BUser ? shoppingListActionsPermission : true,
     },
   ];
 
+  const invoiceBtnPermissions = +ipStatus !== 0 || createdEmail === emailAddress;
   const orderData: OrderData[] = [
     {
       header: b3Lang('orderDetail.summary'),
@@ -413,7 +418,9 @@ export default function OrderAction(props: OrderActionProps) {
           key: 'aboutInvoice',
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
-          isCanShow: +ipStatus !== 0 || createdEmail === emailAddress,
+          isCanShow: isB2BUser
+            ? invoiceBtnPermissions && getInvoicesPermission
+            : invoiceBtnPermissions,
         },
       ],
       infos: {

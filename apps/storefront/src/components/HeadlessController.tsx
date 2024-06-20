@@ -213,7 +213,6 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             const { shoppingListsCreate } = await createShoppingList({
               data: { name, description },
               isB2BUser: isB2BUserRef.current,
-              role: roleRef.current,
             });
 
             return shoppingListsCreate.shoppingList;

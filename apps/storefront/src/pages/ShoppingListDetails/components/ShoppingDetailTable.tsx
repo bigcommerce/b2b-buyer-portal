@@ -19,7 +19,7 @@ import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile, useSort } from '@/hooks';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
-import { useAppSelector } from '@/store';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 import { currencyFormat, snackbar } from '@/utils';
 import { getBCPrice, getDisplayPrice, getValidOptionsList } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
@@ -75,7 +75,7 @@ interface ShoppingDetailTableProps {
   setDeleteOpen: (open: boolean) => void;
   isB2BUser: boolean;
   productQuoteEnabled: boolean;
-  role: number | string;
+  isCanEditShoppingList: boolean;
 }
 
 interface SearchProps {
@@ -155,9 +155,16 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     isB2BUser,
     allowJuniorPlaceOrder,
     productQuoteEnabled,
-    role,
+    isCanEditShoppingList,
   } = props;
+
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
+
+  const { shoppingListActionsPermission, submitShoppingListPermission } =
+    useAppSelector(rolePermissionSelector);
+
+  const canShoppingListActions = shoppingListActionsPermission && isCanEditShoppingList;
+  const b2bAndBcShoppingListActionsPermissions = isB2BUser ? canShoppingListActions : true;
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
@@ -521,7 +528,9 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
           sx={{
             width: '72px',
           }}
-          disabled={isReadForApprove || isJuniorApprove}
+          disabled={
+            b2bAndBcShoppingListActionsPermissions ? isReadForApprove || isJuniorApprove : true
+          }
           value={row.quantity}
           inputProps={{
             inputMode: 'numeric',
@@ -559,7 +568,11 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
         const optionList = options || JSON.parse(row.optionList);
 
-        const canChangeOption = optionList.length > 0 && !isReadForApprove && !isJuniorApprove;
+        const canChangeOption =
+          optionList.length > 0 &&
+          !isReadForApprove &&
+          !isJuniorApprove &&
+          b2bAndBcShoppingListActionsPermissions;
 
         return (
           <Box>
@@ -580,76 +593,83 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
               }}
               id="shoppingList-actionList"
             >
-              <Grid
-                item
-                sx={{
-                  marginRight: '0.5rem',
-                  minWidth: '32px',
-                }}
-              >
-                <StickyNote2
-                  sx={{
-                    cursor: 'pointer',
-                    color: 'rgba(0, 0, 0, 0.54)',
-                  }}
-                  onClick={() => {
-                    setAddNoteOpen(true);
-                    setAddNoteItemId(+itemId);
-
-                    if (row.productNote) {
-                      setNotes(row.productNote);
-                    }
-                  }}
-                />
-              </Grid>
-              <Grid
-                item
-                sx={{
-                  marginRight: canChangeOption ? '0.5rem' : '',
-                  marginLeft: canChangeOption ? '0.3rem' : '',
-                }}
-              >
-                {canChangeOption && (
-                  <Edit
+              {canShoppingListActions && (
+                <>
+                  <Grid
+                    item
                     sx={{
-                      cursor: 'pointer',
-                      color: 'rgba(0, 0, 0, 0.54)',
+                      marginRight: '0.5rem',
+                      minWidth: '32px',
                     }}
-                    onClick={() => {
-                      const { productsSearch, variantId, itemId, optionList, quantity } = row;
+                  >
+                    <StickyNote2
+                      sx={{
+                        cursor: 'pointer',
+                        color: 'rgba(0, 0, 0, 0.54)',
+                      }}
+                      onClick={() => {
+                        setAddNoteOpen(true);
+                        setAddNoteItemId(+itemId);
 
-                      handleOpenProductEdit(
-                        {
-                          ...productsSearch,
-                          selectOptions: optionList,
-                          quantity,
-                        },
-                        variantId,
-                        itemId,
-                      );
-                    }}
-                  />
-                )}
-              </Grid>
-              <Grid
-                item
-                sx={{
-                  marginLeft: '0.3rem',
-                }}
-              >
-                {!isReadForApprove && !isJuniorApprove && (
-                  <Delete
+                        if (row.productNote) {
+                          setNotes(row.productNote);
+                        }
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid
+                    item
                     sx={{
-                      cursor: 'pointer',
-                      color: 'rgba(0, 0, 0, 0.54)',
+                      marginRight: canChangeOption ? '0.5rem' : '',
+                      marginLeft: canChangeOption ? '0.3rem' : '',
                     }}
-                    onClick={() => {
-                      setDeleteOpen(true);
-                      setDeleteItemId(+itemId);
+                  >
+                    {canChangeOption && (
+                      <Edit
+                        sx={{
+                          cursor: 'pointer',
+                          color: 'rgba(0, 0, 0, 0.54)',
+                        }}
+                        onClick={() => {
+                          const { productsSearch, variantId, itemId, optionList, quantity } = row;
+
+                          handleOpenProductEdit(
+                            {
+                              ...productsSearch,
+                              selectOptions: optionList,
+                              quantity,
+                            },
+                            variantId,
+                            itemId,
+                          );
+                        }}
+                      />
+                    )}
+                  </Grid>
+                  <Grid
+                    item
+                    sx={{
+                      marginLeft: '0.3rem',
                     }}
-                  />
-                )}
-              </Grid>
+                  >
+                    {b2bAndBcShoppingListActionsPermissions &&
+                      !isReadForApprove &&
+                      !isJuniorApprove && (
+                        <Delete
+                          sx={{
+                            cursor: 'pointer',
+                            color: 'rgba(0, 0, 0, 0.54)',
+                          }}
+                          onClick={() => {
+                            setDeleteOpen(true);
+                            setDeleteItemId(+itemId);
+                          }}
+                        />
+                      )}
+                  </Grid>
+                </>
+              )}
             </Box>
           </Box>
         );
@@ -713,9 +733,9 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
         applyAllDisableCheckbox={false}
         disableCheckbox={
           disabledSelectAll ||
-          (+role === 2
+          (submitShoppingListPermission
             ? !(allowJuniorPlaceOrder || productQuoteEnabled)
-            : isReadForApprove || isJuniorApprove)
+            : (isReadForApprove || isJuniorApprove) && b2bAndBcShoppingListActionsPermissions)
         }
         hover
         labelRowsPerPage={b3Lang('shoppingList.table.itemsPerPage')}
@@ -744,6 +764,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
             handleUpdateProductQty={handleUpdateProductQty}
             handleUpdateShoppingListItem={handleUpdateShoppingListItemQty}
             isReadForApprove={isReadForApprove || isJuniorApprove}
+            b2bAndBcShoppingListActionsPermissions={b2bAndBcShoppingListActionsPermissions}
           />
         )}
       />

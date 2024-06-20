@@ -12,7 +12,7 @@ import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b';
 import { bcLogin } from '@/shared/service/bc';
 import { themeFrameSelector, useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';
-import { B3SStorage, loginjump } from '@/utils';
+import { B3SStorage, loginJump } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -277,7 +277,7 @@ function Registered(props: RegisteredProps) {
 
         clearRegisterInfo();
 
-        const isLoginLandLocation = loginjump(navigate);
+        const isLoginLandLocation = loginJump(navigate);
 
         if (!isLoginLandLocation) return;
 

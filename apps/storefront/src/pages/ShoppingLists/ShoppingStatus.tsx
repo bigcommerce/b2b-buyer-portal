@@ -1,7 +1,7 @@
 import { useB3Lang } from '@b3/lang';
 
 import { B3Tag } from '@/components';
-import { useAppSelector } from '@/store';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 
 import { getFilterShoppingListStatus } from './config';
 
@@ -13,8 +13,8 @@ interface NewStatusProps {
   idLang: string;
 }
 
-export const getStatus = (role: number | string) => {
-  const statusArr = getFilterShoppingListStatus(role);
+export const getStatus = (submitShoppingListPermission: boolean) => {
+  const statusArr = getFilterShoppingListStatus(submitShoppingListPermission);
 
   const newStatus: Array<NewStatusProps> = statusArr.map((item) => {
     if (+item.value === 0) {
@@ -55,9 +55,10 @@ interface ShoppingStatusProps {
 }
 
 export function ShoppingStatus({ status }: ShoppingStatusProps) {
-  const role = useAppSelector(({ company }) => company.customer.role);
+  const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
+
   const b3Lang = useB3Lang();
-  const statusList = getStatus(role);
+  const statusList = getStatus(submitShoppingListPermission);
   const statusItem = statusList.find((item: NewStatusProps) => +item.value === +status);
 
   if (statusItem) {

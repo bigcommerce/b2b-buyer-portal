@@ -2,7 +2,7 @@ import { NavigateFunction } from 'react-router-dom';
 
 import { store } from '@/store/reducer';
 
-export const loginjump = (navigate: NavigateFunction, isClearSesion = false) => {
+export const loginJump = (navigate: NavigateFunction, isClearSession = false) => {
   const {
     global: { loginLandingLocation, recordOpenHash, setOpenPageFn },
   } = store.getState();
@@ -12,7 +12,7 @@ export const loginjump = (navigate: NavigateFunction, isClearSesion = false) => 
       isOpen: false,
       openUrl: '',
     });
-    if (isClearSesion) window.sessionStorage.clear();
+    if (isClearSession) window.sessionStorage.clear();
     window.location.reload();
     return false;
   }
@@ -26,4 +26,4 @@ export const loginjump = (navigate: NavigateFunction, isClearSesion = false) => 
   return true;
 };
 
-export default loginjump;
+export default loginJump;

@@ -7,7 +7,7 @@ const getUsersQl = (data: CustomFieldItems) => `{
     search: "${data.q || ''}"
     offset: ${data.offset}
     companyId: ${data.companyId}
-    ${data.role === '' ? '' : `role: ${data.role}`}
+    ${data.companyRoleId === '' ? '' : `companyRoleId: ${data.companyRoleId}`}
   ){
     totalCount,
     pageInfo{
@@ -30,6 +30,8 @@ const getUsersQl = (data: CustomFieldItems) => `{
           fieldName
           fieldValue
         }
+        companyRoleId,
+        companyRoleName,
       }
     }
   }
@@ -43,10 +45,11 @@ const addOrUpdateUsersQl = (data: CustomFieldItems) => `mutation{
       firstName: "${data.firstName || ''}"
       lastName: "${data.lastName || ''}"
       phone: "${data.phone || ''}"
-      role: ${data.role}
+      ${data?.companyRoleId ? `companyRoleId: ${data.companyRoleId}` : ''}
       ${data?.userId ? `userId: ${data.userId}` : ''}
       ${data?.addChannel ? `addChannel: ${data.addChannel}` : ''}
       extraFields: ${convertArrayToGraphql(data?.extraFields || [])}
+      ${data?.companyRoleName ? `companyRoleName: ${data.companyRoleName}` : ''}
     }
   ){
     user{
@@ -136,6 +139,7 @@ export const checkUserEmail = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: checkUserB2BEmail(data),
   }).then((res) => res.userEmailCheck);
+
 export const checkUserBCEmail = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: checkCustomerBCEmail(data),

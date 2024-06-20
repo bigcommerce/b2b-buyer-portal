@@ -191,11 +191,9 @@ function QuickorderTable({
   };
 
   const getList = async (params: SearchProps) => {
-    const fn = isB2BUser ? getOrderedProducts : getBcOrderedProducts;
-
     const {
       orderedProducts: { edges, totalCount },
-    } = await fn(params);
+    } = isB2BUser ? await getOrderedProducts(params) : await getBcOrderedProducts(params);
 
     const listProducts = await handleGetProductsById(edges);
 

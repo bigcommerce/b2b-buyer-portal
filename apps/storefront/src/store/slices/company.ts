@@ -11,10 +11,16 @@ interface Tokens {
   currentCustomerJWT: string;
 }
 
+interface PermissionsCodesProps {
+  code: string;
+  permissionLevel: number;
+}
+
 export interface CompanyState {
   companyInfo: CompanyInfo;
   customer: Customer;
   tokens: Tokens;
+  permissions: PermissionsCodesProps[];
 }
 
 const initialState: CompanyState = {
@@ -33,12 +39,14 @@ const initialState: CompanyState = {
     role: CustomerRole.GUEST,
     userType: UserTypes.DOESNT_EXIST,
     loginType: LoginTypes.WAITING_LOGIN,
+    companyRoleName: '',
   },
   tokens: {
     B2BToken: '',
     bcGraphqlToken: '',
     currentCustomerJWT: '',
   },
+  permissions: [],
 };
 
 const companySlice = createSlice({
@@ -76,6 +84,9 @@ const companySlice = createSlice({
     setLoginType: (state, { payload }: PayloadAction<LoginTypes>) => {
       state.customer.loginType = payload;
     },
+    setPermissionModules: (state, { payload }: PayloadAction<PermissionsCodesProps[]>) => {
+      state.permissions = payload;
+    },
   },
 });
 
@@ -91,6 +102,7 @@ export const {
   setbcGraphqlToken,
   setCurrentCustomerJWT,
   setLoginType,
+  setPermissionModules,
 } = companySlice.actions;
 
 export default persistReducer({ key: 'company', storage: storageSession }, companySlice.reducer);

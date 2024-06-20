@@ -17,7 +17,7 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b/graphql/product';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
-import { useAppSelector } from '@/store';
+import { rolePermissionSelector, useAppSelector } from '@/store';
 import { currencyFormat, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import {
@@ -35,7 +35,6 @@ import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any;
-  role: string | number;
   allowJuniorPlaceOrder: boolean;
   checkedArr: any;
   selectedSubTotal: number;
@@ -45,6 +44,7 @@ interface ShoppingDetailFooterProps {
   setValidateSuccessProducts: (arr: ProductsProps[]) => void;
   isB2BUser: boolean;
   customColor: string;
+  isCanEditShoppingList: boolean;
 }
 
 interface ProductInfoProps {
@@ -82,6 +82,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
+  const { shoppingListActionsPermission, purchasabilityPermission, submitShoppingListPermission } =
+    useAppSelector(rolePermissionSelector);
   const ref = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -98,7 +100,6 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   const {
     shoppingListInfo,
-    role,
     allowJuniorPlaceOrder,
     checkedArr,
     selectedSubTotal,
@@ -108,6 +109,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     setValidateSuccessProducts,
     isB2BUser,
     customColor,
+    isCanEditShoppingList,
   } = props;
 
   const handleOpenBtnList = () => {
@@ -252,7 +254,11 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             isClose: true,
           });
         } else if (validateFailureArr.length === 0) {
-          if (allowJuniorPlaceOrder && +role === 2 && shoppingListInfo?.status === 0) {
+          if (
+            allowJuniorPlaceOrder &&
+            submitShoppingListPermission &&
+            shoppingListInfo?.status === 0
+          ) {
             window.location.href = CHECKOUT_URL;
           } else {
             snackbar.success('', {
@@ -472,7 +478,9 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const allowButtonList = () => {
     if (!(shoppingListInfo?.status === 0 || !isB2BUser)) return [];
 
-    if (role === 2) {
+    if (!purchasabilityPermission) return productQuoteEnabled ? [buttons.addSelectedToQuote] : [];
+
+    if (submitShoppingListPermission) {
       if (allowJuniorPlaceOrder && productQuoteEnabled) {
         return [buttons.proceedToCheckout, buttons.addSelectedToQuote];
       }
@@ -578,7 +586,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                 width: isMobile ? '100%' : 'auto',
               }}
             >
-              {!allowJuniorPlaceOrder && (
+              {!allowJuniorPlaceOrder && isCanEditShoppingList && shoppingListActionsPermission && (
                 <CustomButton
                   sx={{
                     padding: '5px',
@@ -599,7 +607,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                   />
                 </CustomButton>
               )}
-              {buttonList.length && (
+              {buttonList.length ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -659,7 +667,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                     </>
                   )}
                 </Box>
-              )}
+              ) : null}
             </Box>
           </Box>
         </Box>
