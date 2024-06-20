@@ -13,17 +13,14 @@ export type LoginConfig = {
 };
 
 export interface LoginInfoInit {
-  isShowWidgetHead: boolean;
-  isShowWidgetBody?: boolean;
-  isShowWidgetFooter: boolean;
   loginTitle: string;
   loginBtn?: string;
   createAccountPanelTittle?: string;
   CreateAccountButtonText: string;
   btnColor: string;
-  widgetHeadText: string;
+  widgetHeadText?: string;
   widgetBodyText: string;
-  widgetFooterText: string;
+  widgetFooterText?: string;
   displayStoreLogo: boolean;
 }
 
