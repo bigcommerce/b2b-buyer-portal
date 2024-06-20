@@ -187,15 +187,17 @@ function AccountSetting() {
   const validateEmailValue = async (emailValue: string) => {
     if (customer.emailAddress === trim(emailValue)) return true;
 
-    const fn = !isBCUser ? checkUserEmail : checkUserBCEmail;
-    const key = !isBCUser ? 'userEmailCheck' : 'customerEmailCheck';
-
     const {
-      [key]: { userType },
-    }: CustomFieldItems = await fn({
-      email: emailValue,
-      channelId,
-    });
+      [!isBCUser ? 'userEmailCheck' : 'userEmailCheck']: { userType },
+    }: CustomFieldItems = !isBCUser
+      ? await checkUserEmail({
+          email: emailValue,
+          channelId,
+        })
+      : await checkUserBCEmail({
+          email: emailValue,
+          channelId,
+        });
 
     const isValid = !isBCUser ? [1].includes(userType) : ![2].includes(userType);
 
