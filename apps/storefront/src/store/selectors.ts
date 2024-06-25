@@ -27,7 +27,7 @@ export const activeCurrencyInfoSelector = createSelector(
   (storeConfigs): Currency => {
     const entityId = storeConfigs.activeCurrency?.node.entityId || '';
     const activeCurrency = storeConfigs.currencies.currencies.find(
-      (currency) => currency.id === entityId,
+      (currency) => +currency.id === +entityId,
     );
 
     return activeCurrency || defaultCurrenciesState.currencies[0];

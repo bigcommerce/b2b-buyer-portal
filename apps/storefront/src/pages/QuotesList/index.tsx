@@ -310,6 +310,8 @@ function QuotesList() {
         const newCurrency = currency as CurrencyProps;
         return `${currencyFormatConvert(+totalAmount, {
           currency: newCurrency,
+          isConversionRate: false,
+          useCurrentCurrency: !!currency,
         })}`;
       },
       style: {

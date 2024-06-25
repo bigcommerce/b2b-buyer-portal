@@ -49,7 +49,6 @@ const Flex = styled('div')<FlexProps>(({ isHeader, isMobile }) => {
   return {
     color: '#212121',
     display: 'flex',
-    wordBreak: 'break-word',
     padding: '8px 0 0',
     gap: '8px',
     flexWrap,
@@ -92,7 +91,7 @@ const ProductOptionText = styled('div')(() => ({
 
 const defaultItemStyle = {
   default: {
-    width: '10%',
+    width: '15%',
   },
   qty: {
     width: '12%',

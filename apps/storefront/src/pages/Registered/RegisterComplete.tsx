@@ -162,6 +162,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
     bcFields.addresses = [];
     bcFields.origin_channel_id = channelId;
+    bcFields.channel_ids = [channelId];
 
     if (accountType === '2') {
       const addresses: CustomFieldItems = {};

@@ -21,6 +21,7 @@ import { useMobile, useSort } from '@/hooks';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { currencyFormat, snackbar } from '@/utils';
+import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { getBCPrice, getDisplayPrice, getValidOptionsList } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 
@@ -428,6 +429,13 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
         const optionList = JSON.parse(row.optionList);
         const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
 
+        const currentVariants = product.variants || [];
+        const currentImage =
+          b2bGetVariantImageByVariantInfo(currentVariants, {
+            variantId: row.variantId,
+            variantSku: row.variantSku,
+          }) || row.primaryImage;
+
         return (
           <Box
             sx={{
@@ -436,7 +444,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
             }}
           >
             <StyledImage
-              src={row.primaryImage || PRODUCT_DEFAULT_IMAGE}
+              src={currentImage || PRODUCT_DEFAULT_IMAGE}
               alt="Product-img"
               loading="lazy"
             />

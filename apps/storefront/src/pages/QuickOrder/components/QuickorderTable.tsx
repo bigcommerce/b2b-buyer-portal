@@ -21,6 +21,7 @@ import {
   getProductPriceIncTax,
   snackbar,
 } from '@/utils';
+import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { getDisplayPrice } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 
@@ -319,7 +320,11 @@ function QuickorderTable({
       key: 'product',
       title: b3Lang('purchasedProducts.product'),
       render: (row: CustomFieldItems) => {
-        const { optionList } = row;
+        const { optionList, productsSearch, variantId } = row;
+        const currentVariants = productsSearch.variants || [];
+
+        const currentImage =
+          b2bGetVariantImageByVariantInfo(currentVariants, { variantId }) || row.imageUrl;
         return (
           <Box
             sx={{
@@ -328,7 +333,7 @@ function QuickorderTable({
             }}
           >
             <StyledImage
-              src={row.imageUrl || PRODUCT_DEFAULT_IMAGE}
+              src={currentImage || PRODUCT_DEFAULT_IMAGE}
               alt="Product-img"
               loading="lazy"
             />
