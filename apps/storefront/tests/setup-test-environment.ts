@@ -1,4 +1,18 @@
+import { createSerializer } from '@emotion/jest';
 import { cleanup } from '@testing-library/react';
+
+expect.addSnapshotSerializer(createSerializer());
+
+expect.addSnapshotSerializer({
+  test: (val) => /:r\d+:/.test(val),
+  print: (val) => {
+    if (typeof val === 'string') {
+      return `"${val.split(/:r\d+:/g).join(':rX:')}"`;
+    }
+
+    return '';
+  },
+});
 
 window.B3 = {
   setting: {
@@ -20,6 +34,7 @@ beforeEach(() => {
     },
   };
 });
+
 afterEach(() => {
   cleanup();
 });

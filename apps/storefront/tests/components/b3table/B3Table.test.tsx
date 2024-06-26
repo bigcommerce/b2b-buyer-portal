@@ -66,6 +66,6 @@ describe('B3Table component', async () => {
         reducer: { lang },
       },
     );
-    expect(result).toMatchSnapshot();
+    expect(result.asFragment()).toMatchSnapshot();
   });
 });
