@@ -2,7 +2,7 @@ import Cookies from 'js-cookie';
 
 import { CHECKOUT_URL } from '@/constants';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
-import { store } from '@/store/reducer';
+import { store } from '@/store';
 import { setCartNumber } from '@/store/slices/global';
 
 import b2bLogger from './b3Logger';

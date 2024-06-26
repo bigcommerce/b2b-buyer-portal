@@ -1,13 +1,8 @@
+import { renderWithProviders } from 'tests/test-utils';
+
 import { ThemeFrame } from '@/components';
 import Quickorder from '@/pages/QuickOrder';
 import { GlobalProvider } from '@/shared/global';
-import b2bFeatures from '@/store/slices/b2bFeatures';
-import company from '@/store/slices/company';
-import global from '@/store/slices/global';
-import storeConfigs from '@/store/slices/storeConfigs';
-import theme from '@/store/slices/theme';
-
-import { renderWithProviders } from '../../test-utils';
 
 import { mockActiveCurrency, mockCurrencies } from './mock';
 
@@ -37,9 +32,6 @@ describe('Quickorder component', () => {
           <Quickorder />
         </ThemeFrame>
       </GlobalProvider>,
-      {
-        reducer: { global, theme, storeConfigs, company, b2bFeatures },
-      },
     );
   });
 });

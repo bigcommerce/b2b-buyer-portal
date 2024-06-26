@@ -1,4 +1,4 @@
-import { Dispatch, ReactNode } from 'react';
+import { Dispatch } from 'react';
 
 type BtnKeys =
   | 'masqueradeButton'
@@ -172,8 +172,4 @@ export type DispatchProps = Dispatch<Partial<CustomStyleButtonAction>>;
 export interface CustomStyleButtonContext {
   state: CustomStyleButtonState;
   dispatch: DispatchProps;
-}
-
-export interface CustomStyleButtonProviderProps {
-  children: ReactNode;
 }

@@ -1,4 +1,4 @@
-import { store } from '@/store/reducer';
+import { store } from '@/store';
 import { TaxZoneRates, TaxZoneRatesProps } from '@/store/slices/global';
 
 const getTaxRate = (taxClassId: number) => {
