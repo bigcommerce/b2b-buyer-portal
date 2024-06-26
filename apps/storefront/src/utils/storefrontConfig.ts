@@ -12,7 +12,7 @@ import {
   getTaxZoneRates,
 } from '@/shared/service/b2b';
 import { getActiveBcCurrency } from '@/shared/service/bc';
-import { store } from '@/store/reducer';
+import { store } from '@/store';
 import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,

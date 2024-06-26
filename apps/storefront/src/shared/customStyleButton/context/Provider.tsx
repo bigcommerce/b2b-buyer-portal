@@ -1,9 +1,9 @@
-import { useMemo, useReducer } from 'react';
+import { PropsWithChildren, useMemo, useReducer } from 'react';
 
-import { CustomStyleButtonProviderProps, initState } from './config';
+import { initState } from './config';
 import { CustomStyleContext, reducer } from './index';
 
-export default function CustomStyleProvider(props: CustomStyleButtonProviderProps) {
+export default function CustomStyleProvider(props: PropsWithChildren) {
   const [state, dispatch] = useReducer(reducer, initState);
 
   const { children } = props;

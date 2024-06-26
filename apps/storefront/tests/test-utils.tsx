@@ -1,14 +1,13 @@
 import { PropsWithChildren } from 'react';
 import { Provider } from 'react-redux';
-import { configureStore, ConfigureStoreOptions } from '@reduxjs/toolkit';
+import { ConfigureStoreOptions } from '@reduxjs/toolkit';
 import { render, RenderOptions } from '@testing-library/react';
 
-import { AppStore, middlewareOptions } from '@/store';
+import { AppStore, setupStore } from '@/store';
 
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-  reducer: ConfigureStoreOptions['reducer'];
   preloadedState?: ConfigureStoreOptions['preloadedState'];
 }
 
@@ -19,13 +18,9 @@ interface RenderWithProvidersResult {
 
 export const renderWithProviders = (
   ui: React.ReactElement,
-  { reducer, preloadedState, ...renderOptions }: ExtendedRenderOptions,
+  { preloadedState, ...renderOptions }: ExtendedRenderOptions = {},
 ): RenderWithProvidersResult => {
-  const store = configureStore({
-    reducer,
-    preloadedState,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware(middlewareOptions),
-  });
+  const store = setupStore(preloadedState);
 
   const wrapper = ({ children }: PropsWithChildren) => {
     return <Provider store={store}>{children}</Provider>;

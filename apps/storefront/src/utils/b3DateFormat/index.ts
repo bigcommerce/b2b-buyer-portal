@@ -1,6 +1,6 @@
 import merge from 'lodash-es/merge';
 
-import { store } from '@/store/reducer.js';
+import { store } from '@/store';
 
 import DateFormatter from './php-date-format.js';
 
