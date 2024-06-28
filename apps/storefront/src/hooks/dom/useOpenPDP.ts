@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useRef } from 'react';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import globalB3 from '@b3/global-b3';
 import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit';
 import cloneDeep from 'lodash-es/cloneDeep';
@@ -13,10 +13,10 @@ import {
   ADD_TO_SHOPPING_LIST_DEFUALT_VALUE,
   TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
 } from '@/constants';
+import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { isB2BUserSelector, setGlabolCommonState, useAppDispatch, useAppSelector } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 
 import useGetButtonText from '../useGetButtonText';
 import useRole from '../useRole';
@@ -25,14 +25,14 @@ import useDomVariation from './useDomVariation';
 import { removeElement } from './utils';
 
 interface MutationObserverProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
+  setOpenPage: SetOpenPage;
   role: number | string;
 }
 interface AddProductFromPageParams {
   role: number;
   storeDispatch: DispatchRedux<AnyAction>;
   saveFn: () => void;
-  setOpenPage: (value: SetStateAction<OpenPageState>) => void;
+  setOpenPage: SetOpenPage;
   registerEnabled: boolean;
 }
 

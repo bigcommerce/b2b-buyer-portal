@@ -1,11 +1,10 @@
-import { Dispatch, SetStateAction } from 'react';
 import globalB3 from '@b3/global-b3';
 
 import B3AddToQuoteTip from '@/components/B3AddToQuoteTip';
+import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { searchB2BProducts, searchBcProducts } from '@/shared/service/b2b';
 import { getCart } from '@/shared/service/bc/graphql/cart';
 import { store } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 import { B3LStorage, B3SStorage, getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';
 import b2bLogger from '@/utils/b3Logger';
@@ -19,8 +18,6 @@ import {
 } from '@/utils/b3Product/b3Product';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
-
-type DispatchProps = Dispatch<SetStateAction<OpenPageState>>;
 
 interface DiscountsProps {
   discountedAmount: number;
@@ -131,7 +128,7 @@ const removeLoadding = () => {
   if (b2bLoading) removeElement(b2bLoading);
 };
 
-const gotoQuoteDraft = (setOpenPage: DispatchProps) => {
+const gotoQuoteDraft = (setOpenPage: SetOpenPage) => {
   setOpenPage({
     isOpen: true,
     openUrl: '/quoteDraft',
@@ -167,7 +164,7 @@ const getCartProducts = (lineItems: LineItemsProps) =>
 
 const addProductsToDraftQuote = async (
   products: LineItems[],
-  setOpenPage: DispatchProps,
+  setOpenPage: SetOpenPage,
   cartId?: string,
 ) => {
   // filter products with SKU
@@ -226,7 +223,7 @@ const addProductsToDraftQuote = async (
   });
 };
 
-const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
+const addProductsFromCartToQuote = (setOpenPage: SetOpenPage) => {
   const addToQuote = async () => {
     try {
       const cartInfoWithOptions: CartInfoProps | any = await getCart();
@@ -269,7 +266,7 @@ const addProductsFromCartToQuote = (setOpenPage: DispatchProps) => {
   };
 };
 
-const addProductFromProductPageToQuote = (setOpenPage: DispatchProps) => {
+const addProductFromProductPageToQuote = (setOpenPage: SetOpenPage) => {
   const addToQuote = async (role: string | number, node?: HTMLElement) => {
     try {
       const productView = node ? node.closest(globalB3['dom.productView']) : document;

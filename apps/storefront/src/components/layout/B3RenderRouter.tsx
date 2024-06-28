@@ -1,7 +1,8 @@
-import { Dispatch, lazy, SetStateAction, Suspense, useContext, useEffect } from 'react';
+import { lazy, Suspense, useContext, useEffect } from 'react';
 import { Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import { RegisteredProvider } from '@/pages/Registered/context/RegisteredContext';
+import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { GlobaledContext } from '@/shared/global';
 import {
   firstLevelRouting,
@@ -10,7 +11,6 @@ import {
   RouteItem,
 } from '@/shared/routes';
 import { getPageTranslations, useAppDispatch } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 import { channelId } from '@/utils';
 
 import Loading from '../loading/Loading';
@@ -20,7 +20,7 @@ const B3Layout = lazy(() => import('@/components/layout/B3Layout'));
 const B3LayoutTip = lazy(() => import('@/components/layout/B3LayoutTip'));
 
 interface B3RenderRouterProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
+  setOpenPage: SetOpenPage;
   openUrl?: string;
   isOpen: boolean;
 }

@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
@@ -12,17 +12,13 @@ import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton/context';
 import { GlobaledContext } from '@/shared/global';
 import { getStorefrontToken, requestResetPassword } from '@/shared/service/b2b/graphql/recaptcha';
-import { OpenPageState } from '@/types/hooks';
 import b2bLogger from '@/utils/b3Logger';
 
 import { getForgotPasswordFields, LoginConfig, sendEmail } from '../Login/config';
 import { B3ResetPassWordButton, LoginImage } from '../Login/styled';
+import { type PageProps } from '../PageProps';
 
-interface ForgotPasswordProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
-}
-
-function ForgotPassword(props: ForgotPasswordProps) {
+function ForgotPassword(props: PageProps) {
   const {
     state: { logo },
   } = useContext(GlobaledContext);

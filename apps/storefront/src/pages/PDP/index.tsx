@@ -1,4 +1,4 @@
-import { Dispatch, lazy, SetStateAction, useContext, useEffect, useState } from 'react';
+import { lazy, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import globalB3 from '@b3/global-b3';
 import { LangFormatFunction, useB3Lang } from '@b3/lang';
@@ -12,19 +12,16 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, store, useAppSelector } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 import { getActiveCurrencyInfo, globalSnackbar, serialize } from '@/utils';
 import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddToShoppingList';
 import { getValidOptionsList } from '@/utils/b3Product/b3Product';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
+import { type PageProps } from '../PageProps';
 
 const CreateShoppingList = lazy(() => import('../OrderDetail/components/CreateShoppingList'));
 const OrderShoppingList = lazy(() => import('../OrderDetail/components/OrderShoppingList'));
 
-interface PDPProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
-}
 interface AddProductsToShoppingListParams {
   isB2BUser: boolean;
   items: CustomFieldItems[];
@@ -129,7 +126,7 @@ export const addProductsToShoppingList = async ({
   });
 };
 
-function PDP({ setOpenPage }: PDPProps) {
+function PDP({ setOpenPage }: PageProps) {
   const isPromission = true;
   const {
     state: { shoppingListClickNode },

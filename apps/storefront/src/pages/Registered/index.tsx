@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, ImageListItem } from '@mui/material';
@@ -11,12 +11,12 @@ import { GlobaledContext } from '@/shared/global';
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b';
 import { bcLogin } from '@/shared/service/bc';
 import { themeFrameSelector, useAppSelector } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 import { B3SStorage, loginJump } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { loginCheckout, LoginConfig } from '../Login/config';
+import { type PageProps } from '../PageProps';
 
 import { RegisteredContext } from './context/RegisteredContext';
 import {
@@ -34,11 +34,7 @@ import { RegisterFields } from './types';
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2];
 
-interface RegisteredProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
-}
-
-function Registered(props: RegisteredProps) {
+function Registered(props: PageProps) {
   const { setOpenPage } = props;
 
   const [activeStep, setActiveStep] = useState(0);

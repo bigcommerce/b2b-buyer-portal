@@ -1,6 +1,7 @@
-import { lazy } from 'react';
+import { FC, lazy } from 'react';
 import { matchPath } from 'react-router-dom';
 
+import { type PageProps } from '@/pages/PageProps';
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
 import { getCustomerInfo } from '@/shared/service/bc';
 import { store } from '@/store';
@@ -32,16 +33,14 @@ const ShippingLists = lazy(() => import('@/pages/ShoppingLists'));
 const ShoppingListDetails = lazy(() => import('@/pages/ShoppingListDetails'));
 const UserManagement = lazy(() => import('@/pages/UserManagement'));
 
-type RegisteredItem = typeof Registered | typeof HomePage;
-
 interface RouteItemBasic {
+  component: FC<PageProps>;
   path: string;
   name: string;
   permissions: number[]; // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 4: salesRep-【Not represented】, 99: bc user, 100: guest
 }
 
 export interface RouteItem extends RouteItemBasic {
-  component: RegisteredItem;
   isMenuItem: boolean;
   wsKey: string;
   configKey?: string;
@@ -53,7 +52,6 @@ export interface RouteItem extends RouteItemBasic {
 
 export interface RouteFirstLevelItem extends RouteItemBasic {
   isProvider: boolean;
-  component: RegisteredItem;
 }
 
 const routes: RouteItem[] = [
