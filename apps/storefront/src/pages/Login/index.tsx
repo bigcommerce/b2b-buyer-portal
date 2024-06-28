@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box, ImageListItem } from '@mui/material';
@@ -21,12 +21,13 @@ import {
 } from '@/store';
 import { setB2BToken, setPermissionModules } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
-import { OpenPageState } from '@/types/hooks';
 import { channelId, getB3PermissionsList, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
 import { deleteCartData } from '@/utils/cartUtils';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
+
+import { type PageProps } from '../PageProps';
 
 import LoginWidget from './component/LoginWidget';
 import { loginCheckout, LoginConfig, LoginInfoInit } from './config';
@@ -44,13 +45,9 @@ const initialLoginInfo = {
   displayStoreLogo: false,
 };
 
-interface RegisteredProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
-}
-
 type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
-export default function Login(props: RegisteredProps) {
+export default function Login(props: PageProps) {
   const { setOpenPage } = props;
   const storeDispatch = useAppDispatch();
 

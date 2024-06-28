@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext } from 'react';
+import { useContext } from 'react';
 import { useB3Lang } from '@b3/lang';
 import GroupIcon from '@mui/icons-material/Group';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -14,10 +14,10 @@ import {
 import { useGetButtonText } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
 import useStorageState from '@/hooks/useStorageState';
+import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 
 import {
   getContrastColor,
@@ -30,7 +30,7 @@ import {
 
 interface B3MasquradeGobalTipProps {
   isOpen: boolean;
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
+  setOpenPage: SetOpenPage;
 }
 
 const bottomHeightPage = ['shoppingList/', 'purchased-products'];

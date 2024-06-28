@@ -1,16 +1,11 @@
-import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { PropsWithChildren } from 'react';
 
-import { OpenPageState } from '@/types/hooks';
+import { type SetOpenPage } from '@/pages/SetOpenPage';
 
 import RegisteredCloseButton from './RegisteredCloseButton';
 import { CardContainer } from './styled';
 
-interface B3CardProps {
-  setOpenPage?: Dispatch<SetStateAction<OpenPageState>>;
-  children: ReactNode;
-}
-
-export default function B3Card(props: B3CardProps) {
+export default function B3Card(props: PropsWithChildren<{ setOpenPage?: SetOpenPage }>) {
   const { setOpenPage, children } = props;
 
   return (

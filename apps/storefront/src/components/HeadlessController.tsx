@@ -1,10 +1,11 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useB3Lang } from '@b3/lang';
 
 import { HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
 import { addProductsToShoppingList } from '@/pages/PDP';
+import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { superAdminCompanies } from '@/shared/service/b2b';
@@ -16,7 +17,6 @@ import {
   useAppSelector,
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
-import { OpenPageState } from '@/types/hooks';
 import { QuoteItem } from '@/types/quotes';
 import CallbackManager from '@/utils/b3Callbacks';
 import { LineItems } from '@/utils/b3Product/b3Product';
@@ -33,7 +33,7 @@ export interface FormattedQuoteItem
 }
 
 interface HeadlessControllerProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
+  setOpenPage: SetOpenPage;
 }
 
 const transformOptionSelectionsToAttributes = (items: LineItems[]) =>

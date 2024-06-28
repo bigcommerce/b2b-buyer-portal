@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -14,8 +14,9 @@ import { useSort } from '@/hooks';
 import { GlobaledContext } from '@/shared/global';
 import { superAdminCompanies } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
+
+import { type PageProps } from '../PageProps';
 
 import DashboardCard from './components/DashboardCard';
 
@@ -28,10 +29,6 @@ interface B3MeanProps {
   handleSelect: () => void;
   startActing: () => void;
   endActing: () => void;
-}
-
-interface DashboardProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 
 export const defaultSortKey = 'companyName';
@@ -108,7 +105,7 @@ function B3Mean({ isMasquerade, handleSelect, startActing, endActing }: B3MeanPr
   );
 }
 
-function Dashboard(props: DashboardProps) {
+function Dashboard(props: PageProps) {
   const { dispatch } = useContext(GlobaledContext);
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);

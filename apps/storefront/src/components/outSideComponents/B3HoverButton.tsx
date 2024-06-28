@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material';
 
 import {
@@ -8,9 +8,9 @@ import {
 } from '@/constants';
 import { useGetButtonText } from '@/hooks';
 import useMobile from '@/hooks/useMobile';
+import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { useAppSelector } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 
 import {
   getHoverColor,
@@ -24,7 +24,7 @@ import {
 interface B3HoverButtonProps {
   isOpen: boolean;
   productQuoteEnabled: boolean;
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
+  setOpenPage: SetOpenPage;
 }
 
 export default function B3HoverButton(props: B3HoverButtonProps) {
