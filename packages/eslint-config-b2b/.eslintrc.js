@@ -13,6 +13,7 @@ module.exports = {
     'testing-library',
     'simple-import-sort',
   ],
+  reportUnusedDisableDirectives: true,
   extends: [
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
@@ -84,5 +85,7 @@ module.exports = {
       'error',
       { devDependencies: ['**/tests/**/*.ts', '**/tests/**/*.tsx'] },
     ],
+    'react/jsx-no-useless-fragment': ['warn', { allowExpressions: true }],
+    'import/prefer-default-export': 'off',
   },
 }

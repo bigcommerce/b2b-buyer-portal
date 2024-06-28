@@ -31,13 +31,18 @@ const resetPassword = `mutation recaptcha($token: String!, $email: String!) {
   }
 `;
 
-export const requestResetPassword = (token: string, email: string) =>
+export const requestResetPassword = (token: string, email: string): Promise<void> =>
   B3Request.graphqlBCProxy({
     query: resetPassword,
     variables: { token, email },
   });
 
-export const getStorefrontToken = () =>
+interface CaptchaConfig {
+  siteKey: string;
+  isEnabledOnStorefront: boolean;
+}
+
+export const getStorefrontToken = (): Promise<CaptchaConfig | undefined> =>
   B3Request.graphqlBCProxy({
     query: getStorefrontTokenQuery,
-  });
+  }).then((res) => res?.data?.site?.settings?.reCaptcha);

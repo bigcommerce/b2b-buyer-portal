@@ -12,7 +12,6 @@ const envs: Record<string, { schema: string }> = {
 };
 
 const config: CodegenConfig = {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   schema: envs[CODEGEN_ENV]!.schema,
   documents: ['src/shared/service/**/*.ts'],
   generates: {
