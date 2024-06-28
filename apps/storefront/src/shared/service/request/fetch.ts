@@ -1,5 +1,3 @@
-const originFetch = window.fetch;
-
 const responseResult = (res: Response, resolve: (val?: unknown) => void, init: RequestInit) => {
   if (init.method === 'DELETE') {
     resolve();
@@ -9,7 +7,7 @@ const responseResult = (res: Response, resolve: (val?: unknown) => void, init: R
 
 function b3Fetch(path: string, init: RequestInit): any {
   return new Promise((resolve, reject) => {
-    originFetch(path, init)
+    fetch(path, init)
       .then((res: Response) => responseResult(res, resolve, init))
       .then(async (res) => {
         if (res?.code === 500) {
