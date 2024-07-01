@@ -1,7 +1,7 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit';
 
 export interface ThemeState {
-  themeFrame: HTMLIFrameElement['contentDocument'];
+  themeFrame?: HTMLIFrameElement['contentDocument'];
 }
 
 const initialState: ThemeState = {

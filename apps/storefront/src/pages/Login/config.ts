@@ -96,14 +96,11 @@ export const loginCheckout = (data: LoginConfig) => {
 };
 
 export const sendEmail = (emailAddress: string) => {
-  const myHeaders = new Headers();
-
   const urlencoded = new URLSearchParams();
   urlencoded.append('email', emailAddress);
 
-  const requestOptions: any = {
+  const requestOptions: RequestInit = {
     method: 'POST',
-    headers: myHeaders,
     body: urlencoded,
     redirect: 'follow',
   };

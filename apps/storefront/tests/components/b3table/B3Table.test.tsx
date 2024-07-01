@@ -1,9 +1,8 @@
 import { LangProvider } from '@b3/lang';
+import { renderWithProviders } from 'tests/test-utils';
 
 import { B3Table } from '@/components';
 import { TableColumnItem } from '@/components/table/B3Table';
-
-import { renderWithProviders } from '../../test-utils';
 
 const columnItems: TableColumnItem<1> = {
   key: 'key test1',

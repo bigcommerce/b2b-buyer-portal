@@ -96,8 +96,6 @@ export function Captcha(props: CaptchaProps) {
     loadCaptchaScript(iframeDocument);
     loadCaptchaWidgetHandlers(iframeDocument, widgetId);
     initialized.current = true;
-
-    // eslint-disable-next-line
   }, [iframeDocument, widgetId]);
 
   return <div id={widgetId} data-sitekey={siteKey} data-theme={theme} data-size={size} />;

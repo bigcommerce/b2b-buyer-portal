@@ -53,9 +53,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       try {
         const response = await getStorefrontToken();
 
-        if (response.data) {
-          setIsEnabledOnStorefront(response.data.site.settings.reCaptcha.isEnabledOnStorefront);
-          setStorefrontSiteKey(response.data.site.settings.reCaptcha.siteKey);
+        if (response) {
+          setIsEnabledOnStorefront(response.isEnabledOnStorefront);
+          setStorefrontSiteKey(response.siteKey);
         }
       } catch (e) {
         b2bLogger.error(e);

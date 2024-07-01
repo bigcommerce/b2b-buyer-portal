@@ -33,7 +33,6 @@ class MyStorage {
     const value = this.storage.getItem(this.prefix + key);
 
     if (value) {
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       return JSON.parse(value) as StorageStore[T];
     }
 
