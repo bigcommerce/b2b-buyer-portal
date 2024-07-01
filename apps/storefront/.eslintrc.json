@@ -44,7 +44,6 @@
         "src/pages/Registered/RegisterComplete.tsx",
         "src/pages/Registered/RegisteredAccount.tsx",
         "src/pages/Registered/RegisteredStep.tsx",
-        "src/pages/Registered/component/RegisteredSigleCheckBox.tsx",
         "src/pages/Registered/component/RegisteredStepButton.tsx",
         "src/pages/Registered/config.ts",
         "src/pages/Registered/types.ts",
