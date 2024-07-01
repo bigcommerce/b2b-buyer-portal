@@ -14,26 +14,32 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install
+        uses: ./.github/actions/install
+      - name: Lint
+        run: yarn lint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install
+        uses: ./.github/actions/install
+      - name: Build
+        run: yarn build
+
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Setup NodeJS & Yarn
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Lint
-        run: yarn lint
-
+      - name: Install
+        uses: ./.github/actions/install
       - name: Test
         run: yarn test
-
-      - name: Build
-        run: yarn build
