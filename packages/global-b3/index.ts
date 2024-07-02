@@ -37,6 +37,7 @@ const themeOtherElementConfig = () => {
     HaloOne:
       '[href^="/account.php"] svg, [href^="/account.php"] svg path, [href="/login.php"] svg path',
     FinchUS: '[href^="/account.php"] img',
+    Beautify: '[href^="/account.php"] .new-icon-account',
   }
 
   Object.values(themeElements).forEach((value) => {
