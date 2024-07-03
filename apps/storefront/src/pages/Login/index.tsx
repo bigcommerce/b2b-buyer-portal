@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box, ImageListItem } from '@mui/material';
@@ -30,31 +30,54 @@ import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { type PageProps } from '../PageProps';
 
 import LoginWidget from './component/LoginWidget';
-import { loginCheckout, LoginConfig, LoginInfoInit } from './config';
+import { loginCheckout, LoginConfig } from './config';
 import LoginForm from './LoginForm';
 import LoginPanel from './LoginPanel';
 import { LoginContainer, LoginImage } from './styled';
 
-const initialLoginInfo = {
-  loginTitle: 'Sign In',
-  loginBtn: 'Sign in',
-  createAccountPanelTittle: 'Create Account Panel Title',
-  CreateAccountButtonText: 'Create Account',
-  btnColor: 'red',
-  widgetBodyText: '',
-  displayStoreLogo: false,
-};
-
 type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
+const useMasquerade = () => {
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const storeDispatch = useAppDispatch();
+
+  const isMasquerade = isAgenting && typeof b2bId === 'number';
+
+  const endMasquerade = useCallback(async () => {
+    if (isMasquerade) {
+      await superAdminEndMasquerade(+salesRepCompanyId, b2bId);
+      storeDispatch(clearMasqueradeCompany());
+    }
+  }, [b2bId, isMasquerade, salesRepCompanyId, storeDispatch]);
+
+  return { endMasquerade, isMasquerade };
+};
+
+const setTipType = (flag: string): AlertColor | undefined => {
+  if (!flag) {
+    return undefined;
+  }
+
+  switch (flag) {
+    case '1':
+      return 'error';
+    case '4':
+      return 'error';
+    case '5':
+      return 'warning';
+    default:
+      return 'success';
+  }
+};
+
 export default function Login(props: PageProps) {
+  const { isMasquerade, endMasquerade } = useMasquerade();
   const { setOpenPage } = props;
   const storeDispatch = useAppDispatch();
 
   const isLoggedIn = useAppSelector(isLoggedInSelector);
-  const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
-  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const quoteDetailToCheckoutUrl = useAppSelector(
     ({ quoteInfo }) => quoteInfo.quoteDetailToCheckoutUrl,
@@ -65,7 +88,6 @@ export default function Login(props: PageProps) {
 
   const [showTipInfo, setShowTipInfo] = useState<boolean>(true);
   const [flag, setLoginFlag] = useState<string>('');
-  const [loginInfo, setLoginInfo] = useState<LoginInfoInit | null>(null);
   const [loginAccount, setLoginAccount] = useState<LoginConfig>({
     emailAddress: '',
     password: '',
@@ -87,31 +109,31 @@ export default function Login(props: PageProps) {
     },
   } = useContext(CustomStyleContext);
 
+  const { createAccountButtonText, primaryButtonColor, signInButtonText } = loginPageButton;
+  const { displayStoreLogo, pageTitle } = loginPageDisplay;
+
+  const {
+    bottomHtmlRegionEnabled,
+    bottomHtmlRegionHtml,
+    createAccountPanelHtml,
+    topHtmlRegionEnabled,
+    topHtmlRegionHtml,
+  } = loginPageHtml;
+
+  const loginInfo = {
+    loginTitle: pageTitle || b3Lang('login.button.signIn'),
+    loginBtn: signInButtonText || b3Lang('login.button.signInUppercase'),
+    createAccountButtonText: createAccountButtonText || b3Lang('login.button.createAccount'),
+    btnColor: primaryButtonColor || '',
+    widgetHeadText: topHtmlRegionEnabled ? topHtmlRegionHtml : undefined,
+    widgetBodyText: createAccountPanelHtml || defaultCreateAccountPanel,
+    widgetFooterText: bottomHtmlRegionEnabled ? bottomHtmlRegionHtml : undefined,
+    logo: displayStoreLogo ? logo : undefined,
+  };
+
   useEffect(() => {
     const init = async () => {
       try {
-        const { createAccountButtonText, primaryButtonColor, signInButtonText } = loginPageButton;
-        const { displayStoreLogo, pageTitle } = loginPageDisplay;
-
-        const {
-          bottomHtmlRegionEnabled,
-          bottomHtmlRegionHtml,
-          createAccountPanelHtml,
-          topHtmlRegionEnabled,
-          topHtmlRegionHtml,
-        } = loginPageHtml;
-
-        const Info = {
-          loginTitle: pageTitle || b3Lang('login.button.signIn'),
-          loginBtn: signInButtonText || b3Lang('login.button.signInUppercase'),
-          CreateAccountButtonText: createAccountButtonText || b3Lang('login.button.createAccount'),
-          btnColor: primaryButtonColor || '',
-          widgetHeadText: topHtmlRegionEnabled ? topHtmlRegionHtml : undefined,
-          widgetBodyText: createAccountPanelHtml || defaultCreateAccountPanel,
-          widgetFooterText: bottomHtmlRegionEnabled ? bottomHtmlRegionHtml : undefined,
-          displayStoreLogo: displayStoreLogo || false,
-        };
-
         const loginFlag = searchParams.get('loginFlag');
         const showTipInfo = searchParams.get('showTip') !== 'false';
 
@@ -134,9 +156,8 @@ export default function Login(props: PageProps) {
 
           if (result !== 'success') return;
 
-          if (isAgenting && typeof b2bId === 'number') {
-            await superAdminEndMasquerade(+salesRepCompanyId, b2bId);
-            storeDispatch(clearMasqueradeCompany());
+          if (isMasquerade) {
+            await endMasquerade();
           }
 
           // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
@@ -148,76 +169,42 @@ export default function Login(props: PageProps) {
           return;
         }
 
-        setLoginInfo(Info);
         setLoading(false);
-      } catch (e) {
-        setLoginInfo(initialLoginInfo);
       } finally {
         setLoading(false);
       }
     };
 
     init();
-    // disabling as we only need to run this on the first render and its causing infinite loops when loging in
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [b3Lang, endMasquerade, isLoggedIn, isMasquerade, searchParams]);
 
   const tipInfo = (loginFlag: string, email = '') => {
-    let str = '';
-    if (loginFlag) {
-      switch (loginFlag) {
-        case '1':
-          str = b3Lang('login.loginTipInfo.resetPassword', {
-            email,
-          });
-          break;
-        case '2':
-          str = b3Lang('login.loginTipInfo.receivePassword');
-          break;
-        case '3':
-          str = b3Lang('login.loginTipInfo.loggedOutLogin');
-          break;
-        case '4':
-          str = b3Lang('login.loginTipInfo.accountincorrect');
-          break;
-        case '5':
-          str = b3Lang('login.loginTipInfo.accountPrelaunch');
-          break;
-        case '6':
-          str = b3Lang('login.loginText.deviceCrowdingLogIn');
-          break;
-        default:
-          str = '';
-      }
+    if (!loginFlag) {
+      return '';
     }
-    return str;
-  };
 
-  const setTipType = (flag: string): AlertColor | undefined => {
-    if (!flag) return undefined;
-    let tipType: AlertColor = 'success';
-    switch (flag) {
+    switch (loginFlag) {
       case '1':
-        tipType = 'error';
-        break;
+        return b3Lang('login.loginTipInfo.resetPassword', {
+          email,
+        });
+      case '2':
+        return b3Lang('login.loginTipInfo.receivePassword');
+      case '3':
+        return b3Lang('login.loginTipInfo.loggedOutLogin');
       case '4':
-        tipType = 'error';
-        break;
+        return b3Lang('login.loginTipInfo.accountincorrect');
       case '5':
-        tipType = 'warning';
-        break;
+        return b3Lang('login.loginTipInfo.accountPrelaunch');
+      case '6':
+        return b3Lang('login.loginText.deviceCrowdingLogIn');
       default:
-        tipType = 'success';
+        return '';
     }
-    return tipType;
   };
 
-  const getforcePasswordReset = async (email: string) => {
-    const {
-      companyUserInfo: {
-        userInfo: { forcePasswordReset },
-      },
-    } = await getBCForcePasswordReset(email);
+  const getForcePasswordReset = async (email: string) => {
+    const forcePasswordReset = await getBCForcePasswordReset(email);
 
     if (forcePasswordReset) {
       setLoginFlag('1');
@@ -240,7 +227,7 @@ export default function Login(props: PageProps) {
         window.location.reload();
       } catch (error) {
         b2bLogger.error(error);
-        getforcePasswordReset(data.emailAddress);
+        getForcePasswordReset(data.emailAddress);
       }
     } else {
       try {
@@ -270,7 +257,7 @@ export default function Login(props: PageProps) {
               return;
             }
           }
-          getforcePasswordReset(data.emailAddress);
+          getForcePasswordReset(data.emailAddress);
         } else {
           const info = await getCurrentCustomerInfo(token);
 
@@ -365,7 +352,7 @@ export default function Login(props: PageProps) {
                     {b3Lang('login.loginText.quoteDetailToCheckoutUrl')}
                   </Alert>
                 )}
-                {logo && loginInfo?.displayStoreLogo && (
+                {loginInfo.logo && (
                   <Box sx={{ margin: '20px 0', minHeight: '150px' }}>
                     <LoginImage>
                       <ImageListItem
@@ -376,7 +363,11 @@ export default function Login(props: PageProps) {
                           window.location.href = '/';
                         }}
                       >
-                        <img src={`${logo}`} alt={b3Lang('login.registerLogo')} loading="lazy" />
+                        <img
+                          src={loginInfo.logo}
+                          alt={b3Lang('login.registerLogo')}
+                          loading="lazy"
+                        />
                       </ImageListItem>
                     </LoginImage>
                   </Box>
@@ -428,7 +419,7 @@ export default function Login(props: PageProps) {
                         }}
                       >
                         <LoginForm
-                          loginInfo={loginInfo}
+                          loginBtn={loginInfo.loginBtn}
                           gotoForgotPassword={gotoForgotPassword}
                           handleLoginSubmit={handleLoginSubmit}
                           backgroundColor={backgroundColor}
@@ -443,7 +434,8 @@ export default function Login(props: PageProps) {
                           }}
                         >
                           <LoginPanel
-                            loginInfo={loginInfo}
+                            createAccountButtonText={loginInfo.createAccountButtonText}
+                            widgetBodyText={loginInfo.widgetBodyText}
                             handleSubmit={handleCreateAccountSubmit}
                           />
                         </Box>

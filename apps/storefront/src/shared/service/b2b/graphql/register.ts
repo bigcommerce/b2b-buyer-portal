@@ -218,7 +218,7 @@ export const getB2BLoginPageConfig = () =>
 export const getBCForcePasswordReset = (email: string) =>
   B3Request.graphqlB2B({
     query: getForcePasswordReset(email),
-  });
+  }).then((res) => res.companyUserInfo.userInfo.forcePasswordReset);
 
 export const getBCStoreChannelId = () =>
   B3Request.graphqlB2B({
