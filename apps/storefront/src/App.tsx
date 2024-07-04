@@ -1,9 +1,9 @@
 import { lazy, useContext, useEffect, useState } from 'react';
 import { HashRouter } from 'react-router-dom';
 
+import { usePageMask } from '@/components';
 import GlobalDialog from '@/components/extraTip/GlobalDialog';
 import B3RenderRouter from '@/components/layout/B3RenderRouter';
-import showPageMask from '@/components/loading/B3showPageMask';
 import { useB3AppOpen, useSetOpen } from '@/hooks';
 import useDomHooks from '@/hooks/dom/useDomHooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -58,6 +58,7 @@ const ThemeFrame = lazy(() => import('@/components/ThemeFrame'));
 const FONT_URL = 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap';
 
 export default function App() {
+  const showPageMask = usePageMask();
   const {
     state: { quoteConfig, storefrontConfig, productQuoteEnabled, registerEnabled },
     dispatch,
@@ -99,7 +100,7 @@ export default function App() {
   }, [IsRealJuniorBuyer, getShoppingListPermission, getOrderPermission]);
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
-    showPageMask(dispatch, true);
+    showPageMask(true);
     storeDispatch(
       setGlabolCommonState({
         isClickEnterBtn: true,
@@ -227,7 +228,7 @@ export default function App() {
         clearInvoiceCart();
       }
 
-      showPageMask(dispatch, false);
+      showPageMask(false);
       storeDispatch(
         setGlabolCommonState({
           isPageComplete: true,
@@ -268,7 +269,7 @@ export default function App() {
 
   useEffect(() => {
     if (isOpen) {
-      showPageMask(dispatch, false);
+      showPageMask(false);
     }
     // ignore dispatch due it's funtion that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -295,7 +296,7 @@ export default function App() {
           openUrl: isGotoLogin ? '/login' : gotoUrl,
         });
 
-        showPageMask(dispatch, false);
+        showPageMask(false);
         storeDispatch(
           setGlabolCommonState({
             isClickEnterBtn: false,
