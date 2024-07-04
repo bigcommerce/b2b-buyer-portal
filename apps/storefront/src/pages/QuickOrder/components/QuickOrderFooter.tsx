@@ -114,6 +114,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
+  const isShowCartAction = isB2BUser ? purchasabilityPermission : true;
+
   const isDesktopLimit = useMediaQuery('(min-width:1775px)');
   const [isMobile] = useMobile();
   const ref = useRef<HTMLButtonElement | null>(null);
@@ -526,7 +528,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       name: b3Lang('purchasedProducts.footer.addToCart'),
       key: 'add-selected-to-cart',
       handleClick: handleAddSelectedToCart,
-      isDisabled: !purchasabilityPermission,
+      isDisabled: !isShowCartAction,
     },
     {
       name: b3Lang('purchasedProducts.footer.addToQuote'),
@@ -586,7 +588,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
   return (
     <>
-      {purchasabilityPermission || productQuoteEnabled || shoppingListEnabled ? (
+      {isShowCartAction || productQuoteEnabled || shoppingListEnabled ? (
         <Grid
           sx={{
             position: 'fixed',

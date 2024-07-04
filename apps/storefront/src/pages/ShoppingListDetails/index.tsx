@@ -114,7 +114,10 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     ? shoppingListActionsPermission && isCanEditShoppingList
     : true;
 
-  const isJuniorApprove = shoppingListInfo?.status === 0 && submitShoppingListPermission;
+  const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
+  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : role === 2;
+
+  const isJuniorApprove = shoppingListInfo?.status === 0 && b2bSubmitShoppingListPermission;
 
   const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20;
 
@@ -321,7 +324,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       storeConfigSwitchStatus: { isEnabled },
     } = await getB2BJuniorPlaceOrder();
 
-    setAllowJuniorPlaceOrder(isEnabled === '1' && purchasabilityPermission);
+    setAllowJuniorPlaceOrder(isEnabled === '1' && isCanAddToCart);
   };
 
   useEffect(() => {
@@ -431,6 +434,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
                   isB2BUser={isB2BUser}
                   productQuoteEnabled={productQuoteEnabled}
                   isCanEditShoppingList={isCanEditShoppingList}
+                  role={role}
                 />
               </Grid>
             </B3Spin>
@@ -472,6 +476,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               isB2BUser={isB2BUser}
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
+              role={role}
             />
           )}
       </Box>

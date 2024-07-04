@@ -45,6 +45,7 @@ interface ShoppingDetailFooterProps {
   isB2BUser: boolean;
   customColor: string;
   isCanEditShoppingList: boolean;
+  role: string | number;
 }
 
 interface ProductInfoProps {
@@ -110,7 +111,12 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     isB2BUser,
     customColor,
     isCanEditShoppingList,
+    role,
   } = props;
+
+  const b2bShoppingListActionsPermission = isB2BUser ? shoppingListActionsPermission : true;
+  const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
+  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : +role === 2;
 
   const handleOpenBtnList = () => {
     if (checkedArr.length === 0) {
@@ -256,7 +262,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         } else if (validateFailureArr.length === 0) {
           if (
             allowJuniorPlaceOrder &&
-            submitShoppingListPermission &&
+            b2bSubmitShoppingListPermission &&
             shoppingListInfo?.status === 0
           ) {
             window.location.href = CHECKOUT_URL;
@@ -478,9 +484,10 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const allowButtonList = () => {
     if (!(shoppingListInfo?.status === 0 || !isB2BUser)) return [];
 
-    if (!purchasabilityPermission) return productQuoteEnabled ? [buttons.addSelectedToQuote] : [];
+    if (!isCanAddToCart && isB2BUser)
+      return productQuoteEnabled ? [buttons.addSelectedToQuote] : [];
 
-    if (submitShoppingListPermission) {
+    if (b2bSubmitShoppingListPermission) {
       if (allowJuniorPlaceOrder && productQuoteEnabled) {
         return [buttons.proceedToCheckout, buttons.addSelectedToQuote];
       }
@@ -586,27 +593,29 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                 width: isMobile ? '100%' : 'auto',
               }}
             >
-              {!allowJuniorPlaceOrder && isCanEditShoppingList && shoppingListActionsPermission && (
-                <CustomButton
-                  sx={{
-                    padding: '5px',
-                    border: `1px solid ${customColor || '#1976d2'}`,
-                    margin: isMobile ? '0 1rem 0 0' : '0 1rem',
-                    minWidth: 'auto',
-                  }}
-                  disabled={shoppingListInfo?.status === 40}
-                >
-                  <Delete
-                    color="primary"
+              {!allowJuniorPlaceOrder &&
+                isCanEditShoppingList &&
+                b2bShoppingListActionsPermission && (
+                  <CustomButton
                     sx={{
-                      color: customColor,
+                      padding: '5px',
+                      border: `1px solid ${customColor || '#1976d2'}`,
+                      margin: isMobile ? '0 1rem 0 0' : '0 1rem',
+                      minWidth: 'auto',
                     }}
-                    onClick={() => {
-                      setDeleteOpen(true);
-                    }}
-                  />
-                </CustomButton>
-              )}
+                    disabled={shoppingListInfo?.status === 40}
+                  >
+                    <Delete
+                      color="primary"
+                      sx={{
+                        color: customColor,
+                      }}
+                      onClick={() => {
+                        setDeleteOpen(true);
+                      }}
+                    />
+                  </CustomButton>
+                )}
               {buttonList.length ? (
                 <Box
                   sx={{
