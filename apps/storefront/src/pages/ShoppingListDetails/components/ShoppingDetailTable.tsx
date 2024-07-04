@@ -77,6 +77,7 @@ interface ShoppingDetailTableProps {
   isB2BUser: boolean;
   productQuoteEnabled: boolean;
   isCanEditShoppingList: boolean;
+  role: number | string;
 }
 
 interface SearchProps {
@@ -157,6 +158,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     allowJuniorPlaceOrder,
     productQuoteEnabled,
     isCanEditShoppingList,
+    role,
   } = props;
 
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
@@ -164,8 +166,11 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const { shoppingListActionsPermission, submitShoppingListPermission } =
     useAppSelector(rolePermissionSelector);
 
-  const canShoppingListActions = shoppingListActionsPermission && isCanEditShoppingList;
+  const canShoppingListActions = isB2BUser
+    ? shoppingListActionsPermission && isCanEditShoppingList
+    : true;
   const b2bAndBcShoppingListActionsPermissions = isB2BUser ? canShoppingListActions : true;
+  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : +role === 2;
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
@@ -741,7 +746,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
         applyAllDisableCheckbox={false}
         disableCheckbox={
           disabledSelectAll ||
-          (submitShoppingListPermission
+          (b2bSubmitShoppingListPermission
             ? !(allowJuniorPlaceOrder || productQuoteEnabled)
             : (isReadForApprove || isJuniorApprove) && b2bAndBcShoppingListActionsPermissions)
         }

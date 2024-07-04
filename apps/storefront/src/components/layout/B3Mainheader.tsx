@@ -7,7 +7,7 @@ import { Box, Button, Typography } from '@mui/material';
 import { CART_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { rolePermissionSelector, useAppSelector } from '@/store';
+import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
@@ -16,6 +16,7 @@ import B3AccountInfo from './B3AccountInfo';
 import B3StatusNotification from './B3StatusNotification';
 
 export default function B3Mainheader({ title }: { title: string }) {
+  const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
   const salesRepCompanyName = useAppSelector(
@@ -33,6 +34,8 @@ export default function B3Mainheader({ title }: { title: string }) {
   } = useContext(CustomStyleContext);
 
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+
+  const isShowCart = isB2BUser ? purchasabilityPermission : true;
 
   const customColor = getContrastColor(backgroundColor);
 
@@ -107,7 +110,7 @@ export default function B3Mainheader({ title }: { title: string }) {
             >
               {b3Lang('global.B3MainHeader.home')}
             </Button>
-            {purchasabilityPermission && (
+            {isShowCart && (
               <Button
                 sx={{
                   color: '#333333',
