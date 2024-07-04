@@ -4,8 +4,7 @@ import { GlobaledContext } from '@/shared/global';
 import { getBCStoreChannelId } from '@/shared/service/b2b';
 import { getGlobalTranslations, setStoreInfo, setTimeFormat, useAppDispatch } from '@/store';
 
-import B3PageMask from './loading/B3PageMask';
-import showPageMask from './loading/B3showPageMask';
+import { B3PageMask, usePageMask } from './loading';
 
 interface B3StoreContainerProps {
   children: ReactNode;
@@ -29,6 +28,8 @@ export interface StoreBasicInfo {
 }
 
 export default function B3StoreContainer(props: B3StoreContainerProps) {
+  const showPageMask = usePageMask();
+
   const {
     state: { storeEnabled },
     dispatch,
@@ -41,7 +42,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         window.location.pathname.includes('account.php') ||
         (window.location.hash && window.location.hash !== '#/')
       ) {
-        showPageMask(dispatch, true);
+        showPageMask(true);
       }
 
       try {
@@ -72,7 +73,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         });
 
         if (!isEnabled) {
-          showPageMask(dispatch, false);
+          showPageMask(false);
         }
 
         storeDispatch(
@@ -85,7 +86,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         storeDispatch(setTimeFormat(storeBasicInfo.timeFormat));
         sessionStorage.setItem('currentB2BEnabled', JSON.stringify(isEnabled));
       } catch (error) {
-        showPageMask(dispatch, false);
+        showPageMask(false);
       }
     };
     getStoreBasicInfo();
