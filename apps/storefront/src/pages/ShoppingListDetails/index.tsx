@@ -230,7 +230,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       const params: UpdateShoppingListParamsProps = {
         id: +id,
         name: shoppingListInfo?.name || '',
-        description: shoppingListInfo?.description.split('\n').join('\\n') || '',
+        description: shoppingListInfo?.description || '',
       };
 
       if (isB2BUser) {
