@@ -72,18 +72,12 @@ function AddEditShoppingLists(
     handleSubmit(async (data) => {
       setAddUpdateLoading(true);
       try {
-        const { description } = data;
-        const submitData = data;
-        if (description.indexOf('\n') > -1) {
-          submitData.description = description.split('\n').join('\\n');
-        }
         const params: Partial<ShoppingListsItemsProps> = {
           ...data,
         };
 
         let fn = isB2BUser ? createB2BShoppingList : createBcShoppingList;
         let successTip = b3Lang('shoppingLists.addSuccess');
-
         if (type === 'edit') {
           if (isB2BUser) {
             fn = updateB2BShoppingList;

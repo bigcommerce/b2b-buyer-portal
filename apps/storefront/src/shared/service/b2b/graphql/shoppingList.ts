@@ -2,6 +2,15 @@ import { convertArrayToGraphql, convertObjectToGraphql } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
 
+interface ShoppingListParams {
+  id: string | number;
+  sampleShoppingListId: string | number;
+  name: string;
+  description: string;
+  status: number;
+  channelId: number;
+}
+
 const getStatus = (status: any): string => {
   if (typeof status === 'number') {
     return `status: ${status}`;
@@ -59,33 +68,52 @@ const getShoppingList = ({
   }
 }`;
 
-const createOrUpdateShoppingList = (fn: string, data: CustomFieldItems) => `mutation{
+const getShoppingListInfo = `shoppingList {
+  id,
+  name,
+  description,
+  status,
+  approvedFlag,
+  customerInfo{
+    firstName,
+    lastName,
+    userId,
+    email,
+  },
+  isOwner,
+  grandTotal,
+  totalDiscount,
+  totalTax,
+  isShowGrandTotal,
+}`;
+
+const updateShoppingList = (
+  fn: string,
+) => `mutation($id: Int!, $shoppingListData: ShoppingListsInputType!){
   ${fn}(
-    ${!data?.id ? '' : `id: ${data.id}`}
-    ${!data?.sampleShoppingListId ? '' : `sampleShoppingListId: ${data.sampleShoppingListId}`}
-    shoppingListData: {
-      name: "${data.name}",
-      description: "${data.description}",
-      ${typeof data?.status === 'number' ? `status: ${data.status}` : ''}
-  }) {
-    shoppingList {
-      id,
-      name,
-      description,
-      status,
-      approvedFlag,
-      customerInfo{
-        firstName,
-        lastName,
-        userId,
-        email,
-      },
-      isOwner,
-      grandTotal,
-      totalDiscount,
-      totalTax,
-      isShowGrandTotal,
-    }
+    id: $id
+    shoppingListData: $shoppingListData
+  ) {
+    ${getShoppingListInfo}
+  }
+}`;
+
+const createShoppingList = (fn: string) => `mutation($shoppingListData: ShoppingListsInputType!){
+  ${fn}(
+    shoppingListData: $shoppingListData
+  ) {
+    ${getShoppingListInfo}
+  }
+}`;
+
+const duplicateShoppingList = (
+  fn: string,
+) => `mutation($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
+  ${fn}(
+    sampleShoppingListId: $sampleShoppingListId
+    shoppingListData: $shoppingListData
+  ) {
+    ${getShoppingListInfo}
   }
 }`;
 
@@ -245,24 +273,46 @@ const getCustomerShoppingLists = ({ offset = 0, first = 50, search = '', channel
   }
 }`;
 
-const createOrUpdateCustomerShoppingList = (fn: string, data: CustomFieldItems) => `mutation {
+const getCustomerShoppingListInfo = `
+shoppingList {
+  id,
+  name,
+  description,
+  grandTotal,
+  totalDiscount,
+  totalTax,
+  isShowGrandTotal,
+}`;
+
+const updateCustomerShoppingList = (
+  fn: string,
+) => `mutation($id: Int!, $shoppingListData: CustomerShoppingListsInputType!){
   ${fn}(
-    ${!data?.id ? '' : `id: ${data.id}`}
-    ${!data?.sampleShoppingListId ? '' : `sampleShoppingListId: ${data.sampleShoppingListId}`}
-    shoppingListData: {
-      name: "${data.name}",
-      description: "${data.description}",
-      ${!data?.channelId ? '' : `channelId: ${data.channelId}`}
-  }) {
-    shoppingList {
-      id,
-      name,
-      description,
-      grandTotal,
-      totalDiscount,
-      totalTax,
-      isShowGrandTotal,
-    }
+    id: $id
+    shoppingListData: $shoppingListData
+  ) {
+    ${getCustomerShoppingListInfo}
+  }
+}`;
+
+const createCustomerShoppingList = (
+  fn: string,
+) => `mutation($shoppingListData: CustomerShoppingListsInputType!){
+  ${fn}(
+    shoppingListData: $shoppingListData
+  ) {
+    ${getCustomerShoppingListInfo}
+  }
+}`;
+
+const duplicateCustomerShoppingList = (
+  fn: string,
+) => `mutation($sampleShoppingListId: Int!, $shoppingListData: ShoppingListsDuplicateInputType!){
+  ${fn}(
+    sampleShoppingListId: $sampleShoppingListId
+    shoppingListData: $shoppingListData
+  ) {
+    ${getCustomerShoppingListInfo}
   }
 }`;
 
@@ -408,19 +458,42 @@ export const getB2BShoppingList = (data: CustomFieldItems = {}) =>
     query: getShoppingList(data),
   }).then((res) => res.shoppingLists);
 
-export const createB2BShoppingList = (data: CustomFieldItems = {}) =>
+export const createB2BShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
-    query: createOrUpdateShoppingList('shoppingListsCreate', data),
+    query: createShoppingList('shoppingListsCreate'),
+    variables: {
+      shoppingListData: {
+        name: data.name,
+        description: data.description,
+        status: data.status,
+      },
+    },
   });
 
-export const updateB2BShoppingList = (data: CustomFieldItems = {}) =>
+export const updateB2BShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
-    query: createOrUpdateShoppingList('shoppingListsUpdate', data),
+    query: updateShoppingList('shoppingListsUpdate'),
+    variables: {
+      id: data?.id ? +data.id : 1,
+      shoppingListData: {
+        name: data.name,
+        description: data.description,
+        status: data.status,
+      },
+    },
   });
 
-export const duplicateB2BShoppingList = (data: CustomFieldItems = {}) =>
+export const duplicateB2BShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
-    query: createOrUpdateShoppingList('shoppingListsDuplicate', data),
+    query: duplicateShoppingList('shoppingListsDuplicate'),
+    variables: {
+      sampleShoppingListId: data?.sampleShoppingListId ? +data.sampleShoppingListId : 1,
+      shoppingListData: {
+        name: data.name,
+        description: data.description,
+        status: data.status,
+      },
+    },
   });
 
 export const deleteB2BShoppingList = (id: number) =>
@@ -453,19 +526,41 @@ export const getBcShoppingList = (data: CustomFieldItems = {}) =>
     query: getCustomerShoppingLists(data),
   }).then((res) => res.customerShoppingLists);
 
-export const createBcShoppingList = (data: CustomFieldItems = {}) =>
+export const createBcShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
-    query: createOrUpdateCustomerShoppingList('customerShoppingListsCreate', data),
+    query: createCustomerShoppingList('customerShoppingListsCreate'),
+    variables: {
+      shoppingListData: {
+        name: data.name,
+        description: data.description,
+        channelId: data?.channelId ? +data.channelId : 1,
+      },
+    },
   });
 
-export const updateBcShoppingList = (data: CustomFieldItems = {}) =>
+export const updateBcShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
-    query: createOrUpdateCustomerShoppingList('customerShoppingListsUpdate', data),
+    query: updateCustomerShoppingList('customerShoppingListsUpdate'),
+    variables: {
+      id: data?.id ? +data.id : 1,
+      shoppingListData: {
+        name: data.name,
+        description: data.description,
+        channelId: data?.channelId ? +data.channelId : 1,
+      },
+    },
   });
 
-export const duplicateBcShoppingList = (data: CustomFieldItems = {}) =>
+export const duplicateBcShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
-    query: createOrUpdateCustomerShoppingList('customerShoppingListsDuplicate', data),
+    query: duplicateCustomerShoppingList('customerShoppingListsDuplicate'),
+    variables: {
+      sampleShoppingListId: data?.sampleShoppingListId ? +data.sampleShoppingListId : 1,
+      shoppingListData: {
+        name: data.name,
+        description: data.description,
+      },
+    },
   });
 
 export const deleteBcShoppingList = (id: number) =>

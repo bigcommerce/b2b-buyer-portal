@@ -14,9 +14,6 @@ const createShoppingList = ({
 }: // currentChannelId,
 CreateShoppingListParams) => {
   const createShoppingData: Record<string, string | number> = data;
-  if (data.description.indexOf('\n') > -1) {
-    createShoppingData.description = data.description.split('\n').join('\\n');
-  }
 
   const createSL = isB2BUser ? createB2BShoppingList : createBcShoppingList;
 
