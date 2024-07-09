@@ -200,7 +200,7 @@ function AccountSetting() {
       ? await checkUserBCEmail(payload)
       : await checkUserEmail(payload);
 
-    const isValid = isBCUser ? userType === UserTypes.B2C : userType !== UserTypes.DOESNT_EXIST;
+    const isValid = isBCUser ? userType !== UserTypes.B2C : userType === UserTypes.DOESNT_EXIST;
 
     if (!isValid) {
       setError('email', {
