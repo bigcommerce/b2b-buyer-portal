@@ -37,6 +37,13 @@ interface NewOptionProps {
 interface ProductOption {
   optionEntityId: number;
   optionValueEntityId: number;
+  entityId: number;
+  valueEntityId: number;
+  text: string;
+  number: number;
+  date: {
+    utc: string;
+  };
 }
 
 interface ProductOptionString {
@@ -655,8 +662,10 @@ const getCalculatedProductPrice = async (
 };
 const formatOptionsSelections = (options: ProductOption[], allOptions: Partial<AllOptionProps>[]) =>
   options.reduce((accumulator: CalculatedOptions[], option) => {
+    const optionEntityId = option?.optionEntityId || option?.entityId || '';
+    const optionValueEntityId = option?.optionValueEntityId || option?.valueEntityId || '';
     const matchedOption = allOptions.find(({ id, type, option_values }) => {
-      if (option.optionEntityId === id) {
+      if (optionEntityId && +optionEntityId === id) {
         if (
           (type !== 'text' && option_values?.length) ||
           (type === 'date' && option.optionValueEntityId)
@@ -670,17 +679,78 @@ const formatOptionsSelections = (options: ProductOption[], allOptions: Partial<A
     if (matchedOption) {
       if (matchedOption.type === 'date') {
         const id = matchedOption.id ? +matchedOption.id : 0;
-        accumulator.push(...getDateValuesArray(id, option.optionValueEntityId));
+        accumulator.push(...getDateValuesArray(id, +optionValueEntityId));
       } else {
         accumulator.push({
           option_id: matchedOption.id ? +matchedOption.id : 0,
-          value_id: +option.optionValueEntityId,
+          value_id: +optionValueEntityId,
         });
       }
     }
 
     return accumulator;
   }, []);
+
+const getSelectedOptions = (
+  selectedOptions: ProductOption[],
+  allOptions: Partial<AllOptionProps>[],
+) => {
+  if (selectedOptions.length === 0) return [];
+  const newSelectedOptions: ProductOptionString[] = [];
+
+  selectedOptions.forEach((option: ProductOption) => {
+    const optionEntityId = option?.optionEntityId || option?.entityId;
+    let optionValueEntityId: string | number = option?.optionValueEntityId || option?.valueEntityId;
+
+    const currentOptions = allOptions.find((option) => optionEntityId === option?.id);
+
+    let isDate = false;
+    if (currentOptions && !optionValueEntityId) {
+      switch (currentOptions.type) {
+        case 'date':
+          isDate = true;
+          optionValueEntityId = option.date.utc;
+          break;
+        case 'numbers_only_text':
+          optionValueEntityId = option.number;
+          break;
+        default:
+          optionValueEntityId = option.text;
+          break;
+      }
+    }
+
+    if (isDate) {
+      const date = new Date(optionValueEntityId);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+
+      newSelectedOptions.push(
+        {
+          optionId: `attribute[${optionEntityId}][month]`,
+          optionValue: `${month}`,
+        },
+        {
+          optionId: `attribute[${optionEntityId}][day]`,
+          optionValue: `${day}`,
+        },
+        {
+          optionId: `attribute[${optionEntityId}][year]`,
+          optionValue: `${year}`,
+        },
+      );
+    } else {
+      newSelectedOptions.push({
+        optionId: `attribute[${optionEntityId}]`,
+        optionValue: `${optionValueEntityId}`,
+      });
+    }
+  });
+
+  return newSelectedOptions;
+};
+
 const formatLineItemsToGetPrices = (
   items: LineItems[],
   productsSearch: ShoppingListProductItem[],
@@ -715,10 +785,7 @@ const formatLineItemsToGetPrices = (
         ...variantItem,
         quantity,
         productsSearch: selectedProduct,
-        optionSelections: selectedOptions.map(({ optionEntityId, optionValueEntityId }) => ({
-          optionId: `attribute[${optionEntityId}]`,
-          optionValue: `${optionValueEntityId}`,
-        })),
+        optionSelections: getSelectedOptions(selectedOptions, allOptions),
       });
       return formattedLineItems;
     },

@@ -64,6 +64,7 @@ interface PhysicalItemProps extends DigitalItemProps {
     name: string;
   };
   isShippingRequire: boolean;
+  parentEntityId?: string | null;
 }
 interface Contact {
   email: string;
@@ -252,7 +253,10 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage) => {
       }
       if (noSkuProducts.length === cartProductsList.length) return;
 
-      await addProductsToDraftQuote(cartProductsList, setOpenPage, entityId);
+      const newCartProductsList = cartProductsList.filter(
+        (product: PhysicalItemProps) => !product.parentEntityId,
+      );
+      await addProductsToDraftQuote(newCartProductsList, setOpenPage, entityId);
     } catch (e) {
       b2bLogger.error(e);
     } finally {
