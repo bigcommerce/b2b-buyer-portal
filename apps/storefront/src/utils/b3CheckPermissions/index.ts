@@ -18,3 +18,9 @@ export const checkOneOfPermissionsCode = (permission: PermissionCodesProps) => {
 
   return checkPermissionCode(permission, 'some', newPermissions);
 };
+
+export const getPermissionsInfo = (code: string): PermissionCodesProps | undefined => {
+  const permissions = store.getState().company.permissions || [];
+
+  return permissions.find((permission) => permission.code.includes(code));
+};

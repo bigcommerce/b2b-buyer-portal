@@ -6,7 +6,7 @@ import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
 import { getCustomerInfo } from '@/shared/service/bc';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { checkEveryPermissionsCode, getB3PermissionsList } from '@/utils';
+import { checkEveryPermissionsCode, getB3PermissionsList, getPermissionsInfo } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
 
@@ -365,30 +365,37 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
     }
 
     // b2b user
-    if (isB2BUser && permissionCodes && permissionCodes.length > 0) {
-      const permissionsInfo: {
-        code: string;
-        permissionLevel?: number | string;
-      } = {
-        code: permissionCodes.join(','),
-      };
-      const isHasPermission = checkEveryPermissionsCode(permissionsInfo);
+    const isHasPermissionRole = () => {
+      if (isB2BUser && permissionCodes && permissionCodes.length) {
+        const permissionsInfo: {
+          code: string;
+          permissionLevel?: number | string;
+        } = {
+          code: permissionCodes.join(','),
+        };
 
-      if (path === '/company-orders' && isHasPermission) {
-        let companyOrdersPermissions: boolean = isHasPermission;
+        const isHasPermission = checkEveryPermissionsCode(permissionsInfo);
 
-        const myOrdersLevel = 1;
-        permissionsInfo.permissionLevel = myOrdersLevel;
-
-        companyOrdersPermissions = !checkEveryPermissionsCode(permissionsInfo);
-
-        return companyOrdersPermissions;
+        if (path === '/company-orders' && isHasPermission) {
+          const orderPermissionInfo = getPermissionsInfo('get_orders');
+          return (
+            orderPermissionInfo &&
+            orderPermissionInfo?.permissionLevel &&
+            +orderPermissionInfo.permissionLevel > 1
+          );
+        }
+        return isHasPermission;
       }
+      return true;
+    };
 
-      return isHasPermission;
+    if (!isHasPermissionRole()) return false;
+
+    if (path === '/dashboard') {
+      return +role === CustomerRole.SUPER_ADMIN;
     }
 
-    if (!permissions.includes(+role || CustomerRole.ADMIN) || !storefrontConfig) {
+    if (!storefrontConfig) {
       return false;
     }
 

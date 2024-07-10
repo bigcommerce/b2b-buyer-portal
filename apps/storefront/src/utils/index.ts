@@ -1,5 +1,9 @@
 import { checkPermissionCode } from './b3CheckPermissions/base';
-import { checkEveryPermissionsCode, checkOneOfPermissionsCode } from './b3CheckPermissions/index';
+import {
+  checkEveryPermissionsCode,
+  checkOneOfPermissionsCode,
+  getPermissionsInfo,
+} from './b3CheckPermissions/index';
 import b2bGetVariantImageByVariantInfo from './b2bGetVariantImageByVariantInfo';
 import { openPageByClick, redirectBcMenus, removeBCMenus } from './b3AccountItem';
 import currencyFormat, {
@@ -69,6 +73,7 @@ export {
   serialize,
   setCartPermissions,
   getB3PermissionsList,
+  getPermissionsInfo,
   showPageMask,
   snackbar,
   validatorRules,
