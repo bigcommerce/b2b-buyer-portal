@@ -49,24 +49,7 @@ const allOrders = (data: CustomFieldItems, fn: string) => `{
         merchantEmail,
         firstName,
         lastName,
-        companyId {
-          id,
-          companyName,
-          bcGroupName,
-          description,
-          catalogId,
-          companyStatus,
-          addressLine1,
-          addressLine2,
-          city,
-          state,
-          zipCode,
-          country,
-          extraFields {
-            fieldName,
-            fieldValue,
-          }
-        }
+        companyName,
       }
     }
   }

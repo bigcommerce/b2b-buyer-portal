@@ -9,7 +9,6 @@ import {
   OrderShippingsItem,
   OrderStatusItem,
   OrderSummary,
-  OrderVariantImages,
 } from '../../../types';
 
 export interface OrderDetailsState {
@@ -35,7 +34,6 @@ export interface OrderDetailsState {
   canReturn?: boolean;
   createdEmail?: string;
   orderIsDigital?: boolean;
-  variantImages?: OrderVariantImages[];
 }
 interface OrderDetailsAction {
   type: string;
@@ -88,7 +86,6 @@ const initState = {
   canReturn: false,
   createdEmail: '',
   orderIsDigital: false,
-  variantImages: [],
 };
 
 export const OrderDetailsContext = createContext<OrderDetailsContextType>({
@@ -112,11 +109,6 @@ const reducer = (state: OrderDetailsState, action: OrderDetailsAction) => {
       return {
         ...state,
         addressLabelPermission: action.payload.addressLabelPermission,
-      };
-    case 'variantImages':
-      return {
-        ...state,
-        variantImages: action.payload.variantImages,
       };
     default:
       return state;

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
@@ -21,7 +21,6 @@ import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
 import { EditableProductItem, OrderProductItem } from '../../../types';
-import { OrderDetailsContext } from '../context/OrderDetailsContext';
 import getReturnFormFields from '../shared/config';
 
 import CreateShoppingList from './CreateShoppingList';
@@ -75,10 +74,6 @@ export default function OrderDialog({
   orderId,
 }: OrderDialogProps) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
-  const {
-    state: { variantImages = [] },
-  } = useContext(OrderDetailsContext);
-
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false);
   const [openShoppingList, setOpenShoppingList] = useState(false);
   const [editableProducts, setEditableProducts] = useState<EditableProductItem[]>([]);
@@ -356,31 +351,30 @@ export default function OrderDialog({
   useEffect(() => {
     if (!open) return;
     setEditableProducts(
-      products.map((item: OrderProductItem) => {
-        const currentVariant = variantImages.find(
-          (variant) => item.sku === variant?.variantSku || +item.variant_id === +variant.variantId,
-        );
-
-        return {
-          ...item,
-          editQuantity: item.quantity,
-          imageUrl: currentVariant?.variantImage || item.imageUrl,
-        };
-      }),
+      products.map((item: OrderProductItem) => ({
+        ...item,
+        editQuantity: item.quantity,
+      })),
     );
 
     const getVariantInfoByList = async () => {
-      const skus = products.map((product) => product.sku);
+      const visibleProducts = products.filter((item: OrderProductItem) => item?.isVisible);
 
+      const visibleSkus = visibleProducts.map((product) => product.sku);
+
+      if (visibleSkus.length === 0) return;
+      const params = {
+        skus: visibleSkus,
+      };
       const { variantSku: variantInfoList = [] } = isB2BUser
-        ? await getB2BVariantInfoBySkus({ skus })
-        : await getBcVariantInfoBySkus({ skus });
+        ? await getB2BVariantInfoBySkus(params)
+        : await getBcVariantInfoBySkus(params);
 
       setVariantInfoList(variantInfoList);
     };
 
     getVariantInfoByList();
-  }, [isB2BUser, open, products, variantImages]);
+  }, [isB2BUser, open, products]);
 
   const handleProductChange = (products: EditableProductItem[]) => {
     setEditableProducts(products);

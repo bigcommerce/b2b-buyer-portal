@@ -64,6 +64,8 @@ export interface OrderProductItem {
   wrapping_name: string;
   current_quantity_shipped?: number;
   not_shipping_number?: number;
+  variantImageUrl?: string;
+  isVisible?: boolean;
 }
 
 export interface EditableProductItem extends OrderProductItem {
