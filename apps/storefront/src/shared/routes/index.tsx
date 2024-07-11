@@ -47,7 +47,7 @@ export interface RouteItem extends RouteItemBasic {
   isTokenLogin: boolean;
   pageTitle?: string;
   idLang: string;
-  permissionCodes?: string[];
+  permissionCodes?: string;
 }
 
 export interface RouteFirstLevelItem extends RouteItemBasic {
@@ -72,7 +72,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: OrderList,
     permissions: [0, 1, 3, 4, 99, 100],
-    permissionCodes: ['get_orders', 'get_order_detail'],
+    permissionCodes: 'get_orders, get_order_detail',
     isTokenLogin: true,
     idLang: 'global.navMenu.orders',
   },
@@ -83,7 +83,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: CompanyOrderList,
     permissions: [0, 1, 3],
-    permissionCodes: ['get_orders', 'get_order_detail'],
+    permissionCodes: 'get_orders, get_order_detail',
     isTokenLogin: true,
     idLang: 'global.navMenu.companyOrders',
   },
@@ -95,13 +95,8 @@ const routes: RouteItem[] = [
     component: Invoice,
     configKey: 'invoice',
     permissions: [0, 1, 3],
-    permissionCodes: [
-      'get_invoices',
-      'get_invoice_detail',
-      'get_invoice_pdf',
-      'export_invoices',
-      'get_invoice_payments_history',
-    ],
+    permissionCodes:
+      'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
     isTokenLogin: true,
     idLang: 'global.navMenu.invoice',
   },
@@ -113,7 +108,7 @@ const routes: RouteItem[] = [
     component: Quotes,
     configKey: 'quotes',
     permissions: [0, 1, 2, 3, 99, 100],
-    permissionCodes: ['get_quotes', 'get_quote_detail', 'get_quote_pdf'],
+    permissionCodes: 'get_quotes, get_quote_detail, get_quote_pdf',
     isTokenLogin: true,
     idLang: 'global.navMenu.quotes',
   },
@@ -125,7 +120,7 @@ const routes: RouteItem[] = [
     component: ShippingLists,
     configKey: 'shoppingLists',
     permissions: [0, 1, 2, 3, 99],
-    permissionCodes: ['get_shopping_lists', 'get_shopping_list_detail'],
+    permissionCodes: 'get_shopping_lists, get_shopping_list_detail',
     isTokenLogin: true,
     idLang: 'global.navMenu.shoppingLists',
   },
@@ -148,7 +143,7 @@ const routes: RouteItem[] = [
     isMenuItem: false,
     component: OrderDetail,
     permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes: ['get_orders', 'get_order_detail'],
+    permissionCodes: 'get_orders, get_order_detail',
     isTokenLogin: true,
     idLang: 'global.navMenu.orderDetail',
   },
@@ -159,13 +154,8 @@ const routes: RouteItem[] = [
     isMenuItem: false,
     component: InvoiceDetail,
     permissions: [0, 1, 3, 99, 100],
-    permissionCodes: [
-      'get_invoices',
-      'get_invoice_detail',
-      'get_invoice_pdf',
-      'export_invoices',
-      'get_invoice_payments_history',
-    ],
+    permissionCodes:
+      'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
     isTokenLogin: true,
     idLang: 'global.navMenu.invoiceDetail',
   },
@@ -177,12 +167,7 @@ const routes: RouteItem[] = [
     component: AddressList,
     configKey: 'addressBook',
     permissions: [0, 1, 2, 3, 99, 100],
-    permissionCodes: [
-      'get_addresses',
-      'get_address_detail',
-      'get_default_shipping',
-      'get_default_billing',
-    ],
+    permissionCodes: 'get_addresses, get_address_detail, get_default_shipping, get_default_billing',
     isTokenLogin: true,
     idLang: 'global.navMenu.addresses',
   },
@@ -193,7 +178,7 @@ const routes: RouteItem[] = [
     isMenuItem: false,
     component: ShoppingListDetails,
     permissions: [0, 1, 2, 3, 99],
-    permissionCodes: ['get_shopping_lists', 'get_shopping_list_detail'],
+    permissionCodes: 'get_shopping_lists, get_shopping_list_detail',
     isTokenLogin: true,
     idLang: 'global.navMenu.shoppingList',
   },
@@ -204,7 +189,7 @@ const routes: RouteItem[] = [
     isMenuItem: true,
     component: UserManagement,
     permissions: [0, 1, 3],
-    permissionCodes: ['get_users', 'get_user_detail'],
+    permissionCodes: 'get_users, get_user_detail',
     isTokenLogin: true,
     idLang: 'global.navMenu.userManagement',
   },
@@ -216,13 +201,8 @@ const routes: RouteItem[] = [
     component: QuoteDraft,
     configKey: 'quoteDraft',
     permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes: [
-      'get_quotes',
-      'get_quote_detail',
-      'get_quote_pdf',
-      'create_quote',
-      'update_quote_message',
-    ],
+    permissionCodes:
+      'get_quotes,get_quote_detail, get_quote_pdf, create_quote, update_quote_message',
     isTokenLogin: false,
     idLang: 'global.navMenu.quoteDraft',
   },
@@ -245,7 +225,7 @@ const routes: RouteItem[] = [
     component: QuoteDetail,
     configKey: 'quoteDetail',
     permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes: ['get_quotes', 'get_quote_detail', 'get_quote_pdf'],
+    permissionCodes: 'get_quotes, get_quote_detail, get_quote_pdf',
     isTokenLogin: false,
     idLang: 'global.navMenu.quoteDetail',
   },
@@ -366,15 +346,10 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
 
     // b2b user
     const isHasPermissionRole = () => {
-      if (isB2BUser && permissionCodes && permissionCodes.length) {
-        const permissionsInfo: {
-          code: string;
-          permissionLevel?: number | string;
-        } = {
-          code: permissionCodes.join(','),
-        };
-
-        const isHasPermission = checkEveryPermissionsCode(permissionsInfo);
+      if (isB2BUser && permissionCodes) {
+        const isHasPermission = checkEveryPermissionsCode({
+          code: permissionCodes,
+        });
 
         if (path === '/company-orders' && isHasPermission) {
           const orderPermissionInfo = getPermissionsInfo('get_orders');
