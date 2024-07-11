@@ -35,7 +35,8 @@ const initialState: CompanyState = {
     firstName: '',
     lastName: '',
     emailAddress: '',
-    customerGroupId: 1,
+    /** the customerGroupId for the guest user is 0 */
+    customerGroupId: 0,
     role: CustomerRole.GUEST,
     userType: UserTypes.DOESNT_EXIST,
     loginType: LoginTypes.WAITING_LOGIN,
