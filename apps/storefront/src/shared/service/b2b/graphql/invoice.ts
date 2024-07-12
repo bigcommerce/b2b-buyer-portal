@@ -180,17 +180,10 @@ const invoiceReceipt = (id: number) => `{
   }
 }`;
 
-const exportInvoices = (data: CustomFieldItems) => `mutation {
+const exportInvoices = `mutation($invoiceFilterData: InvoiceFilterDataType!, $lang: String!) {
   invoicesExport (
-    invoiceFilterData: {
-      idIn: "${data?.invoiceNumber || ''}"
-      orderBy: "${data?.orderBy || ''}"
-      status: ${data?.status ? convertArrayToGraphql(data.status) : []}
-      search: "${data?.search || ''}"
-      ${data?.orderNumber ? `orderNumber: ${data.orderNumber}` : ''}
-      ${data?.beginDateAt ? `beginDateAt: ${data.beginDateAt}` : ''}
-      ${data?.endDateAt ? `endDateAt: ${data.endDateAt}` : ''}
-    }
+    invoiceFilterData: $invoiceFilterData,
+    lang: $lang,
   ) {
     url
   }
@@ -228,7 +221,8 @@ export const getInvoicePaymentInfo = (id: number) =>
 
 export const exportInvoicesAsCSV = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
-    query: exportInvoices(data),
+    query: exportInvoices,
+    variables: data,
   });
 
 export const getInvoiceStats = (status: number | string) =>
