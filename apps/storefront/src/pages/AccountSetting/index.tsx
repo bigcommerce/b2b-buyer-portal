@@ -21,7 +21,7 @@ import {
   updateB2BAccountSettings,
   updateBCAccountSettings,
 } from '@/shared/service/b2b';
-import { isB2BUserSelector, isValidUserTypeSelector, useAppSelector } from '@/store';
+import { isB2BUserSelector, useAppSelector } from '@/store';
 import { UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
 import { B3SStorage, channelId, snackbar } from '@/utils';
@@ -57,7 +57,6 @@ function AccountSetting() {
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const customer = useAppSelector(({ company }) => company.customer);
   const role = useAppSelector(({ company }) => company.customer.role);
-  const isValidUserType = useAppSelector(isValidUserTypeSelector);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
@@ -209,7 +208,7 @@ function AccountSetting() {
       });
     }
 
-    return isValidUserType;
+    return isValid;
   };
 
   const passwordValidation = (data: Partial<ParamProps>) => {
@@ -292,12 +291,16 @@ function AccountSetting() {
                 return;
               }
             }
-            const newParams = {
+
+            const newParams: CustomFieldItems = {
               ...param,
-              newPassword: param.newPassword,
-              currentPassword: param.newPassword,
-              confirmPassword: param.newPassword,
+              currentPassword: param.currentPassword,
             };
+
+            if (param.newPassword === '' && param.confirmPassword === '') {
+              delete newParams.newPassword;
+              delete newParams.confirmPassword;
+            }
             await requestFn(newParams);
           } else {
             snackbar.success(b3Lang('accountSettings.notification.noEdits'));
