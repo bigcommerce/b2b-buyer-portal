@@ -122,7 +122,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              width: '199px',
+              width: '200px',
               displayPrint: 'none',
             }}
           >
