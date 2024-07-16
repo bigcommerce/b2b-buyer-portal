@@ -255,7 +255,7 @@ function AccountSetting() {
       setLoadding(true);
 
       try {
-        const isValid = !isBCUser ? await validateEmailValue(data.email) : true;
+        const isValid = await validateEmailValue(data.email);
 
         const emailFlag = emailValidation(data);
 
