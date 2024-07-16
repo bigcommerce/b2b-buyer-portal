@@ -2,7 +2,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import isEmpty from 'lodash-es/isEmpty';
 import { v1 as uuid } from 'uuid';
 
-import { getProxyInfo, searchB2BProducts, searchBcProducts } from '@/shared/service/b2b';
+import { getProductPricing, searchB2BProducts, searchBcProducts } from '@/shared/service/b2b';
 import { setDraftQuoteList, store } from '@/store';
 import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs';
 import { Modifiers, ShoppingListProductItem } from '@/types';
@@ -626,11 +626,9 @@ const getCalculatedProductPrice = async (
     if (calculatedValue) {
       calculatedData = [calculatedValue];
     } else {
-      const res = await getProxyInfo({
+      const res = await getProductPricing({
         storeHash,
-        method: 'post',
-        url: '/v3/pricing/products',
-        data,
+        ...data,
       });
 
       calculatedData = res.data;
@@ -812,11 +810,9 @@ const calculateProductsPrice = async (
       currency_code: currencyCode,
       items,
     };
-    const res = await getProxyInfo({
+    const res = await getProductPricing({
       storeHash,
-      method: 'post',
-      url: '/v3/pricing/products',
-      data,
+      ...data,
     });
     calculatedPrices = res.data;
   }
@@ -915,11 +911,9 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
       customer_group_id: customerGroupId,
     };
 
-    const res = await getProxyInfo({
+    const res = await getProductPricing({
       storeHash,
-      method: 'post',
-      url: '/v3/pricing/products',
-      data,
+      ...data,
     });
 
     const { data: calculatedData } = res;
