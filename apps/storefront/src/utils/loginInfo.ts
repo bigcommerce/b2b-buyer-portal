@@ -95,17 +95,15 @@ export const getCurrentStoreInfo = (
 };
 
 export const getloginTokenInfo = () => {
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const oneWeekInSeconds = 7 * 24 * 60 * 60;
+  const expiresTimestamp = currentTimestamp + oneWeekInSeconds;
   const { origin } = window.location;
   const data = {
     storeHash,
-    method: 'post',
-    url: '/v3/storefront/api-token',
-    params: {},
-    data: {
-      channel_id: channelId,
-      expires_at: 1866896353,
-      allowed_cors_origins: [origin],
-    },
+    channel_id: channelId,
+    expires_at: expiresTimestamp,
+    allowed_cors_origins: [origin],
   };
 
   return data;

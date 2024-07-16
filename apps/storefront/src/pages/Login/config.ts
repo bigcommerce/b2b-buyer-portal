@@ -1,6 +1,6 @@
 import { LangFormatFunction } from '@b3/lang';
 
-import { baseUrl, channelId, storeHash, validatorRules } from '@/utils';
+import { baseUrl, validatorRules } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
 export interface QuoteConfig {
@@ -108,23 +108,6 @@ export const sendEmail = (emailAddress: string) => {
   return fetch(`${baseUrl}/login.php?action=send_password_email`, requestOptions)
     .then((response) => response.text())
     .catch((error) => b2bLogger.error('error', error));
-};
-
-export const getloginTokenInfo = () => {
-  const { origin } = window.location;
-  const data = {
-    storeHash,
-    method: 'post',
-    url: '/v3/storefront/api-token',
-    params: {},
-    data: {
-      channel_id: channelId || 1,
-      expires_at: 1866896353,
-      allowed_cors_origins: [`${origin}`],
-    },
-  };
-
-  return data;
 };
 
 export const getLoginFlag = (search: string, key: string) => {
