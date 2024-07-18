@@ -11,12 +11,7 @@ import {
   checkUserEmail,
   validateBCCompanyUserExtraFields,
 } from '@/shared/service/b2b';
-import {
-  isB2BUserSelector,
-  isValidUserTypeSelector,
-  themeFrameSelector,
-  useAppSelector,
-} from '@/store';
+import { isB2BUserSelector, themeFrameSelector, useAppSelector } from '@/store';
 import { channelId } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
@@ -38,7 +33,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const { state, dispatch } = useContext(RegisteredContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const IframeDocument = useAppSelector(themeFrameSelector);
-  const isValidUserType = useAppSelector(isValidUserTypeSelector);
 
   const {
     state: {
@@ -118,11 +112,15 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const validateEmailValue = async (email: string) => {
     try {
       showLoading(true);
-      const { userType, userInfo: { companyName = '' } = {} } = isB2BUser
+      const {
+        isValid,
+        userType,
+        userInfo: { companyName = '' } = {},
+      } = isB2BUser
         ? await checkUserEmail({ email, channelId })
         : await checkUserBCEmail({ email, channelId });
 
-      if (!isValidUserType) {
+      if (!isValid) {
         setErrorTips(
           b3Lang(emailError[userType], {
             companyName: companyName || '',
@@ -139,7 +137,7 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         setErrorTips('');
       }
 
-      return isValidUserType;
+      return isValid;
     } catch (error) {
       return false;
     } finally {

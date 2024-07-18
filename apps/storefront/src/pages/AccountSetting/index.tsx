@@ -22,7 +22,6 @@ import {
   updateBCAccountSettings,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { UserTypes } from '@/types';
 import { Fields, ParamProps } from '@/types/accountSetting';
 import { B3SStorage, channelId, snackbar } from '@/utils';
 
@@ -195,11 +194,9 @@ function AccountSetting() {
       channelId,
     };
 
-    const { userType }: CustomFieldItems = isBCUser
+    const { isValid }: CustomFieldItems = isBCUser
       ? await checkUserBCEmail(payload)
       : await checkUserEmail(payload);
-
-    const isValid = isBCUser ? userType !== UserTypes.B2C : userType === UserTypes.DOESNT_EXIST;
 
     if (!isValid) {
       setError('email', {
