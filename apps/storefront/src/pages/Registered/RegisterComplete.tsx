@@ -201,6 +201,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       }
 
       bcFields.addresses = [addresses];
+      bcFields.trigger_account_created_notification = true;
     }
 
     const userItem = {
