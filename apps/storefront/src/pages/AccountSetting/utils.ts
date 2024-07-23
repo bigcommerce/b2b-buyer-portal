@@ -133,7 +133,7 @@ export const initB2BInfo = (
   accountB2BFormFields.forEach((item: Partial<Fields>) => {
     const formField = item;
     if (item.name === 'role') {
-      formField.default = accountSettings.RoleCompanyName;
+      formField.default = accountSettings.companyRoleName;
       formField.disabled = true;
     } else if (item.name === 'company') {
       formField.default = accountSettings.company;

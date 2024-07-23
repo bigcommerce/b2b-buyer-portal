@@ -39,6 +39,8 @@ const getAccountSettings = (data: CustomFieldItems) => `{
       fieldValue,
     }
     role,
+    companyRoleId,
+    companyRoleName,
   }
 }`;
 
