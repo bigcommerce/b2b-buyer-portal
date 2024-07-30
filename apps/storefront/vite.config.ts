@@ -103,30 +103,33 @@ export default defineConfig(({ mode }) => {
             const { name } = info;
             return name.includes('headless') ? '[name].js' : '[name].[hash].js';
           },
+          manualChunks: {
+            reactVendor: ['react', 'react-dom'],
+            intl: ['react-intl'],
+            mui: ['@mui/material'],
+            muiIcon: ['@mui/icons-material'],
+            redux: ['react-redux'],
+            dateFns: ['date-fns'],
+            lang: ['@b3/lang'],
+            pdfobject: ['pdfobject'],
+            resizable: ['react-resizable'],
+            pdf: ['react-pdf'],
+            toolkit: ['@reduxjs/toolkit'],
+            form: ['react-hook-form'],
+            router: ['react-router-dom'],
+            lodashEs: ['lodash-es'],
+            dropzone: ['react-dropzone'],
+            draggable: ['react-draggable'],
+            eCache: ['@emotion/cache'],
+            eReact: ['@emotion/react'],
+            eStyled: ['@emotion/styled'],
+          },
         },
         onwarn(warning, warn) {
           if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
             return;
           }
           warn(warning);
-        },
-        manualChunks: {
-          intl: ['react-intl'],
-          redux: ['react-redux'],
-          dateFns: ['date-fns'],
-          lang: ['@b3/lang'],
-          pdfobject: ['pdfobject'],
-          resizable: ['react-resizable'],
-          pdf: ['react-pdf'],
-          toolkit: ['@reduxjs/toolkit'],
-          form: ['react-hook-form'],
-          router: ['react-router-dom'],
-          lodashEs: ['lodash-es'],
-          dropzone: ['react-dropzone'],
-          draggable: ['react-draggable'],
-          eCache: ['@emotion/cache'],
-          eReact: ['@emotion/react'],
-          eStyled: ['@emotion/styled'],
         },
         plugins: env.VITE_VISUALIZER === '1' && [
           visualizer({
