@@ -265,7 +265,7 @@
   "purchasedProducts.quickOrderCard.lastOrdered": "Last ordered: {lastOrderedAt}",
   "purchasedProducts.quickOrderPad.productsAdded": "Products were added to cart",
   "purchasedProducts.quickOrderPad.viewCart": "VIEW CART",
-  "purchasedProducts.quickOrderPad.insufficientStockSku": "{SKU} does not have enough stock, please change the quantity  ",
+  "purchasedProducts.quickOrderPad.insufficientStockSku": "{sku} does not have enough stock, please change the quantity  ",
   "purchasedProducts.quickOrderPad.notEnoughStock": "{variantSku} does not have enough stock",
   "purchasedProducts.quickOrderPad.availableAmount": "Available amount - {availableAmount}",
   "purchasedProducts.quickOrderPad.outOfStockSku": "{outOfStock} are out of stock",
