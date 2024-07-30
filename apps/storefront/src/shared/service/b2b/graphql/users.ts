@@ -1,3 +1,5 @@
+import { UserTypes } from '@/types';
+
 import { convertArrayToGraphql, storeHash } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
 
@@ -138,9 +140,15 @@ export const deleteUsers = (data: CustomFieldItems) =>
 export const checkUserEmail = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: checkUserB2BEmail(data),
-  }).then((res) => res.userEmailCheck);
+  }).then((res) => ({
+    ...res.userEmailCheck,
+    isValid: res.userEmailCheck.userType === UserTypes.DOESNT_EXIST,
+  }));
 
 export const checkUserBCEmail = (data: CustomFieldItems) =>
   B3Request.graphqlB2B({
     query: checkCustomerBCEmail(data),
-  }).then((res) => res.customerEmailCheck);
+  }).then((res) => ({
+    ...res.customerEmailCheck,
+    isValid: res.customerEmailCheck.userType !== UserTypes.B2C,
+  }));
