@@ -5,6 +5,7 @@ interface StorageStore {
   blockPendingAccountOrderCreation: boolean;
   blockPendingAccountViewPrice: boolean;
   cartToQuoteId: string;
+  prevPath: string;
   isAgenting: boolean;
   isB2BUser: boolean;
   isShowBlockPendingAccountOrderCreationTip: {
