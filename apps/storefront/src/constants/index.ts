@@ -45,18 +45,14 @@ export enum HeadlessRoutes {
 export type HeadlessRoute = keyof typeof HeadlessRoutes;
 
 export const StatusNotifications = {
-  pendingOrderingBlocked:
-    'Your business account is pending approval. Ordering will be enabled after account approval.',
-  pendingOrderingNotBlocked:
-    'Your business account is pending approval. You will gain access to business account features after account approval.',
+  pendingOrderingBlocked: 'global.statusNotifications.orderingWillBeEnabledAfterAccountApproval',
+  pendingOrderingNotBlocked: 'global.statusNotifications.willGainAccessToBusinessFeatAfterApproval',
   pendingViewPriceBlocked:
-    'Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.',
+    'global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval',
   pendingOrderingAndViewPriceBlocked:
-    'Your business account is pending approval. Products, pricing, and ordering will be enabled after account approval',
-  approvedTip:
-    'Your business account has been approved. Check your email inbox, we sent you a letter with all details.',
-  rejectedTip:
-    'Your business account has been rejected. Check your email inbox, we sent you a letter with all details. You can resubmit your application.',
+    'global.statusNotifications.productsPricingAndOrderingWillBeEnabledAfterApproval',
+  approvedTip: 'global.statusNotifications.checkEmailLetterWithDetails',
+  rejectedTip: 'global.statusNotifications.checkEmailLetterWithDetailsResubmitApplication',
 };
 
 export const ADD_TO_QUOTE_DEFAULT_VALUE = 'Add to quote';
