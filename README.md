@@ -96,6 +96,7 @@ For assistance with activating the remote buyer portal or to inquire about multi
 
 ## 🛠 System Setup
 
+-**Hosting Provider:** Ensure you have a hosting provider, as BigCommerce does not host these builds at this time.
 - **Node:** Ensure you have Node.js version >=18.0.0.
 - **Package Manager:** This project uses Yarn v1.22.17.
 
