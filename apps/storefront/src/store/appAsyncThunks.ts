@@ -1,6 +1,13 @@
+import { createAsyncThunk } from '@reduxjs/toolkit';
+
 import getTranslation from '@/shared/service/b2b/api/translation';
 
-import createAppAsyncThunk from './createAppAsyncThunk';
+import { AppDispatch, RootState } from '.';
+
+const createAppAsyncThunk = createAsyncThunk.withTypes<{
+  state: RootState;
+  dispatch: AppDispatch;
+}>();
 
 interface GetGlobalTranslationsParams {
   channelId: number;

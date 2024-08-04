@@ -1,4 +1,4 @@
-import { Dispatch, MouseEvent, SetStateAction, useContext, useEffect, useState } from 'react';
+import { MouseEvent, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
@@ -14,7 +14,6 @@ import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 import { channelId, loginJump, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
@@ -27,6 +26,7 @@ import {
   validateBCCompanyExtraFields,
   validateBCCompanyUserExtraFields,
 } from '../../shared/service/b2b';
+import { type PageProps } from '../PageProps';
 import {
   AccountFormFieldsItems,
   b2bAddressRequiredFields,
@@ -54,10 +54,6 @@ interface CustomerInfo {
   [k: string]: string;
 }
 
-interface RegisteredProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
-}
-
 export const StyledRegisterContent = styled(Box)({
   '& #b3-customForm-id-name': {
     '& label[data-shrink="true"]': {
@@ -72,7 +68,7 @@ export const StyledRegisterContent = styled(Box)({
   },
 });
 
-export default function RegisteredBCToB2B(props: RegisteredProps) {
+export default function RegisteredBCToB2B(props: PageProps) {
   const [errorMessage, setErrorMessage] = useState('');
   const [showFinishPage, setShowFinishPage] = useState<boolean>(false);
 

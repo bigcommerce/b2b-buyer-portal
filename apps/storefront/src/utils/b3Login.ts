@@ -1,6 +1,6 @@
 import { NavigateFunction } from 'react-router-dom';
 
-import { store } from '@/store/reducer';
+import { store } from '@/store';
 
 export const loginJump = (navigate: NavigateFunction, isClearSession = false) => {
   const {

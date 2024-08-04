@@ -252,3 +252,9 @@ export interface OrderSummary {
     [k: string]: string;
   };
 }
+
+export interface OrderVariantImages {
+  variantId: number;
+  variantImage: string;
+  variantSku?: string;
+}

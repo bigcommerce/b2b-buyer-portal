@@ -4,20 +4,18 @@ import CustomButton from '@/components/button/CustomButton';
 import { useMobile } from '@/hooks';
 
 import LoginWidget from './component/LoginWidget';
-import { LoginInfoInit } from './config';
 
 interface LoginPanelProps {
-  loginInfo: Partial<LoginInfoInit>;
+  widgetBodyText: string;
+  createAccountButtonText: string;
   handleSubmit?: () => void;
 }
 
 function LoginPanel(props: LoginPanelProps) {
-  const { loginInfo, handleSubmit } = props;
+  const { handleSubmit, widgetBodyText, createAccountButtonText } = props;
 
   const theme = useTheme();
   const [isMobile] = useMobile();
-
-  const { widgetBodyText = '', CreateAccountButtonText } = loginInfo;
 
   return (
     <Box
@@ -41,7 +39,6 @@ function LoginPanel(props: LoginPanelProps) {
             },
           },
         }}
-        isVisible
         html={widgetBodyText}
       />
       <Box
@@ -58,7 +55,7 @@ function LoginPanel(props: LoginPanelProps) {
             backgroundColor: theme.palette.primary.main,
           }}
         >
-          {CreateAccountButtonText}
+          {createAccountButtonText}
         </CustomButton>
       </Box>
     </Box>

@@ -81,7 +81,7 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
           const isRegisterArrInclude = registerArr.includes(e.target as Element);
           const tagHref = (e.target as HTMLAnchorElement)?.href;
           let href = tagHref || authorizedPages;
-          if (!tagHref) {
+          if (!tagHref || typeof tagHref !== 'string') {
             let parentNode = (e.target as HTMLAnchorElement)?.parentNode;
             let parentHref = (parentNode as HTMLAnchorElement)?.href;
             let number = 0;

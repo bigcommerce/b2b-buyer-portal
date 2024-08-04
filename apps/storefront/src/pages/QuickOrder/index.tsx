@@ -19,6 +19,8 @@ function Quickorder() {
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
+  const isShowQuickOrderPad = isB2BUser ? purchasabilityPermission : true;
+
   return (
     <Box
       sx={{
@@ -64,7 +66,7 @@ function Quickorder() {
               pl: isMobile ? '0px !important' : '16px',
             }}
           >
-            {purchasabilityPermission && <QuickOrderPad isB2BUser={isB2BUser} />}
+            {isShowQuickOrderPad && <QuickOrderPad isB2BUser={isB2BUser} />}
           </Grid>
         </Grid>
       </Box>

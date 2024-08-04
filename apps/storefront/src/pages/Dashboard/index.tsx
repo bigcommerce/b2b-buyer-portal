@@ -1,21 +1,21 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { Box, IconButton, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-import { showPageMask } from '@/components';
+import { usePageMask } from '@/components';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
-import { GlobaledContext } from '@/shared/global';
 import { superAdminCompanies } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
-import { OpenPageState } from '@/types/hooks';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
+
+import { type PageProps } from '../PageProps';
 
 import DashboardCard from './components/DashboardCard';
 
@@ -28,10 +28,6 @@ interface B3MeanProps {
   handleSelect: () => void;
   startActing: () => void;
   endActing: () => void;
-}
-
-interface DashboardProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 
 export const defaultSortKey = 'companyName';
@@ -108,8 +104,9 @@ function B3Mean({ isMasquerade, handleSelect, startActing, endActing }: B3MeanPr
   );
 }
 
-function Dashboard(props: DashboardProps) {
-  const { dispatch } = useContext(GlobaledContext);
+function Dashboard(props: PageProps) {
+  const showPageMask = usePageMask();
+
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
 
@@ -174,7 +171,7 @@ function Dashboard(props: DashboardProps) {
 
   const endActing = async () => {
     try {
-      showPageMask(dispatch, true);
+      showPageMask(true);
       if (typeof b2bId === 'number') {
         await endMasquerade({
           b2bId,
@@ -184,7 +181,7 @@ function Dashboard(props: DashboardProps) {
         ...filterData,
       });
     } finally {
-      showPageMask(dispatch, false);
+      showPageMask(false);
     }
   };
 

@@ -6,22 +6,20 @@ import { B3CustomForm } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 
-import { getLoginFields, LoginConfig, LoginInfoInit } from './config';
+import { getLoginFields, LoginConfig } from './config';
 
 interface LoginFormProps {
-  loginInfo: Partial<LoginInfoInit>;
+  loginBtn: string;
   handleLoginSubmit: (data: LoginConfig) => void;
   gotoForgotPassword: () => void;
   backgroundColor: string;
 }
 
 function LoginForm(props: LoginFormProps) {
-  const { loginInfo, handleLoginSubmit, gotoForgotPassword, backgroundColor } = props;
+  const { loginBtn, handleLoginSubmit, gotoForgotPassword, backgroundColor } = props;
 
   const b3Lang = useB3Lang();
   const theme = useTheme();
-
-  const { loginBtn } = loginInfo;
 
   const {
     control,

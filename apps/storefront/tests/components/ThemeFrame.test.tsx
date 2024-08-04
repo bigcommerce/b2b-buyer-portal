@@ -1,15 +1,11 @@
 import Button from '@mui/material/Button';
+import { renderWithProviders } from 'tests/test-utils';
 
 import { ThemeFrame } from '@/components';
-import theme from '@/store/slices/theme';
-
-import { renderWithProviders } from '../test-utils';
 
 describe('ThemeFrame', () => {
   it('should render iframe and main document should not contain anything else', () => {
-    const { store } = renderWithProviders(<ThemeFrame title="test-frame">{null}</ThemeFrame>, {
-      reducer: { theme },
-    });
+    const { store } = renderWithProviders(<ThemeFrame title="test-frame">{null}</ThemeFrame>);
 
     const iframeContentDocument = store.getState().theme.themeFrame;
     expect(iframeContentDocument?.querySelector('style')).toBeDefined();
@@ -20,9 +16,6 @@ describe('ThemeFrame', () => {
       <ThemeFrame title="test-frame">
         <Button id="test-button">Test Button</Button>
       </ThemeFrame>,
-      {
-        reducer: { theme },
-      },
     );
 
     const iframeContentDocument = store.getState().theme.themeFrame;

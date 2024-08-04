@@ -1,23 +1,8 @@
-import { ThemeFrame } from '@/components';
-import Quickorder from '@/pages/QuickOrder';
-import { GlobalProvider } from '@/shared/global';
-import b2bFeatures from '@/store/slices/b2bFeatures';
-import company from '@/store/slices/company';
-import global from '@/store/slices/global';
-import storeConfigs from '@/store/slices/storeConfigs';
-import theme from '@/store/slices/theme';
+import { renderWithProviders, screen } from 'tests/test-utils';
 
-import { renderWithProviders } from '../../test-utils';
+import Quickorder from '@/pages/QuickOrder';
 
 import { mockActiveCurrency, mockCurrencies } from './mock';
-
-vi.mock('react-intl', () => ({
-  useIntl: vi.fn(() => ({ formatMessage: vi.fn() })),
-}));
-
-vi.mock('react-router-dom', () => ({
-  useNavigate: vi.fn(),
-}));
 
 vi.mock('date-fns', () => ({
   format: vi.fn(),
@@ -30,16 +15,11 @@ describe('Quickorder component', () => {
     window.sessionStorage.setItem('sf-currencies', mockCurrencies);
   });
 
-  it('renders correctly', () => {
-    renderWithProviders(
-      <GlobalProvider>
-        <ThemeFrame title="test-frame">
-          <Quickorder />
-        </ThemeFrame>
-      </GlobalProvider>,
-      {
-        reducer: { global, theme, storeConfigs, company, b2bFeatures },
-      },
-    );
+  it('renders correctly', async () => {
+    renderWithProviders(<Quickorder />);
+
+    const title = await screen.findByText('0 products');
+
+    expect(title).toBeInTheDocument();
   });
 });

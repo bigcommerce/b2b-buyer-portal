@@ -1,10 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit';
 
+import { RootState } from '@/store';
 import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
 import { checkEveryPermissionsCode } from '@/utils/b3CheckPermissions/permission';
 import { b2bPermissionsList, B2BPermissionsparms } from '@/utils/b3RolePermissions/config';
 
-import { RootState } from './reducer';
 import { defaultCurrenciesState } from './slices/storeConfigs';
 
 const themeSelector = (state: RootState) => state.theme;
@@ -27,7 +27,7 @@ export const activeCurrencyInfoSelector = createSelector(
   (storeConfigs): Currency => {
     const entityId = storeConfigs.activeCurrency?.node.entityId || '';
     const activeCurrency = storeConfigs.currencies.currencies.find(
-      (currency) => currency.id === entityId,
+      (currency) => +currency.id === +entityId,
     );
 
     return activeCurrency || defaultCurrenciesState.currencies[0];

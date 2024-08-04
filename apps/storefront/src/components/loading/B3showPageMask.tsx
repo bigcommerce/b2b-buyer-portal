@@ -1,17 +1,25 @@
-import { DispatchProps } from '@/shared/global/context/config';
+import { useCallback, useContext } from 'react';
 
-const showPageMask = (dispatch: DispatchProps, isShow: boolean) => {
-  const b2bStyleElement = document.getElementById('b2b-account-page-hide-body');
-  if (b2bStyleElement) {
-    b2bStyleElement.innerHTML = '';
-  }
+import { GlobaledContext } from '@/shared/global';
 
-  dispatch({
-    type: 'common',
-    payload: {
-      showPageMask: isShow,
+export const usePageMask = () => {
+  const { dispatch } = useContext(GlobaledContext);
+
+  return useCallback(
+    (isShow: boolean) => {
+      const b2bStyleElement = document.getElementById('b2b-account-page-hide-body');
+
+      if (b2bStyleElement) {
+        b2bStyleElement.innerHTML = '';
+      }
+
+      dispatch({
+        type: 'common',
+        payload: {
+          showPageMask: isShow,
+        },
+      });
     },
-  });
+    [dispatch],
+  );
 };
-
-export default showPageMask;

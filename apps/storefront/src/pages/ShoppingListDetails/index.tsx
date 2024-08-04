@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Grid, useTheme } from '@mui/material';
@@ -35,6 +35,8 @@ import {
   ShoppingListInfoProps,
 } from '@/utils/b3Product/shared/config';
 
+import { type PageProps } from '../PageProps';
+
 import AddToShoppingList from './components/AddToShoppingList';
 import ReAddToCart from './components/ReAddToCart';
 import ShoppingDetailDeleteItems from './components/ShoppingDetailDeleteItems';
@@ -50,24 +52,12 @@ interface TableRefProps extends HTMLInputElement {
   initSearch: () => void;
 }
 
-interface OpenPageState {
-  isOpen: boolean;
-  openUrl?: string;
-}
-
 interface UpdateShoppingListParamsProps {
   id: number;
   name: string;
   description: string;
   status?: number;
   channelId?: number;
-}
-
-interface ShoppingListDetailsProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
-}
-interface ShoppingListDetailsContentProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
 }
 
 interface PermissionLevelInfoProps {
@@ -78,7 +68,7 @@ interface PermissionLevelInfoProps {
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
 
-function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
+function ShoppingListDetails({ setOpenPage }: PageProps) {
   const { id = '' } = useParams();
   const {
     state: { openAPPParams, productQuoteEnabled = false },
@@ -124,7 +114,10 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
     ? shoppingListActionsPermission && isCanEditShoppingList
     : true;
 
-  const isJuniorApprove = shoppingListInfo?.status === 0 && submitShoppingListPermission;
+  const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
+  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : role === 2;
+
+  const isJuniorApprove = shoppingListInfo?.status === 0 && b2bSubmitShoppingListPermission;
 
   const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20;
 
@@ -331,7 +324,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
       storeConfigSwitchStatus: { isEnabled },
     } = await getB2BJuniorPlaceOrder();
 
-    setAllowJuniorPlaceOrder(isEnabled === '1' && purchasabilityPermission);
+    setAllowJuniorPlaceOrder(isEnabled === '1' && isCanAddToCart);
   };
 
   useEffect(() => {
@@ -441,6 +434,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
                   isB2BUser={isB2BUser}
                   productQuoteEnabled={productQuoteEnabled}
                   isCanEditShoppingList={isCanEditShoppingList}
+                  role={role}
                 />
               </Grid>
             </B3Spin>
@@ -482,6 +476,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
               isB2BUser={isB2BUser}
               customColor={primaryColor}
               isCanEditShoppingList={isCanEditShoppingList}
+              role={role}
             />
           )}
       </Box>
@@ -506,7 +501,7 @@ function ShoppingListDetails({ setOpenPage }: ShoppingListDetailsProps) {
   );
 }
 
-function ShoppingListDetailsContent({ setOpenPage }: ShoppingListDetailsContentProps) {
+function ShoppingListDetailsContent({ setOpenPage }: PageProps) {
   return (
     <ShoppingListDetailsProvider>
       <ShoppingListDetails setOpenPage={setOpenPage} />

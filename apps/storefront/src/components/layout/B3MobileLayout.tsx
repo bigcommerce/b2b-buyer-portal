@@ -4,7 +4,7 @@ import { Badge, Box } from '@mui/material';
 
 import { CART_URL } from '@/constants';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { useAppSelector } from '@/store';
+import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 
 import CompanyCredit from '../CompanyCredit';
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
@@ -21,10 +21,13 @@ export default function B3MobileLayout({
   children: ReactNode;
   title: string;
 }) {
+  const isB2BUser = useAppSelector(isB2BUserSelector);
   const [isOpenMobileSidebar, setOpenMobileSidebar] = useState<boolean>(false);
   const cartNumber = useAppSelector(({ global }) => global.cartNumber);
-  const role = useAppSelector(({ company }) => company.customer.role);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+
+  const isShowCart = isB2BUser ? purchasabilityPermission : true;
 
   const {
     state: {
@@ -62,10 +65,17 @@ export default function B3MobileLayout({
 
         <B3Logo />
 
-        {role === 2 ? (
-          <Box sx={{ width: '24px' }} />
-        ) : (
-          <>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+
+            '& span': {
+              marginRight: '1.5rem',
+            },
+          }}
+        >
+          {isShowCart && (
             <Badge
               badgeContent={cartNumber}
               max={1000}
@@ -90,16 +100,16 @@ export default function B3MobileLayout({
                 }}
               />
             </Badge>
-            <Box
-              sx={{
-                marginLeft: '2px',
-                height: '24px',
-              }}
-            >
-              <B3CloseAppButton />
-            </Box>
-          </>
-        )}
+          )}
+          <Box
+            sx={{
+              marginLeft: '2px',
+              height: '24px',
+            }}
+          >
+            <B3CloseAppButton />
+          </Box>
+        </Box>
       </Box>
 
       <Box

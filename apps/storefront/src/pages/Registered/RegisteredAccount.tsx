@@ -11,7 +11,7 @@ import {
   checkUserEmail,
   validateBCCompanyUserExtraFields,
 } from '@/shared/service/b2b';
-import { isB2BUserSelector, themeFrameSelector, useAppSelector } from '@/store';
+import { themeFrameSelector, useAppSelector } from '@/store';
 import { channelId } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
@@ -31,7 +31,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
   const { handleBack, handleNext, activeStep } = props;
 
   const { state, dispatch } = useContext(RegisteredContext);
-  const isB2BUser = useAppSelector(isB2BUserSelector);
   const IframeDocument = useAppSelector(themeFrameSelector);
 
   const {
@@ -110,13 +109,14 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
     'email';
 
   const validateEmailValue = async (email: string) => {
+    const isRegisterAsB2BUser = accountType === '1';
     try {
       showLoading(true);
       const {
         isValid,
         userType,
         userInfo: { companyName = '' } = {},
-      } = isB2BUser
+      } = isRegisterAsB2BUser
         ? await checkUserEmail({ email, channelId })
         : await checkUserBCEmail({ email, channelId });
 

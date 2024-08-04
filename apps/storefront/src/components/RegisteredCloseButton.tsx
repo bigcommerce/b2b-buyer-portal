@@ -1,14 +1,14 @@
-import { Dispatch, SetStateAction, useContext } from 'react';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 
+import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { GlobaledContext } from '@/shared/global';
-import { OpenPageState } from '@/types/hooks';
 
 import { CloseButton } from './styled';
 
 interface CloseButtonProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
+  setOpenPage: SetOpenPage;
 }
 
 export default function RegisteredCloseButton(props: CloseButtonProps) {

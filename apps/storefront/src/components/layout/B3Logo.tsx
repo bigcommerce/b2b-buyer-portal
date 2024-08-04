@@ -17,31 +17,38 @@ export default function B3Logo() {
       sx={
         isMobile
           ? {
-              flexShrink: '0',
-              height: 'auto',
-              width: '45%',
-              display: 'contents',
+              height: '40px',
+              width: '140px',
+              '& li': {
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginLeft: '1rem',
+              },
               '& img': {
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
+                maxHeight: '40px',
               },
             }
           : {
-              width: '100%',
-              height: '64px',
+              width: '200px',
+              height: '65px',
+              display: 'flex',
+              alignItems: 'center',
               '& img': {
-                width: '100%',
-                maxHeight: '64px',
-                objectFit: 'contain',
+                maxHeight: '65px',
               },
             }
       }
     >
       <ImageListItem
         sx={{
-          maxWidth: '250px',
+          maxWidth: '200px',
           cursor: 'pointer',
+          '& .MuiImageListItem-img': {
+            objectFit: 'contain',
+            width: 'auto',
+          },
         }}
         onClick={() => {
           window.location.href = '/';

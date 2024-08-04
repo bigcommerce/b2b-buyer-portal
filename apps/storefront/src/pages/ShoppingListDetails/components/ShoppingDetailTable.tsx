@@ -21,6 +21,7 @@ import { useMobile, useSort } from '@/hooks';
 import { updateB2BShoppingListsItem, updateBcShoppingListsItem } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { currencyFormat, snackbar } from '@/utils';
+import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 import { getBCPrice, getDisplayPrice, getValidOptionsList } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
 
@@ -76,6 +77,7 @@ interface ShoppingDetailTableProps {
   isB2BUser: boolean;
   productQuoteEnabled: boolean;
   isCanEditShoppingList: boolean;
+  role: number | string;
 }
 
 interface SearchProps {
@@ -156,6 +158,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     allowJuniorPlaceOrder,
     productQuoteEnabled,
     isCanEditShoppingList,
+    role,
   } = props;
 
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
@@ -163,8 +166,11 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const { shoppingListActionsPermission, submitShoppingListPermission } =
     useAppSelector(rolePermissionSelector);
 
-  const canShoppingListActions = shoppingListActionsPermission && isCanEditShoppingList;
+  const canShoppingListActions = isB2BUser
+    ? shoppingListActionsPermission && isCanEditShoppingList
+    : true;
   const b2bAndBcShoppingListActionsPermissions = isB2BUser ? canShoppingListActions : true;
+  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : +role === 2;
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
@@ -428,6 +434,13 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
         const optionList = JSON.parse(row.optionList);
         const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
 
+        const currentVariants = product.variants || [];
+        const currentImage =
+          b2bGetVariantImageByVariantInfo(currentVariants, {
+            variantId: row.variantId,
+            variantSku: row.variantSku,
+          }) || row.primaryImage;
+
         return (
           <Box
             sx={{
@@ -436,7 +449,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
             }}
           >
             <StyledImage
-              src={row.primaryImage || PRODUCT_DEFAULT_IMAGE}
+              src={currentImage || PRODUCT_DEFAULT_IMAGE}
               alt="Product-img"
               loading="lazy"
             />
@@ -733,7 +746,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
         applyAllDisableCheckbox={false}
         disableCheckbox={
           disabledSelectAll ||
-          (submitShoppingListPermission
+          (b2bSubmitShoppingListPermission
             ? !(allowJuniorPlaceOrder || productQuoteEnabled)
             : (isReadForApprove || isJuniorApprove) && b2bAndBcShoppingListActionsPermissions)
         }

@@ -53,9 +53,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       try {
         const response = await getStorefrontToken();
 
-        if (response.data) {
-          setIsEnabledOnStorefront(response.data.site.settings.reCaptcha.isEnabledOnStorefront);
-          setStorefrontSiteKey(response.data.site.settings.reCaptcha.siteKey);
+        if (response) {
+          setIsEnabledOnStorefront(response.isEnabledOnStorefront);
+          setStorefrontSiteKey(response.siteKey);
         }
       } catch (e) {
         b2bLogger.error(e);
@@ -162,6 +162,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
     bcFields.addresses = [];
     bcFields.origin_channel_id = channelId;
+    bcFields.channel_ids = [channelId];
 
     if (accountType === '2') {
       const addresses: CustomFieldItems = {};
@@ -200,13 +201,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       }
 
       bcFields.addresses = [addresses];
+      bcFields.trigger_account_created_notification = true;
     }
 
-    const userItem: any = {
+    const userItem = {
       storeHash,
-      method: 'post',
-      url: '/v3/customers',
-      data: [bcFields],
+      ...bcFields,
     };
 
     return createBCCompanyUser(userItem);
@@ -384,15 +384,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         try {
           await sendSubscribersState({
             storeHash,
-            method: 'post',
-            url: '/v3/customers/subscribers',
-            proxyType: 'Bigcommerce',
-            data: {
-              email: enterEmail,
-              first_name: firstName.default,
-              last_name: lastName.default,
-              channel_id: channelId || 1,
-            },
+            email: enterEmail,
+            first_name: firstName.default,
+            last_name: lastName.default,
+            channel_id: channelId || 1,
           });
         } catch (err: any) {
           setErrorMessage(err?.message || err);
@@ -437,11 +432,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             const fileList = await getFileUrl(attachmentsList || []);
             const res = await getBCFieldsValue(completeData);
             const { data } = res;
-            const accountInfo = await getB2BFieldsValue(
-              completeData,
-              (data as any)[0].id,
-              fileList,
-            );
+            const accountInfo = await getB2BFieldsValue(completeData, data.id, fileList);
 
             const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
             isAuto = +companyStatus === 1;

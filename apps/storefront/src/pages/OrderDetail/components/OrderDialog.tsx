@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, Typography } from '@mui/material';
@@ -21,6 +21,7 @@ import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
 import { EditableProductItem, OrderProductItem } from '../../../types';
+import { OrderDetailsContext } from '../context/OrderDetailsContext';
 import getReturnFormFields from '../shared/config';
 
 import CreateShoppingList from './CreateShoppingList';
@@ -74,6 +75,9 @@ export default function OrderDialog({
   orderId,
 }: OrderDialogProps) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
+  const {
+    state: { variantImages = [] },
+  } = useContext(OrderDetailsContext);
 
   const [isOpenCreateShopping, setOpenCreateShopping] = useState(false);
   const [openShoppingList, setOpenShoppingList] = useState(false);
@@ -352,10 +356,17 @@ export default function OrderDialog({
   useEffect(() => {
     if (!open) return;
     setEditableProducts(
-      products.map((item: OrderProductItem) => ({
-        ...item,
-        editQuantity: item.quantity,
-      })),
+      products.map((item: OrderProductItem) => {
+        const currentVariant = variantImages.find(
+          (variant) => item.sku === variant?.variantSku || +item.variant_id === +variant.variantId,
+        );
+
+        return {
+          ...item,
+          editQuantity: item.quantity,
+          imageUrl: currentVariant?.variantImage || item.imageUrl,
+        };
+      }),
     );
 
     const getVariantInfoByList = async () => {
@@ -369,7 +380,7 @@ export default function OrderDialog({
     };
 
     getVariantInfoByList();
-  }, [isB2BUser, open, products]);
+  }, [isB2BUser, open, products, variantImages]);
 
   const handleProductChange = (products: EditableProductItem[]) => {
     setEditableProducts(products);

@@ -29,6 +29,7 @@ const getVariantInfoBySkus = ({ skus = [] }) => `{
     modifiers,
     purchasingDisabled,
     variantSku,
+    imageUrl,
   }
 }`;
 

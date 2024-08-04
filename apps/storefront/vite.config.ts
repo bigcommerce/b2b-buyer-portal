@@ -57,11 +57,19 @@ export default defineConfig(({ mode }) => {
       },
     },
     test: {
+      env: {
+        VITE_B2B_URL: 'https://api-b2b.bigcommerce.com',
+        VITE_LOCAL_DEBUG: 'TRUE',
+      },
+      clearMocks: true,
+      mockReset: true,
+      restoreMocks: true,
       globals: true,
       environment: 'jsdom',
       setupFiles: './tests/setup-test-environment.ts',
       coverage: {
         provider: 'istanbul',
+        cleanOnRerun: process.env.CI === 'true',
         reporter: ['text', 'html', 'clover', 'json'],
       },
       deps: {
@@ -80,6 +88,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        tests: path.resolve(__dirname, './tests'),
       },
     },
     build: {

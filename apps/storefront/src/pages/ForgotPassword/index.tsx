@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
@@ -9,42 +9,33 @@ import CustomButton from '@/components/button/CustomButton';
 import { Captcha } from '@/components/form';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
-import { CustomStyleContext } from '@/shared/customStyleButton/context';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobaledContext } from '@/shared/global';
 import { getStorefrontToken, requestResetPassword } from '@/shared/service/b2b/graphql/recaptcha';
-import { OpenPageState } from '@/types/hooks';
 import b2bLogger from '@/utils/b3Logger';
 
 import { getForgotPasswordFields, LoginConfig, sendEmail } from '../Login/config';
 import { B3ResetPassWordButton, LoginImage } from '../Login/styled';
+import { type PageProps } from '../PageProps';
 
-interface ForgotPasswordProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
+interface ForgotPasswordProps extends PageProps {
+  logo?: string;
+  isEnabledOnStorefront: boolean;
+  storefrontSiteKey: string;
 }
 
-function ForgotPassword(props: ForgotPasswordProps) {
-  const {
-    state: { logo },
-  } = useContext(GlobaledContext);
-
-  const {
-    state: {
-      loginPageDisplay: { displayStoreLogo },
-    },
-  } = useContext(CustomStyleContext);
-
+export function ForgotPassword({
+  setOpenPage,
+  isEnabledOnStorefront,
+  storefrontSiteKey,
+  logo,
+}: ForgotPasswordProps) {
   const [isMobile] = useMobile();
   const [isLoading, setLoading] = useState<boolean>(false);
   const b3Lang = useB3Lang();
   const forgotPasswordFields = getForgotPasswordFields(b3Lang);
-  const [isEnabledOnStorefront, setIsEnabledOnStorefront] = useState(false);
-  const [storefrontSiteKey, setStorefrontSiteKey] = useState('');
   const [isCaptchaMissing, setIsCaptchaMissing] = useState(false);
   const [captchaKey, setCaptchaKey] = useState('');
-
-  const handleGetCaptchaKey = (key: string) => setCaptchaKey(key);
-
-  const { setOpenPage } = props;
 
   const {
     control,
@@ -59,23 +50,6 @@ function ForgotPassword(props: ForgotPasswordProps) {
 
   const navigate = useNavigate();
   const emailAddressReset = watch('emailAddress');
-
-  useEffect(() => {
-    const getIsEnabledOnStorefront = async () => {
-      try {
-        const response = await getStorefrontToken();
-
-        if (response.data) {
-          setIsEnabledOnStorefront(response.data.site.settings.reCaptcha.isEnabledOnStorefront);
-          setStorefrontSiteKey(response.data.site.settings.reCaptcha.siteKey);
-        }
-      } catch (e) {
-        b2bLogger.error(e);
-      }
-    };
-
-    getIsEnabledOnStorefront();
-  }, []);
 
   useEffect(() => {
     if (captchaKey || !isEnabledOnStorefront) setIsCaptchaMissing(false);
@@ -125,7 +99,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
         }}
       >
         <Box sx={{ mt: '20px' }}>
-          {logo && displayStoreLogo && (
+          {logo && (
             <LoginImage>
               <ImageListItem
                 sx={{
@@ -135,7 +109,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
                   window.location.href = '/';
                 }}
               >
-                <img src={`${logo}`} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
+                <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
               </ImageListItem>
             </LoginImage>
           )}
@@ -196,7 +170,7 @@ function ForgotPassword(props: ForgotPasswordProps) {
                 siteKey={storefrontSiteKey}
                 size="normal"
                 email={emailAddressReset}
-                handleGetKey={handleGetCaptchaKey}
+                handleGetKey={setCaptchaKey}
               />
             </Box>
           ) : (
@@ -221,4 +195,35 @@ function ForgotPassword(props: ForgotPasswordProps) {
   );
 }
 
-export default ForgotPassword;
+export default function Page({ setOpenPage }: PageProps) {
+  const { logo } = useContext(GlobaledContext).state;
+  const { loginPageDisplay } = useContext(CustomStyleContext).state;
+  const [isEnabledOnStorefront, setIsEnabledOnStorefront] = useState(false);
+  const [storefrontSiteKey, setStorefrontSiteKey] = useState('');
+
+  useEffect(() => {
+    const getIsEnabledOnStorefront = async () => {
+      try {
+        const response = await getStorefrontToken();
+
+        if (response) {
+          setIsEnabledOnStorefront(response.isEnabledOnStorefront);
+          setStorefrontSiteKey(response.siteKey);
+        }
+      } catch (e) {
+        b2bLogger.error(e);
+      }
+    };
+
+    getIsEnabledOnStorefront();
+  }, []);
+
+  return (
+    <ForgotPassword
+      setOpenPage={setOpenPage}
+      logo={loginPageDisplay.displayStoreLogo ? logo : undefined}
+      isEnabledOnStorefront={isEnabledOnStorefront}
+      storefrontSiteKey={storefrontSiteKey}
+    />
+  );
+}

@@ -1,46 +1,63 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, Suspense } from 'react';
 import { Provider } from 'react-redux';
-import { configureStore, ConfigureStoreOptions } from '@reduxjs/toolkit';
+import { MemoryRouter, useLocation } from 'react-router-dom';
+import { LangProvider } from '@b3/lang';
 import { render, RenderOptions } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
+import { Mock } from 'vitest';
 
-import { AppStore, middlewareOptions } from '@/store';
+import { AppStore, RootState, setupStore } from '@/store';
 
-// This type interface extends the default options for render from RTL, as well
-// as allows the user to specify other things such as initialState, store.
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-  reducer: ConfigureStoreOptions['reducer'];
-  preloadedState?: ConfigureStoreOptions['preloadedState'];
+  preloadedState?: Partial<RootState>;
+  store?: AppStore;
 }
 
-interface RenderWithProvidersResult {
-  store: AppStore;
-  result: ReturnType<typeof render>;
+function NavigationSpy({ children, spy }: PropsWithChildren<{ spy: Mock<[string]> }>) {
+  const location = useLocation();
+
+  spy.mockReset();
+  spy(`${location.pathname}${location.search}`);
+
+  return <>{children}</>;
 }
 
 export const renderWithProviders = (
   ui: React.ReactElement,
-  { reducer, preloadedState, ...renderOptions }: ExtendedRenderOptions,
-): RenderWithProvidersResult => {
-  const store = configureStore({
-    reducer,
-    preloadedState,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware(middlewareOptions),
-  });
+  extendedRenderOptions: Partial<ExtendedRenderOptions> = {},
+) => {
+  const {
+    preloadedState = {},
+    store = setupStore(preloadedState),
+    ...renderOptions
+  } = extendedRenderOptions;
 
-  const wrapper = ({ children }: PropsWithChildren) => {
-    return <Provider store={store}>{children}</Provider>;
-  };
+  const navigation = vi.fn<[string]>();
 
-  const result = render(ui, {
-    wrapper,
-    ...renderOptions,
-  });
+  function Wrapper({ children }: PropsWithChildren) {
+    return (
+      <Suspense fallback="test-loading">
+        <Provider store={store}>
+          <LangProvider>
+            <MemoryRouter>
+              <NavigationSpy spy={navigation}>{children}</NavigationSpy>
+            </MemoryRouter>
+          </LangProvider>
+        </Provider>
+      </Suspense>
+    );
+  }
 
   return {
+    user: userEvent.setup(),
     store,
-    result,
+    navigation,
+    result: render(ui, { wrapper: Wrapper, ...renderOptions }),
   };
 };
 
+export { startMockServer } from './mockServer';
+export { http, HttpResponse } from 'msw';
+export { assertQueryParams } from './assertQueryParams';
 export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';

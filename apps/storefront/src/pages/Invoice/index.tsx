@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useRef, useState } from 'react';
+import { ReactElement, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, InputAdornment, TextField, Typography } from '@mui/material';
@@ -8,6 +8,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile, useSort } from '@/hooks';
+import { GlobaledContext } from '@/shared/global';
 import { exportInvoicesAsCSV, getInvoiceList, getInvoiceStats } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
@@ -89,6 +90,10 @@ function Invoice() {
 
   const [filterChangeFlag, setFilterChangeFlag] = useState(false);
   const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([]);
+
+  const {
+    state: { bcLanguage },
+  } = useContext(GlobaledContext);
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortIdArr,
@@ -280,17 +285,20 @@ function Invoice() {
           : exportOrderByArr[orderByStr];
       }
 
-      const params = {
+      const invoiceFilterData = {
         search: filterData?.q || '',
-        invoiceNumber: invoiceNumber || '',
+        idIn: `${invoiceNumber || ''}`,
         orderNumber: '',
-        beginDateAt: filterData?.beginDateAt || '',
-        endDateAt: filterData?.endDateAt || '',
+        beginDateAt: filterData?.beginDateAt || null,
+        endDateAt: filterData?.endDateAt || null,
         status: invoiceStatus,
         orderBy: orderByFiled,
       };
 
-      const { invoicesExport } = await exportInvoicesAsCSV(params);
+      const { invoicesExport } = await exportInvoicesAsCSV({
+        invoiceFilterData,
+        lang: bcLanguage || 'en',
+      });
 
       if (invoicesExport?.url) {
         window.open(invoicesExport?.url, '_blank');

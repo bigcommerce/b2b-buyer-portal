@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CallbackKey, useCallbacks } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
@@ -39,6 +39,7 @@ import validateObject from '@/utils/quoteUtils';
 
 import { getProductOptionsFields } from '../../utils/b3Product/shared/config';
 import { convertBCToB2BAddress } from '../Address/shared/config';
+import { type PageProps } from '../PageProps';
 import AddToQuote from '../quote/components/AddToQuote';
 import ContactInfo from '../quote/components/ContactInfo';
 import QuoteAddress from '../quote/components/QuoteAddress';
@@ -74,15 +75,6 @@ interface QuoteSummaryRef extends HTMLInputElement {
   refreshSummary: () => void;
 }
 
-interface OpenPageState {
-  isOpen: boolean;
-  openUrl?: string;
-}
-
-interface QuoteDraftProps {
-  setOpenPage: Dispatch<SetStateAction<OpenPageState>>;
-}
-
 const shippingAddress = {
   address: '',
   addressId: 0,
@@ -113,7 +105,7 @@ const billingAddress = {
   companyName: '',
 };
 
-function QuoteDraft({ setOpenPage }: QuoteDraftProps) {
+function QuoteDraft({ setOpenPage }: PageProps) {
   const {
     state: { countriesList, openAPPParams },
   } = useContext(GlobaledContext);

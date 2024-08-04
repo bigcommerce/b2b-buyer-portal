@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useB3Lang } from '@b3/lang';
 import { InsertDriveFile, MoreHoriz } from '@mui/icons-material';
 import { Box, Button, Link, Menu, MenuItem, Tab, Tabs, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -36,6 +37,7 @@ const StyledTableContainer = styled(Box)(() => {
 function BulkUploadTable(props: BulkUploadTableProps) {
   const { setStep, fileDatas, fileName } = props;
   const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
   const columnErrorsItems: TableColumnItem<ListItem>[] = [
     {
@@ -280,7 +282,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
             }}
           >
             <Link href={fileDatas?.errorFile} underline="none">
-              Bulk Upload Errors
+              {b3Lang('global.B3Upload.downloadErrorResults')}
             </Link>
           </Box>
         )}

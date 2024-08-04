@@ -1,7 +1,6 @@
 import validateAddressExtraFields from './api/address';
-import { setChannelStoreType, uploadB2BFile } from './api/global';
+import { getProductPricing, setChannelStoreType, uploadB2BFile } from './api/global';
 import getBCGraphqlToken from './api/login';
-import getBCOrders from './api/order';
 import {
   createBCCompanyUser,
   sendSubscribersState,
@@ -201,7 +200,6 @@ export {
   getBCForcePasswordReset,
   getBCGraphqlToken,
   getBCOrderDetails,
-  getBCOrders,
   getBcOrderStatusType,
   getBcQuoteDetail,
   getBCQuotesList,
@@ -222,6 +220,7 @@ export {
   getUserCompany,
   getUsers,
   getUsersExtraFieldsInfo,
+  getProductPricing,
   guestProductsBulkUploadCSV,
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
@@ -247,5 +246,4 @@ export {
   validateBCCompanyUserExtraFields,
 };
 
-export { default as getProxyInfo } from './api/proxy';
 export { default as getTranslation } from './api/translation';

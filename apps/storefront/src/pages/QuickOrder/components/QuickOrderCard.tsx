@@ -4,6 +4,7 @@ import { Box, CardContent, styled, TextField, Typography } from '@mui/material';
 
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { currencyFormat, displayFormat } from '@/utils';
+import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
 
 interface QuickOrderCardProps {
   item: any;
@@ -21,10 +22,22 @@ function QuickOrderCard(props: QuickOrderCardProps) {
   const { item: shoppingDetail, checkBox, handleUpdateProductQty } = props;
   const b3Lang = useB3Lang();
 
-  const { quantity, imageUrl, productName, variantSku, optionList, basePrice, lastOrderedAt } =
-    shoppingDetail;
+  const {
+    quantity,
+    imageUrl,
+    productName,
+    variantSku,
+    optionList,
+    basePrice,
+    lastOrderedAt,
+    variantId,
+    productsSearch,
+  } = shoppingDetail;
 
   const price = +basePrice * +quantity;
+  const currentVariants = productsSearch.variants || [];
+  const currentImage = b2bGetVariantImageByVariantInfo(currentVariants, { variantId }) || imageUrl;
+
   return (
     <Box
       key={shoppingDetail.id}
@@ -41,7 +54,11 @@ function QuickOrderCard(props: QuickOrderCardProps) {
       >
         <Box>{checkBox && checkBox()}</Box>
         <Box>
-          <StyledImage src={imageUrl || PRODUCT_DEFAULT_IMAGE} alt="Product-img" loading="lazy" />
+          <StyledImage
+            src={currentImage || PRODUCT_DEFAULT_IMAGE}
+            alt="Product-img"
+            loading="lazy"
+          />
         </Box>
         <Box
           sx={{
