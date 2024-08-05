@@ -335,6 +335,21 @@ export default function App() {
   }, [isOpen]);
 
   useEffect(() => {
+    const { hash = '' } = window.location;
+
+    const handleHashChange = () => (!hash || hash === '#/') && setOpenPage({ isOpen: false });
+
+    window.addEventListener('hashchange', handleHashChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+    // ignore setOpenPage
+    // due they are funtions that do not depend on any reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     const cssValue = (cssOverride.css || '').replace(/\};/g, '}');
 
     const newStyle = `${CUSTOM_STYLES}\n${cssValue}`;
