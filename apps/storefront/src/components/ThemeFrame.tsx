@@ -155,20 +155,6 @@ export default function ThemeFrame(props: ThemeFrameProps) {
     // disabling cause it needs to be run once
   }, [customStyles, fontUrl]);
 
-  useEffect(() => {
-    const doc = iframeRef.current?.contentDocument;
-
-    if (!doc) {
-      return;
-    }
-
-    if (customStyles) {
-      const customStyleElement = doc.createElement('style');
-      customStyleElement.appendChild(document.createTextNode(customStyles));
-      doc.head.appendChild(customStyleElement);
-    }
-  }, [customStyles]);
-
   return (
     <iframe
       allowFullScreen
