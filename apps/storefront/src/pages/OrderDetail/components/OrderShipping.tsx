@@ -8,7 +8,7 @@ import { getTracking } from 'ts-tracking-number';
 import { B3ProductList } from '@/components';
 import { useMobile } from '@/hooks';
 
-import { OrderProductItem, OrderShippedItem, OrderShippingsItem } from '../../../types';
+import { OrderShippedItem, OrderShippingsItem } from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';
 
 const ShipmentTitle = styled('span')(() => ({
@@ -18,7 +18,7 @@ const ShipmentTitle = styled('span')(() => ({
 
 export default function OrderShipping() {
   const {
-    state: { shippings = [], addressLabelPermission, orderIsDigital, money, variantImages = [] },
+    state: { shippings = [], addressLabelPermission, orderIsDigital, money },
   } = useContext(OrderDetailsContext);
 
   const [isMobile] = useMobile();
@@ -30,45 +30,9 @@ export default function OrderShipping() {
   useEffect(() => {
     if (shippings.length) {
       shippings.forEach((list: OrderShippingsItem) => {
-        const {
-          shipmentItems,
-          notShip: { itemsInfo: notShipItemsInfo = [] },
-        } = list;
-
-        if (variantImages.length > 0 && notShipItemsInfo.length > 0) {
-          const newNotShipItemsInfo = notShipItemsInfo.map((productItem: OrderProductItem) => {
-            const currentVariant = variantImages.find(
-              (variant) =>
-                productItem.sku === variant?.variantSku ||
-                +productItem.variant_id === +variant.variantId,
-            );
-
-            return {
-              ...productItem,
-              imageUrl: currentVariant?.variantImage || productItem.imageUrl,
-            };
-          });
-
-          list.notShip.itemsInfo = newNotShipItemsInfo;
-        }
-        if (shipmentItems.length) {
+        if (list.shipmentItems.length) {
+          const { shipmentItems } = list;
           shipmentItems.forEach((item: OrderShippedItem) => {
-            const { itemsInfo } = item;
-            if (variantImages.length > 0) {
-              const newItemsInfo = itemsInfo.map((productItem: OrderProductItem) => {
-                const currentVariant = variantImages.find(
-                  (variant) =>
-                    productItem.sku === variant?.variantSku ||
-                    +productItem.variant_id === +variant.variantId,
-                );
-                return {
-                  ...productItem,
-                  imageUrl: currentVariant?.variantImage || productItem.imageUrl,
-                };
-              });
-              item.itemsInfo = newItemsInfo;
-            }
-
             const trackingNumber = item.tracking_number;
             if (item?.generated_tracking_link && trackingNumber) {
               item.tracking_link = item.generated_tracking_link;
@@ -88,9 +52,9 @@ export default function OrderShipping() {
           });
         }
       });
-      setShippingsDetail([...shippings]);
+      setShippingsDetail(shippings);
     }
-  }, [shippings, variantImages]);
+  }, [shippings]);
 
   const getFullName = (shipping: OrderShippingsItem) => {
     const { first_name: firstName, last_name: lastName } = shipping;

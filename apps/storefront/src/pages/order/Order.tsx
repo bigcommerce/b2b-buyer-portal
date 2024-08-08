@@ -39,13 +39,9 @@ interface ListItem {
   totalIncTax: string;
   status: string;
   createdAt: string;
+  companyName: string;
 }
 
-interface ListCompanyItem {
-  companyId?: {
-    companyName: string;
-  };
-}
 interface SearchChangeProps {
   startValue?: string;
   endValue?: string;
@@ -216,7 +212,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'companyId',
       title: b3Lang('orders.company'),
-      render: (item) => `${(item as ListCompanyItem)?.companyId?.companyName || ''}`,
+      render: (item: ListItem) => `${item?.companyName || ''}`,
       width: '10%',
     },
   ];
