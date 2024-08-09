@@ -2,11 +2,10 @@ import { useContext } from 'react';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import { Card, CardContent, Typography } from '@mui/material';
-import intlFormatDistance from 'date-fns/intlFormatDistance';
 
 import { B3Table, TableColumnItem } from '@/components/table/B3Table';
-import { BROWSER_LANG } from '@/constants';
 import { useMobile } from '@/hooks';
+import { displayExtendedFormat } from '@/utils';
 
 import { OrderHistoryItem, OrderStatusItem } from '../../../types';
 import OrderStatus from '../../order/components/OrderStatus';
@@ -34,11 +33,6 @@ export default function OrderHistory() {
   } = useContext(OrderDetailsContext);
   const [isMobile] = useMobile();
 
-  const getTime = (time: number) =>
-    intlFormatDistance(new Date(time * 1000), new Date(), {
-      locale: BROWSER_LANG,
-    });
-
   const getOrderStatusLabel = (status: string) => {
     const currentOrderStatus = orderStatusLabel.find(
       (item: OrderStatusItem) => item.systemLabel === status,
@@ -62,8 +56,8 @@ export default function OrderHistory() {
     {
       key: 'time',
       title: b3Lang('orderDetail.history.dateHeader'),
-      render: (item: OrderHistoryItem) => getTime(item.createdAt),
-      width: isMobile ? ' 100px' : '150px',
+      render: (item: OrderHistoryItem) => `${displayExtendedFormat(item.createdAt)}`,
+      width: isMobile ? '100px' : '200px',
     },
     {
       key: 'code',
