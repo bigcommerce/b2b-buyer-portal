@@ -64,6 +64,16 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
     return isSearchNode;
   };
 
+  const handleJudgeCheckoutNormalHref = (element: MouseEvent) => {
+    if (window?.location?.pathname !== CHECKOUT_URL) return false;
+
+    const target = element.target as HTMLAnchorElement;
+
+    if (target.getAttribute('href') && target.getAttribute('href') === '#') return true;
+
+    return false;
+  };
+
   useLayoutEffect(() => {
     const registerArr = Array.from(document.querySelectorAll(globalB3['dom.registerElement']));
     const allOtherArr = Array.from(document.querySelectorAll(globalB3['dom.allOtherElement']));
@@ -75,7 +85,9 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
           allOtherArr.includes(e.target as Element)
         ) {
           const isSearchNode = handleJudgeSearchNode(e);
-          if (isSearchNode) return false;
+          const isCheckoutNormalHref = handleJudgeCheckoutNormalHref(e);
+
+          if (isSearchNode || isCheckoutNormalHref) return false;
           e.preventDefault();
           e.stopPropagation();
           const isRegisterArrInclude = registerArr.includes(e.target as Element);
@@ -114,13 +126,6 @@ const useB3AppOpen = (initOpenState: OpenPageState) => {
           const hrefArr = href.split('/#');
           if (hrefArr[1] === '') {
             href = isLogin ? authorizedPages : '/login';
-          }
-
-          if (
-            window?.location?.pathname === CHECKOUT_URL &&
-            (e.target as HTMLAnchorElement)?.getAttribute('href') === '#'
-          ) {
-            href = '/register';
           }
 
           if (
