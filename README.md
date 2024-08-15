@@ -262,7 +262,7 @@ For developers wishing to contribute, ensure all PRs meet the linting and commit
 
 ## 📞 Contact & Support
 
-For queries, issues, or support, reach out to us at b2b@bigcommerce.com or open an issue in this repository.
+For queries, issues, or support please open an issue in this repository.
 
 ## License
 
