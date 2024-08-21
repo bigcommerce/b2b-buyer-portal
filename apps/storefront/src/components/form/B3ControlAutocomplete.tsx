@@ -5,7 +5,6 @@ import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/mater
 import debounce from 'lodash-es/debounce';
 
 import { getB2BRoleList } from '@/shared/service/b2b';
-import { useAppSelector } from '@/store';
 
 import Form from './ui';
 
@@ -66,12 +65,6 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     control,
   };
 
-  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
-  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-
-  const companyId = isAgenting ? +salesRepCompanyId : +companyInfoId;
-
   const fetchData = async ({ type = '', value = '' }) => {
     if (loading) return;
     setLoading(true);
@@ -84,7 +77,6 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
       const {
         companyRoles: { edges },
       } = await getB2BRoleList({
-        companyId,
         offset: (curPage - 1) * first,
         first,
         search: value,
