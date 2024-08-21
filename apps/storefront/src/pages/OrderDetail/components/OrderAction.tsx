@@ -6,6 +6,7 @@ import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import throttle from 'lodash-es/throttle';
 
 import CustomButton from '@/components/button/CustomButton';
+import { GlobaledContext } from '@/shared/global';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import {
   b2bPrintInvoice,
@@ -271,6 +272,9 @@ export default function OrderAction(props: OrderActionProps) {
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
   const role = useAppSelector(({ company }) => company.customer.role);
   const b2bPermissions = useAppSelector(rolePermissionSelector);
+  const {
+    state: { shoppingListEnabled = false },
+  } = useContext(GlobaledContext);
 
   const {
     state: { addressLabelPermission, createdEmail },
@@ -400,7 +404,9 @@ export default function OrderAction(props: OrderActionProps) {
       key: 'add-to-shopping-list',
       name: 'shoppingList',
       variant: 'outlined',
-      isCanShow: isB2BUser ? shoppingListActionsPermission : true,
+      isCanShow: isB2BUser
+        ? shoppingListActionsPermission && shoppingListEnabled
+        : shoppingListEnabled,
     },
   ];
 
