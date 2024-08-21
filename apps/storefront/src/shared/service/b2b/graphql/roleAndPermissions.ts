@@ -14,7 +14,6 @@ const getPermissions = () => `{
 
 const getRoles = (data: CustomFieldItems) => `{
   companyRoles (
-    companyId: ${data.companyId}
     first: ${data.first}
     offset: ${data.offset}
     search: "${data?.search || ''}"
@@ -37,7 +36,6 @@ const getRoles = (data: CustomFieldItems) => `{
 
 const getCompanyRoleAndPermissionsDetails = (data: CustomFieldItems) => `{
   companyRole (
-    companyId: ${data.companyId}
     roleId: ${data.roleId}
   ) {
     id
