@@ -285,7 +285,18 @@ export default function OrderAction(props: OrderActionProps) {
     orderId,
     ipStatus = 0,
     invoiceId,
+    poNumber,
   } = detailsData;
+
+  const getPaymentMessage = () => {
+    const message = poNumber ? 'orderDetail.paidWithPo' : 'orderDetail.paidInFull';
+    return (
+      createAt &&
+      b3Lang(message, {
+        paidDate: displayFormat(createAt, true),
+      })
+    );
+  };
 
   if (!orderId) {
     return null;
@@ -407,11 +418,7 @@ export default function OrderAction(props: OrderActionProps) {
     {
       header: b3Lang('orderDetail.payment'),
       key: 'payment',
-      subtitle: createAt
-        ? b3Lang('orderDetail.paidInFull', {
-            paidDate: displayFormat(createAt, true),
-          })
-        : '',
+      subtitle: getPaymentMessage() || '',
       buttons: [
         {
           value: isB2BUser ? b3Lang('orderDetail.viewInvoice') : b3Lang('orderDetail.printInvoice'),
