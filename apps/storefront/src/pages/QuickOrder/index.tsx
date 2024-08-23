@@ -7,6 +7,7 @@ import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/sto
 import QuickOrderFooter from './components/QuickOrderFooter';
 import QuickOrderPad from './components/QuickOrderPad';
 import QuickorderTable from './components/QuickorderTable';
+import { CheckedProduct } from './utils';
 
 function Quickorder() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -16,7 +17,7 @@ function Quickorder() {
   const [isMobile] = useMobile();
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
-  const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
+  const [checkedArr, setCheckedArr] = useState<CheckedProduct[]>([]);
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
   const isShowQuickOrderPad = isB2BUser ? purchasabilityPermission : true;

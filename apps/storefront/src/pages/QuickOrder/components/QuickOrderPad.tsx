@@ -15,6 +15,7 @@ import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
 
 import SearchProduct from '../../ShoppingListDetails/components/SearchProduct';
+import { addCartProductToVerify } from '../utils';
 
 import QuickAdd from './QuickAdd';
 
@@ -34,9 +35,6 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
   const [blockPendingAccountViewPrice] = useBlockPendingAccountViewPrice();
 
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);
-  const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
-  );
 
   const getSnackbarMessage = (res: any) => {
     if (res && !res.errors) {
@@ -290,88 +288,19 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
     }
   };
 
-  const handleVerifyProduct = (products: CustomFieldItems) => {
-    const {
-      variantId,
-      variants,
-      inventoryLevel,
-      inventoryTracking,
-      orderQuantityMaximum,
-      orderQuantityMinimum,
-      quantity,
-      sku,
-    } = products;
-    const isStock = inventoryTracking !== 'none';
-    let purchasingDisabled = false;
-    let stock = inventoryLevel;
-    let productSku = sku;
-
-    const currentVariant = variants.find(
-      (variant: CustomFieldItems) => +variant.variant_id === +variantId,
-    );
-    if (currentVariant) {
-      purchasingDisabled = currentVariant.purchasing_disabled;
-      stock = inventoryTracking === 'variant' ? currentVariant.inventory_level : stock;
-      productSku = currentVariant.sku || sku;
-    }
-
-    if (purchasingDisabled && !isEnableProduct) {
-      snackbar.error(
-        b3Lang('purchasedProducts.quickOrderPad.notPurchaseableSku', {
-          notPurchaseSku: productSku,
-        }),
-      );
-
-      return false;
-    }
-
-    if (isStock && +quantity > +stock) {
-      snackbar.error(
-        b3Lang('purchasedProducts.quickOrderPad.insufficientStockSku', {
-          sku: productSku,
-        }),
-        {
-          isClose: true,
-        },
-      );
-
-      return false;
-    }
-
-    if (+orderQuantityMinimum > 0 && +quantity < orderQuantityMinimum) {
-      snackbar.error(
-        b3Lang('purchasedProducts.quickOrderPad.minQuantityMessage', {
-          minQuantity: orderQuantityMinimum,
-          sku: productSku,
-        }),
-        {
-          isClose: true,
-        },
-      );
-
-      return false;
-    }
-
-    if (+orderQuantityMaximum > 0 && +quantity > +orderQuantityMaximum) {
-      snackbar.error(
-        b3Lang('purchasedProducts.quickOrderPad.maxQuantityMessage', {
-          maxQuantity: orderQuantityMaximum,
-          sku: productSku,
-        }),
-        {
-          isClose: true,
-        },
-      );
-
-      return false;
-    }
-
-    return true;
-  };
-
   const handleQuickSearchAddCart = async (productData: CustomFieldItems[]) => {
-    const currentProduct = productData[0];
-    const isPassVerify = handleVerifyProduct(currentProduct);
+    const currentProducts = productData.map((item) => {
+      return {
+        node: {
+          ...item,
+          productsSearch: item,
+        },
+      };
+    });
+    const isPassVerify = await addCartProductToVerify(
+      currentProducts as CustomFieldItems[],
+      b3Lang,
+    );
     try {
       if (isPassVerify) {
         await quickAddToList(productData);

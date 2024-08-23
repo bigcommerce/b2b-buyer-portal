@@ -28,6 +28,7 @@ import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import B3FilterMore from '../../../components/filter/B3FilterMore';
 import B3FilterPicker from '../../../components/filter/B3FilterPicker';
 import B3FilterSearch from '../../../components/filter/B3FilterSearch';
+import { CheckedProduct } from '../utils';
 
 import QuickOrderCard from './QuickOrderCard';
 
@@ -102,7 +103,7 @@ const StyleQuickOrderTable = styled(Box)(() => ({
 
 interface QuickorderTableProps {
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>;
-  setCheckedArr: (values: CustomFieldItems) => void;
+  setCheckedArr: (values: CheckedProduct[]) => void;
   isRequestLoading: boolean;
 }
 
@@ -216,15 +217,17 @@ function QuickorderTable({
   const getSelectCheckbox = (selectCheckbox: Array<string | number>) => {
     if (selectCheckbox.length > 0) {
       const productList = paginationTableRef.current?.getCacheList() || [];
-      const checkedItems = selectCheckbox.map((item: number | string) => {
+      const checkedItems = selectCheckbox.reduce((pre, item: number | string) => {
         const newItems = productList.find((product: ListItemProps) => {
           const { node } = product;
 
           return node.id === item;
         });
 
-        return newItems;
-      });
+        if (newItems) pre.push(newItems);
+
+        return pre;
+      }, []);
 
       setCheckedArr([...checkedItems]);
     } else {

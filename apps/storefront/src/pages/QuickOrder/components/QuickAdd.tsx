@@ -9,10 +9,12 @@ import B3Spin from '@/components/spin/B3Spin';
 import { useBlockPendingAccountViewPrice } from '@/hooks';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { snackbar } from '@/utils';
+import { LineItems } from '@/utils/b3Product/b3Product';
 import { getQuickAddRowFields } from '@/utils/b3Product/shared/config';
 
 import { getB2BVariantInfoBySkus, getBcVariantInfoBySkus } from '../../../shared/service/b2b';
 import { ShoppingListAddProductOption, SimpleObject } from '../../../types';
+import { getCartProductInfo } from '../utils';
 
 interface AddToListContentProps {
   updateList?: () => void;
@@ -126,7 +128,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     };
   };
 
-  const getProductItems = (
+  const getProductItems = async (
     variantInfoList: CustomFieldItems,
     skuValue: SimpleObject,
     skus: string[],
@@ -144,6 +146,8 @@ export default function QuickAdd(props: AddToListContentProps) {
       min: number;
       max: number;
     }[] = [];
+
+    const cartProducts = await getCartProductInfo();
 
     skus.forEach((sku) => {
       const variantInfo: CustomFieldItems | null = (variantInfoList || []).find(
@@ -164,9 +168,18 @@ export default function QuickAdd(props: AddToListContentProps) {
         isStock,
         maxQuantity,
         minQuantity,
+        variantSku,
       } = variantInfo;
 
+      const num =
+        cartProducts.find(
+          (item: LineItems) =>
+            item.sku === variantSku && +(item?.variantEntityId || 0) === +(variantId || 0),
+        )?.quantity || 0;
+
       const quantity = (skuValue[sku] as number) || 0;
+
+      const allQuantity = (skuValue[sku] as number) + num || 0;
 
       if (purchasingDisabled === '1') {
         notPurchaseSku.push(sku);
@@ -185,13 +198,13 @@ export default function QuickAdd(props: AddToListContentProps) {
       if (
         maxQuantity !== 0 &&
         minQuantity !== 0 &&
-        quantity > 0 &&
-        (quantity > maxQuantity || quantity < minQuantity)
+        allQuantity > 0 &&
+        (allQuantity > maxQuantity || allQuantity < minQuantity)
       ) {
         orderLimitSku.push({
           sku,
-          min: quantity < minQuantity ? minQuantity : 0,
-          max: quantity > maxQuantity ? maxQuantity : 0,
+          min: allQuantity < minQuantity ? minQuantity : 0,
+          max: allQuantity > maxQuantity ? maxQuantity : 0,
         });
 
         return;
@@ -299,7 +312,7 @@ export default function QuickAdd(props: AddToListContentProps) {
         const variantInfoList = await getVariantList(skus);
 
         const { notFoundSku, notPurchaseSku, productItems, passSku, notStockSku, orderLimitSku } =
-          getProductItems(variantInfoList, skuValue, skus);
+          await getProductItems(variantInfoList, skuValue, skus);
 
         if (notFoundSku.length > 0) {
           showErrors(value, notFoundSku, 'sku', '');
