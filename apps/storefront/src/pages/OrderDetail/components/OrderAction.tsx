@@ -1,4 +1,4 @@
-import { Fragment, ReactNode, useContext, useState } from 'react';
+import { Fragment, ReactNode, useCallback, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
@@ -285,7 +285,25 @@ export default function OrderAction(props: OrderActionProps) {
     orderId,
     ipStatus = 0,
     invoiceId,
+    poNumber,
   } = detailsData;
+
+  const getPaymentMessage = useCallback(() => {
+    let message = '';
+
+    if (!createAt) return message;
+
+    if (poNumber) {
+      message = b3Lang('orderDetail.paidWithPo', {
+        paidDate: displayFormat(createAt, true),
+      });
+    } else {
+      message = b3Lang('orderDetail.paidInFull', {
+        paidDate: displayFormat(createAt, true),
+      });
+    }
+    return message;
+  }, [poNumber, createAt, b3Lang]);
 
   if (!orderId) {
     return null;
@@ -407,11 +425,7 @@ export default function OrderAction(props: OrderActionProps) {
     {
       header: b3Lang('orderDetail.payment'),
       key: 'payment',
-      subtitle: createAt
-        ? b3Lang('orderDetail.paidInFull', {
-            paidDate: displayFormat(createAt, true),
-          })
-        : '',
+      subtitle: getPaymentMessage(),
       buttons: [
         {
           value: isB2BUser ? b3Lang('orderDetail.viewInvoice') : b3Lang('orderDetail.printInvoice'),

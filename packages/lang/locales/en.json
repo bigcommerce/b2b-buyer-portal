@@ -337,6 +337,7 @@
   "orderDetail.purchaseDetails": "Purchased by {name} on {updatedAt}.",
   "orderDetail.summary": "Summary",
   "orderDetail.paidInFull": "Paid in full on {paidDate}",
+  "orderDetail.paidWithPo": "PO Submitted on {paidDate}",
   "orderDetail.payment": "Payment",
   "orderDetail.viewInvoice": "view invoice",
   "orderDetail.printInvoice": "print invoice",
