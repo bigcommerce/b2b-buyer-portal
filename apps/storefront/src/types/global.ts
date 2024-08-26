@@ -16,3 +16,22 @@ export interface Address {
   street_2: string;
   zip: string;
 }
+
+export interface ProductPriceOption {
+  optionId: number;
+  valueId: number;
+}
+
+export interface ProductPriceItem {
+  productId: number;
+  variantId: number;
+  options: Partial<ProductPriceOption>[];
+}
+
+export interface ProductPrice {
+  storeHash: string;
+  channel_id: number;
+  currency_code: string;
+  items: Partial<ProductPriceItem>[];
+  customer_group_id: number;
+}

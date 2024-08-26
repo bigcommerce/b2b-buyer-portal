@@ -85,6 +85,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
     const product = await setModifierQtyPrice(row, +value);
 
     dispatch(setDraftProductQuantity({ id: product.id, quantity: product.quantity }));
+    dispatch(setDraftProduct({ id: product.id, product: { node: product } }));
     updateSummary();
   };
 

@@ -174,26 +174,20 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
         bcFields.addresses = {};
         getBCAddressField.forEach((field: any) => {
           if (field.name === 'country') {
-            addresses.country_code = field.default;
+            addresses.countryCode = field.default;
           } else if (field.name === 'state') {
-            addresses.state_or_province = field.default;
-          } else if (field.name === 'postalCode') {
-            addresses.postal_code = field.default;
-          } else if (field.name === 'firstName') {
-            addresses.first_name = field.default;
-          } else if (field.name === 'lastName') {
-            addresses.last_name = field.default;
+            addresses.stateOrProvince = field.default;
           } else {
             addresses[field.name] = field.default;
           }
         });
       }
 
-      addresses.form_fields = [];
+      addresses.formFields = [];
       // BC Extra field
       if (getBCExtraAddressField && getBCExtraAddressField.length) {
         getBCExtraAddressField.forEach((field: any) => {
-          addresses.form_fields.push({
+          addresses.formFields.push({
             name: field.bcLabel,
             value: field.default,
           });
@@ -431,8 +425,10 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files');
             const fileList = await getFileUrl(attachmentsList || []);
             const res = await getBCFieldsValue(completeData);
-            const { data } = res;
-            const accountInfo = await getB2BFieldsValue(completeData, data.id, fileList);
+            const {
+              customerCreate: { customer },
+            } = res;
+            const accountInfo = await getB2BFieldsValue(completeData, customer.id, fileList);
 
             const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
             isAuto = +companyStatus === 1;

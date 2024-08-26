@@ -5,7 +5,7 @@ import { v1 as uuid } from 'uuid';
 import { getProductPricing, searchB2BProducts, searchBcProducts } from '@/shared/service/b2b';
 import { setDraftQuoteList, store } from '@/store';
 import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs';
-import { Modifiers, ShoppingListProductItem } from '@/types';
+import { BulkPriceItem, Modifiers, ShoppingListProductItem } from '@/types';
 import {
   AdjustersPrice,
   AllOptionProps,
@@ -420,16 +420,16 @@ const getDateValuesArray = (id: number, value: number) => {
   const day = data.getDate();
   return [
     {
-      option_id: id,
-      value_id: month,
+      optionId: id,
+      valueId: month,
     },
     {
-      option_id: id,
-      value_id: year,
+      optionId: id,
+      valueId: year,
     },
     {
-      option_id: id,
-      value_id: day,
+      optionId: id,
+      valueId: day,
     },
   ];
 };
@@ -441,8 +441,8 @@ const calculatedDate = (newOption: NewOptionProps, itemOption: Partial<AllOption
   if (isIncludeDate(dateTypes[0]) || isIncludeDate(dateTypes[1]) || isIncludeDate(dateTypes[2])) {
     date = [
       {
-        option_id: itemOption?.id ? +itemOption.id : 0,
-        value_id: +newOption.optionValue,
+        optionId: itemOption?.id ? +itemOption.id : 0,
+        valueId: +newOption.optionValue,
       },
     ];
   } else {
@@ -452,16 +452,16 @@ const calculatedDate = (newOption: NewOptionProps, itemOption: Partial<AllOption
     const day = data.getDate();
     date = [
       {
-        option_id: itemOption?.id ? +itemOption.id : 0,
-        value_id: month,
+        optionId: itemOption?.id ? +itemOption.id : 0,
+        valueId: month,
       },
       {
-        option_id: itemOption?.id ? +itemOption.id : 0,
-        value_id: year,
+        optionId: itemOption?.id ? +itemOption.id : 0,
+        valueId: year,
       },
       {
-        option_id: itemOption?.id ? +itemOption.id : 0,
-        value_id: day,
+        optionId: itemOption?.id ? +itemOption.id : 0,
+        valueId: day,
       },
     ];
   }
@@ -494,8 +494,8 @@ const getCalculatedParams = (
           date.push(...calculatedDate(newOption, itemOption));
         } else {
           arr.push({
-            option_id: itemOption?.id ? +itemOption.id : 0,
-            value_id: +newOption.optionValue,
+            optionId: itemOption?.id ? +itemOption.id : 0,
+            valueId: +newOption.optionValue,
           });
         }
       }
@@ -503,8 +503,8 @@ const getCalculatedParams = (
 
     return [
       {
-        product_id: variantItem.product_id,
-        variant_id: variantItem.variant_id,
+        productId: variantItem.product_id,
+        variantId: variantItem.variant_id,
         options: [...arr, ...date],
       },
     ];
@@ -515,12 +515,13 @@ const getCalculatedParams = (
 
 const getBulkPrice = (calculatedPrices: any, qty: number) => {
   const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
-  const { calculated_price: calculatedPrice, bulk_pricing: bulkPrices } = calculatedPrices;
+  const bulkPrices = calculatedPrices?.bulk_pricing || calculatedPrices?.bulkPricing || [];
+  const calculatedPrice = calculatedPrices?.calculated_price || calculatedPrices?.calculatedPrice;
 
-  const calculatedTaxPrice = calculatedPrice.tax_inclusive;
-  const calculatedNoTaxPrice = calculatedPrice.tax_exclusive;
-  let enteredPrice = calculatedPrice.as_entered;
-  const enteredInclusive = calculatedPrice.entered_inclusive;
+  const calculatedTaxPrice = calculatedPrice.tax_inclusive || calculatedPrice.taxInclusive;
+  const calculatedNoTaxPrice = calculatedPrice.tax_exclusive || calculatedPrice.taxExclusive;
+  let enteredPrice = calculatedPrice.as_entered || calculatedPrice.asEntered;
+  const enteredInclusive = calculatedPrice.entered_inclusive || calculatedPrice.enteredInclusive;
   store.dispatch(setEnteredInclusiveTax(enteredInclusive));
 
   const tax = calculatedTaxPrice - calculatedNoTaxPrice;
@@ -529,26 +530,29 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   let finalDiscount = 0;
   let itemTotalTaxPrice = 0;
   let singlePrice = 0;
-  bulkPrices.forEach(
-    ({ minimum, maximum, discount_type: discountType, discount_amount: bulkPrice }: any) => {
-      if (qty >= minimum && qty <= (maximum || qty)) {
-        switch (discountType) {
-          case 'fixed':
-            finalDiscount = 0;
-            enteredPrice = bulkPrice;
-            break;
-          case 'percent':
-            finalDiscount = enteredPrice * +(bulkPrice / 100).toFixed(decimalPlaces);
-            break;
-          case 'price':
-            finalDiscount = bulkPrice;
-            break;
-          default:
-            break;
-        }
+
+  bulkPrices.forEach((bulkPriceItem: BulkPriceItem) => {
+    const { minimum, maximum } = bulkPriceItem;
+    const discountType = bulkPriceItem?.discount_type || bulkPriceItem?.discountType;
+    const bulkPrice = bulkPriceItem?.discount_amount || bulkPriceItem?.discountAmount;
+
+    if (qty >= minimum && qty <= (maximum || qty)) {
+      switch (discountType) {
+        case 'fixed':
+          finalDiscount = 0;
+          enteredPrice = bulkPrice;
+          break;
+        case 'percent':
+          finalDiscount = +(enteredPrice * +(bulkPrice / 100)).toFixed(decimalPlaces);
+          break;
+        case 'price':
+          finalDiscount = bulkPrice;
+          break;
+        default:
+          break;
       }
-    },
-  );
+    }
+  });
 
   if (finalDiscount > 0) {
     enteredPrice -= finalDiscount;
@@ -631,7 +635,7 @@ const getCalculatedProductPrice = async (
         ...data,
       });
 
-      calculatedData = res.data;
+      calculatedData = res.priceProducts;
     }
 
     const { taxPrice, itemPrice } = getBulkPrice(calculatedData[0], qty);
@@ -680,8 +684,8 @@ const formatOptionsSelections = (options: ProductOption[], allOptions: Partial<A
         accumulator.push(...getDateValuesArray(id, +optionValueEntityId));
       } else {
         accumulator.push({
-          option_id: matchedOption.id ? +matchedOption.id : 0,
-          value_id: +optionValueEntityId,
+          optionId: matchedOption.id ? +matchedOption.id : 0,
+          valueId: +optionValueEntityId,
         });
       }
     }
@@ -775,8 +779,8 @@ const formatLineItemsToGetPrices = (
       const options = formatOptionsSelections(selectedOptions, allOptions);
 
       formattedLineItems.items.push({
-        product_id: variantItem.product_id,
-        variant_id: variantItem.variant_id,
+        productId: variantItem.product_id,
+        variantId: variantItem.variant_id,
         options,
       });
       formattedLineItems.variants.push({
@@ -814,7 +818,7 @@ const calculateProductsPrice = async (
       storeHash,
       ...data,
     });
-    calculatedPrices = res.data;
+    calculatedPrices = res.priceProducts;
   }
 
   // create quote array struture and return it
@@ -916,7 +920,7 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
       ...data,
     });
 
-    const { data: calculatedData } = res;
+    const { priceProducts: calculatedData } = res;
 
     products.forEach((product: Partial<Product>, index: number) => {
       const productNode = product;
