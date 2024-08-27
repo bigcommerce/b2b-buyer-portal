@@ -165,7 +165,6 @@ export default function Login(props: PageProps) {
 
           logoutSession();
           setLoading(false);
-          window.location.reload();
           return;
         }
 
