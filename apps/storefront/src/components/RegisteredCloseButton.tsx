@@ -20,7 +20,8 @@ export default function RegisteredCloseButton(props: CloseButtonProps) {
   const navigate = useNavigate();
 
   const handleCloseForm = () => {
-    if (isCloseGotoBCHome) {
+    const isInLoginPage = window.location.hash.startsWith('#/login');
+    if (isCloseGotoBCHome || isInLoginPage) {
       window.location.href = '/';
     } else {
       navigate('/');
@@ -29,6 +30,7 @@ export default function RegisteredCloseButton(props: CloseButtonProps) {
         openUrl: '',
       });
     }
+
     window.history.replaceState(null, '', window.location.pathname || '/');
   };
 
