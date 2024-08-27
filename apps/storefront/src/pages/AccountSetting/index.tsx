@@ -28,12 +28,7 @@ import { B3SStorage, channelId, snackbar } from '@/utils';
 import { deCodeField, getAccountFormFields } from '../Registered/config';
 
 import { getAccountSettingFiles } from './config';
-import sendEmail, {
-  b2bSubmitDataProcessing,
-  bcSubmitDataProcessing,
-  initB2BInfo,
-  initBcInfo,
-} from './utils';
+import { b2bSubmitDataProcessing, bcSubmitDataProcessing, initB2BInfo, initBcInfo } from './utils';
 
 function AccountSetting() {
   const {
@@ -82,8 +77,6 @@ function AccountSetting() {
   const [accountSettings, setAccountSettings] = useState<any>({});
 
   const [isVisible, setIsVisible] = useState<boolean>(false);
-
-  const [currentEamil, setCurrentEmail] = useState<string>('');
 
   const companyId = role === 3 && isAgenting ? salesRepCompanyId : +companyInfoId;
 
@@ -164,8 +157,6 @@ function AccountSetting() {
         if (roleItem?.fieldType) roleItem.fieldType = 'text';
 
         setAccountInfoFormFields(all);
-
-        setCurrentEmail(accountSettings.email);
 
         setAccountSettings(accountSettings);
 
@@ -280,14 +271,6 @@ function AccountSetting() {
             }
 
             const requestFn = !isBCUser ? updateB2BAccountSettings : updateBCAccountSettings;
-
-            if ((param.newPassword && param.currentPassword) || currentEamil !== param.email) {
-              const isUpdateSuccessfully = await sendEmail(param, extraFields);
-              if (!isUpdateSuccessfully) {
-                snackbar.error(b3Lang('accountSettings.notification.passwordNotMatch'));
-                return;
-              }
-            }
 
             const newParams: CustomFieldItems = {
               ...param,
