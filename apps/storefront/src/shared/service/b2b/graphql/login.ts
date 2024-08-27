@@ -9,7 +9,7 @@ interface ApiTokenConfig {
   allowed_cors_origins: string[];
 }
 
-const storeFrontToken = (data: Partial<ApiTokenConfig>) => `mutation {
+const storeFrontToken = (data: ApiTokenConfig) => `mutation {
   storeFrontToken (
     storeFrontTokenData: {
       storeHash: "${data?.storeHash}",
@@ -22,9 +22,9 @@ const storeFrontToken = (data: Partial<ApiTokenConfig>) => `mutation {
   }
 }`;
 
-const getBCGraphqlToken = (data: Partial<ApiTokenConfig>) =>
+const getBCGraphqlToken = (data: ApiTokenConfig) =>
   B3Request.graphqlB2B({
     query: storeFrontToken(data),
-  });
+  }).then((res) => res.storeFrontToken.token);
 
 export default getBCGraphqlToken;

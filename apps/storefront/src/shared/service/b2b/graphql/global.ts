@@ -217,7 +217,7 @@ const PriceRanges = `
 	},
 `;
 
-const productPricing = (data: Partial<ProductPrice>) => `{
+const productPricing = (data: ProductPrice) => `{
 	priceProducts(
 		storeHash: "${storeHash}",
 		channelId: ${data.channel_id},
@@ -333,7 +333,7 @@ export const getCompanyCreditConfig = () =>
     query: companyCreditConfig(),
   });
 
-export const getProductPricing = (data: Partial<ProductPrice>) =>
+export const getProductPricing = (data: ProductPrice) =>
   B3Request.graphqlB2B({
     query: productPricing(data),
   });
