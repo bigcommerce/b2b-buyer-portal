@@ -201,19 +201,19 @@ const PricingProductItemOptions = `
 	}
 `;
 
-const PriceInfo = `
+const PriceInfos = `
 	asEntered,
 	enteredInclusive,
 	taxExclusive,
 	taxInclusive,
 `;
 
-const PriceRanges = `
+const PriceRange = `
 	minimum {
-		${PriceInfo}
+		${PriceInfos}
 	},
 	maximum{
-		${PriceInfo}
+		${PriceInfos}
 	},
 `;
 
@@ -234,28 +234,28 @@ const productPricing = (data: ProductPrice) => `{
 			${PricingProductItemOptions}
 		},
 		retailPrice {
-			${PriceInfo}
+			${PriceInfos}
 		},
 		salePrice {
-			${PriceInfo}
+			${PriceInfos}
 		},
 		minimumAdvertisedPrice {
-			${PriceInfo}
+			${PriceInfos}
 		},
 		saved {
-			${PriceInfo}
+			${PriceInfos}
 		},
 		price {
-			${PriceInfo}
+			${PriceInfos}
 		},
 		calculatedPrice {
-			${PriceInfo}
+			${PriceInfos}
 		},
 		priceRange {
-			${PriceRanges}
+			${PriceRange}
 		},
 		retailPriceRange {
-			${PriceRanges}
+			${PriceRange}
 		},
 		bulkPricing {
 			minimum,
@@ -263,7 +263,7 @@ const productPricing = (data: ProductPrice) => `{
 			discountAmount,
 			discountType,
 			taxDiscountAmount {
-				${PriceInfo}
+				${PriceInfos}
 			},
 		},
 	}
