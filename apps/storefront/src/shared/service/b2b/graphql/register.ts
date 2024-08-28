@@ -1,71 +1,7 @@
+import { CreateCustomer, CustomerSubscribers } from '@/types';
 import { channelId, convertArrayToGraphql, storeHash } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
-
-interface FormField {
-  name: string;
-  value: string;
-}
-
-interface Address {
-  firstName: string;
-  lastName: string;
-  company: string;
-  address1: string;
-  address2: string;
-  city: string;
-  phone: string;
-  stateOrProvince: string;
-  countryCode: string;
-  postalCode: string;
-  addressType: string;
-  formFields: FormField[];
-}
-
-interface Attribute {
-  attributeId: number;
-  attributeValue: string;
-}
-
-interface Authentication {
-  force_password_reset: boolean;
-  new_password: string;
-}
-
-interface StoreCreditAmount {
-  amount: number;
-}
-
-export interface CreateCustomer {
-  storeHash: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  company: string;
-  phone: string;
-  notes: string;
-  tax_exempt_category: string;
-  customer_group_id: number;
-  addresses: Address[];
-  attributes?: Attribute[];
-  authentication: Authentication;
-  accepts_product_review_abandoned_cart_emails: boolean;
-  store_credit_amounts: StoreCreditAmount[];
-  origin_channel_id: number;
-  channel_ids: number[];
-  form_fields: FormField[];
-  trigger_account_created_notification?: boolean;
-}
-
-interface CustomerSubscribers {
-  storeHash: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  source: string;
-  order_id: number;
-  channel_id: number;
-}
 
 const getAccountFormFields = (type: number) => `{
   accountFormFields(storeHash: "${storeHash}", formType: ${type}){
@@ -243,7 +179,7 @@ query getStoreBasicInfo($storeHash: String!, $bcChannelId: Int) {
 const customerCreate = (data: CreateCustomer) => `mutation {
     customerCreate(
       customerData: {
-        storeHash: "${storeHash}",
+        storeHash: "${data.storeHash}",
         email: "${data.email}",
         firstName: "${data.first_name}",
         lastName: "${data.last_name}",
@@ -263,7 +199,7 @@ const customerCreate = (data: CreateCustomer) => `mutation {
             : ''
         },
         acceptsProductReviewAbandonedCartEmails: ${
-          data.accepts_product_review_abandoned_cart_emails
+          data.accepts_product_review_abandoned_cart_emails || false
         },
         storeCreditAmounts: ${convertArrayToGraphql(data?.store_credit_amounts || [])},
         originChannelId: ${data.origin_channel_id},
@@ -336,7 +272,7 @@ const customerCreate = (data: CreateCustomer) => `mutation {
 const customerSubscribersCreate = (data: CustomerSubscribers) => `mutation {
     customerSubscribersCreate(
       subscribersData: {
-        storeHash: "${storeHash}",
+        storeHash: "${data.storeHash}",
         email: "${data.email}",
         firstName: "${data.first_name}",
         lastName: "${data.last_name}",

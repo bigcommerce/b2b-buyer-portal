@@ -15,6 +15,7 @@ import {
   uploadB2BFile,
 } from '@/shared/service/b2b';
 import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
+import { CreateCustomer } from '@/types';
 import { channelId, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
@@ -130,7 +131,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   }, [contactInformation, bcContactInformation, accountType, list, passwordInfo]);
 
   const getBCFieldsValue = (data: CustomFieldItems) => {
-    const bcFields: CustomFieldItems = {};
+    const bcFields: CreateCustomer = {
+      storeHash,
+      email: '',
+      first_name: '',
+      last_name: '',
+    };
 
     bcFields.authentication = {
       force_password_reset: false,
@@ -152,7 +158,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       bcFields.form_fields = [];
       if (additionalInfo && (additionalInfo as Array<CustomFieldItems>).length) {
         additionalInfo.forEach((field: CustomFieldItems) => {
-          bcFields.form_fields.push({
+          bcFields.form_fields?.push({
             name: field.bcLabel,
             value: field.default,
           });
@@ -171,7 +177,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       const getBCExtraAddressField = addressBasicList.filter((field: any) => field.custom);
 
       if (getBCAddressField) {
-        bcFields.addresses = {};
+        bcFields.addresses = [];
         getBCAddressField.forEach((field: any) => {
           if (field.name === 'country') {
             addresses.countryCode = field.default;
@@ -198,12 +204,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
       bcFields.trigger_account_created_notification = true;
     }
 
-    const userItem = {
-      storeHash,
-      ...bcFields,
-    };
-
-    return createBCCompanyUser(userItem);
+    return createBCCompanyUser(bcFields);
   };
 
   const getB2BFieldsValue = async (

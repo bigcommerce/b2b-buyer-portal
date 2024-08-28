@@ -5,7 +5,7 @@ import { v1 as uuid } from 'uuid';
 import { getProductPricing, searchB2BProducts, searchBcProducts } from '@/shared/service/b2b';
 import { setDraftQuoteList, store } from '@/store';
 import { setEnteredInclusiveTax } from '@/store/slices/storeConfigs';
-import { BulkPriceItem, Modifiers, ShoppingListProductItem } from '@/types';
+import { BulkPriceItem, Modifiers, PricingProductType, ShoppingListProductItem } from '@/types';
 import {
   AdjustersPrice,
   AllOptionProps,
@@ -513,15 +513,15 @@ const getCalculatedParams = (
   return [];
 };
 
-const getBulkPrice = (calculatedPrices: any, qty: number) => {
+const getBulkPrice = (calculatedPrices: PricingProductType, qty: number) => {
   const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
-  const bulkPrices = calculatedPrices?.bulk_pricing || calculatedPrices?.bulkPricing || [];
-  const calculatedPrice = calculatedPrices?.calculated_price || calculatedPrices?.calculatedPrice;
+  const bulkPrices = calculatedPrices.bulkPricing || [];
+  const { calculatedPrice } = calculatedPrices;
 
-  const calculatedTaxPrice = calculatedPrice.tax_inclusive || calculatedPrice.taxInclusive;
-  const calculatedNoTaxPrice = calculatedPrice.tax_exclusive || calculatedPrice.taxExclusive;
-  let enteredPrice = calculatedPrice.as_entered || calculatedPrice.asEntered;
-  const enteredInclusive = calculatedPrice.entered_inclusive || calculatedPrice.enteredInclusive;
+  const calculatedTaxPrice = calculatedPrice.taxInclusive;
+  const calculatedNoTaxPrice = calculatedPrice.taxExclusive;
+  let enteredPrice = calculatedPrice.asEntered;
+  const { enteredInclusive } = calculatedPrice;
   store.dispatch(setEnteredInclusiveTax(enteredInclusive));
 
   const tax = calculatedTaxPrice - calculatedNoTaxPrice;
@@ -532,9 +532,9 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   let singlePrice = 0;
 
   bulkPrices.forEach((bulkPriceItem: BulkPriceItem) => {
-    const { minimum, maximum } = bulkPriceItem;
-    const discountType = bulkPriceItem?.discount_type || bulkPriceItem?.discountType;
-    const bulkPrice = bulkPriceItem?.discount_amount || bulkPriceItem?.discountAmount;
+    const { minimum = 0, maximum } = bulkPriceItem;
+    const { discountType } = bulkPriceItem;
+    const bulkPrice = bulkPriceItem.discountAmount || 0;
 
     if (qty >= minimum && qty <= (maximum || qty)) {
       switch (discountType) {
@@ -796,30 +796,23 @@ const formatLineItemsToGetPrices = (
 const calculateProductsPrice = async (
   lineItems: LineItems[],
   products: ShoppingListProductItem[],
-  calculatedValue: CustomFieldItems[] = [],
 ) => {
   const { decimal_places: decimalPlaces = 2, currency_code: currencyCode } =
     getActiveCurrencyInfo();
 
-  let calculatedPrices = calculatedValue;
   const { variants, items } = formatLineItemsToGetPrices(lineItems, products);
 
-  // check if it's included calculatedValue
-  // if not, prepare items array to get prices by `/v3/pricing/products` endpoint
-  // then fetch them
-  if (calculatedValue.length === 0) {
-    const data = {
-      channel_id: channelId,
-      customer_group_id: getCustomerGroupId(),
-      currency_code: currencyCode,
-      items,
-    };
-    const res = await getProductPricing({
-      storeHash,
-      ...data,
-    });
-    calculatedPrices = res.priceProducts;
-  }
+  const data = {
+    channel_id: channelId,
+    customer_group_id: getCustomerGroupId(),
+    currency_code: currencyCode,
+    items,
+  };
+  const res = await getProductPricing({
+    storeHash,
+    ...data,
+  });
+  const calculatedPrices: PricingProductType[] = res.priceProducts;
 
   // create quote array struture and return it
   return calculatedPrices.map((calculatedPrice, index) => {
@@ -953,35 +946,18 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
   }
 };
 
-const setModifierQtyPrice = async (product: CustomFieldItems, qty: number, isRequest = true) => {
+const setModifierQtyPrice = async (product: CustomFieldItems, qty: number) => {
   try {
-    const { productsSearch, optionList, variantSku, calculatedValue } = product;
+    const { productsSearch, optionList, variantSku } = product;
 
-    let newProduct: CustomFieldItems | string = {};
+    const newProduct = await getCalculatedProductPrice({
+      productsSearch,
+      optionList: JSON.parse(optionList),
+      sku: variantSku,
+      qty,
+    });
 
-    if (isRequest) {
-      newProduct = await getCalculatedProductPrice(
-        {
-          productsSearch,
-          optionList: JSON.parse(optionList),
-          sku: variantSku,
-          qty,
-        },
-        calculatedValue,
-      );
-    } else {
-      newProduct = getCalculatedProductPrice(
-        {
-          productsSearch,
-          optionList: JSON.parse(optionList),
-          sku: variantSku,
-          qty,
-        },
-        calculatedValue,
-      );
-    }
-
-    if (newProduct && (newProduct as CustomFieldItems)?.node?.id) {
+    if ((newProduct as CustomFieldItems)?.node?.id) {
       (newProduct as CustomFieldItems).node.id = product.id;
 
       return (newProduct as CustomFieldItems).node;

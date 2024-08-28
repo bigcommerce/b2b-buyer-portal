@@ -210,24 +210,38 @@ export interface CalculatedProducts {
   currency_code: string;
 }
 
-export interface TaxDiscountAmountProps {
+type PriceType = {
   asEntered: number;
-  as_entered?: number;
   enteredInclusive: boolean;
-  entered_inclusive?: boolean;
   taxExclusive: number;
-  tax_exclusive?: number;
   taxInclusive: number;
-  tax_inclusive?: number;
+};
+
+type PriceRangeType = {
+  minimum: PriceType;
+  maximum: PriceType;
+};
+
+export interface PricingProductType {
+  productId: number;
+  variantId: number;
+  referenceRequest: Calculateditems;
+  options: CalculatedOptions[];
+  calculatedPrice: PriceType;
+  retailPrice: PriceType;
+  salePrice: PriceType;
+  minimumAdvertisedPrice: PriceType;
+  saved: PriceType;
+  price: PriceType;
+  bulkPricing: BulkPriceItem[];
+  retailPriceRange: PriceRangeType;
+  priceRange: PriceRangeType;
 }
 
 export interface BulkPriceItem {
-  minimum: number;
+  minimum?: number;
   maximum: number;
-  discountAmount: number;
-  discount_amount?: number;
+  discountAmount?: number;
   discountType: string;
-  discount_type?: string;
-  taxDiscountAmount: TaxDiscountAmountProps;
-  tax_discount_amount?: TaxDiscountAmountProps;
+  taxDiscountAmount?: number;
 }
