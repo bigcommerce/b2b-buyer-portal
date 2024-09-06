@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, Grid } from '@mui/material';
@@ -46,8 +46,9 @@ function QuoteDetail() {
   const navigate = useNavigate();
 
   const {
-    state: { bcLanguage },
+    state: { bcLanguage, quoteConfig },
   } = useContext(GlobaledContext);
+
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
@@ -490,6 +491,15 @@ function QuoteDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, location, proceedingCheckoutFn]);
 
+  const isAutoEnableQuoteCheckout = useMemo(() => {
+    const isAutoEnable =
+      quoteConfig.find((item) => item.key === 'quote_auto_quoting')?.value === '1';
+
+    if (!isAutoEnable && !isHandleApprove) return false;
+
+    return true;
+  }, [quoteConfig, isHandleApprove]);
+
   const isEnableProductShowCheckout = () => {
     if (isEnableProduct) {
       if (isHandleApprove && isHideQuoteCheckout) return true;
@@ -669,6 +679,7 @@ function QuoteDetail() {
           +quoteDetail.status !== 4 &&
           isShowFooter &&
           quoteDetail?.allowCheckout &&
+          isAutoEnableQuoteCheckout &&
           isEnableProductShowCheckout() && (
             <QuoteDetailFooter
               quoteId={quoteDetail.id}
