@@ -139,6 +139,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
     name: 'nonPurchasableQuote',
   },
   {
+    key: 'quote_auto_quoting',
+    name: 'quoteAutoQuoting',
+  },
+  {
     key: 'buyer_non_purchasable_quote',
     name: 'buyerNonPurchasableQuote',
   },
