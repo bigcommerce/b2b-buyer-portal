@@ -52,6 +52,13 @@ interface GlobalBlockPendingQuoteNonPurchasableOOS {
   isEnableRequest?: boolean;
 }
 
+interface QuoteSubmissionResponseProps {
+  value: string;
+  key: string;
+  message: string;
+  title: string;
+}
+
 export interface GlabolState {
   taxZoneRates: TaxZoneRatesProps[];
   isClickEnterBtn: boolean;
@@ -67,6 +74,7 @@ export interface GlabolState {
   loginLandingLocation: string;
   recordOpenHash: string;
   blockPendingQuoteNonPurchasableOOS: GlobalBlockPendingQuoteNonPurchasableOOS;
+  quoteSubmissionResponse: QuoteSubmissionResponseProps;
 }
 
 const initialState: GlabolState = {
@@ -103,6 +111,12 @@ const initialState: GlabolState = {
   },
   loginLandingLocation: '0',
   recordOpenHash: '',
+  quoteSubmissionResponse: {
+    value: '0',
+    key: 'quote_submission_response',
+    message: '',
+    title: '',
+  },
 };
 
 export const glabolSlice = createSlice({
@@ -147,6 +161,12 @@ export const glabolSlice = createSlice({
     setStoreInfo: (state, { payload }: PayloadAction<StoreInfoProps>) => {
       state.storeInfo = payload;
     },
+    setQuoteSubmissionResponse: (
+      state,
+      { payload }: PayloadAction<QuoteSubmissionResponseProps>,
+    ) => {
+      state.quoteSubmissionResponse = payload;
+    },
   },
 });
 
@@ -161,6 +181,7 @@ export const {
   setCartNumber,
   setStoreInfo,
   setLoginLandingLocation,
+  setQuoteSubmissionResponse,
 } = glabolSlice.actions;
 
 export default glabolSlice.reducer;

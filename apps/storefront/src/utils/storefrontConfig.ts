@@ -17,6 +17,7 @@ import {
   setBlockPendingAccountViewPrice,
   setBlockPendingQuoteNonPurchasableOOS,
   setLoginLandingLocation,
+  setQuoteSubmissionResponse,
   setShowInclusiveTaxPrice,
   setStoreInfo,
   setTaxZoneRates,
@@ -150,6 +151,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
     key: 'login_landing_location',
     name: 'loginLandingLocation',
   },
+  {
+    key: 'quote_submission_response',
+    name: 'quoteSubmissionResponse',
+  },
 ];
 
 const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
@@ -253,6 +258,16 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
 
       if (storeforntKey.key === 'login_landing_location') {
         store.dispatch(setLoginLandingLocation(item?.extraFields?.location || '0'));
+      }
+
+      if (storeforntKey.key === 'quote_submission_response') {
+        store.dispatch(
+          setQuoteSubmissionResponse({
+            key: item.key,
+            value: item.value,
+            ...item.extraFields,
+          }),
+        );
       }
 
       (obj as CustomFieldItems)[(storeforntKey as StoreforntKeysProps).name] = {

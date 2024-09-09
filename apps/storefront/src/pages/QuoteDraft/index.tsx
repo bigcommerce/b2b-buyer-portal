@@ -47,6 +47,7 @@ import QuoteAttachment from '../quote/components/QuoteAttachment';
 import QuoteInfo from '../quote/components/QuoteInfo';
 import QuoteNote from '../quote/components/QuoteNote';
 import QuoteStatus from '../quote/components/QuoteStatus';
+import QuoteSubmissionResponse from '../quote/components/QuoteSubmissionResponse';
 import QuoteSummary from '../quote/components/QuoteSummary';
 import QuoteTable from '../quote/components/QuoteTable';
 import getAccountFormFields from '../quote/config';
@@ -126,6 +127,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const quoteinfo = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo);
   const currency = useAppSelector(activeCurrencyInfoSelector);
   const b2bPermissions = useAppSelector(rolePermissionSelector);
+  const quoteSubmissionResponseInfo = useAppSelector(
+    ({ global }) => global.quoteSubmissionResponse,
+  );
 
   const {
     state: {
@@ -149,6 +153,10 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
   const [shippingSameAsBilling, setShippingSameAsBilling] = useState<boolean>(false);
   const [billingChange, setBillingChange] = useState<boolean>(false);
+  const [quoteSubmissionResponseOpen, setQuoteSubmissionResponseOpen] = useState<boolean>(false);
+  const [quoteId, setQuoteId] = useState<string | number>('');
+  const [currentCreatedAt, setCurrentCreatedAt] = useState<string | number>('');
+
   const quoteSummaryRef = useRef<QuoteSummaryRef | null>(null);
 
   useSetCountry();
@@ -331,6 +339,30 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     }));
   };
 
+  const handleReset = () => {
+    dispatch(resetDraftQuoteInfo());
+    dispatch(resetDraftQuoteList());
+    B3LStorage.delete('cartToQuoteId');
+  };
+
+  const handleAfterSubmit = (
+    inpQuoteId?: string | number,
+    inpCurrentCreatedAt?: string | number,
+  ) => {
+    const currentQuoteId = inpQuoteId || quoteId;
+    const createdAt = inpCurrentCreatedAt || currentCreatedAt;
+
+    if (currentQuoteId) {
+      navigate(`/quoteDetail/${currentQuoteId}?date=${createdAt}`, {
+        state: {
+          to: 'draft',
+        },
+      });
+
+      handleReset();
+    }
+  };
+
   const handleSubmit = useCallbacks(CallbackKey.OnQuoteCreate, async (_e, handleEvent) => {
     setLoading(true);
     try {
@@ -487,6 +519,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         },
       } = await fn(data);
 
+      setQuoteId(id);
+      setCurrentCreatedAt(createdAt);
+
       if (id) {
         const cartId = B3LStorage.get('cartToQuoteId');
         const deleteCartObject = deleteCartData(cartId);
@@ -494,15 +529,13 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         await deleteCart(deleteCartObject);
       }
 
-      navigate(`/quoteDetail/${id}?date=${createdAt}`, {
-        state: {
-          to: 'draft',
-        },
-      });
+      if (quoteSubmissionResponseInfo.value === '0') {
+        handleAfterSubmit(id, createdAt);
+      } else {
+        setQuoteSubmissionResponseOpen(true);
 
-      dispatch(resetDraftQuoteInfo());
-      dispatch(resetDraftQuoteList());
-      B3LStorage.delete('cartToQuoteId');
+        handleReset();
+      }
     } catch (error: any) {
       if (error.message && error.message.length > 0) {
         snackbar.error(error.message, {
@@ -513,6 +546,12 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       setLoading(false);
     }
   });
+
+  const handleCloseQuoteSubmissionResponse = () => {
+    setQuoteSubmissionResponseOpen(false);
+
+    handleAfterSubmit();
+  };
 
   const backText = () => {
     let text =
@@ -804,6 +843,12 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           </Container>
         </Box>
       </Box>
+
+      <QuoteSubmissionResponse
+        isOpen={quoteSubmissionResponseOpen}
+        onClose={handleCloseQuoteSubmissionResponse}
+        quoteSubmissionResponseInfo={quoteSubmissionResponseInfo}
+      />
     </B3Spin>
   );
 }
