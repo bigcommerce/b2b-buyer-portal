@@ -571,6 +571,7 @@
   "quoteDraft.config.zipCode": "Zip code",
   "quoteDraft.config.phoneNumber": "Phone number",
   "quoteDraft.searchProduct.addToQuoteButton": "Add to quote",
+  "quoteDraft.submission.response.button.text": "OK",
 
   "accountSettings.notification.detailsUpdated": "Your account details have been updated.",
   "accountSettings.notification.emailExists": "Email already exists",

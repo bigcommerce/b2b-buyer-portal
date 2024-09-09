@@ -87,6 +87,7 @@ export default function B3Dialog<T>({
         maxWidth={maxWidth}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        id="b2b-dialog-container"
       >
         {title && (
           <DialogTitle
