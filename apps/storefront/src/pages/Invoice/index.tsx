@@ -408,7 +408,6 @@ function Invoice() {
       const item = invoiceNode;
       item.node.disableCurrentCheckbox = false;
 
-      openBalance.originValue = +openBalance.value;
       openBalance.value = (+openBalance.value).toFixed(decimalPlaces);
     });
     setList(invoicesList);

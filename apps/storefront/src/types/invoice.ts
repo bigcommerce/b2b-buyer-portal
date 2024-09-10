@@ -40,7 +40,6 @@ export interface BcCartDataLineItem {
 interface OpenBalance {
   code: string;
   value: string;
-  originValue: string | number;
 }
 
 interface InvoiceDetails {

@@ -46,7 +46,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
 
         lineItems.push({
           invoiceId: +id,
-          amount: openBalance.originValue === '.' ? '0' : `${+openBalance.originValue}`,
+          amount: openBalance.value === '.' ? '0' : `${+openBalance.value}`,
         });
 
         currency = openBalance?.code || originalBalance.code;
@@ -81,7 +81,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
           const {
             node: { openBalance },
           } = item;
-          amount += openBalance.originValue === '.' ? 0 : +openBalance.originValue;
+          amount += openBalance.value === '.' ? 0 : +openBalance.value;
         });
 
         setSelectedAccount(amount.toFixed(decimalPlaces));
