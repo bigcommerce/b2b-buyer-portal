@@ -44,9 +44,13 @@ function InvoiceFooter(props: InvoiceFooterProps) {
           node: { id, openBalance, originalBalance },
         } = item;
 
+        const currentValue =
+          (+openBalance.originValue).toFixed(decimalPlaces) === openBalance.value
+            ? +openBalance.originValue
+            : +openBalance.value;
         lineItems.push({
           invoiceId: +id,
-          amount: openBalance.value === '.' ? '0' : `${+openBalance.value}`,
+          amount: openBalance.value === '.' ? '0' : `${+currentValue}`,
         });
 
         currency = openBalance?.code || originalBalance.code;

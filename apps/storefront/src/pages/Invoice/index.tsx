@@ -408,6 +408,7 @@ function Invoice() {
       const item = invoiceNode;
       item.node.disableCurrentCheckbox = false;
 
+      openBalance.originValue = `${+openBalance.value}`;
       openBalance.value = (+openBalance.value).toFixed(decimalPlaces);
     });
     setList(invoicesList);
@@ -429,13 +430,17 @@ function Invoice() {
     let result = val;
     if (val.includes('.')) {
       const wholeDecimalNumber = val.split('.');
-      const movePoint = wholeDecimalNumber[1].length - +decimalPlaces;
+      const movePoint = decimalPlaces === 0 ? 0 : wholeDecimalNumber[1].length - +decimalPlaces;
       if (wholeDecimalNumber[1] && movePoint > 0) {
         const newVal = wholeDecimalNumber[0] + wholeDecimalNumber[1];
         result = `${newVal.slice(0, -decimalPlaces)}.${newVal.slice(-decimalPlaces)}`;
       }
+      if (wholeDecimalNumber[1] && movePoint === 0) {
+        result = (+val).toFixed(decimalPlaces);
+      }
     } else if (result.length > 1) {
       result = `${val.slice(0, 1)}.${val.slice(-1)}`;
+      if (+decimalPlaces === 0) result = `${val}`;
     } else {
       result = `${val}`;
     }
