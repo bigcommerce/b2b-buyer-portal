@@ -48,9 +48,10 @@ const invoiceList = (data: CustomFieldItems) => `{
   }
 }`;
 
-const invoiceStats = (status: number | string) => `{
+const invoiceStats = (status: number | string, decimalPlaces: number) => `{
   invoiceStats (
     ${status === '' ? '' : `status: ${status},`}
+    decimalPlaces: ${decimalPlaces}
   ){
     totalBalance,
     overDueBalance,
@@ -225,7 +226,7 @@ export const exportInvoicesAsCSV = (data: CustomFieldItems) =>
     variables: data,
   });
 
-export const getInvoiceStats = (status: number | string) =>
+export const getInvoiceStats = (status: number | string, decimalPlaces: number) =>
   B3Request.graphqlB2B({
-    query: invoiceStats(status),
+    query: invoiceStats(status, decimalPlaces),
   });
