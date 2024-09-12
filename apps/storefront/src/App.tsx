@@ -228,7 +228,6 @@ export default function App() {
         clearInvoiceCart();
       }
 
-      showPageMask(false);
       storeDispatch(
         setGlabolCommonState({
           isPageComplete: true,
