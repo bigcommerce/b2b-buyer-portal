@@ -1,3 +1,5 @@
+import round from 'lodash-es/round';
+
 import { getInvoiceCheckoutUrl } from '@/shared/service/b2b';
 import { BcCartData } from '@/types/invoice';
 import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout';
@@ -42,3 +44,6 @@ export const gotoInvoiceCheckoutUrl = async (
     handleStencil();
   }
 };
+
+export const formattingNumericValues = (value: number, decimalPlaces: number) =>
+  round(+value, decimalPlaces).toFixed(decimalPlaces);
