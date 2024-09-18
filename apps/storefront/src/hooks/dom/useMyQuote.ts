@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useRef } from 'react';
 import globalB3 from '@b3/global-b3';
+import { useB3Lang } from '@b3/lang';
 import cloneDeep from 'lodash-es/cloneDeep';
 
 import {
@@ -37,9 +38,14 @@ interface MutationObserverProps {
 }
 
 const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserverProps) => {
+  const b3Lang = useB3Lang();
   const dispatch = useAppDispatch();
   const quoteDraftUserId = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo.userId);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
+  const isEnableProduct =
+    useAppSelector(({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct) ||
+    false;
+
   useEffect(() => {
     const isLoginAndNotB2CAccount = role !== CustomerRole.GUEST && role !== CustomerRole.B2C;
 
@@ -64,7 +70,11 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
   } = useContext(CustomStyleContext);
 
   // quote method and go to draft
-  const { addToQuote, addLoadding } = addProductFromProductPageToQuote(setOpenPage);
+  const { addToQuote, addLoadding } = addProductFromProductPageToQuote(
+    setOpenPage,
+    isEnableProduct,
+    b3Lang,
+  );
 
   const quoteCallBack = useCallback(
     (e: React.MouseEvent) => {

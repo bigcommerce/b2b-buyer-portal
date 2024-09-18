@@ -1227,7 +1227,10 @@ export const getVariantInfoOOSAndPurchase = (productInfo: CustomFieldItems) => {
     ? newProductInfo.productsSearch.inventoryTracking
     : newProductInfo.inventoryTracking;
 
-  const { quantity, inventoryLevel: productInventoryLevel, availability } = newProductInfo;
+  const { quantity, availability } = newProductInfo;
+
+  const productInventoryLevel =
+    newProductInfo?.productsSearch?.inventoryLevel || newProductInfo?.inventoryLevel || 0;
 
   if (availability === 'disabled') {
     return {

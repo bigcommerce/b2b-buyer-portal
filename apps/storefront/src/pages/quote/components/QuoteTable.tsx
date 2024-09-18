@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Delete, Edit } from '@mui/icons-material';
+import WarningIcon from '@mui/icons-material/Warning';
 import { Box, styled, TextField, Typography } from '@mui/material';
 import ceil from 'lodash-es/ceil';
 
@@ -12,6 +13,7 @@ import {
   setDraftProduct,
   setDraftProductQuantity,
   useAppDispatch,
+  useAppSelector,
 } from '@/store';
 import { Product } from '@/types';
 import { QuoteItem } from '@/types/quotes';
@@ -20,6 +22,7 @@ import {
   calculateProductListPrice,
   getBCPrice,
   getDisplayPrice,
+  getVariantInfoOOSAndPurchase,
   setModifierQtyPrice,
 } from '@/utils/b3Product/b3Product';
 import { getProductOptionsFields } from '@/utils/b3Product/shared/config';
@@ -80,6 +83,10 @@ function QuoteTable(props: ShoppingDetailTableProps) {
   const [chooseOptionsOpen, setSelectedOptionsOpen] = useState(false);
   const [optionsProduct, setOptionsProduct] = useState<any>(null);
   const [optionsProductId, setOptionsProductId] = useState<string>('');
+
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
+  );
 
   const handleUpdateProductQty = async (row: any, value: number | string) => {
     const product = await setModifierQtyPrice(row, +value);
@@ -220,6 +227,18 @@ function QuoteTable(props: ShoppingDetailTableProps) {
 
         const optionList = JSON.parse(row.optionList);
         const optionsValue: CustomFieldItems[] = productFields.filter((item) => item.valueText);
+        const currentProduct = getVariantInfoOOSAndPurchase(row);
+        const inventoryTracking =
+          row?.productsSearch?.inventoryTracking || row?.inventoryTracking || 'none';
+
+        let inventoryLevel = row?.productsSearch?.inventoryLevel || row?.inventoryLevel || 0;
+        if (inventoryTracking === 'variant') {
+          const currentVariant = row?.productsSearch?.variants.find(
+            (variant: CustomFieldItems) => variant.sku === row.variantSku,
+          );
+
+          inventoryLevel = currentVariant?.inventory_level;
+        }
 
         return (
           <Box
@@ -269,6 +288,31 @@ function QuoteTable(props: ShoppingDetailTableProps) {
                       {`${option.valueLabel}: ${option.valueText}`}
                     </Typography>
                   ))}
+                </Box>
+              )}
+
+              {!isEnableProduct && currentProduct?.name && (
+                <Box sx={{ color: 'red' }}>
+                  <Box
+                    sx={{
+                      mt: '1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      '& svg': { mr: '0.5rem' },
+                    }}
+                  >
+                    <WarningIcon color="error" fontSize="small" />
+                    {currentProduct?.type === 'oos'
+                      ? b3Lang('quoteDraft.quoteTable.outOfStock.tip')
+                      : b3Lang('quoteDraft.quoteTable.unavailable.tip')}
+                  </Box>
+                  {currentProduct?.type === 'oos' && (
+                    <Box>
+                      {b3Lang('quoteDraft.quoteTable.oosNumber.tip', {
+                        qty: inventoryLevel,
+                      })}
+                    </Box>
+                  )}
                 </Box>
               )}
             </Box>
