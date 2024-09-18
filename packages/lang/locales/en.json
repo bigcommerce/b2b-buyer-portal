@@ -512,6 +512,7 @@
 
   "quoteDraft.addQuoteInfo": "Please add quote info before submitting",
   "quoteDraft.submit": "Please add quote products before submitting",
+  "quoteDraft.submit.errorTip": "There are some products in the quote that are out of stock or unavailable for purchase. Please remove the product or modify the quantity of the product.",
   "quoteDraft.button.backToQuoteLists": "Back to quote lists",
   "quoteDraft.button.back": "Back",
   "quoteDraft.button.backToProduct": "Back to product",
@@ -572,6 +573,11 @@
   "quoteDraft.config.phoneNumber": "Phone number",
   "quoteDraft.searchProduct.addToQuoteButton": "Add to quote",
   "quoteDraft.submission.response.button.text": "OK",
+  "quoteDraft.quoteTable.outOfStock.tip": "Insufficient stock",
+  "quoteDraft.quoteTable.oosNumber.tip": "In stock: {qty}",
+  "quoteDraft.quoteTable.unavailable.tip": "Not available for purchase",
+  "quoteDraft.productPageToQuote.outOfStock": "{name} Out of stock. In stock: {qty}",
+  "quoteDraft.productPageToQuote.unavailable": "Not available for purchase",
 
   "accountSettings.notification.detailsUpdated": "Your account details have been updated.",
   "accountSettings.notification.emailExists": "Email already exists",

@@ -33,7 +33,7 @@ import {
 import { AddressItemType, BCAddressItemType } from '@/types/address';
 import { BillingAddress, ContactInfoKeys, ShippingAddress } from '@/types/quotes';
 import { B3LStorage, channelId, snackbar, storeHash } from '@/utils';
-import { addQuoteDraftProducts } from '@/utils/b3Product/b3Product';
+import { addQuoteDraftProducts, getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
 
@@ -129,6 +129,10 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const b2bPermissions = useAppSelector(rolePermissionSelector);
   const quoteSubmissionResponseInfo = useAppSelector(
     ({ global }) => global.quoteSubmissionResponse,
+  );
+
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS.isEnableProduct,
   );
 
   const {
@@ -389,6 +393,17 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       if (!draftQuoteList || draftQuoteList.length === 0) {
         snackbar.error(b3Lang('quoteDraft.submit'));
         return;
+      }
+
+      if (!isEnableProduct) {
+        const itHasInvalidProduct = draftQuoteList.some((item) => {
+          return getVariantInfoOOSAndPurchase(item)?.name;
+        });
+
+        if (itHasInvalidProduct) {
+          snackbar.error(b3Lang('quoteDraft.submit.errorTip'));
+          return;
+        }
       }
 
       const note = info?.note || '';

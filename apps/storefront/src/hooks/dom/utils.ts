@@ -1,4 +1,5 @@
 import globalB3 from '@b3/global-b3';
+import { LangFormatFunction } from '@b3/lang';
 
 import B3AddToQuoteTip from '@/components/B3AddToQuoteTip';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
@@ -13,6 +14,7 @@ import {
   addQuoteDraftProducts,
   calculateProductsPrice,
   getCalculatedProductPrice,
+  getVariantInfoOOSAndPurchase,
   LineItems,
   validProductQty,
 } from '@/utils/b3Product/b3Product';
@@ -270,7 +272,11 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage) => {
   };
 };
 
-const addProductFromProductPageToQuote = (setOpenPage: SetOpenPage) => {
+const addProductFromProductPageToQuote = (
+  setOpenPage: SetOpenPage,
+  isEnableProduct: boolean,
+  b3Lang: LangFormatFunction,
+) => {
   const addToQuote = async (role: string | number, node?: HTMLElement) => {
     try {
       const productView = node ? node.closest(globalB3['dom.productView']) : document;
@@ -315,6 +321,39 @@ const addProductFromProductPageToQuote = (setOpenPage: SetOpenPage) => {
           isClose: true,
         });
         return;
+      }
+
+      if (!isEnableProduct) {
+        const currentProduct = getVariantInfoOOSAndPurchase({
+          ...productsSearch[0],
+          quantity: qty,
+          variantSku: sku,
+          productName: productsSearch[0]?.name,
+          productsSearch: productsSearch[0],
+        });
+
+        const inventoryTracking = productsSearch[0]?.inventoryTracking || 'none';
+        let inventoryLevel = productsSearch[0]?.inventoryLevel;
+        if (inventoryTracking === 'variant') {
+          const currentVariant = productsSearch[0]?.variants.find(
+            (variant: CustomFieldItems) => variant.sku === sku,
+          );
+
+          inventoryLevel = currentVariant?.inventory_level;
+        }
+
+        if (currentProduct?.name) {
+          const message =
+            currentProduct.type === 'oos'
+              ? b3Lang('quoteDraft.productPageToQuote.outOfStock', {
+                  name: currentProduct?.name,
+                  qty: inventoryLevel,
+                })
+              : b3Lang('quoteDraft.productPageToQuote.unavailable');
+
+          globalSnackbar.error(message);
+          return;
+        }
       }
 
       const quoteListitem = await getCalculatedProductPrice({
