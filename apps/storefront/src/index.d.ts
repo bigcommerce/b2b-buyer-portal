@@ -73,6 +73,10 @@ declare interface Window {
         ) => Promise<{ id: number; name: string; description: string }>;
         getButtonInfo: () => import('@/shared/customStyleButton/context/config').BtnProperties;
       };
+      cart: {
+        setEntityId: (entityId: string) => void;
+        getEntityId: () => undefined | string;
+      };
     };
   };
 }
