@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef } from 'react';
 import { useB3Lang } from '@b3/lang';
+import Cookies from 'js-cookie';
 
 import { HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
@@ -221,6 +222,12 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             ...shoppingListBtnRef.current,
             enabled: shoppingListEnabledRef.current,
           }),
+        },
+        cart: {
+          setEntityId: (entityId) => {
+            Cookies.set('cartId', entityId);
+          },
+          getEntityId: () => Cookies.get('cartId'),
         },
       },
     };
