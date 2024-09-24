@@ -222,13 +222,14 @@ export default function App() {
       // background login enter judgment and refresh
       if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
         await gotoAllowedAppPage(+userInfo.role, gotoPage);
+      } else {
+        showPageMask(false);
       }
 
       if (customerId) {
         clearInvoiceCart();
       }
 
-      showPageMask(false);
       storeDispatch(
         setGlabolCommonState({
           isPageComplete: true,
