@@ -5,6 +5,7 @@ import { Alert, Box, ImageListItem } from '@mui/material';
 
 import { B3Card } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
+import { CHECKOUT_URL } from '@/constants';
 import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { defaultCreateAccountPanel } from '@/shared/customStyleButton/context/config';
@@ -223,7 +224,7 @@ export default function Login(props: PageProps) {
     if (isCheckout) {
       try {
         await loginCheckout(data);
-        window.location.reload();
+        window.location.href = CHECKOUT_URL;
       } catch (error) {
         b2bLogger.error(error);
         getForcePasswordReset(data.emailAddress);
