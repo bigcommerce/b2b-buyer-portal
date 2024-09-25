@@ -29,7 +29,12 @@ import {
   getDefaultCurrencyInfo,
   handleGetCorrespondingCurrencyToken,
 } from './currencyUtils';
-import { convertArrayToGraphql, convertObjectToGraphql } from './graphqlDataConvert';
+import {
+  convertArrayToGraphql,
+  convertObjectOrArrayKeysToCamel,
+  convertObjectOrArrayKeysToSnake,
+  convertObjectToGraphql,
+} from './graphqlDataConvert';
 import { validatorRules } from './validatorRules';
 
 export * from './basicConfig';
@@ -49,6 +54,8 @@ export {
   checkPermissionCode,
   convertArrayToGraphql,
   convertObjectToGraphql,
+  convertObjectOrArrayKeysToCamel,
+  convertObjectOrArrayKeysToSnake,
   currencyFormat,
   currencyFormatConvert,
   currencyFormatInfo,

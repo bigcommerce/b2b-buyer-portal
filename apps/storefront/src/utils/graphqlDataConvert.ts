@@ -1,3 +1,5 @@
+import _ from 'lodash-es';
+
 export const convertObjectToGraphql = (data: CustomFieldItems) => {
   if (typeof data === 'string') {
     return `"${data}"`;
@@ -57,3 +59,76 @@ export const convertArrayToGraphql = (data: CustomFieldItems) => {
 
   return str;
 };
+
+// Define the types that can be converted.
+type ConvertibleTypes = string | Record<string, any> | any[];
+
+/**
+ * Converts a given string from camel case to snake case.
+ * @param str The string to be converted.
+ * @returns The converted string.
+ */
+function camelToSnake(str: string): string {
+  return _.snakeCase(str);
+}
+
+/**
+ * Converts a given string from snake case to camel case.
+ * @param str The string to be converted.
+ * @returns The converted string.
+ */
+function snakeToCamel(str: string): string {
+  return _.camelCase(str);
+}
+
+/**
+ * Recursively converts the keys of an object or array from camel case to snake case.
+ * @param input The object or array to be converted.
+ * @returns A new object or array with keys in snake case.
+ */
+export function convertObjectOrArrayKeysToSnake(input: ConvertibleTypes): ConvertibleTypes {
+  if (typeof input === 'string') {
+    return input;
+  }
+  if (_.isArray(input)) {
+    return input.map((item) => convertObjectOrArrayKeysToSnake(item));
+  }
+  if (_.isObject(input) && !_.isPlainObject(input)) {
+    // Handle special cases like Date or RegExp objects
+    return input;
+  }
+  if (_.isPlainObject(input)) {
+    const result: Record<string, any> = {};
+    Object.keys(input).forEach((key) => {
+      result[camelToSnake(key)] = convertObjectOrArrayKeysToSnake((input as CustomFieldItems)[key]);
+    });
+    return result;
+  }
+  return input;
+}
+
+/**
+ * Recursively converts the keys of an object or array from snake case to camel case.
+ * @param input The object or array to be converted.
+ * @returns A new object or array with keys in camel case.
+ */
+export function convertObjectOrArrayKeysToCamel(input: ConvertibleTypes): ConvertibleTypes {
+  if (typeof input === 'string') {
+    return input;
+  }
+  if (_.isArray(input)) {
+    return input.map((item) => convertObjectOrArrayKeysToCamel(item));
+  }
+  if (_.isObject(input) && !_.isPlainObject(input)) {
+    // Handle special cases like Date or RegExp objects
+    return input;
+  }
+  if (_.isPlainObject(input)) {
+    const result: Record<string, any> = {};
+    Object.keys(input).forEach((key) => {
+      result[snakeToCamel(key)] = convertObjectOrArrayKeysToCamel((input as CustomFieldItems)[key]);
+    });
+    return result;
+  }
+  return input;
+}
