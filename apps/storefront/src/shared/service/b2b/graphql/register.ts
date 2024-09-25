@@ -1,6 +1,68 @@
-import { channelId, convertArrayToGraphql, storeHash } from '@/utils';
+import {
+  channelId,
+  convertArrayToGraphql,
+  convertObjectOrArrayKeysToCamel,
+  storeHash,
+} from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
+
+interface FormField {
+  name: string;
+  value: string;
+}
+interface Address {
+  address1: string;
+  address2: string;
+  address_type: string;
+  city: string;
+  company: string;
+  country_code: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  postal_code: string;
+  state_or_province: string;
+  form_fields: FormField[];
+}
+
+interface Authentication {
+  force_password_reset: boolean;
+  new_password: string;
+}
+
+interface StoreCreditAmount {
+  amount: number;
+}
+
+interface CreateCustomer {
+  storeHash: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  company: string;
+  phone: string;
+  notes: string;
+  tax_exempt_category: string;
+  customer_group_id: number;
+  addresses: Address[];
+  authentication: Authentication;
+  accepts_product_review_abandoned_cart_emails: boolean;
+  store_credit_amounts: StoreCreditAmount[];
+  origin_channel_id: number;
+  channel_ids: number[];
+  form_fields: FormField[];
+}
+
+interface CustomerSubscribers {
+  storeHash: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  source: string;
+  order_id: number;
+  channel_id: number;
+}
 
 const getAccountFormFields = (type: number) => `{
   accountFormFields(storeHash: "${storeHash}", formType: ${type}){
@@ -175,6 +237,30 @@ query getStoreBasicInfo($storeHash: String!, $bcChannelId: Int) {
   }
 }`;
 
+const customerCreateBC = `mutation customerCreate($customerData: CustomerInputType!) {
+  customerCreate(customerData: $customerData) {
+    customer {
+      id
+      email
+      firstName
+      lastName
+      phone
+      company
+      customerGroupId
+    }
+  }
+}
+`;
+
+const customerSubscribersCreate = `mutation customerSubscribersCreate($subscribersData: CustomerSubscribersInputType!) {
+  customerSubscribersCreate(subscribersData: $subscribersData) {
+    customerSubscribers {
+      id
+    }
+  }
+}
+`;
+
 export const getB2BAccountFormFields = (type: number) =>
   B3Request.graphqlB2B({
     query: getAccountFormFields(type),
@@ -224,4 +310,16 @@ export const getBCStoreChannelId = () =>
   B3Request.graphqlB2B({
     query: getStoreChannelId,
     variables: { storeHash, bcChannelId: channelId },
+  });
+
+export const createBCCompanyUser = (customerData: Partial<CreateCustomer>) =>
+  B3Request.graphqlB2B({
+    query: customerCreateBC,
+    variables: { customerData: convertObjectOrArrayKeysToCamel(customerData) },
+  });
+
+export const sendSubscribersState = (data: Partial<CustomerSubscribers>) =>
+  B3Request.graphqlB2B({
+    query: customerSubscribersCreate,
+    variables: { subscribersData: convertObjectOrArrayKeysToCamel(data) },
   });

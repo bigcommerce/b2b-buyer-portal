@@ -8,25 +8,6 @@ interface UploadFileData {
   type: string;
 }
 
-interface ProductPriceOption {
-  option_id: number;
-  value_id: number;
-}
-
-interface ProductPriceItem {
-  product_id: number;
-  variant_id: number;
-  options: Partial<ProductPriceOption>[];
-}
-
-interface ProductPrice {
-  storeHash: string;
-  channel_id: number;
-  currency_code: string;
-  items: Partial<ProductPriceItem>[];
-  customer_group_id: number;
-}
-
 export const uploadB2BFile = (data: UploadFileData) => {
   const { file, type } = data;
 
@@ -43,6 +24,3 @@ export const setChannelStoreType = () =>
     storefrontType: 1,
     storeHash,
   });
-
-export const getProductPricing = (data: Partial<ProductPrice>) =>
-  B3Request.post('/api/v2/bc/pricing/products', RequestType.B2BRest, data);
