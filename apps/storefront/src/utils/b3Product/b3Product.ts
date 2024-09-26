@@ -623,7 +623,7 @@ const getCalculatedProductPrice = async (
 
     let calculatedData = [];
 
-    if (calculatedValue) {
+    if (calculatedValue && !isEmpty(calculatedValue)) {
       calculatedData = [calculatedValue];
     } else {
       const res = await getProductPricing({
