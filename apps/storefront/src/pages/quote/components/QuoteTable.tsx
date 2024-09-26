@@ -11,7 +11,6 @@ import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import {
   deleteProductFromDraftQuoteList,
   setDraftProduct,
-  setDraftProductQuantity,
   useAppDispatch,
   useAppSelector,
 } from '@/store';
@@ -91,7 +90,14 @@ function QuoteTable(props: ShoppingDetailTableProps) {
   const handleUpdateProductQty = async (row: any, value: number | string) => {
     const product = await setModifierQtyPrice(row, +value);
 
-    dispatch(setDraftProductQuantity({ id: product.id, quantity: product.quantity }));
+    dispatch(
+      setDraftProduct({
+        id: product.id,
+        product: {
+          node: product,
+        },
+      }),
+    );
     updateSummary();
   };
 
