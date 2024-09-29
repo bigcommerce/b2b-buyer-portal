@@ -193,13 +193,13 @@ export interface OptionListProduct {
 }
 
 export interface CalculatedOptions {
-  option_id: number;
-  value_id: number;
+  optionId: number;
+  valueId: number;
 }
 
 export interface Calculateditems {
-  product_id: number;
-  variant_id: number;
+  productId: number;
+  variantId: number;
   options: Partial<CalculatedOptions>[];
 }
 
@@ -208,4 +208,40 @@ export interface CalculatedProducts {
   customer_group_id: number;
   items: Partial<Calculateditems>[];
   currency_code: string;
+}
+
+type PriceType = {
+  asEntered: number;
+  enteredInclusive: boolean;
+  taxExclusive: number;
+  taxInclusive: number;
+};
+
+type PriceRangeType = {
+  minimum: PriceType;
+  maximum: PriceType;
+};
+
+export interface PricingProductType {
+  productId: number;
+  variantId: number;
+  referenceRequest: Calculateditems;
+  options: CalculatedOptions[];
+  calculatedPrice: PriceType;
+  retailPrice: PriceType;
+  salePrice: PriceType;
+  minimumAdvertisedPrice: PriceType;
+  saved: PriceType;
+  price: PriceType;
+  bulkPricing: BulkPriceItem[];
+  retailPriceRange: PriceRangeType;
+  priceRange: PriceRangeType;
+}
+
+export interface BulkPriceItem {
+  minimum?: number;
+  maximum: number;
+  discountAmount?: number;
+  discountType: string;
+  taxDiscountAmount?: number;
 }

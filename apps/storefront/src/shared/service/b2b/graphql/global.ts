@@ -1,3 +1,4 @@
+import { ProductPrice } from '@/types';
 import { convertArrayToGraphql, storeHash } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
@@ -193,6 +194,81 @@ const companyCreditConfig = () => `{
   }
 }`;
 
+const PricingProductItemOptions = `
+	options {
+		optionId,
+		valueId,
+	}
+`;
+
+const PriceInfos = `
+	asEntered,
+	enteredInclusive,
+	taxExclusive,
+	taxInclusive,
+`;
+
+const PriceRange = `
+	minimum {
+		${PriceInfos}
+	},
+	maximum{
+		${PriceInfos}
+	},
+`;
+
+const productPricing = (data: ProductPrice) => `{
+	priceProducts(
+		storeHash: "${storeHash}",
+		channelId: ${data.channel_id},
+		currencyCode: "${data.currency_code}",
+		customerGroupId: ${data.customer_group_id},
+		items: ${convertArrayToGraphql(data.items || [])}
+	) {
+		productId,
+		variantId,
+		${PricingProductItemOptions}
+		referenceRequest {
+			productId,
+			variantId,
+			${PricingProductItemOptions}
+		},
+		retailPrice {
+			${PriceInfos}
+		},
+		salePrice {
+			${PriceInfos}
+		},
+		minimumAdvertisedPrice {
+			${PriceInfos}
+		},
+		saved {
+			${PriceInfos}
+		},
+		price {
+			${PriceInfos}
+		},
+		calculatedPrice {
+			${PriceInfos}
+		},
+		priceRange {
+			${PriceRange}
+		},
+		retailPriceRange {
+			${PriceRange}
+		},
+		bulkPricing {
+			minimum,
+			maximum,
+			discountAmount,
+			discountType,
+			taxDiscountAmount {
+				${PriceInfos}
+			},
+		},
+	}
+}`;
+
 export const getB2BToken = (currentCustomerJWT: string, channelId = 1) =>
   B3Request.graphqlB2B({
     query: getB2BTokenQl(currentCustomerJWT, channelId),
@@ -255,4 +331,9 @@ export const getStorefrontDefaultLanguages = (channelId: number) =>
 export const getCompanyCreditConfig = () =>
   B3Request.graphqlB2B({
     query: companyCreditConfig(),
+  });
+
+export const getProductPricing = (data: ProductPrice) =>
+  B3Request.graphqlB2B({
+    query: productPricing(data),
   });

@@ -1,3 +1,4 @@
+import { CreateCustomer, CustomerSubscribers } from '@/types';
 import { channelId, convertArrayToGraphql, storeHash } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
@@ -175,6 +176,126 @@ query getStoreBasicInfo($storeHash: String!, $bcChannelId: Int) {
   }
 }`;
 
+const customerCreate = (data: CreateCustomer) => `mutation {
+    customerCreate(
+      customerData: {
+        storeHash: "${data.storeHash}",
+        email: "${data.email}",
+        firstName: "${data.first_name}",
+        lastName: "${data.last_name}",
+        company: "${data.company}",
+        phone: "${data.phone}",
+        notes: "${data?.notes || ''}",
+        taxExemptCategory: "${data.tax_exempt_category || ''}",
+        ${data?.customer_group_id ? `customerGroupId: ${data?.customer_group_id}` : ''},
+        addresses: ${convertArrayToGraphql(data?.addresses || [])},
+        attributes: ${convertArrayToGraphql(data?.attributes || [])},
+        ${
+          data?.authentication
+            ? `authentication: {
+          forcePasswordReset: ${data.authentication.force_password_reset},
+          newPassword: "${data.authentication.new_password}",
+        }`
+            : ''
+        },
+        acceptsProductReviewAbandonedCartEmails: ${
+          data.accepts_product_review_abandoned_cart_emails || false
+        },
+        storeCreditAmounts: ${convertArrayToGraphql(data?.store_credit_amounts || [])},
+        originChannelId: ${data.origin_channel_id},
+        channelIds: ${convertArrayToGraphql(data?.channel_ids || [])},
+        formFields: ${convertArrayToGraphql(data?.form_fields || [])},
+        triggerAccountCreatedNotification: ${data?.trigger_account_created_notification || false},
+      }
+    ) {
+      customer {
+        id,
+        email,
+        firstName,
+        lastName,
+        company,
+        phone,
+        notes,
+        taxExemptCategory,
+        registrationIpAddress,
+        customerGroupId,
+        dateModified,
+        dateCreated,
+        addressCount,
+        attributeCount,
+        authentication {
+          forcePasswordReset
+        }
+        addresses {
+          firstName,
+          lastName,
+          company,
+          address1,
+          address2,
+          city,
+          stateOrProvince,
+          postalCode,
+          countryCode,
+          phone,
+          addressType,
+          customerId,
+          id,
+          country,
+          formFields {
+            name,
+            value,
+          }
+        }
+        attributes {
+          id,
+          attributeId,
+          attributeValue,
+          customerId,
+          dateCreated,
+          dateModified,
+        }
+        formFields {
+          name,
+          value,
+        }
+        storeCreditAmounts {
+          amount,
+        }
+        acceptsProductReviewAbandonedCartEmails,
+        originChannelId,
+        channelIds,
+      }
+    }
+}
+`;
+
+const customerSubscribersCreate = (data: CustomerSubscribers) => `mutation {
+    customerSubscribersCreate(
+      subscribersData: {
+        storeHash: "${data.storeHash}",
+        email: "${data.email}",
+        firstName: "${data.first_name}",
+        lastName: "${data.last_name}",
+        source: "${data?.source || ''}",
+        ${data?.order_id ? `orderId: ${data.order_id},` : ''}
+        channelId: ${data.channel_id},
+      }
+    ) {
+      customerSubscribers {
+        email,
+        firstName,
+        lastName,
+        source,
+        orderId,
+        channelId,
+        id,
+        dateCreated,
+        dateModified,
+        consents,
+      }
+    }
+}`;
+
 export const getB2BAccountFormFields = (type: number) =>
   B3Request.graphqlB2B({
     query: getAccountFormFields(type),
@@ -224,4 +345,14 @@ export const getBCStoreChannelId = () =>
   B3Request.graphqlB2B({
     query: getStoreChannelId,
     variables: { storeHash, bcChannelId: channelId },
+  });
+
+export const createBCCompanyUser = (data: CreateCustomer) =>
+  B3Request.graphqlB2B({
+    query: customerCreate(data),
+  });
+
+export const sendSubscribersState = (data: CustomerSubscribers) =>
+  B3Request.graphqlB2B({
+    query: customerSubscribersCreate(data),
   });
