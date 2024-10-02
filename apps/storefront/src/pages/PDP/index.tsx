@@ -89,9 +89,12 @@ export const addProductsToShoppingList = async ({
     const { allOptions: requiredOptions, variants } = productsInfo[index];
     const { productId, sku, variantId: vId, quantity, optionSelections } = items[index];
     // check if it's an specified product
-    const variantId = vId || variants.find((item: { sku: string }) => item.sku === sku)?.variant_id;
+    const variantId =
+      vId ||
+      variants.find((item: { sku: string }) => item.sku === sku)?.variant_id ||
+      variants[0]?.variant_id;
     // get selected options by inputed data
-    const optionList = getProductOptionList(optionSelections);
+    const optionList = !optionSelections ? [] : getProductOptionList(optionSelections);
     // verify inputed data includes required data
     const { isValid, message } = isAllRequiredOptionFilled(requiredOptions, optionList);
 
