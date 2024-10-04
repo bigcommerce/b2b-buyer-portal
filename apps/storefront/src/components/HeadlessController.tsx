@@ -159,7 +159,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             } = await superAdminCompanies(customerRef.current.b2bId, {
               first: 50,
               offset: 0,
-              orderBy: 'companyId',
+              orderBy: 'companyName',
             });
 
             return {
