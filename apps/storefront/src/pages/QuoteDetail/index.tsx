@@ -7,6 +7,7 @@ import { get } from 'lodash-es';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
+import useScrollBar from '@/hooks/useScrollBar';
 import { GlobaledContext } from '@/shared/global';
 import {
   exportB2BQuotePdf,
@@ -510,6 +511,8 @@ function QuoteDetail() {
 
     return true;
   };
+
+  useScrollBar(false);
 
   return (
     <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoadding}>

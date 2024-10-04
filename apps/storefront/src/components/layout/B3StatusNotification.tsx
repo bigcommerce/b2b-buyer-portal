@@ -74,7 +74,7 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
       }
 
       if (+companyStatus === 1) {
-        setTip(StatusNotifications.approvedTip);
+        setTip(b3Lang(StatusNotifications.approvedTip));
         setType('success');
         setBcColor('#2E7D32');
       }

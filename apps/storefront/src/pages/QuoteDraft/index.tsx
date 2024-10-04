@@ -357,13 +357,12 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     const createdAt = inpCurrentCreatedAt || currentCreatedAt;
 
     if (currentQuoteId) {
+      handleReset();
       navigate(`/quoteDetail/${currentQuoteId}?date=${createdAt}`, {
         state: {
           to: 'draft',
         },
       });
-
-      handleReset();
     }
   };
 
@@ -548,8 +547,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         handleAfterSubmit(id, createdAt);
       } else {
         setQuoteSubmissionResponseOpen(true);
-
-        handleReset();
       }
     } catch (error: any) {
       if (error.message && error.message.length > 0) {
