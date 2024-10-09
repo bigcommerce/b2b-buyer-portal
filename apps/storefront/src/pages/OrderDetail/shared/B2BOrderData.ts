@@ -15,6 +15,10 @@ import {
   OrderSummary,
 } from '../../../types';
 
+interface CouponInfo {
+  [key: string]: string;
+}
+
 const getOrderShipping = (data: B2BOrderData) => {
   const { shipments, shippingAddress = [], products = [] } = data;
 
@@ -102,16 +106,31 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     handlingCostIncTax,
     shippingCostExTax,
     shippingCostIncTax,
+    coupons,
   } = data;
 
   const {
     global: { showInclusiveTaxPrice },
   } = store.getState();
 
+  const couponlabel: CouponInfo = {};
+  const couponPrice: CouponInfo = {};
+  const couponSymbol: CouponInfo = {};
+
+  coupons.forEach((coupon) => {
+    const key = b3Lang('orderDetail.summary.coupon', {
+      couponCode: coupon?.code ? `(${coupon.code})` : '',
+    });
+    couponlabel[key] = key;
+    couponPrice[key] = coupon?.discount;
+    couponSymbol[key] = 'coupon';
+  });
+
   const labels = {
     subTotal: b3Lang('orderDetail.summary.subTotal'),
     shipping: b3Lang('orderDetail.summary.shipping'),
     handingFee: b3Lang('orderDetail.summary.handingFee'),
+    ...couponlabel,
     tax: b3Lang('orderDetail.summary.tax'),
     grandTotal: b3Lang('orderDetail.summary.grandTotal'),
   };
@@ -125,8 +144,17 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
         showInclusiveTaxPrice ? shippingCostIncTax : shippingCostExTax,
       ),
       [labels.handingFee]: formatPrice(handlingCostIncTax || handlingCostExTax || ''),
+      ...couponPrice,
       [labels.tax]: formatPrice(totalTax || ''),
       [labels.grandTotal]: formatPrice(totalIncTax || totalExTax || ''),
+    },
+    priceSymbol: {
+      [labels.subTotal]: 'subTotal',
+      [labels.shipping]: 'shipping',
+      [labels.handingFee]: 'handingFee',
+      ...couponSymbol,
+      [labels.tax]: 'tax',
+      [labels.grandTotal]: 'grandTotal',
     },
   };
 
