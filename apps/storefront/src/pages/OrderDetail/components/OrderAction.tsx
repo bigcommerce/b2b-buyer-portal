@@ -45,11 +45,11 @@ interface ItemContainerProps {
 const ItemContainer = styled('div')((props: ItemContainerProps) => ({
   display: 'flex',
   justifyContent: 'space-between',
-  fontWeight: props.nameKey === 'Grand total' ? 700 : 400,
+  fontWeight: props.nameKey === 'grandTotal' ? 700 : 400,
 
   '& p': {
     marginTop: 0,
-    marginBottom: props.nameKey === 'Grand total' ? '0' : '12px',
+    marginBottom: props.nameKey === 'grandTotal' ? '0' : '12px',
     lineHeight: 1,
   },
 }));
@@ -65,6 +65,9 @@ interface Infos {
     [k: string]: string;
   };
   money?: MoneyFormat;
+  symbol?: {
+    [k: string]: string;
+  };
 }
 
 interface Buttons {
@@ -179,9 +182,10 @@ function OrderCard(props: OrderCardProps) {
   if (typeof infos === 'string') {
     showedInformation = infos;
   } else if (infos?.money) {
+    const symbol = infos?.symbol || {};
     showedInformation = infoKey?.map((key: string, index: number) => (
       <Fragment key={key}>
-        {key === 'Grand total' && (
+        {symbol[key] === 'grandTotal' && (
           <Divider
             sx={{
               marginBottom: '1rem',
@@ -190,13 +194,21 @@ function OrderCard(props: OrderCardProps) {
           />
         )}
 
-        <ItemContainer key={key} nameKey={key}>
-          <p>{key}</p>
-          <p>
-            {infos?.money
-              ? `${ordersCurrencyFormat(infos.money, infoValue[index])}`
-              : currencyFormat(infoValue[index])}
-          </p>
+        <ItemContainer key={key} nameKey={symbol[key]}>
+          <p id="item-name-key">{key}</p>
+          {symbol[key] === 'coupon' ? (
+            <p>
+              {infos?.money
+                ? `-${ordersCurrencyFormat(infos.money, infoValue[index])}`
+                : `-${currencyFormat(infoValue[index])}`}
+            </p>
+          ) : (
+            <p>
+              {infos?.money
+                ? `${ordersCurrencyFormat(infos.money, infoValue[index])}`
+                : currencyFormat(infoValue[index])}
+            </p>
+          )}
         </ItemContainer>
       </Fragment>
     ));
@@ -217,7 +229,16 @@ function OrderCard(props: OrderCardProps) {
         {subtitle && <div>{subtitle}</div>}
       </Box>
       <CardContent>
-        <Box>{showedInformation}</Box>
+        <Box
+          sx={{
+            '& #item-name-key': {
+              maxWidth: '70%',
+              wordBreak: 'break-word',
+            },
+          }}
+        >
+          {showedInformation}
+        </Box>
       </CardContent>
       <StyledCardActions isShowButtons={isShowButtons}>
         {buttons &&
@@ -282,7 +303,7 @@ export default function OrderAction(props: OrderActionProps) {
 
   const {
     money,
-    orderSummary: { createAt, name, priceData } = {},
+    orderSummary: { createAt, name, priceData, priceSymbol } = {},
     payment: { billingAddress, paymentMethod, dateCreateAt } = {},
     orderComments = '',
     products,
@@ -426,6 +447,7 @@ export default function OrderAction(props: OrderActionProps) {
       infos: {
         money,
         info: priceData || {},
+        symbol: priceSymbol || {},
       },
     },
     {
