@@ -70,6 +70,7 @@ const initState = {
     createAt: '',
     name: '',
     priceData: {},
+    priceSymbol: {},
   },
   customStatus: '',
   money: {
