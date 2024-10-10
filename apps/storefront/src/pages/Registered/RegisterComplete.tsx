@@ -431,7 +431,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files');
             const fileList = await getFileUrl(attachmentsList || []);
             const res = await getBCFieldsValue(completeData);
-            const { data } = res;
+            const {
+              customerCreate: { customer: data },
+            } = res;
             const accountInfo = await getB2BFieldsValue(completeData, data.id, fileList);
 
             const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';

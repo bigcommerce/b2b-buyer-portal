@@ -1,12 +1,6 @@
 import validateAddressExtraFields from './api/address';
-import { getProductPricing, setChannelStoreType, uploadB2BFile } from './api/global';
-import getBCGraphqlToken from './api/login';
-import {
-  createBCCompanyUser,
-  sendSubscribersState,
-  validateBCCompanyExtraFields,
-  validateBCCompanyUserExtraFields,
-} from './api/register';
+import { setChannelStoreType, uploadB2BFile } from './api/global';
+import { validateBCCompanyExtraFields, validateBCCompanyUserExtraFields } from './api/register';
 import {
   createB2BAddress,
   createBcAddress,
@@ -25,6 +19,7 @@ import {
   getBcCurrencies,
   getCompanyCreditConfig,
   getCurrencies,
+  getProductPricing,
   getStorefrontConfig,
   getStorefrontConfigs,
   getStorefrontDefaultLanguages,
@@ -34,6 +29,7 @@ import {
   superAdminCompanies,
   superAdminEndMasquerade,
 } from './graphql/global';
+import { getBCGraphqlToken } from './graphql/login';
 import {
   getB2BAllOrders,
   getB2BOrderDetails,
@@ -75,6 +71,7 @@ import {
 } from './graphql/quote';
 import {
   createB2BCompanyUser,
+  createBCCompanyUser,
   getB2BAccountFormFields,
   getB2BCompanyUserInfo,
   getB2BCountries,
@@ -83,6 +80,7 @@ import {
   getB2BRegisterLogo,
   getBCForcePasswordReset,
   getBCStoreChannelId,
+  sendSubscribersState,
   storeB2BBasicInfo,
 } from './graphql/register';
 import {

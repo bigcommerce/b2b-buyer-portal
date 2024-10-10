@@ -111,8 +111,9 @@ export const getloginTokenInfo = () => {
 
 export const loginInfo = async () => {
   const loginTokenInfo = getloginTokenInfo();
+
   const {
-    data: { token },
+    storeFrontToken: { token },
   } = await getBCGraphqlToken(loginTokenInfo);
 
   store.dispatch(setbcGraphqlToken(token));
