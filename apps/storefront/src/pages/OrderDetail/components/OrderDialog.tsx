@@ -249,10 +249,17 @@ export default function OrderDialog({
           isClose: true,
         });
       }
-    } catch (err: any) {
-      snackbar.error(err?.detail, {
-        isClose: true,
-      });
+    } catch (err) {
+      if (err instanceof Error) {
+        snackbar.error(err.message, {
+          isClose: true,
+        });
+      } else if (typeof err === 'object' && err !== null && 'detail' in err) {
+        const customError = err as { detail: string };
+        snackbar.error(customError.detail, {
+          isClose: true,
+        });
+      }
     } finally {
       setIsRequestLoading(false);
     }
