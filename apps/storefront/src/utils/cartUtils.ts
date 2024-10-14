@@ -95,16 +95,21 @@ const getLineItemsData = (cartInfo: any, productData: any) => {
 export const createNewShoppingCart = async (products: any) => {
   const cartData = newDataCart(products);
   const res = await createNewCart(cartData);
-
+  if (res?.errors?.length) {
+    throw new Error(res.errors[0].message);
+  }
   const { entityId } = res.data.cart.createCart.cart;
   Cookies.set('cartId', entityId);
-
   return res;
 };
 
 export const updateCart = async (cartInfo: any, productData: any) => {
   const newItems = getLineItemsData(cartInfo, productData);
   const res = await addNewLineToCart(newItems);
+
+  if (res?.errors?.length) {
+    throw new Error(res.errors[0].message);
+  }
 
   return res;
 };
