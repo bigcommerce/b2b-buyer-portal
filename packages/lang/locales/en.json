@@ -195,6 +195,9 @@
   "invoice.filterStatus.partiallyPaid": "Partially paid",
   "invoice.filterStatus.paid": "Paid",
   "invoice.filterStatus.overdue": "Overdue",
+  "invoice.filterCompany.title": "Company",
+  "invoice.tabsItem.myCompnay": "My company",
+  "invoice.tabsItem.allCompanies": "All companies",
 
   "quotes.dateCreated": "Date created",
   "quotes.status": "Status",

@@ -82,7 +82,7 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
                 setValue={setValue}
               />
             )}
-            {['roleAutocomplete'].includes(fieldType) && (
+            {['roleAutocomplete', 'companyAutocomplete'].includes(fieldType) && (
               <B3ControlAutocomplete
                 {...field}
                 errors={errors}
