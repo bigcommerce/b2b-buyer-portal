@@ -25,6 +25,8 @@ interface B3PulldownProps {
   setIsRequestLoading: (bool: boolean) => void;
   setInvoiceId: (id: string) => void;
   handleOpenHistoryModal: (bool: boolean) => void;
+  isCurrentCompany: boolean;
+  invoicePay: boolean;
 }
 
 function B3Pulldown({
@@ -32,6 +34,8 @@ function B3Pulldown({
   setIsRequestLoading,
   setInvoiceId,
   handleOpenHistoryModal,
+  invoicePay,
+  isCurrentCompany,
 }: B3PulldownProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const ref = useRef<HTMLButtonElement | null>(null);
@@ -136,7 +140,8 @@ function B3Pulldown({
     const payPermissions =
       +openBalance.value > 0 && invoicePayPermission && purchasabilityPermission;
 
-    setIsCanPay(payPermissions);
+    const isCanpayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
+    setIsCanPay(isCanpayInvoice);
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -4,7 +4,8 @@ import { useB3Lang } from '@b3/lang';
 import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
 import debounce from 'lodash-es/debounce';
 
-import { getB2BRoleList } from '@/shared/service/b2b';
+import { getB2BRoleList, getB2BSubsidiaries } from '@/shared/service/b2b';
+import { useAppSelector } from '@/store';
 
 import Form from './ui';
 
@@ -29,8 +30,20 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     size = 'small',
     disabled = false,
     extraPadding,
+    fieldType,
   } = rest;
-
+  const InterfaceInfo = [
+    {
+      type: 'roleAutocomplete',
+      func: getB2BRoleList,
+      dataKey: 'companyRoles',
+    },
+    {
+      type: 'companyAutocomplete',
+      func: getB2BSubsidiaries,
+      dataKey: 'subsidiaries',
+    },
+  ];
   const b3Lang = useB3Lang();
 
   const [options, setOptions] = useState<Option[]>([]);
@@ -42,6 +55,12 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isSearchKeyEmpty, setIsSearchKeyEmpty] = useState<boolean>(true);
+
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const currentCompanyId = role === 3 && isAgenting ? salesRepCompanyId : +companyInfoId;
 
   const cache = useRef({
     selectValue: '',
@@ -74,14 +93,19 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
 
       if (!hasMore && type === 'scroll') return;
 
-      const {
-        companyRoles: { edges },
-      } = await getB2BRoleList({
+      const currentData = InterfaceInfo.find((item) => item.type === fieldType);
+      if (!currentData) return;
+      const params: CustomFieldItems = {
         offset: (curPage - 1) * first,
         first,
         search: value,
-      });
+      };
 
+      if (fieldType === 'companyAutocomplete') {
+        params.companyId = currentCompanyId;
+      }
+
+      const { edges } = await currentData.func(params);
       const list = edges.map((item: any) => ({
         id: item.node.id,
         name: item.node.name,
@@ -101,6 +125,10 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
       cache.current.selectValue = defaultValue;
       cache.current.preSelectValue = defaultValue;
       cache.current.inputValue = defaultName;
+    }
+
+    if (!defaultValue && !defaultName) {
+      setInputValue('');
     }
     // disabling because we don't want to run this effect on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
