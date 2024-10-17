@@ -200,7 +200,7 @@ export default function App() {
           getStoreTaxZoneRates(),
           setStorefrontConfig(dispatch),
           getTemPlateConfig(styleDispatch, dispatch),
-          getCompanyUserInfo(emailAddress, customerId),
+          getCompanyUserInfo(),
           getCompanyInfo(role, b2bId),
         ]);
       } catch (e) {
