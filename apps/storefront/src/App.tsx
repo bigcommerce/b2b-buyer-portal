@@ -330,6 +330,10 @@ export default function App() {
         openUrl: '',
       });
     }
+    const anchorLinks = hash ? hash.split('#')[1] : '';
+    if (anchorLinks && !anchorLinks.includes('/')) {
+      showPageMask(false);
+    }
     // ignore setOpenPage ad storeDispatch
     // due they are funtions that do not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
