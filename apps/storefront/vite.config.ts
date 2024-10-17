@@ -106,7 +106,7 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             reactVendor: ['react', 'react-dom'],
             intl: ['react-intl'],
-            mui: ['@mui/material'],
+            mui: ['@emotion/react', '@emotion/styled', '@mui/material'],
             muiIcon: ['@mui/icons-material'],
             redux: ['react-redux'],
             dateFns: ['date-fns'],
@@ -121,8 +121,6 @@ export default defineConfig(({ mode }) => {
             dropzone: ['react-dropzone'],
             draggable: ['react-draggable'],
             eCache: ['@emotion/cache'],
-            eReact: ['@emotion/react'],
-            eStyled: ['@emotion/styled'],
           },
         },
         onwarn(warning, warn) {
