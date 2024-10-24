@@ -16,10 +16,11 @@ import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import {
   clearMasqueradeCompany,
   isLoggedInSelector,
+  store,
   useAppDispatch,
   useAppSelector,
 } from '@/store';
-import { setB2BToken } from '@/store/slices/company';
+import { setB2BToken, setPermissionModules } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
 import { channelId, getB3PermissionsList, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
@@ -238,12 +239,13 @@ export default function Login(props: PageProps) {
         };
         const {
           login: {
-            result: { token, storefrontLoginToken },
+            result: { token, storefrontLoginToken, permissions },
             errors,
           },
         } = await b2bLogin({ loginData });
 
         storeDispatch(setB2BToken(token));
+        store.dispatch(setPermissionModules(permissions));
         customerLoginAPI(storefrontLoginToken);
 
         if (errors?.[0] || !token) {

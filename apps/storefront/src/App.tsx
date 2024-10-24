@@ -22,7 +22,12 @@ import {
 import clearInvoiceCart from './utils/b3ClearCart';
 import b2bLogger from './utils/b3Logger';
 import { isUserGotoLogin } from './utils/b3logout';
-import { getCompanyInfo, getCurrentCustomerInfo, loginInfo } from './utils/loginInfo';
+import {
+  getCompanyInfo,
+  getCompanyUserInfo,
+  getCurrentCustomerInfo,
+  loginInfo,
+} from './utils/loginInfo';
 import {
   getStoreTaxZoneRates,
   getTemPlateConfig,
@@ -195,6 +200,7 @@ export default function App() {
           getStoreTaxZoneRates(),
           setStorefrontConfig(dispatch),
           getTemPlateConfig(styleDispatch, dispatch),
+          getCompanyUserInfo(emailAddress, customerId),
           getCompanyInfo(role, b2bId),
         ]);
       } catch (e) {

@@ -209,22 +209,22 @@ export const agentInfo = async (customerId: number | string, role: number) => {
   }
 };
 
-export const getCompanyUserInfo = async () => {
+export const getCompanyUserInfo = async (emailAddress: string, customerId: string | number) => {
   try {
+    if (!emailAddress || !customerId) return undefined;
+
     const {
-      customerInfo: {
+      companyUserInfo: {
         userType,
         userInfo: { role = '', id, companyRoleName = '' },
-        permissions,
       },
-    } = await getB2BCompanyUserInfo();
+    } = await getB2BCompanyUserInfo(emailAddress, customerId);
 
     return {
       userType,
       role,
       id,
       companyRoleName,
-      permissions,
     };
   } catch (error) {
     b2bLogger.error(error);
@@ -290,10 +290,10 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
       customerGroupId,
     } = loginCustomer;
 
-    const companyUserInfo = await getCompanyUserInfo();
+    const companyUserInfo = await getCompanyUserInfo(emailAddress, customerId);
 
     if (companyUserInfo && customerId) {
-      const { userType, role, id, companyRoleName, permissions } = companyUserInfo;
+      const { userType, role, id, companyRoleName } = companyUserInfo;
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(role, id, userType),
@@ -328,7 +328,6 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
       store.dispatch(resetDraftQuoteList());
       store.dispatch(resetDraftQuoteInfo());
       store.dispatch(clearMasqueradeCompany());
-      store.dispatch(setPermissionModules(permissions));
       store.dispatch(setCompanyInfo(companyPayload));
       store.dispatch(setCustomerInfo(customerInfo));
       store.dispatch(setQuoteUserId(quoteUserId));
