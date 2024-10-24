@@ -114,13 +114,9 @@ const getRegisterLogo = () => `{
   }
 }`;
 
-const getCustomerInfo = () => `{
-  customerInfo {
+const getCompanyUserInfo = <T>(email: T, customerId: string | number) => `{
+  companyUserInfo(storeHash:"${storeHash}", email:"${email}", ${`customerId: ${customerId}`}) {
     userType,
-    permissions {
-      code
-      permissionLevel
-    },
     userInfo {
       id
       phoneNumber
@@ -270,9 +266,9 @@ export const getB2BAccountFormFields = (type: number) =>
     query: getAccountFormFields(type),
   });
 
-export const getB2BCompanyUserInfo = () =>
+export const getB2BCompanyUserInfo = (email: string, customerId: string | number) =>
   B3Request.graphqlB2B({
-    query: getCustomerInfo(),
+    query: getCompanyUserInfo(email, customerId),
   });
 
 export const getB2BRegisterLogo = () =>
