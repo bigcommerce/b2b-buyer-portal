@@ -162,16 +162,12 @@ function QuoteTable(props: ShoppingDetailTableProps) {
       }
 
       const taxExclusive = variantInfo!.bc_calculated_price?.tax_exclusive || 0;
-      const taxInclusive = variantInfo!.bc_calculated_price?.tax_inclusive || 0;
-
       const basePriceExclusiveTax = basePrice || taxExclusive;
-
-      const tax = taxPrice || +taxInclusive - +taxExclusive;
 
       return {
         node: {
           basePrice: basePriceExclusiveTax,
-          taxPrice: tax,
+          taxPrice,
           optionList: selectOptions,
           id: id.toString(),
           primaryImage,
@@ -195,18 +191,8 @@ function QuoteTable(props: ShoppingDetailTableProps) {
     const newProducts = getNewQuoteProduct(products);
 
     newProducts.forEach((product) => {
-      const {
-        variantSku,
-        productsSearch: { variants },
-        basePrice,
-      } = product.node;
+      const { basePrice } = product.node;
       const newProduct = product;
-      const variantItem = variants?.find((item) => item.sku === variantSku);
-      if (variantItem) {
-        newProduct.node.taxPrice =
-          variantItem.bc_calculated_price.tax_inclusive -
-          variantItem.bc_calculated_price.tax_exclusive;
-      }
       newProduct.node.id = optionsProductId;
 
       newProduct.node.basePrice = basePrice;
