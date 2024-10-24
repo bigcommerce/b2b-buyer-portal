@@ -7,7 +7,7 @@ import { styled } from '@mui/material/styles';
 
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList } from '@/types/invoice';
-import { snackbar } from '@/utils';
+import { getB3PermissionsList, snackbar } from '@/utils';
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';
@@ -48,6 +48,9 @@ function B3Pulldown({
 
   const { getOrderPermission, invoicePayPermission, purchasabilityPermission } =
     useAppSelector(rolePermissionSelector);
+
+  const [isCanViewOrder, setIsCanViewOrder] = useState<boolean>(getOrderPermission);
+  const b2bId = useAppSelector((state) => state.company.customer.b2bId);
   const close = () => {
     setIsOpen(false);
   };
@@ -136,12 +139,35 @@ function B3Pulldown({
   };
 
   useEffect(() => {
-    const { openBalance } = row;
+    const { openBalance, orderUserId } = row;
     const payPermissions =
       +openBalance.value > 0 && invoicePayPermission && purchasabilityPermission;
 
     const isCanpayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
     setIsCanPay(isCanpayInvoice);
+
+    let viewOrderPremission = getOrderPermission;
+
+    const params = [
+      {
+        permissionType: 'getOrderPermission',
+        permissionLevel: !isCurrentCompany ? 3 : 2,
+      },
+    ];
+
+    if (!isCurrentCompany) {
+      const { getOrderPermission: orderSubViewPremisssion } = getB3PermissionsList(params);
+
+      viewOrderPremission = orderSubViewPremisssion;
+    }
+
+    if (isCurrentCompany && b2bId !== orderUserId) {
+      const { getOrderPermission: orderTeamViewPremisssion } = getB3PermissionsList(params);
+
+      viewOrderPremission = orderTeamViewPremisssion;
+    }
+
+    setIsCanViewOrder(viewOrderPremission);
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -179,7 +205,7 @@ function B3Pulldown({
         >
           {b3Lang('invoice.actions.viewInvoice')}
         </MenuItem>
-        {getOrderPermission && (
+        {getOrderPermission && isCanViewOrder && (
           <MenuItem
             key="View-Order"
             sx={{

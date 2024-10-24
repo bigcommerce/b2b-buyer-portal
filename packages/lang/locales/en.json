@@ -140,6 +140,7 @@
   "orders.company": "Company",
   "orders.from": "From",
   "orders.to": "To",
+  "orders.companyInfo": "Company",
   "orders.status.incomplete": "Incomplete",
   "orders.status.pending": "Pending",
   "orders.status.shipped": "Shipped",
