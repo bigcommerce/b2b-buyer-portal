@@ -56,6 +56,7 @@ const invoiceList = (data: CustomFieldItems) => `{
           phoneNumber,
           bcId,
         },
+        orderUserId,
       }
     }
   }

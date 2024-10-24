@@ -1,4 +1,4 @@
-import { BaseSyntheticEvent, useContext, useEffect, useRef, useState } from 'react';
+import { BaseSyntheticEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -13,6 +13,8 @@ import CustomButton from '../button/CustomButton';
 import { getContrastColor, getHoverColor } from '../outSideComponents/utils/b3CustomStyles';
 
 import B3FilterPicker from './B3FilterPicker';
+
+const includesFilterType = ['roleAutocomplete', 'companyAutocomplete'];
 
 interface PickerProps {
   isEnabled: boolean;
@@ -100,6 +102,24 @@ function B3FilterMore<T, Y>({
   const handleClose = () => {
     setOpen(false);
   };
+
+  const filterCounterVal = useMemo(() => {
+    if (!filterCounter) return 0;
+
+    const values = getValues();
+
+    const newCounter = fiterMoreInfo.reduce((cur, item) => {
+      const newItem: CustomFieldItems = item;
+      if (includesFilterType.includes(newItem.fieldType) && values[newItem.name]) {
+        cur -= 1;
+      }
+
+      return cur;
+    }, filterCounter);
+
+    return newCounter;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterCounter]);
 
   const handleFilterStatus = (submitData?: any) => {
     if (submitData) {
@@ -214,7 +234,7 @@ function B3FilterMore<T, Y>({
                 }}
               >
                 <Badge
-                  badgeContent={filterCounter}
+                  badgeContent={filterCounterVal}
                   sx={{
                     '& .MuiBadge-badge.MuiBadge-standard.MuiBadge-anchorOriginTopRight': {
                       bgcolor: primaryColor,

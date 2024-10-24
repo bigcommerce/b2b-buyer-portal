@@ -29,6 +29,7 @@ export interface InvoiceList {
     phoneNumber: string;
     bcId: string;
   };
+  orderUserId: number;
 }
 
 export interface InvoiceListNode {

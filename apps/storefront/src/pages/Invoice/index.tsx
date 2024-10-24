@@ -101,9 +101,15 @@ function Invoice() {
   const [filterChangeFlag, setFilterChangeFlag] = useState(false);
   const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([]);
   const [invoiceTabs, setInvoiceTabs] = useState<string>('1');
-  const [invoiceSubView, setInvoiceSubView] = useState<boolean>(false);
   const [invoicePay, setInvoicePay] = useState<boolean>(invoicePayPermission);
   const [companyname, setCompanyName] = useState<string>('');
+
+  const { getInvoicesPermission: invoiceSubViewPremisssion } = getB3PermissionsList([
+    {
+      permissionType: 'getInvoicesPermission',
+      permissionLevel: 3,
+    },
+  ]);
 
   const {
     state: { bcLanguage },
@@ -731,7 +737,14 @@ function Invoice() {
   }, [checkedArr, filterData, filterLists]);
 
   useEffect(() => {
-    const translatedFilterFormConfigs = filterFormConfig.map((element) => {
+    const newFilterFormConfig = filterFormConfig.filter((element) => {
+      if (element.name === 'company') {
+        return invoiceSubViewPremisssion;
+      }
+      return true;
+    });
+
+    const translatedFilterFormConfigs = newFilterFormConfig.map((element) => {
       const config: CustomFieldItems = element;
       if (element.name === 'status') {
         config.label = b3Lang(filterFormConfigsTranslationVariables.status);
@@ -780,20 +793,6 @@ function Invoice() {
     });
   };
 
-  const resetFilterInfo = () => {
-    setCompanyName('');
-  };
-
-  useEffect(() => {
-    const { getInvoicesPermission: invoiceSubViewPremisssion } = getB3PermissionsList([
-      {
-        permissionType: 'getInvoicesPermission',
-        permissionLevel: 3,
-      },
-    ]);
-    setInvoiceSubView(invoiceSubViewPremisssion);
-  }, []);
-
   return (
     <B3Spin isSpinning={isRequestLoading}>
       <Box
@@ -804,7 +803,7 @@ function Invoice() {
           position: 'relative',
         }}
       >
-        {invoiceSubView && (
+        {invoiceSubViewPremisssion && (
           <InvocieTabs isMobile={isMobile}>
             <Tabs
               id="invocies-list-tabId"
@@ -846,7 +845,6 @@ function Invoice() {
               pickerKey: 'end',
             }}
             searchValue={filterData?.q || ''}
-            resetFilterInfo={resetFilterInfo}
           />
           <Box
             sx={{
