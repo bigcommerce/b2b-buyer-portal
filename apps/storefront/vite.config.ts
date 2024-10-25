@@ -19,10 +19,7 @@ const assetsAbsolutePath: AssetsAbsolutePathProps = {
 };
 
 export default defineConfig(({ mode }) => {
-  let modeVariable = mode;
-  if (mode === TIER1_ENV) {
-    modeVariable = PRODUCTION_ENV;
-  }
+  const modeVariable = mode === TIER1_ENV ? PRODUCTION_ENV : mode;
   const env = loadEnv(modeVariable, process.cwd());
   return {
     plugins: [
@@ -106,13 +103,12 @@ export default defineConfig(({ mode }) => {
           headless: 'src/buyerPortal.ts',
         },
         output: {
-          entryFileNames(info) {
-            let baseNameFile = '[name].js';
-            if (mode === TIER1_ENV) {
-              baseNameFile = '[name]-tier1.js';
+          entryFileNames({ name }) {
+            if (name.includes('headless')) {
+              return mode === TIER1_ENV ? '[name]-tier1.js' : '[name].js';
             }
-            const { name } = info;
-            return name.includes('headless') ? baseNameFile : '[name].[hash].js';
+
+            return '[name].[hash].js';
           },
           manualChunks: {
             reactVendor: ['react', 'react-dom'],
