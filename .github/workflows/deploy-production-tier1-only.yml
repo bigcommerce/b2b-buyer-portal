@@ -1,16 +1,12 @@
 name: Deploy to Production - Tier 1 Only
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
   test:
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: production
+      environment: tier1
       store_list: ./deployment/production-tier1.json
-      build_command: build:tier1
     secrets: inherit
