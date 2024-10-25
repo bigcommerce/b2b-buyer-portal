@@ -14,5 +14,4 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       environment: staging
-      build_command: build:staging
     secrets: inherit
