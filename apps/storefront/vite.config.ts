@@ -10,13 +10,20 @@ interface AssetsAbsolutePathProps {
   [key: string]: string;
 }
 
+const PRODUCTION_ENV = 'production';
+const TIER1_ENV = 'tier1';
+
 const assetsAbsolutePath: AssetsAbsolutePathProps = {
   staging: 'https://cdn.bundleb2b.net/b2b/staging/storefront/assets/',
   production: 'https://cdn.bundleb2b.net/b2b/production/storefront/assets/',
 };
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd());
+  let modeVariable = mode;
+  if (mode === TIER1_ENV) {
+    modeVariable = PRODUCTION_ENV;
+  }
+  const env = loadEnv(modeVariable, process.cwd());
   return {
     plugins: [
       legacy({
@@ -39,7 +46,7 @@ export default defineConfig(({ mode }) => {
           const name = filename.split('assets/')[1];
           return isCustom
             ? `${env.VITE_ASSETS_ABSOLUTE_PATH}${name}`
-            : `${assetsAbsolutePath[mode]}${name}`;
+            : `${assetsAbsolutePath[modeVariable]}${name}`;
         }
 
         return undefined;
@@ -100,8 +107,12 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           entryFileNames(info) {
+            let baseNameFile = '[name].js';
+            if (mode === TIER1_ENV) {
+              baseNameFile = '[name]-tier1.js';
+            }
             const { name } = info;
-            return name.includes('headless') ? '[name].js' : '[name].[hash].js';
+            return name.includes('headless') ? baseNameFile : '[name].[hash].js';
           },
           manualChunks: {
             reactVendor: ['react', 'react-dom'],
