@@ -9,6 +9,9 @@ on:
       store_list:
         required: false
         type: string
+      build_command:
+        required: true
+        type: string
     secrets:
       ENV:
         required: true
@@ -42,7 +45,7 @@ jobs:
         run: base64 -d <<<${{ secrets.ENV }} > apps/storefront/.env.${{ inputs.environment }}
 
       - name: Build
-        run: yarn build:${{ inputs.environment }}
+        run: yarn ${{ inputs.build_command }}
 
       - name: Calculate revision
         run: echo "REVISION_TITLE=$(git rev-parse --short HEAD)-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}" >> $GITHUB_ENV

@@ -8,4 +8,5 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       environment: production
+      build_command: build:production
     secrets: inherit

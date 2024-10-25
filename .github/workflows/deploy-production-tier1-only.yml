@@ -12,4 +12,5 @@ jobs:
     with:
       environment: production
       store_list: ./deployment/production-tier1.json
+      build_command: build:tier1
     secrets: inherit
