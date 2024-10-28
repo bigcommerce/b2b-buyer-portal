@@ -92,7 +92,7 @@ Once you have uploaded the contents of the `dist` folder to your hosting provide
     setting: {
       store_hash: '<YOUR_STORE_HASH>',
       channel_id: '<YOUR_CHANNEL_ID>',
-      platform: 'headless',
+      platform: 'bigcommerce',
       b2b_url: 'https://api-b2b.bigcommerce.com',
       captcha_setkey: '6LdGN_sgAAAAAGYFg1lmVoakQ8QXxbhWqZ1GpYaJ',
     },
