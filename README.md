@@ -99,7 +99,7 @@ For assistance with activating the remote buyer portal or to inquire about multi
 - **Node:** Ensure you have Node.js version >=18.0.0.
 - **Package Manager:** This project uses Yarn v1.22.17.
 
-## ⚙ Local Development
+## ⚙ Getting Started
 
 1. Installation of Node and Yarn.
    - For Node, we recommend using [nvm](https://github.com/nvm-sh/nvm).
@@ -107,150 +107,21 @@ For assistance with activating the remote buyer portal or to inquire about multi
 2. Clone the repository.
 3. Install dependencies using `yarn`.
 4. Copy environment variables: `cp apps/storefront/.env-example apps/storefront/.env`.
-5. Update the following values in `.env`:
-
-- `VITE_ASSETS_ABSOLUTE_PATH`: For building for deployment, set this to the URL where the assets folder is hosted. **Note that this refers to the absolute URL to the `/assets` folder, NOT the root/base URL of the build. Remember to also include the trailing slash**.
-
-  For example, if you deploy the contents of the `dist` folder built by running `yarn build` and hosted it at https://my.custom.cdn/generated/b2b, the value you should put is https://my.custom.cdn/generated/b2b/assets/.
-
-Environment variables have been updated so you can run your UI directly into production storefronts.
-
+5. Update the values in `.env` with your specific values
 6. Start the development server: `yarn dev`.
 7. **Access to the store through the url i.e: https://my-store.mybigcommerce.com/ or https://my-store.com/ not http://localhost:3001**
 
+### [Developing on Stencil](./docs/stencil.md)
 
-## Running Project Locally
+Read the [Stencil Guide](./docs/stencil.md) when you are working on the BigCommerce Stencil storefront platform
 
-1. Activate store channel in the Channels Manager.
-2. Configure header and footer scripts:
+### [Developing for Headless](./docs/headless.md)
 
-- Navigate to Channels Manager -> Scripts.
-- Delete first scripts: `B2BEdition Header Script` and `B2BEdition Footer Script`, then
-- Add two scripts (e.g., B2BEdition-header, B2BEdition-footer). Ensure you set the correct port for your localhost in the script URLs. In the "Location" section make sure you check on "All pages".
-- Edit the header script:
-
-```html
-<script>
-  {{#if customer.id}}
-  {{#contains page_type "account"}}
-  var b2bHideBodyStyle = document.createElement('style');
-  b2bHideBodyStyle.id = 'b2b-account-page-hide-body';
-  b2bHideBodyStyle.innerHTML = 'body { display: none !important }';
-  document.head.appendChild(b2bHideBodyStyle);
-  {{/contains}}
-  {{/if}}
-</script>
-<script type="module">
-  import RefreshRuntime from 'http://localhost:3001/@react-refresh'
-  RefreshRuntime.injectIntoGlobalHook(window)
-  window.$RefreshReg$ = () => {}
-  window.$RefreshSig$ = () => (type) => type
-  window.__vite_plugin_react_preamble_installed__ = true
-</script>
-<script type="module" src="http://localhost:3001/@vite/client"></script>
-```
-
-- Edit the footer script:
-
-```html
-<script type="module" src="http://localhost:3001/src/main.ts"></script>
-<script>
-  window.B3 = {
-    setting: {
-      store_hash: '{{settings.store_hash}}',
-      channel_id: {{settings.channel_id}},
-      platform: 'bigcommerce', // override this depending on your store channel platform: https://developer.bigcommerce.com/docs/rest-management/channels#platform
-    },
-  }
-</script>
-```
-
-3. For local debugging, set `VITE_LOCAL_DEBUG` to `false` in .env.
-
-4. Enable `Custom (use for your self-hosted buyer portal)`, this will avoid the scripts mentioned on step 2 -> 2nd point
-- In B2B Edition App dashboard -> Settings -> Buyer Portal for global config
-![Buyer portal type global settings](public/images/buyer-portal-type-settings-global.png)
-- Or B2B Edition App dashboard -> Storefront -> Desired channel -> Buyer Portal for specific channel config
-![Buyer portal type channel settings](public/images/buyer-portal-type-settings-channel.png) [alt text](README.md)
-
-5. Visit the storefront and attempt to sign in.
-
-6. For cross-origin issues, update URL variables in .env to use the tunnel URL with HTTPS.
-
-Note: If linters aren't functional, run `yarn prepare` first.
-
-## Deploying the project
-
-Building your buyer portal application requires you to run the `yarn build:production` command. This command will generate a `dist` folder in the `apps/storefront` directory and inside an `assets` folder containing the compiled assets.
-
-**_Before building, make sure you have updated your `VITE_ASSETS_ABSOLUTE_PATH` variable pointing to where the assets folder is hosted as we'll be using this to generate the correct asset paths for the application when its mounted._**
-
-Once you have uploaded the contents of the `dist` folder to your hosting provider, you'll have to create a footer script in your BigCommerce storefront that points to the built files generated in the `dist` folder. The contents of the script are the same as the footer script B2B Edition installs in your store, but with the updated paths. It should look something like this:
-
-```html
-<script>
-  window.b3CheckoutConfig = {
-    routes: {
-      dashboard: '/account.php?action=order_status',
-    },
-  }
-  window.B3 = {
-    setting: {
-      store_hash: '<YOUR_STORE_HASH>',
-      channel_id: '<YOUR_CHANNEL_ID>',
-      platform: '<YOUR_STORE_PLATFORM>',
-      b2b_url: 'https://api-b2b.bigcommerce.com',
-      captcha_setkey: '6LdGN_sgAAAAAGYFg1lmVoakQ8QXxbhWqZ1GpYaJ',
-    },
-    'dom.checkoutRegisterParentElement': '#checkout-app',
-    'dom.registerElement':
-      '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel, #checkout-customer-returning .form-legend-container [href="#"]',
-    'dom.openB3Checkout': 'checkout-customer-continue',
-    before_login_goto_page: '/account.php?action=order_status',
-    checkout_super_clear_session: 'true',
-    'dom.navUserLoginElement': '.navUser-item.navUser-item--account',
-  }
-</script>
-<script
-  type="module"
-  crossorigin=""
-  src="<YOUR_APP_URL_HERE>/index.*.js"
-></script>
-<script
-  nomodule=""
-  crossorigin=""
-  src="<YOUR_APP_URL_HERE>/polyfills-legacy.*.js"
-></script>
-<script
-  nomodule=""
-  crossorigin=""
-  src="<YOUR_APP_URL_HERE>/index-legacy.*.js"
-></script>
-```
-
-Replace `<YOUR_APP_URL_HERE>` with the URL where your build is hosted, `<YOUR_STORE_HASH>` and `<YOUR_CHANNEL_ID>` with its respective values. Replace the `*` in the file names with the generated hash from the build step.
-
-Also, you'll have to input the following header script:
-
-```html
-<script>
-  var b2bHideBodyStyle = document.createElement('style')
-  b2bHideBodyStyle.id = 'b2b-account-page-hide-body'
-  const removeCart = () => {
-    const style = document.createElement('style')
-    style.type = 'text/css'
-    style.id = 'b2bPermissions-cartElement-id'
-    style.innerHTML =
-      '[href="/cart.php"], #form-action-addToCart, [data-button-type="add-cart"], .button--cardAdd, .card-figcaption-button, [data-emthemesmodez-cart-item-add], .add-to-cart-button { display: none !important }'
-    document.getElementsByTagName('head').item(0).appendChild(style)
-  }
-  removeCart()
-</script>
-```
+Read the [Headless Guide](./docs/headless.md) when you are working on Catalyst, NextJS and other headless storefronts
 
 ### Common issues:
 
-- **Stencil CLI** We're working to bring full support to integrate buyer portal into [stencil-cli](https://developer.bigcommerce.com/docs/storefront/stencil), there are issues on logging out and cart management, if you find other problems feel free to open an issue report.
+- **Stencil CLI** We're working to bring full support to integrate buyer portal into [stencil-cli](https://developer.bigcommerce.com/docs/storefront/stencil). If you find any issues feel free to open an issue report.
 - **Cross-Origin Issues:** If you encounter cross-origin issues, ensure you have the correct URLs in your `.env` file and verify that your store's origin URL is allowed. You can use a tunnel service like [ngrok](https://ngrok.com/) to expose your local server to the internet.
 - **Environment Variables:** Ensure you have the correct environment variables set in your `.env` file. These variables are used to configure your application for different environments.
 - **Header and Footer Scripts:** Ensure you have the correct header and footer scripts set in your BigCommerce store. These scripts are used to load your application into the storefront.
