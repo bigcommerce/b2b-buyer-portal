@@ -96,14 +96,6 @@ export default function B3Layout({ children }: { children: ReactNode }) {
       {isMobile ? (
         <B3MobileLayout title={title}>{children}</B3MobileLayout>
       ) : (
-        // <Box
-        //   sx={{
-        //     p: '40px 30px',
-        //     minHeight: '100vh',
-        //     display: 'flex',
-        //     backgroundColor: '#d2d2d3',
-        //   }}
-        // >
         <Box
           id="app-mainPage-layout"
           sx={{
@@ -158,8 +150,6 @@ export default function B3Layout({ children }: { children: ReactNode }) {
             </Box>
           </Box>
         </Box>
-
-        // </Box>
       )}
 
       <B3Dialog

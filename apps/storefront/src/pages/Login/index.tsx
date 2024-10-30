@@ -5,7 +5,7 @@ import { Alert, Box, ImageListItem } from '@mui/material';
 
 import { B3Card } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
-import { CHECKOUT_URL } from '@/constants';
+import { CHECKOUT_URL, PATH_ROUTES } from '@/constants';
 import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { defaultCreateAccountPanel } from '@/shared/customStyleButton/context/config';
@@ -21,7 +21,7 @@ import {
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
-import { channelId, getB3PermissionsList, loginJump, snackbar, storeHash } from '@/utils';
+import { b2bGotoRoute, channelId, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
 import { deleteCartData } from '@/utils/cartUtils';
@@ -275,27 +275,13 @@ export default function Login(props: PageProps) {
 
           if (!isLoginLandLocation) return;
 
-          const { getShoppingListPermission, getOrderPermission } = getB3PermissionsList();
-          if (
-            info?.role === CustomerRole.JUNIOR_BUYER &&
-            info?.companyRoleName === 'Junior Buyer'
-          ) {
-            const currentJuniorActivePage = getShoppingListPermission
-              ? '/shoppingLists'
-              : '/accountSettings';
-
-            navigate(currentJuniorActivePage);
-          } else {
-            let currentActivePage = getOrderPermission ? '/orders' : '/shoppingLists';
-
-            currentActivePage =
-              getShoppingListPermission || getOrderPermission
-                ? currentActivePage
-                : '/accountSettings';
-
-            currentActivePage = info?.userType === UserTypes.B2C ? '/orders' : currentActivePage;
-            navigate(currentActivePage);
+          if (info?.userType === UserTypes.B2C) {
+            navigate(PATH_ROUTES.ORDERS);
           }
+
+          const path = b2bGotoRoute(info?.role);
+
+          navigate(path);
         }
       } catch (error) {
         snackbar.error(b3Lang('login.loginTipInfo.accountincorrect'));
