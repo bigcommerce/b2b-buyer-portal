@@ -26,7 +26,7 @@ import {
   setPermissionModules,
 } from '@/store/slices/company';
 import { resetDraftQuoteInfo, resetDraftQuoteList } from '@/store/slices/quoteInfo';
-import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
+import { CompanyStatus, CustomerRole, CustomerRoleName, LoginTypes, UserTypes } from '@/types';
 
 import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
@@ -141,7 +141,12 @@ export const clearCurrentCustomerInfo = async () => {
 // 3: inactive
 // 4: deleted
 
-const VALID_ROLES = [CustomerRole.ADMIN, CustomerRole.SENIOR_BUYER, CustomerRole.JUNIOR_BUYER];
+const VALID_ROLES = [
+  CustomerRole.ADMIN,
+  CustomerRole.SENIOR_BUYER,
+  CustomerRole.JUNIOR_BUYER,
+  CustomerRole.CUSTOM_ROLE,
+];
 
 export const getCompanyInfo = async (
   role: number | string,
@@ -296,7 +301,14 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
     const companyUserInfo = await getCompanyUserInfo();
 
     if (companyUserInfo && customerId) {
-      const { userType, role, id, companyRoleName, permissions } = companyUserInfo;
+      const { userType, id, companyRoleName, permissions } = companyUserInfo;
+
+      let { role } = companyUserInfo;
+
+      role =
+        role === CustomerRole.JUNIOR_BUYER && companyRoleName !== CustomerRoleName.JUNIOR_BUYER_NAME
+          ? CustomerRole.CUSTOM_ROLE
+          : role;
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(role, id, userType),

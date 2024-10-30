@@ -20,7 +20,7 @@ import { showPageMask } from './b3PageMask';
 import distanceDay from './b3Picker';
 import getProductPriceIncTax from './b3Price';
 import b2bPrintInvoice from './b3PrintInvoice';
-import { getB3PermissionsList, setCartPermissions } from './b3RolePermissions';
+import { b2bGotoRoute, getB3PermissionsList, setCartPermissions } from './b3RolePermissions';
 import { serialize } from './b3Serialize';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { globalSnackbar, snackbar } from './b3Tip';
@@ -45,6 +45,7 @@ export { loginJump } from './b3Login';
 export { default as hideStorefrontElement } from './b3HideStorefrontElement';
 
 export {
+  b2bGotoRoute,
   b2bPrintInvoice,
   b2bGetVariantImageByVariantInfo,
   B3LStorage,
