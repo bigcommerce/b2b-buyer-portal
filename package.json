@@ -12,7 +12,7 @@
     "build": "turbo run build",
     "build:production": "turbo run build",
     "build:staging": "turbo run build:staging",
-    "build:tier1": "turbo run build",
+    "build:tier1": "turbo run build:tier1",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint --parallel --continue",
     "format": "turbo run format --parallel --continue",
