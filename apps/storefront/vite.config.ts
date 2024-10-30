@@ -93,6 +93,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       minify: true,
+      sourcemap: true,
       rollupOptions: {
         input: {
           index: 'src/main.ts',
