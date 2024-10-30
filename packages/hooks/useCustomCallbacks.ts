@@ -2,6 +2,8 @@ export enum CallbackKey {
   OnQuoteCreate = 'on-quote-create',
   OnAddToShoppingList = 'on-add-to-shopping-list',
   OnClickCartButton = 'on-click-cart-button',
+  OnLogin = 'on-login',
+  OnLogout = 'on-logout',
 }
 
 export const useCallbacks = <T, Q>(
