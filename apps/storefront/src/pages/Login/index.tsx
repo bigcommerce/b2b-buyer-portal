@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CallbackKey, useCallbacks } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box, ImageListItem } from '@mui/material';
 
@@ -131,51 +132,52 @@ export default function Login(props: PageProps) {
     logo: displayStoreLogo ? logo : undefined,
   };
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const loginFlag = searchParams.get('loginFlag');
-        const showTipInfo = searchParams.get('showTip') !== 'false';
+  const init = useCallbacks(CallbackKey.OnLogout, async (_, handleEvent) => {
+    try {
+      const loginFlag = searchParams.get('loginFlag');
+      const showTipInfo = searchParams.get('showTip') !== 'false';
 
-        setShowTipInfo(showTipInfo);
+      setShowTipInfo(showTipInfo);
 
-        if (loginFlag) setLoginFlag(loginFlag);
+      if (loginFlag) setLoginFlag(loginFlag);
 
-        if (loginFlag === '7') {
-          snackbar.error(b3Lang('login.loginText.invoiceErrorTip'));
-        }
-        if (loginFlag === '3' && isLoggedIn) {
-          const cartInfo = await getCart();
-
-          if (cartInfo.data.site.cart?.entityId) {
-            const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId);
-            await deleteCart(deleteQuery);
-          }
-
-          const { result } = (await bcLogoutLogin()).data.logout;
-
-          if (result !== 'success') return;
-
-          if (isMasquerade) {
-            await endMasquerade();
-          }
-
-          // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
-          window.sessionStorage.clear();
-
-          logoutSession();
-          setLoading(false);
-          return;
-        }
-
-        setLoading(false);
-      } finally {
-        setLoading(false);
+      if (loginFlag === '7') {
+        snackbar.error(b3Lang('login.loginText.invoiceErrorTip'));
       }
-    };
+      if (loginFlag === '3' && isLoggedIn) {
+        const cartInfo = await getCart();
 
-    init();
-  }, [b3Lang, endMasquerade, isLoggedIn, isMasquerade, searchParams]);
+        if (cartInfo.data.site.cart?.entityId) {
+          const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId);
+          await deleteCart(deleteQuery);
+        }
+
+        const { result } = (await bcLogoutLogin()).data.logout;
+
+        if (result !== 'success') return;
+
+        if (isMasquerade) {
+          await endMasquerade();
+        }
+
+        // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
+        window.sessionStorage.clear();
+
+        logoutSession();
+        setLoading(false);
+        return;
+      }
+
+      setLoading(false);
+    } finally {
+      setLoading(false);
+      handleEvent();
+    }
+  });
+
+  useEffect(() => {
+    init(CallbackKey.OnLogout);
+  }, [init]);
 
   const tipInfo = (loginFlag: string, email = '') => {
     if (!loginFlag) {
@@ -212,13 +214,15 @@ export default function Login(props: PageProps) {
     }
   };
 
-  const handleLoginSubmit = async (data: LoginConfig) => {
-    setLoading(true);
-    setLoginAccount(data);
-    setSearchParams((prevURLSearchParams) => {
-      prevURLSearchParams.delete('loginFlag');
-      return prevURLSearchParams;
-    });
+  const handleLoginSubmit = useCallbacks(
+    CallbackKey.OnLogin,
+    async (data: LoginConfig, handleEvent) => {
+      setLoading(true);
+      setLoginAccount(data);
+      setSearchParams((prevURLSearchParams) => {
+        prevURLSearchParams.delete('loginFlag');
+        return prevURLSearchParams;
+      });
 
     if (isCheckout) {
       try {
@@ -226,7 +230,7 @@ export default function Login(props: PageProps) {
 
         if (response.status === 400 && response.type === 'reset_password_before_login') {
           b2bLogger.error(response);
-          await getForcePasswordReset(data.emailAddress);
+          await g(data.emailAddress);
         } else {
           window.location.href = CHECKOUT_URL;
         }
@@ -251,67 +255,72 @@ export default function Login(props: PageProps) {
           },
         } = await b2bLogin({ loginData });
 
-        storeDispatch(setB2BToken(token));
-        customerLoginAPI(storefrontLoginToken);
+          storeDispatch(setB2BToken(token));
+          customerLoginAPI(storefrontLoginToken);
 
-        if (errors?.[0] || !token) {
-          if (errors?.[0]) {
-            const { message } = errors[0];
-            if (message === 'Operation cannot be performed as the storefront channel is not live') {
-              setLoginFlag('5');
-              setLoading(false);
+          handleEvent(storefrontLoginToken);
+
+          if (errors?.[0] || !token) {
+            if (errors?.[0]) {
+              const { message } = errors[0];
+              if (
+                message === 'Operation cannot be performed as the storefront channel is not live'
+              ) {
+                setLoginFlag('5');
+                setLoading(false);
+                return;
+              }
+            }
+            getForcePasswordReset(data.emailAddress);
+          } else {
+            const info = await getCurrentCustomerInfo(token);
+
+            if (quoteDetailToCheckoutUrl) {
+              navigate(quoteDetailToCheckoutUrl);
               return;
             }
-          }
-          getForcePasswordReset(data.emailAddress);
-        } else {
-          const info = await getCurrentCustomerInfo(token);
 
-          if (quoteDetailToCheckoutUrl) {
-            navigate(quoteDetailToCheckoutUrl);
-            return;
-          }
+            if (
+              info?.userType === UserTypes.MULTIPLE_B2C &&
+              info?.role === CustomerRole.SUPER_ADMIN
+            ) {
+              navigate('/dashboard');
+              return;
+            }
+            const isLoginLandLocation = loginJump(navigate);
 
-          if (
-            info?.userType === UserTypes.MULTIPLE_B2C &&
-            info?.role === CustomerRole.SUPER_ADMIN
-          ) {
-            navigate('/dashboard');
-            return;
-          }
-          const isLoginLandLocation = loginJump(navigate);
+            if (!isLoginLandLocation) return;
 
-          if (!isLoginLandLocation) return;
-
-          const { getShoppingListPermission, getOrderPermission } = getB3PermissionsList();
-          if (
-            info?.role === CustomerRole.JUNIOR_BUYER &&
-            info?.companyRoleName === 'Junior Buyer'
-          ) {
-            const currentJuniorActivePage = getShoppingListPermission
-              ? '/shoppingLists'
-              : '/accountSettings';
-
-            navigate(currentJuniorActivePage);
-          } else {
-            let currentActivePage = getOrderPermission ? '/orders' : '/shoppingLists';
-
-            currentActivePage =
-              getShoppingListPermission || getOrderPermission
-                ? currentActivePage
+            const { getShoppingListPermission, getOrderPermission } = getB3PermissionsList();
+            if (
+              info?.role === CustomerRole.JUNIOR_BUYER &&
+              info?.companyRoleName === 'Junior Buyer'
+            ) {
+              const currentJuniorActivePage = getShoppingListPermission
+                ? '/shoppingLists'
                 : '/accountSettings';
 
-            currentActivePage = info?.userType === UserTypes.B2C ? '/orders' : currentActivePage;
-            navigate(currentActivePage);
+              navigate(currentJuniorActivePage);
+            } else {
+              let currentActivePage = getOrderPermission ? '/orders' : '/shoppingLists';
+
+              currentActivePage =
+                getShoppingListPermission || getOrderPermission
+                  ? currentActivePage
+                  : '/accountSettings';
+
+              currentActivePage = info?.userType === UserTypes.B2C ? '/orders' : currentActivePage;
+              navigate(currentActivePage);
+            }
           }
+        } catch (error) {
+          snackbar.error(b3Lang('login.loginTipInfo.accountincorrect'));
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        snackbar.error(b3Lang('login.loginTipInfo.accountincorrect'));
-      } finally {
-        setLoading(false);
       }
-    }
-  };
+    },
+  );
 
   const handleCreateAccountSubmit = () => {
     navigate('/register');
