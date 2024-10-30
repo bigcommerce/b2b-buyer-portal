@@ -35,11 +35,20 @@ export enum CompanyStatus {
   DEFAULT = 99,
 }
 
+export enum CustomerRoleName {
+  ADMIN_NAME = 'Admin',
+  SENIOR_BUYER_NAME = 'Senior Buyer',
+  JUNIOR_BUYER_NAME = 'Junior Buyer',
+}
+
+/** CUSTOM_ROLE(role === 2 && roleName !== 'Junior Buyer') * */
 export enum CustomerRole {
   ADMIN = 0,
   SENIOR_BUYER = 1,
   JUNIOR_BUYER = 2,
   SUPER_ADMIN = 3,
+  SUPER_ADMIN_IN_AGENCY = 4,
+  CUSTOM_ROLE = 5,
   B2C = 99,
   GUEST = 100,
 }
