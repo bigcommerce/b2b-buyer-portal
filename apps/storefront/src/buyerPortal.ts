@@ -11,12 +11,14 @@ interface GraphqlOriginProps {
   development: string;
   staging: string;
   production: string;
+  tier1: string;
 }
 
 const graphqlOrigin: GraphqlOriginProps = {
   development: VITE_LOCAL_GRAPHQL_ORIGIN,
   staging: 'https://api-b2b.staging.zone',
   production: 'https://api-b2b.bigcommerce.com',
+  tier1: 'https://api-b2b.bigcommerce.com',
 };
 
 function init() {
