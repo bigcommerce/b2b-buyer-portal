@@ -23,6 +23,11 @@ export default class CallbackManager {
    * @returns A unique hash identifying the registered callback.
    */
   addEventListener(callbackKey: B2BEvent, callback: Callback): void {
+    if (typeof callback !== 'function') {
+      console.error('callback should be a function');
+      return;
+    }
+
     if (!this.callbacks.has(callbackKey)) {
       this.callbacks.set(callbackKey, [callback]);
     } else {
@@ -60,7 +65,7 @@ export default class CallbackManager {
    * @param data The data to pass to the callback.
    * @returns True if all callbacks were successfully executed, false otherwise.
    */
-  dispatchEvent(callbackKey: B2BEvent, data: any): boolean {
+  dispatchEvent(callbackKey: B2BEvent, data?: any): boolean {
     let success = true;
     const event = {
       data,
