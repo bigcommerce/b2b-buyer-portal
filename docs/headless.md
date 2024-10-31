@@ -20,17 +20,22 @@
 <script type="module" src="http://localhost:3001/@vite/client"></script>
 ```
 
-- Script for the `<body>` tag and make sure to replace the `{REPLACE_WITH_YOUR_STORE_HASH}` and `{REPLACE_WITH_YOUR_CHANNEL_ID}` with the appropriate information
+- Script for the `<body>` tag and make sure to 
+
+> [!IMPORTANT]  
+> Platform is required to load buyer portal properly, select one depending on [your store channel platform](https://developer.bigcommerce.com/docs/rest-management/channels#platform)
+
+> [!WARNING]
+> Replace the `REPLACE_WITH_YOUR_STORE_HASH` and `REPLACE_WITH_YOUR_CHANNEL_ID` with the appropriate information
 
 ```html
 <script type="module" src="http://localhost:3001/src/main.ts"></script>
 <script>
   window.B3 = {
     setting: {
-      store_hash: '{REPLACE_WITH_YOUR_STORE_HASH}',
-      channel_id: { REPLACE_WITH_YOUR_CHANNEL_ID },
+      store_hash: 'REPLACE_WITH_YOUR_STORE_HASH',
+      channel_id: REPLACE_WITH_YOUR_CHANNEL_ID,
       platform: 'headless',
-      // override this depending on your store channel platform: https://developer.bigcommerce.com/docs/rest-management/channels#platform
     },
   }
 </script>
@@ -70,8 +75,8 @@ Once you have uploaded the contents of the `dist` folder to your hosting provide
   }
   window.B3 = {
     setting: {
-      store_hash: '<YOUR_STORE_HASH>',
-      channel_id: '<YOUR_CHANNEL_ID>',
+      store_hash: 'REPLACE_WITH_YOUR_STORE_HASH',  
+      channel_id: REPLACE_WITH_YOUR_CHANNEL_ID,
       platform: 'headless',
       b2b_url: 'https://api-b2b.bigcommerce.com',
       captcha_setkey: '6LdGN_sgAAAAAGYFg1lmVoakQ8QXxbhWqZ1GpYaJ',
@@ -102,7 +107,8 @@ Once you have uploaded the contents of the `dist` folder to your hosting provide
 ></script>
 ```
 
-Replace the following values:
-- `<VITE_ASSETS_ABSOLUTE_PATH>` with the value you used for the environment variable `VITE_ASSETS_ABSOLUTE_PATH` (where your build is hosted)
-- `<YOUR_STORE_HASH>` with your store hash
-- `<YOUR_CHANNEL_ID>` with the headless channel id
+> [!IMPORTANT]
+> Replace the following values:
+> - `<VITE_ASSETS_ABSOLUTE_PATH>` with the value you used for the environment variable `VITE_ASSETS_ABSOLUTE_PATH` (where your build is hosted)
+> - `REPLACE_WITH_YOUR_STORE_HASH` with your store hash
+> - `REPLACE_WITH_YOUR_CHANNEL_ID` with the headless channel id

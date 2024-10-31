@@ -90,8 +90,8 @@ Once you have uploaded the contents of the `dist` folder to your hosting provide
   }
   window.B3 = {
     setting: {
-      store_hash: '<YOUR_STORE_HASH>',
-      channel_id: '<YOUR_CHANNEL_ID>',
+      store_hash: '{{settings.store_hash}}',  
+      channel_id: {{settings.channel_id}}, 
       platform: 'bigcommerce',
       b2b_url: 'https://api-b2b.bigcommerce.com',
       captcha_setkey: '6LdGN_sgAAAAAGYFg1lmVoakQ8QXxbhWqZ1GpYaJ',
@@ -124,8 +124,6 @@ Once you have uploaded the contents of the `dist` folder to your hosting provide
 
 Replace the following values:
 - `<VITE_ASSETS_ABSOLUTE_PATH>` with the value you used for the environment variable `VITE_ASSETS_ABSOLUTE_PATH` (where your build is hosted)
-- `<YOUR_STORE_HASH>` with your store hash
-- `<YOUR_CHANNEL_ID>` with the headless channel id
 
 - Header Script Contents:
 ```html
