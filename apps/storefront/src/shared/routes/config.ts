@@ -92,6 +92,13 @@ const leagcyPermissions = {
     CustomerRole.B2C,
     CustomerRole.SUPER_ADMIN_IN_AGENCY,
   ],
+  companyHierarchyPermissions: [
+    CustomerRole.ADMIN,
+    CustomerRole.SENIOR_BUYER,
+    CustomerRole.JUNIOR_BUYER,
+    CustomerRole.CUSTOM_ROLE,
+    CustomerRole.SUPER_ADMIN_IN_AGENCY,
+  ],
   quoteDetailPermissions: allLeagcyPermission,
 };
 

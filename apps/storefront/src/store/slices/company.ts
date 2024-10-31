@@ -3,7 +3,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import persistReducer from 'redux-persist/es/persistReducer';
 import storageSession from 'redux-persist/lib/storage/session';
 
-import { CompanyInfo, CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
+import {
+  CompanyHierarchyInfoProps,
+  CompanyInfo,
+  CompanyStatus,
+  Customer,
+  CustomerRole,
+  LoginTypes,
+  UserTypes,
+} from '@/types';
 
 interface Tokens {
   B2BToken: string;
@@ -21,6 +29,7 @@ export interface CompanyState {
   customer: Customer;
   tokens: Tokens;
   permissions: PermissionsCodesProps[];
+  companyHierarchyInfo: CompanyHierarchyInfoProps;
 }
 
 const initialState: CompanyState = {
@@ -48,6 +57,10 @@ const initialState: CompanyState = {
     currentCustomerJWT: '',
   },
   permissions: [],
+  companyHierarchyInfo: {
+    selectCompanyHierarchyId: '',
+    companyHierarchyList: [],
+  },
 };
 
 const companySlice = createSlice({
@@ -88,6 +101,12 @@ const companySlice = createSlice({
     setPermissionModules: (state, { payload }: PayloadAction<PermissionsCodesProps[]>) => {
       state.permissions = payload;
     },
+    setCompanyHierarchyInfoModules: (
+      state,
+      { payload }: PayloadAction<CompanyHierarchyInfoProps>,
+    ) => {
+      state.companyHierarchyInfo = payload;
+    },
   },
 });
 
@@ -104,6 +123,7 @@ export const {
   setCurrentCustomerJWT,
   setLoginType,
   setPermissionModules,
+  setCompanyHierarchyInfoModules,
 } = companySlice.actions;
 
 export default persistReducer({ key: 'company', storage: storageSession }, companySlice.reducer);
