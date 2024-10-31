@@ -44,6 +44,8 @@ export { loginJump } from './b3Login';
 // TODO: Clean this up
 export { default as hideStorefrontElement } from './b3HideStorefrontElement';
 
+export * from './b3Company';
+
 export {
   b2bGotoRoute,
   b2bPrintInvoice,
