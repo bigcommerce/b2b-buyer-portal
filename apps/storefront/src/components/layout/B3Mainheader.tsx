@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CallbackKey, useCallbacks } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
 
 import { CART_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
@@ -13,6 +13,7 @@ import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
 import B3AccountInfo from './B3AccountInfo';
+import B3CompanyHierarchy from './B3CompanyHierarchy';
 import B3StatusNotification from './B3StatusNotification';
 
 export default function B3Mainheader({ title }: { title: string }) {
@@ -63,19 +64,28 @@ export default function B3Mainheader({ title }: { title: string }) {
           alignItems: 'center',
         }}
       >
-        <Box
-          component="h4"
+        <Grid
           sx={{
-            fontSize: '20px',
-            fontWeight: '500',
-            color: customColor || '#333333',
+            alignItems: 'center',
+            flexDirection: 'row',
+            display: 'flex',
           }}
         >
-          {+role === 3 &&
-            (companyInfo?.companyName ||
-              salesRepCompanyName ||
-              b3Lang('global.B3MainHeader.superAdmin'))}
-        </Box>
+          <B3CompanyHierarchy />
+          <Box
+            component="h4"
+            sx={{
+              fontSize: '20px',
+              fontWeight: '500',
+              color: customColor || '#333333',
+            }}
+          >
+            {+role === 3 &&
+              (companyInfo?.companyName ||
+                salesRepCompanyName ||
+                b3Lang('global.B3MainHeader.superAdmin'))}
+          </Box>
+        </Grid>
         <Box
           sx={{
             display: 'flex',

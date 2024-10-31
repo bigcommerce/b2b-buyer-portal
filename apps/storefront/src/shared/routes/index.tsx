@@ -34,6 +34,7 @@ const RegisteredBCToB2B = lazy(() => import('@/pages/RegisteredBCToB2B'));
 const ShippingLists = lazy(() => import('@/pages/ShoppingLists'));
 const ShoppingListDetails = lazy(() => import('@/pages/ShoppingListDetails'));
 const UserManagement = lazy(() => import('@/pages/UserManagement'));
+const CompanyHierarchy = lazy(() => import('@/pages/CompanyHierarchy'));
 
 interface RouteItemBasic {
   component: FC<PageProps>;
@@ -71,6 +72,7 @@ const {
   userManagementPermissions,
   quoteDraftPermissions,
   accountSettingPermissions,
+  companyHierarchyPermissions,
   quoteDetailPermissions,
 } = leagcyPermissions;
 
@@ -248,6 +250,17 @@ const routes: RouteItem[] = [
     permissions: accountSettingPermissions,
     isTokenLogin: true,
     idLang: 'global.navMenu.accountSettings',
+  },
+  {
+    path: '/companyHierarchy',
+    name: 'Company hierarchy',
+    wsKey: 'companyHierarchy',
+    isMenuItem: true,
+    component: CompanyHierarchy,
+    configKey: 'companyHierarchy',
+    permissions: companyHierarchyPermissions,
+    isTokenLogin: true,
+    idLang: 'global.navMenu.companyHierarchy',
   },
   {
     path: '/quoteDetail/:id',
