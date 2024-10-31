@@ -29,7 +29,7 @@ import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
 
 import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
-import { channelId, storeHash } from './basicConfig';
+import { channelId, platform, storeHash } from './basicConfig';
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env;
 
@@ -129,7 +129,6 @@ export const clearCurrentCustomerInfo = async () => {
   B3SStorage.set('blockPendingAccountOrderCreation', false);
   B3SStorage.set('loginCustomer', '');
   sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation');
-
   store.dispatch(clearCompanySlice());
   store.dispatch(clearMasqueradeCompany());
 };
@@ -233,6 +232,9 @@ export const getCompanyUserInfo = async () => {
 };
 
 const loginWithCurrentCustomerJWT = async () => {
+  if (platform !== 'bigcommerce') {
+    return undefined;
+  }
   const prevCurrentCustomerJWT = store.getState().company.tokens.currentCustomerJWT;
   let currentCustomerJWT;
   try {
