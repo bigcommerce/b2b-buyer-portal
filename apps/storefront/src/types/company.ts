@@ -75,3 +75,19 @@ export enum FeatureEnabled {
   DISABLED = '0',
   ENABLED = '1',
 }
+
+export interface CompanyHierarchyListProps {
+  companyId: number;
+  companyName: string;
+  parentCompanyName?: string;
+  parentCompanyId?: number | null;
+}
+
+export interface CompanyHierarchyInfoProps {
+  selectCompanyHierarchyId: string | number;
+  companyHierarchyList: CompanyHierarchyListProps[];
+}
+
+export interface CompanyHierarchyProps extends CompanyHierarchyListProps {
+  childs?: CompanyHierarchyProps[];
+}

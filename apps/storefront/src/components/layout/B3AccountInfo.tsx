@@ -1,10 +1,12 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
 import { useMobile } from '@/hooks';
 import { useAppSelector } from '@/store';
 
-import B3DropDown from '../B3DropDown';
+import B3DropDown, { ListItemProps } from '../B3DropDown';
 
 interface ListProps {
   [key: string]: string;
@@ -14,7 +16,6 @@ const list: Array<ListProps> = [
   {
     name: 'Log out',
     key: 'logout',
-    type: 'button',
     idLang: 'global.button.logout',
   },
 ];
@@ -31,7 +32,13 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
 
   const navigate = useNavigate();
 
-  const handleItemClick = async (item: ListProps) => {
+  const b3Lang = useB3Lang();
+
+  const handleItemClick = async (key: string | number) => {
+    const item = list.find((v) => v.key === key);
+
+    if (!item) return;
+
     if (item.key === 'logout') {
       navigate('/login?loginFlag=3');
     } else if (item.type === 'path' && item.key) {
@@ -43,6 +50,15 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
   };
 
   const name = `${firstName}  ${lastName}`;
+
+  const newList: ListItemProps[] = useMemo(() => {
+    return list.map((item) => {
+      return {
+        key: item.key,
+        name: b3Lang(item.idLang),
+      };
+    });
+  }, [b3Lang]);
 
   return (
     <Box
@@ -57,7 +73,7 @@ export default function B3AccountInfo({ closeSidebar }: B3AccountInfoProps) {
         alignItems: 'center',
       }}
     >
-      <B3DropDown title={name} handleItemClick={handleItemClick} list={list} />
+      <B3DropDown title={name} handleItemClick={handleItemClick} list={newList} />
     </Box>
   );
 }
