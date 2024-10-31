@@ -174,15 +174,12 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             if (typeof customerRef.current.b2bId !== 'number') return;
             startMasquerade({
               companyId,
-              b2bId: customerRef.current.b2bId,
               customerId: customerIdRef.current,
             });
           },
           endMasquerade: () => {
             if (typeof customerRef.current.b2bId !== 'number') return;
-            endMasquerade({
-              b2bId: customerRef.current.b2bId,
-            });
+            endMasquerade();
           },
           graphqlBCProxy: B3Request.graphqlBCProxy,
           loginWithB2BStorefrontToken: async (b2bStorefrontJWTToken: string) => {

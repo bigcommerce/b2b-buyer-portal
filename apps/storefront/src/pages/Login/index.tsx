@@ -40,20 +40,17 @@ type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 const useMasquerade = () => {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-  const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const storeDispatch = useAppDispatch();
 
-  const isMasquerade = isAgenting && typeof b2bId === 'number';
-
   const endMasquerade = useCallback(async () => {
-    if (isMasquerade) {
-      await superAdminEndMasquerade(+salesRepCompanyId, b2bId);
+    if (isAgenting) {
+      await superAdminEndMasquerade(+salesRepCompanyId);
       storeDispatch(clearMasqueradeCompany());
     }
-  }, [b2bId, isMasquerade, salesRepCompanyId, storeDispatch]);
+  }, [salesRepCompanyId, storeDispatch, isAgenting]);
 
-  return { endMasquerade, isMasquerade };
+  return { endMasquerade, isAgenting };
 };
 
 const setTipType = (flag: string): AlertColor | undefined => {
@@ -74,7 +71,7 @@ const setTipType = (flag: string): AlertColor | undefined => {
 };
 
 export default function Login(props: PageProps) {
-  const { isMasquerade, endMasquerade } = useMasquerade();
+  const { isAgenting, endMasquerade } = useMasquerade();
   const { setOpenPage } = props;
   const storeDispatch = useAppDispatch();
 
@@ -158,7 +155,7 @@ export default function Login(props: PageProps) {
 
             if (result !== 'success') return;
 
-            if (isMasquerade) {
+            if (isAgenting) {
               await endMasquerade();
             }
           } catch (e) {
@@ -170,6 +167,21 @@ export default function Login(props: PageProps) {
             window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
             setLoading(false);
           }
+
+          const { result } = (await bcLogoutLogin()).data.logout;
+
+          if (result !== 'success') return;
+
+          if (isAgenting) {
+            await endMasquerade();
+          }
+
+          // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
+          window.sessionStorage.clear();
+
+          logoutSession();
+          setLoading(false);
+          return;
         }
         setLoading(false);
       } finally {
@@ -178,7 +190,7 @@ export default function Login(props: PageProps) {
     };
 
     logout();
-  }, [b3Lang, endMasquerade, isLoggedIn, isMasquerade, searchParams]);
+  }, [b3Lang, endMasquerade, isLoggedIn, isAgenting, searchParams]);
 
   const tipInfo = (loginFlag: string, email = '') => {
     if (!loginFlag) {
