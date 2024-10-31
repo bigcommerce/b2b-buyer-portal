@@ -1,0 +1,3 @@
+describe('event manager', () => {
+  test('', () => {});
+});

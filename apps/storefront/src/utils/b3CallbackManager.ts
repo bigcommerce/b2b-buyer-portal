@@ -1,4 +1,4 @@
-import { CallbackKey } from '@b3/hooks';
+import { B2BEvent } from '@b3/hooks';
 
 import b2bLogger from './b3Logger';
 
@@ -10,10 +10,10 @@ type CallbackEvent = {
 type Callback = (event: CallbackEvent) => any;
 
 export default class CallbackManager {
-  private callbacks: Map<CallbackKey, Callback[]>;
+  private callbacks: Map<B2BEvent, Callback[]>;
 
   constructor() {
-    this.callbacks = new Map<CallbackKey, Callback[]>();
+    this.callbacks = new Map<B2BEvent, Callback[]>();
   }
 
   /**
@@ -22,25 +22,26 @@ export default class CallbackManager {
    * @param callback The callback function to register.
    * @returns A unique hash identifying the registered callback.
    */
-  addEventListener(callbackKey: CallbackKey, callback: Callback): void {
+  addEventListener(callbackKey: B2BEvent, callback: Callback): void {
     if (!this.callbacks.has(callbackKey)) {
       this.callbacks.set(callbackKey, [callback]);
-    }
-    const list = this.callbacks.get(callbackKey) ?? [];
-    const inList = list.find((cb) => cb === callback);
+    } else {
+      const list = this.callbacks.get(callbackKey) ?? [];
+      const inList = list.find((cb) => cb === callback);
 
-    if (!inList) {
-      list.push(callback);
+      if (!inList) {
+        list.push(callback);
+      }
     }
   }
 
   /**
-   * Unregisters a callback identified by a hash and event key.
+   * Unregister a callback identified by a hash and event key.
    * @param callbackKey The event key (e.g., 'onAddToCart').
    * @param hash The unique hash of the callback to unregister.
    * @returns True if the callback was successfully removed, false otherwise.
    */
-  removeEventListener(callbackKey: CallbackKey, callback: Callback): boolean {
+  removeEventListener(callbackKey: B2BEvent, callback: Callback): boolean {
     if (!this.callbacks.has(callbackKey)) {
       return false;
     }
@@ -59,7 +60,7 @@ export default class CallbackManager {
    * @param data The data to pass to the callback.
    * @returns True if all callbacks were successfully executed, false otherwise.
    */
-  dispatchEvent(callbackKey: CallbackKey, data: any): boolean {
+  dispatchEvent(callbackKey: B2BEvent, data: any): boolean {
     let success = true;
     const event = {
       data,

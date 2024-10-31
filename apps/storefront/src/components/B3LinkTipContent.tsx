@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { CallbackKey, useCallbacks } from '@b3/hooks';
+import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { Box } from '@mui/material';
 
 export interface B3SuccessTipContentProps {
@@ -19,9 +19,9 @@ export function B3LinkTipContent({
 }: B3SuccessTipContentProps) {
   const navigate = useNavigate();
 
-  const handleLink = useCallbacks(CallbackKey.OnClickCartButton, (_, handleEvent) => {
+  const handleLink = useB2BCallback(B2BEvent.OnClickCartButton, (dispatchOnClickCartEvent) => {
     if (isCustomEvent) {
-      const isNotPreventDefaultExecuted = handleEvent();
+      const isNotPreventDefaultExecuted = dispatchOnClickCartEvent();
       if (!isNotPreventDefaultExecuted) {
         return;
       }
