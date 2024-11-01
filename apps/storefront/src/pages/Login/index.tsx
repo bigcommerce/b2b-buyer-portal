@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CallbackKey, useCallbacks } from '@b3/hooks';
+import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box, ImageListItem } from '@mui/material';
 
@@ -132,7 +132,7 @@ export default function Login(props: PageProps) {
     logo: displayStoreLogo ? logo : undefined,
   };
 
-  const init = useCallbacks(CallbackKey.OnLogout, async (_, handleEvent) => {
+  const logoutEffect = useB2BCallback(B2BEvent.OnLogout, async (dispatchLogoutEvent) => {
     try {
       const loginFlag = searchParams.get('loginFlag');
       const showTipInfo = searchParams.get('showTip') !== 'false';
@@ -171,13 +171,13 @@ export default function Login(props: PageProps) {
       setLoading(false);
     } finally {
       setLoading(false);
-      handleEvent();
+      dispatchLogoutEvent();
     }
   });
 
   useEffect(() => {
-    init(CallbackKey.OnLogout);
-  }, [init]);
+    logoutEffect();
+  }, [logoutEffect]);
 
   const tipInfo = (loginFlag: string, email = '') => {
     if (!loginFlag) {
@@ -214,9 +214,9 @@ export default function Login(props: PageProps) {
     }
   };
 
-  const handleLoginSubmit = useCallbacks(
-    CallbackKey.OnLogin,
-    async (data: LoginConfig, handleEvent) => {
+  const handleLoginSubmit = useB2BCallback(
+    B2BEvent.OnLogin,
+    async (dispatchOnLoginEvent, data: LoginConfig) => {
       setLoading(true);
       setLoginAccount(data);
       setSearchParams((prevURLSearchParams) => {
@@ -258,7 +258,7 @@ export default function Login(props: PageProps) {
           storeDispatch(setB2BToken(token));
           customerLoginAPI(storefrontLoginToken);
 
-          handleEvent(storefrontLoginToken);
+          dispatchOnLoginEvent(storefrontLoginToken);
 
           if (errors?.[0] || !token) {
             if (errors?.[0]) {

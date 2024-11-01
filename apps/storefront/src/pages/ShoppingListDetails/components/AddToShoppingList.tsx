@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { CallbackKey, useCallbacks } from '@b3/hooks';
+import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
@@ -40,11 +40,11 @@ export default function AddToShoppingList(props: AddToListProps) {
 
   const addItemsToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
 
-  const addToList = useCallbacks(
-    CallbackKey.OnAddToShoppingList,
-    async (products: CustomFieldItems[], handleEvent) => {
+  const addToList = useB2BCallback(
+    B2BEvent.OnAddToShoppingList,
+    async (dispatchOnAddToShoppingListEvent, products: CustomFieldItems[]) => {
       try {
-        if (!handleEvent(products)) {
+        if (!dispatchOnAddToShoppingListEvent(products)) {
           throw new Error();
         }
 
