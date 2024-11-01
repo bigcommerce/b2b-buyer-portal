@@ -3,6 +3,11 @@ import { B2BEvent } from '@b3/hooks';
 import CallbackManager from '@/utils/b3CallbackManager';
 
 describe('Callback manager', () => {
+  beforeEach(async () => {
+    CallbackManager.callbacks.clear();
+    console.log(CallbackManager.callbacks);
+  });
+
   test('addEventListener register events if key does not exist', () => {
     const callback = vi.fn();
     CallbackManager.addEventListener(B2BEvent.OnLogin, callback);
@@ -17,8 +22,7 @@ describe('Callback manager', () => {
     expect(consoleSpy).toBeCalledTimes(0);
     // @ts-expect-error:next-line
     CallbackManager.addEventListener(B2BEvent.OnLogin);
-    // @ts-expect-error:next-line
-    expect(CallbackManager.callbacks.size).toBe(1);
+    expect(CallbackManager.callbacks.size).toBe(0);
     expect(consoleSpy).toHaveBeenCalled();
   });
 
@@ -27,19 +31,16 @@ describe('Callback manager', () => {
     const tesFunc = vi.fn();
     CallbackManager.addEventListener(B2BEvent.OnLogout, callback);
     CallbackManager.addEventListener(B2BEvent.OnLogout, tesFunc);
-    // @ts-expect-error:next-line
-    expect(CallbackManager.callbacks.size).toBe(2);
+    expect(CallbackManager.callbacks.get(B2BEvent.OnLogout)?.length).toBe(2);
   });
 
   test('removeEventListener delete from callback manager callback', () => {
     const callback = vi.fn();
 
     CallbackManager.addEventListener(B2BEvent.OnAddToShoppingList, callback);
-    // @ts-expect-error:next-line
-    expect(CallbackManager.callbacks.size).toBe(3);
+    expect(CallbackManager.callbacks.get(B2BEvent.OnAddToShoppingList)?.length).toBe(1);
     CallbackManager.removeEventListener(B2BEvent.OnAddToShoppingList, callback);
-    // @ts-expect-error:next-line
-    expect(CallbackManager.callbacks.size).toBe(3);
+    expect(CallbackManager.callbacks.get(B2BEvent.OnAddToShoppingList)?.length).toBe(0);
   });
 
   test('dispatchEvent using payload sent during subscription', () => {

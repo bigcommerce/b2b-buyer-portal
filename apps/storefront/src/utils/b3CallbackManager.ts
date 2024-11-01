@@ -10,7 +10,7 @@ type CallbackEvent = {
 type Callback = (event: CallbackEvent) => any;
 
 class CallbackManager {
-  private callbacks: Map<B2BEvent, Callback[]>;
+  callbacks: Map<B2BEvent, Callback[]>;
 
   constructor() {
     this.callbacks = new Map<B2BEvent, Callback[]>();
@@ -56,6 +56,7 @@ class CallbackManager {
       return false;
     }
     list.splice(index, 1);
+    this.callbacks.set(callbackKey, list);
     return true;
   }
 
