@@ -146,39 +146,39 @@ export default function Login(props: PageProps) {
           snackbar.error(b3Lang('login.loginText.invoiceErrorTip'));
         }
         if (loginFlag === '3' && isLoggedIn) {
-          const cartInfo = await getCart();
+          try {
+            const cartInfo = await getCart();
 
-          if (cartInfo.data.site.cart?.entityId) {
-            const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId);
-            await deleteCart(deleteQuery);
+            if (cartInfo.data.site.cart?.entityId) {
+              const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId);
+              await deleteCart(deleteQuery);
+            }
+
+            const { result } = (await bcLogoutLogin()).data.logout;
+
+            if (result !== 'success') return;
+
+            if (isMasquerade) {
+              await endMasquerade();
+            }
+          } catch (e) {
+            b2bLogger.error(e);
+          } finally {
+            // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
+            window.sessionStorage.clear();
+            logoutSession();
+            window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout, null);
+            setLoading(false);
           }
-
-          const { result } = (await bcLogoutLogin()).data.logout;
-
-          if (result !== 'success') return;
-
-          if (isMasquerade) {
-            await endMasquerade();
-          }
-
-          // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
-          window.sessionStorage.clear();
-
-          logoutSession();
-          setLoading(false);
-          return;
         }
-
         setLoading(false);
       } finally {
         setLoading(false);
-        window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout, null);
       }
     };
 
     logout();
-    // eslint-disable-next-line
-  }, []);
+  }, [b3Lang, endMasquerade, isLoggedIn, isMasquerade, searchParams]);
 
   const tipInfo = (loginFlag: string, email = '') => {
     if (!loginFlag) {

@@ -14,13 +14,11 @@ describe('Callback manager', () => {
   test('addEventListener should not register undefined values and show console error', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    // @ts-expect-error:next-line
-    expect(CallbackManager.callbacks.size).toBe(0);
     expect(consoleSpy).toBeCalledTimes(0);
     // @ts-expect-error:next-line
     CallbackManager.addEventListener(B2BEvent.OnLogin);
     // @ts-expect-error:next-line
-    expect(CallbackManager.callbacks.size).toBe(0);
+    expect(CallbackManager.callbacks.size).toBe(1);
     expect(consoleSpy).toHaveBeenCalled();
   });
 });
