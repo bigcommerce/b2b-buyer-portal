@@ -21,7 +21,7 @@ import {
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
-import { channelId, getB3PermissionsList, loginJump, platform, snackbar, storeHash } from '@/utils';
+import { channelId, getB3PermissionsList, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
 import { deleteCartData } from '@/utils/cartUtils';
@@ -244,10 +244,7 @@ export default function Login(props: PageProps) {
         } = await b2bLogin({ loginData });
 
         storeDispatch(setB2BToken(token));
-
-        if (platform === 'bigcommerce') {
-          customerLoginAPI(storefrontLoginToken);
-        }
+        customerLoginAPI(storefrontLoginToken);
 
         if (errors?.[0] || !token) {
           if (errors?.[0]) {

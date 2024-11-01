@@ -29,7 +29,7 @@ import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
 
 import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
-import { channelId, platform, storeHash } from './basicConfig';
+import { channelId, storeHash } from './basicConfig';
 
 const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env;
 
@@ -232,9 +232,6 @@ export const getCompanyUserInfo = async () => {
 };
 
 const loginWithCurrentCustomerJWT = async () => {
-  if (platform !== 'bigcommerce') {
-    return undefined;
-  }
   const prevCurrentCustomerJWT = store.getState().company.tokens.currentCustomerJWT;
   let currentCustomerJWT;
   try {
@@ -244,7 +241,11 @@ const loginWithCurrentCustomerJWT = async () => {
     return undefined;
   }
 
-  if (currentCustomerJWT?.includes('errors') || prevCurrentCustomerJWT === currentCustomerJWT)
+  if (
+    !currentCustomerJWT ||
+    currentCustomerJWT?.includes('errors') ||
+    prevCurrentCustomerJWT === currentCustomerJWT
+  )
     return undefined;
 
   const data = await getB2BToken(currentCustomerJWT, channelId);
