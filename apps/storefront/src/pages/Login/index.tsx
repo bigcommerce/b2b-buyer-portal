@@ -132,7 +132,7 @@ export default function Login(props: PageProps) {
     logo: displayStoreLogo ? logo : undefined,
   };
 
-  const loginEffect = useB2BCallback(B2BEvent.OnLogout, async (dispatchLogoutEvent) => {
+  const logoutEffect = useB2BCallback(B2BEvent.OnLogout, async (dispatchLogoutEvent) => {
     try {
       const loginFlag = searchParams.get('loginFlag');
       const showTipInfo = searchParams.get('showTip') !== 'false';
@@ -176,8 +176,8 @@ export default function Login(props: PageProps) {
   });
 
   useEffect(() => {
-    loginEffect();
-  }, [loginEffect]);
+    logoutEffect();
+  }, [logoutEffect]);
 
   const tipInfo = (loginFlag: string, email = '') => {
     if (!loginFlag) {
