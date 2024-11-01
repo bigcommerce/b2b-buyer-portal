@@ -24,7 +24,7 @@ class CallbackManager {
    */
   addEventListener(callbackKey: B2BEvent, callback: Callback): void {
     if (typeof callback !== 'function') {
-      console.error('callback should be a function');
+      console.error('callback should be a function'); // eslint-disable-line no-console
       return;
     }
 

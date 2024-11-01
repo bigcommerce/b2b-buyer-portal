@@ -167,7 +167,7 @@ export default function Login(props: PageProps) {
             // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
             window.sessionStorage.clear();
             logoutSession();
-            window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout, null);
+            window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
             setLoading(false);
           }
         }
@@ -259,7 +259,11 @@ export default function Login(props: PageProps) {
           storeDispatch(setB2BToken(token));
           customerLoginAPI(storefrontLoginToken);
 
-          dispatchOnLoginEvent(storefrontLoginToken);
+          const loginInformation = {
+            storefrontToken: storefrontLoginToken,
+          };
+
+          dispatchOnLoginEvent(loginInformation);
 
           if (errors?.[0] || !token) {
             if (errors?.[0]) {
