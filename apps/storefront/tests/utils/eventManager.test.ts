@@ -5,7 +5,6 @@ import CallbackManager from '@/utils/b3CallbackManager';
 describe('Callback manager', () => {
   beforeEach(async () => {
     CallbackManager.callbacks.clear();
-    console.log(CallbackManager.callbacks);
   });
 
   test('addEventListener register events if key does not exist', () => {
