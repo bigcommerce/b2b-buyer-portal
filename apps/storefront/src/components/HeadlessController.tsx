@@ -120,7 +120,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   useEffect(() => {
     window.b2b = {
       ...window.b2b,
-      callbacks: new CallbackManager(),
+      callbacks: CallbackManager,
       utils: {
         openPage: (page) =>
           setTimeout(() => {

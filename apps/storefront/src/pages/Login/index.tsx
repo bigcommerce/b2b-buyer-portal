@@ -132,52 +132,53 @@ export default function Login(props: PageProps) {
     logo: displayStoreLogo ? logo : undefined,
   };
 
-  const logoutEffect = useB2BCallback(B2BEvent.OnLogout, async (dispatchLogoutEvent) => {
-    try {
-      const loginFlag = searchParams.get('loginFlag');
-      const showTipInfo = searchParams.get('showTip') !== 'false';
-
-      setShowTipInfo(showTipInfo);
-
-      if (loginFlag) setLoginFlag(loginFlag);
-
-      if (loginFlag === '7') {
-        snackbar.error(b3Lang('login.loginText.invoiceErrorTip'));
-      }
-      if (loginFlag === '3' && isLoggedIn) {
-        const cartInfo = await getCart();
-
-        if (cartInfo.data.site.cart?.entityId) {
-          const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId);
-          await deleteCart(deleteQuery);
-        }
-
-        const { result } = (await bcLogoutLogin()).data.logout;
-
-        if (result !== 'success') return;
-
-        if (isMasquerade) {
-          await endMasquerade();
-        }
-
-        // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
-        window.sessionStorage.clear();
-
-        logoutSession();
-        setLoading(false);
-        return;
-      }
-
-      setLoading(false);
-    } finally {
-      setLoading(false);
-      dispatchLogoutEvent();
-    }
-  });
-
   useEffect(() => {
-    logoutEffect();
-  }, [logoutEffect]);
+    const logout = async () => {
+      try {
+        const loginFlag = searchParams.get('loginFlag');
+        const showTipInfo = searchParams.get('showTip') !== 'false';
+
+        setShowTipInfo(showTipInfo);
+
+        if (loginFlag) setLoginFlag(loginFlag);
+
+        if (loginFlag === '7') {
+          snackbar.error(b3Lang('login.loginText.invoiceErrorTip'));
+        }
+        if (loginFlag === '3' && isLoggedIn) {
+          const cartInfo = await getCart();
+
+          if (cartInfo.data.site.cart?.entityId) {
+            const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId);
+            await deleteCart(deleteQuery);
+          }
+
+          const { result } = (await bcLogoutLogin()).data.logout;
+
+          if (result !== 'success') return;
+
+          if (isMasquerade) {
+            await endMasquerade();
+          }
+
+          // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
+          window.sessionStorage.clear();
+
+          logoutSession();
+          setLoading(false);
+          return;
+        }
+
+        setLoading(false);
+      } finally {
+        setLoading(false);
+        window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout, null);
+      }
+    };
+
+    logout();
+    // eslint-disable-next-line
+  }, []);
 
   const tipInfo = (loginFlag: string, email = '') => {
     if (!loginFlag) {

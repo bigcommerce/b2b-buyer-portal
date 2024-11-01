@@ -9,7 +9,7 @@ type CallbackEvent = {
 
 type Callback = (event: CallbackEvent) => any;
 
-export default class CallbackManager {
+class CallbackManager {
   private callbacks: Map<B2BEvent, Callback[]>;
 
   constructor() {
@@ -90,3 +90,5 @@ export default class CallbackManager {
     return success;
   }
 }
+
+export default new CallbackManager();
