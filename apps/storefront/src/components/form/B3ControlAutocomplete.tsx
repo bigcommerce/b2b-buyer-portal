@@ -1,5 +1,5 @@
 import { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
 import debounce from 'lodash-es/debounce';
@@ -25,6 +25,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     validate,
     muiSelectProps,
     setValue,
+    getValues,
     setValueName,
     size = 'small',
     disabled = false,
@@ -48,6 +49,20 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     inputValue: '',
     preSelectValue: '',
   });
+
+  const inputNameKey = `${name}Name`;
+  const nameKey = useWatch({
+    control,
+    name: inputNameKey,
+  });
+  useEffect(() => {
+    if (nameKey) {
+      setInputValue(getValues()[nameKey as string]);
+    } else {
+      setInputValue('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nameKey]);
 
   const muiAttributeProps = muiSelectProps || {};
 
@@ -114,6 +129,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     cache.current.inputValue = value.name;
 
     setValue(name, value.id);
+    setValue(`${name}Name`, value.name);
 
     if (setValueName) {
       setValueName(value.name);
