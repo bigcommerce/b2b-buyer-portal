@@ -512,6 +512,24 @@ function QuoteDetail() {
     return true;
   };
 
+  const quoteAndExtraFieldsInfo = useMemo(() => {
+    const currentExtraFields = quoteDetail?.extraFields?.map(
+      (field: { fieldName: string; fieldValue: string | number }) => ({
+        fieldName: field.fieldName,
+        value: field.fieldValue,
+      }),
+    );
+
+    return {
+      info: {
+        quoteTitle: quoteDetail?.quoteTitle || '',
+        referenceNumber: quoteDetail?.referenceNumber || '',
+      },
+      extraFields: currentExtraFields || [],
+      recipients: quoteDetail?.recipients || [],
+    };
+  }, [quoteDetail]);
+
   useScrollBar(false);
 
   return (
@@ -531,7 +549,6 @@ function QuoteDetail() {
           exportPdf={exportPdf}
           printQuote={printQuote}
           role={role}
-          quoteTitle={quoteDetail.quoteTitle}
           salesRepInfo={quoteDetail.salesRepInfo}
         />
 
@@ -541,6 +558,7 @@ function QuoteDetail() {
           }}
         >
           <QuoteInfo
+            quoteAndExtraFieldsInfo={quoteAndExtraFieldsInfo}
             contactInfo={quoteDetail.contactInfo}
             shippingAddress={quoteDetail.shippingAddress}
             billingAddress={quoteDetail.billingAddress}

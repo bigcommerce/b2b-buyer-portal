@@ -72,6 +72,8 @@ const initialState: QuoteInfoState = {
     },
     fileInfo: [],
     note: '',
+    referenceNumber: '',
+    extraFields: [],
   },
   quoteDetailToCheckoutUrl: '',
 };

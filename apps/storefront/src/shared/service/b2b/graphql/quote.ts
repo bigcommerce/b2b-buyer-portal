@@ -129,6 +129,8 @@ const quoteCreate = (data: CustomFieldItems) => `mutation{
     productList: ${convertArrayToGraphql(data.productList || [])},
     fileList: ${convertArrayToGraphql(data.fileList || [])},
     quoteTitle: "${data.quoteTitle}"
+    ${data?.extraFields ? `extraFields: ${convertArrayToGraphql(data?.extraFields || [])}` : ''}
+    ${data?.referenceNumber ? `referenceNumber: "${data?.referenceNumber}"` : ''}
   }) {
     quote{
       id,
@@ -350,6 +352,24 @@ query getStorefrontProductSettings($storeHash: String!, $channelId: Int) {
 }
 `;
 
+const getQuoteExtraFields = () => `{
+  quoteExtraFieldsConfig {
+    fieldName,
+    fieldType,
+    isRequired,
+    defaultValue,
+    maximumLength,
+    numberOfRows,
+    maximumValue,
+    listOfValue,
+    visibleToEnduser,
+    labelName,
+    id,
+    isUnique,
+    valueConfigs,
+  }
+}`;
+
 export const getBCCustomerAddresses = () =>
   B3Request.graphqlB2B({
     query: getCustomerAddresses(),
@@ -449,4 +469,9 @@ export const getBCStorefrontProductSettings = () =>
   B3Request.graphqlB2B({
     query: getStorefrontProductSettings,
     variables: { storeHash, channelId },
+  });
+
+export const getQuoteExtraFieldsConfig = () =>
+  B3Request.graphqlB2B({
+    query: getQuoteExtraFields(),
   });

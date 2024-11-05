@@ -88,6 +88,12 @@ export interface QuoteItem {
   };
 }
 
+export interface QuoteExtraFields {
+  id?: number | string;
+  fieldName: string;
+  value: string | number;
+}
+
 export interface QuoteInfo {
   userId?: number;
   contactInfo: ContactInfo;
@@ -95,4 +101,41 @@ export interface QuoteInfo {
   billingAddress: BillingAddress;
   fileInfo?: FileInfo[];
   note?: string;
+  referenceNumber?: string;
+  extraFields?: QuoteExtraFields[];
+}
+
+export interface QuoteInfoAndExtrafieldsItemProps {
+  info: {
+    quoteTitle: string;
+    referenceNumber: string;
+  };
+  extraFields: QuoteExtraFields[] | undefined;
+  recipients: string[];
+}
+
+export interface B2bExtraFieldsProps {
+  defaultValue: string;
+  fieldName: string;
+  fieldType: 0 | 1 | 2 | 3;
+  isRequired: boolean;
+  labelName: string;
+  listOfValue: null | Array<string>;
+  maximumLength: string | number | null;
+  maximumValue: string | number | null;
+  numberOfRows: string | number | null;
+  visibleToEnduser: boolean;
+  id: number | string;
+}
+
+export interface FieldsOptionProps {
+  label: string;
+  value: string | number;
+}
+
+export interface FormattedItemsProps {
+  [key: string]: string | boolean | number | Array<FieldsOptionProps> | boolean | undefined;
+  name: string;
+  default: string | number;
+  id: string | number;
 }

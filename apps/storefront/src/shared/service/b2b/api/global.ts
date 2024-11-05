@@ -24,3 +24,9 @@ export const setChannelStoreType = () =>
     storefrontType: 1,
     storeHash,
   });
+
+export const validateQuoteExtraFields = (data: CustomFieldItems) =>
+  B3Request.post('/api/v2/extra-fields/quote/validate', RequestType.B2BRest, {
+    ...data,
+    storeHash,
+  });

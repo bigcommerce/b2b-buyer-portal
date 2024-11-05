@@ -6,9 +6,21 @@ import trim from 'lodash-es/trim';
 
 import { B3CustomForm } from '@/components';
 import { useMobile } from '@/hooks';
+import { validateQuoteExtraFields } from '@/shared/service/b2b';
 import { isValidUserTypeSelector, useAppSelector } from '@/store';
-import { ContactInfo as ContactInfoType } from '@/types/quotes';
+import {
+  ContactInfo as ContactInfoType,
+  FormattedItemsProps,
+  QuoteExtraFields,
+} from '@/types/quotes';
 import { validatorRules } from '@/utils';
+
+export interface GetQuoteInfoProps {
+  isMobile: boolean;
+  b3Lang: LangFormatFunction;
+  quoteExtraFields: FormattedItemsProps[];
+  referenceNumber: string | undefined;
+}
 
 const emailValidate = validatorRules(['email']);
 
@@ -36,28 +48,8 @@ const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
       validate: emailValidate,
     },
     {
-      name: 'companyName',
-      label: b3Lang('quoteDraft.contactInfo.companyName'),
-      required: false,
-      default: '',
-      fieldType: 'text',
-      xs: isMobile ? 12 : 6,
-      variant: 'filled',
-      size: 'small',
-    },
-    {
       name: 'phoneNumber',
       label: b3Lang('quoteDraft.contactInfo.phone'),
-      required: false,
-      default: '',
-      fieldType: 'text',
-      xs: isMobile ? 12 : 6,
-      variant: 'filled',
-      size: 'small',
-    },
-    {
-      name: 'quoteTitle',
-      label: b3Lang('quoteDraft.contactInfo.quoteTitle'),
       required: false,
       default: '',
       fieldType: 'text',
@@ -70,12 +62,56 @@ const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
   return contactInfo;
 };
 
+const getQuoteInfo = ({
+  isMobile,
+  b3Lang,
+  quoteExtraFields,
+  referenceNumber,
+}: GetQuoteInfoProps) => {
+  const currentExtraFields = quoteExtraFields.map((field) => ({
+    ...field,
+    xs: isMobile ? 12 : 6,
+  }));
+
+  const quoteInfo = [
+    {
+      name: 'quoteTitle',
+      label: b3Lang('quoteDraft.contactInfo.quoteTitle'),
+      required: false,
+      default: '',
+      fieldType: 'text',
+      xs: isMobile ? 12 : 6,
+      variant: 'filled',
+      size: 'small',
+    },
+    {
+      name: 'referenceNumber',
+      label: b3Lang('quoteDraft.contactInfo.referenceNumber'),
+      required: false,
+      default: referenceNumber || '',
+      fieldType: 'text',
+      xs: isMobile ? 12 : 6,
+      variant: 'filled',
+      size: 'small',
+    },
+    ...currentExtraFields,
+  ];
+
+  return quoteInfo;
+};
+
 interface ContactInfoProps {
   info: ContactInfoType;
+  quoteExtraFields: FormattedItemsProps[];
   emailAddress?: string;
+  referenceNumber?: string | undefined;
+  extraFieldsDefault: QuoteExtraFields[];
 }
 
-function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
+function ContactInfo(
+  { info, emailAddress, quoteExtraFields, referenceNumber, extraFieldsDefault }: ContactInfoProps,
+  ref: any,
+) {
   const {
     control,
     getValues,
@@ -99,9 +135,15 @@ function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
         setValue(item, info && info[item as keyof ContactInfoType]);
       });
     }
+
+    if (extraFieldsDefault.length) {
+      extraFieldsDefault.forEach((item) => {
+        setValue(item.fieldName, item.value);
+      });
+    }
     // Disable eslint exhaustive-deps rule for setValue dispatcher
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [info]);
+  }, [info, extraFieldsDefault]);
 
   const validateEmailValue = async (emailValue: string) => {
     if (emailAddress === trim(emailValue)) return true;
@@ -116,6 +158,42 @@ function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
     return isValidUserType;
   };
 
+  const validateQuoteExtraFieldsInfo = async () => {
+    const values = getValues();
+    const extraFields = quoteExtraFields.map((field) => {
+      const extraField = {
+        fieldName: field.name,
+        fieldValue: values[field.name],
+      };
+
+      return extraField;
+    });
+
+    const res = await validateQuoteExtraFields({
+      extraFields,
+    });
+
+    if (res.code !== 200) {
+      const message = res.data?.errMsg || res.message || '';
+
+      const messageArr = message.split(':');
+
+      if (messageArr.length >= 2) {
+        const field = quoteExtraFields?.find((field) => field.name === messageArr[0]);
+        if (field) {
+          setError(field.name, {
+            type: 'manual',
+            message: messageArr[1],
+          });
+
+          return false;
+        }
+      }
+      return false;
+    }
+    return true;
+  };
+
   const getContactInfoValue = async () => {
     let isValid = true;
     await handleSubmit(
@@ -127,6 +205,10 @@ function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
       },
     )();
 
+    if (isValid) {
+      isValid = await validateQuoteExtraFieldsInfo();
+    }
+
     return isValid ? getValues() : isValid;
   };
 
@@ -135,27 +217,47 @@ function ContactInfo({ info, emailAddress }: ContactInfoProps, ref: any) {
   }));
 
   const contactInfo = getContactInfo(isMobile, b3Lang);
+  const quoteInfo = getQuoteInfo({ isMobile, b3Lang, quoteExtraFields, referenceNumber });
+
+  const formDatas = [
+    {
+      title: b3Lang('quoteDraft.contactInfo.contact'),
+      infos: contactInfo,
+    },
+    {
+      title: b3Lang('quoteDraft.quoteInfo.title'),
+      infos: quoteInfo,
+      style: {
+        mt: '20px',
+      },
+    },
+  ];
 
   return (
     <Box width="100%">
-      <Box
-        sx={{
-          fontWeight: 400,
-          fontSize: '24px',
-          height: '32px',
-          mb: '20px',
-        }}
-      >
-        {b3Lang('quoteDraft.contactInfo.contact')}
-      </Box>
+      {formDatas.map((data) => (
+        <>
+          <Box
+            sx={{
+              fontWeight: 400,
+              fontSize: '24px',
+              height: '32px',
+              mb: '20px',
+              ...data?.style,
+            }}
+          >
+            {data.title}
+          </Box>
 
-      <B3CustomForm
-        formFields={contactInfo}
-        errors={errors}
-        control={control}
-        getValues={getValues}
-        setValue={setValue}
-      />
+          <B3CustomForm
+            formFields={data.infos}
+            errors={errors}
+            control={control}
+            getValues={getValues}
+            setValue={setValue}
+          />
+        </>
+      ))}
     </Box>
   );
 }

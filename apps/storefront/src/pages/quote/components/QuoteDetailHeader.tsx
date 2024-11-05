@@ -26,7 +26,6 @@ interface QuoteDetailHeaderProps {
   exportPdf: () => void;
   printQuote: () => Promise<void>;
   role: string | number;
-  quoteTitle: string;
   salesRepInfo: { [key: string]: string };
 }
 
@@ -42,7 +41,6 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
     exportPdf,
     printQuote,
     role,
-    quoteTitle,
     salesRepInfo,
   } = props;
 
@@ -145,20 +143,6 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
 
             <QuoteStatus code={status} />
           </Box>
-          {quoteTitle && (
-            <StyledCreateName>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  marginRight: '0.5rem',
-                  fontSize: '16px',
-                }}
-              >
-                {b3Lang('quoteDetail.header.title')}
-              </Typography>
-              <span>{quoteTitle}</span>
-            </StyledCreateName>
-          )}
           {(salesRepInfo?.salesRepName || salesRepInfo?.salesRepEmail) && (
             <StyledCreateName>
               <Typography
