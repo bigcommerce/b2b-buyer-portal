@@ -129,7 +129,6 @@ export const clearCurrentCustomerInfo = async () => {
   B3SStorage.set('blockPendingAccountOrderCreation', false);
   B3SStorage.set('loginCustomer', '');
   sessionStorage.removeItem('b2b-blockPendingAccountOrderCreation');
-
   store.dispatch(clearCompanySlice());
   store.dispatch(clearMasqueradeCompany());
 };
@@ -242,7 +241,11 @@ const loginWithCurrentCustomerJWT = async () => {
     return undefined;
   }
 
-  if (currentCustomerJWT?.includes('errors') || prevCurrentCustomerJWT === currentCustomerJWT)
+  if (
+    !currentCustomerJWT ||
+    currentCustomerJWT?.includes('errors') ||
+    prevCurrentCustomerJWT === currentCustomerJWT
+  )
     return undefined;
 
   const data = await getB2BToken(currentCustomerJWT, channelId);
