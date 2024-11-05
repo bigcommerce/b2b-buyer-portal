@@ -59,6 +59,8 @@ export type ProductMappedAttributes = ReturnType<typeof transformOptionSelection
 export default function HeadlessController({ setOpenPage }: HeadlessControllerProps) {
   const storeDispatch = useAppDispatch();
   const b3Lang = useB3Lang();
+  const Manager = new CallbackManager();
+  const b2bCallbacks = window.b2b.callbacks;
 
   const {
     state: { registerEnabled, productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled },
@@ -120,7 +122,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   useEffect(() => {
     window.b2b = {
       ...window.b2b,
-      callbacks: CallbackManager,
+      callbacks: b2bCallbacks || Manager,
       utils: {
         openPage: (page) =>
           setTimeout(() => {
