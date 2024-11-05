@@ -22,7 +22,7 @@ describe('Callback manager', () => {
 
     expect(consoleSpy).toBeCalledTimes(0);
     // @ts-expect-error:next-line
-    CallbackManager.addEventListener(B2BEvent.OnLogin);
+    callbackManager.addEventListener(B2BEvent.OnLogin);
     expect(callbackManager.callbacks.size).toBe(0);
     expect(consoleSpy).toHaveBeenCalled();
   });
