@@ -225,36 +225,36 @@ export default function Login(props: PageProps) {
         return prevURLSearchParams;
       });
 
-    if (isCheckout) {
-      try {
-        const response = await loginCheckout(data);
+      if (isCheckout) {
+        try {
+          const response = await loginCheckout(data);
 
-        if (response.status === 400 && response.type === 'reset_password_before_login') {
-          b2bLogger.error(response);
-          await g(data.emailAddress);
-        } else {
-          window.location.href = CHECKOUT_URL;
+          if (response.status === 400 && response.type === 'reset_password_before_login') {
+            b2bLogger.error(response);
+            await data.emailAddress;
+          } else {
+            window.location.href = CHECKOUT_URL;
+          }
+        } catch (error) {
+          b2bLogger.error(error);
+          await getForcePasswordReset(data.emailAddress);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        b2bLogger.error(error);
-        await getForcePasswordReset(data.emailAddress);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      try {
-        const loginData = {
-          email: data.emailAddress,
-          password: data.password,
-          storeHash,
-          channelId,
-        };
-        const {
-          login: {
-            result: { token, storefrontLoginToken },
-            errors,
-          },
-        } = await b2bLogin({ loginData });
+      } else {
+        try {
+          const loginData = {
+            email: data.emailAddress,
+            password: data.password,
+            storeHash,
+            channelId,
+          };
+          const {
+            login: {
+              result: { token, storefrontLoginToken },
+              errors,
+            },
+          } = await b2bLogin({ loginData });
 
           storeDispatch(setB2BToken(token));
           customerLoginAPI(storefrontLoginToken);
