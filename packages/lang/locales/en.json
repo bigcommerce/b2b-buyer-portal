@@ -76,6 +76,7 @@
   "global.navMenu.addresses": "Addresses",
   "global.navMenu.userManagement": "User management",
   "global.navMenu.accountSettings": "Account settings",
+  "global.navMenu.companyHierarchy": "Company hierarchy",
   "global.B3MainHeader.superAdmin": "Super admin",
   "global.B3MainHeader.signIn": "Sign in",
   "global.B3MainHeader.home": "Home",
@@ -113,6 +114,7 @@
   "global.customStyles.addToAllQuoteBtn": "Add All To Quote",
   "global.customStyles.shoppingListBtn": "Add to Shopping List",
   "global.masquerade.youAreMasqueradeAs": "You are masquerade as",
+  "global.companyHierarchy.externalBtn": "You are representing",
   "global.addtoCart.purchasableAbdoosTip": "Products are out of stock or there are products that cannot be purchased.",
   "global.companyCredit.alert": "Your account does not currently allow purchasing due to a credit hold. Please contact us to reconcile.",
   "global.B3Upload.downloadErrorResults": "Download error results",
@@ -703,5 +705,9 @@
   "payment.paymentTowardsInvoices": "You made payments towards the invoices shown below",
   "payment.invoiceNumber": "Invoice#",
   "payment.amountPaid": "Amount paid",
-  "payment.okButton": "Ok"
+  "payment.okButton": "Ok",
+
+  "companyHierarchy.table.name": "Name",
+  "companyHierarchy.chip.currentCompany": "Your company",
+  "companyHierarchy.chip.selectCompany": "Representing"
 }

@@ -45,6 +45,10 @@ const B3MasquradeGobalTip = lazy(
   () => import('@/components/outSideComponents/B3MasquradeGobalTip'),
 );
 
+const B3CompanyHierarchyExternalButton = lazy(
+  () => import('@/components/outSideComponents/B3CompanyHierarchyExternalButton'),
+);
+
 const HeadlessController = lazy(() => import('@/components/HeadlessController'));
 
 const ThemeFrame = lazy(() => import('@/components/ThemeFrame'));
@@ -352,6 +356,7 @@ export default function App() {
         </div>
       </HashRouter>
       <B3MasquradeGobalTip setOpenPage={setOpenPage} isOpen={isOpen} />
+      <B3CompanyHierarchyExternalButton setOpenPage={setOpenPage} isOpen={isOpen} />
       <B3HoverButton
         isOpen={isOpen}
         productQuoteEnabled={productQuoteEnabled}

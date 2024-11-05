@@ -131,13 +131,18 @@ function CompanyHierarchy() {
           rightSizeBtn="Continue"
           title="Switch company"
           fullWidth
+          maxWidth={false}
           loading={loading}
           handleLeftClick={handleClose}
           handRightClick={handleSwitchCompanyClick}
+          dialogSx={{
+            '& .MuiPaper-elevation': {
+              width: isMobile ? '100%' : `480px`,
+            },
+          }}
         >
           <Box
             sx={{
-              width: isMobile ? '100%' : `${'444px'}`,
               maxHeight: '600px',
             }}
           >
