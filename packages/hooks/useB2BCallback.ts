@@ -5,19 +5,20 @@ export enum B2BEvent {
   OnLogin = 'on-login',
   OnLogout = 'on-logout',
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Args = Record<string, any>;
 type Dispatch<Payload> = (data?: Payload) => boolean;
 
 // useB2BCallback injects a dispatch function to the event handler
-export const useB2BCallback = <EventHandlerReturn, Payload>(
+export const useB2BCallback = <EventHandlerReturn>(
   event: B2BEvent,
   eventHandler: (
-    dispatch: Dispatch<Payload>,
+    dispatch: Dispatch<Args>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: any[]
   ) => Promise<EventHandlerReturn> | EventHandlerReturn,
 ) => {
-  const dispatch = (data?: Payload) => window.b2b.callbacks.dispatchEvent(event, data);
+  const dispatch = (data?: Args) => window.b2b.callbacks.dispatchEvent(event, data);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
   return (...args: any[]) => eventHandler(dispatch, ...args);

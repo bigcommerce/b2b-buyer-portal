@@ -4,7 +4,7 @@ declare interface Window {
       dispatchEvent: (
         callbackKey: import('./useB2BCallback').B2BEvent,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data?: any,
+        data?: Record<string, any>,
       ) => boolean;
     };
   };
