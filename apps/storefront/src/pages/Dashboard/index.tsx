@@ -152,7 +152,6 @@ function Dashboard(props: PageProps) {
         await startMasquerade({
           customerId,
           companyId: id || currentSalesRepCompanyId,
-          b2bId,
         });
       }
 
@@ -173,9 +172,7 @@ function Dashboard(props: PageProps) {
     try {
       showPageMask(true);
       if (typeof b2bId === 'number') {
-        await endMasquerade({
-          b2bId,
-        });
+        await endMasquerade();
       }
       setFilterData({
         ...filterData,
