@@ -90,9 +90,9 @@ export const loginCheckout = (data: LoginConfig) => {
     }),
   };
 
-  return fetch(`${baseUrl}/internalapi/v1/checkout/customer`, requestOptions)
-    .then((response) => response.text())
-    .catch((error) => b2bLogger.error('error', error));
+  return fetch(`${baseUrl}/internalapi/v1/checkout/customer`, requestOptions).then((response) =>
+    response.json(),
+  );
 };
 
 export const sendEmail = (emailAddress: string) => {

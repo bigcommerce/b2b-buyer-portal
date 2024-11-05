@@ -222,11 +222,19 @@ export default function Login(props: PageProps) {
 
     if (isCheckout) {
       try {
-        await loginCheckout(data);
-        window.location.href = CHECKOUT_URL;
+        const response = await loginCheckout(data);
+
+        if (response.status === 400 && response.type === 'reset_password_before_login') {
+          b2bLogger.error(response);
+          await getForcePasswordReset(data.emailAddress);
+        } else {
+          window.location.href = CHECKOUT_URL;
+        }
       } catch (error) {
         b2bLogger.error(error);
-        getForcePasswordReset(data.emailAddress);
+        await getForcePasswordReset(data.emailAddress);
+      } finally {
+        setLoading(false);
       }
     } else {
       try {
