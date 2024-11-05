@@ -14,6 +14,7 @@ export * from './HeadlessController';
 export { B3PageMask, Loading, usePageMask } from './loading';
 export { default as B3HoverButton } from './outSideComponents/B3HoverButton';
 export { default as B3MasquradeGobalTip } from './outSideComponents/B3MasquradeGobalTip';
+export { default as B3CompanyHierarchyExternalButton } from './outSideComponents/B3CompanyHierarchyExternalButton';
 export { default as RegisteredCloseButton } from './RegisteredCloseButton';
 export { default as B3NoData } from './table/B3NoData';
 export { B3PaginationTable } from './table/B3PaginationTable';

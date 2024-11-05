@@ -252,7 +252,7 @@ const routes: RouteItem[] = [
     idLang: 'global.navMenu.accountSettings',
   },
   {
-    path: '/companyHierarchy',
+    path: '/company-hierarchy',
     name: 'Company hierarchy',
     wsKey: 'companyHierarchy',
     isMenuItem: true,

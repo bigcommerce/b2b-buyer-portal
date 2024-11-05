@@ -5,6 +5,7 @@ import storageSession from 'redux-persist/lib/storage/session';
 
 import {
   CompanyHierarchyInfoProps,
+  CompanyHierarchyListProps,
   CompanyInfo,
   CompanyStatus,
   Customer,
@@ -101,6 +102,15 @@ const companySlice = createSlice({
     setPermissionModules: (state, { payload }: PayloadAction<PermissionsCodesProps[]>) => {
       state.permissions = payload;
     },
+    setCompanyHierarchyListModules: (
+      state,
+      { payload }: PayloadAction<CompanyHierarchyListProps[]>,
+    ) => {
+      state.companyHierarchyInfo = {
+        ...state.companyHierarchyInfo,
+        companyHierarchyList: payload,
+      };
+    },
     setCompanyHierarchyInfoModules: (
       state,
       { payload }: PayloadAction<CompanyHierarchyInfoProps>,
@@ -123,6 +133,7 @@ export const {
   setCurrentCustomerJWT,
   setLoginType,
   setPermissionModules,
+  setCompanyHierarchyListModules,
   setCompanyHierarchyInfoModules,
 } = companySlice.actions;
 

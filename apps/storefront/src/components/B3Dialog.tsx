@@ -1,6 +1,15 @@
 import { ReactElement, ReactNode, useRef } from 'react';
 import { useB3Lang } from '@b3/lang';
-import { Box, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import {
+  Box,
+  Breakpoint,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  SxProps,
+  Theme,
+} from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
 import useScrollBar from '@/hooks/useScrollBar';
@@ -25,10 +34,11 @@ interface B3DialogProps<T> {
   isShowBordered?: boolean;
   showRightBtn?: boolean;
   showLeftBtn?: boolean;
-  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false;
+  maxWidth?: Breakpoint | false;
   fullWidth?: boolean;
   disabledSaveBtn?: boolean;
-  dialogContentSx?: { [key: string]: string };
+  dialogContentSx?: SxProps<Theme>;
+  dialogSx?: SxProps<Theme>;
 }
 
 export default function B3Dialog<T>({
@@ -49,6 +59,7 @@ export default function B3Dialog<T>({
   showLeftBtn = true,
   maxWidth = 'sm',
   dialogContentSx = {},
+  dialogSx = {},
   fullWidth = false,
   disabledSaveBtn = false,
 }: B3DialogProps<T>) {
@@ -88,6 +99,7 @@ export default function B3Dialog<T>({
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         id="b2b-dialog-container"
+        sx={dialogSx}
       >
         {title && (
           <DialogTitle
