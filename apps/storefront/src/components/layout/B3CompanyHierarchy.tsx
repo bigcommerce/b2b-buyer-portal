@@ -66,7 +66,7 @@ function B3CompanyHierarchy() {
           >
             {name}
           </Grid>
-          <CheckIcon />
+          <CheckIcon sx={{ fontSize: '1.2rem' }} />
         </Grid>
       );
     }
