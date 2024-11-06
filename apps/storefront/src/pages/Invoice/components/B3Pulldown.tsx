@@ -6,8 +6,9 @@ import { IconButton, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import { rolePermissionSelector, useAppSelector } from '@/store';
+import { B2BPermissionsLevel } from '@/types';
 import { InvoiceList } from '@/types/invoice';
-import { snackbar } from '@/utils';
+import { getB3PermissionsList, snackbar } from '@/utils';
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';
@@ -25,6 +26,8 @@ interface B3PulldownProps {
   setIsRequestLoading: (bool: boolean) => void;
   setInvoiceId: (id: string) => void;
   handleOpenHistoryModal: (bool: boolean) => void;
+  isCurrentCompany: boolean;
+  invoicePay: boolean;
 }
 
 function B3Pulldown({
@@ -32,6 +35,8 @@ function B3Pulldown({
   setIsRequestLoading,
   setInvoiceId,
   handleOpenHistoryModal,
+  isCurrentCompany,
+  invoicePay,
 }: B3PulldownProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const ref = useRef<HTMLButtonElement | null>(null);
@@ -44,6 +49,9 @@ function B3Pulldown({
 
   const { getOrderPermission, invoicePayPermission, purchasabilityPermission } =
     useAppSelector(rolePermissionSelector);
+
+  const [isCanViewOrder, setIsCanViewOrder] = useState<boolean>(getOrderPermission);
+  const b2bId = useAppSelector((state) => state.company.customer.b2bId);
   const close = () => {
     setIsOpen(false);
   };
@@ -132,11 +140,38 @@ function B3Pulldown({
   };
 
   useEffect(() => {
-    const { openBalance } = row;
+    const { openBalance, orderUserId } = row;
     const payPermissions =
       +openBalance.value > 0 && invoicePayPermission && purchasabilityPermission;
 
     setIsCanPay(payPermissions);
+    const isCanpayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
+    setIsCanPay(isCanpayInvoice);
+
+    let viewOrderPremission = getOrderPermission;
+
+    const params = [
+      {
+        permissionType: 'getOrderPermission',
+        permissionLevel: !isCurrentCompany
+          ? B2BPermissionsLevel.COMPANY_AND_SUBSIDIARIES
+          : B2BPermissionsLevel.COMPANY,
+      },
+    ];
+
+    if (!isCurrentCompany) {
+      const { getOrderPermission: orderSubViewPremisssion } = getB3PermissionsList(params);
+
+      viewOrderPremission = orderSubViewPremisssion;
+    }
+
+    if (isCurrentCompany && b2bId !== orderUserId) {
+      const { getOrderPermission: orderTeamViewPremisssion } = getB3PermissionsList(params);
+
+      viewOrderPremission = orderTeamViewPremisssion;
+    }
+
+    setIsCanViewOrder(viewOrderPremission);
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -174,7 +209,7 @@ function B3Pulldown({
         >
           {b3Lang('invoice.actions.viewInvoice')}
         </MenuItem>
-        {getOrderPermission && (
+        {getOrderPermission && isCanViewOrder && (
           <MenuItem
             key="View-Order"
             sx={{

@@ -124,6 +124,7 @@
   "global.statusNotifications.willGainAccessToBusinessFeatProductsAndPricingAfterApproval": "Your business account is pending approval. You will gain access to business account features, products, and pricing after account approval.",
   "global.statusNotifications.checkEmailLetterWithDetails": "Your business account has been approved. Check your email inbox, we sent you a letter with all details.",
   "global.statusNotifications.checkEmailLetterWithDetailsResubmitApplication": "Your business account has been rejected. Check your email inbox, we sent you a letter with all details. You can resubmit your application.",
+  "global.B2BAutoCompleteCheckbox.input.label": "Company",
 
   "dashboard.company": "Company",
   "dashboard.admin": "Admin",
@@ -163,6 +164,7 @@
   "invoice.exportFilteredAsCsv": "Export filtered as CSV",
   "invoice.pdfUrlResolutionError": "pdf url resolution error",
   "invoice.headers.invoice": "Invoice",
+  "invoice.headers.companyName": "Company",
   "invoice.headers.order": "Order",
   "invoice.headers.invoiceDate": "Invoice date",
   "invoice.headers.dueDate": "Due date",
