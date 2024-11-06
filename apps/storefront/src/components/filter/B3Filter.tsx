@@ -59,6 +59,8 @@ interface B3FilterProps<T, Y> {
   showB3FilterMoreIcon?: boolean;
   searchValue?: string;
   resetFilterInfo?: () => void;
+  pcContainerWidth?: string;
+  pcSearchContainerWidth?: string;
 }
 
 function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
@@ -74,6 +76,8 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
     showB3FilterMoreIcon = true,
     searchValue = '',
     resetFilterInfo,
+    pcContainerWidth,
+    pcSearchContainerWidth,
   } = props;
 
   const [isMobile] = useMobile();
@@ -105,13 +109,17 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
         >
           <Box
             sx={{
-              maxWidth: '29rem',
+              maxWidth: pcContainerWidth || '29rem',
               flexBasis: '100%',
               display: 'flex',
               alignItems: 'center',
             }}
           >
-            <B3FilterSearch handleChange={handleSearchChange} w="60%" searchValue={searchValue} />
+            <B3FilterSearch
+              handleChange={handleSearchChange}
+              w={pcSearchContainerWidth || '60%'}
+              searchValue={searchValue}
+            />
             {showB3FilterMoreIcon && (
               <B3FilterMore
                 startPicker={startPicker}

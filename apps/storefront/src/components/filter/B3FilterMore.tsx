@@ -217,6 +217,10 @@ function B3FilterMore<T, Y>({
                   ':hover': {
                     backgroundColor: getHoverColor('#FFFFFF', 0.1),
                   },
+                  '& svg': {
+                    width: '32px',
+                    height: '32px',
+                  },
                 }}
               >
                 <FilterListIcon />
