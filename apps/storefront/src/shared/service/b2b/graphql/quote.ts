@@ -1,3 +1,4 @@
+import { QuoteExtraFieldsType } from '@/types/quotes';
 import { channelId, convertArrayToGraphql, convertObjectToGraphql, storeHash } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
@@ -352,7 +353,7 @@ query getStorefrontProductSettings($storeHash: String!, $channelId: Int) {
 }
 `;
 
-const getQuoteExtraFields = () => `{
+const getQuoteExtraFields = `query {
   quoteExtraFieldsConfig {
     fieldName,
     fieldType,
@@ -367,6 +368,7 @@ const getQuoteExtraFields = () => `{
     id,
     isUnique,
     valueConfigs,
+    fieldCategory,
   }
 }`;
 
@@ -471,7 +473,7 @@ export const getBCStorefrontProductSettings = () =>
     variables: { storeHash, channelId },
   });
 
-export const getQuoteExtraFieldsConfig = () =>
+export const getQuoteExtraFieldsConfig = (): Promise<QuoteExtraFieldsType> =>
   B3Request.graphqlB2B({
-    query: getQuoteExtraFields(),
+    query: getQuoteExtraFields,
   });

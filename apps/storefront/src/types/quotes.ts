@@ -1,3 +1,5 @@
+import { ExtraFieldsConfigType, Maybe, QuoteExtraFieldsConfigType } from '@/types/gql/graphql';
+
 import { Product } from './products';
 
 export interface ContactInfo {
@@ -89,8 +91,8 @@ export interface QuoteItem {
 }
 
 export interface QuoteExtraFields {
-  id?: number | string;
-  fieldName: string;
+  id?: number;
+  fieldName: Maybe<string> | undefined;
   value: string | number;
 }
 
@@ -129,13 +131,37 @@ export interface B2bExtraFieldsProps {
 }
 
 export interface FieldsOptionProps {
-  label: string;
-  value: string | number;
+  label: Maybe<string>;
+  value: Maybe<string>;
 }
 
-export interface FormattedItemsProps {
-  [key: string]: string | boolean | number | Array<FieldsOptionProps> | boolean | undefined;
-  name: string;
+export interface QuoteFormattedItemsProps {
+  isExtraFields: boolean;
+  name: Maybe<string> | undefined;
+  label: Maybe<string> | undefined;
+  required?: boolean | null;
   default: string | number;
-  id: string | number;
+  fieldType: string;
+  xs: number;
+  variant: string;
+  size: string;
+  options?: FieldsOptionProps[];
+  max?: string | number | null;
+  rows?: string | number | null;
+  maxLength?: string | number | null;
+  id: number | string;
+}
+
+export type QuoteExtraFieldsOrigin = Omit<ExtraFieldsConfigType, 'fieldType'> &
+  QuoteExtraFieldsConfigType & {
+    fieldCategory: string;
+  };
+
+export interface QuoteExtraFieldsType {
+  quoteExtraFieldsConfig: QuoteExtraFieldsOrigin[];
+}
+
+export interface QuoteExtraFieldsData {
+  fieldName: string | undefined;
+  fieldValue: string | number;
 }

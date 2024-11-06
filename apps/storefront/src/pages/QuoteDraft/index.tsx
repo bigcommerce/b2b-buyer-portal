@@ -34,8 +34,8 @@ import { AddressItemType, BCAddressItemType } from '@/types/address';
 import {
   BillingAddress,
   ContactInfoKeys,
-  FormattedItemsProps,
   QuoteExtraFields,
+  QuoteFormattedItemsProps,
   ShippingAddress,
 } from '@/types/quotes';
 import { B3LStorage, channelId, snackbar, storeHash } from '@/utils';
@@ -167,7 +167,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const [quoteSubmissionResponseOpen, setQuoteSubmissionResponseOpen] = useState<boolean>(false);
   const [quoteId, setQuoteId] = useState<string | number>('');
   const [currentCreatedAt, setCurrentCreatedAt] = useState<string | number>('');
-  const [extraFields, setExtraFields] = useState<FormattedItemsProps[]>([]);
+  const [extraFields, setExtraFields] = useState<QuoteFormattedItemsProps[]>([]);
 
   const quoteSummaryRef = useRef<QuoteSummaryRef | null>(null);
 
@@ -347,7 +347,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       const extraFieldsInfo = extraFields.map((field) => ({
         id: +field.id,
         fieldName: field.name,
-        value: contactInfo[field.name],
+        value: field.name ? contactInfo[field.name] : '',
       }));
       saveInfo.extraFields = extraFieldsInfo;
     }
@@ -546,38 +546,38 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
         const fileList = getFileList(quoteinfo?.fileInfo || []);
 
-      const data = {
-        message: newNote,
-        legalTerms: '',
-        totalAmount: enteredInclusiveTax
-          ? allPrice.toFixed(currency.decimal_places)
-          : (allPrice + allTaxPrice).toFixed(currency.decimal_places),
-        grandTotal: allPrice.toFixed(currency.decimal_places),
-        subtotal: allPrice.toFixed(currency.decimal_places),
-        companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
-        storeHash,
-        quoteTitle,
-        discount: '0.00',
-        channelId,
-        userEmail: customer.emailAddress,
-        shippingAddress,
-        billingAddress,
-        contactInfo,
-        productList,
-        fileList,
-        taxTotal: allTaxPrice.toFixed(currency.decimal_places),
-        currency: {
-          currencyExchangeRate: currency.currency_exchange_rate,
-          token: currency.token,
-          location: currency.token_location,
-          decimalToken: currency.decimal_token,
-          decimalPlaces: currency.decimal_places,
-          thousandsToken: currency.thousands_token,
-          currencyCode: currency.currency_code,
-        },
-        referenceNumber: `${info.referenceNumber}` || '',
-        extraFields: info.extraFields || [],
-      };
+        const data = {
+          message: newNote,
+          legalTerms: '',
+          totalAmount: enteredInclusiveTax
+            ? allPrice.toFixed(currency.decimal_places)
+            : (allPrice + allTaxPrice).toFixed(currency.decimal_places),
+          grandTotal: allPrice.toFixed(currency.decimal_places),
+          subtotal: allPrice.toFixed(currency.decimal_places),
+          companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
+          storeHash,
+          quoteTitle,
+          discount: '0.00',
+          channelId,
+          userEmail: customer.emailAddress,
+          shippingAddress,
+          billingAddress,
+          contactInfo,
+          productList,
+          fileList,
+          taxTotal: allTaxPrice.toFixed(currency.decimal_places),
+          currency: {
+            currencyExchangeRate: currency.currency_exchange_rate,
+            token: currency.token,
+            location: currency.token_location,
+            decimalToken: currency.decimal_token,
+            decimalPlaces: currency.decimal_places,
+            thousandsToken: currency.thousands_token,
+            currencyCode: currency.currency_code,
+          },
+          referenceNumber: `${info.referenceNumber}` || '',
+          extraFields: info.extraFields || [],
+        };
 
         const fn = +role === 99 ? createBCQuote : createQuote;
 

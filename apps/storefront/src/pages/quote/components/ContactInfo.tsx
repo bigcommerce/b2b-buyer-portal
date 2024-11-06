@@ -10,15 +10,15 @@ import { validateQuoteExtraFields } from '@/shared/service/b2b';
 import { isValidUserTypeSelector, useAppSelector } from '@/store';
 import {
   ContactInfo as ContactInfoType,
-  FormattedItemsProps,
   QuoteExtraFields,
+  QuoteFormattedItemsProps,
 } from '@/types/quotes';
 import { validatorRules } from '@/utils';
 
 export interface GetQuoteInfoProps {
   isMobile: boolean;
   b3Lang: LangFormatFunction;
-  quoteExtraFields: FormattedItemsProps[];
+  quoteExtraFields: QuoteFormattedItemsProps[];
   referenceNumber: string | undefined;
 }
 
@@ -102,7 +102,7 @@ const getQuoteInfo = ({
 
 interface ContactInfoProps {
   info: ContactInfoType;
-  quoteExtraFields: FormattedItemsProps[];
+  quoteExtraFields: QuoteFormattedItemsProps[];
   emailAddress?: string;
   referenceNumber?: string | undefined;
   extraFieldsDefault: QuoteExtraFields[];
@@ -138,7 +138,7 @@ function ContactInfo(
 
     if (extraFieldsDefault.length) {
       extraFieldsDefault.forEach((item) => {
-        setValue(item.fieldName, item.value);
+        if (item.fieldName) setValue(item.fieldName, item.value);
       });
     }
     // Disable eslint exhaustive-deps rule for setValue dispatcher
@@ -160,14 +160,10 @@ function ContactInfo(
 
   const validateQuoteExtraFieldsInfo = async () => {
     const values = getValues();
-    const extraFields = quoteExtraFields.map((field) => {
-      const extraField = {
-        fieldName: field.name,
-        fieldValue: values[field.name],
-      };
-
-      return extraField;
-    });
+    const extraFields = quoteExtraFields.map((field) => ({
+      fieldName: field.name,
+      fieldValue: field.name ? values[field.name] : '',
+    }));
 
     const res = await validateQuoteExtraFields({
       extraFields,
@@ -180,7 +176,7 @@ function ContactInfo(
 
       if (messageArr.length >= 2) {
         const field = quoteExtraFields?.find((field) => field.name === messageArr[0]);
-        if (field) {
+        if (field && field.name) {
           setError(field.name, {
             type: 'manual',
             message: messageArr[1],
