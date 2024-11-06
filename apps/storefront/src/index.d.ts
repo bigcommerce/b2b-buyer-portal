@@ -38,7 +38,7 @@ declare interface Window {
   B3Local?: import('@b3/global-b3').B3Local;
   b2b: {
     initializationEnvironment: import('./load-functions').InitializationEnvironment;
-    callbacks: import('@/utils/b3Callbacks').default;
+    callbacks: import('@/utils/b3CallbackManager').default;
     utils: {
       openPage: (page: import('./constants').HeadlessRoute) => void;
       quote: {

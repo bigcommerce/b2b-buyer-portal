@@ -19,7 +19,7 @@ import {
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { QuoteItem } from '@/types/quotes';
-import CallbackManager from '@/utils/b3Callbacks';
+import CallbackManager from '@/utils/b3CallbackManager';
 import { LineItems } from '@/utils/b3Product/b3Product';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
@@ -55,6 +55,8 @@ const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
   });
 
 export type ProductMappedAttributes = ReturnType<typeof transformOptionSelectionsToAttributes>;
+
+const Manager = new CallbackManager();
 
 export default function HeadlessController({ setOpenPage }: HeadlessControllerProps) {
   const storeDispatch = useAppDispatch();
@@ -120,7 +122,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   useEffect(() => {
     window.b2b = {
       ...window.b2b,
-      callbacks: new CallbackManager(),
+      callbacks: Manager,
       utils: {
         openPage: (page) =>
           setTimeout(() => {

@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box, ImageListItem } from '@mui/material';
 
@@ -132,7 +133,7 @@ export default function Login(props: PageProps) {
   };
 
   useEffect(() => {
-    const init = async () => {
+    const logout = async () => {
       try {
         const loginFlag = searchParams.get('loginFlag');
         const showTipInfo = searchParams.get('showTip') !== 'false';
@@ -145,36 +146,38 @@ export default function Login(props: PageProps) {
           snackbar.error(b3Lang('login.loginText.invoiceErrorTip'));
         }
         if (loginFlag === '3' && isLoggedIn) {
-          const cartInfo = await getCart();
+          try {
+            const cartInfo = await getCart();
 
-          if (cartInfo.data.site.cart?.entityId) {
-            const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId);
-            await deleteCart(deleteQuery);
+            if (cartInfo.data.site.cart?.entityId) {
+              const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId);
+              await deleteCart(deleteQuery);
+            }
+
+            const { result } = (await bcLogoutLogin()).data.logout;
+
+            if (result !== 'success') return;
+
+            if (isMasquerade) {
+              await endMasquerade();
+            }
+          } catch (e) {
+            b2bLogger.error(e);
+          } finally {
+            // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
+            window.sessionStorage.clear();
+            logoutSession();
+            window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
+            setLoading(false);
           }
-
-          const { result } = (await bcLogoutLogin()).data.logout;
-
-          if (result !== 'success') return;
-
-          if (isMasquerade) {
-            await endMasquerade();
-          }
-
-          // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
-          window.sessionStorage.clear();
-
-          logoutSession();
-          setLoading(false);
-          return;
         }
-
         setLoading(false);
       } finally {
         setLoading(false);
       }
     };
 
-    init();
+    logout();
   }, [b3Lang, endMasquerade, isLoggedIn, isMasquerade, searchParams]);
 
   const tipInfo = (loginFlag: string, email = '') => {
@@ -212,106 +215,117 @@ export default function Login(props: PageProps) {
     }
   };
 
-  const handleLoginSubmit = async (data: LoginConfig) => {
-    setLoading(true);
-    setLoginAccount(data);
-    setSearchParams((prevURLSearchParams) => {
-      prevURLSearchParams.delete('loginFlag');
-      return prevURLSearchParams;
-    });
+  const handleLoginSubmit = useB2BCallback(
+    B2BEvent.OnLogin,
+    async (dispatchOnLoginEvent, data: LoginConfig) => {
+      setLoading(true);
+      setLoginAccount(data);
+      setSearchParams((prevURLSearchParams) => {
+        prevURLSearchParams.delete('loginFlag');
+        return prevURLSearchParams;
+      });
 
-    if (isCheckout) {
-      try {
-        const response = await loginCheckout(data);
+      if (isCheckout) {
+        try {
+          const response = await loginCheckout(data);
 
-        if (response.status === 400 && response.type === 'reset_password_before_login') {
-          b2bLogger.error(response);
+          if (response.status === 400 && response.type === 'reset_password_before_login') {
+            b2bLogger.error(response);
+            await data.emailAddress;
+          } else {
+            window.location.href = CHECKOUT_URL;
+          }
+        } catch (error) {
+          b2bLogger.error(error);
           await getForcePasswordReset(data.emailAddress);
-        } else {
-          window.location.href = CHECKOUT_URL;
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        b2bLogger.error(error);
-        await getForcePasswordReset(data.emailAddress);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      try {
-        const loginData = {
-          email: data.emailAddress,
-          password: data.password,
-          storeHash,
-          channelId,
-        };
-        const {
-          login: {
-            result: { token, storefrontLoginToken },
-            errors,
-          },
-        } = await b2bLogin({ loginData });
+      } else {
+        try {
+          const loginData = {
+            email: data.emailAddress,
+            password: data.password,
+            storeHash,
+            channelId,
+          };
+          const {
+            login: {
+              result: { token, storefrontLoginToken },
+              errors,
+            },
+          } = await b2bLogin({ loginData });
 
-        storeDispatch(setB2BToken(token));
-        customerLoginAPI(storefrontLoginToken);
+          storeDispatch(setB2BToken(token));
+          customerLoginAPI(storefrontLoginToken);
 
-        if (errors?.[0] || !token) {
-          if (errors?.[0]) {
-            const { message } = errors[0];
-            if (message === 'Operation cannot be performed as the storefront channel is not live') {
-              setLoginFlag('5');
-              setLoading(false);
+          const loginInformation = {
+            storefrontToken: storefrontLoginToken,
+          };
+
+          dispatchOnLoginEvent(loginInformation);
+
+          if (errors?.[0] || !token) {
+            if (errors?.[0]) {
+              const { message } = errors[0];
+              if (
+                message === 'Operation cannot be performed as the storefront channel is not live'
+              ) {
+                setLoginFlag('5');
+                setLoading(false);
+                return;
+              }
+            }
+            getForcePasswordReset(data.emailAddress);
+          } else {
+            const info = await getCurrentCustomerInfo(token);
+
+            if (quoteDetailToCheckoutUrl) {
+              navigate(quoteDetailToCheckoutUrl);
               return;
             }
-          }
-          getForcePasswordReset(data.emailAddress);
-        } else {
-          const info = await getCurrentCustomerInfo(token);
 
-          if (quoteDetailToCheckoutUrl) {
-            navigate(quoteDetailToCheckoutUrl);
-            return;
-          }
+            if (
+              info?.userType === UserTypes.MULTIPLE_B2C &&
+              info?.role === CustomerRole.SUPER_ADMIN
+            ) {
+              navigate('/dashboard');
+              return;
+            }
+            const isLoginLandLocation = loginJump(navigate);
 
-          if (
-            info?.userType === UserTypes.MULTIPLE_B2C &&
-            info?.role === CustomerRole.SUPER_ADMIN
-          ) {
-            navigate('/dashboard');
-            return;
-          }
-          const isLoginLandLocation = loginJump(navigate);
+            if (!isLoginLandLocation) return;
 
-          if (!isLoginLandLocation) return;
-
-          const { getShoppingListPermission, getOrderPermission } = getB3PermissionsList();
-          if (
-            info?.role === CustomerRole.JUNIOR_BUYER &&
-            info?.companyRoleName === 'Junior Buyer'
-          ) {
-            const currentJuniorActivePage = getShoppingListPermission
-              ? '/shoppingLists'
-              : '/accountSettings';
-
-            navigate(currentJuniorActivePage);
-          } else {
-            let currentActivePage = getOrderPermission ? '/orders' : '/shoppingLists';
-
-            currentActivePage =
-              getShoppingListPermission || getOrderPermission
-                ? currentActivePage
+            const { getShoppingListPermission, getOrderPermission } = getB3PermissionsList();
+            if (
+              info?.role === CustomerRole.JUNIOR_BUYER &&
+              info?.companyRoleName === 'Junior Buyer'
+            ) {
+              const currentJuniorActivePage = getShoppingListPermission
+                ? '/shoppingLists'
                 : '/accountSettings';
 
-            currentActivePage = info?.userType === UserTypes.B2C ? '/orders' : currentActivePage;
-            navigate(currentActivePage);
+              navigate(currentJuniorActivePage);
+            } else {
+              let currentActivePage = getOrderPermission ? '/orders' : '/shoppingLists';
+
+              currentActivePage =
+                getShoppingListPermission || getOrderPermission
+                  ? currentActivePage
+                  : '/accountSettings';
+
+              currentActivePage = info?.userType === UserTypes.B2C ? '/orders' : currentActivePage;
+              navigate(currentActivePage);
+            }
           }
+        } catch (error) {
+          snackbar.error(b3Lang('login.loginTipInfo.accountincorrect'));
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        snackbar.error(b3Lang('login.loginTipInfo.accountincorrect'));
-      } finally {
-        setLoading(false);
       }
-    }
-  };
+    },
+  );
 
   const handleCreateAccountSubmit = () => {
     navigate('/register');
