@@ -8,6 +8,7 @@ import { B3CustomForm } from '@/components';
 import { useMobile } from '@/hooks';
 import { validateQuoteExtraFields } from '@/shared/service/b2b';
 import { isValidUserTypeSelector, useAppSelector } from '@/store';
+import { CustomerRole } from '@/types';
 import {
   ContactInfo as ContactInfoType,
   QuoteExtraFields,
@@ -24,7 +25,7 @@ export interface GetQuoteInfoProps {
 
 const emailValidate = validatorRules(['email']);
 
-const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
+const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction, isGuest: boolean) => {
   const contactInfo = [
     {
       name: 'name',
@@ -35,6 +36,7 @@ const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
       xs: isMobile ? 12 : 6,
       variant: 'filled',
       size: 'small',
+      disabled: !isGuest,
     },
     {
       name: 'email',
@@ -46,6 +48,7 @@ const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction) => {
       variant: 'filled',
       size: 'small',
       validate: emailValidate,
+      disabled: !isGuest,
     },
     {
       name: 'phoneNumber',
@@ -122,6 +125,8 @@ function ContactInfo(
   } = useForm({
     mode: 'onSubmit',
   });
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const isGuest = role === CustomerRole.GUEST;
 
   const isValidUserType = useAppSelector(isValidUserTypeSelector);
 
@@ -212,7 +217,7 @@ function ContactInfo(
     getContactInfoValue,
   }));
 
-  const contactInfo = getContactInfo(isMobile, b3Lang);
+  const contactInfo = getContactInfo(isMobile, b3Lang, isGuest);
   const quoteInfo = getQuoteInfo({ isMobile, b3Lang, quoteExtraFields, referenceNumber });
 
   const formDatas = [

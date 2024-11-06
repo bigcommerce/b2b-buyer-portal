@@ -39,12 +39,16 @@ function QuoteInfoAndExtrafieldsItem({ status, quoteInfo }: QuoteInfoAndExtrafie
           p: '15px 0',
         }}
       >
-        <Typography>{`${b3Lang('quoteDraft.quoteInfo.titleText')} ${quoteTitle}`}</Typography>
-        <Typography>{`${b3Lang(
-          'quoteDraft.quoteInfo.referenceText',
-        )} ${referenceNumber}`}</Typography>
+        {(quoteTitle || status === 'Draft') && (
+          <Typography>{`${b3Lang('quoteDraft.quoteInfo.titleText')} ${quoteTitle}`}</Typography>
+        )}
+        {(referenceNumber || status === 'Draft') && (
+          <Typography>{`${b3Lang(
+            'quoteDraft.quoteInfo.referenceText',
+          )} ${referenceNumber}`}</Typography>
+        )}
 
-        {status === 'Draft' || recipients.length === 0 ? (
+        {status === 'Draft' ? (
           <Typography>{b3Lang('quoteDraft.quoteInfo.ccEmailText')}</Typography>
         ) : (
           recipients.map((ccEmail) => (
@@ -54,11 +58,14 @@ function QuoteInfoAndExtrafieldsItem({ status, quoteInfo }: QuoteInfoAndExtrafie
           ))
         )}
 
-        {extraFields.map((field) => (
-          <Typography
-            key={`extrafield-${field.fieldName}`}
-          >{`${field.fieldName}: ${field.value}`}</Typography>
-        ))}
+        {extraFields.map(
+          (field) =>
+            (field.value || status === 'Draft') && (
+              <Typography
+                key={`extrafield-${field.fieldName}`}
+              >{`${field.fieldName}: ${field.value}`}</Typography>
+            ),
+        )}
       </Box>
     </Box>
   );
