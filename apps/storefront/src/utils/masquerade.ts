@@ -7,17 +7,12 @@ import { clearMasqueradeCompany, MasqueradeCompany, setMasqueradeCompany, store 
 
 interface StartMasqueradeParams {
   companyId: number;
-  b2bId: number;
   customerId: string | number;
 }
 
-interface EndMasqueradeParams {
-  b2bId: number;
-}
-
-export const startMasquerade = async ({ companyId, b2bId, customerId }: StartMasqueradeParams) => {
+export const startMasquerade = async ({ companyId, customerId }: StartMasqueradeParams) => {
   // change group in bc throug b2b api
-  await superAdminBeginMasquerade(companyId, b2bId);
+  await superAdminBeginMasquerade(companyId);
 
   // get data to be saved on global
   const data = await getAgentInfo(customerId);
@@ -36,12 +31,12 @@ export const startMasquerade = async ({ companyId, b2bId, customerId }: StartMas
   store.dispatch(setMasqueradeCompany(masqueradeCompany));
 };
 
-export const endMasquerade = async ({ b2bId }: EndMasqueradeParams) => {
+export const endMasquerade = async () => {
   const { masqueradeCompany } = store.getState().b2bFeatures;
   const salesRepCompanyId = masqueradeCompany.id;
 
   // change group in bc throug b2b api
-  await superAdminEndMasquerade(salesRepCompanyId, b2bId);
+  await superAdminEndMasquerade(salesRepCompanyId);
 
   store.dispatch(clearMasqueradeCompany());
 };

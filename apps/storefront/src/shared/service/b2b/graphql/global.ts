@@ -72,10 +72,9 @@ const superAdminCompaniesQl = (id: number, params: CustomFieldItems) => `{
 	}
 }`;
 
-const superAdminBeginMasqueradeQl = (companyId: string | number, userId: number) => `mutation {
+const superAdminBeginMasqueradeQl = (companyId: number) => `mutation {
 	superAdminBeginMasquerade(
 		companyId: ${companyId}
-		userId: ${userId}
 	) {
 		userInfo {
 			email,
@@ -84,10 +83,9 @@ const superAdminBeginMasqueradeQl = (companyId: string | number, userId: number)
 	}
 }`;
 
-const superAdminEndMasqueradeQl = (companyId: string | number, userId: number) => `mutation {
+const superAdminEndMasqueradeQl = (companyId: number) => `mutation {
 	superAdminEndMasquerade(
 		companyId: ${companyId}
-		userId: ${userId}
 	) {
 		message
 	}
@@ -158,12 +156,6 @@ const currencies = (channelId: string | number) => `{
 		enteredInclusiveTax,
 	}
 }`;
-
-// type storefrontConfigsProps = {
-//   key: String,
-//   value: String,
-//   extraFields: any,
-// }
 
 const storefrontConfigs = (channelId: number, keys: string[]) => `{
 	storefrontConfigs(
@@ -334,14 +326,14 @@ export const superAdminCompanies = (id: number, params: CustomFieldItems) =>
     query: superAdminCompaniesQl(id, params),
   });
 
-export const superAdminBeginMasquerade = (companyId: number, userId: number) =>
+export const superAdminBeginMasquerade = (companyId: number) =>
   B3Request.graphqlB2B({
-    query: superAdminBeginMasqueradeQl(companyId, userId),
+    query: superAdminBeginMasqueradeQl(companyId),
   });
 
-export const superAdminEndMasquerade = (companyId: number, userId: number) =>
+export const superAdminEndMasquerade = (companyId: number) =>
   B3Request.graphqlB2B({
-    query: superAdminEndMasqueradeQl(companyId, userId),
+    query: superAdminEndMasqueradeQl(companyId),
   });
 
 export const getUserCompany = (userId: number) =>
