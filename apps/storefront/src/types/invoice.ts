@@ -1,3 +1,15 @@
+export interface CompanyInfoTypes {
+  companyId: string;
+  companyName: string;
+  companyAddress: string;
+  companyCountry: string;
+  companyState: string;
+  companyCity: string;
+  companyZipCode: string;
+  phoneNumber: string;
+  bcId: string;
+}
+
 export interface InvoiceList {
   id: string;
   createdAt: number;
@@ -15,9 +27,11 @@ export interface InvoiceList {
   pendingPaymentCount: number;
   openBalance: OpenBalance;
   originalBalance: OpenBalance;
+  orderUserId: number;
+  companyInfo: CompanyInfoTypes;
   isCollapse?: boolean;
   disableCurrentCheckbox?: boolean;
-  sortDirection?: any;
+  sortDirection?: string;
 }
 
 export interface InvoiceListNode {
