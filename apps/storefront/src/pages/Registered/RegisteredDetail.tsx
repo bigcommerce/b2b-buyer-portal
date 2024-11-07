@@ -7,11 +7,10 @@ import isEmpty from 'lodash-es/isEmpty';
 import { B3CustomForm } from '@/components';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { validateBCCompanyExtraFields } from '@/shared/service/b2b';
 
 import RegisteredStepButton from './component/RegisteredStepButton';
 import { RegisteredContext } from './context/RegisteredContext';
-import { Base64, Country, State } from './config';
+import { Country, State, validateExtraFields } from './config';
 import { InformationFourLabels, TipContent } from './styled';
 import { RegisterFields } from './types';
 
@@ -208,43 +207,22 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
     handleSubmit(async (data: CustomFieldItems) => {
       if (hasAttachmentsFilesError) return;
       showLoading(true);
-
       try {
         if (accountType === '1') {
-          const extraCompanyInformation = companyInformation.filter(
-            (item: RegisterFields) => !!item.custom,
-          );
-          const extraFields = extraCompanyInformation.map((field: RegisterFields) => ({
-            fieldName: Base64.decode(field.name),
-            fieldValue: data[field.name] || field.default,
-          }));
-
-          const res = await validateBCCompanyExtraFields({
-            extraFields,
-          });
-
-          if (res.code !== 200) {
-            const message = res.data?.errMsg || res.message || '';
-
-            const messageArr = message.split(':');
-
-            if (messageArr.length >= 2) {
-              const field = extraCompanyInformation.find(
-                (field) => Base64.decode(field.name) === messageArr[0],
-              );
-              if (field) {
-                setError(field.name, {
-                  type: 'manual',
-                  message: messageArr[1],
-                });
-                showLoading(false);
-                return;
-              }
-            }
-            setErrorMessage(message);
-            showLoading(false);
-            return;
-          }
+          await Promise.all([
+            validateExtraFields({
+              fields: companyInformation,
+              data,
+              type: 'company',
+              setError,
+            }),
+            validateExtraFields({
+              fields: addressBasicFields,
+              data,
+              type: 'address',
+              setError,
+            }),
+          ]);
 
           setErrorMessage('');
         }
@@ -254,6 +232,9 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         showLoading(false);
         handleNext();
       } catch (error) {
+        if (typeof error === 'string') {
+          setErrorMessage(error);
+        }
         showLoading(false);
       }
     })(event);
