@@ -82,6 +82,7 @@ export default function B3DropDown({
           '& .MuiList-root.MuiList-padding.MuiMenu-list': {
             pt: isMobile ? 0 : '8px',
             pb: isMobile ? 0 : '8px',
+            maxHeight: isMobile ? 'auto' : '200px',
           },
         }}
         {...(menu || {})}
