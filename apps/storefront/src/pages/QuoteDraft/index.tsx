@@ -36,9 +36,11 @@ import {
   ContactInfoKeys,
   QuoteExtraFields,
   QuoteFormattedItemsProps,
+  QuoteInfo as QuoteInfoType,
   ShippingAddress,
 } from '@/types/quotes';
 import { B3LStorage, channelId, snackbar, storeHash } from '@/utils';
+import b2bLogger from '@/utils/b3Logger';
 import { addQuoteDraftProducts, getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
@@ -330,11 +332,11 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     return addresssaveInfo;
   };
 
-  const handleSaveInfoClick = async () => {
-    const saveInfo = cloneDeep(quoteinfo);
+  const handleCollectingData = async (saveInfo: QuoteInfoType) => {
     if (contactInfoRef?.current) {
       const contactInfo = await contactInfoRef.current.getContactInfoValue();
-      if (!contactInfo) return;
+      if (!contactInfo) return false;
+
       saveInfo.contactInfo = {
         name: contactInfo?.name,
         email: contactInfo?.email,
@@ -350,6 +352,17 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         value: field.name ? contactInfo[field.name] : '',
       }));
       saveInfo.extraFields = extraFieldsInfo;
+
+      return true;
+    }
+    return false;
+  };
+
+  const handleSaveInfoClick = async () => {
+    const saveInfo = cloneDeep(quoteinfo);
+    if (contactInfoRef?.current) {
+      const datas = await handleCollectingData(saveInfo);
+      if (!datas) return;
     }
 
     const { shippingAddress, billingAddress } = getAddress();
@@ -426,6 +439,11 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       setLoading(true);
       try {
         const info = cloneDeep(quoteinfo);
+        if (isEdit && contactInfoRef?.current) {
+          const datas = await handleCollectingData(info);
+          if (!datas) return;
+        }
+
         const contactInfo = info?.contactInfo || {};
 
         const quoteTitle = contactInfo?.quoteTitle || '';
@@ -607,11 +625,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           setQuoteSubmissionResponseOpen(true);
         }
       } catch (error: any) {
-        if (error.message && error.message.length > 0) {
-          snackbar.error(error.message, {
-            isClose: true,
-          });
-        }
+        b2bLogger.error(error);
       } finally {
         setLoading(false);
       }
