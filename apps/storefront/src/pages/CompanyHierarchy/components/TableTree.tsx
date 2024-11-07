@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useB3Lang } from '@b3/lang';
 import {
   Business as BusinessIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -19,20 +20,16 @@ import {
   TableRow,
 } from '@mui/material';
 
-interface BaseNode {
-  childs?: BaseNode[];
-}
-
 interface TreeNodeProps {
   companyId: string | number;
   companyName: string;
 }
 
-type RecursiveNode<T extends BaseNode> = T & {
+type RecursiveNode<T> = T & {
   childs?: RecursiveNode<T>[];
 };
 
-interface CompanyTableProps<T extends BaseNode & TreeNodeProps> {
+interface CompanyTableProps<T extends TreeNodeProps> {
   data: RecursiveNode<T>[];
   currentCompanyId?: string | number;
   selectCompanyId?: string | number;
@@ -41,7 +38,7 @@ interface CompanyTableProps<T extends BaseNode & TreeNodeProps> {
   getNodeId?: (node: T) => string | number;
 }
 
-interface CompanyTableRowProps<T extends BaseNode & TreeNodeProps> {
+interface CompanyTableRowProps<T extends TreeNodeProps> {
   node: RecursiveNode<T>;
   level?: number;
   currentCompanyId?: string | number;
@@ -51,7 +48,7 @@ interface CompanyTableRowProps<T extends BaseNode & TreeNodeProps> {
   getNodeId?: (node: T) => string | number;
 }
 
-function CompanyTableRow<T extends BaseNode & TreeNodeProps>({
+function CompanyTableRow<T extends TreeNodeProps>({
   node,
   level = 0,
   currentCompanyId = '',
@@ -62,6 +59,8 @@ function CompanyTableRow<T extends BaseNode & TreeNodeProps>({
 }: CompanyTableRowProps<T>) {
   const [expanded, setExpanded] = useState(true);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const b3Lang = useB3Lang();
 
   const hasChildren = node.childs && node.childs.length > 0;
   const nodeId = getNodeId(node);
@@ -116,7 +115,7 @@ function CompanyTableRow<T extends BaseNode & TreeNodeProps>({
               </Box>
               {isSelectCompanyId && (
                 <Chip
-                  label="Representing"
+                  label={b3Lang('companyHierarchy.chip.selectCompany')}
                   size="small"
                   sx={{
                     backgroundColor: '#ED6C02',
@@ -165,7 +164,7 @@ function CompanyTableRow<T extends BaseNode & TreeNodeProps>({
             }}
           >
             <MenuItem sx={{ color: '#1976D2' }} onClick={handleSwitchClick}>
-              Switch company
+              {b3Lang('companyHierarchy.dialog.title')}
             </MenuItem>
           </Menu>
         </TableCell>
@@ -188,7 +187,7 @@ function CompanyTableRow<T extends BaseNode & TreeNodeProps>({
   );
 }
 
-function CompanyHierarchyTableTree<T extends BaseNode & TreeNodeProps>({
+function CompanyHierarchyTableTree<T extends TreeNodeProps>({
   data,
   currentCompanyId,
   selectCompanyId,

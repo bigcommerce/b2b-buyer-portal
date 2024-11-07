@@ -708,6 +708,8 @@
   "payment.okButton": "Ok",
 
   "companyHierarchy.table.name": "Name",
+  "companyHierarchy.dialog.title": "Switch company",
+  "companyHierarchy.dialog.content": "Switching to a different company will refresh your shopping cart. Do you want to continue?",
   "companyHierarchy.chip.currentCompany": "Your company",
   "companyHierarchy.chip.selectCompany": "Representing"
 }
