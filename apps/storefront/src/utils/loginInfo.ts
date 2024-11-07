@@ -3,6 +3,7 @@ import {
   getB2BCompanyUserInfo,
   getB2BToken,
   getBCGraphqlToken,
+  getCompanySubsidiaries,
   getUserCompany,
 } from '@/shared/service/b2b';
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
@@ -316,33 +317,7 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
         agentInfo(customerId, role),
       ]);
 
-      // TODO: call api, get company level, store data
-      const originData = [
-        {
-          companyName: 'Company 1',
-          companyId: 51138,
-          parentCompanyName: '',
-          parentCompanyId: null,
-        },
-        {
-          companyName: 'Company 3',
-          companyId: 3,
-          parentCompanyName: 'Company 1',
-          parentCompanyId: 51138,
-        },
-        {
-          companyName: 'Company12312312312dasdasdasa 2',
-          companyId: 2,
-          parentCompanyName: 'Company 1',
-          parentCompanyId: 51138,
-        },
-        {
-          companyName: 'Company 4',
-          companyId: 4,
-          parentCompanyName: 'Company 2',
-          parentCompanyId: 2,
-        },
-      ];
+      const { companySubsidiaries } = await getCompanySubsidiaries();
 
       const isB2BUser =
         (userType === UserTypes.MULTIPLE_B2C &&
@@ -376,7 +351,7 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
       store.dispatch(setCompanyInfo(companyPayload));
       store.dispatch(setCustomerInfo(customerInfo));
       store.dispatch(setQuoteUserId(quoteUserId));
-      store.dispatch(setCompanyHierarchyListModules([...originData]));
+      store.dispatch(setCompanyHierarchyListModules([...companySubsidiaries]));
       B3SStorage.set('isB2BUser', isB2BUser);
       B3LStorage.set('cartToQuoteId', '');
 

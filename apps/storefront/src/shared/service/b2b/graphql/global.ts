@@ -1,3 +1,4 @@
+import { CompanyHierarchyListProps } from '@/types';
 import {
   convertArrayToGraphql,
   convertObjectOrArrayKeysToCamel,
@@ -26,6 +27,9 @@ interface ProductPrice {
   customer_group_id: number;
 }
 
+interface CompanySubsidiariesProps {
+  companySubsidiaries: CompanyHierarchyListProps[];
+}
 const getB2BTokenQl = (currentCustomerJWT: string, channelId: number) => `mutation {
 	authorization(authData: {
 		bcToken: "${currentCustomerJWT}"
@@ -311,6 +315,15 @@ const priceProducts = `query priceProducts($storeHash: String, $channelId: Int, 
 }
 `;
 
+const companySubsidiaries = `query {
+	companySubsidiaries {
+		companyId
+		companyName
+		parentCompanyId
+		parentCompanyName
+	}
+}`;
+
 export const getB2BToken = (currentCustomerJWT: string, channelId = 1) =>
   B3Request.graphqlB2B({
     query: getB2BTokenQl(currentCustomerJWT, channelId),
@@ -384,4 +397,9 @@ export const getProductPricing = (data: Partial<ProductPrice>) =>
     return {
       data: convertObjectOrArrayKeysToSnake(b2bPriceProducts) as CustomFieldItems[],
     };
+  });
+
+export const getCompanySubsidiaries = (): Promise<CompanySubsidiariesProps> =>
+  B3Request.graphqlB2B({
+    query: companySubsidiaries,
   });
