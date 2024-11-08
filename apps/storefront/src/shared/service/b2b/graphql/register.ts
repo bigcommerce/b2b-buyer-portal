@@ -203,11 +203,8 @@ const getLoginPageConfig = () => `{
 }`;
 
 const getForcePasswordReset = (email: string) => `{
-  companyUserInfo(storeHash: "${storeHash}", email: "${email}"){
-    userType
-    userInfo {
-        forcePasswordReset
-    }
+  userLoginState(storeHash: "${storeHash}", email: "${email}"){
+    forcePasswordReset
   }
 }`;
 
@@ -308,7 +305,7 @@ export const getB2BLoginPageConfig = () =>
 export const getBCForcePasswordReset = (email: string) =>
   B3Request.graphqlB2B({
     query: getForcePasswordReset(email),
-  }).then((res) => res.companyUserInfo.userInfo.forcePasswordReset);
+  }).then((res) => res.userLoginState.forcePasswordReset);
 
 export const getBCStoreChannelId = () =>
   B3Request.graphqlB2B({
