@@ -1,3 +1,4 @@
+import { permissionLevels } from '@/constants';
 import { store } from '@/store';
 
 import { checkPermissionCode } from './base';
@@ -23,4 +24,49 @@ export const getPermissionsInfo = (code: string): PermissionCodesProps | undefin
   const permissions = store.getState().company.permissions || [];
 
   return permissions.find((permission) => permission.code.includes(code));
+};
+
+interface VerifyLevelPermissionProps {
+  code: string;
+  companyId: number;
+  userEmail?: string;
+  userId?: number;
+}
+
+/**
+ * Verifies the user's permission level based on the provided criteria.
+ *
+ * @param {Object} params - The function parameters.
+ * @param {string} params.code - The permission code to check.
+ * @param {number} params.companyId - The ID of the company to compare, default is 0.
+ * @param {string} params.userEmail - The email of the user to compare. Either `userEmail` or `userId` is required for user-level validation.
+ * @param {number} params.userId - The ID of the user to compare. Either `userEmail` or `userId` is required for user-level validation.
+ * @returns {boolean} - Returns `true` if permission is granted, `false` otherwise.
+ */
+export const verifyLevelPermission = ({
+  code,
+  companyId = 0,
+  userEmail = '',
+  userId = 0,
+}: VerifyLevelPermissionProps): boolean => {
+  const info = getPermissionsInfo(code);
+
+  if (!info || !companyId) return !!info;
+
+  const { permissionLevel } = info;
+  const { companyInfo, customer } = store.getState().company || {};
+  const currentCompanyId = companyInfo?.id;
+  const customerId = customer?.id;
+  const customerEmail = customer?.emailAddress;
+
+  switch (permissionLevel) {
+    case permissionLevels.COMPANYSUBSIDIARIES:
+      return true;
+    case permissionLevels.COMPANY:
+      return +companyId === +currentCompanyId;
+    case permissionLevels.USER:
+      return userId === +customerId || userEmail === customerEmail;
+    default:
+      return false;
+  }
 };
