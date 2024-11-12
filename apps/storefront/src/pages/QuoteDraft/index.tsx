@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
@@ -141,7 +141,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     },
   } = useContext(CustomStyleContext);
 
-  const quotesActionsPermission = isB2BUser ? b2bPermissions.quotesActionsPermission : true;
+  const quotesActionsPermission = useMemo(() => {
+    return isB2BUser ? b2bPermissions.quotesActionsPermission : true;
+  }, [isB2BUser, b2bPermissions]);
 
   const navigate = useNavigate();
 

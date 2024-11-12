@@ -70,6 +70,12 @@ export const BROWSER_LANG = navigator.language.substring(0, 2);
 export const CART_URL = '/cart.php';
 export const CHECKOUT_URL = '/checkout';
 
+export const permissionLevels = {
+  USER: 1,
+  COMPANY: 2,
+  COMPANYSUBSIDIARIES: 3,
+};
+
 export const PATH_ROUTES = {
   ...HeadlessRoutes,
 };
