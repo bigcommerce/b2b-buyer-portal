@@ -20,12 +20,12 @@ import {
 import {
   activeCurrencyInfoSelector,
   isB2BUserSelector,
-  rolePermissionSelector,
   TaxZoneRates,
   useAppSelector,
 } from '@/store';
 import { Currency } from '@/types';
 import { snackbar } from '@/utils';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { getSearchVal } from '@/utils/loginInfo';
@@ -59,16 +59,6 @@ function QuoteDetail() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const [isMobile] = useMobile();
 
-  const {
-    quoteConvertToOrderPermission: quoteConvertToOrderPermissionRename,
-    purchasabilityPermission,
-  } = useAppSelector(rolePermissionSelector);
-
-  const quoteConvertToOrderPermission = isB2BUser
-    ? quoteConvertToOrderPermissionRename
-    : +role !== 2;
-  const quotePurchasabilityPermission = isB2BUser ? purchasabilityPermission : +role !== 2;
-
   const b3Lang = useB3Lang();
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
@@ -93,6 +83,11 @@ function QuoteDetail() {
     nonPurchasable: '',
   });
 
+  const [quotePurchasabilityPermissionInfo, setQuotePurchasabilityPermission] = useState({
+    quotePurchasabilityPermission: false,
+    quoteConvertToOrderPermission: false,
+  });
+
   const [quoteCheckoutLoadding, setQuoteCheckoutLoadding] = useState<boolean>(false);
 
   const location = useLocation();
@@ -104,6 +99,42 @@ function QuoteDetail() {
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
   );
+
+  useEffect(() => {
+    if (!quoteDetail?.id) return;
+
+    const getPurchasabilityAndConvertToOrderPermission = () => {
+      if (isB2BUser) {
+        const companyId = quoteDetail?.companyId?.id || null;
+        const userEmail = quoteDetail?.contactInfo?.email || '';
+        return {
+          quotePurchasabilityPermission: verifyLevelPermission({
+            code: 'purchase_enable',
+            companyId,
+            userEmail,
+          }),
+          quoteConvertToOrderPermission: verifyLevelPermission({
+            code: 'update_quote_message',
+            companyId,
+            userEmail,
+          }),
+        };
+      }
+
+      return {
+        quotePurchasabilityPermission: true,
+        quoteConvertToOrderPermission: true,
+      };
+    };
+
+    const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
+      getPurchasabilityAndConvertToOrderPermission();
+
+    setQuotePurchasabilityPermission({
+      quotePurchasabilityPermission,
+      quoteConvertToOrderPermission,
+    });
+  }, [isB2BUser, quoteDetail]);
 
   useEffect(() => {
     let oosErrorList = '';
@@ -513,6 +544,9 @@ function QuoteDetail() {
   };
 
   useScrollBar(false);
+
+  const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
+    quotePurchasabilityPermissionInfo;
 
   return (
     <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoadding}>
