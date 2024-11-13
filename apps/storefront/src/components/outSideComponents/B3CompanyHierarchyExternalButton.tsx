@@ -1,31 +1,128 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { useB3Lang } from '@b3/lang';
 import BusinessIcon from '@mui/icons-material/Business';
-import { Box, SnackbarOrigin } from '@mui/material';
+import { Box, SnackbarOrigin, SxProps } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 
 import { PATH_ROUTES } from '@/constants';
+import useMobile from '@/hooks/useMobile';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { useAppSelector } from '@/store';
+
+import {
+  getContrastColor,
+  getLocation,
+  getPosition,
+  getStyles,
+  setMUIMediaStyle,
+  splitCustomCssValue,
+} from './utils/b3CustomStyles';
+
+const bottomHeightPage = ['shoppingList/', 'purchased-products'];
 
 interface B3CompanyHierarchyExternalButtonProps {
   isOpen: boolean;
   setOpenPage: SetOpenPage;
 }
 function B3CompanyHierarchyExternalButton({
-  isOpen,
   setOpenPage,
+  isOpen,
 }: B3CompanyHierarchyExternalButtonProps) {
   const b3Lang = useB3Lang();
+
+  const { hash } = window.location;
+
+  const [isMobile] = useMobile();
 
   const { selectCompanyHierarchyId, companyHierarchyList } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
 
+  const isAddBottom = bottomHeightPage.some((item: string) => hash.includes(item));
+
+  const {
+    state: { switchAccountButton },
+  } = useContext(CustomStyleContext);
+
   const defaultLocation: SnackbarOrigin = {
     vertical: 'bottom',
     horizontal: 'left',
   };
+
+  const {
+    color = '',
+    customCss = '',
+    location = 'bottomLeft',
+    horizontalPadding = '',
+    verticalPadding = '',
+  } = switchAccountButton;
+
+  console.log(switchAccountButton, 'switchAccountButton');
+
+  const cssInfo = splitCustomCssValue(customCss);
+  const {
+    cssValue,
+    mediaBlocks,
+  }: {
+    cssValue: string;
+    mediaBlocks: string[];
+  } = cssInfo;
+  const MUIMediaStyle = setMUIMediaStyle(mediaBlocks);
+
+  const customStyles: SxProps = {
+    backgroundColor: `${color || '#ED6C02'}`,
+    color: getContrastColor(color || '#FFFFFF'),
+    padding: '0',
+    ...getStyles(cssValue),
+  };
+
+  const isMobileCustomStyles: SxProps = {
+    backgroundColor: `${color || '#ED6C02'}`,
+    color: getContrastColor(color || '#FFFFFF'),
+    ...getStyles(cssValue),
+  };
+
+  const customBuyerPortalPagesStyles: SxProps = {
+    bottom: '24px',
+    left: '24px',
+    right: 'auto',
+    top: 'unset',
+  };
+
+  let sx: SxProps = {};
+
+  if (isMobile && isOpen) {
+    sx = {
+      width: '100%',
+      bottom: 0,
+      left: 0,
+      ...isMobileCustomStyles,
+    };
+  } else if (isMobile && !isOpen) {
+    sx = {
+      ...getPosition(horizontalPadding, verticalPadding, location),
+      ...isMobileCustomStyles,
+    };
+  } else if (!isMobile && isOpen) {
+    sx = {
+      ...customBuyerPortalPagesStyles,
+      ...customStyles,
+    };
+  } else if (!isMobile && !isOpen) {
+    sx = {
+      ...getPosition(horizontalPadding, verticalPadding, location),
+      ...customStyles,
+    };
+    console.log(MUIMediaStyle, customStyles);
+  }
+
+  if (!isMobile && isAddBottom) {
+    sx = {
+      ...sx,
+      bottom: '90px !important',
+    };
+  }
 
   const companyName: string = useMemo(() => {
     if (!selectCompanyHierarchyId) {
@@ -42,12 +139,17 @@ function B3CompanyHierarchyExternalButton({
 
   return (
     <>
-      {!isOpen && !!companyName && (
+      {!!companyName && (
         <Snackbar
           sx={{
-            zIndex: '99999999993',
+            zIndex: '9999999999',
+            height: '52px',
+            borderRadius: '4px',
+            fontSize: '16px',
+            ...sx,
+            ...MUIMediaStyle,
           }}
-          anchorOrigin={defaultLocation}
+          anchorOrigin={getLocation(location) || defaultLocation}
           open
         >
           <Box
@@ -55,13 +157,18 @@ function B3CompanyHierarchyExternalButton({
               display: 'flex',
               alignItems: 'center',
               padding: '1rem 2rem',
-              color: '#FFFFFF',
-              backgroundColor: '#ED6C02',
               borderRadius: '4px',
               fontSize: '16px',
+              cursor: 'pointer',
             }}
+            onClick={() =>
+              setOpenPage({
+                isOpen: true,
+                openUrl: COMPANY_HIERARCHY,
+              })
+            }
           >
-            <BusinessIcon sx={{ color: '#FFFFFF', fontSize: '20px' }} />
+            <BusinessIcon sx={{ fontSize: '20px' }} />
             <Box
               sx={{
                 margin: '0 0.5rem',
@@ -72,14 +179,7 @@ function B3CompanyHierarchyExternalButton({
             <Box
               sx={{
                 fontWeight: 'bold',
-                cursor: 'pointer',
               }}
-              onClick={() =>
-                setOpenPage({
-                  isOpen: true,
-                  openUrl: COMPANY_HIERARCHY,
-                })
-              }
             >
               {companyName}
             </Box>

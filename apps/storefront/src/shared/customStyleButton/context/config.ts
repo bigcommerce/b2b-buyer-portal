@@ -2,6 +2,7 @@ import { Dispatch } from 'react';
 
 type BtnKeys =
   | 'masqueradeButton'
+  | 'switchAccountButton'
   | 'floatingAction'
   | 'addToAllQuoteBtn'
   | 'shoppingListBtn'
@@ -85,6 +86,14 @@ export const initState = {
   masqueradeButton: {
     color: '#FFFFFF',
     text: 'END MASQUERADE',
+    location: 'bottomLeft',
+    customCss: '',
+    horizontalPadding: '',
+    verticalPadding: '',
+  },
+  switchAccountButton: {
+    color: '#FFFFFF',
+    text: 'Switch Company',
     location: 'bottomLeft',
     customCss: '',
     horizontalPadding: '',

@@ -43,7 +43,7 @@ function CompanyHierarchy() {
 
     const { companySubsidiaries } = await getCompanySubsidiaries();
 
-    const list = buildHierarchy(companySubsidiaries || [], +currentCompanyId);
+    const list = buildHierarchy(companySubsidiaries || []);
 
     originDataRef.current = companySubsidiaries;
 
@@ -59,7 +59,6 @@ function CompanyHierarchy() {
 
     // ignore init
     // due they are funtions that do not depend on any reactive value
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentCompanyId]);
 
   const handleClose = () => {
