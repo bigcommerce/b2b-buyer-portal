@@ -92,6 +92,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
     name: 'masqueradeButton',
   },
   {
+    key: 'switch_account_button',
+    name: 'switchAccountButton',
+  },
+  {
     key: 'quote_floating_action_button',
     name: 'floatingAction',
   },
@@ -205,6 +209,16 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
         };
       }
 
+      if (storeforntKey.key === 'switch_account_button') {
+        storefrontConfig.extraFields = {
+          ...item.extraFields,
+          color: item.extraFields?.color || '#ED6C02',
+          location: item.extraFields?.location || ' bottomLeft',
+          horizontalPadding: item.extraFields?.horizontalPadding || '',
+          verticalPadding: item.extraFields?.verticalPadding || '',
+        };
+      }
+
       if (storeforntKey.key === 'quote_floating_action_button') {
         storefrontConfig.extraFields = {
           ...item.extraFields,
@@ -280,6 +294,8 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
       };
     }
   });
+
+  console.log(storefrontConfigs, 'storefrontConfigs');
 
   dispatchGlobal({
     type: 'common',
