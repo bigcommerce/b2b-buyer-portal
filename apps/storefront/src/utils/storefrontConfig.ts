@@ -295,8 +295,6 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
     }
   });
 
-  console.log(storefrontConfigs, 'storefrontConfigs');
-
   dispatchGlobal({
     type: 'common',
     payload: {

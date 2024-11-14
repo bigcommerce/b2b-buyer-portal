@@ -75,3 +75,16 @@ export const CHECKOUT_URL = '/checkout';
 export const PATH_ROUTES = {
   ...HeadlessRoutes,
 };
+
+export const Z_INDEX: Record<
+  'IFRAME' | 'BASE' | 'STICKY' | 'OVERLAY' | 'MODAL' | 'TOOLTIP' | 'NOTIFICATION',
+  number
+> = {
+  IFRAME: 12000,
+  BASE: 12001,
+  STICKY: 12002,
+  OVERLAY: 12003,
+  MODAL: 12005,
+  TOOLTIP: 12004,
+  NOTIFICATION: 12004,
+};

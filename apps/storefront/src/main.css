@@ -11,7 +11,7 @@
   height: 100%;
   position: fixed;
   overscroll-behavior: contain;
-  z-index: 9999999999;
+  z-index: var(--z-index-IFRAME);
   pointer-events: pointer;
 }
 
@@ -197,7 +197,7 @@ input[type='number']::-webkit-outer-spin-button {
   position: fixed;
   top: 10px;
   right: 20px;
-  z-index: 10000;
+  z-index: var(--z-index-TOOLTIP);
   min-width: 300px;
 }
 
@@ -311,7 +311,7 @@ input[type='number']::-webkit-outer-spin-button {
   top: 0;
   left: 0;
   background-color: #fef9f5;
-  z-index: 99999999995;
+  z-index: var(--z-index-MODAL);
   display: flex;
   justify-content: center;
   align-items: center;
