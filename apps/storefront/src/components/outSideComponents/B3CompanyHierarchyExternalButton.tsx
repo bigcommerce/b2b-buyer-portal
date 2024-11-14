@@ -4,7 +4,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import { Box, SnackbarOrigin, SxProps } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 
-import { PATH_ROUTES } from '@/constants';
+import { PATH_ROUTES, Z_INDEX } from '@/constants';
 import useMobile from '@/hooks/useMobile';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
@@ -58,8 +58,6 @@ function B3CompanyHierarchyExternalButton({
     verticalPadding = '',
   } = switchAccountButton;
 
-  console.log(switchAccountButton, 'switchAccountButton');
-
   const cssInfo = splitCustomCssValue(customCss);
   const {
     cssValue,
@@ -70,58 +68,28 @@ function B3CompanyHierarchyExternalButton({
   } = cssInfo;
   const MUIMediaStyle = setMUIMediaStyle(mediaBlocks);
 
-  const customStyles: SxProps = {
-    backgroundColor: `${color || '#ED6C02'}`,
-    color: getContrastColor(color || '#FFFFFF'),
-    padding: '0',
-    ...getStyles(cssValue),
-  };
-
-  const isMobileCustomStyles: SxProps = {
-    backgroundColor: `${color || '#ED6C02'}`,
+  const baseStyles: SxProps = {
+    backgroundColor: color || '#ED6C02',
     color: getContrastColor(color || '#FFFFFF'),
     ...getStyles(cssValue),
   };
 
-  const customBuyerPortalPagesStyles: SxProps = {
-    bottom: '24px',
-    left: '24px',
-    right: 'auto',
-    top: 'unset',
-  };
+  const desktopStyles: SxProps = isAddBottom ? { bottom: '90px !important' } : {};
+  const buyerPortalStyles: SxProps = { bottom: '24px', left: '24px', right: 'auto', top: 'unset' };
+  const mobileOpenStyles: SxProps = { width: '100%', bottom: 0, left: 0 };
 
-  let sx: SxProps = {};
+  let sx: SxProps = { ...baseStyles };
 
-  if (isMobile && isOpen) {
-    sx = {
-      width: '100%',
-      bottom: 0,
-      left: 0,
-      ...isMobileCustomStyles,
-    };
-  } else if (isMobile && !isOpen) {
-    sx = {
-      ...getPosition(horizontalPadding, verticalPadding, location),
-      ...isMobileCustomStyles,
-    };
-  } else if (!isMobile && isOpen) {
-    sx = {
-      ...customBuyerPortalPagesStyles,
-      ...customStyles,
-    };
-  } else if (!isMobile && !isOpen) {
-    sx = {
-      ...getPosition(horizontalPadding, verticalPadding, location),
-      ...customStyles,
-    };
-    console.log(MUIMediaStyle, customStyles);
-  }
-
-  if (!isMobile && isAddBottom) {
-    sx = {
-      ...sx,
-      bottom: '90px !important',
-    };
+  if (isMobile) {
+    if (isOpen) {
+      sx = { ...sx, ...mobileOpenStyles };
+    } else {
+      sx = { ...sx, ...getPosition(horizontalPadding, verticalPadding, location) };
+    }
+  } else if (isOpen) {
+    sx = { ...sx, ...buyerPortalStyles, ...desktopStyles };
+  } else {
+    sx = { ...sx, ...getPosition(horizontalPadding, verticalPadding, location), ...desktopStyles };
   }
 
   const companyName: string = useMemo(() => {
@@ -142,7 +110,7 @@ function B3CompanyHierarchyExternalButton({
       {!!companyName && (
         <Snackbar
           sx={{
-            zIndex: '9999999999',
+            zIndex: Z_INDEX.NOTIFICATION,
             height: '52px',
             borderRadius: '4px',
             fontSize: '16px',
