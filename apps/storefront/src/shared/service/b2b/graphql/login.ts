@@ -6,7 +6,7 @@ interface ApiTokenConfig {
   storeHash: string;
   channel_id: number;
   expires_at: number;
-  allowed_cors_origins: string[];
+  allowed_cors_origins: string[] | Location[];
 }
 
 const storeFrontToken = `mutation storeFrontToken($storeFrontTokenData: CustomerStoreFrontTokenInputType!) {
