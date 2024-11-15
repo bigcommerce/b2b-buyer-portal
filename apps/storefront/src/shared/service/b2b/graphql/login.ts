@@ -1,4 +1,4 @@
-import { convertObjectOrArrayKeysToCamel } from '@/utils';
+import { convertObjectOrArrayKeysToCamel, platform } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
 
@@ -15,9 +15,12 @@ const storeFrontToken = `mutation storeFrontToken($storeFrontTokenData: Customer
   }
 }
 `;
-
-export const getBCGraphqlToken = (data: Partial<ApiTokenConfig>) =>
-  B3Request.graphqlB2B({
+export const getBCGraphqlToken = (data: Partial<ApiTokenConfig>): Promise<string> | undefined => {
+  if (platform !== 'bigcommerce') {
+    return undefined;
+  }
+  return B3Request.graphqlB2B({
     query: storeFrontToken,
     variables: { storeFrontTokenData: convertObjectOrArrayKeysToCamel(data) },
-  });
+  }).then((res) => res.storeFrontToken.token);
+};
