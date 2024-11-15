@@ -162,8 +162,21 @@ function CompanyTableRow<T extends TreeNodeProps>({
             MenuListProps={{
               'aria-labelledby': 'company-button',
             }}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
           >
-            <MenuItem sx={{ color: '#1976D2' }} onClick={handleSwitchClick}>
+            <MenuItem
+              sx={{
+                color: 'primary.main',
+              }}
+              onClick={handleSwitchClick}
+            >
               {b3Lang('companyHierarchy.dialog.title')}
             </MenuItem>
           </Menu>

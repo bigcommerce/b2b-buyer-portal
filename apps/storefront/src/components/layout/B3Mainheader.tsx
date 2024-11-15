@@ -71,13 +71,13 @@ export default function B3Mainheader({ title }: { title: string }) {
             display: 'flex',
           }}
         >
-          <B3CompanyHierarchy />
           <Box
             component="h4"
             sx={{
               fontSize: '20px',
               fontWeight: '500',
               color: customColor || '#333333',
+              mr: 2,
             }}
           >
             {+role === 3 &&
@@ -85,6 +85,7 @@ export default function B3Mainheader({ title }: { title: string }) {
                 salesRepCompanyName ||
                 b3Lang('global.B3MainHeader.superAdmin'))}
           </Box>
+          <B3CompanyHierarchy />
         </Grid>
         <Box
           sx={{

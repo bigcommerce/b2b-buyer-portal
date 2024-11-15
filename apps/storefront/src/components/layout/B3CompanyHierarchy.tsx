@@ -1,9 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import CheckIcon from '@mui/icons-material/Check';
 import { Box, Chip, Grid } from '@mui/material';
+import Cookies from 'js-cookie';
 
-import { useAppSelector } from '@/store';
+import B3Dialog from '@/components/B3Dialog';
+import useMobile from '@/hooks/useMobile';
+import { deleteCart } from '@/shared/service/bc/graphql/cart';
+import { store, useAppSelector } from '@/store';
+import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
+import { setCartNumber } from '@/store/slices/global';
+import { CompanyHierarchyProps } from '@/types';
+import { deleteCartData } from '@/utils/cartUtils';
 
 import B3DropDown, { ListItemProps } from '../B3DropDown';
 
@@ -21,14 +29,24 @@ const chipInfo = {
 function B3CompanyHierarchy() {
   const b3Lang = useB3Lang();
 
+  const [open, setOpen] = useState<boolean>(false);
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [isMobile] = useMobile();
+
+  const [currentRow, setCurrentRow] = useState<CompanyHierarchyProps | null>(null);
+
   const { id: currentCompanyId } = useAppSelector(({ company }) => company.companyInfo);
+
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
 
   const { selectCompanyHierarchyId, companyHierarchyList } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
 
   const info = useMemo(() => {
-    const showTitileId = selectCompanyHierarchyId || currentCompanyId;
+    const showTitileId = selectCompanyHierarchyId || currentCompanyId || salesRepCompanyId;
 
     const title = companyHierarchyList.find(
       (list) => +list.companyId === +showTitileId,
@@ -43,12 +61,25 @@ function B3CompanyHierarchy() {
       title,
       list,
     };
-  }, [selectCompanyHierarchyId, currentCompanyId, companyHierarchyList]);
+  }, [selectCompanyHierarchyId, currentCompanyId, companyHierarchyList, salesRepCompanyId]);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleRowClick = (key: number) => {
+    const item = info.list.find((list) => +list.key === key);
+    if (!item) return;
+    setCurrentRow({
+      companyId: +item.key,
+      companyName: item.name,
+    });
+    setOpen(true);
+  };
 
   const menuRenderItemName = (itme: ListItemProps) => {
     const { name, key } = itme;
 
-    const selectId = selectCompanyHierarchyId || currentCompanyId;
+    const selectId = selectCompanyHierarchyId || currentCompanyId || salesRepCompanyId;
 
     if (key === +selectId) {
       return (
@@ -74,54 +105,125 @@ function B3CompanyHierarchy() {
     return name;
   };
 
+  const handleSwitchCompanyClick = async () => {
+    if (!currentRow) return;
+
+    setLoading(true);
+
+    const cartEntityId = Cookies.get('cartId');
+
+    if (cartEntityId) {
+      const deleteCartObject = deleteCartData(cartEntityId);
+
+      await deleteCart(deleteCartObject);
+
+      store.dispatch(setCartNumber(0));
+    }
+
+    const { companyId } = currentRow;
+
+    store.dispatch(
+      setCompanyHierarchyInfoModules({
+        selectCompanyHierarchyId: companyId === +currentCompanyId ? '' : companyId,
+        companyHierarchyList: companyHierarchyList || [],
+      }),
+    );
+
+    setLoading(false);
+
+    handleClose();
+  };
+
   const { backgroundColor, langId: chipLangId } = selectCompanyHierarchyId
     ? chipInfo.representingInfo
     : chipInfo.currentInfo;
 
   if (!info?.list?.length) return null;
 
-  return (
-    <Box
-      sx={{
-        minWidth: '100px',
-        display: 'flex',
-        justifyContent: 'start',
-        alignItems: 'center',
-        fontSize: '1rem',
-        color: '#333333',
-        '& .MuiListItemButton-root': {
-          paddingLeft: '0',
-        },
-      }}
-    >
-      <B3DropDown
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        menuRenderItemName={menuRenderItemName}
-        title={info?.title || ''}
-        handleItemClick={() => {}}
-        list={info?.list || []}
-      />
+  if (!currentCompanyId && !salesRepCompanyId) return null;
 
-      <Chip
-        label={b3Lang(chipLangId)}
-        size="small"
+  return (
+    <>
+      <Box
         sx={{
-          backgroundColor,
-          color: 'white',
-          height: 24,
-          '& .MuiChip-label': {
-            px: 1,
+          minWidth: '100px',
+          display: 'flex',
+          justifyContent: 'start',
+          alignItems: 'center',
+          fontSize: '1rem',
+          color: '#333333',
+          '& .MuiListItemButton-root': {
+            paddingLeft: '0',
           },
         }}
-      />
-    </Box>
+      >
+        <B3DropDown
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          menuRenderItemName={menuRenderItemName}
+          title={info?.title || ''}
+          handleItemClick={(item) => handleRowClick(+item)}
+          list={info?.list || []}
+        />
+
+        <Chip
+          label={b3Lang(chipLangId)}
+          size="small"
+          sx={{
+            backgroundColor,
+            color: 'white',
+            height: 24,
+            '& .MuiChip-label': {
+              px: 1,
+            },
+          }}
+        />
+      </Box>
+
+      <B3Dialog
+        isOpen={open}
+        rightSizeBtn="Continue"
+        title={b3Lang('companyHierarchy.dialog.title')}
+        fullWidth
+        maxWidth={false}
+        loading={loading}
+        handleLeftClick={handleClose}
+        handRightClick={handleSwitchCompanyClick}
+        dialogSx={{
+          '& .MuiPaper-elevation': {
+            width: isMobile ? '100%' : `480px`,
+          },
+          '& .MuiDialogTitle-root': {
+            border: 0,
+          },
+          '& .MuiDialogActions-root': {
+            border: 0,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            maxHeight: '600px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1,
+            }}
+          >
+            {b3Lang('companyHierarchy.dialog.content')}
+          </Box>
+        </Box>
+      </B3Dialog>
+    </>
   );
 }
 

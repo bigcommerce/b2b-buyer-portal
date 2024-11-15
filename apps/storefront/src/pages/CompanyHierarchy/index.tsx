@@ -34,6 +34,8 @@ function CompanyHierarchy() {
 
   const { id: currentCompanyId } = useAppSelector(({ company }) => company.companyInfo);
 
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
@@ -53,13 +55,13 @@ function CompanyHierarchy() {
   };
 
   useEffect(() => {
-    if (currentCompanyId) {
+    if (currentCompanyId || salesRepCompanyId) {
       init();
     }
 
     // ignore init
     // due they are funtions that do not depend on any reactive value
-  }, [currentCompanyId]);
+  }, [currentCompanyId, salesRepCompanyId]);
 
   const handleClose = () => {
     setOpen(false);
@@ -128,6 +130,12 @@ function CompanyHierarchy() {
           dialogSx={{
             '& .MuiPaper-elevation': {
               width: isMobile ? '100%' : `480px`,
+            },
+            '& .MuiDialogTitle-root': {
+              border: 0,
+            },
+            '& .MuiDialogActions-root': {
+              border: 0,
             },
           }}
         >

@@ -1,9 +1,14 @@
 import {
   getAgentInfo,
+  getCompanySubsidiaries,
   superAdminBeginMasquerade,
   superAdminEndMasquerade,
 } from '@/shared/service/b2b';
 import { clearMasqueradeCompany, MasqueradeCompany, setMasqueradeCompany, store } from '@/store';
+import {
+  setCompanyHierarchyInfoModules,
+  setCompanyHierarchyListModules,
+} from '@/store/slices/company';
 
 interface StartMasqueradeParams {
   companyId: number;
@@ -28,6 +33,10 @@ export const startMasquerade = async ({ companyId, customerId }: StartMasquerade
     },
   };
 
+  const { companySubsidiaries } = await getCompanySubsidiaries();
+
+  store.dispatch(setCompanyHierarchyListModules([...companySubsidiaries]));
+
   store.dispatch(setMasqueradeCompany(masqueradeCompany));
 };
 
@@ -37,6 +46,13 @@ export const endMasquerade = async () => {
 
   // change group in bc throug b2b api
   await superAdminEndMasquerade(salesRepCompanyId);
+
+  store.dispatch(
+    setCompanyHierarchyInfoModules({
+      selectCompanyHierarchyId: '',
+      companyHierarchyList: [],
+    }),
+  );
 
   store.dispatch(clearMasqueradeCompany());
 };
