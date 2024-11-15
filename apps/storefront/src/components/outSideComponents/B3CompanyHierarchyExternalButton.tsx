@@ -39,6 +39,8 @@ function B3CompanyHierarchyExternalButton({
     ({ company }) => company.companyHierarchyInfo,
   );
 
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+
   const isAddBottom = bottomHeightPage.some((item: string) => hash.includes(item));
 
   const {
@@ -71,12 +73,24 @@ function B3CompanyHierarchyExternalButton({
   const baseStyles: SxProps = {
     backgroundColor: color || '#ED6C02',
     color: getContrastColor(color || '#FFFFFF'),
+    bottom: salesRepCompanyId ? '90px !important' : 0,
     ...getStyles(cssValue),
   };
 
-  const desktopStyles: SxProps = isAddBottom ? { bottom: '90px !important' } : {};
-  const buyerPortalStyles: SxProps = { bottom: '24px', left: '24px', right: 'auto', top: 'unset' };
-  const mobileOpenStyles: SxProps = { width: '100%', bottom: 0, left: 0 };
+  const desktopStyles: SxProps = isAddBottom
+    ? { bottom: salesRepCompanyId ? '180px !important' : '90px !important' }
+    : {};
+  const buyerPortalStyles: SxProps = {
+    bottom: salesRepCompanyId ? '90px !important' : '24px',
+    left: '24px',
+    right: 'auto',
+    top: 'unset',
+  };
+  const mobileOpenStyles: SxProps = {
+    width: '100%',
+    bottom: salesRepCompanyId ? '90px' : 0,
+    left: 0,
+  };
 
   let sx: SxProps = { ...baseStyles };
 
