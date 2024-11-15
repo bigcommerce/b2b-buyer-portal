@@ -312,8 +312,6 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
         agentInfo(customerId, role),
       ]);
 
-      const { companySubsidiaries } = await getCompanySubsidiaries();
-
       const isB2BUser =
         (userType === UserTypes.MULTIPLE_B2C &&
           companyInfo?.companyStatus === CompanyStatus.APPROVED) ||
@@ -339,6 +337,15 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
         companyName: companyInfo.companyName,
       };
 
+      if (
+        role === CustomerRole.ADMIN ||
+        role === CustomerRole.SENIOR_BUYER ||
+        role === CustomerRole.CUSTOM_ROLE
+      ) {
+        const { companySubsidiaries } = await getCompanySubsidiaries();
+        store.dispatch(setCompanyHierarchyListModules([...companySubsidiaries]));
+      }
+
       store.dispatch(resetDraftQuoteList());
       store.dispatch(resetDraftQuoteInfo());
       store.dispatch(clearMasqueradeCompany());
@@ -346,7 +353,6 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
       store.dispatch(setCompanyInfo(companyPayload));
       store.dispatch(setCustomerInfo(customerInfo));
       store.dispatch(setQuoteUserId(quoteUserId));
-      store.dispatch(setCompanyHierarchyListModules([...companySubsidiaries]));
       B3SStorage.set('isB2BUser', isB2BUser);
       B3LStorage.set('cartToQuoteId', '');
 
