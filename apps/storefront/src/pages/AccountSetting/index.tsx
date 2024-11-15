@@ -78,7 +78,7 @@ function AccountSetting() {
 
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
-  const companyId = role === 3 && isAgenting ? salesRepCompanyId : +companyInfoId;
+  const companyId = role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId;
 
   const isBCUser = !isB2BUser || (role === 3 && !isAgenting);
 
