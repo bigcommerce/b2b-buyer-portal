@@ -81,6 +81,7 @@ export const verifyLevelPermission = ({
 
   const currentCompanyId = companyInfo?.id || salesRepCompanyId;
   const customerId = customer?.id;
+  const customerB2BId = customer?.b2bId || 0;
   const customerEmail = customer?.emailAddress;
 
   switch (permissionLevel) {
@@ -89,7 +90,7 @@ export const verifyLevelPermission = ({
     case permissionLevels.COMPANY:
       return +companyId === +currentCompanyId;
     case permissionLevels.USER:
-      return userId === +customerId || userEmail === customerEmail;
+      return userId === +customerId || userId === +customerB2BId || userEmail === customerEmail;
     default:
       return false;
   }
