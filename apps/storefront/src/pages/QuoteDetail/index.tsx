@@ -114,7 +114,7 @@ function QuoteDetail() {
             userEmail,
           }),
           quoteConvertToOrderPermission: verifyLevelPermission({
-            code: 'update_quote_message',
+            code: 'checkout_with_quote',
             companyId,
             userEmail,
           }),

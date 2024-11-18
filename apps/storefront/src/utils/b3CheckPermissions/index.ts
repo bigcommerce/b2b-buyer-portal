@@ -55,7 +55,9 @@ export const verifyLevelPermission = ({
 
   const { permissionLevel } = info;
   const { companyInfo, customer } = store.getState().company || {};
-  const currentCompanyId = companyInfo?.id;
+  const salesRepCompanyId = store.getState().b2bFeatures?.masqueradeCompany?.id || 0;
+
+  const currentCompanyId = companyInfo?.id || salesRepCompanyId;
   const customerId = customer?.id;
   const customerEmail = customer?.emailAddress;
 
