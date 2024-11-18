@@ -1,6 +1,7 @@
 import { createContext, Dispatch, ReactNode, useMemo, useReducer } from 'react';
 
 import {
+  CompanyInfoTypes,
   MoneyFormat,
   OrderBillings,
   OrderHistoryItem,
@@ -34,6 +35,7 @@ export interface OrderDetailsState {
   canReturn?: boolean;
   createdEmail?: string;
   orderIsDigital?: boolean;
+  companyInfo?: CompanyInfoTypes;
 }
 interface OrderDetailsAction {
   type: string;
@@ -87,6 +89,17 @@ const initState = {
   canReturn: false,
   createdEmail: '',
   orderIsDigital: false,
+  companyInfo: {
+    companyId: '',
+    companyName: '',
+    companyAddress: '',
+    companyCountry: '',
+    companyState: '',
+    companyCity: '',
+    companyZipCode: '',
+    phoneNumber: '',
+    bcId: '',
+  },
 };
 
 export const OrderDetailsContext = createContext<OrderDetailsContextType>({

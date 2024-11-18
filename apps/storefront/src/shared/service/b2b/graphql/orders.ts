@@ -1,6 +1,21 @@
 import { B2BOrderData, OrderStatusItem } from '@/types';
 
+import { convertArrayToGraphql } from '../../../../utils';
 import B3Request from '../../request/b3Fetch';
+
+const companyInfo = `
+  companyInfo {
+    companyId,
+    companyName,
+    companyAddress,
+    companyCountry,
+    companyState,
+    companyCity,
+    companyZipCode,
+    phoneNumber,
+    bcId,
+  }
+`;
 
 const allOrders = (data: CustomFieldItems, fn: string) => `{
   ${fn}(
@@ -15,6 +30,7 @@ const allOrders = (data: CustomFieldItems, fn: string) => `{
     isShowMy: "${data?.isShowMy || 0}"
     orderBy: "${data.orderBy}"
     email: "${data?.email || ''}"
+    ${data?.companyIds ? `companyIds: ${convertArrayToGraphql(data.companyIds || [])}` : ''}
   ){
     totalCount,
     pageInfo{
@@ -50,6 +66,7 @@ const allOrders = (data: CustomFieldItems, fn: string) => `{
         firstName,
         lastName,
         companyName,
+        ${companyInfo}
       }
     }
   }
@@ -152,6 +169,7 @@ const orderDetail = (id: number, fn: string) => `{
       extraFields,
       createdAt,
     },
+    ${companyInfo}
   }
 }`;
 

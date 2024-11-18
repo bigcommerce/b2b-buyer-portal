@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
-import { ArrowBackIosNew } from '@mui/icons-material';
+import { ArrowBackIosNew, InfoOutlined } from '@mui/icons-material';
 import { Box, Grid, Stack, Typography } from '@mui/material';
 
 import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -17,9 +17,9 @@ import {
   getOrderStatusType,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
+import { AddressConfigItem, CustomerRole, OrderProductItem, OrderStatusItem } from '@/types';
 import b2bLogger from '@/utils/b3Logger';
 
-import { AddressConfigItem, OrderProductItem, OrderStatusItem } from '../../types';
 import OrderStatus from '../order/components/OrderStatus';
 import { orderStatusTranslationVariables } from '../order/shared/getOrderStatus';
 
@@ -41,6 +41,17 @@ interface LocationState {
 
 function OrderDetail() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const companyId =
+    role === CustomerRole.SUPER_ADMIN && isAgenting ? salesRepCompanyId : +companyInfoId;
+  const currentCompanyId = selectCompanyHierarchyId || companyId;
 
   const params = useParams();
 
@@ -54,7 +65,7 @@ function OrderDetail() {
   } = useContext(GlobaledContext);
 
   const {
-    state: { poNumber, status = '', customStatus, orderSummary, orderStatus = [] },
+    state: { poNumber, status = '', customStatus, orderSummary, orderStatus = [], products },
     state: detailsData,
     dispatch,
   } = useContext(OrderDetailsContext);
@@ -73,6 +84,7 @@ function OrderDetail() {
   const [preOrderId, setPreOrderId] = useState('');
   const [orderId, setOrderId] = useState('');
   const [isRequestLoading, setIsRequestLoading] = useState(false);
+  const [isCurrentCompany, setIsCurrentCompany] = useState(false);
 
   useEffect(() => {
     setOrderId(params.id || '');
@@ -98,7 +110,7 @@ function OrderDetail() {
           const order = isB2BUser ? await getB2BOrderDetails(id) : await getBCOrderDetails(id);
 
           if (order) {
-            const { products } = order;
+            const { products, companyInfo } = order;
 
             const newOrder = {
               ...order,
@@ -109,6 +121,8 @@ function OrderDetail() {
                 };
               }),
             };
+
+            setIsCurrentCompany(+companyInfo.companyId === +currentCompanyId);
 
             const data = isB2BUser
               ? convertB2BOrderDetails(newOrder, b3Lang)
@@ -146,7 +160,7 @@ function OrderDetail() {
     }
     // Disabling rule since dispatch does not need to be in the dep array and b3Lang has rendering errors
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isB2BUser, orderId, preOrderId]);
+  }, [isB2BUser, orderId, preOrderId, selectCompanyHierarchyId]);
 
   const handlePageChange = (orderId: string | number) => {
     setOrderId(orderId.toString());
@@ -283,6 +297,35 @@ function OrderDetail() {
             )}
           </Grid>
         </Grid>
+        {products?.length && !isCurrentCompany ? (
+          <Box
+            sx={{
+              marginTop: '24px',
+              height: '48px',
+              padding: '6px 16px',
+              borderRadius: '4px',
+              backgroundColor: '#0288D1',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <InfoOutlined
+              color="primary"
+              sx={{
+                color: '#FFFFFF',
+              }}
+            />
+            <Typography
+              sx={{
+                color: '#FFFFFF',
+                marginLeft: '8px',
+                fontSize: '14px',
+              }}
+            >
+              {b3Lang('orderDetail.anotherCompany.tips')}
+            </Typography>
+          </Box>
+        ) : null}
 
         <Grid
           container
@@ -328,7 +371,11 @@ function OrderDetail() {
             }
           >
             {JSON.stringify(orderSummary) === '{}' ? null : (
-              <OrderAction detailsData={detailsData} />
+              <OrderAction
+                detailsData={detailsData}
+                isCurrentCompany={isCurrentCompany}
+                companyId={companyId}
+              />
             )}
           </Grid>
         </Grid>
