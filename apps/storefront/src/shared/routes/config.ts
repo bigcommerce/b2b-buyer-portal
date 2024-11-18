@@ -2,7 +2,7 @@ import { CustomerRole } from '@/types';
 
 const allLeagcyPermission = [
   CustomerRole.SUPER_ADMIN,
-  CustomerRole.SUPER_ADMIN_IN_AGENCY,
+  CustomerRole.SUPER_ADMIN_BEFORE_AGENCY,
   CustomerRole.ADMIN,
   CustomerRole.SENIOR_BUYER,
   CustomerRole.JUNIOR_BUYER,
@@ -11,10 +11,10 @@ const allLeagcyPermission = [
   CustomerRole.GUEST,
 ];
 const leagcyPermissions = {
-  dashboardPermissions: [CustomerRole.SUPER_ADMIN, CustomerRole.SUPER_ADMIN_IN_AGENCY],
+  dashboardPermissions: [CustomerRole.SUPER_ADMIN, CustomerRole.SUPER_ADMIN_BEFORE_AGENCY],
   ordersPermissions: [
     CustomerRole.SUPER_ADMIN,
-    CustomerRole.SUPER_ADMIN_IN_AGENCY,
+    CustomerRole.SUPER_ADMIN_BEFORE_AGENCY,
     CustomerRole.ADMIN,
     CustomerRole.SENIOR_BUYER,
     CustomerRole.CUSTOM_ROLE,
@@ -33,7 +33,15 @@ const leagcyPermissions = {
     CustomerRole.SUPER_ADMIN,
     CustomerRole.CUSTOM_ROLE,
   ],
-  quotesPermissions: allLeagcyPermission,
+  quotesPermissions: [
+    CustomerRole.SUPER_ADMIN,
+    CustomerRole.ADMIN,
+    CustomerRole.SENIOR_BUYER,
+    CustomerRole.JUNIOR_BUYER,
+    CustomerRole.CUSTOM_ROLE,
+    CustomerRole.B2C,
+    CustomerRole.GUEST,
+  ],
   shoppingListsPermissions: [
     CustomerRole.SUPER_ADMIN,
     CustomerRole.ADMIN,
@@ -90,7 +98,7 @@ const leagcyPermissions = {
     CustomerRole.JUNIOR_BUYER,
     CustomerRole.CUSTOM_ROLE,
     CustomerRole.B2C,
-    CustomerRole.SUPER_ADMIN_IN_AGENCY,
+    CustomerRole.SUPER_ADMIN_BEFORE_AGENCY,
   ],
   companyHierarchyPermissions: [
     CustomerRole.ADMIN,
@@ -102,7 +110,11 @@ const leagcyPermissions = {
   quoteDetailPermissions: allLeagcyPermission,
 };
 
-const denyInvoiceRoles = [CustomerRole.SUPER_ADMIN_IN_AGENCY, CustomerRole.B2C, CustomerRole.GUEST];
+const denyInvoiceRoles = [
+  CustomerRole.SUPER_ADMIN_BEFORE_AGENCY,
+  CustomerRole.B2C,
+  CustomerRole.GUEST,
+];
 
 const newPermissions = {
   ordersPermissionCodes: 'get_orders, get_order_detail',
