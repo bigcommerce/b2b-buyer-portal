@@ -6,9 +6,9 @@ import { IconButton, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import { rolePermissionSelector, useAppSelector } from '@/store';
-import { B2BPermissionsLevel } from '@/types';
 import { InvoiceList } from '@/types/invoice';
-import { getB3PermissionsList, snackbar } from '@/utils';
+import { snackbar } from '@/utils';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';
@@ -51,7 +51,7 @@ function B3Pulldown({
     useAppSelector(rolePermissionSelector);
 
   const [isCanViewOrder, setIsCanViewOrder] = useState<boolean>(getOrderPermission);
-  const b2bId = useAppSelector((state) => state.company.customer.b2bId);
+
   const close = () => {
     setIsOpen(false);
   };
@@ -140,7 +140,7 @@ function B3Pulldown({
   };
 
   useEffect(() => {
-    const { openBalance, orderUserId } = row;
+    const { openBalance, orderUserId, companyInfo } = row;
     const payPermissions =
       +openBalance.value > 0 && invoicePayPermission && purchasabilityPermission;
 
@@ -148,28 +148,11 @@ function B3Pulldown({
     const isCanpayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
     setIsCanPay(isCanpayInvoice);
 
-    let viewOrderPremission = getOrderPermission;
-
-    const params = [
-      {
-        permissionType: 'getOrderPermission',
-        permissionLevel: !isCurrentCompany
-          ? B2BPermissionsLevel.COMPANY_AND_SUBSIDIARIES
-          : B2BPermissionsLevel.COMPANY,
-      },
-    ];
-
-    if (!isCurrentCompany) {
-      const { getOrderPermission: orderSubViewPremisssion } = getB3PermissionsList(params);
-
-      viewOrderPremission = orderSubViewPremisssion;
-    }
-
-    if (isCurrentCompany && b2bId !== orderUserId) {
-      const { getOrderPermission: orderTeamViewPremisssion } = getB3PermissionsList(params);
-
-      viewOrderPremission = orderTeamViewPremisssion;
-    }
+    const viewOrderPremission = verifyLevelPermission({
+      code: 'get_orders',
+      companyId: +companyInfo.companyId,
+      userId: +orderUserId,
+    });
 
     setIsCanViewOrder(viewOrderPremission);
     // disabling as we only need to run this once and values at starting render are good enough
