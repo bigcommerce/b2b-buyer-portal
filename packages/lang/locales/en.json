@@ -125,6 +125,8 @@
   "global.statusNotifications.checkEmailLetterWithDetails": "Your business account has been approved. Check your email inbox, we sent you a letter with all details.",
   "global.statusNotifications.checkEmailLetterWithDetailsResubmitApplication": "Your business account has been rejected. Check your email inbox, we sent you a letter with all details. You can resubmit your application.",
   "global.B2BAutoCompleteCheckbox.input.label": "Company",
+  "global.B2BSwitchCompanyModal.title": "Switch company",
+  "global.B2BSwitchCompanyModal.confirm.button": "Switch company",
 
   "dashboard.company": "Company",
   "dashboard.admin": "Admin",
@@ -370,6 +372,9 @@
   "orderDetail.summary.grandTotal": "Grand total",
   "orderDetail.addToShoppingList.productsAdded": "Products were added to your shopping list",
   "orderDetail.viewShoppingList": "View shopping list",
+  "orderDetail.anotherCompany.tips": "This order related to another company. To reorder, add to shopping list and other actions you have to switch company.",
+  "orderDetail.switchCompany.title": "Switch company",
+  "orderDetail.switchCompany.content.tipsText": "To continue you have to switch company. Switching to a different company will refresh your shopping cart.",
 
   "addresses.noPermissionToAdd": "You do not have permission to add new address, please contact store owner",
   "addresses.noPermissionToEdit": "You do not have permission to edit address, please contact store owner",
