@@ -22,3 +22,4 @@ export { B3Table } from './table/B3Table';
 export { default as ThemeFrame } from './ThemeFrame';
 export { default as B3Upload } from './upload/B3Upload';
 export { default as B2BAutoCompleteCheckbox } from './ui/B2BAutoCompleteCheckbox';
+export { default as B2BSwitchCompanyModal } from './ui/B2BSwitchCompanyModal';

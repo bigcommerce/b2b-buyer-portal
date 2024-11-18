@@ -61,6 +61,7 @@ interface B3FilterProps<T, Y> {
   resetFilterInfo?: () => void;
   pcContainerWidth?: string;
   pcSearchContainerWidth?: string;
+  pcTotalWidth?: string;
 }
 
 function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
@@ -78,6 +79,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
     resetFilterInfo,
     pcContainerWidth,
     pcSearchContainerWidth,
+    pcTotalWidth,
   } = props;
 
   const [isMobile] = useMobile();
@@ -105,6 +107,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
             display: 'flex',
             justifyContent: 'space-between',
             mb: '30px',
+            width: pcTotalWidth || 'unset',
           }}
         >
           <Box
