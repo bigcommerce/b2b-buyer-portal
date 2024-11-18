@@ -48,7 +48,7 @@ export enum CustomerRole {
   SENIOR_BUYER = 1,
   JUNIOR_BUYER = 2,
   SUPER_ADMIN = 3,
-  SUPER_ADMIN_IN_AGENCY = 4,
+  SUPER_ADMIN_BEFORE_AGENCY = 4,
   CUSTOM_ROLE = 5,
   B2C = 99,
   GUEST = 100,
