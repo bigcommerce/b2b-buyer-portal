@@ -1,4 +1,5 @@
 import { Address } from './global';
+import { CompanyInfoTypes } from './invoice';
 
 export interface OrderProductOption {
   display_name: string;
@@ -251,6 +252,7 @@ export interface B2BOrderData {
   wrappingCostIncTax: string;
   wrappingCostTax: string;
   wrappingCostTaxClassId: number;
+  companyInfo: CompanyInfoTypes;
 }
 
 export interface OrderDetailsResponse {
