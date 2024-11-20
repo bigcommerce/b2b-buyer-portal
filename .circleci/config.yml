@@ -46,6 +46,7 @@ jobs:
           command: |
              yarn build:production
              mv apps/storefront/dist ${CIRCLE_SHA1}
+             mv config ${CIRCLE_SHA1}
              tar zcf ${CIRCLE_SHA1}.tar.gz ${CIRCLE_SHA1}
              ./google-cloud-sdk/bin/gsutil cp ${CIRCLE_SHA1}.tar.gz gs://bigcommerce-common-deployment-artifact-gcs-storage/b2b-buyer-portal/${CIRCLE_SHA1}.tar.gz
 

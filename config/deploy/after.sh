@@ -11,7 +11,8 @@ then
   CDN_BASE_URL="https://microapps.bigcommerce.com"
 fi
 
-REVISION_TITLE="$REVISION-$(date '%d-%m-%Y-%H:%M:%S')"
+cd $SHA
+REVISION_TITLE="${SHA}-$(date +%s)"
 
 index_js=$(find ./dist -name "index.*.js" ! -path "./dist/assets/*" -type f -printf '%f')
 poly_js=$(find ./dist -name "polyfills-legacy.*.js" -type f -printf '%f')
