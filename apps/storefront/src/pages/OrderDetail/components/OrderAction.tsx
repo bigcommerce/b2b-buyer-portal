@@ -366,15 +366,10 @@ export default function OrderAction(props: OrderActionProps) {
     return null;
   }
 
-  const { purchasabilityPermission } = b2bPermissions;
-  const { shoppingListActionsPermission, getInvoicesPermission } = b2bPermissionsList;
+  const { purchasabilityPermission, shoppingListActionsPermission } = b2bPermissions;
+  const { getInvoicesPermission } = b2bPermissionsList;
   const invoiceViewPermission = verifyLevelPermission({
     code: getInvoicesPermission,
-    companyId: companyId ? +companyId : 0,
-    userId: customerId ? +customerId : 0,
-  });
-  const currentShoppingListActionsPermission = verifyLevelPermission({
-    code: shoppingListActionsPermission,
     companyId: companyId ? +companyId : 0,
     userId: customerId ? +customerId : 0,
   });
@@ -468,7 +463,7 @@ export default function OrderAction(props: OrderActionProps) {
       name: 'shoppingList',
       variant: 'outlined',
       isCanShow: isB2BUser
-        ? currentShoppingListActionsPermission && shoppingListEnabled
+        ? shoppingListActionsPermission && shoppingListEnabled
         : shoppingListEnabled,
     },
   ];
