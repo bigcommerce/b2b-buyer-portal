@@ -9,15 +9,16 @@ import { B2BSwitchCompanyModal } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
-import { Address, B2BPermissionsLevel, MoneyFormat, OrderProductItem } from '@/types';
+import { Address, MoneyFormat, OrderProductItem } from '@/types';
 import {
   b2bPrintInvoice,
   currencyFormat,
   displayFormat,
-  getB3PermissionsList,
   ordersCurrencyFormat,
   snackbar,
 } from '@/utils';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';
 
@@ -171,8 +172,6 @@ function OrderCard(props: OrderCardProps) {
   };
 
   const handleOpenDialog = (name: string) => {
-    const isNeedSwitch = handleShowSwitchCompanyModal();
-    if (isNeedSwitch) return;
     if (name === 'viewInvoice') {
       if (ipStatus !== 0) {
         navigate(`/invoice?invoiceId=${invoiceId}`);
@@ -182,6 +181,8 @@ function OrderCard(props: OrderCardProps) {
     } else if (name === 'printInvoice') {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`);
     } else {
+      const isNeedSwitch = handleShowSwitchCompanyModal();
+      if (isNeedSwitch) return;
       if (!isAgenting && +role === 3) {
         snackbar.error(b3Lang('orderDetail.orderCard.errorMasquerade'));
         return;
@@ -305,7 +306,6 @@ function OrderCard(props: OrderCardProps) {
 interface OrderActionProps {
   detailsData: OrderDetailsState;
   isCurrentCompany: boolean;
-  companyId: string | number;
 }
 
 interface OrderData {
@@ -317,7 +317,7 @@ interface OrderData {
 }
 
 export default function OrderAction(props: OrderActionProps) {
-  const { detailsData, isCurrentCompany, companyId: accountCompanyId } = props;
+  const { detailsData, isCurrentCompany } = props;
   const b3Lang = useB3Lang();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
@@ -341,6 +341,7 @@ export default function OrderAction(props: OrderActionProps) {
     ipStatus = 0,
     invoiceId,
     poNumber,
+    customerId,
     companyInfo: { companyId } = {},
   } = detailsData;
 
@@ -365,19 +366,18 @@ export default function OrderAction(props: OrderActionProps) {
     return null;
   }
 
-  const { purchasabilityPermission, shoppingListActionsPermission, getInvoicesPermission } =
-    b2bPermissions;
-
-  const { getInvoicesPermission: invoiceSubViewPermission } = getB3PermissionsList([
-    {
-      permissionType: 'getInvoicesPermission',
-      permissionLevel: B2BPermissionsLevel.COMPANY_AND_SUBSIDIARIES,
-    },
-  ]);
-  const invoiceViewPermission =
-    companyId && +companyId !== +accountCompanyId
-      ? invoiceSubViewPermission
-      : getInvoicesPermission;
+  const { purchasabilityPermission } = b2bPermissions;
+  const { shoppingListActionsPermission, getInvoicesPermission } = b2bPermissionsList;
+  const invoiceViewPermission = verifyLevelPermission({
+    code: getInvoicesPermission,
+    companyId: companyId ? +companyId : 0,
+    userId: customerId ? +customerId : 0,
+  });
+  const currentShoppingListActionsPermission = verifyLevelPermission({
+    code: shoppingListActionsPermission,
+    companyId: companyId ? +companyId : 0,
+    userId: customerId ? +customerId : 0,
+  });
 
   const getCompanyName = (company: string) => {
     if (addressLabelPermission) {
@@ -468,7 +468,7 @@ export default function OrderAction(props: OrderActionProps) {
       name: 'shoppingList',
       variant: 'outlined',
       isCanShow: isB2BUser
-        ? shoppingListActionsPermission && shoppingListEnabled
+        ? currentShoppingListActionsPermission && shoppingListEnabled
         : shoppingListEnabled,
     },
   ];

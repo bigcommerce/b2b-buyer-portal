@@ -9,6 +9,7 @@ import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList } from '@/types/invoice';
 import { snackbar } from '@/utils';
 import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';
@@ -49,6 +50,7 @@ function B3Pulldown({
 
   const { getOrderPermission, invoicePayPermission, purchasabilityPermission } =
     useAppSelector(rolePermissionSelector);
+  const { getOrderPermission: getOrderPermissionCode } = b2bPermissionsList;
 
   const [isCanViewOrder, setIsCanViewOrder] = useState<boolean>(getOrderPermission);
 
@@ -149,7 +151,7 @@ function B3Pulldown({
     setIsCanPay(isCanpayInvoice);
 
     const viewOrderPremission = verifyLevelPermission({
-      code: 'get_orders',
+      code: getOrderPermissionCode,
       companyId: +companyInfo.companyId,
       userId: +orderUserId,
     });
