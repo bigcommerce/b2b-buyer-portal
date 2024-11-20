@@ -11,6 +11,7 @@ import {
   Customer,
   CustomerRole,
   LoginTypes,
+  PagesSubsidiariesPermissionProps,
   UserTypes,
 } from '@/types';
 
@@ -31,6 +32,7 @@ export interface CompanyState {
   tokens: Tokens;
   permissions: PermissionsCodesProps[];
   companyHierarchyInfo: CompanyHierarchyInfoProps;
+  pagesSubsidiariesPermission: PagesSubsidiariesPermissionProps;
 }
 
 const initialState: CompanyState = {
@@ -59,8 +61,15 @@ const initialState: CompanyState = {
   },
   permissions: [],
   companyHierarchyInfo: {
+    isEnabledCompanyHierarchy: true,
+    ishasCurrentPagePermission: true,
     selectCompanyHierarchyId: '',
     companyHierarchyList: [],
+    companyHierarchyAllList: [],
+  },
+  pagesSubsidiariesPermission: {
+    order: false,
+    invoice: false,
   },
 };
 
@@ -102,20 +111,51 @@ const companySlice = createSlice({
     setPermissionModules: (state, { payload }: PayloadAction<PermissionsCodesProps[]>) => {
       state.permissions = payload;
     },
+    setPagesSubsidiariesPermission: (
+      state,
+      { payload }: PayloadAction<PagesSubsidiariesPermissionProps>,
+    ) => {
+      state.pagesSubsidiariesPermission = payload;
+    },
+    setCompanyHierarchyIsEnabled: (
+      state,
+      { payload }: PayloadAction<Partial<CompanyHierarchyInfoProps>>,
+    ) => {
+      const { companyHierarchyInfo } = state;
+
+      state.companyHierarchyInfo = {
+        ...companyHierarchyInfo,
+        ...payload,
+      };
+    },
     setCompanyHierarchyListModules: (
       state,
       { payload }: PayloadAction<CompanyHierarchyListProps[]>,
     ) => {
+      const companyHierarchyList = payload.filter((item) => item.channelFlag);
+      const { companyHierarchyInfo } = state;
+
       state.companyHierarchyInfo = {
-        ...state.companyHierarchyInfo,
-        companyHierarchyList: payload,
+        ...companyHierarchyInfo,
+        companyHierarchyList,
+        companyHierarchyAllList: payload,
       };
     },
     setCompanyHierarchyInfoModules: (
       state,
-      { payload }: PayloadAction<CompanyHierarchyInfoProps>,
+      { payload }: PayloadAction<Partial<CompanyHierarchyInfoProps>>,
     ) => {
-      state.companyHierarchyInfo = payload;
+      let companyHierarchyList = state.companyHierarchyInfo.companyHierarchyList;
+
+      if (payload.companyHierarchyAllList?.length) {
+        companyHierarchyList = payload.companyHierarchyAllList.filter((item) => item.channelFlag);
+      }
+
+      state.companyHierarchyInfo = {
+        ...state.companyHierarchyInfo,
+        ...payload,
+        companyHierarchyList,
+      };
     },
   },
 });
@@ -135,6 +175,7 @@ export const {
   setPermissionModules,
   setCompanyHierarchyListModules,
   setCompanyHierarchyInfoModules,
+  setPagesSubsidiariesPermission,
 } = companySlice.actions;
 
 export default persistReducer({ key: 'company', storage: storageSession }, companySlice.reducer);

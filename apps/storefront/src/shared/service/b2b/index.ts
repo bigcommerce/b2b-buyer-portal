@@ -14,6 +14,7 @@ import {
   updateBcAddress,
 } from './graphql/address';
 import {
+  endUserMasqueradingCompany,
   getAgentInfo,
   getB2BToken,
   getBcCurrencies,
@@ -26,6 +27,8 @@ import {
   getStorefrontDefaultLanguages,
   getTaxZoneRates,
   getUserCompany,
+  getUserMasqueradingCompany,
+  startUserMasqueradingCompany,
   superAdminBeginMasquerade,
   superAdminCompanies,
   superAdminEndMasquerade,
@@ -206,6 +209,9 @@ export {
   getBcShoppingListDetails,
   getBCStoreChannelId,
   getCompanySubsidiaries,
+  startUserMasqueradingCompany,
+  endUserMasqueradingCompany,
+  getUserMasqueradingCompany,
   getBcVariantInfoBySkus,
   getCompanyCreditConfig,
   getCurrencies,

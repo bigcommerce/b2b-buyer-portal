@@ -33,6 +33,26 @@ interface VerifyLevelPermissionProps {
   userId?: number;
 }
 
+interface VerifyCompanyLevelPermissionByCodeProps {
+  level: number | null;
+  code?: string;
+}
+
+export const verifyCompanyLevelPermissionByCode = ({
+  level = null,
+  code = '',
+}: VerifyCompanyLevelPermissionByCodeProps): boolean => {
+  const info = getPermissionsInfo(code);
+
+  if (!code) return false;
+
+  if (!info) return !!info;
+
+  const { permissionLevel } = info;
+
+  return permissionLevel === level;
+};
+
 /**
  * Verifies the user's permission level based on the provided criteria.
  *
@@ -49,7 +69,9 @@ export const verifyLevelPermission = ({
   userEmail = '',
   userId = 0,
 }: VerifyLevelPermissionProps): boolean => {
-  const info = getPermissionsInfo(code);
+  const getFirstCode = code.includes(',') ? code.split(',')[0].trim() : code;
+
+  const info = getPermissionsInfo(getFirstCode);
 
   if (!info || !companyId) return !!info;
 

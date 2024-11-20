@@ -2,16 +2,10 @@ import { useMemo, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import CheckIcon from '@mui/icons-material/Check';
 import { Box, Chip, Grid } from '@mui/material';
-import Cookies from 'js-cookie';
 
-import B3Dialog from '@/components/B3Dialog';
-import useMobile from '@/hooks/useMobile';
-import { deleteCart } from '@/shared/service/bc/graphql/cart';
-import { store, useAppSelector } from '@/store';
-import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
-import { setCartNumber } from '@/store/slices/global';
+import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
+import { useAppSelector } from '@/store';
 import { CompanyHierarchyProps } from '@/types';
-import { deleteCartData } from '@/utils/cartUtils';
 
 import B3DropDown, { ListItemProps } from '../B3DropDown';
 
@@ -33,9 +27,7 @@ function B3CompanyHierarchy() {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [isMobile] = useMobile();
-
-  const [currentRow, setCurrentRow] = useState<CompanyHierarchyProps | null>(null);
+  const [currentRow, setCurrentRow] = useState<Partial<CompanyHierarchyProps> | null>(null);
 
   const { id: currentCompanyId } = useAppSelector(({ company }) => company.companyInfo);
 
@@ -105,33 +97,8 @@ function B3CompanyHierarchy() {
     return name;
   };
 
-  const handleSwitchCompanyClick = async () => {
-    if (!currentRow) return;
-
-    setLoading(true);
-
-    const cartEntityId = Cookies.get('cartId');
-
-    if (cartEntityId) {
-      const deleteCartObject = deleteCartData(cartEntityId);
-
-      await deleteCart(deleteCartObject);
-
-      store.dispatch(setCartNumber(0));
-    }
-
-    const { companyId } = currentRow;
-
-    store.dispatch(
-      setCompanyHierarchyInfoModules({
-        selectCompanyHierarchyId: companyId === +currentCompanyId ? '' : companyId,
-        companyHierarchyList: companyHierarchyList || [],
-      }),
-    );
-
-    setLoading(false);
-
-    handleClose();
+  const setDialogLoading = (bool: boolean) => {
+    setLoading(bool);
   };
 
   const { backgroundColor, langId: chipLangId } = selectCompanyHierarchyId
@@ -186,43 +153,13 @@ function B3CompanyHierarchy() {
         />
       </Box>
 
-      <B3Dialog
-        isOpen={open}
-        rightSizeBtn="Continue"
-        title={b3Lang('companyHierarchy.dialog.title')}
-        fullWidth
-        maxWidth={false}
+      <HierarchyDialog
+        open={open}
         loading={loading}
-        handleLeftClick={handleClose}
-        handRightClick={handleSwitchCompanyClick}
-        dialogSx={{
-          '& .MuiPaper-elevation': {
-            width: isMobile ? '100%' : `480px`,
-          },
-          '& .MuiDialogTitle-root': {
-            border: 0,
-          },
-          '& .MuiDialogActions-root': {
-            border: 0,
-          },
-        }}
-      >
-        <Box
-          sx={{
-            maxHeight: '600px',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              flex: 1,
-            }}
-          >
-            {b3Lang('companyHierarchy.dialog.content')}
-          </Box>
-        </Box>
-      </B3Dialog>
+        handleClose={handleClose}
+        currentRow={currentRow}
+        setLoading={setDialogLoading}
+      />
     </>
   );
 }
