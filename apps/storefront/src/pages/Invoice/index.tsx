@@ -8,11 +8,12 @@ import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
+import { permissionLevels } from '@/constants';
 import { useMobile, useSort } from '@/hooks';
 import { GlobaledContext } from '@/shared/global';
 import { exportInvoicesAsCSV, getInvoiceList, getInvoiceStats } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
-import { B2BPermissionsLevel, CustomerRole } from '@/types';
+import { CustomerRole } from '@/types';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import {
   currencyFormat,
@@ -119,7 +120,7 @@ function Invoice() {
   const { invoicePayPermission: invoiceSubPayPermisssion } = getB3PermissionsList([
     {
       permissionType: 'invoicePayPermission',
-      permissionLevel: B2BPermissionsLevel.COMPANY_AND_SUBSIDIARIES,
+      permissionLevel: permissionLevels.COMPANYSUBSIDIARIES,
     },
   ]);
 
