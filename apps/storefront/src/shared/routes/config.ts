@@ -1,4 +1,5 @@
 import { CustomerRole } from '@/types';
+import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 const allLeagcyPermission = [
   CustomerRole.SUPER_ADMIN,
@@ -105,7 +106,6 @@ const leagcyPermissions = {
     CustomerRole.SENIOR_BUYER,
     CustomerRole.JUNIOR_BUYER,
     CustomerRole.CUSTOM_ROLE,
-    CustomerRole.SUPER_ADMIN,
   ],
   quoteDetailPermissions: allLeagcyPermission,
 };
@@ -117,22 +117,18 @@ const denyInvoiceRoles = [
 ];
 
 const newPermissions = {
-  ordersPermissionCodes: 'get_orders, get_order_detail',
-  companyOrdersPermissionCodes: 'get_orders, get_order_detail',
-  invoicePermissionCodes:
-    'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
-  quotesPermissionCodes: 'get_quotes, get_quote_detail, get_quote_pdf',
-  shoppingListsPermissionCodes: 'get_shopping_lists, get_shopping_list_detail',
-  orderDetailPerPermissionCodes: 'get_orders, get_order_detail',
-  invoiceDetailPerPermissionCodes:
-    'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
-  addressesPermissionCodes:
-    'get_addresses, get_address_detail, get_default_shipping, get_default_billing',
-  shoppingListDetailPermissionCodes: 'get_shopping_lists, get_shopping_list_detail',
-  userManagementPermissionCodes: 'get_users, get_user_detail',
-  quoteDraftPermissionCodes:
-    'get_quotes,get_quote_detail, get_quote_pdf, create_quote, update_quote_message',
-  quoteDetailPermissionCodes: 'get_quotes, get_quote_detail, get_quote_pdf',
+  ordersPermissionCodes: b2bPermissionsList.getOrderPermission,
+  companyOrdersPermissionCodes: b2bPermissionsList.getOrderPermission,
+  invoicePermissionCodes: b2bPermissionsList.getInvoicesPermission,
+  quotesPermissionCodes: b2bPermissionsList.getQuotesPermission,
+  shoppingListsPermissionCodes: b2bPermissionsList.getShoppingListPermission,
+  orderDetailPerPermissionCodes: b2bPermissionsList.getOrderPermission,
+  invoiceDetailPerPermissionCodes: b2bPermissionsList.getInvoicesPermission,
+  addressesPermissionCodes: b2bPermissionsList.getAddressesPermission,
+  shoppingListDetailPermissionCodes: b2bPermissionsList.getShoppingListPermission,
+  userManagementPermissionCodes: b2bPermissionsList.getUserPermissionCode,
+  quoteDraftPermissionCodes: b2bPermissionsList.quotesActionsPermission,
+  quoteDetailPermissionCodes: b2bPermissionsList.getQuotesPermission,
 };
 
 export { leagcyPermissions, denyInvoiceRoles, allLeagcyPermission, newPermissions };

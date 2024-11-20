@@ -1,6 +1,7 @@
 import { FC, lazy } from 'react';
 import { matchPath } from 'react-router-dom';
 
+import { PAGES_SUBSIDIARIES_PERMISSION_KEYS } from '@/constants';
 import { type PageProps } from '@/pages/PageProps';
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
 import { getCustomerInfo } from '@/shared/service/bc';
@@ -51,6 +52,7 @@ export interface RouteItem extends RouteItemBasic {
   pageTitle?: string;
   idLang: string;
   permissionCodes?: string;
+  subsidiariesCompanyKey?: (typeof PAGES_SUBSIDIARIES_PERMISSION_KEYS)[number];
 }
 
 export interface RouteFirstLevelItem extends RouteItemBasic {
@@ -105,6 +107,7 @@ const routes: RouteItem[] = [
   {
     path: '/orders',
     name: 'My orders',
+    subsidiariesCompanyKey: 'order',
     wsKey: 'router-orders',
     isMenuItem: true,
     component: OrderList,
@@ -116,6 +119,7 @@ const routes: RouteItem[] = [
   {
     path: '/company-orders',
     name: 'Company orders',
+    subsidiariesCompanyKey: 'order',
     wsKey: 'router-orders',
     isMenuItem: true,
     component: CompanyOrderList,
@@ -127,6 +131,7 @@ const routes: RouteItem[] = [
   {
     path: '/invoice',
     name: 'Invoice',
+    subsidiariesCompanyKey: 'invoice',
     wsKey: 'invoice',
     isMenuItem: true,
     component: Invoice,
@@ -176,6 +181,7 @@ const routes: RouteItem[] = [
     path: '/orderDetail/:id',
     name: 'Order details',
     wsKey: 'router-orders',
+    subsidiariesCompanyKey: 'order',
     isMenuItem: false,
     component: OrderDetail,
     permissions: orderDetailPermissions,
@@ -187,6 +193,7 @@ const routes: RouteItem[] = [
     path: '/invoiceDetail/:id',
     name: 'Invoice details',
     wsKey: 'router-invoice',
+    subsidiariesCompanyKey: 'invoice',
     isMenuItem: false,
     component: InvoiceDetail,
     permissions: invoiceDetailPermissions,
