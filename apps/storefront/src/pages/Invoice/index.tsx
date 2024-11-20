@@ -83,6 +83,11 @@ function Invoice() {
     role === CustomerRole.SUPER_ADMIN && isAgenting ? salesRepCompanyId : +companyInfoId;
 
   const { invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+
+  const { invoice: invoiceSubViewPremisssion } = useAppSelector(
+    ({ company }) => company.pagesSubsidiariesPermission,
+  );
+
   const navigate = useNavigate();
   const [isMobile] = useMobile();
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
@@ -111,14 +116,7 @@ function Invoice() {
   ]);
   const [selectAllPay, setSelectAllPay] = useState<boolean>(invoicePayPermission);
 
-  const {
-    getInvoicesPermission: invoiceSubViewPremisssion,
-    invoicePayPermission: invoiceSubPayPermisssion,
-  } = getB3PermissionsList([
-    {
-      permissionType: 'getInvoicesPermission',
-      permissionLevel: B2BPermissionsLevel.COMPANY_AND_SUBSIDIARIES,
-    },
+  const { invoicePayPermission: invoiceSubPayPermisssion } = getB3PermissionsList([
     {
       permissionType: 'invoicePayPermission',
       permissionLevel: B2BPermissionsLevel.COMPANY_AND_SUBSIDIARIES,
@@ -557,7 +555,7 @@ function Invoice() {
 
         return <Box>{companyName}</Box>;
       },
-      width: '12%',
+      width: '15%',
     },
     {
       key: 'orderNumber',
@@ -579,14 +577,14 @@ function Invoice() {
           {item?.orderNumber || '-'}
         </Box>
       ),
-      width: '8%',
+      width: '12%',
     },
     {
       key: 'createdAt',
       title: b3Lang('invoice.headers.invoiceDate'),
       isSortable: true,
       render: (item: InvoiceList) => `${item.createdAt ? displayFormat(+item.createdAt) : '–'}`,
-      width: '10%',
+      width: '15%',
     },
     {
       key: 'updatedAt',
@@ -607,7 +605,7 @@ function Invoice() {
           </Typography>
         );
       },
-      width: '10%',
+      width: '15%',
     },
     {
       key: 'originalBalance',
@@ -806,6 +804,7 @@ function Invoice() {
     <B3Spin isSpinning={isRequestLoading}>
       <Box
         sx={{
+          overflowX: 'auto',
           display: 'flex',
           flexDirection: 'column',
           flex: 1,

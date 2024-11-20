@@ -120,6 +120,9 @@ function B2BAutoCompleteCheckbox({
       style: {
         maxHeight: 300,
       },
+      sx: {
+        left: '312px !important',
+      },
     },
   };
 
@@ -137,6 +140,7 @@ function B2BAutoCompleteCheckbox({
         renderValue={(selected) => selected.join(', ')}
         MenuProps={MenuProps}
         sx={{
+          backgroundColor: '#efeae7',
           '& #autoComplete-multiple-checkbox': {
             paddingTop: '20px',
           },

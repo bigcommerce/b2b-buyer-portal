@@ -371,11 +371,7 @@ function OrderDetail() {
             }
           >
             {JSON.stringify(orderSummary) === '{}' ? null : (
-              <OrderAction
-                detailsData={detailsData}
-                isCurrentCompany={isCurrentCompany}
-                companyId={companyId}
-              />
+              <OrderAction detailsData={detailsData} isCurrentCompany={isCurrentCompany} />
             )}
           </Grid>
         </Grid>
