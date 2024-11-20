@@ -10,12 +10,12 @@ elif [[ $ENVIRONMENT =~ "production" ]]; then
   CDN_BASE_URL="https://microapps.bigcommerce.com"
 fi
 
-cd $SHA
+echo "$PWD"
 REVISION_TITLE="${SHA}-$(date +%s)"
 
-index_js=$(find dist/ -name 'index.*.js' -not -path 'dist/assets/*' -type f -printf '%f')
-poly_js=$(find dist/ -name 'polyfills-legacy.*.js' -not -path 'dist/assets/*' -type f -printf '%f')
-index_legacy_js=$(find dist/ -name 'index-legacy.*.js' -not -path 'dist/assets/*' -type f -printf '%f')
+index_js=$(find . -name 'index.*.js' -not -path './assets/*' -type f -printf '%f')
+poly_js=$(find . -name 'polyfills-legacy.*.js' -not -path './assets/*' -type f -printf '%f')
+index_legacy_js=$(find . -name 'index-legacy.*.js' -not -path './assets/*' -type f -printf '%f')
 
 tee create_revision_payload.json <<EOF
 {
