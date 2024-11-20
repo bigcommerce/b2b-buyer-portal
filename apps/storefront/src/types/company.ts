@@ -1,3 +1,5 @@
+import { PAGES_SUBSIDIARIES_PERMISSION_KEYS } from '@/constants';
+
 export interface CompanyInfo {
   id: string;
   companyName: string;
@@ -80,13 +82,22 @@ export interface CompanyHierarchyListProps {
   companyName: string;
   parentCompanyName?: string;
   parentCompanyId?: number | null;
+  channelFlag: boolean;
 }
 
 export interface CompanyHierarchyInfoProps {
+  isEnabledCompanyHierarchy: boolean;
+  ishasCurrentPagePermission: boolean;
   selectCompanyHierarchyId: string | number;
   companyHierarchyList: CompanyHierarchyListProps[];
+  companyHierarchyAllList: CompanyHierarchyListProps[];
 }
 
 export interface CompanyHierarchyProps extends CompanyHierarchyListProps {
   childs?: CompanyHierarchyProps[];
 }
+
+export type PagesSubsidiariesPermissionProps = Record<
+  (typeof PAGES_SUBSIDIARIES_PERMISSION_KEYS)[number],
+  boolean
+>;

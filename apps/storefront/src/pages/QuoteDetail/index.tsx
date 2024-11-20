@@ -28,6 +28,7 @@ import { snackbar } from '@/utils';
 import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
+import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 import { getSearchVal } from '@/utils/loginInfo';
 
 import Message from '../quote/components/Message';
@@ -103,18 +104,21 @@ function QuoteDetail() {
   useEffect(() => {
     if (!quoteDetail?.id) return;
 
+    const { purchasabilityPermission, quoteConvertToOrderPermission: quoteCheckoutPermission } =
+      b2bPermissionsList;
+
     const getPurchasabilityAndConvertToOrderPermission = () => {
       if (isB2BUser) {
         const companyId = quoteDetail?.companyId?.id || null;
         const userEmail = quoteDetail?.contactInfo?.email || '';
         return {
           quotePurchasabilityPermission: verifyLevelPermission({
-            code: 'purchase_enable',
+            code: purchasabilityPermission,
             companyId,
             userEmail,
           }),
           quoteConvertToOrderPermission: verifyLevelPermission({
-            code: 'checkout_with_quote',
+            code: quoteCheckoutPermission,
             companyId,
             userEmail,
           }),
