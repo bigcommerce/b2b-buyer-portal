@@ -1,7 +1,7 @@
-import globalB3 from '@b3/global-b3';
+import config from '@b3/global-b3';
 
 const handleHideRegisterPage = (registerEnabled: boolean) => {
-  const registerPageAll = document.querySelectorAll(globalB3['dom.register']);
+  const registerPageAll = document.querySelectorAll(config['dom.register']);
   // Text between sign in and register - [or]
   const navUserOrText = document.querySelectorAll('.navUser-or');
 

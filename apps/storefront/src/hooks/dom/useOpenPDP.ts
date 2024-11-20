@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useRef } from 'react';
-import globalB3 from '@b3/global-b3';
+import config from '@b3/global-b3';
 import { AnyAction, Dispatch as DispatchRedux } from '@reduxjs/toolkit';
 import cloneDeep from 'lodash-es/cloneDeep';
 
@@ -109,7 +109,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
     [role, registerEnabled],
   );
 
-  const [openQuickView] = useDomVariation(globalB3['dom.setToShoppingListParentEl']);
+  const [openQuickView] = useDomVariation(config['dom.setToShoppingListParentEl']);
 
   const {
     color = '#74685c',
@@ -137,9 +137,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
 
   useEffect(() => {
     // if (role === 100) return
-    const addToShoppingListAll = document.querySelectorAll(
-      globalB3['dom.setToShoppingListParentEl'],
-    );
+    const addToShoppingListAll = document.querySelectorAll(config['dom.setToShoppingListParentEl']);
     const CustomAddToShoppingListAll = locationSelector
       ? document.querySelectorAll(locationSelector)
       : [];

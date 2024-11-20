@@ -1,6 +1,6 @@
 import { lazy, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import globalB3 from '@b3/global-b3';
+import config from '@b3/global-b3';
 import { LangFormatFunction, useB3Lang } from '@b3/lang';
 import { Box, Button } from '@mui/material';
 
@@ -182,7 +182,7 @@ function PDP({ setOpenPage }: PageProps) {
     if (!shoppingListClickNode) return undefined;
 
     const productView: HTMLElement | null = shoppingListClickNode.closest(
-      globalB3['dom.productView'],
+      config['dom.productView'],
     );
     if (!productView) return undefined;
 

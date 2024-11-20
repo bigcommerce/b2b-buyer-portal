@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useContext, useEffect } from 'react';
-import globalB3 from '@b3/global-b3';
+import config from '@b3/global-b3';
 
 import {
   getContrastColor,
@@ -128,7 +128,7 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
   const customTextColor = getStyles(cssValue).color || getContrastColor(color);
 
   useEffect(() => {
-    const addToQuoteAll = document.querySelectorAll(globalB3['dom.cartActions.container']);
+    const addToQuoteAll = document.querySelectorAll(config['dom.cartActions.container']);
     const CustomAddToQuoteAll = locationSelector ? document.querySelectorAll(locationSelector) : [];
 
     let cartQuoteBtnDom: CustomFieldItems | null = null;

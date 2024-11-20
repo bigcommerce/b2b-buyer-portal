@@ -1,17 +1,3 @@
-/**
- * B3Local will be removed soon, this is just to TS warns you if you add more variables to it
- */
-export interface B3Local {
-  setting: {
-    b2b_url: string
-    b2b_socket_url: string
-    captcha_setkey: string
-  }
-  'dom.checkoutRegisterParentElement': '#b2bParent'
-  'dom.openB3Checkout': 'childB2b'
-  'dom.navUserLoginElement': '#headless-container'
-  before_login_goto_page: '/'
-}
 interface ThemeElementsProps {
   [key: string]: string
 }
@@ -50,7 +36,7 @@ const themeOtherElementConfig = () => {
   }
 }
 
-const globalB3 = {
+const config = {
   'dom.registerElement':
     '[href^="/login.php"], #checkout-customer-login, [href="/login.php"] .navUser-item-loginLabel, #checkout-customer-returning .form-legend-container [href="#"]',
   'dom.registerUrl': '/register',
@@ -70,12 +56,6 @@ const globalB3 = {
   before_login_goto_page: '/account.php?action=order_status',
   checkout_super_clear_session: 'true',
   ...themeOtherElementConfig(),
-  ...window.B3Local,
-  setting: {
-    b2b_url: 'https://api-b2b.staging.zone',
-    b2b_socket_url: 'https://api-b2b.staging.zone',
-    ...window.B3Local?.setting,
-  },
 }
 
-export default globalB3
+export default config
