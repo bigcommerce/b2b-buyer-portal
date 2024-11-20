@@ -17,8 +17,8 @@ import {
   getOrderStatusType,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { B2BPermissionsLevel, CustomerRole } from '@/types';
-import { currencyFormat, displayFormat, getB3PermissionsList, ordersCurrencyFormat } from '@/utils';
+import { CustomerRole } from '@/types';
+import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
 
 import OrderStatus from './components/OrderStatus';
 import { orderStatusTranslationVariables } from './shared/getOrderStatus';
@@ -78,6 +78,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
+  const { order: orderSubViewPremisssion } = useAppSelector(
+    ({ company }) => company.pagesSubsidiariesPermission,
+  );
+
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
@@ -95,13 +99,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
   const [companyIds, setCompanyIds] = useState<Array<any>>([
     +selectCompanyHierarchyId || +currentCompanyId,
-  ]);
-
-  const { getOrderPermission: orderSubViewPremisssion } = getB3PermissionsList([
-    {
-      permissionType: 'getOrderPermission',
-      permissionLevel: B2BPermissionsLevel.COMPANY_AND_SUBSIDIARIES,
-    },
   ]);
 
   const [handleSetOrderBy, order, orderBy] = useSort(
