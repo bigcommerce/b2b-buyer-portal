@@ -11,7 +11,11 @@ import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { defaultCreateAccountPanel } from '@/shared/customStyleButton/context/config';
 import { GlobalContext } from '@/shared/global';
-import { getBCForcePasswordReset, superAdminEndMasquerade } from '@/shared/service/b2b';
+import {
+  endUserMasqueradingCompany,
+  getBCForcePasswordReset,
+  superAdminEndMasquerade,
+} from '@/shared/service/b2b';
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import {
@@ -98,6 +102,10 @@ export default function Login(props: PageProps) {
     state: { isCheckout, logo, registerEnabled },
   } = useContext(GlobalContext);
 
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+
   const {
     state: {
       loginPageButton,
@@ -158,6 +166,10 @@ export default function Login(props: PageProps) {
             if (isAgenting) {
               await endMasquerade();
             }
+
+            if (selectCompanyHierarchyId) {
+              await endUserMasqueradingCompany();
+            }
           } catch (e) {
             b2bLogger.error(e);
           } finally {
@@ -167,21 +179,6 @@ export default function Login(props: PageProps) {
             window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
             setLoading(false);
           }
-
-          const { result } = (await bcLogoutLogin()).data.logout;
-
-          if (result !== 'success') return;
-
-          if (isAgenting) {
-            await endMasquerade();
-          }
-
-          // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
-          window.sessionStorage.clear();
-
-          logoutSession();
-          setLoading(false);
-          return;
         }
         setLoading(false);
       } finally {
@@ -190,7 +187,7 @@ export default function Login(props: PageProps) {
     };
 
     logout();
-  }, [b3Lang, endMasquerade, isLoggedIn, isAgenting, searchParams]);
+  }, [b3Lang, endMasquerade, isLoggedIn, isAgenting, searchParams, selectCompanyHierarchyId]);
 
   const tipInfo = (loginFlag: string, email = '') => {
     if (!loginFlag) {
@@ -307,7 +304,7 @@ export default function Login(props: PageProps) {
             const isLoginLandLocation = loginJump(navigate);
 
             if (!isLoginLandLocation) return;
-            
+
             if (info?.userType === UserTypes.B2C) {
               navigate(PATH_ROUTES.ORDERS);
             }

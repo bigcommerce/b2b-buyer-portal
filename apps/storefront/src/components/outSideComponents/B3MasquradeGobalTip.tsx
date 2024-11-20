@@ -18,7 +18,6 @@ import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { superAdminEndMasquerade } from '@/shared/service/b2b';
 import { clearMasqueradeCompany, useAppDispatch, useAppSelector } from '@/store';
-import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 
 import {
   getContrastColor,
@@ -89,13 +88,6 @@ export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
       if (typeof b2bId === 'number') {
         await superAdminEndMasquerade(+salesRepCompanyId);
       }
-
-      dispatch(
-        setCompanyHierarchyInfoModules({
-          selectCompanyHierarchyId: '',
-          companyHierarchyList: [],
-        }),
-      );
 
       dispatch(clearMasqueradeCompany());
       setOpenPage({

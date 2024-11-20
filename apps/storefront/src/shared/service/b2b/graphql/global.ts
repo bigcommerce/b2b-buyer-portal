@@ -321,6 +321,31 @@ const companySubsidiaries = `query {
 		companyName
 		parentCompanyId
 		parentCompanyName
+		channelFlag
+	}
+}`;
+
+const userMasqueradingCompanyBegin = `mutation userMasqueradingCompanyBegin($companyId: Int!) {
+	userMasqueradingCompanyBegin(companyId: $companyId) {
+		userMasqueradingCompanyBegin{
+			companyId
+			companyName
+			bcId
+		}
+	}
+}`;
+
+const userMasqueradingCompanyEnd = `mutation userMasqueradingCompanyEnd {
+	userMasqueradingCompanyEnd {
+		message
+	}
+}`;
+
+const userMasqueradingCompany = `query {
+	userMasqueradingCompany {
+		companyId
+		companyName
+		bcId
 	}
 }`;
 
@@ -402,4 +427,19 @@ export const getProductPricing = (data: Partial<ProductPrice>) =>
 export const getCompanySubsidiaries = (): Promise<CompanySubsidiariesProps> =>
   B3Request.graphqlB2B({
     query: companySubsidiaries,
+  });
+
+export const startUserMasqueradingCompany = (companyId: number) =>
+  B3Request.graphqlB2B({
+    query: userMasqueradingCompanyBegin,
+    variables: { companyId },
+  });
+
+export const endUserMasqueradingCompany = () =>
+  B3Request.graphqlB2B({
+    query: userMasqueradingCompanyEnd,
+  });
+export const getUserMasqueradingCompany = () =>
+  B3Request.graphqlB2B({
+    query: userMasqueradingCompany,
   });

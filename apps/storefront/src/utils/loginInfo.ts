@@ -5,6 +5,7 @@ import {
   getBCGraphqlToken,
   getCompanySubsidiaries,
   getUserCompany,
+  getUserMasqueradingCompany,
 } from '@/shared/service/b2b';
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
 import { B2B_APP_CLIENT_ID } from '@/shared/service/request/base';
@@ -19,6 +20,7 @@ import {
   clearCompanySlice,
   setB2BToken,
   setBcGraphQLToken,
+  setCompanyHierarchyInfoModules,
   setCompanyHierarchyListModules,
   setCompanyInfo,
   setCompanyStatus,
@@ -343,7 +345,19 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
         role === CustomerRole.CUSTOM_ROLE
       ) {
         const { companySubsidiaries } = await getCompanySubsidiaries();
-        store.dispatch(setCompanyHierarchyListModules([...companySubsidiaries]));
+
+        const { userMasqueradingCompany } = await getUserMasqueradingCompany();
+
+        if (userMasqueradingCompany?.companyId) {
+          store.dispatch(
+            setCompanyHierarchyInfoModules({
+              companyHierarchyAllList: [...companySubsidiaries],
+              selectCompanyHierarchyId: userMasqueradingCompany.companyId,
+            }),
+          );
+        } else {
+          store.dispatch(setCompanyHierarchyListModules([...companySubsidiaries]));
+        }
       }
 
       store.dispatch(resetDraftQuoteList());

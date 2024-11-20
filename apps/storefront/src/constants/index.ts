@@ -94,3 +94,5 @@ export const Z_INDEX: Record<
   TOOLTIP: 12004,
   NOTIFICATION: 12004,
 };
+
+export const PAGES_SUBSIDIARIES_PERMISSION_KEYS = ['order', 'invoice'] as const;

@@ -23,6 +23,7 @@ import {
 interface TreeNodeProps {
   companyId: string | number;
   companyName: string;
+  channelFlag: boolean;
 }
 
 type RecursiveNode<T> = T & {
@@ -145,15 +146,17 @@ function CompanyTableRow<T extends TreeNodeProps>({
           </Box>
         </TableCell>
         <TableCell align="right" sx={{ width: 48, py: 1 }}>
-          <IconButton
-            size="small"
-            onClick={handleClick}
-            aria-controls={open ? 'company-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
-          >
-            <MoreHorizIcon />
-          </IconButton>
+          {node?.channelFlag && (
+            <IconButton
+              size="small"
+              onClick={handleClick}
+              aria-controls={open ? 'company-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+            >
+              <MoreHorizIcon />
+            </IconButton>
+          )}
           <Menu
             id="company-menu"
             anchorEl={anchorEl}
