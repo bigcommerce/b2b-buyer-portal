@@ -36,6 +36,7 @@ export interface OrderDetailsState {
   createdEmail?: string;
   orderIsDigital?: boolean;
   companyInfo?: CompanyInfoTypes;
+  customerId?: number;
 }
 interface OrderDetailsAction {
   type: string;
