@@ -1,5 +1,6 @@
 import { permissionLevels } from '@/constants';
 import { store } from '@/store';
+import { CustomerRole } from '@/types';
 
 import { checkPermissionCode } from './base';
 
@@ -82,10 +83,12 @@ export const verifyLevelPermission = ({
   if (!info || !companyId) return !!info;
 
   const { permissionLevel } = info;
+  const isAgenting = store.getState().b2bFeatures?.masqueradeCompany?.isAgenting || false;
   const { companyInfo, customer } = store.getState().company || {};
   const salesRepCompanyId = store.getState().b2bFeatures?.masqueradeCompany?.id || 0;
 
-  const currentCompanyId = companyInfo?.id || salesRepCompanyId;
+  const currentCompanyId =
+    customer.role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : companyInfo?.id;
   const customerId = customer?.id;
   const customerB2BId = customer?.b2bId || 0;
   const customerEmail = customer?.emailAddress;
