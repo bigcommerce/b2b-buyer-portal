@@ -1,5 +1,7 @@
 import { cleanup } from '@testing-library/react';
 
+import { Environment } from '@/types';
+
 import '@testing-library/jest-dom/vitest';
 
 window.B3 = {

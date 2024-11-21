@@ -1,3 +1,14 @@
+export enum Environment {
+  Production = 'production',
+  Staging = 'staging',
+  Integration = 'integration',
+  Local = 'local',
+}
+
+export type EnvSpecificConfig<ValueType> = {
+  [key in Environment]: ValueType;
+};
+
 export interface SimpleObject {
   [k: string]: string | number | undefined | null;
 }

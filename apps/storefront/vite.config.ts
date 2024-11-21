@@ -6,24 +6,9 @@ import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, loadEnv } from 'vite';
 
-const ENVIRONMENT_ASSET_PATH: EnvSpecificConfig<string> = {
-  local: '/',
-  integration: 'https://microapp-cdn.gcp.integration.zone/b2b-buyer-portal/',
-  // TODO: update the following to BC cdn when migration is completed
-  staging: 'https://cdn.bundleb2b.net/b2b/staging/storefront/assets/',
-  production: 'https://cdn.bundleb2b.net/b2b/production/storefront/assets/',
-};
-
-// this function is called at runtime and intentionally references `window.B3`
-// so that the same runtime files can dynamically choose the cdn base url location
-// based on environment it is deployed to
-function getAssetsAbsolutePath() {
-  const environment: Environment = window.B3.setting.environment ?? Environment.Production;
-  return ENVIRONMENT_ASSET_PATH[environment];
-}
-
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
+
   return {
     plugins: [
       legacy({
@@ -34,12 +19,10 @@ export default defineConfig(({ mode }) => {
     experimental: {
       renderBuiltUrl(filename: string) {
         const isCustomBuyerPortal = env.VITE_ASSETS_ABSOLUTE_PATH !== undefined;
-
-        const name = filename.split('assets/')[1];
         return isCustomBuyerPortal
-          ? `${env.VITE_ASSETS_ABSOLUTE_PATH}${name}`
+          ? `${env.VITE_ASSETS_ABSOLUTE_PATH}${filename}`
           : {
-              runtime: `${getAssetsAbsolutePath()}${name}`,
+              runtime: `window.b2b.__get_asset_location(${JSON.stringify(filename)})`,
             };
       },
     },
