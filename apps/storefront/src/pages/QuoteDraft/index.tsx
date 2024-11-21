@@ -11,7 +11,7 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile, useSetCountry } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   createBCQuote,
   createQuote,
@@ -109,7 +109,7 @@ const billingAddress = {
 function QuoteDraft({ setOpenPage }: PageProps) {
   const {
     state: { countriesList, openAPPParams },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
   const companyName = useAppSelector(({ company }) => company.companyInfo.companyName);

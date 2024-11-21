@@ -18,7 +18,7 @@ import { successTip } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
@@ -109,7 +109,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
   const { checkedArr, isAgenting, setIsRequestLoading, isB2BUser } = props;
   const {
     state: { productQuoteEnabled = false, shoppingListEnabled = false },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const b3Lang = useB3Lang();
   const companyInfoId = useAppSelector((state) => state.company.companyInfo.id);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);

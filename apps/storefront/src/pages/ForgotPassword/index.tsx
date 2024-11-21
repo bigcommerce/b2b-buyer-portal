@@ -10,7 +10,7 @@ import { Captcha } from '@/components/form';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { getStorefrontToken, requestResetPassword } from '@/shared/service/b2b/graphql/recaptcha';
 import b2bLogger from '@/utils/b3Logger';
 
@@ -196,7 +196,7 @@ export function ForgotPassword({
 }
 
 export default function Page({ setOpenPage }: PageProps) {
-  const { logo } = useContext(GlobaledContext).state;
+  const { logo } = useContext(GlobalContext).state;
   const { loginPageDisplay } = useContext(CustomStyleContext).state;
   const [isEnabledOnStorefront, setIsEnabledOnStorefront] = useState(false);
   const [storefrontSiteKey, setStorefrontSiteKey] = useState('');

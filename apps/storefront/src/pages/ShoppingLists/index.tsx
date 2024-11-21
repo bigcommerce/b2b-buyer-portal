@@ -7,7 +7,7 @@ import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   deleteB2BShoppingList,
   deleteBcShoppingList,
@@ -46,7 +46,7 @@ function ShoppingLists() {
   const {
     state: { openAPPParams },
     dispatch,
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);

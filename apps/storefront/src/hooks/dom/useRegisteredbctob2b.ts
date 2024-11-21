@@ -3,7 +3,7 @@ import config from '@b3/global-b3';
 import { useB3Lang } from '@b3/lang';
 
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { OpenPageState } from '@/types/hooks';
 
@@ -14,7 +14,7 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
 
   const {
     state: { registerEnabled },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const companyStatus = useAppSelector(({ company }) => company.companyInfo.status);

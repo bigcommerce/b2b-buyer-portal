@@ -5,7 +5,7 @@ import { Badge, List, ListItem, ListItemButton, ListItemText, useTheme } from '@
 
 import { useMobile } from '@/hooks';
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { getAllowedRoutes } from '@/shared/routes';
 import { useAppSelector } from '@/store';
 import { B3SStorage } from '@/utils';
@@ -25,7 +25,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const { dispatch } = useContext(DynamicallyVariableedContext);
   const role = useAppSelector(({ company }) => company.customer.role);
 
-  const { state: globalState } = useContext(GlobaledContext);
+  const { state: globalState } = useContext(GlobalContext);
   const { quoteDetailHasNewMessages, registerEnabled } = globalState;
 
   const theme = useTheme();

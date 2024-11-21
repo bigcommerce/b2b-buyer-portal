@@ -4,7 +4,7 @@ import config from '@b3/global-b3';
 import { LangFormatFunction, useB3Lang } from '@b3/lang';
 import { Box, Button } from '@mui/material';
 
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   addProductToBcShoppingList,
   addProductToShoppingList,
@@ -133,7 +133,7 @@ function PDP({ setOpenPage }: PageProps) {
   const isPromission = true;
   const {
     state: { shoppingListClickNode },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
   const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn);

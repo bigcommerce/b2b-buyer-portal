@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 
 import { type SetOpenPage } from '@/pages/SetOpenPage';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 
 import { CloseButton } from './styled';
 
@@ -16,7 +16,7 @@ export default function RegisteredCloseButton(props: CloseButtonProps) {
 
   const {
     state: { isCloseGotoBCHome },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const navigate = useNavigate();
 
   const handleCloseForm = () => {

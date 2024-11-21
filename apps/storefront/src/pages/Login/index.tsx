@@ -10,7 +10,7 @@ import { CHECKOUT_URL } from '@/constants';
 import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { defaultCreateAccountPanel } from '@/shared/customStyleButton/context/config';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { getBCForcePasswordReset, superAdminEndMasquerade } from '@/shared/service/b2b';
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc';
 import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
@@ -96,7 +96,7 @@ export default function Login(props: PageProps) {
 
   const {
     state: { isCheckout, logo, registerEnabled },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const {
     state: {

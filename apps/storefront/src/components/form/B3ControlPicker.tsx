@@ -7,7 +7,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 
 import setDayjsLocale from '../ui/setDayjsLocale';
 
@@ -30,7 +30,7 @@ export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIP
 
   const {
     state: { bcLanguage },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const [open, setOpen] = useState(false);
 

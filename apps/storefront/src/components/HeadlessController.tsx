@@ -8,7 +8,7 @@ import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom
 import { addProductsToShoppingList } from '@/pages/PDP';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { superAdminCompanies } from '@/shared/service/b2b';
 import B3Request from '@/shared/service/request/b3Fetch';
 import {
@@ -64,7 +64,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
 
   const {
     state: { registerEnabled, productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const customer = useAppSelector(({ company }) => company.customer);

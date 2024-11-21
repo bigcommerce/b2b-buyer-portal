@@ -1,9 +1,9 @@
 import { useCallback, useContext } from 'react';
 
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 
 export const usePageMask = () => {
-  const { dispatch } = useContext(GlobaledContext);
+  const { dispatch } = useContext(GlobalContext);
 
   return useCallback(
     (isShow: boolean) => {

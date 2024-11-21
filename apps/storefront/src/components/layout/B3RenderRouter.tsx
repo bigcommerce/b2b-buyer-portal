@@ -3,7 +3,7 @@ import { Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-do
 
 import { RegisteredProvider } from '@/pages/Registered/context/RegisteredContext';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   firstLevelRouting,
   getAllowedRoutes,
@@ -27,7 +27,7 @@ interface B3RenderRouterProps {
 
 export default function B3RenderRouter(props: B3RenderRouterProps) {
   const { setOpenPage, openUrl, isOpen } = props;
-  const { state: globaledState } = useContext(GlobaledContext);
+  const { state: globaledState } = useContext(GlobalContext);
   const newRoutes = () => getAllowedRoutes(globaledState);
   const location = useLocation();
   const navigate = useNavigate();

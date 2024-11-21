@@ -52,7 +52,7 @@ We will be using JavaScript as the main language with JSX on the React component
 
 | Dependency / Integration Point |                 Why?                 |     How?     | Required work on the integration end? |
 | :----------------------------: | :----------------------------------: | :----------: | :-----------------------------------: |
-|         BundleB2B API          | Storefront buyer portal use this API | REST/Graphql |       None, it's just consumed        |
+|         B2B Edition API          | Storefront buyer portal use this API | REST/Graphql |       None, it's just consumed        |
 
 ## Impact Areas
 
