@@ -78,12 +78,16 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           index: 'src/main.ts',
-          headless: 'src/buyerPortal.ts',
+          headless: 'src/headless.ts',
+          'asset-loader': 'src/asset-loader.ts',
         },
         output: {
-          entryFileNames(info) {
-            const { name } = info;
-            return name.includes('headless') ? '[name].js' : '[name].[hash].js';
+          entryFileNames({ name }) {
+            if (name.includes('headless')) {
+              return '[name].js';
+            }
+
+            return '[name].[hash].js';
           },
           manualChunks: {
             reactVendor: ['react', 'react-dom'],

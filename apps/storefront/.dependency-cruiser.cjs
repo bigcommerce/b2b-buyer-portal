@@ -20,7 +20,8 @@ module.exports = {
           '.eslintrc.json',
           // Entry points
           '^src/main.ts',
-          '^src/buyerPortal.ts',
+          '^src/headless.ts',
+          '^src/asset-loader.ts',
           // This should be removed once we get proper gql types
           'src/types/gql/index.ts',
         ],

@@ -12,15 +12,19 @@ fi
 
 REVISION_TITLE="${SHA}-$(date +%s)"
 
+asset_loader_js=$(find . -name 'asset-loader.*.js' -not -path './assets/*' -type f -printf '%f')
 index_js=$(find . -name 'index.*.js' -not -path './assets/*' -type f -printf '%f')
 poly_js=$(find . -name 'polyfills-legacy.*.js' -not -path './assets/*' -type f -printf '%f')
+asset_loader_legacy_js=$(find . -name 'asset-loader-legacy.*.js' -not -path './assets/*' -type f -printf '%f')
 index_legacy_js=$(find . -name 'index-legacy.*.js' -not -path './assets/*' -type f -printf '%f')
 
-tee create_revision_payload.json <<EOF
+tee create_revision_payload.json <<EOF >/dev/null
 {
   "jsFiles": [
+    "<script type=\"module\" crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${asset_loader_js}\"></script>",
     "<script type=\"module\" crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${index_js}\"></script>",
     "<script nomodule crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${poly_js}\"></script>",
+    "<script nomodule crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${asset_loader_legacy_js}\"></script>",
     "<script nomodule crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${index_legacy_js}\"></script>"
   ],
   "revisionTitle": "${REVISION_TITLE}"
@@ -28,7 +32,7 @@ tee create_revision_payload.json <<EOF
 EOF
 
 if [[ $ENVIRONMENT =~ "production-tier1" ]]; then
-  tee deploy_revision_payload.json <<EOF
+  tee deploy_revision_payload.json <<EOF >/dev/null
 {
 "deploy_all": false,
 "store_hashes": $(cat deployment/production-tier1.json),
@@ -36,7 +40,7 @@ if [[ $ENVIRONMENT =~ "production-tier1" ]]; then
 }
 EOF
 else
-  tee deploy_revision_payload.json <<EOF
+  tee deploy_revision_payload.json <<EOF >/dev/null
 {
 "deploy_all": true,
 "revision": "${REVISION_TITLE}"
