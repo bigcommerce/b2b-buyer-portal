@@ -15,7 +15,7 @@ import {
   getBcVariantInfoBySkus,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { baseUrl, snackbar } from '@/utils';
+import { BigCommerceStorefrontAPIBaseURL, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
@@ -126,7 +126,7 @@ export default function OrderDialog({
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
       },
-      referrer: `${baseUrl}/account.php?action=new_return&order_id=${orderId}`,
+      referrer: `${BigCommerceStorefrontAPIBaseURL}/account.php?action=new_return&order_id=${orderId}`,
       body: urlencoded,
       mode: 'no-cors',
     };
@@ -134,7 +134,7 @@ export default function OrderDialog({
     try {
       setIsRequestLoading(true);
       const returnResult = await fetch(
-        `${baseUrl}/account.php?action=save_new_return`,
+        `${BigCommerceStorefrontAPIBaseURL}/account.php?action=save_new_return`,
         requestOptions,
       );
       if (returnResult.status === 200 && returnResult.url.includes('saved_new_return')) {

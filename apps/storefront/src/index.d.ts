@@ -19,6 +19,17 @@ type ChannelPlatform =
   | 'wordpress'
   | 'custom';
 
+enum Environment {
+  Production = 'production',
+  Staging = 'staging',
+  Integration = 'integration',
+  Local = 'local',
+}
+
+type EnvSpecificConfig<ValueType> = {
+  [key in Environment]: ValueType;
+};
+
 declare interface Window {
   tipDispatch: import('@/shared/global/context/config.ts').DispatchProps;
   globalTipDispatch: any;
@@ -27,6 +38,7 @@ declare interface Window {
       channel_id: number;
       store_hash: string;
       platform: ChannelPlatform;
+      environment: Environment;
     };
   };
   b2b: {

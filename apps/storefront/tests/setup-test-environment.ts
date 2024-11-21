@@ -7,6 +7,7 @@ window.B3 = {
     channel_id: Number.NaN,
     store_hash: '',
     platform: 'bigcommerce',
+    environment: Environment.Local,
   },
 };
 beforeEach(() => {
@@ -15,6 +16,7 @@ beforeEach(() => {
       channel_id: Number.NaN,
       store_hash: '',
       platform: 'bigcommerce',
+      environment: Environment.Local,
     },
   };
 });
