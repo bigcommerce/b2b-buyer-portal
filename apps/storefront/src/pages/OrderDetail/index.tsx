@@ -50,8 +50,8 @@ function OrderDetail() {
   );
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const companyId =
-    role === CustomerRole.SUPER_ADMIN && isAgenting ? salesRepCompanyId : +companyInfoId;
-  const currentCompanyId = selectCompanyHierarchyId || companyId;
+    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyInfoId;
+  const currentCompanyId = +selectCompanyHierarchyId || companyId;
 
   const params = useParams();
 
