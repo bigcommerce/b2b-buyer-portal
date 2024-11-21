@@ -34,23 +34,29 @@ interface VerifyLevelPermissionProps {
 }
 
 interface VerifyCompanyLevelPermissionByCodeProps {
-  level: number | null;
+  level: number;
   code?: string;
+  containOrEqual?: 'contain' | 'equal';
 }
 
 export const verifyCompanyLevelPermissionByCode = ({
-  level = null,
+  level = 0,
   code = '',
+  containOrEqual = 'equal',
 }: VerifyCompanyLevelPermissionByCodeProps): boolean => {
-  const info = getPermissionsInfo(code);
-
   if (!code) return false;
+
+  const getFirstCode = code.includes(',') ? code.split(',')[0].trim() : code;
+
+  const info = getPermissionsInfo(getFirstCode);
 
   if (!info) return !!info;
 
-  const { permissionLevel } = info;
+  const { permissionLevel = 0 } = info;
 
-  return permissionLevel === level;
+  if (containOrEqual === 'equal') return permissionLevel === level;
+
+  return +permissionLevel >= +level;
 };
 
 /**
