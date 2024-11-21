@@ -21,21 +21,14 @@ type ChannelPlatform =
 
 declare interface Window {
   tipDispatch: import('@/shared/global/context/config.ts').DispatchProps;
-  b3Tipmessage: any;
   globalTipDispatch: any;
   B3: {
     setting: {
       channel_id: number;
       store_hash: string;
       platform: ChannelPlatform;
-      b2b_url: string;
-      captcha_setkey: string;
     };
   };
-  /**
-   * B3Local will be removed soon, this is just to TS warns you if you add more variables to it
-   */
-  B3Local?: import('@b3/global-b3').B3Local;
   b2b: {
     initializationEnvironment: import('./load-functions').InitializationEnvironment;
     callbacks: import('@/utils/b3CallbackManager').default;

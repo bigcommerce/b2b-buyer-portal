@@ -7,8 +7,6 @@ window.B3 = {
     channel_id: Number.NaN,
     store_hash: '',
     platform: 'bigcommerce',
-    b2b_url: '',
-    captcha_setkey: '',
   },
 };
 beforeEach(() => {
@@ -17,8 +15,6 @@ beforeEach(() => {
       channel_id: Number.NaN,
       store_hash: '',
       platform: 'bigcommerce',
-      b2b_url: '',
-      captcha_setkey: '',
     },
   };
 });
