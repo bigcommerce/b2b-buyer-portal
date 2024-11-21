@@ -81,7 +81,7 @@ function Invoice() {
   );
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const currentCompanyId =
-    role === CustomerRole.SUPER_ADMIN && isAgenting ? salesRepCompanyId : +companyInfoId;
+    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyInfoId;
 
   const { invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
@@ -745,9 +745,9 @@ function Invoice() {
             setInvoiceId={setCurrentInvoiceId}
             handleOpenHistoryModal={setIsOpenHistorys}
             setIsRequestLoading={setIsRequestLoading}
-            isCurrentCompany={currentCompanyId === +companyInfo.companyId}
+            isCurrentCompany={+currentCompanyId === +companyInfo.companyId}
             invoicePay={
-              currentCompanyId === +companyInfo.companyId
+              +currentCompanyId === +companyInfo.companyId
                 ? invoicePayPermission
                 : invoiceSubPayPermisssion
             }
@@ -934,9 +934,9 @@ function Invoice() {
               selectedPay={selectedPay}
               handleGetCorrespondingCurrency={handleGetCorrespondingCurrencyToken}
               addBottom={list.length - 1 === index}
-              isCurrentCompany={currentCompanyId === +row.companyInfo.companyId}
+              isCurrentCompany={+currentCompanyId === +row.companyInfo.companyId}
               invoicePay={
-                currentCompanyId === +row.companyInfo.companyId
+                +currentCompanyId === +row.companyInfo.companyId
                   ? invoicePayPermission
                   : invoiceSubPayPermisssion
               }

@@ -86,7 +86,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     ({ company }) => company.companyHierarchyInfo,
   );
   const currentCompanyId =
-    role === CustomerRole.SUPER_ADMIN && isAgenting ? salesRepCompanyId : +companyB2BId;
+    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyB2BId;
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
 
