@@ -7,7 +7,8 @@ import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
 import { getCustomerInfo } from '@/shared/service/bc';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { b2bGotoRoute, checkEveryPermissionsCode, getPermissionsInfo } from '@/utils';
+import { b2bGotoRoute, checkEveryPermissionsCode } from '@/utils';
+import { verifyCompanyLevelPermissionByCode } from '@/utils/b3CheckPermissions';
 import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
 
@@ -402,12 +403,11 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
         });
 
         if (path === '/company-orders' && isHasPermission) {
-          const orderPermissionInfo = getPermissionsInfo('get_orders');
-          return (
-            orderPermissionInfo &&
-            orderPermissionInfo?.permissionLevel &&
-            +orderPermissionInfo.permissionLevel > 1
-          );
+          return verifyCompanyLevelPermissionByCode({
+            code: item.permissionCodes,
+            level: 2,
+            containOrEqual: 'contain',
+          });
         }
         return isHasPermission;
       }
@@ -451,7 +451,7 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
       return !!config.enabledStatus && !!config.value;
     }
 
-    return !!config.enabledStatus;
+    return !!config.enabledStatus && permissions.includes(+role);
   });
 };
 
