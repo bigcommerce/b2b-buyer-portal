@@ -1,4 +1,5 @@
 import {
+  endUserMasqueradingCompany,
   getAgentInfo,
   getB2BCompanyUserInfo,
   getB2BToken,
@@ -19,7 +20,6 @@ import {
   clearCompanySlice,
   setB2BToken,
   setbcGraphqlToken,
-  setCompanyHierarchyInfoModules,
   setCompanyHierarchyListModules,
   setCompanyInfo,
   setCompanyStatus,
@@ -347,22 +347,19 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
       if (
         role === CustomerRole.ADMIN ||
         role === CustomerRole.SENIOR_BUYER ||
+        role === CustomerRole.JUNIOR_BUYER ||
         role === CustomerRole.CUSTOM_ROLE
       ) {
-        const { companySubsidiaries } = await getCompanySubsidiaries();
-
-        const { userMasqueradingCompany } = await getUserMasqueradingCompany();
+        const [{ companySubsidiaries }, { userMasqueradingCompany }] = await Promise.all([
+          getCompanySubsidiaries(),
+          getUserMasqueradingCompany(),
+        ]);
 
         if (userMasqueradingCompany?.companyId) {
-          store.dispatch(
-            setCompanyHierarchyInfoModules({
-              companyHierarchyAllList: [...companySubsidiaries],
-              selectCompanyHierarchyId: userMasqueradingCompany.companyId,
-            }),
-          );
-        } else {
-          store.dispatch(setCompanyHierarchyListModules([...companySubsidiaries]));
+          await endUserMasqueradingCompany();
         }
+
+        store.dispatch(setCompanyHierarchyListModules([...companySubsidiaries]));
       }
 
       store.dispatch(resetDraftQuoteList());
