@@ -22,10 +22,7 @@ tee create_revision_payload.json <<EOF >/dev/null
 {
   "jsFiles": [
     "<script type=\"module\" crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${asset_loader_js}\"></script>",
-    "<script type=\"module\" crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${index_js}\"></script>",
-    "<script nomodule crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${poly_js}\"></script>",
-    "<script nomodule crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${asset_loader_legacy_js}\"></script>",
-    "<script nomodule crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${index_legacy_js}\"></script>"
+    "<script type=\"module\" crossorigin src=\"$CDN_BASE_URL/b2b-buyer-portal/${index_js}\"></script>"
   ],
   "revisionTitle": "${REVISION_TITLE}"
 }
