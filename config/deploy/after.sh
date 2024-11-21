@@ -10,7 +10,6 @@ elif [[ $ENVIRONMENT =~ "production" ]]; then
   CDN_BASE_URL="https://microapps.bigcommerce.com"
 fi
 
-echo "$PWD"
 REVISION_TITLE="${SHA}-$(date +%s)"
 
 index_js=$(find . -name 'index.*.js' -not -path './assets/*' -type f -printf '%f')
@@ -28,8 +27,6 @@ tee create_revision_payload.json <<EOF
 }
 EOF
 
-cat create_revision_payload.json
-
 if [[ $ENVIRONMENT =~ "production-tier1" ]]; then
   tee deploy_revision_payload.json <<EOF
 {
@@ -46,8 +43,6 @@ else
 }
 EOF
 fi
-
-cat {create,deploy}_revision_payload.json
 
 # create revision
 curl --location --request POST "$B2B_API_BASE_URL/api/v3/stores/revisions" \
