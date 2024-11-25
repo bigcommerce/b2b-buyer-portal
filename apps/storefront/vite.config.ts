@@ -79,7 +79,6 @@ export default defineConfig(({ mode }) => {
         input: {
           index: 'src/main.ts',
           headless: 'src/headless.ts',
-          'asset-loader': 'src/asset-loader.ts',
         },
         output: {
           entryFileNames({ name }) {

@@ -62,10 +62,8 @@ jobs:
       - name: Create storefront revision
         shell: bash
         run: |
-          asset_loader_js=$(find apps/storefront/dist -name 'asset-loader.*.js' -not -path "apps/storefront/dist/assets/*" -type f -printf '%f')
           poly_js=$(find apps/storefront/dist -name polyfills-legacy.*.js -type f -printf '%f')
           index_js=$(find apps/storefront/dist -name index.*.js ! -path "apps/storefront/dist/assets/*" -type f -printf '%f')
-          asset_loader_js=$(find apps/storefront/dist -name 'asset-loader-legacy.*.js' -not -path "apps/storefront/dist/assets/*" -type f -printf '%f')
           indexLegacy_js=$(find apps/storefront/dist -name index-legacy.*.js ! -path "apps/storefront/dist/assets/*" -type f -printf '%f')
 
           curl --location --request POST '${{ secrets.API_HOST }}/api/v3/stores/revisions' \
