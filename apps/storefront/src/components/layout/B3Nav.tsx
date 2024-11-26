@@ -32,7 +32,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const { dispatch } = useContext(DynamicallyVariableedContext);
   const role = useAppSelector(({ company }) => company.customer.role);
 
-  const { selectCompanyHierarchyId } = useAppSelector(
+  const { selectCompanyHierarchyId, isEnabledCompanyHierarchy } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
 
@@ -144,23 +144,21 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
     store.dispatch(setPagesSubsidiariesPermission(subsidiariesPermission));
 
     if (selectCompanyHierarchyId) {
-      routes = routes.filter((route) => {
-        if (
-          route?.subsidiariesCompanyKey &&
-          !subsidiariesPermission[route.subsidiariesCompanyKey]
-        ) {
-          return false;
-        }
-
-        return true;
-      });
+      routes = routes.filter(
+        (route) =>
+          !route?.subsidiariesCompanyKey || subsidiariesPermission[route.subsidiariesCompanyKey],
+      );
+    } else {
+      routes = routes.filter(
+        (route) => !(route?.configKey === 'companyHierarchy' && !isEnabledCompanyHierarchy),
+      );
     }
 
     return routes;
 
     // ignore permissions because verifyCompanyLevelPermissionByCode method with permissions
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectCompanyHierarchyId, permissions, globalState]);
+  }, [selectCompanyHierarchyId, permissions, globalState, isEnabledCompanyHierarchy]);
 
   const activePath = (path: string) => {
     if (location.pathname === path) {

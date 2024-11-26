@@ -82,7 +82,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     ({ company }) => company.pagesSubsidiariesPermission,
   );
 
-  const { selectCompanyHierarchyId } = useAppSelector(
+  const { selectCompanyHierarchyId, isEnabledCompanyHierarchy } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
   const currentCompanyId =
@@ -334,7 +334,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             flexDirection: isMobile ? 'column' : 'row',
           }}
         >
-          {orderSubViewPremisssion && (
+          {isEnabledCompanyHierarchy && orderSubViewPremisssion && (
             <Box sx={{ mr: '10px', mb: '30px' }}>
               <B2BAutoCompleteCheckbox
                 handleChangeCompanyIds={handleSelectCompanies}

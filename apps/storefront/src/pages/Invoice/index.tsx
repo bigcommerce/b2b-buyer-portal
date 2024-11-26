@@ -76,7 +76,7 @@ function Invoice() {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
-  const { selectCompanyHierarchyId } = useAppSelector(
+  const { selectCompanyHierarchyId, isEnabledCompanyHierarchy } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
@@ -828,7 +828,7 @@ function Invoice() {
               flexDirection: isMobile ? 'column' : 'row',
             }}
           >
-            {invoiceSubViewPremisssion && (
+            {isEnabledCompanyHierarchy && invoiceSubViewPremisssion && (
               <Box sx={{ mr: '10px', mb: '30px' }}>
                 <B2BAutoCompleteCheckbox
                   handleChangeCompanyIds={handleSelectCompanies}

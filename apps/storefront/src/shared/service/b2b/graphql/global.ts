@@ -1,4 +1,4 @@
-import { CompanyHierarchyListProps } from '@/types';
+import { CompanyHierarchyListProps, ConfigsSwitchStatusProps } from '@/types';
 import {
   convertArrayToGraphql,
   convertObjectOrArrayKeysToCamel,
@@ -29,6 +29,10 @@ interface ProductPrice {
 
 interface CompanySubsidiariesProps {
   companySubsidiaries: CompanyHierarchyListProps[];
+}
+
+interface ConfigsSwitchStatus {
+  storeConfigSwitchStatus: ConfigsSwitchStatusProps;
 }
 const getB2BTokenQl = (currentCustomerJWT: string, channelId: number) => `mutation {
 	authorization(authData: {
@@ -349,6 +353,16 @@ const userMasqueradingCompany = `query {
 	}
 }`;
 
+const storeConfigSwitchStatus = `query storeConfigSwitchStatus($key: String!){
+	storeConfigSwitchStatus(
+		key: $key,
+	) {
+		id,
+		key,
+		isEnabled,
+	}
+}`;
+
 export const getB2BToken = (currentCustomerJWT: string, channelId = 1) =>
   B3Request.graphqlB2B({
     query: getB2BTokenQl(currentCustomerJWT, channelId),
@@ -442,4 +456,10 @@ export const endUserMasqueradingCompany = () =>
 export const getUserMasqueradingCompany = () =>
   B3Request.graphqlB2B({
     query: userMasqueradingCompany,
+  });
+
+export const getStoreConfigsSwitchStatus = (key: string): Promise<ConfigsSwitchStatus> =>
+  B3Request.graphqlB2B({
+    query: storeConfigSwitchStatus,
+    variables: { key },
   });
