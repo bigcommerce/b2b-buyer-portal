@@ -6,6 +6,7 @@ import {
   getB2BRegisterLogo,
   getBCStoreChannelId,
   getCurrencies,
+  getStoreConfigsSwitchStatus,
   getStorefrontConfig,
   getStorefrontConfigs,
   getStorefrontDefaultLanguages,
@@ -321,6 +322,14 @@ const getQuoteConfig = async (dispatch: DispatchProps) => {
       quoteConfig,
     },
   });
+};
+
+export const getAccountHierarchyIsEnabled = async () => {
+  const { storeConfigSwitchStatus } = await getStoreConfigsSwitchStatus('account_hierarchy');
+  if (!storeConfigSwitchStatus) return false;
+  const { isEnabled } = storeConfigSwitchStatus;
+
+  return isEnabled === '1';
 };
 
 const setStorefrontConfig = async (dispatch: DispatchProps) => {

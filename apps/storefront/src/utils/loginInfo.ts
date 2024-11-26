@@ -21,7 +21,7 @@ import {
   clearCompanySlice,
   setB2BToken,
   setBcGraphQLToken,
-  setCompanyHierarchyListModules,
+  setCompanyHierarchyInfoModules,
   setCompanyInfo,
   setCompanyStatus,
   setCurrentCustomerJWT,
@@ -31,6 +31,7 @@ import {
 } from '@/store/slices/company';
 import { resetDraftQuoteInfo, resetDraftQuoteList } from '@/store/slices/quoteInfo';
 import { CompanyStatus, CustomerRole, CustomerRoleName, LoginTypes, UserTypes } from '@/types';
+import { getAccountHierarchyIsEnabled } from '@/utils/storefrontConfig';
 
 import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
@@ -350,16 +351,32 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
         role === CustomerRole.JUNIOR_BUYER ||
         role === CustomerRole.CUSTOM_ROLE
       ) {
-        const [{ companySubsidiaries }, { userMasqueradingCompany }] = await Promise.all([
-          getCompanySubsidiaries(),
-          getUserMasqueradingCompany(),
-        ]);
+        const isEnabledAccountHierarchy = await getAccountHierarchyIsEnabled();
 
-        if (userMasqueradingCompany?.companyId) {
-          await endUserMasqueradingCompany();
+        if (isEnabledAccountHierarchy) {
+          const [{ companySubsidiaries }, { userMasqueradingCompany }] = await Promise.all([
+            getCompanySubsidiaries(),
+            getUserMasqueradingCompany(),
+          ]);
+
+          if (userMasqueradingCompany?.companyId) {
+            await endUserMasqueradingCompany();
+          }
+
+          store.dispatch(
+            setCompanyHierarchyInfoModules({
+              companyHierarchyAllList: companySubsidiaries,
+              isEnabledCompanyHierarchy: isEnabledAccountHierarchy,
+            }),
+          );
+        } else {
+          store.dispatch(
+            setCompanyHierarchyInfoModules({
+              isEnabledCompanyHierarchy: false,
+              companyHierarchyAllList: [],
+            }),
+          );
         }
-
-        store.dispatch(setCompanyHierarchyListModules([...companySubsidiaries]));
       }
 
       store.dispatch(resetDraftQuoteList());
