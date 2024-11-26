@@ -1,4 +1,4 @@
 {
-  "*.json": "prettier --write",
-  "*.{js,jsx,ts,tsx,md}": "npx cspell lint"
+  "**/*.json": "prettier --write",
+  "**/*.{js,jsx,ts,tsx,md}": "npx cspell lint"
 }
