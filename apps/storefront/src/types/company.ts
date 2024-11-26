@@ -24,7 +24,6 @@ export interface Customer {
   role: CustomerRole;
   companyRoleName: string;
 }
-// @Brian.Jiang2021: b5a4803db1bfe87cd85c9116e657d92d210335bd
 // 99: default, Distinguish between bc and b2b;
 // 0: pending; 1: approved; 2: rejected; 3: inactive; 4: deleted
 export enum CompanyStatus {
@@ -47,7 +46,7 @@ export enum CustomerRole {
 // Per B2B GraphQL API, the userType is an enum that can be one of the following values:
 /** 1: not exist; 2: exist in BC; 3: exist more than one in BC; 4: exist in B3 other company; 5: exist in B3 current company; 6: exist in B3 as super admin; 7: exist in B3 current company other channel; */
 export enum UserTypes {
-  DOESNT_EXIST = 1,
+  DOES_NOT_EXIST = 1,
   B2C = 2,
   MULTIPLE_B2C = 3,
   OTHER_B2B_COMPANY = 4,

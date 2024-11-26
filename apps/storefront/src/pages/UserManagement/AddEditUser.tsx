@@ -125,7 +125,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
     });
 
     const isValid = [
-      UserTypes.DOESNT_EXIST,
+      UserTypes.DOES_NOT_EXIST,
       UserTypes.B2C,
       UserTypes.CURRENT_B2B_COMPANY_DIFFERENT_CHANNEL,
     ].includes(userType);

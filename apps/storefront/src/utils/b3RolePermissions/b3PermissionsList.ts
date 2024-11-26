@@ -1,6 +1,6 @@
 import { checkEveryPermissionsCode } from '../b3CheckPermissions';
 
-import { b2bPermissionsList, B2BPermissionsparms } from './config';
+import { B2BPermissionParams, b2bPermissionsList } from './config';
 
 interface PermissionLevelInfoProps {
   permissionType: string;
@@ -9,7 +9,7 @@ interface PermissionLevelInfoProps {
 
 const getB3PermissionsList = (
   permissionLevelInfo?: PermissionLevelInfoProps[],
-): B2BPermissionsparms => {
+): B2BPermissionParams => {
   const keys = Object.keys(b2bPermissionsList);
   return keys.reduce((acc, cur: string) => {
     const param: {
@@ -35,7 +35,7 @@ const getB3PermissionsList = (
       ...acc,
       [cur]: item,
     };
-  }, {} as B2BPermissionsparms);
+  }, {} as B2BPermissionParams);
 };
 
 export default getB3PermissionsList;
