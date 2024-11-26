@@ -36,6 +36,10 @@ export default function B3Mainheader({ title }: { title: string }) {
 
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
+  const { isEnabledCompanyHierarchy } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+
   const isShowCart = isB2BUser ? purchasabilityPermission : true;
 
   const customColor = getContrastColor(backgroundColor);
@@ -85,7 +89,7 @@ export default function B3Mainheader({ title }: { title: string }) {
                 salesRepCompanyName ||
                 b3Lang('global.B3MainHeader.superAdmin'))}
           </Box>
-          <B3CompanyHierarchy />
+          {isEnabledCompanyHierarchy && <B3CompanyHierarchy />}
         </Grid>
         <Box
           sx={{
