@@ -17,12 +17,12 @@ const ENVIRONMENT_B2B_APP_CLIENT_ID: EnvSpecificConfig<string> = {
 // cspell:enable
 
 function getAPIBaseURL() {
-  const environment: Environment = window.B3.setting.environment ?? Environment.Production;
+  const environment: Environment = window.B3?.setting?.environment ?? Environment.Local;
   return ENVIRONMENT_B2B_API_URL[environment];
 }
 
 function getAppClientId() {
-  const environment: Environment = window.B3.setting.environment ?? Environment.Production;
+  const environment: Environment = window.B3?.setting?.environment ?? Environment.Local;
   return ENVIRONMENT_B2B_APP_CLIENT_ID[environment];
 }
 
