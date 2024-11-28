@@ -93,4 +93,12 @@ export const Z_INDEX: Record<
   NOTIFICATION: 12004,
 };
 
-export const PAGES_SUBSIDIARIES_PERMISSION_KEYS = ['order', 'invoice'] as const;
+export const PAGES_SUBSIDIARIES_PERMISSION_KEYS = [
+  { key: 'order', path: HeadlessRoutes.ORDERS },
+  { key: 'invoice', path: HeadlessRoutes.INVOICE },
+  { key: 'addresses', path: HeadlessRoutes.ADDRESSES },
+  { key: 'userManagement', path: HeadlessRoutes.USER_MANAGEMENT },
+  { key: 'shoppingLists', path: HeadlessRoutes.SHOPPING_LISTS },
+  { key: 'quotes', path: HeadlessRoutes.QUOTES },
+  { key: 'companyHierarchy', path: HeadlessRoutes.COMPANY_HIERARCHY },
+] as const;

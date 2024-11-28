@@ -4,11 +4,12 @@ import BusinessIcon from '@mui/icons-material/Business';
 import { Box, SnackbarOrigin, SxProps } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 
-import { PATH_ROUTES, Z_INDEX } from '@/constants';
+import { PAGES_SUBSIDIARIES_PERMISSION_KEYS, PATH_ROUTES, Z_INDEX } from '@/constants';
 import useMobile from '@/hooks/useMobile';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { useAppSelector } from '@/store';
+import { setOpenCompanyHierarchyDropDown, useAppDispatch, useAppSelector } from '@/store';
+import { PagesSubsidiariesPermissionProps } from '@/types';
 
 import {
   getContrastColor,
@@ -35,9 +36,13 @@ function B3CompanyHierarchyExternalButton({
 
   const [isMobile] = useMobile();
 
+  const dispatch = useAppDispatch();
+
   const { selectCompanyHierarchyId, companyHierarchyList } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
+
+  const { pagesSubsidiariesPermission } = useAppSelector(({ company }) => company);
 
   const isAddBottom = bottomHeightPage.some((item: string) => hash.includes(item));
 
@@ -113,7 +118,34 @@ function B3CompanyHierarchyExternalButton({
     );
   }, [selectCompanyHierarchyId, companyHierarchyList]);
 
-  const { COMPANY_HIERARCHY } = PATH_ROUTES;
+  const handleHierarchyExternalBtnClick = () => {
+    const { companyHierarchy } = pagesSubsidiariesPermission;
+
+    if (companyHierarchy) {
+      const { COMPANY_HIERARCHY } = PATH_ROUTES;
+
+      setOpenPage({
+        isOpen: true,
+        openUrl: COMPANY_HIERARCHY,
+      });
+
+      return;
+    }
+
+    const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
+      return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];
+    });
+
+    const route = PAGES_SUBSIDIARIES_PERMISSION_KEYS.find((item) => item.key === key);
+
+    if (route && !isOpen) {
+      setOpenPage({
+        isOpen: true,
+        openUrl: route.path,
+      });
+    }
+    dispatch(setOpenCompanyHierarchyDropDown(true));
+  };
 
   return (
     <>
@@ -139,12 +171,7 @@ function B3CompanyHierarchyExternalButton({
               fontSize: '16px',
               cursor: 'pointer',
             }}
-            onClick={() =>
-              setOpenPage({
-                isOpen: true,
-                openUrl: COMPANY_HIERARCHY,
-              })
-            }
+            onClick={() => handleHierarchyExternalBtnClick()}
           >
             <BusinessIcon sx={{ fontSize: '20px' }} />
             <Box

@@ -17,6 +17,7 @@ export const b2bPermissionsList = {
     'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
   invoicePayPermission: 'pay_invoice',
   purchasabilityPermission: 'purchase_enable',
+  companyHierarchyPermission: 'get_company_subsidiaries',
 };
 
 type B3PermissionsList = typeof b2bPermissionsList;

@@ -53,7 +53,7 @@ export interface RouteItem extends RouteItemBasic {
   pageTitle?: string;
   idLang: string;
   permissionCodes?: string;
-  subsidiariesCompanyKey?: (typeof PAGES_SUBSIDIARIES_PERMISSION_KEYS)[number];
+  subsidiariesCompanyKey?: (typeof PAGES_SUBSIDIARIES_PERMISSION_KEYS)[number]['key'];
 }
 
 export interface RouteFirstLevelItem extends RouteItemBasic {
@@ -92,6 +92,7 @@ const {
   userManagementPermissionCodes,
   quoteDraftPermissionCodes,
   quoteDetailPermissionCodes,
+  companyHierarchyPermissionCodes,
 } = newPermissions;
 
 const routes: RouteItem[] = [
@@ -145,6 +146,7 @@ const routes: RouteItem[] = [
   {
     path: '/quotes',
     name: 'Quotes',
+    subsidiariesCompanyKey: 'quotes',
     wsKey: 'quotes',
     isMenuItem: true,
     component: Quotes,
@@ -157,6 +159,7 @@ const routes: RouteItem[] = [
   {
     path: '/shoppingLists',
     name: 'Shopping lists',
+    subsidiariesCompanyKey: 'shoppingLists',
     wsKey: 'shioppingLists',
     isMenuItem: true,
     component: ShippingLists,
@@ -205,6 +208,7 @@ const routes: RouteItem[] = [
   {
     path: '/addresses',
     name: 'Addresses',
+    subsidiariesCompanyKey: 'addresses',
     wsKey: 'router-address',
     isMenuItem: true,
     component: AddressList,
@@ -228,6 +232,7 @@ const routes: RouteItem[] = [
   {
     path: '/user-management',
     name: 'User management',
+    subsidiariesCompanyKey: 'userManagement',
     wsKey: 'router-userManagement',
     isMenuItem: true,
     component: UserManagement,
@@ -262,11 +267,13 @@ const routes: RouteItem[] = [
   {
     path: '/company-hierarchy',
     name: 'Company hierarchy',
+    subsidiariesCompanyKey: 'companyHierarchy',
     wsKey: 'companyHierarchy',
     isMenuItem: true,
     component: CompanyHierarchy,
     configKey: 'companyHierarchy',
     permissions: companyHierarchyPermissions,
+    permissionCodes: companyHierarchyPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.companyHierarchy',
   },

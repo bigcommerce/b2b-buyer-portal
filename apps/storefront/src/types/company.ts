@@ -98,6 +98,7 @@ export interface CompanyHierarchyInfoProps {
   selectCompanyHierarchyId: string | number;
   companyHierarchyList: CompanyHierarchyListProps[];
   companyHierarchyAllList: CompanyHierarchyListProps[];
+  companyHierarchySelectSubsidiariesList: CompanyHierarchyListProps[];
 }
 
 export interface CompanyHierarchyProps extends CompanyHierarchyListProps {
@@ -105,6 +106,6 @@ export interface CompanyHierarchyProps extends CompanyHierarchyListProps {
 }
 
 export type PagesSubsidiariesPermissionProps = Record<
-  (typeof PAGES_SUBSIDIARIES_PERMISSION_KEYS)[number],
+  (typeof PAGES_SUBSIDIARIES_PERMISSION_KEYS)[number]['key'],
   boolean
 >;

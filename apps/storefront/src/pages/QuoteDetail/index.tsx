@@ -20,6 +20,7 @@ import {
 import {
   activeCurrencyInfoSelector,
   isB2BUserSelector,
+  rolePermissionSelector,
   TaxZoneRates,
   useAppSelector,
 } from '@/store';
@@ -101,22 +102,19 @@ function QuoteDetail() {
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
   );
 
+  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+
   useEffect(() => {
     if (!quoteDetail?.id) return;
 
-    const { purchasabilityPermission, quoteConvertToOrderPermission: quoteCheckoutPermission } =
-      b2bPermissionsList;
+    const { quoteConvertToOrderPermission: quoteCheckoutPermission } = b2bPermissionsList;
 
     const getPurchasabilityAndConvertToOrderPermission = () => {
       if (isB2BUser) {
         const companyId = quoteDetail?.companyId?.id || null;
         const userEmail = quoteDetail?.contactInfo?.email || '';
         return {
-          quotePurchasabilityPermission: verifyLevelPermission({
-            code: purchasabilityPermission,
-            companyId,
-            userEmail,
-          }),
+          quotePurchasabilityPermission: purchasabilityPermission,
           quoteConvertToOrderPermission: verifyLevelPermission({
             code: quoteCheckoutPermission,
             companyId,
@@ -138,7 +136,7 @@ function QuoteDetail() {
       quotePurchasabilityPermission,
       quoteConvertToOrderPermission,
     });
-  }, [isB2BUser, quoteDetail]);
+  }, [isB2BUser, quoteDetail, purchasabilityPermission]);
 
   useEffect(() => {
     let oosErrorList = '';

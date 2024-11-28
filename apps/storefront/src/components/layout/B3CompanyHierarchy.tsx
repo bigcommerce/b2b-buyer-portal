@@ -1,13 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import CheckIcon from '@mui/icons-material/Check';
 import { Box, Chip, Grid } from '@mui/material';
 
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
-import { useAppSelector } from '@/store';
+import { setOpenCompanyHierarchyDropDown, useAppDispatch, useAppSelector } from '@/store';
 import { CompanyHierarchyProps } from '@/types';
 
-import B3DropDown, { ListItemProps } from '../B3DropDown';
+import B3DropDown, { DropDownHandle, ListItemProps } from '../B3DropDown';
 
 const chipInfo = {
   currentInfo: {
@@ -23,11 +23,13 @@ const chipInfo = {
 function B3CompanyHierarchy() {
   const b3Lang = useB3Lang();
 
+  const dispatch = useAppDispatch();
+
   const [open, setOpen] = useState<boolean>(false);
 
-  const [loading, setLoading] = useState<boolean>(false);
-
   const [currentRow, setCurrentRow] = useState<Partial<CompanyHierarchyProps> | null>(null);
+
+  const dropDownRef = useRef<DropDownHandle>(null);
 
   const { id: currentCompanyId } = useAppSelector(({ company }) => company.companyInfo);
 
@@ -36,6 +38,14 @@ function B3CompanyHierarchy() {
   const { selectCompanyHierarchyId, companyHierarchyList } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
+
+  const { isOpenCompanyHierarchyDropDown } = useAppSelector(({ global }) => global);
+
+  useEffect(() => {
+    if (isOpenCompanyHierarchyDropDown && dropDownRef?.current) {
+      dropDownRef.current?.setOpenDropDown();
+    }
+  }, [isOpenCompanyHierarchyDropDown]);
 
   const info = useMemo(() => {
     const showTitileId = selectCompanyHierarchyId || currentCompanyId || salesRepCompanyId;
@@ -57,6 +67,7 @@ function B3CompanyHierarchy() {
 
   const handleClose = () => {
     setOpen(false);
+    dispatch(setOpenCompanyHierarchyDropDown(false));
   };
   const handleRowClick = (key: number) => {
     const item = info.list.find((list) => +list.key === key);
@@ -97,10 +108,6 @@ function B3CompanyHierarchy() {
     return name;
   };
 
-  const setDialogLoading = (bool: boolean) => {
-    setLoading(bool);
-  };
-
   const { backgroundColor, langId: chipLangId } = selectCompanyHierarchyId
     ? chipInfo.representingInfo
     : chipInfo.currentInfo;
@@ -125,6 +132,7 @@ function B3CompanyHierarchy() {
         }}
       >
         <B3DropDown
+          ref={dropDownRef}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left',
@@ -153,13 +161,7 @@ function B3CompanyHierarchy() {
         />
       </Box>
 
-      <HierarchyDialog
-        open={open}
-        loading={loading}
-        handleClose={handleClose}
-        currentRow={currentRow}
-        setLoading={setDialogLoading}
-      />
+      <HierarchyDialog open={open} handleClose={handleClose} currentRow={currentRow} />
     </>
   );
 }
