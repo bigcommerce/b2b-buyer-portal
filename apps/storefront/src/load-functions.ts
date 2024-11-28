@@ -1,4 +1,4 @@
-import globalB3 from '@b3/global-b3';
+import config from '@b3/global-b3';
 
 export const requestIdleCallbackFunction: typeof window.requestIdleCallback =
   window.requestIdleCallback
@@ -52,14 +52,14 @@ const clickLink = async (e: MouseEvent) => {
 
 export const bindLinks = () => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
-    `${globalB3['dom.registerElement']}, ${globalB3['dom.allOtherElement']}`,
+    `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,
   );
 
   links.forEach((accessLink) => accessLink.addEventListener('click', clickLink));
 };
 export const unbindLinks = () => {
   const links: NodeListOf<HTMLAnchorElement> = document.querySelectorAll(
-    `${globalB3['dom.registerElement']}, ${globalB3['dom.allOtherElement']}`,
+    `${config['dom.registerElement']}, ${config['dom.allOtherElement']}`,
   );
 
   links.forEach((accessLink) => accessLink.removeEventListener('click', clickLink));

@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import useMobile from '@/hooks/useMobile';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 
 import { CloseBox, CloseBoxMobile, CloseButton } from '../styled';
@@ -14,7 +14,7 @@ export default function B3CloseAppButton() {
 
   const {
     state: { isCloseGotoBCHome },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const navigate = useNavigate();
 
   const handleCloseForm = () => {

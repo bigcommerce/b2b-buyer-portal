@@ -7,7 +7,7 @@ import { B3CustomForm } from '@/components';
 import { Captcha } from '@/components/form';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { CustomStyleContext } from '@/shared/customStyleButton/context';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   createB2BCompanyUser,
   createBCCompanyUser,
@@ -81,7 +81,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
   const {
     state: { blockPendingAccountOrderCreation },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const {
     state: {

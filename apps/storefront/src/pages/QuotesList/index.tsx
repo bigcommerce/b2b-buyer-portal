@@ -8,7 +8,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile, useSort } from '@/hooks';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   getB2BQuotesList,
   getBCQuotesList,
@@ -172,7 +172,7 @@ function QuotesList() {
   const {
     state: { openAPPParams },
     dispatch,
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const draftQuoteListLength = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList.length);

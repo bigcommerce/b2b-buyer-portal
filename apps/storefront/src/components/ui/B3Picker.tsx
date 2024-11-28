@@ -5,7 +5,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 
 import setDayjsLocale from './setDayjsLocale';
 
@@ -33,7 +33,7 @@ export default function B3Picker({
 
   const {
     state: { bcLanguage },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const activeLang = setDayjsLocale(bcLanguage || 'en');
 

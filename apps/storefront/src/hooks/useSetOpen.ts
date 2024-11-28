@@ -1,12 +1,12 @@
 import { useContext, useEffect } from 'react';
 
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 
 const { height: defaultHeight, overflow: defaultOverflow } = document.body.style;
 
 const useSetOpen = (isOpen: boolean, _?: string, params?: CustomFieldItems) => {
-  const { dispatch } = useContext(GlobaledContext);
+  const { dispatch } = useContext(GlobalContext);
 
   const { dispatch: dispatchMsg } = useContext(DynamicallyVariableedContext);
   useEffect(() => {

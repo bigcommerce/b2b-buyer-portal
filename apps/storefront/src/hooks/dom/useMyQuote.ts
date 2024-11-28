@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useRef } from 'react';
-import globalB3 from '@b3/global-b3';
+import config from '@b3/global-b3';
 import { useB3Lang } from '@b3/lang';
 import cloneDeep from 'lodash-es/cloneDeep';
 
@@ -94,7 +94,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     setCartPermissions(isLoggedInAndB2BAccount);
   };
 
-  const [openQuickView] = useDomVariation(globalB3['dom.setToQuote'], cd);
+  const [openQuickView] = useDomVariation(config['dom.setToQuote'], cd);
 
   const [isBuyPurchasable] = usePurchasableQuote(openQuickView);
 
@@ -254,7 +254,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
 
     if (!isBuyPurchasable) {
       clearQuoteDom();
-      const noPuchasableQuoteAll = document.querySelectorAll(globalB3['dom.setToNoPuchasable']);
+      const noPuchasableQuoteAll = document.querySelectorAll(config['dom.setToNoPuchasable']);
 
       const CustomAddToQuoteAll = noPuchasableQuoteLocationSelector
         ? document.querySelectorAll(noPuchasableQuoteLocationSelector)
@@ -267,7 +267,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
       }
     } else {
       clearNoPuchasableQuoteDom();
-      const addToQuoteAll = document.querySelectorAll(globalB3['dom.setToQuote']);
+      const addToQuoteAll = document.querySelectorAll(config['dom.setToQuote']);
       const CustomAddToQuoteAll = locationSelector
         ? document.querySelectorAll(locationSelector)
         : [];

@@ -1,0 +1,22 @@
+{
+  // Version of the setting file.  Always 0.2
+  "version": "0.2",
+  // language - current active spelling language
+  "language": "en",
+  // words - list of words to be always considered correct
+  // cspell:disable
+  "words": [
+    "Agenting",
+    "bigcommerce",
+    "Enduser",
+    "extrafields",
+    "gql.tada",
+    "msword",
+    "Turborepo"
+  ],
+  // flagWords - list of words to be always considered incorrect
+  // This is useful for offensive words and common spelling errors.
+  // For example "hte" should be "the"
+  "flagWords": ["bundleb2b"]
+  // cspell:enable
+}

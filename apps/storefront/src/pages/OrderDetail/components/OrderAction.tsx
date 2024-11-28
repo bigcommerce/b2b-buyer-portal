@@ -6,7 +6,7 @@ import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import throttle from 'lodash-es/throttle';
 
 import CustomButton from '@/components/button/CustomButton';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import {
   b2bPrintInvoice,
@@ -295,7 +295,7 @@ export default function OrderAction(props: OrderActionProps) {
   const b2bPermissions = useAppSelector(rolePermissionSelector);
   const {
     state: { shoppingListEnabled = false },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const {
     state: { addressLabelPermission, createdEmail },

@@ -8,7 +8,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile, useSort } from '@/hooks';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { exportInvoicesAsCSV, getInvoiceList, getInvoiceStats } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
@@ -94,7 +94,7 @@ function Invoice() {
 
   const {
     state: { bcLanguage },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortIdArr,

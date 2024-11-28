@@ -1,4 +1,4 @@
-import globalB3 from '@b3/global-b3';
+import config from '@b3/global-b3';
 import { LangFormatFunction } from '@b3/lang';
 
 import B3AddToQuoteTip from '@/components/B3AddToQuoteTip';
@@ -279,7 +279,7 @@ const addProductFromProductPageToQuote = (
 ) => {
   const addToQuote = async (role: string | number, node?: HTMLElement) => {
     try {
-      const productView = node ? node.closest(globalB3['dom.productView']) : document;
+      const productView = node ? node.closest(config['dom.productView']) : document;
       if (!productView) return;
       const productId = (productView.querySelector('input[name=product_id]') as CustomFieldItems)
         ?.value;

@@ -9,7 +9,7 @@ import { successTip } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   getB2BVariantInfoBySkus,
   getBcVariantInfoBySkus,
@@ -79,7 +79,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   const {
     state: { productQuoteEnabled = false },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);

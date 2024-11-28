@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useContext, useEffect } from 'react';
 
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
@@ -22,7 +22,7 @@ interface MutationObserverProps {
 const useDomHooks = ({ setOpenPage, isOpen }: MutationObserverProps) => {
   const {
     state: { productQuoteEnabled, cartQuoteEnabled },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const role = useAppSelector(({ company }) => company.customer.role);
 

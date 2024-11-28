@@ -6,7 +6,7 @@ import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { useCardListColumn, useTableRef } from '@/hooks';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   getB2BAddress,
   getB2BAddressConfig,
@@ -51,7 +51,7 @@ function Address() {
   const {
     state: { addressConfig },
     dispatch,
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const { addressesActionsPermission } = useAppSelector(rolePermissionSelector);
 

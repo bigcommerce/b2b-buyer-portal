@@ -8,7 +8,7 @@ import { get } from 'lodash-es';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
 import useScrollBar from '@/hooks/useScrollBar';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   exportB2BQuotePdf,
   exportBcQuotePdf,
@@ -48,7 +48,7 @@ function QuoteDetail() {
 
   const {
     state: { bcLanguage, quoteConfig },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);

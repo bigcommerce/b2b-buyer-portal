@@ -135,11 +135,11 @@ export interface GlobalAction {
 }
 
 export type DispatchProps = Dispatch<Partial<GlobalAction>>;
-export interface GlobalContext {
+export interface GlobalContextValue {
   state: GlobalState;
   dispatch: DispatchProps;
 }
 
-export interface GlobaledProviderProps {
+export interface GlobalProviderProps {
   children: ReactNode;
 }

@@ -321,7 +321,7 @@ export type BcInfomation = {
   bcId?: Maybe<Scalars['Int']['output']>;
   /** BC customer group site url */
   bcUrl?: Maybe<Scalars['String']['output']>;
-  /** BundleB2b company name */
+  /** B2B Edition company name */
   customerName?: Maybe<Scalars['String']['output']>;
 };
 
@@ -968,7 +968,10 @@ export type CompanyUserExtraField = {
 export type CompanyUserInfoType = {
   __typename?: 'CompanyUserInfoType';
   userInfo?: Maybe<CompanyEmailUserInfoType>;
-  /** The user type of current email. 1 means user does't exist.             2 means the user exists in BigCommerce.             3 means the user exists in BundleB2B. */
+  /** The user type of current email.
+   * 1 means user does't exist.
+   * 2 means the user exists in BigCommerce.
+   * 3 means the user exists in B2B Edition. */
   userType?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -1300,7 +1303,10 @@ export type CustomerInfoType = {
   /** User permissions */
   permissions?: Maybe<Array<Maybe<AuthRolePermissionType>>>;
   userInfo?: Maybe<CompanyEmailUserInfoType>;
-  /** The user type of current email. 1 means user doesn't exist.             2 means the user exists in BigCommerce.             3 means the user exists in BundleB2B. */
+  /** The user type of current email.
+   * 1 - user doesn't exist (guest user).
+   * 2 - b2c user (not connected to company).
+   * 3 - b2b user - customer is connected to a company */
   userType?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -1837,7 +1843,7 @@ export type InvoiceLineItemsInputType = {
 export type InvoicePaymentType = Node & {
   __typename?: 'InvoicePaymentType';
   appliedStatus: Scalars['Int']['output'];
-  /** The BundleB2B channel id */
+  /** The B2B Edition channel id */
   channelId?: Maybe<Scalars['Int']['output']>;
   /** The channel name */
   channelName?: Maybe<Scalars['String']['output']>;
@@ -2625,7 +2631,7 @@ export type OrderType = Node & {
   bcOrderInfos: Scalars['JSONString']['output'];
   billingName?: Maybe<Scalars['String']['output']>;
   cartId?: Maybe<Scalars['String']['output']>;
-  /** The BundleB2B channel id */
+  /** The B2B Edition channel id */
   channelId?: Maybe<Scalars['Int']['output']>;
   /** The channel name */
   channelName?: Maybe<Scalars['String']['output']>;
@@ -2705,7 +2711,7 @@ export type OrderedProductType = Node & {
   basePrice?: Maybe<Scalars['String']['output']>;
   /** Product base SKU */
   baseSku?: Maybe<Scalars['String']['output']>;
-  /** The BundleB2B channel id */
+  /** The B2B Edition channel id */
   channelId?: Maybe<Scalars['Int']['output']>;
   /** The channel name */
   channelName?: Maybe<Scalars['String']['output']>;
@@ -5234,13 +5240,13 @@ export type StoreLimitationsType = {
 
 export type StoreSitesType = {
   __typename?: 'StoreSitesType';
-  /** The channel is enabled in BundleB2B or not */
+  /** The channel is enabled in B2B Edition or not */
   b2bEnabled?: Maybe<Scalars['Boolean']['output']>;
-  /** The id of store channel in BundleB2B */
+  /** The id of store channel in B2B Edition */
   b3ChannelId?: Maybe<Scalars['Int']['output']>;
   /** The id of store channel in BC */
   channelId?: Maybe<Scalars['Int']['output']>;
-  /** The logo of channel configured in BundleB2B */
+  /** The logo of channel configured in B2B Edition */
   channelLogo?: Maybe<Scalars['String']['output']>;
   /** The icon of store channel */
   iconUrl?: Maybe<Scalars['String']['output']>;
@@ -5446,9 +5452,9 @@ export type UserAuthResultType = {
   loginType?: Maybe<Scalars['Int']['output']>;
   /** The user's permissions */
   permissions?: Maybe<Array<Maybe<AuthRolePermissionType>>>;
-  /** Storefront login token for Headless API */
+  /** BigCommerce Storefront login token */
   storefrontLoginToken?: Maybe<Scalars['String']['output']>;
-  /** The BundleB2B token */
+  /** The B2B Edition token */
   token?: Maybe<Scalars['String']['output']>;
   /** The user info */
   user?: Maybe<UserType>;

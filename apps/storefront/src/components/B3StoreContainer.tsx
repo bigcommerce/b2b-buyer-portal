@@ -1,6 +1,6 @@
 import { ReactNode, useContext, useLayoutEffect } from 'react';
 
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { getBCStoreChannelId } from '@/shared/service/b2b';
 import { getGlobalTranslations, setStoreInfo, setTimeFormat, useAppDispatch } from '@/store';
 
@@ -33,7 +33,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
   const {
     state: { storeEnabled },
     dispatch,
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const storeDispatch = useAppDispatch();
 
   useLayoutEffect(() => {

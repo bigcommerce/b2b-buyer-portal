@@ -6,7 +6,7 @@ import isEmpty from 'lodash-es/isEmpty';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   deleteB2BShoppingListItem,
   deleteBcShoppingListItem,
@@ -72,7 +72,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const { id = '' } = useParams();
   const {
     state: { openAPPParams, productQuoteEnabled = false },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const role = useAppSelector(({ company }) => company.customer.role);

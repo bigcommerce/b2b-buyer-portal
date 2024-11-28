@@ -6,6 +6,7 @@ import {
   getUserCompany,
 } from '@/shared/service/b2b';
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
+import { B2B_APP_CLIENT_ID } from '@/shared/service/request/base';
 import {
   clearMasqueradeCompany,
   MasqueradeCompany,
@@ -16,7 +17,7 @@ import {
 import {
   clearCompanySlice,
   setB2BToken,
-  setbcGraphqlToken,
+  setBcGraphQLToken,
   setCompanyInfo,
   setCompanyStatus,
   setCurrentCustomerJWT,
@@ -31,7 +32,7 @@ import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { channelId, storeHash } from './basicConfig';
 
-const { VITE_B2B_CLIENT_ID, VITE_LOCAL_DEBUG } = import.meta.env;
+const { VITE_LOCAL_DEBUG } = import.meta.env;
 
 interface ChannelIdProps {
   channelId: number;
@@ -94,7 +95,7 @@ export const getCurrentStoreInfo = (
   return storeItem || store;
 };
 
-export const getloginTokenInfo = () => {
+export const getLoginTokenInfo = () => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const oneWeekInSeconds = 7 * 24 * 60 * 60;
   const expiresTimestamp = currentTimestamp + oneWeekInSeconds;
@@ -110,11 +111,11 @@ export const getloginTokenInfo = () => {
 };
 
 export const loginInfo = async () => {
-  const loginTokenInfo = getloginTokenInfo();
+  const loginTokenInfo = getLoginTokenInfo();
 
   const token = await getBCGraphqlToken(loginTokenInfo);
   if (token) {
-    store.dispatch(setbcGraphqlToken(token));
+    store.dispatch(setBcGraphQLToken(token));
   }
 };
 
@@ -234,7 +235,7 @@ const loginWithCurrentCustomerJWT = async () => {
   const prevCurrentCustomerJWT = store.getState().company.tokens.currentCustomerJWT;
   let currentCustomerJWT;
   try {
-    currentCustomerJWT = await getCurrentCustomerJWT(VITE_B2B_CLIENT_ID);
+    currentCustomerJWT = await getCurrentCustomerJWT(B2B_APP_CLIENT_ID);
   } catch (error) {
     b2bLogger.error(error);
     return undefined;

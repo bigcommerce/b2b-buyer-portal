@@ -7,7 +7,7 @@ import B3RenderRouter from '@/components/layout/B3RenderRouter';
 import { useB3AppOpen, useSetOpen } from '@/hooks';
 import useDomHooks from '@/hooks/dom/useDomHooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { gotoAllowedAppPage } from '@/shared/routes';
 import { setChannelStoreType } from '@/shared/service/b2b';
 import { CustomerRole } from '@/types';
@@ -57,7 +57,7 @@ export default function App() {
   const {
     state: { quoteConfig, storefrontConfig, productQuoteEnabled, registerEnabled },
     dispatch,
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const storeDispatch = useAppDispatch();

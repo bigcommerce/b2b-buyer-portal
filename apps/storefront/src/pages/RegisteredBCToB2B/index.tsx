@@ -12,7 +12,7 @@ import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomS
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 import { channelId, loginJump, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
@@ -91,7 +91,7 @@ export default function RegisteredBCToB2B(props: PageProps) {
 
   const {
     state: { storeName, logo, blockPendingAccountOrderCreation, registerEnabled },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const navigate = useNavigate();
 

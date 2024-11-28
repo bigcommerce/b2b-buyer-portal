@@ -7,7 +7,7 @@ import { B3Card } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile, useScrollBar } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b';
 import { bcLogin } from '@/shared/service/bc';
 import { themeFrameSelector, useAppSelector } from '@/store';
@@ -48,7 +48,7 @@ function Registered(props: PageProps) {
 
   const {
     state: { isCheckout, isCloseGotoBCHome, logo, storeName, registerEnabled },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const {
     state: {

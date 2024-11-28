@@ -14,7 +14,7 @@ import { format, formatDistanceStrict } from 'date-fns';
 
 import { B3CollapseContainer } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { updateB2BQuote, updateBCQuote } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { displayExtendedFormat, storeHash } from '@/utils';
@@ -134,7 +134,7 @@ function DateMessage({ msg }: DateMessageProps) {
 }
 
 function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
-  const { dispatch: globalDispatch } = useContext(GlobaledContext);
+  const { dispatch: globalDispatch } = useContext(GlobalContext);
 
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;

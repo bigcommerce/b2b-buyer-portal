@@ -8,7 +8,7 @@ import { b3HexToRgb, getContrastColor } from '@/components/outSideComponents/uti
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import {
   getB2BAddressConfig,
   getB2BOrderDetails,
@@ -51,7 +51,7 @@ function OrderDetail() {
   const {
     state: { addressConfig },
     dispatch: globalDispatch,
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const {
     state: { poNumber, status = '', customStatus, orderSummary, orderStatus = [] },

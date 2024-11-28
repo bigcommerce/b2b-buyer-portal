@@ -9,7 +9,7 @@
     "build": "tsc && vite build",
     "build:staging": "tsc && vite build --mode staging",
     "build:tier1": "tsc && vite build --mode tier1",
-    "lint": "yarn lint:eslint && yarn lint:dependencies",
+    "lint": "yarn lint:dependencies && yarn lint:eslint",
     "lint:eslint": "eslint . --ext .ts,.tsx,.js --cache --cache-location ./node_modules/.cache/eslint --max-warnings 0 .",
     "lint:dependencies": "depcruise --config .dependency-cruiser.cjs . --output-type err-long",
     "format": "yarn lint --fix",

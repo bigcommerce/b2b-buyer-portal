@@ -1,6 +1,6 @@
 import { LangFormatFunction } from '@b3/lang';
 
-import { baseUrl, validatorRules } from '@/utils';
+import { BigCommerceStorefrontAPIBaseURL, validatorRules } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
 export interface QuoteConfig {
@@ -90,9 +90,10 @@ export const loginCheckout = (data: LoginConfig) => {
     }),
   };
 
-  return fetch(`${baseUrl}/internalapi/v1/checkout/customer`, requestOptions).then((response) =>
-    response.json(),
-  );
+  return fetch(
+    `${BigCommerceStorefrontAPIBaseURL}/internalapi/v1/checkout/customer`,
+    requestOptions,
+  ).then((response) => response.json());
 };
 
 export const sendEmail = (emailAddress: string) => {
@@ -105,7 +106,10 @@ export const sendEmail = (emailAddress: string) => {
     redirect: 'follow',
   };
 
-  return fetch(`${baseUrl}/login.php?action=send_password_email`, requestOptions)
+  return fetch(
+    `${BigCommerceStorefrontAPIBaseURL}/login.php?action=send_password_email`,
+    requestOptions,
+  )
     .then((response) => response.text())
     .catch((error) => b2bLogger.error('error', error));
 };

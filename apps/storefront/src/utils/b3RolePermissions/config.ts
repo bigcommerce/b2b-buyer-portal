@@ -3,6 +3,7 @@ export const b2bPermissionsList = {
   userActionsPermission: 'create_user, update_user, delete_user',
   getShoppingListPermission: 'get_shopping_lists, get_shopping_list_detail',
   shoppingListActionsPermission:
+    /* cspell:disable-next-line */
     'create_shopping_list, deplicate_shopping_list, update_shopping_list, delete_shopping_list, create_shopping_list_item, update_shopping_list_item, delete_shopping_list_item',
   submitShoppingListPermission: 'submit_shopping_list_for_approval',
   approveShoppingListPermission: 'approve_draft_shopping_list',
@@ -16,12 +17,13 @@ export const b2bPermissionsList = {
   getInvoicesPermission:
     'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
   invoicePayPermission: 'pay_invoice',
+  /* cspell:disable-next-line */
   purchasabilityPermission: 'purchase_enable',
 };
 
 type B3PermissionsList = typeof b2bPermissionsList;
 
-export type B2BPermissionsparms = {
+export type B2BPermissionParams = {
   [Key in keyof B3PermissionsList]: boolean;
 };
 

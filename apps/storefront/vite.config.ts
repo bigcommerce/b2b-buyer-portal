@@ -6,17 +6,9 @@ import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, loadEnv } from 'vite';
 
-interface AssetsAbsolutePathProps {
-  [key: string]: string;
-}
-
-const assetsAbsolutePath: AssetsAbsolutePathProps = {
-  staging: 'https://cdn.bundleb2b.net/b2b/staging/storefront/assets/',
-  production: 'https://cdn.bundleb2b.net/b2b/production/storefront/assets/',
-};
-
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
+
   return {
     plugins: [
       legacy({
@@ -25,24 +17,13 @@ export default defineConfig(({ mode }) => {
       react(),
     ],
     experimental: {
-      renderBuiltUrl(
-        filename: string,
-        {
-          type,
-        }: {
-          type: 'public' | 'asset';
-        },
-      ) {
-        const isCustom = env.VITE_ASSETS_ABSOLUTE_PATH !== undefined;
-
-        if (type === 'asset') {
-          const name = filename.split('assets/')[1];
-          return isCustom
-            ? `${env.VITE_ASSETS_ABSOLUTE_PATH}${name}`
-            : `${assetsAbsolutePath[mode]}${name}`;
-        }
-
-        return undefined;
+      renderBuiltUrl(filename: string) {
+        const isCustomBuyerPortal = env.VITE_ASSETS_ABSOLUTE_PATH !== undefined;
+        return isCustomBuyerPortal
+          ? `${env.VITE_ASSETS_ABSOLUTE_PATH}${filename}`
+          : {
+              runtime: `window.b2b.__get_asset_location(${JSON.stringify(filename)})`,
+            };
       },
     },
     server: {
@@ -97,12 +78,15 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           index: 'src/main.ts',
-          headless: 'src/buyerPortal.ts',
+          headless: 'src/headless.ts',
         },
         output: {
-          entryFileNames(info) {
-            const { name } = info;
-            return name.includes('headless') ? '[name].js' : '[name].[hash].js';
+          entryFileNames({ name }) {
+            if (name.includes('headless')) {
+              return '[name].js';
+            }
+
+            return '[name].[hash].js';
           },
           manualChunks: {
             reactVendor: ['react', 'react-dom'],

@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { Control, FieldValues, UseFormGetValues, UseFormSetValue, useWatch } from 'react-hook-form';
 
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 import { Country, State } from '@/shared/global/context/config';
 import { getB2BCountries } from '@/shared/service/b2b';
 
@@ -9,7 +9,7 @@ const useSetCountry = () => {
   const {
     state: { countriesList },
     dispatch,
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   useEffect(() => {
     const init = async () => {
@@ -59,7 +59,7 @@ const useGetCountry = ({
 }: GetCountryProps) => {
   const {
     state: { countriesList },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const countryCode = useWatch({
     control,

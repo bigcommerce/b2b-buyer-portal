@@ -38,7 +38,7 @@ const initialState: CompanyState = {
     /** the customerGroupId for the guest user is 0 */
     customerGroupId: 0,
     role: CustomerRole.GUEST,
-    userType: UserTypes.DOESNT_EXIST,
+    userType: UserTypes.DOES_NOT_EXIST,
     loginType: LoginTypes.WAITING_LOGIN,
     companyRoleName: '',
   },
@@ -76,7 +76,7 @@ const companySlice = createSlice({
     setB2BToken: (state, { payload }: PayloadAction<string>) => {
       state.tokens.B2BToken = payload;
     },
-    setbcGraphqlToken: (state, { payload }: PayloadAction<string>) => {
+    setBcGraphQLToken: (state, { payload }: PayloadAction<string>) => {
       state.tokens.bcGraphqlToken = payload;
     },
     setCurrentCustomerJWT: (state, { payload }: PayloadAction<string>) => {
@@ -100,7 +100,7 @@ export const {
   clearCustomer,
   setTokens,
   setB2BToken,
-  setbcGraphqlToken,
+  setBcGraphQLToken,
   setCurrentCustomerJWT,
   setLoginType,
   setPermissionModules,

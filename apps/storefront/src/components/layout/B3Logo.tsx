@@ -3,12 +3,12 @@ import { Box, ImageListItem } from '@mui/material';
 
 import { STORE_DEFAULT_LOGO } from '@/constants';
 import { useMobile } from '@/hooks';
-import { GlobaledContext } from '@/shared/global';
+import { GlobalContext } from '@/shared/global';
 
 export default function B3Logo() {
   const {
     state: { logo },
-  } = useContext(GlobaledContext);
+  } = useContext(GlobalContext);
 
   const [isMobile] = useMobile();
 

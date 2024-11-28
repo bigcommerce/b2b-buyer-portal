@@ -1,5 +1,7 @@
 import { cleanup } from '@testing-library/react';
 
+import { Environment } from '@/types';
+
 import '@testing-library/jest-dom/vitest';
 
 window.B3 = {
@@ -7,8 +9,7 @@ window.B3 = {
     channel_id: Number.NaN,
     store_hash: '',
     platform: 'bigcommerce',
-    b2b_url: '',
-    captcha_setkey: '',
+    environment: Environment.Local,
   },
 };
 beforeEach(() => {
@@ -17,8 +18,7 @@ beforeEach(() => {
       channel_id: Number.NaN,
       store_hash: '',
       platform: 'bigcommerce',
-      b2b_url: '',
-      captcha_setkey: '',
+      environment: Environment.Local,
     },
   };
 });

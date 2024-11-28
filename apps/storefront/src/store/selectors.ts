@@ -3,7 +3,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '@/store';
 import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
 import { checkEveryPermissionsCode } from '@/utils/b3CheckPermissions/permission';
-import { b2bPermissionsList, B2BPermissionsparms } from '@/utils/b3RolePermissions/config';
+import { B2BPermissionParams, b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { defaultCurrenciesState } from './slices/storeConfigs';
 
@@ -59,7 +59,7 @@ interface OptionList {
 
 export const rolePermissionSelector = createSelector(
   companySelector,
-  ({ permissions }): B2BPermissionsparms => {
+  ({ permissions }): B2BPermissionParams => {
     const keys = Object.keys(b2bPermissionsList);
 
     const newB3PermissionsList: Record<string, string> = b2bPermissionsList;
@@ -76,7 +76,7 @@ export const rolePermissionSelector = createSelector(
         [cur]: item,
       };
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    }, {} as B2BPermissionsparms);
+    }, {} as B2BPermissionParams);
   },
 );
 
@@ -113,7 +113,7 @@ export const isValidUserTypeSelector = createSelector(
       +customer.role === CustomerRole.SUPER_ADMIN;
 
     if (isB2BUser) {
-      return userType === UserTypes.DOESNT_EXIST;
+      return userType === UserTypes.DOES_NOT_EXIST;
     }
 
     return userType !== UserTypes.B2C;

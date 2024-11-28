@@ -142,7 +142,7 @@ export const checkUserEmail = (data: CustomFieldItems) =>
     query: checkUserB2BEmail(data),
   }).then((res) => ({
     ...res.userEmailCheck,
-    isValid: res.userEmailCheck.userType === UserTypes.DOESNT_EXIST,
+    isValid: res.userEmailCheck.userType === UserTypes.DOES_NOT_EXIST,
   }));
 
 export const checkUserBCEmail = (data: CustomFieldItems) =>
