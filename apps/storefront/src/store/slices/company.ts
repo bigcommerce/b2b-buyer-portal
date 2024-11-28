@@ -66,10 +66,16 @@ const initialState: CompanyState = {
     selectCompanyHierarchyId: '',
     companyHierarchyList: [],
     companyHierarchyAllList: [],
+    companyHierarchySelectSubsidiariesList: [],
   },
   pagesSubsidiariesPermission: {
     order: false,
     invoice: false,
+    addresses: false,
+    userManagement: false,
+    shoppingLists: false,
+    quotes: false,
+    companyHierarchy: false,
   },
 };
 

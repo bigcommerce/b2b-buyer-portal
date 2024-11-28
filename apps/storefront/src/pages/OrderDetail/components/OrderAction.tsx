@@ -5,8 +5,8 @@ import styled from '@emotion/styled';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import throttle from 'lodash-es/throttle';
 
-import { B2BSwitchCompanyModal } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
+import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
 import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { Address, MoneyFormat, OrderProductItem } from '@/types';
@@ -291,13 +291,18 @@ function OrderCard(props: OrderCardProps) {
         orderId={+orderId}
       />
 
-      <B2BSwitchCompanyModal
+      <HierarchyDialog
         open={openSwitchCompany}
+        currentRow={{
+          companyId: +(switchCompanyId || 0),
+        }}
+        handleClose={() => setOpenSwitchCompany(false)}
+        // loading
         title={b3Lang('orderDetail.switchCompany.title')}
-        fullWidth
-        tipText={b3Lang('orderDetail.switchCompany.content.tipsText')}
-        setIsOpenSwitchCompanyModal={setOpenSwitchCompany}
-        switchCompanyId={switchCompanyId}
+        context={b3Lang('orderDetail.switchCompany.content.tipsText')}
+        dialogParams={{
+          rightSizeBtn: b3Lang('global.B2BSwitchCompanyModal.confirm.button'),
+        }}
       />
     </Card>
   );

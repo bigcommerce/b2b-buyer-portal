@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { Box, MenuProps } from '@mui/material';
@@ -14,6 +14,10 @@ export interface ListItemProps {
   key: string | number;
 }
 
+export interface DropDownHandle {
+  setOpenDropDown: () => void;
+}
+
 interface B3DropDownProps extends Partial<MenuProps> {
   width?: string;
   list: Array<ListItemProps>;
@@ -23,18 +27,25 @@ interface B3DropDownProps extends Partial<MenuProps> {
   menuRenderItemName?: (item: ListItemProps) => JSX.Element | string;
 }
 
-export default function B3DropDown({
-  width,
-  list,
-  title,
-  value,
-  handleItemClick,
-  menuRenderItemName = (item) => item.name,
-  ...menu
-}: B3DropDownProps) {
+function DropDown(
+  {
+    width,
+    list,
+    title,
+    value,
+    handleItemClick,
+    menuRenderItemName = (item) => item.name,
+    ...menu
+  }: B3DropDownProps,
+  ref: Ref<DropDownHandle>,
+) {
   const [isMobile] = useMobile();
   const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    setOpenDropDown: () => setIsOpen(true),
+  }));
 
   const close = () => {
     setIsOpen(false);
@@ -47,7 +58,7 @@ export default function B3DropDown({
       }}
     >
       <ListItemButton
-        ref={ref}
+        ref={listRef}
         onClick={() => setIsOpen(true)}
         sx={{
           pr: 0,
@@ -65,7 +76,7 @@ export default function B3DropDown({
         {isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
       </ListItemButton>
       <Menu
-        anchorEl={ref.current}
+        anchorEl={listRef.current}
         open={isOpen}
         anchorOrigin={{
           vertical: 'bottom',
@@ -111,3 +122,5 @@ export default function B3DropDown({
     </Box>
   );
 }
+
+export default forwardRef<DropDownHandle, B3DropDownProps>(DropDown);

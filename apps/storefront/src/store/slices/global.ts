@@ -75,6 +75,7 @@ export interface GlabolState {
   recordOpenHash: string;
   blockPendingQuoteNonPurchasableOOS: GlobalBlockPendingQuoteNonPurchasableOOS;
   quoteSubmissionResponse: QuoteSubmissionResponseProps;
+  isOpenCompanyHierarchyDropDown: boolean;
 }
 
 const initialState: GlabolState = {
@@ -117,6 +118,7 @@ const initialState: GlabolState = {
     message: '',
     title: '',
   },
+  isOpenCompanyHierarchyDropDown: false,
 };
 
 export const glabolSlice = createSlice({
@@ -167,6 +169,9 @@ export const glabolSlice = createSlice({
     ) => {
       state.quoteSubmissionResponse = payload;
     },
+    setOpenCompanyHierarchyDropDown: (state, { payload }: PayloadAction<boolean>) => {
+      state.isOpenCompanyHierarchyDropDown = payload;
+    },
   },
 });
 
@@ -182,6 +187,7 @@ export const {
   setStoreInfo,
   setLoginLandingLocation,
   setQuoteSubmissionResponse,
+  setOpenCompanyHierarchyDropDown,
 } = glabolSlice.actions;
 
 export default glabolSlice.reducer;

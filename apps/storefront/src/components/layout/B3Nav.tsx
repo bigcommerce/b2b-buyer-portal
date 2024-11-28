@@ -7,7 +7,7 @@ import { PATH_ROUTES } from '@/constants';
 import { useMobile } from '@/hooks';
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
 import { GlobalContext } from '@/shared/global';
-import { getAllowedRoutes } from '@/shared/routes';
+import { getAllowedRoutes, RouteItem } from '@/shared/routes';
 import { store, useAppSelector } from '@/store';
 import {
   setCompanyHierarchyInfoModules,
@@ -22,6 +22,25 @@ import { b3HexToRgb, getContrastColor } from '../outSideComponents/utils/b3Custo
 interface B3NavProps {
   closeSidebar?: (x: boolean) => void;
 }
+
+const getSubsidiariesPermission = (routes: RouteItem[]) => {
+  const subsidiariesPermission = routes.reduce((all, cur) => {
+    if (cur?.subsidiariesCompanyKey) {
+      const code = cur.permissionCodes?.includes(',')
+        ? cur.permissionCodes.split(',')[0].trim()
+        : cur.permissionCodes;
+
+      all[cur.subsidiariesCompanyKey] = verifyCompanyLevelPermissionByCode({
+        level: 3,
+        code,
+      });
+    }
+
+    return all;
+  }, {} as PagesSubsidiariesPermissionProps);
+
+  return subsidiariesPermission;
+};
 
 export default function B3Nav({ closeSidebar }: B3NavProps) {
   const [isMobile] = useMobile();
@@ -112,6 +131,10 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
       }
     }
 
+    const subsidiariesPermission = getSubsidiariesPermission(routes);
+
+    store.dispatch(setPagesSubsidiariesPermission(subsidiariesPermission));
+
     store.dispatch(
       setCompanyHierarchyInfoModules({
         ishasCurrentPagePermission: isHasSubsidiariesCompanyPermission,
@@ -126,32 +149,21 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const newRoutes = useMemo(() => {
     let routes = getAllowedRoutes(globalState).filter((route) => route.isMenuItem);
 
-    const subsidiariesPermission = routes.reduce((all, cur) => {
-      if (cur?.subsidiariesCompanyKey) {
-        const code = cur.permissionCodes?.includes(',')
-          ? cur.permissionCodes.split(',')[0].trim()
-          : cur.permissionCodes;
-
-        all[cur.subsidiariesCompanyKey] = verifyCompanyLevelPermissionByCode({
-          level: 3,
-          code,
-        });
-      }
-
-      return all;
-    }, {} as PagesSubsidiariesPermissionProps);
-
-    store.dispatch(setPagesSubsidiariesPermission(subsidiariesPermission));
+    const subsidiariesPermission = getSubsidiariesPermission(routes);
 
     if (selectCompanyHierarchyId) {
-      routes = routes.filter(
-        (route) =>
-          !route?.subsidiariesCompanyKey || subsidiariesPermission[route.subsidiariesCompanyKey],
+      routes = routes.filter((route) =>
+        route?.subsidiariesCompanyKey
+          ? subsidiariesPermission[route.subsidiariesCompanyKey]
+          : false,
       );
     } else {
-      routes = routes.filter(
-        (route) => !(route?.configKey === 'companyHierarchy' && !isEnabledCompanyHierarchy),
-      );
+      routes = routes.filter((route) => {
+        if (route?.subsidiariesCompanyKey === 'companyHierarchy') {
+          return isEnabledCompanyHierarchy && subsidiariesPermission[route.subsidiariesCompanyKey];
+        }
+        return true;
+      });
     }
 
     return routes;

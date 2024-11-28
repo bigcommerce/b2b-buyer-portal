@@ -129,6 +129,7 @@ const newPermissions = {
   userManagementPermissionCodes: b2bPermissionsList.getUserPermissionCode,
   quoteDraftPermissionCodes: b2bPermissionsList.quotesActionsPermission,
   quoteDetailPermissionCodes: b2bPermissionsList.getQuotesPermission,
+  companyHierarchyPermissionCodes: b2bPermissionsList.companyHierarchyPermission,
 };
 
 export { leagcyPermissions, denyInvoiceRoles, allLeagcyPermission, newPermissions };
