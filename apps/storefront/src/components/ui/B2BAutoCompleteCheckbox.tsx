@@ -26,9 +26,8 @@ function B2BAutoCompleteCheckbox({
   const { id: currentCompanyId, companyName } = useAppSelector(
     ({ company }) => company.companyInfo,
   );
-  const { selectCompanyHierarchyId, companyHierarchyList } = useAppSelector(
-    ({ company }) => company.companyHierarchyInfo,
-  );
+  const { selectCompanyHierarchyId, companyHierarchyList, companyHierarchySelectSubsidiariesList } =
+    useAppSelector(({ company }) => company.companyHierarchyInfo);
 
   const [isCheckedAll, setIsCheckedAll] = useState<boolean>(false);
   const [companyNames, setCompanyNames] = useState<string[]>([companyName]);
@@ -41,8 +40,11 @@ function B2BAutoCompleteCheckbox({
       parentCompanyName: '',
     };
 
-    return [allCompany, ...companyHierarchyList];
-  }, [companyHierarchyList]);
+    return [
+      allCompany,
+      ...(selectCompanyHierarchyId ? companyHierarchySelectSubsidiariesList : companyHierarchyList),
+    ];
+  }, [companyHierarchyList, selectCompanyHierarchyId, companyHierarchySelectSubsidiariesList]);
 
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const { value } = event.target;

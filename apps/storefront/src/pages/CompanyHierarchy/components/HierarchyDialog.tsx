@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
@@ -12,24 +13,27 @@ import { store, useAppSelector } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import { setCartNumber } from '@/store/slices/global';
 import { CompanyHierarchyListProps, CompanyHierarchyProps } from '@/types';
+import { buildHierarchy, flattenBuildHierarchyCompanies } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { deleteCartData } from '@/utils/cartUtils';
 
 interface HierarchyDialogProps {
   open: boolean;
-  loading: boolean;
   handleClose: () => void;
   currentRow: Partial<CompanyHierarchyProps> | null;
-  setLoading: (bool: boolean) => void;
   companyHierarchyAllList?: CompanyHierarchyListProps[] | [];
+  title?: string;
+  context?: string;
+  dialogParams?: { [key: string]: string };
 }
 function HierarchyDialog({
   open = false,
-  loading = false,
   handleClose,
   currentRow,
-  setLoading,
   companyHierarchyAllList,
+  title,
+  context,
+  dialogParams = {},
 }: HierarchyDialogProps) {
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
@@ -37,9 +41,11 @@ function HierarchyDialog({
 
   const { id: currentCompanyId } = useAppSelector(({ company }) => company.companyInfo);
 
-  const { ishasCurrentPagePermission } = useAppSelector(
+  const { ishasCurrentPagePermission, companyHierarchyAllList: allList } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSwitchCompanyClick = async () => {
     if (!currentRow) return;
@@ -49,6 +55,8 @@ function HierarchyDialog({
       const cartEntityId = Cookies.get('cartId');
 
       const { companyId } = currentRow;
+
+      if (!companyId) return;
 
       if (companyId === +currentCompanyId) {
         await endUserMasqueradingCompany();
@@ -64,20 +72,22 @@ function HierarchyDialog({
         store.dispatch(setCartNumber(0));
       }
 
-      if (companyHierarchyAllList) {
-        store.dispatch(
-          setCompanyHierarchyInfoModules({
-            selectCompanyHierarchyId: companyId === +currentCompanyId ? '' : companyId,
-            companyHierarchyAllList,
-          }),
-        );
-      } else {
-        store.dispatch(
-          setCompanyHierarchyInfoModules({
-            selectCompanyHierarchyId: companyId === +currentCompanyId ? '' : companyId,
-          }),
-        );
-      }
+      const selectCompanyHierarchyId = companyId === +currentCompanyId ? '' : companyId;
+
+      const buildData = companyHierarchyAllList || allList;
+
+      store.dispatch(
+        setCompanyHierarchyInfoModules({
+          selectCompanyHierarchyId,
+          ...(companyHierarchyAllList && { companyHierarchyAllList }),
+          companyHierarchySelectSubsidiariesList: flattenBuildHierarchyCompanies(
+            buildHierarchy({
+              data: buildData,
+              companyId,
+            })[0],
+          ),
+        }),
+      );
 
       if (companyId !== +currentCompanyId && !ishasCurrentPagePermission) {
         navigate(PATH_ROUTES.COMPANY_HIERARCHY);
@@ -95,7 +105,7 @@ function HierarchyDialog({
     <B3Dialog
       isOpen={open}
       rightSizeBtn="Continue"
-      title={b3Lang('companyHierarchy.dialog.title')}
+      title={title || b3Lang('companyHierarchy.dialog.title')}
       fullWidth
       maxWidth={false}
       loading={loading}
@@ -112,6 +122,7 @@ function HierarchyDialog({
           border: 0,
         },
       }}
+      {...dialogParams}
     >
       <Box
         sx={{
@@ -125,7 +136,7 @@ function HierarchyDialog({
             flex: 1,
           }}
         >
-          {b3Lang('companyHierarchy.dialog.content')}
+          {context || b3Lang('companyHierarchy.dialog.content')}
         </Box>
       </Box>
     </B3Dialog>

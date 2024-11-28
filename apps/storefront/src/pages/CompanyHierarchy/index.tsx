@@ -32,7 +32,9 @@ function CompanyHierarchy() {
 
     const { companySubsidiaries } = await getCompanySubsidiaries();
 
-    const list = buildHierarchy(companySubsidiaries || []);
+    const list = buildHierarchy({
+      data: companySubsidiaries || [],
+    });
 
     originDataRef.current = companySubsidiaries;
 
@@ -59,10 +61,6 @@ function CompanyHierarchy() {
     setOpen(true);
   };
 
-  const setDialogLoading = (bool: boolean) => {
-    setLoading(bool);
-  };
-
   return (
     <B3Spin isSpinning={loading}>
       <Box
@@ -82,10 +80,8 @@ function CompanyHierarchy() {
 
         <HierarchyDialog
           open={open}
-          loading={loading}
           handleClose={handleClose}
           currentRow={currentRow}
-          setLoading={setDialogLoading}
           companyHierarchyAllList={originDataRef?.current || []}
         />
       </Box>

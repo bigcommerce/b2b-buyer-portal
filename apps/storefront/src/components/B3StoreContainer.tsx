@@ -1,7 +1,7 @@
 import { ReactNode, useContext, useLayoutEffect } from 'react';
 
-import { GlobalContext } from '@/shared/global';
 import { Z_INDEX } from '@/constants';
+import { GlobalContext } from '@/shared/global';
 import { getBCStoreChannelId } from '@/shared/service/b2b';
 import { getGlobalTranslations, setStoreInfo, setTimeFormat, useAppDispatch } from '@/store';
 
