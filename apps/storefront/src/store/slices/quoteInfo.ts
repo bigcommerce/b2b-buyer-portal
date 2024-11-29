@@ -74,6 +74,7 @@ const initialState: QuoteInfoState = {
     note: '',
     referenceNumber: '',
     extraFields: [],
+    recipients: [],
   },
   quoteDetailToCheckoutUrl: '',
 };

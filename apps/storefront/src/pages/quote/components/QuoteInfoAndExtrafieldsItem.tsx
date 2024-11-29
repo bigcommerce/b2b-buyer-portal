@@ -48,13 +48,14 @@ function QuoteInfoAndExtrafieldsItem({ status, quoteInfo }: QuoteInfoAndExtrafie
           )} ${referenceNumber}`}</Typography>
         )}
 
-        {status === 'Draft' ? (
+        {status === 'Draft' && !recipients.length ? (
           <Typography>{b3Lang('quoteDraft.quoteInfo.ccEmailText')}</Typography>
         ) : (
           recipients.map((ccEmail) => (
-            <Typography key={`ccEmail-${Base64.encode(ccEmail)}`}>{`${b3Lang(
-              'quoteDraft.quoteInfo.ccEmailText',
-            )} ${ccEmail}`}</Typography>
+            <Typography
+              key={`ccEmail-${Base64.encode(ccEmail)}`}
+              sx={{ wordBreak: 'break-all' }}
+            >{`${b3Lang('quoteDraft.quoteInfo.ccEmailText')} ${ccEmail}`}</Typography>
           ))
         )}
 

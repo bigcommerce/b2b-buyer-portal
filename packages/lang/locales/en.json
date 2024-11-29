@@ -546,6 +546,7 @@
   "quoteDraft.quoteInfo.titleText": "Title:",
   "quoteDraft.quoteInfo.referenceText": "Reference:",
   "quoteDraft.quoteInfo.ccEmailText": "CC:",
+  "quoteDraft.contactInfo.ccEmail": "CC email",
   "quoteDraft.quoteAddress.chooseFromSaved": "Choose from saved",
   "quoteDraft.chooseAddress.chooseFromSaved": "Choose from saved",
   "quoteDraft.chooseAddress.searchAddress": "Search address",

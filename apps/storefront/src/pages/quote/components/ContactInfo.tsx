@@ -21,6 +21,8 @@ export interface GetQuoteInfoProps {
   b3Lang: LangFormatFunction;
   quoteExtraFields: QuoteFormattedItemsProps[];
   referenceNumber: string | undefined;
+  recipients: string[] | undefined;
+  handleSaveClick: (ccEmails: string[]) => void;
 }
 
 const emailValidate = validatorRules(['email']);
@@ -70,6 +72,8 @@ const getQuoteInfo = ({
   b3Lang,
   quoteExtraFields,
   referenceNumber,
+  recipients,
+  handleSaveClick,
 }: GetQuoteInfoProps) => {
   const currentExtraFields = quoteExtraFields.map((field) => ({
     ...field,
@@ -98,6 +102,21 @@ const getQuoteInfo = ({
       size: 'small',
     },
     ...currentExtraFields,
+    {
+      name: 'ccEmail',
+      label: b3Lang('quoteDraft.contactInfo.ccEmail'),
+      required: false,
+      default: '',
+      fieldType: 'multiInputText',
+      xs: isMobile ? 12 : 6,
+      variant: 'filled',
+      size: 'small',
+      isEmail: true,
+      existValue: recipients,
+      validate: emailValidate,
+      isEnterTrigger: true,
+      handleSave: handleSaveClick,
+    },
   ];
 
   return quoteInfo;
@@ -109,10 +128,20 @@ interface ContactInfoProps {
   emailAddress?: string;
   referenceNumber?: string | undefined;
   extraFieldsDefault: QuoteExtraFields[];
+  recipients: string[] | undefined;
+  handleSaveCCEmail: (ccEmail: string[]) => void;
 }
 
 function ContactInfo(
-  { info, emailAddress, quoteExtraFields, referenceNumber, extraFieldsDefault }: ContactInfoProps,
+  {
+    info,
+    emailAddress,
+    quoteExtraFields,
+    referenceNumber,
+    extraFieldsDefault,
+    recipients,
+    handleSaveCCEmail,
+  }: ContactInfoProps,
   ref: any,
 ) {
   const {
@@ -195,6 +224,10 @@ function ContactInfo(
     return true;
   };
 
+  const handleSaveClick = (ccEmails: string[]) => {
+    handleSaveCCEmail(ccEmails);
+  };
+
   const getContactInfoValue = async () => {
     let isValid = true;
     await handleSubmit(
@@ -218,7 +251,14 @@ function ContactInfo(
   }));
 
   const contactInfo = getContactInfo(isMobile, b3Lang, isGuest);
-  const quoteInfo = getQuoteInfo({ isMobile, b3Lang, quoteExtraFields, referenceNumber });
+  const quoteInfo = getQuoteInfo({
+    isMobile,
+    b3Lang,
+    quoteExtraFields,
+    referenceNumber,
+    recipients,
+    handleSaveClick,
+  });
 
   const formDatas = [
     {
@@ -237,7 +277,7 @@ function ContactInfo(
   return (
     <Box width="100%">
       {formDatas.map((data) => (
-        <>
+        <Box key={data.title} width="100%">
           <Box
             sx={{
               fontWeight: 400,
@@ -254,10 +294,11 @@ function ContactInfo(
             formFields={data.infos}
             errors={errors}
             control={control}
+            setError={setError}
             getValues={getValues}
             setValue={setValue}
           />
-        </>
+        </Box>
       ))}
     </Box>
   );
