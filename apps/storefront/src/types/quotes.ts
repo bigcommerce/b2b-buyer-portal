@@ -105,6 +105,7 @@ export interface QuoteInfo {
   note?: string;
   referenceNumber?: string;
   extraFields?: QuoteExtraFields[];
+  recipients?: string[];
 }
 
 export interface QuoteInfoAndExtrafieldsItemProps {

@@ -4,7 +4,7 @@ import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import cloneDeep from 'lodash-es/cloneDeep';
+import { cloneDeep, concat, uniq } from 'lodash-es';
 
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -312,7 +312,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         referenceNumber: quoteinfo?.referenceNumber || '',
       },
       extraFields: quoteinfo.extraFields || [],
-      recipients: [],
+      recipients: quoteinfo.recipients || [],
     };
   }, [quoteinfo]);
 
@@ -332,10 +332,22 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     return addresssaveInfo;
   };
 
+  const handleSaveCCEmail = (ccEmail: string[]) => {
+    const saveInfo = cloneDeep(quoteinfo);
+    saveInfo.recipients = ccEmail;
+
+    dispatch(setDraftQuoteInfo(saveInfo));
+  };
+
   const handleCollectingData = async (saveInfo: QuoteInfoType) => {
     if (contactInfoRef?.current) {
       const contactInfo = await contactInfoRef.current.getContactInfoValue();
       if (!contactInfo) return false;
+
+      const currentRecipients = saveInfo?.recipients || [];
+      if (contactInfo.ccEmail.trim().length) {
+        saveInfo.recipients = uniq(concat(currentRecipients, [contactInfo.ccEmail]));
+      }
 
       saveInfo.contactInfo = {
         name: contactInfo?.name,
@@ -595,6 +607,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           },
           referenceNumber: `${info.referenceNumber}` || '',
           extraFields: info.extraFields || [],
+          recipients: info.recipients || [],
         };
 
         const fn = +role === 99 ? createBCQuote : createQuote;
@@ -806,6 +819,8 @@ function QuoteDraft({ setOpenPage }: PageProps) {
                 referenceNumber={quoteinfo?.referenceNumber || ''}
                 quoteExtraFields={extraFields}
                 extraFieldsDefault={quoteinfo.extraFields || []}
+                recipients={quoteinfo?.recipients || []}
+                handleSaveCCEmail={handleSaveCCEmail}
                 ref={contactInfoRef}
               />
               <Box

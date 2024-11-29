@@ -132,6 +132,7 @@ const quoteCreate = (data: CustomFieldItems) => `mutation{
     quoteTitle: "${data.quoteTitle}"
     ${data?.extraFields ? `extraFields: ${convertArrayToGraphql(data?.extraFields || [])}` : ''}
     ${data?.referenceNumber ? `referenceNumber: "${data?.referenceNumber}"` : ''}
+    ${data?.recipients ? `recipients: ${convertArrayToGraphql(data?.recipients || [])}` : ''}
   }) {
     quote{
       id,
