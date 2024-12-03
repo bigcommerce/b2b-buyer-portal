@@ -372,7 +372,7 @@
   "orderDetail.summary.grandTotal": "Grand total",
   "orderDetail.addToShoppingList.productsAdded": "Products were added to your shopping list",
   "orderDetail.viewShoppingList": "View shopping list",
-  "orderDetail.anotherCompany.tips": "This order related to another company. To reorder, add to shopping list and other actions you have to switch company.",
+  "orderDetail.anotherCompany.tips": "This order is related to another company. To reorder, add to a shopping list, or perform other actions, you need to switch to that company.",
   "orderDetail.switchCompany.title": "Switch company",
   "orderDetail.switchCompany.content.tipsText": "To continue you have to switch company. Switching to a different company will refresh your shopping cart.",
 
