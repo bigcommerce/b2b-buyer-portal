@@ -63,3 +63,7 @@ workflows:
           context: "GCR + Artifact Bucket Access"
           requires:
             - build_and_push
+      - security/scan:
+          name: "Gitleaks secrets scan"
+          context: org-global
+          GITLEAKS_BLOCK: "false"
