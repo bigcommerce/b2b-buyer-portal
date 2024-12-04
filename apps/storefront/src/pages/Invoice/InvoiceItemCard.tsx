@@ -22,6 +22,8 @@ export interface InvoiceItemCardProps {
   selectedPay: CustomFieldItems | InvoiceListNode[];
   handleGetCorrespondingCurrency: (code: string) => string;
   addBottom: boolean;
+  isCurrentCompany: boolean;
+  invoicePay: boolean;
 }
 
 const StyleCheckoutContainer = styled(Box)(() => ({
@@ -43,6 +45,8 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     selectedPay = [],
     handleGetCorrespondingCurrency,
     addBottom,
+    isCurrentCompany,
+    invoicePay,
   } = props;
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
@@ -236,6 +240,8 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
               setInvoiceId={setInvoiceId}
               handleOpenHistoryModal={handleOpenHistoryModal}
               setIsRequestLoading={setIsRequestLoading}
+              isCurrentCompany={isCurrentCompany}
+              invoicePay={invoicePay}
             />
           </Box>
         </Box>

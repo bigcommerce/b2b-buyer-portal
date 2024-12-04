@@ -87,6 +87,7 @@ import {
   getB2BCompanyRoleAndPermissionsDetails,
   getB2BPermissions,
   getB2BRoleList,
+  getB2BSubsidiaries,
 } from './graphql/roleAndPermissions';
 import {
   addProductToBcShoppingList,
@@ -190,6 +191,7 @@ export {
   getB2BCompanyRoleAndPermissionsDetails,
   getB2BPermissions,
   getB2BRoleList,
+  getB2BSubsidiaries,
   getB2BVariantInfoBySkus,
   getBCAllOrders,
   getBcCurrencies,

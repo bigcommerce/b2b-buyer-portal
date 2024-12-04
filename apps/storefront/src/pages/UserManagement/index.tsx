@@ -168,20 +168,6 @@ function Usermanagement() {
     }
   };
 
-  const resetFilterInfo = () => {
-    const newTranslatedFilterInfo = translatedFilterInfo.map((element: CustomFieldItems) => {
-      const translatedItem = element;
-
-      translatedItem.setValueName = setValueName;
-      translatedItem.defaultName = '';
-
-      return element;
-    });
-
-    setValueName('');
-    setTranslatedFilterInfo(newTranslatedFilterInfo);
-  };
-
   useEffect(() => {
     handleGetTranslatedFilterInfo();
 
@@ -204,7 +190,6 @@ function Usermanagement() {
           handleFilterChange={handleFirterChange}
           customButtomConfig={customItem}
           handleFilterCustomButtomClick={handleAddUserClick}
-          resetFilterInfo={resetFilterInfo}
         />
         <B3PaginationTable
           ref={paginationTableRef}

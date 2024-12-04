@@ -15,6 +15,7 @@ const allOrders = (data: CustomFieldItems, fn: string) => `{
     isShowMy: "${data?.isShowMy || 0}"
     orderBy: "${data.orderBy}"
     email: "${data?.email || ''}"
+    ${data?.companyId ? `companyId: ${+data.companyId}` : ''}
   ){
     totalCount,
     pageInfo{
@@ -50,6 +51,17 @@ const allOrders = (data: CustomFieldItems, fn: string) => `{
         firstName,
         lastName,
         companyName,
+        companyInfo {
+          companyId,
+          companyName,
+          companyAddress,
+          companyCountry,
+          companyState,
+          companyCity,
+          companyZipCode,
+          phoneNumber,
+          bcId,
+        }
       }
     }
   }

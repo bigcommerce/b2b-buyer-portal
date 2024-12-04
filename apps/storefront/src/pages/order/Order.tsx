@@ -16,7 +16,7 @@ import {
   getOrderStatusType,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
-import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
+import { currencyFormat, displayFormat, getB3PermissionsList, ordersCurrencyFormat } from '@/utils';
 
 import OrderStatus from './components/OrderStatus';
 import { orderStatusTranslationVariables } from './shared/getOrderStatus';
@@ -40,6 +40,9 @@ interface ListItem {
   status: string;
   createdAt: string;
   companyName: string;
+  companyInfo: {
+    companyName: string;
+  };
 }
 
 interface SearchChangeProps {
@@ -48,6 +51,7 @@ interface SearchChangeProps {
   PlacedBy?: string;
   orderStatus?: string | number;
   company?: string;
+  companyId?: number;
 }
 
 interface OrderProps {
@@ -71,6 +75,14 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [filterInfo, setFilterInfo] = useState<Array<any>>([]);
 
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
+  const [companyname, setCompanyName] = useState<string>('');
+
+  const { getOrderPermission: orderSubPermission } = getB3PermissionsList([
+    {
+      permissionType: 'getOrderPermission',
+      permissionLevel: 3,
+    },
+  ]);
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortKeys,
@@ -98,6 +110,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         isAgenting,
         createdByUsers,
         orderStatuses,
+        orderSubPermission,
       );
       setOrderStatuses(orderStatuses);
 
@@ -130,6 +143,23 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (filterInfo.length && orderSubPermission) {
+      const filterInfoWithTranslatedLabel = filterInfo.map((element) => {
+        if (element.name === 'companyId') {
+          element.default = filterData?.companyId && companyname ? `${filterData.companyId}` : '';
+          element.defaultName = companyname;
+          element.setValueName = setCompanyName;
+        }
+
+        return element;
+      });
+
+      setFilterInfo(filterInfoWithTranslatedLabel);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyname, filterData, orderSubPermission, getOrderStatuses]);
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
     const { edges = [], totalCount } = isB2BUser
@@ -203,6 +233,13 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       isSortable: true,
     },
     {
+      key: 'companyInfo',
+      title: b3Lang('orders.companyInfo'),
+      render: (item: ListItem) => `${item?.companyInfo?.companyName || '-'}`,
+      width: '10%',
+      isSortable: false,
+    },
+    {
       key: 'createdAt',
       title: b3Lang('orders.createdOn'),
       render: (item: ListItem) => `${displayFormat(+item.createdAt)}`,
@@ -220,7 +257,11 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const getColumnItems = () => {
     const getNewColumnItems = columnAllItems.filter((item: { key: string }) => {
       const { key } = item;
-      if ((!isB2BUser || (+role === 3 && !isAgenting)) && key === 'placedby') return false;
+      if (
+        (!isB2BUser || (+role === 3 && !isAgenting)) &&
+        (key === 'placedby' || key === 'companyInfo')
+      )
+        return false;
       if (key === 'companyId' && isB2BUser && (+role !== 3 || isAgenting)) return false;
       if (
         (key === 'companyId' || key === 'placedby') &&
@@ -259,6 +300,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       createdBy: value?.PlacedBy || '',
       statusCode: currentStatus,
       companyName: value?.company || '',
+      companyId: value?.companyId || '',
     };
     setFilterData({
       ...filterData,

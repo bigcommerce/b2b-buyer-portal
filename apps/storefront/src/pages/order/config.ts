@@ -10,7 +10,7 @@ export interface FilterSearchProps {
   q: string;
   companyName: string;
   isShowMy: number;
-  companyId: string;
+  companyId: string | number;
 }
 
 export interface FilterMoreProps {
@@ -60,6 +60,7 @@ export const getFilterMoreData = (
   isAgenting: boolean,
   createdByUsers: any,
   orderStatuses: OrderStatusType[] = [],
+  orderSubPermission: boolean = false,
 ) => {
   const newOrderStatuses = orderStatuses.filter(
     (item) => item.statusCode !== '0' && item.statusCode !== '1',
@@ -113,6 +114,20 @@ export const getFilterMoreData = (
       idLang: 'orders.placedBy',
     },
   ];
+
+  if (orderSubPermission) {
+    filterMoreList.push({
+      name: 'companyId',
+      label: 'Company',
+      required: false,
+      default: '',
+      fieldType: 'companyAutocomplete',
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+      idLang: 'orders.company',
+    });
+  }
 
   const filterCondition = isB2BUser && !(+role === 3 && !isAgenting);
   const filterCurrentMoreList = filterMoreList.filter((item) => {

@@ -18,6 +18,18 @@ export interface InvoiceList {
   isCollapse?: boolean;
   disableCurrentCheckbox?: boolean;
   sortDirection?: any;
+  companyInfo: {
+    companyId: string;
+    companyName: string;
+    companyAddress: string;
+    companyCountry: string;
+    companyState: string;
+    companyCity: string;
+    companyZipCode: string;
+    phoneNumber: string;
+    bcId: string;
+  };
+  orderUserId: number;
 }
 
 export interface InvoiceListNode {

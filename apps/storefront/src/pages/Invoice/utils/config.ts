@@ -50,6 +50,17 @@ export const filterFormConfig = [
     size: 'small',
     options: invoiceStatus,
   },
+  {
+    name: 'company',
+    label: 'Company',
+    required: false,
+    default: '',
+    fieldType: 'companyAutocomplete',
+    xs: 12,
+    variant: 'filled',
+    size: 'small',
+    options: [],
+  },
 ];
 
 export const filterFormConfigsTranslationVariables: { [key: string]: string } = {
@@ -58,6 +69,7 @@ export const filterFormConfigsTranslationVariables: { [key: string]: string } = 
   partialPaid: 'invoice.filterStatus.partiallyPaid',
   paid: 'invoice.filterStatus.paid',
   overdue: 'invoice.filterStatus.overdue',
+  company: 'invoice.filterCompany.title',
 };
 
 export const defaultSortKey = 'id';
