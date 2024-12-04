@@ -107,13 +107,13 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   };
 
   useEffect(() => {
-    let isHasSubsidiariesCompanyPermission = true;
+    let isHasSubsidiariesCompanyPermission = false;
     const { hash } = window.location;
     const url = hash.split('#')[1] || '';
     const routes = getAllowedRoutes(globalState).filter((route) => route.isMenuItem);
 
     if (url) {
-      const routeItem = routes.find((item) => {
+      const routeItem = getAllowedRoutes(globalState).find((item) => {
         return matchPath(item.path, url);
       });
 
@@ -137,7 +137,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
 
     store.dispatch(
       setCompanyHierarchyInfoModules({
-        ishasCurrentPagePermission: isHasSubsidiariesCompanyPermission,
+        isHasCurrentPagePermission: isHasSubsidiariesCompanyPermission,
       }),
     );
 

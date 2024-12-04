@@ -5,14 +5,18 @@ import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
 
 import B3Dialog from '@/components/B3Dialog';
-import { PATH_ROUTES } from '@/constants';
+import { PAGES_SUBSIDIARIES_PERMISSION_KEYS } from '@/constants';
 import useMobile from '@/hooks/useMobile';
 import { endUserMasqueradingCompany, startUserMasqueradingCompany } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { store, useAppSelector } from '@/store';
 import { setCompanyHierarchyInfoModules } from '@/store/slices/company';
 import { setCartNumber } from '@/store/slices/global';
-import { CompanyHierarchyListProps, CompanyHierarchyProps } from '@/types';
+import {
+  CompanyHierarchyListProps,
+  CompanyHierarchyProps,
+  PagesSubsidiariesPermissionProps,
+} from '@/types';
 import { buildHierarchy, flattenBuildHierarchyCompanies } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { deleteCartData } from '@/utils/cartUtils';
@@ -41,7 +45,9 @@ function HierarchyDialog({
 
   const { id: currentCompanyId } = useAppSelector(({ company }) => company.companyInfo);
 
-  const { ishasCurrentPagePermission, companyHierarchyAllList: allList } = useAppSelector(
+  const { pagesSubsidiariesPermission } = useAppSelector(({ company }) => company);
+
+  const { isHasCurrentPagePermission, companyHierarchyAllList: allList } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
 
@@ -89,8 +95,16 @@ function HierarchyDialog({
         }),
       );
 
-      if (companyId !== +currentCompanyId && !ishasCurrentPagePermission) {
-        navigate(PATH_ROUTES.COMPANY_HIERARCHY);
+      if (companyId !== +currentCompanyId && !isHasCurrentPagePermission) {
+        const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
+          return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];
+        });
+
+        const route = PAGES_SUBSIDIARIES_PERMISSION_KEYS.find((item) => item.key === key);
+
+        if (route) {
+          navigate(route.path);
+        }
       }
     } catch (error) {
       b2bLogger.error(error);
@@ -104,7 +118,7 @@ function HierarchyDialog({
   return (
     <B3Dialog
       isOpen={open}
-      rightSizeBtn="Continue"
+      rightSizeBtn={b3Lang('global.button.next')}
       title={title || b3Lang('companyHierarchy.dialog.title')}
       fullWidth
       maxWidth={false}

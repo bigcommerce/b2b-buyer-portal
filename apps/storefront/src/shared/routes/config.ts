@@ -1,7 +1,7 @@
 import { CustomerRole } from '@/types';
 import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
-const allLeagcyPermission = [
+const allLegacyPermission = [
   CustomerRole.SUPER_ADMIN,
   CustomerRole.SUPER_ADMIN_BEFORE_AGENCY,
   CustomerRole.ADMIN,
@@ -11,13 +11,14 @@ const allLeagcyPermission = [
   CustomerRole.B2C,
   CustomerRole.GUEST,
 ];
-const leagcyPermissions = {
+const legacyPermissions = {
   dashboardPermissions: [CustomerRole.SUPER_ADMIN, CustomerRole.SUPER_ADMIN_BEFORE_AGENCY],
   ordersPermissions: [
     CustomerRole.SUPER_ADMIN,
     CustomerRole.SUPER_ADMIN_BEFORE_AGENCY,
     CustomerRole.ADMIN,
     CustomerRole.SENIOR_BUYER,
+    CustomerRole.JUNIOR_BUYER,
     CustomerRole.CUSTOM_ROLE,
     CustomerRole.B2C,
     CustomerRole.GUEST,
@@ -51,7 +52,7 @@ const leagcyPermissions = {
     CustomerRole.CUSTOM_ROLE,
     CustomerRole.B2C,
   ],
-  quickorderPermissions: [
+  quickOrderPermissions: [
     CustomerRole.SUPER_ADMIN,
     CustomerRole.ADMIN,
     CustomerRole.SENIOR_BUYER,
@@ -59,7 +60,7 @@ const leagcyPermissions = {
     CustomerRole.CUSTOM_ROLE,
     CustomerRole.B2C,
   ],
-  orderDetailPermissions: allLeagcyPermission,
+  orderDetailPermissions: allLegacyPermission,
   invoiceDetailPermissions: [
     CustomerRole.SUPER_ADMIN,
     CustomerRole.ADMIN,
@@ -91,7 +92,7 @@ const leagcyPermissions = {
     CustomerRole.SENIOR_BUYER,
     CustomerRole.CUSTOM_ROLE,
   ],
-  quoteDraftPermissions: allLeagcyPermission,
+  quoteDraftPermissions: allLegacyPermission,
   accountSettingPermissions: [
     CustomerRole.SUPER_ADMIN,
     CustomerRole.ADMIN,
@@ -107,7 +108,7 @@ const leagcyPermissions = {
     CustomerRole.JUNIOR_BUYER,
     CustomerRole.CUSTOM_ROLE,
   ],
-  quoteDetailPermissions: allLeagcyPermission,
+  quoteDetailPermissions: allLegacyPermission,
 };
 
 const denyInvoiceRoles = [
@@ -132,4 +133,4 @@ const newPermissions = {
   companyHierarchyPermissionCodes: b2bPermissionsList.companyHierarchyPermission,
 };
 
-export { leagcyPermissions, denyInvoiceRoles, allLeagcyPermission, newPermissions };
+export { legacyPermissions, denyInvoiceRoles, allLegacyPermission, newPermissions };
