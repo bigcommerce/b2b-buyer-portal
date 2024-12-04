@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import {
   Business as BusinessIcon,
@@ -20,6 +20,8 @@ import {
   TableRow,
 } from '@mui/material';
 
+import { CustomStyleContext } from '@/shared/customStyleButton';
+
 interface TreeNodeProps {
   companyId: string | number;
   companyName: string;
@@ -27,7 +29,7 @@ interface TreeNodeProps {
 }
 
 type RecursiveNode<T> = T & {
-  childs?: RecursiveNode<T>[];
+  children?: RecursiveNode<T>[];
 };
 
 interface CompanyTableProps<T extends TreeNodeProps> {
@@ -63,12 +65,26 @@ function CompanyTableRow<T extends TreeNodeProps>({
 
   const b3Lang = useB3Lang();
 
-  const hasChildren = node.childs && node.childs.length > 0;
+  const {
+    state: {
+      switchAccountButton: { color = '#ED6C02' },
+    },
+  } = useContext(CustomStyleContext);
+
+  const hasChildren = node.children && node.children.length > 0;
   const nodeId = getNodeId(node);
   const isCurrentCompanyId = +nodeId === +currentCompanyId;
 
   const isSelectCompanyId = +nodeId === +selectCompanyId;
   const open = Boolean(anchorEl);
+
+  const isDisabledAction = useMemo(() => {
+    if (selectCompanyId) {
+      return +selectCompanyId !== +node.companyId;
+    }
+
+    return +currentCompanyId !== +node.companyId;
+  }, [currentCompanyId, selectCompanyId, node]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -119,7 +135,7 @@ function CompanyTableRow<T extends TreeNodeProps>({
                   label={b3Lang('companyHierarchy.chip.selectCompany')}
                   size="small"
                   sx={{
-                    backgroundColor: '#ED6C02',
+                    backgroundColor: color,
                     color: 'white',
                     height: 24,
                     '& .MuiChip-label': {
@@ -146,7 +162,7 @@ function CompanyTableRow<T extends TreeNodeProps>({
           </Box>
         </TableCell>
         <TableCell align="right" sx={{ width: 48, py: 1 }}>
-          {node?.channelFlag && (
+          {node?.channelFlag && isDisabledAction && (
             <IconButton
               size="small"
               onClick={handleClick}
@@ -187,7 +203,7 @@ function CompanyTableRow<T extends TreeNodeProps>({
       </TableRow>
       {expanded &&
         hasChildren &&
-        (node?.childs || []).map((child) => (
+        (node?.children || []).map((child) => (
           <CompanyTableRow
             key={getNodeId(child)}
             node={child}

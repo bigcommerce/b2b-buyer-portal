@@ -78,7 +78,7 @@ function OrderDetail() {
 
   const customColor = getContrastColor(backgroundColor);
 
-  const localtion = useLocation();
+  const location = useLocation();
 
   const [isMobile] = useMobile();
   const [preOrderId, setPreOrderId] = useState('');
@@ -91,9 +91,7 @@ function OrderDetail() {
   }, [params]);
 
   const goToOrders = () => {
-    navigate(
-      `${(localtion.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders'}`,
-    );
+    navigate(`${(location.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders'}`);
   };
 
   useEffect(() => {
@@ -239,7 +237,7 @@ function OrderDetail() {
             }}
             onClick={goToOrders}
           >
-            {localtion.state !== null ? (
+            {location.state !== null ? (
               <>
                 <ArrowBackIosNew
                   sx={{
@@ -289,7 +287,7 @@ function OrderDetail() {
               justifyContent: 'flex-end',
             }}
           >
-            {localtion?.state && (
+            {location?.state && (
               <DetailPagination
                 onChange={(orderId) => handlePageChange(orderId)}
                 color={customColor}
@@ -351,9 +349,9 @@ function OrderDetail() {
             }
           >
             <Stack spacing={3}>
-              <OrderShipping />
+              <OrderShipping isCurrentCompany={isCurrentCompany} />
               {/* Digital Order Display */}
-              <OrderBilling />
+              <OrderBilling isCurrentCompany={isCurrentCompany} />
 
               <OrderHistory />
             </Stack>

@@ -1,21 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import CheckIcon from '@mui/icons-material/Check';
 import { Box, Chip, Grid } from '@mui/material';
 
 import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
+import { CustomStyleContext } from '@/shared/customStyleButton';
 import { setOpenCompanyHierarchyDropDown, useAppDispatch, useAppSelector } from '@/store';
-import { CompanyHierarchyProps } from '@/types';
+import { CompanyHierarchyProps, PagesSubsidiariesPermissionProps } from '@/types';
 
 import B3DropDown, { DropDownHandle, ListItemProps } from '../B3DropDown';
 
 const chipInfo = {
   currentInfo: {
-    backgroundColor: 'primary.main',
     langId: 'companyHierarchy.chip.currentCompany',
   },
   representingInfo: {
-    backgroundColor: '#ED6C02',
     langId: 'companyHierarchy.chip.selectCompany',
   },
 };
@@ -31,15 +30,29 @@ function B3CompanyHierarchy() {
 
   const dropDownRef = useRef<DropDownHandle>(null);
 
+  const {
+    state: {
+      switchAccountButton: { color = '#ED6C02' },
+    },
+  } = useContext(CustomStyleContext);
+
   const { id: currentCompanyId } = useAppSelector(({ company }) => company.companyInfo);
 
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+
+  const { pagesSubsidiariesPermission } = useAppSelector(({ company }) => company);
 
   const { selectCompanyHierarchyId, companyHierarchyList } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
 
   const { isOpenCompanyHierarchyDropDown } = useAppSelector(({ global }) => global);
+
+  const isPagesSubsidiariesPermission = useMemo(() => {
+    return Object.keys(pagesSubsidiariesPermission).some(
+      (key) => pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps],
+    );
+  }, [pagesSubsidiariesPermission]);
 
   useEffect(() => {
     if (isOpenCompanyHierarchyDropDown && dropDownRef?.current) {
@@ -48,10 +61,10 @@ function B3CompanyHierarchy() {
   }, [isOpenCompanyHierarchyDropDown]);
 
   const info = useMemo(() => {
-    const showTitileId = selectCompanyHierarchyId || currentCompanyId || salesRepCompanyId;
+    const showTitleId = selectCompanyHierarchyId || currentCompanyId || salesRepCompanyId;
 
     const title = companyHierarchyList.find(
-      (list) => +list.companyId === +showTitileId,
+      (list) => +list.companyId === +showTitleId,
     )?.companyName;
 
     const list: ListItemProps[] = companyHierarchyList.map((item) => ({
@@ -79,40 +92,44 @@ function B3CompanyHierarchy() {
     setOpen(true);
   };
 
-  const menuRenderItemName = (itme: ListItemProps) => {
-    const { name, key } = itme;
+  const menuRenderItemName = (item: ListItemProps) => {
+    const { name, key } = item;
 
     const selectId = selectCompanyHierarchyId || currentCompanyId || salesRepCompanyId;
 
-    if (key === +selectId) {
-      return (
+    return (
+      <Grid
+        container
+        direction="row"
+        sx={{
+          justifyContent: 'space-between',
+        }}
+      >
         <Grid
-          container
-          direction="row"
           sx={{
-            justifyContent: 'space-between',
+            mr: 2,
           }}
         >
-          <Grid
-            sx={{
-              mr: 2,
-            }}
-          >
-            {name}
-          </Grid>
-          <CheckIcon sx={{ fontSize: '1.2rem' }} />
+          {name}
         </Grid>
-      );
-    }
-
-    return name;
+        <Grid
+          sx={{
+            width: '20px',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          {key === +selectId && <CheckIcon sx={{ fontSize: '1.2rem' }} />}
+        </Grid>
+      </Grid>
+    );
   };
 
-  const { backgroundColor, langId: chipLangId } = selectCompanyHierarchyId
+  const { langId: chipLangId } = selectCompanyHierarchyId
     ? chipInfo.representingInfo
     : chipInfo.currentInfo;
 
-  if (!info?.list?.length) return null;
+  if (!info?.list?.length || !isPagesSubsidiariesPermission) return null;
 
   if (!currentCompanyId && !salesRepCompanyId) return null;
 
@@ -151,7 +168,7 @@ function B3CompanyHierarchy() {
           label={b3Lang(chipLangId)}
           size="small"
           sx={{
-            backgroundColor,
+            backgroundColor: selectCompanyHierarchyId ? color : 'primary.main',
             color: 'white',
             height: 24,
             '& .MuiChip-label': {

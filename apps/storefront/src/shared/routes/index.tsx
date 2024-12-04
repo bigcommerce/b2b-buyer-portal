@@ -12,7 +12,7 @@ import { verifyCompanyLevelPermissionByCode } from '@/utils/b3CheckPermissions';
 import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
 
-import { allLeagcyPermission, denyInvoiceRoles, leagcyPermissions, newPermissions } from './config';
+import { allLegacyPermission, denyInvoiceRoles, legacyPermissions, newPermissions } from './config';
 
 const AccountSetting = lazy(() => import('@/pages/AccountSetting'));
 const AddressList = lazy(() => import('@/pages/Address'));
@@ -67,7 +67,7 @@ const {
   invoicePermissions,
   quotesPermissions,
   shoppingListsPermissions,
-  quickorderPermissions,
+  quickOrderPermissions,
   orderDetailPermissions,
   invoiceDetailPermissions,
   addressesPermissions,
@@ -77,7 +77,7 @@ const {
   accountSettingPermissions,
   companyHierarchyPermissions,
   quoteDetailPermissions,
-} = leagcyPermissions;
+} = legacyPermissions;
 
 const {
   ordersPermissionCodes,
@@ -160,7 +160,7 @@ const routes: RouteItem[] = [
     path: '/shoppingLists',
     name: 'Shopping lists',
     subsidiariesCompanyKey: 'shoppingLists',
-    wsKey: 'shioppingLists',
+    wsKey: 'shoppingLists',
     isMenuItem: true,
     component: ShippingLists,
     configKey: 'shoppingLists',
@@ -173,11 +173,11 @@ const routes: RouteItem[] = [
     path: '/purchased-products',
     name: 'Quick order',
     pageTitle: 'Purchased products',
-    wsKey: 'quickorder',
+    wsKey: 'quickOrder',
     isMenuItem: true,
     component: QuickOrder,
     configKey: 'quickOrderPad',
-    permissions: quickorderPermissions,
+    permissions: quickOrderPermissions,
     isTokenLogin: true,
     idLang: 'global.navMenu.quickOrder',
   },
@@ -296,49 +296,49 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
     path: '/',
     name: '',
     component: HomePage,
-    permissions: allLeagcyPermission,
+    permissions: allLegacyPermission,
     isProvider: false,
   },
   {
     path: '/register',
     name: 'register',
     component: Registered,
-    permissions: allLeagcyPermission,
+    permissions: allLegacyPermission,
     isProvider: true,
   },
   {
     path: '/login',
     name: 'Login',
     component: Login,
-    permissions: allLeagcyPermission,
+    permissions: allLegacyPermission,
     isProvider: false,
   },
   {
     path: '/pdp',
     name: 'pdp',
     component: PDP,
-    permissions: allLeagcyPermission,
+    permissions: allLegacyPermission,
     isProvider: false,
   },
   {
     path: '/forgotpassword',
     name: 'forgotpassword',
     component: ForgotPassword,
-    permissions: allLeagcyPermission,
+    permissions: allLegacyPermission,
     isProvider: false,
   },
   {
     path: '/registeredbctob2b',
     name: 'registeredbctob2b',
     component: RegisteredBCToB2B,
-    permissions: allLeagcyPermission,
+    permissions: allLegacyPermission,
     isProvider: true,
   },
   {
     path: '/payment/:id',
     name: 'payment',
     component: InvoicePayment,
-    permissions: allLeagcyPermission,
+    permissions: allLegacyPermission,
     isProvider: false,
   },
 ];

@@ -122,9 +122,6 @@ function B2BAutoCompleteCheckbox({
       style: {
         maxHeight: 300,
       },
-      sx: {
-        left: '312px !important',
-      },
     },
   };
 
