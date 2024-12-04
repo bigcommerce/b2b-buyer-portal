@@ -16,7 +16,7 @@ import B3AccountInfo from './B3AccountInfo';
 import B3CompanyHierarchy from './B3CompanyHierarchy';
 import B3StatusNotification from './B3StatusNotification';
 
-export default function B3Mainheader({ title }: { title: string }) {
+export default function B3MainHeader({ title }: { title: string }) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
@@ -81,7 +81,7 @@ export default function B3Mainheader({ title }: { title: string }) {
               fontSize: '20px',
               fontWeight: '500',
               color: customColor || '#333333',
-              mr: 2,
+              ml: 0,
             }}
           >
             {+role === 3 &&

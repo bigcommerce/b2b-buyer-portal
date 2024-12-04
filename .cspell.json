@@ -13,7 +13,10 @@
     "gql.tada",
     "msword",
     "Turborepo",
-    "purchasability"
+    "purchasability",
+    "forgotpassword",
+    "registeredbctob",
+    "Variableed"
   ],
   // flagWords - list of words to be always considered incorrect
   // This is useful for offensive words and common spelling errors.

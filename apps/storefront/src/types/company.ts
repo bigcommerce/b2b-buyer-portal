@@ -93,7 +93,7 @@ export interface CompanyHierarchyListProps {
 
 export interface CompanyHierarchyInfoProps {
   isEnabledCompanyHierarchy: boolean;
-  ishasCurrentPagePermission: boolean;
+  isHasCurrentPagePermission: boolean;
   selectCompanyHierarchyId: string | number;
   companyHierarchyList: CompanyHierarchyListProps[];
   companyHierarchyAllList: CompanyHierarchyListProps[];
@@ -101,7 +101,7 @@ export interface CompanyHierarchyInfoProps {
 }
 
 export interface CompanyHierarchyProps extends CompanyHierarchyListProps {
-  childs?: CompanyHierarchyProps[];
+  children?: CompanyHierarchyProps[];
 }
 
 export type PagesSubsidiariesPermissionProps = Record<

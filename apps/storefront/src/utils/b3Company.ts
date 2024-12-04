@@ -24,7 +24,7 @@ export const buildHierarchy = ({
     })
     .map((company) => ({
       ...company,
-      childs: buildHierarchy({
+      children: buildHierarchy({
         data,
         parentId: company.companyId,
       }),
@@ -42,8 +42,8 @@ export const flattenBuildHierarchyCompanies = (company: CompanyHierarchyProps) =
     channelFlag: company.channelFlag,
   });
 
-  if (company.childs && company.childs.length > 0) {
-    company.childs.forEach((child) => {
+  if (company.children && company.children.length > 0) {
+    company.children.forEach((child) => {
       result = result.concat(flattenBuildHierarchyCompanies(child));
     });
   }

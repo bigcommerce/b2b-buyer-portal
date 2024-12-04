@@ -62,7 +62,7 @@ const initialState: CompanyState = {
   permissions: [],
   companyHierarchyInfo: {
     isEnabledCompanyHierarchy: true,
-    ishasCurrentPagePermission: true,
+    isHasCurrentPagePermission: true,
     selectCompanyHierarchyId: '',
     companyHierarchyList: [],
     companyHierarchyAllList: [],

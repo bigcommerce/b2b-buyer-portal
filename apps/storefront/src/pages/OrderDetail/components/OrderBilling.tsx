@@ -7,7 +7,11 @@ import { useMobile } from '@/hooks';
 import { OrderBillings } from '../../../types';
 import { OrderDetailsContext } from '../context/OrderDetailsContext';
 
-export default function OrderBilling() {
+type OrderBillingProps = {
+  isCurrentCompany: boolean;
+};
+
+export default function OrderBilling({ isCurrentCompany }: OrderBillingProps) {
   const {
     state: { billings = [], addressLabelPermission, orderId, orderIsDigital },
   } = useContext(OrderDetailsContext);
@@ -84,7 +88,7 @@ export default function OrderBilling() {
             <B3ProductList
               products={billingItem.products}
               totalText="Total"
-              canToProduct
+              canToProduct={isCurrentCompany}
               textAlign={isMobile ? 'left' : 'right'}
             />
           </CardContent>
