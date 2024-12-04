@@ -19,10 +19,14 @@ export const getCurrentCustomerJWT = async (app_client_id: string) => {
   const response = await fetch(
     `${BigCommerceStorefrontAPIBaseURL}/customer/current.jwt?app_client_id=${app_client_id}`,
   );
+  const bcToken = await response.text();
   if (!response.ok) {
+    if (bcToken.includes('errors')) {
+      return undefined;
+    }
     throw new Error(response.statusText);
   }
-  return response.text() as Promise<string>;
+  return bcToken;
 };
 
 /**

@@ -241,12 +241,7 @@ const loginWithCurrentCustomerJWT = async () => {
     return undefined;
   }
 
-  if (
-    !currentCustomerJWT ||
-    currentCustomerJWT?.includes('errors') ||
-    prevCurrentCustomerJWT === currentCustomerJWT
-  )
-    return undefined;
+  if (!currentCustomerJWT || prevCurrentCustomerJWT === currentCustomerJWT) return undefined;
 
   const data = await getB2BToken(currentCustomerJWT, channelId);
   const B2BToken = data.authorization.result.token as string;
