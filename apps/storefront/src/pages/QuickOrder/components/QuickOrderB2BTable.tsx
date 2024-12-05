@@ -101,7 +101,7 @@ const StyleQuickOrderTable = styled(Box)(() => ({
   },
 }));
 
-interface QuickorderTableProps {
+interface QuickOrderTableProps {
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>;
   setCheckedArr: (values: CheckedProduct[]) => void;
   isRequestLoading: boolean;
@@ -121,11 +121,11 @@ export const sortKeys = {
   lastOrderedAt: 'lastOrderedAt',
 };
 
-function QuickorderTable({
+function QuickOrderTable({
   setIsRequestLoading,
   setCheckedArr,
   isRequestLoading,
-}: QuickorderTableProps) {
+}: QuickOrderTableProps) {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -496,7 +496,7 @@ function QuickorderTable({
                 }}
               >
                 <B3FilterMore
-                  fiterMoreInfo={[]}
+                  filterMoreInfo={[]}
                   startPicker={{
                     isEnabled: true,
                     label: b3Lang('purchasedProducts.from'),
@@ -574,4 +574,4 @@ function QuickorderTable({
   );
 }
 
-export default QuickorderTable;
+export default QuickOrderTable;

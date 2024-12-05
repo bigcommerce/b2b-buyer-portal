@@ -85,7 +85,7 @@ function Invoice() {
 
   const { invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
-  const { invoice: invoiceSubViewPremisssion } = useAppSelector(
+  const { invoice: invoiceSubViewPermission } = useAppSelector(
     ({ company }) => company.pagesSubsidiariesPermission,
   );
 
@@ -96,7 +96,7 @@ function Invoice() {
   const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo();
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
-  const [isOpenHistorys, setIsOpenHistorys] = useState<boolean>(false);
+  const [isOpenHistory, setIsOpenHistory] = useState<boolean>(false);
   const [currentInvoiceId, setCurrentInvoiceId] = useState<string>('');
   const [receiptId, setReceiptId] = useState<string>('');
   const [type, setType] = useState<string>('');
@@ -117,7 +117,7 @@ function Invoice() {
   ]);
   const [selectAllPay, setSelectAllPay] = useState<boolean>(invoicePayPermission);
 
-  const { invoicePayPermission: invoiceSubPayPermisssion } = getB3PermissionsList([
+  const { invoicePayPermission: invoiceSubPayPermission } = getB3PermissionsList([
     {
       permissionType: 'invoicePayPermission',
       permissionLevel: permissionLevels.COMPANYSUBSIDIARIES,
@@ -257,7 +257,7 @@ function Invoice() {
   ) => {
     try {
       const invoicePay =
-        +invoiceCompanyId === +currentCompanyId ? invoicePayPermission : invoiceSubPayPermisssion;
+        +invoiceCompanyId === +currentCompanyId ? invoicePayPermission : invoiceSubPayPermission;
       setIsRequestLoading(true);
       const isPayNow = purchasabilityPermission && invoicePay && status !== 2;
       const pdfUrl = await handlePrintPDF(id, isPayNow);
@@ -404,7 +404,7 @@ function Invoice() {
     setSelectAllPay(
       company.includes(currentCompanyId) || company.includes(-1)
         ? invoicePayPermission
-        : invoiceSubPayPermisssion,
+        : invoiceSubPayPermission,
     );
   };
 
@@ -483,7 +483,7 @@ function Invoice() {
 
       const { companyInfo } = item.node;
       if (+companyInfo.companyId !== +currentCompanyId) {
-        item.node.disableCurrentCheckbox = !invoiceSubPayPermisssion || +openBalance.value === 0;
+        item.node.disableCurrentCheckbox = !invoiceSubPayPermission || +openBalance.value === 0;
       }
     });
     setList(invoicesList);
@@ -743,13 +743,13 @@ function Invoice() {
           <B3Pulldown
             row={actionRow}
             setInvoiceId={setCurrentInvoiceId}
-            handleOpenHistoryModal={setIsOpenHistorys}
+            handleOpenHistoryModal={setIsOpenHistory}
             setIsRequestLoading={setIsRequestLoading}
             isCurrentCompany={+currentCompanyId === +companyInfo.companyId}
             invoicePay={
               +currentCompanyId === +companyInfo.companyId
                 ? invoicePayPermission
-                : invoiceSubPayPermisssion
+                : invoiceSubPayPermission
             }
           />
         );
@@ -828,7 +828,7 @@ function Invoice() {
               flexDirection: isMobile ? 'column' : 'row',
             }}
           >
-            {isEnabledCompanyHierarchy && invoiceSubViewPremisssion && (
+            {isEnabledCompanyHierarchy && invoiceSubViewPermission && (
               <Box sx={{ mr: '10px', mb: '30px' }}>
                 <B2BAutoCompleteCheckbox
                   handleChangeCompanyIds={handleSelectCompanies}
@@ -837,7 +837,7 @@ function Invoice() {
               </Box>
             )}
             <B3Filter
-              fiterMoreInfo={translatedFilterFormConfigs}
+              filterMoreInfo={translatedFilterFormConfigs}
               handleChange={handleChange}
               handleFilterChange={handleFilterChange}
               startPicker={{
@@ -930,7 +930,7 @@ function Invoice() {
               handleViewInvoice={handleViewInvoice}
               setIsRequestLoading={setIsRequestLoading}
               setInvoiceId={setCurrentInvoiceId}
-              handleOpenHistoryModal={setIsOpenHistorys}
+              handleOpenHistoryModal={setIsOpenHistory}
               selectedPay={selectedPay}
               handleGetCorrespondingCurrency={handleGetCorrespondingCurrencyToken}
               addBottom={list.length - 1 === index}
@@ -938,7 +938,7 @@ function Invoice() {
               invoicePay={
                 +currentCompanyId === +row.companyInfo.companyId
                   ? invoicePayPermission
-                  : invoiceSubPayPermisssion
+                  : invoiceSubPayPermission
               }
             />
           )}
@@ -958,12 +958,12 @@ function Invoice() {
         )}
       </Box>
       {selectedPay.length > 0 &&
-        (((invoicePayPermission || invoiceSubPayPermisssion) && purchasabilityPermission) ||
+        (((invoicePayPermission || invoiceSubPayPermission) && purchasabilityPermission) ||
           isAgenting) && <InvoiceFooter selectedPay={selectedPay} decimalPlaces={decimalPlaces} />}
       <PaymentsHistory
-        open={isOpenHistorys}
+        open={isOpenHistory}
         currentInvoiceId={currentInvoiceId}
-        setOpen={setIsOpenHistorys}
+        setOpen={setIsOpenHistory}
       />
       <PaymentSuccess receiptId={+receiptId} type={type} />
     </B3Spin>

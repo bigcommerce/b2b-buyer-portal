@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
@@ -16,7 +16,9 @@ import {
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
+import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import b2bLogger from '@/utils/b3Logger';
+import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { AddressConfigItem, AddressItemType, BCAddressItemType } from '../../types/address';
 
@@ -27,7 +29,7 @@ import SetDefaultDialog from './components/SetDefaultDialog';
 import { convertBCToB2BAddress, filterFormConfig } from './shared/config';
 import { CountryProps, getAddressFields } from './shared/getAddressFields';
 
-interface RefCurrntProps extends HTMLInputElement {
+interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditAddressClick: (type: string, data?: AddressItemType) => void;
 }
 
@@ -55,11 +57,15 @@ function Address() {
 
   const { addressesActionsPermission } = useAppSelector(rolePermissionSelector);
 
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+
   const b3Lang = useB3Lang();
   const isExtraLarge = useCardListColumn();
   const [paginationTableRef] = useTableRef();
 
-  const addEditAddressRef = useRef<RefCurrntProps | null>(null);
+  const addEditAddressRef = useRef<RefCurrentProps | null>(null);
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [addressFields, setAddressFields] = useState<CustomFieldItems[]>([]);
@@ -238,10 +244,21 @@ function Address() {
     setIsOpenSetDefault(true);
   };
 
-  const AddButtonConfig = {
-    isEnabled: editPermission,
-    customLabel: b3Lang('addresses.addNewAddress'),
-  };
+  const AddButtonConfig = useMemo(() => {
+    const { addressesActionsPermission } = b2bPermissionsList;
+
+    const isCreatePermission = verifyCreatePermission(
+      addressesActionsPermission,
+      +selectCompanyHierarchyId,
+    );
+    return {
+      isEnabled: editPermission && isCreatePermission,
+      customLabel: b3Lang('addresses.addNewAddress'),
+    };
+
+    // ignore b3Lang due it's function that doesn't not depend on any reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editPermission, selectCompanyHierarchyId]);
 
   const translatedFilterFormConfig = JSON.parse(JSON.stringify(filterFormConfig));
 
@@ -251,6 +268,8 @@ function Address() {
 
     return element;
   });
+
+  const currentUseCompanyHierarchyId = +selectCompanyHierarchyId || +companyId;
 
   return (
     <B3Spin isSpinning={isRequestLoading}>
@@ -262,11 +281,11 @@ function Address() {
         }}
       >
         <B3Filter
-          fiterMoreInfo={translatedFilterFormConfig}
+          filterMoreInfo={translatedFilterFormConfig}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
-          customButtomConfig={AddButtonConfig}
-          handleFilterCustomButtomClick={handleCreate}
+          customButtonConfig={AddButtonConfig}
+          handleFilterCustomButtonClick={handleCreate}
         />
         <B3PaginationTable
           ref={paginationTableRef}
@@ -294,7 +313,7 @@ function Address() {
           updateAddressList={updateAddressList}
           addressFields={addressFields}
           ref={addEditAddressRef}
-          companyId={companyId}
+          companyId={currentUseCompanyHierarchyId}
           isBCPermission={isBCPermission}
           countries={countries}
         />
@@ -306,7 +325,7 @@ function Address() {
             setIsLoading={setIsRequestLoading}
             addressData={currentAddress}
             updateAddressList={updateAddressList}
-            companyId={companyId}
+            companyId={currentUseCompanyHierarchyId}
           />
         )}
         {editPermission && (
@@ -316,7 +335,7 @@ function Address() {
             setIsLoading={setIsRequestLoading}
             addressData={currentAddress}
             updateAddressList={updateAddressList}
-            companyId={companyId}
+            companyId={currentUseCompanyHierarchyId}
             isBCPermission={isBCPermission}
           />
         )}

@@ -16,7 +16,7 @@ import B3AddEditUser from './AddEditUser';
 import { FilterProps, getFilterMoreList, UsersList } from './config';
 import { UserItemCard } from './UserItemCard';
 
-interface RefCurrntProps extends HTMLInputElement {
+interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditUserClick: (type: string, data?: UsersList) => void;
 }
 
@@ -24,7 +24,7 @@ interface RoleProps {
   role: string;
   companyRoleId: string | number;
 }
-function Usermanagement() {
+function UserManagement() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
@@ -58,7 +58,7 @@ function Usermanagement() {
 
   const isEnableBtnPermissions = b2bPermissions.userActionsPermission;
 
-  const addEditUserRef = useRef<RefCurrntProps | null>(null);
+  const addEditUserRef = useRef<RefCurrentProps | null>(null);
   const [paginationTableRef] = useTableRef();
 
   const customItem = {
@@ -71,12 +71,12 @@ function Usermanagement() {
     companyRoleId: '',
     companyId,
   };
-  const fiterMoreInfo = getFilterMoreList(b3Lang);
+  const filterMoreInfo = getFilterMoreList(b3Lang);
 
   const [filterSearch, setFilterSearch] = useState<Partial<FilterProps>>(initSearch);
 
   const [translatedFilterInfo, setTranslatedFilterInfo] =
-    useState<CustomFieldItems[]>(fiterMoreInfo);
+    useState<CustomFieldItems[]>(filterMoreInfo);
   const [valueName, setValueName] = useState<string>('');
 
   const fetchList = async (params: Partial<FilterProps>) => {
@@ -97,7 +97,7 @@ function Usermanagement() {
   };
 
   const handleGetTranslatedFilterInfo = () => {
-    const translatedFilterInfo = fiterMoreInfo.map((element: CustomFieldItems) => {
+    const translatedFilterInfo = filterMoreInfo.map((element: CustomFieldItems) => {
       const translatedItem = element;
       const translatedOptions = element.options?.map((option: CustomFieldItems) => {
         const elementOption = option;
@@ -126,7 +126,7 @@ function Usermanagement() {
     setFilterSearch(search);
   };
 
-  const handleFirterChange = (value: RoleProps) => {
+  const handleFilterChange = (value: RoleProps) => {
     const search = {
       ...filterSearch,
       companyRoleId: value.companyRoleId,
@@ -185,11 +185,11 @@ function Usermanagement() {
         }}
       >
         <B3Filter
-          fiterMoreInfo={translatedFilterInfo}
+          filterMoreInfo={translatedFilterInfo}
           handleChange={handleChange}
-          handleFilterChange={handleFirterChange}
-          customButtomConfig={customItem}
-          handleFilterCustomButtomClick={handleAddUserClick}
+          handleFilterChange={handleFilterChange}
+          customButtonConfig={customItem}
+          handleFilterCustomButtonClick={handleAddUserClick}
         />
         <B3PaginationTable
           ref={paginationTableRef}
@@ -240,4 +240,4 @@ function Usermanagement() {
   );
 }
 
-export default Usermanagement;
+export default UserManagement;

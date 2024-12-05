@@ -34,7 +34,7 @@ type DeepPartial<T> = {
 interface B3FilterMoreProps<T, Y> {
   startPicker?: PickerProps;
   endPicker?: PickerProps;
-  fiterMoreInfo: Array<DeepPartial<T>>;
+  filterMoreInfo: Array<DeepPartial<T>>;
   onChange?: (val: Y) => void;
   isShowMore?: boolean;
   resetFilterInfo?: () => void;
@@ -48,7 +48,7 @@ interface PickerRefProps extends HTMLInputElement {
 function B3FilterMore<T, Y>({
   startPicker,
   endPicker,
-  fiterMoreInfo,
+  filterMoreInfo,
   onChange,
   isShowMore = false,
   resetFilterInfo,
@@ -104,7 +104,7 @@ function B3FilterMore<T, Y>({
 
     const values = getValues();
 
-    const newCounter = fiterMoreInfo.reduce((cur, item) => {
+    const newCounter = filterMoreInfo.reduce((cur, item) => {
       const newItem: CustomFieldItems = item;
       if (includesFilterType.includes(newItem.fieldType) && values[newItem.name]) {
         cur -= 1;
@@ -200,7 +200,7 @@ function B3FilterMore<T, Y>({
         cursor: 'pointer',
       }}
     >
-      {((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
+      {((filterMoreInfo && filterMoreInfo.length) || isShowMore) && (
         <Box
           sx={{
             display: 'flex',
@@ -281,7 +281,7 @@ function B3FilterMore<T, Y>({
           }}
         >
           <B3CustomForm
-            formFields={fiterMoreInfo}
+            formFields={filterMoreInfo}
             errors={errors}
             control={control}
             getValues={getValues}
