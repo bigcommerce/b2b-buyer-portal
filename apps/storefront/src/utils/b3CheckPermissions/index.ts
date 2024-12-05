@@ -60,6 +60,17 @@ export const verifyCompanyLevelPermissionByCode = ({
   return +permissionLevel >= +level;
 };
 
+export const verifyCreatePermission = (code: string, selectId?: number): boolean => {
+  const selectCompanyHierarchyId =
+    selectId || store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0;
+
+  return verifyCompanyLevelPermissionByCode({
+    code,
+    containOrEqual: 'contain',
+    level: selectCompanyHierarchyId ? permissionLevels.COMPANYSUBSIDIARIES : permissionLevels.USER,
+  });
+};
+
 /**
  * Verifies the user's permission level based on the provided criteria.
  *

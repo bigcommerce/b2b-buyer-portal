@@ -335,7 +335,7 @@ function QuotesList() {
     }
   };
 
-  const handleFirterChange = (value: Partial<FilterSearchProps>) => {
+  const handleFilterChange = (value: Partial<FilterSearchProps>) => {
     const search: Partial<FilterSearchProps> = {
       createdBy: value?.createdBy || '',
       status: value?.status || '',
@@ -360,7 +360,7 @@ function QuotesList() {
         }}
       >
         <B3Filter
-          fiterMoreInfo={filterMoreInfo}
+          filterMoreInfo={filterMoreInfo}
           startPicker={{
             isEnabled: true,
             label: b3Lang('quotes.from'),
@@ -374,7 +374,7 @@ function QuotesList() {
             pickerKey: 'end',
           }}
           handleChange={handleChange}
-          handleFilterChange={handleFirterChange}
+          handleFilterChange={handleFilterChange}
         />
         <B3PaginationTable
           columnItems={columnAllItems}

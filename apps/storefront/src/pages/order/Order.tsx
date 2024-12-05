@@ -78,7 +78,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
-  const { order: orderSubViewPremisssion } = useAppSelector(
+  const { order: orderSubViewPermission } = useAppSelector(
     ({ company }) => company.pagesSubsidiariesPermission,
   );
 
@@ -239,7 +239,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       isSortable: true,
     },
     {
-      key: 'placedby',
+      key: 'placedBy',
       title: b3Lang('orders.placedBy'),
       render: (item: ListItem) => `${item.firstName} ${item.lastName}`,
       width: '10%',
@@ -258,10 +258,10 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     const getNewColumnItems = columnAllItems.filter((item: { key: string }) => {
       const { key } = item;
       if (!isB2BUser && key === 'companyName') return false;
-      if ((!isB2BUser || (+role === 3 && !isAgenting)) && key === 'placedby') return false;
+      if ((!isB2BUser || (+role === 3 && !isAgenting)) && key === 'placedBy') return false;
       if (key === 'companyId' && isB2BUser && (+role !== 3 || isAgenting)) return false;
       if (
-        (key === 'companyId' || key === 'placedby') &&
+        (key === 'companyId' || key === 'placedBy') &&
         !(+role === 3 && !isAgenting) &&
         !isCompanyOrder
       )
@@ -281,7 +281,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     }
   };
 
-  const handleFirterChange = (value: SearchChangeProps) => {
+  const handleFilterChange = (value: SearchChangeProps) => {
     let currentStatus = value?.orderStatus || '';
     if (currentStatus) {
       const originStatus = getOrderStatuses.find(
@@ -334,7 +334,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
             flexDirection: isMobile ? 'column' : 'row',
           }}
         >
-          {isEnabledCompanyHierarchy && orderSubViewPremisssion && (
+          {isEnabledCompanyHierarchy && orderSubViewPermission && (
             <Box sx={{ mr: '10px', mb: '30px' }}>
               <B2BAutoCompleteCheckbox
                 handleChangeCompanyIds={handleSelectCompanies}
@@ -355,9 +355,9 @@ function Order({ isCompanyOrder = false }: OrderProps) {
               defaultValue: filterData?.endDateAt || null,
               pickerKey: 'end',
             }}
-            fiterMoreInfo={filterInfo}
+            filterMoreInfo={filterInfo}
             handleChange={handleChange}
-            handleFilterChange={handleFirterChange}
+            handleFilterChange={handleFilterChange}
             pcTotalWidth="100%"
             pcContainerWidth="100%"
             pcSearchContainerWidth="100%"
