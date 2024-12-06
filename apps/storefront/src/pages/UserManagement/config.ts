@@ -1,5 +1,7 @@
 import { LangFormatFunction } from '@b3/lang';
 
+import { CompanyInfoTypes } from '@/types';
+
 interface ExtraFieldsProps {
   fieldName: string;
   fieldValue: string | number;
@@ -17,7 +19,9 @@ interface UsersListItems {
   companyRoleId: number | string;
   updatedAt: number;
   extraFields: ExtraFieldsProps[];
-  [key: string]: string | null | number | ExtraFieldsProps[];
+  masqueradingCompanyId: number | string | null;
+  companyInfo: CompanyInfoTypes | null;
+  [key: string]: string | null | number | ExtraFieldsProps[] | CompanyInfoTypes;
 }
 
 interface FilterProps {

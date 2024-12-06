@@ -13,6 +13,7 @@ import isEmpty from 'lodash-es/isEmpty';
 import isEqual from 'lodash-es/isEqual';
 
 import { useMobile } from '@/hooks';
+import { useAppSelector } from '@/store';
 
 import { B3Table, TableColumnItem } from './B3Table';
 
@@ -96,6 +97,11 @@ function PaginationTable(
     offset: 0,
     first: rowsPerPageOptions[0],
   };
+
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+  const selectCompanyHierarchyIdCache = useRef(selectCompanyHierarchyId);
 
   const cache = useRef(null);
 
@@ -204,10 +210,16 @@ function PaginationTable(
   }, [fetchList, pagination]);
 
   useEffect(() => {
+    const isChangeCompany = +selectCompanyHierarchyIdCache.current !== +selectCompanyHierarchyId;
     if (!isEmpty(searchParams)) {
-      fetchList();
+      if (isChangeCompany) {
+        fetchList(pagination, true);
+        selectCompanyHierarchyIdCache.current = selectCompanyHierarchyId;
+      } else {
+        fetchList();
+      }
     }
-  }, [fetchList, searchParams]);
+  }, [fetchList, searchParams, selectCompanyHierarchyId, pagination]);
 
   useEffect(() => {
     if (getSelectCheckbox) getSelectCheckbox(selectCheckbox);
