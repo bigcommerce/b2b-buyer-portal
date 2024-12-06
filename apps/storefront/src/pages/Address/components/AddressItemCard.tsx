@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useB3Lang } from '@b3/lang';
 import styled from '@emotion/styled';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,8 +11,6 @@ import Typography from '@mui/material/Typography';
 
 import { B3Tag } from '@/components';
 import CustomButton from '@/components/button/CustomButton';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { AddressItemType } from '../../../types/address';
 
@@ -60,14 +57,6 @@ export function AddressItemCard(props: OrderItemCardProps) {
 
   const theme = useTheme();
   const b3Lang = useB3Lang();
-
-  const isEditCreateDeletePermission = useMemo(() => {
-    const { addressesActionsPermission } = b2bPermissionsList;
-    return verifyLevelPermission({
-      code: addressesActionsPermission,
-      companyId: +(addressInfo?.companyInfo?.companyId || 0),
-    });
-  }, [addressInfo]);
 
   return (
     <Card key={addressInfo.id}>
@@ -120,7 +109,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
         <Typography variant="body1">{`${addressInfo.city}, ${addressInfo.state} ${addressInfo.zipCode}, ${addressInfo.country}`}</Typography>
         <Typography variant="body1">{addressInfo.phoneNumber}</Typography>
 
-        {hasPermission && isEditCreateDeletePermission && (
+        {hasPermission && (
           <Flex>
             {!isBCPermission && (
               <CustomButton

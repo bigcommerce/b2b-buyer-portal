@@ -20,12 +20,13 @@ import {
 import {
   activeCurrencyInfoSelector,
   isB2BUserSelector,
+  rolePermissionSelector,
   TaxZoneRates,
   useAppSelector,
 } from '@/store';
 import { Currency } from '@/types';
 import { snackbar } from '@/utils';
-import { verifyCreatePermission, verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
@@ -104,23 +105,19 @@ function QuoteDetail() {
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
   );
 
+  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+
   useEffect(() => {
     if (!quoteDetail?.id) return;
 
-    const {
-      quoteConvertToOrderPermission: quoteCheckoutPermissionCode,
-      purchasabilityPermission: purchasabilityPermissionCode,
-    } = b2bPermissionsList;
+    const { quoteConvertToOrderPermission: quoteCheckoutPermissionCode } = b2bPermissionsList;
 
     const getPurchasabilityAndConvertToOrderPermission = () => {
       if (isB2BUser) {
         const companyId = quoteDetail?.companyId?.id || null;
         const userEmail = quoteDetail?.contactInfo?.email || '';
         return {
-          quotePurchasabilityPermission: verifyCreatePermission(
-            purchasabilityPermissionCode,
-            +selectCompanyHierarchyId,
-          ),
+          quotePurchasabilityPermission: purchasabilityPermission,
           quoteConvertToOrderPermission: verifyLevelPermission({
             code: quoteCheckoutPermissionCode,
             companyId,
@@ -142,7 +139,7 @@ function QuoteDetail() {
       quotePurchasabilityPermission,
       quoteConvertToOrderPermission,
     });
-  }, [isB2BUser, quoteDetail, selectCompanyHierarchyId]);
+  }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
   useEffect(() => {
     let oosErrorList = '';

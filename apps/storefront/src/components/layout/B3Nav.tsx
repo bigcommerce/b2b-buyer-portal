@@ -3,7 +3,6 @@ import { matchPath, useLocation, useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Badge, List, ListItem, ListItemButton, ListItemText, useTheme } from '@mui/material';
 
-import { PATH_ROUTES } from '@/constants';
 import { useMobile } from '@/hooks';
 import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
 import { GlobalContext } from '@/shared/global';
@@ -140,10 +139,6 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
         isHasCurrentPagePermission: isHasSubsidiariesCompanyPermission,
       }),
     );
-
-    if (!isHasSubsidiariesCompanyPermission && selectCompanyHierarchyId) {
-      navigate(PATH_ROUTES.COMPANY_HIERARCHY);
-    }
   }, [selectCompanyHierarchyId, globalState, navigate]);
 
   const newRoutes = useMemo(() => {

@@ -17,7 +17,10 @@
     "forgotpassword",
     "registeredbctob",
     "Variableed",
-    "COMPANYSUBSIDIARIES"
+    "COMPANYSUBSIDIARIES",
+    "Masqurade",
+    "Golbal",
+    "VARAIBLE"
   ],
   // flagWords - list of words to be always considered incorrect
   // This is useful for offensive words and common spelling errors.
