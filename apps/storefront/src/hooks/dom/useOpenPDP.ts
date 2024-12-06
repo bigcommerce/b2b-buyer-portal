@@ -10,13 +10,13 @@ import {
   splitCustomCssValue,
 } from '@/components/outSideComponents/utils/b3CustomStyles';
 import {
-  ADD_TO_SHOPPING_LIST_DEFUALT_VALUE,
+  ADD_TO_SHOPPING_LIST_DEFAULT_VALUE,
   TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
 } from '@/constants';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
-import { isB2BUserSelector, setGlabolCommonState, useAppDispatch, useAppSelector } from '@/store';
+import { isB2BUserSelector, setGlobalCommonState, useAppDispatch, useAppSelector } from '@/store';
 
 import useGetButtonText from '../useGetButtonText';
 import useRole from '../useRole';
@@ -45,7 +45,7 @@ export const addProductFromPage = ({
 }: AddProductFromPageParams) => {
   if (role === 100) {
     storeDispatch(
-      setGlabolCommonState({
+      setGlobalCommonState({
         globalMessage: {
           open: true,
           title: 'Registration',
@@ -122,7 +122,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
   const myShoppingListBtnLabel = useGetButtonText(
     TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE,
     text,
-    ADD_TO_SHOPPING_LIST_DEFUALT_VALUE,
+    ADD_TO_SHOPPING_LIST_DEFAULT_VALUE,
   );
 
   const cssInfo = splitCustomCssValue(customCss);

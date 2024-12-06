@@ -28,14 +28,14 @@ import {
   splitCustomCssValue,
 } from './utils/b3CustomStyles';
 
-interface B3MasquradeGobalTipProps {
+interface B3MasquradeGolbalTipProps {
   isOpen: boolean;
   setOpenPage: SetOpenPage;
 }
 
 const bottomHeightPage = ['shoppingList/', 'purchased-products'];
 
-export default function B3MasquradeGobalTip(props: B3MasquradeGobalTipProps) {
+export default function B3MasquradeGolbalTip(props: B3MasquradeGolbalTipProps) {
   const { isOpen, setOpenPage } = props;
   const dispatch = useAppDispatch();
   const customerId = useAppSelector(({ company }) => company.customer.id);

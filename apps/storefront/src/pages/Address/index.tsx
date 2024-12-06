@@ -13,7 +13,7 @@ import {
   getB2BCountries,
   getBCCustomerAddress,
 } from '@/shared/service/b2b';
-import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
+import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
@@ -55,8 +55,6 @@ function Address() {
     dispatch,
   } = useContext(GlobalContext);
 
-  const { addressesActionsPermission } = useAppSelector(rolePermissionSelector);
-
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
@@ -79,7 +77,7 @@ function Address() {
   let hasAdminPermission = false;
   let isBCPermission = false;
 
-  if (isB2BUser && (!role || (role === CustomerRole.SUPER_ADMIN && isAgenting))) {
+  if (isB2BUser && role === CustomerRole.SUPER_ADMIN && isAgenting) {
     hasAdminPermission = true;
   }
 
@@ -162,9 +160,7 @@ function Address() {
     paginationTableRef.current?.refresh();
   };
 
-  const [editPermission, setEditPermission] = useState(
-    isB2BUser ? addressesActionsPermission : false,
-  );
+  const [editPermission, setEditPermission] = useState(false);
   const [isOpenSetDefault, setIsOpenSetDefault] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>();
@@ -175,7 +171,16 @@ function Address() {
         setEditPermission(true);
         return;
       }
-      if (hasAdminPermission) {
+      const { addressesActionsPermission } = b2bPermissionsList;
+
+      const isCreatePermission = verifyCreatePermission(
+        addressesActionsPermission,
+        +selectCompanyHierarchyId,
+      );
+
+      console.log(isCreatePermission, 'isCreatePermission');
+
+      if (hasAdminPermission || isCreatePermission) {
         try {
           let configList = addressConfig;
           if (!configList) {
@@ -196,19 +201,22 @@ function Address() {
             (configList || []).find((config: AddressConfigItem) => config.key === 'address_book')
               ?.isEnabled === '1' &&
             (configList || []).find((config: AddressConfigItem) => config.key === key)
-              ?.isEnabled === '1' &&
-            addressesActionsPermission;
+              ?.isEnabled === '1';
 
           setEditPermission(editPermission);
         } catch (error) {
           b2bLogger.error(error);
         }
       }
+
+      if (!isCreatePermission) {
+        setEditPermission(false);
+      }
     };
     getEditPermission();
     // Disabling the next line as dispatch is not required to be in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addressConfig, hasAdminPermission, isBCPermission, role]);
+  }, [addressConfig, hasAdminPermission, isBCPermission, role, selectCompanyHierarchyId]);
 
   const handleCreate = () => {
     if (!editPermission) {
@@ -245,14 +253,8 @@ function Address() {
   };
 
   const AddButtonConfig = useMemo(() => {
-    const { addressesActionsPermission } = b2bPermissionsList;
-
-    const isCreatePermission = verifyCreatePermission(
-      addressesActionsPermission,
-      +selectCompanyHierarchyId,
-    );
     return {
-      isEnabled: editPermission && isCreatePermission,
+      isEnabled: editPermission,
       customLabel: b3Lang('addresses.addNewAddress'),
     };
 
