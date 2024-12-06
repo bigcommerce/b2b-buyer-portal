@@ -8,12 +8,23 @@ type CallbackEvent = {
 };
 
 type Callback = (event: CallbackEvent) => any;
+export type CallbackQueue = { event: B2BEvent; callback: Callback }[];
 
 export default class CallbackManager {
   callbacks: Map<B2BEvent, Callback[]>;
 
-  constructor() {
+  constructor(eventQueue: CallbackQueue | undefined = undefined) {
     this.callbacks = new Map<B2BEvent, Callback[]>();
+
+    // Initialize callback maps
+    eventQueue?.forEach((item) => {
+      if (!this.callbacks.has(item.event)) {
+        this.callbacks.set(item.event, [item.callback]);
+        return;
+      }
+
+      this.callbacks.get(item.event)?.push(item.callback);
+    });
   }
 
   /**

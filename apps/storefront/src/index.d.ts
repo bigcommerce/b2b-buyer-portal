@@ -39,6 +39,7 @@ declare interface Window {
   b2b: {
     initializationEnvironment: import('./load-functions').InitializationEnvironment;
     callbacks: import('@/utils/b3CallbackManager').default;
+    eventQueue: import('@/utils/b3CallbackManager').CallbackQueue;
     utils: {
       openPage: (page: import('./constants').HeadlessRoute) => void;
       quote: {

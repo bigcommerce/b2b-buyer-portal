@@ -56,7 +56,7 @@ const transformOptionSelectionsToAttributes = (items: LineItems[]) =>
 
 export type ProductMappedAttributes = ReturnType<typeof transformOptionSelectionsToAttributes>;
 
-const Manager = new CallbackManager();
+const Manager = new CallbackManager(window.b2b?.eventQueue);
 
 export default function HeadlessController({ setOpenPage }: HeadlessControllerProps) {
   const storeDispatch = useAppDispatch();
