@@ -509,7 +509,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             : (allPrice + allTaxPrice).toFixed(currency.decimal_places),
           grandTotal: allPrice.toFixed(currency.decimal_places),
           subtotal: allPrice.toFixed(currency.decimal_places),
-          companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
+          companyId: isB2BUser ? selectCompanyHierarchyId || companyB2BId || salesRepCompanyId : '',
           storeHash,
           quoteTitle,
           discount: '0.00',
