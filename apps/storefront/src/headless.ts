@@ -1,138 +1,97 @@
+import { getAPIBaseURL } from './shared/service/request/base';
 import b2bLogger from './utils/b3Logger';
+import { Environment } from './types';
 
-const { MODE: mode, VITE_LOCAL_GRAPHQL_ORIGIN } = import.meta.env;
-
+// cSpell:ignore storehash, channelid
 interface ScriptNodeChildren extends HTMLScriptElement {
   dataSrc?: string;
   crossorigin?: string | boolean;
 }
 
-interface GraphqlOriginProps {
-  development: string;
-  staging: string;
-  production: string;
-  tier1: string;
-}
+const BUYER_PORTAL_INJECTED_SCRIPT_CLASS = `buyer-portal-scripts-headless`;
 
-const graphqlOrigin: GraphqlOriginProps = {
-  development: VITE_LOCAL_GRAPHQL_ORIGIN,
-  staging: 'https://api-b2b.staging.zone',
-  production: 'https://api-b2b.bigcommerce.com',
-  tier1: 'https://api-b2b.bigcommerce.com',
-};
+async function init() {
+  const parseAndInsertStorefrontScripts = (storefrontScripts: string) => {
+    const b2bScriptDocument = new DOMParser().parseFromString(storefrontScripts, 'text/html');
+    const b2bScriptNodes = b2bScriptDocument.querySelectorAll('script');
 
-function init() {
-  const insertScript = (scriptString: string) => {
-    const doc = new DOMParser().parseFromString(scriptString, 'text/html');
-    const scriptNodes = doc.querySelectorAll('script');
-
-    if (scriptNodes.length) {
+    if (b2bScriptNodes.length > 0) {
       const body: HTMLBodyElement | null = document.querySelector('body');
 
-      const oldScriptNodes = document.querySelectorAll('.headless-buyerPortal-id');
-      if (oldScriptNodes.length > 0) {
-        oldScriptNodes.forEach((oldNode) => {
+      const existingBuyerPortalScriptNodes = document.querySelectorAll(
+        `script.${BUYER_PORTAL_INJECTED_SCRIPT_CLASS}`,
+      );
+      if (existingBuyerPortalScriptNodes.length > 0) {
+        existingBuyerPortalScriptNodes.forEach((oldNode) => {
           oldNode.parentNode?.removeChild(oldNode);
         });
       }
-      scriptNodes.forEach((node: ScriptNodeChildren, index: number) => {
-        const nodeInnerHTML = node?.innerHTML || '';
-        const nodeSrc = node?.src || '';
-        const dataSrc = node?.dataSrc || '';
-        const type = node?.type || '';
-        const crossorigin = node?.crossorigin || '';
-        const id = node?.id || '';
-        const scriptElement = document.createElement('script');
-        scriptElement.innerHTML = nodeInnerHTML;
-        scriptElement.className = 'headless-buyerPortal-id';
-        if (nodeSrc) scriptElement.setAttribute('src', nodeSrc);
-        if (dataSrc) scriptElement.setAttribute('data-src', dataSrc);
-        if (type) {
-          scriptElement.setAttribute('type', 'module');
-        } else if (index !== 0) {
-          scriptElement.noModule = true;
-        }
-        if (id) scriptElement.setAttribute('id', id);
 
-        if (crossorigin) scriptElement.setAttribute('crossorigin', 'true');
+      b2bScriptNodes.forEach((scriptNode: ScriptNodeChildren) => {
+        const newScriptElement = document.createElement('script');
+        newScriptElement.outerHTML = scriptNode.outerHTML;
+        newScriptElement.className = BUYER_PORTAL_INJECTED_SCRIPT_CLASS;
 
         if (body) {
-          body.appendChild(scriptElement);
+          body.appendChild(newScriptElement);
         }
       });
     }
   };
 
-  async function getScriptContent(originUrl: string) {
-    const params: {
-      siteUrl: string;
-      storehash: string;
-      channelId: string | number;
-    } = {
-      siteUrl: originUrl,
-      storehash: '',
-      channelId: '',
-    };
-    const node: HTMLElement | null = document.querySelector(
+  async function getScriptContent(originUrl: string): Promise<string> {
+    const headlessScriptNode: HTMLElement | null = document.querySelector(
       'script[data-storehash][data-channelid]',
     );
-    if (node?.dataset) {
-      const data = node.dataset;
-      params.storehash = data.storehash || '';
-      params.channelId = data.channelid || '';
-    }
-    const data = {
-      query: `
-        {
-          storefrontScript(
-            storeHash: "${params.storehash}"
-            channelId: ${params.channelId}
-            siteUrl: "${params.siteUrl}"
-          ) {
-            script
-            storeHash
-            channelId
-          }
-        }`,
+    const params: {
+      siteUrl: string;
+      storeHash: string;
+      channelId: string;
+      environment: Environment;
+    } = {
+      siteUrl: originUrl,
+      storeHash: headlessScriptNode?.dataset?.storehash ?? '',
+      channelId: headlessScriptNode?.dataset?.channelid ?? '',
+      environment:
+        (headlessScriptNode?.dataset?.environment as Environment) ?? Environment.Production,
     };
-    const init = {
+    const response = await fetch(`${getAPIBaseURL(params.environment)}/graphql`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
       },
-      body: JSON.stringify(data),
-    };
-    fetch(`${graphqlOrigin[mode as keyof typeof graphqlOrigin]}/graphql`, init)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        const {
-          data: { storefrontScript },
-        } = data;
-        insertScript(storefrontScript.script);
-      })
-      .catch((error) => {
-        b2bLogger.error('There was a problem with the fetch operation:', error);
-      });
-  }
+      body: JSON.stringify({
+        query: `
+          {
+            storefrontScript(
+              storeHash: "${params.storeHash}"
+              channelId: ${params.channelId}
+              siteUrl: "${params.siteUrl}"
+            ) {
+              script
+              storeHash
+              channelId
+            }
+          }`,
+      }),
+    });
 
-  async function analyzeScript() {
-    try {
-      const { origin } = window.location;
-
-      await getScriptContent(origin);
-    } catch (error) {
-      b2bLogger.error('Interface error');
+    if (!response.ok) {
+      throw new Error('network error');
     }
+
+    const {
+      data: { storefrontScript },
+    } = await response.json();
+    return storefrontScript.script;
   }
 
-  analyzeScript();
+  const scriptContent = await getScriptContent(window.location.origin);
+  parseAndInsertStorefrontScripts(scriptContent);
 }
 
-init();
+init().catch((error) => {
+  b2bLogger.error('headless buyer portal initialization failed', error);
+});
 
 export {};
