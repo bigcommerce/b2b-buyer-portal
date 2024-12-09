@@ -178,8 +178,6 @@ function Address() {
         +selectCompanyHierarchyId,
       );
 
-      console.log(isCreatePermission, 'isCreatePermission');
-
       if (hasAdminPermission || isCreatePermission) {
         try {
           let configList = addressConfig;
