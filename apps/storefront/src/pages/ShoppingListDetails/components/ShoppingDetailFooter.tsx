@@ -26,7 +26,7 @@ import {
   validProductQty,
 } from '@/utils/b3Product/b3Product';
 import {
-  addlineItems,
+  addLineItems,
   conversionProductsList,
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
@@ -244,7 +244,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       );
 
       if (validateSuccessArr.length !== 0) {
-        const lineItems = addlineItems(validateSuccessArr);
+        const lineItems = addLineItems(validateSuccessArr);
         const deleteCartObject = deleteCartData(cartEntityId);
         const cartInfo = await getCart();
         let res = null;

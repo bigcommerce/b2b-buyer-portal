@@ -62,7 +62,18 @@ const getShoppingList = ({
         products {
           totalCount,
         }
-        approvedFlag
+        approvedFlag,
+        companyInfo {
+          companyId,
+          companyName,
+          companyAddress,
+          companyCountry,
+          companyState,
+          companyCity,
+          companyZipCode,
+          phoneNumber,
+          bcId,
+        },
       }
     }
   }
@@ -85,6 +96,17 @@ const getShoppingListInfo = `shoppingList {
   totalDiscount,
   totalTax,
   isShowGrandTotal,
+  companyInfo {
+    companyId,
+    companyName,
+    companyAddress,
+    companyCountry,
+    companyState,
+    companyCity,
+    companyZipCode,
+    phoneNumber,
+    bcId,
+  },
 }`;
 
 const updateShoppingList = (
@@ -98,7 +120,9 @@ const updateShoppingList = (
   }
 }`;
 
-const createShoppingList = (fn: string) => `mutation($shoppingListData: ShoppingListsInputType!){
+const createShoppingList = (
+  fn: string,
+) => `mutation($shoppingListData: ShoppingListsCreateInputType!){
   ${fn}(
     shoppingListData: $shoppingListData
   ) {
@@ -178,6 +202,17 @@ const getShoppingListDetails = (data: CustomFieldItems) => `{
     channelId,
     channelName,
     approvedFlag,
+    companyInfo {
+      companyId,
+      companyName,
+      companyAddress,
+      companyCountry,
+      companyState,
+      companyCity,
+      companyZipCode,
+      phoneNumber,
+      bcId,
+    },
     products (
       offset: ${data.offset || 0}
       first: ${data.first || 100},

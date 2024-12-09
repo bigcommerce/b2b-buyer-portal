@@ -2,16 +2,16 @@ import { LangFormatFunction } from '@b3/lang';
 import format from 'date-fns/format';
 import isEmpty from 'lodash-es/isEmpty';
 
-import { AllOptionProps, ALlOptionValue, Product } from '@/types/products';
-import b2bLogger from '@/utils/b3Logger';
-
 import {
   BcCalculatedPrice,
+  CompanyInfoTypes,
   OptionValueProps,
   ShoppingListProductItem,
   ShoppingListSelectProductOption,
   SimpleObject,
-} from '../../../types';
+} from '@/types';
+import { AllOptionProps, ALlOptionValue, Product } from '@/types/products';
+import b2bLogger from '@/utils/b3Logger';
 
 export interface ShoppingListInfoProps {
   name: string;
@@ -24,6 +24,7 @@ export interface ShoppingListInfoProps {
   };
   customerInfo: CustomerInfoProps;
   isOwner: boolean;
+  companyInfo: CompanyInfoTypes;
 }
 
 export interface CustomerInfoProps {
@@ -57,10 +58,10 @@ export interface ProductInfoProps {
   variantId: number;
   variantSku: string;
   productsSearch: CustomFieldItems;
-  picklistIds?: number[];
+  pickListIds?: number[];
   modifierPrices?: ModifierPrices[];
   baseAllPrice?: number | string;
-  baseAllPricetax?: number | string;
+  baseAllPriceTax?: number | string;
   currentProductPrices?: BcCalculatedPrice;
   extraProductPrices?: BcCalculatedPrice[];
   [key: string]: any;
@@ -540,7 +541,7 @@ interface AllOptionsProps {
   type: string;
 }
 
-export const addlineItems = (products: ProductsProps[]) => {
+export const addLineItems = (products: ProductsProps[]) => {
   const lineItems = products.map((item: ProductsProps) => {
     const { node } = item;
 

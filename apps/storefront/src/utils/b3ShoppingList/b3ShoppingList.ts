@@ -1,4 +1,5 @@
 import { createB2BShoppingList, createBcShoppingList } from '@/shared/service/b2b';
+import { store } from '@/store';
 
 import { getB3PermissionsList } from '../b3RolePermissions';
 import { channelId } from '../basicConfig';
@@ -19,7 +20,9 @@ CreateShoppingListParams) => {
 
   if (isB2BUser) {
     const { submitShoppingListPermission } = getB3PermissionsList();
+    const salesRepCompanyId = store.getState().b2bFeatures?.masqueradeCompany?.id || 0;
     createShoppingData.status = submitShoppingListPermission ? 30 : 0;
+    createShoppingData.companyId = salesRepCompanyId;
   } else {
     createShoppingData.channelId = channelId;
   }

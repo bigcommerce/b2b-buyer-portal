@@ -1,5 +1,7 @@
 import { LangFormatFunction } from '@b3/lang';
 
+import { CompanyInfoTypes } from '@/types';
+
 export interface ShoppingListSearch {
   search?: string;
   createdBy?: string;
@@ -36,6 +38,8 @@ export interface ShoppingListsItemsProps {
   channelId: number;
   approvedFlag: boolean;
   isOwner: boolean;
+  companyInfo: CompanyInfoTypes | null;
+  companyId?: number;
 }
 
 export interface GetFilterMoreListProps {
