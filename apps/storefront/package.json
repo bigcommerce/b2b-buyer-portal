@@ -14,8 +14,8 @@
     "lint:dependencies": "depcruise --config .dependency-cruiser.cjs . --output-type err-long",
     "format": "yarn lint --fix",
     "preview": "vite preview",
-    "test": "vitest",
-    "coverage": "vitest --coverage",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
     "generate": "graphql-codegen",
     "generate:local": "CODEGEN_ENV=local graphql-codegen",
     "start": "http-server ./dist --cors"
