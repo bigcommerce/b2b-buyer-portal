@@ -14,14 +14,10 @@ import {
 import { useAppSelector } from '@/store';
 
 interface B2BAutoCompleteCheckboxProps {
-  companyIds: number[];
   handleChangeCompanyIds: (companyIds: number[]) => void;
 }
 
-function B2BAutoCompleteCheckbox({
-  companyIds,
-  handleChangeCompanyIds,
-}: B2BAutoCompleteCheckboxProps) {
+function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteCheckboxProps) {
   const b3Lang = useB3Lang();
   const { id: currentCompanyId, companyName } = useAppSelector(
     ({ company }) => company.companyInfo,
@@ -32,6 +28,9 @@ function B2BAutoCompleteCheckbox({
   const [isCheckedAll, setIsCheckedAll] = useState<boolean>(false);
   const [companyNames, setCompanyNames] = useState<string[]>([companyName]);
 
+  const [companyIds, setCompanyIds] = useState<number[]>([
+    +selectCompanyHierarchyId || +currentCompanyId,
+  ]);
   const newCompanyHierarchyList = useMemo(() => {
     const allCompany = {
       companyId: -1,
@@ -82,7 +81,15 @@ function B2BAutoCompleteCheckbox({
       }
     }
 
-    handleChangeCompanyIds(selectCompanies);
+    setCompanyIds(selectCompanies);
+    let selectedCompanyIds = selectCompanies;
+    if (selectCompanyHierarchyId && selectCompanies.includes(-1)) {
+      selectedCompanyIds = [];
+      companyHierarchySelectSubsidiariesList.forEach(({ companyId }: { companyId: number }) => {
+        selectedCompanyIds.push(companyId);
+      });
+    }
+    handleChangeCompanyIds(selectedCompanyIds);
   };
 
   useEffect(() => {

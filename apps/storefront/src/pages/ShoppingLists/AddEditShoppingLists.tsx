@@ -31,7 +31,9 @@ function AddEditShoppingLists(
   ref: Ref<unknown> | undefined,
 ) {
   const b2bPermissions = useAppSelector(rolePermissionSelector);
-  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
   const [open, setOpen] = useState<boolean>(false);
   const [type, setType] = useState<string>('');
 
@@ -92,14 +94,14 @@ function AddEditShoppingLists(
           successTip = b3Lang('shoppingLists.updateSuccess');
         } else if (type === 'dup') {
           fn = isB2BUser ? duplicateB2BShoppingList : duplicateBcShoppingList;
-          if (salesRepCompanyId) {
-            params.companyId = salesRepCompanyId;
-          }
           params.sampleShoppingListId = editData?.id || 0;
           successTip = b3Lang('shoppingLists.duplicateSuccess');
         } else if (type === 'add') {
           if (isB2BUser) {
             const { submitShoppingListPermission } = b2bPermissions;
+            if (selectCompanyHierarchyId) {
+              params.companyId = +selectCompanyHierarchyId;
+            }
             params.status = submitShoppingListPermission ? 30 : 0;
           } else {
             params.channelId = channelId;

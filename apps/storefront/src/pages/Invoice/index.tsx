@@ -112,9 +112,6 @@ function Invoice() {
 
   const [filterChangeFlag, setFilterChangeFlag] = useState(false);
   const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([]);
-  const [companyIds, setCompanyIds] = useState<number[]>([
-    +selectCompanyHierarchyId || +currentCompanyId,
-  ]);
   const [selectAllPay, setSelectAllPay] = useState<boolean>(invoicePayPermission);
 
   const { invoicePayPermission: invoiceSubPayPermission } = getB3PermissionsList([
@@ -360,7 +357,7 @@ function Invoice() {
   useEffect(() => {
     const newInitFilter = {
       ...initFilter,
-      companyIds,
+      companyIds: [+selectCompanyHierarchyId || +currentCompanyId],
     };
     if (location?.search) {
       const params = new URLSearchParams(location.search);
@@ -394,8 +391,6 @@ function Invoice() {
 
   const handleSelectCompanies = (company: number[]) => {
     const newCompanyIds = company.includes(-1) ? [] : company;
-    setCompanyIds(company);
-
     setFilterData({
       ...filterData,
       companyIds: newCompanyIds,
@@ -830,10 +825,7 @@ function Invoice() {
           >
             {isEnabledCompanyHierarchy && invoiceSubViewPermission && (
               <Box sx={{ mr: '10px', mb: '30px' }}>
-                <B2BAutoCompleteCheckbox
-                  handleChangeCompanyIds={handleSelectCompanies}
-                  companyIds={companyIds}
-                />
+                <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleSelectCompanies} />
               </Box>
             )}
             <B3Filter

@@ -97,9 +97,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [filterInfo, setFilterInfo] = useState<Array<any>>([]);
 
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
-  const [companyIds, setCompanyIds] = useState<Array<any>>([
-    +selectCompanyHierarchyId || +currentCompanyId,
-  ]);
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortKeys,
@@ -111,7 +108,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser);
     if (isB2BUser) {
-      search.companyIds = companyIds;
+      search.companyIds = [+selectCompanyHierarchyId || +currentCompanyId];
     }
     setFilterData(search);
     if (role === 100) return;
@@ -308,7 +305,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const handleSelectCompanies = (company: number[]) => {
     const newCompanyIds = company.includes(-1) ? [] : company;
-    setCompanyIds(company);
 
     setFilterData({
       ...filterData,
@@ -336,10 +332,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
         >
           {isEnabledCompanyHierarchy && orderSubViewPermission && (
             <Box sx={{ mr: '10px', mb: '30px' }}>
-              <B2BAutoCompleteCheckbox
-                handleChangeCompanyIds={handleSelectCompanies}
-                companyIds={companyIds}
-              />
+              <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleSelectCompanies} />
             </Box>
           )}
           <B3Filter

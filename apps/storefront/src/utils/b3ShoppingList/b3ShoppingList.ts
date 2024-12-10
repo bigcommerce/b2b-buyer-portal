@@ -20,9 +20,10 @@ CreateShoppingListParams) => {
 
   if (isB2BUser) {
     const { submitShoppingListPermission } = getB3PermissionsList();
-    const salesRepCompanyId = store.getState().b2bFeatures?.masqueradeCompany?.id || 0;
+    const selectCompanyHierarchyId =
+      store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0;
     createShoppingData.status = submitShoppingListPermission ? 30 : 0;
-    createShoppingData.companyId = salesRepCompanyId;
+    createShoppingData.companyId = selectCompanyHierarchyId;
   } else {
     createShoppingData.channelId = channelId;
   }

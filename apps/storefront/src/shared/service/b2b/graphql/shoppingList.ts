@@ -9,6 +9,7 @@ interface ShoppingListParams {
   description: string;
   status: number;
   channelId: number;
+  companyId: number;
 }
 
 const getStatus = (status: any): string => {
@@ -498,6 +499,7 @@ export const createB2BShoppingList = (data: Partial<ShoppingListParams>) =>
     query: createShoppingList('shoppingListsCreate'),
     variables: {
       shoppingListData: {
+        companyId: data.companyId,
         name: data.name,
         description: data.description,
         status: data.status,

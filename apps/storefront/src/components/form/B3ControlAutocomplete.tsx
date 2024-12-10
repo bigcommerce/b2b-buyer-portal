@@ -57,12 +57,12 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
   });
   useEffect(() => {
     if (nameKey) {
-      setInputValue(getValues()[nameKey as string]);
+      setInputValue(getValues()[inputNameKey as string] || '');
     } else {
       setInputValue('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nameKey]);
+  }, [nameKey, inputNameKey]);
 
   const muiAttributeProps = muiSelectProps || {};
 
