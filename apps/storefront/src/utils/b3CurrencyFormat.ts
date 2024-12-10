@@ -14,7 +14,7 @@ interface MoneyFormat {
 
 export const currencyFormatInfo = () => {
   const currentCurrency =
-    import.meta.env.VITE_LOCAL_DEBUG === 'TRUE'
+    import.meta.env.VITE_IS_LOCAL_ENVIRONMENT === 'TRUE'
       ? getDefaultCurrencyInfo()
       : getActiveCurrencyInfo();
 

@@ -1,9 +1,13 @@
-export const { store_hash: storeHash, channel_id: channelId, platform } = window.B3.setting;
+export const {
+  store_hash: storeHash,
+  channel_id: channelId,
+  platform = 'custom',
+} = window.B3.setting;
 
-const { VITE_LOCAL_DEBUG } = import.meta.env;
+const { VITE_IS_LOCAL_ENVIRONMENT } = import.meta.env;
 
 const generateBcStorefrontAPIBaseUrl = () => {
-  if (VITE_LOCAL_DEBUG === 'TRUE') return '/bigcommerce';
+  if (VITE_IS_LOCAL_ENVIRONMENT === 'TRUE') return '/bigcommerce';
   if (platform === 'bigcommerce') return window.origin;
   if (channelId === 1) return `https://store-${storeHash}.mybigcommerce.com`;
 

@@ -17,7 +17,7 @@ const ENVIRONMENT_B2B_APP_CLIENT_ID: EnvSpecificConfig<string> = {
 // cspell:enable
 
 const DEFAULT_ENVIRONMENT =
-  import.meta.env.VITE_DEFAULT_TO_LOCAL === 'TRUE' ? Environment.Local : Environment.Production;
+  import.meta.env.VITE_IS_LOCAL_ENVIRONMENT === 'TRUE' ? Environment.Local : Environment.Production;
 
 export function getAPIBaseURL(environment: Environment = DEFAULT_ENVIRONMENT) {
   return ENVIRONMENT_B2B_API_URL[environment];
