@@ -38,15 +38,4 @@ enum RequestType {
   TranslationService = 'TranslationService',
 }
 
-export type RequestTypeKeys = keyof typeof RequestType;
-
-const queryParse = <T>(query: T): string => {
-  let queryText = '';
-
-  Object.keys(query || {}).forEach((key: string) => {
-    queryText += `${key}=${(query as any)[key]}&`;
-  });
-  return queryText.slice(0, -1);
-};
-
-export { B2B_API_BASE_URL, B2B_APP_CLIENT_ID, queryParse, RequestType };
+export { B2B_API_BASE_URL, B2B_APP_CLIENT_ID, RequestType };
