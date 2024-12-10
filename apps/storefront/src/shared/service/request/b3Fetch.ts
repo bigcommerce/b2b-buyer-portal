@@ -3,10 +3,10 @@ import Cookies from 'js-cookie';
 import { store } from '@/store';
 import { BigCommerceStorefrontAPIBaseURL, channelId, snackbar, storeHash } from '@/utils';
 
-import { B2B_API_BASE_URL, queryParse, RequestType, RequestTypeKeys } from './base';
+import { B2B_API_BASE_URL, RequestType } from './base';
 import b3Fetch from './fetch';
 
-const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
+const GraphqlEndpointsFn = (type: RequestType): string => {
   const GraphqlEndpoints: CustomFieldStringItems = {
     B2BGraphql: `${B2B_API_BASE_URL}/graphql`,
     BCGraphql: `${BigCommerceStorefrontAPIBaseURL}/graphql`,
@@ -16,7 +16,7 @@ const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
   return GraphqlEndpoints[type] || '';
 };
 
-function request(path: string, config?: RequestInit, type?: RequestTypeKeys) {
+function request(path: string, config?: RequestInit, type?: RequestType) {
   const url = RequestType.B2BRest === type ? `${B2B_API_BASE_URL}${path}` : path;
   const { B2BToken } = store.getState().company.tokens;
   const getToken: HeadersInit =
@@ -44,7 +44,7 @@ function request(path: string, config?: RequestInit, type?: RequestTypeKeys) {
   return b3Fetch(url, init);
 }
 
-function graphqlRequest<T, Y>(type: RequestTypeKeys, data: T, config?: Y) {
+function graphqlRequest<T, Y>(type: RequestType, data: T, config?: Y) {
   const init = {
     method: 'POST',
     headers: {
@@ -138,10 +138,10 @@ const B3Request = {
 
     return graphqlRequest(RequestType.BCProxyGraphql, data, config);
   },
-  get: function get<T, Y>(url: string, type: RequestTypeKeys, data?: T, config?: Y): Promise<any> {
+  get: function get<T, Y>(url: string, type: RequestType, data?: T, config?: Y): Promise<any> {
     if (data) {
-      const params = queryParse(data);
-      return request(`${url}?${params}`, {
+      const params = new URLSearchParams(data);
+      return request(`${url}?${params.toString()}`, {
         method: 'GET',
         ...config,
       });
@@ -154,7 +154,7 @@ const B3Request = {
       type,
     );
   },
-  post: function post<T>(url: string, type: RequestTypeKeys, data: T): Promise<any> {
+  post: function post<T>(url: string, type: RequestType, data: T): Promise<any> {
     return request(
       url,
       {
@@ -167,7 +167,7 @@ const B3Request = {
       type,
     );
   },
-  put: function put<T>(url: string, type: RequestTypeKeys, data: T): Promise<any> {
+  put: function put<T>(url: string, type: RequestType, data: T): Promise<any> {
     return request(
       url,
       {
@@ -180,7 +180,7 @@ const B3Request = {
       type,
     );
   },
-  delete: function deleteFn(url: string, type: RequestTypeKeys): Promise<any> {
+  delete: function deleteFn(url: string, type: RequestType): Promise<any> {
     return request(
       url,
       {
