@@ -2,9 +2,8 @@ import { createSelector } from '@reduxjs/toolkit';
 
 import { RootState } from '@/store';
 import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
-import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
-import { checkEveryPermissionsCode } from '@/utils/b3CheckPermissions/permission';
-import { B2BPermissionParams, b2bPermissionsList } from '@/utils/b3RolePermissions/config';
+import { getCorrespondsConfigurationPermission } from '@/utils/b3CheckPermissions/check';
+import { B2BPermissionParams } from '@/utils/b3RolePermissions/config';
 
 import { defaultCurrenciesState } from './slices/storeConfigs';
 
@@ -58,44 +57,10 @@ interface OptionList {
   optionValue: string;
 }
 
-const pdpButtonAndOthersPermission = [
-  'purchasabilityPermission',
-  'quotesActionsPermission',
-  'shoppingListActionsPermission',
-];
-
 export const rolePermissionSelector = createSelector(
   companySelector,
   ({ permissions, companyHierarchyInfo: { selectCompanyHierarchyId } }): B2BPermissionParams => {
-    const keys = Object.keys(b2bPermissionsList);
-
-    const newB3PermissionsList: Record<string, string> = b2bPermissionsList;
-
-    return keys.reduce((acc, cur: string) => {
-      const param = {
-        code: newB3PermissionsList[cur],
-      };
-
-      const item = checkEveryPermissionsCode(param, permissions);
-
-      if (pdpButtonAndOthersPermission.includes(cur)) {
-        const isPdpButtonAndOthersPermission = verifyCreatePermission(
-          newB3PermissionsList[cur],
-          +selectCompanyHierarchyId,
-        );
-
-        return {
-          ...acc,
-          [cur]: isPdpButtonAndOthersPermission,
-        };
-      }
-
-      return {
-        ...acc,
-        [cur]: item,
-      };
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    }, {} as B2BPermissionParams);
+    return getCorrespondsConfigurationPermission(permissions, +selectCompanyHierarchyId);
   },
 );
 
