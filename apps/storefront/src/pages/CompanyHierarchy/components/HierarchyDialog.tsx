@@ -110,6 +110,8 @@ function HierarchyDialog({
         const route = PAGES_SUBSIDIARIES_PERMISSION_KEYS.find((item) => item.key === key);
 
         if (route) {
+          handleClose();
+          setLoading(false);
           navigate(route.path);
         }
       }
