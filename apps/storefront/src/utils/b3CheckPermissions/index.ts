@@ -67,7 +67,7 @@ export const verifyCreatePermission = (code: string, selectId?: number): boolean
   return verifyCompanyLevelPermissionByCode({
     code,
     containOrEqual: 'contain',
-    level: selectCompanyHierarchyId ? permissionLevels.COMPANYSUBSIDIARIES : permissionLevels.USER,
+    level: selectCompanyHierarchyId ? permissionLevels.COMPANY_SUBSIDIARIES : permissionLevels.USER,
   });
 };
 
@@ -105,7 +105,7 @@ export const verifyLevelPermission = ({
   const customerEmail = customer?.emailAddress;
 
   switch (permissionLevel) {
-    case permissionLevels.COMPANYSUBSIDIARIES:
+    case permissionLevels.COMPANY_SUBSIDIARIES:
       return true;
     case permissionLevels.COMPANY:
       return +companyId === +currentCompanyId;

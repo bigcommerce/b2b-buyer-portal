@@ -117,7 +117,7 @@ function Invoice() {
   const { invoicePayPermission: invoiceSubPayPermission } = getB3PermissionsList([
     {
       permissionType: 'invoicePayPermission',
-      permissionLevel: permissionLevels.COMPANYSUBSIDIARIES,
+      permissionLevel: permissionLevels.COMPANY_SUBSIDIARIES,
     },
   ]);
 

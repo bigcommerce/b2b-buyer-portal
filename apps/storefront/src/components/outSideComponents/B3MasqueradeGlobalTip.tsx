@@ -28,14 +28,14 @@ import {
   splitCustomCssValue,
 } from './utils/b3CustomStyles';
 
-interface B3MasquradeGolbalTipProps {
+interface B3MasqueradeGlobalTipProps {
   isOpen: boolean;
   setOpenPage: SetOpenPage;
 }
 
 const bottomHeightPage = ['shoppingList/', 'purchased-products'];
 
-export default function B3MasquradeGolbalTip(props: B3MasquradeGolbalTipProps) {
+export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps) {
   const { isOpen, setOpenPage } = props;
   const dispatch = useAppDispatch();
   const customerId = useAppSelector(({ company }) => company.customer.id);
@@ -82,7 +82,7 @@ export default function B3MasquradeGolbalTip(props: B3MasquradeGolbalTipProps) {
     if (isOpen) {
       setOpenPage({
         isOpen: true,
-        openUrl: '/dashboard?closeMasqurade=1',
+        openUrl: '/dashboard?closeMasquerade=1',
       });
     } else {
       if (typeof b2bId === 'number') {

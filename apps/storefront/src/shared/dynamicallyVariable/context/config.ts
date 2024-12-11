@@ -56,6 +56,6 @@ export interface DynamicallyVariableContext {
   dispatch: DispatchProps;
 }
 
-export interface DynamicallyVariableedProviderProps {
+export interface DynamicallyVariedProviderProps {
   children: ReactNode;
 }

@@ -4,7 +4,7 @@ import { useB3Lang } from '@b3/lang';
 import { Box, useMediaQuery } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
-import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
+import { DynamicallyVariedContext } from '@/shared/dynamicallyVariable';
 import { getIsTokenGotoPage, routes } from '@/shared/routes';
 import { useAppSelector } from '@/store';
 
@@ -39,7 +39,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
   const {
     state: { globalMessageDialog },
     dispatch,
-  } = useContext(DynamicallyVariableedContext);
+  } = useContext(DynamicallyVariedContext);
 
   const navigate = useNavigate();
 

@@ -16,12 +16,8 @@
     "purchasability",
     "forgotpassword",
     "registeredbctob",
-    "Variableed",
-    "COMPANYSUBSIDIARIES",
-    "Masqurade",
-    "Golbal",
-    "VARAIBLE",
-    "skus"
+    "skus",
+    "clickaway"
   ],
   // flagWords - list of words to be always considered incorrect
   // This is useful for offensive words and common spelling errors.

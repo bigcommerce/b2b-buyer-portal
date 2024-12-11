@@ -67,7 +67,7 @@ export const FINISH_QUOTE_DEFAULT_VALUE = 'Finish quote';
 export const TRANSLATION_ADD_TO_QUOTE_VARIABLE = 'global.customStyles.addQuoteBtn';
 export const TRANSLATION_FINISH_QUOTE_VARIABLE = 'global.customStyles.floatingAction';
 export const TRANSLATION_MASQUERADE_BUTTON_VARIABLE = 'global.customStyles.masqueradeButton';
-export const TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE = 'global.customStyles.shoppingListBtn';
+export const TRANSLATION_SHOPPING_LIST_BTN_VARIABLE = 'global.customStyles.shoppingListBtn';
 
 export const BROWSER_LANG = navigator.language.substring(0, 2);
 
@@ -77,7 +77,7 @@ export const CHECKOUT_URL = '/checkout';
 export const permissionLevels = {
   USER: 1,
   COMPANY: 2,
-  COMPANYSUBSIDIARIES: 3,
+  COMPANY_SUBSIDIARIES: 3,
 };
 
 export const PATH_ROUTES = {
