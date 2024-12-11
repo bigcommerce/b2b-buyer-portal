@@ -9,6 +9,13 @@ interface HandleVerifyPermissionCode {
   permissions: PermissionCodesProps[];
 }
 
+interface VerifyCompanyLevelPermissionProps {
+  level: number;
+  code?: string;
+  containOrEqual?: 'contain' | 'equal';
+  permissions: PermissionCodesProps[];
+}
+
 const handleVerifyPermissionCode = ({
   permission,
   permissionLevel,
@@ -47,6 +54,26 @@ export const checkPermissionCode = (
           permissions,
         }),
       );
+};
+
+export const verifyCompanyLevelPermission = ({
+  level = 0,
+  code = '',
+  containOrEqual = 'equal',
+  permissions = [],
+}: VerifyCompanyLevelPermissionProps) => {
+  if (!code) return false;
+  const getFirstCode = code.includes(',') ? code.split(',')[0].trim() : code;
+
+  const info = permissions.find((permission) => permission.code.includes(getFirstCode));
+
+  if (!info) return !!info;
+
+  const { permissionLevel = 0 } = info;
+
+  if (containOrEqual === 'equal') return permissionLevel === level;
+
+  return +permissionLevel >= +level;
 };
 
 export default checkPermissionCode;

@@ -1,5 +1,5 @@
-import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
-import { checkPermissionCode } from '@/utils/b3CheckPermissions/base';
+import { permissionLevels } from '@/constants';
+import { checkPermissionCode, verifyCompanyLevelPermission } from '@/utils/b3CheckPermissions/base';
 
 import { B2BPermissionParams, b2bPermissionsList } from '../b3RolePermissions/config';
 
@@ -30,10 +30,14 @@ export const getCorrespondsConfigurationPermission = (
     const item = checkPermissionCode(param, 'every', permissions || []);
 
     if (pdpButtonAndOthersPermission.includes(cur)) {
-      const isPdpButtonAndOthersPermission = verifyCreatePermission(
-        newB3PermissionsList[cur],
-        selectCompanyHierarchyId || 0,
-      );
+      const isPdpButtonAndOthersPermission = verifyCompanyLevelPermission({
+        code: newB3PermissionsList[cur],
+        containOrEqual: 'contain',
+        level: selectCompanyHierarchyId
+          ? permissionLevels.COMPANY_SUBSIDIARIES
+          : permissionLevels.USER,
+        permissions,
+      });
 
       return {
         ...acc,

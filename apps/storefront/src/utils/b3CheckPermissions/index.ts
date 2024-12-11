@@ -2,7 +2,7 @@ import { permissionLevels } from '@/constants';
 import { store } from '@/store';
 import { CustomerRole } from '@/types';
 
-import { checkPermissionCode } from './base';
+import { checkPermissionCode, verifyCompanyLevelPermission } from './base';
 
 interface PermissionCodesProps {
   code: string;
@@ -38,36 +38,36 @@ interface VerifyCompanyLevelPermissionByCodeProps {
   level: number;
   code?: string;
   containOrEqual?: 'contain' | 'equal';
+  permissions?: PermissionCodesProps[];
 }
 
 export const verifyCompanyLevelPermissionByCode = ({
   level = 0,
   code = '',
   containOrEqual = 'equal',
+  permissions = [],
 }: VerifyCompanyLevelPermissionByCodeProps): boolean => {
-  if (!code) return false;
+  const newPermissions =
+    permissions && permissions.length ? permissions : store.getState().company.permissions || [];
 
-  const getFirstCode = code.includes(',') ? code.split(',')[0].trim() : code;
-
-  const info = getPermissionsInfo(getFirstCode);
-
-  if (!info) return !!info;
-
-  const { permissionLevel = 0 } = info;
-
-  if (containOrEqual === 'equal') return permissionLevel === level;
-
-  return +permissionLevel >= +level;
+  return verifyCompanyLevelPermission({
+    level,
+    code,
+    containOrEqual,
+    permissions: newPermissions,
+  });
 };
 
-export const verifyCreatePermission = (code: string, selectId?: number): boolean => {
-  const selectCompanyHierarchyId =
-    selectId || store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0;
-
+export const verifyCreatePermission = (
+  code: string,
+  selectCompanyHierarchyId?: number,
+  permissions?: PermissionCodesProps[],
+): boolean => {
   return verifyCompanyLevelPermissionByCode({
     code,
     containOrEqual: 'contain',
     level: selectCompanyHierarchyId ? permissionLevels.COMPANY_SUBSIDIARIES : permissionLevels.USER,
+    permissions,
   });
 };
 
