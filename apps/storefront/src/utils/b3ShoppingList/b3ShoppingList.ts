@@ -23,7 +23,9 @@ CreateShoppingListParams) => {
     const selectCompanyHierarchyId =
       store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0;
     createShoppingData.status = submitShoppingListPermission ? 30 : 0;
-    createShoppingData.companyId = selectCompanyHierarchyId;
+    if (selectCompanyHierarchyId) {
+      createShoppingData.companyId = selectCompanyHierarchyId;
+    }
   } else {
     createShoppingData.channelId = channelId;
   }
