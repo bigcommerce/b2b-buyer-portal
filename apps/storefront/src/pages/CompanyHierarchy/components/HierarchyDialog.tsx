@@ -95,6 +95,13 @@ function HierarchyDialog({
         }),
       );
 
+      if (companyId === +currentCompanyId) {
+        const { hash } = window.location;
+        if (hash.includes('/shoppingList/')) {
+          navigate('/shoppingLists');
+        }
+      }
+
       if (companyId !== +currentCompanyId && !isHasCurrentPagePermission) {
         const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
           return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];

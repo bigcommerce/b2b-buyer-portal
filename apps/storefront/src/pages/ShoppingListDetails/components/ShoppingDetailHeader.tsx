@@ -10,6 +10,7 @@ import { useMobile } from '@/hooks';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
+import { verifyShoppingListUserAndSubsidiariesPermission } from '@/utils/b2bShoppingListCheckPermissions';
 import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
 import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
@@ -70,9 +71,8 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
         submitShoppingListPermission: submitShoppingListPermissionCode,
         approveShoppingListPermission: approveShoppingListPermissionCode,
       } = b2bPermissionsList;
-      const submitShoppingListPermissionLevel = verifyLevelPermission({
+      const submitShoppingListPermissionLevel = verifyShoppingListUserAndSubsidiariesPermission({
         code: submitShoppingListPermissionCode,
-        companyId: +(companyInfo?.companyId || 0),
         userId: +(customerInfo?.userId || 0),
       });
       const approveShoppingListPermissionLevel = verifyLevelPermission({
