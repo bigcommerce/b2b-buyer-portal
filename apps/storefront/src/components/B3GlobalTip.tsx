@@ -1,7 +1,7 @@
 import { lazy, useContext, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 
-import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
+import { DynamicallyVariedContext as DynamicallyVariedContext } from '@/shared/dynamicallyVariable';
 import { MsgsProps } from '@/shared/dynamicallyVariable/context/config';
 
 const B3Tip = lazy(() => import('./B3Tip'));
@@ -10,7 +10,7 @@ export default function B3GlobalTip() {
   const {
     state: { globalTipMessage },
     dispatch,
-  } = useContext(DynamicallyVariableedContext);
+  } = useContext(DynamicallyVariedContext);
 
   useEffect(() => {
     window.globalTipDispatch = dispatch;

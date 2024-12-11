@@ -7,7 +7,7 @@ import {
   initState,
 } from './config';
 
-export const DynamicallyVariableedContext = createContext<DynamicallyVariableContext>({
+export const DynamicallyVariedContext = createContext<DynamicallyVariableContext>({
   state: initState,
   dispatch: () => {},
 });

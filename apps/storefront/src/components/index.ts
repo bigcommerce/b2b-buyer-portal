@@ -13,7 +13,7 @@ export { default as GlobalDialog } from './extraTip/GlobalDialog';
 export * from './HeadlessController';
 export { B3PageMask, Loading, usePageMask } from './loading';
 export { default as B3HoverButton } from './outSideComponents/B3HoverButton';
-export { default as B3MasquradeGolbalTip } from './outSideComponents/B3MasquradeGolbalTip';
+export { default as B3MasqueradeGlobalTip } from './outSideComponents/B3MasqueradeGlobalTip';
 export { default as B3CompanyHierarchyExternalButton } from './outSideComponents/B3CompanyHierarchyExternalButton';
 export { default as RegisteredCloseButton } from './RegisteredCloseButton';
 export { default as B3NoData } from './table/B3NoData';
