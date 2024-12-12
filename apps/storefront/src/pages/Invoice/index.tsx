@@ -387,7 +387,7 @@ function Invoice() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location]);
+  }, [location, selectCompanyHierarchyId]);
 
   const handleSelectCompanies = (company: number[]) => {
     const newCompanyIds = company.includes(-1) ? [] : company;
@@ -910,6 +910,7 @@ function Invoice() {
           sortByFn={handleSetOrderBy}
           isSelectOtherPageCheckbox
           hover
+          isAutoRefresh={false}
           renderItem={(
             row: InvoiceList,
             index?: number,

@@ -158,7 +158,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     initFilter();
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectCompanyHierarchyId]);
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
     const { edges = [], totalCount } = isB2BUser

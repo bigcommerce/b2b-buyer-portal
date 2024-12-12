@@ -54,6 +54,7 @@ interface B3PaginationTableProps {
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
   pageType?: string;
+  isAutoRefresh?: boolean;
 }
 
 function PaginationTable(
@@ -90,6 +91,7 @@ function PaginationTable(
     sortByFn = () => {},
     orderBy = '',
     pageType = '',
+    isAutoRefresh = true,
   }: B3PaginationTableProps,
   ref?: Ref<unknown>,
 ) {
@@ -213,13 +215,13 @@ function PaginationTable(
     const isChangeCompany = +selectCompanyHierarchyIdCache.current !== +selectCompanyHierarchyId;
     if (!isEmpty(searchParams)) {
       if (isChangeCompany) {
-        fetchList(pagination, true);
+        if (isAutoRefresh) fetchList(pagination, true);
         selectCompanyHierarchyIdCache.current = selectCompanyHierarchyId;
       } else {
         fetchList();
       }
     }
-  }, [fetchList, searchParams, selectCompanyHierarchyId, pagination]);
+  }, [fetchList, searchParams, selectCompanyHierarchyId, pagination, isAutoRefresh]);
 
   useEffect(() => {
     if (getSelectCheckbox) getSelectCheckbox(selectCheckbox);
