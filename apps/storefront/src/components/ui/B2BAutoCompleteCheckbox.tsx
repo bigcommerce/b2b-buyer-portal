@@ -45,12 +45,20 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
     ];
   }, [companyHierarchyList, selectCompanyHierarchyId, companyHierarchySelectSubsidiariesList]);
 
+  useEffect(() => {
+    setCompanyIds([+selectCompanyHierarchyId || +currentCompanyId]);
+  }, [selectCompanyHierarchyId, currentCompanyId]);
+
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const { value } = event.target;
     const currentValues = typeof value === 'string' ? [value] : value;
     let selectCompanies: number[] = [];
     if (currentValues.includes('All')) {
-      if (companyNames.includes('All') && currentValues.length !== newCompanyHierarchyList.length) {
+      if (
+        companyNames.includes('All') &&
+        (currentValues.length !== newCompanyHierarchyList.length ||
+          (newCompanyHierarchyList.length === 2 && isCheckedAll))
+      ) {
         setIsCheckedAll(false);
         selectCompanies = [];
         newCompanyHierarchyList.forEach(
@@ -115,7 +123,9 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
     }
 
     setCompanyNames(newSelectedCompany);
-  }, [companyIds, selectCompanyHierarchyId, newCompanyHierarchyList, currentCompanyId]);
+    // ignore selectCompanyHierarchyId because it is not a value that must be monitored
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyIds, newCompanyHierarchyList, currentCompanyId]);
 
   const showName = useMemo(() => {
     if (companyNames.includes('All')) {
@@ -160,7 +170,11 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
               width: '220px',
             }}
           >
-            <Checkbox checked={companyNames.includes(company.companyName)} />
+            <Checkbox
+              checked={
+                companyNames.includes(company.companyName) && companyIds.includes(company.companyId)
+              }
+            />
             <ListItemText
               primary={company.companyName}
               title={company.companyName}
@@ -172,7 +186,8 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
                 },
               }}
             />
-            {companyNames.includes(company.companyName) && <Check />}
+            {companyNames.includes(company.companyName) &&
+              companyIds.includes(company.companyId) && <Check />}
           </MenuItem>
         ))}
       </Select>
