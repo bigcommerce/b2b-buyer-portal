@@ -64,7 +64,7 @@ Choose the channel where you wish to enable B2B functionality. Initially, B2B fe
 
 ### Step 4: Contact Us for Additional Support
 
-For assistance with activating the remote buyer portal or to inquire about multi-storefront support, which allows you to utilize B2B features across multiple channels, please reach out to our team at b2b@bigcommerce.com, or raise an issue right here in this repository.
+For assistance with activating the remote buyer portal or to inquire about multi-storefront support, which allows you to utilize B2B features across multiple channels, please reach out to support, or raise an issue right here in this repository.
 
 ## 🚀 Core Technologies
 
