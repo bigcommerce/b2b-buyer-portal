@@ -32,7 +32,7 @@ import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { channelId, storeHash } from './basicConfig';
 
-const { VITE_LOCAL_DEBUG } = import.meta.env;
+const { VITE_IS_LOCAL_ENVIRONMENT } = import.meta.env;
 
 interface ChannelIdProps {
   channelId: number;
@@ -58,7 +58,7 @@ export const getCurrentStoreInfo = (
 
   let store;
 
-  if (VITE_LOCAL_DEBUG) {
+  if (VITE_IS_LOCAL_ENVIRONMENT) {
     store = {
       channelId: 1,
       urls: [],

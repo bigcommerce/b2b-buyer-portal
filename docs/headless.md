@@ -3,9 +3,8 @@
 ## Running Project Locally
 
 1. Activate store channel in the Channels Manager
-2. For local debugging, set `VITE_LOCAL_DEBUG` to `false` in .env.
-3. Make sure that the buyer portal is running `yarn dev`
-4. Add the buyer portal scripts to your headless storefront files running locally
+2. Make sure that the buyer portal is running `yarn dev`
+3. Add the buyer portal scripts to your headless storefront files running locally
 
 - Script for the `<head>` tag
 
@@ -35,7 +34,6 @@
     setting: {
       store_hash: 'REPLACE_WITH_YOUR_STORE_HASH',
       channel_id: REPLACE_WITH_YOUR_CHANNEL_ID,
-      platform: 'headless',
     },
   }
 </script>
@@ -58,6 +56,7 @@ Building your buyer portal application requires you to run the `yarn build` comm
 
 Make sure that you have configured the following `.env` values correctly before building:
 
+- `VITE_IS_LOCAL_ENVIRONMENT`: Set this to `FALSE`
 - `VITE_ASSETS_ABSOLUTE_PATH`: Set this to the URL where the assets folder is hosted. **Note that this needs to be the absolute URL to the `/assets` folder location where the build will be served from in production.** Also please include the trailing `/`.
 
   For example, if you deploy the contents of the `dist` folder built by running `yarn build` and hosted it at https://my.custom.cdn/generated/b2b, the value you should put is https://my.custom.cdn/generated/b2b/assets/.
@@ -77,7 +76,6 @@ Once you have uploaded the contents of the `dist` folder to your hosting provide
     setting: {
       store_hash: 'REPLACE_WITH_YOUR_STORE_HASH',  
       channel_id: REPLACE_WITH_YOUR_CHANNEL_ID,
-      platform: 'headless',
     },
     'dom.checkoutRegisterParentElement': '#checkout-app',
     'dom.registerElement':
