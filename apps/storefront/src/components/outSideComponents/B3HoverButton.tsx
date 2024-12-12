@@ -3,7 +3,7 @@ import { Box, Button, Snackbar, SnackbarOrigin, SxProps } from '@mui/material';
 
 import {
   CHECKOUT_URL,
-  FINISH_QUOTE_DEFUALT_VALUE,
+  FINISH_QUOTE_DEFAULT_VALUE,
   TRANSLATION_FINISH_QUOTE_VARIABLE,
 } from '@/constants';
 import { useGetButtonText } from '@/hooks';
@@ -60,7 +60,7 @@ export default function B3HoverButton(props: B3HoverButtonProps) {
   const buttonText = useGetButtonText(
     TRANSLATION_FINISH_QUOTE_VARIABLE,
     text,
-    FINISH_QUOTE_DEFUALT_VALUE,
+    FINISH_QUOTE_DEFAULT_VALUE,
   );
 
   const defaultLocation: SnackbarOrigin = {

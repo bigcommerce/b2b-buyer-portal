@@ -14,7 +14,7 @@ import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } fr
 import { currencyFormat, snackbar } from '@/utils';
 import { setModifierQtyPrice } from '@/utils/b3Product/b3Product';
 import {
-  addlineItems,
+  addLineItems,
   getProductOptionsFields,
   ProductsProps,
 } from '@/utils/b3Product/shared/config';
@@ -191,9 +191,9 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     const newProduct: ProductsProps[] = [...products];
     newProduct[index].node.quantity = +value;
     newProduct[index].isValid = isValid;
-    const caculateProduct = await setModifierQtyPrice(newProduct[index].node, +value);
-    if (caculateProduct) {
-      (newProduct[index] as CustomFieldItems).node = caculateProduct;
+    const calculateProduct = await setModifierQtyPrice(newProduct[index].node, +value);
+    if (calculateProduct) {
+      (newProduct[index] as CustomFieldItems).node = calculateProduct;
       setValidateFailureProducts(newProduct);
     }
   };
@@ -220,7 +220,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     try {
       setLoading(true);
 
-      const lineItems = addlineItems(products);
+      const lineItems = addLineItems(products);
 
       const res = await callCart(lineItems);
 

@@ -40,7 +40,7 @@
         "src/pages/PDP/index.tsx",
         "src/pages/QuickOrder/components/QuickOrderCard.tsx",
         "src/pages/QuickOrder/components/QuickOrderPad.tsx",
-        "src/pages/QuickOrder/components/QuickorderTable.tsx",
+        "src/pages/QuickOrder/components/QuickOrderB2BTable.tsx",
         "src/pages/Registered/RegisterComplete.tsx",
         "src/pages/Registered/RegisteredAccount.tsx",
         "src/pages/Registered/RegisteredStep.tsx",

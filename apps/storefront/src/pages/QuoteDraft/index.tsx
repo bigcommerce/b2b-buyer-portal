@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
@@ -24,7 +24,6 @@ import {
   isB2BUserSelector,
   resetDraftQuoteInfo,
   resetDraftQuoteList,
-  rolePermissionSelector,
   setDraftQuoteInfo,
   setQuoteUserId,
   useAppDispatch,
@@ -33,7 +32,9 @@ import {
 import { AddressItemType, BCAddressItemType } from '@/types/address';
 import { BillingAddress, ContactInfoKeys, ShippingAddress } from '@/types/quotes';
 import { B3LStorage, channelId, snackbar, storeHash } from '@/utils';
+import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import { addQuoteDraftProducts, getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
+import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
 
@@ -124,11 +125,13 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const salesRepCompanyName = useAppSelector(
     ({ b2bFeatures }) => b2bFeatures.masqueradeCompany.companyName,
   );
-  const quoteinfo = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo);
+  const quoteInfo = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo);
   const currency = useAppSelector(activeCurrencyInfoSelector);
-  const b2bPermissions = useAppSelector(rolePermissionSelector);
   const quoteSubmissionResponseInfo = useAppSelector(
     ({ global }) => global.quoteSubmissionResponse,
+  );
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
   );
 
   const isEnableProduct = useAppSelector(
@@ -141,7 +144,16 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     },
   } = useContext(CustomStyleContext);
 
-  const quotesActionsPermission = isB2BUser ? b2bPermissions.quotesActionsPermission : true;
+  const quotesActionsPermission = useMemo(() => {
+    if (isB2BUser) {
+      return verifyCreatePermission(
+        b2bPermissionsList.quotesActionsPermission,
+        +selectCompanyHierarchyId,
+      );
+    }
+
+    return true;
+  }, [isB2BUser, selectCompanyHierarchyId]);
 
   const navigate = useNavigate();
 
@@ -185,60 +197,60 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         dispatch(setDraftQuoteInfo(newInfo));
       };
 
-      try {
-        const quoteInfo = cloneDeep(quoteinfo);
+      const info = cloneDeep(quoteInfo);
 
+      try {
         if (isB2BUser) {
           const companyId = companyB2BId || salesRepCompanyId;
           const {
             addresses: { edges: addressB2BList = [] },
           } = await getB2BCustomerAddresses(+companyId);
 
-          const shippingDefautAddress = addressB2BList.find(
+          const shippingDefaultAddress = addressB2BList.find(
             (item: B2BAddress) => item?.node?.isDefaultShipping === 1,
           );
-          const billingDefautAddress = addressB2BList.find(
+          const billingDefaultAddress = addressB2BList.find(
             (item: B2BAddress) => item?.node?.isDefaultBilling === 1,
           );
 
-          if (shippingDefautAddress && validateObject(quoteInfo, 'shippingAddress')) {
+          if (shippingDefaultAddress && validateObject(info, 'shippingAddress')) {
             const addressItem = {
-              label: shippingDefautAddress?.node?.label || '',
-              firstName: shippingDefautAddress?.node?.firstName || '',
-              lastName: shippingDefautAddress?.node?.lastName || '',
-              companyName: shippingDefautAddress?.node?.company || '',
-              country: shippingDefautAddress?.node?.countryCode || '',
-              address: shippingDefautAddress?.node?.addressLine1 || '',
-              apartment: shippingDefautAddress?.node?.addressLine2 || '',
-              city: shippingDefautAddress?.node?.city || '',
-              state: shippingDefautAddress?.node?.state || '',
-              zipCode: shippingDefautAddress?.node?.zipCode || '',
-              phoneNumber: shippingDefautAddress?.node?.phoneNumber || '',
-              addressId: shippingDefautAddress?.node?.id ? +shippingDefautAddress.node.id : 0,
+              label: shippingDefaultAddress?.node?.label || '',
+              firstName: shippingDefaultAddress?.node?.firstName || '',
+              lastName: shippingDefaultAddress?.node?.lastName || '',
+              companyName: shippingDefaultAddress?.node?.company || '',
+              country: shippingDefaultAddress?.node?.countryCode || '',
+              address: shippingDefaultAddress?.node?.addressLine1 || '',
+              apartment: shippingDefaultAddress?.node?.addressLine2 || '',
+              city: shippingDefaultAddress?.node?.city || '',
+              state: shippingDefaultAddress?.node?.state || '',
+              zipCode: shippingDefaultAddress?.node?.zipCode || '',
+              phoneNumber: shippingDefaultAddress?.node?.phoneNumber || '',
+              addressId: shippingDefaultAddress?.node?.id ? +shippingDefaultAddress.node.id : 0,
             };
 
-            quoteInfo.shippingAddress = addressItem as ShippingAddress;
+            info.shippingAddress = addressItem as ShippingAddress;
           }
           if (
-            billingDefautAddress &&
-            (!quoteInfo?.billingAddress || validateObject(quoteInfo, 'billingAddress'))
+            billingDefaultAddress &&
+            (!info?.billingAddress || validateObject(info, 'billingAddress'))
           ) {
             const addressItem = {
-              label: billingDefautAddress?.node?.label || '',
-              firstName: billingDefautAddress?.node?.firstName || '',
-              lastName: billingDefautAddress?.node?.lastName || '',
-              companyName: billingDefautAddress?.node?.company || '',
-              country: billingDefautAddress?.node?.countryCode || '',
-              address: billingDefautAddress?.node?.addressLine1 || '',
-              apartment: billingDefautAddress?.node?.addressLine2 || '',
-              city: billingDefautAddress?.node?.city || '',
-              state: billingDefautAddress?.node?.state || '',
-              zipCode: billingDefautAddress?.node?.zipCode || '',
-              phoneNumber: billingDefautAddress?.node?.phoneNumber || '',
-              addressId: billingDefautAddress?.node?.id ? +billingDefautAddress.node.id : 0,
+              label: billingDefaultAddress?.node?.label || '',
+              firstName: billingDefaultAddress?.node?.firstName || '',
+              lastName: billingDefaultAddress?.node?.lastName || '',
+              companyName: billingDefaultAddress?.node?.company || '',
+              country: billingDefaultAddress?.node?.countryCode || '',
+              address: billingDefaultAddress?.node?.addressLine1 || '',
+              apartment: billingDefaultAddress?.node?.addressLine2 || '',
+              city: billingDefaultAddress?.node?.city || '',
+              state: billingDefaultAddress?.node?.state || '',
+              zipCode: billingDefaultAddress?.node?.zipCode || '',
+              phoneNumber: billingDefaultAddress?.node?.phoneNumber || '',
+              addressId: billingDefaultAddress?.node?.id ? +billingDefaultAddress.node.id : 0,
             };
 
-            quoteInfo.billingAddress = addressItem as BillingAddress;
+            info.billingAddress = addressItem as BillingAddress;
           }
 
           setAddressList(addressB2BList);
@@ -252,16 +264,13 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           }));
           setAddressList(list);
         }
-        if (
-          quoteInfo &&
-          (!quoteInfo?.contactInfo || validateObject(quoteInfo, 'contactInfo')) &&
-          +role !== 100
-        ) {
-          setCustomInfo(quoteInfo);
-        } else if (quoteInfo) {
-          dispatch(setDraftQuoteInfo(quoteInfo));
-        }
       } finally {
+        if (info && (!info?.contactInfo || validateObject(info, 'contactInfo')) && +role !== 100) {
+          setCustomInfo(info);
+        } else if (info) {
+          dispatch(setDraftQuoteInfo(info));
+        }
+
         const quoteUserId = customer.b2bId || customer.id || 0;
         dispatch(setQuoteUserId(+quoteUserId));
 
@@ -275,23 +284,23 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   }, []);
 
   const getAddress = () => {
-    const addresssaveInfo = {
+    const addressSaveInfo = {
       shippingAddress,
       billingAddress,
     };
 
     if (billingRef?.current) {
-      addresssaveInfo.billingAddress = billingRef.current.getContactInfoValue();
+      addressSaveInfo.billingAddress = billingRef.current.getContactInfoValue();
     }
     if (shippingRef?.current) {
-      addresssaveInfo.shippingAddress = shippingRef.current.getContactInfoValue();
+      addressSaveInfo.shippingAddress = shippingRef.current.getContactInfoValue();
     }
 
-    return addresssaveInfo;
+    return addressSaveInfo;
   };
 
   const handleSaveInfoClick = async () => {
-    const saveInfo = cloneDeep(quoteinfo);
+    const saveInfo = cloneDeep(quoteInfo);
     if (contactInfoRef?.current) {
       const contactInfo = await contactInfoRef.current.getContactInfoValue();
       if (!contactInfo) return;
@@ -371,7 +380,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     async (dispatchOnQuoteCreateEvent) => {
       setLoading(true);
       try {
-        const info = cloneDeep(quoteinfo);
+        const info = cloneDeep(quoteInfo);
         const contactInfo = info?.contactInfo || {};
 
         const quoteTitle = contactInfo?.quoteTitle || '';
@@ -386,7 +395,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           return contactInfo && !!contactInfo[key as ContactInfoKeys];
         });
 
-        if (validateObject(quoteinfo, 'contactInfo') || !isComplete) {
+        if (validateObject(quoteInfo, 'contactInfo') || !isComplete) {
           snackbar.error(b3Lang('quoteDraft.addQuoteInfo'));
           return;
         }
@@ -465,9 +474,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               .filter((list: CustomFieldItems) => !!list.optionName) || [];
 
           const variants = node?.productsSearch?.variants;
-          let varantsItem;
+          let variantsItem;
           if (Array.isArray(variants)) {
-            varantsItem = variants.find((item) => item.sku === node.variantSku);
+            variantsItem = variants.find((item) => item.sku === node.variantSku);
           }
 
           allPrice += +(node?.basePrice || 0) * +(node?.quantity || 0);
@@ -481,7 +490,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             discount: '0.00',
             offeredPrice: (+(node?.basePrice || 0)).toFixed(currency.decimal_places),
             quantity: node.quantity,
-            variantId: varantsItem?.variant_id,
+            variantId: variantsItem?.variant_id,
             imageUrl: node.primaryImage,
             productName: node.productName,
             options: optionsList,
@@ -490,7 +499,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           return items;
         });
 
-        const fileList = getFileList(quoteinfo?.fileInfo || []);
+        const fileList = getFileList(quoteInfo?.fileInfo || []);
 
         const data = {
           message: newNote,
@@ -500,7 +509,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             : (allPrice + allTaxPrice).toFixed(currency.decimal_places),
           grandTotal: allPrice.toFixed(currency.decimal_places),
           subtotal: allPrice.toFixed(currency.decimal_places),
-          companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
+          companyId: isB2BUser ? selectCompanyHierarchyId || companyB2BId || salesRepCompanyId : '',
           storeHash,
           quoteTitle,
           discount: '0.00',
@@ -721,9 +730,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           {!isEdit && (
             <QuoteInfo
               status="Draft"
-              contactInfo={quoteinfo?.contactInfo}
-              shippingAddress={quoteinfo?.shippingAddress}
-              billingAddress={quoteinfo?.billingAddress || {}}
+              contactInfo={quoteInfo?.contactInfo}
+              shippingAddress={quoteInfo?.shippingAddress}
+              billingAddress={quoteInfo?.billingAddress || {}}
               handleEditInfoClick={handleEditInfoClick}
             />
           )}
@@ -731,7 +740,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             <Container flexDirection="column">
               <ContactInfo
                 emailAddress={customer.emailAddress}
-                info={quoteinfo?.contactInfo}
+                info={quoteInfo?.contactInfo}
                 ref={contactInfoRef}
               />
               <Box
@@ -743,7 +752,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               >
                 <QuoteAddress
                   title={b3Lang('quoteDraft.section.billing')}
-                  info={quoteinfo?.billingAddress}
+                  info={quoteInfo?.billingAddress}
                   addressList={addressList}
                   pr={isMobile ? 0 : '8px'}
                   ref={billingRef}
@@ -755,7 +764,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
                 />
                 <QuoteAddress
                   title={b3Lang('quoteDraft.section.shipping')}
-                  info={quoteinfo?.shippingAddress}
+                  info={quoteInfo?.shippingAddress}
                   addressList={addressList}
                   pl={isMobile ? 0 : '8px'}
                   ref={shippingRef}

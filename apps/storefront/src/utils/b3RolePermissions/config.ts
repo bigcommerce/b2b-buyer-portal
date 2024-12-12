@@ -19,6 +19,7 @@ export const b2bPermissionsList = {
   invoicePayPermission: 'pay_invoice',
   /* cspell:disable-next-line */
   purchasabilityPermission: 'purchase_enable',
+  companyHierarchyPermission: 'get_company_subsidiaries',
 };
 
 type B3PermissionsList = typeof b2bPermissionsList;
