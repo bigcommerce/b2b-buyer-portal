@@ -8,6 +8,7 @@ declare interface CustomFieldStringItems {
 
 type ChannelPlatform =
   | 'bigcommerce'
+  // cSpell:ignore acquia
   | 'acquia'
   | 'bloomreach'
   | 'catalyst'
@@ -36,6 +37,7 @@ declare interface Window {
     callbacks: import('@/utils/b3CallbackManager').default;
     utils: {
       openPage: (page: import('./constants').HeadlessRoute) => void;
+      getRoutes: () => import('@/shared/routes').RouteItem[];
       quote: {
         addProductFromPage: (item: import('@/utils').LineItems) => void;
         addProductsFromCart: () => Promise<void>;
@@ -47,7 +49,7 @@ declare interface Window {
         getButtonInfoAddAllFromCartToQuote: () => import('@/shared/customStyleButton/context/config').BtnProperties;
       };
       user: {
-        getProfile: () => Record<string, string | number>;
+        getProfile: () => Record<string, any>;
         getMasqueradeState: () => Promise<{
           current_company_id: number;
           companies: CustomFieldStringItems[];
@@ -57,6 +59,7 @@ declare interface Window {
         endMasquerade: () => void;
         graphqlBCProxy: typeof import('@/shared/service/request/b3Fetch').default.graphqlBCProxy;
         loginWithB2BStorefrontToken: (b2bStorefrontJWTToken: string) => Promise<void>;
+        logout: () => Promise<void>;
       };
       shoppingList: {
         itemFromCurrentPage: import('@/components').ProductMappedAttributes;

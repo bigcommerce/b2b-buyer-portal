@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
+import { B2BEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import Cookies from 'js-cookie';
 
@@ -20,6 +21,8 @@ import {
 import { setB2BToken } from '@/store/slices/company';
 import { QuoteItem } from '@/types/quotes';
 import CallbackManager from '@/utils/b3CallbackManager';
+import b2bLogger from '@/utils/b3Logger';
+import { logoutSession } from '@/utils/b3logout';
 import { LineItems } from '@/utils/b3Product/b3Product';
 import createShoppingList from '@/utils/b3ShoppingList/b3ShoppingList';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
@@ -62,20 +65,22 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const storeDispatch = useAppDispatch();
   const b3Lang = useB3Lang();
 
-  const {
-    state: { registerEnabled, productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled },
-  } = useContext(GlobalContext);
+  const { state: globalState } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const customer = useAppSelector(({ company }) => company.customer);
   const role = useAppSelector(({ company }) => company.customer.role);
   const productList = useAppSelector(formattedQuoteDraftListSelector);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
 
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
   } = useContext(CustomStyleContext);
   const { addToQuote: addProductsFromCart } = addProductsFromCartToQuote(setOpenPage);
+
+  const { registerEnabled, productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled } =
+    globalState;
 
   const saveFn = () => {
     setOpenPage({
@@ -124,6 +129,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
       ...window.b2b,
       callbacks: Manager,
       utils: {
+        getRoutes: () => [],
         openPage: (page) =>
           setTimeout(() => {
             if (page === 'CLOSE') {
@@ -185,6 +191,19 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           loginWithB2BStorefrontToken: async (b2bStorefrontJWTToken: string) => {
             storeDispatch(setB2BToken(b2bStorefrontJWTToken));
             await getCurrentCustomerInfo(b2bStorefrontJWTToken);
+          },
+          logout: async () => {
+            try {
+              if (isAgenting) {
+                await endMasquerade();
+              }
+            } catch (e) {
+              b2bLogger.error(e);
+            } finally {
+              window.sessionStorage.clear();
+              logoutSession();
+              window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
+            }
           },
         },
         shoppingList: {
