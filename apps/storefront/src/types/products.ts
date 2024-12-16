@@ -31,6 +31,14 @@ export interface VariantsProps {
   variant_id: number | string;
 }
 
+export interface AppliedDiscount {
+  amount: string | number;
+  code: string | null;
+  id: string | number;
+  name: string;
+  target: string;
+}
+
 export interface ProductItem {
   id: number;
   sku: string;
@@ -47,6 +55,7 @@ export interface ProductItem {
   availability?: string;
   inventoryLevel?: number;
   isPriceHidden?: boolean;
+  applied_discounts?: AppliedDiscount[];
 }
 
 export interface ProductVariantSkuInfo {
@@ -197,7 +206,7 @@ export interface CalculatedOptions {
   value_id: number;
 }
 
-export interface Calculateditems {
+export interface CalculatedItems {
   product_id: number;
   variant_id: number;
   options: Partial<CalculatedOptions>[];
@@ -206,6 +215,6 @@ export interface Calculateditems {
 export interface CalculatedProducts {
   channel_id: number;
   customer_group_id: number;
-  items: Partial<Calculateditems>[];
+  items: Partial<CalculatedItems>[];
   currency_code: string;
 }

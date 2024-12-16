@@ -159,7 +159,7 @@ export default function OrderShipping() {
                     money={money}
                     totalText="Total"
                     canToProduct
-                    textAlign="right"
+                    textAlign={isMobile ? 'left' : 'right'}
                   />
                 </Fragment>
               ) : null,
