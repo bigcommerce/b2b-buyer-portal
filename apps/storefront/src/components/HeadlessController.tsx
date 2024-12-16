@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
+import { B2BEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import Cookies from 'js-cookie';
 
@@ -199,10 +200,9 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             } catch (e) {
               b2bLogger.error(e);
             } finally {
-              // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
               window.sessionStorage.clear();
               logoutSession();
-              window.b2b.callbacks.dispatchEvent('on-logout' as any);
+              window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
             }
           },
         },

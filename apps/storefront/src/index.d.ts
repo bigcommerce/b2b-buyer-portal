@@ -8,6 +8,7 @@ declare interface CustomFieldStringItems {
 
 type ChannelPlatform =
   | 'bigcommerce'
+  // cSpell:ignore acquia
   | 'acquia'
   | 'bloomreach'
   | 'catalyst'
