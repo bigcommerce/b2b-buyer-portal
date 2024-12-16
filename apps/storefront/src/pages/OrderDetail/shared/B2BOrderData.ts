@@ -217,6 +217,7 @@ const convertB2BOrderDetails = (data: B2BOrderData, b3Lang: LangFormatFunction) 
   canReturn: data.canReturn,
   createdEmail: data.createdEmail,
   orderIsDigital: data.orderIsDigital,
+  companyInfo: data.companyInfo,
 });
 
 export default convertB2BOrderDetails;

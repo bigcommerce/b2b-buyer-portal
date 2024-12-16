@@ -1,8 +1,7 @@
-import { useRef, useState } from 'react';
-import { useB3Lang } from '@b3/lang';
+import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { Box } from '@mui/material';
+import { Box, MenuProps } from '@mui/material';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
@@ -10,38 +9,47 @@ import MenuItem from '@mui/material/MenuItem';
 
 import { useMobile } from '@/hooks';
 
-type ConfigProps = {
+export interface ListItemProps {
   name: string;
   key: string | number;
-};
-
-interface B3DropDownProps<T> {
-  width?: string;
-  list: Array<T>;
-  config?: ConfigProps;
-  title: string;
-  handleItemClick: (arg0: T) => void;
-  value?: string;
 }
 
-export default function B3DropDown<T>({
-  width,
-  list,
-  config,
-  title,
-  value,
-  handleItemClick,
-}: B3DropDownProps<T>) {
+export interface DropDownHandle {
+  setOpenDropDown: () => void;
+}
+
+interface B3DropDownProps extends Partial<MenuProps> {
+  width?: string;
+  list: Array<ListItemProps>;
+  title: string;
+  handleItemClick?: (key: string | number) => void;
+  value?: string;
+  menuRenderItemName?: (item: ListItemProps) => JSX.Element | string;
+}
+
+function DropDown(
+  {
+    width,
+    list,
+    title,
+    value,
+    handleItemClick,
+    menuRenderItemName = (item) => item.name,
+    ...menu
+  }: B3DropDownProps,
+  ref: Ref<DropDownHandle>,
+) {
   const [isMobile] = useMobile();
   const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-  const b3Lang = useB3Lang();
+  const listRef = useRef<HTMLDivElement | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    setOpenDropDown: () => setIsOpen(true),
+  }));
 
   const close = () => {
     setIsOpen(false);
   };
-
-  const keyName = config?.name || 'name';
 
   return (
     <Box
@@ -50,7 +58,7 @@ export default function B3DropDown<T>({
       }}
     >
       <ListItemButton
-        ref={ref}
+        ref={listRef}
         onClick={() => setIsOpen(true)}
         sx={{
           pr: 0,
@@ -68,7 +76,7 @@ export default function B3DropDown<T>({
         {isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
       </ListItemButton>
       <Menu
-        anchorEl={ref.current}
+        anchorEl={listRef.current}
         open={isOpen}
         anchorOrigin={{
           vertical: 'bottom',
@@ -85,26 +93,28 @@ export default function B3DropDown<T>({
           '& .MuiList-root.MuiList-padding.MuiMenu-list': {
             pt: isMobile ? 0 : '8px',
             pb: isMobile ? 0 : '8px',
+            maxHeight: isMobile ? 'auto' : '200px',
           },
         }}
+        {...(menu || {})}
       >
         {list.length &&
-          list.map((item: any) => {
-            const name = item[keyName];
-            const color = value === item.key ? '#3385d6' : 'black';
+          list.map((item) => {
+            const { key } = item;
+            const color = value === key ? '#3385d6' : 'black';
             return (
               <MenuItem
                 sx={{
                   color,
-                  width: isMobile ? 'auto' : width || '155px',
+                  minWidth: isMobile ? 'auto' : width || '155px',
                 }}
-                key={name}
+                key={key}
                 onClick={() => {
                   close();
-                  handleItemClick(item);
+                  if (handleItemClick) handleItemClick(key);
                 }}
               >
-                {b3Lang('global.button.logout')}
+                {menuRenderItemName(item)}
               </MenuItem>
             );
           })}
@@ -112,3 +122,5 @@ export default function B3DropDown<T>({
     </Box>
   );
 }
+
+export default forwardRef<DropDownHandle, B3DropDownProps>(DropDown);

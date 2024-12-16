@@ -12,6 +12,7 @@ const invoiceList = (data: CustomFieldItems) => `{
     orderBy: "${data?.orderBy}"
     ${data?.beginDueDateAt ? `beginDueDateAt: "${data.beginDueDateAt}"` : ''}
     ${data?.endDueDateAt ? `endDueDateAt: "${data.endDueDateAt}"` : ''}
+    ${data?.companyIds ? `companyIds: ${convertArrayToGraphql(data.companyIds || [])}` : ''}
   ){
     totalCount,
     pageInfo{
@@ -43,15 +44,28 @@ const invoiceList = (data: CustomFieldItems) => `{
           code,
           value,
         },
+        companyInfo {
+          companyId,
+          companyName,
+          companyAddress,
+          companyCountry,
+          companyState,
+          companyCity,
+          companyZipCode,
+          phoneNumber,
+          bcId,
+        },
+        orderUserId,
       }
     }
   }
 }`;
 
-const invoiceStats = (status: number | string, decimalPlaces: number) => `{
+const invoiceStats = (status: number | string, decimalPlaces: number, companyIds: number[]) => `{
   invoiceStats (
     ${status === '' ? '' : `status: ${status},`}
     decimalPlaces: ${decimalPlaces}
+    ${companyIds.length ? `companyIds: ${convertArrayToGraphql(companyIds || [])}` : ''}
   ){
     totalBalance,
     overDueBalance,
@@ -226,7 +240,11 @@ export const exportInvoicesAsCSV = (data: CustomFieldItems) =>
     variables: data,
   });
 
-export const getInvoiceStats = (status: number | string, decimalPlaces: number) =>
+export const getInvoiceStats = (
+  status: number | string,
+  decimalPlaces: number,
+  comapnyIds: number[],
+) =>
   B3Request.graphqlB2B({
-    query: invoiceStats(status, decimalPlaces),
+    query: invoiceStats(status, decimalPlaces, comapnyIds),
   });

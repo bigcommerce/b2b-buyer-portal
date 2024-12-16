@@ -1,4 +1,5 @@
 import { createB2BShoppingList, createBcShoppingList } from '@/shared/service/b2b';
+import { store } from '@/store';
 
 import { getB3PermissionsList } from '../b3RolePermissions';
 import { channelId } from '../basicConfig';
@@ -19,7 +20,12 @@ CreateShoppingListParams) => {
 
   if (isB2BUser) {
     const { submitShoppingListPermission } = getB3PermissionsList();
+    const selectCompanyHierarchyId =
+      store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0;
     createShoppingData.status = submitShoppingListPermission ? 30 : 0;
+    if (selectCompanyHierarchyId) {
+      createShoppingData.companyId = selectCompanyHierarchyId;
+    }
   } else {
     createShoppingData.channelId = channelId;
   }

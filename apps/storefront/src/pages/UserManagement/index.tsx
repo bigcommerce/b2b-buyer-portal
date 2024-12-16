@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
@@ -11,12 +11,14 @@ import { deleteUsers, getUsers } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
+import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
+import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import B3AddEditUser from './AddEditUser';
 import { FilterProps, getFilterMoreList, UsersList } from './config';
 import { UserItemCard } from './UserItemCard';
 
-interface RefCurrntProps extends HTMLInputElement {
+interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditUserClick: (type: string, data?: UsersList) => void;
 }
 
@@ -24,7 +26,7 @@ interface RoleProps {
   role: string;
   companyRoleId: string | number;
 }
-function Usermanagement() {
+function UserManagement() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
@@ -41,6 +43,8 @@ function Usermanagement() {
     extraFields: [],
     companyRoleName: '',
     companyRoleId: '',
+    masqueradingCompanyId: '',
+    companyInfo: null,
   });
   const b3Lang = useB3Lang();
 
@@ -55,28 +59,43 @@ function Usermanagement() {
   const companyId = +role === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id;
 
   const b2bPermissions = useAppSelector(rolePermissionSelector);
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
 
   const isEnableBtnPermissions = b2bPermissions.userActionsPermission;
 
-  const addEditUserRef = useRef<RefCurrntProps | null>(null);
-  const [paginationTableRef] = useTableRef();
+  const customItem = useMemo(() => {
+    const { userActionsPermission } = b2bPermissionsList;
 
-  const customItem = {
-    isEnabled: isEnableBtnPermissions,
-    customLabel: b3Lang('userManagement.addUser'),
-  };
+    const isCreatePermission = verifyCreatePermission(
+      userActionsPermission,
+      +selectCompanyHierarchyId,
+    );
+    return {
+      isEnabled: isEnableBtnPermissions && isCreatePermission,
+      customLabel: b3Lang('userManagement.addUser'),
+    };
+
+    // ignore b3Lang due it's function that doesn't not depend on any reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEnableBtnPermissions, selectCompanyHierarchyId]);
+
+  const addEditUserRef = useRef<RefCurrentProps | null>(null);
+  const [paginationTableRef] = useTableRef();
 
   const initSearch = {
     search: '',
     companyRoleId: '',
     companyId,
+    q: '',
   };
-  const fiterMoreInfo = getFilterMoreList(b3Lang);
+  const filterMoreInfo = getFilterMoreList(b3Lang);
 
   const [filterSearch, setFilterSearch] = useState<Partial<FilterProps>>(initSearch);
 
   const [translatedFilterInfo, setTranslatedFilterInfo] =
-    useState<CustomFieldItems[]>(fiterMoreInfo);
+    useState<CustomFieldItems[]>(filterMoreInfo);
   const [valueName, setValueName] = useState<string>('');
 
   const fetchList = async (params: Partial<FilterProps>) => {
@@ -97,7 +116,7 @@ function Usermanagement() {
   };
 
   const handleGetTranslatedFilterInfo = () => {
-    const translatedFilterInfo = fiterMoreInfo.map((element: CustomFieldItems) => {
+    const translatedFilterInfo = filterMoreInfo.map((element: CustomFieldItems) => {
       const translatedItem = element;
       const translatedOptions = element.options?.map((option: CustomFieldItems) => {
         const elementOption = option;
@@ -126,7 +145,7 @@ function Usermanagement() {
     setFilterSearch(search);
   };
 
-  const handleFirterChange = (value: RoleProps) => {
+  const handleFilterChange = (value: RoleProps) => {
     const search = {
       ...filterSearch,
       companyRoleId: value.companyRoleId,
@@ -159,27 +178,13 @@ function Usermanagement() {
       handleCancelClick();
       await deleteUsers({
         userId: row.id || '',
-        companyId,
+        companyId: selectCompanyHierarchyId || companyId,
       });
       snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'));
     } finally {
       setIsRequestLoading(false);
       initSearchList();
     }
-  };
-
-  const resetFilterInfo = () => {
-    const newTranslatedFilterInfo = translatedFilterInfo.map((element: CustomFieldItems) => {
-      const translatedItem = element;
-
-      translatedItem.setValueName = setValueName;
-      translatedItem.defaultName = '';
-
-      return element;
-    });
-
-    setValueName('');
-    setTranslatedFilterInfo(newTranslatedFilterInfo);
   };
 
   useEffect(() => {
@@ -199,12 +204,11 @@ function Usermanagement() {
         }}
       >
         <B3Filter
-          fiterMoreInfo={translatedFilterInfo}
+          filterMoreInfo={translatedFilterInfo}
           handleChange={handleChange}
-          handleFilterChange={handleFirterChange}
-          customButtomConfig={customItem}
-          handleFilterCustomButtomClick={handleAddUserClick}
-          resetFilterInfo={resetFilterInfo}
+          handleFilterChange={handleFilterChange}
+          customButtonConfig={customItem}
+          handleFilterCustomButtonClick={handleAddUserClick}
         />
         <B3PaginationTable
           ref={paginationTableRef}
@@ -219,13 +223,16 @@ function Usermanagement() {
             <UserItemCard
               key={row.id || ''}
               item={row}
-              isPermissions={isEnableBtnPermissions}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
           )}
         />
-        <B3AddEditUser companyId={companyId} renderList={initSearchList} ref={addEditUserRef} />
+        <B3AddEditUser
+          companyId={selectCompanyHierarchyId || companyId}
+          renderList={initSearchList}
+          ref={addEditUserRef}
+        />
         <B3Dialog
           isOpen={deleteOpen}
           title={b3Lang('userManagement.deleteUser')}
@@ -255,4 +262,4 @@ function Usermanagement() {
   );
 }
 
-export default Usermanagement;
+export default UserManagement;

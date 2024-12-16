@@ -8,6 +8,8 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import { B3Tag } from '@/components';
+import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { getUserRole, UsersList } from './config';
 
@@ -24,7 +26,6 @@ export interface OrderItemCardProps {
   item: UsersList;
   onEdit: (data: UsersList) => void;
   onDelete: (data: UsersList) => void;
-  isPermissions: boolean;
 }
 
 const Flex = styled('div')(() => ({
@@ -34,19 +35,28 @@ const Flex = styled('div')(() => ({
 }));
 
 export function UserItemCard(props: OrderItemCardProps) {
-  const { item: userInfo, onEdit, onDelete, isPermissions } = props;
+  const { item: userInfo, onEdit, onDelete } = props;
+  const { companyInfo, id, companyRoleName, firstName, lastName, email } = userInfo;
+
+  const { userActionsPermission } = b2bPermissionsList;
+
+  const actionPermissions = verifyLevelPermission({
+    code: userActionsPermission,
+    companyId: +(companyInfo?.companyId || 0),
+    userId: +id,
+  });
 
   const getNewRoleList = () => {
     const userRole = getUserRole();
     const newRoleList: Array<RoleListProps> = userRole.map((item) => {
       if (+item.value === 2) {
-        if (userInfo.companyRoleName !== 'Junior Buyer') {
+        if (companyRoleName !== 'Junior Buyer') {
           return {
             color: '#ce93d8',
             textColor: 'black',
             ...item,
-            label: userInfo.companyRoleName,
-            name: userInfo.companyRoleName,
+            label: companyRoleName,
+            name: companyRoleName,
           };
         }
         return {
@@ -85,7 +95,7 @@ export function UserItemCard(props: OrderItemCardProps) {
   };
 
   return (
-    <Card key={userInfo.id}>
+    <Card key={id}>
       <CardContent
         sx={{
           color: '#313440',
@@ -97,7 +107,7 @@ export function UserItemCard(props: OrderItemCardProps) {
             color: 'rgba(0, 0, 0, 0.87)',
           }}
         >
-          {userInfo.firstName} {userInfo.lastName}
+          {firstName} {lastName}
         </Typography>
 
         <Typography
@@ -106,13 +116,13 @@ export function UserItemCard(props: OrderItemCardProps) {
           }}
           variant="body1"
         >
-          {userInfo.email}
+          {email}
         </Typography>
         <Flex>
-          {statusRender(userInfo.companyRoleName)}
+          {statusRender(companyRoleName)}
           <Box
             sx={{
-              display: `${isPermissions ? 'block' : 'none'}`,
+              display: `${actionPermissions ? 'block' : 'none'}`,
             }}
           >
             <IconButton

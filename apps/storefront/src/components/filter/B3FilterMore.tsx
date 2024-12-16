@@ -1,4 +1,4 @@
-import { BaseSyntheticEvent, useContext, useEffect, useRef, useState } from 'react';
+import { BaseSyntheticEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -13,6 +13,8 @@ import CustomButton from '../button/CustomButton';
 import { getContrastColor, getHoverColor } from '../outSideComponents/utils/b3CustomStyles';
 
 import B3FilterPicker from './B3FilterPicker';
+
+const includesFilterType = ['roleAutocomplete'];
 
 interface PickerProps {
   isEnabled: boolean;
@@ -32,7 +34,7 @@ type DeepPartial<T> = {
 interface B3FilterMoreProps<T, Y> {
   startPicker?: PickerProps;
   endPicker?: PickerProps;
-  fiterMoreInfo: Array<DeepPartial<T>>;
+  filterMoreInfo: Array<DeepPartial<T>>;
   onChange?: (val: Y) => void;
   isShowMore?: boolean;
   resetFilterInfo?: () => void;
@@ -46,7 +48,7 @@ interface PickerRefProps extends HTMLInputElement {
 function B3FilterMore<T, Y>({
   startPicker,
   endPicker,
-  fiterMoreInfo,
+  filterMoreInfo,
   onChange,
   isShowMore = false,
   resetFilterInfo,
@@ -96,6 +98,24 @@ function B3FilterMore<T, Y>({
   const handleDialogClick = () => {
     setOpen(true);
   };
+
+  const filterCounterVal = useMemo(() => {
+    if (!filterCounter) return 0;
+
+    const values = getValues();
+
+    const newCounter = filterMoreInfo.reduce((cur, item) => {
+      const newItem: CustomFieldItems = item;
+      if (includesFilterType.includes(newItem.fieldType) && values[newItem.name]) {
+        cur -= 1;
+      }
+
+      return cur;
+    }, filterCounter);
+
+    return newCounter;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterCounter]);
 
   const handleClose = () => {
     setOpen(false);
@@ -180,7 +200,7 @@ function B3FilterMore<T, Y>({
         cursor: 'pointer',
       }}
     >
-      {((fiterMoreInfo && fiterMoreInfo.length) || isShowMore) && (
+      {((filterMoreInfo && filterMoreInfo.length) || isShowMore) && (
         <Box
           sx={{
             display: 'flex',
@@ -196,6 +216,10 @@ function B3FilterMore<T, Y>({
                   color: customColor,
                   ':hover': {
                     backgroundColor: getHoverColor('#FFFFFF', 0.1),
+                  },
+                  '& svg': {
+                    width: '32px',
+                    height: '32px',
                   },
                 }}
               >
@@ -214,7 +238,7 @@ function B3FilterMore<T, Y>({
                 }}
               >
                 <Badge
-                  badgeContent={filterCounter}
+                  badgeContent={filterCounterVal}
                   sx={{
                     '& .MuiBadge-badge.MuiBadge-standard.MuiBadge-anchorOriginTopRight': {
                       bgcolor: primaryColor,
@@ -257,7 +281,7 @@ function B3FilterMore<T, Y>({
           }}
         >
           <B3CustomForm
-            formFields={fiterMoreInfo}
+            formFields={filterMoreInfo}
             errors={errors}
             control={control}
             getValues={getValues}

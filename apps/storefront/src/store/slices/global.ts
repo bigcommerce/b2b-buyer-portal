@@ -59,7 +59,7 @@ interface QuoteSubmissionResponseProps {
   title: string;
 }
 
-export interface GlabolState {
+export interface GlobalState {
   taxZoneRates: TaxZoneRatesProps[];
   isClickEnterBtn: boolean;
   currentClickedUrl: string;
@@ -75,9 +75,10 @@ export interface GlabolState {
   recordOpenHash: string;
   blockPendingQuoteNonPurchasableOOS: GlobalBlockPendingQuoteNonPurchasableOOS;
   quoteSubmissionResponse: QuoteSubmissionResponseProps;
+  isOpenCompanyHierarchyDropDown: boolean;
 }
 
-const initialState: GlabolState = {
+const initialState: GlobalState = {
   taxZoneRates: [],
   isClickEnterBtn: false,
   currentClickedUrl: '',
@@ -117,17 +118,18 @@ const initialState: GlabolState = {
     message: '',
     title: '',
   },
+  isOpenCompanyHierarchyDropDown: false,
 };
 
-export const glabolSlice = createSlice({
+export const globalSlice = createSlice({
   name: 'global',
   initialState,
   reducers: {
-    clearglabol: () => initialState,
+    clearGlobal: () => initialState,
     setTaxZoneRates: (state, { payload }: PayloadAction<TaxZoneRatesProps[]>) => {
       state.taxZoneRates = payload;
     },
-    setGlabolCommonState: (state, { payload }: PayloadAction<Partial<GlabolState>>) => ({
+    setGlobalCommonState: (state, { payload }: PayloadAction<Partial<GlobalState>>) => ({
       ...state,
       ...payload,
     }),
@@ -167,13 +169,16 @@ export const glabolSlice = createSlice({
     ) => {
       state.quoteSubmissionResponse = payload;
     },
+    setOpenCompanyHierarchyDropDown: (state, { payload }: PayloadAction<boolean>) => {
+      state.isOpenCompanyHierarchyDropDown = payload;
+    },
   },
 });
 
 export const {
-  clearglabol,
+  clearGlobal,
   setTaxZoneRates,
-  setGlabolCommonState,
+  setGlobalCommonState,
   setOpenPageReducer,
   setShowInclusiveTaxPrice,
   setBlockPendingAccountViewPrice,
@@ -182,6 +187,7 @@ export const {
   setStoreInfo,
   setLoginLandingLocation,
   setQuoteSubmissionResponse,
-} = glabolSlice.actions;
+  setOpenCompanyHierarchyDropDown,
+} = globalSlice.actions;
 
-export default glabolSlice.reducer;
+export default globalSlice.reducer;

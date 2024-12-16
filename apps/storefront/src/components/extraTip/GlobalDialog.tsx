@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
-import { setGlabolCommonState, useAppDispatch, useAppSelector } from '@/store';
+import { setGlobalCommonState, useAppDispatch, useAppSelector } from '@/store';
 
 import B3Dialog from '../B3Dialog';
 
@@ -14,7 +14,7 @@ function GlobalDialog() {
 
   const messageDialogClose = () => {
     storeDispatch(
-      setGlabolCommonState({
+      setGlobalCommonState({
         globalMessage: {
           open: false,
           title: '',

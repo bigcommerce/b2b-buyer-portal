@@ -1,9 +1,19 @@
-import { checkEveryPermissionsCode } from '../b3CheckPermissions';
+import { store } from '@/store';
+
+import { getCorrespondsConfigurationPermission } from '../b3CheckPermissions/check';
 
 const setCartPermissions = (isLoggedInAndB2BAccount: boolean) => {
-  const purchasbility = checkEveryPermissionsCode({ code: 'purchase_enable' });
+  const permissions = store.getState()?.company?.permissions || [];
 
-  if (!purchasbility && isLoggedInAndB2BAccount) return;
+  const selectCompanyHierarchyId =
+    store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0;
+
+  const { purchasabilityPermission } = getCorrespondsConfigurationPermission(
+    permissions,
+    +selectCompanyHierarchyId,
+  );
+
+  if (!purchasabilityPermission && isLoggedInAndB2BAccount) return;
   const style = document.getElementById('b2bPermissions-cartElement-id');
   if (style) {
     style.remove();

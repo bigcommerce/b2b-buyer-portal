@@ -34,6 +34,18 @@ const getUsersQl = (data: CustomFieldItems) => `{
         }
         companyRoleId,
         companyRoleName,
+        masqueradingCompanyId,
+        companyInfo {
+          companyId,
+          companyName,
+          companyAddress,
+          companyCountry,
+          companyState,
+          companyCity,
+          companyZipCode,
+          phoneNumber,
+          bcId,
+        },
       }
     }
   }
