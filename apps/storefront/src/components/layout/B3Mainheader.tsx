@@ -15,6 +15,7 @@ import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 import B3AccountInfo from './B3AccountInfo';
 import B3StatusNotification from './B3StatusNotification';
 
+// Cspell:ignore Mainheader
 export default function B3Mainheader({ title }: { title: string }) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
@@ -33,8 +34,10 @@ export default function B3Mainheader({ title }: { title: string }) {
     },
   } = useContext(CustomStyleContext);
 
+  // Cspell:ignore purchasability
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
+  // Cspell:ignore purchasability
   const isShowCart = isB2BUser ? purchasabilityPermission : true;
 
   const customColor = getContrastColor(backgroundColor);
@@ -45,7 +48,7 @@ export default function B3Mainheader({ title }: { title: string }) {
       return;
     }
 
-    window.location.href = CART_URL;
+    window.location.href = window.B3.setting.platform === 'catalyst' ? '/cart' : CART_URL;
   });
 
   useEffect(() => {
