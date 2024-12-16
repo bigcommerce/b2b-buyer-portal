@@ -4,7 +4,6 @@ import { Box } from '@mui/material';
 import Cookies from 'js-cookie';
 
 import B3Dialog from '@/components/B3Dialog';
-import useMobile from '@/hooks/useMobile';
 import { endUserMasqueradingCompany, startUserMasqueradingCompany } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { store, useAppSelector } from '@/store';
@@ -34,7 +33,6 @@ function B2BSwitchCompanyModal(props: B2BSwitchCompanyModalPropsTypes) {
     rightSizeBtn = '',
   } = props;
   const b3Lang = useB3Lang();
-  const [isMobile] = useMobile();
 
   const { id: currentCompanyId } = useAppSelector(({ company }) => company.companyInfo);
 
@@ -91,10 +89,9 @@ function B2BSwitchCompanyModal(props: B2BSwitchCompanyModalPropsTypes) {
       loading={loading}
       handleLeftClick={handleClose}
       handRightClick={handleSwitchCompanyClick}
+      dialogWidth="480px"
       dialogSx={{
         '& .MuiPaper-elevation': {
-          width: isMobile ? '100%' : `480px`,
-
           '& h2': {
             border: 'unset',
             color: '#000000',

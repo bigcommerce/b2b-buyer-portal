@@ -39,6 +39,7 @@ export interface B3DialogProps<T> {
   disabledSaveBtn?: boolean;
   dialogContentSx?: SxProps<Theme>;
   dialogSx?: SxProps<Theme>;
+  dialogWidth?: string;
 }
 
 export default function B3Dialog<T>({
@@ -62,12 +63,15 @@ export default function B3Dialog<T>({
   dialogSx = {},
   fullWidth = false,
   disabledSaveBtn = false,
+  dialogWidth = '',
 }: B3DialogProps<T>) {
   const container = useRef<HTMLInputElement | null>(null);
 
   const [isMobile] = useMobile();
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+
+  const defaultWidth = isMobile ? '100%' : '600px';
 
   const handleSaveClick = () => {
     if (handRightClick) {
@@ -99,7 +103,12 @@ export default function B3Dialog<T>({
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         id="b2b-dialog-container"
-        sx={dialogSx}
+        sx={{
+          '& .MuiPaper-elevation': {
+            width: isMobile ? '100%' : dialogWidth || defaultWidth,
+          },
+          ...dialogSx,
+        }}
       >
         {title && (
           <DialogTitle

@@ -6,7 +6,6 @@ import Cookies from 'js-cookie';
 
 import B3Dialog from '@/components/B3Dialog';
 import { PAGES_SUBSIDIARIES_PERMISSION_KEYS } from '@/constants';
-import useMobile from '@/hooks/useMobile';
 import { endUserMasqueradingCompany, startUserMasqueradingCompany } from '@/shared/service/b2b';
 import { deleteCart } from '@/shared/service/bc/graphql/cart';
 import { store, useAppSelector } from '@/store';
@@ -39,7 +38,6 @@ function HierarchyDialog({
   context,
   dialogParams = {},
 }: HierarchyDialogProps) {
-  const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
   const navigate = useNavigate();
 
@@ -135,9 +133,6 @@ function HierarchyDialog({
       handleLeftClick={handleClose}
       handRightClick={handleSwitchCompanyClick}
       dialogSx={{
-        '& .MuiPaper-elevation': {
-          width: isMobile ? '100%' : `480px`,
-        },
         '& .MuiDialogTitle-root': {
           border: 0,
         },

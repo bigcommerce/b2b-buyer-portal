@@ -77,9 +77,9 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
     showB3FilterMoreIcon = true,
     searchValue = '',
     resetFilterInfo,
-    pcContainerWidth,
-    pcSearchContainerWidth,
-    pcTotalWidth,
+    pcContainerWidth = '29rem',
+    pcSearchContainerWidth = '60%',
+    pcTotalWidth = 'unset',
   } = props;
 
   const [isMobile] = useMobile();
@@ -107,12 +107,12 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
             display: 'flex',
             justifyContent: 'space-between',
             mb: '30px',
-            width: pcTotalWidth || 'unset',
+            width: pcTotalWidth,
           }}
         >
           <Box
             sx={{
-              maxWidth: pcContainerWidth || '29rem',
+              maxWidth: pcContainerWidth,
               flexBasis: '100%',
               display: 'flex',
               alignItems: 'center',
@@ -120,7 +120,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
           >
             <B3FilterSearch
               handleChange={handleSearchChange}
-              w={pcSearchContainerWidth || '60%'}
+              w={pcSearchContainerWidth}
               searchValue={searchValue}
             />
             {showB3FilterMoreIcon && (

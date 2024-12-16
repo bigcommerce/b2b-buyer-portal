@@ -129,7 +129,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     cache.current.inputValue = value.name;
 
     setValue(name, value.id);
-    setValue(`${name}Name`, value.name);
+    setValue(inputNameKey, value.name);
 
     if (setValueName) {
       setValueName(value.name);
