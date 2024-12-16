@@ -3,10 +3,6 @@ name: Deploy to Staging
 on:
   push:
     branches:
-      - staging
-      - main
-  pull_request:
-    branches:
       - main
   workflow_dispatch:
 
