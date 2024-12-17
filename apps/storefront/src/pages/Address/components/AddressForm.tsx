@@ -450,9 +450,11 @@ function AddressForm(
               if (states.length > 0) {
                 field.options = states;
                 field.fieldType = 'dropdown';
+                field.required = true;
               } else {
                 field.options = [];
                 field.fieldType = 'text';
+                field.required = false;
               }
             }
           } else {
@@ -468,16 +470,9 @@ function AddressForm(
     if (open && type === 'edit' && addressData) {
       handleBackFillData();
     }
-  }, [
-    addressData,
-    allAddressFields,
-    countries,
-    isB2BUser,
-    open,
-    originAddressFields,
-    setValue,
-    type,
-  ]);
+    // allAddressFields -> edit back again callback, cannot select a new country
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addressData, countries, isB2BUser, open, originAddressFields, setValue, type]);
 
   useEffect(() => {
     const handleCountryChange = (countryCode: string) => {
@@ -492,9 +487,11 @@ function AddressForm(
         if (stateList.length > 0) {
           stateFields.fieldType = 'dropdown';
           stateFields.options = stateList;
+          stateFields.required = true;
         } else {
           stateFields.fieldType = 'text';
           stateFields.options = [];
+          stateFields.required = false;
         }
       }
 
