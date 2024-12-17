@@ -4,19 +4,18 @@ import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, Typography } from '@mui/material';
 
-import { CART_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
+import getCartUrl from '@/utils/getCartUrl';
 
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
 import B3AccountInfo from './B3AccountInfo';
 import B3StatusNotification from './B3StatusNotification';
 
-// Cspell:ignore Mainheader
-export default function B3Mainheader({ title }: { title: string }) {
+export default function MainHeader({ title }: { title: string }) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
@@ -34,21 +33,20 @@ export default function B3Mainheader({ title }: { title: string }) {
     },
   } = useContext(CustomStyleContext);
 
-  // Cspell:ignore purchasability
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
-  // Cspell:ignore purchasability
   const isShowCart = isB2BUser ? purchasabilityPermission : true;
 
   const customColor = getContrastColor(backgroundColor);
 
   const onCartClick = useB2BCallback(B2BEvent.OnClickCartButton, (dispatchOnClickCartEvent) => {
+    const cartUrl = getCartUrl();
     const isNotPreventDefaultExecuted = dispatchOnClickCartEvent();
     if (!isNotPreventDefaultExecuted) {
       return;
     }
 
-    window.location.href = window.B3.setting.platform === 'catalyst' ? '/cart' : CART_URL;
+    window.location.href = cartUrl;
   });
 
   useEffect(() => {
