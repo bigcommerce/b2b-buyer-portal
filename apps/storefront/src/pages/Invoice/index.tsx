@@ -821,10 +821,20 @@ function Invoice() {
               justifyContent: 'space-between',
               alignItems: isMobile ? 'flex-start' : 'center',
               flexDirection: isMobile ? 'column' : 'row',
+              width: isMobile ? '100%' : 'auto',
+
+              '& > div': {
+                width: isMobile ? '100%' : 'auto',
+              },
             }}
           >
             {isEnabledCompanyHierarchy && invoiceSubViewPermission && (
-              <Box sx={{ mr: '10px', mb: '30px' }}>
+              <Box
+                sx={{
+                  mr: isMobile ? 0 : '10px',
+                  mb: '30px',
+                }}
+              >
                 <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleSelectCompanies} />
               </Box>
             )}

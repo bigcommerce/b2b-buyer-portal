@@ -11,6 +11,7 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 
+import useMobile from '@/hooks/useMobile';
 import { useAppSelector } from '@/store';
 
 interface B2BAutoCompleteCheckboxProps {
@@ -19,6 +20,7 @@ interface B2BAutoCompleteCheckboxProps {
 
 function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteCheckboxProps) {
   const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
   const { id: currentCompanyId, companyName } = useAppSelector(
     ({ company }) => company.companyInfo,
   );
@@ -143,7 +145,7 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
   };
 
   return (
-    <FormControl variant="filled" sx={{ width: 165 }}>
+    <FormControl variant="filled" sx={{ width: isMobile ? '100%' : 165 }}>
       <InputLabel id="autoComplete-multiple-checkbox-label">
         {b3Lang('global.B2BAutoCompleteCheckbox.input.label')}
       </InputLabel>
@@ -167,7 +169,8 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
             key={`${company.companyId}-${company.companyName}`}
             value={company.companyName}
             sx={{
-              width: '220px',
+              width: isMobile ? '100%' : '220px',
+              alignItems: isMobile ? 'flex-start' : 'center',
             }}
           >
             <Checkbox
@@ -179,15 +182,24 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
               primary={company.companyName}
               title={company.companyName}
               sx={{
-                '& span': {
-                  width: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                },
+                '& span': isMobile
+                  ? {
+                      width: '100%',
+                      whiteSpace: 'break-spaces',
+                      wordWrap: 'break-word',
+                      paddingTop: '9px',
+                    }
+                  : {
+                      width: '100%',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    },
               }}
             />
             {companyNames.includes(company.companyName) &&
-              companyIds.includes(company.companyId) && <Check />}
+              companyIds.includes(company.companyId) && (
+                <Check sx={{ marginTop: isMobile ? '9px' : '0px' }} />
+              )}
           </MenuItem>
         ))}
       </Select>
