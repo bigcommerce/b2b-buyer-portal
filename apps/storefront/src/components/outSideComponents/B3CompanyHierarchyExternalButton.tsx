@@ -157,6 +157,7 @@ function B3CompanyHierarchyExternalButton({
             borderRadius: '4px',
             fontSize: '16px',
             fontFamily: '"Roboto","Helvetica","Arial",sans-serif',
+            mb: isMobile ? '4rem' : '0px',
             ...sx,
             ...MUIMediaStyle,
           }}

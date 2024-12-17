@@ -20,17 +20,11 @@ import {
   TableRow,
 } from '@mui/material';
 
+import useMobile from '@/hooks/useMobile';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 
-interface TreeNodeProps {
-  companyId: string | number;
-  companyName: string;
-  channelFlag: boolean;
-}
-
-type RecursiveNode<T> = T & {
-  children?: RecursiveNode<T>[];
-};
+import CompanyTableRowCard from './CompanyTableRowCard';
+import { RecursiveNode, TreeNodeProps } from './types';
 
 interface CompanyTableProps<T extends TreeNodeProps> {
   data: RecursiveNode<T>[];
@@ -227,36 +221,76 @@ function CompanyHierarchyTableTree<T extends TreeNodeProps>({
   getDisplayName = (node) => node.companyName,
   getNodeId = (node) => node.companyId,
 }: CompanyTableProps<T>) {
+  const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
 
+  const handleExpandCompanyData = (
+    companies: RecursiveNode<T>[] | [],
+    companyData: RecursiveNode<T>[],
+  ) => {
+    if (companies.length === 0) return companyData;
+    companies.forEach((company) => {
+      companyData.push({
+        ...company,
+        children: [],
+      });
+
+      const isHasChildren = company.children && company.children.length > 0;
+
+      if (isHasChildren) {
+        handleExpandCompanyData(company?.children || [], companyData);
+      }
+    });
+
+    return companyData;
+  };
+  const mobileCompanyData = handleExpandCompanyData(data, []);
+
   return (
-    <Paper sx={{ width: '100%', minHeight: '100px', mx: 'auto', mt: 2 }}>
-      <TableContainer>
-        <Table size="small" aria-label="company structure table">
-          <TableHead>
-            <TableRow sx={{ height: '3.25rem' }}>
-              <TableCell sx={{ fontWeight: 500, pl: 8 }}>
-                {b3Lang('companyHierarchy.table.name')}
-              </TableCell>
-              <TableCell sx={{ width: 48 }} />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((company) => (
-              <CompanyTableRow
-                key={getNodeId(company)}
-                node={company}
-                currentCompanyId={currentCompanyId}
-                selectCompanyId={selectCompanyId}
-                onSwitchCompany={onSwitchCompany}
-                getDisplayName={getDisplayName}
-                getNodeId={getNodeId}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+    <>
+      {isMobile ? (
+        <>
+          {mobileCompanyData.map((company) => (
+            <CompanyTableRowCard
+              company={company}
+              currentCompanyId={currentCompanyId}
+              selectCompanyId={selectCompanyId}
+              onSwitchCompany={onSwitchCompany}
+              getDisplayName={getDisplayName}
+              getNodeId={getNodeId}
+            />
+          ))}
+        </>
+      ) : (
+        <Paper sx={{ width: '100%', minHeight: '100px', mx: 'auto', mt: 2 }}>
+          <TableContainer>
+            <Table size="small" aria-label="company structure table">
+              <TableHead>
+                <TableRow sx={{ height: '3.25rem' }}>
+                  <TableCell sx={{ fontWeight: 500, pl: 8 }}>
+                    {b3Lang('companyHierarchy.table.name')}
+                  </TableCell>
+                  <TableCell sx={{ width: 48 }} />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.map((company) => (
+                  <CompanyTableRow
+                    key={getNodeId(company)}
+                    node={company}
+                    currentCompanyId={currentCompanyId}
+                    selectCompanyId={selectCompanyId}
+                    onSwitchCompany={onSwitchCompany}
+                    getDisplayName={getDisplayName}
+                    getNodeId={getNodeId}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      )}
+    </>
   );
 }
 
