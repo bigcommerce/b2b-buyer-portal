@@ -319,19 +319,24 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
+          width: '100%',
         }}
       >
         <Box
           sx={{
-            width: '100%',
+            width: isMobile ? '100%' : 'auto',
             display: 'flex',
             justifyContent: 'flex-start',
             alignItems: isMobile ? 'flex-start' : 'center',
             flexDirection: isMobile ? 'column' : 'row',
+
+            '& > div': {
+              width: isMobile ? '100%' : 'auto',
+            },
           }}
         >
           {isEnabledCompanyHierarchy && orderSubViewPermission && (
-            <Box sx={{ mr: '10px', mb: '30px' }}>
+            <Box sx={{ mr: isMobile ? 0 : '10px', mb: '30px' }}>
               <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleSelectCompanies} />
             </Box>
           )}
