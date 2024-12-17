@@ -103,9 +103,10 @@ const useGetCountry = ({
                 ...addressField,
                 fieldType: 'dropdown',
                 options: stateList,
+                required: true,
               };
             }
-            return { ...addressField, fieldType: 'text', options: [] };
+            return { ...addressField, fieldType: 'text', options: [], required: false };
           }
           return addressField;
         }),
