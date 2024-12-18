@@ -4,7 +4,7 @@ import { Environment, EnvSpecificConfig } from '@/types';
 const ENVIRONMENT_CDN_BASE_PATH: EnvSpecificConfig<string> = {
   local: '/',
   integration: 'https://microapp-cdn.gcp.integration.zone/b2b-buyer-portal/',
-  staging: 'https://cdn.bundleb2b.net/b2b/staging/storefront/',
+  staging: 'https://microapp-cdn.gcp.staging.zone/b2b-buyer-portal/',
   production: 'https://cdn.bundleb2b.net/b2b/production/storefront/',
 };
 
