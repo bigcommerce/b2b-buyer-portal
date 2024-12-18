@@ -1,4 +1,3 @@
 {
-  "*.{ts,tsx,js}": "eslint --fix",
-  "*.{js,jsx,ts,tsx,md}": "npx cspell lint"
+  "*.{ts,tsx,js}": "eslint --fix"
 }

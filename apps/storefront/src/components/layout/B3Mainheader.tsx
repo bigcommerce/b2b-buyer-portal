@@ -4,11 +4,11 @@ import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, Typography } from '@mui/material';
 
+import { CART_URL } from '@/constants';
 import useMobile from '@/hooks/useMobile';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
-import getCartUrl from '@/utils/getCartUrl';
 
 import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
@@ -40,13 +40,12 @@ export default function MainHeader({ title }: { title: string }) {
   const customColor = getContrastColor(backgroundColor);
 
   const onCartClick = useB2BCallback(B2BEvent.OnClickCartButton, (dispatchOnClickCartEvent) => {
-    const cartUrl = getCartUrl();
     const isNotPreventDefaultExecuted = dispatchOnClickCartEvent();
     if (!isNotPreventDefaultExecuted) {
       return;
     }
 
-    window.location.href = cartUrl;
+    window.location.href = CART_URL;
   });
 
   useEffect(() => {
