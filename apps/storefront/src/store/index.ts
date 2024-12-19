@@ -52,5 +52,4 @@ export type AppDispatch = AppStore['dispatch'];
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export const useAppStore: () => AppStore = useStore;
-// cspell:disable-next-line
 export const persistor = persistStore(store);

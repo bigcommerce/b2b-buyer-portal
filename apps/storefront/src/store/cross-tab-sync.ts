@@ -5,22 +5,23 @@ import type { AppStore } from '.';
 
 type CrossTabConfig<T> = Pick<PersistConfig<T>, 'blacklist' | 'whitelist'>;
 type StoreObj = ReturnType<AppStore['getState']>;
+type StoreObjKeys = keyof StoreObj;
 
 function isStringRecord(
   objectToValidate: unknown,
-): objectToValidate is Record<keyof StoreObj[keyof StoreObj], string> {
+): objectToValidate is Record<keyof StoreObj[StoreObjKeys], string> {
   if (typeof objectToValidate !== 'object' || objectToValidate === null) {
     return false;
   }
 
   const values = Object.values(objectToValidate);
 
-  return !values.some((value) => typeof value !== 'string');
+  return values.every((value) => typeof value === 'string');
 }
 
 export default function crossTabSync(
   store: AppStore,
-  key: keyof StoreObj,
+  key: StoreObjKeys,
   crossTabConfig?: CrossTabConfig<AppStore>,
 ) {
   const { blacklist = null, whitelist = null } = crossTabConfig ?? {};
@@ -37,7 +38,7 @@ export default function crossTabSync(
     }
 
     const parsed: unknown = JSON.parse(e.newValue);
-    let statePartial: Record<keyof StoreObj[keyof StoreObj], string>;
+    let statePartial: Record<keyof StoreObj[StoreObjKeys], string>;
 
     if (isStringRecord(parsed)) {
       statePartial = parsed;
@@ -45,13 +46,13 @@ export default function crossTabSync(
       return;
     }
 
-    const newTemporaryState: StoreObj[keyof StoreObj] = {};
+    const newTemporaryState: StoreObj[StoreObjKeys] = {};
     const newState = Object.entries(statePartial).reduce((state, [reducerKey, storedValue]) => {
-      if (whitelist?.indexOf(reducerKey) === -1) {
+      if (whitelist && !whitelist.includes(reducerKey)) {
         return state;
       }
 
-      if (blacklist && blacklist.indexOf(reducerKey) !== -1) {
+      if (blacklist?.includes(reducerKey)) {
         return state;
       }
 
