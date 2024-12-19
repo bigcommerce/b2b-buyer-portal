@@ -11,7 +11,7 @@ import {
   AllOptionProps,
   ALlOptionValue,
   BcCalculatedPrice,
-  Calculateditems,
+  CalculatedItems,
   CalculatedOptions,
   OptionValue,
   Product,
@@ -111,12 +111,12 @@ const getProductExtraPrice = async (
   if (modifiersItem.length > 0) {
     modifiersItem.forEach((modifier: CustomFieldItems) => {
       const optionValues = modifier.option_values;
-      const productListWithImagesVlaue =
+      const productListWithImagesValue =
         options.find((item: CustomFieldItems) => item.optionId.includes(modifier.id))
           ?.optionValue || '';
-      if (productListWithImagesVlaue) {
+      if (productListWithImagesValue) {
         const additionalProductsParams = optionValues.find(
-          (item: CustomFieldItems) => +item.id === +productListWithImagesVlaue,
+          (item: CustomFieldItems) => +item.id === +productListWithImagesValue,
         );
         if (additionalProductsParams?.value_data?.product_id)
           productIds.push(additionalProductsParams.value_data.product_id);
@@ -238,7 +238,7 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
 
     let singleCurrentPrice = currentProductPrices?.tax_exclusive || 0;
     let singleAllTax = 0;
-    let singleextraProductPrice = 0;
+    let singleExtraProductPrice = 0;
 
     if (modifierPrices.length) {
       modifierPrices.forEach((modifierPrice) => {
@@ -255,47 +255,47 @@ const setItemProductPrice = (newListProducts: ListItemProps[]) => {
 
     if (extraProductPrices.length) {
       extraProductPrices.forEach((extraProductPrice) => {
-        singleextraProductPrice += extraProductPrice.tax_exclusive * ((100 + rate) / 100);
+        singleExtraProductPrice += extraProductPrice.tax_exclusive * ((100 + rate) / 100);
         singleAllTax += extraProductPrice.tax_exclusive * (rate / 100);
       });
     }
-    const productPrice = singleCurrentPrice * ((100 + rate) / 100) + singleextraProductPrice;
+    const productPrice = singleCurrentPrice * ((100 + rate) / 100) + singleExtraProductPrice;
     const productTax = singleCurrentPrice * (rate / 100) + singleAllTax;
 
     const { node } = item ?? { node: {} };
     node.baseAllPrice = productPrice.toFixed(decimalPlaces);
-    node.baseAllPricetax = productTax.toFixed(decimalPlaces);
+    node.baseAllPriceTax = productTax.toFixed(decimalPlaces);
   });
 };
 
 const getExtraProductPricesProducts = async (
   isB2BUser: boolean,
   listProducts: ListItemProps[],
-  picklistIds: number[],
+  pickListIds: number[],
 ) => {
   const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
-  const { productsSearch: picklistProductsSearch } = await getProducts({
-    productIds: picklistIds,
+  const { productsSearch: pickListProductsSearch } = await getProducts({
+    productIds: pickListIds,
     currencyCode,
   });
-  const newpicklistProducts: Partial<Product>[] = conversionProductsList(picklistProductsSearch);
+  const newPickListProducts: Partial<Product>[] = conversionProductsList(pickListProductsSearch);
 
   listProducts.forEach((item) => {
     const { node } = item;
 
     const extraProductPrices: BcCalculatedPrice[] = [];
-    if (node?.picklistIds?.length) {
-      node?.picklistIds.forEach((picklistId: number) => {
-        const picklistItem = newpicklistProducts.find(
-          (product: Partial<Product>) => product?.id && +product.id === +picklistId,
+    if (node?.pickListIds?.length) {
+      node?.pickListIds.forEach((pickListId: number) => {
+        const pickListItem = newPickListProducts.find(
+          (product: Partial<Product>) => product?.id && +product.id === +pickListId,
         );
         if (
-          picklistItem &&
-          picklistItem?.variants?.length &&
-          picklistItem.variants[0]?.bc_calculated_price
+          pickListItem &&
+          pickListItem?.variants?.length &&
+          pickListItem.variants[0]?.bc_calculated_price
         ) {
-          extraProductPrices.push(picklistItem.variants[0]?.bc_calculated_price);
+          extraProductPrices.push(pickListItem.variants[0]?.bc_calculated_price);
         }
       });
     }
@@ -308,7 +308,7 @@ const getExtraProductPricesProducts = async (
 const addTaxProductPrices = (
   listProducts: ListItemProps[],
   newProductsSearch: Partial<Product>[],
-  picklistIds: number[],
+  pickListIds: number[],
 ) => {
   listProducts.forEach((item) => {
     const { node } = item;
@@ -322,21 +322,21 @@ const addTaxProductPrices = (
       }) || {};
 
     // gets the associated product id
-    const currentPicklistIds: number[] = [];
+    const currentPickListIds: number[] = [];
     if (productInfo?.allOptions && productInfo?.allOptions.length) {
-      const picklist = productInfo.allOptions.find(
+      const pickList = productInfo.allOptions.find(
         (item: Partial<AllOptionProps>) => item.type === 'product_list_with_images',
       );
-      if (picklist && picklist?.option_values?.length) {
+      if (pickList && pickList?.option_values?.length) {
         const flag = optionList.some(
-          (item: CustomFieldItems) => item.option_id.includes(picklist.id) && item.option_value,
+          (item: CustomFieldItems) => item.option_id.includes(pickList.id) && item.option_value,
         );
         if (flag) {
-          picklist.option_values.forEach((list: Partial<ALlOptionValue>) => {
-            const picklistProductId: number = list?.value_data?.product_id || 0;
-            if (picklistProductId) currentPicklistIds.push(picklistProductId);
-            if (!picklistIds.includes(picklistProductId)) {
-              picklistIds.push(picklistProductId);
+          pickList.option_values.forEach((list: Partial<ALlOptionValue>) => {
+            const pickListProductId: number = list?.value_data?.product_id || 0;
+            if (pickListProductId) currentPickListIds.push(pickListProductId);
+            if (!pickListIds.includes(pickListProductId)) {
+              pickListIds.push(pickListProductId);
             }
           });
         }
@@ -357,7 +357,7 @@ const addTaxProductPrices = (
     }
     node.taxClassId = productInfo.taxClassId;
 
-    node.picklistIds = currentPicklistIds;
+    node.pickListIds = currentPickListIds;
 
     node.productsSearch = productInfo || {};
   });
@@ -391,16 +391,16 @@ const getNewProductsList = async (listProducts: ListItemProps[], isB2BUser: bool
 
       const newProductsSearch: Partial<Product>[] = conversionProductsList(productsSearch);
 
-      const picklistIds: number[] = [];
+      const pickListIds: number[] = [];
 
       // add modifier price,  current  price and tax price, get the associated product id
-      addTaxProductPrices(listProducts, newProductsSearch, picklistIds);
+      addTaxProductPrices(listProducts, newProductsSearch, pickListIds);
 
       let newListProducts: ListItemProps[] = listProducts;
 
       // Get a collection of related products
-      if (picklistIds.length) {
-        newListProducts = await getExtraProductPricesProducts(isB2BUser, listProducts, picklistIds);
+      if (pickListIds.length) {
+        newListProducts = await getExtraProductPricesProducts(isB2BUser, listProducts, pickListIds);
       }
 
       setItemProductPrice(newListProducts);
@@ -473,7 +473,7 @@ const getCalculatedParams = (
   optionList: CustomFieldItems[],
   variantItem: Partial<Variant>,
   allOptions: Partial<AllOptionProps>[] = [],
-): Partial<Calculateditems>[] | [] => {
+): Partial<CalculatedItems>[] | [] => {
   if (variantItem) {
     const arr: Partial<CalculatedOptions>[] = [];
     const date: Partial<CalculatedOptions>[] = [];
@@ -756,7 +756,7 @@ const formatLineItemsToGetPrices = (
   items.reduce(
     (
       formattedLineItems: {
-        items: Calculateditems[];
+        items: CalculatedItems[];
         variants: ProductInfo[];
       },
       { selectedOptions = [], productEntityId, sku, variantEntityId, quantity },
@@ -817,7 +817,7 @@ const calculateProductsPrice = async (
     calculatedPrices = res.data;
   }
 
-  // create quote array struture and return it
+  // create quote array structure and return it
   return calculatedPrices.map((calculatedPrice, index) => {
     const {
       productsSearch,
@@ -854,7 +854,7 @@ const calculateProductListPrice = async (products: Partial<Product>[], type = '1
   try {
     let isError = false;
     let i = 0;
-    let itemsOptions: Partial<Calculateditems>[] | [] = [];
+    let itemsOptions: Partial<CalculatedItems>[] | [] = [];
     while (i < products.length && !isError) {
       let newSelectOptionList = [];
       let allOptions: Partial<AllOptionProps>[] = [];

@@ -231,9 +231,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
       });
       return isPriceHidden && !isBuyerProduct ? '' : newMoney;
     }
-    // if (type === 'quickOrder') {
-    //   return newMoney
-    // }
+
     return newMoney;
   };
 
@@ -279,7 +277,17 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
       )}
 
       {products.map((product) => {
-        const { variants = [] } = product;
+        const { variants = [], applied_discounts: appliedDiscounts = [] } = product;
+        const quantity = getQuantity(product) || 1;
+        const originQuantity = +product.quantity || 1;
+
+        let discountAccountForSingleProduct = 0;
+        appliedDiscounts.forEach((discount) => {
+          if (discount.target === 'product') {
+            discountAccountForSingleProduct += +discount.amount / originQuantity;
+          }
+        });
+
         const currentVariant = variants[0];
         let productPrice = +product.base_price;
         if (currentVariant) {
@@ -297,22 +305,67 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
           productPrice = showInclusiveTaxPrice ? +priceIncTax : +priceExTax;
         }
 
-        const totalPrice = getProductTotals(getQuantity(product) || 0, productPrice);
+        const totalPrice = getProductTotals(quantity, productPrice);
 
-        const getPrice = () => {
+        const discountedPrice = +productPrice - +discountAccountForSingleProduct;
+        const discountedTotalPrice = getProductTotals(quantity, discountedPrice);
+
+        const getDisplayPrice = (priceValue: number) => {
           const newMoney = money
-            ? `${ordersCurrencyFormat(money, productPrice)}`
-            : `${currencyFormat(productPrice)}`;
+            ? `${ordersCurrencyFormat(money, priceValue)}`
+            : `${currencyFormat(priceValue)}`;
 
           return showTypePrice(newMoney, product);
         };
 
-        const getTotalPrice = () => {
-          const newMoney = money
-            ? `${ordersCurrencyFormat(money, totalPrice)}`
-            : `${currencyFormat(totalPrice)}`;
-
-          return showTypePrice(newMoney, product);
+        const renderPrice = (
+          priceLabel: string,
+          priceValue: number,
+          priceDiscountedValue: number,
+        ) => {
+          return (
+            <FlexItem
+              textAlignLocation={textAlign}
+              padding={quantityEditable ? '10px 0 0' : ''}
+              {...itemStyle.default}
+              sx={
+                isMobile
+                  ? {
+                      fontSize: '14px',
+                    }
+                  : {}
+              }
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-end',
+                  justifyContent: textAlign === 'right' ? 'flex-end' : 'flex-start',
+                }}
+              >
+                <Box
+                  sx={{
+                    '& #product-price': {
+                      textDecoration: discountAccountForSingleProduct > 0 ? 'line-through' : 'none',
+                    },
+                  }}
+                >
+                  {isMobile && <span>{priceLabel}: </span>}
+                  <span id="product-price">{getDisplayPrice(priceValue)}</span>
+                </Box>
+                {discountAccountForSingleProduct > 0 ? (
+                  <Box
+                    sx={{
+                      color: '#2E7D32',
+                    }}
+                  >
+                    {getDisplayPrice(priceDiscountedValue)}
+                  </Box>
+                ) : null}
+              </Box>
+            </FlexItem>
+          );
         };
 
         return (
@@ -357,23 +410,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
               </Box>
             </FlexItem>
 
-            <FlexItem
-              textAlignLocation={textAlign}
-              padding={quantityEditable ? '10px 0 0' : ''}
-              {...itemStyle.default}
-              sx={
-                isMobile
-                  ? {
-                      fontSize: '14px',
-                    }
-                  : {}
-              }
-            >
-              {isMobile && <span>Price:</span>}
-
-              {getPrice()}
-            </FlexItem>
-
+            {renderPrice('Price', productPrice, discountedPrice)}
             <FlexItem
               textAlignLocation={textAlign}
               {...itemStyle.qty}
@@ -391,7 +428,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                   variant="filled"
                   hiddenLabel={!isMobile}
                   label={isMobile ? 'Qty' : ''}
-                  value={getQuantity(product)}
+                  value={quantity}
                   onChange={handleProductQuantityChange(product.id)}
                   onKeyDown={handleNumberInputKeyDown}
                   onBlur={handleNumberInputBlur(product)}
@@ -408,28 +445,13 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                 />
               ) : (
                 <>
-                  {isMobile && <span>Qty:</span>}
-                  {getQuantity(product)}
+                  {isMobile && <span>Qty: </span>}
+                  {quantity}
                 </>
               )}
             </FlexItem>
 
-            <FlexItem
-              padding={quantityEditable ? '10px 0 0' : ''}
-              {...itemStyle.default}
-              textAlignLocation={textAlign}
-              sx={
-                isMobile
-                  ? {
-                      fontSize: '14px',
-                    }
-                  : {}
-              }
-            >
-              {isMobile && <span>{totalText}:</span>}
-              {getTotalPrice()}
-            </FlexItem>
-
+            {renderPrice(totalText, totalPrice, discountedTotalPrice)}
             {renderAction && (
               <FlexItem
                 {...itemStyle.default}
