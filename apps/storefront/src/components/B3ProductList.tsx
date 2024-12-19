@@ -278,14 +278,13 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
       {products.map((product) => {
         const { variants = [], applied_discounts: appliedDiscounts = [] } = product;
-        const quantity = getQuantity(product) || 0;
-        const originQuantity = +product.quantity || 0;
+        const quantity = getQuantity(product) || 1;
+        const originQuantity = +product.quantity || 1;
 
-        let discountAccountForProduct = 0;
+        let discountAccountForSingleProduct = 0;
         appliedDiscounts.forEach((discount) => {
           if (discount.target === 'product') {
-            const discountValue = (+discount.amount / originQuantity) * quantity;
-            discountAccountForProduct += discountValue;
+            discountAccountForSingleProduct += +discount.amount / originQuantity;
           }
         });
 
@@ -308,7 +307,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
         const totalPrice = getProductTotals(quantity, productPrice);
 
-        const discountedPrice = +productPrice - +discountAccountForProduct;
+        const discountedPrice = +productPrice - +discountAccountForSingleProduct;
         const discountedTotalPrice = getProductTotals(quantity, discountedPrice);
 
         const getDisplayPrice = (priceValue: number) => {
@@ -348,14 +347,14 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                 <Box
                   sx={{
                     '& #product-price': {
-                      textDecoration: discountAccountForProduct > 0 ? 'line-through' : 'none',
+                      textDecoration: discountAccountForSingleProduct > 0 ? 'line-through' : 'none',
                     },
                   }}
                 >
                   {isMobile && <span>{priceLabel}: </span>}
                   <span id="product-price">{getDisplayPrice(priceValue)}</span>
                 </Box>
-                {discountAccountForProduct > 0 ? (
+                {discountAccountForSingleProduct > 0 ? (
                   <Box
                     sx={{
                       color: '#2E7D32',
@@ -412,7 +411,6 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
             </FlexItem>
 
             {renderPrice('Price', productPrice, discountedPrice)}
-
             <FlexItem
               textAlignLocation={textAlign}
               {...itemStyle.qty}
@@ -454,7 +452,6 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
             </FlexItem>
 
             {renderPrice(totalText, totalPrice, discountedTotalPrice)}
-
             {renderAction && (
               <FlexItem
                 {...itemStyle.default}
