@@ -29,6 +29,7 @@ declare interface Window {
       store_hash: string;
       platform: ChannelPlatform;
       environment: import('@/types/global').Environment;
+      cart_url?: string;
     };
   };
   b2b: {

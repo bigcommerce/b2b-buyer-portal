@@ -68,5 +68,9 @@ export const TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE = 'global.customStyles.shopp
 
 export const BROWSER_LANG = navigator.language.substring(0, 2);
 
-export const CART_URL = '/cart.php';
+const {
+  setting: { platform, cart_url: cartUrl },
+} = window.B3;
+const CART_FALLBACK_VALUE = platform === 'bigcommerce' ? '/cart.php' : '/cart';
+export const CART_URL = cartUrl ?? CART_FALLBACK_VALUE;
 export const CHECKOUT_URL = '/checkout';
