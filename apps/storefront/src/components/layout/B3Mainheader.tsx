@@ -15,7 +15,7 @@ import { getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 import B3AccountInfo from './B3AccountInfo';
 import B3StatusNotification from './B3StatusNotification';
 
-export default function B3Mainheader({ title }: { title: string }) {
+export default function MainHeader({ title }: { title: string }) {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
