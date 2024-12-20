@@ -1,5 +1,6 @@
 import { ReactNode, useContext, useLayoutEffect } from 'react';
 
+import { Z_INDEX } from '@/constants';
 import { GlobalContext } from '@/shared/global';
 import { getBCStoreChannelId } from '@/shared/service/b2b';
 import { getGlobalTranslations, setStoreInfo, setTimeFormat, useAppDispatch } from '@/store';
@@ -26,6 +27,14 @@ export interface StoreBasicInfo {
   storeSites?: Array<StoreItem> | [];
   storeName: string;
 }
+
+type ZIndexType = keyof typeof Z_INDEX;
+const setZIndexVariables = () => {
+  Object.keys(Z_INDEX).forEach((key) => {
+    const zIndexKey = key as ZIndexType;
+    document.documentElement.style.setProperty(`--z-index-${key}`, Z_INDEX[zIndexKey].toString());
+  });
+};
 
 export default function B3StoreContainer(props: B3StoreContainerProps) {
   const showPageMask = usePageMask();
@@ -89,6 +98,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
         showPageMask(false);
       }
     };
+    setZIndexVariables();
     getStoreBasicInfo();
     // disabling because dispatchers are not supposed to be here
     // eslint-disable-next-line react-hooks/exhaustive-deps

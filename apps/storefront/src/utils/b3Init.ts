@@ -1,7 +1,5 @@
 import { CustomerRole, FeatureEnabled } from '@/types';
 
-import { getB3PermissionsList } from './b3RolePermissions';
-
 export interface QuoteConfigItem {
   [key: string]: string;
 }
@@ -43,8 +41,6 @@ export const getQuoteEnabled = (
 
   const shoppingListEnabled = storefrontConfig.shoppingLists;
   const registerEnabled = storefrontConfig.tradeProfessionalApplication;
-
-  const { shoppingListActionsPermission, quotesActionsPermission } = getB3PermissionsList();
 
   quoteConfig.forEach((config) => {
     switch (config.key) {
@@ -101,12 +97,9 @@ export const getQuoteEnabled = (
     cartQuoteEnabled = cartQuoteEnabled && guestEnabled === FeatureEnabled.ENABLED;
     productShoppingListEnabled = shoppingListEnabled && slGuestEnabled;
   } else if (isB2BUser) {
-    productQuoteEnabled =
-      productQuoteEnabled && b2bUserEnabled === FeatureEnabled.ENABLED && quotesActionsPermission;
-    cartQuoteEnabled =
-      cartQuoteEnabled && b2bUserEnabled === FeatureEnabled.ENABLED && quotesActionsPermission;
-    productShoppingListEnabled =
-      shoppingListEnabled && slB2bUserEnabled && shoppingListActionsPermission;
+    productQuoteEnabled = productQuoteEnabled && b2bUserEnabled === FeatureEnabled.ENABLED;
+    cartQuoteEnabled = cartQuoteEnabled && b2bUserEnabled === FeatureEnabled.ENABLED;
+    productShoppingListEnabled = shoppingListEnabled && slB2bUserEnabled;
 
     if (role === CustomerRole.SUPER_ADMIN && !isAgenting) {
       productQuoteEnabled = false;

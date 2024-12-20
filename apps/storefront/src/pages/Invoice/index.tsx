@@ -4,18 +4,22 @@ import { useB3Lang } from '@b3/lang';
 import { Box, Button, InputAdornment, TextField, Typography } from '@mui/material';
 import cloneDeep from 'lodash-es/cloneDeep';
 
+import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
+import { permissionLevels } from '@/constants';
 import { useMobile, useSort } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
 import { exportInvoicesAsCSV, getInvoiceList, getInvoiceStats } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
+import { CustomerRole } from '@/types';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import {
   currencyFormat,
   currencyFormatInfo,
   displayFormat,
+  getB3PermissionsList,
   getUTCTimestamp,
   handleGetCorrespondingCurrencyToken,
   snackbar,
@@ -42,8 +46,11 @@ import { handlePrintPDF } from './utils/pdf';
 import { InvoiceItemCard } from './InvoiceItemCard';
 
 export interface FilterSearchProps {
-  [key: string]: string | number | null;
+  [key: string]: string | number | number[] | null;
   q: string;
+  startValue: number | string;
+  endValue: number | string;
+  companyIds: number[];
 }
 
 interface PaginationTableRefProps extends HTMLInputElement {
@@ -59,6 +66,7 @@ const initFilter = {
   first: 10,
   offset: 0,
   orderBy: `-${sortIdArr[defaultSortKey]}`,
+  companyIds: [],
 };
 
 function Invoice() {
@@ -67,7 +75,20 @@ function Invoice() {
   const role = useAppSelector(({ company }) => company.customer.role);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const { selectCompanyHierarchyId, isEnabledCompanyHierarchy } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const currentCompanyId =
+    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyInfoId;
+
   const { invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+
+  const { invoice: invoiceSubViewPermission } = useAppSelector(
+    ({ company }) => company.pagesSubsidiariesPermission,
+  );
+
   const navigate = useNavigate();
   const [isMobile] = useMobile();
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
@@ -75,7 +96,7 @@ function Invoice() {
   const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo();
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
-  const [isOpenHistorys, setIsOpenHistorys] = useState<boolean>(false);
+  const [isOpenHistory, setIsOpenHistory] = useState<boolean>(false);
   const [currentInvoiceId, setCurrentInvoiceId] = useState<string>('');
   const [receiptId, setReceiptId] = useState<string>('');
   const [type, setType] = useState<string>('');
@@ -91,6 +112,14 @@ function Invoice() {
 
   const [filterChangeFlag, setFilterChangeFlag] = useState(false);
   const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([]);
+  const [selectAllPay, setSelectAllPay] = useState<boolean>(invoicePayPermission);
+
+  const { invoicePayPermission: invoiceSubPayPermission } = getB3PermissionsList([
+    {
+      permissionType: 'invoicePayPermission',
+      permissionLevel: permissionLevels.COMPANY_SUBSIDIARIES,
+    },
+  ]);
 
   const {
     state: { bcLanguage },
@@ -142,6 +171,7 @@ function Invoice() {
       const { invoiceStats } = await getInvoiceStats(
         filterData?.status ? +filterData.status : 0,
         +decimalPlaces,
+        filterData?.companyIds || [],
       );
 
       if (invoiceStats) {
@@ -208,16 +238,25 @@ function Invoice() {
         return newItems;
       });
 
-      setCheckedArr([...checkedItems]);
+      const newEnableItems = checkedItems.filter(
+        (item: InvoiceListNode | undefined) => item && !item.node.disableCurrentCheckbox,
+      );
+      setCheckedArr([...newEnableItems]);
     } else {
       setCheckedArr([]);
     }
   };
 
-  const handleViewInvoice = async (id: string, status: string | number) => {
+  const handleViewInvoice = async (
+    id: string,
+    status: string | number,
+    invoiceCompanyId: string,
+  ) => {
     try {
+      const invoicePay =
+        +invoiceCompanyId === +currentCompanyId ? invoicePayPermission : invoiceSubPayPermission;
       setIsRequestLoading(true);
-      const isPayNow = purchasabilityPermission && invoicePayPermission && status !== 2;
+      const isPayNow = purchasabilityPermission && invoicePay && status !== 2;
       const pdfUrl = await handlePrintPDF(id, isPayNow);
 
       if (!pdfUrl) {
@@ -297,6 +336,7 @@ function Invoice() {
         endDateAt: filterData?.endDateAt || null,
         status: invoiceStatus,
         orderBy: orderByFiled,
+        companyIds: filterData?.companyIds || [],
       };
 
       const { invoicesExport } = await exportInvoicesAsCSV({
@@ -315,6 +355,10 @@ function Invoice() {
   };
 
   useEffect(() => {
+    const newInitFilter = {
+      ...initFilter,
+      companyIds: [+selectCompanyHierarchyId || +currentCompanyId],
+    };
     if (location?.search) {
       const params = new URLSearchParams(location.search);
       const getInvoiceId = params.get('invoiceId') || '';
@@ -322,7 +366,7 @@ function Invoice() {
 
       if (getInvoiceId) {
         setFilterData({
-          ...initFilter,
+          ...newInitFilter,
           q: getInvoiceId,
         });
         setType(InvoiceListType.DETAIL);
@@ -332,17 +376,32 @@ function Invoice() {
         // open Successful page
         setType(InvoiceListType.CHECKOUT);
         setFilterData({
-          ...initFilter,
+          ...newInitFilter,
         });
         setReceiptId(getReceiptId);
       }
     } else {
       setType(InvoiceListType.NORMAL);
       setFilterData({
-        ...initFilter,
+        ...newInitFilter,
       });
     }
-  }, [location]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, selectCompanyHierarchyId]);
+
+  const handleSelectCompanies = (company: number[]) => {
+    const newCompanyIds = company.includes(-1) ? [] : company;
+    setFilterData({
+      ...filterData,
+      companyIds: newCompanyIds,
+    });
+
+    setSelectAllPay(
+      company.includes(currentCompanyId) || company.includes(-1)
+        ? invoicePayPermission
+        : invoiceSubPayPermission,
+    );
+  };
 
   useEffect(() => {
     const selectedInvoice =
@@ -414,6 +473,13 @@ function Invoice() {
 
       openBalance.originValue = `${+openBalance.value}`;
       openBalance.value = formattingNumericValues(+openBalance.value, decimalPlaces);
+
+      item.node.disableCurrentCheckbox = +openBalance.value === 0;
+
+      const { companyInfo } = item.node;
+      if (+companyInfo.companyId !== +currentCompanyId) {
+        item.node.disableCurrentCheckbox = !invoiceSubPayPermission || +openBalance.value === 0;
+      }
     });
     setList(invoicesList);
     handleStatisticsInvoiceAmount();
@@ -467,13 +533,25 @@ function Invoice() {
             },
           }}
           onClick={() => {
-            handleViewInvoice(item.id, item.status);
+            const companyInfo = item?.companyInfo || {};
+            handleViewInvoice(item.id, item.status, companyInfo?.companyId);
           }}
         >
           {item?.invoiceNumber ? item?.invoiceNumber : item?.id}
         </Box>
       ),
       width: '8%',
+    },
+    {
+      key: 'companyInfo',
+      title: b3Lang('invoice.headers.companyName'),
+      isSortable: false,
+      render: (item: InvoiceList) => {
+        const { companyName } = item?.companyInfo || {};
+
+        return <Box>{companyName}</Box>;
+      },
+      width: '15%',
     },
     {
       key: 'orderNumber',
@@ -495,14 +573,14 @@ function Invoice() {
           {item?.orderNumber || '-'}
         </Box>
       ),
-      width: '8%',
+      width: '12%',
     },
     {
       key: 'createdAt',
       title: b3Lang('invoice.headers.invoiceDate'),
       isSortable: true,
       render: (item: InvoiceList) => `${item.createdAt ? displayFormat(+item.createdAt) : '–'}`,
-      width: '10%',
+      width: '15%',
     },
     {
       key: 'updatedAt',
@@ -523,7 +601,7 @@ function Invoice() {
           </Typography>
         );
       },
-      width: '10%',
+      width: '15%',
     },
     {
       key: 'originalBalance',
@@ -640,7 +718,7 @@ function Invoice() {
       key: 'companyName',
       title: b3Lang('invoice.headers.action'),
       render: (row: InvoiceList) => {
-        const { id } = row;
+        const { id, companyInfo } = row;
         let actionRow = row;
         if (selectedPay.length > 0) {
           const currentSelected = selectedPay.find((item: InvoiceListNode) => {
@@ -660,8 +738,14 @@ function Invoice() {
           <B3Pulldown
             row={actionRow}
             setInvoiceId={setCurrentInvoiceId}
-            handleOpenHistoryModal={setIsOpenHistorys}
+            handleOpenHistoryModal={setIsOpenHistory}
             setIsRequestLoading={setIsRequestLoading}
+            isCurrentCompany={+currentCompanyId === +companyInfo.companyId}
+            invoicePay={
+              +currentCompanyId === +companyInfo.companyId
+                ? invoicePayPermission
+                : invoiceSubPayPermission
+            }
           />
         );
       },
@@ -716,6 +800,7 @@ function Invoice() {
     <B3Spin isSpinning={isRequestLoading}>
       <Box
         sx={{
+          overflowX: 'auto',
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
@@ -730,26 +815,52 @@ function Invoice() {
             flexDirection: isMobile ? 'column' : 'row',
           }}
         >
-          <B3Filter
-            fiterMoreInfo={translatedFilterFormConfigs}
-            handleChange={handleChange}
-            handleFilterChange={handleFilterChange}
-            startPicker={{
-              isEnabled: true,
-              label: b3Lang('invoice.filter.from'),
-              defaultValue:
-                typeof filterData?.beginDateAt === 'number' ? +filterData.beginDateAt * 1000 : '',
-              pickerKey: 'start',
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: isMobile ? 'flex-start' : 'center',
+              flexDirection: isMobile ? 'column' : 'row',
+              width: isMobile ? '100%' : 'auto',
+
+              '& > div': {
+                width: isMobile ? '100%' : 'auto',
+              },
             }}
-            endPicker={{
-              isEnabled: true,
-              label: b3Lang('invoice.filter.to'),
-              defaultValue:
-                typeof filterData?.endDateAt === 'number' ? +filterData.endDateAt * 1000 : '',
-              pickerKey: 'end',
-            }}
-            searchValue={filterData?.q || ''}
-          />
+          >
+            {isEnabledCompanyHierarchy && invoiceSubViewPermission && (
+              <Box
+                sx={{
+                  mr: isMobile ? 0 : '10px',
+                  mb: '30px',
+                }}
+              >
+                <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleSelectCompanies} />
+              </Box>
+            )}
+            <B3Filter
+              filterMoreInfo={translatedFilterFormConfigs}
+              handleChange={handleChange}
+              handleFilterChange={handleFilterChange}
+              startPicker={{
+                isEnabled: true,
+                label: b3Lang('invoice.filter.from'),
+                defaultValue:
+                  typeof filterData?.beginDateAt === 'number' ? +filterData.beginDateAt * 1000 : '',
+                pickerKey: 'start',
+              }}
+              endPicker={{
+                isEnabled: true,
+                label: b3Lang('invoice.filter.to'),
+                defaultValue:
+                  typeof filterData?.endDateAt === 'number' ? +filterData.endDateAt * 1000 : '',
+                pickerKey: 'end',
+              }}
+              searchValue={filterData?.q || ''}
+              pcContainerWidth="36rem"
+              pcSearchContainerWidth="80%"
+            />
+          </Box>
           <Box
             sx={{
               display: 'flex',
@@ -798,8 +909,8 @@ function Invoice() {
           isCustomRender={false}
           requestLoading={setIsRequestLoading}
           tableKey="id"
-          showCheckbox={invoicePayPermission && purchasabilityPermission}
-          showSelectAllCheckbox={!isMobile && invoicePayPermission && purchasabilityPermission}
+          showCheckbox={selectAllPay && purchasabilityPermission}
+          showSelectAllCheckbox={!isMobile && selectAllPay && purchasabilityPermission}
           disableCheckbox={false}
           applyAllDisableCheckbox={false}
           getSelectCheckbox={getSelectCheckbox}
@@ -809,6 +920,7 @@ function Invoice() {
           sortByFn={handleSetOrderBy}
           isSelectOtherPageCheckbox
           hover
+          isAutoRefresh={false}
           renderItem={(
             row: InvoiceList,
             index?: number,
@@ -821,10 +933,16 @@ function Invoice() {
               handleViewInvoice={handleViewInvoice}
               setIsRequestLoading={setIsRequestLoading}
               setInvoiceId={setCurrentInvoiceId}
-              handleOpenHistoryModal={setIsOpenHistorys}
+              handleOpenHistoryModal={setIsOpenHistory}
               selectedPay={selectedPay}
               handleGetCorrespondingCurrency={handleGetCorrespondingCurrencyToken}
               addBottom={list.length - 1 === index}
+              isCurrentCompany={+currentCompanyId === +row.companyInfo.companyId}
+              invoicePay={
+                +currentCompanyId === +row.companyInfo.companyId
+                  ? invoicePayPermission
+                  : invoiceSubPayPermission
+              }
             />
           )}
         />
@@ -842,13 +960,13 @@ function Invoice() {
           </Box>
         )}
       </Box>
-      {selectedPay.length > 0 && (role === 0 || isAgenting) && (
-        <InvoiceFooter selectedPay={selectedPay} decimalPlaces={decimalPlaces} />
-      )}
+      {selectedPay.length > 0 &&
+        (((invoicePayPermission || invoiceSubPayPermission) && purchasabilityPermission) ||
+          isAgenting) && <InvoiceFooter selectedPay={selectedPay} decimalPlaces={decimalPlaces} />}
       <PaymentsHistory
-        open={isOpenHistorys}
+        open={isOpenHistory}
         currentInvoiceId={currentInvoiceId}
-        setOpen={setIsOpenHistorys}
+        setOpen={setIsOpenHistory}
       />
       <PaymentSuccess receiptId={+receiptId} type={type} />
     </B3Spin>

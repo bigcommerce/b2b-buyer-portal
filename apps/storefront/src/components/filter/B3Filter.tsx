@@ -41,24 +41,27 @@ type DeepPartial<T> = {
     : DeepPartial<T[P]>;
 };
 
-interface CustomButtomProps {
+interface CustomButtonProps {
   isEnabled: boolean;
   customLabel: string;
-  customButtomStyle?: { [key: string]: string };
+  customButtonStyle?: { [key: string]: string };
 }
 
 interface B3FilterProps<T, Y> {
   sortByConfig?: SortByConfigProps;
-  customButtomConfig?: CustomButtomProps;
+  customButtonConfig?: CustomButtonProps;
   startPicker?: PickerProps;
   endPicker?: PickerProps;
-  fiterMoreInfo: Array<DeepPartial<T>>;
+  filterMoreInfo: Array<DeepPartial<T>>;
   handleChange: (key: string, value: string) => void;
   handleFilterChange: (value: Y) => void;
-  handleFilterCustomButtomClick?: () => void;
+  handleFilterCustomButtonClick?: () => void;
   showB3FilterMoreIcon?: boolean;
   searchValue?: string;
   resetFilterInfo?: () => void;
+  pcContainerWidth?: string;
+  pcSearchContainerWidth?: string;
+  pcTotalWidth?: string;
 }
 
 function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
@@ -66,14 +69,17 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
     sortByConfig,
     startPicker,
     endPicker,
-    fiterMoreInfo,
-    customButtomConfig,
+    filterMoreInfo,
+    customButtonConfig,
     handleChange,
     handleFilterChange,
-    handleFilterCustomButtomClick,
+    handleFilterCustomButtonClick,
     showB3FilterMoreIcon = true,
     searchValue = '',
     resetFilterInfo,
+    pcContainerWidth = '29rem',
+    pcSearchContainerWidth = '60%',
+    pcTotalWidth = 'unset',
   } = props;
 
   const [isMobile] = useMobile();
@@ -90,7 +96,7 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
   };
 
   const handleCustomBtnClick = () => {
-    if (handleFilterCustomButtomClick) handleFilterCustomButtomClick();
+    if (handleFilterCustomButtonClick) handleFilterCustomButtonClick();
   };
 
   return (
@@ -101,22 +107,27 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
             display: 'flex',
             justifyContent: 'space-between',
             mb: '30px',
+            width: pcTotalWidth,
           }}
         >
           <Box
             sx={{
-              maxWidth: '29rem',
+              maxWidth: pcContainerWidth,
               flexBasis: '100%',
               display: 'flex',
               alignItems: 'center',
             }}
           >
-            <B3FilterSearch handleChange={handleSearchChange} w="60%" searchValue={searchValue} />
+            <B3FilterSearch
+              handleChange={handleSearchChange}
+              w={pcSearchContainerWidth}
+              searchValue={searchValue}
+            />
             {showB3FilterMoreIcon && (
               <B3FilterMore
                 startPicker={startPicker}
                 endPicker={endPicker}
-                fiterMoreInfo={fiterMoreInfo}
+                filterMoreInfo={filterMoreInfo}
                 onChange={handleFilterChange}
                 resetFilterInfo={resetFilterInfo}
               />
@@ -148,18 +159,18 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
                 />
               </Box>
             )}
-            {customButtomConfig?.isEnabled && (
+            {customButtonConfig?.isEnabled && (
               <CustomButton
                 size="small"
                 variant="contained"
                 sx={{
                   height: '42px',
                   p: '0 20px',
-                  ...(customButtomConfig?.customButtomStyle || {}),
+                  ...(customButtonConfig?.customButtonStyle || {}),
                 }}
                 onClick={handleCustomBtnClick}
               >
-                {customButtomConfig?.customLabel || ''}
+                {customButtonConfig?.customLabel || ''}
               </CustomButton>
             )}
             {/* <B3FilterToggleTable /> */}
@@ -186,12 +197,12 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
             <B3FilterMore
               startPicker={startPicker}
               endPicker={endPicker}
-              fiterMoreInfo={fiterMoreInfo}
+              filterMoreInfo={filterMoreInfo}
               onChange={handleFilterChange}
               resetFilterInfo={resetFilterInfo}
             />
           </Box>
-          {customButtomConfig?.isEnabled && (
+          {customButtonConfig?.isEnabled && (
             <CustomButton
               size="small"
               variant="contained"
@@ -199,11 +210,11 @@ function B3Filter<T, Y>(props: B3FilterProps<T, Y>) {
               sx={{
                 marginTop: '20px',
                 height: '42px',
-                ...(customButtomConfig?.customButtomStyle || {}),
+                ...(customButtonConfig?.customButtonStyle || {}),
               }}
               onClick={handleCustomBtnClick}
             >
-              {customButtomConfig?.customLabel || ''}
+              {customButtonConfig?.customLabel || ''}
             </CustomButton>
           )}
         </Box>

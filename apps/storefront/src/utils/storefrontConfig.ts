@@ -6,6 +6,7 @@ import {
   getB2BRegisterLogo,
   getBCStoreChannelId,
   getCurrencies,
+  getStoreConfigsSwitchStatus,
   getStorefrontConfig,
   getStorefrontConfigs,
   getStorefrontDefaultLanguages,
@@ -90,6 +91,10 @@ const storeforntKeys: StoreforntKeysProps[] = [
   {
     key: 'masquerade_button',
     name: 'masqueradeButton',
+  },
+  {
+    key: 'switch_account_button',
+    name: 'switchAccountButton',
   },
   {
     key: 'quote_floating_action_button',
@@ -205,6 +210,16 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
         };
       }
 
+      if (storeforntKey.key === 'switch_account_button') {
+        storefrontConfig.extraFields = {
+          ...item.extraFields,
+          color: item.extraFields?.color || '#ED6C02',
+          location: item.extraFields?.location || ' bottomLeft',
+          horizontalPadding: item.extraFields?.horizontalPadding || '',
+          verticalPadding: item.extraFields?.verticalPadding || '',
+        };
+      }
+
       if (storeforntKey.key === 'quote_floating_action_button') {
         storefrontConfig.extraFields = {
           ...item.extraFields,
@@ -307,6 +322,14 @@ const getQuoteConfig = async (dispatch: DispatchProps) => {
       quoteConfig,
     },
   });
+};
+
+export const getAccountHierarchyIsEnabled = async () => {
+  const { storeConfigSwitchStatus } = await getStoreConfigsSwitchStatus('account_hierarchy');
+  if (!storeConfigSwitchStatus) return false;
+  const { isEnabled } = storeConfigSwitchStatus;
+
+  return isEnabled === '1';
 };
 
 const setStorefrontConfig = async (dispatch: DispatchProps) => {

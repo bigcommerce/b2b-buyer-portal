@@ -115,7 +115,7 @@ export const setMediaStyle = (mediaBlocks: string[], className: string) => {
 };
 
 export const setMUIMediaStyle = (mediaBlocks: string[]) => {
-  if (mediaBlocks.length === 0) return [];
+  if (mediaBlocks.length === 0) return {};
   const newMedia: CustomFieldItems = {};
   mediaBlocks.forEach((media: string) => {
     const mediaArr = media.split('\n');
