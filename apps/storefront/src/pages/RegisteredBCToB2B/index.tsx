@@ -242,9 +242,11 @@ export default function RegisteredBCToB2B(props: PageProps) {
         if (stateList.length > 0) {
           stateFields.fieldType = 'dropdown';
           stateFields.options = stateList;
+          stateFields.required = true;
         } else {
           stateFields.fieldType = 'text';
           stateFields.options = [];
+          stateFields.required = false;
         }
       }
 
