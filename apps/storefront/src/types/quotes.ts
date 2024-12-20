@@ -1,3 +1,5 @@
+import { ExtraFieldsConfigType, Maybe, QuoteExtraFieldsConfigType } from '@/types/gql/graphql';
+
 import { Product } from './products';
 
 export interface ContactInfo {
@@ -88,6 +90,12 @@ export interface QuoteItem {
   };
 }
 
+export interface QuoteExtraFields {
+  id?: number;
+  fieldName: Maybe<string> | undefined;
+  value: string | number;
+}
+
 export interface QuoteInfo {
   userId?: number;
   contactInfo: ContactInfo;
@@ -95,4 +103,66 @@ export interface QuoteInfo {
   billingAddress: BillingAddress;
   fileInfo?: FileInfo[];
   note?: string;
+  referenceNumber?: string;
+  extraFields?: QuoteExtraFields[];
+  recipients?: string[];
+}
+
+export interface QuoteInfoAndExtrafieldsItemProps {
+  info: {
+    quoteTitle: string;
+    referenceNumber: string;
+  };
+  extraFields: QuoteExtraFields[] | undefined;
+  recipients: string[];
+}
+
+export interface B2bExtraFieldsProps {
+  defaultValue: string;
+  fieldName: string;
+  fieldType: 0 | 1 | 2 | 3;
+  isRequired: boolean;
+  labelName: string;
+  listOfValue: null | Array<string>;
+  maximumLength: string | number | null;
+  maximumValue: string | number | null;
+  numberOfRows: string | number | null;
+  visibleToEnduser: boolean;
+  id: number | string;
+}
+
+export interface FieldsOptionProps {
+  label: Maybe<string>;
+  value: Maybe<string>;
+}
+
+export interface QuoteFormattedItemsProps {
+  isExtraFields: boolean;
+  name: Maybe<string> | undefined;
+  label: Maybe<string> | undefined;
+  required?: boolean | null;
+  default: string | number;
+  fieldType: string;
+  xs: number;
+  variant: string;
+  size: string;
+  options?: FieldsOptionProps[];
+  max?: string | number | null;
+  rows?: string | number | null;
+  maxLength?: string | number | null;
+  id: number | string;
+}
+
+export type QuoteExtraFieldsOrigin = Omit<ExtraFieldsConfigType, 'fieldType'> &
+  QuoteExtraFieldsConfigType & {
+    fieldCategory: string;
+  };
+
+export interface QuoteExtraFieldsType {
+  quoteExtraFieldsConfig: QuoteExtraFieldsOrigin[];
+}
+
+export interface QuoteExtraFieldsData {
+  fieldName: string | undefined;
+  fieldValue: string | number;
 }

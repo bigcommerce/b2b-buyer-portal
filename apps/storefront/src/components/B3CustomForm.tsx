@@ -2,6 +2,7 @@ import { Grid } from '@mui/material';
 
 import B3UI from './form/ui';
 import {
+  B2BControlMultiTextField,
   B3ControlAutocomplete,
   B3ControlCheckbox,
   B3ControlFileUpload,
@@ -84,6 +85,16 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
             )}
             {['roleAutocomplete'].includes(fieldType) && (
               <B3ControlAutocomplete
+                {...field}
+                errors={errors}
+                control={control}
+                setValue={setValue}
+                getValues={getValues}
+              />
+            )}
+            {['multiInputText'].includes(fieldType) && (
+              <B2BControlMultiTextField
+                {...props}
                 {...field}
                 errors={errors}
                 control={control}

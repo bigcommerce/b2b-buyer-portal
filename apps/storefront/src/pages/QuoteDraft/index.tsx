@@ -1,10 +1,10 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import cloneDeep from 'lodash-es/cloneDeep';
+import { cloneDeep, concat, uniq } from 'lodash-es';
 
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
@@ -31,8 +31,16 @@ import {
   useAppSelector,
 } from '@/store';
 import { AddressItemType, BCAddressItemType } from '@/types/address';
-import { BillingAddress, ContactInfoKeys, ShippingAddress } from '@/types/quotes';
+import {
+  BillingAddress,
+  ContactInfoKeys,
+  QuoteExtraFields,
+  QuoteFormattedItemsProps,
+  QuoteInfo as QuoteInfoType,
+  ShippingAddress,
+} from '@/types/quotes';
 import { B3LStorage, channelId, snackbar, storeHash } from '@/utils';
+import b2bLogger from '@/utils/b3Logger';
 import { addQuoteDraftProducts, getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
@@ -52,6 +60,7 @@ import QuoteSummary from '../quote/components/QuoteSummary';
 import QuoteTable from '../quote/components/QuoteTable';
 import getAccountFormFields from '../quote/config';
 import Container from '../quote/style';
+import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 
 type BCAddress = {
   node: BCAddressItemType;
@@ -160,6 +169,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   const [quoteSubmissionResponseOpen, setQuoteSubmissionResponseOpen] = useState<boolean>(false);
   const [quoteId, setQuoteId] = useState<string | number>('');
   const [currentCreatedAt, setCurrentCreatedAt] = useState<string | number>('');
+  const [extraFields, setExtraFields] = useState<QuoteFormattedItemsProps[]>([]);
 
   const quoteSummaryRef = useRef<QuoteSummaryRef | null>(null);
 
@@ -252,6 +262,25 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           }));
           setAddressList(list);
         }
+
+        const extraFieldsInfo = await getB2BQuoteExtraFields();
+        if (extraFieldsInfo.length) {
+          setExtraFields(extraFieldsInfo);
+          const preExtraFields = quoteInfo.extraFields;
+          const defaultValues = extraFieldsInfo?.map((field) => {
+            const defaultValue =
+              preExtraFields?.find((item: QuoteExtraFields) => item.fieldName === field.name)
+                ?.value || field?.default;
+
+            return {
+              id: +field.id,
+              fieldName: field.name,
+              value: defaultValue || '',
+            };
+          });
+          quoteInfo.extraFields = defaultValues;
+        }
+
         if (
           quoteInfo &&
           (!quoteInfo?.contactInfo || validateObject(quoteInfo, 'contactInfo')) &&
@@ -274,6 +303,19 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const quoteAndExtraFieldsInfo = useMemo(() => {
+    const contactInfo: CustomFieldItems = quoteinfo.contactInfo || {};
+
+    return {
+      info: {
+        quoteTitle: contactInfo?.quoteTitle || '',
+        referenceNumber: quoteinfo?.referenceNumber || '',
+      },
+      extraFields: quoteinfo.extraFields || [],
+      recipients: quoteinfo.recipients || [],
+    };
+  }, [quoteinfo]);
+
   const getAddress = () => {
     const addresssaveInfo = {
       shippingAddress,
@@ -290,12 +332,49 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     return addresssaveInfo;
   };
 
+  const handleSaveCCEmail = (ccEmail: string[]) => {
+    const saveInfo = cloneDeep(quoteinfo);
+    saveInfo.recipients = ccEmail;
+
+    dispatch(setDraftQuoteInfo(saveInfo));
+  };
+
+  const handleCollectingData = async (saveInfo: QuoteInfoType) => {
+    if (contactInfoRef?.current) {
+      const contactInfo = await contactInfoRef.current.getContactInfoValue();
+      if (!contactInfo) return false;
+
+      const currentRecipients = saveInfo?.recipients || [];
+      if (contactInfo.ccEmail.trim().length) {
+        saveInfo.recipients = uniq(concat(currentRecipients, [contactInfo.ccEmail]));
+      }
+
+      saveInfo.contactInfo = {
+        name: contactInfo?.name,
+        email: contactInfo?.email,
+        companyName: contactInfo?.companyName || '',
+        phoneNumber: contactInfo?.phoneNumber,
+        quoteTitle: contactInfo?.quoteTitle,
+      };
+      saveInfo.referenceNumber = contactInfo?.referenceNumber || '';
+
+      const extraFieldsInfo = extraFields.map((field) => ({
+        id: +field.id,
+        fieldName: field.name,
+        value: field.name ? contactInfo[field.name] : '',
+      }));
+      saveInfo.extraFields = extraFieldsInfo;
+
+      return true;
+    }
+    return false;
+  };
+
   const handleSaveInfoClick = async () => {
     const saveInfo = cloneDeep(quoteinfo);
     if (contactInfoRef?.current) {
-      const contactInfo = await contactInfoRef.current.getContactInfoValue();
-      if (!contactInfo) return;
-      saveInfo.contactInfo = contactInfo;
+      const datas = await handleCollectingData(saveInfo);
+      if (!datas) return;
     }
 
     const { shippingAddress, billingAddress } = getAddress();
@@ -372,6 +451,11 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       setLoading(true);
       try {
         const info = cloneDeep(quoteinfo);
+        if (isEdit && contactInfoRef?.current) {
+          const datas = await handleCollectingData(info);
+          if (!datas) return;
+        }
+
         const contactInfo = info?.contactInfo || {};
 
         const quoteTitle = contactInfo?.quoteTitle || '';
@@ -521,6 +605,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             thousandsToken: currency.thousands_token,
             currencyCode: currency.currency_code,
           },
+          referenceNumber: `${info.referenceNumber}` || '',
+          extraFields: info.extraFields || [],
+          recipients: info.recipients || [],
         };
 
         const fn = +role === 99 ? createBCQuote : createQuote;
@@ -551,11 +638,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           setQuoteSubmissionResponseOpen(true);
         }
       } catch (error: any) {
-        if (error.message && error.message.length > 0) {
-          snackbar.error(error.message, {
-            isClose: true,
-          });
-        }
+        b2bLogger.error(error);
       } finally {
         setLoading(false);
       }
@@ -720,6 +803,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         <Box>
           {!isEdit && (
             <QuoteInfo
+              quoteAndExtraFieldsInfo={quoteAndExtraFieldsInfo}
               status="Draft"
               contactInfo={quoteinfo?.contactInfo}
               shippingAddress={quoteinfo?.shippingAddress}
@@ -732,6 +816,11 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               <ContactInfo
                 emailAddress={customer.emailAddress}
                 info={quoteinfo?.contactInfo}
+                referenceNumber={quoteinfo?.referenceNumber || ''}
+                quoteExtraFields={extraFields}
+                extraFieldsDefault={quoteinfo.extraFields || []}
+                recipients={quoteinfo?.recipients || []}
+                handleSaveCCEmail={handleSaveCCEmail}
                 ref={contactInfoRef}
               />
               <Box
