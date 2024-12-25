@@ -3,12 +3,13 @@ import { matchPath } from 'react-router-dom';
 
 import { type PageProps } from '@/pages/PageProps';
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
-import { getCustomerInfo } from '@/shared/service/bc';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { checkEveryPermissionsCode, getB3PermissionsList, getPermissionsInfo } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
+
+import b2bVerifyBcLoginStatus from '../../utils/b2bVerifyBcLoginStatus';
 
 const AccountSetting = lazy(() => import('@/pages/AccountSetting'));
 const AddressList = lazy(() => import('@/pages/Address'));
@@ -428,11 +429,9 @@ const gotoAllowedAppPage = async (
     return;
   }
   try {
-    const {
-      data: { customer },
-    } = await getCustomerInfo();
+    const isBcLogin = await b2bVerifyBcLoginStatus();
 
-    if (!customer && isB2bTokenPage()) {
+    if (!isBcLogin && isB2bTokenPage()) {
       logoutSession();
       gotoPage('/login?loginFlag=deviceCrowdingLogIn');
       return;

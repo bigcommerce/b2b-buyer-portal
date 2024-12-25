@@ -158,21 +158,6 @@ export default function Login(props: PageProps) {
             window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
             setLoading(false);
           }
-
-          const { result } = (await bcLogoutLogin()).data.logout;
-
-          if (result !== 'success') return;
-
-          if (isAgenting) {
-            await endMasquerade();
-          }
-
-          // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
-          window.sessionStorage.clear();
-
-          logoutSession();
-          setLoading(false);
-          return;
         }
         setLoading(false);
       } finally {
