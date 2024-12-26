@@ -27,7 +27,7 @@ import SetDefaultDialog from './components/SetDefaultDialog';
 import { convertBCToB2BAddress, filterFormConfig } from './shared/config';
 import { CountryProps, getAddressFields } from './shared/getAddressFields';
 
-interface RefCurrntProps extends HTMLInputElement {
+interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditAddressClick: (type: string, data?: AddressItemType) => void;
 }
 
@@ -59,7 +59,7 @@ function Address() {
   const isExtraLarge = useCardListColumn();
   const [paginationTableRef] = useTableRef();
 
-  const addEditAddressRef = useRef<RefCurrntProps | null>(null);
+  const addEditAddressRef = useRef<RefCurrentProps | null>(null);
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
   const [addressFields, setAddressFields] = useState<CustomFieldItems[]>([]);
@@ -262,11 +262,11 @@ function Address() {
         }}
       >
         <B3Filter
-          fiterMoreInfo={translatedFilterFormConfig}
+          filterMoreInfo={translatedFilterFormConfig}
           handleChange={handleChange}
           handleFilterChange={handleFilterChange}
-          customButtomConfig={AddButtonConfig}
-          handleFilterCustomButtomClick={handleCreate}
+          customButtonConfig={AddButtonConfig}
+          handleFilterCustomButtonClick={handleCreate}
         />
         <B3PaginationTable
           ref={paginationTableRef}

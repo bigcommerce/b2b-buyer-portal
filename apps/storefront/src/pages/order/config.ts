@@ -28,7 +28,7 @@ export const sortKeys = {
   poNumber: 'poNumber',
   totalIncTax: 'totalIncTax',
   status: 'status',
-  placedby: 'placedBy',
+  placedBy: 'placedBy',
   createdAt: 'createdAt',
 };
 

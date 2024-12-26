@@ -75,7 +75,7 @@ function Invoice() {
   const { decimal_places: decimalPlaces = 2 } = currencyFormatInfo();
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
-  const [isOpenHistorys, setIsOpenHistorys] = useState<boolean>(false);
+  const [isOpenHistory, setIsOpenHistory] = useState<boolean>(false);
   const [currentInvoiceId, setCurrentInvoiceId] = useState<string>('');
   const [receiptId, setReceiptId] = useState<string>('');
   const [type, setType] = useState<string>('');
@@ -660,7 +660,7 @@ function Invoice() {
           <B3Pulldown
             row={actionRow}
             setInvoiceId={setCurrentInvoiceId}
-            handleOpenHistoryModal={setIsOpenHistorys}
+            handleOpenHistoryModal={setIsOpenHistory}
             setIsRequestLoading={setIsRequestLoading}
           />
         );
@@ -731,7 +731,7 @@ function Invoice() {
           }}
         >
           <B3Filter
-            fiterMoreInfo={translatedFilterFormConfigs}
+            filterMoreInfo={translatedFilterFormConfigs}
             handleChange={handleChange}
             handleFilterChange={handleFilterChange}
             startPicker={{
@@ -821,7 +821,7 @@ function Invoice() {
               handleViewInvoice={handleViewInvoice}
               setIsRequestLoading={setIsRequestLoading}
               setInvoiceId={setCurrentInvoiceId}
-              handleOpenHistoryModal={setIsOpenHistorys}
+              handleOpenHistoryModal={setIsOpenHistory}
               selectedPay={selectedPay}
               handleGetCorrespondingCurrency={handleGetCorrespondingCurrencyToken}
               addBottom={list.length - 1 === index}
@@ -846,9 +846,9 @@ function Invoice() {
         <InvoiceFooter selectedPay={selectedPay} decimalPlaces={decimalPlaces} />
       )}
       <PaymentsHistory
-        open={isOpenHistorys}
+        open={isOpenHistory}
         currentInvoiceId={currentInvoiceId}
-        setOpen={setIsOpenHistorys}
+        setOpen={setIsOpenHistory}
       />
       <PaymentSuccess receiptId={+receiptId} type={type} />
     </B3Spin>
