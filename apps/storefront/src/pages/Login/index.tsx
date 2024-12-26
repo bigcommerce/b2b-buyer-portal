@@ -223,7 +223,8 @@ export default function Login(props: PageProps) {
 
           if (response.status === 400 && response.type === 'reset_password_before_login') {
             b2bLogger.error(response);
-            await data.emailAddress;
+          } else if (response.type === 'invalid_login') {
+            setLoginFlag('accountIncorrect');
           } else {
             window.location.href = CHECKOUT_URL;
           }
