@@ -181,7 +181,7 @@ describe('when captcha is enabled', () => {
     await user.click(button);
 
     await waitFor(() => {
-      expect(navigation).toHaveBeenCalledWith('/login?loginFlag=2');
+      expect(navigation).toHaveBeenCalledWith('/login?loginFlag=receivePassword');
     });
 
     expect(requestData).toHaveBeenCalledWith({
@@ -271,7 +271,7 @@ describe('when captcha is disabled', () => {
     await user.click(button);
 
     expect(serverMock).toHaveBeenCalledWith('email=test%40example.com');
-    expect(navigation).toHaveBeenCalledWith('/login?loginFlag=2');
+    expect(navigation).toHaveBeenCalledWith('/login?loginFlag=receivePassword');
   });
 
   it('logs an error when the request to reset password fails', async () => {
@@ -322,5 +322,5 @@ it('shows a missing email error when the email is missing', async () => {
 
   await screen.findByText(/email address is required/i);
 
-  expect(navigation).not.toHaveBeenCalledWith('/login?loginFlag=2');
+  expect(navigation).not.toHaveBeenCalledWith('/login?loginFlag=receivePassword');
 });

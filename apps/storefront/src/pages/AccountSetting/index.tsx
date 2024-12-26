@@ -42,8 +42,8 @@ function AccountSetting() {
     mode: 'onSubmit',
   });
 
-  const [isFinshUpdate, setIsFinshUpdate] = useStorageState<boolean>(
-    'sf-isFinshUpdate',
+  const [isFinishUpdate, setIsFinishUpdate] = useStorageState<boolean>(
+    'sf-isFinishUpdate',
     false,
     sessionStorage,
   );
@@ -72,7 +72,7 @@ function AccountSetting() {
 
   const [extraFields, setExtraFields] = useState<Partial<Fields>[]>([]);
 
-  const [isloadding, setLoadding] = useState<boolean>(false);
+  const [isLoading, setLoading] = useState<boolean>(false);
 
   const [accountSettings, setAccountSettings] = useState<any>({});
 
@@ -85,7 +85,7 @@ function AccountSetting() {
   useEffect(() => {
     const init = async () => {
       try {
-        setLoadding(true);
+        setLoading(true);
 
         const accountFormAllFields = await getB2BAccountFormFields(isBCUser ? 1 : 2);
 
@@ -164,11 +164,11 @@ function AccountSetting() {
 
         setExtraFields(additionalInformation);
       } finally {
-        if (isFinshUpdate) {
+        if (isFinishUpdate) {
           snackbar.success(b3Lang('accountSettings.notification.detailsUpdated'));
-          setIsFinshUpdate(false);
+          setIsFinishUpdate(false);
         }
-        setLoadding(false);
+        setLoading(false);
         setIsVisible(true);
       }
     };
@@ -240,7 +240,7 @@ function AccountSetting() {
 
   const handleAddUserClick = () => {
     handleSubmit(async (data: CustomFieldItems) => {
-      setLoadding(true);
+      setLoading(true);
 
       try {
         const isValid = await validateEmailValue(data.email);
@@ -291,21 +291,21 @@ function AccountSetting() {
             (data.password && data.currentPassword) ||
             customer.emailAddress !== trim(data.email)
           ) {
-            navigate('/login?loginFlag=3');
+            navigate('/login?loginFlag=loggedOutLogin');
           } else {
             B3SStorage.clear();
-            setIsFinshUpdate(true);
+            setIsFinishUpdate(true);
             window.location.reload();
           }
         }
       } finally {
-        setLoadding(false);
+        setLoading(false);
       }
     })();
   };
 
   return (
-    <B3Spin isSpinning={isloadding} background={backgroundColor}>
+    <B3Spin isSpinning={isLoading} background={backgroundColor}>
       <Box
         sx={{
           width: `${isMobile ? '100%' : '35%'}`,
