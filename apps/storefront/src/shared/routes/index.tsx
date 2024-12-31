@@ -115,7 +115,7 @@ const routes: RouteItem[] = [
   {
     path: '/shoppingLists',
     name: 'Shopping lists',
-    wsKey: 'shioppingLists',
+    wsKey: 'shoppingLists',
     isMenuItem: true,
     component: ShippingLists,
     configKey: 'shoppingLists',
@@ -128,7 +128,7 @@ const routes: RouteItem[] = [
     path: '/purchased-products',
     name: 'Quick order',
     pageTitle: 'Purchased products',
-    wsKey: 'quickorder',
+    wsKey: 'quickOrder',
     isMenuItem: true,
     component: QuickOrder,
     configKey: 'quickOrderPad',
@@ -261,8 +261,8 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
     isProvider: false,
   },
   {
-    path: '/forgotpassword',
-    name: 'forgotpassword',
+    path: '/forgotPassword',
+    name: 'forgotPassword',
     component: ForgotPassword,
     permissions: [0, 1, 2, 3, 4, 99, 100],
     isProvider: false,
@@ -417,14 +417,14 @@ const gotoAllowedAppPage = async (
   const { companyRoleName } = company.customer;
   const isLoggedIn = company.customer || role !== CustomerRole.GUEST;
   if (!isLoggedIn) {
-    gotoPage('/login?loginFlag=3&&closeIsLogout=1');
+    gotoPage('/login?loginFlag=loggedOutLogin&&closeIsLogout=1');
     return;
   }
 
   const isInvoicePage = () => invoiceTypes.some((type: string) => href.includes(type));
 
   if (denyInvoiceRoles.includes(role) && isInvoicePage()) {
-    gotoPage('/login?loginFlag=7');
+    gotoPage('/login?loginFlag=invoiceErrorTip');
     return;
   }
   try {
@@ -434,7 +434,7 @@ const gotoAllowedAppPage = async (
 
     if (!customer && isB2bTokenPage()) {
       logoutSession();
-      gotoPage('/login?loginFlag=6');
+      gotoPage('/login?loginFlag=deviceCrowdingLogIn');
       return;
     }
   } catch (err: unknown) {

@@ -1,5 +1,6 @@
 export const SUPPORT_LANGUAGE = ['en', 'zh', 'fr', 'nl', 'de', 'it', 'es'];
 
+// cspell:disable
 export const FILE_UPLOAD_ACCEPT_TYPE = [
   'application/pdf',
   'application/msword',
@@ -9,6 +10,7 @@ export const FILE_UPLOAD_ACCEPT_TYPE = [
   'text/csv',
   'image/*',
 ];
+// cspell:enable
 
 export const re = {
   phone:
@@ -27,8 +29,8 @@ export const STORE_DEFAULT_LOGO = 'https://cdn.bundleb2b.net/b2blogo/b2be-logo.p
 
 export enum HeadlessRoutes {
   SIGN_IN = '/login',
-  LOG_OUT = '/login?loginFlag=3',
-  FORGOT_PASSWORD = '/forgotpassword',
+  LOG_OUT = '/login?loginFlag=loggedOutLogin',
+  FORGOT_PASSWORD = '/forgotPassword',
   REGISTER_ACCOUNT = '/register',
   DRAFT_QUOTE = '/quoteDraft',
   SHOPPING_LISTS = '/shoppingLists',
@@ -58,13 +60,13 @@ export const StatusNotifications = {
 };
 
 export const ADD_TO_QUOTE_DEFAULT_VALUE = 'Add to quote';
-export const ADD_TO_SHOPPING_LIST_DEFUALT_VALUE = 'Add to Shopping List';
+export const ADD_TO_SHOPPING_LIST_DEFAULT_VALUE = 'Add to Shopping List';
 export const END_MASQUERADE_DEFAULT_VALUE = 'END MASQUERADE';
-export const FINISH_QUOTE_DEFUALT_VALUE = 'Finish quote';
+export const FINISH_QUOTE_DEFAULT_VALUE = 'Finish quote';
 export const TRANSLATION_ADD_TO_QUOTE_VARIABLE = 'global.customStyles.addQuoteBtn';
 export const TRANSLATION_FINISH_QUOTE_VARIABLE = 'global.customStyles.floatingAction';
 export const TRANSLATION_MASQUERADE_BUTTON_VARIABLE = 'global.customStyles.masqueradeButton';
-export const TRANSLATION_SHOPPING_LIST_BTN_VARAIBLE = 'global.customStyles.shoppingListBtn';
+export const TRANSLATION_SHOPPING_LIST_BTN_VARIABLE = 'global.customStyles.shoppingListBtn';
 
 export const BROWSER_LANG = navigator.language.substring(0, 2);
 
