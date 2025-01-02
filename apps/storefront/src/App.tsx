@@ -32,7 +32,7 @@ import { CHECKOUT_URL } from './constants';
 import {
   isB2BUserSelector,
   rolePermissionSelector,
-  setGlabolCommonState,
+  setGlobalCommonState,
   setOpenPageReducer,
   useAppDispatch,
   useAppSelector,
@@ -42,8 +42,8 @@ const B3GlobalTip = lazy(() => import('@/components/B3GlobalTip'));
 
 const B3HoverButton = lazy(() => import('@/components/outSideComponents/B3HoverButton'));
 
-const B3MasquradeGobalTip = lazy(
-  () => import('@/components/outSideComponents/B3MasquradeGobalTip'),
+const B3MasqueradeGlobalTip = lazy(
+  () => import('@/components/outSideComponents/B3MasqueradeGlobalTip'),
 );
 
 const HeadlessController = lazy(() => import('@/components/HeadlessController'));
@@ -97,7 +97,7 @@ export default function App() {
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
     showPageMask(true);
     storeDispatch(
-      setGlabolCommonState({
+      setGlobalCommonState({
         isClickEnterBtn: true,
         currentClickedUrl: href,
         isRegisterAndLogin,
@@ -155,7 +155,7 @@ export default function App() {
         openUrl = '/register';
       }
       if (/action=reset_password/.test(search)) {
-        openUrl = '/forgotpassword';
+        openUrl = '/forgotPassword';
       }
 
       setOpenPage({
@@ -225,7 +225,7 @@ export default function App() {
       }
 
       storeDispatch(
-        setGlabolCommonState({
+        setGlobalCommonState({
           isPageComplete: true,
         }),
       );
@@ -233,7 +233,7 @@ export default function App() {
 
     init();
     // ignore dispatch, gotoPage, loginAndRegister, setOpenPage, storeDispatch, styleDispatch
-    // due they are funtions that do not depend on any reactive value
+    // due they are function that do not depend on any reactive value
     // ignore href because is not a reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [b2bId, customerId, emailAddress, isAgenting, isB2BUser, role]);
@@ -258,7 +258,7 @@ export default function App() {
     }
     if (isB2BUser) hideStorefrontElement('dom.hideThemePayments');
 
-    // ignore dispatch due it's funtion that doesn't not depend on any reactive value
+    // ignore dispatch due it's function that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isB2BUser, isAgenting, role, quoteConfig, storefrontConfig]);
 
@@ -266,7 +266,7 @@ export default function App() {
     if (isOpen) {
       showPageMask(false);
     }
-    // ignore dispatch due it's funtion that doesn't not depend on any reactive value
+    // ignore dispatch due it's function that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
@@ -293,7 +293,7 @@ export default function App() {
 
         showPageMask(false);
         storeDispatch(
-          setGlabolCommonState({
+          setGlobalCommonState({
             isClickEnterBtn: false,
           }),
         );
@@ -302,7 +302,7 @@ export default function App() {
 
     init();
     // ignore dispatch, setOpenPage, and storeDispatch
-    // due they are funtions that do not depend on any reactive value
+    // due they are functions that do not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentClickedUrl, isAgenting, isClickEnterBtn, isPageComplete, isRegisterAndLogin, role]);
 
@@ -312,7 +312,7 @@ export default function App() {
     if (!hash.includes('login') && !hash.includes('register')) {
       const recordOpenHash = isOpen ? hash : '';
       storeDispatch(
-        setGlabolCommonState({
+        setGlobalCommonState({
           recordOpenHash,
         }),
       );
@@ -329,7 +329,7 @@ export default function App() {
       showPageMask(false);
     }
     // ignore setOpenPage ad storeDispatch
-    // due they are funtions that do not depend on any reactive value
+    // due they are functions that do not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
@@ -344,7 +344,7 @@ export default function App() {
       window.removeEventListener('hashchange', handleHashChange);
     };
     // ignore setOpenPage
-    // due they are funtions that do not depend on any reactive value
+    // due they are functions that do not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -371,7 +371,7 @@ export default function App() {
           </ThemeFrame>
         </div>
       </HashRouter>
-      <B3MasquradeGobalTip setOpenPage={setOpenPage} isOpen={isOpen} />
+      <B3MasqueradeGlobalTip setOpenPage={setOpenPage} isOpen={isOpen} />
       <B3HoverButton
         isOpen={isOpen}
         productQuoteEnabled={productQuoteEnabled}

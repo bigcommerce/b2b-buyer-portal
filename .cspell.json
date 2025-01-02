@@ -12,8 +12,9 @@
     "extrafields",
     "gql.tada",
     "msword",
-    "purchasability",
-    "Turborepo"
+    "Turborepo",
+    "registeredbctob2b",
+    "purchasability"
   ],
   // flagWords - list of words to be always considered incorrect
   // This is useful for offensive words and common spelling errors.

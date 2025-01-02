@@ -86,7 +86,7 @@ const B3Request = {
 
       if (extensions?.code === 40101) {
         if (window.location.hash.startsWith('#/')) {
-          window.location.href = '#/login?loginFlag=3&showTip=false';
+          window.location.href = '#/login?loginFlag=loggedOutLogin&showTip=false';
         }
 
         if (message) {
