@@ -1,7 +1,7 @@
 import { createB2BShoppingList, createBcShoppingList } from '@/shared/service/b2b';
 import { store } from '@/store';
 
-import { getB3PermissionsList } from '../b3RolePermissions';
+import { getB3PermissionsList } from '../b3CheckPermissions';
 import { channelId } from '../basicConfig';
 
 interface CreateShoppingListParams {

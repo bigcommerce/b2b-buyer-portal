@@ -15,10 +15,9 @@ import {
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
-import { snackbar } from '@/utils';
+import { b2bPermissionsList, snackbar } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import b2bLogger from '@/utils/b3Logger';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { AddressConfigItem, AddressItemType, BCAddressItemType } from '../../types/address';
 

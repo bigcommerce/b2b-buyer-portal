@@ -33,8 +33,8 @@ import { AddressItemType, BCAddressItemType } from '@/types/address';
 import { BillingAddress, ContactInfoKeys, ShippingAddress } from '@/types/quotes';
 import { B3LStorage, channelId, snackbar, storeHash } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
+import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
 import { addQuoteDraftProducts, getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 import { deleteCartData } from '@/utils/cartUtils';
 import validateObject from '@/utils/quoteUtils';
 

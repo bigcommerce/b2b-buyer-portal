@@ -12,7 +12,7 @@ import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
+import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
 
 import B3AddEditUser from './AddEditUser';
 import { FilterProps, getFilterMoreList, UsersList } from './config';

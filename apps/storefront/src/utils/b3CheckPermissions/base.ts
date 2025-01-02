@@ -1,6 +1,6 @@
 import { permissionLevels } from '@/constants';
 
-import { B2BPermissionParams, b2bPermissionsList } from '../b3RolePermissions/config';
+import { B2BPermissionParams, b2bPermissionsList } from './config';
 
 interface PermissionsCodesProp {
   code: string;

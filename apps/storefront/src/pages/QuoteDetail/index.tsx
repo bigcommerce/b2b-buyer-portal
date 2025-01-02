@@ -26,9 +26,9 @@ import {
 } from '@/store';
 import { Currency } from '@/types';
 import { snackbar, verifyLevelPermission } from '@/utils';
+import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 import { getSearchVal } from '@/utils/loginInfo';
 
 import Message from '../quote/components/Message';

@@ -1,5 +1,5 @@
 import { CustomerRole } from '@/types';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
+import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
 
 const allLegacyPermission = [
   CustomerRole.SUPER_ADMIN,

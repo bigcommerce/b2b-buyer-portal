@@ -1,8 +1,8 @@
 import { store } from '@/store';
 
-import { getCorrespondsConfigurationPermission } from '../b3CheckPermissions/base';
+import { getCorrespondsConfigurationPermission } from './base';
 
-const setCartPermissions = (isLoggedInAndB2BAccount: boolean) => {
+export const setCartPermissions = (isLoggedInAndB2BAccount: boolean) => {
   const permissions = store.getState()?.company?.permissions || [];
 
   const selectCompanyHierarchyId =
@@ -19,5 +19,3 @@ const setCartPermissions = (isLoggedInAndB2BAccount: boolean) => {
     style.remove();
   }
 };
-
-export default setCartPermissions;

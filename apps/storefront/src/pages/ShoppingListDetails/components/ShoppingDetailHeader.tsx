@@ -12,7 +12,7 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { verifyLevelPermission } from '@/utils';
 import { verifyShoppingListUserAndSubsidiariesPermission } from '@/utils/b2bShoppingListCheckPermissions';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
+import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingStatus } from '../../ShoppingLists/ShoppingStatus';
 

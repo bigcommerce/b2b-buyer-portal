@@ -18,7 +18,7 @@ import {
   snackbar,
   verifyLevelPermission,
 } from '@/utils';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
+import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
 
 import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';
 

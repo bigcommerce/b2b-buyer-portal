@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import CustomButton from '@/components/button/CustomButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { displayFormat, verifyLevelPermission } from '@/utils';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
+import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingListsItemsProps } from './config';
 import { ShoppingStatus } from './ShoppingStatus';

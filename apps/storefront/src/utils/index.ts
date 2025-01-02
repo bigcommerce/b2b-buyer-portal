@@ -14,7 +14,6 @@ import { showPageMask } from './b3PageMask';
 import distanceDay from './b3Picker';
 import getProductPriceIncTax from './b3Price';
 import b2bPrintInvoice from './b3PrintInvoice';
-import { b2bGotoRoute, getB3PermissionsList, setCartPermissions } from './b3RolePermissions';
 import { serialize } from './b3Serialize';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { globalSnackbar, snackbar } from './b3Tip';
@@ -42,7 +41,6 @@ export * from './b3Company';
 export * from './b3CheckPermissions';
 
 export {
-  b2bGotoRoute,
   b2bPrintInvoice,
   b2bGetVariantImageByVariantInfo,
   B3LStorage,
@@ -73,8 +71,6 @@ export {
   redirectBcMenus,
   removeBCMenus,
   serialize,
-  setCartPermissions,
-  getB3PermissionsList,
   showPageMask,
   snackbar,
   validatorRules,
