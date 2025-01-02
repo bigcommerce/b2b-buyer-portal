@@ -26,7 +26,7 @@ import {
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
-import { b2bGotoRoute, channelId, loginJump, snackbar, storeHash } from '@/utils';
+import { b2bJumpPath, channelId, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
 import { deleteCartData } from '@/utils/cartUtils';
@@ -204,7 +204,7 @@ export default function Login(props: PageProps) {
       case '3':
         return b3Lang('login.loginTipInfo.loggedOutLogin');
       case '4':
-        return b3Lang('login.loginTipInfo.accountincorrect');
+        return b3Lang('login.loginTipInfo.accountIncorrect');
       case '5':
         return b3Lang('login.loginTipInfo.accountPrelaunch');
       case '6':
@@ -309,12 +309,12 @@ export default function Login(props: PageProps) {
               navigate(PATH_ROUTES.ORDERS);
             }
 
-            const path = b2bGotoRoute(info?.role);
+            const path = b2bJumpPath(info?.role);
 
             navigate(path);
           }
         } catch (error) {
-          snackbar.error(b3Lang('login.loginTipInfo.accountincorrect'));
+          snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
         } finally {
           setLoading(false);
         }

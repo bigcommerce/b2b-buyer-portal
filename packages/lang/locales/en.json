@@ -674,7 +674,7 @@
   "login.loginTipInfo.resetPassword": "You must reset your password before you may log in again. Please check your email at {email} to reset your password",
   "login.loginTipInfo.receivePassword": "If the entered email address is associated with this store, you will receive a password reset email. If you don't receive this e-mail, please check your junk mail folder or contact us for further assistance.",
   "login.loginTipInfo.loggedOutLogin": "You've been logged out of your account successfully.",
-  "login.loginTipInfo.accountincorrect": "Your email address or password is incorrect. Please try again. If you've forgotten your sign in details, just click the 'Forgot your password?' link below.",
+  "login.loginTipInfo.accountIncorrect": "Your email address or password is incorrect. Please try again. If you've forgotten your sign in details, just click the 'Forgot your password?' link below.",
   "login.loginTipInfo.accountPrelaunch": "You can not login to the Buyer Portal while the store is in prelaunch or maintenance mode. Please set the store live, or login inside the customer admin panel.",
   "login.loginText.forgotPasswordText": "Forgot your password?",
   "login.loginText.invoiceErrorTip": "Please log in to view your invoice",

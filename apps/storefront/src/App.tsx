@@ -11,7 +11,7 @@ import { GlobalContext } from '@/shared/global';
 import { gotoAllowedAppPage } from '@/shared/routes';
 import { setChannelStoreType } from '@/shared/service/b2b';
 import {
-  b2bGotoRoute,
+  b2bJumpPath,
   getQuoteEnabled,
   handleHideRegisterPage,
   hideStorefrontElement,
@@ -79,7 +79,7 @@ export default function App() {
     useAppSelector(rolePermissionSelector);
 
   const authorizedPages = useMemo(() => {
-    return isB2BUser ? b2bGotoRoute(role) : PATH_ROUTES.ORDERS;
+    return isB2BUser ? b2bJumpPath(role) : PATH_ROUTES.ORDERS;
   }, [role, isB2BUser]);
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {

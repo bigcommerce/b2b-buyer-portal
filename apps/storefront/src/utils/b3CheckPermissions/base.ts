@@ -73,9 +73,8 @@ export const verifyCompanyLevelPermission = ({
   permissions = [],
 }: VerifyCompanyLevelPermissionProps) => {
   if (!code) return false;
-  const getFirstCode = code.includes(',') ? code.split(',')[0].trim() : code;
 
-  const info = permissions.find((permission) => permission.code.includes(getFirstCode));
+  const info = permissions.find((permission) => permission.code.includes(code));
 
   if (!info) return !!info;
 

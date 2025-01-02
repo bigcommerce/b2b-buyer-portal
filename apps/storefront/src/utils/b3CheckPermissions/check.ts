@@ -35,7 +35,7 @@ interface VerifyLevelPermissionProps {
 }
 
 interface VerifyCompanyLevelPermissionByCodeProps {
-  level: number;
+  level?: number;
   code?: string;
   containOrEqual?: 'contain' | 'equal';
   permissions?: PermissionCodesProps[];
@@ -87,9 +87,7 @@ export const verifyLevelPermission = ({
   userEmail = '',
   userId = 0,
 }: VerifyLevelPermissionProps): boolean => {
-  const getFirstCode = code.includes(',') ? code.split(',')[0].trim() : code;
-
-  const info = getPermissionsInfo(getFirstCode);
+  const info = getPermissionsInfo(code);
 
   if (!info || !companyId) return !!info;
 
