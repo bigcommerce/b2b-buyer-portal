@@ -1,6 +1,6 @@
 import { store } from '@/store';
 
-import { getCorrespondsConfigurationPermission } from '../b3CheckPermissions/check';
+import { getCorrespondsConfigurationPermission } from '../b3CheckPermissions/base';
 
 const setCartPermissions = (isLoggedInAndB2BAccount: boolean) => {
   const permissions = store.getState()?.company?.permissions || [];

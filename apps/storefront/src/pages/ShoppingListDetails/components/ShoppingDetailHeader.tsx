@@ -10,8 +10,8 @@ import { useMobile } from '@/hooks';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
+import { verifyLevelPermission } from '@/utils';
 import { verifyShoppingListUserAndSubsidiariesPermission } from '@/utils/b2bShoppingListCheckPermissions';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
 import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { ShoppingStatus } from '../../ShoppingLists/ShoppingStatus';

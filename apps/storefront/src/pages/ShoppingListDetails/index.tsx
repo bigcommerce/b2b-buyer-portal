@@ -24,8 +24,7 @@ import {
   useAppSelector,
 } from '@/store';
 import { CustomerRole } from '@/types';
-import { channelId, snackbar } from '@/utils';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { channelId, snackbar, verifyLevelPermission } from '@/utils';
 import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {
   conversionProductsList,

@@ -1,9 +1,3 @@
-import { checkPermissionCode } from './b3CheckPermissions/base';
-import {
-  checkEveryPermissionsCode,
-  checkOneOfPermissionsCode,
-  getPermissionsInfo,
-} from './b3CheckPermissions/index';
 import b2bGetVariantImageByVariantInfo from './b2bGetVariantImageByVariantInfo';
 import { openPageByClick, redirectBcMenus, removeBCMenus } from './b3AccountItem';
 import currencyFormat, {
@@ -45,6 +39,7 @@ export { loginJump } from './b3Login';
 export { default as hideStorefrontElement } from './b3HideStorefrontElement';
 
 export * from './b3Company';
+export * from './b3CheckPermissions';
 
 export {
   b2bGotoRoute,
@@ -52,9 +47,6 @@ export {
   b2bGetVariantImageByVariantInfo,
   B3LStorage,
   B3SStorage,
-  checkEveryPermissionsCode,
-  checkOneOfPermissionsCode,
-  checkPermissionCode,
   convertArrayToGraphql,
   convertObjectToGraphql,
   convertObjectOrArrayKeysToCamel,
@@ -83,7 +75,6 @@ export {
   serialize,
   setCartPermissions,
   getB3PermissionsList,
-  getPermissionsInfo,
   showPageMask,
   snackbar,
   validatorRules,

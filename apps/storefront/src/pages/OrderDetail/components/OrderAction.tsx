@@ -16,8 +16,8 @@ import {
   displayFormat,
   ordersCurrencyFormat,
   snackbar,
+  verifyLevelPermission,
 } from '@/utils';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
 import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';

@@ -1,4 +1,8 @@
-interface PermissionCodesProps {
+import { permissionLevels } from '@/constants';
+
+import { B2BPermissionParams, b2bPermissionsList } from '../b3RolePermissions/config';
+
+interface PermissionsCodesProp {
   code: string;
   permissionLevel?: number | string;
 }
@@ -6,15 +10,21 @@ interface PermissionCodesProps {
 interface HandleVerifyPermissionCode {
   permission: string;
   permissionLevel?: number | string;
-  permissions: PermissionCodesProps[];
+  permissions: PermissionsCodesProp[];
 }
 
 interface VerifyCompanyLevelPermissionProps {
   level: number;
   code?: string;
   containOrEqual?: 'contain' | 'equal';
-  permissions: PermissionCodesProps[];
+  permissions: PermissionsCodesProp[];
 }
+
+const pdpButtonAndOthersPermission = [
+  'purchasabilityPermission',
+  'quotesActionsPermission',
+  'shoppingListActionsPermission',
+];
 
 const handleVerifyPermissionCode = ({
   permission,
@@ -31,9 +41,9 @@ const handleVerifyPermissionCode = ({
 };
 
 export const checkPermissionCode = (
-  permissionCodes: PermissionCodesProps,
+  permissionCodes: PermissionsCodesProp,
   type: string,
-  permissions: PermissionCodesProps[],
+  permissions: PermissionsCodesProp[],
 ) => {
   const { code, permissionLevel = '' } = permissionCodes;
 
@@ -74,6 +84,44 @@ export const verifyCompanyLevelPermission = ({
   if (containOrEqual === 'equal') return permissionLevel === level;
 
   return +permissionLevel >= +level;
+};
+
+export const getCorrespondsConfigurationPermission = (
+  permissions: PermissionsCodesProp[],
+  selectCompanyHierarchyId: number,
+) => {
+  const keys = Object.keys(b2bPermissionsList);
+
+  const newB3PermissionsList: Record<string, string> = b2bPermissionsList;
+
+  return keys.reduce((acc, cur: string) => {
+    const param = {
+      code: newB3PermissionsList[cur],
+    };
+
+    const item = checkPermissionCode(param, 'every', permissions || []);
+
+    if (pdpButtonAndOthersPermission.includes(cur)) {
+      const isPdpButtonAndOthersPermission = verifyCompanyLevelPermission({
+        code: newB3PermissionsList[cur],
+        containOrEqual: 'contain',
+        level: selectCompanyHierarchyId
+          ? permissionLevels.COMPANY_SUBSIDIARIES
+          : permissionLevels.USER,
+        permissions,
+      });
+
+      return {
+        ...acc,
+        [cur]: isPdpButtonAndOthersPermission,
+      };
+    }
+
+    return {
+      ...acc,
+      [cur]: item,
+    };
+  }, {} as B2BPermissionParams);
 };
 
 export default checkPermissionCode;

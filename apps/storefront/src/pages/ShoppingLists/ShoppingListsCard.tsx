@@ -13,8 +13,7 @@ import Typography from '@mui/material/Typography';
 
 import CustomButton from '@/components/button/CustomButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
-import { displayFormat } from '@/utils';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { displayFormat, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { ShoppingListsItemsProps } from './config';

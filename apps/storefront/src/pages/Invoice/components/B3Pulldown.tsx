@@ -7,8 +7,7 @@ import { styled } from '@mui/material/styles';
 
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList } from '@/types/invoice';
-import { snackbar } from '@/utils';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { snackbar, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
@@ -42,7 +41,7 @@ function B3Pulldown({
   const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const ref = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [isCanPay, setIsCanPay] = useState<boolean>(true);
+  const [isPay, setIsPay] = useState<boolean>(true);
 
   const navigate = useNavigate();
 
@@ -146,17 +145,17 @@ function B3Pulldown({
     const payPermissions =
       +openBalance.value > 0 && invoicePayPermission && purchasabilityPermission;
 
-    setIsCanPay(payPermissions);
-    const isCanpayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
-    setIsCanPay(isCanpayInvoice);
+    setIsPay(payPermissions);
+    const isPayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
+    setIsPay(isPayInvoice);
 
-    const viewOrderPremission = verifyLevelPermission({
+    const viewOrderPermission = verifyLevelPermission({
       code: getOrderPermissionCode,
       companyId: +companyInfo.companyId,
       userId: +orderUserId,
     });
 
-    setIsCanViewOrder(viewOrderPremission);
+    setIsCanViewOrder(viewOrderPermission);
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -217,7 +216,7 @@ function B3Pulldown({
             {b3Lang('invoice.actions.viewPaymentHistory')}
           </MenuItem>
         )}
-        {isCanPay && (
+        {isPay && (
           <MenuItem
             key="Pay"
             sx={{

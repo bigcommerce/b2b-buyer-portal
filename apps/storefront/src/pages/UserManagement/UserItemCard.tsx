@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import { B3Tag } from '@/components';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { verifyLevelPermission } from '@/utils';
 import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { getUserRole, UsersList } from './config';

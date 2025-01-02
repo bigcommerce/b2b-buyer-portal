@@ -25,8 +25,7 @@ import {
   useAppSelector,
 } from '@/store';
 import { Currency } from '@/types';
-import { snackbar } from '@/utils';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { snackbar, verifyLevelPermission } from '@/utils';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';

@@ -2,7 +2,7 @@ import { createSelector } from '@reduxjs/toolkit';
 
 import { RootState } from '@/store';
 import { CompanyStatus, Currency, CustomerRole, UserTypes } from '@/types';
-import { getCorrespondsConfigurationPermission } from '@/utils/b3CheckPermissions/check';
+import { getCorrespondsConfigurationPermission } from '@/utils/b3CheckPermissions/base';
 import { B2BPermissionParams } from '@/utils/b3RolePermissions/config';
 
 import { defaultCurrenciesState } from './slices/storeConfigs';
