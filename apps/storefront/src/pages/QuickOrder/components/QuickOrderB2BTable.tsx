@@ -14,11 +14,12 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b';
 import { activeCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
+import { ProductInfoType } from '@/types/gql/graphql';
 import {
   currencyFormat,
   displayFormat,
   distanceDay,
-  getProductPriceIncTax,
+  getProductPriceIncTaxOrExTaxBySetting,
   snackbar,
 } from '@/utils';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
@@ -54,7 +55,7 @@ interface ProductInfoProps {
   updatedAt: number;
   variantId: number;
   variantSku: string;
-  productsSearch: CustomFieldItems;
+  productsSearch: ProductInfoType;
 }
 
 interface ListItemProps {
@@ -101,7 +102,7 @@ const StyleQuickOrderTable = styled(Box)(() => ({
   },
 }));
 
-interface QuickorderTableProps {
+interface QuickOrderTableProps {
   setIsRequestLoading: Dispatch<SetStateAction<boolean>>;
   setCheckedArr: (values: CheckedProduct[]) => void;
   isRequestLoading: boolean;
@@ -121,11 +122,11 @@ export const sortKeys = {
   lastOrderedAt: 'lastOrderedAt',
 };
 
-function QuickorderTable({
+function QuickOrderTable({
   setIsRequestLoading,
   setCheckedArr,
   isRequestLoading,
-}: QuickorderTableProps) {
+}: QuickOrderTableProps) {
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -381,7 +382,7 @@ function QuickorderTable({
         } = row;
         let priceIncTax = +basePrice;
         if (variants?.length) {
-          priceIncTax = getProductPriceIncTax(variants, +variantId) || +basePrice;
+          priceIncTax = getProductPriceIncTaxOrExTaxBySetting(variants, +variantId) || +basePrice;
         }
 
         const qty = handleSetCheckedQty(row);
@@ -496,7 +497,7 @@ function QuickorderTable({
                 }}
               >
                 <B3FilterMore
-                  fiterMoreInfo={[]}
+                  filterMoreInfo={[]}
                   startPicker={{
                     isEnabled: true,
                     label: b3Lang('purchasedProducts.from'),
@@ -574,4 +575,4 @@ function QuickorderTable({
   );
 }
 
-export default QuickorderTable;
+export default QuickOrderTable;

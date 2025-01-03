@@ -22,7 +22,7 @@ import AddEditShoppingLists from './AddEditShoppingLists';
 import { getFilterMoreList, ShoppingListSearch, ShoppingListsItemsProps } from './config';
 import ShoppingListsCard from './ShoppingListsCard';
 
-interface RefCurrntProps extends HTMLInputElement {
+interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditShoppingListsClick: (type: string, data?: ShoppingListsItemsProps) => void;
 }
 
@@ -33,7 +33,7 @@ function ShoppingLists() {
 
   const [deleteItem, setDeleteItem] = useState<null | ShoppingListsItemsProps>(null);
 
-  const [fiterMoreInfo, setFiterMoreinfo] = useState<Array<any>>([]);
+  const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
 
   const [isMobile] = useMobile();
 
@@ -80,7 +80,7 @@ function ShoppingLists() {
         },
       );
 
-      setFiterMoreinfo(translatedFilterInfo);
+      setFilterMoreInfo(translatedFilterInfo);
     };
 
     initFilter();
@@ -105,7 +105,7 @@ function ShoppingLists() {
   const customItem = {
     isEnabled: isB2BUser ? shoppingListActionsPermission : true,
     customLabel: b3Lang('shoppingLists.createNew'),
-    customButtomStyle: {
+    customButtonStyle: {
       fontSize: '15px',
       fontWeight: '500',
       width: '140px',
@@ -123,7 +123,7 @@ function ShoppingLists() {
 
   const [filterSearch, setFilterSearch] = useState<ShoppingListSearch>(initSearch);
 
-  const addEditShoppingListsRef = useRef<RefCurrntProps | null>(null);
+  const addEditShoppingListsRef = useRef<RefCurrentProps | null>(null);
 
   const initSearchList = () => {
     paginationTableRef.current?.refresh();
@@ -140,7 +140,7 @@ function ShoppingLists() {
     }
   };
 
-  const handleFirterChange = (data: ShoppingListSearch) => {
+  const handleFilterChange = (data: ShoppingListSearch) => {
     const { status } = data;
 
     const getNewStatus = status === '' || status === 99 ? statusPermissions : status;
@@ -222,11 +222,11 @@ function ShoppingLists() {
       >
         <B3Filter
           showB3FilterMoreIcon={isB2BUser}
-          fiterMoreInfo={fiterMoreInfo}
+          filterMoreInfo={filterMoreInfo}
           handleChange={handleChange}
-          handleFilterChange={handleFirterChange}
-          customButtomConfig={customItem}
-          handleFilterCustomButtomClick={handleAddShoppingListsClick}
+          handleFilterChange={handleFilterChange}
+          customButtonConfig={customItem}
+          handleFilterCustomButtonClick={handleAddShoppingListsClick}
         />
         <B3PaginationTable
           columnItems={[]}

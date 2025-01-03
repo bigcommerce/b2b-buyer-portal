@@ -26,7 +26,7 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
-import { currencyFormat, getProductPriceIncTax, snackbar } from '@/utils';
+import { currencyFormat, getProductPriceIncTaxOrExTaxBySetting, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import {
   addQuoteDraftProducts,
@@ -564,7 +564,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         } = item;
 
         if (variants?.length) {
-          const priceIncTax = getProductPriceIncTax(variants, +variantId) || +(basePrice || 0);
+          const priceIncTax =
+            getProductPriceIncTaxOrExTaxBySetting(variants, +variantId) || +(basePrice || 0);
           total += priceIncTax * +quantity;
         } else {
           total += +(basePrice || 0) * +quantity;
