@@ -1,6 +1,6 @@
 import { permissionLevels } from '@/constants';
 
-import { B2BPermissionParams, b2bPermissionsList } from './config';
+import { b2bPermissionsMap, B2BPermissionsMapParams } from './config';
 
 interface PermissionsCodesProp {
   code: string;
@@ -22,8 +22,15 @@ interface VerifyCompanyLevelPermissionProps {
 
 const pdpButtonAndOthersPermission = [
   'purchasabilityPermission',
-  'quotesActionsPermission',
-  'shoppingListActionsPermission',
+  'quotesCreateActionsPermission',
+  'quotesUpdateMessageActionsPermission',
+  'shoppingListCreateActionsPermission',
+  'shoppingListDuplicateActionsPermission',
+  'shoppingListUpdateActionsPermission',
+  'shoppingListDeleteActionsPermission',
+  'shoppingListCreateItemActionsPermission',
+  'shoppingListUpdateItemActionsPermission',
+  'shoppingListDeleteItemActionsPermission',
 ];
 
 const handleVerifyPermissionCode = ({
@@ -89,9 +96,9 @@ export const getCorrespondsConfigurationPermission = (
   permissions: PermissionsCodesProp[],
   selectCompanyHierarchyId: number,
 ) => {
-  const keys = Object.keys(b2bPermissionsList);
+  const keys = Object.keys(b2bPermissionsMap);
 
-  const newB3PermissionsList: Record<string, string> = b2bPermissionsList;
+  const newB3PermissionsList: Record<string, string> = b2bPermissionsMap;
 
   return keys.reduce((acc, cur: string) => {
     const param = {
@@ -120,7 +127,7 @@ export const getCorrespondsConfigurationPermission = (
       ...acc,
       [cur]: item,
     };
-  }, {} as B2BPermissionParams);
+  }, {} as B2BPermissionsMapParams);
 };
 
 export default checkPermissionCode;

@@ -75,7 +75,7 @@ export default function App() {
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const bcGraphqlToken = useAppSelector(({ company }) => company.tokens.bcGraphqlToken);
-  const { quotesActionsPermission, shoppingListActionsPermission } =
+  const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
     useAppSelector(rolePermissionSelector);
 
   const authorizedPages = useMemo(() => {
@@ -235,13 +235,13 @@ export default function App() {
         type: 'common',
         payload: {
           productQuoteEnabled: isB2BUser
-            ? productQuoteEnabled && quotesActionsPermission
+            ? productQuoteEnabled && quotesCreateActionsPermission
             : productQuoteEnabled,
           cartQuoteEnabled: isB2BUser
-            ? cartQuoteEnabled && quotesActionsPermission
+            ? cartQuoteEnabled && quotesCreateActionsPermission
             : cartQuoteEnabled,
           shoppingListEnabled: isB2BUser
-            ? shoppingListEnabled && shoppingListActionsPermission
+            ? shoppingListEnabled && shoppingListCreateActionsPermission
             : shoppingListEnabled,
           registerEnabled,
         },
@@ -260,8 +260,8 @@ export default function App() {
     role,
     quoteConfig,
     storefrontConfig,
-    quotesActionsPermission,
-    shoppingListActionsPermission,
+    quotesCreateActionsPermission,
+    shoppingListCreateActionsPermission,
   ]);
 
   useEffect(() => {

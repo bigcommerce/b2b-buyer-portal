@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 
 import { B3Tag } from '@/components';
 import { verifyLevelPermission } from '@/utils';
-import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { getUserRole, UsersList } from './config';
 
@@ -38,10 +38,10 @@ export function UserItemCard(props: OrderItemCardProps) {
   const { item: userInfo, onEdit, onDelete } = props;
   const { companyInfo, id, companyRoleName, firstName, lastName, email } = userInfo;
 
-  const { userActionsPermission } = b2bPermissionsList;
+  const { userCreateActionsPermission } = b2bPermissionsMap;
 
   const actionPermissions = verifyLevelPermission({
-    code: userActionsPermission,
+    code: userCreateActionsPermission,
     companyId: +(companyInfo?.companyId || 0),
     userId: +id,
   });

@@ -83,8 +83,11 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
-  const { shoppingListActionsPermission, purchasabilityPermission, submitShoppingListPermission } =
-    useAppSelector(rolePermissionSelector);
+  const {
+    shoppingListCreateActionsPermission,
+    purchasabilityPermission,
+    submitShoppingListPermission,
+  } = useAppSelector(rolePermissionSelector);
   const ref = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -114,7 +117,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
     role,
   } = props;
 
-  const b2bShoppingListActionsPermission = isB2BUser ? shoppingListActionsPermission : true;
+  const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
   const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
   const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : +role === 2;
 

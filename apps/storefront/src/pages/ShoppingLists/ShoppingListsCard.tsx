@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import CustomButton from '@/components/button/CustomButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { displayFormat, verifyLevelPermission } from '@/utils';
-import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingListsItemsProps } from './config';
 import { ShoppingStatus } from './ShoppingStatus';
@@ -87,10 +87,9 @@ function ShoppingListsCard(props: OrderItemCardProps) {
     if (isB2BUser) {
       const { companyInfo, customerInfo } = shoppingList;
 
-      const { shoppingListActionsPermission: shoppingListActionsPermissionCode } =
-        b2bPermissionsList;
+      const { shoppingListCreateActionsPermission } = b2bPermissionsMap;
       const shoppingListActionsPermission = verifyLevelPermission({
-        code: shoppingListActionsPermissionCode,
+        code: shoppingListCreateActionsPermission,
         companyId: +(companyInfo?.companyId || 0),
         userId: +customerInfo.userId,
       });

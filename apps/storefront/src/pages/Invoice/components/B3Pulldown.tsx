@@ -7,7 +7,7 @@ import { styled } from '@mui/material/styles';
 
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList } from '@/types/invoice';
-import { b2bPermissionsList, snackbar, verifyLevelPermission } from '@/utils';
+import { b2bPermissionsMap, snackbar, verifyLevelPermission } from '@/utils';
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';
@@ -48,7 +48,7 @@ function B3Pulldown({
 
   const { getOrderPermission, invoicePayPermission, purchasabilityPermission } =
     useAppSelector(rolePermissionSelector);
-  const { getOrderPermission: getOrderPermissionCode } = b2bPermissionsList;
+  const { getOrderPermission: getOrderPermissionCode } = b2bPermissionsMap;
 
   const [isCanViewOrder, setIsCanViewOrder] = useState<boolean>(getOrderPermission);
 

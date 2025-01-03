@@ -15,7 +15,7 @@ import {
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
-import { b2bPermissionsList, snackbar } from '@/utils';
+import { b2bPermissionsMap, snackbar } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import b2bLogger from '@/utils/b3Logger';
 
@@ -170,10 +170,10 @@ function Address() {
         setEditPermission(true);
         return;
       }
-      const { addressesActionsPermission } = b2bPermissionsList;
+      const { addressesCreateActionsPermission } = b2bPermissionsMap;
 
       const isCreatePermission = verifyCreatePermission(
-        addressesActionsPermission,
+        addressesCreateActionsPermission,
         +selectCompanyHierarchyId,
       );
 

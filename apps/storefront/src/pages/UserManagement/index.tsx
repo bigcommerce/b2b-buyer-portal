@@ -12,7 +12,7 @@ import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
 import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
-import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import B3AddEditUser from './AddEditUser';
 import { FilterProps, getFilterMoreList, UsersList } from './config';
@@ -63,13 +63,13 @@ function UserManagement() {
     ({ company }) => company.companyHierarchyInfo,
   );
 
-  const isEnableBtnPermissions = b2bPermissions.userActionsPermission;
+  const isEnableBtnPermissions = b2bPermissions.userCreateActionsPermission;
 
   const customItem = useMemo(() => {
-    const { userActionsPermission } = b2bPermissionsList;
+    const { userCreateActionsPermission } = b2bPermissionsMap;
 
     const isCreatePermission = verifyCreatePermission(
-      userActionsPermission,
+      userCreateActionsPermission,
       +selectCompanyHierarchyId,
     );
     return {

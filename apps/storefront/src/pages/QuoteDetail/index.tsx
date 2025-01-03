@@ -26,7 +26,7 @@ import {
 } from '@/store';
 import { Currency } from '@/types';
 import { snackbar, verifyLevelPermission } from '@/utils';
-import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { getSearchVal } from '@/utils/loginInfo';
@@ -109,7 +109,7 @@ function QuoteDetail() {
   useEffect(() => {
     if (!quoteDetail?.id) return;
 
-    const { quoteConvertToOrderPermission: quoteCheckoutPermissionCode } = b2bPermissionsList;
+    const { quoteConvertToOrderPermission: quoteCheckoutPermissionCode } = b2bPermissionsMap;
 
     const getPurchasabilityAndConvertToOrderPermission = () => {
       if (isB2BUser) {

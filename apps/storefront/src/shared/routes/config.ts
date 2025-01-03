@@ -1,5 +1,5 @@
 import { CustomerRole } from '@/types';
-import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 const allLegacyPermission = [
   CustomerRole.SUPER_ADMIN,
@@ -118,19 +118,19 @@ const denyInvoiceRoles = [
 ];
 
 const newPermissions = {
-  ordersPermissionCodes: b2bPermissionsList.getOrderPermission,
-  companyOrdersPermissionCodes: b2bPermissionsList.getOrderPermission,
-  invoicePermissionCodes: b2bPermissionsList.getInvoicesPermission,
-  quotesPermissionCodes: b2bPermissionsList.getQuotesPermission,
-  shoppingListsPermissionCodes: b2bPermissionsList.getShoppingListPermission,
-  orderDetailPerPermissionCodes: b2bPermissionsList.getOrderPermission,
-  invoiceDetailPerPermissionCodes: b2bPermissionsList.getInvoicesPermission,
-  addressesPermissionCodes: b2bPermissionsList.getAddressesPermission,
-  shoppingListDetailPermissionCodes: b2bPermissionsList.getShoppingListPermission,
-  userManagementPermissionCodes: b2bPermissionsList.getUserPermissionCode,
-  quoteDraftPermissionCodes: b2bPermissionsList.quotesActionsPermission,
-  quoteDetailPermissionCodes: b2bPermissionsList.getQuotesPermission,
-  companyHierarchyPermissionCodes: b2bPermissionsList.companyHierarchyPermission,
+  ordersPermissionCodes: b2bPermissionsMap.getOrderPermission,
+  companyOrdersPermissionCodes: b2bPermissionsMap.getOrderPermission,
+  invoicePermissionCodes: b2bPermissionsMap.getInvoicesPermission,
+  quotesPermissionCodes: b2bPermissionsMap.getQuotesPermission,
+  shoppingListsPermissionCodes: b2bPermissionsMap.getShoppingListPermission,
+  orderDetailPerPermissionCodes: b2bPermissionsMap.getOrderDetailPermission,
+  invoiceDetailPerPermissionCodes: b2bPermissionsMap.getInvoiceDetailPermission,
+  addressesPermissionCodes: b2bPermissionsMap.getAddressesPermission,
+  shoppingListDetailPermissionCodes: b2bPermissionsMap.getShoppingListDetailPermission,
+  userManagementPermissionCodes: b2bPermissionsMap.getUserPermissionCode,
+  quoteDraftPermissionCodes: b2bPermissionsMap.quotesCreateActionsPermission,
+  quoteDetailPermissionCodes: b2bPermissionsMap.getQuoteDetailPermission,
+  companyHierarchyPermissionCodes: b2bPermissionsMap.companyHierarchyPermission,
 };
 
 export { legacyPermissions, denyInvoiceRoles, allLegacyPermission, newPermissions };

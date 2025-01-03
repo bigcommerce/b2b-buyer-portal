@@ -12,7 +12,7 @@ import { CustomStyleContext } from '@/shared/customStyleButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { verifyLevelPermission } from '@/utils';
 import { verifyShoppingListUserAndSubsidiariesPermission } from '@/utils/b2bShoppingListCheckPermissions';
-import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingStatus } from '../../ShoppingLists/ShoppingStatus';
 
@@ -70,7 +70,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
       const {
         submitShoppingListPermission: submitShoppingListPermissionCode,
         approveShoppingListPermission: approveShoppingListPermissionCode,
-      } = b2bPermissionsList;
+      } = b2bPermissionsMap;
       const submitShoppingListPermissionLevel = verifyShoppingListUserAndSubsidiariesPermission({
         code: submitShoppingListPermissionCode,
         userId: +(customerInfo?.userId || 0),

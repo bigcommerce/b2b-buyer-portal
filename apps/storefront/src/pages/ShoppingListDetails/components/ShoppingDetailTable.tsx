@@ -163,11 +163,11 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
   const showInclusiveTaxPrice = useAppSelector(({ global }) => global.showInclusiveTaxPrice);
 
-  const { shoppingListActionsPermission, submitShoppingListPermission } =
+  const { shoppingListCreateActionsPermission, submitShoppingListPermission } =
     useAppSelector(rolePermissionSelector);
 
   const canShoppingListActions = isB2BUser
-    ? shoppingListActionsPermission && isCanEditShoppingList
+    ? shoppingListCreateActionsPermission && isCanEditShoppingList
     : true;
   const b2bAndBcShoppingListActionsPermissions = isB2BUser ? canShoppingListActions : true;
   const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : +role === 2;

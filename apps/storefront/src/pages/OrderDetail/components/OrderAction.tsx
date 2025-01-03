@@ -18,7 +18,7 @@ import {
   snackbar,
   verifyLevelPermission,
 } from '@/utils';
-import { b2bPermissionsList } from '@/utils/b3CheckPermissions/config';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';
 
@@ -371,8 +371,8 @@ export default function OrderAction(props: OrderActionProps) {
     return null;
   }
 
-  const { purchasabilityPermission, shoppingListActionsPermission } = b2bPermissions;
-  const { getInvoicesPermission } = b2bPermissionsList;
+  const { purchasabilityPermission, shoppingListCreateActionsPermission } = b2bPermissions;
+  const { getInvoicesPermission } = b2bPermissionsMap;
   const invoiceViewPermission = verifyLevelPermission({
     code: getInvoicesPermission,
     companyId: companyId ? +companyId : 0,
@@ -468,7 +468,7 @@ export default function OrderAction(props: OrderActionProps) {
       name: 'shoppingList',
       variant: 'outlined',
       isCanShow: isB2BUser
-        ? shoppingListActionsPermission && shoppingListEnabled
+        ? shoppingListCreateActionsPermission && shoppingListEnabled
         : shoppingListEnabled,
     },
   ];
