@@ -3,15 +3,23 @@ import { Box, Typography } from '@mui/material';
 
 import CustomButton from '@/components/button/CustomButton';
 import { useMobile } from '@/hooks';
-import { BillingAddress, ContactInfo, ShippingAddress } from '@/types/quotes';
+import {
+  BillingAddress,
+  ContactInfo,
+  QuoteInfoAndExtrafieldsItemProps,
+  ShippingAddress,
+} from '@/types/quotes';
 
 import Container from '../style';
+
+import QuoteInfoAndExtrafieldsItem from './QuoteInfoAndExtrafieldsItem';
 
 interface QuoteInfoItemType {
   [key: string]: string;
 }
 interface InfoProps {
   contactInfo: ContactInfo;
+  quoteAndExtraFieldsInfo: QuoteInfoAndExtrafieldsItemProps;
   shippingAddress: ShippingAddress;
   billingAddress: BillingAddress;
   handleEditInfoClick?: () => void;
@@ -20,7 +28,7 @@ interface InfoProps {
 
 type Keys = string | string[];
 
-const contactInfoKeys: string[] = ['name', 'email', 'companyName', 'phoneNumber', 'quoteTitle'];
+const contactInfoKeys: string[] = ['name', 'email', 'phoneNumber'];
 
 const addressVerifyKeys: string[] = [
   'label',
@@ -70,7 +78,7 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
   return (
     <Box
       sx={{
-        width: isMobile ? '100%' : '33.3%',
+        width: isMobile || flag === 'info' ? '100%' : '33.3%',
         paddingLeft: infoPaddingLeft,
       }}
     >
@@ -135,6 +143,7 @@ function QuoteInfoItem({ flag, title, info, status }: QuoteInfoItemProps) {
 }
 
 function QuoteInfo({
+  quoteAndExtraFieldsInfo,
   contactInfo,
   shippingAddress,
   billingAddress,
@@ -161,12 +170,19 @@ function QuoteInfo({
           flexDirection: isMobile ? 'column' : 'row',
         }}
       >
-        <QuoteInfoItem
-          title={b3Lang('quoteDraft.contactInfo.contact')}
-          flag="info"
-          status={status}
-          info={contactInfo as unknown as QuoteInfoItemType}
-        />
+        <Box
+          sx={{
+            width: isMobile ? '100%' : '33.3%',
+          }}
+        >
+          <QuoteInfoItem
+            title={b3Lang('quoteDraft.contactInfo.contact')}
+            flag="info"
+            status={status}
+            info={contactInfo as unknown as QuoteInfoItemType}
+          />
+          <QuoteInfoAndExtrafieldsItem status={status} quoteInfo={quoteAndExtraFieldsInfo} />
+        </Box>
 
         <QuoteInfoItem
           title={b3Lang('global.quoteInfo.billing')}
