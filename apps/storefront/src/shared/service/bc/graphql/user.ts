@@ -22,5 +22,3 @@ const customerExists = () =>
   });
 
 export { customerExists, getCustomerInfo };
-
-// export default getCustomerInfo
