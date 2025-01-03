@@ -1,7 +1,7 @@
 import { createB2BShoppingList, createBcShoppingList } from '@/shared/service/b2b';
 import { store } from '@/store';
 
-import { b2bPermissionsMap, verifyCompanyLevelPermissionByCode } from '../b3CheckPermissions';
+import { b2bPermissionsMap, validatePermissionWithComparisonType } from '../b3CheckPermissions';
 import { channelId } from '../basicConfig';
 
 interface CreateShoppingListParams {
@@ -19,7 +19,7 @@ CreateShoppingListParams) => {
   const createSL = isB2BUser ? createB2BShoppingList : createBcShoppingList;
 
   if (isB2BUser) {
-    const submitShoppingListPermission = verifyCompanyLevelPermissionByCode({
+    const submitShoppingListPermission = validatePermissionWithComparisonType({
       code: b2bPermissionsMap.submitShoppingListPermission,
     });
     const selectCompanyHierarchyId =

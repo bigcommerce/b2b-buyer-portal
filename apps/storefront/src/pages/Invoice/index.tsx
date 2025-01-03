@@ -23,7 +23,7 @@ import {
   getUTCTimestamp,
   handleGetCorrespondingCurrencyToken,
   snackbar,
-  verifyCompanyLevelPermissionByCode,
+  validatePermissionWithComparisonType,
 } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
@@ -115,7 +115,7 @@ function Invoice() {
   const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([]);
   const [selectAllPay, setSelectAllPay] = useState<boolean>(invoicePayPermission);
 
-  const invoiceSubPayPermission = verifyCompanyLevelPermissionByCode({
+  const invoiceSubPayPermission = validatePermissionWithComparisonType({
     level: permissionLevels.COMPANY_SUBSIDIARIES,
     code: b2bPermissionsMap.invoicePayPermission,
   });

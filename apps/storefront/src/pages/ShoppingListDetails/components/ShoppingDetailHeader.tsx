@@ -10,8 +10,7 @@ import { useMobile } from '@/hooks';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
-import { verifyLevelPermission } from '@/utils';
-import { verifyShoppingListUserAndSubsidiariesPermission } from '@/utils/b2bShoppingListCheckPermissions';
+import { verifyLevelPermission, verifySubmitShoppingListSubsidiariesPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingStatus } from '../../ShoppingLists/ShoppingStatus';
@@ -58,6 +57,10 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
   } = useContext(CustomStyleContext);
   const navigate = useNavigate();
 
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+
   const {
     submitShoppingListPermission: submitShoppingList,
     approveShoppingListPermission: approveShoppingList,
@@ -71,10 +74,12 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
         submitShoppingListPermission: submitShoppingListPermissionCode,
         approveShoppingListPermission: approveShoppingListPermissionCode,
       } = b2bPermissionsMap;
-      const submitShoppingListPermissionLevel = verifyShoppingListUserAndSubsidiariesPermission({
+      const submitShoppingListPermissionLevel = verifySubmitShoppingListSubsidiariesPermission({
         code: submitShoppingListPermissionCode,
         userId: +(customerInfo?.userId || 0),
+        selectId: +selectCompanyHierarchyId,
       });
+
       const approveShoppingListPermissionLevel = verifyLevelPermission({
         code: approveShoppingListPermissionCode,
         companyId: +(companyInfo?.companyId || 0),
@@ -97,6 +102,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
     submitShoppingList,
     approveShoppingList,
     shoppingListInfo?.companyInfo,
+    selectCompanyHierarchyId,
   ]);
 
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0;

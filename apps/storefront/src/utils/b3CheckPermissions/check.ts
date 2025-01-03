@@ -1,12 +1,35 @@
 import { permissionLevels } from '@/constants';
 import { store } from '@/store';
-import { CustomerRole } from '@/types';
 
-import { checkPermissionCode, verifyCompanyLevelPermission } from './base';
+import {
+  checkPermissionCode,
+  levelComparison,
+  validateBasePermissionWithComparisonType,
+} from './base';
 
-interface PermissionCodesProps {
+export interface PermissionCodesProps {
   code: string;
   permissionLevel?: number | string;
+}
+
+export interface VerifyLevelPermissionProps {
+  code: string;
+  companyId?: number;
+  userEmail?: string;
+  userId?: number;
+}
+
+export interface ValidatePermissionWithComparisonTypeProps {
+  level?: number;
+  code?: string;
+  containOrEqual?: 'contain' | 'equal';
+  permissions?: PermissionCodesProps[];
+}
+
+interface VerifyPermissionProps {
+  code: string;
+  userId: number;
+  selectId: number;
 }
 
 export const checkEveryPermissionsCode = (permission: PermissionCodesProps) => {
@@ -27,30 +50,16 @@ export const getPermissionsInfo = (code: string): PermissionCodesProps | undefin
   return permissions.find((permission) => permission.code.includes(code));
 };
 
-interface VerifyLevelPermissionProps {
-  code: string;
-  companyId: number;
-  userEmail?: string;
-  userId?: number;
-}
-
-interface VerifyCompanyLevelPermissionByCodeProps {
-  level?: number;
-  code?: string;
-  containOrEqual?: 'contain' | 'equal';
-  permissions?: PermissionCodesProps[];
-}
-
-export const verifyCompanyLevelPermissionByCode = ({
+export const validatePermissionWithComparisonType = ({
   level = 0,
   code = '',
   containOrEqual = 'equal',
   permissions = [],
-}: VerifyCompanyLevelPermissionByCodeProps): boolean => {
+}: ValidatePermissionWithComparisonTypeProps): boolean => {
   const newPermissions =
     permissions && permissions.length ? permissions : store.getState().company.permissions || [];
 
-  return verifyCompanyLevelPermission({
+  return validateBasePermissionWithComparisonType({
     level,
     code,
     containOrEqual,
@@ -63,7 +72,7 @@ export const verifyCreatePermission = (
   selectCompanyHierarchyId?: number,
   permissions?: PermissionCodesProps[],
 ): boolean => {
-  return verifyCompanyLevelPermissionByCode({
+  return validatePermissionWithComparisonType({
     code,
     containOrEqual: 'contain',
     level: selectCompanyHierarchyId ? permissionLevels.COMPANY_SUBSIDIARIES : permissionLevels.USER,
@@ -89,27 +98,40 @@ export const verifyLevelPermission = ({
 }: VerifyLevelPermissionProps): boolean => {
   const info = getPermissionsInfo(code);
 
-  if (!info || !companyId) return !!info;
+  if (!info) return !!info;
 
   const { permissionLevel } = info;
-  const isAgenting = store.getState().b2bFeatures?.masqueradeCompany?.isAgenting || false;
+
+  if (!permissionLevel) return false;
   const { companyInfo, customer } = store.getState().company || {};
-  const salesRepCompanyId = store.getState().b2bFeatures?.masqueradeCompany?.id || 0;
 
-  const currentCompanyId =
-    customer.role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : companyInfo?.id;
-  const customerId = customer?.id;
-  const customerB2BId = customer?.b2bId || 0;
-  const customerEmail = customer?.emailAddress;
+  return levelComparison({
+    permissionLevel: +permissionLevel,
+    customer,
+    companyInfo,
+    params: {
+      companyId,
+      userEmail,
+      userId,
+    },
+  });
+};
 
-  switch (permissionLevel) {
-    case permissionLevels.COMPANY_SUBSIDIARIES:
-      return true;
-    case permissionLevels.COMPANY:
-      return +companyId === +currentCompanyId;
-    case permissionLevels.USER:
-      return userId === +customerId || userId === +customerB2BId || userEmail === customerEmail;
-    default:
-      return false;
-  }
+export const verifySubmitShoppingListSubsidiariesPermission = ({
+  code,
+  userId = 0,
+  selectId,
+}: VerifyPermissionProps): boolean => {
+  const info = getPermissionsInfo(code);
+
+  if (!info) return !!info;
+
+  const submitShoppingListPermission = verifyLevelPermission({
+    code,
+    userId,
+  });
+
+  return info.permissionLevel === permissionLevels.USER && selectId
+    ? false
+    : submitShoppingListPermission;
 };

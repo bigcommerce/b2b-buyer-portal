@@ -8,7 +8,7 @@ import { getCustomerInfo } from '@/shared/service/bc';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { b2bJumpPath, checkEveryPermissionsCode } from '@/utils';
-import { verifyCompanyLevelPermissionByCode } from '@/utils/b3CheckPermissions';
+import { validatePermissionWithComparisonType } from '@/utils/b3CheckPermissions';
 import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
 
@@ -410,7 +410,7 @@ const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
         });
 
         if (path === '/company-orders' && isHasPermission) {
-          return verifyCompanyLevelPermissionByCode({
+          return validatePermissionWithComparisonType({
             code: item.permissionCodes,
             level: 2,
             containOrEqual: 'contain',

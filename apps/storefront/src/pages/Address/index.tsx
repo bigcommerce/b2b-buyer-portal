@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
-import { useCardListColumn, useTableRef } from '@/hooks';
+import { useCardListColumn, useTableRef, useVerifyCreatePermission } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
 import {
   getB2BAddress,
@@ -16,7 +16,6 @@ import {
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { b2bPermissionsMap, snackbar } from '@/utils';
-import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
 import b2bLogger from '@/utils/b3Logger';
 
 import { AddressConfigItem, AddressItemType, BCAddressItemType } from '../../types/address';
@@ -164,18 +163,16 @@ function Address() {
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>();
 
+  const [isCreatePermission] = useVerifyCreatePermission(
+    b2bPermissionsMap.addressesCreateActionsPermission,
+  );
+
   useEffect(() => {
     const getEditPermission = async () => {
       if (isBCPermission) {
         setEditPermission(true);
         return;
       }
-      const { addressesCreateActionsPermission } = b2bPermissionsMap;
-
-      const isCreatePermission = verifyCreatePermission(
-        addressesCreateActionsPermission,
-        +selectCompanyHierarchyId,
-      );
 
       if (hasAdminPermission || isCreatePermission) {
         try {
@@ -213,7 +210,14 @@ function Address() {
     getEditPermission();
     // Disabling the next line as dispatch is not required to be in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addressConfig, hasAdminPermission, isBCPermission, role, selectCompanyHierarchyId]);
+  }, [
+    addressConfig,
+    hasAdminPermission,
+    isBCPermission,
+    role,
+    selectCompanyHierarchyId,
+    isCreatePermission,
+  ]);
 
   const handleCreate = () => {
     if (!editPermission) {
