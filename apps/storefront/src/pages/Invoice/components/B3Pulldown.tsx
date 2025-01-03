@@ -46,11 +46,10 @@ function B3Pulldown({
 
   const b3Lang = useB3Lang();
 
-  const { getOrderPermission, invoicePayPermission, purchasabilityPermission } =
-    useAppSelector(rolePermissionSelector);
+  const { invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
   const { getOrderPermission: getOrderPermissionCode } = b2bPermissionsMap;
 
-  const [isCanViewOrder, setIsCanViewOrder] = useState<boolean>(getOrderPermission);
+  const [isCanViewOrder, setIsCanViewOrder] = useState<boolean>(false);
 
   const close = () => {
     setIsOpen(false);
@@ -192,7 +191,7 @@ function B3Pulldown({
         >
           {b3Lang('invoice.actions.viewInvoice')}
         </MenuItem>
-        {getOrderPermission && isCanViewOrder && (
+        {isCanViewOrder && (
           <MenuItem
             key="View-Order"
             sx={{

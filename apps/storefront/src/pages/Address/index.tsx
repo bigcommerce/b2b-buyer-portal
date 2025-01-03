@@ -27,6 +27,11 @@ import SetDefaultDialog from './components/SetDefaultDialog';
 import { convertBCToB2BAddress, filterFormConfig } from './shared/config';
 import { CountryProps, getAddressFields } from './shared/getAddressFields';
 
+const permissionKeys = [
+  b2bPermissionsMap.addressesCreateActionsPermission,
+  b2bPermissionsMap.addressesUpdateActionsPermission,
+  b2bPermissionsMap.addressesDeleteActionsPermission,
+];
 interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditAddressClick: (type: string, data?: AddressItemType) => void;
 }
@@ -72,12 +77,8 @@ function Address() {
 
   const companyId =
     role === CustomerRole.SUPER_ADMIN && isAgenting ? salesRepCompanyId : companyInfoId;
-  let hasAdminPermission = false;
-  let isBCPermission = false;
 
-  if (isB2BUser && role === CustomerRole.SUPER_ADMIN && isAgenting) {
-    hasAdminPermission = true;
-  }
+  let isBCPermission = false;
 
   if (!isB2BUser || (role === CustomerRole.SUPER_ADMIN && !isAgenting)) {
     isBCPermission = true;
@@ -163,9 +164,8 @@ function Address() {
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>();
 
-  const [isCreatePermission] = useVerifyCreatePermission(
-    b2bPermissionsMap.addressesCreateActionsPermission,
-  );
+  const [isCreatePermission, updateActionsPermission, deleteActionsPermission] =
+    useVerifyCreatePermission(permissionKeys);
 
   useEffect(() => {
     const getEditPermission = async () => {
@@ -174,7 +174,7 @@ function Address() {
         return;
       }
 
-      if (hasAdminPermission || isCreatePermission) {
+      if (updateActionsPermission) {
         try {
           let configList = addressConfig;
           if (!configList) {
@@ -202,22 +202,11 @@ function Address() {
           b2bLogger.error(error);
         }
       }
-
-      if (!isCreatePermission) {
-        setEditPermission(false);
-      }
     };
     getEditPermission();
     // Disabling the next line as dispatch is not required to be in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    addressConfig,
-    hasAdminPermission,
-    isBCPermission,
-    role,
-    selectCompanyHierarchyId,
-    isCreatePermission,
-  ]);
+  }, [addressConfig, updateActionsPermission, isBCPermission, role, selectCompanyHierarchyId]);
 
   const handleCreate = () => {
     if (!editPermission) {
@@ -255,13 +244,13 @@ function Address() {
 
   const AddButtonConfig = useMemo(() => {
     return {
-      isEnabled: editPermission,
+      isEnabled: isBCPermission || (editPermission && isCreatePermission),
       customLabel: b3Lang('addresses.addNewAddress'),
     };
 
     // ignore b3Lang due it's function that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editPermission, selectCompanyHierarchyId]);
+  }, [editPermission, selectCompanyHierarchyId, isCreatePermission]);
 
   const translatedFilterFormConfig = JSON.parse(JSON.stringify(filterFormConfig));
 
@@ -308,6 +297,8 @@ function Address() {
               onDelete={handleDelete}
               onSetDefault={handleSetDefault}
               editPermission={editPermission}
+              updateActionsPermission={updateActionsPermission}
+              deleteActionsPermission={deleteActionsPermission}
               isBCPermission={isBCPermission}
             />
           )}
