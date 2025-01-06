@@ -1,3 +1,4 @@
+import { QuoteExtraFieldsType } from '@/types/quotes';
 import { channelId, convertArrayToGraphql, convertObjectToGraphql, storeHash } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
@@ -129,6 +130,9 @@ const quoteCreate = (data: CustomFieldItems) => `mutation{
     productList: ${convertArrayToGraphql(data.productList || [])},
     fileList: ${convertArrayToGraphql(data.fileList || [])},
     quoteTitle: "${data.quoteTitle}"
+    ${data?.extraFields ? `extraFields: ${convertArrayToGraphql(data?.extraFields || [])}` : ''}
+    ${data?.referenceNumber ? `referenceNumber: "${data?.referenceNumber}"` : ''}
+    ${data?.recipients ? `recipients: ${convertArrayToGraphql(data?.recipients || [])}` : ''}
   }) {
     quote{
       id,
@@ -350,6 +354,25 @@ query getStorefrontProductSettings($storeHash: String!, $channelId: Int) {
 }
 `;
 
+const getQuoteExtraFields = `query getQuoteExtraFields($storeHash: String, $channelId: Int) {
+  quoteExtraFieldsConfig(storeHash: $storeHash, channelId: $channelId) {
+    fieldName,
+    fieldType,
+    isRequired,
+    defaultValue,
+    maximumLength,
+    numberOfRows,
+    maximumValue,
+    listOfValue,
+    visibleToEnduser,
+    labelName,
+    id,
+    isUnique,
+    valueConfigs,
+    fieldCategory,
+  }
+}`;
+
 export const getBCCustomerAddresses = () =>
   B3Request.graphqlB2B({
     query: getCustomerAddresses(),
@@ -448,5 +471,11 @@ export const getQuoteCreatedByUsers = (companyId: number, module: number) =>
 export const getBCStorefrontProductSettings = () =>
   B3Request.graphqlB2B({
     query: getStorefrontProductSettings,
+    variables: { storeHash, channelId },
+  });
+
+export const getQuoteExtraFieldsConfig = (): Promise<QuoteExtraFieldsType> =>
+  B3Request.graphqlB2B({
+    query: getQuoteExtraFields,
     variables: { storeHash, channelId },
   });
