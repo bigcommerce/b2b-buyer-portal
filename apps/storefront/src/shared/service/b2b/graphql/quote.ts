@@ -354,8 +354,8 @@ query getStorefrontProductSettings($storeHash: String!, $channelId: Int) {
 }
 `;
 
-const getQuoteExtraFields = `query getQuoteExtraFields($storeHash: String) {
-  quoteExtraFieldsConfig(storeHash: $storeHash) {
+const getQuoteExtraFields = `query getQuoteExtraFields($storeHash: String, $channelId: Int) {
+  quoteExtraFieldsConfig(storeHash: $storeHash, channelId: $channelId) {
     fieldName,
     fieldType,
     isRequired,
@@ -477,5 +477,5 @@ export const getBCStorefrontProductSettings = () =>
 export const getQuoteExtraFieldsConfig = (): Promise<QuoteExtraFieldsType> =>
   B3Request.graphqlB2B({
     query: getQuoteExtraFields,
-    variables: { storeHash },
+    variables: { storeHash, channelId },
   });
