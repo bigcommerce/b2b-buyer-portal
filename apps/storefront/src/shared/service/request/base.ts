@@ -19,16 +19,17 @@ const ENVIRONMENT_B2B_APP_CLIENT_ID: EnvSpecificConfig<string> = {
 const DEFAULT_ENVIRONMENT =
   import.meta.env.VITE_IS_LOCAL_ENVIRONMENT === 'TRUE' ? Environment.Local : Environment.Production;
 
-export function getAPIBaseURL(environment: Environment = DEFAULT_ENVIRONMENT) {
-  return ENVIRONMENT_B2B_API_URL[environment];
+export function getAPIBaseURL(environment?: Environment) {
+  return ENVIRONMENT_B2B_API_URL[
+    environment ?? window.B3?.setting?.environment ?? DEFAULT_ENVIRONMENT
+  ];
 }
 
-export function getAppClientId(environment: Environment = DEFAULT_ENVIRONMENT) {
-  return ENVIRONMENT_B2B_APP_CLIENT_ID[environment];
+export function getAppClientId(environment?: Environment) {
+  return ENVIRONMENT_B2B_APP_CLIENT_ID[
+    environment ?? window.B3?.setting?.environment ?? DEFAULT_ENVIRONMENT
+  ];
 }
-
-const B2B_API_BASE_URL = getAPIBaseURL(window.B3?.setting?.environment);
-const B2B_APP_CLIENT_ID = getAppClientId(window.B3?.setting?.environment);
 
 enum RequestType {
   B2BGraphql = 'B2BGraphql',
@@ -50,4 +51,4 @@ const queryParse = <T>(query: T): string => {
   return queryText.slice(0, -1);
 };
 
-export { B2B_API_BASE_URL, B2B_APP_CLIENT_ID, queryParse, RequestType };
+export { queryParse, RequestType };

@@ -6,7 +6,7 @@ import {
   getUserCompany,
 } from '@/shared/service/b2b';
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
-import { B2B_APP_CLIENT_ID } from '@/shared/service/request/base';
+import { getAppClientId } from '@/shared/service/request/base';
 import {
   clearMasqueradeCompany,
   MasqueradeCompany,
@@ -235,7 +235,7 @@ const loginWithCurrentCustomerJWT = async () => {
   const prevCurrentCustomerJWT = store.getState().company.tokens.currentCustomerJWT;
   let currentCustomerJWT;
   try {
-    currentCustomerJWT = await getCurrentCustomerJWT(B2B_APP_CLIENT_ID);
+    currentCustomerJWT = await getCurrentCustomerJWT(getAppClientId());
   } catch (error) {
     b2bLogger.error(error);
     return undefined;

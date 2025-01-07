@@ -18,11 +18,14 @@ export async function initHeadlessScripts() {
         });
       }
 
-      b2bScriptNodes.forEach((scriptNode) => {
-        const newScriptElement = document.importNode(scriptNode, true);
-        newScriptElement.className = BUYER_PORTAL_INJECTED_SCRIPT_CLASS;
-
-        document.body.appendChild(newScriptElement);
+      b2bScriptNodes.forEach((node) => {
+        const scriptElement = document.createElement('script');
+        [...node.attributes].forEach((attr) => {
+          scriptElement.setAttribute(attr.nodeName, attr.nodeValue as string);
+        });
+        scriptElement.innerHTML = node.innerHTML;
+        scriptElement.className = BUYER_PORTAL_INJECTED_SCRIPT_CLASS;
+        document.body.appendChild(scriptElement);
       });
     }
   };

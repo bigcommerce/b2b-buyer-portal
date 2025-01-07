@@ -1,5 +1,5 @@
 import { getCurrentCustomerJWT } from '@/shared/service/bc';
-import { B2B_APP_CLIENT_ID } from '@/shared/service/request/base';
+import { getAppClientId } from '@/shared/service/request/base';
 import { store } from '@/store';
 import { CustomerRole } from '@/types';
 import b2bLogger from '@/utils/b3Logger';
@@ -10,7 +10,7 @@ const b2bVerifyBcLoginStatus = async () => {
 
   try {
     if (+role !== CustomerRole.GUEST) {
-      const bcToken = await getCurrentCustomerJWT(B2B_APP_CLIENT_ID);
+      const bcToken = await getCurrentCustomerJWT(getAppClientId());
       isBcLogin = !!bcToken;
 
       return isBcLogin;
