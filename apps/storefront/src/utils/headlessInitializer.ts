@@ -2,6 +2,10 @@ import { getAPIBaseURL } from '../shared/service/request/base';
 import { Environment } from '../types';
 
 const BUYER_PORTAL_INJECTED_SCRIPT_CLASS = `buyer-portal-scripts-headless`;
+interface ScriptNodeChildren extends HTMLScriptElement {
+  dataSrc?: string;
+  crossorigin?: string;
+}
 
 export async function initHeadlessScripts() {
   const parseAndInsertStorefrontScripts = (storefrontScripts: string) => {
@@ -18,11 +22,26 @@ export async function initHeadlessScripts() {
         });
       }
 
-      b2bScriptNodes.forEach((scriptNode) => {
-        const newScriptElement = document.importNode(scriptNode, true);
-        newScriptElement.className = BUYER_PORTAL_INJECTED_SCRIPT_CLASS;
-
-        document.body.appendChild(newScriptElement);
+      b2bScriptNodes.forEach((node: ScriptNodeChildren, index: number) => {
+        const nodeInnerHTML = node?.innerHTML || '';
+        const nodeSrc = node?.src || '';
+        const dataSrc = node?.dataSrc || '';
+        const type = node?.type || '';
+        const crossorigin = node?.crossorigin || '';
+        const id = node?.id || '';
+        const scriptElement = document.createElement('script');
+        scriptElement.innerHTML = nodeInnerHTML;
+        scriptElement.className = BUYER_PORTAL_INJECTED_SCRIPT_CLASS;
+        if (nodeSrc) scriptElement.setAttribute('src', nodeSrc);
+        if (dataSrc) scriptElement.setAttribute('data-src', dataSrc);
+        if (type) {
+          scriptElement.setAttribute('type', 'module');
+        } else if (index !== 0) {
+          scriptElement.noModule = true;
+        }
+        if (id) scriptElement.setAttribute('id', id);
+        if (crossorigin) scriptElement.setAttribute('crossorigin', 'true');
+        document.body.appendChild(scriptElement);
       });
     }
   };
