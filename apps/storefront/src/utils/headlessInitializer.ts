@@ -2,9 +2,8 @@ import { getAPIBaseURL } from '../shared/service/request/base';
 import { Environment } from '../types';
 
 const BUYER_PORTAL_INJECTED_SCRIPT_CLASS = `buyer-portal-scripts-headless`;
-interface ScriptNodeChildren extends HTMLScriptElement {
+interface ScriptNode extends HTMLScriptElement {
   dataSrc?: string;
-  crossorigin?: string;
 }
 
 export async function initHeadlessScripts() {
@@ -22,12 +21,12 @@ export async function initHeadlessScripts() {
         });
       }
 
-      b2bScriptNodes.forEach((node: ScriptNodeChildren, index: number) => {
+      b2bScriptNodes.forEach((node: ScriptNode, index: number) => {
         const nodeInnerHTML = node?.innerHTML || '';
         const nodeSrc = node?.src || '';
         const dataSrc = node?.dataSrc || '';
         const type = node?.type || '';
-        const crossorigin = node?.crossorigin || '';
+        const crossOrigin = node?.crossOrigin || '';
         const id = node?.id || '';
         const scriptElement = document.createElement('script');
         scriptElement.innerHTML = nodeInnerHTML;
@@ -40,7 +39,7 @@ export async function initHeadlessScripts() {
           scriptElement.noModule = true;
         }
         if (id) scriptElement.setAttribute('id', id);
-        if (crossorigin) scriptElement.setAttribute('crossorigin', 'true');
+        if (crossOrigin) scriptElement.setAttribute('crossorigin', crossOrigin);
         document.body.appendChild(scriptElement);
       });
     }

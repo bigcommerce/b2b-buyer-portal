@@ -53,7 +53,7 @@ describe('when headless.ts is run', () => {
        },
        "dom.checkoutRegisterParentElement": "#checkout-app",
        };
-      </script><script type="module" crossorigin="" src="https://cdn.bundleb2b.net/b2b/production/storefront/index.wVqliJs9.js" class="buyer-portal-scripts-headless"></script><script nomodule="" crossorigin="" src="https://cdn.bundleb2b.net/b2b/production/storefront/polyfills-legacy.DArz4FPZ.js" class="buyer-portal-scripts-headless"></script><script nomodule="" crossorigin="" src="https://cdn.bundleb2b.net/b2b/production/storefront/index-legacy.BwHISVUB.js" class="buyer-portal-scripts-headless"></script>"
+      </script><script class="buyer-portal-scripts-headless" src="https://cdn.bundleb2b.net/b2b/production/storefront/index.wVqliJs9.js" type="module"></script><script class="buyer-portal-scripts-headless" src="https://cdn.bundleb2b.net/b2b/production/storefront/polyfills-legacy.DArz4FPZ.js"></script><script class="buyer-portal-scripts-headless" src="https://cdn.bundleb2b.net/b2b/production/storefront/index-legacy.BwHISVUB.js"></script>"
     `);
 
     // calling again to make sure the old scripts get replaced properly
