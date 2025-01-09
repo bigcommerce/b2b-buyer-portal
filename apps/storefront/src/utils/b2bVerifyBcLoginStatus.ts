@@ -7,6 +7,9 @@ import b2bLogger from '@/utils/b3Logger';
 const b2bVerifyBcLoginStatus = async () => {
   let isBcLogin = false;
   const { role } = store.getState().company.customer;
+  const { B2BToken } = store.getState().company.tokens;
+
+  if (B2BToken) return true;
 
   try {
     if (+role !== CustomerRole.GUEST) {
