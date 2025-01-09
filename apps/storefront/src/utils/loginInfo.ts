@@ -11,7 +11,6 @@ import {
   clearMasqueradeCompany,
   MasqueradeCompany,
   setMasqueradeCompany,
-  setQuoteUserId,
   store,
 } from '@/store';
 import {
@@ -25,7 +24,6 @@ import {
   setLoginType,
   setPermissionModules,
 } from '@/store/slices/company';
-import { resetDraftQuoteInfo, resetDraftQuoteList } from '@/store/slices/quoteInfo';
 import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
 
 import b2bLogger from './b3Logger';
@@ -316,20 +314,16 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
         loginType,
         companyRoleName,
       };
-      const quoteUserId = id || customerId || 0;
       const companyPayload = {
         id: companyInfo.id,
         status: companyInfo.companyStatus,
         companyName: companyInfo.companyName,
       };
 
-      store.dispatch(resetDraftQuoteList());
-      store.dispatch(resetDraftQuoteInfo());
       store.dispatch(clearMasqueradeCompany());
       store.dispatch(setPermissionModules(permissions));
       store.dispatch(setCompanyInfo(companyPayload));
       store.dispatch(setCustomerInfo(customerInfo));
-      store.dispatch(setQuoteUserId(quoteUserId));
       B3SStorage.set('isB2BUser', isB2BUser);
       B3LStorage.set('cartToQuoteId', '');
 
