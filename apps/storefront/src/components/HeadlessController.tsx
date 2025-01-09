@@ -253,7 +253,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
     };
     // disabling because we don't want to run this effect on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productList, B2BToken]);
+  }, [productList, B2BToken, globalState]);
 
   return null;
 }
