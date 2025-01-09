@@ -38,7 +38,7 @@ declare interface Window {
     callbacks: import('@/utils/b3CallbackManager').default;
     utils: {
       openPage: (page: import('./constants').HeadlessRoute) => void;
-      getRoutes: () => import('@/shared/routes').RouteItem[];
+      getRoutes: () => import('@/shared/routeList').BuyerPortalRoute[];
       quote: {
         addProductFromPage: (item: import('@/utils').LineItems) => void;
         addProductsFromCart: () => Promise<void>;

@@ -1,15 +1,22 @@
-import { FC, lazy } from 'react';
+import { lazy, LazyExoticComponent, ReactElement } from 'react';
 import { matchPath } from 'react-router-dom';
 
-import { type PageProps } from '@/pages/PageProps';
-import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
+import { PageProps } from '@/pages/PageProps';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { checkEveryPermissionsCode, getB3PermissionsList, getPermissionsInfo } from '@/utils';
+import { getB3PermissionsList } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
 
 import b2bVerifyBcLoginStatus from '../../utils/b2bVerifyBcLoginStatus';
+import { GlobalState } from '../global/context/config';
+import {
+  BuyerPortalRoute,
+  getAllowedRoutesWithoutComponent,
+  RouteFirstLevelItem,
+  RouteItem,
+  routeList,
+} from '../routeList';
 
 const AccountSetting = lazy(() => import('@/pages/AccountSetting'));
 const AddressList = lazy(() => import('@/pages/Address'));
@@ -34,203 +41,34 @@ const ShippingLists = lazy(() => import('@/pages/ShoppingLists'));
 const ShoppingListDetails = lazy(() => import('@/pages/ShoppingListDetails'));
 const UserManagement = lazy(() => import('@/pages/UserManagement'));
 
-interface RouteItemBasic {
-  component: FC<PageProps>;
-  path: string;
-  name: string;
-  permissions: number[]; // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 4: salesRep-【Not represented】, 99: bc user, 100: guest
+const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactElement>> = {
+  '/dashboard': Dashboard,
+  '/orders': OrderList,
+  '/company-orders': CompanyOrderList,
+  '/invoice': Invoice,
+  '/quotes': Quotes,
+  '/shoppingLists': ShippingLists,
+  '/purchased-products': QuickOrder,
+  '/orderDetail/:id': OrderDetail,
+  '/invoiceDetail/:id': InvoiceDetail,
+  '/addresses': AddressList,
+  '/shoppingList/:id': ShoppingListDetails,
+  '/user-management': UserManagement,
+  '/quoteDraft': QuoteDraft,
+  '/accountSettings': AccountSetting,
+  '/quoteDetail/:id': QuoteDetail,
+};
+
+function addComponentToRoutes(routes: BuyerPortalRoute[]): RouteItem[] {
+  return routes.map((item) => {
+    return {
+      ...item,
+      component: routesMap[item.path],
+    } as RouteItem;
+  });
 }
 
-export interface RouteItem extends RouteItemBasic {
-  isMenuItem: boolean;
-  wsKey: string;
-  configKey?: string;
-  isTokenLogin: boolean;
-  pageTitle?: string;
-  idLang: string;
-  permissionCodes?: string;
-}
-
-export interface RouteFirstLevelItem extends RouteItemBasic {
-  isProvider: boolean;
-}
-
-const routes: RouteItem[] = [
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    wsKey: 'router-orders',
-    isMenuItem: true,
-    component: Dashboard,
-    permissions: [3, 4],
-    isTokenLogin: true,
-    idLang: 'global.navMenu.dashboard',
-  },
-  {
-    path: '/orders',
-    name: 'My orders',
-    wsKey: 'router-orders',
-    isMenuItem: true,
-    component: OrderList,
-    permissions: [0, 1, 3, 4, 99, 100],
-    permissionCodes: 'get_orders, get_order_detail',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.orders',
-  },
-  {
-    path: '/company-orders',
-    name: 'Company orders',
-    wsKey: 'router-orders',
-    isMenuItem: true,
-    component: CompanyOrderList,
-    permissions: [0, 1, 3],
-    permissionCodes: 'get_orders, get_order_detail',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.companyOrders',
-  },
-  {
-    path: '/invoice',
-    name: 'Invoice',
-    wsKey: 'invoice',
-    isMenuItem: true,
-    component: Invoice,
-    configKey: 'invoice',
-    permissions: [0, 1, 3],
-    permissionCodes:
-      'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.invoice',
-  },
-  {
-    path: '/quotes',
-    name: 'Quotes',
-    wsKey: 'quotes',
-    isMenuItem: true,
-    component: Quotes,
-    configKey: 'quotes',
-    permissions: [0, 1, 2, 3, 99, 100],
-    permissionCodes: 'get_quotes, get_quote_detail, get_quote_pdf',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.quotes',
-  },
-  {
-    path: '/shoppingLists',
-    name: 'Shopping lists',
-    wsKey: 'shoppingLists',
-    isMenuItem: true,
-    component: ShippingLists,
-    configKey: 'shoppingLists',
-    permissions: [0, 1, 2, 3, 99],
-    permissionCodes: 'get_shopping_lists, get_shopping_list_detail',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.shoppingLists',
-  },
-  {
-    path: '/purchased-products',
-    name: 'Quick order',
-    pageTitle: 'Purchased products',
-    wsKey: 'quickOrder',
-    isMenuItem: true,
-    component: QuickOrder,
-    configKey: 'quickOrderPad',
-    permissions: [0, 1, 2, 3, 99],
-    isTokenLogin: true,
-    idLang: 'global.navMenu.quickOrder',
-  },
-  {
-    path: '/orderDetail/:id',
-    name: 'Order details',
-    wsKey: 'router-orders',
-    isMenuItem: false,
-    component: OrderDetail,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes: 'get_orders, get_order_detail',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.orderDetail',
-  },
-  {
-    path: '/invoiceDetail/:id',
-    name: 'Invoice details',
-    wsKey: 'router-invoice',
-    isMenuItem: false,
-    component: InvoiceDetail,
-    permissions: [0, 1, 3, 99, 100],
-    permissionCodes:
-      'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.invoiceDetail',
-  },
-  {
-    path: '/addresses',
-    name: 'Addresses',
-    wsKey: 'router-address',
-    isMenuItem: true,
-    component: AddressList,
-    configKey: 'addressBook',
-    permissions: [0, 1, 2, 3, 99, 100],
-    permissionCodes: 'get_addresses, get_address_detail, get_default_shipping, get_default_billing',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.addresses',
-  },
-  {
-    path: '/shoppingList/:id',
-    name: 'Shopping list',
-    wsKey: 'router-shopping-list',
-    isMenuItem: false,
-    component: ShoppingListDetails,
-    permissions: [0, 1, 2, 3, 99],
-    permissionCodes: 'get_shopping_lists, get_shopping_list_detail',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.shoppingList',
-  },
-  {
-    path: '/user-management',
-    name: 'User management',
-    wsKey: 'router-userManagement',
-    isMenuItem: true,
-    component: UserManagement,
-    permissions: [0, 1, 3],
-    permissionCodes: 'get_users, get_user_detail',
-    isTokenLogin: true,
-    idLang: 'global.navMenu.userManagement',
-  },
-  {
-    path: '/quoteDraft',
-    name: 'Quote draft',
-    wsKey: 'quoteDraft',
-    isMenuItem: false,
-    component: QuoteDraft,
-    configKey: 'quoteDraft',
-    permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes:
-      'get_quotes,get_quote_detail, get_quote_pdf, create_quote, update_quote_message',
-    isTokenLogin: false,
-    idLang: 'global.navMenu.quoteDraft',
-  },
-  {
-    path: '/accountSettings',
-    name: 'Account settings',
-    wsKey: 'accountSetting',
-    isMenuItem: true,
-    component: AccountSetting,
-    configKey: 'accountSettings',
-    permissions: [0, 1, 2, 3, 4, 99],
-    isTokenLogin: true,
-    idLang: 'global.navMenu.accountSettings',
-  },
-  {
-    path: '/quoteDetail/:id',
-    name: 'Quote detail',
-    wsKey: 'quoteDetail',
-    isMenuItem: false,
-    component: QuoteDetail,
-    configKey: 'quoteDetail',
-    permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes: 'get_quotes, get_quote_detail, get_quote_pdf',
-    isTokenLogin: false,
-    idLang: 'global.navMenu.quoteDetail',
-  },
-];
+const routes: RouteItem[] = addComponentToRoutes(routeList);
 
 const firstLevelRouting: RouteFirstLevelItem[] = [
   {
@@ -287,124 +125,6 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
 const denyInvoiceRoles = [4, 99, 100];
 
 const invoiceTypes = ['invoice?invoiceId', 'invoice?receiptId'];
-
-const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
-  const { storefrontConfig, quoteConfig } = globalState;
-  const { company, b2bFeatures } = store.getState();
-  const { isAgenting } = b2bFeatures.masqueradeCompany;
-  const { role } = company.customer;
-  let isB2BUser = false;
-
-  if (
-    company.customer.userType === UserTypes.MULTIPLE_B2C &&
-    company.companyInfo.status === CompanyStatus.APPROVED
-  ) {
-    isB2BUser = true;
-  } else if (+company.customer.role === CustomerRole.SUPER_ADMIN) {
-    isB2BUser = true;
-  }
-
-  return routes.filter((item: RouteItem) => {
-    const { permissions = [], permissionCodes, path } = item;
-
-    if (role === CustomerRole.SUPER_ADMIN && !isAgenting) {
-      return permissions.includes(4);
-    }
-
-    // bc user
-    if (!isB2BUser) {
-      const navListKey = storefrontConfig && storefrontConfig[item.configKey || ''];
-
-      if (item.configKey === 'quotes') {
-        if (role === CustomerRole.GUEST) {
-          const quoteGuest =
-            quoteConfig.find((config: QuoteConfigProps) => config.key === 'quote_for_guest')
-              ?.value || '0';
-          return quoteGuest === '1' && navListKey;
-        }
-        if (role === CustomerRole.B2C) {
-          const quoteIndividualCustomer =
-            quoteConfig.find(
-              (config: QuoteConfigProps) => config.key === 'quote_for_individual_customer',
-            )?.value || '0';
-          return quoteIndividualCustomer === '1' && navListKey;
-        }
-      }
-      if (item.configKey === 'shoppingLists') {
-        const shoppingListOnProductPage = quoteConfig.find(
-          (config: QuoteConfigProps) => config.key === 'shopping_list_on_product_page',
-        )?.extraFields;
-        if (role === CustomerRole.GUEST) {
-          return shoppingListOnProductPage?.guest && navListKey;
-        }
-        if (role === CustomerRole.B2C) {
-          return shoppingListOnProductPage?.b2c && navListKey;
-        }
-      }
-      if (typeof navListKey === 'boolean') return navListKey;
-      return permissions.includes(CustomerRole.B2C);
-    }
-
-    // b2b user
-    const isHasPermissionRole = () => {
-      if (isB2BUser && permissionCodes) {
-        const isHasPermission = checkEveryPermissionsCode({
-          code: permissionCodes,
-        });
-
-        if (path === '/company-orders' && isHasPermission) {
-          const orderPermissionInfo = getPermissionsInfo('get_orders');
-          return (
-            orderPermissionInfo &&
-            orderPermissionInfo?.permissionLevel &&
-            +orderPermissionInfo.permissionLevel > 1
-          );
-        }
-        return isHasPermission;
-      }
-      return true;
-    };
-
-    if (!isHasPermissionRole()) return false;
-
-    if (path === '/dashboard') {
-      return +role === CustomerRole.SUPER_ADMIN;
-    }
-
-    if (!storefrontConfig) {
-      return false;
-    }
-
-    if (item.configKey === 'quotes') {
-      const quoteB2B =
-        quoteConfig.find((config: QuoteConfigProps) => config.key === 'quote_for_b2b')?.value ||
-        '0';
-      return storefrontConfig.quotes && quoteB2B === '1';
-    }
-
-    if (item.configKey === 'shoppingLists') {
-      const shoppingListOnProductPage = quoteConfig.find(
-        (config: QuoteConfigProps) => config.key === 'shopping_list_on_product_page',
-      )?.extraFields;
-      return storefrontConfig.shoppingLists && shoppingListOnProductPage?.b2b;
-    }
-
-    if (item.configKey === 'quickOrderPad') {
-      return storefrontConfig.quickOrderPad && storefrontConfig.buyAgain;
-    }
-    const config = storefrontConfig[item.configKey || ''] ?? {
-      enabledStatus: true,
-    };
-    if (typeof config === 'boolean') {
-      return config;
-    }
-    if (item.configKey === 'invoice') {
-      return !!config.enabledStatus && !!config.value;
-    }
-
-    return !!config.enabledStatus;
-  });
-};
 
 const gotoAllowedAppPage = async (
   role: CustomerRole,
@@ -498,4 +218,7 @@ const getIsTokenGotoPage = (url: string): boolean => {
   return flag;
 };
 
-export { firstLevelRouting, getAllowedRoutes, getIsTokenGotoPage, gotoAllowedAppPage, routes };
+const getAllowedRoutes = (globalState: GlobalState) =>
+  addComponentToRoutes(getAllowedRoutesWithoutComponent(globalState));
+
+export { getAllowedRoutes, firstLevelRouting, getIsTokenGotoPage, gotoAllowedAppPage, routes };
