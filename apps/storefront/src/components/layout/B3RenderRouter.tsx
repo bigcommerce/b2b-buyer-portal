@@ -4,8 +4,8 @@ import { Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-do
 import { RegisteredProvider } from '@/pages/Registered/context/RegisteredContext';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { GlobalContext } from '@/shared/global';
-import { getAllowedRoutes, RouteFirstLevelItem, RouteItem } from '@/shared/routeList';
-import { firstLevelRouting } from '@/shared/routes';
+import { RouteFirstLevelItem, RouteItem } from '@/shared/routeList';
+import { firstLevelRouting, getAllowedRoutes } from '@/shared/routes';
 import { getPageTranslations, useAppDispatch } from '@/store';
 import { channelId } from '@/utils';
 
