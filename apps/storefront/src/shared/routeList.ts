@@ -1,4 +1,4 @@
-import { FC, LazyExoticComponent, ReactNode } from 'react';
+import { FC, LazyExoticComponent, ReactElement } from 'react';
 
 import { PageProps } from '@/pages/PageProps';
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
@@ -13,7 +13,7 @@ export interface BuyerPortalRoute {
 }
 
 interface RouteItemBasic extends BuyerPortalRoute {
-  component: FC<PageProps> | LazyExoticComponent<(props: PageProps) => ReactNode>;
+  component: FC<PageProps> | LazyExoticComponent<(props: PageProps) => ReactElement>;
   permissions: number[]; // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 4: salesRep-【Not represented】, 99: bc user, 100: guest
 }
 

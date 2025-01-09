@@ -1,4 +1,4 @@
-import { lazy, LazyExoticComponent, ReactNode } from 'react';
+import { lazy, LazyExoticComponent, ReactElement } from 'react';
 import { matchPath } from 'react-router-dom';
 
 import { PageProps } from '@/pages/PageProps';
@@ -41,7 +41,7 @@ const ShippingLists = lazy(() => import('@/pages/ShoppingLists'));
 const ShoppingListDetails = lazy(() => import('@/pages/ShoppingListDetails'));
 const UserManagement = lazy(() => import('@/pages/UserManagement'));
 
-const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactNode>> = {
+const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactElement>> = {
   '/dashboard': Dashboard,
   '/orders': OrderList,
   '/company-orders': CompanyOrderList,
@@ -63,7 +63,7 @@ function addComponentToRoutes(routes: BuyerPortalRoute[]): RouteItem[] {
   return routes.map((item) => {
     return {
       ...item,
-      component: routesMap[item.path ?? ''],
+      component: routesMap[item.path],
     } as RouteItem;
   });
 }
