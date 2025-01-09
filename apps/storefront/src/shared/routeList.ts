@@ -9,6 +9,7 @@ import { checkEveryPermissionsCode, getPermissionsInfo } from '@/utils';
 export interface BuyerPortalRoute {
   path: string;
   name: string;
+  isMenuItem?: boolean;
 }
 
 interface RouteItemBasic extends BuyerPortalRoute {
@@ -17,7 +18,6 @@ interface RouteItemBasic extends BuyerPortalRoute {
 }
 
 export interface RouteItem extends RouteItemBasic {
-  isMenuItem: boolean;
   wsKey: string;
   configKey?: string;
   isTokenLogin: boolean;
