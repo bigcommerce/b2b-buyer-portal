@@ -6,7 +6,7 @@ import { Badge, List, ListItem, ListItemButton, ListItemText, useTheme } from '@
 import { useMobile } from '@/hooks';
 import { DynamicallyVariableContext } from '@/shared/dynamicallyVariable';
 import { GlobalContext } from '@/shared/global';
-import { getAllowedRoutes } from '@/shared/routeList';
+import { getAllowedRoutes } from '@/shared/routes';
 import { useAppSelector } from '@/store';
 import { B3SStorage } from '@/utils';
 

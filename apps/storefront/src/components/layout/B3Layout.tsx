@@ -4,7 +4,7 @@ import { useB3Lang } from '@b3/lang';
 import { Box, useMediaQuery } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
-import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
+import { DynamicallyVariableContext } from '@/shared/dynamicallyVariable';
 import { getIsTokenGotoPage, routes } from '@/shared/routes';
 import { useAppSelector } from '@/store';
 
@@ -13,7 +13,7 @@ import CompanyCredit from '../CompanyCredit';
 
 import B3CloseAppButton from './B3CloseAppButton';
 import B3Logo from './B3Logo';
-import B3Mainheader from './B3Mainheader';
+import B3MainHeader from './B3MainHeader';
 import B3MobileLayout from './B3MobileLayout';
 import B3Nav from './B3Nav';
 
@@ -39,7 +39,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
   const {
     state: { globalMessageDialog },
     dispatch,
-  } = useContext(DynamicallyVariableedContext);
+  } = useContext(DynamicallyVariableContext);
 
   const navigate = useNavigate();
 
@@ -146,7 +146,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
               p: '0 0px 0px 50px',
             }}
           >
-            <B3Mainheader title={title} />
+            <B3MainHeader title={title} />
             <CompanyCredit />
             <Box
               component="main"

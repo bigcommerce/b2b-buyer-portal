@@ -9,7 +9,14 @@ import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
 
 import b2bVerifyBcLoginStatus from '../../utils/b2bVerifyBcLoginStatus';
-import { RouteFirstLevelItem, RouteItem, routeList } from '../routeList';
+import { GlobalState } from '../global/context/config';
+import {
+  BuyerPortalRoute,
+  getAllowedRoutesWithoutComponent,
+  RouteFirstLevelItem,
+  RouteItem,
+  routeList,
+} from '../routeList';
 
 const AccountSetting = lazy(() => import('@/pages/AccountSetting'));
 const AddressList = lazy(() => import('@/pages/Address'));
@@ -52,12 +59,16 @@ const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactN
   '/quoteDetail/:id': QuoteDetail,
 };
 
-const routes: RouteItem[] = routeList.map((item: Partial<RouteItem>) => {
-  return {
-    ...item,
-    component: routesMap[item.path ?? ''],
-  } as RouteItem;
-});
+function addComponentToRoutes(routes: BuyerPortalRoute[]): RouteItem[] {
+  return routes.map((item) => {
+    return {
+      ...item,
+      component: routesMap[item.path ?? ''],
+    } as RouteItem;
+  });
+}
+
+const routes: RouteItem[] = addComponentToRoutes(routeList);
 
 const firstLevelRouting: RouteFirstLevelItem[] = [
   {
@@ -207,4 +218,7 @@ const getIsTokenGotoPage = (url: string): boolean => {
   return flag;
 };
 
-export { firstLevelRouting, getIsTokenGotoPage, gotoAllowedAppPage, routes };
+const getAllowedRoutes = (globalState: GlobalState) =>
+  addComponentToRoutes(getAllowedRoutesWithoutComponent(globalState));
+
+export { getAllowedRoutes, firstLevelRouting, getIsTokenGotoPage, gotoAllowedAppPage, routes };

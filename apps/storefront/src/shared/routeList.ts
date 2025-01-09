@@ -6,10 +6,13 @@ import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
 import { checkEveryPermissionsCode, getPermissionsInfo } from '@/utils';
 
-interface RouteItemBasic {
-  component: FC<PageProps> | LazyExoticComponent<(props: PageProps) => ReactNode>;
+export interface BuyerPortalRoute {
   path: string;
   name: string;
+}
+
+interface RouteItemBasic extends BuyerPortalRoute {
+  component: FC<PageProps> | LazyExoticComponent<(props: PageProps) => ReactNode>;
   permissions: number[]; // 0: admin, 1: senior buyer, 2: junior buyer, 3: salesRep, 4: salesRep-【Not represented】, 99: bc user, 100: guest
 }
 
@@ -27,7 +30,7 @@ export interface RouteFirstLevelItem extends RouteItemBasic {
   isProvider: boolean;
 }
 
-export const routeList: RouteItem[] = [
+export const routeList: (BuyerPortalRoute | RouteItem)[] = [
   {
     path: '/dashboard',
     name: 'Dashboard',
@@ -36,7 +39,6 @@ export const routeList: RouteItem[] = [
     permissions: [3, 4],
     isTokenLogin: true,
     idLang: 'global.navMenu.dashboard',
-    component: () => undefined,
   },
   {
     path: '/orders',
@@ -188,9 +190,9 @@ export const routeList: RouteItem[] = [
     isTokenLogin: false,
     idLang: 'global.navMenu.quoteDetail',
   },
-].map((item) => ({ ...item, component: () => undefined }));
+];
 
-export const getAllowedRoutes = (globalState: GlobalState): RouteItem[] => {
+export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): BuyerPortalRoute[] => {
   const { storefrontConfig, quoteConfig } = globalState;
   const { company, b2bFeatures } = store.getState();
   const { isAgenting } = b2bFeatures.masqueradeCompany;
