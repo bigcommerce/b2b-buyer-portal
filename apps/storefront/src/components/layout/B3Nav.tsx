@@ -4,9 +4,9 @@ import { useB3Lang } from '@b3/lang';
 import { Badge, List, ListItem, ListItemButton, ListItemText, useTheme } from '@mui/material';
 
 import { useMobile } from '@/hooks';
-import { DynamicallyVariableedContext } from '@/shared/dynamicallyVariable';
+import { DynamicallyVariableContext } from '@/shared/dynamicallyVariable';
 import { GlobalContext } from '@/shared/global';
-import { getAllowedRoutes } from '@/shared/routes';
+import { getAllowedRoutes } from '@/shared/routeList';
 import { useAppSelector } from '@/store';
 import { B3SStorage } from '@/utils';
 
@@ -22,7 +22,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
   const location = useLocation();
   const b3Lang = useB3Lang();
 
-  const { dispatch } = useContext(DynamicallyVariableedContext);
+  const { dispatch } = useContext(DynamicallyVariableContext);
   const role = useAppSelector(({ company }) => company.customer.role);
 
   const { state: globalState } = useContext(GlobalContext);

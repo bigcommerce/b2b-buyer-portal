@@ -51,11 +51,11 @@ export interface DynamicallyVariableAction {
 }
 
 export type DispatchProps = Dispatch<Partial<DynamicallyVariableAction>>;
-export interface DynamicallyVariableContext {
+export interface DynamicallyVariableContextInterface {
   state: DynamicallyVariableState;
   dispatch: DispatchProps;
 }
 
-export interface DynamicallyVariableedProviderProps {
+export interface DynamicallyVariableProviderProps {
   children: ReactNode;
 }

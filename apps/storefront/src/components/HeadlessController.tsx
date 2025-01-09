@@ -10,6 +10,7 @@ import { addProductsToShoppingList } from '@/pages/PDP';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
+import { getAllowedRoutes } from '@/shared/routeList';
 import { superAdminCompanies } from '@/shared/service/b2b';
 import B3Request from '@/shared/service/request/b3Fetch';
 import {
@@ -129,7 +130,8 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
       ...window.b2b,
       callbacks: Manager,
       utils: {
-        getRoutes: () => [],
+        getRoutes: () => getAllowedRoutes(globalState),
+        // getRoutes: () => [],
         openPage: (page) =>
           setTimeout(() => {
             if (page === 'CLOSE') {
