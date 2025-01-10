@@ -1,6 +1,7 @@
 export const {
   store_hash: storeHash,
   channel_id: channelId,
+  disable_logout_button: disableLogoutButton,
   platform = 'custom',
 } = window.B3.setting;
 

@@ -9,7 +9,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
 import { useMobile } from '@/hooks';
-import { platform } from '@/utils';
+import { disableLogoutButton } from '@/utils';
 
 type ConfigProps = {
   name: string;
@@ -50,7 +50,7 @@ export default function B3DropDown<T>({
         width: width || 'auto',
       }}
     >
-      {platform === 'bigcommerce' ? (
+      {!disableLogoutButton ? (
         <ListItemButton
           ref={ref}
           onClick={() => setIsOpen(true)}
