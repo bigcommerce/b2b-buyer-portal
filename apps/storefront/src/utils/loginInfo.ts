@@ -7,12 +7,7 @@ import {
 } from '@/shared/service/b2b';
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
 import { getAppClientId } from '@/shared/service/request/base';
-import {
-  clearMasqueradeCompany,
-  MasqueradeCompany,
-  setMasqueradeCompany,
-  store,
-} from '@/store';
+import { clearMasqueradeCompany, MasqueradeCompany, setMasqueradeCompany, store } from '@/store';
 import {
   clearCompanySlice,
   setB2BToken,
