@@ -138,7 +138,8 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               setOpenPage({ isOpen: false });
               return;
             }
-            setOpenPage({ isOpen: true, openUrl: HeadlessRoutes[page] });
+            const openUrl = page.startsWith('/') ? page : HeadlessRoutes[page];
+            setOpenPage({ isOpen: true, openUrl });
           }, 0),
         quote: {
           addProductFromPage: (item) => addProductsToDraftQuote([item], setOpenPage),
