@@ -9,6 +9,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
 import { useMobile } from '@/hooks';
+import { disableLogoutButton } from '@/utils';
 
 type ConfigProps = {
   name: string;
@@ -49,13 +50,26 @@ export default function B3DropDown<T>({
         width: width || 'auto',
       }}
     >
-      <ListItemButton
-        ref={ref}
-        onClick={() => setIsOpen(true)}
-        sx={{
-          pr: 0,
-        }}
-      >
+      {!disableLogoutButton ? (
+        <ListItemButton
+          ref={ref}
+          onClick={() => setIsOpen(true)}
+          sx={{
+            pr: 0,
+          }}
+        >
+          <ListItemText
+            primary={title}
+            sx={{
+              '& span': {
+                fontWeight: isMobile ? 400 : 700,
+                color: '#333333',
+              },
+            }}
+          />
+          {isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+        </ListItemButton>
+      ) : (
         <ListItemText
           primary={title}
           sx={{
@@ -65,8 +79,7 @@ export default function B3DropDown<T>({
             },
           }}
         />
-        {isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-      </ListItemButton>
+      )}
       <Menu
         anchorEl={ref.current}
         open={isOpen}
