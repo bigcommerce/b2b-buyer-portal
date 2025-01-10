@@ -14,9 +14,9 @@ const clearInvoiceCart = async () => {
     const isInvoicePay = localStorage.getItem('invoicePay');
 
     if (url !== CHECKOUT_URL && isInvoicePay === '1') {
-      const cartEntityId = Cookies.get('cartId');
+      const cartInfo = await getCart();
 
-      const cartInfo = cartEntityId ? await getCart() : null;
+      const cartEntityId = Cookies.get('cartId');
 
       if (cartInfo) {
         let newCartId = cartEntityId;
