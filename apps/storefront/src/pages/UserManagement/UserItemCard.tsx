@@ -8,8 +8,8 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import { B3Tag } from '@/components';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
+import { verifyLevelPermission } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { getUserRole, UsersList } from './config';
 
@@ -38,10 +38,15 @@ export function UserItemCard(props: OrderItemCardProps) {
   const { item: userInfo, onEdit, onDelete } = props;
   const { companyInfo, id, companyRoleName, firstName, lastName, email } = userInfo;
 
-  const { userActionsPermission } = b2bPermissionsList;
+  const { userUpdateActionsPermission, userDeleteActionsPermission } = b2bPermissionsMap;
 
-  const actionPermissions = verifyLevelPermission({
-    code: userActionsPermission,
+  const updateActionsPermission = verifyLevelPermission({
+    code: userUpdateActionsPermission,
+    companyId: +(companyInfo?.companyId || 0),
+    userId: +id,
+  });
+  const deleteActionsPermission = verifyLevelPermission({
+    code: userDeleteActionsPermission,
     companyId: +(companyInfo?.companyId || 0),
     userId: +id,
   });
@@ -120,32 +125,32 @@ export function UserItemCard(props: OrderItemCardProps) {
         </Typography>
         <Flex>
           {statusRender(companyRoleName)}
-          <Box
-            sx={{
-              display: `${actionPermissions ? 'block' : 'none'}`,
-            }}
-          >
-            <IconButton
-              aria-label="edit"
-              size="small"
-              sx={{
-                marginRight: '8px',
-              }}
-              onClick={() => {
-                onEdit(userInfo);
-              }}
-            >
-              <EditIcon fontSize="inherit" />
-            </IconButton>
-            <IconButton
-              aria-label="delete"
-              size="small"
-              onClick={() => {
-                onDelete(userInfo);
-              }}
-            >
-              <DeleteIcon fontSize="inherit" />
-            </IconButton>
+          <Box>
+            {updateActionsPermission && (
+              <IconButton
+                aria-label="edit"
+                size="small"
+                sx={{
+                  marginRight: '8px',
+                }}
+                onClick={() => {
+                  onEdit(userInfo);
+                }}
+              >
+                <EditIcon fontSize="inherit" />
+              </IconButton>
+            )}
+            {deleteActionsPermission && (
+              <IconButton
+                aria-label="delete"
+                size="small"
+                onClick={() => {
+                  onDelete(userInfo);
+                }}
+              >
+                <DeleteIcon fontSize="inherit" />
+              </IconButton>
+            )}
           </Box>
         </Flex>
       </CardContent>

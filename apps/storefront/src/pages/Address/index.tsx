@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
-import { useCardListColumn, useTableRef } from '@/hooks';
+import { useCardListColumn, useTableRef, useVerifyCreatePermission } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
 import {
   getB2BAddress,
@@ -15,10 +15,8 @@ import {
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
-import { snackbar } from '@/utils';
-import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
+import { b2bPermissionsMap, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { AddressConfigItem, AddressItemType, BCAddressItemType } from '../../types/address';
 
@@ -29,6 +27,11 @@ import SetDefaultDialog from './components/SetDefaultDialog';
 import { convertBCToB2BAddress, filterFormConfig } from './shared/config';
 import { CountryProps, getAddressFields } from './shared/getAddressFields';
 
+const permissionKeys = [
+  b2bPermissionsMap.addressesCreateActionsPermission,
+  b2bPermissionsMap.addressesUpdateActionsPermission,
+  b2bPermissionsMap.addressesDeleteActionsPermission,
+];
 interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditAddressClick: (type: string, data?: AddressItemType) => void;
 }
@@ -74,12 +77,8 @@ function Address() {
 
   const companyId =
     role === CustomerRole.SUPER_ADMIN && isAgenting ? salesRepCompanyId : companyInfoId;
-  let hasAdminPermission = false;
-  let isBCPermission = false;
 
-  if (isB2BUser && role === CustomerRole.SUPER_ADMIN && isAgenting) {
-    hasAdminPermission = true;
-  }
+  let isBCPermission = false;
 
   if (!isB2BUser || (role === CustomerRole.SUPER_ADMIN && !isAgenting)) {
     isBCPermission = true;
@@ -165,20 +164,17 @@ function Address() {
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>();
 
+  const [isCreatePermission, updateActionsPermission, deleteActionsPermission] =
+    useVerifyCreatePermission(permissionKeys);
+
   useEffect(() => {
     const getEditPermission = async () => {
       if (isBCPermission) {
         setEditPermission(true);
         return;
       }
-      const { addressesActionsPermission } = b2bPermissionsList;
 
-      const isCreatePermission = verifyCreatePermission(
-        addressesActionsPermission,
-        +selectCompanyHierarchyId,
-      );
-
-      if (hasAdminPermission || isCreatePermission) {
+      if (updateActionsPermission) {
         try {
           let configList = addressConfig;
           if (!configList) {
@@ -206,15 +202,11 @@ function Address() {
           b2bLogger.error(error);
         }
       }
-
-      if (!isCreatePermission) {
-        setEditPermission(false);
-      }
     };
     getEditPermission();
     // Disabling the next line as dispatch is not required to be in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addressConfig, hasAdminPermission, isBCPermission, role, selectCompanyHierarchyId]);
+  }, [addressConfig, updateActionsPermission, isBCPermission, role, selectCompanyHierarchyId]);
 
   const handleCreate = () => {
     if (!editPermission) {
@@ -252,13 +244,13 @@ function Address() {
 
   const AddButtonConfig = useMemo(() => {
     return {
-      isEnabled: editPermission,
+      isEnabled: isBCPermission || (editPermission && isCreatePermission),
       customLabel: b3Lang('addresses.addNewAddress'),
     };
 
     // ignore b3Lang due it's function that doesn't not depend on any reactive value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editPermission, selectCompanyHierarchyId]);
+  }, [editPermission, selectCompanyHierarchyId, isCreatePermission]);
 
   const translatedFilterFormConfig = JSON.parse(JSON.stringify(filterFormConfig));
 
@@ -305,6 +297,8 @@ function Address() {
               onDelete={handleDelete}
               onSetDefault={handleSetDefault}
               editPermission={editPermission}
+              updateActionsPermission={updateActionsPermission}
+              deleteActionsPermission={deleteActionsPermission}
               isBCPermission={isBCPermission}
             />
           )}

@@ -16,13 +16,14 @@ import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { InvoiceList, InvoiceListNode } from '@/types/invoice';
 import {
+  b2bPermissionsMap,
   currencyFormat,
   currencyFormatInfo,
   displayFormat,
-  getB3PermissionsList,
   getUTCTimestamp,
   handleGetCorrespondingCurrencyToken,
   snackbar,
+  validatePermissionWithComparisonType,
 } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
@@ -114,12 +115,10 @@ function Invoice() {
   const [filterLists, setFilterLists] = useState<InvoiceListNode[]>([]);
   const [selectAllPay, setSelectAllPay] = useState<boolean>(invoicePayPermission);
 
-  const { invoicePayPermission: invoiceSubPayPermission } = getB3PermissionsList([
-    {
-      permissionType: 'invoicePayPermission',
-      permissionLevel: permissionLevels.COMPANY_SUBSIDIARIES,
-    },
-  ]);
+  const invoiceSubPayPermission = validatePermissionWithComparisonType({
+    level: permissionLevels.COMPANY_SUBSIDIARIES,
+    code: b2bPermissionsMap.invoicePayPermission,
+  });
 
   const {
     state: { bcLanguage },

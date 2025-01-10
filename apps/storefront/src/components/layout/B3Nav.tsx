@@ -14,7 +14,7 @@ import {
 } from '@/store/slices/company';
 import { PagesSubsidiariesPermissionProps } from '@/types';
 import { B3SStorage } from '@/utils';
-import { verifyCompanyLevelPermissionByCode } from '@/utils/b3CheckPermissions';
+import { validatePermissionWithComparisonType } from '@/utils/b3CheckPermissions';
 
 import { b3HexToRgb, getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
@@ -29,7 +29,7 @@ const getSubsidiariesPermission = (routes: RouteItem[]) => {
         ? cur.permissionCodes.split(',')[0].trim()
         : cur.permissionCodes;
 
-      all[cur.subsidiariesCompanyKey] = verifyCompanyLevelPermissionByCode({
+      all[cur.subsidiariesCompanyKey] = validatePermissionWithComparisonType({
         level: 3,
         code,
       });
@@ -123,7 +123,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
           ? permissionCodes.split(',')[0].trim()
           : permissionCodes;
 
-        isHasSubsidiariesCompanyPermission = verifyCompanyLevelPermissionByCode({
+        isHasSubsidiariesCompanyPermission = validatePermissionWithComparisonType({
           code,
           level: 3,
         });

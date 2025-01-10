@@ -24,8 +24,8 @@ import {
   useAppSelector,
 } from '@/store';
 import { CustomerRole } from '@/types';
-import { channelId, snackbar } from '@/utils';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
+import { channelId, snackbar, verifyLevelPermission } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {
   conversionProductsList,
@@ -35,7 +35,6 @@ import {
   SearchProps,
   ShoppingListInfoProps,
 } from '@/utils/b3Product/shared/config';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
 
 import { type PageProps } from '../PageProps';
 
@@ -104,16 +103,19 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false);
   const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
 
-  const { shoppingListActionsPermission, purchasabilityPermission, submitShoppingListPermission } =
-    useAppSelector(rolePermissionSelector);
+  const {
+    shoppingListCreateActionsPermission,
+    purchasabilityPermission,
+    submitShoppingListPermission,
+  } = useAppSelector(rolePermissionSelector);
   const b2bAndBcShoppingListActionsPermissions = isB2BUser
-    ? shoppingListActionsPermission && isCanEditShoppingList
+    ? shoppingListCreateActionsPermission && isCanEditShoppingList
     : true;
 
   const submitShoppingList = useMemo(() => {
     if (isB2BUser && shoppingListInfo) {
       const { companyInfo, customerInfo } = shoppingListInfo;
-      const { submitShoppingListPermission: submitShoppingListPermissionCode } = b2bPermissionsList;
+      const { submitShoppingListPermission: submitShoppingListPermissionCode } = b2bPermissionsMap;
       const submitShoppingListPermissionLevel = verifyLevelPermission({
         code: submitShoppingListPermissionCode,
         companyId: +(companyInfo?.companyId || 0),
@@ -349,10 +351,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     if (isB2BUser && shoppingListInfo) {
       const { companyInfo, customerInfo } = shoppingListInfo;
 
-      const { shoppingListActionsPermission: shoppingListActionsPermissionCode } =
-        b2bPermissionsList;
+      const { shoppingListCreateActionsPermission } = b2bPermissionsMap;
       const shoppingListActionsPermission = verifyLevelPermission({
-        code: shoppingListActionsPermissionCode,
+        code: shoppingListCreateActionsPermission,
         companyId: +(companyInfo?.companyId || 0),
         userId: +(customerInfo?.userId || 0),
       });

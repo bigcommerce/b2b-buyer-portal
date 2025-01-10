@@ -10,9 +10,8 @@ import { useMobile } from '@/hooks';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
-import { verifyShoppingListUserAndSubsidiariesPermission } from '@/utils/b2bShoppingListCheckPermissions';
-import { verifyLevelPermission } from '@/utils/b3CheckPermissions';
-import { b2bPermissionsList } from '@/utils/b3RolePermissions/config';
+import { verifyLevelPermission, verifySubmitShoppingListSubsidiariesPermission } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingStatus } from '../../ShoppingLists/ShoppingStatus';
 
@@ -58,6 +57,10 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
   } = useContext(CustomStyleContext);
   const navigate = useNavigate();
 
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+
   const {
     submitShoppingListPermission: submitShoppingList,
     approveShoppingListPermission: approveShoppingList,
@@ -70,11 +73,13 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
       const {
         submitShoppingListPermission: submitShoppingListPermissionCode,
         approveShoppingListPermission: approveShoppingListPermissionCode,
-      } = b2bPermissionsList;
-      const submitShoppingListPermissionLevel = verifyShoppingListUserAndSubsidiariesPermission({
+      } = b2bPermissionsMap;
+      const submitShoppingListPermissionLevel = verifySubmitShoppingListSubsidiariesPermission({
         code: submitShoppingListPermissionCode,
         userId: +(customerInfo?.userId || 0),
+        selectId: +selectCompanyHierarchyId,
       });
+
       const approveShoppingListPermissionLevel = verifyLevelPermission({
         code: approveShoppingListPermissionCode,
         companyId: +(companyInfo?.companyId || 0),
@@ -97,6 +102,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
     submitShoppingList,
     approveShoppingList,
     shoppingListInfo?.companyInfo,
+    selectCompanyHierarchyId,
   ]);
 
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0;

@@ -11,7 +11,7 @@ import { GlobalContext } from '@/shared/global';
 import { gotoAllowedAppPage } from '@/shared/routes';
 import { setChannelStoreType } from '@/shared/service/b2b';
 import {
-  b2bGotoRoute,
+  b2bJumpPath,
   getQuoteEnabled,
   handleHideRegisterPage,
   hideStorefrontElement,
@@ -75,11 +75,11 @@ export default function App() {
   const currentClickedUrl = useAppSelector(({ global }) => global.currentClickedUrl);
   const isRegisterAndLogin = useAppSelector(({ global }) => global.isRegisterAndLogin);
   const bcGraphqlToken = useAppSelector(({ company }) => company.tokens.bcGraphqlToken);
-  const { quotesActionsPermission, shoppingListActionsPermission } =
+  const { quotesCreateActionsPermission, shoppingListCreateActionsPermission } =
     useAppSelector(rolePermissionSelector);
 
   const authorizedPages = useMemo(() => {
-    return isB2BUser ? b2bGotoRoute(role) : PATH_ROUTES.ORDERS;
+    return isB2BUser ? b2bJumpPath(role) : PATH_ROUTES.ORDERS;
   }, [role, isB2BUser]);
 
   const handleAccountClick = (href: string, isRegisterAndLogin: boolean) => {
@@ -235,13 +235,13 @@ export default function App() {
         type: 'common',
         payload: {
           productQuoteEnabled: isB2BUser
-            ? productQuoteEnabled && quotesActionsPermission
+            ? productQuoteEnabled && quotesCreateActionsPermission
             : productQuoteEnabled,
           cartQuoteEnabled: isB2BUser
-            ? cartQuoteEnabled && quotesActionsPermission
+            ? cartQuoteEnabled && quotesCreateActionsPermission
             : cartQuoteEnabled,
           shoppingListEnabled: isB2BUser
-            ? shoppingListEnabled && shoppingListActionsPermission
+            ? shoppingListEnabled && shoppingListCreateActionsPermission
             : shoppingListEnabled,
           registerEnabled,
         },
@@ -260,8 +260,8 @@ export default function App() {
     role,
     quoteConfig,
     storefrontConfig,
-    quotesActionsPermission,
-    shoppingListActionsPermission,
+    quotesCreateActionsPermission,
+    shoppingListCreateActionsPermission,
   ]);
 
   useEffect(() => {

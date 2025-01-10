@@ -1,53 +1,137 @@
 import { permissionLevels } from '@/constants';
-import { checkPermissionCode, verifyCompanyLevelPermission } from '@/utils/b3CheckPermissions/base';
+import { store } from '@/store';
 
-import { B2BPermissionParams, b2bPermissionsList } from '../b3RolePermissions/config';
+import {
+  checkPermissionCode,
+  levelComparison,
+  validateBasePermissionWithComparisonType,
+} from './base';
 
-interface PermissionsCodesProps {
+export interface PermissionCodesProps {
   code: string;
-  permissionLevel: number;
+  permissionLevel?: number | string;
 }
 
-const pdpButtonAndOthersPermission = [
-  'purchasabilityPermission',
-  'quotesActionsPermission',
-  'shoppingListActionsPermission',
-];
+export interface VerifyLevelPermissionProps {
+  code: string;
+  companyId?: number;
+  userEmail?: string;
+  userId?: number;
+}
 
-export const getCorrespondsConfigurationPermission = (
-  permissions: PermissionsCodesProps[],
-  selectCompanyHierarchyId: number,
-) => {
-  const keys = Object.keys(b2bPermissionsList);
+export interface ValidatePermissionWithComparisonTypeProps {
+  level?: number;
+  code?: string;
+  containOrEqual?: 'contain' | 'equal';
+  permissions?: PermissionCodesProps[];
+}
 
-  const newB3PermissionsList: Record<string, string> = b2bPermissionsList;
+interface VerifyPermissionProps {
+  code: string;
+  userId: number;
+  selectId: number;
+}
 
-  return keys.reduce((acc, cur: string) => {
-    const param = {
-      code: newB3PermissionsList[cur],
-    };
+export const checkEveryPermissionsCode = (permission: PermissionCodesProps) => {
+  const newPermissions = store.getState().company.permissions || [];
 
-    const item = checkPermissionCode(param, 'every', permissions || []);
+  return checkPermissionCode(permission, 'every', newPermissions);
+};
 
-    if (pdpButtonAndOthersPermission.includes(cur)) {
-      const isPdpButtonAndOthersPermission = verifyCompanyLevelPermission({
-        code: newB3PermissionsList[cur],
-        containOrEqual: 'contain',
-        level: selectCompanyHierarchyId
-          ? permissionLevels.COMPANY_SUBSIDIARIES
-          : permissionLevels.USER,
-        permissions,
-      });
+export const checkOneOfPermissionsCode = (permission: PermissionCodesProps) => {
+  const newPermissions = store.getState().company.permissions || [];
 
-      return {
-        ...acc,
-        [cur]: isPdpButtonAndOthersPermission,
-      };
-    }
+  return checkPermissionCode(permission, 'some', newPermissions);
+};
 
-    return {
-      ...acc,
-      [cur]: item,
-    };
-  }, {} as B2BPermissionParams);
+export const getPermissionsInfo = (code: string): PermissionCodesProps | undefined => {
+  const permissions = store.getState().company.permissions || [];
+
+  return permissions.find((permission) => permission.code.includes(code));
+};
+
+export const validatePermissionWithComparisonType = ({
+  level = 0,
+  code = '',
+  containOrEqual = 'equal',
+  permissions = [],
+}: ValidatePermissionWithComparisonTypeProps): boolean => {
+  const newPermissions =
+    permissions && permissions.length ? permissions : store.getState().company.permissions || [];
+
+  return validateBasePermissionWithComparisonType({
+    level,
+    code,
+    containOrEqual,
+    permissions: newPermissions,
+  });
+};
+
+export const verifyCreatePermission = (
+  code: string,
+  selectCompanyHierarchyId?: number,
+  permissions?: PermissionCodesProps[],
+): boolean => {
+  return validatePermissionWithComparisonType({
+    code,
+    containOrEqual: 'contain',
+    level: selectCompanyHierarchyId ? permissionLevels.COMPANY_SUBSIDIARIES : permissionLevels.USER,
+    permissions,
+  });
+};
+
+/**
+ * Verifies the user's permission level based on the provided criteria.
+ *
+ * @param {Object} params - The function parameters.
+ * @param {string} params.code - The permission code to check.
+ * @param {number} params.companyId - The ID of the company to compare, default is 0.
+ * @param {string} params.userEmail - The email of the user to compare. Either `userEmail` or `userId` is required for user-level validation.
+ * @param {number} params.userId - The ID of the user to compare. Either `userEmail` or `userId` is required for user-level validation.
+ * @returns {boolean} - Returns `true` if permission is granted, `false` otherwise.
+ */
+export const verifyLevelPermission = ({
+  code,
+  companyId = 0,
+  userEmail = '',
+  userId = 0,
+}: VerifyLevelPermissionProps): boolean => {
+  const info = getPermissionsInfo(code);
+
+  if (!info) return !!info;
+
+  const { permissionLevel } = info;
+
+  if (!permissionLevel) return false;
+  const { companyInfo, customer } = store.getState().company || {};
+
+  return levelComparison({
+    permissionLevel: +permissionLevel,
+    customer,
+    companyInfo,
+    params: {
+      companyId,
+      userEmail,
+      userId,
+    },
+  });
+};
+
+export const verifySubmitShoppingListSubsidiariesPermission = ({
+  code,
+  userId = 0,
+  selectId,
+}: VerifyPermissionProps): boolean => {
+  const info = getPermissionsInfo(code);
+
+  if (!info) return !!info;
+
+  const submitShoppingListPermission = verifyLevelPermission({
+    code,
+    userId,
+  });
+
+  return info.permissionLevel === permissionLevels.USER && selectId
+    ? false
+    : submitShoppingListPermission;
 };
