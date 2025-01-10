@@ -115,10 +115,12 @@ export const getAddressFields = async (isB2BUser: boolean, countries: CountryPro
       const field = addressField;
       if (addressField.name === 'country') {
         field.options = countries;
+        field.required = true;
       }
 
       if (addressField.name === 'state') {
         field.fieldType = 'text';
+        field.required = false;
       }
 
       return addressField;

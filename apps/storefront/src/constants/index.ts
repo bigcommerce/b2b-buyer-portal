@@ -29,8 +29,8 @@ export const STORE_DEFAULT_LOGO = 'https://cdn.bundleb2b.net/b2blogo/b2be-logo.p
 
 export enum HeadlessRoutes {
   SIGN_IN = '/login',
-  LOG_OUT = '/login?loginFlag=3',
-  FORGOT_PASSWORD = '/forgotpassword',
+  LOG_OUT = '/login?loginFlag=loggedOutLogin',
+  FORGOT_PASSWORD = '/forgotPassword',
   REGISTER_ACCOUNT = '/register',
   DRAFT_QUOTE = '/quoteDraft',
   SHOPPING_LISTS = '/shoppingLists',
@@ -71,7 +71,11 @@ export const TRANSLATION_SHOPPING_LIST_BTN_VARIABLE = 'global.customStyles.shopp
 
 export const BROWSER_LANG = navigator.language.substring(0, 2);
 
-export const CART_URL = '/cart.php';
+const {
+  setting: { platform, cart_url: cartUrl },
+} = window.B3;
+const CART_FALLBACK_VALUE = platform === 'bigcommerce' ? '/cart.php' : '/cart';
+export const CART_URL = cartUrl ?? CART_FALLBACK_VALUE;
 export const CHECKOUT_URL = '/checkout';
 
 export const permissionLevels = {

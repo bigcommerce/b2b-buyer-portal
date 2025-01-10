@@ -12,7 +12,7 @@ import handleHideRegisterPage from './b3HideRegister';
 import { getLogo, getQuoteEnabled } from './b3Init';
 import { showPageMask } from './b3PageMask';
 import distanceDay from './b3Picker';
-import getProductPriceIncTax from './b3Price';
+import { getProductPriceIncTax, getProductPriceIncTaxOrExTaxBySetting } from './b3Price';
 import b2bPrintInvoice from './b3PrintInvoice';
 import { serialize } from './b3Serialize';
 import { B3LStorage, B3SStorage } from './b3Storage';
@@ -60,6 +60,7 @@ export {
   getLineNumber,
   getLogo,
   getProductPriceIncTax,
+  getProductPriceIncTaxOrExTaxBySetting,
   getQuoteEnabled,
   getTextLenPX,
   getUTCTimestamp,

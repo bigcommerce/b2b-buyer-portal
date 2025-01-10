@@ -1,9 +1,9 @@
 import { useMemo, useReducer } from 'react';
 
-import { DynamicallyVariedProviderProps, initState } from './config';
-import { DynamicallyVariedContext, reducer } from './index';
+import { DynamicallyVariableProviderProps, initState } from './config';
+import { DynamicallyVariableContext, reducer } from './index';
 
-export default function DynamicallyVariableProvider(props: DynamicallyVariedProviderProps) {
+export default function DynamicallyVariableProvider(props: DynamicallyVariableProviderProps) {
   const [state, dispatch] = useReducer(reducer, initState);
 
   const { children } = props;
@@ -17,8 +17,8 @@ export default function DynamicallyVariableProvider(props: DynamicallyVariedProv
   );
 
   return (
-    <DynamicallyVariedContext.Provider value={DynamicallyVariableValue}>
+    <DynamicallyVariableContext.Provider value={DynamicallyVariableValue}>
       {children}
-    </DynamicallyVariedContext.Provider>
+    </DynamicallyVariableContext.Provider>
   );
 }

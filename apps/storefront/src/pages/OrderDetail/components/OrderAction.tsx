@@ -118,7 +118,7 @@ function OrderCard(props: OrderCardProps) {
     isCurrentCompany,
     switchCompanyId,
   } = props;
-
+  const displayAsNegativeNumber = ['coupon', 'discountAmount'];
   const b3Lang = useB3Lang();
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
@@ -216,7 +216,7 @@ function OrderCard(props: OrderCardProps) {
 
         <ItemContainer key={key} nameKey={symbol[key]}>
           <p id="item-name-key">{key}</p>
-          {symbol[key] === 'coupon' ? (
+          {displayAsNegativeNumber.includes(symbol[key]) ? (
             <p>
               {infos?.money
                 ? `-${ordersCurrencyFormat(infos.money, infoValue[index])}`

@@ -16,18 +16,20 @@ const ENVIRONMENT_B2B_APP_CLIENT_ID: EnvSpecificConfig<string> = {
 };
 // cspell:enable
 
-function getAPIBaseURL() {
-  const environment: Environment = window.B3?.setting?.environment ?? Environment.Local;
-  return ENVIRONMENT_B2B_API_URL[environment];
+const DEFAULT_ENVIRONMENT =
+  import.meta.env.VITE_IS_LOCAL_ENVIRONMENT === 'TRUE' ? Environment.Local : Environment.Production;
+
+export function getAPIBaseURL(environment?: Environment) {
+  return ENVIRONMENT_B2B_API_URL[
+    environment ?? window.B3?.setting?.environment ?? DEFAULT_ENVIRONMENT
+  ];
 }
 
-function getAppClientId() {
-  const environment: Environment = window.B3?.setting?.environment ?? Environment.Local;
-  return ENVIRONMENT_B2B_APP_CLIENT_ID[environment];
+export function getAppClientId(environment?: Environment) {
+  return ENVIRONMENT_B2B_APP_CLIENT_ID[
+    environment ?? window.B3?.setting?.environment ?? DEFAULT_ENVIRONMENT
+  ];
 }
-
-const B2B_API_BASE_URL = getAPIBaseURL();
-const B2B_APP_CLIENT_ID = getAppClientId();
 
 enum RequestType {
   B2BGraphql = 'B2BGraphql',
@@ -49,4 +51,4 @@ const queryParse = <T>(query: T): string => {
   return queryText.slice(0, -1);
 };
 
-export { B2B_API_BASE_URL, B2B_APP_CLIENT_ID, queryParse, RequestType };
+export { queryParse, RequestType };

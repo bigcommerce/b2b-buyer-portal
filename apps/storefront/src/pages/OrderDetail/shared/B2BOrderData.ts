@@ -85,8 +85,8 @@ const getOrderBilling = (data: B2BOrderData) => {
 const formatPrice = (price: string | number) => {
   const { decimal_places: decimalPlaces = 2 } = getActiveCurrencyInfo();
   try {
-    const priceNumer = parseFloat(price.toString()) || 0;
-    return priceNumer.toFixed(decimalPlaces);
+    const priceNumber = parseFloat(price.toString()) || 0;
+    return priceNumber.toFixed(decimalPlaces);
   } catch (error) {
     return '0.00';
   }
@@ -107,13 +107,14 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     shippingCostExTax,
     shippingCostIncTax,
     coupons,
+    discountAmount,
   } = data;
 
   const {
     global: { showInclusiveTaxPrice },
   } = store.getState();
 
-  const couponlabel: CouponInfo = {};
+  const couponLabel: CouponInfo = {};
   const couponPrice: CouponInfo = {};
   const couponSymbol: CouponInfo = {};
 
@@ -121,7 +122,7 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     const key = b3Lang('orderDetail.summary.coupon', {
       couponCode: coupon?.code ? `(${coupon.code})` : '',
     });
-    couponlabel[key] = key;
+    couponLabel[key] = key;
     couponPrice[key] = coupon?.discount;
     couponSymbol[key] = 'coupon';
   });
@@ -130,7 +131,8 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
     subTotal: b3Lang('orderDetail.summary.subTotal'),
     shipping: b3Lang('orderDetail.summary.shipping'),
     handingFee: b3Lang('orderDetail.summary.handingFee'),
-    ...couponlabel,
+    discountAmount: b3Lang('orderDetail.summary.discountAmount'),
+    ...couponLabel,
     tax: b3Lang('orderDetail.summary.tax'),
     grandTotal: b3Lang('orderDetail.summary.grandTotal'),
   };
@@ -144,6 +146,7 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
         showInclusiveTaxPrice ? shippingCostIncTax : shippingCostExTax,
       ),
       [labels.handingFee]: formatPrice(handlingCostIncTax || handlingCostExTax || ''),
+      [labels.discountAmount]: formatPrice(discountAmount || ''),
       ...couponPrice,
       [labels.tax]: formatPrice(totalTax || ''),
       [labels.grandTotal]: formatPrice(totalIncTax || totalExTax || ''),
@@ -152,6 +155,7 @@ const getOrderSummary = (data: B2BOrderData, b3Lang: LangFormatFunction) => {
       [labels.subTotal]: 'subTotal',
       [labels.shipping]: 'shipping',
       [labels.handingFee]: 'handingFee',
+      [labels.discountAmount]: 'discountAmount',
       ...couponSymbol,
       [labels.tax]: 'tax',
       [labels.grandTotal]: 'grandTotal',

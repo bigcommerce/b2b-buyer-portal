@@ -1,7 +1,7 @@
-import { customerExists } from '@/shared/service/bc';
 import { store } from '@/store';
 import { clearCompanySlice } from '@/store/slices/company';
 
+import b2bVerifyBcLoginStatus from './b2bVerifyBcLoginStatus';
 import b2bLogger from './b3Logger';
 
 export const logoutSession = () => {
@@ -27,17 +27,16 @@ export const isB2bTokenPage = (gotoUrl?: string) => {
 export const isUserGotoLogin = async (gotoUrl: string) => {
   const isB2bPage = isB2bTokenPage(gotoUrl);
   let isGotoLogin = false;
-  try {
-    const {
-      data: { customer },
-    } = await customerExists();
 
-    if (!customer && isB2bPage) {
+  try {
+    const isBcLogin = await b2bVerifyBcLoginStatus();
+
+    if (!isBcLogin && isB2bPage) {
       logoutSession();
       isGotoLogin = true;
     }
-  } catch (err: unknown) {
-    b2bLogger.error(err);
+  } catch (error: unknown) {
+    b2bLogger.error(error);
   }
 
   return isGotoLogin;

@@ -2,12 +2,12 @@ import { createContext } from 'react';
 
 import {
   DynamicallyVariableAction,
-  DynamicallyVariableContext,
+  DynamicallyVariableContextInterface,
   DynamicallyVariableState,
   initState,
 } from './config';
 
-export const DynamicallyVariedContext = createContext<DynamicallyVariableContext>({
+export const DynamicallyVariableContext = createContext<DynamicallyVariableContextInterface>({
   state: initState,
   dispatch: () => {},
 });

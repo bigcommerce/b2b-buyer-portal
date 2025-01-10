@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+// cspell:ignore onwarn, pdfobject
 /// <reference types="vitest" />
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
@@ -40,7 +41,7 @@ export default defineConfig(({ mode }) => {
     test: {
       env: {
         VITE_B2B_URL: 'https://api-b2b.bigcommerce.com',
-        VITE_LOCAL_DEBUG: 'TRUE',
+        VITE_IS_LOCAL_ENVIRONMENT: 'TRUE',
       },
       clearMocks: true,
       mockReset: true,

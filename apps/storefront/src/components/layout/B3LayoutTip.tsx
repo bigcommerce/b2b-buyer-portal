@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 
-import { DynamicallyVariedContext } from '@/shared/dynamicallyVariable';
+import { DynamicallyVariableContext } from '@/shared/dynamicallyVariable';
 import { MsgsProps } from '@/shared/dynamicallyVariable/context/config';
 
 import B3Tip from '../B3Tip';
@@ -10,7 +10,7 @@ function B3LayoutTip() {
   const {
     state: { tipMessage },
     dispatch,
-  } = useContext(DynamicallyVariedContext);
+  } = useContext(DynamicallyVariableContext);
 
   useEffect(() => {
     window.tipDispatch = dispatch;

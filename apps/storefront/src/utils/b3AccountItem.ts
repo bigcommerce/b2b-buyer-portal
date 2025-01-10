@@ -87,7 +87,7 @@ const redirectBcMenus = (
 const getCurrentLoginUrl = (href: string): string => {
   // quit login
   if (href?.includes('logout')) {
-    return '/login?loginFlag=3';
+    return '/login?loginFlag=loggedOutLogin';
   }
 
   if (href?.includes('create_account')) {

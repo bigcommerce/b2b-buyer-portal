@@ -14,11 +14,12 @@ import {
   searchBcProducts,
 } from '@/shared/service/b2b';
 import { activeCurrencyInfoSelector, isB2BUserSelector, useAppSelector } from '@/store';
+import { ProductInfoType } from '@/types/gql/graphql';
 import {
   currencyFormat,
   displayFormat,
   distanceDay,
-  getProductPriceIncTax,
+  getProductPriceIncTaxOrExTaxBySetting,
   snackbar,
 } from '@/utils';
 import b2bGetVariantImageByVariantInfo from '@/utils/b2bGetVariantImageByVariantInfo';
@@ -54,7 +55,7 @@ interface ProductInfoProps {
   updatedAt: number;
   variantId: number;
   variantSku: string;
-  productsSearch: CustomFieldItems;
+  productsSearch: ProductInfoType;
 }
 
 interface ListItemProps {
@@ -381,7 +382,7 @@ function QuickOrderTable({
         } = row;
         let priceIncTax = +basePrice;
         if (variants?.length) {
-          priceIncTax = getProductPriceIncTax(variants, +variantId) || +basePrice;
+          priceIncTax = getProductPriceIncTaxOrExTaxBySetting(variants, +variantId) || +basePrice;
         }
 
         const qty = handleSetCheckedQty(row);

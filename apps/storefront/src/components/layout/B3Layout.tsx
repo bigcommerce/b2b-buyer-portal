@@ -4,16 +4,16 @@ import { useB3Lang } from '@b3/lang';
 import { Box, useMediaQuery } from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
-import { DynamicallyVariedContext } from '@/shared/dynamicallyVariable';
+import { DynamicallyVariableContext } from '@/shared/dynamicallyVariable';
 import { getIsTokenGotoPage, routes } from '@/shared/routes';
 import { useAppSelector } from '@/store';
 
 import B3Dialog from '../B3Dialog';
 import CompanyCredit from '../CompanyCredit';
 
-import B3MainHeader from './B2BMainHeader';
 import B3CloseAppButton from './B3CloseAppButton';
 import B3Logo from './B3Logo';
+import B3MainHeader from './B3MainHeader';
 import B3MobileLayout from './B3MobileLayout';
 import B3Nav from './B3Nav';
 
@@ -39,7 +39,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
   const {
     state: { globalMessageDialog },
     dispatch,
-  } = useContext(DynamicallyVariedContext);
+  } = useContext(DynamicallyVariableContext);
 
   const navigate = useNavigate();
 

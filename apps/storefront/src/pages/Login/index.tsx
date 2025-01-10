@@ -26,6 +26,7 @@ import {
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
+import { AlertColor, LoginFlagType } from '@/types/login';
 import { b2bJumpPath, channelId, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
@@ -35,12 +36,10 @@ import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { type PageProps } from '../PageProps';
 
 import LoginWidget from './component/LoginWidget';
-import { loginCheckout, LoginConfig } from './config';
+import { isLoginFlagType, loginCheckout, LoginConfig, loginType } from './config';
 import LoginForm from './LoginForm';
 import LoginPanel from './LoginPanel';
 import { LoginContainer, LoginImage } from './styled';
-
-type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 const useMasquerade = () => {
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
@@ -57,21 +56,12 @@ const useMasquerade = () => {
   return { endMasquerade, isAgenting };
 };
 
-const setTipType = (flag: string): AlertColor | undefined => {
-  if (!flag) {
-    return undefined;
-  }
+const setTipType = (flag: LoginFlagType): AlertColor | undefined => {
+  if (!flag) return undefined;
 
-  switch (flag) {
-    case '1':
-      return 'error';
-    case '4':
-      return 'error';
-    case '5':
-      return 'warning';
-    default:
-      return 'success';
-  }
+  const { alertType } = loginType[flag];
+
+  return alertType;
 };
 
 export default function Login(props: PageProps) {
@@ -89,7 +79,7 @@ export default function Login(props: PageProps) {
   const [isMobile] = useMobile();
 
   const [showTipInfo, setShowTipInfo] = useState<boolean>(true);
-  const [flag, setLoginFlag] = useState<string>('');
+  const [flag, setLoginFlag] = useState<LoginFlagType>('');
   const [loginAccount, setLoginAccount] = useState<LoginConfig>({
     emailAddress: '',
     password: '',
@@ -145,12 +135,13 @@ export default function Login(props: PageProps) {
 
         setShowTipInfo(showTipInfo);
 
-        if (loginFlag) setLoginFlag(loginFlag);
+        if (loginFlag && isLoginFlagType(loginFlag)) setLoginFlag(loginFlag);
 
-        if (loginFlag === '7') {
-          snackbar.error(b3Lang('login.loginText.invoiceErrorTip'));
+        if (loginFlag === 'invoiceErrorTip') {
+          const { tip } = loginType[loginFlag];
+          snackbar.error(b3Lang(tip));
         }
-        if (loginFlag === '3' && isLoggedIn) {
+        if (loginFlag === 'loggedOutLogin' && isLoggedIn) {
           try {
             const cartInfo = await getCart();
 
@@ -189,38 +180,27 @@ export default function Login(props: PageProps) {
     logout();
   }, [b3Lang, endMasquerade, isLoggedIn, isAgenting, searchParams, selectCompanyHierarchyId]);
 
-  const tipInfo = (loginFlag: string, email = '') => {
-    if (!loginFlag) {
-      return '';
+  const tipInfo = (loginFlag?: LoginFlagType, email = '') => {
+    if (!loginFlag) return '';
+
+    const { tip } = loginType[loginFlag];
+
+    if (flag === 'resetPassword') {
+      b3Lang(tip, {
+        email,
+      });
     }
 
-    switch (loginFlag) {
-      case '1':
-        return b3Lang('login.loginTipInfo.resetPassword', {
-          email,
-        });
-      case '2':
-        return b3Lang('login.loginTipInfo.receivePassword');
-      case '3':
-        return b3Lang('login.loginTipInfo.loggedOutLogin');
-      case '4':
-        return b3Lang('login.loginTipInfo.accountIncorrect');
-      case '5':
-        return b3Lang('login.loginTipInfo.accountPrelaunch');
-      case '6':
-        return b3Lang('login.loginText.deviceCrowdingLogIn');
-      default:
-        return '';
-    }
+    return b3Lang(tip);
   };
 
   const getForcePasswordReset = async (email: string) => {
     const forcePasswordReset = await getBCForcePasswordReset(email);
 
     if (forcePasswordReset) {
-      setLoginFlag('1');
+      setLoginFlag('resetPassword');
     } else {
-      setLoginFlag('4');
+      setLoginFlag('accountIncorrect');
     }
   };
 
@@ -240,7 +220,8 @@ export default function Login(props: PageProps) {
 
           if (response.status === 400 && response.type === 'reset_password_before_login') {
             b2bLogger.error(response);
-            await data.emailAddress;
+          } else if (response.type === 'invalid_login') {
+            setLoginFlag('accountIncorrect');
           } else {
             window.location.href = CHECKOUT_URL;
           }
@@ -280,7 +261,7 @@ export default function Login(props: PageProps) {
               if (
                 message === 'Operation cannot be performed as the storefront channel is not live'
               ) {
-                setLoginFlag('5');
+                setLoginFlag('accountPrelaunch');
                 setLoading(false);
                 return;
               }
@@ -327,7 +308,7 @@ export default function Login(props: PageProps) {
   };
 
   const gotoForgotPassword = () => {
-    navigate('/forgotpassword');
+    navigate('/forgotPassword');
   };
 
   const loginAndRegisterContainerWidth = registerEnabled ? '100%' : '50%';

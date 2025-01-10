@@ -1,6 +1,6 @@
 import { storeHash } from '@/utils/basicConfig';
 
-import { B2B_API_BASE_URL } from '../../request/base';
+import { getAPIBaseURL } from '../../request/base';
 
 interface GetTranslationParams {
   channelId: number;
@@ -12,7 +12,7 @@ interface GetTranslationResponse {
 
 const getTranslation = async ({ channelId, page }: GetTranslationParams) => {
   const response = await fetch(
-    `${B2B_API_BASE_URL}/storefront/translation/${storeHash}/${channelId}/${page}`,
+    `${getAPIBaseURL()}/storefront/translation/${storeHash}/${channelId}/${page}`,
   );
   return response.json() as Promise<GetTranslationResponse>;
 };

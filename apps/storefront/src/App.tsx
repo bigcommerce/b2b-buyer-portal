@@ -143,7 +143,7 @@ export default function App() {
         openUrl = '/register';
       }
       if (/action=reset_password/.test(search)) {
-        openUrl = '/forgotpassword';
+        openUrl = '/forgotPassword';
       }
 
       setOpenPage({

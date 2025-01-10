@@ -6,18 +6,20 @@
   // words - list of words to be always considered correct
   // cspell:disable
   "words": [
+    "accountincorrect",
     "Agenting",
     "bigcommerce",
+    "clickaway",
     "Enduser",
     "extrafields",
+    "forgotpassword",
     "gql.tada",
     "msword",
-    "Turborepo",
     "purchasability",
-    "forgotpassword",
-    "registeredbctob",
+    "registeredbctob2b",
     "skus",
-    "clickaway"
+    "clickaway",
+    "Turborepo"
   ],
   // flagWords - list of words to be always considered incorrect
   // This is useful for offensive words and common spelling errors.

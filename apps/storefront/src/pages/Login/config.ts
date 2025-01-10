@@ -1,41 +1,17 @@
 import { LangFormatFunction } from '@b3/lang';
 
+import { LoginFlagType, LoginTypeConfig } from '@/types/login';
 import { BigCommerceStorefrontAPIBaseURL, validatorRules } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
-
-export interface QuoteConfig {
-  [key: string]: string;
-}
 
 export type LoginConfig = {
   emailAddress: string;
   password: string;
 };
 
-export interface LoginInfoInit {
-  loginTitle: string;
-  loginBtn?: string;
-  createAccountPanelTittle?: string;
-  CreateAccountButtonText: string;
-  btnColor: string;
-  widgetHeadText?: string;
-  widgetBodyText: string;
-  widgetFooterText?: string;
-  displayStoreLogo: boolean;
-}
-
-export interface ValidateOptions extends Record<string, any> {
-  max?: string | number;
-  min?: string | number;
-}
-
 interface ChannelIdProps {
   channelId: number;
   urls: Array<string>;
-}
-
-export interface ChannelstoreSites {
-  storeSites?: Array<ChannelIdProps> | [];
 }
 
 export const getForgotPasswordFields = (b3Lang: LangFormatFunction) => [
@@ -91,6 +67,7 @@ export const loginCheckout = (data: LoginConfig) => {
   };
 
   return fetch(
+    // cspell:disable
     `${BigCommerceStorefrontAPIBaseURL}/internalapi/v1/checkout/customer`,
     requestOptions,
   ).then((response) => response.json());
@@ -123,16 +100,16 @@ export const getLoginFlag = (search: string, key: string) => {
   return searchParams.get(key);
 };
 
-export const getBCChannelId = (storeSitesany: Array<ChannelIdProps>) => {
-  if (storeSitesany.length === 1) {
-    return storeSitesany[0].channelId;
+export const getBCChannelId = (storeSiteAny: Array<ChannelIdProps>) => {
+  if (storeSiteAny.length === 1) {
+    return storeSiteAny[0].channelId;
   }
 
   let channelId = 1;
 
   const { origin } = window.location;
 
-  storeSitesany.forEach((item: ChannelIdProps) => {
+  storeSiteAny.forEach((item: ChannelIdProps) => {
     if (item.urls.includes(origin)) {
       channelId = item.channelId;
     }
@@ -158,3 +135,38 @@ export const logout = () =>
         reject(e);
       });
   });
+
+export const loginType: LoginTypeConfig = {
+  resetPassword: {
+    alertType: 'error',
+    tip: 'login.loginTipInfo.resetPassword',
+  },
+  receivePassword: {
+    alertType: 'success',
+    tip: 'login.loginTipInfo.receivePassword',
+  },
+  loggedOutLogin: {
+    alertType: 'success',
+    tip: 'login.loginTipInfo.loggedOutLogin',
+  },
+  accountIncorrect: {
+    alertType: 'error',
+    tip: 'login.loginTipInfo.accountIncorrect',
+  },
+  accountPrelaunch: {
+    alertType: 'warning',
+    tip: 'login.loginTipInfo.accountPrelaunch',
+  },
+  deviceCrowdingLogIn: {
+    alertType: 'success',
+    tip: 'login.loginText.deviceCrowdingLogIn',
+  },
+  invoiceErrorTip: {
+    alertType: 'error',
+    tip: 'login.loginText.invoiceErrorTip',
+  },
+};
+
+export const isLoginFlagType = (value: string | null): value is LoginFlagType => {
+  return Object.keys(loginType).includes(value as keyof typeof loginType);
+};

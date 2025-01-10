@@ -1,5 +1,5 @@
 import validateAddressExtraFields from './api/address';
-import { setChannelStoreType, uploadB2BFile } from './api/global';
+import { setChannelStoreType, uploadB2BFile, validateQuoteExtraFields } from './api/global';
 import { validateBCCompanyExtraFields, validateBCCompanyUserExtraFields } from './api/register';
 import {
   createB2BAddress,
@@ -69,6 +69,7 @@ import {
   getBCQuotesList,
   getBCStorefrontProductSettings,
   getQuoteCreatedByUsers,
+  getQuoteExtraFieldsConfig,
   quoteDetailAttachFileCreate,
   quoteDetailAttachFileDelete,
   updateB2BQuote,
@@ -140,7 +141,7 @@ export {
   getInvoiceStats,
   invoiceDownloadPDF,
 } from './graphql/invoice';
-export { getBcOrderedProducts, getOrderedProducts } from './graphql/quickorder';
+export { getBcOrderedProducts, getOrderedProducts } from './graphql/quickOrder';
 
 export {
   addOrUpdateUsers,
@@ -219,6 +220,7 @@ export {
   getOrdersCreatedByUser,
   getOrderStatusType,
   getQuoteCreatedByUsers,
+  getQuoteExtraFieldsConfig,
   getShoppingListsCreatedByUser,
   getStorefrontConfig,
   getStorefrontConfigs,
@@ -252,6 +254,7 @@ export {
   validateAddressExtraFields,
   validateBCCompanyExtraFields,
   validateBCCompanyUserExtraFields,
+  validateQuoteExtraFields,
 };
 
 export { default as getTranslation } from './api/translation';

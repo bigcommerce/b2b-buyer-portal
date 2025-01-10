@@ -3,21 +3,21 @@ import Cookies from 'js-cookie';
 import { store } from '@/store';
 import { BigCommerceStorefrontAPIBaseURL, channelId, snackbar, storeHash } from '@/utils';
 
-import { B2B_API_BASE_URL, queryParse, RequestType, RequestTypeKeys } from './base';
+import { getAPIBaseURL, queryParse, RequestType, RequestTypeKeys } from './base';
 import b3Fetch from './fetch';
 
 const GraphqlEndpointsFn = (type: RequestTypeKeys): string => {
   const GraphqlEndpoints: CustomFieldStringItems = {
-    B2BGraphql: `${B2B_API_BASE_URL}/graphql`,
+    B2BGraphql: `${getAPIBaseURL()}/graphql`,
     BCGraphql: `${BigCommerceStorefrontAPIBaseURL}/graphql`,
-    BCProxyGraphql: `${B2B_API_BASE_URL}/api/v3/proxy/bc-storefront/graphql`,
+    BCProxyGraphql: `${getAPIBaseURL()}/api/v3/proxy/bc-storefront/graphql`,
   };
 
   return GraphqlEndpoints[type] || '';
 };
 
 function request(path: string, config?: RequestInit, type?: RequestTypeKeys) {
-  const url = RequestType.B2BRest === type ? `${B2B_API_BASE_URL}${path}` : path;
+  const url = RequestType.B2BRest === type ? `${getAPIBaseURL()}${path}` : path;
   const { B2BToken } = store.getState().company.tokens;
   const getToken: HeadersInit =
     type === RequestType.BCRest
@@ -86,7 +86,7 @@ const B3Request = {
 
       if (extensions?.code === 40101) {
         if (window.location.hash.startsWith('#/')) {
-          window.location.href = '#/login?loginFlag=3&showTip=false';
+          window.location.href = '#/login?loginFlag=loggedOutLogin&showTip=false';
         }
 
         if (message) {
@@ -194,7 +194,7 @@ const B3Request = {
     formData: T,
     config?: Y,
   ): Promise<any> {
-    return request(`${B2B_API_BASE_URL}${url}`, {
+    return request(`${getAPIBaseURL()}${url}`, {
       method: 'POST',
       body: formData,
       headers: {},

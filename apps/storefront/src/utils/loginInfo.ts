@@ -9,7 +9,7 @@ import {
   getUserMasqueradingCompany,
 } from '@/shared/service/b2b';
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
-import { B2B_APP_CLIENT_ID } from '@/shared/service/request/base';
+import { getAppClientId } from '@/shared/service/request/base';
 import {
   clearMasqueradeCompany,
   MasqueradeCompany,
@@ -37,7 +37,7 @@ import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
 import { channelId, storeHash } from './basicConfig';
 
-const { VITE_LOCAL_DEBUG } = import.meta.env;
+const { VITE_IS_LOCAL_ENVIRONMENT } = import.meta.env;
 
 interface ChannelIdProps {
   channelId: number;
@@ -63,7 +63,7 @@ export const getCurrentStoreInfo = (
 
   let store;
 
-  if (VITE_LOCAL_DEBUG) {
+  if (VITE_IS_LOCAL_ENVIRONMENT) {
     store = {
       channelId: 1,
       urls: [],
@@ -245,7 +245,7 @@ const loginWithCurrentCustomerJWT = async () => {
   const prevCurrentCustomerJWT = store.getState().company.tokens.currentCustomerJWT;
   let currentCustomerJWT;
   try {
-    currentCustomerJWT = await getCurrentCustomerJWT(B2B_APP_CLIENT_ID);
+    currentCustomerJWT = await getCurrentCustomerJWT(getAppClientId());
   } catch (error) {
     b2bLogger.error(error);
     return undefined;

@@ -25,6 +25,7 @@ import {
   useAppSelector,
 } from '@/store';
 import { Currency } from '@/types';
+import { QuoteExtraFieldsData } from '@/types/quotes';
 import { snackbar, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
@@ -41,6 +42,7 @@ import QuoteInfo from '../quote/components/QuoteInfo';
 import QuoteNote from '../quote/components/QuoteNote';
 import QuoteTermsAndConditions from '../quote/components/QuoteTermsAndConditions';
 import { ProductInfoProps } from '../quote/shared/config';
+import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
 
 function QuoteDetail() {
@@ -272,6 +274,26 @@ function QuoteDetail() {
     return undefined;
   };
 
+  const getQuoteExtraFields = async (currentExtraFields: QuoteExtraFieldsData[]) => {
+    const extraFieldsInfo = await getB2BQuoteExtraFields();
+    const quoteCurrentExtraFields: QuoteExtraFieldsData[] = [];
+    if (extraFieldsInfo.length) {
+      extraFieldsInfo.forEach((item) => {
+        const extraField = item;
+        const currentExtraField = currentExtraFields.find(
+          (field: QuoteExtraFieldsData) => field.fieldName === extraField.name,
+        );
+
+        quoteCurrentExtraFields.push({
+          fieldName: extraField.name || '',
+          fieldValue: currentExtraField?.fieldValue || extraField.default,
+        });
+      });
+    }
+
+    return quoteCurrentExtraFields;
+  };
+
   const getQuoteDetail = async () => {
     setIsRequestLoading(true);
     setIsShowFooter(false);
@@ -289,8 +311,12 @@ function QuoteDetail() {
 
       const { quote } = await fn(data);
       const productsWithMoreInfo = await handleGetProductsById(quote.productsList);
+      const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
 
-      setQuoteDetail(quote);
+      setQuoteDetail({
+        ...quote,
+        extraFields: quoteExtraFieldInfos,
+      });
       setQuoteSummary({
         originalSubtotal: quote.subtotal,
         discount: quote.discount,
@@ -547,6 +573,24 @@ function QuoteDetail() {
     return true;
   };
 
+  const quoteAndExtraFieldsInfo = useMemo(() => {
+    const currentExtraFields = quoteDetail?.extraFields?.map(
+      (field: { fieldName: string; fieldValue: string | number }) => ({
+        fieldName: field.fieldName,
+        value: field.fieldValue,
+      }),
+    );
+
+    return {
+      info: {
+        quoteTitle: quoteDetail?.quoteTitle || '',
+        referenceNumber: quoteDetail?.referenceNumber || '',
+      },
+      extraFields: currentExtraFields || [],
+      recipients: quoteDetail?.recipients || [],
+    };
+  }, [quoteDetail]);
+
   useScrollBar(false);
 
   const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
@@ -569,7 +613,6 @@ function QuoteDetail() {
           exportPdf={exportPdf}
           printQuote={printQuote}
           role={role}
-          quoteTitle={quoteDetail.quoteTitle}
           salesRepInfo={quoteDetail.salesRepInfo}
         />
 
@@ -579,6 +622,7 @@ function QuoteDetail() {
           }}
         >
           <QuoteInfo
+            quoteAndExtraFieldsInfo={quoteAndExtraFieldsInfo}
             contactInfo={quoteDetail.contactInfo}
             shippingAddress={quoteDetail.shippingAddress}
             billingAddress={quoteDetail.billingAddress}

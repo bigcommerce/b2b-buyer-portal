@@ -72,6 +72,9 @@ const initialState: QuoteInfoState = {
     },
     fileInfo: [],
     note: '',
+    referenceNumber: '',
+    extraFields: [],
+    recipients: [],
   },
   quoteDetailToCheckoutUrl: '',
 };
@@ -131,6 +134,9 @@ const draftQuoteListSlice = createSlice({
     setDraftQuoteInfo: (state, { payload }: PayloadAction<QuoteInfo>) => {
       state.draftQuoteInfo = payload;
     },
+    setDraftQuoteRecipients: (state, { payload }: PayloadAction<string[]>) => {
+      state.draftQuoteInfo.recipients = payload;
+    },
     setDraftQuoteInfoNote: (state, { payload }: PayloadAction<string>) => {
       state.draftQuoteInfo.note = payload;
     },
@@ -157,6 +163,7 @@ export const {
   setDraftQuoteCalculatedPrices,
   setQuoteUserId,
   setDraftQuoteInfo,
+  setDraftQuoteRecipients,
   setDraftQuoteInfoNote,
   setDraftQuoteShippingAddress,
   setDraftQuoteBillingAddress,
