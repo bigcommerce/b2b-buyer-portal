@@ -58,7 +58,7 @@ export default function AddToShoppingList(props: AddToListProps) {
           };
         });
 
-        const res: CustomFieldItems = await addItemsToShoppingList({
+        const res = await addItemsToShoppingList({
           shoppingListId: id,
           items,
         });
@@ -91,7 +91,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       };
     });
 
-    const res: CustomFieldItems = await addItemsToShoppingList({
+    const res = await addItemsToShoppingList({
       shoppingListId: id,
       items,
     });

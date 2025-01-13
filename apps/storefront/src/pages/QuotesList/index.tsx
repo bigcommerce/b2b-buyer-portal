@@ -181,8 +181,7 @@ function QuotesList() {
   useEffect(() => {
     const initFilter = async () => {
       const companyId = companyB2BId || salesRepCompanyId;
-      let createdByUsers: CustomFieldItems = {};
-      if (isB2BUser) createdByUsers = await getShoppingListsCreatedByUser(+companyId, 2);
+      const createdByUsers = isB2BUser ? await getShoppingListsCreatedByUser(+companyId, 2) : {};
 
       const filterInfos = getFilterMoreList(isB2BUser, createdByUsers, b3Lang);
       setFilterMoreInfo(filterInfos);

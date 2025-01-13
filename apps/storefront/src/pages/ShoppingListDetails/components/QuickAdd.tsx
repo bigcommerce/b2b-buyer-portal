@@ -293,7 +293,7 @@ export default function QuickAdd(props: AddToListContentProps) {
     const getVariantInfoBySku = isB2BUser ? getB2BVariantInfoBySkus : getBcVariantInfoBySkus;
 
     try {
-      const { variantSku: variantInfoList }: CustomFieldItems = await getVariantInfoBySku(
+      const { variantSku: variantInfoList } = await getVariantInfoBySku(
         {
           skus,
         },
