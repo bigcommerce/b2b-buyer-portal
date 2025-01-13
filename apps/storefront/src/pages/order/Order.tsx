@@ -117,8 +117,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
     const initFilter = async () => {
       const companyId = companyB2BId || salesRepCompanyId;
-      let createdByUsers: CustomFieldItems = {};
-      if (isB2BUser && isCompanyOrder) createdByUsers = await getOrdersCreatedByUser(+companyId, 0);
+      const createdByUsers =
+        isB2BUser && isCompanyOrder ? await getOrdersCreatedByUser(+companyId, 0) : {};
 
       const orderStatuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
 

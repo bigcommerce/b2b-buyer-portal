@@ -169,7 +169,7 @@ function OrderDetail() {
       try {
         let configList = addressConfig;
         if (!configList) {
-          const { addressConfig: newConfig }: CustomFieldItems = await getB2BAddressConfig();
+          const { addressConfig: newConfig } = await getB2BAddressConfig();
           configList = newConfig;
 
           globalDispatch({

@@ -128,7 +128,7 @@ export default function AddToQuote(props: AddToListProps) {
   const quickAddToList = async (variantProducts: CustomFieldItems[]) => {
     const productIds = variantProducts.map((item) => item.productId);
 
-    const { productsSearch }: CustomFieldItems = await searchB2BProducts({
+    const { productsSearch } = await searchB2BProducts({
       productIds,
       companyId,
       customerGroupId,

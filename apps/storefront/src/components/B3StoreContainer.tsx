@@ -55,7 +55,7 @@ export default function B3StoreContainer(props: B3StoreContainerProps) {
       }
 
       try {
-        const { storeBasicInfo }: CustomFieldItems = await getBCStoreChannelId();
+        const { storeBasicInfo } = await getBCStoreChannelId();
         const [storeInfo] = storeBasicInfo.storeSites;
 
         if (!storeInfo) return;
