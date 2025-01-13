@@ -109,7 +109,7 @@ function Address() {
     if (!isBCPermission) {
       const {
         addresses: { edges: addressList = [], totalCount },
-      }: CustomFieldItems = await getB2BAddress({
+      } = await getB2BAddress({
         companyId,
         ...params,
       });
@@ -119,7 +119,7 @@ function Address() {
     } else {
       const {
         customerAddresses: { edges: addressList = [], totalCount },
-      }: CustomFieldItems = await getBCCustomerAddress({
+      } = await getBCCustomerAddress({
         ...params,
       });
 
@@ -173,7 +173,7 @@ function Address() {
         try {
           let configList = addressConfig;
           if (!configList) {
-            const { addressConfig: newConfig }: CustomFieldItems = await getB2BAddressConfig();
+            const { addressConfig: newConfig } = await getB2BAddressConfig();
             configList = newConfig;
 
             dispatch({

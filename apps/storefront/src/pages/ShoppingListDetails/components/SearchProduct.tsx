@@ -67,7 +67,7 @@ export default function SearchProduct({
 
     setIsLoading(true);
     try {
-      const { productsSearch }: CustomFieldItems = await getProducts({
+      const { productsSearch } = await getProducts({
         search: searchText,
         companyId,
         customerGroupId,

@@ -57,8 +57,7 @@ function ShoppingLists() {
   useEffect(() => {
     const initFilter = async () => {
       const companyId = companyB2BId || salesRepCompanyId;
-      let createdByUsers: CustomFieldItems = {};
-      if (isB2BUser) createdByUsers = await getShoppingListsCreatedByUser(+companyId, 1);
+      const createdByUsers = isB2BUser ? await getShoppingListsCreatedByUser(+companyId, 1) : {};
 
       const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
 
