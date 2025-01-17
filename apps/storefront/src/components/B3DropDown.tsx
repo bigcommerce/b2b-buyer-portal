@@ -8,6 +8,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
 import { useMobile } from '@/hooks';
+import { disableLogoutButton } from '@/utils';
 
 export interface ListItemProps {
   name: string;
@@ -27,7 +28,7 @@ interface B3DropDownProps extends Partial<MenuProps> {
   menuRenderItemName?: (item: ListItemProps) => JSX.Element | string;
 }
 
-function DropDown(
+function B3DropDown(
   {
     width,
     list,
@@ -57,13 +58,26 @@ function DropDown(
         width: width || 'auto',
       }}
     >
-      <ListItemButton
-        ref={listRef}
-        onClick={() => setIsOpen(true)}
-        sx={{
-          pr: 0,
-        }}
-      >
+      {!disableLogoutButton ? (
+        <ListItemButton
+          ref={listRef}
+          onClick={() => setIsOpen(true)}
+          sx={{
+            pr: 0,
+          }}
+        >
+          <ListItemText
+            primary={title}
+            sx={{
+              '& span': {
+                fontWeight: isMobile ? 400 : 700,
+                color: '#333333',
+              },
+            }}
+          />
+          {isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+        </ListItemButton>
+      ) : (
         <ListItemText
           primary={title}
           sx={{
@@ -73,8 +87,7 @@ function DropDown(
             },
           }}
         />
-        {isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-      </ListItemButton>
+      )}
       <Menu
         anchorEl={listRef.current}
         open={isOpen}
@@ -123,4 +136,4 @@ function DropDown(
   );
 }
 
-export default forwardRef<DropDownHandle, B3DropDownProps>(DropDown);
+export default forwardRef<DropDownHandle, B3DropDownProps>(B3DropDown);

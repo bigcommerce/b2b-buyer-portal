@@ -62,6 +62,16 @@ const getContactInfo = (isMobile: boolean, b3Lang: LangFormatFunction, isGuest: 
       variant: 'filled',
       size: 'small',
     },
+    {
+      name: 'companyName',
+      label: b3Lang('quoteDraft.contactInfo.companyName'),
+      required: false,
+      default: '',
+      fieldType: 'text',
+      xs: isMobile ? 12 : 6,
+      variant: 'filled',
+      size: 'small',
+    },
   ];
 
   return contactInfo;
@@ -260,7 +270,7 @@ function ContactInfo(
     handleSaveClick,
   });
 
-  const contactInfos = [
+  const formData = [
     {
       title: b3Lang('quoteDraft.contactInfo.contact'),
       infos: contactInfo,
@@ -276,7 +286,7 @@ function ContactInfo(
 
   return (
     <Box width="100%">
-      {contactInfos.map((data) => (
+      {formData.map((data) => (
         <Box key={data.title} width="100%">
           <Box
             sx={{

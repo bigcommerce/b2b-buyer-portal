@@ -17,7 +17,6 @@ import {
   superAdminEndMasquerade,
 } from '@/shared/service/b2b';
 import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc';
-import { deleteCart, getCart } from '@/shared/service/bc/graphql/cart';
 import {
   clearMasqueradeCompany,
   isLoggedInSelector,
@@ -30,7 +29,6 @@ import { AlertColor, LoginFlagType } from '@/types/login';
 import { b2bJumpPath, channelId, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
-import { deleteCartData } from '@/utils/cartUtils';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { type PageProps } from '../PageProps';
@@ -143,13 +141,6 @@ export default function Login(props: PageProps) {
         }
         if (loginFlag === 'loggedOutLogin' && isLoggedIn) {
           try {
-            const cartInfo = await getCart();
-
-            if (cartInfo.data.site.cart?.entityId) {
-              const deleteQuery = deleteCartData(cartInfo.data.site.cart.entityId);
-              await deleteCart(deleteQuery);
-            }
-
             const { result } = (await bcLogoutLogin()).data.logout;
 
             if (result !== 'success') return;
