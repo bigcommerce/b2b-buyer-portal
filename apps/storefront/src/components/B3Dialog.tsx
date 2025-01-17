@@ -71,7 +71,16 @@ export default function B3Dialog<T>({
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
-  const defaultWidth = isMobile ? '100%' : '600px';
+  const customStyle = dialogWidth
+    ? {
+        '& .MuiPaper-elevation': {
+          width: isMobile ? '100%' : dialogWidth,
+        },
+        ...dialogSx,
+      }
+    : {
+        ...dialogSx,
+      };
 
   const handleSaveClick = () => {
     if (handRightClick) {
@@ -103,12 +112,7 @@ export default function B3Dialog<T>({
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         id="b2b-dialog-container"
-        sx={{
-          '& .MuiPaper-elevation': {
-            width: isMobile ? '100%' : dialogWidth || defaultWidth,
-          },
-          ...dialogSx,
-        }}
+        sx={customStyle}
       >
         {title && (
           <DialogTitle

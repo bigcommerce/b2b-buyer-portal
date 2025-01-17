@@ -128,7 +128,6 @@ function HierarchyDialog({
       rightSizeBtn={b3Lang('global.button.next')}
       title={title || b3Lang('companyHierarchy.dialog.title')}
       fullWidth
-      maxWidth={false}
       loading={loading}
       handleLeftClick={handleClose}
       handRightClick={handleSwitchCompanyClick}
