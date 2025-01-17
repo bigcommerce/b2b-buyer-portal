@@ -21,6 +21,8 @@ export interface OrderItemCardProps {
   onSetDefault: (data: AddressItemType) => void;
   editPermission: boolean;
   isBCPermission: boolean;
+  updateActionsPermission: boolean;
+  deleteActionsPermission: boolean;
 }
 
 interface TagBoxProps {
@@ -52,6 +54,8 @@ export function AddressItemCard(props: OrderItemCardProps) {
     onDelete,
     onSetDefault,
     editPermission: hasPermission,
+    updateActionsPermission = false,
+    deleteActionsPermission = false,
     isBCPermission,
   } = props;
 
@@ -111,7 +115,7 @@ export function AddressItemCard(props: OrderItemCardProps) {
 
         {hasPermission && (
           <Flex>
-            {!isBCPermission && (
+            {!isBCPermission && updateActionsPermission && (
               <CustomButton
                 variant="text"
                 sx={{
@@ -131,27 +135,32 @@ export function AddressItemCard(props: OrderItemCardProps) {
                 justifyContent: 'flex-end',
               }}
             >
-              <IconButton
-                aria-label="edit"
-                size="small"
-                sx={{
-                  marginRight: '8px',
-                }}
-                onClick={() => {
-                  onEdit(addressInfo);
-                }}
-              >
-                <EditIcon fontSize="inherit" />
-              </IconButton>
-              <IconButton
-                aria-label="delete"
-                size="small"
-                onClick={() => {
-                  onDelete(addressInfo);
-                }}
-              >
-                <DeleteIcon fontSize="inherit" />
-              </IconButton>
+              {(updateActionsPermission || isBCPermission) && (
+                <IconButton
+                  aria-label="edit"
+                  size="small"
+                  sx={{
+                    marginRight: '8px',
+                  }}
+                  onClick={() => {
+                    onEdit(addressInfo);
+                  }}
+                >
+                  <EditIcon fontSize="inherit" />
+                </IconButton>
+              )}
+
+              {(deleteActionsPermission || isBCPermission) && (
+                <IconButton
+                  aria-label="delete"
+                  size="small"
+                  onClick={() => {
+                    onDelete(addressInfo);
+                  }}
+                >
+                  <DeleteIcon fontSize="inherit" />
+                </IconButton>
+              )}
             </Box>
           </Flex>
         )}

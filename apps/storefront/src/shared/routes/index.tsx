@@ -4,7 +4,7 @@ import { matchPath } from 'react-router-dom';
 import { PageProps } from '@/pages/PageProps';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { getB3PermissionsList } from '@/utils';
+import { b2bJumpPath } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { isB2bTokenPage, logoutSession } from '@/utils/b3logout';
 
@@ -17,6 +17,8 @@ import {
   RouteItem,
   routeList,
 } from '../routeList';
+
+import { allLegacyPermission, denyInvoiceRoles } from './config';
 
 const AccountSetting = lazy(() => import('@/pages/AccountSetting'));
 const AddressList = lazy(() => import('@/pages/Address'));
@@ -40,6 +42,7 @@ const RegisteredBCToB2B = lazy(() => import('@/pages/RegisteredBCToB2B'));
 const ShippingLists = lazy(() => import('@/pages/ShoppingLists'));
 const ShoppingListDetails = lazy(() => import('@/pages/ShoppingListDetails'));
 const UserManagement = lazy(() => import('@/pages/UserManagement'));
+const CompanyHierarchy = lazy(() => import('@/pages/CompanyHierarchy'));
 
 const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactElement>> = {
   '/dashboard': Dashboard,
@@ -57,6 +60,7 @@ const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactE
   '/quoteDraft': QuoteDraft,
   '/accountSettings': AccountSetting,
   '/quoteDetail/:id': QuoteDetail,
+  '/company-hierarchy': CompanyHierarchy,
 };
 
 function addComponentToRoutes(routes: BuyerPortalRoute[]): RouteItem[] {
@@ -75,54 +79,52 @@ const firstLevelRouting: RouteFirstLevelItem[] = [
     path: '/',
     name: '',
     component: HomePage,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
+    permissions: allLegacyPermission,
     isProvider: false,
   },
   {
     path: '/register',
     name: 'register',
     component: Registered,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
+    permissions: allLegacyPermission,
     isProvider: true,
   },
   {
     path: '/login',
     name: 'Login',
     component: Login,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
+    permissions: allLegacyPermission,
     isProvider: false,
   },
   {
     path: '/pdp',
     name: 'pdp',
     component: PDP,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
+    permissions: allLegacyPermission,
     isProvider: false,
   },
   {
     path: '/forgotPassword',
     name: 'forgotPassword',
     component: ForgotPassword,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
+    permissions: allLegacyPermission,
     isProvider: false,
   },
   {
     path: '/registeredbctob2b',
     name: 'registeredbctob2b',
     component: RegisteredBCToB2B,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
+    permissions: allLegacyPermission,
     isProvider: true,
   },
   {
     path: '/payment/:id',
     name: 'payment',
     component: InvoicePayment,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
+    permissions: allLegacyPermission,
     isProvider: false,
   },
 ];
-
-const denyInvoiceRoles = [4, 99, 100];
 
 const invoiceTypes = ['invoice?invoiceId', 'invoice?receiptId'];
 
@@ -135,7 +137,6 @@ const gotoAllowedAppPage = async (
   const currentState = store.getState();
 
   const { company } = currentState;
-  const { companyRoleName } = company.customer;
   const isLoggedIn = company.customer || role !== CustomerRole.GUEST;
   if (!isLoggedIn) {
     gotoPage('/login?loginFlag=loggedOutLogin&&closeIsLogout=1');
@@ -161,9 +162,7 @@ const gotoAllowedAppPage = async (
   }
 
   let url = hash.split('#')[1] || '';
-  const IsRealJuniorBuyer =
-    +role === CustomerRole.JUNIOR_BUYER && companyRoleName === 'Junior Buyer';
-  const currentRole = !IsRealJuniorBuyer && +role === CustomerRole.JUNIOR_BUYER ? 1 : role;
+
   if ((!url && role !== CustomerRole.GUEST && pathname.includes('account.php')) || isAccountEnter) {
     let isB2BUser = false;
     if (
@@ -175,18 +174,11 @@ const gotoAllowedAppPage = async (
       isB2BUser = true;
     }
 
-    const { getShoppingListPermission, getOrderPermission } = getB3PermissionsList();
-    let currentAuthorizedPages = '/orders';
+    const currentAuthorizedPages = isB2BUser ? b2bJumpPath(+role) : '/orders';
 
-    if (isB2BUser) {
-      currentAuthorizedPages = getShoppingListPermission ? '/shoppingLists' : '/accountSettings';
-      if (getOrderPermission)
-        currentAuthorizedPages = IsRealJuniorBuyer ? currentAuthorizedPages : '/orders';
-    }
-
-    switch (currentRole) {
+    switch (+role) {
       case CustomerRole.JUNIOR_BUYER:
-        url = currentAuthorizedPages;
+        url = '/shoppingLists';
         break;
       case CustomerRole.SUPER_ADMIN:
         url = '/dashboard';
@@ -199,7 +191,7 @@ const gotoAllowedAppPage = async (
 
   const flag = routes.some((item: RouteItem) => {
     if (matchPath(item.path, url) || isInvoicePage()) {
-      return item.permissions.includes(currentRole);
+      return item.permissions.includes(+role);
     }
     return false;
   });

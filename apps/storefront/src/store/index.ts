@@ -25,7 +25,7 @@ export const middlewareOptions = {
       PURGE,
       REGISTER,
       'theme/setThemeFrame',
-      'global/setGlabolCommonState',
+      'global/setGlobalCommonState',
       'global/setOpenPageReducer',
     ],
     ignoredPaths: ['theme.themeFrame', 'global.globalMessage', 'global.setOpenPageFn'],
@@ -49,4 +49,7 @@ export type AppDispatch = AppStore['dispatch'];
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export const useAppStore: () => AppStore = useStore;
+
+// cspell:disable
 export const persistor = persistStore(store);
+// cspell:enable

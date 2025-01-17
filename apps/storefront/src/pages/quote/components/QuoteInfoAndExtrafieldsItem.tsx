@@ -63,7 +63,7 @@ function QuoteInfoAndExtrafieldsItem({ status, quoteInfo }: QuoteInfoAndExtrafie
           (field) =>
             (field.value || status === 'Draft') && (
               <Typography
-                key={`extrafield-${field.fieldName}`}
+                key={`extraField-${field.fieldName}`}
               >{`${field.fieldName}: ${field.value}`}</Typography>
             ),
         )}

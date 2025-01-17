@@ -2,7 +2,7 @@ import { CustomerRole } from '@/types';
 import { OrderStatusType } from '@/types/gql/graphql';
 
 export interface FilterSearchProps {
-  [key: string]: string | number | null;
+  [key: string]: string | number | number[] | null;
   beginDateAt: string | null;
   endDateAt: string | null;
   orderBy: string;
@@ -11,6 +11,7 @@ export interface FilterSearchProps {
   companyName: string;
   isShowMy: number;
   companyId: string;
+  companyIds: number[];
 }
 
 export interface FilterMoreProps {
@@ -43,6 +44,7 @@ const b2bFilterSearch: FilterSearchProps = {
   orderNumber: '',
   poNumber: '',
   isShowMy: 0,
+  companyIds: [],
 };
 
 const bcFilterSearch = {

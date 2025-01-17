@@ -1,9 +1,12 @@
 import {
+  endUserMasqueradingCompany,
   getAgentInfo,
   getB2BCompanyUserInfo,
   getB2BToken,
   getBCGraphqlToken,
+  getCompanySubsidiaries,
   getUserCompany,
+  getUserMasqueradingCompany,
 } from '@/shared/service/b2b';
 import { getCurrentCustomerJWT, getCustomerInfo } from '@/shared/service/bc';
 import { getAppClientId } from '@/shared/service/request/base';
@@ -18,6 +21,7 @@ import {
   clearCompanySlice,
   setB2BToken,
   setBcGraphQLToken,
+  setCompanyHierarchyInfoModules,
   setCompanyInfo,
   setCompanyStatus,
   setCurrentCustomerJWT,
@@ -26,7 +30,8 @@ import {
   setPermissionModules,
 } from '@/store/slices/company';
 import { resetDraftQuoteInfo, resetDraftQuoteList } from '@/store/slices/quoteInfo';
-import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
+import { CompanyStatus, CustomerRole, CustomerRoleName, LoginTypes, UserTypes } from '@/types';
+import { getAccountHierarchyIsEnabled } from '@/utils/storefrontConfig';
 
 import b2bLogger from './b3Logger';
 import { B3LStorage, B3SStorage } from './b3Storage';
@@ -141,7 +146,12 @@ export const clearCurrentCustomerInfo = async () => {
 // 3: inactive
 // 4: deleted
 
-const VALID_ROLES = [CustomerRole.ADMIN, CustomerRole.SENIOR_BUYER, CustomerRole.JUNIOR_BUYER];
+const VALID_ROLES = [
+  CustomerRole.ADMIN,
+  CustomerRole.SENIOR_BUYER,
+  CustomerRole.JUNIOR_BUYER,
+  CustomerRole.CUSTOM_ROLE,
+];
 
 export const getCompanyInfo = async (
   role: number | string,
@@ -291,7 +301,14 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
     const companyUserInfo = await getCompanyUserInfo();
 
     if (companyUserInfo && customerId) {
-      const { userType, role, id, companyRoleName, permissions } = companyUserInfo;
+      const { userType, id, companyRoleName, permissions } = companyUserInfo;
+
+      let { role } = companyUserInfo;
+
+      role =
+        role === CustomerRole.JUNIOR_BUYER && companyRoleName !== CustomerRoleName.JUNIOR_BUYER_NAME
+          ? CustomerRole.CUSTOM_ROLE
+          : role;
 
       const [companyInfo] = await Promise.all([
         getCompanyInfo(role, id, userType),
@@ -322,6 +339,40 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
         status: companyInfo.companyStatus,
         companyName: companyInfo.companyName,
       };
+
+      if (
+        role === CustomerRole.ADMIN ||
+        role === CustomerRole.SENIOR_BUYER ||
+        role === CustomerRole.JUNIOR_BUYER ||
+        role === CustomerRole.CUSTOM_ROLE
+      ) {
+        const isEnabledAccountHierarchy = await getAccountHierarchyIsEnabled();
+
+        if (isEnabledAccountHierarchy) {
+          const [{ companySubsidiaries }, { userMasqueradingCompany }] = await Promise.all([
+            getCompanySubsidiaries(),
+            getUserMasqueradingCompany(),
+          ]);
+
+          if (userMasqueradingCompany?.companyId) {
+            await endUserMasqueradingCompany();
+          }
+
+          store.dispatch(
+            setCompanyHierarchyInfoModules({
+              companyHierarchyAllList: companySubsidiaries,
+              isEnabledCompanyHierarchy: isEnabledAccountHierarchy,
+            }),
+          );
+        } else {
+          store.dispatch(
+            setCompanyHierarchyInfoModules({
+              isEnabledCompanyHierarchy: false,
+              companyHierarchyAllList: [],
+            }),
+          );
+        }
+      }
 
       store.dispatch(resetDraftQuoteList());
       store.dispatch(resetDraftQuoteInfo());

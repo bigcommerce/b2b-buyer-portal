@@ -13,6 +13,7 @@ import isEmpty from 'lodash-es/isEmpty';
 import isEqual from 'lodash-es/isEqual';
 
 import { useMobile } from '@/hooks';
+import { useAppSelector } from '@/store';
 
 import { B3Table, TableColumnItem } from './B3Table';
 
@@ -53,6 +54,7 @@ interface B3PaginationTableProps {
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
   pageType?: string;
+  isAutoRefresh?: boolean;
 }
 
 function PaginationTable(
@@ -89,6 +91,7 @@ function PaginationTable(
     sortByFn = () => {},
     orderBy = '',
     pageType = '',
+    isAutoRefresh = true,
   }: B3PaginationTableProps,
   ref?: Ref<unknown>,
 ) {
@@ -96,6 +99,11 @@ function PaginationTable(
     offset: 0,
     first: rowsPerPageOptions[0],
   };
+
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+  const selectCompanyHierarchyIdCache = useRef(selectCompanyHierarchyId);
 
   const cache = useRef(null);
 
@@ -204,10 +212,19 @@ function PaginationTable(
   }, [fetchList, pagination]);
 
   useEffect(() => {
+    const isChangeCompany = +selectCompanyHierarchyIdCache.current !== +selectCompanyHierarchyId;
     if (!isEmpty(searchParams)) {
-      fetchList();
+      if (isChangeCompany) {
+        if (isAutoRefresh) fetchList(pagination, true);
+        selectCompanyHierarchyIdCache.current = selectCompanyHierarchyId;
+      } else {
+        if (isAutoRefresh && pageType === 'orderListPage') fetchList(pagination, true);
+        fetchList();
+      }
     }
-  }, [fetchList, searchParams]);
+    // ignore pageType because is not a reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchList, searchParams, selectCompanyHierarchyId, pagination, isAutoRefresh]);
 
   useEffect(() => {
     if (getSelectCheckbox) getSelectCheckbox(selectCheckbox);

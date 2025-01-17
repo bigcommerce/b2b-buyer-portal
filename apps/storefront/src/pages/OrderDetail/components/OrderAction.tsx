@@ -6,17 +6,20 @@ import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import throttle from 'lodash-es/throttle';
 
 import CustomButton from '@/components/button/CustomButton';
+import HierarchyDialog from '@/pages/CompanyHierarchy/components/HierarchyDialog';
 import { GlobalContext } from '@/shared/global';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
+import { Address, MoneyFormat, OrderProductItem } from '@/types';
 import {
   b2bPrintInvoice,
   currencyFormat,
   displayFormat,
   ordersCurrencyFormat,
   snackbar,
+  verifyLevelPermission,
 } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
-import { Address, MoneyFormat, OrderProductItem } from '../../../types';
 import { OrderDetailsContext, OrderDetailsState } from '../context/OrderDetailsContext';
 
 import OrderDialog from './OrderDialog';
@@ -89,6 +92,8 @@ interface OrderCardProps {
   role: number | string;
   ipStatus: number;
   invoiceId?: number | string | undefined | null;
+  isCurrentCompany: boolean;
+  switchCompanyId: number | string | undefined;
 }
 
 interface DialogData {
@@ -110,6 +115,8 @@ function OrderCard(props: OrderCardProps) {
     role,
     invoiceId,
     ipStatus,
+    isCurrentCompany,
+    switchCompanyId,
   } = props;
   const displayAsNegativeNumber = ['coupon', 'discountAmount'];
   const b3Lang = useB3Lang();
@@ -139,6 +146,7 @@ function OrderCard(props: OrderCardProps) {
 
   const navigate = useNavigate();
 
+  const [openSwitchCompany, setOpenSwitchCompany] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [type, setType] = useState<string>('');
   const [currentDialogData, setCurrentDialogData] = useState<DialogData>();
@@ -153,6 +161,16 @@ function OrderCard(props: OrderCardProps) {
     infoValue = Object.values(info);
   }
 
+  const handleShowSwitchCompanyModal = () => {
+    if (!isCurrentCompany && switchCompanyId) {
+      setOpenSwitchCompany(true);
+
+      return true;
+    }
+
+    return false;
+  };
+
   const handleOpenDialog = (name: string) => {
     if (name === 'viewInvoice') {
       if (ipStatus !== 0) {
@@ -163,6 +181,8 @@ function OrderCard(props: OrderCardProps) {
     } else if (name === 'printInvoice') {
       window.open(`/account.php?action=print_invoice&order_id=${orderId}`);
     } else {
+      const isNeedSwitch = handleShowSwitchCompanyModal();
+      if (isNeedSwitch) return;
       if (!isAgenting && +role === 3) {
         snackbar.error(b3Lang('orderDetail.orderCard.errorMasquerade'));
         return;
@@ -270,12 +290,27 @@ function OrderCard(props: OrderCardProps) {
         itemKey={itemKey}
         orderId={+orderId}
       />
+
+      <HierarchyDialog
+        open={openSwitchCompany}
+        currentRow={{
+          companyId: +(switchCompanyId || 0),
+        }}
+        handleClose={() => setOpenSwitchCompany(false)}
+        // loading
+        title={b3Lang('orderDetail.switchCompany.title')}
+        context={b3Lang('orderDetail.switchCompany.content.tipsText')}
+        dialogParams={{
+          rightSizeBtn: b3Lang('global.B2BSwitchCompanyModal.confirm.button'),
+        }}
+      />
     </Card>
   );
 }
 
 interface OrderActionProps {
   detailsData: OrderDetailsState;
+  isCurrentCompany: boolean;
 }
 
 interface OrderData {
@@ -287,7 +322,7 @@ interface OrderData {
 }
 
 export default function OrderAction(props: OrderActionProps) {
-  const { detailsData } = props;
+  const { detailsData, isCurrentCompany } = props;
   const b3Lang = useB3Lang();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
@@ -311,6 +346,8 @@ export default function OrderAction(props: OrderActionProps) {
     ipStatus = 0,
     invoiceId,
     poNumber,
+    customerId,
+    companyInfo: { companyId } = {},
   } = detailsData;
 
   const getPaymentMessage = useCallback(() => {
@@ -334,8 +371,13 @@ export default function OrderAction(props: OrderActionProps) {
     return null;
   }
 
-  const { purchasabilityPermission, shoppingListActionsPermission, getInvoicesPermission } =
-    b2bPermissions;
+  const { purchasabilityPermission, shoppingListCreateActionsPermission } = b2bPermissions;
+  const { getInvoicesPermission } = b2bPermissionsMap;
+  const invoiceViewPermission = verifyLevelPermission({
+    code: getInvoicesPermission,
+    companyId: companyId ? +companyId : 0,
+    userId: customerId ? +customerId : 0,
+  });
 
   const getCompanyName = (company: string) => {
     if (addressLabelPermission) {
@@ -426,7 +468,7 @@ export default function OrderAction(props: OrderActionProps) {
       name: 'shoppingList',
       variant: 'outlined',
       isCanShow: isB2BUser
-        ? shoppingListActionsPermission && shoppingListEnabled
+        ? shoppingListCreateActionsPermission && shoppingListEnabled
         : shoppingListEnabled,
     },
   ];
@@ -461,7 +503,7 @@ export default function OrderAction(props: OrderActionProps) {
           name: isB2BUser ? 'viewInvoice' : 'printInvoice',
           variant: 'outlined',
           isCanShow: isB2BUser
-            ? invoiceBtnPermissions && getInvoicesPermission
+            ? invoiceBtnPermissions && invoiceViewPermission
             : invoiceBtnPermissions,
         },
       ],
@@ -493,6 +535,8 @@ export default function OrderAction(props: OrderActionProps) {
             ipStatus={ipStatus}
             invoiceId={invoiceId}
             key={item.key}
+            isCurrentCompany={isCurrentCompany}
+            switchCompanyId={companyId}
           />
         ))}
     </OrderActionContainer>

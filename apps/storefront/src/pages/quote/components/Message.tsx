@@ -149,11 +149,10 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
 
   const [message, setMessage] = useState<string>('');
 
-  const [loadding, setLoadding] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const { quotesActionsPermission: quotesActionsPermissionRename } =
-    useAppSelector(rolePermissionSelector);
-  const quotesActionsPermission = isB2BUser ? quotesActionsPermissionRename : true;
+  const { quotesUpdateMessageActionsPermission } = useAppSelector(rolePermissionSelector);
+  const quotesUpdateMessagePermission = isB2BUser ? quotesUpdateMessageActionsPermission : true;
 
   const convertedMsgs = (msgs: MessageProps[]) => {
     let nextMsg: MessageProps = {};
@@ -262,7 +261,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
   const updateMsgs = async (msg: string) => {
     try {
       const fn = isB2BUser ? updateB2BQuote : updateBCQuote;
-      setLoadding(true);
+      setLoading(true);
       const {
         quoteUpdate: {
           quote: { trackingHistory },
@@ -280,7 +279,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
       setRead(0);
       convertedMsgs(trackingHistory);
     } finally {
-      setLoadding(false);
+      setLoading(false);
     }
   };
 
@@ -293,7 +292,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
   const handleOnChange = useCallback(
     (open: boolean) => {
       if (open) {
-        if (!quotesActionsPermission && isB2BUser) return;
+        if (!quotesUpdateMessagePermission && isB2BUser) return;
         const fn = isB2BUser ? updateB2BQuote : updateBCQuote;
         if (changeReadRef.current === 0 && msgs.length) {
           fn({
@@ -312,7 +311,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
         changeReadRef.current += 1;
       }
     },
-    [email, id, isB2BUser, msgs, quotesActionsPermission],
+    [email, id, isB2BUser, msgs, quotesUpdateMessagePermission],
   );
 
   useEffect(() => {
@@ -375,9 +374,9 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
             </Box>
           </Box>
 
-          {status !== 4 && quotesActionsPermission && (
+          {status !== 4 && quotesUpdateMessagePermission && (
             <B3Spin
-              isSpinning={loadding}
+              isSpinning={loading}
               spinningHeight={50}
               size={10}
               isCloseLoading

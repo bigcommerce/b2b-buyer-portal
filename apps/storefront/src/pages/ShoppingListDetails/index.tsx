@@ -1,8 +1,7 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Grid, useTheme } from '@mui/material';
-import isEmpty from 'lodash-es/isEmpty';
 
 import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
@@ -24,7 +23,9 @@ import {
   rolePermissionSelector,
   useAppSelector,
 } from '@/store';
-import { channelId, getB3PermissionsList, snackbar } from '@/utils';
+import { CustomerRole } from '@/types';
+import { channelId, snackbar, verifyLevelPermission } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { calculateProductListPrice, getBCPrice } from '@/utils/b3Product/b3Product';
 import {
   conversionProductsList,
@@ -60,11 +61,6 @@ interface UpdateShoppingListParamsProps {
   channelId?: number;
 }
 
-interface PermissionLevelInfoProps {
-  permissionType: string;
-  permissionLevel?: number | string;
-}
-
 // shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
 
@@ -78,7 +74,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
-  const permissions = useAppSelector(({ company }) => company.permissions);
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const navigate = useNavigate();
@@ -108,14 +103,34 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false);
   const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
 
-  const { shoppingListActionsPermission, purchasabilityPermission, submitShoppingListPermission } =
-    useAppSelector(rolePermissionSelector);
+  const {
+    shoppingListCreateActionsPermission,
+    purchasabilityPermission,
+    submitShoppingListPermission,
+  } = useAppSelector(rolePermissionSelector);
   const b2bAndBcShoppingListActionsPermissions = isB2BUser
-    ? shoppingListActionsPermission && isCanEditShoppingList
+    ? shoppingListCreateActionsPermission && isCanEditShoppingList
     : true;
 
+  const submitShoppingList = useMemo(() => {
+    if (isB2BUser && shoppingListInfo) {
+      const { companyInfo, customerInfo } = shoppingListInfo;
+      const { submitShoppingListPermission: submitShoppingListPermissionCode } = b2bPermissionsMap;
+      const submitShoppingListPermissionLevel = verifyLevelPermission({
+        code: submitShoppingListPermissionCode,
+        companyId: +(companyInfo?.companyId || 0),
+        userId: +(customerInfo?.userId || 0),
+      });
+
+      return submitShoppingListPermissionLevel;
+    }
+
+    return submitShoppingListPermission;
+  }, [submitShoppingListPermission, isB2BUser, shoppingListInfo]);
   const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
-  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : role === 2;
+  const b2bSubmitShoppingListPermission = isB2BUser
+    ? submitShoppingList
+    : role === CustomerRole.JUNIOR_BUYER;
 
   const isJuniorApprove = shoppingListInfo?.status === 0 && b2bSubmitShoppingListPermission;
 
@@ -132,7 +147,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         id: parseInt(id, 10) || 0,
       },
     });
-    // disabling as we dont need a dispatcher here
+    // disabling as we don't need a dispatcher here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -334,26 +349,17 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   useEffect(() => {
     if (isB2BUser && shoppingListInfo) {
-      const editShoppingListPermission = permissions.find(
-        (item) => item.code === 'deplicate_shopping_list',
-      );
-      const param: PermissionLevelInfoProps[] = [];
+      const { companyInfo, customerInfo } = shoppingListInfo;
 
-      if (editShoppingListPermission && !isEmpty(editShoppingListPermission)) {
-        const currentLevel = editShoppingListPermission.permissionLevel;
-        const isOwner = shoppingListInfo?.isOwner || false;
-        param.push({
-          permissionType: 'shoppingListActionsPermission',
-          permissionLevel: currentLevel === 1 && isOwner ? currentLevel : 2,
-        });
-      }
-
-      const { shoppingListActionsPermission } = getB3PermissionsList(param);
+      const { shoppingListCreateActionsPermission } = b2bPermissionsMap;
+      const shoppingListActionsPermission = verifyLevelPermission({
+        code: shoppingListCreateActionsPermission,
+        companyId: +(companyInfo?.companyId || 0),
+        userId: +(customerInfo?.userId || 0),
+      });
 
       setIsCanEditShoppingList(shoppingListActionsPermission);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shoppingListInfo, isB2BUser]);
 
   return (

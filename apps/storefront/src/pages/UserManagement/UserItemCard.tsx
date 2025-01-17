@@ -8,6 +8,8 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import { B3Tag } from '@/components';
+import { verifyLevelPermission } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { getUserRole, UsersList } from './config';
 
@@ -24,7 +26,6 @@ export interface OrderItemCardProps {
   item: UsersList;
   onEdit: (data: UsersList) => void;
   onDelete: (data: UsersList) => void;
-  isPermissions: boolean;
 }
 
 const Flex = styled('div')(() => ({
@@ -34,19 +35,33 @@ const Flex = styled('div')(() => ({
 }));
 
 export function UserItemCard(props: OrderItemCardProps) {
-  const { item: userInfo, onEdit, onDelete, isPermissions } = props;
+  const { item: userInfo, onEdit, onDelete } = props;
+  const { companyInfo, id, companyRoleName, firstName, lastName, email } = userInfo;
+
+  const { userUpdateActionsPermission, userDeleteActionsPermission } = b2bPermissionsMap;
+
+  const updateActionsPermission = verifyLevelPermission({
+    code: userUpdateActionsPermission,
+    companyId: +(companyInfo?.companyId || 0),
+    userId: +id,
+  });
+  const deleteActionsPermission = verifyLevelPermission({
+    code: userDeleteActionsPermission,
+    companyId: +(companyInfo?.companyId || 0),
+    userId: +id,
+  });
 
   const getNewRoleList = () => {
     const userRole = getUserRole();
     const newRoleList: Array<RoleListProps> = userRole.map((item) => {
       if (+item.value === 2) {
-        if (userInfo.companyRoleName !== 'Junior Buyer') {
+        if (companyRoleName !== 'Junior Buyer') {
           return {
             color: '#ce93d8',
             textColor: 'black',
             ...item,
-            label: userInfo.companyRoleName,
-            name: userInfo.companyRoleName,
+            label: companyRoleName,
+            name: companyRoleName,
           };
         }
         return {
@@ -85,7 +100,7 @@ export function UserItemCard(props: OrderItemCardProps) {
   };
 
   return (
-    <Card key={userInfo.id}>
+    <Card key={id}>
       <CardContent
         sx={{
           color: '#313440',
@@ -97,7 +112,7 @@ export function UserItemCard(props: OrderItemCardProps) {
             color: 'rgba(0, 0, 0, 0.87)',
           }}
         >
-          {userInfo.firstName} {userInfo.lastName}
+          {firstName} {lastName}
         </Typography>
 
         <Typography
@@ -106,36 +121,36 @@ export function UserItemCard(props: OrderItemCardProps) {
           }}
           variant="body1"
         >
-          {userInfo.email}
+          {email}
         </Typography>
         <Flex>
-          {statusRender(userInfo.companyRoleName)}
-          <Box
-            sx={{
-              display: `${isPermissions ? 'block' : 'none'}`,
-            }}
-          >
-            <IconButton
-              aria-label="edit"
-              size="small"
-              sx={{
-                marginRight: '8px',
-              }}
-              onClick={() => {
-                onEdit(userInfo);
-              }}
-            >
-              <EditIcon fontSize="inherit" />
-            </IconButton>
-            <IconButton
-              aria-label="delete"
-              size="small"
-              onClick={() => {
-                onDelete(userInfo);
-              }}
-            >
-              <DeleteIcon fontSize="inherit" />
-            </IconButton>
+          {statusRender(companyRoleName)}
+          <Box>
+            {updateActionsPermission && (
+              <IconButton
+                aria-label="edit"
+                size="small"
+                sx={{
+                  marginRight: '8px',
+                }}
+                onClick={() => {
+                  onEdit(userInfo);
+                }}
+              >
+                <EditIcon fontSize="inherit" />
+              </IconButton>
+            )}
+            {deleteActionsPermission && (
+              <IconButton
+                aria-label="delete"
+                size="small"
+                onClick={() => {
+                  onDelete(userInfo);
+                }}
+              >
+                <DeleteIcon fontSize="inherit" />
+              </IconButton>
+            )}
           </Box>
         </Flex>
       </CardContent>

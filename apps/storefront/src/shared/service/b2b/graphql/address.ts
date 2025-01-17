@@ -63,6 +63,10 @@ const getAddress = ({
         }
         isDefaultShipping
         isDefaultBilling
+        companyInfo {
+          companyId
+          companyName
+        }
       }
     }
   }

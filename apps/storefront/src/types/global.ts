@@ -27,3 +27,9 @@ export interface Address {
   street_2: string;
   zip: string;
 }
+
+export interface ConfigsSwitchStatusProps {
+  key: string;
+  id: string;
+  isEnabled: string;
+}

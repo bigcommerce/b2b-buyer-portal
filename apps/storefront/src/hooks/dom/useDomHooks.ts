@@ -4,7 +4,7 @@ import { GlobalContext } from '@/shared/global';
 import { useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { OpenPageState } from '@/types/hooks';
-import { setCartPermissions } from '@/utils/b3RolePermissions';
+import { setCartPermissions } from '@/utils';
 
 import useCartToQuote from './useCartToQuote';
 import useHideGoogleCustomerReviews from './useHideGoogleCustomerReviews';

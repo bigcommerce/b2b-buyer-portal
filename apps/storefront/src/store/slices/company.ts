@@ -3,7 +3,17 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import persistReducer from 'redux-persist/es/persistReducer';
 import storageSession from 'redux-persist/lib/storage/session';
 
-import { CompanyInfo, CompanyStatus, Customer, CustomerRole, LoginTypes, UserTypes } from '@/types';
+import {
+  CompanyHierarchyInfoProps,
+  CompanyHierarchyListProps,
+  CompanyInfo,
+  CompanyStatus,
+  Customer,
+  CustomerRole,
+  LoginTypes,
+  PagesSubsidiariesPermissionProps,
+  UserTypes,
+} from '@/types';
 
 interface Tokens {
   B2BToken: string;
@@ -21,6 +31,8 @@ export interface CompanyState {
   customer: Customer;
   tokens: Tokens;
   permissions: PermissionsCodesProps[];
+  companyHierarchyInfo: CompanyHierarchyInfoProps;
+  pagesSubsidiariesPermission: PagesSubsidiariesPermissionProps;
 }
 
 const initialState: CompanyState = {
@@ -48,6 +60,23 @@ const initialState: CompanyState = {
     currentCustomerJWT: '',
   },
   permissions: [],
+  companyHierarchyInfo: {
+    isEnabledCompanyHierarchy: true,
+    isHasCurrentPagePermission: true,
+    selectCompanyHierarchyId: '',
+    companyHierarchyList: [],
+    companyHierarchyAllList: [],
+    companyHierarchySelectSubsidiariesList: [],
+  },
+  pagesSubsidiariesPermission: {
+    order: false,
+    invoice: false,
+    addresses: false,
+    userManagement: false,
+    shoppingLists: false,
+    quotes: false,
+    companyHierarchy: false,
+  },
 };
 
 const companySlice = createSlice({
@@ -88,6 +117,52 @@ const companySlice = createSlice({
     setPermissionModules: (state, { payload }: PayloadAction<PermissionsCodesProps[]>) => {
       state.permissions = payload;
     },
+    setPagesSubsidiariesPermission: (
+      state,
+      { payload }: PayloadAction<PagesSubsidiariesPermissionProps>,
+    ) => {
+      state.pagesSubsidiariesPermission = payload;
+    },
+    setCompanyHierarchyIsEnabled: (
+      state,
+      { payload }: PayloadAction<Partial<CompanyHierarchyInfoProps>>,
+    ) => {
+      const { companyHierarchyInfo } = state;
+
+      state.companyHierarchyInfo = {
+        ...companyHierarchyInfo,
+        ...payload,
+      };
+    },
+    setCompanyHierarchyListModules: (
+      state,
+      { payload }: PayloadAction<CompanyHierarchyListProps[]>,
+    ) => {
+      const companyHierarchyList = payload.filter((item) => item.channelFlag);
+      const { companyHierarchyInfo } = state;
+
+      state.companyHierarchyInfo = {
+        ...companyHierarchyInfo,
+        companyHierarchyList,
+        companyHierarchyAllList: payload,
+      };
+    },
+    setCompanyHierarchyInfoModules: (
+      state,
+      { payload }: PayloadAction<Partial<CompanyHierarchyInfoProps>>,
+    ) => {
+      let companyHierarchyList = state.companyHierarchyInfo.companyHierarchyList;
+
+      if (payload.companyHierarchyAllList?.length) {
+        companyHierarchyList = payload.companyHierarchyAllList.filter((item) => item.channelFlag);
+      }
+
+      state.companyHierarchyInfo = {
+        ...state.companyHierarchyInfo,
+        ...payload,
+        companyHierarchyList,
+      };
+    },
   },
 });
 
@@ -104,6 +179,9 @@ export const {
   setCurrentCustomerJWT,
   setLoginType,
   setPermissionModules,
+  setCompanyHierarchyListModules,
+  setCompanyHierarchyInfoModules,
+  setPagesSubsidiariesPermission,
 } = companySlice.actions;
 
 export default persistReducer({ key: 'company', storage: storageSession }, companySlice.reducer);

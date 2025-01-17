@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { ArrowBackIosNew } from '@mui/icons-material';
@@ -10,6 +10,8 @@ import { useMobile } from '@/hooks';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
+import { verifyLevelPermission, verifySubmitShoppingListSubsidiariesPermission } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingStatus } from '../../ShoppingLists/ShoppingStatus';
 
@@ -55,10 +57,57 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
   } = useContext(CustomStyleContext);
   const navigate = useNavigate();
 
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+
+  const {
+    submitShoppingListPermission: submitShoppingList,
+    approveShoppingListPermission: approveShoppingList,
+  } = useAppSelector(rolePermissionSelector);
+
+  const shoppingListPermissions = useMemo(() => {
+    if (isB2BUser) {
+      const companyInfo = shoppingListInfo?.companyInfo || {};
+
+      const {
+        submitShoppingListPermission: submitShoppingListPermissionCode,
+        approveShoppingListPermission: approveShoppingListPermissionCode,
+      } = b2bPermissionsMap;
+      const submitShoppingListPermissionLevel = verifySubmitShoppingListSubsidiariesPermission({
+        code: submitShoppingListPermissionCode,
+        userId: +(customerInfo?.userId || 0),
+        selectId: +selectCompanyHierarchyId,
+      });
+
+      const approveShoppingListPermissionLevel = verifyLevelPermission({
+        code: approveShoppingListPermissionCode,
+        companyId: +(companyInfo?.companyId || 0),
+        userId: +(customerInfo?.userId || 0),
+      });
+
+      return {
+        submitShoppingListPermission: submitShoppingListPermissionLevel,
+        approveShoppingListPermission: approveShoppingListPermissionLevel,
+      };
+    }
+
+    return {
+      submitShoppingListPermission: submitShoppingList,
+      approveShoppingListPermission: approveShoppingList,
+    };
+  }, [
+    customerInfo,
+    isB2BUser,
+    submitShoppingList,
+    approveShoppingList,
+    shoppingListInfo?.companyInfo,
+    selectCompanyHierarchyId,
+  ]);
+
   const isDisabledBtn = shoppingListInfo?.products?.edges.length === 0;
 
-  const { submitShoppingListPermission, approveShoppingListPermission } =
-    useAppSelector(rolePermissionSelector);
+  const { submitShoppingListPermission, approveShoppingListPermission } = shoppingListPermissions;
 
   const gridOptions = (xs: number) =>
     isMobile

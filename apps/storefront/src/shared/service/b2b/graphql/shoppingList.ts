@@ -9,6 +9,7 @@ interface ShoppingListParams {
   description: string;
   status: number;
   channelId: number;
+  companyId: number;
 }
 
 const getStatus = (status: any): string => {
@@ -62,7 +63,18 @@ const getShoppingList = ({
         products {
           totalCount,
         }
-        approvedFlag
+        approvedFlag,
+        companyInfo {
+          companyId,
+          companyName,
+          companyAddress,
+          companyCountry,
+          companyState,
+          companyCity,
+          companyZipCode,
+          phoneNumber,
+          bcId,
+        },
       }
     }
   }
@@ -85,6 +97,17 @@ const getShoppingListInfo = `shoppingList {
   totalDiscount,
   totalTax,
   isShowGrandTotal,
+  companyInfo {
+    companyId,
+    companyName,
+    companyAddress,
+    companyCountry,
+    companyState,
+    companyCity,
+    companyZipCode,
+    phoneNumber,
+    bcId,
+  },
 }`;
 
 const updateShoppingList = (
@@ -98,7 +121,9 @@ const updateShoppingList = (
   }
 }`;
 
-const createShoppingList = (fn: string) => `mutation($shoppingListData: ShoppingListsInputType!){
+const createShoppingList = (
+  fn: string,
+) => `mutation($shoppingListData: ShoppingListsCreateInputType!){
   ${fn}(
     shoppingListData: $shoppingListData
   ) {
@@ -178,6 +203,17 @@ const getShoppingListDetails = (data: CustomFieldItems) => `{
     channelId,
     channelName,
     approvedFlag,
+    companyInfo {
+      companyId,
+      companyName,
+      companyAddress,
+      companyCountry,
+      companyState,
+      companyCity,
+      companyZipCode,
+      phoneNumber,
+      bcId,
+    },
     products (
       offset: ${data.offset || 0}
       first: ${data.first || 100},
@@ -463,6 +499,7 @@ export const createB2BShoppingList = (data: Partial<ShoppingListParams>) =>
     query: createShoppingList('shoppingListsCreate'),
     variables: {
       shoppingListData: {
+        companyId: data.companyId,
         name: data.name,
         description: data.description,
         status: data.status,

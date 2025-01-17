@@ -51,7 +51,7 @@ function ShoppingLists() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
 
-  const { shoppingListActionsPermission, submitShoppingListPermission } =
+  const { shoppingListCreateActionsPermission, submitShoppingListPermission } =
     useAppSelector(rolePermissionSelector);
 
   useEffect(() => {
@@ -103,7 +103,7 @@ function ShoppingLists() {
   const isExtraLarge = useCardListColumn();
 
   const customItem = {
-    isEnabled: isB2BUser ? shoppingListActionsPermission : true,
+    isEnabled: isB2BUser ? shoppingListCreateActionsPermission : true,
     customLabel: b3Lang('shoppingLists.createNew'),
     customButtonStyle: {
       fontSize: '15px',
@@ -241,7 +241,7 @@ function ShoppingLists() {
             <ShoppingListsCard
               key={row.id || ''}
               item={row}
-              isPermissions={isB2BUser ? shoppingListActionsPermission : true}
+              isPermissions={isB2BUser ? shoppingListCreateActionsPermission : true}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onCopy={handleCopy}

@@ -16,7 +16,11 @@ const ShipmentTitle = styled('span')(() => ({
   color: '#313440',
 }));
 
-export default function OrderShipping() {
+type OrderShippingProps = {
+  isCurrentCompany: boolean;
+};
+
+export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
   const {
     state: { shippings = [], addressLabelPermission, orderIsDigital, money },
   } = useContext(OrderDetailsContext);
@@ -158,8 +162,8 @@ export default function OrderShipping() {
                     products={shipment.itemsInfo}
                     money={money}
                     totalText="Total"
-                    canToProduct
-                    textAlign={isMobile ? 'left' : 'right'}
+                    canToProduct={isCurrentCompany}
+                    textAlign="right"
                   />
                 </Fragment>
               ) : null,
@@ -182,7 +186,7 @@ export default function OrderShipping() {
                   products={shipping.notShip.itemsInfo}
                   money={money}
                   totalText="Total"
-                  canToProduct
+                  canToProduct={isCurrentCompany}
                   textAlign={isMobile ? 'left' : 'right'}
                 />
               </Fragment>

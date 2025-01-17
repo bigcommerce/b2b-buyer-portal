@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
+import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
-import { useSort } from '@/hooks';
+import { useMobile, useSort } from '@/hooks';
 import {
   getB2BAllOrders,
   getBCAllOrders,
@@ -16,6 +17,7 @@ import {
   getOrderStatusType,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
+import { CustomerRole } from '@/types';
 import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
 
 import OrderStatus from './components/OrderStatus';
@@ -30,6 +32,18 @@ import {
 } from './config';
 import { OrderItemCard } from './OrderItemCard';
 
+interface CompanyInfoProps {
+  companyId: string;
+  companyName: string;
+  companyAddress: string;
+  companyCountry: string;
+  companyState: string;
+  companyCity: string;
+  companyZipCode: string;
+  phoneNumber: string;
+  bcId: string;
+}
+
 interface ListItem {
   firstName: string;
   lastName: string;
@@ -40,6 +54,7 @@ interface ListItem {
   status: string;
   createdAt: string;
   companyName: string;
+  companyInfo?: CompanyInfoProps;
 }
 
 interface SearchChangeProps {
@@ -56,11 +71,22 @@ interface OrderProps {
 
 function Order({ isCompanyOrder = false }: OrderProps) {
   const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
   const role = useAppSelector(({ company }) => company.customer.role);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+
+  const { order: orderSubViewPermission } = useAppSelector(
+    ({ company }) => company.pagesSubsidiariesPermission,
+  );
+
+  const { selectCompanyHierarchyId, isEnabledCompanyHierarchy } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
+  const currentCompanyId =
+    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyB2BId;
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
 
@@ -71,6 +97,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [filterInfo, setFilterInfo] = useState<Array<any>>([]);
 
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
+  const [isAutoRefresh, setIsAutoRefresh] = useState(false);
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortKeys,
@@ -81,7 +108,11 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser);
+    if (isB2BUser) {
+      search.companyIds = [+selectCompanyHierarchyId || +currentCompanyId];
+    }
     setFilterData(search);
+    setIsAutoRefresh(true);
     if (role === 100) return;
 
     const initFilter = async () => {
@@ -129,7 +160,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     initFilter();
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectCompanyHierarchyId]);
 
   const fetchList = async (params: Partial<FilterSearchProps>) => {
     const { edges = [], totalCount } = isB2BUser
@@ -137,7 +168,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       : await getBCAllOrders(params);
 
     setAllTotal(totalCount);
-
+    setIsAutoRefresh(false);
     return {
       edges,
       totalCount,
@@ -165,6 +196,17 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       title: b3Lang('orders.order'),
       width: '10%',
       isSortable: true,
+    },
+    {
+      key: 'companyName',
+      title: b3Lang('orders.company'),
+      width: '10%',
+      isSortable: false,
+      render: (item: ListItem) => {
+        const { companyInfo } = item;
+
+        return <Box>{companyInfo?.companyName || '–'}</Box>;
+      },
     },
     {
       key: 'poNumber',
@@ -209,17 +251,12 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       width: '10%',
       isSortable: true,
     },
-    {
-      key: 'companyId',
-      title: b3Lang('orders.company'),
-      render: (item: ListItem) => `${item?.companyName || ''}`,
-      width: '10%',
-    },
   ];
 
   const getColumnItems = () => {
     const getNewColumnItems = columnAllItems.filter((item: { key: string }) => {
       const { key } = item;
+      if (!isB2BUser && key === 'companyName') return false;
       if ((!isB2BUser || (+role === 3 && !isAgenting)) && key === 'placedBy') return false;
       if (key === 'companyId' && isB2BUser && (+role !== 3 || isAgenting)) return false;
       if (
@@ -268,6 +305,15 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
   const columnItems = getColumnItems();
 
+  const handleSelectCompanies = (company: number[]) => {
+    const newCompanyIds = company.includes(-1) ? [] : company;
+
+    setFilterData({
+      ...filterData,
+      companyIds: newCompanyIds,
+    });
+  };
+
   return (
     <B3Spin isSpinning={isRequestLoading}>
       <Box
@@ -275,26 +321,49 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
+          width: '100%',
         }}
       >
-        <B3Filter
-          // sortByConfig={sortByConfigData}
-          startPicker={{
-            isEnabled: true,
-            label: b3Lang('orders.from'),
-            defaultValue: filterData?.beginDateAt || null,
-            pickerKey: 'start',
+        <Box
+          sx={{
+            width: isMobile ? '100%' : 'auto',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: isMobile ? 'flex-start' : 'center',
+            flexDirection: isMobile ? 'column' : 'row',
+
+            '& > div': {
+              width: isMobile ? '100%' : 'auto',
+            },
           }}
-          endPicker={{
-            isEnabled: true,
-            label: b3Lang('orders.to'),
-            defaultValue: filterData?.endDateAt || null,
-            pickerKey: 'end',
-          }}
-          filterMoreInfo={filterInfo}
-          handleChange={handleChange}
-          handleFilterChange={handleFilterChange}
-        />
+        >
+          {isEnabledCompanyHierarchy && orderSubViewPermission && (
+            <Box sx={{ mr: isMobile ? 0 : '10px', mb: '30px' }}>
+              <B2BAutoCompleteCheckbox handleChangeCompanyIds={handleSelectCompanies} />
+            </Box>
+          )}
+          <B3Filter
+            startPicker={{
+              isEnabled: true,
+              label: b3Lang('orders.from'),
+              defaultValue: filterData?.beginDateAt || null,
+              pickerKey: 'start',
+            }}
+            endPicker={{
+              isEnabled: true,
+              label: b3Lang('orders.to'),
+              defaultValue: filterData?.endDateAt || null,
+              pickerKey: 'end',
+            }}
+            filterMoreInfo={filterInfo}
+            handleChange={handleChange}
+            handleFilterChange={handleFilterChange}
+            pcTotalWidth="100%"
+            pcContainerWidth="100%"
+            pcSearchContainerWidth="100%"
+          />
+        </Box>
+
         <B3PaginationTable
           columnItems={columnItems}
           rowsPerPageOptions={[10, 20, 30]}
@@ -303,6 +372,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           isCustomRender={false}
           requestLoading={setIsRequestLoading}
           tableKey="orderId"
+          pageType="orderListPage"
+          isAutoRefresh={isAutoRefresh}
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}

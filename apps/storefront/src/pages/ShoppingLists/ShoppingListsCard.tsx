@@ -10,11 +10,11 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import isEmpty from 'lodash-es/isEmpty';
 
 import CustomButton from '@/components/button/CustomButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
-import { displayFormat, getB3PermissionsList } from '@/utils';
+import { displayFormat, verifyLevelPermission } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingListsItemsProps } from './config';
 import { ShoppingStatus } from './ShoppingStatus';
@@ -26,11 +26,6 @@ export interface OrderItemCardProps {
   onCopy: (data: ShoppingListsItemsProps) => void;
   isPermissions: boolean;
   isB2BUser: boolean;
-}
-
-interface PermissionLevelInfoProps {
-  permissionType: string;
-  permissionLevel?: number | string;
 }
 
 const Flex = styled('div')(() => ({
@@ -55,7 +50,6 @@ function ShoppingListsCard(props: OrderItemCardProps) {
   const b3Lang = useB3Lang();
 
   const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
-  const permissions = useAppSelector(({ company }) => company.permissions);
 
   const { submitShoppingListPermission, approveShoppingListPermission } =
     useAppSelector(rolePermissionSelector);
@@ -91,24 +85,17 @@ function ShoppingListsCard(props: OrderItemCardProps) {
 
   useEffect(() => {
     if (isB2BUser) {
-      const editShoppingListPermission = permissions.find(
-        (item) => item.code === 'deplicate_shopping_list',
-      );
-      const param: PermissionLevelInfoProps[] = [];
-      if (editShoppingListPermission && !isEmpty(editShoppingListPermission)) {
-        const currentLevel = editShoppingListPermission.permissionLevel;
-        const isOwner = shoppingList?.isOwner || false;
-        param.push({
-          permissionType: 'shoppingListActionsPermission',
-          permissionLevel: currentLevel === 1 && isOwner ? currentLevel : 2,
-        });
-      }
-      const { shoppingListActionsPermission } = getB3PermissionsList(param);
+      const { companyInfo, customerInfo } = shoppingList;
+
+      const { shoppingListCreateActionsPermission } = b2bPermissionsMap;
+      const shoppingListActionsPermission = verifyLevelPermission({
+        code: shoppingListCreateActionsPermission,
+        companyId: +(companyInfo?.companyId || 0),
+        userId: +customerInfo.userId,
+      });
 
       setIsCanEditShoppingList(shoppingListActionsPermission);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shoppingList, isB2BUser]);
 
   return (
