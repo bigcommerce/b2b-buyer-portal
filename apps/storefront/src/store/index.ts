@@ -11,6 +11,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux';
 import { FLUSH, PAUSE, PERSIST, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 
+import crossTabSync from './cross-tab-sync';
 import { reducer } from './reducer';
 
 export { reducer };
@@ -25,6 +26,7 @@ export const middlewareOptions = {
       PURGE,
       REGISTER,
       'theme/setThemeFrame',
+      // cspell:disable-next-line
       'global/setGlabolCommonState',
       'global/setOpenPageReducer',
     ],
@@ -41,6 +43,7 @@ export function setupStore(preloadedState?: Partial<RootState>) {
 }
 
 export const store = setupStore();
+crossTabSync(store, 'quoteInfo');
 
 export type RootState = ReturnType<typeof reducer>;
 export type AppStore = ReturnType<typeof setupStore>;

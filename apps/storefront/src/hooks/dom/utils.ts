@@ -110,7 +110,7 @@ interface CartInfoProps {
   updatedTime: string;
 }
 
-const addLoadding = (b3CartToQuote: any) => {
+const addLoading = (b3CartToQuote: any) => {
   const loadingDiv = document.createElement('div');
   loadingDiv.setAttribute('id', 'b2b-div-loading');
   const loadingBtn = document.createElement('div');
@@ -126,7 +126,7 @@ const removeElement = (_element: CustomFieldItems) => {
   }
 };
 
-const removeLoadding = () => {
+const removeLoading = () => {
   const b2bLoading = document.querySelector('#b2b-div-loading');
   if (b2bLoading) removeElement(b2bLoading);
 };
@@ -262,13 +262,13 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage) => {
     } catch (e) {
       b2bLogger.error(e);
     } finally {
-      removeLoadding();
+      removeLoading();
     }
   };
 
   return {
     addToQuote,
-    addLoadding,
+    addLoading,
   };
 };
 
@@ -392,18 +392,18 @@ const addProductFromProductPageToQuote = (
     } catch (e) {
       b2bLogger.error(e);
     } finally {
-      removeLoadding();
+      removeLoading();
     }
   };
 
   return {
     addToQuote,
-    addLoadding,
+    addLoading,
   };
 };
 
 export {
-  addLoadding,
+  addLoading,
   addProductFromProductPageToQuote,
   addProductsFromCartToQuote,
   addProductsToDraftQuote,
