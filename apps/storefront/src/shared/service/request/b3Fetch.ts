@@ -68,11 +68,19 @@ interface B2bGQLResponse {
   }>;
 }
 
+interface B2BRequest {
+  query: string;
+  variables?: any;
+}
+
 const B3Request = {
   /**
    * Request to B2B graphql API using B2B token
    */
-  graphqlB2B: function post<T>(data: T, customMessage = false): Promise<any> {
+  graphqlB2B: function post<T = CustomFieldItems>(
+    data: B2BRequest,
+    customMessage = false,
+  ): Promise<T> {
     const { B2BToken } = store.getState().company.tokens;
     const config = {
       Authorization: `Bearer  ${B2BToken}`,

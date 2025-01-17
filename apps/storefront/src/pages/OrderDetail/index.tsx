@@ -67,7 +67,7 @@ function OrderDetail() {
 
   const customColor = getContrastColor(backgroundColor);
 
-  const localtion = useLocation();
+  const location = useLocation();
 
   const [isMobile] = useMobile();
   const [preOrderId, setPreOrderId] = useState('');
@@ -79,9 +79,7 @@ function OrderDetail() {
   }, [params]);
 
   const goToOrders = () => {
-    navigate(
-      `${(localtion.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders'}`,
-    );
+    navigate(`${(location.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders'}`);
   };
 
   useEffect(() => {
@@ -157,7 +155,7 @@ function OrderDetail() {
       try {
         let configList = addressConfig;
         if (!configList) {
-          const { addressConfig: newConfig }: CustomFieldItems = await getB2BAddressConfig();
+          const { addressConfig: newConfig } = await getB2BAddressConfig();
           configList = newConfig;
 
           globalDispatch({
@@ -225,7 +223,7 @@ function OrderDetail() {
             }}
             onClick={goToOrders}
           >
-            {localtion.state !== null ? (
+            {location.state !== null ? (
               <>
                 <ArrowBackIosNew
                   sx={{
@@ -275,7 +273,7 @@ function OrderDetail() {
               justifyContent: 'flex-end',
             }}
           >
-            {localtion?.state && (
+            {location?.state && (
               <DetailPagination
                 onChange={(orderId) => handlePageChange(orderId)}
                 color={customColor}

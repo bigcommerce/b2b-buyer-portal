@@ -191,7 +191,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
           const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
           const companyId = companyInfoId || salesRepCompanyId;
-          const { productsSearch }: CustomFieldItems = await getProducts({
+          const { productsSearch } = await getProducts({
             productIds,
             companyId,
             customerGroupId,
