@@ -97,6 +97,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const [filterInfo, setFilterInfo] = useState<Array<any>>([]);
 
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
+  const [isAutoRefresh, setIsAutoRefresh] = useState(false);
 
   const [handleSetOrderBy, order, orderBy] = useSort(
     sortKeys,
@@ -111,6 +112,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       search.companyIds = [+selectCompanyHierarchyId || +currentCompanyId];
     }
     setFilterData(search);
+    setIsAutoRefresh(true);
     if (role === 100) return;
 
     const initFilter = async () => {
@@ -166,7 +168,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       : await getBCAllOrders(params);
 
     setAllTotal(totalCount);
-
+    setIsAutoRefresh(false);
     return {
       edges,
       totalCount,
@@ -370,6 +372,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           isCustomRender={false}
           requestLoading={setIsRequestLoading}
           tableKey="orderId"
+          pageType="orderListPage"
+          isAutoRefresh={isAutoRefresh}
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}

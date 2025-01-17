@@ -88,6 +88,10 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
             selectCompanies.push(company.companyId);
           }
         });
+        if (!currentValues.length) {
+          selectCompanies = [-1];
+          setIsCheckedAll(true);
+        }
       }
     }
 

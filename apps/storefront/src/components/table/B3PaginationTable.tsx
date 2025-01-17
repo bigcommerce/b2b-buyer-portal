@@ -218,9 +218,12 @@ function PaginationTable(
         if (isAutoRefresh) fetchList(pagination, true);
         selectCompanyHierarchyIdCache.current = selectCompanyHierarchyId;
       } else {
+        if (isAutoRefresh && pageType === 'orderListPage') fetchList(pagination, true);
         fetchList();
       }
     }
+    // ignore pageType because is not a reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchList, searchParams, selectCompanyHierarchyId, pagination, isAutoRefresh]);
 
   useEffect(() => {
