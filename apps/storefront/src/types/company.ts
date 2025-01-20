@@ -1,3 +1,5 @@
+import { PAGES_SUBSIDIARIES_PERMISSION_KEYS } from '@/constants';
+
 export interface CompanyInfo {
   id: string;
   companyName: string;
@@ -35,11 +37,20 @@ export enum CompanyStatus {
   DEFAULT = 99,
 }
 
+export enum CustomerRoleName {
+  ADMIN_NAME = 'Admin',
+  SENIOR_BUYER_NAME = 'Senior Buyer',
+  JUNIOR_BUYER_NAME = 'Junior Buyer',
+}
+
+/** CUSTOM_ROLE(role === 2 && roleName !== 'Junior Buyer') * */
 export enum CustomerRole {
   ADMIN = 0,
   SENIOR_BUYER = 1,
   JUNIOR_BUYER = 2,
   SUPER_ADMIN = 3,
+  SUPER_ADMIN_BEFORE_AGENCY = 4,
+  CUSTOM_ROLE = 5,
   B2C = 99,
   GUEST = 100,
 }
@@ -65,3 +76,35 @@ export enum FeatureEnabled {
   DISABLED = '0',
   ENABLED = '1',
 }
+
+export enum B2BPermissionsLevel {
+  USER = 1,
+  COMPANY = 2,
+  COMPANY_AND_SUBSIDIARIES = 3,
+}
+
+export interface CompanyHierarchyListProps {
+  companyId: number;
+  companyName: string;
+  parentCompanyName?: string;
+  parentCompanyId?: number | null;
+  channelFlag: boolean;
+}
+
+export interface CompanyHierarchyInfoProps {
+  isEnabledCompanyHierarchy: boolean;
+  isHasCurrentPagePermission: boolean;
+  selectCompanyHierarchyId: string | number;
+  companyHierarchyList: CompanyHierarchyListProps[];
+  companyHierarchyAllList: CompanyHierarchyListProps[];
+  companyHierarchySelectSubsidiariesList: CompanyHierarchyListProps[];
+}
+
+export interface CompanyHierarchyProps extends CompanyHierarchyListProps {
+  children?: CompanyHierarchyProps[];
+}
+
+export type PagesSubsidiariesPermissionProps = Record<
+  (typeof PAGES_SUBSIDIARIES_PERMISSION_KEYS)[number]['key'],
+  boolean
+>;

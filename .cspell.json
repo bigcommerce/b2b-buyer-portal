@@ -17,6 +17,8 @@
     "msword",
     "purchasability",
     "registeredbctob2b",
+    "skus",
+    "clickaway",
     "Turborepo"
   ],
   // flagWords - list of words to be always considered incorrect

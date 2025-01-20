@@ -1,11 +1,11 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
-import { useCardListColumn, useTableRef } from '@/hooks';
+import { useCardListColumn, useTableRef, useVerifyCreatePermission } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
 import {
   getB2BAddress,
@@ -13,9 +13,9 @@ import {
   getB2BCountries,
   getBCCustomerAddress,
 } from '@/shared/service/b2b';
-import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
+import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
-import { snackbar } from '@/utils';
+import { b2bPermissionsMap, snackbar } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
 import { AddressConfigItem, AddressItemType, BCAddressItemType } from '../../types/address';
@@ -27,6 +27,11 @@ import SetDefaultDialog from './components/SetDefaultDialog';
 import { convertBCToB2BAddress, filterFormConfig } from './shared/config';
 import { CountryProps, getAddressFields } from './shared/getAddressFields';
 
+const permissionKeys = [
+  b2bPermissionsMap.addressesCreateActionsPermission,
+  b2bPermissionsMap.addressesUpdateActionsPermission,
+  b2bPermissionsMap.addressesDeleteActionsPermission,
+];
 interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditAddressClick: (type: string, data?: AddressItemType) => void;
 }
@@ -53,7 +58,9 @@ function Address() {
     dispatch,
   } = useContext(GlobalContext);
 
-  const { addressesActionsPermission } = useAppSelector(rolePermissionSelector);
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
 
   const b3Lang = useB3Lang();
   const isExtraLarge = useCardListColumn();
@@ -70,12 +77,8 @@ function Address() {
 
   const companyId =
     role === CustomerRole.SUPER_ADMIN && isAgenting ? salesRepCompanyId : companyInfoId;
-  let hasAdminPermission = false;
-  let isBCPermission = false;
 
-  if (isB2BUser && (!role || (role === CustomerRole.SUPER_ADMIN && isAgenting))) {
-    hasAdminPermission = true;
-  }
+  let isBCPermission = false;
 
   if (!isB2BUser || (role === CustomerRole.SUPER_ADMIN && !isAgenting)) {
     isBCPermission = true;
@@ -156,12 +159,13 @@ function Address() {
     paginationTableRef.current?.refresh();
   };
 
-  const [editPermission, setEditPermission] = useState(
-    isB2BUser ? addressesActionsPermission : false,
-  );
+  const [editPermission, setEditPermission] = useState(false);
   const [isOpenSetDefault, setIsOpenSetDefault] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [currentAddress, setCurrentAddress] = useState<AddressItemType>();
+
+  const [isCreatePermission, updateActionsPermission, deleteActionsPermission] =
+    useVerifyCreatePermission(permissionKeys);
 
   useEffect(() => {
     const getEditPermission = async () => {
@@ -169,7 +173,8 @@ function Address() {
         setEditPermission(true);
         return;
       }
-      if (hasAdminPermission) {
+
+      if (updateActionsPermission) {
         try {
           let configList = addressConfig;
           if (!configList) {
@@ -190,8 +195,7 @@ function Address() {
             (configList || []).find((config: AddressConfigItem) => config.key === 'address_book')
               ?.isEnabled === '1' &&
             (configList || []).find((config: AddressConfigItem) => config.key === key)
-              ?.isEnabled === '1' &&
-            addressesActionsPermission;
+              ?.isEnabled === '1';
 
           setEditPermission(editPermission);
         } catch (error) {
@@ -202,7 +206,7 @@ function Address() {
     getEditPermission();
     // Disabling the next line as dispatch is not required to be in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addressConfig, hasAdminPermission, isBCPermission, role]);
+  }, [addressConfig, updateActionsPermission, isBCPermission, role, selectCompanyHierarchyId]);
 
   const handleCreate = () => {
     if (!editPermission) {
@@ -238,10 +242,15 @@ function Address() {
     setIsOpenSetDefault(true);
   };
 
-  const AddButtonConfig = {
-    isEnabled: editPermission,
-    customLabel: b3Lang('addresses.addNewAddress'),
-  };
+  const AddButtonConfig = useMemo(() => {
+    return {
+      isEnabled: isBCPermission || (editPermission && isCreatePermission),
+      customLabel: b3Lang('addresses.addNewAddress'),
+    };
+
+    // ignore b3Lang due it's function that doesn't not depend on any reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editPermission, selectCompanyHierarchyId, isCreatePermission]);
 
   const translatedFilterFormConfig = JSON.parse(JSON.stringify(filterFormConfig));
 
@@ -251,6 +260,8 @@ function Address() {
 
     return element;
   });
+
+  const currentUseCompanyHierarchyId = +selectCompanyHierarchyId || +companyId;
 
   return (
     <B3Spin isSpinning={isRequestLoading}>
@@ -286,6 +297,8 @@ function Address() {
               onDelete={handleDelete}
               onSetDefault={handleSetDefault}
               editPermission={editPermission}
+              updateActionsPermission={updateActionsPermission}
+              deleteActionsPermission={deleteActionsPermission}
               isBCPermission={isBCPermission}
             />
           )}
@@ -294,7 +307,7 @@ function Address() {
           updateAddressList={updateAddressList}
           addressFields={addressFields}
           ref={addEditAddressRef}
-          companyId={companyId}
+          companyId={currentUseCompanyHierarchyId}
           isBCPermission={isBCPermission}
           countries={countries}
         />
@@ -306,7 +319,7 @@ function Address() {
             setIsLoading={setIsRequestLoading}
             addressData={currentAddress}
             updateAddressList={updateAddressList}
-            companyId={companyId}
+            companyId={currentUseCompanyHierarchyId}
           />
         )}
         {editPermission && (
@@ -316,7 +329,7 @@ function Address() {
             setIsLoading={setIsRequestLoading}
             addressData={currentAddress}
             updateAddressList={updateAddressList}
-            companyId={companyId}
+            companyId={currentUseCompanyHierarchyId}
             isBCPermission={isBCPermission}
           />
         )}

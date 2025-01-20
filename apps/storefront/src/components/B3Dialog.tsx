@@ -1,6 +1,15 @@
 import { ReactElement, ReactNode, useRef } from 'react';
 import { useB3Lang } from '@b3/lang';
-import { Box, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import {
+  Box,
+  Breakpoint,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  SxProps,
+  Theme,
+} from '@mui/material';
 
 import useMobile from '@/hooks/useMobile';
 import useScrollBar from '@/hooks/useScrollBar';
@@ -9,7 +18,7 @@ import { useAppSelector } from '@/store';
 import CustomButton from './button/CustomButton';
 import B3Spin from './spin/B3Spin';
 
-interface B3DialogProps<T> {
+export interface B3DialogProps<T> {
   customActions?: () => ReactElement;
   isOpen: boolean;
   leftStyleBtn?: { [key: string]: string };
@@ -25,10 +34,12 @@ interface B3DialogProps<T> {
   isShowBordered?: boolean;
   showRightBtn?: boolean;
   showLeftBtn?: boolean;
-  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false;
+  maxWidth?: Breakpoint | false;
   fullWidth?: boolean;
   disabledSaveBtn?: boolean;
-  dialogContentSx?: { [key: string]: string };
+  dialogContentSx?: SxProps<Theme>;
+  dialogSx?: SxProps<Theme>;
+  dialogWidth?: string;
 }
 
 export default function B3Dialog<T>({
@@ -49,14 +60,27 @@ export default function B3Dialog<T>({
   showLeftBtn = true,
   maxWidth = 'sm',
   dialogContentSx = {},
+  dialogSx = {},
   fullWidth = false,
   disabledSaveBtn = false,
+  dialogWidth = '',
 }: B3DialogProps<T>) {
   const container = useRef<HTMLInputElement | null>(null);
 
   const [isMobile] = useMobile();
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+
+  const customStyle = dialogWidth
+    ? {
+        '& .MuiPaper-elevation': {
+          width: isMobile ? '100%' : dialogWidth,
+        },
+        ...dialogSx,
+      }
+    : {
+        ...dialogSx,
+      };
 
   const handleSaveClick = () => {
     if (handRightClick) {
@@ -88,6 +112,7 @@ export default function B3Dialog<T>({
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         id="b2b-dialog-container"
+        sx={customStyle}
       >
         {title && (
           <DialogTitle

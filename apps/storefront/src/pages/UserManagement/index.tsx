@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
@@ -11,6 +11,8 @@ import { deleteUsers, getUsers } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
 import { snackbar } from '@/utils';
+import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import B3AddEditUser from './AddEditUser';
 import { FilterProps, getFilterMoreList, UsersList } from './config';
@@ -41,6 +43,8 @@ function UserManagement() {
     extraFields: [],
     companyRoleName: '',
     companyRoleId: '',
+    masqueradingCompanyId: '',
+    companyInfo: null,
   });
   const b3Lang = useB3Lang();
 
@@ -55,21 +59,36 @@ function UserManagement() {
   const companyId = +role === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id;
 
   const b2bPermissions = useAppSelector(rolePermissionSelector);
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
 
-  const isEnableBtnPermissions = b2bPermissions.userActionsPermission;
+  const isEnableBtnPermissions = b2bPermissions.userCreateActionsPermission;
+
+  const customItem = useMemo(() => {
+    const { userCreateActionsPermission } = b2bPermissionsMap;
+
+    const isCreatePermission = verifyCreatePermission(
+      userCreateActionsPermission,
+      +selectCompanyHierarchyId,
+    );
+    return {
+      isEnabled: isEnableBtnPermissions && isCreatePermission,
+      customLabel: b3Lang('userManagement.addUser'),
+    };
+
+    // ignore b3Lang due it's function that doesn't not depend on any reactive value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEnableBtnPermissions, selectCompanyHierarchyId]);
 
   const addEditUserRef = useRef<RefCurrentProps | null>(null);
   const [paginationTableRef] = useTableRef();
-
-  const customItem = {
-    isEnabled: isEnableBtnPermissions,
-    customLabel: b3Lang('userManagement.addUser'),
-  };
 
   const initSearch = {
     search: '',
     companyRoleId: '',
     companyId,
+    q: '',
   };
   const filterMoreInfo = getFilterMoreList(b3Lang);
 
@@ -159,27 +178,13 @@ function UserManagement() {
       handleCancelClick();
       await deleteUsers({
         userId: row.id || '',
-        companyId,
+        companyId: selectCompanyHierarchyId || companyId,
       });
       snackbar.success(b3Lang('userManagement.deleteUserSuccessfully'));
     } finally {
       setIsRequestLoading(false);
       initSearchList();
     }
-  };
-
-  const resetFilterInfo = () => {
-    const newTranslatedFilterInfo = translatedFilterInfo.map((element: CustomFieldItems) => {
-      const translatedItem = element;
-
-      translatedItem.setValueName = setValueName;
-      translatedItem.defaultName = '';
-
-      return element;
-    });
-
-    setValueName('');
-    setTranslatedFilterInfo(newTranslatedFilterInfo);
   };
 
   useEffect(() => {
@@ -204,7 +209,6 @@ function UserManagement() {
           handleFilterChange={handleFilterChange}
           customButtonConfig={customItem}
           handleFilterCustomButtonClick={handleAddUserClick}
-          resetFilterInfo={resetFilterInfo}
         />
         <B3PaginationTable
           ref={paginationTableRef}
@@ -219,13 +223,16 @@ function UserManagement() {
             <UserItemCard
               key={row.id || ''}
               item={row}
-              isPermissions={isEnableBtnPermissions}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
           )}
         />
-        <B3AddEditUser companyId={companyId} renderList={initSearchList} ref={addEditUserRef} />
+        <B3AddEditUser
+          companyId={selectCompanyHierarchyId || companyId}
+          renderList={initSearchList}
+          ref={addEditUserRef}
+        />
         <B3Dialog
           isOpen={deleteOpen}
           title={b3Lang('userManagement.deleteUser')}

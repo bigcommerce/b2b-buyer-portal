@@ -42,6 +42,7 @@ export enum HeadlessRoutes {
   ADDRESSES = '/addresses',
   USER_MANAGEMENT = '/user-management',
   ACCOUNT_SETTINGS = '/accountSettings',
+  COMPANY_HIERARCHY = '/company-hierarchy',
   INVOICE = '/invoice',
   CLOSE = 'close',
 }
@@ -76,3 +77,36 @@ const {
 const CART_FALLBACK_VALUE = platform === 'bigcommerce' ? '/cart.php' : '/cart';
 export const CART_URL = cartUrl ?? CART_FALLBACK_VALUE;
 export const CHECKOUT_URL = '/checkout';
+
+export const permissionLevels = {
+  USER: 1,
+  COMPANY: 2,
+  COMPANY_SUBSIDIARIES: 3,
+};
+
+export const PATH_ROUTES = {
+  ...HeadlessRoutes,
+};
+
+export const Z_INDEX: Record<
+  'IFRAME' | 'BASE' | 'STICKY' | 'OVERLAY' | 'MODAL' | 'TOOLTIP' | 'NOTIFICATION',
+  number
+> = {
+  IFRAME: 12000,
+  BASE: 12001,
+  STICKY: 12002,
+  OVERLAY: 12003,
+  MODAL: 12005,
+  TOOLTIP: 12004,
+  NOTIFICATION: 12004,
+};
+
+export const PAGES_SUBSIDIARIES_PERMISSION_KEYS = [
+  { key: 'order', path: HeadlessRoutes.ORDERS },
+  { key: 'invoice', path: HeadlessRoutes.INVOICE },
+  { key: 'addresses', path: HeadlessRoutes.ADDRESSES },
+  { key: 'userManagement', path: HeadlessRoutes.USER_MANAGEMENT },
+  { key: 'shoppingLists', path: HeadlessRoutes.SHOPPING_LISTS },
+  { key: 'quotes', path: HeadlessRoutes.QUOTES },
+  { key: 'companyHierarchy', path: HeadlessRoutes.COMPANY_HIERARCHY },
+] as const;

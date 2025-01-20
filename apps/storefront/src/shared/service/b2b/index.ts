@@ -14,17 +14,22 @@ import {
   updateBcAddress,
 } from './graphql/address';
 import {
+  endUserMasqueradingCompany,
   getAgentInfo,
   getB2BToken,
   getBcCurrencies,
   getCompanyCreditConfig,
+  getCompanySubsidiaries,
   getCurrencies,
   getProductPricing,
+  getStoreConfigsSwitchStatus,
   getStorefrontConfig,
   getStorefrontConfigs,
   getStorefrontDefaultLanguages,
   getTaxZoneRates,
   getUserCompany,
+  getUserMasqueradingCompany,
+  startUserMasqueradingCompany,
   superAdminBeginMasquerade,
   superAdminCompanies,
   superAdminEndMasquerade,
@@ -136,7 +141,7 @@ export {
   getInvoiceStats,
   invoiceDownloadPDF,
 } from './graphql/invoice';
-export { getBcOrderedProducts, getOrderedProducts } from './graphql/quickorder';
+export { getBcOrderedProducts, getOrderedProducts } from './graphql/quickOrder';
 
 export {
   addOrUpdateUsers,
@@ -205,6 +210,10 @@ export {
   getBcShoppingList,
   getBcShoppingListDetails,
   getBCStoreChannelId,
+  getCompanySubsidiaries,
+  startUserMasqueradingCompany,
+  endUserMasqueradingCompany,
+  getUserMasqueradingCompany,
   getBcVariantInfoBySkus,
   getCompanyCreditConfig,
   getCurrencies,
@@ -215,6 +224,7 @@ export {
   getShoppingListsCreatedByUser,
   getStorefrontConfig,
   getStorefrontConfigs,
+  getStoreConfigsSwitchStatus,
   getStorefrontDefaultLanguages,
   getTaxZoneRates,
   getUserCompany,

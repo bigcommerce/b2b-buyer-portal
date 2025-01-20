@@ -7,7 +7,7 @@ import { styled } from '@mui/material/styles';
 
 import { rolePermissionSelector, useAppSelector } from '@/store';
 import { InvoiceList } from '@/types/invoice';
-import { snackbar } from '@/utils';
+import { b2bPermissionsMap, snackbar, verifyLevelPermission } from '@/utils';
 
 import { gotoInvoiceCheckoutUrl } from '../utils/payment';
 import { getInvoiceDownloadPDFUrl, handlePrintPDF } from '../utils/pdf';
@@ -25,6 +25,8 @@ interface B3PulldownProps {
   setIsRequestLoading: (bool: boolean) => void;
   setInvoiceId: (id: string) => void;
   handleOpenHistoryModal: (bool: boolean) => void;
+  isCurrentCompany: boolean;
+  invoicePay: boolean;
 }
 
 function B3Pulldown({
@@ -32,18 +34,23 @@ function B3Pulldown({
   setIsRequestLoading,
   setInvoiceId,
   handleOpenHistoryModal,
+  isCurrentCompany,
+  invoicePay,
 }: B3PulldownProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const ref = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [isCanPay, setIsCanPay] = useState<boolean>(true);
+  const [isPay, setIsPay] = useState<boolean>(true);
 
   const navigate = useNavigate();
 
   const b3Lang = useB3Lang();
 
-  const { getOrderPermission, invoicePayPermission, purchasabilityPermission } =
-    useAppSelector(rolePermissionSelector);
+  const { invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+  const { getOrderPermission: getOrderPermissionCode } = b2bPermissionsMap;
+
+  const [isCanViewOrder, setIsCanViewOrder] = useState<boolean>(false);
+
   const close = () => {
     setIsOpen(false);
   };
@@ -132,11 +139,21 @@ function B3Pulldown({
   };
 
   useEffect(() => {
-    const { openBalance } = row;
+    const { openBalance, orderUserId, companyInfo } = row;
     const payPermissions =
       +openBalance.value > 0 && invoicePayPermission && purchasabilityPermission;
 
-    setIsCanPay(payPermissions);
+    setIsPay(payPermissions);
+    const isPayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
+    setIsPay(isPayInvoice);
+
+    const viewOrderPermission = verifyLevelPermission({
+      code: getOrderPermissionCode,
+      companyId: +companyInfo.companyId,
+      userId: +orderUserId,
+    });
+
+    setIsCanViewOrder(viewOrderPermission);
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -174,7 +191,7 @@ function B3Pulldown({
         >
           {b3Lang('invoice.actions.viewInvoice')}
         </MenuItem>
-        {getOrderPermission && (
+        {isCanViewOrder && (
           <MenuItem
             key="View-Order"
             sx={{
@@ -197,7 +214,7 @@ function B3Pulldown({
             {b3Lang('invoice.actions.viewPaymentHistory')}
           </MenuItem>
         )}
-        {isCanPay && (
+        {isPay && (
           <MenuItem
             key="Pay"
             sx={{

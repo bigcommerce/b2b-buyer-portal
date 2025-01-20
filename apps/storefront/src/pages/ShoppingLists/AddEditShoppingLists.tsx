@@ -31,6 +31,9 @@ function AddEditShoppingLists(
   ref: Ref<unknown> | undefined,
 ) {
   const b2bPermissions = useAppSelector(rolePermissionSelector);
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
   const [open, setOpen] = useState<boolean>(false);
   const [type, setType] = useState<string>('');
 
@@ -96,6 +99,9 @@ function AddEditShoppingLists(
         } else if (type === 'add') {
           if (isB2BUser) {
             const { submitShoppingListPermission } = b2bPermissions;
+            if (selectCompanyHierarchyId) {
+              params.companyId = +selectCompanyHierarchyId;
+            }
             params.status = submitShoppingListPermission ? 30 : 0;
           } else {
             params.channelId = channelId;

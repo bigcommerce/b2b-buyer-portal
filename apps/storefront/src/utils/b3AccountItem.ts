@@ -5,7 +5,6 @@ interface OpenPageByClickProps {
   role: number | string;
   isRegisterAndLogin: boolean;
   isAgenting: boolean;
-  IsRealJuniorBuyer: boolean;
   authorizedPages: string;
 }
 
@@ -51,8 +50,6 @@ const redirectBcMenus = (
   // Supermarket theme
   if (key.includes('/account.php') && !key.includes('?')) {
     switch (role) {
-      case CustomerRole.JUNIOR_BUYER:
-        return authorizedPages;
       case CustomerRole.SUPER_ADMIN:
         return '/dashboard';
       default:
@@ -73,7 +70,10 @@ const redirectBcMenus = (
       : '/dashboard';
   }
 
-  if (+role === CustomerRole.JUNIOR_BUYER && currentItem?.newTargetUrl?.includes('order_status')) {
+  if (
+    (+role === CustomerRole.JUNIOR_BUYER || +role === CustomerRole.CUSTOM_ROLE) &&
+    currentItem?.newTargetUrl?.includes('order_status')
+  ) {
     return authorizedPages;
   }
 
@@ -99,14 +99,11 @@ const getCurrentLoginUrl = (href: string): string => {
 
 const openPageByClick = ({
   href,
-  role,
+  role: currentRole,
   isRegisterAndLogin,
   isAgenting,
-  IsRealJuniorBuyer,
   authorizedPages,
 }: OpenPageByClickProps) => {
-  const currentRole = !IsRealJuniorBuyer && +role === CustomerRole.JUNIOR_BUYER ? 1 : role;
-
   if (href?.includes('register')) {
     return '/register';
   }

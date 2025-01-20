@@ -1,10 +1,14 @@
 import { FC, LazyExoticComponent, ReactElement } from 'react';
 
+import { PAGES_SUBSIDIARIES_PERMISSION_KEYS } from '@/constants';
 import { PageProps } from '@/pages/PageProps';
 import { GlobalState, QuoteConfigProps } from '@/shared/global/context/config';
 import { store } from '@/store';
 import { CompanyStatus, CustomerRole, UserTypes } from '@/types';
-import { checkEveryPermissionsCode, getPermissionsInfo } from '@/utils';
+import { checkEveryPermissionsCode } from '@/utils';
+import { validatePermissionWithComparisonType } from '@/utils/b3CheckPermissions';
+
+import { legacyPermissions, newPermissions } from './routes/config';
 
 export interface BuyerPortalRoute {
   path: string;
@@ -24,11 +28,47 @@ export interface RouteItem extends RouteItemBasic {
   pageTitle?: string;
   idLang: string;
   permissionCodes?: string;
+  subsidiariesCompanyKey?: (typeof PAGES_SUBSIDIARIES_PERMISSION_KEYS)[number]['key'];
 }
 
 export interface RouteFirstLevelItem extends RouteItemBasic {
   isProvider: boolean;
 }
+
+const {
+  dashboardPermissions,
+  ordersPermissions,
+  companyOrdersPermissions,
+  invoicePermissions,
+  quotesPermissions,
+  shoppingListsPermissions,
+  quickOrderPermissions,
+  orderDetailPermissions,
+  invoiceDetailPermissions,
+  addressesPermissions,
+  shoppingListDetailPermissions,
+  userManagementPermissions,
+  quoteDraftPermissions,
+  accountSettingPermissions,
+  companyHierarchyPermissions,
+  quoteDetailPermissions,
+} = legacyPermissions;
+
+const {
+  ordersPermissionCodes,
+  companyOrdersPermissionCodes,
+  invoicePermissionCodes,
+  quotesPermissionCodes,
+  shoppingListsPermissionCodes,
+  orderDetailPerPermissionCodes,
+  invoiceDetailPerPermissionCodes,
+  addressesPermissionCodes,
+  shoppingListDetailPermissionCodes,
+  userManagementPermissionCodes,
+  quoteDraftPermissionCodes,
+  quoteDetailPermissionCodes,
+  companyHierarchyPermissionCodes,
+} = newPermissions;
 
 export const routeList: (BuyerPortalRoute | RouteItem)[] = [
   {
@@ -36,61 +76,65 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     name: 'Dashboard',
     wsKey: 'router-orders',
     isMenuItem: true,
-    permissions: [3, 4],
+    permissions: dashboardPermissions,
     isTokenLogin: true,
     idLang: 'global.navMenu.dashboard',
   },
   {
     path: '/orders',
     name: 'My orders',
+    subsidiariesCompanyKey: 'order',
     wsKey: 'router-orders',
     isMenuItem: true,
-    permissions: [0, 1, 3, 4, 99, 100],
-    permissionCodes: 'get_orders, get_order_detail',
+    permissions: ordersPermissions,
+    permissionCodes: ordersPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.orders',
   },
   {
     path: '/company-orders',
     name: 'Company orders',
+    subsidiariesCompanyKey: 'order',
     wsKey: 'router-orders',
     isMenuItem: true,
-    permissions: [0, 1, 3],
-    permissionCodes: 'get_orders, get_order_detail',
+    permissions: companyOrdersPermissions,
+    permissionCodes: companyOrdersPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.companyOrders',
   },
   {
     path: '/invoice',
     name: 'Invoice',
+    subsidiariesCompanyKey: 'invoice',
     wsKey: 'invoice',
     isMenuItem: true,
     configKey: 'invoice',
-    permissions: [0, 1, 3],
-    permissionCodes:
-      'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
+    permissions: invoicePermissions,
+    permissionCodes: invoicePermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.invoice',
   },
   {
     path: '/quotes',
     name: 'Quotes',
+    subsidiariesCompanyKey: 'quotes',
     wsKey: 'quotes',
     isMenuItem: true,
     configKey: 'quotes',
-    permissions: [0, 1, 2, 3, 99, 100],
-    permissionCodes: 'get_quotes, get_quote_detail, get_quote_pdf',
+    permissions: quotesPermissions,
+    permissionCodes: quotesPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.quotes',
   },
   {
     path: '/shoppingLists',
     name: 'Shopping lists',
+    subsidiariesCompanyKey: 'shoppingLists',
     wsKey: 'shoppingLists',
     isMenuItem: true,
     configKey: 'shoppingLists',
-    permissions: [0, 1, 2, 3, 99],
-    permissionCodes: 'get_shopping_lists, get_shopping_list_detail',
+    permissions: shoppingListsPermissions,
+    permissionCodes: shoppingListsPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.shoppingLists',
   },
@@ -101,7 +145,7 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     wsKey: 'quickOrder',
     isMenuItem: true,
     configKey: 'quickOrderPad',
-    permissions: [0, 1, 2, 3, 99],
+    permissions: quickOrderPermissions,
     isTokenLogin: true,
     idLang: 'global.navMenu.quickOrder',
   },
@@ -109,9 +153,10 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     path: '/orderDetail/:id',
     name: 'Order details',
     wsKey: 'router-orders',
+    subsidiariesCompanyKey: 'order',
     isMenuItem: false,
-    permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes: 'get_orders, get_order_detail',
+    permissions: orderDetailPermissions,
+    permissionCodes: orderDetailPerPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.orderDetail',
   },
@@ -119,21 +164,22 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     path: '/invoiceDetail/:id',
     name: 'Invoice details',
     wsKey: 'router-invoice',
+    subsidiariesCompanyKey: 'invoice',
     isMenuItem: false,
-    permissions: [0, 1, 3, 99, 100],
-    permissionCodes:
-      'get_invoices, get_invoice_detail, get_invoice_pdf, export_invoices, get_invoice_payments_history',
+    permissions: invoiceDetailPermissions,
+    permissionCodes: invoiceDetailPerPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.invoiceDetail',
   },
   {
     path: '/addresses',
     name: 'Addresses',
+    subsidiariesCompanyKey: 'addresses',
     wsKey: 'router-address',
     isMenuItem: true,
     configKey: 'addressBook',
-    permissions: [0, 1, 2, 3, 99, 100],
-    permissionCodes: 'get_addresses, get_address_detail, get_default_shipping, get_default_billing',
+    permissions: addressesPermissions,
+    permissionCodes: addressesPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.addresses',
   },
@@ -142,18 +188,19 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     name: 'Shopping list',
     wsKey: 'router-shopping-list',
     isMenuItem: false,
-    permissions: [0, 1, 2, 3, 99],
-    permissionCodes: 'get_shopping_lists, get_shopping_list_detail',
+    permissions: shoppingListDetailPermissions,
+    permissionCodes: shoppingListDetailPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.shoppingList',
   },
   {
     path: '/user-management',
     name: 'User management',
+    subsidiariesCompanyKey: 'userManagement',
     wsKey: 'router-userManagement',
     isMenuItem: true,
-    permissions: [0, 1, 3],
-    permissionCodes: 'get_users, get_user_detail',
+    permissions: userManagementPermissions,
+    permissionCodes: userManagementPermissionCodes,
     isTokenLogin: true,
     idLang: 'global.navMenu.userManagement',
   },
@@ -163,9 +210,8 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     wsKey: 'quoteDraft',
     isMenuItem: false,
     configKey: 'quoteDraft',
-    permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes:
-      'get_quotes,get_quote_detail, get_quote_pdf, create_quote, update_quote_message',
+    permissions: quoteDraftPermissions,
+    permissionCodes: quoteDraftPermissionCodes,
     isTokenLogin: false,
     idLang: 'global.navMenu.quoteDraft',
   },
@@ -175,9 +221,21 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     wsKey: 'accountSetting',
     isMenuItem: true,
     configKey: 'accountSettings',
-    permissions: [0, 1, 2, 3, 4, 99],
+    permissions: accountSettingPermissions,
     isTokenLogin: true,
     idLang: 'global.navMenu.accountSettings',
+  },
+  {
+    path: '/company-hierarchy',
+    name: 'Company hierarchy',
+    subsidiariesCompanyKey: 'companyHierarchy',
+    wsKey: 'companyHierarchy',
+    isMenuItem: true,
+    configKey: 'companyHierarchy',
+    permissions: companyHierarchyPermissions,
+    permissionCodes: companyHierarchyPermissionCodes,
+    isTokenLogin: true,
+    idLang: 'global.navMenu.companyHierarchy',
   },
   {
     path: '/quoteDetail/:id',
@@ -185,8 +243,8 @@ export const routeList: (BuyerPortalRoute | RouteItem)[] = [
     wsKey: 'quoteDetail',
     isMenuItem: false,
     configKey: 'quoteDetail',
-    permissions: [0, 1, 2, 3, 4, 99, 100],
-    permissionCodes: 'get_quotes, get_quote_detail, get_quote_pdf',
+    permissions: quoteDetailPermissions,
+    permissionCodes: quoteDetailPermissionCodes,
     isTokenLogin: false,
     idLang: 'global.navMenu.quoteDetail',
   },
@@ -257,12 +315,11 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
         });
 
         if (path === '/company-orders' && isHasPermission) {
-          const orderPermissionInfo = getPermissionsInfo('get_orders');
-          return (
-            orderPermissionInfo &&
-            orderPermissionInfo?.permissionLevel &&
-            +orderPermissionInfo.permissionLevel > 1
-          );
+          return validatePermissionWithComparisonType({
+            code: item.permissionCodes,
+            level: 2,
+            containOrEqual: 'contain',
+          });
         }
         return isHasPermission;
       }
@@ -306,6 +363,6 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
       return !!config.enabledStatus && !!config.value;
     }
 
-    return !!config.enabledStatus;
+    return !!config.enabledStatus && permissions.includes(+role);
   });
 };

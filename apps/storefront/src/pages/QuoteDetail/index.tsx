@@ -26,7 +26,8 @@ import {
 } from '@/store';
 import { Currency } from '@/types';
 import { QuoteExtraFieldsData } from '@/types/quotes';
-import { snackbar } from '@/utils';
+import { snackbar, verifyLevelPermission } from '@/utils';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import { getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { conversionProductsList } from '@/utils/b3Product/shared/config';
 import { getSearchVal } from '@/utils/loginInfo';
@@ -57,19 +58,12 @@ function QuoteDetail() {
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
   const role = useAppSelector(({ company }) => company.customer.role);
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
+  );
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const [isMobile] = useMobile();
-
-  const {
-    quoteConvertToOrderPermission: quoteConvertToOrderPermissionRename,
-    purchasabilityPermission,
-  } = useAppSelector(rolePermissionSelector);
-
-  const quoteConvertToOrderPermission = isB2BUser
-    ? quoteConvertToOrderPermissionRename
-    : +role !== 2;
-  const quotePurchasabilityPermission = isB2BUser ? purchasabilityPermission : +role !== 2;
 
   const b3Lang = useB3Lang();
 
@@ -95,7 +89,12 @@ function QuoteDetail() {
     nonPurchasable: '',
   });
 
-  const [quoteCheckoutLoadding, setQuoteCheckoutLoadding] = useState<boolean>(false);
+  const [quotePurchasabilityPermissionInfo, setQuotePurchasabilityPermission] = useState({
+    quotePurchasabilityPermission: false,
+    quoteConvertToOrderPermission: false,
+  });
+
+  const [quoteCheckoutLoading, setQuoteCheckoutLoading] = useState<boolean>(false);
 
   const location = useLocation();
   const currency = useAppSelector(activeCurrencyInfoSelector);
@@ -106,6 +105,42 @@ function QuoteDetail() {
   const isEnableProduct = useAppSelector(
     ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
   );
+
+  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+
+  useEffect(() => {
+    if (!quoteDetail?.id) return;
+
+    const { quoteConvertToOrderPermission: quoteCheckoutPermissionCode } = b2bPermissionsMap;
+
+    const getPurchasabilityAndConvertToOrderPermission = () => {
+      if (isB2BUser) {
+        const companyId = quoteDetail?.companyId?.id || null;
+        const userEmail = quoteDetail?.contactInfo?.email || '';
+        return {
+          quotePurchasabilityPermission: purchasabilityPermission,
+          quoteConvertToOrderPermission: verifyLevelPermission({
+            code: quoteCheckoutPermissionCode,
+            companyId,
+            userEmail,
+          }),
+        };
+      }
+
+      return {
+        quotePurchasabilityPermission: true,
+        quoteConvertToOrderPermission: true,
+      };
+    };
+
+    const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
+      getPurchasabilityAndConvertToOrderPermission();
+
+    setQuotePurchasabilityPermission({
+      quotePurchasabilityPermission,
+      quoteConvertToOrderPermission,
+    });
+  }, [isB2BUser, quoteDetail, selectCompanyHierarchyId, purchasabilityPermission]);
 
   useEffect(() => {
     let oosErrorList = '';
@@ -499,7 +534,7 @@ function QuoteDetail() {
 
   const quoteGotoCheckout = async () => {
     try {
-      setQuoteCheckoutLoadding(true);
+      setQuoteCheckoutLoading(true);
       await handleQuoteCheckout({
         quoteId: id,
         proceedingCheckoutFn,
@@ -508,7 +543,7 @@ function QuoteDetail() {
         navigate,
       });
     } finally {
-      setQuoteCheckoutLoadding(false);
+      setQuoteCheckoutLoading(false);
     }
   };
   useEffect(() => {
@@ -558,8 +593,11 @@ function QuoteDetail() {
 
   useScrollBar(false);
 
+  const { quotePurchasabilityPermission, quoteConvertToOrderPermission } =
+    quotePurchasabilityPermissionInfo;
+
   return (
-    <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoadding}>
+    <B3Spin isSpinning={isRequestLoading || quoteCheckoutLoading}>
       <Box
         sx={{
           display: 'flex',

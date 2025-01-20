@@ -75,6 +75,7 @@ export interface GlobalState {
   recordOpenHash: string;
   blockPendingQuoteNonPurchasableOOS: GlobalBlockPendingQuoteNonPurchasableOOS;
   quoteSubmissionResponse: QuoteSubmissionResponseProps;
+  isOpenCompanyHierarchyDropDown: boolean;
 }
 
 const initialState: GlobalState = {
@@ -117,6 +118,7 @@ const initialState: GlobalState = {
     message: '',
     title: '',
   },
+  isOpenCompanyHierarchyDropDown: false,
 };
 
 export const globalSlice = createSlice({
@@ -167,6 +169,9 @@ export const globalSlice = createSlice({
     ) => {
       state.quoteSubmissionResponse = payload;
     },
+    setOpenCompanyHierarchyDropDown: (state, { payload }: PayloadAction<boolean>) => {
+      state.isOpenCompanyHierarchyDropDown = payload;
+    },
   },
 });
 
@@ -182,6 +187,7 @@ export const {
   setStoreInfo,
   setLoginLandingLocation,
   setQuoteSubmissionResponse,
+  setOpenCompanyHierarchyDropDown,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

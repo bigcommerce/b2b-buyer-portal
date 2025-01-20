@@ -1,4 +1,4 @@
-import { BaseSyntheticEvent, useContext, useEffect, useRef, useState } from 'react';
+import { BaseSyntheticEvent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -13,6 +13,8 @@ import CustomButton from '../button/CustomButton';
 import { getContrastColor, getHoverColor } from '../outSideComponents/utils/b3CustomStyles';
 
 import B3FilterPicker from './B3FilterPicker';
+
+const includesFilterType = ['roleAutocomplete'];
 
 interface PickerProps {
   isEnabled: boolean;
@@ -96,6 +98,24 @@ function B3FilterMore<T, Y>({
   const handleDialogClick = () => {
     setOpen(true);
   };
+
+  const filterCounterVal = useMemo(() => {
+    if (!filterCounter) return 0;
+
+    const values = getValues();
+
+    const newCounter = filterMoreInfo.reduce((cur, item) => {
+      const newItem: CustomFieldItems = item;
+      if (includesFilterType.includes(newItem.fieldType) && values[newItem.name]) {
+        cur -= 1;
+      }
+
+      return cur;
+    }, filterCounter);
+
+    return newCounter;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterCounter]);
 
   const handleClose = () => {
     setOpen(false);
@@ -197,6 +217,10 @@ function B3FilterMore<T, Y>({
                   ':hover': {
                     backgroundColor: getHoverColor('#FFFFFF', 0.1),
                   },
+                  '& svg': {
+                    width: '32px',
+                    height: '32px',
+                  },
                 }}
               >
                 <FilterListIcon />
@@ -214,7 +238,7 @@ function B3FilterMore<T, Y>({
                 }}
               >
                 <Badge
-                  badgeContent={filterCounter}
+                  badgeContent={filterCounterVal}
                   sx={{
                     '& .MuiBadge-badge.MuiBadge-standard.MuiBadge-anchorOriginTopRight': {
                       bgcolor: primaryColor,

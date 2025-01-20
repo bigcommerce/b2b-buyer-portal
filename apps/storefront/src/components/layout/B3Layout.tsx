@@ -1,4 +1,4 @@
-import { ReactNode, useContext, useEffect, useState } from 'react';
+import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, useMediaQuery } from '@mui/material';
@@ -91,19 +91,22 @@ export default function B3Layout({ children }: { children: ReactNode }) {
     });
   };
 
+  const overflowStyle = useMemo(() => {
+    const overflowXHiddenPage = ['/invoice'];
+    if (overflowXHiddenPage.includes(location.pathname)) {
+      return {
+        overflowX: 'hidden',
+      };
+    }
+
+    return {};
+  }, [location]);
+
   return (
     <Box>
       {isMobile ? (
         <B3MobileLayout title={title}>{children}</B3MobileLayout>
       ) : (
-        // <Box
-        //   sx={{
-        //     p: '40px 30px',
-        //     minHeight: '100vh',
-        //     display: 'flex',
-        //     backgroundColor: '#d2d2d3',
-        //   }}
-        // >
         <Box
           id="app-mainPage-layout"
           sx={{
@@ -144,6 +147,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
               maxWidth: '1450px',
               width: '100%',
               p: '0 0px 0px 50px',
+              ...overflowStyle,
             }}
           >
             <B3MainHeader title={title} />
@@ -158,8 +162,6 @@ export default function B3Layout({ children }: { children: ReactNode }) {
             </Box>
           </Box>
         </Box>
-
-        // </Box>
       )}
 
       <B3Dialog

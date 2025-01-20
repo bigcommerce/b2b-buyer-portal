@@ -24,7 +24,6 @@ import {
   isB2BUserSelector,
   resetDraftQuoteInfo,
   resetDraftQuoteList,
-  rolePermissionSelector,
   setDraftQuoteInfo,
   setDraftQuoteRecipients,
   setQuoteUserId,
@@ -41,6 +40,8 @@ import {
   ShippingAddress,
 } from '@/types/quotes';
 import { B3LStorage, channelId, snackbar, storeHash } from '@/utils';
+import { verifyCreatePermission } from '@/utils/b3CheckPermissions';
+import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 import b2bLogger from '@/utils/b3Logger';
 import { addQuoteDraftProducts, getVariantInfoOOSAndPurchase } from '@/utils/b3Product/b3Product';
 import { deleteCartData } from '@/utils/cartUtils';
@@ -136,9 +137,11 @@ function QuoteDraft({ setOpenPage }: PageProps) {
   );
   const quoteInfoOrigin = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteInfo);
   const currency = useAppSelector(activeCurrencyInfoSelector);
-  const b2bPermissions = useAppSelector(rolePermissionSelector);
   const quoteSubmissionResponseInfo = useAppSelector(
     ({ global }) => global.quoteSubmissionResponse,
+  );
+  const { selectCompanyHierarchyId } = useAppSelector(
+    ({ company }) => company.companyHierarchyInfo,
   );
 
   const isEnableProduct = useAppSelector(
@@ -151,7 +154,16 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     },
   } = useContext(CustomStyleContext);
 
-  const quotesActionsPermission = isB2BUser ? b2bPermissions.quotesActionsPermission : true;
+  const quotesActionsPermission = useMemo(() => {
+    if (isB2BUser) {
+      return verifyCreatePermission(
+        b2bPermissionsMap.quotesCreateActionsPermission,
+        +selectCompanyHierarchyId,
+      );
+    }
+
+    return true;
+  }, [isB2BUser, selectCompanyHierarchyId]);
 
   const navigate = useNavigate();
 
@@ -196,9 +208,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         dispatch(setDraftQuoteInfo(newInfo));
       };
 
-      try {
-        const quoteInfo = cloneDeep(quoteInfoOrigin);
+      const quoteInfo = cloneDeep(quoteInfoOrigin);
 
+      try {
         if (isB2BUser) {
           const companyId = companyB2BId || salesRepCompanyId;
           const {
@@ -582,7 +594,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             : (allPrice + allTaxPrice).toFixed(currency.decimal_places),
           grandTotal: allPrice.toFixed(currency.decimal_places),
           subtotal: allPrice.toFixed(currency.decimal_places),
-          companyId: isB2BUser ? companyB2BId || salesRepCompanyId : '',
+          companyId: isB2BUser ? selectCompanyHierarchyId || companyB2BId || salesRepCompanyId : '',
           storeHash,
           quoteTitle,
           discount: '0.00',
