@@ -524,7 +524,7 @@ const getBulkPrice = (calculatedPrices: any, qty: number) => {
   store.dispatch(setEnteredInclusiveTax(enteredInclusive));
 
   const tax = calculatedTaxPrice - calculatedNoTaxPrice;
-  const taxRate = +tax / calculatedNoTaxPrice;
+  const taxRate = +calculatedNoTaxPrice ? +tax / calculatedNoTaxPrice : 0;
 
   let finalDiscount = 0;
   let itemTotalTaxPrice = 0;
