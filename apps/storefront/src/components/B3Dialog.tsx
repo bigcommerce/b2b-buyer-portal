@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogProps,
   DialogTitle,
   SxProps,
   Theme,
@@ -40,6 +41,7 @@ export interface B3DialogProps<T> {
   dialogContentSx?: SxProps<Theme>;
   dialogSx?: SxProps<Theme>;
   dialogWidth?: string;
+  restDialogParams?: Omit<DialogProps, 'open' | 'onClose'>;
 }
 
 export default function B3Dialog<T>({
@@ -64,6 +66,7 @@ export default function B3Dialog<T>({
   fullWidth = false,
   disabledSaveBtn = false,
   dialogWidth = '',
+  restDialogParams,
 }: B3DialogProps<T>) {
   const container = useRef<HTMLInputElement | null>(null);
 
@@ -113,6 +116,7 @@ export default function B3Dialog<T>({
         aria-describedby="alert-dialog-description"
         id="b2b-dialog-container"
         sx={customStyle}
+        {...restDialogParams}
       >
         {title && (
           <DialogTitle
