@@ -103,6 +103,11 @@ export const verifyLevelPermission = ({
   const { permissionLevel } = info;
 
   if (!permissionLevel) return false;
+
+  const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany.id;
+
+  if (salesRepCompanyId) return true;
+
   const { companyInfo, customer } = store.getState().company || {};
 
   return levelComparison({

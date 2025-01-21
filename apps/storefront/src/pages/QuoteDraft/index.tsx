@@ -9,7 +9,8 @@ import { cloneDeep, concat, uniq } from 'lodash-es';
 import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import B3Spin from '@/components/spin/B3Spin';
-import { useMobile, useSetCountry } from '@/hooks';
+import { permissionLevels } from '@/constants';
+import { useMobile, useSetCountry, useValidatePermissionWithComparisonType } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import {
@@ -186,6 +187,12 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
   const quoteSummaryRef = useRef<QuoteSummaryRef | null>(null);
 
+  const [isAddressCompanyHierarchy] = useValidatePermissionWithComparisonType({
+    level: permissionLevels.COMPANY_SUBSIDIARIES,
+    code: b2bPermissionsMap.getAddressesPermission,
+    containOrEqual: 'equal',
+  });
+
   useSetCountry();
 
   const contactInfoRef = useRef<InfoRefProps | null>(null);
@@ -213,9 +220,20 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       try {
         if (isB2BUser) {
           const companyId = companyB2BId || salesRepCompanyId;
-          const {
-            addresses: { edges: addressB2BList = [] },
-          } = await getB2BCustomerAddresses(+companyId);
+
+          let addressB2BList = [];
+          const fetchAddresses = async (id: number) => {
+            const {
+              addresses: { edges },
+            } = await getB2BCustomerAddresses(id);
+            return edges;
+          };
+
+          if (!selectCompanyHierarchyId) {
+            addressB2BList = await fetchAddresses(+companyId);
+          } else if (selectCompanyHierarchyId && isAddressCompanyHierarchy) {
+            addressB2BList = await fetchAddresses(+selectCompanyHierarchyId);
+          }
 
           const shippingDefaultAddress = addressB2BList.find(
             (item: B2BAddress) => item?.node?.isDefaultShipping === 1,
@@ -314,7 +332,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     init();
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectCompanyHierarchyId, isAddressCompanyHierarchy]);
 
   const quoteAndExtraFieldsInfo = useMemo(() => {
     const contactInfo: CustomFieldItems = quoteInfoOrigin.contactInfo || {};

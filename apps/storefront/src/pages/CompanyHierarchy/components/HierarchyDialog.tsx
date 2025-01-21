@@ -92,27 +92,6 @@ function HierarchyDialog({
           ),
         }),
       );
-
-      if (companyId === +currentCompanyId) {
-        const { hash } = window.location;
-        if (hash.includes('/shoppingList/')) {
-          navigate('/shoppingLists');
-        }
-      }
-
-      if (companyId !== +currentCompanyId && !isHasCurrentPagePermission) {
-        const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
-          return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];
-        });
-
-        const route = PAGES_SUBSIDIARIES_PERMISSION_KEYS.find((item) => item.key === key);
-
-        if (route) {
-          handleClose();
-          setLoading(false);
-          navigate(route.path);
-        }
-      }
     } catch (error) {
       b2bLogger.error(error);
     } finally {
@@ -131,6 +110,33 @@ function HierarchyDialog({
       loading={loading}
       handleLeftClick={handleClose}
       handRightClick={handleSwitchCompanyClick}
+      restDialogParams={{
+        TransitionProps: {
+          onExited: () => {
+            if (!currentRow) return;
+            const { companyId } = currentRow;
+            if (companyId === +currentCompanyId) {
+              const { hash } = window.location;
+              if (hash.includes('/shoppingList/')) {
+                navigate('/shoppingLists');
+              }
+            }
+            if (companyId !== +currentCompanyId && !isHasCurrentPagePermission) {
+              const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
+                return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];
+              });
+
+              const route = PAGES_SUBSIDIARIES_PERMISSION_KEYS.find((item) => item.key === key);
+
+              if (route) {
+                handleClose();
+                setLoading(false);
+                navigate(route.path);
+              }
+            }
+          },
+        },
+      }}
       dialogSx={{
         '& .MuiDialogTitle-root': {
           border: 0,
