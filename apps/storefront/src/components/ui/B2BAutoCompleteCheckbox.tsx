@@ -149,7 +149,7 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
   };
 
   return (
-    <FormControl variant="filled" sx={{ width: isMobile ? '100%' : 165 }}>
+    <FormControl variant="filled" sx={{ width: isMobile ? '100%' : 235 }}>
       <InputLabel id="autoComplete-multiple-checkbox-label">
         {b3Lang('global.B2BAutoCompleteCheckbox.input.label')}
       </InputLabel>
@@ -173,8 +173,8 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
             key={`${company.companyId}-${company.companyName}`}
             value={company.companyName}
             sx={{
-              width: isMobile ? '100%' : '220px',
-              alignItems: isMobile ? 'flex-start' : 'center',
+              width: isMobile ? '100%' : '300px',
+              alignItems: 'flex-start',
             }}
           >
             <Checkbox
@@ -186,24 +186,16 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
               primary={company.companyName}
               title={company.companyName}
               sx={{
-                '& span': isMobile
-                  ? {
-                      width: '100%',
-                      whiteSpace: 'break-spaces',
-                      wordWrap: 'break-word',
-                      paddingTop: '9px',
-                    }
-                  : {
-                      width: '100%',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    },
+                '& span': {
+                  width: '100%',
+                  whiteSpace: 'break-spaces',
+                  wordWrap: 'break-word',
+                  paddingTop: '9px',
+                },
               }}
             />
             {companyNames.includes(company.companyName) &&
-              companyIds.includes(company.companyId) && (
-                <Check sx={{ marginTop: isMobile ? '9px' : '0px' }} />
-              )}
+              companyIds.includes(company.companyId) && <Check sx={{ marginTop: '9px' }} />}
           </MenuItem>
         ))}
       </Select>
