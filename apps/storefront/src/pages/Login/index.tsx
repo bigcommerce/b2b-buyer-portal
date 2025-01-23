@@ -16,7 +16,7 @@ import {
   getBCForcePasswordReset,
   superAdminEndMasquerade,
 } from '@/shared/service/b2b';
-import { b2bLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc';
+import { b2bLogin, bcLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc';
 import {
   clearMasqueradeCompany,
   isLoggedInSelector,
@@ -195,6 +195,24 @@ export default function Login(props: PageProps) {
     }
   };
 
+  const forcePasswordReset = async (email: string, password: string) => {
+    const { errors: bcErrors } = await bcLogin({
+      email,
+      pass: password,
+    });
+
+    if (bcErrors?.[0]) {
+      const { message } = bcErrors[0];
+
+      if (message === 'Reset password') {
+        getForcePasswordReset(email);
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   const handleLoginSubmit = useB2BCallback(
     B2BEvent.OnLogin,
     async (dispatchOnLoginEvent, data: LoginConfig) => {
@@ -210,7 +228,7 @@ export default function Login(props: PageProps) {
           const response = await loginCheckout(data);
 
           if (response.status === 400 && response.type === 'reset_password_before_login') {
-            b2bLogger.error(response);
+            setLoginFlag('resetPassword');
           } else if (response.type === 'invalid_login') {
             setLoginFlag('accountIncorrect');
           } else {
@@ -230,6 +248,10 @@ export default function Login(props: PageProps) {
             storeHash,
             channelId,
           };
+
+          const isForcePasswordReset = await forcePasswordReset(data.emailAddress, data.password);
+          if (isForcePasswordReset) return;
+
           const {
             login: {
               result: { token, storefrontLoginToken },
