@@ -61,14 +61,6 @@ const legacyPermissions = {
     CustomerRole.B2C,
   ],
   orderDetailPermissions: allLegacyPermission,
-  invoiceDetailPermissions: [
-    CustomerRole.SUPER_ADMIN,
-    CustomerRole.ADMIN,
-    CustomerRole.SENIOR_BUYER,
-    CustomerRole.CUSTOM_ROLE,
-    CustomerRole.B2C,
-    CustomerRole.GUEST,
-  ],
   addressesPermissions: [
     CustomerRole.SUPER_ADMIN,
     CustomerRole.ADMIN,
@@ -124,7 +116,6 @@ const newPermissions = {
   quotesPermissionCodes: b2bPermissionsMap.getQuotesPermission,
   shoppingListsPermissionCodes: b2bPermissionsMap.getShoppingListPermission,
   orderDetailPerPermissionCodes: b2bPermissionsMap.getOrderDetailPermission,
-  invoiceDetailPerPermissionCodes: b2bPermissionsMap.getInvoiceDetailPermission,
   addressesPermissionCodes: b2bPermissionsMap.getAddressesPermission,
   shoppingListDetailPermissionCodes: b2bPermissionsMap.getShoppingListDetailPermission,
   userManagementPermissionCodes: b2bPermissionsMap.getUserPermissionCode,
