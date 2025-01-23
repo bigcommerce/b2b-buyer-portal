@@ -104,20 +104,23 @@ function B3Mean({ isMasquerade, handleSelect, startActing, endActing }: B3MeanPr
   );
 }
 
+function useData() {
+  const customerId = useAppSelector(({ company }) => company.customer.id);
+  const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
+  const salesRepCompanyId = +useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+
+  return { salesRepCompanyId, b2bId, customerId };
+}
+
 function Dashboard(props: PageProps) {
   const showPageMask = usePageMask();
 
-  const customerId = useAppSelector(({ company }) => company.customer.id);
-  const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
+  const { salesRepCompanyId, b2bId, customerId } = useData();
 
   const { setOpenPage } = props;
   const b3Lang = useB3Lang();
 
-  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
-
-  const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] = useState<number>(
-    +salesRepCompanyId,
-  );
+  const [currentSalesRepCompanyId, setCurrentSalesRepCompanyId] = useState(salesRepCompanyId);
 
   const [isRequestLoading, setIsRequestLoading] = useState(false);
 
