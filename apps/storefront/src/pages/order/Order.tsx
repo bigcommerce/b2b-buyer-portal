@@ -69,9 +69,7 @@ interface OrderProps {
   isCompanyOrder?: boolean;
 }
 
-function Order({ isCompanyOrder = false }: OrderProps) {
-  const b3Lang = useB3Lang();
-  const [isMobile] = useMobile();
+function useData() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
   const role = useAppSelector(({ company }) => company.customer.role);
@@ -88,14 +86,38 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   const currentCompanyId =
     role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyB2BId;
 
+  const companyId = companyB2BId || salesRepCompanyId;
+
+  return {
+    role,
+    isAgenting,
+    isB2BUser,
+    orderSubViewPermission,
+    selectCompanyHierarchyId,
+    isEnabledCompanyHierarchy,
+    currentCompanyId,
+    companyId,
+  };
+}
+
+function Order({ isCompanyOrder = false }: OrderProps) {
+  const b3Lang = useB3Lang();
+  const [isMobile] = useMobile();
+  const {
+    role,
+    isAgenting,
+    companyId,
+    isB2BUser,
+    orderSubViewPermission,
+    selectCompanyHierarchyId,
+    isEnabledCompanyHierarchy,
+    currentCompanyId,
+  } = useData();
+
   const [isRequestLoading, setIsRequestLoading] = useState(false);
-
   const [allTotal, setAllTotal] = useState(0);
-
   const [filterData, setFilterData] = useState<Partial<FilterSearchProps> | null>(null);
-
   const [filterInfo, setFilterInfo] = useState<Array<any>>([]);
-
   const [getOrderStatuses, setOrderStatuses] = useState<Array<any>>([]);
   const [isAutoRefresh, setIsAutoRefresh] = useState(false);
 
@@ -116,7 +138,6 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     if (role === 100) return;
 
     const initFilter = async () => {
-      const companyId = companyB2BId || salesRepCompanyId;
       const createdByUsers =
         isB2BUser && isCompanyOrder ? await getOrdersCreatedByUser(+companyId, 0) : {};
 
