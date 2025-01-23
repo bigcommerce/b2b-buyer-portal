@@ -27,7 +27,6 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const Invoice = lazy(() => import('@/pages/Invoice'));
-const InvoiceDetail = lazy(() => import('@/pages/InvoiceDetail'));
 const InvoicePayment = lazy(() => import('@/pages/InvoicePayment'));
 const Login = lazy(() => import('@/pages/Login'));
 const OrderDetail = lazy(() => import('@/pages/OrderDetail'));
@@ -53,7 +52,6 @@ const routesMap: Record<string, LazyExoticComponent<(props: PageProps) => ReactE
   '/shoppingLists': ShippingLists,
   '/purchased-products': QuickOrder,
   '/orderDetail/:id': OrderDetail,
-  '/invoiceDetail/:id': InvoiceDetail,
   '/addresses': AddressList,
   '/shoppingList/:id': ShoppingListDetails,
   '/user-management': UserManagement,
