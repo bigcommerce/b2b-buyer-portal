@@ -1204,6 +1204,7 @@ export const getProductInfoDisplayPrice = (
   price: string | number,
   productInfo: CustomFieldItems,
 ) => {
+  const currentPrice = price || '0';
   const { availability, inventoryLevel, inventoryTracking, quantity } = productInfo;
 
   if (availability === 'disabled') {
@@ -1211,13 +1212,13 @@ export const getProductInfoDisplayPrice = (
   }
 
   if (inventoryTracking === 'none') {
-    return price;
+    return currentPrice;
   }
   if (+quantity > +inventoryLevel) {
     return '';
   }
 
-  return price;
+  return currentPrice;
 };
 
 export const getVariantInfoOOSAndPurchase = (productInfo: CustomFieldItems) => {
@@ -1280,6 +1281,7 @@ export const getVariantInfoDisplayPrice = (
     sku?: string;
   },
 ) => {
+  const currentPrice = price || '0';
   const newProductInfo = productInfo?.node ? productInfo.node : productInfo;
 
   const inventoryTracking: string = newProductInfo?.productsSearch
@@ -1312,7 +1314,7 @@ export const getVariantInfoDisplayPrice = (
 
     if (purchasingDisabled) return '';
 
-    if (inventoryTracking === 'none') return price;
+    if (inventoryTracking === 'none') return currentPrice;
 
     if (inventoryTracking === 'product' && +quantity > +productInventoryLevel) {
       return '';
@@ -1323,7 +1325,7 @@ export const getVariantInfoDisplayPrice = (
     }
   }
 
-  return price;
+  return currentPrice;
 };
 
 const getDisplayPrice = ({
