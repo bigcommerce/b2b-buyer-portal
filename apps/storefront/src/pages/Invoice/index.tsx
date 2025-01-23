@@ -70,9 +70,7 @@ const initFilter = {
   companyIds: [],
 };
 
-function Invoice() {
-  const currentDate = new Date().getTime();
-  const b3Lang = useB3Lang();
+function useData() {
   const role = useAppSelector(({ company }) => company.customer.role);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
@@ -81,14 +79,39 @@ function Invoice() {
     ({ company }) => company.companyHierarchyInfo,
   );
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
-  const currentCompanyId =
-    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyInfoId;
 
   const { invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+  const currentCompanyId =
+    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyInfoId;
 
   const { invoice: invoiceSubViewPermission } = useAppSelector(
     ({ company }) => company.pagesSubsidiariesPermission,
   );
+
+  return {
+    isAgenting,
+    selectCompanyHierarchyId,
+    isEnabledCompanyHierarchy,
+    invoicePayPermission,
+    purchasabilityPermission,
+    currentCompanyId,
+    invoiceSubViewPermission,
+  };
+}
+
+function Invoice() {
+  const currentDate = new Date().getTime();
+  const b3Lang = useB3Lang();
+
+  const {
+    isAgenting,
+    selectCompanyHierarchyId,
+    isEnabledCompanyHierarchy,
+    invoicePayPermission,
+    purchasabilityPermission,
+    currentCompanyId,
+    invoiceSubViewPermission,
+  } = useData();
 
   const navigate = useNavigate();
   const [isMobile] = useMobile();
