@@ -30,7 +30,22 @@ import { deCodeField, getAccountFormFields } from '../Registered/config';
 import { getAccountSettingFiles } from './config';
 import { b2bSubmitDataProcessing, bcSubmitDataProcessing, initB2BInfo, initBcInfo } from './utils';
 
+function useData() {
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const customer = useAppSelector(({ company }) => company.customer);
+  const role = useAppSelector(({ company }) => company.customer.role);
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+  const companyId = role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId;
+  const isBCUser = !isB2BUser || (role === 3 && !isAgenting);
+
+  return { isBCUser, companyId, customer };
+}
+
 function AccountSetting() {
+  const { isBCUser, companyId, customer } = useData();
+
   const {
     control,
     handleSubmit,
@@ -47,12 +62,6 @@ function AccountSetting() {
     false,
     sessionStorage,
   );
-  const isB2BUser = useAppSelector(isB2BUserSelector);
-  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
-  const customer = useAppSelector(({ company }) => company.customer);
-  const role = useAppSelector(({ company }) => company.customer.role);
-  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
   const {
     state: {
@@ -67,20 +76,11 @@ function AccountSetting() {
   const navigate = useNavigate();
 
   const [accountInfoFormFields, setAccountInfoFormFields] = useState<Partial<Fields>[]>([]);
-
   const [decryptionFields, setDecryptionFields] = useState<Partial<Fields>[]>([]);
-
   const [extraFields, setExtraFields] = useState<Partial<Fields>[]>([]);
-
   const [isLoading, setLoading] = useState<boolean>(false);
-
   const [accountSettings, setAccountSettings] = useState<any>({});
-
   const [isVisible, setIsVisible] = useState<boolean>(false);
-
-  const companyId = role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId;
-
-  const isBCUser = !isB2BUser || (role === 3 && !isAgenting);
 
   useEffect(() => {
     const init = async () => {
