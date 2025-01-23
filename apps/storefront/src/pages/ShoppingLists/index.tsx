@@ -26,37 +26,47 @@ interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditShoppingListsClick: (type: string, data?: ShoppingListsItemsProps) => void;
 }
 
+function useData() {
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
+  const { shoppingListCreateActionsPermission, submitShoppingListPermission } =
+    useAppSelector(rolePermissionSelector);
+  const companyId = companyB2BId || salesRepCompanyId;
+
+  return {
+    companyId,
+    isB2BUser,
+    shoppingListCreateActionsPermission,
+    submitShoppingListPermission,
+  };
+}
+
 function ShoppingLists() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
-
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
-
   const [deleteItem, setDeleteItem] = useState<null | ShoppingListsItemsProps>(null);
-
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
 
   const [isMobile] = useMobile();
+  const b3Lang = useB3Lang();
 
   const [paginationTableRef] = useTableRef();
 
-  const b3Lang = useB3Lang();
-
-  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const {
+    companyId,
+    isB2BUser,
+    shoppingListCreateActionsPermission,
+    submitShoppingListPermission,
+  } = useData();
 
   const {
     state: { openAPPParams },
     dispatch,
   } = useContext(GlobalContext);
 
-  const isB2BUser = useAppSelector(isB2BUserSelector);
-  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
-
-  const { shoppingListCreateActionsPermission, submitShoppingListPermission } =
-    useAppSelector(rolePermissionSelector);
-
   useEffect(() => {
     const initFilter = async () => {
-      const companyId = companyB2BId || salesRepCompanyId;
       const createdByUsers = isB2BUser ? await getShoppingListsCreatedByUser(+companyId, 1) : {};
 
       const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
