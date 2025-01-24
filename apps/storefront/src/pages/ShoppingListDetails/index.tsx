@@ -61,10 +61,7 @@ interface UpdateShoppingListParamsProps {
   channelId?: number;
 }
 
-// shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
-// 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
-
-function ShoppingListDetails({ setOpenPage }: PageProps) {
+function useData() {
   const { id = '' } = useParams();
   const {
     state: { openAPPParams, productQuoteEnabled = false },
@@ -76,6 +73,35 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+
+  return {
+    id,
+    openAPPParams,
+    productQuoteEnabled,
+    isB2BUser,
+    currencyCode,
+    role,
+    companyInfoId,
+    customerGroupId,
+    isAgenting,
+  };
+}
+
+// shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
+// 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
+
+function ShoppingListDetails({ setOpenPage }: PageProps) {
+  const {
+    id,
+    openAPPParams,
+    productQuoteEnabled,
+    isB2BUser,
+    currencyCode,
+    role,
+    companyInfoId,
+    customerGroupId,
+    isAgenting,
+  } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
   const { dispatch } = useContext(ShoppingListDetailsContext);
