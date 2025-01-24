@@ -61,6 +61,25 @@ interface UpdateShoppingListParamsProps {
   channelId?: number;
 }
 
+const calculateSubTotal = (checkedArr: CustomFieldItems) => {
+  if (checkedArr.length > 0) {
+    let total = 0.0;
+
+    checkedArr.forEach((item: ListItemProps) => {
+      const {
+        node: { quantity, basePrice, taxPrice },
+      } = item;
+
+      const price = getBCPrice(+basePrice, +taxPrice);
+
+      total += price * +quantity;
+    });
+
+    return (1000 * total) / 1000;
+  }
+  return 0.0;
+};
+
 function useData() {
   const { id = '' } = useParams();
   const {
@@ -343,27 +362,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     }
   };
 
-  const calculateSubTotal = (checkedArr: CustomFieldItems) => {
-    if (checkedArr.length > 0) {
-      let total = 0.0;
-
-      checkedArr.forEach((item: ListItemProps) => {
-        const {
-          node: { quantity, basePrice, taxPrice },
-        } = item;
-
-        const price = getBCPrice(+basePrice, +taxPrice);
-
-        total += price * +quantity;
-      });
-
-      return (1000 * total) / 1000;
-    }
-    return 0.0;
-  };
-
-  const selectedSubTotal = calculateSubTotal(checkedArr);
-
   const handleDeleteProductClick = async () => {
     await handleDeleteItems(+deleteItemId);
     await handleCancelClick();
@@ -509,7 +507,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               shoppingListInfo={shoppingListInfo}
               allowJuniorPlaceOrder={allowJuniorPlaceOrder}
               checkedArr={checkedArr}
-              selectedSubTotal={selectedSubTotal}
+              selectedSubTotal={calculateSubTotal(checkedArr)}
               setLoading={setIsRequestLoading}
               setDeleteOpen={setDeleteOpen}
               setValidateFailureProducts={setValidateFailureProducts}
