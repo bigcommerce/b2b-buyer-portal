@@ -77,6 +77,12 @@ function useData() {
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
 
+  const {
+    shoppingListCreateActionsPermission,
+    purchasabilityPermission,
+    submitShoppingListPermission,
+  } = useAppSelector(rolePermissionSelector);
+
   return {
     id,
     openAPPParams,
@@ -88,6 +94,9 @@ function useData() {
     customerGroupId,
     isAgenting,
     primaryColor,
+    shoppingListCreateActionsPermission,
+    purchasabilityPermission,
+    submitShoppingListPermission,
   };
 }
 
@@ -106,6 +115,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     customerGroupId,
     isAgenting,
     primaryColor,
+    shoppingListCreateActionsPermission,
+    purchasabilityPermission,
+    submitShoppingListPermission,
   } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
@@ -130,11 +142,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false);
   const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
 
-  const {
-    shoppingListCreateActionsPermission,
-    purchasabilityPermission,
-    submitShoppingListPermission,
-  } = useAppSelector(rolePermissionSelector);
   const b2bAndBcShoppingListActionsPermissions = isB2BUser
     ? shoppingListCreateActionsPermission && isCanEditShoppingList
     : true;
