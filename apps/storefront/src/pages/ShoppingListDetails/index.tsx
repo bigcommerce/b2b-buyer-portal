@@ -74,6 +74,9 @@ function useData() {
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
+
   return {
     id,
     openAPPParams,
@@ -84,6 +87,7 @@ function useData() {
     companyInfoId,
     customerGroupId,
     isAgenting,
+    primaryColor,
   };
 }
 
@@ -101,16 +105,13 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     companyInfoId,
     customerGroupId,
     isAgenting,
+    primaryColor,
   } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
   const { dispatch } = useContext(ShoppingListDetailsContext);
 
-  const theme = useTheme();
-
   const b3Lang = useB3Lang();
-
-  const primaryColor = theme.palette.primary.main;
 
   const tableRef = useRef<TableRefProps | null>(null);
 
