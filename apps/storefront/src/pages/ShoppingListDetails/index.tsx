@@ -83,6 +83,8 @@ function useData() {
     submitShoppingListPermission,
   } = useAppSelector(rolePermissionSelector);
 
+  const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
+
   return {
     id,
     openAPPParams,
@@ -95,8 +97,8 @@ function useData() {
     isAgenting,
     primaryColor,
     shoppingListCreateActionsPermission,
-    purchasabilityPermission,
     submitShoppingListPermission,
+    isCanAddToCart,
   };
 }
 
@@ -116,8 +118,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     isAgenting,
     primaryColor,
     shoppingListCreateActionsPermission,
-    purchasabilityPermission,
     submitShoppingListPermission,
+    isCanAddToCart,
   } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
@@ -161,7 +163,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     return submitShoppingListPermission;
   }, [submitShoppingListPermission, isB2BUser, shoppingListInfo]);
-  const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
   const b2bSubmitShoppingListPermission = isB2BUser
     ? submitShoppingList
     : role === CustomerRole.JUNIOR_BUYER;
