@@ -132,7 +132,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
   const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null);
   const [customerInfo, setCustomerInfo] = useState<null | CustomerInfoProps>(null);
-  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.0);
   const [isRequestLoading, setIsRequestLoading] = useState(false);
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
@@ -344,7 +343,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     }
   };
 
-  useEffect(() => {
+  const calculateSubTotal = (checkedArr: CustomFieldItems) => {
     if (checkedArr.length > 0) {
       let total = 0.0;
 
@@ -358,11 +357,12 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         total += price * +quantity;
       });
 
-      setSelectedSubTotal((1000 * total) / 1000);
-    } else {
-      setSelectedSubTotal(0.0);
+      return (1000 * total) / 1000;
     }
-  }, [checkedArr]);
+    return 0.0;
+  };
+
+  const selectedSubTotal = calculateSubTotal(checkedArr);
 
   const handleDeleteProductClick = async () => {
     await handleDeleteItems(+deleteItemId);
