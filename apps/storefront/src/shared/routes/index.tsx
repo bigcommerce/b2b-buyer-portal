@@ -168,13 +168,13 @@ const gotoAllowedAppPage = async (
       company.companyInfo.status === CompanyStatus.APPROVED
     ) {
       isB2BUser = true;
-    } else if (+company.customer.role === CustomerRole.SUPER_ADMIN) {
+    } else if (Number(company.customer.role) === CustomerRole.SUPER_ADMIN) {
       isB2BUser = true;
     }
 
-    const currentAuthorizedPages = isB2BUser ? b2bJumpPath(+role) : '/orders';
+    const currentAuthorizedPages = isB2BUser ? b2bJumpPath(Number(role)) : '/orders';
 
-    switch (+role) {
+    switch (Number(role)) {
       case CustomerRole.JUNIOR_BUYER:
         url = '/shoppingLists';
         break;
@@ -189,7 +189,7 @@ const gotoAllowedAppPage = async (
 
   const flag = routes.some((item: RouteItem) => {
     if (matchPath(item.path, url) || isInvoicePage()) {
-      return item.permissions.includes(+role);
+      return item.permissions.includes(Number(role));
     }
     return false;
   });

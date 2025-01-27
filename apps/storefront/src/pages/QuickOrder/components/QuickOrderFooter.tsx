@@ -159,7 +159,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       const { node } = item;
 
       const currentProduct: CustomFieldItems | undefined = inventoryInfos.find(
-        (inventory: CustomFieldItems) => +node.productId === inventory.id,
+        (inventory: CustomFieldItems) => Number(node.productId) === inventory.id,
       );
       if (currentProduct) {
         const { variants }: CustomFieldItems = currentProduct;
@@ -167,7 +167,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         if (variants.length > 0) {
           const currentInventoryInfo: CustomFieldItems | undefined = variants.find(
             (variant: CustomFieldItems) =>
-              node.variantSku === variant.sku && +node.variantId === +variant.variant_id,
+              node.variantSku === variant.sku &&
+              Number(node.variantId) === Number(variant.variant_id),
           );
 
           if (currentInventoryInfo) {
@@ -202,8 +203,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       checkedArr.forEach((item: CheckedProduct) => {
         const { node } = item;
 
-        if (!productIds.includes(+node.productId)) {
-          productIds.push(+node.productId);
+        if (!productIds.includes(Number(node.productId))) {
+          productIds.push(Number(node.productId));
         }
       });
 
@@ -305,8 +306,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       productsWithSku.forEach((product: CheckedProduct) => {
         const { node } = product;
 
-        if (!productIds.includes(+node.productId)) {
-          productIds.push(+node.productId);
+        if (!productIds.includes(Number(node.productId))) {
+          productIds.push(Number(node.productId));
         }
       });
 
@@ -341,7 +342,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
         const optionsList = getOptionsList(optionList);
 
         const currentProductSearch = newProductInfo.find(
-          (product: CustomFieldItems) => +product.id === +productId,
+          (product: CustomFieldItems) => Number(product.id) === Number(productId),
         );
 
         const variantItem = currentProductSearch?.variants.find(
@@ -363,7 +364,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
             productsSearch: currentProductSearch,
             primaryImage: variantItem?.image_url || PRODUCT_DEFAULT_IMAGE,
             productName,
-            quantity: +quantity || 1,
+            quantity: Number(quantity) || 1,
             optionList: JSON.stringify(optionsList),
             productId,
             basePrice,
@@ -487,8 +488,8 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
       checkedArr.forEach((product: CheckedProduct) => {
         const { node } = product;
 
-        if (!productIds.includes(+node.productId)) {
-          productIds.push(+node.productId);
+        if (!productIds.includes(Number(node.productId))) {
+          productIds.push(Number(node.productId));
         }
       });
 
@@ -503,16 +504,16 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
         const newOptionLists = getValidOptionsList(optionsList, productsSearch);
         items.push({
-          productId: +productId,
-          variantId: +variantId,
-          quantity: +quantity,
+          productId: Number(productId),
+          variantId: Number(variantId),
+          quantity: Number(quantity),
           optionList: newOptionLists,
         });
       });
 
       const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
       await addToShoppingList({
-        shoppingListId: +shoppingListId,
+        shoppingListId: Number(shoppingListId),
         items,
       });
 
@@ -565,10 +566,11 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
 
         if (variants?.length) {
           const priceIncTax =
-            getProductPriceIncTaxOrExTaxBySetting(variants, +variantId) || +(basePrice || 0);
-          total += priceIncTax * +quantity;
+            getProductPriceIncTaxOrExTaxBySetting(variants, Number(variantId)) ||
+            Number(basePrice || 0);
+          total += priceIncTax * Number(quantity);
         } else {
-          total += +(basePrice || 0) * +quantity;
+          total += Number(basePrice || 0) * Number(quantity);
         }
       });
 

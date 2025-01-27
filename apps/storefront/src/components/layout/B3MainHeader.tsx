@@ -84,7 +84,7 @@ export default function MainHeader({ title }: { title: string }) {
               ml: 0,
             }}
           >
-            {+role === 3 &&
+            {Number(role) === 3 &&
               (companyInfo?.companyName ||
                 salesRepCompanyName ||
                 b3Lang('global.B3MainHeader.superAdmin'))}

@@ -86,7 +86,7 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
       });
     } else {
       if (typeof b2bId === 'number') {
-        await superAdminEndMasquerade(+salesRepCompanyId);
+        await superAdminEndMasquerade(Number(salesRepCompanyId));
       }
 
       dispatch(clearMasqueradeCompany());

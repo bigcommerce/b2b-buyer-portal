@@ -31,7 +31,7 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
   const [companyNames, setCompanyNames] = useState<string[]>([companyName]);
 
   const [companyIds, setCompanyIds] = useState<number[]>([
-    +selectCompanyHierarchyId || +currentCompanyId,
+    Number(selectCompanyHierarchyId) || Number(currentCompanyId),
   ]);
   const newCompanyHierarchyList = useMemo(() => {
     const allCompany = {
@@ -48,7 +48,7 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
   }, [companyHierarchyList, selectCompanyHierarchyId, companyHierarchySelectSubsidiariesList]);
 
   useEffect(() => {
-    setCompanyIds([+selectCompanyHierarchyId || +currentCompanyId]);
+    setCompanyIds([Number(selectCompanyHierarchyId) || Number(currentCompanyId)]);
   }, [selectCompanyHierarchyId, currentCompanyId]);
 
   const handleChange = (event: SelectChangeEvent<string[]>) => {
@@ -78,7 +78,7 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
 
     if (!currentValues.includes('All')) {
       if (isCheckedAll) {
-        selectCompanies = [+selectCompanyHierarchyId || +currentCompanyId];
+        selectCompanies = [Number(selectCompanyHierarchyId) || Number(currentCompanyId)];
         setIsCheckedAll(false);
       } else {
         selectCompanies = [];
@@ -111,7 +111,7 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
     if (companyIds.length) {
       companyIds.forEach((id) => {
         const currentCompany = newCompanyHierarchyList.find(
-          (company) => +company.companyId === +id,
+          (company) => Number(company.companyId) === Number(id),
         );
 
         if (currentCompany) {
@@ -121,7 +121,7 @@ function B2BAutoCompleteCheckbox({ handleChangeCompanyIds }: B2BAutoCompleteChec
     } else {
       const activeCompany = selectCompanyHierarchyId || currentCompanyId;
       const currentCompany = newCompanyHierarchyList.find(
-        (company) => +company.companyId === +activeCompany,
+        (company) => Number(company.companyId) === Number(activeCompany),
       );
       if (currentCompany) {
         newSelectedCompany.push(currentCompany.companyName);

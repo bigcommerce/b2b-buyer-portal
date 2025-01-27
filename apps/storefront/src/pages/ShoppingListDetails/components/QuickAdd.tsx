@@ -178,7 +178,7 @@ export default function QuickAdd(props: AddToListContentProps) {
           return;
         }
 
-        if (+quantity < 1 || +quantity > 1000000) {
+        if (Number(quantity) < 1 || Number(quantity) > 1000000) {
           numberLimit.push(sku);
           return;
         }

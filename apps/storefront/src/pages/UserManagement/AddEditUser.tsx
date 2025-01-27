@@ -155,7 +155,7 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
       try {
         const params: Partial<FilterProps> = {
           companyId,
-          companyRoleId: +data.companyRoleId,
+          companyRoleId: Number(data.companyRoleId),
           ...data,
           extraFields: extraFieldsInfo,
         };
@@ -195,7 +195,11 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
   };
 
   const handleOpenAddEditUserClick = (type: string, data: UsersList) => {
-    const usersFiles = getUsersFiles(type, b3Lang, type === 'edit' ? b2bId === +data.id : false);
+    const usersFiles = getUsersFiles(
+      type,
+      b3Lang,
+      type === 'edit' ? b2bId === Number(data.id) : false,
+    );
 
     if (type === 'edit') {
       const extrafieldsInfo: ExtraFieldsProps[] = data.extraFields || [];

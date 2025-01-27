@@ -70,7 +70,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
       products.forEach((item, index) => {
         returnIds[index] = {
           returnId: item.id,
-          returnQty: +item.editQuantity,
+          returnQty: Number(item.editQuantity),
         };
       });
 
@@ -104,10 +104,10 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
     (product: EditableProductItem) => (e: ChangeEvent<HTMLInputElement>) => {
       const element = product;
       const valueNum = e.target.value;
-      if (+valueNum >= 0 && +valueNum <= 1000000) {
+      if (Number(valueNum) >= 0 && Number(valueNum) <= 1000000) {
         element.editQuantity = valueNum;
         if (type === 'return') {
-          if (+valueNum > +product.quantity) {
+          if (Number(valueNum) > Number(product.quantity)) {
             element.editQuantity = product.quantity;
             snackbar.error(
               b3Lang('purchasedProducts.error.returnedQuantityShouldBeWithinThePurchase'),
@@ -116,7 +116,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
             returnList.forEach((listItem) => {
               const item = listItem;
               if (item.returnId === product.id) {
-                item.returnQty = +valueNum;
+                item.returnQty = Number(valueNum);
               }
             });
             setReturnArr(returnList);
@@ -134,7 +134,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
 
   const handleNumberInputBlur = (product: EditableProductItem) => () => {
     const editableProduct = product;
-    if (!product.editQuantity || +product.editQuantity === 0) {
+    if (!product.editQuantity || Number(product.editQuantity) === 0) {
       editableProduct.editQuantity = '1';
       onProductChange([...products]);
     }
@@ -189,7 +189,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
           <Checkbox
             checked={isChecked(product.variant_id)}
             onChange={() =>
-              handleSelectChange(product.variant_id, product.id, +product.editQuantity)
+              handleSelectChange(product.variant_id, product.id, Number(product.editQuantity))
             }
           />
           <FlexItem>

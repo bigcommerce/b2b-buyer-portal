@@ -267,7 +267,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
           quote: { trackingHistory },
         },
       } = await fn({
-        id: +id,
+        id: Number(id),
         quoteData: {
           message: msg,
           lastMessage: parseInt(`${new Date().getTime() / 1000}`, 10),
@@ -296,7 +296,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
         const fn = isB2BUser ? updateB2BQuote : updateBCQuote;
         if (changeReadRef.current === 0 && msgs.length) {
           fn({
-            id: +id,
+            id: Number(id),
             quoteData: {
               lastMessage: msgs[msgs.length - 1]?.date,
               userEmail: email || '',

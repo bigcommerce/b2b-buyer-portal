@@ -52,17 +52,20 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
     {
       key: 'createdAt',
       title: b3Lang('quotes.quoteItemCard.dateCreated'),
-      render: () => `${+item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt}`,
+      render: () =>
+        `${Number(item.status) !== 0 ? displayFormat(Number(item.createdAt)) : item.createdAt}`,
     },
     {
       key: 'updatedAt',
       title: b3Lang('quotes.quoteItemCard.lastUpdate'),
-      render: () => `${+item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt}`,
+      render: () =>
+        `${Number(item.status) !== 0 ? displayFormat(Number(item.updatedAt)) : item.updatedAt}`,
     },
     {
       key: 'expiredAt',
       title: b3Lang('quotes.quoteItemCard.expirationDate'),
-      render: () => `${+item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt}`,
+      render: () =>
+        `${Number(item.status) !== 0 ? displayFormat(Number(item.expiredAt)) : item.expiredAt}`,
     },
     {
       key: 'totalAmount',
@@ -70,7 +73,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
       render: () => {
         const { totalAmount } = item;
 
-        return `${currencyFormat(+totalAmount)}`;
+        return `${currencyFormat(Number(totalAmount))}`;
       },
     },
   ];
@@ -133,7 +136,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
         ))}
 
         <Box
-          onClick={() => goToDetail(item, +item.status)}
+          onClick={() => goToDetail(item, Number(item.status))}
           sx={{
             mt: '1rem',
             pl: 0,

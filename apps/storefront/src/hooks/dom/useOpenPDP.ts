@@ -97,7 +97,7 @@ export const useOpenPDP = ({ setOpenPage, role }: MutationObserverProps) => {
       });
 
       addProductFromPage({
-        role: +role,
+        role: Number(role),
         storeDispatch,
         saveFn: jumpRegister,
         setOpenPage,

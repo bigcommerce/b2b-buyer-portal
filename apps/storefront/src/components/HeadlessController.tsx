@@ -101,10 +101,10 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
 
   const customerId = customer.id;
   // Keep updated values
-  const salesRepCompanyIdRef = useRef(+salesRepCompanyId);
+  const salesRepCompanyIdRef = useRef(Number(salesRepCompanyId));
   const customerIdRef = useRef(customerId);
   const customerRef = useRef(customer);
-  const roleRef = useRef(+role);
+  const roleRef = useRef(Number(role));
   const isB2BUserRef = useRef(isB2BUser);
   const productQuoteEnabledRef = useRef(productQuoteEnabled);
   const shoppingListEnabledRef = useRef(shoppingListEnabled);
@@ -113,10 +113,10 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const shoppingListBtnRef = useRef(shoppingListBtn);
   const addToAllQuoteBtnRef = useRef(addToAllQuoteBtn);
 
-  salesRepCompanyIdRef.current = +salesRepCompanyId;
+  salesRepCompanyIdRef.current = Number(salesRepCompanyId);
   customerIdRef.current = customerId;
   customerRef.current = customer;
-  roleRef.current = +role;
+  roleRef.current = Number(role);
   isB2BUserRef.current = isB2BUser;
   productQuoteEnabledRef.current = productQuoteEnabled;
   shoppingListEnabledRef.current = shoppingListEnabled;

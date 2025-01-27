@@ -159,7 +159,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     if (isB2BUser) {
       return verifyCreatePermission(
         b2bPermissionsMap.quotesCreateActionsPermission,
-        +selectCompanyHierarchyId,
+        Number(selectCompanyHierarchyId),
       );
     }
 
@@ -230,9 +230,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           };
 
           if (!selectCompanyHierarchyId) {
-            addressB2BList = await fetchAddresses(+companyId);
+            addressB2BList = await fetchAddresses(Number(companyId));
           } else if (selectCompanyHierarchyId && isAddressCompanyHierarchy) {
-            addressB2BList = await fetchAddresses(+selectCompanyHierarchyId);
+            addressB2BList = await fetchAddresses(Number(selectCompanyHierarchyId));
           }
 
           const shippingDefaultAddress = addressB2BList.find(
@@ -255,7 +255,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               state: shippingDefaultAddress?.node?.state || '',
               zipCode: shippingDefaultAddress?.node?.zipCode || '',
               phoneNumber: shippingDefaultAddress?.node?.phoneNumber || '',
-              addressId: shippingDefaultAddress?.node?.id ? +shippingDefaultAddress.node.id : 0,
+              addressId: shippingDefaultAddress?.node?.id
+                ? Number(shippingDefaultAddress.node.id)
+                : 0,
             };
 
             quoteInfo.shippingAddress = addressItem as ShippingAddress;
@@ -276,7 +278,9 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               state: billingDefaultAddress?.node?.state || '',
               zipCode: billingDefaultAddress?.node?.zipCode || '',
               phoneNumber: billingDefaultAddress?.node?.phoneNumber || '',
-              addressId: billingDefaultAddress?.node?.id ? +billingDefaultAddress.node.id : 0,
+              addressId: billingDefaultAddress?.node?.id
+                ? Number(billingDefaultAddress.node.id)
+                : 0,
             };
 
             quoteInfo.billingAddress = addressItem as BillingAddress;
@@ -304,7 +308,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
                 ?.value || field?.default;
 
             return {
-              id: +field.id,
+              id: Number(field.id),
               fieldName: field.name,
               value: defaultValue || '',
             };
@@ -315,7 +319,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         if (
           quoteInfo &&
           (!quoteInfo?.contactInfo || validateObject(quoteInfo, 'contactInfo')) &&
-          +role !== 100
+          Number(role) !== 100
         ) {
           setCustomInfo(quoteInfo);
         } else if (quoteInfo) {
@@ -323,7 +327,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
         }
       } finally {
         const quoteUserId = customer.b2bId || customer.id || 0;
-        dispatch(setQuoteUserId(+quoteUserId));
+        dispatch(setQuoteUserId(Number(quoteUserId)));
 
         setLoading(false);
       }
@@ -387,7 +391,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
       saveInfo.referenceNumber = contactInfo?.referenceNumber || '';
 
       const extraFieldsInfo = extraFields.map((field) => ({
-        id: +field.id,
+        id: Number(field.id),
         fieldName: field.name,
         value: field.name ? contactInfo[field.name] : '',
       }));
@@ -582,16 +586,16 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             variantsItem = variants.find((item) => item.sku === node.variantSku);
           }
 
-          allPrice += +(node?.basePrice || 0) * +(node?.quantity || 0);
+          allPrice += Number(node?.basePrice || 0) * Number(node?.quantity || 0);
 
-          allTaxPrice += +(node?.taxPrice || 0) * +(node?.quantity || 0);
+          allTaxPrice += Number(node?.taxPrice || 0) * Number(node?.quantity || 0);
 
           const items = {
             productId: node?.productsSearch?.id,
             sku: node.variantSku,
-            basePrice: (+(node?.basePrice || 0)).toFixed(currency.decimal_places),
+            basePrice: Number(node?.basePrice || 0).toFixed(currency.decimal_places),
             discount: '0.00',
-            offeredPrice: (+(node?.basePrice || 0)).toFixed(currency.decimal_places),
+            offeredPrice: Number(node?.basePrice || 0).toFixed(currency.decimal_places),
             quantity: node.quantity,
             variantId: variantsItem?.variant_id,
             imageUrl: node.primaryImage,
@@ -638,7 +642,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           recipients: info.recipients || [],
         };
 
-        const fn = +role === 99 ? createBCQuote : createQuote;
+        const fn = Number(role) === 99 ? createBCQuote : createQuote;
 
         if (!dispatchOnQuoteCreateEvent(data)) {
           throw new Error();
@@ -681,7 +685,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
 
   const backText = () => {
     let text =
-      +role === 100
+      Number(role) === 100
         ? b3Lang('quoteDraft.button.back')
         : b3Lang('quoteDraft.button.backToQuoteLists');
     if (openAPPParams?.quoteBtn === 'open') {
@@ -728,7 +732,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               alignItems: 'center',
             }}
             onClick={() => {
-              if (openAPPParams?.quoteBtn || +role === 100) {
+              if (openAPPParams?.quoteBtn || Number(role) === 100) {
                 navigate('/');
                 setOpenPage({
                   isOpen: false,

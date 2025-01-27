@@ -43,17 +43,17 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
   };
 
   const action: CustomFieldItems = {};
-  if (+companyStatus !== 0) {
+  if (Number(companyStatus) !== 0) {
     action.onClose = handleCloseTip;
   }
 
   useEffect(() => {
-    const loginTypeStatus = +companyStatus === 0 ? true : loginType === 1;
+    const loginTypeStatus = Number(companyStatus) === 0 ? true : loginType === 1;
 
     const showTip = role === 100 ? false : loginTypeStatus;
     setIsShow(showTip);
     if (showTip) {
-      if (+companyStatus === 0) {
+      if (Number(companyStatus) === 0) {
         if (blockPendingAccountOrderCreation && blockPendingAccountViewPrice) {
           setTip(b3Lang(StatusNotifications.pendingOrderingAndViewPriceBlocked));
         }
@@ -73,13 +73,13 @@ export default function B3StatusNotification(props: B3StatusNotificationProps) {
         setBcColor('#0288D1');
       }
 
-      if (+companyStatus === 1) {
+      if (Number(companyStatus) === 1) {
         setTip(b3Lang(StatusNotifications.approvedTip));
         setType('success');
         setBcColor('#2E7D32');
       }
 
-      if (+companyStatus === 2) {
+      if (Number(companyStatus) === 2) {
         setTip(StatusNotifications.rejectedTip);
         setType('warning');
         setBcColor('#ED6C02');

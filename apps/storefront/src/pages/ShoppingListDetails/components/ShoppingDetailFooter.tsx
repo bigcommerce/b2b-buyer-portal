@@ -119,7 +119,9 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
 
   const b2bShoppingListActionsPermission = isB2BUser ? shoppingListCreateActionsPermission : true;
   const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
-  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : +role === 2;
+  const b2bSubmitShoppingListPermission = isB2BUser
+    ? submitShoppingListPermission
+    : Number(role) === 2;
 
   const handleOpenBtnList = () => {
     if (checkedArr.length === 0) {
@@ -148,19 +150,19 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         let isPassVerify = true;
         if (
           inventoryInfo.isStock === '1' &&
-          (node?.quantity ? +node.quantity : 0) > inventoryInfo.stock
+          (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.stock
         )
           isPassVerify = false;
 
         if (
           inventoryInfo.minQuantity !== 0 &&
-          (node?.quantity ? +node.quantity : 0) < inventoryInfo.minQuantity
+          (node?.quantity ? Number(node.quantity) : 0) < inventoryInfo.minQuantity
         )
           isPassVerify = false;
 
         if (
           inventoryInfo.maxQuantity !== 0 &&
-          (node?.quantity ? +node.quantity : 0) > inventoryInfo.maxQuantity
+          (node?.quantity ? Number(node.quantity) : 0) > inventoryInfo.maxQuantity
         )
           isPassVerify = false;
 
@@ -346,8 +348,8 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
       productsWithSku.forEach((product: ListItemProps) => {
         const { node } = product;
 
-        if (!productIds.includes(+node.productId)) {
-          productIds.push(+node.productId);
+        if (!productIds.includes(Number(node.productId))) {
+          productIds.push(Number(node.productId));
         }
       });
 
@@ -382,7 +384,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
         const optionsList = getOptionsList(JSON.parse(optionList));
 
         const currentProductSearch = newProductInfo.find(
-          (product: CustomFieldItems) => +product.id === +productId,
+          (product: CustomFieldItems) => Number(product.id) === Number(productId),
         );
 
         const variantItem = currentProductSearch?.variants.find(
@@ -404,7 +406,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
             productsSearch: currentProductSearch,
             primaryImage: variantItem?.image_url || PRODUCT_DEFAULT_IMAGE,
             productName,
-            quantity: +quantity || 1,
+            quantity: Number(quantity) || 1,
             optionList: JSON.stringify(optionsList),
             productId,
             basePrice,

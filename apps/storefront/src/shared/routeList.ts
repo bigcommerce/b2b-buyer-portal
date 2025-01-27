@@ -262,7 +262,7 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
     company.companyInfo.status === CompanyStatus.APPROVED
   ) {
     isB2BUser = true;
-  } else if (+company.customer.role === CustomerRole.SUPER_ADMIN) {
+  } else if (Number(company.customer.role) === CustomerRole.SUPER_ADMIN) {
     isB2BUser = true;
   }
 
@@ -329,7 +329,7 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
     if (!isHasPermissionRole()) return false;
 
     if (path === '/dashboard') {
-      return +role === CustomerRole.SUPER_ADMIN;
+      return Number(role) === CustomerRole.SUPER_ADMIN;
     }
 
     if (!storefrontConfig) {
@@ -363,6 +363,6 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
       return !!config.enabledStatus && !!config.value;
     }
 
-    return !!config.enabledStatus && permissions.includes(+role);
+    return !!config.enabledStatus && permissions.includes(Number(role));
   });
 };

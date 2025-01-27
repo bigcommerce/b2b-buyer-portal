@@ -28,7 +28,7 @@ const useRole = () => {
   };
 
   useEffect(() => {
-    getRole(+role, isAgenting);
+    getRole(Number(role), isAgenting);
   }, [isB2BUser, role, isAgenting]);
 
   return [roleText];

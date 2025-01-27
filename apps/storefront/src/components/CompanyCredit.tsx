@@ -23,7 +23,7 @@ function CompanyCredit() {
     const init = async () => {
       if (isCloseCompanyCredit) return;
 
-      if (permissionRoles.includes(+role) || (+role === 3 && isAgenting)) {
+      if (permissionRoles.includes(Number(role)) || (Number(role) === 3 && isAgenting)) {
         const {
           companyCreditConfig: { creditHold, creditEnabled },
         } = await getCompanyCreditConfig();

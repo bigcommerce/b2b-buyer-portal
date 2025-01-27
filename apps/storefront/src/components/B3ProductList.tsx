@@ -174,7 +174,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
       onProductQuantityChange(product.id, 1);
     }
 
-    if (+product[quantityKey] > 1000000) {
+    if (Number(product[quantityKey]) > 1000000) {
       onProductQuantityChange(product.id, 1000000);
     }
   };
@@ -279,35 +279,35 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
       {products.map((product) => {
         const { variants = [], applied_discounts: appliedDiscounts = [] } = product;
         const quantity = getQuantity(product) || 1;
-        const originQuantity = +product.quantity || 1;
+        const originQuantity = Number(product.quantity) || 1;
 
         let discountAccountForSingleProduct = 0;
         appliedDiscounts.forEach((discount) => {
           if (discount.target === 'product') {
-            discountAccountForSingleProduct += +discount.amount / originQuantity;
+            discountAccountForSingleProduct += Number(discount.amount) / originQuantity;
           }
         });
 
         const currentVariant = variants[0];
-        let productPrice = +product.base_price;
+        let productPrice = Number(product.base_price);
         if (currentVariant) {
           const bcCalculatedPrice = currentVariant.bc_calculated_price;
 
           productPrice = showInclusiveTaxPrice
-            ? +bcCalculatedPrice.tax_inclusive
-            : +bcCalculatedPrice.tax_exclusive;
+            ? Number(bcCalculatedPrice.tax_inclusive)
+            : Number(bcCalculatedPrice.tax_exclusive);
         }
 
         if (!currentVariant) {
           const priceIncTax = product?.price_inc_tax || product.base_price;
           const priceExTax = product?.price_ex_tax || product.base_price;
 
-          productPrice = showInclusiveTaxPrice ? +priceIncTax : +priceExTax;
+          productPrice = showInclusiveTaxPrice ? Number(priceIncTax) : Number(priceExTax);
         }
 
         const totalPrice = getProductTotals(quantity, productPrice);
 
-        const discountedPrice = +productPrice - +discountAccountForSingleProduct;
+        const discountedPrice = Number(productPrice) - Number(discountAccountForSingleProduct);
         const discountedTotalPrice = getProductTotals(quantity, discountedPrice);
 
         const getDisplayPrice = (priceValue: number) => {

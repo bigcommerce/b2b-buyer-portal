@@ -5,5 +5,6 @@ module.exports = {
   ignorePatterns: ['dist/', 'out/', 'build/'],
   rules: {
     'react/react-in-jsx-scope': 'off',
+    'no-implicit-coercion': 'error',
   },
 };

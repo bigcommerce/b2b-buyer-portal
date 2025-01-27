@@ -111,7 +111,7 @@ export const verifyLevelPermission = ({
   const { companyInfo, customer } = store.getState().company || {};
 
   return levelComparison({
-    permissionLevel: +permissionLevel,
+    permissionLevel: Number(permissionLevel),
     customer,
     companyInfo,
     params: {

@@ -178,7 +178,7 @@ function AddressForm(
 
         const params = {
           ...data,
-          companyId: +companyId,
+          companyId: Number(companyId),
           extraFields,
           isShipping: shippingBilling.isShipping ? 1 : 0,
           isBilling: shippingBilling.isBilling ? 1 : 0,
@@ -198,7 +198,7 @@ function AddressForm(
 
           await updateB2BAddress({
             ...params,
-            id: +id,
+            id: Number(id),
           });
 
           snackbar.success(b3Lang('addresses.addressForm.addressUpdated'));
@@ -275,7 +275,7 @@ function AddressForm(
           if (bcAddressId) {
             await updateBcAddress({
               ...params,
-              id: +bcAddressId,
+              id: Number(bcAddressId),
             });
           }
           snackbar.success(b3Lang('addresses.addressForm.addressUpdated'));

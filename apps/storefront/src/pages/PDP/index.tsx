@@ -158,9 +158,9 @@ function useData() {
     const sku = (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
     const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
     return {
-      productId: +productId,
+      productId: Number(productId),
       sku,
-      quantity: +quantity,
+      quantity: Number(quantity),
       optionSelections: serialize(form),
     };
   };

@@ -165,9 +165,9 @@ export const getCompanyInfo = async (
   };
 
   const { B2BToken } = store.getState().company.tokens;
-  if (!B2BToken || !VALID_ROLES.includes(+role)) return companyInfo;
+  if (!B2BToken || !VALID_ROLES.includes(Number(role))) return companyInfo;
 
-  if (id && userType === UserTypes.MULTIPLE_B2C && +role !== CustomerRole.SUPER_ADMIN) {
+  if (id && userType === UserTypes.MULTIPLE_B2C && Number(role) !== CustomerRole.SUPER_ADMIN) {
     const { userCompany } = await getUserCompany(id);
 
     if (userCompany) {
@@ -195,7 +195,7 @@ export const getCompanyInfo = async (
 };
 
 export const agentInfo = async (customerId: number | string, role: number) => {
-  if (+role === CustomerRole.SUPER_ADMIN) {
+  if (Number(role) === CustomerRole.SUPER_ADMIN) {
     try {
       const data: any = await getAgentInfo(customerId);
       if (data?.superAdminMasquerading) {
@@ -318,7 +318,7 @@ export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
       const isB2BUser =
         (userType === UserTypes.MULTIPLE_B2C &&
           companyInfo?.companyStatus === CompanyStatus.APPROVED) ||
-        +role === CustomerRole.SUPER_ADMIN;
+        Number(role) === CustomerRole.SUPER_ADMIN;
 
       const customerInfo = {
         id: customerId,

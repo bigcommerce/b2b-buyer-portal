@@ -9,7 +9,7 @@ export const handleSplitOptionId = (id: string | number) => {
     const idRight = id.split('[')[1];
 
     const optionId = idRight.split(']')[0];
-    return +optionId;
+    return Number(optionId);
   }
 
   if (typeof id === 'number') {

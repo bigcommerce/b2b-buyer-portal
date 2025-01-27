@@ -44,10 +44,10 @@ interface RowProps {
 function Row({ isRow = true, type = '', value, label, code }: RowProps) {
   const getNewVal = (): string | number | Date => {
     if (type === 'time') {
-      return displayFormat(+value) || '';
+      return displayFormat(Number(value)) || '';
     }
     if (type === 'currency') {
-      const val = +(value || 0);
+      const val = Number(value || 0);
       const accountValue = handleGetCorrespondingCurrency(code, val);
       return accountValue;
     }
@@ -203,7 +203,7 @@ function PaymentSuccessList({ list }: { list: InvoiceSuccessData }) {
             invoiceNumber,
             amount: { value, code },
           } = item.node;
-          const val = +(value || 0);
+          const val = Number(value || 0);
 
           const accountValue = handleGetCorrespondingCurrency(code, val);
           return (
@@ -245,7 +245,7 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
   useEffect(() => {
     const init = async () => {
       setLoadding(true);
-      const { receipt } = await getInvoicePaymentInfo(+receiptId);
+      const { receipt } = await getInvoicePaymentInfo(Number(receiptId));
 
       setDetailData(receipt);
       setOpen(true);

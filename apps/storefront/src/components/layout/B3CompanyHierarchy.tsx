@@ -64,7 +64,7 @@ function B3CompanyHierarchy() {
     const showTitleId = selectCompanyHierarchyId || currentCompanyId || salesRepCompanyId;
 
     const title = companyHierarchyList.find(
-      (list) => +list.companyId === +showTitleId,
+      (list) => Number(list.companyId) === Number(showTitleId),
     )?.companyName;
 
     const list: ListItemProps[] = companyHierarchyList.map((item) => ({
@@ -83,10 +83,10 @@ function B3CompanyHierarchy() {
     dispatch(setOpenCompanyHierarchyDropDown(false));
   };
   const handleRowClick = (key: number) => {
-    const item = info.list.find((list) => +list.key === key);
+    const item = info.list.find((list) => Number(list.key) === key);
     if (!item) return;
     setCurrentRow({
-      companyId: +item.key,
+      companyId: Number(item.key),
       companyName: item.name,
     });
     setOpen(true);
@@ -119,7 +119,7 @@ function B3CompanyHierarchy() {
             justifyContent: 'center',
           }}
         >
-          {key === +selectId && <CheckIcon sx={{ fontSize: '1.2rem' }} />}
+          {key === Number(selectId) && <CheckIcon sx={{ fontSize: '1.2rem' }} />}
         </Grid>
       </Grid>
     );
@@ -160,7 +160,7 @@ function B3CompanyHierarchy() {
           }}
           menuRenderItemName={menuRenderItemName}
           title={info?.title || ''}
-          handleItemClick={(item) => handleRowClick(+item)}
+          handleItemClick={(item) => handleRowClick(Number(item))}
           list={info?.list || []}
         />
 

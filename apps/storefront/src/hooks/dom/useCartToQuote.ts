@@ -85,9 +85,11 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
       }
 
       setIsShowBlockPendingAccountOrderCreationTip({
-        cartTip: +checkIsInPage(CART_URL) + isShowBlockPendingAccountOrderCreationTip.cartTip,
+        cartTip:
+          Number(checkIsInPage(CART_URL)) + isShowBlockPendingAccountOrderCreationTip.cartTip,
         checkoutTip:
-          +checkIsInPage(CHECKOUT_URL) + isShowBlockPendingAccountOrderCreationTip.checkoutTip,
+          Number(checkIsInPage(CHECKOUT_URL)) +
+          isShowBlockPendingAccountOrderCreationTip.checkoutTip,
       });
     };
 

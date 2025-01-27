@@ -190,7 +190,7 @@ export default function App() {
       }
 
       const userInfo = {
-        role: +role,
+        role: Number(role),
         isAgenting,
       };
 
@@ -203,7 +203,7 @@ export default function App() {
 
       // background login enter judgment and refresh
       if (!href.includes('checkout') && !(customerId && !window.location.hash)) {
-        await gotoAllowedAppPage(+userInfo.role, gotoPage);
+        await gotoAllowedAppPage(Number(userInfo.role), gotoPage);
       } else {
         showPageMask(false);
       }

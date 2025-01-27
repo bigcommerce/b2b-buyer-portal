@@ -116,7 +116,7 @@ export const getFilterMoreData = (
     },
   ];
 
-  const filterCondition = isB2BUser && !(+role === 3 && !isAgenting);
+  const filterCondition = isB2BUser && !(Number(role) === 3 && !isAgenting);
   const filterCurrentMoreList = filterMoreList.filter((item) => {
     if (
       (!isB2BUser || filterCondition) &&
@@ -124,9 +124,9 @@ export const getFilterMoreData = (
       (item.name === 'company' || item.name === 'PlacedBy')
     )
       return false;
-    if (+role === 3 && !isAgenting && item.name === 'PlacedBy') return false;
+    if (Number(role) === 3 && !isAgenting && item.name === 'PlacedBy') return false;
     if (
-      (isB2BUser || (+role === CustomerRole.SUPER_ADMIN && isAgenting)) &&
+      (isB2BUser || (Number(role) === CustomerRole.SUPER_ADMIN && isAgenting)) &&
       isCompanyOrder &&
       item.name === 'company'
     )

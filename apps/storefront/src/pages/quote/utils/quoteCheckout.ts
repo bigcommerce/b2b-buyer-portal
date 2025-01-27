@@ -37,17 +37,17 @@ export const handleQuoteCheckout = async ({
       storefrontProductSettings: { hidePriceFromGuests },
     } = await getBCStorefrontProductSettings();
 
-    if (hidePriceFromGuests && +role === 100 && navigate) {
+    if (hidePriceFromGuests && Number(role) === 100 && navigate) {
       store.dispatch(setQuoteDetailToCheckoutUrl(location.pathname + location.search));
       navigate('/login');
       return;
     }
 
-    const fn = +role === 99 ? bcQuoteCheckout : b2bQuoteCheckout;
+    const fn = Number(role) === 99 ? bcQuoteCheckout : b2bQuoteCheckout;
     const date = getSearchVal(location.search, 'date');
 
     const res = await fn({
-      id: +quoteId,
+      id: Number(quoteId),
     });
 
     setQuoteToStorage(quoteId, date);

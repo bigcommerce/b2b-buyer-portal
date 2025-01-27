@@ -43,7 +43,7 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
   };
 
   useEffect(() => {
-    if (+role === CustomerRole.B2C) {
+    if (Number(role) === CustomerRole.B2C) {
       handleVerifyBcLoginStatus();
     }
   }, [role]);
@@ -63,7 +63,7 @@ const useRegisteredbctob2b = (setOpenPage: Dispatch<SetStateAction<OpenPageState
     if (
       b2b &&
       !isB2BUser &&
-      +companyStatus === 99 &&
+      Number(companyStatus) === 99 &&
       customerId &&
       document.querySelector(config['dom.navUserLoginElement'])
     ) {

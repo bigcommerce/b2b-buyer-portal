@@ -82,7 +82,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
     {
       key: 'createdAt',
       title: b3Lang('invoice.invoiceItemCardHeader.invoiceDate'),
-      render: () => `${item.createdAt ? displayFormat(+item.createdAt) : '–'}`,
+      render: () => `${item.createdAt ? displayFormat(Number(item.createdAt)) : '–'}`,
     },
     {
       key: 'updatedAt',
@@ -98,7 +98,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
               fontSize: '14px',
             }}
           >
-            {`${item.dueDate ? displayFormat(+item.dueDate) : '–'}`}
+            {`${item.dueDate ? displayFormat(Number(item.dueDate)) : '–'}`}
           </Typography>
         );
       },
@@ -108,7 +108,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
       title: b3Lang('invoice.invoiceItemCardHeader.invoiceTotal'),
       render: () => {
         const { originalBalance } = item;
-        const originalAmount = +originalBalance.value;
+        const originalAmount = Number(originalBalance.value);
 
         return currencyFormat(originalAmount || 0);
       },
@@ -119,7 +119,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
       render: () => {
         const { openBalance } = item;
 
-        const openAmount = +openBalance.value;
+        const openAmount = Number(openBalance.value);
 
         return currencyFormat(openAmount || 0);
       },
@@ -138,7 +138,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
               node: { id: selectedId },
             } = item;
 
-            return +selectedId === +id;
+            return Number(selectedId) === Number(id);
           });
 
           if (currentSelected) {
@@ -149,7 +149,7 @@ export function InvoiceItemCard(props: InvoiceItemCardProps) {
             disabled = false;
             valuePrice = selectedOpenBalance.value;
 
-            if (+openBalance.value === 0) {
+            if (Number(openBalance.value) === 0) {
               disabled = true;
             }
           }

@@ -437,7 +437,7 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
             const accountInfo = await getB2BFieldsValue(completeData, data.id, fileList);
 
             const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
-            isAuto = +companyStatus === 1;
+            isAuto = Number(companyStatus) === 1;
           }
           dispatch({
             type: 'finishInfo',

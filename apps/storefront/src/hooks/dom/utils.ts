@@ -185,7 +185,7 @@ const addProductsToDraftQuote = async (
   // fetch data with products IDs
   const { productsSearch } = await searchB2BProducts({
     productIds: Array.from(
-      new Set(productsWithSKUOrVariantId.map(({ productEntityId }) => +productEntityId)),
+      new Set(productsWithSKUOrVariantId.map(({ productEntityId }) => Number(productEntityId))),
     ),
     currencyCode,
     companyId,
@@ -297,12 +297,12 @@ const addProductFromProductPageToQuote = (
       const companyInfoId = store.getState().company.companyInfo.id;
       const companyId = companyInfoId || B3SStorage.get('salesRepCompanyId');
       const { customerGroupId } = store.getState().company.customer;
-      const fn = +role === 99 || +role === 100 ? searchBcProducts : searchB2BProducts;
+      const fn = Number(role) === 99 || Number(role) === 100 ? searchBcProducts : searchB2BProducts;
 
       const { currency_code: currencyCode } = getActiveCurrencyInfo();
 
       const { productsSearch } = await fn({
-        productIds: [+productId],
+        productIds: [Number(productId)],
         companyId,
         customerGroupId,
         currencyCode,

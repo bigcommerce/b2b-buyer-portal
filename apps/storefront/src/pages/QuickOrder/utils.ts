@@ -41,7 +41,7 @@ export const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangForm
   let productSku = sku;
 
   const currentVariant = variants.find(
-    (variant: CustomFieldItems) => +variant.variant_id === +variantId,
+    (variant: CustomFieldItems) => Number(variant.variant_id) === Number(variantId),
   );
   if (currentVariant) {
     purchasingDisabled = currentVariant.purchasing_disabled;
@@ -62,7 +62,7 @@ export const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangForm
     };
   }
 
-  if (isStock && +quantity > +stock) {
+  if (isStock && Number(quantity) > Number(stock)) {
     snackbar.error(
       b3Lang('purchasedProducts.quickOrderPad.insufficientStockSku', {
         sku: productSku,
@@ -78,7 +78,7 @@ export const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangForm
     };
   }
 
-  if (+orderQuantityMinimum > 0 && +quantity < orderQuantityMinimum) {
+  if (Number(orderQuantityMinimum) > 0 && Number(quantity) < orderQuantityMinimum) {
     snackbar.error(
       b3Lang('purchasedProducts.quickOrderPad.minQuantityMessage', {
         minQuantity: orderQuantityMinimum,
@@ -95,7 +95,7 @@ export const handleVerifyProduct = (products: CustomFieldItems, b3Lang: LangForm
     };
   }
 
-  if (+orderQuantityMaximum > 0 && +quantity > +orderQuantityMaximum) {
+  if (Number(orderQuantityMaximum) > 0 && Number(quantity) > Number(orderQuantityMaximum)) {
     snackbar.error(
       b3Lang('purchasedProducts.quickOrderPad.maxQuantityMessage', {
         maxQuantity: orderQuantityMaximum,
@@ -150,7 +150,8 @@ export const addCartProductToVerify = async (
     const num =
       cartProducts.find(
         (item: LineItems) =>
-          item.sku === node?.sku && +(item?.variantEntityId || 0) === +(node?.variantId || 0),
+          item.sku === node?.sku &&
+          Number(item?.variantEntityId || 0) === Number(node?.variantId || 0),
       )?.quantity || 0;
 
     pre.push({

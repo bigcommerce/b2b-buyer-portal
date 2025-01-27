@@ -67,7 +67,9 @@ function ShoppingLists() {
 
   useEffect(() => {
     const initFilter = async () => {
-      const createdByUsers = isB2BUser ? await getShoppingListsCreatedByUser(+companyId, 1) : {};
+      const createdByUsers = isB2BUser
+        ? await getShoppingListsCreatedByUser(Number(companyId), 1)
+        : {};
 
       const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
 

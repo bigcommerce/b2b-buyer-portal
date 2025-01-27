@@ -107,7 +107,9 @@ function B3Mean({ isMasquerade, handleSelect, startActing, endActing }: B3MeanPr
 function useData() {
   const customerId = useAppSelector(({ company }) => company.customer.id);
   const b2bId = useAppSelector(({ company }) => company.customer.b2bId);
-  const salesRepCompanyId = +useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const salesRepCompanyId = Number(
+    useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id),
+  );
 
   return { salesRepCompanyId, b2bId, customerId };
 }
@@ -214,7 +216,7 @@ function Dashboard(props: PageProps) {
           }}
         >
           {row.companyName}
-          {row.companyId === +salesRepCompanyId && (
+          {row.companyId === Number(salesRepCompanyId) && (
             <Box
               sx={{
                 fontWeight: 400,
@@ -243,7 +245,7 @@ function Dashboard(props: PageProps) {
       title: b3Lang('dashboard.action'),
       render: (row: CustomFieldItems) => {
         const { companyId } = row;
-        const isMasquerade = +companyId === +salesRepCompanyId;
+        const isMasquerade = Number(companyId) === Number(salesRepCompanyId);
 
         return (
           <B3Mean
@@ -291,7 +293,7 @@ function Dashboard(props: PageProps) {
               row={row}
               startActing={startActing}
               endActing={endActing}
-              salesRepCompanyId={+salesRepCompanyId}
+              salesRepCompanyId={Number(salesRepCompanyId)}
             />
           )}
         />

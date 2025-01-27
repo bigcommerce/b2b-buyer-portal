@@ -87,5 +87,6 @@ module.exports = {
     ],
     'react/jsx-no-useless-fragment': ['warn', { allowExpressions: true }],
     'import/prefer-default-export': 'off',
+    'no-implicit-coercion': 'error',
   },
 }

@@ -80,9 +80,9 @@ export const addPrice = () => {
       });
 
       subtotal += priceCalc(
-        getBCPrice(+basePrice + additionalCalculatedPrice, +productTax) * quantity,
+        getBCPrice(Number(basePrice) + additionalCalculatedPrice, Number(productTax)) * quantity,
       );
-      tax += priceCalc((+productTax + additionalCalculatedPriceTax) * quantity);
+      tax += priceCalc((Number(productTax) + additionalCalculatedPriceTax) * quantity);
 
       grandTotal = showInclusiveTaxPrice ? subtotal + shipping : subtotal + shipping + tax;
 

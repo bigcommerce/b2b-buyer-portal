@@ -549,8 +549,8 @@ export const addLineItems = (products: ProductsProps[]) => {
 
     const getOptionId = (id: number | string) => {
       if (typeof id === 'number') return id;
-      if (id.includes('attribute')) return +id.split('[')[1].split(']')[0];
-      return +id;
+      if (id.includes('attribute')) return Number(id.split('[')[1].split(']')[0]);
+      return Number(id);
     };
 
     const {

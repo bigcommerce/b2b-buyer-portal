@@ -45,7 +45,7 @@ function Payment() {
             invoice: {
               openBalance: { code = '', value = '' },
             },
-          } = await getInvoiceDetail(+params.id);
+          } = await getInvoiceDetail(Number(params.id));
 
           if (!code || !value) {
             snackbar.error(b3Lang('payment.errorOpenBalanceIsIncorrect'));
@@ -54,7 +54,7 @@ function Payment() {
           const data = {
             lineItems: [
               {
-                invoiceId: +params.id,
+                invoiceId: Number(params.id),
                 amount: value,
               },
             ],

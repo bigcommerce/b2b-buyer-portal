@@ -157,7 +157,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         return;
       }
 
-      if (isStock === '1' && stock > 0 && stock < +qty) {
+      if (isStock === '1' && stock > 0 && stock < Number(qty)) {
         limitProduct.push({
           variantSku,
           AvailableAmount: stock,
@@ -165,7 +165,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         return;
       }
 
-      if (+minQuantity > 0 && +qty < +minQuantity) {
+      if (Number(minQuantity) > 0 && Number(qty) < Number(minQuantity)) {
         minLimitQuantity.push({
           variantSku,
           minQuantity,
@@ -174,7 +174,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
         return;
       }
 
-      if (+maxQuantity > 0 && +qty > +maxQuantity) {
+      if (Number(maxQuantity) > 0 && Number(qty) > Number(maxQuantity)) {
         maxLimitQuantity.push({
           variantSku,
           maxQuantity,
@@ -191,7 +191,7 @@ export default function QuickOrderPad(props: QuickOrderPadProps) {
       productItems.push({
         productId: parseInt(productId, 10) || 0,
         variantId: parseInt(variantId, 10) || 0,
-        quantity: +qty,
+        quantity: Number(qty),
         optionSelections: optionsList,
         allOptions: modifiers,
       });

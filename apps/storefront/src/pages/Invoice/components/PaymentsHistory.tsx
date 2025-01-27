@@ -72,7 +72,7 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
                 }}
               >
                 <Title title="Date received" />
-                <Typography variant="body1">{`${displayFormat(+createdAt)}`}</Typography>
+                <Typography variant="body1">{`${displayFormat(Number(createdAt))}`}</Typography>
               </Box>
               <Box
                 sx={{
@@ -81,7 +81,7 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
               >
                 <Title title="Amount" />
                 <Typography variant="body1">
-                  {`${handleGetCorrespondingCurrency(amount.code, +(amount?.value || 0))}`}
+                  {`${handleGetCorrespondingCurrency(amount.code, Number(amount?.value || 0))}`}
                 </Typography>
               </Box>
               <Box
@@ -128,7 +128,7 @@ function PaymentsHistory({ open, setOpen, currentInvoiceId }: PaymentsHistoryPro
       setLoadding(true);
       const {
         allReceiptLines: { edges = [] },
-      } = await getInvoicePaymentHistory(+currentInvoiceId);
+      } = await getInvoicePaymentHistory(Number(currentInvoiceId));
 
       setList(edges);
       setLoadding(false);

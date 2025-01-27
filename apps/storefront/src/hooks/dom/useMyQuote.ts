@@ -52,8 +52,8 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     if (
       quoteDraftUserId &&
       isLoginAndNotB2CAccount &&
-      +quoteDraftUserId !== 0 &&
-      +quoteDraftUserId !== b2bId
+      Number(quoteDraftUserId) !== 0 &&
+      Number(quoteDraftUserId) !== b2bId
     ) {
       dispatch(resetDraftQuoteInfo());
       dispatch(resetDraftQuoteList());

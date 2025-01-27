@@ -261,7 +261,7 @@ function Address() {
     return element;
   });
 
-  const currentUseCompanyHierarchyId = +selectCompanyHierarchyId || +companyId;
+  const currentUseCompanyHierarchyId = Number(selectCompanyHierarchyId) || Number(companyId);
 
   return (
     <B3Spin isSpinning={isRequestLoading}>

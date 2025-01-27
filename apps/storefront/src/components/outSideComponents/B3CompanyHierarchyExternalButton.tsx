@@ -113,7 +113,7 @@ function B3CompanyHierarchyExternalButton({
     }
 
     return (
-      companyHierarchyList.find((company) => company.companyId === +selectCompanyHierarchyId)
+      companyHierarchyList.find((company) => company.companyId === Number(selectCompanyHierarchyId))
         ?.companyName || ''
     );
   }, [selectCompanyHierarchyId, companyHierarchyList]);

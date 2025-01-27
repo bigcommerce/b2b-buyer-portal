@@ -189,9 +189,9 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
     isValid: boolean,
   ) => {
     const newProduct: ProductsProps[] = [...products];
-    newProduct[index].node.quantity = +value;
+    newProduct[index].node.quantity = Number(value);
     newProduct[index].isValid = isValid;
-    const calculateProduct = await setModifierQtyPrice(newProduct[index].node, +value);
+    const calculateProduct = await setModifierQtyPrice(newProduct[index].node, Number(value));
     if (calculateProduct) {
       (newProduct[index] as CustomFieldItems).node = calculateProduct;
       setValidateFailureProducts(newProduct);
@@ -280,13 +280,13 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
       } else if (maxQuantity !== 0 && quantityNumber > maxQuantity) {
         item.node.quantity = maxQuantity;
       }
-      if (isStock !== '0' && stock && (quantity ? +quantity : 0) > stock) {
+      if (isStock !== '0' && stock && (quantity ? Number(quantity) : 0) > stock) {
         item.node.quantity = stock;
       }
 
       item.isValid = true;
 
-      const qty = product?.node?.quantity ? +product.node.quantity : 0;
+      const qty = product?.node?.quantity ? Number(product.node.quantity) : 0;
 
       requestArr.push(setModifierQtyPrice(product.node, qty));
     });
@@ -410,8 +410,8 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                   basePrice,
                 } = product.node;
 
-                const price = +basePrice;
-                const total = (price * (quantity ? +quantity : 0)).toFixed(decimalPlaces);
+                const price = Number(basePrice);
+                const total = (price * (quantity ? Number(quantity) : 0)).toFixed(decimalPlaces);
 
                 const newProduct: any = {
                   ...productsSearch,

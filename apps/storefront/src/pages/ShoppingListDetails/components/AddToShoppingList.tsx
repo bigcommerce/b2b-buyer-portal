@@ -155,7 +155,7 @@ export default function AddToShoppingList(props: AddToListProps) {
       productItems.push({
         productId: parseInt(productId, 10) || 0,
         variantId: parseInt(variantId, 10) || 0,
-        quantity: +qty,
+        quantity: Number(qty),
         optionList: optionsList,
         products: item.products,
       });

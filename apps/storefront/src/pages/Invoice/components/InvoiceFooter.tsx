@@ -45,19 +45,20 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         } = item;
 
         const currentValue =
-          formattingNumericValues(+openBalance.originValue, decimalPlaces) === openBalance.value
-            ? +openBalance.originValue
-            : +openBalance.value;
+          formattingNumericValues(Number(openBalance.originValue), decimalPlaces) ===
+          openBalance.value
+            ? Number(openBalance.originValue)
+            : Number(openBalance.value);
         lineItems.push({
-          invoiceId: +id,
-          amount: openBalance.value === '.' ? '0' : `${+currentValue}`,
+          invoiceId: Number(id),
+          amount: openBalance.value === '.' ? '0' : `${Number(currentValue)}`,
         });
 
         currency = openBalance?.code || originalBalance.code;
       });
 
       const badItem = lineItems.find(
-        (item: CustomFieldItems) => item.amount === '.' || +item.amount === 0,
+        (item: CustomFieldItems) => item.amount === '.' || Number(item.amount) === 0,
       );
       if (badItem) {
         snackbar.error(b3Lang('invoice.footer.invalidNameError'), {
@@ -85,7 +86,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
           const {
             node: { openBalance },
           } = item;
-          amount += openBalance.value === '.' ? 0 : +openBalance.value;
+          amount += openBalance.value === '.' ? 0 : Number(openBalance.value);
         });
 
         setSelectedAccount(formattingNumericValues(amount, decimalPlaces));

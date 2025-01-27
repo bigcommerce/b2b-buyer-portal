@@ -180,21 +180,21 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
         key: 'createdAt',
         title: b3Lang('quotes.dateCreated'),
         render: (item: ListItem) =>
-          `${+item.status !== 0 ? displayFormat(+item.createdAt) : item.createdAt}`,
+          `${Number(item.status) !== 0 ? displayFormat(Number(item.createdAt)) : item.createdAt}`,
         isSortable: true,
       },
       {
         key: 'updatedAt',
         title: b3Lang('quotes.lastUpdate'),
         render: (item: ListItem) =>
-          `${+item.status !== 0 ? displayFormat(+item.updatedAt) : item.updatedAt}`,
+          `${Number(item.status) !== 0 ? displayFormat(Number(item.updatedAt)) : item.updatedAt}`,
         isSortable: true,
       },
       {
         key: 'expiredAt',
         title: b3Lang('quotes.expirationDate'),
         render: (item: ListItem) =>
-          `${+item.status !== 0 ? displayFormat(+item.expiredAt) : item.expiredAt}`,
+          `${Number(item.status) !== 0 ? displayFormat(Number(item.expiredAt)) : item.expiredAt}`,
         isSortable: true,
       },
       {
@@ -203,7 +203,7 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
         render: (item: ListItem) => {
           const { totalAmount, currency } = item;
           const newCurrency = currency as CurrencyProps;
-          return `${currencyFormatConvert(+totalAmount, {
+          return `${currencyFormatConvert(Number(totalAmount), {
             currency: newCurrency,
             isConversionRate: false,
             useCurrentCurrency: !!currency,
@@ -264,7 +264,9 @@ function QuotesList() {
 
   useEffect(() => {
     const initFilter = async () => {
-      const createdByUsers = isB2BUser ? await getShoppingListsCreatedByUser(+companyId, 2) : {};
+      const createdByUsers = isB2BUser
+        ? await getShoppingListsCreatedByUser(Number(companyId), 2)
+        : {};
 
       const filterInfos = getFilterMoreList(isB2BUser, createdByUsers, b3Lang);
       setFilterMoreInfo(filterInfos);
@@ -288,7 +290,7 @@ function QuotesList() {
   }, []);
 
   const goToDetail = (item: ListItem, status: number) => {
-    if (+status === 0) {
+    if (Number(status) === 0) {
       navigate('/quoteDraft');
     } else {
       navigate(`/quoteDetail/${item.id}?date=${item.createdAt}`);
@@ -407,7 +409,7 @@ function QuotesList() {
           }`}
           renderItem={(row: ListItem) => <QuoteItemCard item={row} goToDetail={goToDetail} />}
           onClickRow={(row: ListItem) => {
-            goToDetail(row, +row.status);
+            goToDetail(row, Number(row.status));
           }}
           hover
         />
