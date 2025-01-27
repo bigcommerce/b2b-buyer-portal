@@ -15,7 +15,7 @@ function Payment() {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
 
-  const [loadding, setLoadding] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [open, setOpen] = useState<boolean>(false);
 
@@ -27,11 +27,11 @@ function Payment() {
 
   useEffect(() => {
     const init = async () => {
-      setLoadding(true);
+      setLoading(true);
 
       if (!B2BToken) {
         setOpen(true);
-        setLoadding(false);
+        setLoading(false);
         return;
       }
 
@@ -64,10 +64,10 @@ function Payment() {
           await gotoInvoiceCheckoutUrl(data, platform, true);
         } catch (error: unknown) {
           snackbar.error(
-            (error as CustomFieldItems)?.message || b3Lang('payment.invoiceDoesntExist'),
+            (error as CustomFieldItems)?.message || b3Lang('payment.invoiceDoesNotExist'),
           );
         } finally {
-          setLoadding(false);
+          setLoading(false);
         }
       }
     };
@@ -83,7 +83,7 @@ function Payment() {
 
   return (
     <Box>
-      {loadding && <Loading backColor="#FFFFFF" />}
+      {loading && <Loading backColor="#FFFFFF" />}
       <B3Dialog
         isOpen={open}
         fullWidth

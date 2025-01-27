@@ -119,19 +119,19 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
 function PaymentsHistory({ open, setOpen, currentInvoiceId }: PaymentsHistoryProps) {
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
-  const [loadding, setLoadding] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [list, setList] = useState<PaymentsHistoryList[] | []>([]);
 
   useEffect(() => {
     const init = async () => {
-      setLoadding(true);
+      setLoading(true);
       const {
         allReceiptLines: { edges = [] },
       } = await getInvoicePaymentHistory(Number(currentInvoiceId));
 
       setList(edges);
-      setLoadding(false);
+      setLoading(false);
     };
 
     if (open && currentInvoiceId) {
@@ -154,7 +154,7 @@ function PaymentsHistory({ open, setOpen, currentInvoiceId }: PaymentsHistoryPro
           maxHeight: '600px',
         }}
       >
-        <B3Spin isSpinning={loadding}>
+        <B3Spin isSpinning={loading}>
           <Box
             sx={{
               display: 'flex',

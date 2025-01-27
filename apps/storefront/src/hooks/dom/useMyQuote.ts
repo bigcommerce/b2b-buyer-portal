@@ -70,7 +70,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
   } = useContext(CustomStyleContext);
 
   // quote method and go to draft
-  const { addToQuote, addLoadding } = addProductFromProductPageToQuote(
+  const { addToQuote, addLoading } = addProductFromProductPageToQuote(
     setOpenPage,
     isEnableProduct,
     b3Lang,
@@ -81,11 +81,11 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
       const b3MyQuote = e.target as HTMLElement;
       const b2bLoading = document.querySelector('#b2b-div-loading');
       if (b3MyQuote && !b2bLoading) {
-        addLoadding(b3MyQuote);
+        addLoading(b3MyQuote);
         addToQuote(role, b3MyQuote);
       }
     },
-    [role, addLoadding, addToQuote],
+    [role, addLoading, addToQuote],
   );
 
   const cd = () => {
@@ -108,22 +108,22 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
   } = addQuoteBtn;
 
   const {
-    color: noPuchasableQuoteColor = '',
-    text: noPuchasableQuoteText = '',
-    customCss: noPuchasableQuoteCustomCss = '',
-    classSelector: noPuchasableQuoteClassSelector = '',
-    locationSelector: noPuchasableQuoteLocationSelector = '',
-    enabled: noPuchasableQuoteEnabled = false,
+    color: noPurchasableQuoteColor = '',
+    text: noPurchasableQuoteText = '',
+    customCss: noPurchasableQuoteCustomCss = '',
+    classSelector: noPurchasableQuoteClassSelector = '',
+    locationSelector: noPurchasableQuoteLocationSelector = '',
+    enabled: noPurchasableQuoteEnabled = false,
   } = quoteOnNonPurchasableProductPageBtn;
 
-  const newText = isBuyPurchasable ? text : noPuchasableQuoteText;
+  const newText = isBuyPurchasable ? text : noPurchasableQuoteText;
   const myQuoteBtnLabel = useGetButtonText(
     TRANSLATION_ADD_TO_QUOTE_VARIABLE,
     newText,
     ADD_TO_QUOTE_DEFAULT_VALUE,
   );
 
-  const cssInfo = splitCustomCssValue(isBuyPurchasable ? customCss : noPuchasableQuoteCustomCss);
+  const cssInfo = splitCustomCssValue(isBuyPurchasable ? customCss : noPurchasableQuoteCustomCss);
   const {
     cssValue,
     mediaBlocks,
@@ -133,7 +133,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
   } = cssInfo;
   const customTextColor =
     getStyles(cssValue).color ||
-    getContrastColor(isBuyPurchasable ? color : noPuchasableQuoteColor);
+    getContrastColor(isBuyPurchasable ? color : noPurchasableQuoteColor);
 
   const clearQuoteDom = () => {
     const myQuoteBtn = document.querySelectorAll('.b2b-add-to-quote');
@@ -142,9 +142,9 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     });
   };
 
-  const clearNoPuchasableQuoteDom = () => {
-    const myNoPuchasableQuoteBtn = document.querySelectorAll('.b2b-add-to-no-puchasable-quote');
-    myNoPuchasableQuoteBtn.forEach((item: CustomFieldItems) => {
+  const clearNoPurchasableQuoteDom = () => {
+    const myNoPurchasableQuoteBtn = document.querySelectorAll('.b2b-add-to-no-purchasable-quote');
+    myNoPurchasableQuoteBtn.forEach((item: CustomFieldItems) => {
       removeElement(item);
     });
   };
@@ -154,17 +154,17 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     myQuoteBtn.forEach((quote: CustomFieldItems) => {
       const myQuote = quote;
       myQuote.innerHTML = myQuoteBtnLabel;
-      myQuote.setAttribute('style', isBuyPurchasable ? customCss : noPuchasableQuoteCustomCss);
-      myQuote.style.backgroundColor = isBuyPurchasable ? color : noPuchasableQuoteColor;
+      myQuote.setAttribute('style', isBuyPurchasable ? customCss : noPurchasableQuoteCustomCss);
+      myQuote.style.backgroundColor = isBuyPurchasable ? color : noPurchasableQuoteColor;
       myQuote.style.color = customTextColor;
       myQuote.setAttribute(
         'class',
-        `b2b-add-to-quote ${isBuyPurchasable ? classSelector : noPuchasableQuoteClassSelector}`,
+        `b2b-add-to-quote ${isBuyPurchasable ? classSelector : noPurchasableQuoteClassSelector}`,
       );
 
       setMediaStyle(
         mediaBlocks,
-        `b2b-add-to-quote ${isBuyPurchasable ? classSelector : noPuchasableQuoteClassSelector}`,
+        `b2b-add-to-quote ${isBuyPurchasable ? classSelector : noPurchasableQuoteClassSelector}`,
       );
     });
   }, [
@@ -175,9 +175,9 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     isBuyPurchasable,
     mediaBlocks,
     myQuoteBtnLabel,
-    noPuchasableQuoteClassSelector,
-    noPuchasableQuoteColor,
-    noPuchasableQuoteCustomCss,
+    noPurchasableQuoteClassSelector,
+    noPurchasableQuoteColor,
+    noPurchasableQuoteCustomCss,
   ]);
 
   useEffect(() => {
@@ -186,8 +186,8 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
       addToQuoteAll: NodeListOf<Element>,
       isBuyer: boolean,
     ) => {
-      const quoteNode = isBuyer ? '.b2b-add-to-quote' : '.b2b-add-to-no-puchasable-quote';
-      const quoteNodeStyle = isBuyer ? 'b2b-add-to-quote' : 'b2b-add-to-no-puchasable-quote';
+      const quoteNode = isBuyer ? '.b2b-add-to-quote' : '.b2b-add-to-no-purchasable-quote';
+      const quoteNodeStyle = isBuyer ? 'b2b-add-to-quote' : 'b2b-add-to-no-purchasable-quote';
 
       if (document.querySelectorAll(quoteNode)?.length) {
         const cacheQuoteDom = cache.current;
@@ -202,7 +202,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
         }
       }
 
-      if (isBuyPurchasable ? enabled : noPuchasableQuoteEnabled) {
+      if (isBuyPurchasable ? enabled : noPurchasableQuoteEnabled) {
         (CustomAddToQuoteAll.length ? CustomAddToQuoteAll : addToQuoteAll).forEach(
           (node: CustomFieldItems) => {
             const children = node.parentNode.querySelectorAll(quoteNode);
@@ -212,21 +212,21 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
               myQuote.innerHTML = myQuoteBtnLabel;
               myQuote.setAttribute(
                 'style',
-                isBuyPurchasable ? customCss : noPuchasableQuoteCustomCss,
+                isBuyPurchasable ? customCss : noPurchasableQuoteCustomCss,
               );
-              myQuote.style.backgroundColor = isBuyPurchasable ? color : noPuchasableQuoteColor;
+              myQuote.style.backgroundColor = isBuyPurchasable ? color : noPurchasableQuoteColor;
               myQuote.style.color = customTextColor;
               myQuote.setAttribute(
                 'class',
                 `${quoteNodeStyle} ${
-                  isBuyPurchasable ? classSelector : noPuchasableQuoteClassSelector
+                  isBuyPurchasable ? classSelector : noPurchasableQuoteClassSelector
                 }`,
               );
 
               setMediaStyle(
                 mediaBlocks,
                 `${quoteNodeStyle} ${
-                  isBuyPurchasable ? classSelector : noPuchasableQuoteClassSelector
+                  isBuyPurchasable ? classSelector : noPurchasableQuoteClassSelector
                 }`,
               );
               if (CustomAddToQuoteAll.length) {
@@ -248,25 +248,25 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
 
     if (!productQuoteEnabled) {
       clearQuoteDom();
-      clearNoPuchasableQuoteDom();
+      clearNoPurchasableQuoteDom();
       return;
     }
 
     if (!isBuyPurchasable) {
       clearQuoteDom();
-      const noPuchasableQuoteAll = document.querySelectorAll(config['dom.setToNoPuchasable']);
+      const noPurchasableQuoteAll = document.querySelectorAll(config['dom.setToNoPurchasable']);
 
-      const CustomAddToQuoteAll = noPuchasableQuoteLocationSelector
-        ? document.querySelectorAll(noPuchasableQuoteLocationSelector)
+      const CustomAddToQuoteAll = noPurchasableQuoteLocationSelector
+        ? document.querySelectorAll(noPurchasableQuoteLocationSelector)
         : [];
 
-      if (!noPuchasableQuoteAll.length && !CustomAddToQuoteAll.length) return;
+      if (!noPurchasableQuoteAll.length && !CustomAddToQuoteAll.length) return;
 
-      if (noPuchasableQuoteAll.length) {
-        purchasableQuote(CustomAddToQuoteAll, noPuchasableQuoteAll, false);
+      if (noPurchasableQuoteAll.length) {
+        purchasableQuote(CustomAddToQuoteAll, noPurchasableQuoteAll, false);
       }
     } else {
-      clearNoPuchasableQuoteDom();
+      clearNoPurchasableQuoteDom();
       const addToQuoteAll = document.querySelectorAll(config['dom.setToQuote']);
       const CustomAddToQuoteAll = locationSelector
         ? document.querySelectorAll(locationSelector)
@@ -289,7 +289,7 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     addQuoteBtn,
     isBuyPurchasable,
     locationSelector,
-    noPuchasableQuoteLocationSelector,
+    noPurchasableQuoteLocationSelector,
     quoteCallBack,
     addBtnStyle,
     classSelector,
@@ -299,10 +299,10 @@ const useMyQuote = ({ setOpenPage, productQuoteEnabled, role }: MutationObserver
     enabled,
     mediaBlocks,
     myQuoteBtnLabel,
-    noPuchasableQuoteClassSelector,
-    noPuchasableQuoteColor,
-    noPuchasableQuoteCustomCss,
-    noPuchasableQuoteEnabled,
+    noPurchasableQuoteClassSelector,
+    noPurchasableQuoteColor,
+    noPurchasableQuoteCustomCss,
+    noPurchasableQuoteEnabled,
   ]);
 };
 

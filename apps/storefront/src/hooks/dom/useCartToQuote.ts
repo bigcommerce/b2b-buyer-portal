@@ -30,7 +30,7 @@ interface IsShowBlockPendingAccountOrderCreationTipProps {
 }
 
 const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps) => {
-  const { addToQuote, addLoadding } = addProductsFromCartToQuote(setOpenPage);
+  const { addToQuote, addLoading } = addProductsFromCartToQuote(setOpenPage);
 
   const translationVarName = 'global.customStyles.addToAllQuoteBtn';
   const defaultButtonText = 'Add All To Quote';
@@ -94,19 +94,19 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
     };
 
     showPendingAccountTip();
-    // ignore to avoid adding state function otherwirse it will cause many renders of tip
+    // ignore to avoid adding state function otherwise it will cause many renders of tip
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, blockPendingAccountOrderCreation, companyStatus]);
 
-  const quoteCallBbck = useCallback(() => {
+  const quoteCallBack = useCallback(() => {
     const b3CartToQuote = document.querySelector('.b2b-cart-to-quote');
 
     const b2bLoading = document.querySelector('#b2b-div-loading');
     if (b3CartToQuote && !b2bLoading) {
-      addLoadding(b3CartToQuote);
+      addLoading(b3CartToQuote);
       addToQuote();
     }
-  }, [addLoadding, addToQuote]);
+  }, [addLoading, addToQuote]);
 
   const {
     color = '',
@@ -168,7 +168,7 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
 
           setMediaStyle(mediaBlocks, `b2b-cart-to-quote ${classSelector}`);
           node.appendChild(cartQuoteBtnDom);
-          cartQuoteBtnDom.addEventListener('click', quoteCallBbck, {
+          cartQuoteBtnDom.addEventListener('click', quoteCallBack, {
             capture: true,
           });
         },
@@ -178,7 +178,7 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
     // eslint-disable-next-line
     return () => {
       if (cartQuoteBtnDom) {
-        cartQuoteBtnDom.removeEventListener('click', quoteCallBbck);
+        cartQuoteBtnDom.removeEventListener('click', quoteCallBack);
       }
     };
   }, [
@@ -192,7 +192,7 @@ const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps
     enabled,
     locationSelector,
     mediaBlocks,
-    quoteCallBbck,
+    quoteCallBack,
   ]);
 };
 
