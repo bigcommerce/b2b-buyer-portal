@@ -36,11 +36,14 @@ function useData() {
   const { shoppingListCreateActionsPermission, submitShoppingListPermission } =
     useAppSelector(rolePermissionSelector);
 
+  const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteBcShoppingList;
+
   return {
     companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
+    deleteShoppingList,
   };
 }
 
@@ -69,6 +72,7 @@ function ShoppingLists() {
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
+    deleteShoppingList,
   } = useData();
 
   useEffect(() => {
@@ -211,13 +215,8 @@ function ShoppingLists() {
     try {
       setIsRequestLoading(true);
       handleCancelClick();
-      const id: number = deleteItem?.id || 0;
 
-      if (isB2BUser) {
-        await deleteB2BShoppingList(id);
-      } else {
-        await deleteBcShoppingList(id);
-      }
+      await deleteShoppingList(deleteItem?.id || 0);
 
       snackbar.success(b3Lang('shoppingLists.deleteSuccess'));
     } finally {
