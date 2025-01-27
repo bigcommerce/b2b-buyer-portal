@@ -31,13 +31,13 @@ function useData() {
 
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
+  const companyId = companyB2BId || salesRepCompanyId;
 
   const { shoppingListCreateActionsPermission, submitShoppingListPermission } =
     useAppSelector(rolePermissionSelector);
 
   return {
-    salesRepCompanyId,
-    companyB2BId,
+    companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
@@ -65,8 +65,7 @@ function ShoppingLists() {
   } = useContext(GlobalContext);
 
   const {
-    salesRepCompanyId,
-    companyB2BId,
+    companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
@@ -74,7 +73,6 @@ function ShoppingLists() {
 
   useEffect(() => {
     const initFilter = async () => {
-      const companyId = companyB2BId || salesRepCompanyId;
       const createdByUsers = isB2BUser ? await getShoppingListsCreatedByUser(+companyId, 1) : {};
 
       const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
