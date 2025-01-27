@@ -26,6 +26,24 @@ interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditShoppingListsClick: (type: string, data?: ShoppingListsItemsProps) => void;
 }
 
+function useData() {
+  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+
+  const isB2BUser = useAppSelector(isB2BUserSelector);
+  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
+
+  const { shoppingListCreateActionsPermission, submitShoppingListPermission } =
+    useAppSelector(rolePermissionSelector);
+
+  return {
+    salesRepCompanyId,
+    companyB2BId,
+    isB2BUser,
+    shoppingListCreateActionsPermission,
+    submitShoppingListPermission,
+  };
+}
+
 function ShoppingLists() {
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
@@ -41,18 +59,18 @@ function ShoppingLists() {
 
   const b3Lang = useB3Lang();
 
-  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
-
   const {
     state: { openAPPParams },
     dispatch,
   } = useContext(GlobalContext);
 
-  const isB2BUser = useAppSelector(isB2BUserSelector);
-  const companyB2BId = useAppSelector(({ company }) => company.companyInfo.id);
-
-  const { shoppingListCreateActionsPermission, submitShoppingListPermission } =
-    useAppSelector(rolePermissionSelector);
+  const {
+    salesRepCompanyId,
+    companyB2BId,
+    isB2BUser,
+    shoppingListCreateActionsPermission,
+    submitShoppingListPermission,
+  } = useData();
 
   useEffect(() => {
     const initFilter = async () => {
