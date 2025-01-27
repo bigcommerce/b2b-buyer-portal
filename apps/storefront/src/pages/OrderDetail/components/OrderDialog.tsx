@@ -430,7 +430,7 @@ export default function OrderDialog({
                   margin: '20px 0',
                 }}
               >
-                {b3Lang('purchasedProducts.orderDialog.aditionalInformation')}
+                {b3Lang('purchasedProducts.orderDialog.additionalInformation')}
               </Typography>
               <B3CustomForm
                 formFields={returnFormFields}

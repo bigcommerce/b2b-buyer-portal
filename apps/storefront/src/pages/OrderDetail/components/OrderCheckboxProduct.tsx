@@ -60,8 +60,8 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   const itemStyle = isMobile ? mobileItemStyle : defaultItemStyle;
 
   const handleSelectAllChange = () => {
-    const newlist = [...list];
-    if (newlist.length === products.length) {
+    const newList = [...list];
+    if (newList.length === products.length) {
       setList([]);
       setReturnList([]);
     } else {
@@ -80,21 +80,21 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
   };
 
   const handleSelectChange = (variantId: number, returnId: number, returnQty: number) => {
-    const newlist = [...list];
+    const newList = [...list];
     const newReturnList = [...returnList];
-    const index = newlist.findIndex((item) => item === variantId);
+    const index = newList.findIndex((item) => item === variantId);
     const returnIndex = newReturnList.findIndex((item) => item.returnId === returnId);
     if (index !== -1) {
-      newlist.splice(index, 1);
+      newList.splice(index, 1);
       newReturnList.splice(returnIndex, 1);
     } else {
-      newlist.push(variantId);
+      newList.push(variantId);
       newReturnList.push({
         returnId,
         returnQty,
       });
     }
-    setList(newlist);
+    setList(newList);
     setReturnList(newReturnList);
   };
 

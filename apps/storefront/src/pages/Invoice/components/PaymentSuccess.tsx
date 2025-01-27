@@ -232,7 +232,7 @@ interface PaymentSuccessProps {
 
 function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
   const [isMobile] = useMobile();
-  const [loadding, setLoadding] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [open, setOpen] = useState<boolean>(false);
 
@@ -244,12 +244,12 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
 
   useEffect(() => {
     const init = async () => {
-      setLoadding(true);
+      setLoading(true);
       const { receipt } = await getInvoicePaymentInfo(Number(receiptId));
 
       setDetailData(receipt);
       setOpen(true);
-      setLoadding(false);
+      setLoading(false);
     };
 
     if (type === InvoiceListType.CHECKOUT && receiptId) {
@@ -281,7 +281,7 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
           maxHeight: '600px',
         }}
       >
-        <B3Spin isSpinning={loadding}>
+        <B3Spin isSpinning={loading}>
           <Box
             sx={{
               display: 'flex',

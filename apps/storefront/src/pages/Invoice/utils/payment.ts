@@ -5,7 +5,7 @@ import { BcCartData } from '@/types/invoice';
 import { attemptCheckoutLoginAndRedirect } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 
-export const getCheckouUrlAndCart = async (params: BcCartData) => {
+export const getCheckoutUrlAndCart = async (params: BcCartData) => {
   const {
     invoiceCreateBcCart: {
       result: { checkoutUrl, cartId },
@@ -23,7 +23,7 @@ export const gotoInvoiceCheckoutUrl = async (
   platform: string,
   isReplaceCurrentUrl?: boolean,
 ) => {
-  const { checkoutUrl, cartId } = await getCheckouUrlAndCart(params);
+  const { checkoutUrl, cartId } = await getCheckoutUrlAndCart(params);
   const handleStencil = () => {
     if (isReplaceCurrentUrl) {
       window.location.replace(checkoutUrl);

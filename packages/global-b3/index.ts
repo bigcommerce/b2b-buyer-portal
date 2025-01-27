@@ -44,7 +44,7 @@ const config = {
   'dom.navUserLoginElement': '.navUser-item.navUser-item--account',
   'dom.setToQuote': '#form-action-addToCart',
   'dom.setToShoppingListParentEl': '#add-to-cart-wrapper',
-  'dom.setToNoPuchasable': '#add-to-cart-wrapper',
+  'dom.setToNoPurchasable': '#add-to-cart-wrapper',
   'dom.cartActions.container': '.cart-actions',
   'dom.openB3Checkout': 'checkout-customer-continue',
   'dom.cart':
