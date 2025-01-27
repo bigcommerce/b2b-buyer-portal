@@ -179,7 +179,7 @@ function QuickOrderTable({
           const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
             const { id: productId } = search;
 
-            return +node.productId === +productId;
+            return Number(node.productId) === Number(productId);
           });
 
           node.productsSearch = productInfo || {};
@@ -262,14 +262,14 @@ function QuickOrderTable({
   };
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
-    if (value !== '' && +value <= 0) return;
+    if (value !== '' && Number(value) <= 0) return;
     const listItems = paginationTableRef.current?.getList() || [];
     const listCacheItems = paginationTableRef.current?.getCacheList() || [];
 
     const newListItems = listItems?.map((item: ListItemProps) => {
       const { node } = item;
       if (node?.id === id) {
-        node.quantity = +value || '';
+        node.quantity = Number(value) || '';
       }
 
       return item;
@@ -277,7 +277,7 @@ function QuickOrderTable({
     const newListCacheItems = listCacheItems?.map((item: ListItemProps) => {
       const { node } = item;
       if (node?.id === id) {
-        node.quantity = +value || '';
+        node.quantity = Number(value) || '';
       }
 
       return item;
@@ -380,14 +380,15 @@ function QuickOrderTable({
           variantId,
           basePrice,
         } = row;
-        let priceIncTax = +basePrice;
+        let priceIncTax = Number(basePrice);
         if (variants?.length) {
-          priceIncTax = getProductPriceIncTaxOrExTaxBySetting(variants, +variantId) || +basePrice;
+          priceIncTax =
+            getProductPriceIncTaxOrExTaxBySetting(variants, Number(variantId)) || Number(basePrice);
         }
 
         const qty = handleSetCheckedQty(row);
-        const withTaxPrice = priceIncTax || +basePrice;
-        const price = withTaxPrice * +qty;
+        const withTaxPrice = priceIncTax || Number(basePrice);
+        const price = withTaxPrice * Number(qty);
 
         return (
           <Typography
@@ -441,7 +442,7 @@ function QuickOrderTable({
               padding: '12px 0',
             }}
           >
-            {`${displayFormat(+row.lastOrderedAt)}`}
+            {`${displayFormat(Number(row.lastOrderedAt))}`}
           </Typography>
         </Box>
       ),

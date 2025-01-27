@@ -170,7 +170,9 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     ? shoppingListCreateActionsPermission && isCanEditShoppingList
     : true;
   const b2bAndBcShoppingListActionsPermissions = isB2BUser ? canShoppingListActions : true;
-  const b2bSubmitShoppingListPermission = isB2BUser ? submitShoppingListPermission : +role === 2;
+  const b2bSubmitShoppingListPermission = isB2BUser
+    ? submitShoppingListPermission
+    : Number(role) === 2;
 
   const paginationTableRef = useRef<PaginationTableRefProps | null>(null);
 
@@ -194,7 +196,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
   const [handleSetOrderBy, order, orderBy] = useSort(sortKeys, defaultSortKey, search, setSearch);
 
   const handleUpdateProductQty = (id: number | string, value: number | string) => {
-    if (+value < 0) return;
+    if (Number(value) < 0) return;
     const currentItem = originProducts.find((item: ListItemProps) => {
       const { node } = item;
 
@@ -202,21 +204,21 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
     });
 
     const currentQty = currentItem?.node?.quantity || '';
-    setQtyNotChangeFlag(+currentQty === +value);
+    setQtyNotChangeFlag(Number(currentQty) === Number(value));
 
     const listItems: ListItemProps[] = paginationTableRef.current?.getList() || [];
     const newListItems = listItems?.map((item: ListItemProps) => {
       const { node } = item;
       if (node?.id === id) {
-        node.quantity = `${+value}`;
-        node.disableCurrentCheckbox = +value === 0;
+        node.quantity = `${Number(value)}`;
+        node.disableCurrentCheckbox = Number(value) === 0;
       }
 
       return item;
     });
 
     const nonNumberProducts = newListItems.filter(
-      (item: ListItemProps) => +item.node.quantity === 0,
+      (item: ListItemProps) => Number(item.node.quantity) === 0,
     );
     setDisabledSelectAll(nonNumberProducts.length === newListItems.length);
     paginationTableRef.current?.setList([...newListItems]);
@@ -302,7 +304,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
 
     const itemData: CustomFieldItems = {
       variantId: currentNode?.variantId,
-      quantity: currentNode?.quantity ? +currentNode.quantity : 0,
+      quantity: currentNode?.quantity ? Number(currentNode.quantity) : 0,
       optionList: optionsList || [],
       productNote: notes,
     };
@@ -380,8 +382,8 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       } = shoppingListInfo;
 
       const NewShoppingListTotalPrice = showInclusiveTaxPrice
-        ? +grandTotal
-        : +grandTotal - +totalTax || 0.0;
+        ? Number(grandTotal)
+        : Number(grandTotal) - Number(totalTax) || 0.0;
 
       const isPriceHidden = edges.some((item: CustomFieldItems) => {
         if (item?.node?.productsSearch) {
@@ -513,7 +515,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
       title: b3Lang('shoppingList.table.price'),
       render: (row: CustomFieldItems) => {
         const { basePrice, taxPrice = 0 } = row;
-        const inTaxPrice = getBCPrice(+basePrice, +taxPrice);
+        const inTaxPrice = getBCPrice(Number(basePrice), Number(taxPrice));
 
         return (
           <Typography
@@ -575,9 +577,9 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
           taxPrice = 0,
         } = row;
 
-        const inTaxPrice = getBCPrice(+basePrice, +taxPrice);
+        const inTaxPrice = getBCPrice(Number(basePrice), Number(taxPrice));
 
-        const totalPrice = inTaxPrice * +quantity;
+        const totalPrice = inTaxPrice * Number(quantity);
 
         const optionList = options || JSON.parse(row.optionList);
 
@@ -622,7 +624,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                       }}
                       onClick={() => {
                         setAddNoteOpen(true);
-                        setAddNoteItemId(+itemId);
+                        setAddNoteItemId(Number(itemId));
 
                         if (row.productNote) {
                           setNotes(row.productNote);
@@ -676,7 +678,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
                           }}
                           onClick={() => {
                             setDeleteOpen(true);
-                            setDeleteItemId(+itemId);
+                            setDeleteItemId(Number(itemId));
                           }}
                         />
                       )}

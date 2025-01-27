@@ -296,7 +296,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
       setQuantity(1);
     }
 
-    if (+quantity > 1000000) {
+    if (Number(quantity) > 1000000) {
       setQuantity(1000000);
     }
   };
@@ -474,7 +474,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
 
           if (products[0]) {
             const { basePrice, taxPrice } = products[0];
-            const price = getBCPrice(+basePrice, +taxPrice);
+            const price = getBCPrice(Number(basePrice), Number(taxPrice));
             setNewPrice(price);
           }
         }
@@ -573,7 +573,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
                     <span>{b3Lang('shoppingList.chooseOptionsDialog.price')}</span>
                     {!isShowPrice
                       ? ''
-                      : currencyFormat(newPrice * +quantity || getProductPrice(product))}
+                      : currencyFormat(newPrice * Number(quantity) || getProductPrice(product))}
                   </FlexItem>
 
                   <FlexItem>

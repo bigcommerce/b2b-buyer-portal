@@ -68,9 +68,9 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
     productNote,
   } = shoppingDetail;
 
-  const price = getBCPrice(+basePrice, +taxPrice);
+  const price = getBCPrice(Number(basePrice), Number(taxPrice));
 
-  const total = price * +quantity;
+  const total = price * Number(quantity);
 
   const product: any = {
     ...shoppingDetail.productsSearch,
@@ -240,7 +240,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                 }}
                 onClick={() => {
                   setAddNoteOpen(true);
-                  setAddNoteItemId(+itemId);
+                  setAddNoteItemId(Number(itemId));
 
                   if (productNote) {
                     setNotes(productNote);
@@ -279,7 +279,7 @@ function ShoppingDetailCard(props: ShoppingDetailCardProps) {
                 }}
                 onClick={() => {
                   setDeleteOpen(true);
-                  onDelete(+itemId);
+                  onDelete(Number(itemId));
                 }}
               />
             )}

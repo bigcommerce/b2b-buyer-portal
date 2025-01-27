@@ -64,14 +64,14 @@ const redirectBcMenus = (
     accountTarget.find((item) => key?.includes(item.originUrl)) || {};
 
   // super admin
-  if (currentItem?.newTargetUrl && +role === CustomerRole.SUPER_ADMIN) {
+  if (currentItem?.newTargetUrl && Number(role) === CustomerRole.SUPER_ADMIN) {
     return superAdminExistUrl.includes(currentItem.newTargetUrl) || isAgenting
       ? currentItem.newTargetUrl
       : '/dashboard';
   }
 
   if (
-    (+role === CustomerRole.JUNIOR_BUYER || +role === CustomerRole.CUSTOM_ROLE) &&
+    (Number(role) === CustomerRole.JUNIOR_BUYER || Number(role) === CustomerRole.CUSTOM_ROLE) &&
     currentItem?.newTargetUrl?.includes('order_status')
   ) {
     return authorizedPages;
@@ -112,7 +112,7 @@ const openPageByClick = ({
   }
 
   if (
-    +currentRole === CustomerRole.JUNIOR_BUYER &&
+    Number(currentRole) === CustomerRole.JUNIOR_BUYER &&
     (href?.includes('/orders') ||
       href?.includes('/shoppingLists') ||
       href?.includes('/login') ||
@@ -127,7 +127,7 @@ const openPageByClick = ({
   }
 
   // other click
-  return redirectBcMenus(href, +currentRole, isAgenting, authorizedPages);
+  return redirectBcMenus(href, Number(currentRole), isAgenting, authorizedPages);
 };
 
 export { getCurrentLoginUrl, openPageByClick, redirectBcMenus, removeBCMenus };

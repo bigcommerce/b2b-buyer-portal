@@ -66,7 +66,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
 
   return (
     <>
-      {+role !== 100 && (
+      {Number(role) !== 100 && (
         <Box
           sx={{
             marginBottom: '10px',
@@ -172,7 +172,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
               >
                 {b3Lang('quoteDetail.header.issuedOn')}
               </Typography>
-              <span>{`${issuedAt ? displayFormat(+issuedAt) : ''}`}</span>
+              <span>{`${issuedAt ? displayFormat(Number(issuedAt)) : ''}`}</span>
             </StyledCreateName>
             <StyledCreateName>
               <Typography
@@ -184,11 +184,11 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
               >
                 {b3Lang('quoteDetail.header.expirationDate')}
               </Typography>
-              <span>{`${expirationDate ? displayFormat(+expirationDate) : ''}`}</span>
+              <span>{`${expirationDate ? displayFormat(Number(expirationDate)) : ''}`}</span>
             </StyledCreateName>
           </Box>
         </Grid>
-        {+role !== 100 && (
+        {Number(role) !== 100 && (
           <Grid
             item
             sx={{

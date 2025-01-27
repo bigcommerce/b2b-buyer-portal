@@ -29,7 +29,7 @@ function DashboardCard({ row, startActing, endActing, salesRepCompanyId = 0 }: D
           {row.companyName}
         </Typography>
 
-        {row.companyId === +salesRepCompanyId && (
+        {row.companyId === Number(salesRepCompanyId) && (
           <Box
             sx={{
               fontWeight: 400,
@@ -63,7 +63,7 @@ function DashboardCard({ row, startActing, endActing, salesRepCompanyId = 0 }: D
         </Box>
       </CardContent>
 
-      {row.companyId === +salesRepCompanyId ? (
+      {row.companyId === Number(salesRepCompanyId) ? (
         <Button
           sx={{
             ml: '10px',

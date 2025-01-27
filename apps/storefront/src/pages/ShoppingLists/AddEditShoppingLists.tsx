@@ -100,7 +100,7 @@ function AddEditShoppingLists(
           if (isB2BUser) {
             const { submitShoppingListPermission } = b2bPermissions;
             if (selectCompanyHierarchyId) {
-              params.companyId = +selectCompanyHierarchyId;
+              params.companyId = Number(selectCompanyHierarchyId);
             }
             params.status = submitShoppingListPermission ? 30 : 0;
           } else {

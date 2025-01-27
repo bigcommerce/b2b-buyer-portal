@@ -48,10 +48,10 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
 
         const { shipping } = summary;
 
-        const price = getBCPrice(+basePrice, +productTax);
+        const price = getBCPrice(Number(basePrice), Number(productTax));
 
         subtotal += priceCalc(price * quantity);
-        tax += priceCalc(+productTax * +quantity);
+        tax += priceCalc(Number(productTax) * Number(quantity));
 
         const totalPrice = showInclusiveTaxPrice ? subtotal : subtotal + tax;
 

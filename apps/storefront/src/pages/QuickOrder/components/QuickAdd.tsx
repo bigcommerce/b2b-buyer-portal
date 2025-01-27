@@ -174,7 +174,8 @@ export default function QuickAdd(props: AddToListContentProps) {
       const num =
         cartProducts.find(
           (item: LineItems) =>
-            item.sku === variantSku && +(item?.variantEntityId || 0) === +(variantId || 0),
+            item.sku === variantSku &&
+            Number(item?.variantEntityId || 0) === Number(variantId || 0),
         )?.quantity || 0;
 
       const quantity = (skuValue[sku] as number) || 0;
@@ -186,10 +187,10 @@ export default function QuickAdd(props: AddToListContentProps) {
         return;
       }
 
-      if (isStock === '1' && quantity > +stock) {
+      if (isStock === '1' && quantity > Number(stock)) {
         notStockSku.push({
           sku,
-          stock: +stock,
+          stock: Number(stock),
         });
 
         return;

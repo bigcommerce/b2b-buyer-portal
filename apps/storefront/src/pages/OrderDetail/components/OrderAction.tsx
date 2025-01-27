@@ -183,7 +183,7 @@ function OrderCard(props: OrderCardProps) {
     } else {
       const isNeedSwitch = handleShowSwitchCompanyModal();
       if (isNeedSwitch) return;
-      if (!isAgenting && +role === 3) {
+      if (!isAgenting && Number(role) === 3) {
         snackbar.error(b3Lang('orderDetail.orderCard.errorMasquerade'));
         return;
       }
@@ -288,13 +288,13 @@ function OrderCard(props: OrderCardProps) {
         type={type}
         setOpen={setOpen}
         itemKey={itemKey}
-        orderId={+orderId}
+        orderId={Number(orderId)}
       />
 
       <HierarchyDialog
         open={openSwitchCompany}
         currentRow={{
-          companyId: +(switchCompanyId || 0),
+          companyId: Number(switchCompanyId || 0),
         }}
         handleClose={() => setOpenSwitchCompany(false)}
         // loading
@@ -375,8 +375,8 @@ export default function OrderAction(props: OrderActionProps) {
   const { getInvoicesPermission } = b2bPermissionsMap;
   const invoiceViewPermission = verifyLevelPermission({
     code: getInvoicesPermission,
-    companyId: companyId ? +companyId : 0,
-    userId: customerId ? +customerId : 0,
+    companyId: companyId ? Number(companyId) : 0,
+    userId: customerId ? Number(customerId) : 0,
   });
 
   const getCompanyName = (company: string) => {
@@ -473,7 +473,7 @@ export default function OrderAction(props: OrderActionProps) {
     },
   ];
 
-  const invoiceBtnPermissions = +ipStatus !== 0 || createdEmail === emailAddress;
+  const invoiceBtnPermissions = Number(ipStatus) !== 0 || createdEmail === emailAddress;
   const orderData: OrderData[] = [
     {
       header: b3Lang('orderDetail.summary'),
@@ -482,7 +482,7 @@ export default function OrderAction(props: OrderActionProps) {
         dateCreateAt && name
           ? b3Lang('orderDetail.purchaseDetails', {
               name,
-              updatedAt: displayFormat(+dateCreateAt),
+              updatedAt: displayFormat(Number(dateCreateAt)),
             })
           : '',
       buttons,

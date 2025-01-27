@@ -55,7 +55,7 @@ const handleVerifyPermissionCode = ({
   if (!permissionInfo?.code) return false;
 
   return permissionLevel && permissionInfo?.permissionLevel
-    ? +permissionInfo.permissionLevel === +permissionLevel
+    ? Number(permissionInfo.permissionLevel) === Number(permissionLevel)
     : true;
 };
 
@@ -100,7 +100,7 @@ export const validateBasePermissionWithComparisonType = ({
 
   if (containOrEqual === 'equal') return permissionLevel === level;
 
-  return +permissionLevel >= +level;
+  return Number(permissionLevel) >= Number(level);
 };
 
 export const getCorrespondsConfigurationPermission = (
@@ -156,9 +156,13 @@ export const levelComparison = ({
     case permissionLevels.COMPANY_SUBSIDIARIES:
       return true;
     case permissionLevels.COMPANY:
-      return +companyId === +currentCompanyId;
+      return Number(companyId) === Number(currentCompanyId);
     case permissionLevels.USER:
-      return userId === +customerId || userId === +customerB2BId || userEmail === customerEmail;
+      return (
+        userId === Number(customerId) ||
+        userId === Number(customerB2BId) ||
+        userEmail === customerEmail
+      );
     default:
       return false;
   }

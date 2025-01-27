@@ -17,7 +17,7 @@ export const getStatus = (submitShoppingListPermission: boolean) => {
   const statusArr = getFilterShoppingListStatus(submitShoppingListPermission);
 
   const newStatus: Array<NewStatusProps> = statusArr.map((item) => {
-    if (+item.value === 0) {
+    if (Number(item.value) === 0) {
       return {
         color: '#C4DD6C',
         textColor: 'black',
@@ -25,7 +25,7 @@ export const getStatus = (submitShoppingListPermission: boolean) => {
       };
     }
 
-    if (+item.value === 40) {
+    if (Number(item.value) === 40) {
       return {
         color: '#F4CC46',
         textColor: 'black',
@@ -33,7 +33,7 @@ export const getStatus = (submitShoppingListPermission: boolean) => {
       };
     }
 
-    if (+item.value === 30) {
+    if (Number(item.value) === 30) {
       return {
         color: '#899193',
         textColor: '#FFFFFF',
@@ -59,7 +59,9 @@ export function ShoppingStatus({ status }: ShoppingStatusProps) {
 
   const b3Lang = useB3Lang();
   const statusList = getStatus(submitShoppingListPermission);
-  const statusItem = statusList.find((item: NewStatusProps) => +item.value === +status);
+  const statusItem = statusList.find(
+    (item: NewStatusProps) => Number(item.value) === Number(status),
+  );
 
   if (statusItem) {
     return (

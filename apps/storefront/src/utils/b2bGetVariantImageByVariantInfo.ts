@@ -10,7 +10,8 @@ const b2bGetVariantImageByVariantInfo = (currentVariants: Variant[], variantInfo
   if (currentVariants && currentVariants.length > 0) {
     const currentProduct = currentVariants.find(
       (item: Variant) =>
-        +item.variant_id === +variantInfo.variantId || item.sku === variantInfo?.variantSku,
+        Number(item.variant_id) === Number(variantInfo.variantId) ||
+        item.sku === variantInfo?.variantSku,
     );
 
     if (currentProduct) {

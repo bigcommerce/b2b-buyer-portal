@@ -509,7 +509,7 @@ export const updateB2BShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
     query: updateShoppingList('shoppingListsUpdate'),
     variables: {
-      id: data?.id ? +data.id : 1,
+      id: data?.id ? Number(data.id) : 1,
       shoppingListData: {
         name: data.name,
         description: data.description,
@@ -522,7 +522,7 @@ export const duplicateB2BShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
     query: duplicateShoppingList('shoppingListsDuplicate'),
     variables: {
-      sampleShoppingListId: data?.sampleShoppingListId ? +data.sampleShoppingListId : 1,
+      sampleShoppingListId: data?.sampleShoppingListId ? Number(data.sampleShoppingListId) : 1,
       shoppingListData: {
         name: data.name,
         description: data.description,
@@ -568,7 +568,7 @@ export const createBcShoppingList = (data: Partial<ShoppingListParams>) =>
       shoppingListData: {
         name: data.name,
         description: data.description,
-        channelId: data?.channelId ? +data.channelId : 1,
+        channelId: data?.channelId ? Number(data.channelId) : 1,
       },
     },
   });
@@ -577,11 +577,11 @@ export const updateBcShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
     query: updateCustomerShoppingList('customerShoppingListsUpdate'),
     variables: {
-      id: data?.id ? +data.id : 1,
+      id: data?.id ? Number(data.id) : 1,
       shoppingListData: {
         name: data.name,
         description: data.description,
-        channelId: data?.channelId ? +data.channelId : 1,
+        channelId: data?.channelId ? Number(data.channelId) : 1,
       },
     },
   });
@@ -590,7 +590,7 @@ export const duplicateBcShoppingList = (data: Partial<ShoppingListParams>) =>
   B3Request.graphqlB2B({
     query: duplicateCustomerShoppingList('customerShoppingListsDuplicate'),
     variables: {
-      sampleShoppingListId: data?.sampleShoppingListId ? +data.sampleShoppingListId : 1,
+      sampleShoppingListId: data?.sampleShoppingListId ? Number(data.sampleShoppingListId) : 1,
       shoppingListData: {
         name: data.name,
         description: data.description,

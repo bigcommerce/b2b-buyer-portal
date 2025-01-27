@@ -70,9 +70,9 @@ const calculateSubTotal = (checkedArr: CustomFieldItems) => {
         node: { quantity, basePrice, taxPrice },
       } = item;
 
-      const price = getBCPrice(+basePrice, +taxPrice);
+      const price = getBCPrice(Number(basePrice), Number(taxPrice));
 
-      total += price * +quantity;
+      total += price * Number(quantity);
     });
 
     return (1000 * total) / 1000;
@@ -193,8 +193,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       const { submitShoppingListPermission: submitShoppingListPermissionCode } = b2bPermissionsMap;
       const submitShoppingListPermissionLevel = verifyLevelPermission({
         code: submitShoppingListPermissionCode,
-        companyId: +(companyInfo?.companyId || 0),
-        userId: +(customerInfo?.userId || 0),
+        companyId: Number(companyInfo?.companyId || 0),
+        userId: Number(customerInfo?.userId || 0),
       });
 
       return submitShoppingListPermissionLevel;
@@ -297,7 +297,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     setIsRequestLoading(true);
     try {
       const params: UpdateShoppingListParamsProps = {
-        id: +id,
+        id: Number(id),
         name: shoppingListInfo?.name || '',
         description: shoppingListInfo?.description || '',
       };
@@ -367,7 +367,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   };
 
   const handleDeleteProductClick = async () => {
-    await handleDeleteItems(+deleteItemId);
+    await handleDeleteItems(Number(deleteItemId));
     await handleCancelClick();
   };
 
@@ -391,8 +391,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
       const { shoppingListCreateActionsPermission } = b2bPermissionsMap;
       const shoppingListActionsPermission = verifyLevelPermission({
         code: shoppingListCreateActionsPermission,
-        companyId: +(companyInfo?.companyId || 0),
-        userId: +(customerInfo?.userId || 0),
+        companyId: Number(companyInfo?.companyId || 0),
+        userId: Number(customerInfo?.userId || 0),
       });
 
       setIsCanEditShoppingList(shoppingListActionsPermission);

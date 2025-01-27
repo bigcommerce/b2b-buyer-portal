@@ -33,7 +33,7 @@ export const useVerifyLevelPermission = ({
 
     setIsVerified(
       levelComparison({
-        permissionLevel: +permissionLevel,
+        permissionLevel: Number(permissionLevel),
         customer,
         companyInfo,
         params: {

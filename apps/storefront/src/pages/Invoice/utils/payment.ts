@@ -46,4 +46,4 @@ export const gotoInvoiceCheckoutUrl = async (
 };
 
 export const formattingNumericValues = (value: number, decimalPlaces: number) =>
-  round(+value, decimalPlaces).toFixed(decimalPlaces);
+  round(Number(value), decimalPlaces).toFixed(decimalPlaces);

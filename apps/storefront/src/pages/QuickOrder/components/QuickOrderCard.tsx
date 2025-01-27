@@ -34,7 +34,7 @@ function QuickOrderCard(props: QuickOrderCardProps) {
     productsSearch,
   } = shoppingDetail;
 
-  const price = +basePrice * +quantity;
+  const price = Number(basePrice) * Number(quantity);
   const currentVariants = productsSearch.variants || [];
   const currentImage = b2bGetVariantImageByVariantInfo(currentVariants, { variantId }) || imageUrl;
 

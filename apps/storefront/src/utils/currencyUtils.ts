@@ -8,7 +8,7 @@ const getActiveCurrencyInfo = () => {
   const { currencies } = store.getState().storeConfigs.currencies;
   const activeCurrencyObj = store.getState().storeConfigs.activeCurrency?.node;
   const activeCurrency = currencies.find(
-    (currency) => +currency.id === activeCurrencyObj?.entityId,
+    (currency) => Number(currency.id) === activeCurrencyObj?.entityId,
   );
 
   return activeCurrency || defaultCurrency;

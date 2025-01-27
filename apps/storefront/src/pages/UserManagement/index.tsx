@@ -56,7 +56,7 @@ function UserManagement() {
   const role = useAppSelector(({ company }) => company.customer.role);
   const companyInfo = useAppSelector(({ company }) => company.companyInfo);
 
-  const companyId = +role === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id;
+  const companyId = Number(role) === CustomerRole.SUPER_ADMIN ? salesRepCompanyId : companyInfo?.id;
 
   const b2bPermissions = useAppSelector(rolePermissionSelector);
   const { selectCompanyHierarchyId } = useAppSelector(
@@ -70,7 +70,7 @@ function UserManagement() {
 
     const isCreatePermission = verifyCreatePermission(
       userCreateActionsPermission,
-      +selectCompanyHierarchyId,
+      Number(selectCompanyHierarchyId),
     );
     return {
       isEnabled: isEnableBtnPermissions && isCreatePermission,

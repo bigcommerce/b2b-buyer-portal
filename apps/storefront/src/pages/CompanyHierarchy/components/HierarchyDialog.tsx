@@ -62,10 +62,10 @@ function HierarchyDialog({
 
       if (!companyId) return;
 
-      if (companyId === +currentCompanyId) {
+      if (companyId === Number(currentCompanyId)) {
         await endUserMasqueradingCompany();
       } else if (companyId) {
-        await startUserMasqueradingCompany(+companyId);
+        await startUserMasqueradingCompany(Number(companyId));
       }
 
       if (cartEntityId) {
@@ -76,7 +76,7 @@ function HierarchyDialog({
         store.dispatch(setCartNumber(0));
       }
 
-      const selectCompanyHierarchyId = companyId === +currentCompanyId ? '' : companyId;
+      const selectCompanyHierarchyId = companyId === Number(currentCompanyId) ? '' : companyId;
 
       const buildData = companyHierarchyAllList || allList;
 
@@ -115,13 +115,13 @@ function HierarchyDialog({
           onExited: () => {
             if (!currentRow) return;
             const { companyId } = currentRow;
-            if (companyId === +currentCompanyId) {
+            if (companyId === Number(currentCompanyId)) {
               const { hash } = window.location;
               if (hash.includes('/shoppingList/')) {
                 navigate('/shoppingLists');
               }
             }
-            if (companyId !== +currentCompanyId && !isHasCurrentPagePermission) {
+            if (companyId !== Number(currentCompanyId) && !isHasCurrentPagePermission) {
               const key = Object.keys(pagesSubsidiariesPermission).find((key) => {
                 return !!pagesSubsidiariesPermission[key as keyof PagesSubsidiariesPermissionProps];
               });

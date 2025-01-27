@@ -90,11 +90,13 @@ function useData() {
 
     const date = getSearchVal(search, 'date') || '';
     const data = {
-      id: +id,
+      id: Number(id),
       date: date.toString(),
     };
 
-    const { quote } = await (+role === 99 ? getBcQuoteDetail(data) : getB2BQuoteDetail(data));
+    const { quote } = await (Number(role) === 99
+      ? getBcQuoteDetail(data)
+      : getB2BQuoteDetail(data));
 
     return quote;
   };
@@ -315,7 +317,7 @@ function QuoteDetail() {
           const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
             const { id: productId } = search;
 
-            return +item.productId === +productId;
+            return Number(item.productId) === Number(productId);
           });
 
           listProduct.productsSearch = productInfo || {};
@@ -371,8 +373,8 @@ function QuoteDetail() {
       });
       setProductList(productsWithMoreInfo);
 
-      if (+quote.shippingTotal === 0) {
-        setQuoteDetailTax(+quote.taxTotal);
+      if (Number(quote.shippingTotal) === 0) {
+        setQuoteDetailTax(Number(quote.taxTotal));
       } else {
         let taxPrice = 0;
         productsWithMoreInfo?.forEach((product) => {
@@ -384,8 +386,8 @@ function QuoteDetail() {
 
           const taxRate = getTaxRate(taxClassId, variants);
           taxPrice += enteredInclusiveTax
-            ? ((+offeredPrice * taxRate) / (1 + taxRate)) * +quantity
-            : +offeredPrice * taxRate * +quantity;
+            ? ((Number(offeredPrice) * taxRate) / (1 + taxRate)) * Number(quantity)
+            : Number(offeredPrice) * taxRate * Number(quantity);
         });
 
         setQuoteDetailTax(taxPrice);
@@ -443,13 +445,13 @@ function QuoteDetail() {
     const { id, createdAt } = quoteDetail;
     try {
       const data = {
-        quoteId: +id,
+        quoteId: Number(id),
         createdAt,
         isPreview: bool,
         lang: bcLanguage,
       };
 
-      const fn = +role === 99 ? exportBcQuotePdf : exportB2BQuotePdf;
+      const fn = Number(role) === 99 ? exportBcQuotePdf : exportB2BQuotePdf;
 
       const quotePdf = await fn(data);
 
@@ -506,8 +508,8 @@ function QuoteDetail() {
       allProductsList = quote?.productsList || [];
     }
 
-    const startIndex = +params.offset;
-    const endIndex = +params.first + startIndex;
+    const startIndex = Number(params.offset);
+    const endIndex = Number(params.first) + startIndex;
 
     if (!allProductsList.length) {
       return {
@@ -539,13 +541,13 @@ function QuoteDetail() {
             mr: '15px',
           }}
         >
-          {+role === 100
+          {Number(role) === 100
             ? b3Lang('quoteDetail.submittedQuote')
             : b3Lang('quoteDetail.quoteSubmitted')}
         </Box>
         <Button
           onClick={() => {
-            if (+role === 100) {
+            if (Number(role) === 100) {
               copy(window.location.href);
               snackbar.success(b3Lang('quoteDetail.copySuccessful'));
             } else {
@@ -559,7 +561,7 @@ function QuoteDetail() {
             padding: 0,
           }}
         >
-          {+role === 100
+          {Number(role) === 100
             ? b3Lang('quoteDetail.copyQuoteLink')
             : b3Lang('quoteDetail.reviewAllQuotes')}
         </Button>
@@ -785,7 +787,7 @@ function QuoteDetail() {
               }}
             >
               <QuoteAttachment
-                allowUpload={+quoteDetail.status !== 4}
+                allowUpload={Number(quoteDetail.status) !== 4}
                 quoteId={quoteDetail.id}
                 status={quoteDetail.status}
                 defaultFileList={fileList}
@@ -806,7 +808,7 @@ function QuoteDetail() {
 
         {quoteConvertToOrderPermission &&
           quotePurchasabilityPermission &&
-          +quoteDetail.status !== 4 &&
+          Number(quoteDetail.status) !== 4 &&
           isShowFooter &&
           quoteDetail?.allowCheckout &&
           isAutoEnableQuoteCheckout &&

@@ -75,7 +75,7 @@ export default function AddToQuote(props: AddToListProps) {
 
       const basePriceExclusiveTax = basePrice || taxExclusive;
 
-      const tax = taxPrice || +taxInclusive - +taxExclusive;
+      const tax = taxPrice || Number(taxInclusive) - Number(taxExclusive);
 
       return {
         node: {
@@ -185,8 +185,8 @@ export default function AddToQuote(props: AddToListProps) {
       validProduct.forEach((product: CustomFieldItems) => {
         const { products } = product;
 
-        if (!productIds.includes(+products.productId)) {
-          productIds.push(+products.productId);
+        if (!productIds.includes(Number(products.productId))) {
+          productIds.push(Number(products.productId));
         }
       });
 
@@ -212,7 +212,7 @@ export default function AddToQuote(props: AddToListProps) {
         const optionsList = getOptionsList(option);
 
         const currentProductSearch = newProductInfo.find(
-          (product: CustomFieldItems) => +product.id === +productId,
+          (product: CustomFieldItems) => Number(product.id) === Number(productId),
         );
 
         const variantItem = currentProductSearch.variants.find(
@@ -227,7 +227,7 @@ export default function AddToQuote(props: AddToListProps) {
             productsSearch: currentProductSearch,
             primaryImage: variantItem.image_url || PRODUCT_DEFAULT_IMAGE,
             productName,
-            quantity: +qty || 1,
+            quantity: Number(qty) || 1,
             optionList: JSON.stringify(optionsList),
             productId,
             basePrice: variantItem.bc_calculated_price.as_entered,

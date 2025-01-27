@@ -48,9 +48,9 @@ function QuoteTableCard(props: QuoteTableCardProps) {
 
   const b3Lang = useB3Lang();
 
-  const price = getBCPrice(+basePrice, +taxPrice);
+  const price = getBCPrice(Number(basePrice), Number(taxPrice));
 
-  const total = price * +quantity;
+  const total = price * Number(quantity);
 
   const product: any = {
     ...quoteTableItem.productsSearch,

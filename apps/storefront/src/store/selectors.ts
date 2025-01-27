@@ -27,7 +27,7 @@ export const activeCurrencyInfoSelector = createSelector(
   (storeConfigs): Currency => {
     const entityId = storeConfigs.activeCurrency?.node.entityId || '';
     const activeCurrency = storeConfigs.currencies.currencies.find(
-      (currency) => +currency.id === +entityId,
+      (currency) => Number(currency.id) === Number(entityId),
     );
 
     return activeCurrency || defaultCurrenciesState.currencies[0];
@@ -49,7 +49,7 @@ export const isB2BUserSelector = createSelector(
   (company) =>
     (company.customer.userType === UserTypes.MULTIPLE_B2C &&
       company.companyInfo.status === CompanyStatus.APPROVED) ||
-    +company.customer.role === CustomerRole.SUPER_ADMIN,
+    Number(company.customer.role) === CustomerRole.SUPER_ADMIN,
 );
 
 interface OptionList {
@@ -63,7 +63,7 @@ export const rolePermissionSelector = createSelector(
     permissions,
     companyHierarchyInfo: { selectCompanyHierarchyId },
   }): B2BPermissionsMapParams => {
-    return getCorrespondsConfigurationPermission(permissions, +selectCompanyHierarchyId);
+    return getCorrespondsConfigurationPermission(permissions, Number(selectCompanyHierarchyId));
   },
 );
 
@@ -77,8 +77,8 @@ export const formattedQuoteDraftListSelector = createSelector(quoteInfoSelector,
         const optionIdFormatted = optionId.match(/\d+/);
 
         return {
-          optionId: optionIdFormatted?.[0] ? +optionIdFormatted[0] : optionId,
-          optionValue: +optionValue,
+          optionId: optionIdFormatted?.[0] ? Number(optionIdFormatted[0]) : optionId,
+          optionValue: Number(optionValue),
         };
       });
 
@@ -97,7 +97,7 @@ export const isValidUserTypeSelector = createSelector(
     const isB2BUser =
       (customer.userType === UserTypes.MULTIPLE_B2C &&
         companyInfo.status === CompanyStatus.APPROVED) ||
-      +customer.role === CustomerRole.SUPER_ADMIN;
+      Number(customer.role) === CustomerRole.SUPER_ADMIN;
 
     if (isB2BUser) {
       return userType === UserTypes.DOES_NOT_EXIST;

@@ -76,14 +76,14 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
       } = b2bPermissionsMap;
       const submitShoppingListPermissionLevel = verifySubmitShoppingListSubsidiariesPermission({
         code: submitShoppingListPermissionCode,
-        userId: +(customerInfo?.userId || 0),
-        selectId: +selectCompanyHierarchyId,
+        userId: Number(customerInfo?.userId || 0),
+        selectId: Number(selectCompanyHierarchyId),
       });
 
       const approveShoppingListPermissionLevel = verifyLevelPermission({
         code: approveShoppingListPermissionCode,
-        companyId: +(companyInfo?.companyId || 0),
-        userId: +(customerInfo?.userId || 0),
+        companyId: Number(companyInfo?.companyId || 0),
+        userId: Number(customerInfo?.userId || 0),
       });
 
       return {

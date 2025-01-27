@@ -69,7 +69,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
         productInfoRef.current = productPurchasable;
       }
 
-      const isOOStock = isOOStockPurchaseQuantity(+productViewQty, productPurchasable);
+      const isOOStock = isOOStockPurchaseQuantity(Number(productViewQty), productPurchasable);
       if (purchasingDisabled === '1' || isOOStock || availability !== 'available') {
         setBuyPurchasable(false);
       } else {
@@ -115,7 +115,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
     }
 
     const judgmentBuyPurchasable = (newQuantity: number | string) => {
-      const isOOStock = isOOStockPurchaseQuantity(+newQuantity, productInfoRef.current);
+      const isOOStock = isOOStockPurchaseQuantity(Number(newQuantity), productInfoRef.current);
 
       if (isOOStock) {
         setBuyPurchasable(false);
@@ -152,7 +152,7 @@ const usePurchasableQuote = (openQuickView: boolean) => {
           return;
         }
 
-        const newNum = action === 'dec' ? +val - 1 : +val + 1;
+        const newNum = action === 'dec' ? Number(val) - 1 : Number(val) + 1;
 
         judgmentBuyPurchasable(newNum);
       }

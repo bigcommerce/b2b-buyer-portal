@@ -47,10 +47,10 @@ function B2BSwitchCompanyModal(props: B2BSwitchCompanyModalPropsTypes) {
   const handleSwitchCompanyClick = async () => {
     setLoading(true);
     try {
-      if (+switchCompanyId === +currentCompanyId) {
+      if (Number(switchCompanyId) === Number(currentCompanyId)) {
         await endUserMasqueradingCompany();
       } else if (switchCompanyId) {
-        await startUserMasqueradingCompany(+switchCompanyId);
+        await startUserMasqueradingCompany(Number(switchCompanyId));
       }
 
       const cartEntityId = Cookies.get('cartId');
@@ -66,7 +66,7 @@ function B2BSwitchCompanyModal(props: B2BSwitchCompanyModalPropsTypes) {
         store.dispatch(
           setCompanyHierarchyInfoModules({
             selectCompanyHierarchyId:
-              +switchCompanyId === +currentCompanyId ? '' : +switchCompanyId,
+              Number(switchCompanyId) === Number(currentCompanyId) ? '' : Number(switchCompanyId),
             companyHierarchyList: companyHierarchyList || [],
           }),
         );

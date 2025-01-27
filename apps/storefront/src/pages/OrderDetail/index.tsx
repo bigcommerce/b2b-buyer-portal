@@ -50,8 +50,10 @@ function OrderDetail() {
   );
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const companyId =
-    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyInfoId;
-  const currentCompanyId = +selectCompanyHierarchyId || companyId;
+    role === CustomerRole.SUPER_ADMIN && isAgenting
+      ? Number(salesRepCompanyId)
+      : Number(companyInfoId);
+  const currentCompanyId = Number(selectCompanyHierarchyId) || companyId;
 
   const params = useParams();
 
@@ -120,7 +122,7 @@ function OrderDetail() {
               }),
             };
 
-            setIsCurrentCompany(+companyInfo.companyId === +currentCompanyId);
+            setIsCurrentCompany(Number(companyInfo.companyId) === Number(currentCompanyId));
 
             const data = isB2BUser
               ? convertB2BOrderDetails(newOrder, b3Lang)

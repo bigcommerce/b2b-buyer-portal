@@ -32,16 +32,16 @@ function CompanyTableRowCard<T extends TreeNodeProps>({
       switchAccountButton: { color = '#ED6C02' },
     },
   } = useContext(CustomStyleContext);
-  const isCurrentCompanyId = +nodeId === +currentCompanyId;
-  const isSelectCompanyId = +nodeId === +selectCompanyId;
+  const isCurrentCompanyId = Number(nodeId) === Number(currentCompanyId);
+  const isSelectCompanyId = Number(nodeId) === Number(selectCompanyId);
 
   const open = Boolean(anchorEl);
   const isDisabledAction = useMemo(() => {
     if (selectCompanyId) {
-      return +selectCompanyId !== +company.companyId;
+      return Number(selectCompanyId) !== Number(company.companyId);
     }
 
-    return +currentCompanyId !== +company.companyId;
+    return Number(currentCompanyId) !== Number(company.companyId);
   }, [currentCompanyId, selectCompanyId, company]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {

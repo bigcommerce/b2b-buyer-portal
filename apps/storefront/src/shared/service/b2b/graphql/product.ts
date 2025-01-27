@@ -48,7 +48,7 @@ const getSkusInfo = ({ skus = [] }) => `{
 const getProductPurchasable = ({ sku = '', isProduct = true, productId }: ProductPurchasable) => `{
   productPurchasable(
     storeHash: "${storeHash}"
-    productId: ${+productId},
+    productId: ${Number(productId)},
     sku:"${sku}",
     isProduct: ${isProduct}
     ){

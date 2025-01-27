@@ -42,19 +42,19 @@ export function UserItemCard(props: OrderItemCardProps) {
 
   const updateActionsPermission = verifyLevelPermission({
     code: userUpdateActionsPermission,
-    companyId: +(companyInfo?.companyId || 0),
-    userId: +id,
+    companyId: Number(companyInfo?.companyId || 0),
+    userId: Number(id),
   });
   const deleteActionsPermission = verifyLevelPermission({
     code: userDeleteActionsPermission,
-    companyId: +(companyInfo?.companyId || 0),
-    userId: +id,
+    companyId: Number(companyInfo?.companyId || 0),
+    userId: Number(id),
   });
 
   const getNewRoleList = () => {
     const userRole = getUserRole();
     const newRoleList: Array<RoleListProps> = userRole.map((item) => {
-      if (+item.value === 2) {
+      if (Number(item.value) === 2) {
         if (companyRoleName !== 'Junior Buyer') {
           return {
             color: '#ce93d8',
@@ -70,7 +70,7 @@ export function UserItemCard(props: OrderItemCardProps) {
           ...item,
         };
       }
-      if (+item.value === 1) {
+      if (Number(item.value) === 1) {
         return {
           color: 'rgba(237, 108, 2, 0.3)',
           textColor: 'black',

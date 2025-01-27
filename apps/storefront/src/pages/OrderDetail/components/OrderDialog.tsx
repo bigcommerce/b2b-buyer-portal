@@ -308,9 +308,9 @@ export default function OrderDialog({
         } = product;
 
         return {
-          productId: +productId,
+          productId: Number(productId),
           variantId,
-          quantity: +editQuantity,
+          quantity: Number(editQuantity),
           optionList: productOptions.map((option) => {
             const { product_option_id: optionId, value: optionValue } = option;
 
@@ -321,12 +321,12 @@ export default function OrderDialog({
           }),
         };
       });
-      const params = items.filter((item) => checkedArr.includes(+item.variantId));
+      const params = items.filter((item) => checkedArr.includes(Number(item.variantId)));
 
       const addToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
 
       await addToShoppingList({
-        shoppingListId: +id,
+        shoppingListId: Number(id),
         items: params,
       });
 

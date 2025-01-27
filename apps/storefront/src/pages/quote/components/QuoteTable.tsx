@@ -88,7 +88,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
   );
 
   const handleUpdateProductQty = async (row: any, value: number | string) => {
-    const product = await setModifierQtyPrice(row, +value);
+    const product = await setModifierQtyPrice(row, Number(value));
 
     dispatch(
       setDraftProduct({
@@ -102,14 +102,14 @@ function QuoteTable(props: ShoppingDetailTableProps) {
   };
 
   const handleCheckProductQty = async (row: any, value: number | string) => {
-    let newQty = ceil(+value);
-    if (newQty === +value && newQty >= 1 && newQty <= QUOTE_PRODUCT_QTY_MAX) return;
+    let newQty = ceil(Number(value));
+    if (newQty === Number(value) && newQty >= 1 && newQty <= QUOTE_PRODUCT_QTY_MAX) return;
 
-    if (+value < 1) {
+    if (Number(value) < 1) {
       newQty = 1;
     }
 
-    if (+value > QUOTE_PRODUCT_QTY_MAX) {
+    if (Number(value) > QUOTE_PRODUCT_QTY_MAX) {
       newQty = QUOTE_PRODUCT_QTY_MAX;
     }
 
@@ -177,7 +177,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
             ...product,
             selectOptions,
           },
-          quantity: +quantity,
+          quantity: Number(quantity),
           variantSku,
           calculatedTaxPrice,
           calculatedNoTaxPrice,
@@ -319,7 +319,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
       render: (row: CustomFieldItems) => {
         const { basePrice, taxPrice } = row;
 
-        const inTaxPrice = getBCPrice(+basePrice, +taxPrice);
+        const inTaxPrice = getBCPrice(Number(basePrice), Number(taxPrice));
         return (
           <Typography
             sx={{
@@ -354,10 +354,10 @@ function QuoteTable(props: ShoppingDetailTableProps) {
             pattern: '[0-9]*',
           }}
           onChange={(e) => {
-            handleUpdateProductQty(row, +e.target.value);
+            handleUpdateProductQty(row, Number(e.target.value));
           }}
           onBlur={(e) => {
-            handleCheckProductQty(row, +e.target.value);
+            handleCheckProductQty(row, Number(e.target.value));
           }}
           sx={{
             width: '75%',
@@ -375,8 +375,8 @@ function QuoteTable(props: ShoppingDetailTableProps) {
       render: (row) => {
         const { basePrice, quantity, taxPrice } = row;
 
-        const inTaxPrice = getBCPrice(+basePrice, +taxPrice);
-        const total = inTaxPrice * +quantity;
+        const inTaxPrice = getBCPrice(Number(basePrice), Number(taxPrice));
+        const total = inTaxPrice * Number(quantity);
         const optionList = JSON.parse(row.optionList);
 
         return (

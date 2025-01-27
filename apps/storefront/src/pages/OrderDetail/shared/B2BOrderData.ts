@@ -183,7 +183,9 @@ const handleProductQuantity = (data: B2BOrderData) => {
   const newProducts: OrderProductItem[] = [];
 
   products.forEach((product: OrderProductItem) => {
-    const productIndex = newProducts.findIndex((item) => +item.variant_id === +product.variant_id);
+    const productIndex = newProducts.findIndex(
+      (item) => Number(item.variant_id) === Number(product.variant_id),
+    );
 
     if (productIndex === -1) {
       newProducts.push(product);
@@ -192,7 +194,7 @@ const handleProductQuantity = (data: B2BOrderData) => {
 
       newProducts[productIndex] = {
         ...existedProduct,
-        quantity: +existedProduct.quantity + +product.quantity,
+        quantity: Number(existedProduct.quantity) + Number(product.quantity),
       };
     }
   });
@@ -214,10 +216,10 @@ const convertB2BOrderDetails = (data: B2BOrderData, b3Lang: LangFormatFunction) 
   payment: getPaymentData(data),
   orderComments: data.customerMessage,
   products: handleProductQuantity(data),
-  orderId: +data.id,
+  orderId: Number(data.id),
   customStatus: data.customStatus,
-  ipStatus: +data.ipStatus || 0, // 0: no invoice, 1,2: have invoice
-  invoiceId: +(data.invoiceId || 0),
+  ipStatus: Number(data.ipStatus) || 0, // 0: no invoice, 1,2: have invoice
+  invoiceId: Number(data.invoiceId || 0),
   canReturn: data.canReturn,
   createdEmail: data.createdEmail,
   orderIsDigital: data.orderIsDigital,

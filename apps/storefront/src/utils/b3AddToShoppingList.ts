@@ -11,7 +11,7 @@ export const handleGetCurrentProductInfo = async (productId: number | string) =>
   const companyId = companyInfoId || salesRepCompanyId;
 
   const { productsSearch } = await searchB2BProducts({
-    productIds: [+productId],
+    productIds: [Number(productId)],
     companyId,
     customerGroupId,
   });
@@ -116,7 +116,7 @@ export const isModifierNumberTextValid = (option: any, optionVal: any) => {
     display_name: displayName,
   } = option;
 
-  if (typeof +optionVal !== 'number') {
+  if (typeof Number(optionVal) !== 'number') {
     isOptionValid = false;
     errMsg = `Please enter a valid number in ${displayName}.`;
 
@@ -136,13 +136,13 @@ export const isModifierNumberTextValid = (option: any, optionVal: any) => {
     };
   }
 
-  if (optionVal !== '' && !Number.isNaN(+optionVal)) {
-    if (lowest && +optionVal < lowest) {
+  if (optionVal !== '' && !Number.isNaN(Number(optionVal))) {
+    if (lowest && Number(optionVal) < lowest) {
       isOptionValid = false;
       errMsg = `The lowest value of ${displayName} is ${lowest}.`;
     }
 
-    if (highest && +optionVal > highest) {
+    if (highest && Number(optionVal) > highest) {
       isOptionValid = false;
       errMsg = `The highest value of ${displayName} is ${highest}.`;
     }
@@ -169,7 +169,7 @@ export const isAllRequiredOptionFilled = (bcOriginalOptions: any, optionList: an
 
     if (type === 'checkbox') return !!optionValue;
 
-    return optionValue && +optionValue !== +noValue;
+    return optionValue && Number(optionValue) !== Number(noValue);
   });
 
   if (!isRequiredValid) {

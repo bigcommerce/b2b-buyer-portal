@@ -90,8 +90,8 @@ function ShoppingListsCard(props: OrderItemCardProps) {
       const { shoppingListCreateActionsPermission } = b2bPermissionsMap;
       const shoppingListActionsPermission = verifyLevelPermission({
         code: shoppingListCreateActionsPermission,
-        companyId: +(companyInfo?.companyId || 0),
-        userId: +customerInfo.userId,
+        companyId: Number(companyInfo?.companyId || 0),
+        userId: Number(customerInfo.userId),
       });
 
       setIsCanEditShoppingList(shoppingListActionsPermission);

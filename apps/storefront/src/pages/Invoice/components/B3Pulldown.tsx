@@ -99,14 +99,14 @@ function B3Pulldown({
     const params = {
       lineItems: [
         {
-          invoiceId: +id,
-          amount: openBalance.value === '.' ? '0' : `${+openBalance.value}`,
+          invoiceId: Number(id),
+          amount: openBalance.value === '.' ? '0' : `${Number(openBalance.value)}`,
         },
       ],
       currency: openBalance?.code || originalBalance.code,
     };
 
-    if (openBalance.value === '.' || +openBalance.value === 0) {
+    if (openBalance.value === '.' || Number(openBalance.value) === 0) {
       snackbar.error('The payment amount entered has an invalid value.', {
         isClose: true,
       });
@@ -141,7 +141,7 @@ function B3Pulldown({
   useEffect(() => {
     const { openBalance, orderUserId, companyInfo } = row;
     const payPermissions =
-      +openBalance.value > 0 && invoicePayPermission && purchasabilityPermission;
+      Number(openBalance.value) > 0 && invoicePayPermission && purchasabilityPermission;
 
     setIsPay(payPermissions);
     const isPayInvoice = isCurrentCompany ? payPermissions : payPermissions && invoicePay;
@@ -149,8 +149,8 @@ function B3Pulldown({
 
     const viewOrderPermission = verifyLevelPermission({
       code: getOrderPermissionCode,
-      companyId: +companyInfo.companyId,
-      userId: +orderUserId,
+      companyId: Number(companyInfo.companyId),
+      userId: Number(orderUserId),
     });
 
     setIsCanViewOrder(viewOrderPermission);

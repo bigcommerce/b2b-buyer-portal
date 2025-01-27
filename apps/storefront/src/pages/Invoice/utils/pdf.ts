@@ -19,7 +19,7 @@ const analyzePDFUrl = (url: string): Promise<string> =>
 export const getInvoiceDownloadPDFUrl = async (invoiceId: string, isPayNow = false) => {
   const {
     invoicePdf: { url },
-  } = await invoiceDownloadPDF(+invoiceId, isPayNow);
+  } = await invoiceDownloadPDF(Number(invoiceId), isPayNow);
 
   return url;
 };

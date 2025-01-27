@@ -10,7 +10,7 @@ export const setCartPermissions = (isLoggedInAndB2BAccount: boolean) => {
 
   const { purchasabilityPermission } = getCorrespondsConfigurationPermission(
     permissions,
-    +selectCompanyHierarchyId,
+    Number(selectCompanyHierarchyId),
   );
 
   if (!purchasabilityPermission && isLoggedInAndB2BAccount) return;

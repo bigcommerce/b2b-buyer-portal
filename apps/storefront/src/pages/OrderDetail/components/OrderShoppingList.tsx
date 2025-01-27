@@ -73,7 +73,7 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
           const newList = list.filter(
             (item: CustomFieldItems) =>
-              item.node.status === +(submitShoppingListPermission ? 30 : 0),
+              item.node.status === Number(submitShoppingListPermission ? 30 : 0),
           );
           setList(newList);
         }

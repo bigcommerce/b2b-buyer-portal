@@ -20,7 +20,7 @@ const b3TriggerCartNumber = async () => {
             number += productItem.length;
           } else {
             productItem.forEach((item: CustomFieldItems) => {
-              number += +item.quantity;
+              number += Number(item.quantity);
             });
           }
         }

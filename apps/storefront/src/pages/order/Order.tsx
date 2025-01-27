@@ -84,7 +84,9 @@ function useData() {
     ({ company }) => company.companyHierarchyInfo,
   );
   const currentCompanyId =
-    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyB2BId;
+    role === CustomerRole.SUPER_ADMIN && isAgenting
+      ? Number(salesRepCompanyId)
+      : Number(companyB2BId);
 
   const companyId = companyB2BId || salesRepCompanyId;
 
@@ -131,7 +133,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
   useEffect(() => {
     const search = getInitFilter(isCompanyOrder, isB2BUser);
     if (isB2BUser) {
-      search.companyIds = [+selectCompanyHierarchyId || +currentCompanyId];
+      search.companyIds = [Number(selectCompanyHierarchyId) || Number(currentCompanyId)];
     }
     setFilterData(search);
     setIsAutoRefresh(true);
@@ -139,7 +141,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
 
     const initFilter = async () => {
       const createdByUsers =
-        isB2BUser && isCompanyOrder ? await getOrdersCreatedByUser(+companyId, 0) : {};
+        isB2BUser && isCompanyOrder ? await getOrdersCreatedByUser(Number(companyId), 0) : {};
 
       const orderStatuses = isB2BUser ? await getOrderStatusType() : await getBcOrderStatusType();
 
@@ -268,7 +270,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     {
       key: 'createdAt',
       title: b3Lang('orders.createdOn'),
-      render: (item: ListItem) => `${displayFormat(+item.createdAt)}`,
+      render: (item: ListItem) => `${displayFormat(Number(item.createdAt))}`,
       width: '10%',
       isSortable: true,
     },
@@ -278,11 +280,11 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     const getNewColumnItems = columnAllItems.filter((item: { key: string }) => {
       const { key } = item;
       if (!isB2BUser && key === 'companyName') return false;
-      if ((!isB2BUser || (+role === 3 && !isAgenting)) && key === 'placedBy') return false;
-      if (key === 'companyId' && isB2BUser && (+role !== 3 || isAgenting)) return false;
+      if ((!isB2BUser || (Number(role) === 3 && !isAgenting)) && key === 'placedBy') return false;
+      if (key === 'companyId' && isB2BUser && (Number(role) !== 3 || isAgenting)) return false;
       if (
         (key === 'companyId' || key === 'placedBy') &&
-        !(+role === 3 && !isAgenting) &&
+        !(Number(role) === 3 && !isAgenting) &&
         !isCompanyOrder
       )
         return false;

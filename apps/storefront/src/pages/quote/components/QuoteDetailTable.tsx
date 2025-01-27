@@ -234,16 +234,16 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
         const taxRate = getTaxRate(taxClassId, variants);
         const taxPrice = enteredInclusiveTax
-          ? (+basePrice * taxRate) / (1 + taxRate)
-          : +basePrice * taxRate;
+          ? (Number(basePrice) * taxRate) / (1 + taxRate)
+          : Number(basePrice) * taxRate;
         const discountTaxPrice = enteredInclusiveTax
-          ? (+offeredPrice * taxRate) / (1 + taxRate)
-          : +offeredPrice * taxRate;
+          ? (Number(offeredPrice) * taxRate) / (1 + taxRate)
+          : Number(offeredPrice) * taxRate;
 
-        const price = getBCPrice(+basePrice, taxPrice);
-        const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice);
+        const price = getBCPrice(Number(basePrice), taxPrice);
+        const discountPrice = getBCPrice(Number(offeredPrice), discountTaxPrice);
 
-        const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount;
+        const isDiscount = Number(basePrice) - Number(offeredPrice) > 0 && displayDiscount;
         return (
           <>
             {isDiscount && (
@@ -317,18 +317,18 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
 
         const taxRate = getTaxRate(taxClassId, variants);
         const taxPrice = enteredInclusiveTax
-          ? (+basePrice * taxRate) / (1 + taxRate)
-          : +basePrice * taxRate;
+          ? (Number(basePrice) * taxRate) / (1 + taxRate)
+          : Number(basePrice) * taxRate;
         const discountTaxPrice = enteredInclusiveTax
-          ? (+offeredPrice * taxRate) / (1 + taxRate)
-          : +offeredPrice * taxRate;
+          ? (Number(offeredPrice) * taxRate) / (1 + taxRate)
+          : Number(offeredPrice) * taxRate;
 
-        const price = getBCPrice(+basePrice, taxPrice);
-        const discountPrice = getBCPrice(+offeredPrice, discountTaxPrice);
-        const isDiscount = +basePrice - +offeredPrice > 0 && displayDiscount;
+        const price = getBCPrice(Number(basePrice), taxPrice);
+        const discountPrice = getBCPrice(Number(offeredPrice), discountTaxPrice);
+        const isDiscount = Number(basePrice) - Number(offeredPrice) > 0 && displayDiscount;
 
-        const total = price * +quantity;
-        const totalWithDiscount = discountPrice * +quantity;
+        const total = price * Number(quantity);
+        const totalWithDiscount = discountPrice * Number(quantity);
 
         return (
           <Box>

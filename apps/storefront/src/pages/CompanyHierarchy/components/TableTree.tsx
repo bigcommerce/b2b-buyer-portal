@@ -67,17 +67,17 @@ function CompanyTableRow<T extends TreeNodeProps>({
 
   const hasChildren = node.children && node.children.length > 0;
   const nodeId = getNodeId(node);
-  const isCurrentCompanyId = +nodeId === +currentCompanyId;
+  const isCurrentCompanyId = Number(nodeId) === Number(currentCompanyId);
 
-  const isSelectCompanyId = +nodeId === +selectCompanyId;
+  const isSelectCompanyId = Number(nodeId) === Number(selectCompanyId);
   const open = Boolean(anchorEl);
 
   const isDisabledAction = useMemo(() => {
     if (selectCompanyId) {
-      return +selectCompanyId !== +node.companyId;
+      return Number(selectCompanyId) !== Number(node.companyId);
     }
 
-    return +currentCompanyId !== +node.companyId;
+    return Number(currentCompanyId) !== Number(node.companyId);
   }, [currentCompanyId, selectCompanyId, node]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {

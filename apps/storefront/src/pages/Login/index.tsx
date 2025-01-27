@@ -46,7 +46,7 @@ const useMasquerade = () => {
 
   const endMasquerade = useCallback(async () => {
     if (isAgenting) {
-      await superAdminEndMasquerade(+salesRepCompanyId);
+      await superAdminEndMasquerade(Number(salesRepCompanyId));
       storeDispatch(clearMasqueradeCompany());
     }
   }, [salesRepCompanyId, storeDispatch, isAgenting]);

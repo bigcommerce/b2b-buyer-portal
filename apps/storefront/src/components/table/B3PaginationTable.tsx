@@ -212,7 +212,8 @@ function PaginationTable(
   }, [fetchList, pagination]);
 
   useEffect(() => {
-    const isChangeCompany = +selectCompanyHierarchyIdCache.current !== +selectCompanyHierarchyId;
+    const isChangeCompany =
+      Number(selectCompanyHierarchyIdCache.current) !== Number(selectCompanyHierarchyId);
     if (!isEmpty(searchParams)) {
       if (isChangeCompany) {
         if (isAutoRefresh) fetchList(pagination, true);

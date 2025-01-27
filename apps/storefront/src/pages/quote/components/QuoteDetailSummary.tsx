@@ -53,25 +53,25 @@ export default function QuoteDetailSummary({
         shippingText: `${b3Lang('quoteDetail.summary.shipping')}(${
           quoteDetail?.shippingMethod?.description || ''
         })`,
-        shippingVal: priceFormat(+shipping),
+        shippingVal: priceFormat(Number(shipping)),
         taxText: b3Lang('quoteDetail.summary.tax'),
-        taxVal: priceFormat(+tax),
+        taxVal: priceFormat(Number(tax)),
       };
     }
 
-    if (!quoteDetail?.salesRepEmail && !quoteDetail?.shippingMethod?.id && +status === 1) {
+    if (!quoteDetail?.salesRepEmail && !quoteDetail?.shippingMethod?.id && Number(status) === 1) {
       return {
         shippingText: b3Lang('quoteDetail.summary.shipping'),
         shippingVal: b3Lang('quoteDetail.summary.tbd'),
         taxText: b3Lang('quoteDetail.summary.estimatedTax'),
-        taxVal: priceFormat(+tax),
+        taxVal: priceFormat(Number(tax)),
       };
     }
 
     if (
       quoteDetail?.salesRepEmail &&
       !quoteDetail?.shippingMethod?.id &&
-      (+status === 1 || +status === 5)
+      (Number(status) === 1 || Number(status) === 5)
     ) {
       return {
         shippingText: `${b3Lang('quoteDetail.summary.shipping')}(${b3Lang(
@@ -94,8 +94,8 @@ export default function QuoteDetailSummary({
     return price;
   };
 
-  const subtotalPrice = +originalSubtotal;
-  const quotedSubtotal = +originalSubtotal - +discount;
+  const subtotalPrice = Number(originalSubtotal);
+  const quotedSubtotal = Number(originalSubtotal) - Number(discount);
   return (
     <Card>
       <CardContent>
@@ -122,7 +122,7 @@ export default function QuoteDetailSummary({
               </Grid>
             )}
 
-            {!quoteDetail?.salesRepEmail && +status === 1 ? null : (
+            {!quoteDetail?.salesRepEmail && Number(status) === 1 ? null : (
               <Grid
                 container
                 justifyContent="space-between"
@@ -133,7 +133,9 @@ export default function QuoteDetailSummary({
               >
                 <Typography>{b3Lang('quoteDetail.summary.discountAmount')}</Typography>
                 <Typography>
-                  {+discount > 0 ? `-${priceFormat(+discount)}` : priceFormat(+discount)}
+                  {Number(discount) > 0
+                    ? `-${priceFormat(Number(discount))}`
+                    : priceFormat(Number(discount))}
                 </Typography>
               </Grid>
             )}
@@ -216,7 +218,7 @@ export default function QuoteDetailSummary({
                   color: '#212121',
                 }}
               >
-                {showPrice(priceFormat(+totalAmount))}
+                {showPrice(priceFormat(Number(totalAmount)))}
               </Typography>
             </Grid>
           </Box>

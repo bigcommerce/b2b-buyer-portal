@@ -24,7 +24,7 @@ export const validatorRules =
       if (item === 'number' && val && !re.number.test(val)) {
         str = b3lang('global.validatorRules.number');
       }
-      if (item === 'max' && options?.max && +options.max < +val) {
+      if (item === 'max' && options?.max && Number(options.max) < Number(val)) {
         str = b3lang('global.validatorRules.max', {
           max: options.max,
         });

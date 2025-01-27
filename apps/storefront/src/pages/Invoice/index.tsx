@@ -82,7 +82,9 @@ function useData() {
 
   const { invoicePayPermission, purchasabilityPermission } = useAppSelector(rolePermissionSelector);
   const currentCompanyId =
-    role === CustomerRole.SUPER_ADMIN && isAgenting ? +salesRepCompanyId : +companyInfoId;
+    role === CustomerRole.SUPER_ADMIN && isAgenting
+      ? Number(salesRepCompanyId)
+      : Number(companyInfoId);
 
   const { invoice: invoiceSubViewPermission } = useAppSelector(
     ({ company }) => company.pagesSubsidiariesPermission,
@@ -191,15 +193,15 @@ function Invoice() {
     try {
       setIsRequestLoading(true);
       const { invoiceStats } = await getInvoiceStats(
-        filterData?.status ? +filterData.status : 0,
-        +decimalPlaces,
+        filterData?.status ? Number(filterData.status) : 0,
+        Number(decimalPlaces),
         filterData?.companyIds || [],
       );
 
       if (invoiceStats) {
         const { overDueBalance, totalBalance } = invoiceStats;
-        setUnpaidAmount(+formattingNumericValues(+totalBalance, decimalPlaces));
-        setOverdueAmount(+formattingNumericValues(+overDueBalance, decimalPlaces));
+        setUnpaidAmount(Number(formattingNumericValues(Number(totalBalance), decimalPlaces)));
+        setOverdueAmount(Number(formattingNumericValues(Number(overDueBalance), decimalPlaces)));
       }
     } catch (err) {
       b2bLogger.error(err);
@@ -254,7 +256,7 @@ function Invoice() {
         const newItems = productList.find((product: InvoiceListNode) => {
           const { node } = product;
 
-          return +node.id === +item;
+          return Number(node.id) === Number(item);
         });
 
         return newItems;
@@ -276,7 +278,9 @@ function Invoice() {
   ) => {
     try {
       const invoicePay =
-        +invoiceCompanyId === +currentCompanyId ? invoicePayPermission : invoiceSubPayPermission;
+        Number(invoiceCompanyId) === Number(currentCompanyId)
+          ? invoicePayPermission
+          : invoiceSubPayPermission;
       setIsRequestLoading(true);
       const isPayNow = purchasabilityPermission && invoicePay && status !== 2;
       const pdfUrl = await handlePrintPDF(id, isPayNow);
@@ -305,7 +309,7 @@ function Invoice() {
         node: { id },
       } = invoice;
 
-      return +id === +invoiceId;
+      return Number(id) === Number(invoiceId);
     });
 
     if (selectedPay.length > 0) {
@@ -317,9 +321,11 @@ function Invoice() {
           node: { openBalance: currentOriginOpenBalance },
         } = currentOriginInvoice;
 
-        if (+id === +invoiceId) {
+        if (Number(id) === Number(invoiceId)) {
           openBalance.value =
-            +currentOriginOpenBalance.value < +newPrice ? currentOriginOpenBalance.value : newPrice;
+            Number(currentOriginOpenBalance.value) < Number(newPrice)
+              ? currentOriginOpenBalance.value
+              : newPrice;
         }
 
         return selectedItem;
@@ -340,7 +346,7 @@ function Invoice() {
         : checkedArr;
 
       const invoiceNumber = currentCheckedArr.map((item: InvoiceListNode) => item.node.id);
-      const invoiceStatus = filterData?.status ? [+filterData.status] : [];
+      const invoiceStatus = filterData?.status ? [Number(filterData.status)] : [];
 
       let orderByFiled = '-invoice_number';
       if (filterData?.orderBy) {
@@ -379,7 +385,7 @@ function Invoice() {
   useEffect(() => {
     const newInitFilter = {
       ...initFilter,
-      companyIds: [+selectCompanyHierarchyId || +currentCompanyId],
+      companyIds: [Number(selectCompanyHierarchyId) || Number(currentCompanyId)],
     };
     if (location?.search) {
       const params = new URLSearchParams(location.search);
@@ -432,7 +438,7 @@ function Invoice() {
           node: { openBalance },
         } = item;
 
-        return +openBalance.value !== 0;
+        return Number(openBalance.value) !== 0;
       }) || [];
 
     if (selectedInvoice.length > 0) {
@@ -449,7 +455,7 @@ function Invoice() {
               node: { id: selectedId },
             } = item;
 
-            return +id === +selectedId;
+            return Number(id) === Number(selectedId);
           });
 
           if (currentSelectedItem) {
@@ -493,14 +499,15 @@ function Invoice() {
       const item = invoiceNode;
       item.node.disableCurrentCheckbox = false;
 
-      openBalance.originValue = `${+openBalance.value}`;
-      openBalance.value = formattingNumericValues(+openBalance.value, decimalPlaces);
+      openBalance.originValue = `${Number(openBalance.value)}`;
+      openBalance.value = formattingNumericValues(Number(openBalance.value), decimalPlaces);
 
-      item.node.disableCurrentCheckbox = +openBalance.value === 0;
+      item.node.disableCurrentCheckbox = Number(openBalance.value) === 0;
 
       const { companyInfo } = item.node;
-      if (+companyInfo.companyId !== +currentCompanyId) {
-        item.node.disableCurrentCheckbox = !invoiceSubPayPermission || +openBalance.value === 0;
+      if (Number(companyInfo.companyId) !== Number(currentCompanyId)) {
+        item.node.disableCurrentCheckbox =
+          !invoiceSubPayPermission || Number(openBalance.value) === 0;
       }
     });
     setList(invoicesList);
@@ -522,17 +529,18 @@ function Invoice() {
     let result = val;
     if (val.includes('.')) {
       const wholeDecimalNumber = val.split('.');
-      const movePoint = decimalPlaces === 0 ? 0 : wholeDecimalNumber[1].length - +decimalPlaces;
+      const movePoint =
+        decimalPlaces === 0 ? 0 : wholeDecimalNumber[1].length - Number(decimalPlaces);
       if (wholeDecimalNumber[1] && movePoint > 0) {
         const newVal = wholeDecimalNumber[0] + wholeDecimalNumber[1];
         result = `${newVal.slice(0, -decimalPlaces)}.${newVal.slice(-decimalPlaces)}`;
       }
       if (wholeDecimalNumber[1] && movePoint === 0) {
-        result = formattingNumericValues(+val, decimalPlaces);
+        result = formattingNumericValues(Number(val), decimalPlaces);
       }
     } else if (result.length > 1) {
       result = `${val.slice(0, 1)}.${val.slice(-1)}`;
-      if (+decimalPlaces === 0) result = `${val}`;
+      if (Number(decimalPlaces) === 0) result = `${val}`;
     } else {
       result = `${val}`;
     }
@@ -601,7 +609,8 @@ function Invoice() {
       key: 'createdAt',
       title: b3Lang('invoice.headers.invoiceDate'),
       isSortable: true,
-      render: (item: InvoiceList) => `${item.createdAt ? displayFormat(+item.createdAt) : '–'}`,
+      render: (item: InvoiceList) =>
+        `${item.createdAt ? displayFormat(Number(item.createdAt)) : '–'}`,
       width: '15%',
     },
     {
@@ -619,7 +628,7 @@ function Invoice() {
               fontSize: '14px',
             }}
           >
-            {`${item.dueDate ? displayFormat(+item.dueDate) : '–'}`}
+            {`${item.dueDate ? displayFormat(Number(item.dueDate)) : '–'}`}
           </Typography>
         );
       },
@@ -631,7 +640,10 @@ function Invoice() {
       isSortable: true,
       render: (item: InvoiceList) => {
         const { originalBalance } = item;
-        const originalAmount = formattingNumericValues(+originalBalance.value, decimalPlaces);
+        const originalAmount = formattingNumericValues(
+          Number(originalBalance.value),
+          decimalPlaces,
+        );
 
         const token = handleGetCorrespondingCurrencyToken(originalBalance.code);
 
@@ -646,7 +658,7 @@ function Invoice() {
       render: (item: InvoiceList) => {
         const { openBalance } = item;
 
-        const openAmount = formattingNumericValues(+openBalance.value, decimalPlaces);
+        const openAmount = formattingNumericValues(Number(openBalance.value), decimalPlaces);
         const token = handleGetCorrespondingCurrencyToken(openBalance.code);
 
         return `${token}${openAmount || 0}`;
@@ -668,7 +680,7 @@ function Invoice() {
               node: { id: selectedId },
             } = item;
 
-            return +selectedId === +id;
+            return Number(selectedId) === Number(id);
           });
 
           if (currentSelected) {
@@ -679,7 +691,7 @@ function Invoice() {
             disabled = false;
             valuePrice = selectedOpenBalance.value;
 
-            if (+openBalance.value === 0) {
+            if (Number(openBalance.value) === 0) {
               disabled = true;
             }
           }
@@ -748,7 +760,7 @@ function Invoice() {
               node: { id: selectedId },
             } = item;
 
-            return +selectedId === +id;
+            return Number(selectedId) === Number(id);
           });
 
           if (currentSelected) {
@@ -762,9 +774,9 @@ function Invoice() {
             setInvoiceId={setCurrentInvoiceId}
             handleOpenHistoryModal={setIsOpenHistory}
             setIsRequestLoading={setIsRequestLoading}
-            isCurrentCompany={+currentCompanyId === +companyInfo.companyId}
+            isCurrentCompany={Number(currentCompanyId) === Number(companyInfo.companyId)}
             invoicePay={
-              +currentCompanyId === +companyInfo.companyId
+              Number(currentCompanyId) === Number(companyInfo.companyId)
                 ? invoicePayPermission
                 : invoiceSubPayPermission
             }
@@ -868,14 +880,18 @@ function Invoice() {
                 isEnabled: true,
                 label: b3Lang('invoice.filter.from'),
                 defaultValue:
-                  typeof filterData?.beginDateAt === 'number' ? +filterData.beginDateAt * 1000 : '',
+                  typeof filterData?.beginDateAt === 'number'
+                    ? Number(filterData.beginDateAt) * 1000
+                    : '',
                 pickerKey: 'start',
               }}
               endPicker={{
                 isEnabled: true,
                 label: b3Lang('invoice.filter.to'),
                 defaultValue:
-                  typeof filterData?.endDateAt === 'number' ? +filterData.endDateAt * 1000 : '',
+                  typeof filterData?.endDateAt === 'number'
+                    ? Number(filterData.endDateAt) * 1000
+                    : '',
                 pickerKey: 'end',
               }}
               searchValue={filterData?.q || ''}
@@ -959,9 +975,9 @@ function Invoice() {
               selectedPay={selectedPay}
               handleGetCorrespondingCurrency={handleGetCorrespondingCurrencyToken}
               addBottom={list.length - 1 === index}
-              isCurrentCompany={+currentCompanyId === +row.companyInfo.companyId}
+              isCurrentCompany={Number(currentCompanyId) === Number(row.companyInfo.companyId)}
               invoicePay={
-                +currentCompanyId === +row.companyInfo.companyId
+                Number(currentCompanyId) === Number(row.companyInfo.companyId)
                   ? invoicePayPermission
                   : invoiceSubPayPermission
               }
@@ -990,7 +1006,7 @@ function Invoice() {
         currentInvoiceId={currentInvoiceId}
         setOpen={setIsOpenHistory}
       />
-      <PaymentSuccess receiptId={+receiptId} type={type} />
+      <PaymentSuccess receiptId={Number(receiptId)} type={type} />
     </B3Spin>
   );
 }

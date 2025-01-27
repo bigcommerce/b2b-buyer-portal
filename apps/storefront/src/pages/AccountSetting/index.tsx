@@ -37,7 +37,7 @@ function useData() {
   const role = useAppSelector(({ company }) => company.customer.role);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-  const companyId = role === 3 && isAgenting ? +salesRepCompanyId : +companyInfoId;
+  const companyId = role === 3 && isAgenting ? Number(salesRepCompanyId) : Number(companyInfoId);
   const isBCUser = !isB2BUser || (role === 3 && !isAgenting);
 
   return { isBCUser, companyId, customer };
