@@ -38,12 +38,29 @@ function useData() {
 
   const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteBcShoppingList;
 
+  const fetchList = async (params: ShoppingListSearch) => {
+    const { edges, totalCount } = isB2BUser
+      ? await getB2BShoppingList(params)
+      : await getBcShoppingList({
+          offset: params.offset,
+          first: params.first,
+          search: params.search,
+          channelId,
+        });
+
+    return {
+      edges,
+      totalCount,
+    };
+  };
+
   return {
     companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     deleteShoppingList,
+    fetchList,
   };
 }
 
@@ -73,6 +90,7 @@ function ShoppingLists() {
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     deleteShoppingList,
+    fetchList,
   } = useData();
 
   useEffect(() => {
@@ -171,22 +189,6 @@ function ShoppingLists() {
     };
 
     setFilterSearch(search);
-  };
-
-  const fetchList = async (params: ShoppingListSearch) => {
-    const { edges, totalCount } = isB2BUser
-      ? await getB2BShoppingList(params)
-      : await getBcShoppingList({
-          offset: params.offset,
-          first: params.first,
-          search: params.search,
-          channelId,
-        });
-
-    return {
-      edges,
-      totalCount,
-    };
   };
 
   const handleAddShoppingListsClick = () => {
