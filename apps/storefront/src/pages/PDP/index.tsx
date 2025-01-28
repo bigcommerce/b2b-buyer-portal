@@ -138,17 +138,43 @@ function useData() {
   const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn);
   const isB2BUser = useAppSelector(isB2BUserSelector);
 
+  const getShoppingListItem = () => {
+    if (platform !== 'bigcommerce') {
+      const {
+        itemFromCurrentPage: [product],
+      } = window.b2b.utils.shoppingList;
+      return product;
+    }
+
+    if (!shoppingListClickNode) return undefined;
+
+    const productView: HTMLElement | null = shoppingListClickNode.closest(
+      config['dom.productView'],
+    );
+    if (!productView) return undefined;
+
+    const productId = (productView.querySelector('input[name=product_id]') as any)?.value;
+    const quantity = (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1;
+    const sku = (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
+    const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
+    return {
+      productId: +productId,
+      sku,
+      quantity: +quantity,
+      optionSelections: serialize(form),
+    };
+  };
+
   return {
-    shoppingListClickNode,
     customerGroupId,
-    platform,
     setOpenPageFn,
     isB2BUser,
+    getShoppingListItem,
   };
 }
 
 function PDP({ setOpenPage }: PageProps) {
-  const { shoppingListClickNode, customerGroupId, platform, setOpenPageFn, isB2BUser } = useData();
+  const { customerGroupId, setOpenPageFn, isB2BUser, getShoppingListItem } = useData();
   const b3Lang = useB3Lang();
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false);
@@ -180,33 +206,6 @@ function PDP({ setOpenPage }: PageProps) {
         shoppingListBtn: 'add',
       },
     });
-  };
-
-  const getShoppingListItem = () => {
-    if (platform !== 'bigcommerce') {
-      const {
-        itemFromCurrentPage: [product],
-      } = window.b2b.utils.shoppingList;
-      return product;
-    }
-
-    if (!shoppingListClickNode) return undefined;
-
-    const productView: HTMLElement | null = shoppingListClickNode.closest(
-      config['dom.productView'],
-    );
-    if (!productView) return undefined;
-
-    const productId = (productView.querySelector('input[name=product_id]') as any)?.value;
-    const quantity = (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1;
-    const sku = (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
-    const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
-    return {
-      productId: +productId,
-      sku,
-      quantity: +quantity,
-      optionSelections: serialize(form),
-    };
   };
 
   const handleShoppingConfirm = async (shoppingListId: string) => {
