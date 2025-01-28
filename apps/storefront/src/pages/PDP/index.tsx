@@ -130,7 +130,6 @@ export const addProductsToShoppingList = async ({
 };
 
 function PDP({ setOpenPage }: PageProps) {
-  const isPermission = true;
   const {
     state: { shoppingListClickNode },
   } = useContext(GlobalContext);
@@ -235,24 +234,20 @@ function PDP({ setOpenPage }: PageProps) {
 
   return (
     <>
-      {isPermission && (
-        <OrderShoppingList
-          isOpen={openShoppingList}
-          dialogTitle={b3Lang('pdp.addToShoppingList')}
-          onClose={handleShoppingClose}
-          onConfirm={handleShoppingConfirm}
-          onCreate={handleOpenCreateDialog}
-          isLoading={isRequestLoading}
-          setLoading={setIsRequestLoading}
-        />
-      )}
-      {isPermission && (
-        <CreateShoppingList
-          open={isOpenCreateShopping}
-          onChange={handleCreateShoppingClick}
-          onClose={handleCloseShoppingClick}
-        />
-      )}
+      <OrderShoppingList
+        isOpen={openShoppingList}
+        dialogTitle={b3Lang('pdp.addToShoppingList')}
+        onClose={handleShoppingClose}
+        onConfirm={handleShoppingConfirm}
+        onCreate={handleOpenCreateDialog}
+        isLoading={isRequestLoading}
+        setLoading={setIsRequestLoading}
+      />
+      <CreateShoppingList
+        open={isOpenCreateShopping}
+        onChange={handleCreateShoppingClick}
+        onClose={handleCloseShoppingClick}
+      />
     </>
   );
 }
