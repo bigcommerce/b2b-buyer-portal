@@ -61,10 +61,26 @@ interface UpdateShoppingListParamsProps {
   channelId?: number;
 }
 
-// shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
-// 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
+const calculateSubTotal = (checkedArr: CustomFieldItems) => {
+  if (checkedArr.length > 0) {
+    let total = 0.0;
 
-function ShoppingListDetails({ setOpenPage }: PageProps) {
+    checkedArr.forEach((item: ListItemProps) => {
+      const {
+        node: { quantity, basePrice, taxPrice },
+      } = item;
+
+      const price = getBCPrice(+basePrice, +taxPrice);
+
+      total += price * +quantity;
+    });
+
+    return (1000 * total) / 1000;
+  }
+  return 0.0;
+};
+
+function useData() {
   const { id = '' } = useParams();
   const {
     state: { openAPPParams, productQuoteEnabled = false },
@@ -76,22 +92,65 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
+
+  const {
+    shoppingListCreateActionsPermission,
+    purchasabilityPermission,
+    submitShoppingListPermission,
+  } = useAppSelector(rolePermissionSelector);
+
+  const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
+
+  return {
+    id,
+    openAPPParams,
+    productQuoteEnabled,
+    isB2BUser,
+    currencyCode,
+    role,
+    companyInfoId,
+    customerGroupId,
+    isAgenting,
+    primaryColor,
+    shoppingListCreateActionsPermission,
+    submitShoppingListPermission,
+    isCanAddToCart,
+  };
+}
+
+// shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
+// 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
+
+function ShoppingListDetails({ setOpenPage }: PageProps) {
+  const {
+    id,
+    openAPPParams,
+    productQuoteEnabled,
+    isB2BUser,
+    currencyCode,
+    role,
+    companyInfoId,
+    customerGroupId,
+    isAgenting,
+    primaryColor,
+    shoppingListCreateActionsPermission,
+    submitShoppingListPermission,
+    isCanAddToCart,
+  } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
   const { dispatch } = useContext(ShoppingListDetailsContext);
 
-  const theme = useTheme();
-
   const b3Lang = useB3Lang();
-
-  const primaryColor = theme.palette.primary.main;
 
   const tableRef = useRef<TableRefProps | null>(null);
 
   const [checkedArr, setCheckedArr] = useState<CustomFieldItems>([]);
   const [shoppingListInfo, setShoppingListInfo] = useState<null | ShoppingListInfoProps>(null);
   const [customerInfo, setCustomerInfo] = useState<null | CustomerInfoProps>(null);
-  const [selectedSubTotal, setSelectedSubTotal] = useState<number>(0.0);
   const [isRequestLoading, setIsRequestLoading] = useState(false);
 
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
@@ -103,11 +162,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   const [allowJuniorPlaceOrder, setAllowJuniorPlaceOrder] = useState<boolean>(false);
   const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
 
-  const {
-    shoppingListCreateActionsPermission,
-    purchasabilityPermission,
-    submitShoppingListPermission,
-  } = useAppSelector(rolePermissionSelector);
   const b2bAndBcShoppingListActionsPermissions = isB2BUser
     ? shoppingListCreateActionsPermission && isCanEditShoppingList
     : true;
@@ -127,7 +181,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     return submitShoppingListPermission;
   }, [submitShoppingListPermission, isB2BUser, shoppingListInfo]);
-  const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
   const b2bSubmitShoppingListPermission = isB2BUser
     ? submitShoppingList
     : role === CustomerRole.JUNIOR_BUYER;
@@ -309,26 +362,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     }
   };
 
-  useEffect(() => {
-    if (checkedArr.length > 0) {
-      let total = 0.0;
-
-      checkedArr.forEach((item: ListItemProps) => {
-        const {
-          node: { quantity, basePrice, taxPrice },
-        } = item;
-
-        const price = getBCPrice(+basePrice, +taxPrice);
-
-        total += price * +quantity;
-      });
-
-      setSelectedSubTotal((1000 * total) / 1000);
-    } else {
-      setSelectedSubTotal(0.0);
-    }
-  }, [checkedArr]);
-
   const handleDeleteProductClick = async () => {
     await handleDeleteItems(+deleteItemId);
     await handleCancelClick();
@@ -474,7 +507,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
               shoppingListInfo={shoppingListInfo}
               allowJuniorPlaceOrder={allowJuniorPlaceOrder}
               checkedArr={checkedArr}
-              selectedSubTotal={selectedSubTotal}
+              selectedSubTotal={calculateSubTotal(checkedArr)}
               setLoading={setIsRequestLoading}
               setDeleteOpen={setDeleteOpen}
               setValidateFailureProducts={setValidateFailureProducts}
