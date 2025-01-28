@@ -129,7 +129,7 @@ export const addProductsToShoppingList = async ({
   });
 };
 
-function PDP({ setOpenPage }: PageProps) {
+function useData() {
   const {
     state: { shoppingListClickNode },
   } = useContext(GlobalContext);
@@ -137,6 +137,18 @@ function PDP({ setOpenPage }: PageProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn);
   const isB2BUser = useAppSelector(isB2BUserSelector);
+
+  return {
+    shoppingListClickNode,
+    customerGroupId,
+    platform,
+    setOpenPageFn,
+    isB2BUser,
+  };
+}
+
+function PDP({ setOpenPage }: PageProps) {
+  const { shoppingListClickNode, customerGroupId, platform, setOpenPageFn, isB2BUser } = useData();
   const b3Lang = useB3Lang();
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false);
