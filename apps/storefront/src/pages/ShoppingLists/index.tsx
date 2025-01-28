@@ -54,13 +54,17 @@ function useData() {
     };
   };
 
+  const getShoppingLists = isB2BUser
+    ? () => getShoppingListsCreatedByUser(Number(companyId), 1)
+    : () => Promise.resolve({});
+
   return {
-    companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     deleteShoppingList,
     fetchList,
+    getShoppingLists,
   };
 }
 
@@ -85,17 +89,17 @@ function ShoppingLists() {
   } = useContext(GlobalContext);
 
   const {
-    companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     deleteShoppingList,
     fetchList,
+    getShoppingLists,
   } = useData();
 
   useEffect(() => {
     const initFilter = async () => {
-      const createdByUsers = isB2BUser ? await getShoppingListsCreatedByUser(+companyId, 1) : {};
+      const createdByUsers = await getShoppingLists();
 
       const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
 
