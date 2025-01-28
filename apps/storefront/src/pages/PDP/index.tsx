@@ -93,9 +93,9 @@ export const addProductsToShoppingList = async ({
       vId ||
       variants.find((item: { sku: string }) => item.sku === sku)?.variant_id ||
       variants[0]?.variant_id;
-    // get selected options by inputed data
+    // get selected options by inputted data
     const optionList = !optionSelections ? [] : getProductOptionList(optionSelections);
-    // verify inputed data includes required data
+    // verify inputted data includes required data
     const { isValid, message } = isAllRequiredOptionFilled(requiredOptions, optionList);
 
     if (!isValid) {
@@ -130,7 +130,7 @@ export const addProductsToShoppingList = async ({
 };
 
 function PDP({ setOpenPage }: PageProps) {
-  const isPromission = true;
+  const isPermission = true;
   const {
     state: { shoppingListClickNode },
   } = useContext(GlobalContext);
@@ -235,7 +235,7 @@ function PDP({ setOpenPage }: PageProps) {
 
   return (
     <>
-      {isPromission && (
+      {isPermission && (
         <OrderShoppingList
           isOpen={openShoppingList}
           dialogTitle={b3Lang('pdp.addToShoppingList')}
@@ -246,7 +246,7 @@ function PDP({ setOpenPage }: PageProps) {
           setLoading={setIsRequestLoading}
         />
       )}
-      {isPromission && (
+      {isPermission && (
         <CreateShoppingList
           open={isOpenCreateShopping}
           onChange={handleCreateShoppingClick}
