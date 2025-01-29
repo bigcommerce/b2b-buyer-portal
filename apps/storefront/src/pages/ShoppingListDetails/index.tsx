@@ -119,7 +119,11 @@ function useData() {
     return isB2BUser ? getB2BShoppingListDetails(options) : getBcShoppingListDetails(options);
   };
 
-  const deleteShoppingListItem = isB2BUser ? deleteB2BShoppingListItem : deleteBcShoppingListItem;
+  const deleteShoppingListItem = (itemId: string | number) => {
+    const options = { itemId, shoppingListId: id };
+
+    return isB2BUser ? deleteB2BShoppingListItem(options) : deleteBcShoppingListItem(options);
+  };
 
   return {
     id,
@@ -333,10 +337,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
     try {
       if (itemId) {
-        await deleteShoppingListItem({
-          itemId,
-          shoppingListId: id,
-        });
+        await deleteShoppingListItem(itemId);
 
         if (checkedArr.length > 0) {
           const newCheckedArr = checkedArr.filter((item: ListItemProps) => {
@@ -352,10 +353,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         checkedArr.forEach(async (item: ListItemProps) => {
           const { node } = item;
 
-          await deleteShoppingListItem({
-            itemId: node.itemId,
-            shoppingListId: id,
-          });
+          await deleteShoppingListItem(node.itemId);
         });
 
         setCheckedArr([]);
