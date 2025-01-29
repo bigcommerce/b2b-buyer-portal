@@ -344,9 +344,9 @@ function QuoteDetail() {
         date: date.toString(),
       };
 
-      const fn = +role === 99 ? getBcQuoteDetail : getB2BQuoteDetail;
+      const getQuote = +role === 99 ? getBcQuoteDetail : getB2BQuoteDetail;
 
-      const { quote } = await fn(data);
+      const { quote } = await getQuote(data);
       const productsWithMoreInfo = await handleGetProductsById(quote.productsList);
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
 
