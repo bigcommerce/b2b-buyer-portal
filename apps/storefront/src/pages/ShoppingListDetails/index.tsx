@@ -104,10 +104,13 @@ function useData() {
 
   const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
 
-  const getProducts = (productIds: number[]) => {
+  const getProducts = async (productIds: number[]) => {
     const options = { productIds, currencyCode, companyId, customerGroupId };
+    const { productsSearch } = isB2BUser
+      ? await searchB2BProducts(options)
+      : await searchBcProducts(options);
 
-    return isB2BUser ? searchB2BProducts(options) : searchBcProducts(options);
+    return conversionProductsList(productsSearch);
   };
 
   return {
@@ -217,9 +220,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
           }
         });
 
-        const { productsSearch } = await getProducts(productIds);
-
-        const newProductsSearch = conversionProductsList(productsSearch);
+        const newProductsSearch = await getProducts(productIds);
 
         listProducts.forEach((item) => {
           const { node } = item;
