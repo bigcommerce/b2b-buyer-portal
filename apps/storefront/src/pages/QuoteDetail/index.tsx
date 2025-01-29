@@ -83,7 +83,19 @@ function useData() {
     return conversionProductsList(productsSearch);
   };
 
-  const getQuote = +role === 99 ? getBcQuoteDetail : getB2BQuoteDetail;
+  const location = useLocation();
+
+  const getQuote = () => {
+    const { search } = location;
+
+    const date = getSearchVal(search, 'date') || '';
+    const data = {
+      id: +id,
+      date: date.toString(),
+    };
+
+    return +role === 99 ? getBcQuoteDetail(data) : getB2BQuoteDetail(data);
+  };
 
   return {
     id,
@@ -340,15 +352,7 @@ function QuoteDetail() {
     setIsShowFooter(false);
 
     try {
-      const { search } = location;
-
-      const date = getSearchVal(search, 'date') || '';
-      const data = {
-        id: +id,
-        date: date.toString(),
-      };
-
-      const { quote } = await getQuote(data);
+      const { quote } = await getQuote();
       const productsWithMoreInfo = await handleGetProductsById(quote.productsList);
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
 
