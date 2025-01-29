@@ -113,6 +113,8 @@ function useData() {
     return conversionProductsList(productsSearch);
   };
 
+  const getShoppingList = isB2BUser ? getB2BShoppingListDetails : getBcShoppingListDetails;
+
   return {
     id,
     openAPPParams,
@@ -125,6 +127,7 @@ function useData() {
     submitShoppingListPermission,
     isCanAddToCart,
     getProducts,
+    getShoppingList,
   };
 }
 
@@ -144,6 +147,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     submitShoppingListPermission,
     isCanAddToCart,
     getProducts,
+    getShoppingList,
   } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
@@ -251,9 +255,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   };
 
   const getShoppingListDetails = async (params: SearchProps) => {
-    const shoppingListDetailInfo = isB2BUser
-      ? await getB2BShoppingListDetails({ id, ...params })
-      : await getBcShoppingListDetails({ id, ...params });
+    const shoppingListDetailInfo = await getShoppingList({ id, ...params });
 
     const {
       products: { edges, totalCount },
