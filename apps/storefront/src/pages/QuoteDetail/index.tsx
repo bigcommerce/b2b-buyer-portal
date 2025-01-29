@@ -73,10 +73,14 @@ function useData() {
 
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
-  const getProducts = (productIds: number[]) => {
+  const getProducts = async (productIds: number[]) => {
     const options = { productIds, currencyCode, companyId, customerGroupId };
 
-    return isB2BUser ? searchB2BProducts(options) : searchBcProducts(options);
+    const { productsSearch } = await (isB2BUser
+      ? searchB2BProducts(options)
+      : searchBcProducts(options));
+
+    return conversionProductsList(productsSearch);
   };
 
   return {
@@ -286,9 +290,7 @@ function QuoteDetail() {
       });
 
       try {
-        const { productsSearch } = await getProducts(productIds);
-
-        const newProductsSearch = conversionProductsList(productsSearch);
+        const newProductsSearch = await getProducts(productIds);
 
         listProducts.forEach((item) => {
           const listProduct = item;
