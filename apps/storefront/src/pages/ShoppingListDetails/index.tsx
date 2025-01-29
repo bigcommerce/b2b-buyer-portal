@@ -88,7 +88,7 @@ function useData() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const role = useAppSelector(({ company }) => company.customer.role);
-  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
@@ -104,20 +104,41 @@ function useData() {
 
   const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
 
+  const getProducts = async (productIds: number[]) => {
+    const options = { productIds, currencyCode, companyId, customerGroupId };
+    const { productsSearch } = isB2BUser
+      ? await searchB2BProducts(options)
+      : await searchBcProducts(options);
+
+    return conversionProductsList(productsSearch);
+  };
+
+  const getShoppingList = (params: SearchProps) => {
+    const options = { ...params, id };
+
+    return isB2BUser ? getB2BShoppingListDetails(options) : getBcShoppingListDetails(options);
+  };
+
+  const deleteShoppingListItem = (itemId: string | number) => {
+    const options = { itemId, shoppingListId: id };
+
+    return isB2BUser ? deleteB2BShoppingListItem(options) : deleteBcShoppingListItem(options);
+  };
+
   return {
     id,
     openAPPParams,
     productQuoteEnabled,
     isB2BUser,
-    currencyCode,
     role,
-    companyInfoId,
-    customerGroupId,
     isAgenting,
     primaryColor,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     isCanAddToCart,
+    getProducts,
+    getShoppingList,
+    deleteShoppingListItem,
   };
 }
 
@@ -130,15 +151,15 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     openAPPParams,
     productQuoteEnabled,
     isB2BUser,
-    currencyCode,
     role,
-    companyInfoId,
-    customerGroupId,
     isAgenting,
     primaryColor,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     isCanAddToCart,
+    getProducts,
+    getShoppingList,
+    deleteShoppingListItem,
   } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
@@ -214,16 +235,8 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
             productIds.push(node.productId);
           }
         });
-        const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
-        const { productsSearch } = await getProducts({
-          productIds,
-          currencyCode,
-          companyId: companyInfoId,
-          customerGroupId,
-        });
-
-        const newProductsSearch = conversionProductsList(productsSearch);
+        const newProductsSearch = await getProducts(productIds);
 
         listProducts.forEach((item) => {
           const { node } = item;
@@ -254,9 +267,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   };
 
   const getShoppingListDetails = async (params: SearchProps) => {
-    const shoppingListDetailInfo = isB2BUser
-      ? await getB2BShoppingListDetails({ id, ...params })
-      : await getBcShoppingListDetails({ id, ...params });
+    const shoppingListDetailInfo = await getShoppingList(params);
 
     const {
       products: { edges, totalCount },
@@ -323,14 +334,10 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const handleDeleteItems = async (itemId: number | string = '') => {
     setIsRequestLoading(true);
-    const deleteShoppingListItem = isB2BUser ? deleteB2BShoppingListItem : deleteBcShoppingListItem;
 
     try {
       if (itemId) {
-        await deleteShoppingListItem({
-          itemId,
-          shoppingListId: id,
-        });
+        await deleteShoppingListItem(itemId);
 
         if (checkedArr.length > 0) {
           const newCheckedArr = checkedArr.filter((item: ListItemProps) => {
@@ -346,10 +353,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
         checkedArr.forEach(async (item: ListItemProps) => {
           const { node } = item;
 
-          await deleteShoppingListItem({
-            itemId: node.itemId,
-            shoppingListId: id,
-          });
+          await deleteShoppingListItem(node.itemId);
         });
 
         setCheckedArr([]);
