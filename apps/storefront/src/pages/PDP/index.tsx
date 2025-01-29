@@ -93,9 +93,9 @@ export const addProductsToShoppingList = async ({
       vId ||
       variants.find((item: { sku: string }) => item.sku === sku)?.variant_id ||
       variants[0]?.variant_id;
-    // get selected options by inputed data
+    // get selected options by inputted data
     const optionList = !optionSelections ? [] : getProductOptionList(optionSelections);
-    // verify inputed data includes required data
+    // verify inputted data includes required data
     const { isValid, message } = isAllRequiredOptionFilled(requiredOptions, optionList);
 
     if (!isValid) {
@@ -129,8 +129,7 @@ export const addProductsToShoppingList = async ({
   });
 };
 
-function PDP({ setOpenPage }: PageProps) {
-  const isPromission = true;
+function useData() {
   const {
     state: { shoppingListClickNode },
   } = useContext(GlobalContext);
@@ -138,6 +137,44 @@ function PDP({ setOpenPage }: PageProps) {
   const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const setOpenPageFn = useAppSelector(({ global }) => global.setOpenPageFn);
   const isB2BUser = useAppSelector(isB2BUserSelector);
+
+  const getShoppingListItem = () => {
+    if (platform !== 'bigcommerce') {
+      const {
+        itemFromCurrentPage: [product],
+      } = window.b2b.utils.shoppingList;
+      return product;
+    }
+
+    if (!shoppingListClickNode) return undefined;
+
+    const productView: HTMLElement | null = shoppingListClickNode.closest(
+      config['dom.productView'],
+    );
+    if (!productView) return undefined;
+
+    const productId = (productView.querySelector('input[name=product_id]') as any)?.value;
+    const quantity = (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1;
+    const sku = (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
+    const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
+    return {
+      productId: +productId,
+      sku,
+      quantity: +quantity,
+      optionSelections: serialize(form),
+    };
+  };
+
+  return {
+    customerGroupId,
+    setOpenPageFn,
+    isB2BUser,
+    getShoppingListItem,
+  };
+}
+
+function PDP({ setOpenPage }: PageProps) {
+  const { customerGroupId, setOpenPageFn, isB2BUser, getShoppingListItem } = useData();
   const b3Lang = useB3Lang();
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(false);
@@ -169,33 +206,6 @@ function PDP({ setOpenPage }: PageProps) {
         shoppingListBtn: 'add',
       },
     });
-  };
-
-  const getShoppingListItem = () => {
-    if (platform !== 'bigcommerce') {
-      const {
-        itemFromCurrentPage: [product],
-      } = window.b2b.utils.shoppingList;
-      return product;
-    }
-
-    if (!shoppingListClickNode) return undefined;
-
-    const productView: HTMLElement | null = shoppingListClickNode.closest(
-      config['dom.productView'],
-    );
-    if (!productView) return undefined;
-
-    const productId = (productView.querySelector('input[name=product_id]') as any)?.value;
-    const quantity = (productView.querySelector('[name="qty[]"]') as any)?.value ?? 1;
-    const sku = (productView.querySelector('[data-product-sku]')?.innerHTML ?? '').trim();
-    const form = productView.querySelector('form[data-cart-item-add]') as HTMLFormElement;
-    return {
-      productId: +productId,
-      sku,
-      quantity: +quantity,
-      optionSelections: serialize(form),
-    };
   };
 
   const handleShoppingConfirm = async (shoppingListId: string) => {
@@ -235,24 +245,20 @@ function PDP({ setOpenPage }: PageProps) {
 
   return (
     <>
-      {isPromission && (
-        <OrderShoppingList
-          isOpen={openShoppingList}
-          dialogTitle={b3Lang('pdp.addToShoppingList')}
-          onClose={handleShoppingClose}
-          onConfirm={handleShoppingConfirm}
-          onCreate={handleOpenCreateDialog}
-          isLoading={isRequestLoading}
-          setLoading={setIsRequestLoading}
-        />
-      )}
-      {isPromission && (
-        <CreateShoppingList
-          open={isOpenCreateShopping}
-          onChange={handleCreateShoppingClick}
-          onClose={handleCloseShoppingClick}
-        />
-      )}
+      <OrderShoppingList
+        isOpen={openShoppingList}
+        dialogTitle={b3Lang('pdp.addToShoppingList')}
+        onClose={handleShoppingClose}
+        onConfirm={handleShoppingConfirm}
+        onCreate={handleOpenCreateDialog}
+        isLoading={isRequestLoading}
+        setLoading={setIsRequestLoading}
+      />
+      <CreateShoppingList
+        open={isOpenCreateShopping}
+        onChange={handleCreateShoppingClick}
+        onClose={handleCloseShoppingClick}
+      />
     </>
   );
 }
