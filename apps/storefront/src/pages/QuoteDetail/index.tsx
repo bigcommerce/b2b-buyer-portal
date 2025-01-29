@@ -83,15 +83,13 @@ function useData() {
         }
       });
 
-      const newProductsSearch = await (async (productIds: number[]) => {
-        const options = { productIds, currencyCode, companyId, customerGroupId };
+      const options = { productIds, currencyCode, companyId, customerGroupId };
 
-        const { productsSearch } = await (isB2BUser
-          ? searchB2BProducts(options)
-          : searchBcProducts(options));
+      const { productsSearch } = await (isB2BUser
+        ? searchB2BProducts(options)
+        : searchBcProducts(options));
 
-        return conversionProductsList(productsSearch);
-      })(productIds);
+      const newProductsSearch = conversionProductsList(productsSearch);
 
       listProducts.forEach((item) => {
         const listProduct = item;
