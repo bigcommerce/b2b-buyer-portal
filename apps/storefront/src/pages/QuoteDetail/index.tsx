@@ -309,24 +309,20 @@ function QuoteDetail() {
         }
       });
 
-      try {
-        const newProductsSearch = await getProducts(productIds);
+      const newProductsSearch = await getProducts(productIds);
 
-        listProducts.forEach((item) => {
-          const listProduct = item;
-          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
-            const { id: productId } = search;
+      listProducts.forEach((item) => {
+        const listProduct = item;
+        const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
+          const { id: productId } = search;
 
-            return Number(item.productId) === Number(productId);
-          });
-
-          listProduct.productsSearch = productInfo || {};
+          return Number(item.productId) === Number(productId);
         });
 
-        return listProducts;
-      } catch (err: any) {
-        snackbar.error(err);
-      }
+        listProduct.productsSearch = productInfo || {};
+      });
+
+      return listProducts;
     }
     return undefined;
   };
@@ -357,7 +353,11 @@ function QuoteDetail() {
 
     try {
       const quote = await getQuote();
-      const productsWithMoreInfo = await handleGetProductsById(quote.productsList);
+      const productsWithMoreInfo = await handleGetProductsById(quote.productsList).catch((err) => {
+        snackbar.error(err);
+
+        return undefined;
+      });
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
 
       setQuoteDetail({
