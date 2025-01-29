@@ -74,6 +74,8 @@ function useData() {
 
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
+  const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
+
   return {
     id,
     bcLanguage,
@@ -90,6 +92,7 @@ function useData() {
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
+    getProducts,
   };
 }
 
@@ -112,6 +115,7 @@ function QuoteDetail() {
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
+    getProducts,
   } = useData();
 
   const [isMobile] = useMobile();
@@ -283,7 +287,6 @@ function QuoteDetail() {
           productIds.push(item.productId);
         }
       });
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
       try {
         const { currency_code: currencyCode } = currency as Currency;
