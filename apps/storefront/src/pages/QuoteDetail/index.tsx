@@ -83,6 +83,8 @@ function useData() {
     return conversionProductsList(productsSearch);
   };
 
+  const getQuote = +role === 99 ? getBcQuoteDetail : getB2BQuoteDetail;
+
   return {
     id,
     bcLanguage,
@@ -97,6 +99,7 @@ function useData() {
     isEnableProduct,
     purchasabilityPermission,
     getProducts,
+    getQuote,
   };
 }
 
@@ -117,6 +120,7 @@ function QuoteDetail() {
     isEnableProduct,
     purchasabilityPermission,
     getProducts,
+    getQuote,
   } = useData();
 
   const [isMobile] = useMobile();
@@ -343,8 +347,6 @@ function QuoteDetail() {
         id: +id,
         date: date.toString(),
       };
-
-      const getQuote = +role === 99 ? getBcQuoteDetail : getB2BQuoteDetail;
 
       const { quote } = await getQuote(data);
       const productsWithMoreInfo = await handleGetProductsById(quote.productsList);
