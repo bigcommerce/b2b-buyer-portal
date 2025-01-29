@@ -83,6 +83,34 @@ function useData() {
     return conversionProductsList(productsSearch);
   };
 
+  const handleGetProductsById = async (listProducts: ProductInfoProps[]) => {
+    if (listProducts.length > 0) {
+      const productIds: number[] = [];
+
+      listProducts.forEach((item) => {
+        if (!productIds.includes(item.productId)) {
+          productIds.push(item.productId);
+        }
+      });
+
+      const newProductsSearch = await getProducts(productIds);
+
+      listProducts.forEach((item) => {
+        const listProduct = item;
+        const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
+          const { id: productId } = search;
+
+          return Number(item.productId) === Number(productId);
+        });
+
+        listProduct.productsSearch = productInfo || {};
+      });
+
+      return listProducts;
+    }
+    return undefined;
+  };
+
   const location = useLocation();
 
   const getQuote = async () => {
@@ -114,7 +142,7 @@ function useData() {
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
-    getProducts,
+    handleGetProductsById,
     getQuote,
   };
 }
@@ -135,7 +163,7 @@ function QuoteDetail() {
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
-    getProducts,
+    handleGetProductsById,
     getQuote,
   } = useData();
 
@@ -297,34 +325,6 @@ function QuoteDetail() {
       return (classRates.find((rate) => rate.taxClassId === taxClassId)?.rate || 0) / 100;
     }
     return 0;
-  };
-
-  const handleGetProductsById = async (listProducts: ProductInfoProps[]) => {
-    if (listProducts.length > 0) {
-      const productIds: number[] = [];
-
-      listProducts.forEach((item) => {
-        if (!productIds.includes(item.productId)) {
-          productIds.push(item.productId);
-        }
-      });
-
-      const newProductsSearch = await getProducts(productIds);
-
-      listProducts.forEach((item) => {
-        const listProduct = item;
-        const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
-          const { id: productId } = search;
-
-          return Number(item.productId) === Number(productId);
-        });
-
-        listProduct.productsSearch = productInfo || {};
-      });
-
-      return listProducts;
-    }
-    return undefined;
   };
 
   const getQuoteExtraFields = async (currentExtraFields: QuoteExtraFieldsData[]) => {
