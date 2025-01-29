@@ -24,7 +24,6 @@ import {
   TaxZoneRates,
   useAppSelector,
 } from '@/store';
-import { Currency } from '@/types';
 import { QuoteExtraFieldsData } from '@/types/quotes';
 import { snackbar, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
@@ -51,7 +50,7 @@ function useData() {
   const {
     state: { bcLanguage, quoteConfig },
   } = useContext(GlobalContext);
-  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
   const role = useAppSelector(({ company }) => company.customer.role);
@@ -63,7 +62,7 @@ function useData() {
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
-  const currency = useAppSelector(activeCurrencyInfoSelector);
+  const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
   const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates);
   const enteredInclusiveTax = useAppSelector(
     ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
@@ -74,20 +73,21 @@ function useData() {
 
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
-  const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
+  const getProducts = (productIds: number[]) => {
+    const options = { productIds, currencyCode, companyId, customerGroupId };
+
+    return isB2BUser ? searchB2BProducts(options) : searchBcProducts(options);
+  };
 
   return {
     id,
     bcLanguage,
     quoteConfig,
-    companyInfoId,
-    customerGroupId,
     role,
     emailAddress,
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
-    currency,
     taxZoneRates,
     enteredInclusiveTax,
     isEnableProduct,
@@ -103,14 +103,11 @@ function QuoteDetail() {
     id,
     bcLanguage,
     quoteConfig,
-    companyInfoId,
-    customerGroupId,
     role,
     emailAddress,
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
-    currency,
     taxZoneRates,
     enteredInclusiveTax,
     isEnableProduct,
@@ -289,13 +286,7 @@ function QuoteDetail() {
       });
 
       try {
-        const { currency_code: currencyCode } = currency as Currency;
-        const { productsSearch } = await getProducts({
-          productIds,
-          currencyCode,
-          companyId: companyInfoId,
-          customerGroupId,
-        });
+        const { productsSearch } = await getProducts(productIds);
 
         const newProductsSearch = conversionProductsList(productsSearch);
 
