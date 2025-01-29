@@ -119,6 +119,8 @@ function useData() {
     return isB2BUser ? getB2BShoppingListDetails(options) : getBcShoppingListDetails(options);
   };
 
+  const deleteShoppingListItem = isB2BUser ? deleteB2BShoppingListItem : deleteBcShoppingListItem;
+
   return {
     id,
     openAPPParams,
@@ -132,6 +134,7 @@ function useData() {
     isCanAddToCart,
     getProducts,
     getShoppingList,
+    deleteShoppingListItem,
   };
 }
 
@@ -152,6 +155,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     isCanAddToCart,
     getProducts,
     getShoppingList,
+    deleteShoppingListItem,
   } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
@@ -326,7 +330,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const handleDeleteItems = async (itemId: number | string = '') => {
     setIsRequestLoading(true);
-    const deleteShoppingListItem = isB2BUser ? deleteB2BShoppingListItem : deleteBcShoppingListItem;
 
     try {
       if (itemId) {
