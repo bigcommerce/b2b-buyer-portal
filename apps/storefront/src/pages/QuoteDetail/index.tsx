@@ -85,7 +85,7 @@ function useData() {
 
   const location = useLocation();
 
-  const getQuote = () => {
+  const getQuote = async () => {
     const { search } = location;
 
     const date = getSearchVal(search, 'date') || '';
@@ -94,7 +94,9 @@ function useData() {
       date: date.toString(),
     };
 
-    return +role === 99 ? getBcQuoteDetail(data) : getB2BQuoteDetail(data);
+    const { quote } = await (+role === 99 ? getBcQuoteDetail(data) : getB2BQuoteDetail(data));
+
+    return quote;
   };
 
   return {
@@ -352,7 +354,7 @@ function QuoteDetail() {
     setIsShowFooter(false);
 
     try {
-      const { quote } = await getQuote();
+      const quote = await getQuote();
       const productsWithMoreInfo = await handleGetProductsById(quote.productsList);
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
 
