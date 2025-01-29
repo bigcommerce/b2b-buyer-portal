@@ -113,7 +113,11 @@ function useData() {
     return conversionProductsList(productsSearch);
   };
 
-  const getShoppingList = isB2BUser ? getB2BShoppingListDetails : getBcShoppingListDetails;
+  const getShoppingList = (params: SearchProps) => {
+    const options = { ...params, id };
+
+    return isB2BUser ? getB2BShoppingListDetails(options) : getBcShoppingListDetails(options);
+  };
 
   return {
     id,
@@ -255,7 +259,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
   };
 
   const getShoppingListDetails = async (params: SearchProps) => {
-    const shoppingListDetailInfo = await getShoppingList({ id, ...params });
+    const shoppingListDetailInfo = await getShoppingList(params);
 
     const {
       products: { edges, totalCount },
