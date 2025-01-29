@@ -104,6 +104,8 @@ function useData() {
 
   const isCanAddToCart = isB2BUser ? purchasabilityPermission : true;
 
+  const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
+
   return {
     id,
     openAPPParams,
@@ -118,6 +120,7 @@ function useData() {
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     isCanAddToCart,
+    getProducts,
   };
 }
 
@@ -139,6 +142,7 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     isCanAddToCart,
+    getProducts,
   } = useData();
   const navigate = useNavigate();
   const [isMobile] = useMobile();
@@ -214,7 +218,6 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
             productIds.push(node.productId);
           }
         });
-        const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
         const { productsSearch } = await getProducts({
           productIds,
