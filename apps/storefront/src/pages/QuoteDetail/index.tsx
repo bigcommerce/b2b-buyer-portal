@@ -63,6 +63,17 @@ function useData() {
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
 
+  const currency = useAppSelector(activeCurrencyInfoSelector);
+  const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates);
+  const enteredInclusiveTax = useAppSelector(
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
+  );
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
+  );
+
+  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+
   return {
     id,
     bcLanguage,
@@ -74,6 +85,11 @@ function useData() {
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
+    currency,
+    taxZoneRates,
+    enteredInclusiveTax,
+    isEnableProduct,
+    purchasabilityPermission,
   };
 }
 
@@ -91,6 +107,11 @@ function QuoteDetail() {
     isB2BUser,
     selectCompanyHierarchyId,
     isAgenting,
+    currency,
+    taxZoneRates,
+    enteredInclusiveTax,
+    isEnableProduct,
+    purchasabilityPermission,
   } = useData();
 
   const [isMobile] = useMobile();
@@ -127,16 +148,6 @@ function QuoteDetail() {
   const [quoteCheckoutLoading, setQuoteCheckoutLoading] = useState<boolean>(false);
 
   const location = useLocation();
-  const currency = useAppSelector(activeCurrencyInfoSelector);
-  const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates);
-  const enteredInclusiveTax = useAppSelector(
-    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
-  );
-  const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
-  );
-
-  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
   useEffect(() => {
     if (!quoteDetail?.id) return;
