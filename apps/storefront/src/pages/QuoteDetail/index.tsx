@@ -45,24 +45,54 @@ import { ProductInfoProps } from '../quote/shared/config';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
 
-function QuoteDetail() {
+function useData() {
   const { id = '' } = useParams();
-  const navigate = useNavigate();
 
   const {
     state: { bcLanguage, quoteConfig },
   } = useContext(GlobalContext);
-
-  const isB2BUser = useAppSelector(isB2BUserSelector);
   const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
   const role = useAppSelector(({ company }) => company.customer.role);
+
+  const isB2BUser = useAppSelector(isB2BUserSelector);
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+
+  return {
+    id,
+    bcLanguage,
+    quoteConfig,
+    companyInfoId,
+    customerGroupId,
+    role,
+    emailAddress,
+    isB2BUser,
+    selectCompanyHierarchyId,
+    isAgenting,
+  };
+}
+
+function QuoteDetail() {
+  const navigate = useNavigate();
+
+  const {
+    id,
+    bcLanguage,
+    quoteConfig,
+    companyInfoId,
+    customerGroupId,
+    role,
+    emailAddress,
+    isB2BUser,
+    selectCompanyHierarchyId,
+    isAgenting,
+  } = useData();
+
   const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
