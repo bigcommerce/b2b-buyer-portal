@@ -24,7 +24,6 @@ import {
   TaxZoneRates,
   useAppSelector,
 } from '@/store';
-import { Currency } from '@/types';
 import { QuoteExtraFieldsData } from '@/types/quotes';
 import { snackbar, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
@@ -45,24 +44,99 @@ import { ProductInfoProps } from '../quote/shared/config';
 import getB2BQuoteExtraFields from '../quote/utils/getQuoteExtraFields';
 import { handleQuoteCheckout } from '../quote/utils/quoteCheckout';
 
-function QuoteDetail() {
+function useData() {
   const { id = '' } = useParams();
-  const navigate = useNavigate();
 
   const {
     state: { bcLanguage, quoteConfig },
   } = useContext(GlobalContext);
-
-  const isB2BUser = useAppSelector(isB2BUserSelector);
-  const companyInfoId = useAppSelector(({ company }) => company.companyInfo.id);
+  const companyId = useAppSelector(({ company }) => company.companyInfo.id);
   const emailAddress = useAppSelector(({ company }) => company.customer.emailAddress);
   const customerGroupId = useAppSelector(({ company }) => company.customer.customerGroupId);
   const role = useAppSelector(({ company }) => company.customer.role);
+
+  const isB2BUser = useAppSelector(isB2BUserSelector);
   const { selectCompanyHierarchyId } = useAppSelector(
     ({ company }) => company.companyHierarchyInfo,
   );
 
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
+
+  const { currency_code: currencyCode } = useAppSelector(activeCurrencyInfoSelector);
+  const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates);
+  const enteredInclusiveTax = useAppSelector(
+    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
+  );
+  const isEnableProduct = useAppSelector(
+    ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
+  );
+
+  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
+
+  const getProducts = async (productIds: number[]) => {
+    const options = { productIds, currencyCode, companyId, customerGroupId };
+
+    const { productsSearch } = await (isB2BUser
+      ? searchB2BProducts(options)
+      : searchBcProducts(options));
+
+    return conversionProductsList(productsSearch);
+  };
+
+  const location = useLocation();
+
+  const getQuote = async () => {
+    const { search } = location;
+
+    const date = getSearchVal(search, 'date') || '';
+    const data = {
+      id: +id,
+      date: date.toString(),
+    };
+
+    const { quote } = await (+role === 99 ? getBcQuoteDetail(data) : getB2BQuoteDetail(data));
+
+    return quote;
+  };
+
+  return {
+    id,
+    bcLanguage,
+    quoteConfig,
+    role,
+    emailAddress,
+    isB2BUser,
+    selectCompanyHierarchyId,
+    isAgenting,
+    taxZoneRates,
+    enteredInclusiveTax,
+    isEnableProduct,
+    purchasabilityPermission,
+    getProducts,
+    getQuote,
+  };
+}
+
+function QuoteDetail() {
+  const navigate = useNavigate();
+
+  const {
+    id,
+    bcLanguage,
+    quoteConfig,
+    role,
+    emailAddress,
+    isB2BUser,
+    selectCompanyHierarchyId,
+    isAgenting,
+    taxZoneRates,
+    enteredInclusiveTax,
+    isEnableProduct,
+    purchasabilityPermission,
+    getProducts,
+    getQuote,
+  } = useData();
+
   const [isMobile] = useMobile();
 
   const b3Lang = useB3Lang();
@@ -97,16 +171,6 @@ function QuoteDetail() {
   const [quoteCheckoutLoading, setQuoteCheckoutLoading] = useState<boolean>(false);
 
   const location = useLocation();
-  const currency = useAppSelector(activeCurrencyInfoSelector);
-  const taxZoneRates = useAppSelector(({ global }) => global.taxZoneRates);
-  const enteredInclusiveTax = useAppSelector(
-    ({ storeConfigs }) => storeConfigs.currencies.enteredInclusiveTax,
-  );
-  const isEnableProduct = useAppSelector(
-    ({ global }) => global.blockPendingQuoteNonPurchasableOOS?.isEnableProduct,
-  );
-
-  const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
   useEffect(() => {
     if (!quoteDetail?.id) return;
@@ -242,18 +306,9 @@ function QuoteDetail() {
           productIds.push(item.productId);
         }
       });
-      const getProducts = isB2BUser ? searchB2BProducts : searchBcProducts;
 
       try {
-        const { currency_code: currencyCode } = currency as Currency;
-        const { productsSearch } = await getProducts({
-          productIds,
-          currencyCode,
-          companyId: companyInfoId,
-          customerGroupId,
-        });
-
-        const newProductsSearch = conversionProductsList(productsSearch);
+        const newProductsSearch = await getProducts(productIds);
 
         listProducts.forEach((item) => {
           const listProduct = item;
@@ -299,17 +354,7 @@ function QuoteDetail() {
     setIsShowFooter(false);
 
     try {
-      const { search } = location;
-
-      const date = getSearchVal(search, 'date') || '';
-      const data = {
-        id: +id,
-        date: date.toString(),
-      };
-
-      const fn = +role === 99 ? getBcQuoteDetail : getB2BQuoteDetail;
-
-      const { quote } = await fn(data);
+      const quote = await getQuote();
       const productsWithMoreInfo = await handleGetProductsById(quote.productsList);
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
 
