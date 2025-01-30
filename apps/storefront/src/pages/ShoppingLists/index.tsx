@@ -36,12 +36,16 @@ function useData() {
 
   const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteBcShoppingList;
 
+  const getUserShoppingLists = isB2BUser
+    ? () => getShoppingListsCreatedByUser(Number(companyId), 1)
+    : () => Promise.resolve({});
+
   return {
-    companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     deleteShoppingList,
+    getUserShoppingLists,
   };
 }
 
@@ -57,11 +61,11 @@ function ShoppingLists() {
   const [paginationTableRef] = useTableRef();
 
   const {
-    companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
     deleteShoppingList,
+    getUserShoppingLists,
   } = useData();
 
   const {
@@ -71,9 +75,7 @@ function ShoppingLists() {
 
   useEffect(() => {
     const initFilter = async () => {
-      const createdByUsers = isB2BUser
-        ? await getShoppingListsCreatedByUser(Number(companyId), 1)
-        : {};
+      const createdByUsers = await getUserShoppingLists();
 
       const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
 
