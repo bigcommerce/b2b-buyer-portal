@@ -1,4 +1,4 @@
-import { lazy, useContext, useEffect, useState } from 'react';
+import { lazy, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '@b3/global-b3';
 import { LangFormatFunction, useB3Lang } from '@b3/lang';
@@ -177,16 +177,12 @@ function PDP({ setOpenPage }: PageProps) {
   const { customerGroupId, setOpenPageFn, isB2BUser, getShoppingListItem } = useData();
   const b3Lang = useB3Lang();
 
-  const [openShoppingList, setOpenShoppingList] = useState<boolean>(false);
+  const [openShoppingList, setOpenShoppingList] = useState<boolean>(true);
   const [isOpenCreateShopping, setIsOpenCreateShopping] = useState<boolean>(false);
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setOpenShoppingList(true);
-  }, []);
 
   const handleShoppingClose = () => {
     setOpenShoppingList(false);
