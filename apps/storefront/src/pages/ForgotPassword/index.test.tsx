@@ -244,7 +244,6 @@ describe('when captcha is disabled', () => {
 
     server.use(
       http.post('/login.php', async ({ request }) => {
-        console.log(request.url);
         assertQueryParams(request, {
           action: 'send_password_email',
         });
