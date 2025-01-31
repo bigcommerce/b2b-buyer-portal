@@ -17,7 +17,6 @@ import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddTo
 import { getValidOptionsList } from '@/utils/b3Product/b3Product';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
-import { type PageProps } from '../PageProps';
 
 const CreateShoppingList = lazy(() => import('../OrderDetail/components/CreateShoppingList'));
 const OrderShoppingList = lazy(() => import('../OrderDetail/components/OrderShoppingList'));
@@ -26,17 +25,26 @@ interface AddProductsToShoppingListParams {
   isB2BUser: boolean;
   items: CustomFieldItems[];
   shoppingListId: number | string;
-  gotoShoppingDetail: (id: number | string) => void;
   customerGroupId?: number;
 }
 
 interface TipProps {
   id: number | string;
-  gotoShoppingDetail: (id: number | string) => void;
 }
 
-function Tip({ id, gotoShoppingDetail }: TipProps) {
+function Tip({ id }: TipProps) {
   const b3Lang = useB3Lang();
+  const setOpenPage = useAppSelector(({ global }) => global.setOpenPageFn);
+
+  const gotoShoppingDetail = (id: string | number) => {
+    setOpenPage?.({
+      isOpen: true,
+      openUrl: `/shoppingList/${id}`,
+      params: {
+        shoppingListBtn: 'add',
+      },
+    });
+  };
 
   return (
     <Box
@@ -71,7 +79,6 @@ export const addProductsToShoppingList = async ({
   customerGroupId,
   items,
   shoppingListId,
-  gotoShoppingDetail,
 }: AddProductsToShoppingListParams) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
   const { id: companyId } = store.getState().company.companyInfo;
@@ -127,7 +134,7 @@ export const addProductsToShoppingList = async ({
     items: products,
   });
   globalSnackbar.success('Products were added to your shopping list', {
-    jsx: () => <Tip id={shoppingListId} gotoShoppingDetail={gotoShoppingDetail} />,
+    jsx: () => <Tip id={shoppingListId} />,
     isClose: true,
   });
 };
@@ -171,24 +178,21 @@ function useData() {
   const addToShoppingList = ({
     shoppingListId,
     product,
-    gotoShoppingDetail,
   }: {
     shoppingListId: string | number;
     product: CustomFieldItems;
-    gotoShoppingDetail: (id: number | string) => void;
   }) =>
     addProductsToShoppingList({
       isB2BUser,
       customerGroupId,
       shoppingListId,
       items: [product],
-      gotoShoppingDetail,
     });
 
   return { setOpenPageFn, getShoppingListItem, addToShoppingList };
 }
 
-function PDP({ setOpenPage }: PageProps) {
+function PDP() {
   const { setOpenPageFn, getShoppingListItem, addToShoppingList } = useData();
   const b3Lang = useB3Lang();
 
@@ -209,23 +213,13 @@ function PDP({ setOpenPage }: PageProps) {
     });
   };
 
-  const gotoShoppingDetail = (id: string | number) => {
-    setOpenPage({
-      isOpen: true,
-      openUrl: `/shoppingList/${id}`,
-      params: {
-        shoppingListBtn: 'add',
-      },
-    });
-  };
-
   const handleShoppingConfirm = async (shoppingListId: string) => {
     const product = getShoppingListItem();
 
     if (!product) return;
     try {
       setIsRequestLoading(true);
-      await addToShoppingList({ shoppingListId, product, gotoShoppingDetail });
+      await addToShoppingList({ shoppingListId, product });
 
       handleShoppingClose();
     } finally {

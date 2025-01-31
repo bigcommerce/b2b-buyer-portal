@@ -87,15 +87,6 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
       openUrl: '/register',
     });
   };
-  const gotoShoppingDetail = (id: number | string) => {
-    setOpenPage({
-      isOpen: true,
-      openUrl: `/shoppingList/${id}`,
-      params: {
-        shoppingListBtn: 'add',
-      },
-    });
-  };
 
   const customerId = customer.id;
   // Keep updated values
@@ -226,7 +217,6 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               items: transformOptionSelectionsToAttributes(items),
               isB2BUser: isB2BUserRef.current,
               customerGroupId: customerRef.current.customerGroupId,
-              gotoShoppingDetail,
             }),
           createNewShoppingList: async (name, description) => {
             const { shoppingListsCreate } = await createShoppingList({
