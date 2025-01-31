@@ -168,16 +168,28 @@ function useData() {
     };
   };
 
-  return {
-    customerGroupId,
-    setOpenPageFn,
-    isB2BUser,
-    getShoppingListItem,
-  };
+  const addToShoppingList = ({
+    shoppingListId,
+    product,
+    gotoShoppingDetail,
+  }: {
+    shoppingListId: string | number;
+    product: CustomFieldItems;
+    gotoShoppingDetail: (id: number | string) => void;
+  }) =>
+    addProductsToShoppingList({
+      isB2BUser,
+      customerGroupId,
+      shoppingListId,
+      items: [product],
+      gotoShoppingDetail,
+    });
+
+  return { setOpenPageFn, getShoppingListItem, addToShoppingList };
 }
 
 function PDP({ setOpenPage }: PageProps) {
-  const { customerGroupId, setOpenPageFn, isB2BUser, getShoppingListItem } = useData();
+  const { setOpenPageFn, getShoppingListItem, addToShoppingList } = useData();
   const b3Lang = useB3Lang();
 
   const [openShoppingList, setOpenShoppingList] = useState<boolean>(true);
@@ -213,13 +225,7 @@ function PDP({ setOpenPage }: PageProps) {
     if (!product) return;
     try {
       setIsRequestLoading(true);
-      await addProductsToShoppingList({
-        isB2BUser,
-        customerGroupId,
-        shoppingListId,
-        items: [product],
-        gotoShoppingDetail,
-      });
+      await addToShoppingList({ shoppingListId, product, gotoShoppingDetail });
 
       handleShoppingClose();
     } finally {
