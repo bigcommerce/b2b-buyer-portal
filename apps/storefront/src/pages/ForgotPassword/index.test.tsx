@@ -243,7 +243,7 @@ describe('when captcha is disabled', () => {
     const serverMock = vi.fn();
 
     server.use(
-      http.post('/bigcommerce/login.php', async ({ request }) => {
+      http.post('/login.php', async ({ request }) => {
         assertQueryParams(request, {
           action: 'send_password_email',
         });
@@ -276,7 +276,7 @@ describe('when captcha is disabled', () => {
 
   it('logs an error when the request to reset password fails', async () => {
     server.use(
-      http.post('/bigcommerce/login.php', async ({ request }) => {
+      http.post('/login.php', async ({ request }) => {
         assertQueryParams(request, {
           action: 'send_password_email',
         });
