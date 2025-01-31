@@ -1,6 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
 import { B2BEvent } from '@b3/hooks';
-import { useB3Lang } from '@b3/lang';
 import Cookies from 'js-cookie';
 
 import { HeadlessRoutes } from '@/constants';
@@ -64,7 +63,6 @@ const Manager = new CallbackManager();
 
 export default function HeadlessController({ setOpenPage }: HeadlessControllerProps) {
   const storeDispatch = useAppDispatch();
-  const b3Lang = useB3Lang();
 
   const { state: globalState } = useContext(GlobalContext);
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -229,7 +227,6 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               isB2BUser: isB2BUserRef.current,
               customerGroupId: customerRef.current.customerGroupId,
               gotoShoppingDetail,
-              b3Lang,
             }),
           createNewShoppingList: async (name, description) => {
             const { shoppingListsCreate } = await createShoppingList({

@@ -1,7 +1,7 @@
 import { lazy, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '@b3/global-b3';
-import { LangFormatFunction, useB3Lang } from '@b3/lang';
+import { useB3Lang } from '@b3/lang';
 import { Box, Button } from '@mui/material';
 
 import { GlobalContext } from '@/shared/global';
@@ -28,16 +28,16 @@ interface AddProductsToShoppingListParams {
   shoppingListId: number | string;
   gotoShoppingDetail: (id: number | string) => void;
   customerGroupId?: number;
-  b3Lang: LangFormatFunction;
 }
 
 interface TipProps {
   id: number | string;
   gotoShoppingDetail: (id: number | string) => void;
-  b3Lang: LangFormatFunction;
 }
 
-function Tip({ id, gotoShoppingDetail, b3Lang }: TipProps) {
+function Tip({ id, gotoShoppingDetail }: TipProps) {
+  const b3Lang = useB3Lang();
+
   return (
     <Box
       sx={{
@@ -72,7 +72,6 @@ export const addProductsToShoppingList = async ({
   items,
   shoppingListId,
   gotoShoppingDetail,
-  b3Lang,
 }: AddProductsToShoppingListParams) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
   const { id: companyId } = store.getState().company.companyInfo;
@@ -128,7 +127,7 @@ export const addProductsToShoppingList = async ({
     items: products,
   });
   globalSnackbar.success('Products were added to your shopping list', {
-    jsx: () => <Tip id={shoppingListId} gotoShoppingDetail={gotoShoppingDetail} b3Lang={b3Lang} />,
+    jsx: () => <Tip id={shoppingListId} gotoShoppingDetail={gotoShoppingDetail} />,
     isClose: true,
   });
 };
@@ -220,7 +219,6 @@ function PDP({ setOpenPage }: PageProps) {
         shoppingListId,
         items: [product],
         gotoShoppingDetail,
-        b3Lang,
       });
 
       handleShoppingClose();
