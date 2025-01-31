@@ -28,15 +28,11 @@ interface AddProductsToShoppingListParams {
   customerGroupId?: number;
 }
 
-interface TipProps {
-  id: number | string;
-}
-
-function Tip({ id }: TipProps) {
+function Tip({ id }: { id: number }) {
   const b3Lang = useB3Lang();
   const setOpenPage = useAppSelector(({ global }) => global.setOpenPageFn);
 
-  const gotoShoppingDetail = (id: string | number) => {
+  const gotoShoppingDetail = () =>
     setOpenPage?.({
       isOpen: true,
       openUrl: `/shoppingList/${id}`,
@@ -44,7 +40,6 @@ function Tip({ id }: TipProps) {
         shoppingListBtn: 'add',
       },
     });
-  };
 
   return (
     <Box
@@ -61,7 +56,7 @@ function Tip({ id }: TipProps) {
         {b3Lang('pdp.notification.productsAdded')}
       </Box>
       <Button
-        onClick={() => gotoShoppingDetail(id)}
+        onClick={gotoShoppingDetail}
         variant="text"
         sx={{
           color: '#ffffff',
@@ -134,7 +129,7 @@ export const addProductsToShoppingList = async ({
     items: products,
   });
   globalSnackbar.success('Products were added to your shopping list', {
-    jsx: () => <Tip id={shoppingListId} />,
+    jsx: () => <Tip id={Number(shoppingListId)} />,
     isClose: true,
   });
 };
