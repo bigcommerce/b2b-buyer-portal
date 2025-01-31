@@ -31,36 +31,40 @@ interface AddProductsToShoppingListParams {
   b3Lang: LangFormatFunction;
 }
 
-const tip = (
-  id: number | string,
-  gotoShoppingDetail: (id: number | string) => void,
-  b3Lang: LangFormatFunction,
-) => (
-  <Box
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-    }}
-  >
+interface TipProps {
+  id: number | string;
+  gotoShoppingDetail: (id: number | string) => void;
+  b3Lang: LangFormatFunction;
+}
+
+function Tip({ id, gotoShoppingDetail, b3Lang }: TipProps) {
+  return (
     <Box
       sx={{
-        mr: '15px',
+        display: 'flex',
+        alignItems: 'center',
       }}
     >
-      {b3Lang('pdp.notification.productsAdded')}
+      <Box
+        sx={{
+          mr: '15px',
+        }}
+      >
+        {b3Lang('pdp.notification.productsAdded')}
+      </Box>
+      <Button
+        onClick={() => gotoShoppingDetail(id)}
+        variant="text"
+        sx={{
+          color: '#ffffff',
+          padding: 0,
+        }}
+      >
+        {b3Lang('pdp.notification.viewShoppingList')}
+      </Button>
     </Box>
-    <Button
-      onClick={() => gotoShoppingDetail(id)}
-      variant="text"
-      sx={{
-        color: '#ffffff',
-        padding: 0,
-      }}
-    >
-      {b3Lang('pdp.notification.viewShoppingList')}
-    </Button>
-  </Box>
-);
+  );
+}
 
 export const addProductsToShoppingList = async ({
   isB2BUser,
@@ -124,7 +128,7 @@ export const addProductsToShoppingList = async ({
     items: products,
   });
   globalSnackbar.success('Products were added to your shopping list', {
-    jsx: () => tip(shoppingListId, gotoShoppingDetail, b3Lang),
+    jsx: () => <Tip id={shoppingListId} gotoShoppingDetail={gotoShoppingDetail} b3Lang={b3Lang} />,
     isClose: true,
   });
 };
