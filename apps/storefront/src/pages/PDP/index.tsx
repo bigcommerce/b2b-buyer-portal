@@ -2,7 +2,6 @@ import { lazy, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '@b3/global-b3';
 import { useB3Lang } from '@b3/lang';
-import { Box, Button } from '@mui/material';
 
 import { GlobalContext } from '@/shared/global';
 import {
@@ -18,6 +17,10 @@ import { getValidOptionsList } from '@/utils/b3Product/b3Product';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
 
+import { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
+
+export { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
+
 const CreateShoppingList = lazy(() => import('../OrderDetail/components/CreateShoppingList'));
 const OrderShoppingList = lazy(() => import('../OrderDetail/components/OrderShoppingList'));
 
@@ -26,52 +29,6 @@ interface AddProductsToShoppingListParams {
   items: CustomFieldItems[];
   shoppingListId: number | string;
   customerGroupId?: number;
-}
-
-export function useAddedToShoppingListAlert() {
-  const b3Lang = useB3Lang();
-  const setOpenPage = useAppSelector(({ global }) => global.setOpenPageFn);
-
-  const gotoShoppingDetail = (id: string) =>
-    setOpenPage?.({
-      isOpen: true,
-      openUrl: `/shoppingList/${id}`,
-      params: {
-        shoppingListBtn: 'add',
-      },
-    });
-
-  return (id: string) => {
-    globalSnackbar.success('Products were added to your shopping list', {
-      jsx: () => (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              mr: '15px',
-            }}
-          >
-            {b3Lang('pdp.notification.productsAdded')}
-          </Box>
-          <Button
-            onClick={() => gotoShoppingDetail(id)}
-            variant="text"
-            sx={{
-              color: '#ffffff',
-              padding: 0,
-            }}
-          >
-            {b3Lang('pdp.notification.viewShoppingList')}
-          </Button>
-        </Box>
-      ),
-      isClose: true,
-    });
-  };
 }
 
 export const addProductsToShoppingList = async ({
