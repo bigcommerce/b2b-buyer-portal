@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import { HeadlessRoutes } from '@/constants';
 import { addProductFromPage as addProductFromPageToShoppingList } from '@/hooks/dom/useOpenPDP';
 import { addProductsFromCartToQuote, addProductsToDraftQuote } from '@/hooks/dom/utils';
-import { addProductsToShoppingList } from '@/pages/PDP';
+import { addProductsToShoppingList, useAddedToShoppingListAlert } from '@/pages/PDP';
 import { type SetOpenPage } from '@/pages/SetOpenPage';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
@@ -72,6 +72,8 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const productList = useAppSelector(formattedQuoteDraftListSelector);
   const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
   const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
+
+  const displayAddedToShoppingListAlert = useAddedToShoppingListAlert();
 
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
@@ -217,7 +219,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
               items: transformOptionSelectionsToAttributes(items),
               isB2BUser: isB2BUserRef.current,
               customerGroupId: customerRef.current.customerGroupId,
-            }),
+            }).then(() => displayAddedToShoppingListAlert(shoppingListId.toString())),
           createNewShoppingList: async (name, description) => {
             const { shoppingListsCreate } = await createShoppingList({
               data: { name, description },

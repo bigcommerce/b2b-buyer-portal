@@ -28,7 +28,7 @@ interface AddProductsToShoppingListParams {
   customerGroupId?: number;
 }
 
-function Tip({ id }: { id: number }) {
+function Tip({ id }: { id: string }) {
   const b3Lang = useB3Lang();
   const setOpenPage = useAppSelector(({ global }) => global.setOpenPageFn);
 
@@ -67,6 +67,15 @@ function Tip({ id }: { id: number }) {
       </Button>
     </Box>
   );
+}
+
+export function useAddedToShoppingListAlert() {
+  return (id: string) => {
+    globalSnackbar.success('Products were added to your shopping list', {
+      jsx: () => <Tip id={id} />,
+      isClose: true,
+    });
+  };
 }
 
 export const addProductsToShoppingList = async ({
@@ -127,10 +136,6 @@ export const addProductsToShoppingList = async ({
   await addToShoppingList({
     shoppingListId,
     items: products,
-  });
-  globalSnackbar.success('Products were added to your shopping list', {
-    jsx: () => <Tip id={Number(shoppingListId)} />,
-    isClose: true,
   });
 };
 
@@ -195,6 +200,7 @@ function PDP() {
   const [isOpenCreateShopping, setIsOpenCreateShopping] = useState<boolean>(false);
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
+  const displayAddedToShoppingListAlert = useAddedToShoppingListAlert();
 
   const navigate = useNavigate();
 
@@ -214,7 +220,9 @@ function PDP() {
     if (!product) return;
     try {
       setIsRequestLoading(true);
-      await addToShoppingList({ shoppingListId, product });
+      await addToShoppingList({ shoppingListId, product }).then(() =>
+        displayAddedToShoppingListAlert(shoppingListId),
+      );
 
       handleShoppingClose();
     } finally {
