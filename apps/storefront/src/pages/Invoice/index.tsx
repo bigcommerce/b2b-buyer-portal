@@ -1,4 +1,4 @@
-import { ReactElement, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, InputAdornment, TextField, Typography } from '@mui/material';
@@ -132,7 +132,7 @@ function Invoice() {
   const [selectedPay, setSelectedPay] = useState<CustomFieldItems | InvoiceListNode[]>([]);
   const [list, setList] = useState<InvoiceListNode[]>([]);
 
-  const [filterData, setFilterData] = useState<Partial<FilterSearchProps> | null>();
+  const [filterData, setFilterData] = useState<Partial<FilterSearchProps>>({});
 
   const [exportCsvText, setExportCsvText] = useState<string>(b3Lang('invoice.exportCsvText'));
 
@@ -959,11 +959,7 @@ function Invoice() {
           isSelectOtherPageCheckbox
           hover
           isAutoRefresh={false}
-          renderItem={(
-            row: InvoiceList,
-            index?: number,
-            checkBox?: (disable?: boolean) => ReactElement,
-          ) => (
+          renderItem={(row, index, checkBox) => (
             <InvoiceItemCard
               item={row}
               checkBox={checkBox}

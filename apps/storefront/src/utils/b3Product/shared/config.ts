@@ -78,7 +78,7 @@ export interface CurrencyProps {
 }
 
 export interface SearchProps {
-  search: string;
+  search?: string;
   first?: number;
   offset?: number;
 }

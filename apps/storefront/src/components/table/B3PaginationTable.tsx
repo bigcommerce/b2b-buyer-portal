@@ -1,6 +1,4 @@
 import {
-  forwardRef,
-  memo,
   ReactElement,
   Ref,
   useCallback,
@@ -14,6 +12,7 @@ import isEqual from 'lodash-es/isEqual';
 
 import { useMobile } from '@/hooks';
 import { useAppSelector } from '@/store';
+import { forwardRefWithGenerics, memoWithGenerics } from '@/utils';
 
 import { B3Table, TableColumnItem } from './B3Table';
 
@@ -21,21 +20,38 @@ export interface TablePagination {
   offset: number;
   first: number;
 }
-interface B3PaginationTableProps {
+
+interface GetRequestListResult<T> {
+  edges: T[];
+  totalCount: number;
+}
+
+type GetRequestListSync<Params, Item> = (params: Params) => GetRequestListResult<Item>;
+type GetRequestListAsync<Params, Item> = (params: Params) => Promise<GetRequestListResult<Item>>;
+
+export type GetRequestList<Params, Item> =
+  | GetRequestListSync<Params, Item>
+  | GetRequestListAsync<Params, Item>;
+
+interface B3PaginationTableProps<
+  GetRequestListParams,
+  ListItem,
+  Row = ListItem extends { node: infer Node } ? Node : ListItem,
+> {
   tableFixed?: boolean;
   tableHeaderHide?: boolean;
-  columnItems?: TableColumnItem<any>[];
+  columnItems?: TableColumnItem<Row>[];
   itemSpacing?: number;
   itemXs?: number;
   rowsPerPageOptions?: number[];
   showPagination?: boolean;
-  renderItem?: (row: any, index?: number, checkBox?: () => ReactElement) => ReactElement;
-  CollapseComponent?: (row: any) => ReactElement;
+  renderItem?: (row: Row, index?: number, checkBox?: () => ReactElement) => ReactElement;
+  CollapseComponent?: (row: { row: Row }) => ReactElement;
   isCustomRender?: boolean;
   noDataText?: string;
   tableKey?: string;
-  getRequestList: any;
-  searchParams?: any;
+  getRequestList: GetRequestList<GetRequestListParams, ListItem>;
+  searchParams: GetRequestListParams & { createdBy?: string };
   requestLoading?: (bool: boolean) => void;
   showCheckbox?: boolean;
   showSelectAllCheckbox?: boolean;
@@ -48,7 +64,7 @@ interface B3PaginationTableProps {
   itemIsMobileSpacing?: number;
   disableCheckbox?: boolean;
   applyAllDisableCheckbox?: boolean;
-  onClickRow?: (item: any, index?: number) => void;
+  onClickRow?: (item: Row, index?: number) => void;
   showRowsPerPageOptions?: boolean;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
@@ -57,7 +73,7 @@ interface B3PaginationTableProps {
   isAutoRefresh?: boolean;
 }
 
-function PaginationTable(
+function PaginationTable<GetRequestListParams, ListItem>(
   {
     columnItems,
     isCustomRender = false,
@@ -92,7 +108,7 @@ function PaginationTable(
     orderBy = '',
     pageType = '',
     isAutoRefresh = true,
-  }: B3PaginationTableProps,
+  }: B3PaginationTableProps<GetRequestListParams, ListItem>,
   ref?: Ref<unknown>,
 ) {
   const initPagination = {
@@ -105,7 +121,7 @@ function PaginationTable(
   );
   const selectCompanyHierarchyIdCache = useRef(selectCompanyHierarchyId);
 
-  const cache = useRef(null);
+  const cache = useRef<GetRequestListParams | null>(null);
 
   const [loading, setLoading] = useState<boolean>();
 
@@ -156,7 +172,7 @@ function PaginationTable(
 
         setLoading(true);
         if (requestLoading) requestLoading(true);
-        const { createdBy } = searchParams;
+        const { createdBy = '' } = searchParams;
 
         const getEmailReg = /\((.+)\)/g;
         const getCreatedByReg = /^[^(]+/;
@@ -312,7 +328,7 @@ function PaginationTable(
       if (flag) {
         list.forEach((item: CustomFieldItems) => {
           const option = item?.node || item;
-          const index = newSelectCheckbox.findIndex((item: any) => item === option[selectedSymbol]);
+          const index = newSelectCheckbox.findIndex((item) => item === option[selectedSymbol]);
           newSelectCheckbox.splice(index, 1);
         });
       } else {
@@ -387,6 +403,6 @@ function PaginationTable(
   );
 }
 
-const B3PaginationTable = memo(forwardRef(PaginationTable));
+const B3PaginationTable = memoWithGenerics(forwardRefWithGenerics(PaginationTable));
 
 export { B3PaginationTable };

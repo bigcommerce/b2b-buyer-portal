@@ -1,4 +1,4 @@
-import { Dispatch, ReactElement, SetStateAction, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, styled, TextField, Typography } from '@mui/material';
 
@@ -32,10 +32,6 @@ import B3FilterSearch from '../../../components/filter/B3FilterSearch';
 import { CheckedProduct } from '../utils';
 
 import QuickOrderCard from './QuickOrderCard';
-
-interface ListItem {
-  [key: string]: string;
-}
 
 interface ProductInfoProps {
   basePrice: number | string;
@@ -319,7 +315,7 @@ function QuickOrderTable({
     return qty;
   };
 
-  const columnItems: TableColumnItem<ListItem>[] = [
+  const columnItems: TableColumnItem<ProductInfoProps>[] = [
     {
       key: 'product',
       title: b3Lang('purchasedProducts.product'),
@@ -563,7 +559,7 @@ function QuickOrderTable({
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
-          renderItem={(row: ProductInfoProps, _?: number, checkBox?: () => ReactElement) => (
+          renderItem={(row, _, checkBox) => (
             <QuickOrderCard
               item={row}
               checkBox={checkBox}

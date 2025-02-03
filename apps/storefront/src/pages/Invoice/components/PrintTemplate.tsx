@@ -1,6 +1,7 @@
 import { SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { Resizable } from 'react-resizable';
 import { Box } from '@mui/material';
+// cspell:disable-next-line
 import PDFObject from 'pdfobject';
 
 import B3Spin from '@/components/spin/B3Spin';
@@ -9,7 +10,6 @@ import { snackbar } from '@/utils';
 import { handlePrintPDF } from '../utils/pdf';
 
 interface RowList {
-  [key: string]: CustomFieldItems | string | number;
   id: string;
   createdAt: number;
   updatedAt: number;

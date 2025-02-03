@@ -2,7 +2,7 @@ import { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import { Box, styled, Typography } from '@mui/material';
 
-import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useAppSelector } from '@/store';
@@ -10,10 +10,6 @@ import { currencyFormatConvert } from '@/utils';
 import { getBCPrice, getDisplayPrice } from '@/utils/b3Product/b3Product';
 
 import QuoteDetailTableCard from './QuoteDetailTableCard';
-
-interface ListItem {
-  [key: string]: string;
-}
 
 interface ProductInfoProps {
   basePrice: number | string;
@@ -43,10 +39,7 @@ interface ListItemProps {
 
 interface ShoppingDetailTableProps {
   total: number;
-  getQuoteTableDetails: (params: any) => Promise<{
-    edges: any[];
-    totalCount: number;
-  }>;
+  getQuoteTableDetails: GetRequestList<SearchProps, ProductInfoProps>;
   isHandleApprove: boolean;
   getTaxRate: (taxClassId: number, variants: any) => number;
   displayDiscount: boolean;
@@ -142,7 +135,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
     }
     return price;
   };
-  const columnItems: TableColumnItem<ListItem>[] = [
+  const columnItems: TableColumnItem<ProductInfoProps>[] = [
     {
       key: 'Product',
       title: b3Lang('quoteDetail.table.product'),
@@ -405,7 +398,7 @@ function QuoteDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>) {
         itemIsMobileSpacing={0}
         noDataText={b3Lang('quoteDetail.table.noProducts')}
         tableKey="productId"
-        renderItem={(row: ProductInfoProps, index?: number) => (
+        renderItem={(row, index) => (
           <QuoteDetailTableCard
             len={total || 0}
             item={row}

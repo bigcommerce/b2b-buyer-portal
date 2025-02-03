@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import B3Dialog from '@/components/B3Dialog';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
-import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
 import {
@@ -165,7 +165,7 @@ function ShoppingLists() {
     setFilterSearch(search);
   };
 
-  const fetchList = async (params: ShoppingListSearch) => {
+  const fetchList: GetRequestList<ShoppingListSearch, ShoppingListsItemsProps> = async (params) => {
     const { edges, totalCount } = isB2BUser
       ? await getB2BShoppingList(params)
       : await getBcShoppingList({
@@ -248,7 +248,7 @@ function ShoppingLists() {
           isCustomRender
           itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
-          renderItem={(row: ShoppingListsItemsProps) => (
+          renderItem={(row) => (
             <ShoppingListsCard
               key={row.id || ''}
               item={row}
