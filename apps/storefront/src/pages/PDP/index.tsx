@@ -1,8 +1,7 @@
-import { lazy, useContext, useEffect, useState } from 'react';
+import { lazy, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '@b3/global-b3';
-import { LangFormatFunction, useB3Lang } from '@b3/lang';
-import { Box, Button } from '@mui/material';
+import { useB3Lang } from '@b3/lang';
 
 import { GlobalContext } from '@/shared/global';
 import {
@@ -17,7 +16,10 @@ import { getProductOptionList, isAllRequiredOptionFilled } from '@/utils/b3AddTo
 import { getValidOptionsList } from '@/utils/b3Product/b3Product';
 
 import { conversionProductsList } from '../../utils/b3Product/shared/config';
-import { type PageProps } from '../PageProps';
+
+import { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
+
+export { useAddedToShoppingListAlert } from './useAddedToShoppingListAlert';
 
 const CreateShoppingList = lazy(() => import('../OrderDetail/components/CreateShoppingList'));
 const OrderShoppingList = lazy(() => import('../OrderDetail/components/OrderShoppingList'));
@@ -26,49 +28,14 @@ interface AddProductsToShoppingListParams {
   isB2BUser: boolean;
   items: CustomFieldItems[];
   shoppingListId: number | string;
-  gotoShoppingDetail: (id: number | string) => void;
   customerGroupId?: number;
-  b3Lang: LangFormatFunction;
 }
-
-const tip = (
-  id: number | string,
-  gotoShoppingDetail: (id: number | string) => void,
-  b3Lang: LangFormatFunction,
-) => (
-  <Box
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-    }}
-  >
-    <Box
-      sx={{
-        mr: '15px',
-      }}
-    >
-      {b3Lang('pdp.notification.productsAdded')}
-    </Box>
-    <Button
-      onClick={() => gotoShoppingDetail(id)}
-      variant="text"
-      sx={{
-        color: '#ffffff',
-        padding: 0,
-      }}
-    >
-      {b3Lang('pdp.notification.viewShoppingList')}
-    </Button>
-  </Box>
-);
 
 export const addProductsToShoppingList = async ({
   isB2BUser,
   customerGroupId,
   items,
   shoppingListId,
-  gotoShoppingDetail,
-  b3Lang,
 }: AddProductsToShoppingListParams) => {
   const { currency_code: currencyCode } = getActiveCurrencyInfo();
   const { id: companyId } = store.getState().company.companyInfo;
@@ -123,10 +90,6 @@ export const addProductsToShoppingList = async ({
     shoppingListId,
     items: products,
   });
-  globalSnackbar.success('Products were added to your shopping list', {
-    jsx: () => tip(shoppingListId, gotoShoppingDetail, b3Lang),
-    isClose: true,
-  });
 };
 
 function useData() {
@@ -165,28 +128,34 @@ function useData() {
     };
   };
 
-  return {
-    customerGroupId,
-    setOpenPageFn,
-    isB2BUser,
-    getShoppingListItem,
-  };
+  const addToShoppingList = ({
+    shoppingListId,
+    product,
+  }: {
+    shoppingListId: string | number;
+    product: CustomFieldItems;
+  }) =>
+    addProductsToShoppingList({
+      isB2BUser,
+      customerGroupId,
+      shoppingListId,
+      items: [product],
+    });
+
+  return { setOpenPageFn, getShoppingListItem, addToShoppingList };
 }
 
-function PDP({ setOpenPage }: PageProps) {
-  const { customerGroupId, setOpenPageFn, isB2BUser, getShoppingListItem } = useData();
+function PDP() {
+  const { setOpenPageFn, getShoppingListItem, addToShoppingList } = useData();
   const b3Lang = useB3Lang();
 
-  const [openShoppingList, setOpenShoppingList] = useState<boolean>(false);
+  const [openShoppingList, setOpenShoppingList] = useState<boolean>(true);
   const [isOpenCreateShopping, setIsOpenCreateShopping] = useState<boolean>(false);
 
   const [isRequestLoading, setIsRequestLoading] = useState<boolean>(false);
+  const displayAddedToShoppingListAlert = useAddedToShoppingListAlert();
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setOpenShoppingList(true);
-  }, []);
 
   const handleShoppingClose = () => {
     setOpenShoppingList(false);
@@ -198,30 +167,15 @@ function PDP({ setOpenPage }: PageProps) {
     });
   };
 
-  const gotoShoppingDetail = (id: string | number) => {
-    setOpenPage({
-      isOpen: true,
-      openUrl: `/shoppingList/${id}`,
-      params: {
-        shoppingListBtn: 'add',
-      },
-    });
-  };
-
   const handleShoppingConfirm = async (shoppingListId: string) => {
     const product = getShoppingListItem();
 
     if (!product) return;
     try {
       setIsRequestLoading(true);
-      await addProductsToShoppingList({
-        isB2BUser,
-        customerGroupId,
-        shoppingListId,
-        items: [product],
-        gotoShoppingDetail,
-        b3Lang,
-      });
+      await addToShoppingList({ shoppingListId, product }).then(() =>
+        displayAddedToShoppingListAlert(shoppingListId),
+      );
 
       handleShoppingClose();
     } finally {
