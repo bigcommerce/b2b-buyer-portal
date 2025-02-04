@@ -2,9 +2,11 @@
 
 ## Running Project Locally
 
-1. Activate store channel in the Channels Manager.
+1. Activate store channel in the Channel Manager.
 2. Configure header and footer scripts:
-  - Navigate to Channels Manager -> Scripts.
+  - Navigate to 
+    - Multi-storefront: Channel Manager -> Scripts
+    - Single storefront: Storefront -> Script Manager
   - Delete the scripts: with the following names:
     - `B2BEdition Header Script`
     - `B2BEdition Footer Script`
@@ -53,7 +55,7 @@
 </script>
 ```
 
-3. Navigate to the B2B Edition App Dashboard and set the following values:
+3. Navigate to the B2B Edition App Dashboard and set the following values (not needed for single storefront):
   - Global Config: In B2B Edition App dashboard -> Settings -> Buyer Portal for global config
 ![Buyer portal type global settings](../public/images/buyer-portal-type-settings-global.png)
   - Or B2B Edition App dashboard -> Storefront -> Desired channel -> Buyer Portal for specific channel config
