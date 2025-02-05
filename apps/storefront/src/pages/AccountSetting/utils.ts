@@ -201,7 +201,7 @@ export const b2bSubmitDataProcessing = (
 
   const param: Partial<ParamProps> = {};
   param.formFields = [];
-  let isEdit = true;
+  let pristine = true;
   let flag = true;
   let useExtraFieldsFlag = false;
 
@@ -210,19 +210,19 @@ export const b2bSubmitDataProcessing = (
       if (key === item.name) {
         flag = false;
         if (deCodeField(item.name) === 'first_name') {
-          if (accountSettings.firstName !== data[item.name]) isEdit = false;
+          if (accountSettings.firstName !== data[item.name]) pristine = false;
           param.firstName = data[item.name];
         }
         if (deCodeField(item.name) === 'last_name') {
-          if (accountSettings.lastName !== data[item.name]) isEdit = false;
+          if (accountSettings.lastName !== data[item.name]) pristine = false;
           param.lastName = data[item.name];
         }
         if (deCodeField(item.name) === 'phone') {
-          if (accountSettings.phoneNumber !== data[item.name]) isEdit = false;
+          if (accountSettings.phoneNumber !== data[item.name]) pristine = false;
           param.phoneNumber = data[item.name];
         }
         if (deCodeField(item.name) === 'email') {
-          if (accountSettings.email !== data[item.name]) isEdit = false;
+          if (accountSettings.email !== data[item.name]) pristine = false;
           param.email = data[item.name];
         }
         if (item.custom) {
@@ -234,7 +234,7 @@ export const b2bSubmitDataProcessing = (
       }
     });
     if (useExtraFieldsFlag) {
-      isEdit = false;
+      pristine = false;
     }
 
     if (flag) {
@@ -250,11 +250,11 @@ export const b2bSubmitDataProcessing = (
             (formField: Partial<Fields>) => formField.name === field.bcLabel,
           );
           if (account && JSON.stringify(account.value) !== JSON.stringify(data[key])) {
-            isEdit = false;
+            pristine = false;
           }
 
           if (!accountSettings?.formFields?.length && name && !!data[name]) {
-            isEdit = false;
+            pristine = false;
           }
         }
       });
@@ -262,7 +262,7 @@ export const b2bSubmitDataProcessing = (
     if (flag) {
       if (key === 'password') {
         param.newPassword = data[key];
-        if (data[key]) isEdit = false;
+        if (data[key]) pristine = false;
       } else {
         param[key] = data[key];
       }
@@ -274,10 +274,11 @@ export const b2bSubmitDataProcessing = (
 
   delete param.role;
 
-  return {
-    isEdit: !isEdit,
-    param,
-  };
+  if (pristine) {
+    return undefined;
+  }
+
+  return param;
 };
 
 export const bcSubmitDataProcessing = (
@@ -288,30 +289,30 @@ export const bcSubmitDataProcessing = (
 ) => {
   const param: Partial<ParamProps> = {};
   param.formFields = [];
-  let isEdit = true;
+  let pristine = true;
   let flag = true;
   Object.keys(data).forEach((key: string) => {
     decryptionFields.forEach((item: Partial<Fields>) => {
       if (key === item.name) {
         flag = false;
         if (deCodeField(item.name) === 'first_name') {
-          if (accountSettings.firstName !== data[item.name]) isEdit = false;
+          if (accountSettings.firstName !== data[item.name]) pristine = false;
           param.firstName = data[item.name];
         }
         if (deCodeField(item.name) === 'last_name') {
-          if (accountSettings.lastName !== data[item.name]) isEdit = false;
+          if (accountSettings.lastName !== data[item.name]) pristine = false;
           param.lastName = data[item.name];
         }
         if (deCodeField(item.name) === 'phone') {
-          if (accountSettings.phoneNumber !== data[item.name]) isEdit = false;
+          if (accountSettings.phoneNumber !== data[item.name]) pristine = false;
           param.phoneNumber = data[item.name];
         }
         if (deCodeField(item.name) === 'email') {
-          if (accountSettings.email !== data[item.name]) isEdit = false;
+          if (accountSettings.email !== data[item.name]) pristine = false;
           param.email = data[item.name];
         }
         if (deCodeField(item.name) === 'company') {
-          if (accountSettings.company !== data[item.name]) isEdit = false;
+          if (accountSettings.company !== data[item.name]) pristine = false;
           param.company = data[item.name];
         }
       }
@@ -329,7 +330,7 @@ export const bcSubmitDataProcessing = (
             (formField: Partial<Fields>) => formField.name === field.bcLabel,
           );
           if (account && JSON.stringify(account.value) !== JSON.stringify(data[key]))
-            isEdit = false;
+            pristine = false;
         }
       });
     }
@@ -337,7 +338,7 @@ export const bcSubmitDataProcessing = (
     if (flag) {
       if (key === 'password') {
         param.newPassword = data[key];
-        if (data[key]) isEdit = false;
+        if (data[key]) pristine = false;
       } else {
         param[key] = data[key];
       }
@@ -345,10 +346,11 @@ export const bcSubmitDataProcessing = (
     flag = true;
   });
 
-  return {
-    isEdit: !isEdit,
-    param,
-  };
+  if (pristine) {
+    return undefined;
+  }
+
+  return param;
 };
 
 export default sendEmail;
