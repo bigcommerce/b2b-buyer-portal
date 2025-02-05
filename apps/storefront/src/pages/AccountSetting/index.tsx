@@ -118,8 +118,6 @@ function AccountSetting() {
       try {
         setLoading(true);
 
-        const accountFormAllFields = await getB2BAccountFormFields(isBCUser ? 1 : 2);
-
         const fn = isBCUser ? getBCAccountSettings : getB2BAccountSettings;
 
         const params = isBCUser
@@ -132,6 +130,7 @@ function AccountSetting() {
 
         const { [key]: accountSettings } = await fn(params);
 
+        const accountFormAllFields = await getB2BAccountFormFields(isBCUser ? 1 : 2);
         const accountFormFields = getAccountFormFields(
           accountFormAllFields.accountFormFields || [],
         );
@@ -201,19 +200,17 @@ function AccountSetting() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleGetUserExtraFields = (data: CustomFieldItems) => {
-    let userExtraFieldsInfo: CustomFieldItems[] = [];
+  const handleGetUserExtraFields = (
+    data: CustomFieldItems,
+    accountInfoFormFields: Partial<Fields>[],
+  ) => {
     const userExtraFields = accountInfoFormFields.filter(
       (item: CustomFieldItems) => item.custom && item.groupId === 1,
     );
-    if (userExtraFields.length > 0) {
-      userExtraFieldsInfo = userExtraFields.map((item: CustomFieldItems) => ({
-        fieldName: deCodeField(item?.name || ''),
-        fieldValue: data[item.name],
-      }));
-    }
-
-    return userExtraFieldsInfo;
+    return userExtraFields.map((item: CustomFieldItems) => ({
+      fieldName: deCodeField(item?.name || ''),
+      fieldValue: data[item.name],
+    }));
   };
 
   const handleAddUserClick = () => {
@@ -249,38 +246,29 @@ function AccountSetting() {
           });
         }
 
-        let userExtraFields: CustomFieldItems[] = [];
-        if (!isBCUser) {
-          userExtraFields = handleGetUserExtraFields(data);
-        }
-
-        const dataProcessingFn = isBCUser ? bcSubmitDataProcessing : b2bSubmitDataProcessing;
-
         if (isValid && emailFlag && passwordFlag) {
-          const param = dataProcessingFn(data, accountSettings, decryptionFields, extraFields);
+          const dataProcessingFn = isBCUser ? bcSubmitDataProcessing : b2bSubmitDataProcessing;
+          const payload = dataProcessingFn(data, accountSettings, decryptionFields, extraFields);
 
-          if (param) {
+          if (payload) {
             if (!isBCUser) {
-              param.companyId = companyId;
-              param.extraFields = userExtraFields;
+              payload.companyId = companyId;
+              payload.extraFields = handleGetUserExtraFields(data, accountInfoFormFields);
             }
 
-            const requestFn = isBCUser ? updateBCAccountSettings : updateB2BAccountSettings;
-
-            const newParams: CustomFieldItems = {
-              ...param,
-              currentPassword: param.currentPassword,
-            };
-
-            if (param.newPassword === '' && param.confirmPassword === '') {
-              delete newParams.newPassword;
-              delete newParams.confirmPassword;
+            if (payload.newPassword === '' && payload.confirmPassword === '') {
+              delete payload.newPassword;
+              delete payload.confirmPassword;
             }
-            await requestFn(newParams);
-          } else {
+          }
+
+          if (!payload) {
             snackbar.success(b3Lang('accountSettings.notification.noEdits'));
             return;
           }
+
+          const requestFn = isBCUser ? updateBCAccountSettings : updateB2BAccountSettings;
+          await requestFn(payload);
 
           if (
             (data.password && data.currentPassword) ||
