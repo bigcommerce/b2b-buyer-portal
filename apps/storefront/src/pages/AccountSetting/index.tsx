@@ -257,14 +257,9 @@ function AccountSetting() {
         const dataProcessingFn = !isBCUser ? b2bSubmitDataProcessing : bcSubmitDataProcessing;
 
         if (isValid && emailFlag && passwordFlag) {
-          const { isEdit, param } = dataProcessingFn(
-            data,
-            accountSettings,
-            decryptionFields,
-            extraFields,
-          );
+          const param = dataProcessingFn(data, accountSettings, decryptionFields, extraFields);
 
-          if (isEdit) {
+          if (param) {
             if (!isBCUser) {
               param.companyId = companyId;
               param.extraFields = userExtraFields;
