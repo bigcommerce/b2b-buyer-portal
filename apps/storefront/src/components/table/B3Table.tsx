@@ -58,7 +58,7 @@ interface TableProps<T> {
     index?: number,
     checkBox?: (disable?: boolean) => ReactElement,
   ) => ReactElement;
-  CollapseComponent?: (row: T) => ReactElement;
+  CollapseComponent?: (row: { row: T }) => ReactElement;
   isCustomRender?: boolean;
   isInfiniteScroll?: boolean;
   isLoading?: boolean;

@@ -105,7 +105,8 @@ function Address() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getAddressList = async (params = {}) => {
+  const defaultParams: FilterSearchProps = {};
+  const getAddressList = async (params = defaultParams) => {
     let list = [];
     let count = 0;
 
