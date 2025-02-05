@@ -40,11 +40,42 @@ function useData() {
   const companyId = role === 3 && isAgenting ? Number(salesRepCompanyId) : Number(companyInfoId);
   const isBCUser = !isB2BUser || (role === 3 && !isAgenting);
 
-  return { isBCUser, companyId, customer };
+  const validateEmailValue = async (emailValue: string) => {
+    if (customer.emailAddress === trim(emailValue)) return true;
+    const payload = {
+      email: emailValue,
+      channelId,
+    };
+
+    const { isValid }: { isValid: boolean } = isBCUser
+      ? await checkUserBCEmail(payload)
+      : await checkUserEmail(payload);
+
+    return isValid;
+  };
+
+  const emailValidation = (data: Partial<ParamProps>) => {
+    if (data.email !== customer.emailAddress && !data.currentPassword) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const passwordValidation = (data: Partial<ParamProps>) => {
+    if (data.password !== data.confirmPassword) {
+      return false;
+    }
+
+    return true;
+  };
+
+  return { isBCUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation };
 }
 
 function AccountSetting() {
-  const { isBCUser, companyId, customer } = useData();
+  const { isBCUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation } =
+    useData();
 
   const {
     control,
@@ -170,51 +201,6 @@ function AccountSetting() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const validateEmailValue = async (emailValue: string) => {
-    if (customer.emailAddress === trim(emailValue)) return true;
-    const payload = {
-      email: emailValue,
-      channelId,
-    };
-
-    const { isValid }: CustomFieldItems = isBCUser
-      ? await checkUserBCEmail(payload)
-      : await checkUserEmail(payload);
-
-    if (!isValid) {
-      setError('email', {
-        type: 'custom',
-        message: b3Lang('accountSettings.notification.emailExists'),
-      });
-    }
-
-    return isValid;
-  };
-
-  const passwordValidation = (data: Partial<ParamProps>) => {
-    if (data.password !== data.confirmPassword) {
-      setError('confirmPassword', {
-        type: 'manual',
-        message: b3Lang('global.registerComplete.passwordMatchPrompt'),
-      });
-      setError('password', {
-        type: 'manual',
-        message: b3Lang('global.registerComplete.passwordMatchPrompt'),
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const emailValidation = (data: Partial<ParamProps>) => {
-    if (data.email !== customer.emailAddress && !data.currentPassword) {
-      snackbar.error(b3Lang('accountSettings.notification.updateEmailPassword'));
-      return false;
-    }
-    return true;
-  };
-
   const handleGetUserExtraFields = (data: CustomFieldItems) => {
     let userExtraFieldsInfo: CustomFieldItems[] = [];
     const userExtraFields = accountInfoFormFields.filter(
@@ -237,9 +223,31 @@ function AccountSetting() {
       try {
         const isValid = await validateEmailValue(data.email);
 
+        if (!isValid) {
+          setError('email', {
+            type: 'custom',
+            message: b3Lang('accountSettings.notification.emailExists'),
+          });
+        }
+
         const emailFlag = emailValidation(data);
 
+        if (!emailFlag) {
+          snackbar.error(b3Lang('accountSettings.notification.updateEmailPassword'));
+        }
+
         const passwordFlag = passwordValidation(data);
+
+        if (!passwordFlag) {
+          setError('confirmPassword', {
+            type: 'manual',
+            message: b3Lang('global.registerComplete.passwordMatchPrompt'),
+          });
+          setError('password', {
+            type: 'manual',
+            message: b3Lang('global.registerComplete.passwordMatchPrompt'),
+          });
+        }
 
         let userExtraFields: CustomFieldItems[] = [];
         if (!isBCUser) {
