@@ -34,11 +34,18 @@ function useData() {
     useAppSelector(rolePermissionSelector);
   const companyId = companyB2BId || salesRepCompanyId;
 
+  const deleteShoppingList = isB2BUser ? deleteB2BShoppingList : deleteBcShoppingList;
+
+  const getUserShoppingLists = isB2BUser
+    ? () => getShoppingListsCreatedByUser(Number(companyId), 1)
+    : () => Promise.resolve({});
+
   return {
-    companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
+    deleteShoppingList,
+    getUserShoppingLists,
   };
 }
 
@@ -54,10 +61,11 @@ function ShoppingLists() {
   const [paginationTableRef] = useTableRef();
 
   const {
-    companyId,
     isB2BUser,
     shoppingListCreateActionsPermission,
     submitShoppingListPermission,
+    deleteShoppingList,
+    getUserShoppingLists,
   } = useData();
 
   const {
@@ -67,9 +75,7 @@ function ShoppingLists() {
 
   useEffect(() => {
     const initFilter = async () => {
-      const createdByUsers = isB2BUser
-        ? await getShoppingListsCreatedByUser(Number(companyId), 1)
-        : {};
+      const createdByUsers = await getUserShoppingLists();
 
       const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
 
@@ -207,13 +213,8 @@ function ShoppingLists() {
     try {
       setIsRequestLoading(true);
       handleCancelClick();
-      const id: number = deleteItem?.id || 0;
 
-      if (isB2BUser) {
-        await deleteB2BShoppingList(id);
-      } else {
-        await deleteBcShoppingList(id);
-      }
+      await deleteShoppingList(deleteItem?.id || 0);
 
       snackbar.success(b3Lang('shoppingLists.deleteSuccess'));
     } finally {
