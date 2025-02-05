@@ -18,47 +18,15 @@ export interface GetFilterMoreListProps {
   size: string;
 }
 
-interface GetAccountSettingFilesReturnProps {
-  accountB2BFormFields: GetFilterMoreListProps[];
-  passwordModified: GetFilterMoreListProps[];
-}
-
-interface PasswordKeysProps {
-  name: string;
-  label: string;
-  idLang: string;
-}
-
-export const getPasswordKeys = (): PasswordKeysProps[] => [
-  {
-    name: 'currentPassword',
-    label: 'Current Password',
-    idLang: 'accountSettings.form.currentPassword',
-  },
-  {
-    name: 'password',
-    label: 'Password',
-    idLang: 'accountSettings.form.password',
-  },
-  {
-    name: 'confirmPassword',
-    label: 'Confirm Password',
-    idLang: 'accountSettings.form.confirmPassword',
-  },
-];
-
-export const getAccountSettingFiles = (
-  xs: number,
-  b3Lang: LangFormatFunction,
-): GetAccountSettingFilesReturnProps => {
-  const accountB2BFormFields = [
+export const getAccountSettingsFields = (b3Lang: LangFormatFunction): GetFilterMoreListProps[] => {
+  return [
     {
       name: 'company',
       label: b3Lang('accountSettings.form.company'),
       required: false,
       default: '',
       fieldType: 'text',
-      xs,
+      xs: 12,
       variant: 'filled',
       size: 'small',
     },
@@ -86,26 +54,44 @@ export const getAccountSettingFiles = (
           value: 3,
         },
       ],
-      xs,
+      xs: 12,
       variant: 'filled',
       size: 'small',
     },
   ];
+};
 
-  const passwordModified = getPasswordKeys().map((item: PasswordKeysProps) => ({
-    name: item.name,
-    label: item.label,
-    required: false,
-    default: '',
-    fieldType: 'password',
-    xs,
-    variant: 'filled',
-    size: 'small',
-    idLang: item.idLang,
-  }));
-
-  return {
-    accountB2BFormFields,
-    passwordModified,
-  };
+export const getPasswordModifiedFields = (b3Lang: LangFormatFunction): GetFilterMoreListProps[] => {
+  return [
+    {
+      name: 'currentPassword',
+      label: b3Lang('accountSettings.form.currentPassword'),
+      required: false,
+      default: '',
+      fieldType: 'password',
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
+    {
+      name: 'password',
+      label: b3Lang('accountSettings.form.password'),
+      required: false,
+      default: '',
+      fieldType: 'password',
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
+    {
+      name: 'confirmPassword',
+      label: b3Lang('accountSettings.form.confirmPassword'),
+      required: false,
+      default: '',
+      fieldType: 'password',
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
+  ];
 };

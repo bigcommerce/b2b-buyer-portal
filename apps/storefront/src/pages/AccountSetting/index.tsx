@@ -27,7 +27,7 @@ import { B3SStorage, channelId, snackbar } from '@/utils';
 
 import { deCodeField, getAccountFormFields } from '../Registered/config';
 
-import { getAccountSettingFiles } from './config';
+import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
 import { b2bSubmitDataProcessing, bcSubmitDataProcessing, initB2BInfo, initBcInfo } from './utils';
 
 function useData() {
@@ -89,22 +89,21 @@ function AccountSetting() {
 
         const accountFormAllFields = await getB2BAccountFormFields(isBCUser ? 1 : 2);
 
-        const fn = !isBCUser ? getB2BAccountSettings : getBCAccountSettings;
+        const fn = isBCUser ? getBCAccountSettings : getB2BAccountSettings;
 
-        const params = !isBCUser
-          ? {
+        const params = isBCUser
+          ? {}
+          : {
               companyId,
-            }
-          : {};
+            };
 
-        const key = !isBCUser ? 'accountSettings' : 'customerAccountSettings';
+        const key = isBCUser ? 'customerAccountSettings' : 'accountSettings';
 
         const { [key]: accountSettings } = await fn(params);
 
         const accountFormFields = getAccountFormFields(
           accountFormAllFields.accountFormFields || [],
         );
-        const { accountB2BFormFields, passwordModified } = getAccountSettingFiles(12, b3Lang);
 
         const contactInformation = (accountFormFields?.contactInformation || []).filter(
           (item: Partial<Fields>) => item.fieldId !== 'field_email_marketing_newsletter',
@@ -132,25 +131,18 @@ function AccountSetting() {
 
         const { additionalInformation = [] } = accountFormFields;
 
-        const fields = !isBCUser
-          ? initB2BInfo(
+        const fields = isBCUser
+          ? initBcInfo(accountSettings, contactInformationTranslatedLabels, additionalInformation)
+          : initB2BInfo(
               accountSettings,
               contactInformationTranslatedLabels,
-              accountB2BFormFields,
+              getAccountSettingsFields(b3Lang),
               additionalInformation,
-            )
-          : initBcInfo(accountSettings, contactInformationTranslatedLabels, additionalInformation);
+            );
 
-        const passwordModifiedTranslatedFields = JSON.parse(JSON.stringify(passwordModified)).map(
-          (element: { label: string; idLang: string }) => {
-            const passwordField = element;
-            passwordField.label = b3Lang(element.idLang);
+        const passwordModifiedFields = getPasswordModifiedFields(b3Lang);
 
-            return element;
-          },
-        );
-
-        const all = [...fields, ...passwordModifiedTranslatedFields];
+        const all = [...fields, ...passwordModifiedFields];
 
         const roleItem = all.find((item) => item.name === 'role');
 
@@ -254,7 +246,7 @@ function AccountSetting() {
           userExtraFields = handleGetUserExtraFields(data);
         }
 
-        const dataProcessingFn = !isBCUser ? b2bSubmitDataProcessing : bcSubmitDataProcessing;
+        const dataProcessingFn = isBCUser ? bcSubmitDataProcessing : b2bSubmitDataProcessing;
 
         if (isValid && emailFlag && passwordFlag) {
           const param = dataProcessingFn(data, accountSettings, decryptionFields, extraFields);
@@ -265,7 +257,7 @@ function AccountSetting() {
               param.extraFields = userExtraFields;
             }
 
-            const requestFn = !isBCUser ? updateB2BAccountSettings : updateBCAccountSettings;
+            const requestFn = isBCUser ? updateBCAccountSettings : updateB2BAccountSettings;
 
             const newParams: CustomFieldItems = {
               ...param,
