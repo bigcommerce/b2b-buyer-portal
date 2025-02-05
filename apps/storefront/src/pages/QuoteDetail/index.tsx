@@ -73,14 +73,38 @@ function useData() {
 
   const { purchasabilityPermission } = useAppSelector(rolePermissionSelector);
 
-  const getProducts = async (productIds: number[]) => {
-    const options = { productIds, currencyCode, companyId, customerGroupId };
+  const handleGetProductsById = async (listProducts: ProductInfoProps[]) => {
+    if (listProducts.length > 0) {
+      const productIds: number[] = [];
 
-    const { productsSearch } = await (isB2BUser
-      ? searchB2BProducts(options)
-      : searchBcProducts(options));
+      listProducts.forEach((item) => {
+        if (!productIds.includes(item.productId)) {
+          productIds.push(item.productId);
+        }
+      });
 
-    return conversionProductsList(productsSearch);
+      const options = { productIds, currencyCode, companyId, customerGroupId };
+
+      const { productsSearch } = await (isB2BUser
+        ? searchB2BProducts(options)
+        : searchBcProducts(options));
+
+      const newProductsSearch = conversionProductsList(productsSearch);
+
+      listProducts.forEach((item) => {
+        const listProduct = item;
+        const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
+          const { id: productId } = search;
+
+          return Number(item.productId) === Number(productId);
+        });
+
+        listProduct.productsSearch = productInfo || {};
+      });
+
+      return listProducts;
+    }
+    return undefined;
   };
 
   const location = useLocation();
@@ -114,7 +138,7 @@ function useData() {
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
-    getProducts,
+    handleGetProductsById,
     getQuote,
   };
 }
@@ -135,7 +159,7 @@ function QuoteDetail() {
     enteredInclusiveTax,
     isEnableProduct,
     purchasabilityPermission,
-    getProducts,
+    handleGetProductsById,
     getQuote,
   } = useData();
 
@@ -299,38 +323,6 @@ function QuoteDetail() {
     return 0;
   };
 
-  const handleGetProductsById = async (listProducts: ProductInfoProps[]) => {
-    if (listProducts.length > 0) {
-      const productIds: number[] = [];
-
-      listProducts.forEach((item) => {
-        if (!productIds.includes(item.productId)) {
-          productIds.push(item.productId);
-        }
-      });
-
-      try {
-        const newProductsSearch = await getProducts(productIds);
-
-        listProducts.forEach((item) => {
-          const listProduct = item;
-          const productInfo = newProductsSearch.find((search: CustomFieldItems) => {
-            const { id: productId } = search;
-
-            return Number(item.productId) === Number(productId);
-          });
-
-          listProduct.productsSearch = productInfo || {};
-        });
-
-        return listProducts;
-      } catch (err: any) {
-        snackbar.error(err);
-      }
-    }
-    return undefined;
-  };
-
   const getQuoteExtraFields = async (currentExtraFields: QuoteExtraFieldsData[]) => {
     const extraFieldsInfo = await getB2BQuoteExtraFields();
     const quoteCurrentExtraFields: QuoteExtraFieldsData[] = [];
@@ -357,7 +349,11 @@ function QuoteDetail() {
 
     try {
       const quote = await getQuote();
-      const productsWithMoreInfo = await handleGetProductsById(quote.productsList);
+      const productsWithMoreInfo = await handleGetProductsById(quote.productsList).catch((err) => {
+        snackbar.error(err);
+
+        return undefined;
+      });
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
 
       setQuoteDetail({
