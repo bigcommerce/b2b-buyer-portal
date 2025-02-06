@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LangFormatFunction, useB3Lang } from '@b3/lang';
+import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
 
 import B3Filter from '@/components/filter/B3Filter';
@@ -57,74 +57,6 @@ const quotesStatuses = [
   },
 ];
 
-const getFilterMoreList = (isB2BUser: boolean, createdByUsers: any, b3Lang: LangFormatFunction) => {
-  const newCreatedByUsers =
-    createdByUsers?.createdByUser?.results?.createdBy.map((item: any) => ({
-      createdBy: item.email ? `${item.name} (${item.email})` : `${item.name}`,
-    })) || [];
-  const newCreatedBySalesReps =
-    createdByUsers?.createdByUser?.results?.salesRep.map((item: any) => ({
-      salesRep: `${item.salesRep || item.salesRepEmail}`,
-    })) || [];
-  const filterMoreList = [
-    {
-      name: 'status',
-      label: b3Lang('quotes.quoteStatus'),
-      required: false,
-      default: '',
-      fieldType: 'dropdown',
-      options: quotesStatuses.map(({ idLangCustomLabel, ...restQuoteStatuses }) => ({
-        customLabel: b3Lang(idLangCustomLabel),
-        ...restQuoteStatuses,
-      })),
-      replaceOptions: {
-        label: 'customLabel',
-        value: 'statusCode',
-      },
-      xs: 12,
-      variant: 'filled',
-      size: 'small',
-    },
-    {
-      name: 'createdBy',
-      label: b3Lang('quotes.createdBy'),
-      required: false,
-      default: '',
-      fieldType: 'dropdown',
-      options: newCreatedByUsers,
-      replaceOptions: {
-        label: 'createdBy',
-        value: 'createdBy',
-      },
-      xs: 12,
-      variant: 'filled',
-      size: 'small',
-    },
-    {
-      name: 'salesRep',
-      label: b3Lang('quotes.salesRep'),
-      required: false,
-      default: '',
-      fieldType: 'dropdown',
-      options: newCreatedBySalesReps,
-      replaceOptions: {
-        label: 'salesRep',
-        value: 'salesRep',
-      },
-      xs: 12,
-      variant: 'filled',
-      size: 'small',
-    },
-  ];
-
-  const filterCurrentMoreList = filterMoreList.filter((item) => {
-    if (!isB2BUser && (item.name === 'createdBy' || item.name === 'salesRep')) return false;
-    return true;
-  });
-
-  return filterCurrentMoreList;
-};
-
 const defaultSortKey = 'quoteNumber';
 
 const sortKeys = {
@@ -144,6 +76,7 @@ function useData() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
   const draftQuoteListLength = useAppSelector(({ quoteInfo }) => quoteInfo.draftQuoteList.length);
   const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
+  const b3Lang = useB3Lang();
 
   const companyId = companyB2BId || salesRepCompanyId;
 
@@ -155,7 +88,91 @@ function useData() {
       : getBCQuotesList({ ...params, channelId });
   };
 
-  return { companyId, isB2BUser, draftQuoteListLength, customer, getQuotesList };
+  const getFilters = () => [
+    {
+      name: 'status',
+      label: b3Lang('quotes.quoteStatus'),
+      required: false,
+      default: '',
+      fieldType: 'dropdown',
+      options: quotesStatuses.map(({ idLangCustomLabel, ...restQuoteStatuses }) => ({
+        customLabel: b3Lang(idLangCustomLabel),
+        ...restQuoteStatuses,
+      })),
+      replaceOptions: {
+        label: 'customLabel',
+        value: 'statusCode',
+      },
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
+    },
+  ];
+
+  const getB2BFilters = async () => {
+    const createdByUsers = await getShoppingListsCreatedByUser(Number(companyId), 2);
+
+    const newCreatedByUsers =
+      createdByUsers?.createdByUser?.results?.createdBy.map((item: any) => ({
+        createdBy: item.email ? `${item.name} (${item.email})` : `${item.name}`,
+      })) || [];
+
+    const newCreatedBySalesReps =
+      createdByUsers?.createdByUser?.results?.salesRep.map((item: any) => ({
+        salesRep: `${item.salesRep || item.salesRepEmail}`,
+      })) || [];
+
+    return [
+      ...getFilters(),
+      {
+        name: 'createdBy',
+        label: b3Lang('quotes.createdBy'),
+        required: false,
+        default: '',
+        fieldType: 'dropdown',
+        options: newCreatedByUsers,
+        replaceOptions: {
+          label: 'createdBy',
+          value: 'createdBy',
+        },
+        xs: 12,
+        variant: 'filled',
+        size: 'small',
+      },
+      {
+        name: 'salesRep',
+        label: b3Lang('quotes.salesRep'),
+        required: false,
+        default: '',
+        fieldType: 'dropdown',
+        options: newCreatedBySalesReps,
+        replaceOptions: {
+          label: 'salesRep',
+          value: 'salesRep',
+        },
+        xs: 12,
+        variant: 'filled',
+        size: 'small',
+      },
+    ];
+  };
+
+  const getAvailableFilters = async () => {
+    if (isB2BUser) {
+      return getB2BFilters();
+    }
+
+    return getFilters();
+  };
+
+  return {
+    companyId,
+    isB2BUser,
+    draftQuoteListLength,
+    customer,
+    getQuotesList,
+    getAvailableFilters,
+  };
 }
 
 const useColumnList = (): Array<TableColumnItem<ListItem>> => {
@@ -233,7 +250,7 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
 };
 
 function QuotesList() {
-  const { companyId, isB2BUser, draftQuoteListLength, customer, getQuotesList } = useData();
+  const { getAvailableFilters, draftQuoteListLength, customer, getQuotesList } = useData();
   const columns = useColumnList();
 
   const initSearch = {
@@ -271,16 +288,7 @@ function QuotesList() {
   } = useContext(GlobalContext);
 
   useEffect(() => {
-    const initFilter = async () => {
-      const createdByUsers = isB2BUser
-        ? await getShoppingListsCreatedByUser(Number(companyId), 2)
-        : {};
-
-      const filterInfos = getFilterMoreList(isB2BUser, createdByUsers, b3Lang);
-      setFilterMoreInfo(filterInfos);
-    };
-
-    initFilter();
+    getAvailableFilters().then((filters) => setFilterMoreInfo(filters));
 
     if (openAPPParams.quoteBtn) {
       dispatch({
