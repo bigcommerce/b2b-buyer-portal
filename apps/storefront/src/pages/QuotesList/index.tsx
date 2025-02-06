@@ -147,7 +147,15 @@ function useData() {
 
   const companyId = companyB2BId || salesRepCompanyId;
 
-  return { companyId, isB2BUser, draftQuoteListLength, customer };
+  const getQuotesList = (
+    params: Partial<FilterSearchProps>,
+  ): ReturnType<typeof getB2BQuotesList | typeof getBCQuotesList> => {
+    return isB2BUser
+      ? getB2BQuotesList({ ...params, channelId })
+      : getBCQuotesList({ ...params, channelId });
+  };
+
+  return { companyId, isB2BUser, draftQuoteListLength, customer, getQuotesList };
 }
 
 const useColumnList = (): Array<TableColumnItem<ListItem>> => {
@@ -225,7 +233,7 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
 };
 
 function QuotesList() {
-  const { companyId, isB2BUser, draftQuoteListLength, customer } = useData();
+  const { companyId, isB2BUser, draftQuoteListLength, customer, getQuotesList } = useData();
   const columns = useColumnList();
 
   const initSearch = {
@@ -299,9 +307,7 @@ function QuotesList() {
 
   const fetchList = useCallback(
     async (params: Partial<FilterSearchProps>) => {
-      const { edges = [], totalCount } = isB2BUser
-        ? await getB2BQuotesList({ ...params, channelId })
-        : await getBCQuotesList({ ...params, channelId });
+      const { edges = [], totalCount } = await getQuotesList(params);
 
       if (params.offset === 0 && draftQuoteListLength) {
         const summaryPrice = addPrice();
@@ -340,7 +346,7 @@ function QuotesList() {
         totalCount,
       };
     },
-    [draftQuoteListLength, customer.firstName, customer.lastName, filterData, isB2BUser],
+    [getQuotesList, draftQuoteListLength, customer.firstName, customer.lastName, filterData],
   );
 
   const handleChange = (key: string, value: string) => {
