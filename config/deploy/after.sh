@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 if [[ $ENVIRONMENT =~ "integration" ]]; then
-  CDN_BASE_URL="https://microapp-cdn.gcp.integration.zone"
+  CDN_BASE_URL="https://microapps.integration.zone"
 elif [[ $ENVIRONMENT =~ "staging" ]]; then
-  CDN_BASE_URL="https://microapp-cdn.gcp.staging.zone"
+  CDN_BASE_URL="https://microapps.staging.zone"
 elif [[ $ENVIRONMENT =~ "production-tier1" ]]; then
   CDN_BASE_URL="https://microapps.bigcommerce.com"
 elif [[ $ENVIRONMENT =~ "production" ]]; then
