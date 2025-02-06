@@ -3,7 +3,7 @@ import { Environment, EnvSpecificConfig } from '@/types';
 // TODO: update the following to BC cdn when migration is completed
 const ENVIRONMENT_CDN_BASE_PATH: EnvSpecificConfig<string> = {
   local: '/',
-  integration: 'https://microapp-cdn.gcp.integration.zone/b2b-buyer-portal/',
+  integration: 'https://microapps.integration.zone/b2b-buyer-portal/',
   staging: 'https://cdn.bundleb2b.net/b2b/staging/storefront/',
   production: 'https://cdn.bundleb2b.net/b2b/production/storefront/',
 };
