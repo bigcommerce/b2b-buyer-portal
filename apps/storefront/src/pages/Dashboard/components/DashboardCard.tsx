@@ -11,7 +11,12 @@ interface DashboardCardProps {
   salesRepCompanyId?: number;
 }
 
-function DashboardCard({ row, startActing, endActing, salesRepCompanyId = 0 }: DashboardCardProps) {
+export function DashboardCard({
+  row,
+  startActing,
+  endActing,
+  salesRepCompanyId = 0,
+}: DashboardCardProps) {
   return (
     <Card>
       <CardContent
@@ -89,5 +94,3 @@ function DashboardCard({ row, startActing, endActing, salesRepCompanyId = 0 }: D
     </Card>
   );
 }
-
-export default DashboardCard;
