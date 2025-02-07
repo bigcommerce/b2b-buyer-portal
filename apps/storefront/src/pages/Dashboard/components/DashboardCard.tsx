@@ -1,22 +1,34 @@
+import { useB3Lang } from '@b3/lang';
 import { Box, Button, Card, CardContent, Typography } from '@mui/material';
 
-interface CustomField {
-  [key: string]: string | number;
-}
-
 interface DashboardCardProps {
-  row: CustomField;
-  startActing: (id: number) => void;
-  endActing: () => void;
-  salesRepCompanyId?: number;
+  companyName: string;
+  email: string;
+  isSelected: boolean;
+  action: { label: string; onClick: () => void };
 }
 
-export function DashboardCard({
-  row,
-  startActing,
-  endActing,
-  salesRepCompanyId = 0,
-}: DashboardCardProps) {
+function SelectedBadge() {
+  const b3Lang = useB3Lang();
+
+  return (
+    <Box
+      sx={{
+        fontWeight: 400,
+        fontSize: '13px',
+        background: '#ED6C02',
+        display: 'inline-block',
+        p: '2px 7px',
+        color: '#FFFFFF',
+        borderRadius: '10px',
+      }}
+    >
+      {b3Lang('dashboard.selected')}
+    </Box>
+  );
+}
+
+export function DashboardCard({ companyName, email, isSelected, action }: DashboardCardProps) {
   return (
     <Card>
       <CardContent
@@ -31,30 +43,17 @@ export function DashboardCard({
             color: 'rgba(0, 0, 0, 0.87)',
           }}
         >
-          {row.companyName}
+          {companyName}
         </Typography>
 
-        {row.companyId === Number(salesRepCompanyId) && (
-          <Box
-            sx={{
-              fontWeight: 400,
-              fontSize: '13px',
-              background: '#ED6C02',
-              display: 'inline-block',
-              p: '2px 7px',
-              color: '#FFFFFF',
-              borderRadius: '10px',
-            }}
-          >
-            Selected
-          </Box>
-        )}
+        {isSelected && <SelectedBadge />}
 
         <Box
           sx={{
             display: 'flex',
             fontSize: '16px',
             mt: '15px',
+            gap: '5px',
           }}
         >
           <Typography
@@ -64,33 +63,20 @@ export function DashboardCard({
           >
             Email:
           </Typography>
-          <Typography variant="body1">{row.companyEmail}</Typography>
+          <Typography variant="body1">{email}</Typography>
         </Box>
       </CardContent>
 
-      {row.companyId === Number(salesRepCompanyId) ? (
-        <Button
-          sx={{
-            ml: '10px',
-            mb: '10px',
-          }}
-          variant="text"
-          onClick={() => endActing()}
-        >
-          End MASQUERADE
-        </Button>
-      ) : (
-        <Button
-          sx={{
-            ml: '10px',
-            mb: '10px',
-          }}
-          variant="text"
-          onClick={() => startActing((row as CustomFieldItems).companyId)}
-        >
-          MASQUERADE
-        </Button>
-      )}
+      <Button
+        sx={{
+          ml: '10px',
+          mb: '10px',
+        }}
+        variant="text"
+        onClick={() => action.onClick()}
+      >
+        {action.label}
+      </Button>
     </Card>
   );
 }
