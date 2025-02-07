@@ -9,15 +9,14 @@ import B3Spin from '@/components/spin/B3Spin';
 import { B3PaginationTable } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
+import { PageProps } from '@/pages/PageProps';
 import { superAdminCompanies } from '@/shared/service/b2b';
 import { useAppSelector } from '@/store';
 import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 
-import { type PageProps } from '../PageProps';
-
+import { DashboardCard } from './components/DashboardCard';
 import { ActionMenuCell } from './ActionMenuCell';
 import { CompanyNameCell } from './CompanyNameCell';
-import { DashboardCard } from './DashboardCard';
 
 interface ListItem {
   [key: string]: string;
@@ -197,14 +196,31 @@ function Dashboard(props: PageProps) {
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
-          renderItem={(row: ListItem) => (
-            <DashboardCard
-              row={row}
-              startActing={startActing}
-              endActing={endActing}
-              salesRepCompanyId={Number(salesRepCompanyId)}
-            />
-          )}
+          renderItem={({ companyName, companyEmail, companyId }: ListItem) => {
+            const isSelected = Number(companyId) === Number(salesRepCompanyId);
+            const action = isSelected
+              ? {
+                  label: b3Lang('dashboard.endMasqueradeAction'),
+                  onClick: () => {
+                    endActing();
+                  },
+                }
+              : {
+                  label: b3Lang('dashboard.masqueradeAction'),
+                  onClick: () => {
+                    startActing(Number(companyId));
+                  },
+                };
+
+            return (
+              <DashboardCard
+                companyName={companyName}
+                email={companyEmail}
+                isSelected={isSelected}
+                action={action}
+              />
+            );
+          }}
         />
       </Box>
     </B3Spin>
