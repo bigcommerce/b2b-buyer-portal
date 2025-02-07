@@ -197,6 +197,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     >
       <Controller
         {...fieldsProps}
+        key={fieldsProps.key}
         render={({ field }) => (
           <Autocomplete
             {...field}
