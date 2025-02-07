@@ -2,11 +2,12 @@ import { Box } from '@mui/material';
 
 import { SelectedBadge } from './SelectedBadge';
 
-interface CompanyNameCellProps {
+interface Props {
   companyName: string;
   isSelected: boolean;
 }
-export function CompanyNameCell({ companyName, isSelected }: CompanyNameCellProps) {
+
+export function CompanyNameCell({ companyName, isSelected }: Props) {
   return (
     <Box
       sx={{
