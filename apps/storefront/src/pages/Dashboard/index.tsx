@@ -18,6 +18,7 @@ import { endMasquerade, startMasquerade } from '@/utils/masquerade';
 import { type PageProps } from '../PageProps';
 
 import DashboardCard from './components/DashboardCard';
+import { CompanyNameCell } from './CompanyNameCell';
 
 interface ListItem {
   [key: string]: string;
@@ -103,6 +104,8 @@ function B3Mean({ isMasquerade, handleSelect, startActing, endActing }: B3MeanPr
     </>
   );
 }
+
+const rowsPerPage = [10, 20, 30];
 
 function useData() {
   const customerId = useAppSelector(({ company }) => company.customer.id);
@@ -208,30 +211,11 @@ function Dashboard(props: PageProps) {
     {
       key: 'companyName',
       title: b3Lang('dashboard.company'),
-      render: (row: CustomFieldItems) => (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          {row.companyName}
-          {row.companyId === Number(salesRepCompanyId) && (
-            <Box
-              sx={{
-                fontWeight: 400,
-                fontSize: '13px',
-                background: '#ED6C02',
-                ml: '16px',
-                p: '2px 7px',
-                color: '#FFFFFF',
-                borderRadius: '10px',
-              }}
-            >
-              {b3Lang('dashboard.selected')}
-            </Box>
-          )}
-        </Box>
+      render: ({ companyName, companyId }) => (
+        <CompanyNameCell
+          companyName={companyName}
+          isSelected={Number(companyId) === Number(salesRepCompanyId)}
+        />
       ),
       isSortable: true,
     },
@@ -279,7 +263,7 @@ function Dashboard(props: PageProps) {
         </Box>
         <B3PaginationTable
           columnItems={columnItems}
-          rowsPerPageOptions={[10, 20, 30]}
+          rowsPerPageOptions={rowsPerPage}
           getRequestList={getSuperAdminCompaniesList}
           searchParams={filterData || {}}
           isCustomRender={false}

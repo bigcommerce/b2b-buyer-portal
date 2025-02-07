@@ -11,7 +11,7 @@ interface StartMasqueradeParams {
 }
 
 export const startMasquerade = async ({ companyId, customerId }: StartMasqueradeParams) => {
-  // change group in bc throug b2b api
+  // change group in bc through b2b api
   await superAdminBeginMasquerade(companyId);
 
   // get data to be saved on global
@@ -35,7 +35,7 @@ export const endMasquerade = async () => {
   const { masqueradeCompany } = store.getState().b2bFeatures;
   const salesRepCompanyId = masqueradeCompany.id;
 
-  // change group in bc throug b2b api
+  // change group in bc through b2b api
   await superAdminEndMasquerade(salesRepCompanyId);
 
   store.dispatch(clearMasqueradeCompany());
