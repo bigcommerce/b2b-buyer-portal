@@ -1,23 +1,24 @@
-import { ReactElement, useCallback, useEffect, useState } from 'react';
+import { FC, ReactElement, useCallback, useEffect, useState } from 'react';
 
 import { useMobile } from '@/hooks';
 
-import { B3Table, TableColumnItem } from './B3Table';
+import { B3Table, isNodeWrapper, PossibleNodeWrapper, TableColumnItem } from './B3Table';
 
 export interface TablePagination {
   offset: number;
   first: number;
 }
-interface PaginationTableProps {
+
+interface PaginationTableProps<Row extends object> {
   tableFixed?: boolean;
   tableHeaderHide?: boolean;
-  columnItems: TableColumnItem<any>[];
+  columnItems: TableColumnItem<Row>[];
   itemSpacing?: number;
   itemXs?: number;
   rowsPerPageOptions?: number[];
   showPagination?: boolean;
-  renderItem?: (row: any, index?: number, checkBox?: () => ReactElement) => ReactElement;
-  CollapseComponent?: (row: any) => ReactElement;
+  renderItem?: (row: Row, index?: number, checkBox?: () => ReactElement) => ReactElement;
+  CollapseComponent?: FC<{ row: Row }>;
   isCustomRender?: boolean;
   noDataText?: string;
   tableKey?: string;
@@ -32,16 +33,16 @@ interface PaginationTableProps {
   itemIsMobileSpacing?: number;
   disableCheckbox?: boolean;
   applyAllDisableCheckbox?: boolean;
-  onClickRow?: (item: any, index?: number) => void;
+  onClickRow?: (item: Row, index?: number) => void;
   showRowsPerPageOptions?: boolean;
   sortDirection?: 'asc' | 'desc';
   sortByFn?: (e: { key: string }) => void;
   orderBy?: string;
   pageType?: string;
-  items: any[];
+  items: PossibleNodeWrapper<Row>[];
 }
 
-function PaginationTable({
+function PaginationTable<Row extends object>({
   columnItems,
   isCustomRender = false,
   tableKey,
@@ -72,7 +73,7 @@ function PaginationTable({
   orderBy = '',
   pageType = '',
   items,
-}: PaginationTableProps) {
+}: PaginationTableProps<Row>) {
   const initPagination = {
     offset: 0,
     first: rowsPerPageOptions[0],
@@ -104,8 +105,9 @@ function PaginationTable({
   const getCurrentAllItemsSelect = useCallback(() => {
     if (!selectCheckbox.length) return false;
     return items.every((item) => {
-      const option = item?.node || item;
+      const option = isNodeWrapper(item) ? item.node : item;
 
+      // @ts-expect-error typed previously as an any
       return selectCheckbox.includes(option[selectedSymbol]);
     });
   }, [items, selectCheckbox, selectedSymbol]);
@@ -124,13 +126,15 @@ function PaginationTable({
       } else {
         const selects: Array<string | number> = [];
         items.forEach((item) => {
-          const option = item?.node || item;
+          const option = isNodeWrapper(item) ? item.node : item;
           if (option) {
             if (pageType === 'shoppingListDetailsTable') {
               selects.push(
+                // @ts-expect-error typed previously as an any
                 option.quantity > 0 || !option.disableCurrentCheckbox ? option[selectedSymbol] : '',
               );
             } else {
+              // @ts-expect-error typed previously as an any
               selects.push(option[selectedSymbol]);
             }
           }
@@ -144,15 +148,18 @@ function PaginationTable({
 
       const newSelectCheckbox = [...selectCheckbox];
       if (flag) {
-        items.forEach((item: CustomFieldItems) => {
-          const option = item?.node || item;
-          const index = newSelectCheckbox.findIndex((item: any) => item === option[selectedSymbol]);
+        items.forEach((item) => {
+          const option = isNodeWrapper(item) ? item.node : item;
+          // @ts-expect-error typed previously as an any
+          const index = newSelectCheckbox.findIndex((item) => item === option[selectedSymbol]);
           newSelectCheckbox.splice(index, 1);
         });
       } else {
-        items.forEach((item: CustomFieldItems) => {
-          const option = item?.node || item;
+        items.forEach((item) => {
+          const option = isNodeWrapper(item) ? item.node : item;
+          // @ts-expect-error typed previously as an any
           if (!selectCheckbox.includes(option[selectedSymbol])) {
+            // @ts-expect-error typed previously as an any
             newSelectCheckbox.push(option[selectedSymbol]);
           }
         });

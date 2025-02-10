@@ -6,7 +6,7 @@ import { Box } from '@mui/material';
 import { B2BAutoCompleteCheckbox } from '@/components';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
-import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile, useSort } from '@/hooks';
 import {
@@ -185,7 +185,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectCompanyHierarchyId]);
 
-  const fetchList = async (params: Partial<FilterSearchProps>) => {
+  const fetchList: GetRequestList<Partial<FilterSearchProps>, ListItem> = async (params) => {
     const { edges = [], totalCount } = isB2BUser
       ? await getB2BAllOrders(params)
       : await getBCAllOrders(params);
@@ -400,7 +400,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
-          renderItem={(row: ListItem, index?: number) => (
+          renderItem={(row, index) => (
             <OrderItemCard
               key={row.orderId}
               item={row}
@@ -410,7 +410,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
               isCompanyOrder={isCompanyOrder}
             />
           )}
-          onClickRow={(item: ListItem, index?: number) => {
+          onClickRow={(item, index) => {
             if (index !== undefined) {
               goToDetail(item, index);
             }

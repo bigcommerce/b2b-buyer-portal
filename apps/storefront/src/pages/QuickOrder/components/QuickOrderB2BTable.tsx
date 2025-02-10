@@ -3,7 +3,7 @@ import { useB3Lang } from '@b3/lang';
 import { Box, styled, TextField, Typography } from '@mui/material';
 
 import B3Spin from '@/components/spin/B3Spin';
-import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile, useSort } from '@/hooks';
@@ -189,7 +189,7 @@ function QuickOrderTable({
     return [];
   };
 
-  const getList = async (params: SearchProps) => {
+  const getList: GetRequestList<SearchProps, ProductInfoProps> = async (params) => {
     const {
       orderedProducts: { edges, totalCount },
     } = isB2BUser ? await getOrderedProducts(params) : await getBcOrderedProducts(params);

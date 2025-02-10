@@ -4,7 +4,7 @@ import { renderWithProviders } from 'tests/test-utils';
 import { B3Table } from '@/components';
 import { TableColumnItem } from '@/components/table/B3Table';
 
-const columnItems: TableColumnItem<1> = {
+const columnItems: TableColumnItem<{ id: number }> = {
   key: 'key test1',
   title: 'title test',
 };

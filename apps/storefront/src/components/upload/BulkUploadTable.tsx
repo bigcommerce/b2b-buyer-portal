@@ -4,7 +4,7 @@ import { InsertDriveFile, MoreHoriz } from '@mui/icons-material';
 import { Box, Button, Link, Menu, MenuItem, Tab, Tabs, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile } from '@/hooks';
 
@@ -152,7 +152,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
     setActiveTab(selectedTabValue);
   };
 
-  const getProductInfo = (params: CustomFieldItems) => {
+  const getProductInfo: GetRequestList<CustomFieldItems, CustomFieldItems> = (params) => {
     const products = activeTab === 'error' ? errorProduct : validProduct;
 
     const { first, offset } = params;
@@ -269,9 +269,7 @@ function BulkUploadTable(props: BulkUploadTableProps) {
             searchParams={{
               activeTab,
             }}
-            renderItem={(row: CustomFieldItems) => (
-              <BulkUploadTableCard products={row} activeTab={activeTab} />
-            )}
+            renderItem={(row) => <BulkUploadTableCard products={row} activeTab={activeTab} />}
           />
         </StyledTableContainer>
 
