@@ -64,15 +64,13 @@ export const useGetFilterShoppingListStatus = () => {
     const draftStatus = { value: 30, label: b3Lang('global.shoppingLists.status.draft') };
     const rejectedStatus = { value: 20, label: b3Lang('global.shoppingLists.status.rejected') };
 
-    const shoppingListStatus = [
+    return [
       { value: 99, label: b3Lang('global.shoppingLists.status.all') },
       { value: 0, label: b3Lang('global.shoppingLists.status.approved') },
       ...(submitShoppingListPermission ? [draftStatus] : []),
       { value: 40, label: b3Lang('global.shoppingLists.status.readyForApproval') },
       ...(submitShoppingListPermission ? [rejectedStatus] : []),
     ];
-
-    return shoppingListStatus;
   };
 };
 
