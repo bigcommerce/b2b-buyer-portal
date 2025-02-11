@@ -19,7 +19,7 @@ import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/sto
 import { channelId, snackbar } from '@/utils';
 
 import AddEditShoppingLists from './AddEditShoppingLists';
-import { getFilterMoreList, ShoppingListSearch, ShoppingListsItemsProps } from './config';
+import { ShoppingListSearch, ShoppingListsItemsProps, useGetFilterMoreList } from './config';
 import ShoppingListsCard from './ShoppingListsCard';
 
 interface RefCurrentProps extends HTMLInputElement {
@@ -54,6 +54,7 @@ function ShoppingLists() {
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [deleteItem, setDeleteItem] = useState<null | ShoppingListsItemsProps>(null);
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
+  const getFilterMoreList = useGetFilterMoreList();
 
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();

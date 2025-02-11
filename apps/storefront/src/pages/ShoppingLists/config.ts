@@ -123,46 +123,48 @@ interface StatusFilter extends BaseFilter {
   options: Array<{ label: string; value: number; idLang: string }>;
 }
 
-export const getFilterMoreList = (
-  submitShoppingListPermission: boolean,
-  createdByUsers: CreatedByUsers,
-): Array<CreatedByFilter | StatusFilter> => {
-  const newCreatedByUsers =
-    createdByUsers?.createdByUser?.results.map((item) => ({
-      createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
-    })) || [];
-  const filterMoreList = [
-    {
-      name: 'createdBy' as const,
-      label: 'Created by',
-      required: false,
-      default: '',
-      fieldType: 'dropdown',
-      options: newCreatedByUsers,
-      replaceOptions: {
-        label: 'createdBy',
-        value: 'createdBy',
+export const useGetFilterMoreList = () => {
+  return (
+    submitShoppingListPermission: boolean,
+    createdByUsers: CreatedByUsers,
+  ): Array<CreatedByFilter | StatusFilter> => {
+    const newCreatedByUsers =
+      createdByUsers?.createdByUser?.results.map((item) => ({
+        createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
+      })) || [];
+    const filterMoreList = [
+      {
+        name: 'createdBy' as const,
+        label: 'Created by',
+        required: false,
+        default: '',
+        fieldType: 'dropdown',
+        options: newCreatedByUsers,
+        replaceOptions: {
+          label: 'createdBy',
+          value: 'createdBy',
+        },
+        xs: 12,
+        variant: 'filled',
+        size: 'small',
+        idLang: 'global.shoppingLists.filter.createdBy',
       },
-      xs: 12,
-      variant: 'filled',
-      size: 'small',
-      idLang: 'global.shoppingLists.filter.createdBy',
-    },
-    {
-      name: 'status' as const,
-      label: 'Status',
-      required: false,
-      default: '',
-      fieldType: 'dropdown',
-      options: getFilterShoppingListStatus(submitShoppingListPermission),
-      xs: 12,
-      variant: 'filled',
-      size: 'small',
-      idLang: 'global.shoppingLists.filter.status',
-    },
-  ];
+      {
+        name: 'status' as const,
+        label: 'Status',
+        required: false,
+        default: '',
+        fieldType: 'dropdown',
+        options: getFilterShoppingListStatus(submitShoppingListPermission),
+        xs: 12,
+        variant: 'filled',
+        size: 'small',
+        idLang: 'global.shoppingLists.filter.status',
+      },
+    ];
 
-  return filterMoreList;
+    return filterMoreList;
+  };
 };
 
 export const getCreatedShoppingListFiles = (
