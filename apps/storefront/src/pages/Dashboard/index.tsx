@@ -8,7 +8,7 @@ import { styled } from '@mui/material/styles';
 import { usePageMask } from '@/components';
 import B3FilterSearch from '@/components/filter/B3FilterSearch';
 import B3Spin from '@/components/spin/B3Spin';
-import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useSort } from '@/hooks';
 import { superAdminCompanies } from '@/shared/service/b2b';
@@ -141,7 +141,7 @@ function Dashboard(props: PageProps) {
 
   const location = useLocation();
 
-  const getSuperAdminCompaniesList = async (params: ListItem) => {
+  const getSuperAdminCompaniesList: GetRequestList<ListItem, ListItem> = async (params) => {
     let list = { edges: [], totalCount: 0 };
     if (typeof b2bId === 'number') {
       list = (await superAdminCompanies(b2bId, params)).superAdminCompanies;
@@ -288,7 +288,7 @@ function Dashboard(props: PageProps) {
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
-          renderItem={(row: ListItem) => (
+          renderItem={(row) => (
             <DashboardCard
               row={row}
               startActing={startActing}
