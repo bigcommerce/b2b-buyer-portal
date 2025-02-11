@@ -67,16 +67,12 @@ export const useGetFilterShoppingListStatus = () => {
     const shoppingListStatus = [
       { value: 99, label: b3Lang('global.shoppingLists.status.all') },
       { value: 0, label: b3Lang('global.shoppingLists.status.approved') },
-      draftStatus,
+      ...(submitShoppingListPermission ? [draftStatus] : []),
       { value: 40, label: b3Lang('global.shoppingLists.status.readyForApproval') },
-      rejectedStatus,
+      ...(submitShoppingListPermission ? [rejectedStatus] : []),
     ];
 
-    const getShoppingListStatus = !submitShoppingListPermission
-      ? shoppingListStatus.filter((item) => item.value !== 30 && item.value !== 20)
-      : shoppingListStatus;
-
-    return getShoppingListStatus;
+    return shoppingListStatus;
   };
 };
 
