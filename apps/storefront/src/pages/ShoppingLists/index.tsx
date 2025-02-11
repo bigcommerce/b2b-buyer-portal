@@ -85,13 +85,6 @@ function ShoppingLists() {
       translatedFilterInfo.forEach((element) => {
         const translatedInfo = element;
         translatedInfo.label = b3Lang(element.idLang);
-        if (element.name === 'status') {
-          element.options.map((option) => {
-            const elementOption = option;
-            elementOption.label = b3Lang(option.idLang);
-            return option;
-          });
-        }
 
         return element;
       });

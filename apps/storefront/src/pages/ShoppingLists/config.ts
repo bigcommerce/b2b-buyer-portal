@@ -1,4 +1,4 @@
-import { LangFormatFunction } from '@b3/lang';
+import { LangFormatFunction, useB3Lang } from '@b3/lang';
 
 import { CompanyInfoTypes } from '@/types';
 
@@ -58,39 +58,34 @@ export interface GetFilterMoreListProps {
 }
 
 export const useGetFilterShoppingListStatus = () => {
+  const b3Lang = useB3Lang();
+
   return (submitShoppingListPermission: boolean) => {
     const shoppingListStatus = [
       {
-        label: 'All',
         value: 99,
-        idLang: 'global.shoppingLists.status.all',
+        label: b3Lang('global.shoppingLists.status.all'),
       },
       {
-        label: 'Approved',
         value: 0,
-        idLang: 'global.shoppingLists.status.approved',
+        label: b3Lang('global.shoppingLists.status.approved'),
       },
       {
-        label: 'Draft',
         value: 30,
-        idLang: 'global.shoppingLists.status.draft',
+        label: b3Lang('global.shoppingLists.status.draft'),
       },
       {
-        label: 'Ready for approval',
         value: 40,
-        idLang: 'global.shoppingLists.status.readyForApproval',
+        label: b3Lang('global.shoppingLists.status.readyForApproval'),
       },
       {
-        label: 'Rejected',
         value: 20,
-        idLang: 'global.shoppingLists.status.rejected',
+        label: b3Lang('global.shoppingLists.status.rejected'),
       },
     ];
 
     const getShoppingListStatus = !submitShoppingListPermission
-      ? shoppingListStatus.filter(
-          (item: ShoppingListStatusProps) => item.value !== 30 && item.value !== 20,
-        )
+      ? shoppingListStatus.filter((item) => item.value !== 30 && item.value !== 20)
       : shoppingListStatus;
 
     return getShoppingListStatus;
@@ -122,7 +117,7 @@ interface CreatedByFilter extends BaseFilter {
 
 interface StatusFilter extends BaseFilter {
   name: 'status';
-  options: Array<{ label: string; value: number; idLang: string }>;
+  options: Array<{ label: string; value: number }>;
 }
 
 export const useGetFilterMoreList = () => {

@@ -1,17 +1,7 @@
-import { useB3Lang } from '@b3/lang';
-
 import { B3Tag } from '@/components';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 
 import { useGetFilterShoppingListStatus } from './config';
-
-interface NewStatusProps {
-  label: string;
-  value: string | number;
-  color: string;
-  textColor: string;
-  idLang: string;
-}
 
 export const useGetStatus = () => {
   const getFilterShoppingListStatus = useGetFilterShoppingListStatus();
@@ -19,7 +9,7 @@ export const useGetStatus = () => {
   return (submitShoppingListPermission: boolean) => {
     const statusArr = getFilterShoppingListStatus(submitShoppingListPermission);
 
-    const newStatus: Array<NewStatusProps> = statusArr.map((item) => {
+    const newStatus = statusArr.map((item) => {
       if (Number(item.value) === 0) {
         return {
           color: '#C4DD6C',
@@ -62,16 +52,13 @@ export function ShoppingStatus({ status }: ShoppingStatusProps) {
   const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
   const getStatus = useGetStatus();
 
-  const b3Lang = useB3Lang();
   const statusList = getStatus(submitShoppingListPermission);
-  const statusItem = statusList.find(
-    (item: NewStatusProps) => Number(item.value) === Number(status),
-  );
+  const statusItem = statusList.find((item) => Number(item.value) === Number(status));
 
   if (statusItem) {
     return (
       <B3Tag color={statusItem.color} textColor={statusItem.textColor}>
-        {b3Lang(statusItem.idLang)}
+        {statusItem.label}
       </B3Tag>
     );
   }
