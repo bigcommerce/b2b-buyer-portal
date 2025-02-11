@@ -80,35 +80,11 @@ interface CreatedByUsers {
   };
 }
 
-interface BaseFilter {
-  label: string;
-  required: boolean;
-  default: string;
-  fieldType: string;
-  xs: number;
-  variant: string;
-  size: string;
-}
-
-interface CreatedByFilter extends BaseFilter {
-  name: 'createdBy';
-  options: Array<{ createdBy: string }>;
-  replaceOptions: { label: string; value: string };
-}
-
-interface StatusFilter extends BaseFilter {
-  name: 'status';
-  options: Array<{ label: string; value: number }>;
-}
-
 export const useGetFilterMoreList = () => {
   const b3Lang = useB3Lang();
   const getFilterShoppingListStatus = useGetFilterShoppingListStatus();
 
-  return (
-    submitShoppingListPermission: boolean,
-    createdByUsers: CreatedByUsers,
-  ): Array<CreatedByFilter | StatusFilter> => {
+  return (submitShoppingListPermission: boolean, createdByUsers: CreatedByUsers) => {
     const newCreatedByUsers =
       createdByUsers?.createdByUser?.results.map((item) => ({
         createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
@@ -116,7 +92,7 @@ export const useGetFilterMoreList = () => {
 
     return [
       {
-        name: 'createdBy' as const,
+        name: 'createdBy',
         required: false,
         default: '',
         fieldType: 'dropdown',
@@ -131,7 +107,7 @@ export const useGetFilterMoreList = () => {
         label: b3Lang('global.shoppingLists.filter.createdBy'),
       },
       {
-        name: 'status' as const,
+        name: 'status',
         required: false,
         default: '',
         fieldType: 'dropdown',
