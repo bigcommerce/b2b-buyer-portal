@@ -76,13 +76,9 @@ function ShoppingLists() {
 
   useEffect(() => {
     const initFilter = async () => {
-      const createdByUsers = await getUserShoppingLists();
-
-      const filterInfo = getFilterMoreList(submitShoppingListPermission, createdByUsers);
-
-      const translatedFilterInfo: typeof filterInfo = JSON.parse(JSON.stringify(filterInfo));
-
-      setFilterMoreInfo(translatedFilterInfo);
+      setFilterMoreInfo(
+        getFilterMoreList(submitShoppingListPermission, await getUserShoppingLists()),
+      );
     };
 
     initFilter();
