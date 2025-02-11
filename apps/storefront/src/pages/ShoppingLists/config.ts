@@ -57,10 +57,8 @@ export interface GetFilterMoreListProps {
   idLang?: string;
 }
 
-export const getFilterShoppingListStatus = (
-  submitShoppingListPermission: boolean,
-): Array<ShoppingListStatusProps> => {
-  const shoppingListStatus: Array<ShoppingListStatusProps> = [
+export const getFilterShoppingListStatus = (submitShoppingListPermission: boolean) => {
+  const shoppingListStatus = [
     {
       label: 'All',
       value: 99,
@@ -97,17 +95,45 @@ export const getFilterShoppingListStatus = (
   return getShoppingListStatus;
 };
 
+interface CreatedByUsers {
+  createdByUser?: {
+    results: Array<{ firstName: string; lastName: string; email: string }>;
+  };
+}
+
+interface BaseFilter {
+  label: string;
+  required: boolean;
+  default: string;
+  fieldType: string;
+  xs: number;
+  variant: string;
+  size: string;
+  idLang: string;
+}
+
+interface CreatedByFilter extends BaseFilter {
+  name: 'createdBy';
+  options: Array<{ createdBy: string }>;
+  replaceOptions: { label: string; value: string };
+}
+
+interface StatusFilter extends BaseFilter {
+  name: 'status';
+  options: Array<{ label: string; value: number; idLang: string }>;
+}
+
 export const getFilterMoreList = (
   submitShoppingListPermission: boolean,
-  createdByUsers: any,
-): GetFilterMoreListProps[] => {
+  createdByUsers: CreatedByUsers,
+): Array<CreatedByFilter | StatusFilter> => {
   const newCreatedByUsers =
-    createdByUsers?.createdByUser?.results.map((item: any) => ({
+    createdByUsers?.createdByUser?.results.map((item) => ({
       createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
     })) || [];
   const filterMoreList = [
     {
-      name: 'createdBy',
+      name: 'createdBy' as const,
       label: 'Created by',
       required: false,
       default: '',
@@ -123,7 +149,7 @@ export const getFilterMoreList = (
       idLang: 'global.shoppingLists.filter.createdBy',
     },
     {
-      name: 'status',
+      name: 'status' as const,
       label: 'Status',
       required: false,
       default: '',
