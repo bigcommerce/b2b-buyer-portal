@@ -4,7 +4,7 @@ const ENVIRONMENT_B2B_API_URL: EnvSpecificConfig<string> = {
   local: import.meta.env.VITE_B2B_URL ?? 'http://localhost:9000',
   integration: 'https://api-b2b.integration.zone',
   staging: 'https://api-b2b.staging.zone',
-  production: 'https://api-b2b.bigcommerce.com',
+  production: 'https://api-b2b-gcp.bigcommerce.com',
 };
 
 // cspell:disable
