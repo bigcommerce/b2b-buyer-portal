@@ -62,26 +62,11 @@ export const useGetFilterShoppingListStatus = () => {
 
   return (submitShoppingListPermission: boolean) => {
     const shoppingListStatus = [
-      {
-        value: 99,
-        label: b3Lang('global.shoppingLists.status.all'),
-      },
-      {
-        value: 0,
-        label: b3Lang('global.shoppingLists.status.approved'),
-      },
-      {
-        value: 30,
-        label: b3Lang('global.shoppingLists.status.draft'),
-      },
-      {
-        value: 40,
-        label: b3Lang('global.shoppingLists.status.readyForApproval'),
-      },
-      {
-        value: 20,
-        label: b3Lang('global.shoppingLists.status.rejected'),
-      },
+      { value: 99, label: b3Lang('global.shoppingLists.status.all') },
+      { value: 0, label: b3Lang('global.shoppingLists.status.approved') },
+      { value: 30, label: b3Lang('global.shoppingLists.status.draft') },
+      { value: 40, label: b3Lang('global.shoppingLists.status.readyForApproval') },
+      { value: 20, label: b3Lang('global.shoppingLists.status.rejected') },
     ];
 
     const getShoppingListStatus = !submitShoppingListPermission
