@@ -98,8 +98,8 @@ export const getFilterShoppingListStatus = (
 };
 
 export const getFilterMoreList = (
-  createdByUsers: any,
   submitShoppingListPermission: boolean,
+  createdByUsers: any,
 ): GetFilterMoreListProps[] => {
   const newCreatedByUsers =
     createdByUsers?.createdByUser?.results.map((item: any) => ({

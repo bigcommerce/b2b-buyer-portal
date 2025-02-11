@@ -77,7 +77,7 @@ function ShoppingLists() {
     const initFilter = async () => {
       const createdByUsers = await getUserShoppingLists();
 
-      const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
+      const filterInfo = getFilterMoreList(submitShoppingListPermission, createdByUsers);
 
       const translatedFilterInfo: typeof filterInfo = JSON.parse(JSON.stringify(filterInfo));
 
