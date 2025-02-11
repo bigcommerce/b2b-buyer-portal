@@ -57,42 +57,44 @@ export interface GetFilterMoreListProps {
   idLang?: string;
 }
 
-export const getFilterShoppingListStatus = (submitShoppingListPermission: boolean) => {
-  const shoppingListStatus = [
-    {
-      label: 'All',
-      value: 99,
-      idLang: 'global.shoppingLists.status.all',
-    },
-    {
-      label: 'Approved',
-      value: 0,
-      idLang: 'global.shoppingLists.status.approved',
-    },
-    {
-      label: 'Draft',
-      value: 30,
-      idLang: 'global.shoppingLists.status.draft',
-    },
-    {
-      label: 'Ready for approval',
-      value: 40,
-      idLang: 'global.shoppingLists.status.readyForApproval',
-    },
-    {
-      label: 'Rejected',
-      value: 20,
-      idLang: 'global.shoppingLists.status.rejected',
-    },
-  ];
+export const useGetFilterShoppingListStatus = () => {
+  return (submitShoppingListPermission: boolean) => {
+    const shoppingListStatus = [
+      {
+        label: 'All',
+        value: 99,
+        idLang: 'global.shoppingLists.status.all',
+      },
+      {
+        label: 'Approved',
+        value: 0,
+        idLang: 'global.shoppingLists.status.approved',
+      },
+      {
+        label: 'Draft',
+        value: 30,
+        idLang: 'global.shoppingLists.status.draft',
+      },
+      {
+        label: 'Ready for approval',
+        value: 40,
+        idLang: 'global.shoppingLists.status.readyForApproval',
+      },
+      {
+        label: 'Rejected',
+        value: 20,
+        idLang: 'global.shoppingLists.status.rejected',
+      },
+    ];
 
-  const getShoppingListStatus = !submitShoppingListPermission
-    ? shoppingListStatus.filter(
-        (item: ShoppingListStatusProps) => item.value !== 30 && item.value !== 20,
-      )
-    : shoppingListStatus;
+    const getShoppingListStatus = !submitShoppingListPermission
+      ? shoppingListStatus.filter(
+          (item: ShoppingListStatusProps) => item.value !== 30 && item.value !== 20,
+        )
+      : shoppingListStatus;
 
-  return getShoppingListStatus;
+    return getShoppingListStatus;
+  };
 };
 
 interface CreatedByUsers {
@@ -124,6 +126,8 @@ interface StatusFilter extends BaseFilter {
 }
 
 export const useGetFilterMoreList = () => {
+  const getFilterShoppingListStatus = useGetFilterShoppingListStatus();
+
   return (
     submitShoppingListPermission: boolean,
     createdByUsers: CreatedByUsers,

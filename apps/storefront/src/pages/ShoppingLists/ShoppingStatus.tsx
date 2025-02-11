@@ -3,7 +3,7 @@ import { useB3Lang } from '@b3/lang';
 import { B3Tag } from '@/components';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 
-import { getFilterShoppingListStatus } from './config';
+import { useGetFilterShoppingListStatus } from './config';
 
 interface NewStatusProps {
   label: string;
@@ -13,41 +13,45 @@ interface NewStatusProps {
   idLang: string;
 }
 
-export const getStatus = (submitShoppingListPermission: boolean) => {
-  const statusArr = getFilterShoppingListStatus(submitShoppingListPermission);
+export const useGetStatus = () => {
+  const getFilterShoppingListStatus = useGetFilterShoppingListStatus();
 
-  const newStatus: Array<NewStatusProps> = statusArr.map((item) => {
-    if (Number(item.value) === 0) {
-      return {
-        color: '#C4DD6C',
-        textColor: 'black',
-        ...item,
-      };
-    }
+  return (submitShoppingListPermission: boolean) => {
+    const statusArr = getFilterShoppingListStatus(submitShoppingListPermission);
 
-    if (Number(item.value) === 40) {
-      return {
-        color: '#F4CC46',
-        textColor: 'black',
-        ...item,
-      };
-    }
+    const newStatus: Array<NewStatusProps> = statusArr.map((item) => {
+      if (Number(item.value) === 0) {
+        return {
+          color: '#C4DD6C',
+          textColor: 'black',
+          ...item,
+        };
+      }
 
-    if (Number(item.value) === 30) {
+      if (Number(item.value) === 40) {
+        return {
+          color: '#F4CC46',
+          textColor: 'black',
+          ...item,
+        };
+      }
+
+      if (Number(item.value) === 30) {
+        return {
+          color: '#899193',
+          textColor: '#FFFFFF',
+          ...item,
+        };
+      }
       return {
-        color: '#899193',
+        color: '#7A6041',
         textColor: '#FFFFFF',
         ...item,
       };
-    }
-    return {
-      color: '#7A6041',
-      textColor: '#FFFFFF',
-      ...item,
-    };
-  });
+    });
 
-  return newStatus;
+    return newStatus;
+  };
 };
 
 interface ShoppingStatusProps {
@@ -56,6 +60,7 @@ interface ShoppingStatusProps {
 
 export function ShoppingStatus({ status }: ShoppingStatusProps) {
   const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
+  const getStatus = useGetStatus();
 
   const b3Lang = useB3Lang();
   const statusList = getStatus(submitShoppingListPermission);
