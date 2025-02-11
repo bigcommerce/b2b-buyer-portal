@@ -82,13 +82,6 @@ function ShoppingLists() {
 
       const translatedFilterInfo: typeof filterInfo = JSON.parse(JSON.stringify(filterInfo));
 
-      translatedFilterInfo.forEach((element) => {
-        const translatedInfo = element;
-        translatedInfo.label = b3Lang(element.idLang);
-
-        return element;
-      });
-
       setFilterMoreInfo(translatedFilterInfo);
     };
 

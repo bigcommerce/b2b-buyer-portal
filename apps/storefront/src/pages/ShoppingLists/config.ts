@@ -88,7 +88,6 @@ interface BaseFilter {
   xs: number;
   variant: string;
   size: string;
-  idLang: string;
 }
 
 interface CreatedByFilter extends BaseFilter {
@@ -103,6 +102,7 @@ interface StatusFilter extends BaseFilter {
 }
 
 export const useGetFilterMoreList = () => {
+  const b3Lang = useB3Lang();
   const getFilterShoppingListStatus = useGetFilterShoppingListStatus();
 
   return (
@@ -116,7 +116,6 @@ export const useGetFilterMoreList = () => {
     const filterMoreList = [
       {
         name: 'createdBy' as const,
-        label: 'Created by',
         required: false,
         default: '',
         fieldType: 'dropdown',
@@ -128,11 +127,10 @@ export const useGetFilterMoreList = () => {
         xs: 12,
         variant: 'filled',
         size: 'small',
-        idLang: 'global.shoppingLists.filter.createdBy',
+        label: b3Lang('global.shoppingLists.filter.createdBy'),
       },
       {
         name: 'status' as const,
-        label: 'Status',
         required: false,
         default: '',
         fieldType: 'dropdown',
@@ -140,7 +138,7 @@ export const useGetFilterMoreList = () => {
         xs: 12,
         variant: 'filled',
         size: 'small',
-        idLang: 'global.shoppingLists.filter.status',
+        label: b3Lang('global.shoppingLists.filter.status'),
       },
     ];
 
