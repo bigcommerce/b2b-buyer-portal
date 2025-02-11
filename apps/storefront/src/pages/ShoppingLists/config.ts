@@ -113,7 +113,8 @@ export const useGetFilterMoreList = () => {
       createdByUsers?.createdByUser?.results.map((item) => ({
         createdBy: `${item.firstName} ${item.lastName} (${item.email})`,
       })) || [];
-    const filterMoreList = [
+
+    return [
       {
         name: 'createdBy' as const,
         required: false,
@@ -141,8 +142,6 @@ export const useGetFilterMoreList = () => {
         label: b3Lang('global.shoppingLists.filter.status'),
       },
     ];
-
-    return filterMoreList;
   };
 };
 
