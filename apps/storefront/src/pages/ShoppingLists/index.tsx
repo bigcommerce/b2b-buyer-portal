@@ -79,23 +79,21 @@ function ShoppingLists() {
 
       const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
 
-      const translatedFilterInfo = JSON.parse(JSON.stringify(filterInfo));
+      const translatedFilterInfo: typeof filterInfo = JSON.parse(JSON.stringify(filterInfo));
 
-      translatedFilterInfo.forEach(
-        (element: { label: string; idLang: any; name: string; options: any[] }) => {
-          const translatedInfo = element;
-          translatedInfo.label = b3Lang(element.idLang);
-          if (element.name === 'status') {
-            element.options?.map((option) => {
-              const elementOption = option;
-              elementOption.label = b3Lang(option.idLang);
-              return option;
-            });
-          }
+      translatedFilterInfo.forEach((element) => {
+        const translatedInfo = element;
+        translatedInfo.label = element.idLang ? b3Lang(element.idLang) : '';
+        if (element.name === 'status') {
+          element.options?.map((option) => {
+            const elementOption = option;
+            elementOption.label = b3Lang(option.idLang);
+            return option;
+          });
+        }
 
-          return element;
-        },
-      );
+        return element;
+      });
 
       setFilterMoreInfo(translatedFilterInfo);
     };
