@@ -1,12 +1,5 @@
-import { LangFormatFunction } from '@b3/lang';
-
-interface ShippingListStatusProps {
-  label: string;
-  value: number;
-}
-
 export interface GetFilterMoreListProps {
-  options?: Array<ShippingListStatusProps>;
+  fieldId: string;
   rows?: string | number;
   name: string;
   label: string;
@@ -18,11 +11,12 @@ export interface GetFilterMoreListProps {
   size: string;
 }
 
-export const getAccountSettingsFields = (b3Lang: LangFormatFunction): GetFilterMoreListProps[] => {
+export const getAccountSettingsFields = (): GetFilterMoreListProps[] => {
   return [
     {
       name: 'company',
-      label: b3Lang('accountSettings.form.company'),
+      fieldId: 'field_company',
+      label: 'Company',
       required: false,
       default: '',
       fieldType: 'text',
@@ -32,28 +26,11 @@ export const getAccountSettingsFields = (b3Lang: LangFormatFunction): GetFilterM
     },
     {
       name: 'role',
-      label: b3Lang('accountSettings.form.role'),
+      fieldId: 'field_role',
+      label: 'Role',
       required: false,
       default: '',
-      fieldType: 'dropdown',
-      options: [
-        {
-          label: b3Lang('accountSettings.form.admin'),
-          value: 0,
-        },
-        {
-          label: b3Lang('accountSettings.form.seniorBuyer'),
-          value: 1,
-        },
-        {
-          label: b3Lang('accountSettings.form.juniorBuyer'),
-          value: 2,
-        },
-        {
-          label: b3Lang('accountSettings.form.superAdmin'),
-          value: 3,
-        },
-      ],
+      fieldType: 'text',
       xs: 12,
       variant: 'filled',
       size: 'small',
@@ -61,11 +38,12 @@ export const getAccountSettingsFields = (b3Lang: LangFormatFunction): GetFilterM
   ];
 };
 
-export const getPasswordModifiedFields = (b3Lang: LangFormatFunction): GetFilterMoreListProps[] => {
+export const getPasswordModifiedFields = (): GetFilterMoreListProps[] => {
   return [
     {
       name: 'currentPassword',
-      label: b3Lang('accountSettings.form.currentPassword'),
+      fieldId: 'field_current_password',
+      label: 'Current Password',
       required: false,
       default: '',
       fieldType: 'password',
@@ -75,7 +53,8 @@ export const getPasswordModifiedFields = (b3Lang: LangFormatFunction): GetFilter
     },
     {
       name: 'password',
-      label: b3Lang('accountSettings.form.password'),
+      fieldId: 'field_password',
+      label: 'Password',
       required: false,
       default: '',
       fieldType: 'password',
@@ -85,7 +64,8 @@ export const getPasswordModifiedFields = (b3Lang: LangFormatFunction): GetFilter
     },
     {
       name: 'confirmPassword',
-      label: b3Lang('accountSettings.form.confirmPassword'),
+      fieldId: 'field_confirm_password',
+      label: 'Confirm Password',
       required: false,
       default: '',
       fieldType: 'password',

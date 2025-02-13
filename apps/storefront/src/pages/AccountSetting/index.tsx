@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
@@ -128,8 +128,6 @@ function AccountSetting() {
 
         const key = isBCUser ? 'customerAccountSettings' : 'accountSettings';
 
-        const { [key]: accountSettings } = await fn(params);
-
         const accountFormAllFields = await getB2BAccountFormFields(isBCUser ? 1 : 2);
         const accountFormFields = getAccountFormFields(
           accountFormAllFields.accountFormFields || [],
@@ -139,38 +137,20 @@ function AccountSetting() {
           (item: Partial<Fields>) => item.fieldId !== 'field_email_marketing_newsletter',
         );
 
-        const contactInformationTranslatedLabels = JSON.parse(JSON.stringify(contactInformation));
-
-        contactInformationTranslatedLabels.forEach(
-          (element: { fieldId: string; label: string }) => {
-            const currentElement = element;
-            if (currentElement.fieldId === 'field_first_name') {
-              currentElement.label = b3Lang('accountSettings.form.firstName');
-            }
-            if (currentElement.fieldId === 'field_last_name') {
-              currentElement.label = b3Lang('accountSettings.form.lastName');
-            }
-            if (currentElement.fieldId === 'field_email') {
-              currentElement.label = b3Lang('accountSettings.form.email');
-            }
-            if (currentElement.fieldId === 'field_phone_number') {
-              currentElement.label = b3Lang('accountSettings.form.phoneNumber');
-            }
-          },
-        );
-
         const { additionalInformation = [] } = accountFormFields;
 
+        const { [key]: accountSettings } = await fn(params);
+
         const fields = isBCUser
-          ? initBcInfo(accountSettings, contactInformationTranslatedLabels, additionalInformation)
+          ? initBcInfo(accountSettings, contactInformation, additionalInformation)
           : initB2BInfo(
               accountSettings,
-              contactInformationTranslatedLabels,
-              getAccountSettingsFields(b3Lang),
+              contactInformation,
+              getAccountSettingsFields(),
               additionalInformation,
             );
 
-        const passwordModifiedFields = getPasswordModifiedFields(b3Lang);
+        const passwordModifiedFields = getPasswordModifiedFields();
 
         const all = [...fields, ...passwordModifiedFields];
 
@@ -287,6 +267,25 @@ function AccountSetting() {
     })();
   };
 
+  const translatedFields = useMemo(() => {
+    const fieldTranslations: Record<string, string> = {
+      field_first_name: b3Lang('accountSettings.form.firstName'),
+      field_last_name: b3Lang('accountSettings.form.lastName'),
+      field_email: b3Lang('accountSettings.form.email'),
+      field_phone_number: b3Lang('accountSettings.form.phoneNumber'),
+      field_company: b3Lang('accountSettings.form.company'),
+      field_role: b3Lang('accountSettings.form.role'),
+      field_current_password: b3Lang('accountSettings.form.currentPassword'),
+      field_password: b3Lang('accountSettings.form.password'),
+      field_confirm_password: b3Lang('accountSettings.form.confirmPassword'),
+    };
+
+    return accountInfoFormFields.map((item) => ({
+      ...item,
+      label: fieldTranslations[item.fieldId ?? ''] ?? item.label,
+    }));
+  }, [accountInfoFormFields, b3Lang]);
+
   return (
     <B3Spin isSpinning={isLoading} background={backgroundColor}>
       <Box
@@ -314,7 +313,7 @@ function AccountSetting() {
         }}
       >
         <B3CustomForm
-          formFields={accountInfoFormFields}
+          formFields={translatedFields}
           errors={errors}
           control={control}
           getValues={getValues}
