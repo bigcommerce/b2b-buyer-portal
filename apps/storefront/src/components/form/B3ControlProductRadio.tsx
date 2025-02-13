@@ -27,5 +27,6 @@ export default function B3ControlProductRadio(props: Form.B3UIProps) {
     ),
   }));
 
-  return <B3ControlRadioGroup {...props} options={[NoneOption, ...newOptions]} fieldType="radio" />;
+  // @ts-expect-error to be removed once ProductRadio types are rationalized
+  return <B3ControlRadioGroup {...props} options={[NoneOption, ...newOptions]} />;
 }

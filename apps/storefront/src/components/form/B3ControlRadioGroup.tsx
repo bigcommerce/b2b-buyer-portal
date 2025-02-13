@@ -1,4 +1,4 @@
-import { Controller } from 'react-hook-form';
+import { Control, Controller, FieldErrors } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import {
   FormControl,
@@ -9,15 +9,26 @@ import {
   RadioGroup,
 } from '@mui/material';
 
-import Form from './ui';
+type B3Lang = ReturnType<typeof useB3Lang>;
 
-export default function B3ControlRadioGroup({ control, errors, ...rest }: Form.B3UIProps) {
-  const { fieldType, name, default: defaultValue, required, label, validate, options } = rest;
+export interface RadioGroupFieldProps {
+  control?: Control;
+  name: string;
+  default: string;
+  required: boolean;
+  label: string;
+  validate?: (value: string, b3Lang: B3Lang) => string | undefined;
+  errors: FieldErrors;
+  options: { value: string; label: string }[];
+}
+
+export default function B3ControlRadioGroup({ control, errors, ...rest }: RadioGroupFieldProps) {
+  const { name, default: defaultValue, required, label, validate, options } = rest;
 
   const b3Lang = useB3Lang();
 
   const fieldsProps = {
-    type: fieldType,
+    type: 'radio',
     name,
     defaultValue,
     rules: {
@@ -31,10 +42,12 @@ export default function B3ControlRadioGroup({ control, errors, ...rest }: Form.B
     control,
   };
 
-  return ['radio'].includes(fieldType) ? (
+  const fieldError = errors[name];
+
+  return (
     <FormControl>
       {label && (
-        <FormLabel error={!!errors[name]} required={required}>
+        <FormLabel error={!!fieldError} required={required}>
           {label}
         </FormLabel>
       )}
@@ -44,7 +57,7 @@ export default function B3ControlRadioGroup({ control, errors, ...rest }: Form.B
         render={({ field }) => (
           <RadioGroup {...field}>
             {options?.length &&
-              options.map((option: Form.RadioGroupListProps) => (
+              options.map((option) => (
                 <FormControlLabel
                   value={option.value}
                   label={option.label}
@@ -55,11 +68,11 @@ export default function B3ControlRadioGroup({ control, errors, ...rest }: Form.B
           </RadioGroup>
         )}
       />
-      {errors[name] && (
-        <FormHelperText error={!!errors[name]}>
-          {(errors as any)[name] ? (errors as any)[name].message : null}
+      {fieldError && (
+        <FormHelperText error={!!fieldError}>
+          {fieldError ? fieldError.message?.toString() : null}
         </FormHelperText>
       )}
     </FormControl>
-  ) : null;
+  );
 }
