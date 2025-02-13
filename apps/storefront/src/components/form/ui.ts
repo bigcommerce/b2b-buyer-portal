@@ -3,15 +3,12 @@ import { Control } from 'react-hook-form';
 import { MultiTextFieldProps } from './B2BControlMultiTextField';
 import { CheckboxFieldProps } from './B3ControlCheckbox';
 import { RadioGroupFieldProps } from './B3ControlRadioGroup';
+import { TextFieldProps } from './B3ControlTextField';
 
 namespace Form {
   interface VagueB3CustomFormValue {
     name: string;
     fieldType:
-      | 'text'
-      | 'number'
-      | 'password'
-      | 'multiline'
       | 'dropdown'
       | 'date'
       | 'files'
@@ -26,7 +23,8 @@ namespace Form {
   type SpecificB3CustomFormValue =
     | (MultiTextFieldProps & { fieldType: 'multiInputText' })
     | (RadioGroupFieldProps & { fieldType: 'radio' })
-    | (CheckboxFieldProps & { fieldType: 'checkbox' });
+    | (CheckboxFieldProps & { fieldType: 'checkbox' })
+    | TextFieldProps;
 
   export type B3CustomFormValue =
     | (SpecificB3CustomFormValue & { xs?: number })

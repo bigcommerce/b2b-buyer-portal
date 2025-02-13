@@ -1,13 +1,55 @@
-import { KeyboardEvent, WheelEvent } from 'react';
-import { Controller } from 'react-hook-form';
+import { ComponentProps, KeyboardEvent, WheelEvent } from 'react';
+import { Control, Controller, FieldErrors } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
-import { Box, TextField } from '@mui/material';
+import {
+  Box,
+  SxProps,
+  TextField,
+  TextFieldProps as MUITextFieldProps,
+  TextFieldVariants,
+} from '@mui/material';
 import debounce from 'lodash-es/debounce';
 
 import { StyleNumberTextField } from './styled';
-import Form from './ui';
 
-export default function B3ControlTextField({ control, errors, ...rest }: Form.B3UIProps) {
+type B3Lang = ReturnType<typeof useB3Lang>;
+
+export interface TextFieldProps {
+  control?: Control;
+  fieldType: 'text' | 'number' | 'password' | 'multiline';
+  name: string;
+  isAutoComplete?: boolean;
+  default: string;
+  required: boolean;
+  label: string;
+  validate: (value: string, b3Lang: B3Lang) => string | undefined;
+  variant: TextFieldVariants;
+  rows?: number;
+  min?: number;
+  max?: number;
+  minLength?: number;
+  maxLength?: number;
+  fullWidth?: boolean;
+  muiTextFieldProps?: (
+    | ComponentProps<typeof StyleNumberTextField>
+    | ComponentProps<typeof StyleNumberTextField>
+  )['inputProps'];
+  disabled?: boolean;
+  labelName?: string;
+  size?: MUITextFieldProps['size'];
+  allowArrow?: boolean;
+  readOnly: boolean;
+  sx?: SxProps;
+  isTip?: boolean;
+  tipText?: string;
+  extraPadding: { paddingTop: string };
+  fieldId?: string;
+  isEnterTrigger?: boolean;
+  errors: FieldErrors;
+  handleEnterClick?: () => void;
+}
+
+export default function B3ControlTextField({ control, errors, ...rest }: TextFieldProps) {
   const {
     fieldType,
     isAutoComplete = false,
@@ -119,7 +161,9 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
   const newExtraPadding =
     fieldId === 'field_state' && extraPadding.paddingTop === '0px' ? {} : extraPadding;
 
-  return ['text', 'number', 'password', 'multiline'].includes(fieldType) ? (
+  const fieldError = errors[name];
+
+  return (
     <>
       {labelName && (
         <Box
@@ -145,10 +189,10 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
                   ...newExtraPadding,
                 },
               }}
-              allowarrow={allowArrow ? 1 : 0}
+              allowArrow={allowArrow ? 1 : 0}
               inputProps={muiAttributeProps}
-              error={!!errors[name]}
-              helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+              error={!!fieldError}
+              helperText={fieldError ? fieldError.message?.toString() : null}
               onKeyDown={handleNumberInputKeyDown}
               onWheel={handleNumberInputWheel}
             />
@@ -168,8 +212,8 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
                 },
               }}
               inputProps={muiAttributeProps}
-              error={!!errors[name]}
-              helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+              error={!!fieldError}
+              helperText={fieldError ? fieldError.message?.toString() : null}
               onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
               {...autoCompleteFn()}
             />
@@ -188,5 +232,5 @@ export default function B3ControlTextField({ control, errors, ...rest }: Form.B3
         </Box>
       )}
     </>
-  ) : null;
+  );
 }

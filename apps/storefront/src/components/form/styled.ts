@@ -78,12 +78,12 @@ export const PickerFormControl = styled(FormControl)(() => ({
 }));
 
 interface StyleNumberTextFieldProps {
-  allowarrow?: number;
+  allowArrow?: number;
 }
 
 export const StyleNumberTextField = styled(TextField)((props: StyleNumberTextFieldProps) => {
-  const { allowarrow = 0 } = props;
-  return allowarrow
+  const { allowArrow = 0 } = props;
+  return allowArrow
     ? {}
     : {
         '& input[type="number"]': {
