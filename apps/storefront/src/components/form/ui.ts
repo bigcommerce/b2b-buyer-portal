@@ -1,6 +1,7 @@
 import { Control } from 'react-hook-form';
 
 import { MultiTextFieldProps } from './B2BControlMultiTextField';
+import { CheckboxFieldProps } from './B3ControlCheckbox';
 import { RadioGroupFieldProps } from './B3ControlRadioGroup';
 
 namespace Form {
@@ -11,7 +12,6 @@ namespace Form {
       | 'number'
       | 'password'
       | 'multiline'
-      | 'checkbox'
       | 'dropdown'
       | 'date'
       | 'files'
@@ -25,7 +25,8 @@ namespace Form {
 
   type SpecificB3CustomFormValue =
     | (MultiTextFieldProps & { fieldType: 'multiInputText' })
-    | (RadioGroupFieldProps & { fieldType: 'radio' });
+    | (RadioGroupFieldProps & { fieldType: 'radio' })
+    | (CheckboxFieldProps & { fieldType: 'checkbox' });
 
   export type B3CustomFormValue =
     | (SpecificB3CustomFormValue & { xs?: number })
