@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
-import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { TableColumnItem } from '@/components/table/B3Table';
 import { useMobile, useSort } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
@@ -313,8 +313,8 @@ function QuotesList() {
     }
   };
 
-  const fetchList = useCallback(
-    async (params: Partial<FilterSearchProps>) => {
+  const fetchList: GetRequestList<Partial<FilterSearchProps>, ListItem> = useCallback(
+    async (params) => {
       const { edges = [], totalCount } = await getQuotesList(params);
 
       if (params.offset === 0 && draftQuoteListLength) {
@@ -421,8 +421,8 @@ function QuotesList() {
           labelRowsPerPage={`${
             isMobile ? b3Lang('quotes.cardsPerPage') : b3Lang('quotes.quotesPerPage')
           }`}
-          renderItem={(row: ListItem) => <QuoteItemCard item={row} goToDetail={goToDetail} />}
-          onClickRow={(row: ListItem) => {
+          renderItem={(row) => <QuoteItemCard item={row} goToDetail={goToDetail} />}
+          onClickRow={(row) => {
             goToDetail(row, Number(row.status));
           }}
           hover

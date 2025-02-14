@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
-import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { useCardListColumn, useTableRef, useVerifyCreatePermission } from '@/hooks';
 import { GlobalContext } from '@/shared/global';
 import {
@@ -106,7 +106,9 @@ function Address() {
   }, []);
 
   const defaultParams: FilterSearchProps = {};
-  const getAddressList = async (params = defaultParams) => {
+  const getAddressList: GetRequestList<FilterSearchProps, AddressItemType> = async (
+    params = defaultParams,
+  ) => {
     let list = [];
     let count = 0;
 
@@ -290,7 +292,7 @@ function Address() {
           itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
           tableKey="id"
-          renderItem={(row: AddressItemType) => (
+          renderItem={(row) => (
             <AddressItemCard
               key={row.id}
               item={row}
