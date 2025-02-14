@@ -1,7 +1,6 @@
 import Cookies from 'js-cookie';
 
 import { Fields, ParamProps } from '@/types/accountSetting';
-import { validatorRules } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { BigCommerceStorefrontAPIBaseURL } from '@/utils/basicConfig';
 
@@ -92,104 +91,6 @@ function sendEmail(data: any, extraFields: any) {
       });
   });
 }
-
-const emailValidate = validatorRules(['email']);
-
-export const initB2BInfo = (
-  accountSettings: any,
-  contactInformation: Partial<Fields>[],
-  accountB2BFormFields: Partial<Fields>[],
-  additionalInformation: Partial<Fields>[],
-) => {
-  const extraFields = accountSettings?.extraFields || [];
-  contactInformation.forEach((item: Partial<Fields>) => {
-    const contactItem = item;
-    if (deCodeField(item?.name || '') === 'first_name') {
-      contactItem.default = accountSettings.firstName;
-    }
-    if (deCodeField(item?.name || '') === 'last_name') {
-      contactItem.default = accountSettings.lastName;
-    }
-    if (deCodeField(item?.name || '') === 'phone') {
-      contactItem.default = accountSettings.phoneNumber;
-    }
-    if (deCodeField(item?.name || '') === 'email') {
-      contactItem.default = accountSettings.email;
-      contactItem.validate = emailValidate;
-    }
-  });
-
-  if (extraFields.length > 0) {
-    extraFields.forEach((field: CustomFieldItems) => {
-      const extraField = field;
-
-      const currentField = contactInformation.find(
-        (item) => deCodeField(item?.name || '') === extraField.fieldName,
-      );
-
-      if (currentField) {
-        currentField.default = extraField.fieldValue;
-      }
-    });
-  }
-
-  accountB2BFormFields.forEach((item: Partial<Fields>) => {
-    const formField = item;
-    if (item.name === 'role') {
-      formField.default = accountSettings.companyRoleName;
-      formField.disabled = true;
-    } else if (item.name === 'company') {
-      formField.default = accountSettings.company;
-      formField.disabled = true;
-    }
-  });
-
-  additionalInformation.forEach((item: Partial<Fields>) => {
-    const formFields = (accountSettings?.formFields || []).find(
-      (field: Partial<Fields>) => field.name === item.bcLabel,
-    );
-    const infoItem = item;
-    if (formFields) infoItem.default = formFields.value;
-  });
-
-  return [...contactInformation, ...accountB2BFormFields, ...additionalInformation];
-};
-
-export const initBcInfo = (
-  accountSettings: any,
-  contactInformation: Partial<Fields>[],
-  additionalInformation: Partial<Fields>[],
-) => {
-  contactInformation.forEach((item: Partial<Fields>) => {
-    const contactInfoItem = item;
-    if (deCodeField(item?.name || '') === 'first_name') {
-      contactInfoItem.default = accountSettings.firstName;
-    }
-    if (deCodeField(item?.name || '') === 'last_name') {
-      contactInfoItem.default = accountSettings.lastName;
-    }
-    if (deCodeField(item?.name || '') === 'phone') {
-      contactInfoItem.default = accountSettings.phoneNumber;
-    }
-    if (deCodeField(item?.name || '') === 'email') {
-      contactInfoItem.default = accountSettings.email;
-      contactInfoItem.validate = emailValidate;
-    }
-    if (deCodeField(item?.name || '') === 'company') {
-      contactInfoItem.default = accountSettings.company;
-    }
-  });
-
-  additionalInformation.forEach((item: Partial<Fields>) => {
-    const formFields = (accountSettings?.formFields || []).find(
-      (field: Partial<Fields>) => field.name === item.bcLabel,
-    );
-    const infoItem = item;
-    if (formFields) infoItem.default = formFields.value;
-  });
-
-  return [...contactInformation, ...additionalInformation];
-};
 
 export const b2bSubmitDataProcessing = (
   data: CustomFieldItems,
