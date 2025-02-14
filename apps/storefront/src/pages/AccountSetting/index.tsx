@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box } from '@mui/material';
+import { keyBy, mapValues } from 'lodash-es';
 import trim from 'lodash-es/trim';
 
 import { B3CustomForm } from '@/components';
@@ -23,12 +24,12 @@ import {
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { Fields, ParamProps } from '@/types/accountSetting';
-import { B3SStorage, channelId, snackbar } from '@/utils';
+import { B3SStorage, channelId, snackbar, validatorRules } from '@/utils';
 
 import { deCodeField, getAccountFormFields } from '../Registered/config';
 
 import { getAccountSettingsFields, getPasswordModifiedFields } from './config';
-import { b2bSubmitDataProcessing, bcSubmitDataProcessing, initB2BInfo, initBcInfo } from './utils';
+import { b2bSubmitDataProcessing, bcSubmitDataProcessing } from './utils';
 
 function useData() {
   const isB2BUser = useAppSelector(isB2BUserSelector);
@@ -72,6 +73,8 @@ function useData() {
 
   return { isBCUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation };
 }
+
+const emailValidate = validatorRules(['email']);
 
 function AccountSetting() {
   const { isBCUser, companyId, customer, validateEmailValue, emailValidation, passwordValidation } =
@@ -133,32 +136,23 @@ function AccountSetting() {
           accountFormAllFields.accountFormFields || [],
         );
 
-        const contactInformation = (accountFormFields?.contactInformation || []).filter(
-          (item: Partial<Fields>) => item.fieldId !== 'field_email_marketing_newsletter',
-        );
+        const contactInformation =
+          accountFormFields?.contactInformation?.filter(
+            (item: { fieldId: string }) => item.fieldId !== 'field_email_marketing_newsletter',
+          ) ?? [];
 
-        const { additionalInformation = [] } = accountFormFields;
+        const additionalInformation = accountFormFields.additionalInformation ?? [];
 
         const { [key]: accountSettings } = await fn(params);
 
-        const fields = isBCUser
-          ? initBcInfo(accountSettings, contactInformation, additionalInformation)
-          : initB2BInfo(
-              accountSettings,
-              contactInformation,
-              getAccountSettingsFields(),
-              additionalInformation,
-            );
+        const fields = [
+          ...contactInformation,
+          ...(isBCUser ? getAccountSettingsFields() : []),
+          ...additionalInformation,
+          ...getPasswordModifiedFields(),
+        ];
 
-        const passwordModifiedFields = getPasswordModifiedFields();
-
-        const all = [...fields, ...passwordModifiedFields];
-
-        const roleItem = all.find((item) => item.name === 'role');
-
-        if (roleItem?.fieldType) roleItem.fieldType = 'text';
-
-        setAccountInfoFormFields(all);
+        setAccountInfoFormFields(fields);
 
         setAccountSettings(accountSettings);
 
@@ -280,11 +274,37 @@ function AccountSetting() {
       field_confirm_password: b3Lang('accountSettings.form.confirmPassword'),
     };
 
+    const defaultValueMap: Record<string, string> = {
+      field_first_name: accountSettings.firstName,
+      field_last_name: accountSettings.lastName,
+      field_email: accountSettings.email,
+      field_phone_number: accountSettings.phoneNumber,
+      field_company: accountSettings.company,
+      field_role: accountSettings.companyRoleName,
+    };
+
+    const extraValidation: Record<string, typeof emailValidate> = {
+      field_email: emailValidate,
+    };
+
+    const formFields = mapValues(keyBy(accountSettings.formFields, 'name'), 'value');
+    const extraFields = mapValues(keyBy(accountSettings.extraFields, 'fieldName'), 'fieldValue');
+
     return accountInfoFormFields.map((item) => ({
       ...item,
+      default:
+        defaultValueMap[item.fieldId ?? ''] ??
+        formFields[item.bcLabel ?? ''] ??
+        extraFields[item.label ?? ''] ??
+        item.default ??
+        '',
+      validate: extraValidation[item.fieldId ?? ''],
       label: fieldTranslations[item.fieldId ?? ''] ?? item.label,
+      xs: 12,
+      variant: 'filled',
+      size: 'small',
     }));
-  }, [accountInfoFormFields, b3Lang]);
+  }, [accountInfoFormFields, accountSettings, b3Lang]);
 
   return (
     <B3Spin isSpinning={isLoading} background={backgroundColor}>
