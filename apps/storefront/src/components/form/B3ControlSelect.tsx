@@ -1,13 +1,37 @@
-import { ChangeEvent } from 'react';
-import { Controller } from 'react-hook-form';
+import { Control, Controller, FieldErrors } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
+import {
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  SelectProps,
+} from '@mui/material';
 
-import Form from './ui';
+type B3Lang = ReturnType<typeof useB3Lang>;
 
-export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIProps) {
+export interface SelectFieldProps {
+  control?: Control;
+  name: string;
+  default: string;
+  required: boolean;
+  label: string;
+  validate: (value: string, b3Lang: B3Lang) => string | undefined;
+  options: { label: string; value: string }[];
+  muiSelectProps?: SelectProps<string>;
+  setValue: (name: string, value: string) => void;
+  onChange?: () => void;
+  size?: 'small' | 'medium';
+  disabled?: boolean;
+  extraPadding?: { paddingTop: string };
+  errors: FieldErrors;
+  replaceOptions?: { label: string; value: string };
+}
+
+export default function B3ControlSelect({ control, errors, ...rest }: SelectFieldProps) {
   const {
-    fieldType,
     name,
     default: defaultValue,
     required,
@@ -28,7 +52,6 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
   const muiAttributeProps = muiSelectProps || {};
 
   const fieldsProps = {
-    type: fieldType,
     name,
     defaultValue,
     rules: {
@@ -42,8 +65,8 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
     control,
   };
 
-  const onHandleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange();
+  const onHandleChange = (e: SelectChangeEvent<string>) => {
+    onChange?.();
     setValue(name, e.target.value);
   };
 
@@ -53,7 +76,9 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
       }
     : {};
 
-  return ['dropdown'].includes(fieldType) ? (
+  const fieldError = errors[name];
+
+  return (
     <FormControl
       variant="filled"
       style={{
@@ -67,7 +92,7 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
           sx={{
             color: muiSelectProps?.disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
           }}
-          error={!!errors[name]}
+          error={!!fieldError}
           required={required}
         >
           {label}
@@ -82,28 +107,31 @@ export default function B3ControlSelect({ control, errors, ...rest }: Form.B3UIP
             {...muiAttributeProps}
             {...onChangeProps}
             size={size}
-            error={!!errors[name]}
+            error={!!fieldError}
             sx={{
               ...extraPadding,
             }}
           >
             {options?.length &&
-              options.map((option: any) => (
+              options.map((option) => (
                 <MenuItem
+                  // @ts-expect-error impossible to type a possibly undefined value keying "option"
                   key={option[replaceOptions?.label || 'label']}
+                  // @ts-expect-error impossible to type a possibly undefined value keying "option"
                   value={option[replaceOptions?.value || 'value']}
                 >
-                  {option[replaceOptions?.label || 'label']}
+                  {/* @ts-expect-error impossible to type a possibly undefined value keying "option" */}
+                  {option[replaceOptions?.label || 'label']}{' '}
                 </MenuItem>
               ))}
           </Select>
         )}
       />
-      {errors[name] && (
-        <FormHelperText error={!!errors[name]}>
-          {errors[name] ? errors[name].message : null}
+      {fieldError && (
+        <FormHelperText error={!!fieldError}>
+          {fieldError ? fieldError.message?.toString() : null}
         </FormHelperText>
       )}
     </FormControl>
-  ) : null;
+  );
 }
