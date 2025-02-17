@@ -4,6 +4,7 @@ import { MultiTextFieldProps } from './B2BControlMultiTextField';
 import { CheckboxFieldProps } from './B3ControlCheckbox';
 import { FileUploadProps } from './B3ControlFileUpload';
 import { PickerFieldProps } from './B3ControlPicker';
+import { ProductRadioProps } from './B3ControlProductRadio';
 import { RadioGroupFieldProps } from './B3ControlRadioGroup';
 import { RectangleProps } from './B3ControlRectangle';
 import { SelectFieldProps } from './B3ControlSelect';
@@ -12,7 +13,7 @@ import { TextFieldProps } from './B3ControlTextField';
 namespace Form {
   interface VagueB3CustomFormValue {
     name: string;
-    fieldType: 'productRadio' | 'swatch' | 'roleAutocomplete';
+    fieldType: 'swatch' | 'roleAutocomplete';
     xs: number & undefined;
     [key: string]: string | number | Array<number | string>;
   }
@@ -25,7 +26,8 @@ namespace Form {
     | (SelectFieldProps & { fieldType: 'dropdown' })
     | (PickerFieldProps & { fieldType: 'date' })
     | (FileUploadProps & { fieldType: 'files' })
-    | (RectangleProps & { fieldType: 'rectangle' });
+    | (RectangleProps & { fieldType: 'rectangle' })
+    | (ProductRadioProps & { fieldType: 'productRadio' });
 
   export type B3CustomFormValue =
     | (SpecificB3CustomFormValue & { xs?: number })
@@ -39,21 +41,6 @@ namespace Form {
   export interface B3UIProps {
     control?: Control<VagueB3CustomFormValue>;
     [key: string]: any;
-  }
-
-  export interface RadioGroupListProps {
-    value: string;
-    label: string;
-    [key: string]: string;
-  }
-
-  export interface ProductRadioGroupListProps {
-    value: string;
-    label: string;
-    image?: {
-      alt: string;
-      data: string;
-    };
   }
 
   export interface SwatchRadioGroupListProps {

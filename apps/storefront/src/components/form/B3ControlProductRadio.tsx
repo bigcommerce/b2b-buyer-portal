@@ -1,20 +1,21 @@
 import { PRODUCT_DEFAULT_IMAGE } from '@/constants';
 
-import B3ControlRadioGroup from './B3ControlRadioGroup';
+import B3ControlRadioGroup, { RadioGroupFieldProps } from './B3ControlRadioGroup';
 import { ProductImageContainer } from './styled';
-import Form from './ui';
 
 const NoneOption = {
   label: 'None',
   value: '',
 };
 
-export default function B3ControlProductRadio(props: Form.B3UIProps) {
+export type ProductRadioProps = RadioGroupFieldProps;
+
+export default function B3ControlProductRadio(props: ProductRadioProps) {
   const { options } = props;
 
   const getProductImageUrl = (url = '') => url.replace('{:size}', 'original');
 
-  const newOptions = options.map((option: Form.ProductRadioGroupListProps) => ({
+  const newOptions = options.map((option) => ({
     ...option,
     label: (
       <ProductImageContainer>
@@ -27,6 +28,5 @@ export default function B3ControlProductRadio(props: Form.B3UIProps) {
     ),
   }));
 
-  // @ts-expect-error to be removed once ProductRadio types are rationalized
   return <B3ControlRadioGroup {...props} options={[NoneOption, ...newOptions]} />;
 }

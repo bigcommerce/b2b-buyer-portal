@@ -66,12 +66,7 @@ export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
               <B3ControlRectangle {...field} errors={errors} control={control} />
             )}
             {fieldType === 'productRadio' && (
-              <B3ControlProductRadio
-                {...field}
-                errors={errors}
-                control={control}
-                setValue={setValue}
-              />
+              <B3ControlProductRadio {...field} errors={errors} control={control} />
             )}
             {fieldType === 'swatch' && (
               <B3ControlSwatchRadio

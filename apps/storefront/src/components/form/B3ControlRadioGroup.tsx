@@ -19,7 +19,7 @@ export interface RadioGroupFieldProps {
   label: string;
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
   errors: FieldErrors;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string | JSX.Element; image?: { data: string; alt: string } }[];
 }
 
 export default function B3ControlRadioGroup({ control, errors, ...rest }: RadioGroupFieldProps) {
