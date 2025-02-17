@@ -8,12 +8,13 @@ import { ProductRadioProps } from './B3ControlProductRadio';
 import { RadioGroupFieldProps } from './B3ControlRadioGroup';
 import { RectangleProps } from './B3ControlRectangle';
 import { SelectFieldProps } from './B3ControlSelect';
+import { SwatchRadioProps } from './B3ControlSwatchRadio';
 import { TextFieldProps } from './B3ControlTextField';
 
 namespace Form {
   interface VagueB3CustomFormValue {
     name: string;
-    fieldType: 'swatch' | 'roleAutocomplete';
+    fieldType: 'roleAutocomplete';
     xs: number & undefined;
     [key: string]: string | number | Array<number | string>;
   }
@@ -27,7 +28,8 @@ namespace Form {
     | (PickerFieldProps & { fieldType: 'date' })
     | (FileUploadProps & { fieldType: 'files' })
     | (RectangleProps & { fieldType: 'rectangle' })
-    | (ProductRadioProps & { fieldType: 'productRadio' });
+    | (ProductRadioProps & { fieldType: 'productRadio' })
+    | (SwatchRadioProps & { fieldType: 'swatch' });
 
   export type B3CustomFormValue =
     | (SpecificB3CustomFormValue & { xs?: number })
@@ -41,16 +43,6 @@ namespace Form {
   export interface B3UIProps {
     control?: Control<VagueB3CustomFormValue>;
     [key: string]: any;
-  }
-
-  export interface SwatchRadioGroupListProps {
-    value: string;
-    label: string;
-    colors?: string[];
-    image?: {
-      alt?: string;
-      data?: string;
-    };
   }
 }
 

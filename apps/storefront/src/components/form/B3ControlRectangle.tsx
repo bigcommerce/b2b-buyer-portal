@@ -21,8 +21,8 @@ export interface RectangleProps {
   required?: boolean;
   label: string;
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
-  options?: { value: string | number; label: string }[];
   labelStyle?: SxProps;
+  options?: { value: string | number; label: JSX.Element | string }[];
   errors: FieldErrors;
 }
 

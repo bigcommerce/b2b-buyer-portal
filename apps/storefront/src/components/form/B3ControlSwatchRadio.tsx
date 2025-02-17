@@ -1,13 +1,16 @@
 import { Box } from '@mui/material';
 
-import B3ControlRectangle from './B3ControlRectangle';
+import B3ControlRectangle, { RectangleProps } from './B3ControlRectangle';
 import { ColorContainer } from './styled';
-import Form from './ui';
 
-export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
+export interface SwatchRadioProps extends Omit<RectangleProps, 'fieldType' | 'options'> {
+  options: { value: string | number; image?: { data: string }; colors?: string[] }[];
+}
+
+export default function B3ControlSwatchRadio(props: SwatchRadioProps) {
   const { options } = props;
 
-  const newOptions = options.map((option: Form.SwatchRadioGroupListProps) => ({
+  const newOptions = options.map((option) => ({
     ...option,
     label:
       option?.image && option?.image.data ? (
@@ -49,6 +52,5 @@ export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
     minWidth: 'initial',
   };
 
-  // @ts-expect-error to be removed once SwatchRadio props are rationalized
   return <B3ControlRectangle {...props} options={newOptions} labelStyle={labelStyle} />;
 }
