@@ -301,6 +301,7 @@ function ContactInfo(
           </Box>
 
           <B3CustomForm
+            // @ts-expect-error B3CustomForm used to take formFields as any
             formFields={data.infos}
             errors={errors}
             control={control}

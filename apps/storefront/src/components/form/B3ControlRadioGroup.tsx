@@ -44,7 +44,7 @@ export default function B3ControlRadioGroup({ control, errors, ...rest }: Form.B
         render={({ field }) => (
           <RadioGroup {...field}>
             {options?.length &&
-              options.map((option: Form.RadopGroupListProps) => (
+              options.map((option: Form.RadioGroupListProps) => (
                 <FormControlLabel
                   value={option.value}
                   label={option.label}

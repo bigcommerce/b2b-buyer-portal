@@ -57,7 +57,7 @@ export default function B3ControlRectangle({ control, errors, ...rest }: Form.B3
             {...field}
           >
             {options?.length &&
-              options.map((option: Form.RadopGroupListProps) => {
+              options.map((option: Form.RadioGroupListProps) => {
                 const isActive = field.value.toString() === option.value.toString();
                 return (
                   <StyleRectangleFormControlLabel

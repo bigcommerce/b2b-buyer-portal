@@ -602,6 +602,7 @@ export default function ChooseOptionsDialog(props: ChooseOptionsDialogProps) {
               />
 
               <B3CustomForm
+                // @ts-expect-error B3CustomForm used to take formFields as any
                 formFields={formFields}
                 errors={errors}
                 control={control}

@@ -18,7 +18,8 @@
     "coverage": "vitest --coverage",
     "generate": "graphql-codegen",
     "generate:local": "CODEGEN_ENV=local graphql-codegen",
-    "start": "http-server ./dist --cors"
+    "start": "http-server ./dist --cors",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@b3/global-b3": "*",

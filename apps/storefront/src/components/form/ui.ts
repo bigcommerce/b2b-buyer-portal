@@ -9,7 +9,7 @@ namespace Form {
   }
 
   export interface B3CustomFormProps {
-    formFields?: {}[];
+    formFields?: B3CustomFormValue[];
     [key: string]: any;
   }
 
@@ -18,7 +18,7 @@ namespace Form {
     [key: string]: any;
   }
 
-  export interface RadopGroupListProps {
+  export interface RadioGroupListProps {
     value: string;
     label: string;
     [key: string]: string;

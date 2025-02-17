@@ -433,6 +433,7 @@ export default function OrderDialog({
                 {b3Lang('purchasedProducts.orderDialog.additionalInformation')}
               </Typography>
               <B3CustomForm
+                // @ts-expect-error B3CustomForm used to take formFields as any
                 formFields={returnFormFields}
                 errors={errors}
                 control={control}
