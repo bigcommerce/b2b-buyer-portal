@@ -49,12 +49,6 @@ export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
     minWidth: 'initial',
   };
 
-  return (
-    <B3ControlRectangle
-      {...props}
-      options={newOptions}
-      fieldType="rectangle"
-      labelStyle={labelStyle}
-    />
-  );
+  // @ts-expect-error to be removed once SwatchRadio props are rationalized
+  return <B3ControlRectangle {...props} options={newOptions} labelStyle={labelStyle} />;
 }

@@ -5,13 +5,14 @@ import { CheckboxFieldProps } from './B3ControlCheckbox';
 import { FileUploadProps } from './B3ControlFileUpload';
 import { PickerFieldProps } from './B3ControlPicker';
 import { RadioGroupFieldProps } from './B3ControlRadioGroup';
+import { RectangleProps } from './B3ControlRectangle';
 import { SelectFieldProps } from './B3ControlSelect';
 import { TextFieldProps } from './B3ControlTextField';
 
 namespace Form {
   interface VagueB3CustomFormValue {
     name: string;
-    fieldType: 'rectangle' | 'productRadio' | 'swatch' | 'roleAutocomplete';
+    fieldType: 'productRadio' | 'swatch' | 'roleAutocomplete';
     xs: number & undefined;
     [key: string]: string | number | Array<number | string>;
   }
@@ -23,7 +24,8 @@ namespace Form {
     | TextFieldProps
     | (SelectFieldProps & { fieldType: 'dropdown' })
     | (PickerFieldProps & { fieldType: 'date' })
-    | (FileUploadProps & { fieldType: 'files' });
+    | (FileUploadProps & { fieldType: 'files' })
+    | (RectangleProps & { fieldType: 'rectangle' });
 
   export type B3CustomFormValue =
     | (SpecificB3CustomFormValue & { xs?: number })
