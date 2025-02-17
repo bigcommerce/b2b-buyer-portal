@@ -1,6 +1,5 @@
-import { Control } from 'react-hook-form';
-
 import { MultiTextFieldProps } from './B2BControlMultiTextField';
+import { AutocompleteProps } from './B3ControlAutocomplete';
 import { CheckboxFieldProps } from './B3ControlCheckbox';
 import { FileUploadProps } from './B3ControlFileUpload';
 import { PickerFieldProps } from './B3ControlPicker';
@@ -12,13 +11,6 @@ import { SwatchRadioProps } from './B3ControlSwatchRadio';
 import { TextFieldProps } from './B3ControlTextField';
 
 namespace Form {
-  interface VagueB3CustomFormValue {
-    name: string;
-    fieldType: 'roleAutocomplete';
-    xs: number & undefined;
-    [key: string]: string | number | Array<number | string>;
-  }
-
   type SpecificB3CustomFormValue =
     | (MultiTextFieldProps & { fieldType: 'multiInputText' })
     | (RadioGroupFieldProps & { fieldType: 'radio' })
@@ -29,19 +21,13 @@ namespace Form {
     | (FileUploadProps & { fieldType: 'files' })
     | (RectangleProps & { fieldType: 'rectangle' })
     | (ProductRadioProps & { fieldType: 'productRadio' })
-    | (SwatchRadioProps & { fieldType: 'swatch' });
+    | (SwatchRadioProps & { fieldType: 'swatch' })
+    | (AutocompleteProps & { fieldType: 'roleAutocomplete' });
 
-  export type B3CustomFormValue =
-    | (SpecificB3CustomFormValue & { xs?: number })
-    | VagueB3CustomFormValue;
+  export type B3CustomFormValue = SpecificB3CustomFormValue & { xs?: number };
 
   export interface B3CustomFormProps {
     formFields?: B3CustomFormValue[];
-    [key: string]: any;
-  }
-
-  export interface B3UIProps {
-    control?: Control<VagueB3CustomFormValue>;
     [key: string]: any;
   }
 }
