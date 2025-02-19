@@ -8,6 +8,7 @@ import {
   PathValue,
   UseFormGetValues,
   UseFormSetError,
+  UseFormSetValue,
 } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Add, Clear } from '@mui/icons-material';
@@ -54,7 +55,7 @@ export interface MultiTextFieldProps<T extends FieldValues> {
   InputProps?: InputProps;
   existValue: string[];
   setError: UseFormSetError<T>;
-  setValue: (name: string, value: string) => void;
+  setValue: UseFormSetValue<T>;
   errors: FieldErrors<T>;
 }
 
@@ -148,6 +149,7 @@ export default function B2BControlMultiTextField<T extends FieldValues>({
     } else {
       const newItems = uniq(concat(existValue, currentValue.length ? [currentValue] : []));
 
+      // @ts-expect-error - setValue does not know that values should be of type string
       setValue(name, '');
       if (handleSave) handleSave(newItems);
     }

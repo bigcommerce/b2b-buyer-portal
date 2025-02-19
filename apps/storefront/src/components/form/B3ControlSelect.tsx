@@ -1,4 +1,12 @@
-import { Control, Controller, FieldErrors, FieldValues, Path, PathValue } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  FieldValues,
+  Path,
+  PathValue,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import {
   FormControl,
@@ -21,7 +29,7 @@ export interface SelectFieldProps<T extends FieldValues> {
   validate: (value: string, b3Lang: B3Lang) => string | undefined;
   options: { label: string; value: string }[];
   muiSelectProps?: SelectProps<string>;
-  setValue: (name: string, value: string) => void;
+  setValue: UseFormSetValue<T>;
   onChange?: () => void;
   size?: 'small' | 'medium';
   disabled?: boolean;
@@ -71,6 +79,7 @@ export default function B3ControlSelect<T extends FieldValues>({
 
   const onHandleChange = (e: SelectChangeEvent<string>) => {
     onChange?.();
+    // @ts-expect-error - setValue does not know that values should be of type string
     setValue(name, e.target.value);
   };
 

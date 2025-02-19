@@ -4,6 +4,7 @@ import {
   FieldValues,
   UseFormGetValues,
   UseFormSetError,
+  UseFormSetValue,
 } from 'react-hook-form';
 
 import { MultiTextFieldProps } from './B2BControlMultiTextField';
@@ -41,7 +42,7 @@ namespace Form {
     errors: FieldErrors<T>;
     control?: Control<T>;
     getValues: UseFormGetValues<T>;
-    setValue: any;
+    setValue: UseFormSetValue<T>;
     setError?: UseFormSetError<T>;
   }
 }

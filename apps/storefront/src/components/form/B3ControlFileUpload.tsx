@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { Control, FieldErrors, FieldValues, Path, UseFormSetError } from 'react-hook-form';
+import {
+  Control,
+  FieldErrors,
+  FieldValues,
+  Path,
+  UseFormSetError,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone';
 import { useB3Lang } from '@b3/lang';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
@@ -54,7 +61,7 @@ const getMaxFileSizeLabel = (maxSize: number) => {
 export interface FileUploadProps<T extends FieldValues> {
   control?: Control<T>;
   name: Path<T>;
-  setValue?: (name: string, value: File[]) => void;
+  setValue?: UseFormSetValue<T>;
   label: string;
   acceptedFiles?: string[];
   filesLimit?: number;
@@ -138,6 +145,7 @@ export default function B3ControlFileUpload<T extends FieldValues>(props: FileUp
       }
     }
     if (setValue) {
+      // @ts-expect-error - setValue does not know that values should be of type File[]
       setValue(name, files);
     }
   };

@@ -7,6 +7,7 @@ import {
   Path,
   PathValue,
   UseFormGetValues,
+  UseFormSetValue,
 } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, TextField } from '@mui/material';
@@ -31,7 +32,7 @@ export interface PickerFieldProps<T extends FieldValues> {
   label: string;
   validate: (value: string, b3Lang: B3Lang) => string | undefined;
   muiTextFieldProps?: DatePickerProps<Date, Date>;
-  setValue: (name: string, value: string | Date | null) => void;
+  setValue: UseFormSetValue<T>;
   variant: 'filled' | 'outlined' | 'standard';
   getValues: UseFormGetValues<T>;
   errors: FieldErrors<T>;
@@ -87,8 +88,10 @@ export default function B3ControlPicker<T extends FieldValues>({
 
   const handleDatePickerChange = (value: Date | null) => {
     try {
+      // @ts-expect-error - setValue does not know that values should be of type Date
       setValue(name, dayjs(value).format(inputFormat));
     } catch (error) {
+      // @ts-expect-error - setValue does not know that values should be of type Date
       setValue(name, value);
     }
   };
