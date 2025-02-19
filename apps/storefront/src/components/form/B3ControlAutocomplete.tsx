@@ -6,6 +6,7 @@ import {
   FieldValues,
   Path,
   PathValue,
+  UseFormGetValues,
   useWatch,
 } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
@@ -41,7 +42,7 @@ export interface AutocompleteProps<T extends FieldValues> {
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
   muiSelectProps?: MuiAutocompleteProps & { disabled?: boolean };
   setValue: (name: string, value: string) => void;
-  getValues: () => Record<string, string>;
+  getValues: UseFormGetValues<T>;
   setValueName?: (value: string) => void;
   size?: MuiAutocompleteProps['size'];
   disabled?: boolean;

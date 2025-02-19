@@ -1,5 +1,13 @@
 import { useContext, useRef, useState } from 'react';
-import { Control, Controller, FieldErrors, FieldValues, Path, PathValue } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  FieldValues,
+  Path,
+  PathValue,
+  UseFormGetValues,
+} from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -25,7 +33,7 @@ export interface PickerFieldProps<T extends FieldValues> {
   muiTextFieldProps?: DatePickerProps<Date, Date>;
   setValue: (name: string, value: string | Date | null) => void;
   variant: 'filled' | 'outlined' | 'standard';
-  getValues: (name: string) => Date;
+  getValues: UseFormGetValues<T>;
   errors: FieldErrors<T>;
 }
 

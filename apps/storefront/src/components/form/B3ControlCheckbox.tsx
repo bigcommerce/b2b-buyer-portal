@@ -1,4 +1,12 @@
-import { Control, Controller, FieldErrors, FieldValues, Path, PathValue } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  FieldValues,
+  Path,
+  PathValue,
+  UseFormGetValues,
+} from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Checkbox, FormControl, FormControlLabel, FormHelperText, FormLabel } from '@mui/material';
 
@@ -12,7 +20,7 @@ export interface CheckboxFieldProps<T extends FieldValues> {
   default?: PathValue<T, Path<T>>;
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
   errors: FieldErrors<T>;
-  getValues: () => Record<string, string[]>;
+  getValues: UseFormGetValues<T>;
   options: { value: string; label: string }[];
 }
 
@@ -42,7 +50,8 @@ export default function B3ControlCheckbox<T extends FieldValues>({
   };
 
   const handleCheck = (value: number | string, name: string) => {
-    const getAllValue = getValues()[name] || [];
+    // getValues returns any and cannot guarantee the key of name brings back a string[]
+    const getAllValue: string[] = getValues()[name] || [];
     const valueString = `${value}`;
 
     const newValue = getAllValue?.find((id) => `${id}` === valueString)

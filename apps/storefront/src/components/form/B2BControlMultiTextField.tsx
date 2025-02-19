@@ -6,6 +6,7 @@ import {
   FieldValues,
   Path,
   PathValue,
+  UseFormGetValues,
   UseFormSetError,
 } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
@@ -48,7 +49,7 @@ export interface MultiTextFieldProps<T extends FieldValues> {
   tipText?: string;
   extraPadding?: SxProps;
   isEnterTrigger?: boolean;
-  getValues: (name: string) => string;
+  getValues: UseFormGetValues<T>;
   handleSave?: (newItems: string[]) => void;
   InputProps?: InputProps;
   existValue: string[];
