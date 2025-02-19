@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Control, FieldError, FieldErrors, FieldValues } from 'react-hook-form';
+import { Control, FieldErrors, FieldValues, Path, UseFormSetError } from 'react-hook-form';
 import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone';
 import { useB3Lang } from '@b3/lang';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
@@ -53,7 +53,7 @@ const getMaxFileSizeLabel = (maxSize: number) => {
 
 export interface FileUploadProps<T extends FieldValues> {
   control?: Control<T>;
-  name: string;
+  name: Path<T>;
   setValue?: (name: string, value: File[]) => void;
   label: string;
   acceptedFiles?: string[];
@@ -63,7 +63,7 @@ export interface FileUploadProps<T extends FieldValues> {
   previewText?: string;
   default?: File[];
   labelColor?: string;
-  setError: (name: string, error: FieldError) => void;
+  setError?: UseFormSetError<T>;
   errors?: FieldErrors<T>;
   required?: boolean;
 }
@@ -121,7 +121,7 @@ export default function B3ControlFileUpload<T extends FieldValues>(props: FileUp
 
   const handleFilesChange = (files: File[]) => {
     if (deleteCount > 0 && files.length === 0 && required) {
-      setError(name, {
+      setError?.(name, {
         type: 'required',
         message: b3Lang('global.validate.required', {
           label,

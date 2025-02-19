@@ -1,4 +1,4 @@
-import { Control, FieldErrors, FieldValues } from 'react-hook-form';
+import { Control, FieldErrors, FieldValues, UseFormSetError } from 'react-hook-form';
 
 import { MultiTextFieldProps } from './B2BControlMultiTextField';
 import { AutocompleteProps } from './B3ControlAutocomplete';
@@ -36,7 +36,7 @@ namespace Form {
     control?: Control<T>;
     getValues: any;
     setValue: any;
-    setError?: any;
+    setError?: UseFormSetError<T>;
   }
 }
 

@@ -2,11 +2,11 @@ import { KeyboardEvent } from 'react';
 import {
   Control,
   Controller,
-  FieldError,
   FieldErrors,
   FieldValues,
   Path,
   PathValue,
+  UseFormSetError,
 } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Add, Clear } from '@mui/icons-material';
@@ -52,7 +52,7 @@ export interface MultiTextFieldProps<T extends FieldValues> {
   handleSave?: (newItems: string[]) => void;
   InputProps?: InputProps;
   existValue: string[];
-  setError: (name: string, error: FieldError) => void;
+  setError: UseFormSetError<T>;
   setValue: (name: string, value: string) => void;
   errors: FieldErrors<T>;
 }
