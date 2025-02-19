@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Control, FieldError, FieldErrors } from 'react-hook-form';
+import { Control, FieldError, FieldErrors, FieldValues } from 'react-hook-form';
 import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone';
 import { useB3Lang } from '@b3/lang';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
@@ -51,8 +51,8 @@ const getMaxFileSizeLabel = (maxSize: number) => {
   return `${maxSize}B`;
 };
 
-export interface FileUploadProps {
-  control?: Control;
+export interface FileUploadProps<T extends FieldValues> {
+  control?: Control<T>;
   name: string;
   setValue?: (name: string, value: File[]) => void;
   label: string;
@@ -64,11 +64,11 @@ export interface FileUploadProps {
   default?: File[];
   labelColor?: string;
   setError: (name: string, error: FieldError) => void;
-  errors: FieldErrors;
+  errors?: FieldErrors<T>;
   required?: boolean;
 }
 
-export default function B3ControlFileUpload(props: FileUploadProps) {
+export default function B3ControlFileUpload<T extends FieldValues>(props: FileUploadProps<T>) {
   const b3Lang = useB3Lang();
 
   const {
@@ -83,10 +83,11 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
     label,
     labelColor = 'text.primary',
     required,
-    errors = {},
+    errors: optionalErrors,
     setError,
     control,
   } = props;
+  const errors: FieldErrors<T> = optionalErrors || {};
   const [deleteCount, setDeleteCount] = useState(0);
 
   const getRejectMessage = (rejectedFile: File, acceptedFiles: string[], maxFileSize: number) => {

@@ -1,13 +1,15 @@
+import { FieldValues } from 'react-hook-form';
 import { Box } from '@mui/material';
 
 import B3ControlRectangle, { RectangleProps } from './B3ControlRectangle';
 import { ColorContainer } from './styled';
 
-export interface SwatchRadioProps extends Omit<RectangleProps, 'fieldType' | 'options'> {
+export interface SwatchRadioProps<T extends FieldValues>
+  extends Omit<RectangleProps<T>, 'fieldType' | 'options'> {
   options: { value: string | number; image?: { data: string }; colors?: string[] }[];
 }
 
-export default function B3ControlSwatchRadio(props: SwatchRadioProps) {
+export default function B3ControlSwatchRadio<T extends FieldValues>(props: SwatchRadioProps<T>) {
   const { options } = props;
 
   const newOptions = options.map((option) => ({

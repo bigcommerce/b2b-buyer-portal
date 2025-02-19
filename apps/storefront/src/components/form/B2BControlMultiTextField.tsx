@@ -1,5 +1,13 @@
 import { KeyboardEvent } from 'react';
-import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldError,
+  FieldErrors,
+  FieldValues,
+  Path,
+  PathValue,
+} from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Add, Clear } from '@mui/icons-material';
 import {
@@ -16,11 +24,11 @@ import isEmpty from 'lodash-es/isEmpty';
 
 type B3Lang = ReturnType<typeof useB3Lang>;
 
-export interface MultiTextFieldProps {
-  control?: Control;
-  name: string;
+export interface MultiTextFieldProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
   isAutoComplete?: boolean;
-  default: string;
+  default: PathValue<T, Path<T>>;
   required: boolean;
   label: string;
   validate: (value: string, b3Lang: B3Lang) => string | undefined;
@@ -49,11 +57,11 @@ export interface MultiTextFieldProps {
   errors: FieldErrors;
 }
 
-export default function B2BControlMultiTextField({
+export default function B2BControlMultiTextField<T extends FieldValues>({
   control,
   errors,
   ...rest
-}: MultiTextFieldProps) {
+}: MultiTextFieldProps<T>) {
   const {
     isAutoComplete = false,
     name,

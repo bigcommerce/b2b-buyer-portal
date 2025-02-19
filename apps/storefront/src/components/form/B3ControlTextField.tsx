@@ -1,5 +1,5 @@
 import { ComponentProps, KeyboardEvent, WheelEvent } from 'react';
-import { Control, Controller, FieldErrors } from 'react-hook-form';
+import { Control, Controller, FieldErrors, FieldValues, Path, PathValue } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import {
   Box,
@@ -14,12 +14,12 @@ import { StyleNumberTextField } from './styled';
 
 type B3Lang = ReturnType<typeof useB3Lang>;
 
-export interface TextFieldProps {
-  control?: Control;
+export interface TextFieldProps<T extends FieldValues> {
+  control?: Control<T>;
   fieldType: 'text' | 'number' | 'password' | 'multiline';
-  name: string;
+  name: Path<T>;
   isAutoComplete?: boolean;
-  default: string;
+  default: PathValue<T, Path<T>>;
   required: boolean;
   label: string;
   validate: (value: string, b3Lang: B3Lang) => string | undefined;
@@ -49,7 +49,11 @@ export interface TextFieldProps {
   handleEnterClick?: () => void;
 }
 
-export default function B3ControlTextField({ control, errors, ...rest }: TextFieldProps) {
+export default function B3ControlTextField<T extends FieldValues>({
+  control,
+  errors,
+  ...rest
+}: TextFieldProps<T>) {
   const {
     fieldType,
     isAutoComplete = false,

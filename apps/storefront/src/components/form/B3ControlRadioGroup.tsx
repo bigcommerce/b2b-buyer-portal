@@ -1,4 +1,4 @@
-import { Control, Controller, FieldErrors } from 'react-hook-form';
+import { Control, Controller, FieldErrors, FieldValues, Path, PathValue } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import {
   FormControl,
@@ -11,10 +11,10 @@ import {
 
 type B3Lang = ReturnType<typeof useB3Lang>;
 
-export interface RadioGroupFieldProps {
-  control?: Control;
-  name: string;
-  default: string;
+export interface RadioGroupFieldProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
+  default: PathValue<T, Path<T>>;
   required: boolean;
   label: string;
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
@@ -22,7 +22,11 @@ export interface RadioGroupFieldProps {
   options: { value: string; label: string | JSX.Element; image?: { data: string; alt: string } }[];
 }
 
-export default function B3ControlRadioGroup({ control, errors, ...rest }: RadioGroupFieldProps) {
+export default function B3ControlRadioGroup<T extends FieldValues>({
+  control,
+  errors,
+  ...rest
+}: RadioGroupFieldProps<T>) {
   const { name, default: defaultValue, required, label, validate, options } = rest;
 
   const b3Lang = useB3Lang();

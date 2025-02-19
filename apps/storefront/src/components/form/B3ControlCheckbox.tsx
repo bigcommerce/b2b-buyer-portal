@@ -1,27 +1,27 @@
-import { Control, Controller, FieldErrors } from 'react-hook-form';
+import { Control, Controller, FieldErrors, FieldValues, Path, PathValue } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Checkbox, FormControl, FormControlLabel, FormHelperText, FormLabel } from '@mui/material';
 
 type B3Lang = ReturnType<typeof useB3Lang>;
 
-export interface CheckboxFieldProps {
-  control?: Control;
-  name: string;
+export interface CheckboxFieldProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
   required?: boolean;
   label: string;
-  default?: string;
+  default?: PathValue<T, Path<T>>;
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
   errors: FieldErrors;
   getValues: () => Record<string, string[]>;
   options: { value: string; label: string }[];
 }
 
-export default function B3ControlCheckbox({
+export default function B3ControlCheckbox<T extends FieldValues>({
   control,
   errors,
   getValues,
   ...rest
-}: CheckboxFieldProps) {
+}: CheckboxFieldProps<T>) {
   const { default: defaultValue, name, required, label, validate, options } = rest;
 
   const b3Lang = useB3Lang();

@@ -1,5 +1,5 @@
 import { useContext, useRef, useState } from 'react';
-import { Control, Controller, FieldErrors } from 'react-hook-form';
+import { Control, Controller, FieldErrors, FieldValues, Path, PathValue } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -15,10 +15,10 @@ import { PickerFormControl } from './styled';
 
 type B3Lang = ReturnType<typeof useB3Lang>;
 
-export interface PickerFieldProps {
-  control?: Control;
-  name: string;
-  default: Date;
+export interface PickerFieldProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
+  default: PathValue<T, Path<T>>;
   required: boolean;
   label: string;
   validate: (value: string, b3Lang: B3Lang) => string | undefined;
@@ -29,7 +29,11 @@ export interface PickerFieldProps {
   errors: FieldErrors;
 }
 
-export default function B3ControlPicker({ control, errors, ...rest }: PickerFieldProps) {
+export default function B3ControlPicker<T extends FieldValues>({
+  control,
+  errors,
+  ...rest
+}: PickerFieldProps<T>) {
   const {
     name,
     default: defaultValue,

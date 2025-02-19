@@ -1,4 +1,4 @@
-import { Control, Controller, FieldErrors } from 'react-hook-form';
+import { Control, Controller, FieldErrors, FieldValues, Path, PathValue } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import {
   FormControl,
@@ -14,10 +14,10 @@ import { StyleRectangleFormControlLabel } from './styled';
 
 type B3Lang = ReturnType<typeof useB3Lang>;
 
-export interface RectangleProps {
-  control?: Control;
-  name: string;
-  default?: string;
+export interface RectangleProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
+  default?: PathValue<T, Path<T>>;
   required?: boolean;
   label: string;
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
@@ -26,7 +26,11 @@ export interface RectangleProps {
   errors: FieldErrors;
 }
 
-export default function B3ControlRectangle({ control, errors, ...rest }: RectangleProps) {
+export default function B3ControlRectangle<T extends FieldValues>({
+  control,
+  errors,
+  ...rest
+}: RectangleProps<T>) {
   const { name, default: defaultValue, required, label, validate, options, labelStyle = {} } = rest;
 
   const b3Lang = useB3Lang();

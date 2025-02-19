@@ -1,5 +1,13 @@
 import { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { Control, Controller, FieldErrors, useWatch } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  FieldValues,
+  Path,
+  PathValue,
+  useWatch,
+} from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import {
   Autocomplete,
@@ -23,10 +31,10 @@ const first = 10;
 type B3Lang = ReturnType<typeof useB3Lang>;
 type MuiAutocompleteProps = GenericMuiAutocompleteProps<Option, false, true, false, 'div'>;
 
-export interface AutocompleteProps {
-  control?: Control;
-  name: string;
-  default?: string;
+export interface AutocompleteProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
+  default?: PathValue<T, Path<T>>;
   defaultName?: string;
   required?: boolean;
   label: string;
@@ -41,7 +49,11 @@ export interface AutocompleteProps {
   errors: FieldErrors;
 }
 
-export default function B3ControlAutocomplete({ control, errors, ...rest }: AutocompleteProps) {
+export default function B3ControlAutocomplete<T extends FieldValues>({
+  control,
+  errors,
+  ...rest
+}: AutocompleteProps<T>) {
   const {
     name,
     default: defaultValue,
@@ -76,7 +88,8 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Auto
     preSelectValue: '',
   });
 
-  const inputNameKey = `${name}Name`;
+  // @ts-expect-error - Typescript cannot guarantee that a key of `${name}Name` exists in T
+  const inputNameKey: Path<T> = `${name}Name`;
   const nameKey = useWatch({
     control,
     name: inputNameKey,

@@ -1,3 +1,4 @@
+import { FieldValues } from 'react-hook-form';
 import { Grid } from '@mui/material';
 
 import B3UI from './form/ui';
@@ -15,10 +16,10 @@ import {
   B3ControlTextField,
 } from './form';
 
-export default function B3CustomForm(props: B3UI.B3CustomFormProps) {
+export default function B3CustomForm<T extends FieldValues>(props: B3UI.B3CustomFormProps<T>) {
   const { formFields, errors, control, getValues, setValue, setError } = props;
 
-  const renderFormFields = (fields: B3UI.B3CustomFormValue[]) =>
+  const renderFormFields = (fields: B3UI.B3CustomFormValue<T>[]) =>
     fields.map((field) => {
       const { fieldType } = field;
       return (
