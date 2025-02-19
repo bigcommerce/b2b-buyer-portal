@@ -26,7 +26,7 @@ export interface SelectFieldProps<T extends FieldValues> {
   size?: 'small' | 'medium';
   disabled?: boolean;
   extraPadding?: { paddingTop: string };
-  errors: FieldErrors;
+  errors: FieldErrors<T>;
   replaceOptions?: { label: string; value: string };
 }
 

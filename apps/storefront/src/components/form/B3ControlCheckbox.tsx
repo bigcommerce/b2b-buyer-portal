@@ -11,7 +11,7 @@ export interface CheckboxFieldProps<T extends FieldValues> {
   label: string;
   default?: PathValue<T, Path<T>>;
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
-  errors: FieldErrors;
+  errors: FieldErrors<T>;
   getValues: () => Record<string, string[]>;
   options: { value: string; label: string }[];
 }

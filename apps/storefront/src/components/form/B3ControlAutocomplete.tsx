@@ -46,7 +46,7 @@ export interface AutocompleteProps<T extends FieldValues> {
   size?: MuiAutocompleteProps['size'];
   disabled?: boolean;
   extraPadding?: SxProps;
-  errors: FieldErrors;
+  errors: FieldErrors<T>;
 }
 
 export default function B3ControlAutocomplete<T extends FieldValues>({

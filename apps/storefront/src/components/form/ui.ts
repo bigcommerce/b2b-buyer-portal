@@ -1,4 +1,4 @@
-import { Control, FieldValues } from 'react-hook-form';
+import { Control, FieldErrors, FieldValues } from 'react-hook-form';
 
 import { MultiTextFieldProps } from './B2BControlMultiTextField';
 import { AutocompleteProps } from './B3ControlAutocomplete';
@@ -32,7 +32,7 @@ namespace Form {
 
   export interface B3CustomFormProps<T extends FieldValues> {
     formFields?: B3CustomFormValue<T>[];
-    errors: any;
+    errors: FieldErrors<T>;
     control?: Control<T>;
     getValues: any;
     setValue: any;

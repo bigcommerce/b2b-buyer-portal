@@ -45,7 +45,7 @@ export interface TextFieldProps<T extends FieldValues> {
   extraPadding: { paddingTop: string };
   fieldId?: string;
   isEnterTrigger?: boolean;
-  errors: FieldErrors;
+  errors: FieldErrors<T>;
   handleEnterClick?: () => void;
 }
 

@@ -18,7 +18,7 @@ export interface RadioGroupFieldProps<T extends FieldValues> {
   required: boolean;
   label: string;
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
-  errors: FieldErrors;
+  errors: FieldErrors<T>;
   options: { value: string; label: string | JSX.Element; image?: { data: string; alt: string } }[];
 }
 

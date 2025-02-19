@@ -54,7 +54,7 @@ export interface MultiTextFieldProps<T extends FieldValues> {
   existValue: string[];
   setError: (name: string, error: FieldError) => void;
   setValue: (name: string, value: string) => void;
-  errors: FieldErrors;
+  errors: FieldErrors<T>;
 }
 
 export default function B2BControlMultiTextField<T extends FieldValues>({

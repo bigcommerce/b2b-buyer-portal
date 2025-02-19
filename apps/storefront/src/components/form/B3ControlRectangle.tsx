@@ -23,7 +23,7 @@ export interface RectangleProps<T extends FieldValues> {
   validate?: (value: string, b3Lang: B3Lang) => string | undefined;
   labelStyle?: SxProps;
   options?: { value: string | number; label: JSX.Element | string }[];
-  errors: FieldErrors;
+  errors: FieldErrors<T>;
 }
 
 export default function B3ControlRectangle<T extends FieldValues>({

@@ -26,7 +26,7 @@ export interface PickerFieldProps<T extends FieldValues> {
   setValue: (name: string, value: string | Date | null) => void;
   variant: 'filled' | 'outlined' | 'standard';
   getValues: (name: string) => Date;
-  errors: FieldErrors;
+  errors: FieldErrors<T>;
 }
 
 export default function B3ControlPicker<T extends FieldValues>({
