@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEvent, ReactElement, ReactNode, useContext, useState } from 'react';
+import { ChangeEvent, FC, MouseEvent, ReactElement, ReactNode, useContext, useState } from 'react';
 import { useB3Lang } from '@b3/lang';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -26,26 +26,42 @@ import { b3HexToRgb, getContrastColor } from '../outSideComponents/utils/b3Custo
 
 import B3NoData from './B3NoData';
 
+interface NodeWrapper<T extends object> {
+  node: T;
+}
+
+export type PossibleNodeWrapper<T extends object> = T | NodeWrapper<T>;
+
+export const isNodeWrapper = <T extends object>(
+  item: PossibleNodeWrapper<T>,
+): item is NodeWrapper<T> => 'node' in item;
+
+export type WithRowControls<T> = T & {
+  id?: string | number;
+  isCollapse?: boolean;
+  disableCurrentCheckbox?: boolean;
+};
+
 export interface Pagination {
   offset: number;
   first: number;
   count: number;
 }
 
-export interface TableColumnItem<T> {
+export interface TableColumnItem<Row> {
   key: string;
   title: string;
   width?: string;
-  render?: (item: T, index: number) => ReactNode;
+  render?: (row: Row, index: number) => ReactNode;
   style?: { [key: string]: string };
   isSortable?: boolean;
 }
 
-interface TableProps<T> {
+interface TableProps<Row> {
   tableFixed?: boolean;
   tableHeaderHide?: boolean;
-  columnItems: TableColumnItem<T>[];
-  listItems: Array<any>;
+  columnItems: TableColumnItem<Row>[];
+  listItems: PossibleNodeWrapper<WithRowControls<Row>>[];
   itemSpacing?: number;
   itemIsMobileSpacing?: number;
   itemXs?: number;
@@ -54,11 +70,11 @@ interface TableProps<T> {
   rowsPerPageOptions?: number[];
   showPagination?: boolean;
   renderItem?: (
-    row: T,
+    row: Row,
     index?: number,
     checkBox?: (disable?: boolean) => ReactElement,
   ) => ReactElement;
-  CollapseComponent?: (row: { row: T }) => ReactElement;
+  CollapseComponent?: FC<{ row: Row }>;
   isCustomRender?: boolean;
   isInfiniteScroll?: boolean;
   isLoading?: boolean;
@@ -76,7 +92,7 @@ interface TableProps<T> {
   labelRowsPerPage?: string;
   disableCheckbox?: boolean;
   applyAllDisableCheckbox?: boolean;
-  onClickRow?: (item: any, index?: number) => void;
+  onClickRow?: (row: Row, index?: number) => void;
   showRowsPerPageOptions?: boolean;
   isSelectOtherPageCheckbox?: boolean;
   isAllSelect?: boolean;
@@ -85,10 +101,10 @@ interface TableProps<T> {
   orderBy?: string;
 }
 
-interface RowProps<T> {
-  CollapseComponent?: (row: T) => ReactElement;
-  columnItems: TableColumnItem<T>[];
-  node: T;
+interface RowProps<Row> {
+  CollapseComponent?: FC<{ row: Row }>;
+  columnItems: TableColumnItem<Row>[];
+  node: WithRowControls<Row>;
   index: number;
   showBorder?: boolean;
   showCheckbox?: boolean;
@@ -98,7 +114,7 @@ interface RowProps<T> {
   applyAllDisableCheckbox?: boolean;
   handleSelectOneItem?: (id: number | string) => void;
   tableKey?: string;
-  onClickRow?: (item: any, index?: number) => void;
+  onClickRow?: (row: Row, index?: number) => void;
   hover?: boolean;
   clickableRowStyles?: { [key: string]: string };
   lastItemBorderBottom: string;
@@ -108,7 +124,7 @@ const MOUSE_POINTER_STYLE = {
   cursor: 'pointer',
 };
 
-function Row({
+function Row<Row>({
   columnItems,
   node,
   index,
@@ -125,7 +141,7 @@ function Row({
   hover,
   CollapseComponent,
   applyAllDisableCheckbox,
-}: RowProps<any>) {
+}: RowProps<Row>) {
   const { isCollapse = false, disableCurrentCheckbox } = node;
 
   const [open, setOpen] = useState<boolean>(isCollapse || false);
@@ -133,6 +149,7 @@ function Row({
   return (
     <>
       <TableRow
+        // @ts-expect-error typed previously as an any
         key={`${node[tableKey || 'id'] + index}`}
         hover={hover}
         onClick={() => onClickRow?.(node, index)}
@@ -147,8 +164,10 @@ function Row({
             }}
           >
             <Checkbox
+              // @ts-expect-error typed previously as an any
               checked={selectCheckbox.includes(node[selectedSymbol])}
               onChange={() => {
+                // @ts-expect-error typed previously as an any
                 if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol]);
               }}
               disabled={applyAllDisableCheckbox ? disableCheckbox : disableCurrentCheckbox}
@@ -173,6 +192,7 @@ function Row({
             }}
             data-testid={column?.key ? `tableBody-${column?.key}` : ''}
           >
+            {/* @ts-expect-error typed previously as an any */}
             {column.render ? column.render(node, index) : node[column.key]}
           </TableCell>
         ))}
@@ -190,7 +210,7 @@ function Row({
   );
 }
 
-export function B3Table<T>({
+export function B3Table<Row>({
   tableFixed = true,
   columnItems,
   listItems = [],
@@ -232,7 +252,7 @@ export function B3Table<T>({
   sortDirection = 'asc',
   sortByFn,
   orderBy = '',
-}: TableProps<T>) {
+}: TableProps<Row>) {
   const {
     state: {
       portalStyle: { backgroundColor = '#FEF9F5' },
@@ -296,17 +316,21 @@ export function B3Table<T>({
           )}
           <Grid container spacing={itemIsMobileSpacing}>
             {listItems.map((row, index) => {
-              const node = row.node || row || {};
+              const node = isNodeWrapper(row) ? row.node : row;
+
               const checkBox = (disable = false) => (
                 <Checkbox
+                  // @ts-expect-error typed previously as an any
                   checked={selectCheckbox.includes(node[selectedSymbol])}
                   onChange={() => {
+                    // @ts-expect-error typed previously as an any
                     if (handleSelectOneItem) handleSelectOneItem(node[selectedSymbol]);
                   }}
                   disabled={disable || disableCheckbox}
                 />
               );
               return (
+                // @ts-expect-error typed previously as an any
                 <Grid item xs={12} key={`${node[tableKey || 'id'] + index}`}>
                   {node && renderItem && renderItem(node, index, checkBox)}
                 </Grid>
@@ -342,8 +366,10 @@ export function B3Table<T>({
         <>
           <Grid container spacing={itemSpacing}>
             {listItems.map((row, index) => {
-              const node = row.node || row || {};
+              const node = isNodeWrapper(row) ? row.node : row;
+
               return (
+                // @ts-expect-error typed previously as an any
                 <Grid item xs={itemXs} key={`${node[tableKey || 'id'] + index}`}>
                   {node && renderItem && renderItem(node, index)}
                 </Grid>
@@ -442,12 +468,13 @@ export function B3Table<T>({
 
               <TableBody>
                 {listItems.map((row, index) => {
-                  const node = row.node || row || {};
+                  const node = isNodeWrapper(row) ? row.node : row;
 
                   const lastItemBorderBottom =
                     index === listItems.length - 1 ? '1px solid rgba(224, 224, 224, 1)' : 'none';
                   return (
                     <Row
+                      // @ts-expect-error typed previously as an any
                       key={`row-${node[tableKey || 'id'] + index}`}
                       columnItems={columnItems}
                       node={node}

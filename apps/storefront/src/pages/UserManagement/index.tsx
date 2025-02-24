@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import B3Dialog from '@/components/B3Dialog';
 import B3Filter from '@/components/filter/B3Filter';
 import B3Spin from '@/components/spin/B3Spin';
-import { B3PaginationTable } from '@/components/table/B3PaginationTable';
+import { B3PaginationTable, GetRequestList } from '@/components/table/B3PaginationTable';
 import { useCardListColumn, useMobile, useTableRef } from '@/hooks';
 import { deleteUsers, getUsers } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
@@ -98,7 +98,7 @@ function UserManagement() {
     useState<CustomFieldItems[]>(filterMoreInfo);
   const [valueName, setValueName] = useState<string>('');
 
-  const fetchList = async (params: Partial<FilterProps>) => {
+  const fetchList: GetRequestList<Partial<FilterProps>, UsersList> = async (params) => {
     const data = await getUsers(params);
 
     const {
@@ -219,7 +219,7 @@ function UserManagement() {
           isCustomRender
           itemXs={isExtraLarge ? 3 : 4}
           requestLoading={setIsRequestLoading}
-          renderItem={(row: UsersList) => (
+          renderItem={(row) => (
             <UserItemCard
               key={row.id || ''}
               item={row}

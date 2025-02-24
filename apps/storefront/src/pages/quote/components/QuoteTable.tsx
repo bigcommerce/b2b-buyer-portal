@@ -473,7 +473,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
         showBorder={false}
         itemIsMobileSpacing={0}
         noDataText={b3Lang('quoteDraft.quoteTable.noProducts')}
-        renderItem={(row: QuoteItem, index?: number) => (
+        renderItem={(row, index?) => (
           <QuoteTableCard
             len={total || 0}
             item={row}
