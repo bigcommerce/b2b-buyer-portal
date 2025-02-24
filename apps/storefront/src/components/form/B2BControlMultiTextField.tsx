@@ -1,16 +1,70 @@
 import { KeyboardEvent } from 'react';
-import { Controller } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  FieldValues,
+  Path,
+  PathValue,
+  UseFormGetValues,
+  UseFormSetError,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Add, Clear } from '@mui/icons-material';
-import { Box, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  InputProps,
+  SxProps,
+  TextField,
+  TextFieldProps,
+  TextFieldVariants,
+  Typography,
+} from '@mui/material';
 import { concat, debounce, uniq } from 'lodash-es';
 import isEmpty from 'lodash-es/isEmpty';
 
-import Form from './ui';
+type B3Lang = ReturnType<typeof useB3Lang>;
 
-export default function B2BControlMultiTextField({ control, errors, ...rest }: Form.B3UIProps) {
+export interface MultiTextFieldProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
+  isAutoComplete?: boolean;
+  default: PathValue<T, Path<T>>;
+  required: boolean;
+  label: string;
+  validate: (value: string, b3Lang: B3Lang) => string | undefined;
+  variant: TextFieldVariants;
+  rows?: number;
+  min?: number;
+  max?: number;
+  minLength?: number;
+  maxLength?: number;
+  fullWidth?: boolean;
+  disabled?: boolean;
+  labelName?: string;
+  size?: TextFieldProps['size'];
+  readOnly: boolean;
+  sx?: SxProps;
+  isTip?: boolean;
+  tipText?: string;
+  extraPadding?: SxProps;
+  isEnterTrigger?: boolean;
+  getValues: UseFormGetValues<T>;
+  handleSave?: (newItems: string[]) => void;
+  InputProps?: InputProps;
+  existValue: string[];
+  setError: UseFormSetError<T>;
+  setValue: UseFormSetValue<T>;
+  errors: FieldErrors<T>;
+}
+
+export default function B2BControlMultiTextField<T extends FieldValues>({
+  control,
+  errors,
+  ...rest
+}: MultiTextFieldProps<T>) {
   const {
-    fieldType,
     isAutoComplete = false,
     name,
     default: defaultValue,
@@ -42,12 +96,17 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
   } = rest;
   const b3Lang = useB3Lang();
 
+  // this can probably be removed
+  // neither Controller nor TextField allow for a type of 'multiInputText'
+  // requires further investigation
+  const type = 'multiInputText';
+
   const requiredText = b3Lang('global.validate.required', {
     label: labelName || label,
   });
 
   const fieldsProps = {
-    type: fieldType,
+    type,
     name,
     defaultValue,
     rules: {
@@ -58,7 +117,7 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
   };
 
   const textField = {
-    type: fieldType,
+    type,
     name,
     label,
     rows,
@@ -90,6 +149,7 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
     } else {
       const newItems = uniq(concat(existValue, currentValue.length ? [currentValue] : []));
 
+      // @ts-expect-error - setValue does not know that values should be of type string
       setValue(name, '');
       if (handleSave) handleSave(newItems);
     }
@@ -117,7 +177,9 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
     return {};
   };
 
-  return ['multiInputText'].includes(fieldType) ? (
+  const fieldError = errors[name];
+
+  return (
     <Box>
       {labelName && (
         <Box
@@ -138,14 +200,16 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
             {...rest}
             {...otherProps}
             sx={{
+              // @ts-expect-error - caused by the illegal '& input' sibling
               color: disabled ? 'rgba(0, 0, 0, 0.38)' : 'rgba(0, 0, 0, 0.6)',
               ...sx,
+              // @ts-expect-error - does not conform to TextFieldProps from MUI
               '& input': {
                 ...extraPadding,
               },
             }}
-            error={!!errors[name]}
-            helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+            error={!!fieldError}
+            helperText={fieldError ? fieldError.message?.toString() : null}
             onKeyDown={isEnterTrigger ? handleKeyDown : () => {}}
             InputProps={
               !isEmpty(InputProps)
@@ -218,5 +282,5 @@ export default function B2BControlMultiTextField({ control, errors, ...rest }: F
         </Box>
       )}
     </Box>
-  ) : null;
+  );
 }

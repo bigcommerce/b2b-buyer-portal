@@ -68,6 +68,7 @@ function LoginForm(props: LoginFormProps) {
       >
         <form onSubmit={handleSubmit(handleLoginClick)}>
           <B3CustomForm
+            // @ts-expect-error B3CustomForm used to take formFields as any
             formFields={loginFields}
             errors={errors}
             control={control}
