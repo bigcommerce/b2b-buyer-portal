@@ -19,7 +19,7 @@ import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/sto
 import { channelId, snackbar } from '@/utils';
 
 import AddEditShoppingLists from './AddEditShoppingLists';
-import { getFilterMoreList, ShoppingListSearch, ShoppingListsItemsProps } from './config';
+import { ShoppingListSearch, ShoppingListsItemsProps, useGetFilterMoreList } from './config';
 import ShoppingListsCard from './ShoppingListsCard';
 
 interface RefCurrentProps extends HTMLInputElement {
@@ -54,6 +54,7 @@ function ShoppingLists() {
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [deleteItem, setDeleteItem] = useState<null | ShoppingListsItemsProps>(null);
   const [filterMoreInfo, setFilterMoreInfo] = useState<Array<any>>([]);
+  const getFilterMoreList = useGetFilterMoreList();
 
   const [isMobile] = useMobile();
   const b3Lang = useB3Lang();
@@ -75,29 +76,9 @@ function ShoppingLists() {
 
   useEffect(() => {
     const initFilter = async () => {
-      const createdByUsers = await getUserShoppingLists();
-
-      const filterInfo = getFilterMoreList(createdByUsers, submitShoppingListPermission);
-
-      const translatedFilterInfo = JSON.parse(JSON.stringify(filterInfo));
-
-      translatedFilterInfo.forEach(
-        (element: { label: string; idLang: any; name: string; options: any[] }) => {
-          const translatedInfo = element;
-          translatedInfo.label = b3Lang(element.idLang);
-          if (element.name === 'status') {
-            element.options?.map((option) => {
-              const elementOption = option;
-              elementOption.label = b3Lang(option.idLang);
-              return option;
-            });
-          }
-
-          return element;
-        },
+      setFilterMoreInfo(
+        getFilterMoreList(submitShoppingListPermission, await getUserShoppingLists()),
       );
-
-      setFilterMoreInfo(translatedFilterInfo);
     };
 
     initFilter();
