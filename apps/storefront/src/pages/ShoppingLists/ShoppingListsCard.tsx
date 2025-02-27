@@ -46,31 +46,59 @@ const FlexItem = styled(Box)(() => ({
 }));
 
 function ShoppingListsCard(props: OrderItemCardProps) {
-  const { item: shoppingList, onEdit, onDelete, onCopy, isPermissions, isB2BUser } = props;
+  const {
+    item: shoppingList,
+    onEdit,
+    onDelete,
+    onCopy,
+    // isPermissions = isB2BUser ? shoppingListCreateActionsPermission : true
+    isPermissions,
+    isB2BUser,
+  } = props;
   const b3Lang = useB3Lang();
 
+  // partly controls editing and deleting
+  // no idea why its stateful
   const [isCanEditShoppingList, setIsCanEditShoppingList] = useState<boolean>(true);
 
   const { submitShoppingListPermission, approveShoppingListPermission } =
     useAppSelector(rolePermissionSelector);
 
+  // edit-ability is determined by the status of the shopping list and the user's permissions
+  // this is NEGATED in its only usage, e.g. !getEditPermissions(shoppingList.status)
   const getEditPermissions = (status: number) => {
     if (submitShoppingListPermission) {
+      // users who have submitShoppingListPermission CAN only edit drafts or approved shopping lists
+      // false is true, true is false ?!?!
       if (status === 30 || status === 0) return false;
+      // users who have submitShoppingListPermission CANNOT edit all other statuses
+      // false is true, true is false ?!?!
       return true;
     }
 
+    // users who do not have submitShoppingListPermission CANNOT edit shopping lists in the "ready for approval" status
+    // false is true, true is false ?!?!
     if (status === 40) return true;
 
+    // users who do not have submitShoppingListPermission CAN edit shopping lists in any other status than "ready for approval"
+    // false is true, true is false ?!?!
     return false;
   };
 
+  // delete-ability is determined by the status of the shopping list and the user's permissions
+  // this is NEGATED in its only usage, e.g. !getDeletePermissions(shoppingList.status)
   const getDeletePermissions = (status: number) => {
     if (submitShoppingListPermission) {
+      // users who have submitShoppingListPermission CAN only edit drafts or rejected shopping lists
+      // false is true, true is false ?!?!
       if (status === 20 || status === 30) return false;
+      // users who have submitShoppingListPermission CANNOT edit all other statuses
+      // false is true, true is false ?!?!
       return true;
     }
 
+    // users who do not have submitShoppingListPermission can delete shopping lists in any status
+    // false is true, true is false ?!?!
     return false;
   };
 
@@ -85,6 +113,15 @@ function ShoppingListsCard(props: OrderItemCardProps) {
 
   useEffect(() => {
     if (isB2BUser) {
+      // complex logic to work out if the user can edit the shopping list
+      // almost impossible to follow
+      //
+      // involves:
+      // - if or not the user is agenting
+      // - what the company's permissions are for 'create_shopping_list'
+      // - if the user was the one who created the shopping list
+      // - if the customer is associated with the company who owns the shopping list
+      // - the permissionLevel against the company
       const { companyInfo, customerInfo } = shoppingList;
 
       const { shoppingListCreateActionsPermission } = b2bPermissionsMap;
@@ -96,6 +133,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
 
       setIsCanEditShoppingList(shoppingListActionsPermission);
     }
+    // is !isB2BUser isCanEditShoppingList is always true
   }, [shoppingList, isB2BUser]);
 
   return (
@@ -129,6 +167,11 @@ function ShoppingListsCard(props: OrderItemCardProps) {
             pb: '20px',
           }}
         >
+          {/* 
+              if isB2BUser and they can either submit shopping list
+              or can't submit but can approve and the shopping list is ALREADY approved...?
+              then show the status for that shopping list
+            */}
           {isB2BUser &&
             (submitShoppingListPermission ||
               (approveShoppingListPermission && shoppingList.approvedFlag)) && (

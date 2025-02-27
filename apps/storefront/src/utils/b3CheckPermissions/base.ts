@@ -153,11 +153,14 @@ export const levelComparison = ({
   const customerEmail = customer?.emailAddress;
 
   switch (permissionLevel) {
+    // company subsidiaries can edit everything?
     case permissionLevels.COMPANY_SUBSIDIARIES:
       return true;
+    // true if the current company is the same as the author/owner of [thing being checked]
     case permissionLevels.COMPANY:
       return Number(companyId) === Number(currentCompanyId);
     case permissionLevels.USER:
+      // true if the user is roughly the same as the author/owner of [thing being checked]
       return (
         userId === Number(customerId) ||
         userId === Number(customerB2BId) ||
