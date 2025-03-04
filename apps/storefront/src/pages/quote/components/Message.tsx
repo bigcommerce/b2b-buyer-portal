@@ -396,7 +396,7 @@ function Message({ msgs, id, isB2BUser, email, status }: MsgsProps) {
                       color: 'rgba(0, 0, 0, 0.38)',
                     },
                     '& input': {
-                      padding: '1.5rem 0 0.5rem 0',
+                      padding: '1.5rem 0.7rem 0.5rem',
                     },
                   }}
                   value={message}
