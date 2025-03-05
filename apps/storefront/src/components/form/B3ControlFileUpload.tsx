@@ -1,4 +1,12 @@
 import { useState } from 'react';
+import {
+  Control,
+  FieldErrors,
+  FieldValues,
+  Path,
+  UseFormSetError,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { DropzoneArea, FileObject, PreviewIconProps } from 'react-mui-dropzone';
 import { useB3Lang } from '@b3/lang';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
@@ -12,7 +20,6 @@ import isEmpty from 'lodash-es/isEmpty';
 import { FILE_UPLOAD_ACCEPT_TYPE } from '../../constants';
 
 import { DropzoneBox } from './styled';
-import B3UI from './ui';
 
 const defaultLabelColor = '#d32f2f';
 
@@ -28,28 +35,18 @@ const getPreviewIcon = (fileObject: FileObject, classes: PreviewIconProps) => {
     case 'application/pdf':
       return <PictureAsPdfRoundedIcon {...iconProps} />;
     // doc docx xls xlsx csv
+    // cspell:disable
     case 'application/msword':
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
     case 'application/vnd.ms-excel':
     case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
     case 'text/csv':
+      // cspell:enable
       return <DescriptionRounded {...iconProps} />;
     default:
       return <InsertDriveFileRoundedIcon {...iconProps} />;
   }
 };
-
-interface FileUploadProps extends B3UI.B3UIProps {
-  acceptedFiles?: string[];
-  filesLimit?: number;
-  maxFileSize?: number;
-  dropzoneText?: string;
-  previewText?: string;
-  default?: File[];
-  labelColor?: string;
-  errors?: CustomFieldItems;
-  required?: boolean;
-}
 
 const getMaxFileSizeLabel = (maxSize: number) => {
   if (maxSize / 1048576 > 1) {
@@ -61,7 +58,24 @@ const getMaxFileSizeLabel = (maxSize: number) => {
   return `${maxSize}B`;
 };
 
-export default function B3ControlFileUpload(props: FileUploadProps) {
+export interface FileUploadProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
+  setValue?: UseFormSetValue<T>;
+  label: string;
+  acceptedFiles?: string[];
+  filesLimit?: number;
+  maxFileSize?: number;
+  dropzoneText?: string;
+  previewText?: string;
+  default?: File[];
+  labelColor?: string;
+  setError?: UseFormSetError<T>;
+  errors?: FieldErrors<T>;
+  required?: boolean;
+}
+
+export default function B3ControlFileUpload<T extends FieldValues>(props: FileUploadProps<T>) {
   const b3Lang = useB3Lang();
 
   const {
@@ -70,17 +84,17 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
     maxFileSize = 2097152, // 2M
     dropzoneText = b3Lang('global.fileUpload.defaultText'),
     previewText = ' ',
-    fieldType,
     default: defaultValue = [],
     name,
     setValue,
     label,
     labelColor = 'text.primary',
     required,
-    errors = {},
+    errors: optionalErrors,
     setError,
     control,
   } = props;
+  const errors: FieldErrors<T> = optionalErrors || {};
   const [deleteCount, setDeleteCount] = useState(0);
 
   const getRejectMessage = (rejectedFile: File, acceptedFiles: string[], maxFileSize: number) => {
@@ -114,7 +128,7 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
 
   const handleFilesChange = (files: File[]) => {
     if (deleteCount > 0 && files.length === 0 && required) {
-      setError(name, {
+      setError?.(name, {
         type: 'required',
         message: b3Lang('global.validate.required', {
           label,
@@ -131,18 +145,21 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
       }
     }
     if (setValue) {
+      // @ts-expect-error - setValue does not know that values should be of type File[]
       setValue(name, files);
     }
   };
 
-  return ['files'].includes(fieldType) ? (
+  const fieldError = errors[name];
+
+  return (
     <>
       {label && (
         <FormLabel
           sx={{
             marginBottom: '5px',
             display: 'block',
-            color: errors[name] ? defaultLabelColor : labelColor,
+            color: fieldError ? defaultLabelColor : labelColor,
           }}
         >
           {`${label} ${required ? '*' : ''}`}
@@ -168,7 +185,7 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
           onDelete={() => setDeleteCount(deleteCount + 1)}
         />
       </DropzoneBox>
-      {errors[name] ? (
+      {fieldError ? (
         <Typography
           sx={{
             color: defaultLabelColor,
@@ -178,9 +195,9 @@ export default function B3ControlFileUpload(props: FileUploadProps) {
             margin: '3px 14px 0 14px',
           }}
         >
-          {errors[name].message}
+          {fieldError.message?.toString()}
         </Typography>
       ) : null}
     </>
-  ) : null;
+  );
 }
