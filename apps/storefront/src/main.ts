@@ -5,7 +5,7 @@ const ENVIRONMENT_CDN_BASE_PATH: EnvSpecificConfig<string> = {
   local: '/',
   integration: 'https://microapps.integration.zone/b2b-buyer-portal/',
   staging: 'https://cdn.bundleb2b.net/b2b/staging/storefront/',
-  production: 'https://cdn.bundleb2b.net/b2b/production/storefront/',
+  production: 'https://microapps.bigcommerce.com/b2b-buyer-portal/',
 };
 
 window.b2b = {
