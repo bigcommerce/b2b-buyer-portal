@@ -1,0 +1,266 @@
+Feature: Shopping lists page
+
+# === Viewing shopping lists ===
+
+Scenario: User visits the shopping lists page
+    Given the page is rendered
+    Then it displays a heading of "Shopping lists"
+
+Scenario: Awaiting shopping lists data to load
+    Given the shopping lists are loading
+    Then it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: Shopping lists data fails to load
+    Given the shopping lists fails to load
+    Then it displays a "No data" message (no mention of the error)
+        And it displays the search bar
+        And it displays the "Create new" button (if the user has permission)
+        And it does not display the "Filters" button
+
+Scenario: User has no shopping lists
+    Given the shopping lists load successfully
+        And there the user has no shopping lists
+    Then it displays a "No data" message (same as in the failure case)
+        And it displays the search bar
+        And it displays the "Create new" button (if the user has permission)
+        And it displays the "Filters" button (different from the failure case)
+
+Scenario: User has some shopping lists
+    Given the shopping lists load successfully
+        And there are shopping lists
+    Then it displays a "card" for each shopping list (to a maximum of 12)
+        And each card displays the shopping list's name
+        And each card displays "Created by" and the creator's name
+        And each card displays "Products" and the product count
+        And each card displays "Last activity" and short format date (e.g. Mar 4th 2025)
+
+Scenario: User has some shopping lists and permission to see their statuses
+    Given the shopping lists load successfully
+        And there are shopping lists
+        And the user has permission to see the status of the shopping lists
+    Then each card displays the shopping list's status
+        And each card displays "Status" and the status of the shopping list
+
+Scenario: Navigating to a specific shopping list
+    Given the user clicks on the "VIEW" button within a shopping list card
+    Then it navigates to the "Shopping list details" page for that shopping list (e.g. "#/shoppingList/538765")
+
+# Non user facing side-effect
+Scenario: Navigating to a specific shopping list
+    Given the user clicks on the "VIEW" button within a shopping list card
+    Then it sets navigation state to `{ from: 'shoppingList' }`
+
+# Non user facing side-effect
+Scenario: Alters global application state
+    Given the page is rendered
+    When `state.openAPPParams.shoppingListBtn` is truthy
+    Then it sets `state.openAPPParams.shoppingListBtn` to an empty string
+        And it sets `state.openAPPParams.quoteBtn` to an empty string
+
+# TODO:
+# - Add scenarios for the search bar
+# - Add scenarios for the "Filters"
+# - Add scenarios for pagination and changing "Cards per page"
+
+# === Creating a shopping list ===
+
+Scenario: User does not have permission to create shoppings lists
+    Given the user does not have permission to create a shopping list
+    Then the "Create new" button is not displayed
+
+Scenario: User has permission to create shopping lists
+    Given the user has permission to create a shopping list
+    Then the "Create new" button is displayed
+
+Scenario: User wants to create a new shopping list
+    Given the user clicks on the "Create new" button
+    Then it opens the "Create new shopping list" modal
+        And it displays an empty "Name" field
+        And it displays an empty "Description" field
+
+Scenario: User changes their mind about creating a shopping list
+    Given the "Create new shopping list" modal is open
+    When the user clicks the "Cancel" button
+    Then it closes the modal
+
+Scenario: User provides an invalid name when creating a shopping list
+    Given the "Create new shopping list" modal is open
+    When the user does not enter a "Name"
+        And the user clicks the "Save" button
+    Then it displays an error message of "Name is required" below the "Name" field
+
+Scenario: User is waiting for a new shopping list to be created
+    Given the "Create new shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then the "Save" button is replaced with a loading spinner
+        And the "Cancel" button remains clickable (we should change this)
+        And the fields remains editable (we should change this)
+
+Scenario: User attempts to create a new shopping list, but the creation fails
+    Given the "Create new shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then the modal remains open
+        And the "Save" button re-replaces the loading spinner
+        And there is no way of knowing that the save failed (we should change this)
+
+Scenario: User attempts to create a new shopping list, and the creation succeeds
+    Given the "Create new shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then it displays a success alert of "The shopping list was successfully added"
+        And it closes the modal
+        And it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+# === Editing a shopping list ===
+
+Scenario: User does not have permission to edit a specific shopping list
+    Given the user does not have permission to edit a specific shopping list
+    Then the "edit" icon button is not displayed within that shopping list card
+
+Scenario: User has permission to edit a specific shopping list
+    Given the user has permission to edit a specific shopping list
+    Then the "edit" icon button is displayed within that shopping list card
+
+Scenario: User wants to edit an existing shopping list
+    Given the user clicks on the "edit" icon button within a shopping list card
+    Then it opens the "Edit shopping list" modal
+        And it displays the shopping list's current name in the "Name" field
+        And it displays the shopping list's current description in the "Description" field
+
+Scenario: User changes their mind about editing a shopping list
+    Given the "Edit shopping list" modal is open
+    When the user clicks the "Cancel" button
+    Then it closes the modal
+
+Scenario: User provides an invalid name when editing a shopping list
+    Given the "Edit shopping list" modal is open
+    When the user empties the "Name" field
+    Then it displays an error message of "Name is required" below the "Name" field
+
+Scenario: User is waiting for an edit to save
+    Given the "Edit shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then the "Save" button is replaced with a loading spinner
+        And the "Cancel" button remains clickable (we should change this)
+        And the fields remains editable (we should change this)
+
+Scenario: User attempts to save an edit, but the save fails
+    Given the "Edit shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then the modal remains open
+        And the "Save" button re-replaces the loading spinner
+        And there is no way of knowing that the save failed (we should change this)
+
+Scenario: User attempts to save an edit, and save succeeds
+    Given the "Edit shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then it displays a success alert of "The shopping list was successfully updated"
+        And it closes the modal
+        And it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+# === Deleting a shopping list ===
+
+Scenario: User does not have permission to delete a specific shopping list
+    Given the user does not have permission to delete a specific shopping list
+    Then the "delete" icon button is not displayed within that shopping list card
+
+Scenario: User has permission to delete a specific shopping list
+    Given the user has permission to delete a specific shopping list
+    Then the "delete" icon button is displayed within that shopping list card
+
+Scenario: User wants to delete a shopping list
+    Given the user clicks on the "delete" icon button within a shopping list card
+    Then it opens the "Delete shopping list" modal
+        And it displays a message of "Are you sure you want to delete this shopping list?"
+
+Scenario: User changes their mind about deleting a shopping list
+    Given the "Delete shopping list" modal is open
+    When the user clicks the "Cancel" button
+    Then it closes the modal
+
+Scenario: User is waiting for a delete to occur
+    Given the "Delete shopping list" modal is open
+    When the user clicks the "Delete" button
+    Then the "Delete" button is replaced with a loading spinner
+        And the "Cancel" button remains clickable (we should change this)
+
+Scenario: User attempts to delete a shopping list, but the delete fails
+    Given the "Delete shopping list" modal is open
+    When the user clicks the "Delete" button
+    Then it closes the modal
+        And the shopping list is still displayed in the list
+        And there is no explanation of what happened (we should change this)
+
+Scenario: User attempts to delete a shopping list, and delete succeeds
+    Given the "Delete shopping list" modal is open
+    When the user clicks the "Delete" button
+    Then it displays a success alert of "The shopping list was successfully deleted"
+        And it closes the modal
+        And it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+# === Duplicate a shopping list ===
+
+Scenario: User wants to duplicate a shopping list
+    Given the user clicks on the "duplicate" icon button within a shopping list card
+    Then it opens the "Duplicate shopping list" modal
+        And it displays the chosen shopping list's name in the "Name" field
+        And it displays the chosen shopping list's description in the "Description" field
+
+Scenario: User changes their mind about duplicating a shopping list
+    Given the "Duplicate shopping list" modal is open
+    When the user clicks the "Cancel" button
+    Then it closes the modal
+
+Scenario: User provides an invalid name when duplicating a shopping list
+    Given the "Duplicate shopping list" modal is open
+    When the user empties the "Name" field
+    Then it displays an error message of "Name is required" below the "Name" field
+
+Scenario: User is waiting for a duplicate to save
+    Given the "Duplicate shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then the "Save" button is replaced with a loading spinner
+        And the "Cancel" button remains clickable (we should change this)
+        And the fields remains editable (we should change this)
+
+Scenario: User attempts to save a duplicate, but the save fails
+    Given the "Duplicate shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then the modal remains open
+        And the "Save" button re-replaces the loading spinner
+        And there is no way of knowing that the save failed (we should change this)
+
+Scenario: User attempts to save a duplicate, and save succeeds
+    Given the "Duplicate shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then it displays a success alert of "The shopping list was successfully duplicated"
+        And it closes the modal
+        And it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button

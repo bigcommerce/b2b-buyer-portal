@@ -98,6 +98,7 @@ export const verifyLevelPermission = ({
 }: VerifyLevelPermissionProps): boolean => {
   const info = getPermissionsInfo(code);
 
+  // If the permission code is not found, return false.
   if (!info) return !!info;
 
   const { permissionLevel } = info;
@@ -106,6 +107,8 @@ export const verifyLevelPermission = ({
 
   const salesRepCompanyId = store.getState().b2bFeatures.masqueradeCompany.id;
 
+  // If there is masqueradeCompany.id return true,
+  // but only if `info` and `permissionLevel` are not null, not that their values are used..?
   if (salesRepCompanyId) return true;
 
   const { companyInfo, customer } = store.getState().company || {};
