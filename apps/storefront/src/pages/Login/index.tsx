@@ -4,7 +4,7 @@ import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box, ImageListItem } from '@mui/material';
 
-import { B3Card } from '@/components';
+import { B3Card, Loading } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
 import { CHECKOUT_URL, PATH_ROUTES } from '@/constants';
 import { useMobile } from '@/hooks';
@@ -62,7 +62,7 @@ const setTipType = (flag: LoginFlagType): AlertColor | undefined => {
   return alertType;
 };
 
-export default function Login(props: PageProps) {
+function Login(props: PageProps) {
   const { isAgenting, endMasquerade } = useMasquerade();
   const { setOpenPage } = props;
   const storeDispatch = useAppDispatch();
@@ -468,4 +468,36 @@ export default function Login(props: PageProps) {
       </LoginContainer>
     </B3Card>
   );
+}
+
+function CatalystLogin() {
+  const navigate = useNavigate();
+  const isLoggedIn = useAppSelector(isLoggedInSelector);
+  const [searchParams] = useSearchParams();
+
+  const loginFlag = searchParams.get('loginFlag');
+
+  useEffect(() => {
+    if (loginFlag === 'loggedOutLogin' && isLoggedIn) {
+      bcLogoutLogin().then((res) => {
+        if (res.data.logout.result === 'success') {
+          window.sessionStorage.clear();
+          window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
+        }
+      });
+    } else if (isLoggedIn) {
+      navigate('/orders');
+    }
+  }, [isLoggedIn, loginFlag, navigate]);
+
+  return <Loading />;
+}
+
+export default function RealLogin(props: PageProps) {
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform);
+  if (platform === 'catalyst') {
+    return <CatalystLogin />;
+  }
+
+  return <Login {...props} />;
 }

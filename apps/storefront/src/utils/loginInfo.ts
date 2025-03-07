@@ -267,21 +267,23 @@ const loginWithCurrentCustomerJWT = async () => {
   return { B2BToken, newLoginType };
 };
 
-export const getCurrentCustomerInfo: (b2bToken?: string) => Promise<
-  | {
-      role: any;
-      userType: any;
-      companyRoleName: string | any;
-    }
-  | undefined
-> = async (b2bToken?: string) => {
-  const { B2BToken } = store.getState().company.tokens;
+interface CustomerInfo {
+  role: number;
+  userType: string;
+  companyRoleName: string;
+}
+
+export const getCurrentCustomerInfo = async (
+  b2bToken = store.getState().company.tokens.B2BToken,
+): Promise<CustomerInfo | undefined> => {
   let loginType = LoginTypes.GENERAL_LOGIN;
-  if (!(b2bToken || B2BToken)) {
+
+  if (!b2bToken) {
     const data = await loginWithCurrentCustomerJWT();
     if (!data) return undefined;
     loginType = data.newLoginType;
   }
+
   try {
     const data = await getCustomerInfo();
 
