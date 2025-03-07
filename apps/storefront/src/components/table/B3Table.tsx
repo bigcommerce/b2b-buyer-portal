@@ -21,6 +21,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 
 import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
+import { platform } from '@/utils';
 
 import { b3HexToRgb, getContrastColor } from '../outSideComponents/utils/b3CustomStyles';
 
@@ -494,6 +495,6 @@ export function B3Table<T>({
       )}
     </>
   ) : (
-    <B3NoData isLoading={isLoading} text={noDataText} />
+    <B3NoData showBorder={platform === 'catalyst'} isLoading={isLoading} text={noDataText} />
   );
 }
