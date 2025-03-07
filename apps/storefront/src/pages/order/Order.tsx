@@ -18,7 +18,7 @@ import {
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, useAppSelector } from '@/store';
 import { CustomerRole } from '@/types';
-import { currencyFormat, displayFormat, ordersCurrencyFormat } from '@/utils';
+import { currencyFormat, displayFormat, ordersCurrencyFormat, platform } from '@/utils';
 
 import OrderStatus from './components/OrderStatus';
 import { orderStatusTranslationVariables } from './shared/getOrderStatus';
@@ -397,6 +397,7 @@ function Order({ isCompanyOrder = false }: OrderProps) {
           tableKey="orderId"
           pageType="orderListPage"
           isAutoRefresh={isAutoRefresh}
+          showBorder={platform === 'catalyst'}
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
