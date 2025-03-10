@@ -4,6 +4,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { CustomStyleContext } from './shared/customStyleButton';
 import { BROWSER_LANG } from './constants';
+import { platform } from './utils';
 
 type LangMapType = {
   [index: string]: string;
@@ -39,10 +40,10 @@ function B3ThemeProvider({ children }: Props) {
       {
         palette: {
           background: {
-            default: backgroundColor,
+            default: platform === 'catalyst' ? '#FFFFFF' : backgroundColor,
           },
           primary: {
-            main: primaryColor || '#1976d2',
+            main: platform === 'catalyst' ? '#000000' : primaryColor || '#1976d2',
           },
         },
       },

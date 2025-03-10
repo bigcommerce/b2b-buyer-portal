@@ -7,6 +7,7 @@ interface B3NoDataProps {
   backgroundColor?: string;
   minHeight?: string;
   isLoading?: boolean;
+  showBorder?: boolean;
 }
 
 const NoDataContainer = styled('div')(
@@ -30,11 +31,20 @@ export default function B3NoData({
   text,
   backgroundColor,
   minHeight,
+  showBorder = false,
   isLoading = false,
 }: B3NoDataProps) {
   const b3Lang = useB3Lang();
   return (
-    <NoDataContainer backgroundColor={backgroundColor} minHeight={minHeight}>
+    <NoDataContainer
+      style={{
+        boxShadow: showBorder
+          ? '0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)'
+          : 'none',
+      }}
+      backgroundColor={backgroundColor}
+      minHeight={minHeight}
+    >
       {!isLoading && <DataUsageRounded fontSize="large" />}
       <NoDataText>{isLoading ? '' : text || b3Lang('global.table.noData')}</NoDataText>
     </NoDataContainer>
