@@ -130,7 +130,7 @@ export default function App() {
       },
     });
 
-    if (/login.php/.test(pathname) && !href.includes('change_password')) {
+    if (pathname.includes('login.php') && !href.includes('change_password')) {
       dispatch({
         type: 'common',
         payload: {
