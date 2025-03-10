@@ -182,9 +182,9 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             endMasquerade();
           },
           graphqlBCProxy: B3Request.graphqlBCProxy,
-          loginWithB2BStorefrontToken: async (b2bStorefrontJWTToken: string) => {
-            storeDispatch(setB2BToken(b2bStorefrontJWTToken));
-            await getCurrentCustomerInfo(b2bStorefrontJWTToken);
+          loginWithB2BStorefrontToken: async (token: string) => {
+            storeDispatch(setB2BToken(token));
+            await getCurrentCustomerInfo(token);
           },
           logout: async () => {
             try {
