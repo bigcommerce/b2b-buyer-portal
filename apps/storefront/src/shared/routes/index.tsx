@@ -204,8 +204,7 @@ const gotoAllowedAppPage = async (
 };
 
 const getIsTokenGotoPage = (url: string): boolean => {
-  const flag = routes.some((item: RouteItem) => matchPath(item.path, url) && !item.isTokenLogin);
-  return flag;
+  return routes.some((item: RouteItem) => matchPath(item.path, url) && !item.isTokenLogin);
 };
 
 const getAllowedRoutes = (globalState: GlobalState) =>
