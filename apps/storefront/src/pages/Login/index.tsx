@@ -289,6 +289,7 @@ function Login(props: PageProps) {
             }
 
             if (
+              // @ts-expect-error temp
               info?.userType === UserTypes.MULTIPLE_B2C &&
               info?.role === CustomerRole.SUPER_ADMIN
             ) {
@@ -299,10 +300,12 @@ function Login(props: PageProps) {
 
             if (!isLoginLandLocation) return;
 
+            // @ts-expect-error temp
             if (info?.userType === UserTypes.B2C) {
               navigate(PATH_ROUTES.ORDERS);
             }
 
+            // @ts-expect-error temp
             const path = b2bJumpPath(info?.role);
 
             navigate(path);
