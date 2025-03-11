@@ -104,6 +104,7 @@ const fieldTypes: CustomFieldItems = {
   file: 'files',
   swatch: 'swatch',
   product_list_with_images: 'productRadio',
+  product_list: 'productRadio',
 };
 
 export const Base64 = {
