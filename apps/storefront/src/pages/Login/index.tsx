@@ -290,7 +290,7 @@ function Login(props: PageProps) {
             }
 
             if (
-              info?.userType === UserTypes.MULTIPLE_B2C &&
+              info?.userType === String(UserTypes.MULTIPLE_B2C) &&
               info?.role === CustomerRole.SUPER_ADMIN
             ) {
               navigate('/dashboard');
@@ -300,11 +300,11 @@ function Login(props: PageProps) {
 
             if (!isLoginLandLocation) return;
 
-            if (info?.userType === UserTypes.B2C) {
+            if (info?.userType === String(UserTypes.B2C)) {
               navigate(PATH_ROUTES.ORDERS);
             }
 
-            const path = b2bJumpPath(info?.role);
+            const path = b2bJumpPath(Number(info?.role));
 
             navigate(path);
           }
