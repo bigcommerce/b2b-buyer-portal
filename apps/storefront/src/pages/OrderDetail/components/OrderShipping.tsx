@@ -82,7 +82,7 @@ export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) 
     const {
       date_created: createdDate,
       shipping_method: shippingMethod,
-      shipping_provider: shippingProvider,
+      shipping_provider_display_name: shippingProvider,
     } = shipment;
 
     const time = format(new Date(createdDate), 'LLLL, d');

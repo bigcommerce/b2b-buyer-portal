@@ -92,7 +92,7 @@ export interface OrderShipmentItem {
   order_id: number;
   shipping_address: Address;
   shipping_method: string;
-  shipping_provider: string;
+  shipping_provider_display_name: string;
   tracking_carrier: string;
   tracking_link: string;
   generated_tracking_link?: string;
