@@ -504,7 +504,12 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
                 {`Create password for ${enterEmail}`}
               </Box>
             )}
-            <B3CustomForm formFields={personalInfo} errors={errors} control={control} />
+            <B3CustomForm
+              // @ts-expect-error B3CustomForm used to take formFields as any
+              formFields={personalInfo}
+              errors={errors}
+              control={control}
+            />
           </>
         )}
         {isCaptchaMissing ? (
