@@ -1,6 +1,6 @@
-import { Box, useTheme } from '@mui/material';
+import { Link } from 'react-router-dom';
+import { Box, Button, useTheme } from '@mui/material';
 
-import CustomButton from '@/components/button/CustomButton';
 import { useMobile } from '@/hooks';
 
 import LoginWidget from './component/LoginWidget';
@@ -8,11 +8,10 @@ import LoginWidget from './component/LoginWidget';
 interface LoginPanelProps {
   widgetBodyText: string;
   createAccountButtonText: string;
-  handleSubmit?: () => void;
 }
 
 function LoginPanel(props: LoginPanelProps) {
-  const { handleSubmit, widgetBodyText, createAccountButtonText } = props;
+  const { widgetBodyText, createAccountButtonText } = props;
 
   const theme = useTheme();
   const [isMobile] = useMobile();
@@ -46,9 +45,9 @@ function LoginPanel(props: LoginPanelProps) {
           marginTop: '5px',
         }}
       >
-        <CustomButton
-          type="submit"
-          onClick={handleSubmit}
+        <Button
+          component={Link}
+          to="/register"
           variant="contained"
           sx={{
             ml: isMobile ? 0 : 1,
@@ -56,7 +55,7 @@ function LoginPanel(props: LoginPanelProps) {
           }}
         >
           {createAccountButtonText}
-        </CustomButton>
+        </Button>
       </Box>
     </Box>
   );
