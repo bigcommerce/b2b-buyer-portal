@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { B2BEvent, useB2BCallback } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
@@ -11,24 +11,14 @@ import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { defaultCreateAccountPanel } from '@/shared/customStyleButton/context/config';
 import { GlobalContext } from '@/shared/global';
-import {
-  endUserMasqueradingCompany,
-  getBCForcePasswordReset,
-  superAdminEndMasquerade,
-} from '@/shared/service/b2b';
-import { b2bLogin, bcLogin, bcLogoutLogin, customerLoginAPI } from '@/shared/service/bc';
-import {
-  clearMasqueradeCompany,
-  isLoggedInSelector,
-  useAppDispatch,
-  useAppSelector,
-} from '@/store';
+import { getBCForcePasswordReset } from '@/shared/service/b2b';
+import { b2bLogin, bcLogin, customerLoginAPI } from '@/shared/service/bc';
+import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
 import { LoginFlagType } from '@/types/login';
 import { b2bJumpPath, channelId, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
-import { logoutSession } from '@/utils/b3logout';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { type PageProps } from '../PageProps';
@@ -38,26 +28,12 @@ import { isLoginFlagType, loginCheckout, LoginConfig, loginType } from './config
 import LoginForm from './LoginForm';
 import LoginPanel from './LoginPanel';
 import { LoginContainer, LoginImage } from './styled';
-
-const useMasquerade = () => {
-  const isAgenting = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.isAgenting);
-  const salesRepCompanyId = useAppSelector(({ b2bFeatures }) => b2bFeatures.masqueradeCompany.id);
-  const storeDispatch = useAppDispatch();
-
-  const endMasquerade = useCallback(async () => {
-    if (isAgenting) {
-      await superAdminEndMasquerade(Number(salesRepCompanyId));
-      storeDispatch(clearMasqueradeCompany());
-    }
-  }, [salesRepCompanyId, storeDispatch, isAgenting]);
-
-  return { endMasquerade, isAgenting };
-};
+import { useLogout } from './useLogout';
 
 export default function Login(props: PageProps) {
-  const { isAgenting, endMasquerade } = useMasquerade();
   const { setOpenPage } = props;
   const storeDispatch = useAppDispatch();
+  const logout = useLogout();
 
   const isLoggedIn = useAppSelector(isLoggedInSelector);
 
@@ -81,10 +57,6 @@ export default function Login(props: PageProps) {
   const {
     state: { isCheckout, logo, registerEnabled },
   } = useContext(GlobalContext);
-
-  const { selectCompanyHierarchyId } = useAppSelector(
-    ({ company }) => company.companyHierarchyInfo,
-  );
 
   const {
     state: {
@@ -118,7 +90,7 @@ export default function Login(props: PageProps) {
   };
 
   useEffect(() => {
-    const logout = async () => {
+    (async () => {
       try {
         const loginFlag = searchParams.get('loginFlag');
         const showTipInfo = searchParams.get('showTip') !== 'false';
@@ -133,37 +105,17 @@ export default function Login(props: PageProps) {
           const { tip } = loginType[loginFlag];
           snackbar.error(b3Lang(tip));
         }
+
         if (loginFlag === 'loggedOutLogin' && isLoggedIn) {
-          try {
-            const { result } = (await bcLogoutLogin()).data.logout;
-
-            if (result !== 'success') return;
-
-            if (isAgenting) {
-              await endMasquerade();
-            }
-
-            if (selectCompanyHierarchyId) {
-              await endUserMasqueradingCompany();
-            }
-          } catch (e) {
-            b2bLogger.error(e);
-          } finally {
-            // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
-            window.sessionStorage.clear();
-            logoutSession();
-            window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
-            setLoading(false);
-          }
+          await logout();
         }
+
         setLoading(false);
       } finally {
         setLoading(false);
       }
-    };
-
-    logout();
-  }, [b3Lang, endMasquerade, isLoggedIn, isAgenting, searchParams, selectCompanyHierarchyId]);
+    })();
+  }, [b3Lang, isLoggedIn, logout, searchParams]);
 
   const tipInfo = (loginFlag: LoginFlagType, email = '') => {
     const { tip, alertType } = loginType[loginFlag];
@@ -251,11 +203,9 @@ export default function Login(props: PageProps) {
           storeDispatch(setB2BToken(token));
           customerLoginAPI(storefrontLoginToken);
 
-          const loginInformation = {
+          dispatchOnLoginEvent({
             storefrontToken: storefrontLoginToken,
-          };
-
-          dispatchOnLoginEvent(loginInformation);
+          });
 
           if (errors?.[0] || !token) {
             if (errors?.[0]) {
@@ -304,14 +254,6 @@ export default function Login(props: PageProps) {
       }
     },
   );
-
-  const handleCreateAccountSubmit = () => {
-    navigate('/register');
-  };
-
-  const gotoForgotPassword = () => {
-    navigate('/forgotPassword');
-  };
 
   const loginAndRegisterContainerWidth = registerEnabled ? '100%' : '50%';
   const loginContainerWidth = registerEnabled ? '50%' : 'auto';
@@ -420,7 +362,7 @@ export default function Login(props: PageProps) {
                       >
                         <LoginForm
                           loginBtn={loginInfo.loginBtn}
-                          gotoForgotPassword={gotoForgotPassword}
+                          gotoForgotPassword={() => navigate('/forgotPassword')}
                           handleLoginSubmit={handleLoginSubmit}
                           backgroundColor={backgroundColor}
                         />
@@ -436,7 +378,7 @@ export default function Login(props: PageProps) {
                           <LoginPanel
                             createAccountButtonText={loginInfo.createAccountButtonText}
                             widgetBodyText={loginInfo.widgetBodyText}
-                            handleSubmit={handleCreateAccountSubmit}
+                            handleSubmit={() => navigate('/register')}
                           />
                         </Box>
                       )}
