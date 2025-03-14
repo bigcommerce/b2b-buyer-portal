@@ -26,7 +26,7 @@ import { RegisterFields } from './types';
 
 interface RegisterCompleteProps {
   handleBack: () => void;
-  handleNext: () => void;
+  handleNext: (password: string) => void;
 }
 
 type RegisterCompleteList = Array<RegisterFields> | undefined;
@@ -395,8 +395,8 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
   };
 
   const handleCompleted = (event: MouseEvent) => {
-    handleSubmit(async (completeData: CustomFieldItems) => {
-      if (completeData.password !== completeData.confirmPassword) {
+    handleSubmit(async ({ password, confirmPassword }: CustomFieldItems) => {
+      if (password !== confirmPassword) {
         setError('confirmPassword', {
           type: 'manual',
           message: b3Lang('global.registerComplete.passwordMatchPrompt'),
@@ -424,15 +424,19 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
 
           let isAuto = true;
           if (accountType === '2') {
-            await getBCFieldsValue(completeData);
+            await getBCFieldsValue({ password, confirmPassword });
           } else {
             const attachmentsList = companyInformation.filter((list) => list.fieldType === 'files');
             const fileList = await getFileUrl(attachmentsList || []);
-            const res = await getBCFieldsValue(completeData);
+            const res = await getBCFieldsValue({ password, confirmPassword });
             const {
               customerCreate: { customer: data },
             } = res;
-            const accountInfo = await getB2BFieldsValue(completeData, data.id, fileList);
+            const accountInfo = await getB2BFieldsValue(
+              { password, confirmPassword },
+              data.id,
+              fileList,
+            );
 
             const companyStatus = accountInfo?.companyCreate?.company?.companyStatus || '';
             isAuto = Number(companyStatus) === 1;
@@ -445,9 +449,9 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
               blockPendingAccountOrderCreation,
             },
           });
-          saveRegisterPassword(completeData);
+          saveRegisterPassword({ password, confirmPassword });
           await handleSendSubscribersState();
-          handleNext();
+          handleNext(password);
         } catch (err: any) {
           setErrorMessage(err?.message || err);
         } finally {
