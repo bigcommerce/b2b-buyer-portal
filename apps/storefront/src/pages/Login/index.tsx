@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { B2BEvent, useB2BCallback } from '@b3/hooks';
+import { dispatchEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Alert, Box, ImageListItem } from '@mui/material';
 
@@ -154,106 +154,99 @@ export default function Login(props: PageProps) {
     return false;
   };
 
-  const handleLoginSubmit = useB2BCallback(
-    B2BEvent.OnLogin,
-    async (dispatchOnLoginEvent, data: LoginConfig) => {
-      setLoading(true);
-      setLoginAccount(data);
-      setSearchParams((prevURLSearchParams) => {
-        prevURLSearchParams.delete('loginFlag');
-        return prevURLSearchParams;
-      });
+  const handleLoginSubmit = async (data: LoginConfig) => {
+    setLoading(true);
+    setLoginAccount(data);
+    setSearchParams((prevURLSearchParams) => {
+      prevURLSearchParams.delete('loginFlag');
+      return prevURLSearchParams;
+    });
 
-      if (isCheckout) {
-        try {
-          const response = await loginCheckout(data);
+    if (isCheckout) {
+      try {
+        const response = await loginCheckout(data);
 
-          if (response.status === 400 && response.type === 'reset_password_before_login') {
-            setLoginFlag('resetPassword');
-          } else if (response.type === 'invalid_login') {
-            setLoginFlag('accountIncorrect');
-          } else {
-            window.location.href = CHECKOUT_URL;
-          }
-        } catch (error) {
-          b2bLogger.error(error);
-          await getForcePasswordReset(data.emailAddress);
-        } finally {
-          setLoading(false);
+        if (response.status === 400 && response.type === 'reset_password_before_login') {
+          setLoginFlag('resetPassword');
+        } else if (response.type === 'invalid_login') {
+          setLoginFlag('accountIncorrect');
+        } else {
+          window.location.href = CHECKOUT_URL;
         }
-      } else {
-        try {
-          const loginData = {
-            email: data.emailAddress,
-            password: data.password,
-            storeHash,
-            channelId,
-          };
-
-          const isForcePasswordReset = await forcePasswordReset(data.emailAddress, data.password);
-          if (isForcePasswordReset) return;
-
-          const {
-            login: {
-              result: { token, storefrontLoginToken },
-              errors,
-            },
-          } = await b2bLogin({ loginData });
-
-          storeDispatch(setB2BToken(token));
-          customerLoginAPI(storefrontLoginToken);
-
-          dispatchOnLoginEvent({
-            storefrontToken: storefrontLoginToken,
-          });
-
-          if (errors?.[0] || !token) {
-            if (errors?.[0]) {
-              const { message } = errors[0];
-              if (
-                message === 'Operation cannot be performed as the storefront channel is not live'
-              ) {
-                setLoginFlag('accountPrelaunch');
-                setLoading(false);
-                return;
-              }
-            }
-            getForcePasswordReset(data.emailAddress);
-          } else {
-            const info = await getCurrentCustomerInfo(token);
-
-            if (quoteDetailToCheckoutUrl) {
-              navigate(quoteDetailToCheckoutUrl);
-              return;
-            }
-
-            if (
-              info?.userType === UserTypes.MULTIPLE_B2C &&
-              info?.role === CustomerRole.SUPER_ADMIN
-            ) {
-              navigate('/dashboard');
-              return;
-            }
-            const isLoginLandLocation = loginJump(navigate);
-
-            if (!isLoginLandLocation) return;
-
-            if (info?.userType === UserTypes.B2C) {
-              navigate(PATH_ROUTES.ORDERS);
-            }
-
-            const path = b2bJumpPath(info?.role);
-
-            navigate(path);
-          }
-        } catch (error) {
-          snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
-        } finally {
-          setLoading(false);
-        }
+      } catch (error) {
+        b2bLogger.error(error);
+        await getForcePasswordReset(data.emailAddress);
+      } finally {
+        setLoading(false);
       }
-    },
-  );
+    } else {
+      try {
+        const loginData = {
+          email: data.emailAddress,
+          password: data.password,
+          storeHash,
+          channelId,
+        };
+
+        const isForcePasswordReset = await forcePasswordReset(data.emailAddress, data.password);
+        if (isForcePasswordReset) return;
+
+        const {
+          login: {
+            result: { token, storefrontLoginToken },
+            errors,
+          },
+        } = await b2bLogin({ loginData });
+
+        storeDispatch(setB2BToken(token));
+        customerLoginAPI(storefrontLoginToken);
+
+        dispatchEvent('on-login', { storefrontToken: storefrontLoginToken });
+
+        if (errors?.[0] || !token) {
+          if (errors?.[0]) {
+            const { message } = errors[0];
+            if (message === 'Operation cannot be performed as the storefront channel is not live') {
+              setLoginFlag('accountPrelaunch');
+              setLoading(false);
+              return;
+            }
+          }
+          getForcePasswordReset(data.emailAddress);
+        } else {
+          const info = await getCurrentCustomerInfo(token);
+
+          if (quoteDetailToCheckoutUrl) {
+            navigate(quoteDetailToCheckoutUrl);
+            return;
+          }
+
+          if (
+            info?.userType === UserTypes.MULTIPLE_B2C &&
+            info?.role === CustomerRole.SUPER_ADMIN
+          ) {
+            navigate('/dashboard');
+            return;
+          }
+          const isLoginLandLocation = loginJump(navigate);
+
+          if (!isLoginLandLocation) return;
+
+          if (info?.userType === UserTypes.B2C) {
+            navigate(PATH_ROUTES.ORDERS);
+          }
+
+          const path = b2bJumpPath(info?.role);
+
+          navigate(path);
+        }
+      } catch (error) {
+        snackbar.error(b3Lang('login.loginTipInfo.accountIncorrect'));
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   const loginAndRegisterContainerWidth = registerEnabled ? '100%' : '50%';
   const loginContainerWidth = registerEnabled ? '50%' : 'auto';

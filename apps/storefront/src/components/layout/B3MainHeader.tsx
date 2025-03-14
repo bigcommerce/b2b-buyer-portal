@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { B2BEvent, useB2BCallback } from '@b3/hooks';
+import { dispatchEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Box, Button, Grid, Typography } from '@mui/material';
 
@@ -44,14 +44,13 @@ export default function MainHeader({ title }: { title: string }) {
 
   const customColor = getContrastColor(backgroundColor);
 
-  const onCartClick = useB2BCallback(B2BEvent.OnClickCartButton, (dispatchOnClickCartEvent) => {
-    const isNotPreventDefaultExecuted = dispatchOnClickCartEvent();
-    if (!isNotPreventDefaultExecuted) {
+  const onCartClick = () => {
+    if (!dispatchEvent('on-click-cart-button')) {
       return;
     }
 
     window.location.href = CART_URL;
-  });
+  };
 
   useEffect(() => {
     b3TriggerCartNumber();
