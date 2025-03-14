@@ -49,14 +49,14 @@ export function ForgotPassword({
   });
 
   const navigate = useNavigate();
-  const emailAddressReset = watch('emailAddress');
+  const emailReset = watch('email');
 
   useEffect(() => {
     if (captchaKey || !isEnabledOnStorefront) setIsCaptchaMissing(false);
   }, [captchaKey, isEnabledOnStorefront]);
 
   const handleLoginClick: SubmitHandler<LoginConfig> = async (data) => {
-    const { emailAddress } = data;
+    const { email } = data;
 
     if (isEnabledOnStorefront && !captchaKey) {
       setIsCaptchaMissing(true);
@@ -67,7 +67,7 @@ export function ForgotPassword({
       setLoading(true);
       if (isEnabledOnStorefront && captchaKey) {
         try {
-          await requestResetPassword(captchaKey, emailAddressReset);
+          await requestResetPassword(captchaKey, emailReset);
           navigate('/login?loginFlag=receivePassword');
           setLoading(false);
         } catch (e) {
@@ -76,7 +76,7 @@ export function ForgotPassword({
       }
 
       if (!isEnabledOnStorefront) {
-        await sendEmail(emailAddress);
+        await sendEmail(email);
         setLoading(false);
         navigate('/login?loginFlag=receivePassword');
       }
@@ -169,7 +169,7 @@ export function ForgotPassword({
               <Captcha
                 siteKey={storefrontSiteKey}
                 size="normal"
-                email={emailAddressReset}
+                email={emailReset}
                 handleGetKey={setCaptchaKey}
               />
             </Box>

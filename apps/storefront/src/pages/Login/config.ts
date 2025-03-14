@@ -5,7 +5,7 @@ import { BigCommerceStorefrontAPIBaseURL, validatorRules } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
 export type LoginConfig = {
-  emailAddress: string;
+  email: string;
   password: string;
 };
 
@@ -16,7 +16,7 @@ interface ChannelIdProps {
 
 export const getForgotPasswordFields = (b3Lang: LangFormatFunction) => [
   {
-    name: 'emailAddress',
+    name: 'email',
     label: b3Lang('global.loginText.emailAddress'),
     required: true,
     default: '',
@@ -60,10 +60,7 @@ export const loginCheckout = (data: LoginConfig) => {
     headers: {
       'content-type': 'application/json',
     },
-    body: JSON.stringify({
-      email: data.emailAddress,
-      password: data.password,
-    }),
+    body: JSON.stringify(data),
   };
 
   return fetch(
@@ -73,9 +70,9 @@ export const loginCheckout = (data: LoginConfig) => {
   ).then((response) => response.json());
 };
 
-export const sendEmail = (emailAddress: string) => {
+export const sendEmail = (email: string) => {
   const urlencoded = new URLSearchParams();
-  urlencoded.append('email', emailAddress);
+  urlencoded.append('email', email);
 
   const requestOptions: RequestInit = {
     method: 'POST',

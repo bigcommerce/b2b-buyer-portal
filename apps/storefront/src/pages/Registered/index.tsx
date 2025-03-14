@@ -29,7 +29,6 @@ import {
 import RegisterContent from './RegisterContent';
 import RegisteredStep from './RegisteredStep';
 import { RegisteredContainer, RegisteredImage } from './styled';
-import { RegisterFields } from './types';
 
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2];
@@ -51,14 +50,7 @@ function Registered(props: PageProps) {
   } = useContext(GlobalContext);
 
   const {
-    state: {
-      isLoading,
-      accountType,
-      contactInformation = [],
-      passwordInformation = [],
-      bcPasswordInformation = [],
-      bcContactInformation = [],
-    },
+    state: { isLoading },
     dispatch,
   } = useContext(RegisteredContext);
 
@@ -184,22 +176,6 @@ function Registered(props: PageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getLoginData = () => {
-    const emailAddress =
-      ((accountType === '1' ? contactInformation : bcContactInformation).find(
-        (field: RegisterFields) => field.name === 'email',
-      )?.default as string) || '';
-
-    const password =
-      ((accountType === '1' ? passwordInformation : bcPasswordInformation).find(
-        (field: RegisterFields) => field.name === 'password',
-      )?.default as string) || '';
-
-    return {
-      emailAddress,
-      password,
-    };
-  };
   const handleNext = async () => {
     setActiveStep((prevActiveStep: number) => prevActiveStep + 1);
   };
@@ -231,7 +207,7 @@ function Registered(props: PageProps) {
     }
   };
 
-  const handleFinish = async () => {
+  const handleFinish = async ({ email, password }: LoginConfig) => {
     dispatch({
       type: 'loading',
       payload: {
@@ -239,29 +215,25 @@ function Registered(props: PageProps) {
       },
     });
 
-    const data: LoginConfig = getLoginData();
-
     if (isCheckout) {
       try {
-        await loginCheckout(data);
+        await loginCheckout({ email, password });
         window.location.reload();
       } catch (error) {
         b2bLogger.error(error);
       }
     } else {
       try {
-        const getBCFieldsValue = {
-          email: data.emailAddress,
-          pass: data.password,
-        };
+        const customer = await bcLogin({
+          email,
+          pass: password,
+        }).then((res) => res?.data?.login?.customer);
 
-        const { data: bcData } = await bcLogin(getBCFieldsValue);
-
-        if (bcData?.login?.customer) {
+        if (customer) {
           B3SStorage.set('loginCustomer', {
-            emailAddress: bcData.login.customer.email,
-            phoneNumber: bcData.login.customer.phone,
-            ...bcData.login.customer,
+            emailAddress: customer.email,
+            phoneNumber: customer.phone,
+            ...customer,
           });
         }
 
