@@ -362,7 +362,6 @@ export default function Login(props: PageProps) {
                       >
                         <LoginForm
                           loginBtn={loginInfo.loginBtn}
-                          gotoForgotPassword={() => navigate('/forgotPassword')}
                           handleLoginSubmit={handleLoginSubmit}
                           backgroundColor={backgroundColor}
                         />
@@ -378,7 +377,6 @@ export default function Login(props: PageProps) {
                           <LoginPanel
                             createAccountButtonText={loginInfo.createAccountButtonText}
                             widgetBodyText={loginInfo.widgetBodyText}
-                            handleSubmit={() => navigate('/register')}
                           />
                         </Box>
                       )}
