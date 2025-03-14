@@ -7,9 +7,6 @@ export type LoginFlagType =
   | 'accountIncorrect'
   | 'accountPrelaunch'
   | 'deviceCrowdingLogIn'
-  | 'invoiceErrorTip'
-  | '';
+  | 'invoiceErrorTip';
 
-type ValidLoginFlagType = Exclude<LoginFlagType, ''>;
-
-export type LoginTypeConfig = Record<ValidLoginFlagType, { alertType: AlertColor; tip: string }>;
+export type LoginTypeConfig = Record<LoginFlagType, { alertType: AlertColor; tip: string }>;
