@@ -47,10 +47,6 @@ export const b2bPermissionsMap = {
   purchasabilityPermission: 'purchase_enable',
 
   companyHierarchyPermission: 'get_company_subsidiaries',
-};
+} as const;
 
-type B2BPermissionsMap = typeof b2bPermissionsMap;
-
-export type B2BPermissionsMapParams = {
-  [Key in keyof B2BPermissionsMap]: boolean;
-};
+export type B2BPermissionsMapParams = Record<keyof typeof b2bPermissionsMap, boolean>;
