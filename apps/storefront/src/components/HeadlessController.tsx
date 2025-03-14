@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
-import { B2BEvent } from '@b3/hooks';
+import { dispatchEvent } from '@b3/hooks';
 import Cookies from 'js-cookie';
 
 import { HeadlessRoutes } from '@/constants';
@@ -196,7 +196,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             } finally {
               window.sessionStorage.clear();
               logoutSession();
-              window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
+              dispatchEvent('on-logout');
             }
           },
         },

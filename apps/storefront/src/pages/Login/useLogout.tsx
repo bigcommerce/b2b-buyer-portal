@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { B2BEvent } from '@b3/hooks';
+import { dispatchEvent } from '@b3/hooks';
 
 import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/service/b2b';
 import { bcLogoutLogin } from '@/shared/service/bc';
@@ -53,7 +53,7 @@ export const useLogout = () => {
       // SUP-1282 Clear sessionStorage to allow visitors to display the checkout page
       window.sessionStorage.clear();
       logoutSession();
-      window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
+      dispatchEvent('on-logout');
     }
   };
 };
