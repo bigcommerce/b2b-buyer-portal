@@ -243,8 +243,8 @@ function Registered(props: PageProps) {
             : LOGIN_LANDING_LOCATIONS.BUYER_PORTAL;
 
           window.b2b.callbacks.dispatchEvent('on-registered', {
-            email: data.emailAddress,
-            password: data.password,
+            email: customer.emailAddress,
+            password: customer.password,
             landingLoginLocation,
           });
           window.location.hash = '';
