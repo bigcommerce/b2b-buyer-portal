@@ -296,21 +296,21 @@ export const getAllowedRoutesWithoutComponent = (globalState: GlobalState): Buye
 
     // b2b user
     const isHasPermissionRole = () => {
-      if (isB2BUser && permissionCodes) {
-        const isHasPermission = checkEveryPermissionsCode({
-          code: permissionCodes,
-        });
-
-        if (path === '/company-orders' && isHasPermission) {
-          return validatePermissionWithComparisonType({
-            code: item.permissionCodes,
-            level: 2,
-            containOrEqual: 'contain',
-          });
-        }
-        return isHasPermission;
+      if (!isB2BUser || !permissionCodes) {
+        return true;
       }
-      return true;
+
+      const hasPermission = checkEveryPermissionsCode(permissionCodes);
+
+      if (path === '/company-orders' && hasPermission) {
+        return validatePermissionWithComparisonType({
+          code: item.permissionCodes,
+          level: 2,
+          containOrEqual: 'contain',
+        });
+      }
+
+      return hasPermission;
     };
 
     if (!isHasPermissionRole()) return false;
