@@ -137,10 +137,7 @@ export default function Login(props: PageProps) {
   };
 
   const forcePasswordReset = async (email: string, password: string) => {
-    const { errors: bcErrors } = await bcLogin({
-      email,
-      pass: password,
-    });
+    const { errors: bcErrors } = await bcLogin({ email, password });
 
     if (bcErrors?.[0]) {
       const { message } = bcErrors[0];

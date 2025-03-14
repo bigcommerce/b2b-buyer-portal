@@ -2,23 +2,14 @@ import { useEffect, useMemo, useRef } from 'react';
 
 import { themeFrameSelector, useAppSelector } from '@/store';
 
-// eslint-disable-next-line
-import FRAME_HANDLER_CODE from './frameCaptchaCode.js?raw'
+import FRAME_HANDLER_CODE from './frameCaptchaCode.js?raw';
 
 const CAPTCHA_URL = 'https://www.google.com/recaptcha/api.js?render=explicit';
-const CAPTCHA_VARIABLES: Record<string, string> = {
-  PREFIX: '',
-  PARENT_ORIGIN: window.location.origin,
-  CAPTCHA_SUCCESS: 'captcha-success',
-  CAPTCHA_ERROR: 'captcha-error',
-  CAPTCHA_EXPIRED: 'captcha-expired',
-};
 
-export interface CaptchaProps {
+interface CaptchaProps {
   siteKey: string;
   size?: 'compact' | 'normal';
   theme?: 'dark' | 'light';
-  email?: string;
   handleGetKey: (arg: string) => void;
 }
 
@@ -34,47 +25,38 @@ export function loadCaptchaWidgetHandlers(
   iframeDocument: HTMLIFrameElement['contentDocument'],
   widgetId: string,
 ) {
-  if (!iframeDocument) return;
-
-  let code = FRAME_HANDLER_CODE;
-
-  CAPTCHA_VARIABLES.PREFIX = widgetId;
-
-  Object.entries(CAPTCHA_VARIABLES).forEach(([key, value]) => {
-    code = code.replace(RegExp(key, 'g'), value);
-  });
+  if (!iframeDocument) {
+    return;
+  }
 
   const handlerScript = iframeDocument.createElement('script');
+
+  const code = FRAME_HANDLER_CODE.replace(/PREFIX/g, widgetId).replace(
+    /PARENT_ORIGIN/g,
+    window.location.origin,
+  );
+
   handlerScript.textContent = code;
   iframeDocument.head.appendChild(handlerScript);
 }
 
-export function generateWidgetId() {
-  return `widget_${Date.now()}`;
-}
+const useWidgetId = () => {
+  return useMemo(() => `widget_${Date.now()}`, []);
+};
 
-export function Captcha(props: CaptchaProps) {
-  const { theme, size, email, handleGetKey, siteKey } = props;
+export function Captcha({ theme, size, handleGetKey, siteKey }: CaptchaProps) {
   const iframeDocument = useAppSelector(themeFrameSelector);
-  const widgetId = useMemo(() => generateWidgetId(), []);
+  const widgetId = useWidgetId();
   const initialized = useRef(false);
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event?.data?.startsWith?.(widgetId)) {
         const message = event.data.slice(widgetId.length);
-        const data = JSON.parse(message);
+        const { payload: key, type } = JSON.parse(message);
 
-        const key = data.payload;
-        switch (data.type) {
-          case CAPTCHA_VARIABLES.CAPTCHA_SUCCESS:
-            if (key) {
-              handleGetKey(key);
-            }
-            break;
-
-          default:
-            break;
+        if (type === 'CAPTCHA_SUCCESS' && key) {
+          handleGetKey(key);
         }
       }
     };
@@ -86,7 +68,7 @@ export function Captcha(props: CaptchaProps) {
         window.removeEventListener('message', onMessage);
       }
     };
-  }, [email, widgetId, handleGetKey]);
+  }, [widgetId, handleGetKey]);
 
   useEffect(() => {
     if (iframeDocument === undefined || initialized.current) {
