@@ -24,7 +24,6 @@ interface RegisterState {
   isLoading?: boolean;
   submitSuccess?: boolean;
   isAutoApproval?: boolean;
-  storeName?: string;
   blockPendingAccountOrderCreation?: boolean;
   bcTob2bContactInformation?: Array<RegisterFields>;
   bcTob2bCompanyExtraFields?: Array<RegisterFields>;
@@ -63,7 +62,6 @@ const initState = {
   countryList: [],
   stateList: [],
   isLoading: false,
-  storeName: '',
   submitSuccess: false,
   isAutoApproval: true,
   blockPendingAccountOrderCreation: true,

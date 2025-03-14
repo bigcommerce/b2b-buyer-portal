@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
 import { Box, ImageListItem, Typography } from '@mui/material';
@@ -14,7 +14,7 @@ import { GlobalContext } from '@/shared/global';
 import { getStorefrontToken, requestResetPassword } from '@/shared/service/b2b/graphql/recaptcha';
 import b2bLogger from '@/utils/b3Logger';
 
-import { getForgotPasswordFields, LoginConfig, sendEmail } from '../Login/config';
+import { getForgotPasswordFields, sendForgotPasswordEmailFor } from '../Login/config';
 import { B3ResetPassWordButton, LoginImage } from '../Login/styled';
 import { type PageProps } from '../PageProps';
 
@@ -22,6 +22,10 @@ interface ForgotPasswordProps extends PageProps {
   logo?: string;
   isEnabledOnStorefront: boolean;
   storefrontSiteKey: string;
+}
+
+interface FormFields {
+  email: string;
 }
 
 export function ForgotPassword({
@@ -43,21 +47,17 @@ export function ForgotPassword({
     getValues,
     formState: { errors },
     setValue,
-    watch,
-  } = useForm<LoginConfig>({
+  } = useForm<FormFields>({
     mode: 'onSubmit',
   });
 
   const navigate = useNavigate();
-  const emailReset = watch('email');
 
   useEffect(() => {
     if (captchaKey || !isEnabledOnStorefront) setIsCaptchaMissing(false);
   }, [captchaKey, isEnabledOnStorefront]);
 
-  const handleLoginClick: SubmitHandler<LoginConfig> = async (data) => {
-    const { email } = data;
-
+  const handleLoginClick = handleSubmit(async ({ email }) => {
     if (isEnabledOnStorefront && !captchaKey) {
       setIsCaptchaMissing(true);
       return;
@@ -67,7 +67,7 @@ export function ForgotPassword({
       setLoading(true);
       if (isEnabledOnStorefront && captchaKey) {
         try {
-          await requestResetPassword(captchaKey, emailReset);
+          await requestResetPassword(captchaKey, email);
           navigate('/login?loginFlag=receivePassword');
           setLoading(false);
         } catch (e) {
@@ -76,14 +76,14 @@ export function ForgotPassword({
       }
 
       if (!isEnabledOnStorefront) {
-        await sendEmail(email);
+        await sendForgotPasswordEmailFor(email);
         setLoading(false);
         navigate('/login?loginFlag=receivePassword');
       }
     } catch (e) {
       b2bLogger.error(e);
     }
-  };
+  });
 
   return (
     <B3Card setOpenPage={setOpenPage}>
@@ -166,12 +166,7 @@ export function ForgotPassword({
           )}
           {isEnabledOnStorefront ? (
             <Box sx={{ marginTop: '20px' }}>
-              <Captcha
-                siteKey={storefrontSiteKey}
-                size="normal"
-                email={emailReset}
-                handleGetKey={setCaptchaKey}
-              />
+              <Captcha siteKey={storefrontSiteKey} size="normal" handleGetKey={setCaptchaKey} />
             </Box>
           ) : (
             ''
@@ -181,7 +176,7 @@ export function ForgotPassword({
               <CustomButton
                 type="submit"
                 size="medium"
-                onClick={handleSubmit(handleLoginClick)}
+                onClick={handleLoginClick}
                 variant="contained"
                 sx={{ width: 'auto' }}
               >

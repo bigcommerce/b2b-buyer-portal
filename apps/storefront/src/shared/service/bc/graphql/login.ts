@@ -27,8 +27,8 @@ interface UserLoginResult {
   };
 }
 
-const getbcLogin = () => `mutation Login($email: String!, $pass: String!) {
-  login(email: $email, password: $pass) {
+const getBcLogin = () => `mutation Login($email: String!, $password: String!) {
+  login(email: $email, password: $password) {
     result,
     customer {
       entityId,
@@ -69,16 +69,18 @@ export const b2bLogin = (variables: LoginData, customMessage = true): Promise<Us
     customMessage,
   );
 
-export const bcLogin = (data: CustomFieldItems) =>
-  platform === 'bigcommerce'
-    ? B3Request.graphqlBC({
-        query: getbcLogin(),
-        variables: data,
-      })
-    : B3Request.graphqlBCProxy({
-        query: getbcLogin(),
-        variables: data,
-      });
+interface LoginVariables {
+  email: string;
+  password: string;
+}
+
+export const bcLogin = (variables: LoginVariables) => {
+  const query = getBcLogin();
+
+  return platform === 'bigcommerce'
+    ? B3Request.graphqlBC({ query, variables })
+    : B3Request.graphqlBCProxy({ query, variables });
+};
 
 export const bcLogoutLogin = () =>
   platform === 'bigcommerce'

@@ -30,7 +30,7 @@ export const getForgotPasswordFields = (b3Lang: LangFormatFunction) => [
 
 export const getLoginFields = (b3Lang: LangFormatFunction, submitLoginFn: () => void) => [
   {
-    name: 'emailAddress',
+    name: 'email',
     label: b3Lang('global.loginText.emailAddress'),
     required: true,
     default: '',
@@ -70,7 +70,7 @@ export const loginCheckout = (data: LoginConfig) => {
   ).then((response) => response.json());
 };
 
-export const sendEmail = (email: string) => {
+export const sendForgotPasswordEmailFor = (email: string) => {
   const urlencoded = new URLSearchParams();
   urlencoded.append('email', email);
 

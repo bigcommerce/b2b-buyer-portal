@@ -46,9 +46,7 @@ function Registered(props: PageProps) {
 
   const IframeDocument = useAppSelector(themeFrameSelector);
 
-  const {
-    state: { isCheckout, isCloseGotoBCHome, logo, storeName, registerEnabled },
-  } = useContext(GlobalContext);
+  const { isCheckout, isCloseGotoBCHome, logo, registerEnabled } = useContext(GlobalContext).state;
 
   const {
     state: { isLoading },
@@ -56,11 +54,9 @@ function Registered(props: PageProps) {
   } = useContext(RegisteredContext);
 
   const {
-    state: {
-      accountLoginRegistration,
-      portalStyle: { backgroundColor = '#FEF9F5' },
-    },
-  } = useContext(CustomStyleContext);
+    accountLoginRegistration,
+    portalStyle: { backgroundColor = '#FEF9F5' },
+  } = useContext(CustomStyleContext).state;
 
   useEffect(() => {
     if (!registerEnabled) {
@@ -148,7 +144,6 @@ function Registered(props: PageProps) {
             payload: {
               accountType: accountB2cEnabledInfo ? '2' : '1',
               isLoading: false,
-              storeName,
               // account
               contactInformation: [...(b2bAccountFormFields.contactInformation || [])],
               bcContactInformation: [...(bcAccountFormFields.contactInformation || [])],
@@ -192,7 +187,6 @@ function Registered(props: PageProps) {
         payload: {
           accountType: '',
           isLoading: false,
-          storeName: '',
           submitSuccess: false,
           contactInformation: [],
           additionalInformation: [],
@@ -225,10 +219,9 @@ function Registered(props: PageProps) {
       }
     } else {
       try {
-        const customer = await bcLogin({
-          email,
-          pass: password,
-        }).then((res) => res?.data?.login?.customer);
+        const customer = await bcLogin({ email, password }).then(
+          (res) => res?.data?.login?.customer,
+        );
 
         if (customer) {
           B3SStorage.set('loginCustomer', {
