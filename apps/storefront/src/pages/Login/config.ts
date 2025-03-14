@@ -167,6 +167,13 @@ export const loginType: LoginTypeConfig = {
   },
 };
 
-export const isLoginFlagType = (value: string | null): value is LoginFlagType => {
-  return Object.keys(loginType).includes(value as keyof typeof loginType);
+export const isLoginFlagType = (value?: unknown): value is LoginFlagType => {
+  if (typeof value !== 'string') {
+    return false;
+  }
+
+  return Object.keys(loginType).includes(value);
 };
+
+export const parseLoginFlagType = (value: unknown): LoginFlagType | undefined =>
+  isLoginFlagType(value) ? value : undefined;
