@@ -49,6 +49,12 @@ jobs:
              mv config ${CIRCLE_SHA1}
              tar zcf ${CIRCLE_SHA1}.tar.gz ${CIRCLE_SHA1}
              ./google-cloud-sdk/bin/gsutil cp ${CIRCLE_SHA1}.tar.gz gs://bigcommerce-common-deployment-artifact-gcs-storage/b2b-buyer-portal/${CIRCLE_SHA1}.tar.gz
+  
+  validate-commits:
+    <<: *node_executor
+    steps:
+      - ci/pre-setup
+      - ci/validate-commits
 
 workflows:
   version: 2
@@ -59,10 +65,13 @@ workflows:
       - lint
       - build_and_push:
           context: "GCR + Artifact Bucket Access"
+      - validate-commits:
+          context: "GCR + Artifact Bucket Access"
       - ci/notify-success:
           context: "GCR + Artifact Bucket Access"
           requires:
             - build_and_push
+            - validate-commits
       - security/scan:
           name: "Gitleaks secrets scan"
           context: org-global
