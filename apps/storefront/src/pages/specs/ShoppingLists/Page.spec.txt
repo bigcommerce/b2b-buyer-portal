@@ -1,0 +1,647 @@
+Feature: Shopping lists page
+
+# === Viewing shopping lists ===
+
+Scenario: User visits the shopping lists page
+    Given the page is rendered
+    Then it displays a heading of "Shopping lists"
+
+Scenario: Awaiting shopping lists data to load
+    Given the shopping lists are loading
+    Then it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: Company shopping lists data fails to load and the user can create shopping lists
+    Given the COMPANY_SHOPPING_LISTS fails to load
+        And the user can CREATE_SHOPPING_LISTS
+    Then it displays a "No data" message (no mention of the error)
+        And it displays the search bar
+        And it does not display the "Filters" button
+        And it displays the "Create new" button
+
+Scenario: Company shopping lists data fails to load and the user cannot create shopping lists
+    Given the COMPANY_SHOPPING_LISTS fails to load
+        And the user cannot CREATE_SHOPPING_LISTS
+    Then it displays a "No data" message (no mention of the error)
+        And it displays the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: Personal shopping lists data fails to load
+    Given the PERSONAL_SHOPPING_LISTS fails to load
+    Then it displays a "No data" message (no mention of the error)
+        And it displays the search bar
+        And it does not display the "Filters" button
+        And it displays the "Create new" button
+
+Scenario: User has no company shopping lists, but can create shopping lists
+    Given the COMPANY_SHOPPING_LISTS load successfully
+        And there the user has no shopping lists
+        And the user can CREATE_SHOPPING_LISTS
+    Then it displays a "No data" message (same as in the failure case)
+        And it displays the search bar
+        And it displays the "Filters" button (different from the failure case)
+        And it displays the "Create new" button
+
+Scenario: User has no company shopping lists and cannot create shopping lists
+    Given the COMPANY_SHOPPING_LISTS load successfully
+        And there the user has no shopping lists
+        And the user cannot CREATE_SHOPPING_LISTS
+    Then it displays a "No data" message (same as in the failure case)
+        And it displays the search bar
+        And it displays the "Filters" button (different from the failure case)
+        And it does not display the "Create new" button
+
+Scenario: User has one or more company shopping lists
+    Given the COMPANY_SHOPPING_LISTS load successfully
+        And there are shopping lists
+    Then it displays a "card" for each shopping list (to a maximum of 12)
+        And each card displays the shopping list's name
+        And each card displays "Created by" and the creator's name
+        And each card displays "Products" and the product count
+        And each card displays "Last activity" and short format date (e.g. Mar 4th 2025)
+
+Scenario: User has one or more company shopping lists, some authored by a junior
+    Given the COMPANY_SHOPPING_LISTS load successfully
+        And there are shopping lists
+        And some of the shopping lists were authored by a user with ROLE_OF_JUNIOR
+    Then it displays a status badge for each shopping list authored by a user with ROLE_OF_JUNIOR
+        And it does not display a status badge for any other shopping lists
+
+Scenario: User has some personal shopping lists
+    Given the PERSONAL_SHOPPING_LISTS load successfully
+        And there are one or more shopping lists
+    Then it does not display a "Status" within any of the shopping list cards
+        And it does not display "Created by" or the creator's name within any of the shopping list cards
+
+Scenario: Navigating to a specific shopping list
+    Given the user clicks on the "VIEW" button within a shopping list card
+    Then it navigates to the "Shopping list details" page for that shopping list (e.g. "#/shoppingList/538765")
+
+# This a BE enforced behaviour
+Scenario: User with Junior role has some company shopping lists
+    Given the COMPANY_SHOPPING_LISTS load successfully
+        And the user has a ROLE_OF_JUNIOR
+        And there are one or more shopping lists
+    Then the only shopping lists authored by that user are displayed
+
+# This a BE enforced behaviour
+Scenario: User with a Admin/Senior role cannot see draft shopping lists
+    Given the COMPANY_SHOPPING_LISTS load successfully
+        And the user has a ROLE_OF_ADMIN or ROLE_OF_SENIOR
+        And there are one or more shopping lists
+        And some of the shopping lists are have a STATUS_OF_DRAFT
+    Then shopping lists with a STATUS_OF_DRAFT are not displayed
+
+# This a BE enforced behaviour
+Scenario: User with a Admin/Senior role cannot see rejected shopping lists
+    Given the COMPANY_SHOPPING_LISTS load successfully
+        And the user has a ROLE_OF_ADMIN or ROLE_OF_SENIOR
+        And there are one or more shopping lists
+        And the some of the shopping lists are have a STATUS_OF_REJECTED
+    Then shopping lists with a STATUS_OF_REJECTED are not displayed
+
+# Non user facing side-effect
+Scenario: Navigating to a specific shopping list
+    Given the user clicks on the "VIEW" button within a shopping list card
+    Then it sets navigation state to `{ from: 'shoppingList' }`
+
+# Non user facing side-effect
+Scenario: Alters global application state
+    Given the page is rendered
+    When `state.openAPPParams.shoppingListBtn` is truthy
+    Then it sets `state.openAPPParams.shoppingListBtn` to an empty string
+        And it sets `state.openAPPParams.quoteBtn` to an empty string
+
+# === Pagination ===
+
+Scenario: User is on the final page of shopping lists
+    Given the user is on the final page of shopping lists results
+    Then it displays the "Next" button (we should add an obvious disabled state)
+        And clicking it does nothing
+
+Scenario: User is on the first page of shopping lists
+    Given the user is on the fist page of shopping lists results
+    Then it displays the "Previous" button (we should add an obvious disabled state)
+        And clicking it does nothing
+
+Scenario: User can change to a subsequent page of shopping lists
+    Given the user has over 12 shopping lists
+    When the user clicks on the "Next" button
+    Then it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: User can change to a previous page of shopping lists
+    Given the user has over 12 shopping lists
+        And they are not on page 1
+    When the user clicks on the "Previous" button
+    Then it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: User attempts to change page, but the new results failed to load
+    Given the user has a possible next or previous page of results
+    When the user clicks on the "Next" or "Previous" button
+        And the new results fail to load
+    Then the pagination summary is updated (to the next/previous page number)
+        And it continues to display the current page of shopping lists
+        And it gives no indication of the error (we should change this)
+
+Scenario: The subsequent page of shopping lists successfully loads
+    Given the user has a next page of results available
+    When the user clicks on the "Next" button
+        And the next page of results loads
+    Then it displays the next page of shopping lists
+        And updates the pagination summary (e.g. `13-24 of 24`)
+
+Scenario: The previous page of shopping lists successfully loads
+    Given the user has a previous page of results available
+    When the user clicks on the "Previous" button
+        And the previous page of results loads
+    Then it displays the previous page of shopping lists
+        And updates the pagination summary (e.g. `1-12 of 24`)
+
+Scenario: User changes the amount of shopping lists displayed per page
+    Given there are one or more shopping list results
+    When the user clicks "Cards per page"
+    Then it displays a list of options: 12, 24, 36
+
+Scenario: User attempts to change page the number of cards per page, but the new results failed to load
+    Given there are one or more shopping list results
+    When the user clicks "Cards per page"
+    Then it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: User attempts to change page the number of cards per page, but the new results failed to load
+    Given there are one or more shopping list results
+    When the user clicks "Cards per page"
+        And the new results fail to load
+    Then it continues to display the current page of shopping lists
+        And it gives no indication of the error (we should change this)
+
+Scenario: User attempts to change page the number of cards per page and the new results load successfully
+    Given there are one or more shopping list results
+    When the user clicks "Cards per page"
+        And the new results load successfully
+    Then it displays the new number of shopping lists per page
+        And updates the pagination summary (e.g. `1-24 of 33`)
+
+# === Searching for a shopping list ===
+
+Scenario: User uses the search bar to narrow down shopping lists
+    Given the user types in a search term
+    Then it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: User searches against company shopping lists, but the search fails and the user can create shopping lists
+    Given the user types in a search term
+        And the search-refined COMPANY_SHOPPING_LISTS fails to load
+        And the user can CREATE_SHOPPING_LISTS
+    Then it gives no indication that the search failed
+        And it displays the shopping lists as before
+        And it displays the search bar
+        And it displays the "Filters" button
+        And it displays the "Create new" button
+
+Scenario: User searches against company shopping lists, but the search fails and the user cannot create shopping lists
+    Given the user types in a search term
+        And the search-refined COMPANY_SHOPPING_LISTS fails to load
+        And the user cannot CREATE_SHOPPING_LISTS
+    Then it gives no indication that the search failed
+        And it displays the shopping lists as before
+        And it displays the search bar
+        And it displays the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: User searches against personal shopping lists, but the search fails
+    Given the user types in a search term
+        And the search-refined PERSONAL_SHOPPING_LISTS fails to load
+    Then it gives no indication that the search failed
+        And it displays the shopping lists as before
+        And it displays the search bar
+        And it displays the "Filters" button
+        And it displays the "Create new" button
+
+Scenario: User searches against company shopping lists, but no results are found and the user can create shopping lists
+    Given the user types in a search term
+        And the search-refined COMPANY_SHOPPING_LISTS loads with no results
+        And the user can CREATE_SHOPPING_LISTS
+    Then it displays a "No data" message
+        And it displays the search bar
+        And it displays the "Filters" button 
+        And it displays the "Create new" button
+
+Scenario: User searches against company shopping lists, but no results are found and the user cannot create shopping lists
+    Given the user types in a search term
+        And the search-refined COMPANY_SHOPPING_LISTS loads with no results
+        And the user cannot CREATE_SHOPPING_LISTS
+    Then it displays a "No data" message
+        And it displays the search bar
+        And it displays the "Filters" button 
+        And it does not display the "Create new" button
+
+Scenario: User searches against personal shopping lists, but no results are found
+    Given the user types in a search term
+        And the search-refined PERSONAL_SHOPPING_LISTS loads with no results
+    Then it displays a "No data" message
+        And it displays the search bar
+        And it displays the "Filters" button 
+        And it displays the "Create new" button
+
+Scenario: User searches against company shopping lists and results are found and the user can create shopping lists
+    Given the user types in a search term
+        And the search-refined COMPANY_SHOPPING_LISTS loads with one or more results
+        And the user can CREATE_SHOPPING_LISTS
+    Then it displays shopping lists that match the search term
+        And it displays the search bar
+        And it displays the "Filters" button
+        And it displays the "Create new" button
+
+Scenario: User searches against company shopping lists and results are found, but the user cannot create shopping lists
+    Given the user types in a search term
+        And the search-refined COMPANY_SHOPPING_LISTS loads with one or more results
+        And the user cannot CREATE_SHOPPING_LISTS
+    Then it displays shopping lists that match the search term
+        And it displays the search bar
+        And it displays the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: User searches against personal shopping lists and results are found
+    Given the user types in a search term
+        And the search-refined PERSONAL_SHOPPING_LISTS loads with one or more results
+    Then it displays shopping lists that match the search term
+        And it displays the search bar
+        And it displays the "Filters" button
+        And it displays the "Create new" button
+
+Scenario: User clears the search bar
+    Given the search bar has a search term
+    When the user clears the search term (by deleting or clicking the "x" button)
+    Then it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: The search bar is empty
+    Given the search bar is empty
+    Then it does not display the "x" button
+
+# === Filtering shopping lists ===
+
+Scenario: Personal shopping lists are not filterable
+    Given the page is displaying the user's PERSONAL_SHOPPING_LISTS
+    Then it does not display the "Filters" button
+
+Scenario: Company shopping lists are filterable
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+    Then it displays the "Filters" button
+
+Scenario: User wants to filter shopping lists
+    Given the user clicks on the "Filters" button
+    Then it opens the "Filters" modal
+        And it displays an empty "Created by" select
+        And it displays an empty "Status" select
+ 
+Scenario: User changes their mind about filtering shopping lists
+    Given the "Filters" modal is open
+    When the user clicks the "Cancel" button
+    Then it closes the modal
+
+Scenario: User wants to filter shopping lists by creator
+    Given the "Filters" modal is open
+    When the user opens the "Created by" select
+    Then it displays a list of creators as options
+        And they are displayed in the format `John Smith (j.smith@yahoo.com)`
+
+Scenario: User is waiting for the filters to apply
+    Given the "Filters" modal is open
+    When the user clicks the "Apply" button
+    Then it closes the "Filters" modal
+        And it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: User attempts to apply filters, but applying filters fails and the user can create shopping lists
+    Given the "Filters" modal is open
+        And the user can CREATE_SHOPPING_LISTS
+    When the user clicks the "Apply" button
+        And applying filters fails
+    Then it closes the modal
+        And it displays a "No data" message (no mention of the error)
+        And it displays the search bar
+        And it displays the "Filters" button
+        And it displays the "Create new" button
+
+Scenario: User attempts to apply filters, but applying filters fails and the user cannot create shopping lists
+    Given the "Filters" modal is open
+        And the user cannot CREATE_SHOPPING_LISTS
+    When the user clicks the "Apply" button
+        And applying filters fails
+    Then it closes the modal
+        And it displays a "No data" message (no mention of the error)
+        And it displays the search bar
+        And it displays the "Filters" button
+        And it does not display the "Create new" button
+
+Scenario: User attempts to apply filters, but no matching results are found and the user can create shopping lists
+    Given the "Filters" modal is open
+        And the user can CREATE_SHOPPING_LISTS
+    When the user clicks the "Apply" button
+        And no matching results are found
+    Then it closes the modal
+        And it displays a "No data" message
+        And it displays the search bar
+        And it displays the "Filters" button
+        And the "Filters" button displays the amount of applied filters
+        And it displays the "Create new" button
+
+Scenario: User attempts to apply filters, but no matching results are found and the user cannot create shopping lists
+    Given the "Filters" modal is open
+        And the user cannot CREATE_SHOPPING_LISTS
+    When the user clicks the "Apply" button
+        And no matching results are found
+    Then it closes the modal
+        And it displays a "No data" message
+        And it displays the search bar
+        And it displays the "Filters" button
+        And the "Filters" button displays the amount of applied filters
+        And it does not display the "Create new" button
+
+Scenario: User attempts to apply filters, and matching results are found and the user can create shopping lists
+    Given the "Filters" modal is open
+        And the user can CREATE_SHOPPING_LISTS
+    When the user clicks the "Apply" button
+        And matching results are found
+    Then it closes the modal
+        And it displays the filtered shopping lists
+        And it displays the search bar
+        And it displays the "Filters" button
+        And the "Filters" button displays the amount of applied filters
+        And it displays the "Create new" button
+
+Scenario: User attempts to apply filters, and matching results are found and the user cannot create shopping lists
+    Given the "Filters" modal is open
+        And the user cannot CREATE_SHOPPING_LISTS
+    When the user clicks the "Apply" button
+        And matching results are found
+    Then it closes the modal
+        And it displays the filtered shopping lists
+        And it displays the search bar
+        And it displays the "Filters" button
+        And the "Filters" button displays the amount of applied filters
+        And it does not display the "Create new" button
+
+# === Creating a shopping list ===
+
+Scenario: Personal shopping lists are always creatable 
+    Given the page is displaying the user's PERSONAL_SHOPPING_LISTS
+    Then it displays the "Create new" button
+
+Scenario: Company shopping lists are being displayed and the user can create shopping lists
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user can CREATE_SHOPPING_LISTS
+    Then it displays the "Create new" button
+
+Scenario: Company shopping lists are being displayed and the user cannot create shopping lists
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user cannot CREATE_SHOPPING_LISTS
+    Then it does not display the "Create new" button
+
+Scenario: User wants to create a new shopping list
+    Given the user clicks on the "Create new" button
+    Then it opens the "Create new shopping list" modal
+        And it displays an empty "Name" field
+        And it displays an empty "Description" field
+
+Scenario: User changes their mind about creating a shopping list
+    Given the "Create new shopping list" modal is open
+    When the user clicks the "Cancel" button
+    Then it closes the modal
+
+Scenario: User provides an invalid name when creating a shopping list
+    Given the "Create new shopping list" modal is open
+    When the user does not enter a "Name"
+        And the user clicks the "Save" button
+    Then it displays an error message of "Name is required" below the "Name" field
+
+Scenario: User is waiting for a new shopping list to be created
+    Given the "Create new shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then the "Save" button is replaced with a loading spinner
+        And the "Cancel" button remains clickable (we should change this)
+        And the fields remains editable (we should change this)
+
+Scenario: User attempts to create a new shopping list, but the creation fails
+    Given the "Create new shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+        And the creation fails
+    Then the modal remains open
+        And the "Save" button re-replaces the loading spinner
+        And there is no way of knowing that the save failed (we should change this)
+
+Scenario: User attempts to create a new shopping list, and the creation succeeds
+    Given the "Create new shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then it displays a success alert of "The shopping list was successfully added"
+        And it closes the modal
+        And it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+# === Editing a shopping list ===
+
+Scenario: Personal shopping lists are always editable 
+    Given the page is displaying the user's PERSONAL_SHOPPING_LISTS
+    Then it displays the "Edit" icon button
+
+Scenario: User with a Admin/Senior role cannot edit a shopping list which is ready for approval
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user has a ROLE_OF_ADMIN or ROLE_OF_SENIOR
+        And a specific shopping list's has a STATUS_OF_READY_FOR_APPROVAL
+    Then it does not display the "Edit" icon button for that specific shopping list
+
+Scenario: User with a Admin/Senior role can edit a shopping in any other status than ready for approval
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user has a ROLE_OF_ADMIN or ROLE_OF_SENIOR
+        And a specific shopping list's does not have a STATUS_OF_READY_FOR_APPROVAL
+    Then it displays the "Edit" icon button for that specific shopping list
+
+Scenario: User with a Junior role cannot edit a shopping list which is ready for approval
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user has a ROLE_OF_JUNIOR
+        And a specific shopping list's has a STATUS_OF_READY_FOR_APPROVAL
+    Then it does not display the "Edit" icon button for that specific shopping list
+
+Scenario: User with a Junior role cannot edit a shopping list which was rejected
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user has a ROLE_OF_JUNIOR
+        And a specific shopping list's has a STATUS_OF_REJECTED
+    Then it does not display the "Edit" icon button for that specific shopping list
+
+Scenario: User with a Junior role can edit a shopping list which is draft or approved
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user has a ROLE_OF_JUNIOR
+        And a specific shopping list's has a STATUS_OF_DRAFT or STATUS_OF_APPROVED
+    Then it displays the "Edit" icon button for that specific shopping list
+
+Scenario: User changes their mind about editing a shopping list
+    Given the "Edit shopping list" modal is open
+    When the user clicks the "Cancel" button
+    Then it closes the modal
+
+Scenario: User provides an invalid name when editing a shopping list
+    Given the "Edit shopping list" modal is open
+    When the user empties the "Name" field
+    Then it displays an error message of "Name is required" below the "Name" field
+
+Scenario: User is waiting for an edit to save
+    Given the "Edit shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then the "Save" button is replaced with a loading spinner
+        And the "Cancel" button remains clickable (we should change this)
+        And the fields remains editable (we should change this)
+
+Scenario: User attempts to save an edit, but the save fails
+    Given the "Edit shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+        And the save fails
+    Then the modal remains open
+        And the "Save" button re-replaces the loading spinner
+        And there is no way of knowing that the save failed (we should change this)
+
+Scenario: User attempts to save an edit, and the save succeeds
+    Given the "Edit shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then it displays a success alert of "The shopping list was successfully updated"
+        And it closes the modal
+        And it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+# === Deleting a shopping list ===
+
+Scenario: Personal shopping lists are always delete-able 
+    Given the page is displaying the user's PERSONAL_SHOPPING_LISTS
+    Then it displays the "Delete" icon button
+
+Scenario: User with Junior role can delete their own, unapproved company shopping lists
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user has a ROLE_OF_JUNIOR
+        And the shopping list is in any other status than a STATUS_OF_APPROVED
+    Then it displays the "Delete" icon button for that specific shopping list
+
+Scenario: User with Junior role cannot delete their own, approved company shopping lists
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user has a ROLE_OF_JUNIOR
+        And the shopping list has a STATUS_OF_APPROVED
+    Then it does not display the "Delete" icon button for that specific shopping list
+
+Scenario: User with an Admin/Senior role can delete any company shopping list
+    Given the page is displaying the user's COMPANY_SHOPPING_LISTS
+        And the user has an ROLE_OF_ADMIN or ROLE_OF_SENIOR
+    Then it displays the "Delete" icon button for all shopping lists
+
+Scenario: User changes their mind about deleting a shopping list
+    Given the "Delete shopping list" modal is open
+    When the user clicks the "Cancel" button
+    Then it closes the modal
+
+Scenario: User is waiting for a delete to occur
+    Given the "Delete shopping list" modal is open
+    When the user clicks the "Delete" button
+    Then the "Delete" button is replaced with a loading spinner
+        And the "Cancel" button remains clickable (we should change this)
+
+Scenario: User attempts to delete a shopping list, but the delete fails
+    Given the "Delete shopping list" modal is open
+    When the user clicks the "Delete" button
+        And the delete fails
+    Then it closes the modal
+        And the shopping list is still displayed in the list
+        And there is no explanation of what happened (we should change this)
+
+Scenario: User attempts to delete a shopping list, and delete succeeds
+    Given the "Delete shopping list" modal is open
+    When the user clicks the "Delete" button
+    Then it displays a success alert of "The shopping list was successfully deleted"
+        And it closes the modal
+        And it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
+
+# === Duplicate a shopping list ===
+
+# Shopping lists are always duplicatable, regardless of personal/company or roles
+Scenario: User wants to duplicate a shopping list
+    Given the user clicks on the "duplicate" icon button within a shopping list card
+    Then it opens the "Duplicate shopping list" modal
+        And it displays the chosen shopping list's name in the "Name" field
+        And it displays the chosen shopping list's description in the "Description" field
+
+Scenario: User changes their mind about duplicating a shopping list
+    Given the "Duplicate shopping list" modal is open
+    When the user clicks the "Cancel" button
+    Then it closes the modal
+
+Scenario: User provides an invalid name when duplicating a shopping list
+    Given the "Duplicate shopping list" modal is open
+    When the user empties the "Name" field
+    Then it displays an error message of "Name is required" below the "Name" field
+
+Scenario: User is waiting for a duplicate to save
+    Given the "Duplicate shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then the "Save" button is replaced with a loading spinner
+        And the "Cancel" button remains clickable (we should change this)
+        And the fields remains editable (we should change this)
+
+Scenario: User attempts to save a duplicate, but the save fails
+    Given the "Duplicate shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+        And the save fails
+    Then the modal remains open
+        And the "Save" button re-replaces the loading spinner
+        And there is no way of knowing that the save failed (we should change this)
+
+Scenario: User attempts to save a duplicate, and save succeeds
+    Given the "Duplicate shopping list" modal is open
+        And the user has entered a valid "Name" and "Description"
+    When the user clicks the "Save" button
+    Then it displays a success alert of "The shopping list was successfully duplicated"
+        And it closes the modal
+        And it displays a loading spinner
+        And it does not display a table of shopping lists
+        And it does not display the search bar
+        And it does not display the "Filters" button
+        And it does not display the "Create new" button
