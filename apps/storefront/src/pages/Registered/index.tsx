@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { B2BEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Box, ImageListItem } from '@mui/material';
 
@@ -11,7 +12,7 @@ import { GlobalContext } from '@/shared/global';
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b';
 import { bcLogin } from '@/shared/service/bc';
 import { themeFrameSelector, useAppSelector } from '@/store';
-import { B3SStorage, loginJump } from '@/utils';
+import { B3SStorage, loginJump, platform } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -73,6 +74,7 @@ function Registered(props: PageProps) {
     if (!registerEnabled) {
       navigate('/login');
     }
+    // cspell:disable-next-line
     // disabling as we dont need to check for any changes in the navigate function
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registerEnabled]);
@@ -275,7 +277,29 @@ function Registered(props: PageProps) {
 
         const isLoginLandLocation = loginJump(navigate);
 
-        if (!isLoginLandLocation) return;
+        if (platform === 'catalyst') {
+          let landingLoginLocation;
+          if (isLoginLandLocation) {
+            landingLoginLocation = '1';
+          } else {
+            landingLoginLocation = '0';
+            setOpenPage({
+              isOpen: false,
+              openUrl: '',
+            });
+          }
+
+          window.b2b.callbacks.dispatchEvent(B2BEvent.OnRegistered, {
+            email: data.emailAddress,
+            password: data.password,
+            landingLoginLocation,
+          });
+          return;
+        }
+
+        if (!isLoginLandLocation) {
+          return;
+        }
 
         if (isCloseGotoBCHome) {
           window.location.href = '/';
