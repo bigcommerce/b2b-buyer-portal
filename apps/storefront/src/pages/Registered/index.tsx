@@ -283,10 +283,6 @@ function Registered(props: PageProps) {
             landingLoginLocation = '1';
           } else {
             landingLoginLocation = '0';
-            setOpenPage({
-              isOpen: false,
-              openUrl: '',
-            });
           }
 
           window.b2b.callbacks.dispatchEvent(B2BEvent.OnRegistered, {
@@ -294,6 +290,8 @@ function Registered(props: PageProps) {
             password: data.password,
             landingLoginLocation,
           });
+          window.location.hash = '';
+          window.location.reload();
           return;
         }
 
