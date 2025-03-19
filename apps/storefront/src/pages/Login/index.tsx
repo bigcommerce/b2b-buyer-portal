@@ -34,6 +34,7 @@ import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 import { type PageProps } from '../PageProps';
 
 import LoginWidget from './component/LoginWidget';
+import { CatalystLogin } from './CatalystLogin';
 import { isLoginFlagType, loginCheckout, LoginConfig, loginType } from './config';
 import LoginForm from './LoginForm';
 import LoginPanel from './LoginPanel';
@@ -62,7 +63,7 @@ const setTipType = (flag: LoginFlagType): AlertColor | undefined => {
   return alertType;
 };
 
-export default function Login(props: PageProps) {
+function Login(props: PageProps) {
   const { isAgenting, endMasquerade } = useMasquerade();
   const { setOpenPage } = props;
   const storeDispatch = useAppDispatch();
@@ -468,4 +469,14 @@ export default function Login(props: PageProps) {
       </LoginContainer>
     </B3Card>
   );
+}
+
+export default function LoginPage(props: PageProps) {
+  const platform = useAppSelector(({ global }) => global.storeInfo.platform);
+
+  if (platform === 'catalyst') {
+    return <CatalystLogin />;
+  }
+
+  return <Login {...props} />;
 }

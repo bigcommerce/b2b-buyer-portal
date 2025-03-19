@@ -33,7 +33,7 @@ const currentB2BExitsPath = (): string => {
   return PATH_ROUTES.ACCOUNT_SETTINGS;
 };
 
-export const b2bJumpPath = (role: number): string => {
+export const b2bJumpPath = (role?: number): string => {
   const path =
     role === CustomerRole.JUNIOR_BUYER ? PATH_ROUTES.SHOPPING_LISTS : currentB2BExitsPath();
 
