@@ -291,7 +291,6 @@ function Registered(props: PageProps) {
             landingLoginLocation,
           });
           window.location.hash = '';
-          window.location.reload();
           return;
         }
 
