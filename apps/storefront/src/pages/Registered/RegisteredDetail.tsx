@@ -275,6 +275,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         <Box>
           <InformationFourLabels>{businessDetailsName}</InformationFourLabels>
           <B3CustomForm
+            // @ts-expect-error B3CustomForm used to take formFields as any
             formFields={[...companyInformation]}
             errors={errors}
             control={control}
@@ -289,6 +290,7 @@ export default function RegisteredDetail(props: RegisteredDetailProps) {
         <InformationFourLabels>{addressName}</InformationFourLabels>
 
         <B3CustomForm
+          // @ts-expect-error B3CustomForm used to take formFields as any
           formFields={addressBasicList}
           errors={errors}
           control={control}

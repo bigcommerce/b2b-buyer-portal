@@ -281,6 +281,7 @@ function B3FilterMore<T, Y>({
           }}
         >
           <B3CustomForm
+            // @ts-expect-error B3CustomForm used to take formFields as any
             formFields={filterMoreInfo}
             errors={errors}
             control={control}

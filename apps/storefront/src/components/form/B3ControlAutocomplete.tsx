@@ -1,12 +1,27 @@
 import { SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { Controller, useWatch } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  FieldValues,
+  Path,
+  PathValue,
+  UseFormGetValues,
+  UseFormSetValue,
+  useWatch,
+} from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
-import { Autocomplete, FormControl, FormHelperText, TextField } from '@mui/material';
+import {
+  Autocomplete,
+  AutocompleteProps as GenericMuiAutocompleteProps,
+  FormControl,
+  FormHelperText,
+  SxProps,
+  TextField,
+} from '@mui/material';
 import debounce from 'lodash-es/debounce';
 
 import { getB2BRoleList } from '@/shared/service/b2b';
-
-import Form from './ui';
 
 interface Option {
   id: string;
@@ -15,7 +30,32 @@ interface Option {
 
 const first = 10;
 
-export default function B3ControlAutocomplete({ control, errors, ...rest }: Form.B3UIProps) {
+type B3Lang = ReturnType<typeof useB3Lang>;
+type MuiAutocompleteProps = GenericMuiAutocompleteProps<Option, false, true, false, 'div'>;
+
+export interface AutocompleteProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
+  default?: PathValue<T, Path<T>>;
+  defaultName?: string;
+  required?: boolean;
+  label: string;
+  validate?: (value: string, b3Lang: B3Lang) => string | undefined;
+  muiSelectProps?: MuiAutocompleteProps & { disabled?: boolean };
+  setValue: UseFormSetValue<T>;
+  getValues: UseFormGetValues<T>;
+  setValueName?: (value: string) => void;
+  size?: MuiAutocompleteProps['size'];
+  disabled?: boolean;
+  extraPadding?: SxProps;
+  errors: FieldErrors<T>;
+}
+
+export default function B3ControlAutocomplete<T extends FieldValues>({
+  control,
+  errors,
+  ...rest
+}: AutocompleteProps<T>) {
   const {
     name,
     default: defaultValue,
@@ -50,14 +90,15 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     preSelectValue: '',
   });
 
-  const inputNameKey = `${name}Name`;
+  // @ts-expect-error - Typescript cannot guarantee that a key of `${name}Name` exists in T
+  const inputNameKey: Path<T> = `${name}Name`;
   const nameKey = useWatch({
     control,
     name: inputNameKey,
   });
   useEffect(() => {
     if (nameKey) {
-      setInputValue(getValues()[inputNameKey as string] || '');
+      setInputValue(getValues()[inputNameKey] || '');
     } else {
       setInputValue('');
     }
@@ -128,7 +169,9 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
 
     cache.current.inputValue = value.name;
 
+    // @ts-expect-error - setValue does not know that values should be of type string
     setValue(name, value.id);
+    // @ts-expect-error - setValue does not know that values should be of type string
     setValue(inputNameKey, value.name);
 
     if (setValueName) {
@@ -186,6 +229,8 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
     }
   };
 
+  const fieldError = errors[name];
+
   return (
     <FormControl
       variant="filled"
@@ -206,6 +251,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
             disableClearable
             options={options || []}
             inputValue={inputValue}
+            // @ts-expect-error - existing mismatch where value (string) does not conform to Option type
             value={inputValue || ''}
             loadingText="Loading..."
             getOptionLabel={(option: Option) => option.name ?? option}
@@ -222,7 +268,7 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
               <TextField
                 {...params}
                 variant="filled"
-                error={!!errors[name]}
+                error={!!fieldError}
                 required={required}
                 label={label}
               />
@@ -237,9 +283,9 @@ export default function B3ControlAutocomplete({ control, errors, ...rest }: Form
           />
         )}
       />
-      {errors[name] && (
-        <FormHelperText error={!!errors[name]}>
-          {errors[name] ? errors[name].message : null}
+      {fieldError && (
+        <FormHelperText error={!!fieldError}>
+          {fieldError ? fieldError.message?.toString() : null}
         </FormHelperText>
       )}
     </FormControl>

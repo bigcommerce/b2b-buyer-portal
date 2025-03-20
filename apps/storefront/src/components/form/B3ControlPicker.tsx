@@ -1,9 +1,18 @@
 import { useContext, useRef, useState } from 'react';
-import { Controller } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  FieldValues,
+  Path,
+  PathValue,
+  UseFormGetValues,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
 import { Box, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DatePicker, DatePickerProps } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
@@ -12,17 +21,35 @@ import { GlobalContext } from '@/shared/global';
 import setDayjsLocale from '../ui/setDayjsLocale';
 
 import { PickerFormControl } from './styled';
-import Form from './ui';
 
-export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIProps) {
+type B3Lang = ReturnType<typeof useB3Lang>;
+
+export interface PickerFieldProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
+  default: PathValue<T, Path<T>>;
+  required: boolean;
+  label: string;
+  validate: (value: string, b3Lang: B3Lang) => string | undefined;
+  muiTextFieldProps?: DatePickerProps<Date, Date>;
+  setValue: UseFormSetValue<T>;
+  variant: 'filled' | 'outlined' | 'standard';
+  getValues: UseFormGetValues<T>;
+  errors: FieldErrors<T>;
+}
+
+export default function B3ControlPicker<T extends FieldValues>({
+  control,
+  errors,
+  ...rest
+}: PickerFieldProps<T>) {
   const {
-    fieldType,
     name,
     default: defaultValue,
     required,
     label,
     validate,
-    muiTextFieldProps = {},
+    muiTextFieldProps,
     setValue,
     variant,
     getValues,
@@ -41,10 +68,9 @@ export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIP
   const b3Lang = useB3Lang();
   const activeLang = setDayjsLocale(bcLanguage || 'en');
 
-  const { inputFormat = 'YYYY-MM-DD' } = muiTextFieldProps;
+  const inputFormat = muiTextFieldProps?.inputFormat || 'YYYY-MM-DD';
 
   const fieldsProps = {
-    type: fieldType,
     name,
     defaultValue,
     rules: {
@@ -58,17 +84,21 @@ export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIP
     control,
   };
 
-  const muixPickerProps = muiTextFieldProps || {};
+  const muiPickerProps = muiTextFieldProps || {};
 
-  const handleDatePickerChange = (value: Date) => {
+  const handleDatePickerChange = (value: Date | null) => {
     try {
+      // @ts-expect-error - setValue does not know that values should be of type Date
       setValue(name, dayjs(value).format(inputFormat));
     } catch (error) {
+      // @ts-expect-error - setValue does not know that values should be of type Date
       setValue(name, value);
     }
   };
 
-  return ['date'].includes(fieldType) ? (
+  const fieldError = errors[name];
+
+  return (
     <>
       <Box ref={container} />
       <PickerFormControl>
@@ -80,7 +110,7 @@ export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIP
               <DatePicker
                 label={label}
                 inputFormat={inputFormat}
-                {...muixPickerProps}
+                {...muiPickerProps}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -96,8 +126,8 @@ export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIP
                       }
                     }}
                     value={getValues(name) || defaultValue}
-                    error={!!errors[name]}
-                    helperText={(errors as any)[name] ? (errors as any)[name].message : null}
+                    error={!!fieldError}
+                    helperText={fieldError ? fieldError.message?.toString() : null}
                   />
                 )}
                 {...rest}
@@ -115,5 +145,5 @@ export default function B3ControlPicker({ control, errors, ...rest }: Form.B3UIP
         </LocalizationProvider>
       </PickerFormControl>
     </>
-  ) : null;
+  );
 }
