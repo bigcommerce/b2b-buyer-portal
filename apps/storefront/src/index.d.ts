@@ -47,6 +47,7 @@ declare interface Window {
         getCurrent: () => {
           productList: import('@/components').FormattedQuoteItem[];
         };
+        getQuoteConfigs: () => import('@/shared/global/context/config').QuoteConfigProps[];
         getButtonInfo: () => import('@/shared/customStyleButton/context/config').BtnProperties;
         getButtonInfoAddAllFromCartToQuote: () => import('@/shared/customStyleButton/context/config').BtnProperties;
       };

@@ -80,8 +80,13 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   } = useContext(CustomStyleContext);
   const { addToQuote: addProductsFromCart } = addProductsFromCartToQuote(setOpenPage);
 
-  const { registerEnabled, productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled } =
-    globalState;
+  const {
+    registerEnabled,
+    productQuoteEnabled,
+    cartQuoteEnabled,
+    shoppingListEnabled,
+    quoteConfig,
+  } = globalState;
 
   const saveFn = () => {
     setOpenPage({
@@ -122,7 +127,6 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
       callbacks: Manager,
       utils: {
         getRoutes: () => getAllowedRoutesWithoutComponent(globalState),
-        // getRoutes: () => [],
         openPage: (page) =>
           setTimeout(() => {
             if (page === 'CLOSE') {
@@ -141,6 +145,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             ...addQuoteBtnRef.current,
             enabled: productQuoteEnabledRef.current,
           }),
+          getQuoteConfigs: () => quoteConfig,
           getButtonInfoAddAllFromCartToQuote: () => ({
             ...addToAllQuoteBtnRef.current,
             enabled: cartQuoteEnabledRef.current,
@@ -243,7 +248,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
     };
     // disabling because we don't want to run this effect on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productList, B2BToken, globalState]);
+  }, [productList, B2BToken, globalState, quoteConfig]);
 
   return null;
 }
