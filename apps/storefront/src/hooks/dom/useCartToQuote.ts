@@ -30,7 +30,7 @@ interface IsShowBlockPendingAccountOrderCreationTipProps {
 }
 
 const useCartToQuote = ({ setOpenPage, cartQuoteEnabled }: MutationObserverProps) => {
-  const { addToQuote, addLoading } = addProductsFromCartToQuote(setOpenPage);
+  const { addToQuoteFromCookie: addToQuote, addLoading } = addProductsFromCartToQuote(setOpenPage);
 
   const translationVarName = 'global.customStyles.addToAllQuoteBtn';
   const defaultButtonText = 'Add All To Quote';

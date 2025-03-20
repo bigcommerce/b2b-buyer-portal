@@ -78,7 +78,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
   } = useContext(CustomStyleContext);
-  const { addToQuote: addProductsFromCart } = addProductsFromCartToQuote(setOpenPage);
+  const { addToQuoteFromCart, addToQuoteFromCookie } = addProductsFromCartToQuote(setOpenPage);
 
   const {
     registerEnabled,
@@ -138,7 +138,8 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           }, 0),
         quote: {
           addProductFromPage: (item) => addProductsToDraftQuote([item], setOpenPage),
-          addProductsFromCart: () => addProductsFromCart(),
+          addProductsFromCart: () => addToQuoteFromCookie(),
+          addProductsFromCartId: (cartId) => addToQuoteFromCart(cartId),
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
           getQuoteConfigs: () => quoteConfig,
           getCurrent: () => ({ productList }),
