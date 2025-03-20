@@ -20,6 +20,7 @@ CreateShoppingListParams) => {
 
   if (isB2BUser) {
     const submitShoppingListPermission = validatePermissionWithComparisonType({
+      containOrEqual: 'contain',
       code: b2bPermissionsMap.submitShoppingListPermission,
     });
     const selectCompanyHierarchyId =
