@@ -172,7 +172,7 @@ const addProductsToDraftQuote = async (
 ) => {
   // filter products with SKU
   const productsWithSKUOrVariantId = products.filter(
-    ({ sku, variantEntityId }) => sku || variantEntityId,
+    ({ sku, variantEntityId, productEntityId }) => sku || variantEntityId || productEntityId,
   );
 
   const companyInfoId = store.getState().company.companyInfo.id;
