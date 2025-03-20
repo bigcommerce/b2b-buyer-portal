@@ -78,10 +78,15 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
   } = useContext(CustomStyleContext);
-  const { addToQuote: addProductsFromCart } = addProductsFromCartToQuote(setOpenPage);
+  const { addToQuoteFromCart, addToQuoteFromCookie } = addProductsFromCartToQuote(setOpenPage);
 
-  const { registerEnabled, productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled } =
-    globalState;
+  const {
+    registerEnabled,
+    productQuoteEnabled,
+    cartQuoteEnabled,
+    shoppingListEnabled,
+    quoteConfig,
+  } = globalState;
 
   const saveFn = () => {
     setOpenPage({
@@ -122,7 +127,6 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
       callbacks: Manager,
       utils: {
         getRoutes: () => getAllowedRoutesWithoutComponent(globalState),
-        // getRoutes: () => [],
         openPage: (page) =>
           setTimeout(() => {
             if (page === 'CLOSE') {
@@ -134,8 +138,10 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           }, 0),
         quote: {
           addProductFromPage: (item) => addProductsToDraftQuote([item], setOpenPage),
-          addProductsFromCart: () => addProductsFromCart(),
+          addProductsFromCart: () => addToQuoteFromCookie(),
+          addProductsFromCartId: (cartId) => addToQuoteFromCart(cartId),
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
+          getQuoteConfigs: () => quoteConfig,
           getCurrent: () => ({ productList }),
           getButtonInfo: () => ({
             ...addQuoteBtnRef.current,
@@ -243,7 +249,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
     };
     // disabling because we don't want to run this effect on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productList, B2BToken, globalState]);
+  }, [productList, B2BToken, globalState, quoteConfig]);
 
   return null;
 }
