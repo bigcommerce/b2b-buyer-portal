@@ -4,6 +4,7 @@ export enum B2BEvent {
   OnClickCartButton = 'on-click-cart-button',
   OnLogin = 'on-login',
   OnLogout = 'on-logout',
+  OnRegistered = 'on-registered',
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Args = Record<string, any>;
