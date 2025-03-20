@@ -140,7 +140,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           addProductFromPage: (item) => addProductsToDraftQuote([item], setOpenPage),
           addProductsFromCart: () => addProductsFromCart(),
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
-          getQuoteConfig: () => quoteConfig,
+          getQuoteConfigs: () => quoteConfig,
           getCurrent: () => ({ productList }),
           getButtonInfo: () => ({
             ...addQuoteBtnRef.current,
