@@ -15,21 +15,17 @@ import { themeFrameSelector, useAppSelector } from '@/store';
 import { channelId } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
-import RegisteredStepButton from './component/RegisteredStepButton';
 import { RegisteredContext } from './context/RegisteredContext';
 import { Base64, emailError } from './config';
+import { PrimaryButton } from './PrimaryButton';
 import { InformationFourLabels, TipContent } from './styled';
 import { RegisterFields } from './types';
 
 interface RegisteredAccountProps {
-  handleBack: () => void;
   handleNext: () => void;
-  activeStep: number;
 }
 
-export default function RegisteredAccount(props: RegisteredAccountProps) {
-  const { handleBack, handleNext, activeStep } = props;
-
+export default function RegisteredAccount({ handleNext }: RegisteredAccountProps) {
   const { state, dispatch } = useContext(RegisteredContext);
   const IframeDocument = useAppSelector(themeFrameSelector);
 
@@ -242,7 +238,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           <TipContent>{errorTips}</TipContent>
         </Alert>
       )}
-
       <FormControl
         sx={{
           '& h4': {
@@ -283,7 +278,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           )}
         </RadioGroup>
       </FormControl>
-
       <Box
         sx={{
           '& h4': {
@@ -312,7 +306,6 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
           setValue={setValue}
         />
       </Box>
-
       <Box />
       {additionalInfo && additionalInfo.length ? (
         <Box
@@ -342,11 +335,17 @@ export default function RegisteredAccount(props: RegisteredAccountProps) {
         ''
       )}
 
-      <RegisteredStepButton
-        activeStep={activeStep}
-        handleBack={handleBack}
-        handleNext={handleAccountToDetail}
-      />
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          pt: 2,
+        }}
+      >
+        <PrimaryButton onClick={handleAccountToDetail}>
+          {b3Lang('global.button.next')}
+        </PrimaryButton>
+      </Box>
     </Box>
   );
 }

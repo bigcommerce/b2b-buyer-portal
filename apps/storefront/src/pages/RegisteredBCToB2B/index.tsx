@@ -36,7 +36,6 @@ import {
   getAccountFormFields,
   RegisterFieldsItems,
   State,
-  steps,
   toHump,
 } from '../Registered/config';
 import { RegisteredContext } from '../Registered/context/RegisteredContext';
@@ -648,7 +647,7 @@ export default function RegisteredBCToB2B(props: PageProps) {
             )}
 
             {showFinishPage ? (
-              <RegisteredFinish activeStep={steps.length} handleFinish={handleFinish} isBCToB2B />
+              <RegisteredFinish handleFinish={handleFinish} isBCToB2B />
             ) : (
               <StyledRegisterContent
                 sx={{
