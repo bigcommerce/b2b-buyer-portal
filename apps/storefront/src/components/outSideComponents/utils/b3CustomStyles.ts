@@ -90,7 +90,7 @@ export const setMediaStyle = (mediaBlocks: string[], className: string) => {
         newValue = value.replace(';', '!important;');
       }
 
-      return newValue?.trim() ? `${property}: ${newValue}` : `${property}`;
+      return newValue?.trim() ? `${property}: ${newValue}` : property;
     });
 
     const newMedia = newMediaArr.join('\n');

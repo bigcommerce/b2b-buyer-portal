@@ -50,7 +50,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: `${isCustomer ? 'flex-end' : 'flex-start'}`,
+        alignItems: isCustomer ? 'flex-end' : 'flex-start',
         paddingTop: '5px',
       }}
     >
@@ -74,7 +74,7 @@ function ChatMessage({ msg, isEndMessage, isCustomer }: CustomerMessageProps) {
             display: 'inline-block',
             lineHeight: '34px',
             padding: '0 10px',
-            background: `${isCustomer ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)'}`,
+            background: isCustomer ? 'rgba(25, 118, 210, 0.3)' : 'rgba(0, 0, 0, 0.12)',
             borderRadius: '18px',
             m: '1px',
           }}

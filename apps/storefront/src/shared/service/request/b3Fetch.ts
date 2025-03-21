@@ -25,7 +25,7 @@ function request(path: string, config?: RequestInit, type?: RequestTypeKeys) {
           'x-xsrf-token': Cookies.get('XSRF-TOKEN') ?? '',
         }
       : {
-          authToken: `${B2BToken}`,
+          authToken: B2BToken,
         };
 
   const {

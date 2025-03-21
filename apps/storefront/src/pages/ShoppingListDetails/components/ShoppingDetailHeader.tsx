@@ -169,8 +169,8 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          flexDirection: `${isMobile ? 'column' : 'row'}`,
-          mb: `${isMobile ? '16px' : ''}`,
+          flexDirection: isMobile ? 'column' : 'row',
+          mb: isMobile ? '16px' : '',
         }}
       >
         <Grid
@@ -183,8 +183,8 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
           <Box
             sx={{
               display: 'flex',
-              alignItems: `${isMobile ? 'start' : 'center'}`,
-              flexDirection: `${isMobile ? 'column' : 'row'}`,
+              alignItems: isMobile ? 'start' : 'center',
+              flexDirection: isMobile ? 'column' : 'row',
             }}
           >
             <Typography
@@ -201,7 +201,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                 (approveShoppingListPermission && shoppingListInfo?.approvedFlag)) && (
                 <Typography
                   sx={{
-                    m: `${isMobile ? '10px 0' : '0'}`,
+                    m: isMobile ? '10px 0' : '0',
                   }}
                 >
                   {shoppingListInfo && <ShoppingStatus status={shoppingListInfo?.status} />}
@@ -236,7 +236,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
         <Grid
           item
           sx={{
-            textAlign: `${isMobile ? 'none' : 'end'}`,
+            textAlign: isMobile ? 'none' : 'end',
           }}
           {...gridOptions(4)}
         >
