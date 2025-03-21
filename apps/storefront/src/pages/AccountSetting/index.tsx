@@ -178,7 +178,7 @@ function AccountSetting() {
     init();
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isFinishUpdate]);
 
   const handleGetUserExtraFields = (
     data: CustomFieldItems,
@@ -258,7 +258,6 @@ function AccountSetting() {
           } else {
             B3SStorage.clear();
             setIsFinishUpdate(true);
-            window.location.reload();
           }
         }
       } finally {
