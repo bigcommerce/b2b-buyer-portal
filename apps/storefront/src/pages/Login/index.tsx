@@ -25,7 +25,7 @@ import {
 } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
-import { AlertColor, LoginFlagType } from '@/types/login';
+import { LoginFlagType } from '@/types/login';
 import { b2bJumpPath, channelId, loginJump, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { logoutSession } from '@/utils/b3logout';
@@ -54,14 +54,6 @@ const useMasquerade = () => {
   return { endMasquerade, isAgenting };
 };
 
-const setTipType = (flag: LoginFlagType): AlertColor | undefined => {
-  if (!flag) return undefined;
-
-  const { alertType } = loginType[flag];
-
-  return alertType;
-};
-
 export default function Login(props: PageProps) {
   const { isAgenting, endMasquerade } = useMasquerade();
   const { setOpenPage } = props;
@@ -77,7 +69,7 @@ export default function Login(props: PageProps) {
   const [isMobile] = useMobile();
 
   const [showTipInfo, setShowTipInfo] = useState<boolean>(true);
-  const [flag, setLoginFlag] = useState<LoginFlagType>('');
+  const [flag, setLoginFlag] = useState<LoginFlagType>();
   const [loginAccount, setLoginAccount] = useState<LoginConfig>({
     emailAddress: '',
     password: '',
@@ -133,7 +125,9 @@ export default function Login(props: PageProps) {
 
         setShowTipInfo(showTipInfo);
 
-        if (loginFlag && isLoginFlagType(loginFlag)) setLoginFlag(loginFlag);
+        if (isLoginFlagType(loginFlag)) {
+          setLoginFlag(loginFlag);
+        }
 
         if (loginFlag === 'invoiceErrorTip') {
           const { tip } = loginType[loginFlag];
@@ -171,18 +165,13 @@ export default function Login(props: PageProps) {
     logout();
   }, [b3Lang, endMasquerade, isLoggedIn, isAgenting, searchParams, selectCompanyHierarchyId]);
 
-  const tipInfo = (loginFlag?: LoginFlagType, email = '') => {
-    if (!loginFlag) return '';
+  const tipInfo = (loginFlag: LoginFlagType, email = '') => {
+    const { tip, alertType } = loginType[loginFlag];
 
-    const { tip } = loginType[loginFlag];
-
-    if (flag === 'resetPassword') {
-      b3Lang(tip, {
-        email,
-      });
-    }
-
-    return b3Lang(tip);
+    return {
+      message: b3Lang(tip, { email }),
+      severity: alertType,
+    };
   };
 
   const getForcePasswordReset = async (email: string) => {
@@ -327,6 +316,8 @@ export default function Login(props: PageProps) {
   const loginAndRegisterContainerWidth = registerEnabled ? '100%' : '50%';
   const loginContainerWidth = registerEnabled ? '50%' : 'auto';
 
+  const tip = flag && tipInfo(flag, loginAccount?.emailAddress);
+
   return (
     <B3Card setOpenPage={setOpenPage}>
       <LoginContainer paddings={isMobile ? '0' : '20px 20px'}>
@@ -349,9 +340,9 @@ export default function Login(props: PageProps) {
                       margin: '30px 0 0 0',
                     }}
                   >
-                    {tipInfo(flag, loginAccount?.emailAddress) && (
-                      <Alert severity={setTipType(flag)} variant="filled">
-                        {tipInfo(flag, loginAccount?.emailAddress || '')}
+                    {tip && (
+                      <Alert severity={tip.severity} variant="filled">
+                        {tip.message}
                       </Alert>
                     )}
                   </Box>
