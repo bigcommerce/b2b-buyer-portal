@@ -18,24 +18,22 @@ import { getStorefrontToken } from '@/shared/service/b2b/graphql/recaptcha';
 import { channelId, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 
-import RegisteredStepButton from './component/RegisteredStepButton';
 import { RegisteredContext } from './context/RegisteredContext';
 import { deCodeField, toHump } from './config';
+import { PrimaryButton } from './PrimaryButton';
 import { InformationFourLabels, TipContent } from './styled';
 import { RegisterFields } from './types';
 
 interface RegisterCompleteProps {
   handleBack: () => void;
   handleNext: () => void;
-  activeStep: number;
 }
 
 type RegisterCompleteList = Array<RegisterFields> | undefined;
 
 export default function RegisterComplete(props: RegisterCompleteProps) {
   const b3Lang = useB3Lang();
-  const { handleBack, activeStep, handleNext } = props;
-
+  const { handleBack, handleNext } = props;
   const [personalInfo, setPersonalInfo] = useState<Array<CustomFieldItems>>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [enterEmail, setEnterEmail] = useState<string>('');
@@ -538,12 +536,18 @@ export default function RegisterComplete(props: RegisterCompleteProps) {
           ''
         )}
       </Box>
-      <RegisteredStepButton
-        handleBack={handleBack}
-        activeStep={activeStep}
-        handleNext={handleCompleted}
-        email={enterEmail}
-      />
+
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          pt: 2,
+          gap: 1,
+        }}
+      >
+        <PrimaryButton onClick={handleBack}>{b3Lang('global.button.back')}</PrimaryButton>
+        <PrimaryButton onClick={handleCompleted}>{b3Lang('global.button.submit')}</PrimaryButton>
+      </Box>
     </Box>
   );
 }
