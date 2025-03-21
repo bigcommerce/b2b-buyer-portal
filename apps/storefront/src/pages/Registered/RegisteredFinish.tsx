@@ -7,16 +7,16 @@ import { useMobile } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { B3SStorage } from '@/utils';
 
-import RegisteredStepButton from './component/RegisteredStepButton';
 import { RegisteredContext } from './context/RegisteredContext';
+import { PrimaryButton } from './PrimaryButton';
 import { StyleTipContainer } from './styled';
 
-export default function RegisteredFinish(props: {
-  activeStep: number;
+interface Props {
   handleFinish: () => void;
   isBCToB2B?: boolean;
-}) {
-  const { activeStep, handleFinish, isBCToB2B = false } = props;
+}
+
+export default function RegisteredFinish({ handleFinish, isBCToB2B = false }: Props) {
   const { state } = useContext(RegisteredContext);
   const b3Lang = useB3Lang();
 
@@ -108,7 +108,15 @@ export default function RegisteredFinish(props: {
       {submitSuccess && (
         <>
           {renderB2BSuccessPage()}
-          <RegisteredStepButton activeStep={activeStep} handleFinish={handleFinish} />
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              pt: 2,
+            }}
+          >
+            <PrimaryButton onClick={handleFinish}>{b3Lang('global.button.finish')}</PrimaryButton>
+          </Box>
         </>
       )}
     </Box>

@@ -83,7 +83,11 @@ export interface RegisterFieldsItems {
   replaceOptions?: ReplaceOptionsProps;
 }
 
-export const steps = ['register.step.account', 'register.step.details', 'register.step.finish'];
+export const steps = [
+  'register.step.account',
+  'register.step.details',
+  'register.step.finish',
+] as const;
 
 const companyExtraFieldsType = ['text', 'multiline', 'number', 'dropdown'];
 
