@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { B2BEvent, useB2BCallback } from '@b3/hooks';
+import { dispatchEvent } from '@b3/hooks';
 import { Box } from '@mui/material';
 
 export interface B3SuccessTipContentProps {
@@ -19,10 +19,9 @@ export function B3LinkTipContent({
 }: B3SuccessTipContentProps) {
   const navigate = useNavigate();
 
-  const handleLink = useB2BCallback(B2BEvent.OnClickCartButton, (dispatchOnClickCartEvent) => {
+  const handleLink = () => {
     if (isCustomEvent) {
-      const isNotPreventDefaultExecuted = dispatchOnClickCartEvent();
-      if (!isNotPreventDefaultExecuted) {
+      if (!dispatchEvent('on-click-cart-button')) {
         return;
       }
     }
@@ -31,7 +30,7 @@ export function B3LinkTipContent({
     } else {
       navigate(link);
     }
-  });
+  };
 
   return (
     <Box>
