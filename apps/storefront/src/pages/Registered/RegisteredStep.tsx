@@ -1,6 +1,6 @@
 import { ReactNode, useContext } from 'react';
 import { useB3Lang } from '@b3/lang';
-import { Box, Step, StepLabel, Stepper, Typography, useTheme } from '@mui/material';
+import { Box, Step, StepLabel, Stepper, useTheme } from '@mui/material';
 
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 import { useMobile } from '@/hooks';
@@ -11,13 +11,12 @@ import { steps } from './config';
 
 interface RegisteredStepProps {
   children: ReactNode;
-  isStepOptional: (index: number) => boolean;
   activeStep: number;
   backgroundColor: string;
 }
 
 export default function RegisteredStep(props: RegisteredStepProps) {
-  const { children, isStepOptional, activeStep, backgroundColor } = props;
+  const { children, activeStep, backgroundColor } = props;
 
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
@@ -75,23 +74,13 @@ export default function RegisteredStep(props: RegisteredStepProps) {
             },
           }}
         >
-          {steps.map((label, index) => {
-            const stepProps = {};
-            const labelProps: any = {};
-            if (isStepOptional(index)) {
-              labelProps.optional = (
-                <Typography variant="caption">{b3Lang('register.step.optional')}</Typography>
-              );
-            }
-            return (
-              <Step key={label} {...stepProps}>
-                <StepLabel {...labelProps}>{b3Lang(label)}</StepLabel>
-              </Step>
-            );
-          })}
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{b3Lang(label)}</StepLabel>
+            </Step>
+          ))}
         </Stepper>
       )}
-
       {children}
     </Box>
   );
