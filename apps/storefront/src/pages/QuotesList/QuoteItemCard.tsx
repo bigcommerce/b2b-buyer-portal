@@ -73,7 +73,7 @@ export function QuoteItemCard(props: QuoteItemCardProps) {
       render: () => {
         const { totalAmount } = item;
 
-        return `${currencyFormat(Number(totalAmount))}`;
+        return currencyFormat(Number(totalAmount));
       },
     },
   ];

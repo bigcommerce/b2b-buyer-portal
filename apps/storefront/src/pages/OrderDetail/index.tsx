@@ -93,7 +93,7 @@ function OrderDetail() {
   }, [params]);
 
   const goToOrders = () => {
-    navigate(`${(location.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders'}`);
+    navigate((location.state as LocationState).isCompanyOrder ? '/company-orders' : '/orders');
   };
 
   useEffect(() => {

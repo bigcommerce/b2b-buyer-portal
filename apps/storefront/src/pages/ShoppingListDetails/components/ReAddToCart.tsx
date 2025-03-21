@@ -458,7 +458,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                     </FlexItem>
                     <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
                       {isMobile && <span>Price: </span>}
-                      {`${currencyFormat(price)}`}
+                      {currencyFormat(price)}
                     </FlexItem>
                     <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
                       <B3QuantityTextField
@@ -474,7 +474,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
                     </FlexItem>
                     <FlexItem {...itemStyle.default} textAlignLocation={textAlign}>
                       {isMobile && <div>Total: </div>}
-                      {`${currencyFormat(total)}`}
+                      {currencyFormat(total)}
                     </FlexItem>
 
                     <FlexItem {...itemStyle.delete}>
