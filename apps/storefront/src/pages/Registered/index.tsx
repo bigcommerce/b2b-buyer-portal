@@ -73,9 +73,7 @@ function Registered(props: PageProps) {
     if (!registerEnabled) {
       navigate('/login');
     }
-    // disabling as we dont need to check for any changes in the navigate function
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [registerEnabled]);
+  }, [navigate, registerEnabled]);
 
   useEffect(() => {
     const getBCAdditionalFields = async () => {
@@ -185,8 +183,6 @@ function Registered(props: PageProps) {
     // disabling as we only need to run this once and values at starting render are good enough
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const isStepOptional = (step: number) => step === -1;
 
   const getLoginData = () => {
     const emailAddress =
@@ -329,11 +325,7 @@ function Registered(props: PageProps) {
                 </ImageListItem>
               </RegisteredImage>
             )}
-            <RegisteredStep
-              activeStep={activeStep}
-              isStepOptional={isStepOptional}
-              backgroundColor={backgroundColor}
-            >
+            <RegisteredStep activeStep={activeStep} backgroundColor={backgroundColor}>
               <RegisterContent
                 activeStep={activeStep}
                 handleBack={handleBack}
