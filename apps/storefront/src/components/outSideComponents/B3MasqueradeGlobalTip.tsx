@@ -132,14 +132,14 @@ export default function B3MasqueradeGlobalTip(props: B3MasqueradeGlobalTipProps)
   const MUIMediaStyle = setMUIMediaStyle(mediaBlocks);
 
   const customStyles: SxProps = {
-    backgroundColor: `${color || '#ED6C02'}`,
+    backgroundColor: color || '#ED6C02',
     color: getContrastColor(color || '#FFFFFF'),
     padding: '0',
     ...getStyles(cssValue),
   };
 
   const isMobileCustomStyles: SxProps = {
-    backgroundColor: `${color || '#ED6C02'}`,
+    backgroundColor: color || '#ED6C02',
     color: getContrastColor(color || '#FFFFFF'),
   };
 

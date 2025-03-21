@@ -277,7 +277,7 @@ function B3FilterMore<T, Y>({
       >
         <Box
           sx={{
-            width: `${isMobile ? '100%' : '450px'}`,
+            width: isMobile ? '100%' : '450px',
           }}
         >
           <B3CustomForm

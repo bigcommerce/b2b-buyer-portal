@@ -111,8 +111,8 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          flexDirection: `${isMobile ? 'column' : 'row'}`,
-          mb: `${isMobile ? '16px' : ''}`,
+          flexDirection: isMobile ? 'column' : 'row',
+          mb: isMobile ? '16px' : '',
         }}
       >
         <Grid
@@ -125,8 +125,8 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
           <Box
             sx={{
               display: 'flex',
-              alignItems: `${isMobile ? 'start' : 'center'}`,
-              flexDirection: `${isMobile ? 'column' : 'row'}`,
+              alignItems: isMobile ? 'start' : 'center',
+              flexDirection: isMobile ? 'column' : 'row',
             }}
           >
             <Typography
@@ -192,7 +192,7 @@ function QuoteDetailHeader(props: QuoteDetailHeaderProps) {
           <Grid
             item
             sx={{
-              textAlign: `${isMobile ? 'none' : 'end'}`,
+              textAlign: isMobile ? 'none' : 'end',
               displayPrint: 'none',
             }}
             {...gridOptions(4)}

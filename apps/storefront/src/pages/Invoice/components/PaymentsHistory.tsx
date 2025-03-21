@@ -81,7 +81,7 @@ function HistoryList({ list }: { list: PaymentsHistoryList[] }) {
               >
                 <Title title="Amount" />
                 <Typography variant="body1">
-                  {`${handleGetCorrespondingCurrency(amount.code, Number(amount?.value || 0))}`}
+                  {handleGetCorrespondingCurrency(amount.code, Number(amount?.value || 0))}
                 </Typography>
               </Box>
               <Box
@@ -150,7 +150,7 @@ function PaymentsHistory({ open, setOpen, currentInvoiceId }: PaymentsHistoryPro
     >
       <Box
         sx={{
-          width: isMobile ? '100%' : `${'384px'}`,
+          width: isMobile ? '100%' : '384px',
           maxHeight: '600px',
         }}
       >

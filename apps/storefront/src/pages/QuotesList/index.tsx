@@ -228,11 +228,11 @@ const useColumnList = (): Array<TableColumnItem<ListItem>> => {
         render: (item: ListItem) => {
           const { totalAmount, currency } = item;
           const newCurrency = currency as CurrencyProps;
-          return `${currencyFormatConvert(Number(totalAmount), {
+          return currencyFormatConvert(Number(totalAmount), {
             currency: newCurrency,
             isConversionRate: false,
             useCurrentCurrency: !!currency,
-          })}`;
+          });
         },
         style: {
           textAlign: 'right',
@@ -418,9 +418,9 @@ function QuotesList() {
           sortDirection={order}
           orderBy={orderBy}
           sortByFn={handleSetOrderBy}
-          labelRowsPerPage={`${
+          labelRowsPerPage={
             isMobile ? b3Lang('quotes.cardsPerPage') : b3Lang('quotes.quotesPerPage')
-          }`}
+          }
           renderItem={(row) => <QuoteItemCard item={row} goToDetail={goToDetail} />}
           onClickRow={(row) => {
             goToDetail(row, Number(row.status));

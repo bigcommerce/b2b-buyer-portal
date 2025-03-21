@@ -240,9 +240,9 @@ function AddEditUser({ companyId, renderList }: AddEditUserProps, ref: Ref<unkno
   return (
     <B3Dialog
       isOpen={open}
-      title={`${
+      title={
         type === 'edit' ? b3Lang('userManagement.editUser') : b3Lang('userManagement.addNewUser')
-      }`}
+      }
       leftSizeBtn={b3Lang('userManagement.cancel')}
       rightSizeBtn={b3Lang('userManagement.saveUser')}
       handleLeftClick={handleCancelClick}

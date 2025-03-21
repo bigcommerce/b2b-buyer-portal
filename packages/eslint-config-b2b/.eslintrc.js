@@ -89,5 +89,6 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'no-implicit-coercion': 'error',
     'react/prop-types': 'off',
+    '@typescript-eslint/no-useless-template-literals': 'error',
   },
 }

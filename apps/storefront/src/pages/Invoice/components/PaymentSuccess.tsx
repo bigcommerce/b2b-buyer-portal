@@ -277,7 +277,7 @@ function PaymentSuccess({ receiptId, type }: PaymentSuccessProps) {
     >
       <Box
         sx={{
-          width: isMobile ? '100%' : `${'384px'}`,
+          width: isMobile ? '100%' : '384px',
           maxHeight: '600px',
         }}
       >

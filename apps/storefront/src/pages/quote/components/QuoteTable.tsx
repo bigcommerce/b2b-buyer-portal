@@ -327,7 +327,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
             }}
           >
             {getDisplayPrice({
-              price: `${currencyFormat(inTaxPrice)}`,
+              price: currencyFormat(inTaxPrice),
               productInfo: row,
               showText: b3Lang('quoteDraft.quoteSummary.tbd'),
             })}
@@ -387,7 +387,7 @@ function QuoteTable(props: ShoppingDetailTableProps) {
               }}
             >
               {getDisplayPrice({
-                price: `${currencyFormat(total)}`,
+                price: currencyFormat(total),
                 productInfo: row,
                 showText: b3Lang('quoteDraft.quoteSummary.tbd'),
               })}

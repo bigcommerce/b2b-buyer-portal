@@ -80,7 +80,7 @@ const QuoteSummary = forwardRef((_, ref: Ref<unknown>) => {
     refreshSummary: () => getSummary(),
   }));
 
-  const priceFormat = (price: number) => `${currencyFormat(price)}`;
+  const priceFormat = (price: number) => currencyFormat(price);
 
   const showPrice = (price: string | number): string | number => {
     if (isHideQuoteDraftPrice) return b3Lang('quoteDraft.quoteSummary.tbd');

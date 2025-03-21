@@ -177,7 +177,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
           </CustomButton>
           <Box
             sx={{
-              display: `${isPermissions ? 'block' : 'none'}`,
+              display: isPermissions ? 'block' : 'none',
             }}
           >
             {!getEditPermissions(shoppingList.status) && isCanEditShoppingList && (

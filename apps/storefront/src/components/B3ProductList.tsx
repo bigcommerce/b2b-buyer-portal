@@ -312,8 +312,8 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
 
         const getDisplayPrice = (priceValue: number) => {
           const newMoney = money
-            ? `${ordersCurrencyFormat(money, priceValue)}`
-            : `${currencyFormat(priceValue)}`;
+            ? ordersCurrencyFormat(money, priceValue)
+            : currencyFormat(priceValue);
 
           return showTypePrice(newMoney, product);
         };
@@ -434,7 +434,7 @@ export default function B3ProductList<T>(props: ProductProps<T>) {
                   onBlur={handleNumberInputBlur(product)}
                   size="small"
                   sx={{
-                    width: `${isMobile ? '110px' : '72px'}`,
+                    width: isMobile ? '110px' : '72px',
                     '& .MuiFormHelperText-root': {
                       marginLeft: '0',
                       marginRight: '0',

@@ -214,7 +214,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
             {isMobile && <span>{b3Lang('orderDetail.reorder.price')} </span>}
-            {`${currencyFormat(product.base_price)}`}
+            {currencyFormat(product.base_price)}
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} {...itemStyle.default}>
             <TextField
@@ -240,7 +240,7 @@ export default function OrderCheckboxProduct(props: OrderCheckboxProductProps) {
           </FlexItem>
           <FlexItem textAlignLocation={textAlign} padding="10px 0 0" {...itemStyle.default}>
             {isMobile && <span>{b3Lang('orderDetail.reorder.total')} </span>}
-            {`${currencyFormat(getProductTotals(getProductQuantity(product), product.base_price))}`}
+            {currencyFormat(getProductTotals(getProductQuantity(product), product.base_price))}
           </FlexItem>
         </Flex>
       ))}
