@@ -321,7 +321,7 @@ function Registered(props: PageProps) {
                     window.location.href = '/';
                   }}
                 >
-                  <img src={`${logo}`} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
+                  <img src={logo} alt={b3Lang('global.tips.registerLogo')} loading="lazy" />
                 </ImageListItem>
               </RegisteredImage>
             )}

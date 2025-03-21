@@ -243,8 +243,8 @@ function Order({ isCompanyOrder = false }: OrderProps) {
       title: b3Lang('orders.grandTotal'),
       render: (item: ListItem) =>
         item?.money
-          ? `${ordersCurrencyFormat(JSON.parse(JSON.parse(item.money)), item.totalIncTax)}`
-          : `${currencyFormat(item.totalIncTax)}`,
+          ? ordersCurrencyFormat(JSON.parse(JSON.parse(item.money)), item.totalIncTax)
+          : currencyFormat(item.totalIncTax),
       width: '8%',
       style: {
         textAlign: 'right',

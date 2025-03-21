@@ -766,8 +766,8 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             sx={{
               display: 'flex',
               mb: '24px',
-              flexDirection: `${isMobile ? 'column' : 'row'}`,
-              alignItems: `${isMobile ? 'flex-start' : 'center'}`,
+              flexDirection: isMobile ? 'column' : 'row',
+              alignItems: isMobile ? 'flex-start' : 'center',
             }}
           >
             <Typography
@@ -775,7 +775,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               sx={{
                 fontSize: '34px',
                 mr: '1rem',
-                mb: `${isMobile ? '1rem' : '0'}`,
+                mb: isMobile ? '1rem' : '0',
                 color: getContrastColor(backgroundColor),
               }}
             >

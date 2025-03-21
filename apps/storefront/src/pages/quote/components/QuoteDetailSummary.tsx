@@ -41,11 +41,11 @@ export default function QuoteDetailSummary({
   };
 
   const priceFormat = (price: number) =>
-    `${currencyFormatConvert(price, {
+    currencyFormatConvert(price, {
       currency: quoteDetail.currency,
       isConversionRate: false,
       useCurrentCurrency: !!quoteDetail.currency,
-    })}`;
+    });
 
   const getShippingAndTax = () => {
     if (quoteDetail?.shippingMethod?.id) {

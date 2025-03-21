@@ -290,8 +290,8 @@ function AccountSetting() {
     <B3Spin isSpinning={isLoading} background={backgroundColor}>
       <Box
         sx={{
-          width: `${isMobile ? '100%' : '35%'}`,
-          minHeight: `${isMobile ? '800px' : '300px'}`,
+          width: isMobile ? '100%' : '35%',
+          minHeight: isMobile ? '800px' : '300px',
           '& input, & .MuiFormControl-root .MuiTextField-root, & .MuiSelect-select.MuiSelect-filled, & .MuiTextField-root .MuiInputBase-multiline':
             {
               bgcolor: b3HexToRgb('#FFFFFF', 0.87),
@@ -323,9 +323,9 @@ function AccountSetting() {
         <CustomButton
           sx={{
             mt: '28px',
-            mb: `${isMobile ? '20px' : '0'}`,
+            mb: isMobile ? '20px' : '0',
             width: '100%',
-            visibility: `${isVisible ? 'visible' : 'hidden'}`,
+            visibility: isVisible ? 'visible' : 'hidden',
           }}
           onClick={handleAddUserClick}
           variant="contained"

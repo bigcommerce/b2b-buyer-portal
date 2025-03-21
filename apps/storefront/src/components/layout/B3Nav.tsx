@@ -196,7 +196,7 @@ export default function B3Nav({ closeSidebar }: B3NavProps) {
       sx={{
         width: '100%',
         maxWidth: 360,
-        bgcolor: `${isMobile ? 'background.paper' : 'background.default'}`,
+        bgcolor: isMobile ? 'background.paper' : 'background.default',
         color: primaryColor || 'info.main',
         '& .MuiListItem-root': {
           '& .MuiButtonBase-root.Mui-selected': {

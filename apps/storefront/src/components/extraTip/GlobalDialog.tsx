@@ -50,8 +50,8 @@ function GlobalDialog() {
         <Box
           sx={{
             display: 'flex',
-            justifyContent: `${isMobile ? 'center' : 'start'}`,
-            width: `${isMobile ? '100%' : '450px'}`,
+            justifyContent: isMobile ? 'center' : 'start',
+            width: isMobile ? '100%' : '450px',
             height: '100%',
           }}
         >

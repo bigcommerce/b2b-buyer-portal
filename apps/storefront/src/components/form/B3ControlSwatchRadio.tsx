@@ -34,7 +34,7 @@ export default function B3ControlSwatchRadio(props: Form.B3UIProps) {
             <Box
               className="swatch-color-item"
               sx={{
-                background: `${color}`,
+                background: color,
               }}
               key={color}
             />

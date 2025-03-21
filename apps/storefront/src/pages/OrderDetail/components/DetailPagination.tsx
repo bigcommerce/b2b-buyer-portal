@@ -148,7 +148,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
     <Box
       sx={{
         display: 'flex',
-        color: `${color}`,
+        color,
       }}
     >
       {!isMobile && (
@@ -183,7 +183,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
       >
         <NavigateBeforeIcon
           sx={{
-            color: `${color}`,
+            color,
           }}
         />
       </IconButton>
@@ -193,7 +193,7 @@ function DetailPagination({ onChange, color }: DetailPageProps) {
       >
         <NavigateNextIcon
           sx={{
-            color: `${color}`,
+            color,
           }}
         />
       </IconButton>
