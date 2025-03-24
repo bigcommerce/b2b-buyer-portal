@@ -172,7 +172,7 @@ const addProductsToDraftQuote = async (
 ) => {
   // filter products with SKU
   const productsWithSKUOrVariantId = products.filter(
-    ({ sku, variantEntityId }) => sku || variantEntityId,
+    ({ sku, variantEntityId, productEntityId }) => sku || variantEntityId || productEntityId,
   );
 
   const companyInfoId = store.getState().company.companyInfo.id;
@@ -227,10 +227,8 @@ const addProductsToDraftQuote = async (
 };
 
 const addProductsFromCartToQuote = (setOpenPage: SetOpenPage) => {
-  const addToQuote = async () => {
+  const addToQuote = async (cartInfoWithOptions: CartInfoProps | any) => {
     try {
-      const cartInfoWithOptions: CartInfoProps | any = await getCart();
-
       if (!cartInfoWithOptions.data.site.cart) {
         globalSnackbar.error('No products in Cart.', {
           isClose: true,
@@ -266,8 +264,18 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage) => {
     }
   };
 
+  const addToQuoteFromCookie = async () => {
+    const cart: CartInfoProps | any = await getCart();
+    await addToQuote(cart);
+  };
+  const addToQuoteFromCart = async (cartId: string) => {
+    const cart: CartInfoProps | any = await getCart(cartId);
+    await addToQuote(cart);
+  };
+
   return {
-    addToQuote,
+    addToQuoteFromCookie,
+    addToQuoteFromCart,
     addLoading,
   };
 };
