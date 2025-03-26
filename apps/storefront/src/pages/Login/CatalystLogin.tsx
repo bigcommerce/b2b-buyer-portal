@@ -44,6 +44,7 @@ export function CatalystLogin() {
   const endMasquerade = useEndMasquerade();
   const endCompanyMasquerading = useEndCompanyMasquerade();
   const isLoggedIn = useAppSelector(isLoggedInSelector);
+  const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
   const [searchParams] = useSearchParams();
   const isTryingToLogin = useAppSelector(({ company }) => company.tokens.B2BToken);
 
@@ -60,7 +61,7 @@ export function CatalystLogin() {
   }, [isTryingToLogin]);
 
   useEffect(() => {
-    if (loginFlag === 'loggedOutLogin') {
+    if (loginFlag === 'loggedOutLogin' || !B2BToken) {
       Promise.all([logout(), endMasquerade(), endCompanyMasquerading()])
         .catch(() => {
           navigate('/orders');
@@ -73,7 +74,7 @@ export function CatalystLogin() {
     } else if (isLoggedIn) {
       navigate('/orders');
     }
-  }, [endCompanyMasquerading, endMasquerade, isLoggedIn, loginFlag, navigate]);
+  }, [endCompanyMasquerading, endMasquerade, isLoggedIn, loginFlag, navigate, B2BToken]);
 
   return <Loading />;
 }
