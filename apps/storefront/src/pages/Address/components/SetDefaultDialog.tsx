@@ -84,7 +84,6 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
         sx={{
           display: 'flex',
           alignItems: isMobile ? 'start' : 'center',
-          justifyContent: isMobile ? 'center%' : 'start',
           width: isMobile ? '100%' : '450px',
           height: '100%',
         }}
@@ -92,7 +91,7 @@ export default function SetDefaultDialog(props: SetDefaultDialogProps) {
         {address && (
           <Box
             sx={{
-              padding: !isMobile ? '10px 0' : '0',
+              padding: isMobile ? '0' : '10px 0',
             }}
           >
             <FormGroup>
