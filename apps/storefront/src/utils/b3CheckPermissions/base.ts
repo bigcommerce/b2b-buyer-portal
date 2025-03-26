@@ -1,7 +1,9 @@
+import { mapValues } from 'lodash-es';
+
 import { permissionLevels } from '@/constants';
 import { CompanyInfo, Customer } from '@/types';
 
-import { b2bPermissionsMap, B2BPermissionsMapParams } from './config';
+import { b2bPermissionsMap } from './config';
 
 interface PermissionsCodesProp {
   code: string;
@@ -107,38 +109,22 @@ export const getCorrespondsConfigurationPermission = (
   permissions: PermissionsCodesProp[],
   selectCompanyHierarchyId: number,
 ) => {
-  const keys = Object.keys(b2bPermissionsMap);
+  const level = selectCompanyHierarchyId
+    ? permissionLevels.COMPANY_SUBSIDIARIES
+    : permissionLevels.USER;
 
-  const newB3PermissionsList: Record<string, string> = b2bPermissionsMap;
-
-  return keys.reduce((acc, cur: string) => {
-    const param = {
-      code: newB3PermissionsList[cur],
-    };
-
-    const item = checkPermissionCode(param, 'every', permissions || []);
-
-    if (pdpButtonAndOthersPermission.includes(cur)) {
-      const isPdpButtonAndOthersPermission = validateBasePermissionWithComparisonType({
-        code: newB3PermissionsList[cur],
+  return mapValues(b2bPermissionsMap, (code, key) => {
+    if (pdpButtonAndOthersPermission.includes(key)) {
+      return validateBasePermissionWithComparisonType({
+        code,
         containOrEqual: 'contain',
-        level: selectCompanyHierarchyId
-          ? permissionLevels.COMPANY_SUBSIDIARIES
-          : permissionLevels.USER,
+        level,
         permissions,
       });
-
-      return {
-        ...acc,
-        [cur]: isPdpButtonAndOthersPermission,
-      };
     }
 
-    return {
-      ...acc,
-      [cur]: item,
-    };
-  }, {} as B2BPermissionsMapParams);
+    return checkPermissionCode({ code }, 'every', permissions || []);
+  });
 };
 
 export const levelComparison = ({

@@ -23,7 +23,7 @@ function MessageAlert({
         width: '320px',
         alignItems: 'center',
         '& button[title="Close"]': {
-          display: `${msg.isClose ? 'block' : 'none'}`,
+          display: msg.isClose ? 'block' : 'none',
         },
         mb: '5px',
 

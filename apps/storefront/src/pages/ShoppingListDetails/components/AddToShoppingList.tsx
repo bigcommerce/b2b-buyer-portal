@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { B2BEvent, useB2BCallback } from '@b3/hooks';
+import { dispatchEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Box, Card, CardContent, Divider, Typography } from '@mui/material';
@@ -40,42 +40,39 @@ export default function AddToShoppingList(props: AddToListProps) {
 
   const addItemsToShoppingList = isB2BUser ? addProductToShoppingList : addProductToBcShoppingList;
 
-  const addToList = useB2BCallback(
-    B2BEvent.OnAddToShoppingList,
-    async (dispatchOnAddToShoppingListEvent, products: CustomFieldItems[]) => {
-      try {
-        if (!dispatchOnAddToShoppingListEvent(products)) {
-          throw new Error();
-        }
-
-        const items = products.map((product) => {
-          const newOptionLists = getValidOptionsList(product.newSelectOptionList, product);
-          return {
-            optionList: newOptionLists,
-            productId: product.id,
-            quantity: product.quantity,
-            variantId: product.variantId,
-          };
-        });
-
-        const res = await addItemsToShoppingList({
-          shoppingListId: id,
-          items,
-        });
-
-        snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'), {
-          isClose: true,
-        });
-
-        return res;
-      } catch (e: any) {
-        if (e.message.length > 0) {
-          snackbar.error(e.message, { isClose: true });
-        }
+  const addToList = async (products: CustomFieldItems[]) => {
+    try {
+      if (!dispatchEvent('on-add-to-shopping-list', products)) {
+        throw new Error();
       }
-      return true;
-    },
-  );
+
+      const items = products.map((product) => {
+        const newOptionLists = getValidOptionsList(product.newSelectOptionList, product);
+        return {
+          optionList: newOptionLists,
+          productId: product.id,
+          quantity: product.quantity,
+          variantId: product.variantId,
+        };
+      });
+
+      const res = await addItemsToShoppingList({
+        shoppingListId: id,
+        items,
+      });
+
+      snackbar.success(b3Lang('shoppingList.addToShoppingList.productsAdded'), {
+        isClose: true,
+      });
+
+      return res;
+    } catch (e: any) {
+      if (e.message.length > 0) {
+        snackbar.error(e.message, { isClose: true });
+      }
+    }
+    return true;
+  };
 
   const quickAddToList = async (products: CustomFieldItems[]) => {
     const items = products.map((product) => {

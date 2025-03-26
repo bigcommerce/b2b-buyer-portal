@@ -719,7 +719,7 @@ function ShoppingDetailTable(props: ShoppingDetailTableProps, ref: Ref<unknown>)
             fontSize: '24px',
           }}
         >
-          {priceHidden ? '' : `${currencyFormat(shoppingListTotalPrice || 0.0)}`}
+          {priceHidden ? '' : currencyFormat(shoppingListTotalPrice || 0.0)}
         </Typography>
       </Box>
       <Box

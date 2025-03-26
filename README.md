@@ -87,8 +87,6 @@ For assistance with activating the remote buyer portal or to inquire about multi
 ## 🛠 Tools and Libraries
 
 - **Linting:** ESLint
-- **Commit Standards:** commitlint
-- **Git Workflow Tools:** Husky, lint-staged
 - **UI Framework:** MUI 5
 - **Routing:** React Router 6
 

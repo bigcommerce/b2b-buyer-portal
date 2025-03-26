@@ -1,4 +1,4 @@
-import { B2BEvent } from '@b3/hooks';
+import { EventType } from '@b3/hooks';
 
 import b2bLogger from './b3Logger';
 
@@ -10,11 +10,7 @@ type CallbackEvent = {
 type Callback = (event: CallbackEvent) => any;
 
 export default class CallbackManager {
-  callbacks: Map<B2BEvent, Callback[]>;
-
-  constructor() {
-    this.callbacks = new Map<B2BEvent, Callback[]>();
-  }
+  private callbacks: Map<EventType, Callback[]> = new Map();
 
   /**
    * Registers a callback function for a specific event and returns a unique hash for it.
@@ -22,7 +18,7 @@ export default class CallbackManager {
    * @param callback The callback function to register.
    * @returns A unique hash identifying the registered callback.
    */
-  addEventListener(callbackKey: B2BEvent, callback: Callback): void {
+  addEventListener(callbackKey: EventType, callback: Callback): void {
     if (typeof callback !== 'function') {
       console.error('callback should be a function'); // eslint-disable-line no-console
       return;
@@ -46,7 +42,7 @@ export default class CallbackManager {
    * @param hash The unique hash of the callback to unregister.
    * @returns True if the callback was successfully removed, false otherwise.
    */
-  removeEventListener(callbackKey: B2BEvent, callback: Callback): boolean {
+  removeEventListener(callbackKey: EventType, callback: Callback): boolean {
     if (!this.callbacks.has(callbackKey)) {
       return false;
     }
@@ -66,7 +62,7 @@ export default class CallbackManager {
    * @param data The data to pass to the callback.
    * @returns True if all callbacks were successfully executed, false otherwise.
    */
-  dispatchEvent(callbackKey: B2BEvent, data?: any): boolean {
+  dispatchEvent(callbackKey: EventType, data?: any): boolean {
     let success = true;
     const event = {
       data,

@@ -225,7 +225,7 @@ function OrderCard(props: OrderCardProps) {
           ) : (
             <p>
               {infos?.money
-                ? `${ordersCurrencyFormat(infos.money, infoValue[index])}`
+                ? ordersCurrencyFormat(infos.money, infoValue[index])
                 : currencyFormat(infoValue[index])}
             </p>
           )}

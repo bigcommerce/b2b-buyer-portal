@@ -14,7 +14,7 @@ const serializeAction: Serializer = (file, formObjVal) => {
   if (serializeType.includes(type)) {
     if (type === 'radio' && !checked) return {};
 
-    return { [name]: `${checked ? value : ''}` };
+    return { [name]: checked ? value : '' };
   }
 
   if (formObjVal[name]) {

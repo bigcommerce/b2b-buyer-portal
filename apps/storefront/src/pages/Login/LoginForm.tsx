@@ -1,9 +1,9 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { Link as RouterLink } from 'react-router-dom';
 import { useB3Lang } from '@b3/lang';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Button, Link, Typography, useTheme } from '@mui/material';
 
 import { B3CustomForm } from '@/components';
-import CustomButton from '@/components/button/CustomButton';
 import { getContrastColor } from '@/components/outSideComponents/utils/b3CustomStyles';
 
 import { getLoginFields, LoginConfig } from './config';
@@ -11,12 +11,11 @@ import { getLoginFields, LoginConfig } from './config';
 interface LoginFormProps {
   loginBtn: string;
   handleLoginSubmit: (data: LoginConfig) => void;
-  gotoForgotPassword: () => void;
   backgroundColor: string;
 }
 
 function LoginForm(props: LoginFormProps) {
-  const { loginBtn, handleLoginSubmit, gotoForgotPassword, backgroundColor } = props;
+  const { loginBtn, handleLoginSubmit, backgroundColor } = props;
 
   const b3Lang = useB3Lang();
   const theme = useTheme();
@@ -80,9 +79,10 @@ function LoginForm(props: LoginFormProps) {
               justifyContent: 'flex-start ',
               alignItems: 'center',
               mt: 2,
+              gap: 2,
             }}
           >
-            <CustomButton
+            <Button
               type="submit"
               variant="contained"
               sx={{
@@ -90,19 +90,14 @@ function LoginForm(props: LoginFormProps) {
               }}
             >
               {loginBtn}
-            </CustomButton>
-            <Box
-              sx={{
-                cursor: 'pointer',
-                ml: 2,
-                textDecoration: 'underline',
-                textUnderlineOffset: '4px',
-                color: getContrastColor(backgroundColor),
-              }}
-              onClick={() => gotoForgotPassword()}
+            </Button>
+            <Link
+              component={RouterLink}
+              color={getContrastColor(backgroundColor)}
+              to="/forgotPassword"
             >
               {b3Lang('login.loginText.forgotPasswordText')}
-            </Box>
+            </Link>
           </Box>
         </form>
       </Box>

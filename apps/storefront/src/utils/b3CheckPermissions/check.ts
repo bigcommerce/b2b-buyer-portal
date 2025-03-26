@@ -32,16 +32,10 @@ interface VerifyPermissionProps {
   selectId: number;
 }
 
-export const checkEveryPermissionsCode = (permission: PermissionCodesProps) => {
+export const checkEveryPermissionsCode = (code: string) => {
   const newPermissions = store.getState().company.permissions || [];
 
-  return checkPermissionCode(permission, 'every', newPermissions);
-};
-
-export const checkOneOfPermissionsCode = (permission: PermissionCodesProps) => {
-  const newPermissions = store.getState().company.permissions || [];
-
-  return checkPermissionCode(permission, 'some', newPermissions);
+  return checkPermissionCode({ code }, 'every', newPermissions);
 };
 
 export const getPermissionsInfo = (code: string): PermissionCodesProps | undefined => {

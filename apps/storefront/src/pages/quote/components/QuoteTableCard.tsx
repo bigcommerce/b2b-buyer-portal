@@ -65,13 +65,13 @@ function QuoteTableCard(props: QuoteTableCardProps) {
   const { productUrl } = productsSearch;
 
   const singlePrice = getDisplayPrice({
-    price: `${currencyFormat(price)}`,
+    price: currencyFormat(price),
     productInfo: quoteTableItem,
     showText: b3Lang('quoteDraft.quoteSummary.tbd'),
   });
 
   const totalPrice = getDisplayPrice({
-    price: `${currencyFormat(total)}`,
+    price: currencyFormat(total),
     productInfo: quoteTableItem,
     showText: b3Lang('quoteDraft.quoteSummary.tbd'),
   });

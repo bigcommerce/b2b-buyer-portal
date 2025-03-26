@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { B2BEvent, useB2BCallback } from '@b3/hooks';
+import { dispatchEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { ArrowBackIosNew } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
@@ -477,205 +477,202 @@ function QuoteDraft({ setOpenPage }: PageProps) {
     }
   };
 
-  const handleSubmit = useB2BCallback(
-    B2BEvent.OnQuoteCreate,
-    async (dispatchOnQuoteCreateEvent) => {
-      setLoading(true);
-      try {
-        const info = cloneDeep(quoteInfoOrigin);
-        if (isEdit && contactInfoRef?.current) {
-          const data = await handleCollectingData(info);
-          if (!data) return;
-        }
-
-        const contactInfo = info?.contactInfo || {};
-
-        const quoteTitle = contactInfo?.quoteTitle || '';
-
-        if ('quoteTitle' in contactInfo) delete contactInfo.quoteTitle;
-
-        const isComplete = Object.keys(contactInfo).every((key: string) => {
-          if (key === 'phoneNumber' || key === 'companyName') {
-            return true;
-          }
-
-          return contactInfo && !!contactInfo[key as ContactInfoKeys];
-        });
-
-        if (validateObject(quoteInfoOrigin, 'contactInfo') || !isComplete) {
-          snackbar.error(b3Lang('quoteDraft.addQuoteInfo'));
-          return;
-        }
-
-        if (!draftQuoteList || draftQuoteList.length === 0) {
-          snackbar.error(b3Lang('quoteDraft.submit'));
-          return;
-        }
-
-        if (!isEnableProduct) {
-          const itHasInvalidProduct = draftQuoteList.some((item) => {
-            return getVariantInfoOOSAndPurchase(item)?.name;
-          });
-
-          if (itHasInvalidProduct) {
-            snackbar.error(b3Lang('quoteDraft.submit.errorTip'));
-            return;
-          }
-        }
-
-        const note = info?.note || '';
-        const newNote = note.trim().replace(/[\r\n]/g, '\\n');
-
-        const perfectAddress = (address: ShippingAddress | BillingAddress) => {
-          const newAddress = cloneDeep(address);
-
-          const countryItem = countriesList?.find(
-            (item: Country) => item.countryCode === newAddress.country,
-          );
-
-          if (countryItem) {
-            newAddress.country = countryItem.countryName;
-          }
-
-          newAddress.address = address?.address || '';
-          newAddress.apartment = address?.apartment || '';
-
-          return newAddress;
-        };
-
-        const { shippingAddress: editShippingAddress, billingAddress: editBillingAddress } =
-          billingRef?.current ? getAddress() : info;
-
-        const shippingAddress = editShippingAddress ? perfectAddress(editShippingAddress) : {};
-
-        const billingAddress = editBillingAddress ? perfectAddress(editBillingAddress) : {};
-
-        let allPrice = 0;
-        let allTaxPrice = 0;
-
-        const calculationTime = (value: string | number) => {
-          if (typeof value === 'string' && value.includes('-')) {
-            return `${new Date(value).getTime() / 1000}`;
-          }
-          return value;
-        };
-
-        const productList = draftQuoteList.map((item) => {
-          const { node } = item;
-          const product = {
-            ...node.productsSearch,
-            selectOptions: node?.optionList || '',
-          };
-
-          const productFields = getProductOptionsFields(product, {});
-          const optionsList =
-            productFields
-              .map((item) => ({
-                optionId: item.optionId,
-                optionValue:
-                  item.fieldType === 'date' ? calculationTime(item.optionValue) : item.optionValue,
-                optionLabel: `${item.valueText}`,
-                optionName: item.valueLabel,
-                type: item?.fieldOriginType || item.fieldType,
-              }))
-              .filter((list: CustomFieldItems) => !!list.optionName) || [];
-
-          const variants = node?.productsSearch?.variants;
-          let variantsItem;
-          if (Array.isArray(variants)) {
-            variantsItem = variants.find((item) => item.sku === node.variantSku);
-          }
-
-          allPrice += Number(node?.basePrice || 0) * Number(node?.quantity || 0);
-
-          allTaxPrice += Number(node?.taxPrice || 0) * Number(node?.quantity || 0);
-
-          const items = {
-            productId: node?.productsSearch?.id,
-            sku: node.variantSku,
-            basePrice: Number(node?.basePrice || 0).toFixed(currency.decimal_places),
-            discount: '0.00',
-            offeredPrice: Number(node?.basePrice || 0).toFixed(currency.decimal_places),
-            quantity: node.quantity,
-            variantId: variantsItem?.variant_id,
-            imageUrl: node.primaryImage,
-            productName: node.productName,
-            options: optionsList,
-          };
-
-          return items;
-        });
-
-        const fileList = getFileList(quoteInfoOrigin?.fileInfo || []);
-
-        const data = {
-          message: newNote,
-          legalTerms: '',
-          totalAmount: enteredInclusiveTax
-            ? allPrice.toFixed(currency.decimal_places)
-            : (allPrice + allTaxPrice).toFixed(currency.decimal_places),
-          grandTotal: allPrice.toFixed(currency.decimal_places),
-          subtotal: allPrice.toFixed(currency.decimal_places),
-          companyId: isB2BUser ? selectCompanyHierarchyId || companyB2BId || salesRepCompanyId : '',
-          storeHash,
-          quoteTitle,
-          discount: '0.00',
-          channelId,
-          userEmail: customer.emailAddress,
-          shippingAddress,
-          billingAddress,
-          contactInfo,
-          productList,
-          fileList,
-          taxTotal: allTaxPrice.toFixed(currency.decimal_places),
-          currency: {
-            currencyExchangeRate: currency.currency_exchange_rate,
-            token: currency.token,
-            location: currency.token_location,
-            decimalToken: currency.decimal_token,
-            decimalPlaces: currency.decimal_places,
-            thousandsToken: currency.thousands_token,
-            currencyCode: currency.currency_code,
-          },
-          referenceNumber: `${info.referenceNumber}` || '',
-          extraFields: info.extraFields || [],
-          recipients: info.recipients || [],
-        };
-
-        const fn = Number(role) === 99 ? createBCQuote : createQuote;
-
-        if (!dispatchOnQuoteCreateEvent(data)) {
-          throw new Error();
-        }
-
-        const {
-          quoteCreate: {
-            quote: { id, createdAt },
-          },
-        } = await fn(data);
-
-        setQuoteId(id);
-        setCurrentCreatedAt(createdAt);
-
-        if (id) {
-          const cartId = B3LStorage.get('cartToQuoteId');
-          const deleteCartObject = deleteCartData(cartId);
-
-          await deleteCart(deleteCartObject);
-        }
-
-        if (quoteSubmissionResponseInfo.value === '0') {
-          handleAfterSubmit(id, createdAt);
-        } else {
-          setQuoteSubmissionResponseOpen(true);
-        }
-      } catch (error: any) {
-        b2bLogger.error(error);
-      } finally {
-        setLoading(false);
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const info = cloneDeep(quoteInfoOrigin);
+      if (isEdit && contactInfoRef?.current) {
+        const data = await handleCollectingData(info);
+        if (!data) return;
       }
-    },
-  );
+
+      const contactInfo = info?.contactInfo || {};
+
+      const quoteTitle = contactInfo?.quoteTitle || '';
+
+      if ('quoteTitle' in contactInfo) delete contactInfo.quoteTitle;
+
+      const isComplete = Object.keys(contactInfo).every((key: string) => {
+        if (key === 'phoneNumber' || key === 'companyName') {
+          return true;
+        }
+
+        return contactInfo && !!contactInfo[key as ContactInfoKeys];
+      });
+
+      if (validateObject(quoteInfoOrigin, 'contactInfo') || !isComplete) {
+        snackbar.error(b3Lang('quoteDraft.addQuoteInfo'));
+        return;
+      }
+
+      if (!draftQuoteList || draftQuoteList.length === 0) {
+        snackbar.error(b3Lang('quoteDraft.submit'));
+        return;
+      }
+
+      if (!isEnableProduct) {
+        const itHasInvalidProduct = draftQuoteList.some((item) => {
+          return getVariantInfoOOSAndPurchase(item)?.name;
+        });
+
+        if (itHasInvalidProduct) {
+          snackbar.error(b3Lang('quoteDraft.submit.errorTip'));
+          return;
+        }
+      }
+
+      const note = info?.note || '';
+      const newNote = note.trim().replace(/[\r\n]/g, '\\n');
+
+      const perfectAddress = (address: ShippingAddress | BillingAddress) => {
+        const newAddress = cloneDeep(address);
+
+        const countryItem = countriesList?.find(
+          (item: Country) => item.countryCode === newAddress.country,
+        );
+
+        if (countryItem) {
+          newAddress.country = countryItem.countryName;
+        }
+
+        newAddress.address = address?.address || '';
+        newAddress.apartment = address?.apartment || '';
+
+        return newAddress;
+      };
+
+      const { shippingAddress: editShippingAddress, billingAddress: editBillingAddress } =
+        billingRef?.current ? getAddress() : info;
+
+      const shippingAddress = editShippingAddress ? perfectAddress(editShippingAddress) : {};
+
+      const billingAddress = editBillingAddress ? perfectAddress(editBillingAddress) : {};
+
+      let allPrice = 0;
+      let allTaxPrice = 0;
+
+      const calculationTime = (value: string | number) => {
+        if (typeof value === 'string' && value.includes('-')) {
+          return `${new Date(value).getTime() / 1000}`;
+        }
+        return value;
+      };
+
+      const productList = draftQuoteList.map((item) => {
+        const { node } = item;
+        const product = {
+          ...node.productsSearch,
+          selectOptions: node?.optionList || '',
+        };
+
+        const productFields = getProductOptionsFields(product, {});
+        const optionsList =
+          productFields
+            .map((item) => ({
+              optionId: item.optionId,
+              optionValue:
+                item.fieldType === 'date' ? calculationTime(item.optionValue) : item.optionValue,
+              optionLabel: `${item.valueText}`,
+              optionName: item.valueLabel,
+              type: item?.fieldOriginType || item.fieldType,
+            }))
+            .filter((list: CustomFieldItems) => !!list.optionName) || [];
+
+        const variants = node?.productsSearch?.variants;
+        let variantsItem;
+        if (Array.isArray(variants)) {
+          variantsItem = variants.find((item) => item.sku === node.variantSku);
+        }
+
+        allPrice += Number(node?.basePrice || 0) * Number(node?.quantity || 0);
+
+        allTaxPrice += Number(node?.taxPrice || 0) * Number(node?.quantity || 0);
+
+        const items = {
+          productId: node?.productsSearch?.id,
+          sku: node.variantSku,
+          basePrice: Number(node?.basePrice || 0).toFixed(currency.decimal_places),
+          discount: '0.00',
+          offeredPrice: Number(node?.basePrice || 0).toFixed(currency.decimal_places),
+          quantity: node.quantity,
+          variantId: variantsItem?.variant_id,
+          imageUrl: node.primaryImage,
+          productName: node.productName,
+          options: optionsList,
+        };
+
+        return items;
+      });
+
+      const fileList = getFileList(quoteInfoOrigin?.fileInfo || []);
+
+      const data = {
+        message: newNote,
+        legalTerms: '',
+        totalAmount: enteredInclusiveTax
+          ? allPrice.toFixed(currency.decimal_places)
+          : (allPrice + allTaxPrice).toFixed(currency.decimal_places),
+        grandTotal: allPrice.toFixed(currency.decimal_places),
+        subtotal: allPrice.toFixed(currency.decimal_places),
+        companyId: isB2BUser ? selectCompanyHierarchyId || companyB2BId || salesRepCompanyId : '',
+        storeHash,
+        quoteTitle,
+        discount: '0.00',
+        channelId,
+        userEmail: customer.emailAddress,
+        shippingAddress,
+        billingAddress,
+        contactInfo,
+        productList,
+        fileList,
+        taxTotal: allTaxPrice.toFixed(currency.decimal_places),
+        currency: {
+          currencyExchangeRate: currency.currency_exchange_rate,
+          token: currency.token,
+          location: currency.token_location,
+          decimalToken: currency.decimal_token,
+          decimalPlaces: currency.decimal_places,
+          thousandsToken: currency.thousands_token,
+          currencyCode: currency.currency_code,
+        },
+        referenceNumber: `${info.referenceNumber}` || '',
+        extraFields: info.extraFields || [],
+        recipients: info.recipients || [],
+      };
+
+      const fn = Number(role) === 99 ? createBCQuote : createQuote;
+
+      if (!dispatchEvent('on-quote-create', data)) {
+        throw new Error();
+      }
+
+      const {
+        quoteCreate: {
+          quote: { id, createdAt },
+        },
+      } = await fn(data);
+
+      setQuoteId(id);
+      setCurrentCreatedAt(createdAt);
+
+      if (id) {
+        const cartId = B3LStorage.get('cartToQuoteId');
+        const deleteCartObject = deleteCartData(cartId);
+
+        await deleteCart(deleteCartObject);
+      }
+
+      if (quoteSubmissionResponseInfo.value === '0') {
+        handleAfterSubmit(id, createdAt);
+      } else {
+        setQuoteSubmissionResponseOpen(true);
+      }
+    } catch (error: any) {
+      b2bLogger.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCloseQuoteSubmissionResponse = () => {
     setQuoteSubmissionResponseOpen(false);
@@ -769,8 +766,8 @@ function QuoteDraft({ setOpenPage }: PageProps) {
             sx={{
               display: 'flex',
               mb: '24px',
-              flexDirection: `${isMobile ? 'column' : 'row'}`,
-              alignItems: `${isMobile ? 'flex-start' : 'center'}`,
+              flexDirection: isMobile ? 'column' : 'row',
+              alignItems: isMobile ? 'flex-start' : 'center',
             }}
           >
             <Typography
@@ -778,7 +775,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
               sx={{
                 fontSize: '34px',
                 mr: '1rem',
-                mb: `${isMobile ? '1rem' : '0'}`,
+                mb: isMobile ? '1rem' : '0',
                 color: getContrastColor(backgroundColor),
               }}
             >

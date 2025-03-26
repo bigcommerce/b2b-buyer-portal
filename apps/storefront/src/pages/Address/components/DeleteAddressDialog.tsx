@@ -81,9 +81,9 @@ export default function DeleteAddressDialog(props: DeleteAddressDialogProps) {
       <Box
         sx={{
           display: 'flex',
-          alignItems: `${isMobile ? 'start' : 'center'}`,
-          justifyContent: `${isMobile ? 'center' : 'start'}`,
-          width: `${isMobile ? '100%' : '450px'}`,
+          alignItems: isMobile ? 'start' : 'center',
+          justifyContent: isMobile ? 'center' : 'start',
+          width: isMobile ? '100%' : '450px',
           height: '100%',
         }}
       >

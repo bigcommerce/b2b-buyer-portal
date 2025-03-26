@@ -32,7 +32,7 @@ const themeOtherElementConfig = () => {
   allOtherElement = allOtherElement.slice(0, -1)
 
   return {
-    'dom.allOtherElement': `${allOtherElement}`,
+    'dom.allOtherElement': allOtherElement,
   }
 }
 
