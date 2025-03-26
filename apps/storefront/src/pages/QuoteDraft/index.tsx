@@ -785,20 +785,7 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           </Box>
           {quotesActionsPermission && (
             <Box>
-              {!isMobile ? (
-                <CustomButton
-                  variant="contained"
-                  size="small"
-                  sx={{
-                    padding: '8px 22px',
-                    alignSelf: 'center',
-                    marginBottom: '24px',
-                  }}
-                  onClick={handleSubmit}
-                >
-                  {b3Lang('quoteDraft.button.submit')}
-                </CustomButton>
-              ) : (
+              {isMobile ? (
                 <Box
                   sx={{
                     position: 'fixed',
@@ -824,6 +811,19 @@ function QuoteDraft({ setOpenPage }: PageProps) {
                     {b3Lang('quoteDraft.button.submit')}
                   </CustomButton>
                 </Box>
+              ) : (
+                <CustomButton
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    padding: '8px 22px',
+                    alignSelf: 'center',
+                    marginBottom: '24px',
+                  }}
+                  onClick={handleSubmit}
+                >
+                  {b3Lang('quoteDraft.button.submit')}
+                </CustomButton>
               )}
             </Box>
           )}
@@ -976,7 +976,6 @@ function QuoteDraft({ setOpenPage }: PageProps) {
           </Container>
         </Box>
       </Box>
-
       <QuoteSubmissionResponse
         isOpen={quoteSubmissionResponseOpen}
         onClose={handleCloseQuoteSubmissionResponse}

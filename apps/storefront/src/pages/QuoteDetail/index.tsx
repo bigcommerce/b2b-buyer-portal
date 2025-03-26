@@ -681,7 +681,7 @@ function QuoteDetail() {
             flexWrap: isMobile ? 'wrap' : 'nowrap',
             paddingBottom: '20px',
             marginBottom: isMobile ? '6rem' : 0,
-            marginTop: !isMobile ? '1rem' : 0,
+            marginTop: isMobile ? 0 : '1rem',
             '@media print': {
               overflow: 'hidden',
             },

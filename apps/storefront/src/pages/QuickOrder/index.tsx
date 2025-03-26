@@ -63,7 +63,7 @@ function QuickOrder() {
             item
             xs={isMobile ? 12 : 4}
             sx={{
-              pt: !isMobile ? '0px !important' : '16px',
+              pt: isMobile ? '16px' : '0px !important',
               pl: isMobile ? '0px !important' : '16px',
             }}
           >

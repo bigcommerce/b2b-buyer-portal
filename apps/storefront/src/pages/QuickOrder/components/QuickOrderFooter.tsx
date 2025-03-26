@@ -723,7 +723,7 @@ function QuickOrderFooter(props: QuickOrderFooterProps) {
               <Box
                 sx={{
                   width: '33.3333%',
-                  display: !isMobile ? 'block' : 'none',
+                  display: isMobile ? 'none' : 'block',
                 }}
               />
             </Box>
