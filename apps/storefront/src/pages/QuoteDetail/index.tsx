@@ -349,9 +349,7 @@ function QuoteDetail() {
 
     try {
       const quote = await getQuote();
-      const productsWithMoreInfo = await handleGetProductsById(quote.productsList).catch((err) => {
-        snackbar.error(err);
-
+      const productsWithMoreInfo = await handleGetProductsById(quote.productsList).catch(() => {
         return undefined;
       });
       const quoteExtraFieldInfos = await getQuoteExtraFields(quote.extraFields);
