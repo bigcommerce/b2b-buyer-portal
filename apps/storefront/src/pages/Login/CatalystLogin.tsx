@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { B2BEvent } from '@b3/hooks';
 
 import { Loading } from '@/components';
 import { endUserMasqueradingCompany, superAdminEndMasquerade } from '@/shared/service/b2b';
@@ -69,7 +68,7 @@ export function CatalystLogin() {
         .then(() => {
           window.sessionStorage.clear();
           store.dispatch(clearCompanySlice());
-          window.b2b.callbacks.dispatchEvent(B2BEvent.OnLogout);
+          window.b2b.callbacks.dispatchEvent('on-logout');
         });
     } else if (isLoggedIn) {
       navigate('/orders');

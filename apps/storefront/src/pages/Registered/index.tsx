@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { B2BEvent } from '@b3/hooks';
 import { useB3Lang } from '@b3/lang';
 import { Box, ImageListItem } from '@mui/material';
 
@@ -280,7 +279,7 @@ function Registered(props: PageProps) {
             landingLoginLocation = '0';
           }
 
-          window.b2b.callbacks.dispatchEvent(B2BEvent.OnRegistered, {
+          window.b2b.callbacks.dispatchEvent('on-registered', {
             email: data.emailAddress,
             password: data.password,
             landingLoginLocation,

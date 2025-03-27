@@ -237,7 +237,7 @@ function Login(props: PageProps) {
             navigate(PATH_ROUTES.ORDERS);
           }
 
-          const path = b2bJumpPath(info?.role);
+          const path = b2bJumpPath(Number(info?.role));
 
           navigate(path);
         }
