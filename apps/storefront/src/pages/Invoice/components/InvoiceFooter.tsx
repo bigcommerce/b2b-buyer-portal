@@ -72,7 +72,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         currency,
       };
 
-      await gotoInvoiceCheckoutUrl(params, false);
+      await gotoInvoiceCheckoutUrl(params, false)
     }
   };
 

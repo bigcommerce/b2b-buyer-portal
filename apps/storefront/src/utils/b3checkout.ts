@@ -1,7 +1,7 @@
 import { b2bCheckoutLogin } from '@/shared/service/b2b/graphql/checkout';
 import { platform } from './basicConfig';
 
-const redirect = (url: string, isReplaceCurrentUrl?: boolean) => {
+export const redirect = (url: string, isReplaceCurrentUrl?: boolean) => {
   if (isReplaceCurrentUrl) {
     window.location.replace(url);
   } else {
