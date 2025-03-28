@@ -11,7 +11,7 @@ import { GlobalContext } from '@/shared/global';
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b';
 import { bcLogin } from '@/shared/service/bc';
 import { themeFrameSelector, useAppSelector } from '@/store';
-import { B3SStorage, loginJump } from '@/utils';
+import { B3SStorage, loginJump, platform } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -270,6 +270,23 @@ function Registered(props: PageProps) {
         clearRegisterInfo();
 
         const isLoginLandLocation = loginJump(navigate);
+
+        if (platform === 'catalyst') {
+          let landingLoginLocation;
+          if (isLoginLandLocation) {
+            landingLoginLocation = '1';
+          } else {
+            landingLoginLocation = '0';
+          }
+
+          window.b2b.callbacks.dispatchEvent('on-registered', {
+            email: data.emailAddress,
+            password: data.password,
+            landingLoginLocation,
+          });
+          window.location.hash = '';
+          return;
+        }
 
         if (!isLoginLandLocation) return;
 

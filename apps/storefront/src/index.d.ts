@@ -43,7 +43,9 @@ declare interface Window {
       quote: {
         addProductFromPage: (item: import('@/utils').LineItems) => void;
         addProductsFromCart: () => Promise<void>;
+        addProductsFromCartId: (cartId: string) => Promise<void>;
         addProducts: (items: import('@/utils').LineItems[]) => Promise<void>;
+        getQuoteConfigs: () => import('@/shared/global/context/config').QuoteConfigProps[];
         getCurrent: () => {
           productList: import('@/components').FormattedQuoteItem[];
         };

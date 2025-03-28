@@ -284,7 +284,7 @@ const deleteCartQuery = `mutation deleteCart($deleteCartInput: DeleteCartInput!)
   }
 }`;
 
-export const getCart = async (): Promise<any> => {
+export const getCart = async (cartId?: string): Promise<any> => {
   if (platform === 'bigcommerce') {
     const cartInfo = await B3Request.graphqlBC({
       query: getCartInfo,
@@ -297,7 +297,7 @@ export const getCart = async (): Promise<any> => {
     return cartInfo;
   }
 
-  const entityId = Cookies.get('cartId');
+  const entityId = cartId || Cookies.get('cartId');
   const cartInfo = await B3Request.graphqlBCProxy({
     query: getCartInfo,
     variables: { entityId },

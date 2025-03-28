@@ -3,6 +3,7 @@ export type EventType =
   | 'on-add-to-shopping-list'
   | 'on-click-cart-button'
   | 'on-login'
+  | 'on-registered'
   | 'on-logout';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
