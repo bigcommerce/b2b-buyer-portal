@@ -89,7 +89,7 @@ export default function RegisteredBCToB2B(props: PageProps) {
   });
 
   const {
-    state: { storeName, logo, blockPendingAccountOrderCreation, registerEnabled },
+    state: { logo, blockPendingAccountOrderCreation, registerEnabled },
   } = useContext(GlobalContext);
 
   const navigate = useNavigate();
@@ -198,7 +198,6 @@ export default function RegisteredBCToB2B(props: PageProps) {
             type: 'all',
             payload: {
               isLoading: false,
-              storeName,
               bcTob2bContactInformation: [...newContactInformation],
               bcTob2bCompanyExtraFields: [],
               bcTob2bCompanyInformation: [...bcToB2BAccountFormFields.businessDetails],
