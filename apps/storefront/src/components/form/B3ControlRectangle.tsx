@@ -1,21 +1,37 @@
-import { Controller } from 'react-hook-form';
+import { Control, Controller, FieldErrors, FieldValues, Path, PathValue } from 'react-hook-form';
 import { useB3Lang } from '@b3/lang';
-import { FormControl, FormHelperText, FormLabel, Radio, RadioGroup, useTheme } from '@mui/material';
+import {
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  SxProps,
+  useTheme,
+} from '@mui/material';
 
 import { StyleRectangleFormControlLabel } from './styled';
-import Form from './ui';
 
-export default function B3ControlRectangle({ control, errors, ...rest }: Form.B3UIProps) {
-  const {
-    fieldType,
-    name,
-    default: defaultValue,
-    required,
-    label,
-    validate,
-    options,
-    labelStyle = {},
-  } = rest;
+type B3Lang = ReturnType<typeof useB3Lang>;
+
+export interface RectangleProps<T extends FieldValues> {
+  control?: Control<T>;
+  name: Path<T>;
+  default?: PathValue<T, Path<T>>;
+  required?: boolean;
+  label: string;
+  validate?: (value: string, b3Lang: B3Lang) => string | undefined;
+  labelStyle?: SxProps;
+  options?: { value: string | number; label: JSX.Element | string }[];
+  errors: FieldErrors<T>;
+}
+
+export default function B3ControlRectangle<T extends FieldValues>({
+  control,
+  errors,
+  ...rest
+}: RectangleProps<T>) {
+  const { name, default: defaultValue, required, label, validate, options, labelStyle = {} } = rest;
 
   const b3Lang = useB3Lang();
   const theme = useTheme();
@@ -23,7 +39,6 @@ export default function B3ControlRectangle({ control, errors, ...rest }: Form.B3
   const primaryColor = theme.palette.primary.main;
 
   const fieldsProps = {
-    type: fieldType,
     name,
     defaultValue,
     rules: {
@@ -37,10 +52,12 @@ export default function B3ControlRectangle({ control, errors, ...rest }: Form.B3
     control,
   };
 
-  return ['rectangle'].includes(fieldType) ? (
+  const fieldError = errors[name];
+
+  return (
     <FormControl>
       {label && (
-        <FormLabel error={!!errors[name]} required={required}>
+        <FormLabel error={!!fieldError} required={required}>
           {label}
         </FormLabel>
       )}
@@ -57,7 +74,7 @@ export default function B3ControlRectangle({ control, errors, ...rest }: Form.B3
             {...field}
           >
             {options?.length &&
-              options.map((option: Form.RadopGroupListProps) => {
+              options.map((option) => {
                 const isActive = field.value.toString() === option.value.toString();
                 return (
                   <StyleRectangleFormControlLabel
@@ -76,11 +93,11 @@ export default function B3ControlRectangle({ control, errors, ...rest }: Form.B3
           </RadioGroup>
         )}
       />
-      {errors[name] && (
-        <FormHelperText error={!!errors[name]}>
-          {(errors as any)[name] ? (errors as any)[name].message : null}
+      {fieldError && (
+        <FormHelperText error={!!fieldError}>
+          {fieldError ? fieldError.message?.toString() : null}
         </FormHelperText>
       )}
     </FormControl>
-  ) : null;
+  );
 }
