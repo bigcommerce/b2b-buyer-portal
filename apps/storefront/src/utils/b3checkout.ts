@@ -21,6 +21,7 @@ export const attemptCheckoutLoginAndRedirect = async (
     const {
       checkoutLogin: { result },
     } = resLogin;
+    throw new Error();
 
     redirect(result.redirectUrl, isReplaceCurrentUrl);
   } catch (e) {
