@@ -37,7 +37,6 @@ function B3Pulldown({
   isCurrentCompany,
   invoicePay,
 }: B3PulldownProps) {
-  const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const ref = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isPay, setIsPay] = useState<boolean>(true);
@@ -114,7 +113,7 @@ function B3Pulldown({
       return;
     }
 
-    await gotoInvoiceCheckoutUrl(params, platform, false);
+    await gotoInvoiceCheckoutUrl(params, false);
   };
 
   const viewPaymentHistory = async () => {

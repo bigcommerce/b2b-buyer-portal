@@ -73,7 +73,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         currency,
       };
 
-      await gotoInvoiceCheckoutUrl(params, platform, false);
+      await gotoInvoiceCheckoutUrl(params, false)
     }
   };
 

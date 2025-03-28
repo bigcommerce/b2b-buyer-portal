@@ -61,7 +61,7 @@ function Payment() {
             currency: code,
           };
 
-          await gotoInvoiceCheckoutUrl(data, platform, true);
+          await gotoInvoiceCheckoutUrl(data, true);
         } catch (error: unknown) {
           snackbar.error(
             (error as CustomFieldItems)?.message || b3Lang('payment.invoiceDoesNotExist'),
