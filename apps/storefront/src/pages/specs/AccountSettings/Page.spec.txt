@@ -1,0 +1,331 @@
+Feature: Account settings page
+
+# === Viewing account settings ===
+
+Scenario: User visits the accounts settings page
+    Given the page is rendered
+    Then it displays a heading of "Account settings"
+
+Scenario: Awaiting account data to load
+    Given account data is loading
+    Then it displays a loading spinner
+        And it does not display any form fields
+        And it does not display the "Save updates" button
+
+Scenario: Account data fails to load
+    Given the account data fails to load
+    Then it does not display the loading spinner
+        And it does not display any form fields
+        And it displays the "Save updates" button
+        And it does not refer to the loading failure in any way 
+        # (we should change this)
+
+Scenario: Company account settings load successfully
+    Given the account data loads successfully
+        And the account is a company account
+    Then it does not display the loading spinner
+        And it displays the loaded form fields
+        And it displays a "Company" field as readonly
+        And it displays a "Role" field as readonly
+        And it displays a "Current password" field
+        And it displays a "Password" field (i.e. "New password")
+        And it displays a "Confirm password" field
+        And it displays the "Save updates" button
+
+Scenario: Personal account settings load successfully
+    Given the account data loads successfully
+        And the account is a personal account
+    Then it does not display the loading spinner
+        And it displays the loaded form fields
+        And it does not display a "Company" field
+        And it does not display a "Role" field
+        And it displays a "Current password" field of type "password"
+        And it displays a "Password" field (i.e. "New password") of type "password"
+        And it displays a "Confirm password" field of type "password"
+        And it displays the "Save updates" button
+
+# === Saving account settings ===
+
+Scenario: User clicks the "Save updates" button
+    Given the user clicks the "Save updates" button
+    Then it displays a loading spinner
+        And it does not display any form fields
+        And it does not display the "Save updates" button
+
+Scenario: Saving fails
+    Given the user clicks the "Save updates" button
+        And the "Save" fails
+    Then it does not display the loading spinner
+        And it displays the "Save updates" button
+        And it displays form fields
+        And it does not display any alerts or notifications
+        # (we should change this)
+
+Scenario: Saving succeeds and the user is not changing their email address or password
+    Given the user clicks the "Save updates" button
+        And the "Save" completes successfully
+    Then it does not display the loading spinner
+        And it displays the "Save updates" button
+        And it displays form fields
+        And it refreshes the page
+        And it displays a success alert of "Your account details have been updated."
+        # (we should remove the refresh, and just show the success alert)
+
+# === Updating their email ===
+
+Scenario: User attempts to update their email address without entering their current password
+    Given the user types a new email address into the "Email" field
+        And the user does not type into the "Current password" field
+    When the user clicks the "Save updates" button
+        And the "Save" completes
+    Then it displays an alert of "Please type in your current password to update your email address."
+    # (we should move this validation to the frontend)
+
+Scenario: User attempts to update their email address and enters an incorrect current password
+    Given the user types a new email address into the "Email" field
+        And the user types in an incorrect password into the "Current password" field
+    When the user clicks the "Save updates" button
+        And the "Save" completes
+    Then it displays an alert of "Please type in your current password to update your email address."
+
+Scenario: User attempts to update their email address to an invalid email address
+    Given the user types an invalid email address into the "Email" field
+    When the user clicks the "Save updates" button
+    Then it displays a field error of "Please use a valid email address, such as user@example.com."
+
+Scenario: User attempts to update their email address to an address which already taken
+    Given the user types an email address into the "Email" field
+    And the "Save" completes with an error concerning the email's uniqueness
+    Then it displays a field error of "This email address is already in use."
+
+# === Updating their password ===
+
+Scenario: User attempts to update their password without confirming the new password
+    Given the user types a new password into the "Password" field
+        And the user does not type into the "Confirm password" field
+    When the user clicks the "Save updates" button
+    Then it displays an error of "Your passwords do not match." next to the "Password" field
+        And it displays an error of "Your passwords do not match." next to the "Confirm password" field
+
+Scenario: User attempts to update their password, but enters the password confirmation incorrectly
+    Given the user types a new password into the "Password" field
+        And the user types a different new password into the "Confirm password" field
+    When the user clicks the "Save updates" button
+    Then it displays an error of "Your passwords do not match." next to the "Password" field
+        And it displays an error of "Your passwords do not match." next to the "Confirm password" field
+
+Scenario: User attempts to update their password without entering the current password
+    Given the user types a new password into the "Password" field
+        And the user types the same password into the "Confirm password" field
+    When the user clicks the "Save updates" button
+        And the "Save" completes
+    Then it displays an error alert of "Please type in your current password."
+    # (we should move this validation to the frontend)
+
+Scenario: User attempts to update their password, entering the current password incorrectly
+    Given the user types a new password into the "Password" field
+        And the user types the same password into the "Confirm password" field
+        And the user types an incorrect current password into the "Current password" field
+    When the user clicks the "Save updates" button
+        And the "Save" completes
+    Then it displays an error alert of "The password you entered is incorrect, please check and try again."
+
+Scenario: User attempts to update their password to an invalid password, entering the current password correctly
+    Given the user types a new password into the "Password" field
+        And the user types the same password into the "Confirm password" field
+        And the user types in the correct current password into the "Current password" field
+    When the user clicks the "Save updates" button
+        And the "Save" completes with an error concerning the password's validity
+    Then it displays an alert of "Update customer info failed in bc"
+        # (we should improve this error message)
+
+Scenario: User attempts to update their password to a valid password, entering the current password correctly
+    Given the user types a new password into the "Password" field
+        And the user types the same password into the "Confirm password" field
+        And the user types in the correct current password into the "Current password" field
+    When the user clicks the "Save updates" button
+        And the "Save" completes successfully
+    Then it redirects the user to the login page
+    # is this necessary? Seems they could just stay and see a success alert
+
+# === Field ordering ===
+
+Scenario: Account settings load successfully
+    Given the account data loads successfully
+        And "Field A" is ordered before "Field B"
+    Then it displays "Field A" before "Field B"
+
+Scenario: Account settings load successfully
+    Given the account data loads successfully
+        And "Field Z" is the final loaded field
+    Then it displays the "Current password" field after "Field Z"
+        And it displays the "Password" field after the "Current password"
+        And it displays the "Confirm password" field after the "Password"
+
+# === Fields with translatable labels ===
+
+Scenario: A field has a translatable label and no "Display Name" override
+    Given a field has a translatable label
+    Then it displays the label in the user's language
+
+Scenario: A field has a translatable label and has a "Display Name" override
+    Given a field has a translatable label
+        And the field has a "Display Name" override
+    Then it displays the label in the user's language
+        And ignores the "Display Name" override
+
+# === Fields with default values ===
+
+# This a BE enforced behaviour
+# The FE provides no way to differentiate between a field with a default value and a field with a user value
+Scenario: A field has a default value and no current user value
+    Given a field has a default value
+        And the field has no current user value
+    Then it displays the field with the default value
+
+# This a BE enforced behaviour
+# The FE provides no way to differentiate between a field with a default value and a field with a user value
+Scenario: A field has a default value and it also has a current user value
+    Given a field has a default value
+        And the field also has a current user value
+    Then it displays the field with the current user value
+        And the default value is not displayed
+
+# === Required fields ===
+
+Scenario: An account field is required
+    Given an account field is required
+    Then it displays a asterisk next to that field's label
+
+Scenario: Attempting to save a required field as empty
+    Given an account field is required
+        And the field is empty
+    When the user attempts to "Save updates"
+    Then it displays a field error of "[FIELD_NAME] is required"
+        And it does not submit the form
+
+Scenario: Correcting an empty required field
+    Given an account field is required
+        And the field is empty
+    When the user enters any value into the field
+    Then it removes the "[FIELD_NAME] is required" field error
+
+# === Text fields ===
+
+Scenario: Displaying a text field
+    Given a field is a text field
+    Then it displays the field as a text input
+
+Scenario: Displaying a text field with a maximum length
+    Given a field is a text field
+        And that field has a maximum length of [MAX_LENGTH]
+    Then it displays the field with a maximum length of [MAX_LENGTH]
+
+# === Multiline fields ===
+
+Scenario: Displaying a multiline field
+    Given a field is a multiline field
+        and it has max row of [MAX_LINES]
+    Then it displays the field as a textarea
+        And it displays the field with a maximum of [MAX_LINES] rows
+
+# === Number only fields ===
+
+Scenario: Displaying a number field
+    Given a field is a number field
+    Then it displays the field as a number input
+
+Scenario: User enters a number over a specific number field's maximum value
+    Given a field is a number field
+        And that field has a maximum value of [MAX_VALUE]
+    When the user types a number greater than [MAX_VALUE] into the field
+        And the user clicks the "Save updates" button
+        And the "Save" completes
+    Then there are no alerts or errors displayed
+        And the user has no idea that the save has failed
+    # (we should move this validation to the frontend)
+
+Scenario: User enters a number over a specific number field's minimum value
+    Given a field is a number field
+        And that field has a minimum value of [MIN_VALUE]
+    When the user types a number greater than [MIN_VALUE] into the field
+        And the user clicks the "Save updates" button
+        And the "Save" completes
+    Then there are no alerts or errors displayed
+        And the user has no idea that the save has failed
+    # (we should move this validation to the frontend)
+
+# === Dropdown fields ===
+
+Scenario: Displaying a dropdown field
+    Given a field is a dropdown field
+    Then it displays the field as a select
+
+Scenario: Displaying a dropdown field with instructional text
+    Given a field is a dropdown field
+        And that field has instructional text of "Please select an option"
+    Then it displays the field with a first disabled option of "Please select an option"
+
+# Checkbox Group fields
+
+Scenario: Displaying a checkbox group field
+    Given a field is a checkbox group field
+        And it has a name of "Favorite cheeses"
+        And it has an option of "Brie" which is unchecked
+        And it has an option of "Swiss" which is checked
+        And it has an option of "Gorgonzola" which is checked
+    Then it displays a label of "Favorite cheeses"
+        And it displays a checkbox of "Brie" which is unchecked
+        And it displays a checkbox of "Swiss" which is checked
+        And it displays a checkbox of "Gorgonzola" which is checked
+
+Scenario: Displaying a checkbox group field where at least one option is required
+    Given a field is a checkbox group field
+        And it has a name of "Favorite cheeses"
+        And at least one option is required
+        And it has an option of "Brie" which is unchecked
+        And it has an option of "Swiss" which is unchecked
+        And it has an option of "Gorgonzola" which is unchecked
+    When the user clicks the "Save updates" button
+    Then it displays an error of "Favorite cheeses is required" next to the field
+        And it does not submit the form
+
+# === Date fields ===
+
+Scenario: Displaying a date field
+    Given a field is a date field
+    Then it displays the field as a date input
+
+Scenario: Date fields can never be cleared
+    Given a field is a date field
+        And the field has a value of "2023-01-01"
+    When the attempts to delete the date value
+    Then the delete is ignored
+        AND the field retains the value of "2023-01-01"
+        # (we should fix this)
+
+Scenario: Attempting to save a date field with an invalid date
+    Given a field is a date field
+        And the field has range of [MIN_DATE] to [MAX_DATE]
+    When the user types an invalid date into the field
+        And the user clicks the "Save updates" button
+        And the "Save" completes
+    Then there are no alerts or errors displayed
+        And the user has no idea that the save has failed
+    # (we should move this validation to the frontend)
+
+# === Radio fields ===
+
+Scenario: Displaying a radio field
+    Given a field is a radio field
+    Then it displays the field as a radio input
+
+Scenario: Radio fields can never be cleared
+    Given a field is a radio field
+        And it has an option of "A" which is unchecked
+        And it has an option of "B" which is checked
+    When the attempts to uncheck "B"
+    Then the unchecking is ignored
+        AND the field retains the value of "B"
+        # (we should fix this, or enforce all radio fields to be required)
+
