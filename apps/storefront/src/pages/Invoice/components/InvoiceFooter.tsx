@@ -15,7 +15,6 @@ interface InvoiceFooterProps {
 }
 
 function InvoiceFooter(props: InvoiceFooterProps) {
-  const platform = useAppSelector(({ global }) => global.storeInfo.platform);
   const b3Lang = useB3Lang();
   const [isMobile] = useMobile();
   const [selectedAccount, setSelectedAccount] = useState<number | string>(0);
@@ -73,7 +72,7 @@ function InvoiceFooter(props: InvoiceFooterProps) {
         currency,
       };
 
-      await gotoInvoiceCheckoutUrl(params, platform, false);
+      await gotoInvoiceCheckoutUrl(params, false);
     }
   };
 

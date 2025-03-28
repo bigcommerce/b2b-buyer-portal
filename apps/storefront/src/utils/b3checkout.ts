@@ -1,4 +1,5 @@
 import { b2bCheckoutLogin } from '@/shared/service/b2b/graphql/checkout';
+import { platform } from './basicConfig';
 
 const redirect = (url: string, isReplaceCurrentUrl?: boolean) => {
   if (isReplaceCurrentUrl) {
@@ -13,6 +14,10 @@ export const attemptCheckoutLoginAndRedirect = async (
   defaultCheckoutUrl: string,
   isReplaceCurrentUrl?: boolean,
 ) => {
+  if (['bigcommerce'].includes(platform)) {
+    throw new Error('unsupported platform for checkout login');
+  }
+
   try {
     const resLogin = await b2bCheckoutLogin({
       cartData: { cartId },
