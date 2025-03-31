@@ -172,7 +172,10 @@ const addProductsToDraftQuote = async (
 ) => {
   // filter products with SKU
   const productsWithSKUOrVariantId = products.filter(
-    ({ sku, variantEntityId, productEntityId }) => sku || variantEntityId || productEntityId,
+    ({ sku, variantEntityId, productEntityId }) => {
+      const validId = !Number.isNaN(Number(variantEntityId)) || !Number.isNaN(Number(productEntityId));
+      return sku || validId;
+    },
   );
 
   const companyInfoId = store.getState().company.companyInfo.id;
@@ -264,14 +267,8 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage) => {
     }
   };
 
-  const addToQuoteFromCookie = async () => {
-    const cart: CartInfoProps | any = await getCart();
-    await addToQuote(cart);
-  };
-  const addToQuoteFromCart = async (cartId: string) => {
-    const cart: CartInfoProps | any = await getCart(cartId);
-    await addToQuote(cart);
-  };
+  const addToQuoteFromCookie = () => getCart().then(addToQuote);
+  const addToQuoteFromCart = (cartId: string) => getCart(cartId).then(addToQuote);
 
   return {
     addToQuoteFromCookie,

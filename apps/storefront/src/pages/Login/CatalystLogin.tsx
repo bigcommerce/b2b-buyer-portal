@@ -45,7 +45,6 @@ export function CatalystLogin() {
   const isLoggedIn = useAppSelector(isLoggedInSelector);
   const B2BToken = useAppSelector(({ company }) => company.tokens.B2BToken);
   const [searchParams] = useSearchParams();
-  const isTryingToLogin = useAppSelector(({ company }) => company.tokens.B2BToken);
 
   const loginFlag = searchParams.get('loginFlag');
 
@@ -57,7 +56,7 @@ export function CatalystLogin() {
     return () => {
       clearTimeout(timeout);
     };
-  }, [isTryingToLogin]);
+  }, [B2BToken]);
 
   useEffect(() => {
     if (loginFlag === 'loggedOutLogin' || !B2BToken) {

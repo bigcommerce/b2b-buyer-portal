@@ -17,7 +17,7 @@ import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
 import { LoginFlagType } from '@/types/login';
-import { b2bJumpPath, channelId, loginJump, snackbar, storeHash } from '@/utils';
+import { b2bJumpPath, channelId, loginJump, platform, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -396,7 +396,6 @@ function Login(props: PageProps) {
 }
 
 export default function LoginPage(props: PageProps) {
-  const platform = useAppSelector(({ global }) => global.storeInfo.platform);
 
   if (platform === 'catalyst') {
     return <CatalystLogin />;

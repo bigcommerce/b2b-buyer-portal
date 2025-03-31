@@ -138,8 +138,8 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           }, 0),
         quote: {
           addProductFromPage: (item) => addProductsToDraftQuote([item], setOpenPage),
-          addProductsFromCart: () => addToQuoteFromCookie(),
-          addProductsFromCartId: (cartId) => addToQuoteFromCart(cartId),
+          addProductsFromCart: addToQuoteFromCookie,
+          addProductsFromCartId: addToQuoteFromCart,
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
           getQuoteConfigs: () => quoteConfig,
           getCurrent: () => ({ productList }),
