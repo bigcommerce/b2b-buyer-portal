@@ -30,6 +30,7 @@ import RegisterContent from './RegisterContent';
 import RegisteredStep from './RegisteredStep';
 import { RegisteredContainer, RegisteredImage } from './styled';
 import { RegisterFields } from './types';
+import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2];
@@ -272,12 +273,7 @@ function Registered(props: PageProps) {
         const isLoginLandLocation = loginJump(navigate);
 
         if (platform === 'catalyst') {
-          let landingLoginLocation;
-          if (isLoginLandLocation) {
-            landingLoginLocation = '1';
-          } else {
-            landingLoginLocation = '0';
-          }
+          const landingLoginLocation = isLoginLandLocation ? LOGIN_LANDING_LOCATIONS.HOME : LOGIN_LANDING_LOCATIONS.BUYER_PORTAL;
 
           window.b2b.callbacks.dispatchEvent('on-registered', {
             email: data.emailAddress,

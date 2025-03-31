@@ -1,5 +1,6 @@
 import isEmpty from 'lodash-es/isEmpty';
 
+import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 import { CustomStyleButtonState } from '@/shared/customStyleButton/context/config';
 import { DispatchProps } from '@/shared/global/context/config';
 import {
@@ -276,7 +277,11 @@ const getTemPlateConfig = async (dispatch: any, dispatchGlobal: any) => {
       }
 
       if (storefrontKey.key === 'login_landing_location') {
-        store.dispatch(setLoginLandingLocation(item?.extraFields?.location || '0'));
+        store.dispatch(
+          setLoginLandingLocation(
+            item?.extraFields?.location || LOGIN_LANDING_LOCATIONS.BUYER_PORTAL,
+          ),
+        );
       }
 
       if (storefrontKey.key === 'quote_submission_response') {

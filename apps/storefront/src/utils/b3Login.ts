@@ -3,12 +3,13 @@ import { NavigateFunction } from 'react-router-dom';
 import { store } from '@/store';
 
 import { platform } from './basicConfig';
+import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 
 export const loginJump = (navigate: NavigateFunction, isClearSession = false) => {
   const {
     global: { loginLandingLocation, recordOpenHash, setOpenPageFn },
   } = store.getState();
-  if (loginLandingLocation === '1' && !recordOpenHash) {
+  if (loginLandingLocation === LOGIN_LANDING_LOCATIONS.HOME && !recordOpenHash) {
     if (platform === 'catalyst') {
       return false;
     }
@@ -28,7 +29,7 @@ export const loginJump = (navigate: NavigateFunction, isClearSession = false) =>
     window.location.reload();
     return false;
   }
-  if (loginLandingLocation === '1' && recordOpenHash) {
+  if (loginLandingLocation === LOGIN_LANDING_LOCATIONS.HOME && recordOpenHash) {
     if (platform === 'catalyst') {
       return false;
     }

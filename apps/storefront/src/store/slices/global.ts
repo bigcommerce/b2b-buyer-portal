@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { Dispatch, SetStateAction } from 'react';
 
 import { OpenPageState } from '@/types/hooks';
+import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 
 export interface TaxZoneRates {
   rate?: number;
@@ -110,7 +111,7 @@ const initialState: GlobalState = {
     isEnableProduct: false,
     isEnableRequest: false,
   },
-  loginLandingLocation: '0',
+  loginLandingLocation: LOGIN_LANDING_LOCATIONS.BUYER_PORTAL,
   recordOpenHash: '',
   quoteSubmissionResponse: {
     value: '0',
