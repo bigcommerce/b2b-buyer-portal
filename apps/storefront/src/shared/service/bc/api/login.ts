@@ -13,7 +13,7 @@ export const getBCForgotPassword = (data: CustomFieldItems) =>
  * which user log in on the channel
  */
 export const getCurrentCustomerJWT = async (app_client_id: string) => {
-  if (platform !== 'bigcommerce') {
+  if (!['bigcommerce', 'catalyst'].includes(platform)) {
     return undefined;
   }
   const response = await fetch(
