@@ -1,9 +1,9 @@
 import { NavigateFunction } from 'react-router-dom';
 
+import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 import { store } from '@/store';
 
 import { platform } from './basicConfig';
-import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 
 export const loginJump = (navigate: NavigateFunction, isClearSession = false) => {
   const {

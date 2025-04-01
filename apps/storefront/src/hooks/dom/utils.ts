@@ -173,7 +173,9 @@ const addProductsToDraftQuote = async (
   // filter products with SKU
   const productsWithSKUOrVariantId = products.filter(
     ({ sku, variantEntityId, productEntityId }) => {
-      const validId = !Number.isNaN(Number(variantEntityId)) || !Number.isNaN(Number(productEntityId));
+      const validId =
+        !Number.isNaN(Number(variantEntityId)) || !Number.isNaN(Number(productEntityId));
+
       return sku || validId;
     },
   );

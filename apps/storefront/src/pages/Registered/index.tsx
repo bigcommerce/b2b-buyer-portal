@@ -5,6 +5,7 @@ import { Box, ImageListItem } from '@mui/material';
 
 import { B3Card } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
+import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 import { useMobile, useScrollBar } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
@@ -30,7 +31,6 @@ import RegisterContent from './RegisterContent';
 import RegisteredStep from './RegisteredStep';
 import { RegisteredContainer, RegisteredImage } from './styled';
 import { RegisterFields } from './types';
-import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2];
@@ -273,7 +273,9 @@ function Registered(props: PageProps) {
         const isLoginLandLocation = loginJump(navigate);
 
         if (platform === 'catalyst') {
-          const landingLoginLocation = isLoginLandLocation ? LOGIN_LANDING_LOCATIONS.HOME : LOGIN_LANDING_LOCATIONS.BUYER_PORTAL;
+          const landingLoginLocation = isLoginLandLocation
+            ? LOGIN_LANDING_LOCATIONS.HOME
+            : LOGIN_LANDING_LOCATIONS.BUYER_PORTAL;
 
           window.b2b.callbacks.dispatchEvent('on-registered', {
             email: data.emailAddress,

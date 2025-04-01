@@ -396,7 +396,6 @@ function Login(props: PageProps) {
 }
 
 export default function LoginPage(props: PageProps) {
-
   if (platform === 'catalyst') {
     return <CatalystLogin />;
   }

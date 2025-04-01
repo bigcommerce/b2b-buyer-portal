@@ -2,8 +2,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import { Dispatch, SetStateAction } from 'react';
 
-import { OpenPageState } from '@/types/hooks';
 import { LOGIN_LANDING_LOCATIONS } from '@/constants';
+import { OpenPageState } from '@/types/hooks';
 
 export interface TaxZoneRates {
   rate?: number;
