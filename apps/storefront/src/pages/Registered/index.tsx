@@ -30,7 +30,6 @@ import {
 import RegisterContent from './RegisterContent';
 import RegisteredStep from './RegisteredStep';
 import { RegisteredContainer, RegisteredImage } from './styled';
-import { RegisterFields } from './types';
 
 // 1 bc 2 b2b
 const formType: Array<number> = [1, 2];
@@ -47,28 +46,17 @@ function Registered(props: PageProps) {
 
   const IframeDocument = useAppSelector(themeFrameSelector);
 
-  const {
-    state: { isCheckout, isCloseGotoBCHome, logo, storeName, registerEnabled },
-  } = useContext(GlobalContext);
+  const { isCheckout, isCloseGotoBCHome, logo, registerEnabled } = useContext(GlobalContext).state;
 
   const {
-    state: {
-      isLoading,
-      accountType,
-      contactInformation = [],
-      passwordInformation = [],
-      bcPasswordInformation = [],
-      bcContactInformation = [],
-    },
+    state: { isLoading },
     dispatch,
   } = useContext(RegisteredContext);
 
   const {
-    state: {
-      accountLoginRegistration,
-      portalStyle: { backgroundColor = '#FEF9F5' },
-    },
-  } = useContext(CustomStyleContext);
+    accountLoginRegistration,
+    portalStyle: { backgroundColor = '#FEF9F5' },
+  } = useContext(CustomStyleContext).state;
 
   useEffect(() => {
     if (!registerEnabled) {
@@ -156,7 +144,6 @@ function Registered(props: PageProps) {
             payload: {
               accountType: accountB2cEnabledInfo ? '2' : '1',
               isLoading: false,
-              storeName,
               // account
               contactInformation: [...(b2bAccountFormFields.contactInformation || [])],
               bcContactInformation: [...(bcAccountFormFields.contactInformation || [])],
@@ -185,22 +172,6 @@ function Registered(props: PageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getLoginData = () => {
-    const emailAddress =
-      ((accountType === '1' ? contactInformation : bcContactInformation).find(
-        (field: RegisterFields) => field.name === 'email',
-      )?.default as string) || '';
-
-    const password =
-      ((accountType === '1' ? passwordInformation : bcPasswordInformation).find(
-        (field: RegisterFields) => field.name === 'password',
-      )?.default as string) || '';
-
-    return {
-      emailAddress,
-      password,
-    };
-  };
   const handleNext = async () => {
     setActiveStep((prevActiveStep: number) => prevActiveStep + 1);
   };
@@ -216,7 +187,6 @@ function Registered(props: PageProps) {
         payload: {
           accountType: '',
           isLoading: false,
-          storeName: '',
           submitSuccess: false,
           contactInformation: [],
           additionalInformation: [],
@@ -232,7 +202,7 @@ function Registered(props: PageProps) {
     }
   };
 
-  const handleFinish = async () => {
+  const handleFinish = async ({ email, password }: LoginConfig) => {
     dispatch({
       type: 'loading',
       payload: {
@@ -240,29 +210,24 @@ function Registered(props: PageProps) {
       },
     });
 
-    const data: LoginConfig = getLoginData();
-
     if (isCheckout) {
       try {
-        await loginCheckout(data);
+        await loginCheckout({ email, password });
         window.location.reload();
       } catch (error) {
         b2bLogger.error(error);
       }
     } else {
       try {
-        const getBCFieldsValue = {
-          email: data.emailAddress,
-          pass: data.password,
-        };
+        const customer = await bcLogin({ email, password }).then(
+          (res) => res?.data?.login?.customer,
+        );
 
-        const { data: bcData } = await bcLogin(getBCFieldsValue);
-
-        if (bcData?.login?.customer) {
+        if (customer) {
           B3SStorage.set('loginCustomer', {
-            emailAddress: bcData.login.customer.email,
-            phoneNumber: bcData.login.customer.phone,
-            ...bcData.login.customer,
+            emailAddress: customer.email,
+            phoneNumber: customer.phone,
+            ...customer,
           });
         }
 
