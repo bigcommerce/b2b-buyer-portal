@@ -172,7 +172,12 @@ const addProductsToDraftQuote = async (
 ) => {
   // filter products with SKU
   const productsWithSKUOrVariantId = products.filter(
-    ({ sku, variantEntityId }) => sku || variantEntityId,
+    ({ sku, variantEntityId, productEntityId }) => {
+      const validId =
+        !Number.isNaN(Number(variantEntityId)) || !Number.isNaN(Number(productEntityId));
+
+      return sku || validId;
+    },
   );
 
   const companyInfoId = store.getState().company.companyInfo.id;
@@ -227,10 +232,8 @@ const addProductsToDraftQuote = async (
 };
 
 const addProductsFromCartToQuote = (setOpenPage: SetOpenPage) => {
-  const addToQuote = async () => {
+  const addToQuote = async (cartInfoWithOptions: CartInfoProps | any) => {
     try {
-      const cartInfoWithOptions: CartInfoProps | any = await getCart();
-
       if (!cartInfoWithOptions.data.site.cart) {
         globalSnackbar.error('No products in Cart.', {
           isClose: true,
@@ -266,8 +269,12 @@ const addProductsFromCartToQuote = (setOpenPage: SetOpenPage) => {
     }
   };
 
+  const addToQuoteFromCookie = () => getCart().then(addToQuote);
+  const addToQuoteFromCart = (cartId: string) => getCart(cartId).then(addToQuote);
+
   return {
-    addToQuote,
+    addToQuoteFromCookie,
+    addToQuoteFromCart,
     addLoading,
   };
 };

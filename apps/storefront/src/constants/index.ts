@@ -110,3 +110,8 @@ export const PAGES_SUBSIDIARIES_PERMISSION_KEYS = [
   { key: 'quotes', path: HeadlessRoutes.QUOTES },
   { key: 'companyHierarchy', path: HeadlessRoutes.COMPANY_HIERARCHY },
 ] as const;
+
+export const LOGIN_LANDING_LOCATIONS = {
+  HOME: '1',
+  BUYER_PORTAL: '0',
+};

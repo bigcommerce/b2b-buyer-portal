@@ -5,13 +5,14 @@ import { Box, ImageListItem } from '@mui/material';
 
 import { B3Card } from '@/components';
 import B3Spin from '@/components/spin/B3Spin';
+import { LOGIN_LANDING_LOCATIONS } from '@/constants';
 import { useMobile, useScrollBar } from '@/hooks';
 import { CustomStyleContext } from '@/shared/customStyleButton';
 import { GlobalContext } from '@/shared/global';
 import { getB2BAccountFormFields, getB2BCountries } from '@/shared/service/b2b';
 import { bcLogin } from '@/shared/service/bc';
 import { themeFrameSelector, useAppSelector } from '@/store';
-import { B3SStorage, loginJump } from '@/utils';
+import { B3SStorage, loginJump, platform } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
@@ -270,6 +271,20 @@ function Registered(props: PageProps) {
         clearRegisterInfo();
 
         const isLoginLandLocation = loginJump(navigate);
+
+        if (platform === 'catalyst') {
+          const landingLoginLocation = isLoginLandLocation
+            ? LOGIN_LANDING_LOCATIONS.HOME
+            : LOGIN_LANDING_LOCATIONS.BUYER_PORTAL;
+
+          window.b2b.callbacks.dispatchEvent('on-registered', {
+            email: data.emailAddress,
+            password: data.password,
+            landingLoginLocation,
+          });
+          window.location.hash = '';
+          return;
+        }
 
         if (!isLoginLandLocation) return;
 

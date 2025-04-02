@@ -1,5 +1,4 @@
 import { useContext, useEffect, useRef } from 'react';
-import { dispatchEvent } from '@b3/hooks';
 import Cookies from 'js-cookie';
 
 import { HeadlessRoutes } from '@/constants';
@@ -78,10 +77,15 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
   const {
     state: { addQuoteBtn, shoppingListBtn, addToAllQuoteBtn },
   } = useContext(CustomStyleContext);
-  const { addToQuote: addProductsFromCart } = addProductsFromCartToQuote(setOpenPage);
+  const { addToQuoteFromCart, addToQuoteFromCookie } = addProductsFromCartToQuote(setOpenPage);
 
-  const { registerEnabled, productQuoteEnabled, cartQuoteEnabled, shoppingListEnabled } =
-    globalState;
+  const {
+    registerEnabled,
+    productQuoteEnabled,
+    cartQuoteEnabled,
+    shoppingListEnabled,
+    quoteConfig,
+  } = globalState;
 
   const saveFn = () => {
     setOpenPage({
@@ -122,7 +126,6 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
       callbacks: Manager,
       utils: {
         getRoutes: () => getAllowedRoutesWithoutComponent(globalState),
-        // getRoutes: () => [],
         openPage: (page) =>
           setTimeout(() => {
             if (page === 'CLOSE') {
@@ -134,8 +137,10 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
           }, 0),
         quote: {
           addProductFromPage: (item) => addProductsToDraftQuote([item], setOpenPage),
-          addProductsFromCart: () => addProductsFromCart(),
+          addProductsFromCart: addToQuoteFromCookie,
+          addProductsFromCartId: addToQuoteFromCart,
           addProducts: (items) => addProductsToDraftQuote(items, setOpenPage),
+          getQuoteConfigs: () => quoteConfig,
           getCurrent: () => ({ productList }),
           getButtonInfo: () => ({
             ...addQuoteBtnRef.current,
@@ -182,9 +187,9 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             endMasquerade();
           },
           graphqlBCProxy: B3Request.graphqlBCProxy,
-          loginWithB2BStorefrontToken: async (b2bStorefrontJWTToken: string) => {
-            storeDispatch(setB2BToken(b2bStorefrontJWTToken));
-            await getCurrentCustomerInfo(b2bStorefrontJWTToken);
+          loginWithB2BStorefrontToken: async (token: string) => {
+            storeDispatch(setB2BToken(token));
+            await getCurrentCustomerInfo(token);
           },
           logout: async () => {
             try {
@@ -196,7 +201,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
             } finally {
               window.sessionStorage.clear();
               logoutSession();
-              dispatchEvent('on-logout');
+              window.b2b.callbacks.dispatchEvent('on-logout');
             }
           },
         },
@@ -243,7 +248,7 @@ export default function HeadlessController({ setOpenPage }: HeadlessControllerPr
     };
     // disabling because we don't want to run this effect on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productList, B2BToken, globalState]);
+  }, [productList, B2BToken, globalState, quoteConfig]);
 
   return null;
 }

@@ -17,20 +17,21 @@ import { isLoggedInSelector, useAppDispatch, useAppSelector } from '@/store';
 import { setB2BToken } from '@/store/slices/company';
 import { CustomerRole, UserTypes } from '@/types';
 import { LoginFlagType } from '@/types/login';
-import { b2bJumpPath, channelId, loginJump, snackbar, storeHash } from '@/utils';
+import { b2bJumpPath, channelId, loginJump, platform, snackbar, storeHash } from '@/utils';
 import b2bLogger from '@/utils/b3Logger';
 import { getCurrentCustomerInfo } from '@/utils/loginInfo';
 
 import { type PageProps } from '../PageProps';
 
 import LoginWidget from './component/LoginWidget';
+import { CatalystLogin } from './CatalystLogin';
 import { isLoginFlagType, loginCheckout, LoginConfig, loginType } from './config';
 import LoginForm from './LoginForm';
 import LoginPanel from './LoginPanel';
 import { LoginContainer, LoginImage } from './styled';
 import { useLogout } from './useLogout';
 
-export default function Login(props: PageProps) {
+function Login(props: PageProps) {
   const { setOpenPage } = props;
   const storeDispatch = useAppDispatch();
   const logout = useLogout();
@@ -236,7 +237,7 @@ export default function Login(props: PageProps) {
             navigate(PATH_ROUTES.ORDERS);
           }
 
-          const path = b2bJumpPath(info?.role);
+          const path = b2bJumpPath(Number(info?.role));
 
           navigate(path);
         }
@@ -392,4 +393,12 @@ export default function Login(props: PageProps) {
       </LoginContainer>
     </B3Card>
   );
+}
+
+export default function LoginPage(props: PageProps) {
+  if (platform === 'catalyst') {
+    return <CatalystLogin />;
+  }
+
+  return <Login {...props} />;
 }

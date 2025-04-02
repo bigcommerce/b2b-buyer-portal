@@ -47,9 +47,7 @@ export default function B3Layout({ children }: { children: ReactNode }) {
     if ((!emailAddress || !customerId) && !getIsTokenGotoPage(location.pathname)) {
       navigate('/login');
     }
-    // disabling cause navigate dispatcher is not necessary here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emailAddress, customerId, location]);
+  }, [emailAddress, customerId, location, navigate]);
 
   useEffect(() => {
     const itemsRoutes = routes.find((item) => item.path === location.pathname);
