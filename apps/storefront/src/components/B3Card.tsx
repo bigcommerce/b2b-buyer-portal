@@ -9,7 +9,7 @@ export default function B3Card(props: PropsWithChildren<{ setOpenPage?: SetOpenP
   const { setOpenPage, children } = props;
 
   return (
-    <CardContainer>
+    <CardContainer aria-modal="true" role="dialog">
       {setOpenPage && <RegisteredCloseButton setOpenPage={setOpenPage} />}
       {children}
     </CardContainer>

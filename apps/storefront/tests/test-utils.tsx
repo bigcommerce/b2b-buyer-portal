@@ -1,4 +1,4 @@
-import { PropsWithChildren, Suspense } from 'react';
+import { ContextType, PropsWithChildren, Suspense } from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { LangProvider } from '@b3/lang';
@@ -7,10 +7,15 @@ import { userEvent } from '@testing-library/user-event';
 import { Mock } from 'vitest';
 
 import { AppStore, RootState, setupStore } from '@/store';
+import { GlobalProvider, GlobalContext } from '@/shared/global';
+
+type GlobalState = ContextType<typeof GlobalContext>['state'];
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: Partial<RootState>;
   store?: AppStore;
+  globalState?: Partial<GlobalState>;
+  customText?: Record<string, string>;
 }
 
 function NavigationSpy({ children, spy }: PropsWithChildren<{ spy: Mock<[string]> }>) {
@@ -29,6 +34,8 @@ export const renderWithProviders = (
   const {
     preloadedState = {},
     store = setupStore(preloadedState),
+    globalState,
+    customText,
     ...renderOptions
   } = extendedRenderOptions;
 
@@ -36,15 +43,17 @@ export const renderWithProviders = (
 
   function Wrapper({ children }: PropsWithChildren) {
     return (
-      <Suspense fallback="test-loading">
-        <Provider store={store}>
-          <LangProvider>
-            <MemoryRouter>
-              <NavigationSpy spy={navigation}>{children}</NavigationSpy>
-            </MemoryRouter>
-          </LangProvider>
-        </Provider>
-      </Suspense>
+      <GlobalProvider initState={globalState}>
+        <Suspense fallback="test-loading">
+          <Provider store={store}>
+            <LangProvider customText={customText}>
+              <MemoryRouter>
+                <NavigationSpy spy={navigation}>{children}</NavigationSpy>
+              </MemoryRouter>
+            </LangProvider>
+          </Provider>
+        </Suspense>
+      </GlobalProvider>
     );
   }
 

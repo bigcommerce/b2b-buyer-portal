@@ -142,4 +142,5 @@ export interface GlobalContextValue {
 
 export interface GlobalProviderProps {
   children: ReactNode;
+  initState?: Partial<GlobalState>;
 }

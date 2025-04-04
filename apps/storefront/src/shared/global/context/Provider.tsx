@@ -1,12 +1,12 @@
 import { useMemo, useReducer } from 'react';
 
-import { GlobalProviderProps, initState } from './config';
+import { GlobalProviderProps, initState as defaultInitState } from './config';
 import { GlobalContext, reducer } from './index';
 
 export default function GlobalProvider(props: GlobalProviderProps) {
-  const [state, dispatch] = useReducer(reducer, initState);
+  const { children, initState } = props;
 
-  const { children } = props;
+  const [state, dispatch] = useReducer(reducer, { ...defaultInitState, ...initState });
 
   const GlobalValue = useMemo(
     () => ({
