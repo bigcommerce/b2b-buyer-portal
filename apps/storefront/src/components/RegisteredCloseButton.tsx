@@ -41,8 +41,11 @@ export default function RegisteredCloseButton(props: CloseButtonProps) {
         flexDirection: 'row-reverse',
         pr: 2,
       }}
+      role="button"
+      aria-label="Close"
+      onClick={handleCloseForm}
     >
-      <CloseButton onClick={handleCloseForm} />
+      <CloseButton />
     </Box>
   );
 }
