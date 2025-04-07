@@ -22,7 +22,7 @@ type OrderShippingProps = {
 
 export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) {
   const {
-    state: { shippings = [], addressLabelPermission, orderIsDigital, money },
+    state: { shippings = [], addressLabelPermission, money },
   } = useContext(OrderDetailsContext);
 
   const [isMobile] = useMobile();
@@ -100,7 +100,11 @@ export default function OrderShipping({ isCurrentCompany }: OrderShippingProps) 
     return company.substring(index + 1, company.length);
   };
 
-  return orderIsDigital ? null : (
+  if (!shippingsDetail.length) {
+    return null;
+  }
+
+  return (
     <Stack spacing={2}>
       {shippingsDetail.map((shipping: OrderShippingsItem) => (
         <Card key={`shipping-${shipping.id}`}>

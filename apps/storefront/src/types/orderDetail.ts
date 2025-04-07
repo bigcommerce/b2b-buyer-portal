@@ -164,7 +164,7 @@ export interface OrderPayment {
 
 export interface OrderBillings {
   billingAddress: Address;
-  products: OrderProductItem[];
+  digitalProducts: OrderProductItem[];
 }
 
 export interface CouponsInfo {
@@ -229,7 +229,7 @@ export interface B2BOrderData {
   referenceNumber: string;
   refundedAmount: string;
   shipments: OrderShipmentItem[];
-  shippingAddress: OrderShippingAddressItem[];
+  shippingAddress: OrderShippingAddressItem[] | false;
   shippingAddressCount: number;
   shippingCostExTax: string;
   shippingCostIncTax: string;
