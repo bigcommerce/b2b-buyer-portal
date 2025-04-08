@@ -19,8 +19,15 @@ import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/sto
 import { channelId, snackbar } from '@/utils';
 
 import AddEditShoppingLists from './AddEditShoppingLists';
-import { ShoppingListSearch, ShoppingListsItemsProps, useGetFilterMoreList } from './config';
+import {
+  ShoppingListSearch,
+  ShoppingListsItemsProps,
+  ShoppingListStatus,
+  useGetFilterMoreList,
+} from './config';
 import ShoppingListsCard from './ShoppingListsCard';
+
+export { ShoppingListStatus } from './config';
 
 interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditShoppingListsClick: (type: string, data?: ShoppingListsItemsProps) => void;
@@ -110,7 +117,9 @@ function ShoppingLists() {
       padding: '0',
     },
   };
-  const statusPermissions = !submitShoppingListPermission ? [0, 40] : '';
+  const statusPermissions = !submitShoppingListPermission
+    ? [ShoppingListStatus.Approved, ShoppingListStatus.ReadyForApproval]
+    : '';
 
   const initSearch = {
     search: '',

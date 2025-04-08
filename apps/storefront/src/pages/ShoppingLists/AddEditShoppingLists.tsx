@@ -19,6 +19,7 @@ import {
   getCreatedShoppingListFiles,
   GetFilterMoreListProps,
   ShoppingListsItemsProps,
+  ShoppingListStatus,
 } from './config';
 
 interface AddEditUserProps {
@@ -102,7 +103,9 @@ function AddEditShoppingLists(
             if (selectCompanyHierarchyId) {
               params.companyId = Number(selectCompanyHierarchyId);
             }
-            params.status = submitShoppingListPermission ? 30 : 0;
+            params.status = submitShoppingListPermission
+              ? ShoppingListStatus.Draft
+              : ShoppingListStatus.Approved;
           } else {
             params.channelId = channelId;
           }

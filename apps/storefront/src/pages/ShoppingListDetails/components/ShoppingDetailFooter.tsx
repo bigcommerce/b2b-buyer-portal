@@ -32,6 +32,7 @@ import {
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart, deleteCartData, updateCart } from '@/utils/cartUtils';
+import { ShoppingListStatus } from '@/pages/ShoppingLists';
 
 interface ShoppingDetailFooterProps {
   shoppingListInfo: any;
@@ -268,7 +269,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
           if (
             allowJuniorPlaceOrder &&
             b2bSubmitShoppingListPermission &&
-            shoppingListInfo?.status === 0
+            shoppingListInfo?.status === ShoppingListStatus.Approved
           ) {
             window.location.href = CHECKOUT_URL;
           } else {
@@ -487,7 +488,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
   };
 
   const allowButtonList = () => {
-    if (!(shoppingListInfo?.status === 0 || !isB2BUser)) return [];
+    if (!(shoppingListInfo?.status === ShoppingListStatus.Approved || !isB2BUser)) return [];
 
     if (!isCanAddToCart && isB2BUser)
       return productQuoteEnabled ? [buttons.addSelectedToQuote] : [];
@@ -608,7 +609,7 @@ function ShoppingDetailFooter(props: ShoppingDetailFooterProps) {
                       margin: isMobile ? '0 1rem 0 0' : '0 1rem',
                       minWidth: 'auto',
                     }}
-                    disabled={shoppingListInfo?.status === 40}
+                    disabled={shoppingListInfo?.status === ShoppingListStatus.ReadyForApproval}
                   >
                     <Delete
                       color="primary"

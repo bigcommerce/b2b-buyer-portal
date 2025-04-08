@@ -1,7 +1,7 @@
 import { B3Tag } from '@/components';
 import { rolePermissionSelector, useAppSelector } from '@/store';
 
-import { useGetFilterShoppingListStatus } from './config';
+import { ShoppingListStatus, useGetFilterShoppingListStatus } from './config';
 
 export const useGetStatus = () => {
   const getFilterShoppingListStatus = useGetFilterShoppingListStatus();
@@ -10,7 +10,7 @@ export const useGetStatus = () => {
     const statusArr = getFilterShoppingListStatus(submitShoppingListPermission);
 
     const newStatus = statusArr.map((item) => {
-      if (Number(item.value) === 0) {
+      if (Number(item.value) === ShoppingListStatus.Approved) {
         return {
           color: '#C4DD6C',
           textColor: 'black',
@@ -18,7 +18,7 @@ export const useGetStatus = () => {
         };
       }
 
-      if (Number(item.value) === 40) {
+      if (Number(item.value) === ShoppingListStatus.ReadyForApproval) {
         return {
           color: '#F4CC46',
           textColor: 'black',
@@ -26,7 +26,7 @@ export const useGetStatus = () => {
         };
       }
 
-      if (Number(item.value) === 30) {
+      if (Number(item.value) === ShoppingListStatus.Draft) {
         return {
           color: '#899193',
           textColor: '#FFFFFF',

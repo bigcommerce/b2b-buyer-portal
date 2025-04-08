@@ -14,6 +14,7 @@ import { verifyLevelPermission, verifySubmitShoppingListSubsidiariesPermission }
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingStatus } from '../../ShoppingLists/ShoppingStatus';
+import { ShoppingListStatus } from '@/pages/ShoppingLists';
 
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
@@ -240,42 +241,44 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
           }}
           {...gridOptions(4)}
         >
-          {submitShoppingListPermission && shoppingListInfo?.status === 30 && (
-            <CustomButton
-              variant="outlined"
-              disabled={isDisabledBtn}
-              onClick={() => {
-                handleUpdateShoppingList(40);
-              }}
-            >
-              {b3Lang('shoppingList.header.submitForApproval')}
-            </CustomButton>
-          )}
-          {approveShoppingListPermission && shoppingListInfo?.status === 40 && (
-            <Box>
+          {submitShoppingListPermission &&
+            shoppingListInfo?.status === ShoppingListStatus.Draft && (
               <CustomButton
                 variant="outlined"
-                sx={{
-                  marginRight: '1rem',
-                }}
+                disabled={isDisabledBtn}
                 onClick={() => {
-                  handleUpdateShoppingList(20);
+                  handleUpdateShoppingList(ShoppingListStatus.ReadyForApproval);
                 }}
               >
-                {b3Lang('shoppingList.header.reject')}
+                {b3Lang('shoppingList.header.submitForApproval')}
               </CustomButton>
-              {approveShoppingListPermission && (
+            )}
+          {approveShoppingListPermission &&
+            shoppingListInfo?.status === ShoppingListStatus.ReadyForApproval && (
+              <Box>
                 <CustomButton
                   variant="outlined"
+                  sx={{
+                    marginRight: '1rem',
+                  }}
                   onClick={() => {
-                    handleUpdateShoppingList(0);
+                    handleUpdateShoppingList(ShoppingListStatus.Deleted);
                   }}
                 >
-                  {b3Lang('shoppingList.header.approve')}
+                  {b3Lang('shoppingList.header.reject')}
                 </CustomButton>
-              )}
-            </Box>
-          )}
+                {approveShoppingListPermission && (
+                  <CustomButton
+                    variant="outlined"
+                    onClick={() => {
+                      handleUpdateShoppingList(ShoppingListStatus.Approved);
+                    }}
+                  >
+                    {b3Lang('shoppingList.header.approve')}
+                  </CustomButton>
+                )}
+              </Box>
+            )}
         </Grid>
       </Grid>
     </>
