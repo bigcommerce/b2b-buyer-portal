@@ -57,18 +57,36 @@ export interface GetFilterMoreListProps {
   idLang?: string;
 }
 
+export enum ShoppingListStatus {
+  Approved = 0,
+  Deleted = 20,
+  Draft = 30,
+  ReadyForApproval = 40,
+  Rejected = 50,
+}
+
 export const useGetFilterShoppingListStatus = () => {
   const b3Lang = useB3Lang();
 
   return (submitShoppingListPermission: boolean) => {
-    const draftStatus = { value: 30, label: b3Lang('global.shoppingLists.status.draft') };
-    const rejectedStatus = { value: 20, label: b3Lang('global.shoppingLists.status.rejected') };
+    const draftStatus = {
+      value: ShoppingListStatus.Draft,
+      label: b3Lang('global.shoppingLists.status.draft'),
+    };
+    const rejectedStatus = {
+      value: ShoppingListStatus.Deleted,
+      label: b3Lang('global.shoppingLists.status.rejected'),
+    };
 
+    // TODO: fix 99 which is used for selecting all
     return [
       { value: 99, label: b3Lang('global.shoppingLists.status.all') },
-      { value: 0, label: b3Lang('global.shoppingLists.status.approved') },
+      { value: ShoppingListStatus.Approved, label: b3Lang('global.shoppingLists.status.approved') },
       ...(submitShoppingListPermission ? [draftStatus] : []),
-      { value: 40, label: b3Lang('global.shoppingLists.status.readyForApproval') },
+      {
+        value: ShoppingListStatus.ReadyForApproval,
+        label: b3Lang('global.shoppingLists.status.readyForApproval'),
+      },
       ...(submitShoppingListPermission ? [rejectedStatus] : []),
     ];
   };

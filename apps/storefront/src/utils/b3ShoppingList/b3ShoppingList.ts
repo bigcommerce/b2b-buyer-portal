@@ -3,6 +3,7 @@ import { store } from '@/store';
 
 import { b2bPermissionsMap, validatePermissionWithComparisonType } from '../b3CheckPermissions';
 import { channelId } from '../basicConfig';
+import { ShoppingListStatus } from '@/pages/ShoppingLists';
 
 interface CreateShoppingListParams {
   data: { name: string; description: string };
@@ -25,7 +26,9 @@ CreateShoppingListParams) => {
     });
     const selectCompanyHierarchyId =
       store.getState()?.company?.companyHierarchyInfo?.selectCompanyHierarchyId || 0;
-    createShoppingData.status = submitShoppingListPermission ? 30 : 0;
+    createShoppingData.status = submitShoppingListPermission
+      ? ShoppingListStatus.Draft
+      : ShoppingListStatus.Approved;
     if (selectCompanyHierarchyId) {
       createShoppingData.companyId = selectCompanyHierarchyId;
     }

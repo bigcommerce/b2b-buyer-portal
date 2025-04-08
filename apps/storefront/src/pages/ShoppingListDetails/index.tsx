@@ -48,6 +48,7 @@ import {
   ShoppingListDetailsContext,
   ShoppingListDetailsProvider,
 } from './context/ShoppingListDetailsContext';
+import { ShoppingListStatus } from '../ShoppingLists';
 
 interface TableRefProps extends HTMLInputElement {
   initSearch: () => void;
@@ -142,7 +143,6 @@ function useData() {
   };
 }
 
-// shoppingList status: 0 -- Approved; 20 -- Rejected; 30 -- Draft; 40 -- Ready for approval
 // 0: Admin, 1: Senior buyer, 2: Junior buyer, 3: Super admin
 
 function ShoppingListDetails({ setOpenPage }: PageProps) {
@@ -206,9 +206,12 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
     ? submitShoppingList
     : role === CustomerRole.JUNIOR_BUYER;
 
-  const isJuniorApprove = shoppingListInfo?.status === 0 && b2bSubmitShoppingListPermission;
+  const isJuniorApprove =
+    shoppingListInfo?.status === ShoppingListStatus.Approved && b2bSubmitShoppingListPermission;
 
-  const isReadForApprove = shoppingListInfo?.status === 40 || shoppingListInfo?.status === 20;
+  const isReadForApprove =
+    shoppingListInfo?.status === ShoppingListStatus.ReadyForApproval ||
+    shoppingListInfo?.status === ShoppingListStatus.Deleted;
 
   const goToShoppingLists = () => {
     navigate('/shoppingLists');

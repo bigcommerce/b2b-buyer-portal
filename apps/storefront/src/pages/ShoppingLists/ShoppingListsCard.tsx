@@ -16,7 +16,7 @@ import { rolePermissionSelector, useAppSelector } from '@/store';
 import { displayFormat, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
-import { ShoppingListsItemsProps } from './config';
+import { ShoppingListsItemsProps, ShoppingListStatus } from './config';
 import { ShoppingStatus } from './ShoppingStatus';
 
 export interface OrderItemCardProps {
@@ -56,18 +56,20 @@ function ShoppingListsCard(props: OrderItemCardProps) {
 
   const getEditPermissions = (status: number) => {
     if (submitShoppingListPermission) {
-      if (status === 30 || status === 0) return false;
+      if (status === ShoppingListStatus.Draft || status === ShoppingListStatus.Approved)
+        return false;
       return true;
     }
 
-    if (status === 40) return true;
+    if (status === ShoppingListStatus.ReadyForApproval) return true;
 
     return false;
   };
 
   const getDeletePermissions = (status: number) => {
     if (submitShoppingListPermission) {
-      if (status === 20 || status === 30) return false;
+      if (status === ShoppingListStatus.Deleted || status === ShoppingListStatus.Draft)
+        return false;
       return true;
     }
 

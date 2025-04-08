@@ -20,6 +20,7 @@ import {
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
+import { ShoppingListStatus } from '@/pages/ShoppingLists';
 
 interface ShoppingProductsProps {
   shoppingListInfo: any;
@@ -229,7 +230,7 @@ export default function ReAddToCart(props: ShoppingProductsProps) {
         if (
           allowJuniorPlaceOrder &&
           submitShoppingListPermission &&
-          shoppingListInfo?.status === 0
+          shoppingListInfo?.status === ShoppingListStatus.Approved
         ) {
           window.location.href = CHECKOUT_URL;
         } else {

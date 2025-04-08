@@ -1,3 +1,10 @@
 {
-  "scopes": ["common", "companies", "quotes", "permissions", "account"]
+  "scopes": [
+    "common",
+    "companies",
+    "quotes",
+    "permissions",
+    "account",
+    "shopping-lists"
+  ]
 }

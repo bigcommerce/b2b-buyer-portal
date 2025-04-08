@@ -13,6 +13,7 @@ import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/sto
 import { channelId } from '@/utils';
 
 import { ShoppingListItem } from '../../../types';
+import { ShoppingListStatus } from '@/pages/ShoppingLists';
 
 interface OrderShoppingListProps {
   isOpen: boolean;
@@ -73,7 +74,12 @@ export default function OrderShoppingList(props: OrderShoppingListProps) {
 
           const newList = list.filter(
             (item: CustomFieldItems) =>
-              item.node.status === Number(submitShoppingListPermission ? 30 : 0),
+              item.node.status ===
+              Number(
+                submitShoppingListPermission
+                  ? ShoppingListStatus.Draft
+                  : ShoppingListStatus.Approved,
+              ),
           );
           setList(newList);
         }
