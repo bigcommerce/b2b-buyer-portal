@@ -6,7 +6,7 @@ import {
   getBCStorefrontProductSettings,
 } from '@/shared/service/b2b';
 import { setQuoteDetailToCheckoutUrl, store } from '@/store';
-import { attemptCheckoutLoginAndRedirect, setQuoteToStorage } from '@/utils/b3checkout';
+import { setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
 import { platform } from '@/utils/basicConfig';
 import { getSearchVal } from '@/utils/loginInfo';
@@ -61,8 +61,8 @@ export const handleQuoteCheckout = async ({
       window.location.href = checkoutUrl;
       return;
     }
+    window.location.href = `/checkout/${cartId}/`;
 
-    await attemptCheckoutLoginAndRedirect(cartId, checkoutUrl as string);
   } catch (err) {
     b2bLogger.error(err);
   }
