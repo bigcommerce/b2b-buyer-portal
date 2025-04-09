@@ -19,6 +19,14 @@ export interface ShoppingListItem {
   totalTax: string;
 }
 
+export enum ShoppingListStatus {
+  Approved = 0,
+  Deleted = 20,
+  Draft = 30,
+  ReadyForApproval = 40,
+  Rejected = 50,
+}
+
 export interface ShoppingListProductItemVariantsOption {
   id?: number;
   label: string;

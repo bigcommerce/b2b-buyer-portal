@@ -10,10 +10,8 @@ import B3Spin from '@/components/spin/B3Spin';
 import { useMobile } from '@/hooks';
 import { getB2BShoppingList, getBcShoppingList } from '@/shared/service/b2b';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
+import { ShoppingListItem, ShoppingListStatus } from '@/types/shoppingList';
 import { channelId } from '@/utils';
-
-import { ShoppingListItem } from '../../../types';
-import { ShoppingListStatus } from '@/pages/ShoppingLists';
 
 interface OrderShoppingListProps {
   isOpen: boolean;

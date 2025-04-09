@@ -11,6 +11,7 @@ import B3Spin from '@/components/spin/B3Spin';
 import { CART_URL, CHECKOUT_URL, PRODUCT_DEFAULT_IMAGE } from '@/constants';
 import { useMobile } from '@/hooks';
 import { activeCurrencyInfoSelector, rolePermissionSelector, useAppSelector } from '@/store';
+import { ShoppingListStatus } from '@/types/shoppingList';
 import { currencyFormat, snackbar } from '@/utils';
 import { setModifierQtyPrice } from '@/utils/b3Product/b3Product';
 import {
@@ -20,7 +21,6 @@ import {
 } from '@/utils/b3Product/shared/config';
 import b3TriggerCartNumber from '@/utils/b3TriggerCartNumber';
 import { callCart } from '@/utils/cartUtils';
-import { ShoppingListStatus } from '@/pages/ShoppingLists';
 
 interface ShoppingProductsProps {
   shoppingListInfo: any;

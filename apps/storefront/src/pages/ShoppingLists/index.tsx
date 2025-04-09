@@ -16,18 +16,12 @@ import {
   getShoppingListsCreatedByUser,
 } from '@/shared/service/b2b';
 import { isB2BUserSelector, rolePermissionSelector, useAppSelector } from '@/store';
+import { ShoppingListStatus } from '@/types/shoppingList';
 import { channelId, snackbar } from '@/utils';
 
 import AddEditShoppingLists from './AddEditShoppingLists';
-import {
-  ShoppingListSearch,
-  ShoppingListsItemsProps,
-  ShoppingListStatus,
-  useGetFilterMoreList,
-} from './config';
+import { ShoppingListSearch, ShoppingListsItemsProps, useGetFilterMoreList } from './config';
 import ShoppingListsCard from './ShoppingListsCard';
-
-export { ShoppingListStatus } from './config';
 
 interface RefCurrentProps extends HTMLInputElement {
   handleOpenAddEditShoppingListsClick: (type: string, data?: ShoppingListsItemsProps) => void;

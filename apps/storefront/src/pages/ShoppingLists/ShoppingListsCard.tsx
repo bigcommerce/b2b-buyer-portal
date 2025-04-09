@@ -13,10 +13,11 @@ import Typography from '@mui/material/Typography';
 
 import CustomButton from '@/components/button/CustomButton';
 import { rolePermissionSelector, useAppSelector } from '@/store';
+import { ShoppingListStatus } from '@/types/shoppingList';
 import { displayFormat, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
-import { ShoppingListsItemsProps, ShoppingListStatus } from './config';
+import { ShoppingListsItemsProps } from './config';
 import { ShoppingStatus } from './ShoppingStatus';
 
 export interface OrderItemCardProps {
