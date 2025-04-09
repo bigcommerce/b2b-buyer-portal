@@ -65,6 +65,8 @@ workflows:
           requires:
             - build_and_push
             - ci/validate-commits
+            - lint
+            - test
       - security/scan:
           name: "Gitleaks secrets scan"
           context: org-global
