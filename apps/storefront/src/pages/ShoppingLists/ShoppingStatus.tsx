@@ -1,7 +1,8 @@
 import { B3Tag } from '@/components';
 import { rolePermissionSelector, useAppSelector } from '@/store';
+import { ShoppingListStatus } from '@/types/shoppingList';
 
-import { ShoppingListStatus, useGetFilterShoppingListStatus } from './config';
+import { useGetFilterShoppingListStatus } from './config';
 
 export const useGetStatus = () => {
   const getFilterShoppingListStatus = useGetFilterShoppingListStatus();

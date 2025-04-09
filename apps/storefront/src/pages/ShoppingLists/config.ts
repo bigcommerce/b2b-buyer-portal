@@ -1,6 +1,7 @@
 import { LangFormatFunction, useB3Lang } from '@b3/lang';
 
-import { CompanyInfoTypes } from '@/types';
+import { CompanyInfoTypes } from '@/types/invoice';
+import { ShoppingListStatus } from '@/types/shoppingList';
 
 export interface ShoppingListSearch {
   search?: string;
@@ -55,14 +56,6 @@ export interface GetFilterMoreListProps {
   size: string;
   maxLength?: number;
   idLang?: string;
-}
-
-export enum ShoppingListStatus {
-  Approved = 0,
-  Deleted = 20,
-  Draft = 30,
-  ReadyForApproval = 40,
-  Rejected = 50,
 }
 
 export const useGetFilterShoppingListStatus = () => {

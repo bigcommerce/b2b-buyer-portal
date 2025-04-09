@@ -1,9 +1,9 @@
 import { createB2BShoppingList, createBcShoppingList } from '@/shared/service/b2b';
 import { store } from '@/store';
+import { ShoppingListStatus } from '@/types/shoppingList';
 
 import { b2bPermissionsMap, validatePermissionWithComparisonType } from '../b3CheckPermissions';
 import { channelId } from '../basicConfig';
-import { ShoppingListStatus } from '@/pages/ShoppingLists';
 
 interface CreateShoppingListParams {
   data: { name: string; description: string };

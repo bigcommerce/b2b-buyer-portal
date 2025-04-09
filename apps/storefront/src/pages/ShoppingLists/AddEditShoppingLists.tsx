@@ -13,13 +13,13 @@ import {
   updateBcShoppingList,
 } from '@/shared/service/b2b';
 import { rolePermissionSelector, useAppSelector } from '@/store';
+import { ShoppingListStatus } from '@/types/shoppingList';
 import { channelId, snackbar } from '@/utils';
 
 import {
   getCreatedShoppingListFiles,
   GetFilterMoreListProps,
   ShoppingListsItemsProps,
-  ShoppingListStatus,
 } from './config';
 
 interface AddEditUserProps {
