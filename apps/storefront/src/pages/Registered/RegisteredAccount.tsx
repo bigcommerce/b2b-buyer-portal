@@ -22,7 +22,7 @@ import { InformationFourLabels, TipContent } from './styled';
 import { RegisterFields } from './types';
 
 interface RegisteredAccountProps {
-  handleNext: () => void;
+  handleNext: (email: string) => void;
 }
 
 export default function RegisteredAccount({ handleNext }: RegisteredAccountProps) {
@@ -220,7 +220,7 @@ export default function RegisteredAccount({ handleNext }: RegisteredAccountProps
           [contactName]: [...newContactInfo],
         },
       });
-      handleNext();
+      handleNext(data[emailName]);
     })(event);
   };
 

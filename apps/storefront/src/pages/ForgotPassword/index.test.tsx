@@ -172,7 +172,7 @@ describe('when captcha is enabled', () => {
     captchaResponse(
       {
         payload: 'foo-bar',
-        type: 'captcha-success',
+        type: 'CAPTCHA_SUCCESS',
       },
       'https://www.google.com',
       iframe,
@@ -220,7 +220,7 @@ describe('when captcha is enabled', () => {
     captchaResponse(
       {
         payload: 'foo-bar',
-        type: 'captcha-success',
+        type: 'CAPTCHA_SUCCESS',
       },
       'https://www.google.com',
       iframe,
