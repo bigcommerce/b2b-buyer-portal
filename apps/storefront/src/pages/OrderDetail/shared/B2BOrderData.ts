@@ -7,10 +7,6 @@ import {
   B2BOrderData,
   OrderBillings,
   OrderProductItem,
-  OrderShipmentItem,
-  OrderShipmentProductItem,
-  OrderShippedItem,
-  OrderShippingAddressItem,
   OrderShippingsItem,
   OrderSummary,
 } from '../../../types';
@@ -20,17 +16,15 @@ interface CouponInfo {
 }
 
 const getOrderShipping = (data: B2BOrderData) => {
-  const { shipments, shippingAddress = [], products = [] } = data;
+  const { shipments, shippingAddress, products = [] } = data;
 
   const shipmentsInfo = shipments || [];
-  const shippedItems = shipmentsInfo.map((shipment: OrderShipmentItem) => {
+  const shippedItems = shipmentsInfo.map((shipment) => {
     const { items } = shipment;
 
     const itemsInfo: OrderProductItem[] = [];
-    items.forEach((item: OrderShipmentProductItem) => {
-      const product = products.find(
-        (product: OrderProductItem) => product.id === item.order_product_id,
-      );
+    items.forEach((item) => {
+      const product = products.find((product) => product.id === item.order_product_id);
       if (product) {
         itemsInfo.push({
           ...product,
@@ -46,25 +40,24 @@ const getOrderShipping = (data: B2BOrderData) => {
     };
   });
 
-  const shippings: OrderShippingsItem[] = shippingAddress.map(
-    (address: OrderShippingAddressItem) => ({
-      ...address,
-      shipmentItems: [
-        ...shippedItems.filter(
-          (shippedItem: OrderShippedItem) => shippedItem.order_address_id === address.id,
-        ),
-      ],
-      notShip: {
-        itemsInfo: products.filter((product: OrderProductItem) => {
-          const orderProduct = product;
-          orderProduct.not_shipping_number = product.quantity - product.quantity_shipped;
-          return (
-            product.quantity > product.quantity_shipped && address.id === product.order_address_id
-          );
-        }),
-      },
-    }),
-  );
+  const shippingAddresses = shippingAddress === false ? [] : shippingAddress;
+  const shippings: OrderShippingsItem[] = shippingAddresses.map((address) => ({
+    ...address,
+    shipmentItems: [
+      ...shippedItems.filter((shippedItem) => shippedItem.order_address_id === address.id),
+    ],
+    notShip: {
+      itemsInfo: products
+        .filter(
+          (product) =>
+            product.quantity > product.quantity_shipped && address.id === product.order_address_id,
+        )
+        .map((product) => ({
+          ...product,
+          not_shipping_number: product.quantity - product.quantity_shipped,
+        })),
+    },
+  }));
 
   return shippings;
 };
@@ -75,7 +68,7 @@ const getOrderBilling = (data: B2BOrderData) => {
   const billings: OrderBillings[] = [
     {
       billingAddress,
-      products,
+      digitalProducts: products.filter((product) => product.type === 'digital'),
     },
   ];
 
@@ -182,7 +175,7 @@ const handleProductQuantity = (data: B2BOrderData) => {
 
   const newProducts: OrderProductItem[] = [];
 
-  products.forEach((product: OrderProductItem) => {
+  products.forEach((product) => {
     const productIndex = newProducts.findIndex(
       (item) => Number(item.variant_id) === Number(product.variant_id),
     );
@@ -203,8 +196,8 @@ const handleProductQuantity = (data: B2BOrderData) => {
 };
 
 const convertB2BOrderDetails = (data: B2BOrderData, b3Lang: LangFormatFunction) => ({
-  shippings: data.orderIsDigital ? [] : getOrderShipping(data),
-  billings: data.orderIsDigital ? getOrderBilling(data) : [],
+  shippings: getOrderShipping(data),
+  billings: getOrderBilling(data),
   history: data.orderHistoryEvent || [],
   poNumber: data.poNumber || '',
   status: data.status,
