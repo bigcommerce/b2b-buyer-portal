@@ -262,7 +262,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                     marginRight: '1rem',
                   }}
                   onClick={() => {
-                    handleUpdateShoppingList(ShoppingListStatus.Deleted);
+                    handleUpdateShoppingList(ShoppingListStatus.Rejected);
                   }}
                 >
                   {b3Lang('shoppingList.header.reject')}
