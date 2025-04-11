@@ -14,7 +14,7 @@ import { ShoppingListStatus } from '@/types/shoppingList';
 import { verifyLevelPermission, verifySubmitShoppingListSubsidiariesPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
-import { ShoppingStatus } from '../../ShoppingLists/ShoppingStatus';
+import { ShoppingListStatusTag } from '../../ShoppingLists/ShoppingListStatusTag';
 
 const StyledCreateName = styled('div')(() => ({
   display: 'flex',
@@ -205,7 +205,7 @@ function ShoppingDetailHeader(props: ShoppingDetailHeaderProps) {
                     m: isMobile ? '10px 0' : '0',
                   }}
                 >
-                  {shoppingListInfo && <ShoppingStatus status={shoppingListInfo?.status} />}
+                  {shoppingListInfo && <ShoppingListStatusTag status={shoppingListInfo?.status} />}
                 </Typography>
               )}
           </Box>

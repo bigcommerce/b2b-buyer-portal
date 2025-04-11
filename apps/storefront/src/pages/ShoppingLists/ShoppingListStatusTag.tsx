@@ -1,9 +1,13 @@
+import { useB3Lang } from '@b3/lang';
+
 import { B3Tag } from '@/components';
 import { ShoppingListStatus } from '@/types/shoppingList';
 
-import { useB3Lang } from '@b3/lang';
+interface Props {
+  status: number | string;
+}
 
-const getStatusList = () => {
+export function ShoppingListStatusTag({ status }: Props) {
   const b3Lang = useB3Lang();
 
   const approveStatus = {
@@ -43,15 +47,13 @@ const getStatusList = () => {
     textColor: '#FFFFFF',
   };
 
-  return [approveStatus, readyForApprovalStatus, draftStatus, rejectedStatus, deletedStatus];
-};
-
-interface ShoppingStatusProps {
-  status: number | string;
-}
-
-export function ShoppingStatus({ status }: ShoppingStatusProps) {
-  const statusList = getStatusList();
+  const statusList = [
+    approveStatus,
+    readyForApprovalStatus,
+    draftStatus,
+    rejectedStatus,
+    deletedStatus,
+  ];
   const statusItem = statusList.find((item) => Number(item.value) === Number(status));
 
   if (statusItem) {
