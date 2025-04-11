@@ -19,6 +19,7 @@ interface QuoteCheckout {
   location: Location;
   quoteId: string;
   navigate?: NavigateFunction;
+  productList: any[];
 }
 
 export const handleQuoteCheckout = async ({
