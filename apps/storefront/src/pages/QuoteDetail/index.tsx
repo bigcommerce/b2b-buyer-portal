@@ -168,8 +168,8 @@ function QuoteDetail() {
   const b3Lang = useB3Lang();
 
   const [quoteDetail, setQuoteDetail] = useState<any>({});
-  const [productList, setProductList] = useState<any>([]);
-  const [fileList, setFileList] = useState<any>([]);
+  const [productList, setProductList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<any[]>([]);
   const [isHandleApprove, setHandleApprove] = useState<boolean>(false);
 
   const [isHideQuoteCheckout, setIsHideQuoteCheckout] = useState<boolean>(true);
@@ -365,7 +365,7 @@ function QuoteDetail() {
         shipping: quote.shippingTotal,
         totalAmount: quote.totalAmount,
       });
-      setProductList(productsWithMoreInfo);
+      setProductList(productsWithMoreInfo as any[]);
 
       if (Number(quote.shippingTotal) === 0) {
         setQuoteDetailTax(Number(quote.taxTotal));
@@ -809,6 +809,7 @@ function QuoteDetail() {
           isEnableProductShowCheckout() && (
             <QuoteDetailFooter
               quoteId={quoteDetail.id}
+              productList={productList}
               role={role}
               isAgenting={isAgenting}
               status={quoteDetail.status}

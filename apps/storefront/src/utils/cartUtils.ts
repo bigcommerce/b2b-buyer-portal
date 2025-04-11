@@ -21,9 +21,9 @@ export const handleSplitOptionId = (id: string | number) => {
 
 const cartLineItems = (products: any) => {
   const items = products.map((product: any) => {
-    const { newSelectOptionList, quantity, optionSelections, allOptions = [] } = product;
+    const { newSelectOptionList, quantity, optionSelections, allOptions = [], options: originalOptions } = product;
     let options = [];
-    options = newSelectOptionList || optionSelections;
+    options = newSelectOptionList || optionSelections || originalOptions;
     const selectedOptions = options.reduce(
       (a: any, c: any) => {
         const optionValue = parseInt(c.optionValue, 10);

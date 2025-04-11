@@ -284,6 +284,22 @@ const deleteCartQuery = `mutation deleteCart($deleteCartInput: DeleteCartInput!)
   }
 }`;
 
+const createCartRedirect = ` mutation CheckoutRedirectMutation($cartId: String!) {
+    cart {
+      createCartRedirectUrls(input: { cartEntityId: $cartId }) {
+        errors {
+          ... on NotFoundError {
+            __typename
+          }
+        }
+        redirectUrls {
+          redirectedCheckoutUrl
+        }
+      }
+    }
+  }`
+
+
 export const getCart = async (cartId?: string): Promise<any> => {
   if (platform === 'bigcommerce') {
     const cartInfo = await B3Request.graphqlBC({
@@ -319,6 +335,11 @@ export const createNewCart = (data: CreateCartInput): any =>
         query: createCart,
         variables: data,
       });
+
+export const createCartRedirectUrls = async (cartId: string) => B3Request.graphqlBCProxy({
+  query: createCartRedirect,
+  variables: { cartId },
+})
 
 export const addNewLineToCart = (data: any): any =>
   platform === 'bigcommerce'

@@ -49,9 +49,12 @@ export function CatalystLogin() {
   const loginFlag = searchParams.get('loginFlag');
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      window.location.href = '/login';
-    }, 3000);
+    const timeout = setTimeout(
+      () => {
+        window.location.href = '/login';
+      },
+      import.meta.env.VITE_IS_LOCAL_ENVIRONMENT ? 30000 : 3000,
+    );
 
     return () => {
       clearTimeout(timeout);
