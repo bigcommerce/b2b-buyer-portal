@@ -5,7 +5,7 @@ import {
   bcQuoteCheckout,
   getBCStorefrontProductSettings,
 } from '@/shared/service/b2b';
-import { createCartRedirectUrls, createNewCart } from '@/shared/service/bc/graphql/cart';
+import { createNewCart } from '@/shared/service/bc/graphql/cart';
 import { setQuoteDetailToCheckoutUrl, store } from '@/store';
 import { setQuoteToStorage } from '@/utils/b3checkout';
 import b2bLogger from '@/utils/b3Logger';
@@ -19,6 +19,7 @@ interface QuoteCheckout {
   location: Location;
   quoteId: string;
   navigate?: NavigateFunction;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   productList: any[];
 }
 
