@@ -1,48 +1,49 @@
 import { B3Tag } from '@/components';
-import { rolePermissionSelector, useAppSelector } from '@/store';
 import { ShoppingListStatus } from '@/types/shoppingList';
 
-import { useGetFilterShoppingListStatus } from './config';
+import { useB3Lang } from '@b3/lang';
 
-export const useGetStatus = () => {
-  const getFilterShoppingListStatus = useGetFilterShoppingListStatus();
+const getStatusList = () => {
+  const b3Lang = useB3Lang();
 
-  return (submitShoppingListPermission: boolean) => {
-    const statusArr = getFilterShoppingListStatus(submitShoppingListPermission);
-
-    const newStatus = statusArr.map((item) => {
-      if (Number(item.value) === ShoppingListStatus.Approved) {
-        return {
-          color: '#C4DD6C',
-          textColor: 'black',
-          ...item,
-        };
-      }
-
-      if (Number(item.value) === ShoppingListStatus.ReadyForApproval) {
-        return {
-          color: '#F4CC46',
-          textColor: 'black',
-          ...item,
-        };
-      }
-
-      if (Number(item.value) === ShoppingListStatus.Draft) {
-        return {
-          color: '#899193',
-          textColor: '#FFFFFF',
-          ...item,
-        };
-      }
-      return {
-        color: '#7A6041',
-        textColor: '#FFFFFF',
-        ...item,
-      };
-    });
-
-    return newStatus;
+  const approveStatus = {
+    value: ShoppingListStatus.Approved,
+    label: b3Lang('global.shoppingLists.status.approved'),
+    color: '#C4DD6C',
+    textColor: 'black',
   };
+
+  const readyForApprovalStatus = {
+    value: ShoppingListStatus.ReadyForApproval,
+    label: b3Lang('global.shoppingLists.status.readyForApproval'),
+    color: '#F4CC46',
+    textColor: 'black',
+  };
+
+  const draftStatus = {
+    value: ShoppingListStatus.Draft,
+    label: b3Lang('global.shoppingLists.status.draft'),
+    color: '#899193',
+    textColor: '#FFFFFF',
+  };
+
+  const rejectedStatus = {
+    value: ShoppingListStatus.Rejected,
+    label: b3Lang('global.shoppingLists.status.rejected'),
+    color: '#7A6041',
+    textColor: '#FFFFFF',
+  };
+
+  // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
+  // Now when we want to fetch rejected shopping lists, we need to fetch deleted ones as well
+  const deletedStatus = {
+    value: ShoppingListStatus.Deleted,
+    label: b3Lang('global.shoppingLists.status.rejected'),
+    color: '#7A6041',
+    textColor: '#FFFFFF',
+  };
+
+  return [approveStatus, readyForApprovalStatus, draftStatus, rejectedStatus, deletedStatus];
 };
 
 interface ShoppingStatusProps {
@@ -50,10 +51,7 @@ interface ShoppingStatusProps {
 }
 
 export function ShoppingStatus({ status }: ShoppingStatusProps) {
-  const { submitShoppingListPermission } = useAppSelector(rolePermissionSelector);
-  const getStatus = useGetStatus();
-
-  const statusList = getStatus(submitShoppingListPermission);
+  const statusList = getStatusList();
   const statusItem = statusList.find((item) => Number(item.value) === Number(status));
 
   if (statusItem) {
