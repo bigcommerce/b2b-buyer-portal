@@ -103,6 +103,7 @@ function CreateShoppingList({ open, onChange, onClose }: CreateShoppingListProps
           }}
         >
           <B3CustomForm
+            // @ts-expect-error B3CustomForm used to take formFields as any
             formFields={getList(b3Lang)}
             errors={errors}
             control={control}
