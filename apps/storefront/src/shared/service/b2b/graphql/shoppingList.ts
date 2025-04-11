@@ -1,6 +1,7 @@
 import { convertArrayToGraphql, convertObjectToGraphql } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
+import { ShoppingListStatus } from '@/types/shoppingList';
 
 interface ShoppingListParams {
   id: string | number;
@@ -14,6 +15,12 @@ interface ShoppingListParams {
 
 const getStatus = (status: any): string => {
   if (typeof status === 'number') {
+    // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
+    // Now when we want to fetch rejected shopping lists, we need to fetch deleted ones as well
+    if (status === ShoppingListStatus.Rejected) {
+      return `status: [${ShoppingListStatus.Deleted}, ${ShoppingListStatus.Rejected}]`;
+    }
+
     return `status: ${status}`;
   }
   if (typeof status === 'object') {

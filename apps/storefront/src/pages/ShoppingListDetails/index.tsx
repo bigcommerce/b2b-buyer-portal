@@ -211,6 +211,9 @@ function ShoppingListDetails({ setOpenPage }: PageProps) {
 
   const isReadForApprove =
     shoppingListInfo?.status === ShoppingListStatus.ReadyForApproval ||
+    shoppingListInfo?.status === ShoppingListStatus.Rejected ||
+    // Status code 20 was previously misused as Rejected in the frontend, which is actually Deleted
+    // We need to add Deleted here so that the shopping lists that were previously rejected remain the same behavior
     shoppingListInfo?.status === ShoppingListStatus.Deleted;
 
   const goToShoppingLists = () => {
