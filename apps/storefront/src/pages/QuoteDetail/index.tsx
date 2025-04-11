@@ -582,6 +582,7 @@ function QuoteDetail() {
         role,
         location,
         navigate,
+        productList,
       });
     } finally {
       setQuoteCheckoutLoading(false);
