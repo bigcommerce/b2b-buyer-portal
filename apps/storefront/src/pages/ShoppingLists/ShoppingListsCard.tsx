@@ -18,7 +18,7 @@ import { displayFormat, verifyLevelPermission } from '@/utils';
 import { b2bPermissionsMap } from '@/utils/b3CheckPermissions/config';
 
 import { ShoppingListsItemsProps } from './config';
-import { ShoppingStatus } from './ShoppingStatus';
+import { ShoppingListStatusTag } from './ShoppingListStatusTag';
 
 export interface OrderItemCardProps {
   item: ShoppingListsItemsProps;
@@ -146,7 +146,7 @@ function ShoppingListsCard(props: OrderItemCardProps) {
                   pb: '25px',
                 }}
               >
-                <ShoppingStatus status={shoppingList.status} />
+                <ShoppingListStatusTag status={shoppingList.status} />
               </Box>
             )}
           <Box

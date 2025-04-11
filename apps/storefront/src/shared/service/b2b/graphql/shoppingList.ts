@@ -1,7 +1,7 @@
+import { ShoppingListStatus } from '@/types/shoppingList';
 import { convertArrayToGraphql, convertObjectToGraphql } from '@/utils';
 
 import B3Request from '../../request/b3Fetch';
-import { ShoppingListStatus } from '@/types/shoppingList';
 
 interface ShoppingListParams {
   id: string | number;
