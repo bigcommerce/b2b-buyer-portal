@@ -58,7 +58,7 @@ export interface GetFilterMoreListProps {
   idLang?: string;
 }
 
-export const useGetFilterShoppingListStatus = () => {
+const useGetFilterShoppingListStatus = () => {
   const b3Lang = useB3Lang();
 
   return (submitShoppingListPermission: boolean) => {
