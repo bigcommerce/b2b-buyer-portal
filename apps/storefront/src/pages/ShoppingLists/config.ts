@@ -67,7 +67,7 @@ export const useGetFilterShoppingListStatus = () => {
       label: b3Lang('global.shoppingLists.status.draft'),
     };
     const rejectedStatus = {
-      value: ShoppingListStatus.Deleted,
+      value: ShoppingListStatus.Rejected,
       label: b3Lang('global.shoppingLists.status.rejected'),
     };
 
