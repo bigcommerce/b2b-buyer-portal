@@ -329,7 +329,7 @@ it('hides delete button for shopping lists that are approved or ready for approv
   const companyState = buildCompanyStateWith({
     customer,
     companyInfo,
-    permissions: [{ code: 'create_shopping_list', permissionLevel: 1 }],
+    permissions: [{ code: 'submit_shopping_list_for_approval', permissionLevel: 1 }],
   });
 
   renderWithProviders(<ShoppingLists />, {
