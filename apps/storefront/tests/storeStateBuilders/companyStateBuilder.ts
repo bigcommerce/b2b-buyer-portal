@@ -1,0 +1,52 @@
+import { PersistPartial } from 'redux-persist/es/persistReducer';
+import { builder } from 'tests/builder';
+
+import { CompanyState } from '@/store/slices/company';
+import { CompanyStatus, CustomerRole, LoginTypes, UserTypes } from '@/types';
+
+export const buildCompanyStateWith = builder<CompanyState & PersistPartial>(() => ({
+  companyInfo: {
+    id: '',
+    companyName: '',
+    status: CompanyStatus.DEFAULT,
+  },
+  customer: {
+    id: 0,
+    phoneNumber: '',
+    firstName: '',
+    lastName: '',
+    emailAddress: '',
+    customerGroupId: 0,
+    role: CustomerRole.GUEST,
+    userType: UserTypes.DOES_NOT_EXIST,
+    loginType: LoginTypes.WAITING_LOGIN,
+    companyRoleName: '',
+  },
+  tokens: {
+    B2BToken: '',
+    bcGraphqlToken: '',
+    currentCustomerJWT: '',
+  },
+  permissions: [],
+  companyHierarchyInfo: {
+    isEnabledCompanyHierarchy: true,
+    isHasCurrentPagePermission: true,
+    selectCompanyHierarchyId: '',
+    companyHierarchyList: [],
+    companyHierarchyAllList: [],
+    companyHierarchySelectSubsidiariesList: [],
+  },
+  pagesSubsidiariesPermission: {
+    order: false,
+    invoice: false,
+    addresses: false,
+    userManagement: false,
+    shoppingLists: false,
+    quotes: false,
+    companyHierarchy: false,
+  },
+  _persist: {
+    version: 1,
+    rehydrated: true,
+  },
+}));
